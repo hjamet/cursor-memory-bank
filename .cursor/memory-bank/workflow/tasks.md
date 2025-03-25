@@ -1,5 +1,11 @@
 # In Progress
 
+## Corrections
+- [ ] **Corriger le chemin dans tests.mdc** : Modifier la référence à `.cursor/memory-bank/system/tests.md` vers `.cursor/memory-bank/workflow/tests.md` dans le fichier `.cursor/rules/tests.mdc` (instruction 3).
+- [ ] **Améliorer les conditions de transition dans tests.mdc** : Ajouter des conditions spécifiques pour la première exécution en modifiant la section "Next Rules" du fichier `.cursor/rules/tests.mdc`.
+- [ ] **Ajouter une détection de cycles** : Implémenter un mécanisme pour détecter et éviter les boucles infinies dans le workflow en ajoutant un compteur d'itérations ou une vérification d'état.
+- [ ] **Clarifier les conditions de finalisation** : Définir précisément dans la règle `.cursor/rules/context-update.mdc` quand le workflow est considéré comme terminé.
+
 ## Évaluation du workflow
 - [x] **Suivre le workflow complet de la machine à états** : Parcours de l'ensemble des règles du système en suivant les transitions définies dans "Next Rules".
 - [x] **Identifier les incohérences dans les règles** : Examen de chaque règle pour repérer les instructions ambiguës, contradictoires ou incomplètes.
@@ -27,6 +33,12 @@
 - [ ] **Mécanisme de nettoyage des informations obsolètes** : Implémenter un système pour identifier et supprimer les informations qui ne sont plus pertinentes.
 
 # Done
+
+## Corrections
+- [x] **Corriger le chemin dans tests.mdc** : Modification de la référence à `.cursor/memory-bank/system/tests.md` vers `.cursor/memory-bank/workflow/tests.md` dans le fichier `.cursor/rules/tests.mdc` (instruction 3).
+- [x] **Améliorer les conditions de transition dans tests.mdc** : Ajout de conditions spécifiques pour la première exécution en modifiant la section "Next Rules" du fichier `.cursor/rules/tests.mdc`.
+- [x] **Ajouter une détection de cycles** : Implémentation d'un mécanisme pour détecter et éviter les boucles infinies dans le workflow en ajoutant des instructions dans le fichier `system.mdc`.
+- [x] **Clarifier les conditions de finalisation** : Définition précise dans la règle `.cursor/rules/context-update.mdc` des critères qui déterminent quand le workflow est considéré comme terminé.
 
 ## Mise en place
 - [x] **Créer la structure de base du Memory Bank** : Mise en place des dossiers et fichiers requis pour le fonctionnement du système. 
