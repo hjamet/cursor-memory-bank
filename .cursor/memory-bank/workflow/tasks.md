@@ -11,6 +11,8 @@
 - [x] **Simplifier la règle custom d'erreur** : Simplification du fichier state-machine.mdc en se concentrant uniquement sur les informations méconnues par l'agent.
 - [x] **Assurer le redémarrage du workflow** : Ajout d'une instruction explicite dans system.mdc pour spécifier que le workflow doit redémarrer à chaque nouveau message.
 - [x] **Empêcher la finalisation prématurée** : Modification de la logique de finalisation pour que le workflow ne se termine jamais tant qu'il reste des tâches ou des tests échoués.
+- [x] **Harmoniser le format des règles** : Harmonisation des références aux sections de tâches entre task-decomposition et context-update.
+- [x] **Synchroniser les mises à jour des fichiers** : Ajout de précisions dans context-update pour assurer une meilleure cohérence entre les mises à jour de tasks.md et des fichiers de contexte.
 
 ## Corrections techniques
 - [x] **Corriger le chemin dans tests.mdc** : Modification de la référence à `.cursor/memory-bank/system/tests.md` vers `.cursor/memory-bank/workflow/tests.md` dans le fichier `.cursor/rules/tests.mdc` (instruction 3).
