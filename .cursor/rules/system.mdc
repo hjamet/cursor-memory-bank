@@ -39,4 +39,4 @@ Exemple: "# Implementation : 2 - Récupération du contexte"
 
 Après avoir terminé les opérations d'une règle, choisis la règle suivante la plus appropriée parmi les options listées dans "Next Rules" et demande-la explicitement avec `@cursor-rules [nom-de-la-règle]`.
 
-Pour démarrer le workflow, utilise la commande "iterate" dans le chat. Cela déclenchera le processus en commençant par `@cursor-rules context-loading`.
+Pour démarrer le workflow, commence par appeler la règle context-loading
