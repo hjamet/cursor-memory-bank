@@ -1,5 +1,9 @@
 # In Progress
 
+## 1. Optimisation du workflow Memory Bank
+1.1. [x] **Limiter la lecture des fichiers dans context-loading** : Modifier la règle context-loading.mdc pour limiter explicitement la lecture aux trois fichiers spécifiés et empêcher la lecture de tasks.md ou d'autres fichiers du dossier workflow.
+1.2. [x] **Corriger la syntaxe d'invocation des règles** : Mettre à jour la syntaxe d'appel des règles dans tous les fichiers concernés pour utiliser le format correct `@cursor-rules fetch [nom-de-la-règle]` au lieu de `@cursor-rules [nom-de-la-règle]`.
+
 # ToDo
 
 # Done

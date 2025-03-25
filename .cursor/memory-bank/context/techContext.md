@@ -26,8 +26,15 @@ Memory Bank utilise une structure de fichiers organisée et fonctionne comme une
 
 ## Workflow
 - Appel obligatoire de la règle suivante après chaque règle
-- Syntaxe explicite: @cursor-rules [nom-de-la-règle]
+- ⚠️ IMPORTANT: Syntaxe explicite: @cursor-rules fetch [nom-de-la-règle]
+- ⚠️ NE JAMAIS UTILISER: @cursor-rules [nom-de-la-règle] (sans le mot "fetch")
 - Exception unique: finalisation par context-update
+
+## Restrictions
+- Dans context-loading: Lire UNIQUEMENT les trois fichiers de contexte spécifiés
+- Ne pas lire tasks.md ou d'autres fichiers du workflow dans context-loading
+- Limiter les fichiers à 200 lignes maximum
+- Respecter la structure des dossiers avec src/ et tests/
 
 ## Dépendances
 - Curl: Téléchargement du script d'installation

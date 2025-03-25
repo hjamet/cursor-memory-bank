@@ -30,4 +30,8 @@
 
 - ✅ **Test du script d'installation curl** : Le script d'installation install.sh a été testé dans un environnement isolé - Tests complets vérifiant la création du dossier .cursor, sa structure, et le comportement avec un dossier préexistant
 
-- ✅ **Test de transition vers la règle Tests** : Correction du problème de workflow où l'implémentation se terminait sans appeler la règle Tests - Ajout d'une évaluation plus stricte pour déterminer si une fonctionnalité est "testable" 
+- ✅ **Test de transition vers la règle Tests** : Correction du problème de workflow où l'implémentation se terminait sans appeler la règle Tests - Ajout d'une évaluation plus stricte pour déterminer si une fonctionnalité est "testable"
+
+- ✅ **Test de restriction de lectures dans context-loading** : La règle context-loading.mdc a été modifiée pour explicitement limiter la lecture aux trois fichiers de contexte spécifiés - Des avertissements ont été ajoutés pour empêcher la lecture de tasks.md ou d'autres fichiers du dossier workflow
+
+- ✅ **Test de correction de la syntaxe d'invocation des règles** : La syntaxe d'appel des règles a été corrigée dans system.mdc, implementation.mdc, tests.mdc, context-update.mdc et techContext.md pour utiliser `@cursor-rules fetch [nom-de-la-règle]` - La documentation met désormais en garde contre l'utilisation de l'ancienne syntaxe sans le mot "fetch" 
