@@ -16,8 +16,9 @@ Analyser en détail la requête de l'utilisateur, explorer le code existant et r
 2. Créer une représentation arborescente du code:
    - Inclure tous les fichiers et symboles (classes, fonctions, variables) pertinents
    - Ajouter une courte description en commentaire pour chaque élément
-   - Marquer clairement les éléments à modifier ou à créer
+   - Marquer clairement les éléments à modifier ou à créer (sans mentionner les fichiers Memory Bank)
    - Organiser l'arborescence de manière logique (par module, fonctionnalité, etc.)
+   - Se concentrer uniquement sur les fichiers de l'application, pas sur les fichiers de Memory Bank
 
 3. Rechercher des informations complémentaires sur internet si nécessaire:
    - Consulter la documentation des bibliothèques utilisées
@@ -34,6 +35,7 @@ Analyser en détail la requête de l'utilisateur, explorer le code existant et r
 - Distinguer visuellement les éléments existants des éléments à créer
 - Citer les sources des informations externes consultées
 - Adapter la recherche au contexte technique du projet
+- IMPORTANT: Ne jamais mentionner les changements prévus aux fichiers memory bank (.cursor/memory-bank/*)
 
 ## Next Rules
 - `task-decomposition` - Pour décomposer la requête en tâches spécifiques

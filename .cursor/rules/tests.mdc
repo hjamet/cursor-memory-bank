@@ -33,7 +33,7 @@ Créer et exécuter des tests pour les fonctionnalités implémentées, puis ana
    - Évaluer les résultats des tests pour déterminer la règle suivante
    - Si au moins un test s'est amélioré, appeler la règle `context-update`
    - Si aucun test ne s'est amélioré, appeler la règle `fix`
-   - Utiliser TOUJOURS la syntaxe explicite: `@cursor-rules [nom-de-la-règle]`
+   - Utiliser TOUJOURS la syntaxe explicite: `@cursor-rules fetch [nom-de-la-règle]`
 
 ## Précisions
 - Tous les scripts de test doivent être placés dans le dossier `tests/`

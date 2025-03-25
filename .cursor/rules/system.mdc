@@ -64,7 +64,10 @@ Pour éviter les boucles infinies:
 - Tu ne dois JAMAIS terminer ton exécution sans appeler la règle suivante avec la syntaxe explicite
 - La seule exception est lorsque la règle context-update détermine que le workflow est terminé
 - Même dans ce cas, tu dois explicitement mentionner: "Le workflow est terminé, aucune règle suivante à appeler."
-- La syntaxe d'appel doit toujours être: `@cursor-rules [nom-de-la-règle]`
+- La syntaxe d'appel doit toujours être: 
+  ```
+  @cursor-rules fetch [nom-de-la-règle]
+  ```
 - Ne présume JAMAIS que tu te souviendras de reprendre le workflow sans appel explicite
 
-Après avoir terminé les opérations d'une règle, choisis la règle suivante la plus appropriée parmi les options listées dans "Next Rules" et demande-la explicitement avec `@cursor-rules [nom-de-la-règle]`.
+Après avoir terminé les opérations d'une règle, choisis la règle suivante la plus appropriée parmi les options listées dans "Next Rules" et demande-la explicitement avec `@cursor-rules fetch [nom-de-la-règle]`.

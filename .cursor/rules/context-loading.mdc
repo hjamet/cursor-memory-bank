@@ -1,5 +1,5 @@
 ---
-description: [system] - Chargement du contexte du projet et préparation de l’environnement de travail
+description: [system] - Chargement du contexte du projet et préparation de l'environnement de travail
 globs: 
 alwaysApply: false
 ---
@@ -11,6 +11,7 @@ Charger ou créer les fichiers de contexte du projet pour établir une compréhe
    - `.cursor/memory-bank/context/projectbrief.md`
    - `.cursor/memory-bank/context/activeContext.md`
    - `.cursor/memory-bank/context/techContext.md`
+   - ⚠️ IMPORTANT: Ne PAS lire d'autres fichiers comme tasks.md ou d'autres fichiers du dossier workflow
 
 2. Si les fichiers n'existent pas:
    - Parcourir le projet pour comprendre sa structure et son objectif
@@ -26,6 +27,8 @@ Charger ou créer les fichiers de contexte du projet pour établir une compréhe
 - `techContext.md` doit lister les technologies, frameworks et dépendances utilisés
 - Utiliser des recherches sémantiques pour explorer le projet si nécessaire
 - Créer une structure claire avec des titres et sous-titres dans les fichiers
+- ⚠️ IMPORTANT: Se limiter strictement aux trois fichiers de contexte mentionnés dans l'instruction 1
+- ⚠️ IMPORTANT: Ne PAS lire le fichier tasks.md ou tout autre fichier du dossier workflow pendant cette règle
 
 ## Templates pour les fichiers de contexte
 
