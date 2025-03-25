@@ -1,0 +1,40 @@
+---
+description: [context-loading, user-preference-saving] - Analyse approfondie de la requête utilisateur et du code existant
+globs: 
+alwaysApply: false
+---
+
+## TLDR
+Analyser en détail la requête de l'utilisateur, explorer le code existant et rechercher des informations complémentaires pour préparer une implémentation efficace.
+
+## Instructions
+1. Parcourir le code pour identifier les fichiers et symboles concernés:
+   - Effectuer une recherche sémantique basée sur les mots-clés de la requête
+   - Examiner les fichiers identifiés et leurs dépendances
+   - Lire attentivement le code des fichiers concernés pour comprendre leur fonctionnement
+
+2. Créer une représentation arborescente du code:
+   - Inclure tous les fichiers et symboles (classes, fonctions, variables) pertinents
+   - Ajouter une courte description en commentaire pour chaque élément
+   - Marquer clairement les éléments à modifier ou à créer
+   - Organiser l'arborescence de manière logique (par module, fonctionnalité, etc.)
+
+3. Rechercher des informations complémentaires sur internet si nécessaire:
+   - Consulter la documentation des bibliothèques utilisées
+   - Rechercher des algorithmes ou patterns pertinents
+   - Identifier les meilleures pratiques pour le type d'implémentation demandé
+   - Vérifier les approches similaires dans d'autres projets ou la littérature
+
+## Précisions
+- Utiliser des recherches sémantiques précises pour trouver tous les fichiers pertinents
+- Ne pas se limiter aux fichiers explicitement mentionnés dans la requête
+- Explorer les dépendances et les relations entre les fichiers
+- Inclure dans l'arborescence les imports et les relations entre composants
+- Présenter l'arborescence de manière claire et lisible avec des indentations cohérentes
+- Distinguer visuellement les éléments existants des éléments à créer
+- Citer les sources des informations externes consultées
+- Adapter la recherche au contexte technique du projet
+
+## Next Rules
+- `task-decomposition` - Pour décomposer la requête en tâches spécifiques
+- `implementation` - Pour passer directement à l'implémentation si la requête est simple
