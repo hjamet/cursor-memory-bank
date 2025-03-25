@@ -35,4 +35,5 @@ Implémenter les tâches d'une section prioritaire en suivant une approche méth
 - Optimiser le code lorsque c'est pertinent, sans sur-optimiser
 
 ## Next Rules
-- `tests` : Implémentation et execution des tests
+- `tests` : Implémentation et execution des tests si au moins une nouvelle fonctionnalité est "testable"
+- `context-update` : Si aucune modification ne nécessite de test.
