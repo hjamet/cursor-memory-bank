@@ -1,0 +1,53 @@
+---
+description: [implementation] - Création, exécution et analyse des tests pour les fonctionnalités implémentées
+globs: 
+alwaysApply: false
+---
+## TLDR
+Créer et exécuter des tests pour les fonctionnalités implémentées, puis analyser et documenter les résultats dans le fichier tests.md.
+
+## Instructions
+1. Pour chaque symbole (fonction, classe, méthode) créé ou modifié lors de l'implémentation:
+   - Concevoir des tests unitaires couvrant le comportement normal
+   - Implémenter les tests dans les fichiers de test appropriés
+   - S'assurer que les tests sont clairs et bien documentés
+   - Inclure des assertions précises avec des messages d'erreur explicites
+
+2. Exécuter les tests:
+   - Lancer les tests unitaires pour les fonctionnalités implémentées
+   - Capturer les résultats de l'exécution (succès, échecs, avertissements)
+   - Noter les messages d'erreur ou d'avertissement
+
+3. Analyser les résultats des tests:
+   - Lire le fichier `.cursor/memory-bank/system/tests.md` s'il existe
+   - Comparer les nouveaux résultats avec les précédents
+   - Identifier les améliorations ou régressions
+
+4. Mettre à jour le fichier tests.md:
+   - Créer le fichier s'il n'existe pas
+   - Ajouter les nouveaux résultats de tests selon le format spécifié
+   - Inclure une analyse de l'évolution pour chaque test
+   - Sauvegarder les modifications
+
+## Précisions
+- Créer des tests qui vérifient le comportement attendu, pas l'implémentation
+- Inclure des cas de test pour le comportement normal et les cas limites simples
+- Utiliser des noms de test descriptifs qui expliquent ce qui est testé
+- Structurer les tests selon les conventions du projet
+- Documenter clairement l'objectif de chaque test
+- Toujours ajouter une explication sur l'évolution du statut d'un test, que ce soit positif ou négatif
+- Utiliser les emojis appropriés pour indiquer le statut des tests
+- Fournir des explications détaillées pour les échecs ou avertissements
+
+## Format de tests.md
+```
+# Fichier de tests
+
+- ✅ **[Titre du test réussi]** : Test passé correctement - [Évolution par rapport au test précédent]
+- ⚠️ **[Titre du test avec avertissement]** : [Explication du warning et ce qui est bizarre] - [Évolution par rapport au test précédent]
+- ❌ **[Titre du test échoué]** : [Explication détaillée de l'échec] - [Évolution par rapport au test précédent]
+```
+
+## Next Rules
+- `context-update` : Si au moins un test s'est amélioré ou a été un succès pour la première fois sans qu'un autre se déteriore
+- `fix` : Si aucun test ne s'est amélioré ou n'a été un succès pour la première fois
