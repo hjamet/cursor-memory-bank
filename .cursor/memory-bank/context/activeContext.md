@@ -1,22 +1,25 @@
 # Contexte Actif
 
 ## Focus Actuel
-Amélioration du système Memory Bank pour une meilleure expérience utilisateur.
+Renforcement du workflow Memory Bank et réorganisation de la structure du projet.
 
 ## Problèmes Résolus
-- ✅ Règle d'erreur simplifiée: Approche plus ciblée pour les règles custom
-- ✅ Organisation des tâches: Structure cohérente avec sections plus petites
-- ✅ Démarrage workflow: Renforcement de l'instruction de démarrage par context-loading
+- ✅ Structure du projet: Organisation optimisée avec dossiers src/ et tests/
+- ✅ Workflow robuste: Consolidation des règles pour garantir l'appel explicite à la règle suivante
+- ✅ Transition entre règles: Clarification du passage entre Implementation et Tests
+- ⚠️ Mise à jour partielle: Le fichier implementation.mdc n'a pas pu être mis à jour automatiquement
 
 ## Décisions Récentes
-- [25/03/2024] - Création de la structure Memory Bank
-- [25/03/2024] - Mise en place de la machine à états
-- [25/03/2024] - Amélioration du système basée sur le feedback utilisateur
+- [25/03/2024] - Restructuration avec dossiers src/ et tests/
+- [25/03/2024] - Renforcement du mécanisme d'appel des règles
+- [25/03/2024] - Mise à jour des références aux chemins de fichiers
 
 ## Prochaines Étapes
+- Corriger manuellement le fichier implementation.mdc
 - Tester Memory Bank sur des projets réels
 - Recueillir des retours utilisateurs
-- Explorer des extensions possibles du système
 
 ## Notes Importantes
-Maintenir les fichiers de contexte et workflow en dessous de 200 lignes.
+- Maintenir les fichiers de contexte et workflow en dessous de 200 lignes
+- Toujours respecter la structure de dossiers avec src/ et tests/
+- Ne jamais sortir du workflow sans appeler explicitement la règle suivante

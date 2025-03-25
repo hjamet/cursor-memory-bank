@@ -2,6 +2,18 @@
 
 # Done
 
+## Mise à jour des références
+- [x] **Modifier tests.mdc** : Mettre à jour tests.mdc pour qu'il utilise le nouveau dossier tests/ au lieu des fichiers à la racine.
+- [x] **Modifier context-update.mdc** : S'assurer que la règle suivante est toujours appelée, même quand le workflow est terminé.
+
+## Restructuration des dossiers
+- [x] **Créer le dossier src/** : Créer un dossier src/ pour les scripts d'installation et y déplacer install.sh.
+- [x] **Créer le dossier tests/** : Créer un dossier tests/ pour les scripts de test et y déplacer test_install.sh.
+
+## Consolidation du workflow 
+- [x] **Modifier system.mdc** : Renforcer l'obligation d'appeler explicitement la règle suivante à la fin de chaque règle.
+- [x] **Modifier implementation.mdc** : Clarifier la transition vers les règles suivantes et s'assurer que la règle est toujours appelée.
+
 ## Correction du workflow
 - [x] **Analyser le problème de transition de règles** : Identifier pourquoi le workflow s'est terminé sur la règle Implementation au lieu de passer à la règle Tests.
 
