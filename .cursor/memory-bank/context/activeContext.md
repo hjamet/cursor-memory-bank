@@ -13,6 +13,11 @@ Amélioration du workflow Memory Bank avec optimisation des règles et correctio
 - ✅ Workflow robuste: Consolidation des règles pour garantir l'appel explicite à la règle suivante
 - ✅ Mise à jour complète: Le fichier implementation.mdc a été restauré et mis à jour avec la syntaxe correcte
 
+## Problèmes En Cours de Résolution
+- ⚠️ Séparation analyse/correction: Problème détecté où l'agent tente de corriger directement les erreurs de tests au lieu de suivre le workflow tests → fix → implementation
+- ⚠️ Transition tests → fix: Identification d'une faiblesse dans les règles qui permet à l'agent de court-circuiter la transition obligatoire vers la règle fix après l'échec de tests
+- ⚠️ Problèmes de tests: Certains tests échouent en raison de différences dans la formulation des phrases recherchées. Le test 12 relatif aux restrictions de lecture dans system.mdc ne parvient pas à détecter les chaînes attendues malgré leur présence.
+
 ## Décisions Récentes
 - [26/03/2024] - Limitation stricte de la lecture de fichiers dans context-loading
 - [26/03/2024] - Correction de la syntaxe d'invocation des règles
@@ -22,6 +27,11 @@ Amélioration du workflow Memory Bank avec optimisation des règles et correctio
 - [26/03/2024] - Nettoyage du fichier tasks.md
 - [25/03/2024] - Restructuration avec dossiers src/ et tests/
 - [25/03/2024] - Renforcement du mécanisme d'appel des règles
+- [27/03/2024] - Renforcement de la séparation analyse/correction dans le workflow
+- [27/03/2024] - Clarification explicite des critères de transition entre les règles tests et fix
+- [27/03/2024] - Ajout de vérifications supplémentaires du respect des transitions d'état
+- [27/03/2024] - Création d'une nouvelle section dans system.mdc sur la séparation stricte analyse/correction
+- [27/03/2024] - Modification du test 11 pour adapter les chaînes recherchées à celles présentes dans system.mdc
 
 ## Prochaines Étapes
 - Tester Memory Bank sur des projets réels

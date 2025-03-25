@@ -67,6 +67,57 @@ L'agent indique son état actuel dans le workflow avec un format standardisé:
 # [Nom de la règle] : [numéro d'instruction] - [titre de l'instruction]
 ```
 
+### Diagramme des règles
+
+Le diagramme suivant illustre les relations entre les différentes règles et les chemins possibles dans le workflow:
+
+```mermaid
+flowchart TD
+    start([Start]) --> cl(context-loading)
+    %% Nouveaux messages commencent toujours par context-loading
+    new[Nouveau message utilisateur] --> cl
+    
+    %% Liens depuis context-loading
+    cl --> ra(request-analysis)
+    cl --> ups(user-preference-saving)
+    
+    %% Liens depuis request-analysis
+    ra --> td(task-decomposition)
+    ra --> impl(implementation)
+    
+    %% Liens depuis user-preference-saving
+    ups --> ra
+    
+    %% Liens depuis task-decomposition
+    td --> impl
+    td --> cu(context-update)
+    
+    %% Liens depuis implementation
+    impl --> test(tests)
+    impl --> cu
+    
+    %% Liens depuis tests
+    test --> cu
+    test --> fix(fix)
+    
+    %% Liens depuis fix
+    fix --> impl
+    
+    %% Liens depuis context-update
+    cu --> fix
+    cu --> impl
+    cu --> end([End])
+    
+    %% Styles
+    classDef mandatory fill:#f96,stroke:#333,stroke-width:2px
+    classDef optional fill:#9cf,stroke:#333,stroke-width:1px
+    classDef terminal fill:#9f6,stroke:#333,stroke-width:2px
+    
+    class cl,cu mandatory
+    class ra,td,impl,test,fix optional
+    class start,end,new terminal
+```
+
 ## Utilisation
 
 1. Intégrez Memory Bank à votre projet en copiant le dossier `.cursor`

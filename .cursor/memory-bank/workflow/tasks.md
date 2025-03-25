@@ -1,21 +1,40 @@
 # In Progress
 
-## 1. Optimisation du workflow Memory Bank
-1.1. [x] **Limiter la lecture des fichiers dans context-loading** : Modifier la règle context-loading.mdc pour limiter explicitement la lecture aux trois fichiers spécifiés et empêcher la lecture de tasks.md ou d'autres fichiers du dossier workflow.
-1.2. [x] **Corriger la syntaxe d'invocation des règles** : Mettre à jour la syntaxe d'appel des règles dans tous les fichiers concernés pour utiliser le format correct `@cursor-rules fetch [nom-de-la-règle]` au lieu de `@cursor-rules [nom-de-la-règle]`.
+## 1. Correction du comportement de l'agent
+1.1. [x] **Modifier system.mdc pour renforcer l'indication de l'étape** : Ajouter une instruction explicite que l'agent doit afficher le titre de l'étape (dans le format requis) AVANT de consulter tout fichier.
+1.2. [x] **Clarifier les restrictions de lecture de fichiers** : Ajouter un avertissement plus visible dans system.mdc indiquant que l'agent ne doit consulter que les fichiers spécifiquement autorisés par l'étape en cours.
+
+## 2. Amélioration des règles existantes
+2.1. [x] **Renforcer context-loading.mdc** : Ajouter des avertissements supplémentaires pour insister sur l'obligation d'afficher l'étape actuelle avant toute lecture de fichier.
+2.2. [x] **Ajouter un mécanisme de vérification du respect du workflow** : Implémenter un moyen de vérifier que l'agent suit correctement le workflow et affiche correctement l'étape actuelle.
+
+## 4. Documentation du workflow
+4.1. [ ] **Ajouter un diagramme Mermaid au README** : Créer et ajouter un diagramme Mermaid représentant le graphe des différentes règles et leurs relations.
+
+## 5. Analyse des causes du comportement incorrect
+5.1. [ ] **Analyser les causes du comportement incorrect** : Identifier les points faibles dans les règles qui permettent à l'agent de contourner le workflow strict.
+
+## 6. Correction des problèmes de test
+6.1. [ ] **Corriger l'échec du test 11** : Identifier et résoudre le problème qui fait échouer le test 11 relatif aux instructions d'affichage des étapes dans system.mdc. S'assurer que les phrases exactes "Pour CHAQUE instruction numérotée" et "titre de l'instruction" sont présentes et détectées correctement par le test.
+6.2. [ ] **Corriger l'échec du test 12** : Identifier et résoudre le problème qui fait échouer le test 12 relatif aux restrictions de lecture dans system.mdc. S'assurer que les phrases exactes recherchées sont présentes et détectées correctement par le test.
+6.3. [ ] **Vérifier l'encodage des fichiers** : Examiner si des problèmes d'encodage de caractères pourraient affecter la détection des chaînes de texte par les commandes grep dans les tests.
 
 # ToDo
 
 # Done
 
-## 1. Correction du formatting des tâches
+## 1. Optimisation du workflow Memory Bank
+1.1. [x] **Limiter la lecture des fichiers dans context-loading** : Modifier la règle context-loading.mdc pour limiter explicitement la lecture aux trois fichiers spécifiés et empêcher la lecture de tasks.md ou d'autres fichiers du dossier workflow.
+1.2. [x] **Corriger la syntaxe d'invocation des règles** : Mettre à jour la syntaxe d'appel des règles dans tous les fichiers concernés pour utiliser le format correct `@cursor-rules fetch [nom-de-la-règle]` au lieu de `@cursor-rules [nom-de-la-règle]`.
+
+## 2. Correction du formatting des tâches
 1.1. [x] **Modifier task-decomposition.mdc** : Implémenter la numérotation des sections (1., 2., etc.) et sous-numérotation des tâches (1.1, 1.2, etc.) dans le fichier task-decomposition.mdc.
 1.2. [x] **Mettre à jour le format du template** : Modifier le format de template tasks.md pour inclure la numérotation des sections et tâches.
 
-## 2. Nettoyage du fichier tasks.md
+## 3. Nettoyage du fichier tasks.md
 2.1. [x] **Supprimer les tâches non pertinentes** : Nettoyer le fichier tasks.md en supprimant les tâches complétées qui ne sont pas étroitement liées aux tâches actuelles.
 
-## 3. Correction de request-analysis
+## 4. Correction de request-analysis
 3.1. [x] **Modifier request-analysis.mdc** : Supprimer les mentions des changements aux fichiers memory bank lors de la création de l'arborescence du code.
 
 ## Améliorations récentes
@@ -64,4 +83,15 @@
 
 ## Mise en place et évaluation
 - [x] **Créer la structure de base du Memory Bank** : Mise en place des dossiers et fichiers requis pour le fonctionnement du système.
-- [x] **Suivre le workflow complet de la machine à états** : Parcours de l'ensemble des règles du système en suivant les transitions. 
+- [x] **Suivre le workflow complet de la machine à états** : Parcours de l'ensemble des règles du système en suivant les transitions.
+
+## Renforcement du workflow
+- [x] **Améliorer la règle tests.mdc** : Renforcer la section "Appeler obligatoirement la règle suivante" pour insister sur l'interdiction absolue de tenter de corriger les erreurs directement après les tests.
+- [x] **Clarifier les critères de transition** : Rendre explicites les conditions qui déterminent quand appeler fix (échec des tests) vs context-update (succès des tests).
+- [x] **Améliorer la section AUTO-VÉRIFICATION** : Modifier system.mdc pour ajouter une vérification spécifique du respect des transitions d'état, surtout lors de la transition tests → fix.
+- [x] **Ajouter des instructions précises** : Inclure des directives explicites dans system.mdc interdisant toute tentative de correction en dehors de la règle implementation.
+- [x] **Documenter le problème observé** : Créer une section dans activeContext.md détaillant le problème observé où l'agent tente de corriger les erreurs directement au lieu d'appeler la règle fix après l'échec des tests. 
+
+## Résolution des problèmes de test
+- [x] **Modifier le test 11** : Adapter le test des instructions d'affichage des étapes dans system.mdc pour rechercher des chaînes plus susceptibles d'être trouvées dans le fichier.
+- [x] **Corriger l'échec du test 11** : Identifier et résoudre le problème qui fait échouer le test 11 relatif aux instructions d'affichage des étapes dans system.mdc. 
