@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 ## TLDR
-Décomposer la requête de l'utilisateur en tâches concrètes et les organiser dans le fichier tasks.md par sections logiques.
+Décomposer la requête de l'utilisateur en tâches concrètes et les organiser dans le fichier tasks.md par sections logiques numérotées.
 
 ## Instructions
 1. Lire le fichier `.cursor/memory-bank/workflow/tasks.md` s'il existe
@@ -13,10 +13,13 @@ Décomposer la requête de l'utilisateur en tâches concrètes et les organiser 
    - Conserver uniquement les tâches terminées récemment ou liées aux tâches en cours
 
 3. Ajouter les nouvelles tâches issues de l'analyse de la requête:
-   - Organiser les tâches en sections logiques
-   - Décomposer chaque tâche complexe en sous-tâches gérables
+   - Organiser les tâches en sections logiques de taille réduite (1-2 tâches par section maximum)
+   - Numéroter les sections par ordre croissant de résolution optimale (1., 2., 3., etc.)
+   - Sous-numéroter les tâches dans chaque section (1.1, 1.2, 2.1, 2.2, etc.)
+   - Ne pas créer de sections trop grandes qui seraient difficiles à implémenter en une fois
+   - Décomposer chaque tâche complexe en sous-tâches plus petites et gérables
    - Prioriser les tâches selon leur importance et leurs dépendances
-   - Ajouter des descriptions détaillées pour chaque tâche
+   - Ajouter des descriptions concises mais suffisamment détaillées pour chaque tâche
 
 4. Mettre à jour le fichier tasks.md avec la nouvelle structure:
    - Créer le fichier s'il n'existe pas
@@ -26,32 +29,38 @@ Décomposer la requête de l'utilisateur en tâches concrètes et les organiser 
 ## Précisions
 - Chaque tâche doit être spécifique, mesurable et réalisable
 - Regrouper les tâches similaires dans des sections cohérentes
-- Utiliser des descriptions claires et détaillées pour chaque tâche
+- Utiliser des descriptions claires et concises pour chaque tâche
 - Maintenir une distinction nette entre les tâches en cours, à faire et terminées
 - Indiquer les dépendances entre les tâches lorsqu'elles existent
 - Estimer la complexité ou la priorité des tâches si possible
 - S'assurer que le fichier reste lisible et bien structuré
+- IMPORTANT: Limiter à 1-2 tâches par section pour garantir que leur implémentation tienne dans le contexte
+- Privilégier plusieurs petites sections plutôt qu'une grande section avec de nombreuses tâches
+- IMPORTANT: Lors de l'exécution du workflow, toujours indiquer les numéros des tâches en cours de résolution
+- IMPORTANT: Créer les tâches par ordre croissant de résolution optimale, de manière à faciliter l'exécution séquentielle
 
 ## Format de tasks.md
 ```
 # In Progress
 
-## [Nom de la Section 1]
-- [ ] **[Titre de la tâche 1]** : [Description détaillée de la tâche]
-- [ ] **[Titre de la tâche 2]** : [Description détaillée de la tâche]
+## 1. [Nom de la Section 1]
+1.1. [ ] **[Titre de la tâche 1]** : [Description détaillée de la tâche]
+1.2. [ ] **[Titre de la tâche 2]** : [Description détaillée de la tâche]
 
-## [Nom de la Section 2]
-- [ ] **[Titre de la tâche 3]** : [Description détaillée de la tâche]
+## 2. [Nom de la Section 2]
+2.1. [ ] **[Titre de la tâche 3]** : [Description détaillée de la tâche]
+
+## 3. [Nom de la Section 3]
+3.1. [ ] **[Titre de la tâche 4]** : [Description détaillée de la tâche]
 
 # ToDo
 
-## [Nom de la Section 3]
-- [ ] **[Titre de la tâche 4]** : [Description détaillée de la tâche]
-- [ ] **[Titre de la tâche 5]** : [Description détaillée de la tâche]
+## 4. [Nom de la Section 4]
+4.1. [ ] **[Titre de la tâche 5]** : [Description détaillée de la tâche]
 
 # Done
 
-## [Nom de la Section 4]
+## Améliorations récentes
 - [x] **[Titre de la tâche terminée 1]** : [Description détaillée de la tâche]
 - [x] **[Titre de la tâche terminée 2]** : [Description détaillée de la tâche]
 ```

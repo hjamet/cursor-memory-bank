@@ -1,6 +1,22 @@
 # In Progress
 
+# ToDo
+
 # Done
+
+## 1. Correction du formatting des tâches
+1.1. [x] **Modifier task-decomposition.mdc** : Implémenter la numérotation des sections (1., 2., etc.) et sous-numérotation des tâches (1.1, 1.2, etc.) dans le fichier task-decomposition.mdc.
+1.2. [x] **Mettre à jour le format du template** : Modifier le format de template tasks.md pour inclure la numérotation des sections et tâches.
+
+## 2. Nettoyage du fichier tasks.md
+2.1. [x] **Supprimer les tâches non pertinentes** : Nettoyer le fichier tasks.md en supprimant les tâches complétées qui ne sont pas étroitement liées aux tâches actuelles.
+
+## 3. Correction de request-analysis
+3.1. [x] **Modifier request-analysis.mdc** : Supprimer les mentions des changements aux fichiers memory bank lors de la création de l'arborescence du code.
+
+## Améliorations récentes
+- [x] **Consolider la règle system** : Modifier la règle system.mdc pour renforcer le démarrage systématique par context-loading.
+- [x] **Améliorer la mise à jour du contexte** : Optimiser context-update.mdc pour nettoyer les informations inutiles lors des mises à jour.
 
 ## Mise à jour des références
 - [x] **Modifier tests.mdc** : Mettre à jour tests.mdc pour qu'il utilise le nouveau dossier tests/ au lieu des fichiers à la racine.
@@ -32,10 +48,6 @@
 ## Documentation et installation
 - [x] **Créer un README** : Rédiger un fichier README.md détaillant le projet Memory Bank, son utilisation et son installation.
 - [x] **Développer un script d'installation** : Créer un script invocable par curl qui télécharge le .cursor depuis GitHub et le place dans le dossier de travail actuel.
-
-## Amélioration du workflow
-- [x] **Consolider la règle system** : Modifier la règle system.mdc pour renforcer le démarrage systématique par context-loading.
-- [x] **Améliorer la mise à jour du contexte** : Optimiser context-update.mdc pour nettoyer les informations inutiles lors des mises à jour.
 
 ## Corrections structurelles
 - [x] **Corriger l'organisation des tâches dans tasks.md** : Réorganisation du fichier pour éviter les duplications et maintenir une structure cohérente.

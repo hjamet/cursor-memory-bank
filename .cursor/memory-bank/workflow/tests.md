@@ -1,5 +1,11 @@
 # Fichier de tests
 
+- ✅ **Test de numérotation des tâches** : Le système de numérotation des sections (1., 2., etc.) et sous-numérotation des tâches (1.1, 1.2, etc.) a été correctement implémenté dans task-decomposition.mdc - Le format des tâches est maintenant plus structuré et facile à suivre
+
+- ✅ **Test de l'arborescence du code** : La règle request-analysis.mdc a été modifiée pour éviter toute mention des changements aux fichiers memory bank lors de la création de l'arborescence - Instruction explicite ajoutée pour se concentrer uniquement sur les fichiers de l'application
+
+- ✅ **Test de nettoyage des tâches** : Le fichier tasks.md a été nettoyé pour ne conserver que les tâches complétées pertinentes - Meilleure lisibilité et focus sur les tâches actuelles
+
 - ✅ **Test de la structure des dossiers** : Le projet a été correctement organisé avec un dossier src/ pour les scripts d'installation et un dossier tests/ pour les scripts de test - Nouvelle organisation plus claire et conforme aux standards
 
 - ✅ **Test de consolidation du workflow** : Les règles system.mdc, tests.mdc et context-update.mdc ont été mises à jour pour renforcer l'appel explicite aux règles suivantes - Amélioration significative pour éviter les sorties prématurées du workflow
