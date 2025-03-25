@@ -12,17 +12,24 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
    - `.cursor/memory-bank/context/activeContext.md`: Refléter l'état actuel après les modifications
    - `.cursor/memory-bank/context/techContext.md`: Ajouter/modifier les informations techniques si nécessaire
 
-2. Mettre à jour le fichier tasks.md en fonction des résultats des tests:
+2. Nettoyer les fichiers de contexte et workflow:
+   - Supprimer les informations obsolètes ou redondantes
+   - Condenser les sections trop détaillées
+   - S'assurer que chaque fichier reste en dessous de 200 lignes
+   - Privilégier la concision tout en maintenant la clarté
+   - Conserver uniquement les informations essentielles à la compréhension du projet
+
+3. Mettre à jour le fichier tasks.md en fonction des résultats des tests:
    - Déplacer les tâches réussies de "In Progress" vers "Done"
    - Ajouter des détails ou notes basés sur les résultats des tests
    - Ajuster les priorités des tâches restantes si nécessaire
 
-3. Effectuer un commit avec les modifications:
+4. Effectuer un commit avec les modifications:
    - Préparer les fichiers et créer le commit en une seule commande:
      `git add [fichiers] && git commit -m "[message]"`
    - Suivre le format conventional commit avec emoji pour le message
 
-4. Vérifier si le workflow est terminé:
+5. Vérifier si le workflow est terminé:
    - Le workflow ne doit JAMAIS être considéré comme terminé s'il reste des tâches dans "In Progress" ou "ToDo" OU s'il y a au moins un test qui échoue (marqué ❌) ou avec avertissement (marqué ⚠️)
    - Si toutes les tâches sont terminées (c'est-à-dire qu'il n'y a plus AUCUNE tâche dans les sections "In Progress" et "ToDo" du fichier tasks.md) ET que tous les tests passent (TOUS marqués ✅) alors seulement:
      - Présenter une synthèse claire et concise du travail effectué
@@ -39,6 +46,8 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
 - Inclure un emoji approprié au début du message de commit
 - Inclure une référence aux tests réussis dans le message de commit
 - S'assurer que tous les fichiers modifiés sont inclus dans le commit
+- Toujours vérifier que les fichiers ne dépassent pas 200 lignes après les mises à jour
+- Supprimer systématiquement les anciennes entrées d'historique qui ne sont plus pertinentes
 
 ## Format pour le message de commit
 ```
