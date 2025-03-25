@@ -1,0 +1,63 @@
+---
+description: [tests] - Analyse et correction des erreurs détectées lors des tests
+globs: 
+alwaysApply: false
+---
+## TLDR
+Analyser les erreurs de test, créer des tâches de correction et documenter les problèmes récurrents pour éviter de les reproduire.
+
+## Instructions
+1. Identifier et lister les erreurs pour chaque test échoué:
+   - Analyser les messages d'erreur et les traces de pile
+   - Catégoriser les erreurs par type (syntaxe, logique, configuration, etc.)
+   - Déterminer les causes probables de chaque erreur
+
+2. Identifier et parcourir les fichiers concernés:
+   - Localiser précisément les lignes de code problématiques
+   - Examiner le contexte autour du code défaillant
+   - Vérifier les dépendances et les interactions avec d'autres composants
+
+3. Ajouter des tâches de correction à tasks.md:
+   - Créer une nouvelle section "Corrections" dans "In Progress"
+   - Ajouter une tâche détaillée pour chaque erreur à corriger
+   - Inclure les fichiers et symboles concernés
+   - Décrire précisément le problème et la solution envisagée
+
+4. Documenter les erreurs récurrentes ou liées aux bibliothèques:
+   - Pour les erreurs susceptibles d'être reproduites, créer ou mettre à jour une règle
+   - Nommer la règle d'après la bibliothèque ou le type d'erreur
+   - Documenter clairement le fonctionnement correct et les pièges à éviter
+   - Sauvegarder la règle dans `.cursor/rules/custom/errors/`
+
+## Précisions
+- Être méthodique dans l'analyse des erreurs, en allant de la plus critique à la moins importante
+- Documenter les erreurs de manière à faciliter leur résolution future
+- Être spécifique dans la description des tâches de correction
+- Inclure des exemples concrets dans les règles d'erreur
+- Organiser les tâches de correction par composant ou fonctionnalité
+- Prioriser les corrections qui débloquent d'autres fonctionnalités
+- Pour les règles d'erreur, se concentrer sur les cas qui pourraient se reproduire
+- Garder les règles d'erreur concises mais complètes
+
+## Format pour les règles d'erreur
+```
+---
+description: [nom-de-la-bibliotheque] - Erreurs courantes et bonnes pratiques
+globs: [Pattern glob pour les fichiers concernés, ex: *.py, src/**/*.js]
+alwaysApply: false
+---
+# Erreurs courantes avec [Nom de la bibliothèque]
+
+## Problème: [Description du problème]
+- ❌ **Incorrect**: [Exemple de code incorrect]
+- ✅ **Correct**: [Exemple de code correct]
+- 📝 **Explication**: [Explication claire du fonctionnement correct]
+
+## Problème: [Description d'un autre problème]
+- ❌ **Incorrect**: [Exemple de code incorrect]
+- ✅ **Correct**: [Exemple de code correct]
+- 📝 **Explication**: [Explication claire du fonctionnement correct]
+```
+
+## Next Rules
+- `implementation` - Pour implémenter les corrections identifiées
