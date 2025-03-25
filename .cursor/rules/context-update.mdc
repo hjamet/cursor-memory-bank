@@ -22,10 +22,14 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
      `git add [fichiers] && git commit -m "[message]"`
    - Suivre le format conventional commit avec emoji pour le message
 
-4. Si toutes les tâches sont terminées et tous les tests passent:
-   - Présenter une synthèse claire et concise du travail effectué
-   - Résumer les fonctionnalités implémentées et les problèmes résolus
-   - N'appelle pas de règle suivante : le workflow est terminé ! :D
+4. Vérifier si le workflow est terminé:
+   - Le workflow ne doit JAMAIS être considéré comme terminé s'il reste des tâches dans "In Progress" ou "ToDo" OU s'il y a au moins un test qui échoue (marqué ❌) ou avec avertissement (marqué ⚠️)
+   - Si toutes les tâches sont terminées (c'est-à-dire qu'il n'y a plus AUCUNE tâche dans les sections "In Progress" et "ToDo" du fichier tasks.md) ET que tous les tests passent (TOUS marqués ✅) alors seulement:
+     - Présenter une synthèse claire et concise du travail effectué
+     - Résumer les fonctionnalités implémentées et les problèmes résolus
+     - Indiquer explicitement que le workflow est terminé avec succès
+     - Ne pas appeler de règle suivante, le workflow est terminé
+   - Si le workflow n'est pas terminé (ce qui sera presque toujours le cas), procéder aux Next Rules ci-dessous
 
 ## Précisions
 - Les mises à jour des fichiers de contexte doivent être concises mais complètes

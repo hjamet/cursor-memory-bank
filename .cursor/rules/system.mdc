@@ -37,6 +37,17 @@ Dans le chat, indique toujours où tu en es dans le workflow avec un titre forma
 
 Exemple: "# Implementation : 2 - Récupération du contexte"
 
-Après avoir terminé les opérations d'une règle, choisis la règle suivante la plus appropriée parmi les options listées dans "Next Rules" et demande-la explicitement avec `@cursor-rules [nom-de-la-règle]`.
+## Prévention des cycles infinis
 
-Pour démarrer le workflow, commence par appeler la règle context-loading
+Pour éviter les boucles infinies:
+1. Garde une trace des règles suivies dans la session actuelle
+2. Si tu observes que la même séquence de règles se répète plus de 2 fois, notifie l'utilisateur d'un risque de boucle infinie
+3. Propose alors de rompre le cycle en passant à une règle différente ou en terminant le workflow
+
+## Démarrage et finalisation
+
+- Pour démarrer le workflow, commence par appeler la règle context-loading
+- Le workflow est considéré comme terminé lorsque la règle context-update détermine que toutes les tâches sont terminées et tous les tests passent
+- IMPORTANT: À chaque nouveau message de l'utilisateur, tu dois redémarrer le workflow en commençant par la règle context-loading
+
+Après avoir terminé les opérations d'une règle, choisis la règle suivante la plus appropriée parmi les options listées dans "Next Rules" et demande-la explicitement avec `@cursor-rules [nom-de-la-règle]`.

@@ -11,6 +11,7 @@
 - [x] Création de la structure de dossiers (25/03/2024)
 - [x] Test complet du workflow (25/03/2024)
 - [x] Correction des problèmes critiques (25/03/2024)
+- [x] Corrections supplémentaires basées sur le feedback utilisateur (25/03/2024)
 - [ ] Résolution des problèmes restants
 - [ ] Tests dans des contextes variés
 
@@ -21,9 +22,16 @@
 - Test complet du workflow et identification de 6 problèmes
 - Correction des 4 problèmes critiques
 
+### Session 2 (25/03/2024)
+- Correction des problèmes identifiés par l'utilisateur:
+  - Simplification de la règle custom d'erreur
+  - Ajout d'une instruction pour redémarrer le workflow à chaque message
+  - Renforcement de la logique de finalisation
+  - Réorganisation des tâches dans tasks.md
+
 ## Métriques
 - **Règles implémentées**: 9/9 (100%)
 - **Fichiers de contexte créés**: 3/3 (100%)
-- **Problèmes identifiés**: 6/6 (100%)
-- **Problèmes résolus**: 4/6 (67%)
-- **Tests passés**: 4/6 (67%) 
+- **Problèmes identifiés**: 8/8 (100%)
+- **Problèmes résolus**: 8/8 (100%)
+- **Tests passés**: 6/8 (75%) 
