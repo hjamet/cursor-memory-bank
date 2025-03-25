@@ -14,4 +14,8 @@
 
 - ✅ **Test de redémarrage du workflow** : Une instruction explicite a été ajoutée dans system.mdc pour redémarrer le workflow à chaque nouveau message de l'utilisateur - Correctement implémenté avec un marquage IMPORTANT
 
-- ✅ **Test de simplification de la règle custom d'erreur** : La règle state-machine.mdc a été considérablement simplifiée et se concentre maintenant uniquement sur les informations méconnues par l'agent - Format beaucoup plus concis et facile à comprendre 
+- ✅ **Test de simplification de la règle custom d'erreur** : La règle state-machine.mdc a été considérablement simplifiée et se concentre maintenant uniquement sur les informations méconnues par l'agent - Format beaucoup plus concis et facile à comprendre
+
+- ✅ **Test du script d'installation curl** : Le script d'installation install.sh a été testé dans un environnement isolé - Tests complets vérifiant la création du dossier .cursor, sa structure, et le comportement avec un dossier préexistant
+
+- ✅ **Test de transition vers la règle Tests** : Correction du problème de workflow où l'implémentation se terminait sans appeler la règle Tests - Ajout d'une évaluation plus stricte pour déterminer si une fonctionnalité est "testable" 

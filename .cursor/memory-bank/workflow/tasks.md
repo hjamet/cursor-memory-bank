@@ -2,6 +2,13 @@
 
 # Done
 
+## Correction du workflow
+- [x] **Analyser le problème de transition de règles** : Identifier pourquoi le workflow s'est terminé sur la règle Implementation au lieu de passer à la règle Tests.
+
+## Tests du script d'installation
+- [x] **Créer des tests pour le script d'installation** : Développer des tests pour vérifier le bon fonctionnement du script install.sh dans un répertoire temporaire.
+- [x] **Exécuter les tests en environnement isolé** : Mettre en place un environnement de test isolé pour éviter d'écraser les règles du répertoire actuel.
+
 ## Optimisation de la structure
 - [x] **Réduire la taille des sections de tâches** : S'assurer que les sections dans task-decomposition ne contiennent pas trop de tâches pour que leur implémentation tienne dans le contexte.
 - [x] **Limiter les fichiers de mémoire** : Optimiser tous les fichiers de contexte et workflow pour qu'ils ne dépassent pas 200 lignes.
