@@ -1,0 +1,62 @@
+---
+description: [request-analysis] - Décomposition de la requête en tâches spécifiques et organisées
+globs: 
+alwaysApply: false
+---
+## TLDR
+Décomposer la requête de l'utilisateur en tâches concrètes et les organiser dans le fichier tasks.md par sections logiques.
+
+## Instructions
+1. Lire le fichier `.cursor/memory-bank/workflow/tasks.md` s'il existe
+
+2. Supprimer les tâches terminées qui n'ont plus de lien avec le travail actuel:
+   - Conserver uniquement les tâches terminées récemment ou liées aux tâches en cours
+
+3. Ajouter les nouvelles tâches issues de l'analyse de la requête:
+   - Organiser les tâches en sections logiques
+   - Décomposer chaque tâche complexe en sous-tâches gérables
+   - Prioriser les tâches selon leur importance et leurs dépendances
+   - Ajouter des descriptions détaillées pour chaque tâche
+
+4. Mettre à jour le fichier tasks.md avec la nouvelle structure:
+   - Créer le fichier s'il n'existe pas
+   - Respecter le format spécifié
+   - Sauvegarder les modifications
+
+## Précisions
+- Chaque tâche doit être spécifique, mesurable et réalisable
+- Regrouper les tâches similaires dans des sections cohérentes
+- Utiliser des descriptions claires et détaillées pour chaque tâche
+- Maintenir une distinction nette entre les tâches en cours, à faire et terminées
+- Indiquer les dépendances entre les tâches lorsqu'elles existent
+- Estimer la complexité ou la priorité des tâches si possible
+- S'assurer que le fichier reste lisible et bien structuré
+
+## Format de tasks.md
+```
+# In Progress
+
+## [Nom de la Section 1]
+- [ ] **[Titre de la tâche 1]** : [Description détaillée de la tâche]
+- [ ] **[Titre de la tâche 2]** : [Description détaillée de la tâche]
+
+## [Nom de la Section 2]
+- [ ] **[Titre de la tâche 3]** : [Description détaillée de la tâche]
+
+# ToDo
+
+## [Nom de la Section 3]
+- [ ] **[Titre de la tâche 4]** : [Description détaillée de la tâche]
+- [ ] **[Titre de la tâche 5]** : [Description détaillée de la tâche]
+
+# Done
+
+## [Nom de la Section 4]
+- [x] **[Titre de la tâche terminée 1]** : [Description détaillée de la tâche]
+- [x] **[Titre de la tâche terminée 2]** : [Description détaillée de la tâche]
+```
+
+## Next Rules
+- `implementation` - Pour commencer l'implémentation des tâches
+- `context-update` - Pour mettre à jour le contexte du projet avec les nouvelles tâches
+
