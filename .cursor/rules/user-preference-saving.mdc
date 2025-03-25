@@ -1,0 +1,47 @@
+---
+description: [context-loading] - Identification et sauvegarde des préférences utilisateur
+globs: 
+alwaysApply: false
+---
+## TLDR
+Identifier les préférences de l'utilisateur à partir de ses instructions et les sauvegarder sous forme de règles personnalisées pour une utilisation future.
+
+## Instructions
+1. Analyser les instructions et commentaires de l'utilisateur pour identifier ses préférences:
+   - Style de code (indentation, nommage, formatage)
+   - Frameworks et bibliothèques préférés
+   - Approches de développement (TDD, DDD, etc.)
+   - Conventions de documentation
+   - Préférences d'organisation de fichiers
+
+2. Pour chaque préférence identifiée, préparer une règle au format:
+   - `nom-de-la-regle` : courte description/pattern regex des fichiers concernés
+
+3. Créer les fichiers de règles dans `.cursor/rules/custom/preferences/` avec le format approprié:
+   - Créer le dossier s'il n'existe pas
+   - Nommer les fichiers selon le format `preference-[categorie].mdc`
+   - Structurer chaque règle selon le format standard de Cursor
+
+## Précisions
+- Ne créer des règles que pour les préférences clairement exprimées
+- Éviter les suppositions non fondées sur les préférences
+- Organiser les préférences par catégories (style, architecture, outils, etc.)
+- Utiliser des patterns glob précis pour cibler les bons fichiers
+- Vérifier si des règles similaires existent déjà avant d'en créer de nouvelles
+- Mettre à jour les règles existantes plutôt que d'en créer des doublons
+
+## Format de règle à utiliser
+```
+---
+description: [nom-de-la-regle] - [Description concise de la préférence]
+globs: [Pattern glob pour les fichiers concernés, ex: *.py, src/**/*.js]
+alwaysApply: false
+---
+# [Titre de la préférence]
+
+[Instructions détaillées sur comment appliquer cette préférence]
+```
+
+## Next Rules
+- `request-analysis` - Pour analyser en détail la requête de l'utilisateur
+

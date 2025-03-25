@@ -1,0 +1,115 @@
+---
+description: [system] - Chargement du contexte du projet et préparation de l’environnement de travail
+globs: 
+alwaysApply: false
+---
+## TLDR
+Charger ou créer les fichiers de contexte du projet pour établir une compréhension solide de l'environnement de travail.
+
+## Instructions
+1. Tenter de lire les fichiers de contexte existants:
+   - `.cursor/memory-bank/context/projectbrief.md`
+   - `.cursor/memory-bank/context/activeContext.md`
+   - `.cursor/memory-bank/context/techContext.md`
+
+2. Si les fichiers n'existent pas:
+   - Parcourir le projet pour comprendre sa structure et son objectif
+   - Créer le dossier `.cursor/memory-bank/context/` si nécessaire
+   - Créer les fichiers manquants avec une structure appropriée
+
+3. Reformuler la question ou l'instruction de l'utilisateur en la situant dans le contexte général du projet
+
+## Précisions
+- Les fichiers de contexte doivent être concis mais complets
+- `projectbrief.md` doit contenir la vision globale et les objectifs du projet
+- `activeContext.md` doit décrire l'état actuel du développement et les tâches en cours
+- `techContext.md` doit lister les technologies, frameworks et dépendances utilisés
+- Utiliser des recherches sémantiques pour explorer le projet si nécessaire
+- Créer une structure claire avec des titres et sous-titres dans les fichiers
+
+## Templates pour les fichiers de contexte
+
+### Template pour projectbrief.md
+```
+# Présentation du Projet
+
+## Vision
+[Description concise de la vision globale du projet]
+
+## Objectifs
+- [Objectif principal 1]
+- [Objectif principal 2]
+- [Objectif principal 3]
+
+## Contraintes
+- [Contrainte 1]
+- [Contrainte 2]
+
+## Parties Prenantes
+- [Partie prenante 1]: [Rôle/Intérêt]
+- [Partie prenante 2]: [Rôle/Intérêt]
+
+## Historique et Contexte
+[Bref historique du projet et contexte de création]
+
+## Métriques de Succès
+- [Métrique 1]
+- [Métrique 2]
+```
+
+### Template pour activeContext.md
+```
+# Contexte Actif
+
+## Focus Actuel
+[Description du focus de développement actuel]
+
+## Problèmes en Cours
+- [Problème 1]: [Description]
+- [Problème 2]: [Description]
+
+## Décisions Récentes
+- [Date] - [Décision]: [Justification]
+- [Date] - [Décision]: [Justification]
+
+## Prochaines Étapes
+- [Étape 1]
+- [Étape 2]
+
+## Notes Importantes
+[Informations critiques à garder à l'esprit]
+```
+
+### Template pour techContext.md
+```
+# Contexte Technique
+
+## Pile Technologique
+- **Langages**: [Liste des langages utilisés]
+- **Frameworks**: [Liste des frameworks]
+- **Bibliothèques**: [Bibliothèques principales]
+- **Outils**: [Outils de développement]
+
+## Architecture
+[Description concise de l'architecture du projet]
+
+## Environnement de Développement
+- **Configuration requise**: [Prérequis]
+- **Installation**: [Étapes d'installation]
+
+## Conventions de Code
+- [Convention 1]
+- [Convention 2]
+
+## Dépendances Externes
+- [Dépendance 1]: [Version] - [Utilité]
+- [Dépendance 2]: [Version] - [Utilité]
+
+## Intégrations
+- [Intégration 1]: [Description]
+- [Intégration 2]: [Description]
+```
+
+## Next Rules
+- `request-analysis` - Pour analyser en détail la requête de l'utilisateur
+- `user-preference-saving` - Pour enregistrer des préférences utilisateur détectées
