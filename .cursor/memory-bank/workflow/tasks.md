@@ -1,9 +1,5 @@
 # In Progress
 
-## 2. Ajout des exemples - Règles de base
-2.1. [ ] **Ajouter l'exemple dans system.mdc** : Créer une section "Exemple" montrant l'utilisation de la règle principale.
-2.2. [ ] **Ajouter l'exemple dans context-loading.mdc** : Créer une section "Exemple" illustrant le chargement du contexte.
-
 ## 3. Ajout des exemples - Règles d'analyse
 3.1. [ ] **Ajouter l'exemple dans request-analysis.mdc** : Créer une section "Exemple" montrant l'analyse d'une requête.
 3.2. [ ] **Ajouter l'exemple dans task-decomposition.mdc** : Créer une section "Exemple" illustrant la décomposition en tâches.
@@ -29,4 +25,8 @@
 
 ## 1. Préparation des exemples
 1.1. [x] **Analyser l'exemple fourni** : Étudier en détail l'exemple d'implementation.mdc pour comprendre le format et la structure attendus.
-1.2. [x] **Définir le format standard** : Établir un format standard pour la section "Exemple" basé sur l'exemple fourni. 
+1.2. [x] **Définir le format standard** : Établir un format standard pour la section "Exemple" basé sur l'exemple fourni.
+
+## 2. Ajout des exemples - Règles de base
+2.1. [x] **Ajouter l'exemple dans system.mdc** : Créer une section "Exemple" montrant l'utilisation de la règle principale.
+2.2. [x] **Ajouter l'exemple dans context-loading.mdc** : Créer une section "Exemple" illustrant le chargement du contexte. 
