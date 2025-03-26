@@ -15,6 +15,7 @@ Analyser les erreurs de test, créer des tâches de correction et documenter les
    - Localiser précisément les lignes de code problématiques
    - Examiner le contexte autour du code défaillant
    - Vérifier les dépendances et les interactions avec d'autres composants
+   - Entre chaque appel d'outil, écris `Fix - 3.[Titre du test] en cours...` pour ne pas perdre te perdre dans le fil de tes pensées et oublier le workflow.
 
 4. Ajouter des tâches de correction à tasks.md:
    - Créer une nouvelle section "Corrections" dans "In Progress"
@@ -34,6 +35,7 @@ Analyser les erreurs de test, créer des tâches de correction et documenter les
 - Inclure des exemples concrets dans les règles d'erreur
 - Organiser les tâches de correction par composant ou fonctionnalité
 - Garder les règles d'erreur concises mais complètes : va au plus simple et clair.
+- Dans la phase de fix 3, tu risques d'oublier le workflow en suivant le fil de tes pensées. Pour éviter celà à tout prix, après chaque appel d'outil ou avant chaque reflection de ta part, écris `Fix - 3.[Titre du test] en cours...`
 - Utilise du logging pendant tes tests : Si tu es en python, utilise `src/utils/logger.py` pour enregistrer les logs dans `logs/app.log`
 
 ## Format pour les règles d'erreur (.mdc)
