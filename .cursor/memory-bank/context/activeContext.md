@@ -16,6 +16,7 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - ✅ Format des exemples: Standardisation des exemples avec utilisation de [...] pour le contenu dynamique.
 - ✅ Position des exemples: Déplacement de la section "Exemple" entre "Next Rules" et "Start Rule".
 - ✅ Phrases explicatives: Ajout de phrases explicatives dans les exemples pour guider l'agent.
+- ✅ Structure des tâches: Amélioration de la règle task-decomposition pour avoir des sections de plus haut niveau avec des tâches plus détaillées.
 
 ## Problèmes En Cours de Résolution
 - ⚠️ Syntaxe d'invocation incorrecte: La syntaxe d'appel des règles doit être modifiée pour utiliser `fetch_rules ["nom-de-la-règle"]` au lieu de `@cursor-rules fetch [nom-de-la-règle]`.
@@ -23,6 +24,7 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - ⚠️ Adhérence insuffisante au workflow: L'agent a encore tendance à sortir du workflow défini dans certains cas.
 
 ## Décisions Récentes
+- [29/03/2024] - Amélioration de la règle task-decomposition pour des sections de plus haut niveau
 - [29/03/2024] - Standardisation des exemples avec utilisation de [...] pour le contenu dynamique
 - [29/03/2024] - Déplacement de la section "Exemple" entre "Next Rules" et "Start Rule"
 - [29/03/2024] - Ajout de phrases explicatives dans les exemples
@@ -42,6 +44,8 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - Renforcer l'adhérence au workflow
 - Simplifier le langage des règles
 - Tester les améliorations
+- Ajouter les exemples manquants dans les règles restantes
+- Vérifier la cohérence des exemples
 
 ## Notes Importantes
 - La section "Résumé d'invocation" est maintenant toujours placée à la fin de chaque règle, juste avant la section "Next Rules"
@@ -56,3 +60,4 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - La section "Exemple" est maintenant ajoutée entre "Next Rules" et "Start Rule" dans chaque règle
 - Les exemples utilisent [...] pour représenter le contenu dynamique
 - Les exemples incluent des phrases explicatives pour guider l'agent à chaque étape
+- Les tâches sont maintenant organisées en sections de plus haut niveau avec des descriptions détaillées

@@ -1,24 +1,59 @@
 # In Progress
 
-## 1. Standardisation des règles
-1.1. [ ] **Modifier task-decomposition.mdc** : Adapter la règle pour avoir des sections de plus haut niveau avec des tâches plus détaillées
-1.2. [ ] **Vérifier les modifications** : Utiliser la commande cat pour s'assurer que les changements sont bien appliqués
+## 1. Développement des règles
+1.1. [ ] **Ajouter les exemples de workflow** : Créer les sections Exemple pour implementation.mdc et tests.mdc
+- Actions:
+  * Lire les fichiers implementation.mdc et tests.mdc
+  * Créer une section Exemple dans chaque fichier
+  * Ajouter des exemples d'utilisation avec [...] pour le contenu dynamique
+  * Ajouter des phrases explicatives pour chaque étape
+  * Positionner la section entre Next Rules et Start Rule
+- Fichiers: implementation.mdc, tests.mdc
+- Dépendances: Aucune
+- Validation: Les exemples sont clairs et suivent le format standard
 
-## 2. Standardisation des exemples
-2.1. [ ] **Standardiser les exemples existants** : Remplacer tout contenu dynamique par [...] dans system.mdc, context-loading.mdc et request-analysis.mdc
-2.2. [ ] **Ajouter les phrases explicatives** : Ajouter des phrases que devrait dire le modèle à chaque étape dans les exemples
-2.3. [ ] **Repositionner les sections Exemple** : Déplacer la section Exemple entre Next Rules et Start Rule dans toutes les règles
-2.4. [ ] **Vérifier les modifications** : Utiliser la commande cat pour s'assurer que les changements sont bien appliqués
+1.2. [ ] **Ajouter les exemples de contexte** : Créer les sections Exemple pour context-update.mdc et user-preference-saving.mdc
+- Actions:
+  * Lire les fichiers context-update.mdc et user-preference-saving.mdc
+  * Créer une section Exemple dans chaque fichier
+  * Ajouter des exemples d'utilisation avec [...] pour le contenu dynamique
+  * Ajouter des phrases explicatives pour chaque étape
+  * Positionner la section entre Next Rules et Start Rule
+- Fichiers: context-update.mdc, user-preference-saving.mdc
+- Dépendances: Aucune
+- Validation: Les exemples sont clairs et suivent le format standard
 
-## 3. Ajout des exemples restants
-3.1. [ ] **Ajouter les exemples de workflow** : Créer les sections Exemple pour implementation.mdc et tests.mdc
-3.2. [ ] **Ajouter les exemples de contexte** : Créer les sections Exemple pour context-update.mdc et user-preference-saving.mdc
-3.3. [ ] **Ajouter l'exemple de correction** : Créer la section Exemple pour fix.mdc
-3.4. [ ] **Vérifier les modifications** : Utiliser la commande cat pour s'assurer que les changements sont bien appliqués
+1.3. [ ] **Ajouter l'exemple de correction** : Créer la section Exemple pour fix.mdc
+- Actions:
+  * Lire le fichier fix.mdc
+  * Créer une section Exemple
+  * Ajouter un exemple d'utilisation avec [...] pour le contenu dynamique
+  * Ajouter des phrases explicatives pour chaque étape
+  * Positionner la section entre Next Rules et Start Rule
+- Fichiers: fix.mdc
+- Dépendances: Aucune
+- Validation: L'exemple est clair et suit le format standard
 
-## 4. Vérification finale
-4.1. [ ] **Vérifier la cohérence** : S'assurer que tous les exemples suivent le même format et utilisent [...] pour le contenu dynamique
-4.2. [ ] **Tester les exemples** : Vérifier que les exemples sont clairs et aident à comprendre l'utilisation de chaque règle
+## 2. Validation
+2.1. [ ] **Vérifier la cohérence** : S'assurer que tous les exemples suivent le même format
+- Actions:
+  * Vérifier chaque fichier de règle
+  * Confirmer l'utilisation de [...] pour le contenu dynamique
+  * Vérifier la position des sections Exemple
+  * Vérifier la présence des phrases explicatives
+- Fichiers: Tous les fichiers .mdc
+- Dépendances: Toutes les tâches de développement
+- Validation: Tous les exemples sont cohérents et suivent le même format
+
+2.2. [ ] **Tester les exemples** : Vérifier que les exemples sont clairs et utiles
+- Actions:
+  * Lire chaque exemple du point de vue d'un nouvel utilisateur
+  * Vérifier que les exemples aident à comprendre l'utilisation
+  * Vérifier que les phrases explicatives sont claires
+  * Identifier les points d'amélioration potentiels
+- Fichiers: Tous les fichiers .mdc
+- Dépendances: Toutes les tâches de développement
+- Validation: Les exemples sont compréhensibles et utiles
 
 # Done
 
@@ -38,4 +73,8 @@
 4.1. [x] **Standardiser les exemples existants** : Remplacer tout contenu dynamique par [...] dans system.mdc, context-loading.mdc et request-analysis.mdc
 4.2. [x] **Ajouter les phrases explicatives** : Ajouter des phrases que devrait dire le modèle à chaque étape dans les exemples
 4.3. [x] **Repositionner les sections Exemple** : Déplacer la section Exemple entre Next Rules et Start Rule dans toutes les règles
-4.4. [x] **Vérifier les modifications** : Utiliser la commande cat pour s'assurer que les changements sont bien appliqués 
+4.4. [x] **Vérifier les modifications** : Utiliser la commande cat pour s'assurer que les changements sont bien appliqués
+
+## 5. Standardisation des règles
+5.1. [x] **Modifier task-decomposition.mdc** : Adapter la règle pour avoir des sections de plus haut niveau avec des tâches plus détaillées
+5.2. [x] **Vérifier les modifications** : Utiliser la commande cat pour s'assurer que les changements sont bien appliqués 
