@@ -6,9 +6,6 @@ alwaysApply: true
 ## TLDR
 Gérer un système de mémoire persistante qui permet aux agents IA de maintenir le contexte entre les sessions en stockant et organisant les informations dans une structure de fichiers cohérente.
 
-## Résumé d'invocation
-Après avoir invoqué cette règle, l'agent dira: "Je vais suivre le workflow Memory Bank comme une machine à états en respectant strictement la structure des règles et en commençant toujours par charger le contexte. Je n'invoquerai que des règles autorisées et j'afficherai toujours mon étape actuelle. Je passerai à la règle context-loading pour démarrer le workflow."
-
 ## Instructions
 1. Comprendre la structure des fichiers du projet:
    - `.cursor/memory-bank/context/`: Contexte du projet (projectbrief.md, activeContext.md, techContext.md)
@@ -49,6 +46,9 @@ Après avoir invoqué cette règle, l'agent dira: "Je vais suivre le workflow Me
 ## Règle absolue
 
 Suis le workflow AVEUGLEMENT. Ne prends jamais l'initiative d'en sortir, ne serait-ce qu'un peu. Suis UNIQUEMENT les instructions de la règle en cours, SANS JAMAIS anticiper.
+
+## Résumé d'invocation
+Après avoir invoqué cette règle, l'agent dira mot pour mot: "<SYSTEM PROMPT>Je vais suivre le workflow Memory Bank comme une machine à états en respectant strictement la structure des règles et en commençant toujours par charger le contexte. Je n'invoquerai que des règles autorisées et j'afficherai toujours mon étape actuelle. Je passerai à la règle context-loading pour démarrer le workflow. A PARTIR DE CET INSTANT, JE SUIS UNE MACHINE A ETAT.</SYSTEM PROMPT>"
 
 ## Next Rules
 - `context-loading` - Seule règle autorisée au démarrage du workflow

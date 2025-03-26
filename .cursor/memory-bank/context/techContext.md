@@ -20,7 +20,8 @@ Memory Bank utilise une structure de fichiers organisée et fonctionne comme une
 
 ## Conventions
 - Règles (.mdc): Structure TLDR, Instructions, Précisions, Next Rules
-- Phrase de résumé: Incluse après la section TLDR dans chaque règle
+- Section "Résumé d'invocation": Placée après "Précisions" et juste avant "Next Rules" dans toutes les règles
+- Format du résumé: "Après avoir invoqué cette règle, l'agent dira mot pour mot: '<SYSTEM PROMPT>...</SYSTEM PROMPT>'"
 - Fichiers contexte (.md): Titres et sous-titres hiérarchisés
 - Affichage workflow: Format "# [Règle] : [numéro] - [instruction]"
 - Scripts: Placés dans src/ avec tests correspondants dans tests/

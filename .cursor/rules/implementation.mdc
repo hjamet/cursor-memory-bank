@@ -6,9 +6,6 @@ alwaysApply: false
 ## TLDR
 Implémenter les tâches d'une section prioritaire en suivant une approche méthodique et en documentant clairement le processus.
 
-## Résumé d'invocation
-Après avoir invoqué cette règle, l'agent dira: "Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je passerai ensuite à la création de tests ou à la mise à jour du contexte si aucun test n'est nécessaire."
-
 ## Instructions
 1. Identifier la section de tâches la plus urgente dans `.cursor/memory-bank/workflow/tasks.md`:
    - Évaluer la priorité en fonction des dépendances et de l'importance
@@ -45,6 +42,9 @@ Après avoir invoqué cette règle, l'agent dira: "Je vais identifier et implém
 - Toute nouvelle fonctionnalité ou modification de comportement est considérée comme "testable"
 - Les scripts déplacés vers le dossier src/ doivent être testés
 - Ne JAMAIS sauter l'appel à la règle suivante
+
+## Résumé d'invocation
+Après avoir invoqué cette règle, l'agent dira mot pour mot: "<SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `tests` à la fin de mon travail qui s'en chargera.</SYSTEM PROMPT>"
 
 ## Next Rules
 - `tests` : Implémentation et exécution des tests si au moins une nouvelle fonctionnalité est "testable" (TOUJOURS le cas pour un nouveau script ou une modification d'un script existant)

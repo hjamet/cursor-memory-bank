@@ -57,6 +57,9 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
 - Les scripts de test doivent être placés dans le dossier `tests/`
 - Ne JAMAIS terminer sans soit appeler explicitement une règle suivante, soit indiquer explicitement que le workflow est terminé
 
+## Résumé d'invocation
+Après avoir invoqué cette règle, l'agent dira mot pour mot: "<SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. Je déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix' ou 'implementation' selon les tests et les tâches restantes.</SYSTEM PROMPT>"
+
 ## Format pour le message de commit
 ```
 <emoji> <type>(<scope>): <description>

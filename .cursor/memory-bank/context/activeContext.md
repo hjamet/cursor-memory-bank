@@ -6,6 +6,8 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 ## Problèmes Résolus
 - ✅ Structure non standardisée: Standardisation de toutes les règles pour suivre exactement la même structure claire: TLDR, Instructions, Précisions, Next Rules.
 - ✅ Absence de résumé après invocation: Ajout d'une phrase de résumé dans chaque règle que l'agent doit réciter après l'avoir invoquée.
+- ✅ Position incorrecte des résumés d'invocation: Déplacement de la section "Résumé d'invocation" à la fin de chaque règle, juste avant "Next Rules".
+- ✅ Format inconsistant des résumés: Standardisation du format avec balises "<SYSTEM PROMPT>" pour tous les résumés d'invocation.
 - ✅ Lecture excessive de fichiers: Correction de la règle context-loading pour limiter strictement la lecture aux trois fichiers de contexte spécifiés.
 - ✅ Numérotation des tâches: Implémentation d'un système de numérotation des sections et sous-numérotation des tâches.
 - ✅ Arborescence du code: Correction de la règle request-analysis pour éviter les mentions aux fichiers memory bank.
@@ -18,6 +20,8 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - ⚠️ Adhérence insuffisante au workflow: L'agent a encore tendance à sortir du workflow défini dans certains cas.
 
 ## Décisions Récentes
+- [29/03/2024] - Déplacement de la section "Résumé d'invocation" à la fin de chaque règle
+- [29/03/2024] - Standardisation du format des résumés d'invocation avec balises "<SYSTEM PROMPT>"
 - [28/03/2024] - Standardisation de la structure de toutes les règles (TLDR, Instructions, Précisions, Next Rules)
 - [28/03/2024] - Ajout de phrases de résumé dans chaque règle pour guider l'agent
 - [28/03/2024] - Restructuration complète de system.mdc pour suivre la même structure que les autres règles
@@ -34,10 +38,12 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - Tester les améliorations
 
 ## Notes Importantes
+- La section "Résumé d'invocation" est maintenant toujours placée à la fin de chaque règle, juste avant la section "Next Rules"
+- Tous les résumés d'invocation utilisent le format standardisé avec balises "<SYSTEM PROMPT>"
 - L'invocation correcte des règles doit utiliser la syntaxe `fetch_rules ["nom-de-la-règle"]` et non `@cursor-rules fetch [nom-de-la-règle]`
+- L'agent doit toujours réciter mot pour mot la phrase de résumé après avoir invoqué une règle
 - Lors de l'exécution du workflow, toujours indiquer les numéros des tâches en cours de résolution
 - Maintenir les fichiers de contexte et workflow en dessous de 200 lignes
 - Toujours respecter la structure de dossiers avec src/ et tests/
 - Ne jamais sortir du workflow sans appeler explicitement la règle suivante
-- L'agent doit toujours réciter la phrase de résumé après avoir invoqué une règle
 - Durant context-loading, se limiter strictement aux trois fichiers de contexte spécifiés, ne pas lire tasks.md
