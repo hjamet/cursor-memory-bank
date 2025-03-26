@@ -1,23 +1,32 @@
 # In Progress
 
+## 2. Ajout des exemples - Règles de base
+2.1. [ ] **Ajouter l'exemple dans system.mdc** : Créer une section "Exemple" montrant l'utilisation de la règle principale.
+2.2. [ ] **Ajouter l'exemple dans context-loading.mdc** : Créer une section "Exemple" illustrant le chargement du contexte.
+
+## 3. Ajout des exemples - Règles d'analyse
+3.1. [ ] **Ajouter l'exemple dans request-analysis.mdc** : Créer une section "Exemple" montrant l'analyse d'une requête.
+3.2. [ ] **Ajouter l'exemple dans task-decomposition.mdc** : Créer une section "Exemple" illustrant la décomposition en tâches.
+
+## 4. Ajout des exemples - Règles d'implémentation
+4.1. [ ] **Ajouter l'exemple dans implementation.mdc** : Adapter l'exemple fourni au format standard.
+4.2. [ ] **Ajouter l'exemple dans tests.mdc** : Créer une section "Exemple" montrant la création et l'exécution de tests.
+
+## 5. Ajout des exemples - Règles de finalisation
+5.1. [ ] **Ajouter l'exemple dans fix.mdc** : Créer une section "Exemple" illustrant la correction d'erreurs.
+5.2. [ ] **Ajouter l'exemple dans context-update.mdc** : Créer une section "Exemple" montrant la mise à jour du contexte.
+
+## 6. Ajout des exemples - Règles spéciales
+6.1. [ ] **Ajouter l'exemple dans user-preference-saving.mdc** : Créer une section "Exemple" illustrant la sauvegarde des préférences.
+
+## 7. Vérification finale
+7.1. [ ] **Vérifier la cohérence** : S'assurer que tous les exemples suivent le même format et utilisent [...] pour le contenu dynamique.
+7.2. [ ] **Tester les exemples** : Vérifier que les exemples sont clairs et aident à comprendre l'utilisation de chaque règle.
+
 # ToDo
 
 # Done
 
-## Standardisation des résumés d'invocation
-- [x] **Vérifier la présence du "Résumé d'invocation"** : Tous les fichiers de règles ont été vérifiés. Huit règles contiennent déjà une section "Résumé d'invocation" et une (user-preference-saving.mdc) en a besoin.
-- [x] **Planifier les modifications pour chaque fichier** : Plan détaillé créé pour les neuf fichiers de règles identifiés, spécifiant pour chacun les actions à effectuer (déplacement de section et/ou reformatage).
-- [x] **Définir le format standard** : Format standard établi sur le modèle de context-loading: "Après avoir invoqué cette règle, l'agent dira mot pour mot: '<SYSTEM PROMPT>...</SYSTEM PROMPT>'".
-- [x] **Adapter les textes existants** : Tous les textes des résumés d'invocation ont été adaptés au format standard avec les balises "<SYSTEM PROMPT>" tout en préservant leur intention originale.
-- [x] **Déplacer les sections dans system.mdc** : La section "Résumé d'invocation" a été déplacée après "Règle absolue" et reformatée avec les balises "<SYSTEM PROMPT>", juste avant "Next Rules".
-- [x] **Déplacer les sections dans request-analysis.mdc** : La section "Résumé d'invocation" a été déplacée après "Précisions" et reformatée avec les balises "<SYSTEM PROMPT>", juste avant "Next Rules".
-- [x] **Déplacer les sections dans task-decomposition.mdc** : La section "Résumé d'invocation" a été déplacée après "Précisions" et reformatée avec les balises "<SYSTEM PROMPT>", juste avant "Format de tasks.md".
-- [x] **Déplacer les sections dans implementation.mdc** : La section "Résumé d'invocation" a été déplacée après "Précisions" et reformatée avec les balises "<SYSTEM PROMPT>", juste avant "Next Rules".
-- [x] **Déplacer les sections dans tests.mdc** : La section "Résumé d'invocation" a été déplacée après "Précisions" et reformatée avec les balises "<SYSTEM PROMPT>", juste avant "Format de tests.md".
-- [x] **Déplacer les sections dans fix.mdc** : La section "Résumé d'invocation" a été déplacée après "Précisions" et reformatée avec les balises "<SYSTEM PROMPT>", juste avant "Format pour les règles d'erreur".
-- [x] **Déplacer les sections dans context-update.mdc** : La section "Résumé d'invocation" a été déplacée après "Précisions" et reformatée avec les balises "<SYSTEM PROMPT>", juste avant "Format pour le message de commit".
-- [x] **Déplacer les sections dans user-preference-saving.mdc** : La section "Résumé d'invocation" a été déplacée après "Précisions" et reformatée avec les balises "<SYSTEM PROMPT>", juste avant "Format de règle à utiliser".
-- [x] **Vérifier la cohérence** : Tous les fichiers de règles suivent maintenant le même format et structure, avec le "Résumé d'invocation" placé après les "Précisions" et avant la dernière section spécifique à chaque règle.
-- [x] **Tester l'invocation des règles** : Les phrases de résumé ont été vérifiées et sont prêtes à être récitées correctement lors de l'invocation des règles.
-
-## Améliorations récentes 
+## 1. Préparation des exemples
+1.1. [x] **Analyser l'exemple fourni** : Étudier en détail l'exemple d'implementation.mdc pour comprendre le format et la structure attendus.
+1.2. [x] **Définir le format standard** : Établir un format standard pour la section "Exemple" basé sur l'exemple fourni. 

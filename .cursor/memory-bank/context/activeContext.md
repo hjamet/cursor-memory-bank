@@ -1,7 +1,7 @@
 # Contexte Actif
 
 ## Focus Actuel
-Amélioration du workflow Memory Bank avec standardisation des règles, ajout de phrases de résumé, correction de la syntaxe d'invocation et amélioration de la gestion des tâches.
+Amélioration du workflow Memory Bank avec standardisation des règles, ajout de phrases de résumé, correction de la syntaxe d'invocation, amélioration de la gestion des tâches et ajout d'exemples d'utilisation.
 
 ## Problèmes Résolus
 - ✅ Structure non standardisée: Standardisation de toutes les règles pour suivre exactement la même structure claire: TLDR, Instructions, Précisions, Next Rules.
@@ -29,6 +29,7 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - [26/03/2024] - Implémentation de la numérotation des tâches et sections
 - [26/03/2024] - Correction de request-analysis pour l'arborescence du code
 - [26/03/2024] - Nettoyage du fichier tasks.md
+- [29/03/2024] - Standardisation du format des exemples avec utilisation de [...] pour le contenu dynamique
 
 ## Prochaines Étapes
 - Corriger la syntaxe d'invocation dans toutes les règles
@@ -47,3 +48,5 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - Toujours respecter la structure de dossiers avec src/ et tests/
 - Ne jamais sortir du workflow sans appeler explicitement la règle suivante
 - Durant context-loading, se limiter strictement aux trois fichiers de contexte spécifiés, ne pas lire tasks.md
+- La section "Exemple" est maintenant ajoutée à la fin de chaque règle, après "Next Rules"
+- Les exemples utilisent [...] pour représenter le contenu dynamique
