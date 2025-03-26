@@ -7,17 +7,18 @@ alwaysApply: false
 Identifier les préférences de l'utilisateur à partir de ses instructions et les sauvegarder sous forme de règles personnalisées pour une utilisation future.
 
 ## Instructions
-1. Analyser les instructions et commentaires de l'utilisateur pour identifier ses préférences:
+
+1. **Analyse des instructions et commentaires** : Analyser les instructions et commentaires de l'utilisateur pour identifier ses préférences:
    - Style de code (indentation, nommage, formatage)
    - Frameworks et bibliothèques préférés
    - Approches de développement (TDD, DDD, etc.)
    - Conventions de documentation
    - Préférences d'organisation de fichiers
 
-2. Pour chaque préférence identifiée, préparer une règle au format:
+2. **Préparation des règles** : Pour chaque préférence identifiée, préparer une règle au format:
    - `nom-de-la-regle` : courte description/pattern regex des fichiers concernés
 
-3. Créer les fichiers de règles dans `.cursor/rules/custom/preferences/` avec le format approprié:
+3. **Création des fichiers de règles** : Créer les fichiers de règles dans `.cursor/rules/custom/preferences/` avec le format approprié:
    - Créer le dossier s'il n'existe pas
    - Nommer les fichiers selon le format `preference-[categorie].mdc`
    - Structurer chaque règle selon le format standard de Cursor
@@ -46,34 +47,22 @@ alwaysApply: false
 
 ## Exemple
 
-fetch_rules ["context-update"]
-<SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. J'effectuerai un commit pour les modifications et déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix' ou 'implementation' selon les tests et les tâches restantes.</SYSTEM PROMPT>
+fetch_rules ["user-preference-saving"]
+<SYSTEM PROMPT>Je vais analyser les instructions de l'utilisateur pour identifier ses préférences et les sauvegarder sous forme de règles personnalisées. Je ne créerai des règles que pour les préférences clairement exprimées et j'éviterai les suppositions non fondées. Je ne tâcherai pas d'implémenter les modifications demandées mais ferai appel à la règle `request-analysis` pour s'en charger.</SYSTEM PROMPT>
 
-# Context-update : 1 - Mise à jour des fichiers de contexte
-Je commence par mettre à jour les fichiers de contexte pour refléter les changements.
-[...mise à jour des fichiers de contexte...]
+# User-preference-saving : 1 - Analyse des instructions et commentaires
+Je commence par analyser les instructions et commentaires de l'utilisateur pour identifier ses préférences. `(User-preference-saving : 1 - Analyse des instructions et commentaires)`
+[...analyse des instructions et commentaires...]
 
-# Context-update : 2 - Nettoyage des fichiers de contexte
-Je nettoie les fichiers de contexte en supprimant les informations obsolètes.
-[...nettoyage des fichiers de contexte...]
+# User-preference-saving : 2 - Création des règles
+Je prépare les règles personnalisées pour les préférences identifiées. `(User-preference-saving : 2 - Création des règles)`
+[...création des règles...]
 
-# Context-update : 3 - Mise à jour du fichier tasks.md
-Je mets à jour le fichier tasks.md en déplaçant les tâches terminées vers Done.
-[...mise à jour du fichier tasks.md...]
+# User-preference-saving : 3 - Appel de la règle suivante
+Je dois maintenant appeler la règle request-analysis pour analyser la requête de l'utilisateur.
+La règle request-analysis doit être appelée pour analyser la requête de l'utilisateur. `(User-preference-saving : 3 - Appel de la règle suivante)`
 
-# Context-update : 4 - Effectuer un commit
-Je prépare et effectue un commit avec les modifications apportées.
-[...création du commit...]
-
-# Context-update : 5 - Vérifier si le workflow est terminé
-Je vérifie s'il reste des tâches à faire ou des tests à corriger.
-[...vérification du workflow...]
-
-# Context-update : 6 - Appel de la règle suivante
-Je dois maintenant appeler la règle implementation car il reste des tâches à faire.
-La règle implementation doit être appelée pour continuer le travail sur les tâches restantes.
-
-fetch_rules ["implementation"]
+fetch_rules ["request-analysis"]
 
 # Start Rule
 

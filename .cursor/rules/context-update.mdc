@@ -7,26 +7,26 @@ alwaysApply: false
 Mettre à jour les fichiers de contexte pour refléter les changements, actualiser tasks.md en fonction des résultats des tests, et effectuer un commit suivant les conventions.
 
 ## Instructions
-1. Mettre à jour les trois fichiers de contexte si nécessaire:
+1. **Mise à jour du contexte**: Mettre à jour les trois fichiers de contexte si nécessaire:
    - `.cursor/memory-bank/context/projectbrief.md`: Actualiser la vision globale si impactée
    - `.cursor/memory-bank/context/activeContext.md`: Refléter l'état actuel après les modifications
    - `.cursor/memory-bank/context/techContext.md`: Ajouter/modifier les informations techniques si nécessaire
 
-2. Nettoyer les fichiers de contexte et workflow:
+2. **Nettoyage du contexte**: Nettoyer les fichiers de contexte et workflow:
    - Supprimer les informations obsolètes ou redondantes
    - Condenser les sections trop détaillées
    - S'assurer que chaque fichier reste en dessous de 200 lignes
    - Privilégier la concision tout en maintenant la clarté
 
-3. Mettre à jour le fichier tasks.md en fonction des résultats des tests:
+3. **Mise à jour de tasks.md**: Mettre à jour le fichier tasks.md en fonction des résultats des tests:
    - Déplacer les tâches réussies de "In Progress" vers "Done"
 
-4. Effectuer un commit avec les modifications:
+4. **Commit des modifications**: Effectuer un commit avec les modifications:
    - Préparer les fichiers et créer le commit en une seule commande:
      `git add [fichiers] && git commit -m "[message]"`
    - Suivre le format conventional commit avec emoji pour le message
 
-5. Vérifier si le workflow est terminé:
+5. **Vérification du workflow**: Vérifier si le workflow est terminé:
    - Le workflow ne doit JAMAIS être considéré comme terminé s'il reste des tâches dans "In Progress" ou "ToDo" OU s'il y a au moins un test qui échoue (marqué ❌) ou avec avertissement (marqué ⚠️)
    - Si toutes les tâches sont terminées (c'est-à-dire qu'il n'y a plus AUCUNE tâche dans les sections "In Progress" et "ToDo" du fichier tasks.md) ET que tous les tests passent (TOUS marqués ✅) alors:
      - Présenter une synthèse claire et concise du travail effectué
@@ -35,7 +35,7 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
      - Indiquer explicitement: "Le workflow est terminé, aucune règle suivante à appeler."
    - Si le workflow n'est pas terminé, appeler la règle suivante appropriée
 
-6. Appeler obligatoirement la règle suivante si le workflow n'est pas terminé:
+6. **Appel de la règle suivante**: Appeler obligatoirement la règle suivante si le workflow n'est pas terminé:
    - Si au moins un test échoue, appeler la règle `fix`
    - Sinon, s'il reste des tâches en cours ou à faire, appeler la règle `implementation`
 
@@ -71,29 +71,29 @@ Exemples d'emojis et types:
 fetch_rules ["context-update"]
 <SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. J'effectuerai un commit pour les modifications et déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix' ou 'implementation' selon les tests et les tâches restantes.</SYSTEM PROMPT>
 
-# Context-update : 1 - Mise à jour des fichiers de contexte
-Je commence par mettre à jour les fichiers de contexte pour refléter les changements.
+# Context-update : 1 - Mise à jour du contexte
+Je commence par mettre à jour les fichiers de contexte pour refléter les changements. `(Context-update : 1 - Mise à jour du contexte)`
 [...mise à jour des fichiers de contexte...]
 
-# Context-update : 2 - Nettoyage des fichiers de contexte
-Je nettoie les fichiers de contexte en supprimant les informations obsolètes.
+# Context-update : 2 - Nettoyage du contexte
+Je nettoie les fichiers de contexte en supprimant les informations obsolètes. `(Context-update : 2 - Nettoyage du contexte)`
 [...nettoyage des fichiers de contexte...]
 
 # Context-update : 3 - Mise à jour du fichier tasks.md
-Je mets à jour le fichier tasks.md en déplaçant les tâches terminées vers Done.
+Je mets à jour le fichier tasks.md en déplaçant les tâches terminées vers Done. `(Context-update : 3 - Mise à jour du fichier tasks.md)`
 [...mise à jour du fichier tasks.md...]
 
 # Context-update : 4 - Effectuer un commit
-Je prépare et effectue un commit avec les modifications apportées.
+Je prépare et effectue un commit avec les modifications apportées. `(Context-update : 4 - Effectuer un commit)`
 [...création du commit...]
 
 # Context-update : 5 - Vérifier si le workflow est terminé
-Je vérifie s'il reste des tâches à faire ou des tests à corriger.
+Je vérifie s'il reste des tâches à faire ou des tests à corriger. `(Context-update : 5 - Vérification du workflow)`
 [...vérification du workflow...]
 
 # Context-update : 6 - Appel de la règle suivante
 Je dois maintenant appeler la règle implementation car il reste des tâches à faire.
-La règle implementation doit être appelée pour continuer le travail sur les tâches restantes.
+La règle implementation doit être appelée pour continuer le travail sur les tâches restantes. `(Context-update : 6 - Appel de la règle suivante)`
 
 fetch_rules ["implementation"]
 

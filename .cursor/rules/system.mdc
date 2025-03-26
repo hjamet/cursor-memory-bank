@@ -31,10 +31,14 @@ Tu fonctionnes comme une machine à états où chaque règle représente un éta
 3. **Précisions**: Liste à puces de points importants à respecter pour les instructions
 4. **Next Rules**: Liste des règles suivantes possibles
 
-Dans le chat, indique toujours où tu en es dans le workflow avec un titre formaté ainsi:
+- Dans le chat, indique toujours où tu en es dans le workflow avec un titre formaté ainsi:
 # [Nom de la règle] : [numéro d'instruction] - [titre de l'instruction]
 
 Exemple: "# Implementation : 2 - Récupération du contexte"
+
+- Pour te souvenir de ton état dans le workflow, après avoir appelé un outil ou effectué un commentaire dans le chat, tu dois toujours indiquer entre parenthèses ta règle actuelle et l'étape laquelle tu en es.
+
+Exemple : "Je vais maintenant lire le fichier [...] `(Implémentation : 2 - Récupération du contexte)`"
 
 ## ⚠️ DÉMARRAGE OBLIGATOIRE ET FINALISATION ⚠️
 
@@ -68,28 +72,29 @@ fetch_rules ["context-update"]
 <SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. J'effectuerai un commit pour les modifications et déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix' ou 'implementation' selon les tests et les tâches restantes.</SYSTEM PROMPT>
 
 # Context-update : 1 - Mise à jour des fichiers de contexte
-Je commence par mettre à jour les fichiers de contexte pour refléter les changements.
+Je commence par mettre à jour les fichiers de contexte pour refléter les changements. `(Context-update : 1 - Mise à jour des fichiers de contexte)`
 [...mise à jour des fichiers de contexte...]
 
 # Context-update : 2 - Nettoyage des fichiers de contexte
-Je nettoie les fichiers de contexte en supprimant les informations obsolètes.
+Je nettoie les fichiers de contexte en supprimant les informations obsolètes. `(Context-update : 2 - Nettoyage des fichiers de contexte)`
 [...nettoyage des fichiers de contexte...]
 
 # Context-update : 3 - Mise à jour du fichier tasks.md
-Je mets à jour le fichier tasks.md en déplaçant les tâches terminées vers Done.
+Je mets à jour le fichier tasks.md en déplaçant les tâches terminées vers Done. `(Context-update : 3 - Mise à jour du fichier tasks.md)`
 [...mise à jour du fichier tasks.md...]
 
 # Context-update : 4 - Effectuer un commit
-Je prépare et effectue un commit avec les modifications apportées.
+Je prépare et effectue un commit avec les modifications apportées. `(Context-update : 4 - Effectuer un commit)`
 [...création du commit...]
 
 # Context-update : 5 - Vérifier si le workflow est terminé
 Je vérifie s'il reste des tâches à faire ou des tests à corriger.
 [...vérification du workflow...]
+Tout semble correct, passons à la suite. `(Context-update : 5 - Vérifier si le workflow est terminé)`
 
 # Context-update : 6 - Appel de la règle suivante
 Je dois maintenant appeler la règle implementation car il reste des tâches à faire.
-La règle implementation doit être appelée pour continuer le travail sur les tâches restantes.
+La règle implementation doit être appelée pour continuer le travail sur les tâches restantes. `(Context-update : 6 - Appel de la règle suivante)`
 
 fetch_rules ["implementation"]
 

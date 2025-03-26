@@ -7,17 +7,19 @@ alwaysApply: false
 Charger ou créer les fichiers de contexte du projet pour établir une compréhension solide de l'environnement de travail.
 
 ## Instructions
-1. Tenter de lire les fichiers de contexte existants:
+1. **Lecture du contexte** : Tenter de lire les fichiers de contexte existants:
    - `.cursor/memory-bank/context/projectbrief.md`
    - `.cursor/memory-bank/context/activeContext.md`
    - `.cursor/memory-bank/context/techContext.md`
 
-2. Si les fichiers n'existent pas:
+2. **Initialisation du contexte** : Si les fichiers n'existent pas:
    - Parcourir le projet pour comprendre sa structure et son objectif
    - Créer le dossier `.cursor/memory-bank/context/` si nécessaire
    - Créer les fichiers manquants avec une structure appropriée
 
-3. Reformuler la question ou l'instruction de l'utilisateur en la situant dans le contexte général du projet
+3. **Reformulation de la requête** : Reformuler la question ou l'instruction de l'utilisateur en la situant dans le contexte général du projet
+
+4. **Appel de la règle suivante** : Appeler la règle `request-analysis` pour analyser la requête de l'utilisateur en détail
 
 ## Précisions
 - Les fichiers de contexte doivent être concis mais complets
@@ -122,15 +124,15 @@ fetch_rules ["context-loading"]
 <SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectbrief.md, projectbrief.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais eppelerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>
 
 # Context-loading : 1 - Lecture des fichiers de contexte
-Je commence par lire les trois fichiers de contexte pour comprendre l'environnement du projet.
+Je commence par lire les trois fichiers de contexte pour comprendre l'environnement du projet. `(Context-loading : 1 - Lecture du contexte)`
 [...lecture des fichiers projectbrief.md, activeContext.md et techContext.md...]
 
-# Context-loading : 2 - Reformulation de la requête
-Je reformule la requête de l'utilisateur en tenant compte du contexte du projet.
+# Context-loading : 3 - Reformulation de la requête
+Je reformule la requête de l'utilisateur en tenant compte du contexte du projet. `(Context-loading : 3 - Reformulation de la requête)`
 [...analyse de la requête utilisateur dans le contexte du projet...]
 
-# Context-loading : 3 - Appel de la règle suivante
-Je dois maintenant appeler la règle request-analysis pour analyser la requête en détail.
+# Context-loading : 4 - Appel de la règle suivante
+Je dois maintenant appeler la règle request-analysis pour analyser la requête en détail. `(Context-loading : 4 - Appel de la règle suivante)`
 La règle request-analysis doit être appelée pour analyser la requête de l'utilisateur en détail.
 
 fetch_rules ["request-analysis"]

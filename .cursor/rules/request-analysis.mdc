@@ -8,23 +8,30 @@ alwaysApply: false
 Analyser en détail la requête de l'utilisateur, explorer le code existant et rechercher des informations complémentaires pour préparer une implémentation efficace.
 
 ## Instructions
-1. Parcourir le code pour identifier les fichiers et symboles concernés:
+
+1. **Analyse du code** : Parcourir le code pour identifier les fichiers et symboles concernés:
    - Effectuer une recherche sémantique basée sur les mots-clés de la requête
    - Examiner les fichiers identifiés et leurs dépendances
    - Lire attentivement le code des fichiers concernés pour comprendre leur fonctionnement
 
-2. Créer une représentation arborescente du code:
+2. **Création de l'arborescence** : Créer une représentation arborescente du code:
    - Inclure tous les fichiers et symboles (classes, fonctions, variables) pertinents
    - Ajouter une courte description en commentaire pour chaque élément
    - Marquer clairement les éléments à modifier ou à créer (sans mentionner les fichiers Memory Bank)
    - Organiser l'arborescence de manière logique (par module, fonctionnalité, etc.)
    - Se concentrer uniquement sur les fichiers de l'application, pas sur les fichiers de Memory Bank
 
-3. Rechercher des informations complémentaires sur internet si nécessaire:
+3. **Recherche sur internet** : Rechercher des informations complémentaires sur internet si nécessaire:
    - Consulter la documentation des bibliothèques utilisées
    - Rechercher des algorithmes ou patterns pertinents
    - Identifier les meilleures pratiques pour le type d'implémentation demandé
    - Vérifier les approches similaires dans d'autres projets ou la littérature
+
+4. **Conclusion de l'analyse** : Faire un résumé en langage naturel synthétisant les informations trouvées et les changements à apporter.
+
+5. **Appeller obligatoirement la règle suivante** : Appeler obligatoirement la règle suivante:
+   - Si la requête nécessite plusieurs étapes, appeler la règle `task-decomposition`
+   - Sinon, appeler la règle `implementation`   
 
 ## Précisions
 - Utiliser des recherches sémantiques précises pour trouver tous les fichiers pertinents
@@ -46,21 +53,25 @@ Analyser en détail la requête de l'utilisateur, explorer le code existant et r
 fetch_rules ["request-analysis"]
 <SYSTEM PROMPT>Je vais analyser en détail la requête et explorer le code pertinent pour comprendre ce qui doit être fait. Je ne mentionnerai pas les fichiers Memory Bank dans mes analyses. Je n'implementerai pas les changements demandés mais expliquerai leur but en langage naturelle. A la fin de mon travail, je ferai appel aux règles `task-decomposition` ou `implementation` pour qu'elles se charge de l'implémentation.</SYSTEM PROMPT>
 
-# Request-analysis : 1 - Analyse de la requête
-Je commence par analyser la requête de l'utilisateur pour bien comprendre ce qui est demandé.
-[...analyse de la requête...]
+# Request-analysis : 1 - Analyse du code
+Je commence par analyser le code pour identifier les fichiers et symboles concernés. `(Request-analysis : 1 - Analyse du code)`
+[...analyse du code...]
 
-# Request-analysis : 2 - Recherche des fichiers concernés
-Je vais chercher les fichiers pertinents pour cette requête.
-[...recherche des fichiers...]
+# Request-analysis : 2 - Création de l'arborescence
+Je vais créer une représentation arborescente du code. `(Request-analysis : 2 - Création de l'arborescence)`
+[...création de l'arborescence...]
 
-# Request-analysis : 3 - Conclusion de l'analyse
-Je résume les résultats de mon analyse et détermine la prochaine étape.
+# Request-analysis : 3 - Recherche sur internet
+Je vais chercher des informations à propos de [...] `(Request-analysis : 3 - Recherche sur internet)`
+[...recherche sur internet...]
+
+# Request-analysis : 4 - Conclusion de l'analyse
+Je résume les résultats de mon analyse et détermine la prochaine étape. `(Request-analysis : 4 - Conclusion de l'analyse)`
 [...conclusion de l'analyse...]
 
-# Request-analysis : 4 - Appel de la règle suivante
+# Request-analysis : 5 - Appel de la règle suivante
 Je dois maintenant appeler la règle task-decomposition car la requête nécessite plusieurs étapes.
-La règle task-decomposition doit être appelée pour décomposer la requête en tâches spécifiques.
+La règle task-decomposition doit être appelée pour décomposer la requête en tâches spécifiques. `(Request-analysis : 5 - Appel de la règle suivante)`
 
 fetch_rules ["task-decomposition"]
 

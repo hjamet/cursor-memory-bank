@@ -7,26 +7,30 @@ alwaysApply: false
 Créer et exécuter des tests pour les fonctionnalités implémentées, puis analyser et documenter les résultats dans le fichier tests.md.
 
 ## Instructions
-1. Pour chaque symbole (fonction, classe, méthode) créé ou modifié lors de l'implémentation:
+
+1. **Création des tests** : Pour chaque symbole (fonction, classe, méthode) créé ou modifié lors de l'implémentation:
    - Concevoir des tests unitaires couvrant le comportement normal
    - Implémenter les tests dans le dossier `tests/` approprié
 
-2. Exécuter les tests:
+2. **Execution des tests** : Exécuter les tests unitaires pour les fonctionnalités implémentées sans tenter de corriger les erreurs
    - Lancer les tests unitaires pour les fonctionnalités implémentées
    - Capturer les résultats de l'exécution (succès, échecs, avertissements)
    - Noter les messages d'erreur ou d'avertissement
+   - NE PAS TENTER DE CORRIGER LES ERREURS
 
-3. Analyser les résultats des tests:
+3. **Analyse des résultats** : Evaluer l'évolution du résultat des tests par rapport à la dernière exécution
    - Lire le fichier `.cursor/memory-bank/workflow/tests.md` s'il existe
    - Comparer les nouveaux résultats avec les précédents
    - Identifier les améliorations ou régressions
+   - NE PAS TENTER DE CORRIGER LES ERREURS
 
-4. Mettre à jour le fichier tests.md:
+4. **Documentation des résultats** : Mettre à jour le fichier tests.md avec les nouveaux résultats
    - Créer le fichier s'il n'existe pas
    - Ajouter les nouveaux résultats de tests selon le format spécifié
    - Inclure une analyse de l'évolution pour chaque test
+   - NE PAS TENTER DE CORRIGER LES ERREURS
 
-5. Appeler obligatoirement la règle suivante:
+5. **Appel de la règle suivante** : Appeler obligatoirement la règle suivante:
    - Évaluer les résultats des tests pour déterminer la règle suivante
    - Si au moins un test s'est amélioré, appeler la règle `context-update`
    - Si aucun test ne s'est amélioré, appeler la règle `fix`
@@ -39,6 +43,7 @@ Créer et exécuter des tests pour les fonctionnalités implémentées, puis ana
 - Toujours ajouter une explication sur l'évolution du statut d'un test, que ce soit positif ou négatif
 - Utiliser les emojis appropriés pour indiquer le statut des tests
 - Fournir des explications détaillées pour les échecs ou avertissements
+- NE JAMAIS TENTER DE CORRIGER LES ERREURS, ce n'est pas le travail de cette règle : tu n'es pas chargé de corriger les erreurs simplement d'implémenter et tenter d'executer les tests.
 - Ne JAMAIS sauter l'appel à la règle suivante
 
 ## Format de tests.md
@@ -60,27 +65,27 @@ fetch_rules ["tests"]
 <SYSTEM PROMPT>Je vais créer et exécuter des tests pour les fonctionnalités implémentées, puis documenter les résultats. Je ne tenterai pas de corriger directement les erreurs mais je passerai à la règle 'fix' si des tests échouent, ou à 'context-update' si tous les tests passent ou s'améliorent.</SYSTEM PROMPT>
 
 # Tests : 1 - Création des tests unitaires
-Je commence par créer les tests pour les nouvelles fonctionnalités.
+Je commence par créer les tests pour les nouvelles fonctionnalités. `(Tests : 1 - Création des tests unitaires)`
 [...création des tests unitaires...]
 
 # Tests : 2 - Exécution des tests
-Je lance les tests pour vérifier le comportement des fonctionnalités.
+Je lance les tests pour vérifier le comportement des fonctionnalités. `(Tests : 2 - Exécution des tests)`
 [...exécution des tests...]
 
 # Tests : 3 - Analyse des résultats
-Je compare les résultats avec les tests précédents.
+Je compare les résultats avec les tests précédents. `(Tests : 3 - Analyse des résultats)`
 [...analyse des résultats...]
 
-# Tests : 4 - Mise à jour du fichier tests.md
-Je mets à jour le fichier tests.md avec les nouveaux résultats.
+# Tests : 4 - Documentation des résultats
+Je mets à jour le fichier tests.md avec les nouveaux résultats. `(Tests : 4 - Documentation des résultats)`
 [...mise à jour du fichier tests.md...]
 
 # Tests : 5 - Appel de la règle suivante
-Je dois maintenant appeler la règle context-update car les tests se sont améliorés.
-La règle context-update doit être appelée pour mettre à jour le contexte avec les résultats des tests.
+Je dois maintenant appeler la règle context-update car les certains tests ont progressé et je n'ai eu aucune regression.
+La règle context-update doit être appelée pour mettre à jour le contexte avec les résultats des tests. `(Tests : 5 - Appel de la règle suivante)`
 
 fetch_rules ["context-update"]
 
 # Start Rule
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais créer et exécuter des tests pour les fonctionnalités implémentées, puis documenter les résultats. Je ne tenterai pas de corriger directement les erreurs mais je ferai appel à la règle 'context-update' si au moins un test s'est amélioré ou à la règle 'fix' autrement pour s'en charger</SYSTEM PROMPT>"
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais créer et exécuter des tests pour les fonctionnalités implémentées, puis documenter les résultats. Je ne tenterai pas de corriger directement les erreurs, quelqu'elles soient mais je ferai appel à la règle 'context-update' si au moins un test s'est amélioré ou à la règle 'fix' autrement pour effectuer les corrections. Mon rôle consiste simplement à implémenter et executer les tests</SYSTEM PROMPT>"

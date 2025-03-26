@@ -7,21 +7,22 @@ alwaysApply: false
 Implémenter les tâches d'une section prioritaire en suivant une approche méthodique et en documentant clairement le processus.
 
 ## Instructions
-1. Lire le fichier `.cursor/memory-bank/workflow/tasks.md` et se concentrer sur la section de tâches la plus urgente :
-- Prendre la première section des tâches en cours si il y en a
-- Prendre la première section des tâches ToDo si il y en a
-- Appeler la prochaine règle si toutes les tâches sont terminées
 
-2. Pour chaque tâche de la section:
+1. **Analyse des tâches** : Lire le fichier `.cursor/memory-bank/workflow/tasks.md` et se concentrer sur la section de tâches la plus urgente :
+   - Prendre la première section des tâches en cours si il y en a
+   - Prendre la première section des tâches ToDo si il y en a
+   - Appeler la prochaine règle si toutes les tâches sont terminées
+
+2. **Implémentation des tâches** : Pour chaque tâche de la section:
    - Afficher dans le chat: `## Implementation - 2.numero.[Nom de la Section] : [Titre de la tâche]`
    - Implémenter la solution
    - Entre chaque appel d'outil, écris `Implementation - 2.numero.[Nom de la Section] : [Titre de la tâche] en cours...` pour ne pas perdre te perdre dans le fil de tes pensées et oublier le workflow.
 
-3. Mettre à jour le fichier tasks.md:
+3. **Mise à jour du fichier tasks.md** : Mettre à jour le fichier tasks.md pour refléter l'avancement des tâches.
    - Déplacer la section de tâches de "ToDo" vers "In Progress"
    - Marquer les tâches individuelles comme en cours
 
-4. Appeler obligatoirement la règle suivante:
+4. **Appel de la règle suivante** : Appeler obligatoirement la règle suivante:
    - Évaluer si des tests sont nécessaires pour les fonctionnalités implémentées
    - Si des tests sont nécessaires, appeler la règle `tests`
    - Sinon, appeler la règle `context-update`
@@ -41,28 +42,28 @@ Implémenter les tâches d'une section prioritaire en suivant une approche méth
 fetch_rules ["implementation"]
 <SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `tests` à la fin de mon travail qui s'en chargera.</SYSTEM PROMPT>
 
-# Implementation : 1 - Lecture du fichier tasks.md
-Je commence par lire le fichier tasks.md pour identifier la section la plus prioritaire.
+# Implementation : 1 - Analyse des tâches
+Je commence par lire le fichier tasks.md pour identifier la section la plus prioritaire. `(Implementation : 1 - Analyse des tâches)`
 [...lecture du fichier tasks.md...]
 
 # Implementation : 2 - Implémentation des tâches
-Je vais implémenter chaque tâche de la section en suivant une approche méthodique.
+Je vais implémenter chaque tâche de la section en suivant une approche méthodique. `(Implementation : 2 - Implémentation des tâches)`
 
 ## Implementation - 2.1.Développement : Création du script
-Je commence par créer le script principal avec les fonctionnalités requises.
+Je commence par créer le script principal avec les fonctionnalités requises. `(Implementation : 2.1 - Création du script)`
 [...implémentation du script...]
 
 ## Implementation - 2.2.Développement : Documentation
-J'ajoute la documentation nécessaire pour expliquer le fonctionnement du script.
+J'ajoute la documentation nécessaire pour expliquer le fonctionnement du script. `(Implementation : 2.2 - Documentation)`
 [...ajout de la documentation...]
 
 # Implementation : 3 - Mise à jour du fichier tasks.md
-Je mets à jour le fichier tasks.md pour refléter l'avancement des tâches.
+Je mets à jour le fichier tasks.md pour refléter l'avancement des tâches. `(Implementation : 3 - Mise à jour du fichier tasks.md)`
 [...mise à jour du fichier tasks.md...]
 
 # Implementation : 4 - Appel de la règle suivante
 Je dois maintenant appeler la règle tests pour vérifier les fonctionnalités implémentées.
-La règle tests doit être appelée pour tester les nouvelles fonctionnalités.
+La règle tests doit être appelée pour tester les nouvelles fonctionnalités. `(Implementation : 4 - Appel de la règle suivante)`
 
 fetch_rules ["tests"]
 

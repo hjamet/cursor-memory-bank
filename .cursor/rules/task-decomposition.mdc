@@ -7,11 +7,12 @@ alwaysApply: false
 Décomposer la requête de l'utilisateur en tâches concrètes et les organiser dans le fichier tasks.md par sections logiques numérotées.
 
 ## Instructions
-1. Lire le fichier `.cursor/memory-bank/workflow/tasks.md` s'il existe
 
-2. Supprimer les tâches terminées qui n'ont plus de lien avec le travail actuel
+1. **Analyse des tâches existantes** : Lire le fichier `.cursor/memory-bank/workflow/tasks.md` s'il existe
 
-3. Ajouter les nouvelles tâches issues de l'analyse de la requête:
+2. **Suppression des tâches terminées** : Supprimer les tâches terminées qui n'ont plus de lien avec le travail actuel
+
+3. **Intégration des nouvelles tâches** : Ajouter les nouvelles tâches issues de l'analyse de la requête au fichier tasks.md
    - Créer des sections de très haut niveau (ex: "Préparation", "Développement", "Validation")
    - Numéroter les sections par ordre croissant de résolution optimale (1., 2., 3., etc.)
    - Sous-numéroter les tâches dans chaque section (1.1, 1.2, 2.1, 2.2, etc.)
@@ -27,7 +28,9 @@ Décomposer la requête de l'utilisateur en tâches concrètes et les organiser 
      * L'impact sur les autres tâches
      * La complexité de mise en œuvre
 
-4. Mettre à jour le fichier tasks.md avec la nouvelle structure
+4. **Appel de la règle suivante** : Appeler obligatoirement la règle suivante:
+   - Si la requête nécessite plusieurs étapes, appeler la règle `task-decomposition`
+   - Sinon, appeler la règle `implementation`
 
 ## Précisions
 - Créer un maximum de 3-4 sections de très haut niveau pour garder une vue d'ensemble claire
@@ -73,24 +76,20 @@ fetch_rules ["task-decomposition"]
 <SYSTEM PROMPT>Je vais décomposer la requête en tâches concrètes, supprimer les tâches terminées non pertinentes et organiser le tout en sections logiques numérotées. Je ne tenterai pas d'appliquer ces tâches mais ferai appel à la règle `implementation` pour s'en charger.</SYSTEM PROMPT>
 
 # Task-decomposition : 1 - Lecture du fichier tasks.md
-Je commence par lire le fichier tasks.md pour comprendre l'état actuel des tâches.
+Je commence par lire le fichier tasks.md pour comprendre l'état actuel des tâches. `(Task-decomposition : 1 - Lecture du fichier tasks.md)`
 [...lecture du fichier tasks.md...]
 
 # Task-decomposition : 2 - Suppression des tâches terminées
-Je supprime les tâches terminées qui ne sont plus pertinentes pour le travail en cours.
+Je supprime les tâches terminées qui ne sont plus pertinentes pour le travail en cours. `(Task-decomposition : 2 - Suppression des tâches terminées)`
 [...suppression des tâches obsolètes...]
 
-# Task-decomposition : 3 - Ajout des nouvelles tâches
-Je décompose la requête en tâches concrètes et les organise en sections de haut niveau.
+# Task-decomposition : 3 - Intégration des nouvelles tâches
+Je décompose la requête en tâches concrètes et les organise en sections de haut niveau. `(Task-decomposition : 3 - Intégration des nouvelles tâches)`
 [...organisation des tâches en sections...]
 
-# Task-decomposition : 4 - Mise à jour du fichier
-Je mets à jour le fichier tasks.md avec la nouvelle structure de tâches.
-[...mise à jour du fichier tasks.md...]
-
-# Task-decomposition : 5 - Appel de la règle suivante
+# Task-decomposition : 4 - Appel de la règle suivante
 Je dois maintenant appeler la règle implementation pour commencer le travail sur les tâches.
-La règle implementation doit être appelée pour commencer l'implémentation des tâches.
+La règle implementation doit être appelée pour commencer l'implémentation des tâches. `(Task-decomposition : 4 - Appel de la règle suivante)`
 
 fetch_rules ["implementation"]
 
