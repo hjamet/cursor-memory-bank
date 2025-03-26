@@ -1,5 +1,5 @@
 ---
-description: [tests] - Analyse et correction des erreurs détectées lors des tests
+description: Analyse et correction des erreurs détectées lors des tests
 globs: 
 alwaysApply: false
 ---

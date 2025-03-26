@@ -1,5 +1,5 @@
 ---
-description: [task-decomposition] - Implémentation des tâches définies dans une section
+description: Implémentation des tâches définies dans une section
 globs: 
 alwaysApply: false
 ---

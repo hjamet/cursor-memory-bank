@@ -1,5 +1,5 @@
 ---
-description: [context-loading] - Identification et sauvegarde des préférences utilisateur
+description: Identification et sauvegarde des préférences utilisateur
 globs: 
 alwaysApply: false
 ---

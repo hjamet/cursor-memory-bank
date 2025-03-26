@@ -1,5 +1,5 @@
 ---
-description: [implementation] - Création, exécution et analyse des tests pour les fonctionnalités implémentées
+description: Création, exécution et analyse des tests pour les fonctionnalités implémentées
 globs: 
 alwaysApply: false
 ---
