@@ -6,14 +6,8 @@ alwaysApply: false
 ## TLDR
 Analyser les erreurs de test, créer des tâches de correction et documenter les problèmes récurrents pour éviter de les reproduire.
 
-## Résumé d'invocation
-Après avoir invoqué cette règle, l'agent dira: "Je vais analyser méthodiquement les erreurs des tests échoués, créer des tâches de correction bien définies et documenter les problèmes récurrents. Je ne corrigerai pas directement les erreurs mais je préparerai les tâches pour l'implémentation future. Je passerai ensuite à l'implémentation des corrections."
-
 ## Instructions
-1. Identifier et lister les erreurs pour chaque test échoué:
-   - Analyser les messages d'erreur et les traces de pile
-   - Catégoriser les erreurs par type (syntaxe, logique, configuration, etc.)
-   - Déterminer les causes probables de chaque erreur
+1. Identifier et lister les erreurs pour chaque test échoué.
 
 2. Identifier et parcourir les fichiers concernés:
    - Localiser précisément les lignes de code problématiques
@@ -33,13 +27,10 @@ Après avoir invoqué cette règle, l'agent dira: "Je vais analyser méthodiquem
    - Sauvegarder la règle dans `.cursor/rules/custom/errors/`
 
 ## Précisions
-- Être méthodique dans l'analyse des erreurs, en allant de la plus critique à la moins importante
 - Documenter les erreurs de manière à faciliter leur résolution future
-- Être spécifique dans la description des tâches de correction
+- Inclure les symboles et fichiers concernés dans les tâches de résolution
 - Inclure des exemples concrets dans les règles d'erreur
 - Organiser les tâches de correction par composant ou fonctionnalité
-- Prioriser les corrections qui débloquent d'autres fonctionnalités
-- Pour les règles d'erreur, se concentrer sur les cas qui pourraient se reproduire
 - Garder les règles d'erreur concises mais complètes
 
 ## Format pour les règles d'erreur
@@ -64,3 +55,7 @@ alwaysApply: false
 
 ## Next Rules
 - `implementation` - Pour implémenter les corrections identifiées
+
+# Start Rule
+
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais analyser méthodiquement les erreurs des tests échoués, créer des tâches de correction bien définies et documenter les problèmes récurrents. Je ne corrigerai pas directement les erreurs mais je préparerai les tâches pour l'implémentation future et ferai ensuite appel à la règle `implementation` pour se charger des corrections</SYSTEM PROMPT>"

@@ -1,45 +1,30 @@
 ---
-description: [request-analysis] - Décomposition de la requête en tâches spécifiques et organisées
+description: Décomposition de la requête en tâches spécifiques et organisées
 globs: 
 alwaysApply: false
 ---
 ## TLDR
 Décomposer la requête de l'utilisateur en tâches concrètes et les organiser dans le fichier tasks.md par sections logiques numérotées.
 
-## Résumé d'invocation
-Après avoir invoqué cette règle, l'agent dira: "Je vais décomposer la requête en tâches concrètes, supprimer les tâches terminées non pertinentes et organiser le tout en sections logiques numérotées. Chaque section contiendra 1-2 tâches maximum pour faciliter l'implémentation. Je pourrai ensuite passer à l'implémentation ou mettre à jour le contexte."
-
 ## Instructions
 1. Lire le fichier `.cursor/memory-bank/workflow/tasks.md` s'il existe
 
-2. Supprimer les tâches terminées qui n'ont plus de lien avec le travail actuel:
-   - Conserver uniquement les tâches terminées récemment ou liées aux tâches en cours
+2. Supprimer les tâches terminées qui n'ont plus de lien avec le travail actuel
 
 3. Ajouter les nouvelles tâches issues de l'analyse de la requête:
-   - Organiser les tâches en sections logiques de taille réduite (1-2 tâches par section maximum)
+   - Organiser les tâches en sections logiques de taille raisonnables
    - Numéroter les sections par ordre croissant de résolution optimale (1., 2., 3., etc.)
    - Sous-numéroter les tâches dans chaque section (1.1, 1.2, 2.1, 2.2, etc.)
    - Ne pas créer de sections trop grandes qui seraient difficiles à implémenter en une fois
-   - Décomposer chaque tâche complexe en sous-tâches plus petites et gérables
    - Prioriser les tâches selon leur importance et leurs dépendances
    - Ajouter des descriptions concises mais suffisamment détaillées pour chaque tâche
 
-4. Mettre à jour le fichier tasks.md avec la nouvelle structure:
-   - Créer le fichier s'il n'existe pas
-   - Respecter le format spécifié
-   - Sauvegarder les modifications
+4. Mettre à jour le fichier tasks.md avec la nouvelle structure
 
 ## Précisions
 - Chaque tâche doit être spécifique, mesurable et réalisable
 - Regrouper les tâches similaires dans des sections cohérentes
 - Utiliser des descriptions claires et concises pour chaque tâche
-- Maintenir une distinction nette entre les tâches en cours, à faire et terminées
-- Indiquer les dépendances entre les tâches lorsqu'elles existent
-- Estimer la complexité ou la priorité des tâches si possible
-- S'assurer que le fichier reste lisible et bien structuré
-- IMPORTANT: Limiter à 1-2 tâches par section pour garantir que leur implémentation tienne dans le contexte
-- Privilégier plusieurs petites sections plutôt qu'une grande section avec de nombreuses tâches
-- IMPORTANT: Lors de l'exécution du workflow, toujours indiquer les numéros des tâches en cours de résolution
 - IMPORTANT: Créer les tâches par ordre croissant de résolution optimale, de manière à faciliter l'exécution séquentielle
 
 ## Format de tasks.md
@@ -49,26 +34,25 @@ Après avoir invoqué cette règle, l'agent dira: "Je vais décomposer la requê
 ## 1. [Nom de la Section 1]
 1.1. [ ] **[Titre de la tâche 1]** : [Description détaillée de la tâche]
 1.2. [ ] **[Titre de la tâche 2]** : [Description détaillée de la tâche]
+[...]
 
 ## 2. [Nom de la Section 2]
 2.1. [ ] **[Titre de la tâche 3]** : [Description détaillée de la tâche]
-
-## 3. [Nom de la Section 3]
-3.1. [ ] **[Titre de la tâche 4]** : [Description détaillée de la tâche]
+[...]
 
 # ToDo
 
-## 4. [Nom de la Section 4]
-4.1. [ ] **[Titre de la tâche 5]** : [Description détaillée de la tâche]
+[...]
 
 # Done
 
-## Améliorations récentes
-- [x] **[Titre de la tâche terminée 1]** : [Description détaillée de la tâche]
-- [x] **[Titre de la tâche terminée 2]** : [Description détaillée de la tâche]
+[...]
 ```
 
 ## Next Rules
 - `implementation` - Pour commencer l'implémentation des tâches
-- `context-update` - Pour mettre à jour le contexte du projet avec les nouvelles tâches
+
+# Start Rule
+
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais décomposer la requête en tâches concrètes, supprimer les tâches terminées non pertinentes et organiser le tout en sections logiques numérotées. Je ne tenterai pas d'appliquer ces tâches mais ferai appel à la règle `implementation` pour s'en charger.</SYSTEM PROMPT>"
 

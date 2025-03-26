@@ -7,17 +7,16 @@ alwaysApply: false
 Implémenter les tâches d'une section prioritaire en suivant une approche méthodique et en documentant clairement le processus.
 
 ## Instructions
-1. Identifier la section de tâches la plus urgente dans `.cursor/memory-bank/workflow/tasks.md`:
-   - Évaluer la priorité en fonction des dépendances et de l'importance
-   - Sélectionner une section complète de tâches liées
+1. Lire le fichier `.cursor/memory-bank/workflow/tasks.md` et se concentrer sur la section de tâches la plus urgente :
+- Prendre la première section des tâches en cours si il y en a
+- Prendre la première section des tâches ToDo si il y en a
+- Appeler la prochaine règle si toutes les tâches sont terminées
 
 2. Pour chaque tâche de la section:
    - Afficher dans le chat: `# [Nom de la Section] : [Titre de la tâche]`
-   - Analyser en détail les exigences de la tâche
    - Identifier les fichiers à modifier ou à créer
    - Implémenter la solution en suivant les conventions du projet
    - Documenter le code selon les standards établis
-   - Vérifier que l'implémentation répond aux exigences
 
 3. Mettre à jour le fichier tasks.md:
    - Déplacer la section de tâches de "ToDo" vers "In Progress"
@@ -33,19 +32,12 @@ Implémenter les tâches d'une section prioritaire en suivant une approche méth
 - Implémenter une tâche à la fois, dans l'ordre logique
 - Suivre les conventions de code et les préférences utilisateur identifiées
 - Ajouter des commentaires explicatifs pour les parties complexes
-- Respecter l'architecture existante du projet
-- Vérifier la cohérence avec le reste du code
-- Éviter les modifications non liées à la tâche en cours
-- Utiliser des noms de variables et de fonctions descriptifs
-- S'assurer que le code est lisible et maintenable
-- Optimiser le code lorsque c'est pertinent, sans sur-optimiser
-- Toute nouvelle fonctionnalité ou modification de comportement est considérée comme "testable"
-- Les scripts déplacés vers le dossier src/ doivent être testés
 - Ne JAMAIS sauter l'appel à la règle suivante
-
-## Résumé d'invocation
-Après avoir invoqué cette règle, l'agent dira mot pour mot: "<SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `tests` à la fin de mon travail qui s'en chargera.</SYSTEM PROMPT>"
 
 ## Next Rules
 - `tests` : Implémentation et exécution des tests si au moins une nouvelle fonctionnalité est "testable" (TOUJOURS le cas pour un nouveau script ou une modification d'un script existant)
 - `context-update` : UNIQUEMENT si aucune modification ne nécessite de test (cas très rare, principalement pour des changements de documentation pure) 
+
+# Start Rule
+
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `tests` à la fin de mon travail qui s'en chargera.</SYSTEM PROMPT>"

@@ -1,13 +1,10 @@
 ---
-description: [system] - Chargement du contexte du projet et préparation de l'environnement de travail
+description: Chargement du contexte du projet et préparation de l'environnement de travail
 globs: 
 alwaysApply: false
 ---
 ## TLDR
 Charger ou créer les fichiers de contexte du projet pour établir une compréhension solide de l'environnement de travail.
-
-## Résumé d'invocation
-Après avoir invoqué cette règle, récite mot pour mot : "<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais eppelerai la règle `request-analysis` qui s'en chargera.</SYSTEM PROMPT>"
 
 ## Instructions
 1. Tenter de lire les fichiers de contexte existants:
@@ -118,3 +115,7 @@ Après avoir invoqué cette règle, récite mot pour mot : "<SYSTEM PROMPT>Je va
 ## Next Rules
 - `request-analysis` - Pour analyser en détail la requête de l'utilisateur
 - `user-preference-saving` - Pour enregistrer des préférences utilisateur détectées
+
+# Start Rule
+
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectbrief.md, projectbrief.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais eppelerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>"

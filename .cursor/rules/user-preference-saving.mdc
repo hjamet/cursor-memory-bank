@@ -28,10 +28,6 @@ Identifier les préférences de l'utilisateur à partir de ses instructions et l
 - Organiser les préférences par catégories (style, architecture, outils, etc.)
 - Utiliser des patterns glob précis pour cibler les bons fichiers
 - Vérifier si des règles similaires existent déjà avant d'en créer de nouvelles
-- Mettre à jour les règles existantes plutôt que d'en créer des doublons
-
-## Résumé d'invocation
-Après avoir invoqué cette règle, l'agent dira mot pour mot: "<SYSTEM PROMPT>Je vais analyser les instructions de l'utilisateur pour identifier ses préférences et les sauvegarder sous forme de règles personnalisées. Je ne créerai des règles que pour les préférences clairement exprimées et j'éviterai les suppositions non fondées. Je passerai ensuite à l'analyse détaillée de la requête.</SYSTEM PROMPT>"
 
 ## Format de règle à utiliser
 ```
@@ -47,4 +43,8 @@ alwaysApply: false
 
 ## Next Rules
 - `request-analysis` - Pour analyser en détail la requête de l'utilisateur
+
+# Start Rule
+
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais analyser les instructions de l'utilisateur pour identifier ses préférences et les sauvegarder sous forme de règles personnalisées. Je ne créerai des règles que pour les préférences clairement exprimées et j'éviterai les suppositions non fondées. Je ne tâcherai pas d'implémenter les modifications demandées mais ferai appel à la règle `request-analysis` pour s'en charger.</SYSTEM PROMPT>"
 

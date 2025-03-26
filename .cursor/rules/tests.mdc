@@ -6,15 +6,10 @@ alwaysApply: false
 ## TLDR
 Créer et exécuter des tests pour les fonctionnalités implémentées, puis analyser et documenter les résultats dans le fichier tests.md.
 
-## Résumé d'invocation
-Après avoir invoqué cette règle, l'agent dira: "Je vais créer et exécuter des tests pour les fonctionnalités implémentées, puis documenter les résultats. Je ne tenterai pas de corriger directement les erreurs mais je passerai à la règle 'fix' si des tests échouent, ou à 'context-update' si tous les tests passent ou s'améliorent."
-
 ## Instructions
 1. Pour chaque symbole (fonction, classe, méthode) créé ou modifié lors de l'implémentation:
    - Concevoir des tests unitaires couvrant le comportement normal
    - Implémenter les tests dans le dossier `tests/` approprié
-   - S'assurer que les tests sont clairs et bien documentés
-   - Inclure des assertions précises avec des messages d'erreur explicites
 
 2. Exécuter les tests:
    - Lancer les tests unitaires pour les fonctionnalités implémentées
@@ -30,22 +25,17 @@ Après avoir invoqué cette règle, l'agent dira: "Je vais créer et exécuter d
    - Créer le fichier s'il n'existe pas
    - Ajouter les nouveaux résultats de tests selon le format spécifié
    - Inclure une analyse de l'évolution pour chaque test
-   - Sauvegarder les modifications
 
 5. Appeler obligatoirement la règle suivante:
    - Évaluer les résultats des tests pour déterminer la règle suivante
    - Si au moins un test s'est amélioré, appeler la règle `context-update`
    - Si aucun test ne s'est amélioré, appeler la règle `fix`
-   - Utiliser TOUJOURS la syntaxe explicite: `@cursor-rules fetch [nom-de-la-règle]`
 
 ## Précisions
 - Tous les scripts de test doivent être placés dans le dossier `tests/`
 - Les fichiers de test doivent suivre la convention de nommage `test_*.sh` pour les scripts shell
 - Créer des tests qui vérifient le comportement attendu, pas l'implémentation
 - Inclure des cas de test pour le comportement normal et les cas limites simples
-- Utiliser des noms de test descriptifs qui expliquent ce qui est testé
-- Structurer les tests selon les conventions du projet
-- Documenter clairement l'objectif de chaque test
 - Toujours ajouter une explication sur l'évolution du statut d'un test, que ce soit positif ou négatif
 - Utiliser les emojis appropriés pour indiquer le statut des tests
 - Fournir des explications détaillées pour les échecs ou avertissements
@@ -63,3 +53,7 @@ Après avoir invoqué cette règle, l'agent dira: "Je vais créer et exécuter d
 ## Next Rules
 - `context-update` : Si au moins un test s'est amélioré ou a été un succès pour la première fois sans qu'un autre se détériore, OU si c'est la première exécution et que tous les tests sont documentés
 - `fix` : Si aucun test ne s'est amélioré ET ce n'est pas la première exécution, OU si des tests échouent et nécessitent une correction
+
+# Start Rule
+
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais créer et exécuter des tests pour les fonctionnalités implémentées, puis documenter les résultats. Je ne tenterai pas de corriger directement les erreurs mais je ferai appel à la règle 'fix' si des tests échouent, ou à 'context-update' si tous les tests passent ou s'améliorent pour s'en charger.</SYSTEM PROMPT>"

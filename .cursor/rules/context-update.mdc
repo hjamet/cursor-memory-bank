@@ -17,12 +17,9 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
    - Condenser les sections trop détaillées
    - S'assurer que chaque fichier reste en dessous de 200 lignes
    - Privilégier la concision tout en maintenant la clarté
-   - Conserver uniquement les informations essentielles à la compréhension du projet
 
 3. Mettre à jour le fichier tasks.md en fonction des résultats des tests:
    - Déplacer les tâches réussies de "In Progress" vers "Done"
-   - Ajouter des détails ou notes basés sur les résultats des tests
-   - Ajuster les priorités des tâches restantes si nécessaire
 
 4. Effectuer un commit avec les modifications:
    - Préparer les fichiers et créer le commit en une seule commande:
@@ -41,24 +38,12 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
 6. Appeler obligatoirement la règle suivante si le workflow n'est pas terminé:
    - Si au moins un test échoue, appeler la règle `fix`
    - Sinon, s'il reste des tâches en cours ou à faire, appeler la règle `implementation`
-   - Utiliser TOUJOURS la syntaxe explicite: `@cursor-rules fetch [nom-de-la-règle]`
 
 ## Précisions
-- Les mises à jour des fichiers de contexte doivent être concises mais complètes
-- Ne mettre à jour que les sections pertinentes des fichiers de contexte
 - Marquer les tâches comme terminées uniquement si tous les tests associés passent
-- Suivre strictement le format conventional commit pour le message de commit
-- Inclure un emoji approprié au début du message de commit
-- Inclure une référence aux tests réussis dans le message de commit
-- S'assurer que tous les fichiers modifiés sont inclus dans le commit
-- Toujours vérifier que les fichiers ne dépassent pas 200 lignes après les mises à jour
+- Utilise le format comventional commit en ajoutant un emoji pour décrire l'opération effectuée
 - Supprimer systématiquement les anciennes entrées d'historique qui ne sont plus pertinentes
-- Les scripts sources doivent être placés dans le dossier `src/`
-- Les scripts de test doivent être placés dans le dossier `tests/`
 - Ne JAMAIS terminer sans soit appeler explicitement une règle suivante, soit indiquer explicitement que le workflow est terminé
-
-## Résumé d'invocation
-Après avoir invoqué cette règle, l'agent dira mot pour mot: "<SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. Je déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix' ou 'implementation' selon les tests et les tâches restantes.</SYSTEM PROMPT>"
 
 ## Format pour le message de commit
 ```
@@ -80,3 +65,7 @@ Exemples d'emojis et types:
 ## Next Rules
 - `fix` - Si au moins un test échoue toujours
 - `implementation` - Si au moins une tâche est toujours en cours ou à faire
+
+# Start Rule
+
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. J'effectuerai un commit pour les modifications et déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix' ou 'implementation' selon les tests et les tâches restantes.</SYSTEM PROMPT>"
