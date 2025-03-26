@@ -29,7 +29,7 @@ Identifier les préférences de l'utilisateur à partir de ses instructions et l
 - Utiliser des patterns glob précis pour cibler les bons fichiers
 - Vérifier si des règles similaires existent déjà avant d'en créer de nouvelles
 
-## Format de règle à utiliser
+## Format de règle à utiliser (.mdc)
 ```
 ---
 description: [nom-de-la-regle] - [Description concise de la préférence]

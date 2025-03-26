@@ -26,17 +26,17 @@ Analyser les erreurs de test, créer des tâches de correction et documenter les
    - Pour les erreurs susceptibles d'être reproduites, créer ou mettre à jour une règle
    - Nommer la règle d'après la bibliothèque ou le type d'erreur
    - Documenter clairement le fonctionnement correct et les pièges à éviter
-   - Sauvegarder la règle dans `.cursor/rules/custom/errors/`
+   - Sauvegarder la règle dans `.cursor/rules/custom/errors/` au format .mdc
 
 ## Précisions
 - Documenter les erreurs de manière à faciliter leur résolution future
 - Inclure les symboles et fichiers concernés dans les tâches de résolution
 - Inclure des exemples concrets dans les règles d'erreur
 - Organiser les tâches de correction par composant ou fonctionnalité
-- Garder les règles d'erreur concises mais complètes
+- Garder les règles d'erreur concises mais complètes : va au plus simple et clair.
 - Utilise du logging pendant tes tests : Si tu es en python, utilise `src/utils/logger.py` pour enregistrer les logs dans `logs/app.log`
 
-## Format pour les règles d'erreur
+## Format pour les règles d'erreur (.mdc)
 ```
 ---
 description: [nom-de-la-bibliotheque] - Erreurs courantes et bonnes pratiques
