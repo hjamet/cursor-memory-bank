@@ -9,18 +9,20 @@ Analyser les erreurs de test, créer des tâches de correction et documenter les
 ## Instructions
 1. Identifier et lister les erreurs pour chaque test échoué.
 
-2. Identifier et parcourir les fichiers concernés:
+2. Consulter les logs (généralement dans le fichier `logs/app.log`)
+
+3. Identifier et parcourir les fichiers concernés:
    - Localiser précisément les lignes de code problématiques
    - Examiner le contexte autour du code défaillant
    - Vérifier les dépendances et les interactions avec d'autres composants
 
-3. Ajouter des tâches de correction à tasks.md:
+4. Ajouter des tâches de correction à tasks.md:
    - Créer une nouvelle section "Corrections" dans "In Progress"
    - Ajouter une tâche détaillée pour chaque erreur à corriger
    - Inclure les fichiers et symboles concernés
    - Décrire précisément le problème et la solution envisagée
 
-4. Documenter les erreurs récurrentes ou liées aux bibliothèques:
+5. Documenter les erreurs récurrentes ou liées aux bibliothèques:
    - Pour les erreurs susceptibles d'être reproduites, créer ou mettre à jour une règle
    - Nommer la règle d'après la bibliothèque ou le type d'erreur
    - Documenter clairement le fonctionnement correct et les pièges à éviter
@@ -32,6 +34,7 @@ Analyser les erreurs de test, créer des tâches de correction et documenter les
 - Inclure des exemples concrets dans les règles d'erreur
 - Organiser les tâches de correction par composant ou fonctionnalité
 - Garder les règles d'erreur concises mais complètes
+- Utilise du logging pendant tes tests : Si tu es en python, utilise `src/utils/logger.py` pour enregistrer les logs dans `logs/app.log`
 
 ## Format pour les règles d'erreur
 ```
@@ -65,19 +68,23 @@ fetch_rules ["fix"]
 Je commence par analyser les erreurs de test pour comprendre les problèmes.
 [...analyse des erreurs...]
 
-# Fix : 2 - Analyse des fichiers
+# Fix : 2 - Consultation des logs
+Je consulte les logs pour obtenir plus de détails sur les erreurs.
+[...consultation des logs...]
+
+# Fix : 3 - Analyse des fichiers
 Je parcours les fichiers concernés pour localiser les problèmes.
 [...analyse des fichiers...]
 
-# Fix : 3 - Ajout des tâches de correction
+# Fix : 4 - Ajout des tâches de correction
 Je crée des tâches détaillées pour corriger chaque erreur.
 [...création des tâches...]
 
-# Fix : 4 - Documentation des erreurs
+# Fix : 5 - Documentation des erreurs
 Je documente les erreurs récurrentes pour éviter de les reproduire.
 [...documentation des erreurs...]
 
-# Fix : 5 - Appel de la règle suivante
+# Fix : 6 - Appel de la règle suivante
 Je dois maintenant appeler la règle implementation pour corriger les erreurs.
 La règle implementation doit être appelée pour implémenter les corrections.
 
