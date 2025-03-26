@@ -13,7 +13,7 @@ Implémenter les tâches d'une section prioritaire en suivant une approche méth
 - Appeler la prochaine règle si toutes les tâches sont terminées
 
 2. Pour chaque tâche de la section:
-   - Afficher dans le chat: `# [Nom de la Section] : [Titre de la tâche]`
+   - Afficher dans le chat: `## Implementation - 2.numero.[Nom de la Section] : [Titre de la tâche]`
    - Identifier les fichiers à modifier ou à créer
    - Implémenter la solution en suivant les conventions du projet
    - Documenter le code selon les standards établis
@@ -26,7 +26,6 @@ Implémenter les tâches d'une section prioritaire en suivant une approche méth
    - Évaluer si des tests sont nécessaires pour les fonctionnalités implémentées
    - Si des tests sont nécessaires, appeler la règle `tests`
    - Sinon, appeler la règle `context-update`
-   - Utiliser TOUJOURS la syntaxe explicite: `@cursor-rules fetch [nom-de-la-règle]`
 
 ## Précisions
 - Implémenter une tâche à la fois, dans l'ordre logique
