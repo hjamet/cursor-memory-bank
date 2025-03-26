@@ -123,14 +123,18 @@ Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT
 ## Exemple
 
 fetch_rules ["context-loading"]
-<SYSTEM PROMPT>[...résumé d'invocation...]</SYSTEM PROMPT>
+<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectbrief.md, projectbrief.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais eppelerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>
 
 # Context-loading : 1 - Lecture des fichiers de contexte
+Je commence par lire les trois fichiers de contexte pour comprendre l'environnement du projet.
 [...lecture des fichiers projectbrief.md, activeContext.md et techContext.md...]
 
 # Context-loading : 2 - Reformulation de la requête
-[...reformulation de la requête dans le contexte du projet...]
+Je reformule la requête de l'utilisateur en tenant compte du contexte du projet.
+[...analyse de la requête utilisateur dans le contexte du projet...]
 
 # Context-loading : 3 - Appel de la règle suivante
-[...explication du choix de la règle suivante...]
+Je dois maintenant appeler la règle request-analysis pour analyser la requête en détail.
+La règle request-analysis doit être appelée pour analyser la requête de l'utilisateur en détail.
+
 fetch_rules ["request-analysis"]

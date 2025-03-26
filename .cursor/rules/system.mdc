@@ -69,14 +69,18 @@ Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT
 ## Exemple
 
 fetch_rules ["system"]
-<SYSTEM PROMPT>[...résumé d'invocation...]</SYSTEM PROMPT>
+<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectbrief.md, projectbrief.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais eppelerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>
 
 # System : 1 - Chargement des règles
-[...chargement des règles du système...]
+Je commence par lire les règles disponibles pour comprendre le workflow.
+[...lecture des règles disponibles...]
 
 # System : 2 - Vérification du workflow
+Je vérifie que le workflow commence bien par la règle context-loading comme requis.
 [...vérification que le workflow commence par context-loading...]
 
 # System : 3 - Appel de la règle suivante
-[...explication du choix de la règle suivante...]
+Je dois maintenant appeler la règle context-loading qui est obligatoire pour démarrer le workflow.
+La règle context-loading doit être appelée en premier pour charger le contexte du projet.
+
 fetch_rules ["context-loading"]

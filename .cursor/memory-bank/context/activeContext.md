@@ -13,6 +13,9 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - ✅ Arborescence du code: Correction de la règle request-analysis pour éviter les mentions aux fichiers memory bank.
 - ✅ Structure du projet: Organisation optimisée avec dossiers src/ et tests/.
 - ✅ Workflow robuste: Consolidation des règles pour garantir l'appel explicite à la règle suivante.
+- ✅ Format des exemples: Standardisation des exemples avec utilisation de [...] pour le contenu dynamique.
+- ✅ Position des exemples: Déplacement de la section "Exemple" entre "Next Rules" et "Start Rule".
+- ✅ Phrases explicatives: Ajout de phrases explicatives dans les exemples pour guider l'agent.
 
 ## Problèmes En Cours de Résolution
 - ⚠️ Syntaxe d'invocation incorrecte: La syntaxe d'appel des règles doit être modifiée pour utiliser `fetch_rules ["nom-de-la-règle"]` au lieu de `@cursor-rules fetch [nom-de-la-règle]`.
@@ -20,6 +23,9 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - ⚠️ Adhérence insuffisante au workflow: L'agent a encore tendance à sortir du workflow défini dans certains cas.
 
 ## Décisions Récentes
+- [29/03/2024] - Standardisation des exemples avec utilisation de [...] pour le contenu dynamique
+- [29/03/2024] - Déplacement de la section "Exemple" entre "Next Rules" et "Start Rule"
+- [29/03/2024] - Ajout de phrases explicatives dans les exemples
 - [29/03/2024] - Déplacement de la section "Résumé d'invocation" à la fin de chaque règle
 - [29/03/2024] - Standardisation du format des résumés d'invocation avec balises "<SYSTEM PROMPT>"
 - [28/03/2024] - Standardisation de la structure de toutes les règles (TLDR, Instructions, Précisions, Next Rules)
@@ -29,7 +35,6 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - [26/03/2024] - Implémentation de la numérotation des tâches et sections
 - [26/03/2024] - Correction de request-analysis pour l'arborescence du code
 - [26/03/2024] - Nettoyage du fichier tasks.md
-- [29/03/2024] - Standardisation du format des exemples avec utilisation de [...] pour le contenu dynamique
 
 ## Prochaines Étapes
 - Corriger la syntaxe d'invocation dans toutes les règles
@@ -48,5 +53,6 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - Toujours respecter la structure de dossiers avec src/ et tests/
 - Ne jamais sortir du workflow sans appeler explicitement la règle suivante
 - Durant context-loading, se limiter strictement aux trois fichiers de contexte spécifiés, ne pas lire tasks.md
-- La section "Exemple" est maintenant ajoutée à la fin de chaque règle, après "Next Rules"
+- La section "Exemple" est maintenant ajoutée entre "Next Rules" et "Start Rule" dans chaque règle
 - Les exemples utilisent [...] pour représenter le contenu dynamique
+- Les exemples incluent des phrases explicatives pour guider l'agent à chaque étape
