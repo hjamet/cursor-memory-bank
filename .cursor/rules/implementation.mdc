@@ -14,9 +14,8 @@ Implémenter les tâches d'une section prioritaire en suivant une approche méth
 
 2. Pour chaque tâche de la section:
    - Afficher dans le chat: `## Implementation - 2.numero.[Nom de la Section] : [Titre de la tâche]`
-   - Identifier les fichiers à modifier ou à créer
-   - Implémenter la solution en suivant les conventions du projet
-   - Documenter le code selon les standards établis
+   - Implémenter la solution
+   - Entre chaque appel d'outil, écris `Implementation - 2.numero.[Nom de la Section] : [Titre de la tâche] en cours...` pour ne pas perdre te perdre dans le fil de tes pensées et oublier le workflow.
 
 3. Mettre à jour le fichier tasks.md:
    - Déplacer la section de tâches de "ToDo" vers "In Progress"
@@ -29,8 +28,8 @@ Implémenter les tâches d'une section prioritaire en suivant une approche méth
 
 ## Précisions
 - Implémenter une tâche à la fois, dans l'ordre logique
-- Suivre les conventions de code et les préférences utilisateur identifiées
 - Ajouter des commentaires explicatifs pour les parties complexes
+- Dans la phase d'implémentation 2, tu risques d'oublier le workflow en suivant le fil de tes pensées. Pour éviter celà à tout prix, après chaque appel d'outil ou avant chaque reflection de ta part, écris `Implementation - 2.numero.[Nom de la Section] : [Titre de la tâche] en cours...`
 - Ne JAMAIS sauter l'appel à la règle suivante
 
 ## Next Rules
