@@ -83,4 +83,4 @@ fetch_rules ["context-update"]
 
 # Start Rule
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais créer et exécuter des tests pour les fonctionnalités implémentées, puis documenter les résultats. Je ne tenterai pas de corriger directement les erreurs mais je ferai appel à la règle 'fix' si des tests échouent, ou à 'context-update' si tous les tests passent ou s'améliorent pour s'en charger.</SYSTEM PROMPT>"
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais créer et exécuter des tests pour les fonctionnalités implémentées, puis documenter les résultats. Je ne tenterai pas de corriger directement les erreurs mais je ferai appel à la règle 'context-update' si au moins un test s'est amélioré ou à la règle 'fix' autrement pour s'en charger</SYSTEM PROMPT>"
