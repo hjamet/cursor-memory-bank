@@ -35,7 +35,37 @@ Implémenter les tâches d'une section prioritaire en suivant une approche méth
 
 ## Next Rules
 - `tests` : Implémentation et exécution des tests si au moins une nouvelle fonctionnalité est "testable" (TOUJOURS le cas pour un nouveau script ou une modification d'un script existant)
-- `context-update` : UNIQUEMENT si aucune modification ne nécessite de test (cas très rare, principalement pour des changements de documentation pure) 
+- `context-update` : UNIQUEMENT si aucune modification ne nécessite de test (cas très rare, principalement pour des changements de documentation pure)
+
+## Exemple
+
+fetch_rules ["implementation"]
+<SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `tests` à la fin de mon travail qui s'en chargera.</SYSTEM PROMPT>
+
+# Implementation : 1 - Lecture du fichier tasks.md
+Je commence par lire le fichier tasks.md pour identifier la section la plus prioritaire.
+[...lecture du fichier tasks.md...]
+
+# Implementation : 2 - Implémentation des tâches
+Je vais implémenter chaque tâche de la section en suivant une approche méthodique.
+
+## Implementation - 2.1.Développement : Création du script
+Je commence par créer le script principal avec les fonctionnalités requises.
+[...implémentation du script...]
+
+## Implementation - 2.2.Développement : Documentation
+J'ajoute la documentation nécessaire pour expliquer le fonctionnement du script.
+[...ajout de la documentation...]
+
+# Implementation : 3 - Mise à jour du fichier tasks.md
+Je mets à jour le fichier tasks.md pour refléter l'avancement des tâches.
+[...mise à jour du fichier tasks.md...]
+
+# Implementation : 4 - Appel de la règle suivante
+Je dois maintenant appeler la règle tests pour vérifier les fonctionnalités implémentées.
+La règle tests doit être appelée pour tester les nouvelles fonctionnalités.
+
+fetch_rules ["tests"]
 
 # Start Rule
 

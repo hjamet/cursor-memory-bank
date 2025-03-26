@@ -12,32 +12,47 @@ Décomposer la requête de l'utilisateur en tâches concrètes et les organiser 
 2. Supprimer les tâches terminées qui n'ont plus de lien avec le travail actuel
 
 3. Ajouter les nouvelles tâches issues de l'analyse de la requête:
-   - Organiser les tâches en sections logiques de taille raisonnables
+   - Créer des sections de très haut niveau (ex: "Préparation", "Développement", "Validation")
    - Numéroter les sections par ordre croissant de résolution optimale (1., 2., 3., etc.)
    - Sous-numéroter les tâches dans chaque section (1.1, 1.2, 2.1, 2.2, etc.)
-   - Ne pas créer de sections trop grandes qui seraient difficiles à implémenter en une fois
-   - Prioriser les tâches selon leur importance et leurs dépendances
-   - Ajouter des descriptions concises mais suffisamment détaillées pour chaque tâche
+   - Détailler chaque tâche avec:
+     * Un titre clair et concis
+     * Une description complète des actions à effectuer
+     * Les fichiers ou composants impactés
+     * Les dépendances avec d'autres tâches
+     * Les critères de validation
+   - Prioriser les tâches selon:
+     * Leur importance pour le projet
+     * Leurs dépendances techniques
+     * L'impact sur les autres tâches
+     * La complexité de mise en œuvre
 
 4. Mettre à jour le fichier tasks.md avec la nouvelle structure
 
 ## Précisions
-- Chaque tâche doit être spécifique, mesurable et réalisable
-- Regrouper les tâches similaires dans des sections cohérentes
-- Utiliser des descriptions claires et concises pour chaque tâche
-- IMPORTANT: Créer les tâches par ordre croissant de résolution optimale, de manière à faciliter l'exécution séquentielle
+- Créer un maximum de 3-4 sections de très haut niveau pour garder une vue d'ensemble claire
+- Regrouper toutes les tâches similaires dans ces sections, même si elles semblent différentes au premier abord
+- Détailler chaque tâche de manière exhaustive plutôt que de créer de nouvelles sections
+- Privilégier des sections génériques qui peuvent accueillir différents types de tâches
+- Utiliser des descriptions détaillées qui permettent de comprendre exactement ce qui doit être fait
+- IMPORTANT: Organiser les sections et tâches de manière à minimiser les dépendances entre elles
 
 ## Format de tasks.md
 ```
 # In Progress
 
-## 1. [Nom de la Section 1]
-1.1. [ ] **[Titre de la tâche 1]** : [Description détaillée de la tâche]
-1.2. [ ] **[Titre de la tâche 2]** : [Description détaillée de la tâche]
+## 1. [Section de Très Haut Niveau]
+1.1. [ ] **[Titre Concis]** : [Description détaillée]
+- Actions: [Liste des actions à effectuer]
+- Fichiers: [Liste des fichiers impactés]
+- Dépendances: [Liste des tâches dont celle-ci dépend]
+- Validation: [Critères de validation]
+
+1.2. [ ] **[Titre Concis]** : [Description détaillée]
 [...]
 
-## 2. [Nom de la Section 2]
-2.1. [ ] **[Titre de la tâche 3]** : [Description détaillée de la tâche]
+## 2. [Section de Très Haut Niveau]
+2.1. [ ] **[Titre Concis]** : [Description détaillée]
 [...]
 
 # ToDo
@@ -51,6 +66,33 @@ Décomposer la requête de l'utilisateur en tâches concrètes et les organiser 
 
 ## Next Rules
 - `implementation` - Pour commencer l'implémentation des tâches
+
+## Exemple
+
+fetch_rules ["task-decomposition"]
+<SYSTEM PROMPT>Je vais décomposer la requête en tâches concrètes, supprimer les tâches terminées non pertinentes et organiser le tout en sections logiques numérotées. Je ne tenterai pas d'appliquer ces tâches mais ferai appel à la règle `implementation` pour s'en charger.</SYSTEM PROMPT>
+
+# Task-decomposition : 1 - Lecture du fichier tasks.md
+Je commence par lire le fichier tasks.md pour comprendre l'état actuel des tâches.
+[...lecture du fichier tasks.md...]
+
+# Task-decomposition : 2 - Suppression des tâches terminées
+Je supprime les tâches terminées qui ne sont plus pertinentes pour le travail en cours.
+[...suppression des tâches obsolètes...]
+
+# Task-decomposition : 3 - Ajout des nouvelles tâches
+Je décompose la requête en tâches concrètes et les organise en sections de haut niveau.
+[...organisation des tâches en sections...]
+
+# Task-decomposition : 4 - Mise à jour du fichier
+Je mets à jour le fichier tasks.md avec la nouvelle structure de tâches.
+[...mise à jour du fichier tasks.md...]
+
+# Task-decomposition : 5 - Appel de la règle suivante
+Je dois maintenant appeler la règle implementation pour commencer le travail sur les tâches.
+La règle implementation doit être appelée pour commencer l'implémentation des tâches.
+
+fetch_rules ["implementation"]
 
 # Start Rule
 

@@ -77,4 +77,20 @@
 
 ## 5. Standardisation des règles
 5.1. [x] **Modifier task-decomposition.mdc** : Adapter la règle pour avoir des sections de plus haut niveau avec des tâches plus détaillées
-5.2. [x] **Vérifier les modifications** : Utiliser la commande cat pour s'assurer que les changements sont bien appliqués 
+5.2. [x] **Vérifier les modifications** : Utiliser la commande cat pour s'assurer que les changements sont bien appliqués
+
+## 6. Développement des règles
+6.1. [x] **Ajouter les exemples de workflow** : Créer les sections Exemple pour implementation.mdc et tests.mdc
+6.2. [x] **Ajouter les exemples de contexte** : Créer les sections Exemple pour context-update.mdc et user-preference-saving.mdc
+6.3. [x] **Ajouter l'exemple de correction** : Créer la section Exemple pour fix.mdc
+
+## 7. Validation
+7.1. [x] **Vérifier la cohérence** : S'assurer que tous les exemples suivent le même format
+- Actions:
+  * Vérifier chaque fichier de règle
+  * Confirmer l'utilisation de [...] pour le contenu dynamique
+  * Vérifier la position des sections Exemple
+  * Vérifier la présence des phrases explicatives
+- Fichiers: Tous les fichiers .mdc
+- Dépendances: Toutes les tâches de développement
+- Validation: Tous les exemples sont cohérents et suivent le même format 

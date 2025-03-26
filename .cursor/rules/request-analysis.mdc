@@ -41,6 +41,29 @@ Analyser en détail la requête de l'utilisateur, explorer le code existant et r
 - `task-decomposition` - Pour décomposer la requête en tâches spécifiques
 - `implementation` - Pour passer directement à l'implémentation si la requête est simple
 
+## Exemple
+
+fetch_rules ["request-analysis"]
+<SYSTEM PROMPT>Je vais analyser en détail la requête et explorer le code pertinent pour comprendre ce qui doit être fait. Je ne mentionnerai pas les fichiers Memory Bank dans mes analyses. Je n'implementerai pas les changements demandés mais expliquerai leur but en langage naturelle. A la fin de mon travail, je ferai appel aux règles `task-decomposition` ou `implementation` pour qu'elles se charge de l'implémentation.</SYSTEM PROMPT>
+
+# Request-analysis : 1 - Analyse de la requête
+Je commence par analyser la requête de l'utilisateur pour bien comprendre ce qui est demandé.
+[...analyse de la requête...]
+
+# Request-analysis : 2 - Recherche des fichiers concernés
+Je vais chercher les fichiers pertinents pour cette requête.
+[...recherche des fichiers...]
+
+# Request-analysis : 3 - Conclusion de l'analyse
+Je résume les résultats de mon analyse et détermine la prochaine étape.
+[...conclusion de l'analyse...]
+
+# Request-analysis : 4 - Appel de la règle suivante
+Je dois maintenant appeler la règle task-decomposition car la requête nécessite plusieurs étapes.
+La règle task-decomposition doit être appelée pour décomposer la requête en tâches spécifiques.
+
+fetch_rules ["task-decomposition"]
+
 # Start Rule
 
 Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais analyser en détail la requête et explorer le code pertinent pour comprendre ce qui doit être fait. Je ne mentionnerai pas les fichiers Memory Bank dans mes analyses. Je n'implementerai pas les changements demandés mais expliquerai leur but en langage naturelle. A la fin de mon travail, je ferai appel aux règles `task-decomposition` ou `implementation` pour qu'elles se charge de l'implémentation.</SYSTEM PROMPT>"

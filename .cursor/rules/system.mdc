@@ -62,25 +62,37 @@ Suis le workflow AVEUGLEMENT. Ne prends jamais l'initiative d'en sortir, ne sera
 - `request-analysis` - Pour analyser en détail la requête de l'utilisateur
 - `user-preference-saving` - Pour enregistrer des préférences utilisateur détectées
 
+## Exemple
+
+fetch_rules ["context-update"]
+<SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. J'effectuerai un commit pour les modifications et déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix' ou 'implementation' selon les tests et les tâches restantes.</SYSTEM PROMPT>
+
+# Context-update : 1 - Mise à jour des fichiers de contexte
+Je commence par mettre à jour les fichiers de contexte pour refléter les changements.
+[...mise à jour des fichiers de contexte...]
+
+# Context-update : 2 - Nettoyage des fichiers de contexte
+Je nettoie les fichiers de contexte en supprimant les informations obsolètes.
+[...nettoyage des fichiers de contexte...]
+
+# Context-update : 3 - Mise à jour du fichier tasks.md
+Je mets à jour le fichier tasks.md en déplaçant les tâches terminées vers Done.
+[...mise à jour du fichier tasks.md...]
+
+# Context-update : 4 - Effectuer un commit
+Je prépare et effectue un commit avec les modifications apportées.
+[...création du commit...]
+
+# Context-update : 5 - Vérifier si le workflow est terminé
+Je vérifie s'il reste des tâches à faire ou des tests à corriger.
+[...vérification du workflow...]
+
+# Context-update : 6 - Appel de la règle suivante
+Je dois maintenant appeler la règle implementation car il reste des tâches à faire.
+La règle implementation doit être appelée pour continuer le travail sur les tâches restantes.
+
+fetch_rules ["implementation"]
+
 # Start Rule
 
 Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectbrief.md, projectbrief.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais eppelerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>"
-
-## Exemple
-
-fetch_rules ["system"]
-<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectbrief.md, projectbrief.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais eppelerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>
-
-# System : 1 - Chargement des règles
-Je commence par lire les règles disponibles pour comprendre le workflow.
-[...lecture des règles disponibles...]
-
-# System : 2 - Vérification du workflow
-Je vérifie que le workflow commence bien par la règle context-loading comme requis.
-[...vérification que le workflow commence par context-loading...]
-
-# System : 3 - Appel de la règle suivante
-Je dois maintenant appeler la règle context-loading qui est obligatoire pour démarrer le workflow.
-La règle context-loading doit être appelée en premier pour charger le contexte du projet.
-
-fetch_rules ["context-loading"]

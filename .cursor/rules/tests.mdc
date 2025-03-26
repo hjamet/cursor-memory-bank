@@ -54,6 +54,33 @@ Créer et exécuter des tests pour les fonctionnalités implémentées, puis ana
 - `context-update` : Si au moins un test s'est amélioré ou a été un succès pour la première fois sans qu'un autre se détériore, OU si c'est la première exécution et que tous les tests sont documentés
 - `fix` : Si aucun test ne s'est amélioré ET ce n'est pas la première exécution, OU si des tests échouent et nécessitent une correction
 
+## Exemple
+
+fetch_rules ["tests"]
+<SYSTEM PROMPT>Je vais créer et exécuter des tests pour les fonctionnalités implémentées, puis documenter les résultats. Je ne tenterai pas de corriger directement les erreurs mais je passerai à la règle 'fix' si des tests échouent, ou à 'context-update' si tous les tests passent ou s'améliorent.</SYSTEM PROMPT>
+
+# Tests : 1 - Création des tests unitaires
+Je commence par créer les tests pour les nouvelles fonctionnalités.
+[...création des tests unitaires...]
+
+# Tests : 2 - Exécution des tests
+Je lance les tests pour vérifier le comportement des fonctionnalités.
+[...exécution des tests...]
+
+# Tests : 3 - Analyse des résultats
+Je compare les résultats avec les tests précédents.
+[...analyse des résultats...]
+
+# Tests : 4 - Mise à jour du fichier tests.md
+Je mets à jour le fichier tests.md avec les nouveaux résultats.
+[...mise à jour du fichier tests.md...]
+
+# Tests : 5 - Appel de la règle suivante
+Je dois maintenant appeler la règle context-update car les tests se sont améliorés.
+La règle context-update doit être appelée pour mettre à jour le contexte avec les résultats des tests.
+
+fetch_rules ["context-update"]
+
 # Start Rule
 
 Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais créer et exécuter des tests pour les fonctionnalités implémentées, puis documenter les résultats. Je ne tenterai pas de corriger directement les erreurs mais je ferai appel à la règle 'fix' si des tests échouent, ou à 'context-update' si tous les tests passent ou s'améliorent pour s'en charger.</SYSTEM PROMPT>"

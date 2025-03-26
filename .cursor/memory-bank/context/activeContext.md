@@ -37,6 +37,7 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - [26/03/2024] - Implémentation de la numérotation des tâches et sections
 - [26/03/2024] - Correction de request-analysis pour l'arborescence du code
 - [26/03/2024] - Nettoyage du fichier tasks.md
+- [2024-03-19] - Ajout d'une section Exemple à la règle request-analysis pour améliorer la documentation
 
 ## Prochaines Étapes
 - Corriger la syntaxe d'invocation dans toutes les règles
@@ -46,6 +47,8 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - Tester les améliorations
 - Ajouter les exemples manquants dans les règles restantes
 - Vérifier la cohérence des exemples
+- Vérifier que toutes les autres règles ont une section Exemple
+- Maintenir la cohérence des sections Exemple entre les règles
 
 ## Notes Importantes
 - La section "Résumé d'invocation" est maintenant toujours placée à la fin de chaque règle, juste avant la section "Next Rules"
@@ -61,3 +64,4 @@ Amélioration du workflow Memory Bank avec standardisation des règles, ajout de
 - Les exemples utilisent [...] pour représenter le contenu dynamique
 - Les exemples incluent des phrases explicatives pour guider l'agent à chaque étape
 - Les tâches sont maintenant organisées en sections de plus haut niveau avec des descriptions détaillées
+- Les sections Exemple sont essentielles pour comprendre comment chaque règle doit être utilisée
