@@ -1,46 +1,43 @@
 # Contexte Actif
 
 ## Focus Actuel
-Amélioration du workflow Memory Bank avec optimisation des règles et correction de problèmes d'invocation.
+Amélioration du workflow Memory Bank avec standardisation des règles, ajout de phrases de résumé, correction de la syntaxe d'invocation et amélioration de la gestion des tâches.
 
 ## Problèmes Résolus
-- ✅ Lecture excessive de fichiers: Correction de la règle context-loading pour limiter strictement la lecture aux trois fichiers de contexte spécifiés
-- ✅ Syntaxe d'invocation incorrecte: Correction de la syntaxe d'appel des règles pour utiliser `@cursor-rules fetch [nom-de-la-règle]`
-- ✅ Numérotation des tâches: Implémentation d'un système de numérotation des sections et sous-numérotation des tâches
-- ✅ Arborescence du code: Correction de la règle request-analysis pour éviter les mentions aux fichiers memory bank
-- ✅ Nettoyage des tâches: Suppression des tâches complétées non pertinentes dans tasks.md
-- ✅ Structure du projet: Organisation optimisée avec dossiers src/ et tests/
-- ✅ Workflow robuste: Consolidation des règles pour garantir l'appel explicite à la règle suivante
-- ✅ Mise à jour complète: Le fichier implementation.mdc a été restauré et mis à jour avec la syntaxe correcte
+- ✅ Structure non standardisée: Standardisation de toutes les règles pour suivre exactement la même structure claire: TLDR, Instructions, Précisions, Next Rules.
+- ✅ Absence de résumé après invocation: Ajout d'une phrase de résumé dans chaque règle que l'agent doit réciter après l'avoir invoquée.
+- ✅ Lecture excessive de fichiers: Correction de la règle context-loading pour limiter strictement la lecture aux trois fichiers de contexte spécifiés.
+- ✅ Numérotation des tâches: Implémentation d'un système de numérotation des sections et sous-numérotation des tâches.
+- ✅ Arborescence du code: Correction de la règle request-analysis pour éviter les mentions aux fichiers memory bank.
+- ✅ Structure du projet: Organisation optimisée avec dossiers src/ et tests/.
+- ✅ Workflow robuste: Consolidation des règles pour garantir l'appel explicite à la règle suivante.
 
 ## Problèmes En Cours de Résolution
-- ⚠️ Séparation analyse/correction: Problème détecté où l'agent tente de corriger directement les erreurs de tests au lieu de suivre le workflow tests → fix → implementation
-- ⚠️ Transition tests → fix: Identification d'une faiblesse dans les règles qui permet à l'agent de court-circuiter la transition obligatoire vers la règle fix après l'échec de tests
-- ⚠️ Problèmes de tests: Certains tests échouent en raison de différences dans la formulation des phrases recherchées. Le test 12 relatif aux restrictions de lecture dans system.mdc ne parvient pas à détecter les chaînes attendues malgré leur présence.
+- ⚠️ Syntaxe d'invocation incorrecte: La syntaxe d'appel des règles doit être modifiée pour utiliser `fetch_rules ["nom-de-la-règle"]` au lieu de `@cursor-rules fetch [nom-de-la-règle]`.
+- ⚠️ Suppression insuffisante des tâches terminées: Le nettoyage des tâches terminées dans tasks.md n'est pas suffisamment agressif.
+- ⚠️ Adhérence insuffisante au workflow: L'agent a encore tendance à sortir du workflow défini dans certains cas.
 
 ## Décisions Récentes
+- [28/03/2024] - Standardisation de la structure de toutes les règles (TLDR, Instructions, Précisions, Next Rules)
+- [28/03/2024] - Ajout de phrases de résumé dans chaque règle pour guider l'agent
+- [28/03/2024] - Restructuration complète de system.mdc pour suivre la même structure que les autres règles
 - [26/03/2024] - Limitation stricte de la lecture de fichiers dans context-loading
-- [26/03/2024] - Correction de la syntaxe d'invocation des règles
-- [26/03/2024] - Restauration et mise à jour du fichier implementation.mdc
 - [26/03/2024] - Implémentation de la numérotation des tâches et sections
 - [26/03/2024] - Correction de request-analysis pour l'arborescence du code
 - [26/03/2024] - Nettoyage du fichier tasks.md
-- [25/03/2024] - Restructuration avec dossiers src/ et tests/
-- [25/03/2024] - Renforcement du mécanisme d'appel des règles
-- [27/03/2024] - Renforcement de la séparation analyse/correction dans le workflow
-- [27/03/2024] - Clarification explicite des critères de transition entre les règles tests et fix
-- [27/03/2024] - Ajout de vérifications supplémentaires du respect des transitions d'état
-- [27/03/2024] - Création d'une nouvelle section dans system.mdc sur la séparation stricte analyse/correction
-- [27/03/2024] - Modification du test 11 pour adapter les chaînes recherchées à celles présentes dans system.mdc
 
 ## Prochaines Étapes
-- Tester Memory Bank sur des projets réels
-- Recueillir des retours utilisateurs
+- Corriger la syntaxe d'invocation dans toutes les règles
+- Améliorer la gestion des tâches terminées
+- Renforcer l'adhérence au workflow
+- Simplifier le langage des règles
+- Tester les améliorations
 
 ## Notes Importantes
-- L'invocation correcte des règles doit toujours utiliser la syntaxe `@cursor-rules fetch [nom-de-la-règle]` et non `@cursor-rules [nom-de-la-règle]`
+- L'invocation correcte des règles doit utiliser la syntaxe `fetch_rules ["nom-de-la-règle"]` et non `@cursor-rules fetch [nom-de-la-règle]`
 - Lors de l'exécution du workflow, toujours indiquer les numéros des tâches en cours de résolution
 - Maintenir les fichiers de contexte et workflow en dessous de 200 lignes
 - Toujours respecter la structure de dossiers avec src/ et tests/
 - Ne jamais sortir du workflow sans appeler explicitement la règle suivante
+- L'agent doit toujours réciter la phrase de résumé après avoir invoqué une règle
 - Durant context-loading, se limiter strictement aux trois fichiers de contexte spécifiés, ne pas lire tasks.md

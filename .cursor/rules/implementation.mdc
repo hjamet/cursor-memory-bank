@@ -6,6 +6,9 @@ alwaysApply: false
 ## TLDR
 Implémenter les tâches d'une section prioritaire en suivant une approche méthodique et en documentant clairement le processus.
 
+## Résumé d'invocation
+Après avoir invoqué cette règle, l'agent dira: "Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je passerai ensuite à la création de tests ou à la mise à jour du contexte si aucun test n'est nécessaire."
+
 ## Instructions
 1. Identifier la section de tâches la plus urgente dans `.cursor/memory-bank/workflow/tasks.md`:
    - Évaluer la priorité en fonction des dépendances et de l'importance

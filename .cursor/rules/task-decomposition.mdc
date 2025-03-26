@@ -6,6 +6,9 @@ alwaysApply: false
 ## TLDR
 Décomposer la requête de l'utilisateur en tâches concrètes et les organiser dans le fichier tasks.md par sections logiques numérotées.
 
+## Résumé d'invocation
+Après avoir invoqué cette règle, l'agent dira: "Je vais décomposer la requête en tâches concrètes, supprimer les tâches terminées non pertinentes et organiser le tout en sections logiques numérotées. Chaque section contiendra 1-2 tâches maximum pour faciliter l'implémentation. Je pourrai ensuite passer à l'implémentation ou mettre à jour le contexte."
+
 ## Instructions
 1. Lire le fichier `.cursor/memory-bank/workflow/tasks.md` s'il existe
 

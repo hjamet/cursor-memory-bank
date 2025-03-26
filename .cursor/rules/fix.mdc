@@ -6,6 +6,9 @@ alwaysApply: false
 ## TLDR
 Analyser les erreurs de test, créer des tâches de correction et documenter les problèmes récurrents pour éviter de les reproduire.
 
+## Résumé d'invocation
+Après avoir invoqué cette règle, l'agent dira: "Je vais analyser méthodiquement les erreurs des tests échoués, créer des tâches de correction bien définies et documenter les problèmes récurrents. Je ne corrigerai pas directement les erreurs mais je préparerai les tâches pour l'implémentation future. Je passerai ensuite à l'implémentation des corrections."
+
 ## Instructions
 1. Identifier et lister les erreurs pour chaque test échoué:
    - Analyser les messages d'erreur et les traces de pile

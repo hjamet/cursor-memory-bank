@@ -7,6 +7,9 @@ alwaysApply: false
 ## TLDR
 Analyser en détail la requête de l'utilisateur, explorer le code existant et rechercher des informations complémentaires pour préparer une implémentation efficace.
 
+## Résumé d'invocation
+Après avoir invoqué cette règle, l'agent dira: "Je vais analyser en détail la requête et explorer le code pertinent pour comprendre ce qui doit être fait. Je ne mentionnerai pas les fichiers Memory Bank dans mes analyses. Je pourrai ensuite décomposer les tâches ou passer directement à l'implémentation si la requête est simple."
+
 ## Instructions
 1. Parcourir le code pour identifier les fichiers et symboles concernés:
    - Effectuer une recherche sémantique basée sur les mots-clés de la requête

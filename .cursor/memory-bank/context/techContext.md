@@ -20,14 +20,16 @@ Memory Bank utilise une structure de fichiers organisée et fonctionne comme une
 
 ## Conventions
 - Règles (.mdc): Structure TLDR, Instructions, Précisions, Next Rules
+- Phrase de résumé: Incluse après la section TLDR dans chaque règle
 - Fichiers contexte (.md): Titres et sous-titres hiérarchisés
 - Affichage workflow: Format "# [Règle] : [numéro] - [instruction]"
 - Scripts: Placés dans src/ avec tests correspondants dans tests/
 
 ## Workflow
 - Appel obligatoire de la règle suivante après chaque règle
-- ⚠️ IMPORTANT: Syntaxe explicite: @cursor-rules fetch [nom-de-la-règle]
-- ⚠️ NE JAMAIS UTILISER: @cursor-rules [nom-de-la-règle] (sans le mot "fetch")
+- Récitation obligatoire de la phrase de résumé après invocation d'une règle
+- ⚠️ IMPORTANT: Syntaxe explicite: fetch_rules ["nom-de-la-règle"]
+- ⚠️ NE JAMAIS UTILISER: @cursor-rules fetch [nom-de-la-règle] (ancienne syntaxe)
 - Exception unique: finalisation par context-update
 
 ## Restrictions
@@ -38,4 +40,4 @@ Memory Bank utilise une structure de fichiers organisée et fonctionne comme une
 
 ## Dépendances
 - Curl: Téléchargement du script d'installation
-- Bash: Exécution des scripts shell 
+- Bash: Exécution des scripts shell

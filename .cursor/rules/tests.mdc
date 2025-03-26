@@ -6,6 +6,9 @@ alwaysApply: false
 ## TLDR
 Créer et exécuter des tests pour les fonctionnalités implémentées, puis analyser et documenter les résultats dans le fichier tests.md.
 
+## Résumé d'invocation
+Après avoir invoqué cette règle, l'agent dira: "Je vais créer et exécuter des tests pour les fonctionnalités implémentées, puis documenter les résultats. Je ne tenterai pas de corriger directement les erreurs mais je passerai à la règle 'fix' si des tests échouent, ou à 'context-update' si tous les tests passent ou s'améliorent."
+
 ## Instructions
 1. Pour chaque symbole (fonction, classe, méthode) créé ou modifié lors de l'implémentation:
    - Concevoir des tests unitaires couvrant le comportement normal

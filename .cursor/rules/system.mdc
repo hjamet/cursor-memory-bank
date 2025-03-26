@@ -1,73 +1,54 @@
 ---
-description: 
+description: Règle principale du système Memory Bank
 globs: 
 alwaysApply: true
 ---
-## Memory Bank: Système de mémoire persistante pour agents IA
+## TLDR
+Gérer un système de mémoire persistante qui permet aux agents IA de maintenir le contexte entre les sessions en stockant et organisant les informations dans une structure de fichiers cohérente.
 
-Tu es Cursor, un agent IA utilisant la Memory Bank, un système qui te permet de maintenir le contexte entre les sessions en stockant et organisant les informations dans une structure de fichiers cohérente.
+## Résumé d'invocation
+Après avoir invoqué cette règle, l'agent dira: "Je vais suivre le workflow Memory Bank comme une machine à états en respectant strictement la structure des règles et en commençant toujours par charger le contexte. Je n'invoquerai que des règles autorisées et j'afficherai toujours mon étape actuelle. Je passerai à la règle context-loading pour démarrer le workflow."
 
-## Structure des fichiers
-"""
-.cursor/memory-bank/
-├── context/                 # Contexte du projet
-│   ├── projectbrief.md      # Vision globale du projet
-│   ├── activeContext.md     # Contexte de travail actuel
-│   └── techContext.md       # Technologies et dépendances
-└── workflow/                # Gestion du flux de travail
-    ├── progress.md          # Suivi de la progression
-    └── tasks.md             # Liste des tâches à accomplir
+## Instructions
+1. Comprendre la structure des fichiers du projet:
+   - `.cursor/memory-bank/context/`: Contexte du projet (projectbrief.md, activeContext.md, techContext.md)
+   - `.cursor/memory-bank/workflow/`: Gestion du flux de travail (tasks.md, progress.md, tests.md)
+   - `src/`: Scripts sources du projet
+   - `tests/`: Tests unitaires et d'intégration
+   - `.cursor/rules/custom/`: Règles personnalisées (errors/, preferences/)
 
-src/                         # Scripts sources du projet
-    └── install.sh           # Script d'installation
+2. Suivre le workflow de la machine à états:
+   - Afficher toujours le titre de l'étape actuelle: `# [Nom de la règle] : [numéro d'instruction] - [titre de l'instruction]`
+   - Suivre chaque règle selon sa structure: TLDR, Instructions, Précisions, Next Rules
+   - Exécuter les instructions dans l'ordre numérique indiqué
+   - Respecter les précisions pour chaque instruction
 
-tests/                       # Tests unitaires et d'intégration
-    └── test_install.sh      # Tests du script d'installation
+3. Gérer le démarrage et la finalisation du workflow:
+   - TOUJOURS commencer le workflow par la règle `context-loading`
+   - Redémarrer le workflow à chaque nouveau message de l'utilisateur
+   - Considérer le workflow comme terminé uniquement lorsque la règle context-update l'indique
 
-.cursor/rules/custom/        # Règles personnalisées créées par l'agent
-    ├── errors/              # Règles documentant les erreurs spécifiques
-    └── preferences/         # Règles sur les préférences de l'utilisateur
-"""
+4. Gérer la transition entre les règles:
+   - Appeler EXPLICITEMENT la règle suivante après avoir terminé la règle actuelle
+   - Choisir la règle suivante parmi celles listées dans "Next Rules"
+   - Utiliser la syntaxe exacte: `fetch_rules ["nom-de-la-règle"]`
 
-## Machine à états
+## Précisions
+- Fonctionner comme une machine à états où chaque règle représente un état avec des opérations spécifiques
+- Chaque règle doit suivre la structure standardisée: TLDR, Instructions, Précisions, Next Rules
+- Toujours afficher l'étape actuelle avec le format spécifié AVANT de consulter tout fichier
+- Ne JAMAIS dévier du workflow défini ou sauter des étapes
+- Ne JAMAIS consulter des fichiers non spécifiés dans l'étape actuelle
+- Si une même séquence de règles se répète plus de 2 fois, notifier l'utilisateur d'un risque de boucle
+- IMPORTANT: La syntaxe d'appel de règle est `fetch_rules ["nom-de-la-règle"]`
+- Ne JAMAIS terminer l'exécution sans appeler explicitement la règle suivante (sauf si le workflow est terminé)
+- Même si le workflow est terminé, indiquer explicitement: "Le workflow est terminé, aucune règle suivante à appeler."
+- Consulter uniquement les fichiers explicitement autorisés par la règle en cours
+- Maintenir les fichiers de contexte et workflow en dessous de 200 lignes
 
-Tu fonctionnes comme une machine à états où chaque règle représente un état avec des opérations spécifiques à effectuer. Toutes les règles suivent cette structure:
+## Règle absolue
 
-1. **TLDR**: Résumé concis de l'objectif de la règle
-2. **Instructions**: Liste numérotée d'actions à effectuer dans un ordre précis
-3. **Précisions**: Liste à puces de points importants à respecter pour les instructions
-4. **Next Rules**: Liste des règles suivantes possibles
+Suis le workflow AVEUGLEMENT. Ne prends jamais l'initiative d'en sortir, ne serait-ce qu'un peu. Suis UNIQUEMENT les instructions de la règle en cours, SANS JAMAIS anticiper.
 
-Dans le chat, indique toujours où tu en es dans le workflow avec un titre formaté ainsi:
-# [Nom de la règle] : [numéro d'instruction] - [titre de l'instruction]
-
-Exemple: "# Implementation : 2 - Récupération du contexte"
-
-## Prévention des cycles infinis
-
-Pour éviter les boucles infinies:
-1. Garde une trace des règles suivies dans la session actuelle
-2. Si tu observes que la même séquence de règles se répète plus de 2 fois, notifie l'utilisateur d'un risque de boucle infinie
-3. Propose alors de rompre le cycle en passant à une règle différente ou en terminant le workflow
-
-## ⚠️ DÉMARRAGE OBLIGATOIRE ET FINALISATION ⚠️
-
-- ⚠️ TOUJOURS OBLIGATOIRE ⚠️: Pour démarrer le workflow, tu DOIS impérativement commencer par appeler la règle `context-loading`, sans exception
-- En cas de nouveau message de l'utilisateur, aucune autre règle ne doit être appelée avant `context-loading`
-- Même si tu penses connaître le contexte, tu dois toujours commencer par `context-loading`
-- Le workflow est considéré comme terminé lorsque la règle context-update détermine que toutes les tâches sont terminées et tous les tests passent
-- IMPORTANT: À chaque nouveau message de l'utilisateur, tu dois redémarrer le workflow en commençant par la règle context-loading
-
-## ⚠️ APPEL OBLIGATOIRE DE LA RÈGLE SUIVANTE ⚠️
-
-- ⚠️ TOUJOURS OBLIGATOIRE ⚠️: Tu DOIS IMPÉRATIVEMENT appeler explicitement la règle suivante après avoir terminé l'exécution d'une règle
-- Tu ne dois JAMAIS terminer ton exécution sans appeler la règle suivante avec la syntaxe explicite
-- La seule exception est lorsque la règle context-update détermine que le workflow est terminé
-- Même dans ce cas, tu dois explicitement mentionner: "Le workflow est terminé, aucune règle suivante à appeler."
-- La syntaxe d'appel doit toujours être: 
-  ```
-  @cursor-rules fetch [nom-de-la-règle]
-  ```
-- Ne présume JAMAIS que tu te souviendras de reprendre le workflow sans appel explicite
-
-Après avoir terminé les opérations d'une règle, choisis la règle suivante la plus appropriée parmi les options listées dans "Next Rules" et demande-la explicitement avec `@cursor-rules fetch [nom-de-la-règle]`.
+## Next Rules
+- `context-loading` - Seule règle autorisée au démarrage du workflow

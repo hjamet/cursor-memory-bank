@@ -6,6 +6,9 @@ alwaysApply: false
 ## TLDR
 Charger ou créer les fichiers de contexte du projet pour établir une compréhension solide de l'environnement de travail.
 
+## Résumé d'invocation
+Après avoir invoqué cette règle, l'agent dira: "Je vais charger les fichiers de contexte du projet pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans lire d'autres fichiers comme tasks.md. Je pourrai ensuite passer à l'analyse de la requête ou à l'identification des préférences utilisateur."
+
 ## Instructions
 1. Tenter de lire les fichiers de contexte existants:
    - `.cursor/memory-bank/context/projectbrief.md`
