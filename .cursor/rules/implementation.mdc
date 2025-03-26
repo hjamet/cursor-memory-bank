@@ -18,7 +18,7 @@ Implémenter les tâches d'une section prioritaire en suivant une approche méth
    - Implémenter la solution
    - Entre chaque appel d'outil, écris `Implementation - 2.numero.[Nom de la Section] : [Titre de la tâche] en cours...` pour ne pas perdre te perdre dans le fil de tes pensées et oublier le workflow.
 
-3. **Mise à jour du fichier tasks.md** : Mettre à jour le fichier tasks.md pour refléter l'avancement des tâches.
+3. **Mise à jour des tâches** : Mettre à jour le fichier tasks.md pour refléter l'avancement des tâches.
    - Déplacer la section de tâches de "ToDo" vers "In Progress"
    - Marquer les tâches individuelles comme en cours
 
@@ -45,22 +45,25 @@ fetch_rules ["implementation"]
 # Implementation : 1 - Analyse des tâches
 Je commence par lire le fichier tasks.md pour identifier la section la plus prioritaire. `(Implementation : 1 - Analyse des tâches)`
 [...lecture du fichier tasks.md...]
+`(Implementation : 1 - Analyse des tâches)`
 
 # Implementation : 2 - Implémentation des tâches
 Je vais implémenter chaque tâche de la section en suivant une approche méthodique. `(Implementation : 2 - Implémentation des tâches)`
+[...implémentation de la tâche...]
+`(Implementation : 2 - Implémentation des tâches)`
 
 ## Implementation - 2.1.Développement : Création du script
 Je commence par créer le script principal avec les fonctionnalités requises. `(Implementation : 2.1 - Création du script)`
 [...implémentation du script...]
-
+`(Implementation : 2.1 - Création du script)`
 ## Implementation - 2.2.Développement : Documentation
 J'ajoute la documentation nécessaire pour expliquer le fonctionnement du script. `(Implementation : 2.2 - Documentation)`
 [...ajout de la documentation...]
-
-# Implementation : 3 - Mise à jour du fichier tasks.md
-Je mets à jour le fichier tasks.md pour refléter l'avancement des tâches. `(Implementation : 3 - Mise à jour du fichier tasks.md)`
+`(Implementation : 2.2 - Documentation)`
+# Implementation : 3 - Mise à jour des tâches
+Je mets à jour le fichier tasks.md pour refléter l'avancement des tâches. `(Implementation : 3 - Mise à jour des tâches)`
 [...mise à jour du fichier tasks.md...]
-
+`(Implementation : 3 - Mise à jour des tâches)`
 # Implementation : 4 - Appel de la règle suivante
 Je dois maintenant appeler la règle tests pour vérifier les fonctionnalités implémentées.
 La règle tests doit être appelée pour tester les nouvelles fonctionnalités. `(Implementation : 4 - Appel de la règle suivante)`

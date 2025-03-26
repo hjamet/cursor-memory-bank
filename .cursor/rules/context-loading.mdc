@@ -126,14 +126,15 @@ fetch_rules ["context-loading"]
 # Context-loading : 1 - Lecture des fichiers de contexte
 Je commence par lire les trois fichiers de contexte pour comprendre l'environnement du projet. `(Context-loading : 1 - Lecture du contexte)`
 [...lecture des fichiers projectbrief.md, activeContext.md et techContext.md...]
+`(Context-loading : 1 - Lecture du contexte)`
 
 # Context-loading : 3 - Reformulation de la requête
 Je reformule la requête de l'utilisateur en tenant compte du contexte du projet. `(Context-loading : 3 - Reformulation de la requête)`
-[...analyse de la requête utilisateur dans le contexte du projet...]
+[...analyse de la requête utilisateur dans le contexte du projet...] `(Context-loading : 3 - Reformulation de la requête)`
 
 # Context-loading : 4 - Appel de la règle suivante
-Je dois maintenant appeler la règle request-analysis pour analyser la requête en détail. `(Context-loading : 4 - Appel de la règle suivante)`
-La règle request-analysis doit être appelée pour analyser la requête de l'utilisateur en détail.
+Je dois maintenant appeler la règle request-analysis pour analyser la requête en détail.
+La règle request-analysis doit être appelée pour analyser la requête de l'utilisateur en détail. `(Context-loading : 4 - Appel de la règle suivante)`
 
 fetch_rules ["request-analysis"]
 

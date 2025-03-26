@@ -78,14 +78,17 @@ fetch_rules ["task-decomposition"]
 # Task-decomposition : 1 - Lecture du fichier tasks.md
 Je commence par lire le fichier tasks.md pour comprendre l'état actuel des tâches. `(Task-decomposition : 1 - Lecture du fichier tasks.md)`
 [...lecture du fichier tasks.md...]
+`(Task-decomposition : 1 - Lecture du fichier tasks.md)`
 
 # Task-decomposition : 2 - Suppression des tâches terminées
 Je supprime les tâches terminées qui ne sont plus pertinentes pour le travail en cours. `(Task-decomposition : 2 - Suppression des tâches terminées)`
 [...suppression des tâches obsolètes...]
+`(Task-decomposition : 2 - Suppression des tâches terminées)`
 
 # Task-decomposition : 3 - Intégration des nouvelles tâches
 Je décompose la requête en tâches concrètes et les organise en sections de haut niveau. `(Task-decomposition : 3 - Intégration des nouvelles tâches)`
 [...organisation des tâches en sections...]
+`(Task-decomposition : 3 - Intégration des nouvelles tâches)`
 
 # Task-decomposition : 4 - Appel de la règle suivante
 Je dois maintenant appeler la règle implementation pour commencer le travail sur les tâches.

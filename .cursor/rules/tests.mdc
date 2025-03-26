@@ -66,19 +66,26 @@ fetch_rules ["tests"]
 
 # Tests : 1 - Création des tests unitaires
 Je commence par créer les tests pour les nouvelles fonctionnalités. `(Tests : 1 - Création des tests unitaires)`
-[...création des tests unitaires...]
+[...création des tests unitaires pour la fonctionnalité [...]]
+`(Tests : 1 - Création des tests unitaires)`
+Parfait. Maintenant, je vais implémenter des tests pour la fonctionnalité [...]. `(Tests : 1 - Création des tests unitaires)`
+[...création des tests unitaires pour la fonctionnalité [...]]
+`(Tests : 1 - Création des tests unitaires)`
 
 # Tests : 2 - Exécution des tests
 Je lance les tests pour vérifier le comportement des fonctionnalités. `(Tests : 2 - Exécution des tests)`
 [...exécution des tests...]
+`(Tests : 2 - Exécution des tests)`
 
 # Tests : 3 - Analyse des résultats
 Je compare les résultats avec les tests précédents. `(Tests : 3 - Analyse des résultats)`
 [...analyse des résultats...]
+`(Tests : 3 - Analyse des résultats)`
 
 # Tests : 4 - Documentation des résultats
 Je mets à jour le fichier tests.md avec les nouveaux résultats. `(Tests : 4 - Documentation des résultats)`
 [...mise à jour du fichier tests.md...]
+`(Tests : 4 - Documentation des résultats)`
 
 # Tests : 5 - Appel de la règle suivante
 Je dois maintenant appeler la règle context-update car les certains tests ont progressé et je n'ai eu aucune regression.

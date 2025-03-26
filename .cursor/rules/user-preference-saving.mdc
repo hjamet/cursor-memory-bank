@@ -53,10 +53,14 @@ fetch_rules ["user-preference-saving"]
 # User-preference-saving : 1 - Analyse des instructions et commentaires
 Je commence par analyser les instructions et commentaires de l'utilisateur pour identifier ses préférences. `(User-preference-saving : 1 - Analyse des instructions et commentaires)`
 [...analyse des instructions et commentaires...]
+`(User-preference-saving : 1 - Analyse des instructions et commentaires)`
 
 # User-preference-saving : 2 - Création des règles
 Je prépare les règles personnalisées pour les préférences identifiées. `(User-preference-saving : 2 - Création des règles)`
-[...création des règles...]
+[...création de la règle [...]]
+Parfait. Maintenant, je vais modifier la règle [...]. `(User-preference-saving : 2 - Création des règles)`
+[...modification de la règle [...]]
+`(User-preference-saving : 2 - Création des règles)`
 
 # User-preference-saving : 3 - Appel de la règle suivante
 Je dois maintenant appeler la règle request-analysis pour analyser la requête de l'utilisateur.

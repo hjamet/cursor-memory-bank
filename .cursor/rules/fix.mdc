@@ -71,23 +71,32 @@ fetch_rules ["fix"]
 
 # Fix : 1 - Identification des erreurs
 Je commence par analyser les erreurs de test pour comprendre les problèmes. `(Fix : 1 - Identification des erreurs)`
-[...analyse des erreurs...]
+[...lecture du fichier tests.md...]
+`(Fix : 1 - Identification des erreurs)`
 
 # Fix : 2 - Consultation des logs
 Je consulte les logs pour obtenir plus de détails sur les erreurs. `(Fix : 2 - Consultation des logs)`
 [...consultation des logs...]
+`(Fix : 2 - Consultation des logs)`
 
 # Fix : 3 - Analyse des fichiers
-Je parcours les fichiers concernés pour localiser les problèmes. `(Fix : 3 - Analyse des fichiers)`
-[...analyse des fichiers...]
+Je vais parcourir les fichiers concernés pour localiser les problèmes. `(Fix : 3 - Analyse des fichiers)`
+[...lecture du fichier [...]...]
+Maintenant, je vais consulter le fichier [...] `(Fix : 3 - Analyse des fichiers)`
+[...lecture du fichier [...]...]
+`(Fix : 3 - Analyse des fichiers)`
 
 # Fix : 4 - Ajout des tâches de correction
 Je crée des tâches détaillées pour corriger chaque erreur. `(Fix : 4 - Ajout des tâches de correction)`
-[...création des tâches...]
+[...modification du fichier tasks.md...]
+`(Fix : 4 - Ajout des tâches de correction)`
 
 # Fix : 5 - Documentation des erreurs
 Je documente les erreurs récurrentes pour éviter de les reproduire. `(Fix : 5 - Documentation des erreurs)`
-[...documentation des erreurs...]
+[...création d'une première règle...]
+`(Fix : 5 - Documentation des erreurs)`
+[...création d'une deuxième règle...]
+`(Fix : 5 - Documentation des erreurs)`
 
 # Fix : 6 - Appel de la règle suivante
 Je dois maintenant appeler la règle implementation pour corriger les erreurs.

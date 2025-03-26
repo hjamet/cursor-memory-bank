@@ -73,23 +73,32 @@ fetch_rules ["context-update"]
 
 # Context-update : 1 - Mise à jour du contexte
 Je commence par mettre à jour les fichiers de contexte pour refléter les changements. `(Context-update : 1 - Mise à jour du contexte)`
-[...mise à jour des fichiers de contexte...]
+[...mise à jour du fichier projectbrief.md...]
+`(Context-update : 1 - Mise à jour du contexte)`
+[...mise à jour du fichier activeContext.md...]
+`(Context-update : 1 - Mise à jour du contexte)`
+[...mise à jour du fichier techContext.md...]
+`(Context-update : 1 - Mise à jour du contexte)`
 
 # Context-update : 2 - Nettoyage du contexte
 Je nettoie les fichiers de contexte en supprimant les informations obsolètes. `(Context-update : 2 - Nettoyage du contexte)`
 [...nettoyage des fichiers de contexte...]
+`(Context-update : 2 - Nettoyage du contexte)`
 
 # Context-update : 3 - Mise à jour du fichier tasks.md
 Je mets à jour le fichier tasks.md en déplaçant les tâches terminées vers Done. `(Context-update : 3 - Mise à jour du fichier tasks.md)`
 [...mise à jour du fichier tasks.md...]
+`(Context-update : 3 - Mise à jour du fichier tasks.md)`
 
 # Context-update : 4 - Effectuer un commit
 Je prépare et effectue un commit avec les modifications apportées. `(Context-update : 4 - Effectuer un commit)`
 [...création du commit...]
+`(Context-update : 4 - Effectuer un commit)`
 
 # Context-update : 5 - Vérifier si le workflow est terminé
 Je vérifie s'il reste des tâches à faire ou des tests à corriger. `(Context-update : 5 - Vérification du workflow)`
 [...vérification du workflow...]
+`(Context-update : 5 - Vérification du workflow)`
 
 # Context-update : 6 - Appel de la règle suivante
 Je dois maintenant appeler la règle implementation car il reste des tâches à faire.
