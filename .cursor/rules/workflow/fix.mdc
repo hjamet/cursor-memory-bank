@@ -39,8 +39,8 @@ Analyser les erreurs de test, créer des tâches de correction et documenter les
 ## Format pour les règles d'erreur (.mdc)
 ```
 ---
-description: [nom-de-la-bibliotheque] - Erreurs courantes et bonnes pratiques
-globs: [Pattern glob pour les fichiers concernés, ex: *.py, src/**/*.js]
+description: description (Description consise des conditions d'application de l'erreur)
+globs: *.py, *.ts (Pattern glob pour les fichiers concernés. Laisser vide pour utiliser la description)
 alwaysApply: false
 ---
 # Erreurs courantes avec [Nom de la bibliothèque]

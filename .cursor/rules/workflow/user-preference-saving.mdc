@@ -32,8 +32,8 @@ Identifier les préférences de l'utilisateur à partir de ses instructions et l
 ## Format de règle à utiliser (.mdc)
 ```
 ---
-description: [nom-de-la-regle] - [Description concise de la préférence]
-globs: [Pattern glob pour les fichiers concernés, ex: *.py, src/**/*.js]
+description: description (Description consise des conditions d'application)
+globs: *.py, *.ts (Pattern glob pour les fichiers concernés. Laisser vide pour utiliser la description)
 alwaysApply: false
 ---
 # [Titre de la préférence]
