@@ -141,6 +141,34 @@ create_dirs() {
     mkdir -p "$target_dir/$RULES_DIR/languages"
 }
 
+install_rules() {
+    local target_dir="$1"
+    local temp_dir="$2"
+    local archive="$temp_dir/$ARCHIVE_NAME"
+
+    log "Installing rules to $target_dir/$RULES_DIR"
+
+    # Extract rules from archive
+    if ! tar -xzf "$archive" -C "$target_dir/$RULES_DIR"; then
+        error "Failed to extract rules archive"
+    fi
+
+    # Preserve custom rules if they exist
+    if [[ -d "$target_dir/$RULES_DIR.bak-"* ]]; then
+        local backup_dir=$(ls -d "$target_dir/$RULES_DIR.bak-"* | head -n 1)
+        if [[ -d "$backup_dir/custom" ]]; then
+            log "Restoring custom rules from backup"
+            cp -r "$backup_dir/custom/"* "$target_dir/$RULES_DIR/custom/"
+        fi
+    fi
+
+    # Set correct permissions
+    chmod -R u+rw "$target_dir/$RULES_DIR"
+    find "$target_dir/$RULES_DIR" -type d -exec chmod u+x {} \;
+
+    log "Rules installed successfully"
+}
+
 show_help() {
     cat << EOF
 Cursor Memory Bank Installation Script v${VERSION}
@@ -230,8 +258,11 @@ create_dirs "$INSTALL_DIR"
 
 # Download and verify files
 log "Starting download process..."
-download_and_verify "$DOWNLOAD_URL" "$TEMP_DIR"
+if ! download_and_verify "$DOWNLOAD_URL/$ARCHIVE_NAME" "$TEMP_DIR"; then
+    error "Failed to download and verify rules archive"
+fi
 
-# TODO: Implement rules installation
+# Install rules
+install_rules "$INSTALL_DIR" "$TEMP_DIR"
 
 log "Installation completed successfully!" 
