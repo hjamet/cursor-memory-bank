@@ -21,6 +21,15 @@
 TEST_DIR="/tmp/cursor-test-$$"
 LOGS_DIR="$TEST_DIR/logs"
 TEST_LOG="$LOGS_DIR/test.log"
+export TEST_MODE=1
+export TEST_RULES_DIR="$TEST_DIR/rules"
+
+# Test files setup
+SCRIPT_DIR="$(dirname "$0")"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+TEST_DIST_DIR="$TEST_DIR/dist"
+TEST_RULES_ARCHIVE="$TEST_DIST_DIR/rules.tar.gz"
+TEST_RULES_CHECKSUM="$TEST_DIST_DIR/rules.tar.gz.sha256"
 
 # Colors for output
 RED='\033[0;31m'
@@ -48,8 +57,55 @@ log_warn() {
 }
 
 setup() {
-    mkdir -p "$LOGS_DIR"
+    # Create logs directory
+    if ! mkdir -p "$LOGS_DIR"; then
+        log_error "Failed to create logs directory at $LOGS_DIR"
+        return 1
+    fi
+    
+    # Create test rules directory
+    if ! mkdir -p "$TEST_RULES_DIR"; then
+        log_error "Failed to create test rules directory at $TEST_RULES_DIR"
+        rm -rf "$TEST_DIR"  # Clean up if we fail
+        return 1
+    fi
+
+    # Create test dist directory
+    if ! mkdir -p "$TEST_DIST_DIR"; then
+        log_error "Failed to create test dist directory at $TEST_DIST_DIR"
+        rm -rf "$TEST_DIR"  # Clean up if we fail
+        return 1
+    fi
+
+    # Check if source files exist
+    if [[ ! -f "$PROJECT_ROOT/dist/rules.tar.gz" ]]; then
+        log_error "Test archive not found at $PROJECT_ROOT/dist/rules.tar.gz"
+        rm -rf "$TEST_DIR"  # Clean up if we fail
+        return 1
+    fi
+
+    if [[ ! -f "$PROJECT_ROOT/dist/rules.tar.gz.sha256" ]]; then
+        log_error "Test checksum not found at $PROJECT_ROOT/dist/rules.tar.gz.sha256"
+        rm -rf "$TEST_DIR"  # Clean up if we fail
+        return 1
+    fi
+
+    # Copy test files
+    log "Copying test files to $TEST_DIST_DIR"
+    if ! cp "$PROJECT_ROOT/dist/rules.tar.gz" "$TEST_RULES_ARCHIVE"; then
+        log_error "Failed to copy rules archive to $TEST_RULES_ARCHIVE"
+        rm -rf "$TEST_DIR"  # Clean up if we fail
+        return 1
+    fi
+
+    if ! cp "$PROJECT_ROOT/dist/rules.tar.gz.sha256" "$TEST_RULES_CHECKSUM"; then
+        log_error "Failed to copy rules checksum to $TEST_RULES_CHECKSUM"
+        rm -rf "$TEST_DIR"  # Clean up if we fail
+        return 1
+    fi
+
     log "Created test environment at $TEST_DIR"
+    return 0
 }
 
 teardown() {
@@ -64,12 +120,19 @@ SCRIPT_DIR="$(dirname "$0")"
 INSTALL_SCRIPT="$SCRIPT_DIR/../install.sh"
 
 if [[ ! -f "$INSTALL_SCRIPT" ]]; then
-    log_error "Installation script not found at $INSTALL_SCRIPT"
+    echo -e "${RED}[ERROR]${NC} Installation script not found at $INSTALL_SCRIPT" >&2
+    exit 1
+fi
+
+# Create test directory structure before sourcing
+if ! setup; then
+    echo -e "${RED}[ERROR]${NC} Failed to set up test environment" >&2
     exit 1
 fi
 
 if ! source "$INSTALL_SCRIPT"; then
     log_error "Failed to source $INSTALL_SCRIPT"
+    teardown
     exit 1
 fi
 
@@ -83,9 +146,22 @@ MOCK_CHECKSUM="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 # Test Cases
 test_download_file_success() {
     echo "Testing successful file download..."
-    if download_file "https://raw.githubusercontent.com/lopilo24/cursor-memory-bank/main/README.md" "$TEST_DIR/README.md"; then
-        echo "✓ Download successful"
-        return 0
+    
+    # Create test file
+    local test_content="This is a test file for download verification"
+    local test_file="$TEST_DIST_DIR/test_download.txt"
+    echo "$test_content" > "$test_file"
+    
+    # Test download using file:// protocol
+    if download_file "file://$test_file" "$TEST_DIR/downloaded.txt"; then
+        # Verify content
+        if [[ "$(cat "$TEST_DIR/downloaded.txt")" == "$test_content" ]]; then
+            echo "✓ Download successful and content verified"
+            return 0
+        else
+            echo "✗ Download succeeded but content mismatch"
+            return 1
+        fi
     else
         echo "✗ Download failed"
         return 1
@@ -137,9 +213,36 @@ test_verify_checksum_failure() {
 
 test_download_and_verify_integration() {
     echo "Testing download and verify integration..."
-    if download_and_verify "$DOWNLOAD_URL" "$TEST_DIR"; then
-        echo "✓ Download and verify integration successful"
-        return 0
+    
+    # Create test archive and checksum
+    local test_content="This is a test archive for integration testing"
+    local archive_path="$TEST_DIST_DIR/$ARCHIVE_NAME"
+    local checksum_path="$TEST_DIST_DIR/$ARCHIVE_NAME.sha256"
+    
+    # Create test archive
+    echo "$test_content" > "$archive_path"
+    
+    # Generate checksum
+    cd "$TEST_DIST_DIR"
+    sha256sum "$ARCHIVE_NAME" > "$ARCHIVE_NAME.sha256"
+    cd - > /dev/null
+    
+    # Test download and verify
+    if download_and_verify "file://$archive_path" "$TEST_DIR"; then
+        # Verify downloaded file exists
+        if [[ -f "$TEST_DIR/$ARCHIVE_NAME" ]]; then
+            # Verify content
+            if [[ "$(cat "$TEST_DIR/$ARCHIVE_NAME")" == "$test_content" ]]; then
+                echo "✓ Download and verify integration successful"
+                return 0
+            else
+                echo "✗ Download succeeded but content mismatch"
+                return 1
+            fi
+        else
+            echo "✗ Download succeeded but file not found"
+            return 1
+        fi
     else
         echo "✗ Download and verify integration failed"
         return 1

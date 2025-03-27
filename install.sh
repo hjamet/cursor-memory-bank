@@ -7,13 +7,22 @@ set -e  # Exit on error
 set -u  # Exit on undefined variable
 
 # Constants
-REPO_URL="https://github.com/lopilo24/cursor-memory-bank"
-RULES_DIR=".cursor/rules"
+REPO_URL="https://github.com/hjamet/cursor-memory-bank.git"
+DEFAULT_RULES_DIR=".cursor/rules"
+RULES_DIR="${TEST_RULES_DIR:-$DEFAULT_RULES_DIR}"
 TEMP_DIR="/tmp/cursor-memory-bank-$$"
 VERSION="1.0.0"
 ARCHIVE_NAME="rules.tar.gz"
 CHECKSUM_FILE="rules.sha256"
-DOWNLOAD_URL="https://raw.githubusercontent.com/lopilo24/cursor-memory-bank/main/dist"
+
+# Set up download URL based on environment
+if [[ -n "${TEST_DIST_DIR:-}" ]]; then
+    # Test mode - use local files
+    DOWNLOAD_URL="file://$TEST_DIST_DIR"
+else
+    # Production mode - use release URL
+    DOWNLOAD_URL="https://github.com/hjamet/cursor-memory-bank/releases/download/v${VERSION}"
+fi
 
 # Colors for output
 RED='\033[0;31m'
@@ -39,6 +48,75 @@ cleanup() {
     if [[ -d "$TEMP_DIR" ]]; then
         rm -rf "$TEMP_DIR"
     fi
+}
+
+# Download and verify functions
+download_file() {
+    local url="$1"
+    local dest="$2"
+    local temp_file="$dest.tmp"
+
+    if ! curl -sSL --fail "$url" -o "$temp_file"; then
+        echo "Failed to download file from $url" >&2
+        rm -f "$temp_file"
+        return 1
+    fi
+
+    mv "$temp_file" "$dest"
+    return 0
+}
+
+verify_checksum() {
+    local file="$1"
+    local checksum_file="$2"
+
+    if [[ ! -f "$file" ]]; then
+        echo "File not found: $file" >&2
+        return 1
+    fi
+
+    if [[ ! -f "$checksum_file" ]]; then
+        echo "Checksum file not found: $checksum_file" >&2
+        return 1
+    fi
+
+    if ! sha256sum -c "$checksum_file" 2>/dev/null; then
+        echo "Checksum verification failed for $file" >&2
+        return 1
+    fi
+
+    return 0
+}
+
+download_and_verify() {
+    local url="$1"
+    local dest_dir="$2"
+    local file_name="$(basename "$url")"
+    local dest_file="$dest_dir/$file_name"
+    local checksum_url="${url}.sha256"
+    local checksum_file="$dest_dir/${file_name}.sha256"
+
+    # Download main file
+    if ! download_file "$url" "$dest_file"; then
+        return 1
+    fi
+
+    # Download checksum file
+    if ! download_file "$checksum_url" "$checksum_file"; then
+        rm -f "$dest_file"
+        return 1
+    fi
+
+    # Verify checksum
+    cd "$dest_dir"
+    if ! verify_checksum "$file_name" "${file_name}.sha256"; then
+        rm -f "$dest_file" "$checksum_file"
+        cd - > /dev/null
+        return 1
+    fi
+    cd - > /dev/null
+
+    return 0
 }
 
 backup_rules() {
@@ -133,15 +211,19 @@ if [[ ! -d "$INSTALL_DIR" ]]; then
     error "Installation directory does not exist: $INSTALL_DIR"
 fi
 
-# Check if rules directory exists and is not empty
-if [[ -d "$INSTALL_DIR/$RULES_DIR" ]] && [[ -z "$FORCE" ]]; then
-    if [[ -n "$(ls -A "$INSTALL_DIR/$RULES_DIR")" ]]; then
-        error "Rules directory already exists and is not empty. Use --force to overwrite."
+# Check if rules directory exists and is not empty (skip in test mode)
+if [[ -z "${TEST_MODE:-}" ]]; then
+    if [[ -d "$INSTALL_DIR/$RULES_DIR" ]] && [[ -z "$FORCE" ]]; then
+        if [[ -n "$(ls -A "$INSTALL_DIR/$RULES_DIR")" ]]; then
+            error "Rules directory already exists and is not empty. Use --force to overwrite."
+        fi
     fi
 fi
 
-# Backup existing rules if necessary
-backup_rules "$INSTALL_DIR"
+# Backup existing rules if necessary (skip in test mode)
+if [[ -z "${TEST_MODE:-}" ]]; then
+    backup_rules "$INSTALL_DIR"
+fi
 
 # Create directory structure
 create_dirs "$INSTALL_DIR"
@@ -152,38 +234,4 @@ download_and_verify "$DOWNLOAD_URL" "$TEMP_DIR"
 
 # TODO: Implement rules installation
 
-log "Installation completed successfully!"
-
-# Helper functions
-download_file() {
-    local url="$1"
-    local output="$2"
-    log "Downloading from $url"
-    if ! curl -sSL --proto '=https' --tlsv1.2 -f "$url" -o "$output"; then
-        error "Failed to download from $url"
-    fi
-}
-
-verify_checksum() {
-    local file="$1"
-    local checksum_file="$2"
-    log "Verifying checksum"
-    if ! sha256sum -c "$checksum_file" > /dev/null 2>&1; then
-        error "Checksum verification failed for $file"
-    fi
-}
-
-download_and_verify() {
-    local base_url="$1"
-    local temp_dir="$2"
-    
-    # Download checksum file first
-    download_file "$base_url/$CHECKSUM_FILE" "$temp_dir/$CHECKSUM_FILE"
-    
-    # Download archive
-    download_file "$base_url/$ARCHIVE_NAME" "$temp_dir/$ARCHIVE_NAME"
-    
-    # Verify checksum
-    cd "$temp_dir"
-    verify_checksum "$ARCHIVE_NAME" "$CHECKSUM_FILE"
-    cd - > /dev/null 
+log "Installation completed successfully!" 

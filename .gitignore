@@ -3,3 +3,7 @@
 
 # Memory Bank
 .cursor/memory-bank/
+
+# Dist directory
+dist/
+tmp/
