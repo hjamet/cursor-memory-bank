@@ -1,76 +1,170 @@
 # In Progress
 
-## 1. Développement des règles
-
-## 2. Validation
-
-## 3. Décomposition de la règle test
-3.1. [ ] **Créer test-implementation.mdc** : Créer la nouvelle règle pour la création des tests
+## 1. Préparation de l'Environnement
+1.1. [ ] **Configuration initiale du projet** : Mise en place de la structure de base et des dépendances
 - Actions:
-  * Créer le fichier test-implementation.mdc
-  * Implémenter la structure standard (TLDR, Instructions, Précisions, Next Rules)
-  * Ajouter la logique de création des tests unitaires
-  * Ajouter une section Exemple
-  * Configurer l'appel à test-execution comme seule règle suivante
-- Fichiers: .cursor/rules/test-implementation.mdc
+  * Créer la structure de dossiers
+  * Initialiser le fichier requirements.txt avec les dépendances
+  * Créer le Makefile avec les commandes essentielles
+  * Rédiger le README.md avec la documentation initiale
+- Fichiers:
+  * `requirements.txt`
+  * `Makefile`
+  * `README.md`
 - Dépendances: Aucune
-- Validation: La règle est créée et suit le format standard
+- Validation:
+  * Structure de dossiers conforme à l'architecture définie
+  * Installation des dépendances réussie via make install
+  * Documentation claire et complète
 
-3.2. [ ] **Créer test-execution.mdc** : Créer la nouvelle règle pour l'exécution des tests
+1.2. [ ] **Configuration de la base de données** : Mise en place de SQLite et Redis
 - Actions:
-  * Créer le fichier test-execution.mdc
-  * Implémenter la structure standard (TLDR, Instructions, Précisions, Next Rules)
-  * Ajouter la logique d'exécution et d'analyse des tests
-  * Ajouter une section Exemple
-  * Configurer l'appel à fix ou context-update selon les résultats
-- Fichiers: .cursor/rules/test-execution.mdc
-- Dépendances: 3.1
-- Validation: La règle est créée et suit le format standard
+  * Configurer la connexion SQLite
+  * Configurer Redis pour le cache
+  * Créer les scripts de migration avec Alembic
+- Fichiers:
+  * `src/database.py`
+  * `alembic.ini`
+  * `alembic/env.py`
+- Dépendances: 1.1
+- Validation:
+  * Connexion à SQLite réussie
+  * Redis opérationnel
+  * Migrations fonctionnelles
 
-3.3. [ ] **Modifier implementation.mdc** : Adapter la règle pour utiliser les nouvelles règles de test
+## 2. Développement Backend
+2.1. [ ] **Modèles de données** : Création des modèles SQLAlchemy
 - Actions:
-  * Modifier la section Next Rules
-  * Ajouter la logique de choix entre test-implementation et test-execution
-  * Mettre à jour la section Exemple avec les nouveaux cas
-- Fichiers: .cursor/rules/implementation.mdc
-- Dépendances: 3.1, 3.2
-- Validation: La règle est modifiée et utilise correctement les nouvelles règles
+  * Créer les modèles pour les utilisateurs
+  * Créer les modèles pour les chatbots
+  * Créer les modèles pour les conversations
+  * Créer les modèles pour les scores
+- Fichiers:
+  * `src/backend/models/user.py`
+  * `src/backend/models/bot.py`
+  * `src/backend/models/chat.py`
+- Dépendances: 1.2
+- Validation:
+  * Tests unitaires passants
+  * Migrations générées correctement
 
-3.4. [ ] **Modifier workflow-perdu.mdc** : Mettre à jour les descriptions des règles
+2.2. [ ] **API REST** : Implémentation des endpoints FastAPI
 - Actions:
-  * Ajouter les descriptions pour test-implementation et test-execution
-  * Mettre à jour les descriptions existantes si nécessaire
-- Fichiers: .cursor/rules/workflow-perdu.mdc
-- Dépendances: 3.1, 3.2
-- Validation: Les descriptions sont à jour et cohérentes
+  * Créer les routes pour la gestion des bots
+  * Créer les routes pour le système de scoring
+  * Implémenter la validation des données avec Pydantic
+- Fichiers:
+  * `src/backend/api/bot.py`
+  * `src/backend/api/scores.py`
+- Dépendances: 2.1
+- Validation:
+  * Tests des endpoints réussis
+  * Documentation OpenAPI générée
 
-3.5. [ ] **Modifier system.mdc** : Ajouter l'appel à workflow-perdu
+2.3. [ ] **WebSocket Chat** : Implémentation du système de chat en temps réel
 - Actions:
-  * Ajouter la condition d'appel à workflow-perdu
-  * Mettre à jour la section sur le workflow
-- Fichiers: .cursor/rules/system.mdc
-- Dépendances: 3.4
-- Validation: L'appel à workflow-perdu est correctement configuré
+  * Créer le gestionnaire de connexions WebSocket
+  * Implémenter le système de file d'attente
+  * Gérer les sessions de chat
+- Fichiers:
+  * `src/backend/websockets/chat.py`
+  * `src/backend/api/chat.py`
+- Dépendances: 2.1
+- Validation:
+  * Tests de connexion WebSocket réussis
+  * Gestion correcte des déconnexions
+  * File d'attente fonctionnelle
 
-## 4. Tests et validation
-4.1. [ ] **Tester le nouveau workflow** : Vérifier que la décomposition fonctionne
+2.4. [ ] **Services** : Implémentation des services métier
 - Actions:
-  * Tester le passage de implementation à test-implementation
-  * Tester le passage de implementation à test-execution
-  * Tester le passage de test-implementation à test-execution
-  * Tester le passage de test-execution à fix ou context-update
-- Fichiers: Tous les fichiers .mdc modifiés
-- Dépendances: Toutes les tâches de la section 3
-- Validation: Le workflow fonctionne correctement avec les nouvelles règles
+  * Créer le service d'appariement joueurs/bots
+  * Créer le service de calcul des classements
+  * Implémenter la modération automatique
+- Fichiers:
+  * `src/backend/services/matching.py`
+  * `src/backend/services/ranking.py`
+- Dépendances: 2.1, 2.2, 2.3
+- Validation:
+  * Tests unitaires des services réussis
+  * Performances acceptables
 
-4.2. [ ] **Vérifier la cohérence** : S'assurer que toutes les règles sont cohérentes
+## 3. Développement Frontend
+3.1. [ ] **Interface Créateur** : Développement de l'interface de création de bot
 - Actions:
-  * Vérifier la cohérence des descriptions dans workflow-perdu
-  * Vérifier la cohérence des sections Exemple
-  * Vérifier la cohérence des Next Rules
-  * Vérifier la cohérence des formats
-- Fichiers: Tous les fichiers .mdc
+  * Créer la structure HTML de base
+  * Implémenter l'éditeur de conversation
+  * Ajouter la zone d'instructions
+  * Intégrer le chat de test
+- Fichiers:
+  * `src/frontend/templates/creator.html`
+  * `src/frontend/static/js/creator.js`
+  * `src/frontend/static/styles/creator.css`
+- Dépendances: 2.2, 2.3
+- Validation:
+  * Interface responsive
+  * Sauvegarde automatique fonctionnelle
+  * Tests utilisateurs réussis
+
+3.2. [ ] **Interface Jeu** : Développement de l'interface de jeu
+- Actions:
+  * Créer la structure HTML de base
+  * Implémenter le chat en temps réel
+  * Ajouter le système de vote
+  * Intégrer le tableau des scores
+- Fichiers:
+  * `src/frontend/templates/game.html`
+  * `src/frontend/static/js/game.js`
+  * `src/frontend/static/styles/game.css`
+- Dépendances: 2.3, 2.4
+- Validation:
+  * Interface responsive
+  * Communication WebSocket fluide
+  * Tests utilisateurs réussis
+
+## 4. Tests et Déploiement
+4.1. [ ] **Tests unitaires** : Création des tests pour chaque composant
+- Actions:
+  * Écrire les tests pour les modèles
+  * Écrire les tests pour les API
+  * Écrire les tests pour les services
+  * Écrire les tests pour les WebSockets
+- Fichiers:
+  * `tests/backend/models/`
+  * `tests/backend/api/`
+  * `tests/backend/services/`
+  * `tests/backend/websockets/`
+- Dépendances: 2.1, 2.2, 2.3, 2.4
+- Validation:
+  * Couverture de tests > 80%
+  * Tous les tests passent
+
+4.2. [ ] **Tests de charge** : Validation des performances
+- Actions:
+  * Créer des scénarios de test de charge
+  * Tester les limites du système
+  * Optimiser les points critiques
+- Fichiers:
+  * `tests/load/`
 - Dépendances: 4.1
-- Validation: Toutes les règles sont cohérentes entre elles
+- Validation:
+  * Système stable sous charge
+  * Temps de réponse acceptables
+  * Gestion correcte des pics d'utilisation
+
+4.3. [ ] **Documentation** : Finalisation de la documentation
+- Actions:
+  * Documenter l'installation
+  * Documenter l'API
+  * Documenter l'architecture
+  * Créer des guides utilisateur
+- Fichiers:
+  * `docs/`
+  * `README.md`
+- Dépendances: Toutes les tâches précédentes
+- Validation:
+  * Documentation complète et à jour
+  * Guides clairs et utiles
+
+# ToDo
 
 # Done 

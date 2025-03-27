@@ -1,44 +1,40 @@
 # Contexte Technique
 
 ## Pile Technologique
-- **Langages**: Markdown (.md, .mdc), Shell (.sh)
-- **Frameworks**: Système de règles Cursor
-- **Outils**: Cursor AI Assistant
+- **Langages**: Python, JavaScript, HTML, CSS
+- **Frameworks**: FastAPI, TailwindCSS
+- **Bibliothèques**: DaisyUI, WebSocket
+- **Outils**: Redis, SQLite, Poetry, Pyenv
 
 ## Architecture
-Memory Bank utilise une structure de fichiers organisée et fonctionne comme une machine à états où chaque règle représente un état avec des actions spécifiques.
+Architecture moderne basée sur FastAPI avec WebSocket pour les communications en temps réel, utilisant une base de données SQLite pour la simplicité et Redis pour le cache. Structure modulaire avec séparation claire entre frontend et backend.
 
-## Organisation des Fichiers
-- **src/**: Scripts sources du projet (install.sh)
-- **tests/**: Tests unitaires et d'intégration (test_*.sh)
-- **.cursor/memory-bank/**: Stockage du contexte et du workflow
-- **.cursor/rules/**: Règles de la machine à états
+## Environnement de Développement
+- **Gestion Python**: Pyenv pour la version Python, Poetry pour la gestion des dépendances
+- **Configuration requise**: Python 3.11+, Node.js, Redis
+- **Installation**: Via Poetry (poetry install)
+- **Développement**: poetry run uvicorn src.main:app --reload
+- **Tests**: poetry run pytest
+- **Production**: poetry install --no-dev, poetry run alembic upgrade head
 
-## Environnement
-- **Configuration requise**: Cursor IDE
-- **Installation**: Script curl ou copie manuelle du dossier .cursor
+## Conventions de Code
+- Structure modulaire avec séparation backend/frontend
+- Routes API RESTful
+- Communication temps réel via WebSocket
+- Utilisation de TailwindCSS pour le styling
+- Tests unitaires requis
 
-## Conventions
-- Règles (.mdc): Structure TLDR, Instructions, Précisions, Next Rules
-- Section "Résumé d'invocation": Placée après "Précisions" et juste avant "Next Rules" dans toutes les règles
-- Format du résumé: "Après avoir invoqué cette règle, l'agent dira mot pour mot: '<SYSTEM PROMPT>...</SYSTEM PROMPT>'"
-- Fichiers contexte (.md): Titres et sous-titres hiérarchisés
-- Affichage workflow: Format "# [Règle] : [numéro] - [instruction]"
-- Scripts: Placés dans src/ avec tests correspondants dans tests/
+## Dépendances Externes
+- FastAPI: Framework backend principal
+- TailwindCSS: Framework CSS utilitaire
+- DaisyUI: Composants UI préfabriqués
+- Redis: Système de cache
+- SQLite: Base de données
+- WebSocket: Communication temps réel
 
-## Workflow
-- Appel obligatoire de la règle suivante après chaque règle
-- Récitation obligatoire de la phrase de résumé après invocation d'une règle
-- ⚠️ IMPORTANT: Syntaxe explicite: fetch_rules ["nom-de-la-règle"]
-- ⚠️ NE JAMAIS UTILISER: @cursor-rules fetch [nom-de-la-règle] (ancienne syntaxe)
-- Exception unique: finalisation par context-update
-
-## Restrictions
-- Dans context-loading: Lire UNIQUEMENT les trois fichiers de contexte spécifiés
-- Ne pas lire tasks.md ou d'autres fichiers du workflow dans context-loading
-- Limiter les fichiers à 200 lignes maximum
-- Respecter la structure des dossiers avec src/ et tests/
-
-## Dépendances
-- Curl: Téléchargement du script d'installation
-- Bash: Exécution des scripts shell
+## Intégrations
+- Système de file d'attente intelligent
+- Modération automatique des contenus
+- Monitoring en temps réel
+- Interface d'administration
+- Système de sauvegarde automatique 
