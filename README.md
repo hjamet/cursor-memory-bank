@@ -6,7 +6,19 @@ I apologize, but this repository is primarily in French as it's my personal proj
 
 ## Installation 🚀
 
-You can install the Cursor Memory Bank rules using this one-liner:
+### Method 1: Using git clone (Recommended)
+
+You can install Cursor Memory Bank by cloning the repository:
+
+```bash
+git clone https://github.com/hjamet/cursor-memory-bank.git
+cd cursor-memory-bank
+bash install.sh
+```
+
+### Method 2: Using curl (Coming soon)
+
+Once the release is properly configured, you'll be able to install using this one-liner:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/main/install.sh | bash
