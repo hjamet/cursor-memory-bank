@@ -6,13 +6,13 @@ alwaysApply: false
 
 ## TLDR
 
-Analyser en détail la requête de l'utilisateur ou le brief, explorer le code existant et rechercher des informations complémentaires pour préparer une implémentation efficace.
+Analyser en détail la requête de l'utilisateur ou le brief de l'utilisateur, explorer le code existant et rechercher des informations complémentaires pour préparer une implémentation efficace.
 
 ## Instructions
 
-1. **Analyse du brief** : Vérifier si le fichier `.cursor/memory-bank/brief.md` existe:
-   - Si le fichier existe, lire le contenu du fichier et considérer que son contenu constitue la requête de l'utilisateur
-   - Supprimer le fichier `.cursor/memory-bank/brief.md`
+1. **Analyse du brief utilisateur** : Vérifier si le fichier `.cursor/memory-bank/userbrief.md` est n'est pas vide:
+   - Si le fichier est vide, lire le contenu du fichier et considérer que son contenu constitue la requête de l'utilisateur
+   - Vider le contenu du fichier `.cursor/memory-bank/userbrief.md`
 
 2. **Analyse du code** : Parcourir le code pour identifier les fichiers et symboles concernés:
    - Effectuer une recherche sémantique basée sur les mots-clés de la requête
@@ -59,12 +59,12 @@ Analyser en détail la requête de l'utilisateur ou le brief, explorer le code e
 fetch_rules ["request-analysis"]
 <SYSTEM PROMPT>Je vais analyser en détail la requête et explorer le code pertinent pour comprendre ce qui doit être fait. Je ne mentionnerai pas les fichiers Memory Bank dans mes analyses. Je n'implementerai pas les changements demandés mais expliquerai leur but en langage naturel. A la fin de mon travail, je ferai appel aux règles `task-decomposition` ou `implementation` pour qu'elles se charge de l'implémentation.</SYSTEM PROMPT>
 
-# Request-analysis : 1 - Analyse du brief
-Je commence par analyser le brief pour identifier les fichiers et symboles concernés.
-Commençons par lire le fichier [...] `(Request-analysis : 1 - Analyse du brief)`
-[...lecture du fichier [...]...]
-Je vois que le fichier existe. J'ai donc ajouté son contenu à la requête de l'utilisateur et vais maintenant supprimer le fichier brief. `(Request-analysis : 1 - Analyse du brief)`
-[...suppression du fichier brief...]
+# Request-analysis : 1 - Analyse du brief utilisateur
+Je commence par analyser le brief de l'utilisateur pour identifier les fichiers et symboles concernés.
+Commençons par lire le fichier `.cursor/memory-bank/userbrief.md` `(Request-analysis : 1 - Analyse du brief utilisateur)`
+[...lecture du fichier userbrief...]
+Je vois que le fichier n'est pas vide. J'ai donc ajouté son contenu à la requête de l'utilisateur et vais maintenant vider le fichier de son contenu. `(Request-analysis : 1 - Analyse du brief utilisateur)`
+[...suppression du contenu du fichier userbrief...]
 J'ai lu des informations importantes dans le brief que je vais ajouter à la requête de l'utilisateur.
 
 # Request-analysis : 2 - Analyse du code
