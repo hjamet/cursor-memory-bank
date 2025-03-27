@@ -27,12 +27,10 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
    - Suivre le format conventional commit avec emoji pour le message
 
 5. **Appel de la règle suivante**: Appeler obligatoirement la règle suivante si le workflow n'est pas terminé:
-   - Lire le fichier `.cursor/memory-bank/workflow/test.md`
-      - Si au moins un test échoue, appeler la règle `fix`
-      - Sinon, vérifie si le fichier `.cursor/memory-bank/userbrief.md` n'est pas vide
+   - Vérifier si le fichier `.cursor/memory-bank/userbrief.md` n'est pas vide
       - Si le fichier n'est pas vide, appeler la règle `request-analysis`
-      - Sinon, vérifie si il reste des tâches en cours ou à faire
-         - Si oui, appeler la règle `implementation`
+      - Sinon, lire le fichier `.cursor/memory-bank/workflow/test.md`
+         - Si au moins un test échoue, appeler la règle `fix`
          - Sinon, indiquer que le workflow est terminé
 
 ## Précisions
@@ -66,8 +64,8 @@ Exemples d'emojis et types:
 - 🔧 chore: pour les tâches de maintenance
 
 ## Next Rules
-- `fix` - Si au moins un test échoue toujours
-- `request-analysis` - Si le fichier `.cursor/memory-bank/userbrief.md` n'est pas vide et qu'aucun test n'échoue
+- `request-analysis` - Si le fichier `.cursor/memory-bank/userbrief.md` n'est pas vide
+- `fix` - Si au moins un test échoue toujours et que le fichier `.cursor/memory-bank/userbrief.md` est vide
 - `implementation` - Si au moins une tâche est toujours en cours ou à faire, qu'aucun test n'échoue et que le fichier `.cursor/memory-bank/userbrief.md` est vide
 
 ## Exemple
@@ -100,13 +98,13 @@ Je prépare et effectue un commit avec les modifications apportées. `(Context-u
 `(Context-update : 4 - Effectuer un commit)`
 
 # Context-update : 5 - Appel de la règle suivante
-Je vais consulter le fichier `.cursor/memory-bank/workflow/test.md` pour vérifier si certains tests ont échoué. `(Context-update : 5 - Appel de la règle suivante)`
-[...consultation du fichier test.md...]
-Je vois que tous les tests sont des ✅. Je vais donc consulter le fichier `.cursor/memory-bank/userbrief.md` pour vérifier si le fichier est vide. `(Context-update : 5 - Appel de la règle suivante)`
+Je vais consulter le fichier `.cursor/memory-bank/workflow/userbrief.md` pour vérifier si le fichier est vide. `(Context-update : 5 - Appel de la règle suivante)`
 [...consultation du fichier userbrief.md...]
-Le fichier n'est pas vide. Je vais donc appeler la règle `request-analysis`. `(Context-update : 5 - Appel de la règle suivante)`
+Je vois que que le fichier est vide. Je vais donc consulter le fichier `.cursor/memory-bank/workflow/test.md` pour vérifier si au moins un test a échoué. `(Context-update : 5 - Appel de la règle suivante)`
+[...consultation du fichier test.md...]
+Je constate que les tests [...] ont échoué. Je vais donc appeler la règle `fix`. `(Context-update : 5 - Appel de la règle suivante)`
 
-fetch_rules ["request-analysis"]
+fetch_rules ["fix"]
 
 # Start Rule
 

@@ -14,7 +14,6 @@ DEFAULT_RULES_DIR=".cursor/rules"
 RULES_DIR="${TEST_RULES_DIR:-$DEFAULT_RULES_DIR}"
 TEMP_DIR="/tmp/cursor-memory-bank-$$"
 VERSION="1.0.0"
-USE_CURL=""
 
 # Colors for output
 RED='\033[0;31m'
@@ -123,7 +122,11 @@ install_rules() {
 
     # Use curl if specified or if git is not available
     if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
-        log "Using curl for installation"
+        if [[ -n "${USE_CURL:-}" ]]; then
+            log "Using curl (forced by --use-curl option)"
+        else
+            log "Using curl (git not available)"
+        fi
         local archive_file="$temp_dir/archive.tar.gz"
         download_archive "$ARCHIVE_URL" "$archive_file"
 
@@ -133,9 +136,19 @@ install_rules() {
             error "Failed to extract archive. Please check disk space and permissions."
         fi
 
-        # Copy rules directory
-        if ! cp -r "$archive_dir/rules/"* "$rules_path/"; then
-            error "Failed to copy rules to installation directory. Please check disk space and permissions."
+        # Check for rules directory in both possible locations
+        if [[ -d "$archive_dir/rules" ]]; then
+            log "Found rules in rules/ directory"
+            if ! cp -r "$archive_dir/rules/"* "$rules_path/"; then
+                error "Failed to copy rules from rules/ directory. Please check disk space and permissions."
+            fi
+        elif [[ -d "$archive_dir/.cursor/rules" ]]; then
+            log "Found rules in .cursor/rules/ directory"
+            if ! cp -r "$archive_dir/.cursor/rules/"* "$rules_path/"; then
+                error "Failed to copy rules from .cursor/rules/ directory. Please check disk space and permissions."
+            fi
+        else
+            error "Invalid archive structure: neither rules/ nor .cursor/rules/ directory found"
         fi
     else
         # Use git clone
