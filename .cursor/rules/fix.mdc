@@ -24,16 +24,15 @@ Analyser les erreurs de test, créer des tâches de correction et documenter les
    - Inclure les fichiers et symboles concernés
    - Décrire précisément le problème et la solution envisagée
 
-5. **Documentation des erreurs** : Documenter les erreurs récurrentes ou liées aux bibliothèques:
-   - Pour les erreurs susceptibles d'être reproduites, créer ou mettre à jour une règle
+5. **Documentation des erreurs** : Documenter les erreurs récurrentes liées aux bibliothèques:
    - Nommer la règle d'après la bibliothèque ou le type d'erreur
-   - Documenter clairement le fonctionnement correct et les pièges à éviter
    - Sauvegarder la règle dans `.cursor/rules/custom/errors/` au format .mdc
 
 6. **Appel de la règle suivante** : Appeler la règle `implementation` pour implémenter les corrections.
 
 ## Précisions
-- Documenter les erreurs de manière à faciliter leur résolution future
+- Ne documente que les erreurs liée à la mise à jour d'une bibliothèque que tu risques de reproduire car tu n'es pas au courant du nouveau comportement de la bibliothèque
+- Ne documente pas des erreurs d'inattention de ta part
 - Inclure les symboles et fichiers concernés dans les tâches de résolution
 - Inclure des exemples concrets dans les règles d'erreur
 - Organiser les tâches de correction par composant ou fonctionnalité
@@ -53,12 +52,6 @@ alwaysApply: false
 ## Problème: [Description du problème]
 - ❌ **Incorrect**: [Exemple de code incorrect]
 - ✅ **Correct**: [Exemple de code correct]
-- 📝 **Explication**: [Explication claire du fonctionnement correct]
-
-## Problème: [Description d'un autre problème]
-- ❌ **Incorrect**: [Exemple de code incorrect]
-- ✅ **Correct**: [Exemple de code correct]
-- 📝 **Explication**: [Explication claire du fonctionnement correct]
 ```
 
 ## Next Rules
@@ -92,10 +85,10 @@ Je crée des tâches détaillées pour corriger chaque erreur. `(Fix : 4 - Ajout
 `(Fix : 4 - Ajout des tâches de correction)`
 
 # Fix : 5 - Documentation des erreurs
-Je documente les erreurs récurrentes pour éviter de les reproduire. `(Fix : 5 - Documentation des erreurs)`
+Je documente les erreurs récurrentes liée à la bibliothèque [...] qui ne s'utilise pas comme je l'imaginais pour éviter de les reproduire. `(Fix : 5 - Documentation des erreurs)`
 [...création d'une première règle...]
 `(Fix : 5 - Documentation des erreurs)`
-[...création d'une deuxième règle...]
+[...modification d'une deuxième règle...]
 `(Fix : 5 - Documentation des erreurs)`
 
 # Fix : 6 - Appel de la règle suivante

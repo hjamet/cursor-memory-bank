@@ -83,8 +83,8 @@ test_curl_installation() {
     mkdir -p "$RULES_DIR/custom/test"
     echo "test custom rule" > "$RULES_DIR/custom/test/test.mdc"
     
-    # Perform curl installation with --force
-    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/main/install.sh | bash -s -- --force; then
+    # Perform curl installation with --force and --use-curl
+    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/main/install.sh | bash -s -- --force --use-curl; then
         log_error "Curl installation failed"
         cd "$current_dir"
         return 1
@@ -130,8 +130,8 @@ test_curl_installation_with_options() {
     mkdir -p "$RULES_DIR/custom/test"
     echo "test custom rule" > "$RULES_DIR/custom/test/test.mdc"
     
-    # Test with --no-backup and --force options
-    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/main/install.sh | bash -s -- --no-backup --force; then
+    # Test with --no-backup, --force and --use-curl options
+    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/main/install.sh | bash -s -- --no-backup --force --use-curl; then
         log_error "Curl installation with --no-backup failed"
         cd "$current_dir"
         return 1
@@ -163,8 +163,8 @@ test_curl_installation_error_handling() {
         return 1
     }
     
-    # Test with invalid URL
-    if curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/invalid/install.sh | bash &>/dev/null; then
+    # Test with invalid URL and --use-curl
+    if curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/invalid/install.sh | bash -s -- --use-curl &>/dev/null; then
         log_error "Installation should fail with invalid URL"
         cd "$current_dir"
         return 1
@@ -200,24 +200,20 @@ run_tests() {
         ((failed++))
     fi
     
-    # Report results
-    if ((failed == 0)); then
-        echo -e "\n${GREEN}All curl installation tests passed!${NC}"
-        return 0
-    else
-        echo -e "\n${RED}$failed test(s) failed${NC}"
+    # Cleanup test environment
+    teardown
+    
+    # Return results
+    if [[ $failed -gt 0 ]]; then
+        log_error "$failed test(s) failed"
         return 1
     fi
+    
+    log "All tests passed successfully"
+    return 0
 }
 
-# Cleanup on exit
-trap teardown EXIT
-
-# Run the tests
-if ! run_tests; then
-    log_error "Some tests failed"
-    exit 1
-fi
-
-log "All tests completed successfully"
-exit 0 
+# Run tests if script is executed directly
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    run_tests
+fi 

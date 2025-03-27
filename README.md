@@ -20,6 +20,7 @@ Available options:
 - `--dir <path>` : Install to a specific directory (default: current directory)
 - `--force` : Force installation even if rules directory exists
 - `--no-backup` : Skip backing up existing rules
+- `--use-curl` : Force using curl instead of git clone
 
 Examples:
 ```bash
@@ -31,6 +32,9 @@ bash install.sh --dir /path/to/install
 
 # Force installation without backup
 bash install.sh --force --no-backup
+
+# Force using curl instead of git clone
+bash install.sh --use-curl
 ```
 
 The installation script will:
@@ -39,12 +43,12 @@ The installation script will:
 - Create a backup of existing rules (unless --no-backup is used)
 - Update only the core rules that need updating
 
-### Method 2: Using curl (Coming soon)
+### Method 2: Using curl
 
-Once the release is properly configured, you'll be able to install using this one-liner:
+You can install using this one-liner:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/main/install.sh | bash -s -- --use-curl
 ```
 
 For better security, you can also:
@@ -60,8 +64,10 @@ less install.sh
 
 3. Then run it with any desired options:
 ```bash
-bash install.sh [options]
+bash install.sh --use-curl [other options]
 ```
+
+Note: The `--use-curl` option forces the installation to use curl instead of git clone, which can be useful in environments where git is not available or when you prefer not to use git.
 
 ## What is Cursor Memory Bank? 🤔
 

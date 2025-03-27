@@ -1,17 +1,20 @@
 #!/bin/bash
 
 # Cursor Memory Bank Installation Script
-# This script clones the Cursor Memory Bank repository and installs the rules while preserving existing custom rules.
+# This script installs the Cursor Memory Bank rules using git clone or curl as fallback.
 
 set -e  # Exit on error
 set -u  # Exit on undefined variable
+set -o pipefail  # Exit on pipe failure
 
 # Constants
 REPO_URL="https://github.com/hjamet/cursor-memory-bank.git"
+ARCHIVE_URL="https://github.com/hjamet/cursor-memory-bank/archive/refs/tags/v1.0.0.tar.gz"
 DEFAULT_RULES_DIR=".cursor/rules"
 RULES_DIR="${TEST_RULES_DIR:-$DEFAULT_RULES_DIR}"
 TEMP_DIR="/tmp/cursor-memory-bank-$$"
 VERSION="1.0.0"
+USE_CURL=""
 
 # Colors for output
 RED='\033[0;31m'
@@ -21,21 +24,25 @@ NC='\033[0m' # No Color
 
 # Helper functions
 log() {
-    echo -e "${GREEN}[INFO]${NC} $1"
+    echo -e "${GREEN}[INFO]${NC} $1" >&2
 }
 
 warn() {
-    echo -e "${YELLOW}[WARN]${NC} $1"
+    echo -e "${YELLOW}[WARN]${NC} $1" >&2
 }
 
 error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    echo -e "${RED}[ERROR]${NC} $1" >&2
     exit 1
 }
 
 cleanup() {
+    local exit_code=$?
     if [[ -d "$TEMP_DIR" ]]; then
         rm -rf "$TEMP_DIR"
+    fi
+    if [[ $exit_code -ne 0 ]]; then
+        error "Installation failed with exit code $exit_code"
     fi
 }
 
@@ -45,9 +52,40 @@ clone_repository() {
     local dest="$2"
 
     log "Cloning repository from $url"
-    if ! git clone --quiet "$url" "$dest"; then
-        error "Failed to clone repository from $url"
+    if ! git clone --quiet "$url" "$dest" 2>/dev/null; then
+        error "Failed to clone repository from $url. Please check your internet connection and repository access."
     fi
+}
+
+# Curl download function
+download_archive() {
+    local url="$1"
+    local dest="$2"
+
+    log "Downloading archive from $url"
+    local http_code
+    http_code=$(curl -w "%{http_code}" -fsSL "$url" -o "$dest" 2>/dev/null || echo "$?")
+    
+    case "$http_code" in
+        200)
+            return 0
+            ;;
+        404)
+            error "Failed to download archive: URL not found (HTTP 404). Please check that the URL is correct: $url"
+            ;;
+        403)
+            error "Failed to download archive: Access denied (HTTP 403). Please check your access permissions to: $url"
+            ;;
+        50[0-9])
+            error "Failed to download archive: Server error (HTTP $http_code). Please try again later or contact support."
+            ;;
+        22)
+            error "Failed to download archive: Invalid URL or network error. Please check your internet connection and the URL: $url"
+            ;;
+        *)
+            error "Failed to download archive (HTTP $http_code). Please check your internet connection and try again."
+            ;;
+    esac
 }
 
 backup_rules() {
@@ -57,7 +95,9 @@ backup_rules() {
         if [[ -z "${NO_BACKUP:-}" ]]; then
             local backup_dir="$rules_path.bak-$(date +%Y%m%d-%H%M%S)"
             log "Backing up existing rules to $backup_dir"
-            cp -r "$rules_path" "$backup_dir"
+            if ! cp -r "$rules_path" "$backup_dir"; then
+                error "Failed to backup existing rules. Please check disk space and permissions."
+            fi
         else
             warn "Skipping backup as --no-backup was specified"
         fi
@@ -67,10 +107,9 @@ backup_rules() {
 create_dirs() {
     local target_dir="$1"
     log "Creating directory structure in $target_dir"
-    mkdir -p "$target_dir/$RULES_DIR"
-    mkdir -p "$target_dir/$RULES_DIR/custom/errors"
-    mkdir -p "$target_dir/$RULES_DIR/custom/preferences"
-    mkdir -p "$target_dir/$RULES_DIR/languages"
+    if ! mkdir -p "$target_dir/$RULES_DIR" "$target_dir/$RULES_DIR/custom/errors" "$target_dir/$RULES_DIR/custom/preferences" "$target_dir/$RULES_DIR/languages"; then
+        error "Failed to create directory structure. Please check permissions and disk space."
+    fi
 }
 
 install_rules() {
@@ -78,38 +117,64 @@ install_rules() {
     local temp_dir="$2"
     local rules_path="$target_dir/$RULES_DIR"
     local clone_dir="$temp_dir/repo"
+    local archive_dir="$temp_dir/archive"
 
     log "Installing rules to $rules_path"
 
-    # Clone repository to temporary directory
-    clone_repository "$REPO_URL" "$clone_dir"
+    # Use curl if specified or if git is not available
+    if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
+        log "Using curl for installation"
+        local archive_file="$temp_dir/archive.tar.gz"
+        download_archive "$ARCHIVE_URL" "$archive_file"
 
-    # Check for rules directory
-    if [[ ! -d "$clone_dir/rules" ]]; then
-        # If rules directory doesn't exist at root, check if rules are in .cursor/rules
-        if [[ -d "$clone_dir/.cursor/rules" ]]; then
-            # Create rules directory and copy files from .cursor/rules
-            mkdir -p "$clone_dir/rules"
-            cp -r "$clone_dir/.cursor/rules/"* "$clone_dir/rules/"
-        else
-            error "Invalid repository structure: neither rules/ nor .cursor/rules/ directory found"
+        # Extract archive
+        log "Extracting archive"
+        if ! mkdir -p "$archive_dir" || ! tar -xzf "$archive_file" -C "$archive_dir" --strip-components=1; then
+            error "Failed to extract archive. Please check disk space and permissions."
+        fi
+
+        # Copy rules directory
+        if ! cp -r "$archive_dir/rules/"* "$rules_path/"; then
+            error "Failed to copy rules to installation directory. Please check disk space and permissions."
+        fi
+    else
+        # Use git clone
+        log "Using git clone for installation"
+        clone_repository "$REPO_URL" "$clone_dir"
+
+        # Check for rules directory
+        if [[ ! -d "$clone_dir/rules" ]]; then
+            # If rules directory doesn't exist at root, check if rules are in .cursor/rules
+            if [[ -d "$clone_dir/.cursor/rules" ]]; then
+                # Create rules directory and copy files from .cursor/rules
+                if ! mkdir -p "$clone_dir/rules" || ! cp -r "$clone_dir/.cursor/rules/"* "$clone_dir/rules/"; then
+                    error "Failed to copy rules from .cursor/rules. Please check disk space and permissions."
+                fi
+            else
+                error "Invalid repository structure: neither rules/ nor .cursor/rules/ directory found"
+            fi
+        fi
+
+        # Copy rules directory
+        if ! cp -r "$clone_dir/rules/"* "$rules_path/"; then
+            error "Failed to copy rules to installation directory. Please check disk space and permissions."
         fi
     fi
-
-    # Copy rules directory
-    cp -r "$clone_dir/rules/"* "$rules_path/"
 
     # Preserve custom rules if they exist
     local backup_pattern="${rules_path}.bak-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]"
     local backup_dir=$(ls -d $backup_pattern 2>/dev/null | head -n 1)
     if [[ -n "$backup_dir" ]] && [[ -d "$backup_dir/custom" ]]; then
         log "Restoring custom rules from backup"
-        cp -r "$backup_dir/custom/"* "$rules_path/custom/"
+        if ! cp -r "$backup_dir/custom/"* "$rules_path/custom/"; then
+            error "Failed to restore custom rules. Please check disk space and permissions."
+        fi
     fi
 
     # Set correct permissions
-    chmod -R u+rw "$rules_path"
-    find "$rules_path" -type d -exec chmod u+x {} \;
+    if ! chmod -R u+rw "$rules_path" || ! find "$rules_path" -type d -exec chmod u+x {} \;; then
+        error "Failed to set permissions. Please check file system permissions."
+    fi
 
     log "Rules installed successfully"
 }
@@ -126,9 +191,10 @@ Options:
     -d, --dir DIR   Install to a specific directory (default: current directory)
     --no-backup     Skip backup of existing rules
     --force         Force installation even if directory is not empty
+    --use-curl      Force using curl instead of git clone
 
 This script will:
-1. Clone the Cursor Memory Bank repository
+1. Install the Cursor Memory Bank rules using git clone or curl
 2. Preserve any existing custom rules
 3. Update the core rules
 4. Clean up temporary files
@@ -147,6 +213,7 @@ show_version() {
 INSTALL_DIR="."
 NO_BACKUP=""
 FORCE=""
+USE_CURL=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -157,6 +224,9 @@ while [[ $# -gt 0 ]]; do
             show_version
             ;;
         -d|--dir)
+            if [[ -z "${2:-}" ]]; then
+                error "Missing directory argument for --dir option"
+            fi
             INSTALL_DIR="$2"
             shift
             ;;
@@ -166,8 +236,11 @@ while [[ $# -gt 0 ]]; do
         --force)
             FORCE=1
             ;;
+        --use-curl)
+            USE_CURL=1
+            ;;
         *)
-            error "Unknown option: $1"
+            error "Unknown option: $1\nUse --help to see available options"
             ;;
     esac
     shift
@@ -177,18 +250,26 @@ done
 trap cleanup EXIT
 
 # Create temporary directory
-mkdir -p "$TEMP_DIR"
+if ! mkdir -p "$TEMP_DIR"; then
+    error "Failed to create temporary directory. Please check disk space and permissions."
+fi
 
 # Main installation logic
 if [[ ! -d "$INSTALL_DIR" ]]; then
-    error "Installation directory does not exist: $INSTALL_DIR"
+    error "Installation directory does not exist: $INSTALL_DIR\nPlease create the directory first or specify a different directory with --dir"
 fi
+
+# Check if we have write permissions in the installation directory
+if ! touch "$INSTALL_DIR/.write_test" 2>/dev/null; then
+    error "No write permission in installation directory: $INSTALL_DIR\nPlease check directory permissions"
+fi
+rm -f "$INSTALL_DIR/.write_test"
 
 # Check if rules directory exists and is not empty (skip in test mode)
 if [[ -z "${TEST_MODE:-}" ]]; then
     if [[ -d "$INSTALL_DIR/$RULES_DIR" ]] && [[ -z "$FORCE" ]]; then
         if [[ -n "$(ls -A "$INSTALL_DIR/$RULES_DIR")" ]]; then
-            error "Rules directory already exists and is not empty. Use --force to overwrite."
+            error "Rules directory already exists and is not empty: $INSTALL_DIR/$RULES_DIR\nUse --force to overwrite or --no-backup to skip backup"
         fi
     fi
 fi
