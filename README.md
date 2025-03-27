@@ -49,13 +49,13 @@ The installation script will:
 You can install using this one-liner:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/main/install.sh | bash -s -- --use-curl
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --use-curl
 ```
 
 For better security, you can also:
 1. Download the script first:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/main/install.sh -o install.sh
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh -o install.sh
 ```
 
 2. Review it:

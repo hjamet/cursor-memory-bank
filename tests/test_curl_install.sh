@@ -84,7 +84,7 @@ test_curl_installation() {
     echo "test custom rule" > "$RULES_DIR/custom/test/test.mdc"
     
     # Perform curl installation with --force and --use-curl
-    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/main/install.sh | bash -s -- --force --use-curl; then
+    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --force --use-curl; then
         log_error "Curl installation failed"
         cd "$current_dir"
         return 1
@@ -131,7 +131,7 @@ test_curl_installation_with_options() {
     echo "test custom rule" > "$RULES_DIR/custom/test/test.mdc"
     
     # Test with --no-backup, --force and --use-curl options
-    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/main/install.sh | bash -s -- --no-backup --force --use-curl; then
+    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --no-backup --force --use-curl; then
         log_error "Curl installation with --no-backup failed"
         cd "$current_dir"
         return 1

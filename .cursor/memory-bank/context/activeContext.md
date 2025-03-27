@@ -1,33 +1,25 @@
-# État actuel du projet
+# Contexte Actif
 
-## État des fonctionnalités
-- ✅ Installation via git clone
-- ✅ Préservation des règles personnalisées
-- ✅ Gestion des options (--no-backup)
-- ✅ Gestion des erreurs
-- ✅ Tests d'installation
-- ✅ Gestion des fichiers temporaires
-- ✅ Documentation d'installation
-- ✅ Simplification du script d'installation
+## Focus Actuel
+Le focus actuel est sur la correction des tests qui échouent suite aux modifications récentes du script d'installation et à la correction des références de branche.
 
-## Décisions récentes
-- ✅ Migration vers git clone pour l'installation
-- ✅ Suppression du script create-release.sh obsolète
-- ✅ Amélioration de la gestion des erreurs dans install.sh
-- ✅ Simplification du script d'installation pour préserver les fichiers existants
+## Problèmes en Cours
+- Tests échoués:
+  - Core rules not installed: Le test vérifie l'existence d'un fichier qui n'est pas créé
+  - Backup créé malgré l'option --no-backup: Le changement de logique de backup n'est pas compatible avec les tests existants
+  - download_file: command not found: Fonction attendue par les tests mais non implémentée
+  - Erreur HTTP "00023": Problème dans la gestion des codes HTTP pour les protocoles file://
+  - Test de répertoire invalide sans sortie visible
 
-## Changements récents
-- [x] Simplification du script d'installation
-  - Suppression de la vérification du répertoire de règles existant (--force n'est plus nécessaire)
-  - Préservation des fichiers existants non liés à l'installation
-  - Mise à jour de la documentation
+## Décisions Récentes
+- [2023-03-27] - Nécessité de contourner le bug d'édition des fichiers *.mdc: Renommer en .md, éditer, puis renommer en .mdc
+- [2023-03-27] - Correction des références à la branche "main" vers "master"
+- [2023-03-27] - Modification de la logique de backup: Désactivée par défaut avec nouvelle option --backup
 
-## Prochaines étapes
-- [ ] Mettre à jour la documentation pour refléter les changements
+## Prochaines Étapes
+- Implémenter les corrections nécessaires pour faire passer les tests échoués
+- Ajouter la fonction download_file manquante
+- Améliorer la gestion des codes HTTP pour les protocoles file://
 
-## Points d'attention
-- S'assurer que les règles personnalisées sont préservées
-- Maintenir la documentation à jour
-- Maintenir une bonne gestion des erreurs dans tous les scripts
-- Éviter les fuites de fichiers temporaires
-- Vérifier que la documentation est à jour avec les nouveaux changements 
+## Notes Importantes
+Le bug avec Cursor qui empêche l'édition des fichiers *.mdc a été documenté dans les règles fix et user-preference-saving. 

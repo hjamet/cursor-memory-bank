@@ -91,14 +91,14 @@ backup_rules() {
     local target_dir="$1"
     local rules_path="$target_dir/.cursor/rules"
     if [[ -d "$rules_path" ]]; then
-        if [[ -z "${NO_BACKUP:-}" ]]; then
+        if [[ -n "${DO_BACKUP:-}" ]]; then
             local backup_dir="$rules_path.bak-$(date +%Y%m%d-%H%M%S)"
             log "Backing up existing rules to $backup_dir"
             if ! cp -r "$rules_path" "$backup_dir"; then
                 error "Failed to backup existing rules. Please check disk space and permissions."
             fi
         else
-            warn "Skipping backup as --no-backup was specified"
+            warn "Skipping backup (use --backup if you want to create a backup)"
         fi
     fi
 }
@@ -202,7 +202,8 @@ Options:
     -h, --help      Show this help message
     -v, --version   Show version information
     -d, --dir DIR   Install to a specific directory (default: current directory)
-    --no-backup     Skip backup of existing rules
+    --backup        Create a backup of existing rules (disabled by default)
+    --no-backup     Same as default (no backup, kept for backward compatibility)
     --force         Force installation even if directory is not empty
     --use-curl      Force using curl instead of git clone
 
@@ -218,13 +219,14 @@ EOF
 }
 
 show_version() {
-    echo "Cursor Memory Bank Installation Script v${VERSION}"
+    # Format: vX.Y.Z (YYYY-MM-DD)
+    echo "Cursor Memory Bank Installation Script v${VERSION} (2023-03-27)"
     exit 0
 }
 
 # Parse command line arguments
 INSTALL_DIR="."
-NO_BACKUP=""
+DO_BACKUP=""
 FORCE=""
 USE_CURL=""
 
@@ -243,8 +245,11 @@ while [[ $# -gt 0 ]]; do
             INSTALL_DIR="$2"
             shift
             ;;
+        --backup)
+            DO_BACKUP=1
+            ;;
         --no-backup)
-            NO_BACKUP=1
+            # No-op for backward compatibility
             ;;
         --force)
             FORCE=1

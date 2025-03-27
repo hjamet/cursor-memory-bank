@@ -1,0 +1,184 @@
+---
+description: Common issues with bash function organization and usage
+globs: *.mdc
+alwaysApply: false
+---
+# Erreurs courantes avec les fonctions Bash
+
+## Problème: Accolades manquantes ou mal placées
+- ❌ **Incorrect**:
+  ```bash
+  if ! some_command; then
+      echo "Error"
+      return 1
+  }  # Accolade fermante sans ouvrante
+  ```
+- ✅ **Correct**:
+  ```bash
+  if ! some_command; then
+      echo "Error"
+      return 1
+  fi  # Utiliser fi pour fermer un if
+  ```
+- 📝 **Explication**: En Bash, les blocs if sont fermés avec `fi`, pas avec des accolades. Les accolades sont utilisées pour les fonctions et les blocs de code.
+
+## Problème: Retour au répertoire précédent manquant
+- ❌ **Incorrect**:
+  ```bash
+  cd "$some_dir"
+  do_something
+  # Pas de retour au répertoire précédent
+  ```
+- ✅ **Correct**:
+  ```bash
+  local current_dir="$(pwd)"
+  cd "$some_dir" || return 1
+  do_something
+  cd "$current_dir"  # Retour au répertoire précédent
+  ```
+- 📝 **Explication**: Toujours sauvegarder le répertoire courant et y retourner après avoir changé de répertoire, surtout dans les fonctions de test.
+
+## Problème: Gestion des erreurs de cd
+- ❌ **Incorrect**:
+  ```bash
+  cd "$some_dir"
+  # Pas de vérification d'erreur
+  ```
+- ✅ **Correct**:
+  ```bash
+  cd "$some_dir" || {
+      log_error "Failed to change to directory $some_dir"
+      return 1
+  }
+  ```
+- 📝 **Explication**: Toujours vérifier le succès des commandes cd et gérer les erreurs appropriées.
+
+## Problème: Ordre de définition des fonctions
+- ❌ **Incorrect**: Appeler une fonction avant sa définition
+  ```bash
+  main_function  # Erreur: fonction non définie
+  
+  main_function() {
+    echo "Hello"
+  }
+  ```
+- ✅ **Correct**: Définir les fonctions avant leur utilisation
+  ```bash
+  main_function() {
+    echo "Hello"
+  }
+  
+  main_function  # OK: fonction déjà définie
+  ```
+- 📝 **Explication**: En Bash, les fonctions doivent être définies avant d'être utilisées. Organisez votre code en définissant d'abord toutes les fonctions, puis en les appelant.
+
+## Problème: Tests en mode local vs production
+- ❌ **Incorrect**: Utiliser des URLs absolues dans les tests
+  ```bash
+  test_download() {
+    download_file "https://example.com/file" "$TEST_DIR/file"
+  }
+  ```
+- ✅ **Correct**: Utiliser des fichiers locaux en mode test
+  ```bash
+  test_download() {
+    if [[ "$TEST_MODE" == "1" ]]; then
+      # Utiliser des fichiers locaux pour les tests
+      cp "$TEST_DIR/fixtures/file" "$TEST_DIR/file"
+    else
+      # Utiliser les URLs réelles en production
+      download_file "https://example.com/file" "$TEST_DIR/file"
+    fi
+  }
+  ```
+- 📝 **Explication**: Les tests ne devraient pas dépendre de ressources externes. Utilisez des fichiers locaux en mode test pour garantir la fiabilité et la rapidité des tests.
+
+## Problème: Chemins relatifs dans les tests
+- ❌ **Incorrect**: Utiliser des chemins relatifs au script de test
+  ```bash
+  setup() {
+    cp "../dist/file.txt" "$TEST_DIR/file.txt"  # Erreur: chemin relatif au script
+  }
+  ```
+- ✅ **Correct**: Utiliser des chemins relatifs au répertoire d'exécution
+  ```bash
+  setup() {
+    SCRIPT_DIR="$(dirname "$0")"
+    PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+    cp "$PROJECT_ROOT/dist/file.txt" "$TEST_DIR/file.txt"  # OK: chemin absolu
+  }
+  ```
+- 📝 **Explication**: Les chemins relatifs dans les tests peuvent échouer selon le répertoire d'exécution. Utilisez des chemins absolus ou relatifs au répertoire racine du projet.
+
+## Problem: Missing Test Variables
+- ❌ **Incorrect**: Using undefined variables in tests
+  ```bash
+  test_download() {
+      download_file "$DOWNLOAD_URL" "$dest"  # Error: DOWNLOAD_URL not defined
+  }
+  ```
+- ✅ **Correct**: Define all required variables before tests
+  ```bash
+  # Test setup
+  DOWNLOAD_URL="https://example.com/file"
+  TEST_DIR="/tmp/test"
+  
+  test_download() {
+      download_file "$DOWNLOAD_URL" "$TEST_DIR/file"
+  }
+  ```
+- 📝 **Explication**: Always define test variables in the setup section, before any test cases that use them.
+
+## Download Functions and URL Handling
+
+### Common Issues:
+
+1. **Raw GitHub URLs for Private Repos**
+   - Problem: Using raw.githubusercontent.com URLs for private repositories fails
+   - Solution: Use local test files or public release URLs instead
+   - Example:
+     ```bash
+     # Bad
+     URL="https://raw.githubusercontent.com/private/repo/main/file"
+     
+     # Good
+     URL="https://github.com/org/repo/releases/download/v1.0/file"
+     # Or for tests
+     URL="file://$TEST_DIR/test-file"
+     ```
+
+2. **URL Construction**
+   - Problem: Incomplete URLs missing filenames or using wrong separators
+   - Solution: Always construct full URLs with proper path joining
+   - Example:
+     ```bash
+     # Bad
+     DOWNLOAD_URL="$BASE_URL"
+     
+     # Good
+     DOWNLOAD_URL="${BASE_URL}/${ARCHIVE_NAME}"
+     ```
+
+3. **Test vs Production URLs**
+   - Problem: Mixing test and production URLs without proper fallbacks
+   - Solution: Use environment variables with clear defaults
+   - Example:
+     ```bash
+     # Bad
+     URL="${TEST_URL:-https://prod.example.com}"
+     
+     # Good
+     if [[ -n "${TEST_MODE:-}" ]]; then
+       URL="$TEST_URL"
+     else
+       URL="$PROD_URL"
+     fi
+     ```
+
+### Best Practices:
+
+1. Always validate URLs before download attempts
+2. Use proper URL encoding for special characters
+3. Handle both HTTP and local file URLs
+4. Provide clear error messages for URL-related failures
+5. Test with both local and remote URLs 

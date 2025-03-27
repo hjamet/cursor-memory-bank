@@ -40,6 +40,23 @@ Analyser les erreurs de test, créer des tâches de correction et documenter les
 - Dans la phase de fix 3, tu risques d'oublier le workflow en suivant le fil de tes pensées. Pour éviter celà à tout prix, après chaque appel d'outil ou avant chaque reflection de ta part, écris `Fix - 3.[Titre du test] en cours...`
 - Utilise du logging pendant tes tests : Si tu es en python, utilise `src/utils/logger.py` pour enregistrer les logs dans `logs/app.log`
 
+## ⚠️ Bug Cursor avec les fichiers .mdc
+Il existe un bug avec Cursor qui empêche l'édition directe des fichiers .mdc. Pour contourner ce problème, suivez toujours cette procédure lorsque vous devez modifier un fichier .mdc :
+
+1. Renommez le fichier de .mdc en .md :
+   ```bash
+   mv fichier.mdc fichier.md
+   ```
+
+2. Éditez le fichier .md normalement
+
+3. Une fois les modifications terminées, renommez-le en .mdc :
+   ```bash
+   mv fichier.md fichier.mdc
+   ```
+
+Cette procédure doit être suivie chaque fois que vous modifiez des règles .mdc, y compris les règles d'erreur créées dans `.cursor/rules/custom/errors/`.
+
 ## Format pour les règles d'erreur (.mdc)
 ```
 ---

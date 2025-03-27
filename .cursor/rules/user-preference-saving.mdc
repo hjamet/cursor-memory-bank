@@ -30,6 +30,23 @@ Identifier les préférences de l'utilisateur à partir de ses instructions et l
 - Utiliser des patterns glob précis pour cibler les bons fichiers
 - Vérifier si des règles similaires existent déjà avant d'en créer de nouvelles
 
+## ⚠️ Bug Cursor avec les fichiers .mdc
+Il existe un bug avec Cursor qui empêche l'édition directe des fichiers .mdc. Pour contourner ce problème, suivez toujours cette procédure lorsque vous devez modifier un fichier .mdc :
+
+1. Renommez le fichier de .mdc en .md :
+   ```bash
+   mv fichier.mdc fichier.md
+   ```
+
+2. Éditez le fichier .md normalement
+
+3. Une fois les modifications terminées, renommez-le en .mdc :
+   ```bash
+   mv fichier.md fichier.mdc
+   ```
+
+Cette procédure doit être suivie chaque fois que vous modifiez des règles .mdc, y compris les règles de préférences créées dans `.cursor/rules/custom/preferences/`.
+
 ## Format de règle à utiliser (.mdc)
 ```
 ---
