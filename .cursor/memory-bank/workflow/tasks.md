@@ -101,3 +101,61 @@
 - Fichiers: install.sh, tests/test_curl_install.sh
 - Dépendances: Aucune
 - Validation: Le test d'options d'installation curl passe sans erreur 
+
+## 6. Corrections persistantes
+6.1. [ ] **Résoudre le problème de backup persistant dans l'installation curl** : Empêcher complètement la création de backups lorsque l'option --backup n'est pas utilisée.
+- Actions: 
+  1. Vérifier toutes les parties du code qui pourraient créer un backup
+  2. S'assurer que la recherche de backups dans le test utilise le bon pattern
+  3. Vérifier si d'autres fonctions créent des backups indépendamment de backup_rules
+- Fichiers: install.sh, tests/test_curl_install.sh
+- Dépendances: Aucune
+- Validation: Le test d'options d'installation curl passe sans erreur
+
+6.2. [ ] **Corriger le problème de flux d'exécution des tests curl** : S'assurer que les tests s'exécutent correctement dans l'ordre prévu.
+- Actions: 
+  1. Vérifier si le premier test crée un backup qui affecte le deuxième test
+  2. Examiner comment l'environnement de test est réinitialisé entre les tests
+  3. Ajouter un mécanisme pour nettoyer les backups entre les tests si nécessaire
+- Fichiers: tests/test_curl_install.sh
+- Dépendances: 6.1
+- Validation: Tous les tests d'installation via curl passent correctement 
+
+## 7. Améliorations du workflow
+7.1. [x] **Modifier la règle fix concernant la documentation des erreurs** : Clarifier que seules les erreurs récurrentes liées aux bibliothèques doivent être documentées.
+- Actions: 
+  1. Modifier les précisions dans fix.mdc pour mettre l'accent sur la documentation uniquement des erreurs liées aux mises à jour de bibliothèques
+  2. Ajouter l'exemple spécifique mentionné (dash-mantine-components avec "weight" devenu "w")
+  3. Clarifier qu'il ne faut pas documenter les erreurs d'inattention ou les erreurs occasionnelles
+- Fichiers: .cursor/rules/fix.mdc
+- Dépendances: Aucune
+- Validation: La règle fix.mdc contient des directives claires sur quelles erreurs documenter
+
+7.2. [ ] **Réviser le système de règles pour identifier les inconsistances** : Effectuer une revue complète du workflow pour détecter les erreurs ou incohérences.
+- Actions: 
+  1. Examiner chaque règle pour détecter les erreurs, inconsistances ou incohérences
+  2. Vérifier la cohérence des instructions entre les différentes règles
+  3. S'assurer que les références croisées entre règles sont correctes
+  4. Documenter toutes les anomalies trouvées
+- Fichiers: Tous les fichiers .mdc dans .cursor/rules/
+- Dépendances: Aucune
+- Validation: Liste complète des inconsistances identifiées
+
+7.3. [ ] **Contracter les règles pour améliorer la lisibilité** : Optimiser les règles existantes sans en changer le comportement.
+- Actions: 
+  1. Identifier les sections redondantes ou trop verbeuses dans les règles
+  2. Reformuler les instructions pour être plus concises tout en gardant leur clarté
+  3. Éliminer les répétitions inutiles tout en préservant les éléments essentiels du workflow
+  4. S'assurer que les modifications ne changent pas le comportement ou la structure des règles
+- Fichiers: Tous les fichiers .mdc dans .cursor/rules/
+- Dépendances: 7.2
+- Validation: Les règles sont plus concises mais conservent le même comportement et structure
+
+7.4. [ ] **Corriger les anomalies identifiées** : Implémenter les corrections pour les problèmes détectés.
+- Actions: 
+  1. Corriger chaque inconsistance ou erreur identifiée dans la tâche 7.2
+  2. Tester chaque correction pour s'assurer qu'elle n'introduit pas de nouveaux problèmes
+  3. Vérifier que les corrections n'altèrent pas le comportement global du système
+- Fichiers: Fichiers spécifiques identifiés dans la tâche 7.2
+- Dépendances: 7.2, 7.3
+- Validation: Toutes les inconsistances sont corrigées sans introduire de nouveaux problèmes 

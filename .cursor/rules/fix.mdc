@@ -31,12 +31,14 @@ Analyser les erreurs de test, créer des tâches de correction et documenter les
 6. **Appel de la règle suivante** : Appeler la règle `implementation` pour implémenter les corrections.
 
 ## Précisions
-- Ne documente que les erreurs liée à la mise à jour d'une bibliothèque que tu risques de reproduire car tu n'es pas au courant du nouveau comportement de la bibliothèque
-- Ne documente pas des erreurs d'inattention de ta part
+- Ne documente que les erreurs liées aux mises à jour ou changements de comportement de bibliothèques dont tu n'es pas au courant
+- Par exemple, si une bibliothèque comme dash-mantine-components a changé un attribut de "weight" à "w", c'est ce type d'erreur qu'il faut documenter
+- Ne documente pas des erreurs que tu as faites une fois ou deux par inadvertance
+- Ne documente que ce qu'il t'est utile de te souvenir pour ne pas reproduire les mêmes erreurs
 - Inclure les symboles et fichiers concernés dans les tâches de résolution
 - Inclure des exemples concrets dans les règles d'erreur
 - Organiser les tâches de correction par composant ou fonctionnalité
-- Garder les règles d'erreur concises mais complètes : va au plus simple et clair.
+- Garder les règles d'erreur concises mais complètes : va au plus simple et clair
 - Dans la phase de fix 3, tu risques d'oublier le workflow en suivant le fil de tes pensées. Pour éviter celà à tout prix, après chaque appel d'outil ou avant chaque reflection de ta part, écris `Fix - 3.[Titre du test] en cours...`
 - Utilise du logging pendant tes tests : Si tu es en python, utilise `src/utils/logger.py` pour enregistrer les logs dans `logs/app.log`
 
@@ -60,7 +62,7 @@ Cette procédure doit être suivie chaque fois que vous modifiez des règles .md
 ## Format pour les règles d'erreur (.mdc)
 ```
 ---
-description: description (Description consise des conditions d'application de l'erreur)
+description: Erreurs courantes avec la bibliothèque X (Description consise des conditions d'application de l'erreur)
 globs: *.py, *.ts (Pattern glob pour les fichiers concernés. Laisser vide pour utiliser la description)
 alwaysApply: false
 ---
@@ -69,6 +71,11 @@ alwaysApply: false
 ## Problème: [Description du problème]
 - ❌ **Incorrect**: [Exemple de code incorrect]
 - ✅ **Correct**: [Exemple de code correct]
+
+### Exemple concret (dash-mantine-components)
+## Problème: Changement de nom d'attribut weight à w dans la version X.Y
+- ❌ **Incorrect**: `<Text weight="bold">Texte en gras</Text>`
+- ✅ **Correct**: `<Text w="bold">Texte en gras</Text>`
 ```
 
 ## Next Rules

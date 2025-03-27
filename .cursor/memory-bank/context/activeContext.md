@@ -9,6 +9,7 @@ Le focus actuel est sur la correction des tests qui échouent suite aux modifica
   - Backup créé malgré l'option par défaut (sans --backup): Malgré les modifications de la logique de backup, le problème persiste
 
 ## Décisions Récentes
+- [2023-03-28] - Clarification des règles de documentation des erreurs dans fix.mdc
 - [2023-03-27] - Ajout de la fonction download_file manquante dans le script d'installation
 - [2023-03-27] - Amélioration de la gestion des protocoles file:// et des codes HTTP non standards
 - [2023-03-27] - Création d'un fichier system.mdc explicite pour la compatibilité des tests
