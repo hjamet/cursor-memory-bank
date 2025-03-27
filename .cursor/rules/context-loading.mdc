@@ -16,7 +16,7 @@ Charger ou créer les fichiers de contexte du projet pour établir une compréhe
    - Parcourir le projet pour comprendre sa structure et son objectif
    - Créer le dossier `.cursor/memory-bank/context/` si nécessaire
    - Créer les fichiers manquants avec une structure appropriée
-   - Si il n'existe pas déjà (vide ou non), créer un fichier `.cursor/memory-bank/userbrief.md` vide.
+   - Crée le fichier `userbrief.md` via la commande "touch .cursor/memory-bank/userbrief.md"
 
 3. **Reformulation de la requête** : Reformuler la question ou l'instruction de l'utilisateur en la situant dans le contexte général du projet
 

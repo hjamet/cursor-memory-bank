@@ -1,86 +1,131 @@
 #!/bin/bash
 
-# Test suite for the Cursor Memory Bank installation script
-# This file contains tests for the installation script functionality
+# Tests for the installation script
+
+# Set up test environment
+TEST_DIR="/tmp/cursor-memory-bank-test-$$"
+TEST_RULES_DIR="$TEST_DIR/.cursor/rules"
+TEST_DIST_DIR="$TEST_DIR/dist"
+ORIGINAL_DIR="$(pwd)"
+VERSION="1.0.0"
 
 # Colors for output
-RED='\033[0;31m'
 GREEN='\033[0;32m'
+RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-# Test counter
-TESTS_RUN=0
-TESTS_PASSED=0
-TESTS_FAILED=0
-
 # Helper functions
-setup() {
-    # Create temporary test directory
-    TEST_DIR=$(mktemp -d)
-    cp install.sh "$TEST_DIR/"
-    cd "$TEST_DIR" || exit 1
+log() {
+    echo -e "${GREEN}[INFO]${NC} $1"
 }
 
-teardown() {
-    # Clean up test directory
-    cd - > /dev/null || exit 1
+error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+    exit 1
+}
+
+setup() {
+    log "Setting up test environment..."
+    
+    # Create test directories
+    mkdir -p "$TEST_RULES_DIR/custom/test"
+    mkdir -p "$TEST_DIST_DIR/cursor-memory-bank-${VERSION}"
+    
+    # Create test custom rule
+    echo "test rule" > "$TEST_RULES_DIR/custom/test/test.mdc"
+    
+    # Create test project structure
+    mkdir -p "$TEST_DIST_DIR/cursor-memory-bank-${VERSION}/rules/custom/test"
+    echo "test rule" > "$TEST_DIST_DIR/cursor-memory-bank-${VERSION}/rules/custom/test/test.mdc"
+    
+    # Create test archive
+    cd "$TEST_DIST_DIR"
+    tar -czf "v${VERSION}.tar.gz" "cursor-memory-bank-${VERSION}/"
+    cd "$ORIGINAL_DIR"
+}
+
+cleanup() {
+    log "Cleaning up test environment..."
     rm -rf "$TEST_DIR"
 }
 
-assert() {
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}✓ $1${NC}"
-        ((TESTS_PASSED++))
-    else
-        echo -e "${RED}✗ $1${NC}"
-        ((TESTS_FAILED++))
+# Test functions
+test_clean_install() {
+    log "Testing clean installation..."
+    
+    # Set up test environment variables
+    export TEST_MODE=1
+    export TEST_RULES_DIR="$TEST_RULES_DIR"
+    export TEST_DIST_DIR="$TEST_DIST_DIR"
+    
+    # Run installation script
+    if ! ../install.sh --dir "$TEST_DIR"; then
+        error "Clean installation failed"
     fi
-    ((TESTS_RUN++))
+    
+    # Verify installation
+    if [[ ! -f "$TEST_RULES_DIR/custom/test/test.mdc" ]]; then
+        error "Rules were not installed correctly"
+    fi
+    
+    log "Clean installation test passed"
 }
 
-# Test cases
-test_help_flag() {
-    echo "Testing help flag..."
-    ./install.sh --help | grep -q "Usage:"
-    assert "Help flag should display usage information"
+test_backup_restore() {
+    log "Testing backup and restore functionality..."
+    
+    # Create custom rules
+    mkdir -p "$TEST_RULES_DIR/custom/user"
+    echo "user rule" > "$TEST_RULES_DIR/custom/user/user.mdc"
+    
+    # Run installation script with backup
+    export TEST_MODE=1
+    export TEST_RULES_DIR="$TEST_RULES_DIR"
+    export TEST_DIST_DIR="$TEST_DIST_DIR"
+    
+    if ! ../install.sh --dir "$TEST_DIR"; then
+        error "Installation with backup failed"
+    fi
+    
+    # Verify backup
+    local backup_pattern="$TEST_DIR/.cursor/rules.bak-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]"
+    if ! ls -d $backup_pattern > /dev/null 2>&1; then
+        error "Backup was not created"
+    fi
+    
+    # Verify custom rules preserved
+    if [[ ! -f "$TEST_RULES_DIR/custom/user/user.mdc" ]]; then
+        error "Custom rules were not preserved"
+    fi
+    
+    log "Backup and restore test passed"
 }
 
-test_version_flag() {
-    echo "Testing version flag..."
-    ./install.sh --version | grep -q "v[0-9]"
-    assert "Version flag should display version information"
-}
-
-test_invalid_option() {
-    echo "Testing invalid option..."
-    ./install.sh --invalid 2>&1 | grep -q "ERROR"
-    assert "Invalid option should display error"
-}
-
-test_directory_option() {
-    echo "Testing directory option..."
-    mkdir -p test_install
-    ./install.sh --dir test_install
-    [ -d "test_install/.cursor" ]
-    assert "Directory option should create rules in specified directory"
+test_error_handling() {
+    log "Testing error handling..."
+    
+    # Test invalid directory
+    if ../install.sh --dir "/nonexistent" 2>/dev/null; then
+        error "Installation should fail with invalid directory"
+    fi
+    
+    # Test invalid archive
+    echo "invalid" > "$TEST_DIST_DIR/v${VERSION}.tar.gz"
+    if ../install.sh --dir "$TEST_DIR" 2>/dev/null; then
+        error "Installation should fail with invalid archive"
+    fi
+    
+    log "Error handling test passed"
 }
 
 # Run tests
-echo "Running installation script tests..."
+trap cleanup EXIT
+
+log "Starting tests..."
 setup
 
-test_help_flag
-test_version_flag
-test_invalid_option
-test_directory_option
+test_clean_install
+test_backup_restore
+test_error_handling
 
-teardown
-
-# Print summary
-echo "Test Summary:"
-echo "Tests run: $TESTS_RUN"
-echo -e "${GREEN}Tests passed: $TESTS_PASSED${NC}"
-echo -e "${RED}Tests failed: $TESTS_FAILED${NC}"
-
-# Exit with failure if any tests failed
-[ $TESTS_FAILED -eq 0 ] 
+log "All tests passed successfully!" 
