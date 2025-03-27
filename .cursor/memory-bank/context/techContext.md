@@ -7,7 +7,11 @@
 
 ## Architecture
 Le projet est structuré en plusieurs composants:
-- Script d'installation (`install.sh`)
+- Script d'installation (`install.sh`):
+  - Gestion des arguments
+  - Création de répertoires
+  - Sauvegarde des règles existantes
+  - Nettoyage automatique
 - Suite de tests (`tests/test_install.sh`)
 - Documentation (`README.md`)
 
@@ -24,6 +28,7 @@ Le projet est structuré en plusieurs composants:
 - Utilisation de `set -e` et `set -u` pour la sécurité
 - Documentation des fonctions et sections importantes
 - Tests unitaires pour chaque fonctionnalité
+- Gestion des erreurs avec trap et cleanup
 
 ## Dépendances Externes
 - curl: Dernière version - Téléchargement des fichiers

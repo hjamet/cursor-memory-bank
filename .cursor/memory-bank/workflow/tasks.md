@@ -1,5 +1,15 @@
 # In Progress
 
+## 0. Corrections
+0.1. [x] **Implement Core Installation Logic**: Add missing installation functionality
+- Actions:
+  - Add directory creation functionality
+  - Implement backup of existing rules
+  - Add cleanup functionality
+  - Handle errors gracefully
+- Files: install.sh
+- Validation: Directory option test passes
+
 ## 1. Setup and Documentation
 1.1. [x] **Create README.md**: Create a welcoming README that explains the French context
 - Actions:
