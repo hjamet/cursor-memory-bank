@@ -24,6 +24,7 @@ Créer des tests unitaires pour les nouvelles fonctionnalités implémentées en
 
 ## Précisions
 - Créer des tests qui vérifient le comportement attendu, pas l'implémentation
+- Fais uniquement des tests simples d'utilisation classique, pas de tests inutilement complexes.
 - Utiliser des noms de test descriptifs qui expliquent ce qui est testé
 - Inclure du logging en utilisant le fichier src/utils/logger.py si le code est en Python
 - Ne JAMAIS sauter l'appel à la règle suivante
