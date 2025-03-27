@@ -10,7 +10,7 @@
 - Dépendances: Aucune
 - Validation: Les tests ne génèrent plus d'erreurs liées aux logs
 
-8.2. [ ] **Corriger définitivement le problème de backup persistant** : Résoudre complètement le problème des backups créés malgré l'absence de l'option --backup.
+8.2. [x] **Corriger définitivement le problème de backup persistant** : Résoudre complètement le problème des backups créés malgré l'absence de l'option --backup.
 - Actions:
   1. Analyser pourquoi les backups sont toujours créés malgré nos modifications
   2. Vérifier la fonction install_rules pour identifier où des backups pourraient être créés

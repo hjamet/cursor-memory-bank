@@ -9,7 +9,7 @@ set -o pipefail  # Exit on pipe failure
 
 # Constants
 REPO_URL="https://github.com/hjamet/cursor-memory-bank.git"
-ARCHIVE_URL="https://github.com/hjamet/cursor-memory-bank/archive/refs/tags/v1.0.0.tar.gz"
+ARCHIVE_URL="https://github.com/hjamet/cursor-memory-bank/archive/refs/heads/master.tar.gz"
 DEFAULT_RULES_DIR=".cursor/rules"
 RULES_DIR="${TEST_RULES_DIR:-$DEFAULT_RULES_DIR}"
 TEMP_DIR="/tmp/cursor-memory-bank-$$"
@@ -254,19 +254,19 @@ install_rules() {
                 error "Failed to restore custom rules. Please check disk space and permissions."
             fi
         fi
-    else
-        # If no backup option, still preserve existing custom rules directly
-        if [[ -d "$rules_path/custom" ]] && [[ -d "$rules_path/custom" ]]; then
-            log "Preserving existing custom rules (no backup)"
-            # We temporarily move custom rules to temp dir and move them back after installation
-            local temp_custom="$temp_dir/custom_temp"
-            if ! mkdir -p "$temp_custom" || ! cp -r "$rules_path/custom/"* "$temp_custom/"; then
-                error "Failed to temporarily preserve custom rules. Please check disk space and permissions."
-            fi
-            # After installation is complete, we restore the custom rules
-            if ! cp -r "$temp_custom/"* "$rules_path/custom/"; then
-                error "Failed to restore custom rules. Please check disk space and permissions."
-            fi
+    fi
+    
+    # Always preserve existing custom rules directly, regardless of backup option
+    if [[ -d "$rules_path/custom" ]]; then
+        log "Preserving existing custom rules"
+        # We temporarily move custom rules to temp dir and move them back after installation
+        local temp_custom="$temp_dir/custom_temp"
+        if ! mkdir -p "$temp_custom" || ! cp -r "$rules_path/custom/"* "$temp_custom/"; then
+            error "Failed to temporarily preserve custom rules. Please check disk space and permissions."
+        fi
+        # After installation is complete, we restore the custom rules
+        if ! cp -r "$temp_custom/"* "$rules_path/custom/"; then
+            error "Failed to restore custom rules. Please check disk space and permissions."
         fi
     fi
 
