@@ -13,8 +13,31 @@ You can install Cursor Memory Bank by cloning the repository:
 ```bash
 git clone https://github.com/hjamet/cursor-memory-bank.git
 cd cursor-memory-bank
-bash install.sh
+bash install.sh [options]
 ```
+
+Available options:
+- `--dir <path>` : Install to a specific directory (default: current directory)
+- `--force` : Force installation even if rules directory exists
+- `--no-backup` : Skip backing up existing rules
+
+Examples:
+```bash
+# Install to current directory
+bash install.sh
+
+# Install to a specific directory
+bash install.sh --dir /path/to/install
+
+# Force installation without backup
+bash install.sh --force --no-backup
+```
+
+The installation script will:
+- Clone the rules to your `.cursor/rules` directory
+- Preserve any existing custom rules you might have (unless --no-backup is used)
+- Create a backup of existing rules (unless --no-backup is used)
+- Update only the core rules that need updating
 
 ### Method 2: Using curl (Coming soon)
 
@@ -35,19 +58,21 @@ curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/main/inst
 less install.sh
 ```
 
-3. Then run it:
+3. Then run it with any desired options:
 ```bash
-bash install.sh
+bash install.sh [options]
 ```
-
-The installation script will:
-- Download the rules to your `.cursor/rules` directory
-- Preserve any existing custom rules you might have
-- Update only the core rules that need updating
 
 ## What is Cursor Memory Bank? 🤔
 
 Cursor Memory Bank is a system that helps maintain context between coding sessions by storing and organizing information in a coherent file structure. It's designed to work with Cursor, enhancing its capabilities with structured rules and workflows.
+
+### Features
+- 📁 Organized file structure for storing context
+- 🔄 Automatic backup of custom rules
+- 🛠️ Flexible installation options
+- 🔒 Safe updates with rule preservation
+- 📝 Structured workflows and rules
 
 ## Contributing 🤝
 
