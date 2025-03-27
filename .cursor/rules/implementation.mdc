@@ -24,8 +24,7 @@ Implémenter les tâches d'une section prioritaire en suivant une approche méth
 
 4. **Appel de la règle suivante** : Appeler obligatoirement la règle suivante:
    - Si une nouvelle fonctionnalité testable a été créée, appeler la règle `test-implementation`
-   - Si aucune nouvelle fonctionnalité testable n'a été créée mais que d'anciennes fonctionnalités ont été modifiées, appeler la règle `test-execution` pour vérifier qu'il n'y a pas eu de régression
-   - Sinon, appeler la règle `context-update`
+   - Sinon, appeler la règle `test-execution` pour vérifier qu'il n'y a pas eu de régression
 
 
 ## Précisions
@@ -36,8 +35,7 @@ Implémenter les tâches d'une section prioritaire en suivant une approche méth
 - Ne JAMAIS sauter l'appel à la règle suivante
 
 ## Next Rules
-- `test-implementation` : Si une nouvelle fonctionnalité testable a été créée (TOUJOURS le cas si un nouveau fichier ou symbole a été créé)
-- `test-execution` : Si aucune nouvelle fonctionnalité testable n'a été créée mais que d'anciennes fonctionnalités ont été modifiées
+- `tests` : Implémentation et exécution des tests si au moins une nouvelle fonctionnalité est "testable" (TOUJOURS le cas pour un nouveau script ou une modification d'un script existant)
 - `context-update` : UNIQUEMENT si aucune modification ne nécessite de test (cas très rare, principalement pour des changements de documentation pure)
 
 ## Exemple
@@ -71,7 +69,7 @@ Je mets à jour le fichier tasks.md pour refléter l'avancement des tâches. `(I
 Je dois maintenant appeler la règle test-implementation car j'ai créé une nouvelle fonctionnalité testable.
 La règle test-implementation doit être appelée pour créer les tests de la nouvelle fonctionnalité. `(Implementation : 4 - Appel de la règle suivante)`
 
-fetch_rules ["test-implementation"]
+fetch_rules ["tests"]
 
 # Start Rule
 
