@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Cursor Memory Bank Installation Script
-# This script downloads and installs the Cursor Memory Bank rules while preserving existing custom rules.
+# This script clones the Cursor Memory Bank repository and installs the rules while preserving existing custom rules.
 
 set -e  # Exit on error
 set -u  # Exit on undefined variable
@@ -12,17 +12,6 @@ DEFAULT_RULES_DIR=".cursor/rules"
 RULES_DIR="${TEST_RULES_DIR:-$DEFAULT_RULES_DIR}"
 TEMP_DIR="/tmp/cursor-memory-bank-$$"
 VERSION="1.0.0"
-ARCHIVE_NAME="v${VERSION}.tar.gz"
-CHECKSUM_FILE="rules.sha256"
-
-# Set up download URL based on environment
-if [[ -n "${TEST_DIST_DIR:-}" ]]; then
-    # Test mode - use local files
-    DOWNLOAD_URL="file://$TEST_DIST_DIR"
-else
-    # Production mode - use GitHub archive URL
-    DOWNLOAD_URL="https://github.com/hjamet/cursor-memory-bank/archive/refs/tags"
-fi
 
 # Colors for output
 RED='\033[0;31m'
@@ -50,56 +39,15 @@ cleanup() {
     fi
 }
 
-# Download and verify functions
-download_file() {
+# Git clone function
+clone_repository() {
     local url="$1"
     local dest="$2"
-    local temp_file="$dest.tmp"
 
-    if ! curl -sSL --fail "$url" -o "$temp_file"; then
-        echo "Failed to download file from $url" >&2
-        rm -f "$temp_file"
-        return 1
+    log "Cloning repository from $url"
+    if ! git clone --quiet "$url" "$dest"; then
+        error "Failed to clone repository from $url"
     fi
-
-    mv "$temp_file" "$dest"
-    return 0
-}
-
-verify_checksum() {
-    local file="$1"
-    local checksum_file="$2"
-
-    if [[ ! -f "$file" ]]; then
-        echo "File not found: $file" >&2
-        return 1
-    fi
-
-    if [[ ! -f "$checksum_file" ]]; then
-        echo "Checksum file not found: $checksum_file" >&2
-        return 1
-    fi
-
-    if ! sha256sum -c "$checksum_file" 2>/dev/null; then
-        echo "Checksum verification failed for $file" >&2
-        return 1
-    fi
-
-    return 0
-}
-
-download_archive() {
-    local url="$1"
-    local dest_dir="$2"
-    local file_name="$(basename "$url")"
-    local dest_file="$dest_dir/$file_name"
-
-    # Download archive file
-    if ! download_file "$url" "$dest_file"; then
-        return 1
-    fi
-
-    return 0
 }
 
 backup_rules() {
@@ -128,28 +76,28 @@ create_dirs() {
 install_rules() {
     local target_dir="$1"
     local temp_dir="$2"
-    local archive="$temp_dir/$ARCHIVE_NAME"
     local rules_path="$target_dir/$RULES_DIR"
-    local extract_dir="$temp_dir/extract"
+    local clone_dir="$temp_dir/repo"
 
     log "Installing rules to $rules_path"
 
-    # Create temporary extraction directory
-    mkdir -p "$extract_dir"
+    # Clone repository to temporary directory
+    clone_repository "$REPO_URL" "$clone_dir"
 
-    # Extract archive to temporary directory
-    if ! tar -xzf "$archive" -C "$extract_dir"; then
-        error "Failed to extract rules archive"
-    fi
-
-    # Move rules from the extracted directory to the target directory
-    local project_dir="$extract_dir/cursor-memory-bank-${VERSION}"
-    if [[ ! -d "$project_dir" ]]; then
-        error "Invalid archive structure: cursor-memory-bank-${VERSION} directory not found"
+    # Check for rules directory
+    if [[ ! -d "$clone_dir/rules" ]]; then
+        # If rules directory doesn't exist at root, check if rules are in .cursor/rules
+        if [[ -d "$clone_dir/.cursor/rules" ]]; then
+            # Create rules directory and copy files from .cursor/rules
+            mkdir -p "$clone_dir/rules"
+            cp -r "$clone_dir/.cursor/rules/"* "$clone_dir/rules/"
+        else
+            error "Invalid repository structure: neither rules/ nor .cursor/rules/ directory found"
+        fi
     fi
 
     # Copy rules directory
-    cp -r "$project_dir/rules/"* "$rules_path/"
+    cp -r "$clone_dir/rules/"* "$rules_path/"
 
     # Preserve custom rules if they exist
     local backup_pattern="${rules_path}.bak-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]"
@@ -180,7 +128,7 @@ Options:
     --force         Force installation even if directory is not empty
 
 This script will:
-1. Download the Cursor Memory Bank rules
+1. Clone the Cursor Memory Bank repository
 2. Preserve any existing custom rules
 3. Update the core rules
 4. Clean up temporary files
@@ -250,12 +198,6 @@ backup_rules "$INSTALL_DIR"
 
 # Create directory structure
 create_dirs "$INSTALL_DIR"
-
-# Download files
-log "Starting download process..."
-if ! download_archive "$DOWNLOAD_URL/$ARCHIVE_NAME" "$TEMP_DIR"; then
-    error "Failed to download rules archive"
-fi
 
 # Install rules
 install_rules "$INSTALL_DIR" "$TEMP_DIR"
