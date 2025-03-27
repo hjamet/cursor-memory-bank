@@ -1,28 +1,33 @@
 # Présentation du Projet
 
 ## Vision
-Memory Bank est un système qui permet aux agents IA comme Cursor de maintenir le contexte entre les sessions en stockant et organisant les informations dans une structure de fichiers cohérente.
+Créer une plateforme interactive d'expérimentation avec l'intelligence artificielle dans le cadre des Mystères de l'UNIL 2025, permettant aux participants de comprendre intuitivement les capacités et limites de l'IA moderne à travers un Test de Turing inversé ludique et éducatif.
 
 ## Objectifs
-- Permettre une persistance du contexte entre les sessions utilisateur
-- Organiser l'information de manière structurée et facilement accessible
-- Faciliter le suivi des projets et des tâches en cours
-- Améliorer la cohérence des interactions avec l'agent IA
+- Permettre aux classes (9-13 ans) de créer leurs propres chatbots pendant des ateliers guidés
+- Offrir une expérience de jeu engageante pour le grand public testant ces chatbots
+- Fournir une plateforme robuste capable de gérer des pics d'utilisation
+- Maintenir une disponibilité 24h/24 pendant l'événement
 
 ## Contraintes
-- S'intégrer dans le workflow existant de Cursor
-- Être léger et ne pas surcharger l'espace disque
-- Respecter la vie privée de l'utilisateur
+- Gestion de l'affluence (20-25 élèves par classe)
+- Pics d'utilisation pendant le week-end
+- Nécessité d'une interface intuitive pour jeune public
+- Besoin de modération des contenus
+- Robustesse et fiabilité pendant l'événement
 
 ## Parties Prenantes
-- Utilisateurs de Cursor: Bénéficient d'une expérience IA plus cohérente et contextualisée
-- Développeurs de Cursor: Maintiennent et améliorent le système
+- Classes scolaires (9-13 ans): Créateurs de chatbots
+- Grand public: Testeurs des chatbots
+- Équipe UNIL: Supervision et administration
+- Enseignants: Accompagnement des classes
 
 ## Historique et Contexte
-Le projet Memory Bank a été conçu pour résoudre le problème de perte de contexte entre les sessions avec des agents IA. L'approche basée sur une structure de fichiers permet une implémentation simple et transparente.
+Projet développé pour les Mystères de l'UNIL 2025, transformant le concept traditionnel du Test de Turing en une expérience interactive et éducative.
 
 ## Métriques de Succès
-- Réduction des explications répétitives de l'utilisateur
-- Continuité dans les projets de développement
-- Amélioration de la pertinence des suggestions de l'agent
-- Satisfaction utilisateur accrue 
+- Nombre de chatbots créés par les classes
+- Taux de participation du public
+- Performance et stabilité du système
+- Satisfaction des utilisateurs
+- Qualité des interactions IA 

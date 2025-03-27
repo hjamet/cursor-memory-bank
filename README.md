@@ -1,140 +1,88 @@
-# Memory Bank
+# Mystères de l'UNIL 2025 - Déjouez l'IA
 
-## Vue d'ensemble
+Plateforme interactive d'expérimentation avec l'intelligence artificielle permettant aux participants des Mystères de l'UNIL 2025 de comprendre intuitivement les capacités et limites de l'IA moderne à travers un Test de Turing inversé ludique et éducatif.
 
-Memory Bank est un système de mémoire persistante pour les agents IA, permettant de maintenir le contexte entre les sessions utilisateur en stockant et organisant les informations dans une structure de fichiers cohérente.
+## 🎯 Objectifs
 
-## Fonctionnalités principales
+- Permettre aux classes (9-13 ans) de créer leurs propres chatbots pendant des ateliers guidés
+- Offrir une expérience de jeu engageante pour le grand public testant ces chatbots
+- Fournir une plateforme robuste capable de gérer des pics d'utilisation
+- Maintenir une disponibilité 24h/24 pendant l'événement
 
-- **Persistance du contexte** entre les sessions utilisateur
-- **Organisation structurée** de l'information dans des fichiers dédiés
-- **Machine à états** basée sur des règles pour guider le workflow de l'agent
-- **Suivi des tâches** et de la progression du projet
-- **Prévention des boucles infinies** et des erreurs courantes
+## 🛠️ Technologies
 
-## Structure des fichiers
+- **Backend**: FastAPI, WebSocket, SQLite, Redis
+- **Frontend**: TailwindCSS, DaisyUI
+- **Outils**: Poetry, Pyenv, Alembic
 
-```
-.cursor/memory-bank/
-├── context/                 # Contexte du projet
-│   ├── projectbrief.md      # Vision globale du projet
-│   ├── activeContext.md     # Contexte de travail actuel
-│   └── techContext.md       # Technologies et dépendances
-└── workflow/                # Gestion du flux de travail
-    ├── progress.md          # Suivi de la progression
-    └── tasks.md             # Liste des tâches à accomplir
+## 📋 Prérequis
 
-.cursor/rules/               # Règles du système
-    ├── system.mdc           # Configuration générale du système
-    ├── context-loading.mdc  # Chargement du contexte
-    ├── request-analysis.mdc # Analyse des requêtes
-    ├── task-decomposition.mdc # Décomposition des tâches
-    └── ...                  # Autres règles du workflow
-    └── custom/              # Règles personnalisées créées par l'agent
-        ├── errors/          # Règles documentant les erreurs spécifiques
-        └── preferences/     # Règles sur les préférences de l'utilisateur
-```
+- Python 3.11.8 (géré via pyenv)
+- Poetry pour la gestion des dépendances
+- Redis pour la gestion du cache
 
-## Installation
+## 🚀 Installation
 
-### Installation rapide
-
+1. Cloner le dépôt :
 ```bash
-curl -fsSL https://raw.githubusercontent.com/votreusername/cursor-memory-bank/master/install.sh | bash
+git clone [URL_DU_REPO]
+cd mysteres-unil
 ```
 
-### Installation manuelle
-
-1. Clonez ce dépôt dans un emplacement temporaire
-2. Copiez le dossier `.cursor` dans la racine de votre projet
-3. Commencez à utiliser Cursor avec la Memory Bank
-
-## Workflow
-
-Memory Bank implémente une machine à états où chaque règle représente un état avec des opérations spécifiques:
-
-1. **Context-Loading**: Chargement du contexte du projet
-2. **Request-Analysis**: Analyse approfondie de la requête utilisateur
-3. **Task-Decomposition**: Décomposition de la requête en tâches spécifiques
-4. **Implementation**: Implémentation des tâches définies
-5. **Tests**: Création et exécution des tests
-6. **Fix**: Correction des erreurs détectées
-7. **Context-Update**: Mise à jour du contexte et préparation du commit
-
-L'agent indique son état actuel dans le workflow avec un format standardisé:
-
-```
-# [Nom de la règle] : [numéro d'instruction] - [titre de l'instruction]
+2. Installer Python 3.11.8 avec pyenv :
+```bash
+pyenv install 3.11.8
+pyenv local 3.11.8
 ```
 
-### Diagramme des règles
-
-Le diagramme suivant illustre les relations entre les différentes règles et les chemins possibles dans le workflow:
-
-```mermaid
-flowchart TD
-    start([Start]) --> cl(context-loading)
-    %% Nouveaux messages commencent toujours par context-loading
-    new[Nouveau message utilisateur] --> cl
-    
-    %% Liens depuis context-loading
-    cl --> ra(request-analysis)
-    cl --> ups(user-preference-saving)
-    
-    %% Liens depuis request-analysis
-    ra --> td(task-decomposition)
-    ra --> impl(implementation)
-    
-    %% Liens depuis user-preference-saving
-    ups --> ra
-    
-    %% Liens depuis task-decomposition
-    td --> impl
-    td --> cu(context-update)
-    
-    %% Liens depuis implementation
-    impl --> test(tests)
-    impl --> cu
-    
-    %% Liens depuis tests
-    test --> cu
-    test --> fix(fix)
-    
-    %% Liens depuis fix
-    fix --> impl
-    
-    %% Liens depuis context-update
-    cu --> fix
-    cu --> impl
-    cu --> end([End])
-    
-    %% Styles
-    classDef mandatory fill:#f96,stroke:#333,stroke-width:2px
-    classDef optional fill:#9cf,stroke:#333,stroke-width:1px
-    classDef terminal fill:#9f6,stroke:#333,stroke-width:2px
-    
-    class cl,cu mandatory
-    class ra,td,impl,test,fix optional
-    class start,end,new terminal
+3. Installer les dépendances avec Poetry :
+```bash
+make install
 ```
 
-## Utilisation
+## 🔧 Développement
 
-1. Intégrez Memory Bank à votre projet en copiant le dossier `.cursor`
-2. Ouvrez votre projet dans Cursor IDE
-3. Interagissez normalement avec l'agent - il utilisera automatiquement Memory Bank pour maintenir le contexte
+1. Lancer le serveur de développement :
+```bash
+make dev
+```
 
-## Règles personnalisées
+2. Exécuter les tests :
+```bash
+make test
+```
 
-Memory Bank permet de créer des règles personnalisées pour:
+## 📦 Déploiement
 
-- Documenter des erreurs courantes spécifiques à certaines bibliothèques
-- Stocker les préférences utilisateur pour adapter le comportement de l'agent
+1. Construire pour la production :
+```bash
+make build
+```
 
-## Contribution
+2. Déployer sur le serveur UNIL :
+```bash
+make deploy
+```
 
-Les contributions sont les bienvenues! N'hésitez pas à ouvrir une issue ou soumettre une pull request.
+## 🧪 Tests
 
-## Licence
+- Tests unitaires avec pytest
+- Tests de charge avec Locust
+- Tests d'intégration avec httpx
 
-MIT 
+## 📚 Documentation
+
+- [Documentation de l'API](docs/api.md)
+- [Guide de développement](docs/development.md)
+- [Guide de déploiement](docs/deployment.md)
+
+## 🤝 Contribution
+
+1. Créer une branche pour votre fonctionnalité
+2. Commiter vos changements
+3. Pousser vers la branche
+4. Créer une Pull Request
+
+## 📄 Licence
+
+Ce projet est la propriété de l'Université de Lausanne. Tous droits réservés. 
