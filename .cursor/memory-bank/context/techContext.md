@@ -3,10 +3,12 @@
 ## Installation
 - Installation via git clone
 - Options disponibles :
-  - `--force` : Force l'installation même si le répertoire existe
   - `--no-backup` : Désactive la sauvegarde des règles existantes
   - `--dir` : Spécifie le répertoire d'installation
+  - `--use-curl` : Force l'utilisation de curl au lieu de git clone
 - Préservation des règles personnalisées via backup/restore
+- Préservation automatique des fichiers existants non liés à l'installation
+- Installation sans effacement des fichiers existants qui ne sont pas dans le dépôt
 - Gestion robuste des erreurs :
   - Détection des erreurs dans les pipes (set -o pipefail)
   - Messages d'erreur descriptifs sur stderr

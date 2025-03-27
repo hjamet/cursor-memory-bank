@@ -168,7 +168,7 @@ install_rules() {
             fi
         fi
 
-        # Copy rules directory
+        # Copy rules directory without removing files that don't exist in the source
         if ! cp -r "$clone_dir/rules/"* "$rules_path/"; then
             error "Failed to copy rules to installation directory. Please check disk space and permissions."
         fi
@@ -278,19 +278,10 @@ if ! touch "$INSTALL_DIR/.write_test" 2>/dev/null; then
 fi
 rm -f "$INSTALL_DIR/.write_test"
 
-# Check if rules directory exists and is not empty (skip in test mode)
-if [[ -z "${TEST_MODE:-}" ]]; then
-    if [[ -d "$INSTALL_DIR/$RULES_DIR" ]] && [[ -z "$FORCE" ]]; then
-        if [[ -n "$(ls -A "$INSTALL_DIR/$RULES_DIR")" ]]; then
-            error "Rules directory already exists and is not empty: $INSTALL_DIR/$RULES_DIR\nUse --force to overwrite or --no-backup to skip backup"
-        fi
-    fi
-fi
-
 # Backup existing rules if necessary
 backup_rules "$INSTALL_DIR"
 
-# Create directory structure
+# Create directory structure without supprimer les fichiers existants
 create_dirs "$INSTALL_DIR"
 
 # Install rules

@@ -2,11 +2,6 @@
 
 ## In Progress
 
-### 2. Installation via Git Clone
-- [x] Modification du script d'installation pour utiliser git clone
-- [x] Mise à jour de la documentation
-- [x] Tests du nouveau script d'installation
-
 ## ToDo
 
 ## Done
@@ -302,3 +297,20 @@
     * Les erreurs sont détectées et rapportées
     * Les messages d'erreur sont clairs
     * Les fichiers temporaires sont nettoyés
+
+### 5. Simplification du script d'installation
+5.1. [x] **Simplify Installation Script** : Simplifier le script d'installation pour préserver les fichiers existants
+- Actions:
+  * Modifier le script d'installation pour préserver les fichiers existants non liés aux règles ✓
+  * Supprimer la vérification qui empêche l'installation si le répertoire des règles existe déjà ✓
+  * Mettre à jour les tests pour refléter ce nouveau comportement ✓
+  * Mettre à jour la documentation README.md ✓
+- Files:
+  * install.sh
+  * tests/test_git_install.sh
+  * README.md
+- Dependencies: None
+- Validation:
+  * Les tests d'installation passent ✓
+  * Les fichiers existants sont préservés lors de l'installation ✓
+  * La documentation reflète ce nouveau comportement ✓

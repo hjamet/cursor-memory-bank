@@ -18,7 +18,6 @@ bash install.sh [options]
 
 Available options:
 - `--dir <path>` : Install to a specific directory (default: current directory)
-- `--force` : Force installation even if rules directory exists
 - `--no-backup` : Skip backing up existing rules
 - `--use-curl` : Force using curl instead of git clone
 
@@ -30,8 +29,8 @@ bash install.sh
 # Install to a specific directory
 bash install.sh --dir /path/to/install
 
-# Force installation without backup
-bash install.sh --force --no-backup
+# Skip backup of existing rules
+bash install.sh --no-backup
 
 # Force using curl instead of git clone
 bash install.sh --use-curl
@@ -39,9 +38,11 @@ bash install.sh --use-curl
 
 The installation script will:
 - Clone the rules to your `.cursor/rules` directory
-- Preserve any existing custom rules you might have (unless --no-backup is used)
+- Always preserve any existing custom rules
 - Create a backup of existing rules (unless --no-backup is used)
 - Update only the core rules that need updating
+- Preserve any unrelated files that might be in the .cursor directory
+- Work even if the .cursor directory already exists
 
 ### Method 2: Using curl
 

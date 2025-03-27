@@ -118,10 +118,15 @@ test_force_option() {
     # Première installation
     bash "$INSTALL_SCRIPT" --dir "$TEST_DIR"
     assert_success "La première installation a échoué"
-    # Deuxième installation sans --force (doit échouer)
+    
+    # Deuxième installation sans --force (doit réussir maintenant avec notre nouvelle logique)
     bash "$INSTALL_SCRIPT" --dir "$TEST_DIR" 2>/dev/null
-    assert_failure "L'installation sans --force aurait dû échouer"
-    # Troisième installation avec --force (doit réussir)
+    assert_success "L'installation sans --force aurait dû réussir avec la nouvelle logique"
+    
+    # Vérifier que les règles existent toujours
+    assert_dir_exists "$TEST_DIR/.cursor/rules"
+    
+    # Troisième installation avec --force (doit également réussir)
     bash "$INSTALL_SCRIPT" --dir "$TEST_DIR" --force
     assert_success "L'installation avec --force a échoué"
     cleanup
@@ -130,7 +135,12 @@ test_force_option() {
 test_invalid_directory() {
     echo "Test: Répertoire invalide"
     bash "$INSTALL_SCRIPT" --dir "/nonexistent/directory" 2>/dev/null
-    assert_failure "L'installation dans un répertoire invalide aurait dû échouer"
+    if [[ $? -ne 0 ]]; then
+        echo "Test répertoire invalide réussi: L'installation dans un répertoire invalide a échoué comme prévu"
+    else
+        echo "Test failed: L'installation dans un répertoire invalide aurait dû échouer"
+        exit 1
+    fi
 }
 
 # Exécution des tests
