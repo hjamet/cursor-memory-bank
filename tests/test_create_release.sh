@@ -90,17 +90,40 @@ test_error_handling() {
     export RULES_DIR="/nonexistent"
     export DIST_DIR="$TEST_DIST_DIR"
     
-    if ./scripts/create-release.sh 2>/dev/null; then
-        error "Script should fail with non-existent rules directory"
+    # Run script and capture output and return code
+    ./scripts/create-release.sh > "$TEST_DIR/output.txt" 2>&1
+    ret_code=$?
+    
+    if [[ $ret_code -eq 0 ]]; then
+        error "Script should fail"
+    fi
+    if [[ $ret_code -ne 1 ]]; then
+        error "Script should return error code 1, got $ret_code"
+    fi
+    if ! grep -q "Rules directory does not exist" "$TEST_DIR/output.txt"; then
+        error "Script did not produce expected error message for non-existent rules directory"
     fi
     
     # Test with non-writable dist directory
     export RULES_DIR="$TEST_RULES_DIR"
     export DIST_DIR="/root/dist"
     
-    if ./scripts/create-release.sh 2>/dev/null; then
-        error "Script should fail with non-writable dist directory"
+    # Run script and capture output and return code
+    ./scripts/create-release.sh > "$TEST_DIR/output.txt" 2>&1
+    ret_code=$?
+    
+    if [[ $ret_code -eq 0 ]]; then
+        error "Script should fail"
     fi
+    if [[ $ret_code -ne 1 ]]; then
+        error "Script should return error code 1, got $ret_code"
+    fi
+    if ! grep -q "Cannot create distribution directory" "$TEST_DIR/output.txt"; then
+        error "Script did not produce expected error message for non-writable directory"
+    fi
+    
+    # Clean up output file
+    rm -f "$TEST_DIR/output.txt"
     
     log "Error handling test passed"
 }

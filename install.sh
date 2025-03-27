@@ -12,7 +12,7 @@ DEFAULT_RULES_DIR=".cursor/rules"
 RULES_DIR="${TEST_RULES_DIR:-$DEFAULT_RULES_DIR}"
 TEMP_DIR="/tmp/cursor-memory-bank-$$"
 VERSION="1.0.0"
-ARCHIVE_NAME="rules.tar.gz"
+ARCHIVE_NAME="v${VERSION}.tar.gz"
 CHECKSUM_FILE="rules.sha256"
 
 # Set up download URL based on environment
@@ -20,8 +20,8 @@ if [[ -n "${TEST_DIST_DIR:-}" ]]; then
     # Test mode - use local files
     DOWNLOAD_URL="file://$TEST_DIST_DIR"
 else
-    # Production mode - use release URL
-    DOWNLOAD_URL="https://github.com/hjamet/cursor-memory-bank/releases/download/v${VERSION}"
+    # Production mode - use GitHub archive URL
+    DOWNLOAD_URL="https://github.com/hjamet/cursor-memory-bank/archive/refs/tags"
 fi
 
 # Colors for output
@@ -88,44 +88,28 @@ verify_checksum() {
     return 0
 }
 
-download_and_verify() {
+download_archive() {
     local url="$1"
     local dest_dir="$2"
     local file_name="$(basename "$url")"
     local dest_file="$dest_dir/$file_name"
-    local checksum_url="${url}.sha256"
-    local checksum_file="$dest_dir/${file_name}.sha256"
 
-    # Download main file
+    # Download archive file
     if ! download_file "$url" "$dest_file"; then
         return 1
     fi
-
-    # Download checksum file
-    if ! download_file "$checksum_url" "$checksum_file"; then
-        rm -f "$dest_file"
-        return 1
-    fi
-
-    # Verify checksum
-    cd "$dest_dir"
-    if ! verify_checksum "$file_name" "${file_name}.sha256"; then
-        rm -f "$dest_file" "$checksum_file"
-        cd - > /dev/null
-        return 1
-    fi
-    cd - > /dev/null
 
     return 0
 }
 
 backup_rules() {
     local target_dir="$1"
-    if [[ -d "$target_dir/$RULES_DIR" ]]; then
+    local rules_path="$target_dir/.cursor/rules"
+    if [[ -d "$rules_path" ]]; then
         if [[ -z "${NO_BACKUP:-}" ]]; then
-            local backup_dir="$target_dir/$RULES_DIR.bak-$(date +%Y%m%d-%H%M%S)"
+            local backup_dir="$rules_path.bak-$(date +%Y%m%d-%H%M%S)"
             log "Backing up existing rules to $backup_dir"
-            cp -r "$target_dir/$RULES_DIR" "$backup_dir"
+            cp -r "$rules_path" "$backup_dir"
         else
             warn "Skipping backup as --no-backup was specified"
         fi
@@ -145,26 +129,39 @@ install_rules() {
     local target_dir="$1"
     local temp_dir="$2"
     local archive="$temp_dir/$ARCHIVE_NAME"
+    local rules_path="$target_dir/$RULES_DIR"
+    local extract_dir="$temp_dir/extract"
 
-    log "Installing rules to $target_dir/$RULES_DIR"
+    log "Installing rules to $rules_path"
 
-    # Extract rules from archive
-    if ! tar -xzf "$archive" -C "$target_dir/$RULES_DIR"; then
+    # Create temporary extraction directory
+    mkdir -p "$extract_dir"
+
+    # Extract archive to temporary directory
+    if ! tar -xzf "$archive" -C "$extract_dir"; then
         error "Failed to extract rules archive"
     fi
 
+    # Move rules from the extracted directory to the target directory
+    local project_dir="$extract_dir/cursor-memory-bank-${VERSION}"
+    if [[ ! -d "$project_dir" ]]; then
+        error "Invalid archive structure: cursor-memory-bank-${VERSION} directory not found"
+    fi
+
+    # Copy rules directory
+    cp -r "$project_dir/rules/"* "$rules_path/"
+
     # Preserve custom rules if they exist
-    if [[ -d "$target_dir/$RULES_DIR.bak-"* ]]; then
-        local backup_dir=$(ls -d "$target_dir/$RULES_DIR.bak-"* | head -n 1)
-        if [[ -d "$backup_dir/custom" ]]; then
-            log "Restoring custom rules from backup"
-            cp -r "$backup_dir/custom/"* "$target_dir/$RULES_DIR/custom/"
-        fi
+    local backup_pattern="${rules_path}.bak-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]"
+    local backup_dir=$(ls -d $backup_pattern 2>/dev/null | head -n 1)
+    if [[ -n "$backup_dir" ]] && [[ -d "$backup_dir/custom" ]]; then
+        log "Restoring custom rules from backup"
+        cp -r "$backup_dir/custom/"* "$rules_path/custom/"
     fi
 
     # Set correct permissions
-    chmod -R u+rw "$target_dir/$RULES_DIR"
-    find "$target_dir/$RULES_DIR" -type d -exec chmod u+x {} \;
+    chmod -R u+rw "$rules_path"
+    find "$rules_path" -type d -exec chmod u+x {} \;
 
     log "Rules installed successfully"
 }
@@ -248,18 +245,16 @@ if [[ -z "${TEST_MODE:-}" ]]; then
     fi
 fi
 
-# Backup existing rules if necessary (skip in test mode)
-if [[ -z "${TEST_MODE:-}" ]]; then
-    backup_rules "$INSTALL_DIR"
-fi
+# Backup existing rules if necessary
+backup_rules "$INSTALL_DIR"
 
 # Create directory structure
 create_dirs "$INSTALL_DIR"
 
-# Download and verify files
+# Download files
 log "Starting download process..."
-if ! download_and_verify "$DOWNLOAD_URL/$ARCHIVE_NAME" "$TEMP_DIR"; then
-    error "Failed to download and verify rules archive"
+if ! download_archive "$DOWNLOAD_URL/$ARCHIVE_NAME" "$TEMP_DIR"; then
+    error "Failed to download rules archive"
 fi
 
 # Install rules

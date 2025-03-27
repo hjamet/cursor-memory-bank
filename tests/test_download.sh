@@ -2,11 +2,10 @@
 
 # Test Download Functionality
 #
-# This file contains tests for the download and verification functionality.
+# This file contains tests for the download functionality.
 #
 # Prerequisites:
 # - curl installed
-# - sha256sum installed
 # - Internet connection
 #
 # Execution:
@@ -14,7 +13,6 @@
 #
 # Expected Results:
 # - All download tests pass
-# - All checksum verification tests pass
 # - All error cases are handled properly
 
 # Setup test environment
@@ -28,8 +26,7 @@ export TEST_RULES_DIR="$TEST_DIR/rules"
 SCRIPT_DIR="$(dirname "$0")"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TEST_DIST_DIR="$TEST_DIR/dist"
-TEST_RULES_ARCHIVE="$TEST_DIST_DIR/rules.tar.gz"
-TEST_RULES_CHECKSUM="$TEST_DIST_DIR/rules.tar.gz.sha256"
+TEST_RULES_ARCHIVE="$TEST_DIST_DIR/v1.0.0.tar.gz"
 
 # Colors for output
 RED='\033[0;31m'
@@ -77,32 +74,20 @@ setup() {
         return 1
     fi
 
-    # Check if source files exist
-    if [[ ! -f "$PROJECT_ROOT/dist/rules.tar.gz" ]]; then
-        log_error "Test archive not found at $PROJECT_ROOT/dist/rules.tar.gz"
-        rm -rf "$TEST_DIR"  # Clean up if we fail
+    # Create test archive structure
+    local temp_dir="$TEST_DIR/temp"
+    mkdir -p "$temp_dir/cursor-memory-bank-1.0.0/rules"
+    echo "Test rule content" > "$temp_dir/cursor-memory-bank-1.0.0/rules/test.rule"
+    
+    # Create test archive
+    cd "$temp_dir"
+    if ! tar -czf "$TEST_RULES_ARCHIVE" cursor-memory-bank-1.0.0/; then
+        log_error "Failed to create test archive"
+        cd - > /dev/null
+        rm -rf "$TEST_DIR"
         return 1
     fi
-
-    if [[ ! -f "$PROJECT_ROOT/dist/rules.tar.gz.sha256" ]]; then
-        log_error "Test checksum not found at $PROJECT_ROOT/dist/rules.tar.gz.sha256"
-        rm -rf "$TEST_DIR"  # Clean up if we fail
-        return 1
-    fi
-
-    # Copy test files
-    log "Copying test files to $TEST_DIST_DIR"
-    if ! cp "$PROJECT_ROOT/dist/rules.tar.gz" "$TEST_RULES_ARCHIVE"; then
-        log_error "Failed to copy rules archive to $TEST_RULES_ARCHIVE"
-        rm -rf "$TEST_DIR"  # Clean up if we fail
-        return 1
-    fi
-
-    if ! cp "$PROJECT_ROOT/dist/rules.tar.gz.sha256" "$TEST_RULES_CHECKSUM"; then
-        log_error "Failed to copy rules checksum to $TEST_RULES_CHECKSUM"
-        rm -rf "$TEST_DIR"  # Clean up if we fail
-        return 1
-    fi
+    cd - > /dev/null
 
     log "Created test environment at $TEST_DIR"
     return 0
@@ -179,109 +164,74 @@ test_download_file_invalid_url() {
     fi
 }
 
-test_verify_checksum_success() {
-    echo "Testing successful checksum verification..."
-    echo -n "" > "$TEST_DIR/empty.txt"
-    echo "$MOCK_CHECKSUM  empty.txt" > "$TEST_DIR/checksum.sha256"
-    cd "$TEST_DIR"
-    if verify_checksum "empty.txt" "checksum.sha256"; then
-        echo "✓ Checksum verification successful"
-        cd - > /dev/null
-        return 0
-    else
-        echo "✗ Checksum verification failed"
-        cd - > /dev/null
-        return 1
-    fi
-}
-
-test_verify_checksum_failure() {
-    echo "Testing checksum verification failure..."
-    echo "modified" > "$TEST_DIR/modified.txt"
-    echo "$MOCK_CHECKSUM  modified.txt" > "$TEST_DIR/checksum.sha256"
-    cd "$TEST_DIR"
-    if ! verify_checksum "modified.txt" "checksum.sha256" 2>/dev/null; then
-        echo "✓ Invalid checksum detected"
-        cd - > /dev/null
-        return 0
-    else
-        echo "✗ Invalid checksum not detected"
-        cd - > /dev/null
-        return 1
-    fi
-}
-
-test_download_and_verify_integration() {
-    echo "Testing download and verify integration..."
+test_download_archive_success() {
+    echo "Testing successful archive download..."
     
-    # Create test archive and checksum
-    local test_content="This is a test archive for integration testing"
-    local archive_path="$TEST_DIST_DIR/$ARCHIVE_NAME"
-    local checksum_path="$TEST_DIST_DIR/$ARCHIVE_NAME.sha256"
-    
-    # Create test archive
-    echo "$test_content" > "$archive_path"
-    
-    # Generate checksum
-    cd "$TEST_DIST_DIR"
-    sha256sum "$ARCHIVE_NAME" > "$ARCHIVE_NAME.sha256"
-    cd - > /dev/null
-    
-    # Test download and verify
-    if download_and_verify "file://$archive_path" "$TEST_DIR"; then
-        # Verify downloaded file exists
-        if [[ -f "$TEST_DIR/$ARCHIVE_NAME" ]]; then
-            # Verify content
-            if [[ "$(cat "$TEST_DIR/$ARCHIVE_NAME")" == "$test_content" ]]; then
-                echo "✓ Download and verify integration successful"
-                return 0
-            else
-                echo "✗ Download succeeded but content mismatch"
-                return 1
-            fi
+    # Test download using file:// protocol
+    if download_archive "file://$TEST_RULES_ARCHIVE" "$TEST_DIR"; then
+        # Verify file exists
+        if [[ -f "$TEST_DIR/v1.0.0.tar.gz" ]]; then
+            echo "✓ Archive download successful"
+            return 0
         else
-            echo "✗ Download succeeded but file not found"
+            echo "✗ Archive download succeeded but file not found"
             return 1
         fi
     else
-        echo "✗ Download and verify integration failed"
+        echo "✗ Archive download failed"
         return 1
     fi
 }
 
-# Run Tests
-run_tests() {
-    local failures=0
-
-    setup
-
-    # Run individual test cases
-    test_download_file_success || ((failures++))
-    test_download_file_invalid_url || ((failures++))
-    test_verify_checksum_success || ((failures++))
-    test_verify_checksum_failure || ((failures++))
-    test_download_and_verify_integration || ((failures++))
-
-    teardown
-
-    echo
-    echo "Test Summary:"
-    echo "-------------"
-    echo "Total tests: 5"
-    echo "Failures: $failures"
-    echo "-------------"
-
-    if [[ -f "$TEST_LOG" ]]; then
-        echo "Test log available at: $TEST_LOG"
+test_download_archive_invalid_url() {
+    echo "Testing archive download with invalid URL..."
+    if ! download_archive "https://invalid.example.com/v1.0.0.tar.gz" "$TEST_DIR" 2>/dev/null; then
+        echo "✓ Invalid URL handled correctly"
+        return 0
+    else
+        echo "✗ Invalid URL not handled"
+        return 1
     fi
-
-    return $failures
 }
 
-# Set up cleanup on exit
-trap teardown EXIT
+# Run tests
+run_tests() {
+    local failed=0
+    
+    # Run download tests
+    if ! test_download_file_success; then
+        ((failed++))
+    fi
+    
+    if ! test_download_file_invalid_url; then
+        ((failed++))
+    fi
+    
+    if ! test_download_archive_success; then
+        ((failed++))
+    fi
+    
+    if ! test_download_archive_invalid_url; then
+        ((failed++))
+    fi
+    
+    # Report results
+    if ((failed == 0)); then
+        echo -e "\n${GREEN}All tests passed!${NC}"
+        return 0
+    else
+        echo -e "\n${RED}$failed test(s) failed${NC}"
+        return 1
+    fi
+}
 
-# Execute tests if script is run directly
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    run_tests
-fi 
+# Run the tests
+if ! run_tests; then
+    log_error "Some tests failed"
+    teardown
+    exit 1
+fi
+
+log "All tests completed successfully"
+teardown
+exit 0

@@ -7,6 +7,7 @@ TEST_DIR="/tmp/cursor-memory-bank-test-$$"
 TEST_RULES_DIR="$TEST_DIR/.cursor/rules"
 TEST_DIST_DIR="$TEST_DIR/dist"
 ORIGINAL_DIR="$(pwd)"
+VERSION="1.0.0"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -25,14 +26,21 @@ error() {
 
 setup() {
     log "Setting up test environment..."
+    
+    # Create test directories
     mkdir -p "$TEST_RULES_DIR/custom/test"
-    mkdir -p "$TEST_DIST_DIR"
+    mkdir -p "$TEST_DIST_DIR/cursor-memory-bank-${VERSION}"
+    
+    # Create test custom rule
     echo "test rule" > "$TEST_RULES_DIR/custom/test/test.mdc"
     
+    # Create test project structure
+    mkdir -p "$TEST_DIST_DIR/cursor-memory-bank-${VERSION}/rules/custom/test"
+    echo "test rule" > "$TEST_DIST_DIR/cursor-memory-bank-${VERSION}/rules/custom/test/test.mdc"
+    
     # Create test archive
-    tar -czf "$TEST_DIST_DIR/rules.tar.gz" -C "$TEST_RULES_DIR" .
     cd "$TEST_DIST_DIR"
-    sha256sum rules.tar.gz > rules.tar.gz.sha256
+    tar -czf "v${VERSION}.tar.gz" "cursor-memory-bank-${VERSION}/"
     cd "$ORIGINAL_DIR"
 }
 
@@ -51,7 +59,7 @@ test_clean_install() {
     export TEST_DIST_DIR="$TEST_DIST_DIR"
     
     # Run installation script
-    if ! ./install.sh --dir "$TEST_DIR"; then
+    if ! ../install.sh --dir "$TEST_DIR"; then
         error "Clean installation failed"
     fi
     
@@ -75,12 +83,13 @@ test_backup_restore() {
     export TEST_RULES_DIR="$TEST_RULES_DIR"
     export TEST_DIST_DIR="$TEST_DIST_DIR"
     
-    if ! ./install.sh --dir "$TEST_DIR"; then
+    if ! ../install.sh --dir "$TEST_DIR"; then
         error "Installation with backup failed"
     fi
     
     # Verify backup
-    if ! ls "$TEST_RULES_DIR.bak-"* > /dev/null 2>&1; then
+    local backup_pattern="$TEST_DIR/.cursor/rules.bak-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]"
+    if ! ls -d $backup_pattern > /dev/null 2>&1; then
         error "Backup was not created"
     fi
     
@@ -96,13 +105,13 @@ test_error_handling() {
     log "Testing error handling..."
     
     # Test invalid directory
-    if ./install.sh --dir "/nonexistent" 2>/dev/null; then
+    if ../install.sh --dir "/nonexistent" 2>/dev/null; then
         error "Installation should fail with invalid directory"
     fi
     
     # Test invalid archive
-    echo "invalid" > "$TEST_DIST_DIR/rules.tar.gz"
-    if ./install.sh --dir "$TEST_DIR" 2>/dev/null; then
+    echo "invalid" > "$TEST_DIST_DIR/v${VERSION}.tar.gz"
+    if ../install.sh --dir "$TEST_DIR" 2>/dev/null; then
         error "Installation should fail with invalid archive"
     fi
     

@@ -1,47 +1,60 @@
 #!/bin/bash
 
-# Script to create a release archive for Cursor Memory Bank rules
+# Script to create a release archive for Cursor Memory Bank
 
 set -e  # Exit on error
 set -u  # Exit on undefined variable
 
-# Constants
-RULES_DIR=".cursor/rules"
-DIST_DIR="dist"
-ARCHIVE_NAME="rules.tar.gz"
-CHECKSUM_FILE="rules.sha256"
-
-# Colors for output
-GREEN='\033[0;32m'
+# Colors
 RED='\033[0;31m'
-NC='\033[0m' # No Color
+GREEN='\033[0;32m'
+NC='\033[0m'
 
-# Helper functions
+# Error handling
+error() {
+    echo -e "${RED}[ERROR]${NC} $1" >&2
+    exit 1
+}
+
+# Logging
 log() {
     echo -e "${GREEN}[INFO]${NC} $1"
 }
 
-error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-    exit 1
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Default directories
+DIST_DIR="${DIST_DIR:-$PROJECT_ROOT/dist}"
+VERSION="1.0.0"
+ARCHIVE_NAME="cursor-memory-bank-$VERSION.tar.gz"
+
+# Main function
+main() {
+    # Create distribution directory if it doesn't exist
+    if ! mkdir -p "$DIST_DIR"; then
+        error "Cannot create distribution directory"
+    fi
+
+    # Create project archive
+    log "Creating project archive..."
+    if ! cd "$PROJECT_ROOT"; then
+        error "Cannot change to project root directory"
+    fi
+
+    # Create archive excluding dist/ and .git/
+    if ! tar --exclude='./dist' --exclude='./.git' -czf "$DIST_DIR/$ARCHIVE_NAME" .; then
+        error "Failed to create project archive"
+    fi
+
+    if ! cd - > /dev/null; then
+        error "Cannot change back to original directory"
+    fi
+
+    log "Release files created successfully in $DIST_DIR:"
+    ls -l "$DIST_DIR"
 }
 
-# Create dist directory
-mkdir -p "$DIST_DIR"
-
-# Create rules archive
-log "Creating rules archive..."
-if ! tar -czf "$DIST_DIR/$ARCHIVE_NAME" -C "$RULES_DIR" .; then
-    error "Failed to create rules archive"
-fi
-
-# Create checksum file
-log "Creating checksum file..."
-cd "$DIST_DIR"
-if ! sha256sum "$ARCHIVE_NAME" > "$CHECKSUM_FILE"; then
-    error "Failed to create checksum file"
-fi
-cd - > /dev/null
-
-log "Release files created successfully in $DIST_DIR:"
-ls -l "$DIST_DIR" 
+# Run main function
+main 

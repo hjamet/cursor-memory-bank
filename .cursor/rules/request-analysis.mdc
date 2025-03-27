@@ -12,7 +12,7 @@ Analyser en détail la requête de l'utilisateur ou le brief de l'utilisateur, e
 
 1. **Analyse du brief utilisateur** : Vérifier si le fichier `.cursor/memory-bank/userbrief.md` est n'est pas vide:
    - Si le fichier est vide, lire le contenu du fichier et considérer que son contenu constitue la requête de l'utilisateur
-   - Vider le contenu du fichier `.cursor/memory-bank/userbrief.md`
+   - Vider le contenu du fichier `.cursor/memory-bank/userbrief.md` à l'aide de la commande "echo "" > .cursor/memory-bank/userbrief.md"
 
 2. **Analyse du code** : Parcourir le code pour identifier les fichiers et symboles concernés:
    - Effectuer une recherche sémantique basée sur les mots-clés de la requête
@@ -42,6 +42,7 @@ Analyser en détail la requête de l'utilisateur ou le brief de l'utilisateur, e
 
 - Parfois, le brief est vide et l'utilisateur ne donne pas de requête autre que le fichier tasks.md. Dans ce cas, il faut lire le fichier tasks.md et considérer que son contenu constitue la requête de l'utilisateur.
 - Le brief et la requête de l'utilisateur sont parfois identiques et n'ont parfois rien à voir. Dans tous les cas, il faut considérer que l'un et l'autre constituent des requêtes à analyser.
+- Utilise la commande ECHO et pas l'outil d'étition pour vider de son contenu le fichier `userbrief.md` !
 - Utiliser des recherches sémantiques précises pour trouver tous les fichiers pertinents
 - Ne pas se limiter aux fichiers explicitement mentionnés dans la requête
 - Explorer les dépendances et les relations entre les fichiers
