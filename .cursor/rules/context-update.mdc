@@ -26,24 +26,27 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
      `git add [fichiers] && git commit -m "[message]"`
    - Suivre le format conventional commit avec emoji pour le message
 
-5. **Vérification du workflow**: Vérifier si le workflow est terminé:
-   - Le workflow ne doit JAMAIS être considéré comme terminé s'il reste des tâches dans "In Progress" ou "ToDo" OU s'il y a au moins un test qui échoue (marqué ❌) ou avec avertissement (marqué ⚠️)
-   - Si toutes les tâches sont terminées (c'est-à-dire qu'il n'y a plus AUCUNE tâche dans les sections "In Progress" et "ToDo" du fichier tasks.md) ET que tous les tests passent (TOUS marqués ✅) alors:
-     - Présenter une synthèse claire et concise du travail effectué
-     - Résumer les fonctionnalités implémentées et les problèmes résolus
-     - Indiquer explicitement que le workflow est terminé avec succès
-     - Indiquer explicitement: "Le workflow est terminé, aucune règle suivante à appeler."
-   - Si le workflow n'est pas terminé, appeler la règle suivante appropriée
-
-6. **Appel de la règle suivante**: Appeler obligatoirement la règle suivante si le workflow n'est pas terminé:
-   - Si au moins un test échoue, appeler la règle `fix`
-   - Sinon, s'il reste des tâches en cours ou à faire, appeler la règle `implementation`
+5. **Appel de la règle suivante**: Appeler obligatoirement la règle suivante si le workflow n'est pas terminé:
+   - Lire le fichier `.cursor/memory-bank/workflow/test.md`
+      - Si au moins un test échoue, appeler la règle `fix`
+      - Sinon, vérifie si le fichier `.cursor/memory-bank/brief.md` existe
+      - Si le fichier existe, appeler la règle `request-analysis`
+      - Sinon, vérifie si il reste des tâches en cours ou à faire
+         - Si oui, appeler la règle `implementation`
+         - Sinon, indiquer que le workflow est terminé
 
 ## Précisions
 - Marquer les tâches comme terminées uniquement si tous les tests associés passent
 - Utilise le format comventional commit en ajoutant un emoji pour décrire l'opération effectuée
 - Supprimer systématiquement les anciennes entrées d'historique qui ne sont plus pertinentes
 - Ne JAMAIS terminer sans soit appeler explicitement une règle suivante, soit indiquer explicitement que le workflow est terminé
+- Le workflow ne doit JAMAIS être considéré comme terminé s'il reste des tâches dans "In Progress" ou "ToDo" OU s'il y a au moins un test qui échoue (marqué ❌) ou avec avertissement (marqué ⚠️) OU si le fichier `.cursor/memory-bank/brief.md` existe.
+- Si toutes les tâches sont terminées (c'est-à-dire qu'il n'y a plus AUCUNE tâche dans les sections "In Progress" et "ToDo" du fichier tasks.md) ET que tous les tests passent (TOUS marqués ✅) ET que le fichier `.cursor/memory-bank/brief.md` n'existe pas, alors:
+   - Présenter une synthèse claire et concise du travail effectué
+   - Résumer les fonctionnalités implémentées et les problèmes résolus
+   - Indiquer explicitement que le workflow est terminé avec succès
+   - Indiquer explicitement: "Le workflow est terminé, aucune règle suivante à appeler."
+- Si le workflow n'est pas terminé, appeler la règle suivante appropriée
 
 ## Format pour le message de commit
 ```
@@ -64,12 +67,13 @@ Exemples d'emojis et types:
 
 ## Next Rules
 - `fix` - Si au moins un test échoue toujours
-- `implementation` - Si au moins une tâche est toujours en cours ou à faire
+- `request-analysis` - Si le fichier `.cursor/memory-bank/brief.md` existe et qu'aucun test n'échoue
+- `implementation` - Si au moins une tâche est toujours en cours ou à faire, qu'aucun test n'échoue et que le fichier `.cursor/memory-bank/brief.md` n'existe pas
 
 ## Exemple
 
 fetch_rules ["context-update"]
-<SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. J'effectuerai un commit pour les modifications et déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix' ou 'implementation' selon les tests et les tâches restantes.</SYSTEM PROMPT>
+<SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. J'effectuerai un commit pour les modifications et déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix', 'request-analysis' ou 'implementation' selon les tests, l'existance d'un brief et les tâches restantes.</SYSTEM PROMPT>
 
 # Context-update : 1 - Mise à jour du contexte
 Je commence par mettre à jour les fichiers de contexte pour refléter les changements. `(Context-update : 1 - Mise à jour du contexte)`
@@ -95,16 +99,15 @@ Je prépare et effectue un commit avec les modifications apportées. `(Context-u
 [...création du commit...]
 `(Context-update : 4 - Effectuer un commit)`
 
-# Context-update : 5 - Vérifier si le workflow est terminé
-Je vérifie s'il reste des tâches à faire ou des tests à corriger. `(Context-update : 5 - Vérification du workflow)`
-[...vérification du workflow...]
-`(Context-update : 5 - Vérification du workflow)`
+# Context-update : 5 - Appel de la règle suivante
+Je vais consulter le fichier `.cursor/memory-bank/workflow/test.md` pour vérifier si certains tests ont échoué. `(Context-update : 5 - Appel de la règle suivante)`
+[...consultation du fichier test.md...]
+Je vois que tous les tests sont des ✅. Je vais donc consulter le fichier `.cursor/memory-bank/brief.md` pour vérifier si le fichier existe. `(Context-update : 5 - Appel de la règle suivante)`
+[...consultation du fichier brief.md...]
+Le fichier existe. Je vais donc appeler la règle `request-analysis`. `(Context-update : 5 - Appel de la règle suivante)`
 
-# Context-update : 6 - Appel de la règle suivante
-Je dois maintenant appeler la règle `fix` car les tests [...] échouent encore. `(Context-update : 6 - Appel de la règle suivante)`
-
-fetch_rules ["fix"]
+fetch_rules ["request-analysis"]
 
 # Start Rule
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. J'effectuerai un commit pour les modifications et déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix' ou 'implementation' selon les tests et les tâches restantes.</SYSTEM PROMPT>"
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. J'effectuerai un commit pour les modifications et déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix', 'request-analysis' ou 'implementation' selon les tests, l'existance d'un brief et les tâches restantes.</SYSTEM PROMPT>"
