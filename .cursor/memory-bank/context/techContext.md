@@ -1,42 +1,4 @@
-# Contexte Technique
-
-## Pile Technologique
-- **Langages**: Bash
-- **Outils**: curl, git
-- **Tests**: Tests unitaires bash
-
-## Architecture
-Le projet est structuré en plusieurs composants:
-- Script d'installation (`install.sh`):
-  - Gestion des arguments
-  - Création de répertoires
-  - Sauvegarde des règles existantes
-  - Nettoyage automatique
-- Suite de tests (`tests/test_install.sh`)
-- Documentation (`README.md`)
-
-## Environnement de Développement
-- **Configuration requise**:
-  - Système Unix/Linux
-  - Bash
-  - curl
-  - git
-- **Installation**: Via curl ou clone git
-
-## Conventions de Code
-- Scripts bash avec shebang `#!/bin/bash`
-- Utilisation de `set -e` et `set -u` pour la sécurité
-- Documentation des fonctions et sections importantes
-- Tests unitaires pour chaque fonctionnalité
-- Gestion des erreurs avec trap et cleanup
-
-## Dépendances Externes
-- curl: Dernière version - Téléchargement des fichiers
-- git: Dernière version - Gestion du code source
-
-## Intégrations
-- GitHub: Hébergement du code et distribution
-- Cursor: Intégration avec l'IDE via les règles 
+# Technical Context
 
 ## Download Functionality
 - Download mechanism now supports both local and remote files
@@ -50,9 +12,25 @@ Le projet est structuré en plusieurs composants:
 - Automatically creates and manages test files
 - Handles both local and remote file testing scenarios
 - Provides comprehensive test coverage for download functionality
+- Implements proper cleanup and error handling
+- Uses environment variables for test mode configuration
 
 ## URL Management
 - Production URLs use GitHub releases format
 - Test URLs use local file:// protocol
 - Proper URL construction with path joining
-- Environment-aware URL selection 
+- Environment-aware URL selection
+
+## Testing Framework
+- Modular test case organization
+- Comprehensive setup and teardown procedures
+- Detailed logging and error reporting
+- Proper test isolation and cleanup
+- Support for both unit and integration tests
+
+## Tools and Dependencies
+- bash: Shell scripting
+- curl: File downloads
+- sha256sum: Checksum verification
+- git: Version control
+- GitHub: Code hosting and distribution 
