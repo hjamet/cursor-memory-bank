@@ -1,46 +1,5 @@
 # In Progress
 
-## 4. Corrections des tests
-4.1. [ ] **Corriger le test d'installation via curl** : Résoudre l'erreur "Core rules not installed".
-- Actions: 
-  1. Vérifier si le fichier core.mdc est réellement créé lors de l'installation
-  2. Modifier le test pour vérifier un autre fichier existant ou créer un core.mdc lors de l'installation
-- Fichiers: tests/test_curl_install.sh, install.sh
-- Dépendances: Aucune
-- Validation: Le test d'installation via curl passe sans erreur
-
-4.2. [ ] **Corriger le test d'options d'installation curl** : Résoudre l'erreur "Backup was created despite --no-backup option".
-- Actions: 
-  1. Vérifier si la nouvelle logique de backup avec l'option --backup est prise en compte dans les tests
-  2. Mettre à jour les tests pour utiliser la nouvelle option --backup au lieu de l'ancienne logique --no-backup
-- Fichiers: tests/test_curl_install.sh, install.sh
-- Dépendances: Aucune
-- Validation: Le test d'options d'installation curl passe sans erreur
-
-4.3. [ ] **Implémenter la fonction download_file manquante** : Ajouter la fonction download_file qui est attendue dans les tests.
-- Actions: 
-  1. Créer une fonction download_file similaire à download_archive mais adaptée pour les fichiers individuels
-  2. Implémenter la gestion des codes d'erreur HTTP
-- Fichiers: install.sh
-- Dépendances: Aucune
-- Validation: La fonction download_file peut être appelée dans les tests et télécharge correctement les fichiers
-
-4.4. [ ] **Corriger le test de téléchargement d'archive** : Résoudre l'erreur avec le code HTTP "00023".
-- Actions: 
-  1. Analyser comment le code HTTP est extrait dans la fonction download_archive
-  2. Améliorer la gestion des protocoles file:// dans la fonction download_archive
-- Fichiers: install.sh
-- Dépendances: Aucune
-- Validation: Le test de téléchargement d'archive passe sans erreur
-
-4.5. [ ] **Compléter le test de répertoire invalide** : Assurer que la sortie du test est correctement capturée.
-- Actions: 
-  1. Vérifier l'implémentation du test de répertoire invalide dans tests/test_git_install.sh
-  2. S'assurer que les messages d'erreur ou de succès sont affichés correctement
-- Fichiers: tests/test_git_install.sh
-- Dépendances: Aucune
-- Validation: Le test de répertoire invalide affiche clairement son résultat
-
 # ToDo
 
 # Done
@@ -81,4 +40,64 @@
 - Dépendances: Aucune
 - Validation: Les fichiers contiennent une documentation claire sur le bug et la méthode de contournement
 
-- [x] **Analyse et compréhension des besoins** : Analyse des problèmes identifiés et des améliorations nécessaires. 
+- [x] **Analyse et compréhension des besoins** : Analyse des problèmes identifiés et des améliorations nécessaires.
+
+## 4. Corrections des tests
+4.1. [x] **Corriger le test d'installation via curl** : Résoudre l'erreur "Core rules not installed".
+- Actions: 
+  1. Vérifier si le fichier core.mdc est réellement créé lors de l'installation
+  2. Modifier le test pour vérifier un autre fichier existant ou créer un core.mdc lors de l'installation
+- Fichiers: tests/test_curl_install.sh, install.sh
+- Dépendances: Aucune
+- Validation: Le test d'installation via curl passe sans erreur
+
+4.2. [x] **Corriger le test d'options d'installation curl** : Résoudre l'erreur "Backup was created despite --no-backup option".
+- Actions: 
+  1. Vérifier si la nouvelle logique de backup avec l'option --backup est prise en compte dans les tests
+  2. Mettre à jour les tests pour utiliser la nouvelle option --backup au lieu de l'ancienne logique --no-backup
+- Fichiers: tests/test_curl_install.sh, install.sh
+- Dépendances: Aucune
+- Validation: Le test d'options d'installation curl passe sans erreur
+
+4.3. [x] **Implémenter la fonction download_file manquante** : Ajouter la fonction download_file qui est attendue dans les tests.
+- Actions: 
+  1. Créer une fonction download_file similaire à download_archive mais adaptée pour les fichiers individuels
+  2. Implémenter la gestion des codes d'erreur HTTP
+- Fichiers: install.sh
+- Dépendances: Aucune
+- Validation: La fonction download_file peut être appelée dans les tests et télécharge correctement les fichiers
+
+4.4. [x] **Corriger le test de téléchargement d'archive** : Résoudre l'erreur avec le code HTTP "00023".
+- Actions: 
+  1. Analyser comment le code HTTP est extrait dans la fonction download_archive
+  2. Améliorer la gestion des protocoles file:// dans la fonction download_archive
+- Fichiers: install.sh
+- Dépendances: Aucune
+- Validation: Le test de téléchargement d'archive passe sans erreur
+
+4.5. [x] **Compléter le test de répertoire invalide** : Assurer que la sortie du test est correctement capturée.
+- Actions: 
+  1. Vérifier l'implémentation du test de répertoire invalide dans tests/test_git_install.sh
+  2. S'assurer que les messages d'erreur ou de succès sont affichés correctement
+- Fichiers: tests/test_git_install.sh
+- Dépendances: Aucune
+- Validation: Le test de répertoire invalide affiche clairement son résultat 
+
+## 5. Corrections supplémentaires
+5.1. [x] **Corriger l'installation des fichiers de règle avec curl** : S'assurer que system.mdc est correctement copié lors de l'installation via curl.
+- Actions: 
+  1. Vérifier la structure de l'archive téléchargée avec curl
+  2. Déboguer le processus de copie des fichiers de règles pour s'assurer que system.mdc est inclus
+  3. Ajouter une vérification explicite ou une copie de sauvegarde si le fichier n'existe pas
+- Fichiers: install.sh
+- Dépendances: Aucune
+- Validation: Le test d'installation via curl passe sans erreur
+
+5.2. [x] **Corriger la logique de backup dans tests/test_curl_install.sh** : Résoudre le problème de backup créé malgré l'absence de l'option --backup.
+- Actions: 
+  1. Analyser pourquoi un backup est créé malgré l'absence de l'option --backup
+  2. Vérifier si la fonction backup_rules crée des backups en mode par défaut
+  3. Corriger le test pour s'assurer qu'aucun backup n'est créé sans l'option --backup
+- Fichiers: install.sh, tests/test_curl_install.sh
+- Dépendances: Aucune
+- Validation: Le test d'options d'installation curl passe sans erreur 

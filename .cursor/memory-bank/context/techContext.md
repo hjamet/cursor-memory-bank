@@ -1,99 +1,37 @@
-# Architecture et aspects techniques
-
-## Installation
-- Installation via git clone
-- Options disponibles :
-  - `--no-backup` : Désactive la sauvegarde des règles existantes
-  - `--dir` : Spécifie le répertoire d'installation
-  - `--use-curl` : Force l'utilisation de curl au lieu de git clone
-- Préservation des règles personnalisées via backup/restore
-- Préservation automatique des fichiers existants non liés à l'installation
-- Installation sans effacement des fichiers existants qui ne sont pas dans le dépôt
-- Gestion robuste des erreurs :
-  - Détection des erreurs dans les pipes (set -o pipefail)
-  - Messages d'erreur descriptifs sur stderr
-  - Capture des codes de sortie
-  - Vérification des permissions
-  - Vérification des dépendances (git)
-  - Nettoyage des fichiers temporaires
-
-## Structure du projet
-- `.cursor/rules/` : Répertoire des règles
-- `scripts/` : Scripts d'installation et utilitaires
-- `tests/` : Tests unitaires et d'intégration
-
-## Dépendances
-- git (obligatoire)
-- bash 4.0+ (obligatoire)
-- curl (optionnel)
-
-## Tests
-- Tests d'installation
-  - Installation de base
-  - Préservation des règles
-  - Options --force et --no-backup
-  - Gestion des erreurs
-- Tests de fonctionnalités
-  - Vérification des règles
-  - Validation des options
-
-## Environnement de développement
-- OS supportés : Linux, macOS
-- Outils requis : git, bash 4.0+
-
-## Bonnes pratiques
-- Utiliser git clone pour l'installation
-- Préserver les règles personnalisées
-- Gérer les erreurs de manière robuste
-- Nettoyer les fichiers temporaires
-- Documenter les changements
+# Contexte Technique
 
 ## Pile Technologique
-- **Langages**: Bash
-- **Outils**:
-  - git: Pour le clonage du dépôt
-  - curl: Pour l'installation via curl
-  - GitHub: Pour l'hébergement et la distribution
-- **Environnement**: Unix/Linux (WSL/Ubuntu pour Windows)
+- **Langages**: Bash, Markdown
+- **Frameworks**: N/A
+- **Bibliothèques**: N/A
+- **Outils**: Cursor, Git, Curl
 
-## Versions
-- Version actuelle: 1.0.0
-- Format de version: Semantic Versioning (MAJOR.MINOR.PATCH)
-
-## Notes Techniques
-- Git est utilisé pour garantir l'intégrité des fichiers
-- La vérification de checksum a été supprimée car Git garantit l'intégrité
-- Le déplacement des fichiers tient compte de la structure du dépôt Git
-
-## Dépendances
-- git: Pour le clonage du dépôt
-- curl: Pour l'installation via curl
-- bash: Pour l'exécution des scripts
+## Architecture
+Le projet est organisé en une structure de fichiers cohérente avec des règles spécifiques pour Cursor et un script d'installation bash.
 
 ## Environnement de Développement
-- **Configuration requise**: 
-  - Système Unix/Linux ou WSL
-  - git installé
-  - curl installé
-  - Cursor IDE
-- **Installation**: Via curl avec la commande `curl -fsSL URL | bash`
+- **Configuration requise**: Cursor, Bash, Git (optionnel), Curl (optionnel)
+- **Installation**: Via le script install.sh avec diverses options (--dir, --backup, --force, --use-curl)
 
 ## Conventions de Code
-- Scripts bash avec extension .sh
-- Documentation en français (principal) et anglais
-- Permissions d'exécution appropriées pour les scripts
-- Utilisation de la branche `main` comme branche principale
+- Utilisation de fichiers .mdc pour les règles de Cursor
+- Structure spécifique pour les fichiers de mémoire dans .cursor/memory-bank/
+- Documentation en français
+- Gestion explicite des protocoles file:// pour les téléchargements
+- Traitement amélioré des codes HTTP non standards
 
 ## Dépendances Externes
-- git: Dernière version stable - Clonage du dépôt
-- curl: Dernière version stable - Installation via curl
-- GitHub: Hébergement et distribution du script
+- Cursor: Dernière version - Environnement d'exécution principal
+- Git: Dernière version - Pour l'installation par clonage (optionnel)
+- Curl: Dernière version - Pour l'installation sans Git (optionnel)
 
 ## Intégrations
-- GitHub: 
-  - Hébergement du dépôt
-  - Distribution du script d'installation via raw.githubusercontent.com
-  - Configuration requise:
-    - Dépôt public pour l'accès aux fichiers raw
-    - Branche main comme branche par défaut
-    - Permissions appropriées pour l'accès aux fichiers 
+- GitHub: Pour l'hébergement du dépôt et la distribution
+- Cursor: Intégration avec l'éditeur Cursor pour la contextualisation
+
+## Fonctionnalités du script d'installation
+- Téléchargement d'archives et de fichiers individuels
+- Gestion intelligente des backups (désactivée par défaut, activable avec --backup)
+- Compatibilité avec les protocoles standard et file://
+- Gestion robuste des erreurs HTTP
+- Vérification et restauration des règles personnalisées 

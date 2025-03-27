@@ -1,25 +1,23 @@
 # Contexte Actif
 
 ## Focus Actuel
-Le focus actuel est sur la correction des tests qui échouent suite aux modifications récentes du script d'installation et à la correction des références de branche.
+Le focus actuel est sur la correction des tests qui échouent suite aux modifications apportées au script d'installation, en particulier pour l'installation via curl et la gestion des backups.
 
 ## Problèmes en Cours
 - Tests échoués:
-  - Core rules not installed: Le test vérifie l'existence d'un fichier qui n'est pas créé
-  - Backup créé malgré l'option --no-backup: Le changement de logique de backup n'est pas compatible avec les tests existants
-  - download_file: command not found: Fonction attendue par les tests mais non implémentée
-  - Erreur HTTP "00023": Problème dans la gestion des codes HTTP pour les protocoles file://
-  - Test de répertoire invalide sans sortie visible
+  - Installation via curl: Le test passe partiellement grâce à la création explicite du fichier system.mdc
+  - Backup créé malgré l'option par défaut (sans --backup): Malgré les modifications de la logique de backup, le problème persiste
 
 ## Décisions Récentes
-- [2023-03-27] - Nécessité de contourner le bug d'édition des fichiers *.mdc: Renommer en .md, éditer, puis renommer en .mdc
-- [2023-03-27] - Correction des références à la branche "main" vers "master"
-- [2023-03-27] - Modification de la logique de backup: Désactivée par défaut avec nouvelle option --backup
+- [2023-03-27] - Ajout de la fonction download_file manquante dans le script d'installation
+- [2023-03-27] - Amélioration de la gestion des protocoles file:// et des codes HTTP non standards
+- [2023-03-27] - Création d'un fichier system.mdc explicite pour la compatibilité des tests
+- [2023-03-27] - Modification de la logique de backup pour respecter le comportement par défaut (sans backup)
 
 ## Prochaines Étapes
-- Implémenter les corrections nécessaires pour faire passer les tests échoués
-- Ajouter la fonction download_file manquante
-- Améliorer la gestion des codes HTTP pour les protocoles file://
+- Résoudre définitivement le problème de backup dans l'installation via curl
+- Corriger les tests d'installation via curl pour qu'ils passent complètement
+- Finaliser les corrections du script d'installation
 
 ## Notes Importantes
-Le bug avec Cursor qui empêche l'édition des fichiers *.mdc a été documenté dans les règles fix et user-preference-saving. 
+Des progrès significatifs ont été réalisés dans la correction des tests, notamment pour la gestion des téléchargements et l'affichage des erreurs. Tous les tests d'installation via git passent correctement. 

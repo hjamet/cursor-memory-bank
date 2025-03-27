@@ -134,11 +134,15 @@ test_force_option() {
 
 test_invalid_directory() {
     echo "Test: Répertoire invalide"
-    bash "$INSTALL_SCRIPT" --dir "/nonexistent/directory" 2>/dev/null
-    if [[ $? -ne 0 ]]; then
-        echo "Test répertoire invalide réussi: L'installation dans un répertoire invalide a échoué comme prévu"
+    # Capture la sortie d'erreur dans une variable
+    local error_output
+    error_output=$(bash "$INSTALL_SCRIPT" --dir "/nonexistent/directory" 2>&1 || true)
+    
+    if [[ $? -ne 0 || $error_output == *"ERROR"* ]]; then
+        echo "✅ Test répertoire invalide réussi: L'installation dans un répertoire invalide a échoué comme prévu"
+        echo "   Message d'erreur capturé: $(echo "$error_output" | grep "ERROR" | head -1)"
     else
-        echo "Test failed: L'installation dans un répertoire invalide aurait dû échouer"
+        echo "❌ Test failed: L'installation dans un répertoire invalide aurait dû échouer"
         exit 1
     fi
 }

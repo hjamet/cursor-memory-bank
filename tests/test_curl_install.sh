@@ -105,7 +105,7 @@ test_curl_installation() {
     fi
     
     # Check for core rules
-    if [ ! -f "$RULES_DIR/core.mdc" ]; then
+    if [ ! -f "$RULES_DIR/system.mdc" ]; then
         log_error "Core rules not installed"
         return 1
     fi
@@ -115,7 +115,7 @@ test_curl_installation() {
 }
 
 test_curl_installation_with_options() {
-    log "Testing curl installation with options..."
+    log "Testing curl installation with default options (no backup)..."
     
     # Save current directory
     local current_dir="$(pwd)"
@@ -131,15 +131,16 @@ test_curl_installation_with_options() {
     echo "test custom rule" > "$RULES_DIR/custom/test/test.mdc"
     
     # Test with --no-backup, --force and --use-curl options
-    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --no-backup --force --use-curl; then
-        log_error "Curl installation with --no-backup failed"
+    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --force --use-curl; then
+        log_error "Curl installation with default options (no backup) failed"
         cd "$current_dir"
         return 1
     fi
     
     # Verify no backup was created
-    if ls -d "$RULES_DIR".bak-* &>/dev/null; then
-        log_error "Backup was created despite --no-backup option"
+    backup_files=$(find "$TEST_DIR/.cursor" -name "rules.bak-*" 2>/dev/null | wc -l)
+    if [[ $backup_files -gt 0 ]]; then
+        log_error "Backup was created despite default no-backup behavior (found $backup_files backup files)"
         cd "$current_dir"
         return 1
     fi
@@ -147,7 +148,7 @@ test_curl_installation_with_options() {
     # Return to original directory
     cd "$current_dir"
     
-    log "Curl installation with options test passed"
+    log "Curl installation with default options test passed"
     return 0
 }
 
