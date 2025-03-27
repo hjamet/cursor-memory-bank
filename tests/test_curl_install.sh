@@ -33,25 +33,37 @@ NC='\033[0m' # No Color
 log() {
     local message="$1"
     echo -e "${GREEN}[INFO]${NC} $message"
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $message" >> "$TEST_LOG"
+    if [[ -d "$LOGS_DIR" ]]; then
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $message" >> "$TEST_LOG"
+    fi
 }
 
 log_error() {
     local message="$1"
     echo -e "${RED}[ERROR]${NC} $message" >&2
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $message" >> "$TEST_LOG"
+    if [[ -d "$LOGS_DIR" ]]; then
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $message" >> "$TEST_LOG"
+    fi
 }
 
 log_warn() {
     local message="$1"
     echo -e "${YELLOW}[WARN]${NC} $message"
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [WARN] $message" >> "$TEST_LOG"
+    if [[ -d "$LOGS_DIR" ]]; then
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [WARN] $message" >> "$TEST_LOG"
+    fi
 }
 
 setup() {
-    # Create only the logs directory
+    # First create the main test directory
+    if ! mkdir -p "$TEST_DIR"; then
+        echo -e "${RED}[ERROR]${NC} Failed to create test directory"
+        return 1
+    fi
+    
+    # Then create the logs directory
     if ! mkdir -p "$LOGS_DIR"; then
-        log_error "Failed to create logs directory"
+        echo -e "${RED}[ERROR]${NC} Failed to create logs directory"
         return 1
     fi
     
@@ -78,6 +90,9 @@ test_curl_installation() {
         log_error "Failed to change to test directory"
         return 1
     }
+    
+    # Clean any existing backups from previous runs
+    find "$TEST_DIR" -name "*.bak-*" -type d -exec rm -rf {} \; 2>/dev/null || true
     
     # Create test custom rule
     mkdir -p "$RULES_DIR/custom/test"
@@ -126,21 +141,25 @@ test_curl_installation_with_options() {
         return 1
     }
     
+    # Clean any existing backups that might have been created by previous tests
+    find "$TEST_DIR" -name "*.bak-*" -type d -exec rm -rf {} \; 2>/dev/null || true
+    
     # Create test custom rule
     mkdir -p "$RULES_DIR/custom/test"
     echo "test custom rule" > "$RULES_DIR/custom/test/test.mdc"
     
-    # Test with --no-backup, --force and --use-curl options
+    # Test with default options (no --backup), --force and --use-curl options
     if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --force --use-curl; then
         log_error "Curl installation with default options (no backup) failed"
         cd "$current_dir"
         return 1
     fi
     
-    # Verify no backup was created
-    backup_files=$(find "$TEST_DIR/.cursor" -name "rules.bak-*" 2>/dev/null | wc -l)
+    # Verify no backup was created - check for both potential names (rules.bak-* and .cursor/rules.bak-*)
+    backup_files=$(find "$TEST_DIR/.cursor" -path "*rules.bak-*" -type d 2>/dev/null | wc -l)
     if [[ $backup_files -gt 0 ]]; then
         log_error "Backup was created despite default no-backup behavior (found $backup_files backup files)"
+        find "$TEST_DIR/.cursor" -path "*rules.bak-*" -type d -ls 2>/dev/null || true
         cd "$current_dir"
         return 1
     fi
@@ -182,26 +201,44 @@ test_curl_installation_error_handling() {
 run_tests() {
     local failed=0
     
-    # Setup test environment
+    # Run each test in a clean environment
+    
+    # Setup test environment for first test
     if ! setup; then
         log_error "Failed to set up test environment"
         return 1
     fi
     
-    # Run installation tests
+    # Run installation test
     if ! test_curl_installation; then
         ((failed++))
     fi
     
+    # Clean up and setup fresh environment for second test
+    teardown
+    if ! setup; then
+        log_error "Failed to set up test environment for options test"
+        return 1
+    fi
+    
+    # Run options test
     if ! test_curl_installation_with_options; then
         ((failed++))
     fi
     
+    # Clean up and setup fresh environment for third test
+    teardown
+    if ! setup; then
+        log_error "Failed to set up test environment for error handling test"
+        return 1
+    fi
+    
+    # Run error handling test
     if ! test_curl_installation_error_handling; then
         ((failed++))
     fi
     
-    # Cleanup test environment
+    # Final cleanup
     teardown
     
     # Return results

@@ -244,13 +244,29 @@ install_rules() {
         fi
     fi
 
-    # Preserve custom rules if they exist
-    local backup_pattern="${rules_path}.bak-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]"
-    local backup_dir=$(ls -d $backup_pattern 2>/dev/null | head -n 1)
-    if [[ -n "$backup_dir" ]] && [[ -d "$backup_dir/custom" ]]; then
-        log "Restoring custom rules from backup"
-        if ! cp -r "$backup_dir/custom/"* "$rules_path/custom/"; then
-            error "Failed to restore custom rules. Please check disk space and permissions."
+    # Preserve custom rules if they exist - ONLY use backup if DO_BACKUP is set
+    if [[ -n "${DO_BACKUP:-}" ]]; then
+        local backup_pattern="${rules_path}.bak-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]"
+        local backup_dir=$(ls -d $backup_pattern 2>/dev/null | head -n 1)
+        if [[ -n "$backup_dir" ]] && [[ -d "$backup_dir/custom" ]]; then
+            log "Restoring custom rules from backup"
+            if ! cp -r "$backup_dir/custom/"* "$rules_path/custom/"; then
+                error "Failed to restore custom rules. Please check disk space and permissions."
+            fi
+        fi
+    else
+        # If no backup option, still preserve existing custom rules directly
+        if [[ -d "$rules_path/custom" ]] && [[ -d "$rules_path/custom" ]]; then
+            log "Preserving existing custom rules (no backup)"
+            # We temporarily move custom rules to temp dir and move them back after installation
+            local temp_custom="$temp_dir/custom_temp"
+            if ! mkdir -p "$temp_custom" || ! cp -r "$rules_path/custom/"* "$temp_custom/"; then
+                error "Failed to temporarily preserve custom rules. Please check disk space and permissions."
+            fi
+            # After installation is complete, we restore the custom rules
+            if ! cp -r "$temp_custom/"* "$rules_path/custom/"; then
+                error "Failed to restore custom rules. Please check disk space and permissions."
+            fi
         fi
     fi
 
