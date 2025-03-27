@@ -1,96 +1,76 @@
 # In Progress
 
 ## 1. Développement des règles
-1.1. [ ] **Ajouter les exemples de workflow** : Créer les sections Exemple pour implementation.mdc et tests.mdc
-- Actions:
-  * Lire les fichiers implementation.mdc et tests.mdc
-  * Créer une section Exemple dans chaque fichier
-  * Ajouter des exemples d'utilisation avec [...] pour le contenu dynamique
-  * Ajouter des phrases explicatives pour chaque étape
-  * Positionner la section entre Next Rules et Start Rule
-- Fichiers: implementation.mdc, tests.mdc
-- Dépendances: Aucune
-- Validation: Les exemples sont clairs et suivent le format standard
-
-1.2. [ ] **Ajouter les exemples de contexte** : Créer les sections Exemple pour context-update.mdc et user-preference-saving.mdc
-- Actions:
-  * Lire les fichiers context-update.mdc et user-preference-saving.mdc
-  * Créer une section Exemple dans chaque fichier
-  * Ajouter des exemples d'utilisation avec [...] pour le contenu dynamique
-  * Ajouter des phrases explicatives pour chaque étape
-  * Positionner la section entre Next Rules et Start Rule
-- Fichiers: context-update.mdc, user-preference-saving.mdc
-- Dépendances: Aucune
-- Validation: Les exemples sont clairs et suivent le format standard
-
-1.3. [ ] **Ajouter l'exemple de correction** : Créer la section Exemple pour fix.mdc
-- Actions:
-  * Lire le fichier fix.mdc
-  * Créer une section Exemple
-  * Ajouter un exemple d'utilisation avec [...] pour le contenu dynamique
-  * Ajouter des phrases explicatives pour chaque étape
-  * Positionner la section entre Next Rules et Start Rule
-- Fichiers: fix.mdc
-- Dépendances: Aucune
-- Validation: L'exemple est clair et suit le format standard
 
 ## 2. Validation
-2.1. [ ] **Vérifier la cohérence** : S'assurer que tous les exemples suivent le même format
+
+## 3. Décomposition de la règle test
+3.1. [ ] **Créer test-implementation.mdc** : Créer la nouvelle règle pour la création des tests
 - Actions:
-  * Vérifier chaque fichier de règle
-  * Confirmer l'utilisation de [...] pour le contenu dynamique
-  * Vérifier la position des sections Exemple
-  * Vérifier la présence des phrases explicatives
-- Fichiers: Tous les fichiers .mdc
-- Dépendances: Toutes les tâches de développement
-- Validation: Tous les exemples sont cohérents et suivent le même format
+  * Créer le fichier test-implementation.mdc
+  * Implémenter la structure standard (TLDR, Instructions, Précisions, Next Rules)
+  * Ajouter la logique de création des tests unitaires
+  * Ajouter une section Exemple
+  * Configurer l'appel à test-execution comme seule règle suivante
+- Fichiers: .cursor/rules/test-implementation.mdc
+- Dépendances: Aucune
+- Validation: La règle est créée et suit le format standard
 
-2.2. [ ] **Tester les exemples** : Vérifier que les exemples sont clairs et utiles
+3.2. [ ] **Créer test-execution.mdc** : Créer la nouvelle règle pour l'exécution des tests
 - Actions:
-  * Lire chaque exemple du point de vue d'un nouvel utilisateur
-  * Vérifier que les exemples aident à comprendre l'utilisation
-  * Vérifier que les phrases explicatives sont claires
-  * Identifier les points d'amélioration potentiels
-- Fichiers: Tous les fichiers .mdc
-- Dépendances: Toutes les tâches de développement
-- Validation: Les exemples sont compréhensibles et utiles
+  * Créer le fichier test-execution.mdc
+  * Implémenter la structure standard (TLDR, Instructions, Précisions, Next Rules)
+  * Ajouter la logique d'exécution et d'analyse des tests
+  * Ajouter une section Exemple
+  * Configurer l'appel à fix ou context-update selon les résultats
+- Fichiers: .cursor/rules/test-execution.mdc
+- Dépendances: 3.1
+- Validation: La règle est créée et suit le format standard
 
-# Done
-
-## 1. Préparation des exemples
-1.1. [x] **Analyser l'exemple fourni** : Comprendre la structure et le format de l'exemple donné
-1.2. [x] **Définir le format standard** : Établir un format cohérent pour tous les exemples
-
-## 2. Ajout des exemples - Règles de base
-2.1. [x] **Ajouter l'exemple dans system.mdc** : Ajouter un exemple d'utilisation de la règle system
-2.2. [x] **Ajouter l'exemple dans context-loading.mdc** : Ajouter un exemple d'utilisation de la règle context-loading
-
-## 3. Ajout des exemples - Règles d'analyse
-3.1. [x] **Ajouter l'exemple dans request-analysis.mdc** : Ajouter un exemple d'utilisation de la règle request-analysis
-3.2. [x] **Ajouter l'exemple dans task-decomposition.mdc** : Ajouter un exemple d'utilisation de la règle task-decomposition
-
-## 4. Standardisation des exemples
-4.1. [x] **Standardiser les exemples existants** : Remplacer tout contenu dynamique par [...] dans system.mdc, context-loading.mdc et request-analysis.mdc
-4.2. [x] **Ajouter les phrases explicatives** : Ajouter des phrases que devrait dire le modèle à chaque étape dans les exemples
-4.3. [x] **Repositionner les sections Exemple** : Déplacer la section Exemple entre Next Rules et Start Rule dans toutes les règles
-4.4. [x] **Vérifier les modifications** : Utiliser la commande cat pour s'assurer que les changements sont bien appliqués
-
-## 5. Standardisation des règles
-5.1. [x] **Modifier task-decomposition.mdc** : Adapter la règle pour avoir des sections de plus haut niveau avec des tâches plus détaillées
-5.2. [x] **Vérifier les modifications** : Utiliser la commande cat pour s'assurer que les changements sont bien appliqués
-
-## 6. Développement des règles
-6.1. [x] **Ajouter les exemples de workflow** : Créer les sections Exemple pour implementation.mdc et tests.mdc
-6.2. [x] **Ajouter les exemples de contexte** : Créer les sections Exemple pour context-update.mdc et user-preference-saving.mdc
-6.3. [x] **Ajouter l'exemple de correction** : Créer la section Exemple pour fix.mdc
-
-## 7. Validation
-7.1. [x] **Vérifier la cohérence** : S'assurer que tous les exemples suivent le même format
+3.3. [ ] **Modifier implementation.mdc** : Adapter la règle pour utiliser les nouvelles règles de test
 - Actions:
-  * Vérifier chaque fichier de règle
-  * Confirmer l'utilisation de [...] pour le contenu dynamique
-  * Vérifier la position des sections Exemple
-  * Vérifier la présence des phrases explicatives
+  * Modifier la section Next Rules
+  * Ajouter la logique de choix entre test-implementation et test-execution
+  * Mettre à jour la section Exemple avec les nouveaux cas
+- Fichiers: .cursor/rules/implementation.mdc
+- Dépendances: 3.1, 3.2
+- Validation: La règle est modifiée et utilise correctement les nouvelles règles
+
+3.4. [ ] **Modifier workflow-perdu.mdc** : Mettre à jour les descriptions des règles
+- Actions:
+  * Ajouter les descriptions pour test-implementation et test-execution
+  * Mettre à jour les descriptions existantes si nécessaire
+- Fichiers: .cursor/rules/workflow-perdu.mdc
+- Dépendances: 3.1, 3.2
+- Validation: Les descriptions sont à jour et cohérentes
+
+3.5. [ ] **Modifier system.mdc** : Ajouter l'appel à workflow-perdu
+- Actions:
+  * Ajouter la condition d'appel à workflow-perdu
+  * Mettre à jour la section sur le workflow
+- Fichiers: .cursor/rules/system.mdc
+- Dépendances: 3.4
+- Validation: L'appel à workflow-perdu est correctement configuré
+
+## 4. Tests et validation
+4.1. [ ] **Tester le nouveau workflow** : Vérifier que la décomposition fonctionne
+- Actions:
+  * Tester le passage de implementation à test-implementation
+  * Tester le passage de implementation à test-execution
+  * Tester le passage de test-implementation à test-execution
+  * Tester le passage de test-execution à fix ou context-update
+- Fichiers: Tous les fichiers .mdc modifiés
+- Dépendances: Toutes les tâches de la section 3
+- Validation: Le workflow fonctionne correctement avec les nouvelles règles
+
+4.2. [ ] **Vérifier la cohérence** : S'assurer que toutes les règles sont cohérentes
+- Actions:
+  * Vérifier la cohérence des descriptions dans workflow-perdu
+  * Vérifier la cohérence des sections Exemple
+  * Vérifier la cohérence des Next Rules
+  * Vérifier la cohérence des formats
 - Fichiers: Tous les fichiers .mdc
-- Dépendances: Toutes les tâches de développement
-- Validation: Tous les exemples sont cohérents et suivent le même format 
+- Dépendances: 4.1
+- Validation: Toutes les règles sont cohérentes entre elles
+
+# Done 

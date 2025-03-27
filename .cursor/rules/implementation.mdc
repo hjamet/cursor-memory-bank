@@ -1,5 +1,5 @@
 ---
-description: Implémentation des tâches définies dans une section
+description: Appelle cette règle pour avancer sur les tâches à faire en implémentant les nouvelles fonctionnalités
 globs: 
 alwaysApply: false
 ---
@@ -23,14 +23,15 @@ Implémenter les tâches d'une section prioritaire en suivant une approche méth
    - Marquer les tâches individuelles comme en cours
 
 4. **Appel de la règle suivante** : Appeler obligatoirement la règle suivante:
-   - Évaluer si des tests sont nécessaires pour les fonctionnalités implémentées
-   - Si des tests sont nécessaires, appeler la règle `tests`
-   - Sinon, appeler la règle `context-update`
+   - Si une nouvelle fonctionnalité testable a été créée, appeler la règle `test-implementation`
+   - Sinon, appeler la règle `test-execution` pour vérifier qu'il n'y a pas eu de régression
+
 
 ## Précisions
 - Implémenter une tâche à la fois, dans l'ordre logique
 - Ajouter des commentaires explicatifs pour les parties complexes
 - Dans la phase d'implémentation 2, tu risques d'oublier le workflow en suivant le fil de tes pensées. Pour éviter celà à tout prix, après chaque appel d'outil ou avant chaque reflection de ta part, écris `Implementation - 2.numero.[Nom de la Section] : [Titre de la tâche] en cours...`
+- Une fonctionnalité est considérée comme "testable" si elle implique la création ou la modification d'un script ou d'une fonction
 - Ne JAMAIS sauter l'appel à la règle suivante
 
 ## Next Rules
@@ -40,7 +41,7 @@ Implémenter les tâches d'une section prioritaire en suivant une approche méth
 ## Exemple
 
 fetch_rules ["implementation"]
-<SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `tests` à la fin de mon travail qui s'en chargera.</SYSTEM PROMPT>
+<SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `test-implementation` si j'ai créé une nouvelle fonctionnalité testable, ou à `test-execution` sinon.</SYSTEM PROMPT>
 
 # Implementation : 1 - Analyse des tâches
 Je commence par lire le fichier tasks.md pour identifier la section la plus prioritaire. `(Implementation : 1 - Analyse des tâches)`
@@ -65,11 +66,11 @@ Je mets à jour le fichier tasks.md pour refléter l'avancement des tâches. `(I
 [...mise à jour du fichier tasks.md...]
 `(Implementation : 3 - Mise à jour des tâches)`
 # Implementation : 4 - Appel de la règle suivante
-Je dois maintenant appeler la règle tests pour vérifier les fonctionnalités implémentées.
-La règle tests doit être appelée pour tester les nouvelles fonctionnalités. `(Implementation : 4 - Appel de la règle suivante)`
+Je dois maintenant appeler la règle test-implementation car j'ai créé une nouvelle fonctionnalité testable.
+La règle test-implementation doit être appelée pour créer les tests de la nouvelle fonctionnalité. `(Implementation : 4 - Appel de la règle suivante)`
 
 fetch_rules ["tests"]
 
 # Start Rule
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `tests` à la fin de mon travail qui s'en chargera.</SYSTEM PROMPT>"
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `test-implementation` si j'ai créé une nouvelle fonctionnalité testable, ou à `test-execution` sinon.</SYSTEM PROMPT>"

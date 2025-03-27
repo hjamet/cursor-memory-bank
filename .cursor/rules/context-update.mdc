@@ -1,5 +1,5 @@
 ---
-description: Mise à jour des fichiers de contexte et préparation du commit
+description: Appelle cette règle pour mettre à jour les fichiers de contexte et commiter les changements
 globs: 
 alwaysApply: false
 ---
@@ -101,10 +101,9 @@ Je vérifie s'il reste des tâches à faire ou des tests à corriger. `(Context-
 `(Context-update : 5 - Vérification du workflow)`
 
 # Context-update : 6 - Appel de la règle suivante
-Je dois maintenant appeler la règle implementation car il reste des tâches à faire.
-La règle implementation doit être appelée pour continuer le travail sur les tâches restantes. `(Context-update : 6 - Appel de la règle suivante)`
+Je dois maintenant appeler la règle `fix` car les tests [...] échouent encore. `(Context-update : 6 - Appel de la règle suivante)`
 
-fetch_rules ["implementation"]
+fetch_rules ["fix"]
 
 # Start Rule
 

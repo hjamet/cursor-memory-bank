@@ -1,0 +1,88 @@
+---
+description: Appelle cette règle pour créer les tests unitaires des nouvelles fonctionnalités
+globs: 
+alwaysApply: false
+---
+## TLDR
+Créer des tests unitaires pour les nouvelles fonctionnalités implémentées en suivant les meilleures pratiques de test.
+
+## Instructions
+
+1. **Analyse des fonctionnalités** : Identifier les fonctionnalités à tester parmi les nouvelles implémentations:
+   - Examiner les fichiers modifiés ou créés
+   - Identifier les comportements attendus
+   - Lister les cas de test nécessaires
+   - Entre chaque appel d'outil, écris `Test-implementation - 1.[Nom de la fonctionnalité] en cours...` pour ne pas perdre te perdre dans le fil de tes pensées et oublier le workflow.
+
+2. **Création des tests** : Pour chaque fonctionnalité:
+   - Créer un fichier de test dans le dossier `tests/`
+   - Implémenter les tests unitaires pour le comportement normal
+   - Ajouter des tests pour les cas limites simples
+   - Entre chaque appel d'outil, écris `Test-implementation - 2.[Nom du test] en cours...` pour ne pas perdre te perdre dans le fil de tes pensées et oublier le workflow.
+
+3. **Appel de la règle suivante** : Appeler obligatoirement la règle `test-execution` pour exécuter les tests créés.
+
+## Précisions
+- Créer des tests qui vérifient le comportement attendu, pas l'implémentation
+- Utiliser des noms de test descriptifs qui expliquent ce qui est testé
+- Inclure du logging en utilisant le fichier src/utils/logger.py si le code est en Python
+- Ne JAMAIS sauter l'appel à la règle suivante
+- Dans les phases 1 et 2, tu risques d'oublier le workflow en suivant le fil de tes pensées. Pour éviter celà à tout prix, après chaque appel d'outil ou avant chaque reflection de ta part, écris `Test-implementation - [numéro].[Nom] en cours...`
+
+## Format pour les fichiers de test
+```python
+"""
+Test [Nom de la fonctionnalité]
+
+Ce fichier contient les tests pour [description de la fonctionnalité].
+
+Prérequis:
+- [Prérequis 1]
+- [Prérequis 2]
+
+Exécution:
+[Comment exécuter les tests]
+
+Résultats attendus:
+- [Résultat attendu 1]
+- [Résultat attendu 2]
+"""
+
+def test_comportement_normal():
+    """Test du comportement normal de la fonctionnalité."""
+    [...]
+
+def test_cas_limite():
+    """Test d'un cas limite spécifique."""
+    [...]
+```
+
+## Next Rules
+- `test-execution` - Pour exécuter les tests créés et analyser les résultats
+
+## Exemple
+
+fetch_rules ["test-implementation"]
+<SYSTEM PROMPT>Je vais créer des tests unitaires pour les nouvelles fonctionnalités en suivant les meilleures pratiques. Je me concentrerai sur la création des tests sans les exécuter, laissant cette tâche à la règle test-execution. Je m'assurerai que les tests sont bien documentés et couvrent les cas importants.</SYSTEM PROMPT>
+
+# Test-implementation : 1 - Analyse des fonctionnalités
+Je commence par identifier les fonctionnalités à tester. `(Test-implementation : 1 - Analyse des fonctionnalités)`
+[...analyse des fichiers modifiés...]
+`(Test-implementation : 1 - Analyse des fonctionnalités)`
+
+# Test-implementation : 2 - Création des tests
+Je vais créer les tests pour chaque fonctionnalité identifiée. `(Test-implementation : 2 - Création des tests)`
+[...création du premier fichier de test...]
+`(Test-implementation : 2 - Création des tests)`
+[...création du second fichier de test...]
+`(Test-implementation : 2 - Création des tests)`
+
+# Test-implementation : 3 - Appel de la règle suivante
+Je dois maintenant appeler la règle test-execution pour exécuter les tests.
+La règle test-execution doit être appelée pour exécuter et analyser les tests. `(Test-implementation : 4 - Appel de la règle suivante)`
+
+fetch_rules ["test-execution"]
+
+# Start Rule
+
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais créer des tests unitaires pour les nouvelles fonctionnalités en suivant les meilleures pratiques. Je me concentrerai sur la création des tests sans les exécuter, laissant cette tâche à la règle test-execution. Je m'assurerai que les tests sont bien documentés et couvrent les cas les plus importants.</SYSTEM PROMPT>"

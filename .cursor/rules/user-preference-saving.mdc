@@ -1,5 +1,5 @@
 ---
-description: Identification et sauvegarde des préférences utilisateur
+description: Appelle cette règle pour enregistrer des préférences de l'utilisateur pour l'implémentation et le code.
 globs: 
 alwaysApply: false
 ---

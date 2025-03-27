@@ -1,5 +1,5 @@
 ---
-description: Décomposition de la requête en tâches spécifiques et organisées
+description: Appelle cette règle pour structurer la requête de l'utilisateur en tâches concrètes et mesurables sauvegardées.
 globs: 
 alwaysApply: false
 ---

@@ -1,5 +1,5 @@
 ---
-description: Analyse et correction des erreurs détectées lors des tests
+description: Appelle cette règle pour implémenter les corrections nécessaires aux problèmes identifiés par les tests
 globs: 
 alwaysApply: false
 ---

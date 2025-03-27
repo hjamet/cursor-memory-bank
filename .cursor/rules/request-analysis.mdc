@@ -1,5 +1,5 @@
 ---
-description: Analyse approfondie de la requête utilisateur et du code existant
+description: Appelle cette règle pour analyser en détail la requête de l'utilisateur et la situer par rapport aux objectifs du projet
 globs: 
 alwaysApply: false
 ---

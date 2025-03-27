@@ -1,5 +1,5 @@
 ---
-description: Chargement du contexte du projet et préparation de l'environnement de travail
+description: Appelle cette règle pour en apprendre d'avantage sur les objectifs et le contexte général du projet
 globs: 
 alwaysApply: false
 ---
