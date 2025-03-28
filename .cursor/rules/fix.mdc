@@ -1,8 +1,8 @@
----  
+---
 description: Appelle cette règle pour implémenter les corrections nécessaires aux problèmes identifiés par les tests  
-globs:   
-alwaysApply: false  
----  
+globs: 
+alwaysApply: false
+---
 
 ## TLDR  
 Analyser les erreurs de test, créer des tâches de correction et documenter les problèmes spécifiques aux bibliothèques/frameworks.  

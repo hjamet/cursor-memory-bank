@@ -1,8 +1,8 @@
----  
+---
 description: Appelle cette règle pour analyser en détail la requête de l'utilisateur et la situer par rapport aux objectifs du projet  
-globs:   
-alwaysApply: false  
----  
+globs: 
+alwaysApply: false
+---
 
 ## TLDR  
 Analyser la requête utilisateur, explorer le code existant et rechercher des informations complémentaires pour préparer l'implémentation.  

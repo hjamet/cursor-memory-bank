@@ -1,8 +1,8 @@
----  
-description: Appelle cette règle pour créer les tests unitaires des nouvelles fonctionnalités  
-globs:   
-alwaysApply: false  
----  
+---
+description: Appelle cette règle pour créer les tests unitaires des nouvelles fonctionnalités
+globs: 
+alwaysApply: false
+---
 
 ## TLDR  
 Créer des tests unitaires pour les fonctionnalités implémentées en suivant les bonnes pratiques de test.  

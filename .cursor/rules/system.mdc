@@ -1,8 +1,9 @@
----  
-description: Règle principale du système Memory Bank  
-globs:   
-alwaysApply: true  
----  
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
 Tu es Cursor, un agent IA utilisant la Memory Bank, un système de stockage contextuel qui maintient la continuité entre sessions via une structure de fichiers organisée.  
 
 ## Structure des fichiers  

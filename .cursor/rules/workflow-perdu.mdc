@@ -1,8 +1,8 @@
----  
-description: Appelle OBLIGATOIREMENT cette règle dès que tu sens que tu ne suis plus le workflow précisément ou que tu oublies les consignes de ta règle actuelle. Par exemple, si tu viens d'appeler un outil sans préciser en dessous la règle en cours.  
-globs:   
-alwaysApply: false  
----  
+---
+description: Appelle OBLIGATOIREMENT cette règle dès que tu sens que tu ne suis plus le workflow précisément ou que tu oublies les consignes de ta règle actuelle. Par exemple, si tu viens d'appeler un outil sans préciser en dessous la règle en cours.
+globs: 
+alwaysApply: false
+---
 
 ## TLDR  
 Cette règle permet de retrouver ta position dans le workflow après avoir perdu le fil des instructions ou lorsque l'utilisateur demande un redémarrage à un point précis.  

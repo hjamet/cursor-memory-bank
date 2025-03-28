@@ -1,8 +1,8 @@
----  
+---
 description: Appelle cette règle pour implémenter les tâches prioritaires du projet  
-globs:   
-alwaysApply: false  
----  
+globs: 
+alwaysApply: false
+---
 
 ## TLDR  
 Implémenter méthodiquement les tâches d'une section prioritaire et documenter le processus.  

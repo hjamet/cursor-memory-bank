@@ -1,8 +1,8 @@
----  
-description: Appelle cette règle pour exécuter les tests unitaires et analyser les résultats  
-globs:   
-alwaysApply: false  
----  
+---
+description: Appelle cette règle pour exécuter les tests unitaires et analyser les résultats
+globs: 
+alwaysApply: false
+---
 
 ## TLDR  
 Exécuter les tests unitaires, analyser les résultats et documenter les succès et échecs dans tests.md.  
