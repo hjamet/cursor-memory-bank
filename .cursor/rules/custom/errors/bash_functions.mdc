@@ -181,4 +181,59 @@ alwaysApply: false
 2. Use proper URL encoding for special characters
 3. Handle both HTTP and local file URLs
 4. Provide clear error messages for URL-related failures
-5. Test with both local and remote URLs 
+5. Test with both local and remote URLs
+
+## Problème: Interférence entre tests consécutifs
+- ❌ **Incorrect**: Exécuter des tests sans nettoyer complètement l'environnement entre chaque test
+  ```bash
+  test_first() {
+    mkdir -p "$TEST_DIR"
+    # Test qui crée des fichiers...
+  }
+  
+  test_second() {
+    # Test qui vérifie l'absence de certains fichiers
+    if ls -d "$TEST_DIR/*.bak" &>/dev/null; then
+      log_error "Files found when they shouldn't be"
+    fi
+  }
+  ```
+- ✅ **Correct**: Nettoyer complètement l'environnement ou utiliser des répertoires distincts pour chaque test
+  ```bash
+  test_first() {
+    local test_specific_dir="$TEST_DIR/test1"
+    mkdir -p "$test_specific_dir"
+    # Test qui crée des fichiers...
+  }
+  
+  test_second() {
+    local test_specific_dir="$TEST_DIR/test2"
+    mkdir -p "$test_specific_dir"
+    # Test qui vérifie l'absence de certains fichiers
+    if ls -d "$test_specific_dir/*.bak" &>/dev/null; then
+      log_error "Files found when they shouldn't be"
+    fi
+  }
+  ```
+
+## Problème: Création implicite de backups
+- ❌ **Incorrect**: Créer des backups dans plusieurs fonctions sans contrôle centralisé
+  ```bash
+  install_rules() {
+    # Cette fonction crée des backups sans respecter l'option DO_BACKUP
+    cp -r "$source" "$dest.bak"  # Crée toujours un backup
+  }
+  ```
+- ✅ **Correct**: Centraliser la logique de backup dans une seule fonction
+  ```bash
+  make_backup() {
+    if [[ -n "${DO_BACKUP:-}" ]]; then
+      cp -r "$source" "$dest.bak"
+    fi
+  }
+  
+  install_rules() {
+    # Utilise la fonction centralisée
+    make_backup "$source" "$dest"
+  }
+  ``` 
