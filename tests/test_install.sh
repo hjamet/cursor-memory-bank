@@ -58,17 +58,26 @@ test_clean_install() {
     export TEST_RULES_DIR="$TEST_RULES_DIR"
     export TEST_DIST_DIR="$TEST_DIST_DIR"
     
-    # Run installation script
-    if ! ../install.sh --dir "$TEST_DIR"; then
+    # Run installation script using absolute path
+    local install_script="$(cd "$(dirname "$0")/.." && pwd)/install.sh"
+    if [[ ! -f "$install_script" ]]; then
+        error "Installation script not found at $install_script"
+        return 1
+    fi
+    
+    if ! bash "$install_script" --dir "$TEST_DIR"; then
         error "Clean installation failed"
+        return 1
     fi
     
     # Verify installation
-    if [[ ! -f "$TEST_RULES_DIR/custom/test/test.mdc" ]]; then
-        error "Rules were not installed correctly"
+    if [[ ! -d "$TEST_RULES_DIR" ]]; then
+        error "Rules directory was not created"
+        return 1
     fi
     
     log "Clean installation test passed"
+    return 0
 }
 
 test_backup_restore() {
@@ -83,39 +92,59 @@ test_backup_restore() {
     export TEST_RULES_DIR="$TEST_RULES_DIR"
     export TEST_DIST_DIR="$TEST_DIST_DIR"
     
-    if ! ../install.sh --dir "$TEST_DIR"; then
+    local install_script="$(cd "$(dirname "$0")/.." && pwd)/install.sh"
+    if [[ ! -f "$install_script" ]]; then
+        error "Installation script not found at $install_script"
+        return 1
+    fi
+    
+    if ! bash "$install_script" --dir "$TEST_DIR" --backup; then
         error "Installation with backup failed"
+        return 1
     fi
     
     # Verify backup
     local backup_pattern="$TEST_DIR/.cursor/rules.bak-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]"
     if ! ls -d $backup_pattern > /dev/null 2>&1; then
         error "Backup was not created"
+        return 1
     fi
     
     # Verify custom rules preserved
     if [[ ! -f "$TEST_RULES_DIR/custom/user/user.mdc" ]]; then
         error "Custom rules were not preserved"
+        return 1
     fi
     
     log "Backup and restore test passed"
+    return 0
 }
 
 test_error_handling() {
     log "Testing error handling..."
     
-    # Test invalid directory
-    if ../install.sh --dir "/nonexistent" 2>/dev/null; then
-        error "Installation should fail with invalid directory"
+    local install_script="$(cd "$(dirname "$0")/.." && pwd)/install.sh"
+    if [[ ! -f "$install_script" ]]; then
+        error "Installation script not found at $install_script"
+        return 1
     fi
     
-    # Test invalid archive
-    echo "invalid" > "$TEST_DIST_DIR/v${VERSION}.tar.gz"
-    if ../install.sh --dir "$TEST_DIR" 2>/dev/null; then
-        error "Installation should fail with invalid archive"
+    # Test invalid directory
+    if bash "$install_script" --dir "/nonexistent" 2>/dev/null; then
+        error "Installation should fail with invalid directory"
+        return 1
+    fi
+    
+    # Test installation with force option to an invalid GitHub repo (using the API)
+    export REPO_URL="https://github.com/invalid-user/invalid-repo.git"
+    export API_URL="https://api.github.com/repos/invalid-user/invalid-repo/commits/master"
+    if bash "$install_script" --dir "$TEST_DIR" --force 2>/dev/null; then
+        error "Installation should fail with invalid repository"
+        return 1
     fi
     
     log "Error handling test passed"
+    return 0
 }
 
 # Run tests

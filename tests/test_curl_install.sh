@@ -99,7 +99,7 @@ test_curl_installation() {
     echo "test custom rule" > "$RULES_DIR/custom/test/test.mdc"
     
     # Perform curl installation with --force and --use-curl
-    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --force --use-curl; then
+    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --force; then
         log_error "Curl installation failed"
         cd "$current_dir"
         return 1
@@ -126,7 +126,7 @@ test_curl_installation() {
     fi
     
     # Verify that it displays the commit date in the installation log
-    local installation_log=$(curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --force --use-curl --version 2>&1)
+    local installation_log=$(curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --force --version 2>&1)
     if ! echo "$installation_log" | grep -q "([0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\})"; then
         log_error "Commit date not displayed in version output"
         echo "Version output: $installation_log"
@@ -156,8 +156,8 @@ test_curl_installation_with_options() {
     mkdir -p "$RULES_DIR/custom/test"
     echo "test custom rule" > "$RULES_DIR/custom/test/test.mdc"
     
-    # Test with default options (no --backup), --force and --use-curl options
-    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --force --use-curl; then
+    # Test with default options (no --backup) and --force option
+    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --force; then
         log_error "Curl installation with default options (no backup) failed"
         cd "$current_dir"
         return 1

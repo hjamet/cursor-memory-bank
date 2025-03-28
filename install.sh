@@ -9,8 +9,10 @@ set -o pipefail  # Exit on pipe failure
 
 # Constants
 REPO_URL="https://github.com/hjamet/cursor-memory-bank.git"
-ARCHIVE_URL="https://github.com/hjamet/cursor-memory-bank/archive/refs/heads/master.tar.gz"
+# ARCHIVE_URL was used to download a tarball of the repository. We now use git or the GitHub API directly.
+# ARCHIVE_URL="https://github.com/hjamet/cursor-memory-bank/archive/refs/heads/master.tar.gz"
 API_URL="https://api.github.com/repos/hjamet/cursor-memory-bank/commits/master"
+RAW_URL_BASE="https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master"
 DEFAULT_RULES_DIR=".cursor/rules"
 RULES_DIR="${TEST_RULES_DIR:-$DEFAULT_RULES_DIR}"
 TEMP_DIR="/tmp/cursor-memory-bank-$$"
@@ -152,7 +154,8 @@ download_file() {
     esac
 }
 
-# Curl download function
+# Curl download function - No longer used in main code, kept for testing compatibility
+# Use download_file instead for individual files
 download_archive() {
     local url="$1"
     local dest="$2"
@@ -234,7 +237,7 @@ install_rules() {
     local temp_dir="$2"
     local rules_path="$target_dir/$RULES_DIR"
     local clone_dir="$temp_dir/repo"
-    local archive_dir="$temp_dir/archive"
+    local api_dir="$temp_dir/api-files"
     local commit_date=""
 
     log "Installing rules to $rules_path"
@@ -246,32 +249,68 @@ install_rules() {
         else
             log "Using curl (git not available)"
         fi
-        local archive_file="$temp_dir/archive.tar.gz"
-        download_archive "$ARCHIVE_URL" "$archive_file"
         
-        # Get commit date
+        # Get commit date from API
         commit_date=$(get_last_commit_date "curl")
         log "Installing rules from master branch (latest commit: $commit_date)"
 
-        # Extract archive
-        log "Extracting archive"
-        if ! mkdir -p "$archive_dir" || ! tar -xzf "$archive_file" -C "$archive_dir" --strip-components=1; then
-            error "Failed to extract archive. Please check disk space and permissions."
+        # Create API directory
+        mkdir -p "$api_dir/rules"
+        
+        # Get the list of files from rules/ and .cursor/rules/ directories using the GitHub API
+        local api_response
+        api_response=$(curl -s "https://api.github.com/repos/hjamet/cursor-memory-bank/contents/" 2>/dev/null)
+        
+        # Check for "rules" directory in repository root
+        if echo "$api_response" | grep -q '"name": "rules"'; then
+            # Download files from rules/ directory
+            log "Downloading files from rules/ directory"
+            local rules_api_response
+            rules_api_response=$(curl -s "https://api.github.com/repos/hjamet/cursor-memory-bank/contents/rules" 2>/dev/null)
+            
+            # Extract file paths and download each file
+            local files
+            files=$(echo "$rules_api_response" | grep -o '"path": "[^"]*"' | sed 's/"path": "\(.*\)"/\1/')
+            for file in $files; do
+                local file_url="$RAW_URL_BASE/$file"
+                local dest_file="$api_dir/$file"
+                log "Downloading $file"
+                # Create directory if it doesn't exist
+                mkdir -p "$(dirname "$dest_file")"
+                download_file "$file_url" "$dest_file"
+            done
         fi
-
-        # Check for rules directory in both possible locations
-        if [[ -d "$archive_dir/rules" ]]; then
-            log "Found rules in rules/ directory"
-            if ! cp -r "$archive_dir/rules/"* "$rules_path/"; then
-                error "Failed to copy rules from rules/ directory. Please check disk space and permissions."
-            fi
-        elif [[ -d "$archive_dir/.cursor/rules" ]]; then
-            log "Found rules in .cursor/rules/ directory"
-            if ! cp -r "$archive_dir/.cursor/rules/"* "$rules_path/"; then
-                error "Failed to copy rules from .cursor/rules/ directory. Please check disk space and permissions."
+        
+        # Check for ".cursor/rules" directory
+        local cursor_api_response
+        cursor_api_response=$(curl -s "https://api.github.com/repos/hjamet/cursor-memory-bank/contents/.cursor" 2>/dev/null)
+        if echo "$cursor_api_response" | grep -q '"name": "rules"'; then
+            # Download files from .cursor/rules/ directory
+            log "Downloading files from .cursor/rules/ directory"
+            local cursor_rules_api_response
+            cursor_rules_api_response=$(curl -s "https://api.github.com/repos/hjamet/cursor-memory-bank/contents/.cursor/rules" 2>/dev/null)
+            
+            # Extract file paths and download each file
+            local cursor_files
+            cursor_files=$(echo "$cursor_rules_api_response" | grep -o '"path": "[^"]*"' | sed 's/"path": "\(.*\)"/\1/')
+            for file in $cursor_files; do
+                local file_url="$RAW_URL_BASE/$file"
+                local dest_file="$api_dir/rules/$(basename "$file")"
+                log "Downloading $file"
+                # Create directory if it doesn't exist
+                mkdir -p "$(dirname "$dest_file")"
+                download_file "$file_url" "$dest_file"
+            done
+        fi
+        
+        # Copy downloaded files to the target directory
+        if [[ -d "$api_dir/rules" ]]; then
+            log "Copying rules from downloaded files"
+            if ! cp -r "$api_dir/rules/"* "$rules_path/"; then
+                error "Failed to copy rules from downloaded files. Please check disk space and permissions."
             fi
         else
-            error "Invalid archive structure: neither rules/ nor .cursor/rules/ directory found"
+            error "No rules found in the repository"
         fi
     else
         # Use git clone
