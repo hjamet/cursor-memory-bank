@@ -1,145 +1,61 @@
----
-description: Appelle cette règle pour en apprendre d'avantage sur les objectifs et le contexte général du projet
-globs: 
-alwaysApply: false
----
-## TLDR
-Charger ou créer les fichiers de contexte du projet pour établir une compréhension solide de l'environnement de travail.
+---  
+description: Appelle cette règle pour charger les objectifs et le contexte général du projet  
+globs:   
+alwaysApply: false  
+---  
+## TLDR  
+Charger ou créer les fichiers de contexte du projet pour établir l'environnement de travail.  
 
-## Instructions
-1. **Lecture du contexte** : Tenter de lire les fichiers de contexte existants:
-   - `.cursor/memory-bank/context/projectbrief.md`
-   - `.cursor/memory-bank/context/activeContext.md`
-   - `.cursor/memory-bank/context/techContext.md`
+## Instructions  
+1. **Lecture des fichiers** : Lire les fichiers de contexte existants :  
+   - `.cursor/memory-bank/context/projectBrief.md`  
+   - `.cursor/memory-bank/context/activeContext.md`  
+   - `.cursor/memory-bank/context/techContext.md`  
 
-2. **Initialisation du contexte** : Si les fichiers n'existent pas:
-   - Parcourir le projet pour comprendre sa structure et son objectif
-   - Créer le dossier `.cursor/memory-bank/context/` si nécessaire
-   - Créer les fichiers manquants avec une structure appropriée
-   - Crée le fichier `userbrief.md` via la commande "touch .cursor/memory-bank/userbrief.md"
+2. **Initialisation du contexte** : Si absents :  
+   - Analyser la structure et les objectifs du projet  
+   - Créer le dossier `.cursor/memory-bank/context/` si nécessaire  
+   - Initialiser les fichiers manquants avec structure appropriée  
+   - Créer `userbrief.md` via "touch .cursor/memory-bank/userbrief.md"  
 
-3. **Reformulation de la requête** : Reformuler la question ou l'instruction de l'utilisateur en la situant dans le contexte général du projet
+3. **Reformulation de la requête** : Reformuler l'instruction utilisateur dans le contexte projet  
 
-4. **Appel de la règle suivante** : Appeler la règle `request-analysis` pour analyser la requête de l'utilisateur en détail
+4. **Appel de la règle suivante** : Appeler `request-analysis` pour analyser la requête
 
-## Précisions
-- Les fichiers de contexte doivent être concis mais complets
-- `projectbrief.md` doit contenir la vision globale et les objectifs du projet
-- `activeContext.md` doit décrire l'état actuel du développement et les tâches en cours
-- `techContext.md` doit lister les technologies, frameworks et dépendances utilisés
-- `.cursor/memory-bank/userbrief.md` doit être créé vide ou laissé tel quel si il existait déjà.
-- Utiliser des recherches sémantiques pour explorer le projet si nécessaire
-- Créer une structure claire avec des titres et sous-titres dans les fichiers
-- ⚠️ IMPORTANT: Se limiter strictement aux trois fichiers de contexte mentionnés dans l'instruction 1
-- ⚠️ IMPORTANT: Ne PAS lire le fichier tasks.md ou tout autre fichier du dossier workflow pendant cette règle
+## Précisions  
+- Fichiers concis mais complets  
+- `projectBrief.md` : vision et objectifs du projet  
+- `activeContext.md` : état actuel, développement et tâches en cours  
+- `techContext.md` : technologies, frameworks et dépendances  
+- `.cursor/memory-bank/userbrief.md` : créer vide ou conserver tel quel  
+- Utiliser recherches sémantiques si nécessaire  
+- Structurer avec titres et sous-titres  
+- ⚠️ IMPORTANT : Se limiter aux trois fichiers de contexte listés en étape 1  
+- ⚠️ IMPORTANT : Ne PAS consulter tasks.md ou autres fichiers du dossier workflow  
 
-## Templates pour les fichiers de contexte
+## Next Rules  
+- `request-analysis` - Pour analyser en détail la requête de l'utilisateur  
 
-### Template pour projectbrief.md
-```
-# Présentation du Projet
+## Exemple  
 
-## Vision
-[Description concise de la vision globale du projet]
+fetch_rules ["context-loading"]  
+<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectBrief.md, activeContext.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais appellerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>  
 
-## Objectifs
-- [Objectif principal 1]
-- [Objectif principal 2]
-- [Objectif principal 3]
+# Context-loading : 1 - Lecture des fichiers de contexte  
+Je commence par lire les trois fichiers de contexte pour comprendre l'environnement du projet. `(Context-loading : 1 - Lecture des fichiers de contexte)`  
+[...lecture des fichiers projectBrief.md, activeContext.md et techContext.md...]  
+`(Context-loading : 1 - Lecture des fichiers de contexte)`  
 
-## Contraintes
-- [Contrainte 1]
-- [Contrainte 2]
+# Context-loading : 3 - Reformulation de la requête  
+Je reformule la requête de l'utilisateur en tenant compte du contexte du projet. `(Context-loading : 3 - Reformulation de la requête)`  
+[...analyse de la requête utilisateur dans le contexte du projet...] `(Context-loading : 3 - Reformulation de la requête)`  
 
-## Parties Prenantes
-- [Partie prenante 1]: [Rôle/Intérêt]
-- [Partie prenante 2]: [Rôle/Intérêt]
+# Context-loading : 4 - Appel de la règle suivante  
+Je dois maintenant appeler la règle request-analysis pour analyser la requête en détail.  
+La règle request-analysis doit être appelée pour analyser la requête de l'utilisateur en détail. `(Context-loading : 4 - Appel de la règle suivante)`  
 
-## Historique et Contexte
-[Bref historique du projet et contexte de création]
+fetch_rules ["request-analysis"]  
 
-## Métriques de Succès
-- [Métrique 1]
-- [Métrique 2]
-```
+# Start Rule  
 
-### Template pour activeContext.md
-```
-# Contexte Actif
-
-## Focus Actuel
-[Description du focus de développement actuel]
-
-## Problèmes en Cours
-- [Problème 1]: [Description]
-- [Problème 2]: [Description]
-
-## Décisions Récentes
-- [Date] - [Décision]: [Justification]
-- [Date] - [Décision]: [Justification]
-
-## Prochaines Étapes
-- [Étape 1]
-- [Étape 2]
-
-## Notes Importantes
-[Informations critiques à garder à l'esprit]
-```
-
-### Template pour techContext.md
-```
-# Contexte Technique
-
-## Pile Technologique
-- **Langages**: [Liste des langages utilisés]
-- **Frameworks**: [Liste des frameworks]
-- **Bibliothèques**: [Bibliothèques principales]
-- **Outils**: [Outils de développement]
-
-## Architecture
-[Description concise de l'architecture du projet]
-
-## Environnement de Développement
-- **Configuration requise**: [Prérequis]
-- **Installation**: [Étapes d'installation]
-
-## Conventions de Code
-- [Convention 1]
-- [Convention 2]
-
-## Dépendances Externes
-- [Dépendance 1]: [Version] - [Utilité]
-- [Dépendance 2]: [Version] - [Utilité]
-
-## Intégrations
-- [Intégration 1]: [Description]
-- [Intégration 2]: [Description]
-```
-
-## Next Rules
-- `request-analysis` - Pour analyser en détail la requête de l'utilisateur
-- `user-preference-saving` - Pour enregistrer des préférences utilisateur détectées
-
-## Exemple
-
-fetch_rules ["context-loading"]
-<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectbrief.md, projectbrief.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais eppelerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>
-
-# Context-loading : 1 - Lecture des fichiers de contexte
-Je commence par lire les trois fichiers de contexte pour comprendre l'environnement du projet. `(Context-loading : 1 - Lecture du contexte)`
-[...lecture des fichiers projectbrief.md, activeContext.md et techContext.md...]
-`(Context-loading : 1 - Lecture du contexte)`
-
-# Context-loading : 3 - Reformulation de la requête
-Je reformule la requête de l'utilisateur en tenant compte du contexte du projet. `(Context-loading : 3 - Reformulation de la requête)`
-[...analyse de la requête utilisateur dans le contexte du projet...] `(Context-loading : 3 - Reformulation de la requête)`
-
-# Context-loading : 4 - Appel de la règle suivante
-Je dois maintenant appeler la règle request-analysis pour analyser la requête en détail.
-La règle request-analysis doit être appelée pour analyser la requête de l'utilisateur en détail. `(Context-loading : 4 - Appel de la règle suivante)`
-
-fetch_rules ["request-analysis"]
-
-# Start Rule
-
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectbrief.md, projectbrief.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais eppelerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>"
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectBrief.md, activeContext.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais appellerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>"  

@@ -1,102 +1,68 @@
----
-description: Appelle cette règle pour structurer la requête de l'utilisateur en tâches concrètes et mesurables sauvegardées.
-globs: 
-alwaysApply: false
----
-## TLDR
-Décomposer la requête de l'utilisateur en tâches concrètes et les organiser dans le fichier tasks.md par sections logiques numérotées.
+---  
+description: Appelle cette règle pour structurer la requête en tâches concrètes et mesurables  
+globs:   
+alwaysApply: false  
+---  
 
-## Instructions
+## TLDR  
+Décomposer la requête utilisateur en tâches concrètes et les organiser dans tasks.md par sections logiques numérotées.  
 
-1. **Analyse des tâches existantes** : Lire le fichier `.cursor/memory-bank/workflow/tasks.md` s'il existe
+## Instructions  
 
-2. **Suppression des tâches terminées** : Supprimer les tâches terminées qui n'ont plus de lien avec le travail actuel
+1. **Analyse des tâches existantes** : Lire le fichier `.cursor/memory-bank/workflow/tasks.md` s'il existe  
 
-3. **Intégration des nouvelles tâches** : Ajouter les nouvelles tâches issues de l'analyse de la requête au fichier tasks.md
-   - Créer des sections de très haut niveau (ex: "Préparation", "Développement", "Validation")
-   - Numéroter les sections par ordre croissant de résolution optimale (1., 2., 3., etc.)
-   - Sous-numéroter les tâches dans chaque section (1.1, 1.2, 2.1, 2.2, etc.)
-   - Détailler chaque tâche avec:
-     * Un titre clair et concis
-     * Une description complète des actions à effectuer
-     * Les fichiers ou composants impactés
-     * Les dépendances avec d'autres tâches
-     * Les critères de validation
-   - Prioriser les tâches selon:
-     * Leur importance pour le projet
-     * Leurs dépendances techniques
-     * L'impact sur les autres tâches
-     * La complexité de mise en œuvre
+2. **Suppression des tâches terminées** : Éliminer les tâches terminées sans lien avec le travail actuel  
 
-4. **Appel de la règle suivante** : Appeler obligatoirement la règle suivante:
-   - Si la requête nécessite plusieurs étapes, appeler la règle `task-decomposition`
-   - Sinon, appeler la règle `implementation`
+3. **Intégration des nouvelles tâches** : Structurer les tâches dans tasks.md  
+   - Créer 3-4 sections de très haut niveau maximum (ex: "Préparation", "Développement")  
+   - Numéroter sections par ordre de résolution (1., 2., 3.)  
+   - Sous-numéroter les tâches (1.1, 1.2, 2.1, 2.2)  
+   - Chaque tâche doit inclure :  
+     * Titre concis  
+     * Description complète  
+     * Fichiers/composants impactés  
+     * Dépendances  
+     * Critères de validation  
+   - Prioriser selon importance, dépendances, impact et complexité  
 
-## Précisions
-- Créer un maximum de 3-4 sections de très haut niveau pour garder une vue d'ensemble claire
-- Regrouper toutes les tâches similaires dans ces sections, même si elles semblent différentes au premier abord
-- Détailler chaque tâche de manière exhaustive plutôt que de créer de nouvelles sections
-- Privilégier des sections génériques qui peuvent accueillir différents types de tâches
-- Utiliser des descriptions détaillées qui permettent de comprendre exactement ce qui doit être fait
-- IMPORTANT: Organiser les sections et tâches de manière à minimiser les dépendances entre elles
+4. **Appel de la règle suivante** : Appeler obligatoirement `implementation`  
 
-## Format de tasks.md
-```
-# In Progress
+## Précisions  
+- Regrouper les tâches similaires, même si apparemment différentes  
+- Privilégier descriptions détaillées plutôt que multiplication de sections  
+- Utiliser sections génériques pouvant accueillir différents types de tâches  
+- Minimiser les dépendances entre sections/tâches  
+- Le format du fichier tasks.md est défini dans la règle d'édition tasks-md  
 
-## 1. [Section de Très Haut Niveau]
-1.1. [ ] **[Titre Concis]** : [Description détaillée]
-- Actions: [Liste des actions à effectuer]
-- Fichiers: [Liste des fichiers impactés]
-- Dépendances: [Liste des tâches dont celle-ci dépend]
-- Validation: [Critères de validation]
+## Next Rules  
+- `implementation` - Pour commencer l'implémentation des tâches  
 
-1.2. [ ] **[Titre Concis]** : [Description détaillée]
-[...]
+## Exemple  
 
-## 2. [Section de Très Haut Niveau]
-2.1. [ ] **[Titre Concis]** : [Description détaillée]
-[...]
+fetch_rules ["task-decomposition"]  
+<SYSTEM PROMPT>Je vais décomposer la requête en tâches concrètes, supprimer les tâches terminées non pertinentes et organiser le tout en sections logiques numérotées. Je ne tenterai pas d'appliquer ces tâches mais ferai appel à la règle `implementation` pour s'en charger.</SYSTEM PROMPT>  
 
-# ToDo
+# Task-decomposition : 1 - Analyse des tâches existantes  
+Je commence par lire le fichier tasks.md pour comprendre l'état actuel des tâches. `(Task-decomposition : 1 - Analyse des tâches existantes)`  
+[...lecture du fichier tasks.md...]  
+`(Task-decomposition : 1 - Analyse des tâches existantes)`  
 
-[...]
+# Task-decomposition : 2 - Suppression des tâches terminées  
+Je supprime les tâches terminées qui ne sont plus pertinentes pour le travail en cours. `(Task-decomposition : 2 - Suppression des tâches terminées)`  
+[...suppression des tâches obsolètes...]  
+`(Task-decomposition : 2 - Suppression des tâches terminées)`  
 
-# Done
+# Task-decomposition : 3 - Intégration des nouvelles tâches  
+Je décompose la requête en tâches concrètes et les organise en sections de haut niveau. `(Task-decomposition : 3 - Intégration des nouvelles tâches)`  
+[...organisation des tâches en sections...]  
+`(Task-decomposition : 3 - Intégration des nouvelles tâches)`  
 
-[...]
-```
+# Task-decomposition : 4 - Appel de la règle suivante  
+Je dois maintenant appeler la règle implementation pour commencer le travail sur les tâches.  
+La règle implementation doit être appelée pour commencer l'implémentation des tâches. `(Task-decomposition : 4 - Appel de la règle suivante)`  
 
-## Next Rules
-- `implementation` - Pour commencer l'implémentation des tâches
+fetch_rules ["implementation"]  
 
-## Exemple
+# Start Rule  
 
-fetch_rules ["task-decomposition"]
-<SYSTEM PROMPT>Je vais décomposer la requête en tâches concrètes, supprimer les tâches terminées non pertinentes et organiser le tout en sections logiques numérotées. Je ne tenterai pas d'appliquer ces tâches mais ferai appel à la règle `implementation` pour s'en charger.</SYSTEM PROMPT>
-
-# Task-decomposition : 1 - Lecture du fichier tasks.md
-Je commence par lire le fichier tasks.md pour comprendre l'état actuel des tâches. `(Task-decomposition : 1 - Lecture du fichier tasks.md)`
-[...lecture du fichier tasks.md...]
-`(Task-decomposition : 1 - Lecture du fichier tasks.md)`
-
-# Task-decomposition : 2 - Suppression des tâches terminées
-Je supprime les tâches terminées qui ne sont plus pertinentes pour le travail en cours. `(Task-decomposition : 2 - Suppression des tâches terminées)`
-[...suppression des tâches obsolètes...]
-`(Task-decomposition : 2 - Suppression des tâches terminées)`
-
-# Task-decomposition : 3 - Intégration des nouvelles tâches
-Je décompose la requête en tâches concrètes et les organise en sections de haut niveau. `(Task-decomposition : 3 - Intégration des nouvelles tâches)`
-[...organisation des tâches en sections...]
-`(Task-decomposition : 3 - Intégration des nouvelles tâches)`
-
-# Task-decomposition : 4 - Appel de la règle suivante
-Je dois maintenant appeler la règle implementation pour commencer le travail sur les tâches.
-La règle implementation doit être appelée pour commencer l'implémentation des tâches. `(Task-decomposition : 4 - Appel de la règle suivante)`
-
-fetch_rules ["implementation"]
-
-# Start Rule
-
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais décomposer la requête en tâches concrètes, supprimer les tâches terminées non pertinentes et organiser le tout en sections logiques numérotées. Je ne tenterai pas d'appliquer ces tâches mais ferai appel à la règle `implementation` pour s'en charger.</SYSTEM PROMPT>"
-
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais décomposer la requête en tâches concrètes, supprimer les tâches terminées non pertinentes et organiser le tout en sections logiques numérotées. Je ne tenterai pas d'appliquer ces tâches mais ferai appel à la règle `implementation` pour s'en charger.</SYSTEM PROMPT>"  

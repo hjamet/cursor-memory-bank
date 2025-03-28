@@ -1,0 +1,57 @@
+---
+description:
+globs: .cursor/memory-bank/workflow/tests.md
+alwaysApply: false
+---
+
+# Règle d'édition tests.md
+
+## TLDR
+Ce fichier documente les résultats des tests unitaires, leur évolution et les problèmes identifiés.
+
+## Limites et structure
+
+- **Organisation** : Tests regroupés par statut (réussite, avertissement, échec)
+- **Contenu** : Résultats détaillés avec explications et évolution
+- **Temporalité** : Résultats actuels avec comparaison aux exécutions précédentes
+
+## Format obligatoire
+
+- Tests réussis : Préfixés par ✅, description concise et évolution
+- Tests avec avertissements : Préfixés par ⚠️, explication du warning et évolution
+- Tests échoués : Préfixés par ❌, explication détaillée de l'échec et évolution
+
+## Template de référence
+
+```markdown
+# Fichier de tests
+
+## Tests réussis
+- ✅ **[Titre du test réussi]** : Test passé correctement - [Évolution par rapport au test précédent]
+- ✅ **[Titre du test réussi]** : Test passé correctement - [Évolution par rapport au test précédent]
+
+## Tests avec avertissements
+- ⚠️ **[Titre du test avec avertissement]** : [Explication du warning] - [Évolution par rapport au test précédent]
+- ⚠️ **[Titre du test avec avertissement]** : [Explication du warning] - [Évolution par rapport au test précédent]
+
+## Tests échoués
+- ❌ **[Titre du test échoué]** : [Explication détaillée de l'échec] - [Évolution par rapport au test précédent]
+- ❌ **[Titre du test échoué]** : [Explication détaillée de l'échec] - [Évolution par rapport au test précédent]
+```
+
+## Style et bonnes pratiques
+
+- **Clarté** : Descriptions précises et compréhensibles
+- **Émojis** : Utiliser les émojis appropriés pour indiquer visuellement le statut
+- **Évolution** : Toujours indiquer si le résultat est une amélioration, régression ou statu quo
+- **Détail** : Plus de détails pour les échecs que pour les réussites
+- **Erreurs** : Inclure les messages d'erreur exacts pour les tests échoués
+- **Organisation** : Regrouper les tests par statut pour meilleure lisibilité
+
+## Validations
+
+- Utilisation cohérente des émojis pour chaque statut
+- Présence d'une explication pour chaque test
+- Information sur l'évolution pour chaque test
+- Description claire et actionnable des échecs
+- Format respectant la structure recommandée

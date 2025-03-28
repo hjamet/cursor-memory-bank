@@ -1,0 +1,73 @@
+---  
+description:   
+globs: .cursor/memory-bank/context/techContext.md  
+alwaysApply: false  
+---  
+
+# Règle d'édition techContext.md  
+
+## TLDR  
+Ce fichier documente l'environnement technique du projet, incluant technologies, architecture, et erreurs courantes liées aux mises à jour de bibliothèques.  
+
+## Limites et structure  
+
+- **Longueur maximale** : 200 lignes  
+- **Contenu** : Technologies, architecture, environnement, conventions, dépendances, erreurs courantes  
+- **Spécificité** : Informations techniques précises, versions exactes, contraintes d'implémentation  
+
+## Sections obligatoires  
+
+1. **Pile Technologique** : Langages, frameworks, bibliothèques et outils utilisés  
+2. **Architecture** : Structure générale et organisation du code  
+3. **Environnement** : Configuration requise et étapes d'installation  
+4. **Conventions** : Standards de code et pratiques adoptées  
+5. **Dépendances** : Bibliothèques externes avec versions et utilités  
+6. **Intégrations** : Services externes et APIs utilisés  
+7. **Erreurs Courantes** : Problèmes fréquents liés aux mises à jour des bibliothèques  
+
+## Contenu complémentaire  
+
+- Ce fichier se concentre sur les aspects techniques du projet  
+- projectbrief.md couvre la vision globale et les objectifs  
+- activeContext.md décrit les tâches en cours et problèmes immédiats  
+
+## Template de référence  
+
+```markdown  
+# Contexte Technique  
+
+## Pile Technologique  
+- **Langages** : [langages avec versions]  
+- **Frameworks** : [frameworks avec versions]  
+- **Bibliothèques** : [bibliothèques principales avec versions]  
+- **Outils** : [outils de développement]  
+
+## Architecture  
+[Description concise de l'architecture du projet, patterns utilisés, organisation des modules]  
+
+## Environnement de Développement  
+- **Configuration requise** : [prérequis système/logiciels]  
+- **Installation** : [étapes d'installation simplifiées]  
+- **Variables d'environnement** : [variables nécessaires]  
+
+## Conventions de Code  
+- [Convention 1]  
+- [Convention 2]  
+- [Standards de nommage]  
+- [Organisation des dossiers]  
+
+## Dépendances Externes  
+- **[Dépendance 1]** : [Version] - [Utilité]  
+- **[Dépendance 2]** : [Version] - [Utilité]  
+[Liste des bibliothèques externes essentielles]  
+
+## Intégrations  
+- **[Service 1]** : [Description] - [Endpoints/APIs]  
+- **[Service 2]** : [Description] - [Endpoints/APIs]  
+[Services tiers et APIs intégrés]  
+
+## Erreurs Courantes  
+- ~~oldFunction(param)~~ → newFunction(param, newParam)  
+- ~~config.oldProperty~~ → config.newProperty  
+- ~~importModule('path')~~ → import { module } from 'path'  
+[Liste d'erreurs fréquentes dues aux mises à jour, sans explications, juste le format incorrect barré suivi d'une flèche et du format correct]  

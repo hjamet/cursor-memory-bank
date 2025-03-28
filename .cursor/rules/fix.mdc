@@ -1,126 +1,101 @@
----
-description: Appelle cette règle pour implémenter les corrections nécessaires aux problèmes identifiés par les tests
-globs: 
-alwaysApply: false
----
-## TLDR
-Analyser les erreurs de test, créer des tâches de correction et documenter les problèmes récurrents pour éviter de les reproduire.
+---  
+description: Appelle cette règle pour implémenter les corrections nécessaires aux problèmes identifiés par les tests  
+globs:   
+alwaysApply: false  
+---  
 
-## Instructions
+## TLDR  
+Analyser les erreurs de test, créer des tâches de correction et documenter les problèmes spécifiques aux bibliothèques/frameworks.  
 
-1. **Identification des erreurs** : Identifier et lister les erreurs pour chaque test échoué.
+## Instructions  
 
-2. **Consultation des logs** : Consulter les logs (généralement dans le fichier `logs/app.log`)
+1. **Identification des erreurs** : Analyser les erreurs pour chaque test échoué  
+   - Lire le fichier `.cursor/memory-bank/workflow/tests.md` pour comprendre les résultats des tests  
+   - Lister et catégoriser les erreurs rencontrées  
+   - Noter les messages d'erreur exacts et les conditions de reproduction  
 
-3. **Analyse des fichiers** : Identifier et parcourir les fichiers concernés:
-   - Localiser précisément les lignes de code problématiques
-   - Examiner le contexte autour du code défaillant
-   - Vérifier les dépendances et les interactions avec d'autres composants
-   - Entre chaque appel d'outil, écris `Fix - 3.[Titre du test] en cours...` pour ne pas perdre te perdre dans le fil de tes pensées et oublier le workflow.
+2. **Recherche d'informations** : Au besoin, rechercher des solutions  
+   - Utiliser l'outil de recherche web pour trouver des informations sur des erreurs spécifiques  
+   - Consulter la documentation à jour des bibliothèques concernées  
+   - Vérifier les changements récents dans les APIs utilisées  
 
-4. **Ajout des tâches de correction** : Ajouter des tâches de correction à tasks.md:
-   - Créer une nouvelle section "Corrections" dans "In Progress"
-   - Ajouter une tâche détaillée pour chaque erreur à corriger
-   - Inclure les fichiers et symboles concernés
-   - Décrire précisément le problème et la solution envisagée
+3. **Analyse des fichiers** : Examiner UNIQUEMENT le code directement concerné  
+   - Se concentrer strictement sur les fichiers impliqués dans l'erreur  
+   - Localiser les lignes de code spécifiques causant les problèmes  
+   - Pour les erreurs complexes ou récurrentes, ajouter du logging temporaire de débogage  
+     (Utiliser `logger.debug()` en Python ou équivalent dans d'autres langages)  
+   - Après chaque appel d'outil, écrire `Fix - 3.[Titre du test] en cours...`  
 
-5. **Documentation des erreurs** : Documenter les erreurs récurrentes liées aux bibliothèques:
-   - Nommer la règle d'après la bibliothèque ou le type d'erreur
-   - Sauvegarder la règle dans `.cursor/rules/custom/errors/` au format .mdc
+4. **Ajout des tâches de correction** : Mettre à jour tasks.md  
+   - Créer une section "Corrections" dans "In Progress"  
+   - Détailler chaque erreur à corriger avec fichiers/symboles concernés  
+   - Proposer des solutions basées sur l'analyse  
 
-6. **Appel de la règle suivante** : Appeler la règle `implementation` pour implémenter les corrections.
+5. **Documentation des erreurs** : Mettre à jour techContext.md  
+   - Ajouter uniquement les erreurs liées aux changements d'API/comportement des bibliothèques  
+   - Documenter dans la section appropriée du fichier techContext.md  
+   - Inclure des exemples concrets (code incorrect vs correct)  
+   - Ne pas documenter les erreurs d'inattention ou de logique générale  
 
-## Précisions
-- Ne documente que les erreurs liées aux mises à jour ou changements de comportement de bibliothèques dont tu n'es pas au courant
-- Par exemple, si une bibliothèque comme dash-mantine-components a changé un attribut de "weight" à "w", c'est ce type d'erreur qu'il faut documenter
-- Ne documente pas des erreurs que tu as faites une fois ou deux par inadvertance
-- Ne documente que ce qu'il t'est utile de te souvenir pour ne pas reproduire les mêmes erreurs
-- Inclure les symboles et fichiers concernés dans les tâches de résolution
-- Inclure des exemples concrets dans les règles d'erreur
-- Organiser les tâches de correction par composant ou fonctionnalité
-- Garder les règles d'erreur concises mais complètes : va au plus simple et clair
-- Dans la phase de fix 3, tu risques d'oublier le workflow en suivant le fil de tes pensées. Pour éviter celà à tout prix, après chaque appel d'outil ou avant chaque reflection de ta part, écris `Fix - 3.[Titre du test] en cours...`
-- Utilise du logging pendant tes tests : Si tu es en python, utilise `src/utils/logger.py` pour enregistrer les logs dans `logs/app.log`
+6. **Appel de la règle suivante** : Appeler `implementation` pour corriger les erreurs  
 
-## ⚠️ Bug Cursor avec les fichiers .mdc
-Il existe un bug avec Cursor qui empêche l'édition directe des fichiers .mdc. Pour contourner ce problème, suivez toujours cette procédure lorsque vous devez modifier un fichier .mdc :
+## Précisions  
 
-1. Renommez le fichier de .mdc en .md :
-   ```bash
-   mv fichier.mdc fichier.md
-   ```
+- Examiner UNIQUEMENT les fichiers directement liés à l'erreur, pas les fichiers périphériques  
+- Pour les problèmes complexes ou récurrents, utiliser du logging de débogage temporaire  
+- Documenter UNIQUEMENT les erreurs dues à:  
+  - Changements d'API dans les bibliothèques (ex: renommage d'attribut "weight" à "w")  
+  - Comportements spécifiques non intuitifs de frameworks  
+  - Mises à jour qui modifient les fonctionnalités existantes  
+- NE PAS documenter:  
+  - Erreurs d'inattention ou fautes de frappe  
+  - Problèmes de logique générale de programmation  
+  - Erreurs que tu as commises par inadvertance  
+- Pour éviter de perdre le workflow, écrire systématiquement `Fix - 3.[Titre du test] en cours...` pendant l'analyse  
 
-2. Éditez le fichier .md normalement
+## Next Rules  
+- `implementation` - Pour implémenter les corrections identifiées  
 
-3. Une fois les modifications terminées, renommez-le en .mdc :
-   ```bash
-   mv fichier.md fichier.mdc
-   ```
+## Exemple  
 
-Cette procédure doit être suivie chaque fois que vous modifiez des règles .mdc, y compris les règles d'erreur créées dans `.cursor/rules/custom/errors/`.
+fetch_rules ["fix"]  
+<SYSTEM PROMPT>Je vais analyser méthodiquement les erreurs des tests échoués, créer des tâches de correction bien définies et documenter les problèmes récurrents. Je ne corrigerai pas directement les erreurs mais je préparerai les tâches pour l'implémentation future. Je passerai ensuite à l'implémentation des corrections en appellant la règle `implementation`</SYSTEM PROMPT>  
 
-## Format pour les règles d'erreur (.mdc)
-```
----
-description: Erreurs courantes avec la bibliothèque X (Description consise des conditions d'application de l'erreur)
-globs: *.py, *.ts (Pattern glob pour les fichiers concernés. Laisser vide pour utiliser la description)
-alwaysApply: false
----
-# Erreurs courantes avec [Nom de la bibliothèque]
+# Fix : 1 - Identification des erreurs  
+Je commence par lire le fichier tests.md pour comprendre les erreurs des tests. `(Fix : 1 - Identification des erreurs)`  
+[...lecture du fichier .cursor/memory-bank/workflow/tests.md...]  
+`(Fix : 1 - Identification des erreurs)`  
 
-## Problème: [Description du problème]
-- ❌ **Incorrect**: [Exemple de code incorrect]
-- ✅ **Correct**: [Exemple de code correct]
+# Fix : 2 - Recherche d'informations  
+Je recherche des informations sur l'erreur concernant la bibliothèque X. `(Fix : 2 - Recherche d'informations)`  
+[...recherche sur internet...]  
+`(Fix : 2 - Recherche d'informations)`  
 
-### Exemple concret (dash-mantine-components)
-## Problème: Changement de nom d'attribut weight à w dans la version X.Y
-- ❌ **Incorrect**: `<Text weight="bold">Texte en gras</Text>`
-- ✅ **Correct**: `<Text w="bold">Texte en gras</Text>`
-```
+# Fix : 3 - Analyse des fichiers  
+Je vais examiner uniquement les fichiers directement impliqués dans l'erreur. `(Fix : 3 - Analyse des fichiers)`  
+[...lecture du fichier problématique...]  
+Fix - 3.TestConnexion en cours...  
+[...ajout de logging temporaire pour déboguer...]  
+logger.debug("Valeur de la variable x:", x)  
+[...analyse du code problématique...]  
+`(Fix : 3 - Analyse des fichiers)`  
 
-## Next Rules
-- `implementation` - Pour implémenter les corrections identifiées
+# Fix : 4 - Ajout des tâches de correction  
+Je crée des tâches détaillées pour corriger chaque erreur. `(Fix : 4 - Ajout des tâches de correction)`  
+[...modification du fichier tasks.md...]  
+`(Fix : 4 - Ajout des tâches de correction)`  
 
-## Exemple
+# Fix : 5 - Documentation des erreurs  
+Je documente l'erreur liée au changement d'API dans la bibliothèque X. `(Fix : 5 - Documentation des erreurs)`  
+[...mise à jour de techContext.md...]  
+`(Fix : 5 - Documentation des erreurs)`  
 
-fetch_rules ["fix"]
-<SYSTEM PROMPT>Je vais analyser méthodiquement les erreurs des tests échoués, créer des tâches de correction bien définies et documenter les problèmes récurrents. Je ne corrigerai pas directement les erreurs mais je préparerai les tâches pour l'implémentation future. Je passerai ensuite à l'implémentation des corrections.</SYSTEM PROMPT>
+# Fix : 6 - Appel de la règle suivante  
+Je dois maintenant appeler la règle implementation pour corriger les erreurs.  
+La règle implementation doit être appelée pour implémenter les corrections. `(Fix : 6 - Appel de la règle suivante)`  
 
-# Fix : 1 - Identification des erreurs
-Je commence par analyser les erreurs de test pour comprendre les problèmes. `(Fix : 1 - Identification des erreurs)`
-[...lecture du fichier tests.md...]
-`(Fix : 1 - Identification des erreurs)`
+fetch_rules ["implementation"]  
 
-# Fix : 2 - Consultation des logs
-Je consulte les logs pour obtenir plus de détails sur les erreurs. `(Fix : 2 - Consultation des logs)`
-[...consultation des logs...]
-`(Fix : 2 - Consultation des logs)`
+# Start Rule  
 
-# Fix : 3 - Analyse des fichiers
-Je vais parcourir les fichiers concernés pour localiser les problèmes. `(Fix : 3 - Analyse des fichiers)`
-[...lecture du fichier [...]...]
-Maintenant, je vais consulter le fichier [...] `(Fix : 3 - Analyse des fichiers)`
-[...lecture du fichier [...]...]
-`(Fix : 3 - Analyse des fichiers)`
-
-# Fix : 4 - Ajout des tâches de correction
-Je crée des tâches détaillées pour corriger chaque erreur. `(Fix : 4 - Ajout des tâches de correction)`
-[...modification du fichier tasks.md...]
-`(Fix : 4 - Ajout des tâches de correction)`
-
-# Fix : 5 - Documentation des erreurs
-Je documente les erreurs récurrentes liée à la bibliothèque [...] qui ne s'utilise pas comme je l'imaginais pour éviter de les reproduire. `(Fix : 5 - Documentation des erreurs)`
-[...création d'une première règle...]
-`(Fix : 5 - Documentation des erreurs)`
-[...modification d'une deuxième règle...]
-`(Fix : 5 - Documentation des erreurs)`
-
-# Fix : 6 - Appel de la règle suivante
-Je dois maintenant appeler la règle implementation pour corriger les erreurs.
-La règle implementation doit être appelée pour implémenter les corrections. `(Fix : 6 - Appel de la règle suivante)`
-
-fetch_rules ["implementation"]
-
-# Start Rule
-
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais analyser méthodiquement les erreurs des tests échoués, créer des tâches de correction bien définies et documenter les problèmes récurrents. Je ne corrigerai pas directement les erreurs mais je préparerai les tâches pour l'implémentation future. Je passerai ensuite à l'implémentation des corrections.</SYSTEM PROMPT>"
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais analyser méthodiquement les erreurs des tests échoués, créer des tâches de correction bien définies et documenter les problèmes récurrents. Je ne corrigerai pas directement les erreurs mais je préparerai les tâches pour l'implémentation future. Je passerai ensuite à l'implémentation des corrections en appellant la règle `implementation`.</SYSTEM PROMPT>"  

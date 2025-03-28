@@ -1,87 +1,74 @@
----
-description: Appelle cette règle pour exécuter les tests unitaires et analyser les résultats
-globs: 
-alwaysApply: false
----
-## TLDR
-Exécuter les tests unitaires, analyser les résultats et documenter les succès et échecs dans le fichier tests.md.
+---  
+description: Appelle cette règle pour exécuter les tests unitaires et analyser les résultats  
+globs:   
+alwaysApply: false  
+---  
 
-## Instructions
+## TLDR  
+Exécuter les tests unitaires, analyser les résultats et documenter les succès et échecs dans tests.md.  
 
-1. **Exécution des tests** : Exécuter les tests unitaires pour les fonctionnalités implémentées:
-   - Lancer les tests unitaires pour les fonctionnalités implémentées
-   - Capturer les résultats de l'exécution (succès, échecs, avertissements)
-   - Noter les messages d'erreur ou d'avertissement
-   - Entre chaque appel d'outil, écris `Test-execution - 1.[Nom du test] en cours...` pour ne pas perdre te perdre dans le fil de tes pensées et oublier le workflow.
+## Instructions  
 
-2. **Analyse des résultats** : Evaluer l'évolution du résultat des tests:
-   - Lire le fichier `.cursor/memory-bank/workflow/tests.md` s'il existe
-   - Comparer les nouveaux résultats avec les précédents
-   - Identifier les améliorations ou régressions
-   - Entre chaque appel d'outil, écris `Test-execution - 2.[Nom du test] en cours...` pour ne pas perdre te perdre dans le fil de tes pensées et oublier le workflow.
+1. **Exécution des tests** : Lancer les tests des fonctionnalités implémentées  
+   - Capturer tous les résultats (succès, échecs, avertissements)  
+   - Noter les messages d'erreur précis  
+   - Après chaque appel d'outil, écrire `Test-execution - 1.[Nom du test] en cours...`  
 
-3. **Documentation des résultats** : Mettre à jour le fichier tests.md:
-   - Créer le fichier s'il n'existe pas
-   - Ajouter les nouveaux résultats de tests selon le format spécifié
-   - Inclure une analyse de l'évolution pour chaque test
-   - Documenter clairement les échecs et leurs causes probables (sans faire d'enquête poussée et sans consulter les fichiers responsables)
+2. **Analyse des résultats** : Comparer avec les précédents tests  
+   - Lire le fichier `.cursor/memory-bank/workflow/tests.md` s'il existe  
+   - Identifier améliorations ou régressions  
+   - Après chaque appel d'outil, écrire `Test-execution - 2.[Analyse] en cours...`  
 
-4. **Appel de la règle suivante** : Appeler obligatoirement la règle suivante:
-   - Si au moins un test échoue, appeler la règle `fix`
-   - Si tous les tests passent, appeler la règle `context-update`
+3. **Documentation des résultats** : Mettre à jour tests.md  
+   - Créer le fichier si nécessaire  
+   - Utiliser le format défini dans la règle d'édition tests-md  
+   - Inclure une analyse d'évolution pour chaque test  
+   - Documenter les échecs sans mener d'enquête approfondie  
 
-## Précisions
-- Exécuter tous les tests disponibles, pas seulement les nouveaux
-- Documenter clairement les résultats de chaque test
-- Inclure des explications détaillées pour les échecs
-- Fournir des suggestions de correction si possible
-- Utiliser les emojis appropriés pour indiquer le statut des tests
-- Ne pas tenter de corriger les erreurs, c'est le rôle de la règle `fix` !
-- Ne JAMAIS sauter l'appel à la règle suivante
-- Dans les phases 1 et 2, tu risques d'oublier le workflow en suivant le fil de tes pensées. Pour éviter celà à tout prix, après chaque appel d'outil ou avant chaque reflection de ta part, écris `Test-execution - [numéro].[Nom] en cours...`
+4. **Appel de la règle suivante**  
+   - Si au moins un test échoue → `fix`  
+   - Si tous les tests passent → `context-update`  
 
-## Format de tests.md
-```
-# Fichier de tests
+## Précisions  
 
-- ✅ **[Titre du test réussi]** : Test passé correctement - [Évolution par rapport au test précédent]
-- ⚠️ **[Titre du test avec avertissement]** : [Explication du warning et ce qui est bizarre] - [Évolution par rapport au test précédent]
-- ❌ **[Titre du test échoué]** : [Explication détaillée de l'échec] - [Évolution par rapport au test précédent]
-```
+- Exécuter tous les tests disponibles, pas uniquement les nouveaux  
+- Ne pas tenter de corriger les erreurs (c'est le rôle de la règle `fix`)  
+- Pour éviter de perdre le workflow, écrire systématiquement `Test-execution - [numéro].[Nom] en cours...` entre chaque étape  
+- Ne jamais sauter l'appel à la règle suivante  
 
-## Next Rules
-- `fix` - Si il y a eu une regression
-- `context-update` - Si il y a eu une amélioration ou aucun changement dans les résultats des tests
+## Next Rules  
+- `fix` - Si au moins un test échoue  
+- `context-update` - Si tous les tests passent  
 
-## Exemple
+## Exemple  
 
-fetch_rules ["test-execution"]
-<SYSTEM PROMPT>Je vais exécuter les tests unitaires et analyser leurs résultats. Je documenterai clairement les succès et les échecs dans le fichier tests.md. Je ne tenterai pas de corriger les erreurs mais ferai appel à la règle 'fix' si des tests échouent ou à 'context-update' si tous les tests passent.</SYSTEM PROMPT>
+fetch_rules ["test-execution"]  
+<SYSTEM PROMPT>Je vais exécuter les tests unitaires et analyser leurs résultats. Je documenterai clairement les succès et les échecs dans le fichier tests.md. Je ne tenterai pas de corriger les erreurs mais ferai appel à la règle 'fix' si des tests échouent ou à 'context-update' si tous les tests passent.</SYSTEM PROMPT>  
 
-# Test-execution : 1 - Exécution des tests
-Je commence par exécuter les tests unitaires. `(Test-execution : 1 - Exécution des tests)`
-[...exécution des tests...]
-Test-execution - 1.TestAuthentification en cours...
-[...capture des résultats...]
-`(Test-execution : 1 - Exécution des tests)`
+# Test-execution : 1 - Exécution des tests  
+Je commence par exécuter les tests unitaires. `(Test-execution : 1 - Exécution des tests)`  
+[...exécution des tests...]  
+Test-execution - 1.TestAuthentification en cours...  
+[...capture des résultats...]  
+`(Test-execution : 1 - Exécution des tests)`  
 
-# Test-execution : 2 - Analyse des résultats
-Je compare les résultats avec les tests précédents. `(Test-execution : 2 - Analyse des résultats)`
-[...lecture du fichier tests.md...]
-`(Test-execution : 2 - Analyse des résultats)`
-[...comparaison des résultats...]
-`(Test-execution : 2 - Analyse des résultats)`
+# Test-execution : 2 - Analyse des résultats  
+Je compare les résultats avec les tests précédents. `(Test-execution : 2 - Analyse des résultats)`  
+[...lecture du fichier tests.md...]  
+Test-execution - 2.Comparaison en cours...  
+[...comparaison des résultats...]  
+`(Test-execution : 2 - Analyse des résultats)`  
 
-# Test-execution : 3 - Documentation des résultats
-Je mets à jour le fichier tests.md avec les nouveaux résultats. `(Test-execution : 3 - Documentation des résultats)`
-[...mise à jour du fichier tests.md...]
-`(Test-execution : 3 - Documentation des résultats)`
+# Test-execution : 3 - Documentation des résultats  
+Je mets à jour le fichier tests.md avec les nouveaux résultats. `(Test-execution : 3 - Documentation des résultats)`  
+[...mise à jour du fichier tests.md...]  
+`(Test-execution : 3 - Documentation des résultats)`  
 
-# Test-execution : 4 - Appel de la règle suivante
-Je dois maintenant appeler la règle `context-update` car bien que les nouveaux tests soient tous des échecs, il n'y a pas eu de régression. `(Test-execution : 4 - Appel de la règle suivante)`
+# Test-execution : 4 - Appel de la règle suivante  
+Je dois maintenant appeler la règle appropriée selon les résultats des tests. `(Test-execution : 4 - Appel de la règle suivante)`  
 
-fetch_rules ["context-update"]
+fetch_rules ["context-update"]  
 
-# Start Rule
+# Start Rule  
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais exécuter les tests unitaires et analyser leurs résultats sans mener d'enquête de debuggage approfondie et sans lire les fichiers concernés. Je documenterai clairement les succès et les échecs dans le fichier tests.md. Je ne tenterai pas de corriger les erreurs mais ferai appel à la règle 'fix' si des tests échouent ou à 'context-update' si tous les tests passent.</SYSTEM PROMPT>"
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais exécuter les tests unitaires et analyser leurs résultats sans mener d'enquête de debuggage approfondie. Je documenterai clairement les succès et les échecs dans le fichier tests.md. Je ne tenterai pas de corriger les erreurs mais ferai appel à la règle 'fix' si des tests échouent ou à 'context-update' si tous les tests passent.</SYSTEM PROMPT>"  

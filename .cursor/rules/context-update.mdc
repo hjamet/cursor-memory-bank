@@ -8,7 +8,7 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
 
 ## Instructions
 1. **Mise à jour du contexte**: Mettre à jour les trois fichiers de contexte si nécessaire:
-   - `.cursor/memory-bank/context/projectbrief.md`: Actualiser la vision globale si impactée
+   - `.cursor/memory-bank/context/projectBrief.md`: Actualiser la vision globale si impactée
    - `.cursor/memory-bank/context/activeContext.md`: Refléter l'état actuel après les modifications
    - `.cursor/memory-bank/context/techContext.md`: Ajouter/modifier les informations techniques si nécessaire
 
@@ -75,7 +75,7 @@ fetch_rules ["context-update"]
 
 # Context-update : 1 - Mise à jour du contexte
 Je commence par mettre à jour les fichiers de contexte pour refléter les changements. `(Context-update : 1 - Mise à jour du contexte)`
-[...mise à jour du fichier projectbrief.md...]
+[...mise à jour du fichier projectBrief.md...]
 `(Context-update : 1 - Mise à jour du contexte)`
 [...mise à jour du fichier activeContext.md...]
 `(Context-update : 1 - Mise à jour du contexte)`

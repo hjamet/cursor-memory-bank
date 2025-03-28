@@ -1,105 +1,101 @@
----
-description: Appelle cette règle pour analyser en détail la requête de l'utilisateur et la situer par rapport aux objectifs du projet
-globs: 
-alwaysApply: false
----
+---  
+description: Appelle cette règle pour analyser en détail la requête de l'utilisateur et la situer par rapport aux objectifs du projet  
+globs:   
+alwaysApply: false  
+---  
 
-## TLDR
+## TLDR  
+Analyser la requête utilisateur, explorer le code existant et rechercher des informations complémentaires pour préparer l'implémentation.  
 
-Analyser en détail la requête de l'utilisateur ou le brief de l'utilisateur, explorer le code existant et rechercher des informations complémentaires pour préparer une implémentation efficace.
+## Instructions  
 
-## Instructions
+1. **Analyse du brief utilisateur** : Vérifier le fichier `.cursor/memory-bank/userbrief.md` :  
+   - Si non vide, lire son contenu comme requête complémentaire  
+   - Vider le fichier avec la commande "echo \"\" > .cursor/memory-bank/userbrief.md"  
 
-1. **Analyse du brief utilisateur** : Vérifier si le fichier `.cursor/memory-bank/userbrief.md` est n'est pas vide:
-   - Si le fichier est vide, lire le contenu du fichier et considérer que son contenu constitue la requête de l'utilisateur
-   - Vider le contenu du fichier `.cursor/memory-bank/userbrief.md` à l'aide de la commande "echo "" > .cursor/memory-bank/userbrief.md"
+2. **Analyse du code** : Identifier les fichiers et symboles concernés :  
+   - UNIQUEMENT AUTORISÉ : jusqu'à 3 recherches sémantiques (code base search) basées sur les mots-clés de la requête  
+   - UNIQUEMENT AUTORISÉ EN OPTION : commande tree pour visualiser la structure du répertoire  
+   - STRICTEMENT INTERDIT : lister les dossiers/fichiers, lire des fichiers spécifiques, ou utiliser tout autre outil  
+   - Ne pas se limiter aux fichiers explicitement mentionnés dans la requête  
 
-2. **Analyse du code** : Parcourir le code pour identifier les fichiers et symboles concernés:
-   - Effectuer une recherche sémantique basée sur les mots-clés de la requête
-   - Examiner les fichiers identifiés et leurs dépendances
-   - Lire attentivement le code des fichiers concernés pour comprendre leur fonctionnement
+3. **Création de l'arborescence** : Représenter les fichiers concernés :  
+   - Créer une représentation visuelle de type "tree" uniquement des éléments pertinents pour les modifications  
+   - Inclure seulement les fichiers/symboles/fonctions qui seront modifiés ou créés  
+   - Marquer clairement ce qui existe déjà et ce qui doit être créé/modifié  
+   - Ajouter de brèves descriptions pour chaque élément important  
 
-3. **Création de l'arborescence** : Créer une représentation arborescente du code:
-   - Inclure tous les fichiers et symboles (classes, fonctions, variables) pertinents
-   - Ajouter une courte description en commentaire pour chaque élément
-   - Marquer clairement les éléments à modifier ou à créer (sans mentionner les fichiers Memory Bank)
-   - Organiser l'arborescence de manière logique (par module, fonctionnalité, etc.)
-   - Se concentrer uniquement sur les fichiers de l'application, pas sur les fichiers de Memory Bank
+4. **Recherche complémentaire** : Consulter documentation et ressources :  
+   - UNIQUEMENT AUTORISÉ : outil de recherche web, limité à 5 recherches maximum  
+   - Rechercher documentation des bibliothèques, patterns, ou meilleures pratiques pertinentes  
+   - Noter les sources consultées  
 
-4. **Recherche sur internet** : Rechercher des informations complémentaires sur internet si nécessaire:
-   - Consulter la documentation des bibliothèques utilisées
-   - Rechercher des algorithmes ou patterns pertinents
-   - Identifier les meilleures pratiques pour le type d'implémentation demandé
-   - Vérifier les approches similaires dans d'autres projets ou la littérature
+5. **Conclusion** : Résumer les informations et changements nécessaires  
 
-5. **Conclusion de l'analyse** : Faire un résumé en langage naturel synthétisant les informations trouvées et les changements à apporter.
+6. **Appel de la règle suivante** :  
+   - Si requête complexe/multi-étapes → `task-decomposition`  
+   - Si requête simple → `implementation`  
 
-6. **Appeller obligatoirement la règle suivante** : Appeler obligatoirement la règle suivante:
-   - Si la requête nécessite plusieurs étapes, appeler la règle `task-decomposition`
-   - Sinon, appeler la règle `implementation`   
+## Précisions  
 
-## Précisions
+- Si le brief est vide et sans requête explicite, considérer le contenu de tasks.md comme requête  
+- Le brief et la requête peuvent être identiques ou différents - analyser les deux  
+- Pour vider userbrief.md, utiliser ECHO (et non l'outil d'édition)  
+- Limites strictes des outils :  
+  - Phase 2 (Analyse du code) : uniquement code base search (max 3) et tree  
+  - Phase 4 (Recherche) : uniquement recherche web (max 5)  
+- Ne jamais mentionner les modifications prévues aux fichiers memory bank (.cursor/memory-bank/*)  
 
-- Parfois, le brief est vide et l'utilisateur ne donne pas de requête autre que le fichier tasks.md. Dans ce cas, il faut lire le fichier tasks.md et considérer que son contenu constitue la requête de l'utilisateur.
-- Le brief et la requête de l'utilisateur sont parfois identiques et n'ont parfois rien à voir. Dans tous les cas, il faut considérer que l'un et l'autre constituent des requêtes à analyser.
-- Utilise la commande ECHO et pas l'outil d'étition pour vider de son contenu le fichier `userbrief.md` !
-- Utiliser des recherches sémantiques précises pour trouver tous les fichiers pertinents
-- Ne pas se limiter aux fichiers explicitement mentionnés dans la requête
-- Explorer les dépendances et les relations entre les fichiers
-- Inclure dans l'arborescence les imports et les relations entre composants
-- Distinguer visuellement les éléments existants des éléments à créer
-- Citer les sources des informations externes consultées
-- IMPORTANT: Ne jamais mentionner les changements prévus aux fichiers memory bank (.cursor/memory-bank/*)
+## Next Rules  
+- `task-decomposition` - Pour décomposer la requête en tâches spécifiques  
+- `implementation` - Pour passer directement à l'implémentation si la requête est simple  
 
-## Next Rules
-- `task-decomposition` - Pour décomposer la requête en tâches spécifiques
-- `implementation` - Pour passer directement à l'implémentation si la requête est simple
+## Exemple  
 
-## Exemple
+fetch_rules ["request-analysis"]  
+<SYSTEM PROMPT>Je vais analyser en détail la requête et explorer le code pertinent pour comprendre ce qui doit être fait. Je ne mentionnerai pas les fichiers Memory Bank dans mes analyses. Je n'implementerai pas les changements demandés mais expliquerai leur but en langage naturel. À la fin de mon travail, je ferai appel aux règles `task-decomposition` ou `implementation` pour qu'elles se chargent de l'implémentation.</SYSTEM PROMPT>  
 
-fetch_rules ["request-analysis"]
-<SYSTEM PROMPT>Je vais analyser en détail la requête et explorer le code pertinent pour comprendre ce qui doit être fait. Je ne mentionnerai pas les fichiers Memory Bank dans mes analyses. Je n'implementerai pas les changements demandés mais expliquerai leur but en langage naturel. A la fin de mon travail, je ferai appel aux règles `task-decomposition` ou `implementation` pour qu'elles se charge de l'implémentation.</SYSTEM PROMPT>
+# Request-analysis : 1 - Analyse du brief utilisateur  
+Je commence par analyser le brief de l'utilisateur pour identifier les fichiers et symboles concernés.  
+Commençons par lire le fichier `.cursor/memory-bank/userbrief.md` `(Request-analysis : 1 - Analyse du brief utilisateur)`  
+[...lecture du fichier userbrief...]  
+Je vois que le fichier n'est pas vide. J'ai donc ajouté son contenu à la requête de l'utilisateur et vais maintenant vider le fichier de son contenu. `(Request-analysis : 1 - Analyse du brief utilisateur)`  
+[...suppression du contenu du fichier userbrief...]  
+J'ai lu des informations importantes dans le brief que je vais ajouter à la requête de l'utilisateur.  
 
-# Request-analysis : 1 - Analyse du brief utilisateur
-Je commence par analyser le brief de l'utilisateur pour identifier les fichiers et symboles concernés.
-Commençons par lire le fichier `.cursor/memory-bank/userbrief.md` `(Request-analysis : 1 - Analyse du brief utilisateur)`
-[...lecture du fichier userbrief...]
-Je vois que le fichier n'est pas vide. J'ai donc ajouté son contenu à la requête de l'utilisateur et vais maintenant vider le fichier de son contenu. `(Request-analysis : 1 - Analyse du brief utilisateur)`
-[...suppression du contenu du fichier userbrief...]
-J'ai lu des informations importantes dans le brief que je vais ajouter à la requête de l'utilisateur.
+# Request-analysis : 2 - Analyse du code  
+Je commence par effectuer des recherches sémantiques pour identifier les fichiers pertinents.  
+Effectuons une première recherche sémantique : `(Request-analysis : 2 - Analyse du code)`  
+[...première recherche sémantique...]  
+Effectuons une deuxième recherche sémantique : `(Request-analysis : 2 - Analyse du code)`  
+[...deuxième recherche sémantique...]  
+Visualisons la structure du répertoire pour mieux comprendre l'organisation : `(Request-analysis : 2 - Analyse du code)`  
+[...commande tree...]  
+Je comprends maintenant mieux le code et les fichiers pertinents. `(Request-analysis : 2 - Analyse du code)`  
 
-# Request-analysis : 2 - Analyse du code
-Je commence par analyser le code pour identifier les fichiers et symboles concernés.
-Commençons par lire le fichier [...] `(Request-analysis : 2 - Analyse du code)`
-[...lecture d'un premier fichier...]
-Je vais maintenant lire le fichier [...] `(Request-analysis : 2 - Analyse du code)`
-[...lecture d'un deuxième fichier...]
-[...]
-Je comprends maintenant mieux le code et les fichiers pertinents. `(Request-analysis : 2 - Analyse du code)`
+# Request-analysis : 3 - Création de l'arborescence  
+Je vais créer une représentation arborescente des fichiers concernés par les modifications. `(Request-analysis : 3 - Création de l'arborescence)`  
+[...création de l'arborescence uniquement des éléments pertinents...]  
+`(Request-analysis : 3 - Création de l'arborescence)`  
 
-# Request-analysis : 3 - Création de l'arborescence
-Je vais créer une représentation arborescente du code. `(Request-analysis : 3 - Création de l'arborescence)`
-[...création de l'arborescence...]
-`(Request-analysis : 2 - Création de l'arborescence)`
+# Request-analysis : 4 - Recherche complémentaire  
+Je vais rechercher des informations sur le web à propos de [...] `(Request-analysis : 4 - Recherche complémentaire)`  
+[...première recherche web...]  
+Je vais rechercher plus d'informations sur [...] `(Request-analysis : 4 - Recherche complémentaire)`  
+[...deuxième recherche web...]  
+`(Request-analysis : 4 - Recherche complémentaire)`  
 
-# Request-analysis : 4 - Recherche sur internet
-Je vais chercher des informations à propos de [...] `(Request-analysis : 4 - Recherche sur internet)`
-[...recherche sur internet...]
-Et maintenant, je vais me documenter sur le sujet [...recherche sur internet...] `(Request-analysis : 4 - Recherche sur internet)`
-[...recherche sur internet...]
-`(Request-analysis : 4 - Recherche sur internet)`
+# Request-analysis : 5 - Conclusion  
+Je résume les résultats de mon analyse et détermine la prochaine étape. `(Request-analysis : 5 - Conclusion)`  
+[...conclusion de l'analyse...]  
+`(Request-analysis : 5 - Conclusion)`  
 
-# Request-analysis : 5 - Conclusion de l'analyse
-Je résume les résultats de mon analyse et détermine la prochaine étape. `(Request-analysis : 5 - Conclusion de l'analyse)`
-[...conclusion de l'analyse...]
-`(Request-analysis : 5 - Conclusion de l'analyse)`
+# Request-analysis : 6 - Appel de la règle suivante  
+Je dois maintenant appeler la règle task-decomposition car la requête nécessite plusieurs étapes.  
+La règle task-decomposition doit être appelée pour décomposer la requête en tâches spécifiques. `(Request-analysis : 6 - Appel de la règle suivante)`  
 
-# Request-analysis : 6 - Appel de la règle suivante
-Je dois maintenant appeler la règle task-decomposition car la requête nécessite plusieurs étapes.
-La règle task-decomposition doit être appelée pour décomposer la requête en tâches spécifiques. `(Request-analysis : 5 - Appel de la règle suivante)`
+fetch_rules ["task-decomposition"]  
 
-fetch_rules ["task-decomposition"]
+# Start Rule  
 
-# Start Rule
-
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais analyser en détail la requête et explorer le code pertinent pour comprendre ce qui doit être fait. Je ne mentionnerai pas les fichiers Memory Bank dans mes analyses. Je n'implementerai pas les changements demandés mais expliquerai leur but en langage naturelle. A la fin de mon travail, je ferai appel aux règles `task-decomposition` ou `implementation` pour qu'elles se charge de l'implémentation.</SYSTEM PROMPT>"
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais analyser en détail la requête et explorer le code pertinent pour comprendre ce qui doit être fait. Je ne mentionnerai pas les fichiers Memory Bank dans mes analyses. Je n'implementerai pas les changements demandés mais expliquerai leur but en langage naturel. À la fin de mon travail, je ferai appel aux règles `task-decomposition` ou `implementation` pour qu'elles se chargent de l'implémentation.</SYSTEM PROMPT>"  

@@ -1,0 +1,66 @@
+---  
+description:
+globs: .cursor/memory-bank/context/projectBrief.md  
+alwaysApply: false  
+---  
+
+# Règle d'édition projectBrief.md  
+
+## TLDR  
+Ce fichier doit présenter la vision globale du projet de manière concise (max 200 lignes), couvrant objectifs, contraintes, parties prenantes et métriques de succès.  
+
+## Instructions d'édition  
+
+1. **Vérification de longueur** : Si le fichier dépasse 200 lignes, synthétiser en préservant toutes les informations clés.  
+
+2. **Structure obligatoire** : Le fichier doit contenir ces sections dans cet ordre :  
+   - Vision (max 500 caractères)  
+   - Objectifs (3-7 points)  
+   - Contraintes (techniques, temporelles, budgétaires)  
+   - Parties prenantes  
+   - Métriques de succès  
+   - Historique et contexte (optionnel)  
+
+3. **Contenu à éviter** :  
+   - Détails techniques (à placer dans techContext.md)  
+   - Tâches en cours (à placer dans activeContext.md)  
+   - Code ou configurations  
+
+4. **Style d'écriture** :  
+   - Phrases claires et concises  
+   - Favoriser les listes à puces pour les objectifs et contraintes  
+   - Éviter le jargon technique sauf si nécessaire  
+
+## Template de référence  
+
+```markdown  
+# Présentation du Projet  
+
+## Vision  
+[Description concise de la vision globale et des buts fondamentaux du projet en 3-5 phrases maximum]  
+
+## Objectifs  
+- [Objectif principal 1 - formulé avec un verbe d'action]  
+- [Objectif principal 2 - mesurable si possible]  
+- [Objectif principal 3 - aligné avec la vision]  
+[Ajoutez jusqu'à 4 objectifs supplémentaires si nécessaire]  
+
+## Contraintes  
+- **Techniques** : [Limitations techniques principales]  
+- **Temporelles** : [Échéances et délais critiques]  
+- **Ressources** : [Limitations budgétaires ou humaines]  
+- **Légales/Réglementaires** : [Exigences de conformité si applicables]  
+
+## Parties Prenantes  
+- **[Catégorie de partie prenante 1]** : [Attentes et influence]  
+- **[Catégorie de partie prenante 2]** : [Attentes et influence]  
+[Ajoutez d'autres parties prenantes clés selon besoin]  
+
+## Métriques de Succès  
+- **[Métrique 1]** : [Valeur cible et justification]  
+- **[Métrique 2]** : [Valeur cible et justification]  
+[3-5 métriques maximum, formulées de manière quantifiable si possible]  
+
+## Historique et Contexte  
+[Bref exposé de l'origine du projet, son évolution et sa place dans l'écosystème plus large. 5-10 lignes maximum.]
+```

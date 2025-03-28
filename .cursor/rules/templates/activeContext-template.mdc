@@ -1,0 +1,81 @@
+---
+description:
+globs: .cursor/memory-bank/context/activeContext.md
+alwaysApply: false
+---
+
+# Règle d'édition activeContext.md
+
+## TLDR
+Ce fichier documente l'état actuel du développement, les tâches en cours, et les priorités immédiates.
+
+## Limites et structure
+
+- **Longueur maximale** : 200 lignes
+- **Contenu** : Focus actuel, problèmes, décisions récentes, prochaines étapes
+- **Temporalité** : Informations récentes et pertinentes pour le travail en cours
+
+## Sections obligatoires
+
+1. **Focus Actuel** : Priorités immédiates et justifications (3-5 phrases)
+2. **Problèmes en Cours** : Blocages actuels avec pistes de solution
+3. **Décisions Récentes** : Choix récents avec leurs justifications
+4. **Prochaines Étapes** : Actions planifiées par ordre de priorité
+5. **Notes Importantes** : Informations critiques pour le développement
+
+## Contenu complémentaire
+
+- Ce fichier se concentre sur le présent et le futur proche
+- projectbrief.md couvre la vision globale et les objectifs à long terme
+- techContext.md contient les informations techniques détaillées
+
+## Template de référence
+
+```markdown
+# Contexte Actif
+
+## Focus Actuel
+[Description concise de ce sur quoi l'équipe travaille actuellement. 3-5 phrases maximum expliquant les priorités immédiates et le raisonnement.]
+
+## Problèmes en Cours
+- **[Problème 1]** : [Description brève] | [Pistes de solution]
+- **[Problème 2]** : [Description brève] | [Pistes de solution]
+[Listez uniquement les problèmes bloquants ou critiques qui impactent le développement actuel]
+
+## Décisions Récentes
+- **[Date]** - **[Décision]** : [Justification et implications]
+- **[Date]** - **[Décision]** : [Justification et implications]
+[Garder uniquement les décisions des 2-4 dernières semaines ou celles ayant un impact majeur sur le travail actuel]
+
+## Prochaines Étapes
+- **Priorité Haute** : [Action 1], [Action 2]
+- **Priorité Moyenne** : [Action 3], [Action 4]
+- **À Considérer** : [Action 5], [Action 6]
+[3-8 actions concrètes et spécifiques, ordonnées par priorité]
+
+## Notes Importantes
+- [Information critique 1]
+- [Information critique 2]
+[Informations essentielles à garder à l'esprit pendant le développement actuel]
+
+## Apprentissages Récents
+- **[Date/Période]** : [Apprentissage clé et son application]
+- **[Date/Période]** : [Apprentissage clé et son application]
+[Connaissances acquises récemment qui influencent le travail actuel]
+```
+
+## Style et bonnes pratiques
+
+- **Actualité** : Informations datant de moins de 2-4 semaines
+- **Spécificité** : Actions concrètes et définies
+- **Prioritisation** : Classement clair des tâches par importance
+- **Datation** : Horodatage des décisions et événements
+- **Concision** : Phrases directes, éviter les détails non essentiels
+
+## Validations
+
+- Limite de 200 lignes respectée
+- Sections obligatoires présentes et complètes
+- Informations récentes et pertinentes au travail actuel
+- Problèmes listés sont ceux activement traités
+- Pas de duplication avec projectbrief.md ou techContext.md

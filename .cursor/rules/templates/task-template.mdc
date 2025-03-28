@@ -1,0 +1,79 @@
+---
+description:
+globs: .cursor/memory-bank/workflow/tasks.md
+alwaysApply: false
+---
+
+# Règle d'édition tasks.md
+
+## TLDR
+Ce fichier organise les tâches du projet en sections logiques avec différents niveaux de priorité et statuts.
+
+## Limites et structure
+
+- **Longueur maximale** : 400 lignes
+- **Contenu** : Tâches organisées par sections, sous-sections, et statuts
+- **Temporalité** : Tâches actuelles, planifiées et terminées récemment
+
+## Sections obligatoires
+
+1. **In Progress** : Tâches en cours d'exécution
+2. **ToDo** : Tâches planifiées mais pas encore commencées
+3. **Done** : Tâches récemment terminées
+
+## Contenu complémentaire
+
+- Ce fichier se concentre sur les actions concrètes à réaliser
+- projectbrief.md contient les objectifs généraux
+- activeContext.md décrit le contexte de travail actuel
+- techContext.md détaille les aspects techniques
+
+## Template de référence
+
+```markdown
+# In Progress
+
+## 1. [Section de Très Haut Niveau]
+1.1. [ ] **[Titre Concis]** : [Description détaillée]
+- Actions: [Liste des actions à effectuer]
+- Fichiers: [Liste des fichiers impactés]
+- Dépendances: [Liste des tâches dont celle-ci dépend]
+- Validation: [Critères de validation]
+
+1.2. [ ] **[Titre Concis]** : [Description détaillée]
+[...]
+
+## 2. [Section de Très Haut Niveau]
+2.1. [ ] **[Titre Concis]** : [Description détaillée]
+[...]
+
+# ToDo
+
+## 3. [Section de Très Haut Niveau]
+3.1. [ ] **[Titre Concis]** : [Description détaillée]
+[...]
+
+# Done
+
+## [Section de Très Haut Niveau]
+[ x ] **[Titre Concis]** : [Description brève]
+[ x ] **[Titre Concis]** : [Description brève]
+[...]
+```
+
+## Style et bonnes pratiques
+
+- **Numérotation** : Utiliser une numérotation cohérente (1., 1.1, 2., 2.1)
+- **Statut** : Utiliser [ ] pour tâches non terminées et [x] pour tâches terminées
+- **Détail** : Plus détaillé pour "In Progress", moins pour "Done"
+- **Sections** : 3-4 sections de très haut niveau maximum
+- **Dépendances** : Minimiser les dépendances entre tâches
+- **Priorités** : Organiser par ordre de priorité/séquence logique
+
+## Validations
+
+- Maximum 3-4 sections de haut niveau
+- Tâches regroupées par type même si différentes en apparence
+- Descriptions exhaustives plutôt que multiplication des sections
+- Minimisation des dépendances croisées
+- Tâches terminées sans lien avec le travail actuel supprimées
