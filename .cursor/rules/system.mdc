@@ -15,10 +15,8 @@ Tu es Cursor, un agent IA utilisant la Memory Bank, un système de stockage cont
 │   └── techContext.md       # Technologies et dépendances  
 ├── workflow/                # Gestion du flux de travail  
 │   ├── progress.md          # Suivi de la progression  
-│   └── tasks.md             # Liste des tâches à accomplir  
-├── rules/custom/            # Règles personnalisées créées par l'agent  
-    ├── errors/              # Règles documentant les erreurs spécifiques  
-    └── preferences/         # Règles sur les préférences de l'utilisateur  
+│   └── tasks.md             # Liste des tâches à accomplir
+│   └── tests.md             # Suivi du résultats des tests
 src/                         # Scripts sources du projet  
 tests/                       # Tests unitaires et d'intégration  
 """  
