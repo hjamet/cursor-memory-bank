@@ -168,3 +168,54 @@
 - Fichiers: install.sh, tests/test_curl_install.sh, tests/test_git_install.sh
 - Dépendances: Aucune
 - Validation: Les tests vérifient que la date du dernier commit est affichée correctement 
+
+## 10. Amélioration de la méthode d'installation
+10.1. [x] **Bannir l'utilisation de l'ARCHIVE_URL** : Modifier le script d'installation pour ne plus utiliser l'archive mais se concentrer uniquement sur la branche master.
+- Actions:
+  1. Remplacer la constante ARCHIVE_URL par une URL pointant directement vers la branche master
+  2. Modifier la fonction install_rules pour ne plus télécharger ni extraire d'archive
+  3. Adapter la méthode d'installation curl pour cloner directement depuis la branche master ou utiliser l'API GitHub
+  4. Mettre à jour les messages de log pour refléter cette nouvelle approche
+- Fichiers: install.sh
+- Dépendances: Aucune
+- Validation: Les tests d'installation continuent de passer après la modification
+
+10.2. [x] **Mettre à jour le README pour favoriser curl** : Modifier le README pour faire de curl la méthode d'installation par défaut.
+- Actions:
+  1. Inverser les sections Method 1 et Method 2 dans le README
+  2. Mettre à jour les descriptions pour présenter curl comme la méthode recommandée
+  3. Adapter les exemples et les explications en conséquence
+  4. S'assurer que la documentation reste cohérente avec le fonctionnement du script
+- Fichiers: README.md
+- Dépendances: 10.1
+- Validation: Le README présente clairement curl comme la méthode d'installation par défaut
+
+10.3. [x] **Mettre à jour les tests pour les changements** : S'assurer que les tests fonctionnent correctement avec les nouvelles modifications.
+- Actions:
+  1. Vérifier que tous les tests existants sont compatibles avec les nouvelles modifications
+  2. Adapter les tests si nécessaire pour qu'ils fonctionnent avec la nouvelle approche
+  3. Ajouter des tests supplémentaires si besoin pour valider le nouveau comportement
+  4. Exécuter l'ensemble des tests pour s'assurer qu'il n'y a pas de régression
+- Fichiers: tests/test_git_install.sh, tests/test_curl_install.sh
+- Dépendances: 10.1, 10.2
+- Validation: Tous les tests passent après les modifications 
+
+## 11. Corrections des tests après bannissement de l'ARCHIVE_URL
+11.1. [x] **Corriger les tests de téléchargement d'archive** : Résoudre le problème d'interruption des tests dans test_download.sh.
+- Actions:
+  1. Adapter les tests utilisant la fonction download_archive pour qu'ils fonctionnent avec la version commentée
+  2. Vérifier les variables d'environnement et les chemins utilisés dans le test
+  3. S'assurer que le test se termine correctement en affichant le message de succès
+  4. Ajouter des logs supplémentaires pour mieux diagnostiquer les problèmes
+- Fichiers: tests/test_download.sh
+- Dépendances: Aucune
+- Validation: Le test test_download.sh s'exécute complètement et affiche "All tests passed!"
+
+11.2. [x] **Corriger le test d'installation standard** : Résoudre le problème de chemin relatif dans test_install.sh.
+- Actions:
+  1. Modifier les références à "../install.sh" pour utiliser un chemin absolu ou correct
+  2. Mettre à jour les tests qui font référence à l'archive pour utiliser la nouvelle méthode d'installation
+  3. Adapter les vérifications post-installation aux changements effectués
+- Fichiers: tests/test_install.sh
+- Dépendances: Aucune
+- Validation: Le test test_install.sh s'exécute sans erreur "No such file or directory" 

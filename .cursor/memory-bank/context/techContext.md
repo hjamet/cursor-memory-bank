@@ -10,8 +10,8 @@
 Le projet est organisé en une structure de fichiers cohérente avec des règles spécifiques pour Cursor et un script d'installation bash.
 
 ## Environnement de Développement
-- **Configuration requise**: Cursor, Bash, Git (optionnel), Curl (optionnel)
-- **Installation**: Via le script install.sh avec diverses options (--dir, --backup, --force, --use-curl)
+- **Configuration requise**: Cursor, Bash, Git (optionnel), Curl (recommandé)
+- **Installation**: Via le script install.sh avec diverses options (--dir, --backup, --force)
 
 ## Conventions de Code
 - Utilisation de fichiers .mdc pour les règles de Cursor
@@ -23,15 +23,18 @@ Le projet est organisé en une structure de fichiers cohérente avec des règles
 ## Dépendances Externes
 - Cursor: Dernière version - Environnement d'exécution principal
 - Git: Dernière version - Pour l'installation par clonage (optionnel)
-- Curl: Dernière version - Pour l'installation sans Git (optionnel)
+- Curl: Dernière version - Pour l'installation sans Git (recommandé)
+- API GitHub: Pour récupérer la liste des fichiers et la date du dernier commit
 
 ## Intégrations
-- GitHub: Pour l'hébergement du dépôt et la distribution
+- GitHub: Pour l'hébergement du dépôt, la distribution et l'API
 - Cursor: Intégration avec l'éditeur Cursor pour la contextualisation
 
 ## Fonctionnalités du script d'installation
-- Téléchargement d'archives et de fichiers individuels
+- Téléchargement direct des fichiers via l'API GitHub (pour curl)
+- Clonage du dépôt Git (si Git est disponible et --use-curl n'est pas spécifié)
 - Gestion intelligente des backups (désactivée par défaut, activable avec --backup)
 - Compatibilité avec les protocoles standard et file://
 - Gestion robuste des erreurs HTTP
+- Récupération de la date du dernier commit pour indiquer la fraîcheur des règles
 - Vérification et restauration des règles personnalisées 
