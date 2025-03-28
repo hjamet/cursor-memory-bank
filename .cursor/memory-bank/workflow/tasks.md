@@ -69,8 +69,6 @@
 - Dépendances: Aucune
 - Validation: Les fichiers contiennent une documentation claire sur le bug et la méthode de contournement
 
-- [x] **Analyse et compréhension des besoins** : Analyse des problèmes identifiés et des améliorations nécessaires.
-
 ## 4. Corrections des tests
 4.1. [x] **Corriger le test d'installation via curl** : Résoudre l'erreur "Core rules not installed".
 - Actions: 
@@ -160,50 +158,13 @@
 - Dépendances: Aucune
 - Validation: La règle fix.mdc contient des directives claires sur quelles erreurs documenter
 
-7.2. [ ] **Réviser le système de règles pour identifier les inconsistances** : Effectuer une revue complète du workflow pour détecter les erreurs ou incohérences.
-- Actions: 
-  1. Examiner chaque règle pour détecter les erreurs, inconsistances ou incohérences
-  2. Vérifier la cohérence des instructions entre les différentes règles
-  3. S'assurer que les références croisées entre règles sont correctes
-  4. Documenter toutes les anomalies trouvées
-- Fichiers: Tous les fichiers .mdc dans .cursor/rules/
-- Dépendances: Aucune
-- Validation: Liste complète des inconsistances identifiées
-
-7.3. [ ] **Contracter les règles pour améliorer la lisibilité** : Optimiser les règles existantes sans en changer le comportement.
-- Actions: 
-  1. Identifier les sections redondantes ou trop verbeuses dans les règles
-  2. Reformuler les instructions pour être plus concises tout en gardant leur clarté
-  3. Éliminer les répétitions inutiles tout en préservant les éléments essentiels du workflow
-  4. S'assurer que les modifications ne changent pas le comportement ou la structure des règles
-- Fichiers: Tous les fichiers .mdc dans .cursor/rules/
-- Dépendances: 7.2
-- Validation: Les règles sont plus concises mais conservent le même comportement et structure
-
-7.4. [ ] **Corriger les anomalies identifiées** : Implémenter les corrections pour les problèmes détectés.
-- Actions: 
-  1. Corriger chaque inconsistance ou erreur identifiée dans la tâche 7.2
-  2. Tester chaque correction pour s'assurer qu'elle n'introduit pas de nouveaux problèmes
-  3. Vérifier que les corrections n'altèrent pas le comportement global du système
-- Fichiers: Fichiers spécifiques identifiés dans la tâche 7.2
-- Dépendances: 7.2, 7.3
-- Validation: Toutes les inconsistances sont corrigées sans introduire de nouveaux problèmes 
-
-## 8. Corrections des tests curl
-8.1. [x] **Corriger la création du répertoire de logs** : Résoudre le problème de création des logs dans les tests curl.
-- Actions: 
-  1. Modifier la fonction setup dans test_curl_install.sh pour créer correctement le répertoire des logs
-  2. S'assurer que le répertoire parent TEST_DIR est créé avant de créer LOGS_DIR
-  3. Ajouter une vérification de l'existence du répertoire avant d'écrire dans les fichiers de log
-- Fichiers: tests/test_curl_install.sh
-- Dépendances: Aucune
-- Validation: Les tests ne génèrent plus d'erreurs liées aux logs
-
-8.3. [x] **Corriger le test de gestion d'erreur curl** : Résoudre la régression dans le test de gestion d'erreur curl.
+## 9. Amélioration du script d'installation - Master Branch
+9.1. [x] **Récupération depuis la branche master et affichage de la date** : Modifier le script d'installation pour récupérer les règles directement depuis la branche master et afficher la date du dernier commit.
 - Actions:
-  1. Analyser pourquoi le test échoue maintenant alors qu'il fonctionnait avant
-  2. Vérifier la commande curl et ses options dans le test
-  3. Ajuster le test ou la vérification d'erreur pour que le test passe correctement
-- Fichiers: tests/test_curl_install.sh
+  1. Ajouter une fonction get_last_commit_date pour récupérer la date du dernier commit
+  2. Implémenter différentes méthodes de récupération (Git et API GitHub)
+  3. Afficher la date du dernier commit lors de l'installation et dans la commande --version
+  4. Mettre à jour les tests pour vérifier l'affichage de la date de commit
+- Fichiers: install.sh, tests/test_curl_install.sh, tests/test_git_install.sh
 - Dépendances: Aucune
-- Validation: Le test de gestion d'erreur curl passe correctement 
+- Validation: Les tests vérifient que la date du dernier commit est affichée correctement 

@@ -147,6 +147,25 @@ test_invalid_directory() {
     fi
 }
 
+test_version_with_date() {
+    echo "Test: Affichage de la date du dernier commit"
+    setup
+    
+    # Capture la sortie de la commande version
+    local version_output
+    version_output=$(bash "$INSTALL_SCRIPT" --version 2>&1)
+    
+    # Vérifie que la sortie contient une date au format YYYY-MM-DD
+    if [[ ! "$version_output" =~ \([0-9]{4}-[0-9]{2}-[0-9]{2}\) ]]; then
+        echo "❌ Test failed: La date du dernier commit n'est pas affichée correctement"
+        echo "   Output: $version_output"
+        exit 1
+    fi
+    
+    echo "✅ Test affichage de la date réussi: $version_output"
+    cleanup
+}
+
 # Exécution des tests
 trap cleanup EXIT
 
@@ -156,4 +175,5 @@ test_preserve_custom_rules
 test_no_backup_option
 test_force_option
 test_invalid_directory
+test_version_with_date
 echo "Tous les tests ont réussi!" 

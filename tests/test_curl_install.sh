@@ -125,6 +125,14 @@ test_curl_installation() {
         return 1
     fi
     
+    # Verify that it displays the commit date in the installation log
+    local installation_log=$(curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --force --use-curl --version 2>&1)
+    if ! echo "$installation_log" | grep -q "([0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\})"; then
+        log_error "Commit date not displayed in version output"
+        echo "Version output: $installation_log"
+        return 1
+    fi
+    
     log "Curl installation test passed"
     return 0
 }

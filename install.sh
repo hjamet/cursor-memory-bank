@@ -10,6 +10,7 @@ set -o pipefail  # Exit on pipe failure
 # Constants
 REPO_URL="https://github.com/hjamet/cursor-memory-bank.git"
 ARCHIVE_URL="https://github.com/hjamet/cursor-memory-bank/archive/refs/heads/master.tar.gz"
+API_URL="https://api.github.com/repos/hjamet/cursor-memory-bank/commits/master"
 DEFAULT_RULES_DIR=".cursor/rules"
 RULES_DIR="${TEST_RULES_DIR:-$DEFAULT_RULES_DIR}"
 TEMP_DIR="/tmp/cursor-memory-bank-$$"
@@ -33,6 +34,53 @@ warn() {
 error() {
     echo -e "${RED}[ERROR]${NC} $1" >&2
     exit 1
+}
+
+# Get the date of the latest commit
+get_last_commit_date() {
+    local use_curl="${1:-}"
+    local format="${2:-short}"
+    local date_format=""
+    
+    if [[ "$format" == "full" ]]; then
+        date_format="%Y-%m-%d %H:%M:%S"
+    else
+        date_format="%Y-%m-%d"
+    fi
+    
+    if [[ -z "$use_curl" ]] && command -v git >/dev/null 2>&1; then
+        # If git is available, use it to get the date
+        if git --git-dir="$TEMP_DIR/repo/.git" log -1 --format="%ad" --date=format:"$date_format" 2>/dev/null; then
+            return 0
+        fi
+    fi
+    
+    # Fallback to using the GitHub API
+    if command -v curl >/dev/null 2>&1; then
+        local api_response
+        local commit_date
+        
+        # Get the date from GitHub API
+        api_response=$(curl -s "$API_URL" 2>/dev/null)
+        if [[ -n "$api_response" ]]; then
+            # Extract the date using grep and sed
+            commit_date=$(echo "$api_response" | grep -o '"date": "[^"]*"' | head -1 | sed 's/"date": "\(.*\)"/\1/')
+            
+            # Format the date if found
+            if [[ -n "$commit_date" ]]; then
+                # Convert ISO 8601 date format (2023-03-27T12:34:56Z) to desired format
+                if [[ "$format" == "full" ]]; then
+                    echo "$commit_date" | sed 's/T/ /g' | sed 's/Z//g' | cut -d. -f1
+                else
+                    echo "$commit_date" | cut -d'T' -f1
+                fi
+                return 0
+            fi
+        fi
+    fi
+    
+    # If all else fails, use current date
+    date +"$date_format"
 }
 
 cleanup() {
@@ -187,6 +235,7 @@ install_rules() {
     local rules_path="$target_dir/$RULES_DIR"
     local clone_dir="$temp_dir/repo"
     local archive_dir="$temp_dir/archive"
+    local commit_date=""
 
     log "Installing rules to $rules_path"
 
@@ -199,6 +248,10 @@ install_rules() {
         fi
         local archive_file="$temp_dir/archive.tar.gz"
         download_archive "$ARCHIVE_URL" "$archive_file"
+        
+        # Get commit date
+        commit_date=$(get_last_commit_date "curl")
+        log "Installing rules from master branch (latest commit: $commit_date)"
 
         # Extract archive
         log "Extracting archive"
@@ -224,6 +277,10 @@ install_rules() {
         # Use git clone
         log "Using git clone for installation"
         clone_repository "$REPO_URL" "$clone_dir"
+        
+        # Get commit date
+        commit_date=$(get_last_commit_date)
+        log "Installing rules from master branch (latest commit: $commit_date)"
 
         # Check for rules directory
         if [[ ! -d "$clone_dir/rules" ]]; then
@@ -312,7 +369,19 @@ EOF
 
 show_version() {
     # Format: vX.Y.Z (YYYY-MM-DD)
-    echo "Cursor Memory Bank Installation Script v${VERSION} (2023-03-27)"
+    local commit_date
+    
+    # Try to get the date of the latest commit
+    if [[ -d "$TEMP_DIR" ]]; then
+        commit_date=$(get_last_commit_date "curl" "short")
+    else
+        # Create temporary directory if it doesn't exist yet
+        mkdir -p "$TEMP_DIR" || error "Failed to create temporary directory"
+        commit_date=$(get_last_commit_date "curl" "short")
+        # Don't clean up here as this might be followed by actual installation
+    fi
+    
+    echo "Cursor Memory Bank Installation Script v${VERSION} ($commit_date)"
     exit 0
 }
 
