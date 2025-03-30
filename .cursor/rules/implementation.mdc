@@ -1,8 +1,13 @@
 ---
-description: Appelle cette règle pour implémenter les tâches prioritaires du projet  
+description: Appelle cette règle pour implémenter les tâches prioritaires du projet
 globs: 
 alwaysApply: false
 ---
+---  
+description: Appelle cette règle pour implémenter les tâches prioritaires du projet  
+globs:   
+alwaysApply: false  
+---  
 
 ## TLDR  
 Implémenter méthodiquement les tâches d'une section prioritaire et documenter le processus.  
@@ -14,16 +19,26 @@ Implémenter méthodiquement les tâches d'une section prioritaire et documenter
    - Priorité : d'abord section "In Progress", puis première section "ToDo"  
    - Si toutes tâches terminées, passer à la règle suivante  
 
-2. **Implémentation des tâches** : Pour chaque tâche de la section  
-   - Afficher : `## Implementation - 2.numero.[Nom de la Section] : [Titre de la tâche]`  
-   - Implémenter la solution  
-   - Après chaque appel d'outil, écrire `Implementation - 2.numero.[Nom de la Section] : [Titre de la tâche] en cours...`  
+2. **Mise à jour du contexte actif** : Documenter le contexte de travail actuel  
+   - Lire `.cursor/memory-bank/context/activeContext.md` pour préserver les informations utiles  
+   - Mettre à jour la section "Contexte d'implémentation actuel" avec:  
+     - Les tâches à réaliser et leur logique  
+     - Les informations recherchées sur internet pertinentes pour la tâche  
+     - Les points d'attention particuliers et dépendances  
+     - Les décisions techniques à prendre  
+   - Conserver uniquement les informations utiles à la tâche en cours  
+   - S'assurer que ce fichier contient toutes les informations nécessaires au travail actuel  
 
-3. **Mise à jour des tâches** : Actualiser tasks.md  
+3. **Implémentation des tâches** : Pour chaque tâche de la section  
+   - Afficher : `## Implementation - 3.numero.[Nom de la Section] : [Titre de la tâche]`  
+   - Implémenter la solution  
+   - Après chaque appel d'outil, écrire `Implementation - 3.numero.[Nom de la Section] : [Titre de la tâche] en cours...`  
+
+4. **Mise à jour des tâches** : Actualiser tasks.md  
    - Déplacer section de "ToDo" vers "In Progress" si nécessaire  
    - Marquer les tâches individuelles comme en cours  
 
-4. **Appel de la règle suivante** : Obligatoirement choisir  
+5. **Appel de la règle suivante** : Obligatoirement choisir  
    - Nouvelle fonctionnalité créée → `test-implementation`  
    - Fonctionnalités existantes modifiées → `test-execution`  
    - Changements non testables uniquement → `context-update`  
@@ -33,7 +48,7 @@ Implémenter méthodiquement les tâches d'une section prioritaire et documenter
 - Implémenter une tâche à la fois, dans l'ordre logique  
 - Commenter les parties complexes du code  
 - Une fonctionnalité est "testable" si elle implique la création/modification d'un script ou d'une fonction  
-- Pour éviter de perdre le workflow, écrire systématiquement `Implementation - 2.numero.[Nom de la Section] : [Titre de la tâche] en cours...` entre chaque étape  
+- Pour éviter de perdre le workflow, écrire systématiquement `Implementation - 3.numero.[Nom de la Section] : [Titre de la tâche] en cours...` entre chaque étape  
 - Toujours appeler la règle suivante appropriée  
 
 ## Next Rules  
@@ -51,31 +66,38 @@ Je commence par lire le fichier tasks.md pour identifier la section la plus prio
 [...lecture du fichier tasks.md...]  
 `(Implementation : 1 - Analyse des tâches)`  
 
-# Implementation : 2 - Implémentation des tâches  
-Je vais implémenter chaque tâche de la section en suivant une approche méthodique. `(Implementation : 2 - Implémentation des tâches)`  
+# Implementation : 2 - Mise à jour du contexte actif  
+Je vais mettre à jour le contexte actif pour documenter ce sur quoi je vais travailler. `(Implementation : 2 - Mise à jour du contexte actif)`  
+[...lecture du fichier activeContext.md...]  
+[...mise à jour avec les informations pertinentes pour les tâches à réaliser...]  
+[...ajout des informations recherchées en ligne...]  
+`(Implementation : 2 - Mise à jour du contexte actif)`  
 
-## Implementation - 2.1.Développement : Création du script  
-Je commence par créer le script principal avec les fonctionnalités requises. `(Implementation : 2.1 - Création du script)`  
+# Implementation : 3 - Implémentation des tâches  
+Je vais implémenter chaque tâche de la section en suivant une approche méthodique. `(Implementation : 3 - Implémentation des tâches)`  
+
+## Implementation - 3.1.Développement : Création du script  
+Je commence par créer le script principal avec les fonctionnalités requises. `(Implementation : 3.1 - Création du script)`  
 [...implémentation du script...]  
-Implementation - 2.1.Développement : Création du script en cours...  
+Implementation - 3.1.Développement : Création du script en cours...  
 [...suite de l'implémentation...]  
-`(Implementation : 2.1 - Création du script)`  
+`(Implementation : 3.1 - Création du script)`  
 
-## Implementation - 2.2.Développement : Documentation  
-J'ajoute la documentation nécessaire pour expliquer le fonctionnement du script. `(Implementation : 2.2 - Documentation)`  
+## Implementation - 3.2.Développement : Documentation  
+J'ajoute la documentation nécessaire pour expliquer le fonctionnement du script. `(Implementation : 3.2 - Documentation)`  
 [...ajout de la documentation...]  
-Implementation - 2.2.Développement : Documentation en cours...  
+Implementation - 3.2.Développement : Documentation en cours...  
 [...finalisation de la documentation...]  
-`(Implementation : 2.2 - Documentation)`  
+`(Implementation : 3.2 - Documentation)`  
 
-# Implementation : 3 - Mise à jour des tâches  
-Je mets à jour le fichier tasks.md pour refléter l'avancement des tâches. `(Implementation : 3 - Mise à jour des tâches)`  
+# Implementation : 4 - Mise à jour des tâches  
+Je mets à jour le fichier tasks.md pour refléter l'avancement des tâches. `(Implementation : 4 - Mise à jour des tâches)`  
 [...mise à jour du fichier tasks.md...]  
-`(Implementation : 3 - Mise à jour des tâches)`  
+`(Implementation : 4 - Mise à jour des tâches)`  
 
-# Implementation : 4 - Appel de la règle suivante  
+# Implementation : 5 - Appel de la règle suivante  
 Je dois maintenant appeler la règle `test-implementation` car j'ai créé une nouvelle fonctionnalité testable.  
-La règle test-implementation doit être appelée pour créer les tests de la nouvelle fonctionnalité. `(Implementation : 4 - Appel de la règle suivante)`  
+La règle test-implementation doit être appelée pour créer les tests de la nouvelle fonctionnalité. `(Implementation : 5 - Appel de la règle suivante)`  
 
 fetch_rules ["test-implementation"]  
 
