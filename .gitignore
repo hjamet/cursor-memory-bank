@@ -7,3 +7,10 @@
 # Dist directory
 dist/
 tmp/
+
+# MCP
+poetry.lock
+mcp_server.log
+.mcp_server.pid
+.venv
+poetry.toml

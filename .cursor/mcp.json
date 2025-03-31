@@ -1,0 +1,37 @@
+{
+    "server": {
+        "url": "http://127.0.0.1:5000",
+        "local": true,
+        "tools": [
+            {
+                "name": "run-pytest",
+                "description": "Exécute les tests PyTest avec Poetry",
+                "endpoint": "/run-pytest",
+                "method": "POST",
+                "params": {
+                    "test_path": {
+                        "type": "string",
+                        "description": "Chemin vers le fichier ou dossier contenant les tests à exécuter"
+                    },
+                    "verbose": {
+                        "type": "boolean",
+                        "description": "Niveau de verbosité des tests (optionnel)",
+                        "default": false
+                    }
+                }
+            },
+            {
+                "name": "git-commit",
+                "description": "Effectue un commit Git avec les fichiers modifiés (< 10Mo)",
+                "endpoint": "/git-commit",
+                "method": "POST",
+                "params": {
+                    "message": {
+                        "type": "string",
+                        "description": "Message du commit"
+                    }
+                }
+            }
+        ]
+    }
+}
