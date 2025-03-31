@@ -3,9 +3,8 @@ description: Appelle cette règle pour mettre à jour les fichiers de contexte e
 globs: 
 alwaysApply: false
 ---
-
 ## TLDR
-Mettre à jour les fichiers de contexte pour refléter les changements, actualiser tasks.md en fonction des résultats des tests, et effectuer un commit via le serveur MCP suivant les conventions.
+Mettre à jour les fichiers de contexte pour refléter les changements, actualiser tasks.md en fonction des résultats des tests, et effectuer un commit suivant les conventions.
 
 ## Instructions
 1. **Mise à jour du contexte**: Mettre à jour les trois fichiers de contexte si nécessaire:
@@ -22,10 +21,9 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
 3. **Mise à jour de tasks.md**: Mettre à jour le fichier tasks.md en fonction des résultats des tests:
    - Déplacer les tâches réussies de "In Progress" vers "Done"
 
-4. **Commit des modifications via le serveur MCP**: Effectuer un commit en utilisant le serveur MCP:
-   - Utiliser uniquement le serveur MCP pour effectuer le commit, jamais de commande Git directe
-   - Si le serveur MCP n'est pas accessible au moment d'effectuer le commit, le démarrer avec `make -C .cursor/MCP start`
-   - Envoyer une requête au serveur MCP avec le message de commit approprié
+4. **Commit des modifications**: Effectuer un commit avec les modifications:
+   - Préparer les fichiers et créer le commit en une seule commande:
+     `git add [fichiers] && git commit -m "[message]"`
    - Suivre le format conventional commit avec emoji pour le message
 
 5. **Appel de la règle suivante**: Appeler obligatoirement la règle suivante si le workflow n'est pas terminé:
@@ -36,8 +34,6 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
          - Sinon, indiquer que le workflow est terminé
 
 ## Précisions
-- Ne jamais exécuter directement les commandes Git, toujours utiliser le serveur MCP
-- La vérification de l'état du serveur MCP se fait uniquement au moment d'effectuer le commit
 - Marquer les tâches comme terminées uniquement si tous les tests associés passent
 - Utilise le format comventional commit en ajoutant un emoji pour décrire l'opération effectuée
 - Supprimer systématiquement les anciennes entrées d'historique qui ne sont plus pertinentes
@@ -75,7 +71,7 @@ Exemples d'emojis et types:
 ## Exemple
 
 fetch_rules ["context-update"]
-<SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. J'effectuerai un commit pour les modifications via le serveur MCP et déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix', 'request-analysis' ou 'implementation' selon les tests, l'existance d'un brief utilisateur et les tâches restantes. Si le serveur MCP n'est pas accessible au moment d'effectuer le commit, je le démarrerai avec make -C .cursor/MCP start.</SYSTEM PROMPT>
+<SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. J'effectuerai un commit pour les modifications et déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix', 'request-analysis' ou 'implementation' selon les tests, l'existance d'un brief utilisateur et les tâches restantes.</SYSTEM PROMPT>
 
 # Context-update : 1 - Mise à jour du contexte
 Je commence par mettre à jour les fichiers de contexte pour refléter les changements. `(Context-update : 1 - Mise à jour du contexte)`
@@ -96,17 +92,15 @@ Je mets à jour le fichier tasks.md en déplaçant les tâches terminées vers D
 [...mise à jour du fichier tasks.md...]
 `(Context-update : 3 - Mise à jour du fichier tasks.md)`
 
-# Context-update : 4 - Effectuer un commit via le serveur MCP
-Je prépare et effectue un commit avec les modifications apportées via le serveur MCP. Si le serveur n'est pas accessible, je vais le démarrer. `(Context-update : 4 - Effectuer un commit via le serveur MCP)`
-[...tentative de commit via le serveur MCP...]
-[Si nécessaire: Le serveur MCP n'est pas accessible, je le démarre avec `make -C .cursor/MCP start`]
-[...envoi d'une requête au serveur MCP pour créer le commit...]
-`(Context-update : 4 - Effectuer un commit via le serveur MCP)`
+# Context-update : 4 - Effectuer un commit
+Je prépare et effectue un commit avec les modifications apportées. `(Context-update : 4 - Effectuer un commit)`
+[...création du commit...]
+`(Context-update : 4 - Effectuer un commit)`
 
 # Context-update : 5 - Appel de la règle suivante
 Je vais consulter le fichier `.cursor/memory-bank/workflow/userbrief.md` pour vérifier si le fichier est vide. `(Context-update : 5 - Appel de la règle suivante)`
 [...consultation du fichier userbrief.md...]
-Je vois que le fichier est vide. Je vais donc consulter le fichier `.cursor/memory-bank/workflow/test.md` pour vérifier si au moins un test a échoué. `(Context-update : 5 - Appel de la règle suivante)`
+Je vois que que le fichier est vide. Je vais donc consulter le fichier `.cursor/memory-bank/workflow/test.md` pour vérifier si au moins un test a échoué. `(Context-update : 5 - Appel de la règle suivante)`
 [...consultation du fichier test.md...]
 Je constate que les tests [...] ont échoué. Je vais donc appeler la règle `fix`. `(Context-update : 5 - Appel de la règle suivante)`
 
@@ -114,4 +108,4 @@ fetch_rules ["fix"]
 
 # Start Rule
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. J'effectuerai un commit pour les modifications via le serveur MCP et déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix', 'request-analysis' ou 'implementation' selon les tests, l'existance d'un brief utilisateur et les tâches restantes. Si le serveur MCP n'est pas accessible au moment d'effectuer le commit, je le démarrerai avec make -C .cursor/MCP start.</SYSTEM PROMPT>"
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. J'effectuerai un commit pour les modifications et déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix', 'request-analysis' ou 'implementation' selon les tests, l'existance d'un brief utilisateur et les tâches restantes.</SYSTEM PROMPT>"
