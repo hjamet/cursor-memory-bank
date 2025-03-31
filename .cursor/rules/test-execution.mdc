@@ -5,32 +5,40 @@ alwaysApply: false
 ---
 
 ## TLDR  
-Exécuter les tests unitaires, analyser les résultats et documenter les succès et échecs dans tests.md.  
+Exécuter les tests unitaires via le serveur MCP, analyser les résultats et documenter les succès et échecs dans tests.md.  
 
 ## Instructions  
 
-1. **Exécution des tests** : Lancer les tests des fonctionnalités implémentées  
+1. **Vérification du serveur MCP** : S'assurer que le serveur est disponible
+   - Avant d'exécuter les tests, vérifier si le serveur MCP est accessible
+   - Si le serveur n'est pas disponible, le démarrer avec `make -C .cursor/MCP start`
+   - Ne jamais exécuter directement les commandes de test, toujours passer par le serveur MCP
+
+2. **Exécution des tests** : Utiliser le serveur MCP pour lancer les tests  
+   - Envoyer les requêtes au serveur MCP pour exécuter les tests
    - Capturer tous les résultats (succès, échecs, avertissements)  
    - Noter les messages d'erreur précis  
    - Après chaque appel d'outil, écrire `Test-execution - 1.[Nom du test] en cours...`  
 
-2. **Analyse des résultats** : Comparer avec les précédents tests  
+3. **Analyse des résultats** : Comparer avec les précédents tests  
    - Lire le fichier `.cursor/memory-bank/workflow/tests.md` s'il existe  
    - Identifier améliorations ou régressions  
    - Après chaque appel d'outil, écrire `Test-execution - 2.[Analyse] en cours...`  
 
-3. **Documentation des résultats** : Mettre à jour tests.md  
+4. **Documentation des résultats** : Mettre à jour tests.md  
    - Créer le fichier si nécessaire  
    - Utiliser le format défini dans la règle d'édition tests-md  
    - Inclure une analyse d'évolution pour chaque test  
    - Documenter les échecs sans mener d'enquête approfondie  
 
-4. **Appel de la règle suivante**  
+5. **Appel de la règle suivante**  
    - Si au moins un test échoue → `fix`  
    - Si tous les tests passent → `context-update`  
 
 ## Précisions  
 
+- Ne jamais exécuter directement les commandes pytest, toujours utiliser le serveur MCP
+- Si le serveur n'est pas accessible, le démarrer via `make -C .cursor/MCP start`
 - Exécuter tous les tests disponibles, pas uniquement les nouveaux  
 - Ne pas tenter de corriger les erreurs (c'est le rôle de la règle `fix`)  
 - Pour éviter de perdre le workflow, écrire systématiquement `Test-execution - [numéro].[Nom] en cours...` entre chaque étape  
@@ -43,11 +51,20 @@ Exécuter les tests unitaires, analyser les résultats et documenter les succès
 ## Exemple  
 
 fetch_rules ["test-execution"]  
-<SYSTEM PROMPT>Je vais exécuter les tests unitaires et analyser leurs résultats. Je documenterai clairement les succès et les échecs dans le fichier tests.md. Je ne tenterai pas de corriger les erreurs mais ferai appel à la règle 'fix' si des tests échouent ou à 'context-update' si tous les tests passent.</SYSTEM PROMPT>  
+<SYSTEM PROMPT>Je vais exécuter les tests unitaires via le serveur MCP et analyser leurs résultats. Si le serveur n'est pas accessible, je le démarrerai avec make -C .cursor/MCP start. Je documenterai clairement les succès et les échecs dans le fichier tests.md. Je ne tenterai pas de corriger les erreurs mais ferai appel à la règle 'fix' si des tests échouent ou à 'context-update' si tous les tests passent.</SYSTEM PROMPT>  
+
+# Test-execution : 0 - Vérification du serveur MCP
+Je commence par vérifier si le serveur MCP est accessible. `(Test-execution : 0 - Vérification du serveur MCP)`  
+[...vérification du serveur...]  
+Si le serveur n'est pas accessible, je vais le démarrer :
+```
+make -C .cursor/MCP start
+```
+`(Test-execution : 0 - Vérification du serveur MCP)`
 
 # Test-execution : 1 - Exécution des tests  
-Je commence par exécuter les tests unitaires. `(Test-execution : 1 - Exécution des tests)`  
-[...exécution des tests...]  
+J'exécute les tests unitaires via le serveur MCP. `(Test-execution : 1 - Exécution des tests)`  
+[...envoi des requêtes au serveur MCP pour exécuter les tests...]  
 Test-execution - 1.TestAuthentification en cours...  
 [...capture des résultats...]  
 `(Test-execution : 1 - Exécution des tests)`  
@@ -71,4 +88,4 @@ fetch_rules ["context-update"]
 
 # Start Rule  
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais exécuter les tests unitaires et analyser leurs résultats sans mener d'enquête de debuggage approfondie. Je documenterai clairement les succès et les échecs dans le fichier tests.md. Je ne tenterai pas de corriger les erreurs mais ferai appel à la règle 'fix' si des tests échouent ou à 'context-update' si tous les tests passent.</SYSTEM PROMPT>"  
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais exécuter les tests unitaires via le serveur MCP et analyser leurs résultats sans mener d'enquête de debuggage approfondie. Si le serveur n'est pas accessible, je le démarrerai avec make -C .cursor/MCP start. Je documenterai clairement les succès et les échecs dans le fichier tests.md. Je ne tenterai pas de corriger les erreurs mais ferai appel à la règle 'fix' si des tests échouent ou à 'context-update' si tous les tests passent.</SYSTEM PROMPT>"
