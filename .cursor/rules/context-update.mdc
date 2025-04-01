@@ -3,6 +3,7 @@ description: Appelle cette règle pour mettre à jour les fichiers de contexte e
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Mettre à jour les fichiers de contexte pour refléter les changements, actualiser tasks.md en fonction des résultats des tests, et effectuer un commit suivant les conventions.
 

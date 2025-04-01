@@ -1,13 +1,8 @@
 ---
 description: 
-globs: 
+globs: .cursor/memory-bank/context/projectBrief.md
 alwaysApply: false
 ---
----  
-description:
-globs: .cursor/memory-bank/context/projectBrief.md  
-alwaysApply: false  
----  
 
 # Règle d'édition projectBrief.md  
 

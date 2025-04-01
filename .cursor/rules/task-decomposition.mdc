@@ -1,5 +1,5 @@
 ---
-description:  Appelle cette règle pour structurer la requête en tâches concrètes et mesurables  
+description: Appelle cette règle pour structurer la requête en tâches concrètes et mesurables  
 globs: 
 alwaysApply: false
 ---

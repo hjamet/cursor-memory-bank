@@ -3,7 +3,7 @@ description: Appelle cette règle pour implémenter les tâches prioritaires du 
 globs: 
 alwaysApply: false
 ---
- 
+
 ## TLDR  
 Implémenter méthodiquement les tâches d'une section prioritaire et documenter le processus.  
 
