@@ -24,26 +24,31 @@ Implémenter méthodiquement les tâches d'une section prioritaire et documenter
    - Conserver uniquement les informations utiles à la tâche en cours  
    - S'assurer que ce fichier contient toutes les informations nécessaires au travail actuel  
 
-3. **Implémentation des tâches** : Pour chaque tâche de la section  
-   - Afficher : `## Implementation - 3.numero.[Nom de la Section] : [Titre de la tâche]`  
-   - Implémenter la solution  
-   - Après chaque appel d'outil, écrire `Implementation - 3.numero.[Nom de la Section] : [Titre de la tâche] en cours...`  
+3. **Deep Thinking** : Réfléchir de manière approfondie à l'approche d'implémentation
+   - Ouvrir un token think avec    - Résumer brièvement les conclusions de la réflexion
 
-4. **Mise à jour des tâches** : Actualiser tasks.md  
+4. **Implémentation des tâches** : Pour chaque tâche de la section  
+   - Afficher : `## Implementation - 4.numero.[Nom de la Section] : [Titre de la tâche]`  
+   - Implémenter la solution  
+   - Après chaque appel d'outil, écrire `Implementation - 4.numero.[Nom de la Section] : [Titre de la tâche] en cours...`  
+
+5. **Mise à jour des tâches** : Actualiser tasks.md  
    - Déplacer section de "ToDo" vers "In Progress" si nécessaire  
    - Marquer les tâches individuelles comme en cours  
 
-5. **Appel de la règle suivante** : Obligatoirement choisir  
+6. **Appel de la règle suivante** : Obligatoirement choisir  
    - Nouvelle fonctionnalité créée → `test-implementation`  
    - Fonctionnalités existantes modifiées → `test-execution`  
    - Changements non testables uniquement → `context-update`  
 
 ## Précisions  
 
+- L'étape Deep Thinking doit être réalisée avant toute implémentation pour garantir une solution bien conçue
+- Le token think permet de réfléchir en profondeur sans contrainte de sortie immédiate
 - Implémenter une tâche à la fois, dans l'ordre logique  
 - Commenter les parties complexes du code  
 - Une fonctionnalité est "testable" si elle implique la création/modification d'un script ou d'une fonction  
-- Pour éviter de perdre le workflow, écrire systématiquement `Implementation - 3.numero.[Nom de la Section] : [Titre de la tâche] en cours...` entre chaque étape  
+- Pour éviter de perdre le workflow, écrire systématiquement `Implementation - 4.numero.[Nom de la Section] : [Titre de la tâche] en cours...` entre chaque étape  
 - Toujours appeler la règle suivante appropriée  
 
 ## Next Rules  
@@ -54,7 +59,7 @@ Implémenter méthodiquement les tâches d'une section prioritaire et documenter
 ## Exemple  
 
 fetch_rules ["implementation"]  
-<SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `test-implementation` si j'ai créé une nouvelle fonctionnalité testable, ou à `test-execution` sinon.</SYSTEM PROMPT>  
+<SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. Je réfléchirai d'abord de manière approfondie à la meilleure solution avant de l'implémenter. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `test-implementation` si j'ai créé une nouvelle fonctionnalité testable, ou à `test-execution` sinon.</SYSTEM PROMPT>  
 
 # Implementation : 1 - Analyse des tâches  
 Je commence par lire le fichier tasks.md pour identifier la section la plus prioritaire. `(Implementation : 1 - Analyse des tâches)`  
@@ -68,34 +73,38 @@ Je vais mettre à jour le contexte actif pour documenter ce sur quoi je vais tra
 [...ajout des informations recherchées en ligne...]  
 `(Implementation : 2 - Mise à jour du contexte actif)`  
 
-# Implementation : 3 - Implémentation des tâches  
-Je vais implémenter chaque tâche de la section en suivant une approche méthodique. `(Implementation : 3 - Implémentation des tâches)`  
+# Implementation : 3 - Deep Thinking  
+Avant de commencer l'implémentation, je vais réfléchir de manière approfondie à la meilleure approche. `(Implementation : 3 - Deep Thinking)`  
+Après réflexion, j'ai déterminé que la meilleure approche est d'utiliser un modèle asynchrone pour la connexion à l'API. Cela permettra de ne pas bloquer le thread principal et d'offrir une meilleure expérience utilisateur. J'ai prévu une structure en classe avec gestion des erreurs et système de retry. `(Implementation : 3 - Deep Thinking)`
 
-## Implementation - 3.1.Développement : Création du script  
-Je commence par créer le script principal avec les fonctionnalités requises. `(Implementation : 3.1 - Création du script)`  
+# Implementation : 4 - Implémentation des tâches  
+Je vais implémenter chaque tâche de la section en suivant une approche méthodique. `(Implementation : 4 - Implémentation des tâches)`  
+
+## Implementation - 4.1.Développement : Création du script  
+Je commence par créer le script principal avec les fonctionnalités requises. `(Implementation : 4.1 - Création du script)`  
 [...implémentation du script...]  
-Implementation - 3.1.Développement : Création du script en cours...  
+Implementation - 4.1.Développement : Création du script en cours...  
 [...suite de l'implémentation...]  
-`(Implementation : 3.1 - Création du script)`  
+`(Implementation : 4.1 - Création du script)`  
 
-## Implementation - 3.2.Développement : Documentation  
-J'ajoute la documentation nécessaire pour expliquer le fonctionnement du script. `(Implementation : 3.2 - Documentation)`  
+## Implementation - 4.2.Développement : Documentation  
+J'ajoute la documentation nécessaire pour expliquer le fonctionnement du script. `(Implementation : 4.2 - Documentation)`  
 [...ajout de la documentation...]  
-Implementation - 3.2.Développement : Documentation en cours...  
+Implementation - 4.2.Développement : Documentation en cours...  
 [...finalisation de la documentation...]  
-`(Implementation : 3.2 - Documentation)`  
+`(Implementation : 4.2 - Documentation)`  
 
-# Implementation : 4 - Mise à jour des tâches  
-Je mets à jour le fichier tasks.md pour refléter l'avancement des tâches. `(Implementation : 4 - Mise à jour des tâches)`  
+# Implementation : 5 - Mise à jour des tâches  
+Je mets à jour le fichier tasks.md pour refléter l'avancement des tâches. `(Implementation : 5 - Mise à jour des tâches)`  
 [...mise à jour du fichier tasks.md...]  
-`(Implementation : 4 - Mise à jour des tâches)`  
+`(Implementation : 5 - Mise à jour des tâches)`  
 
-# Implementation : 5 - Appel de la règle suivante  
+# Implementation : 6 - Appel de la règle suivante  
 Je dois maintenant appeler la règle `test-implementation` car j'ai créé une nouvelle fonctionnalité testable.  
-La règle test-implementation doit être appelée pour créer les tests de la nouvelle fonctionnalité. `(Implementation : 5 - Appel de la règle suivante)`  
+La règle test-implementation doit être appelée pour créer les tests de la nouvelle fonctionnalité. `(Implementation : 6 - Appel de la règle suivante)`  
 
 fetch_rules ["test-implementation"]  
 
 # Start Rule  
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `test-implementation` si j'ai créé une nouvelle fonctionnalité testable, ou à `test-execution` sinon.</SYSTEM PROMPT>"  
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. Je réfléchirai d'abord de manière approfondie à la meilleure solution avant de l'implémenter. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `test-implementation` si j'ai créé une nouvelle fonctionnalité testable, ou à `test-execution` sinon.</SYSTEM PROMPT>"
