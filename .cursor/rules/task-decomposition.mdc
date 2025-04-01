@@ -11,9 +11,13 @@ Décomposer la requête utilisateur en tâches concrètes et les organiser dans 
 
 1. **Analyse des tâches existantes** : Lire le fichier `.cursor/memory-bank/workflow/tasks.md` s'il existe  
 
-2. **Suppression des tâches terminées** : Éliminer les tâches terminées sans lien avec le travail actuel  
+2. **Analyse du userbrief** : Consulter le fichier `.cursor/memory-bank/userbrief.md`
+   - Intégrer les tâches demandées par l'utilisateur dans tasks.md tout en les conservant dans leur forme originale dans userbrief.md
+   - Marquer ces tâches comme 🔄 (In Progress) dans userbrief.md
 
-3. **Intégration des nouvelles tâches** : Structurer les tâches dans tasks.md  
+3. **Suppression des tâches terminées** : Éliminer les tâches terminées sans lien avec le travail actuel  
+
+4. **Intégration des nouvelles tâches** : Structurer les tâches dans tasks.md  
    - Créer 3-4 sections de très haut niveau maximum (ex: "Préparation", "Développement")  
    - Numéroter sections par ordre de résolution (1., 2., 3.)  
    - Sous-numéroter les tâches (1.1, 1.2, 2.1, 2.2)  
@@ -25,7 +29,7 @@ Décomposer la requête utilisateur en tâches concrètes et les organiser dans 
      * Critères de validation  
    - Prioriser selon importance, dépendances, impact et complexité  
 
-4. **Appel de la règle suivante** : Appeler obligatoirement `implementation`  
+5. **Appel de la règle suivante** : Appeler obligatoirement `implementation`  
 
 ## Précisions  
 - Regrouper les tâches similaires, même si apparemment différentes  
@@ -33,6 +37,7 @@ Décomposer la requête utilisateur en tâches concrètes et les organiser dans 
 - Utiliser sections génériques pouvant accueillir différents types de tâches  
 - Minimiser les dépendances entre sections/tâches  
 - Le format du fichier tasks.md est défini dans la règle d'édition tasks-md  
+- IMPORTANT : Les tâches provenant du userbrief.md doivent être ajoutées à tasks.md tout en étant conservées dans leur format original dans userbrief.md
 
 ## Next Rules  
 - `implementation` - Pour commencer l'implémentation des tâches  
@@ -40,29 +45,34 @@ Décomposer la requête utilisateur en tâches concrètes et les organiser dans 
 ## Exemple  
 
 fetch_rules ["task-decomposition"]  
-<SYSTEM PROMPT>Je vais décomposer la requête en tâches concrètes, supprimer les tâches terminées non pertinentes et organiser le tout en sections logiques numérotées. Je ne tenterai pas d'appliquer ces tâches mais ferai appel à la règle `implementation` pour s'en charger.</SYSTEM PROMPT>  
+<SYSTEM PROMPT>Je vais décomposer la requête en tâches concrètes, supprimer les tâches terminées non pertinentes et organiser le tout en sections logiques numérotées. J'intégrerai également les demandes de l'utilisateur présentes dans userbrief.md à tasks.md. Je ne tenterai pas d'appliquer ces tâches mais ferai appel à la règle `implementation` pour s'en charger.</SYSTEM PROMPT>  
 
 # Task-decomposition : 1 - Analyse des tâches existantes  
 Je commence par lire le fichier tasks.md pour comprendre l'état actuel des tâches. `(Task-decomposition : 1 - Analyse des tâches existantes)`  
 [...lecture du fichier tasks.md...]  
 `(Task-decomposition : 1 - Analyse des tâches existantes)`  
 
-# Task-decomposition : 2 - Suppression des tâches terminées  
-Je supprime les tâches terminées qui ne sont plus pertinentes pour le travail en cours. `(Task-decomposition : 2 - Suppression des tâches terminées)`  
+# Task-decomposition : 2 - Analyse du userbrief
+Je consulte maintenant le fichier userbrief.md pour intégrer les demandes de l'utilisateur. `(Task-decomposition : 2 - Analyse du userbrief)`
+[...lecture du fichier userbrief.md...]
+`(Task-decomposition : 2 - Analyse du userbrief)`
+
+# Task-decomposition : 3 - Suppression des tâches terminées  
+Je supprime les tâches terminées qui ne sont plus pertinentes pour le travail en cours. `(Task-decomposition : 3 - Suppression des tâches terminées)`  
 [...suppression des tâches obsolètes...]  
-`(Task-decomposition : 2 - Suppression des tâches terminées)`  
+`(Task-decomposition : 3 - Suppression des tâches terminées)`  
 
-# Task-decomposition : 3 - Intégration des nouvelles tâches  
-Je décompose la requête en tâches concrètes et les organise en sections de haut niveau. `(Task-decomposition : 3 - Intégration des nouvelles tâches)`  
+# Task-decomposition : 4 - Intégration des nouvelles tâches  
+Je décompose la requête en tâches concrètes et les organise en sections de haut niveau, en incluant les demandes de l'utilisateur. `(Task-decomposition : 4 - Intégration des nouvelles tâches)`  
 [...organisation des tâches en sections...]  
-`(Task-decomposition : 3 - Intégration des nouvelles tâches)`  
+`(Task-decomposition : 4 - Intégration des nouvelles tâches)`  
 
-# Task-decomposition : 4 - Appel de la règle suivante  
+# Task-decomposition : 5 - Appel de la règle suivante  
 Je dois maintenant appeler la règle implementation pour commencer le travail sur les tâches.  
-La règle implementation doit être appelée pour commencer l'implémentation des tâches. `(Task-decomposition : 4 - Appel de la règle suivante)`  
+La règle implementation doit être appelée pour commencer l'implémentation des tâches. `(Task-decomposition : 5 - Appel de la règle suivante)`  
 
 fetch_rules ["implementation"]  
 
 # Start Rule  
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais décomposer la requête en tâches concrètes, supprimer les tâches terminées non pertinentes et organiser le tout en sections logiques numérotées. Je ne tenterai pas d'appliquer ces tâches mais ferai appel à la règle `implementation` pour s'en charger.</SYSTEM PROMPT>"  
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais décomposer la requête en tâches concrètes, supprimer les tâches terminées non pertinentes et organiser le tout en sections logiques numérotées. J'intégrerai également les demandes de l'utilisateur présentes dans userbrief.md à tasks.md. Je ne tenterai pas d'appliquer ces tâches mais ferai appel à la règle `implementation` pour s'en charger.</SYSTEM PROMPT>"

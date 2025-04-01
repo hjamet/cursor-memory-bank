@@ -21,14 +21,22 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
 3. **Mise à jour de tasks.md**: Mettre à jour le fichier tasks.md en fonction des résultats des tests:
    - Déplacer les tâches réussies de "In Progress" vers "Done"
 
-4. **Commit des modifications**: Effectuer un commit avec les modifications:
+4. **Mise à jour de userbrief.md**: Actualiser les statuts des éléments dans userbrief.md:
+   - Marquer comme ✅ (Done) les éléments terminés
+   - Marquer comme 🔄 (In Progress) les éléments en cours
+   - Conserver 📌 (Pris en compte) pour les préférences persistantes
+   - Laisser ⬜ (Todo) pour les éléments non traités
+   - Réorganiser les requêtes des "Nouvelles requêtes" vers les sections thématiques appropriées
+   - Ne jamais supprimer d'éléments ou vider le fichier (seul l'utilisateur le peut)
+
+5. **Commit des modifications**: Effectuer un commit avec les modifications:
    - Préparer les fichiers et créer le commit en une seule commande:
-     `git add [fichiers] && git commit -m "[message]"`
+     `git add * && git commit -m "[message]"`
    - Suivre le format conventional commit avec emoji pour le message
 
-5. **Appel de la règle suivante**: Appeler obligatoirement la règle suivante si le workflow n'est pas terminé:
-   - Vérifier si le fichier `.cursor/memory-bank/userbrief.md` n'est pas vide
-      - Si le fichier n'est pas vide, appeler la règle `request-analysis`
+6. **Appel de la règle suivante**: Appeler obligatoirement la règle suivante si le workflow n'est pas terminé:
+   - Vérifier si le fichier `.cursor/memory-bank/userbrief.md` contient des nouvelles requêtes ou des éléments non résolus (⬜ ou 🔄)
+      - Si oui, appeler la règle `request-analysis`
       - Sinon, lire le fichier `.cursor/memory-bank/workflow/test.md`
          - Si au moins un test échoue, appeler la règle `fix`
          - Sinon, indiquer que le workflow est terminé
@@ -38,8 +46,8 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
 - Utilise le format comventional commit en ajoutant un emoji pour décrire l'opération effectuée
 - Supprimer systématiquement les anciennes entrées d'historique qui ne sont plus pertinentes
 - Ne JAMAIS terminer sans soit appeler explicitement une règle suivante, soit indiquer explicitement que le workflow est terminé
-- Le workflow ne doit JAMAIS être considéré comme terminé s'il reste des tâches dans "In Progress" ou "ToDo" OU s'il y a au moins un test qui échoue (marqué ❌) ou avec avertissement (marqué ⚠️) OU si le fichier `.cursor/memory-bank/userbrief.md` n'est pas vide.
-- Si toutes les tâches sont terminées (c'est-à-dire qu'il n'y a plus AUCUNE tâche dans les sections "In Progress" et "ToDo" du fichier tasks.md) ET que tous les tests passent (TOUS marqués ✅) ET que le fichier `.cursor/memory-bank/userbrief.md` est vide, alors:
+- Le workflow ne doit JAMAIS être considéré comme terminé s'il reste des tâches dans "In Progress" ou "ToDo" OU s'il y a au moins un test qui échoue (marqué ❌) ou avec avertissement (marqué ⚠️) OU si le fichier `.cursor/memory-bank/userbrief.md` contient des éléments non résolus (marqués ⬜ ou 🔄).
+- Si toutes les tâches sont terminées (c'est-à-dire qu'il n'y a plus AUCUNE tâche dans les sections "In Progress" et "ToDo" du fichier tasks.md) ET que tous les tests passent (TOUS marqués ✅) ET que tous les éléments dans `.cursor/memory-bank/userbrief.md` sont résolus (marqués ✅ ou 📌), alors:
    - Présenter une synthèse claire et concise du travail effectué
    - Résumer les fonctionnalités implémentées et les problèmes résolus
    - Indiquer explicitement que le workflow est terminé avec succès
@@ -64,9 +72,9 @@ Exemples d'emojis et types:
 - 🔧 chore: pour les tâches de maintenance
 
 ## Next Rules
-- `request-analysis` - Si le fichier `.cursor/memory-bank/userbrief.md` n'est pas vide
-- `fix` - Si au moins un test échoue toujours et que le fichier `.cursor/memory-bank/userbrief.md` est vide
-- `implementation` - Si au moins une tâche est toujours en cours ou à faire, qu'aucun test n'échoue et que le fichier `.cursor/memory-bank/userbrief.md` est vide
+- `request-analysis` - Si le fichier `.cursor/memory-bank/userbrief.md` contient des éléments non résolus (⬜ ou 🔄)
+- `fix` - Si au moins un test échoue toujours et que le fichier `.cursor/memory-bank/userbrief.md` ne contient pas d'éléments non résolus
+- `implementation` - Si au moins une tâche est toujours en cours ou à faire, qu'aucun test n'échoue et que le fichier `.cursor/memory-bank/userbrief.md` ne contient pas d'éléments non résolus
 
 ## Exemple
 
@@ -92,19 +100,22 @@ Je mets à jour le fichier tasks.md en déplaçant les tâches terminées vers D
 [...mise à jour du fichier tasks.md...]
 `(Context-update : 3 - Mise à jour du fichier tasks.md)`
 
-# Context-update : 4 - Effectuer un commit
-Je prépare et effectue un commit avec les modifications apportées. `(Context-update : 4 - Effectuer un commit)`
+# Context-update : 4 - Mise à jour de userbrief.md
+Je mets à jour le fichier userbrief.md en actualisant les statuts des éléments. `(Context-update : 4 - Mise à jour de userbrief.md)`
+[...mise à jour du fichier userbrief.md...]
+`(Context-update : 4 - Mise à jour de userbrief.md)`
+
+# Context-update : 5 - Effectuer un commit
+Je prépare et effectue un commit avec les modifications apportées. `(Context-update : 5 - Effectuer un commit)`
 [...création du commit...]
-`(Context-update : 4 - Effectuer un commit)`
+`(Context-update : 5 - Effectuer un commit)`
 
-# Context-update : 5 - Appel de la règle suivante
-Je vais consulter le fichier `.cursor/memory-bank/workflow/userbrief.md` pour vérifier si le fichier est vide. `(Context-update : 5 - Appel de la règle suivante)`
+# Context-update : 6 - Appel de la règle suivante
+Je vais consulter le fichier `.cursor/memory-bank/workflow/userbrief.md` pour vérifier s'il contient des éléments non résolus. `(Context-update : 6 - Appel de la règle suivante)`
 [...consultation du fichier userbrief.md...]
-Je vois que que le fichier est vide. Je vais donc consulter le fichier `.cursor/memory-bank/workflow/test.md` pour vérifier si au moins un test a échoué. `(Context-update : 5 - Appel de la règle suivante)`
-[...consultation du fichier test.md...]
-Je constate que les tests [...] ont échoué. Je vais donc appeler la règle `fix`. `(Context-update : 5 - Appel de la règle suivante)`
+Je vois que le fichier contient des éléments non résolus. Je vais donc appeler la règle `request-analysis`. `(Context-update : 6 - Appel de la règle suivante)`
 
-fetch_rules ["fix"]
+fetch_rules ["request-analysis"]
 
 # Start Rule
 

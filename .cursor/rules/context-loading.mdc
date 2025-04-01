@@ -12,23 +12,30 @@ Charger ou créer les fichiers de contexte du projet pour établir l'environneme
    - `.cursor/memory-bank/context/projectBrief.md`  
    - `.cursor/memory-bank/context/activeContext.md`  
    - `.cursor/memory-bank/context/techContext.md`  
+   - `.cursor/memory-bank/userbrief.md` (consulter mais ne pas vider)
 
 2. **Initialisation du contexte** : Si absents :  
    - Analyser la structure et les objectifs du projet  
    - Créer le dossier `.cursor/memory-bank/context/` si nécessaire  
    - Initialiser les fichiers manquants avec structure appropriée  
-   - Créer `userbrief.md` via "touch .cursor/memory-bank/userbrief.md"  
+   - Créer `userbrief.md` vide via "touch .cursor/memory-bank/userbrief.md" si non existant  
 
-3. **Reformulation de la requête** : Reformuler l'instruction utilisateur dans le contexte projet  
+3. **Mise à jour du userbrief** : Si le fichier existe :
+   - Mettre à jour les statuts des éléments sans modifier leur contenu
+   - Marquer les nouvelles requêtes non traitées avec ⬜
+   - Réorganiser les requêtes des "Nouvelles requêtes" vers les sections thématiques appropriées
+   - Ne jamais supprimer d'éléments ou vider le fichier
 
-4. **Appel de la règle suivante** : Appeler `request-analysis` pour analyser la requête
+4. **Reformulation de la requête** : Reformuler l'instruction utilisateur dans le contexte projet  
+
+5. **Appel de la règle suivante** : Appeler `request-analysis` pour analyser la requête
 
 ## Précisions  
 - Fichiers concis mais complets  
 - `projectBrief.md` : vision et objectifs du projet  
 - `activeContext.md` : état actuel, développement et tâches en cours  
 - `techContext.md` : technologies, frameworks et dépendances  
-- `.cursor/memory-bank/userbrief.md` : créer vide ou conserver tel quel  
+- `.cursor/memory-bank/userbrief.md` : consulter et mettre à jour les statuts mais ne jamais vider  
 - Utiliser recherches sémantiques si nécessaire  
 - Structurer avec titres et sous-titres  
 - ⚠️ IMPORTANT : Se limiter aux trois fichiers de contexte listés en étape 1  
@@ -59,4 +66,4 @@ fetch_rules ["request-analysis"]
 
 # Start Rule  
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectBrief.md, activeContext.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais appellerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>"  
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectBrief.md, activeContext.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais appellerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>"

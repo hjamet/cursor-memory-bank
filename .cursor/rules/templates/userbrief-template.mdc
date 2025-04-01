@@ -1,0 +1,61 @@
+---
+description:
+globs: .cursor/memory-bank/userbrief.md
+alwaysApply: false
+---
+
+# Règle d'édition userbrief.md
+
+## TLDR
+Ce fichier contient les demandes et préférences de l'utilisateur, annotées avec des émojis pour indiquer leur statut de traitement.
+
+## Limites et structure
+
+- **Longueur maximale**: À maintenir aussi concise que possible sans supprimer de contenu
+- **Contenu**: Requêtes, préférences, et directives de l'utilisateur
+- **Organisation**: Déplacer les requêtes de la première section vers les sections thématiques appropriées
+- **Temporalité**: Persistant jusqu'à ce que l'utilisateur décide de vider le fichier
+
+## Format pour les éléments
+
+- **⬜ Todo**: Éléments qui n'ont pas encore été traités
+- **🔄 In Progress**: Éléments en cours de traitement
+- **📌 Pris en compte**: Préférences persistantes à conserver (outils, style de code, etc.)
+- **✅ Done**: Éléments qui ont été traités et complétés
+
+## Template de référence
+
+```markdown
+# Nouvelles requêtes utilisateur
+<!-- Les nouvelles requêtes sont placées ici temporairement puis déplacées vers les sections thématiques appropriées -->
+
+## Fonctionnalités
+⬜ [Description de la fonctionnalité demandée]
+🔄 [Fonctionnalité en cours d'implémentation]
+✅ [Fonctionnalité implémentée]
+
+## Préférences
+📌 [Préférence de style de code]
+📌 [Préférence d'outils]
+📌 [Autres préférences persistantes]
+
+## Corrections
+⬜ [Correction demandée]
+✅ [Correction implémentée]
+```
+
+## Style et bonnes pratiques
+
+- **Ne jamais vider ce fichier**: Seul l'utilisateur peut effacer le contenu
+- **Réorganisation**: Déplacer les nouvelles requêtes vers les sections thématiques appropriées
+- **Mise à jour des statuts**: Modifier uniquement les émojis de statut, pas le contenu
+- **Conservation**: Les éléments marqués 📌 doivent être préservés indéfiniment
+- **Concision**: Maintenir le fichier aussi concis que possible sans perdre d'information
+
+## Validations
+
+- Chaque élément commence par un emoji de statut approprié
+- Les nouvelles requêtes sont réorganisées dans les sections thématiques
+- La première section "Nouvelles requêtes utilisateur" est vidée après réorganisation
+- Le contenu après l'emoji n'est jamais modifié sans directive explicite
+- Les préférences et demandes persistantes sont marquées avec 📌
