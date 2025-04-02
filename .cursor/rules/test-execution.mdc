@@ -27,8 +27,8 @@ Exécuter les tests unitaires, analyser les résultats et documenter les succès
 
 4. **Appel de la règle suivante**  
    - Si au moins un test s'est amélioré sans qu'aucun n'ait régressé → `context-update`  
-   - Si au moins un test a régressé ou échoue sans amélioration → `fix`  
    - Si aucun changement significatif → `context-update`  
+   - Sinon, si au moins un test a régressé → `fix`  
 
 ## Précisions  
 
@@ -40,8 +40,8 @@ Exécuter les tests unitaires, analyser les résultats et documenter les succès
 - Ne jamais sauter l'appel à la règle suivante  
 
 ## Next Rules  
-- `fix` - Si au moins un test a régressé ou échoue sans amélioration  
-- `context-update` - Si au moins un test s'est amélioré ou aucun changement significatif  
+- `fix` - Si au moins un test a régressé
+- `context-update` - Si au moins un test s'est amélioré ou aucun changement significatif (et aucune regression)
 
 ## Exemple  
 
@@ -70,7 +70,7 @@ Je mets à jour le fichier tests.md avec les nouveaux résultats. `(Test-executi
 # Test-execution : 4 - Appel de la règle suivante  
 Je dois maintenant appeler la règle appropriée selon les résultats des tests. `(Test-execution : 4 - Appel de la règle suivante)`  
 [...analyse des améliorations et régressions...]
-Je constate que [description des changements de statut des tests]. Je vais donc appeler la règle [fix/context-update]. `(Test-execution : 4 - Appel de la règle suivante)`  
+Je constate que [description des changements de statut des tests]. Je vais donc appeler la règle [fix/context-update] car nous avons deux tests qui ont progressé et aucune regression. `(Test-execution : 4 - Appel de la règle suivante)`  
 
 fetch_rules ["context-update"]  
 
