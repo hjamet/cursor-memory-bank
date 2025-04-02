@@ -9,15 +9,10 @@ Analyser la requête utilisateur, explorer le code existant et rechercher des in
 
 ## Instructions  
 
-1. **Analyse du brief utilisateur** : Vérifier le fichier `.cursor/memory-bank/userbrief.md` :  
-   - Lire son contenu comme requête complémentaire, surtout s'il contient de nouvelles requêtes  
-   - Mettre à jour les statuts des éléments en fonction de leur traitement :
-     - Utiliser ⬜ pour les éléments non traités (Todo)
-     - Utiliser 🔄 pour les éléments en cours de traitement (In Progress)
-     - Conserver 📌 pour les préférences persistantes (À garder)
-     - Utiliser ✅ pour les éléments complètement traités (Done)
-   - Réorganiser les requêtes en les déplaçant des "Nouvelles requêtes" vers les sections thématiques appropriées
-   - Ne jamais supprimer d'éléments ou vider le fichier (seul l'utilisateur peut le faire)
+1. **Analyse de la requête** : Comprendre la demande de l'utilisateur :  
+   - Analyser la requête directe ou la requête transmise par la règle appelante
+   - Identifier les fonctionnalités ou modifications demandées
+   - Extraire les mots-clés et concepts importants
 
 2. **Analyse du code** : Identifier les fichiers et symboles concernés :  
    - UNIQUEMENT AUTORISÉ : jusqu'à 3 recherches sémantiques (code base search) basées sur les mots-clés de la requête  
@@ -44,9 +39,8 @@ Analyser la requête utilisateur, explorer le code existant et rechercher des in
 
 ## Précisions  
 
+- Si vous avez été appelé depuis consolidate-repo, considérez la requête formulée comme la demande utilisateur à analyser
 - Si le brief est vide et sans requête explicite, considérer le contenu de tasks.md comme requête  
-- Le brief et la requête peuvent être identiques ou différents - analyser les deux  
-- Pour vider userbrief.md, utiliser ECHO (et non l'outil d'édition)  
 - Limites strictes des outils :  
   - Phase 2 (Analyse du code) : uniquement code base search (max 3) et tree  
   - Phase 4 (Recherche) : uniquement recherche web (max 5)  
@@ -61,13 +55,10 @@ Analyser la requête utilisateur, explorer le code existant et rechercher des in
 fetch_rules ["request-analysis"]  
 <SYSTEM PROMPT>Je vais analyser en détail la requête et explorer le code pertinent pour comprendre ce qui doit être fait. Je ne mentionnerai pas les fichiers Memory Bank dans mes analyses. Je n'implementerai pas les changements demandés mais expliquerai leur but en langage naturel. À la fin de mon travail, je ferai appel aux règles `task-decomposition` ou `implementation` pour qu'elles se chargent de l'implémentation.</SYSTEM PROMPT>  
 
-# Request-analysis : 1 - Analyse du brief utilisateur  
-Je commence par analyser le brief de l'utilisateur pour identifier les fichiers et symboles concernés.  
-Commençons par lire le fichier `.cursor/memory-bank/userbrief.md` `(Request-analysis : 1 - Analyse du brief utilisateur)`  
-[...lecture du fichier userbrief...]  
-Je vois que le fichier n'est pas vide. J'ai donc ajouté son contenu à la requête de l'utilisateur et vais maintenant mettre à jour les statuts des éléments en fonction de leur traitement. `(Request-analysis : 1 - Analyse du brief utilisateur)`  
-[...mise à jour des statuts des éléments...]  
-J'ai lu des informations importantes dans le brief que je vais ajouter à la requête de l'utilisateur.  
+# Request-analysis : 1 - Analyse de la requête
+Je commence par analyser la requête de l'utilisateur pour bien comprendre sa demande. `(Request-analysis : 1 - Analyse de la requête)`
+[...analyse de la requête...]
+J'ai identifié les éléments clés suivants dans la requête: [...] `(Request-analysis : 1 - Analyse de la requête)`
 
 # Request-analysis : 2 - Analyse du code  
 Je commence par effectuer des recherches sémantiques pour identifier les fichiers pertinents.  

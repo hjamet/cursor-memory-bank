@@ -7,14 +7,20 @@ alwaysApply: false
 # Règle d'édition userbrief.md
 
 ## TLDR
-Ce fichier contient les demandes et préférences de l'utilisateur, annotées avec des émojis pour indiquer leur statut de traitement.
+Ce fichier contient les demandes et préférences de l'utilisateur, organisées en 3 sections principales pour faciliter le suivi et le traitement.
 
 ## Limites et structure
 
 - **Longueur maximale**: À maintenir aussi concise que possible sans supprimer de contenu
 - **Contenu**: Requêtes, préférences, et directives de l'utilisateur
-- **Organisation**: Déplacer les requêtes de la première section vers les sections thématiques appropriées
+- **Organisation**: Structure en 3 sections principales
 - **Temporalité**: Persistant jusqu'à ce que l'utilisateur décide de vider le fichier
+
+## Format pour les sections
+
+- **User Input**: Section où l'utilisateur peut écrire librement ses idées et pensées
+- **Processing**: Section où sont déplacées les demandes lors de leur premier traitement
+- **Precisions**: Section pour les recommandations à long terme et les explications détaillées
 
 ## Format pour les éléments
 
@@ -26,36 +32,32 @@ Ce fichier contient les demandes et préférences de l'utilisateur, annotées av
 ## Template de référence
 
 ```markdown
-# Nouvelles requêtes utilisateur
-<!-- Les nouvelles requêtes sont placées ici temporairement puis déplacées vers les sections thématiques appropriées -->
+# User Input
+<!-- Les utilisateurs écrivent ici leurs nouvelles idées et demandes -->
 
-## Fonctionnalités
-⬜ [Description de la fonctionnalité demandée]
-🔄 [Fonctionnalité en cours d'implémentation]
-✅ [Fonctionnalité implémentée]
+# Processing
+<!-- Les demandes en cours de traitement/transformation en tâches -->
+🔄 [Demande en cours de traitement]
+✅ [Demande complétée]
 
-## Préférences
-📌 [Préférence de style de code]
-📌 [Préférence d'outils]
-📌 [Autres préférences persistantes]
-
-## Corrections
-⬜ [Correction demandée]
-✅ [Correction implémentée]
+# Precisions
+<!-- Préférences et recommandations à long terme -->
+📌 [Préférence importante à conserver]
 ```
 
 ## Style et bonnes pratiques
 
 - **Ne jamais vider ce fichier**: Seul l'utilisateur peut effacer le contenu
-- **Réorganisation**: Déplacer les nouvelles requêtes vers les sections thématiques appropriées
+- **Réorganisation**: Déplacer les éléments entre les sections selon leur statut de traitement
 - **Mise à jour des statuts**: Modifier uniquement les émojis de statut, pas le contenu
 - **Conservation**: Les éléments marqués 📌 doivent être préservés indéfiniment
 - **Concision**: Maintenir le fichier aussi concis que possible sans perdre d'information
+- **Éléments traités**: Marquer les éléments complétés avec ✅ mais les laisser dans leur section
 
 ## Validations
 
 - Chaque élément commence par un emoji de statut approprié
-- Les nouvelles requêtes sont réorganisées dans les sections thématiques
-- La première section "Nouvelles requêtes utilisateur" est vidée après réorganisation
+- Les sections sont clairement délimitées par des titres de niveau 1
+- Les éléments sont correctement placés dans leurs sections respectives
 - Le contenu après l'emoji n'est jamais modifié sans directive explicite
 - Les préférences et demandes persistantes sont marquées avec 📌

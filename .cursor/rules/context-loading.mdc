@@ -20,26 +20,21 @@ Charger ou créer les fichiers de contexte du projet pour établir l'environneme
    - Initialiser les fichiers manquants avec structure appropriée  
    - Créer `userbrief.md` vide via "touch .cursor/memory-bank/userbrief.md" si non existant  
 
-3. **Mise à jour du userbrief** : Si le fichier existe :
-   - Mettre à jour les statuts des éléments sans modifier leur contenu
-   - Marquer les nouvelles requêtes non traitées avec ⬜
-   - Réorganiser les requêtes des "Nouvelles requêtes" vers les sections thématiques appropriées
-   - Ne jamais supprimer d'éléments ou vider le fichier
+3. **Reformulation de la requête** : Reformuler l'instruction utilisateur dans le contexte projet  
 
-4. **Reformulation de la requête** : Reformuler l'instruction utilisateur dans le contexte projet  
-
-5. **Appel de la règle suivante** : Appeler `request-analysis` pour analyser la requête
+4. **Appel de la règle suivante** : Appeler directement `request-analysis` pour analyser la requête
 
 ## Précisions  
 - Fichiers concis mais complets  
 - `projectBrief.md` : vision et objectifs du projet  
 - `activeContext.md` : état actuel, développement et tâches en cours  
 - `techContext.md` : technologies, frameworks et dépendances  
-- `.cursor/memory-bank/userbrief.md` : consulter et mettre à jour les statuts mais ne jamais vider  
+- `.cursor/memory-bank/userbrief.md` : consulter mais ne pas modifier directement  
 - Utiliser recherches sémantiques si nécessaire  
 - Structurer avec titres et sous-titres  
 - ⚠️ IMPORTANT : Se limiter aux trois fichiers de contexte listés en étape 1  
 - ⚠️ IMPORTANT : Ne PAS consulter tasks.md ou autres fichiers du dossier workflow  
+- ⚠️ IMPORTANT : Le traitement de userbrief.md est délégué à la règle consolidate-repo, qui n'est appelée QUE par context-update
 
 ## Next Rules  
 - `request-analysis` - Pour analyser en détail la requête de l'utilisateur  

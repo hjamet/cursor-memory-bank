@@ -1,0 +1,112 @@
+---
+description: Règle pour consolider le dépôt, gérer userbrief.md et maintenir une structure de projet propre
+globs: 
+alwaysApply: false
+---
+
+## TLDR
+Consolidation du dépôt, transformation des demandes utilisateur en tâches, nettoyage de userbrief.md et vérification de l'intégrité des fichiers mémoire.
+
+## Structure du dépôt (pour référence)
+```
+.cursor/memory-bank/  
+├── context/                 # Contexte du projet  
+│   ├── projectBrief.md      # Vision globale du projet  
+│   ├── activeContext.md     # Contexte de travail actuel  
+│   └── techContext.md       # Technologies et dépendances  
+├── workflow/                # Gestion du flux de travail  
+│   ├── progress.md          # Suivi de la progression  
+│   └── tasks.md             # Liste des tâches à accomplir
+│   └── tests.md             # Suivi du résultats des tests
+src/                         # Scripts sources du projet  
+tests/                       # Tests unitaires et d'intégration  
+```
+
+## Instructions
+
+1. **Traitement de userbrief.md** : Analyser et transformer le contenu :
+   - Lire le contenu de la section "User Input" dans `.cursor/memory-bank/userbrief.md`
+   - Transformer les demandes en tâches dans `.cursor/memory-bank/workflow/tasks.md`
+   - Déplacer le contenu traité de "User Input" vers "Processing"
+   - Identifier les préférences à long terme et les déplacer vers "Precisions"
+   - Nettoyer la section "Processing" des éléments complètement traités
+
+2. **Organisation de userbrief.md** : Structurer le contenu selon le template :
+   - Maintenir les 3 sections principales : "User Input", "Processing", "Precisions"
+   - Appliquer les statuts appropriés (⬜, 🔄, 📌, ✅) aux éléments
+   - S'assurer que la structure reste claire et lisible
+
+3. **Vérification de l'intégrité** : Contrôle des fichiers mémoire :
+   - Exécuter la commande `find . -type f -name "*.md"` pour lister tous les fichiers markdown
+   - Analyser les résultats pour rechercher les doublons dans les répertoires memory-bank
+   - Fusionner le contenu des fichiers en double avec les fichiers principaux
+   - Supprimer les doublons après fusion
+   - Vérifier que tous les fichiers mémoire sont au bon endroit
+
+4. **Identification des tâches de nettoyage** : Générer des tâches pour tasks.md :
+   - Identifier les fichiers temporaires inutiles
+   - Repérer les fichiers mal placés
+   - Lister les actions de nettoyage nécessaires
+   - Ajouter ces tâches à `.cursor/memory-bank/workflow/tasks.md` (sans les exécuter directement)
+
+5. **Évaluation des demandes utilisateur** : Décider de la suite du workflow :
+   - Si des nouvelles demandes ont été identifiées dans userbrief.md:
+     - Formuler clairement la requête utilisateur extraite de userbrief.md
+     - Appeler la règle `request-analysis` pour traiter cette requête
+   - Sinon:
+     - Appeler la règle `context-update` pour continuer le workflow
+
+## Précisions
+
+- Le contenu de `.cursor/memory-bank/userbrief.md` ne doit jamais être supprimé sans l'autorisation explicite de l'utilisateur
+- Seule la structure et l'organisation peuvent être modifiées
+- Les demandes utilisateur doivent toujours être traitées en priorité
+- Les doublons doivent être fusionnés avec soin pour ne perdre aucune information
+- Les tâches de nettoyage doivent être ajoutées à `.cursor/memory-bank/workflow/tasks.md` pour validation ultérieure
+- Cette règle ne doit être appelée que par context-update quand des problèmes de structure sont détectés
+
+## Next Rules
+
+- `request-analysis` - Si des nouvelles demandes ont été identifiées dans userbrief.md
+- `context-update` - Si aucune nouvelle demande n'a été identifiée
+
+## Exemple
+
+fetch_rules ["consolidate-repo"]
+<SYSTEM PROMPT>Je vais consolider le dépôt en transformant les demandes utilisateur en tâches, nettoyant userbrief.md selon la nouvelle structure à 3 sections, vérifiant l'intégrité des fichiers mémoire et identifiant les tâches de nettoyage à ajouter à tasks.md.</SYSTEM PROMPT>
+
+# Consolidate-repo : 1 - Traitement de userbrief.md
+Je commence par analyser le contenu de la section "User Input" dans `.cursor/memory-bank/userbrief.md`. `(Consolidate-repo : 1 - Traitement de userbrief.md)`
+[...lecture et analyse du contenu de userbrief.md...]
+J'ai identifié plusieurs demandes utilisateur que je vais transformer en tâches dans `.cursor/memory-bank/workflow/tasks.md`. `(Consolidate-repo : 1 - Traitement de userbrief.md)`
+[...transformation des demandes en tâches...]
+J'ai maintenant déplacé le contenu traité vers la section "Processing". `(Consolidate-repo : 1 - Traitement de userbrief.md)`
+
+# Consolidate-repo : 2 - Organisation de userbrief.md
+Je réorganise maintenant le contenu de `.cursor/memory-bank/userbrief.md` selon la structure à 3 sections. `(Consolidate-repo : 2 - Organisation de userbrief.md)`
+[...réorganisation du contenu...]
+J'ai appliqué les statuts appropriés aux différents éléments. `(Consolidate-repo : 2 - Organisation de userbrief.md)`
+
+# Consolidate-repo : 3 - Vérification de l'intégrité
+Je vérifie maintenant l'intégrité des fichiers mémoire. `(Consolidate-repo : 3 - Vérification de l'intégrité)`
+find . -type f -name "*.md"
+[...analyse des résultats de la commande...]
+J'ai identifié quelques doublons que j'ai fusionnés avec les fichiers principaux. `(Consolidate-repo : 3 - Vérification de l'intégrité)`
+
+# Consolidate-repo : 4 - Identification des tâches de nettoyage
+J'identifie maintenant les tâches de nettoyage nécessaires. `(Consolidate-repo : 4 - Identification des tâches de nettoyage)`
+[...identification des tâches...]
+J'ai ajouté ces tâches à `.cursor/memory-bank/workflow/tasks.md` pour une validation ultérieure. `(Consolidate-repo : 4 - Identification des tâches de nettoyage)`
+
+# Consolidate-repo : 5 - Évaluation des demandes utilisateur
+J'évalue maintenant si j'ai identifié de nouvelles demandes utilisateur. `(Consolidate-repo : 5 - Évaluation des demandes utilisateur)`
+J'ai trouvé les demandes suivantes dans le fichier userbrief.md:
+- [Résumé des demandes extraites]
+
+Je vais maintenant appeler la règle request-analysis pour traiter ces demandes. `(Consolidate-repo : 5 - Évaluation des demandes utilisateur)`
+
+fetch_rules ["request-analysis"]
+
+# Start Rule
+
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais consolider le dépôt en transformant les demandes utilisateur en tâches, nettoyant userbrief.md selon la nouvelle structure à 3 sections, vérifiant l'intégrité des fichiers mémoire et identifiant les tâches de nettoyage à ajouter à tasks.md.</SYSTEM PROMPT>"
