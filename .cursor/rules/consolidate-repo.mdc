@@ -15,8 +15,7 @@ Consolidation du dépôt, transformation des demandes utilisateur en tâches, ne
 │   ├── activeContext.md     # Contexte de travail actuel  
 │   └── techContext.md       # Technologies et dépendances  
 ├── workflow/                # Gestion du flux de travail  
-│   ├── progress.md          # Suivi de la progression  
-│   └── tasks.md             # Liste des tâches à accomplir
+│   ├── tasks.md             # Liste des tâches à accomplir
 │   └── tests.md             # Suivi du résultats des tests
 src/                         # Scripts sources du projet  
 tests/                       # Tests unitaires et d'intégration  
@@ -26,14 +25,18 @@ tests/                       # Tests unitaires et d'intégration
 
 1. **Traitement de userbrief.md** : Analyser et transformer le contenu :
    - Lire le contenu de la section "User Input" dans `.cursor/memory-bank/userbrief.md`
-   - Transformer les demandes en tâches dans `.cursor/memory-bank/workflow/tasks.md`
-   - Déplacer le contenu traité de "User Input" vers "Processing"
-   - Identifier les préférences à long terme et les déplacer vers "Precisions"
-   - Nettoyer la section "Processing" des éléments complètement traités
+   - Identifier le type de contenu : tâches ou préférences
+   - Pour les tâches : les marquer avec 🔄 et déplacer dans "Processing"
+   - Pour les préférences : les marquer avec 📌 et déplacer dans "Precisions"
+   - Ne pas encore convertir les tâches pour tasks.md (ce sera fait par task-decomposition)
 
 2. **Organisation de userbrief.md** : Structurer le contenu selon le template :
    - Maintenir les 3 sections principales : "User Input", "Processing", "Precisions"
-   - Appliquer les statuts appropriés (⬜, 🔄, 📌, ✅) aux éléments
+   - Appliquer les statuts appropriés :
+     - ⬜ : À traiter
+     - 🔄 : En cours (pour les tâches uniquement)
+     - 📌 : Préférence à long terme
+     - ✅ : Complété (à ne pas utiliser, laissé à task-decomposition)
    - S'assurer que la structure reste claire et lisible
 
 3. **Vérification de l'intégrité** : Contrôle des fichiers mémoire :
@@ -64,6 +67,9 @@ tests/                       # Tests unitaires et d'intégration
 - Les doublons doivent être fusionnés avec soin pour ne perdre aucune information
 - Les tâches de nettoyage doivent être ajoutées à `.cursor/memory-bank/workflow/tasks.md` pour validation ultérieure
 - Cette règle ne doit être appelée que par context-update quand des problèmes de structure sont détectés
+- IMPORTANT : Seule cette règle est autorisée à modifier userbrief.md
+- IMPORTANT : Marquer les tâches avec 🔄 (uniquement) et les préférences avec 📌
+- IMPORTANT : Ne jamais utiliser ✅, cela est réservé à task-decomposition
 
 ## Next Rules
 
@@ -78,9 +84,10 @@ fetch_rules ["consolidate-repo"]
 # Consolidate-repo : 1 - Traitement de userbrief.md
 Je commence par analyser le contenu de la section "User Input" dans `.cursor/memory-bank/userbrief.md`. `(Consolidate-repo : 1 - Traitement de userbrief.md)`
 [...lecture et analyse du contenu de userbrief.md...]
-J'ai identifié plusieurs demandes utilisateur que je vais transformer en tâches dans `.cursor/memory-bank/workflow/tasks.md`. `(Consolidate-repo : 1 - Traitement de userbrief.md)`
-[...transformation des demandes en tâches...]
-J'ai maintenant déplacé le contenu traité vers la section "Processing". `(Consolidate-repo : 1 - Traitement de userbrief.md)`
+J'ai identifié plusieurs demandes utilisateur que je vais marquer comme suit:
+- Tâches à effectuer: 🔄 (en déplaçant dans "Processing")
+- Préférences à long terme: 📌 (en déplaçant dans "Precisions")
+`(Consolidate-repo : 1 - Traitement de userbrief.md)`
 
 # Consolidate-repo : 2 - Organisation de userbrief.md
 Je réorganise maintenant le contenu de `.cursor/memory-bank/userbrief.md` selon la structure à 3 sections. `(Consolidate-repo : 2 - Organisation de userbrief.md)`

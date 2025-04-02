@@ -4,110 +4,53 @@ globs: .cursor/memory-bank/context/techContext.md
 alwaysApply: false
 ---
 
-## TLDR  
-Analyser les erreurs de test, créer des tâches de correction et documenter les problèmes spécifiques aux bibliothèques/frameworks.  
+# Environnement technique
 
-## Instructions  
+## Plateforme de développement
+- **Système d'exploitation** : [Windows/Linux/macOS]
+- **Version** : [Version précise si pertinente]
+- **Architecture** : [x64/ARM/etc.]
 
-0. **Vérification de l'environnement** : Confirmer l'environnement de développement  
-   - Identifier la plateforme (Windows, Linux, macOS)  
-   - Vérifier l'environnement de développement (VSCode, IDE spécifique)  
-   - Identifier les gestionnaires de dépendances disponibles (pip, poetry, npm, yarn)  
-   - Noter les ressources matérielles (RAM, CPU, GPU disponible)  
-   - Confirmer les contraintes d'environnement qui pourraient affecter les corrections  
+## Console/Shell
+- **Terminal utilisé** : [Git Bash/CMD/PowerShell/Bash/Zsh/etc.]
+- **Configurations spécifiques** : [Aliases, plugins, personnalisations]
 
-1. **Identification des erreurs** : Analyser les erreurs pour chaque test échoué  
-   - Lire le fichier `.cursor/memory-bank/workflow/tests.md` pour comprendre les résultats des tests  
-   - Lister et catégoriser les erreurs rencontrées  
-   - Noter les messages d'erreur exacts et les conditions de reproduction  
+## Installation et gestion des dépendances
+- **Gestionnaire de paquets** : [pip/poetry/npm/yarn/etc.]
+- **Type d'environnement** : [virtuel/global/containerisé]
+- **Fichiers de configuration** : [requirements.txt/pyproject.toml/package.json/etc.]
+- **Version des outils clés** : [Python 3.x/Node.js x.y.z/etc.]
 
-2. **Recherche d'informations** : Au besoin, rechercher des solutions  
-   - Utiliser l'outil de recherche web pour trouver des informations sur des erreurs spécifiques  
-   - Consulter la documentation à jour des bibliothèques concernées  
-   - Vérifier les changements récents dans les APIs utilisées  
+## Pile technologique
+- **Langages** : [Python/JavaScript/TypeScript/etc.]
+- **Frameworks principaux** : [Django/Flask/React/Vue/etc.]
+- **Bibliothèques essentielles** : [Liste des bibliothèques principales avec versions]
+- **Outils de build/packaging** : [Webpack/Vite/setuptools/etc.]
 
-3. **Analyse des fichiers** : Examiner UNIQUEMENT le code directement concerné  
-   - Se concentrer strictement sur les fichiers impliqués dans l'erreur  
-   - Localiser les lignes de code spécifiques causant les problèmes  
-   - Pour les erreurs complexes ou récurrentes, ajouter du logging temporaire de débogage  
-     (Utiliser `logger.debug()` en Python ou équivalent dans d'autres langages)  
-   - Après chaque appel d'outil, écrire `Fix - 3.[Titre du test] en cours...`  
+## Conventions de code
+- **Style de formatage** : [PEP8/Prettier/ESLint/etc.]
+- **Outils de linting** : [Flake8/Pylint/ESLint/etc.]
+- **Formatage automatique** : [Black/Prettier/etc.]
+- **Conventions de nommage** : [snake_case/camelCase/etc.]
+- **Structure du projet** : [Description de l'organisation des dossiers]
 
-4. **Ajout des tâches de correction** : Mettre à jour tasks.md  
-   - Créer une section "Corrections" dans "In Progress"  
-   - Détailler chaque erreur à corriger avec fichiers/symboles concernés  
-   - Proposer des solutions basées sur l'analyse  
+## Architecture serveur et déploiement
+- **Base de données** : [PostgreSQL/MySQL/MongoDB/etc.]
+  - Version : [x.y.z]
+  - Schéma : [Description succincte du modèle de données]
+- **Services exposés** : [API REST/GraphQL/etc.]
+- **Infrastructure de déploiement** : [Docker/K8s/VM/etc.]
+- **Environnements** : [Dev/Staging/Prod, avec spécificités]
 
-5. **Documentation des erreurs** : Mettre à jour techContext.md  
-   - Ajouter uniquement les erreurs liées aux changements d'API/comportement des bibliothèques  
-   - Documenter dans la section appropriée du fichier techContext.md  
-   - Inclure des exemples concrets (code incorrect vs correct)  
-   - Ne pas documenter les erreurs d'inattention ou de logique générale  
+## Tests et qualité
+- **Framework de test** : [pytest/Jest/etc.]
+- **Couverture de code** : [Objectif de couverture, outils utilisés]
+- **CI/CD** : [GitHub Actions/Jenkins/etc.]
 
-6. **Appel de la règle suivante** : Appeler `implementation` pour corriger les erreurs  
+## Problèmes connus et solutions
+- **Notes sur les comportements spécifiques des bibliothèques**
+- **Workarounds documentés pour des bugs récurrents**
+- **Changements d'API documentés qui ont causé des problèmes**
 
-## Précisions  
-
-- Examiner UNIQUEMENT les fichiers directement liés à l'erreur, pas les fichiers périphériques  
-- Pour les problèmes complexes ou récurrents, utiliser du logging de débogage temporaire  
-- Documenter UNIQUEMENT les erreurs dues à:  
-  - Changements d'API dans les bibliothèques (ex: renommage d'attribut "weight" à "w")  
-  - Comportements spécifiques non intuitifs de frameworks  
-  - Mises à jour qui modifient les fonctionnalités existantes  
-- NE PAS documenter:  
-  - Erreurs d'inattention ou fautes de frappe  
-  - Problèmes de logique générale de programmation  
-  - Erreurs que tu as commises par inadvertance  
-- Pour éviter de perdre le workflow, écrire systématiquement `Fix - 3.[Titre du test] en cours...` pendant l'analyse  
-
-## Next Rules  
-- `implementation` - Pour implémenter les corrections identifiées  
-
-## Exemple  
-
-fetch_rules ["fix"]  
-<SYSTEM PROMPT>Je vais analyser méthodiquement les erreurs des tests échoués, créer des tâches de correction bien définies et documenter les problèmes récurrents. Je ne corrigerai pas directement les erreurs mais je préparerai les tâches pour l'implémentation future. Je passerai ensuite à l'implémentation des corrections.</SYSTEM PROMPT>  
-
-# Fix : 0 - Vérification de l'environnement  
-Je commence par vérifier l'environnement de développement actuel. `(Fix : 0 - Vérification de l'environnement)`  
-[...identification de la plateforme et des outils...]  
-`(Fix : 0 - Vérification de l'environnement)`  
-
-# Fix : 1 - Identification des erreurs  
-Je lis le fichier tests.md pour comprendre les erreurs des tests. `(Fix : 1 - Identification des erreurs)`  
-[...lecture du fichier .cursor/memory-bank/workflow/tests.md...]  
-`(Fix : 1 - Identification des erreurs)`  
-
-# Fix : 2 - Recherche d'informations  
-Je recherche des informations sur l'erreur concernant la bibliothèque X. `(Fix : 2 - Recherche d'informations)`  
-[...recherche sur internet...]  
-`(Fix : 2 - Recherche d'informations)`  
-
-# Fix : 3 - Analyse des fichiers  
-Je vais examiner uniquement les fichiers directement impliqués dans l'erreur. `(Fix : 3 - Analyse des fichiers)`  
-[...lecture du fichier problématique...]  
-Fix - 3.TestConnexion en cours...  
-[...ajout de logging temporaire pour déboguer...]  
-logger.debug("Valeur de la variable x:", x)  
-[...analyse du code problématique...]  
-`(Fix : 3 - Analyse des fichiers)`  
-
-# Fix : 4 - Ajout des tâches de correction  
-Je crée des tâches détaillées pour corriger chaque erreur. `(Fix : 4 - Ajout des tâches de correction)`  
-[...modification du fichier tasks.md...]  
-`(Fix : 4 - Ajout des tâches de correction)`  
-
-# Fix : 5 - Documentation des erreurs  
-Je documente l'erreur liée au changement d'API dans la bibliothèque X. `(Fix : 5 - Documentation des erreurs)`  
-[...mise à jour de techContext.md...]  
-`(Fix : 5 - Documentation des erreurs)`  
-
-# Fix : 6 - Appel de la règle suivante  
-Je dois maintenant appeler la règle implementation pour corriger les erreurs.  
-La règle implementation doit être appelée pour implémenter les corrections. `(Fix : 6 - Appel de la règle suivante)`  
-
-fetch_rules ["implementation"]  
-
-# Start Rule  
-
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais analyser méthodiquement les erreurs des tests échoués, créer des tâches de correction bien définies et documenter les problèmes récurrents. Je ne corrigerai pas directement les erreurs mais je préparerai les tâches pour l'implémentation future. Je passerai ensuite à l'implémentation des corrections.</SYSTEM PROMPT>"  
+---
+Note: Ce fichier doit être maintenu à jour avec toutes les informations techniques pertinentes concernant l'environnement de développement du projet.

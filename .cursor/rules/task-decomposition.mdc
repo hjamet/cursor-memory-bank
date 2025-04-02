@@ -12,8 +12,10 @@ Décomposer la requête utilisateur en tâches concrètes et les organiser dans 
 1. **Analyse des tâches existantes** : Lire le fichier `.cursor/memory-bank/workflow/tasks.md` s'il existe  
 
 2. **Analyse du userbrief** : Consulter le fichier `.cursor/memory-bank/userbrief.md`
-   - Intégrer les tâches demandées par l'utilisateur dans tasks.md tout en les conservant dans leur forme originale dans userbrief.md
-   - Marquer ces tâches comme 🔄 (In Progress) dans userbrief.md
+   - Identifier les demandes marquées avec 🔄 (transformées par consolidate-repo)
+   - Transformer ces tâches en format structuré pour tasks.md
+   - Une fois transformées, marquer ces tâches comme ✅ dans userbrief.md
+   - IMPORTANT: Ne PAS modifier d'autres parties du fichier userbrief.md, seulement changer 🔄 en ✅
 
 3. **Suppression des tâches terminées** : Éliminer les tâches terminées sans lien avec le travail actuel  
 
@@ -37,7 +39,8 @@ Décomposer la requête utilisateur en tâches concrètes et les organiser dans 
 - Utiliser sections génériques pouvant accueillir différents types de tâches  
 - Minimiser les dépendances entre sections/tâches  
 - Le format du fichier tasks.md est défini dans la règle d'édition tasks-md  
-- IMPORTANT : Les tâches provenant du userbrief.md doivent être ajoutées à tasks.md tout en étant conservées dans leur format original dans userbrief.md
+- IMPORTANT : Ne pas ajouter de nouvelles tâches à userbrief.md, uniquement transformer celles déjà marquées 🔄 en ✅
+- IMPORTANT : Seul le changement de statut 🔄 vers ✅ est autorisé dans userbrief.md, pas d'autre modification
 
 ## Next Rules  
 - `implementation` - Pour commencer l'implémentation des tâches  
@@ -53,8 +56,11 @@ Je commence par lire le fichier tasks.md pour comprendre l'état actuel des tâc
 `(Task-decomposition : 1 - Analyse des tâches existantes)`  
 
 # Task-decomposition : 2 - Analyse du userbrief
-Je consulte maintenant le fichier userbrief.md pour intégrer les demandes de l'utilisateur. `(Task-decomposition : 2 - Analyse du userbrief)`
+Je consulte maintenant le fichier userbrief.md pour identifier les tâches marquées avec 🔄. `(Task-decomposition : 2 - Analyse du userbrief)`
 [...lecture du fichier userbrief.md...]
+J'ai identifié plusieurs tâches marquées avec 🔄 que je vais transformer et intégrer dans tasks.md.
+[...transformation des tâches...]
+Je marque maintenant ces tâches comme ✅ dans userbrief.md puisqu'elles ont été intégrées.
 `(Task-decomposition : 2 - Analyse du userbrief)`
 
 # Task-decomposition : 3 - Suppression des tâches terminées  
@@ -63,7 +69,7 @@ Je supprime les tâches terminées qui ne sont plus pertinentes pour le travail 
 `(Task-decomposition : 3 - Suppression des tâches terminées)`  
 
 # Task-decomposition : 4 - Intégration des nouvelles tâches  
-Je décompose la requête en tâches concrètes et les organise en sections de haut niveau, en incluant les demandes de l'utilisateur. `(Task-decomposition : 4 - Intégration des nouvelles tâches)`  
+Je décompose la requête en tâches concrètes et les organise en sections de haut niveau. `(Task-decomposition : 4 - Intégration des nouvelles tâches)`  
 [...organisation des tâches en sections...]  
 `(Task-decomposition : 4 - Intégration des nouvelles tâches)`  
 

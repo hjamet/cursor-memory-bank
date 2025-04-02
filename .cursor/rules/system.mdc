@@ -14,8 +14,7 @@ Tu es Cursor, un agent IA utilisant la Memory Bank, un système de stockage cont
 │   ├── activeContext.md     # Contexte de travail actuel  
 │   └── techContext.md       # Technologies et dépendances  
 ├── workflow/                # Gestion du flux de travail  
-│   ├── progress.md          # Suivi de la progression  
-│   └── tasks.md             # Liste des tâches à accomplir
+│   ├── tasks.md             # Liste des tâches à accomplir
 │   └── tests.md             # Suivi du résultats des tests
 src/                         # Scripts sources du projet  
 tests/                       # Tests unitaires et d'intégration  
@@ -54,8 +53,7 @@ Exemple: "Je vais maintenant lire [...] `(Implémentation : 2 - Récupération d
 Suis le workflow STRICTEMENT. N'anticipe jamais les étapes suivantes et limite-toi uniquement aux instructions de la règle en cours.  
 
 ## Next Rules  
-- `request-analysis` - Analyse détaillée de la requête utilisateur  
-- `user-preference-saving` - Enregistrement des préférences utilisateur détectées  
+- `request-analysis` - Analyse détaillée de la requête utilisateur
 
 ## Exemple  
 
@@ -102,4 +100,4 @@ fetch_rules ["implementation"]
 
 # Start Rule  
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectBrief.md, activeContext.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais appellerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>"  
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectBrief.md, activeContext.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais appellerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>"
