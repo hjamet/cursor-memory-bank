@@ -32,7 +32,7 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
 
 5. **Commit des modifications**: Effectuer un commit avec les modifications:
    - Préparer les fichiers et créer le commit en une seule commande:
-     `git add * && git commit -m "[message]"`
+     `git add * && git commit -m "[message]"` (OBLIGATOIREMENT utiliser `git add *` et JAMAIS `git add [files]` ou toute autre variante spécifiant des fichiers individuels - ceci est crucial pour s'assurer que tous les changements sont bien pris en compte)
    - Suivre le format conventional commit avec emoji pour le message
 
 6. **Appel de la règle suivante**: Appeler obligatoirement la règle suivante si le workflow n'est pas terminé:
@@ -48,6 +48,7 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
 - Supprimer systématiquement les anciennes entrées d'historique qui ne sont plus pertinentes
 - Ne JAMAIS terminer sans soit appeler explicitement une règle suivante, soit indiquer explicitement que le workflow est terminé
 - Le workflow ne doit JAMAIS être considéré comme terminé s'il reste des tâches dans "In Progress" ou "ToDo" OU s'il y a au moins un test qui échoue (marqué ❌) ou avec avertissement (marqué ⚠️) OU si le fichier `.cursor/memory-bank/userbrief.md` contient des éléments non résolus (marqués ⬜ ou 🔄).
+- Pour le commit, utiliser OBLIGATOIREMENT `git add *` et JAMAIS `git add [files]` ou toute autre variante spécifiant des fichiers individuels - ceci est crucial pour s'assurer que tous les changements sont bien pris en compte
 - Si toutes les tâches sont terminées (c'est-à-dire qu'il n'y a plus AUCUNE tâche dans les sections "In Progress" et "ToDo" du fichier tasks.md) ET que tous les tests passent (TOUS marqués ✅) ET que tous les éléments dans `.cursor/memory-bank/userbrief.md` sont résolus (marqués ✅ ou 📌), alors:
    - Présenter une synthèse claire et concise du travail effectué
    - Résumer les fonctionnalités implémentées et les problèmes résolus

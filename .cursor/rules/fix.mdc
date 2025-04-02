@@ -24,6 +24,8 @@ Analyser les erreurs de test, créer des tâches de correction et documenter les
    - Localiser les lignes de code spécifiques causant les problèmes  
    - Pour les erreurs complexes ou récurrentes, ajouter du logging temporaire de débogage  
      (Utiliser `logger.debug()` en Python ou équivalent dans d'autres langages)  
+   - Pour les corrections complexes, utiliser le token think: `<think>Réflexion approfondie sur le problème, exploration des différentes approches de correction possibles, etc.</think>`
+   - Résumer brièvement les conclusions de la réflexion si applicable
    - Après chaque appel d'outil, écrire `Fix - 3.[Titre du test] en cours...`  
 
 4. **Ajout des tâches de correction** : Mettre à jour tasks.md  
@@ -41,6 +43,9 @@ Analyser les erreurs de test, créer des tâches de correction et documenter les
 
 ## Précisions  
 
+- Le token think `<think></think>` doit être utilisé pour chaque correction complexe nécessitant une analyse approfondie
+- La réflexion approfondie doit être verbalisée dans le token think avant de formuler les tâches de correction
+- L'utilisation du token think permet de raisonner selon la méthode chain of thought et de comparer différentes approches
 - Examiner UNIQUEMENT les fichiers directement liés à l'erreur, pas les fichiers périphériques  
 - Pour les problèmes complexes ou récurrents, utiliser du logging de débogage temporaire  
 - Documenter UNIQUEMENT les erreurs dues à:  
@@ -75,6 +80,32 @@ Je recherche des informations sur l'erreur concernant la bibliothèque X. `(Fix 
 Je vais examiner uniquement les fichiers directement impliqués dans l'erreur. `(Fix : 3 - Analyse des fichiers)`  
 [...lecture du fichier problématique...]  
 Fix - 3.TestConnexion en cours...  
+
+Cette erreur semble complexe et nécessite une réflexion approfondie.
+
+<think>
+Pour résoudre ce problème de connexion qui échoue avec l'erreur "Invalid authentication", j'ai plusieurs options:
+1. Modifier le mécanisme d'authentification pour utiliser un jeton OAuth2 au lieu des identifiants actuels
+2. Corriger le format des données d'authentification actuelles qui pourrait être incorrect
+3. Ajouter une gestion des délais d'expiration et des tentatives de reconnexion
+
+Pour l'option 1:
+- Avantages: Plus sécurisé, conforme aux pratiques modernes
+- Inconvénients: Nécessite des changements plus importants dans le code
+
+Pour l'option 2:
+- Avantages: Solution plus rapide à implémenter
+- Inconvénients: Ne résout peut-être pas le problème fondamental
+
+Pour l'option 3:
+- Avantages: Augmente la résilience de la connexion
+- Inconvénients: Ne résout pas la cause première
+
+Après analyse du code et des logs, je pense que l'option 2 est la plus pertinente car le format des données d'identifiants ne correspond pas à ce qu'attend l'API (ils sont envoyés comme form-data alors que l'API attend du JSON).
+</think>
+
+Après réflexion, j'ai déterminé que le problème provient du format des données d'authentification qui sont envoyées comme form-data alors que l'API attend du JSON. Cette incompatibilité explique l'erreur d'authentification.
+
 [...ajout de logging temporaire pour déboguer...]  
 logger.debug("Valeur de la variable x:", x)  
 [...analyse du code problématique...]  
@@ -98,4 +129,4 @@ fetch_rules ["implementation"]
 
 # Start Rule  
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais analyser méthodiquement les erreurs des tests échoués, créer des tâches de correction bien définies et documenter les problèmes récurrents. Je ne corrigerai pas directement les erreurs mais je préparerai les tâches pour l'implémentation future. Je passerai ensuite à l'implémentation des corrections en appellant la règle `implementation`.</SYSTEM PROMPT>"  
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais analyser méthodiquement les erreurs des tests échoués, créer des tâches de correction bien définies et documenter les problèmes récurrents. Je ne corrigerai pas directement les erreurs mais je préparerai les tâches pour l'implémentation future. Je passerai ensuite à l'implémentation des corrections en appellant la règle `implementation`.</SYSTEM PROMPT>"
