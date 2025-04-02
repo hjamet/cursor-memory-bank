@@ -3,7 +3,7 @@ description: Appelle cette règle pour charger les objectifs et le contexte gén
 globs: 
 alwaysApply: false
 ---
-  
+
 ## TLDR  
 Charger ou créer les fichiers de contexte du projet pour établir l'environnement de travail.  
 

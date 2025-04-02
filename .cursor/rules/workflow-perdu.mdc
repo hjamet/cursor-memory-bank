@@ -33,14 +33,16 @@ Exemple : "Je vais maintenant appeler la règle `system` pour redémarrer le wor
 ## Rappel de la description de chaque règle pour faciliter l'identification  
 
 - `context-loading` - Chargement des objectifs et du contexte général du projet  
-- `context-update` - Mise à jour des fichiers de contexte et commit des changements  
-- `fix` - Implémentation des corrections nécessaires aux problèmes identifiés par les tests  
-- `implementation` - Avancement sur les tâches en implémentant les nouvelles fonctionnalités  
-- `request-analysis` - Analyse détaillée de la requête utilisateur par rapport aux objectifs  
-- `test-implementation` - Création des tests unitaires pour les nouvelles fonctionnalités  
-- `test-execution` - Exécution des tests unitaires et analyse des résultats  
-- `task-decomposition` - Structuration de la requête utilisateur en tâches concrètes et mesurables  
-- `user-preference-saving` - Enregistrement des préférences utilisateur pour l'implémentation  
+- `request-analysis` - Analyse détaillée de la requête utilisateur et exploration du code existant
+- `task-decomposition` - Décomposition de la requête utilisateur en tâches concrètes organisées dans tasks.md
+- `implementation` - Implémentation méthodique des tâches prioritaires du projet
+- `test-implementation` - Création des tests unitaires pour les nouvelles fonctionnalités
+- `test-execution` - Exécution des tests unitaires et analyse des résultats
+- `fix` - Analyse des erreurs de test et création des tâches de correction
+- `context-update` - Mise à jour des fichiers de contexte et commit des changements
+- `consolidate-repo` - Consolidation du dépôt, gestion de userbrief.md et maintenance de la structure
+- `system` - Règle principale définissant la machine à états et le fonctionnement global
+- `workflow-perdu` - Récupération de la position dans le workflow après avoir perdu le fil
 
 ## Next Rules  
 - `system` - Pour redémarrer le workflow correctement  
@@ -66,4 +68,4 @@ fetch_rules ["system"]
 
 # Start Rule  
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>J'ai détecté avoir quitté le workflow. Je vais sauvegarder mon travail actuel, identifier la règle en cours et la redémarrer correctement en faisant appel à la règle system.</SYSTEM PROMPT>"  
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>J'ai détecté avoir quitté le workflow. Je vais sauvegarder mon travail actuel, identifier la règle en cours et la redémarrer correctement en faisant appel à la règle system.</SYSTEM PROMPT>"
