@@ -30,7 +30,9 @@ Mettre à jour les fichiers de contexte pour refléter les changements, actualis
      - Fichiers temporaires inutiles
      - Fichiers avec des noms incorrects
    - Si des problèmes sont identifiés, appeler la règle `consolidate-repo`
-   - Sinon, continuer avec le commit des modifications
+   - Sinon, consulter le fichier `.cursor/memory-bank/userbrief.md` :
+      - Si il contient des conseils, nouvelles tâches ou précisions venant de l'utilisateur non encore traitées dans la section User Inout (ie commençant par un symbole ⬜), appeler la règle `consolidate-repo` pour les traiter
+      - Sinon, continuer avec la prochaine étape : 5. **Commit des modifications**
 
 5. **Commit des modifications**: Effectuer un commit avec les modifications:
    - Préparer les fichiers et créer le commit en une seule commande:
@@ -108,7 +110,10 @@ Je mets à jour le fichier tasks.md en déplaçant les tâches terminées vers D
 Je vérifie maintenant l'intégrité des fichiers du projet. `(Context-update : 4 - Vérification de l'intégrité des fichiers)`
 find . -type f -name "*.md"
 [...analyse des résultats de la commande...]
-Je n'ai pas identifié de problèmes structurels dans les fichiers. `(Context-update : 4 - Vérification de l'intégrité des fichiers)`
+Je n'ai pas identifié de problèmes structurels dans les fichiers. Je vais maintenant vérifier le contenu du fichier `userbrief.md`.`(Context-update : 4 - Vérification de l'intégrité des fichiers)`
+[...vérification du fichier .cursor/memory-bank/userbrief.md...]
+Je ne vois pas de nouvelles tâches ou conseils à traiter. Je vais donc procéder à la prochaine étape.
+`(Context-update : 4 - Vérification de l'intégrité des fichiers)`
 
 # Context-update : 5 - Effectuer un commit
 Je prépare et effectue un commit avec les modifications apportées. `(Context-update : 5 - Effectuer un commit)`

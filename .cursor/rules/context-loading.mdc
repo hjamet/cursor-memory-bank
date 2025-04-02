@@ -18,7 +18,7 @@ Charger ou créer les fichiers de contexte du projet pour établir l'environneme
    - Analyser la structure et les objectifs du projet  
    - Créer le dossier `.cursor/memory-bank/context/` si nécessaire  
    - Initialiser les fichiers manquants avec structure appropriée  
-   - Créer `userbrief.md` vide via "touch .cursor/memory-bank/userbrief.md" si non existant  
+   - Créer un `.cursor/memory-bank/userbrief.md` si non existant
 
 3. **Reformulation de la requête** : Reformuler l'instruction utilisateur dans le contexte projet  
 
@@ -26,15 +26,11 @@ Charger ou créer les fichiers de contexte du projet pour établir l'environneme
 
 ## Précisions  
 - Fichiers concis mais complets  
-- `projectBrief.md` : vision et objectifs du projet  
-- `activeContext.md` : état actuel, développement et tâches en cours  
-- `techContext.md` : technologies, frameworks et dépendances  
+- `.cursor/memory-bank/workflow/projectBrief.md` : vision et objectifs du projet  
+- `.cursor/memory-bank/workflow/activeContext.md` : état actuel, développement et tâches en cours  
+- `.cursor/memory-bank/workflow/techContext.md` : technologies, frameworks et dépendances  
 - `.cursor/memory-bank/userbrief.md` : consulter mais JAMAIS modifier - seule la règle consolidate-repo est autorisée à le modifier
-- Utiliser recherches sémantiques si nécessaire  
-- Structurer avec titres et sous-titres  
-- ⚠️ IMPORTANT : Se limiter aux trois fichiers de contexte listés en étape 1  
-- ⚠️ IMPORTANT : Ne PAS consulter tasks.md ou autres fichiers du dossier workflow  
-- ⚠️ IMPORTANT : Le traitement de userbrief.md est délégué à la règle consolidate-repo, qui n'est appelée QUE par context-update
+- ⚠️ IMPORTANT : Se limiter aux quatre fichiers de contexte listés en étape 1  
 
 ## Next Rules  
 - `request-analysis` - Pour analyser en détail la requête de l'utilisateur  
@@ -42,11 +38,11 @@ Charger ou créer les fichiers de contexte du projet pour établir l'environneme
 ## Exemple  
 
 fetch_rules ["context-loading"]  
-<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectBrief.md, activeContext.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais appellerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>  
+<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectBrief.md, activeContext.md, techContext.md et userbrief.md pour comprendre l'environnement de travail. Je me limiterai strictement aux quatre fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais appellerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>  
 
 # Context-loading : 1 - Lecture des fichiers de contexte  
-Je commence par lire les trois fichiers de contexte pour comprendre l'environnement du projet. `(Context-loading : 1 - Lecture des fichiers de contexte)`  
-[...lecture des fichiers projectBrief.md, activeContext.md et techContext.md...]  
+Je commence par lire les quatre fichiers de contexte pour comprendre l'environnement du projet. `(Context-loading : 1 - Lecture des fichiers de contexte)`  
+[...lecture des fichiers projectBrief.md, activeContext.md, techContext.md et userbrief.md...]  
 `(Context-loading : 1 - Lecture des fichiers de contexte)`  
 
 # Context-loading : 3 - Reformulation de la requête  
@@ -61,4 +57,4 @@ fetch_rules ["request-analysis"]
 
 # Start Rule  
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectBrief.md, activeContext.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais appellerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>"
+Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectBrief.md, activeContext.md, techContext.md et userbrief.md pour comprendre l'environnement de travail. Je me limiterai strictement aux quatre fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais appellerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>"
