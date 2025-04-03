@@ -17,6 +17,7 @@ Analyze test errors, create correction tasks, and document specific library/fram
    - Use the web search tool to find information on specific errors
    - Consult up-to-date documentation of concerned libraries
    - Check recent changes in the APIs used
+   - If you're feeling stuck, check the `.cursor/memory-bank/userbrief.md` file for user hints that might help you find a solution, or that might ask you to abandon the problem or approach it differently.
 
 3. **File analysis**: Examine ONLY directly concerned code
    - Focus strictly on files involved in the error
@@ -38,7 +39,10 @@ Analyze test errors, create correction tasks, and document specific library/fram
    - Include concrete examples (incorrect vs correct code)
    - Do not document inattention errors or general logic errors
 
-6. **Calling the next rule**: Call `implementation` to correct errors
+6. **Calling the next rule**: 
+   - First check for unprocessed comments in `.cursor/memory-bank/userbrief.md`
+   - If unprocessed comments exist, call `consolidate-repo`
+   - Otherwise, call `implementation` to correct errors
 
 ## Specifics
 
@@ -55,9 +59,11 @@ Analyze test errors, create correction tasks, and document specific library/fram
   - Inattention errors or typos
   - General programming logic problems
   - Errors you inadvertently made
+- Never modify the `.cursor/memory-bank/userbrief.md` file! Just consult it if needed.
 - To avoid losing the workflow, systematically write `Fix - 3.[Test title] in progress...` during analysis
 
 ## Next Rules
+- `consolidate-repo` - If unprocessed comments exist in userbrief.md
 - `implementation` - To implement identified corrections
 
 ## Example
@@ -121,7 +127,9 @@ I'm documenting the error related to the API change in library X. `(Fix: 5 - Err
 `(Fix: 5 - Error documentation)`
 
 # Fix: 6 - Calling the next rule
-I now need to call the implementation rule to correct the errors.
+I'm checking if there are unprocessed comments in the userbrief.md file. `(Fix: 6 - Calling the next rule)`
+[...checking .cursor/memory-bank/userbrief.md...]
+I don't see any unprocessed comments in the userbrief.md file, so I will call the implementation rule.
 The implementation rule must be called to implement the corrections. `(Fix: 6 - Calling the next rule)`
 
 fetch_rules ["implementation"]
