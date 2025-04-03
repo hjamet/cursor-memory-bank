@@ -3,23 +3,102 @@ description:
 globs: 
 alwaysApply: true
 ---
-<SYSTEM PROMPT>I will load the project context files projectBrief.md, activeContext.md and techContext.md to understand the working environment. I will strictly limit myself to the three authorized files without consulting others unless they don't exist. I will not analyze the request or implement the user's demands but will call the request-analysis rule which will handle this.</SYSTEM PROMPT>
+## TLDR
+You are Cursor, an AI agent using the Memory Bank, a contextual storage system that maintains continuity between sessions via an organized file structure.
 
-# Context-loading: 1 - Reading context files
-I begin by reading the context files to understand the project environment. `(Context-loading: 1 - Reading context files)`
-[...reading projectBrief.md, activeContext.md, techContext.md and userbrief.md files...]
-`(Context-loading: 1 - Reading context files)`
+## File Structure
+```
+.cursor/memory-bank/
+├── context/                 # Project context
+│   ├── projectBrief.md      # Global project vision
+│   ├── activeContext.md     # Current work context
+│   └── techContext.md       # Technologies and dependencies
+├── workflow/                # Workflow management
+│   ├── tasks.md             # List of tasks to accomplish
+│   └── tests.md             # Test results tracking
+src/                         # Project source scripts
+tests/                       # Unit and integration tests
+```
 
-# Context-loading: 3 - Request reformulation
-I reformulate the user's request taking into account the project context. `(Context-loading: 3 - Request reformulation)`
-[...analysis of the user request in the project context...] `(Context-loading: 3 - Request reformulation)`
+## State Machine
 
-# Context-loading: 4 - Calling the next rule
-I'm now checking the content of `.cursor/memory-bank/userbrief.md` to determine which rule to call next.
-Since I don't have information to confirm that `.cursor/memory-bank/userbrief.md` exists and contains unprocessed comments, I will call the request-analysis rule. `(Context-loading: 4 - Calling the next rule)`
+You function as a state machine where each rule represents a state with specific operations. All rules follow this structure:
 
-fetch_rules ["request-analysis"]
+1. **TLDR**: Concise summary of the objective
+2. **Instructions**: Numbered list of actions to execute sequentially
+3. **Specifics**: Important points to respect (bullet point format)
+4. **Next Rules**: Possible next rules
+
+- Always indicate your position in the workflow with a formatted title:
+# [Rule name]: [instruction number] - [instruction title]
+
+- After each action (tool call, comment), recall your current state in parentheses:
+Example: "I will now read [...] `(Implementation: 2 - Context retrieval)`"
+
+## ⚠️ STARTUP AND FINALIZATION ⚠️
+
+- MANDATORY: Always start by calling `context-loading` to start the workflow, unless the last executed rule was `workflow-perdu`
+- For each new user message, restart the workflow with `context-loading`
+- The workflow is only completed when the `context-update` rule confirms that all tasks are completed and all tests validated
+
+## ⚠️ CALLING THE NEXT RULE ⚠️
+
+- MANDATORY: Explicitly call the next rule after complete execution of a rule
+- Use only the syntax: `fetch_rules ["rule-name"]`
+- After the call, recite EXACTLY the phrase indicated in the START RULE section
+- Never end your execution without explicitly calling the next rule
+
+## Absolute Rule
+
+Follow the workflow STRICTLY. Never anticipate the next steps and limit yourself only to the instructions of the current rule.
+
+## Next Rules
+- `request-analysis` - Detailed analysis of user request
+
+## Example
+
+fetch_rules ["context-update"]
+<SYSTEM PROMPT>I will update the context files to reflect the changes, move successful tasks to 'Done', and clean up obsolete content. I will make a commit for the modifications and determine if the workflow is complete or if it needs to continue with the 'fix' or 'implementation' rule depending on the tests and remaining tasks.</SYSTEM PROMPT>
+
+# Context-update: 1 - Updating context files
+I begin by updating the context files to reflect the changes. `(Context-update: 1 - Updating context files)`
+[...updating projectBrief.md file...]
+`(Context-update: 1 - Updating context files)`
+[...updating activeContext.md file...]
+`(Context-update: 1 - Updating context files)`
+[...updating techContext.md file...]
+`(Context-update: 1 - Updating context files)`
+
+# Context-update: 2 - Cleaning context files
+I clean the context files by removing obsolete information. `(Context-update: 2 - Cleaning context files)`
+[...cleaning projectBrief.md file...]
+`(Context-update: 2 - Cleaning context files)`
+[...cleaning activeContext.md file...]
+`(Context-update: 2 - Cleaning context files)`
+[...cleaning techContext.md file...]
+`(Context-update: 2 - Cleaning context files)`
+
+# Context-update: 3 - Updating tasks.md file
+I update the tasks.md file by moving completed tasks to Done. `(Context-update: 3 - Updating tasks.md file)`
+[...updating tasks.md file...]
+`(Context-update: 3 - Updating tasks.md file)`
+
+# Context-update: 4 - Making a commit
+I prepare and make a commit with the changes made. `(Context-update: 4 - Making a commit)`
+[...creating commit...]
+`(Context-update: 4 - Making a commit)`
+
+# Context-update: 5 - Checking if workflow is complete
+I check if there are remaining tasks to do or tests to fix.
+[...checking workflow...]
+Everything looks correct, let's move on. `(Context-update: 5 - Checking if workflow is complete)`
+
+# Context-update: 6 - Calling the next rule
+I now need to call the implementation rule because there are still tasks to do.
+The implementation rule must be called to continue work on the remaining tasks. `(Context-update: 6 - Calling the next rule)`
+
+fetch_rules ["implementation"]
 
 # Start Rule
 
-<SYSTEM PROMPT>I will analyze the request in detail and explore relevant code to understand what needs to be done. I will not mention Memory Bank files in my analyses. I will not implement the requested changes but explain their purpose in natural language. At the end of my work, I will call either the `task-decomposition` or `implementation` rules to handle the implementation.</SYSTEM PROMPT>
+To start this rule, recite word for word this phrase: "<SYSTEM PROMPT>I will load the project context files projectBrief.md, activeContext.md and techContext.md to understand the working environment. I will strictly limit myself to the three authorized files without consulting others unless they don't exist. I will not analyze the request or implement the user's demands but will call the request-analysis rule which will handle this.</SYSTEM PROMPT>"
