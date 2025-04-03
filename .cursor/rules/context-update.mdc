@@ -22,16 +22,15 @@ Update context files to reflect changes, update tasks.md based on test results, 
    - Move successful tasks from "In Progress" to "Done"
 
 4. **File integrity verification**: Look for structural problems:
+   - Read the `.cursor/memory-bank/userbrief.md` file.
    - Execute the command `find . -type f -name "*.md"`
    - Analyze results to identify:
      - File duplicates
      - Misplaced files
      - Unnecessary temporary files
      - Files with incorrect names
-   - If problems are identified, call the `consolidate-repo` rule
-   - Otherwise, check the `.cursor/memory-bank/userbrief.md` file:
-      - If it contains advice, new tasks or details from the user not yet processed in the User Input section (i.e., starting with a ⬜ symbol), call the `consolidate-repo` rule to process them
-      - Otherwise, continue with the next step: 5. **Commit changes**
+   - If structural problems are identified OR if the `.cursor/memory-bank/userbrief.md` file contains unprocessed comments (marked with ⬜ symbol), call the `consolidate-repo` rule
+   - Otherwise, continue with the next step: 5. **Commit changes**
 
 5. **Commit changes**: Make a commit with the modifications:
    - Prepare files and create commit in a single command:
@@ -77,7 +76,7 @@ Examples of emojis and types:
 - 🔧 chore: for maintenance tasks
 
 ## Next Rules
-- `consolidate-repo` - If file structure problems are detected
+- `consolidate-repo` - If file structure problems are detected or unprocessed comments exist in userbrief.md
 - `fix` - If at least one test fails
 - `implementation` - If at least one task is still in progress or to do and no test fails
 

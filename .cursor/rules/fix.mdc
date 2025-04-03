@@ -1,5 +1,5 @@
 ---
-description: Appelle cette règle pour implémenter les corrections nécessaires aux problèmes identifiés par les tests 
+description: Appelle cette règle pour implémenter les corrections nécessaires aux problèmes identifiés par les tests
 globs: 
 alwaysApply: false
 ---
@@ -40,7 +40,7 @@ Analyze test errors, create correction tasks, and document specific library/fram
    - Do not document inattention errors or general logic errors
 
 6. **Calling the next rule**: 
-   - First check for unprocessed comments in `.cursor/memory-bank/userbrief.md`
+   - First check for unprocessed comments in `.cursor/memory-bank/userbrief.md` in the User Input section (i.e., starting with a ⬜ symbol)
    - If unprocessed comments exist, call `consolidate-repo`
    - Otherwise, call `implementation` to correct errors
 
@@ -63,7 +63,7 @@ Analyze test errors, create correction tasks, and document specific library/fram
 - To avoid losing the workflow, systematically write `Fix - 3.[Test title] in progress...` during analysis
 
 ## Next Rules
-- `consolidate-repo` - If unprocessed comments exist in userbrief.md
+- `consolidate-repo` - If unprocessed comments exist in userbrief.md  (i.e., starting with a ⬜ symbol)
 - `implementation` - To implement identified corrections
 
 ## Example
