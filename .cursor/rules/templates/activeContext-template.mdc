@@ -3,79 +3,76 @@ description:
 globs: .cursor/memory-bank/context/activeContext.md
 alwaysApply: false
 ---
-
-# Règle d'édition activeContext.md
+# activeContext.md Editing Rules
 
 ## TLDR
-Ce fichier documente l'état actuel du développement, les tâches en cours, et les priorités immédiates.
+This file documents the current state of development, ongoing tasks, and immediate priorities.
 
-## Limites et structure
+## Limits and Structure
 
-- **Longueur maximale** : 200 lignes
-- **Contenu** : Focus actuel, problèmes, décisions récentes, prochaines étapes
-- **Temporalité** : Informations récentes et pertinentes pour le travail en cours
+- **Maximum length**: 200 lines
+- **Content**: Current focus, issues, recent decisions, next steps
+- **Temporality**: Recent and relevant information for ongoing work
 
-## Sections obligatoires
+## Mandatory Sections
 
-1. **Focus Actuel** : Priorités immédiates et justifications (3-5 phrases)
-2. **Problèmes en Cours** : Blocages actuels avec pistes de solution
-3. **Décisions Récentes** : Choix récents avec leurs justifications
-4. **Prochaines Étapes** : Actions planifiées par ordre de priorité
-5. **Notes Importantes** : Informations critiques pour le développement
+1. **Current Focus**: Immediate priorities and justifications (3-5 sentences)
+2. **Ongoing Issues**: Current blockers with potential solutions
+3. **Recent Decisions**: Recent choices with their justifications
+4. **Next Steps**: Planned actions ordered by priority
+5. **Important Notes**: Critical information for development
 
-## Contenu complémentaire
+## Complementary Content
 
-- Ce fichier se concentre sur le présent et le futur proche
-- projectbrief.md couvre la vision globale et les objectifs à long terme
-- techContext.md contient les informations techniques détaillées
+- This file focuses on the present and near future
+- projectbrief.md covers the global vision and long-term objectives
+- techContext.md contains detailed technical information
 
-## Template de référence
+## Reference Template
 
-```markdown
-# Contexte Actif
+# Active Context
 
-## Focus Actuel
-[Description concise de ce sur quoi l'équipe travaille actuellement. 3-5 phrases maximum expliquant les priorités immédiates et le raisonnement.]
+## Current Focus
+[Concise description of what the team is currently working on. Maximum 3-5 sentences explaining immediate priorities and reasoning.]
 
-## Problèmes en Cours
-- **[Problème 1]** : [Description brève] | [Pistes de solution]
-- **[Problème 2]** : [Description brève] | [Pistes de solution]
-[Listez uniquement les problèmes bloquants ou critiques qui impactent le développement actuel]
+## Ongoing Issues
+- **[Issue 1]**: [Brief description] | [Potential solutions]
+- **[Issue 2]**: [Brief description] | [Potential solutions]
+[List only blocking or critical issues that impact current development]
 
-## Décisions Récentes
-- **[Date]** - **[Décision]** : [Justification et implications]
-- **[Date]** - **[Décision]** : [Justification et implications]
-[Garder uniquement les décisions des 2-4 dernières semaines ou celles ayant un impact majeur sur le travail actuel]
+## Recent Decisions
+- **[Date]** - **[Decision]**: [Justification and implications]
+- **[Date]** - **[Decision]**: [Justification and implications]
+[Keep only decisions from the last 2-4 weeks or those having a major impact on current work]
 
-## Prochaines Étapes
-- **Priorité Haute** : [Action 1], [Action 2]
-- **Priorité Moyenne** : [Action 3], [Action 4]
-- **À Considérer** : [Action 5], [Action 6]
-[3-8 actions concrètes et spécifiques, ordonnées par priorité]
+## Next Steps
+- **High Priority**: [Action 1], [Action 2]
+- **Medium Priority**: [Action 3], [Action 4]
+- **To Consider**: [Action 5], [Action 6]
+[3-8 concrete and specific actions, ordered by priority]
 
-## Notes Importantes
-- [Information critique 1]
-- [Information critique 2]
-[Informations essentielles à garder à l'esprit pendant le développement actuel]
+## Important Notes
+- [Critical information 1]
+- [Critical information 2]
+[Essential information to keep in mind during current development]
 
-## Apprentissages Récents
-- **[Date/Période]** : [Apprentissage clé et son application]
-- **[Date/Période]** : [Apprentissage clé et son application]
-[Connaissances acquises récemment qui influencent le travail actuel]
-```
+## Recent Learnings
+- **[Date/Period]**: [Key learning and its application]
+- **[Date/Period]**: [Key learning and its application]
+[Recently acquired knowledge that influences current work]
 
-## Style et bonnes pratiques
+## Style and Best Practices
 
-- **Actualité** : Informations datant de moins de 2-4 semaines
-- **Spécificité** : Actions concrètes et définies
-- **Prioritisation** : Classement clair des tâches par importance
-- **Datation** : Horodatage des décisions et événements
-- **Concision** : Phrases directes, éviter les détails non essentiels
+- **Currency**: Information less than 2-4 weeks old
+- **Specificity**: Concrete and defined actions
+- **Prioritization**: Clear ranking of tasks by importance
+- **Dating**: Timestamping of decisions and events
+- **Conciseness**: Direct sentences, avoid non-essential details
 
 ## Validations
 
-- Limite de 200 lignes respectée
-- Sections obligatoires présentes et complètes
-- Informations récentes et pertinentes au travail actuel
-- Problèmes listés sont ceux activement traités
-- Pas de duplication avec projectbrief.md ou techContext.md
+- 200-line limit respected
+- Mandatory sections present and complete
+- Information recent and relevant to current work
+- Listed issues are those being actively addressed
+- No duplication with projectbrief.md or techContext.md

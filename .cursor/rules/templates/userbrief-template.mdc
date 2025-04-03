@@ -3,61 +3,58 @@ description:
 globs: .cursor/memory-bank/userbrief.md
 alwaysApply: false
 ---
-
-# Règle d'édition userbrief.md
+# userbrief.md Editing Rules
 
 ## TLDR
-Ce fichier contient les demandes et préférences de l'utilisateur, organisées en 3 sections principales pour faciliter le suivi et le traitement.
+This file contains user requests and preferences, organized in 3 main sections to facilitate tracking and processing.
 
-## Limites et structure
+## Limits and Structure
 
-- **Longueur maximale**: À maintenir aussi concise que possible sans supprimer de contenu
-- **Contenu**: Requêtes, préférences, et directives de l'utilisateur
-- **Organisation**: Structure en 3 sections principales
-- **Temporalité**: Persistant jusqu'à ce que l'utilisateur décide de vider le fichier
+- **Maximum length**: To be kept as concise as possible without removing content
+- **Content**: User requests, preferences, and directives
+- **Organization**: Structure in 3 main sections
+- **Temporality**: Persistent until the user decides to clear the file
 
-## Format pour les sections
+## Format for Sections
 
-- **User Input**: Section où l'utilisateur peut écrire librement ses idées et pensées
-- **Processing**: Section où sont déplacées les demandes lors de leur premier traitement
-- **Precisions**: Section pour les recommandations à long terme et les explications détaillées
+- **User Input**: Section where the user can freely write their ideas and thoughts
+- **Processing**: Section where requests are moved during their initial processing
+- **Precisions**: Section for long-term recommendations and detailed explanations
 
-## Format pour les éléments
+## Format for Elements
 
-- **⬜ Todo**: Éléments qui n'ont pas encore été traités
-- **🔄 In Progress**: Éléments en cours de traitement
-- **📌 Pris en compte**: Préférences persistantes à conserver (outils, style de code, etc.)
-- **✅ Done**: Éléments qui ont été traités et complétés
+- **⬜ Todo**: Elements that have not yet been processed
+- **🔄 In Progress**: Elements currently being processed
+- **📌 Taken into account**: Persistent preferences to keep (tools, code style, etc.)
+- **✅ Done**: Elements that have been processed and completed
 
-## Template de référence
+## Reference Template
 
-```markdown
 # User Input
-<!-- Les utilisateurs écrivent ici leurs nouvelles idées et demandes -->
+<!-- Users write their new ideas and requests here -->
 
 # Processing
-<!-- Les demandes en cours de traitement/transformation en tâches -->
-🔄 [Demande en cours de traitement]
-✅ [Demande complétée]
+<!-- Requests being processed/transformed into tasks -->
+🔄 [Request being processed]
+✅ [Completed request]
 
 # Precisions
-<!-- Préférences et recommandations à long terme -->
-📌 [Préférence importante à conserver]
-```
+<!-- Long-term preferences and recommendations -->
+📌 [Important preference to keep]
 
-## Style et bonnes pratiques
+## Style and Best Practices
 
-- **Ne jamais vider ce fichier**: Seul l'utilisateur peut effacer le contenu
-- **Réorganisation**: Déplacer les éléments entre les sections selon leur statut de traitement
-- **Mise à jour des statuts**: Modifier uniquement les émojis de statut, pas le contenu
-- **Conservation**: Les éléments marqués 📌 doivent être préservés indéfiniment
-- **Concision**: Maintenir le fichier aussi concis que possible sans perdre d'information
-- **Éléments traités**: Marquer les éléments complétés avec ✅ mais les laisser dans leur section
+- **Never empty this file**: Only the user can erase the content
+- **Reorganization**: Move elements between sections according to their processing status
+- **Status updates**: Modify only the status emojis, not the content
+- **Conservation**: Elements marked with 📌 must be preserved indefinitely
+- **Conciseness**: Keep the file as concise as possible without losing information
+- **Processed elements**: Mark completed elements with ✅ but leave them in their section
 
 ## Validations
 
-- Chaque élément commence par un emoji de statut approprié
-- Les sections sont clairement délimitées par des titres de niveau 1
-- Les éléments sont correctement placés dans leurs sections respectives
-- Le contenu après l'emoji n'est jamais modifié sans directive explicite
-- Les préférences et demandes persistantes sont marquées avec 📌
+- Each element starts with an appropriate status emoji
+- Sections are clearly delimited by level 1 headings
+- Elements are correctly placed in their respective sections
+- The content after the emoji is never modified without explicit directive
+- Persistent preferences and requests are marked with 📌

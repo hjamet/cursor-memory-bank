@@ -1,132 +1,131 @@
 ---
-description: Appelle cette règle pour implémenter les corrections nécessaires aux problèmes identifiés par les tests  
+description: Appelle cette règle pour implémenter les corrections nécessaires aux problèmes identifiés par les tests 
 globs: 
 alwaysApply: false
 ---
+## TLDR
+Analyze test errors, create correction tasks, and document specific library/framework issues.
 
-## TLDR  
-Analyser les erreurs de test, créer des tâches de correction et documenter les problèmes spécifiques aux bibliothèques/frameworks.  
+## Instructions
 
-## Instructions  
+1. **Error identification**: Analyze errors for each failed test
+   - Read the `.cursor/memory-bank/workflow/tests.md` file to understand test results
+   - List and categorize encountered errors
+   - Note exact error messages and reproduction conditions
 
-1. **Identification des erreurs** : Analyser les erreurs pour chaque test échoué  
-   - Lire le fichier `.cursor/memory-bank/workflow/tests.md` pour comprendre les résultats des tests  
-   - Lister et catégoriser les erreurs rencontrées  
-   - Noter les messages d'erreur exacts et les conditions de reproduction  
+2. **Information search**: If needed, search for solutions
+   - Use the web search tool to find information on specific errors
+   - Consult up-to-date documentation of concerned libraries
+   - Check recent changes in the APIs used
 
-2. **Recherche d'informations** : Au besoin, rechercher des solutions  
-   - Utiliser l'outil de recherche web pour trouver des informations sur des erreurs spécifiques  
-   - Consulter la documentation à jour des bibliothèques concernées  
-   - Vérifier les changements récents dans les APIs utilisées  
+3. **File analysis**: Examine ONLY directly concerned code
+   - Focus strictly on files involved in the error
+   - Locate specific lines of code causing problems
+   - For complex or recurring errors, add temporary debugging logging
+     (Use `logger.debug()` in Python or equivalent in other languages)
+   - For complex corrections, use the think token: `<think>Deep reflection on the problem, exploration of different possible correction approaches, etc.</think>`
+   - Briefly summarize the conclusions of the reflection if applicable
+   - After each tool call, write `Fix - 3.[Test title] in progress...`
 
-3. **Analyse des fichiers** : Examiner UNIQUEMENT le code directement concerné  
-   - Se concentrer strictement sur les fichiers impliqués dans l'erreur  
-   - Localiser les lignes de code spécifiques causant les problèmes  
-   - Pour les erreurs complexes ou récurrentes, ajouter du logging temporaire de débogage  
-     (Utiliser `logger.debug()` en Python ou équivalent dans d'autres langages)  
-   - Pour les corrections complexes, utiliser le token think: `<think>Réflexion approfondie sur le problème, exploration des différentes approches de correction possibles, etc.</think>`
-   - Résumer brièvement les conclusions de la réflexion si applicable
-   - Après chaque appel d'outil, écrire `Fix - 3.[Titre du test] en cours...`  
+4. **Adding correction tasks**: Update tasks.md
+   - Create a "Corrections" section in "In Progress"
+   - Detail each error to correct with concerned files/symbols
+   - Propose solutions based on the analysis
 
-4. **Ajout des tâches de correction** : Mettre à jour tasks.md  
-   - Créer une section "Corrections" dans "In Progress"  
-   - Détailler chaque erreur à corriger avec fichiers/symboles concernés  
-   - Proposer des solutions basées sur l'analyse  
+5. **Error documentation**: Update techContext.md
+   - Add only errors related to API changes/behavior of libraries
+   - Document in the appropriate section of the techContext.md file
+   - Include concrete examples (incorrect vs correct code)
+   - Do not document inattention errors or general logic errors
 
-5. **Documentation des erreurs** : Mettre à jour techContext.md  
-   - Ajouter uniquement les erreurs liées aux changements d'API/comportement des bibliothèques  
-   - Documenter dans la section appropriée du fichier techContext.md  
-   - Inclure des exemples concrets (code incorrect vs correct)  
-   - Ne pas documenter les erreurs d'inattention ou de logique générale  
+6. **Calling the next rule**: Call `implementation` to correct errors
 
-6. **Appel de la règle suivante** : Appeler `implementation` pour corriger les erreurs  
+## Specifics
 
-## Précisions  
+- The think token `<think></think>` must be used for each complex correction requiring in-depth analysis
+- In-depth reflection must be verbalized in the think token before formulating correction tasks
+- Using the think token allows reasoning according to the chain of thought method and comparing different approaches
+- Examine ONLY files directly related to the error, not peripheral files
+- For complex or recurring problems, use temporary debugging logging
+- Document ONLY errors due to:
+  - API changes in libraries (e.g., renaming attribute "weight" to "w")
+  - Non-intuitive specific behaviors of frameworks
+  - Updates that modify existing functionalities
+- DO NOT document:
+  - Inattention errors or typos
+  - General programming logic problems
+  - Errors you inadvertently made
+- To avoid losing the workflow, systematically write `Fix - 3.[Test title] in progress...` during analysis
 
-- Le token think `<think></think>` doit être utilisé pour chaque correction complexe nécessitant une analyse approfondie
-- La réflexion approfondie doit être verbalisée dans le token think avant de formuler les tâches de correction
-- L'utilisation du token think permet de raisonner selon la méthode chain of thought et de comparer différentes approches
-- Examiner UNIQUEMENT les fichiers directement liés à l'erreur, pas les fichiers périphériques  
-- Pour les problèmes complexes ou récurrents, utiliser du logging de débogage temporaire  
-- Documenter UNIQUEMENT les erreurs dues à:  
-  - Changements d'API dans les bibliothèques (ex: renommage d'attribut "weight" à "w")  
-  - Comportements spécifiques non intuitifs de frameworks  
-  - Mises à jour qui modifient les fonctionnalités existantes  
-- NE PAS documenter:  
-  - Erreurs d'inattention ou fautes de frappe  
-  - Problèmes de logique générale de programmation  
-  - Erreurs que tu as commises par inadvertance  
-- Pour éviter de perdre le workflow, écrire systématiquement `Fix - 3.[Titre du test] en cours...` pendant l'analyse  
+## Next Rules
+- `implementation` - To implement identified corrections
 
-## Next Rules  
-- `implementation` - Pour implémenter les corrections identifiées  
+## Example
 
-## Exemple  
+fetch_rules ["fix"]
+<SYSTEM PROMPT>I will methodically analyze failed test errors, create well-defined correction tasks, and document recurring problems. I will not directly correct errors but will prepare tasks for future implementation. I will then move on to implementing corrections by calling the `implementation` rule.</SYSTEM PROMPT>
 
-fetch_rules ["fix"]  
-<SYSTEM PROMPT>Je vais analyser méthodiquement les erreurs des tests échoués, créer des tâches de correction bien définies et documenter les problèmes récurrents. Je ne corrigerai pas directement les erreurs mais je préparerai les tâches pour l'implémentation future. Je passerai ensuite à l'implémentation des corrections en appellant la règle `implementation`</SYSTEM PROMPT>  
+# Fix: 1 - Error identification
+I begin by reading the tests.md file to understand test errors. `(Fix: 1 - Error identification)`
+[...reading .cursor/memory-bank/workflow/tests.md file...]
+`(Fix: 1 - Error identification)`
 
-# Fix : 1 - Identification des erreurs  
-Je commence par lire le fichier tests.md pour comprendre les erreurs des tests. `(Fix : 1 - Identification des erreurs)`  
-[...lecture du fichier .cursor/memory-bank/workflow/tests.md...]  
-`(Fix : 1 - Identification des erreurs)`  
+# Fix: 2 - Information search
+I'm searching for information about the error concerning library X. `(Fix: 2 - Information search)`
+[...internet search...]
+`(Fix: 2 - Information search)`
 
-# Fix : 2 - Recherche d'informations  
-Je recherche des informations sur l'erreur concernant la bibliothèque X. `(Fix : 2 - Recherche d'informations)`  
-[...recherche sur internet...]  
-`(Fix : 2 - Recherche d'informations)`  
+# Fix: 3 - File analysis
+I will examine only files directly involved in the error. `(Fix: 3 - File analysis)`
+[...reading problematic file...]
+Fix - 3.TestConnection in progress...
 
-# Fix : 3 - Analyse des fichiers  
-Je vais examiner uniquement les fichiers directement impliqués dans l'erreur. `(Fix : 3 - Analyse des fichiers)`  
-[...lecture du fichier problématique...]  
-Fix - 3.TestConnexion en cours...  
-
-Cette erreur semble complexe et nécessite une réflexion approfondie.
+This error seems complex and requires in-depth reflection.
 
 <think>
-Pour résoudre ce problème de connexion qui échoue avec l'erreur "Invalid authentication", j'ai plusieurs options:
-1. Modifier le mécanisme d'authentification pour utiliser un jeton OAuth2 au lieu des identifiants actuels
-2. Corriger le format des données d'authentification actuelles qui pourrait être incorrect
-3. Ajouter une gestion des délais d'expiration et des tentatives de reconnexion
+To solve this connection problem that fails with the "Invalid authentication" error, I have several options:
+1. Modify the authentication mechanism to use an OAuth2 token instead of current credentials
+2. Correct the format of current authentication data which could be incorrect
+3. Add timeout management and reconnection attempts
 
-Pour l'option 1:
-- Avantages: Plus sécurisé, conforme aux pratiques modernes
-- Inconvénients: Nécessite des changements plus importants dans le code
+For option 1:
+- Advantages: More secure, compliant with modern practices
+- Disadvantages: Requires more significant changes in the code
 
-Pour l'option 2:
-- Avantages: Solution plus rapide à implémenter
-- Inconvénients: Ne résout peut-être pas le problème fondamental
+For option 2:
+- Advantages: Faster solution to implement
+- Disadvantages: May not solve the fundamental problem
 
-Pour l'option 3:
-- Avantages: Augmente la résilience de la connexion
-- Inconvénients: Ne résout pas la cause première
+For option 3:
+- Advantages: Increases connection resilience
+- Disadvantages: Does not solve the root cause
 
-Après analyse du code et des logs, je pense que l'option 2 est la plus pertinente car le format des données d'identifiants ne correspond pas à ce qu'attend l'API (ils sont envoyés comme form-data alors que l'API attend du JSON).
+After analyzing the code and logs, I think option 2 is most relevant because the format of credential data doesn't match what the API expects (they are sent as form-data while the API expects JSON).
 </think>
 
-Après réflexion, j'ai déterminé que le problème provient du format des données d'authentification qui sont envoyées comme form-data alors que l'API attend du JSON. Cette incompatibilité explique l'erreur d'authentification.
+After reflection, I determined that the problem comes from the authentication data format which is sent as form-data while the API expects JSON. This incompatibility explains the authentication error.
 
-[...ajout de logging temporaire pour déboguer...]  
-logger.debug("Valeur de la variable x:", x)  
-[...analyse du code problématique...]  
-`(Fix : 3 - Analyse des fichiers)`  
+[...adding temporary logging for debugging...]
+logger.debug("Value of variable x:", x)
+[...analyzing problematic code...]
+`(Fix: 3 - File analysis)`
 
-# Fix : 4 - Ajout des tâches de correction  
-Je crée des tâches détaillées pour corriger chaque erreur. `(Fix : 4 - Ajout des tâches de correction)`  
-[...modification du fichier tasks.md...]  
-`(Fix : 4 - Ajout des tâches de correction)`  
+# Fix: 4 - Adding correction tasks
+I'm creating detailed tasks to correct each error. `(Fix: 4 - Adding correction tasks)`
+[...modifying tasks.md file...]
+`(Fix: 4 - Adding correction tasks)`
 
-# Fix : 5 - Documentation des erreurs  
-Je documente l'erreur liée au changement d'API dans la bibliothèque X. `(Fix : 5 - Documentation des erreurs)`  
-[...mise à jour de techContext.md...]  
-`(Fix : 5 - Documentation des erreurs)`  
+# Fix: 5 - Error documentation
+I'm documenting the error related to the API change in library X. `(Fix: 5 - Error documentation)`
+[...updating techContext.md...]
+`(Fix: 5 - Error documentation)`
 
-# Fix : 6 - Appel de la règle suivante  
-Je dois maintenant appeler la règle implementation pour corriger les erreurs.  
-La règle implementation doit être appelée pour implémenter les corrections. `(Fix : 6 - Appel de la règle suivante)`  
+# Fix: 6 - Calling the next rule
+I now need to call the implementation rule to correct the errors.
+The implementation rule must be called to implement the corrections. `(Fix: 6 - Calling the next rule)`
 
-fetch_rules ["implementation"]  
+fetch_rules ["implementation"]
 
-# Start Rule  
+# Start Rule
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais analyser méthodiquement les erreurs des tests échoués, créer des tâches de correction bien définies et documenter les problèmes récurrents. Je ne corrigerai pas directement les erreurs mais je préparerai les tâches pour l'implémentation future. Je passerai ensuite à l'implémentation des corrections en appellant la règle `implementation`.</SYSTEM PROMPT>"
+To start this rule, recite word for word this phrase: "<SYSTEM PROMPT>I will methodically analyze failed test errors, create well-defined correction tasks, and document recurring problems. I will not directly correct errors but will prepare tasks for future implementation. I will then move on to implementing corrections by calling the `implementation` rule.</SYSTEM PROMPT>"

@@ -3,55 +3,52 @@ description:
 globs: .cursor/memory-bank/workflow/tests.md
 alwaysApply: false
 ---
-
-# Règle d'édition tests.md
+# tests.md Editing Rules
 
 ## TLDR
-Ce fichier documente les résultats des tests unitaires, leur évolution et les problèmes identifiés.
+This file documents unit test results, their evolution, and identified issues.
 
-## Limites et structure
+## Limits and Structure
 
-- **Organisation** : Tests regroupés par statut (réussite, avertissement, échec)
-- **Contenu** : Résultats détaillés avec explications et évolution
-- **Temporalité** : Résultats actuels avec comparaison aux exécutions précédentes
+- **Organization**: Tests grouped by status (success, warning, failure)
+- **Content**: Detailed results with explanations and evolution
+- **Temporality**: Current results with comparison to previous executions
 
-## Format obligatoire
+## Mandatory Format
 
-- Tests réussis : Préfixés par ✅, description concise et évolution
-- Tests avec avertissements : Préfixés par ⚠️, explication du warning et évolution
-- Tests échoués : Préfixés par ❌, explication détaillée de l'échec et évolution
+- Successful tests: Prefixed with ✅, concise description and evolution
+- Tests with warnings: Prefixed with ⚠️, explanation of the warning and evolution
+- Failed tests: Prefixed with ❌, detailed explanation of the failure and evolution
 
-## Template de référence
+## Reference Template
 
-```markdown
-# Fichier de tests
+# Test File
 
-## Tests réussis
-- ✅ **[Titre du test réussi]** : Test passé correctement - [Évolution par rapport au test précédent]
-- ✅ **[Titre du test réussi]** : Test passé correctement - [Évolution par rapport au test précédent]
+## Successful Tests
+- ✅ **[Successful test title]**: Test passed correctly - [Evolution compared to previous test]
+- ✅ **[Successful test title]**: Test passed correctly - [Evolution compared to previous test]
 
-## Tests avec avertissements
-- ⚠️ **[Titre du test avec avertissement]** : [Explication du warning] - [Évolution par rapport au test précédent]
-- ⚠️ **[Titre du test avec avertissement]** : [Explication du warning] - [Évolution par rapport au test précédent]
+## Tests with Warnings
+- ⚠️ **[Test title with warning]**: [Warning explanation] - [Evolution compared to previous test]
+- ⚠️ **[Test title with warning]**: [Warning explanation] - [Evolution compared to previous test]
 
-## Tests échoués
-- ❌ **[Titre du test échoué]** : [Explication détaillée de l'échec] - [Évolution par rapport au test précédent]
-- ❌ **[Titre du test échoué]** : [Explication détaillée de l'échec] - [Évolution par rapport au test précédent]
-```
+## Failed Tests
+- ❌ **[Failed test title]**: [Detailed explanation of the failure] - [Evolution compared to previous test]
+- ❌ **[Failed test title]**: [Detailed explanation of the failure] - [Evolution compared to previous test]
 
-## Style et bonnes pratiques
+## Style and Best Practices
 
-- **Clarté** : Descriptions précises et compréhensibles
-- **Émojis** : Utiliser les émojis appropriés pour indiquer visuellement le statut
-- **Évolution** : Toujours indiquer si le résultat est une amélioration, régression ou statu quo
-- **Détail** : Plus de détails pour les échecs que pour les réussites
-- **Erreurs** : Inclure les messages d'erreur exacts pour les tests échoués
-- **Organisation** : Regrouper les tests par statut pour meilleure lisibilité
+- **Clarity**: Precise and understandable descriptions
+- **Emojis**: Use appropriate emojis to visually indicate status
+- **Evolution**: Always indicate if the result is an improvement, regression, or status quo
+- **Detail**: More details for failures than for successes
+- **Errors**: Include exact error messages for failed tests
+- **Organization**: Group tests by status for better readability
 
 ## Validations
 
-- Utilisation cohérente des émojis pour chaque statut
-- Présence d'une explication pour chaque test
-- Information sur l'évolution pour chaque test
-- Description claire et actionnable des échecs
-- Format respectant la structure recommandée
+- Consistent use of emojis for each status
+- Presence of an explanation for each test
+- Information on evolution for each test
+- Clear and actionable description of failures
+- Format respecting the recommended structure

@@ -3,64 +3,61 @@ description:
 globs: .cursor/memory-bank/context/projectBrief.md
 alwaysApply: false
 ---
+# projectBrief.md Editing Rules
 
-# Règle d'édition projectBrief.md  
+## TLDR
+This file must present the global vision of the project concisely (max 200 lines), covering objectives, constraints, stakeholders, and success metrics.
 
-## TLDR  
-Ce fichier doit présenter la vision globale du projet de manière concise (max 200 lignes), couvrant objectifs, contraintes, parties prenantes et métriques de succès.  
+## Editing Instructions
 
-## Instructions d'édition  
+1. **Length verification**: If the file exceeds 200 lines, synthesize while preserving all key information.
 
-1. **Vérification de longueur** : Si le fichier dépasse 200 lignes, synthétiser en préservant toutes les informations clés.  
+2. **Mandatory structure**: The file must contain these sections in this order:
+   - Vision (max 500 characters)
+   - Objectives (3-7 points)
+   - Constraints (technical, temporal, budgetary)
+   - Stakeholders
+   - Success metrics
+   - History and context (optional)
 
-2. **Structure obligatoire** : Le fichier doit contenir ces sections dans cet ordre :  
-   - Vision (max 500 caractères)  
-   - Objectifs (3-7 points)  
-   - Contraintes (techniques, temporelles, budgétaires)  
-   - Parties prenantes  
-   - Métriques de succès  
-   - Historique et contexte (optionnel)  
+3. **Content to avoid**:
+   - Technical details (to be placed in techContext.md)
+   - Ongoing tasks (to be placed in activeContext.md)
+   - Code or configurations
 
-3. **Contenu à éviter** :  
-   - Détails techniques (à placer dans techContext.md)  
-   - Tâches en cours (à placer dans activeContext.md)  
-   - Code ou configurations  
+4. **Writing style**:
+   - Clear and concise sentences
+   - Favor bullet points for objectives and constraints
+   - Avoid technical jargon unless necessary
 
-4. **Style d'écriture** :  
-   - Phrases claires et concises  
-   - Favoriser les listes à puces pour les objectifs et contraintes  
-   - Éviter le jargon technique sauf si nécessaire  
+## Reference Template
 
-## Template de référence  
+# Project Presentation
 
-```markdown  
-# Présentation du Projet  
+## Vision
+[Concise description of the global vision and fundamental goals of the project in 3-5 sentences maximum]
 
-## Vision  
-[Description concise de la vision globale et des buts fondamentaux du projet en 3-5 phrases maximum]  
+## Objectives
+- [Main objective 1 - formulated with an action verb]
+- [Main objective 2 - measurable if possible]
+- [Main objective 3 - aligned with the vision]
+[Add up to 4 additional objectives if necessary]
 
-## Objectifs  
-- [Objectif principal 1 - formulé avec un verbe d'action]  
-- [Objectif principal 2 - mesurable si possible]  
-- [Objectif principal 3 - aligné avec la vision]  
-[Ajoutez jusqu'à 4 objectifs supplémentaires si nécessaire]  
+## Constraints
+- **Technical**: [Main technical limitations]
+- **Temporal**: [Critical deadlines and timeframes]
+- **Resources**: [Budgetary or human limitations]
+- **Legal/Regulatory**: [Compliance requirements if applicable]
 
-## Contraintes  
-- **Techniques** : [Limitations techniques principales]  
-- **Temporelles** : [Échéances et délais critiques]  
-- **Ressources** : [Limitations budgétaires ou humaines]  
-- **Légales/Réglementaires** : [Exigences de conformité si applicables]  
+## Stakeholders
+- **[Stakeholder category 1]**: [Expectations and influence]
+- **[Stakeholder category 2]**: [Expectations and influence]
+[Add other key stakeholders as needed]
 
-## Parties Prenantes  
-- **[Catégorie de partie prenante 1]** : [Attentes et influence]  
-- **[Catégorie de partie prenante 2]** : [Attentes et influence]  
-[Ajoutez d'autres parties prenantes clés selon besoin]  
+## Success Metrics
+- **[Metric 1]**: [Target value and justification]
+- **[Metric 2]**: [Target value and justification]
+[3-5 metrics maximum, formulated in a quantifiable manner if possible]
 
-## Métriques de Succès  
-- **[Métrique 1]** : [Valeur cible et justification]  
-- **[Métrique 2]** : [Valeur cible et justification]  
-[3-5 métriques maximum, formulées de manière quantifiable si possible]  
-
-## Historique et Contexte  
-[Bref exposé de l'origine du projet, son évolution et sa place dans l'écosystème plus large. 5-10 lignes maximum.]
-```
+## History and Context
+[Brief overview of the project's origin, its evolution, and its place in the larger ecosystem. 5-10 lines maximum.]

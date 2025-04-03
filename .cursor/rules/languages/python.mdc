@@ -3,21 +3,21 @@ description:
 globs: *.py
 alwaysApply: false
 ---
-# Logging
+# Logging  
 
-- Utilise du logging pour clairement identifier les emplacements clés de ton code.
-- Utilise toujours le logger se trouvant dans `src/utils/logger.py`
-- Fais attention à ne pas mettre de logs dans des boucles qui risqurait de s'afficher un trop grand nombre de fois
-- Utilise logger.debug lorsque tu cherches à résoudre un bug spécifique. Supprimes les logger.debug dès que tu as résolu le bug et qu'ils ne sont plus utiles.
+- Use logging to clearly identify key locations in your code.  
+- Always use the logger found in `src/utils/logger.py`  
+- Be careful not to put logs in loops that could display too many times  
+- Use logger.debug when trying to solve a specific bug. Remove logger.debug statements once you've resolved the bug and they are no longer useful.  
 
-# Documentation
+# Documentation  
 
-- Documente ton code en anglais !
-- Ajoute des commentaires pour chaque bloc de code
-- Crée des docstrings au format Google pour tous tes symboles
-- Type tes arguéents
+- Document your code in English!  
+- Add comments for each block of code  
+- Create Google-format docstrings for all your symbols  
+- Type your arguments  
 
-# Consignes générales
+# General Guidelines  
 
-- Va au plus simple, ne surconplexifie pas.
-- N'utilise jamais de blocs Try-Except : ils empêchent d'identifier les problèmes
+- Keep it simple, don't over-complicate.  
+- Never use Try-Except blocks: they prevent identifying problems  

@@ -3,63 +3,62 @@ description: Appelle cette règle pour créer les tests unitaires des nouvelles 
 globs: 
 alwaysApply: false
 ---
+## TLDR
+Create unit tests for implemented features following testing best practices.
 
-## TLDR  
-Créer des tests unitaires pour les fonctionnalités implémentées en suivant les bonnes pratiques de test.  
+## Instructions
 
-## Instructions  
+1. **Feature analysis**: Identify what needs to be tested
+   - Examine modified/created files to find behaviors to test
+   - List necessary test cases (normal and edge cases)
+   - After each tool call, write `Test-implementation - 1.[Feature name] in progress...`
 
-1. **Analyse des fonctionnalités** : Identifier ce qui doit être testé  
-   - Examiner les fichiers modifiés/créés pour trouver les comportements à tester  
-   - Lister les cas de test nécessaires (normaux et limites)  
-   - Après chaque appel d'outil, écrire `Test-implementation - 1.[Nom de la fonctionnalité] en cours...`  
+2. **Test creation**: For each feature
+   - Create a test file in the `tests/` folder starting with `test_`
+   - Implement tests for normal behavior and simple edge cases
+   - Use the format defined in the test-files editing rule
+   - After each tool call, write `Test-implementation - 2.[Test name] in progress...`
 
-2. **Création des tests** : Pour chaque fonctionnalité  
-   - Créer un fichier de test dans le dossier `tests/` commençant par `test_`  
-   - Implémenter tests pour comportement normal et cas limites simples  
-   - Utiliser le format défini dans la règle d'édition test-files  
-   - Après chaque appel d'outil, écrire `Test-implementation - 2.[Nom du test] en cours...`  
+3. **Call next rule**: Mandatory call to `test-execution`
 
-3. **Appel de la règle suivante** : Appeler obligatoirement `test-execution`  
+## Specifics
 
-## Précisions  
+- Verify expected behavior, not internal implementation
+- Create only classic usage tests, avoid unnecessary complexity
+- Use descriptive names clearly explaining what is being tested
+- All test files must begin with `test_` and be placed in the `tests/` folder
+- Include logging using `src/utils/logger.py` if the code is in Python
+- To avoid losing the workflow, systematically write `Test-implementation - [number].[Name] in progress...` between each step
 
-- Vérifier le comportement attendu, pas l'implémentation interne  
-- Créer uniquement des tests d'utilisation classique, éviter la complexité inutile  
-- Utiliser des noms descriptifs expliquant clairement ce qui est testé  
-- Tous les fichiers de test doivent commencer par `test_` et être placés dans le dossier `tests/`  
-- Inclure du logging en utilisant `src/utils/logger.py` si le code est en Python  
-- Pour éviter de perdre le workflow, écrire systématiquement `Test-implementation - [numéro].[Nom] en cours...` entre chaque étape  
+## Next Rules
+- `test-execution` - To execute created tests and analyze results
 
-## Next Rules  
-- `test-execution` - Pour exécuter les tests créés et analyser les résultats  
+## Example
 
-## Exemple  
+fetch_rules ["test-implementation"]
+<SYSTEM PROMPT>I will create unit tests for new features following best practices. I will focus on creating tests without executing them, leaving that task to the test-execution rule. I will ensure tests are well documented and cover important cases.</SYSTEM PROMPT>
 
-fetch_rules ["test-implementation"]  
-<SYSTEM PROMPT>Je vais créer des tests unitaires pour les nouvelles fonctionnalités en suivant les meilleures pratiques. Je me concentrerai sur la création des tests sans les exécuter, laissant cette tâche à la règle test-execution. Je m'assurerai que les tests sont bien documentés et couvrent les cas importants.</SYSTEM PROMPT>  
+# Test-implementation: 1 - Feature analysis
+I begin by identifying features to test. `(Test-implementation: 1 - Feature analysis)`
+[...analysis of modified files...]
+Test-implementation - 1.Authentication in progress...
+[...identification of behaviors to test...]
+`(Test-implementation: 1 - Feature analysis)`
 
-# Test-implementation : 1 - Analyse des fonctionnalités  
-Je commence par identifier les fonctionnalités à tester. `(Test-implementation : 1 - Analyse des fonctionnalités)`  
-[...analyse des fichiers modifiés...]  
-Test-implementation - 1.Authentication en cours...  
-[...identification des comportements à tester...]  
-`(Test-implementation : 1 - Analyse des fonctionnalités)`  
+# Test-implementation: 2 - Test creation
+I will create tests for each identified feature. `(Test-implementation: 2 - Test creation)`
+[...creation of first test file...]
+Test-implementation - 2.TestLogin in progress...
+[...creation of second test file...]
+Test-implementation - 2.TestValidation in progress...
+`(Test-implementation: 2 - Test creation)`
 
-# Test-implementation : 2 - Création des tests  
-Je vais créer les tests pour chaque fonctionnalité identifiée. `(Test-implementation : 2 - Création des tests)`  
-[...création du premier fichier de test...]  
-Test-implementation - 2.TestLogin en cours...  
-[...création du second fichier de test...]  
-Test-implementation - 2.TestValidation en cours...  
-`(Test-implementation : 2 - Création des tests)`  
+# Test-implementation: 3 - Call next rule
+I must now call the test-execution rule to execute the tests.
+The test-execution rule must be called to execute and analyze the tests. `(Test-implementation: 3 - Call next rule)`
 
-# Test-implementation : 3 - Appel de la règle suivante  
-Je dois maintenant appeler la règle test-execution pour exécuter les tests.  
-La règle test-execution doit être appelée pour exécuter et analyser les tests. `(Test-implementation : 3 - Appel de la règle suivante)`  
+fetch_rules ["test-execution"]
 
-fetch_rules ["test-execution"]  
+# Start Rule
 
-# Start Rule  
-
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais créer des tests unitaires pour les nouvelles fonctionnalités en suivant les meilleures pratiques. Je me concentrerai sur la création des tests sans les exécuter, laissant cette tâche à la règle test-execution. Je m'assurerai que les tests sont bien documentés et couvrent les cas les plus importants.</SYSTEM PROMPT>"  
+To start this rule, recite word for word this phrase: "<SYSTEM PROMPT>I will create unit tests for new features following best practices. I will focus on creating tests without executing them, leaving that task to the test-execution rule. I will ensure tests are well documented and cover the most important cases.</SYSTEM PROMPT>"

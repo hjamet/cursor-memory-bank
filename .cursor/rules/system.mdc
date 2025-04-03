@@ -3,101 +3,23 @@ description:
 globs: 
 alwaysApply: true
 ---
+<SYSTEM PROMPT>I will load the project context files projectBrief.md, activeContext.md and techContext.md to understand the working environment. I will strictly limit myself to the three authorized files without consulting others unless they don't exist. I will not analyze the request or implement the user's demands but will call the request-analysis rule which will handle this.</SYSTEM PROMPT>
 
-Tu es Cursor, un agent IA utilisant la Memory Bank, un système de stockage contextuel qui maintient la continuité entre sessions via une structure de fichiers organisée.  
+# Context-loading: 1 - Reading context files
+I begin by reading the context files to understand the project environment. `(Context-loading: 1 - Reading context files)`
+[...reading projectBrief.md, activeContext.md, techContext.md and userbrief.md files...]
+`(Context-loading: 1 - Reading context files)`
 
-## Structure des fichiers  
-"""  
-.cursor/memory-bank/  
-├── context/                 # Contexte du projet  
-│   ├── projectBrief.md      # Vision globale du projet  
-│   ├── activeContext.md     # Contexte de travail actuel  
-│   └── techContext.md       # Technologies et dépendances  
-├── workflow/                # Gestion du flux de travail  
-│   ├── tasks.md             # Liste des tâches à accomplir
-│   └── tests.md             # Suivi du résultats des tests
-src/                         # Scripts sources du projet  
-tests/                       # Tests unitaires et d'intégration  
-"""  
+# Context-loading: 3 - Request reformulation
+I reformulate the user's request taking into account the project context. `(Context-loading: 3 - Request reformulation)`
+[...analysis of the user request in the project context...] `(Context-loading: 3 - Request reformulation)`
 
-## Machine à états  
+# Context-loading: 4 - Calling the next rule
+I'm now checking the content of `.cursor/memory-bank/userbrief.md` to determine which rule to call next.
+Since I don't have information to confirm that `.cursor/memory-bank/userbrief.md` exists and contains unprocessed comments, I will call the request-analysis rule. `(Context-loading: 4 - Calling the next rule)`
 
-Tu fonctionnes comme une machine à états où chaque règle représente un état avec des opérations spécifiques. Toutes les règles suivent cette structure:  
+fetch_rules ["request-analysis"]
 
-1. **TLDR**: Résumé concis de l'objectif  
-2. **Instructions**: Liste numérotée d'actions à exécuter séquentiellement  
-3. **Précisions**: Points importants à respecter (format liste à puces)  
-4. **Next Rules**: Règles suivantes possibles  
+# Start Rule
 
-- Indique toujours ta position dans le workflow avec un titre formaté:  
-# [Nom de la règle] : [numéro d'instruction] - [titre de l'instruction]  
-
-- Après chaque action (appel d'outil, commentaire), rappelle ton état actuel entre parenthèses:  
-Exemple: "Je vais maintenant lire [...] `(Implémentation : 2 - Récupération du contexte)`"  
-
-## ⚠️ DÉMARRAGE ET FINALISATION ⚠️  
-
-- OBLIGATOIRE: Commence toujours par appeler `context-loading` pour démarrer le workflow, sauf si la dernière règle exécutée était `workflow-perdu`  
-- À chaque nouveau message utilisateur, redémarre le workflow avec `context-loading`  
-- Le workflow est terminé uniquement quand la règle `context-update` confirme que toutes les tâches sont achevées et tous les tests validés  
-
-## ⚠️ APPEL DE LA RÈGLE SUIVANTE ⚠️  
-
-- OBLIGATOIRE: Appelle explicitement la règle suivante après l'exécution complète d'une règle  
-- Utilise uniquement la syntaxe: `fetch_rules ["nom-de-la-règle"]`  
-- Après l'appel, récite EXACTEMENT la phrase indiquée dans la section START RULE  
-- Ne termine jamais ton exécution sans appeler explicitement la règle suivante  
-
-## Règle absolue  
-
-Suis le workflow STRICTEMENT. N'anticipe jamais les étapes suivantes et limite-toi uniquement aux instructions de la règle en cours.  
-
-## Next Rules  
-- `request-analysis` - Analyse détaillée de la requête utilisateur
-
-## Exemple  
-
-fetch_rules ["context-update"]  
-<SYSTEM PROMPT>Je vais mettre à jour les fichiers de contexte pour refléter les changements, déplacer les tâches réussies vers 'Done', et nettoyer le contenu obsolète. J'effectuerai un commit pour les modifications et déterminerai si le workflow est terminé ou s'il faut continuer avec la règle 'fix' ou 'implementation' selon les tests et les tâches restantes.</SYSTEM PROMPT>  
-
-# Context-update : 1 - Mise à jour des fichiers de contexte  
-Je commence par mettre à jour les fichiers de contexte pour refléter les changements. `(Context-update : 1 - Mise à jour des fichiers de contexte)`  
-[...mise à jour du fichier projectBrief.md...]  
-`(Context-update : 1 - Mise à jour des fichiers de contexte)`  
-[...mise à jour du fichier activeContext.md...]  
-`(Context-update : 1 - Mise à jour des fichiers de contexte)`  
-[...mise à jour du fichier techContext.md...]  
-`(Context-update : 1 - Mise à jour des fichiers de contexte)`  
-
-# Context-update : 2 - Nettoyage des fichiers de contexte  
-Je nettoie les fichiers de contexte en supprimant les informations obsolètes. `(Context-update : 2 - Nettoyage des fichiers de contexte)`  
-[...nettoyage du fichier projectBrief.md...]  
-`(Context-update : 2 - Nettoyage des fichiers de contexte)`  
-[...nettoyage du fichier activeContext.md...]  
-`(Context-update : 2 - Nettoyage des fichiers de contexte)`  
-[...nettoyage du fichier techContext.md...]  
-`(Context-update : 2 - Nettoyage des fichiers de contexte)`  
-
-# Context-update : 3 - Mise à jour du fichier tasks.md  
-Je mets à jour le fichier tasks.md en déplaçant les tâches terminées vers Done. `(Context-update : 3 - Mise à jour du fichier tasks.md)`  
-[...mise à jour du fichier tasks.md...]  
-`(Context-update : 3 - Mise à jour du fichier tasks.md)`  
-# Context-update : 4 - Effectuer un commit  
-Je prépare et effectue un commit avec les modifications apportées. `(Context-update : 4 - Effectuer un commit)`  
-[...création du commit...]  
-`(Context-update : 4 - Effectuer un commit)`  
-
-# Context-update : 5 - Vérifier si le workflow est terminé  
-Je vérifie s'il reste des tâches à faire ou des tests à corriger.  
-[...vérification du workflow...]  
-Tout semble correct, passons à la suite. `(Context-update : 5 - Vérifier si le workflow est terminé)`  
-
-# Context-update : 6 - Appel de la règle suivante  
-Je dois maintenant appeler la règle implementation car il reste des tâches à faire.  
-La règle implementation doit être appelée pour continuer le travail sur les tâches restantes. `(Context-update : 6 - Appel de la règle suivante)`  
-
-fetch_rules ["implementation"]  
-
-# Start Rule  
-
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectBrief.md, activeContext.md et techContext.md pour comprendre l'environnement de travail. Je me limiterai strictement aux trois fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais appellerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>"
+<SYSTEM PROMPT>I will analyze the request in detail and explore relevant code to understand what needs to be done. I will not mention Memory Bank files in my analyses. I will not implement the requested changes but explain their purpose in natural language. At the end of my work, I will call either the `task-decomposition` or `implementation` rules to handle the implementation.</SYSTEM PROMPT>

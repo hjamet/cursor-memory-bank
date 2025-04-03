@@ -3,126 +3,125 @@ description: Appelle cette règle pour implémenter les tâches prioritaires du 
 globs: 
 alwaysApply: false
 ---
+## TLDR
+Methodically implement tasks from a priority section and document the process.
 
-## TLDR  
-Implémenter méthodiquement les tâches d'une section prioritaire et documenter le processus.  
+## Instructions
 
-## Instructions  
+1. **Task analysis**: Identify the priority section
+   - Read `.cursor/memory-bank/workflow/tasks.md`
+   - Priority: first "In Progress" section, then first "ToDo" section
+   - If all tasks completed, move to the next rule
 
-1. **Analyse des tâches** : Identifier la section prioritaire  
-   - Lire `.cursor/memory-bank/workflow/tasks.md`  
-   - Priorité : d'abord section "In Progress", puis première section "ToDo"  
-   - Si toutes tâches terminées, passer à la règle suivante  
+2. **Active context update**: Document current work context
+   - Read `.cursor/memory-bank/context/activeContext.md` to preserve useful information
+   - Update the "Current implementation context" section with:
+     - Tasks to perform and their logic
+     - Relevant information researched online for the task
+     - Particular attention points and dependencies
+     - Technical decisions to make
+   - Keep only information useful for the current task
+   - Ensure this file contains all necessary information for current work
 
-2. **Mise à jour du contexte actif** : Documenter le contexte de travail actuel  
-   - Lire `.cursor/memory-bank/context/activeContext.md` pour préserver les informations utiles  
-   - Mettre à jour la section "Contexte d'implémentation actuel" avec:  
-     - Les tâches à réaliser et leur logique  
-     - Les informations recherchées sur internet pertinentes pour la tâche  
-     - Les points d'attention particuliers et dépendances  
-     - Les décisions techniques à prendre  
-   - Conserver uniquement les informations utiles à la tâche en cours  
-   - S'assurer que ce fichier contient toutes les informations nécessaires au travail actuel  
+3. **Task implementation**: For each task in the section
+   - Display: `## Implementation - 3.number.[Section Name]: [Task Title]`
+   - Evaluate if the task is complex and requires in-depth reflection
+   - If yes, use the think token: `<think>In-depth reflection using chain of thought, comparison of different implementation approaches, etc.</think>`
+   - Briefly summarize the conclusions of the reflection if applicable
+   - Implement the solution
+   - After each tool call, write `Implementation - 3.number.[Section Name]: [Task Title] in progress...`
 
-3. **Implémentation des tâches** : Pour chaque tâche de la section  
-   - Afficher : `## Implementation - 3.numero.[Nom de la Section] : [Titre de la tâche]`
-   - Évaluer si la tâche est complexe et nécessite une réflexion approfondie
-   - Si oui, utiliser le token think: `<think>Réflexion approfondie utilisant chain of thought, comparaison de différentes approches d'implémentation, etc.</think>`
-   - Résumer brièvement les conclusions de la réflexion si applicable
-   - Implémenter la solution  
-   - Après chaque appel d'outil, écrire `Implementation - 3.numero.[Nom de la Section] : [Titre de la tâche] en cours...`  
+4. **Task update**: Update tasks.md
+   - Move section from "ToDo" to "In Progress" if necessary
+   - Mark individual tasks as in progress
 
-4. **Mise à jour des tâches** : Actualiser tasks.md  
-   - Déplacer section de "ToDo" vers "In Progress" si nécessaire  
-   - Marquer les tâches individuelles comme en cours  
+5. **Calling the next rule**: Mandatory to choose
+   - New feature created → `test-implementation`
+   - Existing features modified → `test-execution`
+   - Only non-testable changes → `context-update`
 
-5. **Appel de la règle suivante** : Obligatoirement choisir  
-   - Nouvelle fonctionnalité créée → `test-implementation`  
-   - Fonctionnalités existantes modifiées → `test-execution`  
-   - Changements non testables uniquement → `context-update`  
+## Specifics
 
-## Précisions  
+- The think token `<think></think>` must be used for each complex individual task
+- In-depth reflection must be verbalized in the think token before implementation
+- Using the think token allows reasoning according to the chain of thought method and comparing different approaches
+- Implement one task at a time, in logical order
+- Comment complex parts of the code
+- A feature is "testable" if it involves creating/modifying a script or function
+- To avoid losing the workflow, systematically write `Implementation - 3.number.[Section Name]: [Task Title] in progress...` between each step
+- Always call the appropriate next rule
 
-- Le token think `<think></think>` doit être utilisé pour chaque tâche individuelle complexe
-- La réflexion approfondie doit être verbalisée dans le token think avant l'implémentation
-- L'utilisation du token think permet de raisonner selon la méthode chain of thought et de comparer différentes approches
-- Implémenter une tâche à la fois, dans l'ordre logique  
-- Commenter les parties complexes du code  
-- Une fonctionnalité est "testable" si elle implique la création/modification d'un script ou d'une fonction  
-- Pour éviter de perdre le workflow, écrire systématiquement `Implementation - 3.numero.[Nom de la Section] : [Titre de la tâche] en cours...` entre chaque étape  
-- Toujours appeler la règle suivante appropriée  
+## Next Rules
+- `test-implementation`: If new testable feature created (ALWAYS the case for new file/symbol)
+- `test-execution`: If existing features modified
+- `context-update`: ONLY if non-testable changes (pure documentation)
 
-## Next Rules  
-- `test-implementation` : Si nouvelle fonctionnalité testable créée (TOUJOURS le cas pour nouveau fichier/symbole)  
-- `test-execution` : Si fonctionnalités existantes modifiées  
-- `context-update` : UNIQUEMENT si changements non testables (documentation pure)  
+## Example
 
-## Exemple  
+fetch_rules ["implementation"]
+<SYSTEM PROMPT>I will identify and implement the highest priority task section following a methodical and documented approach. I will think deeply about the best solution before implementing each complex task. I will always display the title of each task before implementing it. I will not try to execute my creations but will call the `test-implementation` rule if I have created a new testable feature, or `test-execution` otherwise.</SYSTEM PROMPT>
 
-fetch_rules ["implementation"]  
-<SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. Je réfléchirai de manière approfondie à la meilleure solution avant d'implémenter chaque tâche complexe. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `test-implementation` si j'ai créé une nouvelle fonctionnalité testable, ou à `test-execution` sinon.</SYSTEM PROMPT>  
+# Implementation: 1 - Task analysis
+I begin by reading the tasks.md file to identify the highest priority section. `(Implementation: 1 - Task analysis)`
+[...reading tasks.md file...]
+`(Implementation: 1 - Task analysis)`
 
-# Implementation : 1 - Analyse des tâches  
-Je commence par lire le fichier tasks.md pour identifier la section la plus prioritaire. `(Implementation : 1 - Analyse des tâches)`  
-[...lecture du fichier tasks.md...]  
-`(Implementation : 1 - Analyse des tâches)`  
+# Implementation: 2 - Active context update
+I will update the active context to document what I will be working on. `(Implementation: 2 - Active context update)`
+[...reading activeContext.md file...]
+[...updating with relevant information for tasks to perform...]
+[...adding information researched online...]
+`(Implementation: 2 - Active context update)`
 
-# Implementation : 2 - Mise à jour du contexte actif  
-Je vais mettre à jour le contexte actif pour documenter ce sur quoi je vais travailler. `(Implementation : 2 - Mise à jour du contexte actif)`  
-[...lecture du fichier activeContext.md...]  
-[...mise à jour avec les informations pertinentes pour les tâches à réaliser...]  
-[...ajout des informations recherchées en ligne...]  
-`(Implementation : 2 - Mise à jour du contexte actif)`  
+# Implementation: 3 - Task implementation
+I will implement each task in the section following a methodical approach. `(Implementation: 3 - Task implementation)`
 
-# Implementation : 3 - Implémentation des tâches  
-Je vais implémenter chaque tâche de la section en suivant une approche méthodique. `(Implementation : 3 - Implémentation des tâches)`  
-
-## Implementation - 3.1.Développement : Création du script  
-Cette tâche est complexe et nécessite une réflexion approfondie.
+## Implementation - 3.1.Development: Script creation
+This task is complex and requires in-depth reflection.
 
 <think>
-Pour créer ce script, j'ai plusieurs options d'architecture:
-1. Une architecture monolithique où toute la logique est dans un seul fichier
-2. Une architecture modulaire avec séparation des préoccupations
-3. Une approche orientée événements
+To create this script, I have several architecture options:
+1. A monolithic architecture where all logic is in a single file
+2. A modular architecture with separation of concerns
+3. An event-driven approach
 
-Comparons ces approches:
-- Option 1: Simple à mettre en œuvre mais difficile à maintenir à long terme
-- Option 2: Meilleure maintenabilité mais plus complexe initialement
-- Option 3: Flexible mais potentiellement suroptimisée pour ce cas d'usage
+Let's compare these approaches:
+- Option 1: Simple to implement but difficult to maintain long-term
+- Option 2: Better maintainability but initially more complex
+- Option 3: Flexible but potentially over-optimized for this use case
 
-Je pense que l'option 2 est la plus appropriée car elle offre un bon équilibre entre maintenabilité et complexité initiale. Je vais donc créer:
-- Un module principal pour l'orchestration
-- Un module pour la gestion des connexions API
-- Un module utilitaire pour les fonctions communes
+I think option 2 is most appropriate as it offers a good balance between maintainability and initial complexity. I will therefore create:
+- A main module for orchestration
+- A module for API connection management
+- A utility module for common functions
 </think>
 
-Après réflexion, j'ai déterminé que la meilleure approche est d'utiliser une architecture modulaire avec séparation des préoccupations. Cela permettra une meilleure maintenabilité tout en gardant une complexité raisonnable.
+After reflection, I determined that the best approach is to use a modular architecture with separation of concerns. This will allow better maintainability while keeping reasonable complexity.
 
-Je commence par créer le script principal avec les fonctionnalités requises. `(Implementation : 3.1 - Création du script)`  
-[...implémentation du script...]  
-Implementation - 3.1.Développement : Création du script en cours...  
-[...suite de l'implémentation...]  
-`(Implementation : 3.1 - Création du script)`  
+I begin by creating the main script with the required functionalities. `(Implementation: 3.1 - Script creation)`
+[...script implementation...]
+Implementation - 3.1.Development: Script creation in progress...
+[...implementation continuation...]
+`(Implementation: 3.1 - Script creation)`
 
-## Implementation - 3.2.Développement : Documentation  
-J'ajoute la documentation nécessaire pour expliquer le fonctionnement du script. `(Implementation : 3.2 - Documentation)`  
-[...ajout de la documentation...]  
-Implementation - 3.2.Développement : Documentation en cours...  
-[...finalisation de la documentation...]  
-`(Implementation : 3.2 - Documentation)`  
+## Implementation - 3.2.Development: Documentation
+I add the necessary documentation to explain how the script works. `(Implementation: 3.2 - Documentation)`
+[...adding documentation...]
+Implementation - 3.2.Development: Documentation in progress...
+[...documentation finalization...]
+`(Implementation: 3.2 - Documentation)`
 
-# Implementation : 4 - Mise à jour des tâches  
-Je mets à jour le fichier tasks.md pour refléter l'avancement des tâches. `(Implementation : 4 - Mise à jour des tâches)`  
-[...mise à jour du fichier tasks.md...]  
-`(Implementation : 4 - Mise à jour des tâches)`  
+# Implementation: 4 - Task update
+I update the tasks.md file to reflect task progress. `(Implementation: 4 - Task update)`
+[...updating tasks.md file...]
+`(Implementation: 4 - Task update)`
 
-# Implementation : 5 - Appel de la règle suivante  
-Je dois maintenant appeler la règle `test-implementation` car j'ai créé une nouvelle fonctionnalité testable.  
-La règle test-implementation doit être appelée pour créer les tests de la nouvelle fonctionnalité. `(Implementation : 5 - Appel de la règle suivante)`  
+# Implementation: 5 - Calling the next rule
+I must now call the `test-implementation` rule because I created a new testable feature.
+The test-implementation rule must be called to create tests for the new feature. `(Implementation: 5 - Calling the next rule)`
 
-fetch_rules ["test-implementation"]  
+fetch_rules ["test-implementation"]
 
-# Start Rule  
+# Start Rule
 
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais identifier et implémenter la section de tâches la plus prioritaire en suivant une approche méthodique et documentée. Je réfléchirai de manière approfondie à la meilleure solution avant d'implémenter chaque tâche complexe. J'afficherai toujours le titre de chaque tâche avant de l'implémenter. Je ne tâcherai pas d'executer mes créations mais ferai appel à la règle `test-implementation` si j'ai créé une nouvelle fonctionnalité testable, ou à `test-execution` sinon.</SYSTEM PROMPT>"
+To start this rule, recite word for word this phrase: "<SYSTEM PROMPT>I will identify and implement the highest priority task section following a methodical and documented approach. I will think deeply about the best solution before implementing each complex task. I will always display the title of each task before implementing it. I will not try to execute my creations but will call the `test-implementation` rule if I have created a new testable feature, or `test-execution` otherwise.</SYSTEM PROMPT>"

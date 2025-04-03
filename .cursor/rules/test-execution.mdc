@@ -3,77 +3,76 @@ description: Appelle cette règle pour exécuter les tests unitaires et analyser
 globs: 
 alwaysApply: false
 ---
+## TLDR
+Execute unit tests, analyze results and document successes and failures in tests.md.
 
-## TLDR  
-Exécuter les tests unitaires, analyser les résultats et documenter les succès et échecs dans tests.md.  
+## Instructions
 
-## Instructions  
+1. **Test execution**: Launch tests for implemented features
+   - Capture all results (successes, failures, warnings)
+   - Note precise error messages
+   - After each tool call, write `Test-execution - 1.[Test name] in progress...`
 
-1. **Exécution des tests** : Lancer les tests des fonctionnalités implémentées  
-   - Capturer tous les résultats (succès, échecs, avertissements)  
-   - Noter les messages d'erreur précis  
-   - Après chaque appel d'outil, écrire `Test-execution - 1.[Nom du test] en cours...`  
+2. **Results analysis**: Compare with previous tests
+   - Read the `.cursor/memory-bank/workflow/tests.md` file if it exists
+   - Identify improvements or regressions
+   - After each tool call, write `Test-execution - 2.[Analysis] in progress...`
 
-2. **Analyse des résultats** : Comparer avec les précédents tests  
-   - Lire le fichier `.cursor/memory-bank/workflow/tests.md` s'il existe  
-   - Identifier améliorations ou régressions  
-   - Après chaque appel d'outil, écrire `Test-execution - 2.[Analyse] en cours...`  
+3. **Results documentation**: Update tests.md
+   - Create file if necessary
+   - Use format defined in tests-md editing rule
+   - Include evolution analysis for each test
+   - Document failures without conducting in-depth investigation
 
-3. **Documentation des résultats** : Mettre à jour tests.md  
-   - Créer le fichier si nécessaire  
-   - Utiliser le format défini dans la règle d'édition tests-md  
-   - Inclure une analyse d'évolution pour chaque test  
-   - Documenter les échecs sans mener d'enquête approfondie  
+4. **Call next rule**
+   - If at least one test improved without any regression → `context-update`
+   - If no significant change → `context-update`
+   - Otherwise, if at least one test regressed → `fix`
 
-4. **Appel de la règle suivante**  
-   - Si au moins un test s'est amélioré sans qu'aucun n'ait régressé → `context-update`  
-   - Si aucun changement significatif → `context-update`  
-   - Sinon, si au moins un test a régressé → `fix`  
+## Specifics
 
-## Précisions  
+- Execute all available tests, not just new ones
+- Do not attempt to fix errors (that's the role of the `fix` rule)
+- An "improvement" means a previously failing test now passes or a warning is resolved
+- A "regression" means a previously successful test now fails or generates a warning
+- To avoid losing the workflow, systematically write `Test-execution - [number].[Name] in progress...` between each step
+- Never skip calling the next rule
 
-- Exécuter tous les tests disponibles, pas uniquement les nouveaux  
-- Ne pas tenter de corriger les erreurs (c'est le rôle de la règle `fix`)  
-- Une "amélioration" signifie qu'un test précédemment en échec passe maintenant ou qu'un avertissement est résolu
-- Une "régression" signifie qu'un test précédemment réussi échoue maintenant ou génère un avertissement
-- Pour éviter de perdre le workflow, écrire systématiquement `Test-execution - [numéro].[Nom] en cours...` entre chaque étape  
-- Ne jamais sauter l'appel à la règle suivante  
+## Next Rules
+- `fix` - If at least one test regressed
+- `context-update` - If at least one test improved or no significant change (and no regression)
 
-## Next Rules  
-- `fix` - Si au moins un test a régressé
-- `context-update` - Si au moins un test s'est amélioré ou aucun changement significatif (et aucune regression)
+## Example
 
-## Exemple  
+fetch_rules ["test-execution"]
+<SYSTEM PROMPT>I will execute unit tests and analyze their results. I will clearly document successes and failures in the tests.md file. I will not attempt to fix errors but will call the 'fix' rule if tests fail or 'context-update' if all tests pass.</SYSTEM PROMPT>
 
-fetch_rules ["test-execution"]  
-<SYSTEM PROMPT>Je vais exécuter les tests unitaires et analyser leurs résultats. Je documenterai clairement les succès et les échecs dans le fichier tests.md. Je ne tenterai pas de corriger les erreurs mais ferai appel à la règle 'fix' si des tests échouent ou à 'context-update' si tous les tests passent.</SYSTEM PROMPT>  
+# Test-execution: 1 - Test execution
+I begin by executing the unit tests. `(Test-execution: 1 - Test execution)`
+[...test execution...]
+Test-execution - 1.AuthenticationTest in progress...
+[...results capture...]
+`(Test-execution: 1 - Test execution)`
 
-# Test-execution : 1 - Exécution des tests  
-Je commence par exécuter les tests unitaires. `(Test-execution : 1 - Exécution des tests)`  
-[...exécution des tests...]  
-Test-execution - 1.TestAuthentification en cours...  
-[...capture des résultats...]  
-`(Test-execution : 1 - Exécution des tests)`  
+# Test-execution: 2 - Results analysis
+I compare the results with previous tests. `(Test-execution: 2 - Results analysis)`
+[...reading tests.md file...]
+Test-execution - 2.Comparison in progress...
+[...results comparison...]
+`(Test-execution: 2 - Results analysis)`
 
-# Test-execution : 2 - Analyse des résultats  
-Je compare les résultats avec les tests précédents. `(Test-execution : 2 - Analyse des résultats)`  
-[...lecture du fichier tests.md...]  
-Test-execution - 2.Comparaison en cours...  
-[...comparaison des résultats...]  
-`(Test-execution : 2 - Analyse des résultats)`  
+# Test-execution: 3 - Results documentation
+I update the tests.md file with new results. `(Test-execution: 3 - Results documentation)`
+[...updating tests.md file...]
+`(Test-execution: 3 - Results documentation)`
 
-# Test-execution : 3 - Documentation des résultats  
-Je mets à jour le fichier tests.md avec les nouveaux résultats. `(Test-execution : 3 - Documentation des résultats)`  
-[...mise à jour du fichier tests.md...]  
-`(Test-execution : 3 - Documentation des résultats)`  
+# Test-execution: 4 - Call next rule
+I must now call the appropriate rule based on test results. `(Test-execution: 4 - Call next rule)`
+[...analysis of improvements and regressions...]
+I note that [description of test status changes]. I will therefore call the [fix/context-update] rule because we have two tests that have progressed and no regression. `(Test-execution: 4 - Call next rule)`
 
-# Test-execution : 4 - Appel de la règle suivante  
-Je dois maintenant appeler la règle appropriée selon les résultats des tests. `(Test-execution : 4 - Appel de la règle suivante)`  
-[...analyse des améliorations et régressions...]
-Je constate que [description des changements de statut des tests]. Je vais donc appeler la règle [fix/context-update] car nous avons deux tests qui ont progressé et aucune regression. `(Test-execution : 4 - Appel de la règle suivante)`  
+fetch_rules ["context-update"]
 
-fetch_rules ["context-update"]  
+# Start Rule
 
-# Start Rule  
-
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais exécuter les tests unitaires et analyser leurs résultats sans mener d'enquête de debuggage approfondie. Je documenterai clairement les succès et les échecs dans le fichier tests.md. Je ne tenterai pas de corriger les erreurs mais ferai appel à la règle 'fix' si des tests échouent ou à 'context-update' si tous les tests passent.</SYSTEM PROMPT>"
+To start this rule, recite word for word this phrase: "<SYSTEM PROMPT>I will execute unit tests and analyze their results without conducting in-depth debugging investigation. I will clearly document successes and failures in the tests.md file. I will not attempt to fix errors but will call the 'fix' rule if tests fail or 'context-update' if all tests pass.</SYSTEM PROMPT>"

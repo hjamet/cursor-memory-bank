@@ -3,69 +3,68 @@ description: Appelle OBLIGATOIREMENT cette règle dès que tu sens que tu ne sui
 globs: 
 alwaysApply: false
 ---
+## TLDR
+This rule helps you find your position in the workflow after losing track of instructions or when the user requests a restart at a specific point.
 
-## TLDR  
-Cette règle permet de retrouver ta position dans le workflow après avoir perdu le fil des instructions ou lorsque l'utilisateur demande un redémarrage à un point précis.  
+## Instructions
 
-## Instructions  
+1. **Context saving**: Save the current context in `.cursor/memory-bank/context/activeContext.md`:
+   - Create or replace the ## Lost workflow section
+   - Summarize your ongoing actions
+   - Mention the symbols and files concerned
 
-1. **Sauvegarde du contexte** : Sauvegarde le contexte actuel dans `.cursor/memory-bank/context/activeContext.md` :  
-   - Crée ou remplace la section ## Workflow perdu  
-   - Résume tes actions en cours  
-   - Mentionne les symboles et fichiers concernés  
+2. **Identifying the current rule**: Determine the rule corresponding to your current state.
+   - Compare your latest actions to rule descriptions without invoking them
+   - By default, choose `context-update` if identification is uncertain
+   - Write exactly: "<SYSTEM PROMPT>I've lost track of the current rule. I will restart the workflow from the <IDENTIFIED RULE NAME> rule."
 
-2. **Identification de la règle en cours** : Détermine la règle correspondant à ton état actuel.  
-   - Compare tes dernières actions aux descriptions des règles sans les invoquer  
-   - Par défaut, choisis `context-update` si l'identification est incertaine  
-   - Écris exactement : "<SYSTEM PROMPT>J'ai perdu le fil de la règle en cours. Je vais redémarrer le workflow depuis la règle <NOM DE LA RÈGLE IDENTIFIÉE>."  
+3. **System prompt recall**: Invoke the system rule with `fetch_rules ["system"]`
+   - Exceptionally, ignore the instruction to start with `context-loading` if you've identified a specific rule
+   - After invoking the system rule, directly call the identified rule with `fetch_rules ["identified-rule-name"]`
 
-3. **Rappel du system prompt** : Invoque la règle système avec `fetch_rules ["system"]`  
-   - Exceptionnellement, ignore l'instruction de démarrer par `context-loading` si tu as identifié une règle spécifique  
-   - Après avoir invoqué la règle système, appelle directement la règle identifiée avec `fetch_rules ["nom-de-la-règle-identifiée"]`  
+## Specifics
+- During identification, base yourself only on descriptions, without ever invoking rules with `fetch_rules`
+- As a safety measure, if you doubt your identification, choose `context-update` and strictly follow the instructions of the `system` rule
+- After recalling the `system` rule, restart at the identified rule and scrupulously apply the step indication format in parentheses after each action
 
-## Précisions  
-- Pendant l'identification, base-toi uniquement sur les descriptions, sans jamais invoquer les règles avec `fetch_rules`  
-- Par mesure de sécurité, si tu doutes de ton identification, choisis `context-update` et suis strictement les instructions de la règle `system`  
-- Après avoir rappelé la règle `system`, redémarre à la règle identifiée et applique scrupuleusement le format d'indication d'étape entre parenthèses après chaque action  
+Example: "I will now call the `system` rule to restart the workflow `(Lost workflow: 3 - System prompt recall)`"
 
-Exemple : "Je vais maintenant appeler la règle `system` pour redémarrer le workflow `(Workflow perdu : 3 - Rappel du system prompt)`"  
+## Reminder of each rule description to facilitate identification
 
-## Rappel de la description de chaque règle pour faciliter l'identification  
+- `context-loading` - Loading project objectives and general context
+- `request-analysis` - Detailed analysis of user request and exploration of existing code
+- `task-decomposition` - Decomposition of user request into concrete tasks organized in tasks.md
+- `implementation` - Methodical implementation of project priority tasks
+- `test-implementation` - Creation of unit tests for new features
+- `test-execution` - Execution of unit tests and results analysis
+- `fix` - Analysis of test errors and creation of correction tasks
+- `context-update` - Update of context files and commit of changes
+- `consolidate-repo` - Repository consolidation, userbrief.md management and structure maintenance
+- `system` - Main rule defining the state machine and global functioning
+- `workflow-perdu` - Recovery of position in workflow after losing track
 
-- `context-loading` - Chargement des objectifs et du contexte général du projet  
-- `request-analysis` - Analyse détaillée de la requête utilisateur et exploration du code existant
-- `task-decomposition` - Décomposition de la requête utilisateur en tâches concrètes organisées dans tasks.md
-- `implementation` - Implémentation méthodique des tâches prioritaires du projet
-- `test-implementation` - Création des tests unitaires pour les nouvelles fonctionnalités
-- `test-execution` - Exécution des tests unitaires et analyse des résultats
-- `fix` - Analyse des erreurs de test et création des tâches de correction
-- `context-update` - Mise à jour des fichiers de contexte et commit des changements
-- `consolidate-repo` - Consolidation du dépôt, gestion de userbrief.md et maintenance de la structure
-- `system` - Règle principale définissant la machine à états et le fonctionnement global
-- `workflow-perdu` - Récupération de la position dans le workflow après avoir perdu le fil
+## Next Rules
+- `system` - To restart the workflow correctly
 
-## Next Rules  
-- `system` - Pour redémarrer le workflow correctement  
+## Example
 
-## Exemple  
+fetch_rules ["workflow-perdu"]
+<SYSTEM PROMPT>I detected that I left the workflow. I will save my current work, try to identify the current rule and restart it correctly by calling the system rule.</SYSTEM PROMPT>
 
-fetch_rules ["workflow-perdu"]  
-<SYSTEM PROMPT>J'ai détecté avoir quitté le workflow. Je vais sauvegarder mon travail actuel, tâcher d'identifier la règle en cours et la redémarrer correctement en faisant appel à la règle system.</SYSTEM PROMPT>  
+# Lost workflow: 1 - Context saving
+I will save a summary of my latest actions in the `.cursor/memory-bank/context/activeContext.md` file to remember the modifications I made outside the workflow. `(Lost workflow: 1 - Context saving)`
+[...modifications to activeContext.md file...]
+`(Lost workflow: 1 - Context saving)`
 
-# Workflow-perdu : 1 - Sauvegarde du contexte  
-Je vais sauvegarder un résumé de mes dernières actions dans le fichier `.cursor/memory-bank/context/activeContext.md` pour me souvenir des modifications que j'ai apportées hors du workflow. `(Workflow-perdu : 1 - Sauvegarde du contexte)`  
-[...modifications du fichier activeContext.md...]  
-`(Workflow-perdu : 1 - Sauvegarde du contexte)`  
+# Lost workflow: 2 - Identifying the current rule
+Based on my latest actions, I think the `tests` rule best corresponds to my current state. However, my work is too disorganized to be sure. I will therefore take the safety solution and call the `context-loading` rule to remind myself of the project context. `(Lost workflow: 2 - Identifying the current rule)`
+<SYSTEM PROMPT>I've lost track of the current rule. I will restart the workflow from the context-loading rule.</SYSTEM PROMPT>
 
-# Workflow-perdu : 2 - Identification de la règle en cours  
-D'après mes dernières actions, je pense que la règle `tests` est la règle qui correspond le mieux à mon état actuel. Cependant, mon travail est trop désordonné pour en être sûr. Je vais donc prendre la solution de sécurité et appeler la règle `context-loading` pour me rappeler le contexte du projet. `(Workflow-perdu : 2 - Identification de la règle en cours)`  
-<SYSTEM PROMPT>J'ai perdu le fil de la règle en cours. Je vais redémarrer le workflow depuis la règle context-loading.</SYSTEM PROMPT>  
+# Lost workflow: 3 - System prompt recall
+I will now properly restart the workflow by calling the system rule. `(Lost workflow: 3 - System prompt recall)`
 
-# Workflow-perdu : 3 - Rappel du system prompt  
-Je vais maintenant redémarrer proprement le workflow en faisant appel à la règle system. `(Workflow-perdu : 3 - Rappel du system prompt)`  
+fetch_rules ["system"]
 
-fetch_rules ["system"]  
+# Start Rule
 
-# Start Rule  
-
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>J'ai détecté avoir quitté le workflow. Je vais sauvegarder mon travail actuel, identifier la règle en cours et la redémarrer correctement en faisant appel à la règle system.</SYSTEM PROMPT>"
+To start this rule, recite word for word this phrase: "<SYSTEM PROMPT>I detected that I left the workflow. I will save my current work, identify the current rule and restart it correctly by calling the system rule.</SYSTEM PROMPT>"

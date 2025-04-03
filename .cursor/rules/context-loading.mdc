@@ -1,60 +1,62 @@
 ---
-description: Appelle cette règle pour charger les objectifs et le contexte général du projet  
+description: Appelle cette règle pour charger les objectifs et le contexte général du projet 
 globs: 
 alwaysApply: false
 ---
+## TLDR
+Load or create project context files to establish the working environment.
 
-## TLDR  
-Charger ou créer les fichiers de contexte du projet pour établir l'environnement de travail.  
+## Instructions
+1. **Reading files**: Read existing context files:
+   - `.cursor/memory-bank/context/projectBrief.md`
+   - `.cursor/memory-bank/context/activeContext.md`
+   - `.cursor/memory-bank/context/techContext.md`
+   - `.cursor/memory-bank/userbrief.md` (consult but NEVER modify)
 
-## Instructions  
-1. **Lecture des fichiers** : Lire les fichiers de contexte existants :  
-   - `.cursor/memory-bank/context/projectBrief.md`  
-   - `.cursor/memory-bank/context/activeContext.md`  
-   - `.cursor/memory-bank/context/techContext.md`  
-   - `.cursor/memory-bank/userbrief.md` (consulter mais ne JAMAIS modifier)
+2. **Context initialization**: If absent:
+   - Analyze the structure and objectives of the project
+   - Create the `.cursor/memory-bank/context/` folder if necessary
+   - Initialize missing files with appropriate structure
+   - Create a `.cursor/memory-bank/userbrief.md` if non-existent
 
-2. **Initialisation du contexte** : Si absents :  
-   - Analyser la structure et les objectifs du projet  
-   - Créer le dossier `.cursor/memory-bank/context/` si nécessaire  
-   - Initialiser les fichiers manquants avec structure appropriée  
-   - Créer un `.cursor/memory-bank/userbrief.md` si non existant
+3. **Request reformulation**: Reformulate the user instruction in the project context
 
-3. **Reformulation de la requête** : Reformuler l'instruction utilisateur dans le contexte projet  
+4. **Calling the next rule**: Check userbrief.md and call appropriate rule:
+   - If `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment (starting with ⬜), call `consolidate-repo`
+   - Otherwise, call `request-analysis` to analyze the request
 
-4. **Appel de la règle suivante** : Appeler directement `request-analysis` pour analyser la requête
+## Specifics
+- Concise but complete files
+- `.cursor/memory-bank/workflow/projectBrief.md`: vision and objectives of the project
+- `.cursor/memory-bank/workflow/activeContext.md`: current state, development and ongoing tasks
+- `.cursor/memory-bank/workflow/techContext.md`: technologies, frameworks and dependencies
+- `.cursor/memory-bank/userbrief.md`: consult but NEVER modify - only the consolidate-repo rule is authorized to modify it
+- ⚠️ IMPORTANT: Limit to the four context files listed in step 1
 
-## Précisions  
-- Fichiers concis mais complets  
-- `.cursor/memory-bank/workflow/projectBrief.md` : vision et objectifs du projet  
-- `.cursor/memory-bank/workflow/activeContext.md` : état actuel, développement et tâches en cours  
-- `.cursor/memory-bank/workflow/techContext.md` : technologies, frameworks et dépendances  
-- `.cursor/memory-bank/userbrief.md` : consulter mais JAMAIS modifier - seule la règle consolidate-repo est autorisée à le modifier
-- ⚠️ IMPORTANT : Se limiter aux quatre fichiers de contexte listés en étape 1  
+## Next Rules
+- `consolidate-repo` - If userbrief.md contains unprocessed comments (⬜)
+- `request-analysis` - Otherwise, to analyze in detail the user's request
 
-## Next Rules  
-- `request-analysis` - Pour analyser en détail la requête de l'utilisateur  
+## Example
 
-## Exemple  
+fetch_rules ["context-loading"]
+<SYSTEM PROMPT>I will load the project context files projectBrief.md, activeContext.md, techContext.md and userbrief.md to understand the working environment. I will strictly limit myself to the four authorized files without consulting others unless they don't exist. I will not analyze the request or implement the user's demands but will call the appropriate next rule based on userbrief.md content.</SYSTEM PROMPT>
 
-fetch_rules ["context-loading"]  
-<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectBrief.md, activeContext.md, techContext.md et userbrief.md pour comprendre l'environnement de travail. Je me limiterai strictement aux quatre fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais appellerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>  
+# Context-loading: 1 - Reading context files
+I begin by reading the four context files to understand the project environment. `(Context-loading: 1 - Reading context files)`
+[...reading projectBrief.md, activeContext.md, techContext.md and userbrief.md files...]
+`(Context-loading: 1 - Reading context files)`
 
-# Context-loading : 1 - Lecture des fichiers de contexte  
-Je commence par lire les quatre fichiers de contexte pour comprendre l'environnement du projet. `(Context-loading : 1 - Lecture des fichiers de contexte)`  
-[...lecture des fichiers projectBrief.md, activeContext.md, techContext.md et userbrief.md...]  
-`(Context-loading : 1 - Lecture des fichiers de contexte)`  
+# Context-loading: 3 - Request reformulation
+I reformulate the user's request taking into account the project context. `(Context-loading: 3 - Request reformulation)`
+[...analysis of the user request in the project context...] `(Context-loading: 3 - Request reformulation)`
 
-# Context-loading : 3 - Reformulation de la requête  
-Je reformule la requête de l'utilisateur en tenant compte du contexte du projet. `(Context-loading : 3 - Reformulation de la requête)`  
-[...analyse de la requête utilisateur dans le contexte du projet...] `(Context-loading : 3 - Reformulation de la requête)`  
+# Context-loading: 4 - Calling the next rule
+I'm now checking the content of `.cursor/memory-bank/userbrief.md` to determine which rule to call next.
+I've found that `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment starting with ⬜, so I need to call the consolidate-repo rule. `(Context-loading: 4 - Calling the next rule)`
 
-# Context-loading : 4 - Appel de la règle suivante  
-Je dois maintenant appeler la règle request-analysis pour analyser la requête en détail.  
-La règle request-analysis doit être appelée pour analyser la requête de l'utilisateur en détail. `(Context-loading : 4 - Appel de la règle suivante)`  
+fetch_rules ["consolidate-repo"]
 
-fetch_rules ["request-analysis"]  
+# Start Rule
 
-# Start Rule  
-
-Pour démarrer cette règle, récite mot pour mot cette phrase : "<SYSTEM PROMPT>Je vais charger les fichiers de contexte du projet projectBrief.md, activeContext.md, techContext.md et userbrief.md pour comprendre l'environnement de travail. Je me limiterai strictement aux quatre fichiers autorisés sans en consulter d'autres à moins qu'ils n'existent pas. Je ne ferai pas l'analyse de la requête ou l'implémentation des demandes de l'utilisateur mais appellerai la règle request-analysis qui s'en chargera.</SYSTEM PROMPT>"
+To start this rule, recite this phrase word for word: "<SYSTEM PROMPT>I will load the project context files projectBrief.md, activeContext.md, techContext.md and userbrief.md to understand the working environment. I will strictly limit myself to the four authorized files without consulting others unless they don't exist. I will check the userbrief.md file for unprocessed comments and call the appropriate next rule based on its content.</SYSTEM PROMPT>"

@@ -3,77 +3,74 @@ description:
 globs: .cursor/memory-bank/workflow/tasks.md
 alwaysApply: false
 ---
-
-# Règle d'édition tasks.md
+# tasks.md Editing Rules
 
 ## TLDR
-Ce fichier organise les tâches du projet en sections logiques avec différents niveaux de priorité et statuts.
+This file organizes project tasks into logical sections with different priority levels and statuses.
 
-## Limites et structure
+## Limits and Structure
 
-- **Longueur maximale** : 400 lignes
-- **Contenu** : Tâches organisées par sections, sous-sections, et statuts
-- **Temporalité** : Tâches actuelles, planifiées et terminées récemment
+- **Maximum length**: 400 lines
+- **Content**: Tasks organized by sections, subsections, and statuses
+- **Temporality**: Current tasks, planned tasks, and recently completed tasks
 
-## Sections obligatoires
+## Mandatory Sections
 
-1. **In Progress** : Tâches en cours d'exécution
-2. **ToDo** : Tâches planifiées mais pas encore commencées
-3. **Done** : Tâches récemment terminées
+1. **In Progress**: Tasks currently being executed
+2. **ToDo**: Tasks planned but not yet started
+3. **Done**: Recently completed tasks
 
-## Contenu complémentaire
+## Complementary Content
 
-- Ce fichier se concentre sur les actions concrètes à réaliser
-- projectbrief.md contient les objectifs généraux
-- activeContext.md décrit le contexte de travail actuel
-- techContext.md détaille les aspects techniques
+- This file focuses on concrete actions to perform
+- projectbrief.md contains general objectives
+- activeContext.md describes the current work context
+- techContext.md details technical aspects
 
-## Template de référence
+## Reference Template
 
-```markdown
 # In Progress
 
-## 1. [Section de Très Haut Niveau]
-1.1. [ ] **[Titre Concis]** : [Description détaillée]
-- Actions: [Liste des actions à effectuer]
-- Fichiers: [Liste des fichiers impactés]
-- Dépendances: [Liste des tâches dont celle-ci dépend]
-- Validation: [Critères de validation]
+## 1. [Very High-Level Section]
+1.1. [ ] **[Concise Title]**: [Detailed description]
+- Actions: [List of actions to perform]
+- Files: [List of impacted files]
+- Dependencies: [List of tasks this one depends on]
+- Validation: [Validation criteria]
 
-1.2. [ ] **[Titre Concis]** : [Description détaillée]
+1.2. [ ] **[Concise Title]**: [Detailed description]
 [...]
 
-## 2. [Section de Très Haut Niveau]
-2.1. [ ] **[Titre Concis]** : [Description détaillée]
+## 2. [Very High-Level Section]
+2.1. [ ] **[Concise Title]**: [Detailed description]
 [...]
 
 # ToDo
 
-## 3. [Section de Très Haut Niveau]
-3.1. [ ] **[Titre Concis]** : [Description détaillée]
+## 3. [Very High-Level Section]
+3.1. [ ] **[Concise Title]**: [Detailed description]
 [...]
 
 # Done
 
-## [Section de Très Haut Niveau]
-[ x ] **[Titre Concis]** : [Description brève]
-[ x ] **[Titre Concis]** : [Description brève]
+## [Very High-Level Section]
+[ x ] **[Concise Title]**: [Brief description]
+[ x ] **[Concise Title]**: [Brief description]
 [...]
-```
 
-## Style et bonnes pratiques
+## Style and Best Practices
 
-- **Numérotation** : Utiliser une numérotation cohérente (1., 1.1, 2., 2.1)
-- **Statut** : Utiliser [ ] pour tâches non terminées et [x] pour tâches terminées
-- **Détail** : Plus détaillé pour "In Progress", moins pour "Done"
-- **Sections** : 3-4 sections de très haut niveau maximum
-- **Dépendances** : Minimiser les dépendances entre tâches
-- **Priorités** : Organiser par ordre de priorité/séquence logique
+- **Numbering**: Use consistent numbering (1., 1.1, 2., 2.1)
+- **Status**: Use [ ] for incomplete tasks and [x] for completed tasks
+- **Detail**: More detailed for "In Progress", less for "Done"
+- **Sections**: Maximum 3-4 very high-level sections
+- **Dependencies**: Minimize dependencies between tasks
+- **Priorities**: Organize by priority/logical sequence
 
 ## Validations
 
-- Maximum 3-4 sections de haut niveau
-- Tâches regroupées par type même si différentes en apparence
-- Descriptions exhaustives plutôt que multiplication des sections
-- Minimisation des dépendances croisées
-- Tâches terminées sans lien avec le travail actuel supprimées
+- Maximum 3-4 high-level sections
+- Tasks grouped by type even if seemingly different
+- Comprehensive descriptions rather than multiplication of sections
+- Minimization of cross-dependencies
+- Completed tasks unrelated to current work removed
