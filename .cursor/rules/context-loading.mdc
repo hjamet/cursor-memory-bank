@@ -1,5 +1,5 @@
 ---
-description: Appelle cette règle pour charger les objectifs et le contexte général du projet 
+description: Call this rule to load the objectives and overall context of the project
 globs: 
 alwaysApply: false
 ---

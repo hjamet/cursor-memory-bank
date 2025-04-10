@@ -1,5 +1,5 @@
 ---
-description: Appelle cette règle pour analyser en détail la requête de l'utilisateur et la situer par rapport aux objectifs du projet
+description: Call this rule to analyze the user's request in detail and situate it in relation to the project objectives.
 globs: 
 alwaysApply: false
 ---

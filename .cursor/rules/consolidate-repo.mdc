@@ -1,5 +1,5 @@
 ---
-description: Règle pour consolider le dépôt, gérer userbrief.md et maintenir une structure de projet propre
+description: Rule to consolidate the repository, manage userbrief.md, and maintain a clean project structure
 globs: 
 alwaysApply: false
 ---

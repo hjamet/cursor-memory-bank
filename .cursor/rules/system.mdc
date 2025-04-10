@@ -1,7 +1,7 @@
 ---
-description: 
+description: Call this rule to understand and initialize Cursor's autonomous agent system.
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 
 ## TLDR

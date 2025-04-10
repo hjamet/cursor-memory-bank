@@ -1,5 +1,5 @@
 ---
-description: Appelle OBLIGATOIREMENT cette règle dès que tu sens que tu ne suis plus le workflow précisément ou que tu oublies les consignes de ta règle actuelle. Par exemple, si tu viens d'appeler un outil sans préciser en dessous la règle en cours.
+description: MANDATORILY call this rule as soon as you feel that you are no longer following the workflow precisely or that you are forgetting the instructions of your current rule. For example, if you have just called a tool without specifying the current rule below.
 globs: 
 alwaysApply: false
 ---

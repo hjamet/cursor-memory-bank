@@ -1,5 +1,5 @@
 ---
-description: Appelle cette règle pour implémenter les tâches prioritaires du projet
+description: Call this rule to implement the project's priority tasks.
 globs: 
 alwaysApply: false
 ---

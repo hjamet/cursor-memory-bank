@@ -1,5 +1,5 @@
 ---
-description: Appelle cette règle pour exécuter les tests unitaires et analyser les résultats
+description: Call this rule to execute unit tests and analyze the results
 globs: 
 alwaysApply: false
 ---

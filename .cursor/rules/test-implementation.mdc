@@ -1,5 +1,5 @@
 ---
-description: Appelle cette règle pour créer les tests unitaires des nouvelles fonctionnalités
+description: Call this rule to create unit tests for new features
 globs: 
 alwaysApply: false
 ---

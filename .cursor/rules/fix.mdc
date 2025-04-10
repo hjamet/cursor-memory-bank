@@ -1,5 +1,5 @@
 ---
-description: Appelle cette règle pour implémenter les corrections nécessaires aux problèmes identifiés par les tests
+description: Call this rule to implement the necessary fixes to problems identified by the tests.
 globs: 
 alwaysApply: false
 ---

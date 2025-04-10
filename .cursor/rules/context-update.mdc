@@ -1,5 +1,5 @@
 ---
-description: Appelle cette règle pour mettre à jour les fichiers de contexte et commiter les changements
+description: Call this rule to update context files and commit the changes.
 globs: 
 alwaysApply: false
 ---
