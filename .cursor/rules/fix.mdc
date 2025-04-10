@@ -3,6 +3,7 @@ description: Appelle cette règle pour implémenter les corrections nécessaires
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Analyze test errors, create correction tasks, and document specific library/framework issues.
 
@@ -26,7 +27,7 @@ Analyze test errors, create correction tasks, and document specific library/fram
      (Use `logger.debug()` in Python or equivalent in other languages)
    - For complex corrections, use the think token: `<think>Deep reflection on the problem, exploration of different possible correction approaches, etc.</think>`
    - Briefly summarize the conclusions of the reflection if applicable
-   - After each tool call, write `Fix - 3.[Test title] in progress...`
+   - After each tool call, write **(Fix - 3.[Test title] in progress...)**
 
 4. **Adding correction tasks**: Update tasks.md
    - Create a "Corrections" section in "In Progress"
@@ -60,7 +61,7 @@ Analyze test errors, create correction tasks, and document specific library/fram
   - General programming logic problems
   - Errors you inadvertently made
 - Never modify the `.cursor/memory-bank/userbrief.md` file! Just consult it if needed.
-- To avoid losing the workflow, systematically write `Fix - 3.[Test title] in progress...` during analysis
+- To avoid losing the workflow, systematically write **(Fix - 3.[Test title] in progress...)** during analysis
 
 ## Next Rules
 - `consolidate-repo` - If unprocessed comments exist in userbrief.md  (i.e., starting with a ⬜ symbol)
@@ -72,19 +73,19 @@ fetch_rules ["fix"]
 <SYSTEM PROMPT>I will methodically analyze failed test errors, create well-defined correction tasks, and document recurring problems. I will not directly correct errors but will prepare tasks for future implementation. I will then move on to implementing corrections by calling the `implementation` rule.</SYSTEM PROMPT>
 
 # Fix: 1 - Error identification
-I begin by reading the tests.md file to understand test errors. `(Fix: 1 - Error identification)`
+I begin by reading the tests.md file to understand test errors. **(Fix: 1 - Error identification)**
 [...reading .cursor/memory-bank/workflow/tests.md file...]
-`(Fix: 1 - Error identification)`
+**(Fix: 1 - Error identification)**
 
 # Fix: 2 - Information search
-I'm searching for information about the error concerning library X. `(Fix: 2 - Information search)`
+I'm searching for information about the error concerning library X. **(Fix: 2 - Information search)**
 [...internet search...]
-`(Fix: 2 - Information search)`
+**(Fix: 2 - Information search)**
 
 # Fix: 3 - File analysis
-I will examine only files directly involved in the error. `(Fix: 3 - File analysis)`
+I will examine only files directly involved in the error. **(Fix: 3 - File analysis)**
 [...reading problematic file...]
-Fix - 3.TestConnection in progress...
+**(Fix - 3.TestConnection in progress...)**
 
 This error seems complex and requires in-depth reflection.
 
@@ -114,23 +115,23 @@ After reflection, I determined that the problem comes from the authentication da
 [...adding temporary logging for debugging...]
 logger.debug("Value of variable x:", x)
 [...analyzing problematic code...]
-`(Fix: 3 - File analysis)`
+**(Fix: 3 - File analysis)**
 
 # Fix: 4 - Adding correction tasks
-I'm creating detailed tasks to correct each error. `(Fix: 4 - Adding correction tasks)`
+I'm creating detailed tasks to correct each error. **(Fix: 4 - Adding correction tasks)**
 [...modifying tasks.md file...]
-`(Fix: 4 - Adding correction tasks)`
+**(Fix: 4 - Adding correction tasks)**
 
 # Fix: 5 - Error documentation
-I'm documenting the error related to the API change in library X. `(Fix: 5 - Error documentation)`
+I'm documenting the error related to the API change in library X. **(Fix: 5 - Error documentation)**
 [...updating techContext.md...]
-`(Fix: 5 - Error documentation)`
+**(Fix: 5 - Error documentation)**
 
 # Fix: 6 - Calling the next rule
-I'm checking if there are unprocessed comments in the userbrief.md file. `(Fix: 6 - Calling the next rule)`
+I'm checking if there are unprocessed comments in the userbrief.md file. **(Fix: 6 - Calling the next rule)**
 [...checking .cursor/memory-bank/userbrief.md...]
 I don't see any unprocessed comments in the userbrief.md file, so I will call the implementation rule.
-The implementation rule must be called to implement the corrections. `(Fix: 6 - Calling the next rule)`
+The implementation rule must be called to implement the corrections. **(Fix: 6 - Calling the next rule)**
 
 fetch_rules ["implementation"]
 

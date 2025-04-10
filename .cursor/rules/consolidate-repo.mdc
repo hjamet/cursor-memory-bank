@@ -3,6 +3,7 @@ description: Règle pour consolider le dépôt, gérer userbrief.md et maintenir
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Repository consolidation, transformation of user requests into tasks, cleaning userbrief.md, and verification of memory files integrity.
 
@@ -81,35 +82,35 @@ fetch_rules ["consolidate-repo"]
 <SYSTEM PROMPT>I will consolidate the repository by transforming user requests into tasks, cleaning userbrief.md according to the new 3-section structure, verifying memory files integrity, and identifying cleanup tasks to add to tasks.md.</SYSTEM PROMPT>
 
 # Consolidate-repo: 1 - Processing userbrief.md
-I begin by analyzing the content of the "User Input" section in `.cursor/memory-bank/userbrief.md`. `(Consolidate-repo: 1 - Processing userbrief.md)`
+I begin by analyzing the content of the "User Input" section in `.cursor/memory-bank/userbrief.md`. (Consolidate-repo: 1 - Processing userbrief.md)
 [...reading and analyzing userbrief.md content...]
 I've identified several user requests that I will mark as follows:
 - Tasks to perform: 🔄 (moving to "Processing")
 - Long-term preferences: 📌 (moving to "Precisions")
-`(Consolidate-repo: 1 - Processing userbrief.md)`
+(Consolidate-repo: 1 - Processing userbrief.md)
 
 # Consolidate-repo: 2 - Organizing userbrief.md
-I'm now reorganizing the content of `.cursor/memory-bank/userbrief.md` according to the 3-section structure. `(Consolidate-repo: 2 - Organizing userbrief.md)`
+I'm now reorganizing the content of .cursor/memory-bank/userbrief.md according to the 3-section structure. **(Consolidate-repo: 2 - Organizing userbrief.md)**
 [...content reorganization...]
-I've applied appropriate statuses to the different elements. `(Consolidate-repo: 2 - Organizing userbrief.md)`
+I've applied appropriate statuses to the different elements. **(Consolidate-repo: 2 - Organizing userbrief.md)**
 
 # Consolidate-repo: 3 - Integrity verification
-I'm now verifying the integrity of memory files. `(Consolidate-repo: 3 - Integrity verification)`
+I'm now verifying the integrity of memory files. **(Consolidate-repo: 3 - Integrity verification)**
 find . -type f -name "*.md"
 [...analyzing command results...]
-I've identified some duplicates that I've merged with main files. `(Consolidate-repo: 3 - Integrity verification)`
+I've identified some duplicates that I've merged with main files. **(Consolidate-repo: 3 - Integrity verification)**
 
 # Consolidate-repo: 4 - Cleanup task identification
-I'm now identifying necessary cleanup tasks. `(Consolidate-repo: 4 - Cleanup task identification)`
+I'm now identifying necessary cleanup tasks. **(Consolidate-repo: 4 - Cleanup task identification)**
 [...task identification...]
-I've added these tasks to `.cursor/memory-bank/workflow/tasks.md` for later validation. `(Consolidate-repo: 4 - Cleanup task identification)`
+I've added these tasks to `.cursor/memory-bank/workflow/tasks.md` for later validation. **(Consolidate-repo: 4 - Cleanup task identification)**
 
 # Consolidate-repo: 5 - Evaluation of user requests
-I'm now evaluating if I've identified new user requests. `(Consolidate-repo: 5 - Evaluation of user requests)`
+I'm now evaluating if I've identified new user requests. **(Consolidate-repo: 5 - Evaluation of user requests)**
 I found the following requests in the userbrief.md file:
 - [Summary of extracted requests]
 
-I will now call the request-analysis rule to process these requests. `(Consolidate-repo: 5 - Evaluation of user requests)`
+I will now call the request-analysis rule to process these requests. **(Consolidate-repo: 5 - Evaluation of user requests)**
 
 fetch_rules ["request-analysis"]
 

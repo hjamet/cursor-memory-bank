@@ -3,6 +3,7 @@ description: Appelle cette règle pour analyser en détail la requête de l'util
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Decompose user request into concrete tasks and organize them in tasks.md by numbered logical sections.
 
@@ -50,30 +51,30 @@ fetch_rules ["task-decomposition"]
 <SYSTEM PROMPT>I will decompose the request into concrete tasks, delete irrelevant completed tasks and organize everything into numbered logical sections. I will also integrate user requests from userbrief.md into tasks.md. I will not try to implement these tasks but will call the `implementation` rule to handle this.</SYSTEM PROMPT>
 
 # Task-decomposition: 1 - Existing tasks analysis
-I begin by reading the tasks.md file to understand the current state of tasks. `(Task-decomposition: 1 - Existing tasks analysis)`
+I begin by reading the tasks.md file to understand the current state of tasks. **(Task-decomposition: 1 - Existing tasks analysis)**
 [...reading tasks.md file...]
-`(Task-decomposition: 1 - Existing tasks analysis)`
+**(Task-decomposition: 1 - Existing tasks analysis)**
 
 # Task-decomposition: 2 - Userbrief analysis
-I now consult the userbrief.md file to identify tasks marked with 🔄. `(Task-decomposition: 2 - Userbrief analysis)`
+I now consult the userbrief.md file to identify tasks marked with 🔄. **(Task-decomposition: 2 - Userbrief analysis)**
 [...reading userbrief.md file...]
 I identified several tasks marked with 🔄 that I will delete and integrate into tasks.md.
 [...task transformation...]
-`(Task-decomposition: 2 - Userbrief analysis)`
+**(Task-decomposition: 2 - Userbrief analysis)**
 
 # Task-decomposition: 3 - Completed tasks removal
-I remove completed tasks that are no longer relevant to current work. `(Task-decomposition: 3 - Completed tasks removal)`
+I remove completed tasks that are no longer relevant to current work. **(Task-decomposition: 3 - Completed tasks removal)**
 [...obsolete tasks deletion...]
-`(Task-decomposition: 3 - Completed tasks removal)`
+**(Task-decomposition: 3 - Completed tasks removal)**
 
 # Task-decomposition: 4 - New tasks integration
-I decompose the request into concrete tasks and organize them into high-level sections. `(Task-decomposition: 4 - New tasks integration)`
+I decompose the request into concrete tasks and organize them into high-level sections. **(Task-decomposition: 4 - New tasks integration)**
 [...organizing tasks into sections...]
-`(Task-decomposition: 4 - New tasks integration)`
+**(Task-decomposition: 4 - New tasks integration)**
 
 # Task-decomposition: 5 - Call next rule
 I must now call the implementation rule to begin work on the tasks.
-The implementation rule must be called to begin implementing the tasks. `(Task-decomposition: 5 - Call next rule)`
+The implementation rule must be called to begin implementing the tasks. **(Task-decomposition: 5 - Call next rule)**
 
 fetch_rules ["implementation"]
 

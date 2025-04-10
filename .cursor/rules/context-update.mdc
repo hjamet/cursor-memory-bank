@@ -3,6 +3,7 @@ description: Appelle cette règle pour mettre à jour les fichiers de contexte e
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Update context files to reflect changes, update tasks.md based on test results, and make a commit following conventions.
 
@@ -34,7 +35,7 @@ Update context files to reflect changes, update tasks.md based on test results, 
 
 5. **Commit changes**: Make a commit with the modifications:
    - Prepare files and create commit in a single command:
-     `git add * && git commit -m "[message]"` (MANDATORY to use `git add *` and NEVER `git add [files]` or any other variant specifying individual files - this is crucial to ensure all changes are properly tracked)
+     `git commit -a -m "[message]"` (MANDATORY to use `git commit -a` and NEVER `git add [files]` or any other variant specifying individual files - this is crucial to ensure all changes are properly tracked)
    - Follow conventional commit format with emoji for the message
 
 6. **Call the next rule**: Mandatory call to the next rule if the workflow is not complete:
@@ -50,7 +51,7 @@ Update context files to reflect changes, update tasks.md based on test results, 
 - Systematically delete old history entries that are no longer relevant
 - NEVER end without either explicitly calling a next rule or explicitly indicating that the workflow is complete
 - The workflow must NEVER be considered complete if there are remaining tasks in "In Progress" or "ToDo" OR if there is at least one failing test (marked ❌) or with warning (marked ⚠️)
-- For the commit, MANDATORY to use `git add *` and NEVER `git add [files]` or any other variant specifying individual files - this is crucial to ensure all changes are properly tracked
+- For the commit, MANDATORY to use `git commit -a` and NEVER `git add [files]` or any other variant specifying individual files - this is crucial to ensure all changes are properly tracked
 - If all tasks are complete (meaning there are NO MORE tasks in the "In Progress" and "ToDo" sections of the tasks.md file) AND all tests pass (ALL marked ✅), then:
    - Present a clear and concise synthesis of the work done
    - Summarize implemented features and resolved issues
@@ -86,42 +87,42 @@ fetch_rules ["context-update"]
 <SYSTEM PROMPT>I will update context files to reflect changes, move successful tasks to 'Done', and clean up obsolete content. I will check project file integrity and, if necessary, call consolidate-repo. Otherwise, I will make a commit and determine if the workflow is complete or if it should continue with the appropriate rule.</SYSTEM PROMPT>
 
 # Context-update: 1 - Context update
-I begin by updating the context files to reflect changes. `(Context-update: 1 - Context update)`
+I begin by updating the context files to reflect changes. **(Context-update: 1 - Context update)**
 [...updating projectBrief.md file...]
-`(Context-update: 1 - Context update)`
+**(Context-update: 1 - Context update)**
 [...updating activeContext.md file...]
-`(Context-update: 1 - Context update)`
+**(Context-update: 1 - Context update)**
 [...updating techContext.md file...]
-`(Context-update: 1 - Context update)`
+**(Context-update: 1 - Context update)**
 
 # Context-update: 2 - Context cleanup
-I clean up context files by removing obsolete information. `(Context-update: 2 - Context cleanup)`
+I clean up context files by removing obsolete information. **(Context-update: 2 - Context cleanup)**
 [...cleaning up context files...]
-`(Context-update: 2 - Context cleanup)`
+**(Context-update: 2 - Context cleanup)**
 
 # Context-update: 3 - Updating tasks.md file
-I update the tasks.md file by moving completed tasks to Done. `(Context-update: 3 - Updating tasks.md file)`
+I update the tasks.md file by moving completed tasks to Done. **(Context-update: 3 - Updating tasks.md file)**
 [...updating tasks.md file...]
-`(Context-update: 3 - Updating tasks.md file)`
+**(Context-update: 3 - Updating tasks.md file)**
 
 # Context-update: 4 - File integrity verification
-I now check the integrity of project files. `(Context-update: 4 - File integrity verification)`
+I now check the integrity of project files. **(Context-update: 4 - File integrity verification)**
 find . -type f -name "*.md"
 [...analyzing command results...]
-I have not identified structural problems in the files. I will now check the content of the `userbrief.md` file.`(Context-update: 4 - File integrity verification)`
+I have not identified structural problems in the files. I will now check the content of the `userbrief.md` file. **(Context-update: 4 - File integrity verification)**
 [...checking .cursor/memory-bank/userbrief.md file...]
 I don't see new tasks or advice to process. I will therefore proceed to the next step.
-`(Context-update: 4 - File integrity verification)`
+**(Context-update: 4 - File integrity verification)**
 
 # Context-update: 5 - Making a commit
-I prepare and make a commit with the changes made. `(Context-update: 5 - Making a commit)`
+I prepare and make a commit with the changes made. **(Context-update: 5 - Making a commit)**
 [...creating commit...]
-`(Context-update: 5 - Making a commit)`
+**(Context-update: 5 - Making a commit)**
 
 # Context-update: 6 - Calling the next rule
-I now check the tests and remaining tasks to determine which rule to call. `(Context-update: 6 - Calling the next rule)`
+I now check the tests and remaining tasks to determine which rule to call. **(Context-update: 6 - Calling the next rule)**
 [...checking tests and tasks...]
-I see there are tasks left to do and all tests pass. I will therefore call the `implementation` rule. `(Context-update: 6 - Calling the next rule)`
+I see there are tasks left to do and all tests pass. I will therefore call the `implementation` rule. **(Context-update: 6 - Calling the next rule)**
 
 fetch_rules ["implementation"]
 

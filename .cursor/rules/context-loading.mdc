@@ -3,6 +3,7 @@ description: Appelle cette règle pour charger les objectifs et le contexte gén
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Load or create project context files to establish the working environment.
 
@@ -43,17 +44,17 @@ fetch_rules ["context-loading"]
 <SYSTEM PROMPT>I will load the project context files projectBrief.md, activeContext.md, techContext.md and userbrief.md to understand the working environment. I will strictly limit myself to the four authorized files without consulting others unless they don't exist. I will not analyze the request or implement the user's demands but will call the appropriate next rule based on userbrief.md content.</SYSTEM PROMPT>
 
 # Context-loading: 1 - Reading context files
-I begin by reading the four context files to understand the project environment. `(Context-loading: 1 - Reading context files)`
+I begin by reading the four context files to understand the project environment. **(Context-loading: 1 - Reading context files)**
 [...reading projectBrief.md, activeContext.md, techContext.md and userbrief.md files...]
-`(Context-loading: 1 - Reading context files)`
+**(Context-loading: 1 - Reading context files)**
 
 # Context-loading: 3 - Request reformulation
-I reformulate the user's request taking into account the project context. `(Context-loading: 3 - Request reformulation)`
-[...analysis of the user request in the project context...] `(Context-loading: 3 - Request reformulation)`
+I reformulate the user's request taking into account the project context. **(Context-loading: 3 - Request reformulation)**
+[...analysis of the user request in the project context...] **(Context-loading: 3 - Request reformulation)**
 
 # Context-loading: 4 - Calling the next rule
 I'm now checking the content of `.cursor/memory-bank/userbrief.md` to determine which rule to call next.
-I've found that `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment starting with ⬜, so I need to call the consolidate-repo rule. `(Context-loading: 4 - Calling the next rule)`
+I've found that `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment starting with ⬜, so I need to call the consolidate-repo rule. **(Context-loading: 4 - Calling the next rule)**
 
 fetch_rules ["consolidate-repo"]
 

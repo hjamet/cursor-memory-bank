@@ -3,6 +3,7 @@ description:
 globs: .cursor/memory-bank/context/techContext.md
 alwaysApply: false
 ---
+
 # Technical Environment
 
 ## Development Platform

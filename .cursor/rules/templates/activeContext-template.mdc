@@ -3,6 +3,7 @@ description:
 globs: .cursor/memory-bank/context/activeContext.md
 alwaysApply: false
 ---
+
 # activeContext.md Editing Rules
 
 ## TLDR

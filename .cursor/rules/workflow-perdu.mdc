@@ -3,6 +3,7 @@ description: Appelle OBLIGATOIREMENT cette règle dès que tu sens que tu ne sui
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 This rule helps you find your position in the workflow after losing track of instructions or when the user requests a restart at a specific point.
 
@@ -27,7 +28,7 @@ This rule helps you find your position in the workflow after losing track of ins
 - As a safety measure, if you doubt your identification, choose `context-update` and strictly follow the instructions of the `system` rule
 - After recalling the `system` rule, restart at the identified rule and scrupulously apply the step indication format in parentheses after each action
 
-Example: "I will now call the `system` rule to restart the workflow `(Lost workflow: 3 - System prompt recall)`"
+Example: "I will now call the `system` rule to restart the workflow **(Lost workflow: 3 - System prompt recall)**"
 
 ## Reminder of each rule description to facilitate identification
 
@@ -52,16 +53,16 @@ fetch_rules ["workflow-perdu"]
 <SYSTEM PROMPT>I detected that I left the workflow. I will save my current work, try to identify the current rule and restart it correctly by calling the system rule.</SYSTEM PROMPT>
 
 # Lost workflow: 1 - Context saving
-I will save a summary of my latest actions in the `.cursor/memory-bank/context/activeContext.md` file to remember the modifications I made outside the workflow. `(Lost workflow: 1 - Context saving)`
+I will save a summary of my latest actions in the `.cursor/memory-bank/context/activeContext.md` file to remember the modifications I made outside the workflow. **(Lost workflow: 1 - Context saving)**
 [...modifications to activeContext.md file...]
-`(Lost workflow: 1 - Context saving)`
+**(Lost workflow: 1 - Context saving)**
 
 # Lost workflow: 2 - Identifying the current rule
-Based on my latest actions, I think the `tests` rule best corresponds to my current state. However, my work is too disorganized to be sure. I will therefore take the safety solution and call the `context-loading` rule to remind myself of the project context. `(Lost workflow: 2 - Identifying the current rule)`
+Based on my latest actions, I think the `tests` rule best corresponds to my current state. However, my work is too disorganized to be sure. I will therefore take the safety solution and call the `context-loading` rule to remind myself of the project context. **(Lost workflow: 2 - Identifying the current rule)**
 <SYSTEM PROMPT>I've lost track of the current rule. I will restart the workflow from the context-loading rule.</SYSTEM PROMPT>
 
 # Lost workflow: 3 - System prompt recall
-I will now properly restart the workflow by calling the system rule. `(Lost workflow: 3 - System prompt recall)`
+I will now properly restart the workflow by calling the system rule. **(Lost workflow: 3 - System prompt recall)**
 
 fetch_rules ["system"]
 

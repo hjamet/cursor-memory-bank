@@ -3,6 +3,7 @@ description: Appelle cette règle pour créer les tests unitaires des nouvelles 
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Create unit tests for implemented features following testing best practices.
 
@@ -11,13 +12,13 @@ Create unit tests for implemented features following testing best practices.
 1. **Feature analysis**: Identify what needs to be tested
    - Examine modified/created files to find behaviors to test
    - List necessary test cases (normal and edge cases)
-   - After each tool call, write `Test-implementation - 1.[Feature name] in progress...`
+   - After each tool call, write **(Test-implementation - 1.[Feature name] in progress...)**
 
 2. **Test creation**: For each feature
    - Create a test file in the `tests/` folder starting with `test_`
    - Implement tests for normal behavior and simple edge cases
    - Use the format defined in the test-files editing rule
-   - After each tool call, write `Test-implementation - 2.[Test name] in progress...`
+   - After each tool call, write **(Test-implementation - 2.[Test name] in progress...)**
 
 3. **Call next rule**: Mandatory call to `test-execution`
 
@@ -39,23 +40,23 @@ fetch_rules ["test-implementation"]
 <SYSTEM PROMPT>I will create unit tests for new features following best practices. I will focus on creating tests without executing them, leaving that task to the test-execution rule. I will ensure tests are well documented and cover important cases.</SYSTEM PROMPT>
 
 # Test-implementation: 1 - Feature analysis
-I begin by identifying features to test. `(Test-implementation: 1 - Feature analysis)`
+I begin by identifying features to test. **(Test-implementation: 1 - Feature analysis)**
 [...analysis of modified files...]
-Test-implementation - 1.Authentication in progress...
+**(Test-implementation - 1.Authentication in progress...)**
 [...identification of behaviors to test...]
-`(Test-implementation: 1 - Feature analysis)`
+**(Test-implementation: 1 - Feature analysis)**
 
 # Test-implementation: 2 - Test creation
-I will create tests for each identified feature. `(Test-implementation: 2 - Test creation)`
+I will create tests for each identified feature. **(Test-implementation: 2 - Test creation)**
 [...creation of first test file...]
-Test-implementation - 2.TestLogin in progress...
+**(Test-implementation - 2.TestLogin in progress...)**
 [...creation of second test file...]
-Test-implementation - 2.TestValidation in progress...
-`(Test-implementation: 2 - Test creation)`
+**(Test-implementation - 2.TestValidation in progress...)**
+**(Test-implementation: 2 - Test creation)**
 
 # Test-implementation: 3 - Call next rule
 I must now call the test-execution rule to execute the tests.
-The test-execution rule must be called to execute and analyze the tests. `(Test-implementation: 3 - Call next rule)`
+The test-execution rule must be called to execute and analyze the tests. **(Test-implementation: 3 - Call next rule)**
 
 fetch_rules ["test-execution"]
 

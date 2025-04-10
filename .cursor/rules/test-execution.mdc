@@ -3,6 +3,7 @@ description: Appelle cette règle pour exécuter les tests unitaires et analyser
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Execute unit tests, analyze results and document successes and failures in tests.md.
 
@@ -11,12 +12,12 @@ Execute unit tests, analyze results and document successes and failures in tests
 1. **Test execution**: Launch tests for implemented features
    - Capture all results (successes, failures, warnings)
    - Note precise error messages
-   - After each tool call, write `Test-execution - 1.[Test name] in progress...`
+   - After each tool call, write **(Test-execution - 1.[Test name] in progress...)**
 
 2. **Results analysis**: Compare with previous tests
    - Read the `.cursor/memory-bank/workflow/tests.md` file if it exists
    - Identify improvements or regressions
-   - After each tool call, write `Test-execution - 2.[Analysis] in progress...`
+   - After each tool call, write **(Test-execution - 2.[Analysis] in progress...)**
 
 3. **Results documentation**: Update tests.md
    - Create file if necessary
@@ -35,7 +36,7 @@ Execute unit tests, analyze results and document successes and failures in tests
 - Do not attempt to fix errors (that's the role of the `fix` rule)
 - An "improvement" means a previously failing test now passes or a warning is resolved
 - A "regression" means a previously successful test now fails or generates a warning
-- To avoid losing the workflow, systematically write `Test-execution - [number].[Name] in progress...` between each step
+- To avoid losing the workflow, systematically write **(Test-execution - [number].[Name] in progress...)** between each step
 - Never skip calling the next rule
 
 ## Next Rules
@@ -48,28 +49,28 @@ fetch_rules ["test-execution"]
 <SYSTEM PROMPT>I will execute unit tests and analyze their results. I will clearly document successes and failures in the tests.md file. I will not attempt to fix errors but will call the 'fix' rule if tests fail or 'context-update' if all tests pass.</SYSTEM PROMPT>
 
 # Test-execution: 1 - Test execution
-I begin by executing the unit tests. `(Test-execution: 1 - Test execution)`
+I begin by executing the unit tests. **(Test-execution: 1 - Test execution)**
 [...test execution...]
-Test-execution - 1.AuthenticationTest in progress...
+**(Test-execution - 1.AuthenticationTest in progress...)**
 [...results capture...]
-`(Test-execution: 1 - Test execution)`
+**(Test-execution: 1 - Test execution)**
 
 # Test-execution: 2 - Results analysis
-I compare the results with previous tests. `(Test-execution: 2 - Results analysis)`
+I compare the results with previous tests. **(Test-execution: 2 - Results analysis)**
 [...reading tests.md file...]
-Test-execution - 2.Comparison in progress...
+**(Test-execution - 2.Comparison in progress...)**
 [...results comparison...]
-`(Test-execution: 2 - Results analysis)`
+**(Test-execution: 2 - Results analysis)**
 
 # Test-execution: 3 - Results documentation
-I update the tests.md file with new results. `(Test-execution: 3 - Results documentation)`
+I update the tests.md file with new results. **(Test-execution: 3 - Results documentation)**
 [...updating tests.md file...]
-`(Test-execution: 3 - Results documentation)`
+**(Test-execution: 3 - Results documentation)**
 
 # Test-execution: 4 - Call next rule
-I must now call the appropriate rule based on test results. `(Test-execution: 4 - Call next rule)`
+I must now call the appropriate rule based on test results. **(Test-execution: 4 - Call next rule)**
 [...analysis of improvements and regressions...]
-I note that [description of test status changes]. I will therefore call the [fix/context-update] rule because we have two tests that have progressed and no regression. `(Test-execution: 4 - Call next rule)`
+I note that [description of test status changes]. I will therefore call the [fix/context-update] rule because we have two tests that have progressed and no regression. **(Test-execution: 4 - Call next rule)**
 
 fetch_rules ["context-update"]
 

@@ -3,6 +3,7 @@ description: Appelle cette règle pour analyser en détail la requête de l'util
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Analyze user request, explore existing code and search for additional information to prepare implementation.
 
@@ -55,40 +56,40 @@ fetch_rules ["request-analysis"]
 <SYSTEM PROMPT>I will analyze the request in detail and explore relevant code to understand what needs to be done. I will not mention Memory Bank files in my analyses. I will not implement the requested changes but explain their purpose in natural language. At the end of my work, I will call either the `task-decomposition` or `implementation` rules to handle the implementation.</SYSTEM PROMPT>
 
 # Request-analysis: 1 - Request analysis
-I begin by analyzing the user's request to properly understand their demand. `(Request-analysis: 1 - Request analysis)`
+I begin by analyzing the user's request to properly understand their demand. **(Request-analysis: 1 - Request analysis)**
 [...request analysis...]
-I identified the following key elements in the request: [...] `(Request-analysis: 1 - Request analysis)`
+I identified the following key elements in the request: [...] **(Request-analysis: 1 - Request analysis)**
 
 # Request-analysis: 2 - Code analysis
 I begin by performing semantic searches to identify relevant files.
-Let's perform a first semantic search: `(Request-analysis: 2 - Code analysis)`
+Let's perform a first semantic search: **(Request-analysis: 2 - Code analysis)**
 [...first semantic search...]
-Let's perform a second semantic search: `(Request-analysis: 2 - Code analysis)`
+Let's perform a second semantic search: **(Request-analysis: 2 - Code analysis)**
 [...second semantic search...]
-Let's visualize the directory structure to better understand the organization: `(Request-analysis: 2 - Code analysis)`
+Let's visualize the directory structure to better understand the organization: **(Request-analysis: 2 - Code analysis)**
 [...tree command...]
-I now better understand the code and relevant files. `(Request-analysis: 2 - Code analysis)`
+I now better understand the code and relevant files. **(Request-analysis: 2 - Code analysis)**
 
 # Request-analysis: 3 - Tree creation
-I will create a tree representation of files concerned by the modifications. `(Request-analysis: 3 - Tree creation)`
+I will create a tree representation of files concerned by the modifications. **(Request-analysis: 3 - Tree creation)**
 [...creation of tree representation only for relevant elements...]
-`(Request-analysis: 3 - Tree creation)`
+**(Request-analysis: 3 - Tree creation)**
 
 # Request-analysis: 4 - Additional research
-I will search for information on the web about [...] `(Request-analysis: 4 - Additional research)`
+I will search for information on the web about [...] **(Request-analysis: 4 - Additional research)**
 [...first web search...]
-I will search for more information about [...] `(Request-analysis: 4 - Additional research)`
+I will search for more information about [...] **(Request-analysis: 4 - Additional research)**
 [...second web search...]
-`(Request-analysis: 4 - Additional research)`
+**(Request-analysis: 4 - Additional research)**
 
 # Request-analysis: 5 - Conclusion
-I summarize the results of my analysis and determine the next step. `(Request-analysis: 5 - Conclusion)`
+I summarize the results of my analysis and determine the next step. **(Request-analysis: 5 - Conclusion)**
 [...analysis conclusion...]
-`(Request-analysis: 5 - Conclusion)`
+**(Request-analysis: 5 - Conclusion)**
 
 # Request-analysis: 6 - Call next rule
 I must now call the task-decomposition rule because the request requires multiple steps.
-The task-decomposition rule must be called to decompose the request into specific tasks. `(Request-analysis: 6 - Call next rule)`
+The task-decomposition rule must be called to decompose the request into specific tasks. **(Request-analysis: 6 - Call next rule)**
 
 fetch_rules ["task-decomposition"]
 

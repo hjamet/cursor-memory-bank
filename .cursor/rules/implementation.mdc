@@ -3,6 +3,7 @@ description: Appelle cette règle pour implémenter les tâches prioritaires du 
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Methodically implement tasks from a priority section and document the process.
 
@@ -29,7 +30,7 @@ Methodically implement tasks from a priority section and document the process.
    - If yes, use the think token: `<think>In-depth reflection using chain of thought, comparison of different implementation approaches, etc.</think>`
    - Briefly summarize the conclusions of the reflection if applicable
    - Implement the solution
-   - After each tool call, write `Implementation - 3.number.[Section Name]: [Task Title] in progress...`
+   - After each tool call, write **(Implementation - 3.number.[Section Name]: [Task Title] in progress...)**
 
 4. **Task update**: Update tasks.md
    - Move section from "ToDo" to "In Progress" if necessary
@@ -48,7 +49,7 @@ Methodically implement tasks from a priority section and document the process.
 - Implement one task at a time, in logical order
 - Comment complex parts of the code
 - A feature is "testable" if it involves creating/modifying a script or function
-- To avoid losing the workflow, systematically write `Implementation - 3.number.[Section Name]: [Task Title] in progress...` between each step
+- To avoid losing the workflow, systematically write **(Implementation - 3.number.[Section Name]: [Task Title] in progress...)** between each step
 - Always call the appropriate next rule
 
 ## Next Rules
@@ -62,19 +63,19 @@ fetch_rules ["implementation"]
 <SYSTEM PROMPT>I will identify and implement the highest priority task section following a methodical and documented approach. I will think deeply about the best solution before implementing each complex task. I will always display the title of each task before implementing it. I will not try to execute my creations but will call the `test-implementation` rule if I have created a new testable feature, or `test-execution` otherwise.</SYSTEM PROMPT>
 
 # Implementation: 1 - Task analysis
-I begin by reading the tasks.md file to identify the highest priority section. `(Implementation: 1 - Task analysis)`
+I begin by reading the tasks.md file to identify the highest priority section. **(Implementation: 1 - Task analysis)**
 [...reading tasks.md file...]
-`(Implementation: 1 - Task analysis)`
+**(Implementation: 1 - Task analysis)**
 
 # Implementation: 2 - Active context update
-I will update the active context to document what I will be working on. `(Implementation: 2 - Active context update)`
+I will update the active context to document what I will be working on. **(Implementation: 2 - Active context update)**
 [...reading activeContext.md file...]
 [...updating with relevant information for tasks to perform...]
 [...adding information researched online...]
-`(Implementation: 2 - Active context update)`
+**(Implementation: 2 - Active context update)**
 
 # Implementation: 3 - Task implementation
-I will implement each task in the section following a methodical approach. `(Implementation: 3 - Task implementation)`
+I will implement each task in the section following a methodical approach. **(Implementation: 3 - Task implementation)**
 
 ## Implementation - 3.1.Development: Script creation
 This task is complex and requires in-depth reflection.
@@ -98,27 +99,27 @@ I think option 2 is most appropriate as it offers a good balance between maintai
 
 After reflection, I determined that the best approach is to use a modular architecture with separation of concerns. This will allow better maintainability while keeping reasonable complexity.
 
-I begin by creating the main script with the required functionalities. `(Implementation: 3.1 - Script creation)`
+I begin by creating the main script with the required functionalities. **(Implementation: 3.1 - Script creation)**
 [...script implementation...]
-Implementation - 3.1.Development: Script creation in progress...
+**(Implementation - 3.1.Development: Script creation in progress...)**
 [...implementation continuation...]
-`(Implementation: 3.1 - Script creation)`
+**(Implementation: 3.1 - Script creation)**
 
 ## Implementation - 3.2.Development: Documentation
-I add the necessary documentation to explain how the script works. `(Implementation: 3.2 - Documentation)`
+I add the necessary documentation to explain how the script works. **(Implementation: 3.2 - Documentation)**
 [...adding documentation...]
-Implementation - 3.2.Development: Documentation in progress...
+**(Implementation - 3.2.Development: Documentation in progress...)**
 [...documentation finalization...]
-`(Implementation: 3.2 - Documentation)`
+**(Implementation: 3.2 - Documentation)**
 
 # Implementation: 4 - Task update
-I update the tasks.md file to reflect task progress. `(Implementation: 4 - Task update)`
+I update the tasks.md file to reflect task progress. **(Implementation: 4 - Task update)**
 [...updating tasks.md file...]
-`(Implementation: 4 - Task update)`
+**(Implementation: 4 - Task update)**
 
 # Implementation: 5 - Calling the next rule
 I must now call the `test-implementation` rule because I created a new testable feature.
-The test-implementation rule must be called to create tests for the new feature. `(Implementation: 5 - Calling the next rule)`
+The test-implementation rule must be called to create tests for the new feature. **(Implementation: 5 - Calling the next rule)**
 
 fetch_rules ["test-implementation"]
 
