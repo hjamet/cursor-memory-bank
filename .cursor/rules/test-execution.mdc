@@ -37,6 +37,7 @@ Execute unit tests, analyze results and document successes and failures in tests
 - An "improvement" means a previously failing test now passes or a warning is resolved
 - A "regression" means a previously successful test now fails or generates a warning
 - To avoid losing the workflow, systematically write **(Test-execution - [number].[Name] in progress...)** between each step
+- ⚠️ **Command Execution Note**: The terminal tool occasionally exhibits a bug that adds "[200~" prefix and/or "~" suffix to commands (e.g., "[200~.venv/Scripts/python.exe" instead of ".venv/Scripts/python.exe"), resulting in "command not found" errors. These are NOT code or logic errors but tool-specific issues. If this occurs, simply retry the exact same command 2-3 times until it executes properly. Never treat these specific formatting errors as actual code problems or test failures.
 - Never skip calling the next rule
 
 ## Next Rules

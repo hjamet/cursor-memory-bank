@@ -62,6 +62,7 @@ Analyze test errors, create correction tasks, and document specific library/fram
   - Errors you inadvertently made
 - Never modify the `.cursor/memory-bank/userbrief.md` file! Just consult it if needed.
 - To avoid losing the workflow, systematically write **(Fix - 3.[Test title] in progress...)** during analysis
+- ⚠️ **Command Execution Note**: The terminal tool occasionally exhibits a bug that adds "[200~" prefix and/or "~" suffix to commands (e.g., "[200~.venv/Scripts/python.exe" instead of ".venv/Scripts/python.exe"), resulting in "command not found" errors. These are NOT code or logic errors but tool-specific issues. If this occurs, simply retry the exact same command 2-3 times until it executes properly. Never treat these specific formatting errors as actual code problems or test failures.
 
 ## Next Rules
 - `consolidate-repo` - If unprocessed comments exist in userbrief.md  (i.e., starting with a ⬜ symbol)

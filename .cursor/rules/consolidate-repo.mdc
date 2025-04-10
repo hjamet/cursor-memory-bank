@@ -70,6 +70,7 @@ tests/                       # Unit and integration tests
 - IMPORTANT: Only this rule is authorized to modify userbrief.md
 - IMPORTANT: Mark tasks with 🔄 (only) and preferences with 📌
 - IMPORTANT: Never use ✅, this is reserved for task-decomposition
+- ⚠️ **Command Execution Note**: The terminal tool occasionally exhibits a bug that adds "[200~" prefix and/or "~" suffix to commands (e.g., "[200~.venv/Scripts/python.exe" instead of ".venv/Scripts/python.exe"), resulting in "command not found" errors. These are NOT code or logic errors but tool-specific issues. If this occurs, simply retry the exact same command 2-3 times until it executes properly. Never treat these specific formatting errors as actual code problems or test failures.
 
 ## Next Rules
 

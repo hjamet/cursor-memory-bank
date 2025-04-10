@@ -50,6 +50,7 @@ Methodically implement tasks from a priority section and document the process.
 - Comment complex parts of the code
 - A feature is "testable" if it involves creating/modifying a script or function
 - To avoid losing the workflow, systematically write **(Implementation - 3.number.[Section Name]: [Task Title] in progress...)** between each step
+- ⚠️ **Command Execution Note**: The terminal tool occasionally exhibits a bug that adds "[200~" prefix and/or "~" suffix to commands (e.g., "[200~.venv/Scripts/python.exe" instead of ".venv/Scripts/python.exe"), resulting in "command not found" errors. These are NOT code or logic errors but tool-specific issues. If this occurs, simply retry the exact same command 2-3 times until it executes properly. Never treat these specific formatting errors as actual code problems or test failures.
 - Always call the appropriate next rule
 
 ## Next Rules
