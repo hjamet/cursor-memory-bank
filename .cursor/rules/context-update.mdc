@@ -62,20 +62,40 @@ Update context files to reflect changes, update tasks.md based on test results, 
 
 ## Format for commit message
 ```
-<emoji> <type>(<scope>): <description>
-
-[optional message body]
+<emoji_code><type>: description générale
+- détail 1
+- détail 2
+- détail 3
+[etc...]
 
 [optional footer]
 ```
 
-Examples of emojis and types:
-- ✨ feat: for a new feature
-- 🐛 fix: for a bug fix
-- 📝 docs: for documentation
-- ♻️ refactor: for refactoring
-- ✅ test: for adding or modifying tests
-- 🔧 chore: for maintenance tasks
+Examples avec codes emoji:
+- :sparkles: feat: pour une nouvelle fonctionnalité
+  - amélioration X ajoutée
+  - nouvelle feature Y
+  - support de Z
+
+- :bug: fix: pour une correction de bug
+  - correction du problème A
+  - résolution du crash B
+
+- :memo: docs: pour la documentation
+  - mise à jour de la section X
+  - clarification de Y
+  
+- :recycle: refactor: pour une refactorisation
+  - restructuration du module X
+  - optimisation de Y
+
+- :white_check_mark: test: pour les tests
+  - nouveaux tests pour X
+  - amélioration couverture Y
+
+- :wrench: chore: pour la maintenance
+  - mise à jour dépendance X
+  - nettoyage Y
 
 ## Next Rules
 - `consolidate-repo` - If file structure problems are detected or unprocessed comments exist in userbrief.md
