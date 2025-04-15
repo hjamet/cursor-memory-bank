@@ -1,216 +1,174 @@
 ---
 description: Call this rule to analyze and correct test errors via an iterative execution-correction loop
-globs: 
+globs:
 alwaysApply: false
 ---
 
-## TLDR  
-Analyze test errors and fix them through an iterative execution-correction loop until all tests pass or complex issues are identified for separate implementation.  
+## TLDR
+Analyze test errors and fix them through an iterative execution-correction loop until all tests pass or truly complex issues (requiring major refactoring or showing no progress after 3 attempts) are identified and handed over to `request-analysis`.
 
-## Instructions  
+## Instructions
 
-1. **Error identification**: Analyze and catalog test errors  
-   - Read `.cursor/memory-bank/workflow/tests.md` to understand test results  
-   - Establish a precise list of failing tests to address and their error messages  
-   - Write **(Fix: 1 - Error identification completed)** after this step  
+1.  **Error identification**: Analyze and catalog test errors
+    *   Read `.cursor/memory-bank/workflow/tests.md` to understand test results
+    *   Establish a precise list of failing tests to address and their error messages
+    *   Write **(Fix: 1 - Error identification completed)** after this step
 
-2. **Correction loop**: For each failing test, iterate until fixed or reclassified  
-   - **2.1 Marking**: Always indicate **(Fix: 2 - Correction loop - [Test name] - Iteration [number])**  
-   - **2.2 Analysis**: Examine only files involved in the error and identify the cause. If you are not entirely certain about the correction to be made. Don't hesitate to use the <think></think> tags.  
-   - **2.3 Research**: If needed, use the web to find solutions for specific errors  
-   - **2.4 Implementation**: Make the correction and document the changes  
-   - **2.5 Test**: Execute ONLY the specific test currently being fixed and analyze the result:  
-     - If test passes → Move to next test  
-     - If test fails but shows progress → Continue loop with new iteration  
-     - If complex correction (after 3 attempts without any progress or requiring major refactoring):  
-       * Create a detailed entry in the "Corrections" section of tasks.md  
-       * Document errors related to APIs/libraries in techContext.md if applicable  
-       * Mark the test as **(Fix: 2 - Correction loop - [Test name] - Deemed too complex)**  
-       * Move to next test  
+2.  **Correction loop**: For each failing test, iterate until fixed or handed over
+    *   **2.1 Marking**: Always indicate **(Fix: 2 - Correction loop - [Test name] - Iteration [number])**
+    *   **2.2 Analysis**: Examine only files involved in the error and identify the cause. If you are not entirely certain about the correction to be made. Don't hesitate to use the `<think></think>` tags.
+    *   **2.3 Research**: If needed, use the web to find solutions for specific errors
+    *   **2.4 Implementation**: Make the correction and document the changes
+    *   **2.5 Test**: Execute ONLY the specific test currently being fixed and analyze the result:
+        *   If test passes → Move to next failing test within this loop.
+        *   If test fails but shows progress → Continue loop with new iteration for the *same* test.
+        *   If **truly complex correction** (after 3 attempts *without any progress* OR requires *major* refactoring / a completely new implementation approach):
+            *   Mark the test as **(Fix: 2 - Correction loop - [Test name] - Handing over to request-analysis)**
+            *   Call the `request-analysis` rule, providing the problem description, context, and the need for a new approach.
+            *   **STOP** processing further tests within this `fix` rule execution. The `request-analysis` rule will take over.
 
-3. **Calling the next rule**: Determine the next step based on results  
-   - First check for unprocessed comments in `.cursor/memory-bank/userbrief.md`  
-   - If unprocessed comments exist → call `consolidate-repo`  
-   - If complex tasks were created → call `implementation`  
-   - If all tests were fixed → call `test-execution` for final verification  
-   - Write **(Fix: 3 - Calling the next rule)**  
+3.  **Calling the next rule (only if loop completed without handover)**: Determine the next step based on results *if and only if* step 2.5 did not trigger a handover to `request-analysis`.
+    *   First check for unprocessed comments in `.cursor/memory-bank/userbrief.md`
+    *   If unprocessed comments exist → call `consolidate-repo`
+    *   If all initially failing tests were fixed → call `test-execution` for final verification
+    *   Write **(Fix: 3 - Calling the next rule)**
 
-## Specifics  
+## Specifics
 
-- The `<think></think>` token must be used for each complex correction requiring in-depth analysis  
-- Examine ONLY files directly related to the error  
-- For debugging, temporarily add logs at strategic locations  
-- NEVER execute all tests, but ONLY the specific test you are currently fixing  
-- Running the complete test suite is exclusively the responsibility of the `test-execution` rule  
-- Document ONLY errors related to:  
-  - API changes in libraries  
-  - Non-intuitive framework behaviors  
-  - Updates that modify existing functionalities  
-- CRUCIAL: To avoid losing workflow tracking, ALWAYS indicate the current test and iteration  
-- ⚠️ **Command Execution Note**: The terminal tool occasionally exhibits a bug that adds "[200~" prefix and/or "~" suffix to commands (e.g., "[200~.venv/Scripts/python.exe" instead of ".venv/Scripts/python.exe"), resulting in "command not found" errors. These are NOT code or logic errors but tool-specific issues. If this occurs, simply retry the exact same command 2-3 times until it executes properly. Never treat these specific formatting errors as actual code problems or test failures.  
+-   The `<think></think>` token must be used for each complex correction requiring in-depth analysis
+-   Examine ONLY files directly related to the error
+-   For debugging, temporarily add logs at strategic locations
+-   NEVER execute all tests, but ONLY the specific test you are currently fixing
+-   Running the complete test suite is exclusively the responsibility of the `test-execution` rule
+-   Document ONLY errors related to:
+    *   API changes in libraries
+    *   Non-intuitive framework behaviors
+    *   Updates that modify existing functionalities
+-   CRUCIAL: To avoid losing workflow tracking, ALWAYS indicate the current test and iteration
+-   ⚠️ **Command Execution Note**: The terminal tool occasionally exhibits a bug that adds "[200~" prefix and/or "~" suffix to commands (e.g., "[200~.venv/Scripts/python.exe" instead of ".venv/Scripts/python.exe"), resulting in "command not found" errors. These are NOT code or logic errors but tool-specific issues. If this occurs, simply retry the exact same command 2-3 times until it executes properly. Never treat these specific formatting errors as actual code problems or test failures.
 
-## Next Rules  
-- `consolidate-repo` - If unprocessed comments exist in userbrief.md  
-- `implementation` - If complex tasks were created requiring implementation  
-- `test-execution` - If all initially failing tests were fixed  
+## Next Rules
+-   `consolidate-repo` - If loop completes and unprocessed comments exist
+-   `test-execution` - If loop completes and all initially failing tests were fixed
+-   `request-analysis` - Called directly from step 2.5 for truly complex issues, terminating this rule's execution.
 
-## Example  
+## Example
 
-fetch_rules ["fix"]  
-<SYSTEM PROMPT>I will methodically analyze failed test errors and implement corrections in an iterative loop until tests pass or are deemed too complex. For complex issues, I will create detailed implementation tasks. When all fixable issues are resolved, I will call test-execution to verify all tests pass.</SYSTEM PROMPT>  
+fetch_rules ["fix"]
+<SYSTEM PROMPT>I will methodically analyze failed test errors and implement corrections in an iterative loop. If a fix requires major refactoring or shows no progress after 3 attempts, I will hand it over to request-analysis. Otherwise, upon successful fixing of all tests, I will call test-execution.</SYSTEM PROMPT>
 
-# Fix: 1 - Error identification  
-I begin by reading the tests.md file to understand test errors. **(Fix: 1 - Error identification)**  
-[...reading .cursor/memory-bank/workflow/tests.md file...]  
+# Fix: 1 - Error identification
+I begin by reading the tests.md file to understand test errors. **(Fix: 1 - Error identification)**
+[...reading .cursor/memory-bank/workflow/tests.md file...]
 
-I've identified the following failing tests:  
-1. TestUserAuthentication.test_login_with_invalid_token - TypeError: Object of type bytes is not JSON serializable  
-2. TestDataProcessing.test_large_file_processing - MemoryError: Unable to allocate memory for operation  
-3. TestAPIConnection.test_retry_mechanism - AssertionError: Expected 3 retry attempts, got 0  
-**(Fix: 1 - Error identification completed)**  
+I've identified the following failing tests:
+1.  TestUserAuthentication.test_login_with_invalid_token - TypeError: Object of type bytes is not JSON serializable
+2.  TestDataProcessing.test_large_file_processing - MemoryError: Unable to allocate memory for operation
+3.  TestAPIConnection.test_retry_mechanism - AssertionError: Expected 3 retry attempts, got 0
+**(Fix: 1 - Error identification completed)**
 
-# Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1  
-**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1)**  
+# Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1
+**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1)**
 
-## 2.1 Marking  
-**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1)**  
+## 2.1 Marking
+**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1)**
 
-## 2.2 Analysis  
-[...examining authentication code files...]  
+## 2.2 Analysis
+[...examining authentication code files...]
 
-<think>  
-The error occurs because we're trying to JSON serialize a bytes object. I have two possible approaches:  
-1. Convert the bytes to a string before serialization with token.decode()  
-2. Use a different serialization method that handles bytes  
+<think>
+The error occurs because we're trying to JSON serialize a bytes object. Decoding to 'utf-8' before serialization should work.
+</think>
 
-Option 1 seems cleaner since JSON is meant for text data. We should decode the bytes with an appropriate encoding (probably 'utf-8') before serialization.  
-</think>  
+## 2.3 Research
+[...confirming JSON serialization practices...]
 
-## 2.3 Research  
-[...searching for JSON serialization best practices...]  
+## 2.4 Implementation
+[...modifying the authentication code to decode bytes before JSON serialization...]
+**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Implementation 1 completed)**
 
-## 2.4 Implementation  
-[...modifying the authentication code to decode bytes before JSON serialization...]  
-**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Implementation 1 completed)**  
+## 2.5 Test
+[...running the specific authentication test...]
+**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Test execution 1)**
 
-## 2.5 Test  
-[...running the specific authentication test...]  
-**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Test execution 1)**  
+Great! The test now passes. Moving to the next failing test.
 
-Great! The test now passes. Moving to the next test.  
+# Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1)**
 
-# Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1  
-**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1)**  
+## 2.1 Marking
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1)**
 
-## 2.1 Marking  
-**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1)**  
+## 2.2 Analysis
+[...examining data processing code...]
+<think>
+MemoryError indicates loading the whole file. A streaming approach is likely needed.
+</think>
 
-## 2.2 Analysis  
-[...examining data processing code...]  
+## 2.3 Research
+[...searching for streaming file processing techniques...]
 
-<think>  
-The MemoryError suggests we're running out of memory when processing large files. The current implementation appears to load the entire file into memory. We have a few options:  
-1. Implement streaming processing that handles data in chunks  
-2. Implement memory-mapped file access  
-3. Reduce the test file size  
+## 2.4 Implementation
+[...modifying the processor to use a basic streaming approach...]
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Implementation 1 completed)**
 
-Option 1 seems most appropriate as it's a common pattern for handling large files.  
-</think>  
+## 2.5 Test
+[...running the specific data processing test...]
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Test execution 1)**
 
-## 2.3 Research  
-[...searching for efficient large file processing techniques...]  
+The test fails with "NameError: name 'process_chunk' is not defined". This shows progress, so I'll continue iterating.
 
-## 2.4 Implementation  
-[...modifying the processor to use a streaming approach...]  
-**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Implementation 1 completed)**  
+# Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 2
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 2)**
 
-## 2.5 Test  
-[...running the specific data processing test...]  
-**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Test execution 1)**  
+## 2.1 Marking
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 2)**
 
-The test is still failing, but with a different error: "NameError: name 'process_chunk' is not defined". This shows progress!  
+## 2.2 Analysis
+[...analyzing the NameError...]
 
-# Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 2  
-**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 2)**  
+## 2.3 Research
+[...]
 
-## 2.1 Marking  
-**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 2)**  
+## 2.4 Implementation
+[...implementing the missing function...]
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Implementation 2 completed)**
 
-## 2.2 Analysis  
-[...analyzing the new error...]  
+## 2.5 Test
+[...running the test again...]
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Test execution 2)**
 
-## 2.3 Research  
-[...researching chunk-based processing patterns...]  
+Still failing with a MemoryError. The simple streaming wasn't enough.
 
-## 2.4 Implementation  
-[...implementing the missing function and fixing implementation...]  
-**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Implementation 2 completed)**  
+# Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 3
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 3)**
 
-## 2.5 Test  
-[...running the test again...]  
-**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Test execution 2)**  
+## 2.1 Marking
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 3)**
 
-Still failing with another memory error. This is becoming complex and might require a major refactoring.  
+## 2.2 Analysis
+[...re-evaluating the memory issue...]
+<think>
+After three attempts, the MemoryError persists despite initial fixes. The first attempt failed with MemoryError, the second with NameError (progress), but the third attempt reverted to MemoryError. This indicates the simple streaming approach is insufficient and likely requires a significant refactoring, possibly involving buffered reading, memory-mapped files, or an external library designed for large datasets. This level of change qualifies as a major refactoring and has shown no consistent progress toward resolution after 3 tries. Handing over is appropriate.
+</think>
 
-# Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 3  
-**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 3)**  
+## 2.3 Research
+[...]
 
-## 2.1 Marking  
-**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 3)**  
+## 2.4 Implementation
+[...No further implementation attempt...]
 
-## 2.2 Analysis  
-[...performing deeper analysis of memory issues...]  
+## 2.5 Test
+The test failed on the previous iteration, and analysis confirms it needs major refactoring beyond simple iteration.
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Handing over to request-analysis)**
 
-## 2.3 Research  
-[...researching advanced memory management techniques...]  
+Calling `request-analysis` to handle the complex task of implementing efficient large file processing.
+fetch_rules ["request-analysis"]
+[Provide context: Problem="MemoryError during large file processing requires major refactoring (streaming/chunking insufficient)", Files=[...], Analysis="Initial attempts failed, needs new architectural approach."]
 
-## 2.4 Implementation  
-[...attempting a final approach...]  
+**STOPPING `fix` rule execution.**
 
-After three iterations without meaningful progress, I've determined this issue requires a more substantial architectural change.  
-**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Deemed too complex)**  
+# Start Rule
 
-[...creating a detailed task in tasks.md for implementing efficient large file processing...]  
+To start this rule, recite word for word this phrase: "<SYSTEM PROMPT>I will methodically analyze failed test errors and implement corrections in an iterative loop. If a fix requires major refactoring or shows no progress after 3 attempts, I will hand it over to request-analysis. Otherwise, upon successful fixing of all tests, I will call test-execution.</SYSTEM PROMPT>"
 
-# Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Iteration 1  
-**(Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Iteration 1)**  
-
-## 2.1 Marking  
-**(Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Iteration 1)**  
-
-## 2.2 Analysis  
-[...examining API connection code...]  
-
-<think>  
-The test expects the connection to retry 3 times, but it's not happening. Looking at the code:  
-1. The retry condition might not be triggering  
-2. The retry counter might not be incrementing  
-3. The retry functionality might be disabled  
-
-The most likely issue is that the error conditions that should trigger a retry aren't being recognized.  
-</think>  
-
-## 2.3 Research  
-[...researching retry mechanism best practices...]  
-
-## 2.4 Implementation  
-[...fixing the retry condition in the connection code...]  
-**(Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Implementation 1 completed)**  
-
-## 2.5 Test  
-[...running the API connection test...]  
-**(Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Test execution 1)**  
-
-Great! The test now passes.  
-
-# Fix: 3 - Calling the next rule  
-**(Fix: 3 - Calling the next rule)**  
-[...checking for unprocessed comments in userbrief.md...]  
-
-I don't see any unprocessed comments. I successfully fixed two tests (TestUserAuthentication.test_login_with_invalid_token and TestAPIConnection.test_retry_mechanism), but I identified one complex issue (TestDataProcessing.test_large_file_processing) that requires implementation. I'll call the implementation rule.  
-
-fetch_rules ["implementation"]  
-
-# Start Rule  
-
-To start this rule, recite word for word this phrase: "<SYSTEM PROMPT>I will methodically analyze failed test errors and implement corrections in an iterative loop until tests pass or are deemed too complex. For complex issues, I will create detailed implementation tasks. When all fixable issues are resolved, I will call test-execution to verify all tests pass.</SYSTEM PROMPT>"
