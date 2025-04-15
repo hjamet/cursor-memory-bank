@@ -25,7 +25,6 @@ Analyze test errors and fix them through an iterative execution-correction loop 
         *   If **truly complex correction** (after 3 attempts *without any progress* OR requires *major* refactoring / a completely new implementation approach):
             *   Mark the test as **(Fix: 2 - Correction loop - [Test name] - Handing over to request-analysis)**
             *   Call the `request-analysis` rule, providing the problem description, context, and the need for a new approach.
-            *   **STOP** processing further tests within this `fix` rule execution. The `request-analysis` rule will take over.
 
 3.  **Calling the next rule (only if loop completed without handover)**: Determine the next step based on results *if and only if* step 2.5 did not trigger a handover to `request-analysis`.
     *   First check for unprocessed comments in `.cursor/memory-bank/userbrief.md`
