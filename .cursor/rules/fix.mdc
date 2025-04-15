@@ -16,7 +16,7 @@ Analyze test errors and fix them through an iterative execution-correction loop 
 
 2.  **Correction loop**: For each failing test, iterate until fixed or handed over
     *   **2.1 Marking**: Always indicate **(Fix: 2 - Correction loop - [Test name] - Iteration [number])**
-    *   **2.2 Analysis**: Examine only files involved in the error and identify the cause. If you are not entirely certain about the correction to be made. Don't hesitate to use the `<think></think>` tags.
+    *   **2.2 Analysis**: Examine only files involved in the error and identify the cause. If you are not entirely certain about the correction to be made. Don't hesitate to use the `<think></think>` tags. Don't hesitate either to use the codebase search tool !
     *   **2.3 Research**: If needed, use the web to find solutions for specific errors
     *   **2.4 Implementation**: Make the correction and document the changes
     *   **2.5 Test**: Execute ONLY the specific test currently being fixed and analyze the result:
@@ -36,7 +36,7 @@ Analyze test errors and fix them through an iterative execution-correction loop 
 ## Specifics
 
 -   The `<think></think>` token must be used for each complex correction requiring in-depth analysis
--   Examine ONLY files directly related to the error
+-   You should examinate the files you know related to the problem but you should also use the codebase search tool in case you are missing something.
 -   For debugging, temporarily add logs at strategic locations
 -   NEVER execute all tests, but ONLY the specific test you are currently fixing
 -   Running the complete test suite is exclusively the responsibility of the `test-execution` rule
