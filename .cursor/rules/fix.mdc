@@ -45,6 +45,7 @@ Analyze test errors and fix them through an iterative execution-correction loop 
     *   Updates that modify existing functionalities
 -   CRUCIAL: To avoid losing workflow tracking, ALWAYS indicate the current test and iteration
 -   ⚠️ **Command Execution Note**: The terminal tool occasionally exhibits a bug that adds "[200~" prefix and/or "~" suffix to commands (e.g., "[200~.venv/Scripts/python.exe" instead of ".venv/Scripts/python.exe"), resulting in "command not found" errors. These are NOT code or logic errors but tool-specific issues. If this occurs, simply retry the exact same command 2-3 times until it executes properly. Never treat these specific formatting errors as actual code problems or test failures.
+-   ⚠️ Similarly, if the command is put in the background, canceled, or interrupted by the user without any comment, it is certainly because the user has identified an execution problem related to the terminal. You must then relaunch the command as if nothing happened 2-3 times until it executes correctly. Do not consider these terminal tool bugs as actual code or test failure problems.
 
 ## Next Rules
 -   `consolidate-repo` - If loop completes and unprocessed comments exist
@@ -136,7 +137,9 @@ The test fails with "NameError: name 'process_chunk' is not defined". This shows
 ## 2.5 Test
 [...running the test again...]
 **(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Test execution 2)**
-
+I see that the command has been put in the background. It's certainly related to a simple terminal issue. I'm going to relaunch the command.
+[...re-running the test...]
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Test execution 2)**
 Still failing with a MemoryError. The simple streaming wasn't enough.
 
 # Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 3
