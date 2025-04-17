@@ -43,7 +43,7 @@ tests/                       # Unit and integration tests
    - Execute command `find . -type f -name "*.md"` to list all markdown files
    - Analyze results to find duplicates in memory-bank directories
    - Merge content of duplicate files with main files
-   - Delete duplicates after merging
+   - Delete duplicates after merging (use `rm` command for this and not the `file delete` tool)
    - Verify all memory files are in the right place
 
 4. **Cleanup task identification**: Generate tasks for tasks.md:
@@ -65,7 +65,7 @@ tests/                       # Unit and integration tests
 - Only structure and organization can be modified
 - User requests must always be processed with priority
 - Duplicates must be carefully merged to lose no information
-- Cleanup tasks must be added to `.cursor/memory-bank/workflow/tasks.md` for later validation
+- Files to be deleted should be deleted only after merging and using the `rm` command in the terminal and not the `file delete` tool (because of a bug in the tool)
 - This rule should only be called by context-update when structure problems are detected
 - IMPORTANT: Only this rule is authorized to modify userbrief.md
 - IMPORTANT: Mark tasks with 🔄 (only) and preferences with 📌
