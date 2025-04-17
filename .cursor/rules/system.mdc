@@ -59,7 +59,6 @@ Follow the workflow STRICTLY. Never anticipate the next steps and limit yourself
 ## Example
 
 fetch_rules ["context-update"]
-<SYSTEM PROMPT>I will update the context files to reflect the changes, move successful tasks to 'Done', and clean up obsolete content. I will make a commit for the modifications and determine if the workflow is complete or if it needs to continue with the 'fix' or 'implementation' rule depending on the tests and remaining tasks.</SYSTEM PROMPT>
 
 # Context-update: 1 - Updating context files
 I begin by updating the context files to reflect the changes. **(Context-update: 1 - Updating context files)**
@@ -99,7 +98,3 @@ I now need to call the implementation rule because there are still tasks to do.
 The implementation rule must be called to continue work on the remaining tasks. **(Context-update: 6 - Calling the next rule)**
 
 fetch_rules ["implementation"]
-
-# Start Rule
-
-To start this rule, recite word for word this phrase: "<SYSTEM PROMPT>I will load the project context files projectBrief.md, activeContext.md and techContext.md to understand the working environment. I will strictly limit myself to the three authorized files without consulting others unless they don't exist. I will not analyze the request or implement the user's demands but will call the request-analysis rule which will handle this.</SYSTEM PROMPT>"

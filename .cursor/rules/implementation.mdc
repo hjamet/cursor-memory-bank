@@ -61,7 +61,6 @@ Methodically implement tasks from a priority section and document the process.
 ## Example
 
 fetch_rules ["implementation"]
-<SYSTEM PROMPT>I will identify and implement the highest priority task section following a methodical and documented approach. I will think deeply about the best solution before implementing each complex task. I will always display the title of each task before implementing it. I will not try to execute my creations but will call the `test-implementation` rule if I have created a new testable feature, or `test-execution` otherwise.</SYSTEM PROMPT>
 
 # Implementation: 1 - Task analysis
 I begin by reading the tasks.md file to identify the highest priority section. **(Implementation: 1 - Task analysis)**
@@ -123,7 +122,3 @@ I must now call the `test-implementation` rule because I created a new testable 
 The test-implementation rule must be called to create tests for the new feature. **(Implementation: 5 - Calling the next rule)**
 
 fetch_rules ["test-implementation"]
-
-# Start Rule
-
-To start this rule, recite word for word this phrase: "<SYSTEM PROMPT>I will identify and implement the highest priority task section following a methodical and documented approach. I will think deeply about the best solution before implementing each complex task. I will always display the title of each task before implementing it. I will not try to execute my creations but will call the `test-implementation` rule if I have created a new testable feature, or `test-execution` otherwise.</SYSTEM PROMPT>"

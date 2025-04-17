@@ -41,7 +41,6 @@ Load or create project context files to establish the working environment.
 ## Example
 
 fetch_rules ["context-loading"]
-<SYSTEM PROMPT>I will load the project context files projectBrief.md, activeContext.md, techContext.md and userbrief.md to understand the working environment. I will strictly limit myself to the four authorized files without consulting others unless they don't exist. I will not analyze the request or implement the user's demands but will call the appropriate next rule based on userbrief.md content.</SYSTEM PROMPT>
 
 # Context-loading: 1 - Reading context files
 I begin by reading the four context files to understand the project environment. **(Context-loading: 1 - Reading context files)**
@@ -57,7 +56,3 @@ I'm now checking the content of `.cursor/memory-bank/userbrief.md` to determine 
 I've found that `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment starting with ⬜, so I need to call the consolidate-repo rule. **(Context-loading: 4 - Calling the next rule)**
 
 fetch_rules ["consolidate-repo"]
-
-# Start Rule
-
-To start this rule, recite this phrase word for word: "<SYSTEM PROMPT>I will load the project context files projectBrief.md, activeContext.md, techContext.md and userbrief.md to understand the working environment. I will strictly limit myself to the four authorized files without consulting others unless they don't exist. I will check the userbrief.md file for unprocessed comments and call the appropriate next rule based on its content.</SYSTEM PROMPT>"

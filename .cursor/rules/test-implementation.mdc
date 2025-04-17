@@ -37,7 +37,6 @@ Create unit tests for implemented features following testing best practices.
 ## Example
 
 fetch_rules ["test-implementation"]
-<SYSTEM PROMPT>I will create unit tests for new features following best practices. I will focus on creating tests without executing them, leaving that task to the test-execution rule. I will ensure tests are well documented and cover important cases.</SYSTEM PROMPT>
 
 # Test-implementation: 1 - Feature analysis
 I begin by identifying features to test. **(Test-implementation: 1 - Feature analysis)**
@@ -59,7 +58,3 @@ I must now call the test-execution rule to execute the tests.
 The test-execution rule must be called to execute and analyze the tests. **(Test-implementation: 3 - Call next rule)**
 
 fetch_rules ["test-execution"]
-
-# Start Rule
-
-To start this rule, recite word for word this phrase: "<SYSTEM PROMPT>I will create unit tests for new features following best practices. I will focus on creating tests without executing them, leaving that task to the test-execution rule. I will ensure tests are well documented and cover the most important cases.</SYSTEM PROMPT>"

@@ -55,7 +55,6 @@ Analyze test errors and fix them through an iterative execution-correction loop 
 ## Example
 
 fetch_rules ["fix"]
-<SYSTEM PROMPT>I will methodically analyze failed test errors and implement corrections in an iterative loop. If a fix requires major refactoring or shows no progress after 3 attempts, I will hand it over to request-analysis. Otherwise, upon successful fixing of all tests, I will call test-execution.</SYSTEM PROMPT>
 
 # Fix: 1 - Error identification
 I begin by reading the tests.md file to understand test errors. **(Fix: 1 - Error identification)**
@@ -169,8 +168,3 @@ fetch_rules ["request-analysis"]
 [Provide context: Problem="MemoryError during large file processing requires major refactoring (streaming/chunking insufficient)", Files=[...], Analysis="Initial attempts failed, needs new architectural approach."]
 
 **STOPPING `fix` rule execution.**
-
-# Start Rule
-
-To start this rule, recite word for word this phrase: "<SYSTEM PROMPT>I will methodically analyze failed test errors and implement corrections in an iterative loop. If a fix requires major refactoring or shows no progress after 3 attempts, I will hand it over to request-analysis. Otherwise, upon successful fixing of all tests, I will call test-execution.</SYSTEM PROMPT>"
-

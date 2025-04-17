@@ -105,7 +105,6 @@ Examples avec codes emoji:
 ## Example
 
 fetch_rules ["context-update"]
-<SYSTEM PROMPT>I will update context files to reflect changes, move successful tasks to 'Done', and clean up obsolete content. I will check project file integrity and, if necessary, call consolidate-repo. Otherwise, I will make a commit and determine if the workflow is complete or if it should continue with the appropriate rule.</SYSTEM PROMPT>
 
 # Context-update: 1 - Context update
 I begin by updating the context files to reflect changes. **(Context-update: 1 - Context update)**
@@ -146,7 +145,3 @@ I now check the tests and remaining tasks to determine which rule to call. **(Co
 I see there are tasks left to do and all tests pass. I will therefore call the `implementation` rule. **(Context-update: 6 - Calling the next rule)**
 
 fetch_rules ["implementation"]
-
-# Start Rule
-
-To start this rule, recite word for word this phrase: "<SYSTEM PROMPT>I will update context files to reflect changes, move successful tasks to 'Done', and clean up obsolete content. I will check project file integrity and, if necessary, call consolidate-repo. Otherwise, I will make a commit and determine if the workflow is complete or if it should continue with the appropriate rule.</SYSTEM PROMPT>"

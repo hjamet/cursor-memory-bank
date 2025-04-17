@@ -48,7 +48,6 @@ Decompose user request into concrete tasks and organize them in tasks.md by numb
 ## Example
 
 fetch_rules ["task-decomposition"]
-<SYSTEM PROMPT>I will decompose the request into concrete tasks, delete irrelevant completed tasks and organize everything into numbered logical sections. I will also integrate user requests from userbrief.md into tasks.md. I will not try to implement these tasks but will call the `implementation` rule to handle this.</SYSTEM PROMPT>
 
 # Task-decomposition: 1 - Existing tasks analysis
 I begin by reading the tasks.md file to understand the current state of tasks. **(Task-decomposition: 1 - Existing tasks analysis)**
@@ -77,7 +76,3 @@ I must now call the implementation rule to begin work on the tasks.
 The implementation rule must be called to begin implementing the tasks. **(Task-decomposition: 5 - Call next rule)**
 
 fetch_rules ["implementation"]
-
-# Start Rule
-
-To start this rule, recite word for word this phrase: "<SYSTEM PROMPT>I will decompose the request into concrete tasks, delete irrelevant completed tasks and organize everything into numbered logical sections. I will also integrate user requests from userbrief.md into tasks.md. I will not try to implement these tasks but will call the `implementation` rule to handle this.</SYSTEM PROMPT>"

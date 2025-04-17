@@ -80,7 +80,6 @@ tests/                       # Unit and integration tests
 ## Example
 
 fetch_rules ["consolidate-repo"]
-<SYSTEM PROMPT>I will consolidate the repository by transforming user requests into tasks, cleaning userbrief.md according to the new 3-section structure, verifying memory files integrity, and identifying cleanup tasks to add to tasks.md.</SYSTEM PROMPT>
 
 # Consolidate-repo: 1 - Processing userbrief.md
 I begin by analyzing the content of the "User Input" section in `.cursor/memory-bank/userbrief.md`. (Consolidate-repo: 1 - Processing userbrief.md)
@@ -114,7 +113,3 @@ I found the following requests in the userbrief.md file:
 I will now call the request-analysis rule to process these requests. **(Consolidate-repo: 5 - Evaluation of user requests)**
 
 fetch_rules ["request-analysis"]
-
-# Start Rule
-
-To start this rule, recite this phrase word for word: "<SYSTEM PROMPT>I will consolidate the repository by transforming user requests into tasks, cleaning userbrief.md according to the new 3-section structure, verifying memory files integrity, and identifying cleanup tasks to add to tasks.md.</SYSTEM PROMPT>"
