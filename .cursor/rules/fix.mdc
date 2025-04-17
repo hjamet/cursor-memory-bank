@@ -20,7 +20,10 @@ Analyze test errors and fix them through an iterative execution-correction loop 
     *   **2.3 Research**: If needed, use the web to find solutions for specific errors
     *   **2.4 Implementation**: Make the correction and document the changes
     *   **2.5 Test**: Execute ONLY the specific test currently being fixed and analyze the result:
-        *   If test passes → Move to next failing test within this loop.
+        *   If test passes :
+            * **2.5.1 Update tests.md**: If the test passes, update the `.cursor/memory-bank/workflow/tests.md` file to reflect the new status of the test. Write **(Fix: 2 - Correction loop - [Test name] - Implementation [number] completed)** after this step.
+            * **2.5.2 Quick commit** : Use the command `git commit -m "Message" files` to commit the changes made to the files involved in the test. The message should look like that : **:wrench: fix: test_name - quick fix explanation**.
+            * **2.5.2 Continue**: Move to the next failing test in the list and repeat the loop from step 2.1.
         *   If test fails but shows progress → Continue loop with new iteration for the *same* test.
         *   If **truly complex correction** (after 3 attempts *without any progress* OR requires *major* refactoring / a completely new implementation approach):
             *   Mark the test as **(Fix: 2 - Correction loop - [Test name] - Handing over to request-analysis)**
