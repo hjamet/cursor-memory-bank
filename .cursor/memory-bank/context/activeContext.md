@@ -1,6 +1,6 @@
 # Active Context
 
-**Current State:** Completed Implementation phase for Task 1.1 (Delete workflow-propositions.md). Moving to Context Update.
+**Current State:** Completed Implementation phase for modifying the test-implementation rule. Moving to Context Update.
 
 **Ongoing Task:** Update context files, tasks.md, verify integrity, and commit changes.
 
@@ -11,9 +11,17 @@
 - **Relevant Info:** N/A
 - **Attention Points:** N/A
 - **Technical Decisions:** Used `delete_file` tool.
+- **Task**: Modify the `test-implementation` rule.
+- **File**: `.cursor/rules/test-implementation.mdc`
+- **Constraint**: Ensure the rule mandates creating only *minimal* tests: 
+    - Maximum 1 test per function.
+    - Test only basic, expected behavior.
+    - Explicitly forbid testing edge cases or special conditions.
+- **Goal**: Update the rule's instructions and specifics to reflect this constraint clearly.
 
 ## Problèmes Résolus
 - MCP memory integration tasks completed.
+- Updated `test-implementation` rule to enforce minimal testing (max 1 basic test/function, no edge cases).
 
 ## Problèmes Persistants
 - N/A
@@ -45,4 +53,14 @@ The integration adds optional memory capabilities using MCP servers, enhancing t
     *   Create the file `workflow-propositions.md`.
     *   Write clear, actionable, and well-reasoned proposals into the new file.
 
-**Current Step:** Starting Task 13.1 - Reading and analyzing rules. 
+**Current Step:** Starting Task 13.1 - Reading and analyzing rules.
+
+## Lost workflow
+- User identified discrepancy in git commit command usage descriptions for `fix` and `context-update` rules.
+- Verified `context-update` uses `git commit -a -m "..."` as intended.
+- Updated `fix` rule (step 2.5.2) commit command syntax to `git commit <file1> <file2> ... -m ":wrench: fix: ..."`.
+- User provided new constraint for `test-implementation` rule: Only create minimal tests (max 1 per function, basic behavior, no edge cases).
+
+---
+
+## Previous content (if any) 
