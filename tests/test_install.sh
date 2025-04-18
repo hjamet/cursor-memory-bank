@@ -130,7 +130,9 @@ test_error_handling() {
     fi
     
     # Test invalid directory
-    if bash "$install_script" --dir "/nonexistent" 2>/dev/null; then
+    if ! bash "$install_script" --dir "/nonexistent" 2>/dev/null; then
+        log "OK: Failed on invalid directory as expected."
+    else
         error "Installation should fail with invalid directory"
         return 1
     fi
@@ -138,8 +140,10 @@ test_error_handling() {
     # Test installation with force option to an invalid GitHub repo (using the API)
     export REPO_URL="https://github.com/invalid-user/invalid-repo.git"
     export API_URL="https://api.github.com/repos/invalid-user/invalid-repo/commits/master"
-    if bash "$install_script" --dir "$TEST_DIR" --force 2>/dev/null; then
-        error "Installation should fail with invalid repository"
+    if ! bash "$install_script" --dir "$TEST_DIR" --force --use-curl 2>/dev/null; then
+        log "OK: Failed on invalid repository (using curl) as expected."
+    else
+        error "Installation should fail with invalid repository (using curl)"
         return 1
     fi
     

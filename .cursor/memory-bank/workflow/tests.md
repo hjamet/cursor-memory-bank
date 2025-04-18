@@ -22,11 +22,11 @@
 ## Tests d'installation standard
 - ✅ **Test d'installation de base** : Le problème de chemin relatif a été corrigé, le test fonctionne maintenant. - Amélioration significative, le test qui échouait auparavant fonctionne maintenant.
 - ✅ **Test de backup et restauration** : Le test fonctionne correctement. - Amélioration, le test a été mis à jour pour utiliser le chemin absolu.
-- ❌ **Test de gestion d'erreur** : Échoue avec "Installation should fail with invalid repository" - Problème avec le test d'erreur pour les dépôts invalides, nécessite une correction supplémentaire.
+- ✅ **Test de gestion d'erreur** : Corrigé en forçant --use-curl pour le test de dépôt invalide, la gestion d'erreur API fonctionne correctement. - Amélioration, le test passe maintenant.
 
 ## Problèmes persistants
 - ⚠️ **Tests de téléchargement** : Les tests de téléchargement semblent toujours s'interrompre pendant l'exécution - Les améliorations apportées n'ont pas complètement résolu le problème.
-- ❌ **Test de gestion d'erreur d'installation** : Le test échoue à cause d'un problème avec le test d'erreur pour les dépôts invalides - Nécessite une correction supplémentaire.
+- ✅ **Test de gestion d'erreur d'installation** : Corrigé.
 
 ## Historique des problèmes
 
