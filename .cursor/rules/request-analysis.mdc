@@ -96,3 +96,8 @@ I must now call the task-decomposition rule because the request requires multipl
 The task-decomposition rule must be called to decompose the request into specific tasks. **(Request-analysis: 6 - Call next rule)**
 
 fetch_rules ["task-decomposition"]
+
+# Task-decomposition: 1 - Task preparation
+I analyze the request summary to determine the necessary tasks. **(Task-decomposition: 1 - Task preparation)**
+
+[...] (The workflow must continue uninterrupted: the agent executes the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

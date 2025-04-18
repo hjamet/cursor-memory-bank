@@ -3,7 +3,6 @@ description: Call this rule to create unit tests for new features
 globs: 
 alwaysApply: false
 ---
-
 ## TLDR
 Create unit tests for implemented features following testing best practices.
 
@@ -11,12 +10,12 @@ Create unit tests for implemented features following testing best practices.
 
 1. **Feature analysis**: Identify what needs to be tested
    - Examine modified/created files to find behaviors to test
-   - List necessary test cases (normal and edge cases)
+   - List necessary test cases (basic behavior only)
    - After each tool call, write **(Test-implementation - 1.[Feature name] in progress...)**
 
 2. **Test creation**: For each feature
    - Create a test file in the `tests/` folder starting with `test_`
-   - Implement tests for normal behavior and simple edge cases
+   - Implement a single test focusing on basic, expected behavior
    - Use the format defined in the test-files editing rule
    - After each tool call, write **(Test-implementation - 2.[Test name] in progress...)**
 
@@ -25,7 +24,8 @@ Create unit tests for implemented features following testing best practices.
 ## Specifics
 
 - Verify expected behavior, not internal implementation
-- Create only classic usage tests, avoid unnecessary complexity
+- STRICTLY create only one test per function/method, focusing solely on its basic intended behavior. DO NOT test edge cases, error conditions, or complex scenarios.
+- Create only classic usage tests, focusing on basic behavior
 - Use descriptive names clearly explaining what is being tested
 - All test files must begin with `test_` and be placed in the `tests/` folder
 - Include logging using `src/utils/logger.py` if the code is in Python
@@ -58,3 +58,8 @@ I must now call the test-execution rule to execute the tests.
 The test-execution rule must be called to execute and analyze the tests. **(Test-implementation: 3 - Call next rule)**
 
 fetch_rules ["test-execution"]
+
+# Test-execution: 1 - Test execution
+I begin by executing the unit tests. **(Test-execution: 1 - Test execution)**
+
+[...] (The workflow must continue uninterrupted: the agent executes the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

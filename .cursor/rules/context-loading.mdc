@@ -3,7 +3,6 @@ description: Call this rule to load the objectives and overall context of the pr
 globs: 
 alwaysApply: false
 ---
-
 ## TLDR
 Load or create project context files to establish the working environment.
 
@@ -56,3 +55,8 @@ I'm now checking the content of `.cursor/memory-bank/userbrief.md` to determine 
 I've found that `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment starting with ⬜, so I need to call the consolidate-repo rule. **(Context-loading: 4 - Calling the next rule)**
 
 fetch_rules ["consolidate-repo"]
+
+# Consolidate-repo: 1 - Processing userbrief.md
+I begin by analyzing the content of the "User Input" section in `.cursor/memory-bank/userbrief.md`. (Consolidate-repo: 1 - Processing userbrief.md)
+
+[...] (The workflow must continue uninterrupted: the agent executes the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

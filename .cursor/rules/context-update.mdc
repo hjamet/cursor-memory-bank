@@ -3,7 +3,6 @@ description: Call this rule to update context files and commit the changes.
 globs: 
 alwaysApply: false
 ---
-
 ## TLDR
 Update context files to reflect changes, update tasks.md based on test results, and make a commit following conventions.
 
@@ -145,3 +144,8 @@ I now check the tests and remaining tasks to determine which rule to call. **(Co
 I see there are tasks left to do and all tests pass. I will therefore call the `implementation` rule. **(Context-update: 6 - Calling the next rule)**
 
 fetch_rules ["implementation"]
+
+# Implementation: 1 - Task analysis
+I begin by reading the tasks.md file to identify the highest priority section. **(Implementation: 1 - Task analysis)**
+
+[...] (The workflow must continue uninterrupted: the agent executes the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

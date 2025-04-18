@@ -131,3 +131,8 @@ I must now call the `test-implementation` rule because I created a new testable 
 The test-implementation rule must be called to create tests for the new feature. **(Implementation: 5 - Calling the next rule)**
 
 fetch_rules ["test-implementation"]
+
+# Test-implementation: 1 - Feature analysis
+I begin by identifying features to test. **(Test-implementation: 1 - Feature analysis)**
+
+[...] (The workflow must continue uninterrupted: the agent executes the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

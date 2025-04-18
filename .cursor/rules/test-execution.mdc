@@ -74,3 +74,8 @@ I must now call the appropriate rule based on test results. **(Test-execution: 4
 I note that [description of test status changes]. I will therefore call the [fix/context-update] rule because we have two tests that have progressed and no regression. **(Test-execution: 4 - Call next rule)**
 
 fetch_rules ["context-update"]
+
+# Context-update: 1 - Context update
+I begin by updating the context files to reflect changes. **(Context-update: 1 - Context update)**
+
+[...] (The workflow must continue uninterrupted: the agent executes the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

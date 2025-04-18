@@ -3,7 +3,6 @@ description: Rule to consolidate the repository, manage userbrief.md, and mainta
 globs: 
 alwaysApply: false
 ---
-
 ## TLDR
 Repository consolidation, transformation of user requests into tasks, cleaning userbrief.md, and verification of memory files integrity.
 
@@ -82,7 +81,7 @@ tests/                       # Unit and integration tests
 fetch_rules ["consolidate-repo"]
 
 # Consolidate-repo: 1 - Processing userbrief.md
-I begin by analyzing the content of the "User Input" section in `.cursor/memory-bank/userbrief.md`. (Consolidate-repo: 1 - Processing userbrief.md)
+I begin by analyzing the content of `.cursor/memory-bank/userbrief.md`. (Consolidate-repo: 1 - Processing userbrief.md)
 [...reading and analyzing userbrief.md content...]
 I've identified several user requests that I will mark as follows:
 - Tasks to perform: 🔄 (moving to "Processing")
@@ -113,3 +112,8 @@ I found the following requests in the userbrief.md file:
 I will now call the request-analysis rule to process these requests. **(Consolidate-repo: 5 - Evaluation of user requests)**
 
 fetch_rules ["request-analysis"]
+
+# Request-analysis: 1 - Request analysis
+I begin by analyzing the user's request to properly understand their demand. **(Request-analysis: 1 - Request analysis)**
+
+[...] (The workflow must continue uninterrupted: the agent executes the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

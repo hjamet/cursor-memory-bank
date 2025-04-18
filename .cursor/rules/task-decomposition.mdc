@@ -3,7 +3,6 @@ description: Call this rule to analyze the user's request in detail and situate 
 globs: 
 alwaysApply: false
 ---
-
 ## TLDR
 Decompose user request into concrete tasks and organize them in tasks.md by numbered logical sections.
 
@@ -76,3 +75,8 @@ I must now call the implementation rule to begin work on the tasks.
 The implementation rule must be called to begin implementing the tasks. **(Task-decomposition: 5 - Call next rule)**
 
 fetch_rules ["implementation"]
+
+# Implementation: 1 - Task analysis
+I begin by reading the tasks.md file to identify the highest priority section. **(Implementation: 1 - Task analysis)**
+
+[...] (The workflow must continue uninterrupted: the agent executes the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

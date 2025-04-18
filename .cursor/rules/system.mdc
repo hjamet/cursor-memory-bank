@@ -3,9 +3,8 @@ description: Call this rule to understand and initialize Cursor's autonomous age
 globs: 
 alwaysApply: false
 ---
-
 ## TLDR
-You are Cursor, an AI agent using the Memory Bank, a contextual storage system that maintains continuity between sessions via an organized file structure.
+You are Cursor, an AI agent using the Memory Bank, a contextual storage system that maintains continuity between sessions via an organized file structure. You operate **autonomously**, transitioning between rules immediately upon completion.
 
 ## File Structure
 ```
@@ -36,65 +35,44 @@ You function as a state machine where each rule represents a state with specific
 - After each action (tool call, comment), recall your current state in parentheses:
 Example: "I will now read [...] **(Implementation: 2 - Context retrieval)**"
 
+## AUTONOMOUS EXECUTION
+
+- **Continuous Flow**: The agent operates autonomously. Upon completing the instructions of a rule, it **immediately** fetches and begins executing the next designated rule without pausing for user confirmation.
+- **No Pauses**: Do NOT stop or wait for user input between rules unless a rule explicitly requires it for decision-making.
+- **User Interruption**: The user can interrupt the autonomous workflow at any point by sending a message. Address the user's message and then resume the workflow, potentially using the `workflow-perdu` rule if context is lost.
+
 ## ⚠️ STARTUP AND FINALIZATION ⚠️
 
 - MANDATORY: Always start by calling `context-loading` to start the workflow, unless the last executed rule was `workflow-perdu`
-- For each new user message, restart the workflow with `context-loading`
+- For each new user message that interrupts the flow, restart the workflow appropriately, often starting with `context-loading` or `request-analysis` depending on the message content.
 - The workflow is only completed when the `context-update` rule confirms that all tasks are completed and all tests validated
 
 ## ⚠️ CALLING THE NEXT RULE ⚠️
 
-- MANDATORY: Explicitly call the next rule after complete execution of a rule
-- Use only the syntax: `fetch_rules ["rule-name"]`
-- After the call, recite EXACTLY the phrase indicated in the START RULE section
-- Never end your execution without explicitly calling the next rule
+- MANDATORY: Explicitly call the next rule using `fetch_rules ["rule-name"]` after completing all instructions of the current rule.
+- **Immediate Execution**: After the `fetch_rules` call, immediately proceed to execute the first instruction of the fetched rule.
+- Do **not** recite any specific phrase before starting the next rule; simply begin its execution, starting with its first title and step indication.
 
 ## Absolute Rule
 
-Follow the workflow STRICTLY. Never anticipate the next steps and limit yourself only to the instructions of the current rule.
+Follow the workflow STRICTLY. Execute rules sequentially and autonomously. Never anticipate steps beyond the current rule's instructions before completing them.
 
 ## Next Rules
 - `request-analysis` - Detailed analysis of user request
 
-## Example
-
-fetch_rules ["context-update"]
-
-# Context-update: 1 - Updating context files
-I begin by updating the context files to reflect the changes. **(Context-update: 1 - Updating context files)**
-[...updating projectBrief.md file...]
-**(Context-update: 1 - Updating context files)**
-[...updating activeContext.md file...]
-**(Context-update: 1 - Updating context files)**
-[...updating techContext.md file...]
-**(Context-update: 1 - Updating context files)**
-
-# Context-update: 2 - Cleaning context files
-I clean the context files by removing obsolete information. **(Context-update: 2 - Cleaning context files)**
-[...cleaning projectBrief.md file...]
-**(Context-update: 2 - Cleaning context files)**
-[...cleaning activeContext.md file...]
-**(Context-update: 2 - Cleaning context files)**
-[...cleaning techContext.md file...]
-**(Context-update: 2 - Cleaning context files)**
-
-# Context-update: 3 - Updating tasks.md file
-I update the tasks.md file by moving completed tasks to Done. **(Context-update: 3 - Updating tasks.md file)**
-[...updating tasks.md file...]
-**(Context-update: 3 - Updating tasks.md file)**
-
-# Context-update: 4 - Making a commit
-I prepare and make a commit with the changes made. **(Context-update: 4 - Making a commit)**
-[...creating commit...]
-**(Context-update: 4 - Making a commit)**
-
-# Context-update: 5 - Checking if workflow is complete
-I check if there are remaining tasks to do or tests to fix.
-[...checking workflow...]
-Everything looks correct, let's move on. **(Context-update: 5 - Checking if workflow is complete)**
+## Example (Illustrating Continuous Flow)
 
 # Context-update: 6 - Calling the next rule
 I now need to call the implementation rule because there are still tasks to do.
 The implementation rule must be called to continue work on the remaining tasks. **(Context-update: 6 - Calling the next rule)**
 
 fetch_rules ["implementation"]
+
+# Implementation: 1 - Task analysis
+I begin by reading the tasks.md file to identify the highest priority section. **(Implementation: 1 - Task analysis)**
+[...reading tasks.md file...]
+**(Implementation: 1 - Task analysis)**
+
+# Implementation: 2 - Active context update
+I will update the active context... **(Implementation: 2 - Active context update)**
+[...]
