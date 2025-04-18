@@ -1,5 +1,9 @@
 # In Progress
 
+# ToDo
+
+# Done
+
 ## 1. Cleanup
 [ x ] **1.1 Delete `workflow-propositions.md` file.**
     - Description: User has reviewed the proposals and requested deletion of the file.
@@ -7,21 +11,14 @@
     - Dependencies: None
     - Validation: Verify file deletion using `ls` or `find`.
 
-# ToDo
-
 ## 12. Cleanup Temporary Files
-12.1. [ ] **Clean the tmp directory**: Remove the temporary test directories.
+[ x ] **12.1. Clean the tmp directory**: Remove the temporary test directories.
 - Actions:
   1. Add `tmp/` to `.gitignore`.
   2. Implement a mechanism (e.g., in tests or a separate script) to clean the `tmp/` directory regularly or after tests.
 - Fichiers: `.gitignore`, `tests/*`
 - Dépendances: Aucune
 - Validation: The `tmp/` directory is cleaned appropriately. 
-
-# Done
-
-## 1. Cleanup
-[ x ] **1.1 Delete `workflow-propositions.md` file.**
 
 ## 13. Workflow Improvement Proposals
 [ x ] **13.1 Analyze current workflow and identify areas for thoughtful improvement.**

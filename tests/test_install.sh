@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# Ensure tmp directory is clean
+rm -rf tmp/
+mkdir -p tmp/
+
+# Source the main install script to test its functions
+# Determine the script's directory
+SCRIPT_DIR=$(cd $(dirname $0) && pwd)
+
+# Source the main install script
+# Assuming install.sh is in the parent directory
+source "$SCRIPT_DIR/../install.sh"
+
 # Tests for the installation script
 
 # Set up test environment

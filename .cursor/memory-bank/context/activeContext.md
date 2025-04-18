@@ -1,6 +1,6 @@
 # Active Context
 
-**Current State:** Completed Implementation phase for modifying the test-implementation rule. Moving to Context Update.
+**Current State:** Completed Test Execution phase after implementing tmp cleanup. Moving to Context Update.
 
 **Ongoing Task:** Update context files, tasks.md, verify integrity, and commit changes.
 
@@ -18,10 +18,18 @@
     - Test only basic, expected behavior.
     - Explicitly forbid testing edge cases or special conditions.
 - **Goal**: Update the rule's instructions and specifics to reflect this constraint clearly.
+- **Task**: 12.1 Clean the tmp directory
+- **Description**: Remove temporary test directories.
+- **Actions**:
+    1. Add `tmp/` to `.gitignore`.
+    2. Implement mechanism (in tests or separate script) to clean `tmp/` regularly or after tests.
+- **Files**: `.gitignore`, `tests/*`
+- **Validation**: The `tmp/` directory is cleaned appropriately.
 
 ## Problèmes Résolus
 - MCP memory integration tasks completed.
 - Updated `test-implementation` rule to enforce minimal testing (max 1 basic test/function, no edge cases).
+- Implemented tmp/ directory cleanup in test scripts.
 
 ## Problèmes Persistants
 - N/A

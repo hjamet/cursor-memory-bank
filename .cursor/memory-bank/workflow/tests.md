@@ -7,10 +7,10 @@
 - ✅ **Test d'affichage de la date du dernier commit (curl)** : Test passé correctement - Stable, continue de fonctionner après les modifications.
 
 ## Tests de téléchargement
-- ✅ **Test de téléchargement de fichier** : Test passe correctement. - Corrigé.
-- ✅ **Test d'URL invalide** : Test passe correctement. - Corrigé.
-- ✅ **Test de téléchargement d'archive** : Test passe correctement (ou est sauté si fonction non dispo). - Corrigé.
-- ✅ **Test d'URL d'archive invalide** : Test passe correctement (ou est sauté si fonction non dispo). - Corrigé.
+- ✅ **Test de téléchargement de fichier** : Test passe correctement. - Stable after tmp cleanup addition.
+- ✅ **Test d'URL invalide** : Test passe correctement. - Stable after tmp cleanup addition.
+- ✅ **Test de téléchargement d'archive** : Test passe correctement (ou est sauté si fonction non dispo). - Stable after tmp cleanup addition.
+- ✅ **Test d'URL d'archive invalide** : Test passe correctement (ou est sauté si fonction non dispo). - Stable after tmp cleanup addition.
 
 ## Tests d'installation via git
 - ✅ **Test d'installation de base** : L'installation de base via git continue de fonctionner correctement. - Stable.
@@ -21,9 +21,9 @@
 - ✅ **Test d'affichage de la date du dernier commit (git)** : Test passé correctement - Stable, continue de fonctionner après les modifications.
 
 ## Tests d'installation standard
-- ✅ **Test d'installation de base** : Le problème de chemin relatif a été corrigé, le test fonctionne maintenant. - Amélioration significative, le test qui échouait auparavant fonctionne maintenant.
-- ✅ **Test de backup et restauration** : Le test fonctionne correctement. - Amélioration, le test a été mis à jour pour utiliser le chemin absolu.
-- ✅ **Test de gestion d'erreur** : Corrigé en forçant --use-curl pour le test de dépôt invalide, la gestion d'erreur API fonctionne correctement. - Amélioration, le test passe maintenant.
+- ✅ **Test d'installation de base** : Le problème de chemin relatif a été corrigé, le test fonctionne maintenant. - Stable after tmp cleanup addition.
+- ✅ **Test de backup et restauration** : Le test fonctionne correctement. - Stable after tmp cleanup addition.
+- ✅ **Test de gestion d'erreur** : Corrigé en forçant --use-curl pour le test de dépôt invalide, la gestion d'erreur API fonctionne correctement. - Stable after tmp cleanup addition.
 
 ## Problèmes persistants
 - ✅ **Tests de téléchargement** : Corrigé en isolant les fonctions de test.

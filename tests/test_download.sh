@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Ensure tmp directory is clean
+rm -rf tmp/
+mkdir -p tmp/
+
 # Test Download Functionality
 #
 # This file contains tests for the download functionality.
