@@ -1,32 +1,31 @@
-# Contexte Actif
+# Active Context
 
-## Focus Actuel
-Le focus actuel est sur l'amélioration du script d'installation en bannissant l'utilisation de l'ARCHIVE_URL au profit d'une approche utilisant directement l'API GitHub ou la branche master, et en promouvant curl comme méthode d'installation par défaut dans la documentation.
+**Current State:** Completed implementation of MCP memory integration into workflow rules (`request-analysis`, `implementation`, `fix`).
+
+**Ongoing Task:** Finalizing changes and checking workflow status.
+
+## Current implementation context
+- **Tasks performed:** Modified the three rules (`request-analysis`, `implementation`, `fix`) to add optional calls to `mcp_servers_search_nodes` for retrieving relevant memories and `mcp_servers_add_observations` for storing new memories.
+- **Logic Applied:** Integrated memory access at logical points within each rule's workflow (start/end of analysis, before/after implementation, start/end of fix cycle).
+- **Relevant Info:** Web search confirmed the value of knowledge graphs for persistent agent memory.
+- **Attention Points:** Ensured MCP tool calls are optional steps to maintain core rule functionality even without MCP interaction. Maintained use of `.cursor/memory-bank` files.
+- **Technical Decisions:** Added placeholders for MCP calls, specific content for observations will depend on runtime context.
 
 ## Problèmes Résolus
-- Tous les principaux tests passent correctement :
-  - Test d'installation via curl : Fonctionne correctement avec la nouvelle implémentation
-  - Test d'installation via git : Continue de fonctionner sans problème
-  - Test d'installation standard : Corrigé le problème de chemin relatif
+- MCP memory integration tasks completed.
 
 ## Problèmes Persistants
-- Les tests de téléchargement s'interrompent toujours pendant l'exécution
-- Le test de gestion d'erreur d'installation échoue avec l'erreur "Installation should fail with invalid repository"
+- N/A
 
 ## Décisions Récentes
-- [2023-03-28] - Bannissement de l'ARCHIVE_URL au profit de l'API GitHub pour les téléchargements
-- [2023-03-28] - Modification du README pour présenter curl comme méthode d'installation par défaut
-- [2023-03-28] - Correction des tests d'installation standard pour utiliser des chemins absolus
-- [2023-03-28] - Adaptation des tests de téléchargement d'archive pour gérer le cas où la fonction n'est pas disponible
-- [2023-03-28] - Implémentation de la récupération de la date du dernier commit pour les installations Git et curl
-- [2023-03-28] - Amélioration du script pour afficher la date du dernier commit pendant l'installation et dans --version
-- [2023-03-28] - Correction définitive du problème de backup persistant en réorganisant le code de préservation des règles
+- [Current Date] - Completed modifications to `request-analysis.mdc`, `implementation.mdc`, and `fix.mdc`.
+- [Current Date] - Decision to decompose the request into three distinct tasks, one for each rule modification.
 
 ## Prochaines Étapes
-- Résoudre le problème d'interruption des tests de téléchargement
-- Corriger le test de gestion d'erreur d'installation pour les dépôts invalides
-- Finaliser la transition vers une approche sans archive
-- Effectuer une révision complète de tous les tests pour s'assurer de leur stabilité
+- Update `tasks.md`.
+- Verify file integrity.
+- Commit changes.
+- Check overall workflow status (tests/remaining tasks).
 
 ## Notes Importantes
-La modification majeure consiste à remplacer l'utilisation de l'archive tar.gz par un téléchargement direct des fichiers via l'API GitHub pour la méthode d'installation curl, rendant le processus plus direct et moins sujet aux erreurs. La méthode curl est maintenant présentée comme méthode d'installation par défaut dans le README, reflétant sa simplicité d'utilisation. 
+The integration adds optional memory capabilities using MCP servers, enhancing the agent's context without altering the fundamental rule structures. 

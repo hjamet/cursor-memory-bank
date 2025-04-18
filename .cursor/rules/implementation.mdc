@@ -3,7 +3,6 @@ description: Call this rule to implement the project's priority tasks.
 globs: 
 alwaysApply: false
 ---
-
 ## TLDR
 Methodically implement tasks from a priority section and document the process.
 
@@ -26,10 +25,12 @@ Methodically implement tasks from a priority section and document the process.
 
 3. **Task implementation**: For each task in the section
    - Display: `## Implementation - 3.number.[Section Name]: [Task Title]`
+   - **(Optional) Memory Lookup**: Before starting, use `mcp_servers_search_nodes` to find relevant patterns, past implementations, or frequent errors related to the task/files.
    - Evaluate if the task is complex and requires in-depth reflection
    - If yes, use the think token: `<think>In-depth reflection using chain of thought, comparison of different implementation approaches, etc.</think>`
    - Briefly summarize the conclusions of the reflection if applicable
    - Implement the solution
+   - **(Optional) Memory Storage**: After implementation, use `mcp_servers_add_observations` to store key implementation details, decisions made (especially from `<think>`), or encountered issues/solutions in the knowledge graph, associated with an entity like 'ImplementationLog' or 'CodePattern'.
    - After each tool call, write **(Implementation - 3.number.[Section Name]: [Task Title] in progress...)**
 
 4. **Task update**: Update tasks.md
@@ -78,6 +79,8 @@ I will update the active context to document what I will be working on. **(Imple
 I will implement each task in the section following a methodical approach. **(Implementation: 3 - Task implementation)**
 
 ## Implementation - 3.1.Development: Script creation
+*(Optional) I search the knowledge graph for existing patterns or past issues related to script creation: [...]*
+`mcp_servers_search_nodes(...)`
 This task is complex and requires in-depth reflection.
 
 <think>
@@ -101,13 +104,19 @@ After reflection, I determined that the best approach is to use a modular archit
 
 I begin by creating the main script with the required functionalities. **(Implementation: 3.1 - Script creation)**
 [...script implementation...]
+*(Optional) I store the key implementation details and decisions in the knowledge graph.*
+`mcp_servers_add_observations(...)`
 **(Implementation - 3.1.Development: Script creation in progress...)**
 [...implementation continuation...]
 **(Implementation: 3.1 - Script creation)**
 
 ## Implementation - 3.2.Development: Documentation
+*(Optional) I search the knowledge graph for documentation standards or examples: [...]*
+`mcp_servers_search_nodes(...)`
 I add the necessary documentation to explain how the script works. **(Implementation: 3.2 - Documentation)**
 [...adding documentation...]
+*(Optional) I store notes about the documentation process or standards applied.*
+`mcp_servers_add_observations(...)`
 **(Implementation - 3.2.Development: Documentation in progress...)**
 [...documentation finalization...]
 **(Implementation: 3.2 - Documentation)**

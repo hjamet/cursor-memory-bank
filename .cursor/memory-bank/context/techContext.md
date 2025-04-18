@@ -1,4 +1,13 @@
-# Contexte Technique
+# Technical Context
+
+**Core Technologies:**
+- Cursor AI Agent
+- Markdown (`.md`, `.mdc` for rules)
+- MCP Servers (specifically `mcp_servers_*` tools for knowledge graph/memory)
+
+**Dependencies:**
+- Access to `mcp_servers_create_entities`, `mcp_servers_create_relations`, `mcp_servers_add_observations`, `mcp_servers_search_nodes`, etc. (Used for agent's knowledge graph memory within workflow rules)
+- Underlying Cursor infrastructure for rule execution and tool calls.
 
 ## Pile Technologique
 - **Langages**: Bash, Markdown

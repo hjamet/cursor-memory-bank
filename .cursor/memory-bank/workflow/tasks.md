@@ -1,5 +1,36 @@
 # In Progress
 
+## 1. Intégration Mémoire MCP au Workflow
+1.1. [x] **Modifier la règle `request-analysis`** : Intégrer l'utilisation de la mémoire MCP (via `mcp_servers_*`) pour consulter les analyses précédentes et sauvegarder le contexte de l'analyse actuelle.
+- Actions: 
+  1. Identifier les étapes pertinentes dans la règle pour consulter la mémoire (ex: début d'analyse).
+  2. Ajouter un appel à `mcp_servers_search_nodes` (ou similaire) pour rechercher des analyses pertinentes.
+  3. Identifier les étapes pertinentes pour sauvegarder le contexte (ex: fin d'analyse).
+  4. Ajouter un appel à `mcp_servers_add_observations` (ou similaire) pour stocker les éléments clés de l'analyse.
+- Fichiers: `.cursor/rules/request-analysis.mdc`
+- Dépendances: Aucune
+- Validation: La règle `request-analysis.mdc` contient des appels aux outils MCP pour la recherche et la sauvegarde d'informations.
+
+1.2. [x] **Modifier la règle `implementation`** : Intégrer l'utilisation de la mémoire MCP pour consulter des patterns de code, erreurs fréquentes et sauvegarder les détails/décisions d'implémentation.
+- Actions:
+  1. Identifier les étapes pertinentes pour consulter la mémoire (ex: avant l'implémentation d'une tâche complexe).
+  2. Ajouter un appel à `mcp_servers_search_nodes` (ou similaire) pour rechercher des patterns/erreurs similaires.
+  3. Identifier les étapes pertinentes pour sauvegarder les détails (ex: après une réflexion `<think>`, après l'implémentation).
+  4. Ajouter un appel à `mcp_servers_add_observations` (ou similaire) pour stocker les décisions et le résumé de l'implémentation.
+- Fichiers: `.cursor/rules/implementation.mdc`
+- Dépendances: Aucune
+- Validation: La règle `implementation.mdc` contient des appels aux outils MCP pour la recherche et la sauvegarde d'informations.
+
+1.3. [x] **Modifier la règle `fix`** : Intégrer l'utilisation de la mémoire MCP pour consulter des erreurs fréquentes/solutions et sauvegarder les informations sur les erreurs nouvellement corrigées.
+- Actions:
+  1. Identifier les étapes pertinentes pour consulter la mémoire (ex: lors de l'analyse d'une erreur de test).
+  2. Ajouter un appel à `mcp_servers_search_nodes` (ou similaire) pour rechercher des erreurs/solutions similaires.
+  3. Identifier les étapes pertinentes pour sauvegarder les détails (ex: après la correction réussie d'un test).
+  4. Ajouter un appel à `mcp_servers_add_observations` (ou similaire) pour stocker les détails de l'erreur et sa solution.
+- Fichiers: `.cursor/rules/fix.mdc`
+- Dépendances: Aucune
+- Validation: La règle `fix.mdc` contient des appels aux outils MCP pour la recherche et la sauvegarde d'informations.
+
 ## 8. Corrections des tests curl
 8.1. [x] **Corriger la création du répertoire de logs** : Résoudre le problème de création des logs dans les tests curl.
 - Actions: 
@@ -30,21 +61,6 @@
 - Validation: Le test de gestion d'erreur curl passe correctement
 
 # ToDo
-
-# Done
-
-## 1. Correction des références à la branche
-1.1. [x] **Corriger les références à "main" dans le README** : Remplacer toutes les occurrences de la branche "main" par "master" dans le README.
-- Actions: Identifier et remplacer les références à la branche "main" par "master" dans le README.md (lignes 51 et 57)
-- Fichiers: README.md
-- Dépendances: Aucune
-- Validation: Toutes les URL pointent vers la branche "master" au lieu de "main"
-
-1.2. [x] **Corriger les références à "main" dans les tests** : Remplacer toutes les occurrences de la branche "main" par "master" dans les fichiers de test.
-- Actions: Identifier et remplacer les références à la branche "main" par "master" dans tests/test_curl_install.sh (lignes 86 et 133)
-- Fichiers: tests/test_curl_install.sh
-- Dépendances: Aucune
-- Validation: Toutes les URL pointent vers la branche "master" au lieu de "main"
 
 ## 2. Amélioration du script d'installation
 2.1. [x] **Désactiver le backup par défaut** : Modifier le script d'installation pour que l'option de backup soit désactivée par défaut.
@@ -219,3 +235,36 @@
 - Fichiers: tests/test_install.sh
 - Dépendances: Aucune
 - Validation: Le test test_install.sh s'exécute sans erreur "No such file or directory" 
+
+# Done
+
+## 1. Intégration Mémoire MCP au Workflow
+1.1. [x] **Modifier la règle `request-analysis`** : Intégrer l'utilisation de la mémoire MCP (via `mcp_servers_*`) pour consulter les analyses précédentes et sauvegarder le contexte de l'analyse actuelle.
+- Actions: 
+  1. Identifier les étapes pertinentes dans la règle pour consulter la mémoire (ex: début d'analyse).
+  2. Ajouter un appel à `mcp_servers_search_nodes` (ou similaire) pour rechercher des analyses pertinentes.
+  3. Identifier les étapes pertinentes pour sauvegarder le contexte (ex: fin d'analyse).
+  4. Ajouter un appel à `mcp_servers_add_observations` (ou similaire) pour stocker les éléments clés de l'analyse.
+- Fichiers: `.cursor/rules/request-analysis.mdc`
+- Dépendances: Aucune
+- Validation: La règle `request-analysis.mdc` contient des appels aux outils MCP pour la recherche et la sauvegarde d'informations.
+
+1.2. [x] **Modifier la règle `implementation`** : Intégrer l'utilisation de la mémoire MCP pour consulter des patterns de code, erreurs fréquentes et sauvegarder les détails/décisions d'implémentation.
+- Actions:
+  1. Identifier les étapes pertinentes pour consulter la mémoire (ex: avant l'implémentation d'une tâche complexe).
+  2. Ajouter un appel à `mcp_servers_search_nodes` (ou similaire) pour rechercher des patterns/erreurs similaires.
+  3. Identifier les étapes pertinentes pour sauvegarder les détails (ex: après une réflexion `<think>`, après l'implémentation).
+  4. Ajouter un appel à `mcp_servers_add_observations` (ou similaire) pour stocker les décisions et le résumé de l'implémentation.
+- Fichiers: `.cursor/rules/implementation.mdc`
+- Dépendances: Aucune
+- Validation: La règle `implementation.mdc` contient des appels aux outils MCP pour la recherche et la sauvegarde d'informations.
+
+1.3. [x] **Modifier la règle `fix`** : Intégrer l'utilisation de la mémoire MCP pour consulter des erreurs fréquentes/solutions et sauvegarder les informations sur les erreurs nouvellement corrigées.
+- Actions:
+  1. Identifier les étapes pertinentes pour consulter la mémoire (ex: lors de l'analyse d'une erreur de test).
+  2. Ajouter un appel à `mcp_servers_search_nodes` (ou similaire) pour rechercher des erreurs/solutions similaires.
+  3. Identifier les étapes pertinentes pour sauvegarder les détails (ex: après la correction réussie d'un test).
+  4. Ajouter un appel à `mcp_servers_add_observations` (ou similaire) pour stocker les détails de l'erreur et sa solution.
+- Fichiers: `.cursor/rules/fix.mdc`
+- Dépendances: Aucune
+- Validation: La règle `fix.mdc` contient des appels aux outils MCP pour la recherche et la sauvegarde d'informations. 

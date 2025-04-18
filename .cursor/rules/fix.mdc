@@ -1,9 +1,8 @@
 ---
 description: Call this rule to analyze and correct test errors via an iterative execution-correction loop
-globs:
+globs: 
 alwaysApply: false
 ---
-
 ## TLDR
 Analyze test errors and fix them through an iterative execution-correction loop until all tests pass or truly complex issues (requiring major refactoring or showing no progress after 3 attempts) are identified and handed over to `request-analysis`.
 
@@ -16,14 +15,17 @@ Analyze test errors and fix them through an iterative execution-correction loop 
 
 2.  **Correction loop**: For each failing test, iterate until fixed or handed over
     *   **2.1 Marking**: Always indicate **(Fix: 2 - Correction loop - [Test name] - Iteration [number])**
-    *   **2.2 Analysis**: Examine only files involved in the error and identify the cause. If you are not entirely certain about the correction to be made. Don't hesitate to use the `<think></think>` tags. Don't hesitate either to use the codebase search tool !
+    *   **2.2 Analysis**: 
+        *   **(Optional) Memory Lookup**: Use `mcp_servers_search_nodes` with error message/test name to find similar past errors and their solutions in the knowledge graph.
+        *   Examine only files involved in the error and identify the cause. If you are not entirely certain about the correction to be made. Don't hesitate to use the `<think></think>` tags. Don't hesitate either to use the codebase search tool !
     *   **2.3 Research**: If needed, use the web to find solutions for specific errors
     *   **2.4 Implementation**: Make the correction and document the changes
     *   **2.5 Test**: Execute ONLY the specific test currently being fixed and analyze the result:
         *   If test passes :
             * **2.5.1 Update tests.md**: If the test passes, update the `.cursor/memory-bank/workflow/tests.md` file to reflect the new status of the test. Write **(Fix: 2 - Correction loop - [Test name] - Implementation [number] completed)** after this step.
             * **2.5.2 Quick commit** : Use the command `git commit -m "Message" files` to commit the changes made to the files involved in the test. The message should look like that : **:wrench: fix: test_name - quick fix explanation**.
-            * **2.5.2 Continue**: Move to the next failing test in the list and repeat the loop from step 2.1.
+            * **(Optional) Memory Storage**: Use `mcp_servers_add_observations` to store details of the error, the successful fix, and relevant context (e.g., files modified, iteration count) in the knowledge graph, associated with an entity like 'TestErrorSolution'.
+            * **2.5.3 Continue**: Move to the next failing test in the list and repeat the loop from step 2.1.
         *   If test fails but shows progress → Continue loop with new iteration for the *same* test.
         *   If **truly complex correction** (after 3 attempts *without any progress* OR requires *major* refactoring / a completely new implementation approach):
             *   Mark the test as **(Fix: 2 - Correction loop - [Test name] - Handing over to request-analysis)**
@@ -76,6 +78,8 @@ I've identified the following failing tests:
 **(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1)**
 
 ## 2.2 Analysis
+*(Optional) I search the knowledge graph for similar errors: [...]*
+`mcp_servers_search_nodes(...)`
 [...examining authentication code files...]
 
 <think>
@@ -93,7 +97,10 @@ The error occurs because we're trying to JSON serialize a bytes object. Decoding
 [...running the specific authentication test...]
 **(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Test execution 1)**
 
-Great! The test now passes. Moving to the next failing test.
+Great! The test now passes. 
+*(Optional) I store the details of the fix in the knowledge graph.*
+`mcp_servers_add_observations(...)`
+Moving to the next failing test.
 
 # Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1
 **(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1)**
