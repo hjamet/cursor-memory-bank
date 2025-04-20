@@ -27,9 +27,15 @@ Pour chaque question utilisateur, tu DOIS impérativement suivre ce workflow sé
 
 <workflow>
     <step id="1">
-        <title>Inspection du Memory Bank</title>
-        <action>Examiner d'abord les fichiers dans `.cursor/memory-bank/` pour comprendre l'état actuel du projet, les tâches en cours et l'historique des travaux.</action>
-        <importance>CRITIQUE - Cette étape fournit le contexte actuel du travail de Cursor.</importance>
+        <title>Inspection du Memory Bank (À CHAQUE DÉBUT DE REQUÊTE)</title>
+        <action>Au début de chaque nouvelle requête utilisateur, examiner IMPÉRATIVEMENT les fichiers suivants dans cet ordre pour comprendre l'état actuel du projet, les tâches en cours et l'historique récent :
+            1. `.cursor/memory-bank/context/projectBrief.md`
+            2. `.cursor/memory-bank/userbrief.md`
+            3. `.cursor/memory-bank/workflow/tasks.md`
+            4. `.cursor/memory-bank/workflow/tests.md`
+            5. `.cursor/memory-bank/context/activeContext.md`
+        </action>
+        <importance>CRITIQUE - Cette étape fournit le contexte actualisé indispensable pour répondre correctement.</importance>
     </step>
     
     <step id="2">
@@ -102,6 +108,10 @@ Pour chaque question utilisateur, tu DOIS impérativement suivre ce workflow sé
 ## Communication avec l'Utilisateur
 
 <communication>
+    <principle>
+        <rule>Langue : Toujours communiquer en FRANÇAIS dans le chat avec l'utilisateur. Utiliser l'ANGLAIS pour rédiger le contenu de `userbrief.md`.</rule>
+    </principle>
+    
     <principle>
         <rule>Avant de répondre à toute question, assure-toi d'avoir complété l'intégralité du workflow de recherche.</rule>
         <importance>Ne jamais répondre en se basant sur des connaissances partielles ou sans avoir exploré toutes les ressources disponibles.</importance>
