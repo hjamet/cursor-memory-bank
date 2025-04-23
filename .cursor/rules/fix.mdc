@@ -176,5 +176,7 @@ The test failed on the previous iteration, and analysis confirms it needs major 
 Calling `request-analysis` to handle the complex task of implementing efficient large file processing.
 [Provide context: Problem="MemoryError during large file processing requires major refactoring (streaming/chunking insufficient)", Files=[...], Analysis="Initial attempts failed, needs new architectural approach."]
 
-[...fetching rule `request-analysis`...] # Use your rule-calling tool to call the rule, then apply it !
+[...Here, the agent calls the rule 'request-analysis' using its rule calling tool...]
+
+[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
 

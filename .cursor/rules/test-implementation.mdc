@@ -36,8 +36,6 @@ Create unit tests for implemented features following testing best practices.
 
 ## Example
 
-[...fetching rule `test-implementation`...] # Use your rule-calling tool to call the rule, then apply it !
-
 # Test-implementation: 1 - Feature analysis
 I begin by identifying features to test. **(Test-implementation: 1 - Feature analysis)**
 [...analysis of modified files...]
@@ -57,9 +55,4 @@ I will create tests for each identified feature. **(Test-implementation: 2 - Tes
 I must now call the test-execution rule to execute the tests.
 The test-execution rule must be called to execute and analyze the tests. **(Test-implementation: 3 - Call next rule)**
 
-[...fetching rule `test-execution`...] # Use your rule-calling tool to call the rule, then apply it !
-
-# Test-execution: 1 - Test execution
-I begin by executing the unit tests. **(Test-execution: 1 - Test execution)**
-
-[...] (The workflow must continue uninterrupted: the agent executes the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
+[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

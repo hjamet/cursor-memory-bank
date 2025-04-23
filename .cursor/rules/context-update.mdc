@@ -103,8 +103,6 @@ Examples avec codes emoji:
 
 ## Example
 
-[...fetching rule `context-update`...] # Use your rule-calling tool to call the rule, then apply it.
-
 # Context-update: 1 - Context update
 I begin by updating the context files to reflect changes. **(Context-update: 1 - Context update)**
 [...updating projectBrief.md file...]
@@ -143,9 +141,4 @@ I now check the tests and remaining tasks to determine which rule to call. **(Co
 [...checking tests and tasks...]
 I see there are tasks left to do and all tests pass. I will therefore call the `implementation` rule. **(Context-update: 6 - Calling the next rule)**
 
-[...fetching rule `implementation`...] # Use your rule-calling tool to call the rule, then apply it.
-
-# Implementation: 1 - Task analysis
-I begin by reading the tasks.md file to identify the highest priority section. **(Implementation: 1 - Task analysis)**
-
-[...] (The workflow must continue uninterrupted: the agent executes the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
+[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

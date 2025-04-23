@@ -61,8 +61,6 @@ Methodically implement tasks from a priority section and document the process.
 
 ## Example
 
-[...fetching rule `implementation`...] # Use your rule-calling tool to call the rule, then apply it !
-
 # Implementation: 1 - Task analysis
 I begin by reading the tasks.md file to identify the highest priority section. **(Implementation: 1 - Task analysis)**
 [...reading tasks.md file...]
@@ -130,9 +128,4 @@ I update the tasks.md file to reflect task progress. **(Implementation: 4 - Task
 I must now call the `test-implementation` rule because I created a new testable feature.
 The test-implementation rule must be called to create tests for the new feature. **(Implementation: 5 - Calling the next rule)**
 
-[...fetching rule `test-implementation`...] # Use your rule-calling tool to call the rule, then apply it !
-
-# Test-implementation: 1 - Feature analysis
-I begin by identifying features to test. **(Test-implementation: 1 - Feature analysis)**
-
-[...] (The workflow must continue uninterrupted: the agent executes the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
+[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

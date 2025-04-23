@@ -62,11 +62,8 @@ Based on my latest actions, I think the `tests` rule best corresponds to my curr
 # Lost workflow: 3 - System prompt recall
 I will now properly restart the workflow by calling the system rule. **(Lost workflow: 3 - System prompt recall)**
 
-[...fetching rule `system`...] # Use your rule-calling tool to call the rule, then apply it !
+[...Here, the agent calls the rule 'system' using its rule calling tool...]
 
-[...fetching rule `context-loading`...] # As chosen in step 2 of the example
+[...Here, the agent calls the rule 'context-loading' using its rule calling tool...] # As chosen in step 2 of the example
 
-# Context-loading: 1 - Reading context files
-I begin by reading the four context files to understand the project environment. **(Context-loading: 1 - Reading context files)**
-
-[...] (The workflow must continue uninterrupted: the agent executes the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
+[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

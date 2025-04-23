@@ -66,7 +66,7 @@ Follow the workflow STRICTLY. Execute rules sequentially and autonomously. Never
 I now need to call the implementation rule because there are still tasks to do.
 The implementation rule must be called to continue work on the remaining tasks. **(Context-update: 6 - Calling the next rule)**
 
-[...fetching rule `implementation`...] # Use your rule-calling tool to call the rule, then apply it !
+[...Here, the agent calls the rule 'implementation' using its rule calling tool...]
 
 # Implementation: 1 - Task analysis
 I begin by reading the tasks.md file to identify the highest priority section. **(Implementation: 1 - Task analysis)**
@@ -75,4 +75,5 @@ I begin by reading the tasks.md file to identify the highest priority section. *
 
 # Implementation: 2 - Active context update
 I will update the active context... **(Implementation: 2 - Active context update)**
-[...]
+
+[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
