@@ -49,8 +49,8 @@ Example: "I will now read [...] **(Implementation: 2 - Context retrieval)**"
 
 ## ⚠️ CALLING THE NEXT RULE ⚠️
 
-- MANDATORY: Explicitly call the next rule using `fetch_rules ["rule-name"]` after completing all instructions of the current rule.
-- **Immediate Execution**: After the `fetch_rules` call, immediately proceed to execute the first instruction of the fetched rule.
+- MANDATORY: Explicitly call the next rule using `fetch_rules ["rule-name"]` tool after completing all instructions of the current rule.
+- **Immediate Execution**: After the `fetch_rules` tool call, immediately proceed to execute the first instruction of the fetched rule.
 - Do **not** recite any specific phrase before starting the next rule; simply begin its execution, starting with its first title and step indication.
 
 ## Absolute Rule
@@ -66,7 +66,7 @@ Follow the workflow STRICTLY. Execute rules sequentially and autonomously. Never
 I now need to call the implementation rule because there are still tasks to do.
 The implementation rule must be called to continue work on the remaining tasks. **(Context-update: 6 - Calling the next rule)**
 
-fetch_rules ["implementation"]
+[...fetching rule `implementation`...]
 
 # Implementation: 1 - Task analysis
 I begin by reading the tasks.md file to identify the highest priority section. **(Implementation: 1 - Task analysis)**

@@ -46,7 +46,7 @@ Decompose user request into concrete tasks and organize them in tasks.md by numb
 
 ## Example
 
-fetch_rules ["task-decomposition"]
+[...fetching rule `task-decomposition`...]
 
 # Task-decomposition: 1 - Existing tasks analysis
 I begin by reading the tasks.md file to understand the current state of tasks. **(Task-decomposition: 1 - Existing tasks analysis)**
@@ -74,7 +74,7 @@ I decompose the request into concrete tasks and organize them into high-level se
 I must now call the implementation rule to begin work on the tasks.
 The implementation rule must be called to begin implementing the tasks. **(Task-decomposition: 5 - Call next rule)**
 
-fetch_rules ["implementation"]
+[...fetching rule `implementation`...]
 
 # Implementation: 1 - Task analysis
 I begin by reading the tasks.md file to identify the highest priority section. **(Implementation: 1 - Task analysis)**

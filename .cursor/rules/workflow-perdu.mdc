@@ -48,7 +48,7 @@ Example: "I will now call the `system` rule to restart the workflow **(Lost work
 
 ## Example
 
-fetch_rules ["workflow-perdu"]
+[...fetching rule `workflow-perdu`...]
 
 # Lost workflow: 1 - Context saving
 I will save a summary of my latest actions in the `.cursor/memory-bank/context/activeContext.md` file to remember the modifications I made outside the workflow. **(Lost workflow: 1 - Context saving)**
@@ -62,9 +62,9 @@ Based on my latest actions, I think the `tests` rule best corresponds to my curr
 # Lost workflow: 3 - System prompt recall
 I will now properly restart the workflow by calling the system rule. **(Lost workflow: 3 - System prompt recall)**
 
-fetch_rules ["system"]
+[...fetching rule `system`...]
 
-fetch_rules ["context-loading"] # As chosen in step 2 of the example
+[...fetching rule `context-loading`...] # As chosen in step 2 of the example
 
 # Context-loading: 1 - Reading context files
 I begin by reading the four context files to understand the project environment. **(Context-loading: 1 - Reading context files)**
