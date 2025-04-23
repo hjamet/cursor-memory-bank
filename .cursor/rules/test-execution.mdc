@@ -47,7 +47,7 @@ Execute unit tests, analyze results and document successes and failures in tests
 
 ## Example
 
-[...fetching rule `test-execution`...]
+[...fetching rule `test-execution`...] # Use your rule-calling tool to call the rule, then apply it !
 
 # Test-execution: 1 - Test execution
 I begin by executing the unit tests. **(Test-execution: 1 - Test execution)**
@@ -73,7 +73,7 @@ I must now call the appropriate rule based on test results. **(Test-execution: 4
 [...analysis of improvements and regressions...]
 I note that [description of test status changes]. I will therefore call the [fix/context-update] rule because we have two tests that have progressed and no regression. **(Test-execution: 4 - Call next rule)**
 
-[...fetching rule `context-update`...]
+[...fetching rule `context-update`...] # Use your rule-calling tool to call the rule, then apply it !
 
 # Context-update: 1 - Context update
 I begin by updating the context files to reflect changes. **(Context-update: 1 - Context update)**

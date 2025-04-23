@@ -78,7 +78,7 @@ tests/                       # Unit and integration tests
 
 ## Example
 
-[...fetching rule `consolidate-repo`...]
+[...fetching rule `consolidate-repo`...] # Use your rule-calling tool to call the rule, then apply it !
 
 # Consolidate-repo: 1 - Processing userbrief.md
 I begin by analyzing the content of `.cursor/memory-bank/userbrief.md`. (Consolidate-repo: 1 - Processing userbrief.md)
@@ -111,7 +111,7 @@ I found the following requests in the userbrief.md file:
 
 I will now call the request-analysis rule to process these requests. **(Consolidate-repo: 5 - Evaluation of user requests)**
 
-[...fetching rule `request-analysis`...]
+[...fetching rule `request-analysis`...] # Use your rule-calling tool to call the rule, then apply it !
 
 # Request-analysis: 1 - Request analysis
 I begin by analyzing the user's request to properly understand their demand. **(Request-analysis: 1 - Request analysis)**

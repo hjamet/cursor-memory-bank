@@ -103,7 +103,7 @@ Examples avec codes emoji:
 
 ## Example
 
-[...fetching rule `context-update`...]
+[...fetching rule `context-update`...] # Use your rule-calling tool to call the rule, then apply it.
 
 # Context-update: 1 - Context update
 I begin by updating the context files to reflect changes. **(Context-update: 1 - Context update)**
@@ -143,7 +143,7 @@ I now check the tests and remaining tasks to determine which rule to call. **(Co
 [...checking tests and tasks...]
 I see there are tasks left to do and all tests pass. I will therefore call the `implementation` rule. **(Context-update: 6 - Calling the next rule)**
 
-[...fetching rule `implementation`...]
+[...fetching rule `implementation`...] # Use your rule-calling tool to call the rule, then apply it.
 
 # Implementation: 1 - Task analysis
 I begin by reading the tasks.md file to identify the highest priority section. **(Implementation: 1 - Task analysis)**

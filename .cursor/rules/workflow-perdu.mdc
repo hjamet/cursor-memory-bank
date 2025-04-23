@@ -48,7 +48,7 @@ Example: "I will now call the `system` rule to restart the workflow **(Lost work
 
 ## Example
 
-[...fetching rule `workflow-perdu`...]
+[...fetching rule `workflow-perdu`...] # Use your rule-calling tool to call the rule, then apply it !
 
 # Lost workflow: 1 - Context saving
 I will save a summary of my latest actions in the `.cursor/memory-bank/context/activeContext.md` file to remember the modifications I made outside the workflow. **(Lost workflow: 1 - Context saving)**
@@ -62,7 +62,7 @@ Based on my latest actions, I think the `tests` rule best corresponds to my curr
 # Lost workflow: 3 - System prompt recall
 I will now properly restart the workflow by calling the system rule. **(Lost workflow: 3 - System prompt recall)**
 
-[...fetching rule `system`...]
+[...fetching rule `system`...] # Use your rule-calling tool to call the rule, then apply it !
 
 [...fetching rule `context-loading`...] # As chosen in step 2 of the example
 

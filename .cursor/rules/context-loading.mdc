@@ -39,7 +39,7 @@ Load or create project context files to establish the working environment.
 
 ## Example
 
-[...fetching rule `context-loading`...]
+[...fetching rule `context-loading`...] # Use your rule-calling tool to call the rule, then apply it.
 
 # Context-loading: 1 - Reading context files
 I begin by reading the four context files to understand the project environment. **(Context-loading: 1 - Reading context files)**
@@ -54,7 +54,7 @@ I reformulate the user's request taking into account the project context. **(Con
 I'm now checking the content of `.cursor/memory-bank/userbrief.md` to determine which rule to call next.
 I've found that `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment starting with ⬜, so I need to call the consolidate-repo rule. **(Context-loading: 4 - Calling the next rule)**
 
-[...fetching rule `consolidate-repo`...]
+[...fetching rule `consolidate-repo`...] # Use your rule-calling tool to call the rule, then apply it.
 
 # Consolidate-repo: 1 - Processing userbrief.md
 I begin by analyzing the content of the "User Input" section in `.cursor/memory-bank/userbrief.md`. (Consolidate-repo: 1 - Processing userbrief.md)

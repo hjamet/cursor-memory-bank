@@ -61,7 +61,7 @@ Methodically implement tasks from a priority section and document the process.
 
 ## Example
 
-[...fetching rule `implementation`...]
+[...fetching rule `implementation`...] # Use your rule-calling tool to call the rule, then apply it !
 
 # Implementation: 1 - Task analysis
 I begin by reading the tasks.md file to identify the highest priority section. **(Implementation: 1 - Task analysis)**
@@ -130,7 +130,7 @@ I update the tasks.md file to reflect task progress. **(Implementation: 4 - Task
 I must now call the `test-implementation` rule because I created a new testable feature.
 The test-implementation rule must be called to create tests for the new feature. **(Implementation: 5 - Calling the next rule)**
 
-[...fetching rule `test-implementation`...]
+[...fetching rule `test-implementation`...] # Use your rule-calling tool to call the rule, then apply it !
 
 # Test-implementation: 1 - Feature analysis
 I begin by identifying features to test. **(Test-implementation: 1 - Feature analysis)**
