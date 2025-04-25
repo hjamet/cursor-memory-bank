@@ -3,27 +3,32 @@ description: Call this rule to execute unit tests and analyze the results
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
-Execute unit and integration tests, analyze results, and update test tracking.
+Execute unit tests, analyze results and document successes and failures in tests.md.
 
 ## Instructions
 
-1.  **Initialization**: Update `.cursor/memory-bank/workflow/tests.md` to mark all tests as `Pending`.
-2.  **Cleanup**: Remove previous logs and exit code file: `rm -f tests/*.log tests/exit_codes.log`.
-3.  **Execution**: Run each test script individually.
-    - Execute `bash tests/test_curl_install.sh > tests/test_curl_install.log 2>&1; echo $? >> tests/exit_codes.log`
-    - Execute `bash tests/test_download.sh > tests/test_download.log 2>&1; echo $? >> tests/exit_codes.log`
-    - Execute `bash tests/test_git_install.sh > tests/test_git_install.log 2>&1; echo $? >> tests/exit_codes.log`
-    - Execute `bash tests/test_install.sh > tests/test_install.log 2>&1; echo $? >> tests/exit_codes.log`
-4.  **Result Aggregation**: Check the exit codes.
-    - Read the contents of `tests/exit_codes.log`.
-    - Sum the exit codes. If the sum is greater than 0, at least one test failed.
-5.  **Analysis**: Update `.cursor/memory-bank/workflow/tests.md` based on individual logs (`tests/*.log`) and the aggregated result.
-    - Mark each test as `Passed` or `Failed` based on its individual exit code (implicitly logged via the execution step or explicitly if needed).
-    - Determine overall status: `Success` (all passed), `Failure` (at least one failed).
-6.  **Calling the next rule**: Choose based on the overall status.
-    - `Success` → `context-update`
-    - `Failure` → `fix`
+1. **Test execution**: Launch tests for implemented features
+   - Capture all results (successes, failures, warnings)
+   - Note precise error messages
+   - After each tool call, write **(Test-execution - 1.[Test name] in progress...)**
+
+2. **Results analysis**: Compare with previous tests
+   - Read the `.cursor/memory-bank/workflow/tests.md` file if it exists
+   - Identify improvements or regressions
+   - After each tool call, write **(Test-execution - 2.[Analysis] in progress...)**
+
+3. **Results documentation**: Update tests.md
+   - Create file if necessary
+   - Use format defined in tests-md editing rule
+   - Include evolution analysis for each test
+   - Document failures without conducting in-depth investigation
+
+4. **Call next rule**
+   - If at least one test improved without any regression → `context-update`
+   - If no significant change → `context-update`
+   - Otherwise, if at least one test regressed → `fix`
 
 ## Specifics
 
@@ -42,43 +47,28 @@ Execute unit and integration tests, analyze results, and update test tracking.
 
 ## Example
 
-# Test execution: 1 - Cleanup
-I will remove previous logs and the exit code file. **(Test execution: 1 - Cleanup)**
-[...run `rm -f tests/*.log tests/exit_codes.log`...]
-**(Test execution: 1 - Cleanup completed)**
+# Test-execution: 1 - Test execution
+I begin by executing the unit tests. **(Test-execution: 1 - Test execution)**
+[...running the tests...]
+I see that the command has been put in the background. It's certainly related to a simple terminal issue. I'm going to relaunch the command.
+[...re-running the tests...]
+**(Test-execution: 1 - Test execution)**
 
-# Test execution: 2 - Execution
-I will now execute each test script individually and log results. **(Test execution: 2 - Execution)**
-[...run `bash tests/test_curl_install.sh > tests/test_curl_install.log 2>&1; echo $? >> tests/exit_codes.log`...]
-**(Test execution - 2.1 test_curl_install.sh completed)**
-[...run `bash tests/test_download.sh > tests/test_download.log 2>&1; echo $? >> tests/exit_codes.log`...]
-**(Test execution - 2.2 test_download.sh completed)**
-[...run `bash tests/test_git_install.sh > tests/test_git_install.log 2>&1; echo $? >> tests/exit_codes.log`...]
-**(Test execution - 2.3 test_git_install.sh completed)**
-[...run `bash tests/test_install.sh > tests/test_install.log 2>&1; echo $? >> tests/exit_codes.log`...]
-**(Test execution - 2.4 test_install.sh completed)**
-**(Test execution: 2 - Execution completed)**
-
-# Test execution: 3 - Result Aggregation
-I will check the aggregated exit codes in `tests/exit_codes.log`. **(Test execution: 3 - Result Aggregation)**
-[...read `tests/exit_codes.log` -> contains "0\n1\n0\n0"] 
-Total sum is 1. At least one test failed. **(Test execution: 3 - Result Aggregation completed)**
-
-# Test execution: 4 - Analysis
-I compare the results with previous tests. **(Test execution: 4 - Analysis)**
+# Test-execution: 2 - Results analysis
+I compare the results with previous tests. **(Test-execution: 2 - Results analysis)**
 [...reading tests.md file...]
-**(Test execution - 4.Comparison in progress...)**
+**(Test-execution - 2.Comparison in progress...)**
 [...results comparison...]
-**(Test execution: 4 - Analysis)**
+**(Test-execution: 2 - Results analysis)**
 
-# Test execution: 5 - Results documentation
-I update the tests.md file with new results. **(Test execution: 5 - Results documentation)**
+# Test-execution: 3 - Results documentation
+I update the tests.md file with new results. **(Test-execution: 3 - Results documentation)**
 [...updating tests.md file...]
-**(Test execution: 5 - Results documentation)**
+**(Test-execution: 3 - Results documentation)**
 
-# Test execution: 6 - Call next rule
-I must now call the appropriate rule based on test results. **(Test execution: 6 - Call next rule)**
+# Test-execution: 4 - Call next rule
+I must now call the appropriate rule based on test results. **(Test-execution: 4 - Call next rule)**
 [...analysis of improvements and regressions...]
-I note that [description of test status changes]. I will therefore call the [fix/context-update] rule because we have two tests that have progressed and no regression. **(Test execution: 6 - Call next rule)**
+I note that [description of test status changes]. I will therefore call the [fix/context-update] rule because we have two tests that have progressed and no regression. **(Test-execution: 4 - Call next rule)**
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

@@ -1,9 +1,9 @@
 # Test Status
 
-- [ ] `test_curl_install.sh`: Pending
-- [ ] `test_download.sh`: Pending
-- [ ] `test_git_install.sh`: Pending
-- [ ] `test_install.sh`: Pending
+- [✅] `test_curl_install.sh`: Passed
+- [✅] `test_download.sh`: Passed
+- [✅] `test_git_install.sh`: Passed
+- [✅] `test_install.sh`: Passed
 
 # Fichier de tests
 
@@ -28,7 +28,7 @@
 - ✅ **Test d'affichage de la date du dernier commit (git)** : Test passé correctement - Stable, continue de fonctionner après les modifications.
 
 ## Tests d'installation standard
-- ✅ **Test d'installation de base** : Le problème de chemin relatif a été corrigé, le test fonctionne maintenant. - Stable after tmp cleanup addition.
+- ✅ **Test d'installation de base**: Passed (Fixed npm dependency version)
 - ✅ **Test de backup et restauration** : Le test fonctionne correctement. - Stable after tmp cleanup addition.
 - ✅ **Test de gestion d'erreur** : Corrigé en forçant --use-curl pour le test de dépôt invalide, la gestion d'erreur API fonctionne correctement. - Stable after tmp cleanup addition.
 

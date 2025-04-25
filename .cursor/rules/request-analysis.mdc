@@ -12,7 +12,7 @@ Analyze user request, explore existing code and search for additional informatio
    - Analyze direct request or request transmitted by calling rule
    - Identify requested features or modifications
    - Extract important keywords and concepts
-   - **(Optional) Memory Lookup**: Use `mcp_supermemory_searchSupermemory` with keywords to find relevant past analyses or context.
+   - **(Optional) Memory Lookup**: Use `mcp_servers_search_nodes` with keywords to find relevant past analyses or context in the knowledge graph.
 
 2. **Code analysis**: Identify concerned files and symbols:
    - ONLY AUTHORIZED: up to 3 semantic searches (code base search) based on request keywords
@@ -27,14 +27,12 @@ Analyze user request, explore existing code and search for additional informatio
    - Add brief descriptions for each important element
 
 4. **Additional research**: Consult documentation and resources:
-   - AUTHORIZED TOOLS:
-     * Web search (`web_search`): Up to 5 searches maximum for general information, patterns, or best practices.
-     * Library Documentation (`mcp_context7_...`): Use `mcp_context7_resolve-library-id` then `mcp_context7_get-library-docs` to get specific, up-to-date documentation for libraries identified as relevant to the request (e.g., mentioned in the request, involved in required changes).
-   - Research library specifics, patterns, or relevant best practices
+   - ONLY AUTHORIZED: web search tool, limited to 5 searches maximum
+   - Research library documentation, patterns, or relevant best practices
    - Note consulted sources
 
 5. **Conclusion**: Summarize information and necessary changes
-   - **(Optional) Memory Storage**: Use `mcp_supermemory_addToSupermemory` to store key findings (request summary, identified files/symbols, conclusion) for future reference.
+   - **(Optional) Memory Storage**: Use `mcp_servers_add_observations` to store key findings (request summary, identified files/symbols, conclusion) in the knowledge graph for future reference, associated with an entity like 'RequestAnalysisContext'.
 
 6. **Call next rule**:
    - If complex/multi-step request → `task-decomposition`
@@ -46,7 +44,7 @@ Analyze user request, explore existing code and search for additional informatio
 - If the brief is empty without explicit request, consider tasks.md content as request
 - Strict tool limits:
   - Phase 2 (Code analysis): only code base search (max 3) and tree
-  - Phase 4 (Research): only web search (max 5) and context7 tools (unlimited within reason for relevant libraries)
+  - Phase 4 (Research): only web search (max 5)
 - Never mention planned modifications to memory bank files (.cursor/memory-bank/*)
 
 ## Next Rules
@@ -59,8 +57,8 @@ Analyze user request, explore existing code and search for additional informatio
 I begin by analyzing the user's request to properly understand their demand. **(Request-analysis: 1 - Request analysis)**
 [...request analysis...]
 I identified the following key elements in the request: [...] **(Request-analysis: 1 - Request analysis)**
-*(Optional) I search my memory for similar past analyses using keywords: [...]*
-`mcp_supermemory_searchSupermemory(...)`
+*(Optional) I search the knowledge graph for similar past analyses using keywords: [...]*
+`mcp_servers_search_nodes(...)`
 
 # Request-analysis: 2 - Code analysis
 I begin by performing semantic searches to identify relevant files.
@@ -80,17 +78,15 @@ I will create a tree representation of files concerned by the modifications. **(
 # Request-analysis: 4 - Additional research
 I will search for information on the web about [...] **(Request-analysis: 4 - Additional research)**
 [...first web search...]
-The request involves using the 'requests' library. I will fetch its documentation.
-`mcp_context7_resolve-library-id(libraryName='requests')`
-[...]
-`mcp_context7_get-library-docs(context7CompatibleLibraryID='...', topic='sessions')`
+I will search for more information about [...] **(Request-analysis: 4 - Additional research)**
+[...second web search...]
 **(Request-analysis: 4 - Additional research)**
 
 # Request-analysis: 5 - Conclusion
 I summarize the results of my analysis and determine the next step. **(Request-analysis: 5 - Conclusion)**
 [...analysis conclusion...]
-*(Optional) I store the key findings of this analysis in my memory.* 
-`mcp_supermemory_addToSupermemory(...)`
+*(Optional) I store the key findings of this analysis in the knowledge graph.* 
+`mcp_servers_add_observations(...)`
 **(Request-analysis: 5 - Conclusion)**
 
 # Request-analysis: 6 - Call next rule

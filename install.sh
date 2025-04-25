@@ -498,7 +498,7 @@ if [[ -d "$INTERNAL_MCP_SERVER_DIR" ]] && [[ -f "$INTERNAL_MCP_SERVER_DIR/packag
     log "Installing Internal MCP Commit Server dependencies in $INTERNAL_MCP_SERVER_DIR..."
     if command -v npm >/dev/null 2>&1; then
         # Check if timeout command is available
-        local timeout_cmd=""
+        timeout_cmd=""
         if command -v timeout >/dev/null 2>&1; then
             timeout_cmd="timeout 60s"
         elif command -v gtimeout >/dev/null 2>&1; then # Handle macOS case (gtimeout via coreutils)
@@ -509,7 +509,7 @@ if [[ -d "$INTERNAL_MCP_SERVER_DIR" ]] && [[ -f "$INTERNAL_MCP_SERVER_DIR/packag
 
         # Change directory, install (with timeout if available), and change back
         (cd "$INTERNAL_MCP_SERVER_DIR" && $timeout_cmd npm install)
-        local npm_status=$?
+        npm_status=$?
         
         if [[ $npm_status -eq 124 ]]; then # 124 is the exit code for timeout command
              warn "'npm install' in $INTERNAL_MCP_SERVER_DIR timed out after 60 seconds. Please check network or run manually."
