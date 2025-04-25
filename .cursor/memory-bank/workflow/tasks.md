@@ -1,5 +1,17 @@
 # In Progress
 
+## 5. MCP Server Testing
+
+5.1. [ ] **Test MCP commit server functionality**:
+    - Description: Execute the MCP commit server script (`node .cursor/mcp/mcp-commit-server/server.js`) using the `timeout` command (e.g., `timeout 60s node ...`) to ensure it runs correctly and exits if it hangs. Verify it can be started and potentially interact with it if possible via MCP tooling (if available).
+    - Impacted Files: `.cursor/mcp/mcp-commit-server/server.js`
+    - Dependencies: Node.js installed, `timeout` command available (or alternative).
+    - Validation: The server script starts without immediate errors when run via `timeout`. Confirmation that the server is accessible via MCP (if testable) or at least runs without crashing within the timeout. **(BLOCKED by Node module import error)**
+
+# ToDo
+
+# Done
+
 ## 1. MCP Memory Server Update
 
 1.1. [x] **Test New `memory` MCP Server**:
@@ -14,10 +26,6 @@
     - Dependencies: Task 1.1 (understanding the server)
     - Validation: Rules correctly use the `memory` server tools for their intended purpose (e.g., storing fix details, retrieving context).
 
-# ToDo
-
-# Done
-
 ## 2. Installation Script Enhancement
 
 2.1. [x] **Create `.cursor/mcp.json` Template**:
@@ -31,4 +39,28 @@
     - Impacted Files: `install.sh`
     - Dependencies: Task 2.1 (template file creation)
     - Validation: Running `install.sh` correctly merges the template `.cursor/mcp.json` with a pre-existing `.cursor/mcp.json` file, adding new entries without removing old ones. If no file exists, the template is copied.
+
+## 3. Rule Refinement
+
+3.1. [x] **Simplify `fix` rule debugging logic**:
+    - Description: Modify step 2 of the `fix` rule. Introduce a binary choice for the model: if unsure about the problem's origin, use debugging alongside attempting a solution.
+    - Impacted Files: `.cursor/rules/fix.mdc`
+    - Dependencies: None
+    - Validation: The `fix` rule incorporates the simplified debugging decision logic.
+
+## 4. File Structure Investigation
+
+4.1. [x] **Investigate duplicate `mcp.json` files**:
+    - Description: Analyze the presence and purpose of `mcp.json` at the root and in `.cursor/`. Determine if the root file is redundant.
+    - Impacted Files: `mcp.json`, `.cursor/mcp.json`, `install.sh`
+    - Dependencies: None
+    - Validation: Conclusion reached that the root `mcp.json` is required by `install.sh` and should not be removed without script modification. Status documented.
+
+## 6. Rule Refinement (Parallel Debug)
+
+6.1. [x] **Refine `fix` rule for parallel debugging/implementation**:
+    - Description: Modify the `fix.mdc` rule (specifically step 2.4) to allow the agent to attempt an implementation concurrently while debugging is active, if uncertainty about the error cause triggered the debugging step.
+    - Impacted Files: `.cursor/rules/fix.mdc`
+    - Dependencies: Task 3.1 (previous simplification) might be relevant context.
+    - Validation: The `fix` rule text clearly instructs the agent to attempt implementation in parallel with debugging when uncertainty exists.
 
