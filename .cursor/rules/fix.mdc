@@ -16,20 +16,28 @@ Analyze test errors and fix them through an iterative execution-correction loop 
 2.  **Correction loop**: For each failing test, iterate until fixed or handed over
     *   **2.1 Marking**: Always indicate **(Fix: 2 - Correction loop - [Test name] - Iteration [number])**
     *   **2.2 Analysis**: 
-        *   **(Optional) Memory Lookup**: Use `mcp_servers_search_nodes` with error message/test name to find similar past errors and their solutions in the knowledge graph.
-        *   Examine only files involved in the error and identify the cause. If you are not entirely certain about the correction to be made. Don't hesitate to use the `<think></think>` tags. Don't hesitate either to use the codebase search tool !
-    *   **2.3 Research**: If needed, use the web to find solutions for specific errors
-    *   **2.4 Implementation**: Make the correction and document the changes
+        *   **(Optional) Memory Lookup**: Use `mcp_memory_search_nodes` with query based on error message/test name to find similar past errors and their solutions.
+        *   Examine only files involved in the error and identify the cause. Use `<think>` tags for complex analysis. Use codebase search if needed.
+    *   **2.3 Research**: 
+        *   If needed, use web search (`web_search`) for general solutions.
+        *   **Library Documentation**: If the error seems library-related, use `mcp_context7_resolve-library-id` then `mcp_context7_get-library-docs` to get documentation.
+    *   **2.4 Implementation**: Make the correction and document changes.
     *   **2.5 Test**: Execute ONLY the specific test currently being fixed and analyze the result:
-        *   If test passes :
-            * **2.5.1 Update tests.md**: If the test passes, update the `.cursor/memory-bank/workflow/tests.md` file to reflect the new status of the test. Write **(Fix: 2 - Correction loop - [Test name] - Implementation [number] completed)** after this step.
-            * **2.5.2 Quick commit** : Use the command `git commit -m "Message" files` to commit the changes made to the files involved in the test. The message should look like that : **:wrench: fix: test_name - quick fix explanation**.
-            * **(Optional) Memory Storage**: Use `mcp_servers_add_observations` to store details of the error, the successful fix, and relevant context (e.g., files modified, iteration count) in the knowledge graph, associated with an entity like 'TestErrorSolution'.
-            * **2.5.3 Continue**: Move to the next failing test in the list and repeat the loop from step 2.1.
-        *   If test fails but shows progress → Continue loop with new iteration for the *same* test.
-        *   If **truly complex correction** (after 3 attempts *without any progress* OR requires *major* refactoring / a completely new implementation approach):
-            *   Mark the test as **(Fix: 2 - Correction loop - [Test name] - Handing over to request-analysis)**
-            *   Call the `request-analysis` rule, providing the problem description, context, and the need for a new approach.
+        *   If test passes:
+            * **2.5.1 Update tests.md**: Update `.cursor/memory-bank/workflow/tests.md`. Write **(Fix: 2 - Correction loop - [Test name] - Implementation [number] completed)**.
+            * **2.5.2 Quick commit**: Use `git commit -a -m ":wrench: fix: [Test name] - [quick fix explanation]"` (Note: Using `-a` as per wider convention in rules).
+            * **(Optional) Memory Storage**: 
+                *   First, ensure the target entity exists (e.g., 'TestErrorSolutions'): `mcp_memory_create_entities(entities=[{"entityType": "FixLog", "name": "TestErrorSolutions", "observations": []}])` (This might fail harmlessly if it already exists, or use search/open first if necessary).
+                *   Then, add observation: `mcp_memory_add_observations(observations=[{"entityName": "TestErrorSolutions", "contents": ["Fixed [Test name]: [Error details]. Solution: [Fix summary]. Iteration: [number]. Files: [...] "]}])`.
+            * **2.5.3 Continue**: Move to the next failing test.
+        *   If test fails but shows progress → Continue loop (go to 2.1 for next iteration).
+        *   If **truly complex correction** (after 3 attempts *without progress* OR requires *major* refactoring):
+            *   **Advanced Debugging (Consider First)**: Before giving up, consider using the interactive debugger if not already tried:
+                1. `mcp_debug_listFiles`
+                2. `mcp_debug_getFileContent`
+                3. `mcp_debug_debug` (set breakpoints, launch, evaluate, continue)
+                4. Use insights for another implementation attempt (go to 2.4).
+            *   If debugging doesn't help or isn't applicable: Mark as **(Fix: 2 - Correction loop - [Test name] - Handing over to request-analysis)**. Call `request-analysis` with context.
 
 3.  **Calling the next rule (only if loop completed without handover)**: Determine the next step based on results *if and only if* step 2.5 did not trigger a handover to `request-analysis`.
     *   First check for unprocessed comments in `.cursor/memory-bank/userbrief.md`
@@ -41,7 +49,7 @@ Analyze test errors and fix them through an iterative execution-correction loop 
 
 -   The `<think></think>` token must be used for each complex correction requiring in-depth analysis
 -   You should examinate the files you know related to the problem but you should also use the codebase search tool in case you are missing something.
--   For debugging, temporarily add logs at strategic locations
+-   For basic debugging, temporarily adding logs is acceptable, but prefer the `mcp_debug` tools if you are stuck after an initial attempt.
 -   NEVER execute all tests, but ONLY the specific test you are currently fixing
 -   Running the complete test suite is exclusively the responsibility of the `test-execution` rule
 -   Document ONLY errors related to:
@@ -78,8 +86,8 @@ I've identified the following failing tests:
 **(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1)**
 
 ## 2.2 Analysis
-*(Optional) I search the knowledge graph for similar errors: [...]*
-`mcp_servers_search_nodes(...)`
+*(Optional) I search memory for similar errors: [...]*
+`mcp_memory_search_nodes(query='TypeError JSON serializable TestUserAuthentication')`
 [...examining authentication code files...]
 
 <think>
@@ -88,6 +96,11 @@ The error occurs because we're trying to JSON serialize a bytes object. Decoding
 
 ## 2.3 Research
 [...confirming JSON serialization practices...]
+*(If a library issue was suspected)*
+I need to check the documentation for the `json` library regarding byte serialization.
+`mcp_context7_resolve-library-id(libraryName='json')`
+[...]
+`mcp_context7_get-library-docs(context7CompatibleLibraryID='...', topic='serialization')`
 
 ## 2.4 Implementation
 [...modifying the authentication code to decode bytes before JSON serialization...]
@@ -98,8 +111,10 @@ The error occurs because we're trying to JSON serialize a bytes object. Decoding
 **(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Test execution 1)**
 
 Great! The test now passes. 
-*(Optional) I store the details of the fix in the knowledge graph.*
-`mcp_servers_add_observations(...)`
+*(Optional) I attempt to create the entity 'TestErrorSolutions' in case it doesn't exist.*
+`mcp_memory_create_entities(entities=[{"entityType": "FixLog", "name": "TestErrorSolutions", "observations": []}])`
+*(Optional) I store the details of the fix in memory.*
+`mcp_memory_add_observations(observations=[{"entityName": "TestErrorSolutions", "contents": ["Fixed TestUserAuthentication.test_login_with_invalid_token: TypeError: Object of type bytes is not JSON serializable. Solution: Decoded bytes to utf-8 before serialization. Iteration: 1."]}])`
 Moving to the next failing test.
 
 # Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1
@@ -179,4 +194,20 @@ Calling `request-analysis` to handle the complex task of implementing efficient 
 [...Here, the agent calls the rule 'request-analysis' using its rule calling tool...]
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
+
+**(Advanced Debugging Example if stuck)**
+I'm stuck on this MemoryError after trying implementation fixes. I will use the debugger.
+`mcp_debug_listFiles(includePatterns=['**/data_processor.py'])`
+[...]
+`mcp_debug_getFileContent(path='path/to/data_processor.py')`
+[...]
+`mcp_debug_debug(steps=[{'type': 'setBreakpoint', 'file': 'path/to/data_processor.py', 'line': 42}])`
+[...]
+`mcp_debug_debug(steps=[{'type': 'launch'}])`
+[...] (Paused at breakpoint)
+`mcp_debug_debug(steps=[{'type': 'evaluate', 'expression': 'current_chunk_size'}])`
+[...]
+`mcp_debug_debug(steps=[{'type': 'continue'}])`
+[...] (Debugger finished or hit another breakpoint)
+Now I understand the issue better and will try a new implementation (go back to 2.4).
 

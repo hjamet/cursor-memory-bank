@@ -3,10 +3,12 @@
 **Core Technologies:**
 - Cursor AI Agent
 - Markdown (`.md`, `.mdc` for rules)
-- MCP Servers (specifically `mcp_servers_*` tools for knowledge graph/memory)
+- MCP Servers (specifically `mcp_memory_*` tools for knowledge graph/memory)
 
 **Dependencies:**
-- Access to `mcp_servers_create_entities`, `mcp_servers_create_relations`, `mcp_servers_add_observations`, `mcp_servers_search_nodes`, etc. (Used for agent's knowledge graph memory within workflow rules)
+- Access to `mcp_memory_create_entities`, `mcp_memory_create_relations`, `mcp_memory_add_observations`, `mcp_memory_search_nodes`, etc. (Used for agent's knowledge graph memory within workflow rules)
+- Access to `mcp_context7_*` tools for library documentation lookup.
+- Access to `mcp_debug_*` tools for interactive debugging.
 - Underlying Cursor infrastructure for rule execution and tool calls.
 
 ## Pile Technologique
