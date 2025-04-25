@@ -24,6 +24,26 @@
 
 # Done
 
+## 7. Repository Cleanup
+
+7.1. [x] **Track MCP Commit Server Files**:
+    - Description: Add the `.cursor/mcp/` directory (containing the server code, dependencies, and configuration) and the `.cursor/mcp.json` template file to git tracking using `git add`. Verify they are staged correctly.
+    - Impacted Files: `.gitignore`, `.cursor/mcp/`, `.cursor/mcp.json`
+    - Dependencies: None
+    - Validation: `git status` showed the files/directory as staged for commit.
+
+7.2. [x] **Analyze Root `mcp.json` and `tools/` Directory**:
+    - Description: Re-evaluate the purpose of the root `mcp.json` file (previously thought required by `install.sh`) and the `tools/` directory. Determine if they are essential, contain generated binaries, or are remnants of development/testing that should be removed or added to `.gitignore`.
+    - Impacted Files: `mcp.json`, `tools/`, `install.sh`, `.gitignore`
+    - Dependencies: Understanding of `install.sh` logic.
+    - Validation: Root `mcp.json` confirmed necessary for `install.sh` and added to staging. `tools/` directory identified as redundant/outdated and deleted.
+
+7.3. [x] **Delete Temporary Log Files**:
+    - Description: Remove the temporary/backup log files identified in the `tests/` directory (`exit_codes.log[201~`, `exit_codes.log~`).
+    - Impacted Files: `tests/exit_codes.log[201~`, `tests/exit_codes.log~`
+    - Dependencies: None
+    - Validation: Files successfully deleted using `rm -f`.
+
 ## 5. MCP Server Testing
 
 5.1. [x] **Test MCP commit server functionality**:

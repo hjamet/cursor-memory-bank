@@ -1,26 +1,23 @@
 # Active Context
 
 ## Current implementation context
-- **Task**: Repository Cleanup tasks (7.1, 7.2, 7.3) identified by `consolidate-repo`.
-- **Status**: Preparing to commit addition of cleanup tasks.
-- **Description**: Added tasks to address untracked MCP server files, analyze root files (`mcp.json`, `tools/`), and remove temporary logs.
-- **Impacted Files**: `.cursor/memory-bank/workflow/tasks.md`
+- **Task**: None currently active. All tasks completed.
+- **Status**: Preparing to commit repository cleanup changes.
+- **Description**: Completed Repository Cleanup tasks (Section 7). Staged MCP server files (`.cursor/mcp/`, `.cursor/mcp.json`, root `mcp.json`). Deleted redundant `tools/` directory and temporary log files.
+- **Impacted Files**: `.cursor/mcp/`, `.cursor/mcp.json`, `mcp.json`, `tools/`, `tests/exit_codes.log[...]`
 - **Dependencies**: None
-- **Relevant Info**: Previous functional task (5.1) completed. Tests pass.
+- **Relevant Info**: All functional tasks and cleanup tasks are complete. Tests pass.
 
 ## Previous State Summary
+- Completed Repository Cleanup tasks (7.1, 7.2, 7.3).
+- Staged MCP server files/config for commit.
+- Deleted redundant `tools/` directory and temp logs.
 - Added Repository Cleanup tasks (7.1, 7.2, 7.3) to `tasks.md`.
-- Completed Task 5.1 (Test MCP commit server functionality).
-- Corrected `@modelcontextprotocol/sdk` imports in `.cursor/mcp/mcp-commit-server/server.js`.
-- Confirmed tests pass after fix.
-- Corrected `.cursor/mcp.json` structure.
-- Refactored `server.js` initialization in `.cursor/mcp/mcp-commit-server/server.js`.
-- Simplified `fix` rule debugging logic (sequential).
-- Refined `fix` rule debugging logic (parallel).
-- Completed Memory server update and Install script enhancement tasks.
-- Completed `mcp.json` file investigation.
-- All tests passed.
-- Ran `npm ci` in `.cursor/mcp/mcp-commit-server/` attempting to fix SDK installation.
 
 ## Project Objectives
-[...] 
+- **Task**: Implement Repository Cleanup tasks (Section 7 in `tasks.md`). Starting with 7.1: Track MCP Commit Server Files.
+- **Status**: Executing Task 7.1.
+- **Description**: Add untracked `.cursor/mcp/` directory and `.cursor/mcp.json` file to git staging area using `git add`.
+- **Impacted Files**: `.gitignore`, `.cursor/mcp/`, `.cursor/mcp.json`
+- **Dependencies**: None
+- **Relevant Info**: These files contain the working MCP commit server code (with fixed imports) and its configuration/dependencies. Tracking them is essential for repository consistency.

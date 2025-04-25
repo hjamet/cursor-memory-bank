@@ -1,0 +1,22 @@
+{
+    "name": "mcp-commit-server",
+    "version": "0.1.0",
+    "description": "MCP server for Cursor providing a git commit tool (Internal)",
+    "main": "server.js",
+    "type": "module",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "keywords": [
+        "mcp",
+        "cursor",
+        "git",
+        "commit"
+    ],
+    "author": "Cursor AI Agent",
+    "license": "MIT",
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "1.10.2",
+        "zod": "^3.23.8"
+    }
+}

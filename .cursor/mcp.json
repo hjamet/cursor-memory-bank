@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+        "Git Commit (Internal)": {
+            "command": "node",
+            "args": [
+                ".cursor/mcp/mcp-commit-server/server.js"
+            ],
+            "cwd": "."
+        }
+    }
+}
