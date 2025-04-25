@@ -3,7 +3,7 @@
 - [✅] `test_curl_install.sh`: Passed
 - [✅] `test_download.sh`: Passed
 - [✅] `test_git_install.sh`: Passed
-- [✅] `test_install.sh`: Passed
+- [✅] `test_install.sh`: Passed (Re-run after fixing server.js imports - stable)
 
 # Fichier de tests
 

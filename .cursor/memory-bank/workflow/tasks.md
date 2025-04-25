@@ -1,16 +1,16 @@
 # In Progress
 
-## 5. MCP Server Testing
-
-5.1. [ ] **Test MCP commit server functionality**:
-    - Description: Execute the MCP commit server script (`node .cursor/mcp/mcp-commit-server/server.js`) using the `timeout` command (e.g., `timeout 60s node ...`) to ensure it runs correctly and exits if it hangs. Verify it can be started and potentially interact with it if possible via MCP tooling (if available).
-    - Impacted Files: `.cursor/mcp/mcp-commit-server/server.js`
-    - Dependencies: Node.js installed, `timeout` command available (or alternative).
-    - Validation: The server script starts without immediate errors when run via `timeout`. Confirmation that the server is accessible via MCP (if testable) or at least runs without crashing within the timeout. **(BLOCKED by Node module import error)**
-
 # ToDo
 
 # Done
+
+## 5. MCP Server Testing
+
+5.1. [x] **Test MCP commit server functionality**:
+    - Description: Execute the MCP commit server script (`node .cursor/mcp/mcp-commit-server/server.js`) using the `timeout` command (e.g., `timeout 60s node ...`) to ensure it runs correctly and exits if it hangs. Verify it can be started and potentially interact with it if possible via MCP tooling (if available).
+    - Impacted Files: `.cursor/mcp/mcp-commit-server/server.js`
+    - Dependencies: Node.js installed (v22.14.0 confirmed by user), `timeout` command available (or alternative).
+    - Validation: The server script starts without immediate errors when run via `timeout` (exits with code 124 as expected) and logs connection success. Import paths in `server.js` were corrected to use documented subpaths (`@modelcontextprotocol/sdk/server/...`).
 
 ## 1. MCP Memory Server Update
 
