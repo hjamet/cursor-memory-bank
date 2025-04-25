@@ -1,21 +1,17 @@
 # Active Context
 
-## Current State
-- Simplified debugging logic in `fix` rule: Debugging is now considered proactively (step 2.4) if analysis (step 2.2) reveals uncertainty about the error cause.
-- Previous updates (Memory server, install script) completed.
-- All tests pass.
-
-## Next Steps
-- Check for remaining tasks or user requests. Consider commit server status (user note 📌).
-
-## Previous implementation context
-- **Task**: Simplify debugging logic in `fix` rule [DONE]
-- **Description**: Modified step 2 of the `fix` rule for proactive debugging via `mcp_debug` tools when uncertain.
-- **Impacted Files**: `.cursor/rules/fix.mdc`
-- **Outcome**: Rule updated successfully.
+## Current implementation context
+- **Task**: Integrate `commit` tool into rules.
+- **Description**: Modified `fix.mdc` and `context-update.mdc` to use the new `commit` tool provided by the `mcp-commit-server`, replacing the direct `git commit` commands. This completes the integration task related to the MCP server functionality noted in `userbrief.md`.
+- **Impacted Files**: `.cursor/rules/fix.mdc`, `.cursor/rules/context-update.mdc`, `.cursor/memory-bank/userbrief.md`.
+- **Relevant Info**: The `mcp-commit-server` is now functional after correcting `server.js` initialization and `mcp.json` configuration. The `commit` tool requires structured input (emoji, type, message).
+- **Attention Points**: Ensure commits made via rules now use the MCP tool.
+- **Technical Decisions**: Standardized commit process across rules using the dedicated tool.
 
 ## Previous State Summary
-- Section 1 (MCP Memory Update) and Section 2 (Install Script Enhancement) completed.
-- Rules updated for `mcp_memory`, `context7`, `mcp_debug`.
-- `install.sh` updated for `mcp.json` merging.
+- Verified `mcp-commit-server` functionality and `commit` tool availability.
+- Corrected `.cursor/mcp.json` structure.
+- Refactored `server.js` initialization in `.cursor/mcp/mcp-commit-server/server.js`.
+- Simplified `fix` rule debugging logic.
+- Completed Memory server update and Install script enhancement tasks.
 - All tests passed. 
