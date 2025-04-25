@@ -239,6 +239,7 @@ install_rules() {
     local clone_dir="$temp_dir/repo"
     local api_dir="$temp_dir/api-files"
     local commit_date=""
+    local template_mcp_json="$temp_dir/mcp.json" # Define path for template
 
     log "Installing rules to $rules_path"
 
@@ -312,6 +313,11 @@ install_rules() {
         else
             error "No rules found in the repository"
         fi
+
+        # ADD MCP.JSON DOWNLOAD HERE
+        log "Downloading mcp.json template"
+        download_file "$RAW_URL_BASE/mcp.json" "$template_mcp_json"
+
     else
         # Use git clone
         log "Using git clone for installation"
@@ -337,6 +343,18 @@ install_rules() {
         # Copy rules directory without removing files that don't exist in the source
         if ! cp -r "$clone_dir/rules/"* "$rules_path/"; then
             error "Failed to copy rules to installation directory. Please check disk space and permissions."
+        fi
+        
+        # ADD MCP.JSON COPY HERE
+        if [[ -f "$clone_dir/mcp.json" ]]; then
+            log "Copying mcp.json template from clone"
+            if ! cp "$clone_dir/mcp.json" "$template_mcp_json"; then
+                error "Failed to copy mcp.json template. Please check permissions."
+            fi
+        else
+            warn "mcp.json template not found in repository clone."
+            # Create an empty file to avoid errors later if merge is attempted
+            touch "$template_mcp_json"
         fi
     fi
 
@@ -378,6 +396,79 @@ install_rules() {
     fi
 
     log "Rules installed successfully"
+}
+
+# Function to merge MCP JSON template with existing config
+merge_mcp_json() {
+    local target_dir="$1"
+    local temp_dir="$2"
+    local template_mcp_json="$temp_dir/mcp.json"
+    local target_mcp_json="$target_dir/.cursor/mcp.json"
+
+    # Ensure template was fetched/copied
+    if [[ ! -f "$template_mcp_json" ]]; then
+        warn "Template mcp.json not found in temp directory. Skipping MCP config update."
+        return 0
+    fi
+
+    # Ensure .cursor directory exists
+    if ! mkdir -p "$(dirname "$target_mcp_json")"; then
+        warn "Could not create directory for $target_mcp_json. Skipping MCP config update."
+        return 1 # Indicate potential issue
+    fi
+
+    if [[ ! -f "$target_mcp_json" ]]; then
+        # Target doesn't exist, just copy the template
+        log "Creating $target_mcp_json from template."
+        if ! cp "$template_mcp_json" "$target_mcp_json"; then
+            warn "Failed to copy template mcp.json to $target_mcp_json."
+            return 1
+        fi
+    else
+        # Target exists, attempt merge
+        log "Existing $target_mcp_json found. Merging with template."
+        
+        # Check for jq
+        if ! command -v jq >/dev/null 2>&1; then
+            warn "'jq' command not found. Cannot merge $target_mcp_json. Please install jq to merge automatically."
+            warn "You may need to manually add entries from the template mcp.json to your existing file."
+            return 0 # Non-fatal, just warn
+        fi
+
+        # Validate existing JSON
+        if ! jq -e . "$target_mcp_json" > /dev/null 2>&1; then
+            warn "Existing $target_mcp_json is not valid JSON. Skipping merge."
+            return 0 # Non-fatal
+        fi
+
+        # Validate template JSON (allow empty template)
+        if [[ -s "$template_mcp_json" ]] && ! jq -e . "$template_mcp_json" > /dev/null 2>&1; then
+            warn "Template mcp.json ($template_mcp_json) is not valid JSON. Skipping merge."
+            return 0 # Non-fatal
+        fi
+
+        # Perform merge (add missing keys from template)
+        local merged_json
+        merged_json=$(jq --slurpfile template "$template_mcp_json" \
+                         '.mcpServers = ($template[0].mcpServers + .mcpServers)' \
+                         "$target_mcp_json" 2>/dev/null)
+        local jq_status=$?
+
+        if [[ $jq_status -ne 0 ]]; then
+            warn "jq command failed during merge (Exit code: $jq_status). Skipping $target_mcp_json update."
+            return 1
+        fi
+        
+        # Write merged content to temp file then replace original
+        echo "$merged_json" > "$target_mcp_json.tmp"
+        if ! mv "$target_mcp_json.tmp" "$target_mcp_json"; then
+             warn "Failed to write merged $target_mcp_json. Skipping update."
+             rm -f "$target_mcp_json.tmp" # Clean up temp file
+             return 1
+        fi
+        log "Successfully merged template into $target_mcp_json."
+    fi
+    return 0
 }
 
 show_help() {
@@ -522,5 +613,8 @@ if [[ -d "$INTERNAL_MCP_SERVER_DIR" ]] && [[ -f "$INTERNAL_MCP_SERVER_DIR/packag
         warn "npm not found. Skipping Internal MCP Commit Server dependency installation. Please install Node.js and npm, then run 'npm install' in $INTERNAL_MCP_SERVER_DIR manually."
     fi
 fi
+
+# Merge MCP JSON template with existing config
+merge_mcp_json "$INSTALL_DIR" "$TEMP_DIR"
 
 log "Installation completed successfully!" 

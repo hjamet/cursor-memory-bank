@@ -1,23 +1,21 @@
 # Active Context
 
 ## Current State
-- Tasks 1.1 and 1.2 (MCP Memory Server Update) are complete.
-- Rules `fix` and `request-analysis` have been updated to use `mcp_memory_*` tools instead of `supermemory` / `mcp_servers_*`.
-- Integrated `context7` and `mcp_debug` tools into relevant rules.
+- Simplified debugging logic in `fix` rule: Debugging is now considered proactively (step 2.4) if analysis (step 2.2) reveals uncertainty about the error cause.
+- Previous updates (Memory server, install script) completed.
+- All tests pass.
 
 ## Next Steps
-- Proceed with tasks in Section 2: Installation Script Enhancement.
+- Check for remaining tasks or user requests. Consider commit server status (user note 📌).
 
-## Previous implementation context (Section 1)
-- **Section**: 1. MCP Memory Server Update
-- **Tasks**: 
-    - 1.1 Test New `memory` MCP Server [DONE]
-    - 1.2 Update Rules to Use `memory` Server [DONE]
-- **Description**: Tested `mcp_memory_*` tools and refactored `fix` & `request-analysis` rules.
-- **Impacted Files**: `.cursor/rules/fix.mdc`, `.cursor/rules/request-analysis.mdc`.
-- **Outcome**: Rules updated successfully.
+## Previous implementation context
+- **Task**: Simplify debugging logic in `fix` rule [DONE]
+- **Description**: Modified step 2 of the `fix` rule for proactive debugging via `mcp_debug` tools when uncertain.
+- **Impacted Files**: `.cursor/rules/fix.mdc`
+- **Outcome**: Rule updated successfully.
 
-## Previous State Summary (from last context update)
-- Rules `fix` and `request-analysis` were updated to use `supermemory`, `context7`, `mcp_debug`.
-- Test `test_install.sh` failed and was fixed (removed `local`, updated MCP SDK dependency).
-- User requests processed via `consolidate-repo` and decomposed into new tasks. 
+## Previous State Summary
+- Section 1 (MCP Memory Update) and Section 2 (Install Script Enhancement) completed.
+- Rules updated for `mcp_memory`, `context7`, `mcp_debug`.
+- `install.sh` updated for `mcp.json` merging.
+- All tests passed. 

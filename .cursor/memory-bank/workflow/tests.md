@@ -8,29 +8,29 @@
 # Fichier de tests
 
 ## Tests d'installation via curl
-- ✅ **Test d'installation via curl** : Test passé correctement - Stable, continue de fonctionner après les modifications.
-- ✅ **Test d'installation curl avec options par défaut (pas de backup)** : Test passé correctement - Stable, continue de fonctionner après les modifications.
-- ✅ **Test de gestion d'erreur curl** : Test passé correctement - Stable, continue de fonctionner après les modifications.
-- ✅ **Test d'affichage de la date du dernier commit (curl)** : Test passé correctement - Stable, continue de fonctionner après les modifications.
+- ✅ **Test d'installation via curl** : Passed - Stable
+- ✅ **Test d'installation curl avec options par défaut (pas de backup)** : Passed - Stable
+- ✅ **Test de gestion d'erreur curl** : Passed - Stable
+- ✅ **Test d'affichage de la date du dernier commit (curl)** : Passed - Stable
 
 ## Tests de téléchargement
-- ✅ **Test de téléchargement de fichier** : Test passe correctement. - Stable after tmp cleanup addition.
-- ✅ **Test d'URL invalide** : Test passe correctement. - Stable after tmp cleanup addition.
-- ✅ **Test de téléchargement d'archive** : Test passe correctement (ou est sauté si fonction non dispo). - Stable after tmp cleanup addition.
-- ✅ **Test d'URL d'archive invalide** : Test passe correctement (ou est sauté si fonction non dispo). - Stable after tmp cleanup addition.
+- ✅ **Test de téléchargement de fichier** : Passed - Stable
+- ✅ **Test d'URL invalide** : Passed - Stable
+- ✅ **Test de téléchargement d'archive** : Passed - Stable
+- ✅ **Test d'URL d'archive invalide** : Passed - Stable
 
 ## Tests d'installation via git
-- ✅ **Test d'installation de base** : L'installation de base via git continue de fonctionner correctement. - Stable.
-- ✅ **Test de préservation des règles personnalisées** : Les règles personnalisées sont correctement préservées lors de l'installation. - Stable.
-- ✅ **Test d'option --no-backup** : L'option --no-backup fonctionne correctement dans le contexte git. - Stable.
-- ✅ **Test d'option --force** : L'option --force continue de fonctionner correctement. - Stable.
-- ✅ **Test de répertoire invalide** : Le test affiche maintenant clairement le message d'erreur capturé. - Stable.
-- ✅ **Test d'affichage de la date du dernier commit (git)** : Test passé correctement - Stable, continue de fonctionner après les modifications.
+- ✅ **Test d'installation de base** : Passed - Stable
+- ✅ **Test de préservation des règles personnalisées** : Passed - Stable
+- ✅ **Test d'option --no-backup** : Passed - Stable
+- ✅ **Test d'option --force** : Passed - Stable
+- ✅ **Test de répertoire invalide** : Passed - Stable
+- ✅ **Test d'affichage de la date du dernier commit (git)** : Passed - Stable
 
 ## Tests d'installation standard
-- ✅ **Test d'installation de base**: Passed (Fixed npm dependency version)
-- ✅ **Test de backup et restauration** : Le test fonctionne correctement. - Stable after tmp cleanup addition.
-- ✅ **Test de gestion d'erreur** : Corrigé en forçant --use-curl pour le test de dépôt invalide, la gestion d'erreur API fonctionne correctement. - Stable after tmp cleanup addition.
+- ✅ **Test d'installation de base**: Passed - Stable (Retested after mcp.json merge implementation)
+- ✅ **Test de backup et restauration** : Passed - Stable
+- ✅ **Test de gestion d'erreur** : Passed - Stable
 
 ## Problèmes persistants
 - ✅ **Tests de téléchargement** : Corrigé en isolant les fonctions de test.
