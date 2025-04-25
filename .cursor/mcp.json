@@ -1,9 +1,14 @@
 {
     "mcpServers": {
         "Git Commit (Internal)": {
-            "command": "python",
+            "command": "cmd",
             "args": [
-                ".cursor/mcp/mcp-commit-server/server.py"
+                "/c",
+                "start",
+                "cmd",
+                "/k",
+                "node",
+                ".cursor/mcp/mcp-commit-server/server.js"
             ],
             "cwd": "."
         }

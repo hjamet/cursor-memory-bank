@@ -89,6 +89,76 @@ While this is primarily a personal project, contributions are welcome! Just note
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## Troubleshooting 🔧
+
+### MCP Commit Server Issues
+
+If you encounter an error like `Error: Cannot find module '.cursor/mcp/mcp-commit-server/server.js'` when using Cursor, it means the MCP commit server files were not properly installed in your Cursor installation directory. To fix this issue:
+
+1. Make sure the MCP commit server files exist in your project:
+```bash
+ls -la .cursor/mcp/mcp-commit-server/
+```
+
+2. Copy the MCP commit server files to your Cursor installation directory:
+```bash
+# For Windows (adjust the path as needed):
+mkdir -p "C:/Users/<YourUsername>/AppData/Local/Programs/cursor/.cursor/mcp/mcp-commit-server"
+cp -r .cursor/mcp/mcp-commit-server/* "C:/Users/<YourUsername>/AppData/Local/Programs/cursor/.cursor/mcp/mcp-commit-server/"
+
+# For macOS (adjust the path as needed):
+mkdir -p ~/Library/Application\ Support/cursor/.cursor/mcp/mcp-commit-server
+cp -r .cursor/mcp/mcp-commit-server/* ~/Library/Application\ Support/cursor/.cursor/mcp/mcp-commit-server/
+
+# For Linux (adjust the path as needed):
+mkdir -p ~/.config/cursor/.cursor/mcp/mcp-commit-server
+cp -r .cursor/mcp/mcp-commit-server/* ~/.config/cursor/.cursor/mcp/mcp-commit-server/
+```
+
+3. Install the dependencies:
+```bash
+# Navigate to the MCP commit server directory in your Cursor installation:
+cd "C:/Users/<YourUsername>/AppData/Local/Programs/cursor/.cursor/mcp/mcp-commit-server/" # Windows
+cd ~/Library/Application\ Support/cursor/.cursor/mcp/mcp-commit-server/ # macOS
+cd ~/.config/cursor/.cursor/mcp/mcp-commit-server/ # Linux
+
+# Install dependencies:
+npm install
+```
+
+4. Create or update the mcp.json file in your Cursor installation directory:
+```json
+// For Windows - Save this to C:/Users/<YourUsername>/AppData/Local/Programs/cursor/.cursor/mcp.json
+{
+    "mcpServers": {
+        "Git Commit (Internal)": {
+            "command": "cmd",
+            "args": [
+                "/c",
+                "node",
+                ".cursor/mcp/mcp-commit-server/server.js"
+            ],
+            "cwd": "."
+        }
+    }
+}
+
+// For macOS/Linux - Save this to ~/Library/Application Support/cursor/.cursor/mcp.json (macOS) or ~/.config/cursor/.cursor/mcp.json (Linux)
+{
+    "mcpServers": {
+        "Git Commit (Internal)": {
+            "command": "node",
+            "args": [
+                ".cursor/mcp/mcp-commit-server/server.js"
+            ],
+            "cwd": "."
+        }
+    }
+}
+```
+
+5. Restart Cursor and the MCP commit server should now be available as a tool.
+
 ## Acknowledgments 🙏
 
 Thank you for your understanding regarding the French documentation. This project started as a personal tool, and while I'd love to make it more accessible to everyone, I'm sharing it as-is for now, hoping it might still be helpful to some! 

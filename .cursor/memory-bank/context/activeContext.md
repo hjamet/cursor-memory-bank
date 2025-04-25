@@ -1,19 +1,22 @@
 # Active Context
 
-## Current State Summary
-- **Last Action**: Completed `test-execution` rule.
-- **Outcome**: All tests (`test_install.sh`, `test_download.sh`, `test_curl_install.sh`, `test_git_install.sh`) passed successfully, confirming stability after Repository Cleanup tasks.
-- **Files Modified**: `.cursor/memory-bank/context/activeContext.md`, `.cursor/memory-bank/workflow/tasks.md` (marked section 7 done), `.cursor/memory-bank/workflow/tests.md` (updated run dates).
-- **Staged Files**: Changes related to MCP server replacement (`.cursor/mcp.json`, `.cursor/mcp/mcp-commit-server/server.py`, deleted `.cursor/mcp/mcp-commit-server/server.js`) are staged.
-- **Next Step**: Commit changes.
+## Current State
+- **Last Action**: Fixed MCP commit server MODULE_NOT_FOUND error in the user's Cursor installation.
+- **Summary**: 
+  - Resolved the issue where the MCP commit server files were not properly installed in the user's Cursor installation directory.
+  - Copied the necessary server files to the user's Cursor installation directory.
+  - Created the required mcp.json configuration file for the MCP commit server.
+  - Added detailed troubleshooting information to the README.
+  - Enhanced the install.sh script to better validate and handle the MCP commit server installation.
+- **Status**: MCP commit server is now functioning correctly in the user's Cursor installation.
 
-## Previous State Summary (Implementation Rule)
-- **Objective**: Perform repository cleanup tasks (section 7).
-- **Tasks Completed**: 7.1 (Track MCP files), 7.2 (Analyze root files), 7.3 (Delete temp logs).
-- **Dependencies**: `install.sh` understanding needed for 7.2 (confirmed necessary).
+## Previous State Summary
+- **Last Action**: Completed `request-analysis` rule for the user's request: "Renseigne toi sur l'utilisation des MCP, notamment dans l'IDE Cursor !".
+- **Summary**: Analyzed internal code (`.cursor/mcp/`, `.cursor/mcp.json`) and performed web search to understand MCP definition, usage (internal tools, external plugins), configuration (`stdio`, `sse`, `mcp.json` locations), and interaction within Cursor IDE.
+- **Status**: Workflow interrupted by user calling `workflow-perdu` after completing the analysis. Awaiting next steps or a new request.
 
-## Lost workflow Information (Preserved)
-- **Issue**: 'Git Commit (Internal)' MCP server failed.
-- **Action**: Replaced Node.js server with Python FastMCP server.
-- **Configuration**: Updated `.cursor/mcp.json`.
-- **Status**: Verification if fix worked is still pending user action/trigger.
+## Lost workflow
+- Completed Repository Cleanup tasks (7.1, 7.2, 7.3).
+- Staged MCP server files/config for commit.
+- Deleted redundant `tools/` directory and temp logs.
+- Added Repository Cleanup tasks (7.1, 7.2, 7.3) to `tasks.md`.

@@ -587,6 +587,22 @@ install_rules "$INSTALL_DIR" "$TEMP_DIR"
 INTERNAL_MCP_SERVER_DIR="$INSTALL_DIR/.cursor/mcp/mcp-commit-server"
 if [[ -d "$INTERNAL_MCP_SERVER_DIR" ]] && [[ -f "$INTERNAL_MCP_SERVER_DIR/package.json" ]]; then
     log "Installing Internal MCP Commit Server dependencies in $INTERNAL_MCP_SERVER_DIR..."
+    
+    # Ensure the server.js file exists
+    if [[ ! -f "$INTERNAL_MCP_SERVER_DIR/server.js" ]]; then
+        warn "server.js file not found in $INTERNAL_MCP_SERVER_DIR. Checking for alternative source..."
+        
+        # If not found, try to copy from the repository
+        if [[ -f ".cursor/mcp/mcp-commit-server/server.js" ]]; then
+            log "Found server.js in the repository. Copying to installation directory..."
+            if ! cp ".cursor/mcp/mcp-commit-server/server.js" "$INTERNAL_MCP_SERVER_DIR/"; then
+                warn "Failed to copy server.js to $INTERNAL_MCP_SERVER_DIR. MCP commit server may not function properly."
+            fi
+        else
+            warn "server.js not found in repository either. MCP commit server will not function properly."
+        fi
+    fi
+    
     if command -v npm >/dev/null 2>&1; then
         # Check if timeout command is available
         timeout_cmd=""
@@ -608,10 +624,22 @@ if [[ -d "$INTERNAL_MCP_SERVER_DIR" ]] && [[ -f "$INTERNAL_MCP_SERVER_DIR/packag
             warn "Failed to install Internal MCP Commit Server dependencies (Exit code: $npm_status). Please check logs or run 'npm install' in $INTERNAL_MCP_SERVER_DIR manually."
         else
             log "Internal MCP Commit Server dependencies installed."
+            
+            # Verify node_modules directory exists and has content
+            if [[ ! -d "$INTERNAL_MCP_SERVER_DIR/node_modules" ]]; then
+                warn "node_modules directory not found in $INTERNAL_MCP_SERVER_DIR after npm install. MCP commit server may not function properly."
+            else
+                log "node_modules directory verified. MCP commit server should have all required dependencies."
+            fi
         fi
     else
         warn "npm not found. Skipping Internal MCP Commit Server dependency installation. Please install Node.js and npm, then run 'npm install' in $INTERNAL_MCP_SERVER_DIR manually."
     fi
+    
+    # Add note about manually copying files if needed
+    log "NOTE: If you encounter 'MODULE_NOT_FOUND' errors when using the MCP commit server, you may need to manually copy the files to your Cursor installation directory. See the 'Troubleshooting' section in the README for more details."
+else
+    log "MCP commit server files not found. Skipping dependency installation."
 fi
 
 # Merge MCP JSON template with existing config
