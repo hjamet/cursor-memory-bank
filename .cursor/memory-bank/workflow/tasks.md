@@ -2,26 +2,6 @@
 
 # ToDo
 
-## 7. Repository Cleanup
-
-7.1. [ ] **Track MCP Commit Server Files**:
-    - Description: Add the `.cursor/mcp/` directory (containing the server code, dependencies, and configuration) and the `.cursor/mcp.json` template file to git tracking using `git add`. Verify they are staged correctly.
-    - Impacted Files: `.gitignore`, `.cursor/mcp/`, `.cursor/mcp.json`
-    - Dependencies: None
-    - Validation: `git status` shows the files/directory as staged for commit.
-
-7.2. [ ] **Analyze Root `mcp.json` and `tools/` Directory**:
-    - Description: Re-evaluate the purpose of the root `mcp.json` file (previously thought required by `install.sh`) and the `tools/` directory. Determine if they are essential, contain generated binaries, or are remnants of development/testing that should be removed or added to `.gitignore`.
-    - Impacted Files: `mcp.json`, `tools/`, `install.sh`, `.gitignore`
-    - Dependencies: Understanding of `install.sh` logic.
-    - Validation: A clear decision is made and documented on whether to track, ignore, or delete `mcp.json` and `tools/`.
-
-7.3. [ ] **Delete Temporary Log Files**:
-    - Description: Remove the temporary/backup log files identified in the `tests/` directory (`exit_codes.log[201~`, `exit_codes.log~`).
-    - Impacted Files: `tests/exit_codes.log[201~`, `tests/exit_codes.log~`
-    - Dependencies: None
-    - Validation: The specified files are successfully deleted.
-
 # Done
 
 ## 7. Repository Cleanup
@@ -30,26 +10,26 @@
     - Description: Add the `.cursor/mcp/` directory (containing the server code, dependencies, and configuration) and the `.cursor/mcp.json` template file to git tracking using `git add`. Verify they are staged correctly.
     - Impacted Files: `.gitignore`, `.cursor/mcp/`, `.cursor/mcp.json`
     - Dependencies: None
-    - Validation: `git status` showed the files/directory as staged for commit.
+    - Validation: `git status` shows the files/directory as staged for commit.
 
 7.2. [x] **Analyze Root `mcp.json` and `tools/` Directory**:
     - Description: Re-evaluate the purpose of the root `mcp.json` file (previously thought required by `install.sh`) and the `tools/` directory. Determine if they are essential, contain generated binaries, or are remnants of development/testing that should be removed or added to `.gitignore`.
     - Impacted Files: `mcp.json`, `tools/`, `install.sh`, `.gitignore`
     - Dependencies: Understanding of `install.sh` logic.
-    - Validation: Root `mcp.json` confirmed necessary for `install.sh` and added to staging. `tools/` directory identified as redundant/outdated and deleted.
+    - Validation: A clear decision is made and documented on whether to track, ignore, or delete `mcp.json` and `tools/`. (Previous validation: Root `mcp.json` confirmed necessary for `install.sh` and added to staging. `tools/` directory identified as redundant/outdated and deleted.)
 
 7.3. [x] **Delete Temporary Log Files**:
     - Description: Remove the temporary/backup log files identified in the `tests/` directory (`exit_codes.log[201~`, `exit_codes.log~`).
     - Impacted Files: `tests/exit_codes.log[201~`, `tests/exit_codes.log~`
     - Dependencies: None
-    - Validation: Files successfully deleted using `rm -f`.
+    - Validation: The specified files are successfully deleted. (Previous validation: Files successfully deleted using `rm -f`. Verified not present.)
 
 ## 5. MCP Server Testing
 
 5.1. [x] **Test MCP commit server functionality**:
-    - Description: Execute the MCP commit server script (`node .cursor/mcp/mcp-commit-server/server.js`) using the `timeout` command (e.g., `timeout 60s node ...`) to ensure it runs correctly and exits if it hangs. Verify it can be started and potentially interact with it if possible via MCP tooling (if available).
-    - Impacted Files: `.cursor/mcp/mcp-commit-server/server.js`
-    - Dependencies: Node.js installed (v22.14.0 confirmed by user), `timeout` command available (or alternative).
+    - Description: Execute the MCP commit server script (`python .cursor/mcp/mcp-commit-server/server.py`) using the `timeout` command (e.g., `timeout 60s python ...`) to ensure it runs correctly and exits if it hangs. Verify it can be started and potentially interact with it if possible via MCP tooling (if available).
+    - Impacted Files: `.cursor/mcp/mcp-commit-server/server.py`
+    - Dependencies: Python installed, `timeout` command available (or alternative).
     - Validation: The server script starts without immediate errors when run via `timeout` (exits with code 124 as expected) and logs connection success. Import paths in `server.js` were corrected to use documented subpaths (`@modelcontextprotocol/sdk/server/...`).
 
 ## 1. MCP Memory Server Update
