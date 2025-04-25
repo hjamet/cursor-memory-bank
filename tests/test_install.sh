@@ -63,29 +63,53 @@ cleanup() {
 
 # Test functions
 test_clean_install() {
-    log "Testing clean installation..."
+    log "Testing clean installation including MCP server setup..."
+    
+    # Create dummy MCP server files for the test
+    local mcp_server_test_dir="$TEST_DIR/.cursor/mcp/mcp-commit-server"
+    mkdir -p "$mcp_server_test_dir"
+    echo '{ "name": "dummy-mcp-server-test" }' > "$mcp_server_test_dir/package.json"
     
     # Set up test environment variables
-    export TEST_MODE=1
+    export TEST_MODE=1 # Potentially used by install.sh? Keep for safety.
     export TEST_RULES_DIR="$TEST_RULES_DIR"
     export TEST_DIST_DIR="$TEST_DIST_DIR"
     
-    # Run installation script using absolute path
+    # Run installation script using absolute path and capture output
     local install_script="$(cd "$(dirname "$0")/.." && pwd)/install.sh"
     if [[ ! -f "$install_script" ]]; then
         error "Installation script not found at $install_script"
         return 1
     fi
     
-    if ! bash "$install_script" --dir "$TEST_DIR"; then
-        error "Clean installation failed"
+    local install_output
+    install_output=$(bash "$install_script" --dir "$TEST_DIR" 2>&1)
+    local install_status=$?
+    
+    log "Installation script output:\n$install_output"
+    
+    if [[ $install_status -ne 0 ]]; then
+        error "Clean installation failed (Exit code: $install_status)"
         return 1
     fi
     
-    # Verify installation
+    # Verify core rules installation
     if [[ ! -d "$TEST_RULES_DIR" ]]; then
         error "Rules directory was not created"
         return 1
+    fi
+    
+    # Verify MCP server dependency installation was attempted
+    if ! echo "$install_output" | grep -q "Installing Internal MCP Commit Server dependencies"; then
+        error "MCP server dependency installation step was not logged"
+        return 1
+    fi
+    
+    # Verify it handled npm presence (or lack thereof) gracefully 
+    # Check for either success message or warning about npm missing
+    if ! echo "$install_output" | grep -q "Internal MCP Commit Server dependencies installed." && ! echo "$install_output" | grep -q "npm not found"; then
+       error "MCP server dependency installation did not log expected success or npm warning message"
+       return 1
     fi
     
     log "Clean installation test passed"

@@ -1,3 +1,10 @@
+# Test Status
+
+- [ ] `test_curl_install.sh`: Pending
+- [ ] `test_download.sh`: Pending
+- [ ] `test_git_install.sh`: Pending
+- [ ] `test_install.sh`: Pending
+
 # Fichier de tests
 
 ## Tests d'installation via curl

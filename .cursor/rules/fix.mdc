@@ -16,22 +16,30 @@ Analyze test errors and fix them through an iterative execution-correction loop 
 2.  **Correction loop**: For each failing test, iterate until fixed or handed over
     *   **2.1 Marking**: Always indicate **(Fix: 2 - Correction loop - [Test name] - Iteration [number])**
     *   **2.2 Analysis**: 
-        *   **(Optional) Memory Lookup**: Use `mcp_servers_search_nodes` with error message/test name to find similar past errors and their solutions in the knowledge graph.
-        *   Examine only files involved in the error and identify the cause. If you are not entirely certain about the correction to be made. Don't hesitate to use the `<think></think>` tags. Don't hesitate either to use the codebase search tool !
-    *   **2.3 Research**: If needed, use the web to find solutions for specific errors
-    *   **2.4 Implementation**: Make the correction and document the changes
-    *   **2.5 Test**: Execute ONLY the specific test currently being fixed and analyze the result:
-        *   If test passes :
-            * **2.5.1 Update tests.md**: If the test passes, update the `.cursor/memory-bank/workflow/tests.md` file to reflect the new status of the test. Write **(Fix: 2 - Correction loop - [Test name] - Implementation [number] completed)** after this step.
-            * **2.5.2 Quick commit** : Use the command `git commit -m "Message" files` to commit the changes made to the files involved in the test. The message should look like that : **:wrench: fix: test_name - quick fix explanation**.
-            * **(Optional) Memory Storage**: Use `mcp_servers_add_observations` to store details of the error, the successful fix, and relevant context (e.g., files modified, iteration count) in the knowledge graph, associated with an entity like 'TestErrorSolution'.
-            * **2.5.3 Continue**: Move to the next failing test in the list and repeat the loop from step 2.1.
-        *   If test fails but shows progress → Continue loop with new iteration for the *same* test.
-        *   If **truly complex correction** (after 3 attempts *without any progress* OR requires *major* refactoring / a completely new implementation approach):
-            *   Mark the test as **(Fix: 2 - Correction loop - [Test name] - Handing over to request-analysis)**
-            *   Call the `request-analysis` rule, providing the problem description, context, and the need for a new approach.
+        *   **(Optional) Memory Lookup**: Use `mcp_supermemory_searchSupermemory` with error message/test name to find similar past errors and their solutions.
+        *   Examine only files involved in the error and identify the cause. If you are not entirely certain about the correction to be made. Don't hesitate to use the `<think></think>` tags. Don't hesitate either to use the codebase search tool!
+    *   **2.3 Research**: 
+        *   If needed, use the web to find solutions for specific errors.
+        *   **Library Documentation Lookup**: If the error seems related to a specific library's usage (e.g., API misuse, unexpected behavior), use `mcp_context7_resolve-library-id` to get the library ID, followed by `mcp_context7_get-library-docs` to fetch relevant documentation for that library and the specific topic/function causing the error.
+    *   **2.4 Implementation**: Make the correction and document the changes.
+    *   **2.5 Execution**: Run the specific failing test script identified in the previous step to confirm if the fix works. Capture the exit code and output.
+    *   **2.6 Loop analysis**: 
+        *   If the test passes: *(Optional) Store successful fix details using `mcp_supermemory_addToSupermemory`*. Proceed to the next failing test or step 3 if all are fixed.
+        *   If the test still fails after 3 attempts OR requires major refactoring (explain why in `<think>` tags): Hand over to `request-analysis`. Provide detailed context (problem description, files involved, failed attempts). Call `fetch_rules` for `request-analysis` and terminate this rule.
+        *   If the test still fails but shows progress or the cause is unclear (and < 3 attempts): Continue the loop (go back to 2.2).
+        *   **Advanced Debugging (If Stuck)**: If standard analysis and research fail to pinpoint the issue after an attempt, consider using the interactive debugger:
+            1.  Use `mcp_debug_listFiles` to confirm relevant source file paths.
+            2.  Use `mcp_debug_getFileContent` to review the code around the suspected error location.
+            3.  Use `mcp_debug_debug` with `steps`:
+                *   `[{ "type": "setBreakpoint", "file": "path/to/file.py", "line": <line_number> }]` to set breakpoints before the error occurs.
+                *   `[{ "type": "launch" }]` to start the test execution under the debugger.
+                *   Evaluate variables/expressions using `[{ "type": "evaluate", "expression": "variable_name" }]` while paused.
+                *   Continue execution with `[{ "type": "continue" }]`.
+                *   Repeat setting breakpoints, launching, evaluating, and continuing until the issue is understood.
+            4.  Use the insights gained from debugging to inform the next implementation attempt (step 2.4).
+        *   After this sub-step, write **(Fix - 2.6 Loop analysis completed)**
 
-3.  **Calling the next rule (only if loop completed without handover)**: Determine the next step based on results *if and only if* step 2.5 did not trigger a handover to `request-analysis`.
+3.  **Calling the next rule (only if loop completed without handover)**: Determine the next step based on results *if and only if* step 2 did not trigger a handover to `request-analysis`.
     *   First check for unprocessed comments in `.cursor/memory-bank/userbrief.md`
     *   If unprocessed comments exist → call `consolidate-repo`
     *   If all initially failing tests were fixed → call `test-execution` for final verification
@@ -40,8 +48,8 @@ Analyze test errors and fix them through an iterative execution-correction loop 
 ## Specifics
 
 -   The `<think></think>` token must be used for each complex correction requiring in-depth analysis
--   You should examinate the files you know related to the problem but you should also use the codebase search tool in case you are missing something.
--   For debugging, temporarily add logs at strategic locations
+-   You should examine the files you know related to the problem but you should also use the codebase search tool in case you are missing something.
+-   For basic debugging, temporarily adding logs is acceptable, but prefer the `mcp_debug` tools if you are stuck after an initial attempt.
 -   NEVER execute all tests, but ONLY the specific test you are currently fixing
 -   Running the complete test suite is exclusively the responsibility of the `test-execution` rule
 -   Document ONLY errors related to:
@@ -78,8 +86,8 @@ I've identified the following failing tests:
 **(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1)**
 
 ## 2.2 Analysis
-*(Optional) I search the knowledge graph for similar errors: [...]*
-`mcp_servers_search_nodes(...)`
+*(Optional) I search my memory for similar errors: [...]*
+`mcp_supermemory_searchSupermemory(...)`
 [...examining authentication code files...]
 
 <think>
@@ -88,18 +96,25 @@ The error occurs because we're trying to JSON serialize a bytes object. Decoding
 
 ## 2.3 Research
 [...confirming JSON serialization practices...]
+*(If a library issue was suspected)*
+I need to check the documentation for the `json` library regarding byte serialization.
+`mcp_context7_resolve-library-id(libraryName='json')`
+[...]
+`mcp_context7_get-library-docs(context7CompatibleLibraryID='...', topic='serialization')`
 
 ## 2.4 Implementation
 [...modifying the authentication code to decode bytes before JSON serialization...]
 **(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Implementation 1 completed)**
 
-## 2.5 Test
-[...running the specific authentication test...]
-**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Test execution 1)**
+## 2.5 Execution
+I will run the failing test script (`tests/test_install.sh`) to see if the fix works. **(Fix - 2.5 Execution in progress...)**
+[...run `bash tests/test_install.sh > tests/install.log 2>&1; echo $? > tests/install.exitcode`...]
+**(Fix - 2.5 Execution completed)**
 
+## 2.6 Loop analysis
 Great! The test now passes. 
-*(Optional) I store the details of the fix in the knowledge graph.*
-`mcp_servers_add_observations(...)`
+*(Optional) I store the details of the fix in my memory.*
+`mcp_supermemory_addToSupermemory(...)`
 Moving to the next failing test.
 
 # Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1
@@ -121,11 +136,13 @@ MemoryError indicates loading the whole file. A streaming approach is likely nee
 [...modifying the processor to use a basic streaming approach...]
 **(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Implementation 1 completed)**
 
-## 2.5 Test
-[...running the specific data processing test...]
-**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Test execution 1)**
+## 2.5 Execution
+I will run the failing test script (`tests/test_install.sh`) to see if the fix works. **(Fix - 2.5 Execution in progress...)**
+[...run `bash tests/test_install.sh > tests/install.log 2>&1; echo $? > tests/install.exitcode`...]
+**(Fix - 2.5 Execution completed)**
 
-The test fails with "NameError: name 'process_chunk' is not defined". This shows progress, so I'll continue iterating.
+## 2.6 Loop analysis
+The test fails with "NameError: name 'process_chunk' is not defined". This shows progress, so I'll continue iterating. **(Fix - 2.6 Loop analysis completed)**
 
 # Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 2
 **(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 2)**
@@ -143,13 +160,32 @@ The test fails with "NameError: name 'process_chunk' is not defined". This shows
 [...implementing the missing function...]
 **(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Implementation 2 completed)**
 
-## 2.5 Test
-[...running the test again...]
-**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Test execution 2)**
-I see that the command has been put in the background. It's certainly related to a simple terminal issue. I'm going to relaunch the command.
+## 2.5 Execution
+I will run the failing test script (`tests/test_install.sh`) to see if the fix works. **(Fix - 2.5 Execution in progress...)**
+[...run `bash tests/test_install.sh > tests/install.log 2>&1; echo $? > tests/install.exitcode`...]
+**(Fix - 2.5 Execution completed)**
+
+## 2.6 Loop analysis
+I see that the command has been put in the background. It's certainly related to a simple terminal issue. I'm going to relaunch the command. **(Fix - 2.6 Loop analysis completed)**
 [...re-running the test...]
 **(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Test execution 2)**
 Still failing with a MemoryError. The simple streaming wasn't enough.
+
+**(Advanced Debugging Example)**
+I'm stuck on this MemoryError. I will use the debugger. **(Fix - 2.6 Loop analysis completed)**
+`mcp_debug_listFiles(includePatterns=['**/data_processor.py'])`
+[...]
+`mcp_debug_getFileContent(path='path/to/data_processor.py')`
+[...]
+`mcp_debug_debug(steps=[{'type': 'setBreakpoint', 'file': 'path/to/data_processor.py', 'line': 42}])`
+[...]
+`mcp_debug_debug(steps=[{'type': 'launch'}])`
+[...] (Paused at breakpoint)
+`mcp_debug_debug(steps=[{'type': 'evaluate', 'expression': 'current_chunk_size'}])`
+[...]
+`mcp_debug_debug(steps=[{'type': 'continue'}])`
+[...] (Debugger finished or hit another breakpoint)
+Now I understand the issue better and will try a new implementation.
 
 # Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 3
 **(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 3)**
@@ -169,9 +205,15 @@ After three attempts, the MemoryError persists despite initial fixes. The first 
 ## 2.4 Implementation
 [...No further implementation attempt...]
 
-## 2.5 Test
+## 2.5 Execution
+I will run the failing test script (`tests/test_install.sh`) to see if the fix works. **(Fix - 2.5 Execution in progress...)**
+[...run `bash tests/test_install.sh > tests/install.log 2>&1; echo $? > tests/install.exitcode`...]
+**(Fix - 2.5 Execution completed)**
+
+## 2.6 Loop analysis
 The test failed on the previous iteration, and analysis confirms it needs major refactoring beyond simple iteration.
 **(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Handing over to request-analysis)**
+**(Fix - 2.6 Loop analysis completed)**
 
 Calling `request-analysis` to handle the complex task of implementing efficient large file processing.
 [Provide context: Problem="MemoryError during large file processing requires major refactoring (streaming/chunking insufficient)", Files=[...], Analysis="Initial attempts failed, needs new architectural approach."]

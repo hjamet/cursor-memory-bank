@@ -492,4 +492,35 @@ create_dirs "$INSTALL_DIR"
 # Install rules
 install_rules "$INSTALL_DIR" "$TEMP_DIR"
 
+# Install Internal MCP Commit Server dependencies if present
+INTERNAL_MCP_SERVER_DIR="$INSTALL_DIR/.cursor/mcp/mcp-commit-server"
+if [[ -d "$INTERNAL_MCP_SERVER_DIR" ]] && [[ -f "$INTERNAL_MCP_SERVER_DIR/package.json" ]]; then
+    log "Installing Internal MCP Commit Server dependencies in $INTERNAL_MCP_SERVER_DIR..."
+    if command -v npm >/dev/null 2>&1; then
+        # Check if timeout command is available
+        local timeout_cmd=""
+        if command -v timeout >/dev/null 2>&1; then
+            timeout_cmd="timeout 60s"
+        elif command -v gtimeout >/dev/null 2>&1; then # Handle macOS case (gtimeout via coreutils)
+            timeout_cmd="gtimeout 60s"
+        else
+            warn "'timeout' command not found. Proceeding without timeout for npm install."
+        fi
+
+        # Change directory, install (with timeout if available), and change back
+        (cd "$INTERNAL_MCP_SERVER_DIR" && $timeout_cmd npm install)
+        local npm_status=$?
+        
+        if [[ $npm_status -eq 124 ]]; then # 124 is the exit code for timeout command
+             warn "'npm install' in $INTERNAL_MCP_SERVER_DIR timed out after 60 seconds. Please check network or run manually."
+        elif [[ $npm_status -ne 0 ]]; then
+            warn "Failed to install Internal MCP Commit Server dependencies (Exit code: $npm_status). Please check logs or run 'npm install' in $INTERNAL_MCP_SERVER_DIR manually."
+        else
+            log "Internal MCP Commit Server dependencies installed."
+        fi
+    else
+        warn "npm not found. Skipping Internal MCP Commit Server dependency installation. Please install Node.js and npm, then run 'npm install' in $INTERNAL_MCP_SERVER_DIR manually."
+    fi
+fi
+
 log "Installation completed successfully!" 

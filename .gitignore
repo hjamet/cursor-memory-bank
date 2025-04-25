@@ -7,3 +7,6 @@
 # Dist directory
 dist/
 tmp/
+
+# Node.js dependencies for internal MCP tools
+.cursor/mcp/mcp-commit-server/node_modules/
