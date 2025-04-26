@@ -59,3 +59,38 @@
 - ✅ **Modification du mécanisme de téléchargement** : Remplacé l'utilisation de l'archive par l'utilisation directe de l'API GitHub pour télécharger les fichiers individuellement
 - ✅ **Mise à jour du README** : curl est maintenant présenté comme la méthode d'installation par défaut
 - ✅ **Tests de téléchargement** : Corrigé en isolant les fonctions de test dans le script de test dédié. 
+
+*   **Last Run:** 2025-04-26
+*   **Status:** ✅ Pass
+*   **Description:** Test basique de l'installation via Git (`tests/test_git_install.sh`). Vérifie le clonage, la copie des fichiers MCP, la gestion des règles personnalisées et les dépendances npm.
+    *   Test: Installation de base
+    *   Test: Préservation des règles personnalisées
+    *   Test: Option --no-backup
+    *   Test: Option --force
+    *   Test: Répertoire invalide
+    *   Test: Affichage de la date du dernier commit
+
+*   **Last Run:** 2025-04-26
+*   **Status:** ✅ Pass
+*   **Description:** Test de l'installation via `curl | bash` (`tests/test_curl_install.sh`). Vérifie le téléchargement, l'exécution du script, la gestion de l'absence de `jq`, et les erreurs de téléchargement.
+    *   Test: Curl Install (Default)
+    *   Test: Curl Install Error Handling (Invalid URL)
+    *   Test: MCP JSON Absolute Path (No jq) - Vérifie l'avertissement et le chemin relatif.
+
+*   **Last Run:** 2025-04-26
+*   **Status:** ✅ Pass
+*   **Description:** Test des fonctions de téléchargement (`tests/test_download.sh`). Vérifie le téléchargement de fichiers simples et d'archives, ainsi que la gestion des URL invalides.
+    *   Test: File Download
+    *   Test: Invalid URL
+    *   Test: Archive Download
+    *   Test: Invalid Archive URL
+
+*   **Last Run:** 2025-04-26
+*   **Status:** ✅ Pass
+*   **Description:** Test complet du script d'installation principal (`tests/test_install.sh`). Couvre l'installation propre, la sauvegarde, la restauration, les options et la gestion des erreurs.
+    *   Test: Clean Install
+    *   Test: Backup and Restore
+    *   Test: Reinstall (No Backup)
+    *   Test: Reinstall (Force)
+    *   Test: Invalid Directory
+    *   Test: Display Version 
