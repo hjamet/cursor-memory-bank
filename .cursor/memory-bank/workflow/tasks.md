@@ -1,7 +1,3 @@
-# In Progress
-
-## 3. Repository Cleanup
-
 # Done
 
 ## 1. Workflow Enhancement
