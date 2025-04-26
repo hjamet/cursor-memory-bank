@@ -18,12 +18,6 @@ Analyze test errors and fix them through an iterative execution-correction loop 
     *   **2.2 Analysis**: 
         *   **(Optional) Memory Lookup**: Use `mcp_servers_search_nodes` with error message/test name to find similar past errors and their solutions in the knowledge graph.
         *   Examine only files involved in the error and identify the cause. If you are not entirely certain about the correction to be made. Don't hesitate to use the `<think></think>` tags. Don't hesitate either to use the codebase search tool !
-        *   **Debugging Guidance**: Before resorting to extensive logging (`log.debug`), consider using the MCP `debug` tool (`mcp_debug_debug`) especially if:
-            *   You are uncertain about the exact cause of the fix.
-            *   This is the 3rd iteration on the same test without clear progress.
-            *   The test logic or the code being tested seems particularly complex.
-            *   You cannot understand the code's behavior leading to the error.
-            *   Use the `debug` tool to set breakpoints and inspect variables to pinpoint the issue.
     *   **2.3 Research**: If needed, use the web to find solutions for specific errors
     *   **2.4 Implementation**: Make the correction and document the changes
     *   **2.5 Test**: Execute ONLY the specific test currently being fixed and analyze the result:
