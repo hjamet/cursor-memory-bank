@@ -1,9 +1,10 @@
 # Test Status
 
-- [✅] `test_curl_install.sh`: Passed (Latest Run: YYYY-MM-DD - jq warning expected)
+- [❌] User curl test (MINGW64, no jq): Failed (Latest Run: YYYY-MM-DD - Persistent permission errors on lines 454/455)
+- [✅] `test_curl_install.sh`: Passed (Latest Run: YYYY-MM-DD - jq warning expected, likely doesn't hit specific MINGW64 permission issue)
 - [✅] `test_download.sh`: Passed (Latest Run: YYYY-MM-DD)
 - [✅] `test_git_install.sh`: Passed (Latest Run: YYYY-MM-DD)
-- [✅] `test_install.sh`: Passed (Latest Run: YYYY-MM-DD - jq warning expected, permission setting errors noted but non-blocking)
+- [✅] `test_install.sh`: Passed (Latest Run: YYYY-MM-DD - jq warning expected, permission setting errors still present)
 
 # Fichier de tests
 
@@ -33,7 +34,7 @@
 - ✅ **Test de gestion d'erreur** : Passed - Stable (Latest Run: YYYY-MM-DD)
 
 ## Problèmes persistants
-- 🟡 **Install script permissions**: Lines 454/455 show `command not found` during permission setting (see `test_install.sh` logs), but tests pass. Needs investigation.
+- ❌ **Install script permissions (MINGW64/curl)**: Lines 454/455 show `: command not found` during permission setting when run via `curl ... | bash` in MINGW64. Attempted fix using `find | while read` loop failed. Needs further investigation and a different approach for MINGW64 compatibility.
 
 ## Historique des problèmes
 

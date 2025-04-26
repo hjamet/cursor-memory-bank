@@ -334,8 +334,8 @@ install_rules() {
         for server_name in "${mcp_servers[@]}"; do
             mcp_server_source_dir="$api_dir/.cursor/mcp/$server_name" # Assumed path for downloaded files
             mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
-            log "Creating MCP server directory structure for $server_name (curl mode - files must be manually added or downloaded)"
-            # TODO: Implement recursive download for server files in curl mode
+            log "Creating MCP server directory structure for $server_name (curl mode - files must be manually added or downloaded if server requires local files)"
+            # Server definitions are handled by merging mcp.json; no specific file download needed here for npx/URL servers.
             mkdir -p "$mcp_server_target_dir"
             # mkdir -p "$mcp_server_source_dir" # Source dir is only conceptual here
         done
@@ -449,16 +449,13 @@ install_rules() {
     for server_name in "${mcp_servers[@]}"; do
         local current_mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
         if [[ -d "$current_mcp_server_target_dir" ]]; then
-             log "Setting permissions for $current_mcp_server_target_dir..."
-             # Set read/write for user, execute for directories and .js files
-             if ! chmod -R u+rw "$current_mcp_server_target_dir" || \ 
-                ! find "$current_mcp_server_target_dir" -type d -exec chmod u+x {} \; || \ 
-                ! find "$current_mcp_server_target_dir" -name "*.js" -exec chmod u+x {} \; ; then
-                 warn "Failed to set permissions for $server_name files ($current_mcp_server_target_dir). Execution might fail."
+             log "Setting base read/write permissions for $current_mcp_server_target_dir..."
+             # Set read/write for user on all files and directories recursively.
+             # Avoid setting +x entirely due to MINGW64/curl/bash issues.
+             # Read/write should be sufficient for npm install and node execution.
+             if ! chmod -R u+rw "$current_mcp_server_target_dir"; then
+                 warn "Failed to set base read/write permissions for $server_name files ($current_mcp_server_target_dir)."
              fi
-        #else 
-            # Optional: Warn if a server dir wasn't created/copied? Already warned during copy stage.
-            # warn "Directory $current_mcp_server_target_dir not found, skipping permissions setting."
         fi
     done
 
@@ -480,7 +477,7 @@ merge_mcp_json() {
     local server_script_rel_path=".cursor/mcp/mcp-commit-server/server.js"
     local server_script_path="$target_dir/$server_script_rel_path"
     local server_script_abs_path=""
-    local expected_key_name="Git Commit (Internal)" # Define the expected key
+    local expected_key_name="Commit" # Define the expected key (Updated from "Git Commit (Internal)")
     local jq_available=true
     local template_modified_successfully=false # Flag to track if modification worked
 
@@ -492,7 +489,7 @@ merge_mcp_json() {
 
     # Check for jq (needed for modification and merge)
     if ! command -v jq >/dev/null 2>&1; then
-        warn "'jq' command not found. Cannot modify template with absolute path or merge with existing config."
+        warn "'jq' command not found. Cannot modify template with absolute path for 'Commit' server or merge with existing config."
         jq_available=false
     fi
 
@@ -567,9 +564,9 @@ merge_mcp_json() {
         if [[ "$jq_available" = true ]] && [[ "$template_modified_successfully" = false ]]; then
              warn "Note: $target_mcp_json created, but template modification (absolute path/name) may have failed. Check contents."
         elif [[ "$jq_available" = false ]]; then
-             warn "Note: $target_mcp_json created, but jq was not found. Absolute path could not be set."
+             warn "Note: $target_mcp_json created, but jq was not found. Absolute path for 'Commit' server could not be set (using relative path)."
         else
-             log "Successfully created $target_mcp_json (with absolute path)."
+             log "Successfully created $target_mcp_json (with absolute path for 'Commit' server)."
         fi
     else
         # Target exists, attempt merge ONLY if jq is available
@@ -608,7 +605,7 @@ merge_mcp_json() {
                  warn "Template modification failed previously. Skipping merge with potentially incorrect template."
              fi
         else
-            warn "Existing $target_mcp_json found, but jq is not available. Skipping merge."
+            warn "Existing $target_mcp_json found, but jq is not available. Skipping merge and absolute path update for 'Commit' server."
         fi
     fi
 
