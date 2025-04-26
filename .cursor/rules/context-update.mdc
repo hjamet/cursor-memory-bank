@@ -22,9 +22,14 @@ Update context files to reflect changes, update tasks.md based on test results, 
    - Move successful tasks from "In Progress" to "Done"
 
 4. **Commit changes**: Make a commit with the modifications:
-   - Prepare files and create commit in a single command:
-     `git commit -a -m "[message]"` (MANDATORY to use `git commit -a` and NEVER `git add [files]` or any other variant specifying individual files - this is crucial to ensure all changes are properly tracked)
-   - Follow conventional commit format with emoji for the message
+   - Call the MCP commit tool to create the commit.
+   - The tool automatically stages all changes (equivalent to `git add .`).
+   - Define the commit parameters:
+     - `type`: Typically `chore` for context updates, or `feat`/`fix` if linked to a specific task completion.
+     - `emoji`: Use an appropriate emoji (e.g., `:card_file_box:`, `:pencil:`, `:sparkles:`, `:bug:`).
+     - `title`: Brief summary (e.g., "Update context and workflow files").
+     - `description`: Optional details about updated context, completed tasks, etc.
+   - Follow the conventional commit format provided below.
 
 5. **File integrity verification**: Look for structural problems:
    - Read the `.cursor/memory-bank/userbrief.md` file.
@@ -50,7 +55,7 @@ Update context files to reflect changes, update tasks.md based on test results, 
 - Systematically delete old history entries that are no longer relevant
 - NEVER end without either explicitly calling a next rule or explicitly indicating that the workflow is complete
 - The workflow must NEVER be considered complete if there are remaining tasks in "In Progress" or "ToDo" OR if there is at least one failing test (marked ❌) or with warning (marked ⚠️)
-- For the commit, MANDATORY to use `git commit -a` and NEVER `git add [files]` or any other variant specifying individual files - this is crucial to ensure all changes are properly tracked
+- The MCP Commit tool handles staging; do NOT manually stage files before calling it.
 - ⚠️ **Command Execution Note**: The terminal tool occasionally exhibits a bug that adds "[200~" prefix and/or "~" suffix to commands (e.g., "[200~.venv/Scripts/python.exe" instead of ".venv/Scripts/python.exe"), resulting in "command not found" errors. These are NOT code or logic errors but tool-specific issues. If this occurs, simply retry the exact same command 2-3 times until it executes properly. Never treat these specific formatting errors as actual code problems or test failures.
 - If all tasks are complete (meaning there are NO MORE tasks in the "In Progress" and "ToDo" sections of the tasks.md file) AND all tests pass (ALL marked ✅), then:
    - Present a clear and concise synthesis of the work done
@@ -123,8 +128,8 @@ I update the tasks.md file by moving completed tasks to Done. **(Context-update:
 **(Context-update: 3 - Updating tasks.md file)**
 
 # Context-update: 4 - Making a commit
-I prepare and make a commit with the changes made. **(Context-update: 4 - Making a commit)**
-[...creating commit...]
+I prepare and make a commit with the changes made using the MCP commit tool. **(Context-update: 4 - Making a commit)**
+`mcp_Commit_commit(type="chore", emoji=":card_file_box:", title="Update context and workflow state", description="- Updated context files (projectBrief, activeContext, techContext)\n- Cleaned context files\n- Moved completed tasks in tasks.md")`
 **(Context-update: 4 - Making a commit)**
 
 # Context-update: 5 - File integrity verification

@@ -1,24 +1,21 @@
 # Active Context
 
 ## Current Status
-- **Last Action**: Completed `test-execution` after fixing the MINGW64 curl permission issue.
-- **Outcome**: All installation script tests pass. Tasks 1.3, 2.1, 2.2, and 2.3 are Done.
-- **Next Step**: Start implementing Task 1.1 from the "In Progress" section.
+- **Last Action**: Completed `request-analysis` after processing `userbrief.md` via `consolidate-repo`.
+- **Outcome**: Identified the user request to modify `request-analysis.mdc` and `context-update.mdc`.
+- **Next Step**: Implement the modifications to the rule files.
 
 ## Current Implementation Context
-- **Task Section**: Section 1: Installation Script Verification & Fixes.
-- **Task**: 1.1. Fix `install.sh` MCP Path/Name Issues
-- **Goal**: Modify `install.sh` to ensure the `.cursor/mcp.json` file in the installation directory contains the correct server name ("Commit") and an *absolute* path for the commit server's script, even when the `jq` command is not available.
+- **Task Section**: Workflow Rule Modification.
+- **Task**: 1. Modify `request-analysis.mdc` example; 2. Modify `context-update.mdc` commit step.
+- **Goal**:
+    1.  Enhance the example in `request-analysis.mdc` to demonstrate optional `mcp_Memory_add_observations` usage.
+    2.  Replace the `git commit -a` command in `context-update.mdc` (step 4) with `mcp_Commit_commit` tool call for standardized commits.
 - **Logic**:
-    - In the `merge_mcp_json` function (or where the final `mcp.json` is prepared):
-        - Check if `jq` is available (`command -v jq > /dev/null`).
-        - If `jq` is available, use the existing logic to update the server name and path.
-        - If `jq` is NOT available:
-            - Copy the template `mcp.json` to the target location.
-            - Use shell commands (e.g., `pwd`, `sed`, `awk`) to read the target `mcp.json`, calculate the absolute path to the installed commit server's `server.js`, and replace the placeholder path and potentially incorrect name ("mcp-commit-server" instead of "Commit") in the target file.
-            - Ensure the final JSON remains valid.
-- **Impacted Files**: `install.sh`
-- **Impacted Symbols**: `merge_mcp_json` function (or related logic).
-- **Dependencies**: Shell scripting (manipulating JSON with `sed`/`awk` requires care). `pwd` command availability.
-- **Online Research**: Might need examples of reliable JSON manipulation using `sed` or `awk` without `jq`.
-- **Decision**: Implement a fallback mechanism using `sed` or `awk` within the `install.sh` script for the no-`jq` scenario. Create a test case for this specific scenario.
+    1.  Add example calls to `mcp_Memory_add_observations` in the example section of `request-analysis.mdc` at steps 1 and 5.
+    2.  Locate the `git commit -a` command in step 4 of `context-update.mdc` and replace it with an `mcp_Commit_commit` tool call, defining appropriate parameters (`type`, `emoji`, `title`, `description`).
+- **Impacted Files**: `.cursor/rules/request-analysis.mdc`, `.cursor/rules/context-update.mdc`
+- **Impacted Symbols**: N/A (Documentation/Example changes)
+- **Dependencies**: Understanding of MCP tool usage (`mcp_Memory_add_observations`, `mcp_Commit_commit`).
+- **Online Research**: None needed.
+- **Decision**: Apply the edits directly based on the request and existing rule structures.

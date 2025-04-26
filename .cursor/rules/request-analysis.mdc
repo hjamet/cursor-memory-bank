@@ -12,7 +12,8 @@ Analyze user request, explore existing code and search for additional informatio
    - Analyze direct request or request transmitted by calling rule
    - Identify requested features or modifications
    - Extract important keywords and concepts
-   - **(Optional) Memory Lookup**: Use `mcp_servers_search_nodes` with keywords to find relevant past analyses or context in the knowledge graph.
+   - **(Situational) Memory Lookup**: If you need information to understand the general structure of the algorithm and/or if you think you have stored it in the past, use `mcp_servers_search_nodes` with the keywords to find relevant past analyses or context in the knowledge graph.
+   - **(Situational) Memory Storage**: If the user has given an explanation of the desired functionality of the algorithm, has described the code and the expected results in more detail, then use `mcp_servers_add_observations` to store this information in the knowledge graph.
 
 2. **Code analysis**: Identify concerned files and symbols:
    - ONLY AUTHORIZED: up to 3 semantic searches (code base search) based on request keywords
@@ -32,7 +33,7 @@ Analyze user request, explore existing code and search for additional informatio
    - Note consulted sources
 
 5. **Conclusion**: Summarize information and necessary changes
-   - **(Optional) Memory Storage**: Use `mcp_servers_add_observations` to store key findings (request summary, identified files/symbols, conclusion) in the knowledge graph for future reference, associated with an entity like 'RequestAnalysisContext'.
+   - **(Optional but recommended) Memory Storage**: Use `mcp_servers_add_observations` to store key findings (request summary, identified files/symbols, conclusion) in the knowledge graph for future reference, associated with an entity like 'RequestAnalysisContext'.
 
 6. **Call next rule**:
    - If complex/multi-step request → `task-decomposition`
@@ -59,6 +60,8 @@ I begin by analyzing the user's request to properly understand their demand. **(
 I identified the following key elements in the request: [...] **(Request-analysis: 1 - Request analysis)**
 *(Optional) I search the knowledge graph for similar past analyses using keywords: [...]*
 `mcp_servers_search_nodes(...)`
+*(Optional) If the user provided detailed explanations, I store them in the knowledge graph.*
+`mcp_servers_add_observations(...)`
 
 # Request-analysis: 2 - Code analysis
 I begin by performing semantic searches to identify relevant files.
