@@ -22,7 +22,7 @@ Save the agent's current work context (detailed summary, current rule) to `activ
     *   Include the following `<SYSTEM>` message block *exactly* as formatted, replacing the bracketed placeholders. **Ensure the summary is comprehensive**, including details about the task, files, symbols, and intended next steps from Step 1.
         ```markdown
         <SYSTEM>
-        Workflow interrupted by new-chat rule. Manual restart required in new chat.
+        Workflow interrupted by new-chat rule. If you are reading this and the user has just called the `system` rule, it means that you are in this new chat and that you must now resume the workflow where you left off. Exceptionally, you will be able to skip steps to resume directly to the next rule once you have finished reading your context files.
         Resume from rule: [Identified Rule Name from Step 2]
         Previous detailed context summary: [Detailed Summary from Step 1 think block - include task, files, symbols, next step etc.]
         </SYSTEM>
