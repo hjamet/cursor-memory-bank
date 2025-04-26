@@ -1,13 +1,16 @@
 # Active Context
 
-## Current Implementation Context
-- **Task**: Finalize installation script modifications and verify.
-- **Goal**: Ensure `install.sh` correctly copies all MCP server directories and sets permissions.
-- **Status**: Completed modifications to `install.sh` (handling multiple server copies and permissions) and `.cursor/mcp.json` (correcting npx/URL usage). Ready for commit.
-- **Impacted Files**: `install.sh`, `.cursor/mcp.json`
-- **Impacted Symbols**: `install_rules` (install.sh)
+## Current Status
+- **Last Action**: Executed tests using `tests/test_install.sh`.
+- **Outcome**: All tests passed successfully.
+- **Observations**: 
+    - `jq` dependency warning occurred (expected if `jq` not installed). Installation proceeds without it.
+    - `command not found` errors on lines 454/455 of `install.sh` during permission setting. Non-blocking for tests, but noted in `tests.md` for investigation.
+- **Next Step**: Update context, cleanup, commit changes.
 
-## Lost workflow
-- **Summary**: Corrected the `.cursor/mcp.json` template file to use `npx` and URLs for non-local MCP servers. Modified `install.sh` to correctly copy multiple MCP server directories (`mcp-commit-server`, `mcp-memory-server`, `mcp-context7-server`, `mcp-debug-server`) during installation (both git and curl paths) and updated permission settings.
-- **Files**: `.cursor/mcp.json`, `install.sh`
-- **Symbols**: `install_rules` (install.sh)
+## Current Implementation Context
+- **Task**: Modify `install.sh` to download `server.js` during `curl` installation.
+- **Goal**: Ensure the `curl` installation method correctly downloads all necessary server files, including `server.js` for the commit server.
+- **Status**: Analyzing `install.sh` to locate insertion point.
+- **Impacted Files**: `install.sh`
+- **Impacted Symbols**: `install_rules` function

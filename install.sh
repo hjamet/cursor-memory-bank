@@ -324,13 +324,19 @@ install_rules() {
         log "Downloading mcp.json template"
         download_file "$RAW_URL_BASE/.cursor/mcp.json" "$template_mcp_json"
 
+        # ADD MCP-COMMIT-SERVER/SERVER.JS DOWNLOAD HERE
+        log "Downloading mcp-commit-server/server.js"
+        local commit_server_target_dir="$target_dir/.cursor/mcp/mcp-commit-server"
+        mkdir -p "$commit_server_target_dir" # Ensure directory exists
+        download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/server.js" "$commit_server_target_dir/server.js"
+
         # --- Loop through MCP servers for curl mode ---
         for server_name in "${mcp_servers[@]}"; do
             mcp_server_source_dir="$api_dir/.cursor/mcp/$server_name" # Assumed path for downloaded files
             mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
             log "Creating MCP server directory structure for $server_name (curl mode - files must be manually added or downloaded)"
             # TODO: Implement recursive download for server files in curl mode
-            mkdir -p "$mcp_server_target_dir" 
+            mkdir -p "$mcp_server_target_dir"
             # mkdir -p "$mcp_server_source_dir" # Source dir is only conceptual here
         done
         # --- End MCP Server loop (curl) ---

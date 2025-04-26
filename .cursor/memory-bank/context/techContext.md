@@ -56,3 +56,4 @@ Le projet comprend aussi un serveur MCP Commit qui doit être correctement insta
 - Vérification et restauration des règles personnalisées
 - Installation des dépendances du serveur MCP commit si Node.js et npm sont disponibles
 - Fusion du fichier mcp.json pour configurer le serveur MCP commit 
+- **jq (Optionnel mais recommandé)**: `jq` est nécessaire pour modifier le `mcp.json` afin d'utiliser un chemin absolu pour le serveur MCP commit et pour fusionner la configuration avec un `mcp.json` existant. Si `jq` n'est pas trouvé, le script utilise un chemin relatif et ne fusionne pas, ce qui peut entraîner des problèmes si le script d'installation n'est pas exécuté depuis le répertoire racine de Cursor. 

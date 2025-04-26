@@ -1,9 +1,5 @@
 # Cursor Memory Bank 🧠
 
-## Note to English Speakers 🌍
-
-I apologize, but this repository is primarily in French as it's my personal project that I use daily. I'm making it public in case it might help someone, but I haven't had the time yet to translate it to English or make it more general-purpose. I hope you can still find it useful! 😊
-
 ## Installation 🚀
 
 ### Method 1: Using curl (Recommended)
@@ -158,7 +154,3 @@ npm install
 ```
 
 5. Restart Cursor and the MCP commit server should now be available as a tool.
-
-## Acknowledgments 🙏
-
-Thank you for your understanding regarding the French documentation. This project started as a personal tool, and while I'd love to make it more accessible to everyone, I'm sharing it as-is for now, hoping it might still be helpful to some! 

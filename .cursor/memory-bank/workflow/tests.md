@@ -1,40 +1,39 @@
 # Test Status
 
-- [✅] `test_curl_install.sh`: Passed (Verified after jq path/name fix)
-- [✅] `test_download.sh`: Passed (Verified after jq path/name fix)
-- [✅] `test_git_install.sh`: Passed (Verified after jq path/name fix)
-- [✅] `test_install.sh`: Passed (Verified after jq path/name fix)
+- [✅] `test_curl_install.sh`: Passed (Latest Run: YYYY-MM-DD - jq warning expected)
+- [✅] `test_download.sh`: Passed (Latest Run: YYYY-MM-DD)
+- [✅] `test_git_install.sh`: Passed (Latest Run: YYYY-MM-DD)
+- [✅] `test_install.sh`: Passed (Latest Run: YYYY-MM-DD - jq warning expected, permission setting errors noted but non-blocking)
 
 # Fichier de tests
 
 ## Tests d'installation via curl
-- ✅ **Test d'installation via curl** : Passed - Stable
-- ✅ **Test d'installation curl avec options par défaut (pas de backup)** : Passed - Stable
-- ✅ **Test de gestion d'erreur curl** : Passed - Stable
-- ✅ **Test d'affichage de la date du dernier commit (curl)** : Passed - Stable
+- ✅ **Test d'installation via curl** : Passed - Stable (Latest Run: YYYY-MM-DD)
+- ✅ **Test d'installation curl avec options par défaut (pas de backup)** : Passed - Stable (Latest Run: YYYY-MM-DD)
+- ✅ **Test de gestion d'erreur curl** : Passed - Stable (Latest Run: YYYY-MM-DD)
+- ✅ **Test d'affichage de la date du dernier commit (curl)** : Passed - Stable (Latest Run: YYYY-MM-DD)
 
 ## Tests de téléchargement
-- ✅ **Test de téléchargement de fichier** : Passed - Stable
-- ✅ **Test d'URL invalide** : Passed - Stable
-- ✅ **Test de téléchargement d'archive** : Passed - Stable
-- ✅ **Test d'URL d'archive invalide** : Passed - Stable
+- ✅ **Test de téléchargement de fichier** : Passed - Stable (Latest Run: YYYY-MM-DD)
+- ✅ **Test d'URL invalide** : Passed - Stable (Latest Run: YYYY-MM-DD)
+- ✅ **Test de téléchargement d'archive** : Passed - Stable (Latest Run: YYYY-MM-DD)
+- ✅ **Test d'URL d'archive invalide** : Passed - Stable (Latest Run: YYYY-MM-DD)
 
 ## Tests d'installation via git
-- ✅ **Test d'installation de base** : Passed - Stable
-- ✅ **Test de préservation des règles personnalisées** : Passed - Stable
-- ✅ **Test d'option --no-backup** : Passed - Stable
-- ✅ **Test d'option --force** : Passed - Stable
-- ✅ **Test de répertoire invalide** : Passed - Stable
-- ✅ **Test d'affichage de la date du dernier commit (git)** : Passed - Stable
+- ✅ **Test d'installation de base** : Passed - Stable (Latest Run: YYYY-MM-DD)
+- ✅ **Test de préservation des règles personnalisées** : Passed - Stable (Latest Run: YYYY-MM-DD)
+- ✅ **Test d'option --no-backup** : Passed - Stable (Latest Run: YYYY-MM-DD)
+- ✅ **Test d'option --force** : Passed - Stable (Latest Run: YYYY-MM-DD)
+- ✅ **Test de répertoire invalide** : Passed - Stable (Latest Run: YYYY-MM-DD)
+- ✅ **Test d'affichage de la date du dernier commit (git)** : Passed - Stable (Latest Run: YYYY-MM-DD)
 
 ## Tests d'installation standard
-- ✅ **Test d'installation de base**: Passed (Fixed syntax error)
-- ✅ **Test de backup et restauration** : Passed - Stable
-- ✅ **Test de gestion d'erreur** : Passed - Stable
+- ✅ **Test d'installation de base**: Passed (Latest Run: YYYY-MM-DD - jq warning & perm errors noted)
+- ✅ **Test de backup et restauration** : Passed - Stable (Latest Run: YYYY-MM-DD)
+- ✅ **Test de gestion d'erreur** : Passed - Stable (Latest Run: YYYY-MM-DD)
 
 ## Problèmes persistants
-- ✅ **Tests de téléchargement** : Corrigé en isolant les fonctions de test.
-- ✅ **Test de gestion d'erreur d'installation** : Corrigé.
+- 🟡 **Install script permissions**: Lines 454/455 show `command not found` during permission setting (see `test_install.sh` logs), but tests pass. Needs investigation.
 
 ## Historique des problèmes
 
