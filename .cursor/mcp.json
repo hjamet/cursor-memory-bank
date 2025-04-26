@@ -3,7 +3,7 @@
         "Commit": {
             "command": "node",
             "args": [
-                ".cursor/mcp/mcp-commit-server/server.js"
+                "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\server.js"
             ]
         },
         "Memory": {
