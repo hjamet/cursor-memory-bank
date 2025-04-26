@@ -611,12 +611,13 @@ merge_mcp_json() {
              if [[ "$jq_available" = true ]]; then
                  log "Successfully created $target_mcp_json with absolute path for '$expected_key_name' server (using jq)."
              else
-                 log "Successfully created $target_mcp_json with absolute path for '$expected_key_name' server (using sed fallback)."
+                 # Corrected log message for sed fallback (relative path used)
+                 log "Successfully created $target_mcp_json. Key '$expected_key_name' set (using sed fallback), but using RELATIVE path as 'jq' is missing."
              fi
         elif [[ "$jq_available" = true ]]; then # Implies jq exists but modification failed for some reason
-             warn "Note: $target_mcp_json created, but 'sed' modification failed. Absolute path for '$expected_key_name' server likely NOT set. Check contents."
-        elif [[ "$jq_available" = false ]]; then # Implies sed fallback was attempted but failed, or path wasn't calculated
-             warn "Note: $target_mcp_json created from template, but modification failed (sed missing and fallback failed or skipped). Relative path likely used for '$expected_key_name' server. See previous warnings."
+             warn "Note: $target_mcp_json created, but template modification failed (using sed). Absolute path for '$expected_key_name' server likely NOT set. Check contents."
+        else # jq not available (merge logic relies on jq)
+            warn "Note: $target_mcp_json created from template, but modification failed (sed missing and fallback failed or skipped). Relative path likely used for '$expected_key_name' server. See previous warnings."
         fi
     else
         # Target exists, attempt merge ONLY if jq is available AND template was modified successfully
