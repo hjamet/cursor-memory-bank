@@ -3,7 +3,6 @@ description:
 globs: .cursor/memory-bank/userbrief.md
 alwaysApply: false
 ---
-
 # userbrief.md Editing Rules
 
 ## TLDR
@@ -24,7 +23,7 @@ This file contains user requests and preferences, organized in 3 main sections t
 
 ## Format for Elements
 
-- **⬜ Todo**: Elements that have not yet been processed
+- **- Todo**: Elements that have not yet been processed
 - **🔄 In Progress**: Elements currently being processed
 - **📌 Taken into account**: Persistent preferences to keep (tools, code style, etc.)
 - **✅ Done**: Elements that have been processed and completed
@@ -32,7 +31,7 @@ This file contains user requests and preferences, organized in 3 main sections t
 ## Reference Template
 
 # User Input
-<!-- Original user content, processed each cycle. Every input is starting with a white square : ⬜ -->
+<!-- Original user content, processed each cycle. Every input is starting with a hyphen : - -->
 
 # Processing
 <!-- Requests being processed/transformed into tasks -->

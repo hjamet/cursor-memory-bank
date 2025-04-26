@@ -3,6 +3,7 @@ description: Call this rule to analyze and correct test errors via an iterative 
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Analyze test errors and fix them through an iterative execution-correction loop until all tests pass or truly complex issues (requiring major refactoring or showing no progress after 3 attempts) are identified and handed over to `request-analysis`.
 

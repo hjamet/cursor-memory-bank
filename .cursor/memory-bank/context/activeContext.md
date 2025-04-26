@@ -2,11 +2,12 @@
 
 ## Current implementation context
 
-- Completed task: Refined the `new-chat` rule in `.cursor/rules/new-chat.mdc` based on user feedback (removed external rule dependency, emphasized detailed context saving).
+- **Task:** Completed replacing white square emoji (⬜) with hyphen (-) in relevant rule files.
+- **Files Modified:** `context-loading.mdc`, `context-update.mdc`, `consolidate-repo.mdc`, `architect.mdc`, `templates/userbrief-template.mdc`.
 
 ## Current Status
 
-- Rule `.cursor/rules/new-chat.mdc` is updated.
-- Previous task creating the rule is marked done in `tasks.md`.
-- Previous fix for `test_curl_install.sh` is committed.
+- Rule files updated to use hyphen (-) instead of ⬜ for userbrief.md task status.
+- Corresponding task marked done in `tasks.md`.
+- `new-chat` rule refined and committed.
 - All installation tests are passing.

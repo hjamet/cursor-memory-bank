@@ -77,7 +77,7 @@ Pour chaque question utilisateur, tu DOIS impérativement suivre ce workflow sé
     </permissions>
     
     <format>
-        <rule>Chaque point d'instruction doit commencer par le symbole ⬜</rule>
+        <rule>Chaque point d'instruction doit commencer par le symbole -</rule>
         <rule>Aucun exemple de code ne doit être inclus dans ces instructions.</rule>
         <rule>Chaque tâche doit être présentée en un seul paragraphe concis.</rule>
         <rule>Ne pas utiliser de listes à puces ou d'extraits de code dans les instructions.</rule>
