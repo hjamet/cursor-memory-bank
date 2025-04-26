@@ -1,16 +1,15 @@
 # Active Context
 
 ## Current Implementation Context
-- **Task**: Completed fix for `install.sh` script regarding `jq` dependency and `.cursor/mcp.json` creation.
-- **Goal**: Finalize workflow after successful bug fix and test execution.
-- **Status**: Implementation and testing complete for the bug fix.
-- **Impacted Files**: `install.sh`.
-- **Impacted Symbols**: `merge_mcp_json` function.
+- **Task**: Completed modification of `.cursor/rules/fix.mdc` to encourage `mcp_debug_debug` usage.
+- **Goal**: Finalize workflow after successful rule modification.
+- **Status**: Rule update complete.
+- **Impacted Files**: `.cursor/rules/fix.mdc`.
 
 ## Previous State Summary
-- **Last Action**: Successfully executed all test scripts (`test_install.sh`, `test_curl_install.sh`, etc.) after modifying `install.sh`.
-- **Summary**: Fixed the bug in `install.sh` where `.cursor/mcp.json` wasn't created without `jq`. Verified fix with tests.
-- **Status**: Bug fix complete and verified.
+- **Last Action**: Modified `.cursor/rules/fix.mdc` based on user request.
+- **Summary**: Added guidance to step 2.2 of the `fix` rule detailing conditions for using the `debug` tool.
+- **Status**: Rule modification implemented.
 
 ## Lost workflow
 - **Summary**: Completed MCP commit tool changes (schema, run function, escaping) in `server.js`. Completed `install.sh` modification (`merge_mcp_json`) for absolute path calculation and configuration. Reviewed final state against `tasks.md` and `userbrief.md`.
