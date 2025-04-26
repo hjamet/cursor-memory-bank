@@ -494,7 +494,37 @@ merge_mcp_json() {
             server_script_abs_path="$target_dir_abs/$clean_rel_path"
             # Basic check if it looks like an absolute path (starts with / or drive letter)
             if [[ "$server_script_abs_path" =~ ^(/|[A-Za-z]:) ]]; then
-                 log "Calculated absolute path: $server_script_abs_path"
+                 log "Calculated initial absolute path: $server_script_abs_path"
+                 # --- START Windows Path Conversion ---
+                 # Check if on Msys/MINGW64 environment
+                 os_type=""
+                 if command -v uname >/dev/null 2>&1; then
+                     os_type=$(uname -o)
+                 fi
+                 
+                 if [[ "$os_type" == "Msys" ]]; then
+                     if command -v cygpath >/dev/null 2>&1; then
+                          log "Detected Msys environment and cygpath. Converting path to Windows format."
+                          local win_path
+                          if win_path=$(cygpath -w "$server_script_abs_path"); then
+                              log "Converted Windows path: $win_path"
+                              server_script_abs_path="$win_path" # Overwrite with Windows path
+                          else
+                              warn "cygpath command failed. Using original MINGW64 path: $server_script_abs_path"
+                          fi
+                     else
+                         warn "Detected Msys environment but cygpath not found. Attempting manual path conversion."
+                         # Manual conversion: /c/ -> C:\ and / -> \
+                         local manual_win_path
+                         # Ensure backslashes for sed replacement are escaped
+                         manual_win_path=$(echo "$server_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g') 
+                         log "Manually converted path: $manual_win_path"
+                         server_script_abs_path="$manual_win_path"
+                     fi
+                 else
+                     log "Not an Msys environment (OS type: $os_type). Using original path: $server_script_abs_path"
+                 fi
+                 # --- END Windows Path Conversion ---
             else
                  warn "Calculated path '$server_script_abs_path' does not appear absolute. Using relative path as fallback."
                  server_script_abs_path="" # Clear it if it doesn't look absolute
