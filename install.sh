@@ -512,7 +512,10 @@ merge_mcp_json() {
 
     # Check for jq (needed for easy modification and merge)
     if ! command -v jq >/dev/null 2>&1; then
-        warn "'jq' command not found. Will attempt to modify template using 'sed'."
+        # Log a strong warning if jq is not available, as absolute path cannot be set.
+        warn "'jq' command not found. Absolute path for the 'Commit' server cannot be reliably set."
+        warn "The installation will proceed using the relative path defined in the template."
+        warn "For the MCP Commit server to function correctly from any directory, please install 'jq' and re-run the installation."
         jq_available=false
     fi
 
@@ -559,38 +562,6 @@ merge_mcp_json() {
              warn "Absolute path for server script could not be determined. Skipping 'jq' modification."
         fi
         # --- End JQ Logic ---
-    else
-        # --- SED Fallback Logic ---
-        if [[ -n "$server_script_abs_path" ]]; then
-            log "Attempting to modify template mcp.json using 'sed' to insert absolute path..."
-            # Escape backslashes AND forward slashes for sed 's/find/replace/' usage
-            # Escape backslashes for the final JSON string output
-            local sed_safe_path
-            sed_safe_path=$(echo "$server_script_abs_path" | sed -e 's/\\/\\\\/g' -e 's/\//\\\//g')
-            # Escape backslashes again specifically for the JSON string within the sed replacement
-            local json_safe_path
-            json_safe_path=$(echo "$server_script_abs_path" | sed 's/\\/\\\\/g')
-
-            # Relative path pattern to find (escape special characters for sed)
-            local relative_path_pattern=".cursor\/mcp\/mcp-commit-server\/server.js"
-
-            # More robust sed command: Find the specific relative path within the args array and replace it.
-            # Uses | as delimiter to avoid clash with path slashes.
-            if sed -i.bak "s|\"args\": \[\"${relative_path_pattern}\"\]|\"args\": [\"${json_safe_path}\"]|" "$template_mcp_json"; then
-                 log "Template mcp.json likely modified with absolute path using 'sed'."
-                 template_modified_successfully=true # Set flag
-                 rm -f "$template_mcp_json.bak" # Clean up backup
-            else
-                 warn "'sed' command failed or did not modify the template. Proceeding with potentially unmodified template."
-                 # Restore backup if it exists
-                 if [[ -f "$template_mcp_json.bak" ]]; then
-                      mv "$template_mcp_json.bak" "$template_mcp_json"
-                 fi
-            fi
-        else
-             warn "Absolute path for server script could not be determined. Cannot modify template using 'sed'."
-        fi
-        # --- End SED Fallback Logic ---
     fi # End jq_available check
 
     # --- Create/Merge Target File --- 
@@ -605,13 +576,15 @@ merge_mcp_json() {
             warn "Failed to copy template mcp.json to $target_mcp_json."
             return 1
         fi
-        # Update warning messages based on outcome
-        if [[ "$template_modified_successfully" = true ]]; then
-            log "Successfully created $target_mcp_json with absolute path for 'Commit' server."
-        elif [[ -z "$server_script_abs_path" ]]; then
-             warn "Note: $target_mcp_json created, but absolute path could not be determined. Check contents."
-        else # Modification failed, but path was determined
-             warn "Note: $target_mcp_json created, but modification failed (jq/sed). Absolute path for 'Commit' server likely NOT set. Check contents."
+        # Adjust log messages based on outcome
+        if [[ "$jq_available" = true ]] && [[ "$template_modified_successfully" = true ]]; then
+             log "Successfully created $target_mcp_json with absolute path for 'Commit' server."
+        elif [[ "$jq_available" = true ]] && [[ "$template_modified_successfully" = false ]]; then
+             # This case implies jq exists but modification failed
+             warn "Note: $target_mcp_json created, but 'jq' modification failed. Absolute path for 'Commit' server likely NOT set. Check contents."
+        elif [[ "$jq_available" = false ]]; then
+             # jq is missing, template was copied unmodified
+             warn "Note: $target_mcp_json created from template, but 'jq' was not found. Relative path used for 'Commit' server. See previous warnings."
         fi
     else
         # Target exists, attempt merge ONLY if jq is available
@@ -650,8 +623,8 @@ merge_mcp_json() {
                  warn "Template modification failed previously. Skipping merge with potentially incorrect template."
              fi
         else
-            warn "Existing $target_mcp_json found, but jq is not available. Skipping merge."
-            # No action needed, existing file is preserved
+            warn "Existing $target_mcp_json found, but 'jq' is not available. Skipping merge."
+            warn "Manual merge might be required if template contains new servers."
         fi
     fi
 
