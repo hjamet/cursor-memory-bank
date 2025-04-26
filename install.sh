@@ -240,8 +240,12 @@ install_rules() {
     local api_dir="$temp_dir/api-files"
     local commit_date=""
     local template_mcp_json="$temp_dir/mcp.json" # Define path for template
-    local mcp_server_source_dir="" # Will be set based on git/curl
-    local mcp_server_target_dir="$target_dir/.cursor/mcp/mcp-commit-server" # Define target server dir
+    
+    # Define the MCP server names to install
+    local mcp_servers=("mcp-commit-server" "mcp-memory-server" "mcp-context7-server" "mcp-debug-server")
+    local server_name # Loop variable
+    local mcp_server_source_dir # Will be set inside the loop
+    local mcp_server_target_dir # Will be set inside the loop
 
     log "Installing rules to $rules_path"
 
@@ -320,14 +324,16 @@ install_rules() {
         log "Downloading mcp.json template"
         download_file "$RAW_URL_BASE/.cursor/mcp.json" "$template_mcp_json"
 
-        # DEFINE MCP SERVER SOURCE for curl
-        mcp_server_source_dir="$api_dir/.cursor/mcp/mcp-commit-server" # Assuming files downloaded here
-        # ADD MCP SERVER FILES DOWNLOAD (this part is missing, needs implementation)
-        # We need to download the contents of .cursor/mcp/mcp-commit-server recursively
-        # This requires listing files via API and downloading each one, similar to rules
-        # For simplicity now, we assume the directory structure is created but files might be missing
-        log "Creating MCP server directory structure (curl mode - files must be manually added or downloaded)"
-        mkdir -p "$mcp_server_source_dir"
+        # --- Loop through MCP servers for curl mode ---
+        for server_name in "${mcp_servers[@]}"; do
+            mcp_server_source_dir="$api_dir/.cursor/mcp/$server_name" # Assumed path for downloaded files
+            mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
+            log "Creating MCP server directory structure for $server_name (curl mode - files must be manually added or downloaded)"
+            # TODO: Implement recursive download for server files in curl mode
+            mkdir -p "$mcp_server_target_dir" 
+            # mkdir -p "$mcp_server_source_dir" # Source dir is only conceptual here
+        done
+        # --- End MCP Server loop (curl) ---
 
     else
         # Use git clone
@@ -368,36 +374,38 @@ install_rules() {
             touch "$template_mcp_json"
         fi
 
-        # DEFINE MCP SERVER SOURCE for git
-        mcp_server_source_dir="$clone_dir/.cursor/mcp/mcp-commit-server"
-    fi
+        # --- Loop through MCP servers for git mode ---
+        for server_name in "${mcp_servers[@]}"; do
+            mcp_server_source_dir="$clone_dir/.cursor/mcp/$server_name"
+            mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
 
-    # --- COPY MCP SERVER FILES (COMMON LOGIC) ---
-    log "Preparing to copy MCP commit server files to target directory..."
-    if [[ -d "$mcp_server_source_dir" ]]; then
-        log "Source directory for MCP server files: $mcp_server_source_dir"
-        # Ensure target parent directory exists
-        if ! mkdir -p "$(dirname "$mcp_server_target_dir")"; then
-            error "Failed to create parent directory for MCP server target: $(dirname "$mcp_server_target_dir")"
-        fi
-        # Ensure target directory exists (and is clean?)
-        mkdir -p "$mcp_server_target_dir" # Create if not exists
-        # Copy files
-        log "Copying MCP server files from $mcp_server_source_dir to $mcp_server_target_dir"
-        if ! cp -r "$mcp_server_source_dir/"* "$mcp_server_target_dir/"; then
-             # Check if source directory was empty (e.g., curl mode without download logic)
-             if [ -z "$(ls -A "$mcp_server_source_dir")" ]; then
-                 warn "MCP server source directory ($mcp_server_source_dir) is empty. Server files might be missing."
-             else
-                 error "Failed to copy MCP server files. Please check disk space and permissions."
-             fi
-        else
-             log "MCP server files copied successfully."
-        fi
-    else
-        warn "Source directory for MCP server files not found or not a directory: $mcp_server_source_dir. Skipping server files copy."
+            log "Preparing to copy MCP server files for $server_name to target directory..."
+            if [[ -d "$mcp_server_source_dir" ]]; then
+                log "Source directory for $server_name files: $mcp_server_source_dir"
+                # Ensure target parent directory exists
+                if ! mkdir -p "$(dirname "$mcp_server_target_dir")"; then
+                    error "Failed to create parent directory for $server_name target: $(dirname "$mcp_server_target_dir")"
+                fi
+                # Ensure target directory exists
+                mkdir -p "$mcp_server_target_dir"
+                # Copy files
+                log "Copying $server_name files from $mcp_server_source_dir to $mcp_server_target_dir"
+                if ! cp -r "$mcp_server_source_dir/"* "$mcp_server_target_dir/"; then
+                     # Check if source directory was empty
+                     if [ -z "$(ls -A "$mcp_server_source_dir")" ]; then
+                         warn "MCP server source directory ($mcp_server_source_dir) for $server_name is empty. Server files might be missing."
+                     else
+                         error "Failed to copy $server_name files. Please check disk space and permissions."
+                     fi
+                else
+                     log "$server_name files copied successfully."
+                fi
+            else
+                warn "Source directory for $server_name files not found or not a directory: $mcp_server_source_dir. Skipping $server_name files copy."
+            fi
+        done
+        # --- End MCP Server loop (git) ---
     fi
-    # --- END COPY MCP SERVER FILES ---
 
     # Preserve custom rules if they exist - ONLY use backup if DO_BACKUP is set
     if [[ -n "${DO_BACKUP:-}" ]]; then
@@ -425,16 +433,28 @@ install_rules() {
         fi
     fi
 
-    # Set correct permissions
+    # Set correct permissions for rules
     if ! chmod -R u+rw "$rules_path" || ! find "$rules_path" -type d -exec chmod u+x {} \;; then
         error "Failed to set permissions for rules. Please check file system permissions."
     fi
-    # Also set permissions for the copied server files
-    if [[ -d "$mcp_server_target_dir" ]]; then
-         if ! chmod -R u+rw "$mcp_server_target_dir" || ! find "$mcp_server_target_dir" -type d -exec chmod u+x {} \; || ! find "$mcp_server_target_dir" -name "*.js" -exec chmod u+x {} \; ; then
-             warn "Failed to set permissions for MCP server files. Execution might fail."
-         fi
-    fi
+    
+    # Set permissions for all copied MCP server directories
+    log "Setting permissions for installed MCP server directories..."
+    for server_name in "${mcp_servers[@]}"; do
+        local current_mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
+        if [[ -d "$current_mcp_server_target_dir" ]]; then
+             log "Setting permissions for $current_mcp_server_target_dir..."
+             # Set read/write for user, execute for directories and .js files
+             if ! chmod -R u+rw "$current_mcp_server_target_dir" || \ 
+                ! find "$current_mcp_server_target_dir" -type d -exec chmod u+x {} \; || \ 
+                ! find "$current_mcp_server_target_dir" -name "*.js" -exec chmod u+x {} \; ; then
+                 warn "Failed to set permissions for $server_name files ($current_mcp_server_target_dir). Execution might fail."
+             fi
+        #else 
+            # Optional: Warn if a server dir wasn't created/copied? Already warned during copy stage.
+            # warn "Directory $current_mcp_server_target_dir not found, skipping permissions setting."
+        fi
+    done
 
     # Ensure system.mdc is present (for test compatibility)
     if [[ ! -f "$rules_path/system.mdc" ]]; then

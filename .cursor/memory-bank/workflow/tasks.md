@@ -2,6 +2,9 @@
 
 # ToDo
 
+
+# Done
+
 ## 8. MCP Server Installation Logic
 
 8.1. [x] **Modify install.sh for Local MCP Config**: Update `install.sh` to copy MCP server files to the local installation target directory and configure the local `.cursor/mcp.json` with the absolute path to the installed `server.js`.
@@ -9,8 +12,6 @@
     - Impacted Files: `install.sh`
     - Dependencies: `jq` command.
     - Validation: Running `install.sh` creates/updates `.cursor/mcp.json` in the target directory with an absolute path in the server arguments.
-
-# Done
 
 ## 7. Repository Cleanup
 

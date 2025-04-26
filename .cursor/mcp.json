@@ -1,10 +1,27 @@
 {
     "mcpServers": {
-        "Git Commit (Internal)": {
+        "Commit": {
             "command": "node",
             "args": [
                 ".cursor/mcp/mcp-commit-server/server.js"
             ]
+        },
+        "Memory": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-memory"
+            ]
+        },
+        "Context7": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@upstash/context7-mcp@latest"
+            ]
+        },
+        "Debug": {
+            "url": "http://localhost:4713/sse"
         }
     }
 }
