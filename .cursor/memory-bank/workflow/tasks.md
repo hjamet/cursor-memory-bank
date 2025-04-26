@@ -1,5 +1,51 @@
 # In Progress
 
+## 1. Installation Script Verification & Fixes
+
+1.1. **Fix `install.sh` MCP Path/Name Issues**:
+    - Status: In Progress (Reopened: Absolute path MUST be set even without jq)
+    - Description: Investigate and fix why `install.sh` sets a relative path for the commit server in `.cursor/mcp.json` when `jq` is not available. Implement fallback logic using shell commands to calculate and set the absolute path in the JSON template when jq is missing. Add a test to verify the path is absolute in this scenario.
+    - Impacted Files: `install.sh` (`merge_mcp_json` function), `tests/test_curl_install.sh` (or new test file)
+    - Dependencies: Shell commands (`pwd`, `sed`), Understanding of shell scripting and `mcp.json` format.
+    - Validation: Running `install.sh --use-curl` without `jq` results in `.cursor/mcp.json` with the correct server name "Commit" and an **absolute** path for the server script.
+
+1.2. **Implement Installation for Memory, Context7, Debug Servers**:
+    - Status: Done (Analysis complete - copy logic correctly warns about missing source dirs, which is expected for these servers; permission logic fixed in 1.3)
+    - Description: Update `install.sh` to correctly handle the installation of the `memory`, `context7`, and `debug` MCP servers defined in `.cursor/mcp.json`. For `git` mode, ensure source directories are expected. For `curl` mode, implement download/installation logic (likely using `npx` commands specified in `mcp.json`). Consider if these servers require specific files to be copied/downloaded or if `npx` handles it.
+    - Impacted Files: `install.sh`
+    - Dependencies: `.cursor/mcp.json` definitions, `npx` availability.
+    - Validation: Running `install.sh` (both git and curl modes) results in a functional setup where the memory, context7, and debug servers can be invoked via MCP.
+
+1.3. **Verify `install.sh` Server Copy & Path Logic & Fix Permissions**:
+    - Status: Done (MINGW64/curl requires `curl ... | tr -d '\r' | bash` to avoid CRLF permission errors)
+    - Description: Double-check server file copy logic. Fix persistent permission errors (`: command not found`) during `curl | bash` in MINGW64. Root cause identified as CRLF line endings; fix is to modify the execution command as documented in README.md.
+    - Impacted Files: `install.sh` (no changes needed), `README.md` (updated)
+    - Dependencies: MINGW64 environment for testing, `tr` utility.
+    - Validation: Running `curl ... | tr -d '\r' | bash` in MINGW64 no longer produces `: command not found` errors during permission setting.
+
+## 2. Component Verification
+
+2.1. **Verify MCP Commit Usage in Rules**:
+    - Status: Done (Verification complete - `fix.mdc` correct, `context-update.mdc` updated)
+    - Description: Double-check that `context-update.mdc` and `fix.mdc` correctly use the "Commit" MCP tool instead of direct `git` commands, as previous `tasks.md` edits failed.
+    - Impacted Files: `.cursor/rules/context-update.mdc`, `.cursor/rules/fix.mdc`
+    - Dependencies: MCP Commit server definition.
+    - Validation: Rules use the `mcp_server_tool` command with the correct server name ("Commit") and arguments.
+
+2.2. **Verify MCP Debug Usage in `fix` Rule**:
+    - Status: Done (Verification complete - Rule encourages Debug tool usage correctly)
+    - Description: Double-check that `fix.mdc` encourages the use of the MCP Debug tool under the specified conditions, as previous `tasks.md` edits failed.
+    - Impacted Files: `.cursor/rules/fix.mdc`
+    - Dependencies: MCP Debug server definition.
+    - Validation: The rule text contains the logic described in the user request.
+
+2.3. **Verify Commit Server Implementation**:
+    - Status: Done (Verification complete - Server matches requirements)
+    - Description: Confirm that the current `.cursor/mcp/mcp-commit-server/server.js` matches the user's final requirement (accepts type, emoji, title, description; performs `git add .` and `git commit`).
+    - Impacted Files: `.cursor/mcp/mcp-commit-server/server.js`
+    - Dependencies: Node.js environment.
+    - Validation: Code review confirms the implementation matches the specification.
+
 ## 3. Repository Cleanup
 
 3.1. **Cleanup Test Logs**:
@@ -15,52 +61,6 @@
     - Validation: Repository contains only necessary files for operation and development, reflected in `.gitignore`.
 
 # Done
-
-## 1. Installation Script Verification & Fixes
-
-1.1. [x] **Fix `install.sh` MCP Path/Name Issues**:
-    - Status: Done (Implemented `sed` fallback for absolute path when `jq` is missing)
-    - Description: Investigate and fix why `install.sh` sets a relative path for the commit server in `.cursor/mcp.json` when `jq` is not available. Implement fallback logic using shell commands to calculate and set the absolute path in the JSON template when jq is missing. Add a test to verify the path is absolute in this scenario.
-    - Impacted Files: `install.sh` (`merge_mcp_json` function), `tests/test_curl_install.sh` (or new test file)
-    - Dependencies: Shell commands (`pwd`, `sed`), Understanding of shell scripting and `mcp.json` format.
-    - Validation: Running `install.sh --use-curl` without `jq` results in `.cursor/mcp.json` with the correct server name "Commit" and an **absolute** path for the server script.
-
-1.2. [x] **Implement Installation for Memory, Context7, Debug Servers**:
-    - Status: Done (Analysis complete - copy logic correctly warns about missing source dirs, which is expected for these servers; permission logic fixed in 1.3)
-    - Description: Update `install.sh` to correctly handle the installation of the `memory`, `context7`, and `debug` MCP servers defined in `.cursor/mcp.json`. For `git` mode, ensure source directories are expected. For `curl` mode, implement download/installation logic (likely using `npx` commands specified in `mcp.json`). Consider if these servers require specific files to be copied/downloaded or if `npx` handles it.
-    - Impacted Files: `install.sh`
-    - Dependencies: `.cursor/mcp.json` definitions, `npx` availability.
-    - Validation: Running `install.sh` (both git and curl modes) results in a functional setup where the memory, context7, and debug servers can be invoked via MCP.
-
-1.3. [x] **Verify `install.sh` Server Copy & Path Logic & Fix Permissions**:
-    - Status: Done (MINGW64/curl requires `curl ... | tr -d '\r' | bash` to avoid CRLF permission errors)
-    - Description: Double-check server file copy logic. Fix persistent permission errors (`: command not found`) during `curl | bash` in MINGW64. Root cause identified as CRLF line endings; fix is to modify the execution command as documented in README.md.
-    - Impacted Files: `install.sh` (no changes needed), `README.md` (updated)
-    - Dependencies: MINGW64 environment for testing, `tr` utility.
-    - Validation: Running `curl ... | tr -d '\r' | bash` in MINGW64 no longer produces `: command not found` errors during permission setting.
-
-## 2. Component Verification
-
-2.1. [x] **Verify MCP Commit Usage in Rules**:
-    - Status: Done (Verification complete - `fix.mdc` correct, `context-update.mdc` updated)
-    - Description: Double-check that `context-update.mdc` and `fix.mdc` correctly use the "Commit" MCP tool instead of direct `git` commands, as previous `tasks.md` edits failed.
-    - Impacted Files: `.cursor/rules/context-update.mdc`, `.cursor/rules/fix.mdc`
-    - Dependencies: MCP Commit server definition.
-    - Validation: Rules use the `mcp_server_tool` command with the correct server name ("Commit") and arguments.
-
-2.2. [x] **Verify MCP Debug Usage in `fix` Rule**:
-    - Status: Done (Verification complete - Rule encourages Debug tool usage correctly)
-    - Description: Double-check that `fix.mdc` encourages the use of the MCP Debug tool under the specified conditions, as previous `tasks.md` edits failed.
-    - Impacted Files: `.cursor/rules/fix.mdc`
-    - Dependencies: MCP Debug server definition.
-    - Validation: The rule text contains the logic described in the user request.
-
-2.3. [x] **Verify Commit Server Implementation**:
-    - Status: Done (Verification complete - Server matches requirements)
-    - Description: Confirm that the current `.cursor/mcp/mcp-commit-server/server.js` matches the user's final requirement (accepts type, emoji, title, description; performs `git add .` and `git commit`).
-    - Impacted Files: `.cursor/mcp/mcp-commit-server/server.js`
-    - Dependencies: Node.js environment.
-    - Validation: Code review confirms the implementation matches the specification.
 
 ## 9. Rule Modification for MCP Commit
 
