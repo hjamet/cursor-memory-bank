@@ -1,11 +1,11 @@
 # Test Status
 
 - [✅] User curl test (MINGW64, no jq): Passed (Latest Run: 2025-04-26 - Required `tr -d '\r'` before `bash` to fix CRLF issue causing `: command not found`)
-- [❌] `test_curl_install.sh`: Failed (Latest Run: 2025-04-26 - `test_mcp_json_absolute_path_no_jq` failed to verify absolute path)
+- [✅] `test_curl_install.sh`: Passed (Latest Run: 2025-04-26)
 - [✅] `test_download.sh`: Passed (Latest Run: 2025-04-26)
 - [✅] `test_git_install.sh`: Passed (Latest Run: 2025-04-26)
 - [✅] `test_install.sh`: Passed (Latest Run: 2025-04-26)
-- [❌] `test_mcp_json_absolute_path_no_jq`: Failed (Latest Run: 2025-04-26 - Extracted path was relative, not absolute)
+- [✅] `test_mcp_json_absolute_path_no_jq`: Passed (Latest Run: 2025-04-26 - Verified relative path and warning when jq missing)
 
 # Fichier de tests
 
@@ -14,7 +14,7 @@
 - ✅ **Test d'installation curl avec options par défaut (pas de backup)** : Passed - Stable (Latest Run: 2025-04-26)
 - ✅ **Test de gestion d'erreur curl** : Passed - Stable (Latest Run: 2025-04-26)
 - ✅ **Test d'affichage de la date du dernier commit (curl)** : Passed - Stable (Latest Run: 2025-04-26)
-- ❌ **Test chemin absolu MCP sans jq** : Failed (Latest Run: 2025-04-26)
+- ✅ **Test chemin absolu MCP sans jq** : Passed (Latest Run: 2025-04-26)
 
 ## Tests de téléchargement
 - ✅ **Test de téléchargement de fichier** : Passed - Stable (Latest Run: 2025-04-26)

@@ -214,13 +214,14 @@ test_curl_installation_error_handling() {
     return 0
 }
 
-# Test: Verify absolute path in mcp.json when jq is NOT available
+# Test: Verify relative path and WARNING in mcp.json when jq is NOT available
 test_mcp_json_absolute_path_no_jq() {
-    log "Testing mcp.json absolute path generation without jq..."
+    log "Testing mcp.json relative path and warning generation without jq..."
 
     # Save current directory and PATH
     local current_dir="$(pwd)"
     local original_path="$PATH"
+    local install_output_file="$LOGS_DIR/install_no_jq.log"
 
     # Change to test directory
     cd "$TEST_DIR" || {
@@ -238,16 +239,32 @@ test_mcp_json_absolute_path_no_jq() {
         log_warn "jq still found in PATH ($PATH), test may not be accurate. Attempting to proceed."
     fi
 
-    # Perform curl installation (use tr -d for windows/mingw compatibility)
+    # Perform curl installation, capturing output
     log "Running install script via curl without jq..."
-    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | tr -d '\r' | bash -s -- --force; then
-        log_error "Curl installation without jq failed"
+    # Capture both stdout and stderr to check for the warning
+    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | tr -d '\r' | bash -s -- --force > "$install_output_file" 2>&1; then
+        log_error "Curl installation without jq failed. Output:"
+        cat "$install_output_file" # Show output on failure
         export PATH="$original_path" # Restore PATH
         cd "$current_dir"
         return 1
     fi
 
-    # Verify mcp.json content
+    # 1. Check for the specific warning message in the output
+    # Check for the primary warning about jq missing
+    local expected_warning="'jq' command not found. Absolute path for the 'Commit' server cannot be reliably set"
+    if ! grep -q "$expected_warning" "$install_output_file"; then
+        log_error "Test failed: Expected warning message about missing jq and absolute path was NOT found."
+        log "Install script output:"
+        cat "$install_output_file"
+        export PATH="$original_path" # Restore PATH
+        cd "$current_dir"
+        return 1
+    else
+        log "Found expected warning message about missing jq and absolute path."
+    fi
+
+    # 2. Verify mcp.json content still uses relative path
     local mcp_json_path="$TEST_DIR/.cursor/mcp.json"
     if [[ ! -f "$mcp_json_path" ]]; then
         log_error "mcp.json file was not created at $mcp_json_path"
@@ -257,13 +274,12 @@ test_mcp_json_absolute_path_no_jq() {
     fi
 
     log "Reading $mcp_json_path..."
-    # Use grep to extract the path from the "Commit" server args
-    # This is fragile but avoids needing jq for the test itself
     local commit_server_path
-    commit_server_path=$(grep -A 3 '"Commit": {' "$mcp_json_path" | grep '"args":' | sed -n 's/.*"args": \[\"\([^\"]*\)\"\]/\1/p')
+    # Use a potentially more robust sed command to extract the path
+    commit_server_path=$(sed -n '/"Commit": {/,/]/ { /"args": \[/ s/.*"\([^\"]*\)".*/\1/p }' "$mcp_json_path")
 
     if [[ -z "$commit_server_path" ]]; then
-        log_error "Could not extract server path from $mcp_json_path for 'Commit' server."
+        log_error "Could not extract server path from $mcp_json_path for 'Commit' server using sed."
         cat "$mcp_json_path" # Print file content for debugging
         export PATH="$original_path" # Restore PATH
         cd "$current_dir"
@@ -272,18 +288,18 @@ test_mcp_json_absolute_path_no_jq() {
 
     log "Extracted path for 'Commit' server: $commit_server_path"
 
-    # Check if the path is absolute (starts with / or drive letter like C:)
+    # Check if the path is RELATIVE (does NOT start with / or drive letter)
     if [[ "$commit_server_path" =~ ^(/|[A-Za-z]:) ]]; then
-        log "Test passed: Path '$commit_server_path' is absolute."
-        export PATH="$original_path" # Restore PATH
-        cd "$current_dir"
-        return 0
-    else
-        log_error "Test failed: Path '$commit_server_path' is NOT absolute."
+        log_error "Test failed: Path '$commit_server_path' IS absolute, but should be relative when jq is missing."
         cat "$mcp_json_path" # Print file content for debugging
         export PATH="$original_path" # Restore PATH
         cd "$current_dir"
         return 1
+    else
+        log "Test passed: Path '$commit_server_path' is relative as expected, and warning was shown."
+        export PATH="$original_path" # Restore PATH
+        cd "$current_dir"
+        return 0
     fi
 }
 
