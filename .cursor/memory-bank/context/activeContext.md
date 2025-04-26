@@ -1,15 +1,16 @@
 # Active Context
 
 ## Current Implementation Context
-- **Task**: All implementation tasks from `tasks.md` and `userbrief.md` are complete or cancelled.
-- **Goal**: Finalize workflow, commit changes, and determine next steps (likely completion).
-- **Status**: Implementation phase complete.
-- **Impacted Files**: Previously: `.cursor/mcp/mcp-commit-server/server.js`, `install.sh`. Cancelled task impacted: `.cursor/rules/context-update.mdc`.
+- **Task**: Completed fix for `install.sh` script regarding `jq` dependency and `.cursor/mcp.json` creation.
+- **Goal**: Finalize workflow after successful bug fix and test execution.
+- **Status**: Implementation and testing complete for the bug fix.
+- **Impacted Files**: `install.sh`.
+- **Impacted Symbols**: `merge_mcp_json` function.
 
 ## Previous State Summary
-- **Last Action**: User cancelled the request to modify the `context-update` rule.
-- **Summary**: Completed implementation tasks for MCP commit tool and installation script. Cancelled final rule modification request.
-- **Status**: All defined & processed tasks are complete.
+- **Last Action**: Successfully executed all test scripts (`test_install.sh`, `test_curl_install.sh`, etc.) after modifying `install.sh`.
+- **Summary**: Fixed the bug in `install.sh` where `.cursor/mcp.json` wasn't created without `jq`. Verified fix with tests.
+- **Status**: Bug fix complete and verified.
 
 ## Lost workflow
 - **Summary**: Completed MCP commit tool changes (schema, run function, escaping) in `server.js`. Completed `install.sh` modification (`merge_mcp_json`) for absolute path calculation and configuration. Reviewed final state against `tasks.md` and `userbrief.md`.

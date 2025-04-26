@@ -1,9 +1,9 @@
 # Test Status
 
-- [✅] `test_curl_install.sh`: Passed
-- [✅] `test_download.sh`: Passed
-- [✅] `test_git_install.sh`: Passed
-- [✅] `test_install.sh`: Passed (Fixed syntax error in install.sh)
+- [✅] `test_curl_install.sh`: Passed (Verified after jq fix)
+- [✅] `test_download.sh`: Passed (Verified after jq fix)
+- [✅] `test_git_install.sh`: Passed (Verified after jq fix)
+- [✅] `test_install.sh`: Passed (Verified after jq fix)
 
 # Fichier de tests
 
