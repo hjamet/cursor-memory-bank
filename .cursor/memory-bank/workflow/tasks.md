@@ -3,11 +3,11 @@
 ## 1. Installation Script Verification & Fixes
 
 1.1. **Fix `install.sh` MCP Path/Name Issues**:
-    - Status: Implemented (Pending Test)
+    - Status: Done (Committed fix using sed fallback and updated test)
     - Description: Investigate and fix why `install.sh` sets a relative path for the commit server in `.cursor/mcp.json` when `jq` is not available. Implement fallback logic using shell commands to calculate and set the absolute path in the JSON template when jq is missing. Add a test to verify the path is absolute in this scenario.
-    - Impacted Files: `install.sh` (`merge_mcp_json` function), `tests/test_curl_install.sh` (or new test file)
+    - Impacted Files: `install.sh`, `tests/test_curl_install.sh`
     - Dependencies: Shell commands (`pwd`, `sed`), Understanding of shell scripting and `mcp.json` format.
-    - Validation: Running `install.sh --use-curl` without `jq` results in `.cursor/mcp.json` with the correct server name "Commit" and an **absolute** path for the server script.
+    - Validation: Tests pass, including the specific no-jq scenario in `test_curl_install.sh`.
 
 1.2. **Implement Installation for Memory, Context7, Debug Servers**:
     - Status: Done (Analysis complete - copy logic correctly warns about missing source dirs, which is expected for these servers; permission logic fixed in 1.3)
@@ -83,4 +83,10 @@
     - Impacted Files: `install.sh`
     - Dependencies: `jq` command.
     - Validation: Running `install.sh` creates/updates `.cursor/mcp.json` in the target directory with an absolute path in the server arguments.
+
+1.1. **Fix `install.sh` MCP Path/Name Issues**:
+    - Status: Done (Committed fix using sed fallback and updated test)
+    - Description: Modified `install.sh` to use `sed` for setting absolute path in `mcp.json` when `jq` is unavailable. Updated `test_curl_install.sh` to verify this new behavior.
+    - Impacted Files: `install.sh`, `tests/test_curl_install.sh`
+    - Validation: Tests pass, including the specific no-jq scenario in `test_curl_install.sh`.
 

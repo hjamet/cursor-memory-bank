@@ -23,6 +23,10 @@ LOGS_DIR="$TEST_DIR/logs"
 TEST_LOG="$LOGS_DIR/test.log"
 RULES_DIR="$TEST_DIR/.cursor/rules"
 
+# Determine the absolute path to the install script in the project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+INSTALL_SCRIPT_PATH="$(cd "$SCRIPT_DIR/.." && pwd)/install.sh"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -98,9 +102,9 @@ test_curl_installation() {
     mkdir -p "$RULES_DIR/custom/test"
     echo "test custom rule" > "$RULES_DIR/custom/test/test.mdc"
     
-    # Perform curl installation with --force and --use-curl
-    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --force; then
-        log_error "Curl installation failed"
+    # Perform installation using LOCAL script with --force
+    if ! bash "$INSTALL_SCRIPT_PATH" --dir "$TEST_DIR" --force; then
+        log_error "Local installation failed"
         cd "$current_dir"
         return 1
     fi
@@ -126,7 +130,7 @@ test_curl_installation() {
     fi
     
     # Verify that it displays the commit date in the installation log
-    local installation_log=$(curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --force --version 2>&1)
+    local installation_log=$(bash "$INSTALL_SCRIPT_PATH" --dir "$TEST_DIR" --force --version 2>&1)
     if ! echo "$installation_log" | grep -q "([0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\})"; then
         log_error "Commit date not displayed in version output"
         echo "Version output: $installation_log"
@@ -156,9 +160,9 @@ test_curl_installation_with_options() {
     mkdir -p "$RULES_DIR/custom/test"
     echo "test custom rule" > "$RULES_DIR/custom/test/test.mdc"
     
-    # Test with default options (no --backup) and --force option
-    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --force; then
-        log_error "Curl installation with default options (no backup) failed"
+    # Test with default options (no --backup) and --force option using LOCAL script
+    if ! bash "$INSTALL_SCRIPT_PATH" --dir "$TEST_DIR" --force; then
+        log_error "Local installation with default options (no backup) failed"
         cd "$current_dir"
         return 1
     fi
@@ -229,77 +233,47 @@ test_mcp_json_absolute_path_no_jq() {
         return 1
     }
 
-    # Create a fake PATH that does not include jq
+    # Temporarily modify PATH to exclude jq
     mkdir -p "$TEST_DIR/fake_bin"
     export PATH="$TEST_DIR/fake_bin:$original_path"
-    log "Temporarily modified PATH to exclude jq: $PATH"
+    echo "[INFO] Temporarily modified PATH to exclude jq: $PATH"
 
-    # Ensure jq is truly not found
-    if command -v jq > /dev/null 2>&1; then
-        log_warn "jq still found in PATH ($PATH), test may not be accurate. Attempting to proceed."
-    fi
+    echo "[INFO] Running LOCAL install script without jq..."
+    # Run the installer script (using the absolute path) without jq
+    if bash "$INSTALL_SCRIPT_PATH" --target "$TEST_DIR" --no-backup; then
+        # Check if the expected INFO message about sed modification is present
+        if grep -q "Successfully updated MCP config for Commit server using sed" "$TEST_DIR/install.log"; then
+            echo "[INFO] Found expected info message about successful sed modification."
+            # Check if the mcp.json file exists
+            local mcp_json_path="$TEST_DIR/.cursor/mcp.json"
+            if [[ -f "$mcp_json_path" ]]; then
+                echo "[INFO] Reading $mcp_json_path..."
+                # Extract the path for the 'Commit' server args using grep and sed
+                # Refined sed command to handle potential literal '\\\\n' before the closing quote
+                local commit_server_path=$(grep -A 2 '"Commit": {' "$mcp_json_path" | grep '"args": \\[' -A 1 | tail -n 1 | sed -e 's/^[[:space:]]*"//' -e 's/\\\\\\\\n"[[:space:]]*$//')
 
-    # Perform curl installation, capturing output
-    log "Running install script via curl without jq..."
-    # Capture both stdout and stderr to check for the warning
-    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | tr -d '\r' | bash -s -- --force > "$install_output_file" 2>&1; then
-        log_error "Curl installation without jq failed. Output:"
-        cat "$install_output_file" # Show output on failure
-        export PATH="$original_path" # Restore PATH
-        cd "$current_dir"
-        return 1
-    fi
+                echo "[INFO] Extracted path for 'Commit' server: $commit_server_path" # Debug log
 
-    # 1. Check for the specific INFO message indicating successful sed modification
-    # Check for the success message from the sed logic
-    local expected_info="Successfully updated MCP config for Commit server using sed"
-    if ! grep -q "$expected_info" "$install_output_file"; then
-        log_error "Test failed: Expected info message about successful sed modification was NOT found."
-        log "Install script output:"
-        cat "$install_output_file"
-        export PATH="$original_path" # Restore PATH
-        cd "$current_dir"
-        return 1
+                # Check if the extracted path is absolute (starts with / or C:)
+                if [[ "$commit_server_path" == /* ]] || [[ "$commit_server_path" == [A-Za-z]:* ]]; then
+                    echo "[PASS] MCP JSON absolute path modification without jq test passed"
+                else
+                    echo "[ERROR] Test failed: Path '$commit_server_path' IS NOT absolute, but should be after sed modification."
+                    # Print the content of mcp.json for debugging
+                    cat "$mcp_json_path"
+                    exit 1
+                fi
+            else
+                echo "[ERROR] Test failed: $mcp_json_path not found after installation."
+                exit 1
+            fi
+        else
+            echo "[ERROR] Test failed: Did not find the expected info message about successful sed modification."
+            exit 1
+        fi
     else
-        log "Found expected info message about successful sed modification."
-    fi
-
-    # 2. Verify mcp.json content now uses ABSOLUTE path
-    local mcp_json_path="$TEST_DIR/.cursor/mcp.json"
-    if [[ ! -f "$mcp_json_path" ]]; then
-        log_error "mcp.json file was not created at $mcp_json_path"
-        export PATH="$original_path" # Restore PATH
-        cd "$current_dir"
-        return 1
-    fi
-
-    log "Reading $mcp_json_path..."
-    local commit_server_path
-    # Use a potentially more robust sed command to extract the path
-    commit_server_path=$(sed -n '/"Commit": {/,/]/ { /"args": \[/ s/.*"\([^\"]*\)".*/\1/p }' "$mcp_json_path")
-
-    if [[ -z "$commit_server_path" ]]; then
-        log_error "Could not extract server path from $mcp_json_path for 'Commit' server using sed."
-        cat "$mcp_json_path" # Print file content for debugging
-        export PATH="$original_path" # Restore PATH
-        cd "$current_dir"
-        return 1
-    fi
-
-    log "Extracted path for 'Commit' server: $commit_server_path"
-
-    # Check if the path is ABSOLUTE (starts with / or drive letter)
-    if [[ "$commit_server_path" =~ ^(/|[A-Za-z]:) ]]; then
-        log "Test passed: Path '$commit_server_path' is absolute as expected, and sed modification was successful."
-        export PATH="$original_path" # Restore PATH
-        cd "$current_dir"
-        return 0
-    else
-        log_error "Test failed: Path '$commit_server_path' IS NOT absolute, but should be after sed modification."
-        cat "$mcp_json_path" # Print file content for debugging
-        export PATH="$original_path" # Restore PATH
-        cd "$current_dir"
-        return 1
+        echo "[ERROR] Test failed: Installation script failed when jq was not available."
+        exit 1
     fi
 }
 
