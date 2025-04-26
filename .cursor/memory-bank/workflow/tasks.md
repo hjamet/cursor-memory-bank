@@ -60,7 +60,19 @@
     - Dependencies: Completion of other cleanup tasks.
     - Validation: Repository contains only necessary files for operation and development, reflected in `.gitignore`.
 
+3.3. [x] **Create `new-chat` Rule**:
+    - Description: Create a new rule `.cursor/rules/new-chat.mdc` allowing users to trigger a state save (summary, current rule name) to `activeContext.md` using a specific `<SYSTEM>` block, preparing for a clean restart in a new chat session. The rule must also define the agent's behavior for resuming from this saved state.
+    - Actions: Create file `.cursor/rules/new-chat.mdc` with appropriate structure and logic.
+    - Files: `.cursor/rules/new-chat.mdc`
+    - Dependencies: None
+    - Validation: The rule exists and contains the specified logic.
+
 # Done
+
+## [Task Group - e.g., Rules, Installation, Cleanup]
+[x] **Create `new-chat` Rule**:
+    - Description: Create a new rule `.cursor/rules/new-chat.mdc` allowing users to trigger a state save (summary, current rule name) to `activeContext.md` using a specific `<SYSTEM>` block, preparing for a clean restart in a new chat session. The rule must also define the agent's behavior for resuming from this saved state.
+    - Files: `.cursor/rules/new-chat.mdc`
 
 ## 9. Rule Modification for MCP Commit
 
