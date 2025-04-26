@@ -563,46 +563,23 @@ merge_mcp_json() {
             log "Using 'sed' for modification (jq not available)."
             local sed_safe_path
             # Escape characters unsafe for sed replacement part: / & \
-            sed_safe_path=$(echo "$server_script_abs_path" | sed -e 's/[\\/&]/\\&/g')
-            local sed_success=false
+            sed_safe_path=$(echo "$server_script_abs_path" | sed -e 's/[\\/&]/\\&/g') # Path still calculated for potential future use/logging
+            local key_replaced_successfully=false
 
-            # 1. Replace the placeholder key name
+            # 1. Replace ONLY the placeholder key name
             # Using # as delimiter to avoid issues with paths
             log "sed: Replacing placeholder key '$placeholder_key_name' with '$expected_key_name'"
             if sed -i "s#\"$placeholder_key_name\":#\"$expected_key_name\":#g" "$template_mcp_json"; then
                  log "sed: Key replacement successful."
-
-                 # 2. Replace the args line (assuming simple structure: "args": [".*"])
-                 # This regex is basic and assumes the args line is simple.
-                 local args_pattern='"args":[[:space:]]*\[.*\]'
-                 local replacement_line="\"args\": [\"$sed_safe_path\"]"
-                 log "sed: Replacing args line matching pattern '$args_pattern'"
-                 if sed -i "s#$args_pattern#$replacement_line#g" "$template_mcp_json"; then
-                     log "sed: Args replacement successful."
-                     # Basic JSON check (crude)
-                     if grep -q '^{' "$template_mcp_json" && grep -q '}$' "$template_mcp_json"; then
-                         log "sed: Basic JSON check passed."
-                         template_modified_successfully=true # Set flag!
-                         sed_success=true
-                     else
-                         warn "'sed' modification resulted in potentially invalid JSON (basic check failed). Reverting template file."
-                         # Attempt to revert - This requires storing the original content first, 
-                         # which complicates things. Simpler to just warn and proceed with potentially broken template.
-                         # Consider adding a backup step if revert is critical.
-                         # For now, just unset the success flag.
-                         sed_success=false 
-                     fi
-                 else
-                     local sed_args_status=$?
-                     warn "'sed' command failed during args replacement (Exit code: $sed_args_status). Template might be partially modified or corrupted."
-                 fi
+                 key_replaced_successfully=true
+                 # Set overall success flag based *only* on key replacement when using sed
+                 template_modified_successfully=true 
+                 warn "sed: Successfully replaced key, but cannot set absolute path for args without 'jq'. Using relative path."
+                 # No args replacement attempted with sed due to environment instability.
             else
                  local sed_key_status=$?
-                 warn "'sed' command failed during key replacement (Exit code: $sed_key_status). Skipping further modifications."
-            fi
-
-            if [[ "$sed_success" = false ]]; then
-                warn "sed modification failed. Proceeding with potentially unmodified or corrupted template content."
+                 warn "'sed' command failed during key replacement (Exit code: $sed_key_status). Template file potentially corrupted."
+                 template_modified_successfully=false # Ensure this is false if key replacement fails
             fi
             # --- End SED Logic ---
         fi # End jq_available check
