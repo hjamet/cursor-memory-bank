@@ -214,6 +214,79 @@ test_curl_installation_error_handling() {
     return 0
 }
 
+# Test: Verify absolute path in mcp.json when jq is NOT available
+test_mcp_json_absolute_path_no_jq() {
+    log "Testing mcp.json absolute path generation without jq..."
+
+    # Save current directory and PATH
+    local current_dir="$(pwd)"
+    local original_path="$PATH"
+
+    # Change to test directory
+    cd "$TEST_DIR" || {
+        log_error "Failed to change to test directory"
+        return 1
+    }
+
+    # Create a fake PATH that does not include jq
+    mkdir -p "$TEST_DIR/fake_bin"
+    export PATH="$TEST_DIR/fake_bin:$original_path"
+    log "Temporarily modified PATH to exclude jq: $PATH"
+
+    # Ensure jq is truly not found
+    if command -v jq > /dev/null 2>&1; then
+        log_warn "jq still found in PATH ($PATH), test may not be accurate. Attempting to proceed."
+    fi
+
+    # Perform curl installation (use tr -d for windows/mingw compatibility)
+    log "Running install script via curl without jq..."
+    if ! curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | tr -d '\r' | bash -s -- --force; then
+        log_error "Curl installation without jq failed"
+        export PATH="$original_path" # Restore PATH
+        cd "$current_dir"
+        return 1
+    fi
+
+    # Verify mcp.json content
+    local mcp_json_path="$TEST_DIR/.cursor/mcp.json"
+    if [[ ! -f "$mcp_json_path" ]]; then
+        log_error "mcp.json file was not created at $mcp_json_path"
+        export PATH="$original_path" # Restore PATH
+        cd "$current_dir"
+        return 1
+    fi
+
+    log "Reading $mcp_json_path..."
+    # Use grep to extract the path from the "Commit" server args
+    # This is fragile but avoids needing jq for the test itself
+    local commit_server_path
+    commit_server_path=$(grep -A 3 '"Commit": {' "$mcp_json_path" | grep '"args":' | sed -n 's/.*"args": \[\"\([^\"]*\)\"\]/\1/p')
+
+    if [[ -z "$commit_server_path" ]]; then
+        log_error "Could not extract server path from $mcp_json_path for 'Commit' server."
+        cat "$mcp_json_path" # Print file content for debugging
+        export PATH="$original_path" # Restore PATH
+        cd "$current_dir"
+        return 1
+    fi
+
+    log "Extracted path for 'Commit' server: $commit_server_path"
+
+    # Check if the path is absolute (starts with / or drive letter like C:)
+    if [[ "$commit_server_path" =~ ^(/|[A-Za-z]:) ]]; then
+        log "Test passed: Path '$commit_server_path' is absolute."
+        export PATH="$original_path" # Restore PATH
+        cd "$current_dir"
+        return 0
+    else
+        log_error "Test failed: Path '$commit_server_path' is NOT absolute."
+        cat "$mcp_json_path" # Print file content for debugging
+        export PATH="$original_path" # Restore PATH
+        cd "$current_dir"
+        return 1
+    fi
+}
+
 # Run tests
 run_tests() {
     local failed=0
@@ -249,24 +322,39 @@ run_tests() {
         log_error "Failed to set up test environment for error handling test"
         return 1
     fi
-    
+
     # Run error handling test
     if ! test_curl_installation_error_handling; then
+        ((failed++))
+    fi
+
+    # Clean up and setup fresh environment for absolute path test
+    teardown
+    if ! setup; then
+        log_error "Failed to set up test environment for absolute path test"
+        return 1
+    fi
+
+    # Run absolute path test (no jq)
+    if ! test_mcp_json_absolute_path_no_jq; then
         ((failed++))
     fi
     
     # Final cleanup
     teardown
     
-    # Return results
-    if [[ $failed -gt 0 ]]; then
+    # Report results
+    if [[ $failed -eq 0 ]]; then
+        log "All tests passed!"
+        return 0
+    else
         log_error "$failed test(s) failed"
         return 1
     fi
-    
-    log "All tests passed successfully"
-    return 0
 }
+
+# Execute tests
+run_tests
 
 # Run tests if script is executed directly
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

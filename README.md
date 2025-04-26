@@ -10,6 +10,12 @@ You can install using this one-liner:
 curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash
 ```
 
+**Note for MINGW64/Git Bash users on Windows:** If you encounter `: command not found` errors during installation, it's likely due to line ending issues when piping directly. Use this modified command instead:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | tr -d '\r' | bash
+```
+
 For better security, you can also:
 1. Download the script first:
 ```bash
