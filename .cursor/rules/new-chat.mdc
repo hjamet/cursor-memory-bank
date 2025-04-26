@@ -1,5 +1,89 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+## TLDR
+Save the agent's current work context (detailed summary, current rule) to `activeContext.md` with a special marker, allowing the workflow to resume seamlessly in a new chat session.
+
+## Instructions
+
+1.  **Summarize Current Work (Detailed)**:
+    *   Use `<think>` tokens to provide a **detailed** summary of your immediate goal, ongoing actions, relevant files/symbols you were working with, specific line numbers if applicable, and any intermediate results or thoughts just before this rule was invoked. **Be thorough** to ensure a smooth restart.
+
+2.  **Identify Current Rule**:
+    *   Analyze your most recent actions (as summarized in Step 1).
+    *   Consult the list of rule descriptions provided in the "Reminder of Rule Descriptions" section below.
+    *   Based on your analysis and the descriptions, determine and explicitly state the name of the rule you were executing immediately prior to this `new-chat` rule. Example: "I was executing the `implementation` rule."
+
+3.  **Save Detailed State to activeContext.md**:
+    *   Read the current `.cursor/memory-bank/context/activeContext.md`.
+    *   Add a new section or update an existing one (e.g., `## Workflow Interruption - New Chat`).
+    *   Include the following `<SYSTEM>` message block *exactly* as formatted, replacing the bracketed placeholders. **Ensure the summary is comprehensive**, including details about the task, files, symbols, and intended next steps from Step 1.
+        ```markdown
+        <SYSTEM>
+        Workflow interrupted by new-chat rule. Manual restart required in new chat.
+        Resume from rule: [Identified Rule Name from Step 2]
+        Previous detailed context summary: [Detailed Summary from Step 1 think block - include task, files, symbols, next step etc.]
+        </SYSTEM>
+        ```
+    *   Ensure the rest of the `activeContext.md` content is preserved.
+
+4.  **Inform User**:
+    *   State clearly that the context has been saved and the agent's current process will now terminate.
+    *   Instruct the user to start a new chat session. The agent will automatically detect the saved state and resume the workflow from the identified rule in the new session.
+
+## Resume Logic Definition (For Agent Reference)
+
+When the agent, during a future `context-loading` or `implementation` phase, reads `activeContext.md` and finds the `<SYSTEM>...</SYSTEM>` block defined above, it MUST perform the following actions *before* proceeding with its normal workflow:
+
+1.  **Delete Marker**: Remove the entire `<SYSTEM>...</SYSTEM>` block from `activeContext.md`.
+2.  **Load Context**: Mentally reload the context based on the "Previous context summary" within the (now deleted) block.
+3.  **Resume Workflow**: Immediately fetch and begin executing the rule specified by "Resume from rule:" within the (now deleted) block. Do *not* start from `context-loading` unless that was the specified resume rule.
+
+## Specifics
+
+-   This rule is intended to be invoked *only* by the user.
+-   The agent should terminate its current execution flow after completing step 4 (Inform User).
+-   The workflow resumes automatically in the *next* user interaction / chat session upon reading `activeContext.md`.
+
+## Reminder of Rule Descriptions (for Step 2 Identification)
+
+-   `context-loading`: Loading project objectives and general context.
+-   `request-analysis`: Detailed analysis of user request and exploration of existing code.
+-   `task-decomposition`: Decomposition of user request into concrete tasks.
+-   `implementation`: Methodical implementation of project priority tasks.
+-   `test-implementation`: Creation of unit tests for new features.
+-   `test-execution`: Execution of unit tests and results analysis.
+-   `fix`: Analysis of test errors and creation of correction tasks.
+-   `context-update`: Update of context files and commit of changes.
+-   `consolidate-repo`: Repository consolidation, userbrief.md management.
+-   `system`: Main rule defining the state machine.
+-   `workflow-perdu`: Recovery of position in workflow.
+
+## Next Rules
+
+-   None (Execution terminates after informing the user).
+
+## Example
+
+```
+# New-Chat: 1 - Summarize Current Work
+<think>
+I was in the middle of implementing task 3.2 (Refactor logging module) from the 'Development' section in tasks.md. I had just read the existing `src/utils/logger.py` file and was planning to modify the `log_message` function to add timestamp prefixes.
+</think>
+**(New-Chat: 1 - Summarize Current Work)**
+
+# New-Chat: 2 - Identify Current Rule
+Based on my recent actions (implementing a task from tasks.md), I identify that I was executing the `implementation` rule. **(New-Chat: 2 - Identify Current Rule)**
+
+# New-Chat: 3 - Save State to activeContext.md
+I will now read `activeContext.md` and add the system marker with the summary and identified rule. **(New-Chat: 3 - Save State to activeContext.md)**
+[...reading activeContext.md...]
+[...editing activeContext.md to add SYSTEM block...]
+**(New-Chat: 3 - Save State to activeContext.md)**
+
+# New-Chat: 4 - Inform User
+Context saved. Please start a new chat session. I will automatically resume work on the `implementation` rule from where I left off based on the saved context. **(New-Chat: 4 - Inform User)**
+
+

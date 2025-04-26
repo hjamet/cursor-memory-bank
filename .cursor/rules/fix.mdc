@@ -35,7 +35,7 @@ Analyze test errors and fix them through an iterative execution-correction loop 
               - Construct `title` = "fix([Test name]): Quick fix"
               - Construct `description` = "Applied quick fix for [Test name] after successful test run."
               - Provide these arguments to the MCP "Commit" tool. It handles staging automatically.
-            * **(Optional) Memory Storage**: Use `mcp_servers_add_observations` to store details of the error, the successful fix, and relevant context (e.g., files modified, iteration count) in the knowledge graph, associated with an entity like 'TestErrorSolution'.
+            * **(Situational) Memory Storage**: If the error resolved was due to a lack of general knowledge on your part (change in behavior of a library, incorrect arguments when calling an external function, etc.), use `mcp_servers_add_observations` to store details of the error, the successful fix et ce qu'il faut retenir. Link this entity to the library concerned.
             * **2.5.3 Continue**: Move to the next failing test in the list and repeat the loop from step 2.1.
         *   If test fails but shows progress → Continue loop with new iteration for the *same* test.
         *   If **truly complex correction** (after 3 attempts *without any progress* OR requires *major* refactoring / a completely new implementation approach):

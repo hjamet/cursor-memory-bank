@@ -2,11 +2,11 @@
 
 ## Current implementation context
 
-- Completed task: Create the `new-chat` rule.
+- Completed task: Refined the `new-chat` rule in `.cursor/rules/new-chat.mdc` based on user feedback (removed external rule dependency, emphasized detailed context saving).
 
 ## Current Status
 
-- Created `.cursor/rules/new-chat.mdc` as requested in `userbrief.md`.
-- Marked the corresponding task in `tasks.md` as done.
+- Rule `.cursor/rules/new-chat.mdc` is updated.
+- Previous task creating the rule is marked done in `tasks.md`.
 - Previous fix for `test_curl_install.sh` is committed.
 - All installation tests are passing.
