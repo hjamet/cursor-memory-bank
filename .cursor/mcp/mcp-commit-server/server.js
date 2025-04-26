@@ -101,8 +101,12 @@ server.tool({
 async function startServer() {
     try {
         const transport = new StdioServerTransport();
+        // Log *before* connecting, as connect might alter server state/methods
+        server.log('info', 'MCP Commit Server attempting to connect via StdioTransport...');
         await server.connect(transport);
-        server.log('info', 'MCP Commit Server connected via StdioTransport');
+        // Log after connect might be problematic, log before instead.
+        // server.log('info', 'MCP Commit Server connected via StdioTransport'); 
+        console.log('[INFO] MCP Commit Server connection established.'); // Use console.log for post-connect status
     } catch (error) {
         console.error("Failed to start MCP Commit Server:", error);
         process.exit(1);
