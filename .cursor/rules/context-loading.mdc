@@ -22,7 +22,7 @@ Load or create project context files to establish the working environment.
 3. **Request reformulation**: Reformulate the user instruction in the project context
 
 4. **Calling the next rule**: Check userbrief.md and call appropriate rule:
-   - If `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment (starting with ⬜), call `consolidate-repo`
+   - If `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment (starting with -), call `consolidate-repo`
    - Otherwise, call `request-analysis` to analyze the request
 
 ## Specifics
@@ -34,7 +34,7 @@ Load or create project context files to establish the working environment.
 - ⚠️ IMPORTANT: Limit to the four context files listed in step 1
 
 ## Next Rules
-- `consolidate-repo` - If userbrief.md contains unprocessed comments (⬜)
+- `consolidate-repo` - If userbrief.md contains unprocessed comments (-)
 - `request-analysis` - Otherwise, to analyze in detail the user's request
 
 ## Example
@@ -50,6 +50,6 @@ I reformulate the user's request taking into account the project context. **(Con
 
 # Context-loading: 4 - Calling the next rule
 I'm now checking the content of `.cursor/memory-bank/userbrief.md` to determine which rule to call next.
-I've found that `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment starting with ⬜, so I need to call the consolidate-repo rule. **(Context-loading: 4 - Calling the next rule)**
+I've found that `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment starting with -, so I need to call the consolidate-repo rule. **(Context-loading: 4 - Calling the next rule)**
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

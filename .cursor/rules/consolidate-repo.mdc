@@ -32,7 +32,7 @@ tests/                       # Unit and integration tests
 2. **Organizing userbrief.md**: Structure content according to template:
    - Maintain 3 main sections: "User Input", "Processing", "Precisions"
    - Apply appropriate statuses:
-     - ⬜ : To be processed
+     - - : To be processed
      - 🔄 : In progress (for tasks only)
      - 📌 : Long-term preference
      - ✅ : Completed (not to be used, left for task-decomposition)

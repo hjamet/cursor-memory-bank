@@ -1,77 +1,7 @@
 # In Progress
 
-## 1. Installation Script Verification & Fixes
-
-1.1. **Fix `install.sh` MCP Path/Name Issues**:
-    - Status: Done (Committed fix using sed fallback and updated test)
-    - Description: Investigate and fix why `install.sh` sets a relative path for the commit server in `.cursor/mcp.json` when `jq` is not available. Implement fallback logic using shell commands to calculate and set the absolute path in the JSON template when jq is missing. Add a test to verify the path is absolute in this scenario.
-    - Impacted Files: `install.sh`, `tests/test_curl_install.sh`
-    - Dependencies: Shell commands (`pwd`, `sed`), Understanding of shell scripting and `mcp.json` format.
-    - Validation: Tests pass, including the specific no-jq scenario in `test_curl_install.sh`.
-
-1.2. **Implement Installation for Memory, Context7, Debug Servers**:
-    - Status: Done (Analysis complete - copy logic correctly warns about missing source dirs, which is expected for these servers; permission logic fixed in 1.3)
-    - Description: Update `install.sh` to correctly handle the installation of the `memory`, `context7`, and `debug` MCP servers defined in `.cursor/mcp.json`. For `git` mode, ensure source directories are expected. For `curl` mode, implement download/installation logic (likely using `npx` commands specified in `mcp.json`). Consider if these servers require specific files to be copied/downloaded or if `npx` handles it.
-    - Impacted Files: `install.sh`
-    - Dependencies: `.cursor/mcp.json` definitions, `npx` availability.
-    - Validation: Running `install.sh` (both git and curl modes) results in a functional setup where the memory, context7, and debug servers can be invoked via MCP.
-
-1.3. **Verify `install.sh` Server Copy & Path Logic & Fix Permissions**:
-    - Status: Done (MINGW64/curl requires `curl ... | tr -d '\r' | bash` to avoid CRLF permission errors)
-    - Description: Double-check server file copy logic. Fix persistent permission errors (`: command not found`) during `curl | bash` in MINGW64. Root cause identified as CRLF line endings; fix is to modify the execution command as documented in README.md.
-    - Impacted Files: `install.sh` (no changes needed), `README.md` (updated)
-    - Dependencies: MINGW64 environment for testing, `tr` utility.
-    - Validation: Running `curl ... | tr -d '\r' | bash` in MINGW64 no longer produces `: command not found` errors during permission setting.
-
-## 2. Component Verification
-
-2.1. **Verify MCP Commit Usage in Rules**:
-    - Status: Done (Verification complete - `fix.mdc` correct, `context-update.mdc` updated)
-    - Description: Double-check that `context-update.mdc` and `fix.mdc` correctly use the "Commit" MCP tool instead of direct `git` commands, as previous `tasks.md` edits failed.
-    - Impacted Files: `.cursor/rules/context-update.mdc`, `.cursor/rules/fix.mdc`
-    - Dependencies: MCP Commit server definition.
-    - Validation: Rules use the `mcp_server_tool` command with the correct server name ("Commit") and arguments.
-
-2.2. **Verify MCP Debug Usage in `fix` Rule**:
-    - Status: Done (Verification complete - Rule encourages Debug tool usage correctly)
-    - Description: Double-check that `fix.mdc` encourages the use of the MCP Debug tool under the specified conditions, as previous `tasks.md` edits failed.
-    - Impacted Files: `.cursor/rules/fix.mdc`
-    - Dependencies: MCP Debug server definition.
-    - Validation: The rule text contains the logic described in the user request.
-
-2.3. **Verify Commit Server Implementation**:
-    - Status: Done (Verification complete - Server matches requirements)
-    - Description: Confirm that the current `.cursor/mcp/mcp-commit-server/server.js` matches the user's final requirement (accepts type, emoji, title, description; performs `git add .` and `git commit`).
-    - Impacted Files: `.cursor/mcp/mcp-commit-server/server.js`
-    - Dependencies: Node.js environment.
-    - Validation: Code review confirms the implementation matches the specification.
-
 ## 3. Repository Cleanup
 
-3.1. **Cleanup Test Logs**:
-    - Description: Review the `.log` files in the `tests/` directory (`exit_codes.log`, `test_*.log`). Decide whether to delete them or add them to `.gitignore`.
-    - Impacted Files: `tests/*.log`, `.gitignore`
-    - Dependencies: None
-    - Validation: Log files are either removed or ignored by git.
-
-3.2. **General Repository Cleanup Review**:
-    - Description: Perform a final review of the repository structure, removing any remaining unnecessary files (e.g., leftover test artifacts, logs not covered by specific tasks) and ensuring all necessary components are tracked by git. Add necessary entries to `.gitignore`.
-    - Impacted Files: Various (potentially `tests/`, root), `.gitignore`
-    - Dependencies: Completion of other cleanup tasks.
-    - Validation: Repository contains only necessary files for operation and development, reflected in `.gitignore`.
-
-3.3. [x] **Create `new-chat` Rule**:
-    - Description: Create a new rule `.cursor/rules/new-chat.mdc` allowing users to trigger a state save (summary, current rule name) to `activeContext.md` using a specific `<SYSTEM>` block, preparing for a clean restart in a new chat session. The rule must also define the agent's behavior for resuming from this saved state.
-    - Actions: Create file `.cursor/rules/new-chat.mdc` with appropriate structure and logic.
-    - Files: `.cursor/rules/new-chat.mdc`
-    - Dependencies: None
-    - Validation: The rule exists and contains the specified logic.
-
-3.4. [x] **Replace ⬜ Emoji in Rules**:
-    - Description: Replace the white square emoji (⬜) with a hyphen (-) in all rule files referencing it for userbrief.md processing status.
-    - Files: `.cursor/rules/context-loading.mdc`, `.cursor/rules/context-update.mdc`, `.cursor/rules/consolidate-repo.mdc`, `.cursor/rules/architect.mdc`, `.cursor/rules/templates/userbrief-template.mdc`
-    - Dependencies: None
-    - Validation: Grep search for ⬜ in `.cursor/rules/**/*.mdc` returns no results.
 
 # Done
 
@@ -84,31 +14,11 @@
     - Description: Replace the white square emoji (⬜) with a hyphen (-) in all rule files referencing it for userbrief.md processing status.
     - Files: `.cursor/rules/context-loading.mdc`, `.cursor/rules/context-update.mdc`, `.cursor/rules/consolidate-repo.mdc`, `.cursor/rules/architect.mdc`, `.cursor/rules/templates/userbrief-template.mdc`
 
-## 9. Rule Modification for MCP Commit
+[x] **Cleanup Test Logs**:
+    - Description: Review the `.log` files in the `tests/` directory (`exit_codes.log`, `test_*.log`). Decide whether to delete them or add them to `.gitignore`.
+    - Files: `tests/*.log`, `.gitignore`
 
-9.1. [x] **Modify context-update.mdc**: Replace the `git commit -a` command in step 4 with a call to the "Commit" MCP tool, using appropriate arguments (type, emoji, title, description).
-    - Actions: Edit `context-update.mdc`.
-    - Files: `.cursor/rules/context-update.mdc`
-    - Dependencies: MCP "Commit" server operational and correctly named.
-    - Validation: The rule instructs to use the MCP tool instead of the git command.
-
-9.2. [x] **Modify fix.mdc**: Replace the `git commit -m` command in step 2.5.2 (quick commit) with a call to the "Commit" MCP tool, using appropriate arguments (type=:wrench:, emoji=:bug:, title derived from test name, description=quick fix).
-    - Actions: Edit `fix.mdc`.
-    - Files: `.cursor/rules/fix.mdc`
-    - Dependencies: MCP "Commit" server operational and correctly named.
-    - Validation: The rule instructs to use the MCP tool instead of the git command for quick commits.
-
-## 8. MCP Server Installation Logic
-
-8.1. [x] **Modify install.sh for Local MCP Config**: Update `install.sh` to copy MCP server files to the local installation target directory and configure the local `.cursor/mcp.json` with the absolute path to the installed `server.js`.
-    - Description: Ensure `install.sh` copies `.cursor/mcp/mcp-commit-server/` source files to `$INSTALL_DIR/.cursor/mcp/mcp-commit-server/`. Modify `merge_mcp_json` to calculate the absolute path of the installed `server.js` and use `jq` to update the temporary template JSON with this path before copying/merging it into `$INSTALL_DIR/.cursor/mcp.json`.
-    - Impacted Files: `install.sh`
-    - Dependencies: `jq` command.
-    - Validation: Running `install.sh` creates/updates `.cursor/mcp.json` in the target directory with an absolute path in the server arguments.
-
-1.1. **Fix `install.sh` MCP Path/Name Issues**:
-    - Status: Done (Committed fix using sed fallback and updated test)
-    - Description: Modified `install.sh` to use `sed` for setting absolute path in `mcp.json` when `jq` is unavailable. Updated `test_curl_install.sh` to verify this new behavior.
-    - Impacted Files: `install.sh`, `tests/test_curl_install.sh`
-    - Validation: Tests pass, including the specific no-jq scenario in `test_curl_install.sh`.
+[x] **General Repository Cleanup Review**:
+    - Description: Perform a final review of the repository structure, removing any remaining unnecessary files (e.g., leftover test artifacts, logs not covered by specific tasks) and ensuring all necessary components are tracked by git. Add necessary entries to `.gitignore`.
+    - Files: Various (potentially `tests/`, root), `.gitignore`
 
