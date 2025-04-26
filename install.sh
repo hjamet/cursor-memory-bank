@@ -449,13 +449,9 @@ install_rules() {
     for server_name in "${mcp_servers[@]}"; do
         local current_mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
         if [[ -d "$current_mcp_server_target_dir" ]]; then
-             log "Setting base read/write permissions for $current_mcp_server_target_dir..."
-             # Set read/write for user on all files and directories recursively.
-             # Avoid setting +x entirely due to MINGW64/curl/bash issues.
-             # Read/write should be sufficient for npm install and node execution.
-             if ! chmod -R u+rw "$current_mcp_server_target_dir"; then
-                 warn "Failed to set base read/write permissions for $server_name files ($current_mcp_server_target_dir)."
-             fi
+             # REMOVED log call from inside the loop to test if it causes issues in curl|bash
+             # Execute chmod directly...
+             chmod -R u+rw "$current_mcp_server_target_dir" || true
         fi
     done
 

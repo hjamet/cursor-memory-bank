@@ -16,12 +16,12 @@
     - Dependencies: `.cursor/mcp.json` definitions, `npx` availability.
     - Validation: Running `install.sh` (both git and curl modes) results in a functional setup where the memory, context7, and debug servers can be invoked via MCP.
 
-1.3. **Verify `install.sh` Server Copy & Path Logic**:
-    - Status: Done (Copy logic verified, permission setting logic fixed for MINGW64 compatibility)
-    - Description: Double-check that `install.sh` correctly copies the commit server files (`.cursor/mcp/mcp-commit-server/`) to the target directory and that the absolute path logic in `merge_mcp_json` functions as expected when `jq` is present. Fix permission setting issues.
-    - Impacted Files: `install.sh`
-    - Dependencies: `jq` availability for absolute path testing.
-    - Validation: Running `install.sh` with `jq` correctly copies files and sets the absolute path in `.cursor/mcp.json`. Running without `jq` (e.g., via curl test) no longer produces `command not found` errors during permission setting.
+1.3. **Verify `install.sh` Server Copy & Path Logic & Fix Permissions**:
+    - Status: In Progress (Attempting fix 4 for persistent MINGW64/curl permission error)
+    - Description: Double-check server file copy logic. Fix persistent permission errors (`: command not found`) during `curl | bash` in MINGW64. Latest attempt involves simplifying the permission loop structure to avoid conditionals/warnings.
+    - Impacted Files: `install.sh` (`install_rules` permission loop)
+    - Dependencies: MINGW64 environment for testing.
+    - Validation: Running `install.sh` via `curl | bash` in MINGW64 no longer produces `: command not found` errors during permission setting.
 
 ## 2. Component Verification
 

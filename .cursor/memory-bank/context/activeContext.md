@@ -1,21 +1,16 @@
 # Active Context
 
 ## Current Status
-- **Last Action**: Analyzed user request regarding `install.sh` failures.
-- **Outcome**: Identified specific issues in `install.sh`: MCP server copy logic (git mode), permission setting commands (`find -exec chmod`), and `mcp.json` path handling fallback (relative path without `jq`).
-- **Next Step**: Implement tasks from section 1: "Installation Script Verification & Fixes" in `tasks.md`.
+- **Last Action**: Re-analyzed persistent permission errors in `install.sh` after previous fixes failed when testing with `curl | bash` in MINGW64.
+- **Outcome**: Concluded standard `chmod` commands within loops/conditionals are unreliable in the target environment (`curl | bash` on MINGW64), likely due to shell interpretation issues. The error `: command not found` persists even with minimal `chmod -R u+rw`.
+- **Next Step**: Implement a simplified permission strategy in `install.sh`.
 
 ## Current Implementation Context
-- **Task Section**: 1. Installation Script Verification & Fixes
-- **Tasks**:
-    - **1.1 Fix `install.sh` MCP Path/Name Issues**: Already addressed (server name is "Commit", relative path fallback is expected without jq). Focus is now on other issues.
-    - **1.2 Implement Installation for Memory, Context7, Debug Servers**: Refine logic in `install_rules` (git mode) to *not* attempt copying files for these servers, as they don't exist in the repo and are defined via `npx`/`url` in `mcp.json`. The existing `warn` is correct but redundant if the copy isn't attempted.
-    - **1.3 Verify `install.sh` Server Copy & Path Logic**: This overlaps with fixing the permission issues found during analysis. Refine permission setting in `install_rules` (lines ~446-459) to avoid `find -exec chmod u+x` which causes errors in MINGW64. Ensure `u+rw` is set, and specifically `u+x` for `server.js` if necessary (though likely not, as it's run via `node`). Add better error checking (`|| warn ...`) to chmod commands.
-- **Goal**: Make `install.sh` robustly handle MCP server installation (copying only necessary files) and permission setting across different environments (especially MINGW64), ensuring `mcp.json` path handling is correct (absolute with jq, relative fallback without).
+- **Task Section**: Addressing persistent failure from section 1 (Task 1.3 specifically).
+- **Task**: Fix persistent permission errors (`: command not found`) in `install.sh` during `curl | bash` on MINGW64.
+- **Goal**: Modify the permission setting loop in `install_rules` to avoid the error, likely by removing conditional checks and function calls around the `chmod` command.
 - **Impacted Files**: `install.sh`
-- **Impacted Symbols**: `install_rules` (specifically the git mode MCP server loop and the permission setting loop).
-- **Dependencies**: Bash scripting, `chmod`, `find` (potential issues), `jq` (optional for absolute paths).
-- **Online Research**: Confirmed `chmod` limitations and potential issues with `find -exec` in MINGW64. Simpler `chmod` or relying on Node.js execution might be better.
-- **Decisions**:
-    - Skip `cp -r` for non-commit servers in git mode.
-    - Replace `find -exec chmod u+x` with simpler/safer permission logic.
+- **Impacted Symbols**: `install_rules` (permission setting loop).
+- **Dependencies**: Bash scripting (`chmod`).
+- **Online Research**: Indicated potential issues with conditionals, function calls, and environment inheritance in piped bash scripts on MINGW.
+- **Decision**: Simplify the permission loop drastically: remove the `if ! ...` conditional and the `warn` call. Execute `chmod -R u+rw` directly, ignoring potential `chmod` errors (`|| true`) to prioritize avoiding the `: command not found` error caused by the script structure.
