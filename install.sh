@@ -559,29 +559,64 @@ merge_mcp_json() {
             fi # End JSON validity check
             # --- End JQ Logic ---
         else
-            # --- SED Logic (Fallback when jq is missing) ---
-            log "Using 'sed' for modification (jq not available)."
-            local sed_safe_path
-            # Escape characters unsafe for sed replacement part: / & \
-            sed_safe_path=$(echo "$server_script_abs_path" | sed -e 's/[\\/&]/\\&/g') # Path still calculated for potential future use/logging
-            local key_replaced_successfully=false
+            # --- Direct JSON Generation Logic (Fallback when jq is missing) ---
+            log "Using direct JSON generation (jq not available)."
+            local json_safe_path
+            # Escape backslashes for JSON string
+            json_safe_path=$(echo "$server_script_abs_path" | sed 's/\\/\\\\/g') 
+            local generated_successfully=false
 
-            # 1. Replace ONLY the placeholder key name
-            # Using # as delimiter to avoid issues with paths
-            log "sed: Replacing placeholder key '$placeholder_key_name' with '$expected_key_name'"
-            if sed -i "s#\"$placeholder_key_name\":#\"$expected_key_name\":#g" "$template_mcp_json"; then
-                 log "sed: Key replacement successful."
-                 key_replaced_successfully=true
-                 # Set overall success flag based *only* on key replacement when using sed
-                 template_modified_successfully=true 
-                 warn "sed: Successfully replaced key, but cannot set absolute path for args without 'jq'. Using relative path."
-                 # No args replacement attempted with sed due to environment instability.
+            log "Generating mcp.json content directly with absolute path: $json_safe_path"
+
+            # Use cat heredoc to write the entire desired JSON structure
+            # NOTE: Assumes the structure of other servers (Memory, Context7, Debug) is stable
+            if cat << EOF > "$template_mcp_json"
+{
+    "mcpServers": {
+        "$expected_key_name": {
+            "command": "node",
+            "args": [
+                "$json_safe_path"
+            ]
+        },
+        "Memory": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-memory"
+            ]
+        },
+        "Context7": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@upstash/context7-mcp@latest"
+            ]
+        },
+        "Debug": {
+            "url": "http://localhost:4713/sse"
+        }
+    }
+}
+EOF
+            then
+                 log "Direct generation of template mcp.json successful."
+                 # Basic check if file exists and is not empty
+                 if [[ -s "$template_mcp_json" ]]; then
+                     # Set overall success flag for the creation step later
+                     template_modified_successfully=true
+                     generated_successfully=true
+                     log "Successfully generated template with absolute path using direct generation."
+                 else
+                     warn "Direct generation seemed to succeed but the template file '$template_mcp_json' is empty or missing."
+                     template_modified_successfully=false
+                 fi
             else
-                 local sed_key_status=$?
-                 warn "'sed' command failed during key replacement (Exit code: $sed_key_status). Template file potentially corrupted."
-                 template_modified_successfully=false # Ensure this is false if key replacement fails
+                 local cat_status=$?
+                 warn "Direct generation (cat << EOF) failed (Exit code: $cat_status). Template file might be empty or corrupted."
+                 template_modified_successfully=false
             fi
-            # --- End SED Logic ---
+            # --- End Direct JSON Generation Logic ---
         fi # End jq_available check
     else
          # Absolute path calculation failed
@@ -611,13 +646,14 @@ merge_mcp_json() {
              if [[ "$jq_available" = true ]]; then
                  log "Successfully created $target_mcp_json with absolute path for '$expected_key_name' server (using jq)."
              else
-                 # Corrected log message for sed fallback (relative path used)
-                 log "Successfully created $target_mcp_json. Key '$expected_key_name' set (using sed fallback), but using RELATIVE path as 'jq' is missing."
+                 # Corrected log message for direct generation fallback (absolute path used)
+                 log "Successfully created $target_mcp_json with absolute path for '$expected_key_name' server (using direct generation fallback)."
              fi
         elif [[ "$jq_available" = true ]]; then # Implies jq exists but modification failed for some reason
-             warn "Note: $target_mcp_json created, but template modification failed (using sed). Absolute path for '$expected_key_name' server likely NOT set. Check contents."
-        else # jq not available (merge logic relies on jq)
-            warn "Note: $target_mcp_json created from template, but modification failed (sed missing and fallback failed or skipped). Relative path likely used for '$expected_key_name' server. See previous warnings."
+             # This case should ideally not happen now if jq logic is robust, but kept as fallback
+             warn "Note: $target_mcp_json created, but template modification failed (using jq). Absolute path for '$expected_key_name' server likely NOT set. Check contents."
+        else # jq not available and direct generation fallback failed
+             warn "Note: $target_mcp_json created from template, but direct generation failed. Absolute path likely NOT set. Check previous warnings."
         fi
     else
         # Target exists, attempt merge ONLY if jq is available AND template was modified successfully
