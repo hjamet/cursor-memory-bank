@@ -5,7 +5,7 @@
 - [✅] `test_download.sh`: Passed (Latest Run: 2025-04-26)
 - [✅] `test_git_install.sh`: Passed (Latest Run: 2025-04-26)
 - [✅] `test_install.sh`: Passed (Latest Run: 2025-04-26)
-- [✅] `test_mcp_json_absolute_path_no_jq`: Passed (Latest Run: 2025-04-26 - Verified relative path and warning when jq missing)
+- [✅] `test_mcp_json_absolute_path_no_jq`: Passed (Latest Run: 2025-04-26 - Verified `sed` fallback correctly sets absolute path when jq missing)
 
 # Fichier de tests
 

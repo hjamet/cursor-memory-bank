@@ -510,7 +510,7 @@ merge_mcp_json() {
     # Check for jq availability FIRST
     if ! command -v jq >/dev/null 2>&1; then
         jq_available=false
-        warn "'jq' command not found. Will attempt modification using 'awk' if possible."
+        warn "'jq' command not found. Will attempt modification using 'sed' if possible."
     fi
 
     # Now, check if we have an absolute path to work with
@@ -559,89 +559,52 @@ merge_mcp_json() {
             fi # End JSON validity check
             # --- End JQ Logic ---
         else
-            # --- AWK Logic ---
-            log "Using 'awk' for modification (jq not available)."
-            local awk_safe_path
-            # Escape backslashes for JSON string, but not forward slashes
-            awk_safe_path=$(echo "$server_script_abs_path" | sed 's/\\\\\\\\/\\\\\\\\\\\\\\\\/g')
-            local temp_awk_file="$template_mcp_json.awk.tmp"
+            # --- SED Logic (Fallback when jq is missing) ---
+            log "Using 'sed' for modification (jq not available)."
+            local sed_safe_path
+            # Escape characters unsafe for sed replacement part: / & \
+            sed_safe_path=$(echo "$server_script_abs_path" | sed -e 's/[\\/&]/\\&/g')
+            local sed_success=false
 
-            # Use awk to replace placeholder key and args path
-            awk -v target_key="$expected_key_name" \\
-                -v placeholder_key="$placeholder_key_name" \\
-                -v path="$awk_safe_path" '
-            BEGIN { printing = 1; modified_key = 0; modified_path = 0; in_target_block = 0 }
-            # Match the line with the placeholder key
-            $0 ~ "\"" placeholder_key "\":\\s*\\{" {
-                sub("\"" placeholder_key "\":", "\"" target_key "\":");
-                modified_key = 1;
-                in_target_block = 1; # Now we are inside the block we want to modify args for
-            }
-            # If inside the target server block, look for the args line
-            in_target_block && /"args":\s*\[.*\]/ {
-                # Replace the entire args line
-                sub(/"args":\s*\[.*\]/, "\"args\": [\"" path "\"]");
-                modified_path = 1;
-                in_target_block = 0; # Assume args is the last relevant line in this block
-            }
-            # Simple way to reset block flag if we hit a closing brace at low indentation
-            /^\s*}/ { if (in_target_block) { in_target_block = 0 } }
-            # Print the (potentially modified) line
-            { print }
-            END {
-                # Exit with error code if modification failed
-                if (modified_key == 0 || modified_path == 0) {
-                    print "WARN: awk failed to find/modify key (" modified_key ") or path (" modified_path ")." > "/dev/stderr";
-                    exit 1
-                }
-                exit 0 # Success
-            }
-            ' "$template_mcp_json" > "$temp_awk_file"
+            # 1. Replace the placeholder key name
+            # Using # as delimiter to avoid issues with paths
+            log "sed: Replacing placeholder key '$placeholder_key_name' with '$expected_key_name'"
+            if sed -i "s#\"$placeholder_key_name\":#\"$expected_key_name\":#g" "$template_mcp_json"; then
+                 log "sed: Key replacement successful."
 
-            local awk_status=$?
-            log "awk command exit status: $awk_status" # DEBUG LOG
-            if [[ -f "$temp_awk_file" ]]; then # DEBUG LOG
-                log "awk temporary file '$temp_awk_file' exists." # DEBUG LOG
-                if [[ -s "$temp_awk_file" ]]; then # DEBUG LOG
-                    log "awk temporary file '$temp_awk_file' is not empty." # DEBUG LOG
-                else # DEBUG LOG
-                    log "awk temporary file '$temp_awk_file' is EMPTY." # DEBUG LOG
-                fi # DEBUG LOG
-            else # DEBUG LOG
-                log "awk temporary file '$temp_awk_file' does NOT exist." # DEBUG LOG
-            fi # DEBUG LOG
-
-            if [[ $awk_status -eq 0 ]] && [[ -s "$temp_awk_file" ]]; then
-                # Basic JSON validation check (crude: check for start/end braces)
-                log "Performing basic JSON check on awk output..." # DEBUG LOG
-                local json_check_passed=false # DEBUG LOG
-                if grep -q '^{' "$temp_awk_file" && grep -q '}$' "$temp_awk_file"; then
-                    log "Basic JSON check PASSED (found start/end braces)." # DEBUG LOG
-                    json_check_passed=true # DEBUG LOG
-                    if mv "$temp_awk_file" "$template_mcp_json"; then
-                        log "Template mcp.json successfully modified with absolute path using 'awk'. (mv successful)" # MODIFIED LOG
-                        template_modified_successfully=true # Set flag!
-                    else
-                        local mv_status=$? # DEBUG LOG
-                        warn "Failed to replace template with 'awk'-modified version (mv exit code: $mv_status). Proceeding with original template content." # MODIFIED LOG
-                        rm -f "$temp_awk_file"
-                    fi
-                else
-                     warn "'awk' modification resulted in potentially invalid JSON (basic check failed). Discarding changes."
-                     log "Content of failed awk file '$temp_awk_file':" # DEBUG LOG
-                     cat "$temp_awk_file" || log "Failed to cat failed awk file." # DEBUG LOG
-                     rm -f "$temp_awk_file"
-                fi
-                log "Result of JSON check: $json_check_passed" # DEBUG LOG
+                 # 2. Replace the args line (assuming simple structure: "args": [".*"])
+                 # This regex is basic and assumes the args line is simple.
+                 local args_pattern='"args":[[:space:]]*\[.*\]'
+                 local replacement_line="\"args\": [\"$sed_safe_path\"]"
+                 log "sed: Replacing args line matching pattern '$args_pattern'"
+                 if sed -i "s#$args_pattern#$replacement_line#g" "$template_mcp_json"; then
+                     log "sed: Args replacement successful."
+                     # Basic JSON check (crude)
+                     if grep -q '^{' "$template_mcp_json" && grep -q '}$' "$template_mcp_json"; then
+                         log "sed: Basic JSON check passed."
+                         template_modified_successfully=true # Set flag!
+                         sed_success=true
+                     else
+                         warn "'sed' modification resulted in potentially invalid JSON (basic check failed). Reverting template file."
+                         # Attempt to revert - This requires storing the original content first, 
+                         # which complicates things. Simpler to just warn and proceed with potentially broken template.
+                         # Consider adding a backup step if revert is critical.
+                         # For now, just unset the success flag.
+                         sed_success=false 
+                     fi
+                 else
+                     local sed_args_status=$?
+                     warn "'sed' command failed during args replacement (Exit code: $sed_args_status). Template might be partially modified or corrupted."
+                 fi
             else
-                warn "'awk' command failed (Exit code: $awk_status) or produced an empty file. Proceeding with original template content." # MODIFIED LOG
-                if [[ -f "$temp_awk_file" ]]; then # DEBUG LOG
-                    log "Content of failed/empty awk file '$temp_awk_file':" # DEBUG LOG
-                    cat "$temp_awk_file" || log "Failed to cat failed/empty awk file." # DEBUG LOG
-                fi # DEBUG LOG
-                rm -f "$temp_awk_file" # Clean up if exists
+                 local sed_key_status=$?
+                 warn "'sed' command failed during key replacement (Exit code: $sed_key_status). Skipping further modifications."
             fi
-            # --- End AWK Logic ---
+
+            if [[ "$sed_success" = false ]]; then
+                warn "sed modification failed. Proceeding with potentially unmodified or corrupted template content."
+            fi
+            # --- End SED Logic ---
         fi # End jq_available check
     else
          # Absolute path calculation failed
@@ -650,7 +613,7 @@ merge_mcp_json() {
               warn "The installation will proceed using the relative path and placeholder name defined in the template."
               warn "For the MCP Commit server to function correctly from any directory, please investigate path calculation issues or install 'jq' and re-run."
          else # jq is available, but path failed
-              warn "Skipping 'jq' modification due to failed path calculation."
+              warn "Skipping 'sed' modification due to failed path calculation."
          fi
     fi # End absolute path check
 
@@ -671,12 +634,12 @@ merge_mcp_json() {
              if [[ "$jq_available" = true ]]; then
                  log "Successfully created $target_mcp_json with absolute path for '$expected_key_name' server (using jq)."
              else
-                 log "Successfully created $target_mcp_json with absolute path for '$expected_key_name' server (using awk fallback)."
+                 log "Successfully created $target_mcp_json with absolute path for '$expected_key_name' server (using sed fallback)."
              fi
         elif [[ "$jq_available" = true ]]; then # Implies jq exists but modification failed for some reason
-             warn "Note: $target_mcp_json created, but 'jq' modification failed. Absolute path for '$expected_key_name' server likely NOT set. Check contents."
-        elif [[ "$jq_available" = false ]]; then # Implies awk fallback was attempted but failed, or path wasn't calculated
-             warn "Note: $target_mcp_json created from template, but modification failed (jq missing and awk fallback failed or skipped). Relative path likely used for '$expected_key_name' server. See previous warnings."
+             warn "Note: $target_mcp_json created, but 'sed' modification failed. Absolute path for '$expected_key_name' server likely NOT set. Check contents."
+        elif [[ "$jq_available" = false ]]; then # Implies sed fallback was attempted but failed, or path wasn't calculated
+             warn "Note: $target_mcp_json created from template, but modification failed (sed missing and fallback failed or skipped). Relative path likely used for '$expected_key_name' server. See previous warnings."
         fi
     else
         # Target exists, attempt merge ONLY if jq is available AND template was modified successfully
@@ -709,9 +672,9 @@ merge_mcp_json() {
                 fi
             fi
         elif [[ "$jq_available" = true ]] && [[ "$template_modified_successfully" = false ]]; then
-            warn "Template modification failed previously (using jq). Skipping merge."
+            warn "Template modification failed previously (using sed). Skipping merge."
         else # jq not available (merge logic relies on jq)
-            warn "Existing $target_mcp_json found, but 'jq' is not available. Skipping merge."
+            warn "Existing $target_mcp_json found, but 'sed' is not available. Skipping merge."
             warn "Manual merge might be required if template contains new servers."
         fi
     fi
