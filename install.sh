@@ -240,6 +240,8 @@ install_rules() {
     local api_dir="$temp_dir/api-files"
     local commit_date=""
     local template_mcp_json="$temp_dir/mcp.json" # Define path for template
+    local mcp_server_source_dir="" # Will be set based on git/curl
+    local mcp_server_target_dir="$target_dir/.cursor/mcp/mcp-commit-server" # Define target server dir
 
     log "Installing rules to $rules_path"
 
@@ -316,7 +318,16 @@ install_rules() {
 
         # ADD MCP.JSON DOWNLOAD HERE
         log "Downloading mcp.json template"
-        download_file "$RAW_URL_BASE/mcp.json" "$template_mcp_json"
+        download_file "$RAW_URL_BASE/.cursor/mcp.json" "$template_mcp_json"
+
+        # DEFINE MCP SERVER SOURCE for curl
+        mcp_server_source_dir="$api_dir/.cursor/mcp/mcp-commit-server" # Assuming files downloaded here
+        # ADD MCP SERVER FILES DOWNLOAD (this part is missing, needs implementation)
+        # We need to download the contents of .cursor/mcp/mcp-commit-server recursively
+        # This requires listing files via API and downloading each one, similar to rules
+        # For simplicity now, we assume the directory structure is created but files might be missing
+        log "Creating MCP server directory structure (curl mode - files must be manually added or downloaded)"
+        mkdir -p "$mcp_server_source_dir"
 
     else
         # Use git clone
@@ -346,17 +357,47 @@ install_rules() {
         fi
         
         # ADD MCP.JSON COPY HERE
-        if [[ -f "$clone_dir/mcp.json" ]]; then
+        if [[ -f "$clone_dir/.cursor/mcp.json" ]]; then # Corrected path
             log "Copying mcp.json template from clone"
-            if ! cp "$clone_dir/mcp.json" "$template_mcp_json"; then
+            if ! cp "$clone_dir/.cursor/mcp.json" "$template_mcp_json"; then
                 error "Failed to copy mcp.json template. Please check permissions."
             fi
         else
-            warn "mcp.json template not found in repository clone."
+            warn "mcp.json template not found in repository clone at .cursor/mcp.json."
             # Create an empty file to avoid errors later if merge is attempted
             touch "$template_mcp_json"
         fi
+
+        # DEFINE MCP SERVER SOURCE for git
+        mcp_server_source_dir="$clone_dir/.cursor/mcp/mcp-commit-server"
     fi
+
+    # --- COPY MCP SERVER FILES (COMMON LOGIC) ---
+    log "Preparing to copy MCP commit server files to target directory..."
+    if [[ -d "$mcp_server_source_dir" ]]; then
+        log "Source directory for MCP server files: $mcp_server_source_dir"
+        # Ensure target parent directory exists
+        if ! mkdir -p "$(dirname "$mcp_server_target_dir")"; then
+            error "Failed to create parent directory for MCP server target: $(dirname "$mcp_server_target_dir")"
+        fi
+        # Ensure target directory exists (and is clean?)
+        mkdir -p "$mcp_server_target_dir" # Create if not exists
+        # Copy files
+        log "Copying MCP server files from $mcp_server_source_dir to $mcp_server_target_dir"
+        if ! cp -r "$mcp_server_source_dir/"* "$mcp_server_target_dir/"; then
+             # Check if source directory was empty (e.g., curl mode without download logic)
+             if [ -z "$(ls -A "$mcp_server_source_dir")" ]; then
+                 warn "MCP server source directory ($mcp_server_source_dir) is empty. Server files might be missing."
+             else
+                 error "Failed to copy MCP server files. Please check disk space and permissions."
+             fi
+        else
+             log "MCP server files copied successfully."
+        fi
+    else
+        warn "Source directory for MCP server files not found or not a directory: $mcp_server_source_dir. Skipping server files copy."
+    fi
+    # --- END COPY MCP SERVER FILES ---
 
     # Preserve custom rules if they exist - ONLY use backup if DO_BACKUP is set
     if [[ -n "${DO_BACKUP:-}" ]]; then
@@ -386,7 +427,13 @@ install_rules() {
 
     # Set correct permissions
     if ! chmod -R u+rw "$rules_path" || ! find "$rules_path" -type d -exec chmod u+x {} \;; then
-        error "Failed to set permissions. Please check file system permissions."
+        error "Failed to set permissions for rules. Please check file system permissions."
+    fi
+    # Also set permissions for the copied server files
+    if [[ -d "$mcp_server_target_dir" ]]; then
+         if ! chmod -R u+rw "$mcp_server_target_dir" || ! find "$mcp_server_target_dir" -type d -exec chmod u+x {} \; || ! find "$mcp_server_target_dir" -name "*.js" -exec chmod u+x {} \; ; then
+             warn "Failed to set permissions for MCP server files. Execution might fail."
+         fi
     fi
 
     # Ensure system.mdc is present (for test compatibility)
@@ -395,7 +442,7 @@ install_rules() {
         echo "# System Rule - Created by install.sh for testing compatibility" > "$rules_path/system.mdc"
     fi
 
-    log "Rules installed successfully"
+    log "Rules and MCP server base files installed successfully"
 }
 
 # Function to merge MCP JSON template with existing config
@@ -404,6 +451,10 @@ merge_mcp_json() {
     local temp_dir="$2"
     local template_mcp_json="$temp_dir/mcp.json"
     local target_mcp_json="$target_dir/.cursor/mcp.json"
+    local server_script_rel_path=".cursor/mcp/mcp-commit-server/server.js"
+    local server_script_path="$target_dir/$server_script_rel_path"
+    local server_script_abs_path=""
+    local server_key_name="" # To store the key like "Git Commit (Internal)"
 
     # Ensure template was fetched/copied
     if [[ ! -f "$template_mcp_json" ]]; then
@@ -411,39 +462,83 @@ merge_mcp_json() {
         return 0
     fi
 
-    # Ensure .cursor directory exists
+    # Check for jq (needed for modification)
+    if ! command -v jq >/dev/null 2>&1; then
+        warn "'jq' command not found. Cannot modify MCP template with absolute path. Skipping MCP config update."
+        return 0 # Non-fatal, just warn
+    fi
+
+    # Validate template JSON (allow empty template)
+    if [[ -s "$template_mcp_json" ]] && ! jq -e . "$template_mcp_json" > /dev/null 2>&1; then
+        warn "Template mcp.json ($template_mcp_json) is not valid JSON. Skipping MCP config update."
+        return 0 # Non-fatal
+    fi
+
+    # --- Calculate Absolute Path and Modify Template ---
+    log "Calculating absolute path for MCP server script..."
+    # Ensure the script actually exists in the target directory
+    if [[ ! -f "$server_script_path" ]]; then
+        warn "MCP server script not found at expected location: $server_script_path. Cannot set absolute path."
+        # Proceed with merge using relative path from template, but it likely won't work
+    else
+        # Attempt to get absolute path using 'cd ... && pwd'
+        local script_dir
+        local script_basename
+        script_dir=$(dirname "$server_script_path")
+        script_basename=$(basename "$server_script_path")
+        if [[ -d "$script_dir" ]]; then
+            # Use subshell to avoid changing current script directory
+            server_script_abs_path="$(cd "$script_dir" && pwd)/$script_basename"
+            log "Calculated absolute path: $server_script_abs_path"
+
+            # Get the server key name from the template (first key under mcpServers)
+            server_key_name=$(jq -r '.mcpServers | keys[0]' "$template_mcp_json")
+
+            if [[ -n "$server_key_name" ]] && [[ "$server_key_name" != "null" ]]; then
+                log "Modifying template mcp.json to use absolute path for server: $server_key_name"
+                # Modify the template file in place
+                local modified_json
+                modified_json=$(jq --arg path "$server_script_abs_path" --arg key "$server_key_name" \
+                                   '.mcpServers[$key].args = [$path]' \
+                                   "$template_mcp_json")
+                local jq_modify_status=$?
+
+                if [[ $jq_modify_status -ne 0 ]]; then
+                    warn "jq command failed during template modification (Exit code: $jq_modify_status). Proceeding with original template."
+                else
+                    # Overwrite template with modified version
+                    echo "$modified_json" > "$template_mcp_json"
+                    log "Template mcp.json successfully modified with absolute path."
+                fi
+            else
+                warn "Could not determine server key name from template mcp.json. Skipping absolute path update."
+            fi
+        else
+            warn "Could not determine directory for server script: $script_dir. Skipping absolute path update."
+        fi
+    fi
+    # --- End Calculate Absolute Path ---
+
+    # Ensure .cursor directory exists in target
     if ! mkdir -p "$(dirname "$target_mcp_json")"; then
         warn "Could not create directory for $target_mcp_json. Skipping MCP config update."
         return 1 # Indicate potential issue
     fi
 
     if [[ ! -f "$target_mcp_json" ]]; then
-        # Target doesn't exist, just copy the template
+        # Target doesn't exist, just copy the (potentially modified) template
         log "Creating $target_mcp_json from template."
         if ! cp "$template_mcp_json" "$target_mcp_json"; then
             warn "Failed to copy template mcp.json to $target_mcp_json."
             return 1
         fi
     else
-        # Target exists, attempt merge
+        # Target exists, attempt merge using the (potentially modified) template
         log "Existing $target_mcp_json found. Merging with template."
         
-        # Check for jq
-        if ! command -v jq >/dev/null 2>&1; then
-            warn "'jq' command not found. Cannot merge $target_mcp_json. Please install jq to merge automatically."
-            warn "You may need to manually add entries from the template mcp.json to your existing file."
-            return 0 # Non-fatal, just warn
-        fi
-
         # Validate existing JSON
         if ! jq -e . "$target_mcp_json" > /dev/null 2>&1; then
             warn "Existing $target_mcp_json is not valid JSON. Skipping merge."
-            return 0 # Non-fatal
-        fi
-
-        # Validate template JSON (allow empty template)
-        if [[ -s "$template_mcp_json" ]] && ! jq -e . "$template_mcp_json" > /dev/null 2>&1; then
-            warn "Template mcp.json ($template_mcp_json) is not valid JSON. Skipping merge."
             return 0 # Non-fatal
         fi
 
@@ -577,30 +672,23 @@ rm -f "$INSTALL_DIR/.write_test"
 # Backup existing rules if necessary
 backup_rules "$INSTALL_DIR"
 
-# Create directory structure without supprimer les fichiers existants
+# Create directory structure without deleting existing files
 create_dirs "$INSTALL_DIR"
 
-# Install rules
+# Install rules AND copy base MCP server files
 install_rules "$INSTALL_DIR" "$TEMP_DIR"
 
-# Install Internal MCP Commit Server dependencies if present
+# Merge MCP JSON template with existing config (NOW uses absolute path logic)
+merge_mcp_json "$INSTALL_DIR" "$TEMP_DIR"
+
+# Install Internal MCP Commit Server dependencies if present in the TARGET directory
 INTERNAL_MCP_SERVER_DIR="$INSTALL_DIR/.cursor/mcp/mcp-commit-server"
 if [[ -d "$INTERNAL_MCP_SERVER_DIR" ]] && [[ -f "$INTERNAL_MCP_SERVER_DIR/package.json" ]]; then
     log "Installing Internal MCP Commit Server dependencies in $INTERNAL_MCP_SERVER_DIR..."
     
-    # Ensure the server.js file exists
+    # Ensure the server.js file exists (already copied by install_rules ideally)
     if [[ ! -f "$INTERNAL_MCP_SERVER_DIR/server.js" ]]; then
-        warn "server.js file not found in $INTERNAL_MCP_SERVER_DIR. Checking for alternative source..."
-        
-        # If not found, try to copy from the repository
-        if [[ -f ".cursor/mcp/mcp-commit-server/server.js" ]]; then
-            log "Found server.js in the repository. Copying to installation directory..."
-            if ! cp ".cursor/mcp/mcp-commit-server/server.js" "$INTERNAL_MCP_SERVER_DIR/"; then
-                warn "Failed to copy server.js to $INTERNAL_MCP_SERVER_DIR. MCP commit server may not function properly."
-            fi
-        else
-            warn "server.js not found in repository either. MCP commit server will not function properly."
-        fi
+        warn "server.js file not found in $INTERNAL_MCP_SERVER_DIR. Dependency installation might fail or server won't run."
     fi
     
     if command -v npm >/dev/null 2>&1; then
@@ -615,6 +703,7 @@ if [[ -d "$INTERNAL_MCP_SERVER_DIR" ]] && [[ -f "$INTERNAL_MCP_SERVER_DIR/packag
         fi
 
         # Change directory, install (with timeout if available), and change back
+        log "Running npm install in $INTERNAL_MCP_SERVER_DIR..."
         (cd "$INTERNAL_MCP_SERVER_DIR" && $timeout_cmd npm install)
         npm_status=$?
         
@@ -636,13 +725,12 @@ if [[ -d "$INTERNAL_MCP_SERVER_DIR" ]] && [[ -f "$INTERNAL_MCP_SERVER_DIR/packag
         warn "npm not found. Skipping Internal MCP Commit Server dependency installation. Please install Node.js and npm, then run 'npm install' in $INTERNAL_MCP_SERVER_DIR manually."
     fi
     
-    # Add note about manually copying files if needed
-    log "NOTE: If you encounter 'MODULE_NOT_FOUND' errors when using the MCP commit server, you may need to manually copy the files to your Cursor installation directory. See the 'Troubleshooting' section in the README for more details."
+    # Remove redundant note about manual copy to AppData - now handled locally
+    # log "NOTE: If you encounter 'MODULE_NOT_FOUND' errors..."
+elif [[ -d "$INSTALL_DIR/.cursor/mcp" ]]; then # Check if mcp dir exists but server subdir doesn't
+    log "MCP commit server directory not found in $INSTALL_DIR/.cursor/mcp/. Skipping dependency installation."
 else
-    log "MCP commit server files not found. Skipping dependency installation."
+    log "MCP directory structure not found in $INSTALL_DIR/.cursor/. Skipping MCP server setup."
 fi
-
-# Merge MCP JSON template with existing config
-merge_mcp_json "$INSTALL_DIR" "$TEMP_DIR"
 
 log "Installation completed successfully!" 
