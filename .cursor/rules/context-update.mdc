@@ -21,7 +21,12 @@ Update context files to reflect changes, update tasks.md based on test results, 
 3. **tasks.md update**: Update tasks.md file based on test results:
    - Move successful tasks from "In Progress" to "Done"
 
-4. **File integrity verification**: Look for structural problems:
+4. **Commit changes**: Make a commit with the modifications:
+   - Prepare files and create commit in a single command:
+     `git commit -a -m "[message]"` (MANDATORY to use `git commit -a` and NEVER `git add [files]` or any other variant specifying individual files - this is crucial to ensure all changes are properly tracked)
+   - Follow conventional commit format with emoji for the message
+
+5. **File integrity verification**: Look for structural problems:
    - Read the `.cursor/memory-bank/userbrief.md` file.
    - Execute the command `find . -type f -name "*.md"`
    - Analyze results to identify:
@@ -30,12 +35,7 @@ Update context files to reflect changes, update tasks.md based on test results, 
      - Unnecessary temporary files
      - Files with incorrect names
    - If structural problems are identified OR if the `.cursor/memory-bank/userbrief.md` file contains unprocessed comments (marked with ⬜ symbol), call the `consolidate-repo` rule
-   - Otherwise, continue with the next step: 5. **Commit changes**
-
-5. **Commit changes**: Make a commit with the modifications:
-   - Prepare files and create commit in a single command:
-     `git commit -a -m "[message]"` (MANDATORY to use `git commit -a` and NEVER `git add [files]` or any other variant specifying individual files - this is crucial to ensure all changes are properly tracked)
-   - Follow conventional commit format with emoji for the message
+   - Otherwise, continue with the next step: 6. **Call the next rule**
 
 6. **Call the next rule**: Mandatory call to the next rule if the workflow is not complete:
    - Read the `.cursor/memory-bank/workflow/test.md` file
@@ -122,19 +122,19 @@ I update the tasks.md file by moving completed tasks to Done. **(Context-update:
 [...updating tasks.md file...]
 **(Context-update: 3 - Updating tasks.md file)**
 
-# Context-update: 4 - File integrity verification
-I now check the integrity of project files. **(Context-update: 4 - File integrity verification)**
+# Context-update: 4 - Making a commit
+I prepare and make a commit with the changes made. **(Context-update: 4 - Making a commit)**
+[...creating commit...]
+**(Context-update: 4 - Making a commit)**
+
+# Context-update: 5 - File integrity verification
+I now check the integrity of project files. **(Context-update: 5 - File integrity verification)**
 find . -type f -name "*.md"
 [...analyzing command results...]
-I have not identified structural problems in the files. I will now check the content of the `userbrief.md` file. **(Context-update: 4 - File integrity verification)**
+I have not identified structural problems in the files. I will now check the content of the `userbrief.md` file. **(Context-update: 5 - File integrity verification)**
 [...checking .cursor/memory-bank/userbrief.md file...]
 I don't see new tasks or advice to process. I will therefore proceed to the next step.
-**(Context-update: 4 - File integrity verification)**
-
-# Context-update: 5 - Making a commit
-I prepare and make a commit with the changes made. **(Context-update: 5 - Making a commit)**
-[...creating commit...]
-**(Context-update: 5 - Making a commit)**
+**(Context-update: 5 - File integrity verification)**
 
 # Context-update: 6 - Calling the next rule
 I now check the tests and remaining tasks to determine which rule to call. **(Context-update: 6 - Calling the next rule)**

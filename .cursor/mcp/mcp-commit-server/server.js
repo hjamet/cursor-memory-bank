@@ -6,65 +6,92 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
+// Helper function to escape shell arguments safely
+// Escapes double quotes, dollar signs, backticks, and backslashes
+const escapeShellArg = (arg) => {
+    if (arg === null || arg === undefined) {
+        return '';
+    }
+    // 1. Replace backslash with double backslash
+    // 2. Replace dollar sign with backslash-dollar sign
+    // 3. Replace double quote with backslash-double quote
+    // 4. Replace backtick with backslash-backtick
+    return arg
+        .replace(/\\/g, '\\\\')
+        .replace(/\$/g, '\\$')
+        .replace(/"/g, '\\"')
+        .replace(/`/g, '\\`');
+};
+
 // Define the input schema for the commit tool using Zod
 const commitInputSchema = z.object({
     emoji: z.string().min(1, { message: 'Emoji is required' }),
     type: z.string().min(1, { message: 'Commit type is required (e.g., feat, fix)' }),
-    message: z.string().min(1, { message: 'Commit message is required' }),
+    title: z.string().min(1, { message: 'Commit title is required' }),
+    description: z.string().optional(),
 });
 
 // Create an MCP server instance
 const server = new McpServer({
     // No transport here
     name: "InternalGitCommit", // Added a name for clarity
-    version: "0.1.1",         // Incremented version
+    version: "0.1.2",         // Incremented version for schema change
     logLevel: 'info',         // Use 'debug' for more verbose logging if needed
 });
 
 // Define the commit tool
 server.tool({
     name: 'commit',
-    description: 'Stages all changes and creates a git commit with a conventional message format.',
+    description: 'Stages all changes and creates a git commit with a conventional message format including title and optional description.',
     inputSchema: commitInputSchema,
     run: async (input) => {
-        const { emoji, type, message } = input;
-        const commitMessage = `${emoji} ${type}: ${message}`;
+        const { emoji, type, title, description } = input;
+        const commitTitle = `${emoji} ${type}: ${title}`;
 
         try {
             // Stage all changes
-            console.log('Running git add .');
+            server.log('info', 'Running git add .');
             const { stdout: addStdout, stderr: addStderr } = await execAsync('git add .');
             if (addStderr) {
-                console.warn(`Git add stderr: ${addStderr}`);
+                server.log('warn', `Git add stderr: ${addStderr}`);
             }
-            console.log(`Git add stdout: ${addStdout || '(no stdout)'}`);
+            server.log('info', `Git add stdout: ${addStdout || '(no stdout)'}`);
 
-            // Commit changes
-            // Escape the commit message to handle special characters (quotes, dollar signs, backticks)
-            const escapedCommitMessage = commitMessage
-                .replace(/"/g, '\"') // Escape double quotes
-                .replace(/\$/g, '\\$') // Escape dollar signs
-                .replace(/`/g, '\`'); // Escape backticks
+            // Escape title and description
+            const escapedCommitTitle = escapeShellArg(commitTitle);
+            const escapedDescription = description ? escapeShellArg(description) : '';
 
-            const commitCommand = `git commit -m "${escapedCommitMessage}"`;
-            console.log(`Running: ${commitCommand}`);
+            // Construct the commit command
+            let commitCommand = `git commit -m "${escapedCommitTitle}"`;
+            if (escapedDescription) {
+                // Add a second -m flag for the description
+                commitCommand += ` -m "${escapedDescription}"`;
+            }
+
+            server.log('info', `Running: ${commitCommand}`);
             const { stdout: commitStdout, stderr: commitStderr } = await execAsync(commitCommand);
 
             if (commitStderr) {
-                console.warn(`Git commit stderr: ${commitStderr}`);
-                // Check for common non-error messages in stderr
+                server.log('warn', `Git commit stderr: ${commitStderr}`);
                 if (commitStderr.includes('nothing to commit, working tree clean')) {
                     return 'Nothing to commit, working tree clean.';
                 }
-                // Otherwise, assume stderr might indicate success despite warnings
+                if (!commitStdout && !commitStderr.toLowerCase().includes('error') && !commitStderr.toLowerCase().includes('failed')) {
+                    server.log('info', 'Git commit stderr detected, but assuming success based on context (no explicit "error" or "failed" found).');
+                    // Return success message even with non-fatal stderr
+                    return `Commit successful: ${commitTitle}`;
+                } else { // Removed the specific check for .includes('error') to be more general
+                    // Throw an error if stderr indicates a real problem or if stdout is missing without a clean exit indication
+                    throw new Error(`Git commit failed. Stderr: ${commitStderr.trim()}`);
+                }
             }
-            console.log(`Git commit stdout: ${commitStdout || '(no stdout)'}`);
+            server.log('info', `Git commit stdout: ${commitStdout || '(no stdout)'}`);
 
-            return `Commit successful: ${commitMessage}`;
+            // Return the primary commit title in the success message
+            return `Commit successful: ${commitTitle}`;
         } catch (error) {
-            console.error('Error during git commit process:', error);
+            server.log('error', 'Error during git commit process:', error);
             const errorMessage = error.stderr || error.stdout || error.message || 'Unknown error during git operation';
-            // Provide a clearer error message back to the MCP client
             throw new Error(`Git operation failed: ${errorMessage.trim()}`);
         }
     },
@@ -75,7 +102,7 @@ async function startServer() {
     try {
         const transport = new StdioServerTransport();
         await server.connect(transport);
-        console.log('MCP Commit Server connected via StdioTransport');
+        server.log('info', 'MCP Commit Server connected via StdioTransport');
     } catch (error) {
         console.error("Failed to start MCP Commit Server:", error);
         process.exit(1);

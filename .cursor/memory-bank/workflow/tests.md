@@ -3,7 +3,7 @@
 - [✅] `test_curl_install.sh`: Passed
 - [✅] `test_download.sh`: Passed
 - [✅] `test_git_install.sh`: Passed
-- [✅] `test_install.sh`: Passed (Re-run after fixing server.js imports - stable)
+- [✅] `test_install.sh`: Passed (Fixed syntax error in install.sh)
 
 # Fichier de tests
 
@@ -28,7 +28,7 @@
 - ✅ **Test d'affichage de la date du dernier commit (git)** : Passed - Stable
 
 ## Tests d'installation standard
-- ✅ **Test d'installation de base**: Passed - Stable (Retested after mcp.json merge implementation)
+- ✅ **Test d'installation de base**: Passed (Fixed syntax error)
 - ✅ **Test de backup et restauration** : Passed - Stable
 - ✅ **Test de gestion d'erreur** : Passed - Stable
 

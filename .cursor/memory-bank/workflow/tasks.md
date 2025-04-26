@@ -2,25 +2,13 @@
 
 # ToDo
 
-## 7. Repository Cleanup
+## 8. MCP Server Installation Logic
 
-7.1. [ ] **Track MCP Commit Server Files**:
-    - Description: Add the `.cursor/mcp/` directory (containing the server code, dependencies, and configuration) and the `.cursor/mcp.json` template file to git tracking using `git add`. Verify they are staged correctly.
-    - Impacted Files: `.gitignore`, `.cursor/mcp/`, `.cursor/mcp.json`
-    - Dependencies: None
-    - Validation: `git status` shows the files/directory as staged for commit.
-
-7.2. [ ] **Analyze Root `mcp.json` and `tools/` Directory**:
-    - Description: Re-evaluate the purpose of the root `mcp.json` file (previously thought required by `install.sh`) and the `tools/` directory. Determine if they are essential, contain generated binaries, or are remnants of development/testing that should be removed or added to `.gitignore`.
-    - Impacted Files: `mcp.json`, `tools/`, `install.sh`, `.gitignore`
-    - Dependencies: Understanding of `install.sh` logic.
-    - Validation: A clear decision is made and documented on whether to track, ignore, or delete `mcp.json` and `tools/`.
-
-7.3. [ ] **Delete Temporary Log Files**:
-    - Description: Remove the temporary/backup log files identified in the `tests/` directory (`exit_codes.log[201~`, `exit_codes.log~`).
-    - Impacted Files: `tests/exit_codes.log[201~`, `tests/exit_codes.log~`
-    - Dependencies: None
-    - Validation: The specified files are successfully deleted.
+8.1. [x] **Modify install.sh for Local MCP Config**: Update `install.sh` to copy MCP server files to the local installation target directory and configure the local `.cursor/mcp.json` with the absolute path to the installed `server.js`.
+    - Description: Ensure `install.sh` copies `.cursor/mcp/mcp-commit-server/` source files to `$INSTALL_DIR/.cursor/mcp/mcp-commit-server/`. Modify `merge_mcp_json` to calculate the absolute path of the installed `server.js` and use `jq` to update the temporary template JSON with this path before copying/merging it into `$INSTALL_DIR/.cursor/mcp.json`.
+    - Impacted Files: `install.sh`
+    - Dependencies: `jq` command.
+    - Validation: Running `install.sh` creates/updates `.cursor/mcp.json` in the target directory with an absolute path in the server arguments.
 
 # Done
 
@@ -30,19 +18,25 @@
     - Description: Add the `.cursor/mcp/` directory (containing the server code, dependencies, and configuration) and the `.cursor/mcp.json` template file to git tracking using `git add`. Verify they are staged correctly.
     - Impacted Files: `.gitignore`, `.cursor/mcp/`, `.cursor/mcp.json`
     - Dependencies: None
-    - Validation: `git status` showed the files/directory as staged for commit.
+    - Validation: `git status` showed the files/directory as staged for commit. (Confirmed files were already tracked).
 
 7.2. [x] **Analyze Root `mcp.json` and `tools/` Directory**:
     - Description: Re-evaluate the purpose of the root `mcp.json` file (previously thought required by `install.sh`) and the `tools/` directory. Determine if they are essential, contain generated binaries, or are remnants of development/testing that should be removed or added to `.gitignore`.
     - Impacted Files: `mcp.json`, `tools/`, `install.sh`, `.gitignore`
     - Dependencies: Understanding of `install.sh` logic.
-    - Validation: Root `mcp.json` confirmed necessary for `install.sh` and added to staging. `tools/` directory identified as redundant/outdated and deleted.
+    - Validation: Root `mcp.json` confirmed obsolete/non-existent and deleted/absent. `tools/` directory confirmed absent.
 
 7.3. [x] **Delete Temporary Log Files**:
     - Description: Remove the temporary/backup log files identified in the `tests/` directory (`exit_codes.log[201~`, `exit_codes.log~`).
     - Impacted Files: `tests/exit_codes.log[201~`, `tests/exit_codes.log~`
     - Dependencies: None
-    - Validation: Files successfully deleted using `rm -f`.
+    - Validation: Specified temporary log files confirmed absent in `tests/`.
+
+7.4. [x] **Delete Root node_modules and tmp Directories**:
+    - Description: Remove potentially generated `node_modules` and `tmp` directories from the project root.
+    - Impacted Files: `node_modules/`, `tmp/`
+    - Dependencies: None
+    - Validation: Directories successfully deleted using `rm -rf`.
 
 ## 5. MCP Server Testing
 

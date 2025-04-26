@@ -451,8 +451,10 @@ merge_mcp_json() {
     local temp_dir="$2"
     local template_mcp_json="$temp_dir/mcp.json"
     local target_mcp_json="$target_dir/.cursor/mcp.json"
+    # Use INSTALL_DIR for constructing the absolute path base
+    # This ensures the path is relative to the final installation location
     local server_script_rel_path=".cursor/mcp/mcp-commit-server/server.js"
-    local server_script_path="$target_dir/$server_script_rel_path"
+    local server_script_path="$target_dir/$server_script_rel_path" # Path in target install dir
     local server_script_abs_path=""
     local server_key_name="" # To store the key like "Git Commit (Internal)"
 
@@ -475,31 +477,44 @@ merge_mcp_json() {
     fi
 
     # --- Calculate Absolute Path and Modify Template ---
-    log "Calculating absolute path for MCP server script..."
-    # Ensure the script actually exists in the target directory
+    log "Calculating absolute path for MCP server script relative to $target_dir..."
+    # Ensure the script actually exists in the target directory (copied by install_rules)
     if [[ ! -f "$server_script_path" ]]; then
-        warn "MCP server script not found at expected location: $server_script_path. Cannot set absolute path."
+        warn "MCP server script not found at expected target location: $server_script_path. Cannot set absolute path. Ensure it was copied correctly."
         # Proceed with merge using relative path from template, but it likely won't work
     else
-        # Attempt to get absolute path using 'cd ... && pwd'
+        # Attempt to get absolute path using 'cd ... && pwd' relative to target_dir
         local script_dir
         local script_basename
         script_dir=$(dirname "$server_script_path")
         script_basename=$(basename "$server_script_path")
-        if [[ -d "$script_dir" ]]; then
-            # Use subshell to avoid changing current script directory
-            server_script_abs_path="$(cd "$script_dir" && pwd)/$script_basename"
+        
+        # Get the absolute path of the target directory first
+        local target_dir_abs
+        target_dir_abs="$(cd "$target_dir" && pwd)"
+        local target_script_abs_path="$target_dir_abs/$server_script_rel_path"
+
+        # Basic check if the path seems plausible (optional)
+        if [[ ! -f "$target_script_abs_path" ]]; then
+             warn "Constructed absolute path $target_script_abs_path does not seem to exist. Check calculation."
+             # Fallback or proceed with potentially incorrect path?
+             # For now, we proceed, hoping the path is correct despite the check failing.
+        else
+            server_script_abs_path="$target_script_abs_path"
             log "Calculated absolute path: $server_script_abs_path"
 
-            # Get the server key name from the template (first key under mcpServers)
-            server_key_name=$(jq -r '.mcpServers | keys[0]' "$template_mcp_json")
+            # Get the server key name from the template (e.g., "Git Commit (Internal)")
+            # This assumes the commit server is the first/only entry under mcpServers
+            server_key_name=$(jq -r '.mcpServers | keys | .[] | select(contains("Commit"))' "$template_mcp_json" 2>/dev/null || echo "")
 
             if [[ -n "$server_key_name" ]] && [[ "$server_key_name" != "null" ]]; then
                 log "Modifying template mcp.json to use absolute path for server: $server_key_name"
                 # Modify the template file in place
                 local modified_json
-                modified_json=$(jq --arg path "$server_script_abs_path" --arg key "$server_key_name" \
-                                   '.mcpServers[$key].args = [$path]' \
+                # Ensure path escaping for JSON (though jq usually handles this)
+                # Use --argjson to treat the path as a JSON array containing one string
+                modified_json=$(jq --arg key "$server_key_name" --argjson path "[\"$server_script_abs_path\"]" \
+                                   '.mcpServers[$key].args = $path' \
                                    "$template_mcp_json")
                 local jq_modify_status=$?
 
@@ -511,11 +526,11 @@ merge_mcp_json() {
                     log "Template mcp.json successfully modified with absolute path."
                 fi
             else
-                warn "Could not determine server key name from template mcp.json. Skipping absolute path update."
+                warn "Could not determine server key name containing 'Commit' from template mcp.json. Skipping absolute path update."
             fi
-        else
-            warn "Could not determine directory for server script: $script_dir. Skipping absolute path update."
         fi
+        # Old logic using relative cd - replaced with absolute path logic above
+        # if [[ -d "$script_dir" ]]; then ...
     fi
     # --- End Calculate Absolute Path ---
 
@@ -542,10 +557,15 @@ merge_mcp_json() {
             return 0 # Non-fatal
         fi
 
-        # Perform merge (add missing keys from template)
+        # Perform merge: Add servers from template ONLY if key doesn't exist in target
         local merged_json
+        # Use jq to iterate template servers and add them if not present in target
         merged_json=$(jq --slurpfile template "$template_mcp_json" \
-                         '.mcpServers = ($template[0].mcpServers + .mcpServers)' \
+                         'reduce ($template[0].mcpServers | keys_unsorted[]) as $key (.;
+                            if .mcpServers | has($key) then . 
+                            else .mcpServers[$key] = $template[0].mcpServers[$key] 
+                            end
+                         )' \
                          "$target_mcp_json" 2>/dev/null)
         local jq_status=$?
 

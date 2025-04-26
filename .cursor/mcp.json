@@ -1,6 +1,6 @@
 {
     "mcpServers": {
-        "Git Commit (Internal)": {
+        "MonServeurTest": {
             "command": "node",
             "args": [
                 ".cursor/mcp/mcp-commit-server/server.js"
