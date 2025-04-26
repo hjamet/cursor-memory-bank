@@ -225,7 +225,7 @@ test_mcp_json_absolute_path_no_jq() {
     # Save current directory and PATH
     local current_dir="$(pwd)"
     local original_path="$PATH"
-    local install_output_file="$LOGS_DIR/install_no_jq.log"
+    # local install_output_file="$LOGS_DIR/install_no_jq.log" # No longer needed
 
     # Change to test directory
     cd "$TEST_DIR" || {
@@ -239,18 +239,29 @@ test_mcp_json_absolute_path_no_jq() {
     echo "[INFO] Temporarily modified PATH to exclude jq: $PATH"
 
     echo "[INFO] Running LOCAL install script without jq..."
-    # Run the installer script (using the absolute path) without jq
-    if bash "$INSTALL_SCRIPT_PATH" --target "$TEST_DIR" --no-backup; then
-        # Check if the expected INFO message about sed modification is present
-        if grep -q "Successfully updated MCP config for Commit server using sed" "$TEST_DIR/install.log"; then
-            echo "[INFO] Found expected info message about successful sed modification."
+    # Run the installer script (using the absolute path) without jq and capture stderr
+    local install_stderr
+    install_stderr=$(bash "$INSTALL_SCRIPT_PATH" --dir "$TEST_DIR" --no-backup 2>&1 >/dev/null)
+    local install_status=$?
+
+    # Restore PATH immediately
+    export PATH="$original_path"
+
+    if [[ $install_status -eq 0 ]]; then
+        # Check if the expected INFO message about sed modification is present in stderr
+        if echo "$install_stderr" | grep -q "Successfully updated MCP config for Commit server using sed"; then
+            echo "[INFO] Found expected info message about successful sed modification in stderr."
             # Check if the mcp.json file exists
             local mcp_json_path="$TEST_DIR/.cursor/mcp.json"
             if [[ -f "$mcp_json_path" ]]; then
                 echo "[INFO] Reading $mcp_json_path..."
-                # Extract the path for the 'Commit' server args using grep and sed
-                # Refined sed command to handle potential literal '\\\\n' before the closing quote
-                local commit_server_path=$(grep -A 2 '"Commit": {' "$mcp_json_path" | grep '"args": \\[' -A 1 | tail -n 1 | sed -e 's/^[[:space:]]*"//' -e 's/\\\\\\\\n"[[:space:]]*$//')
+                # Extract the path for the 'Commit' server args
+                # New approach: Extract Commit block with awk, then grep/sed
+                local commit_block=$(awk '/"Commit": \{/,/^\s*}/' "$mcp_json_path")
+                # Find the line after "args": [ within the block and clean it
+                local commit_server_path_line=$(echo "$commit_block" | grep -A 1 '"args": \[' | tail -n 1)
+                # Remove leading/trailing whitespace and quotes, and the literal \n if present
+                local commit_server_path=$(echo "$commit_server_path_line" | sed -e 's/^[[:space:]]*"//' -e 's/"[[:space:]]*$//' -e 's/\\n$//')
 
                 echo "[INFO] Extracted path for 'Commit' server: $commit_server_path" # Debug log
 
@@ -261,20 +272,34 @@ test_mcp_json_absolute_path_no_jq() {
                     echo "[ERROR] Test failed: Path '$commit_server_path' IS NOT absolute, but should be after sed modification."
                     # Print the content of mcp.json for debugging
                     cat "$mcp_json_path"
-                    exit 1
+                    cd "$current_dir" # Return to original directory before exiting
+                    return 1 # Indicate failure
                 fi
             else
                 echo "[ERROR] Test failed: $mcp_json_path not found after installation."
-                exit 1
+                cd "$current_dir" # Return to original directory before exiting
+                return 1 # Indicate failure
             fi
         else
-            echo "[ERROR] Test failed: Did not find the expected info message about successful sed modification."
-            exit 1
+            echo "[ERROR] Test failed: Did not find the expected info message about successful sed modification in stderr."
+            echo "--- Captured stderr ---"
+            echo "$install_stderr"
+            echo "---------------------"
+            cd "$current_dir" # Return to original directory before exiting
+            return 1 # Indicate failure
         fi
     else
-        echo "[ERROR] Test failed: Installation script failed when jq was not available."
-        exit 1
+        echo "[ERROR] Test failed: Installation script failed when jq was not available (Exit code: $install_status)."
+        echo "--- Captured stderr ---"
+        echo "$install_stderr"
+        echo "---------------------"
+        cd "$current_dir" # Return to original directory before exiting
+        return 1 # Indicate failure
     fi
+
+    # Return to original directory if test passed
+    cd "$current_dir"
+    return 0 # Indicate success
 }
 
 # Run tests

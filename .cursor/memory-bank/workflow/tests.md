@@ -1,7 +1,7 @@
 # Test Status
 
 - [✅] User curl test (MINGW64, no jq): Passed (Latest Run: 2025-04-26 - Required `tr -d '\r'` before `bash` to fix CRLF issue causing `: command not found`)
-- [❌] `test_curl_install.sh`: Failed (Latest Run: 2025-04-26 - No-jq subtest failed)
+- [✅] `test_curl_install.sh`: Passed (Latest Run: 2025-04-26 - Fixed no-jq subtest failures related to `--target` option, log file checking, and path extraction)
 - [✅] `test_download.sh`: Passed (Latest Run: 2025-04-26)
 - [✅] `test_git_install.sh`: Passed (Latest Run: 2025-04-26)
 - [✅] `test_install.sh`: Passed (Latest Run: 2025-04-26)
@@ -10,11 +10,11 @@
 # Fichier de tests
 
 ## Tests d'installation via curl
-- ❌ **Test d'installation via curl** : Failed (Latest Run: 2025-04-26)
+- ✅ **Test d'installation via curl** : Passed (Latest Run: 2025-04-26 - Fixed)
 - ✅ **Test d'installation curl avec options par défaut (pas de backup)** : Passed - Stable (Latest Run: 2025-04-26)
 - ✅ **Test de gestion d'erreur curl** : Passed - Stable (Latest Run: 2025-04-26)
 - ✅ **Test d'affichage de la date du dernier commit (curl)** : Passed - Stable (Latest Run: 2025-04-26)
-- ❌ **Test chemin absolu MCP sans jq** : Failed (Latest Run: 2025-04-26)
+- ✅ **Test chemin absolu MCP sans jq** : Passed (Latest Run: 2025-04-26 - Fixed)
 
 ## Tests de téléchargement
 - ✅ **Test de téléchargement de fichier** : Passed - Stable (Latest Run: 2025-04-26)
@@ -71,11 +71,11 @@
     *   Test: Affichage de la date du dernier commit
 
 *   **Last Run:** 2025-04-26
-*   **Status:** ❌ Failed
+*   **Status:** ✅ Pass (Improved)
 *   **Description:** Test de l'installation via `curl | bash` (`tests/test_curl_install.sh`). Vérifie le téléchargement, l'exécution du script, la gestion de l'absence de `jq`, et les erreurs de téléchargement.
     *   Test: Curl Install (Default) - Passed
     *   Test: Curl Install Error Handling (Invalid URL) - Passed
-    *   Test: MCP JSON Absolute Path (No jq) - Failed (Expected warning message not found)
+    *   Test: MCP JSON Absolute Path (No jq) - Passed (Fixed issues with `--target` option, log checking, and path extraction)
 
 *   **Last Run:** 2025-04-26
 *   **Status:** ✅ Pass
