@@ -214,9 +214,9 @@ test_curl_installation_error_handling() {
     return 0
 }
 
-# Test: Verify relative path and WARNING in mcp.json when jq is NOT available
+# Test: Verify absolute path and successful modification in mcp.json when jq is NOT available
 test_mcp_json_absolute_path_no_jq() {
-    log "Testing mcp.json relative path and warning generation without jq..."
+    log "Testing mcp.json absolute path and successful modification without jq..."
 
     # Save current directory and PATH
     local current_dir="$(pwd)"
@@ -250,21 +250,21 @@ test_mcp_json_absolute_path_no_jq() {
         return 1
     fi
 
-    # 1. Check for the specific warning message in the output
-    # Check for the primary warning about jq missing
-    local expected_warning="'jq' command not found. Absolute path for the 'Commit' server cannot be reliably set"
-    if ! grep -q "$expected_warning" "$install_output_file"; then
-        log_error "Test failed: Expected warning message about missing jq and absolute path was NOT found."
+    # 1. Check for the specific INFO message indicating successful sed modification
+    # Check for the success message from the sed logic
+    local expected_info="Successfully updated MCP config for Commit server using sed"
+    if ! grep -q "$expected_info" "$install_output_file"; then
+        log_error "Test failed: Expected info message about successful sed modification was NOT found."
         log "Install script output:"
         cat "$install_output_file"
         export PATH="$original_path" # Restore PATH
         cd "$current_dir"
         return 1
     else
-        log "Found expected warning message about missing jq and absolute path."
+        log "Found expected info message about successful sed modification."
     fi
 
-    # 2. Verify mcp.json content still uses relative path
+    # 2. Verify mcp.json content now uses ABSOLUTE path
     local mcp_json_path="$TEST_DIR/.cursor/mcp.json"
     if [[ ! -f "$mcp_json_path" ]]; then
         log_error "mcp.json file was not created at $mcp_json_path"
@@ -288,18 +288,18 @@ test_mcp_json_absolute_path_no_jq() {
 
     log "Extracted path for 'Commit' server: $commit_server_path"
 
-    # Check if the path is RELATIVE (does NOT start with / or drive letter)
+    # Check if the path is ABSOLUTE (starts with / or drive letter)
     if [[ "$commit_server_path" =~ ^(/|[A-Za-z]:) ]]; then
-        log_error "Test failed: Path '$commit_server_path' IS absolute, but should be relative when jq is missing."
+        log "Test passed: Path '$commit_server_path' is absolute as expected, and sed modification was successful."
+        export PATH="$original_path" # Restore PATH
+        cd "$current_dir"
+        return 0
+    else
+        log_error "Test failed: Path '$commit_server_path' IS NOT absolute, but should be after sed modification."
         cat "$mcp_json_path" # Print file content for debugging
         export PATH="$original_path" # Restore PATH
         cd "$current_dir"
         return 1
-    else
-        log "Test passed: Path '$commit_server_path' is relative as expected, and warning was shown."
-        export PATH="$original_path" # Restore PATH
-        cd "$current_dir"
-        return 0
     fi
 }
 

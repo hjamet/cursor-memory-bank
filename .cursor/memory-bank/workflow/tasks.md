@@ -3,7 +3,7 @@
 ## 1. Installation Script Verification & Fixes
 
 1.1. **Fix `install.sh` MCP Path/Name Issues**:
-    - Status: In Progress (Reopened: Absolute path MUST be set even without jq)
+    - Status: Implemented (Pending Test)
     - Description: Investigate and fix why `install.sh` sets a relative path for the commit server in `.cursor/mcp.json` when `jq` is not available. Implement fallback logic using shell commands to calculate and set the absolute path in the JSON template when jq is missing. Add a test to verify the path is absolute in this scenario.
     - Impacted Files: `install.sh` (`merge_mcp_json` function), `tests/test_curl_install.sh` (or new test file)
     - Dependencies: Shell commands (`pwd`, `sed`), Understanding of shell scripting and `mcp.json` format.

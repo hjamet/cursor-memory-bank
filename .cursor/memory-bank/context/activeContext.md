@@ -1,21 +1,18 @@
 # Active Context
 
 ## Current Status
-- **Last Action**: Completed `request-analysis` after processing `userbrief.md` via `consolidate-repo`.
-- **Outcome**: Identified the user request to modify `request-analysis.mdc` and `context-update.mdc`.
-- **Next Step**: Implement the modifications to the rule files.
+- **Last Action**: Completed `request-analysis` after `fix` rule handed over due to persistent test failures in `test_curl_install.sh`.
+- **Outcome**: Analysis revealed the test failure was due to the test executing the *remote* `install.sh` (unmodified) while the local `install.sh` and test assertions *were* modified. Edits were correct but needed committing.
+- **Next Step**: Commit the already performed local changes to `install.sh` and `tests/test_curl_install.sh`.
 
 ## Current Implementation Context
-- **Task Section**: Workflow Rule Modification.
-- **Task**: 1. Modify `request-analysis.mdc` example; 2. Modify `context-update.mdc` commit step.
-- **Goal**:
-    1.  Enhance the example in `request-analysis.mdc` to demonstrate optional `mcp_Memory_add_observations` usage.
-    2.  Replace the `git commit -a` command in `context-update.mdc` (step 4) with `mcp_Commit_commit` tool call for standardized commits.
+- **Task**: Resolve test failure by committing changes.
+- **Goal**: Commit the fix for task 1.1 (absolute path in `install.sh` using `sed`) and the corresponding update to `tests/test_curl_install.sh` assertions.
 - **Logic**:
-    1.  Add example calls to `mcp_Memory_add_observations` in the example section of `request-analysis.mdc` at steps 1 and 5.
-    2.  Locate the `git commit -a` command in step 4 of `context-update.mdc` and replace it with an `mcp_Commit_commit` tool call, defining appropriate parameters (`type`, `emoji`, `title`, `description`).
-- **Impacted Files**: `.cursor/rules/request-analysis.mdc`, `.cursor/rules/context-update.mdc`
-- **Impacted Symbols**: N/A (Documentation/Example changes)
-- **Dependencies**: Understanding of MCP tool usage (`mcp_Memory_add_observations`, `mcp_Commit_commit`).
-- **Online Research**: None needed.
-- **Decision**: Apply the edits directly based on the request and existing rule structures.
+    - Use the MCP Commit tool to commit the staged changes made during the previous `fix` cycle.
+    - The changes include:
+        - Modification in `install.sh` (`merge_mcp_json` function) to use `sed` for absolute path setting when `jq` is missing.
+        - Modification in `tests/test_curl_install.sh` (`test_mcp_json_absolute_path_no_jq` function) to expect the `sed` success log and verify the path is absolute.
+- **Impacted Files**: `install.sh`, `tests/test_curl_install.sh`
+- **Dependencies**: Git, MCP Commit tool.
+- **Decision**: Create a commit incorporating both the fix and the test update.

@@ -548,16 +548,16 @@ merge_mcp_json() {
         log "Absolute path found ($server_script_abs_path). Attempting template modification."
 
         # Decide modification method based on jq availability
-    if [[ "$jq_available" = true ]]; then
+        if [[ "$jq_available" = true ]]; then
             # --- JQ Logic ---
             log "Using 'jq' for modification."
-        if [[ -s "$template_mcp_json" ]] && ! jq -e . "$template_mcp_json" > /dev/null 2>&1; then
+            if [[ -s "$template_mcp_json" ]] && ! jq -e . "$template_mcp_json" > /dev/null 2>&1; then
                 warn "Template mcp.json ($template_mcp_json) is not valid JSON. Skipping modification."
-        else
-            # Check if the expected key exists in the template
-            if ! jq -e --arg key "$expected_key_name" '.mcpServers | has($key)' "$template_mcp_json" > /dev/null 2>&1; then
-                 warn "Expected server key '$expected_key_name' not found in template mcp.json. Skipping absolute path update."
             else
+                # Check if the expected key exists in the template
+                if ! jq -e --arg key "$expected_key_name" '.mcpServers | has($key)' "$template_mcp_json" > /dev/null 2>&1; then
+                    warn "Expected server key '$expected_key_name' not found in template mcp.json. Skipping absolute path update."
+                else
                     log "Modifying template mcp.json using 'jq' to use absolute path for server: $expected_key_name"
                     # Need to escape backslashes for JSON string
                     local jq_safe_path
@@ -579,7 +579,7 @@ merge_mcp_json() {
                             warn "Failed to write modified template to temp file (Exit code: $echo_status). Proceeding with original template content."
                             rm -f "$template_mcp_json.tmp" # Clean up intermediate file
                         elif ! mv "$template_mcp_json.tmp" "$template_mcp_json"; then
-                             warn "Failed to replace original template with modified version. Proceeding with original template content."
+                            warn "Failed to replace original template with modified version. Proceeding with original template content."
                         else
                             log "Template mcp.json successfully modified with absolute path using 'jq'."
                             template_modified_successfully=true # Set flag
@@ -589,138 +589,111 @@ merge_mcp_json() {
             fi # End JSON validity check
             # --- End JQ Logic ---
         else
-            # --- Direct JSON Generation Logic (Fallback when jq is missing) ---
-            log "Using direct JSON generation (jq not available)."
-            local json_safe_path
-            # Escape backslashes for JSON string
-            json_safe_path=$(echo "$server_script_abs_path" | sed 's/\\/\\\\/g') 
-            local generated_successfully=false
-
-            log "Generating mcp.json content directly with absolute path: $json_safe_path"
-
-            # Use cat heredoc to write the entire desired JSON structure
-            # NOTE: Assumes the structure of other servers (Memory, Context7, Debug) is stable
-            if cat << EOF > "$template_mcp_json"
-{
-    "mcpServers": {
-        "$expected_key_name": {
-            "command": "node",
-            "args": [
-                "$json_safe_path"
-            ]
-        },
-        "Memory": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@modelcontextprotocol/server-memory"
-            ]
-        },
-        "Context7": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@upstash/context7-mcp@latest"
-            ]
-        },
-        "Debug": {
-            "url": "http://localhost:4713/sse"
-        }
-    }
-}
-EOF
-            then
-                 log "Direct generation of template mcp.json successful."
-                 # Basic check if file exists and is not empty
-                 if [[ -s "$template_mcp_json" ]]; then
-                     # Set overall success flag for the creation step later
-                     template_modified_successfully=true
-                     generated_successfully=true
-                     log "Successfully generated template with absolute path using direct generation."
-                 else
-                     warn "Direct generation seemed to succeed but the template file '$template_mcp_json' is empty or missing."
-                     template_modified_successfully=false
-                 fi
+            # --- SED Modification Logic (Fallback when jq is missing) ---
+            log "Using 'sed' for modification (jq not available)."
+            # First, ensure the template exists and is copied to the target directory
+            if [[ ! -s "$template_mcp_json" ]]; then
+                warn "Template MCP JSON ($template_mcp_json) not found or empty. Cannot configure servers without jq."
             else
-                 local cat_status=$?
-                 warn "Direct generation (cat << EOF) failed (Exit code: $cat_status). Template file might be empty or corrupted."
-                 template_modified_successfully=false
-            fi
-            # --- End Direct JSON Generation Logic ---
-        fi # End jq_available check
+                log "Copying template MCP JSON to target: $target_mcp_json"
+                if ! cp "$template_mcp_json" "$target_mcp_json"; then
+                    warn "Failed to copy template MCP JSON to target directory. Skipping sed modification."
+                elif ! command -v sed > /dev/null; then
+                    warn "'sed' command not found. Cannot modify MCP config without jq or sed."
+                    warn "Commit server might use a relative path and incorrect name."
+                else
+                    # Template copied, now attempt sed modification on the target file
+                    log "Attempting 'sed' modification on target MCP config: $target_mcp_json"
+
+                    # Use sed to replace relative path with absolute path and update server name
+                    # Using # as delimiter to avoid issues with / in paths
+                    sed -i \
+                        -e "s#\"./.cursor/mcp/mcp-commit-server/server.js\"#\"$server_script_abs_path\"#" \
+                        -e 's/"name": "mcp-commit-server"/"name": "Commit"/' \
+                        "$target_mcp_json"
+                    local sed_status=$?
+
+                    if [[ $sed_status -eq 0 ]]; then
+                        log "Successfully updated MCP config for Commit server using sed."
+                        template_modified_successfully=true # Indicate modification success
+                    else
+                        warn "sed command failed to update MCP config (Exit code: $sed_status). Please check manually: $target_mcp_json"
+                        warn "Commit server might use a relative path and incorrect name."
+                    fi
+                fi # End sed check
+            fi # End template copy check
+            # --- End SED Modification Logic ---
+        fi # End jq check
     else
-         # Absolute path calculation failed
-         warn "Absolute path for server script could not be determined. Cannot modify template."
-         if [[ "$jq_available" = false ]]; then
-              warn "The installation will proceed using the relative path and placeholder name defined in the template."
-              warn "For the MCP Commit server to function correctly from any directory, please investigate path calculation issues or install 'jq' and re-run."
-         else # jq is available, but path failed
-              warn "Skipping 'sed' modification due to failed path calculation."
-         fi
-    fi # End absolute path check
+        warn "Absolute path for MCP server script could not be determined. Skipping template modification."
+    fi # End check for absolute path
 
-    # --- Create/Merge Target File --- 
-    if ! mkdir -p "$(dirname "$target_mcp_json")"; then
-        error "Could not create directory for $target_mcp_json. Aborting MCP config update."
-        return 1
-    fi
-
-    if [[ ! -f "$target_mcp_json" ]]; then
-        log "Creating $target_mcp_json from template."
-        if ! cp "$template_mcp_json" "$target_mcp_json"; then
-            warn "Failed to copy template mcp.json to $target_mcp_json."
+    # Now, merge the (potentially modified) template with the target
+    if [[ -f "$target_mcp_json" ]] && [[ -s "$template_mcp_json" ]]; then
+        if ! mkdir -p "$(dirname "$target_mcp_json")"; then
+            error "Could not create directory for $target_mcp_json. Aborting MCP config update."
             return 1
         fi
-        # Adjust log messages based on outcome
-        if [[ "$template_modified_successfully" = true ]]; then
-             if [[ "$jq_available" = true ]]; then
-                 log "Successfully created $target_mcp_json with absolute path for '$expected_key_name' server (using jq)."
-             else
-                 # Corrected log message for direct generation fallback (absolute path used)
-                 log "Successfully created $target_mcp_json with absolute path for '$expected_key_name' server (using direct generation fallback)."
-             fi
-        elif [[ "$jq_available" = true ]]; then # Implies jq exists but modification failed for some reason
-             # This case should ideally not happen now if jq logic is robust, but kept as fallback
-             warn "Note: $target_mcp_json created, but template modification failed (using jq). Absolute path for '$expected_key_name' server likely NOT set. Check contents."
-        else # jq not available and direct generation fallback failed
-             warn "Note: $target_mcp_json created from template, but direct generation failed. Absolute path likely NOT set. Check previous warnings."
+
+        if [[ ! -f "$target_mcp_json" ]]; then
+            log "Creating $target_mcp_json from template."
+            if ! cp "$template_mcp_json" "$target_mcp_json"; then
+                warn "Failed to copy template mcp.json to $target_mcp_json."
+                return 1
+            fi
+            # Adjust log messages based on outcome
+            if [[ "$template_modified_successfully" = true ]]; then
+                if [[ "$jq_available" = true ]]; then
+                    log "Successfully created $target_mcp_json with absolute path for '$expected_key_name' server (using jq)."
+                else
+                    # Corrected log message for direct generation fallback (absolute path used)
+                    log "Successfully created $target_mcp_json with absolute path for '$expected_key_name' server (using direct generation fallback)."
+                fi
+            elif [[ "$jq_available" = true ]]; then # Implies jq exists but modification failed for some reason
+                # This case should ideally not happen now if jq logic is robust, but kept as fallback
+                warn "Note: $target_mcp_json created, but template modification failed (using jq). Absolute path for '$expected_key_name' server likely NOT set. Check contents."
+            else # jq not available and direct generation fallback failed
+                warn "Note: $target_mcp_json created from template, but direct generation failed. Absolute path likely NOT set. Check previous warnings."
+            fi
+        else
+            # Target exists, attempt merge ONLY if jq is available AND template was modified successfully
+            log "Existing $target_mcp_json found."
+            if [[ "$jq_available" = true ]] && [[ "$template_modified_successfully" = true ]]; then
+                # Check if template modification was successful before attempting merge
+                if ! jq -e . "$target_mcp_json" > /dev/null 2>&1; then
+                    warn "Existing $target_mcp_json is not valid JSON. Skipping merge."
+                else
+                    # Perform merge (add new keys from template, don't overwrite existing)
+                    local merged_json
+                    merged_json=$(jq --slurpfile template "$template_mcp_json" \
+                                     'reduce ($template[0].mcpServers | keys_unsorted[]) as $key (.;
+                                   if .mcpServers | has($key) then . # If key exists, keep existing
+                                   else .mcpServers[$key] = $template[0].mcpServers[$key] # Otherwise add from template
+                                        end
+                                     )' \
+                                     "$target_mcp_json" 2>/dev/null)
+                    local jq_status=$?
+                    if [[ $jq_status -ne 0 ]]; then
+                        warn "jq command failed during merge (Exit code: $jq_status). Skipping $target_mcp_json update."
+                    else
+                        echo "$merged_json" > "$target_mcp_json.tmp"
+                        if ! mv "$target_mcp_json.tmp" "$target_mcp_json"; then
+                            warn "Failed to write merged $target_mcp_json. Skipping update."
+                            rm -f "$target_mcp_json.tmp"
+                        else
+                            log "Successfully merged template into $target_mcp_json (added new servers, preserved existing)."
+                        fi
+                    fi
+                fi
+            elif [[ "$jq_available" = true ]] && [[ "$template_modified_successfully" = false ]]; then
+                warn "Template modification failed previously (using sed). Skipping merge."
+            else # jq not available (merge logic relies on jq)
+                warn "Existing $target_mcp_json found, but 'sed' is not available. Skipping merge."
+                warn "Manual merge might be required if template contains new servers."
+            fi
         fi
     else
-        # Target exists, attempt merge ONLY if jq is available AND template was modified successfully
-        log "Existing $target_mcp_json found."
-        if [[ "$jq_available" = true ]] && [[ "$template_modified_successfully" = true ]]; then
-             # Check if template modification was successful before attempting merge
-                 if ! jq -e . "$target_mcp_json" > /dev/null 2>&1; then
-                     warn "Existing $target_mcp_json is not valid JSON. Skipping merge."
-                 else
-                # Perform merge (add new keys from template, don't overwrite existing)
-                     local merged_json
-                     merged_json=$(jq --slurpfile template "$template_mcp_json" \
-                                      'reduce ($template[0].mcpServers | keys_unsorted[]) as $key (.;
-                                    if .mcpServers | has($key) then . # If key exists, keep existing
-                                    else .mcpServers[$key] = $template[0].mcpServers[$key] # Otherwise add from template
-                                         end
-                                      )' \
-                                      "$target_mcp_json" 2>/dev/null)
-                     local jq_status=$?
-                     if [[ $jq_status -ne 0 ]]; then
-                         warn "jq command failed during merge (Exit code: $jq_status). Skipping $target_mcp_json update."
-                     else
-                         echo "$merged_json" > "$target_mcp_json.tmp"
-                         if ! mv "$target_mcp_json.tmp" "$target_mcp_json"; then
-                              warn "Failed to write merged $target_mcp_json. Skipping update."
-                              rm -f "$target_mcp_json.tmp"
-                         else
-                        log "Successfully merged template into $target_mcp_json (added new servers, preserved existing)."
-                         fi
-                     fi
-                 fi
-        elif [[ "$jq_available" = true ]] && [[ "$template_modified_successfully" = false ]]; then
-            warn "Template modification failed previously (using sed). Skipping merge."
-        else # jq not available (merge logic relies on jq)
-            warn "Existing $target_mcp_json found, but 'sed' is not available. Skipping merge."
-            warn "Manual merge might be required if template contains new servers."
-        fi
+        warn "Template or target MCP JSON not found. Skipping merge."
     fi
 
     return 0
