@@ -293,55 +293,100 @@ server.tool(
 
         const startTime = new Date().toISOString();
 
-        // Temporary listeners for initial output capture
+        // --- Revert to Previous State (stdio: 'pipe') ---
         const stdoutListener = (data) => { initialStdout += data.toString(); };
         const stderrListener = (data) => { initialStderr += data.toString(); };
+        // --- End Revert ---
 
         try {
+            // --- MODIFICATION START: Try shell: false for known externals --- 
+            let executable = command.trim(); // Default for shell: true
+            let args = [];
+            let useShell = true; // Default to shell: true
+            const spawnOptions = {
+                detached: true,
+                stdio: ['ignore', 'pipe', 'pipe'],
+                cwd: projectRoot
+            };
+
+            // Regex to match quoted executable path and capture the rest
+            const quotedExeRegex = /^"([^"\\]*(?:\\.[^"\\]*)*)"\s*(.*)$/;
+            // Regex to find shell metacharacters (simplistic)
+            const shellCharsRegex = /[|&<>]/;
+
+            let potentialArgs = '';
+            const match = executable.match(quotedExeRegex);
+
+            if (match) {
+                // Command starts with a quoted path (e.g., bash.exe)
+                executable = match[1]; // The path inside quotes
+                potentialArgs = match[2].trim(); // The rest of the command
+                useShell = false; // Assume shell: false if path is quoted
+            } else {
+                // Command doesn't start with quoted path
+                const parts = executable.split(/\s+/);
+                executable = parts[0];
+                potentialArgs = parts.slice(1).join(' ');
+                // Decide if shell: false is safe
+                if ((executable === 'node' || executable.endsWith('bash.exe')) && !shellCharsRegex.test(potentialArgs)) {
+                    useShell = false;
+                }
+            }
+
+            if (!useShell) {
+                // Attempt to parse arguments for shell: false
+                if (executable.endsWith('bash.exe') && potentialArgs.startsWith('-c')) {
+                    // Handle bash -c "command string"
+                    const commandStringMatch = potentialArgs.match(/^\-c\s*("(.*)"|'(.*)'|(.*))$/);
+                    if (commandStringMatch) {
+                        args = ['-c', commandStringMatch[2] || commandStringMatch[3] || commandStringMatch[4]]; // Extract command string
+                    } else {
+                        // Fallback if parsing -c fails
+                        console.warn('[MCP Shell False] bash -c parsing failed, falling back to shell:true for:', command);
+                        useShell = true;
+                    }
+                } else if (executable === 'node' && potentialArgs.startsWith('-e')) {
+                    // Handle node -e "script"
+                    const scriptMatch = potentialArgs.match(/^\-e\s*("(.*)"|'(.*)'|(.*))$/);
+                    if (scriptMatch) {
+                        args = ['-e', scriptMatch[2] || scriptMatch[3] || scriptMatch[4]]; // Extract script string
+                    } else {
+                        console.warn('[MCP Shell False] node -e parsing failed, falling back to shell:true for:', command);
+                        useShell = true;
+                    }
+                } else if (potentialArgs) {
+                    // Basic split for other cases (might fail with nested quotes/spaces)
+                    args = potentialArgs.split(/\s+/);
+                }
+            }
+
+            spawnOptions.shell = useShell;
+
+            console.warn(`[MCP SPAWN] Executing: '${executable}' with args: ${JSON.stringify(args)} and options: ${JSON.stringify(spawnOptions)}`);
+
             // Spawn the process
-            // Use shell: true to handle complex commands more easily, like pipelines or env vars
-            child = spawn(command, [], {
-                shell: true,
-                detached: true, // Allows parent to exit independently
-                stdio: ['ignore', 'pipe', 'pipe'], // Ignore stdin, pipe stdout/stderr
-                cwd: projectRoot // Execute in project root by default
-            });
+            child = spawn(executable, args, spawnOptions);
+            // --- MODIFICATION END ---
 
             pid = child.pid;
             if (pid === undefined) {
                 throw new Error('Failed to get PID for spawned process.');
             }
 
-            // Create log file streams (with added robustness)
+            // --- Revert to Previous State (stdio: 'pipe') ---
             stdoutLogPath = path.join(LOGS_DIR, `${pid}.stdout.log`);
             stderrLogPath = path.join(LOGS_DIR, `${pid}.stderr.log`);
+            stdoutStream = fs.createWriteStream(stdoutLogPath, { flags: 'a' });
+            stderrStream = fs.createWriteStream(stderrLogPath, { flags: 'a' });
 
-            // Ensure logs directory exists *right before* creating streams, just in case
-            ensureLogsDirExists();
-
-            try {
-                stdoutStream = fs.createWriteStream(stdoutLogPath, { flags: 'a' });
-                stderrStream = fs.createWriteStream(stderrLogPath, { flags: 'a' });
-            } catch (streamError) {
-                console.error(`!!!!!!!!!! Error creating log streams for PID ${pid} !!!!!!!!!!`);
-                console.error(`Attempted paths: ${stdoutLogPath}, ${stderrLogPath}`);
-                console.error(streamError);
-                // Attempt to continue without logging? Or throw a specific error?
-                // For now, let's throw a specific error to signal the issue clearly.
-                throw new Error(`Failed to create log streams for PID ${pid}: ${streamError.message}`);
-                // Alternatively, could set streams to null and handle that downstream,
-                // but throwing makes the failure explicit.
-            }
-
-            // Pipe output to log files
             child.stdout.pipe(stdoutStream);
             child.stderr.pipe(stderrStream);
 
-            // Attach temporary listeners for initial output
             child.stdout.on('data', stdoutListener);
             child.stderr.on('data', stderrListener);
+            // --- End Revert ---
 
-            // Add entry to state
+            // Add entry to state 
             const newStateEntry = {
                 pid,
                 command,
@@ -363,6 +408,7 @@ server.tool(
 
             // Promise that resolves when the process exits
             const exitPromise = new Promise((resolve) => {
+                // Revert to non-async handler
                 child.on('exit', (code, signal) => {
                     // console.log(`Process ${pid} exited with code: ${code}, signal: ${signal}`); // Optional debug
                     processExited = true;
@@ -378,42 +424,14 @@ server.tool(
                     }
 
                     // Clean up streams and listeners
+                    // Add a small delay to potentially allow streams to flush before closing
+                    // await new Promise(resolve => setTimeout(resolve, 100)); 
                     child.stdout?.removeListener('data', stdoutListener);
                     child.stderr?.removeListener('data', stderrListener);
                     stdoutStream.end();
                     stderrStream.end();
 
                     resolve('exited');
-                });
-
-                // Handle spawn errors (e.g., command not found)
-                child.on('error', (err) => {
-                    console.error(`Error spawning process ${pid} (${command}):`, err);
-                    processExited = true; // Treat spawn error as an exit
-                    exitCode = 1; // Indicate failure
-                    const endTime = new Date().toISOString();
-
-                    // Update state
-                    if (stateEntryIndex !== -1) {
-                        terminalStates[stateEntryIndex].status = 'Failure';
-                        terminalStates[stateEntryIndex].exit_code = exitCode;
-                        terminalStates[stateEntryIndex].endTime = endTime;
-                        // Attempt to add error message to stderr log if possible
-                        try {
-                            fs.appendFileSync(stderrLogPath, `\n[MCP Server Spawn Error]: ${err.message}\n`);
-                        } catch (logErr) { /* Ignore logging error */ }
-                        writeTerminalState(terminalStates);
-                    }
-
-                    // Clean up streams and listeners
-                    child.stdout?.removeListener('data', stdoutListener);
-                    child.stderr?.removeListener('data', stderrListener);
-                    try { stdoutStream.end(); } catch { /* ignore */ }
-                    try { stderrStream.end(); } catch { /* ignore */ }
-
-                    // Resolve the exit promise to prevent timeout waiting indefinitely
-                    // but pass the error to the outer catch block
-                    resolve(new Error(`Spawn failed: ${err.message}`));
                 });
             });
 
@@ -440,9 +458,10 @@ server.tool(
             // <<< DEBUG LOGGING START >>>
             const response = {
                 pid,
+                // Revert to using initial listeners
                 stdout: initialStdout,
                 stderr: initialStderr,
-                exit_code: (result === 'timeout' || processExited === false) ? null : exitCode // Return null if timed out or not exited yet
+                exit_code: (result === 'timeout' || processExited === false) ? null : exitCode
             };
             // console.log(`[MyMCP DEBUG] execute_command handler RETURNING - Response: ${JSON.stringify(response)}`);
             // Wrap the response in the format expected by the calling tool

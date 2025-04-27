@@ -19,12 +19,11 @@ Analyze test errors and fix them through an iterative execution-correction loop 
     *   **2.2 Analysis**:
         *   **(Optional) Memory Lookup**: Use `mcp_servers_search_nodes` with error message/test name to find similar past errors and their solutions in the knowledge graph.
         *   Examine files involved in the error and identify the cause. Use `<think></think>` for complex analysis. Don't hesitate either to use the codebase search tool !
-        *   **Consider using the MCP `Debug` tool** if:
+        *   **Consider adding temporary logging** (e.g., `console.log`, `print` statements) directly into the code to understand the flow and variable states leading to the error, especially if:
             - You are unsure about the fix after initial analysis.
             - This is the 3rd iteration for this test without clear progress.
             - The test logic or the code under test seems particularly complex.
-            - You don't understand the code's behavior leading to the error.
-        *   Using the MCP `Debug` tool (setting breakpoints, evaluating expressions) should be **prioritized over adding temporary `log.debug` statements** for understanding the error.
+        *   **Remember to remove temporary logs** after the issue is resolved.
     *   **2.3 Research**: If needed, use the web to find solutions for specific errors
     *   **2.4 Implementation**: Make the correction and document the changes
     *   **2.5 Test**: Execute ONLY the specific test currently being fixed and analyze the result:
@@ -53,7 +52,7 @@ Analyze test errors and fix them through an iterative execution-correction loop 
 
 -   The `<think></think>` token must be used for each complex correction requiring in-depth analysis
 -   You should examinate the files you know related to the problem but you should also use the codebase search tool in case you are missing something.
--   For debugging, prioritize using the MCP `Debug` tool. Temporarily adding logs should only be a secondary option if the Debug tool is insufficient or unavailable.
+-   For debugging, consider adding temporary logging (e.g., `console.log` statements) within the code to inspect values and control flow. Remember to remove these logs afterwards.
 -   NEVER execute all tests, but ONLY the specific test you are currently fixing
 -   Running the complete test suite is exclusively the responsibility of the `test-execution` rule
 -   Document ONLY errors related to:
