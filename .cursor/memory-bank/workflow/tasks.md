@@ -2,7 +2,11 @@
 
 # In Progress
 
-## 1. MCP Server Enhancements
+(No tasks currently in progress)
+
+# Done
+
+## 1. MCP Server Enhancements (Current Cycle)
 
 1.1. [x] **Implement `reuse_terminal` Logic**: Modify the `mcp_execute_command` handler. If `reuse_terminal` is true, find an inactive terminal (status `Success`, `Failure`, or `Stopped`), clean up its state entry and log files, then proceed with spawning the new command.
     - Actions: Add check for inactive terminals at the start of the handler. Implement cleanup logic (remove state, delete logs, update state file). Ensure this runs only if `reuse_terminal` is true.
@@ -15,22 +19,6 @@
     - Files: `.cursor/mcp/mcp-commit-server/server.js`
     - Dependencies: None.
     - Validation: The interval in `setInterval(updateRunningProcessStatuses, ...)` is set to `1000`.
-
-1.3. [x] **Set Default CWD for `mcp_execute_command`**: Modify the MCP server script to ensure commands executed via `mcp_execute_command` run in the project's root directory by default.
-    - Actions: Add `cwd: projectRoot` to the options object passed to `child_process.spawn` within the `execute_command` handler.
-    - Files: `.cursor/mcp/mcp-commit-server/server.js`
-    - Dependencies: None (requires `projectRoot` variable to be defined, which it is).
-    - Validation: Commands like `git status` run via `mcp_execute_command` operate on the project root without needing `cwd` explicitly set.
-
-## 2. Rule Updates
-
-2.1. [x] **Update Rules to Recommend MCP Terminal Tools**: Modify specified rules to recommend using the new MCP terminal tools (`mcp_execute_command`, etc.) over the standard terminal tool.
-    - Actions: Add the provided explanatory paragraph about MCP tool usage to the specified rule files.
-    - Files: `.cursor/rules/experience-execution.mdc`, `.cursor/rules/fix.mdc`, `.cursor/rules/implementation.mdc`.
-    - Dependencies: None.
-    - Validation: The rules contain the updated paragraph recommending MCP terminal tools.
-
-# Done
 
 ## 1. MCP Server Enhancements (Previous Cycle)
 
@@ -96,4 +84,24 @@
 - **Dependencies**: A working method to debug MCP server scripts launched via `mcp.json` or resolution of the underlying issue.
 - **Validation Criteria**: Successful execution of MyMCP tools OR identification of the root cause.
 - **Next Step**: Requires external help or different debugging approach (e.g., checking Cursor logs if possible, simplifying `server.js` further).
+
+## 1. Rule Enhancements
+
+1.1. [ ] **Add MCP Cleanup Step to `consolidate-repo`**: Modify the `consolidate-repo.mdc` rule to include a new instruction step for cleaning up completed MCP terminals.
+    - Actions: Define the step logic: call `mcp_get_terminal_status`, identify finished terminals (`Success`, `Failure`, `Stopped`), call `mcp_stop_terminal_command` for each PID.
+    - Files: `.cursor/rules/consolidate-repo.mdc`
+    - Dependencies: MCP tools (`mcp_get_terminal_status`, `mcp_stop_terminal_command`).
+    - Validation: The `consolidate-repo.mdc` rule includes the new cleanup step in its Instructions section.
+
+1.2. [ ] **Add Cleanup Note to `experience-execution`**: Add a brief note to the `experience-execution.mdc` rule reminding the agent to proactively use `mcp_stop_terminal_command`.
+    - Actions: Add a sentence like "Remember to call `mcp_stop_terminal_command` for terminals once results are analyzed and they are no longer needed." to the Specifics section.
+    - Files: `.cursor/rules/experience-execution.mdc`
+    - Dependencies: None.
+    - Validation: The rule contains the reminder note.
+
+1.3. [ ] **Add Cleanup Note to `fix`**: Add a brief note to the `fix.mdc` rule reminding the agent to proactively use `mcp_stop_terminal_command`.
+    - Actions: Add a similar reminder sentence to the Specifics section.
+    - Files: `.cursor/rules/fix.mdc`
+    - Dependencies: None.
+    - Validation: The rule contains the reminder note.
 

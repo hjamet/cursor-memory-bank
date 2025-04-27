@@ -56,10 +56,19 @@ Execute potentially long-running commands (experiments, data processing, model t
             *   Any significant findings or learnings
         *   **(Experience-Execution: 4.2 - Memory updated)**
 
-5.  **Calling the next rule**: Decide the next step based on analysis.
+5.  **MCP Terminal Cleanup**: Ensure the executed command's resources are released.
+    *   `<think>`
+        *   Identify the `pid` of the command executed in Step 2. This might have been returned by `mcp_execute_command` or needs to be found using `mcp_get_terminal_status` based on the command string or recent activity.
+        *   Determine if the process with that `pid` still needs cleanup (e.g., if it finished but wasn't automatically cleaned by the MCP system).
+        *</think>`
+    *   Call `mcp_get_terminal_status` if the `pid` is unknown or needs confirmation.
+    *   Call `mcp_stop_terminal_command` with the correct `pid` to terminate and clean up the process if necessary.
+    *   **(Experience-Execution: 5 - MCP cleanup performed)**
+
+6.  **Calling the next rule**: Decide the next step based on analysis.
     *   If analysis (Step 3) indicated success and conformity → call `context-update`.
     *   If analysis (Step 3) detected problems, errors, or non-conformity → call `fix`, providing context about the failed execution and analysis findings.
-    *   **(Experience-Execution: 5 - Calling next rule)**
+    *   **(Experience-Execution: 6 - Calling next rule)**
 
 ## Specifics
 -   This rule is intended for executing tasks that involve running commands/scripts and analyzing their output, distinct from unit testing (`test-execution`).
@@ -126,8 +135,16 @@ Analysis: Training completed successfully based on log message and presence of m
 [...calling tool 'mcp_Memory_add_observations' with details for Experiment:PrimaryClassifierTrain-YYYYMMDD...]
 **(Experience-Execution: 4.2 - Memory updated)**
 
-# Experience-Execution: 5 - Calling the next rule
+# Experience-Execution: 5 - MCP Terminal Cleanup
+<think>
+The command `python src/training/train_model.py ...` was executed. Assuming its pid was 12345.
+</think>
+Checking status and cleaning up PID 12345 if necessary.
+[...calling tool 'mcp_stop_terminal_command' with pid=12345...]
+**(Experience-Execution: 5 - MCP cleanup performed)**
+
+# Experience-Execution: 6 - Calling the next rule
 Execution was successful. Calling `context-update`.
-**(Experience-Execution: 5 - Calling next rule)**
+**(Experience-Execution: 6 - Calling next rule)**
 [...calling tool 'fetch_rules' with rule_names=["context-update"]...]
 

@@ -2,33 +2,41 @@
 
 ## Current implementation context
 
-- **Task Group:** MCP Server Enhancements
-- **Completed Tasks:**
-    - 1.1 Implemented `reuse_terminal` logic in `mcp_execute_command`.
-    - 1.2 Decreased status update interval in `startServer` to 1000ms.
-- **Goal:** New enhancements requested in `userbrief.md` have been implemented.
+- **Task Group:** Rule Enhancements (MCP Cleanup)
+- **Current Tasks:**
+    - 1.1 Add MCP Cleanup Step to `consolidate-repo` rule.
+    - 1.2 Add Cleanup Note to `experience-execution` rule.
+    - 1.3 Add Cleanup Note to `fix` rule.
+- **Goal:** Enhance MCP terminal process cleanup by adding a dedicated step in `consolidate-repo` and reminder notes in other rules.
+- **Details (Task 1.1):** Modify `consolidate-repo.mdc` Instructions to include a step calling `mcp_get_terminal_status` and then `mcp_stop_terminal_command` for finished terminals.
+- **Details (Task 1.2 & 1.3):** Add a reminder sentence about using `mcp_stop_terminal_command` proactively to the Specifics section of `experience-execution.mdc` and `fix.mdc`.
+- **Dependencies:** MCP tools (`mcp_get_terminal_status`, `mcp_stop_terminal_command`).
 
 ## Current Status
 
-- MCP server (`server.js`) now includes logic to clean up finished terminal states when `reuse_terminal` is true.
-- Background status checks now run every 1 second instead of 5.
-- No new test results available, relying on previous successful test run status.
-- Ready for context cleanup and commit.
+- Previous MCP server enhancements are complete.
+- Focus is now on modifying rules to improve MCP terminal cleanup procedures.
 
 ## Recent Decisions
 
-- Implemented tasks 1.1 and 1.2 from `tasks.md`.
-- Proceeded to `test-execution` after implementation.
-- Since tests could not be executed and no prior failures were noted, proceeded to `context-update`.
+- Decomposed the new user request into three tasks in `tasks.md`.
 
 ## Next Steps
 
-1. Clean up context files.
-2. Update `tasks.md` (move tasks to Done).
-3. Commit changes.
-4. Verify file integrity.
-5. Determine the next rule based on remaining tasks/test status.
+1. Implement Task 1.1 (Modify `consolidate-repo.mdc`).
+2. Implement Task 1.2 (Modify `experience-execution.mdc`).
+3. Implement Task 1.3 (Modify `fix.mdc`).
+4. Update `tasks.md`.
+5. Proceed to the next rule (likely `context-update` as these are documentation/rule changes).
 
 ## Important Notes
 
-- The effectiveness of the `reuse_terminal` logic should be manually verified if possible, as no automated test covers it specifically.
+- Ensure the new step in `consolidate-repo.mdc` is placed appropriately within the existing instructions (e.g., after integrity verification, before evaluation).
+
+## Lost workflow
+
+- **Reason:** Interrupted by user with new tasks in `userbrief.md` and attachment of `workflow-perdu.mdc`.
+- **Last Action:** Completed modifications to `consolidate-repo.mdc` and `experience-execution.mdc` to add MCP cleanup steps (Tasks 1.1 and 1.2 of 'Rule Enhancements'). Task 1.3 (Modify `fix.mdc`) was not started.
+- **Issue:** Examples within the modified rules might not accurately reflect the added cleanup steps.
+- **Files Concerned:** `.cursor/memory-bank/userbrief.md`, `.cursor/rules/consolidate-repo.mdc`, `.cursor/rules/experience-execution.mdc`.
+- **Next:** Need to re-evaluate `userbrief.md` using the standard workflow, likely starting from `consolidate-repo`.

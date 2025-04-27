@@ -45,13 +45,17 @@ tests/                       # Unit and integration tests
    - Delete duplicates after merging (use `rm` command for this and not the `file delete` tool)
    - Verify all memory files are in the right place
 
-4. **Cleanup task identification**: Generate tasks for tasks.md:
+4. **MCP Terminal Cleanup**: Clean up finished terminal processes.
+   - Call `mcp_get_terminal_status` to check the status of running/finished processes.
+   - For each process with a final status (e.g., 'FINISHED', 'ERROR'), call `mcp_stop_terminal_command` with its `pid` to release resources.
+
+5. **Cleanup task identification**: Generate tasks for tasks.md:
    - Identify unnecessary temporary files
    - Locate misplaced files
    - List necessary cleanup actions
    - Add these tasks to `.cursor/memory-bank/workflow/tasks.md` (without executing them directly)
 
-5. **Evaluation of user requests**: Decide next workflow step:
+6. **Evaluation of user requests**: Decide next workflow step:
    - If new requests identified in userbrief.md:
      - Clearly formulate user request extracted from userbrief.md
      - Call `request-analysis` rule to process this request
@@ -108,5 +112,12 @@ I found the following requests in the userbrief.md file:
 - [Summary of extracted requests]
 
 I will now call the request-analysis rule to process these requests. **(Consolidate-repo: 5 - Evaluation of user requests)**
+
+# Consolidate-repo: 6 - Evaluation of user requests
+I'm now evaluating if I've identified new user requests. **(Consolidate-repo: 6 - Evaluation of user requests)**
+I found the following requests in the userbrief.md file:
+- [Summary of extracted requests]
+
+I will now call the request-analysis rule to process these requests. **(Consolidate-repo: 6 - Evaluation of user requests)**
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
