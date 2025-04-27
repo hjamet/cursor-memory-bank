@@ -23,7 +23,8 @@
 - [✅] **Interruption (`ping -t` stopped via `stop_terminal_command`)**: Passed. Process stopped successfully, final output retrieved.
 - [✅] **Special Characters (`echo "String with 'quotes' ..."`)**: Passed (with caveat). Most characters handled correctly by Base64 encoding, but backticks were interpreted by `eval`.
 - [✅] **Subdirectory Execution (`cd /abs/path && pwd`)**: Passed. Command executed correctly using absolute paths.
-- [⚠️] **Observation: Immediate Return**: `mcp_MyMCP_execute_command` does not return stdout/stderr in its immediate response, even if the command finishes before the timeout. Full output must be retrieved later using `get_terminal_status` or `get_terminal_output`. This differs from the description of the completed Task 3.1 in `tasks.md`.
+- [✅] **Immediate Return (Timeout Case)**: Passed. `execute_command` returns partial stdout/stderr immediately if the command times out (e.g., `ping -n 10` with `timeout=1`).
+- [⚠️] **Immediate Return (Early Completion Case)**: Partially Failing. `execute_command` does **not** return full stdout/stderr immediately if the command finishes **before** the timeout (e.g., `echo`). Full output requires a follow-up call. This still differs from the ideal behavior described in Task 3.1.
 - [⚠️] **Observation: Reported CWD**: `get_terminal_status` consistently reports the CWD as `.../.cursor`, even though commands appear to execute from the project root.
 
 # Fichier de tests

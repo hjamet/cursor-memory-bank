@@ -84,15 +84,30 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
             // Check if the error was our specific timeout error
             if (raceError.message === 'TIMEOUT') {
                 // Timeout occurred, process is still running (or finished after timeout began)
-                // Return basic info, allowing background continuation
                 // console.log(`[ExecuteCommand] Timeout reached for PID ${pid}. Process continues.`);
                 const currentState = StateManager.findStateByPid(pid); // Get current (likely Running) state
+
+                // Read the CURRENT (partial) logs
+                let partialStdout = '';
+                let partialStderr = '';
+                try {
+                    partialStdout = await Logger.readLogLines(stdout_log, -1); // Read all available lines
+                } catch (logErr) {
+                    console.warn(`[ExecuteCommand] Error reading partial stdout log for running PID ${pid}:`, logErr.message);
+                }
+                try {
+                    partialStderr = await Logger.readLogLines(stderr_log, -1); // Read all available lines
+                } catch (logErr) {
+                    console.warn(`[ExecuteCommand] Error reading partial stderr log for running PID ${pid}:`, logErr.message);
+                }
+
                 earlyResult = {
                     pid,
                     cwd: currentState?.cwd ?? null,
-                    stdout: '',
-                    stderr: '',
-                    exit_code: null
+                    status: currentState?.status ?? 'Running', // Reflect current state
+                    exit_code: null, // Explicitly null as it's still running
+                    stdout: partialStdout, // Return partial stdout
+                    stderr: partialStderr  // Return partial stderr
                 };
             } else {
                 // Another error occurred (e.g., from completionPromise rejecting)
@@ -100,7 +115,7 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
             }
         }
 
-        // Return either the full early result or the basic PID info
+        // Return either the full early result or the partial result upon timeout
         return { content: [{ type: "text", text: JSON.stringify(earlyResult) }] };
 
     } catch (error) {
