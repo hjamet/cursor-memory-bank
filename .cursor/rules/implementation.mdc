@@ -29,7 +29,12 @@ Methodically implement tasks from a priority section and document the process.
    - Evaluate if the task is complex and requires in-depth reflection
    - If yes, use the think token: `<think>In-depth reflection using chain of thought, comparison of different implementation approaches, etc.</think>`
    - Briefly summarize the conclusions of the reflection if applicable
-   - Implement the solution
+
+   - **Decision Point:** Based on the task analysis and reflection:
+     - If the task primarily involves executing a complex command, script, or experiment (e.g., data processing, model training, performance test) AND requires analysis of the output → **Call the `experience-execution` rule instead of proceeding with direct implementation below.**
+     - Otherwise (standard code writing/modification) → Proceed with the implementation steps below.
+
+   - Implement the solution (Only if not calling `experience-execution`)
    - **(Optional) Memory Storage**: After implementation, use `mcp_servers_add_observations` to store key implementation details, decisions made (especially from `<think>`), or encountered issues/solutions in the knowledge graph, associated with an entity like 'ImplementationLog' or 'CodePattern'.
    - After each tool call, write **(Implementation - 3.number.[Section Name]: [Task Title] in progress...)**
 
@@ -37,10 +42,12 @@ Methodically implement tasks from a priority section and document the process.
    - Move section from "ToDo" to "In Progress" if necessary
    - Mark individual tasks as in progress
 
-5. **Calling the next rule**: Mandatory to choose
-   - New feature created → `test-implementation`
-   - Existing features modified → `test-execution`
-   - Only non-testable changes → `context-update`
+5. **Calling the next rule**: Mandatory to choose (Only if `experience-execution` was NOT called in step 3)
+   - If `experience-execution` was called, its own step 5 dictates the next rule (`context-update` or `fix`).
+   - Otherwise, based on the implementation done in *this* rule:
+     - New testable feature created → `test-implementation`
+     - Existing testable features modified → `test-execution`
+     - Only non-testable changes (e.g., documentation, rule edits) → `context-update`
 
 ## Specifics
 
@@ -58,6 +65,7 @@ Methodically implement tasks from a priority section and document the process.
 - `test-implementation`: If new testable feature created (ALWAYS the case for new file/symbol)
 - `test-execution`: If existing features modified
 - `context-update`: ONLY if non-testable changes (pure documentation)
+- (`experience-execution` calls `context-update` or `fix` itself)
 
 ## Example
 
@@ -96,9 +104,11 @@ I think option 2 is most appropriate as it offers a good balance between maintai
 - A main module for orchestration
 - A module for API connection management
 - A utility module for common functions
+
+**Decision Point Analysis:** This task involves writing new code (modules, functions). Although some simple commands might be run during development or testing locally, the core activity is code creation, not executing a predefined complex experiment requiring specific output analysis. Therefore, I will proceed with implementation within this rule and not call `experience-execution`.
 </think>
 
-After reflection, I determined that the best approach is to use a modular architecture with separation of concerns. This will allow better maintainability while keeping reasonable complexity.
+After reflection, I determined that the best approach is to use a modular architecture with separation of concerns. This task is primarily code modification/creation, not a complex experiment execution, so I proceed here.
 
 I begin by creating the main script with the required functionalities. **(Implementation: 3.1 - Script creation)**
 [...script implementation...]
@@ -125,7 +135,11 @@ I update the tasks.md file to reflect task progress. **(Implementation: 4 - Task
 **(Implementation: 4 - Task update)**
 
 # Implementation: 5 - Calling the next rule
-I must now call the `test-implementation` rule because I created a new testable feature.
+I did not call `experience-execution`. Since I created a new testable feature (the script), I must now call the `test-implementation` rule.
 The test-implementation rule must be called to create tests for the new feature. **(Implementation: 5 - Calling the next rule)**
+
+[...calling tool 'fetch_rules' with rule_names=["test-implementation"]...]
+
+
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

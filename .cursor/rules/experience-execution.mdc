@@ -1,0 +1,122 @@
+---
+description: Call this rule to execute complex commands that generate an experiment result to be saved.
+globs: 
+alwaysApply: false
+---
+## TLDR
+Execute potentially long-running commands (experiments, data processing, model training), analyze logs and results, document outcomes, and save observations to memory.
+
+## Instructions
+
+1.  **Planning & Preparation**: Plan the command execution.
+    *   `<think>`
+        *   Identify the exact command(s) to execute based on the task context.
+        *   Determine necessary arguments, input/output paths, and configurations.
+        *   Estimate potential execution time.
+        *   Consider if adjustments are needed for testing purposes (e.g., using a reduced dataset, fewer iterations) versus a full run.
+        *   Consult relevant project files, documentation, or `techContext.md` if needed to confirm command details.
+        *   Define expected outputs (files, database entries, log patterns).
+        *   Outline the analysis steps needed for the results.
+        *</think>`
+    *   Summarize the plan and the command(s) to be executed.
+    *   **(Experience-Execution: 1 - Planning completed)**
+
+2.  **Command Execution**: Run the planned command(s).
+    *   Use the `run_terminal_cmd` tool.
+    *   Do NOT run the command in the background (`is_background=false` implicitly).
+    *   Capture standard output and standard error.
+    *   **(Experience-Execution: 2 - Command execution initiated)**
+
+3.  **Result Analysis**: Analyze logs and outputs.
+    *   Examine the captured standard output and error streams for obvious errors or success indicators.
+    *   Check for expected generated files or other artifacts.
+    *   Verify that outputs conform to expectations (e.g., file formats, data integrity, log messages).
+    *   `<think>`
+        *   Compare results against the expected outcomes defined in the planning phase.
+        *   Identify any discrepancies, errors, or unexpected results.
+        *   Determine if the execution was successful based on the analysis.
+        *</think>`
+    *   Summarize the analysis findings.
+    *   **(Experience-Execution: 3 - Analysis completed)**
+
+4.  **Documentation & Memory**: Document results and save observations.
+    *   **4.1 Documentation**:
+        *   Create or update a relevant documentation file (e.g., in a `results/` directory, or link in a README).
+        *   Summarize the experiment/command executed, parameters used, results obtained, and analysis conclusions.
+        *   Ensure results are easily findable and linked appropriately within the project structure.
+        *   **(Experience-Execution: 4.1 - Documentation updated)**
+    *   **4.2 Memory Storage**:
+        *   Use `mcp_Memory_create_entities` and/or `mcp_Memory_add_observations`.
+        *   Create an entity representing the experiment (e.g., `Experiment:[Name]`).
+        *   Add observations detailing:
+            *   Command executed
+            *   Key parameters
+            *   Summary of results (success/failure, key metrics)
+            *   Location of detailed documentation/results files
+            *   Any significant findings or learnings
+        *   **(Experience-Execution: 4.2 - Memory updated)**
+
+5.  **Calling the next rule**: Decide the next step based on analysis.
+    *   If analysis (Step 3) indicated success and conformity → call `context-update`.
+    *   If analysis (Step 3) detected problems, errors, or non-conformity → call `fix`, providing context about the failed execution and analysis findings.
+    *   **(Experience-Execution: 5 - Calling next rule)**
+
+## Specifics
+-   This rule is intended for executing tasks that involve running commands/scripts and analyzing their output, distinct from unit testing (`test-execution`).
+-   Ensure thorough planning in Step 1 to avoid command errors.
+-   Result analysis (Step 3) is crucial for determining success or failure.
+-   Documentation and Memory storage (Step 4) are mandatory for preserving experiment context and results.
+-   Use `<think>` blocks for planning and analysis steps.
+-   Adapt command execution (e.g., reduced scope) during planning if the goal is only to test functionality rather than perform a full run.
+-   Terminal command execution issues (e.g., `[200~` prefixes) should be retried as per standard practice.
+
+## Next Rules
+-   `context-update` - If execution was successful.
+-   `fix` - If execution failed or results were non-conformant.
+
+## Example
+
+# Experience-Execution: 1 - Planning & Preparation
+<think>
+The task is to train the primary classification model.
+Command: `python src/training/train_model.py --config configs/primary_classifier.yaml --output results/primary_run_$(date +%Y%m%d)`
+Arguments: Config file specifies dataset, hyperparameters. Output dir for model and logs.
+Time: Expected ~2 hours for full run. For testing, could use `--config configs/test_classifier.yaml` (~5 mins). Current task requires full run.
+Expected outputs: `results/primary_run_*/model.pt`, `results/primary_run_*/training.log`, log file should contain "Training finished successfully".
+Analysis: Check log for success message, verify model file exists.
+</think>
+Plan: Execute full training run using primary config. Verify log message and model file.
+**(Experience-Execution: 1 - Planning completed)**
+
+# Experience-Execution: 2 - Command Execution
+Executing the training script.
+[...calling tool 'run_terminal_cmd' with command: "python src/training/train_model.py --config configs/primary_classifier.yaml --output results/primary_run_$(date +%Y%m%d)"...]
+**(Experience-Execution: 2 - Command execution initiated)**
+[...Wait for command completion...]
+
+# Experience-Execution: 3 - Result Analysis
+[...Checking log file `results/primary_run_YYYYMMDD/training.log`...]
+[...Checking for `results/primary_run_YYYYMMDD/model.pt`...]
+<think>
+Log file contains "Training finished successfully". Model file `model.pt` exists. Execution appears successful and conforms to expectations.
+</think>
+Analysis: Training completed successfully based on log message and presence of model file.
+**(Experience-Execution: 3 - Analysis completed)**
+
+# Experience-Execution: 4 - Documentation & Memory
+
+## 4.1 Documentation
+[...Creating `results/primary_run_YYYYMMDD/README.md`...]
+[...Adding execution details, parameters, link to log, summary of success to README...]
+**(Experience-Execution: 4.1 - Documentation updated)**
+
+## 4.2 Memory Storage
+[...calling tool 'mcp_Memory_create_entities' with entity: Experiment:PrimaryClassifierTrain-YYYYMMDD...]
+[...calling tool 'mcp_Memory_add_observations' with details for Experiment:PrimaryClassifierTrain-YYYYMMDD...]
+**(Experience-Execution: 4.2 - Memory updated)**
+
+# Experience-Execution: 5 - Calling the next rule
+Execution was successful. Calling `context-update`.
+**(Experience-Execution: 5 - Calling next rule)**
+[...calling tool 'fetch_rules' with rule_names=["context-update"]...]
+
