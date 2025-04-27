@@ -25,12 +25,12 @@ Methodically implement tasks from a priority section and document the process.
 
 3. **Task implementation**: For each task in the section
    - Display: `## Implementation - 3.number.[Section Name]: [Task Title]`
-   - **(Optional) Memory Lookup**: Before starting, use `mcp_servers_search_nodes` to find relevant patterns, past implementations, or frequent errors related to the task/files.
+   - **Memory Lookup (Strongly Recommended)**: Before starting, use `mcp_servers_search_nodes` to find relevant patterns, past implementations, or frequent errors related to the task/files. *Helps leverage existing knowledge and avoid pitfalls.*
    - Evaluate if the task is complex and requires in-depth reflection
    - If yes, use the think token: `<think>In-depth reflection using chain of thought, comparison of different implementation approaches, etc.</think>`
    - Briefly summarize the conclusions of the reflection if applicable
    - Implement the solution
-   - **(Optional) Memory Storage**: After implementation, use `mcp_servers_add_observations` to store key implementation details, decisions made (especially from `<think>`), or encountered issues/solutions in the knowledge graph, associated with an entity like 'ImplementationLog' or 'CodePattern'.
+   - **Memory Storage (Mandatory if Applicable)**: After implementation, if the task involved significant decisions (e.g., from `<think>`), complex logic, encountered notable issues/solutions, or established a reusable pattern, **you MUST** use `mcp_servers_add_observations` to store these key details in the knowledge graph, associated with an entity like 'ImplementationLog' or 'CodePattern:[PatternName]'. *Essential for learning and future reference.*
    - After each tool call, write **(Implementation - 3.number.[Section Name]: [Task Title] in progress...)**
 
 4. **Task update**: Update tasks.md

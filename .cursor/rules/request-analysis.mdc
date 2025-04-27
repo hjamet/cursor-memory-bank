@@ -12,7 +12,7 @@ Analyze user request, explore existing code and search for additional informatio
    - Analyze direct request or request transmitted by calling rule
    - Identify requested features or modifications
    - Extract important keywords and concepts
-   - **(Optional) Memory Lookup**: Use `mcp_servers_search_nodes` with keywords to find relevant past analyses or context in the knowledge graph.
+   - **Memory Lookup (Strongly Recommended)**: Use `mcp_servers_search_nodes` with keywords to find relevant past analyses or context in the knowledge graph. *Checking for existing context prevents redundant analysis.*
 
 2. **Code analysis**: Identify concerned files and symbols:
    - ONLY AUTHORIZED: up to 3 semantic searches (code base search) based on request keywords
@@ -32,7 +32,7 @@ Analyze user request, explore existing code and search for additional informatio
    - Note consulted sources
 
 5. **Conclusion**: Summarize information and necessary changes
-   - **(Optional) Memory Storage**: Use `mcp_servers_add_observations` to store key findings (request summary, identified files/symbols, conclusion) in the knowledge graph for future reference, associated with an entity like 'RequestAnalysisContext'.
+   - **Memory Storage (Mandatory if Applicable)**: If the analysis yielded significant findings (e.g., complex request summary, key files/symbols identified, important conclusions drawn from research), **you MUST** use `mcp_servers_add_observations` to store these key findings in the knowledge graph for future reference, associated with an entity like 'RequestAnalysisContext'. *Preserves analysis results for future workflows.*
 
 6. **Call next rule**:
    - If complex/multi-step request → `task-decomposition`
