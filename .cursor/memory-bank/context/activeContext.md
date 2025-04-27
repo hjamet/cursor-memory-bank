@@ -2,16 +2,11 @@
 
 ## Current implementation context
 
-- **Task Group:** Rule Modifications (ToDo Section)
-- **Current Task:** 1.1 Update `context-update` Rule
-- **Goal:** Modify the `context-update` rule (`.cursor/rules/context-update.mdc`) to use the `mcp_MyMCP_commit` tool instead of the deprecated `run_terminal_cmd` for `git commit`.
-- **Next Tasks (ToDo):**
-    - 1.2 Update `test-execution` Rule
-    - 1.5 Correct `consolidate-repo` Example
-- **Files:** `.cursor/rules/context-update.mdc`, `.cursor/memory-bank/workflow/tasks.md`
-- **Current Implementation:** 3.4 Remove `[200~` Terminal Error Mentions
-- **Goal:** Search all rule files (`.cursor/rules/*.mdc`) for the obsolete warning note about the `[200~` terminal error and remove it. This note is no longer relevant with the new MCP tools.
-- **Status:** Completed. All identified rule files (`consolidate-repo.mdc`, `context-update.mdc`, `experience-execution.mdc`, `implementation.mdc`) have been edited.
+- **Task Group:** MCP Server Enhancements (In Progress)
+- **Current Task:** 2.1 Add `send_terminal_input` MCP Tool (Validate Implementation & Test)
+- **Goal:** Validate that the implementation of the `send_terminal_input` tool exists in `server.js` and ensure its associated test (`tests/test_mcp_send_input.js`) runs successfully, addressing any issues found in the test environment (ToDo Tasks 1.1 & 1.2).
+- **Context:** The `tasks.md` indicates implementation was added but needs validation. The test environment itself needs fixing (ToDo Tasks 1.1, 1.2). The `workflow-perdu` interruption previously noted the tool was declared but not implemented; this needs re-verification.
+- **Files:** `.cursor/mcp/mcp-commit-server/server.js`, `tests/test_mcp_send_input.js`, `.cursor/memory-bank/workflow/tasks.md`, `.cursor/memory-bank/workflow/tests.md`
 
 ## Current Status
 
@@ -30,12 +25,13 @@
 
 ## Next Steps
 
-- Call `test-implementation` rule as dictated by the `implementation` rule for new testable features.
+- Proceed with Task 2.1 validation within the `implementation` rule.
+- Since this involves validating an existing (potentially modified) feature and its test, the next rule after successful validation/implementation will likely be `test-execution`.
 
 ## Important Notes
 
-- The task 2.1 (`send_terminal_input`) implementation was previously completed, but its test was interrupted. It remains in the 'In Progress' section but will be addressed after the current 'ToDo' tasks.
-- Need to clean up the duplicated Task 2.1 entry in `tasks.md`.
+- The status of the test for `send_terminal_input` is currently unknown.
+- Need to first verify if the implementation code for `send_terminal_input` exists in the current `server.js`.
 - Strict adherence to the rule workflow even if it seems slightly redundant (calling `test-implementation` when the test exists) ensures process consistency.
 
 ## Lost workflow
@@ -64,3 +60,10 @@
 ## Documentation Context
 - **Relevant Files:** Rules files (`*.mdc`), potentially `server.js` documentation if `send_terminal_input` were implemented.
 - **Key Concepts:** MCP Server functionality, rule file updates.
+
+## Workflow Interruption - New Chat
+<SYSTEM>
+Workflow interrupted by new-chat rule. If you are reading this and the user has just called the `system` rule, it means that you are in this new chat and that you must now resume the workflow where you left off. Exceptionally, you will be able to skip steps to resume directly to the next rule once you have finished reading your context files.
+Resume from rule: implementation
+Previous detailed context summary: The agent was about to execute the first instruction ('Task analysis') of the 'implementation' rule. This involved reading '.cursor/memory-bank/workflow/tasks.md' to identify the priority task section (In Progress or ToDo). The agent had fetched the implementation rule and prepared the read_file call for tasks.md, but hadn't executed it yet.
+</SYSTEM>

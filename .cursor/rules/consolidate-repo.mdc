@@ -77,39 +77,51 @@ tests/                       # Unit and integration tests
 ## Next Rules
 
 - `request-analysis` - If new requests identified in userbrief.md
-- `context-update` - If no new request identified
+- `context-update` - If no new request identified in userbrief.md
 
 ## Example
 
-# Consolidate-repo: 1 - Processing userbrief.md
-I begin by analyzing the content of `.cursor/memory-bank/userbrief.md`. (Consolidate-repo: 1 - Processing userbrief.md)
-[...reading and analyzing userbrief.md content...]
-I've identified several user requests that I will mark as follows:
-- Tasks to perform: 🔄 (moving to "Processing")
-- Long-term preferences: 📌 (moving to "Precisions")
-(Consolidate-repo: 1 - Processing userbrief.md)
+# Consolidate-repo: 1 - Processing userbrief.md  
+I begin by analyzing the content of `.cursor/memory-bank/userbrief.md`. **(Consolidate-repo: 1 - Processing userbrief.md)**  
+[...reading and analyzing userbrief.md content...]  
+I've identified several user requests that I will mark as follows:  
+- Tasks to perform: 🔄 (moving to "Processing")  
+- Long-term preferences: 📌 (moving to "Precisions")  
+**(Consolidate-repo: 1 - Processing userbrief.md)**  
 
-# Consolidate-repo: 2 - Organizing userbrief.md
-I'm now reorganizing the content of .cursor/memory-bank/userbrief.md according to the 3-section structure. **(Consolidate-repo: 2 - Organizing userbrief.md)**
-[...content reorganization...]
-I've applied appropriate statuses to the different elements. **(Consolidate-repo: 2 - Organizing userbrief.md)**
+# Consolidate-repo: 2 - Organizing userbrief.md  
+I'm now reorganizing the content of `.cursor/memory-bank/userbrief.md` according to the 3-section structure. **(Consolidate-repo: 2 - Organizing userbrief.md)**  
+[...content reorganization...]  
+I've applied appropriate statuses to the different elements.  
+**(Consolidate-repo: 2 - Organizing userbrief.md)**  
 
-# Consolidate-repo: 3 - Integrity verification
-I'm now verifying the integrity of memory files. **(Consolidate-repo: 3 - Integrity verification)**
-find . -type f -name "*.md"
-[...analyzing command results...]
-I've identified some duplicates that I've merged with main files. **(Consolidate-repo: 3 - Integrity verification)**
+# Consolidate-repo: 3 - Integrity verification  
+I'm now verifying the integrity of memory files. **(Consolidate-repo: 3 - Integrity verification)**  
+find . -type f -name "*.md"  
+[...analyzing command results...]  
+I've identified some duplicates that I've merged with the main files. Duplicates removed.  
+**(Consolidate-repo: 3 - Integrity verification)**  
 
-# Consolidate-repo: 4 - Cleanup task identification
-I'm now identifying necessary cleanup tasks. **(Consolidate-repo: 4 - Cleanup task identification)**
-[...task identification...]
-I've added these tasks to `.cursor/memory-bank/workflow/tasks.md` for later validation. **(Consolidate-repo: 4 - Cleanup task identification)**
+# Consolidate-repo: 4 - MCP Terminal Cleanup  
+I'm now checking MCP terminal processes for cleanup. **(Consolidate-repo: 4 - MCP Terminal Cleanup)**  
+Calling `mcp_get_terminal_status`...  
+[...retrieving process statuses...]  
+I've found some finished processes (`FINISHED`, `ERROR`). Stopping these with `mcp_stop_terminal_command` to free up resources.  
+Cleanup complete.  
+**(Consolidate-repo: 4 - MCP Terminal Cleanup)**  
 
-# Consolidate-repo: 5 - Evaluation of user requests
-I'm now evaluating if I've identified new user requests. **(Consolidate-repo: 5 - Evaluation of user requests)**
-I found the following requests in the userbrief.md file:
-- [Summary of extracted requests]
+# Consolidate-repo: 5 - Cleanup task identification  
+I'm now identifying necessary cleanup tasks. **(Consolidate-repo: 5 - Cleanup task identification)**  
+[...task identification...]  
+I've added these tasks to `.cursor/memory-bank/workflow/tasks.md` for later validation.  
+**(Consolidate-repo: 5 - Cleanup task identification)**  
 
-I will now call the request-analysis rule to process these requests. **(Consolidate-repo: 5 - Evaluation of user requests)**
+# Consolidate-repo: 6 - Evaluation of user requests  
+I'm now evaluating if I've identified new user requests. **(Consolidate-repo: 6 - Evaluation of user requests)**  
+I found the following requests in the userbrief.md file:  
+- [Summary of extracted requests]  
 
-[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
+I will now call the `request-analysis` rule to process these requests.  
+**(Consolidate-repo: 6 - Evaluation of user requests)**  
+
+[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)  

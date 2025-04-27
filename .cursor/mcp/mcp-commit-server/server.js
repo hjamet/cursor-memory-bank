@@ -827,6 +827,50 @@ try {
 
 // --- New MCP Tools --- END ---
 
+// --- send_terminal_input Tool --- START ---
+server.tool(
+    'send_terminal_input',
+    {
+        pid: z.number().int().describe("The PID of the running process to send input to."),
+        input: z.string().describe("The string to send to the process's standard input.")
+    },
+    async ({ pid, input }) => {
+        // console.log(`[MyMCP DEBUG] send_terminal_input handler START - PID: ${pid}, Input length: ${input.length}`);
+        const childProcess = activeProcesses.get(pid);
+        const processState = terminalStates.find(state => state.pid === pid);
+
+        if (!childProcess || !processState) {
+            throw new Error(`Process with PID ${pid} not found or not managed by this server.`);
+        }
+
+        if (processState.status !== 'Running') {
+            throw new Error(`Process with PID ${pid} is not currently running (Status: ${processState.status}). Cannot send input.`);
+        }
+
+        // Check if stdin exists and is writable
+        if (!childProcess.stdin || !childProcess.stdin.writable || childProcess.stdin.destroyed) {
+            console.error(`[MyMCP ERROR] Stdin not available or writable for PID ${pid}. Writable: ${childProcess.stdin?.writable}, Destroyed: ${childProcess.stdin?.destroyed}`);
+            throw new Error(`Standard input for process PID ${pid} is not available or writable.`);
+        }
+
+        try {
+            const inputToSend = input + '\n'; // Append newline crucial for many interactive programs
+            const writeSuccess = childProcess.stdin.write(inputToSend);
+            if (!writeSuccess) {
+                console.warn(`[MyMCP WARN] High water mark reached for stdin buffer of PID ${pid}. Input might be buffered.`);
+                // Application should ideally handle backpressure, but for now we just warn.
+            }
+            // console.log(`[MyMCP DEBUG] Successfully wrote input to PID ${pid}. Write success: ${writeSuccess}`);
+            return { content: [{ type: "text", text: `Successfully sent input to process PID ${pid}.` }] };
+        } catch (error) {
+            // Catch errors like EPIPE if the process closed stdin unexpectedly
+            console.error(`[MyMCP ERROR] Error writing input to PID ${pid}:`, error);
+            throw new Error(`Failed to write input to process PID ${pid}: ${error.message}`);
+        }
+    }
+);
+// --- send_terminal_input Tool --- END ---
+
 // Create the transport and connect the server
 async function startServer() {
     ensureLogsDirExists(); // Ensure logs directory exists before starting
