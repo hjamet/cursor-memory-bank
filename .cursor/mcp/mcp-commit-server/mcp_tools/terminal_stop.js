@@ -4,60 +4,75 @@ import * as Logger from '../lib/logger.js';
 
 /**
  * MCP Tool handler for 'stop_terminal_command'.
- * Attempts to stop processes, retrieves final output, and cleans up state/logs.
+ * Stops specified terminal processes and retrieves final output if requested.
  */
-export async function handleStopTerminalCommand({ pids, lines = 100 }) {
+export async function handleStopTerminalCommand({ pids, lines = 0 /* Default to 0 lines = don't read logs */ }) {
     const results = [];
 
     for (const pid of pids) {
-        let stdoutContent = `(Could not read stdout for PID ${pid})`;
-        let stderrContent = `(Could not read stderr for PID ${pid})`;
-        let finalStatus = `Processing PID ${pid}.`;
-
         const state = StateManager.findStateByPid(pid);
+        let stdoutContent = '';
+        let stderrContent = '';
+        let stopStatus = '';
 
-        if (!state) {
-            finalStatus = `PID ${pid} not found in state.`;
-            results.push({ pid, status: finalStatus, stdout: '', stderr: '' });
-            continue;
+        // Only attempt to read logs if lines > 0 AND log paths exist
+        if (lines > 0 && state) {
+            Logger.logDebug(`[StopCommand] Attempting to read last ${lines} lines for PID ${pid}`);
+            try {
+                // Check if log paths are actually strings before reading
+                if (typeof state.stdout_log === 'string') {
+                    stdoutContent = await Logger.readLogLines(state.stdout_log, lines);
+                } else {
+                    stdoutContent = "[Log path not available]";
+                }
+            } catch (logReadErr) {
+                console.error(`[StopCommand] Error reading stdout log for PID ${pid}:`, logReadErr);
+                stdoutContent = `[Stdout Log Read Error: ${logReadErr.code || logReadErr.message}]`;
+            }
+            try {
+                if (typeof state.stderr_log === 'string') {
+                    stderrContent = await Logger.readLogLines(state.stderr_log, lines);
+                } else {
+                    stderrContent = "[Log path not available]";
+                }
+            } catch (logReadErr) {
+                console.error(`[StopCommand] Error reading stderr log for PID ${pid}:`, logReadErr);
+                stderrContent = `[Stderr Log Read Error: ${logReadErr.code || logReadErr.message}]`;
+            }
+        } else if (lines > 0) {
+            // State not found, cannot read logs
+            stdoutContent = "[State not found for log reading]";
+            stderrContent = "[State not found for log reading]";
         }
 
-        // 1. Read final logs before attempting kill
+        // Attempt to kill the process
         try {
-            stdoutContent = await Logger.readLogLines(state.stdout_log, lines);
-            stderrContent = await Logger.readLogLines(state.stderr_log, lines);
-        } catch (readErr) {
-            console.warn(`[StopCommand] Error reading logs for PID ${pid}:`, readErr);
-            // Keep default error message for logs
+            stopStatus = await ProcessManager.killProcess(pid);
+        } catch (killError) {
+            console.error(`[StopCommand] Error killing process ${pid}:`, killError);
+            stopStatus = `Error during kill attempt: ${killError.message}`;
         }
 
-        // 2. Attempt termination using process manager
-        const terminationMsg = await ProcessManager.killProcess(pid);
-
-        // 3. Remove state entry using state manager
-        await StateManager.removeStateByPid(pid);
-        // Note: The killProcess relies on the process 'exit' handler (setup in spawnProcess)
-        // to update the state to Success/Failure before it's removed here.
-        // If killProcess is called before the exit event fires, the state might be removed while 'Running'.
-        // This is acceptable as the process is being forcefully stopped.
-
-        // 4. Delete log files
-        let logCleanupMsg = 'Log cleanup successful.';
+        // Attempt to clean up state and potentially log files (if they ever existed)
         try {
-            await Logger.deleteLogFiles(state);
-        } catch (logErr) {
-            logCleanupMsg = 'Log cleanup failed.';
-            console.warn(`[StopCommand] Error deleting logs for PID ${pid}:`, logErr);
+            // Even if logs weren't used, try deleting based on PID just in case
+            await Logger.deleteLogFiles(pid);
+            await StateManager.removeStateByPid(pid);
+            stopStatus += " Log cleanup successful.";
+        } catch (cleanupError) {
+            console.error(`[StopCommand] Error cleaning up state/logs for PID ${pid}:`, cleanupError);
+            stopStatus += " Error during cleanup.";
         }
 
-        // Combine status messages
-        finalStatus = `${terminationMsg} ${logCleanupMsg}`;
-
-        results.push({ pid, status: finalStatus, stdout: stdoutContent, stderr: stderrContent });
+        results.push({
+            pid: pid,
+            status: stopStatus,
+            stdout: stdoutContent, // Include content (or error) if reading was attempted
+            stderr: stderrContent
+        });
     }
 
-    // Persist state changes made by removeStateByPid (already handled inside StateManager)
-
-    // Return results for all processed PIDs
     return { content: [{ type: "text", text: JSON.stringify(results) }] };
-} 
+}
+
+export { }; // Add empty export to make it a module 

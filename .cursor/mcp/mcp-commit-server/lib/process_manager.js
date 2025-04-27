@@ -1,248 +1,181 @@
-import { spawn } from 'child_process';
-// import { execa } from 'execa'; // REVERTED
+import { execa } from 'execa';
+// import { spawn } from 'child_process'; // REVERTED
 import path from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
 import * as StateManager from './state_manager.js';
 import * as Logger from './logger.js';
+// import os from 'os'; // No longer needed
+// import fs from 'fs/promises'; // No longer needed
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// const projectRoot = path.resolve(__dirname, '../../..'); // Assuming lib/ is two levels down
-// Use the workspace root passed via environment variable or a sensible default
 const workspaceRoot = process.env.MCP_WORKSPACE_ROOT || path.resolve(__dirname, '../../../..'); // Go up one more level to get actual root
+const MAX_BUFFER_SIZE = 10 * 1024 * 1024; // Global constant (10MB)
+
+/**
+ * Reads file content safely, returning empty string on ENOENT.
+ * @param {string} filePath 
+ * @returns {Promise<string>}
+ */
+async function readFileSafe(filePath) {
+    try {
+        return await fs.readFile(filePath, 'utf8');
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            return ''; // File not found, return empty string
+        } else {
+            console.error(`[ProcessManager] Error reading temp file ${filePath}:`, error);
+            return `[Error reading file: ${error.message}]`;
+        }
+    }
+}
+
+/**
+ * Deletes a file safely, ignoring ENOENT errors.
+ * @param {string} filePath 
+ */
+async function unlinkSafe(filePath) {
+    try {
+        await fs.unlink(filePath);
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            console.error(`[ProcessManager] Error deleting temp file ${filePath}:`, error);
+        }
+    }
+}
 
 /**
  * Spawns a process, manages its state, and logs its output.
  * @param {string} command The command line to execute.
- * @returns {Promise<{pid: number, exit_code: number | null, stdout_log: string, stderr_log: string}>} Promise resolving with initial info, or rejecting on immediate spawn error.
+ * @returns {Promise<{pid: number, completionPromise: Promise}>} Promise resolving with initial info.
  */
 export async function spawnProcess(command) {
     let child;
     let pid;
-    let stdoutBuffer = ''; // Buffer pour stdout
-    let stderrBuffer = ''; // Buffer pour stderr
     let resolveCompletion;
     const completionPromise = new Promise(resolve => { resolveCompletion = resolve; });
-    let capturedExitCode = null;
     const startTime = new Date().toISOString();
 
     try {
-        // Determine how to spawn based on the command string
-        let executable;
-        let args;
-        let spawnOptions = {
+        // Using execa with shell: true and default buffering as the final state
+        const execaOptions = {
+            shell: true, // Use shell for robustness, execa handles escaping
+            stdio: 'pipe', // Required for execa to buffer output
             detached: true,
-            stdio: ['ignore', 'pipe', 'pipe'],
             cwd: workspaceRoot,
-            // Force shell: false par défaut, sauf cas spécifiques
-            shell: false
+            reject: false, // Handle completion manually based on result
+            env: { ...process.env, PYTHONUNBUFFERED: '1' } // Keep PYTHONUNBUFFERED just in case
         };
-
-        // Specific handling for Git Bash on Windows
-        const gitBashPath = "C:\\Program Files\\Git\\bin\\bash.exe"; // Use escaped backslashes
-        if (process.platform === 'win32' && command.startsWith(`"${gitBashPath}"`)) {
-            const match = command.match(/^"(.*?)"\s+-c\s+"(.*)"$/);
-            if (match && match[1] === gitBashPath) {
-                executable = gitBashPath;
-                args = ['-c', match[2]]; // Pass the command string as an argument to -c
-            } else {
-                executable = command; // The whole string
-                args = [];
-                spawnOptions.shell = true; // Revert to shell: true for this case
-            }
-        } else if (process.platform === 'win32') {
-            // Sur Windows, pour commandes générales, utiliser cmd /c explicitement avec shell: false
-            executable = 'cmd.exe';
-            args = ['/c', command]; // Passe toute la commande à /c
-            spawnOptions.shell = false; // Assurer shell: false
-        } else {
-            // Pour les autres OS (ou si on veut un vrai shell interactif plus tard)
-            executable = command; // Ou peut-être /bin/sh ?
-            args = [];
-            spawnOptions.shell = true; // Revenir à shell: true pour non-Windows par défaut ?
-        }
-
-        // Spawn the process
-        try {
-            Logger.logDebug(`[PID ${pid}] Spawning: Executable: ${executable}, Args: [${args.join(', ')}], Options: ${JSON.stringify(spawnOptions)}`);
-            child = spawn(executable, args, spawnOptions);
-        } catch (spawnErr) {
-            Logger.logDebug(`[PID ${pid}] Spawn initial failed: ${spawnErr.message}`);
-            // Pas de retry automatique avec shell: true si on force shell: false
-            throw spawnErr;
-        }
+        Logger.logDebug(`[PID UNKNOWN YET] Spawning with execa (buffered, shell:true): Command: ${command}, Options: ${JSON.stringify(execaOptions)}`);
+        child = execa(command, execaOptions);
 
         pid = child.pid;
         if (pid === undefined) {
-            throw new Error('Failed to get PID for spawned process.');
+            throw new Error('Failed to get PID from execa process.');
         }
+        Logger.logDebug(`[PID ${pid}] Spawned successfully with execa (buffered, shell:true).`);
 
-        // Supprimer création et piping vers streams/fichiers logs
-        /*
-        const streams = Logger.createLogStreams(pid);
-        stdoutLogPath = streams.stdoutLogPath;
-        stderrLogPath = streams.stderrLogPath;
-        stdoutStream = streams.stdoutStream;
-        stderrStream = streams.stderrStream;
-        child.stdout.pipe(stdoutStream);
-        child.stderr.pipe(stderrStream);
-        */
-        const MAX_BUFFER_SIZE = 10 * 1024 * 1024; // Limite de 10MB par buffer (ajustable)
-
-        // Capturer stdout en mémoire
-        child.stdout.on('data', (data) => {
-            const dataStr = data.toString();
-            Logger.logDebug(`[PID ${pid}] stdout DATA event. Length: ${dataStr.length}`);
-            if (stdoutBuffer.length < MAX_BUFFER_SIZE) {
-                stdoutBuffer += dataStr;
-                if (stdoutBuffer.length > MAX_BUFFER_SIZE) {
-                    stdoutBuffer = stdoutBuffer.substring(0, MAX_BUFFER_SIZE) + '\n[Output Truncated]\n';
-                }
-            } // Sinon, ignorer les données supplémentaires
-        });
-
-        // Capturer stderr en mémoire
-        child.stderr.on('data', (data) => {
-            const dataStr = data.toString();
-            Logger.logDebug(`[PID ${pid}] stderr DATA event. Length: ${dataStr.length}`);
-            if (stderrBuffer.length < MAX_BUFFER_SIZE) {
-                stderrBuffer += dataStr;
-                if (stderrBuffer.length > MAX_BUFFER_SIZE) {
-                    stderrBuffer = stderrBuffer.substring(0, MAX_BUFFER_SIZE) + '\n[Output Truncated]\n';
-                }
-            } // Sinon, ignorer les données supplémentaires
-        });
-
-        // Add entry to state (sans log paths)
         const newStateEntry = {
             pid,
             command,
-            cwd: spawnOptions.cwd,
+            cwd: execaOptions.cwd,
             status: 'Running',
             exit_code: null,
-            stdout_log: null, // Pas de fichier log
-            stderr_log: null, // Pas de fichier log
+            stdout_log: null, // No external log files with buffered approach
+            stderr_log: null,
             startTime,
             endTime: null,
         };
-        // Utiliser addState qui n'attend pas persist
         StateManager.addState(newStateEntry).catch(e => console.error("Error adding initial state:", e));
 
-        // --- Process Event Handling ---
-        let finalUpdateDone = false;
+        (async () => {
+            let finalState = {};
+            let result = null;
+            try {
+                result = await child;
+                Logger.logDebug(`[PID ${pid}] execa completed. Exit Code: ${result.exitCode}, Signal: ${result.signal}`);
 
-        const handleExit = async (code, signal) => {
-            capturedExitCode = code ?? (signal ? 1 : 0);
-            Logger.logDebug(`[PID ${pid}] EXIT event. Stored code: ${capturedExitCode}`);
-            const status = (capturedExitCode === 0) ? 'Success' : 'Failure';
-            const endTime = new Date().toISOString();
-            // Mise à jour initiale pour statut/code/temps (n'attend pas persist)
-            StateManager.updateState(pid, { status: status, exit_code: capturedExitCode, endTime: endTime })
-                .catch(e => console.error("Error updating state on exit:", e));
-        };
+                const finalStatus = result.exitCode === 0 ? 'Success' : 'Failure';
+                finalState = {
+                    pid: pid,
+                    command: command,
+                    cwd: execaOptions.cwd,
+                    startTime: startTime,
+                    status: finalStatus,
+                    exit_code: result.exitCode,
+                    endTime: new Date().toISOString(),
+                    stdout: result.stdout ?? '', // Use execa result stdout (might still be empty for Python)
+                    stderr: result.stderr ?? '', // Use execa result stderr (might still be empty for Python)
+                    stdout_log: null,
+                    stderr_log: null,
+                };
 
-        const handleClose = async (code, signal) => {
-            Logger.logDebug(`[PID ${pid}] CLOSE event. Using stored code: ${capturedExitCode}.`);
-            if (finalUpdateDone) { return; }
-            finalUpdateDone = true;
+            } catch (error) {
+                console.error(`[ProcessManager] Unexpected Error awaiting execa process ${pid}:`, error);
+                Logger.logDebug(`[PID ${pid}] execa awaited promise failed unexpectedly: ${error.message}`);
+                finalState = {
+                    pid: pid,
+                    command: command,
+                    cwd: execaOptions.cwd,
+                    startTime: startTime,
+                    status: 'Failure',
+                    exit_code: error.exitCode ?? null,
+                    endTime: new Date().toISOString(),
+                    stdout: error.stdout ?? '',
+                    stderr: (error.stderr ?? '') + `\nExeca Error: ${error.message}`,
+                    stdout_log: null,
+                    stderr_log: null,
+                };
+            }
 
-            // Construire l'état final avec les buffers mémoire
-            const stateToResolve = {
-                // Lire les infos non volatiles de l'état si besoin
-                // mais construire l'essentiel directement
-                pid: pid,
-                command: command,
-                cwd: spawnOptions.cwd,
-                startTime: startTime,
-                // Fin
-                status: (capturedExitCode === 0) ? 'Success' : 'Failure',
-                exit_code: capturedExitCode,
-                endTime: new Date().toISOString(),
-                stdout: stdoutBuffer, // Utiliser le buffer stdout
-                stderr: stderrBuffer, // Utiliser le buffer stderr
-                stdout_log: null,
-                stderr_log: null,
-            };
-
-            // Mettre à jour l'état final pour la persistance (sans logs)
+            // Final state update for persistence
             const finalUpdatePayload = {
-                status: stateToResolve.status,
-                exit_code: stateToResolve.exit_code,
-                endTime: stateToResolve.endTime,
+                status: finalState.status,
+                exit_code: finalState.exit_code,
+                endTime: finalState.endTime,
                 stdout_log: null,
                 stderr_log: null,
             };
             StateManager.updateState(pid, finalUpdatePayload).catch(err => {
-                console.error(`[ProcessManager] Background persistence error for PID ${pid} in handleClose:`, err);
+                console.error(`[ProcessManager] Background persistence error for PID ${pid} after execa completion:`, err);
             });
 
-            if (resolveCompletion) resolveCompletion(stateToResolve);
-        };
+            Logger.logDebug(`[PID ${pid}] Resolving completion promise with final state (buffered, shell:true).`);
+            resolveCompletion(finalState);
+        })();
 
-        const handleError = async (err) => {
-            Logger.logDebug(`[PID ${pid}] ERROR event. Error: ${err.message}`);
-            if (finalUpdateDone) { return; }
-            finalUpdateDone = true;
-            console.error(`[ProcessManager] Error event for child process ${pid}:`, err);
-
-            const errorEndTime = new Date().toISOString();
-            // Mise à jour pour persistance
-            StateManager.updateState(pid, { status: 'Failure', exit_code: null, endTime: errorEndTime, stdout_log: null, stderr_log: null })
-                .catch(e => console.error("Error updating state on error:", e));
-
-            // Construire état à résoudre
-            const stateToResolveOnError = {
-                pid: pid,
-                command: command,
-                cwd: spawnOptions.cwd,
-                startTime: startTime,
-                status: 'Failure',
-                exit_code: null,
-                endTime: errorEndTime,
-                stdout: stdoutBuffer, // Inclure ce qui a été bufferisé
-                stderr: stderrBuffer + (stderrBuffer ? '\n' : '') + `Process Error: ${err.message}`, // Ajouter l'erreur
-                stdout_log: null,
-                stderr_log: null,
-            };
-
-            if (resolveCompletion) resolveCompletion(stateToResolveOnError);
-        };
-
-        // Register event handlers
-        child.on('exit', handleExit);
-        child.on('close', handleClose);
-        child.on('error', handleError);
-
-        // Retourner seulement PID et promesse
         return { pid, completionPromise };
+
     } catch (err) {
-        console.error(`[ProcessManager] Error during spawnProcess setup for command "${command}":`, err);
-        // Pas de streams à fermer ici
-        // Tenter maj état si PID existe ?
-        if (pid) {
-            try {
-                await StateManager.updateState(pid, {
-                    status: 'Failure',
-                    exit_code: null,
-                    endTime: new Date().toISOString(),
-                    stdout_log: null,
-                    stderr_log: null
-                });
-            } catch (stateErr) { }
+        console.error(`[ProcessManager] Error during execa setup for command "${command}":`, err);
+        Logger.logDebug(`[PID UNKNOWN] Execa setup error details: ${JSON.stringify(err)}`);
+        if (resolveCompletion) {
+            const errorState = {
+                pid: null, command: command, cwd: workspaceRoot, startTime: startTime,
+                status: 'Failure', exit_code: null, endTime: new Date().toISOString(),
+                stdout: '', stderr: `Execa Setup Error: ${err.message}`, stdout_log: null, stderr_log: null
+            };
+            resolveCompletion(errorState);
+            Logger.logDebug(`[PID UNKNOWN] Resolved completion promise with setup error state.`);
+        } else {
+            Logger.logDebug(`[PID UNKNOWN] Setup error, but resolveCompletion was null.`);
         }
         throw err;
     }
 }
 
 /**
- * Kills a process.
+ * Kills a process managed by execa.
  * @param {number} pid The process ID of the process to kill.
- * @returns {Promise<string>} Promise that resolves with a status message when the kill attempt is done.
+ * @returns {Promise<string>} Promise resolving with status message.
  */
 export async function killProcess(pid) {
+    // Find the execa child process instance associated with the PID?
+    // This is tricky because we only store state, not the live child object.
+    // Let's stick to process.kill for now, assuming execa doesn't fundamentally change PID behavior.
+    // TODO: Revisit if execa provides a better way to manage/kill detached processes by PID.
     try {
-        // Check if process exists using signal 0
         process.kill(pid, 0);
     } catch (e) {
         if (e.code === 'ESRCH') {

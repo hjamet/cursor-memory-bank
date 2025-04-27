@@ -1,5 +1,10 @@
 # Test Status
 
+- [❌] **MCP Python Execution Test**: Failed (Latest Run: Current Cycle)
+  - Command: `python -c "import sys; print(...); sys.stderr.write(...); sys.exit(55)"`
+  - Result: `exit_code: 1`, `stdout: ""`, `stderr: ""`
+  - Expected: `exit_code: 55`, correct `stdout`/`stderr`.
+  - Issue: Execution via `cmd.exe /c python ...` does not correctly report exit code or capture stdio.
 - [✅] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): **PASSED** (Latest Run: Current Cycle - Fix Implemented)
 - [✅] User curl test (MINGW64, no jq): Passed (Latest Run: 2025-04-27 - Required `tr -d '\r'` before `bash` to fix CRLF issue causing `: command not found`)
 - [✅] `test_curl_install.sh`: Passed (Latest Run: 2025-04-27 - Fixed no-jq subtest failures related to `--target` option, log file checking, and path extraction)

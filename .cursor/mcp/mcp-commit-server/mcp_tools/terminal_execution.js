@@ -89,13 +89,6 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout = 
             };
         }
 
-        // DEBUG: Log the exact response object before stringifying
-        try {
-            console.error(`[ExecuteCommand Debug] Response object for PID ${pid}:`, JSON.stringify(response));
-        } catch (e) {
-            console.error(`[ExecuteCommand Debug] Error stringifying response for PID ${pid}:`, e);
-        }
-
         return { content: [{ type: "text", text: JSON.stringify(response) }] };
 
     } catch (error) {

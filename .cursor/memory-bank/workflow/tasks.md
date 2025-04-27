@@ -1,4 +1,5 @@
 # ToDo
+- [ ] **Investigate Python Output Capture**: Determine why stdout/stderr from Python processes are not captured by the MCP server on Windows, despite successful execution (exit code 0) and multiple implementation attempts (spawn, execa, shell options). Output capture works for non-Python commands like `echo`. (Status: Blocked - Environment Issue Suspected)
 
 # In Progress
 
