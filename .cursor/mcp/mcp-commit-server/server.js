@@ -298,10 +298,9 @@ server.tool(
 
         const startTime = new Date().toISOString();
 
-        // --- Revert to Previous State (stdio: 'pipe') ---
+        // Listeners to capture initial output
         const stdoutListener = (data) => { initialStdout += data.toString(); };
         const stderrListener = (data) => { initialStderr += data.toString(); };
-        // --- End Revert ---
 
         try {
             // --- MODIFICATION START: Try shell: false for known externals --- 
@@ -416,7 +415,9 @@ server.tool(
                 stdout_log: stdoutLogPath,
                 stderr_log: stderrLogPath,
                 startTime,
-                endTime: null
+                endTime: null,
+                initial_stdout: '',
+                initial_stderr: ''
             };
             terminalStates.push(newStateEntry);
             stateEntryIndex = terminalStates.length - 1; // Keep track of the index
@@ -427,32 +428,89 @@ server.tool(
             let exitCode = null;
             let processExited = false;
 
-            // Promise that resolves when the process exits
-            const exitPromise = new Promise((resolve) => {
-                // Revert to non-async handler
-                child.on('exit', (code, signal) => {
+            // Promise that resolves when the process exits AND streams end/finish
+            const exitPromise = new Promise((resolveExit) => {
+                // Handle exit event
+                child.on('exit', async (code, signal) => {
                     // console.log(`Process ${pid} exited with code: ${code}, signal: ${signal}`); // Optional debug
                     processExited = true;
-                    exitCode = code ?? (signal ? 1 : 0); // Simplistic: non-null code or signal implies non-zero exit
+                    exitCode = code ?? (signal ? 1 : 0);
                     const endTime = new Date().toISOString();
 
-                    // Update state
-                    if (stateEntryIndex !== -1) {
+                    // Clean up listeners immediately
+                    child.stdout?.removeListener('data', stdoutListener);
+                    child.stderr?.removeListener('data', stderrListener);
+
+                    // --- MODIFICATION: Wait for stream 'end' and 'finish' --- 
+                    const streamEndPromises = [];
+                    if (child.stdout) {
+                        streamEndPromises.push(new Promise(res => child.stdout.once('end', res)));
+                    } else {
+                        streamEndPromises.push(Promise.resolve());
+                    }
+                    if (child.stderr) {
+                        streamEndPromises.push(new Promise(res => child.stderr.once('end', res)));
+                    } else {
+                        streamEndPromises.push(Promise.resolve());
+                    }
+
+                    const streamFinishPromises = [];
+                    if (stdoutStream) {
+                        streamFinishPromises.push(new Promise(res => stdoutStream.once('finish', res)));
+                        stdoutStream.end(); // Ensure stream is ended
+                    } else {
+                        streamFinishPromises.push(Promise.resolve());
+                    }
+                    if (stderrStream) {
+                        streamFinishPromises.push(new Promise(res => stderrStream.once('finish', res)));
+                        stderrStream.end(); // Ensure stream is ended
+                    } else {
+                        streamFinishPromises.push(Promise.resolve());
+                    }
+
+                    try {
+                        // console.log(`Waiting for stream end for PID ${pid}`); // Debug
+                        await Promise.all(streamEndPromises);
+                        // console.log(`Stream end received for PID ${pid}`); // Debug
+
+                        // Now wait for log file streams to finish writing
+                        // console.log(`Waiting for stream finish for PID ${pid}`); // Debug
+                        await Promise.all(streamFinishPromises);
+                        // console.log(`Streams finished for PID ${pid}`); // Debug
+                    } catch (streamErr) {
+                        console.error(`Error waiting for streams to end/finish for PID ${pid}:`, streamErr);
+                        // Continue anyway, but log the error
+                    }
+                    // --- END MODIFICATION ---
+
+                    // Update state AFTER streams are done
+                    if (stateEntryIndex !== -1 && terminalStates[stateEntryIndex]?.pid === pid) { // Check if state still exists
                         terminalStates[stateEntryIndex].status = (exitCode === 0) ? 'Success' : 'Failure';
                         terminalStates[stateEntryIndex].exit_code = exitCode;
                         terminalStates[stateEntryIndex].endTime = endTime;
+                        // Store the captured initial output (Iteration 2)
+                        terminalStates[stateEntryIndex].initial_stdout = initialStdout;
+                        terminalStates[stateEntryIndex].initial_stderr = initialStderr;
                         writeTerminalState(terminalStates);
+                    } else {
+                        console.warn(`[MyMCP DEBUG] State for PID ${pid} not found or changed during exit handling.`);
                     }
 
-                    // Clean up streams and listeners
-                    // Add a small delay to potentially allow streams to flush before closing
-                    // await new Promise(resolve => setTimeout(resolve, 100)); 
-                    child.stdout?.removeListener('data', stdoutListener);
-                    child.stderr?.removeListener('data', stderrListener);
-                    stdoutStream.end();
-                    stderrStream.end();
+                    resolveExit('exited');
+                });
 
-                    resolve('exited');
+                // Handle potential errors during spawn/execution
+                child.on('error', (err) => {
+                    console.error(`Error in child process ${pid}:`, err); // Log spawn errors
+                    // Update state to Failure on error
+                    if (stateEntryIndex !== -1 && terminalStates[stateEntryIndex]?.pid === pid) {
+                        terminalStates[stateEntryIndex].status = 'Failure';
+                        terminalStates[stateEntryIndex].exit_code = null; // No specific exit code on spawn error
+                        terminalStates[stateEntryIndex].endTime = new Date().toISOString();
+                        terminalStates[stateEntryIndex].initial_stderr = err.message; // Store error message
+                        writeTerminalState(terminalStates);
+                    }
+                    resolveExit(err); // Resolve with the error
                 });
             });
 
@@ -461,7 +519,7 @@ server.tool(
                 setTimeout(() => resolve('timeout'), timeout * 1000);
             });
 
-            // Wait for exit or timeout
+            // Wait for exit/error or timeout
             const result = await Promise.race([exitPromise, timeoutPromise]);
 
             if (result instanceof Error) {
@@ -477,19 +535,18 @@ server.tool(
             }
 
             // <<< DEBUG LOGGING START >>>
+            // Revert: Don't return initial output here, rely on get_terminal_output
             const response = {
                 pid,
-                // Revert to using initial listeners
-                stdout: initialStdout,
-                stderr: initialStderr,
+                stdout: '', // Keep empty, will be retrieved later
+                stderr: '', // Keep empty, will be retrieved later
                 exit_code: (result === 'timeout' || processExited === false) ? null : exitCode
             };
             // console.log(`[MyMCP DEBUG] execute_command handler RETURNING - Response: ${JSON.stringify(response)}`);
-            // Wrap the response in the format expected by the calling tool
-            // return { content: [{ type: "json", json: response }] }; // Try type: "json"
-            // return response; // Return raw JSON object
-            return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Use text type like commit
+            // return { content: [{ type: "text", text: JSON.stringify(response) }] };
             // <<< DEBUG LOGGING END >>>
+            // Return the standard response format
+            return { content: [{ type: "text", text: JSON.stringify(response) }] };
 
         } catch (error) {
             // <<< DEBUG LOGGING START >>>
@@ -651,8 +708,22 @@ server.tool(
             throw new Error(`Terminal process with PID ${pid} not found.`);
         }
 
-        const stdoutContent = readLastLogLines(state.stdout_log, lines);
-        const stderrContent = readLastLogLines(state.stderr_log, lines);
+        let stdoutContent = '';
+        let stderrContent = '';
+
+        // Revert to Iteration 2 logic: Read from state if finished, else logs
+        if (['Success', 'Failure', 'Stopped', 'Terminated'].includes(state.status)) {
+            // Process has finished, return the initially captured output stored in state
+            stdoutContent = state.initial_stdout || ''; // Use stored initial output
+            stderrContent = state.initial_stderr || ''; // Use stored initial output
+            // Optional: Could still append log file content if needed, but initial capture is prioritized
+            // stdoutContent += "\n--- Log File Tail ---\n" + readLastLogLines(state.stdout_log, lines);
+            // stderrContent += "\n--- Log File Tail ---\n" + readLastLogLines(state.stderr_log, lines);
+        } else {
+            // Process is still running (or status unknown), read from log files
+            stdoutContent = readLastLogLines(state.stdout_log, lines);
+            stderrContent = readLastLogLines(state.stderr_log, lines);
+        }
 
         // Format expected by the tool
         const response = {
