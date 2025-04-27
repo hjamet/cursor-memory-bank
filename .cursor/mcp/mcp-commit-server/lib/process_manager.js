@@ -57,8 +57,24 @@ export async function spawnProcess(command) {
             spawnOptions.shell = true; // Use shell: true for general commands
         }
 
-        // Spawn the process
-        child = spawn(executable, args, spawnOptions);
+        // Spawn the process - First attempt with configured options (potentially shell: false)
+        try {
+            child = spawn(executable, args, spawnOptions);
+        } catch (spawnErr) {
+            // If the first attempt failed (e.g., ENOENT with shell: false), try again with shell: true
+            if (spawnOptions.shell === false && spawnErr.code === 'ENOENT') {
+                spawnOptions.shell = true;
+                executable = command; // Use the original full command string
+                args = [];
+                try {
+                    child = spawn(executable, args, spawnOptions); // Retry with shell: true
+                } catch (retryErr) {
+                    throw retryErr; // Throw the error from the retry
+                }
+            } else {
+                throw spawnErr;
+            }
+        }
 
         pid = child.pid;
         if (pid === undefined) {

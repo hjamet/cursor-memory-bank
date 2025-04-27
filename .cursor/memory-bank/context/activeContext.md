@@ -1,23 +1,29 @@
 # Active Context
 
 ## Current Goal
-Verify the fix for the MCP command stdout capture issue with Git Bash on Windows.
+Verification of MCP command execution for Node.js and Python scripts completed.
 
 ## Current implementation context
-- **Task**: Investigate MCP command stdout issue
-- **Problem**: Executing `"C:\Program Files\Git\bin\bash.exe" -c "<command>"` via `mcp_MyMCP_execute_command` was resulting in successful execution (exit code 0) but empty stdout.
+- **Task**: Verify MCP command execution (Node/Python)
+- **Problem**: Initial tests showed stdout/stderr capture failed for direct Node.js execution (`shell: true`) and nested execution (`bash -c "node -e ..."`) failed due to quoting/CWD issues.
 - **Fix Applied**: 
-    1. Modified `process_manager.js` to explicitly spawn `"C:\Program Files\Git\bin\bash.exe"` with `shell: false` and pass the command string via `-c` argument.
-    2. Removed interfering `console.log`/`console.warn` statements from `process_manager.js`.
+    1. `process_manager.js` modified to handle `"bash.exe" -c "..."` commands using `shell: false`.
+    2. Removed interfering `console.log`s.
 - **Tests Performed**: 
-    - `echo 'test output'` (after fix): **Successful**. Stdout correctly captured as "test output\n".
-- **Conclusion**: The combination of explicit spawning (`shell: false`) and removing console logs resolved the stdout capture issue for Git Bash commands via MCP on Windows.
-- **Next Hypothesis**: The original `find` command should now also work.
+    - Direct Node (`shell: true` fallback): Failed (Empty output)
+    - Nested Node (`bash -c "node -e ..."`): Failed (Syntax/Quote error)
+    - Temp Node Script (`bash -c "node script.js"`): Failed (CWD error -> MODULE_NOT_FOUND)
+    - Temp Node Script w/ cd (`bash -c "cd path && node script.js"`): **Successful**. Correct stdout/stderr captured.
+- **Conclusion**: MCP command execution via `mcp_MyMCP_execute_command` works reliably for scripts (like Node, Python) on Windows IF:
+    1. The command is executed via Git Bash: `"C:\Program Files\Git\bin\bash.exe" -c "..."`
+    2. The bash command string includes an explicit `cd` to the correct working directory: `cd /path/to/workdir && ...`
+    3. Complex inline scripts are avoided; using temporary script files is more robust.
+    4. The `process_manager.js` correctly handles the explicit `bash.exe` invocation (`shell: false`).
 
 ## Key Files Involved
-- `.cursor/memory-bank/workflow/tasks.md`
 - `.cursor/memory-bank/context/activeContext.md`
-- `.cursor/mcp/mcp-commit-server/lib/process_manager.js` (Modified)
+- `.cursor/mcp/mcp-commit-server/lib/process_manager.js`
+- `tmp_node_script.js` (deleted)
 
 ## Next Steps (within this rule)
 - Analyze results (Done).
