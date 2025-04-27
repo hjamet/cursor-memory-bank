@@ -96,6 +96,13 @@ export async function spawnProcess(command) {
         stdoutStream = streams.stdoutStream;
         stderrStream = streams.stderrStream;
 
+        // Create a promise that resolves/rejects when the process finishes
+        const completionPromise = new Promise((resolve, reject) => {
+            child.once('close', (code, signal) => resolve({ code, signal }));
+            child.once('error', reject);
+            // We don't need to explicitly handle 'exit' here as 'close' guarantees finality
+        });
+
         // Capture output using event listeners
         let stdoutData = ''; // Potentially buffer small amounts for immediate return?
         let stderrData = '';
@@ -268,9 +275,10 @@ export async function spawnProcess(command) {
 
         return {
             pid,
-            exit_code: null,
+            exit_code: null, // This is initial, final code comes from completionPromise/state
             stdout_log: stdoutLogPath,
-            stderr_log: stderrLogPath
+            stderr_log: stderrLogPath,
+            completionPromise // Return the promise
         };
     } catch (err) {
         // console.error(`[ProcessManager] Error during spawnProcess setup for command "${command}":`, err);

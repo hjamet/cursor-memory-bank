@@ -17,7 +17,6 @@ export async function handleStopTerminalCommand({ pids, lines = 0 /* Default to 
 
         // Only attempt to read logs if lines > 0 AND log paths exist
         if (lines > 0 && state) {
-            Logger.logDebug(`[StopCommand] Attempting to read last ${lines} lines for PID ${pid}`);
             try {
                 // Check if log paths are actually strings before reading
                 if (typeof state.stdout_log === 'string') {
@@ -26,7 +25,6 @@ export async function handleStopTerminalCommand({ pids, lines = 0 /* Default to 
                     stdoutContent = "[Log path not available]";
                 }
             } catch (logReadErr) {
-                console.error(`[StopCommand] Error reading stdout log for PID ${pid}:`, logReadErr);
                 stdoutContent = `[Stdout Log Read Error: ${logReadErr.code || logReadErr.message}]`;
             }
             try {
@@ -36,7 +34,6 @@ export async function handleStopTerminalCommand({ pids, lines = 0 /* Default to 
                     stderrContent = "[Log path not available]";
                 }
             } catch (logReadErr) {
-                console.error(`[StopCommand] Error reading stderr log for PID ${pid}:`, logReadErr);
                 stderrContent = `[Stderr Log Read Error: ${logReadErr.code || logReadErr.message}]`;
             }
         } else if (lines > 0) {
@@ -49,7 +46,6 @@ export async function handleStopTerminalCommand({ pids, lines = 0 /* Default to 
         try {
             stopStatus = await ProcessManager.killProcess(pid);
         } catch (killError) {
-            console.error(`[StopCommand] Error killing process ${pid}:`, killError);
             stopStatus = `Error during kill attempt: ${killError.message}`;
         }
 
@@ -60,7 +56,6 @@ export async function handleStopTerminalCommand({ pids, lines = 0 /* Default to 
             await StateManager.removeStateByPid(pid);
             stopStatus += " Log cleanup successful.";
         } catch (cleanupError) {
-            console.error(`[StopCommand] Error cleaning up state/logs for PID ${pid}:`, cleanupError);
             stopStatus += " Error during cleanup.";
         }
 

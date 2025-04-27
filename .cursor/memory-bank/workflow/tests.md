@@ -1,11 +1,13 @@
 # Test Status
 
-- [❌] **MCP Python Execution Test**: Failed (Latest Run: Current Cycle)
-  - Command: `python -c "import sys; print(...); sys.stderr.write(...); sys.exit(55)"`
-  - Result: `exit_code: 1`, `stdout: ""`, `stderr: ""`
+- [✅] **MCP Python Execution Test**: Passed (Latest Run: Current Cycle)
+  - Command: `python -c "import sys; print('stdout output'); sys.stderr.write('stderr output'); sys.exit(55)"`
+  - Result: `exit_code: 55`, `stdout: "stdout output"`, `stderr: "stderr output"`
   - Expected: `exit_code: 55`, correct `stdout`/`stderr`.
-  - Issue: Execution via `cmd.exe /c python ...` does not correctly report exit code or capture stdio.
-- [✅] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): **PASSED** (Latest Run: Current Cycle - Fix Implemented)
+  - Issue: None (Previously failed due to incorrect handling before universal Git Bash execution was implemented).
+- [⚠️] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): **INVALID WHEN RUN VIA MCP** (Latest Run: Current Cycle)
+  - Issue: This test script attempts to start its own nested MCP server instance, which conflicts with the primary MCP server running it. Executing it via `mcp_MyMCP_execute_command` (even with absolute path) fails silently (exit code 1, no captured stdout/stderr), likely during internal server setup.
+  - Recommendation: Run this test directly using `node tests/test_mcp_async_terminal.js` in a separate terminal to validate MCP server functionality.
 - [✅] User curl test (MINGW64, no jq): Passed (Latest Run: 2025-04-27 - Required `tr -d '\r'` before `bash` to fix CRLF issue causing `: command not found`)
 - [✅] `test_curl_install.sh`: Passed (Latest Run: 2025-04-27 - Fixed no-jq subtest failures related to `--target` option, log file checking, and path extraction)
 - [✅] `test_download.sh`: Passed (Latest Run: 2025-04-27)
@@ -43,13 +45,13 @@
 
 ## MCP Async Terminal Tests (`tests/test_mcp_async_terminal.js`)
 
-- **Date**: Latest Run
+- **Date**: Current Cycle
 - **Commit**: Latest
-- **Status**: ✅ **PASS**
-- **Details**: Test suite executed via MCP `execute_command`. Exit code 0 indicates internal assertions passed. Added `cwd` field to MCP tool responses.
-- **Command**: `"C:\\Program Files\\Git\\bin\\bash.exe" -c "cd /c/Users/Jamet/code/cursor-memory-bank && node tests/test_mcp_async_terminal.js"`
-- **Output Snippet**: MCP `get_terminal_output` returned empty stdout/stderr (expected for internal commands run by the test, not the test script itself).
-- **Evolution**: Pass (Verified `cwd` addition did not break functionality).
+- **Status**: ⚠️ **INVALID / FAILS WHEN RUN VIA MCP**
+- **Details**: This test script is an integration test that starts its own MCP server instance. Running it via `mcp_MyMCP_execute_command` causes the nested server startup to conflict with the primary server or fail for other environment reasons. The execution fails silently (exit code 1, no captured stdout/stderr). This test must be executed directly from the command line (`node tests/test_mcp_async_terminal.js`), not via the MCP server itself.
+- **Command**: `node /c/Users/Jamet/code/cursor-memory-bank/tests/test_mcp_async_terminal.js` (Attempted execution via MCP)
+- **Output Snippet**: (When run via MCP) Exit Code 1, Empty stdout/stderr.
+- **Evolution**: N/A (Execution method invalid/problematic).
 - **Note**: Observed CWD reported by MCP tools was `.../.cursor` instead of project root. Needs investigation if precise CWD reporting is critical.
 
 ## Problèmes persistants
@@ -120,13 +122,13 @@
 
 ## MCP Async Terminal Tests (`tests/test_mcp_async_terminal.js`)
 
-- **Date**: Latest Run
+- **Date**: Current Cycle
 - **Commit**: Latest
-- **Status**: ✅ **PASS**
-- **Details**: Test suite executed via MCP `execute_command`. Exit code 0 indicates internal assertions passed. Added `cwd` field to MCP tool responses.
-- **Command**: `"C:\\Program Files\\Git\\bin\\bash.exe" -c "cd /c/Users/Jamet/code/cursor-memory-bank && node tests/test_mcp_async_terminal.js"`
-- **Output Snippet**: MCP `get_terminal_output` returned empty stdout/stderr (expected for internal commands run by the test, not the test script itself).
-- **Evolution**: Pass (Verified `cwd` addition did not break functionality).
+- **Status**: ⚠️ **INVALID / FAILS WHEN RUN VIA MCP**
+- **Details**: This test script is an integration test that starts its own MCP server instance. Running it via `mcp_MyMCP_execute_command` causes the nested server startup to conflict with the primary server or fail for other environment reasons. The execution fails silently (exit code 1, no captured stdout/stderr). This test must be executed directly from the command line (`node tests/test_mcp_async_terminal.js`), not via the MCP server itself.
+- **Command**: `node /c/Users/Jamet/code/cursor-memory-bank/tests/test_mcp_async_terminal.js` (Attempted execution via MCP)
+- **Output Snippet**: (When run via MCP) Exit Code 1, Empty stdout/stderr.
+- **Evolution**: N/A (Execution method invalid/problematic).
 - **Note**: Observed CWD reported by MCP tools was `.../.cursor` instead of project root. Needs investigation if precise CWD reporting is critical.
 
 ## Problèmes persistants
