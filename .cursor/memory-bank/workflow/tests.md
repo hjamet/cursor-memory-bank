@@ -1,6 +1,6 @@
 # Test Status
 
-- [✅] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): **Passed** (Latest Run: Current Cycle - Verified Fix)
+- [❌] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): **FAILED** (Latest Run: Current Cycle - Refactoring)
 - [✅] User curl test (MINGW64, no jq): Passed (Latest Run: 2025-04-27 - Required `tr -d '\r'` before `bash` to fix CRLF issue causing `: command not found`)
 - [✅] `test_curl_install.sh`: Passed (Latest Run: 2025-04-27 - Fixed no-jq subtest failures related to `--target` option, log file checking, and path extraction)
 - [✅] `test_download.sh`: Passed (Latest Run: 2025-04-27)
@@ -109,12 +109,12 @@
 ## MCP Async Terminal Tests (`tests/test_mcp_async_terminal.js`)
 
 - **Date**: Current Cycle
-- **Commit**: Current
-- **Status**: ✅ **PASS (Verified Fix)**
-- **Details**: Test suite passed after fixing server crash (moved `ensureLogsDirExists()`) and correcting test assertion.
+- **Commit**: Current (Post-Refactoring)
+- **Status**: ❌ **FAIL**
+- **Details**: Test suite failed during server startup with `ReferenceError: writeState is not defined` in `lib/state_manager.js:33`. The server process exited with code 1.
 - **Command**: `node tests/test_mcp_async_terminal.js`
-- **Output**: Successful execution (exit code 0).
-- **Evolution**: Verified Fix (Previously Failed).
+- **Output**: See terminal output above (ReferenceError).
+- **Evolution**: Regression (Previously Passed).
 
 ## Problèmes persistants
 - ✅ **Install script permissions (MINGW64/curl)**: Fixed (Latest Run: 2025-04-27) - Root cause identified as CRLF line endings (`\r`) causing parsing errors in piped MINGW64 bash. Resolved by modifying the *execution command* to `curl ... | tr -d '\r' | bash`.
