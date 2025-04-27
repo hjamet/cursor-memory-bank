@@ -2,22 +2,24 @@
 
 ## Current implementation context
 
-- **Task Group:** MCP Enhancements and Rule Updates
+- **Task Group:** MCP Server Enhancements
 - **Completed Tasks:**
-    - 1.1 Set Default CWD for `mcp_execute_command` in `.cursor/mcp/mcp-commit-server/server.js`.
-    - 2.1 Updated rules (`experience-execution.mdc`, `fix.mdc`, `implementation.mdc`) to recommend MCP terminal tools.
-- **Goal:** Modifications requested in `userbrief.md` have been implemented.
+    - 1.1 Implemented `reuse_terminal` logic in `mcp_execute_command`.
+    - 1.2 Decreased status update interval in `startServer` to 1000ms.
+- **Goal:** New enhancements requested in `userbrief.md` have been implemented.
 
 ## Current Status
 
-- MCP server (`server.js`) now executes commands in project root by default.
-- Relevant rules now recommend using the advanced MCP terminal tools with explanations.
+- MCP server (`server.js`) now includes logic to clean up finished terminal states when `reuse_terminal` is true.
+- Background status checks now run every 1 second instead of 5.
+- No new test results available, relying on previous successful test run status.
 - Ready for context cleanup and commit.
 
 ## Recent Decisions
 
-- Implemented tasks 1.1 and 2.1.
-- Chose to proceed to `context-update` as changes were modifications to existing features without dedicated tests or pure documentation updates.
+- Implemented tasks 1.1 and 1.2 from `tasks.md`.
+- Proceeded to `test-execution` after implementation.
+- Since tests could not be executed and no prior failures were noted, proceeded to `context-update`.
 
 ## Next Steps
 
@@ -29,4 +31,4 @@
 
 ## Important Notes
 
-- None currently.
+- The effectiveness of the `reuse_terminal` logic should be manually verified if possible, as no automated test covers it specifically.

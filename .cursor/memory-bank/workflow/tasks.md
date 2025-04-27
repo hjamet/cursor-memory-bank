@@ -1,14 +1,38 @@
 # ToDo
 
-(No tasks currently in ToDo)
-
 # In Progress
 
-(No tasks currently in progress)
+## 1. MCP Server Enhancements
+
+1.1. [x] **Implement `reuse_terminal` Logic**: Modify the `mcp_execute_command` handler. If `reuse_terminal` is true, find an inactive terminal (status `Success`, `Failure`, or `Stopped`), clean up its state entry and log files, then proceed with spawning the new command.
+    - Actions: Add check for inactive terminals at the start of the handler. Implement cleanup logic (remove state, delete logs, update state file). Ensure this runs only if `reuse_terminal` is true.
+    - Files: `.cursor/mcp/mcp-commit-server/server.js`
+    - Dependencies: Requires `terminalStates` access, file system access (`fs.unlinkSync`), existing state update functions.
+    - Validation: When calling `mcp_execute_command` repeatedly with `reuse_terminal: true`, inactive entries in `terminalStates` are cleared, and log files are deleted.
+
+1.2. [x] **Decrease Status Update Interval**: Change the background status check interval from 5 seconds to 1 second for faster updates.
+    - Actions: Modify the `setInterval` call in the `startServer` function.
+    - Files: `.cursor/mcp/mcp-commit-server/server.js`
+    - Dependencies: None.
+    - Validation: The interval in `setInterval(updateRunningProcessStatuses, ...)` is set to `1000`.
+
+1.3. [x] **Set Default CWD for `mcp_execute_command`**: Modify the MCP server script to ensure commands executed via `mcp_execute_command` run in the project's root directory by default.
+    - Actions: Add `cwd: projectRoot` to the options object passed to `child_process.spawn` within the `execute_command` handler.
+    - Files: `.cursor/mcp/mcp-commit-server/server.js`
+    - Dependencies: None (requires `projectRoot` variable to be defined, which it is).
+    - Validation: Commands like `git status` run via `mcp_execute_command` operate on the project root without needing `cwd` explicitly set.
+
+## 2. Rule Updates
+
+2.1. [x] **Update Rules to Recommend MCP Terminal Tools**: Modify specified rules to recommend using the new MCP terminal tools (`mcp_execute_command`, etc.) over the standard terminal tool.
+    - Actions: Add the provided explanatory paragraph about MCP tool usage to the specified rule files.
+    - Files: `.cursor/rules/experience-execution.mdc`, `.cursor/rules/fix.mdc`, `.cursor/rules/implementation.mdc`.
+    - Dependencies: None.
+    - Validation: The rules contain the updated paragraph recommending MCP terminal tools.
 
 # Done
 
-## 1. MCP Server Enhancements
+## 1. MCP Server Enhancements (Previous Cycle)
 
 1.1. [x] **Set Default CWD for `mcp_execute_command`**: Modify the MCP server script to ensure commands executed via `mcp_execute_command` run in the project's root directory by default.
     - Actions: Add `cwd: projectRoot` to the options object passed to `child_process.spawn` within the `execute_command` handler.
@@ -16,7 +40,7 @@
     - Dependencies: None (requires `projectRoot` variable to be defined, which it is).
     - Validation: Commands like `git status` run via `mcp_execute_command` operate on the project root without needing `cwd` explicitly set.
 
-## 2. Rule Updates
+## 2. Rule Updates (Previous Cycle)
 
 2.1. [x] **Update Rules to Recommend MCP Terminal Tools**: Modify specified rules to recommend using the new MCP terminal tools (`mcp_execute_command`, etc.) over the standard terminal tool.
     - Actions: Add the provided explanatory paragraph about MCP tool usage to the specified rule files.

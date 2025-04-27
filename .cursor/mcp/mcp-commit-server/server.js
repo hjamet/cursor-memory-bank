@@ -231,7 +231,7 @@ server.tool(
     'execute_command',
     {
         command: z.string().describe("The command line to execute."),
-        reuse_terminal: z.boolean().optional().default(true).describe("If true and an inactive terminal exists, reuse it (Note: Reuse logic NOT YET IMPLEMENTED - currently always spawns new). Otherwise, spawn a new process."),
+        reuse_terminal: z.boolean().optional().default(true).describe("If true (default), attempts to clean up one finished terminal state before spawning a new process. Otherwise, always spawns without cleanup."),
         timeout: z.number().int().optional().default(15).describe("Maximum time in seconds to wait for the command to complete before returning. The command continues in the background if timeout is reached.")
     },
     /**
@@ -244,10 +244,43 @@ server.tool(
      */
     async ({ command, reuse_terminal, timeout }) => {
         // <<< DEBUG LOGGING START >>>
-        // console.log(`[MyMCP DEBUG] execute_command handler START - Command: ${command}, Timeout: ${timeout}`);
+        // console.log(`[MyMCP DEBUG] execute_command handler START - Command: ${command}, Timeout: ${timeout}, Reuse: ${reuse_terminal}`);
         // <<< DEBUG LOGGING END >>>
 
-        // Note: reuse_terminal logic is not implemented yet.
+        // --- Terminal Reuse Logic --- START ---
+        if (reuse_terminal) {
+            const reusableTerminalIndex = terminalStates.findIndex(state =>
+                ['Success', 'Failure', 'Stopped'].includes(state.status)
+            );
+
+            if (reusableTerminalIndex !== -1) {
+                const stateToClean = terminalStates[reusableTerminalIndex];
+                // console.log(`[MyMCP DEBUG] Reusing terminal slot from PID ${stateToClean.pid} (Status: ${stateToClean.status})`);
+
+                // Remove from state array first
+                terminalStates.splice(reusableTerminalIndex, 1);
+                writeTerminalState(terminalStates);
+
+                // Delete log files (best effort)
+                try {
+                    if (fs.existsSync(stateToClean.stdout_log)) {
+                        fs.unlinkSync(stateToClean.stdout_log);
+                    }
+                } catch (unlinkErr) {
+                    console.warn(`[MyMCP DEBUG] Could not delete reused stdout log ${stateToClean.stdout_log}:`, unlinkErr);
+                }
+                try {
+                    if (fs.existsSync(stateToClean.stderr_log)) {
+                        fs.unlinkSync(stateToClean.stderr_log);
+                    }
+                } catch (unlinkErr) {
+                    console.warn(`[MyMCP DEBUG] Could not delete reused stderr log ${stateToClean.stderr_log}:`, unlinkErr);
+                }
+            }
+        }
+        // --- Terminal Reuse Logic --- END ---
+
+        // Note: reuse_terminal logic *description* needs update (it's being implemented now).
         let child;
         let pid;
         let stdoutLogPath;
@@ -704,7 +737,7 @@ async function startServer() {
     if (statusMonitorInterval) {
         clearInterval(statusMonitorInterval); // Clear existing interval if any
     }
-    statusMonitorInterval = setInterval(updateRunningProcessStatuses, 5000); // Check every 5 seconds
+    statusMonitorInterval = setInterval(updateRunningProcessStatuses, 1000); // Check every 1 second
 
     try {
         const transport = new StdioServerTransport();
