@@ -27,6 +27,27 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '../../../../'); // Go up 4 levels
 
 /**
+ * Helper function to clean up resources associated with a process.
+ * @param {number} pid Process ID.
+ * @param {fs.WriteStream} stdoutStream Stream for stdout log.
+ * @param {fs.WriteStream} stderrStream Stream for stderr log.
+ * @param {ChildProcess} child The child process object.
+ */
+async function cleanupProcessResources(pid, stdoutStream, stderrStream, child) {
+    // console.log(`[ProcessManager] Cleaning up resources for PID ${pid}...`);
+    // Close file streams safely
+    stdoutStream?.end();
+    stderrStream?.end();
+
+    // Remove all listeners from the child process to prevent memory leaks
+    // Especially important if the process object might persist for a bit
+    child?.removeAllListeners();
+
+    // Optional: Add a small delay if needed for system resource release?
+    // await new Promise(resolve => setTimeout(resolve, 10));
+}
+
+/**
  * Spawns a process, manages its state, and logs its output.
  * @param {string} command The command line to execute.
  * @returns {Promise<{pid: number, completionPromise: Promise, cleanupPromise: Promise}>} Promise resolving with initial info.

@@ -49,21 +49,26 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
 
         try {
             // Wait for either the process to complete or the timeout
-            await Promise.race([completionPromise, timeoutPromise]);
+            // Capture the result of the promise that resolves first
+            const completionResult = await Promise.race([completionPromise, timeoutPromise]);
 
             // --- Process Finished Before Timeout --- 
             // completionPromise resolved first
 
-            // Explicitly wait for cleanup (state/log finalization) to complete
+            // Explicitly wait for cleanup (log finalization, etc.) to complete
             await cleanupPromise;
 
-            const finalState = await StateManager.getState(pid); // Get final state after handleClose finished
-            if (!finalState) {
-                throw new Error(`Process ${pid} finished but final state not found after cleanup.`);
-            }
+            // Get final exit code and signal directly from the resolved completionPromise
+            const { code: finalExitCode, signal } = completionResult; // Assuming completionPromise resolved
+            const finalStatus = (finalExitCode === 0) ? 'Success' : 'Failure';
 
-            // *** INCREASED DELAY before reading logs ***
-            await new Promise(resolve => setTimeout(resolve, 150)); // 150ms delay
+            // We still might need the CWD from the initial state.
+            // Let's fetch the state ONCE before the race, or just use null if acceptable.
+            // For simplicity now, let's keep CWD potentially null if not easily available.
+            // const initialState = await StateManager.getState(pid); // Fetch state *before* race?
+
+            // *** Keep small DELAY before reading logs to ensure they are flushed ***
+            await new Promise(resolve => setTimeout(resolve, 150)); // Keep 150ms delay for log flush
 
             // Initialize variables OUTSIDE try blocks
             let stdoutContent = '';
@@ -81,12 +86,12 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
                 console.warn(`[ExecuteCommand] Error reading stderr log (after delay) for completed PID ${pid}:`, logErr.message);
             }
 
-            // Construct result using logs read *after* delay and final state from *after*
+            // Construct result using logs read *after* delay and status/code from completionResult
             result = {
                 pid,
-                cwd: finalState.cwd ?? null,
-                status: finalState.status,
-                exit_code: finalState.exit_code,
+                cwd: null, // Using null for CWD for now, could fetch initial state if needed
+                status: finalStatus,
+                exit_code: finalExitCode,
                 stdout: typeof stdoutContent === 'string' ? stdoutContent : '', // Ensure string
                 stderr: typeof stderrContent === 'string' ? stderrContent : ''  // Ensure string
             };
@@ -126,7 +131,7 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
                 // Another error occurred (e.g., from completionPromise rejecting)
                 // Wait for cleanup to potentially capture the error state
                 const cleanupResult = await cleanupPromise;
-                const errorState = await StateManager.getState(pid);
+                const errorState = await StateManager.getState(pid); // Still might need state here on *error*
 
                 // Initialize variable OUTSIDE try block
                 let stderrReadContent = '';
@@ -189,4 +194,4 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
     }
 }
 
-export { }; // Add empty export to make it a module 
+export { }; // Add empty export to make it a module
