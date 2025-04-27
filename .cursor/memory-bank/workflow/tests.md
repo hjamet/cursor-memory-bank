@@ -1,7 +1,6 @@
 # Test Status
 
 - [✅] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): **Passed** (Latest Run: Current Cycle - Verified Fix)
-- [❌] MCP Send Input Test (`tests/test_mcp_send_input.js`): **Failed** (Latest Run: Current Cycle - Execution Failed)
 - [✅] User curl test (MINGW64, no jq): Passed (Latest Run: 2025-04-27 - Required `tr -d '\r'` before `bash` to fix CRLF issue causing `: command not found`)
 - [✅] `test_curl_install.sh`: Passed (Latest Run: 2025-04-27 - Fixed no-jq subtest failures related to `--target` option, log file checking, and path extraction)
 - [✅] `test_download.sh`: Passed (Latest Run: 2025-04-27)
@@ -43,12 +42,17 @@
 *   **Description:** Runs a workflow using the async terminal commands (`execute`, `get_status`, `get_output`, `stop`).
 *   **Fix Applied:** Modified test to use specific `echo "..."` command. Modified `server.js` `execute_command` handler to correctly pass the full command string to the shell when `shell: true` is used.
 *   **Previous Status:** ✅ Pass (Fixed Regression)
+*   **Evolution**: Verified Fix (Passed after fix).
 
 ## MCP Send Input Test (`tests/test_mcp_send_input.js`)
-*   **Last Run:** Current Cycle
-*   **Status:** ❌ **Failed** (Execution Failed)
-*   **Description:** Tests the `send_terminal_input` tool by starting an interactive script (`cat`), sending input, and checking the response.
-*   **Error History:** Failed during execution via `node`. Multiple issues encountered: Module not found (`@modelcontextprotocol/sdk`), errors executing `curl` via `execSync`, errors using native `http.request`.
+
+- **Date**: Current Cycle
+- **Commit**: Current
+- **Status**: ❌ **FAIL**
+- **Details**: Test execution failed repeatedly. Issues encountered include module resolution problems for the SDK client, errors executing `curl` via `execSync`, and errors using native `http.request`. The test could not be successfully executed.
+- **Command**: `node tests/test_mcp_send_input.js`
+- **Output**: Failed with exit code 1. See execution logs for specific errors.
+- **Evolution**: Failed on first full run attempt.
 
 ## Problèmes persistants
 - ✅ **Install script permissions (MINGW64/curl)**: Fixed (Latest Run: 2025-04-27) - Root cause identified as CRLF line endings (`\r`) causing parsing errors in piped MINGW64 bash. Resolved by modifying the *execution command* to `curl ... | tr -d '\r' | bash`.
@@ -130,4 +134,4 @@
 - **Details**: Test execution failed repeatedly. Issues encountered include module resolution problems for the SDK client, errors executing `curl` via `execSync`, and errors using native `http.request`. The test could not be successfully executed.
 - **Command**: `node tests/test_mcp_send_input.js`
 - **Output**: Failed with exit code 1. See execution logs for specific errors.
-- **Evolution**: Failed on first full run attempt. 
+- **Evolution**: Failed on first full run attempt.
