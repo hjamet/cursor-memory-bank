@@ -5,7 +5,7 @@
   - Result: `exit_code: 55`, `stdout: "stdout output"`, `stderr: "stderr output"`
   - Expected: `exit_code: 55`, correct `stdout`/`stderr`.
   - Issue: None (Previously failed due to incorrect handling before universal Git Bash execution was implemented).
-- [⚠️] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): **INVALID WHEN RUN VIA MCP** (Latest Run: Current Cycle)
+- [ℹ️] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): **KNOWN ISSUE: INVALID WHEN RUN VIA MCP** (Latest Run: Current Cycle)
   - Issue: This test script attempts to start its own nested MCP server instance, which conflicts with the primary MCP server running it. Executing it via `mcp_MyMCP_execute_command` (even with absolute path) fails silently (exit code 1, no captured stdout/stderr), likely during internal server setup.
   - Recommendation: Run this test directly using `node tests/test_mcp_async_terminal.js` in a separate terminal to validate MCP server functionality.
 - [✅] User curl test (MINGW64, no jq): Passed (Latest Run: 2025-04-27 - Required `tr -d '\r'` before `bash` to fix CRLF issue causing `: command not found`)
@@ -24,8 +24,8 @@
 - [✅] **Special Characters (`echo "String with 'quotes' ..."`)**: Passed (with caveat). Most characters handled correctly by Base64 encoding, but backticks were interpreted by `eval`.
 - [✅] **Subdirectory Execution (`cd /abs/path && pwd`)**: Passed. Command executed correctly using absolute paths.
 - [✅] **Immediate Return (Timeout Case)**: Passed. `execute_command` returns partial stdout/stderr immediately if the command times out (e.g., `ping -n 10` with `timeout=1`).
-- [⚠️] **Immediate Return (Early Completion Case)**: Partially Failing. `execute_command` does **not** return full stdout/stderr immediately if the command finishes **before** the timeout (e.g., `echo`). Full output requires a follow-up call. This still differs from the ideal behavior described in Task 3.1.
-- [⚠️] **Observation: Reported CWD**: `get_terminal_status` consistently reports the CWD as `.../.cursor`, even though commands appear to execute from the project root.
+- [❌] **Immediate Return (Early Completion Case)**: **REGRESSION/FAILED**. `execute_command` does **not** return full stdout/stderr immediately if the command finishes **before** the timeout (e.g., `echo`). Full output requires a follow-up call. Refactoring with `cleanupPromise` did not resolve this.
+- [✅] **Execution CWD**: Passed. Commands executed via `execute_command` now correctly run with the CWD set to the project root. Fix applied in `process_manager.js`.
 
 # Fichier de tests
 
@@ -59,7 +59,7 @@
 
 - **Date**: Current Cycle
 - **Commit**: Latest
-- **Status**: ⚠️ **INVALID / FAILS WHEN RUN VIA MCP**
+- **Status**: ℹ️ **KNOWN ISSUE: INVALID / FAILS WHEN RUN VIA MCP**
 - **Details**: This test script is an integration test that starts its own MCP server instance. Running it via `mcp_MyMCP_execute_command` causes the nested server startup to conflict with the primary server or fail for other environment reasons. The execution fails silently (exit code 1, no captured stdout/stderr). This test must be executed directly from the command line (`node tests/test_mcp_async_terminal.js`), not via the MCP server itself.
 - **Command**: `node /c/Users/Jamet/code/cursor-memory-bank/tests/test_mcp_async_terminal.js` (Attempted execution via MCP)
 - **Output Snippet**: (When run via MCP) Exit Code 1, Empty stdout/stderr.
@@ -136,7 +136,7 @@
 
 - **Date**: Current Cycle
 - **Commit**: Latest
-- **Status**: ⚠️ **INVALID / FAILS WHEN RUN VIA MCP**
+- **Status**: ℹ️ **KNOWN ISSUE: INVALID / FAILS WHEN RUN VIA MCP**
 - **Details**: This test script is an integration test that starts its own MCP server instance. Running it via `mcp_MyMCP_execute_command` causes the nested server startup to conflict with the primary server or fail for other environment reasons. The execution fails silently (exit code 1, no captured stdout/stderr). This test must be executed directly from the command line (`node tests/test_mcp_async_terminal.js`), not via the MCP server itself.
 - **Command**: `node /c/Users/Jamet/code/cursor-memory-bank/tests/test_mcp_async_terminal.js` (Attempted execution via MCP)
 - **Output Snippet**: (When run via MCP) Exit Code 1, Empty stdout/stderr.

@@ -1,17 +1,19 @@
 # Active Context
 
 ## Current Goal
-Completed testing of the modified `mcp_execute_command` immediate return behavior.
+Address the warnings (⚠️) identified in `.cursor/memory-bank/workflow/tests.md`.
 
 ## Current implementation context
-- **Test Results**: 
-    - Improvement: `execute_command` now correctly returns *partial* stdout/stderr immediately when the command times out.
-    - Persistent Issue: `execute_command` still does *not* return *full* stdout/stderr immediately when the command completes *before* the timeout. Full output requires a follow-up call (`get_terminal_status` or `get_terminal_output`).
-- **Summary**: The core requirement of providing partial output for long-running commands (to allow monitoring/interruption) is met. The ideal behavior for short commands is not fully achieved, but the necessary information is available via follow-up calls.
-- **Files Modified**: 
-    - `.cursor/mcp/mcp-commit-server/mcp_tools/terminal_execution.js` (Implemented partial return on timeout)
-    - `.cursor/memory-bank/workflow/tests.md` (Updated ad-hoc test results)
-- **Next Steps**: Commit changes and check final workflow status.
+- **Warnings to Address**:
+    1.  `MCP Async Terminal Workflow (...) INVALID WHEN RUN VIA MCP`: Confirm documentation clarity.
+    2.  `Immediate Return (Early Completion Case)`: Fix `execute_command` to return full stdout/stderr immediately when command finishes before timeout.
+    3.  `Observation: Reported CWD`: Investigate and potentially fix the discrepancy in CWD reported by `get_terminal_status`.
+- **Plan**:
+    1.  Review Warning 1 documentation in `tests.md`.
+    2.  Analyze and fix the code in `.cursor/mcp/mcp-commit-server/mcp_tools/terminal_execution.js` for Warning 2.
+    3.  Investigate CWD reporting in `process_manager.js`, `state_manager.js`, and `terminal_status.js` for Warning 3.
+- **Files Involved**: `.cursor/memory-bank/workflow/tests.md`, `.cursor/mcp/mcp-commit-server/mcp_tools/terminal_execution.js`, `.cursor/mcp/mcp-commit-server/lib/process_manager.js`, `.cursor/mcp/mcp-commit-server/lib/state_manager.js`, `.cursor/mcp/mcp-commit-server/mcp_tools/terminal_status.js`.
+- **Next Steps**: Start by reviewing Warning 1 documentation.
 
 ## Lost workflow
 *No lost workflow entries needed here.*

@@ -31,7 +31,8 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
     let stdout_log;
     let stderr_log;
     let completionPromise;
-    let earlyResult = null;
+    let cleanupPromise;
+    let result = null;
 
     // Define timeout in milliseconds, using default if not provided or invalid
     const timeoutMs = (timeout && Number.isInteger(timeout) && timeout > 0) ? timeout * 1000 : DEFAULT_TIMEOUT_MS;
@@ -39,7 +40,7 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
     try {
         // Spawn the process using the process manager
         // This now returns pid, log paths, and a completionPromise
-        ({ pid, stdout_log, stderr_log, completionPromise } = await ProcessManager.spawnProcess(command));
+        ({ pid, stdout_log, stderr_log, completionPromise, cleanupPromise } = await ProcessManager.spawnProcess(command));
 
         // Create a timeout promise
         const timeoutPromise = new Promise((_, reject) => {
@@ -51,10 +52,13 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
             await Promise.race([completionPromise, timeoutPromise]);
 
             // If we reach here, completionPromise resolved first (process finished)
+            // Explicitly wait for cleanup (state/log finalization) to complete
+            await cleanupPromise;
+
             const finalState = await StateManager.getState(pid); // Get final state after handleClose finished
             if (!finalState) {
                 // Should theoretically not happen if completionPromise resolved, but handle defensively
-                throw new Error(`Process ${pid} finished but final state not found.`);
+                throw new Error(`Process ${pid} finished but final state not found after cleanup.`);
             }
 
             // Read the full logs
@@ -71,7 +75,7 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
                 console.warn(`[ExecuteCommand] Error reading stderr log for completed PID ${pid}:`, logErr.message);
             }
 
-            earlyResult = {
+            result = {
                 pid,
                 cwd: finalState.cwd ?? null,
                 status: finalState.status, // Should be Success or Failure
@@ -101,7 +105,7 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
                     console.warn(`[ExecuteCommand] Error reading partial stderr log for running PID ${pid}:`, logErr.message);
                 }
 
-                earlyResult = {
+                result = {
                     pid,
                     cwd: currentState?.cwd ?? null,
                     status: currentState?.status ?? 'Running', // Reflect current state
@@ -111,15 +115,31 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
                 };
             } else {
                 // Another error occurred (e.g., from completionPromise rejecting)
-                throw raceError; // Re-throw original error
+                // Wait for cleanup to potentially capture the error state
+                const cleanupResult = await cleanupPromise;
+                const errorState = await StateManager.getState(pid);
+                let stderrContent = (cleanupResult?.error || raceError)?.message || 'Unknown error';
+                // Try reading logs even on error
+                try {
+                    stderrContent += "\n--- STDERR LOG ---\n" + await Logger.readLogLines(stderr_log, -1);
+                } catch (logErr) { }
+
+                result = {
+                    pid,
+                    cwd: errorState?.cwd ?? null,
+                    status: errorState?.status ?? 'Failure',
+                    exit_code: errorState?.exit_code, // Might be null if error happened before exit
+                    stdout: '', // Or maybe read stdout log?
+                    stderr: stderrContent
+                };
             }
         }
 
         // Return either the full early result or the partial result upon timeout
-        return { content: [{ type: "text", text: JSON.stringify(earlyResult) }] };
+        return { content: [{ type: "text", text: JSON.stringify(result) }] };
 
     } catch (error) {
-        console.error('[ExecuteCommand] Error:', error);
+        console.error('[ExecuteCommand] Top-level Error:', error);
         // If spawnProcess failed, pid might not be set
         // If Promise.race failed with non-timeout error, we might have a pid
         // Attempt to clean up state if PID exists and error happened after spawn
@@ -135,10 +155,21 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
                     });
                 }
             } catch (stateErr) {
-                console.error(`[ExecuteCommand] Error updating state after error for PID ${pid}:`, stateErr);
+                console.error(`[ExecuteCommand] Error updating state after top-level error for PID ${pid}:`, stateErr);
             }
         }
-        throw new Error(`Failed to execute command: ${error.message}`);
+        // Return an error structure consistent with other results if possible
+        const errorResult = {
+            pid: pid || null,
+            cwd: null,
+            status: 'Failure',
+            exit_code: null,
+            stdout: '',
+            stderr: `Failed to execute command: ${error.message}`
+        };
+        return { content: [{ type: "text", text: JSON.stringify(errorResult) }] };
+        // Or rethrow? Let's return a structured error.
+        // throw new Error(`Failed to execute command: ${error.message}`);
     }
 }
 

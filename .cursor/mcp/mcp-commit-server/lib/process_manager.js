@@ -23,12 +23,13 @@ const escapeDoubleQuotesForBash = (str) => {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, '../../..'); // Assuming lib/ is two levels down
+// Restore global projectRoot calculation - CORRECTED
+const projectRoot = path.resolve(__dirname, '../../../../'); // Go up 4 levels
 
 /**
  * Spawns a process, manages its state, and logs its output.
  * @param {string} command The command line to execute.
- * @returns {Promise<{pid: number, completionPromise: Promise}>} Promise resolving with initial info.
+ * @returns {Promise<{pid: number, completionPromise: Promise, cleanupPromise: Promise}>} Promise resolving with initial info.
  */
 export async function spawnProcess(command) {
     let child;
@@ -37,6 +38,9 @@ export async function spawnProcess(command) {
     let stderrLogPath;
     let stdoutStream;
     let stderrStream;
+    let cleanupResolve;
+    const cleanupPromise = new Promise(resolve => { cleanupResolve = resolve; });
+    let finalUpdateDone = false; // Flag to prevent duplicate final updates
 
     const startTime = new Date().toISOString();
 
@@ -46,14 +50,16 @@ export async function spawnProcess(command) {
         // Determine how to spawn based on the command string
         let executable;
         let args;
+        // Get CWD of the current Node process (MCP Server) - REVERT THIS
+        // const currentProcessCwd = process.cwd();
         let spawnOptions = {
-            detached: true, // Keep detached for background potential
+            detached: true,
             stdio: ['ignore', 'pipe', 'pipe'],
-            cwd: projectRoot,
-            shell: false // Always use shell: false now
+            cwd: projectRoot, // Use the calculated projectRoot again
+            shell: false
         };
 
-        const gitBashPath = "C:\\Program Files\\Git\\bin\\bash.exe"; // Use escaped backslashes
+        const gitBashPath = "C:\\Program Files\\Git\\bin\\bash.exe";
 
         if (process.platform === 'win32') {
             executable = gitBashPath;
@@ -70,7 +76,10 @@ export async function spawnProcess(command) {
             spawnOptions.shell = true;
         }
 
-        // console.log(`[ProcessManager] Spawning with: executable=${executable}, args=[${args.join(', ')}], options=${JSON.stringify(spawnOptions)}`); // Keep commented out
+        // --- DEBUG LOGGING START ---
+        // console.log(`[ProcessManager] Using server process CWD: ${currentProcessCwd}`); // Removed debug log
+        // console.log(`[ProcessManager] Effective spawnOptions.cwd: ${spawnOptions.cwd}`); // Removed debug log
+        // --- DEBUG LOGGING END ---
 
         // Spawn the process
         try {
@@ -154,7 +163,7 @@ export async function spawnProcess(command) {
         const newStateEntry = {
             pid,
             command,
-            cwd: spawnOptions.cwd,
+            cwd: spawnOptions.cwd, // Store the actual CWD used (projectRoot)
             status: 'Running',
             exit_code: null,
             stdout_log: stdoutLogPath,
@@ -240,6 +249,7 @@ export async function spawnProcess(command) {
             } catch (finalStateErr) {
                 // console.error(`[ProcessManager] Error during final state update on 'close' for PID ${pid}:`, finalStateErr);
             }
+            cleanupResolve({ status: finalStatus, code: finalExitCode }); // Resolve cleanup *after* state update
         };
 
         const handleError = async (err) => {
@@ -254,6 +264,7 @@ export async function spawnProcess(command) {
 
             // Update state to indicate failure due to an error event
             const errorEndTime = new Date().toISOString();
+            let stateUpdateError = null;
             try {
                 await StateManager.updateState(pid, {
                     status: 'Failure',
@@ -264,8 +275,10 @@ export async function spawnProcess(command) {
                 });
                 // console.log(`[ProcessManager] Updated state to Failure for PID ${pid} due to 'error' event.`);
             } catch (stateErr) {
-                // console.error(`[ProcessManager] Error updating state after 'error' event for PID ${pid}:`, stateErr);
+                stateUpdateError = stateErr;
             }
+            // Resolve cleanupPromise *after* state update attempt
+            cleanupResolve({ status: 'Failure', code: null, error: stateUpdateError || err });
         };
 
         // Register event handlers
@@ -278,7 +291,8 @@ export async function spawnProcess(command) {
             exit_code: null, // This is initial, final code comes from completionPromise/state
             stdout_log: stdoutLogPath,
             stderr_log: stderrLogPath,
-            completionPromise // Return the promise
+            completionPromise, // Return the promise
+            cleanupPromise     // Resolves after state/logs are finalized
         };
     } catch (err) {
         // console.error(`[ProcessManager] Error during spawnProcess setup for command "${command}":`, err);
