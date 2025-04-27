@@ -2,13 +2,17 @@
 
 ## Current implementation context
 
-- **Objective**: Resolve issues identified during testing of MCP server enhancements.
-- **Recent Actions**:
-    - Fixed delayed status update in `process_manager.js` by updating state immediately on exit.
-    - Fixed `get_terminal_output` handler in `terminal_output.js` to always read from logs, resolving discrepancies for fast commands.
-    - Fixed assertion in `tests/test_mcp_async_terminal.js` to correctly handle stop status for already-exited processes.
-- **Files/Symbols involved**: `.cursor/mcp/mcp-commit-server/lib/process_manager.js`, `.cursor/mcp/mcp-commit-server/mcp_tools/terminal_output.js`, `tests/test_mcp_async_terminal.js`
-- **Next Step**: Complete `context-update` rule.
+- **Objective**: Refactor `process_manager.js` to use the `execa` library instead of `node:child_process.spawn`.
+- **Task**: Replace `spawn` calls and related event handling (`data`, `error`, `exit`) with `execa` equivalents.
+- **Rationale**: `execa` provides a more user-friendly API, better promise support, and potentially more robust handling of processes compared to the base `child_process` module.
+- **Files/Symbols involved**: `.cursor/mcp/mcp-commit-server/lib/process_manager.js`, `execa` library.
+- **Key Considerations**:
+    - Ensure the `execa` implementation replicates the existing functionality: detached process execution, capturing PID, command, status, stdout/stderr logging, and correct state updates in `StateManager`.
+    - Verify compatibility with existing logging mechanisms (`Logger.log`).
+    - Maintain the structure of `spawnProcess` and `killProcess` functions as much as possible.
+    - Need to import `execa`.
+- **Dependencies**: `execa` library (installed).
+- **Next Step**: Begin implementing the changes in `process_manager.js`.
 
 ## Current Status
 
@@ -43,3 +47,11 @@
 ## Documentation Context
 - **Relevant Files:** Node.js `child_process` documentation.
 - **Key Concepts:** MCP Server, Node.js Streams, ESM Modules, Asynchronous Programming.
+
+## Lost workflow
+
+I was preparing to refactor `process_manager.js` by installing the `execa` library in the `mcp-commit-server`. 
+
+- **Files involved**: `.cursor/mcp/mcp-commit-server/package.json`, `.cursor/memory-bank/workflow/tasks.md`
+- **Action**: Successfully ran `npm install execa` in the server directory.
+- **Next Step according to tasks.md**: Refactor `process_manager.js`.

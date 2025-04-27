@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+// import { execa } from 'execa'; // REVERTED
 import path from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
@@ -15,7 +16,7 @@ const projectRoot = path.resolve(__dirname, '../../..'); // Assuming lib/ is two
  * @returns {Promise<{pid: number, exit_code: number | null, stdout_log: string, stderr_log: string}>} Promise resolving with initial info, or rejecting on immediate spawn error.
  */
 export async function spawnProcess(command) {
-    let child;
+    let child; // REVERTED from childProcess
     let pid;
     let stdoutLogPath;
     let stderrLogPath;
@@ -33,12 +34,8 @@ export async function spawnProcess(command) {
     try {
         await Logger.ensureLogsDir();
 
-        // Basic shell detection (can be improved)
-        // For now, replicating the core idea from server.js - use shell: true by default
-        // TODO: Refine shell/argument parsing if needed, maybe move into a separate utility
+        // Revert to original logic: Always use shell: true for now
         let useShell = true;
-        let executable = command;
-        let args = [];
         const spawnOptions = {
             detached: true, // Keep detached for background potential
             stdio: ['ignore', 'pipe', 'pipe'],
@@ -48,11 +45,8 @@ export async function spawnProcess(command) {
 
         // Spawn the process
         // console.warn(`[ProcessManager] Spawning: '${command}' with options: ${JSON.stringify(spawnOptions)}`);
-        if (useShell) {
-            child = spawn(command, [], spawnOptions);
-        } else {
-            child = spawn(executable, args, spawnOptions);
-        }
+        // Always use the simple spawn with the command string when shell: true
+        child = spawn(command, [], spawnOptions); // REVERTED from execa
 
         pid = child.pid;
         if (pid === undefined) {
@@ -96,6 +90,9 @@ export async function spawnProcess(command) {
             const status = (exitCode === 0) ? 'Success' : 'Failure';
             const endTime = new Date().toISOString(); // Capture end time immediately
 
+            // Log details to stderr for debugging
+            // console.error(`[FIX_LOG] handleExit PID: ${pid}, code: ${code}, signal: ${signal}, calculatedExitCode: ${exitCode}, calculatedStatus: ${status}`);
+
             // --- Immediate Status Update ---
             try {
                 await StateManager.updateState(pid, {
@@ -126,6 +123,9 @@ export async function spawnProcess(command) {
             // Ensure streams are ended to trigger 'finish'
             stdoutStream?.end();
             stderrStream?.end();
+
+            // HACK: Add a small delay to allow potentially buffered shell output to flush to logs
+            await new Promise(resolve => setTimeout(resolve, 100)); // Wait 100ms
 
             try {
                 await Promise.all(streamEndPromises);
@@ -160,84 +160,104 @@ export async function spawnProcess(command) {
             // Update state to Failure on spawn error
             await StateManager.updateState(pid, {
                 status: 'Failure',
-                exit_code: null, // Or maybe 1?
+                exit_code: null, // Revert to original null
                 endTime: new Date().toISOString(),
-                initial_stderr: initialStderr + `\nSpawn/Runtime Error: ${err.message}` // Append error
+                initial_stderr: `${initialStderr}\nSpawn/Runtime Error: ${err.message}` // Append error
             });
         };
 
         child.on('exit', handleExit);
         child.on('error', handleError);
 
-        // Detach? The original had detached: true and unref() on timeout.
-        // For now, let's not unref automatically. The caller can decide.
-        // child.unref(); // Example: if we wanted to allow parent to exit
-
-        // Return minimal info immediately
         return {
             pid,
+            exit_code: null,
             stdout_log: stdoutLogPath,
-            stderr_log: stderrLogPath,
+            stderr_log: stderrLogPath
         };
-
-    } catch (error) {
-        console.error('[ProcessManager] Error spawning process:', error);
-        // Clean up potentially created streams if error happened after creation
+    } catch (err) {
+        console.error(`[ProcessManager] Error during spawnProcess:`, err);
+        // If PID was assigned, try to update state to Failure
+        if (pid) {
+            try {
+                await StateManager.updateState(pid, {
+                    status: 'Failure',
+                    exit_code: null,
+                    endTime: new Date().toISOString(),
+                    initial_stderr: `Setup Error: ${err.message}`
+                });
+            } catch (stateErr) {
+                console.error(`[ProcessManager] Error updating state after setup error for PID ${pid}:`, stateErr);
+            }
+        }
+        // Close streams if they were opened
         stdoutStream?.end();
         stderrStream?.end();
-        // Don't try to update state as PID might not exist
-        throw new Error(`Failed to spawn process: ${error.message}`);
+        // Re-throw the error
+        throw err;
     }
 }
 
 /**
- * Sends a termination signal to a process.
- * Attempts SIGTERM first, then SIGKILL after a short delay if the process still exists.
- * @param {number} pid The process ID to kill.
- * @returns {Promise<string>} A status message indicating the outcome.
+ * Kills a process.
+ * @param {number} pid The process ID of the process to kill.
+ * @returns {Promise<string>} Promise that resolves with a status message when the kill attempt is done.
  */
 export async function killProcess(pid) {
-    let terminationStatus = `Attempting to terminate PID ${pid}.`;
     try {
-        process.kill(pid, 'SIGTERM');
-        terminationStatus = `Sent SIGTERM to PID ${pid}.`;
-        // Wait briefly to allow graceful shutdown
-        await new Promise(resolve => setTimeout(resolve, 200));
-
-        // Check if process still exists
-        try {
-            process.kill(pid, 0); // Check if process exists
-            // Process still exists, send SIGKILL
-            try {
-                process.kill(pid, 'SIGKILL');
-                terminationStatus = `Sent SIGTERM, then SIGKILL to PID ${pid}.`;
-            } catch (sigkillError) {
-                if (sigkillError.code === 'ESRCH') {
-                    terminationStatus = `Sent SIGTERM to PID ${pid}; process exited before SIGKILL.`;
-                } else {
-                    throw sigkillError; // Rethrow unexpected SIGKILL error
-                }
-            }
-        } catch (checkError) {
-            if (checkError.code === 'ESRCH') {
-                terminationStatus = `Sent SIGTERM to PID ${pid}; process confirmed exited.`;
-            } else {
-                throw checkError; // Rethrow unexpected check error
-            }
-        }
-    } catch (error) {
-        if (error.code === 'ESRCH') {
-            terminationStatus = `Process PID ${pid} already exited before termination attempt.`;
-        } else if (error.code === 'EPERM') {
-            console.error(`[ProcessManager] Permission error sending signal to PID ${pid}.`);
-            terminationStatus = `Permission error trying to terminate PID ${pid}.`;
+        // Check if process exists using signal 0
+        process.kill(pid, 0);
+    } catch (e) {
+        if (e.code === 'ESRCH') {
+            // Process already exited or never existed
+            return `Process ${pid} already exited before termination attempt.`;
         } else {
-            console.error(`[ProcessManager] Error sending termination signal to PID ${pid}:`, error);
-            terminationStatus = `Error during termination attempt for PID ${pid}: ${error.message}`;
+            // Other error (e.g., permissions)
+            console.error(`[ProcessManager] Error checking process ${pid} existence:`, e);
+            return `Error checking process ${pid}: ${e.message}.`;
         }
     }
-    // Note: This function only attempts to kill. State update happens in exit handler.
-    // Consider if state should be updated to 'Terminated'/'Stopped' here immediately?
-    // For now, rely on the exit handler triggered by the kill signal.
-    return terminationStatus;
-} 
+
+    // Process exists, attempt graceful termination
+    try {
+        process.kill(pid, 'SIGTERM');
+        // Wait a short period to see if it terminates
+        await new Promise(resolve => setTimeout(resolve, 200)); // 200ms grace period
+
+        // Check again if it exited
+        try {
+            process.kill(pid, 0);
+            // Still running, force kill
+            console.warn(`[ProcessManager] Process ${pid} did not exit after SIGTERM, sending SIGKILL.`);
+            try {
+                process.kill(pid, 'SIGKILL');
+                return `Process ${pid} terminated forcefully (SIGKILL).`;
+            } catch (killErr) {
+                // Handle error during SIGKILL (e.g., process died just before)
+                console.error(`[ProcessManager] Error sending SIGKILL to ${pid}:`, killErr);
+                if (killErr.code === 'ESRCH') {
+                    return `Process ${pid} exited during termination attempt.`;
+                } else {
+                    return `Error sending SIGKILL to ${pid}: ${killErr.message}.`;
+                }
+            }
+        } catch (e) {
+            if (e.code === 'ESRCH') {
+                // Exited gracefully after SIGTERM
+                return `Process ${pid} terminated gracefully (SIGTERM).`;
+            } else {
+                // Should not happen if first check passed, but handle defensively
+                console.error(`[ProcessManager] Error re-checking process ${pid} after SIGTERM:`, e);
+                return `Error confirming termination for ${pid}: ${e.message}.`;
+            }
+        }
+    } catch (termErr) {
+        // Handle error during SIGTERM (e.g., permissions)
+        console.error(`[ProcessManager] Error sending SIGTERM to ${pid}:`, termErr);
+        if (termErr.code === 'ESRCH') {
+            return `Process ${pid} exited before termination signal could be sent.`;
+        } else {
+            return `Error sending SIGTERM to ${pid}: ${termErr.message}.`;
+        }
+    }
+}

@@ -1,6 +1,6 @@
 # Test Status
 
-- [❌] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): **FAILED** (Latest Run: Current Cycle - Refactoring)
+- [✅] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): **PASSED** (Latest Run: Current Cycle - Fix Implemented)
 - [✅] User curl test (MINGW64, no jq): Passed (Latest Run: 2025-04-27 - Required `tr -d '\r'` before `bash` to fix CRLF issue causing `: command not found`)
 - [✅] `test_curl_install.sh`: Passed (Latest Run: 2025-04-27 - Fixed no-jq subtest failures related to `--target` option, log file checking, and path extraction)
 - [✅] `test_download.sh`: Passed (Latest Run: 2025-04-27)
@@ -36,13 +36,18 @@
 - ✅ **Test de backup et restauration** : Passed - Stable (Latest Run: 2025-04-27)
 - ✅ **Test de gestion d'erreur** : Passed - Stable (Latest Run: 2025-04-27)
 
-## MCP Async Terminal Workflow Test
-*   **Last Run:** Current Cycle
-*   **Status:** ✅ **Pass (Verified Fix)**
-*   **Description:** Runs a workflow using the async terminal commands (`execute`, `get_status`, `get_output`, `stop`).
-*   **Fix:** Moved `ensureLogsDirExists()` into `execute_command` handler. Corrected test script assertion for stderr.
-*   **Previous Status:** ❌ Fail (Regression)
-*   **Evolution**: Verified Fix
+## MCP Async Terminal Tests (`tests/test_mcp_async_terminal.js`)
+
+- **Date**: Current Cycle (Post-Fix)
+- **Commit**: Current (Post-Fix)
+- **Status**: ✅ **PASS**
+- **Details**: Test passes after implementing `killProcess` in `process_manager.js` and adjusting test commands to use `node -e "process.exit(...)"`. Covers execute, status, output, and stop commands.
+- **Command**: `node tests/test_mcp_async_terminal.js`
+- **Output Snippet**:
+  ```
+[Test] === ALL TESTS PASSED (using node exit commands) ===
+  ```
+- **Evolution**: Pass (Fixed Regression).
 
 ## Problèmes persistants
 - ✅ **Install script permissions (MINGW64/curl)**: Fixed (Latest Run: 2025-04-27) - Root cause identified as CRLF line endings (`\r`) causing parsing errors in piped MINGW64 bash. Resolved by modifying the *execution command* to `curl ... | tr -d '\r' | bash`.
@@ -112,16 +117,16 @@
 
 ## MCP Async Terminal Tests (`tests/test_mcp_async_terminal.js`)
 
-- **Date**: Current Cycle
-- **Commit**: Current (Post-Fix for status delay & output retrieval)
+- **Date**: Current Cycle (Post-Fix)
+- **Commit**: Current (Post-Fix)
 - **Status**: ✅ **PASS**
-- **Details**: All internal assertions in `test_mcp_async_terminal.js` pass after adjusting the stop command status assertion. Covers execute, status, output, and stop commands.
+- **Details**: Test passes after implementing `killProcess` in `process_manager.js` and adjusting test commands to use `node -e "process.exit(...)"`. Covers execute, status, output, and stop commands.
 - **Command**: `node tests/test_mcp_async_terminal.js`
 - **Output Snippet**:
   ```
-  [Test] === ALL TESTS PASSED ===
+[Test] === ALL TESTS PASSED (using node exit commands) ===
   ```
-- **Evolution**: Pass (Fixed AssertionError).
+- **Evolution**: Pass (Fixed Regression).
 
 ## Problèmes persistants
 - ✅ **Install script permissions (MINGW64/curl)**: Fixed (Latest Run: 2025-04-27) - Root cause identified as CRLF line endings (`\r`) causing parsing errors in piped MINGW64 bash. Resolved by modifying the *execution command* to `curl ... | tr -d '\r' | bash`.
