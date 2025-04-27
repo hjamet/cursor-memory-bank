@@ -72,13 +72,17 @@ export async function readLogLines(logPath, lineCount) {
     try {
         const content = await fs.readFile(logPath, 'utf8');
         const lines = content.split(/\r?\n/).filter(line => line.length > 0);
-        const lastLines = lines.slice(-lineCount);
-        return lastLines.join('\n');
+
+        // Correctly handle lineCount: if < 1, take all lines, otherwise take the last 'lineCount' lines.
+        const lastLines = (lineCount < 1) ? lines : lines.slice(-lineCount);
+
+        const result = lastLines.join('\n');
+        return result;
     } catch (error) {
         if (error.code === 'ENOENT') {
             return ''; // File not found is not necessarily an error here
         }
-        // console.error(`[Logger] Error reading log file ${logPath}:`, error);
+        // console.error(`[Logger] Error reading log file ${logPath}:`, error); // Keep original console error commented for now
         return ''; // Return empty on other errors
     }
 }

@@ -51,37 +51,44 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
             // Wait for either the process to complete or the timeout
             await Promise.race([completionPromise, timeoutPromise]);
 
-            // If we reach here, completionPromise resolved first (process finished)
+            // --- Process Finished Before Timeout --- 
+            // completionPromise resolved first
+
             // Explicitly wait for cleanup (state/log finalization) to complete
             await cleanupPromise;
 
             const finalState = await StateManager.getState(pid); // Get final state after handleClose finished
             if (!finalState) {
-                // Should theoretically not happen if completionPromise resolved, but handle defensively
                 throw new Error(`Process ${pid} finished but final state not found after cleanup.`);
             }
 
-            // Read the full logs
+            // *** ADDING SMALL DELAY before reading logs ***
+            await new Promise(resolve => setTimeout(resolve, 50)); // 50ms delay
+
+            // Initialize variables OUTSIDE try blocks
             let stdoutContent = '';
             let stderrContent = '';
+
+            // Read the full logs
             try {
-                stdoutContent = await Logger.readLogLines(stdout_log, -1); // Read all lines
+                stdoutContent = await Logger.readLogLines(stdout_log, -1);
             } catch (logErr) {
-                console.warn(`[ExecuteCommand] Error reading stdout log for completed PID ${pid}:`, logErr.message);
+                console.warn(`[ExecuteCommand] Error reading stdout log (after delay) for completed PID ${pid}:`, logErr.message);
             }
             try {
-                stderrContent = await Logger.readLogLines(stderr_log, -1); // Read all lines
+                stderrContent = await Logger.readLogLines(stderr_log, -1);
             } catch (logErr) {
-                console.warn(`[ExecuteCommand] Error reading stderr log for completed PID ${pid}:`, logErr.message);
+                console.warn(`[ExecuteCommand] Error reading stderr log (after delay) for completed PID ${pid}:`, logErr.message);
             }
 
+            // Construct result using logs read *after* delay and final state from *after*
             result = {
                 pid,
                 cwd: finalState.cwd ?? null,
-                status: finalState.status, // Should be Success or Failure
-                exit_code: finalState.exit_code, // Should be the actual exit code
-                stdout: stdoutContent,
-                stderr: stderrContent
+                status: finalState.status,
+                exit_code: finalState.exit_code,
+                stdout: typeof stdoutContent === 'string' ? stdoutContent : '', // Ensure string
+                stderr: typeof stderrContent === 'string' ? stderrContent : ''  // Ensure string
             };
 
         } catch (raceError) {
@@ -91,9 +98,11 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
                 // console.log(`[ExecuteCommand] Timeout reached for PID ${pid}. Process continues.`);
                 const currentState = StateManager.findStateByPid(pid); // Get current (likely Running) state
 
-                // Read the CURRENT (partial) logs
+                // Initialize variables OUTSIDE try blocks
                 let partialStdout = '';
                 let partialStderr = '';
+
+                // Read the CURRENT (partial) logs
                 try {
                     partialStdout = await Logger.readLogLines(stdout_log, -1); // Read all available lines
                 } catch (logErr) {
@@ -108,34 +117,41 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
                 result = {
                     pid,
                     cwd: currentState?.cwd ?? null,
-                    status: currentState?.status ?? 'Running', // Reflect current state
-                    exit_code: null, // Explicitly null as it's still running
-                    stdout: partialStdout, // Return partial stdout
-                    stderr: partialStderr  // Return partial stderr
+                    status: currentState?.status ?? 'Running',
+                    exit_code: null,
+                    stdout: typeof partialStdout === 'string' ? partialStdout : '', // Ensure string
+                    stderr: typeof partialStderr === 'string' ? partialStderr : ''  // Ensure string
                 };
             } else {
                 // Another error occurred (e.g., from completionPromise rejecting)
                 // Wait for cleanup to potentially capture the error state
                 const cleanupResult = await cleanupPromise;
                 const errorState = await StateManager.getState(pid);
-                let stderrContent = (cleanupResult?.error || raceError)?.message || 'Unknown error';
-                // Try reading logs even on error
+
+                // Initialize variable OUTSIDE try block
+                let stderrReadContent = '';
                 try {
-                    stderrContent += "\n--- STDERR LOG ---\n" + await Logger.readLogLines(stderr_log, -1);
+                    stderrReadContent = await Logger.readLogLines(stderr_log, -1);
                 } catch (logErr) { }
+
+                let combinedStderr = (cleanupResult?.error || raceError)?.message || 'Unknown error';
+                if (typeof stderrReadContent === 'string' && stderrReadContent.length > 0) {
+                    combinedStderr += "\n--- STDERR LOG ---\n" + stderrReadContent;
+                }
+
 
                 result = {
                     pid,
                     cwd: errorState?.cwd ?? null,
                     status: errorState?.status ?? 'Failure',
-                    exit_code: errorState?.exit_code, // Might be null if error happened before exit
-                    stdout: '', // Or maybe read stdout log?
-                    stderr: stderrContent
+                    exit_code: errorState?.exit_code,
+                    stdout: '', // Keep empty on error for now
+                    stderr: typeof combinedStderr === 'string' ? combinedStderr : '' // Ensure string
                 };
             }
         }
 
-        // Return either the full early result or the partial result upon timeout
+        // Return the constructed result (full on completion, partial on timeout, error info on error)
         return { content: [{ type: "text", text: JSON.stringify(result) }] };
 
     } catch (error) {
