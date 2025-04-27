@@ -1,1 +1,0 @@
-console.log('Minimal test OK'); 
