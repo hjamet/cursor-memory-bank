@@ -1,3 +1,4 @@
+console.log('[MCP Test Script] Starting execution...'); // Added early log
 // tests/test_mcp_send_input.js
 const { v4: uuidv4 } = require('uuid');
 const process = require('process');
@@ -159,9 +160,11 @@ async function runTest() {
         setupStdioListeners();
         console.log(`[${testId}] MCP server process spawned with PID: ${mcpServerProcess.pid}`);
 
-        // Wait a moment for the server to initialize (simple delay, could be improved)
-        await delay(2000);
-        if (!mcpServerProcess || mcpServerProcess.killed) throw new Error("MCP Server failed to start or exited prematurely.");
+        // Wait a moment for the server to initialize (increased delay)
+        console.log(`[${testId}] Waiting 5 seconds for server initialization...`);
+        await delay(5000);
+        if (!mcpServerProcess || mcpServerProcess.killed) throw new Error("MCP Server failed to start or exited prematurely after delay.");
+        console.log(`[${testId}] Server seems alive. Proceeding with test steps.`);
 
         // 1. Start a simple interactive command (`cat`)
         console.log(`[${testId}] Step 1: Starting target command ('cat')...`);
