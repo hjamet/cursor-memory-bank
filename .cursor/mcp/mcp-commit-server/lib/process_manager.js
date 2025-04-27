@@ -1,13 +1,25 @@
 import { execa } from 'execa';
-// import { spawn } from 'child_process'; // REVERTED
+import { spawn } from 'child_process';
 import path from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import * as StateManager from './state_manager.js';
 import * as Logger from './logger.js';
+import { Buffer } from 'node:buffer'; // Import Buffer for Base64
 // No longer needed: import os from 'os';
 // No longer needed: import fsPromises from 'fs/promises';
+
+// Helper to escape double quotes for bash -c "..."
+const escapeDoubleQuotesForBash = (str) => {
+    return str.replace(/"/g, '\\"');
+};
+
+// Helper to escape quotes for bash -c "..." - NO LONGER NEEDED?
+// const escapeQuotesForBash = (str) => {
+//   // Escape backslashes first, then double quotes, then single quotes
+//   return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/'/g, "\\'");
+// };
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,45 +50,35 @@ export async function spawnProcess(command) {
             detached: true, // Keep detached for background potential
             stdio: ['ignore', 'pipe', 'pipe'],
             cwd: projectRoot,
-            shell: false // Default to false now
+            shell: false // Always use shell: false now
         };
 
-        // Specific handling for Git Bash on Windows
         const gitBashPath = "C:\\Program Files\\Git\\bin\\bash.exe"; // Use escaped backslashes
-        if (process.platform === 'win32' && command.startsWith(`"${gitBashPath}"`)) {
-            const match = command.match(/^"(.*?)"\s+-c\s+"(.*)"$/);
-            if (match && match[1] === gitBashPath) {
-                executable = gitBashPath;
-                args = ['-c', match[2]]; // Pass the command string as an argument to -c
-            } else {
-                executable = command; // The whole string
-                args = [];
-                spawnOptions.shell = true; // Revert to shell: true for this case
-            }
+
+        if (process.platform === 'win32') {
+            executable = gitBashPath;
+            // Encode the command in Base64 to avoid complex escaping
+            const base64Command = Buffer.from(command).toString('base64');
+            // Construct bash command to decode and execute using eval
+            const bashCommand = `eval $(echo '${base64Command}' | base64 -d)`;
+            args = ['-c', bashCommand];
+            spawnOptions.shell = false; // Ensure shell is false for direct bash execution
         } else {
-            // Default behavior for other commands/platforms
-            executable = command; // Assume command is the executable or handled by shell
+            // Non-Windows: Use default shell for compatibility
+            executable = command; // Let the default shell handle it
             args = [];
-            spawnOptions.shell = true; // Use shell: true for general commands
+            spawnOptions.shell = true;
         }
 
-        // Spawn the process - First attempt with configured options (potentially shell: false)
+        // console.log(`[ProcessManager] Spawning with: executable=${executable}, args=[${args.join(', ')}], options=${JSON.stringify(spawnOptions)}`); // Keep commented out
+
+        // Spawn the process
         try {
             child = spawn(executable, args, spawnOptions);
         } catch (spawnErr) {
-            // If the first attempt failed (e.g., ENOENT with shell: false), try again with shell: true
-            if (spawnOptions.shell === false && spawnErr.code === 'ENOENT') {
-                spawnOptions.shell = true;
-                executable = command; // Use the original full command string
-                args = [];
-                try {
-                    child = spawn(executable, args, spawnOptions); // Retry with shell: true
-                } catch (retryErr) {
-                    throw retryErr; // Throw the error from the retry
-                }
-            } else {
-                throw spawnErr;
-            }
+            // No need for shell: true fallback anymore on Windows
+            // console.error(`[ProcessManager] Initial spawn failed: ${spawnErr.message}. Code: ${spawnErr.code}`); // Keep commented out
+            throw spawnErr; // Re-throw error if direct bash spawn fails
         }
 
         pid = child.pid;
@@ -94,15 +96,58 @@ export async function spawnProcess(command) {
         stdoutStream = streams.stdoutStream;
         stderrStream = streams.stderrStream;
 
-        // Pipe output to log files
-        child.stdout.pipe(stdoutStream);
-        child.stderr.pipe(stderrStream);
+        // Capture output using event listeners
+        let stdoutData = ''; // Potentially buffer small amounts for immediate return?
+        let stderrData = '';
+        let pendingWrites = 0;
+        let writePromiseResolve = null;
+        let writePromise = new Promise(resolve => { writePromiseResolve = resolve; });
+
+        const handleData = async (streamType, logPath, data) => {
+            pendingWrites++;
+            try {
+                await Logger.appendLog(logPath, data);
+            } finally {
+                pendingWrites--;
+                if (pendingWrites === 0 && writePromiseResolve) {
+                    // If this was the last pending write after close was initiated,
+                    // resolve the promise we wait for in handleClose.
+                    writePromiseResolve();
+                    writePromiseResolve = null; // Prevent resolving multiple times
+                }
+            }
+        };
+
+        child.stdout.on('data', (data) => {
+            //stdoutData += data.toString(); // Optional: buffer recent data
+            handleData('stdout', stdoutLogPath, data).catch(err => {
+                // console.error(`[ProcessManager] Error handling stdout data for PID ${pid}:`, err);
+            });
+        });
+
+        child.stderr.on('data', (data) => {
+            //stderrData += data.toString(); // Optional: buffer recent data
+            handleData('stderr', stderrLogPath, data).catch(err => {
+                // console.error(`[ProcessManager] Error handling stderr data for PID ${pid}:`, err);
+            });
+        });
+
+        // Ensure streams associated with the child process are closed when it exits
+        // Note: 'end' might fire before 'close'
+        child.stdout.on('end', () => {
+            // console.log(`[ProcessManager] child.stdout received 'end' for PID ${pid}`);
+            stdoutStream?.end(); // Close the underlying file stream
+        });
+        child.stderr.on('end', () => {
+            // console.log(`[ProcessManager] child.stderr received 'end' for PID ${pid}`);
+            stderrStream?.end(); // Close the underlying file stream
+        });
 
         // Add entry to state
         const newStateEntry = {
             pid,
             command,
-            cwd: execaOptions.cwd,
+            cwd: spawnOptions.cwd,
             status: 'Running',
             exit_code: null,
             stdout_log: stdoutLogPath,
@@ -132,7 +177,7 @@ export async function spawnProcess(command) {
                 });
                 // console.log(`[ProcessManager] Updated tentative state for PID ${pid} on exit: Status=${status}, Code=${exitCode}`);
             } catch (stateErr) {
-                console.error(`[ProcessManager] Error during tentative state update on exit for PID ${pid}:`, stateErr);
+                // console.error(`[ProcessManager] Error during tentative state update on exit for PID ${pid}:`, stateErr);
             }
         };
 
@@ -140,28 +185,40 @@ export async function spawnProcess(command) {
             if (finalUpdateDone) return; // Prevent duplicate updates
             finalUpdateDone = true;
 
-            // console.log(`[ProcessManager] Process ${pid} received 'close' event with code: ${code}, signal: ${signal}`);
             // Exit code/status should ideally be set by handleExit, but recalculate for safety
             const finalExitCode = code ?? (signal ? 1 : 0);
             const finalStatus = (finalExitCode === 0) ? 'Success' : 'Failure';
             const finalEndTime = (await StateManager.getState(pid))?.endTime ?? new Date().toISOString(); // Use existing endTime if set by exit, else now
 
-            // Ensure file streams are ended explicitly before waiting for 'finish'
-            // It's possible 'close' fires before pipes automatically end the streams
-            stdoutStream?.end();
-            stderrStream?.end();
-
-            // Wait for file write streams to finish
+            // Wait for file write streams to finish (if they haven't already)
+            // and wait for any pending async writes from handleData to complete.
+            // console.log(`[ProcessManager] Waiting for streams/writes to finish for PID ${pid}...`);
             const streamFinishPromises = [];
-            if (stdoutStream) streamFinishPromises.push(new Promise(res => stdoutStream.once('finish', res).on('error', (e) => { console.error(`[ProcessManager] stdoutStream finish error for ${pid}:`, e); res(); }))); // Add error handlers
-            if (stderrStream) streamFinishPromises.push(new Promise(res => stderrStream.once('finish', res).on('error', (e) => { console.error(`[ProcessManager] stderrStream finish error for ${pid}:`, e); res(); }))); // Add error handlers
+            // Only wait for streams if they exist and aren't already closed/finished
+            if (stdoutStream && !stdoutStream.destroyed) streamFinishPromises.push(new Promise((res, rej) => {
+                stdoutStream.once('finish', res);
+                stdoutStream.once('error', rej);
+            }));
+            if (stderrStream && !stderrStream.destroyed) streamFinishPromises.push(new Promise((res, rej) => {
+                stderrStream.once('finish', res);
+                stderrStream.once('error', rej);
+            }));
+
+            // Add promise to wait for pending async writes
+            if (pendingWrites > 0) {
+                // console.log(`[ProcessManager] Waiting for ${pendingWrites} pending writes for PID ${pid}`);
+                streamFinishPromises.push(writePromise);
+            } else {
+                // If no pending writes, resolve the promise immediately in case handleClose was called first
+                if (writePromiseResolve) writePromiseResolve();
+            }
 
             try {
                 await Promise.all(streamFinishPromises);
-                // console.log(`[ProcessManager] File streams finished for PID ${pid} after 'close' event.`);
+                // console.log(`[ProcessManager] File streams/writes finished for PID ${pid} after 'close' event.`);
             } catch (streamErr) {
                 // This catch might be redundant if the error handlers within the promises resolve, but keep for safety.
-                console.error(`[ProcessManager] Error waiting for file streams to finish for PID ${pid}:`, streamErr);
+                // console.error(`[ProcessManager] Error waiting for file streams to finish for PID ${pid}:`, streamErr);
             }
 
             // Final state update after streams are confirmed closed
@@ -174,7 +231,7 @@ export async function spawnProcess(command) {
                 });
                 // console.log(`[ProcessManager] Updated final state for PID ${pid} after 'close': Status=${finalStatus}, Code=${finalExitCode}`);
             } catch (finalStateErr) {
-                console.error(`[ProcessManager] Error during final state update on 'close' for PID ${pid}:`, finalStateErr);
+                // console.error(`[ProcessManager] Error during final state update on 'close' for PID ${pid}:`, finalStateErr);
             }
         };
 
@@ -182,7 +239,7 @@ export async function spawnProcess(command) {
             if (finalUpdateDone) return; // Prevent duplicate updates
             finalUpdateDone = true;
 
-            console.error(`[ProcessManager] Error event for child process ${pid}:`, err);
+            // console.error(`[ProcessManager] Error event for child process ${pid}:`, err);
 
             // Attempt to end streams immediately
             stdoutStream?.end();
@@ -198,9 +255,9 @@ export async function spawnProcess(command) {
                     // Store error message? Maybe in a separate field or stderr_log?
                     // Let's add it to a potential error field if we modify state manager
                 });
-                console.log(`[ProcessManager] Updated state to Failure for PID ${pid} due to 'error' event.`);
+                // console.log(`[ProcessManager] Updated state to Failure for PID ${pid} due to 'error' event.`);
             } catch (stateErr) {
-                console.error(`[ProcessManager] Error updating state after 'error' event for PID ${pid}:`, stateErr);
+                // console.error(`[ProcessManager] Error updating state after 'error' event for PID ${pid}:`, stateErr);
             }
         };
 
@@ -216,7 +273,7 @@ export async function spawnProcess(command) {
             stderr_log: stderrLogPath
         };
     } catch (err) {
-        console.error(`[ProcessManager] Error during spawnProcess setup for command "${command}":`, err);
+        // console.error(`[ProcessManager] Error during spawnProcess setup for command "${command}":`, err);
         // Ensure streams are closed if they were opened during a failed setup
         stdoutStream?.end();
         stderrStream?.end();
@@ -232,7 +289,7 @@ export async function spawnProcess(command) {
                     // Maybe add error info here too
                 });
             } catch (stateErr) {
-                console.error(`[ProcessManager] Error updating state after setup error for PID ${pid}:`, stateErr);
+                // console.error(`[ProcessManager] Error updating state after setup error for PID ${pid}:`, stateErr);
             }
         }
         // Re-throw the error to the caller (e.g., terminal_execution.js)
@@ -246,25 +303,13 @@ export async function spawnProcess(command) {
  * @returns {Promise<string>} Promise resolving with status message.
  */
 export async function killProcess(pid) {
-    // Find the execa child process instance associated with the PID?
-    // This is tricky because we only store state, not the live child object.
-    // Let's stick to process.kill for now, assuming execa doesn't fundamentally change PID behavior.
-    // TODO: Revisit if execa provides a better way to manage/kill detached processes by PID.
+    // We need to use OS-level kill.
+    // console.log(`[ProcessManager] Attempting to kill PID: ${pid}`);
     try {
+        // Check if process exists first (0 signal)
         process.kill(pid, 0);
-    } catch (e) {
-        if (e.code === 'ESRCH') {
-            // Process already exited or never existed
-            return `Process ${pid} already exited before termination attempt.`;
-        } else {
-            // Other error (e.g., permissions)
-            console.error(`[ProcessManager] Error checking process ${pid} existence:`, e);
-            return `Error checking process ${pid}: ${e.message}.`;
-        }
-    }
 
-    // Process exists, attempt graceful termination
-    try {
+        // Attempt graceful termination first
         process.kill(pid, 'SIGTERM');
         // Wait a short period to see if it terminates
         await new Promise(resolve => setTimeout(resolve, 200)); // 200ms grace period
@@ -273,36 +318,42 @@ export async function killProcess(pid) {
         try {
             process.kill(pid, 0);
             // Still running, force kill
-            console.warn(`[ProcessManager] Process ${pid} did not exit after SIGTERM, sending SIGKILL.`);
-            try {
-                process.kill(pid, 'SIGKILL');
-                return `Process ${pid} terminated forcefully (SIGKILL).`;
-            } catch (killErr) {
-                // Handle error during SIGKILL (e.g., process died just before)
-                console.error(`[ProcessManager] Error sending SIGKILL to ${pid}:`, killErr);
-                if (killErr.code === 'ESRCH') {
-                    return `Process ${pid} exited during termination attempt.`;
-                } else {
-                    return `Error sending SIGKILL to ${pid}: ${killErr.message}.`;
-                }
-            }
+            // console.warn(`[ProcessManager] Process ${pid} did not exit after SIGTERM, sending SIGKILL.`);
+            process.kill(pid, 'SIGKILL');
+            await new Promise(resolve => setTimeout(resolve, 100)); // Short wait after SIGKILL
         } catch (e) {
             if (e.code === 'ESRCH') {
-                // Exited gracefully after SIGTERM
-                return `Process ${pid} terminated gracefully (SIGTERM).`;
+                // Process already exited after SIGTERM
+                // console.log(`[ProcessManager] Process ${pid} exited after SIGTERM.`);
+                return `Process ${pid} terminated successfully (SIGTERM).`;
             } else {
-                // Should not happen if first check passed, but handle defensively
-                console.error(`[ProcessManager] Error re-checking process ${pid} after SIGTERM:`, e);
-                return `Error confirming termination for ${pid}: ${e.message}.`;
+                throw e; // Other error checking after SIGTERM
             }
         }
-    } catch (termErr) {
-        // Handle error during SIGTERM (e.g., permissions)
-        console.error(`[ProcessManager] Error sending SIGTERM to ${pid}:`, termErr);
-        if (termErr.code === 'ESRCH') {
-            return `Process ${pid} exited before termination signal could be sent.`;
+        // Check one last time after SIGKILL
+        try {
+            process.kill(pid, 0);
+            // console.error(`[ProcessManager] Process ${pid} did NOT exit after SIGKILL!`);
+            return `Process ${pid} failed to terminate after SIGKILL.`;
+        } catch (e) {
+            if (e.code === 'ESRCH') {
+                // console.log(`[ProcessManager] Process ${pid} exited after SIGKILL.`);
+                return `Process ${pid} terminated successfully (SIGKILL).`;
+            } else {
+                throw e; // Other error checking after SIGKILL
+            }
+        }
+
+    } catch (error) {
+        if (error.code === 'ESRCH') {
+            // console.warn(`[ProcessManager] Process ${pid} not found or already exited when trying to kill.`);
+            return `Process ${pid} not found or already exited.`;
+        } else if (error.code === 'EPERM') {
+            // console.error(`[ProcessManager] Permission error trying to kill process ${pid}.`);
+            return `Permission error trying to kill process ${pid}.`;
         } else {
-            return `Error sending SIGTERM to ${pid}: ${termErr.message}.`;
+            // console.error(`[ProcessManager] Unexpected error killing process ${pid}:`, error);
+            return `Error killing process ${pid}: ${error.message}`;
         }
     }
 }

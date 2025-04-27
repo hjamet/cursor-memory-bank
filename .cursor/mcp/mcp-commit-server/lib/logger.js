@@ -22,11 +22,11 @@ export async function ensureLogsDir() {
                 await fs.mkdir(LOGS_DIR, { recursive: true });
                 // console.log(`[Logger] Created logs directory: ${LOGS_DIR}`);
             } catch (mkdirError) {
-                console.error(`[Logger] Error creating logs directory ${LOGS_DIR}:`, mkdirError);
-                // Decide if this is fatal
+                // console.error(`[Logger] Error creating logs directory ${LOGS_DIR}:`, mkdirError);
+                // Decide if this is fatal - For now, suppress error output to avoid MCP interference
             }
         } else {
-            console.error(`[Logger] Error accessing logs directory ${LOGS_DIR}:`, error);
+            // console.error(`[Logger] Error accessing logs directory ${LOGS_DIR}:`, error);
         }
     }
 }
@@ -47,6 +47,22 @@ export function createLogStreams(pid) {
 }
 
 /**
+ * Appends data to a log file asynchronously.
+ * @param {string} logPath Path to the log file.
+ * @param {string | Buffer} data Data to append.
+ * @returns {Promise<void>}
+ */
+export async function appendLog(logPath, data) {
+    if (!logPath) return; // Do nothing if log path is invalid
+    try {
+        await fs.appendFile(logPath, data);
+    } catch (error) {
+        // console.error(`[Logger] Error appending to log file ${logPath}:`, error);
+        // Decide how critical this is - maybe throw? For now, suppress error output
+    }
+}
+
+/**
  * Reads the last N lines of a log file asynchronously.
  * @param {string} logPath Path to the log file.
  * @param {number} lineCount Maximum number of lines to read.
@@ -62,7 +78,7 @@ export async function readLogLines(logPath, lineCount) {
         if (error.code === 'ENOENT') {
             return ''; // File not found is not necessarily an error here
         }
-        console.error(`[Logger] Error reading log file ${logPath}:`, error);
+        // console.error(`[Logger] Error reading log file ${logPath}:`, error);
         return ''; // Return empty on other errors
     }
 }
@@ -90,7 +106,7 @@ export async function deleteLogFiles(stateOrPid) {
         deletePromises.push(
             fs.unlink(stdoutLogPath).catch(err => {
                 if (err.code !== 'ENOENT') { // Ignore if file doesn't exist
-                    console.warn(`[Logger] Could not delete stdout log ${stdoutLogPath}:`, err);
+                    // console.warn(`[Logger] Could not delete stdout log ${stdoutLogPath}:`, err);
                 }
             })
         );
@@ -100,7 +116,7 @@ export async function deleteLogFiles(stateOrPid) {
         deletePromises.push(
             fs.unlink(stderrLogPath).catch(err => {
                 if (err.code !== 'ENOENT') { // Ignore if file doesn't exist
-                    console.warn(`[Logger] Could not delete stderr log ${stderrLogPath}:`, err);
+                    // console.warn(`[Logger] Could not delete stderr log ${stderrLogPath}:`, err);
                 }
             })
         );
