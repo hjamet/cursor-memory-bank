@@ -18,12 +18,12 @@
 - **Completed Task: Modify `stop_terminal_command` to accept a list of PIDs.**
     - Modified Zod schema and handler in `server.js`.
     - Added try/catch around tool registration and stream creation.
-    - Updated test script (`tests/test_mcp_async_terminal.js`) to handle array arguments and parse results correctly.
+    - Updated test script (`tests/test_mcp_async_terminal.js`) iteratively to handle array arguments and parse all results correctly.
 - **Tests for `tests/test_mcp_async_terminal.js` now passing.**
 
 ## Recent Decisions
 
-- Successfully diagnosed and fixed test failures related to MCP tool implementation and test script parsing.
+- Successfully diagnosed and fixed test failures related to MCP tool implementation and test script parsing through iterative debugging with user log feedback.
 - Added error handling to MCP server for robustness.
 
 ## Next Steps

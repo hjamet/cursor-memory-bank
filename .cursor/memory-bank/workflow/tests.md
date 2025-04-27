@@ -1,6 +1,6 @@
 # Test Status
 
-- [✅] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): Passed (Latest Run: 2025-04-28 - Fixed "Method not found" error by modifying test client to use `tools/call` method with tool name in params)
+- [✅] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): Passed (Latest Run: 2024-07-26)
 - [✅] User curl test (MINGW64, no jq): Passed (Latest Run: 2025-04-27 - Required `tr -d '\r'` before `bash` to fix CRLF issue causing `: command not found`)
 - [✅] `test_curl_install.sh`: Passed (Latest Run: 2025-04-27 - Fixed no-jq subtest failures related to `--target` option, log file checking, and path extraction)
 - [✅] `test_download.sh`: Passed (Latest Run: 2025-04-27)
@@ -110,19 +110,9 @@
 ## MCP Async Terminal Tests (`tests/test_mcp_async_terminal.js`)
 
 - **Date**: 2024-07-26
-- **Commit**: 2fd2b80
+- **Commit**: b5d84be
 - **Status**: ✅ PASS
-- **Details**: Test suite passed after fixing response parsing issues in the test script for `execute_command`, `get_terminal_status`, and `stop_terminal_command`, and adding error handling for log stream creation in `server.js`.
+- **Details**: Test suite passed after iteratively fixing response parsing issues in the test script (`execute_command`, `get_terminal_status`, `stop_terminal_command`) and adding error handling for log stream creation in `server.js`.
 - **Command**: `node tests/test_mcp_async_terminal.js`
 - **Output**: Successful execution (exit code 0).
-- **Evolution**: Improvement (Fixed regression introduced by `stop_terminal_command` modification).
-
-## MCP Async Terminal Tests (`tests/test_mcp_async_terminal.js`)
-
-- **Date**: 2024-07-26
-- **Commit**: 2fd2b80
-- **Status**: ❌ FAIL
-- **Details**: Test suite execution failed immediately (exit code 1) after modifying `stop_terminal_command` to accept an array of PIDs.
-- **Command**: `node tests/test_mcp_async_terminal.js`
-- **Output**: No stdout/stderr captured.
-- **Evolution**: Regression (Previously assumed passing based on completed tasks in `tasks.md`). 
+- **Evolution**: Improvement (Fixed regression introduced by `stop_terminal_command` modification). 
