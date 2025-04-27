@@ -15,6 +15,17 @@
 - [✅] `test_install.sh`: Passed (Latest Run: 2025-04-27)
 - [✅] `test_mcp_json_absolute_path_no_jq`: Passed (Latest Run: 2025-04-27 - Verified `sed` fallback correctly sets *key* to "Commit" but leaves *relative path* and warns when jq missing)
 
+# Ad-Hoc MCP Command Execution Tests (Current Cycle)
+- [✅] **Basic Commands (`echo`, `non_existent_command`)**: Passed. Correct exit codes and stdout/stderr captured via `get_terminal_status`.
+- [✅] **Python Script (`python -c ...`)**: Passed. Correct custom exit code, stdout, and stderr captured.
+- [✅] **Git Command (`git status --short`)**: Passed. Correct exit code and output captured.
+- [✅] **Timeout (`ping -n 5` with 2s timeout)**: Passed. Command timed out in `execute_command`, continued in background, final status/output correct via `get_terminal_status`.
+- [✅] **Interruption (`ping -t` stopped via `stop_terminal_command`)**: Passed. Process stopped successfully, final output retrieved.
+- [✅] **Special Characters (`echo "String with 'quotes' ..."`)**: Passed (with caveat). Most characters handled correctly by Base64 encoding, but backticks were interpreted by `eval`.
+- [✅] **Subdirectory Execution (`cd /abs/path && pwd`)**: Passed. Command executed correctly using absolute paths.
+- [⚠️] **Observation: Immediate Return**: `mcp_MyMCP_execute_command` does not return stdout/stderr in its immediate response, even if the command finishes before the timeout. Full output must be retrieved later using `get_terminal_status` or `get_terminal_output`. This differs from the description of the completed Task 3.1 in `tasks.md`.
+- [⚠️] **Observation: Reported CWD**: `get_terminal_status` consistently reports the CWD as `.../.cursor`, even though commands appear to execute from the project root.
+
 # Fichier de tests
 
 ## Tests d'installation via curl
