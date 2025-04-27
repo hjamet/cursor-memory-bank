@@ -103,4 +103,26 @@
     *   Test: Reinstall (No Backup)
     *   Test: Reinstall (Force)
     *   Test: Invalid Directory
-    *   Test: Display Version 
+    *   Test: Display Version
+
+# Test Results
+
+## MCP Async Terminal Tests (`tests/test_mcp_async_terminal.js`)
+
+- **Date**: 2024-07-26
+- **Commit**: 2fd2b80
+- **Status**: ✅ PASS
+- **Details**: Test suite passed after fixing response parsing issues in the test script for `execute_command`, `get_terminal_status`, and `stop_terminal_command`, and adding error handling for log stream creation in `server.js`.
+- **Command**: `node tests/test_mcp_async_terminal.js`
+- **Output**: Successful execution (exit code 0).
+- **Evolution**: Improvement (Fixed regression introduced by `stop_terminal_command` modification).
+
+## MCP Async Terminal Tests (`tests/test_mcp_async_terminal.js`)
+
+- **Date**: 2024-07-26
+- **Commit**: 2fd2b80
+- **Status**: ❌ FAIL
+- **Details**: Test suite execution failed immediately (exit code 1) after modifying `stop_terminal_command` to accept an array of PIDs.
+- **Command**: `node tests/test_mcp_async_terminal.js`
+- **Output**: No stdout/stderr captured.
+- **Evolution**: Regression (Previously assumed passing based on completed tasks in `tasks.md`). 

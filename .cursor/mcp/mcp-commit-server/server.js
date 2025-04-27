@@ -312,11 +312,26 @@ server.tool(
                 throw new Error('Failed to get PID for spawned process.');
             }
 
-            // Create log file streams
+            // Create log file streams (with added robustness)
             stdoutLogPath = path.join(LOGS_DIR, `${pid}.stdout.log`);
             stderrLogPath = path.join(LOGS_DIR, `${pid}.stderr.log`);
-            stdoutStream = fs.createWriteStream(stdoutLogPath, { flags: 'a' });
-            stderrStream = fs.createWriteStream(stderrLogPath, { flags: 'a' });
+
+            // Ensure logs directory exists *right before* creating streams, just in case
+            ensureLogsDirExists();
+
+            try {
+                stdoutStream = fs.createWriteStream(stdoutLogPath, { flags: 'a' });
+                stderrStream = fs.createWriteStream(stderrLogPath, { flags: 'a' });
+            } catch (streamError) {
+                console.error(`!!!!!!!!!! Error creating log streams for PID ${pid} !!!!!!!!!!`);
+                console.error(`Attempted paths: ${stdoutLogPath}, ${stderrLogPath}`);
+                console.error(streamError);
+                // Attempt to continue without logging? Or throw a specific error?
+                // For now, let's throw a specific error to signal the issue clearly.
+                throw new Error(`Failed to create log streams for PID ${pid}: ${streamError.message}`);
+                // Alternatively, could set streams to null and handle that downstream,
+                // but throwing makes the failure explicit.
+            }
 
             // Pipe output to log files
             child.stdout.pipe(stdoutStream);
@@ -615,116 +630,186 @@ server.tool(
 
 /**
  * @typedef {object} StopTerminalCommandResult
- * @property {string} status - Message indicating the outcome of the stop and cleanup attempt.
+ * @property {number} pid - The PID this result corresponds to.
+ * @property {string} status - Message indicating the outcome of the stop and cleanup attempt for this PID.
  * @property {string} stdout - The last N lines of stdout log before termination attempt.
  * @property {string} stderr - The last N lines of stderr log before termination attempt.
  */
 
-server.tool(
-    'stop_terminal_command',
-    {
-        pid: z.number().int().describe("The PID of the terminal process to stop."),
-        lines: z.number().int().optional().default(100).describe("The maximum number of lines to retrieve from the end of each log before stopping.")
-    },
-    /**
-    * Attempts to stop a terminal process and cleans up its state and logs.
-    * @param {object} params
-    * @param {number} params.pid
-    * @param {number} params.lines
-    * @returns {Promise<StopTerminalCommandResult>}
-    */
-    async ({ pid, lines }) => {
-        const stateIndex = terminalStates.findIndex(s => s.pid === pid);
+// Add try-catch around the tool definition
+try {
+    server.tool(
+        'stop_terminal_command',
+        {
+            // Renamed pid to pids and changed type to array
+            pids: z.array(z.number().int()).describe("An array of PIDs of the terminal processes to stop."),
+            lines: z.number().int().optional().default(100).describe("The maximum number of lines to retrieve from the end of each log before stopping.")
+        },
+        /**
+        * Attempts to stop multiple terminal processes and cleans up their state and logs.
+        * @param {object} params
+        * @param {number[]} params.pids - Array of PIDs to stop.
+        * @param {number} params.lines
+        * @returns {Promise<{ content: Array<{ type: string, text: string }> }>} - Returns an object containing a 'content' array where each element wraps a JSON string result for one PID.
+        */
+        async ({ pids, lines }) => {
+            const results = []; // Array to hold results for each PID
+            const statesToCleanup = []; // Store { stateIndex, state } for post-loop cleanup
 
-        if (stateIndex === -1) {
-            throw new Error(`Terminal process with PID ${pid} not found in state.`);
-        }
+            // --- Stage 1: Process each PID, attempt kill, gather results & state info ---
+            for (const pid of pids) {
+                let finalStdout = '';
+                let finalStderr = '';
+                let terminationStatus = 'Processing started.';
+                let cleanupStatus = '(Cleanup pending)'; // Indicate cleanup happens later
+                let resultStatus = '';
 
-        const state = terminalStates[stateIndex];
+                const stateIndex = terminalStates.findIndex(s => s.pid === pid);
 
-        // 1. Read final logs before attempting kill
-        const finalStdout = readLastLogLines(state.stdout_log, lines);
-        const finalStderr = readLastLogLines(state.stderr_log, lines);
+                if (stateIndex === -1) {
+                    resultStatus = `PID ${pid} not found in state.`;
+                    results.push({ pid, status: resultStatus, stdout: '', stderr: '' });
+                    continue;
+                }
 
-        let terminationStatus = 'Termination signal sent.';
-        let killError = null;
+                const state = { ...terminalStates[stateIndex] }; // Copy state data
 
-        // 2. Attempt termination (SIGTERM first, then SIGKILL)
-        try {
-            // console.log(`Attempting SIGTERM for PID ${pid}`); // Optional debug
-            process.kill(pid, 'SIGTERM');
-            // Wait briefly to see if SIGTERM worked before potentially sending SIGKILL
-            await new Promise(resolve => setTimeout(resolve, 200));
-            // Check if it's still running
-            try {
-                process.kill(pid, 0);
-                // Still running, try SIGKILL
+                // Read final logs before attempting kill
                 try {
-                    // console.log(`Process ${pid} still running, attempting SIGKILL`); // Optional debug
-                    process.kill(pid, 'SIGKILL');
-                    terminationStatus = 'SIGTERM sent, followed by SIGKILL.';
-                } catch (sigkillError) {
-                    if (sigkillError.code === 'ESRCH') {
-                        terminationStatus = 'Process likely terminated after SIGTERM.';
+                    finalStdout = readLastLogLines(state.stdout_log, lines);
+                    finalStderr = readLastLogLines(state.stderr_log, lines);
+                } catch (readErr) {
+                    console.warn(`Error reading logs for PID ${pid}:`, readErr);
+                    finalStdout = finalStdout || `(Error reading stdout: ${readErr.message})`;
+                    finalStderr = finalStderr || `(Error reading stderr: ${readErr.message})`;
+                }
+
+                // Attempt termination (SIGTERM first, then SIGKILL)
+                let killError = null;
+                try {
+                    process.kill(pid, 'SIGTERM');
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    try {
+                        process.kill(pid, 0);
+                        try {
+                            process.kill(pid, 'SIGKILL');
+                            terminationStatus = 'SIGTERM sent, followed by SIGKILL.';
+                        } catch (sigkillError) {
+                            if (sigkillError.code === 'ESRCH') {
+                                terminationStatus = 'Process likely terminated after SIGTERM.';
+                            } else { throw sigkillError; }
+                        }
+                    } catch (checkError) {
+                        if (checkError.code === 'ESRCH') {
+                            terminationStatus = 'Process already exited before/after SIGTERM.';
+                        } else { throw checkError; }
+                    }
+                } catch (error) {
+                    if (error.code === 'ESRCH') {
+                        terminationStatus = 'Process already exited before termination attempt.';
                     } else {
-                        throw sigkillError; // Re-throw unexpected SIGKILL error
+                        console.error(`Error sending termination signal to PID ${pid}:`, error);
+                        terminationStatus = `Error during termination: ${error.message}`;
+                        killError = error;
                     }
                 }
-            } catch (checkError) {
-                if (checkError.code === 'ESRCH') {
-                    terminationStatus = 'Process already exited before/after SIGTERM.';
-                } else {
-                    throw checkError; // Re-throw unexpected check error
+
+                // Store state info for cleanup after the loop
+                statesToCleanup.push({ stateIndex, state });
+
+                // Combine status messages for the result (pre-cleanup)
+                resultStatus = `${terminationStatus} ${cleanupStatus}`;
+                results.push({ pid, status: resultStatus, stdout: finalStdout, stderr: finalStderr });
+
+            } // End of loop through PIDs
+
+            // --- Stage 2: Perform Cleanup (State modification and log deletion) --- 
+            let overallCleanupStatus = 'Cleanup successful.';
+            // Sort indices in descending order to avoid messing up indices during splice
+            statesToCleanup.sort((a, b) => b.stateIndex - a.stateIndex);
+
+            for (const { stateIndex, state } of statesToCleanup) {
+                try {
+                    // Remove from state array using the stored index
+                    if (stateIndex >= 0 && stateIndex < terminalStates.length && terminalStates[stateIndex].pid === state.pid) {
+                        terminalStates.splice(stateIndex, 1);
+                    } else {
+                        // State might have already been removed or shifted; log a warning
+                        console.warn(`Cleanup warning: State for PID ${state.pid} at index ${stateIndex} was not found or PID mismatch during splice. It might have been affected by other operations.`);
+                        // Attempt to find and remove by PID just in case
+                        const currentIndex = terminalStates.findIndex(s => s.pid === state.pid);
+                        if (currentIndex !== -1) {
+                            terminalStates.splice(currentIndex, 1);
+                            console.warn(`Cleanup warning: Removed PID ${state.pid} by searching again.`);
+                        }
+                    }
+
+                    // Delete log files for this state
+                    let stdoutDeleteFailed = false;
+                    let stderrDeleteFailed = false;
+                    try {
+                        if (state.stdout_log && fs.existsSync(state.stdout_log)) fs.unlinkSync(state.stdout_log);
+                    } catch (unlinkErr) {
+                        console.warn(`Could not delete stdout log ${state.stdout_log}:`, unlinkErr);
+                        stdoutDeleteFailed = true;
+                    }
+                    try {
+                        if (state.stderr_log && fs.existsSync(state.stderr_log)) fs.unlinkSync(state.stderr_log);
+                    } catch (unlinkErr) {
+                        console.warn(`Could not delete stderr log ${state.stderr_log}:`, unlinkErr);
+                        stderrDeleteFailed = true;
+                    }
+
+                    // Update the status message in the results array for this PID
+                    const resultIndex = results.findIndex(r => r.pid === state.pid);
+                    if (resultIndex !== -1) {
+                        let finalCleanupMsg = 'Cleanup successful.';
+                        if (stdoutDeleteFailed || stderrDeleteFailed) {
+                            finalCleanupMsg = 'Cleanup finished with errors (log deletion failed).';
+                            overallCleanupStatus = 'Cleanup finished with errors.'; // Mark overall status
+                        }
+                        // Replace the pending status with the final one
+                        results[resultIndex].status = results[resultIndex].status.replace('(Cleanup pending)', finalCleanupMsg);
+                    }
+
+                } catch (cleanupError) {
+                    console.error(`Error during cleanup stage for PID ${state.pid}:`, cleanupError);
+                    overallCleanupStatus = `Cleanup failed: ${cleanupError.message}`;
+                    // Update the result status for this PID to reflect the cleanup failure
+                    const resultIndex = results.findIndex(r => r.pid === state.pid);
+                    if (resultIndex !== -1) {
+                        results[resultIndex].status = results[resultIndex].status.replace('(Cleanup pending)', `Cleanup failed: ${cleanupError.message}`);
+                    }
                 }
             }
-        } catch (error) {
-            if (error.code === 'ESRCH') {
-                terminationStatus = 'Process already exited before termination attempt.';
-            } else {
-                console.error(`Error sending termination signal to PID ${pid}:`, error);
-                terminationStatus = `Error during termination: ${error.message}`;
-                killError = error; // Store error to potentially indicate cleanup issues
+
+            // Persist the final state after all splices
+            if (statesToCleanup.length > 0) {
+                try {
+                    writeTerminalState(terminalStates);
+                } catch (writeError) {
+                    console.error('Error writing final terminal state after cleanup:', writeError);
+                    overallCleanupStatus = 'Cleanup completed but failed to write final state.';
+                    // Optionally update all result statuses?
+                }
             }
+
+            // Log overall cleanup status if issues occurred
+            if (overallCleanupStatus !== 'Cleanup successful.') {
+                console.warn(`Overall cleanup status: ${overallCleanupStatus}`);
+            }
+
+            // Format expected by the tool - return an array of result objects
+            return { content: [{ type: "text", text: JSON.stringify(results) }] };
         }
-
-        // 3. Cleanup state and logs regardless of kill outcome
-        let cleanupStatus = 'Cleanup initiated.';
-        try {
-            // Remove from state array
-            terminalStates.splice(stateIndex, 1);
-            writeTerminalState(terminalStates);
-
-            // Delete log files
-            try {
-                if (fs.existsSync(state.stdout_log)) fs.unlinkSync(state.stdout_log);
-            } catch (unlinkErr) {
-                console.warn(`Could not delete stdout log ${state.stdout_log}:`, unlinkErr);
-                cleanupStatus += ' (stdout log deletion failed)';
-            }
-            try {
-                if (fs.existsSync(state.stderr_log)) fs.unlinkSync(state.stderr_log);
-            } catch (unlinkErr) {
-                console.warn(`Could not delete stderr log ${state.stderr_log}:`, unlinkErr);
-                cleanupStatus += ' (stderr log deletion failed)';
-            }
-            cleanupStatus = 'Cleanup successful.'; // Assume success if no errors thrown
-        } catch (cleanupError) {
-            console.error(`Error during cleanup for PID ${pid}:`, cleanupError);
-            cleanupStatus = `Cleanup failed: ${cleanupError.message}`;
-        }
-
-        // Format expected by the tool
-        const response = {
-            status: `${terminationStatus} ${cleanupStatus}`,
-            stdout: finalStdout,
-            stderr: finalStderr
-        };
-        // return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Correct format
-        // return { content: [{ type: "json", json: response }] }; // Try type: "json"
-        // return response; // Return raw JSON object
-        return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Use text type like commit
-    }
-);
+    );
+} catch (toolRegistrationError) {
+    // Log the error during tool registration
+    console.error(`!!!!!!!!!! FAILED TO REGISTER TOOL 'stop_terminal_command' !!!!!!!!!!`);
+    console.error(toolRegistrationError);
+    // Optionally re-throw or exit if registration failure is fatal
+    // process.exit(1); // Or handle more gracefully depending on server design
+}
 
 // --- New MCP Tools --- END ---
 
