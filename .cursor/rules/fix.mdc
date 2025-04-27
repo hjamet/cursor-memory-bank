@@ -3,6 +3,12 @@ description: Call this rule to analyze and correct test errors via an iterative 
 globs: 
 alwaysApply: false
 ---
+\
+---
+description: Call this rule to analyze and correct test errors via an iterative execution-correction loop
+globs: 
+alwaysApply: false
+---
 
 ## TLDR
 Analyze test errors and fix them through an iterative execution-correction loop until all tests pass or truly complex issues (requiring major refactoring or showing no progress after 3 attempts) are identified and handed over to `request-analysis`.
@@ -26,7 +32,7 @@ Analyze test errors and fix them through an iterative execution-correction loop 
         *   **Remember to remove temporary logs** after the issue is resolved.
     *   **2.3 Research**: If needed, use the web to find solutions for specific errors
     *   **2.4 Implementation**: Make the correction and document the changes
-    *   **2.5 Test**: Execute ONLY the specific test currently being fixed and analyze the result:
+    *   **2.5 Test**: Execute ONLY the specific test currently being fixed using `mcp_MyMCP_execute_command` (determine the correct command, e.g., `pytest tests/test_module.py::test_function`) and analyze the result:
         *   If test passes :
             * **2.5.1 Update tests.md**: If the test passes, update the `.cursor/memory-bank/workflow/tests.md` file to reflect the new status of the test. Write **(Fix: 2 - Correction loop - [Test name] - Implementation [number] completed)** after this step.
             * **2.5.2 Quick commit**: Call the MCP tool named "Commit".
@@ -112,7 +118,8 @@ The error occurs because we're trying to JSON serialize a bytes object. Decoding
 **(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Implementation 1 completed)**
 
 ## 2.5 Test
-[...running the specific authentication test...]
+[...determining command for specific test, e.g., `pytest tests/auth_tests.py::TestUserAuthentication::test_login_with_invalid_token`...]
+[...calling `mcp_MyMCP_execute_command` with the specific test command...]
 **(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Test execution 1)**
 
 Great! The test now passes. 
@@ -140,7 +147,8 @@ MemoryError indicates loading the whole file. A streaming approach is likely nee
 **(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Implementation 1 completed)**
 
 ## 2.5 Test
-[...running the specific data processing test...]
+[...determining command for specific test, e.g., `pytest tests/data_tests.py::TestDataProcessing::test_large_file_processing`...]
+[...calling `mcp_MyMCP_execute_command` with the specific test command...]
 **(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Test execution 1)**
 
 The test fails with "NameError: name 'process_chunk' is not defined". This shows progress, so I'll continue iterating.
@@ -162,7 +170,7 @@ The test fails with "NameError: name 'process_chunk' is not defined". This shows
 **(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Implementation 2 completed)**
 
 ## 2.5 Test
-[...running the test again...]
+[...calling `mcp_MyMCP_execute_command` with the specific test command again...]
 **(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Test execution 2)**
 I see that the command has been put in the background. It's certainly related to a simple terminal issue. I'm going to relaunch the command.
 [...re-running the test...]

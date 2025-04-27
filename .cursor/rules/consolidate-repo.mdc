@@ -3,6 +3,7 @@ description: Rule to consolidate the repository, manage userbrief.md, and mainta
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Repository consolidation, transformation of user requests into tasks, cleaning userbrief.md, and verification of memory files integrity.
 
@@ -39,10 +40,10 @@ tests/                       # Unit and integration tests
    - Ensure structure remains clear and readable
 
 3. **Integrity verification**: Control of memory files:
-   - Execute command `find . -type f -name "*.md"` to list all markdown files
+   - Use the MCP command execution tool to list all markdown files: `mcp_MyMCP_execute_command(command = "find . -type f -name \\"*.md\\"")`
    - Analyze results to find duplicates in memory-bank directories
-   - Merge content of duplicate files with main files
-   - Delete duplicates after merging (use `rm` command for this and not the `file delete` tool)
+   - Merge content of duplicate files with main files (using file edit tools)
+   - Delete duplicates after merging using the MCP command execution tool (e.g., `mcp_MyMCP_execute_command(command = "rm <duplicate_file_path>")`)
    - Verify all memory files are in the right place
 
 4. **MCP Terminal Cleanup**: Clean up finished terminal processes.
@@ -68,7 +69,7 @@ tests/                       # Unit and integration tests
 - Only structure and organization can be modified
 - User requests must always be processed with priority
 - Duplicates must be carefully merged to lose no information
-- Files to be deleted should be deleted only after merging and using the `rm` command in the terminal and not the `file delete` tool (because of a bug in the tool)
+- Files to be deleted should be deleted only after merging and using the MCP command execution tool (`mcp_MyMCP_execute_command`) with the `rm` command (not the `delete_file` tool because of a bug)
 - This rule should only be called by context-update when structure problems are detected
 - IMPORTANT: Only this rule is authorized to modify userbrief.md
 - IMPORTANT: Mark tasks with 🔄 (only) and preferences with 📌
@@ -96,10 +97,11 @@ I've applied appropriate statuses to the different elements.
 **(Consolidate-repo: 2 - Organizing userbrief.md)**  
 
 # Consolidate-repo: 3 - Integrity verification  
-I'm now verifying the integrity of memory files. **(Consolidate-repo: 3 - Integrity verification)**  
-find . -type f -name "*.md"  
-[...analyzing command results...]  
-I've identified some duplicates that I've merged with the main files. Duplicates removed.  
+I'm now verifying the integrity of memory files using MCP. **(Consolidate-repo: 3 - Integrity verification)**  
+[...calling tool `mcp_MyMCP_execute_command` with command="find . -type f -name \\"*.md\\""...]
+[...analyzing command results...]
+I've identified some duplicates that I've merged with the main files. Removing duplicates using MCP.
+[...calling tool `mcp_MyMCP_execute_command` with command="rm <duplicate_file_path>" for each duplicate...]
 **(Consolidate-repo: 3 - Integrity verification)**  
 
 # Consolidate-repo: 4 - MCP Terminal Cleanup  

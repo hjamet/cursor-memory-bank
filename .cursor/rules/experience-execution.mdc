@@ -3,6 +3,7 @@ description: Call this rule to execute complex commands that generate an experim
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Execute potentially long-running commands (experiments, data processing, model training), analyze logs and results, document outcomes, and save observations to memory.
 
@@ -22,9 +23,10 @@ Execute potentially long-running commands (experiments, data processing, model t
     *   **(Experience-Execution: 1 - Planning completed)**
 
 2.  **Command Execution**: Run the planned command(s).
-    *   Use the `run_terminal_cmd` tool.
-    *   Do NOT run the command in the background (`is_background=false` implicitly).
-    *   Capture standard output and standard error.
+    *   Use the `mcp_MyMCP_execute_command` MCP tool.
+    *   Provide the `command` string.
+    *   Set an appropriate `timeout` (in seconds) if the command might be long-running. Note: the command may continue in the background if the timeout is reached.
+    *   The tool returns the `pid` and initial status/output.
     *   **(Experience-Execution: 2 - Command execution initiated)**
 
 3.  **Result Analysis**: Analyze logs and outputs.
@@ -97,10 +99,10 @@ Plan: Execute full training run using primary config. Verify log message and mod
 **(Experience-Execution: 1 - Planning completed)**
 
 # Experience-Execution: 2 - Command Execution
-Executing the training script.
-[...calling tool 'run_terminal_cmd' with command: "python src/training/train_model.py --config configs/primary_classifier.yaml --output results/primary_run_$(date +%Y%m%d)"...]
+Executing the training script using MCP.
+[...calling tool `mcp_MyMCP_execute_command` with command="python src/training/train_model.py --config configs/primary_classifier.yaml --output results/primary_run_$(date +%Y%m%d)", timeout=7200...]
 **(Experience-Execution: 2 - Command execution initiated)**
-[...Wait for command completion...]
+[...Use `mcp_MyMCP_get_terminal_status` and `mcp_MyMCP_get_terminal_output` to monitor and retrieve results...]
 
 # Experience-Execution: 3 - Result Analysis
 [...Checking log file `results/primary_run_YYYYMMDD/training.log`...]

@@ -3,6 +3,7 @@ description: Call this rule to update context files and commit the changes.
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Update context files to reflect changes, update tasks.md based on test results, and make a commit following conventions.
 
@@ -28,7 +29,7 @@ Update context files to reflect changes, update tasks.md based on test results, 
 
 5. **File integrity verification**: Look for structural problems:
    - Read the `.cursor/memory-bank/userbrief.md` file.
-   - Execute the command `find . -type f -name "*.md"`
+   - Use the MCP command execution tool to list all markdown files: `mcp_MyMCP_execute_command(command = "find . -type f -name \\"*.md\\"")`
    - Analyze results to identify:
      - File duplicates
      - Misplaced files
@@ -128,8 +129,8 @@ I prepare and make a commit with the changes made using the MCP commit tool. **(
 **(Context-update: 4 - Making a commit)**
 
 # Context-update: 5 - File integrity verification
-I now check the integrity of project files. **(Context-update: 5 - File integrity verification)**
-find . -type f -name "*.md"
+I now check the integrity of project files using the MCP command execution tool. **(Context-update: 5 - File integrity verification)**
+[...calling tool `mcp_MyMCP_execute_command` with command="find . -type f -name \\"*.md\\""...]
 [...analyzing command results...]
 I have not identified structural problems in the files. I will now check the content of the `userbrief.md` file. **(Context-update: 5 - File integrity verification)**
 [...checking .cursor/memory-bank/userbrief.md file...]

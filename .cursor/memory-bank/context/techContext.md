@@ -34,6 +34,7 @@ Le projet comprend aussi un serveur MCP Commit qui doit être correctement insta
 - Documentation en français
 - Gestion explicite des protocoles file:// pour les téléchargements
 - Traitement amélioré des codes HTTP non standards
+- **Utilisation systématique des outils MCP (`mcp_MyMCP_*`) pour l'exécution de commandes externes dans les règles**
 
 ## Dépendances Externes
 - Cursor: Dernière version - Environnement d'exécution principal

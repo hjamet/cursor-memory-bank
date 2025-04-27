@@ -3,6 +3,7 @@ description: Call this rule to analyze the user's request in detail and situate 
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
 Analyze user request, explore existing code and search for additional information to prepare implementation.
 
@@ -27,9 +28,10 @@ Analyze user request, explore existing code and search for additional informatio
    - Add brief descriptions for each important element
 
 4. **Additional research**: Consult documentation and resources:
-   - ONLY AUTHORIZED: web search tool, limited to 5 searches maximum
-   - Research library documentation, patterns, or relevant best practices
-   - Note consulted sources
+   - Research library documentation, patterns, or relevant best practices.
+   - PREFERRED for external library documentation (especially less common ones): Use `mcp_Context7_resolve-library-id` then `mcp_Context7_get-library-docs` for structured docs and examples.
+   - ALTERNATIVE/General research: Use the web search tool, limited to 5 searches maximum.
+   - Note consulted sources.
 
 5. **Conclusion**: Summarize information and necessary changes
    - **(Optional) Memory Storage**: Use `mcp_servers_add_observations` to store key findings (request summary, identified files/symbols, conclusion) in the knowledge graph for future reference, associated with an entity like 'RequestAnalysisContext'.
@@ -44,7 +46,7 @@ Analyze user request, explore existing code and search for additional informatio
 - If the brief is empty without explicit request, consider tasks.md content as request
 - Strict tool limits:
   - Phase 2 (Code analysis): only code base search (max 3) and tree
-  - Phase 4 (Research): only web search (max 5)
+  - Phase 4 (Research): only mcp_Context7_* tools OR web search (max 5 web searches)
 - Never mention planned modifications to memory bank files (.cursor/memory-bank/*)
 
 ## Next Rules
@@ -76,10 +78,11 @@ I will create a tree representation of files concerned by the modifications. **(
 **(Request-analysis: 3 - Tree creation)**
 
 # Request-analysis: 4 - Additional research
-I will search for information on the web about [...] **(Request-analysis: 4 - Additional research)**
+I need to understand how to use the 'some-obscure-library'. I will use the MCP Context7 tools for this. **(Request-analysis: 4 - Additional research)**
+[...calling `mcp_Context7_resolve-library-id` with libraryName="some-obscure-library"...]
+[...calling `mcp_Context7_get-library-docs` with the resolved ID...]
+Alternatively, I might search the web for general patterns related to [...]. **(Request-analysis: 4 - Additional research)**
 [...first web search...]
-I will search for more information about [...] **(Request-analysis: 4 - Additional research)**
-[...second web search...]
 **(Request-analysis: 4 - Additional research)**
 
 # Request-analysis: 5 - Conclusion

@@ -2,44 +2,51 @@
 
 ## Current implementation context
 
-- **Task Group:** MCP Server Enhancements / Debug MCP Server
-- **Current Task:** BLOCKED - Tasks 1.1, 1.2 (Debug) & 2.1 (MCP Server Enhancements)
-- **Blocker:** Cannot validate test script (`tests/test_mcp_send_input.js`) execution or debug further due to apparent inability of `mcp_MyMCP_execute_command` tool to capture/return stdout/stderr from executed commands (including simple test scripts).
-- **Goal:** Resolve the MCP tool output capture issue to unblock testing and validation.
-- **Last Actions:**
-    - Implemented `send_terminal_input` handler in `server.js`.
-    - Refactored `tests/test_mcp_send_input.js` for stdio, removed `uuid` dependency.
-    - Added `cwd: projectRoot` to `execute_command` handler in `server.js`.
-    - Redirected server logs to stderr.
-    - Created and ran minimal test script (`tests/test_minimal.js`) which also showed no output via MCP tool.
-    - Updated `tasks.md` to reflect blocked status.
-- **Files:** `.cursor/mcp/mcp-commit-server/server.js`, `tests/test_mcp_send_input.js`, `tests/test_minimal.js`, `.cursor/memory-bank/workflow/tasks.md`
+- **Task Group:** Rule Refactoring / MCP Integration
+- **Current Task:** Modify rules (`context-update`, `consolidate-repo`, `experience-execution`, `request-analysis`, `fix`) to consistently use MCP tools for command execution (`mcp_MyMCP_execute_command` instead of `run_terminal_cmd` or direct commands like `find`, `rm`) and update `request-analysis` to recommend `mcp_Context7_*`.
+- **Goal:** Ensure all rules adhere to the project standard of using MCP tools for external interactions and provide better guidance for library research.
+- **Last Actions:** Completed `request-analysis` which identified the specific rules and modifications needed.
+- **Files:** `.cursor/rules/*.mdc` (specifically those listed above)
 
 ## Current Status
 
-- **Completed Task 1.2:** Checked `.cursor/rules/test-execution.mdc`, confirmed up-to-date.
-- Completed previous `context-update` cycle.
-- **Completed Task 2.1 (Implementation):** Implemented `send_terminal_input` in `server.js`.
-- **Completed Fix Cycle:** Fixed regression in `tests/test_mcp_async_terminal.js`.
-- **Current Test Status:**
-    - `tests/test_mcp_async_terminal.js`: Passed
-    - `tests/test_mcp_send_input.js`: Unknown (Interrupted)
+- User confirmed MCP server stability and abandoned `mcp_send_input` development.
+- Workflow restarted, `context-loading` and `consolidate-repo` completed.
+- Analysis complete, ready for implementation.
 
 ## Recent Decisions
 
-- Identified Task 2.1 as the next priority based on `tasks.md`.
-- Determined that the next step for Task 2.1 (a new feature) is to follow the workflow towards test execution.
+- Prioritize updating rules to use MCP tools based on user request/preferences.
 
 ## Next Steps
 
-- Proceed with Task 2.1 validation within the `implementation` rule.
-- Since this involves validating an existing (potentially modified) feature and its test, the next rule after successful validation/implementation will likely be `test-execution`.
+- Implement the identified changes to the rule files.
+- Call `context-update` after modifications as these are non-testable rule edits.
 
 ## Important Notes
 
-- The status of the test for `send_terminal_input` is currently unknown.
-- Need to first verify if the implementation code for `send_terminal_input` exists in the current `server.js`.
-- Strict adherence to the rule workflow even if it seems slightly redundant (calling `test-implementation` when the test exists) ensures process consistency.
+- Ensure MCP command syntax is correct (`mcp_MyMCP_execute_command(command="...")`).
+- Update rule descriptions and examples where necessary to reflect MCP tool usage.
+
+## Task List Context
+- **Reference File:** `tasks.md` (No dedicated tasks yet, working directly from analysis)
+
+## Code Implementation Context
+- **Files to Modify:**
+    - `.cursor/rules/context-update.mdc`
+    - `.cursor/rules/consolidate-repo.mdc`
+    - `.cursor/rules/experience-execution.mdc`
+    - `.cursor/rules/request-analysis.mdc`
+    - `.cursor/rules/fix.mdc`
+- **Key Functions/Classes:** N/A (Rule file text modifications)
+
+## Test Context
+- **Last Test Execution:** N/A
+- **Relevant Tests:** N/A (Changes are to non-testable rule files)
+
+## Documentation Context
+- **Relevant Files:** Rules files (`*.mdc`)
+- **Key Concepts:** MCP Tool usage (`mcp_MyMCP_execute_command`, `mcp_Context7_*`), Rule file structure.
 
 ## Lost workflow
 - **Reason for interruption:** User requested MCP server tests and verification of `send_terminal_input` tool implementation, followed by triggering `workflow-perdu`.
