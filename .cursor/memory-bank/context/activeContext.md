@@ -31,6 +31,7 @@
 
 - Adhere strictly to existing MCP tool signatures.
 - Use `run_terminal_cmd` (not the MCP tool) for running tests (`tests/test_mcp_async_terminal.js`) until refactoring is complete and verified.
+- **Future Test**: Next time `test-execution` rule runs, explicitly test MCP `execute_command` with simple Python and Node scripts to verify output capture and status reporting (related to user request and observed `find` command issues).
 
 ## Task List Context
 - **Reference File:** `.cursor/memory-bank/workflow/tasks.md` (Section 1 & 2)
