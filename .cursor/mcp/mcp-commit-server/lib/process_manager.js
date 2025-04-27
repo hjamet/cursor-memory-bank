@@ -28,16 +28,37 @@ export async function spawnProcess(command) {
     try {
         await Logger.ensureLogsDir();
 
-        // Revert to original logic: Always use shell: true for now
-        let useShell = true;
-        const spawnOptions = {
+        // Determine how to spawn based on the command string
+        let executable;
+        let args;
+        let spawnOptions = {
             detached: true, // Keep detached for background potential
             stdio: ['ignore', 'pipe', 'pipe'],
             cwd: projectRoot,
-            shell: useShell
+            shell: false // Default to false now
         };
 
-        child = spawn(command, [], spawnOptions);
+        // Specific handling for Git Bash on Windows
+        const gitBashPath = "C:\\Program Files\\Git\\bin\\bash.exe"; // Use escaped backslashes
+        if (process.platform === 'win32' && command.startsWith(`"${gitBashPath}"`)) {
+            const match = command.match(/^"(.*?)"\s+-c\s+"(.*)"$/);
+            if (match && match[1] === gitBashPath) {
+                executable = gitBashPath;
+                args = ['-c', match[2]]; // Pass the command string as an argument to -c
+            } else {
+                executable = command; // The whole string
+                args = [];
+                spawnOptions.shell = true; // Revert to shell: true for this case
+            }
+        } else {
+            // Default behavior for other commands/platforms
+            executable = command; // Assume command is the executable or handled by shell
+            args = [];
+            spawnOptions.shell = true; // Use shell: true for general commands
+        }
+
+        // Spawn the process
+        child = spawn(executable, args, spawnOptions);
 
         pid = child.pid;
         if (pid === undefined) {

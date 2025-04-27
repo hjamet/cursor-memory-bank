@@ -1,30 +1,26 @@
 # Active Context
 
 ## Current Goal
-Consolidate repository state, process user feedback, and ensure system integrity before proceeding with implementation or fixing.
-
-## Recent Actions
-- Successfully refactored `process_manager.js` to use the `close` event for more reliable process termination and stream handling, removing the `setTimeout` hack.
-- Attempted to run the `fix` rule, but found no failing tests in `tests.md`.
-- Executed the `consolidate-repo` rule:
-    - Reviewed `userbrief.md`, found only preferences (📌), no new tasks.
-    - Attempted integrity check (`find *.md`), but failed to get command output via MCP execute tool.
-    - Cleaned up finished MCP terminal processes.
-    - Added a task to `tasks.md` to investigate the MCP `find` command issue.
-- Currently executing the `context-update` rule.
-
-## Key Files Involved
-- `.cursor/mcp/mcp-commit-server/lib/process_manager.js` (Refactored)
-- `.cursor/memory-bank/workflow/tests.md` (Read)
-- `.cursor/memory-bank/userbrief.md` (Read)
-- `.cursor/memory-bank/workflow/tasks.md` (Updated)
-- `.cursor/memory-bank/context/activeContext.md` (Updated)
-
-## Potential Issues / Next Steps
-- Investigate the MCP `find` command execution issue noted in `tasks.md`.
-- Proceed with commit and determine the next rule based on tests/tasks.
+Verify the fix for the MCP command stdout capture issue with Git Bash on Windows.
 
 ## Current implementation context
+- **Task**: Investigate MCP command stdout issue
+- **Problem**: Executing `"C:\Program Files\Git\bin\bash.exe" -c "<command>"` via `mcp_MyMCP_execute_command` was resulting in successful execution (exit code 0) but empty stdout.
+- **Fix Applied**: 
+    1. Modified `process_manager.js` to explicitly spawn `"C:\Program Files\Git\bin\bash.exe"` with `shell: false` and pass the command string via `-c` argument.
+    2. Removed interfering `console.log`/`console.warn` statements from `process_manager.js`.
+- **Tests Performed**: 
+    - `echo 'test output'` (after fix): **Successful**. Stdout correctly captured as "test output\n".
+- **Conclusion**: The combination of explicit spawning (`shell: false`) and removing console logs resolved the stdout capture issue for Git Bash commands via MCP on Windows.
+- **Next Hypothesis**: The original `find` command should now also work.
 
-- **Objective**: Resolve issues with async terminal MCP tools.
-- **Last Task**: Fixed regression in `
+## Key Files Involved
+- `.cursor/memory-bank/workflow/tasks.md`
+- `.cursor/memory-bank/context/activeContext.md`
+- `.cursor/mcp/mcp-commit-server/lib/process_manager.js` (Modified)
+
+## Next Steps (within this rule)
+- Analyze results (Done).
+- Update documentation/memory (Done).
+- MCP Cleanup.
+- Call next rule (`context-update`).
