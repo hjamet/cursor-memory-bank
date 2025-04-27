@@ -29,7 +29,7 @@ Update context files to reflect changes, update tasks.md based on test results, 
 
 5. **File integrity verification**: Look for structural problems:
    - Read the `.cursor/memory-bank/userbrief.md` file.
-   - Use the MCP command execution tool to list all markdown files: `mcp_MyMCP_execute_command(command = "find . -type f -name \\"*.md\\"")`
+   - Use the MCP command execution tool via Git Bash to list all markdown files: `mcp_MyMCP_execute_command(command = "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"find . -type f -name '*.md'\"")`
    - Analyze results to identify:
      - File duplicates
      - Misplaced files
@@ -129,10 +129,9 @@ I prepare and make a commit with the changes made using the MCP commit tool. **(
 **(Context-update: 4 - Making a commit)**
 
 # Context-update: 5 - File integrity verification
-I now check the integrity of project files using the MCP command execution tool. **(Context-update: 5 - File integrity verification)**
-[...calling tool `mcp_MyMCP_execute_command` with command="find . -type f -name \\"*.md\\""...]
-[...analyzing command results...]
-I have not identified structural problems in the files. I will now check the content of the `userbrief.md` file. **(Context-update: 5 - File integrity verification)**
+I now check the integrity of project files using the MCP command execution tool via Git Bash. **(Context-update: 5 - File integrity verification)**
+[...calling tool `mcp_MyMCP_execute_command` with command="\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"find . -type f -name '*.md'\""...]
+[...analyzing command results...]\nI have not identified structural problems in the files. I will now check the content of the `userbrief.md` file. **(Context-update: 5 - File integrity verification)**
 [...checking .cursor/memory-bank/userbrief.md file...]
 I don't see new tasks or advice to process. I will therefore proceed to the next step.
 **(Context-update: 5 - File integrity verification)**
