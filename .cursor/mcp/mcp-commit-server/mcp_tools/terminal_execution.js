@@ -5,94 +5,50 @@ import * as Logger from '../lib/logger.js';
 /**
  * MCP Tool handler for 'execute_command'.
  * Spawns a command, manages state, and handles optional terminal reuse.
- * If command finishes within timeout, returns full output and final state.
- * Otherwise, returns initial state and PID for later polling.
  */
-export async function handleExecuteCommand({ command, reuse_terminal, timeout = 15 /* default 15s */ }) {
-    // Handle terminal reuse
+export async function handleExecuteCommand({ command, reuse_terminal, timeout /* timeout is currently unused but part of sig */ }) {
+    // Handle terminal reuse: Find a finished terminal state index
     if (reuse_terminal) {
         const reusableIndex = StateManager.findReusableTerminalIndex();
         if (reusableIndex !== -1) {
+            // Get the state before removing it
             const stateToClean = StateManager.getState()[reusableIndex];
             if (stateToClean) {
+                // Remove state first
                 await StateManager.removeStateByIndex(reusableIndex);
+                // Then delete logs (best effort)
                 await Logger.deleteLogFiles(stateToClean);
+                // console.log(`[ExecuteCommand] Reused terminal slot from PID ${stateToClean.pid}`);
             }
         }
     }
 
-    let pid;
     try {
-        // Spawn process and get pid & completion promise
-        const { pid: processPid, completionPromise } = await ProcessManager.spawnProcess(command);
-        pid = processPid; // Assign pid for potential error logging
+        // Spawn the process using the process manager
+        const { pid, stdout_log, stderr_log } = await ProcessManager.spawnProcess(command);
 
-        // Create a timeout promise
-        let timeoutId;
-        const timeoutPromise = new Promise((_, reject) => {
-            timeoutId = setTimeout(() => reject(new Error('Timeout')), timeout * 1000);
-        });
+        // Original server had timeout logic to return early while process continues.
+        // This simplified version doesn't wait or return early based on timeout.
+        // It just returns the PID immediately.
+        // The *actual* status/output is retrieved via get_terminal_status/output.
+        // The `timeout` parameter from the MCP definition is effectively ignored here.
 
-        let processCompleted = false;
-        let resolvedState = null; // Variable to hold the state passed by the promise
-        try {
-            // Wait for either the process to complete or the timeout
-            resolvedState = await Promise.race([completionPromise, timeoutPromise]);
-            // If we reach here, completionPromise resolved first
-            processCompleted = true;
-            Logger.logDebug(`[PID ${pid}] Promise.race: completionPromise won.`);
-        } catch (error) {
-            // If we reach here, timeoutPromise rejected first (or completionPromise had an error)
-            if (error.message === 'Timeout') {
-                processCompleted = false;
-                Logger.logDebug(`[PID ${pid}] Promise.race: timeoutPromise won.`);
-            } else {
-                // Unexpected error from completionPromise?
-                Logger.logDebug(`[PID ${pid}] Promise.race: completionPromise failed with error: ${error.message}`);
-                throw error;
-            }
-        } finally {
-            // Crucial: Clear the timeout timer regardless of outcome
-            clearTimeout(timeoutId);
-        }
+        // Get the state entry to retrieve the cwd
+        const state = StateManager.findStateByPid(pid);
 
-        // Construct response based on completion status
-        // Use resolvedState if process completed, otherwise fetch current state for timeout case
-        const stateToUse = processCompleted ? resolvedState : StateManager.findStateByPid(pid);
-
-        if (!stateToUse) {
-            // This shouldn't happen if spawn succeeded and promise resolved/state fetched
-            throw new Error(`Failed to find state for PID ${pid}.`);
-        }
-
-        let response;
-        if (processCompleted) {
-            // Process finished: Use the final state passed by the promise, which now includes logs
-
-            response = {
-                pid: stateToUse.pid,
-                cwd: stateToUse.cwd ?? null,
-                status: stateToUse.status,
-                exit_code: stateToUse.exit_code,
-                stdout: stateToUse.stdout ?? '', // Get logs from resolved state
-                stderr: stateToUse.stderr ?? '', // Get logs from resolved state
-            };
-        } else {
-            // Timeout occurred: Return current state (likely 'Running')
-            response = {
-                pid: pid,
-                cwd: stateToUse.cwd ?? null,
-                status: stateToUse.status ?? 'Running', // Default to Running if state is weird
-                exit_code: null,
-                stdout: '',
-                stderr: ''
-            };
-        }
+        const response = {
+            pid,
+            cwd: state?.cwd ?? null, // Include cwd from state
+            stdout: '', // Per original logic, stdout/stderr are not returned here
+            stderr: '', // They are retrieved via get_terminal_output
+            exit_code: null // Exit code is unknown at this point
+        };
 
         return { content: [{ type: "text", text: JSON.stringify(response) }] };
 
     } catch (error) {
-        console.error(`[ExecuteCommand] Error processing command "${command}" (PID: ${pid ?? 'N/A'}):`, error);
+        console.error('[ExecuteCommand] Error:', error);
+        // Ensure error is propagated correctly
         throw new Error(`Failed to execute command: ${error.message}`);
     }
 }

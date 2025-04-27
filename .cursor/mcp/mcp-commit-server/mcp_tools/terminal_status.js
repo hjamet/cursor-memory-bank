@@ -1,5 +1,5 @@
 import * as StateManager from '../lib/state_manager.js';
-// import * as Logger from '../lib/logger.js'; // Logger no longer needed here
+import * as Logger from '../lib/logger.js';
 import process from 'process'; // Needed for background status check
 
 // TODO: Re-implement or remove the background status monitor (updateRunningProcessStatuses)
@@ -21,16 +21,13 @@ export async function handleGetTerminalStatus({ timeout = 0 }) {
     let currentStates = StateManager.getState(); // Get initial state
 
     // Helper function to get formatted terminal list
-    const getFormattedTerminals = (states) => { // Made synchronous
+    const getFormattedTerminals = async (states) => {
         const terminals = [];
         for (const state of states) {
-            // Log reading removed as log files no longer exist
-            /* 
+            // Read last 10 lines from logs
             const lastStdout = await Logger.readLogLines(state.stdout_log, 10);
             const lastStderr = await Logger.readLogLines(state.stderr_log, 10);
             const last_output = `--- STDOUT ---\n${lastStdout}\n--- STDERR ---\n${lastStderr}`.trim();
-            */
-            const last_output = "[Output not available via get_terminal_status]"; // Placeholder
 
             terminals.push({
                 pid: state.pid,
@@ -74,7 +71,7 @@ export async function handleGetTerminalStatus({ timeout = 0 }) {
     }
 
     // Format the final output based on the latest state fetched
-    const terminals = getFormattedTerminals(currentStates); // Call synchronous helper
+    const terminals = await getFormattedTerminals(currentStates);
     const response = { status_changed, terminals };
 
     return { content: [{ type: "text", text: JSON.stringify(response) }] };

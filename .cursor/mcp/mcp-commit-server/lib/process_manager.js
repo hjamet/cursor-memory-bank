@@ -11,69 +11,7 @@ import * as Logger from './logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const workspaceRoot = process.env.MCP_WORKSPACE_ROOT || path.resolve(__dirname, '../../../..'); // Go up one more level to get actual root
-const MAX_BUFFER_SIZE = 10 * 1024 * 1024; // Global constant (10MB)
-
-/**
- * Check if a command is a Python command.
- * @param {string} command The command to check
- * @returns {boolean} True if it's a Python command
- */
-function isPythonCommand(command) {
-    return command.trim().startsWith('python') || command.trim().startsWith('"python') ||
-        command.trim().startsWith("'python") || command.trim().startsWith('py ');
-}
-
-/**
- * Create a wrapped Python command that redirects output to files.
- * @param {string} command The original Python command
- * @param {string} stdoutFile The path to the stdout file
- * @param {string} stderrFile The path to the stderr file
- * @returns {string} The wrapped command
- */
-function createPythonWrapper(command, stdoutFile, stderrFile) {
-    // For Python commands, we'll create a wrapper that ensures output redirection
-    const escapedStdoutFile = stdoutFile.replace(/\\/g, '\\\\');
-    const escapedStderrFile = stderrFile.replace(/\\/g, '\\\\');
-
-    // Extract the python command and its arguments
-    const parts = command.match(/^(["']?python(?:\s+|-)?(?:\.exe)?["']?)\s*(.*)$/i);
-    if (!parts) {
-        // Fallback if our regex didn't match
-        return `${command} > "${stdoutFile}" 2> "${stderrFile}"`;
-    }
-
-    const pythonCmd = parts[1];
-    const pythonArgs = parts[2];
-
-    // Create a Python wrapper that ensures output capture
-    return `${pythonCmd} -c "
-import sys, subprocess, os
-
-# Create the files to ensure they exist
-with open('${escapedStdoutFile}', 'w') as f: pass
-with open('${escapedStderrFile}', 'w') as f: pass
-
-# Run the original command and capture its output
-try:
-    cmd = ${JSON.stringify(pythonArgs)}
-    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    stdout, stderr = proc.communicate()
-    
-    # Write output to files
-    with open('${escapedStdoutFile}', 'w') as f:
-        f.write(stdout)
-    with open('${escapedStderrFile}', 'w') as f:
-        f.write(stderr)
-    
-    # Exit with the same code
-    sys.exit(proc.returncode)
-except Exception as e:
-    with open('${escapedStderrFile}', 'w') as f:
-        f.write(f'Error in wrapper: {str(e)}')
-    sys.exit(1)
-"`;
-}
+const projectRoot = path.resolve(__dirname, '../../..'); // Assuming lib/ is two levels down
 
 /**
  * Spawns a process, manages its state, and logs its output.
@@ -83,209 +21,221 @@ except Exception as e:
 export async function spawnProcess(command) {
     let child;
     let pid;
-    let resolveCompletion;
-    const completionPromise = new Promise(resolve => { resolveCompletion = resolve; });
+    let stdoutLogPath;
+    let stderrLogPath;
+    let stdoutStream;
+    let stderrStream;
+
     const startTime = new Date().toISOString();
 
-    // For Python commands, set up temporary files for output capture
-    let stdoutFile = null;
-    let stderrFile = null;
-    let isPython = isPythonCommand(command);
-    let wrappedCommand = command;
-
-    if (isPython) {
-        // Create unique filenames for this process
-        const randomId = Math.random().toString(36).substring(2, 15);
-        stdoutFile = path.join(workspaceRoot, `.tmp_stdout_${randomId}.txt`);
-        stderrFile = path.join(workspaceRoot, `.tmp_stderr_${randomId}.txt`);
-
-        // Create a wrapped command that ensures output capture
-        wrappedCommand = createPythonWrapper(command, stdoutFile, stderrFile);
-        Logger.logDebug(`[PID UNKNOWN YET] Using Python wrapper for command: ${command}`);
-        Logger.logDebug(`[PID UNKNOWN YET] Wrapped command: ${wrappedCommand}`);
-    }
-
     try {
-        const execaOptions = {
-            shell: true,
-            stdio: 'pipe',
-            detached: true,
-            cwd: workspaceRoot,
-            reject: false // Handle completion manually based on result
+        await Logger.ensureLogsDir();
+
+        // Determine how to spawn based on the command string
+        let executable;
+        let args;
+        let spawnOptions = {
+            detached: true, // Keep detached for background potential
+            stdio: ['ignore', 'pipe', 'pipe'],
+            cwd: projectRoot,
+            shell: false // Default to false now
         };
 
-        Logger.logDebug(`[PID UNKNOWN YET] Spawning with execa: Command: ${wrappedCommand}, Options: ${JSON.stringify(execaOptions)}`);
-        child = execa(wrappedCommand, execaOptions);
+        // Specific handling for Git Bash on Windows
+        const gitBashPath = "C:\\Program Files\\Git\\bin\\bash.exe"; // Use escaped backslashes
+        if (process.platform === 'win32' && command.startsWith(`"${gitBashPath}"`)) {
+            const match = command.match(/^"(.*?)"\s+-c\s+"(.*)"$/);
+            if (match && match[1] === gitBashPath) {
+                executable = gitBashPath;
+                args = ['-c', match[2]]; // Pass the command string as an argument to -c
+            } else {
+                executable = command; // The whole string
+                args = [];
+                spawnOptions.shell = true; // Revert to shell: true for this case
+            }
+        } else {
+            // Default behavior for other commands/platforms
+            executable = command; // Assume command is the executable or handled by shell
+            args = [];
+            spawnOptions.shell = true; // Use shell: true for general commands
+        }
+
+        // Spawn the process - First attempt with configured options (potentially shell: false)
+        try {
+            child = spawn(executable, args, spawnOptions);
+        } catch (spawnErr) {
+            // If the first attempt failed (e.g., ENOENT with shell: false), try again with shell: true
+            if (spawnOptions.shell === false && spawnErr.code === 'ENOENT') {
+                spawnOptions.shell = true;
+                executable = command; // Use the original full command string
+                args = [];
+                try {
+                    child = spawn(executable, args, spawnOptions); // Retry with shell: true
+                } catch (retryErr) {
+                    throw retryErr; // Throw the error from the retry
+                }
+            } else {
+                throw spawnErr;
+            }
+        }
 
         pid = child.pid;
         if (pid === undefined) {
-            throw new Error('Failed to get PID from execa process.');
+            // Clean up streams if they were somehow created before PID assignment failed
+            stdoutStream?.end();
+            stderrStream?.end();
+            throw new Error('Failed to get PID for spawned process.');
         }
-        Logger.logDebug(`[PID ${pid}] Spawned successfully with execa.`);
 
+        // Create log streams
+        const streams = Logger.createLogStreams(pid);
+        stdoutLogPath = streams.stdoutLogPath;
+        stderrLogPath = streams.stderrLogPath;
+        stdoutStream = streams.stdoutStream;
+        stderrStream = streams.stderrStream;
+
+        // Pipe output to log files
+        child.stdout.pipe(stdoutStream);
+        child.stderr.pipe(stderrStream);
+
+        // Add entry to state
         const newStateEntry = {
             pid,
             command,
             cwd: execaOptions.cwd,
             status: 'Running',
             exit_code: null,
-            stdout_log: null,
-            stderr_log: null,
+            stdout_log: stdoutLogPath,
+            stderr_log: stderrLogPath,
             startTime,
             endTime: null,
         };
-        StateManager.addState(newStateEntry).catch(e => console.error("Error adding initial state:", e));
+        await StateManager.addState(newStateEntry);
 
-        (async () => {
-            let finalState = {};
-            let result = null; // To store result outside try block
+        // --- Process Event Handling ---
+
+        // Flag to prevent duplicate final updates if 'close' and 'error' both fire near simultaneously
+        let finalUpdateDone = false;
+
+        const handleExit = async (code, signal) => {
+            // console.log(`[ProcessManager] Process ${pid} received 'exit' event with code: ${code}, signal: ${signal}`);
+            const exitCode = code ?? (signal ? 1 : 0); // Assign exit code based on signal if code is null
+            const status = (exitCode === 0) ? 'Success' : 'Failure';
+            const endTime = new Date().toISOString(); // Capture potential end time on exit
+
+            // Update status immediately on exit, but don't mark as fully ended yet
             try {
-                result = await child;
-                Logger.logDebug(`[PID ${pid}] execa completed. Exit Code: ${result.exitCode}, Signal: ${result.signal}`);
+                await StateManager.updateState(pid, {
+                    status: status, // Set tentative status
+                    exit_code: exitCode,
+                    endTime: endTime, // Update end time tentatively
+                });
+                // console.log(`[ProcessManager] Updated tentative state for PID ${pid} on exit: Status=${status}, Code=${exitCode}`);
+            } catch (stateErr) {
+                console.error(`[ProcessManager] Error during tentative state update on exit for PID ${pid}:`, stateErr);
+            }
+        };
 
-                let stdout = result.stdout || '';
-                let stderr = result.stderr || '';
+        const handleClose = async (code, signal) => {
+            if (finalUpdateDone) return; // Prevent duplicate updates
+            finalUpdateDone = true;
 
-                // If we used the Python wrapper, read from the temporary files
-                if (isPython && stdoutFile && stderrFile) {
-                    try {
-                        if (fs.existsSync(stdoutFile)) {
-                            stdout = fs.readFileSync(stdoutFile, 'utf8');
-                            Logger.logDebug(`[PID ${pid}] Read ${stdout.length} bytes from stdout file`);
-                            // Clean up
-                            fs.unlinkSync(stdoutFile);
-                        }
+            // console.log(`[ProcessManager] Process ${pid} received 'close' event with code: ${code}, signal: ${signal}`);
+            // Exit code/status should ideally be set by handleExit, but recalculate for safety
+            const finalExitCode = code ?? (signal ? 1 : 0);
+            const finalStatus = (finalExitCode === 0) ? 'Success' : 'Failure';
+            const finalEndTime = (await StateManager.getState(pid))?.endTime ?? new Date().toISOString(); // Use existing endTime if set by exit, else now
 
-                        if (fs.existsSync(stderrFile)) {
-                            stderr = fs.readFileSync(stderrFile, 'utf8');
-                            Logger.logDebug(`[PID ${pid}] Read ${stderr.length} bytes from stderr file`);
-                            // Clean up
-                            fs.unlinkSync(stderrFile);
-                        }
-                    } catch (fileErr) {
-                        console.error(`[ProcessManager] Error reading output files for PID ${pid}:`, fileErr);
-                        stderr += `\nError reading output files: ${fileErr.message}`;
-                    }
-                }
+            // Ensure file streams are ended explicitly before waiting for 'finish'
+            // It's possible 'close' fires before pipes automatically end the streams
+            stdoutStream?.end();
+            stderrStream?.end();
 
-                const finalStatus = result.exitCode === 0 ? 'Success' : 'Failure';
-                finalState = {
-                    pid: pid,
-                    command: command,
-                    cwd: execaOptions.cwd,
-                    startTime: startTime,
-                    status: finalStatus,
-                    exit_code: result.exitCode,
-                    endTime: new Date().toISOString(),
-                    stdout: stdout,
-                    stderr: stderr,
-                    stdout_log: null, stderr_log: null,
-                };
+            // Wait for file write streams to finish
+            const streamFinishPromises = [];
+            if (stdoutStream) streamFinishPromises.push(new Promise(res => stdoutStream.once('finish', res).on('error', (e) => { console.error(`[ProcessManager] stdoutStream finish error for ${pid}:`, e); res(); }))); // Add error handlers
+            if (stderrStream) streamFinishPromises.push(new Promise(res => stderrStream.once('finish', res).on('error', (e) => { console.error(`[ProcessManager] stderrStream finish error for ${pid}:`, e); res(); }))); // Add error handlers
 
-            } catch (error) {
-                // Should not happen with reject: false unless execa setup fails catastrophically
-                console.error(`[ProcessManager] Unexpected Error awaiting execa process ${pid}:`, error);
-                Logger.logDebug(`[PID ${pid}] execa awaited promise failed unexpectedly: ${error.message}`);
+            try {
+                await Promise.all(streamFinishPromises);
+                // console.log(`[ProcessManager] File streams finished for PID ${pid} after 'close' event.`);
+            } catch (streamErr) {
+                // This catch might be redundant if the error handlers within the promises resolve, but keep for safety.
+                console.error(`[ProcessManager] Error waiting for file streams to finish for PID ${pid}:`, streamErr);
+            }
 
-                let stdout = error.stdout || '';
-                let stderr = (error.stderr || '') + `\nExeca Error: ${error.message}`;
+            // Final state update after streams are confirmed closed
+            try {
+                await StateManager.updateState(pid, {
+                    status: finalStatus, // Confirm final status
+                    exit_code: finalExitCode, // Confirm final exit code
+                    endTime: finalEndTime, // Confirm final end time
+                    // Read log files here if needed, or let get_terminal_output handle it
+                });
+                // console.log(`[ProcessManager] Updated final state for PID ${pid} after 'close': Status=${finalStatus}, Code=${finalExitCode}`);
+            } catch (finalStateErr) {
+                console.error(`[ProcessManager] Error during final state update on 'close' for PID ${pid}:`, finalStateErr);
+            }
+        };
 
-                // If we used the Python wrapper, try to read from the temporary files, even in case of error
-                if (isPython && stdoutFile && stderrFile) {
-                    try {
-                        if (fs.existsSync(stdoutFile)) {
-                            stdout = fs.readFileSync(stdoutFile, 'utf8');
-                            // Clean up
-                            fs.unlinkSync(stdoutFile);
-                        }
+        const handleError = async (err) => {
+            if (finalUpdateDone) return; // Prevent duplicate updates
+            finalUpdateDone = true;
 
-                        if (fs.existsSync(stderrFile)) {
-                            stderr = fs.readFileSync(stderrFile, 'utf8');
-                            // Clean up
-                            fs.unlinkSync(stderrFile);
-                        }
-                    } catch (fileErr) {
-                        console.error(`[ProcessManager] Error reading output files for PID ${pid} after execution error:`, fileErr);
-                        stderr += `\nError reading output files after execution error: ${fileErr.message}`;
-                    }
-                }
+            console.error(`[ProcessManager] Error event for child process ${pid}:`, err);
 
-                finalState = {
-                    pid: pid,
-                    command: command,
-                    cwd: execaOptions.cwd,
-                    startTime: startTime,
+            // Attempt to end streams immediately
+            stdoutStream?.end();
+            stderrStream?.end();
+
+            // Update state to indicate failure due to an error event
+            const errorEndTime = new Date().toISOString();
+            try {
+                await StateManager.updateState(pid, {
                     status: 'Failure',
-                    exit_code: error.exitCode ?? null,
-                    endTime: new Date().toISOString(),
-                    stdout: stdout,
-                    stderr: stderr,
-                    stdout_log: null, stderr_log: null,
-                };
-            } finally {
-                // Ensure we clean up temp files in all cases
-                if (isPython) {
-                    try {
-                        if (stdoutFile && fs.existsSync(stdoutFile)) {
-                            fs.unlinkSync(stdoutFile);
-                        }
-                        if (stderrFile && fs.existsSync(stderrFile)) {
-                            fs.unlinkSync(stderrFile);
-                        }
-                    } catch (cleanupErr) {
-                        console.error(`[ProcessManager] Error cleaning up temporary files for PID ${pid}:`, cleanupErr);
-                    }
-                }
+                    exit_code: null, // Typically no exit code in 'error' event
+                    endTime: errorEndTime,
+                    // Store error message? Maybe in a separate field or stderr_log?
+                    // Let's add it to a potential error field if we modify state manager
+                });
+                console.log(`[ProcessManager] Updated state to Failure for PID ${pid} due to 'error' event.`);
+            } catch (stateErr) {
+                console.error(`[ProcessManager] Error updating state after 'error' event for PID ${pid}:`, stateErr);
             }
+        };
 
-            // Final state update for persistence
-            const finalUpdatePayload = {
-                status: finalState.status,
-                exit_code: finalState.exit_code,
-                endTime: finalState.endTime,
-                stdout: finalState.stdout,
-                stderr: finalState.stderr,
-                stdout_log: null, stderr_log: null,
-            };
-            StateManager.updateState(pid, finalUpdatePayload).catch(err => {
-                console.error(`[ProcessManager] Background persistence error for PID ${pid} after execa completion:`, err);
-            });
+        // Register event handlers
+        child.on('exit', handleExit);
+        child.on('close', handleClose); // Use 'close' for finalization
+        child.on('error', handleError);
 
-            Logger.logDebug(`[PID ${pid}] Resolving completion promise with final state.`);
-            resolveCompletion(finalState);
-        })();
-
-        return { pid, completionPromise };
-
+        return {
+            pid,
+            exit_code: null,
+            stdout_log: stdoutLogPath,
+            stderr_log: stderrLogPath
+        };
     } catch (err) {
-        console.error(`[ProcessManager] Error during execa setup for command "${command}":`, err);
-        Logger.logDebug(`[PID UNKNOWN] Execa setup error details: ${JSON.stringify(err)}`);
+        console.error(`[ProcessManager] Error during spawnProcess setup for command "${command}":`, err);
+        // Ensure streams are closed if they were opened during a failed setup
+        stdoutStream?.end();
+        stderrStream?.end();
 
-        // Clean up temp files if we created them but failed to start the process
-        if (isPython) {
+        // If PID was assigned before error, try to update state to Failure
+        // This handles errors between PID assignment and returning the promise
+        if (pid && !finalUpdateDone) { // Check finalUpdateDone here too
             try {
-                if (stdoutFile && fs.existsSync(stdoutFile)) {
-                    fs.unlinkSync(stdoutFile);
-                }
-                if (stderrFile && fs.existsSync(stderrFile)) {
-                    fs.unlinkSync(stderrFile);
-                }
-            } catch (cleanupErr) {
-                console.error('[ProcessManager] Error cleaning up temporary files after setup failure:', cleanupErr);
+                await StateManager.updateState(pid, {
+                    status: 'Failure',
+                    exit_code: null,
+                    endTime: new Date().toISOString(),
+                    // Maybe add error info here too
+                });
+            } catch (stateErr) {
+                console.error(`[ProcessManager] Error updating state after setup error for PID ${pid}:`, stateErr);
             }
         }
-
-        if (resolveCompletion) {
-            const errorState = {
-                pid: null, command: command, cwd: workspaceRoot, startTime: startTime,
-                status: 'Failure', exit_code: null, endTime: new Date().toISOString(),
-                stdout: '', stderr: `Execa Setup Error: ${err.message}`, stdout_log: null, stderr_log: null
-            };
-            resolveCompletion(errorState);
-            Logger.logDebug(`[PID UNKNOWN] Resolved completion promise with setup error state.`);
-        } else {
-            Logger.logDebug(`[PID UNKNOWN] Setup error, but resolveCompletion was null.`);
-        }
+        // Re-throw the error to the caller (e.g., terminal_execution.js)
         throw err;
     }
 }
