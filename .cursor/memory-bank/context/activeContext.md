@@ -2,10 +2,13 @@
 
 ## Current implementation context
 
-- **Task Group:** MCP Server Enhancements
-- **Current Task:** 2.1 Add `send_terminal_input` MCP Tool (Verify Test Status)
-- **Goal:** Determine the status of the test for the implemented `send_terminal_input` tool, as the previous execution was interrupted. This requires proceeding through the `implementation` -> `test-implementation` -> `test-execution` rule sequence.
-- **Files:** `tests/test_mcp_send_input.js`
+- **Task Group:** Rule Modifications (ToDo Section)
+- **Current Task:** 1.1 Update `context-update` Rule
+- **Goal:** Modify the `context-update` rule (`.cursor/rules/context-update.mdc`) to use the `mcp_MyMCP_commit` tool instead of the deprecated `run_terminal_cmd` for `git commit`.
+- **Next Tasks (ToDo):**
+    - 1.2 Update `test-execution` Rule
+    - 1.5 Correct `consolidate-repo` Example
+- **Files:** `.cursor/rules/context-update.mdc`, `.cursor/memory-bank/workflow/tasks.md`
 - **Current Implementation:** 3.4 Remove `[200~` Terminal Error Mentions
 - **Goal:** Search all rule files (`.cursor/rules/*.mdc`) for the obsolete warning note about the `[200~` terminal error and remove it. This note is no longer relevant with the new MCP tools.
 - **Status:** Completed. All identified rule files (`consolidate-repo.mdc`, `context-update.mdc`, `experience-execution.mdc`, `implementation.mdc`) have been edited.
@@ -31,6 +34,8 @@
 
 ## Important Notes
 
+- The task 2.1 (`send_terminal_input`) implementation was previously completed, but its test was interrupted. It remains in the 'In Progress' section but will be addressed after the current 'ToDo' tasks.
+- Need to clean up the duplicated Task 2.1 entry in `tasks.md`.
 - Strict adherence to the rule workflow even if it seems slightly redundant (calling `test-implementation` when the test exists) ensures process consistency.
 
 ## Lost workflow
