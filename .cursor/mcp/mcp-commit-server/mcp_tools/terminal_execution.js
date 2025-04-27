@@ -62,8 +62,8 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
                 throw new Error(`Process ${pid} finished but final state not found after cleanup.`);
             }
 
-            // *** ADDING SMALL DELAY before reading logs ***
-            await new Promise(resolve => setTimeout(resolve, 50)); // 50ms delay
+            // *** INCREASED DELAY before reading logs ***
+            await new Promise(resolve => setTimeout(resolve, 150)); // 150ms delay
 
             // Initialize variables OUTSIDE try blocks
             let stdoutContent = '';

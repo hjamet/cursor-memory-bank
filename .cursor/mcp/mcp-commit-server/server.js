@@ -247,7 +247,7 @@ async function startServer() {
     try {
         const transport = new StdioServerTransport();
         await server.connect(transport);
-        console.log("[MCP Server] InternalAsyncTerminal Server v0.3.0 connected.");
+        // console.log("[MCP Server] InternalAsyncTerminal Server v0.3.0 connected.");
     } catch (error) {
         console.error("[MCP Server] Failed to start MCP Commit Server:", error);
         process.exit(1);
@@ -255,4 +255,19 @@ async function startServer() {
 }
 
 // Start the server
-startServer(); 
+startServer();
+
+process.on('uncaughtException', (error) => {
+    console.error('[MCP Server] Uncaught Exception:', error);
+    // Decide if the server should exit. For robustness, maybe not.
+    // process.exit(1); // Optional: exit on uncaught exceptions
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[MCP Server] Unhandled Rejection at:', promise, 'reason:', reason);
+    // Decide if the server should exit. For robustness, maybe not.
+    // process.exit(1); // Optional: exit on unhandled rejections
+});
+
+// Initial message to stdout indicates server is ready (removed to avoid JSON parse error)
+// console.log("[MCP Server] InternalAsyncTerminal Server v0.3.0 connected."); 

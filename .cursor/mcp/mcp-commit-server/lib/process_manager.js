@@ -106,10 +106,11 @@ export async function spawnProcess(command) {
         stderrStream = streams.stderrStream;
 
         // Create a promise that resolves/rejects when the process finishes
+        let completionPromiseResolve, completionPromiseReject;
         const completionPromise = new Promise((resolve, reject) => {
-            child.once('close', (code, signal) => resolve({ code, signal }));
-            child.once('error', reject);
-            // We don't need to explicitly handle 'exit' here as 'close' guarantees finality
+            completionPromiseResolve = resolve;
+            completionPromiseReject = reject;
+            // We will manually resolve/reject this in handleClose/handleError
         });
 
         // Capture output using event listeners
@@ -246,45 +247,58 @@ export async function spawnProcess(command) {
                     // Read log files here if needed, or let get_terminal_output handle it
                 });
                 // console.log(`[ProcessManager] Updated final state for PID ${pid} after 'close': Status=${finalStatus}, Code=${finalExitCode}`);
+
+                // NOW resolve the completion promise AFTER state update
+                if (completionPromiseResolve) {
+                    completionPromiseResolve({ code: finalExitCode, signal });
+                }
+
             } catch (finalStateErr) {
                 // console.error(`[ProcessManager] Error during final state update on 'close' for PID ${pid}:`, finalStateErr);
+                // Reject completion promise if state update fails?
+                if (completionPromiseReject) {
+                    completionPromiseReject(new Error(`Failed to update final state for PID ${pid}: ${finalStateErr.message}`));
+                }
+            } finally {
+                // Ensure cleanup always happens
+                await cleanupProcessResources(pid, stdoutStream, stderrStream, child);
+                cleanupResolve(); // Resolve the separate cleanup promise
             }
-            cleanupResolve({ status: finalStatus, code: finalExitCode }); // Resolve cleanup *after* state update
         };
 
         const handleError = async (err) => {
-            if (finalUpdateDone) return; // Prevent duplicate updates
+            if (finalUpdateDone) return;
             finalUpdateDone = true;
+            // console.error(`[ProcessManager] Process ${pid} encountered error:`, err);
+            const status = 'Failure';
+            const endTime = new Date().toISOString();
 
-            // console.error(`[ProcessManager] Error event for child process ${pid}:`, err);
-
-            // Attempt to end streams immediately
-            stdoutStream?.end();
-            stderrStream?.end();
-
-            // Update state to indicate failure due to an error event
-            const errorEndTime = new Date().toISOString();
-            let stateUpdateError = null;
+            // Update state to reflect the error
             try {
                 await StateManager.updateState(pid, {
-                    status: 'Failure',
-                    exit_code: null, // Typically no exit code in 'error' event
-                    endTime: errorEndTime,
-                    // Store error message? Maybe in a separate field or stderr_log?
-                    // Let's add it to a potential error field if we modify state manager
+                    status: status,
+                    exit_code: null, // Error might not have an exit code
+                    endTime: endTime,
                 });
-                // console.log(`[ProcessManager] Updated state to Failure for PID ${pid} due to 'error' event.`);
             } catch (stateErr) {
-                stateUpdateError = stateErr;
+                // console.error(`[ProcessManager] Error updating state on error for PID ${pid}:`, stateErr);
             }
-            // Resolve cleanupPromise *after* state update attempt
-            cleanupResolve({ status: 'Failure', code: null, error: stateUpdateError || err });
+
+            // Reject the completion promise
+            if (completionPromiseReject) {
+                completionPromiseReject(err);
+            }
+
+            // Ensure cleanup always happens
+            await cleanupProcessResources(pid, stdoutStream, stderrStream, child);
+            cleanupResolve(); // Resolve the separate cleanup promise
         };
 
-        // Register event handlers
-        child.on('exit', handleExit);
-        child.on('close', handleClose); // Use 'close' for finalization
-        child.on('error', handleError);
+        // Attach the handlers
+        child.once('close', handleClose);
+        child.once('error', handleError);
+        // Optional: Keep handleExit for tentative updates?
+        // child.on('exit', handleExit);
 
         return {
             pid,
