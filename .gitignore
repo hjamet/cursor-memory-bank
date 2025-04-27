@@ -25,3 +25,6 @@ Thumbs.db
 
 # MCP
 .cursor/mcp/mcp-commit-server/terminals_status.json
+
+# MCP Server State
+.cursor/mcp/mcp-commit-server/terminals_status.json
