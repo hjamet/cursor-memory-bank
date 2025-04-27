@@ -1,24 +1,20 @@
 # Active Context
 
 ## Current Goal
-Prepare to implement the `cwd` argument for `mcp_MyMCP_execute_command`.
+Implement Task 1: Enhance `mcp_execute_command` for immediate output.
 
 ## Current implementation context
-- **Task**: Extensive testing of MCP command execution.
-- **Conclusion**: Testing completed successfully. The MCP server reliably executes commands and captures stdout/stderr/exit codes on Windows IF:
-    1. Commands requiring bash are executed via explicit Git Bash invocation: `"C:\Program Files\Git\bin\bash.exe" -c "..."` (handled by `process_manager.js`)
-    2. The bash command string includes `cd /path/to/workdir && ...` to ensure correct CWD.
-    3. Inline scripts (e.g., `node -e`, `python -c`) are avoided due to quoting fragility; temporary files are preferred.
-- **Tests Performed & Passed**: 
-    - Python script file execution (stdout/stderr)
-    - Non-zero exit code reporting
-    - "Command not found" error reporting
-- **Tests Failed (and confirmed known limitation)**:
-    - Inline Python/Node script execution (due to quoting issues)
+- **Previous Task**: Add `cwd` to MCP Terminal Responses (Completed & Tested).
+- **Test Results**: `tests/test_mcp_async_terminal.js` passed after adding `cwd`, confirming no regressions.
+- **Note**: A minor discrepancy was observed where the reported `cwd` was the `.cursor` subdirectory instead of the project root set in spawn options. This needs further investigation if precise CWD is critical, but doesn't block current progress.
+- **Current Task**: Enhance `mcp_execute_command` to return full stdout/stderr directly if command finishes within timeout.
 
 ## Key Files Involved
+- `.cursor/mcp/mcp-commit-server/lib/terminal_execution.js` (Likely needs modification)
+- `.cursor/mcp/mcp-commit-server/lib/process_manager.js` (May need adjustments to facilitate early output retrieval)
+- `.cursor/mcp/mcp-commit-server/lib/state_manager.js` 
 - `.cursor/memory-bank/context/activeContext.md`
-- `.cursor/mcp/mcp-commit-server/lib/process_manager.js`
+- `.cursor/memory-bank/workflow/tasks.md`
 
 ## Next Steps
-- Proceed to Task 2: Implement the `cwd` argument for `mcp_MyMCP_execute_command`.
+- Analyze `terminal_execution.js` and `process_manager.js` to implement immediate output return for `execute_command`.

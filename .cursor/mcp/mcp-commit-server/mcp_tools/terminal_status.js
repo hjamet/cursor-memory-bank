@@ -33,6 +33,7 @@ export async function handleGetTerminalStatus({ timeout = 0 }) {
                 pid: state.pid,
                 status: state.status,
                 exit_code: state.exit_code,
+                cwd: state.cwd ?? null,
                 last_output: last_output
             });
         }

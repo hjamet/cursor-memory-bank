@@ -33,8 +33,12 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
         // The *actual* status/output is retrieved via get_terminal_status/output.
         // The `timeout` parameter from the MCP definition is effectively ignored here.
 
+        // Get the state entry to retrieve the cwd
+        const state = StateManager.findStateByPid(pid);
+
         const response = {
             pid,
+            cwd: state?.cwd ?? null, // Include cwd from state
             stdout: '', // Per original logic, stdout/stderr are not returned here
             stderr: '', // They are retrieved via get_terminal_output
             exit_code: null // Exit code is unknown at this point

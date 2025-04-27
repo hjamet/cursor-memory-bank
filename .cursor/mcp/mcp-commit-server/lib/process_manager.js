@@ -99,6 +99,7 @@ export async function spawnProcess(command) {
         const newStateEntry = {
             pid,
             command,
+            cwd: spawnOptions.cwd,
             status: 'Running',
             exit_code: null,
             stdout_log: stdoutLogPath,

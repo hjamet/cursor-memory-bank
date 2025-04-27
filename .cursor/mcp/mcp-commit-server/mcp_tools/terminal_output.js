@@ -31,6 +31,8 @@ export async function handleGetTerminalOutput({ pid, lines = 100 }) {
     }
 
     const response = {
+        pid: state.pid,
+        cwd: state.cwd ?? null,
         stdout: stdoutContent,
         stderr: stderrContent
     };
