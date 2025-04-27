@@ -1,6 +1,6 @@
 # Test Status
 
-- [✅] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): **Passed** (Latest Run: Current Cycle - Fixed Regression)
+- [✅] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): **Passed** (Latest Run: Current Cycle - Verified Fix)
 - [?] MCP Send Input Test (`tests/test_mcp_send_input.js`): **Unknown** (Latest Run: Current Cycle - Execution Interrupted)
 - [✅] User curl test (MINGW64, no jq): Passed (Latest Run: 2025-04-27 - Required `tr -d '\r'` before `bash` to fix CRLF issue causing `: command not found`)
 - [✅] `test_curl_install.sh`: Passed (Latest Run: 2025-04-27 - Fixed no-jq subtest failures related to `--target` option, log file checking, and path extraction)
@@ -39,10 +39,10 @@
 
 ## MCP Async Terminal Workflow Test
 *   **Last Run:** Current Cycle
-*   **Status:** ✅ **Pass (Fixed Regression)**
+*   **Status:** ✅ **Pass (Verified Fix)**
 *   **Description:** Runs a workflow using the async terminal commands (`execute`, `get_status`, `get_output`, `stop`).
 *   **Fix Applied:** Modified test to use specific `echo "..."` command. Modified `server.js` `execute_command` handler to correctly pass the full command string to the shell when `shell: true` is used.
-*   **Previous Status:** ❌ Fail (Regression)
+*   **Previous Status:** ✅ Pass (Fixed Regression)
 
 ## MCP Send Input Test (`tests/test_mcp_send_input.js`)
 *   **Last Run:** Current Cycle
@@ -116,11 +116,11 @@
 
 - **Date**: Current Cycle
 - **Commit**: Current
-- **Status**: ✅ **PASS (Fixed Regression)**
-- **Details**: Test suite now passes after modifying the test to use a specific echo command (`echo "MCP Test Message..."`) and correcting the `execute_command` handler in `server.js` to properly pass the full command string to the shell when `shell: true` is required.
+- **Status**: ✅ **PASS (Verified Fix)**
+- **Details**: Test suite passed, confirming the fix for the `execute_command` handler and the modified test command.
 - **Command**: `node tests/test_mcp_async_terminal.js`
 - **Output**: Successful execution (exit code 0).
-- **Evolution**: Fixed Regression (Previously failed in this cycle).
+- **Evolution**: Verified Fix (Passed after fix).
 
 ## MCP Send Input Test (`tests/test_mcp_send_input.js`)
 
