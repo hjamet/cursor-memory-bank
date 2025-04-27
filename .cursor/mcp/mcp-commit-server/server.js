@@ -357,7 +357,8 @@ server.tool(
                 const child = spawn(command, [], {
                     shell: true,
                     detached: true,
-                    stdio: ['pipe', 'pipe', 'pipe'] // Ensure we pipe stdio
+                    stdio: ['pipe', 'pipe', 'pipe'], // Ensure we pipe stdio
+                    cwd: projectRoot // Set CWD to project root
                 });
                 childPid = child.pid;
 

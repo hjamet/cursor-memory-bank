@@ -1,6 +1,7 @@
 console.log('[MCP Test Script] Starting execution...'); // Added early log
 // tests/test_mcp_send_input.js
-const { v4: uuidv4 } = require('uuid');
+// const { v4: uuidv4 } = require('uuid'); // Removed uuid dependency
+const crypto = require('crypto'); // Added crypto
 const process = require('process');
 const { spawn } = require('child_process');
 const path = require('path');
@@ -18,7 +19,7 @@ function callMcpToolViaStdio(toolName, params, timeoutMs = 10000) { // Added tim
             return reject(new Error("MCP Server process is not running or stdin not writable."));
         }
 
-        const requestId = uuidv4();
+        const requestId = crypto.randomUUID(); // Use crypto
         const requestBody = JSON.stringify({
             mcp_version: '1.0',
             request_id: requestId,
@@ -146,7 +147,7 @@ function setupStdioListeners() {
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function runTest() {
-    const testId = uuidv4().substring(0, 8);
+    const testId = crypto.randomUUID().substring(0, 8); // Use crypto
     console.log(`[Test Start] test_mcp_send_input (stdio) - ID: ${testId}`);
     let targetPid = null;
     let finalStatus = 'FAIL'; // Default to FAIL

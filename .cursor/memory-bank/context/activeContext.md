@@ -2,11 +2,18 @@
 
 ## Current implementation context
 
-- **Task Group:** MCP Server Enhancements (In Progress)
-- **Current Task:** 2.1 Add `send_terminal_input` MCP Tool (Validate Implementation & Test)
-- **Goal:** Validate that the implementation of the `send_terminal_input` tool exists in `server.js` and ensure its associated test (`tests/test_mcp_send_input.js`) runs successfully, addressing any issues found in the test environment (ToDo Tasks 1.1 & 1.2).
-- **Context:** The `tasks.md` indicates implementation was added but needs validation. The test environment itself needs fixing (ToDo Tasks 1.1, 1.2). The `workflow-perdu` interruption previously noted the tool was declared but not implemented; this needs re-verification.
-- **Files:** `.cursor/mcp/mcp-commit-server/server.js`, `tests/test_mcp_send_input.js`, `.cursor/memory-bank/workflow/tasks.md`, `.cursor/memory-bank/workflow/tests.md`
+- **Task Group:** MCP Server Enhancements / Debug MCP Server
+- **Current Task:** BLOCKED - Tasks 1.1, 1.2 (Debug) & 2.1 (MCP Server Enhancements)
+- **Blocker:** Cannot validate test script (`tests/test_mcp_send_input.js`) execution or debug further due to apparent inability of `mcp_MyMCP_execute_command` tool to capture/return stdout/stderr from executed commands (including simple test scripts).
+- **Goal:** Resolve the MCP tool output capture issue to unblock testing and validation.
+- **Last Actions:**
+    - Implemented `send_terminal_input` handler in `server.js`.
+    - Refactored `tests/test_mcp_send_input.js` for stdio, removed `uuid` dependency.
+    - Added `cwd: projectRoot` to `execute_command` handler in `server.js`.
+    - Redirected server logs to stderr.
+    - Created and ran minimal test script (`tests/test_minimal.js`) which also showed no output via MCP tool.
+    - Updated `tasks.md` to reflect blocked status.
+- **Files:** `.cursor/mcp/mcp-commit-server/server.js`, `tests/test_mcp_send_input.js`, `tests/test_minimal.js`, `.cursor/memory-bank/workflow/tasks.md`
 
 ## Current Status
 
