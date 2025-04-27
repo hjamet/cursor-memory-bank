@@ -1,5 +1,6 @@
 # Test Status
 
+- [✅] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): Passed (Latest Run: 2025-04-28 - Fixed "Method not found" error by modifying test client to use `tools/call` method with tool name in params)
 - [✅] User curl test (MINGW64, no jq): Passed (Latest Run: 2025-04-27 - Required `tr -d '\r'` before `bash` to fix CRLF issue causing `: command not found`)
 - [✅] `test_curl_install.sh`: Passed (Latest Run: 2025-04-27 - Fixed no-jq subtest failures related to `--target` option, log file checking, and path extraction)
 - [✅] `test_download.sh`: Passed (Latest Run: 2025-04-27)
@@ -34,6 +35,15 @@
 - ✅ **Test d'installation de base**: Passed (Latest Run: 2025-04-27)
 - ✅ **Test de backup et restauration** : Passed - Stable (Latest Run: 2025-04-27)
 - ✅ **Test de gestion d'erreur** : Passed - Stable (Latest Run: 2025-04-27)
+
+## MCP Async Terminal Workflow Test
+*   **Last Run:** 2025-04-28
+*   **Status:** ✅ Pass
+*   **Description:** Runs a workflow using the new async terminal commands (`execute`, `get_status`, `get_output`, `stop`).
+*   **Error History:**
+    *   Initial run failed due to server console logs interfering with JSON parsing.
+    *   Subsequent runs failed with "Method not found" despite server-side fixes (renaming tools, explicit capabilities).
+*   **Fix:** Modified the test client (`tests/test_mcp_async_terminal.js`) to send JSON-RPC requests using the standard `method: 'tools/call'` and passing the specific tool name (e.g., `execute_command`) and its arguments within the `params` object (under `name` and `arguments` keys respectively). This resolved the "Method not found" error.
 
 ## Problèmes persistants
 - ✅ **Install script permissions (MINGW64/curl)**: Fixed (Latest Run: 2025-04-27) - Root cause identified as CRLF line endings (`\r`) causing parsing errors in piped MINGW64 bash. Resolved by modifying the *execution command* to `curl ... | tr -d '\r' | bash`.

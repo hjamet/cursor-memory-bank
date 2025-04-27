@@ -2,21 +2,18 @@
 
 ## Current implementation context
 
-- **Task Group:** Implement Architect Verification Workflow (tasks.md Section 2)
-- **Current Task:** 2.1 Define Verification Workflow in `architect.mdc`.
-- **Goal:** Add a new major section to `architect.mdc` outlining the step-by-step iterative verification process for the architect agent.
-- **Logic:** The workflow should involve querying MCP Memory, analyzing project state against stored vision/preferences, documenting findings, and repeating.
-- **Details:** Specify tools like MCP search, file reading, semantic search. Define loop steps (Query -> Analyze -> Document -> Repeat).
-- **Dependencies:** Task 2.2 (Update Example) depends on this definition. Task 1.1 (Memory Strategy) is a prerequisite.
+- **Task Group:** MCP Async Terminal Feature Completion
+- **Current Task:** Context update after successful test execution.
+- **Goal:** Finalize the implementation and testing cycle for the async terminal features.
+- **Previous Action:** Successfully fixed the "Method not found" error in `tests/test_mcp_async_terminal.js` by modifying the client-side RPC call format to use `method: 'tools/call'` and passing the tool name (`name: '...'`) and arguments (`arguments: {...}`) within the `params` object.
+- **Dependencies:** `.cursor/mcp/mcp-commit-server/server.js`, `tests/test_mcp_async_terminal.js`.
 
 ## Current Status
 
-- Starting implementation of Task 2.1.
-- Task 1.1 (Define Memory Strategy) and 1.2 (Integrate Memory Storage) are functionally complete (will be marked in `tasks.md` later).
+- All async terminal features (`execute_command`, `get_terminal_status`, `get_terminal_output`, `stop_terminal_command`) are implemented in `server.js`.
+- The integration test `tests/test_mcp_async_terminal.js` now passes, verifying the core workflow.
+- All tasks in `tasks.md` related to this feature are marked as complete.
 
 ## Lost workflow
 
-- **Trigger:** User manually invoked `workflow-perdu` rule.
-- **Last Action:** Successfully edited `.cursor/rules/architect.mdc` to add a principle mandating the storage of user vision/preferences/directives into MCP Memory, completing Task 1.2 from `tasks.md`.
-- **Files Involved:** `.cursor/rules/architect.mdc`, `.cursor/memory-bank/workflow/tasks.md`.
-- **Next Planned Step:** According to `tasks.md`, the next step was Task 2.1: Defining the verification workflow in `architect.mdc`.
+(N/A - Workflow is stable)
