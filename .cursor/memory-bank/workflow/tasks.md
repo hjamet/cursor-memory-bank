@@ -2,6 +2,9 @@
 
 # In Progress
 
+
+# Done
+
 ## 1. Refactor MCP Command Server
 
 1.1. [x] **Create Directory Structure and Files**
@@ -41,10 +44,8 @@
 
 ## 2. Verification
 
-2.1. [ ] **Run Existing Tests**
+2.1. [x] **Run Existing Tests**
     - Description: Execute the existing test suite (`tests/test_mcp_async_terminal.js`) using `run_terminal_cmd` (e.g., `node tests/test_mcp_async_terminal.js`). Ensure all tests pass with the refactored server implementation.
     - Files: `tests/test_mcp_async_terminal.js`, all files from section 1.
     - Dependencies: Section 1 (all tasks).
     - Validation: Test suite executes and reports all tests passed.
-
-# Done

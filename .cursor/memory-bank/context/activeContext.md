@@ -1,42 +1,14 @@
 # Active Context
 
-## Lost workflow
-- **Reason:** Used `run_terminal_cmd` instead of `mcp_MyMCP_execute_command` to test the Python script after modifying the MCP server. Invoked `workflow-perdu` as requested by the user.
-- **Actions performed:** 
-    - Analyzed MCP server output capture issues for short-lived processes.
-    - Researched `spawn` behavior, race conditions, and stream events (`end`, `finish`).
-    - Modified `.cursor/mcp/mcp-commit-server/server.js` to wait for `end` events on child streams before `finish` events on log file streams.
-    - Reverted `get_terminal_output` to prioritize reading initially captured output from state for finished processes.
-    - Tested the fix using `run_terminal_cmd` (incorrectly) instead of `mcp_MyMCP_execute_command`.
-    - The test *appeared* successful (output captured), but the wrong tool was used.
-- **Files/Symbols involved:** `test_mcp.py`, `.cursor/mcp/mcp-commit-server/server.js` (specifically `execute_command`, `get_terminal_output`), `mcp_MyMCP_execute_command`.
-- **Conclusion:** The MCP server code modification seems to work, but needs to be tested correctly using the `mcp_MyMCP_execute_command` tool.
-
-- Identified an issue where the terminal status update for short-lived commands was delayed.
-- Analyzed `.cursor/mcp/mcp-commit-server/lib/process_manager.js` and found the delay was caused by waiting for stream finalization before updating the state in the `handleExit` function.
-- Modified the `handleExit` function in `process_manager.js` to perform an immediate status update upon process exit, followed by a secondary update for final details after stream closure.
-- User requested to test this fix directly using MCP commands before proceeding with automated tests.
-
 ## Current implementation context
 
-- **Task Group:** MCP Server Refactoring
-- **Current Task:** Refactor `.cursor/mcp/mcp-commit-server/server.js` into modular components (`lib/*`, `mcp_tools/*`) to improve maintainability, reliability, and simplify command execution logic, while preserving MCP tool interfaces.
-- **Goal:** A clean, modular, reliable, and general implementation of the MCP command execution tools.
-- **Last Actions:** Completed Request Analysis and Task Decomposition, defining the steps in `.cursor/memory-bank/workflow/tasks.md`.
-- **Files/Modules Involved:**
-    - `.cursor/mcp/mcp-commit-server/server.js` (Source & Target)
-    - `.cursor/mcp/mcp-commit-server/mcp_tools/` (Target Directory)
-    - `.cursor/mcp/mcp-commit-server/lib/` (Target Directory)
-    - `.cursor/mcp/mcp-commit-server/terminals_status.json` (State File)
-    - `.cursor/mcp/mcp-commit-server/logs/` (Log Directory)
-    - `tests/test_mcp_async_terminal.js` (Test File)
-- **Key Logic:**
-    - Extracting state management (`state_manager.js`), logging (`logger.js`), and process spawning/output capture (`process_manager.js`) into `lib/`.
-    - Moving individual tool handlers (`commit`, `execute_command`, etc.) into `mcp_tools/`.
-    - Ensuring `process_manager.js` reliably captures all stdout/stderr using ESM and async patterns (handling `data`, `exit`, `close`, `error` events).
-    - Updating main `server.js` to use imports and delegate to the new modules.
-    - Maintaining exact MCP tool signatures.
-    - Using `run_terminal_cmd` for testing during implementation.
+- **Objective**: Resolve issues identified during testing of MCP server enhancements.
+- **Recent Actions**:
+    - Fixed delayed status update in `process_manager.js` by updating state immediately on exit.
+    - Fixed `get_terminal_output` handler in `terminal_output.js` to always read from logs, resolving discrepancies for fast commands.
+    - Fixed assertion in `tests/test_mcp_async_terminal.js` to correctly handle stop status for already-exited processes.
+- **Files/Symbols involved**: `.cursor/mcp/mcp-commit-server/lib/process_manager.js`, `.cursor/mcp/mcp-commit-server/mcp_tools/terminal_output.js`, `tests/test_mcp_async_terminal.js`
+- **Next Step**: Complete `context-update` rule.
 
 ## Current Status
 
