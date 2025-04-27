@@ -48,8 +48,6 @@ For executing shell commands (including tests), prefer the advanced MCP terminal
 4.  **Stop & Cleanup:** Call the `mcp_MyMCP_stop_terminal_command` MCP tool with the target `pids` (array) and an optional `lines` count to terminate running commands, retrieve their final output, and remove them from tracking.
 This workflow allows managing long processes without blocking and retrieving intermediate/final results reliably.
 
-- ⚠️ **Command Execution Note**: The terminal tool occasionally exhibits a bug that adds "[200~" prefix and/or "~" suffix to commands (e.g., "[200~.venv/Scripts/python.exe" instead of ".venv/Scripts/python.exe"), resulting in "command not found" errors. These are NOT code or logic errors but tool-specific issues. If this occurs, simply retry the exact same command 2-3 times until it executes properly. Never treat these specific formatting errors as actual code problems or test failures.
-- ⚠️ Similarly, if the command is put in the background, canceled, or interrupted by the user without any comment, it is certainly because the user has identified an execution problem related to the terminal. You must then relaunch the command as if nothing happened 2-3 times until it executes correctly. Do not consider these terminal tool bugs as actual code or test failure problems.
 - Never skip calling the next rule
 
 ## Next Rules

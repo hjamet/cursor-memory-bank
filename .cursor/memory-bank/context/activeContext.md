@@ -3,11 +3,11 @@
 ## Current implementation context
 
 - **Task Group:** Rule Modifications
-- **Previous Task:** 1.1 Update `context-update` Rule (Use MCP Commit) - Verified already correct.
+- **Previous Task:** 1.2 Update `test-execution` Rule (Use MCP Terminal Tools) - Completed.
 - **Current Task:** Preparing for next task in group.
 - **Goal:** Update various rules (`.mdc` files) to align with current MCP tool usage and best practices.
-- **Files:** `.cursor/rules/context-update.mdc`, `.cursor/rules/test-execution.mdc`, `.cursor/rules/fix.mdc`, potentially others in `.cursor/rules/`.
-- **Dependencies:** Existing MCP tools (`mcp_MyMCP_commit`, `mcp_MyMCP_execute_command`, etc.).
+- **Files:** `.cursor/rules/fix.mdc`, potentially others in `.cursor/rules/`.
+- **Dependencies:** Existing MCP tools.
 
 ## Current Status
 
