@@ -1,10 +1,55 @@
 # ToDo
 
+## 1. Rule Modifications
+
+1.1. [ ] **Update `context-update` Rule**: Modify the rule to use the MCP `commit` tool (`mcp_MyMCP_commit`) instead of the `git commit -a` command for committing changes.
+    - Description: Replace the `run_terminal_cmd` call for `git commit -a ...` with a call to `mcp_MyMCP_commit`, ensuring all necessary arguments (emoji, type, title, description) are passed correctly.
+    - Files: `.cursor/rules/context-update.mdc`
+    - Dependencies: `mcp_MyMCP_commit` tool.
+    - Validation: The rule uses the MCP tool for commits, and commits are successful.
+
+1.2. [ ] **Update `test-execution` Rule**: Modify the rule to primarily use MCP tools (`mcp_MyMCP_execute_command`, etc.) for executing test commands, similar to how `fix` and `experience-execution` were updated.
+    - Description: Update the instructions and examples in the rule to demonstrate and recommend using the suite of MCP terminal tools for running tests.
+    - Files: `.cursor/rules/test-execution.mdc`
+    - Dependencies: MCP terminal tools.
+    - Validation: The rule reflects the usage of MCP tools for test execution.
+
+1.3. [ ] **Update `fix` Rule**: Modify the rule to remove the mention of the deprecated MCP `Debug` tool and suggest using temporary debug logging instead.
+    - Description: Edit the rule's instructions/specifics to replace references to the MCP `Debug` tool with guidance on adding temporary logging statements (`console.log`, etc.) within the code being fixed and remembering to remove them afterward.
+    - Files: `.cursor/rules/fix.mdc`
+    - Dependencies: None.
+    - Validation: The rule no longer mentions the MCP `Debug` tool and correctly suggests temporary logging.
+
+1.4. [ ] **Remove `[200~` Terminal Error Mentions**: Identify all rule files (`.cursor/rules/*.mdc`) that mention the `[200~` terminal error (related to the old `run_terminal_cmd` tool) and remove those specific notes/warnings, as they are obsolete with the use of MCP tools.
+    - Description: Search across all `.mdc` files in `.cursor/rules/` for references to the `[200~` bug or similar terminal execution warnings related to the old tool. Remove these specific sentences/paragraphs.
+    - Files: `.cursor/rules/*.mdc` (Multiple files likely involved, e.g., `context-update.mdc`, `fix.mdc`, `experience-execution.mdc`, `implementation.mdc`)
+    - Dependencies: None.
+    - Validation: Rules no longer contain the outdated warnings about the `[200~` terminal bug.
+
+## 2. MCP Server Enhancements
+
+2.1. [ ] **Add `send_terminal_input` MCP Tool**: Implement a new tool in the MCP server (`server.js`) to send input to a running terminal process.
+    - Description: Define a new tool `send_terminal_input` with schema `pid` (number), `input` (string), optional `timeout` (number). The handler should find the child process associated with the `pid` (potentially requires storing the `child` object in `terminalStates`), write the `input` string followed by `\n` to `child.stdin`. It needs a mechanism to capture subsequent stdout/stderr and potential exit code within the timeout, similar to `execute_command`'s response structure. Careful handling of stdin stream availability and potential errors is required.
+    - Files: `.cursor/mcp/mcp-commit-server/server.js`
+    - Dependencies: Node.js `child_process` (access to `child.stdin`), potentially modifying `terminalStates` structure.
+    - Validation: Tool successfully sends input, captures output, handles timeout, and returns expected structure. Requires new tests.
+
+## 3. Completed / Deferred
+
+3.1. [x] **Modify `stop_terminal_command` MCP Tool**: Modify the tool to accept a list of PIDs.
+    - Status: Completed and tested in previous steps.
+
 # In Progress
 
 (No tasks currently in progress)
 
 # Done
+
+(Old completed tasks removed for clarity)
+
+# Blocked
+
+(Old blocked tasks removed for clarity)
 
 ## 1. MCP Server Enhancements (Current Cycle)
 

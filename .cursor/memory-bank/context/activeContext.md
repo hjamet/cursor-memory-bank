@@ -2,15 +2,19 @@
 
 ## Current implementation context
 
-- **Task Group:** Rule Enhancements (MCP Cleanup)
+- **Task Group:** Rule Modifications
 - **Current Tasks:**
-    - 1.1 Add MCP Cleanup Step to `consolidate-repo` rule.
-    - 1.2 Add Cleanup Note to `experience-execution` rule.
-    - 1.3 Add Cleanup Note to `fix` rule.
-- **Goal:** Enhance MCP terminal process cleanup by adding a dedicated step in `consolidate-repo` and reminder notes in other rules.
-- **Details (Task 1.1):** Modify `consolidate-repo.mdc` Instructions to include a step calling `mcp_get_terminal_status` and then `mcp_stop_terminal_command` for finished terminals.
-- **Details (Task 1.2 & 1.3):** Add a reminder sentence about using `mcp_stop_terminal_command` proactively to the Specifics section of `experience-execution.mdc` and `fix.mdc`.
-- **Dependencies:** MCP tools (`mcp_get_terminal_status`, `mcp_stop_terminal_command`).
+    - 1.1 Update `context-update` Rule (Use MCP Commit)
+    - 1.2 Update `test-execution` Rule (Use MCP Terminal Tools)
+    - 1.3 Update `fix` Rule (Remove MCP Debug, Suggest Logging)
+    - 1.4 Remove `[200~` Terminal Error Mentions from Rules
+- **Goal:** Update various rules (`.mdc` files) to align with current MCP tool usage and best practices.
+- **Details (Task 1.1):** Replace `run_terminal_cmd` for `git commit -a` in `context-update.mdc` with `mcp_MyMCP_commit`.
+- **Details (Task 1.2):** Add MCP terminal tool recommendations/examples to `test-execution.mdc`.
+- **Details (Task 1.3):** Edit `fix.mdc` to remove MCP Debug references and add temporary logging guidance.
+- **Details (Task 1.4):** Search all `.mdc` rules and remove specific warnings about the old `[200~` terminal bug.
+- **Files:** `.cursor/rules/context-update.mdc`, `.cursor/rules/test-execution.mdc`, `.cursor/rules/fix.mdc`, potentially others in `.cursor/rules/`.
+- **Dependencies:** Existing MCP tools (`mcp_MyMCP_commit`, `mcp_MyMCP_execute_command`, etc.).
 
 ## Current Status
 

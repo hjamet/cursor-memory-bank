@@ -3,15 +3,16 @@ description: Call this rule to execute unit tests and analyze the results
 globs: 
 alwaysApply: false
 ---
-
 ## TLDR
 Execute unit tests, analyze results and document successes and failures in tests.md.
 
 ## Instructions
 
-1. **Test execution**: Launch tests for implemented features
-   - Capture all results (successes, failures, warnings)
-   - Note precise error messages
+1. **Test execution**: Launch tests for implemented features using MCP tools:
+   - Determine the command needed to run the relevant test suite(s) (e.g., `npm test`, `pytest`, `node tests/my_test.js`).
+   - Use `mcp_MyMCP_execute_command` to run the test command. Set an appropriate `timeout` if tests might take time.
+   - Check the `exit_code` and captured `stdout`/`stderr` from the result to determine success or failure.
+   - Note precise error messages from `stdout`/`stderr` if the exit code is non-zero.
    - After each tool call, write **(Test-execution - 1.[Test name] in progress...)**
 
 2. **Results analysis**: Compare with previous tests
@@ -37,6 +38,16 @@ Execute unit tests, analyze results and document successes and failures in tests
 - An "improvement" means a previously failing test now passes or a warning is resolved
 - A "regression" means a previously successful test now fails or generates a warning
 - To avoid losing the workflow, systematically write **(Test-execution - [number].[Name] in progress...)** between each step
+
+**Using the Advanced MCP Terminal Tools:**
+
+For executing shell commands (including tests), prefer the advanced MCP terminal tools for better control and monitoring:
+1.  **Launch:** Call the `mcp_MyMCP_execute_command` MCP tool with the `command` to run and an optional `timeout` in seconds. It returns the `pid` and initial output/status after the timeout (default 15s) or command completion, whichever comes first. The command continues running in the background if the MCP timeout is reached.
+2.  **Check Status:** Call the `mcp_MyMCP_get_terminal_status` MCP tool with an optional `timeout` in seconds to get the list of all running/completed commands, their `pid`, `status` (`Running`, `Success`, `Failure`, `Stopped`), `exit_code`, and recent output. Providing a `timeout` waits for a status change.
+3.  **Get Output:** Call the `mcp_MyMCP_get_terminal_output` MCP tool with the target `pid` and an optional `lines` count to retrieve the last N lines (default 100) of stdout/stderr for that process.
+4.  **Stop & Cleanup:** Call the `mcp_MyMCP_stop_terminal_command` MCP tool with the target `pids` (array) and an optional `lines` count to terminate running commands, retrieve their final output, and remove them from tracking.
+This workflow allows managing long processes without blocking and retrieving intermediate/final results reliably.
+
 - ⚠️ **Command Execution Note**: The terminal tool occasionally exhibits a bug that adds "[200~" prefix and/or "~" suffix to commands (e.g., "[200~.venv/Scripts/python.exe" instead of ".venv/Scripts/python.exe"), resulting in "command not found" errors. These are NOT code or logic errors but tool-specific issues. If this occurs, simply retry the exact same command 2-3 times until it executes properly. Never treat these specific formatting errors as actual code problems or test failures.
 - ⚠️ Similarly, if the command is put in the background, canceled, or interrupted by the user without any comment, it is certainly because the user has identified an execution problem related to the terminal. You must then relaunch the command as if nothing happened 2-3 times until it executes correctly. Do not consider these terminal tool bugs as actual code or test failure problems.
 - Never skip calling the next rule
@@ -48,10 +59,10 @@ Execute unit tests, analyze results and document successes and failures in tests
 ## Example
 
 # Test-execution: 1 - Test execution
-I begin by executing the unit tests. **(Test-execution: 1 - Test execution)**
-[...running the tests...]
-I see that the command has been put in the background. It's certainly related to a simple terminal issue. I'm going to relaunch the command.
-[...re-running the tests...]
+I begin by executing the unit tests using the MCP tools. **(Test-execution: 1 - Test execution)**
+[...determining test command, e.g., "npm test"...]
+[...calling `mcp_MyMCP_execute_command` with command="npm test", timeout=180...]
+[...checking result exit_code and stderr/stdout...]
 **(Test-execution: 1 - Test execution)**
 
 # Test-execution: 2 - Results analysis
