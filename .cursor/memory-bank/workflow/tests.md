@@ -106,6 +106,10 @@
 
 # Test Results
 
+## Summary
+
+## Details
+
 ## MCP Async Terminal Tests (`tests/test_mcp_async_terminal.js`)
 
 - **Date**: Current Cycle
