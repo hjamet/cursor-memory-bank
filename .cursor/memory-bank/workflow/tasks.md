@@ -45,11 +45,11 @@
 
 ## 1. MyMCP Tool Investigation
 
-### 1.1 Diagnose `mcp_MyMCP_execute_command` and Server Functionality
+### 1.1 Investigate Local MyMCP Server (`mcp-commit-server/server.js`) Failure
 - **Status**: Blocked
-- **Description**: Initial task was to diagnose `mcp_MyMCP_execute_command` failure *with timeout*. Investigation revealed the tool fails consistently even *without* timeout and for simple commands (`echo test`). Further testing showed `mcp_MyMCP_get_terminal_status` also fails with the same error ("Error: no result from tool"). This indicates a general failure of the MyMCP server or its connection.
-- **Impacted Files/Components**: External MCP tool (`mcp_MyMCP_execute_command`, `mcp_MyMCP_get_terminal_status`), MyMCP server implementation, Cursor's tool execution environment.
-- **Dependencies**: A functional MyMCP server connection.
-- **Validation Criteria**: (Original) Successfully execute `mcp_MyMCP_execute_command` with timeout. (Revised Goal) Identify and resolve the root cause of the MyMCP server failure.
-- **Next Step**: Requires external intervention to check the MyMCP server status, configuration, logs, and connection.
+- **Description**: MyMCP tools (`execute_command`, `get_terminal_status`) fail consistently ("Error: no result from tool"). Investigation confirmed MyMCP uses the local `.cursor/mcp/mcp-commit-server/server.js` script (via `mcp.json`). Code review of `server.js` revealed no obvious errors. Added debug logs to `server.js`, but the logs were not visible when calling tools via MCP, preventing further diagnosis. The root cause might be in the MCP communication layer, Node.js environment interaction, or SDK.
+- **Impacted Files/Components**: `.cursor/mcp/mcp-commit-server/server.js`, `.cursor/mcp.json`, MCP SDK/Transport, Node.js environment.
+- **Dependencies**: A working method to debug MCP server scripts launched via `mcp.json` or resolution of the underlying issue.
+- **Validation Criteria**: Successful execution of MyMCP tools OR identification of the root cause.
+- **Next Step**: Requires external help or different debugging approach (e.g., checking Cursor logs if possible, simplifying `server.js` further).
 

@@ -3,21 +3,21 @@
 ## Current implementation context
 
 - **Task Group:** MyMCP Tool Investigation
-- **Current Task:** Context update after failed diagnostic (Task 1.1).
-- **Goal:** Document the outcome of the diagnostic attempt and the blocked state.
-- **Problem Context:** Diagnostic attempts showed that `mcp_MyMCP_execute_command` and `mcp_MyMCP_get_terminal_status` consistently fail with "Error: no result from tool", regardless of parameters (`timeout`, command type). This indicates a general failure of the MyMCP server or its connection.
-- **Next Steps:** The task (1.1) is marked as Blocked. Requires external intervention on the MyMCP server.
-- **Dependencies:** A functional MyMCP server.
+- **Current Task:** Investigate local `mcp-commit-server/server.js` (related to Task 1.1)
+- **Goal:** Determine if the failures of MyMCP tools are caused by issues within the local `server.js` script identified in `.cursor/mcp.json`.
+- **Problem Context:** MyMCP tools (`execute_command`, `get_terminal_status`) fail consistently. `.cursor/mcp.json` shows these tools rely on `node .cursor/mcp/mcp-commit-server/server.js`.
+- **Next Steps:**
+    1. Check if dependencies are installed (`node_modules` in `.cursor/mcp/mcp-commit-server/`).
+    2. Attempt to run the server script directly (`node server.js`) from its directory to check for startup errors.
+    3. Examine `server.js` code for potential bugs related to MCP communication or command handling.
+- **Dependencies:** Node.js environment, potentially `npm` for dependency installation.
 
 ## Current Status
 
-- Diagnostic complete (as far as possible). MyMCP server tools (`execute_command`, `get_terminal_status`) are non-functional.
-- Task 1.1 moved to Blocked in `tasks.md`.
+- Identified that MyMCP failures likely stem from the local `mcp-commit-server/server.js` script, not an external server.
+- Task 1.1, while listed as Blocked, is now being actively investigated locally.
 
 ## Lost workflow
 
-- **Last Rule:** `context-update` (completed step 6).
-- **Last Action:** Determined the workflow should end because the only remaining task (`1.1 Diagnose MyMCP...`) is in the 'Blocked' state due to non-functional MyMCP tools (`execute_command`, `get_terminal_status`).
-- **Reason for Stop:** No actionable tasks remain; requires external fix for the MyMCP server.
-- **Files Involved:** `tasks.md`, `activeContext.md`.
-- **User Invocation:** User explicitly called `workflow-perdu` rule.
+- User invoked `workflow-perdu` and `continue`, prompting re-evaluation of the blocked state.
+- Workflow restarted from `context-update`, leading back to `implementation` to investigate the local server script.

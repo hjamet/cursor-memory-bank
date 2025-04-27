@@ -243,6 +243,10 @@ server.tool(
      * @returns {Promise<ExecuteCommandResult>}
      */
     async ({ command, reuse_terminal, timeout }) => {
+        // <<< DEBUG LOGGING START >>>
+        console.log(`[MyMCP DEBUG] execute_command handler START - Command: ${command}, Timeout: ${timeout}`);
+        // <<< DEBUG LOGGING END >>>
+
         // Note: reuse_terminal logic is not implemented yet.
         let child;
         let pid;
@@ -384,14 +388,21 @@ server.tool(
                 child.unref(); // Allow parent to exit if this was the only ref
             }
 
-            return {
+            // <<< DEBUG LOGGING START >>>
+            const response = {
                 pid,
                 stdout: initialStdout,
                 stderr: initialStderr,
                 exit_code: (result === 'timeout' || processExited === false) ? null : exitCode // Return null if timed out or not exited yet
             };
+            console.log(`[MyMCP DEBUG] execute_command handler RETURNING - Response: ${JSON.stringify(response)}`);
+            return response;
+            // <<< DEBUG LOGGING END >>>
 
         } catch (error) {
+            // <<< DEBUG LOGGING START >>>
+            console.error('[MyMCP DEBUG] execute_command handler ERROR:', error);
+            // <<< DEBUG LOGGING END >>>
             console.error('[mcp_execute_command] Error:', error);
             // Ensure state is marked as failed if an error occurred after state entry was added
             if (pid && stateEntryIndex !== -1 && terminalStates[stateEntryIndex]?.status === 'Running') {
@@ -459,6 +470,10 @@ server.tool(
      * @returns {Promise<GetTerminalStatusResult>}
      */
     async ({ timeout }) => {
+        // <<< DEBUG LOGGING START >>>
+        console.log(`[MyMCP DEBUG] get_terminal_status handler START - Timeout: ${timeout}`);
+        // <<< DEBUG LOGGING END >>>
+
         let status_changed = false;
         const startTime = Date.now();
 
@@ -508,7 +523,11 @@ server.tool(
             };
         });
 
-        return { status_changed, terminals };
+        // <<< DEBUG LOGGING START >>>
+        const response = { status_changed, terminals };
+        console.log(`[MyMCP DEBUG] get_terminal_status handler RETURNING - Response: ${JSON.stringify(response)}`);
+        return response;
+        // <<< DEBUG LOGGING END >>>
     }
 );
 
