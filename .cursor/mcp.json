@@ -1,6 +1,6 @@
 {
     "mcpServers": {
-        "Commit": {
+        "MyMCP": {
             "command": "node",
             "args": [
                 "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\server.js"

@@ -1,0 +1,62 @@
+[
+  {
+    "pid": 14148,
+    "command": "sleep 10",
+    "status": "Failure",
+    "exit_code": 1,
+    "stdout_log": "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\logs\\14148.stdout.log",
+    "stderr_log": "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\logs\\14148.stderr.log",
+    "startTime": "2025-04-27T14:00:54.016Z",
+    "endTime": "2025-04-27T14:00:54.034Z"
+  },
+  {
+    "pid": 19580,
+    "command": "sleep 10",
+    "status": "Failure",
+    "exit_code": 1,
+    "stdout_log": "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\logs\\19580.stdout.log",
+    "stderr_log": "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\logs\\19580.stderr.log",
+    "startTime": "2025-04-27T14:02:31.441Z",
+    "endTime": "2025-04-27T14:02:31.451Z"
+  },
+  {
+    "pid": 23000,
+    "command": "sleep 10",
+    "status": "Failure",
+    "exit_code": 1,
+    "stdout_log": "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\logs\\23000.stdout.log",
+    "stderr_log": "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\logs\\23000.stderr.log",
+    "startTime": "2025-04-27T14:02:42.566Z",
+    "endTime": "2025-04-27T14:02:42.576Z"
+  },
+  {
+    "pid": 26532,
+    "command": "sleep 10",
+    "status": "Failure",
+    "exit_code": 1,
+    "stdout_log": "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\logs\\26532.stdout.log",
+    "stderr_log": "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\logs\\26532.stderr.log",
+    "startTime": "2025-04-27T14:02:48.124Z",
+    "endTime": "2025-04-27T14:02:48.135Z"
+  },
+  {
+    "pid": 17928,
+    "command": "sleep 10",
+    "status": "Failure",
+    "exit_code": 1,
+    "stdout_log": "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\logs\\17928.stdout.log",
+    "stderr_log": "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\logs\\17928.stderr.log",
+    "startTime": "2025-04-27T14:03:40.145Z",
+    "endTime": "2025-04-27T14:03:40.157Z"
+  },
+  {
+    "pid": 11836,
+    "command": "echo test",
+    "status": "Success",
+    "exit_code": 0,
+    "stdout_log": "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\logs\\11836.stdout.log",
+    "stderr_log": "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\logs\\11836.stderr.log",
+    "startTime": "2025-04-27T14:03:43.955Z",
+    "endTime": "2025-04-27T14:03:43.967Z"
+  }
+]

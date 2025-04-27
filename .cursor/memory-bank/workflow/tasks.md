@@ -41,3 +41,15 @@
     - Dependencies: Task 1.1, Task 1.3.
     - Validation: Endpoint correctly attempts termination, cleans up state file and logs, and returns the specified JSON structure.
 
+# Blocked
+
+## 1. MyMCP Tool Investigation
+
+### 1.1 Diagnose `mcp_MyMCP_execute_command` and Server Functionality
+- **Status**: Blocked
+- **Description**: Initial task was to diagnose `mcp_MyMCP_execute_command` failure *with timeout*. Investigation revealed the tool fails consistently even *without* timeout and for simple commands (`echo test`). Further testing showed `mcp_MyMCP_get_terminal_status` also fails with the same error ("Error: no result from tool"). This indicates a general failure of the MyMCP server or its connection.
+- **Impacted Files/Components**: External MCP tool (`mcp_MyMCP_execute_command`, `mcp_MyMCP_get_terminal_status`), MyMCP server implementation, Cursor's tool execution environment.
+- **Dependencies**: A functional MyMCP server connection.
+- **Validation Criteria**: (Original) Successfully execute `mcp_MyMCP_execute_command` with timeout. (Revised Goal) Identify and resolve the root cause of the MyMCP server failure.
+- **Next Step**: Requires external intervention to check the MyMCP server status, configuration, logs, and connection.
+
