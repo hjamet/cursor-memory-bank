@@ -16,6 +16,7 @@
 
 - Previous MCP server enhancements are complete.
 - Focus is now on modifying rules to improve MCP terminal cleanup procedures.
+- Completed `consolidate-repo` rule execution: processed `userbrief.md`, verified file integrity, cleaned up MCP terminals, updated `.gitignore`.
 
 ## Recent Decisions
 
@@ -23,11 +24,11 @@
 
 ## Next Steps
 
-1. Implement Task 1.1 (Modify `consolidate-repo.mdc`).
-2. Implement Task 1.2 (Modify `experience-execution.mdc`).
+1. Implement Task 1.1 (Modify `consolidate-repo.mdc`).  - *This task was done before the workflow interruption, but not committed. Need to re-verify/re-apply if needed.* 
+2. Implement Task 1.2 (Modify `experience-execution.mdc`). - *This task was done before the workflow interruption, but not committed. Need to re-verify/re-apply if needed.*
 3. Implement Task 1.3 (Modify `fix.mdc`).
 4. Update `tasks.md`.
-5. Proceed to the next rule (likely `context-update` as these are documentation/rule changes).
+5. Proceed to the next rule (likely `implementation` to continue with Task 1.3).
 
 ## Important Notes
 
@@ -35,8 +36,4 @@
 
 ## Lost workflow
 
-- **Reason:** Interrupted by user with new tasks in `userbrief.md` and attachment of `workflow-perdu.mdc`.
-- **Last Action:** Completed modifications to `consolidate-repo.mdc` and `experience-execution.mdc` to add MCP cleanup steps (Tasks 1.1 and 1.2 of 'Rule Enhancements'). Task 1.3 (Modify `fix.mdc`) was not started.
-- **Issue:** Examples within the modified rules might not accurately reflect the added cleanup steps.
-- **Files Concerned:** `.cursor/memory-bank/userbrief.md`, `.cursor/rules/consolidate-repo.mdc`, `.cursor/rules/experience-execution.mdc`.
-- **Next:** Need to re-evaluate `userbrief.md` using the standard workflow, likely starting from `consolidate-repo`.
+- *This section is no longer relevant after successfully resuming the workflow via consolidate-repo.*
