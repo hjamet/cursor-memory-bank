@@ -96,7 +96,7 @@ export async function updateState(pid, updates) {
     const stateIndex = terminalStates.findIndex(s => s.pid === pid);
     if (stateIndex !== -1) {
         terminalStates[stateIndex] = { ...terminalStates[stateIndex], ...updates };
-        persistState(); // Trigger persistence without waiting
+        await persistState();
     } else {
         console.warn(`[StateManager] Attempted to update non-existent PID ${pid}. Ignoring.`);
     }

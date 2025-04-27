@@ -48,13 +48,18 @@ export function createLogStreams(pid) {
 
 /**
  * Reads the last N lines of a log file asynchronously.
+ * If lineCount <= 0, reads the entire file.
  * @param {string} logPath Path to the log file.
- * @param {number} lineCount Maximum number of lines to read.
- * @returns {Promise<string>} Last N lines or empty string if file not found/error.
+ * @param {number} lineCount Maximum number of lines to read (or <= 0 for all).
+ * @returns {Promise<string>} Last N lines, full content, or explicit error string if file not found/error.
  */
 export async function readLogLines(logPath, lineCount) {
     try {
         const content = await fs.readFile(logPath, 'utf8');
+        if (lineCount === undefined || lineCount === null || lineCount <= 0) {
+            return content; // Return full content if lineCount is invalid or non-positive
+        }
+        // Proceed with reading last N lines
         const lines = content.split(/\r?\n/).filter(line => line.length > 0);
         const lastLines = lines.slice(-lineCount);
         return lastLines.join('\n');
@@ -63,7 +68,7 @@ export async function readLogLines(logPath, lineCount) {
             return ''; // File not found is not necessarily an error here
         }
         console.error(`[Logger] Error reading log file ${logPath}:`, error);
-        return ''; // Return empty on other errors
+        return `[Log Read Error: ${error.code || error.message}]`; // Return explicit error string
     }
 }
 
@@ -107,4 +112,41 @@ export async function deleteLogFiles(stateOrPid) {
     }
 
     await Promise.all(deletePromises);
-} 
+}
+
+// --- Debug Logging --- 
+const DEBUG_LOG_FILE = path.join(__dirname, '../server_debug.log');
+let debugLogStream = null;
+
+function ensureDebugLogStream() {
+    if (!debugLogStream) {
+        try {
+            // Use append flag 'a'
+            debugLogStream = fsSync.createWriteStream(DEBUG_LOG_FILE, { flags: 'a' });
+            debugLogStream.on('error', (err) => {
+                console.error('[Logger] Error writing to debug log:', err);
+                debugLogStream = null; // Reset stream on error
+            });
+        } catch (err) {
+            console.error('[Logger] Failed to create debug log stream:', err);
+        }
+    }
+}
+
+/**
+ * Logs a debug message to the server_debug.log file.
+ * @param {string} message 
+ */
+export function logDebug(message) {
+    ensureDebugLogStream();
+    if (debugLogStream) {
+        const timestamp = new Date().toISOString();
+        debugLogStream.write(`${timestamp} - ${message}\n`);
+    } else {
+        // Fallback to console if stream failed
+        console.error(`[Debug Log Fallback] ${message}`);
+    }
+}
+
+// Ensure the stream is created on module load
+ensureDebugLogStream(); 

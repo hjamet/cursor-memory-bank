@@ -8,7 +8,9 @@ import * as Logger from './logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, '../../..'); // Assuming lib/ is two levels down
+// const projectRoot = path.resolve(__dirname, '../../..'); // Assuming lib/ is two levels down
+// Use the workspace root passed via environment variable or a sensible default
+const workspaceRoot = process.env.MCP_WORKSPACE_ROOT || path.resolve(__dirname, '../../../..'); // Go up one more level to get actual root
 
 /**
  * Spawns a process, manages its state, and logs its output.
@@ -18,24 +20,23 @@ const projectRoot = path.resolve(__dirname, '../../..'); // Assuming lib/ is two
 export async function spawnProcess(command) {
     let child;
     let pid;
-    let stdoutLogPath;
-    let stderrLogPath;
-    let stdoutStream;
-    let stderrStream;
-
+    let stdoutBuffer = ''; // Buffer pour stdout
+    let stderrBuffer = ''; // Buffer pour stderr
+    let resolveCompletion;
+    const completionPromise = new Promise(resolve => { resolveCompletion = resolve; });
+    let capturedExitCode = null;
     const startTime = new Date().toISOString();
 
     try {
-        await Logger.ensureLogsDir();
-
         // Determine how to spawn based on the command string
         let executable;
         let args;
         let spawnOptions = {
-            detached: true, // Keep detached for background potential
+            detached: true,
             stdio: ['ignore', 'pipe', 'pipe'],
-            cwd: projectRoot,
-            shell: false // Default to false now
+            cwd: workspaceRoot,
+            // Force shell: false par défaut, sauf cas spécifiques
+            shell: false
         };
 
         // Specific handling for Git Bash on Windows
@@ -50,189 +51,186 @@ export async function spawnProcess(command) {
                 args = [];
                 spawnOptions.shell = true; // Revert to shell: true for this case
             }
+        } else if (process.platform === 'win32') {
+            // Sur Windows, pour commandes générales, utiliser cmd /c explicitement avec shell: false
+            executable = 'cmd.exe';
+            args = ['/c', command]; // Passe toute la commande à /c
+            spawnOptions.shell = false; // Assurer shell: false
         } else {
-            // Default behavior for other commands/platforms
-            executable = command; // Assume command is the executable or handled by shell
+            // Pour les autres OS (ou si on veut un vrai shell interactif plus tard)
+            executable = command; // Ou peut-être /bin/sh ?
             args = [];
-            spawnOptions.shell = true; // Use shell: true for general commands
+            spawnOptions.shell = true; // Revenir à shell: true pour non-Windows par défaut ?
         }
 
-        // Spawn the process - First attempt with configured options (potentially shell: false)
+        // Spawn the process
         try {
+            Logger.logDebug(`[PID ${pid}] Spawning: Executable: ${executable}, Args: [${args.join(', ')}], Options: ${JSON.stringify(spawnOptions)}`);
             child = spawn(executable, args, spawnOptions);
         } catch (spawnErr) {
-            // If the first attempt failed (e.g., ENOENT with shell: false), try again with shell: true
-            if (spawnOptions.shell === false && spawnErr.code === 'ENOENT') {
-                spawnOptions.shell = true;
-                executable = command; // Use the original full command string
-                args = [];
-                try {
-                    child = spawn(executable, args, spawnOptions); // Retry with shell: true
-                } catch (retryErr) {
-                    throw retryErr; // Throw the error from the retry
-                }
-            } else {
-                throw spawnErr;
-            }
+            Logger.logDebug(`[PID ${pid}] Spawn initial failed: ${spawnErr.message}`);
+            // Pas de retry automatique avec shell: true si on force shell: false
+            throw spawnErr;
         }
 
         pid = child.pid;
         if (pid === undefined) {
-            // Clean up streams if they were somehow created before PID assignment failed
-            stdoutStream?.end();
-            stderrStream?.end();
             throw new Error('Failed to get PID for spawned process.');
         }
 
-        // Create log streams
+        // Supprimer création et piping vers streams/fichiers logs
+        /*
         const streams = Logger.createLogStreams(pid);
         stdoutLogPath = streams.stdoutLogPath;
         stderrLogPath = streams.stderrLogPath;
         stdoutStream = streams.stdoutStream;
         stderrStream = streams.stderrStream;
-
-        // Pipe output to log files
         child.stdout.pipe(stdoutStream);
         child.stderr.pipe(stderrStream);
+        */
+        const MAX_BUFFER_SIZE = 10 * 1024 * 1024; // Limite de 10MB par buffer (ajustable)
 
-        // Add entry to state
+        // Capturer stdout en mémoire
+        child.stdout.on('data', (data) => {
+            const dataStr = data.toString();
+            Logger.logDebug(`[PID ${pid}] stdout DATA event. Length: ${dataStr.length}`);
+            if (stdoutBuffer.length < MAX_BUFFER_SIZE) {
+                stdoutBuffer += dataStr;
+                if (stdoutBuffer.length > MAX_BUFFER_SIZE) {
+                    stdoutBuffer = stdoutBuffer.substring(0, MAX_BUFFER_SIZE) + '\n[Output Truncated]\n';
+                }
+            } // Sinon, ignorer les données supplémentaires
+        });
+
+        // Capturer stderr en mémoire
+        child.stderr.on('data', (data) => {
+            const dataStr = data.toString();
+            Logger.logDebug(`[PID ${pid}] stderr DATA event. Length: ${dataStr.length}`);
+            if (stderrBuffer.length < MAX_BUFFER_SIZE) {
+                stderrBuffer += dataStr;
+                if (stderrBuffer.length > MAX_BUFFER_SIZE) {
+                    stderrBuffer = stderrBuffer.substring(0, MAX_BUFFER_SIZE) + '\n[Output Truncated]\n';
+                }
+            } // Sinon, ignorer les données supplémentaires
+        });
+
+        // Add entry to state (sans log paths)
         const newStateEntry = {
             pid,
             command,
             cwd: spawnOptions.cwd,
             status: 'Running',
             exit_code: null,
-            stdout_log: stdoutLogPath,
-            stderr_log: stderrLogPath,
+            stdout_log: null, // Pas de fichier log
+            stderr_log: null, // Pas de fichier log
             startTime,
             endTime: null,
         };
-        await StateManager.addState(newStateEntry);
+        // Utiliser addState qui n'attend pas persist
+        StateManager.addState(newStateEntry).catch(e => console.error("Error adding initial state:", e));
 
         // --- Process Event Handling ---
-
-        // Flag to prevent duplicate final updates if 'close' and 'error' both fire near simultaneously
         let finalUpdateDone = false;
 
         const handleExit = async (code, signal) => {
-            // console.log(`[ProcessManager] Process ${pid} received 'exit' event with code: ${code}, signal: ${signal}`);
-            const exitCode = code ?? (signal ? 1 : 0); // Assign exit code based on signal if code is null
-            const status = (exitCode === 0) ? 'Success' : 'Failure';
-            const endTime = new Date().toISOString(); // Capture potential end time on exit
-
-            // Update status immediately on exit, but don't mark as fully ended yet
-            try {
-                await StateManager.updateState(pid, {
-                    status: status, // Set tentative status
-                    exit_code: exitCode,
-                    endTime: endTime, // Update end time tentatively
-                });
-                // console.log(`[ProcessManager] Updated tentative state for PID ${pid} on exit: Status=${status}, Code=${exitCode}`);
-            } catch (stateErr) {
-                console.error(`[ProcessManager] Error during tentative state update on exit for PID ${pid}:`, stateErr);
-            }
+            capturedExitCode = code ?? (signal ? 1 : 0);
+            Logger.logDebug(`[PID ${pid}] EXIT event. Stored code: ${capturedExitCode}`);
+            const status = (capturedExitCode === 0) ? 'Success' : 'Failure';
+            const endTime = new Date().toISOString();
+            // Mise à jour initiale pour statut/code/temps (n'attend pas persist)
+            StateManager.updateState(pid, { status: status, exit_code: capturedExitCode, endTime: endTime })
+                .catch(e => console.error("Error updating state on exit:", e));
         };
 
         const handleClose = async (code, signal) => {
-            if (finalUpdateDone) return; // Prevent duplicate updates
+            Logger.logDebug(`[PID ${pid}] CLOSE event. Using stored code: ${capturedExitCode}.`);
+            if (finalUpdateDone) { return; }
             finalUpdateDone = true;
 
-            // console.log(`[ProcessManager] Process ${pid} received 'close' event with code: ${code}, signal: ${signal}`);
-            // Exit code/status should ideally be set by handleExit, but recalculate for safety
-            const finalExitCode = code ?? (signal ? 1 : 0);
-            const finalStatus = (finalExitCode === 0) ? 'Success' : 'Failure';
-            const finalEndTime = (await StateManager.getState(pid))?.endTime ?? new Date().toISOString(); // Use existing endTime if set by exit, else now
+            // Construire l'état final avec les buffers mémoire
+            const stateToResolve = {
+                // Lire les infos non volatiles de l'état si besoin
+                // mais construire l'essentiel directement
+                pid: pid,
+                command: command,
+                cwd: spawnOptions.cwd,
+                startTime: startTime,
+                // Fin
+                status: (capturedExitCode === 0) ? 'Success' : 'Failure',
+                exit_code: capturedExitCode,
+                endTime: new Date().toISOString(),
+                stdout: stdoutBuffer, // Utiliser le buffer stdout
+                stderr: stderrBuffer, // Utiliser le buffer stderr
+                stdout_log: null,
+                stderr_log: null,
+            };
 
-            // Ensure file streams are ended explicitly before waiting for 'finish'
-            // It's possible 'close' fires before pipes automatically end the streams
-            stdoutStream?.end();
-            stderrStream?.end();
+            // Mettre à jour l'état final pour la persistance (sans logs)
+            const finalUpdatePayload = {
+                status: stateToResolve.status,
+                exit_code: stateToResolve.exit_code,
+                endTime: stateToResolve.endTime,
+                stdout_log: null,
+                stderr_log: null,
+            };
+            StateManager.updateState(pid, finalUpdatePayload).catch(err => {
+                console.error(`[ProcessManager] Background persistence error for PID ${pid} in handleClose:`, err);
+            });
 
-            // Wait for file write streams to finish
-            const streamFinishPromises = [];
-            if (stdoutStream) streamFinishPromises.push(new Promise(res => stdoutStream.once('finish', res).on('error', (e) => { console.error(`[ProcessManager] stdoutStream finish error for ${pid}:`, e); res(); }))); // Add error handlers
-            if (stderrStream) streamFinishPromises.push(new Promise(res => stderrStream.once('finish', res).on('error', (e) => { console.error(`[ProcessManager] stderrStream finish error for ${pid}:`, e); res(); }))); // Add error handlers
-
-            try {
-                await Promise.all(streamFinishPromises);
-                // console.log(`[ProcessManager] File streams finished for PID ${pid} after 'close' event.`);
-            } catch (streamErr) {
-                // This catch might be redundant if the error handlers within the promises resolve, but keep for safety.
-                console.error(`[ProcessManager] Error waiting for file streams to finish for PID ${pid}:`, streamErr);
-            }
-
-            // Final state update after streams are confirmed closed
-            try {
-                await StateManager.updateState(pid, {
-                    status: finalStatus, // Confirm final status
-                    exit_code: finalExitCode, // Confirm final exit code
-                    endTime: finalEndTime, // Confirm final end time
-                    // Read log files here if needed, or let get_terminal_output handle it
-                });
-                // console.log(`[ProcessManager] Updated final state for PID ${pid} after 'close': Status=${finalStatus}, Code=${finalExitCode}`);
-            } catch (finalStateErr) {
-                console.error(`[ProcessManager] Error during final state update on 'close' for PID ${pid}:`, finalStateErr);
-            }
+            if (resolveCompletion) resolveCompletion(stateToResolve);
         };
 
         const handleError = async (err) => {
-            if (finalUpdateDone) return; // Prevent duplicate updates
+            Logger.logDebug(`[PID ${pid}] ERROR event. Error: ${err.message}`);
+            if (finalUpdateDone) { return; }
             finalUpdateDone = true;
-
             console.error(`[ProcessManager] Error event for child process ${pid}:`, err);
 
-            // Attempt to end streams immediately
-            stdoutStream?.end();
-            stderrStream?.end();
-
-            // Update state to indicate failure due to an error event
             const errorEndTime = new Date().toISOString();
-            try {
-                await StateManager.updateState(pid, {
-                    status: 'Failure',
-                    exit_code: null, // Typically no exit code in 'error' event
-                    endTime: errorEndTime,
-                    // Store error message? Maybe in a separate field or stderr_log?
-                    // Let's add it to a potential error field if we modify state manager
-                });
-                console.log(`[ProcessManager] Updated state to Failure for PID ${pid} due to 'error' event.`);
-            } catch (stateErr) {
-                console.error(`[ProcessManager] Error updating state after 'error' event for PID ${pid}:`, stateErr);
-            }
+            // Mise à jour pour persistance
+            StateManager.updateState(pid, { status: 'Failure', exit_code: null, endTime: errorEndTime, stdout_log: null, stderr_log: null })
+                .catch(e => console.error("Error updating state on error:", e));
+
+            // Construire état à résoudre
+            const stateToResolveOnError = {
+                pid: pid,
+                command: command,
+                cwd: spawnOptions.cwd,
+                startTime: startTime,
+                status: 'Failure',
+                exit_code: null,
+                endTime: errorEndTime,
+                stdout: stdoutBuffer, // Inclure ce qui a été bufferisé
+                stderr: stderrBuffer + (stderrBuffer ? '\n' : '') + `Process Error: ${err.message}`, // Ajouter l'erreur
+                stdout_log: null,
+                stderr_log: null,
+            };
+
+            if (resolveCompletion) resolveCompletion(stateToResolveOnError);
         };
 
         // Register event handlers
         child.on('exit', handleExit);
-        child.on('close', handleClose); // Use 'close' for finalization
+        child.on('close', handleClose);
         child.on('error', handleError);
 
-        return {
-            pid,
-            exit_code: null,
-            stdout_log: stdoutLogPath,
-            stderr_log: stderrLogPath
-        };
+        // Retourner seulement PID et promesse
+        return { pid, completionPromise };
     } catch (err) {
         console.error(`[ProcessManager] Error during spawnProcess setup for command "${command}":`, err);
-        // Ensure streams are closed if they were opened during a failed setup
-        stdoutStream?.end();
-        stderrStream?.end();
-
-        // If PID was assigned before error, try to update state to Failure
-        // This handles errors between PID assignment and returning the promise
-        if (pid && !finalUpdateDone) { // Check finalUpdateDone here too
+        // Pas de streams à fermer ici
+        // Tenter maj état si PID existe ?
+        if (pid) {
             try {
                 await StateManager.updateState(pid, {
                     status: 'Failure',
                     exit_code: null,
                     endTime: new Date().toISOString(),
-                    // Maybe add error info here too
+                    stdout_log: null,
+                    stderr_log: null
                 });
-            } catch (stateErr) {
-                console.error(`[ProcessManager] Error updating state after setup error for PID ${pid}:`, stateErr);
-            }
+            } catch (stateErr) { }
         }
-        // Re-throw the error to the caller (e.g., terminal_execution.js)
         throw err;
     }
 }

@@ -24,7 +24,7 @@ import * as StateManager from './lib/state_manager.js';
 import { handleCommit } from './mcp_tools/commit.js';
 import { handleExecuteCommand } from './mcp_tools/terminal_execution.js';
 import { handleGetTerminalStatus } from './mcp_tools/terminal_status.js';
-import { handleGetTerminalOutput } from './mcp_tools/terminal_output.js';
+// import { handleGetTerminalOutput } from './mcp_tools/terminal_output.js'; // REMOVED
 import { handleStopTerminalCommand } from './mcp_tools/terminal_stop.js';
 
 // --- State Persistence and Logging Setup --- START ---
@@ -163,13 +163,13 @@ const escapeShellArg = (arg) => {
 // Create an MCP server instance
 const server = new McpServer({
     name: "InternalAsyncTerminal",
-    version: "0.3.0", // Incremented version for refactor
+    version: "0.4.0", // Incremented version for buffer capture
     capabilities: {
         tools: {
             'commit': true,
             'execute_command': true,
             'get_terminal_status': true,
-            'get_terminal_output': true,
+            // 'get_terminal_output': true, // REMOVED
             'stop_terminal_command': true
         }
     }
@@ -209,16 +209,6 @@ server.tool(
     handleGetTerminalStatus // Use the imported handler
 );
 
-// Define get_terminal_output tool schema (as before)
-server.tool(
-    'get_terminal_output',
-    {
-        pid: z.number().int().describe("The PID of the terminal process to get output from."),
-        lines: z.number().int().optional().default(100).describe("The maximum number of lines to retrieve from the end of each log (stdout, stderr).")
-    },
-    handleGetTerminalOutput // Use the imported handler
-);
-
 // Define stop_terminal_command tool schema (as before)
 server.tool(
     'stop_terminal_command',
@@ -247,10 +237,10 @@ async function startServer() {
     try {
         const transport = new StdioServerTransport();
         await server.connect(transport);
-        console.log("[MCP Server] InternalAsyncTerminal Server v0.3.0 connected.");
+        // console.log("[MCP Server] InternalAsyncTerminal Server v0.3.0 connected.");
     } catch (error) {
-        console.error("[MCP Server] Failed to start MCP Commit Server:", error);
-        process.exit(1);
+        console.error("[MCP Server] Failed to connect:", error);
+        process.exit(1); // Exit if connection fails
     }
 }
 

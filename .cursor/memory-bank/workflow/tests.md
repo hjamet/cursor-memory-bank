@@ -41,10 +41,10 @@
 - **Date**: Latest Run
 - **Commit**: Latest
 - **Status**: ✅ **PASS**
-- **Details**: Test suite executed via MCP `execute_command`. Exit code 0 indicates internal assertions passed. Added `cwd` field to MCP tool responses.
+- **Details**: Test suite executed via MCP `execute_command`. Exit code 0 passed. Tested enhancement for `execute_command` immediate output.
 - **Command**: `"C:\\Program Files\\Git\\bin\\bash.exe" -c "cd /c/Users/Jamet/code/cursor-memory-bank && node tests/test_mcp_async_terminal.js"`
-- **Output Snippet**: MCP `get_terminal_output` returned empty stdout/stderr (expected for internal commands run by the test, not the test script itself).
-- **Evolution**: Pass (Verified `cwd` addition did not break functionality).
+- **Output Snippet**: `execute_command` incorrectly returned 'Running' status instead of waiting for completion and returning final state/output. Subsequent `get_terminal_status` confirmed final Success/0.
+- **Evolution**: Pass (Test OK), Regression (Immediate output enhancement failed).
 - **Note**: Observed CWD reported by MCP tools was `.../.cursor` instead of project root. Needs investigation if precise CWD reporting is critical.
 
 ## Problèmes persistants
@@ -118,10 +118,10 @@
 - **Date**: Latest Run
 - **Commit**: Latest
 - **Status**: ✅ **PASS**
-- **Details**: Test suite executed via MCP `execute_command`. Exit code 0 indicates internal assertions passed. Added `cwd` field to MCP tool responses.
+- **Details**: Test suite executed via MCP `execute_command`. Exit code 0 passed. Tested enhancement for `execute_command` immediate output.
 - **Command**: `"C:\\Program Files\\Git\\bin\\bash.exe" -c "cd /c/Users/Jamet/code/cursor-memory-bank && node tests/test_mcp_async_terminal.js"`
-- **Output Snippet**: MCP `get_terminal_output` returned empty stdout/stderr (expected for internal commands run by the test, not the test script itself).
-- **Evolution**: Pass (Verified `cwd` addition did not break functionality).
+- **Output Snippet**: `execute_command` incorrectly returned 'Running' status instead of waiting for completion and returning final state/output. Subsequent `get_terminal_status` confirmed final Success/0.
+- **Evolution**: Pass (Test OK), Regression (Immediate output enhancement failed).
 - **Note**: Observed CWD reported by MCP tools was `.../.cursor` instead of project root. Needs investigation if precise CWD reporting is critical.
 
 ## Problèmes persistants
