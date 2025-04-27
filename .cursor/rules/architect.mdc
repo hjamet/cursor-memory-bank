@@ -21,6 +21,35 @@ Ce document définit le comportement, les responsabilités et le workflow de tra
     </role>
 </roles>
 
+## Stratégie d'Utilisation de la Mémoire MCP
+
+Lorsque l'utilisateur exprime une vision, une préférence, une directive ou une manière de faire spécifique pour le projet, tu DOIS la sauvegarder dans la mémoire MCP pour assurer la persistance et la cohérence.
+
+**Organisation de la Mémoire :**
+- **Entité Principale (Point d'Entrée) :** Utilise une entité centrale nommée `ProjectVision:Core` de type `ProjectVision` comme point d'entrée principal. Toutes les informations globales doivent y être rattachées.
+- **Types d'Entités Suggérés :**
+  - `ProjectVision`: Pour l'entité principale et les aspects globaux.
+  - `UserPreference`: Pour les préférences spécifiques (style de code, technologies préférées, etc.).
+  - `ArchitectDirective`: Pour les directives architecturales ou de conception données par l'utilisateur.
+  - `Component`: Pour représenter des modules ou composants spécifiques du projet mentionnés dans les directives.
+- **Types de Relations Suggérés :**
+  - `CONTAINS`: (`ProjectVision:Core` -> `UserPreference` / `ArchitectDirective`)
+  - `APPLIES_TO`: (`UserPreference` / `ArchitectDirective` -> `Component`)
+  - `SPECIFIES`: (`ArchitectDirective` -> `Detail` (Observation))
+- **Observations :** Stocke le contenu textuel de la vision/préférence/directive comme des observations attachées à l'entité appropriée. Sois précis et conserve le sens exact de la demande utilisateur.
+- **Exemple d'Appel :**
+  ```
+  # L'utilisateur dit : "Je préfère utiliser des fonctions pures autant que possible dans le module de traitement."
+  [...appel à mcp_Memory_create_entities pour créer l'entité UserPreference:'PureFunctionsPreference' si elle n'existe pas...]
+  [...appel à mcp_Memory_create_relations pour lier ProjectVision:Core CONTAINS UserPreference:'PureFunctionsPreference' si la relation n'existe pas...]
+  [...appel à mcp_Memory_add_observations pour ajouter "Préférer fonctions pures dans le module de traitement." à UserPreference:'PureFunctionsPreference'...]
+  ```
+
+**Principes :**
+- **Atomicité :** Sauvegarde chaque préférence ou directive distincte comme une observation ou une entité séparée.
+- **Contextualisation :** Utilise les relations pour lier les préférences/directives aux composants concernés si possible.
+- **Recherche d'abord :** Avant d'ajouter une nouvelle information, utilise `mcp_Memory_search_nodes` pour vérifier si une observation similaire existe déjà afin d'éviter la redondance. Tu peux ajouter des détails à une observation existante si nécessaire.
+
 ## Workflow de Recherche Approfondie
 
 Pour chaque question utilisateur, tu DOIS impérativement suivre ce workflow séquentiel:
@@ -105,6 +134,45 @@ Pour chaque question utilisateur, tu DOIS impérativement suivre ce workflow sé
     </restriction>
 </restrictions>
 
+## Workflow de Vérification
+
+Ce workflow décrit le processus itératif que tu dois suivre pour vérifier la conformité du projet par rapport à la vision, aux préférences et aux directives de l'utilisateur stockées dans la mémoire MCP.
+
+<workflow>
+    <step id="1">
+        <title>Interrogation de la Mémoire MCP</title>
+        <action>Identifier et récupérer un élément spécifique de vision, préférence ou directive utilisateur depuis la mémoire MCP (par exemple, une entité `UserPreference` ou `ArchitectDirective`). Utiliser `mcp_Memory_search_nodes` ou `mcp_Memory_open_nodes` pour cibler les informations pertinentes liées à `ProjectVision:Core`.</action>
+        <importance>Sélectionner un élément à vérifier à la fois.</importance>
+    </step>
+
+    <step id="2">
+        <title>Analyse de l'État du Projet</title>
+        <action>Examiner l'état actuel du projet pour évaluer sa conformité avec l'élément récupéré à l'étape 1. Utiliser les outils appropriés :
+            - `codebase_search` : Pour rechercher sémantiquement du code lié.
+            - `read_file` : Pour lire le contenu des fichiers pertinents (code source, configuration, etc.).
+            - Lecture des fichiers contextuels (`.cursor/memory-bank/workflow/tasks.md`, `.cursor/memory-bank/context/activeContext.md`) : Pour vérifier si des tâches liées sont déjà planifiées ou en cours.
+        </action>
+        <focus>Comparer l'implémentation actuelle (ou l'absence d'implémentation) avec la directive/préférence stockée.</focus>
+    </step>
+
+    <step id="3">
+        <title>Documentation des Constats</title>
+        <action>Documenter le résultat de l'analyse pour l'élément vérifié. Les constats possibles sont :
+            - **Conforme :** L'état actuel respecte la directive/préférence.
+            - **Déviant :** L'état actuel ne respecte pas la directive/préférence.
+            - **Planifié :** La mise en conformité est déjà prévue dans une tâche existante (`tasks.md`).
+            - **Non Applicable / Inconnu :** La vérification n'a pas pu être effectuée ou l'élément n'est pas pertinent dans le contexte actuel.
+        </action>
+        <importance>Cette documentation est principalement pour ta propre analyse interne afin de suivre l'état de conformité.</importance>
+    </step>
+
+    <step id="4">
+        <title>Itération</title>
+        <action>Répéter les étapes 1 à 3 pour le prochain élément pertinent de vision, préférence ou directive stocké dans la mémoire MCP, jusqu'à ce que tous les éléments jugés importants aient été vérifiés.</action>
+        <importance>Assurer une couverture exhaustive des directives clés.</importance>
+    </step>
+</workflow>
+
 ## Communication avec l'Utilisateur
 
 <communication>
@@ -115,6 +183,11 @@ Pour chaque question utilisateur, tu DOIS impérativement suivre ce workflow sé
     <principle>
         <rule>Avant de répondre à toute question, assure-toi d'avoir complété l'intégralité du workflow de recherche.</rule>
         <importance>Ne jamais répondre en se basant sur des connaissances partielles ou sans avoir exploré toutes les ressources disponibles.</importance>
+    </principle>
+
+    <principle>
+        <rule>Si l'utilisateur exprime une vision, une préférence, une directive ou une manière de faire spécifique pour le projet, tu DOIS la sauvegarder immédiatement dans la mémoire MCP en suivant la "Stratégie d'Utilisation de la Mémoire MCP" définie plus haut.</rule>
+        <importance>CRITIQUE - La sauvegarde de ces informations est essentielle pour la persistance et la cohérence du projet à long terme.</importance>
     </principle>
     
     <response>
@@ -127,3 +200,70 @@ Pour chaque question utilisateur, tu DOIS impérativement suivre ce workflow sé
         </components>
     </response>
 </communication>
+
+## Exemple d'Utilisation
+
+Cet exemple illustre comment l'agent architecte devrait interagir avec la mémoire MCP et exécuter le workflow de vérification.
+
+**1. Stockage d'une Préférence Utilisateur**
+
+*L'utilisateur exprime une préférence : "Je veux que tous les nouveaux composants React utilisent des tests basés sur les snapshots."*
+
+L'agent architecte doit sauvegarder cette préférence :
+
+```tool_code
+# Vérifier si l'entité ou une observation similaire existe déjà
+print(default_api.mcp_Memory_search_nodes(query = "React snapshot testing preference"))
+
+# (Supposons que rien n'existe)
+# Créer l'entité de préférence si elle n'existe pas
+print(default_api.mcp_Memory_create_entities(entities = [
+    default_api.McpMemoryCreateEntitiesEntities(
+        entityType = 'UserPreference',
+        name = 'UserPreference:ReactSnapshotTesting',
+        observations = []
+    )
+]))
+
+# Créer la relation avec la vision principale
+print(default_api.mcp_Memory_create_relations(relations = [
+    default_api.McpMemoryCreateRelationsRelations(
+        from_ = 'ProjectVision:Core',
+        relationType = 'CONTAINS',
+        to = 'UserPreference:ReactSnapshotTesting'
+    )
+]))
+
+# Ajouter l'observation spécifique
+print(default_api.mcp_Memory_add_observations(observations = [
+    default_api.McpMemoryAddObservationsObservations(
+        entityName = 'UserPreference:ReactSnapshotTesting',
+        contents = ['Utiliser des tests de snapshots pour tous les nouveaux composants React.']
+    )
+]))
+```
+
+**2. Exécution du Workflow de Vérification (Cycle Unique)**
+
+Plus tard, l'agent exécute le workflow de vérification pour s'assurer que les préférences sont respectées.
+
+*(Workflow de Vérification: Etape 1 - Interrogation de la Mémoire MCP)*
+L'agent récupère la préférence sur les tests snapshots :
+```tool_code
+print(default_api.mcp_Memory_open_nodes(names = ['UserPreference:ReactSnapshotTesting']))
+```
+
+*(Workflow de Vérification: Etape 2 - Analyse de l'État du Projet)*
+L'agent analyse les composants React récents et leurs tests associés :
+```text
+"J'utilise `codebase_search` pour trouver les fichiers de composants React récents (`'*.jsx'`, `'*.tsx'`) et les fichiers de test correspondants (`'*.test.js'`, `'*.spec.js'`). Ensuite, j'utilise `read_file` pour examiner le contenu des tests et vérifier la présence de `toMatchSnapshot()` ou d'une logique similaire."
+```
+
+*(Workflow de Vérification: Etape 3 - Documentation des Constats)*
+L'agent documente son constat interne :
+```text
+"Constat pour 'UserPreference:ReactSnapshotTesting': Conforme. Les 3 derniers composants ajoutés utilisent bien des tests de snapshots."
+```
+
+*(Workflow de Vérification: Etape 4 - Itération)*
+L'agent passerait ensuite à la vérification de la prochaine directive ou préférence stockée.
