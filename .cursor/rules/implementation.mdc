@@ -45,9 +45,9 @@ Methodically implement tasks from a priority section and document the process.
 5. **Calling the next rule**: Mandatory to choose (Only if `experience-execution` was NOT called in step 3)
    - If `experience-execution` was called, its own step 5 dictates the next rule (`context-update` or `fix`).
    - Otherwise, based on the implementation done in *this* rule:
-     - New testable feature created → `test-implementation`
-     - Existing testable features modified → `test-execution`
-     - Only non-testable changes (e.g., documentation, rule edits) → `context-update`
+     - IF New testable feature created → `test-implementation`
+     - ELSE IF Existing testable features modified → `test-execution`
+     - ELSE IF Only non-testable changes (e.g., documentation, rule edits) → `context-update`
 
 ## Specifics
 
@@ -59,6 +59,16 @@ Methodically implement tasks from a priority section and document the process.
 - A feature is "testable" if it involves creating/modifying a script or function
 - To avoid losing the workflow, systematically write **(Implementation - 3.number.[Section Name]: [Task Title] in progress...)** between each step
 - ⚠️ **Command Execution Note**: The terminal tool occasionally exhibits a bug that adds "[200~" prefix and/or "~" suffix to commands (e.g., "[200~.venv/Scripts/python.exe" instead of ".venv/Scripts/python.exe"), resulting in "command not found" errors. These are NOT code or logic errors but tool-specific issues. If this occurs, simply retry the exact same command 2-3 times until it executes properly. Never treat these specific formatting errors as actual code problems or test failures.
+
+**Using the Advanced MCP Terminal Tools:**
+
+For executing shell commands, prefer the advanced MCP terminal tools for better control and monitoring:
+1.  **Launch:** Call the `mcp_execute_command` MCP tool with the `command` to run and an optional `timeout` in seconds. It returns the `pid` and initial output/status after the timeout (default 15s) or command completion, whichever comes first. The command continues running in the background if the MCP timeout is reached.
+2.  **Check Status:** Call the `mcp_get_terminal_status` MCP tool with an optional `timeout` in seconds to get the list of all running/completed commands, their `pid`, `status` (`Running`, `Success`, `Failure`, `Stopped`), `exit_code`, and recent output. Providing a `timeout` waits for a status change.
+3.  **Get Output:** Call the `mcp_get_terminal_output` MCP tool with the target `pid` and an optional `lines` count to retrieve the last N lines (default 100) of stdout/stderr for that process.
+4.  **Stop & Cleanup:** Call the `mcp_stop_terminal_command` MCP tool with the target `pid` and an optional `lines` count to terminate a running command, retrieve its final output, and remove it from tracking.
+This workflow allows managing long processes without blocking and retrieving intermediate/final results reliably.
+
 - Always call the appropriate next rule
 
 ## Next Rules
@@ -139,6 +149,7 @@ I did not call `experience-execution`. Since I created a new testable feature (t
 The test-implementation rule must be called to create tests for the new feature. **(Implementation: 5 - Calling the next rule)**
 
 [...calling tool 'fetch_rules' with rule_names=["test-implementation"]...]
+
 
 
 

@@ -22,3 +22,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# MCP
+.cursor/mcp/mcp-commit-server/terminals_status.json
