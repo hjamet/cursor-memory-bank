@@ -17,31 +17,31 @@ Analyze test errors and fix them through an iterative execution-correction loop 
 2.  **Correction loop**: For each failing test, iterate until fixed or handed over
     *   **2.1 Marking**: Always indicate **(Fix: 2 - Correction loop - [Test name] - Iteration [number])**
     *   **2.2 Analysis**:
-        *   **Memory Lookup (Strongly Recommended)**: Use `mcp_servers_search_nodes` with error message/test name to find similar past errors and their solutions in the knowledge graph. *Crucial for leveraging past experience and avoiding repeat mistakes.*
+        *   **(Optional) Memory Lookup**: Use `mcp_servers_search_nodes` with error message/test name to find similar past errors and their solutions in the knowledge graph.
         *   Examine files involved in the error and identify the cause. Use `<think></think>` for complex analysis. Don't hesitate either to use the codebase search tool !
-        *   **Debugging Strategy**: If the cause is unclear after initial analysis or multiple iterations:
-            - **Prioritize Temporary Logging**: Add temporary `print` statements (or language-appropriate equivalents) to the code surrounding the suspected error location to inspect variable states and execution flow.
-            - **Rerun Test**: Execute the specific failing test again to capture the log output.
-            - **Analyze Output**: Examine the log output to pinpoint the issue.
-            - **Remove Logs**: Once the fix is identified and applied, **ensure all temporary logs are removed**.
-            - **(Optional) Temporary Debug Script**: If logging is insufficient, consider creating a temporary script (e.g., `debug_temp.py` at the root) that imports the relevant code, calls the problematic function with specific inputs, and includes detailed logging. Execute this script (`python debug_temp.py | cat`) and **delete it (`rm debug_temp.py`)** after use.
-        *   **2.3 Research**: If needed, use the web to find solutions for specific errors
-        *   **2.4 Implementation**: Make the correction and document the changes
-        *   **2.5 Test**: Execute ONLY the specific test currently being fixed and analyze the result:
-            *   If test passes :
-                * **2.5.1 Update tests.md**: If the test passes, update the `.cursor/memory-bank/workflow/tests.md` file to reflect the new status of the test. Write **(Fix: 2 - Correction loop - [Test name] - Implementation [number] completed)** after this step.
-                * **2.5.2 Quick commit**: Call the MCP tool named "Commit".
-                  - Use `type` = "fix"
-                  - Use `emoji` = ":wrench:"
-                  - Construct `title` = "fix([Test name]): Quick fix"
-                  - Construct `description` = "Applied quick fix for [Test name] after successful test run."
-                  - Provide these arguments to the MCP "Commit" tool. It handles staging automatically.
-                * **Memory Storage (Mandatory if Applicable)**: If the error resolved was due to a lack of general knowledge (e.g., library behavior change, incorrect API usage, non-obvious framework interaction) OR if the solution required significant analysis/novel approach, **you MUST** use `mcp_servers_add_observations` to store details: the error, the successful fix, and key takeaways. Link this to relevant entities (e.g., library name, function name, error type). *This is essential for building the agent's knowledge base.*
-                * **2.5.3 Continue**: Move to the next failing test in the list and repeat the loop from step 2.1.
-            *   If test fails but shows progress → Continue loop with new iteration for the *same* test.
-            *   If **truly complex correction** (after 3 attempts *without any progress* OR requires *major* refactoring / a completely new implementation approach):
-                *   Mark the test as **(Fix: 2 - Correction loop - [Test name] - Handing over to request-analysis)**
-                *   Call the `request-analysis` rule, providing the problem description, context, and the need for a new approach.
+        *   **Consider using the MCP `Debug` tool** if:
+            - You are unsure about the fix after initial analysis.
+            - This is the 3rd iteration for this test without clear progress.
+            - The test logic or the code under test seems particularly complex.
+            - You don't understand the code's behavior leading to the error.
+        *   Using the MCP `Debug` tool (setting breakpoints, evaluating expressions) should be **prioritized over adding temporary `log.debug` statements** for understanding the error.
+    *   **2.3 Research**: If needed, use the web to find solutions for specific errors
+    *   **2.4 Implementation**: Make the correction and document the changes
+    *   **2.5 Test**: Execute ONLY the specific test currently being fixed and analyze the result:
+        *   If test passes :
+            * **2.5.1 Update tests.md**: If the test passes, update the `.cursor/memory-bank/workflow/tests.md` file to reflect the new status of the test. Write **(Fix: 2 - Correction loop - [Test name] - Implementation [number] completed)** after this step.
+            * **2.5.2 Quick commit**: Call the MCP tool named "Commit".
+              - Use `type` = "fix"
+              - Use `emoji` = ":wrench:"
+              - Construct `title` = "fix([Test name]): Quick fix"
+              - Construct `description` = "Applied quick fix for [Test name] after successful test run."
+              - Provide these arguments to the MCP "Commit" tool. It handles staging automatically.
+            * **(Situational) Memory Storage**: If the error resolved was due to a lack of general knowledge on your part (change in behavior of a library, incorrect arguments when calling an external function, etc.), use `mcp_servers_add_observations` to store details of the error, the successful fix et ce qu'il faut retenir. Link this entity to the library concerned.
+            * **2.5.3 Continue**: Move to the next failing test in the list and repeat the loop from step 2.1.
+        *   If test fails but shows progress → Continue loop with new iteration for the *same* test.
+        *   If **truly complex correction** (after 3 attempts *without any progress* OR requires *major* refactoring / a completely new implementation approach):
+            *   Mark the test as **(Fix: 2 - Correction loop - [Test name] - Handing over to request-analysis)**
+            *   Call the `request-analysis` rule, providing the problem description, context, and the need for a new approach.
 
 3.  **Calling the next rule (only if loop completed without handover)**: Determine the next step based on results *if and only if* step 2.5 did not trigger a handover to `request-analysis`.
     *   First check for unprocessed comments in `.cursor/memory-bank/userbrief.md`
@@ -53,7 +53,7 @@ Analyze test errors and fix them through an iterative execution-correction loop 
 
 -   The `<think></think>` token must be used for each complex correction requiring in-depth analysis
 -   You should examinate the files you know related to the problem but you should also use the codebase search tool in case you are missing something.
--   For debugging, prioritize using temporary logging as described in step 2.2. If logging is insufficient, consider creating and then deleting a temporary debug script. Interactive debuggers should generally be avoided in this automated workflow.
+-   For debugging, prioritize using the MCP `Debug` tool. Temporarily adding logs should only be a secondary option if the Debug tool is insufficient or unavailable.
 -   NEVER execute all tests, but ONLY the specific test you are currently fixing
 -   Running the complete test suite is exclusively the responsibility of the `test-execution` rule
 -   Document ONLY errors related to:

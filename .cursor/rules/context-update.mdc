@@ -22,9 +22,9 @@ Update context files to reflect changes, update tasks.md based on test results, 
    - Move successful tasks from "In Progress" to "Done"
 
 4. **Commit changes**: Make a commit with the modifications:
-   - Use the `mcp_Commit_commit` tool to create the commit.
-   - Follow conventional commit format with emoji for the message, using the tool's parameters (`emoji`, `type`, `title`, `description`).
-   - Ensure all changes are included (the tool handles staging automatically).
+   - Prepare files and create commit in a single command:
+     `git commit -a -m "[message]"` (MANDATORY to use `git commit -a` and NEVER `git add [files]` or any other variant specifying individual files - this is crucial to ensure all changes are properly tracked)
+   - Follow conventional commit format with emoji for the message
 
 5. **File integrity verification**: Look for structural problems:
    - Read the `.cursor/memory-bank/userbrief.md` file.
@@ -50,7 +50,7 @@ Update context files to reflect changes, update tasks.md based on test results, 
 - Systematically delete old history entries that are no longer relevant
 - NEVER end without either explicitly calling a next rule or explicitly indicating that the workflow is complete
 - The workflow must NEVER be considered complete if there are remaining tasks in "In Progress" or "ToDo" OR if there is at least one failing test (marked ❌) or with warning (marked ⚠️)
-- For the commit, MANDATORY to use the `mcp_Commit_commit` tool. This tool automatically includes all changes, similar to `git commit -a`.
+- For the commit, MANDATORY to use `git commit -a` and NEVER `git add [files]` or any other variant specifying individual files - this is crucial to ensure all changes are properly tracked
 - ⚠️ **Command Execution Note**: The terminal tool occasionally exhibits a bug that adds "[200~" prefix and/or "~" suffix to commands (e.g., "[200~.venv/Scripts/python.exe" instead of ".venv/Scripts/python.exe"), resulting in "command not found" errors. These are NOT code or logic errors but tool-specific issues. If this occurs, simply retry the exact same command 2-3 times until it executes properly. Never treat these specific formatting errors as actual code problems or test failures.
 - If all tasks are complete (meaning there are NO MORE tasks in the "In Progress" and "ToDo" sections of the tasks.md file) AND all tests pass (ALL marked ✅), then:
    - Present a clear and concise synthesis of the work done
@@ -59,22 +59,15 @@ Update context files to reflect changes, update tasks.md based on test results, 
    - Explicitly state: "The workflow is complete, no next rule to call."
 - If the workflow is not complete, call the appropriate next rule
 
-## Format for commit message using `mcp_Commit_commit` tool
-Use the following parameters for the `mcp_Commit_commit` tool:
-- `emoji`: The emoji code corresponding to the type (e.g., `:sparkles:`, `:bug:`).
-- `type`: The type of change (e.g., `feat`, `fix`, `docs`, `refactor`, `test`, `chore`).
-- `title`: A brief, general description of the changes (e.g., `Implement feature X`, `Fix issue Y`).
-- `description`: (Optional) A more detailed description, often using bullet points for specifics. Can include the footer if needed.
-
+## Format for commit message
 ```
-Example parameters:
-emoji: :sparkles:
-type: feat
-title: Add user authentication
-description: |
-  - Implemented login endpoint
-  - Added password hashing
-  - Created user session management
+<emoji_code><type>: description générale
+- détail 1
+- détail 2
+- détail 3
+[etc...]
+
+[optional footer]
 ```
 
 Examples avec codes emoji:
@@ -130,8 +123,8 @@ I update the tasks.md file by moving completed tasks to Done. **(Context-update:
 **(Context-update: 3 - Updating tasks.md file)**
 
 # Context-update: 4 - Making a commit
-I prepare the commit details and use the `mcp_Commit_commit` tool to create the commit. **(Context-update: 4 - Making a commit)**
-[...calling mcp_Commit_commit tool...]
+I prepare and make a commit with the changes made. **(Context-update: 4 - Making a commit)**
+[...creating commit...]
 **(Context-update: 4 - Making a commit)**
 
 # Context-update: 5 - File integrity verification
