@@ -2,63 +2,40 @@
 
 ## Current implementation context
 
-- **Task Group:** Rule Modifications
-- **Previous Task:** 1.3 Update `fix` Rule (Remove MCP Debug, Suggest Logging) - Completed.
-- **Current Task:** Preparing for next task in group.
-- **Goal:** Update various rules (`.mdc` files) to align with current MCP tool usage and best practices.
-- **Files:** Potentially others in `.cursor/rules/`.
-- **Dependencies:** Existing MCP tools.
+- **Task Group:** MCP Server Enhancements
+- **Current Task:** 2.1 Add `send_terminal_input` MCP Tool
+- **Goal:** Implement a new MCP tool in `server.js` to allow sending string input (followed by newline) to the standard input of a specified running terminal process managed by the MCP server.
+- **Details:**
+    - Define a new tool `send_terminal_input` with parameters: `pid` (integer), `input` (string), optional `timeout` (integer, e.g., 5 seconds).
+    - The handler needs to locate the `child` process object associated with the `pid` (this likely requires modifying the `terminalStates` structure or a separate map to store `child` objects).
+    - Write `input + '\n'` to `child.stdin`.
+    - Implement logic to capture subsequent stdout/stderr and potentially the exit code if the input causes the process to finish within the `timeout` period.
+    - Return a structure similar to `execute_command` (status, stdout, stderr, exit_code).
+    - Handle potential errors: PID not found, `stdin` not writable, process already closed, timeout exceeded.
+- **Files:** `.cursor/mcp/mcp-commit-server/server.js`
+- **Dependencies:** Node.js `child_process`, modification of `terminalStates` or equivalent mapping.
 
 ## Current Status
 
-- Completed `consolidate-repo` rule execution: processed `userbrief.md`, verified file integrity, cleaned up MCP terminals, updated `.gitignore`.
-- **Completed Task: Modify `stop_terminal_command` to accept a list of PIDs.**
-    - Modified Zod schema and handler in `server.js`.
-    - Added try/catch around tool registration and stream creation.
-    - Updated test script (`tests/test_mcp_async_terminal.js`) iteratively to handle array arguments and parse all results correctly.
-- **Tests for `tests/test_mcp_async_terminal.js` now passing.**
+- **Completed Task 1.4: Remove `[200~` Terminal Error Mentions.**
+    - Searched rule files (`.cursor/rules/*.mdc`) for the obsolete warning.
+    - Edited `consolidate-repo.mdc`, `context-update.mdc`, `experience-execution.mdc`, and `implementation.mdc` to remove the warning.
+- Completed `consolidate-repo` rule execution.
+- Completed Task 3.1: Modify `stop_terminal_command` to accept a list of PIDs.
+- Tests for `tests/test_mcp_async_terminal.js` are passing.
 
 ## Recent Decisions
 
-- Successfully diagnosed and fixed test failures related to MCP tool implementation and test script parsing through iterative debugging with user log feedback.
-- Added error handling to MCP server for robustness.
+- Successfully removed obsolete terminal warnings from relevant rule files.
+- Successfully diagnosed and fixed test failures related to previous MCP tool modifications.
 
 ## Next Steps
 
-- Process remaining tasks from `userbrief.md` / `tasks.md`.
-- Current `userbrief.md` contains new requests added by the user:
-    - Modify `context-update` rule to use MCP `commit` tool.
-    - Add new MCP tool for sending input to a terminal.
-- Proceed to `consolidate-repo` to process the new `userbrief.md` items.
+- Implement Task 2.1: Add `send_terminal_input` MCP Tool.
+- Once Task 2.1 is implemented, create necessary tests.
+- Proceed according to the `implementation` rule workflow.
 
 ## Important Notes
 
-- Ensure the new step in `consolidate-repo.mdc` is placed appropriately within the existing instructions (e.g., after integrity verification, before evaluation).
-
-## Lost workflow
-
-- *This section is no longer relevant after successfully resuming the workflow via consolidate-repo.*
-
-## MCP Tool Enhancement
-
-- **Current Task:** Modify `mcp_MyMCP_stop_terminal_command` to accept a list of PIDs.
-- **Goal:** Allow stopping multiple terminal processes with a single tool call.
-- **Details:**
-    - Modify the Zod schema for `stop_terminal_command` in `server.js` to accept `z.array(z.number().int())` for the `pid` parameter (renaming it to `pids` for clarity).
-    - Update the handler function logic to iterate over the `pids` array.
-    - For each PID, perform the existing stop/cleanup logic.
-    - Collect results (status, stdout, stderr) for each PID and return them, perhaps as an array of result objects.
-- **Files:** `.cursor/mcp/mcp-commit-server/server.js`
-- **Dependencies:** Zod library, Node.js `child_process`, `fs`.
-- **Considerations:** Error handling for individual PIDs (e.g., if one PID is not found or fails to stop). Return format for multiple results.
-
-## MCP Test Failure Diagnosis
-
-- **Current Task:** Add error handling to `server.tool()` registrations in `server.js` to diagnose test failure.
-- **Goal:** Identify the root cause of the immediate exit (code 1, no output) of `tests/test_mcp_async_terminal.js` after modifications to `stop_terminal_command`.
-- **Details:**
-    - Wrap the `server.tool('stop_terminal_command', ...)` definition and potentially others in `server.js` with `try...catch` blocks.
-    - Log any caught errors to `console.error` to make them visible, potentially allowing the server to start or providing diagnostic output.
-- **Files:** `.cursor/mcp/mcp-commit-server/server.js`
-- **Dependencies:** Node.js error handling.
-- **Considerations:** Ensure error logging provides enough detail. Decide if only `stop_terminal_command` or all `server.tool` calls should be wrapped initially.
+- The implementation of `send_terminal_input` requires careful handling of the `child_process` object and its `stdin` stream.
+- Need to decide how to store and retrieve the `child` object for the given PID.

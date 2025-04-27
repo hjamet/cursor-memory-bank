@@ -20,6 +20,12 @@
     - Dependencies: None.
     - Validation: Rules no longer contain the outdated warnings about the `[200~` terminal bug.
 
+1.5. [ ] **Correct `consolidate-repo` Example**: Fix the example section in the `consolidate-repo.mdc` rule by removing the duplicated "4. Evaluation of user requests" step.
+    - Description: Edit the `Example Usage` section within the rule file to remove the second occurrence of the "Evaluation of user requests" step, ensuring the step numbering is sequential and correct.
+    - Files: `.cursor/rules/consolidate-repo.mdc`
+    - Dependencies: None.
+    - Validation: The example in the rule no longer contains the duplicate step.
+
 ## 2. MCP Server Enhancements
 
 2.1. [ ] **Add `send_terminal_input` MCP Tool**: Implement a new tool in the MCP server (`server.js`) to send input to a running terminal process.
@@ -49,6 +55,14 @@
     - Dependencies: MCP terminal tools.
     - Validation: The rule reflects the usage of MCP tools for test execution.
 
+## 2. MCP Server Enhancements
+
+2.1. [ ] **Add `send_terminal_input` MCP Tool**: Implement a new tool in the MCP server (`server.js`) to send input to a running terminal process.
+    - Description: Define a new tool `send_terminal_input` with schema `pid` (number), `input` (string), optional `timeout` (number). The handler should find the child process associated with the `pid` (potentially requires storing the `child` object in `terminalStates`), write the `input` string followed by `\n` to `child.stdin`. It needs a mechanism to capture subsequent stdout/stderr and potential exit code within the timeout, similar to `execute_command`'s response structure. Careful handling of stdin stream availability and potential errors is required.
+    - Files: `.cursor/mcp/mcp-commit-server/server.js`
+    - Dependencies: Node.js `child_process` (access to `child.stdin`), potentially modifying `terminalStates` structure.
+    - Validation: Tool successfully sends input, captures output, handles timeout, and returns expected structure. Requires new tests.
+
 # Done
 
 ## 1. Rule Modifications (Current Cycle)
@@ -70,6 +84,12 @@
     - Files: `.cursor/rules/fix.mdc`
     - Dependencies: None.
     - Validation: The rule no longer mentions the MCP `Debug` tool and correctly suggests temporary logging.
+
+1.4. [x] **Remove `[200~` Terminal Error Mentions**: Identify all rule files (`.cursor/rules/*.mdc`) that mention the `[200~` terminal error (related to the old `run_terminal_cmd` tool) and remove those specific notes/warnings, as they are obsolete with the use of MCP tools.
+    - Description: Search across all `.mdc` files in `.cursor/rules/` for references to the `[200~` bug or similar terminal execution warnings related to the old tool. Remove these specific sentences/paragraphs.
+    - Files: `.cursor/rules/*.mdc` (Multiple files likely involved, e.g., `context-update.mdc`, `fix.mdc`, `experience-execution.mdc`, `implementation.mdc`)
+    - Dependencies: None.
+    - Validation: Rules no longer contain the outdated warnings about the `[200~` terminal bug.
 
 ## 2. MCP Server Enhancements (Current Cycle)
 

@@ -1,6 +1,7 @@
 # Test Status
 
-- [✅] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): Passed (Latest Run: 2024-07-26)
+- [✅] MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`): **Passed** (Latest Run: Current Cycle - Fixed Regression)
+- [?] MCP Send Input Test (`tests/test_mcp_send_input.js`): **Unknown** (Latest Run: Current Cycle - Execution Interrupted)
 - [✅] User curl test (MINGW64, no jq): Passed (Latest Run: 2025-04-27 - Required `tr -d '\r'` before `bash` to fix CRLF issue causing `: command not found`)
 - [✅] `test_curl_install.sh`: Passed (Latest Run: 2025-04-27 - Fixed no-jq subtest failures related to `--target` option, log file checking, and path extraction)
 - [✅] `test_download.sh`: Passed (Latest Run: 2025-04-27)
@@ -37,13 +38,17 @@
 - ✅ **Test de gestion d'erreur** : Passed - Stable (Latest Run: 2025-04-27)
 
 ## MCP Async Terminal Workflow Test
-*   **Last Run:** 2025-04-28
-*   **Status:** ✅ Pass
-*   **Description:** Runs a workflow using the new async terminal commands (`execute`, `get_status`, `get_output`, `stop`).
-*   **Error History:**
-    *   Initial run failed due to server console logs interfering with JSON parsing.
-    *   Subsequent runs failed with "Method not found" despite server-side fixes (renaming tools, explicit capabilities).
-*   **Fix:** Modified the test client (`tests/test_mcp_async_terminal.js`) to send JSON-RPC requests using the standard `method: 'tools/call'` and passing the specific tool name (e.g., `execute_command`) and its arguments within the `params` object (under `name` and `arguments` keys respectively). This resolved the "Method not found" error.
+*   **Last Run:** Current Cycle
+*   **Status:** ✅ **Pass (Fixed Regression)**
+*   **Description:** Runs a workflow using the async terminal commands (`execute`, `get_status`, `get_output`, `stop`).
+*   **Fix Applied:** Modified test to use specific `echo "..."` command. Modified `server.js` `execute_command` handler to correctly pass the full command string to the shell when `shell: true` is used.
+*   **Previous Status:** ❌ Fail (Regression)
+
+## MCP Send Input Test (`tests/test_mcp_send_input.js`)
+*   **Last Run:** Current Cycle
+*   **Status:** ? Unknown (Execution Interrupted)
+*   **Description:** Tests the `send_terminal_input` tool by starting an interactive script, sending input, and checking the response.
+*   **Error History:** N/A (First run)
 
 ## Problèmes persistants
 - ✅ **Install script permissions (MINGW64/curl)**: Fixed (Latest Run: 2025-04-27) - Root cause identified as CRLF line endings (`\r`) causing parsing errors in piped MINGW64 bash. Resolved by modifying the *execution command* to `curl ... | tr -d '\r' | bash`.
@@ -109,10 +114,20 @@
 
 ## MCP Async Terminal Tests (`tests/test_mcp_async_terminal.js`)
 
-- **Date**: 2024-07-26
-- **Commit**: b5d84be
-- **Status**: ✅ PASS
-- **Details**: Test suite passed after iteratively fixing response parsing issues in the test script (`execute_command`, `get_terminal_status`, `stop_terminal_command`) and adding error handling for log stream creation in `server.js`.
+- **Date**: Current Cycle
+- **Commit**: Current
+- **Status**: ✅ **PASS (Fixed Regression)**
+- **Details**: Test suite now passes after modifying the test to use a specific echo command (`echo "MCP Test Message..."`) and correcting the `execute_command` handler in `server.js` to properly pass the full command string to the shell when `shell: true` is required.
 - **Command**: `node tests/test_mcp_async_terminal.js`
 - **Output**: Successful execution (exit code 0).
-- **Evolution**: Improvement (Fixed regression introduced by `stop_terminal_command` modification). 
+- **Evolution**: Fixed Regression (Previously failed in this cycle).
+
+## MCP Send Input Test (`tests/test_mcp_send_input.js`)
+
+- **Date**: Current Cycle
+- **Commit**: Current
+- **Status**: ? Unknown (Execution Interrupted)
+- **Details**: Test execution was interrupted before completion.
+- **Command**: `node tests/test_mcp_send_input.js`
+- **Output**: Interrupted.
+- **Evolution**: New test. 

@@ -16,6 +16,7 @@ const __dirname = path.dirname(__filename);
 const LOGS_DIR = path.join(__dirname, 'logs');
 const STATE_FILE = path.join(__dirname, 'terminals_status.json');
 let terminalStates = []; // In-memory store for terminal statuses
+const activeProcesses = new Map(); // In-memory map to store active child_process objects {pid: child}
 
 /**
  * Ensures the logs directory exists.
@@ -146,14 +147,15 @@ const escapeShellArg = (arg) => {
 // Create an MCP server instance
 const server = new McpServer({
     name: "InternalAsyncTerminal",
-    version: "0.2.0",
+    version: "0.2.1",
     capabilities: {
         tools: {
             'commit': true,
             'execute_command': true,
             'get_terminal_status': true,
             'get_terminal_output': true,
-            'stop_terminal_command': true
+            'stop_terminal_command': true,
+            'send_terminal_input': true
         }
     }
 });
@@ -299,10 +301,10 @@ server.tool(
         // --- End Revert ---
 
         try {
-            // --- MODIFICATION START: Try shell: false for known externals --- 
-            let executable = command.trim(); // Default for shell: true
+            // --- Logic to determine executable, args, and useShell --- 
+            let executable = command.trim();
             let args = [];
-            let useShell = true; // Default to shell: true
+            let useShell = true;
             const spawnOptions = {
                 detached: true,
                 stdio: ['ignore', 'pipe', 'pipe'],
@@ -318,15 +320,13 @@ server.tool(
             const match = executable.match(quotedExeRegex);
 
             if (match) {
-                // Command starts with a quoted path (e.g., bash.exe)
-                executable = match[1]; // The path inside quotes
-                potentialArgs = match[2].trim(); // The rest of the command
-                useShell = false; // Assume shell: false if path is quoted
+                executable = match[1];
+                potentialArgs = match[2].trim();
+                useShell = false;
             } else {
-                // Command doesn't start with quoted path
-                const parts = executable.split(/\s+/);
+                const parts = executable.split(/\s+/, 1); // Split only the first part
                 executable = parts[0];
-                potentialArgs = parts.slice(1).join(' ');
+                potentialArgs = command.trim().substring(executable.length).trim(); // Get the rest of the original command string
                 // Decide if shell: false is safe
                 if ((executable === 'node' || executable.endsWith('bash.exe')) && !shellCharsRegex.test(potentialArgs)) {
                     useShell = false;
@@ -334,39 +334,40 @@ server.tool(
             }
 
             if (!useShell) {
-                // Attempt to parse arguments for shell: false
+                // Logic for parsing args when useShell is false (e.g., bash -c, node -e)
                 if (executable.endsWith('bash.exe') && potentialArgs.startsWith('-c')) {
-                    // Handle bash -c "command string"
                     const commandStringMatch = potentialArgs.match(/^\-c\s*("(.*)"|'(.*)'|(.*))$/);
                     if (commandStringMatch) {
-                        args = ['-c', commandStringMatch[2] || commandStringMatch[3] || commandStringMatch[4]]; // Extract command string
+                        args = ['-c', commandStringMatch[2] || commandStringMatch[3] || commandStringMatch[4]];
                     } else {
-                        // Fallback if parsing -c fails
                         console.warn('[MCP Shell False] bash -c parsing failed, falling back to shell:true for:', command);
                         useShell = true;
                     }
                 } else if (executable === 'node' && potentialArgs.startsWith('-e')) {
-                    // Handle node -e "script"
                     const scriptMatch = potentialArgs.match(/^\-e\s*("(.*)"|'(.*)'|(.*))$/);
                     if (scriptMatch) {
-                        args = ['-e', scriptMatch[2] || scriptMatch[3] || scriptMatch[4]]; // Extract script string
+                        args = ['-e', scriptMatch[2] || scriptMatch[3] || scriptMatch[4]];
                     } else {
                         console.warn('[MCP Shell False] node -e parsing failed, falling back to shell:true for:', command);
                         useShell = true;
                     }
                 } else if (potentialArgs) {
-                    // Basic split for other cases (might fail with nested quotes/spaces)
+                    // Basic split for other non-shell cases (might fail)
                     args = potentialArgs.split(/\s+/);
                 }
+                // For shell: false, the executable is the first argument
+                console.warn(`[MCP SPAWN (shell:false)] Executing: '${executable}' with args: ${JSON.stringify(args)}`);
+                child = spawn(executable, args, { ...spawnOptions, shell: false });
+            } else {
+                // *** FIX: When using shell: true, pass the original command string ***
+                // Determine the shell and argument structure based on OS
+                const isWindows = process.platform === "win32";
+                const shellExecutable = isWindows ? 'cmd.exe' : '/bin/sh';
+                const shellArgs = isWindows ? ['/c', command] : ['-c', command]; // Pass the full original command string
+                console.warn(`[MCP SPAWN (shell:true)] Executing: '${shellExecutable}' with args: ${JSON.stringify(shellArgs)}`);
+                child = spawn(shellExecutable, shellArgs, { ...spawnOptions, shell: false }); // Use shell: false now that we explicitly invoke the shell
             }
-
-            spawnOptions.shell = useShell;
-
-            console.warn(`[MCP SPAWN] Executing: '${executable}' with args: ${JSON.stringify(args)} and options: ${JSON.stringify(spawnOptions)}`);
-
-            // Spawn the process
-            child = spawn(executable, args, spawnOptions);
-            // --- MODIFICATION END ---
+            // --- End of spawn logic --- 
 
             pid = child.pid;
             if (pid === undefined) {
@@ -385,6 +386,8 @@ server.tool(
             child.stdout.on('data', stdoutListener);
             child.stderr.on('data', stderrListener);
             // --- End Revert ---
+
+            activeProcesses.set(pid, child); // <<< INTEGRATION: Store child process object
 
             // Add entry to state 
             const newStateEntry = {
@@ -430,8 +433,38 @@ server.tool(
                     child.stderr?.removeListener('data', stderrListener);
                     stdoutStream.end();
                     stderrStream.end();
+                    activeProcesses.delete(pid); // <<< INTEGRATION: Remove from active map on exit
 
                     resolve('exited');
+                });
+                // <<< ADDED: Handle 'close' as well for completeness >>>
+                child.on('close', (code, signal) => {
+                    // This might fire after exit, ensure delete is idempotent
+                    activeProcesses.delete(pid);
+                    // console.log(`Process ${pid} closed streams.`); // Optional debug
+                    // Resolve maybe needed here too if exit doesn't always fire?
+                    // Let's rely on exit for resolving the promise for now.
+                });
+                child.on('error', (err) => {
+                    // Handle spawn errors separately or general errors
+                    console.error(`[MCP execute_command] Child process error for PID ${pid}:`, err);
+                    processExited = true; // Treat as exit
+                    exitCode = 1; // Generic error code
+                    const endTime = new Date().toISOString();
+                    // Update state
+                    if (stateEntryIndex !== -1) {
+                        terminalStates[stateEntryIndex].status = 'Failure';
+                        terminalStates[stateEntryIndex].exit_code = exitCode;
+                        terminalStates[stateEntryIndex].endTime = endTime;
+                        writeTerminalState(terminalStates);
+                    }
+                    // Clean up streams and listeners
+                    child.stdout?.removeListener('data', stdoutListener);
+                    child.stderr?.removeListener('data', stderrListener);
+                    try { stdoutStream?.end(); } catch { /* ignore */ }
+                    try { stderrStream?.end(); } catch { /* ignore */ }
+                    activeProcesses.delete(pid); // <<< INTEGRATION: Remove from active map on error
+                    resolve(err); // Resolve with error to stop timeout race
                 });
             });
 
@@ -481,6 +514,9 @@ server.tool(
                 terminalStates[stateEntryIndex].exit_code = 1; // Generic failure code
                 terminalStates[stateEntryIndex].endTime = new Date().toISOString();
                 writeTerminalState(terminalStates);
+            }
+            if (pid) { // <<< INTEGRATION: Attempt removal on catch block error >>>
+                activeProcesses.delete(pid);
             }
             // Clean up listeners and streams on error
             child?.stdout?.removeListener('data', stdoutListener);
@@ -660,7 +696,6 @@ try {
     server.tool(
         'stop_terminal_command',
         {
-            // Renamed pid to pids and changed type to array
             pids: z.array(z.number().int()).describe("An array of PIDs of the terminal processes to stop."),
             lines: z.number().int().optional().default(100).describe("The maximum number of lines to retrieve from the end of each log before stopping.")
         },
@@ -706,6 +741,10 @@ try {
                 // Attempt termination (SIGTERM first, then SIGKILL)
                 let killError = null;
                 try {
+                    // <<< INTEGRATION: Attempt removal from active map >>>
+                    activeProcesses.delete(pid);
+                    // <<< END INTEGRATION >>>
+
                     process.kill(pid, 'SIGTERM');
                     await new Promise(resolve => setTimeout(resolve, 200));
                     try {
@@ -724,6 +763,9 @@ try {
                         } else { throw checkError; }
                     }
                 } catch (error) {
+                    // <<< INTEGRATION: Ensure removal on error too >>>
+                    activeProcesses.delete(pid);
+                    // <<< END INTEGRATION >>>
                     if (error.code === 'ESRCH') {
                         terminationStatus = 'Process already exited before termination attempt.';
                     } else {

@@ -51,7 +51,6 @@ Update context files to reflect changes, update tasks.md based on test results, 
 - NEVER end without either explicitly calling a next rule or explicitly indicating that the workflow is complete
 - The workflow must NEVER be considered complete if there are remaining tasks in "In Progress" or "ToDo" OR if there is at least one failing test (marked ❌) or with warning (marked ⚠️)
 - For the commit, use the `mcp_MyMCP_commit` tool, which handles staging automatically.
-- ⚠️ **Command Execution Note**: The terminal tool occasionally exhibits a bug that adds "[200~" prefix and/or "~" suffix to commands (e.g., "[200~.venv/Scripts/python.exe" instead of ".venv/Scripts/python.exe"), resulting in "command not found" errors. These are NOT code or logic errors but tool-specific issues. If this occurs, simply retry the exact same command 2-3 times until it executes properly. Never treat these specific formatting errors as actual code problems or test failures.
 - If all tasks are complete (meaning there are NO MORE tasks in the "In Progress" and "ToDo" sections of the tasks.md file) AND all tests pass (ALL marked ✅), then:
    - Present a clear and concise synthesis of the work done
    - Summarize implemented features and resolved issues

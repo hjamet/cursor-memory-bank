@@ -146,10 +146,12 @@ async function runTests() {
     try {
         await startServer();
 
-        // 1. Execute command (already renamed)
+        // 1. Execute command (use specific echo)
         console.log('\n[Test] === Executing Command ===');
+        const testMessage = `MCP Test Message ${Date.now()}`;
+        const commandToRun = `echo "${testMessage}" && >&2 echo test_command_stderr`;
         const execResultRaw = await sendRequest('execute_command', {
-            command: 'echo test_command_stdout && >&2 echo test_command_stderr',
+            command: commandToRun,
             timeout: 5 // Short timeout, echo is fast
         });
         console.log('[Test] Execute Result (Raw MCP Result Object):', execResultRaw);
@@ -212,7 +214,7 @@ async function runTests() {
 
         // 3. Get Output
         console.log('\n[Test] === Getting Output ===');
-        const outputResultRaw = await sendRequest('get_terminal_output', { pid: executedPid, lines: 50 }); // Renamed
+        const outputResultRaw = await sendRequest('get_terminal_output', { pid: executedPid, lines: 50 });
         console.log('[Test] Output Result (Raw MCP Result Object):', outputResultRaw);
 
         // --- Corrected Parsing for get_terminal_output --- 
@@ -228,7 +230,7 @@ async function runTests() {
         console.log('[Test] Parsed Output Result:', outputResult);
 
         // Original assertions, should now work:
-        assert(outputResult.stdout.includes('test_command_stdout'), 'Stdout should contain expected string');
+        assert(outputResult.stdout.includes(testMessage), `Stdout should contain '${testMessage}'`);
         assert(outputResult.stderr.includes('test_command_stderr'), 'Stderr should contain expected string');
         console.log('[Test] Get Output: PASSED');
 
@@ -289,6 +291,7 @@ async function runTests() {
         assert(!fs.existsSync(stderrLog), 'Stderr log file should be deleted');
         console.log('[Test] Log Cleanup: PASSED');
 
+        console.log('\n[Test] === ALL TESTS PASSED ===');
 
     } catch (error) {
         console.error('\n[Test] === TEST FAILED ===');
