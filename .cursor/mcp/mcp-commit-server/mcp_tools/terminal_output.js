@@ -15,19 +15,19 @@ export async function handleGetTerminalOutput({ pid, lines = 100 }) {
     let stdoutContent = '';
     let stderrContent = '';
 
-    // Prioritize reading captured initial output from state if process has finished
-    if (['Success', 'Failure', 'Stopped', 'Terminated'].includes(state.status)) {
-        // console.log(`[GetOutput] PID ${pid} finished (${state.status}). Returning captured state output.`);
-        stdoutContent = state.initial_stdout || '';
-        stderrContent = state.initial_stderr || '';
-        // Optionally append recent log lines if needed, but primary source is captured state
-        // stdoutContent += "\n--- Log File Tail ---\n" + await Logger.readLogLines(state.stdout_log, lines);
-        // stderrContent += "\n--- Log File Tail ---\n" + await Logger.readLogLines(state.stderr_log, lines);
-    } else {
-        // Process is still running (or status unknown), read from log files
-        // console.log(`[GetOutput] PID ${pid} running (${state.status}). Reading last ${lines} lines from logs.`);
+    // Always read from log files to avoid timing issues with state updates
+    // console.log(`[GetOutput] PID ${pid} (${state.status}). Reading last ${lines} lines from logs.`);
+    try {
         stdoutContent = await Logger.readLogLines(state.stdout_log, lines);
+    } catch (logReadErr) {
+        console.error(`[GetOutput] Error reading stdout log for PID ${pid}:`, logReadErr);
+        // Keep stdoutContent empty or consider a specific error message
+    }
+    try {
         stderrContent = await Logger.readLogLines(state.stderr_log, lines);
+    } catch (logReadErr) {
+        console.error(`[GetOutput] Error reading stderr log for PID ${pid}:`, logReadErr);
+        // Keep stderrContent empty or consider a specific error message
     }
 
     const response = {
