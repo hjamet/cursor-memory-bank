@@ -41,11 +41,23 @@
 
 # In Progress
 
-(No tasks currently in progress)
+## 1. Rule Modifications
+
+1.1. [x] **Update `context-update` Rule**: Modify the rule to use the MCP `commit` tool (`mcp_MyMCP_commit`) instead of the `git commit -a` command for committing changes. (Verified already correct)
+    - Description: Replace the `run_terminal_cmd` call for `git commit -a ...` with a call to `mcp_MyMCP_commit`, ensuring all necessary arguments (emoji, type, title, description) are passed correctly.
+    - Files: `.cursor/rules/context-update.mdc`
+    - Dependencies: `mcp_MyMCP_commit` tool.
+    - Validation: The rule uses the MCP tool for commits, and commits are successful.
 
 # Done
 
-(Old completed tasks removed for clarity)
+## 1. Rule Modifications (Current Cycle)
+
+1.1. [x] **Update `context-update` Rule**: Modify the rule to use the MCP `commit` tool (`mcp_MyMCP_commit`) instead of the `git commit -a` command for committing changes. (Verified already correct)
+    - Description: Replace the `run_terminal_cmd` call for `git commit -a ...` with a call to `mcp_MyMCP_commit`, ensuring all necessary arguments (emoji, type, title, description) are passed correctly.
+    - Files: `.cursor/rules/context-update.mdc`
+    - Dependencies: `mcp_MyMCP_commit` tool.
+    - Validation: The rule uses the MCP tool for commits, and commits are successful.
 
 # Blocked
 
