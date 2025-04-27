@@ -15,6 +15,8 @@
 3.1 **Enhance `mcp_execute_command`**: Modify MCP server to return full stdout/stderr directly in the response if the command completes within the default timeout (e.g., 15s), avoiding the need for separate `get_terminal_output` calls for short commands.
 
 # Done
+- [x] **Investigate Python Output Capture**: Verified that Python stdout/stderr/exit_code are correctly captured by the current implementation (universal Git Bash execution). (Previously Task 2.1)
+- [x] **Enhance `mcp_execute_command`**: Implemented immediate return of full results (stdout/stderr/exit_code) if command finishes before timeout. (Previously Task 3.1)
 - [x] **Implement Immediate Return for `execute_command`**: Modified MCP server (`terminal_execution.js`, `process_manager.js`, `server.js`) so `execute_command` waits for completion up to a timeout (default 10s). If completed early, returns full result (stdout/stderr/exit_code); otherwise, returns PID for background execution. (From userbrief.md)
 - [x] **Add `cwd` to MCP Terminal Responses**: Modify MCP server tools (`execute_command`, `get_terminal_status`, `get_terminal_output`) to include the effective `cwd` (Current Working Directory) of the process in their responses.
 - [x] Install `execa` library
