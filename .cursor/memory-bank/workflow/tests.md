@@ -40,9 +40,9 @@
 *   **Last Run:** Current Cycle
 *   **Status:** ✅ **Pass (Verified Fix)**
 *   **Description:** Runs a workflow using the async terminal commands (`execute`, `get_status`, `get_output`, `stop`).
-*   **Fix Applied:** Modified test to use specific `echo "..."` command. Modified `server.js` `execute_command` handler to correctly pass the full command string to the shell when `shell: true` is used.
-*   **Previous Status:** ✅ Pass (Fixed Regression)
-*   **Evolution**: Verified Fix (Passed after fix).
+*   **Fix:** Moved `ensureLogsDirExists()` into `execute_command` handler. Corrected test script assertion for stderr.
+*   **Previous Status:** ❌ Fail (Regression)
+*   **Evolution**: Verified Fix
 
 ## MCP Send Input Test (`tests/test_mcp_send_input.js`)
 
@@ -121,10 +121,10 @@
 - **Date**: Current Cycle
 - **Commit**: Current
 - **Status**: ✅ **PASS (Verified Fix)**
-- **Details**: Test suite passed, confirming the fix for the `execute_command` handler and the modified test command.
+- **Details**: Test suite passed after fixing server crash (moved `ensureLogsDirExists()`) and correcting test assertion.
 - **Command**: `node tests/test_mcp_async_terminal.js`
 - **Output**: Successful execution (exit code 0).
-- **Evolution**: Verified Fix (Passed after fix).
+- **Evolution**: Verified Fix (Previously Failed).
 
 ## MCP Send Input Test (`tests/test_mcp_send_input.js`)
 

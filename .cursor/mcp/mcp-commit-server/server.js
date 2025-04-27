@@ -12,25 +12,34 @@ import process from 'process';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Determine project root (assuming server.js is in .cursor/mcp/mcp-commit-server/)
+const projectRoot = path.resolve(__dirname, '../../..');
+
 // --- State Persistence and Logging Setup --- START ---
 const LOGS_DIR = path.join(__dirname, 'logs');
 const STATE_FILE = path.join(__dirname, 'terminals_status.json');
 let terminalStates = []; // In-memory store for terminal statuses
 
 /**
- * Ensures the logs directory exists.
+ * Function to ensure logs directory exists
  */
 function ensureLogsDirExists() {
-    try {
-        if (!fs.existsSync(LOGS_DIR)) {
+    if (!fs.existsSync(LOGS_DIR)) {
+        try {
             fs.mkdirSync(LOGS_DIR, { recursive: true });
-            // console.log(`Created logs directory: ${LOGS_DIR}`); // Optional: for debugging
+            console.log(`[MyMCP Setup] Created logs directory: ${LOGS_DIR}`);
+        } catch (err) {
+            console.error(`[MyMCP Setup] Error creating logs directory ${LOGS_DIR}:`, err);
+            // Decide if this is fatal - for now, log and continue, 
+            // subsequent log writes will likely fail.
         }
-    } catch (error) {
-        console.error(`Error creating logs directory ${LOGS_DIR}:`, error);
-        // Depending on severity, might want to exit: process.exit(1);
     }
 }
+
+/**
+ * Ensure logs directory exists on startup
+ */
+// ensureLogsDirExists(); // Moved into execute_command handler
 
 /**
  * Reads the terminal state from the JSON file.
@@ -120,9 +129,6 @@ async function updateRunningProcessStatuses() {
     }
 }
 // --- Background Status Monitor --- END ---
-
-// Define the project root relative to the server script's location
-const projectRoot = path.resolve(__dirname, '../../..');
 
 const execAsync = promisify(exec);
 
@@ -328,6 +334,7 @@ server.tool(
                 executable = parts[0];
                 potentialArgs = parts.slice(1).join(' ');
                 // Decide if shell: false is safe
+                // Restore logic for node
                 if ((executable === 'node' || executable.endsWith('bash.exe')) && !shellCharsRegex.test(potentialArgs)) {
                     useShell = false;
                 }
@@ -356,16 +363,29 @@ server.tool(
                     }
                 } else if (potentialArgs) {
                     // Basic split for other cases (might fail with nested quotes/spaces)
-                    args = potentialArgs.split(/\s+/);
+                    // Avoid splitting if the executable is node and we determined shell:false is safe
+                    // (node handles its own arguments based on the script)
+                    if (executable !== 'node') {
+                        args = potentialArgs.split(/\s+/);
+                    } else {
+                        args = [potentialArgs]; // Pass the script path as a single argument to node
+                    }
                 }
             }
 
             spawnOptions.shell = useShell;
 
-            console.warn(`[MCP SPAWN] Executing: '${executable}' with args: ${JSON.stringify(args)} and options: ${JSON.stringify(spawnOptions)}`);
+            // --- REMOVED DEBUG LOGGING --- 
+
+            console.warn(`[MCP SPAWN] Executing: '${useShell ? command : executable}' with args: ${JSON.stringify(args)} and options: ${JSON.stringify(spawnOptions)}`);
 
             // Spawn the process
-            child = spawn(executable, args, spawnOptions);
+            // Use original command if shell:true, else use parsed executable/args
+            if (useShell) {
+                child = spawn(command, [], spawnOptions);
+            } else {
+                child = spawn(executable, args, spawnOptions);
+            }
             // --- MODIFICATION END ---
 
             pid = child.pid;
@@ -374,6 +394,8 @@ server.tool(
             }
 
             // --- Revert to Previous State (stdio: 'pipe') ---
+            // Ensure logs directory exists right before creating streams
+            ensureLogsDirExists();
             stdoutLogPath = path.join(LOGS_DIR, `${pid}.stdout.log`);
             stderrLogPath = path.join(LOGS_DIR, `${pid}.stderr.log`);
             stdoutStream = fs.createWriteStream(stdoutLogPath, { flags: 'a' });
@@ -834,7 +856,7 @@ try {
 
 // Create the transport and connect the server
 async function startServer() {
-    ensureLogsDirExists(); // Ensure logs directory exists before starting
+    // ensureLogsDirExists(); // Moved into execute_command handler
     loadTerminalState();   // Load initial state from file
 
     // Start the background status monitor

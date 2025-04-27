@@ -19,6 +19,8 @@ function startServer() {
         // Clean up old state/logs if they exist
         try { if (fs.existsSync(STATE_FILE)) fs.unlinkSync(STATE_FILE); } catch (e) { console.warn('Could not delete old state file', e.message); }
         try { if (fs.existsSync(LOGS_DIR)) fs.rmSync(LOGS_DIR, { recursive: true, force: true }); } catch (e) { console.warn('Could not delete old logs dir', e.message); }
+        // Ensure logs dir exists *after* potential deletion
+        try { if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true }); } catch (e) { console.error('[Test Setup] Failed to recreate logs dir:', e.message); reject(e); return; }
 
 
         serverProcess = child_process.spawn('node', [SERVER_PATH], {
@@ -178,9 +180,10 @@ async function runTests() {
         // Find state to get log paths
         const state = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8')).find(s => s.pid === executedPid);
         assert(state, 'State file should contain executed PID');
-        const logFile = state.logFile;
-        assert(logFile, 'State should contain logFile path');
-        assert(fs.existsSync(logFile), 'Log file should exist');
+        stdoutLog = state.stdout_log; // Use stdout_log instead of logFile
+        stderrLog = state.stderr_log;
+        assert(stdoutLog, 'State should contain stdout_log path');
+        assert(fs.existsSync(stdoutLog), 'stdout log file should exist');
         console.log('[Test] Execute: PASSED');
 
 
@@ -230,7 +233,7 @@ async function runTests() {
 
         // Original assertions, check combined stdout
         assert(outputResult.stdout.includes(testMessage), `Combined log (stdout) should contain '${testMessage}'`);
-        assert(outputResult.stdout.includes('test_command_stderr'), 'Combined log (stdout) should contain stderr string');
+        assert(outputResult.stderr.includes('test_command_stderr'), 'stderr should contain stderr string');
         console.log('[Test] Get Output: PASSED');
 
 
@@ -286,7 +289,8 @@ async function runTests() {
 
         // 6. Check Log File Cleanup
         console.log('\n[Test] === Checking Log Cleanup ===');
-        assert(!fs.existsSync(logFile), 'Log file should be deleted after stop');
+        assert(!fs.existsSync(stdoutLog), 'stdout log file should be deleted after stop');
+        assert(!fs.existsSync(stderrLog), 'stderr log file should be deleted after stop');
         console.log('[Test] Log Cleanup: PASSED');
 
         console.log('\n[Test] === ALL TESTS PASSED ===');
