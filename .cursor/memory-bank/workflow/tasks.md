@@ -14,12 +14,6 @@
     - Dependencies: MCP terminal tools.
     - Validation: The rule reflects the usage of MCP tools for test execution.
 
-1.3. [ ] **Update `fix` Rule**: Modify the rule to remove the mention of the deprecated MCP `Debug` tool and suggest using temporary debug logging instead.
-    - Description: Edit the rule's instructions/specifics to replace references to the MCP `Debug` tool with guidance on adding temporary logging statements (`console.log`, etc.) within the code being fixed and remembering to remove them afterward.
-    - Files: `.cursor/rules/fix.mdc`
-    - Dependencies: None.
-    - Validation: The rule no longer mentions the MCP `Debug` tool and correctly suggests temporary logging.
-
 1.4. [ ] **Remove `[200~` Terminal Error Mentions**: Identify all rule files (`.cursor/rules/*.mdc`) that mention the `[200~` terminal error (related to the old `run_terminal_cmd` tool) and remove those specific notes/warnings, as they are obsolete with the use of MCP tools.
     - Description: Search across all `.mdc` files in `.cursor/rules/` for references to the `[200~` bug or similar terminal execution warnings related to the old tool. Remove these specific sentences/paragraphs.
     - Files: `.cursor/rules/*.mdc` (Multiple files likely involved, e.g., `context-update.mdc`, `fix.mdc`, `experience-execution.mdc`, `implementation.mdc`)
@@ -70,6 +64,12 @@
     - Files: `.cursor/rules/test-execution.mdc`
     - Dependencies: MCP terminal tools.
     - Validation: The rule reflects the usage of MCP tools for test execution.
+
+1.3. [x] **Update `fix` Rule**: Modify the rule to remove the mention of the deprecated MCP `Debug` tool and suggest using temporary debug logging instead.
+    - Description: Edit the rule's instructions/specifics to replace references to the MCP `Debug` tool with guidance on adding temporary logging statements (`console.log`, etc.) within the code being fixed and remembering to remove them afterward.
+    - Files: `.cursor/rules/fix.mdc`
+    - Dependencies: None.
+    - Validation: The rule no longer mentions the MCP `Debug` tool and correctly suggests temporary logging.
 
 ## 2. MCP Server Enhancements (Current Cycle)
 
