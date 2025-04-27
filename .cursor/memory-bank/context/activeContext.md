@@ -16,4 +16,8 @@
 
 ## Lost workflow
 
-(N/A - Workflow is stable)
+- **Last Rule:** `context-update` (completed step 6).
+- **Last Action:** Determined the workflow should end because the only remaining task (`1.1 Diagnose MyMCP...`) is in the 'Blocked' state due to non-functional MyMCP tools (`execute_command`, `get_terminal_status`).
+- **Reason for Stop:** No actionable tasks remain; requires external fix for the MyMCP server.
+- **Files Involved:** `tasks.md`, `activeContext.md`.
+- **User Invocation:** User explicitly called `workflow-perdu` rule.
