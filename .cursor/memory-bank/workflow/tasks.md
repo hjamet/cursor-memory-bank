@@ -1,8 +1,28 @@
 # ToDo
 
-(No tasks remaining in ToDo for now)
+(No tasks currently in ToDo)
+
+# In Progress
+
+(No tasks currently in progress)
 
 # Done
+
+## 1. MCP Server Enhancements
+
+1.1. [x] **Set Default CWD for `mcp_execute_command`**: Modify the MCP server script to ensure commands executed via `mcp_execute_command` run in the project's root directory by default.
+    - Actions: Add `cwd: projectRoot` to the options object passed to `child_process.spawn` within the `execute_command` handler.
+    - Files: `.cursor/mcp/mcp-commit-server/server.js`
+    - Dependencies: None (requires `projectRoot` variable to be defined, which it is).
+    - Validation: Commands like `git status` run via `mcp_execute_command` operate on the project root without needing `cwd` explicitly set.
+
+## 2. Rule Updates
+
+2.1. [x] **Update Rules to Recommend MCP Terminal Tools**: Modify specified rules to recommend using the new MCP terminal tools (`mcp_execute_command`, etc.) over the standard terminal tool.
+    - Actions: Add the provided explanatory paragraph about MCP tool usage to the specified rule files.
+    - Files: `.cursor/rules/experience-execution.mdc`, `.cursor/rules/fix.mdc`, `.cursor/rules/implementation.mdc`.
+    - Dependencies: None.
+    - Validation: The rules contain the updated paragraph recommending MCP terminal tools.
 
 ## 1. Enhance MCP Commit Server with Async Terminal Execution
 1.1. [x] **Setup State Persistence & Logging**: Initialize the `terminals_status.json` file structure and the `logs/` directory. Implement functions to read/write the JSON state file safely (handling potential concurrent access if necessary) and ensure the server reads the state on startup.

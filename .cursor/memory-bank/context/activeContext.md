@@ -2,22 +2,31 @@
 
 ## Current implementation context
 
-- **Task Group:** MyMCP Tool Investigation
-- **Current Task:** Investigate local `mcp-commit-server/server.js` (related to Task 1.1)
-- **Goal:** Determine if the failures of MyMCP tools are caused by issues within the local `server.js` script identified in `.cursor/mcp.json`.
-- **Problem Context:** MyMCP tools (`execute_command`, `get_terminal_status`) fail consistently. `.cursor/mcp.json` shows these tools rely on `node .cursor/mcp/mcp-commit-server/server.js`.
-- **Next Steps:**
-    1. Check if dependencies are installed (`node_modules` in `.cursor/mcp/mcp-commit-server/`).
-    2. Attempt to run the server script directly (`node server.js`) from its directory to check for startup errors.
-    3. Examine `server.js` code for potential bugs related to MCP communication or command handling.
-- **Dependencies:** Node.js environment, potentially `npm` for dependency installation.
+- **Task Group:** MCP Enhancements and Rule Updates
+- **Completed Tasks:**
+    - 1.1 Set Default CWD for `mcp_execute_command` in `.cursor/mcp/mcp-commit-server/server.js`.
+    - 2.1 Updated rules (`experience-execution.mdc`, `fix.mdc`, `implementation.mdc`) to recommend MCP terminal tools.
+- **Goal:** Modifications requested in `userbrief.md` have been implemented.
 
 ## Current Status
 
-- Identified that MyMCP failures likely stem from the local `mcp-commit-server/server.js` script, not an external server.
-- Task 1.1, while listed as Blocked, is now being actively investigated locally.
+- MCP server (`server.js`) now executes commands in project root by default.
+- Relevant rules now recommend using the advanced MCP terminal tools with explanations.
+- Ready for context cleanup and commit.
 
-## Lost workflow
+## Recent Decisions
 
-- User invoked `workflow-perdu` and `continue`, prompting re-evaluation of the blocked state.
-- Workflow restarted from `context-update`, leading back to `implementation` to investigate the local server script.
+- Implemented tasks 1.1 and 2.1.
+- Chose to proceed to `context-update` as changes were modifications to existing features without dedicated tests or pure documentation updates.
+
+## Next Steps
+
+1. Clean up context files.
+2. Update `tasks.md` (move tasks to Done).
+3. Commit changes.
+4. Verify file integrity.
+5. Determine the next rule based on remaining tasks/test status.
+
+## Important Notes
+
+- None currently.

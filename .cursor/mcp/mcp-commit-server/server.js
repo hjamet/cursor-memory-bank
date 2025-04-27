@@ -244,7 +244,7 @@ server.tool(
      */
     async ({ command, reuse_terminal, timeout }) => {
         // <<< DEBUG LOGGING START >>>
-        console.log(`[MyMCP DEBUG] execute_command handler START - Command: ${command}, Timeout: ${timeout}`);
+        // console.log(`[MyMCP DEBUG] execute_command handler START - Command: ${command}, Timeout: ${timeout}`);
         // <<< DEBUG LOGGING END >>>
 
         // Note: reuse_terminal logic is not implemented yet.
@@ -270,7 +270,8 @@ server.tool(
             child = spawn(command, [], {
                 shell: true,
                 detached: true, // Allows parent to exit independently
-                stdio: ['ignore', 'pipe', 'pipe'] // Ignore stdin, pipe stdout/stderr
+                stdio: ['ignore', 'pipe', 'pipe'], // Ignore stdin, pipe stdout/stderr
+                cwd: projectRoot // Execute in project root by default
             });
 
             pid = child.pid;
@@ -395,13 +396,16 @@ server.tool(
                 stderr: initialStderr,
                 exit_code: (result === 'timeout' || processExited === false) ? null : exitCode // Return null if timed out or not exited yet
             };
-            console.log(`[MyMCP DEBUG] execute_command handler RETURNING - Response: ${JSON.stringify(response)}`);
-            return response;
+            // console.log(`[MyMCP DEBUG] execute_command handler RETURNING - Response: ${JSON.stringify(response)}`);
+            // Wrap the response in the format expected by the calling tool
+            // return { content: [{ type: "json", json: response }] }; // Try type: "json"
+            // return response; // Return raw JSON object
+            return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Use text type like commit
             // <<< DEBUG LOGGING END >>>
 
         } catch (error) {
             // <<< DEBUG LOGGING START >>>
-            console.error('[MyMCP DEBUG] execute_command handler ERROR:', error);
+            // console.error('[MyMCP DEBUG] execute_command handler ERROR:', error);
             // <<< DEBUG LOGGING END >>>
             console.error('[mcp_execute_command] Error:', error);
             // Ensure state is marked as failed if an error occurred after state entry was added
@@ -471,7 +475,7 @@ server.tool(
      */
     async ({ timeout }) => {
         // <<< DEBUG LOGGING START >>>
-        console.log(`[MyMCP DEBUG] get_terminal_status handler START - Timeout: ${timeout}`);
+        // console.log(`[MyMCP DEBUG] get_terminal_status handler START - Timeout: ${timeout}`);
         // <<< DEBUG LOGGING END >>>
 
         let status_changed = false;
@@ -525,8 +529,10 @@ server.tool(
 
         // <<< DEBUG LOGGING START >>>
         const response = { status_changed, terminals };
-        console.log(`[MyMCP DEBUG] get_terminal_status handler RETURNING - Response: ${JSON.stringify(response)}`);
-        return response;
+        // console.log(`[MyMCP DEBUG] get_terminal_status handler RETURNING - Response: ${JSON.stringify(response)}`);
+        // return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Correct format
+        // return { content: [{ type: "json", json: response }] }; // Try type: "json"
+        return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Use text type like commit
         // <<< DEBUG LOGGING END >>>
     }
 );
@@ -560,10 +566,17 @@ server.tool(
         const stdoutContent = readLastLogLines(state.stdout_log, lines);
         const stderrContent = readLastLogLines(state.stderr_log, lines);
 
-        return {
+        // Format expected by the tool
+        const response = {
             stdout: stdoutContent,
             stderr: stderrContent
         };
+        // return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Incorrect format
+        // --- TEMPORARY DEBUG --- 
+        // return { content: [{ type: "text", text: `Stdout length: ${stdoutContent.length}` }] };
+        // return { content: [{ type: "json", json: response }] }; // Try type: "json"
+        // return response; // Return raw JSON object
+        return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Use text type like commit
     }
 );
 
@@ -667,11 +680,16 @@ server.tool(
             cleanupStatus = `Cleanup failed: ${cleanupError.message}`;
         }
 
-        return {
+        // Format expected by the tool
+        const response = {
             status: `${terminationStatus} ${cleanupStatus}`,
             stdout: finalStdout,
             stderr: finalStderr
         };
+        // return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Correct format
+        // return { content: [{ type: "json", json: response }] }; // Try type: "json"
+        // return response; // Return raw JSON object
+        return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Use text type like commit
     }
 );
 

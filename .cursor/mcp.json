@@ -19,9 +19,6 @@
                 "-y",
                 "@upstash/context7-mcp@latest"
             ]
-        },
-        "Debug": {
-            "url": "http://localhost:4713/sse"
         }
     }
 }
