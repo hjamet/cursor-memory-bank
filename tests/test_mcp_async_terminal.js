@@ -178,10 +178,9 @@ async function runTests() {
         // Find state to get log paths
         const state = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8')).find(s => s.pid === executedPid);
         assert(state, 'State file should contain executed PID');
-        stdoutLog = state.stdout_log;
-        stderrLog = state.stderr_log;
-        assert(fs.existsSync(stdoutLog), 'Stdout log file should exist');
-        assert(fs.existsSync(stderrLog), 'Stderr log file should exist');
+        const logFile = state.logFile;
+        assert(logFile, 'State should contain logFile path');
+        assert(fs.existsSync(logFile), 'Log file should exist');
         console.log('[Test] Execute: PASSED');
 
 
@@ -229,9 +228,9 @@ async function runTests() {
         }
         console.log('[Test] Parsed Output Result:', outputResult);
 
-        // Original assertions, should now work:
-        assert(outputResult.stdout.includes(testMessage), `Stdout should contain '${testMessage}'`);
-        assert(outputResult.stderr.includes('test_command_stderr'), 'Stderr should contain expected string');
+        // Original assertions, check combined stdout
+        assert(outputResult.stdout.includes(testMessage), `Combined log (stdout) should contain '${testMessage}'`);
+        assert(outputResult.stdout.includes('test_command_stderr'), 'Combined log (stdout) should contain stderr string');
         console.log('[Test] Get Output: PASSED');
 
 
@@ -287,8 +286,7 @@ async function runTests() {
 
         // 6. Check Log File Cleanup
         console.log('\n[Test] === Checking Log Cleanup ===');
-        assert(!fs.existsSync(stdoutLog), 'Stdout log file should be deleted');
-        assert(!fs.existsSync(stderrLog), 'Stderr log file should be deleted');
+        assert(!fs.existsSync(logFile), 'Log file should be deleted after stop');
         console.log('[Test] Log Cleanup: PASSED');
 
         console.log('\n[Test] === ALL TESTS PASSED ===');

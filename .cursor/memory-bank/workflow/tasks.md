@@ -49,7 +49,7 @@
     - Dependencies: `mcp_MyMCP_commit` tool.
     - Validation: The rule uses the MCP tool for commits, and commits are successful.
 
-1.2. [ ] **Update `test-execution` Rule**: Modify the rule to primarily use MCP tools (`mcp_MyMCP_execute_command`, etc.) for executing test commands, similar to how `fix` and `experience-execution` were updated.
+1.2. [x] **Update `test-execution` Rule**: Modify the rule to primarily use MCP tools (`mcp_MyMCP_execute_command`, etc.) for executing test commands, similar to how `fix` and `experience-execution` were updated.
     - Description: Update the instructions and examples in the rule to demonstrate and recommend using the suite of MCP terminal tools for running tests.
     - Files: `.cursor/rules/test-execution.mdc`
     - Dependencies: MCP terminal tools.
@@ -73,12 +73,6 @@
     - Dependencies: `mcp_MyMCP_commit` tool.
     - Validation: The rule uses the MCP tool for commits, and commits are successful.
 
-1.2. [x] **Update `test-execution` Rule**: Modify the rule to primarily use MCP tools (`mcp_MyMCP_execute_command`, etc.) for executing test commands, similar to how `fix` and `experience-execution` were updated.
-    - Description: Update the instructions and examples in the rule to demonstrate and recommend using the suite of MCP terminal tools for running tests.
-    - Files: `.cursor/rules/test-execution.mdc`
-    - Dependencies: MCP terminal tools.
-    - Validation: The rule reflects the usage of MCP tools for test execution.
-
 1.3. [x] **Update `fix` Rule**: Modify the rule to remove the mention of the deprecated MCP `Debug` tool and suggest using temporary debug logging instead.
     - Description: Edit the rule's instructions/specifics to replace references to the MCP `Debug` tool with guidance on adding temporary logging statements (`console.log`, etc.) within the code being fixed and remembering to remove them afterward.
     - Files: `.cursor/rules/fix.mdc`
@@ -90,6 +84,12 @@
     - Files: `.cursor/rules/*.mdc` (Multiple files likely involved, e.g., `context-update.mdc`, `fix.mdc`, `experience-execution.mdc`, `implementation.mdc`)
     - Dependencies: None.
     - Validation: Rules no longer contain the outdated warnings about the `[200~` terminal bug.
+
+1.2. [x] **Update `test-execution` Rule**: Modify the rule to primarily use MCP tools (`mcp_MyMCP_execute_command`, etc.) for executing test commands, similar to how `fix` and `experience-execution` were updated.
+    - Description: Update the instructions and examples in the rule to demonstrate and recommend using the suite of MCP terminal tools for running tests.
+    - Files: `.cursor/rules/test-execution.mdc`
+    - Dependencies: MCP terminal tools.
+    - Validation: The rule reflects the usage of MCP tools for test execution.
 
 ## 2. MCP Server Enhancements (Current Cycle)
 
@@ -132,4 +132,4 @@
     - Description: This task should read `terminals_status.json`, iterate through processes marked as 'Running', check their actual OS status (using `process.kill(pid, 0)` or similar cross-platform check), update their status (`Success`, `Failure` with exit code, `Stopped` if PID disappeared), and rewrite the `terminals_status.json` file with the updated information.
     - Files: `.cursor/mcp/mcp-commit-server/server.js`.
     - Dependencies: Task 1.1 (state persistence functions).
-    - Validation: Background task correctly identifies completed/disappeared processes and updates `
+    - Validation: Background task correctly identifies completed/disappeared processes and updates `terminals_status.json` file.

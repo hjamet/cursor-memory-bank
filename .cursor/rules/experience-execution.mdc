@@ -135,3 +135,7 @@ Checking status and cleaning up PID 12345 if necessary.
 Execution was successful. Calling `context-update`.
 **(Experience-Execution: 6 - Calling next rule)**
 [...calling tool 'fetch_rules' with rule_names=["context-update"]...]
+
+### Important note on command execution
+
+When executing commands using the `mcp_MyMCP_execute_command` tool, make sure that the command is correctly formatted.
