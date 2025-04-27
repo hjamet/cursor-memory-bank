@@ -7,7 +7,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import process from 'process';
-import crypto from 'crypto';
 
 // Get the directory name of the current module
 const __filename = fileURLToPath(import.meta.url);
@@ -17,7 +16,6 @@ const __dirname = path.dirname(__filename);
 const LOGS_DIR = path.join(__dirname, 'logs');
 const STATE_FILE = path.join(__dirname, 'terminals_status.json');
 let terminalStates = []; // In-memory store for terminal statuses
-const activeProcesses = new Map(); // In-memory map to store active child_process objects {pid: child}
 
 /**
  * Ensures the logs directory exists.
@@ -26,11 +24,11 @@ function ensureLogsDirExists() {
     try {
         if (!fs.existsSync(LOGS_DIR)) {
             fs.mkdirSync(LOGS_DIR, { recursive: true });
-            // console.error(`Created logs directory: ${LOGS_DIR}`); // Optional: for debugging
+            // console.log(`Created logs directory: ${LOGS_DIR}`); // Optional: for debugging
         }
     } catch (error) {
-        console.error(`Error creating/accessing logs directory ${LOGS_DIR}:`, error);
-        // Rethrow or handle critical error? For now, log and continue.
+        console.error(`Error creating logs directory ${LOGS_DIR}:`, error);
+        // Depending on severity, might want to exit: process.exit(1);
     }
 }
 
@@ -48,10 +46,10 @@ function loadTerminalState() {
                 console.error(`Invalid state file format in ${STATE_FILE}. Expected an array. Resetting state.`);
                 terminalStates = [];
             }
-            // console.error(`Loaded terminal state from ${STATE_FILE}`); // Optional: for debugging
+            // console.log(`Loaded terminal state from ${STATE_FILE}`); // Optional: for debugging
         } else {
             terminalStates = [];
-            // console.error(`State file ${STATE_FILE} not found. Initializing empty state.`); // Optional
+            // console.log(`State file ${STATE_FILE} not found. Initializing empty state.`); // Optional
         }
     } catch (error) {
         console.error(`Error reading or parsing state file ${STATE_FILE}:`, error);
@@ -67,7 +65,7 @@ function writeTerminalState(state) {
     try {
         const fileContent = JSON.stringify(state, null, 2); // Pretty print JSON
         fs.writeFileSync(STATE_FILE, fileContent, 'utf8');
-        // console.error(`Wrote terminal state to ${STATE_FILE}`); // Optional: for debugging
+        // console.log(`Wrote terminal state to ${STATE_FILE}`); // Optional: for debugging
     } catch (error) {
         console.error(`Error writing state file ${STATE_FILE}:`, error);
     }
@@ -84,7 +82,7 @@ let statusMonitorInterval = null;
  * as 'Running' no longer exists. It doesn't reliably capture exit codes immediately.
  */
 async function updateRunningProcessStatuses() {
-    // console.error('Running status check...'); // Optional: for debugging
+    // console.log('Running status check...'); // Optional: for debugging
     let stateChanged = false;
     const currentStates = [...terminalStates]; // Work on a copy
 
@@ -98,7 +96,7 @@ async function updateRunningProcessStatuses() {
             } catch (error) {
                 // If error is ESRCH, the process doesn't exist anymore
                 if (error.code === 'ESRCH') {
-                    // console.error(`Process ${state.pid} (${state.command}) no longer running.`); // Optional
+                    // console.log(`Process ${state.pid} (${state.command}) no longer running.`); // Optional
                     state.status = 'Stopped'; // Or potentially 'Failure', but we don't know exit code here
                     state.exit_code = state.exit_code ?? null; // Keep existing exit code if set by 'exit' event, else null
                     state.endTime = state.endTime ?? new Date().toISOString();
@@ -106,7 +104,7 @@ async function updateRunningProcessStatuses() {
                 } else if (error.code === 'EPERM') {
                     // Process exists, but we lack permissions to send signals.
                     // Should not happen for child processes spawned by us, but log it.
-                    console.error(`Permission error checking status for PID ${state.pid}. Assuming it's still running.`); // Changed log to error
+                    console.warn(`Permission error checking status for PID ${state.pid}. Assuming it's still running.`);
                 } else {
                     // Other unexpected error
                     console.error(`Error checking status for PID ${state.pid}:`, error);
@@ -116,59 +114,12 @@ async function updateRunningProcessStatuses() {
     }
 
     if (stateChanged) {
-        // console.error('Detected status changes, writing state file.'); // Optional
+        // console.log('Detected status changes, writing state file.'); // Optional
         writeTerminalState(currentStates);
         terminalStates = currentStates; // Update in-memory state
     }
 }
 // --- Background Status Monitor --- END ---
-
-// --- Internal Helper Functions --- START ---
-
-/**
- * Internal helper to clean up state for a given PID.
- * Removes from activeProcesses, terminalStates, and deletes logs.
- * Does NOT write the state file; caller should do that.
- * @param {number} pid The PID to clean up.
- * @returns {Promise<boolean>} True if cleanup was attempted (state found), false otherwise.
- */
-async function _cleanupTerminalState(pid) {
-    // console.error(`[MyMCP DEBUG] _cleanupTerminalState called for PID: ${pid}`); // Optional debug
-    const stateIndex = terminalStates.findIndex(s => s.pid === pid);
-    if (stateIndex === -1) {
-        console.error(`[MyMCP ERROR] _cleanupTerminalState: PID ${pid} not found in terminalStates.`);
-        activeProcesses.delete(pid); // Attempt removal from map anyway
-        return false; // State not found
-    }
-
-    const state = terminalStates[stateIndex];
-    let deleteFailed = false;
-
-    // 1. Remove from active processes map
-    activeProcesses.delete(pid);
-    // console.error(`[MyMCP DEBUG] _cleanupTerminalState: Removed PID ${pid} from activeProcesses map.`); // Optional debug
-
-    // 2. Remove from state array
-    terminalStates.splice(stateIndex, 1);
-
-    // 3. Delete log file (best effort)
-    try {
-        if (state.logFile && fs.existsSync(state.logFile)) {
-            fs.unlinkSync(state.logFile);
-            // console.error(`[MyMCP DEBUG] _cleanupTerminalState: Deleted log file ${state.logFile}`); // Optional debug
-        } else if (state.logFile) {
-            // console.error(`[MyMCP DEBUG] _cleanupTerminalState: Log file ${state.logFile} not found for deletion.`); // Optional debug
-        }
-    } catch (unlinkErr) {
-        console.error(`[MyMCP ERROR] _cleanupTerminalState: Could not delete log file ${state.logFile} for PID ${pid}:`, unlinkErr);
-        deleteFailed = true;
-    }
-
-    // console.error(`[MyMCP DEBUG] _cleanupTerminalState completed for PID: ${pid}. Log delete failed: ${deleteFailed}`); // Optional debug
-    return true; // Indicate cleanup was performed
-}
-
-// --- Internal Helper Functions --- END ---
 
 // Define the project root relative to the server script's location
 const projectRoot = path.resolve(__dirname, '../../..');
@@ -195,15 +146,14 @@ const escapeShellArg = (arg) => {
 // Create an MCP server instance
 const server = new McpServer({
     name: "InternalAsyncTerminal",
-    version: "0.2.1",
+    version: "0.2.0",
     capabilities: {
         tools: {
             'commit': true,
             'execute_command': true,
             'get_terminal_status': true,
             'get_terminal_output': true,
-            'stop_terminal_command': true,
-            'send_terminal_input': true
+            'stop_terminal_command': true
         }
     }
 });
@@ -294,231 +244,251 @@ server.tool(
      */
     async ({ command, reuse_terminal, timeout }) => {
         // <<< DEBUG LOGGING START >>>
-        // console.error(`[MyMCP DEBUG] execute_command handler START - Command: ${command}, Timeout: ${timeout}, Reuse: ${reuse_terminal}`);
+        // console.log(`[MyMCP DEBUG] execute_command handler START - Command: ${command}, Timeout: ${timeout}, Reuse: ${reuse_terminal}`);
         // <<< DEBUG LOGGING END >>>
 
-        // Task 1.1: Implement reuse_terminal logic - Cleanup ONE finished process
+        // --- Terminal Reuse Logic --- START ---
         if (reuse_terminal) {
-            try {
-                const stateToRemove = terminalStates.find(s => s.status === 'Success' || s.status === 'Failure' || s.status === 'Stopped');
-                if (stateToRemove) {
-                    console.error(`[MyMCP DEBUG] Reusing terminal: Found finished process PID ${stateToRemove.pid} to clean up.`); // Optional debug log
-                    const cleanupSuccess = await _cleanupTerminalState(stateToRemove.pid);
-                    if (cleanupSuccess) {
-                        writeTerminalState(terminalStates); // Write state after successful cleanup
-                        console.error(`[MyMCP DEBUG] Reusing terminal: State for PID ${stateToRemove.pid} cleaned up and state written.`); // Optional debug log
-                    } else {
-                        console.error(`[MyMCP DEBUG] Reusing terminal: _cleanupTerminalState reported failure for PID ${stateToRemove.pid}.`); // Optional debug log
+            const reusableTerminalIndex = terminalStates.findIndex(state =>
+                ['Success', 'Failure', 'Stopped'].includes(state.status)
+            );
+
+            if (reusableTerminalIndex !== -1) {
+                const stateToClean = terminalStates[reusableTerminalIndex];
+                // console.log(`[MyMCP DEBUG] Reusing terminal slot from PID ${stateToClean.pid} (Status: ${stateToClean.status})`);
+
+                // Remove from state array first
+                terminalStates.splice(reusableTerminalIndex, 1);
+                writeTerminalState(terminalStates);
+
+                // Delete log files (best effort)
+                try {
+                    if (fs.existsSync(stateToClean.stdout_log)) {
+                        fs.unlinkSync(stateToClean.stdout_log);
                     }
-                } else {
-                    // console.error('[MyMCP DEBUG] Reusing terminal: No finished process found to clean up.'); // Optional debug log
+                } catch (unlinkErr) {
+                    console.warn(`[MyMCP DEBUG] Could not delete reused stdout log ${stateToClean.stdout_log}:`, unlinkErr);
                 }
-            } catch (cleanupError) {
-                console.error('[MyMCP ERROR] Error during reuse_terminal cleanup call:', cleanupError);
-                // Don't prevent execution, just log the cleanup error
+                try {
+                    if (fs.existsSync(stateToClean.stderr_log)) {
+                        fs.unlinkSync(stateToClean.stderr_log);
+                    }
+                } catch (unlinkErr) {
+                    console.warn(`[MyMCP DEBUG] Could not delete reused stderr log ${stateToClean.stderr_log}:`, unlinkErr);
+                }
             }
         }
-        // Task 1.1: End
+        // --- Terminal Reuse Logic --- END ---
 
-        const commandId = crypto.randomUUID(); // Use crypto.randomUUID()
-        const logFileName = `cmd_${commandId}_pid_${process.pid}.log`; // Include server PID for potential multi-server scenarios
-        const logFilePath = path.join(LOGS_DIR, logFileName);
-        let childPid = null;
+        // Note: reuse_terminal logic *description* needs update (it's being implemented now).
+        let child;
+        let pid;
+        let stdoutLogPath;
+        let stderrLogPath;
+        let stdoutStream;
+        let stderrStream;
+        let stateEntryIndex = -1;
         let initialStdout = '';
         let initialStderr = '';
-        let exitCode = null;
-        let processError = null;
-        let signal = null;
-        let commandStartTime = new Date().toISOString();
-        let commandEndTime = null;
 
-        // Create write stream for logging
-        const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
-        logStream.write(`--- Log Start: ${commandStartTime} ---\n`);
-        logStream.write(`Command: ${command}\n`);
-        logStream.write(`Timeout Setting: ${timeout}s\n`);
+        const startTime = new Date().toISOString();
 
-        // Timeout promise
-        let timeoutId = null;
-        const timeoutPromise = new Promise((_, reject) => {
-            timeoutId = setTimeout(() => {
-                // console.error(`[MyMCP DEBUG] Command PID ${childPid}: Timeout (${timeout}s) reached.`); // Optional debug
-                reject(new Error(`Timeout reached after ${timeout} seconds`)); // Indicate timeout specifically
-            }, timeout * 1000);
-        });
-
-        // Process execution promise
-        const processPromise = new Promise((resolve, reject) => {
-            try {
-                // Spawn the process
-                // Use shell: true for convenience (handles path, complex commands), but be mindful of security.
-                // Consider shell: false and parsing command/args for more control if needed.
-                // Use 'detached: true' so child can outlive parent if needed (though we manage lifetime)
-                const child = spawn(command, [], {
-                    shell: true,
-                    detached: true,
-                    stdio: ['pipe', 'pipe', 'pipe'], // Ensure we pipe stdio
-                    cwd: projectRoot // Set CWD to project root
-                });
-                childPid = child.pid;
-
-                // --- Process State Tracking --- START ---
-                const newState = {
-                    pid: childPid,
-                    command: command,
-                    status: 'Running', // Initial status
-                    startTime: commandStartTime,
-                    endTime: null,
-                    exit_code: null,
-                    signal: null,
-                    logFile: logFilePath // Store log file path
-                };
-                terminalStates.push(newState);
-                writeTerminalState(terminalStates); // Persist state immediately
-                // <<< INTEGRATION: Store active child process object >>>
-                activeProcesses.set(childPid, child);
-                // console.error(`[MyMCP DEBUG] Added PID ${childPid} to activeProcesses map.`); // Optional debug
-                // <<< END INTEGRATION >>>
-                // --- Process State Tracking --- END ---
-
-                // Log PID immediately
-                logStream.write(`PID: ${childPid}\n`);
-                logStream.write(`--- Output Start ---\n`);
-
-                // Handlers for stdout/stderr data
-                const stdoutListener = (data) => {
-                    const dataStr = data.toString();
-                    initialStdout += dataStr;
-                    logStream.write(dataStr); // Log incrementally
-                };
-                const stderrListener = (data) => {
-                    const dataStr = data.toString();
-                    initialStderr += dataStr;
-                    logStream.write(`[STDERR] ${dataStr}`); // Log incrementally, marked
-                };
-
-                child.stdout.on('data', stdoutListener);
-                child.stderr.on('data', stderrListener);
-
-                // Handlers for process exit and error
-                child.on('exit', (code, sig) => {
-                    commandEndTime = new Date().toISOString();
-                    // console.error(`[MyMCP DEBUG] Process PID ${childPid} exited. Code: ${code}, Signal: ${sig}`); // Optional debug
-                    exitCode = code;
-                    signal = sig;
-                    clearTimeout(timeoutId); // Clear timeout if process finishes first
-
-                    // --- Process State Update (Exit) --- START ---
-                    const stateIndex = terminalStates.findIndex(s => s.pid === childPid);
-                    if (stateIndex !== -1) {
-                        terminalStates[stateIndex].status = (code === 0) ? 'Success' : 'Failure';
-                        terminalStates[stateIndex].endTime = commandEndTime;
-                        terminalStates[stateIndex].exit_code = exitCode;
-                        terminalStates[stateIndex].signal = signal;
-                        writeTerminalState(terminalStates); // Update state file
-                    } else {
-                        console.error(`[MyMCP ERROR] Could not find state for exited PID ${childPid} to update.`);
-                    }
-                    // <<< INTEGRATION: Remove from active map on exit >>>
-                    activeProcesses.delete(childPid);
-                    // console.error(`[MyMCP DEBUG] Removed PID ${childPid} from activeProcesses map on exit.`); // Optional debug
-                    // <<< END INTEGRATION >>>
-                    // --- Process State Update (Exit) --- END ---
-
-                    // Final log entry
-                    logStream.write(`\n--- Output End ---\n`);
-                    logStream.write(`Exit Code: ${exitCode}, Signal: ${signal}, End Time: ${commandEndTime}\n`);
-                    logStream.end(() => resolve({ initialStdout, initialStderr, exitCode })); // Resolve after log stream finishes
-                });
-
-                child.on('error', (err) => {
-                    commandEndTime = new Date().toISOString();
-                    console.error(`[MyMCP ERROR] Failed to start or spawn process PID ${childPid}:`, err); // Log the detailed error
-                    processError = err;
-                    clearTimeout(timeoutId);
-
-                    // --- Process State Update (Error) --- START ---
-                    const stateIndex = terminalStates.findIndex(s => s.pid === childPid);
-                    if (stateIndex !== -1) {
-                        terminalStates[stateIndex].status = 'Failure';
-                        terminalStates[stateIndex].endTime = commandEndTime;
-                        terminalStates[stateIndex].exit_code = null; // No exit code in this case
-                        terminalStates[stateIndex].signal = null;
-                        // Add error message? Maybe not directly in state.
-                        writeTerminalState(terminalStates); // Update state file
-                    } else {
-                        // This might happen if error occurs before state is added?
-                        console.error(`[MyMCP ERROR] Could not find state for errored PID ${childPid} to update.`);
-                    }
-                    // <<< INTEGRATION: Remove from active map on error >>>
-                    activeProcesses.delete(childPid);
-                    // console.error(`[MyMCP DEBUG] Removed PID ${childPid} from activeProcesses map on error.`); // Optional debug
-                    // <<< END INTEGRATION >>>
-                    // --- Process State Update (Error) --- END ---
-
-                    // Log error and reject
-                    logStream.write(`\n--- ERROR: ${err.message} ---\nEnd Time: ${commandEndTime}\n`);
-                    logStream.end(() => reject(err)); // Reject after log stream finishes
-                });
-
-            } catch (spawnError) {
-                // Catch synchronous errors during spawn itself
-                commandEndTime = new Date().toISOString();
-                console.error('[MyMCP ERROR] Synchronous spawn error:', spawnError);
-                processError = spawnError;
-                clearTimeout(timeoutId); // Ensure timeout is cleared
-                logStream.write(`\n--- SPAWN ERROR: ${spawnError.message} ---\nEnd Time: ${commandEndTime}\n`);
-                logStream.end(() => reject(spawnError)); // Reject after log stream finishes
-            }
-        });
+        // --- Revert to Previous State (stdio: 'pipe') ---
+        const stdoutListener = (data) => { initialStdout += data.toString(); };
+        const stderrListener = (data) => { initialStderr += data.toString(); };
+        // --- End Revert ---
 
         try {
-            // Wait for either the process to finish or the timeout
-            const result = await Promise.race([processPromise, timeoutPromise]);
-
-            // Process finished within timeout
-            // console.error(`[MyMCP DEBUG] Process PID ${childPid} finished within timeout. Exit code: ${result.exitCode}`); // Optional debug
-            return {
-                content: [{
-                    type: "text",
-                    text: JSON.stringify({
-                        pid: childPid,
-                        stdout: result.initialStdout,
-                        stderr: result.initialStderr,
-                        exit_code: result.exitCode // Will be null if timeout occurred but process finished *during* timeout handling
-                    })
-                }]
+            // --- MODIFICATION START: Try shell: false for known externals --- 
+            let executable = command.trim(); // Default for shell: true
+            let args = [];
+            let useShell = true; // Default to shell: true
+            const spawnOptions = {
+                detached: true,
+                stdio: ['ignore', 'pipe', 'pipe'],
+                cwd: projectRoot
             };
 
-        } catch (error) {
-            // This block catches errors from processPromise (spawn/runtime errors) OR timeoutPromise
-            if (error.message.startsWith('Timeout reached')) {
-                // Timeout occurred, process is still running in the background
-                // console.error(`[MyMCP DEBUG] Process PID ${childPid} timed out. Returning PID and initial output.`); // Optional debug
-                return {
-                    content: [{
-                        type: "text",
-                        text: JSON.stringify({
-                            pid: childPid,
-                            stdout: initialStdout, // Return whatever was captured so far
-                            stderr: initialStderr,
-                            exit_code: null // Indicate timeout by null exit code
-                        })
-                    }]
-                };
+            // Regex to match quoted executable path and capture the rest
+            const quotedExeRegex = /^"([^"\\]*(?:\\.[^"\\]*)*)"\s*(.*)$/;
+            // Regex to find shell metacharacters (simplistic)
+            const shellCharsRegex = /[|&<>]/;
+
+            let potentialArgs = '';
+            const match = executable.match(quotedExeRegex);
+
+            if (match) {
+                // Command starts with a quoted path (e.g., bash.exe)
+                executable = match[1]; // The path inside quotes
+                potentialArgs = match[2].trim(); // The rest of the command
+                useShell = false; // Assume shell: false if path is quoted
             } else {
-                // Process failed (spawn error or runtime error)
-                console.error(`[MyMCP ERROR] Process PID ${childPid || 'unknown'} failed:`, error);
-                throw new Error(`Command execution failed for PID ${childPid || 'unknown'}: ${error.message}`);
+                // Command doesn't start with quoted path
+                const parts = executable.split(/\s+/);
+                executable = parts[0];
+                potentialArgs = parts.slice(1).join(' ');
+                // Decide if shell: false is safe
+                if ((executable === 'node' || executable.endsWith('bash.exe')) && !shellCharsRegex.test(potentialArgs)) {
+                    useShell = false;
+                }
             }
-        } finally {
-            // Clean up listeners? Node.js usually handles this on process end, but explicit removal can be safer.
-            // However, removing listeners before the 'exit' or 'error' event fires can cause missed events.
-            // Let Node.js handle cleanup for now unless issues arise.
-            // Ensure log stream is closed if it hasn't been already (e.g., if timeout occurred before exit/error)
-            if (!logStream.destroyed) {
-                logStream.end();
+
+            if (!useShell) {
+                // Attempt to parse arguments for shell: false
+                if (executable.endsWith('bash.exe') && potentialArgs.startsWith('-c')) {
+                    // Handle bash -c "command string"
+                    const commandStringMatch = potentialArgs.match(/^\-c\s*("(.*)"|'(.*)'|(.*))$/);
+                    if (commandStringMatch) {
+                        args = ['-c', commandStringMatch[2] || commandStringMatch[3] || commandStringMatch[4]]; // Extract command string
+                    } else {
+                        // Fallback if parsing -c fails
+                        console.warn('[MCP Shell False] bash -c parsing failed, falling back to shell:true for:', command);
+                        useShell = true;
+                    }
+                } else if (executable === 'node' && potentialArgs.startsWith('-e')) {
+                    // Handle node -e "script"
+                    const scriptMatch = potentialArgs.match(/^\-e\s*("(.*)"|'(.*)'|(.*))$/);
+                    if (scriptMatch) {
+                        args = ['-e', scriptMatch[2] || scriptMatch[3] || scriptMatch[4]]; // Extract script string
+                    } else {
+                        console.warn('[MCP Shell False] node -e parsing failed, falling back to shell:true for:', command);
+                        useShell = true;
+                    }
+                } else if (potentialArgs) {
+                    // Basic split for other cases (might fail with nested quotes/spaces)
+                    args = potentialArgs.split(/\s+/);
+                }
             }
+
+            spawnOptions.shell = useShell;
+
+            console.warn(`[MCP SPAWN] Executing: '${executable}' with args: ${JSON.stringify(args)} and options: ${JSON.stringify(spawnOptions)}`);
+
+            // Spawn the process
+            child = spawn(executable, args, spawnOptions);
+            // --- MODIFICATION END ---
+
+            pid = child.pid;
+            if (pid === undefined) {
+                throw new Error('Failed to get PID for spawned process.');
+            }
+
+            // --- Revert to Previous State (stdio: 'pipe') ---
+            stdoutLogPath = path.join(LOGS_DIR, `${pid}.stdout.log`);
+            stderrLogPath = path.join(LOGS_DIR, `${pid}.stderr.log`);
+            stdoutStream = fs.createWriteStream(stdoutLogPath, { flags: 'a' });
+            stderrStream = fs.createWriteStream(stderrLogPath, { flags: 'a' });
+
+            child.stdout.pipe(stdoutStream);
+            child.stderr.pipe(stderrStream);
+
+            child.stdout.on('data', stdoutListener);
+            child.stderr.on('data', stderrListener);
+            // --- End Revert ---
+
+            // Add entry to state 
+            const newStateEntry = {
+                pid,
+                command,
+                status: 'Running',
+                exit_code: null,
+                stdout_log: stdoutLogPath,
+                stderr_log: stderrLogPath,
+                startTime,
+                endTime: null
+            };
+            terminalStates.push(newStateEntry);
+            stateEntryIndex = terminalStates.length - 1; // Keep track of the index
+            writeTerminalState(terminalStates);
+
+            // console.log(`Spawned process ${pid} for command: ${command}`); // Optional debug
+
+            let exitCode = null;
+            let processExited = false;
+
+            // Promise that resolves when the process exits
+            const exitPromise = new Promise((resolve) => {
+                // Revert to non-async handler
+                child.on('exit', (code, signal) => {
+                    // console.log(`Process ${pid} exited with code: ${code}, signal: ${signal}`); // Optional debug
+                    processExited = true;
+                    exitCode = code ?? (signal ? 1 : 0); // Simplistic: non-null code or signal implies non-zero exit
+                    const endTime = new Date().toISOString();
+
+                    // Update state
+                    if (stateEntryIndex !== -1) {
+                        terminalStates[stateEntryIndex].status = (exitCode === 0) ? 'Success' : 'Failure';
+                        terminalStates[stateEntryIndex].exit_code = exitCode;
+                        terminalStates[stateEntryIndex].endTime = endTime;
+                        writeTerminalState(terminalStates);
+                    }
+
+                    // Clean up streams and listeners
+                    // Add a small delay to potentially allow streams to flush before closing
+                    // await new Promise(resolve => setTimeout(resolve, 100)); 
+                    child.stdout?.removeListener('data', stdoutListener);
+                    child.stderr?.removeListener('data', stderrListener);
+                    stdoutStream.end();
+                    stderrStream.end();
+
+                    resolve('exited');
+                });
+            });
+
+            // Promise that resolves on timeout
+            const timeoutPromise = new Promise((resolve) => {
+                setTimeout(() => resolve('timeout'), timeout * 1000);
+            });
+
+            // Wait for exit or timeout
+            const result = await Promise.race([exitPromise, timeoutPromise]);
+
+            if (result instanceof Error) {
+                throw result; // Rethrow spawn error
+            }
+
+            // If timeout occurred, clean up initial listeners and unref
+            if (result === 'timeout') {
+                // console.log(`Process ${pid} timed out after ${timeout}s.`); // Optional debug
+                child.stdout?.removeListener('data', stdoutListener);
+                child.stderr?.removeListener('data', stderrListener);
+                child.unref(); // Allow parent to exit if this was the only ref
+            }
+
+            // <<< DEBUG LOGGING START >>>
+            const response = {
+                pid,
+                // Revert to using initial listeners
+                stdout: initialStdout,
+                stderr: initialStderr,
+                exit_code: (result === 'timeout' || processExited === false) ? null : exitCode
+            };
+            // console.log(`[MyMCP DEBUG] execute_command handler RETURNING - Response: ${JSON.stringify(response)}`);
+            // Wrap the response in the format expected by the calling tool
+            // return { content: [{ type: "json", json: response }] }; // Try type: "json"
+            // return response; // Return raw JSON object
+            return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Use text type like commit
+            // <<< DEBUG LOGGING END >>>
+
+        } catch (error) {
+            // <<< DEBUG LOGGING START >>>
+            // console.error('[MyMCP DEBUG] execute_command handler ERROR:', error);
+            // <<< DEBUG LOGGING END >>>
+            console.error('[mcp_execute_command] Error:', error);
+            // Ensure state is marked as failed if an error occurred after state entry was added
+            if (pid && stateEntryIndex !== -1 && terminalStates[stateEntryIndex]?.status === 'Running') {
+                terminalStates[stateEntryIndex].status = 'Failure';
+                terminalStates[stateEntryIndex].exit_code = 1; // Generic failure code
+                terminalStates[stateEntryIndex].endTime = new Date().toISOString();
+                writeTerminalState(terminalStates);
+            }
+            // Clean up listeners and streams on error
+            child?.stdout?.removeListener('data', stdoutListener);
+            child?.stderr?.removeListener('data', stderrListener);
+            try { stdoutStream?.end(); } catch { /* ignore */ }
+            try { stderrStream?.end(); } catch { /* ignore */ }
+
+            throw new Error(`Failed to execute command: ${error.message}`);
         }
     }
 );
@@ -531,10 +501,6 @@ server.tool(
  */
 function readLastLogLines(filePath, lineCount) {
     try {
-        if (!filePath) {
-            // console.warn('readLastLogLines called with null or undefined filePath.');
-            return ''; // Return empty string if no log path is provided
-        }
         if (!fs.existsSync(filePath)) {
             return '';
         }
@@ -543,6 +509,7 @@ function readLastLogLines(filePath, lineCount) {
         const lastLines = lines.slice(-lineCount);
         return lastLines.join('\n');
     } catch (error) {
+        // Log error but return empty string for robustness
         console.error(`Error reading log file ${filePath}:`, error);
         return '';
     }
@@ -575,7 +542,7 @@ server.tool(
      */
     async ({ timeout }) => {
         // <<< DEBUG LOGGING START >>>
-        // console.error(`[MyMCP DEBUG] get_terminal_status handler START - Timeout: ${timeout}`);
+        // console.log(`[MyMCP DEBUG] get_terminal_status handler START - Timeout: ${timeout}`);
         // <<< DEBUG LOGGING END >>>
 
         let status_changed = false;
@@ -612,9 +579,13 @@ server.tool(
             await new Promise(resolve => setTimeout(resolve, 200)); // Poll every 200ms
         }
 
-        // Format the final output (Read from single logFile)
+        // Format the final output
         const terminals = terminalStates.map(state => {
-            const last_output = readLastLogLines(state.logFile, 10); // Use logFile
+            const lastStdout = readLastLogLines(state.stdout_log, 10);
+            const lastStderr = readLastLogLines(state.stderr_log, 10);
+            // Simple combination, could be interleaved by timestamp if needed
+            const last_output = `--- STDOUT ---\n${lastStdout}\n--- STDERR ---\n${lastStderr}`;
+
             return {
                 pid: state.pid,
                 status: state.status,
@@ -622,8 +593,14 @@ server.tool(
                 last_output: last_output.trim()
             };
         });
+
+        // <<< DEBUG LOGGING START >>>
         const response = { status_changed, terminals };
-        return { content: [{ type: "text", text: JSON.stringify(response) }] };
+        // console.log(`[MyMCP DEBUG] get_terminal_status handler RETURNING - Response: ${JSON.stringify(response)}`);
+        // return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Correct format
+        // return { content: [{ type: "json", json: response }] }; // Try type: "json"
+        return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Use text type like commit
+        // <<< DEBUG LOGGING END >>>
     }
 );
 
@@ -648,17 +625,25 @@ server.tool(
      */
     async ({ pid, lines }) => {
         const state = terminalStates.find(s => s.pid === pid);
+
         if (!state) {
             throw new Error(`Terminal process with PID ${pid} not found.`);
         }
-        // Read from single log file, try to split conceptually?
-        // For simplicity, return the whole log content as 'stdout'.
-        const logContent = readLastLogLines(state.logFile, lines); // Use logFile
+
+        const stdoutContent = readLastLogLines(state.stdout_log, lines);
+        const stderrContent = readLastLogLines(state.stderr_log, lines);
+
+        // Format expected by the tool
         const response = {
-            stdout: logContent,
-            stderr: "(Combined in stdout)" // Indicate stderr is mixed in
+            stdout: stdoutContent,
+            stderr: stderrContent
         };
-        return { content: [{ type: "text", text: JSON.stringify(response) }] };
+        // return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Incorrect format
+        // --- TEMPORARY DEBUG --- 
+        // return { content: [{ type: "text", text: `Stdout length: ${stdoutContent.length}` }] };
+        // return { content: [{ type: "json", json: response }] }; // Try type: "json"
+        // return response; // Return raw JSON object
+        return { content: [{ type: "text", text: JSON.stringify(response) }] }; // Use text type like commit
     }
 );
 
@@ -675,8 +660,9 @@ try {
     server.tool(
         'stop_terminal_command',
         {
+            // Renamed pid to pids and changed type to array
             pids: z.array(z.number().int()).describe("An array of PIDs of the terminal processes to stop."),
-            lines: z.number().int().optional().describe("The maximum number of lines to retrieve from the end of each log before stopping.")
+            lines: z.number().int().optional().default(100).describe("The maximum number of lines to retrieve from the end of each log before stopping.")
         },
         /**
         * Attempts to stop multiple terminal processes and cleans up their state and logs.
@@ -686,50 +672,40 @@ try {
         * @returns {Promise<{ content: Array<{ type: string, text: string }> }>} - Returns an object containing a 'content' array where each element wraps a JSON string result for one PID.
         */
         async ({ pids, lines }) => {
-            // console.error(`[MyMCP DEBUG] stop_terminal_command handler START - PIDs: ${pids.join(', ')}`); // Optional debug
-            const results = [];
-            const pidsToCleanup = []; // Store PIDs that need state cleanup
-            let stateChanged = false;
+            const results = []; // Array to hold results for each PID
+            const statesToCleanup = []; // Store { stateIndex, state } for post-loop cleanup
 
+            // --- Stage 1: Process each PID, attempt kill, gather results & state info ---
             for (const pid of pids) {
-                // --- Stage 1: Attempt Termination & Log Retrieval (Mostly unchanged) ---
-                const state = terminalStates.find(s => s.pid === pid);
-                if (!state) {
-                    results.push({ pid, status: 'PID not found in managed state.', stdout: '', stderr: '' });
-                    continue;
-                }
-                if (state.status !== 'Running') {
-                    results.push({ pid, status: `Process not running (Status: ${state.status}). Cleanup will be attempted.`, stdout: '', stderr: '' });
-                    pidsToCleanup.push(pid); // Mark for cleanup even if not running
-                    continue;
-                }
-
                 let finalStdout = '';
                 let finalStderr = '';
-                let terminationStatus = 'Termination initiated.';
-                // let cleanupStatus = '(Cleanup pending)'; // // Removed - Cleanup happens after loop
+                let terminationStatus = 'Processing started.';
+                let cleanupStatus = '(Cleanup pending)'; // Indicate cleanup happens later
+                let resultStatus = '';
 
-                // Fetch last lines before terminating
+                const stateIndex = terminalStates.findIndex(s => s.pid === pid);
+
+                if (stateIndex === -1) {
+                    resultStatus = `PID ${pid} not found in state.`;
+                    results.push({ pid, status: resultStatus, stdout: '', stderr: '' });
+                    continue;
+                }
+
+                const state = { ...terminalStates[stateIndex] }; // Copy state data
+
+                // Read final logs before attempting kill
                 try {
-                    const lineCount = lines ?? 50;
-                    if (state.logFile && fs.existsSync(state.logFile)) {
-                        const logResult = await readLastLogLines(state.logFile, lineCount);
-                        finalStdout = logResult.stdout;
-                        finalStderr = logResult.stderr;
-                    } else {
-                        finalStdout = '(Log file missing or not specified)';
-                        finalStderr = '';
-                    }
+                    finalStdout = readLastLogLines(state.stdout_log, lines);
+                    finalStderr = readLastLogLines(state.stderr_log, lines);
                 } catch (readErr) {
-                    console.error(`Error reading final log lines for PID ${pid} before termination:`, readErr);
+                    console.warn(`Error reading logs for PID ${pid}:`, readErr);
                     finalStdout = finalStdout || `(Error reading stdout: ${readErr.message})`;
                     finalStderr = finalStderr || `(Error reading stderr: ${readErr.message})`;
                 }
 
                 // Attempt termination (SIGTERM first, then SIGKILL)
+                let killError = null;
                 try {
-                    // // Removed activeProcesses.delete(pid) here - moved to _cleanupTerminalState
-
                     process.kill(pid, 'SIGTERM');
                     await new Promise(resolve => setTimeout(resolve, 200));
                     try {
@@ -739,88 +715,107 @@ try {
                             terminationStatus = 'SIGTERM sent, followed by SIGKILL.';
                         } catch (sigkillError) {
                             if (sigkillError.code === 'ESRCH') {
-                                terminationStatus = 'Process likely terminated after SIGTERM (before SIGKILL needed).';
-                            } else {
-                                console.error(`[MyMCP ERROR] SIGKILL error for PID ${pid}:`, sigkillError);
-                                throw sigkillError;
-                            }
+                                terminationStatus = 'Process likely terminated after SIGTERM.';
+                            } else { throw sigkillError; }
                         }
                     } catch (checkError) {
                         if (checkError.code === 'ESRCH') {
-                            terminationStatus = 'Process likely terminated after SIGTERM.';
-                        } else {
-                            console.error(`[MyMCP ERROR] Error checking process ${pid} after SIGTERM:`, checkError);
-                            throw checkError;
-                        }
+                            terminationStatus = 'Process already exited before/after SIGTERM.';
+                        } else { throw checkError; }
                     }
                 } catch (error) {
-                    // // Removed activeProcesses.delete(pid) here - moved to _cleanupTerminalState
                     if (error.code === 'ESRCH') {
                         terminationStatus = 'Process already exited before termination attempt.';
                     } else {
                         console.error(`Error sending termination signal to PID ${pid}:`, error);
                         terminationStatus = `Error during termination: ${error.message}`;
-                        // killError = error; // // Removed - Not used
+                        killError = error;
                     }
                 }
-                // --- End Stage 1 ---
 
-                pidsToCleanup.push(pid); // Mark PID for cleanup in Stage 2
-                results.push({ pid, status: terminationStatus, stdout: finalStdout, stderr: finalStderr });
+                // Store state info for cleanup after the loop
+                statesToCleanup.push({ stateIndex, state });
+
+                // Combine status messages for the result (pre-cleanup)
+                resultStatus = `${terminationStatus} ${cleanupStatus}`;
+                results.push({ pid, status: resultStatus, stdout: finalStdout, stderr: finalStderr });
 
             } // End of loop through PIDs
 
-            // --- Stage 2: Perform Cleanup --- 
+            // --- Stage 2: Perform Cleanup (State modification and log deletion) --- 
             let overallCleanupStatus = 'Cleanup successful.';
-            if (pidsToCleanup.length > 0) {
-                console.error(`[MyMCP DEBUG] stop_terminal_command: Entering cleanup stage for PIDs: ${pidsToCleanup.join(', ')}`); // Optional debug
-            }
+            // Sort indices in descending order to avoid messing up indices during splice
+            statesToCleanup.sort((a, b) => b.stateIndex - a.stateIndex);
 
-            for (const pid of pidsToCleanup) {
-                let cleanupSuccess = false;
-                let cleanupMessage = 'Cleanup attempted.';
+            for (const { stateIndex, state } of statesToCleanup) {
                 try {
-                    cleanupSuccess = await _cleanupTerminalState(pid);
-                    if (cleanupSuccess) {
-                        stateChanged = true;
-                        cleanupMessage = 'Cleanup successful.';
+                    // Remove from state array using the stored index
+                    if (stateIndex >= 0 && stateIndex < terminalStates.length && terminalStates[stateIndex].pid === state.pid) {
+                        terminalStates.splice(stateIndex, 1);
                     } else {
-                        cleanupMessage = 'Cleanup failed (state not found).';
-                        overallCleanupStatus = 'Cleanup finished with errors (state not found for some PIDs).';
+                        // State might have already been removed or shifted; log a warning
+                        console.warn(`Cleanup warning: State for PID ${state.pid} at index ${stateIndex} was not found or PID mismatch during splice. It might have been affected by other operations.`);
+                        // Attempt to find and remove by PID just in case
+                        const currentIndex = terminalStates.findIndex(s => s.pid === state.pid);
+                        if (currentIndex !== -1) {
+                            terminalStates.splice(currentIndex, 1);
+                            console.warn(`Cleanup warning: Removed PID ${state.pid} by searching again.`);
+                        }
                     }
-                } catch (cleanupError) {
-                    console.error(`Error during cleanup stage for PID ${pid}:`, cleanupError);
-                    cleanupMessage = `Cleanup failed: ${cleanupError.message}`;
-                    overallCleanupStatus = 'Cleanup finished with errors.'; // Mark overall status
-                    stateChanged = true; // State might have been partially changed before error
-                }
 
-                // Update the result status for this PID to reflect the cleanup outcome
-                const resultIndex = results.findIndex(r => r.pid === pid);
-                if (resultIndex !== -1) {
-                    // Append cleanup status to existing termination status
-                    results[resultIndex].status = `${results[resultIndex].status} ${cleanupMessage}`;
-                } else {
-                    // If PID wasn't in results (e.g., not found initially), add a cleanup-only entry?
-                    // Or ignore, as it wasn't found in the first place.
-                    console.error(`[MyMCP ERROR] PID ${pid} marked for cleanup but not found in results array.`);
+                    // Delete log files for this state
+                    let stdoutDeleteFailed = false;
+                    let stderrDeleteFailed = false;
+                    try {
+                        if (state.stdout_log && fs.existsSync(state.stdout_log)) fs.unlinkSync(state.stdout_log);
+                    } catch (unlinkErr) {
+                        console.warn(`Could not delete stdout log ${state.stdout_log}:`, unlinkErr);
+                        stdoutDeleteFailed = true;
+                    }
+                    try {
+                        if (state.stderr_log && fs.existsSync(state.stderr_log)) fs.unlinkSync(state.stderr_log);
+                    } catch (unlinkErr) {
+                        console.warn(`Could not delete stderr log ${state.stderr_log}:`, unlinkErr);
+                        stderrDeleteFailed = true;
+                    }
+
+                    // Update the status message in the results array for this PID
+                    const resultIndex = results.findIndex(r => r.pid === state.pid);
+                    if (resultIndex !== -1) {
+                        let finalCleanupMsg = 'Cleanup successful.';
+                        if (stdoutDeleteFailed || stderrDeleteFailed) {
+                            finalCleanupMsg = 'Cleanup finished with errors (log deletion failed).';
+                            overallCleanupStatus = 'Cleanup finished with errors.'; // Mark overall status
+                        }
+                        // Replace the pending status with the final one
+                        results[resultIndex].status = results[resultIndex].status.replace('(Cleanup pending)', finalCleanupMsg);
+                    }
+
+                } catch (cleanupError) {
+                    console.error(`Error during cleanup stage for PID ${state.pid}:`, cleanupError);
+                    overallCleanupStatus = `Cleanup failed: ${cleanupError.message}`;
+                    // Update the result status for this PID to reflect the cleanup failure
+                    const resultIndex = results.findIndex(r => r.pid === state.pid);
+                    if (resultIndex !== -1) {
+                        results[resultIndex].status = results[resultIndex].status.replace('(Cleanup pending)', `Cleanup failed: ${cleanupError.message}`);
+                    }
                 }
             }
 
-            // Persist the final state after all cleanups
-            if (stateChanged) {
+            // Persist the final state after all splices
+            if (statesToCleanup.length > 0) {
                 try {
                     writeTerminalState(terminalStates);
-                    console.error(`[MyMCP DEBUG] stop_terminal_command: Wrote final terminal state after cleanup.`); // Optional debug
                 } catch (writeError) {
                     console.error('Error writing final terminal state after cleanup:', writeError);
                     overallCleanupStatus = 'Cleanup completed but failed to write final state.';
+                    // Optionally update all result statuses?
                 }
             }
 
             // Log overall cleanup status if issues occurred
             if (overallCleanupStatus !== 'Cleanup successful.') {
-                console.error(`Overall cleanup status: ${overallCleanupStatus}`);
+                console.warn(`Overall cleanup status: ${overallCleanupStatus}`);
             }
 
             // Format expected by the tool - return an array of result objects
@@ -837,77 +832,26 @@ try {
 
 // --- New MCP Tools --- END ---
 
-// --- send_terminal_input Tool --- START ---
-server.tool(
-    'send_terminal_input',
-    {
-        pid: z.number().int().describe("The PID of the running process to send input to."),
-        input: z.string().describe("The string to send to the process's standard input.")
-    },
-    async ({ pid, input }) => {
-        // console.error(`[MyMCP DEBUG] send_terminal_input handler START - PID: ${pid}, Input length: ${input.length}`);
-        const childProcess = activeProcesses.get(pid);
-        const processState = terminalStates.find(state => state.pid === pid);
-
-        if (!childProcess || !processState) {
-            throw new Error(`Process with PID ${pid} not found or not managed by this server.`);
-        }
-
-        if (processState.status !== 'Running') {
-            throw new Error(`Process with PID ${pid} is not currently running (Status: ${processState.status}). Cannot send input.`);
-        }
-
-        // Check if stdin exists and is writable
-        if (!childProcess.stdin || !childProcess.stdin.writable || childProcess.stdin.destroyed) {
-            console.error(`[MyMCP ERROR] Stdin not available or writable for PID ${pid}. Writable: ${childProcess.stdin?.writable}, Destroyed: ${childProcess.stdin?.destroyed}`);
-            throw new Error(`Standard input for process PID ${pid} is not available or writable.`);
-        }
-
-        try {
-            const inputToSend = input + '\n'; // Append newline crucial for many interactive programs
-            const writeSuccess = childProcess.stdin.write(inputToSend);
-            if (!writeSuccess) {
-                console.error(`[MyMCP WARN] High water mark reached for stdin buffer of PID ${pid}. Input might be buffered.`); // Changed log to error
-                // Application should ideally handle backpressure, but for now we just warn.
-            }
-            // console.error(`[MyMCP DEBUG] Successfully wrote input to PID ${pid}. Write success: ${writeSuccess}`);
-            return { content: [{ type: "text", text: `Successfully sent input to process PID ${pid}.` }] };
-        } catch (error) {
-            // Catch errors like EPIPE if the process closed stdin unexpectedly
-            console.error(`[MyMCP ERROR] Error writing input to PID ${pid}:`, error);
-            throw new Error(`Failed to write input to process PID ${pid}: ${error.message}`);
-        }
-    }
-);
-// --- send_terminal_input Tool --- END ---
-
 // Create the transport and connect the server
 async function startServer() {
     ensureLogsDirExists(); // Ensure logs directory exists before starting
     loadTerminalState();   // Load initial state from file
-    console.error(`[MyMCP Server] Initial state loaded. ${terminalStates.length} states found.`); // Changed log to error
 
     // Start the background status monitor
     if (statusMonitorInterval) {
         clearInterval(statusMonitorInterval); // Clear existing interval if any
     }
-    statusMonitorInterval = setInterval(updateRunningProcessStatuses, 30000); // Check less frequently (30s)
-    console.error('[MyMCP Server] Background status monitor interval set.'); // Changed log to error
+    statusMonitorInterval = setInterval(updateRunningProcessStatuses, 1000); // Check every 1 second
 
     try {
-        console.error('[MyMCP Server] Creating StdioServerTransport...'); // Changed log to error
         const transport = new StdioServerTransport();
-        console.error('[MyMCP Server] StdioServerTransport created. Connecting server...'); // Changed log to error
         await server.connect(transport);
-        console.error('[MyMCP Server] Server connected successfully via stdio.'); // If this logs, connection worked // Changed log to error
     } catch (error) {
         // Keep console.error for fatal startup errors ONLY
-        console.error("!!!!!!!!!! [MyMCP Server] FAILED TO CONNECT TRANSPORT !!!!!!!!!!");
         console.error("Failed to start MCP Commit Server:", error);
         process.exit(1);
     }
 }
 
 // Start the server
-console.error('[MyMCP Server] Starting server...'); // Changed log to error
 startServer(); 
