@@ -27,7 +27,6 @@ function ensureLogsDirExists() {
     if (!fs.existsSync(LOGS_DIR)) {
         try {
             fs.mkdirSync(LOGS_DIR, { recursive: true });
-            console.log(`[MyMCP Setup] Created logs directory: ${LOGS_DIR}`);
         } catch (err) {
             console.error(`[MyMCP Setup] Error creating logs directory ${LOGS_DIR}:`, err);
             // Decide if this is fatal - for now, log and continue, 
