@@ -16,6 +16,7 @@
 - [✅] `test_mcp_json_absolute_path_no_jq`: Passed (Latest Run: 2025-04-27 - Verified `sed` fallback correctly sets *key* to "Commit" but leaves *relative path* and warns when jq missing)
 
 # Ad-Hoc MCP Command Execution Tests (Current Cycle)
+- [✅] **Python Script Multiple Arguments**: Passed (Current Cycle). Verified `mcp_MyMCP_execute_command` successfully executes a Python script (`tests/arg_test.py`) with multiple arguments, including spaces (`python tests/arg_test.py first_arg second_arg "third arg with spaces" fourth`), and correctly captures stdout containing `sys.argv`.
 - [✅] **Basic Commands (`echo`, `non_existent_command`)**: Passed. Correct exit codes and stdout/stderr captured via `get_terminal_status`.
 - [✅] **Python Script (`python -c ...`)**: Passed. Correct custom exit code, stdout, and stderr captured.
 - [✅] **Git Command (`git status --short`)**: Passed. Correct exit code and output captured.
