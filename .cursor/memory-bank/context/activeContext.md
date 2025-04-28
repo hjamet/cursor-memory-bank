@@ -1,12 +1,10 @@
 # Active Context
 
 ## Current Goal
-Completed testing of Python script execution via MCP.
+None. Waiting for next task or user input.
 
 ## Current implementation context
-- **Task Completed**: Tested execution of `tests/arg_test.py` with multiple arguments (including spaces) using `mcp_MyMCP_execute_command`.
-- **Outcome**: Successful. Arguments were passed correctly, and script stdout was captured.
-- **Files Involved**: `tests/arg_test.py` (created), `.cursor/memory-bank/workflow/tests.md` (updated).
+None.
 
 ## Previous Context (Preserved)
 - Verified `mcp_MyMCP_stop_terminal_command`.
