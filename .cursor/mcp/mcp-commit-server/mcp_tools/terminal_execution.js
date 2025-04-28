@@ -1,14 +1,18 @@
 import * as StateManager from '../lib/state_manager.js';
 import * as ProcessManager from '../lib/process_manager.js';
-import * as Logger from '../lib/logger.js';
+// Import specific logger functions
+import { readLogChars, deleteLogFiles } from '../lib/logger.js';
 
 // Default timeout in milliseconds (10 seconds)
 const DEFAULT_TIMEOUT_MS = 10000;
+// Character limit for partial output on timeout
+const MAX_CHARS_EXEC_PARTIAL = 3000;
 
 /**
  * MCP Tool handler for 'execute_command'.
  * Spawns a command, manages state, handles optional terminal reuse,
  * and returns immediately with full results if command finishes within timeout.
+ * Retrieves NEW characters on timeout, or ALL characters on completion.
  */
 export async function handleExecuteCommand({ command, working_directory, reuse_terminal, timeout /* timeout is in seconds */ }) {
 
@@ -16,14 +20,10 @@ export async function handleExecuteCommand({ command, working_directory, reuse_t
     if (reuse_terminal) {
         const reusableIndex = StateManager.findReusableTerminalIndex();
         if (reusableIndex !== -1) {
-            // Get the state before removing it
             const stateToClean = StateManager.getState()[reusableIndex];
             if (stateToClean) {
-                // Remove state first
                 await StateManager.removeStateByIndex(reusableIndex);
-                // Then delete logs (best effort)
-                await Logger.deleteLogFiles(stateToClean);
-                // console.log(`[ExecuteCommand] Reused terminal slot from PID ${stateToClean.pid}`);
+                await deleteLogFiles(stateToClean); // Use imported function
             }
         }
     }
@@ -35,85 +35,83 @@ export async function handleExecuteCommand({ command, working_directory, reuse_t
     let cleanupPromise;
     let result = null;
 
-    // Define timeout in milliseconds, using default if not provided or invalid
     const timeoutMs = (timeout && Number.isInteger(timeout) && timeout > 0) ? timeout * 1000 : DEFAULT_TIMEOUT_MS;
 
     try {
-        // Spawn the process using the process manager
-        // This now returns pid, log paths, and a completionPromise
-        // Pass the actual 'working_directory' parameter down
         ({ pid, stdout_log, stderr_log, completionPromise, cleanupPromise } = await ProcessManager.spawnProcess(command, working_directory));
 
-        // Create a timeout promise
         const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('TIMEOUT')), timeoutMs); // Use specific error
+            setTimeout(() => reject(new Error('TIMEOUT')), timeoutMs);
         });
 
         try {
-            // Wait for either the process to complete or the timeout
-            // Capture the result of the promise that resolves first
             const completionResult = await Promise.race([completionPromise, timeoutPromise]);
 
             // --- Process Finished Before Timeout --- 
-            // completionPromise resolved first
-
-            // Explicitly wait for cleanup (log finalization, etc.) to complete
             await cleanupPromise;
-
-            // Get final exit code and signal directly from the resolved completionPromise
-            const { code: finalExitCode, signal } = completionResult; // Assuming completionPromise resolved
+            const { code: finalExitCode, signal } = completionResult;
             const finalStatus = (finalExitCode === 0) ? 'Success' : 'Failure';
-
-            // Fetch the state to get the CWD
             const state = StateManager.findStateByPid(pid);
 
-            // Initialize variables OUTSIDE try blocks
             let stdoutContent = '';
             let stderrContent = '';
 
-            // Read the full logs
+            // Read the *entire* log content using char reader
             try {
-                stdoutContent = await Logger.readLogLines(stdout_log, -1);
+                // Read all chars from start index 0
+                stdoutContent = await readLogChars(stdout_log, 0, Number.MAX_SAFE_INTEGER);
             } catch (logErr) {
-                console.warn(`[ExecuteCommand] Error reading stdout log (after delay) for completed PID ${pid}:`, logErr.message);
+                console.warn(`[ExecuteCommand] Error reading full stdout log for completed PID ${pid}:`, logErr.message);
             }
             try {
-                stderrContent = await Logger.readLogLines(stderr_log, -1);
+                stderrContent = await readLogChars(stderr_log, 0, Number.MAX_SAFE_INTEGER);
             } catch (logErr) {
-                console.warn(`[ExecuteCommand] Error reading stderr log (after delay) for completed PID ${pid}:`, logErr.message);
+                console.warn(`[ExecuteCommand] Error reading full stderr log for completed PID ${pid}:`, logErr.message);
             }
 
-            // Construct result using logs read *after* delay and status/code from completionResult
             result = {
                 pid,
-                cwd: state?.cwd ?? null, // Use CWD from state
+                cwd: state?.cwd ?? null,
                 status: finalStatus,
                 exit_code: finalExitCode,
-                stdout: typeof stdoutContent === 'string' ? stdoutContent : '', // Ensure string
-                stderr: typeof stderrContent === 'string' ? stderrContent : ''  // Ensure string
+                stdout: typeof stdoutContent === 'string' ? stdoutContent : '',
+                stderr: typeof stderrContent === 'string' ? stderrContent : ''
             };
+            // No index update needed for completed process
 
         } catch (raceError) {
-            // Check if the error was our specific timeout error
             if (raceError.message === 'TIMEOUT') {
-                // Timeout occurred, process is still running (or finished after timeout began)
-                // console.log(`[ExecuteCommand] Timeout reached for PID ${pid}. Process continues.`);
-                const currentState = StateManager.findStateByPid(pid); // Get current (likely Running) state
+                // --- Timeout Occurred --- 
+                const currentState = StateManager.findStateByPid(pid);
 
-                // Initialize variables OUTSIDE try blocks
-                let partialStdout = '';
-                let partialStderr = '';
+                // Ensure read indices exist
+                const stdoutStartIndex = currentState?.stdout_read_index ?? 0;
+                const stderrStartIndex = currentState?.stderr_read_index ?? 0;
+                let newStdoutContent = '';
+                let newStderrContent = '';
+                let newStdoutIndex = stdoutStartIndex;
+                let newStderrIndex = stderrStartIndex;
 
-                // Read the CURRENT (partial) logs
+                // Read *new* partial logs using char reader
                 try {
-                    partialStdout = await Logger.readLogLines(stdout_log, -1); // Read all available lines
+                    newStdoutContent = await readLogChars(stdout_log, stdoutStartIndex, MAX_CHARS_EXEC_PARTIAL);
+                    newStdoutIndex = stdoutStartIndex + Buffer.byteLength(newStdoutContent, 'utf8');
                 } catch (logErr) {
                     console.warn(`[ExecuteCommand] Error reading partial stdout log for running PID ${pid}:`, logErr.message);
                 }
                 try {
-                    partialStderr = await Logger.readLogLines(stderr_log, -1); // Read all available lines
+                    newStderrContent = await readLogChars(stderr_log, stderrStartIndex, MAX_CHARS_EXEC_PARTIAL);
+                    newStderrIndex = stderrStartIndex + Buffer.byteLength(newStderrContent, 'utf8');
                 } catch (logErr) {
                     console.warn(`[ExecuteCommand] Error reading partial stderr log for running PID ${pid}:`, logErr.message);
+                }
+
+                // Update state with new read indices *asynchronously*
+                if (newStdoutIndex > stdoutStartIndex || newStderrIndex > stderrStartIndex) {
+                    StateManager.updateState(pid, {
+                        stdout_read_index: newStdoutIndex,
+                        stderr_read_index: newStderrIndex
+                    }).catch(err => console.error(`[ExecuteCommand] Error updating state indices on timeout for PID ${pid}:`, err));
                 }
 
                 result = {
@@ -121,54 +119,49 @@ export async function handleExecuteCommand({ command, working_directory, reuse_t
                     cwd: currentState?.cwd ?? null,
                     status: currentState?.status ?? 'Running',
                     exit_code: null,
-                    stdout: typeof partialStdout === 'string' ? partialStdout : '', // Ensure string
-                    stderr: typeof partialStderr === 'string' ? partialStderr : ''  // Ensure string
+                    stdout: typeof newStdoutContent === 'string' ? newStdoutContent : '',
+                    stderr: typeof newStderrContent === 'string' ? newStderrContent : ''
                 };
             } else {
-                // Another error occurred (e.g., from completionPromise rejecting)
-                // Wait for cleanup to potentially capture the error state
+                // --- Another Error Occurred --- 
+                // (Error handling logic remains mostly the same, reading full stderr at the end)
                 const cleanupResult = await cleanupPromise;
-                const errorState = await StateManager.getState(pid); // Still might need state here on *error*
+                const errorState = await StateManager.findStateByPid(pid); // Fetch state by PID
 
-                // Initialize variable OUTSIDE try block
                 let stderrReadContent = '';
                 try {
-                    stderrReadContent = await Logger.readLogLines(stderr_log, -1);
-                } catch (logErr) { }
+                    // Read full stderr log using char reader on error
+                    stderrReadContent = await readLogChars(stderr_log, 0, Number.MAX_SAFE_INTEGER);
+                } catch (logErr) { /* Ignore log read error here */ }
 
                 let combinedStderr = (cleanupResult?.error || raceError)?.message || 'Unknown error';
                 if (typeof stderrReadContent === 'string' && stderrReadContent.length > 0) {
                     combinedStderr += "\n--- STDERR LOG ---\n" + stderrReadContent;
                 }
 
-
                 result = {
                     pid,
                     cwd: errorState?.cwd ?? null,
                     status: errorState?.status ?? 'Failure',
                     exit_code: errorState?.exit_code,
-                    stdout: '', // Keep empty on error for now
-                    stderr: typeof combinedStderr === 'string' ? combinedStderr : '' // Ensure string
+                    stdout: '',
+                    stderr: typeof combinedStderr === 'string' ? combinedStderr : ''
                 };
             }
         }
 
-        // Return the constructed result (full on completion, partial on timeout, error info on error)
         return { content: [{ type: "text", text: JSON.stringify(result) }] };
 
     } catch (error) {
+        // (Top-level error handling remains the same)
         console.error('[ExecuteCommand] Top-level Error:', error);
-        // If spawnProcess failed, pid might not be set
-        // If Promise.race failed with non-timeout error, we might have a pid
-        // Attempt to clean up state if PID exists and error happened after spawn
         if (pid) {
             try {
-                // Update state to Failure if not already finalized by process_manager
                 const state = StateManager.findStateByPid(pid);
                 if (state && (state.status === 'Running' || !state.endTime)) {
                     await StateManager.updateState(pid, {
                         status: 'Failure',
-                        exit_code: state.exit_code ?? null, // Keep code if handleExit set it
+                        exit_code: state.exit_code ?? null,
                         endTime: state.endTime ?? new Date().toISOString(),
                     });
                 }
@@ -176,7 +169,6 @@ export async function handleExecuteCommand({ command, working_directory, reuse_t
                 console.error(`[ExecuteCommand] Error updating state after top-level error for PID ${pid}:`, stateErr);
             }
         }
-        // Return an error structure consistent with other results if possible
         const errorResult = {
             pid: pid || null,
             cwd: null,
@@ -186,8 +178,6 @@ export async function handleExecuteCommand({ command, working_directory, reuse_t
             stderr: `Failed to execute command: ${error.message}`
         };
         return { content: [{ type: "text", text: JSON.stringify(errorResult) }] };
-        // Or rethrow? Let's return a structured error.
-        // throw new Error(`Failed to execute command: ${error.message}`);
     }
 }
 

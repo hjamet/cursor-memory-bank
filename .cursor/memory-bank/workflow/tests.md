@@ -25,6 +25,11 @@
   - Note: This approach (optional `working_directory` param + direct handler ref) avoided stack overflow but failed path resolution.
 
 # Ad-Hoc MCP Command Execution Tests (Current Cycle)
+- [✅] **Character-Based Output & Index Tracking**: Passed (Current Cycle). Verified the new character-based log retrieval mechanism.
+    - *Test Case 1 (Completion within Timeout)*: `mcp_MyMCP_execute_command` with a short script and 3s timeout correctly returned the full output upon completion.
+    - *Test Case 2 (Timeout and Incremental Output)*: `mcp_MyMCP_execute_command` with a longer script and 2s timeout correctly returned partial output. Subsequent `mcp_MyMCP_get_terminal_output` calls retrieved only the *new* output since the previous call, confirming index tracking. Final call returned empty strings.
+    - *Test Case 3 (Status Snapshot)*: `mcp_MyMCP_get_terminal_status` correctly used `readLastLogChars` to display the last N characters (tested with 3000 limit) for both completed and running processes, without affecting read indices.
+    - *Validation*: Functionality matches Task 3.1 validation criteria.
 - [✅] **Python Script Multiple Arguments**: Passed (Current Cycle). Verified `mcp_MyMCP_execute_command` successfully executes a Python script (`tests/arg_test.py`) with multiple arguments, including spaces (`python tests/arg_test.py first_arg second_arg "third arg with spaces" fourth`), and correctly captures stdout containing `sys.argv`.
 - [✅] **Basic Commands (`echo`, `non_existent_command`)**: Passed. Correct exit codes and stdout/stderr captured via `get_terminal_status`.
 - [✅] **Python Script (`python -c ...`)**: Passed. Correct custom exit code, stdout, and stderr captured.

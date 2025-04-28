@@ -1,7 +1,10 @@
 # ToDo
 
-
 # Done
+- [x] **Implement Character-Based MCP Log Handling**: Refactored MCP terminal tools to use character counts instead of lines for output retrieval.
+    - *Description*: Implemented character-based reading (`readLogChars`, `readLastLogChars`) in `logger.js`. Added read index tracking (`stdout_read_index`, `stderr_read_index`) to process state. Modified `handleExecuteCommand`, `handleGetTerminalOutput`, `handleGetTerminalStatus`, `handleStopTerminalCommand` to use new functions, respect character limits (3000/20000), and update indices to return only new output.
+    - *Impacted Files/Components*: `.cursor/mcp/mcp-commit-server/lib/process_manager.js`, `.cursor/mcp/mcp-commit-server/lib/logger.js`, `.cursor/mcp/mcp-commit-server/mcp_tools/*.js`
+    - *Validation*: Verified correct behavior via ad-hoc Python script tests covering completion, timeout, incremental output retrieval, and status snapshot cases.
 - [x] **Fix MCP Stdout/Stderr Capture**: Resolve the issue where stdout and stderr are not consistently captured for commands executed via `mcp_MyMCP_execute_command` on Windows (using Git Bash). **Solution**: Always execute via `bash -c \"eval $(echo '<base64_command>' | base64 -d)\"` on Windows.
     - *Description*: Output is sometimes missing or incomplete despite the command executing. Investigate buffering, shell interactions, stream closing logic, and the user's suggestion of directly invoking Git Bash (`C:\\Program Files\\Git\\bin\\bash.exe -c \"...\"`).
     - *Impacted Files/Components*: `.cursor/mcp/mcp-commit-server/lib/process_manager.js`, potentially `.cursor/mcp/mcp-commit-server/lib/logger.js`.

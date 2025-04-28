@@ -91,6 +91,93 @@ export async function readLogLines(logPath, lineCount) {
 }
 
 /**
+ * Reads up to maxChars characters from a log file, starting at a given index.
+ * @param {string} filePath Path to the log file.
+ * @param {number} startIndex The byte offset to start reading from (0-indexed).
+ * @param {number} maxChars Maximum number of characters (bytes) to read.
+ * @returns {Promise<string>} The requested characters or an empty string on error/EOF/file not found.
+ */
+export async function readLogChars(filePath, startIndex, maxChars) {
+    if (!filePath || startIndex < 0 || maxChars <= 0) {
+        return ''; // Invalid parameters
+    }
+
+    let filehandle;
+    try {
+        filehandle = await fs.open(filePath, 'r');
+        const stats = await filehandle.stat();
+        const fileSize = stats.size;
+
+        if (startIndex >= fileSize) {
+            return ''; // Start index is beyond file end
+        }
+
+        const bytesToRead = Math.min(maxChars, fileSize - startIndex);
+        if (bytesToRead <= 0) {
+            return ''; // Nothing to read
+        }
+
+        const buffer = Buffer.alloc(bytesToRead);
+        const { bytesRead } = await filehandle.read(buffer, 0, bytesToRead, startIndex);
+
+        if (bytesRead > 0) {
+            return buffer.toString('utf8', 0, bytesRead);
+        }
+        return '';
+
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            console.error(`[Logger] Error reading chars from ${filePath}:`, error);
+        }
+        return ''; // Return empty on file not found or other errors
+    } finally {
+        await filehandle?.close();
+    }
+}
+
+/**
+ * Reads the last maxChars characters (bytes) from a log file.
+ * @param {string} filePath Path to the log file.
+ * @param {number} maxChars Maximum number of characters (bytes) to read from the end.
+ * @returns {Promise<string>} The last characters or an empty string on error/empty file/file not found.
+ */
+export async function readLastLogChars(filePath, maxChars) {
+    if (!filePath || maxChars <= 0) {
+        return ''; // Invalid parameters
+    }
+
+    let filehandle;
+    try {
+        filehandle = await fs.open(filePath, 'r');
+        const stats = await filehandle.stat();
+        const fileSize = stats.size;
+
+        if (fileSize === 0) {
+            return ''; // Empty file
+        }
+
+        const bytesToRead = Math.min(maxChars, fileSize);
+        const startPosition = fileSize - bytesToRead;
+
+        const buffer = Buffer.alloc(bytesToRead);
+        const { bytesRead } = await filehandle.read(buffer, 0, bytesToRead, startPosition);
+
+        if (bytesRead > 0) {
+            return buffer.toString('utf8', 0, bytesRead);
+        }
+        return '';
+
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            console.error(`[Logger] Error reading last chars from ${filePath}:`, error);
+        }
+        return ''; // Return empty on file not found or other errors
+    } finally {
+        await filehandle?.close();
+    }
+}
+
+/**
  * Deletes log files associated with a given state entry or PID.
  * @param {object|number} stateOrPid A state object containing log paths or just a PID.
  * @returns {Promise<void>}

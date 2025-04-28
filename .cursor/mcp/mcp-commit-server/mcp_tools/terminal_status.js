@@ -1,6 +1,9 @@
 import * as StateManager from '../lib/state_manager.js';
-import * as Logger from '../lib/logger.js';
+import { readLastLogChars } from '../lib/logger.js';
 import process from 'process'; // Needed for background status check
+
+// Define character limit for status snapshot
+const MAX_CHARS_STATUS = 3000;
 
 // TODO: Re-implement or remove the background status monitor (updateRunningProcessStatuses)
 // The original server had a background timer (`setInterval(updateRunningProcessStatuses, 1000);`)
@@ -24,17 +27,29 @@ export async function handleGetTerminalStatus({ timeout = 0 }) {
     const getFormattedTerminals = async (states) => {
         const terminals = [];
         for (const state of states) {
-            // Read last 10 lines from logs
-            const lastStdout = await Logger.readLogLines(state.stdout_log, 10);
-            const lastStderr = await Logger.readLogLines(state.stderr_log, 10);
-            const last_output = `--- STDOUT ---\n${lastStdout}\n--- STDERR ---\n${lastStderr}`.trim();
+            let lastStdout = '';
+            let lastStderr = '';
+
+            // Read last N characters for status snapshot
+            try {
+                lastStdout = await readLastLogChars(state.stdout_log, MAX_CHARS_STATUS);
+            } catch (logReadErr) {
+                console.error(`[GetStatus] Error reading last stdout chars for PID ${state.pid}:`, logReadErr);
+            }
+            try {
+                lastStderr = await readLastLogChars(state.stderr_log, MAX_CHARS_STATUS);
+            } catch (logReadErr) {
+                console.error(`[GetStatus] Error reading last stderr chars for PID ${state.pid}:`, logReadErr);
+            }
+
+            const last_output = `--- STDOUT (Last ${MAX_CHARS_STATUS} chars) ---\n${lastStdout}\n--- STDERR (Last ${MAX_CHARS_STATUS} chars) ---\n${lastStderr}`.trim();
 
             terminals.push({
                 pid: state.pid,
                 status: state.status,
                 exit_code: state.exit_code,
                 cwd: state.cwd ?? null,
-                last_output: last_output
+                last_output: last_output // Renamed field or update description?
             });
         }
         return terminals;

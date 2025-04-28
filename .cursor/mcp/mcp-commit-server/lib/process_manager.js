@@ -144,6 +144,8 @@ export async function spawnProcess(command, explicitWorkingDirectory) {
         exit_code: null,
         stdout_log,
         stderr_log,
+        stdout_read_index: 0,
+        stderr_read_index: 0,
         startTime: new Date().toISOString(),
         endTime: null,
         cwd: executionCwd

@@ -1,30 +1,25 @@
 # Active Context
 
 ## Current Goal
-Fixed `consult_image` MCP tool (previously crashed on large images).
+Completed implementation and testing of character-based log truncation and retrieval for MCP terminal tools.
 
 ## Summary of Fix
-- Identified `Maximum call stack size exceeded` error when returning large base64 image data.
-- Attempting to return file path caused MCP schema validation errors.
-- **Solution:** Implemented server-side image processing using the `sharp` library.
-  - Added `sharp` to MCP server dependencies (`package.json`) and ran `npm install`.
-  - Modified `consult_image.js` to resize (max 1024px width) and compress (JPEG quality 80) the image *before* base64 encoding.
-- Successfully tested with the large `tests/assets/image.png`, resolving the crash.
+- Added `stdout_read_index` and `stderr_read_index` to process state in `process_manager.js`.
+- Implemented `readLogChars` and `readLastLogChars` in `logger.js` using `fs.promises`.
+- Updated MCP tool handlers (`terminal_execution.js`, `terminal_output.js`, `terminal_status.js`, `terminal_stop.js`) to use the new logger functions, respect character limits (3000/20000), and manage read indices.
+- Successfully tested via ad-hoc Python script execution using MCP tools, verifying correct handling of:
+    - Immediate command completion within timeout (full output).
+    - Command timeout (partial output).
+    - Subsequent calls retrieving only new output.
+    - Status snapshot showing last N characters.
 
 ## Current implementation context
--   **Task:** Modify `consult_image` handler and server registration.
--   **Approach:** Mimic `execute_command` parameter handling.
-    1.  Modify handler (`consult_image.js`) to accept optional `working_directory` in params.
-    2.  Use `working_directory` if provided, else fallback to `process.cwd()` (expected to be wrong in MCP calls).
-    3.  Use `path.join(cwd_to_use, params.path)` for path resolution.
-    4.  Update server schema (`server.js`) to include optional `working_directory` string parameter.
-    5.  Keep direct handler reference (`handleConsultImage`) in server registration.
-    6.  Update test script (`test_consult_image.js`) to pass `working_directory: projectRootForTest` in params.
--   **Hypothesis:** Avoids wrapper function (stack overflow source). Relies on MCP environment providing correct `working_directory` implicitly, fixing path issues.
--   **Files to Modify:** `consult_image.js`, `server.js`, `test_consult_image.js`.
+N/A - Implementation and testing complete for this cycle.
 
 ## Previous Context (Preserved)
-- Strengthened `experience-execution` rule analysis (Steps 3 & 4.1) using a `.mdc` -> `.md` -> `.mdc` rename workaround to ensure Git detection.
-- Modified `experience-execution` rule error handling (Step 6) to call `task-decomposition` instead of `fix`.
+- Fixed `consult_image` MCP tool (previously crashed on large images).
+    - Used `sharp` library for server-side image resizing/compression before base64 encoding.
+- Strengthened `experience-execution` rule analysis.
+- Modified `experience-execution` rule error handling.
 - Verified `mcp_MyMCP_stop_terminal_command`.
-- Debugged `MODULE_NOT_FOUND` error with `mcp-commit-server` in `trail-rag-article` repo.
+- Debugged `MODULE_NOT_FOUND` error with `mcp-commit-server`.
