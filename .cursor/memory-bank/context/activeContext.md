@@ -14,25 +14,19 @@ Commit changes for MCP server process tree killing and `experience-execution` ru
 - **Files Involved**: `.cursor/mcp/mcp-commit-server/lib/process_manager.js`, `.cursor/mcp/mcp-commit-server/package.json`, `.cursor/rules/experience-execution.mdc`, `child_sleep.py` (test script), `parent_spawner.sh` (test script), `.cursor/memory-bank/workflow/tests.md` (updated).
 - **Status**: Implementation and testing complete for both tasks.
 
-## Lost workflow - 2024-MM-DD HH:MM:SS+HH:MM
+## Lost workflow - 2024-MM-DD HH:MM:SS
+I lost track of the workflow after addressing a user request. The actions taken were:
+- Diagnosed a Node.js `MODULE_NOT_FOUND` error in `install.sh` occurring when used in a different repository. The root cause seemed to be incorrect absolute path calculation for the server script within the target directory, especially in MINGW64 environments.
+- Modified the `merge_mcp_json` function in `install.sh` to refine absolute path determination and Windows path conversion logic (`cygpath`/manual).
+- Added a new optional `--visible-mcp` flag to `install.sh` to allow launching the `MyMCP` server with a visible console window on Windows.
+- Modified `merge_mcp_json` in `install.sh` to add `"--visible"` to the `MyMCP.args` array in the generated `.cursor/mcp.json` when the `--visible-mcp` flag is used.
+- Modified `.cursor/mcp/mcp-commit-server/lib/process_manager.js` to check for the `"--visible"` argument in `process.argv` and set the `windowsHide` spawn option to `false` if present on Windows.
+- Updated `README.md` to add documentation for the `--visible-mcp` flag and remove an obsolete troubleshooting section related to manually copying MCP server files.
 
-Investigation into reliably killing a process tree spawned by a bash script (`parent_spawner.sh`) running a Python script (`child_sleep.py`) in the background using `&` on Windows via Git Bash.
+Files involved:
+- `install.sh`
+- `.cursor/mcp/mcp-commit-server/lib/process_manager.js`
+- `README.md`
+- `.cursor/mcp.json` (modified in target repo by `install.sh`, and potentially locally for testing)
 
-**Problem:** `mcp_MyMCP_stop_terminal_command` fails to terminate the child Python process when the parent bash script PID is targeted.
-
-**Files involved:**
-- `.cursor/mcp/mcp-commit-server/lib/process_manager.js` (specifically the `killProcess` function)
-- `parent_spawner.sh` (test script)
-- `child_sleep.py` (test script)
-
-**Attempts:**
-1.  **`fkill` (defaulting to `taskkill /T /F` on Windows):** Kills the parent bash process but leaves the child Python process running.
-2.  **`wmic process where (ParentProcessId=<bash_pid>)`:** Failed to find the child Python process, likely due to the Git Bash environment creating a non-standard parent-child hierarchy. Also encountered initial execution issues requiring the full path `C:\Windows\System32\wbem\wmic.exe`.
-3.  **`wmic process where "CommandLine like '%child_sleep.py%'"`:** Successfully found the Python process but couldn't reliably link it back to the specific parent bash script instance being stopped.
-
-**Conclusion:** The standard process tree killing mechanisms (`taskkill /T`, `wmic ParentProcessId`) are insufficient for this specific setup on Windows/Git Bash. The child process appears orphaned or re-parented. A reliable solution might require changes to the MCP server's process tracking logic itself. The `process_manager.js` file was reverted to using the `fkill` implementation as a baseline.
-
-**Next User Suggestion:** Try sending Ctrl+C (SIGINT) before attempting a forceful kill.
-
-## Lost workflow
-*No lost workflow entries needed here.*
+Next step is to identify the correct rule to resume the workflow.
