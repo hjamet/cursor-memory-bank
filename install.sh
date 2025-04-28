@@ -467,236 +467,163 @@ install_rules() {
 # Function to merge MCP JSON template with existing config
 merge_mcp_json() {
     local target_dir="$1"
-    local temp_dir="$2"
-    local template_mcp_json="$temp_dir/mcp.json"
+    # temp_dir is not needed for this approach
     local target_mcp_json="$target_dir/.cursor/mcp.json"
     local server_script_rel_path=".cursor/mcp/mcp-commit-server/server.js"
     local server_script_path="$target_dir/$server_script_rel_path"
+
+    # --- Calculate Absolute Paths --- (Keep this logic as is)
+    log "Calculating absolute paths relative to $target_dir..."
+    local target_dir_abs=""
     local server_script_abs_path=""
-    local expected_key_name="Commit" # Define the expected key
-    local placeholder_key_name="mcp-commit-server" # Define the likely placeholder key in the template
+    local server_script_win_path="" # For Windows compatibility
+    local target_dir_win_path="" # For Windows compatibility
 
-    # --- Calculate Absolute Path (always needed) ---
-    log "Calculating absolute path for MCP server script relative to $target_dir..."
+    # Calculate absolute path for target_dir first
+    if ! target_dir_abs="$(cd "$target_dir" && pwd -P)"; then
+        error "Failed to determine absolute path for target directory: $target_dir. Cannot configure server args."
+        return 1
+    fi
+    log "Calculated absolute target directory path: $target_dir_abs"
+    target_dir_win_path="$target_dir_abs" # Assign default
+    # --- START Windows Path Conversion for Target Dir ---
+    os_type=""
+    if command -v uname >/dev/null 2>&1; then os_type=$(uname -o); fi
+    if [[ "$os_type" == "Msys" ]]; then
+        if command -v cygpath >/dev/null 2>&1; then
+            if win_path=$(cygpath -w "$target_dir_abs"); then
+                log "Converted target directory Windows path: $win_path"
+                target_dir_win_path="$win_path"
+            else
+                warn "cygpath failed for target directory. Using MINGW64 path: $target_dir_abs"
+                # target_dir_win_path remains the default $target_dir_abs
+            fi
+        else # Manual conversion
+            target_dir_win_path=$(echo "$target_dir_abs" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
+            log "Manually converted target directory path: $target_dir_win_path"
+        fi # End cygpath/manual conversion check
+    fi # End Msys check for target dir
+    # --- END Windows Path Conversion for Target Dir ---
+
+    # Check target dir path after potential conversion
+    if [[ -z "$target_dir_win_path" ]]; then
+        error "Target directory absolute path is empty after calculation/conversion."
+        return 1
+    fi
+
+    # Now calculate absolute path for server script
     if [[ ! -f "$server_script_path" ]]; then
-        warn "MCP server script not found at expected target location: $server_script_path. Cannot determine absolute path."
-        # Cannot proceed without the script path
-    else
-        # Use standard commands to get absolute path
-        local target_dir_abs
-        if ! target_dir_abs="$(cd "$target_dir" && pwd -P)"; then # Use -P for physical path, avoids symlink issues
-             warn "Failed to determine absolute path for target directory: $target_dir. Using relative path as fallback."
-             target_dir_abs="" # Clear it so we know it failed
-        else
-            # Ensure relative path starts clean, handle potential leading ./
-            local clean_rel_path="${server_script_rel_path#./}" 
-            # Construct absolute path
-            server_script_abs_path="$target_dir_abs/$clean_rel_path"
-            # Basic check if it looks like an absolute path (starts with / or drive letter)
-            if [[ "$server_script_abs_path" =~ ^(/|[A-Za-z]:) ]]; then
-                 log "Calculated initial absolute path: $server_script_abs_path"
-                 # --- START Windows Path Conversion ---
-                 # Check if on Msys/MINGW64 environment
-                 os_type=""
-                 if command -v uname >/dev/null 2>&1; then
-                     os_type=$(uname -o)
-                 fi
-                 
-                 if [[ "$os_type" == "Msys" ]]; then
-                     if command -v cygpath >/dev/null 2>&1; then
-                          log "Detected Msys environment and cygpath. Converting path to Windows format."
-                          local win_path
-                          if win_path=$(cygpath -w "$server_script_abs_path"); then
-                              log "Converted Windows path: $win_path"
-                              server_script_abs_path="$win_path" # Overwrite with Windows path
-                          else
-                              warn "cygpath command failed. Using original MINGW64 path: $server_script_abs_path"
-                          fi
-                     else
-                         warn "Detected Msys environment but cygpath not found. Attempting manual path conversion."
-                         # Manual conversion: /c/ -> C:\ and / -> \
-                         local manual_win_path
-                         # Ensure backslashes for sed replacement are escaped
-                         manual_win_path=$(echo "$server_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g') 
-                         log "Manually converted path: $manual_win_path"
-                         server_script_abs_path="$manual_win_path"
-                     fi
-                 else
-                     log "Not an Msys environment (OS type: $os_type). Using original path: $server_script_abs_path"
-                 fi
-                 # --- END Windows Path Conversion ---
-            else
-                 warn "Calculated path '$server_script_abs_path' does not appear absolute. Using relative path as fallback."
-                 server_script_abs_path="" # Clear it if it doesn't look absolute
-            fi
-        fi
+        error "Aborting MCP config generation: server script missing at $server_script_path."
+        return 1
     fi
-    # --- End Calculate Absolute Path ---
-
-    # Flag to track if template was successfully modified
-    local template_modified_successfully=false
-    local jq_available=true # Assume available initially
-
-    # Check for jq availability FIRST
-    if ! command -v jq >/dev/null 2>&1; then
-        jq_available=false
-        warn "'jq' command not found. Will attempt modification using 'sed' if possible."
-    fi
-
-    # Now, check if we have an absolute path to work with
-    if [[ -n "$server_script_abs_path" ]]; then
-        log "Absolute path found ($server_script_abs_path). Attempting template modification."
-
-        # Decide modification method based on jq availability
-        if [[ "$jq_available" = true ]]; then
-            # --- JQ Logic ---
-            log "Using 'jq' for modification."
-            if [[ -s "$template_mcp_json" ]] && ! jq -e . "$template_mcp_json" > /dev/null 2>&1; then
-                warn "Template mcp.json ($template_mcp_json) is not valid JSON. Skipping modification."
-            else
-                # Check if the expected key exists in the template
-                if ! jq -e --arg key "$expected_key_name" '.mcpServers | has($key)' "$template_mcp_json" > /dev/null 2>&1; then
-                    warn "Expected server key '$expected_key_name' not found in template mcp.json. Skipping absolute path update."
+    # Construct absolute path for script
+    local clean_rel_path="${server_script_rel_path#./}"
+    server_script_abs_path="$target_dir_abs/$clean_rel_path"
+    if [[ "$server_script_abs_path" =~ ^(/|[A-Za-z]:) ]]; then
+        log "Calculated initial absolute script path: $server_script_abs_path"
+        server_script_win_path="$server_script_abs_path" # Assign default
+        # --- START Windows Path Conversion for Script ---
+        if [[ "$os_type" == "Msys" ]]; then
+            if command -v cygpath >/dev/null 2>&1; then
+                if win_path=$(cygpath -w "$server_script_abs_path"); then
+                    log "Converted script Windows path: $win_path"
+                    server_script_win_path="$win_path"
                 else
-                    log "Modifying template mcp.json using 'jq' to use absolute path for server: $expected_key_name"
-                    # Need to escape backslashes for JSON string
-                    local jq_safe_path
-                    jq_safe_path=$(echo "$server_script_abs_path" | sed 's/\\\\/\\\\\\\\/g')
-
-                    local modified_json
-                    # Use the expected key name directly, construct JSON array string for path
-                    modified_json=$(jq --arg key "$expected_key_name" --arg path "$jq_safe_path" \\
-                                       '.mcpServers[$key].args = [$path]' \\
-                                       "$template_mcp_json")
-                    local jq_modify_status=$?
-                    if [[ $jq_modify_status -ne 0 ]]; then
-                        warn "jq command failed during template modification (Exit code: $jq_modify_status). Proceeding with original template content for copy/merge."
-                    else
-                        # Attempt to write the modified template
-                        echo "$modified_json" > "$template_mcp_json.tmp" 
-                        local echo_status=$?
-                        if [[ $echo_status -ne 0 ]]; then
-                            warn "Failed to write modified template to temp file (Exit code: $echo_status). Proceeding with original template content."
-                            rm -f "$template_mcp_json.tmp" # Clean up intermediate file
-                        elif ! mv "$template_mcp_json.tmp" "$template_mcp_json"; then
-                            warn "Failed to replace original template with modified version. Proceeding with original template content."
-                        else
-                            log "Template mcp.json successfully modified with absolute path using 'jq'."
-                            template_modified_successfully=true # Set flag
-                        fi
-                    fi
-                fi # End check for expected key
-            fi # End JSON validity check
-            # --- End JQ Logic ---
-        else
-            # --- SED Modification Logic (Fallback when jq is missing) ---
-            log "Using 'sed' for modification (jq not available)."
-            # First, ensure the template exists and is copied to the target directory
-            if [[ ! -s "$template_mcp_json" ]]; then
-                warn "Template MCP JSON ($template_mcp_json) not found or empty. Cannot configure servers without jq."
-            else
-                log "Copying template MCP JSON to target: $target_mcp_json"
-                if ! cp "$template_mcp_json" "$target_mcp_json"; then
-                    warn "Failed to copy template MCP JSON to target directory. Skipping sed modification."
-                elif ! command -v sed > /dev/null; then
-                    warn "'sed' command not found. Cannot modify MCP config without jq or sed."
-                    warn "Commit server might use a relative path and incorrect name."
-                else
-                    # Template copied, now attempt sed modification on the target file
-                    log "Attempting 'sed' modification on target MCP config: $target_mcp_json"
-
-                    # Use sed to replace relative path with absolute path and update server name
-                    # Using # as delimiter to avoid issues with / in paths
-                    sed -i \
-                        -e "s#\"./.cursor/mcp/mcp-commit-server/server.js\"#\"$server_script_abs_path\"#" \
-                        -e 's/"name": "mcp-commit-server"/"name": "Commit"/' \
-                        "$target_mcp_json"
-                    local sed_status=$?
-
-                    if [[ $sed_status -eq 0 ]]; then
-                        log "Successfully updated MCP config for Commit server using sed."
-                        template_modified_successfully=true # Indicate modification success
-                    else
-                        warn "sed command failed to update MCP config (Exit code: $sed_status). Please check manually: $target_mcp_json"
-                        warn "Commit server might use a relative path and incorrect name."
-                    fi
-                fi # End sed check
-            fi # End template copy check
-            # --- End SED Modification Logic ---
-        fi # End jq check
-    else
-        warn "Absolute path for MCP server script could not be determined. Skipping template modification."
-    fi # End check for absolute path
-
-    # Now, merge the (potentially modified) template with the target
-    if [[ -f "$target_mcp_json" ]] && [[ -s "$template_mcp_json" ]]; then
-        if ! mkdir -p "$(dirname "$target_mcp_json")"; then
-            error "Could not create directory for $target_mcp_json. Aborting MCP config update."
-            return 1
-        fi
-
-        if [[ ! -f "$target_mcp_json" ]]; then
-            log "Creating $target_mcp_json from template."
-            if ! cp "$template_mcp_json" "$target_mcp_json"; then
-                warn "Failed to copy template mcp.json to $target_mcp_json."
-                return 1
-            fi
-            # Adjust log messages based on outcome
-            if [[ "$template_modified_successfully" = true ]]; then
-                if [[ "$jq_available" = true ]]; then
-                    log "Successfully created $target_mcp_json with absolute path for '$expected_key_name' server (using jq)."
-                else
-                    # Corrected log message for direct generation fallback (absolute path used)
-                    log "Successfully created $target_mcp_json with absolute path for '$expected_key_name' server (using direct generation fallback)."
+                    warn "cygpath failed for script. Using MINGW64 path: $server_script_abs_path"
+                    # server_script_win_path remains the default $server_script_abs_path
                 fi
-            elif [[ "$jq_available" = true ]]; then # Implies jq exists but modification failed for some reason
-                # This case should ideally not happen now if jq logic is robust, but kept as fallback
-                warn "Note: $target_mcp_json created, but template modification failed (using jq). Absolute path for '$expected_key_name' server likely NOT set. Check contents."
-            else # jq not available and direct generation fallback failed
-                warn "Note: $target_mcp_json created from template, but direct generation failed. Absolute path likely NOT set. Check previous warnings."
-            fi
-        else
-            # Target exists, attempt merge ONLY if jq is available AND template was modified successfully
-            log "Existing $target_mcp_json found."
-            if [[ "$jq_available" = true ]] && [[ "$template_modified_successfully" = true ]]; then
-                # Check if template modification was successful before attempting merge
-                if ! jq -e . "$target_mcp_json" > /dev/null 2>&1; then
-                    warn "Existing $target_mcp_json is not valid JSON. Skipping merge."
-                else
-                    # Perform merge (add new keys from template, don't overwrite existing)
-                    local merged_json
-                    merged_json=$(jq --slurpfile template "$template_mcp_json" \
-                                     'reduce ($template[0].mcpServers | keys_unsorted[]) as $key (.;
-                                   if .mcpServers | has($key) then . # If key exists, keep existing
-                                   else .mcpServers[$key] = $template[0].mcpServers[$key] # Otherwise add from template
-                                        end
-                                     )' \
-                                     "$target_mcp_json" 2>/dev/null)
-                    local jq_status=$?
-                    if [[ $jq_status -ne 0 ]]; then
-                        warn "jq command failed during merge (Exit code: $jq_status). Skipping $target_mcp_json update."
-                    else
-                        echo "$merged_json" > "$target_mcp_json.tmp"
-                        if ! mv "$target_mcp_json.tmp" "$target_mcp_json"; then
-                            warn "Failed to write merged $target_mcp_json. Skipping update."
-                            rm -f "$target_mcp_json.tmp"
-                        else
-                            log "Successfully merged template into $target_mcp_json (added new servers, preserved existing)."
-                        fi
-                    fi
-                fi
-            elif [[ "$jq_available" = true ]] && [[ "$template_modified_successfully" = false ]]; then
-                warn "Template modification failed previously (using sed). Skipping merge."
-            else # jq not available (merge logic relies on jq)
-                warn "Existing $target_mcp_json found, but 'sed' is not available. Skipping merge."
-                warn "Manual merge might be required if template contains new servers."
-            fi
-        fi
+            else # Manual conversion
+                server_script_win_path=$(echo "$server_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
+                log "Manually converted script path: $server_script_win_path"
+            fi # End cygpath/manual conversion check
+        fi # End Msys check for script
+        # --- END Windows Path Conversion for Script ---
     else
-        warn "Template or target MCP JSON not found. Skipping merge."
+        error "Aborting MCP config generation: Calculated script path '$server_script_abs_path' does not appear absolute."
+        return 1
+    fi # End script path format check
+
+    # Check script path after potential conversion
+    if [[ -z "$server_script_win_path" ]]; then
+        error "Server script absolute path is empty after calculation/conversion."
+        return 1
+    fi
+    # --- End Calculate Absolute Paths ---
+
+    # Ensure target directory exists before writing
+    if ! mkdir -p "$(dirname "$target_mcp_json")"; then
+        error "Could not create directory for $target_mcp_json. Aborting MCP config generation."
+        return 1
     fi
 
-    return 0
+    # Escape paths for JSON embedding (double backslashes)
+    local server_script_json_safe
+    server_script_json_safe=$(echo "$server_script_win_path" | sed 's/\\/\\\\/g')
+    local target_dir_json_safe
+    target_dir_json_safe=$(echo "$target_dir_win_path" | sed 's/\\/\\\\/g')
+
+    log "Preparing to generate $target_mcp_json with hardcoded structure..."
+    
+    # --- DEBUG: Print values before writing ---
+    echo "DEBUG: Writing to target file: [$target_mcp_json]" >&2
+    echo "DEBUG: Server script path (escaped): [$server_script_json_safe]" >&2
+    echo "DEBUG: Target directory path (escaped): [$target_dir_json_safe]" >&2
+    # --- End DEBUG ---
+    
+    # Overwrite the target file directly using here-document
+    # Using cat > ensures the file is overwritten or created.
+cat > "$target_mcp_json" << EOF
+{
+    "mcpVersion": "0.1",
+    "mcpServers": {
+        "MyMCP": {
+            "command": "node",
+            "args": [
+                "$server_script_json_safe",
+                "--cwd",
+                "$target_dir_json_safe"
+            ]
+        },
+        "Memory": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-memory"
+            ]
+        },
+        "Context7": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@upstash/context7-mcp@latest"
+            ]
+        }
+    }
+}
+EOF
+
+    local write_status=$?
+    if [[ $write_status -ne 0 ]]; then
+        error "Failed to write generated MCP JSON to $target_mcp_json (Exit status: $write_status)"
+        return 1 # Indicate failure
+    else
+        log "cat > EOF command finished with status $write_status."
+        # --- DEBUG: Check file state immediately after write ---
+        echo "DEBUG: Checking file state post-write for: [$target_mcp_json]" >&2
+        ls -l "$target_mcp_json" >&2
+        echo "DEBUG: First 5 lines post-write:" >&2
+        head -n 5 "$target_mcp_json" >&2
+        # --- End DEBUG ---
+        
+        # Basic existence check (redundant with ls but good practice)
+        if [[ -f "$target_mcp_json" ]]; then
+             log "Successfully generated $target_mcp_json (File exists)."
+        else
+             error "File $target_mcp_json was NOT found after write attempt."
+             return 1 # Indicate failure
+        fi
+        return 0 # Indicate success
+    fi
 }
 
 show_help() {
@@ -812,7 +739,7 @@ create_dirs "$INSTALL_DIR"
 install_rules "$INSTALL_DIR" "$TEMP_DIR"
 
 # Merge MCP JSON template with existing config (NOW uses absolute path logic)
-merge_mcp_json "$INSTALL_DIR" "$TEMP_DIR"
+merge_mcp_json "$INSTALL_DIR"
 
 # Install Internal MCP Commit Server dependencies if present in the TARGET directory
 INTERNAL_MCP_SERVER_DIR="$INSTALL_DIR/.cursor/mcp/mcp-commit-server"
