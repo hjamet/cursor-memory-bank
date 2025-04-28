@@ -22,19 +22,12 @@ Execute potentially long-running commands (experiments, data processing, model t
     *   Summarize the plan and the command(s) to be executed.
     *   **(Experience-Execution: 1 - Planning completed)**
 
-2.  **Command Execution & Monitoring**: Run the planned command(s) and monitor progress.
+2.  **Command Execution**: Run the planned command(s).
     *   Use the `mcp_MyMCP_execute_command` MCP tool.
     *   Provide the `command` string.
-    *   Set an appropriate initial `timeout` (e.g., 20-30 seconds) to get the PID and initial status quickly. Note: the command continues in the background if the timeout is reached.
+    *   Set an appropriate `timeout` (in seconds) if the command might be long-running. Note: the command may continue in the background if the timeout is reached.
     *   The tool returns the `pid` and initial status/output.
-    *   **Monitoring Strategy**: If the command is still running after the initial `execute_command` call (status: Running):
-        *   Use `mcp_MyMCP_get_terminal_status` (or `mcp_MyMCP_get_terminal_output` if intermediate output is needed) to periodically check the command's status.
-        *   Employ an **incremental timeout strategy**: Start with a short wait (e.g., `timeout=30` seconds) for the first check.
-        *   If still running, progressively increase the timeout for subsequent checks (e.g., 60s, 120s, 240s), adapting based on expected duration.
-        *   **Crucially, keep individual check timeouts below ~5 minutes (300 seconds)** to prevent potential interruptions from the chat client or infrastructure.
-        *   Continue monitoring until the status changes from `Running` to `Success`, `Failure`, or `Stopped`.
-        *   Si un problème préoccupant est detecté, lance une reflection (<think>) pour décider si le processus doit être arrêté. afin de résoudre le problème avant de recommencer
-    *   **(Experience-Execution: 2 - Command execution and monitoring)**
+    *   **(Experience-Execution: 2 - Command execution initiated)**
 
 3.  **Result Analysis**: Analyze logs and outputs.
     *   Examine the captured standard output and error streams for obvious errors or success indicators.
@@ -105,26 +98,13 @@ Analysis: Check log for success message, verify model file exists.
 Plan: Execute full training run using primary config. Verify log message and model file.
 **(Experience-Execution: 1 - Planning completed)**
 
-# Experience-Execution: 2 - Command Execution & Monitoring
-Executing the training script using MCP with an initial short timeout.
-[...calling tool `mcp_MyMCP_execute_command` with command="python src/training/train_model.py --config configs/primary_classifier.yaml --output results/primary_run_$(date +%Y%m%d)", timeout=30...]
-*Initial call returned PID 12345, Status: Running.*
-Checking status after ~30 seconds.
-[...calling tool `mcp_MyMCP_get_terminal_status` with timeout=30...]
-*Status check returned PID 12345, Status: Running.*
-Checking status after ~1 minute.
-[...calling tool `mcp_MyMCP_get_terminal_status` with timeout=60...]
-*Status check returned PID 12345, Status: Running.*
-Checking status after ~2 minutes.
-[...calling tool `mcp_MyMCP_get_terminal_status` with timeout=120...]
-*Status check returned PID 12345, Status: Running.*
-Checking status after ~4 minutes (keeping under 5 min).
-[...calling tool `mcp_MyMCP_get_terminal_status` with timeout=240...]
-*Status check returned PID 12345, Status: Success, Exit Code: 0.*
-**(Experience-Execution: 2 - Command execution and monitoring)**
+# Experience-Execution: 2 - Command Execution
+Executing the training script using MCP.
+[...calling tool `mcp_MyMCP_execute_command` with command="python src/training/train_model.py --config configs/primary_classifier.yaml --output results/primary_run_$(date +%Y%m%d)", timeout=7200...]
+**(Experience-Execution: 2 - Command execution initiated)**
+[...Use `mcp_MyMCP_get_terminal_status` and `mcp_MyMCP_get_terminal_output` to monitor and retrieve results...]
 
 # Experience-Execution: 3 - Result Analysis
-Command finished successfully. Retrieving final output or checking files.
 [...Checking log file `results/primary_run_YYYYMMDD/training.log`...]
 [...Checking for `results/primary_run_YYYYMMDD/model.pt`...]
 <think>
