@@ -84,8 +84,13 @@ export async function spawnProcess(command) {
 
         if (process.platform === 'win32') {
             executable = gitBashPath;
-            // Encode the command in Base64 to avoid complex escaping
-            const base64Command = Buffer.from(command).toString('base64');
+            // Escape the projectRoot for use within the bash command string
+            // Replace backslashes with forward slashes and escape double quotes
+            const bashProjectRoot = projectRoot.replace(/\\/g, '/').replace(/"/g, '\\"');
+            // Prepend cd to projectRoot before executing the command
+            const commandWithCd = `cd "${bashProjectRoot}" && ${command}`;
+            // Encode the combined command in Base64
+            const base64Command = Buffer.from(commandWithCd).toString('base64');
             // Construct bash command to decode and execute using eval
             const bashCommand = `eval $(echo '${base64Command}' | base64 -d)`;
             args = ['-c', bashCommand];

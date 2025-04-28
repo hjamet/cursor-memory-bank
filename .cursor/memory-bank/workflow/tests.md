@@ -25,7 +25,7 @@
 - [✅] **Subdirectory Execution (`cd /abs/path && pwd`)**: Passed. Command executed correctly using absolute paths.
 - [✅] **Immediate Return (Timeout Case)**: Passed. `execute_command` returns partial stdout/stderr immediately if the command times out (e.g., `ping -n 10` with `timeout=1`).
 - [❌] **Immediate Return (Early Completion Case)**: **REGRESSION/FAILED**. `execute_command` does **not** return full stdout/stderr immediately if the command finishes **before** the timeout (e.g., `echo`). Full output requires a follow-up call. Refactoring with `cleanupPromise` did not resolve this.
-- [✅] **Execution CWD**: Passed. Commands executed via `execute_command` now correctly run with the CWD set to the project root. Fix applied in `process_manager.js`.
+- [✅] **Execution CWD**: Passed. Commands executed via `execute_command` now correctly run with the CWD set to the project root. Fix applied in `process_manager.js` by prepending `cd "${projectRoot}" &&` to the Windows bash command. Verified with `pwd` and `cat ./relative_file.txt` tests.
 
 # Fichier de tests
 
@@ -64,7 +64,7 @@
 - **Command**: `node /c/Users/Jamet/code/cursor-memory-bank/tests/test_mcp_async_terminal.js` (Attempted execution via MCP)
 - **Output Snippet**: (When run via MCP) Exit Code 1, Empty stdout/stderr.
 - **Evolution**: N/A (Execution method invalid/problematic).
-- **Note**: Observed CWD reported by MCP tools was `.../.cursor` instead of project root. Needs investigation if precise CWD reporting is critical.
+- **Note**: CWD issue resolved; commands now execute in project root.
 
 ## Problèmes persistants
 - ✅ **Install script permissions (MINGW64/curl)**: Fixed (Latest Run: 2025-04-27) - Root cause identified as CRLF line endings (`\r`) causing parsing errors in piped MINGW64 bash. Resolved by modifying the *execution command* to `curl ... | tr -d '\r' | bash`.
@@ -141,7 +141,7 @@
 - **Command**: `node /c/Users/Jamet/code/cursor-memory-bank/tests/test_mcp_async_terminal.js` (Attempted execution via MCP)
 - **Output Snippet**: (When run via MCP) Exit Code 1, Empty stdout/stderr.
 - **Evolution**: N/A (Execution method invalid/problematic).
-- **Note**: Observed CWD reported by MCP tools was `.../.cursor` instead of project root. Needs investigation if precise CWD reporting is critical.
+- **Note**: CWD issue resolved; commands now execute in project root.
 
 ## Problèmes persistants
 - ✅ **Install script permissions (MINGW64/curl)**: Fixed (Latest Run: 2025-04-27) - Root cause identified as CRLF line endings (`\r`) causing parsing errors in piped MINGW64 bash. Resolved by modifying the *execution command* to `curl ... | tr -d '\r' | bash`.
