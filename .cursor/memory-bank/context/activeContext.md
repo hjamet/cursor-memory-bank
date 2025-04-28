@@ -1,10 +1,20 @@
 # Active Context
 
 ## Current Goal
-None. Waiting for next task or user input.
+Update `consult_image` tests using the provided test image.
 
 ## Current implementation context
-None. (Completed implementation and testing of `consult_image` MCP tool).
+-   **Task:** Modify `tests/test_consult_image.js` to add a success test case using `tests/assets/image.png`.
+-   **Logic:**
+    -   Import `fs/promises`.
+    -   Add a new async test function/block.
+    -   Define the path `tests/assets/image.png`.
+    -   Call `handleConsultImage` with this path.
+    -   Read `tests/assets/image.png` using `fs.readFile`.
+    -   Convert the read buffer to Base64.
+    -   Assert the handler returns `[{ type: 'image', mimeType: 'image/png', data: <expected_base64> }]`.
+-   **Files to Modify:** `tests/test_consult_image.js`.
+-   **Dependencies:** Node.js `assert` and `fs/promises`.
 
 ## Previous Context (Preserved)
 - Strengthened `experience-execution` rule analysis (Steps 3 & 4.1) using a `.mdc` -> `.md` -> `.mdc` rename workaround to ensure Git detection.

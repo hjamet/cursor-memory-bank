@@ -237,7 +237,7 @@ server.tool(
     {
         path: z.string().describe("Relative path to the image file from the project root.")
     },
-    handleConsultImage // Use the imported handler
+    (params) => handleConsultImage(params, projectRoot) // Pass projectRoot
 );
 
 // --- Server Startup --- 

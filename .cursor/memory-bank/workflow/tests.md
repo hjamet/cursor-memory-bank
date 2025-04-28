@@ -2,9 +2,9 @@
 
 - [✅] **Consult Image Test (`tests/test_consult_image.js`)**: Passed (Latest Run: Current Cycle)
   - Command: `node tests/test_consult_image.js`
-  - Result: `exit_code: 0`. Test script confirmed unsupported file type error handling works.
+  - Result: `exit_code: 0`. Test script confirmed both unsupported file type error handling and PNG image success case work correctly.
   - Note: Warning about missing `"type": "module"` in root `package.json` observed but does not affect test outcome.
-  - Issue: None (New test).
+  - Issue: None (Test improved to cover success case).
 - [✅] **MCP Python Execution Test**: Passed (Latest Run: Current Cycle)
   - Command: `python -c "import sys; print('stdout output'); sys.stderr.write('stderr output'); sys.exit(55)"`
   - Result: `exit_code: 55`, `stdout: "stdout output"`, `stderr: "stderr output"`
