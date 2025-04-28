@@ -2,9 +2,8 @@
 
 - [✅] **Consult Image Test (`tests/test_consult_image.js`)**: Passed (Latest Run: Current Cycle)
   - Command: `node tests/test_consult_image.js`
-  - Result: `exit_code: 0`. Test script confirmed both unsupported file type error handling and PNG image success case work correctly.
-  - Note: Warning about missing `"type": "module"` in root `package.json` observed but does not affect test outcome.
-  - Issue: None (Test improved to cover success case).
+  - Result: `exit_code: 0`. Test successfully verified unsupported type handling and success case (returning processed image as JPEG).
+  - Issue: None (Test updated to match current handler behavior).
 - [✅] **MCP Python Execution Test**: Passed (Latest Run: Current Cycle)
   - Command: `python -c "import sys; print('stdout output'); sys.stderr.write('stderr output'); sys.exit(55)"`
   - Result: `exit_code: 55`, `stdout: "stdout output"`, `stderr: "stderr output"`
@@ -19,10 +18,10 @@
 - [✅] `test_git_install.sh`: Passed (Latest Run: 2025-04-27)
 - [✅] `test_install.sh`: Passed (Latest Run: 2025-04-27)
 - [✅] `test_mcp_json_absolute_path_no_jq`: Passed (Latest Run: 2025-04-27 - Verified `sed` fallback correctly sets *key* to "Commit" but leaves *relative path* and warns when jq missing)
-- [❌] **Consult Image Tool (Manual Test)**: Failed (Latest Run: Current Cycle)
+- [✅] **Consult Image Tool (Manual Test)**: Passed (Latest Run: Current Cycle)
   - Call: `mcp_MyMCP_consult_image(path="tests/assets/image.png")`
-  - Error: `File not found`. Resolved path used `process.cwd()` fallback, as environment did not provide `working_directory` implicitly.
-  - Note: This approach (optional `working_directory` param + direct handler ref) avoided stack overflow but failed path resolution.
+  - Result: Successful image processing and return.
+  - Note: Previous "File not found" error seems resolved by broader CWD handling improvements in the MCP server.
 
 # Ad-Hoc MCP Command Execution Tests (Current Cycle)
 - [✅] **Character-Based Output & Index Tracking**: Passed (Current Cycle). Verified the new character-based log retrieval mechanism.
