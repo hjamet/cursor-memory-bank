@@ -29,23 +29,28 @@ Execute potentially long-running commands (experiments, data processing, model t
     *   The tool returns the `pid` and initial status/output.
     *   **(Experience-Execution: 2 - Command execution initiated)**
 
-3.  **Result Analysis**: Analyze logs and outputs.
+3.  **Result Analysis**: Analyze logs **and generated files**.
     *   Examine the captured standard output and error streams for obvious errors or success indicators.
-    *   Check for expected generated files or other artifacts.
-    *   Verify that outputs conform to expectations (e.g., file formats, data integrity, log messages).
+    *   **MANDATORY: Check for expected generated files** (defined in Step 1). Verify their existence.
+    *   **MANDATORY: Analyze the content of key generated files** (e.g., result files, logs). Use `read_file` if necessary. Verify that their format and content conform to expectations (defined in Step 1).
     *   `<think>`
-        *   Compare results against the expected outcomes defined in the planning phase.
-        *   Identify any discrepancies, errors, or unexpected results.
-        *   Determine if the execution was successful based on the analysis.
+        *   Compare the actual results (console output AND file contents) against the expected outcomes defined in the planning phase.
+        *   Identify any discrepancies, errors, unexpected results, or formatting issues found in the console output OR the generated files.
+        *   Determine if the execution was successful based on the **complete analysis** (console and files).
         *</think>`
-    *   Summarize the analysis findings.
+    *   Summarize the **detailed** analysis findings, explicitly mentioning the state of generated files.
     *   **(Experience-Execution: 3 - Analysis completed)**
 
 4.  **Documentation & Memory**: Document results and save observations.
-    *   **4.1 Documentation**:
-        *   Create or update a relevant documentation file (e.g., in a `results/` directory, or link in a README).
-        *   Summarize the experiment/command executed, parameters used, results obtained, and analysis conclusions.
-        *   Ensure results are easily findable and linked appropriately within the project structure.
+    *   **4.1 Documentation (MANDATORY)**:
+        *   **Create or update a dedicated documentation file** for this execution (e.g., create `results/[timestamp_or_name]/README.md`).
+        *   **Content Requirements:** The file must include:
+            *   The exact command executed.
+            *   Key parameters used.
+            *   A summary of the results based on the detailed analysis in Step 3 (including file status).
+            *   Conclusions from the analysis (success/failure, key findings).
+            *   **Direct links** to important generated files (logs, results).
+        *   **Ensure discoverability:** Link or reference this documentation file from a central project location (e.g., the main `README.md`, an experiments index).
         *   **(Experience-Execution: 4.1 - Documentation updated)**
     *   **4.2 Memory Storage**:
         *   Use `mcp_Memory_create_entities` and/or `mcp_Memory_add_observations`.
