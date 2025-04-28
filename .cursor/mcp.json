@@ -5,8 +5,7 @@
             "args": [
                 "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\server.js",
                 "--cwd",
-                "C:\\Users\\Jamet\\code\\cursor-memory-bank",
-                "--visible"
+                "C:\\Users\\Jamet\\code\\cursor-memory-bank"
             ]
         },
         "Memory": {

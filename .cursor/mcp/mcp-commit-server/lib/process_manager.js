@@ -83,7 +83,6 @@ export async function spawnProcess(command, explicitWorkingDirectory) {
     // --- Determine Shell, Args, Options, and CWD FIRST ---
     let shell, args, spawnOptions;
     const initialCommand = command; // Store original command for state
-    const isVisible = process.argv.includes("--visible"); // Check for --visible flag
     // PRIORITIZE: Explicit CWD > Server --cwd Arg > Env Var > Server process.cwd()
     const executionCwd = explicitWorkingDirectory || serverDefaultCwd || process.env.CURSOR_WORKSPACE_ROOT || process.cwd();
     // Debug log for chosen CWD
@@ -109,8 +108,7 @@ export async function spawnProcess(command, explicitWorkingDirectory) {
             stdio: ['ignore', 'pipe', 'pipe'],
             detached: false,
             shell: false,
-            // If --visible flag is passed AND on windows, show the window
-            windowsHide: isVisible ? false : true,
+            windowsHide: true,
         };
     } else { // macOS, Linux, etc.
         shell = '/bin/bash';

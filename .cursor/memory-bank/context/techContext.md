@@ -57,8 +57,7 @@ Le projet comprend aussi un serveur MCP Commit qui doit être correctement insta
 - Vérification et restauration des règles personnalisées
 - Installation des dépendances du serveur MCP commit si Node.js et npm sont disponibles
 - Fusion du fichier mcp.json pour configurer le serveur MCP commit 
-- Utilisation de chemins absolus calculés pour le serveur MCP et le CWD dans `mcp.json` généré, avec une logique de conversion pour les environnements Windows (MINGW/Cygwin).
-- Option `--visible-mcp` pour lancer le serveur `MyMCP` avec une console visible sous Windows (modifie l'option `windowsHide` de `spawn`).
+- **jq (Optionnel mais recommandé)**: `jq` est nécessaire pour modifier le `mcp.json` afin d'utiliser un chemin absolu pour le serveur MCP commit et pour fusionner la configuration avec un `mcp.json` existant. Si `jq` n'est pas trouvé, le script utilise un chemin relatif et ne fusionne pas, ce qui peut entraîner des problèmes si le script d'installation n'est pas exécuté depuis le répertoire racine de Cursor. 
 
 ## Notes sur les Serveurs MCP
 - Le serveur MCP Commit (`mcp_MyMCP_*`) est sensible à la configuration `cwd` (Current Working Directory) lors de l'exécution de commandes via `spawn`, en particulier avec `shell: false`. Assurez-vous que `projectRoot` est correctement calculé.
