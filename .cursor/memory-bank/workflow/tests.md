@@ -19,6 +19,10 @@
 - [✅] `test_git_install.sh`: Passed (Latest Run: 2025-04-27)
 - [✅] `test_install.sh`: Passed (Latest Run: 2025-04-27)
 - [✅] `test_mcp_json_absolute_path_no_jq`: Passed (Latest Run: 2025-04-27 - Verified `sed` fallback correctly sets *key* to "Commit" but leaves *relative path* and warns when jq missing)
+- [❌] **Consult Image Tool (Manual Test)**: Failed (Latest Run: Current Cycle)
+  - Call: `mcp_MyMCP_consult_image(path="tests/assets/image.png")`
+  - Error: `File not found`. Resolved path used `process.cwd()` fallback, as environment did not provide `working_directory` implicitly.
+  - Note: This approach (optional `working_directory` param + direct handler ref) avoided stack overflow but failed path resolution.
 
 # Ad-Hoc MCP Command Execution Tests (Current Cycle)
 - [✅] **Python Script Multiple Arguments**: Passed (Current Cycle). Verified `mcp_MyMCP_execute_command` successfully executes a Python script (`tests/arg_test.py`) with multiple arguments, including spaces (`python tests/arg_test.py first_arg second_arg "third arg with spaces" fourth`), and correctly captures stdout containing `sys.argv`.
@@ -36,7 +40,6 @@
 - [✅] **Reported CWD**: Passed. The `cwd` field in the JSON response reflects the value used for execution (server default, env var, or fallback).
 - [✅] **Cross-Repository CWD**: Passed (with Dependency). Relies on `CURSOR_WORKSPACE_ROOT` being set correctly by the caller (Cursor) to the user's current workspace. If set, commands run in the correct cross-repository CWD.
 - [✅] **Stop Terminal Command Verification (sleep 600)**: Passed (Current Cycle). Verified that `mcp_MyMCP_stop_terminal_command` correctly terminates the OS process (`sleep 600`, PID checked with `tasklist`), not just removes it from the MCP server's state.
-- [✅] **Consult Image Tool (Manual Test)**: *Not yet tested manually via MCP client.* (This entry added for completeness)
 
 # Fichier de tests
 

@@ -235,9 +235,10 @@ server.tool(
 server.tool(
     'consult_image',
     {
-        path: z.string().describe("Relative path to the image file from the project root.")
+        path: z.string().describe("Relative path to the image file from the project root."),
+        // Ensure working_directory schema is removed
     },
-    (params) => handleConsultImage(params, projectRoot) // Pass projectRoot
+    handleConsultImage // Use direct handler reference
 );
 
 // --- Server Startup --- 

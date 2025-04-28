@@ -71,3 +71,13 @@ Le projet comprend aussi un serveur MCP Commit qui doit être correctement insta
 - Le serveur MCP Commit (`mcp_MyMCP_*`) est sensible à la configuration `cwd` (Current Working Directory) lors de l'exécution de commandes via `spawn`, en particulier avec `shell: false`. Assurez-vous que `projectRoot` est correctement calculé.
 - Toute sortie `console.log` ou `console.warn` non JSON du serveur MCP peut interrompre la communication avec le client Cursor, entraînant des erreurs "Unexpected token". Les logs de débogage doivent être commentés ou supprimés en production.
 - L'outil `mcp_MyMCP_execute_command` peut avoir des difficultés à capturer la sortie `stdout`/`stderr` des processus Python très courts avant leur achèvement. 
+- Le retour d'images volumineuses en base64 (`type: "image"`) via MCP peut entraîner des erreurs `Maximum call stack size exceeded`. La solution consiste à traiter l'image côté serveur (ex: avec `sharp`) pour réduire sa taille avant l'encodage base64.
+
+## Dependencies
+```
+{
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "execa": "^9.5.2",
+    "sharp": "^0.33.4",
+    "zod": "^3.23.8"
+} 

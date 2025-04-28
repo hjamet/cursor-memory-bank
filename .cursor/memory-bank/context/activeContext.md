@@ -1,20 +1,27 @@
 # Active Context
 
 ## Current Goal
-Update `consult_image` tests using the provided test image.
+Fixed `consult_image` MCP tool (previously crashed on large images).
+
+## Summary of Fix
+- Identified `Maximum call stack size exceeded` error when returning large base64 image data.
+- Attempting to return file path caused MCP schema validation errors.
+- **Solution:** Implemented server-side image processing using the `sharp` library.
+  - Added `sharp` to MCP server dependencies (`package.json`) and ran `npm install`.
+  - Modified `consult_image.js` to resize (max 1024px width) and compress (JPEG quality 80) the image *before* base64 encoding.
+- Successfully tested with the large `tests/assets/image.png`, resolving the crash.
 
 ## Current implementation context
--   **Task:** Modify `tests/test_consult_image.js` to add a success test case using `tests/assets/image.png`.
--   **Logic:**
-    -   Import `fs/promises`.
-    -   Add a new async test function/block.
-    -   Define the path `tests/assets/image.png`.
-    -   Call `handleConsultImage` with this path.
-    -   Read `tests/assets/image.png` using `fs.readFile`.
-    -   Convert the read buffer to Base64.
-    -   Assert the handler returns `[{ type: 'image', mimeType: 'image/png', data: <expected_base64> }]`.
--   **Files to Modify:** `tests/test_consult_image.js`.
--   **Dependencies:** Node.js `assert` and `fs/promises`.
+-   **Task:** Modify `consult_image` handler and server registration.
+-   **Approach:** Mimic `execute_command` parameter handling.
+    1.  Modify handler (`consult_image.js`) to accept optional `working_directory` in params.
+    2.  Use `working_directory` if provided, else fallback to `process.cwd()` (expected to be wrong in MCP calls).
+    3.  Use `path.join(cwd_to_use, params.path)` for path resolution.
+    4.  Update server schema (`server.js`) to include optional `working_directory` string parameter.
+    5.  Keep direct handler reference (`handleConsultImage`) in server registration.
+    6.  Update test script (`test_consult_image.js`) to pass `working_directory: projectRootForTest` in params.
+-   **Hypothesis:** Avoids wrapper function (stack overflow source). Relies on MCP environment providing correct `working_directory` implicitly, fixing path issues.
+-   **Files to Modify:** `consult_image.js`, `server.js`, `test_consult_image.js`.
 
 ## Previous Context (Preserved)
 - Strengthened `experience-execution` rule analysis (Steps 3 & 4.1) using a `.mdc` -> `.md` -> `.mdc` rename workaround to ensure Git detection.
