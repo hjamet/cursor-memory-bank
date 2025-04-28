@@ -194,6 +194,7 @@ server.tool(
     'execute_command',
     {
         command: z.string().describe("The command line to execute."),
+        working_directory: z.string().optional().describe("Optional path to the desired working directory for the command."),
         reuse_terminal: z.boolean().optional().default(true).describe("If true (default), attempts to clean up one finished terminal state before spawning a new process. Otherwise, always spawns without cleanup."),
         timeout: z.number().int().optional().default(10).describe("Maximum time in seconds to wait for the command to complete before returning. The command continues in the background if timeout is reached.")
     },

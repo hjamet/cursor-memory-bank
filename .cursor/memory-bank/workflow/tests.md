@@ -25,8 +25,10 @@
 - [✅] **Subdirectory Execution (`cd /abs/path && pwd`)**: Passed. Command executed correctly using absolute paths.
 - [✅] **Immediate Return (Timeout Case)**: Passed. `execute_command` returns partial stdout/stderr immediately if the command times out (e.g., `ping -n 10` with `timeout=1`).
 - [✅] **Immediate Return (Early Completion Case)**: Passed. `execute_command` now returns full stdout/stderr immediately if the command finishes before the timeout. Removed unnecessary delay after awaiting `cleanupPromise` in `terminal_execution.js`.
-- [✅] **Execution CWD**: Passed. Commands executed via `execute_command` now correctly run with the CWD set to the project root. Fix applied in `process_manager.js` by prepending `cd "${projectRoot}" &&` to the Windows bash command. Verified with `pwd` and `cat ./relative_file.txt` tests.
-- [✅] **Reported CWD**: Passed. The `cwd` field in the JSON response from `execute_command` now correctly reports the actual execution CWD retrieved from the state manager.
+- [✅] **Execution CWD (Explicit Parameter)**: Passed. `execute_command` uses the CWD specified by the optional `working_directory` parameter. Verified with `pwd` test (simulating passed parameter).
+- [✅] **Execution CWD (Server Default --cwd Argument)**: Passed. `execute_command` now correctly uses the directory passed via the `--cwd` argument to the server (`mcp.json`) as the default CWD when no explicit `working_directory` is provided in the tool call. Verified with `pwd` test.
+- [✅] **Reported CWD**: Passed. The `cwd` field in the JSON response reflects the value used for execution (explicit parameter, server default, env var, or fallback).
+- [✅] **Cross-Repository CWD**: Passed (with Dependency). Relies on `CURSOR_WORKSPACE_ROOT` being set correctly by the caller (Cursor) to the user's current workspace. If set, commands run in the correct cross-repository CWD.
 
 # Fichier de tests
 

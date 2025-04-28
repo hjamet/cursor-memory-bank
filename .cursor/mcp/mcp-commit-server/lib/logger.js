@@ -11,22 +11,25 @@ const LOGS_DIR = path.join(__dirname, '../logs');
 /**
  * Ensures the logs directory exists.
  * Creates it recursively if it doesn't.
- * @returns {Promise<void>}
+ * @returns {Promise<string | null>} The logs directory path on success, or null on failure.
  */
 export async function ensureLogsDir() {
     try {
         await fs.access(LOGS_DIR);
+        return LOGS_DIR; // Return path if accessible
     } catch (error) {
         if (error.code === 'ENOENT') {
             try {
                 await fs.mkdir(LOGS_DIR, { recursive: true });
                 // console.log(`[Logger] Created logs directory: ${LOGS_DIR}`);
+                return LOGS_DIR; // Return path after creation
             } catch (mkdirError) {
-                // console.error(`[Logger] Error creating logs directory ${LOGS_DIR}:`, mkdirError);
-                // Decide if this is fatal - For now, suppress error output to avoid MCP interference
+                console.error(`[Logger] Error creating logs directory ${LOGS_DIR}:`, mkdirError);
+                return null; // Return null on creation failure
             }
         } else {
-            // console.error(`[Logger] Error accessing logs directory ${LOGS_DIR}:`, error);
+            console.error(`[Logger] Error accessing logs directory ${LOGS_DIR}:`, error);
+            return null; // Return null on other access errors
         }
     }
 }

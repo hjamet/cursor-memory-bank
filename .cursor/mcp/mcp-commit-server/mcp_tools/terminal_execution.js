@@ -10,7 +10,8 @@ const DEFAULT_TIMEOUT_MS = 10000;
  * Spawns a command, manages state, handles optional terminal reuse,
  * and returns immediately with full results if command finishes within timeout.
  */
-export async function handleExecuteCommand({ command, reuse_terminal, timeout /* timeout is in seconds */ }) {
+export async function handleExecuteCommand({ command, working_directory, reuse_terminal, timeout /* timeout is in seconds */ }) {
+
     // Handle terminal reuse: Find a finished terminal state index
     if (reuse_terminal) {
         const reusableIndex = StateManager.findReusableTerminalIndex();
@@ -40,7 +41,8 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
     try {
         // Spawn the process using the process manager
         // This now returns pid, log paths, and a completionPromise
-        ({ pid, stdout_log, stderr_log, completionPromise, cleanupPromise } = await ProcessManager.spawnProcess(command));
+        // Pass the actual 'working_directory' parameter down
+        ({ pid, stdout_log, stderr_log, completionPromise, cleanupPromise } = await ProcessManager.spawnProcess(command, working_directory));
 
         // Create a timeout promise
         const timeoutPromise = new Promise((_, reject) => {
