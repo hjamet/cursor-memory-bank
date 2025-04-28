@@ -35,6 +35,7 @@ Le projet comprend aussi un serveur MCP Commit qui doit être correctement insta
 - Gestion explicite des protocoles file:// pour les téléchargements
 - Traitement amélioré des codes HTTP non standards
 - **Utilisation systématique des outils MCP (`mcp_MyMCP_*`) pour l'exécution de commandes externes dans les règles**
+- **WORKAROUND:** Pour modifier de manière fiable les fichiers `.mdc` (règles), renommer temporairement en `.md`, éditer, puis renommer en `.mdc` pour assurer la détection par Git.
 
 ## Dépendances Externes
 - Cursor: Dernière version - Environnement d'exécution principal
@@ -60,6 +61,13 @@ Le projet comprend aussi un serveur MCP Commit qui doit être correctement insta
 - **jq (Optionnel mais recommandé)**: `jq` est nécessaire pour modifier le `mcp.json` afin d'utiliser un chemin absolu pour le serveur MCP commit et pour fusionner la configuration avec un `mcp.json` existant. Si `jq` n'est pas trouvé, le script utilise un chemin relatif et ne fusionne pas, ce qui peut entraîner des problèmes si le script d'installation n'est pas exécuté depuis le répertoire racine de Cursor. 
 
 ## Notes sur les Serveurs MCP
+- Le serveur MCP Commit (`mcp_MyMCP_*`, nommé `InternalAsyncTerminal` dans son code) fournit les outils suivants :
+  - `commit`: Pour effectuer des commits Git standardisés.
+  - `execute_command`: Pour exécuter des commandes shell de manière asynchrone.
+  - `get_terminal_status`: Pour vérifier l'état des commandes en cours.
+  - `get_terminal_output`: Pour récupérer la sortie d'une commande.
+  - `stop_terminal_command`: Pour arrêter une commande en cours.
+  - `consult_image`: Pour lire un fichier image et le retourner en base64.
 - Le serveur MCP Commit (`mcp_MyMCP_*`) est sensible à la configuration `cwd` (Current Working Directory) lors de l'exécution de commandes via `spawn`, en particulier avec `shell: false`. Assurez-vous que `projectRoot` est correctement calculé.
 - Toute sortie `console.log` ou `console.warn` non JSON du serveur MCP peut interrompre la communication avec le client Cursor, entraînant des erreurs "Unexpected token". Les logs de débogage doivent être commentés ou supprimés en production.
 - L'outil `mcp_MyMCP_execute_command` peut avoir des difficultés à capturer la sortie `stdout`/`stderr` des processus Python très courts avant leur achèvement. 

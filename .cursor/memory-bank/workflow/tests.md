@@ -1,5 +1,10 @@
 # Test Status
 
+- [✅] **Consult Image Test (`tests/test_consult_image.js`)**: Passed (Latest Run: Current Cycle)
+  - Command: `node tests/test_consult_image.js`
+  - Result: `exit_code: 0`. Test script confirmed unsupported file type error handling works.
+  - Note: Warning about missing `"type": "module"` in root `package.json` observed but does not affect test outcome.
+  - Issue: None (New test).
 - [✅] **MCP Python Execution Test**: Passed (Latest Run: Current Cycle)
   - Command: `python -c "import sys; print('stdout output'); sys.stderr.write('stderr output'); sys.exit(55)"`
   - Result: `exit_code: 55`, `stdout: "stdout output"`, `stderr: "stderr output"`
@@ -31,6 +36,7 @@
 - [✅] **Reported CWD**: Passed. The `cwd` field in the JSON response reflects the value used for execution (server default, env var, or fallback).
 - [✅] **Cross-Repository CWD**: Passed (with Dependency). Relies on `CURSOR_WORKSPACE_ROOT` being set correctly by the caller (Cursor) to the user's current workspace. If set, commands run in the correct cross-repository CWD.
 - [✅] **Stop Terminal Command Verification (sleep 600)**: Passed (Current Cycle). Verified that `mcp_MyMCP_stop_terminal_command` correctly terminates the OS process (`sleep 600`, PID checked with `tasklist`), not just removes it from the MCP server's state.
+- [✅] **Consult Image Tool (Manual Test)**: *Not yet tested manually via MCP client.* (This entry added for completeness)
 
 # Fichier de tests
 

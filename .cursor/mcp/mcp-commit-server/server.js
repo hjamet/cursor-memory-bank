@@ -26,6 +26,7 @@ import { handleExecuteCommand } from './mcp_tools/terminal_execution.js';
 import { handleGetTerminalStatus } from './mcp_tools/terminal_status.js';
 import { handleGetTerminalOutput } from './mcp_tools/terminal_output.js';
 import { handleStopTerminalCommand } from './mcp_tools/terminal_stop.js';
+import { handleConsultImage } from './mcp_tools/consult_image.js';
 
 // --- State Persistence and Logging Setup --- START ---
 const LOGS_DIR = path.join(__dirname, 'logs');
@@ -163,14 +164,15 @@ const escapeShellArg = (arg) => {
 // Create an MCP server instance
 const server = new McpServer({
     name: "InternalAsyncTerminal",
-    version: "0.3.0", // Incremented version for refactor
+    version: "0.4.0", // Incremented version for new tool
     capabilities: {
         tools: {
             'commit': true,
             'execute_command': true,
             'get_terminal_status': true,
             'get_terminal_output': true,
-            'stop_terminal_command': true
+            'stop_terminal_command': true,
+            'consult_image': true
         }
     }
 });
@@ -227,6 +229,15 @@ server.tool(
         lines: z.number().int().optional().default(100).describe("The maximum number of lines to retrieve from the end of each log before stopping.")
     },
     handleStopTerminalCommand // Use the imported handler
+);
+
+// Define consult_image tool
+server.tool(
+    'consult_image',
+    {
+        path: z.string().describe("Relative path to the image file from the project root.")
+    },
+    handleConsultImage // Use the imported handler
 );
 
 // --- Server Startup --- 
