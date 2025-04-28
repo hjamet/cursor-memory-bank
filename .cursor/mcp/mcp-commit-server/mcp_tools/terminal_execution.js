@@ -62,10 +62,8 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
             const { code: finalExitCode, signal } = completionResult; // Assuming completionPromise resolved
             const finalStatus = (finalExitCode === 0) ? 'Success' : 'Failure';
 
-            // We still might need the CWD from the initial state.
-            // Let's fetch the state ONCE before the race, or just use null if acceptable.
-            // For simplicity now, let's keep CWD potentially null if not easily available.
-            // const initialState = await StateManager.getState(pid); // Fetch state *before* race?
+            // Fetch the state to get the CWD
+            const state = StateManager.findStateByPid(pid);
 
             // Initialize variables OUTSIDE try blocks
             let stdoutContent = '';
@@ -86,7 +84,7 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
             // Construct result using logs read *after* delay and status/code from completionResult
             result = {
                 pid,
-                cwd: null, // Using null for CWD for now, could fetch initial state if needed
+                cwd: state?.cwd ?? null, // Use CWD from state
                 status: finalStatus,
                 exit_code: finalExitCode,
                 stdout: typeof stdoutContent === 'string' ? stdoutContent : '', // Ensure string

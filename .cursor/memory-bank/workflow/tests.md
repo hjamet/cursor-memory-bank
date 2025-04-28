@@ -26,6 +26,7 @@
 - [✅] **Immediate Return (Timeout Case)**: Passed. `execute_command` returns partial stdout/stderr immediately if the command times out (e.g., `ping -n 10` with `timeout=1`).
 - [✅] **Immediate Return (Early Completion Case)**: Passed. `execute_command` now returns full stdout/stderr immediately if the command finishes before the timeout. Removed unnecessary delay after awaiting `cleanupPromise` in `terminal_execution.js`.
 - [✅] **Execution CWD**: Passed. Commands executed via `execute_command` now correctly run with the CWD set to the project root. Fix applied in `process_manager.js` by prepending `cd "${projectRoot}" &&` to the Windows bash command. Verified with `pwd` and `cat ./relative_file.txt` tests.
+- [✅] **Reported CWD**: Passed. The `cwd` field in the JSON response from `execute_command` now correctly reports the actual execution CWD retrieved from the state manager.
 
 # Fichier de tests
 
@@ -64,7 +65,7 @@
 - **Command**: `node /c/Users/Jamet/code/cursor-memory-bank/tests/test_mcp_async_terminal.js` (Attempted execution via MCP)
 - **Output Snippet**: (When run via MCP) Exit Code 1, Empty stdout/stderr.
 - **Evolution**: N/A (Execution method invalid/problematic).
-- **Note**: CWD issue resolved; commands now execute in project root.
+- **Note**: Execution CWD issue resolved; commands now execute in project root. CWD reporting in response is also fixed.
 
 ## Problèmes persistants
 - ✅ **Install script permissions (MINGW64/curl)**: Fixed (Latest Run: 2025-04-27) - Root cause identified as CRLF line endings (`\r`) causing parsing errors in piped MINGW64 bash. Resolved by modifying the *execution command* to `curl ... | tr -d '\r' | bash`.
@@ -141,7 +142,7 @@
 - **Command**: `node /c/Users/Jamet/code/cursor-memory-bank/tests/test_mcp_async_terminal.js` (Attempted execution via MCP)
 - **Output Snippet**: (When run via MCP) Exit Code 1, Empty stdout/stderr.
 - **Evolution**: N/A (Execution method invalid/problematic).
-- **Note**: CWD issue resolved; commands now execute in project root.
+- **Note**: Execution CWD issue resolved; commands now execute in project root. CWD reporting in response is also fixed.
 
 ## Problèmes persistants
 - ✅ **Install script permissions (MINGW64/curl)**: Fixed (Latest Run: 2025-04-27) - Root cause identified as CRLF line endings (`\r`) causing parsing errors in piped MINGW64 bash. Resolved by modifying the *execution command* to `curl ... | tr -d '\r' | bash`.
