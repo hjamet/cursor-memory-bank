@@ -29,6 +29,7 @@
 - [✅] **Execution CWD (Server Default --cwd Argument)**: Passed. `execute_command` now correctly uses the directory passed via the `--cwd` argument to the server (`mcp.json`) as the default CWD. The explicit `working_directory` parameter has been removed from the tool definition. Verified with `pwd`, `echo > file`, `ls` tests without specifying a working directory.
 - [✅] **Reported CWD**: Passed. The `cwd` field in the JSON response reflects the value used for execution (server default, env var, or fallback).
 - [✅] **Cross-Repository CWD**: Passed (with Dependency). Relies on `CURSOR_WORKSPACE_ROOT` being set correctly by the caller (Cursor) to the user's current workspace. If set, commands run in the correct cross-repository CWD.
+- [✅] **Stop Terminal Command Verification (sleep 600)**: Passed (Current Cycle). Verified that `mcp_MyMCP_stop_terminal_command` correctly terminates the OS process (`sleep 600`, PID checked with `tasklist`), not just removes it from the MCP server's state.
 
 # Fichier de tests
 

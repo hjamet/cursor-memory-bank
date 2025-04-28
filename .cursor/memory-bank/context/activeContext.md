@@ -1,17 +1,18 @@
 # Active Context
 
 ## Current Goal
-Finalize and commit changes related to MCP server CWD handling.
+Verify the behavior of the `mcp_MyMCP_stop_terminal_command` tool as requested by the user.
 
 ## Current implementation context
-- **Task Completed**: Modified `.cursor/mcp/mcp-commit-server/lib/process_manager.js` and `.cursor/mcp/mcp-commit-server/server.js`.
-- **Logic Implemented & Changes**:
-    1.  MCP server now reads `--cwd` argument at startup (`process_manager.js`).
-    2.  This server-defined CWD is used as the default for `execute_command` unless overridden.
-    3.  Removed the explicit `working_directory` parameter from the `execute_command` tool definition (`server.js`) as per user request, simplifying the interface and relying solely on the server-defined default CWD.
-- **Files Involved**: `.cursor/mcp/mcp-commit-server/lib/process_manager.js`, `.cursor/mcp/mcp-commit-server/server.js`, `.cursor/memory-bank/workflow/tests.md` (updated).
-- **Testing**: Verified that commands executed via `mcp_MyMCP_execute_command` (without `working_directory`) correctly use the default CWD defined in `mcp.json`. Cleaned up test file.
-- **Status**: Changes implemented and verified.
+- **Task Completed**: Verified that `mcp_MyMCP_stop_terminal_command` successfully terminates OS-level processes.
+- **Methodology**:
+    1. Started a `sleep 600` process using `mcp_MyMCP_execute_command` (PID 10788).
+    2. Confirmed the process was listed via `mcp_MyMCP_get_terminal_status`.
+    3. Called `mcp_MyMCP_stop_terminal_command` for PID 10788.
+    4. Confirmed the process was removed from the MCP server list via `mcp_MyMCP_get_terminal_status`.
+    5. Confirmed the OS process was terminated using `tasklist /FI "PID eq 10788"` via `run_terminal_cmd`.
+- **Files Involved**: `.cursor/memory-bank/workflow/tests.md` (updated with verification result).
+- **Status**: Verification complete. The tool works as expected, contradicting the initial suspicion.
 
 ## Lost workflow
 *No lost workflow entries needed here.*
