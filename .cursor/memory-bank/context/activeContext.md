@@ -1,15 +1,17 @@
 # Active Context
 
 ## Current Goal
-Consolidate repository state after fixing the `mcp_MyMCP_execute_command` working directory issue.
+Consolidate repository state after resolving MCP command execution issues.
 
 ## Current implementation context
-- **Fix Applied**: Modified `.cursor/mcp/mcp-commit-server/lib/process_manager.js` to prepend `cd "${projectRoot}" &&` to the command string executed by `bash.exe -c` on Windows.
-- **Result**: Commands executed via `mcp_MyMCP_execute_command` now correctly start in the workspace root directory on Windows, resolving issues with relative paths.
-- **Verification**: Confirmed with `pwd` and `cat ./relative_file.txt` commands via MCP, which succeeded.
-- **Files Involved**: `.cursor/mcp/mcp-commit-server/lib/process_manager.js`, `.cursor/memory-bank/workflow/tests.md` (updated).
-- **Status**: Fix implemented and validated.
-- **Next Steps**: Commit changes and continue workflow.
+- **Fixes Applied**:
+    - Ensured `mcp_MyMCP_execute_command` uses the project root as CWD on Windows by modifying `process_manager.js` to prepend `cd "${projectRoot}" &&` to the Windows bash command.
+    - Resolved the 'Immediate Return (Early Completion Case)' failure by removing an unnecessary delay in `terminal_execution.js`, ensuring full output is returned immediately.
+- **Result**: MCP command execution is now more reliable, correctly handling CWD on Windows and immediate output for early-completing commands.
+- **Verification**: Confirmed fixes with direct MCP command tests (`pwd`, `cat`, `echo`). `tests.md` updated to reflect all tests passing (excluding known issue with `test_mcp_async_terminal.js`).
+- **Files Involved**: `.cursor/mcp/mcp-commit-server/lib/process_manager.js`, `.cursor/mcp/mcp-commit-server/mcp_tools/terminal_execution.js`, `.cursor/memory-bank/workflow/tests.md`, `.cursor/memory-bank/context/activeContext.md`.
+- **Status**: Fixes implemented, validated, and committed.
+- **Next Steps**: Final context update, check file integrity, and determine next workflow step.
 
 ## Lost workflow
 *No lost workflow entries needed here.*
