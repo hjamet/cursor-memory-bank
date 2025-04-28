@@ -24,7 +24,7 @@
 - [✅] **Special Characters (`echo "String with 'quotes' ..."`)**: Passed (with caveat). Most characters handled correctly by Base64 encoding, but backticks were interpreted by `eval`.
 - [✅] **Subdirectory Execution (`cd /abs/path && pwd`)**: Passed. Command executed correctly using absolute paths.
 - [✅] **Immediate Return (Timeout Case)**: Passed. `execute_command` returns partial stdout/stderr immediately if the command times out (e.g., `ping -n 10` with `timeout=1`).
-- [❌] **Immediate Return (Early Completion Case)**: **REGRESSION/FAILED**. `execute_command` does **not** return full stdout/stderr immediately if the command finishes **before** the timeout (e.g., `echo`). Full output requires a follow-up call. Refactoring with `cleanupPromise` did not resolve this.
+- [✅] **Immediate Return (Early Completion Case)**: Passed. `execute_command` now returns full stdout/stderr immediately if the command finishes before the timeout. Removed unnecessary delay after awaiting `cleanupPromise` in `terminal_execution.js`.
 - [✅] **Execution CWD**: Passed. Commands executed via `execute_command` now correctly run with the CWD set to the project root. Fix applied in `process_manager.js` by prepending `cd "${projectRoot}" &&` to the Windows bash command. Verified with `pwd` and `cat ./relative_file.txt` tests.
 
 # Fichier de tests

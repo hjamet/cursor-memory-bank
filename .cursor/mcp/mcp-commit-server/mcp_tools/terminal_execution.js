@@ -67,9 +67,6 @@ export async function handleExecuteCommand({ command, reuse_terminal, timeout /*
             // For simplicity now, let's keep CWD potentially null if not easily available.
             // const initialState = await StateManager.getState(pid); // Fetch state *before* race?
 
-            // *** Keep small DELAY before reading logs to ensure they are flushed ***
-            await new Promise(resolve => setTimeout(resolve, 150)); // Keep 150ms delay for log flush
-
             // Initialize variables OUTSIDE try blocks
             let stdoutContent = '';
             let stderrContent = '';
