@@ -30,6 +30,7 @@
 - [✅] **Reported CWD**: Passed. The `cwd` field in the JSON response reflects the value used for execution (server default, env var, or fallback).
 - [✅] **Cross-Repository CWD**: Passed (with Dependency). Relies on `CURSOR_WORKSPACE_ROOT` being set correctly by the caller (Cursor) to the user's current workspace. If set, commands run in the correct cross-repository CWD.
 - [✅] **Stop Terminal Command Verification (sleep 600)**: Passed (Current Cycle). Verified that `mcp_MyMCP_stop_terminal_command` correctly terminates the OS process (`sleep 600`, PID checked with `tasklist`), not just removes it from the MCP server's state.
+- [✅] **Stop Terminal Command - Process Tree Killing (fkill)**: Passed (Current Cycle). Verified that stopping a parent script (`parent_spawner.sh`) via `mcp_MyMCP_stop_terminal_command` successfully terminates both the parent (bash) and its child process (`child_sleep.py`) using the new `fkill` implementation. Verified via `tasklist`.
 
 # Fichier de tests
 

@@ -8,6 +8,7 @@ import * as StateManager from './state_manager.js';
 import * as Logger from './logger.js';
 import { Buffer } from 'node:buffer'; // Import Buffer for Base64
 import os from 'os'; // Import os for platform check
+import fkill from 'fkill'; // <-- ADDED: Import fkill
 // No longer needed: import fsPromises from 'fs/promises';
 
 // --- ADDED: Parse server startup args for default CWD ---
@@ -234,62 +235,51 @@ export async function spawnProcess(command, explicitWorkingDirectory) {
 }
 
 /**
- * Kills a process managed by execa.
+ * Kills a process and its child processes using fkill.
  * @param {number} pid The process ID of the process to kill.
  * @returns {Promise<string>} Promise resolving with status message.
  */
 export async function killProcess(pid) {
-    // We need to use OS-level kill.
-    // console.log(`[ProcessManager] Attempting to kill PID: ${pid}`);
+    // console.log(`[ProcessManager] Attempting to kill process tree for PID: ${pid}`);
     try {
-        // Check if process exists first (0 signal)
-        process.kill(pid, 0);
-
-        // Attempt graceful termination first
-        process.kill(pid, 'SIGTERM');
-        // Wait a short period to see if it terminates
-        await new Promise(resolve => setTimeout(resolve, 200)); // 200ms grace period
-
-        // Check again if it exited
-        try {
-            process.kill(pid, 0);
-            // Still running, force kill
-            // console.warn(`[ProcessManager] Process ${pid} did not exit after SIGTERM, sending SIGKILL.`);
-            process.kill(pid, 'SIGKILL');
-            await new Promise(resolve => setTimeout(resolve, 100)); // Short wait after SIGKILL
-        } catch (e) {
-            if (e.code === 'ESRCH') {
-                // Process already exited after SIGTERM
-                // console.log(`[ProcessManager] Process ${pid} exited after SIGTERM.`);
-                return `Process ${pid} terminated successfully (SIGTERM).`;
-            } else {
-                throw e; // Other error checking after SIGTERM
-            }
-        }
-        // Check one last time after SIGKILL
-        try {
-            process.kill(pid, 0);
-            // console.error(`[ProcessManager] Process ${pid} did NOT exit after SIGKILL!`);
-            return `Process ${pid} failed to terminate after SIGKILL.`;
-        } catch (e) {
-            if (e.code === 'ESRCH') {
-                // console.log(`[ProcessManager] Process ${pid} exited after SIGKILL.`);
-                return `Process ${pid} terminated successfully (SIGKILL).`;
-            } else {
-                throw e; // Other error checking after SIGKILL
-            }
-        }
-
+        // Use fkill to kill the process and its children forcefully
+        // force: true uses SIGKILL
+        // tree: true attempts to kill the whole process tree (default on Windows, explicit here)
+        await fkill(pid, { force: true, tree: true, ignoreCase: true });
+        // console.log(`[ProcessManager] Process tree for PID ${pid} killed successfully via fkill.`);
+        // Update state to 'Stopped' after successful kill attempt
+        await StateManager.updateState(pid, {
+            status: 'Stopped', // Indicate it was stopped externally
+            endTime: new Date().toISOString(),
+        }).catch(err => console.error(`[PID ${pid}] Error updating state after kill:`, err));
+        return `Process tree for ${pid} terminated successfully (fkill).`;
     } catch (error) {
-        if (error.code === 'ESRCH') {
-            // console.warn(`[ProcessManager] Process ${pid} not found or already exited when trying to kill.`);
+        // console.warn(`[ProcessManager] Error killing process tree for PID ${pid} via fkill:`, error);
+
+        // Check specific fkill error types (it might throw custom errors or process.kill errors)
+        // fkill throws if the process doesn't exist.
+        if (error.message.includes('Process doesn\'t exist') || error.code === 'ESRCH') {
+            // Update state if process was already gone
+            await StateManager.updateState(pid, {
+                status: 'Stopped', // Or 'Failure' if it should have been running? Stopped seems better.
+                endTime: new Date().toISOString(),
+                error: `Process ${pid} not found during kill attempt.`
+            }).catch(err => console.error(`[PID ${pid}] Error updating state on kill error (not found):`, err));
             return `Process ${pid} not found or already exited.`;
         } else if (error.code === 'EPERM') {
-            // console.error(`[ProcessManager] Permission error trying to kill process ${pid}.`);
+            // Update state on permission error
+            await StateManager.updateState(pid, {
+                status: 'Failure', // Keep as Failure if kill failed due to perms
+                error: `Permission error trying to kill process ${pid}.`
+            }).catch(err => console.error(`[PID ${pid}] Error updating state on kill error (permission):`, err));
             return `Permission error trying to kill process ${pid}.`;
         } else {
-            // console.error(`[ProcessManager] Unexpected error killing process ${pid}:`, error);
-            return `Error killing process ${pid}: ${error.message}`;
+            // Update state on other errors
+            await StateManager.updateState(pid, {
+                status: 'Failure', // Keep as Failure on unexpected kill errors
+                error: `Unexpected error killing process ${pid}: ${error.message}`
+            }).catch(err => console.error(`[PID ${pid}] Error updating state on kill error (other):`, err));
+            return `Error killing process tree for ${pid}: ${error.message}`;
         }
     }
 }

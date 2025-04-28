@@ -1,18 +1,18 @@
 # Active Context
 
 ## Current Goal
-Verify the behavior of the `mcp_MyMCP_stop_terminal_command` tool as requested by the user.
+Commit changes for MCP server process tree killing and `experience-execution` rule update.
 
 ## Current implementation context
-- **Task Completed**: Verified that `mcp_MyMCP_stop_terminal_command` successfully terminates OS-level processes.
-- **Methodology**:
-    1. Started a `sleep 600` process using `mcp_MyMCP_execute_command` (PID 10788).
-    2. Confirmed the process was listed via `mcp_MyMCP_get_terminal_status`.
-    3. Called `mcp_MyMCP_stop_terminal_command` for PID 10788.
-    4. Confirmed the process was removed from the MCP server list via `mcp_MyMCP_get_terminal_status`.
-    5. Confirmed the OS process was terminated using `tasklist /FI "PID eq 10788"` via `run_terminal_cmd`.
-- **Files Involved**: `.cursor/memory-bank/workflow/tests.md` (updated with verification result).
-- **Status**: Verification complete. The tool works as expected, contradicting the initial suspicion.
+- **Task Completed**: 1.1 Implement Process Tree Killing
+    - Added `fkill` dependency to `package.json`.
+    - Installed dependencies.
+    - Modified `lib/process_manager.js` to use `fkill(pid, { force: true, tree: true, ... })` instead of `process.kill`.
+    - Verified with parent/child script test that killing parent terminates child.
+- **Task Completed**: 2.1 Update experience-execution Rule
+    - Modified `.cursor/rules/experience-execution.mdc` instructions (Step 2) to detail incremental timeout strategy for monitoring long-running commands.
+- **Files Involved**: `.cursor/mcp/mcp-commit-server/lib/process_manager.js`, `.cursor/mcp/mcp-commit-server/package.json`, `.cursor/rules/experience-execution.mdc`, `child_sleep.py` (test script), `parent_spawner.sh` (test script), `.cursor/memory-bank/workflow/tests.md` (updated).
+- **Status**: Implementation and testing complete for both tasks.
 
 ## Lost workflow
 *No lost workflow entries needed here.*
