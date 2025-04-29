@@ -58,27 +58,30 @@ I begin by reading the tasks.md file to understand the current state of tasks. *
 [...reading tasks.md file...]
 **(Task-decomposition: 1 - Existing tasks analysis)**
 
-# Task-decomposition: 2 - Userbrief analysis
-I now consult the userbrief.md file to identify tasks marked with 🔄. **(Task-decomposition: 2 - Userbrief analysis)**
+# Task-decomposition: 2 - Userbrief processing identification
+I now consult the userbrief.md file to identify tasks marked with ⏳ in the "Processing" section. **(Task-decomposition: 2 - Userbrief processing identification)**
 [...reading userbrief.md file...]
-I identified several tasks marked with 🔄 that I will delete and integrate into tasks.md.
-[...task transformation...]
-**(Task-decomposition: 2 - Userbrief analysis)**
+I identified several tasks marked with ⏳. I will prepare them for integration into tasks.md in step 4.
+**(Task-decomposition: 2 - Userbrief processing identification)**
 
 # Task-decomposition: 3 - Completed tasks removal
-I remove completed tasks that are no longer relevant to current work. **(Task-decomposition: 3 - Completed tasks removal)**
-[...obsolete tasks deletion...]
+I remove completed tasks from tasks.md that are no longer relevant to current work. **(Task-decomposition: 3 - Completed tasks removal)**
+[...obsolete tasks deletion from tasks.md...]
 **(Task-decomposition: 3 - Completed tasks removal)**
 
 # Task-decomposition: 4 - New tasks integration
-I decompose the request into concrete tasks and organize them into high-level sections. **(Task-decomposition: 4 - New tasks integration)**
-[...organizing tasks into sections...]
+I decompose the main request and the identified ⏳ userbrief items into concrete tasks in tasks.md, organizing them into high-level sections. **(Task-decomposition: 4 - New tasks integration)**
+[...integrating main request into tasks.md...]
+[...integrating identified ⏳ items into tasks.md...]
 **(Task-decomposition: 4 - New tasks integration)**
 
-# Task-decomposition: 5 - Call next rule
-I must now call the implementation rule to begin work on the tasks.
-The implementation rule must be called to begin implementing the tasks. **(Task-decomposition: 5 - Call next rule)**
+# Task-decomposition: 5 - Userbrief archiving
+Now that the tasks from userbrief have been integrated into tasks.md, I will move the original items from the "Processing" section to "Archives" in userbrief.md and mark them with 🗄️. **(Task-decomposition: 5 - Userbrief archiving)**
+[...editing userbrief.md to move items and change ⏳ to 🗄️...]
+**(Task-decomposition: 5 - Userbrief archiving)**
 
-
+# Task-decomposition: 6 - Call next rule
+I must now call the implementation rule to begin work on the newly structured tasks.
+The implementation rule must be called to begin implementing the tasks. **(Task-decomposition: 6 - Call next rule)**
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

@@ -60,3 +60,15 @@
     - *Impacted Files/Components*: `tests/assets/image.png`, `mcp_MyMCP_consult_image` tool.
     - *Dependencies*: None
     - *Validation Criteria*: Successful execution of `mcp_MyMCP_consult_image` with the specified image, returning expected output (e.g., base64 representation).
+
+## 2. Rule Refinements
+- [x] **2.1 Refine `userbrief-template.mdc`**: Update format descriptions.
+    - *Description*: Edit the "Format for Elements" section to remove mentions of ✅, update the description for ⏳ (In Processing), and add a description for 🗄️ (Archived).
+    - *Impacted Files/Components*: `.cursor/rules/templates/userbrief-template.mdc`
+    - *Dependencies*: None
+    - *Validation Criteria*: The format section accurately reflects the -, ⏳, 📌, 🗄️ emojis and their meanings, with no ✅.
+- [x] **2.2 Refine `task-decomposition.mdc`**: Update example and remove ✅ mentions.
+    - *Description*: Apply rename-edit-rename. Update the Example section to show the new workflow (identifying ⏳, integrating tasks, archiving to 🗄️). Ensure no ✅ emoji remains anywhere in the rule file.
+    - *Impacted Files/Components*: `.cursor/rules/task-decomposition.mdc`
+    - *Dependencies*: None
+    - *Validation Criteria*: Example section accurately reflects the new logic. No ✅ emoji is present in the file.

@@ -1,17 +1,16 @@
 # Active Context
 
 ## Current Goal
-Modify workflow rules (`consolidate-repo.mdc`, `task-decomposition.mdc`) and `userbrief-template.mdc` to implement a new task lifecycle (input -> processing ⏳ -> archives 🗄️) in `userbrief.md`, following the specified rename-edit-rename procedure.
+Refine workflow rules (`task-decomposition.mdc`) and template (`userbrief-template.mdc`) examples and format descriptions following previous modifications.
 
 ## Summary of Fix
-- Modified `userbrief-template.mdc` to add `# Archives` section.
-- Modified `consolidate-repo.mdc` to handle input -> processing (⏳).
-- Modified `task-decomposition.mdc` to handle processing (⏳) -> tasks.md -> archives (🗄️).
-- Followed rename-edit-rename procedure for `.mdc` files.
-- Successfully tested `mcp_MyMCP_consult_image` tool (Task 2.1).
+- Modified `userbrief-template.mdc`, `consolidate-repo.mdc`, `task-decomposition.mdc` for new task lifecycle (input -> ⏳ -> 🗄️).
+- Tested `consult_image` tool.
+- Refined format descriptions in `userbrief-template.mdc` (removed ✅, added 🗄️, updated ⏳).
+- Refined example in `task-decomposition.mdc` and removed ✅ mentions.
 
 ## Current implementation context
-- Completed all tasks defined for the user request.
+- Completed all tasks defined for the user request (rule modifications and refinements).
 - `tasks.md` contains a duplicate completed section under # ToDo due to prior edit failure, but no pending tasks remain.
 
 ## Previous Context (Preserved)

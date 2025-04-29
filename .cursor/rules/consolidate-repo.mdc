@@ -36,7 +36,7 @@ tests/                       # Unit and integration tests
      - - : To be processed (in "User Input")
      - ⏳ : In processing (in "Processing", for tasks only)
      - 📌 : Long-term preference (in "Precisions")
-     - (Do not use 🗄️ or ✅ - these are handled by other rules)
+     - (Do not use 🗄️ - these are handled by other rules)
    - Ensure structure remains clear and readable
 
 3. **Integrity verification**: Control of memory files:
@@ -72,7 +72,7 @@ tests/                       # Unit and integration tests
 - This rule should only be called by context-update when structure problems are detected
 - IMPORTANT: Only this rule is authorized to modify userbrief.md to move items from "User Input" to "Processing" or "Precisions".
 - IMPORTANT: Mark new tasks from "User Input" with ⏳ (only) and move to "Processing". Mark preferences with 📌 and move to "Precisions".
-- IMPORTANT: Never use ✅ or 🗄️ in this rule; these are handled by `task-decomposition`.
+- IMPORTANT: Never use 🗄️ in this rule; these are handled by `task-decomposition`.
 
 ## Next Rules
 

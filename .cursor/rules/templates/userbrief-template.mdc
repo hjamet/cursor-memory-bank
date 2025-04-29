@@ -24,10 +24,10 @@ This file contains user requests and preferences, organized in 3 main sections t
 
 ## Format for Elements
 
-- **- Todo**: Elements that have not yet been processed
-- **🔄 In Progress**: Elements currently being processed
-- **📌 Taken into account**: Persistent preferences to keep (tools, code style, etc.)
-- **🗄️ Archived**: Elements that have been processed and added to tasks.md, marked with 🗄️
+- **- Todo**: Elements that have not yet been processed (in "User Input")
+- **⏳ In Processing**: Tasks moved from "User Input" by `consolidate-repo`, awaiting decomposition by `task-decomposition`.
+- **📌 Preference**: Persistent preferences/directives to keep (in "Precisions").
+- **🗄️ Archived**: Tasks moved from "Processing" by `task-decomposition` after being successfully added to `tasks.md`.
 
 ## Reference Template
 
@@ -36,7 +36,7 @@ This file contains user requests and preferences, organized in 3 main sections t
 
 # Processing
 <!-- Requests being processed/transformed into tasks -->
-🔄 [Request being processed]
+⏳ [Task awaiting decomposition]
 
 # Precisions
 <!-- Long-term preferences and recommendations -->
@@ -53,6 +53,7 @@ This file contains user requests and preferences, organized in 3 main sections t
 - **Status updates**: Modify only the status emojis, not the content
 - **Conservation**: Elements marked with 📌 must be preserved indefinitely
 - **Conciseness**: Keep the file as concise as possible without losing information
+- **Archived elements**: Elements marked 🗄️ should ideally not be modified by the agent.
 
 ## Validations
 
