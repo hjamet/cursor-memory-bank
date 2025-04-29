@@ -20,7 +20,7 @@
 - [✅] `test_mcp_json_absolute_path_no_jq`: Passed (Latest Run: 2025-04-27 - Verified `sed` fallback correctly sets *key* to "Commit" but leaves *relative path* and warns when jq missing)
 - [✅] **Consult Image Tool (Manual Test)**: Passed (Latest Run: Current Cycle)
   - Call: `mcp_MyMCP_consult_image(path="tests/assets/image.png")`
-  - Result: Successful image processing and return.
+  - Result: Successful image processing and return (Verified during this workflow execution).
   - Note: Previous "File not found" error seems resolved by broader CWD handling improvements in the MCP server.
 
 # Ad-Hoc MCP Command Execution Tests (Current Cycle)

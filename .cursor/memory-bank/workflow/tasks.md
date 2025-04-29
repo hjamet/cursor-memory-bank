@@ -17,13 +17,6 @@
     - *Dependencies*: 1.1, 1.2
     - *Validation Criteria*: The rule `task-decomposition.mdc` correctly describes the processing (⏳) -> `tasks.md` -> archives (🗄️) logic.
 
-## 2. Tool Testing
-- [ ] **2.1 Test `consult_image` tool**: Manually invoke the `consult_image` MCP tool using the image provided.
-    - *Description*: Use the image located at `tests/assets/image.png` to test the `mcp_MyMCP_consult_image` tool. This task originates from `userbrief.md`.
-    - *Impacted Files/Components*: `tests/assets/image.png`, `mcp_MyMCP_consult_image` tool.
-    - *Dependencies*: None
-    - *Validation Criteria*: Successful execution of `mcp_MyMCP_consult_image` with the specified image, returning expected output (e.g., base64 representation).
-
 # Done
 
 ## 1. Rule Modifications
@@ -60,3 +53,10 @@
 - [x] Install `execa` library
 - [x] Run `tests/test_mcp_async_terminal.js` to verify the fix (Fixed regression by implementing killProcess and reverting execa)
 - [x] **Investigate MCP `find` command issue**: Determine why `find ./ -type f -name \\'*.md\\'` executed via `mcp_MyMCP_execute_command` with Git Bash returns empty stdout on this Windows system. (Fixed by explicit spawn `shell:false` + removing console logs)
+
+## 2. Tool Testing
+- [x] **2.1 Test `consult_image` tool**: Manually invoke the `consult_image` MCP tool using the image provided.
+    - *Description*: Use the image located at `tests/assets/image.png` to test the `mcp_MyMCP_consult_image` tool. This task originates from `userbrief.md`.
+    - *Impacted Files/Components*: `tests/assets/image.png`, `mcp_MyMCP_consult_image` tool.
+    - *Dependencies*: None
+    - *Validation Criteria*: Successful execution of `mcp_MyMCP_consult_image` with the specified image, returning expected output (e.g., base64 representation).
