@@ -29,17 +29,26 @@ Execute potentially long-running commands (experiments, data processing, model t
     *   The tool returns the `pid` and initial status/output.
     *   **(Experience-Execution: 2 - Command execution initiated)**
 
-3.  **Result Analysis**: Analyze logs **and generated files**.
+3.  **Result Analysis**: **Critically analyze** logs **AND generated files**.
     *   Examine the captured standard output and error streams for obvious errors or success indicators.
     *   **MANDATORY: Check for expected generated files** (defined in Step 1). Verify their existence.
-    *   **MANDATORY: Analyze the content of key generated files** (e.g., result files, logs). Use `read_file` if necessary. Verify that their format and content conform to expectations (defined in Step 1).
+    *   **MANDATORY: Critically analyze the CONTENT of key generated files** (e.g., result data, logs, configuration outputs). Use `read_file` if necessary.
+        *   **Do NOT just check for existence or basic format.**
+        *   **Look for:**
+            *   Values within expected ranges.
+            *   Absence of error messages or stack traces within log files.
+            *   Correct structure and data types in output files (e.g., CSV columns, JSON structure).
+            *   Any unusual patterns, outliers, or nonsensical results.
+            *   Consistency between different output files.
+        *   Verify that their format and content **truly conform** to expectations (defined in Step 1).
     *   `<think>`
-        *   Compare the actual results (console output AND file contents) against the expected outcomes defined in the planning phase.
-        *   Identify any discrepancies, errors, unexpected results, or formatting issues found in the console output OR the generated files.
-        *   Determine if the execution was successful based on the **complete analysis** (console and files).
+        *   Compare the actual results (**including detailed file content analysis**) against the expected outcomes defined in the planning phase.
+        *   Identify any discrepancies, errors, **anomalies**, unexpected results, or formatting issues found in the console output OR the generated files.
+        *   Determine if the execution was successful based on the **complete and CRITICAL analysis** (console and files).
+        *   **Explicitly note any strange findings**, even if not technically an error according to initial expectations.
         *</think>`
-    *   Summarize the **detailed** analysis findings, explicitly mentioning the state of generated files.
-    *   **(Experience-Execution: 3 - Analysis completed)**
+    *   Summarize the **detailed critical analysis** findings, explicitly mentioning the state and **content assessment** of generated files and any anomalies found.
+    *   **(Experience-Execution: 3 - Critical Analysis completed)**
 
 4.  **Documentation & Memory**: Document results and save observations.
     *   **4.1 Documentation (MANDATORY)**:
@@ -73,8 +82,15 @@ Execute potentially long-running commands (experiments, data processing, model t
     *   **(Experience-Execution: 5 - MCP cleanup performed)**
 
 6.  **Calling the next rule**: Decide the next step based on analysis.
-    *   If analysis (Step 3) indicated success and conformity → call `context-update`.
-    *   If analysis (Step 3) detected problems, errors, or non-conformity → call `fix`, providing context about the failed execution and analysis findings.
+    *   `<think>`
+        *   Review the critical analysis summary from Step 3.
+        *   Did the analysis explicitly note any anomalies or strange findings (even if not strictly errors)?
+        *   Did the analysis conclude the execution failed or results were non-conformant?
+        *</think>`
+    *   **Decision Logic:**
+        *   IF analysis (Step 3) detected problems, errors, or non-conformity → call `fix`, providing context about the failed execution and analysis findings.
+        *   ELSE IF analysis (Step 3) explicitly noted **anomalies or strange findings** (even if the execution technically succeeded) → call `request-analysis`, instructing it to create a new task in `tasks.md` to investigate these specific anomalies.
+        *   ELSE (execution successful and no anomalies noted) → call `context-update`.
     *   **(Experience-Execution: 6 - Calling next rule)**
 
 ## Specifics
@@ -86,8 +102,9 @@ Execute potentially long-running commands (experiments, data processing, model t
 -   Adapt command execution (e.g., reduced scope) during planning if the goal is only to test functionality rather than perform a full run.
 
 ## Next Rules
--   `context-update` - If execution was successful.
+-   `context-update` - If execution was successful and NO anomalies were noted.
 -   `fix` - If execution failed or results were non-conformant.
+-   `request-analysis` - If execution succeeded BUT anomalies/strange results were noted during critical analysis.
 
 ## Example
 

@@ -1,5 +1,5 @@
 ---
-description: Base rule for the architect agent, ensuring context is loaded before processing user requests.
+description: 
 globs: 
 alwaysApply: false
 ---
