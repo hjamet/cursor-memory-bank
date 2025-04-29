@@ -41,20 +41,20 @@ tests/                       # Unit and integration tests
 
 3. **Integrity verification**: Control of memory files:
    - Use the MCP command execution tool via Git Bash to list all markdown files: `mcp_MyMCP_execute_command(command = "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"find . -type f -name '*.md'\"")`
-   - Analyze results to find duplicates in memory-bank directories
-   - Merge content of duplicate files with main files (using file edit tools)
-   - Delete duplicates after merging using the MCP command execution tool via Git Bash (e.g., `mcp_MyMCP_execute_command(command = "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"rm <duplicate_file_path>\""")`)
-   - Verify all memory files are in the right place
+   - Analyze results to identify duplicates or misplaced files in `memory-bank` directories.
 
-4. **MCP Terminal Cleanup**: Clean up finished terminal processes.
+4. **Direct Cleanup**: Directly resolve integrity issues identified in step 3:
+   - If duplicates found:
+     - Merge content of duplicate files into the main corresponding file (using file edit tools).
+     - Delete duplicates after merging using the MCP command execution tool via Git Bash (e.g., `mcp_MyMCP_execute_command(command = "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"rm <duplicate_file_path>\""")`).
+   - If misplaced files found:
+     - Move misplaced files to their correct location within the `memory-bank` structure (using `mcp_MyMCP_execute_command` with `mv`).
+   - If other temporary/unnecessary files identified:
+     - Delete them using the MCP command execution tool via Git Bash (`rm`).
+
+5. **MCP Terminal Cleanup**: Clean up finished terminal processes used in this rule.
    - Call `mcp_get_terminal_status` to check the status of running/finished processes.
-   - For each process with a final status (e.g., 'FINISHED', 'ERROR'), call `mcp_stop_terminal_command` with its `pid` to release resources.
-
-5. **Cleanup task identification**: Generate tasks for tasks.md:
-   - Identify unnecessary temporary files
-   - Locate misplaced files
-   - List necessary cleanup actions
-   - Add these tasks to `.cursor/memory-bank/workflow/tasks.md` (without executing them directly)
+   - For each process with a final status (e.g., 'Success', 'Failure'), call `mcp_stop_terminal_command` with its `pid` to release resources.
 
 6. **Evaluation of user requests**: Decide next workflow step:
    - IF new requests identified in userbrief.md:
@@ -90,7 +90,7 @@ I've identified several user requests that I will mark as follows:
 **(Consolidate-repo: 1 - Processing userbrief.md)**  
 
 # Consolidate-repo: 2 - Organizing userbrief.md  
-I'm now reorganizing the content of `.cursor/memory-bank/userbrief.md` according to the 3-section structure. **(Consolidate-repo: 2 - Organizing userbrief.md)**  
+I'm now reorganizing the content of `.cursor/memory-bank/userbrief.md` according to the template. **(Consolidate-repo: 2 - Organizing userbrief.md)**  
 [...content reorganization...]  
 I've applied appropriate statuses to the different elements.  
 **(Consolidate-repo: 2 - Organizing userbrief.md)**  
@@ -99,30 +99,30 @@ I've applied appropriate statuses to the different elements.
 I'm now verifying the integrity of memory files using MCP via Git Bash. **(Consolidate-repo: 3 - Integrity verification)**  
 [...calling tool `mcp_MyMCP_execute_command` with command="\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"find . -type f -name '*.md'\""...]
 [...analyzing command results...]
-I've identified some duplicates that I've merged with the main files. Removing duplicates using MCP via Git Bash.
-[...calling tool `mcp_MyMCP_execute_command` with command="\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"rm <duplicate_file_path>\"" for each duplicate...]
+I've identified some duplicates/misplaced files.
 **(Consolidate-repo: 3 - Integrity verification)**  
 
-# Consolidate-repo: 4 - MCP Terminal Cleanup  
-I'm now checking MCP terminal processes for cleanup. **(Consolidate-repo: 4 - MCP Terminal Cleanup)**  
-Calling `mcp_get_terminal_status`...  
-[...retrieving process statuses...]  
-I've found some finished processes (`FINISHED`, `ERROR`). Stopping these with `mcp_stop_terminal_command` to free up resources.  
-Cleanup complete.  
-**(Consolidate-repo: 4 - MCP Terminal Cleanup)**  
+# Consolidate-repo: 4 - Direct Cleanup
+I will now directly resolve the identified integrity issues. **(Consolidate-repo: 4 - Direct Cleanup)**
+[...merging duplicate file content using edit tools...]
+[...deleting duplicate file using `mcp_MyMCP_execute_command` with `rm`...]
+[...moving misplaced file using `mcp_MyMCP_execute_command` with `mv`...]
+Cleanup actions performed.
+**(Consolidate-repo: 4 - Direct Cleanup)**
 
-# Consolidate-repo: 5 - Cleanup task identification  
-I'm now identifying necessary cleanup tasks. **(Consolidate-repo: 5 - Cleanup task identification)**  
-[...task identification...]  
-I've added these tasks to `.cursor/memory-bank/workflow/tasks.md` for later validation.  
-**(Consolidate-repo: 5 - Cleanup task identification)**  
+# Consolidate-repo: 5 - MCP Terminal Cleanup  
+I'm now checking MCP terminal processes used in this rule for cleanup. **(Consolidate-repo: 5 - MCP Terminal Cleanup)**  
+Calling `mcp_get_terminal_status`...  
+[...retrieving process statuses...]
+I've found finished processes used for verification/cleanup. Stopping these with `mcp_stop_terminal_command` to free up resources.  
+Cleanup complete.  
+**(Consolidate-repo: 5 - MCP Terminal Cleanup)**  
 
 # Consolidate-repo: 6 - Evaluation of user requests  
-I'm now evaluating if I've identified new user requests. **(Consolidate-repo: 6 - Evaluation of user requests)**  
-I found the following requests in the userbrief.md file:  
-- [Summary of extracted requests]  
-
-I will now call the `request-analysis` rule to process these requests.  
+I'm now evaluating if new user requests were identified in userbrief.md during step 1. **(Consolidate-repo: 6 - Evaluation of user requests)**  
+[...checking if any requests were marked ⏳ or 📌 in step 1...]
+[If yes:] I found the following requests: [...]. I will now call the `request-analysis` rule.
+[If no:] No new requests were identified. I will call `context-update`.
 **(Consolidate-repo: 6 - Evaluation of user requests)**  
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)  

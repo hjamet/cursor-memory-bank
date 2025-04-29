@@ -1,17 +1,19 @@
 # Active Context
 
 ## Current Goal
-Refine workflow rules (`task-decomposition.mdc`) and template (`userbrief-template.mdc`) examples and format descriptions following previous modifications.
+Modify `consolidate-repo.mdc` to perform direct cleanup actions and reorder steps.
 
 ## Summary of Fix
 - Modified `userbrief-template.mdc`, `consolidate-repo.mdc`, `task-decomposition.mdc` for new task lifecycle (input -> ⏳ -> 🗄️).
 - Tested `consult_image` tool.
-- Refined format descriptions in `userbrief-template.mdc` (removed ✅, added 🗄️, updated ⏳).
-- Refined example in `task-decomposition.mdc` and removed ✅ mentions.
+- Refined format descriptions in `userbrief-template.mdc`.
+- Refined example in `task-decomposition.mdc`.
+- Modified `consolidate-repo.mdc` to implement direct file cleanup (merge/delete/move) in Step 4 and reordered steps (3->3, 5->4, 4->5, 6->6).
+- Updated `consolidate-repo.mdc` example.
 
 ## Current implementation context
-- Completed all tasks defined for the user request (rule modifications and refinements).
-- `tasks.md` contains a duplicate completed section under # ToDo due to prior edit failure, but no pending tasks remain.
+- Completed all tasks defined for the user requests (rule modifications, refinements, and logic update).
+- `tasks.md` contains duplicate completed sections under # ToDo due to prior edit failures, but no pending tasks remain.
 
 ## Previous Context (Preserved)
 - Workflow completed for the request to implement character-based log handling and fix related test regressions.
