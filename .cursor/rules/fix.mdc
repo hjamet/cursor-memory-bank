@@ -43,9 +43,20 @@ Analyze test errors and fix them through an iterative execution-correction loop 
             *   Call the `request-analysis` rule, providing the problem description, context, and the need for a new approach.
 
 3.  **Calling the next rule (only if loop completed without handover)**: Determine the next step based on results *if and only if* step 2.5 did not trigger a handover to `request-analysis`.
-    *   First check for unprocessed comments in `.cursor/memory-bank/userbrief.md`
-    *   If unprocessed comments exist → call `consolidate-repo`
-    *   If all initially failing tests were fixed → call `test-execution` for final verification
+    *   `<think>`
+        *   **Determine Invocation Context:** How was the `fix` rule invoked?
+        *   Read `.cursor/memory-bank/context/activeContext.md`. Look for sections indicating the source of the problem (e.g., `## Test Execution Failure`, `## Experience Execution Anomaly`, `## User Reported Issue`).
+        *   Set `invoked_by_test_failure = true` if the context clearly indicates this rule was called due to a failed automated test reported in `tests.md` (typically by `test-execution`).
+        *   Set `invoked_by_test_failure = false` if the context indicates the issue came from another source (e.g., `experience-execution` analysis, user input) and likely lacks specific test coverage.
+        *   If context is unclear, default to `invoked_by_test_failure = true` for safety (prioritizing running existing tests).
+        *</think>`
+    *   **Decision Logic:**
+        *   First check for unprocessed comments in `.cursor/memory-bank/userbrief.md`.
+            *   If unprocessed comments exist → call `consolidate-repo`.
+        *   ELSE IF `invoked_by_test_failure == false`:
+            *   Call `test-implementation`, instructing it to create a test case for the specific behavior/scenario that was just fixed to prevent regression.
+        *   ELSE (i.e., `invoked_by_test_failure == true` or context unclear):
+            *   Assuming all initially identified failing tests were addressed in the loop, call `test-execution` for final verification of the fixes against the existing test suite.
     *   Write **(Fix: 3 - Calling the next rule)**
 
 ## Specifics
@@ -72,7 +83,8 @@ This workflow allows managing long processes without blocking and retrieving int
 
 ## Next Rules
 -   `consolidate-repo` - If loop completes and unprocessed comments exist
--   `test-execution` - If loop completes and all initially failing tests were fixed
+-   `test-execution` - If loop completes and the fix was for issues identified by existing automated tests.
+-   `test-implementation` - If loop completes and the fix was for issues NOT identified by existing automated tests (to add regression test).
 -   `request-analysis` - Called directly from step 2.5 for truly complex issues, terminating this rule's execution.
 
 ## Example
@@ -199,5 +211,19 @@ Calling `request-analysis` to handle the complex task of implementing efficient 
 [...Here, the agent calls the rule 'request-analysis' using its rule calling tool...]
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
+
+**(Alternative Scenario in Step 3)**
+
+# Fix: 3 - Calling the next rule (Scenario: Fix for non-test issue)
+<think>
+Determine Invocation Context: Reading activeContext.md... Found section '## Experience Execution Anomaly' detailing the issue fixed. This wasn't from tests.md.
+Set invoked_by_test_failure = false.
+</think>
+Decision Logic:
+Checking userbrief.md... No unprocessed comments.
+invoked_by_test_failure is false.
+Calling `test-implementation` to create a regression test for the specific behavior fixed.
+**(Fix: 3 - Calling the next rule)**
+[...calling tool 'fetch_rules' with rule_names=["test-implementation"]...]
 
 

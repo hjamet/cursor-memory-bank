@@ -9,6 +9,7 @@
     - Added iterative monitoring loop using `get_terminal_status` with increasing timeouts (max 300s).
     - Integrated `<think>` blocks for analysis during monitoring, allowing optional code investigation and decision to stop/continue.
     - Ensured final analysis step follows the loop.
+- Completed Task 1.1 (fix.mdc): Modified `fix.mdc` final step to call `test-implementation` if the fix was for an issue not covered by existing automated tests.
 
 ## Lost workflow
 - Attempted to execute `task-decomposition` rule for the user request (modify `architect.mdc` and `

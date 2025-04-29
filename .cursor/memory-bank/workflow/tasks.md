@@ -1,5 +1,12 @@
 # ToDo
 
+## 1. Enhance `fix.mdc`: Add Regression Test Trigger [In Progress]
+- [x] **1.1 Modify `fix.mdc` Final Step**: Add logic to conditionally call `test-implementation`.
+    - *Description*: Update the final step ("Calling the next rule") in `fix.mdc`. Add a decision point: If the `fix` rule was invoked for an issue *not* originating from a failed automated test (e.g., called by `experience-execution`, user input, or other rules detecting non-test-covered problems), then the rule should conclude by calling `test-implementation`. The call to `test-implementation` should clearly state the goal: create a new test to cover the specific scenario that was just fixed, preventing regression. If the fix *was* for an automated test failure, the original logic for choosing the next rule should apply. Use the rename-edit-rename workaround.
+    - *Impacted Files/Components*: `.cursor/rules/fix.mdc`
+    - *Dependencies*: None
+    - *Validation Criteria*: The final step in `fix.mdc` includes logic to check the invocation context/reason and correctly calls `test-implementation` with the appropriate goal when the fix was for a non-test-covered issue.
+
 # Done
 
 ## 1. Refactor `experience-execution.mdc`: Command Execution & Monitoring [In Progress]
@@ -57,3 +64,10 @@
     - *Impacted Files/Components*: `.cursor/rules/experience-execution.mdc`
     - *Dependencies*: 1.2, 1.3, 1.4
     - *Validation Criteria*: The final analysis step is clearly distinct from the monitoring loop analysis and uses the comprehensive final results.
+
+## 1. Enhance `fix.mdc`: Add Regression Test Trigger
+- [x] **1.1 Modify `fix.mdc` Final Step**: Add logic to conditionally call `test-implementation`.
+    - *Description*: Update the final step ("Calling the next rule") in `fix.mdc`. Add a decision point: If the `fix` rule was invoked for an issue *not* originating from a failed automated test (e.g., called by `experience-execution`, user input, or other rules detecting non-test-covered problems), then the rule should conclude by calling `test-implementation`. The call to `test-implementation` should clearly state the goal: create a new test to cover the specific scenario that was just fixed, preventing regression. If the fix *was* for an automated test failure, the original logic for choosing the next rule should apply. Use the rename-edit-rename workaround.
+    - *Impacted Files/Components*: `.cursor/rules/fix.mdc`
+    - *Dependencies*: None
+    - *Validation Criteria*: The final step in `fix.mdc` includes logic to check the invocation context/reason and correctly calls `test-implementation` with the appropriate goal when the fix was for a non-test-covered issue.
