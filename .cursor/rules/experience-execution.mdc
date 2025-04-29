@@ -1,11 +1,11 @@
 ---
-description: Call this rule to execute complex commands that generate an experiment result to be saved.
+description: Call this rule to execute complex commands that generate an experiment result to be saved, with iterative monitoring.
 globs: 
 alwaysApply: false
 ---
 
 ## TLDR
-Execute potentially long-running commands (experiments, data processing, model training), analyze logs and results, document outcomes, and save observations to memory.
+Execute potentially long-running commands (experiments, data processing, model training), iteratively monitor progress, analyze logs and results critically, document outcomes, and save observations to memory.
 
 ## Instructions
 
@@ -17,147 +17,144 @@ Execute potentially long-running commands (experiments, data processing, model t
         *   Consider if adjustments are needed for testing purposes (e.g., using a reduced dataset, fewer iterations) versus a full run.
         *   Consult relevant project files, documentation, or `techContext.md` if needed to confirm command details.
         *   Define expected outputs (files, database entries, log patterns).
-        *   Outline the analysis steps needed for the results.
+        *   Outline the analysis steps needed for the results (including potential monitoring checkpoints).
         *</think>`
     *   Summarize the plan and the command(s) to be executed.
     *   **(Experience-Execution: 1 - Planning completed)**
 
-2.  **Command Execution**: Run the planned command(s).
+2.  **Initial Command Execution**: Start the command with a short timeout.
     *   Use the `mcp_MyMCP_execute_command` MCP tool.
     *   Provide the `command` string.
-    *   Set an appropriate `timeout` (in seconds) if the command might be long-running. Note: the command may continue in the background if the timeout is reached.
-    *   The tool returns the `pid` and initial status/output.
-    *   **(Experience-Execution: 2 - Command execution initiated)**
+    *   Set a **fixed short timeout of 30 seconds (`timeout=30`)**. This is just to ensure the command starts without immediate errors.
+    *   The tool returns the `pid` and initial status/output (potentially incomplete if timeout is reached). Record the `pid`.
+    *   **(Experience-Execution: 2 - Initial execution initiated)**
 
-3.  **Result Analysis**: **Critically analyze** logs **AND generated files**.
-    *   Examine the captured standard output and error streams for obvious errors or success indicators.
+3.  **Iterative Monitoring & Analysis**: Monitor the command's progress.
+    *   Initialize `current_timeout = 15` (seconds).
+    *   **Loop:** While the command identified by `pid` is still likely running (check status from previous iteration or assume running initially):
+        *   Call `mcp_MyMCP_get_terminal_status` with the recorded `pid` and `timeout = current_timeout`. **IMPORTANT: `current_timeout` MUST NOT exceed 300 seconds (5 minutes).** If doubling the timeout would exceed 300, use 300 instead.
+        *   `<think>`
+            *   Analyze the status, exit code (if finished), and recent output returned by `get_terminal_status`.
+            *   Does the output show expected progress? Are there new errors or warnings?
+            *   Does the status indicate the command is still 'Running', 'Success', 'Failure', or 'Stopped'?
+            *   **Anomaly Check:** Is there anything unexpected or strange in the output, even if not a clear error (e.g., unusually slow progress, strange log messages, unexpected file modifications suggested by logs)?
+            *   **(Optional Investigation):** If anomalies are detected and warrant investigation *before* the command finishes, you MAY use `read_file` or `codebase_search` to check relevant source code or generated files *now* to understand the potential issue.
+            *   **Decision:** Based on the analysis:
+                *   **Stop Execution?** If a critical error is confirmed, or an anomaly is severe enough to halt -> Call `mcp_MyMCP_stop_terminal_command` with the `pid`, record the failure reason, **break the loop**, and prepare to go to Step 7 (Calling Next Rule, likely routing to `fix`).
+                *   **Continue Monitoring?** If status is 'Running' and analysis shows normal progress or minor/investigated anomalies -> Double `current_timeout` (capping at 300s), **continue the loop**.
+                *   **Finished?** If status is 'Success', 'Failure', or 'Stopped' -> Record the final state, **break the loop**, and proceed to Step 4 (Final Analysis).
+            *</think>`
+        *   **(Experience-Execution: 3 - Monitoring loop iteration completed)**
+
+4.  **Final Result Analysis**: **Critically analyze** final logs **AND generated files**.
+    *   Using the final status and complete output gathered (potentially from the last `get_terminal_status` or `stop_terminal_command` call):
+    *   Examine the standard output and error streams for success indicators or error messages.
     *   **MANDATORY: Check for expected generated files** (defined in Step 1). Verify their existence.
     *   **MANDATORY: Critically analyze the CONTENT of key generated files** (e.g., result data, logs, configuration outputs). Use `read_file` if necessary.
         *   **Do NOT just check for existence or basic format.**
-        *   **Look for:**
-            *   Values within expected ranges.
-            *   Absence of error messages or stack traces within log files.
-            *   Correct structure and data types in output files (e.g., CSV columns, JSON structure).
-            *   Any unusual patterns, outliers, or nonsensical results.
-            *   Consistency between different output files.
+        *   **Look for:** Values within expected ranges, absence of errors in logs, correct structure/types, unusual patterns, consistency. Incorporate insights from any intermediate analysis done in Step 3's `<think>` blocks.
         *   Verify that their format and content **truly conform** to expectations (defined in Step 1).
     *   `<think>`
-        *   Compare the actual results (**including detailed file content analysis**) against the expected outcomes defined in the planning phase.
-        *   Identify any discrepancies, errors, **anomalies**, unexpected results, or formatting issues found in the console output OR the generated files.
-        *   Determine if the execution was successful based on the **complete and CRITICAL analysis** (console and files).
+        *   Compare the final actual results (**including detailed file content analysis**) against the expected outcomes defined in the planning phase.
+        *   Identify any discrepancies, errors, **anomalies**, unexpected results, or formatting issues found in the final console output OR the generated files.
+        *   Determine if the execution was ultimately successful based on the **complete and CRITICAL analysis** (console and files).
         *   **Explicitly note any strange findings**, even if not technically an error according to initial expectations.
         *</think>`
     *   Summarize the **detailed critical analysis** findings, explicitly mentioning the state and **content assessment** of generated files and any anomalies found.
-    *   **(Experience-Execution: 3 - Critical Analysis completed)**
+    *   **(Experience-Execution: 4 - Final Analysis completed)**
 
-4.  **Documentation & Memory**: Document results and save observations.
-    *   **4.1 Documentation (MANDATORY)**:
-        *   **Create or update a dedicated documentation file** for this execution (e.g., create `results/[timestamp_or_name]/README.md`).
-        *   **Content Requirements:** The file must include:
-            *   The exact command executed.
-            *   Key parameters used.
-            *   A summary of the results based on the detailed analysis in Step 3 (including file status).
-            *   Conclusions from the analysis (success/failure, key findings).
-            *   **Direct links** to important generated files (logs, results).
-        *   **Ensure discoverability:** Link or reference this documentation file from a central project location (e.g., the main `README.md`, an experiments index).
-        *   **(Experience-Execution: 4.1 - Documentation updated)**
-    *   **4.2 Memory Storage**:
-        *   Use `mcp_Memory_create_entities` and/or `mcp_Memory_add_observations`.
-        *   Create an entity representing the experiment (e.g., `Experiment:[Name]`).
-        *   Add observations detailing:
-            *   Command executed
-            *   Key parameters
-            *   Summary of results (success/failure, key metrics)
-            *   Location of detailed documentation/results files
-            *   Any significant findings or learnings
-        *   **(Experience-Execution: 4.2 - Memory updated)**
+5.  **Documentation & Memory**: Document results and save observations.
+    *   **5.1 Documentation (MANDATORY)**:
+        *   Create or update a dedicated documentation file (e.g., `results/[timestamp_or_name]/README.md`).
+        *   Content Requirements: Command, parameters, summary of results (from Step 4), conclusions, links to generated files.
+        *   Ensure discoverability.
+        *   **(Experience-Execution: 5.1 - Documentation updated)**
+    *   **5.2 Memory Storage**:
+        *   Use `mcp_Memory_create_entities`/`mcp_Memory_add_observations`.
+        *   Create/update experiment entity. Add observations (command, params, result summary, doc location, findings).
+        *   **(Experience-Execution: 5.2 - Memory updated)**
 
-5.  **MCP Terminal Cleanup**: Ensure the executed command's resources are released.
+6.  **MCP Terminal Cleanup**: Ensure the executed command's resources are released (if not already stopped).
     *   `<think>`
-        *   Identify the `pid` of the command executed in Step 2. This might have been returned by `mcp_execute_command` or needs to be found using `mcp_get_terminal_status` based on the command string or recent activity.
-        *   Determine if the process with that `pid` still needs cleanup (e.g., if it finished but wasn't automatically cleaned by the MCP system).
+        *   Identify the `pid` of the command executed.
+        *   Check its final status from Step 3 or 4. If it was explicitly stopped or finished and cleaned up, this step might be skipped. Otherwise, proceed.
         *</think>`
-    *   Call `mcp_get_terminal_status` if the `pid` is unknown or needs confirmation.
-    *   Call `mcp_stop_terminal_command` with the correct `pid` to terminate and clean up the process if necessary.
-    *   **(Experience-Execution: 5 - MCP cleanup performed)**
+    *   Call `mcp_get_terminal_status` one last time if needed to confirm state.
+    *   Call `mcp_stop_terminal_command` with the correct `pid` to ensure termination and cleanup if it wasn't already confirmed stopped/completed and cleaned.
+    *   **(Experience-Execution: 6 - MCP cleanup performed)**
 
-6.  **Calling the next rule**: Decide the next step based on analysis.
+7.  **Calling the next rule**: Decide the next step based on final analysis.
     *   `<think>`
-        *   Review the critical analysis summary from Step 3.
-        *   Did the analysis explicitly note any anomalies or strange findings (even if not strictly errors)?
-        *   Did the analysis conclude the execution failed or results were non-conformant?
+        *   Review the final critical analysis summary from Step 4.
+        *   Did the analysis explicitly note any anomalies or strange findings?
+        *   Did the analysis conclude the execution failed or results were non-conformant (based on Step 4)?
         *</think>`
     *   **Decision Logic:**
-        *   IF analysis (Step 3) detected problems, errors, or non-conformity → call `fix`, providing context about the failed execution and analysis findings.
-        *   ELSE IF analysis (Step 3) explicitly noted **anomalies or strange findings** (even if the execution technically succeeded) → call `request-analysis`, instructing it to create a new task in `tasks.md` to investigate these specific anomalies.
+        *   IF final analysis (Step 4) detected problems, errors, or non-conformity → call `fix`, providing context.
+        *   ELSE IF final analysis (Step 4) explicitly noted **anomalies or strange findings** (even if the execution technically succeeded) → call `request-analysis`, instructing it to create a new task to investigate these specific anomalies.
         *   ELSE (execution successful and no anomalies noted) → call `context-update`.
-    *   **(Experience-Execution: 6 - Calling next rule)**
+    *   **(Experience-Execution: 7 - Calling next rule)**
 
 ## Specifics
--   This rule is intended for executing tasks that involve running commands/scripts and analyzing their output, distinct from unit testing (`test-execution`).
--   Ensure thorough planning in Step 1 to avoid command errors.
--   Result analysis (Step 3) is crucial for determining success or failure.
--   Documentation and Memory storage (Step 4) are mandatory for preserving experiment context and results.
--   Use `<think>` blocks for planning and analysis steps.
--   Adapt command execution (e.g., reduced scope) during planning if the goal is only to test functionality rather than perform a full run.
+-   This rule uses iterative monitoring for potentially long commands.
+-   Step 2 uses a **fixed 30s timeout** for initial execution check.
+-   Step 3 uses `mcp_MyMCP_get_terminal_status` with **increasing timeouts, capped at 300s (5 minutes) per call**.
+-   Critical analysis (Step 4) of logs AND file content is mandatory.
+-   Use `<think>` blocks for planning, monitoring analysis, cleanup checks, and final rule decision.
+-   Documentation and Memory storage (Step 5) are mandatory.
 
 ## Next Rules
--   `context-update` - If execution was successful and NO anomalies were noted.
--   `fix` - If execution failed or results were non-conformant.
--   `request-analysis` - If execution succeeded BUT anomalies/strange results were noted during critical analysis.
+-   `context-update` - If execution was successful and NO anomalies were noted in final analysis.
+-   `fix` - If execution failed or results were non-conformant in final analysis.
+-   `request-analysis` - If execution succeeded BUT anomalies/strange results were noted during final critical analysis.
 
-## Example
+## Example (Conceptual)
 
 # Experience-Execution: 1 - Planning & Preparation
-<think>
-The task is to train the primary classification model.
-Command: `python src/training/train_model.py --config configs/primary_classifier.yaml --output results/primary_run_$(date +%Y%m%d)`
-Arguments: Config file specifies dataset, hyperparameters. Output dir for model and logs.
-Time: Expected ~2 hours for full run. For testing, could use `--config configs/test_classifier.yaml` (~5 mins). Current task requires full run.
-Expected outputs: `results/primary_run_*/model.pt`, `results/primary_run_*/training.log`, log file should contain "Training finished successfully".
-Analysis: Check log for success message, verify model file exists.
-</think>
-Plan: Execute full training run using primary config. Verify log message and model file.
+<think> Plan: Run `long_script.py`. Expect ~10 mins. Output: `output.log`, `results.csv`. Log should end with 'Success'. CSV needs 3 columns. Monitor progress via log messages. </think>
 **(Experience-Execution: 1 - Planning completed)**
 
-# Experience-Execution: 2 - Command Execution
-Executing the training script using MCP.
-[...calling tool `mcp_MyMCP_execute_command` with command="python src/training/train_model.py --config configs/primary_classifier.yaml --output results/primary_run_$(date +%Y%m%d)", timeout=7200...]
-**(Experience-Execution: 2 - Command execution initiated)**
-[...Use `mcp_MyMCP_get_terminal_status` and `mcp_MyMCP_get_terminal_output` to monitor and retrieve results...]
+# Experience-Execution: 2 - Initial Command Execution
+Executing `long_script.py` with 30s timeout.
+[...calling `mcp_MyMCP_execute_command` with command="long_script.py", timeout=30... returns pid=67890]
+**(Experience-Execution: 2 - Initial execution initiated)**
 
-# Experience-Execution: 3 - Result Analysis
-[...Checking log file `results/primary_run_YYYYMMDD/training.log`...]
-[...Checking for `results/primary_run_YYYYMMDD/model.pt`...]
-<think>
-Log file contains "Training finished successfully". Model file `model.pt` exists. Execution appears successful and conforms to expectations.
-</think>
-Analysis: Training completed successfully based on log message and presence of model file.
-**(Experience-Execution: 3 - Analysis completed)**
+# Experience-Execution: 3 - Iterative Monitoring & Analysis
+(Iteration 1) Checking status for pid=67890 with timeout=15s.
+[...calling `mcp_MyMCP_get_terminal_status` with pid=67890, timeout=15...]
+<think> Status: Running. Output shows initial setup logs, looks normal. Continue. </think>
+(Iteration 2) Checking status for pid=67890 with timeout=30s.
+[...calling `mcp_MyMCP_get_terminal_status` with pid=67890, timeout=30...]
+<think> Status: Running. Output shows 'Processing batch 10/100'. Looks slow? Anomaly: maybe. Let's check the code briefly. `read_file('long_script.py')`. Hmm, batch size seems normal. Continue monitoring for now. </think>
+(Iteration 3) Checking status for pid=67890 with timeout=60s.
+[...calling `mcp_MyMCP_get_terminal_status` with pid=67890, timeout=60...]
+<think> Status: Running. Output shows 'Processing batch 50/100'. Still seems ok. </think>
+... (Loop continues with increasing timeouts up to 300s) ...
+(Iteration N) Checking status for pid=67890 with timeout=300s.
+[...calling `mcp_MyMCP_get_terminal_status` with pid=67890, timeout=300...]
+<think> Status: Success. Exit code 0. Final logs look good. Proceed to final analysis. </think>
+**(Experience-Execution: 3 - Monitoring loop iteration completed)**
 
-# Experience-Execution: 4 - Documentation & Memory
+# Experience-Execution: 4 - Final Result Analysis
+<think> Final status was Success. Log file `output.log` contains 'Success'. `results.csv` exists. Read `results.csv`. Content check: 3 columns, data looks reasonable. No anomalies noted in final check. </think>
+Analysis: Execution successful and results conform.
+**(Experience-Execution: 4 - Final Analysis completed)**
 
-## 4.1 Documentation
-[...Creating `results/primary_run_YYYYMMDD/README.md`...]
-[...Adding execution details, parameters, link to log, summary of success to README...]
-**(Experience-Execution: 4.1 - Documentation updated)**
+# Experience-Execution: 5 - Documentation & Memory
+[...updating docs and memory...]
+**(Experience-Execution: 5.1 - Documentation updated)**
+**(Experience-Execution: 5.2 - Memory updated)**
 
-## 4.2 Memory Storage
-[...calling tool 'mcp_Memory_create_entities' with entity: Experiment:PrimaryClassifierTrain-YYYYMMDD...]
-[...calling tool 'mcp_Memory_add_observations' with details for Experiment:PrimaryClassifierTrain-YYYYMMDD...]
-**(Experience-Execution: 4.2 - Memory updated)**
+# Experience-Execution: 6 - MCP Terminal Cleanup
+<think> Command finished with Success. Cleanup likely handled by MCP status check. Double check status. </think>
+[...optional call to `mcp_get_terminal_status`...]
+[...optional call to `mcp_stop_terminal_command` if needed...]
+**(Experience-Execution: 6 - MCP cleanup performed)**
 
-# Experience-Execution: 5 - MCP Terminal Cleanup
-<think>
-The command `python src/training/train_model.py ...` was executed. Assuming its pid was 12345.
-</think>
-Checking status and cleaning up PID 12345 if necessary.
-[...calling tool 'mcp_stop_terminal_command' with pid=12345...]
-**(Experience-Execution: 5 - MCP cleanup performed)**
-
-# Experience-Execution: 6 - Calling the next rule
-Execution was successful. Calling `context-update`.
-**(Experience-Execution: 6 - Calling next rule)**
+# Experience-Execution: 7 - Calling the next rule
+<think> Final analysis showed success and no anomalies. </think>
+Calling `context-update`.
+**(Experience-Execution: 7 - Calling next rule)**
 [...calling tool 'fetch_rules' with rule_names=["context-update"]...]
 
 ### Important note on command execution
