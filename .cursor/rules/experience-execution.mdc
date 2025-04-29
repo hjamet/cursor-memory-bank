@@ -74,9 +74,7 @@ Execute potentially long-running commands (experiments, data processing, model t
 
 6.  **Calling the next rule**: Decide the next step based on analysis.
     *   If analysis (Step 3) indicated success and conformity → call `context-update`.
-    *   If analysis (Step 3) detected problems, errors, or non-conformity →
-        1.  **Summarize the specific errors/problems identified** during analysis (Step 3).
-        2.  Call `task-decomposition`, providing the summary of problems as context to decompose them into new tasks.
+    *   If analysis (Step 3) detected problems, errors, or non-conformity → call `fix`, providing context about the failed execution and analysis findings.
     *   **(Experience-Execution: 6 - Calling next rule)**
 
 ## Specifics
@@ -89,7 +87,7 @@ Execute potentially long-running commands (experiments, data processing, model t
 
 ## Next Rules
 -   `context-update` - If execution was successful.
--   `task-decomposition` - If execution failed or results were non-conformant (to break down the problems).
+-   `fix` - If execution failed or results were non-conformant.
 
 ## Example
 

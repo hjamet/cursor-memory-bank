@@ -29,7 +29,13 @@
     - *Test Case 2 (Timeout and Incremental Output)*: `mcp_MyMCP_execute_command` with a longer script and 2s timeout correctly returned partial output. Subsequent `mcp_MyMCP_get_terminal_output` calls retrieved only the *new* output since the previous call, confirming index tracking. Final call returned empty strings.
     - *Test Case 3 (Status Snapshot)*: `mcp_MyMCP_get_terminal_status` correctly used `readLastLogChars` to display the last N characters (tested with 3000 limit) for both completed and running processes, without affecting read indices.
     - *Validation*: Functionality matches Task 3.1 validation criteria.
-- [✅] **Python Script Multiple Arguments**: Passed (Current Cycle). Verified `mcp_MyMCP_execute_command` successfully executes a Python script (`tests/arg_test.py`) with multiple arguments, including spaces (`python tests/arg_test.py first_arg second_arg "third arg with spaces" fourth`), and correctly captures stdout containing `sys.argv`.
+- [✅] **Simple Success (`echo`)**: Passed (Current Cycle). Correct exit code (0) and stdout.
+- [✅] **Simple Failure (`non_existent_command`)**: Passed (Current Cycle). Correct exit code (127) and stderr.
+- [✅] **Large Stdout (`for loop echo`)**: Passed (Current Cycle). Command completed quickly, full stdout returned by `execute_command`.
+- [✅] **Large Stderr (`for loop echo >&2`)**: Passed (Current Cycle). Command completed quickly, full stderr returned by `execute_command`.
+- [✅] **Mixed Output w/ Sleeps**: Passed (Current Cycle). Command completed within timeout, correct combined stdout/stderr returned by `execute_command`.
+- [✅] **Long Running Timeout (`ping`)**: Passed (Current Cycle). `execute_command` timed out returning partial output and PID. Subsequent `get_terminal_output` retrieved next chunk. `get_terminal_status` showed final success status and output snapshot.
+- [✅] **Python Script Multiple Arguments**: Passed (Current Cycle).
 - [✅] **Basic Commands (`echo`, `non_existent_command`)**: Passed. Correct exit codes and stdout/stderr captured via `get_terminal_status`.
 - [✅] **Python Script (`python -c ...`)**: Passed. Correct custom exit code, stdout, and stderr captured.
 - [✅] **Git Command (`git status --short`)**: Passed. Correct exit code and output captured.

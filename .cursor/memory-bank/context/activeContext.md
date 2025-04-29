@@ -1,20 +1,16 @@
 # Active Context
 
 ## Current Goal
-Completed implementation and testing of character-based log truncation and retrieval for MCP terminal tools.
+Workflow completed for the request to implement character-based log handling and fix related test regressions.
 
 ## Summary of Fix
-- Added `stdout_read_index` and `stderr_read_index` to process state in `process_manager.js`.
-- Implemented `readLogChars` and `readLastLogChars` in `logger.js` using `fs.promises`.
-- Updated MCP tool handlers (`terminal_execution.js`, `terminal_output.js`, `terminal_status.js`, `terminal_stop.js`) to use the new logger functions, respect character limits (3000/20000), and manage read indices.
-- Successfully tested via ad-hoc Python script execution using MCP tools, verifying correct handling of:
-    - Immediate command completion within timeout (full output).
-    - Command timeout (partial output).
-    - Subsequent calls retrieving only new output.
-    - Status snapshot showing last N characters.
+- Implemented character-based log retrieval in MCP tools (`logger.js`, tool handlers, `state_manager.js`).
+- Verified functionality with ad-hoc tests.
+- Fixed regression in `tests/test_consult_image.js` by updating assertion to expect `image/jpeg` (due to intended image processing).
+- All automated tests (excluding known issue with `test_mcp_async_terminal.js` run via MCP) now pass.
 
 ## Current implementation context
-N/A - Implementation and testing complete for this cycle.
+N/A - Workflow complete for this request.
 
 ## Previous Context (Preserved)
 - Fixed `consult_image` MCP tool (previously crashed on large images).
