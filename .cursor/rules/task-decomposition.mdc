@@ -10,15 +10,15 @@ Decompose user request into concrete tasks and organize them in tasks.md by numb
 
 1. **Existing tasks analysis**: Read the `.cursor/memory-bank/workflow/tasks.md` file if it exists
 
-2. **Userbrief analysis**: Consult the `.cursor/memory-bank/userbrief.md` file
-   - Identify requests marked with 🔄 (transformed by consolidate-repo)
-   - Transform these tasks into structured format for tasks.md
-   - Once transformed, delete these tasks from the file
-   - IMPORTANT: Do NOT modify other parts of the userbrief.md file, only delete tasks marked with 🔄 by transferring them to the tasks file.
+2. **Userbrief processing identification**: Consult the `.cursor/memory-bank/userbrief.md` file
+   - Identify requests marked with ⏳ in the "Processing" section.
+   - Prepare these identified requests for transformation into structured tasks for `tasks.md` in step 4.
+   - IMPORTANT: Do NOT modify `userbrief.md` at this stage.
 
 3. **Completed tasks removal**: Eliminate completed tasks unrelated to current work from the `.cursor/memory-bank/workflow/tasks.md` file to keep it reasonably sized
 
 4. **New tasks integration**: Structure tasks in tasks.md
+   - Integrate the main request (from the calling rule or active context) AND any requests identified in step 2 (marked with ⏳ in `userbrief.md`).
    - Create maximum 3-4 very high-level sections (e.g., "Preparation", "Development")
    - Number sections by resolution order (1., 2., 3.)
    - Sub-number tasks (1.1, 1.2, 2.1, 2.2)
@@ -30,7 +30,13 @@ Decompose user request into concrete tasks and organize them in tasks.md by numb
      * Validation criteria
    - Prioritize by importance, dependencies, impact and complexity
 
-5. **Call next rule**: Mandatory call to `implementation`
+5. **Userbrief archiving**: Update `.cursor/memory-bank/userbrief.md`
+   - For EACH request identified in Step 2 (marked with ⏳) that was successfully integrated into `tasks.md` in Step 4:
+     - Move the item from the "Processing" section to the "Archives" section.
+     - Change its status marker from ⏳ to 🗄️.
+   - IMPORTANT: Only modify items that were successfully added to `tasks.md`.
+
+6. **Call next rule**: Mandatory call to `implementation`
 
 ## Specifics
 - Group similar tasks, even if apparently different
@@ -38,8 +44,9 @@ Decompose user request into concrete tasks and organize them in tasks.md by numb
 - Use generic sections that can accommodate different types of tasks
 - Minimize dependencies between sections/tasks
 - The tasks.md file format is defined in the tasks-md editing rule
-- IMPORTANT: Do not add new tasks to userbrief.md, only delete those already marked 🔄
-- IMPORTANT: Only deletion of tasks with status 🔄 is authorized in userbrief.md, no other modification
+- IMPORTANT: Do not add new tasks to userbrief.md.
+- IMPORTANT: In step 5, only move items from "Processing" to "Archives" and change ⏳ to 🗄️. Do not modify content or other sections.
+- IMPORTANT: Crucially, NEVER move an item to "Archives" (Step 5) if its corresponding task(s) were NOT successfully added to `.cursor/memory-bank/workflow/tasks.md` in Step 4.
 
 ## Next Rules
 - `implementation` - To begin implementing tasks

@@ -35,15 +35,16 @@ Update context files to reflect changes, update tasks.md based on test results, 
      - Misplaced files
      - Unnecessary temporary files
      - Files with incorrect names
-   - If structural problems are identified OR if the `.cursor/memory-bank/userbrief.md` file contains unprocessed comments (marked with - symbol), call the `consolidate-repo` rule
+   - If structural problems are identified OR if the `.cursor/memory-bank/userbrief.md` file contains unprocessed comments (marked with - symbol in the # User input section), call the `consolidate-repo` rule
    - Otherwise, continue with the next step: 6. **Call the next rule**
 
 6. **Call the next rule**: Mandatory call to the next rule if the workflow is not complete:
    - Read the `.cursor/memory-bank/workflow/test.md` file
-     - If at least one test fails, call the `fix` rule
-     - Otherwise, check if there are still tasks in progress or to do in tasks.md
-       - If yes, call the `implementation` rule
-       - Otherwise, indicate that the workflow is complete
+     - IF at least one test fails, call the `fix` rule
+     - ELSE IF structural problems were identified OR if the `.cursor/memory-bank/userbrief.md` file contains unprocessed comments (marked with - symbol in the # User input section), call the `consolidate-repo` rule
+     - ELSE, check if there are still tasks in progress or to do in tasks.md
+       - IF yes, call the `implementation` rule
+       - ELSE, indicate that the workflow is complete
 
 ## Specifics
 - Mark tasks as complete only if all associated tests pass

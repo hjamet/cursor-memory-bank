@@ -20,13 +20,14 @@ This file contains user requests and preferences, organized in 3 main sections t
 - **User Input**: Section where the user can freely write their ideas and thoughts
 - **Processing**: Section where requests are moved during their initial processing
 - **Precisions**: Section for long-term recommendations and detailed explanations
+- **Archives**: Section for requests that have been processed and added to tasks.md
 
 ## Format for Elements
 
 - **- Todo**: Elements that have not yet been processed
 - **🔄 In Progress**: Elements currently being processed
 - **📌 Taken into account**: Persistent preferences to keep (tools, code style, etc.)
-- **✅ Done**: Elements that have been processed and completed
+- **🗄️ Archived**: Elements that have been processed and added to tasks.md, marked with 🗄️
 
 ## Reference Template
 
@@ -36,11 +37,14 @@ This file contains user requests and preferences, organized in 3 main sections t
 # Processing
 <!-- Requests being processed/transformed into tasks -->
 🔄 [Request being processed]
-✅ [Completed request]
 
 # Precisions
 <!-- Long-term preferences and recommendations -->
 📌 [Important preference to keep]
+
+# Archives
+<!-- Requests that have been processed and added to tasks.md, marked with 🗄️ -->
+🗄️ [Archived request]
 
 ## Style and Best Practices
 

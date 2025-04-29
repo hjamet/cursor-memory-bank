@@ -24,19 +24,19 @@ tests/                       # Unit and integration tests
 ## Instructions
 
 1. **Processing userbrief.md**: Analyze and transform content:
-   - Read content from "User Input" section in `.cursor/memory-bank/userbrief.md`
+   - Read content from "User Input" section in `.cursor/memory-bank/userbrief.md` (lines starting with `-`)
    - Identify content type: tasks or preferences
-   - For tasks: mark with 🔄 and move to "Processing"
+   - For tasks: mark with ⏳ and move to "Processing"
    - For preferences: mark with 📌 and move to "Precisions"
    - Don't convert tasks for tasks.md yet (this will be done by task-decomposition)
 
 2. **Organizing userbrief.md**: Structure content according to template:
-   - Maintain 3 main sections: "User Input", "Processing", "Precisions"
+   - Maintain sections: "User Input", "Processing", "Precisions" (and potentially "Archives", although this rule doesn't interact with it)
    - Apply appropriate statuses:
-     - - : To be processed
-     - 🔄 : In progress (for tasks only)
-     - 📌 : Long-term preference
-     - ✅ : Completed (not to be used, left for task-decomposition)
+     - - : To be processed (in "User Input")
+     - ⏳ : In processing (in "Processing", for tasks only)
+     - 📌 : Long-term preference (in "Precisions")
+     - (Do not use 🗄️ or ✅ - these are handled by other rules)
    - Ensure structure remains clear and readable
 
 3. **Integrity verification**: Control of memory files:
@@ -57,23 +57,22 @@ tests/                       # Unit and integration tests
    - Add these tasks to `.cursor/memory-bank/workflow/tasks.md` (without executing them directly)
 
 6. **Evaluation of user requests**: Decide next workflow step:
-   - If new requests identified in userbrief.md:
+   - IF new requests identified in userbrief.md:
      - Clearly formulate user request extracted from userbrief.md
      - Call `request-analysis` rule to process this request
-   - Otherwise:
+   - ELSE:
      - Call `context-update` rule to continue workflow
 
 ## Specifics
 
-- Content of `.cursor/memory-bank/userbrief.md` must never be deleted without explicit user authorization
 - Only structure and organization can be modified
 - User requests must always be processed with priority
 - Duplicates must be carefully merged to lose no information
 - Files to be deleted should be deleted only after merging and using the MCP command execution tool (`mcp_MyMCP_execute_command`) with Git Bash to run the `rm` command (not the `delete_file` tool because of a bug)
 - This rule should only be called by context-update when structure problems are detected
-- IMPORTANT: Only this rule is authorized to modify userbrief.md
-- IMPORTANT: Mark tasks with 🔄 (only) and preferences with 📌
-- IMPORTANT: Never use ✅, this is reserved for task-decomposition
+- IMPORTANT: Only this rule is authorized to modify userbrief.md to move items from "User Input" to "Processing" or "Precisions".
+- IMPORTANT: Mark new tasks from "User Input" with ⏳ (only) and move to "Processing". Mark preferences with 📌 and move to "Precisions".
+- IMPORTANT: Never use ✅ or 🗄️ in this rule; these are handled by `task-decomposition`.
 
 ## Next Rules
 
@@ -86,7 +85,7 @@ tests/                       # Unit and integration tests
 I begin by analyzing the content of `.cursor/memory-bank/userbrief.md`. **(Consolidate-repo: 1 - Processing userbrief.md)**  
 [...reading and analyzing userbrief.md content...]  
 I've identified several user requests that I will mark as follows:  
-- Tasks to perform: 🔄 (moving to "Processing")  
+- Tasks to perform: ⏳ (moving to "Processing")  
 - Long-term preferences: 📌 (moving to "Precisions")  
 **(Consolidate-repo: 1 - Processing userbrief.md)**  
 
