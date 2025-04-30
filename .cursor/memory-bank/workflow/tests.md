@@ -1,10 +1,10 @@
 # Test Status
 
-- [⚠️] **Commit MCP Tool (`.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`)**: No Automated Tests (Latest Check: Current Cycle)
-  - Command: N/A
-  - Result: N/A (No tests defined in `package.json`)
-  - Issue: Lack of automated tests for this core functionality. Manual testing required.
-  - Note: Tool refactored in this cycle for automatic CWD detection and repository name reporting (removed explicit `working_directory` arg).
+- [✅] **Commit MCP Tool (`.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`)**: Manual Test Passed (Latest Check: Current Cycle)
+  - Command: Manual sequence (create file, commit, delete file, commit) using `edit_file`, `mcp_MyMCP_commit`, `mcp_MyMCP_execute_command`.
+  - Result: Tool successfully auto-detected CWD (`cursor-memory-bank`), committed file creation/deletion, and reported repo name and committed file in output for both commits.
+  - Issue: No automated tests.
+  - Note: Tool refactored in this cycle for automatic CWD detection and repository name reporting.
 - [✅] **Consult Image Test (`tests/test_consult_image.js`)**: Passed (Latest Run: Current Cycle)
   - Command: `node tests/test_consult_image.js`
   - Result: `exit_code: 0`. Test successfully verified unsupported type handling and success case (returning processed image as JPEG).
