@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 
 ## TLDR
-Analyze user request, explore existing code and search for additional information to prepare implementation.
+Analyze user request, explore existing code, search for additional information, retrieve high-level context, and store relevant vision elements to prepare implementation.
 
 ## Instructions
 
@@ -13,13 +13,15 @@ Analyze user request, explore existing code and search for additional informatio
    - Analyze direct request or request transmitted by calling rule
    - Identify requested features or modifications
    - Extract important keywords and concepts
-   - **(Optional) Memory Lookup**: Use `mcp_servers_search_nodes` with keywords to find relevant past analyses or context in the knowledge graph.
+   - **High-Level Context Retrieval**: Use `codebase_search` targeting the `.cursor/memory` directory with keywords from the request to find relevant high-level vision or context notes.
+   - **Vision Storage**: If the user expresses high-level goals, preferences, or vision elements ("I want the app to...", "The overall goal is...", "I prefer bright colors..."), create a concise Markdown note summarizing this point and save it in the `.cursor/memory` directory using `edit_file`. Choose a descriptive filename (e.g., `user_preference_color_palette.md`, `project_goal_user_auth.md`).
 
 2. **Code analysis**: Identify concerned files and symbols:
    - ONLY AUTHORIZED: up to 3 semantic searches (code base search) based on request keywords
    - OPTIONALLY AUTHORIZED: tree command to visualize directory structure
    - STRICTLY FORBIDDEN: listing folders/files, reading specific files, or using any other tool
    - Don't limit to files explicitly mentioned in the request
+   - Add brief descriptions for each important element
 
 3. **Tree creation**: Represent concerned files:
    - Create a visual "tree" representation only of elements relevant for modifications
@@ -30,11 +32,11 @@ Analyze user request, explore existing code and search for additional informatio
 4. **Additional research**: Consult documentation and resources:
    - Research library documentation, patterns, or relevant best practices.
    - PREFERRED for external library documentation (especially less common ones): Use `mcp_Context7_resolve-library-id` then `mcp_Context7_get-library-docs` for structured docs and examples.
-   - ALTERNATIVE/General research: Use the web search tool, limited to 5 searches maximum.
+   - ALTERNATIVE/General research: Use the `mcp_brave-search_brave_web_search` tool, limited to 5 searches maximum.
    - Note consulted sources.
 
 5. **Conclusion**: Summarize information and necessary changes
-   - **(Optional) Memory Storage**: Use `mcp_servers_add_observations` to store key findings (request summary, identified files/symbols, conclusion) in the knowledge graph for future reference, associated with an entity like 'RequestAnalysisContext'.
+   - Synthesize findings from request analysis, context retrieval, code analysis, and research.
 
 6. **Call next rule**:
    - If complex/multi-step request → `task-decomposition`
@@ -46,8 +48,8 @@ Analyze user request, explore existing code and search for additional informatio
 - If the brief is empty without explicit request, consider tasks.md content as request
 - Strict tool limits:
   - Phase 2 (Code analysis): only code base search (max 3) and tree
-  - Phase 4 (Research): only mcp_Context7_* tools OR web search (max 5 web searches)
-- Never mention planned modifications to memory bank files (.cursor/memory-bank/*)
+  - Phase 4 (Research): only mcp_Context7_* tools OR `mcp_brave-search_brave_web_search` (max 5 searches)
+- Never mention planned modifications to context files (.cursor/memory-bank/* or .cursor/memory/*) unless creating a new vision note.
 
 ## Next Rules
 - `task-decomposition` - To decompose request into specific tasks
@@ -59,8 +61,11 @@ Analyze user request, explore existing code and search for additional informatio
 I begin by analyzing the user's request to properly understand their demand. **(Request-analysis: 1 - Request analysis)**
 [...request analysis...]
 I identified the following key elements in the request: [...] **(Request-analysis: 1 - Request analysis)**
-*(Optional) I search the knowledge graph for similar past analyses using keywords: [...]*
-`mcp_servers_search_nodes(...)`
+*I search for existing high-level context notes related to these keywords in `.cursor/memory`.*
+`codebase_search(query='...', target_directories=['.cursor/memory'])`
+*If the user stated a new high-level vision element like 'The UI should feel modern and clean', I create a note:* 
+`edit_file(target_file='.cursor/memory/ui_vision_modern_clean.md', code_edit='The user wants a modern and clean UI.', instructions='Create new vision note.')`
+**(Request-analysis: 1 - Request analysis)**
 
 # Request-analysis: 2 - Code analysis
 I begin by performing semantic searches to identify relevant files.
@@ -82,14 +87,12 @@ I need to understand how to use the 'some-obscure-library'. I will use the MCP C
 [...calling `mcp_Context7_resolve-library-id` with libraryName="some-obscure-library"...]
 [...calling `mcp_Context7_get-library-docs` with the resolved ID...]
 Alternatively, I might search the web for general patterns related to [...]. **(Request-analysis: 4 - Additional research)**
-[...first web search...]
+`mcp_brave-search_brave_web_search(...)`
 **(Request-analysis: 4 - Additional research)**
 
 # Request-analysis: 5 - Conclusion
 I summarize the results of my analysis and determine the next step. **(Request-analysis: 5 - Conclusion)**
 [...analysis conclusion...]
-*(Optional) I store the key findings of this analysis in the knowledge graph.* 
-`mcp_servers_add_observations(...)`
 **(Request-analysis: 5 - Conclusion)**
 
 # Request-analysis: 6 - Call next rule

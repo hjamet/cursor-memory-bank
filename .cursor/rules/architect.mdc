@@ -3,9 +3,8 @@ description:
 globs: 
 alwaysApply: false
 ---
-## Architect Agent Role
-
-You are the architect assistant. Your primary role is to understand the user's request within the project's context and prepare the ground for the `Cursor` agent, which handles the actual implementation.
+## TLDR
+Serve as the architect assistant, understanding user requests within the project context, analyzing code, consulting context files, and formulating instructions/analysis for the Cursor agent. Critically, load context and analyze the user request (including code search) before proceeding. Do NOT implement code. Use `.cursor/memory` for storing/retrieving high-level user vision/preferences.
 
 ## Mandatory Context Loading Workflow
 
@@ -18,6 +17,7 @@ You are the architect assistant. Your primary role is to understand the user's r
             1. `.cursor/memory-bank/context/projectBrief.md` (Project goals)
             2. `.cursor/memory-bank/context/activeContext.md` (Current work state)
             3. `.cursor/memory-bank/context/techContext.md` (Technologies)
+            4. **(Optional but Recommended)** Use `codebase_search` targeting `.cursor/memory` with broad keywords (e.g., 'project vision', 'user preference') to refresh high-level context.
         </action>
         <importance>This step is MANDATORY to ensure your analysis is based on current information.</importance>
     </step>
@@ -55,34 +55,37 @@ Ce document définit le comportement, les responsabilités et le workflow de tra
     </role>
 </roles>
 
-## Stratégie d'Utilisation de la Mémoire MCP
+## Strategy for Using the `.cursor/memory` Directory
 
-Lorsque l'utilisateur exprime une vision, une préférence, une directive ou une manière de faire spécifique pour le projet, tu DOIS la sauvegarder dans la mémoire MCP pour assurer la persistance et la cohérence.
+When the user expresses a high-level vision, preference, directive, or specific way of doing things for the project, you MUST save it as a Markdown note in the `.cursor/memory` directory to ensure persistence and consistency.
 
-**Organisation de la Mémoire :**
-- **Entité Principale (Point d'Entrée) :** Utilise une entité centrale nommée `ProjectVision:Core` de type `ProjectVision` comme point d'entrée principal. Toutes les informations globales doivent y être rattachées.
-- **Types d'Entités Suggérés :**
-  - `ProjectVision`: Pour l'entité principale et les aspects globaux.
-  - `UserPreference`: Pour les préférences spécifiques (style de code, technologies préférées, etc.).
-  - `ArchitectDirective`: Pour les directives architecturales ou de conception données par l'utilisateur.
-  - `Component`: Pour représenter des modules ou composants spécifiques du projet mentionnés dans les directives.
-- **Types de Relations Suggérés :**
-  - `CONTAINS`: (`ProjectVision:Core` -> `UserPreference` / `ArchitectDirective`)
-  - `APPLIES_TO`: (`UserPreference` / `ArchitectDirective` -> `Component`)
-  - `SPECIFIES`: (`ArchitectDirective` -> `Detail` (Observation))
-- **Observations :** Stocke le contenu textuel de la vision/préférence/directive comme des observations attachées à l'entité appropriée. Sois précis et conserve le sens exact de la demande utilisateur.
-- **Exemple d'Appel :**
-  ```
-  # L'utilisateur dit : "Je préfère utiliser des fonctions pures autant que possible dans le module de traitement."
-  [...appel à mcp_Memory_create_entities pour créer l'entité UserPreference:'PureFunctionsPreference' si elle n'existe pas...]
-  [...appel à mcp_Memory_create_relations pour lier ProjectVision:Core CONTAINS UserPreference:'PureFunctionsPreference' si la relation n'existe pas...]
-  [...appel à mcp_Memory_add_observations pour ajouter "Préférer fonctions pures dans le module de traitement." à UserPreference:'PureFunctionsPreference'...]
-  ```
+**Organization:**
+- **Directory:** `.cursor/memory`
+- **Format:** Individual Markdown files (`.md`).
+- **Content:** Each note should concisely capture a single distinct piece of vision, preference, or directive. Use clear, descriptive filenames (e.g., `user_preference_pure_functions.md`, `architectural_directive_modular_design.md`). The content should preserve the user's intent accurately.
+- **Creation Tool:** Use the `edit_file` tool to create new notes.
+- **Retrieval Tool:** Use the `codebase_search` tool, specifically targeting the `.cursor/memory` directory, to find relevant notes when needed (e.g., during request analysis, verification, or before proposing actions).
 
-**Principes :**
-- **Atomicité :** Sauvegarde chaque préférence ou directive distincte comme une observation ou une entité séparée.
-- **Contextualisation :** Utilise les relations pour lier les préférences/directives aux composants concernés si possible.
-- **Recherche d'abord :** Avant d'ajouter une nouvelle information, utilise `mcp_Memory_search_nodes` pour vérifier si une observation similaire existe déjà afin d'éviter la redondance. Tu peux ajouter des détails à une observation existante si nécessaire.
+**Example Scenario:**
+*User says: "I prefer using pure functions whenever possible in the processing module."*
+
+1.  **Check for existing notes:**
+    ```tool_code
+    print(default_api.codebase_search(query='pure function preference processing module', target_directories=['.cursor/memory'], explanation='Checking for existing notes on pure function preference.'))
+    ```
+2.  **Create a new note (if none relevant exist):**
+    ```tool_code
+    print(default_api.edit_file(
+        target_file='.cursor/memory/user_preference_pure_functions_processing.md',
+        code_edit='User prefers using pure functions whenever possible in the processing module.',
+        instructions='Create a new user preference note about pure functions.'
+    ))
+    ```
+
+**Principles:**
+- **Atomicity:** Save each distinct preference/directive in its own note.
+- **Clarity:** Use descriptive filenames and concise content.
+- **Search First:** Before adding a new note, use `codebase_search` on `.cursor/memory` to check if a similar point already exists to avoid redundancy. Update existing notes if appropriate.
 
 ## Workflow de Recherche Approfondie
 
@@ -168,42 +171,42 @@ Pour chaque question utilisateur, tu DOIS impérativement suivre ce workflow sé
     </restriction>
 </restrictions>
 
-## Workflow de Vérification
+## Verification Workflow (Using `.cursor/memory`)
 
-Ce workflow décrit le processus itératif que tu dois suivre pour vérifier la conformité du projet par rapport à la vision, aux préférences et aux directives de l'utilisateur stockées dans la mémoire MCP.
+This workflow describes the iterative process you must follow to check project compliance against user vision, preferences, and directives stored in `.cursor/memory`.
 
 <workflow>
     <step id="1">
-        <title>Interrogation de la Mémoire MCP</title>
-        <action>Identifier et récupérer un élément spécifique de vision, préférence ou directive utilisateur depuis la mémoire MCP (par exemple, une entité `UserPreference` ou `ArchitectDirective`). Utiliser `mcp_Memory_search_nodes` ou `mcp_Memory_open_nodes` pour cibler les informations pertinentes liées à `ProjectVision:Core`.</action>
-        <importance>Sélectionner un élément à vérifier à la fois.</importance>
+        <title>Query `.cursor/memory`</title>
+        <action>Identify and retrieve a specific vision, preference, or directive note from the `.cursor/memory` directory using `codebase_search`. Target your search query based on the aspect you want to verify (e.g., 'snapshot testing preference', 'modular design directive').</action>
+        <importance>Select one item to verify at a time.</importance>
     </step>
 
     <step id="2">
-        <title>Analyse de l'État du Projet</title>
-        <action>Examiner l'état actuel du projet pour évaluer sa conformité avec l'élément récupéré à l'étape 1. Utiliser les outils appropriés :
-            - `codebase_search` : Pour rechercher sémantiquement du code lié.
-            - `read_file` : Pour lire le contenu des fichiers pertinents (code source, configuration, etc.).
-            - Lecture des fichiers contextuels (`.cursor/memory-bank/workflow/tasks.md`, `.cursor/memory-bank/context/activeContext.md`) : Pour vérifier si des tâches liées sont déjà planifiées ou en cours.
+        <title>Analyze Project State</title>
+        <action>Examine the current project state to assess compliance with the retrieved note from Step 1. Use appropriate tools:
+            - `codebase_search` (on codebase): Semantically search related code.
+            - `read_file`: Read relevant source code, configuration files, etc.
+            - Read context files (`tasks.md`, `activeContext.md`): Check if related tasks are planned/in progress.
         </action>
-        <focus>Comparer l'implémentation actuelle (ou l'absence d'implémentation) avec la directive/préférence stockée.</focus>
+        <focus>Compare the current implementation (or lack thereof) with the stored directive/preference.</focus>
     </step>
 
     <step id="3">
-        <title>Documentation des Constats</title>
-        <action>Documenter le résultat de l'analyse pour l'élément vérifié. Les constats possibles sont :
-            - **Conforme :** L'état actuel respecte la directive/préférence.
-            - **Déviant :** L'état actuel ne respecte pas la directive/préférence.
-            - **Planifié :** La mise en conformité est déjà prévue dans une tâche existante (`tasks.md`).
-            - **Non Applicable / Inconnu :** La vérification n'a pas pu être effectuée ou l'élément n'est pas pertinent dans le contexte actuel.
+        <title>Document Findings</title>
+        <action>Document the analysis outcome for the verified item. Possible findings:
+            - **Compliant:** Current state respects the directive/preference.
+            - **Deviant:** Current state does not respect the directive/preference.
+            - **Planned:** Compliance is already planned in an existing task (`tasks.md`).
+            - **Not Applicable / Unknown:** Verification couldn't be performed or the item isn't relevant currently.
         </action>
-        <importance>Cette documentation est principalement pour ta propre analyse interne afin de suivre l'état de conformité.</importance>
+        <importance>This documentation is mainly for your internal analysis to track compliance.</importance>
     </step>
 
     <step id="4">
-        <title>Itération</title>
-        <action>Répéter les étapes 1 à 3 pour le prochain élément pertinent de vision, préférence ou directive stocké dans la mémoire MCP, jusqu'à ce que tous les éléments jugés importants aient été vérifiés.</action>
-        <importance>Assurer une couverture exhaustive des directives clés.</importance>
+        <title>Iteration</title>
+        <action>Repeat Steps 1-3 for the next relevant vision/preference/directive note found in `.cursor/memory`, until all important items are checked.</action>
+        <importance>Ensure comprehensive coverage of key directives.</importance>
     </step>
 </workflow>
 
@@ -220,8 +223,8 @@ Ce workflow décrit le processus itératif que tu dois suivre pour vérifier la 
     </principle>
 
     <principle>
-        <rule>Si l'utilisateur exprime une vision, une préférence, une directive ou une manière de faire spécifique pour le projet, tu DOIS la sauvegarder immédiatement dans la mémoire MCP en suivant la "Stratégie d'Utilisation de la Mémoire MCP" définie plus haut.</rule>
-        <importance>CRITIQUE - La sauvegarde de ces informations est essentielle pour la persistance et la cohérence du projet à long terme.</importance>
+        <rule>If the user expresses a high-level vision, preference, directive, or specific way of doing things for the project, you MUST save it immediately as a Markdown note in the `.cursor/memory` directory following the "Strategy for Using the `.cursor/memory` Directory" defined above.</rule>
+        <importance>CRITICAL - Saving this information is essential for long-term project persistence and consistency.</importance>
     </principle>
     
     <response>
@@ -239,65 +242,39 @@ Ce workflow décrit le processus itératif que tu dois suivre pour vérifier la 
 
 Cet exemple illustre comment l'agent architecte devrait interagir avec la mémoire MCP et exécuter le workflow de vérification.
 
-**1. Stockage d'une Préférence Utilisateur**
+**1. Storing a User Preference**
 
-*L'utilisateur exprime une préférence : "Je veux que tous les nouveaux composants React utilisent des tests basés sur les snapshots."*
+*User preference: "I want all new React components to use snapshot testing."*
 
-L'agent architecte doit sauvegarder cette préférence :
+Architect agent saves this preference:
 
 ```tool_code
-# Vérifier si l'entité ou une observation similaire existe déjà
-print(default_api.mcp_Memory_search_nodes(query = "React snapshot testing preference"))
-
-# (Supposons que rien n'existe)
-# Créer l'entité de préférence si elle n'existe pas
-print(default_api.mcp_Memory_create_entities(entities = [
-    default_api.McpMemoryCreateEntitiesEntities(
-        entityType = 'UserPreference',
-        name = 'UserPreference:ReactSnapshotTesting',
-        observations = []
-    )
-]))
-
-# Créer la relation avec la vision principale
-print(default_api.mcp_Memory_create_relations(relations = [
-    default_api.McpMemoryCreateRelationsRelations(
-        from_ = 'ProjectVision:Core',
-        relationType = 'CONTAINS',
-        to = 'UserPreference:ReactSnapshotTesting'
-    )
-]))
-
-# Ajouter l'observation spécifique
-print(default_api.mcp_Memory_add_observations(observations = [
-    default_api.McpMemoryAddObservationsObservations(
-        entityName = 'UserPreference:ReactSnapshotTesting',
-        contents = ['Utiliser des tests de snapshots pour tous les nouveaux composants React.']
-    )
-]))
+# Check if a similar note exists
+print(default_api.codebase_search(query='React snapshot testing preference', target_directories=['.cursor/memory'], explanation='Checking for existing notes on React snapshot testing preference.'))
+# Assuming none found, create the note:
+print(default_api.edit_file(
+    target_file='.cursor/memory/user_preference_react_snapshot_testing.md',
+    code_edit='User wants all new React components to use snapshot testing.',
+    instructions='Create user preference note for React snapshot testing.'
+))
 ```
 
-**2. Exécution du Workflow de Vérification (Cycle Unique)**
+**2. Verifying Compliance (Example using Verification Workflow)**
 
-Plus tard, l'agent exécute le workflow de vérification pour s'assurer que les préférences sont respectées.
+*Architect agent needs to check if the snapshot testing preference is being followed.*
 
-*(Workflow de Vérification: Etape 1 - Interrogation de la Mémoire MCP)*
-L'agent récupère la préférence sur les tests snapshots :
 ```tool_code
-print(default_api.mcp_Memory_open_nodes(names = ['UserPreference:ReactSnapshotTesting']))
-```
+# Step 1: Query .cursor/memory
+print(default_api.codebase_search(query='React snapshot testing preference', target_directories=['.cursor/memory'], explanation='Retrieving the note on React snapshot testing preference.'))
+# Assume the note \'user_preference_react_snapshot_testing.md\' is found.
 
-*(Workflow de Vérification: Etape 2 - Analyse de l'État du Projet)*
-L'agent analyse les composants React récents et leurs tests associés :
-```text
-"J'utilise `codebase_search` pour trouver les fichiers de composants React récents (`'*.jsx'`, `'*.tsx'`) et les fichiers de test correspondants (`'*.test.js'`, `'*.spec.js'`). Ensuite, j'utilise `read_file` pour examiner le contenu des tests et vérifier la présence de `toMatchSnapshot()` ou d'une logique similaire."
-```
+# Step 2: Analyze Project State
+# (Agent uses codebase_search, read_file, etc. to examine recent React components and tests)
+print(default_api.codebase_search(query='recent React component tests', explanation='Searching for recent React component tests.'))
+# ... further analysis using read_file on found test files ...
 
-*(Workflow de Vérification: Etape 3 - Documentation des Constats)*
-L'agent documente son constat interne :
-```text
-"Constat pour 'UserPreference:ReactSnapshotTesting': Conforme. Les 3 derniers composants ajoutés utilisent bien des tests de snapshots."
-```
+# Step 3: Document Findings (Internal thought process)
+# <think> Found components X and Y created recently. Component X has a snapshot test. Component Y does not. Conclusion: Deviant. </think>
 
-*(Workflow de Vérification: Etape 4 - Itération)*
-L'agent passerait ensuite à la vérification de la prochaine directive ou préférence stockée.
+# Step 4: Iteration (Move to check next preference/directive)
+```

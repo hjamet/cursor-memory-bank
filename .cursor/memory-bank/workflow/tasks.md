@@ -1,6 +1,6 @@
 # ToDo
 
-## 1. Enhance `fix.mdc`: Add Regression Test Trigger [In Progress]
+## 2. Enhance `fix.mdc`: Add Regression Test Trigger [In Progress]
 - [x] **1.1 Modify `fix.mdc` Final Step**: Add logic to conditionally call `test-implementation`.
     - *Description*: Update the final step ("Calling the next rule") in `fix.mdc`. Add a decision point: If the `fix` rule was invoked for an issue *not* originating from a failed automated test (e.g., called by `experience-execution`, user input, or other rules detecting non-test-covered problems), then the rule should conclude by calling `test-implementation`. The call to `test-implementation` should clearly state the goal: create a new test to cover the specific scenario that was just fixed, preventing regression. If the fix *was* for an automated test failure, the original logic for choosing the next rule should apply. Use the rename-edit-rename workaround.
     - *Impacted Files/Components*: `.cursor/rules/fix.mdc`
@@ -36,38 +36,14 @@
     - *Dependencies*: 1.2, 1.3, 1.4
     - *Validation Criteria*: The final analysis step is clearly distinct from the monitoring loop analysis and uses the comprehensive final results.
 
-# Done
-
-## 1. Refactor `experience-execution.mdc`: Command Execution & Monitoring
-- [x] **1.1 Modify Initial Execution (Step 2)**: Change Step 2 to always use `mcp_MyMCP_execute_command` with a fixed short timeout (e.g., 30 seconds).
-    - *Description*: Update the instruction text in Step 2 to mandate the use of `mcp_MyMCP_execute_command` and specify a short initial timeout (30s). Remove mentions of long timeouts in this step.
-    - *Impacted Files/Components*: `.cursor/rules/experience-execution.mdc`
+## 2. Enhance `architect.mdc`: Pre-Edit Read and Proactive Code Search
+- [x] **1.1 Add Pre-`userbrief.md` Edit Read**: Ensure `architect.mdc` re-reads `userbrief.md` before modifying it.
+    - *Description*: Locate the section(s) in `architect.mdc` responsible for potentially modifying `userbrief.md`. Immediately before the edit action, insert an instruction to re-read `.cursor/memory-bank/userbrief.md` using the file reader tool. If the rule currently forbids editing `userbrief.md`, add a note clarifying this restriction and omit the read step.
+    - *Impacted Files/Components*: `.cursor/rules/architect.mdc`
     - *Dependencies*: None
-    - *Validation Criteria*: Step 2 text reflects the use of a short, fixed timeout (30s) for the initial command execution.
-- [x] **1.2 Implement Monitoring Loop (New Step 2.5 / Modify Step 3)**: Add a new step or modify Step 3 to implement the iterative monitoring loop.
-    - *Description*: Introduce logic after the initial execution (Step 2) to repeatedly call `mcp_MyMCP_get_terminal_status`. Start with a short timeout (e.g., 15s) and progressively increase it on subsequent calls (e.g., double it, up to 300s max) as long as the command runs without critical errors/anomalies. Ensure the 300s maximum timeout per call is explicit.
-    - *Impacted Files/Components*: `.cursor/rules/experience-execution.mdc`
-    - *Dependencies*: 1.1
-    - *Validation Criteria*: The rule includes a new step or modified Step 3 detailing the monitoring loop with `mcp_MyMCP_get_terminal_status`, increasing timeouts, and a 300s max limit per call.
-- [x] **1.3 Integrate Analysis within Monitoring (Step 2.5 / Modify Step 3)**: Add analysis using `<think>` within the monitoring loop.
-    - *Description*: Within the monitoring loop (Task 1.2), explicitly instruct the agent to use `<think>` blocks after each `get_terminal_status` call to analyze the received status/output. This analysis should check for anomalies or potential issues.
-    - *Impacted Files/Components*: `.cursor/rules/experience-execution.mdc`
-    - *Dependencies*: 1.2
-    - *Validation Criteria*: The monitoring loop description includes mandatory `<think>` blocks for intermediate analysis.
-- [x] **1.4 Add In-Loop Code Investigation & Decision (Step 2.5 / Modify Step 3)**: Allow code investigation and decision-making during monitoring.
-    - *Description*: Enhance the `<think>` block (Task 1.3) to allow optional code investigation (`read_file`, `codebase_search`) if anomalies are suspected, without immediately stopping the command. Add logic for the agent to decide based on this analysis whether to continue monitoring, stop the command (`mcp_MyMCP_stop_terminal_command`), or proceed to the final analysis step.
-    - *Impacted Files/Components*: `.cursor/rules/experience-execution.mdc`
-    - *Dependencies*: 1.3
-    - *Validation Criteria*: The monitoring loop's `<think>` block describes the possibility of code investigation and the decision logic (continue/stop/proceed).
-- [x] **1.5 Adapt Final Analysis (Step 3/4)**: Adjust the final analysis step (currently Step 3, may become Step 4) to account for the new monitoring loop.
-    - *Description*: Ensure the final critical analysis step logically follows the monitoring loop and uses the *final* state/output gathered, incorporating any insights from the intermediate `<think>` analyses.
-    - *Impacted Files/Components*: `.cursor/rules/experience-execution.mdc`
-    - *Dependencies*: 1.2, 1.3, 1.4
-    - *Validation Criteria*: The final analysis step is clearly distinct from the monitoring loop analysis and uses the comprehensive final results.
-
-## 1. Enhance `fix.mdc`: Add Regression Test Trigger
-- [x] **1.1 Modify `fix.mdc` Final Step**: Add logic to conditionally call `test-implementation`.
-    - *Description*: Update the final step ("Calling the next rule") in `fix.mdc`. Add a decision point: If the `fix` rule was invoked for an issue *not* originating from a failed automated test (e.g., called by `experience-execution`, user input, or other rules detecting non-test-covered problems), then the rule should conclude by calling `test-implementation`. The call to `test-implementation` should clearly state the goal: create a new test to cover the specific scenario that was just fixed, preventing regression. If the fix *was* for an automated test failure, the original logic for choosing the next rule should apply. Use the rename-edit-rename workaround.
-    - *Impacted Files/Components*: `.cursor/rules/fix.mdc`
+    - *Validation Criteria*: The rule includes a step to read `userbrief.md` immediately before any potential modification, or clarifies the restriction if editing is forbidden.
+- [x] **1.2 Implement Proactive Code Search**: Modify `architect.mdc` to actively search for code elements mentioned by the user.
+    - *Description*: Enhance the step related to analyzing the user request (likely Step 2 in the current version). Add explicit instructions: If the user request mentions specific code elements (functions, files, variables, concepts), the agent MUST use tools like `codebase_search`, `grep_search`, and `read_file` to locate and understand these elements *before* formulating a detailed response or plan.
+    - *Impacted Files/Components*: `.cursor/rules/architect.mdc`
     - *Dependencies*: None
-    - *Validation Criteria*: The final step in `fix.mdc` includes logic to check the invocation context/reason and correctly calls `test-implementation` with the appropriate goal when the fix was for a non-test-covered issue.
+    - *Validation Criteria*: The rule text explicitly mandates proactive code searching/reading based on user request content.
