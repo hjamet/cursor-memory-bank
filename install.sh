@@ -584,13 +584,6 @@ cat > "$target_mcp_json" << EOF
                 "$target_dir_json_safe"
             ]
         },
-        "Memory": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@modelcontextprotocol/server-memory"
-            ]
-        },
         "Context7": {
             "command": "npx",
             "args": [

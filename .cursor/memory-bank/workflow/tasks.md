@@ -2,6 +2,13 @@
 
 # Done
 
+## 1. Modify `commit` MCP Tool [Done]
+- [x] **1.1 Implement Auto-CWD and Repo Name Reporting**: Refactor `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`, `server.js`, and `lib/process_manager.js`.
+    - *Description*: Remove explicit `working_directory` argument. Implement automatic CWD detection (server default -> env var -> process.cwd). Add `git rev-parse --show-toplevel` execution after commit to get repo name. Include repo name and committed file list in the success message.
+    - *Impacted Files/Components*: `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`, `.cursor/mcp/mcp-commit-server/server.js`, `.cursor/mcp/mcp-commit-server/lib/process_manager.js`
+    - *Dependencies*: Node.js, Git
+    - *Validation Criteria*: `commit` tool automatically detects CWD, executes git commands correctly, and reports repo name and committed files on success.
+
 ## 2. Enhance `fix.mdc`: Add Regression Test Trigger [Done]
 - [x] **1.1 Modify `fix.mdc` Final Step**: Add logic to conditionally call `test-implementation`.
     - *Description*: Update the final step ("Calling the next rule") in `fix.mdc`. Add a decision point: If the `fix` rule was invoked for an issue *not* originating from a failed automated test (e.g., called by `experience-execution`, user input, or other rules detecting non-test-covered problems), then the rule should conclude by calling `test-implementation`. The call to `test-implementation` should clearly state the goal: create a new test to cover the specific scenario that was just fixed, preventing regression. If the fix *was* for an automated test failure, the original logic for choosing the next rule should apply. Use the rename-edit-rename workaround.
@@ -49,10 +56,3 @@
     - *Validation Criteria*: The rule text explicitly mandates proactive code searching/reading based on user request content.
 
 # In Progress
-
-## 1. Modify `commit` MCP Tool [In Progress]
-- [x] **1.1 Implement Auto-CWD and Repo Name Reporting**: Refactor `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`, `server.js`, and `lib/process_manager.js`.
-    - *Description*: Remove explicit `working_directory` argument. Implement automatic CWD detection (server default -> env var -> process.cwd). Add `git rev-parse --show-toplevel` execution after commit to get repo name. Include repo name and committed file list in the success message.
-    - *Impacted Files/Components*: `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`, `.cursor/mcp/mcp-commit-server/server.js`, `.cursor/mcp/mcp-commit-server/lib/process_manager.js`
-    - *Dependencies*: Node.js, Git
-    - *Validation Criteria*: `commit` tool automatically detects CWD, executes git commands correctly, and reports repo name and committed files on success.

@@ -8,13 +8,6 @@
                 "C:\\Users\\Jamet\\code\\cursor-memory-bank"
             ]
         },
-        "Memory": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@modelcontextprotocol/server-memory"
-            ]
-        },
         "Context7": {
             "command": "npx",
             "args": [
