@@ -1,6 +1,6 @@
 ---
 description: Call this rule to analyze the user's request in detail and situate it in relation to the project objectives.
-globs: 
+globs:
 alwaysApply: false
 ---
 
@@ -63,7 +63,7 @@ I begin by analyzing the user's request to properly understand their demand. **(
 I identified the following key elements in the request: [...] **(Request-analysis: 1 - Request analysis)**
 *I search for existing high-level context notes related to these keywords in `.cursor/memory`.*
 `codebase_search(query='...', target_directories=['.cursor/memory'])`
-*If the user stated a new high-level vision element like 'The UI should feel modern and clean', I create a note:* 
+*If the user stated a new high-level vision element like 'The UI should feel modern and clean', I create a note:*
 `edit_file(target_file='.cursor/memory/ui_vision_modern_clean.md', code_edit='The user wants a modern and clean UI.', instructions='Create new vision note.')`
 **(Request-analysis: 1 - Request analysis)**
 
