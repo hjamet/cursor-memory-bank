@@ -6,3 +6,4 @@
     - Replaced generic web search tool with `mcp_brave-search_brave_web_search`.
     - Created `.cursor/memory` directory.
     - Used rename-edit-rename workflow for rule modification.
+- Consolidated userbrief.md (moved 🔄 items to Archives) and removed misplaced file (`.cursor/memory-bank/workflow/activeContext.md`).
