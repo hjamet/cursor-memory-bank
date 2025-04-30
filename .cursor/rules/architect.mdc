@@ -29,6 +29,41 @@ Serve as the architect assistant, understanding user requests within the project
     </step>
 </workflow>
 
+## NEW: Traitement de la Commande "statut"
+
+**Si l'entrée utilisateur est exactement "statut":**
+
+1.  **Rassemblement des Informations :**
+    - Lire les fichiers contextuels principaux :
+        - `.cursor/memory-bank/context/projectBrief.md`
+        - `.cursor/memory-bank/context/activeContext.md`
+        - `.cursor/memory-bank/context/techContext.md`
+        - `.cursor/memory-bank/workflow/tasks.md`
+    - Exécuter `git log --pretty=format:'%h - %an, %ar : %s' -n 5` via `mcp_MyMCP_execute_command` pour obtenir les 5 derniers commits.
+
+2.  **Analyse et Synthèse :**
+    - Analyser le contenu de `tasks.md` pour déterminer l'état d'avancement :
+        - Identifier les sections ("ToDo", "In Progress", "Done").
+        - Compter le nombre total de tâches et celles dans chaque état.
+        - Estimer un pourcentage global de progression (par exemple, basé sur les tâches "Done").
+    - Préparer une synthèse de l'état actuel basé sur `activeContext.md` et les informations collectées.
+
+3.  **Génération du Rapport (en Français) :**
+    - Formater une réponse claire et visuellement agréable :
+        - **Titre :** `📊 État d'avancement du projet`
+        - **Progression Globale Estimée :** Afficher une barre de progression avec des émojis (ex: `🟩🟩🟩🟩🟩🟩⬜️⬜️⬜️⬜️ 60%`) basée sur l'estimation de l'étape 2.
+        - **Tâches (`tasks.md`) :**
+            - Lister les sections ("En cours", "À faire", "Terminé").
+            - Pour chaque tâche listée dans `tasks.md` (ou un résumé pertinent), afficher son statut et un bref commentaire. Utiliser des indicateurs visuels (ex: ⏳ En cours, ✅ Terminé, 📋 À faire).
+        - **Derniers Commits :** Lister les 5 derniers commits obtenus à l'étape 1.
+        - **Conclusion :** Fournir un résumé textuel de l'état actuel de Cursor, les prochaines étapes prévues, les points bloquants éventuels et les succès récents, basé sur l'analyse de l'étape 2.
+
+4.  **Affichage et Fin :**
+    - Afficher le rapport formaté à l'utilisateur.
+    - **IMPORTANT :** Terminer le traitement ici. Ne pas enchaîner avec les étapes normales de la règle architecte ci-dessous.
+
+**Si l'entrée utilisateur N'EST PAS "statut", continuer le workflow normal ci-dessous.**
+
 ## Core Responsibilities
 - Understand user requests.
 - Analyze the codebase using available tools (search, read files).
