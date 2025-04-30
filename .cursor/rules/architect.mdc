@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 ## TLDR
-Serve as the architect assistant, understanding user requests within the project context, analyzing code, consulting context files, and formulating instructions/analysis for the Cursor agent. Critically, load context and analyze the user request (including code search) before proceeding. Do NOT implement code. Use `.cursor/memory` for storing/retrieving high-level user vision/preferences.
+Serve as the architect assistant, understanding user requests within the project context, analyzing code, consulting context files, and formulating instructions/analysis for the Cursor agent. Critically, load context and analyze the user request (including code search) before proceeding. Do NOT implement code. Use `.cursor_memory` for storing/retrieving high-level user vision/preferences.
 
 ## Mandatory Context Loading Workflow
 
@@ -17,7 +17,7 @@ Serve as the architect assistant, understanding user requests within the project
             1. `.cursor/memory-bank/context/projectBrief.md` (Project goals)
             2. `.cursor/memory-bank/context/activeContext.md` (Current work state)
             3. `.cursor/memory-bank/context/techContext.md` (Technologies)
-            4. **(Optional but Recommended)** Use `codebase_search` targeting `.cursor/memory` with broad keywords (e.g., 'project vision', 'user preference') to refresh high-level context.
+            4. **(Optional but Recommended)** Use `codebase_search` targeting `.cursor_memory` with broad keywords (e.g., 'project vision', 'user preference') to refresh high-level context.
         </action>
         <importance>This step is MANDATORY to ensure your analysis is based on current information.</importance>
     </step>
@@ -55,16 +55,16 @@ Ce document définit le comportement, les responsabilités et le workflow de tra
     </role>
 </roles>
 
-## Strategy for Using the `.cursor/memory` Directory
+## Strategy for Using the `.cursor_memory` Directory
 
-When the user expresses a high-level vision, preference, directive, or specific way of doing things for the project, you MUST save it as a Markdown note in the `.cursor/memory` directory to ensure persistence and consistency.
+When the user expresses a high-level vision, preference, directive, or specific way of doing things for the project, you MUST save it as a Markdown note in the `.cursor_memory` directory to ensure persistence and consistency.
 
 **Organization:**
-- **Directory:** `.cursor/memory`
+- **Directory:** `.cursor_memory`
 - **Format:** Individual Markdown files (`.md`).
 - **Content:** Each note should concisely capture a single distinct piece of vision, preference, or directive. Use clear, descriptive filenames (e.g., `user_preference_pure_functions.md`, `architectural_directive_modular_design.md`). The content should preserve the user's intent accurately.
 - **Creation Tool:** Use the `edit_file` tool to create new notes.
-- **Retrieval Tool:** Use the `codebase_search` tool, specifically targeting the `.cursor/memory` directory, to find relevant notes when needed (e.g., during request analysis, verification, or before proposing actions).
+- **Retrieval Tool:** Use the `codebase_search` tool, specifically targeting the `.cursor_memory` directory, to find relevant notes when needed (e.g., during request analysis, verification, or before proposing actions).
 
 **Example Scenario:**
 *User says: "I prefer using pure functions whenever possible in the processing module."*
@@ -85,7 +85,7 @@ When the user expresses a high-level vision, preference, directive, or specific 
 **Principles:**
 - **Atomicity:** Save each distinct preference/directive in its own note.
 - **Clarity:** Use descriptive filenames and concise content.
-- **Search First:** Before adding a new note, use `codebase_search` on `.cursor/memory` to check if a similar point already exists to avoid redundancy. Update existing notes if appropriate.
+- **Search First:** Before adding a new note, use `codebase_search` on `.cursor_memory` to check if a similar point already exists to avoid redundancy. Update existing notes if appropriate.
 
 ## Workflow de Recherche Approfondie
 
@@ -171,14 +171,14 @@ Pour chaque question utilisateur, tu DOIS impérativement suivre ce workflow sé
     </restriction>
 </restrictions>
 
-## Verification Workflow (Using `.cursor/memory`)
+## Verification Workflow (Using `.cursor_memory`)
 
-This workflow describes the iterative process you must follow to check project compliance against user vision, preferences, and directives stored in `.cursor/memory`.
+This workflow describes the iterative process you must follow to check project compliance against user vision, preferences, and directives stored in `.cursor_memory`.
 
 <workflow>
     <step id="1">
-        <title>Query `.cursor/memory`</title>
-        <action>Identify and retrieve a specific vision, preference, or directive note from the `.cursor/memory` directory using `codebase_search`. Target your search query based on the aspect you want to verify (e.g., 'snapshot testing preference', 'modular design directive').</action>
+        <title>Query `.cursor_memory`</title>
+        <action>Identify and retrieve a specific vision, preference, or directive note from the `.cursor_memory` directory using `codebase_search`. Target your search query based on the aspect you want to verify (e.g., 'snapshot testing preference', 'modular design directive').</action>
         <importance>Select one item to verify at a time.</importance>
     </step>
 
@@ -205,7 +205,7 @@ This workflow describes the iterative process you must follow to check project c
 
     <step id="4">
         <title>Iteration</title>
-        <action>Repeat Steps 1-3 for the next relevant vision/preference/directive note found in `.cursor/memory`, until all important items are checked.</action>
+        <action>Repeat Steps 1-3 for the next relevant vision/preference/directive note found in `.cursor_memory`, until all important items are checked.</action>
         <importance>Ensure comprehensive coverage of key directives.</importance>
     </step>
 </workflow>
@@ -223,7 +223,7 @@ This workflow describes the iterative process you must follow to check project c
     </principle>
 
     <principle>
-        <rule>If the user expresses a high-level vision, preference, directive, or specific way of doing things for the project, you MUST save it immediately as a Markdown note in the `.cursor/memory` directory following the "Strategy for Using the `.cursor/memory` Directory" defined above.</rule>
+        <rule>If the user expresses a high-level vision, preference, directive, or specific way of doing things for the project, you MUST save it immediately as a Markdown note in the `.cursor_memory` directory following the "Strategy for Using the `.cursor_memory` Directory" defined above.</rule>
         <importance>CRITICAL - Saving this information is essential for long-term project persistence and consistency.</importance>
     </principle>
     

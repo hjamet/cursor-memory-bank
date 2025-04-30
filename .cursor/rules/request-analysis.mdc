@@ -13,8 +13,8 @@ Analyze user request, explore existing code, search for additional information, 
    - Analyze direct request or request transmitted by calling rule
    - Identify requested features or modifications
    - Extract important keywords and concepts
-   - **High-Level Context Retrieval**: Use `codebase_search` targeting the `.cursor/memory` directory with keywords from the request to find relevant high-level vision or context notes.
-   - **Vision Storage**: If the user expresses high-level goals, preferences, or vision elements ("I want the app to...", "The overall goal is...", "I prefer bright colors..."), create a concise Markdown note summarizing this point and save it in the `.cursor/memory` directory using `edit_file`. Choose a descriptive filename (e.g., `user_preference_color_palette.md`, `project_goal_user_auth.md`).
+   - **High-Level Context Retrieval**: Use `codebase_search` targeting the `.cursor_memory` directory with keywords from the request to find relevant high-level vision or context notes.
+   - **Vision Storage**: If the user expresses high-level goals, preferences, or vision elements ("I want the app to...", "The overall goal is...", "I prefer bright colors..."), create a concise Markdown note summarizing this point and save it in the `.cursor_memory` directory using `edit_file`. Choose a descriptive filename (e.g., `user_preference_color_palette.md`, `project_goal_user_auth.md`).
 
 2. **Code analysis**: Identify concerned files and symbols:
    - ONLY AUTHORIZED: up to 3 semantic searches (code base search) based on request keywords
@@ -61,7 +61,7 @@ Analyze user request, explore existing code, search for additional information, 
 I begin by analyzing the user's request to properly understand their demand. **(Request-analysis: 1 - Request analysis)**
 [...request analysis...]
 I identified the following key elements in the request: [...] **(Request-analysis: 1 - Request analysis)**
-*I search for existing high-level context notes related to these keywords in `.cursor/memory`.*
+*I search for existing high-level context notes related to these keywords in `.cursor_memory`.*
 `codebase_search(query='...', target_directories=['.cursor/memory'])`
 *If the user stated a new high-level vision element like 'The UI should feel modern and clean', I create a note:*
 `edit_file(target_file='.cursor/memory/ui_vision_modern_clean.md', code_edit='The user wants a modern and clean UI.', instructions='Create new vision note.')`
