@@ -1,12 +1,12 @@
 import * as StateManager from '../lib/state_manager.js';
 import * as ProcessManager from '../lib/process_manager.js';
 // Import specific logger functions
-import { readLogChars, deleteLogFiles } from '../lib/logger.js';
+import { readLogChars, deleteLogFiles, readLastLogChars } from '../lib/logger.js';
 
 // Default timeout in milliseconds (10 seconds)
 const DEFAULT_TIMEOUT_MS = 10000;
 // Character limit for partial output on timeout
-const MAX_CHARS_EXEC_PARTIAL = 3000;
+const MAX_CHARS_EXEC_PARTIAL = 1500;
 
 /**
  * MCP Tool handler for 'execute_command'.
@@ -55,18 +55,25 @@ export async function handleExecuteCommand({ command, working_directory, reuse_t
 
             let stdoutContent = '';
             let stderrContent = '';
+            const prefix = '[Call get_terminal_output to consult previous characters !] ';
 
-            // Read the *entire* log content using char reader
+            // Read the *last N* log content using char reader
             try {
-                // Read all chars from start index 0
-                stdoutContent = await readLogChars(stdout_log, 0, Number.MAX_SAFE_INTEGER);
+                // Read last N chars
+                stdoutContent = await readLastLogChars(stdout_log, MAX_CHARS_EXEC_PARTIAL);
+                if (stdoutContent.length === MAX_CHARS_EXEC_PARTIAL) {
+                    stdoutContent = prefix + stdoutContent;
+                }
             } catch (logErr) {
-                console.warn(`[ExecuteCommand] Error reading full stdout log for completed PID ${pid}:`, logErr.message);
+                console.warn(`[ExecuteCommand] Error reading last stdout log for completed PID ${pid}:`, logErr.message);
             }
             try {
-                stderrContent = await readLogChars(stderr_log, 0, Number.MAX_SAFE_INTEGER);
+                stderrContent = await readLastLogChars(stderr_log, MAX_CHARS_EXEC_PARTIAL);
+                if (stderrContent.length === MAX_CHARS_EXEC_PARTIAL) {
+                    stderrContent = prefix + stderrContent;
+                }
             } catch (logErr) {
-                console.warn(`[ExecuteCommand] Error reading full stderr log for completed PID ${pid}:`, logErr.message);
+                console.warn(`[ExecuteCommand] Error reading last stderr log for completed PID ${pid}:`, logErr.message);
             }
 
             result = {
@@ -91,16 +98,23 @@ export async function handleExecuteCommand({ command, working_directory, reuse_t
                 let newStderrContent = '';
                 let newStdoutIndex = stdoutStartIndex;
                 let newStderrIndex = stderrStartIndex;
+                const prefix = '[Call get_terminal_output to consult previous characters !] ';
 
                 // Read *new* partial logs using char reader
                 try {
                     newStdoutContent = await readLogChars(stdout_log, stdoutStartIndex, MAX_CHARS_EXEC_PARTIAL);
+                    if (newStdoutContent.length === MAX_CHARS_EXEC_PARTIAL) {
+                        newStdoutContent = prefix + newStdoutContent;
+                    }
                     newStdoutIndex = stdoutStartIndex + Buffer.byteLength(newStdoutContent, 'utf8');
                 } catch (logErr) {
                     console.warn(`[ExecuteCommand] Error reading partial stdout log for running PID ${pid}:`, logErr.message);
                 }
                 try {
                     newStderrContent = await readLogChars(stderr_log, stderrStartIndex, MAX_CHARS_EXEC_PARTIAL);
+                    if (newStderrContent.length === MAX_CHARS_EXEC_PARTIAL) {
+                        newStderrContent = prefix + newStderrContent;
+                    }
                     newStderrIndex = stderrStartIndex + Buffer.byteLength(newStderrContent, 'utf8');
                 } catch (logErr) {
                     console.warn(`[ExecuteCommand] Error reading partial stderr log for running PID ${pid}:`, logErr.message);

@@ -86,14 +86,14 @@
 
 ## MCP Async Terminal Tests (`tests/test_mcp_async_terminal.js`)
 
-- **Date**: Current Cycle
+- **Date**: Current Cycle (Test execution attempt)
 - **Commit**: Latest
-- **Status**: ℹ️ **KNOWN ISSUE: INVALID / FAILS WHEN RUN VIA MCP**
-- **Details**: This test script is an integration test that starts its own MCP server instance. Running it via `mcp_MyMCP_execute_command` causes the nested server startup to conflict with the primary server or fail for other environment reasons. The execution fails silently (exit code 1, no captured stdout/stderr). This test must be executed directly from the command line (`node tests/test_mcp_async_terminal.js`), not via the MCP server itself.
-- **Command**: `node /c/Users/Jamet/code/cursor-memory-bank/tests/test_mcp_async_terminal.js` (Attempted execution via MCP)
+- **Status**: ℹ️ **KNOWN ISSUE CONFIRMED: INVALID / FAILS WHEN RUN VIA MCP**
+- **Details**: Confirmed again that this test script fails silently (exit code 1, no captured stdout/stderr) when executed via `mcp_MyMCP_execute_command`. This is due to the script attempting to start a nested MCP server, conflicting with the primary server.
+- **Command**: `node tests/test_mcp_async_terminal.js` (Attempted execution via MCP)
 - **Output Snippet**: (When run via MCP) Exit Code 1, Empty stdout/stderr.
-- **Evolution**: N/A (Execution method invalid/problematic).
-- **Note**: Execution CWD issue resolved; commands now execute in project root. CWD reporting in response is also fixed.
+- **Evolution**: Known issue persists. Test cannot be validated through automated MCP execution.
+- **Note**: Test must be run manually from a separate terminal: `node tests/test_mcp_async_terminal.js`.
 
 ## Problèmes persistants
 - ✅ **Install script permissions (MINGW64/curl)**: Fixed (Latest Run: 2025-04-27) - Root cause identified as CRLF line endings (`\r`) causing parsing errors in piped MINGW64 bash. Resolved by modifying the *execution command* to `curl ... | tr -d '\r' | bash`.
@@ -163,14 +163,14 @@
 
 ## MCP Async Terminal Tests (`tests/test_mcp_async_terminal.js`)
 
-- **Date**: Current Cycle
+- **Date**: Current Cycle (Test execution attempt)
 - **Commit**: Latest
-- **Status**: ℹ️ **KNOWN ISSUE: INVALID / FAILS WHEN RUN VIA MCP**
-- **Details**: This test script is an integration test that starts its own MCP server instance. Running it via `mcp_MyMCP_execute_command` causes the nested server startup to conflict with the primary server or fail for other environment reasons. The execution fails silently (exit code 1, no captured stdout/stderr). This test must be executed directly from the command line (`node tests/test_mcp_async_terminal.js`), not via the MCP server itself.
-- **Command**: `node /c/Users/Jamet/code/cursor-memory-bank/tests/test_mcp_async_terminal.js` (Attempted execution via MCP)
+- **Status**: ℹ️ **KNOWN ISSUE CONFIRMED: INVALID / FAILS WHEN RUN VIA MCP**
+- **Details**: Confirmed again that this test script fails silently (exit code 1, no captured stdout/stderr) when executed via `mcp_MyMCP_execute_command`. This is due to the script attempting to start a nested MCP server, conflicting with the primary server.
+- **Command**: `node tests/test_mcp_async_terminal.js` (Attempted execution via MCP)
 - **Output Snippet**: (When run via MCP) Exit Code 1, Empty stdout/stderr.
-- **Evolution**: N/A (Execution method invalid/problematic).
-- **Note**: Execution CWD issue resolved; commands now execute in project root. CWD reporting in response is also fixed.
+- **Evolution**: Known issue persists. Test cannot be validated through automated MCP execution.
+- **Note**: Test must be run manually from a separate terminal: `node tests/test_mcp_async_terminal.js`.
 
 ## Problèmes persistants
 - ✅ **Install script permissions (MINGW64/curl)**: Fixed (Latest Run: 2025-04-27) - Root cause identified as CRLF line endings (`\r`) causing parsing errors in piped MINGW64 bash. Resolved by modifying the *execution command* to `curl ... | tr -d '\r' | bash`.

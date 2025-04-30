@@ -3,7 +3,7 @@ import { readLastLogChars } from '../lib/logger.js';
 import process from 'process'; // Needed for background status check
 
 // Define character limit for status snapshot
-const MAX_CHARS_STATUS = 3000;
+const MAX_CHARS_STATUS = 1500;
 
 // TODO: Re-implement or remove the background status monitor (updateRunningProcessStatuses)
 // The original server had a background timer (`setInterval(updateRunningProcessStatuses, 1000);`)
@@ -26,6 +26,7 @@ export async function handleGetTerminalStatus({ timeout = 0 }) {
     // Helper function to get formatted terminal list
     const getFormattedTerminals = async (states) => {
         const terminals = [];
+        const prefix = '[Call get_terminal_output to consult previous characters !] ';
         for (const state of states) {
             let lastStdout = '';
             let lastStderr = '';
@@ -33,11 +34,17 @@ export async function handleGetTerminalStatus({ timeout = 0 }) {
             // Read last N characters for status snapshot
             try {
                 lastStdout = await readLastLogChars(state.stdout_log, MAX_CHARS_STATUS);
+                if (lastStdout.length === MAX_CHARS_STATUS) {
+                    lastStdout = prefix + lastStdout;
+                }
             } catch (logReadErr) {
                 console.error(`[GetStatus] Error reading last stdout chars for PID ${state.pid}:`, logReadErr);
             }
             try {
                 lastStderr = await readLastLogChars(state.stderr_log, MAX_CHARS_STATUS);
+                if (lastStderr.length === MAX_CHARS_STATUS) {
+                    lastStderr = prefix + lastStderr;
+                }
             } catch (logReadErr) {
                 console.error(`[GetStatus] Error reading last stderr chars for PID ${state.pid}:`, logReadErr);
             }

@@ -2,6 +2,10 @@
 
 # Done
 
+## UserBrief Modifications (Aug 7, 2024)
+- [x] **Modify `execute_command` MCP Tool**: Changed `.cursor/mcp/mcp-commit-server/mcp_tools/terminal_execution.js`. Set `MAX_CHARS_EXEC_PARTIAL` to 1500. Used `readLastLogChars` for pre-timeout completion. Added prefix `[Call get_terminal_output...]` if output length equals 1500 in both pre-timeout and timeout scenarios.
+- [x] **Modify `get_terminal_status` MCP Tool**: Changed `.cursor/mcp/mcp-commit-server/mcp_tools/terminal_status.js`. Set `MAX_CHARS_STATUS` to 1500. Added prefix `[Call get_terminal_output...]` to `lastStdout` or `lastStderr` within `getFormattedTerminals` if length equals 1500, before combining into `last_output`.
+
 ## 1. Modify `commit` MCP Tool [Done]
 - [x] **1.1 Implement Auto-CWD and Repo Name Reporting**: Refactor `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`, `server.js`, and `lib/process_manager.js`.
     - *Description*: Remove explicit `working_directory` argument. Implement automatic CWD detection (server default -> env var -> process.cwd). Add `git rev-parse --show-toplevel` execution after commit to get repo name. Include repo name and committed file list in the success message.
