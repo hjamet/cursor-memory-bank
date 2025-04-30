@@ -301,7 +301,6 @@ Cet exemple illustre comment l'agent architecte devrait interagir avec la mémoi
 
 Architect agent saves this preference:
 
-```tool_code
 # Check if a similar note exists
 print(default_api.codebase_search(query='React snapshot testing preference', target_directories=['.cursor/memory'], explanation='Checking for existing notes on React snapshot testing preference.'))
 # Assuming none found, create the note:
@@ -310,13 +309,11 @@ print(default_api.edit_file(
     code_edit='User wants all new React components to use snapshot testing.',
     instructions='Create user preference note for React snapshot testing.'
 ))
-```
 
 **2. Verifying Compliance (Example using Verification Workflow)**
 
 *Architect agent needs to check if the snapshot testing preference is being followed.*
 
-```tool_code
 # Step 1: Query .cursor/memory
 print(default_api.codebase_search(query='React snapshot testing preference', target_directories=['.cursor/memory'], explanation='Retrieving the note on React snapshot testing preference.'))
 # Assume the note \'user_preference_react_snapshot_testing.md\' is found.
@@ -329,5 +326,5 @@ print(default_api.codebase_search(query='recent React component tests', explanat
 # Step 3: Document Findings (Internal thought process)
 # <think> Found components X and Y created recently. Component X has a snapshot test. Component Y does not. Conclusion: Deviant. </think>
 
+
 # Step 4: Iteration (Move to check next preference/directive)
-```
