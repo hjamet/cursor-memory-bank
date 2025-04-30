@@ -1,6 +1,7 @@
 # Active Context
 
 ## Summary of Recent Changes
+- Verified `fix.mdc` implementation for regression test trigger task (Task 2); moved task to Done.
 - Refactored `commit` MCP tool (`commit.js`, `server.js`, `process_manager.js`) for auto-CWD detection and repo name reporting.
 - User request received to change `commit` tool: remove explicit `working_directory`, add auto-CWD detection, add repo name reporting.
 - *Previous change (being reverted/modified)*: Modified `commit` MCP tool (`commit.js`, `server.js`) to accept `working_directory` argument and report committed files.
