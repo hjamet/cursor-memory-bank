@@ -34,47 +34,69 @@ Serve as the architect assistant, understanding user requests within the project
 **Si l'entrée utilisateur est exactement "statut":**
 
 <think>
-Plan for "statut" command:
-1.  Gather info: Read context files (`projectBrief.md`, `activeContext.md`, `techContext.md`, `tasks.md`). Get last 5 git commits using `mcp_MyMCP_execute_command`.
-2.  Analyze: Parse `tasks.md` to find main tasks and their status ("ToDo", "In Progress", "Done"). Extract key info from `activeContext.md` and commits. Calculate progress for each main task.
-3.  Generate Report (User Output - Concise Format):
-    *   Show file/log consultations *without commentary*. E.g., just output the tool call or its result.
-    *   For each main task identified from `tasks.md` or `projectBrief.md`:
-        *   Display a progress bar (e.g., using characters like '█' and '░'). Calculate percentage based on sub-tasks or estimation.
-        *   Below the bar, add a short *italic* comment on the task's status (e.g., *Analysis complete, implementation pending.*).
-    *   Add a final concise conclusion summarizing the overall state and next steps.
+Revised Plan for "statut" command:
+1.  **Gather info:**
+    *   Read context files: `projectBrief.md`, `activeContext.md`, `techContext.md`, `tasks.md`.
+    *   Read test file: `.cursor/memory-bank/workflow/tests.md`.
+    *   Get last 5 git commits using `mcp_MyMCP_execute_command`.
+2.  **Analyze:**
+    *   Parse `tasks.md`: Identify main tasks, status, calculate progress percentage.
+    *   Parse `tests.md`: Count passing (✅) and non-passing (❌, ⚠️, ℹ️) tests. Extract brief reasons/titles for non-passing tests.
+    *   Synthesize current activity from `activeContext.md` and commits.
+3.  **Generate Report (User Output - Concise Emoji Format):**
+    *   Show file/log consultations *without commentary*.
+    *   **Task Progress:**
+        *   For each main task:
+            *   Display title.
+            *   Generate 10 emoji bar (🟩/⬜) based on percentage.
+            *   Display percentage.
+            *   Add short *italic* status comment below.
+    *   **Test Status:**
+        *   Display counts: `Tests: ✅ [Pass Count] / ❌ [Non-Pass Count]`
+        *   If Non-Pass Count > 0, list brief reasons/titles for non-passing tests.
+    *   **Conclusion:** Add a final concise summary of overall state and next steps.
 </think>
 
 1.  **Rassemblement des Informations :**
-    *   Lire les fichiers contextuels principaux :
+    *   Lire les fichiers contextuels et de tests:
         - `.cursor/memory-bank/context/projectBrief.md`
         - `.cursor/memory-bank/context/activeContext.md`
         - `.cursor/memory-bank/context/techContext.md`
         - `.cursor/memory-bank/workflow/tasks.md`
-    *   Exécuter `git log --pretty=format:'%h - %an, %ar : %s' -n 5 | cat` via `mcp_MyMCP_execute_command`. (Added `| cat`)
+        - `.cursor/memory-bank/workflow/tests.md`
+    *   Exécuter `git log --pretty=format:'%h - %an, %ar : %s' -n 5 | cat` via `mcp_MyMCP_execute_command`.
 
 2.  **Analyse et Synthèse :**
-    *   <think>Analyze `tasks.md`. Identify main sections/tasks. For each, determine status based on keywords like 'ToDo', 'In Progress', 'Done'. Calculate approximate progress percentage. Synthesize current activity from `activeContext.md` and recent commits.</think>
+    *   <think>Analyze `tasks.md` for main tasks, status, and progress %. Analyze `tests.md`: Count ✅ lines vs ❌/⚠️/ℹ️ lines. Extract titles/summaries from non-✅ lines. Synthesize current activity from `activeContext.md` and commits.</think>
 
-3.  **Génération du Rapport (Format Concis - pour l'utilisateur) :**
-    *   <think>Construct the output string. Loop through identified main tasks. Generate progress bar string (e.g., 10 blocks, '█' for completed %, '░' for remaining). Format italic status comment. Format final conclusion.</think>
+3.  **Génération du Rapport (Format Concis Emoji - pour l'utilisateur) :**
+    *   <think>Construct the output string. Loop through identified main tasks. Calculate green squares: `num_green = floor(percentage / 10)`. Generate emoji bar string: `"🟩" * num_green + "⬜️" * (10 - num_green)`. Format percentage and italic status comment. Format test summary section. Format final conclusion.</think>
     *   **(Output to user - Example Structure)**
-    
-        **Task: [Main Task 1 Name]**
-        `[██████░░░░] 60%`
-        _*Status comment for task 1...*_
-        
-        **Task: [Main Task 2 Name]**
-        `[██████████] 100%`
-        _*Status comment for task 2...*_
-        
-        **Task: [Main Task 3 Name]**
-        `[██░░░░░░░░] 20%`
-        _*Status comment for task 3...*_
-        
+
+        **Progression des Tâches:**
+        *Tâche: [Nom Tâche Principale 1]*
+        `🟩🟩🟩🟩🟩🟩⬜️⬜️⬜️⬜️ 60%`
+        _*Commentaire statut tâche 1...*_
+
+        *Tâche: [Nom Tâche Principale 2]*
+        `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 100%`
+        _*Commentaire statut tâche 2...*_
+
+        *Tâche: [Nom Tâche Principale 3]*
+        `🟩🟩⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️ 20%`
+        _*Commentaire statut tâche 3...*_
+
+        ---
+        **Statut des Tests:**
+        `Tests: ✅ [Count Pass] / ❌ [Count Non-Pass]`
+        *(Si Non-Pass > 0)*
+        *Problèmes Actuels:*
+        *- [Titre/Raison Test Non-Passant 1]*
+        *- [Titre/Raison Test Non-Passant 2]*
+
         ---
         **Conclusion:**
-        [Concise summary of overall status, current focus, and immediate next steps.]
+        [Résumé concis de l'état général, focus actuel, et prochaines étapes.]
 
 4.  **Affichage et Fin :**
     *   Afficher le rapport formaté à l'utilisateur.
