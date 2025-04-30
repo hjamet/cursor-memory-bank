@@ -51,8 +51,8 @@
 # In Progress
 
 ## 1. Modify `commit` MCP Tool [In Progress]
-- [x] **1.1 Implement Robustness and Clarity Enhancements**: Modify `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js` and `server.js`.
-    - *Description*: Add mandatory `working_directory` argument, use it as `cwd` for git commands, remove fixed `projectRoot`, add `git diff-tree` execution after commit, parse output, and include committed file list in the success message.
-    - *Impacted Files/Components*: `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`, `.cursor/mcp/mcp-commit-server/server.js`
+- [x] **1.1 Implement Auto-CWD and Repo Name Reporting**: Refactor `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`, `server.js`, and `lib/process_manager.js`.
+    - *Description*: Remove explicit `working_directory` argument. Implement automatic CWD detection (server default -> env var -> process.cwd). Add `git rev-parse --show-toplevel` execution after commit to get repo name. Include repo name and committed file list in the success message.
+    - *Impacted Files/Components*: `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`, `.cursor/mcp/mcp-commit-server/server.js`, `.cursor/mcp/mcp-commit-server/lib/process_manager.js`
     - *Dependencies*: Node.js, Git
-    - *Validation Criteria*: `commit` tool accepts `working_directory`, executes git commands in that directory, and reports committed files on success.
+    - *Validation Criteria*: `commit` tool automatically detects CWD, executes git commands correctly, and reports repo name and committed files on success.

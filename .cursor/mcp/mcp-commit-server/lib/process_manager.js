@@ -63,6 +63,16 @@ async function cleanupProcessResources(pid, stdoutStream, stderrStream, child) {
 }
 
 /**
+ * Determines the appropriate CWD based on server args, env vars, or process CWD.
+ * Does NOT consider explicit CWD passed to tool handlers.
+ * @returns {string} The determined CWD.
+ */
+export function getDefaultCwd() {
+    // PRIORITIZE: Server --cwd Arg > Env Var > Server process.cwd()
+    return serverDefaultCwd || process.env.CURSOR_WORKSPACE_ROOT || process.cwd();
+}
+
+/**
  * Spawns a new process, manages its state, and handles logging.
  * Returns an object containing the pid, log file paths, and a completion promise.
  * @param {string} command The command to execute.
@@ -83,7 +93,7 @@ export async function spawnProcess(command, explicitWorkingDirectory) {
     let shell, args, spawnOptions;
     const initialCommand = command; // Store original command for state
     // PRIORITIZE: Explicit CWD > Server --cwd Arg > Env Var > Server process.cwd()
-    const executionCwd = explicitWorkingDirectory || serverDefaultCwd || process.env.CURSOR_WORKSPACE_ROOT || process.cwd();
+    const executionCwd = explicitWorkingDirectory || getDefaultCwd(); // Use helper function
     // Debug log for chosen CWD
     // console.log(`[ProcessManager] Spawning process in CWD: ${executionCwd}`);
 

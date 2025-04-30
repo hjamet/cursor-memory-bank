@@ -62,13 +62,13 @@ Le projet comprend aussi un serveur MCP Commit qui doit être correctement insta
 
 ## Notes sur les Serveurs MCP
 - Le serveur MCP Commit (`mcp_MyMCP_*`, nommé `InternalAsyncTerminal` dans son code) fournit les outils suivants :
-  - `commit`: Pour effectuer des commits Git standardisés. **(Updated: Now requires `working_directory` argument and reports committed files)**.
+  - `commit`: Pour effectuer des commits Git standardisés. (Uses auto-detected CWD based on server args/env/process. Reports repo name and committed files).
   - `execute_command`: Pour exécuter des commandes shell de manière asynchrone.
   - `get_terminal_status`: Pour vérifier l'état des commandes en cours.
   - `get_terminal_output`: Pour récupérer la sortie d'une commande.
   - `stop_terminal_command`: Pour arrêter une commande en cours.
   - `consult_image`: Pour lire un fichier image et le retourner en base64.
-- Le serveur MCP Commit (`mcp_MyMCP_*`) est sensible à la configuration `cwd` (Current Working Directory) lors de l'exécution de commandes via `spawn`, en particulier avec `shell: false`. Assurez-vous que `projectRoot` est correctement calculé.
+- Le serveur MCP Commit (`mcp_MyMCP_*`) est sensible à la configuration `cwd` (Current Working Directory) lors de l'exécution de commandes via `spawn`, en particulier avec `shell: false`. CWD is auto-detected based on server startup args (`--cwd`), `CURSOR_WORKSPACE_ROOT` env var, or the server process's CWD.
 - Toute sortie `console.log` ou `console.warn` non JSON du serveur MCP peut interrompre la communication avec le client Cursor, entraînant des erreurs "Unexpected token". Les logs de débogage doivent être commentés ou supprimés en production.
 - L'outil `mcp_MyMCP_execute_command` peut avoir des difficultés à capturer la sortie `stdout`/`stderr` des processus Python très courts avant leur achèvement. 
 - Le retour d'images volumineuses en base64 (`type: "image"`) via MCP peut entraîner des erreurs `Maximum call stack size exceeded`. La solution consiste à traiter l'image côté serveur (ex: avec `sharp`) pour réduire sa taille avant l'encodage base64.

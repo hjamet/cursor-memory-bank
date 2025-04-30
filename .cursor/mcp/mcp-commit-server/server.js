@@ -186,8 +186,7 @@ server.tool(
         emoji: z.string().describe("Emoji to use in the commit message (e.g. :sparkles:)"),
         type: z.string().describe("Type of change (e.g. feat, fix, docs, style, refactor, test, chore)"),
         title: z.string().describe("Brief commit title"),
-        description: z.string().optional().describe("Optional detailed description of changes"),
-        working_directory: z.string().describe("The working directory (absolute path) where git commands should be executed.")
+        description: z.string().optional().describe("Optional detailed description of changes")
     },
     handleCommit // Use the imported handler
 );
