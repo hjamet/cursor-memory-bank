@@ -1,5 +1,10 @@
 # Test Status
 
+- [⚠️] **Commit MCP Tool (`.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`)**: No Automated Tests (Latest Check: Current Cycle)
+  - Command: N/A
+  - Result: N/A (No tests defined in `package.json`)
+  - Issue: Lack of automated tests for this core functionality. Manual testing required.
+  - Note: Tool modified in this cycle to add `working_directory` support and report committed files.
 - [✅] **Consult Image Test (`tests/test_consult_image.js`)**: Passed (Latest Run: Current Cycle)
   - Command: `node tests/test_consult_image.js`
   - Result: `exit_code: 0`. Test successfully verified unsupported type handling and success case (returning processed image as JPEG).

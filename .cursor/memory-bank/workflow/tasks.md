@@ -47,3 +47,12 @@
     - *Impacted Files/Components*: `.cursor/rules/architect.mdc`
     - *Dependencies*: None
     - *Validation Criteria*: The rule text explicitly mandates proactive code searching/reading based on user request content.
+
+# In Progress
+
+## 1. Modify `commit` MCP Tool [In Progress]
+- [x] **1.1 Implement Robustness and Clarity Enhancements**: Modify `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js` and `server.js`.
+    - *Description*: Add mandatory `working_directory` argument, use it as `cwd` for git commands, remove fixed `projectRoot`, add `git diff-tree` execution after commit, parse output, and include committed file list in the success message.
+    - *Impacted Files/Components*: `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`, `.cursor/mcp/mcp-commit-server/server.js`
+    - *Dependencies*: Node.js, Git
+    - *Validation Criteria*: `commit` tool accepts `working_directory`, executes git commands in that directory, and reports committed files on success.

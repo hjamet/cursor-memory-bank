@@ -62,7 +62,7 @@ Le projet comprend aussi un serveur MCP Commit qui doit être correctement insta
 
 ## Notes sur les Serveurs MCP
 - Le serveur MCP Commit (`mcp_MyMCP_*`, nommé `InternalAsyncTerminal` dans son code) fournit les outils suivants :
-  - `commit`: Pour effectuer des commits Git standardisés.
+  - `commit`: Pour effectuer des commits Git standardisés. **(Updated: Now requires `working_directory` argument and reports committed files)**.
   - `execute_command`: Pour exécuter des commandes shell de manière asynchrone.
   - `get_terminal_status`: Pour vérifier l'état des commandes en cours.
   - `get_terminal_output`: Pour récupérer la sortie d'une commande.

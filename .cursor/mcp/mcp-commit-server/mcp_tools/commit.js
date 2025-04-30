@@ -2,14 +2,10 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs'; // Added for directory check
 
 // Promisify exec
 const execAsync = promisify(exec);
-
-// Determine project root (assuming this file is in .cursor/mcp/mcp-commit-server/mcp_tools/)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, '../../..');
 
 // Helper function to escape shell arguments safely (copied from original server.js)
 const escapeShellArg = (arg) => {
@@ -29,18 +25,30 @@ const escapeShellArg = (arg) => {
 
 /**
  * MCP Tool handler for 'commit'.
- * Stages all changes and performs a git commit.
+ * Stages all changes and performs a git commit in the specified working directory.
  */
-export async function handleCommit({ emoji, type, title, description }) {
+export async function handleCommit({ emoji, type, title, description, working_directory }) {
+    // Validate working_directory
+    if (!working_directory) {
+        throw new Error('Missing required argument: working_directory');
+    }
+    try {
+        // Basic check: Does the directory exist?
+        // Note: fs.promises.stat would be more robust for permissions etc., but fs.existsSync is simpler for now.
+        if (!fs.existsSync(working_directory)) {
+            throw new Error(`Invalid working_directory: Path does not exist - ${working_directory}`);
+        }
+        // Could add further checks like fs.lstatSync(working_directory).isDirectory()
+    } catch (err) {
+        throw new Error(`Error accessing working_directory "${working_directory}": ${err.message}`);
+    }
+
     // Build the commit title
     const commitTitle = `${emoji} ${type}: ${title}`;
 
     try {
-        // Stage all changes - Execute in project root
-        // Note: Using execAsync here as it's simpler for short-lived git commands.
-        // Could potentially be replaced with spawnProcess from process_manager if needed,
-        // but git commands are generally quick and exec handles them well.
-        await execAsync('git add .', { cwd: projectRoot });
+        // Stage all changes - Execute in provided working directory
+        await execAsync('git add .', { cwd: working_directory });
 
         // Escape title and description
         const escapedCommitTitle = escapeShellArg(commitTitle);
@@ -52,8 +60,8 @@ export async function handleCommit({ emoji, type, title, description }) {
             commitCommand += ` -m "${escapedDescription}"`;
         }
 
-        // Execute commit command
-        const { stdout: commitStdout, stderr: commitStderr } = await execAsync(commitCommand, { cwd: projectRoot });
+        // Execute commit command in provided working directory
+        const { stdout: commitStdout, stderr: commitStderr } = await execAsync(commitCommand, { cwd: working_directory });
 
         if (commitStderr) {
             if (commitStderr.includes('nothing to commit, working tree clean')) {
@@ -61,14 +69,39 @@ export async function handleCommit({ emoji, type, title, description }) {
             }
             // Allow commits with non-fatal stderr (e.g., warnings from hooks?)
             if (!commitStdout && !commitStderr.toLowerCase().includes('error') && !commitStderr.toLowerCase().includes('failed')) {
-                return { content: [{ type: "text", text: `Commit successful: ${commitTitle} (with stderr: ${commitStderr.trim()})` }] };
+                // Get committed files even if there's non-fatal stderr
+                let committedFilesList = '';
+                try {
+                    const { stdout: diffStdout } = await execAsync('git diff-tree --no-commit-id --name-only -r HEAD', { cwd: working_directory });
+                    const committedFiles = diffStdout.trim().split('\n').filter(Boolean);
+                    if (committedFiles.length > 0) {
+                        committedFilesList = `\nFiles committed:\n- ${committedFiles.join('\n- ')}`;
+                    }
+                } catch (diffError) {
+                    console.error('[handleCommit] Error getting diff-tree after commit with stderr:', diffError);
+                    // Don't fail the whole commit, just log the diff error
+                }
+                return { content: [{ type: "text", text: `Commit successful: ${commitTitle} (with stderr: ${commitStderr.trim()})${committedFilesList}` }] };
             } else {
                 throw new Error(`Git commit failed. Stderr: ${commitStderr.trim()}`);
             }
         }
 
-        // Success
-        return { content: [{ type: "text", text: `Commit successful: ${commitTitle}` }] };
+        // Success - Get committed files
+        let committedFilesList = '';
+        try {
+            const { stdout: diffStdout } = await execAsync('git diff-tree --no-commit-id --name-only -r HEAD', { cwd: working_directory });
+            const committedFiles = diffStdout.trim().split('\n').filter(Boolean);
+            if (committedFiles.length > 0) {
+                committedFilesList = `\nFiles committed:\n- ${committedFiles.join('\n- ')}`;
+            }
+        } catch (diffError) {
+            console.error('[handleCommit] Error getting diff-tree after successful commit:', diffError);
+            // Don't fail the commit if diff-tree fails, just log the error and return base message
+            committedFilesList = '\n(Could not retrieve list of committed files)';
+        }
+
+        return { content: [{ type: "text", text: `Commit successful: ${commitTitle}${committedFilesList}` }] };
     } catch (error) {
         // Handle errors from execAsync (includes non-zero exit codes)
         const errorMessage = error.stderr || error.stdout || error.message || 'Unknown error during git operation';
