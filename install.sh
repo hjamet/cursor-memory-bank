@@ -324,6 +324,12 @@ install_rules() {
         log "Downloading mcp.json template"
         download_file "$RAW_URL_BASE/.cursor/mcp.json" "$template_mcp_json"
 
+        # ADD PRE-COMMIT HOOK DOWNLOAD HERE
+        log "Downloading .githooks/pre-commit"
+        local hooks_api_dir="$api_dir/githooks"
+        mkdir -p "$hooks_api_dir"
+        download_file "$RAW_URL_BASE/.githooks/pre-commit" "$hooks_api_dir/pre-commit"
+
         # ADD MCP-COMMIT-SERVER/SERVER.JS DOWNLOAD HERE
         log "Downloading mcp-commit-server/server.js"
         local commit_server_target_dir="$target_dir/.cursor/mcp/mcp-commit-server"

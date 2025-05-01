@@ -11,12 +11,13 @@
 - ✅ **`test_mcp_json_absolute_path_no_jq`**: Passed - Stable
 - ✅ **Consult Image Tool (Manual Test)**: Passed - Stable
 - ✅ **Various Ad-Hoc MCP Command Tests**: Passed - Stable
+- ✅ **`test_curl_install.sh`**: Passed - Improved since last run (Fixed `set -e` interaction)
 
 ## Tests with Warnings
 - None
 
 ## Failed Tests
-- ❌ **`test_curl_install.sh`**: Failed (Expected: 404 downloading `.githooks/pre-commit`) - Stable Failure (Expected as hook not in remote master)
+- None
 
 ## Known Issues / Manual Tests
 - ℹ️ **MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`)**: Known Issue (Invalid when run via MCP, requires manual execution) - Stable

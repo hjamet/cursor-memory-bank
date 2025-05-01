@@ -197,9 +197,14 @@ test_curl_installation_error_handling() {
     
     # Test with invalid URL and --use-curl, capturing the result
     log "Attempting to download from invalid URL (this should fail)..."
-    curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/invalid/install.sh -o /dev/null
-    local curl_status=$?
     
+    # Temporarily disable exit on error for this command
+    set +e 
+    curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/invalid/install.sh -o /dev/null 
+    local curl_status=$?
+    # Re-enable exit on error immediately after
+    set -e 
+
     log "Curl exit status: $curl_status"
     
     # For this test, we EXPECT curl to fail with the invalid URL, so a non-zero exit status is SUCCESS
