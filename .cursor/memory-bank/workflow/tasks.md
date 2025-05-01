@@ -1,13 +1,14 @@
 # ToDo
 
-## Temp: Debug install.sh Curl/No-JQ Failure [In Progress]
-- [x] **1.1 Analyze Failure**: Determine why `install.sh --use-curl` (when jq is not in PATH) exits with code 1, even after fixing 404 handling and `cp` issues.
-- [x] **1.2 Implement Fix**: Correct the logic in `install.sh`.
 
 # In Progress
 
 
 # Done
+
+## Temp: Debug install.sh Curl/No-JQ Failure [Done]
+- [x] **1.1 Analyze Failure**: Determine why `install.sh --use-curl` (when jq is not in PATH) exits with code 1, even after fixing 404 handling and `cp` issues.
+- [x] **1.2 Implement Fix**: Correct the logic in `install.sh`.
 
 ## 1. Testing Pre-commit Hook [Done]
 - [x] **1.1 Test Hook Installation**: Enhance `tests/test_install.sh` to verify hook installation.
