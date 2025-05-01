@@ -245,8 +245,9 @@ test_mcp_json_absolute_path_no_jq() {
 
     echo "[INFO] Running LOCAL install script without jq..."
     # Run the installer script (using the absolute path) without jq and capture stderr
+    # Force --use-curl to ensure the sed fallback path is tested
     local install_stderr
-    install_stderr=$(bash "$INSTALL_SCRIPT_PATH" --dir "$TEST_DIR" --no-backup 2>&1 >/dev/null)
+    install_stderr=$(bash "$INSTALL_SCRIPT_PATH" --dir "$TEST_DIR" --no-backup --use-curl 2>&1 >/dev/null)
     local install_status=$?
 
     # Restore PATH immediately

@@ -113,6 +113,7 @@ download_file() {
 
     log "Downloading file from $url"
     local http_code
+    local curl_exit_code
     
     # Handle file:// protocol differently
     if [[ "$url" =~ ^file:// ]]; then
@@ -125,14 +126,27 @@ download_file() {
         fi
     fi
     
-    http_code=$(curl -w "%{http_code}" -fsSL "$url" -o "$dest" 2>/dev/null || echo "$?")
+    # Execute curl and capture http_code directly, ignore command exit status here
+    # We capture the real exit code separately
+    set +e # Temporarily disable exit on error
+    http_code=$(curl -w "%{http_code}" -fsSL "$url" -o "$dest" 2>/dev/null)
+    curl_exit_code=$?
+    set -e # Re-enable exit on error
+    
+    # Check curl exit code first for general errors (like network, invalid URL format etc.)
+    # Curl error codes: https://curl.se/libcurl/c/libcurl-errors.html
+    if [[ $curl_exit_code -ne 0 ]] && [[ $curl_exit_code -ne 22 ]]; then # Exit code 22 is handled by HTTP 404 check
+       error "curl command failed with exit code $curl_exit_code for URL: $url. Check network or URL."
+    fi
     
     case "$http_code" in
         200)
             return 0
             ;;
         404)
-            error "Failed to download file: URL not found (HTTP 404). Please check that the URL is correct: $url"
+            # Changed from error to warn for 404
+            warn "URL not found (HTTP 404). Skipping download for: $url"
+            return 0 # Allow script to continue
             ;;
         403)
             error "Failed to download file: Access denied (HTTP 403). Please check your access permissions to: $url"
@@ -140,15 +154,13 @@ download_file() {
         50[0-9])
             error "Failed to download file: Server error (HTTP $http_code). Please try again later or contact support."
             ;;
-        22)
-            error "Failed to download file: Invalid URL or network error. Please check your internet connection and the URL: $url"
-            ;;
         *)
-            # Check if it's a non-standard number (like "00023") which can happen with some protocols
-            if [[ "$http_code" =~ ^[0-9]+$ ]]; then
-                error "Failed to download file (HTTP $http_code). Please check your internet connection and try again."
+            # Handle cases where curl exit code was 0 or 22 but http_code is unexpected
+            if [[ "$http_code" =~ ^[0-9]+$ ]]; then # Check if it looks like a valid HTTP code
+                error "Failed to download file (Unexpected HTTP status: $http_code) for URL: $url"
             else
-                error "Failed to download file: Unknown error. Please check your internet connection and the URL: $url"
+                # This case might happen if -w output was empty or strange
+                error "Failed to download file: Unknown error (curl exit: $curl_exit_code, http code: '$http_code'). Check URL: $url"
             fi
             ;;
     esac

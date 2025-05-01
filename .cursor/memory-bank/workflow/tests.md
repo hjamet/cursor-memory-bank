@@ -11,7 +11,7 @@
 - ✅ **`test_mcp_json_absolute_path_no_jq`**: Passed - Stable
 - ✅ **Consult Image Tool (Manual Test)**: Passed - Stable
 - ✅ **Various Ad-Hoc MCP Command Tests**: Passed - Stable
-- ✅ **`test_curl_install.sh`**: Passed - Improved since last run (Fixed `set -e` interaction)
+- ✅ **`test_curl_install.sh`**: Passed - Improved since last run (Fixed `download_file` 404 handling)
 
 ## Tests with Warnings
 - None
