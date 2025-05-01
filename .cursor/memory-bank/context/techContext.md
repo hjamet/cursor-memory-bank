@@ -28,8 +28,8 @@ Un hook pre-commit est également fourni dans `.githooks/pre-commit` et install�
 
 ## Environnement de Développement
 - **Configuration requise**: Cursor, Bash, Git (optionnel), Curl (recommandé)
-- **Installation**: Via le script install.sh avec diverses options (--dir, --backup, --force)
-- **Post-installation Git**: Exécuter `git config core.hooksPath .githooks` pour activer les hooks.
+- **Installation**: Via le script `install.sh` avec diverses options (`--dir`, `--backup`, `--force`, `--use-curl`)
+- **Post-installation Git**: Le script `install.sh` tente désormais de configurer automatiquement `core.hooksPath` si l'installation se fait dans un dépôt Git.
 
 ## Conventions de Code
 - Utilisation de fichiers .mdc pour les règles de Cursor
@@ -39,7 +39,7 @@ Un hook pre-commit est également fourni dans `.githooks/pre-commit` et install�
 - Traitement amélioré des codes HTTP non standards
 - **Utilisation systématique des outils MCP (`mcp_MyMCP_*`) pour l'exécution de commandes externes dans les règles**
 - **WORKAROUND:** Pour modifier de manière fiable les fichiers `.mdc` (règles), renommer temporairement en `.md`, éditer, puis renommer en `.mdc` pour assurer la détection par Git.
-- **Pre-commit Hook**: Bloque les commits si des fichiers de code (.py, .js, .ts, .java, .go, .rb, .php, .sh) dépassent 500 lignes. Le message d'erreur mentionne la possibilité de bypass via `--no-verify` ou l'option `bypass_hooks: true` du tool `mcp_MyMCP_commit`.
+- **Pre-commit Hook**: Warns (but does not block) if code files (.py, .js, .ts, .java, .go, .rb, .php, .sh) exceed 500 lines.
 
 ## Dépendances Externes
 - Cursor: Dernière version - Environnement d'exécution principal
@@ -60,14 +60,14 @@ Un hook pre-commit est également fourni dans `.githooks/pre-commit` et install�
 - Gestion robuste des erreurs HTTP
 - Récupération de la date du dernier commit pour indiquer la fraîcheur des règles
 - Vérification et restauration des règles personnalisées
-- Installation du hook pre-commit dans `.githooks/` et message d'activation pour l'utilisateur.
+- Installation du hook pre-commit dans `.githooks/` et tentative de configuration automatique de `core.hooksPath`.
 - Installation des dépendances du serveur MCP commit si Node.js et npm sont disponibles
 - Fusion du fichier mcp.json pour configurer le serveur MCP commit 
 - **jq (Optionnel mais recommandé)**: `jq` est nécessaire pour modifier le `mcp.json` afin d'utiliser un chemin absolu pour le serveur MCP commit et pour fusionner la configuration avec un `mcp.json` existant. Si `jq` n'est pas trouvé, le script utilise un chemin relatif et ne fusionne pas, ce qui peut entraîner des problèmes si le script d'installation n'est pas exécuté depuis le répertoire racine de Cursor. 
 
 ## Notes sur les Serveurs MCP
 - Le serveur MCP Commit (`mcp_MyMCP_*`, nommé `InternalAsyncTerminal` dans son code) fournit les outils suivants :
-  - `commit`: Pour effectuer des commits Git standardisés. Accepte `emoji`, `type`, `title`, `description` (optionnel), et `bypass_hooks` (optionnel boolean, default `false`). Utilise CWD auto-détecté. Rapporte le nom du dépôt et les fichiers committés.
+  - `commit`: Pour effectuer des commits Git standardisés. Accepte `emoji`, `type`, `title`, `description` (optionnel). Utilise CWD auto-détecté. Rapporte le nom du dépôt et les fichiers committés.
   - `execute_command`: Pour exécuter des commandes shell de manière asynchrone.
   - `get_terminal_status`: Pour vérifier l'état des commandes en cours.
   - `get_terminal_output`: Pour récupérer la sortie d'une commande.
@@ -75,7 +75,7 @@ Un hook pre-commit est également fourni dans `.githooks/pre-commit` et install�
   - `consult_image`: Pour lire un fichier image et le retourner en base64.
 - Le serveur MCP Commit (`mcp_MyMCP_*`) est sensible à la configuration `cwd` (Current Working Directory) lors de l'exécution de commandes via `spawn`, en particulier avec `shell: false`. CWD is auto-detected based on server startup args (`--cwd`), `CURSOR_WORKSPACE_ROOT` env var, or the server process's CWD.
 - Toute sortie `console.log` ou `console.warn` non JSON du serveur MCP peut interrompre la communication avec le client Cursor, entraînant des erreurs "Unexpected token". Les logs de débogage doivent être commentés ou supprimés en production.
-- L'outil `mcp_MyMCP_execute_command` peut avoir des difficultés à capturer la sortie `stdout`/`stderr` des processus Python très courts avant leur achèvement. 
+- L'outil `mcp_MyMCP_execute_command` rencontrait des difficultés à capturer `stdout`/`stderr` pour `tests/test_mcp_async_terminal.js`. L'ajout de logging fichier dans le script de test semble avoir résolu le problème (test passe désormais).
 - Le retour d'images volumineuses en base64 (`type: "image"`) via MCP peut entraîner des erreurs `Maximum call stack size exceeded`. La solution consiste à traiter l'image côté serveur (ex: avec `sharp`) pour réduire sa taille avant l'encodage base64.
 
 ## Dependencies

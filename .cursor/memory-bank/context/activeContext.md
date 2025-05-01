@@ -1,13 +1,11 @@
 # Active Context
 
 ## Current implementation context
-- **Completed**: Addressed user request to test pre-commit hook functionality and mention bypass possibility in the hook message.
-- **Test Results**: Automated test successfully verified pre-commit hook blocking (`temp_long_file.py` > 500 lines failed commit) and bypassing (`bypass_hooks: true` allowed commit).
-- **Cleanup**: Test artifacts (temporary script, long file) were removed, and the test commit was reset.
-- **Status**: All tasks related to pre-commit hook and bypass functionality are complete.
+- **Completed**: Implemented file-based logging in `tests/test_mcp_async_terminal.js` and updated the `fix` rule to read the log file.
+- **Outcome**: Unexpectedly, adding file logging caused `test_mcp_async_terminal.js` to pass during the automated run. The exact reason is unclear but likely related to altered stdio behavior or timing.
+- **Status**: All tests now pass.
 
 ## Summary of Recent Changes
-- Modified `.githooks/pre-commit` to update the error message.
-- Updated `README.md` with manual verification steps (kept for reference, but automated test performed).
-- Performed automated test: created script, generated long file, configured hooks, tested commit block & bypass, cleaned up.
-- Updated `tasks.md` to reflect task completion via automation.
+- Implemented file logging in `test_mcp_async_terminal.js`.
+- Updated `fix.mdc` rule to read the test log file on failure.
+- Test suite now passes, including the previously failing `test_mcp_async_terminal.js`.

@@ -895,6 +895,30 @@ else
     log "MCP directory structure not found in $INSTALL_DIR/.cursor/. Skipping MCP server setup."
 fi
 
+# Attempt to automatically configure Git hooks path
+auto_config_failed=1 # Assume failure initially
+if command -v git >/dev/null 2>&1; then
+    log "Checking if installation directory is a Git repository..."
+    if (cd "$INSTALL_DIR" && git rev-parse --git-dir > /dev/null 2>&1); then
+        log "Git repository detected. Attempting to configure core.hooksPath..."
+        if (cd "$INSTALL_DIR" && git config core.hooksPath .githooks); then
+            log "Successfully configured core.hooksPath to .githooks in $INSTALL_DIR"
+            auto_config_failed=0 # Mark as success
+        else
+            warn "Failed to automatically configure core.hooksPath in $INSTALL_DIR. You may need to run the command manually."
+        fi
+    else
+        log "Installation directory $INSTALL_DIR is not a Git repository. Skipping automatic hook configuration."
+        # In this case, user likely doesn't need hooks configured anyway, but we keep auto_config_failed=1 to show manual step if needed.
+    fi
+else
+    warn "git command not found. Skipping automatic hook configuration."
+fi
+
 log "Installation completed successfully!"
-log "${YELLOW}ACTION REQUIRED:${NC} To enable the installed git hooks (e.g., pre-commit), run the following command in your repository root:"
-log "  git config core.hooksPath .githooks" 
+
+# Only show manual step if auto-config failed or was skipped
+if [[ "$auto_config_failed" -eq 1 ]]; then
+    log "${YELLOW}ACTION REQUIRED:${NC} To enable the installed git hooks (e.g., pre-commit), run the following command in your repository root:"
+    log "  git config core.hooksPath .githooks"
+fi 

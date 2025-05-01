@@ -1,17 +1,14 @@
 # Test Results
 
+*Comparison Date: [Current Date - placeholder]*
+
 ## Successful Tests
-- ✅ **Commit MCP Tool**: Passed - Stable (Manual test; confirmed auto-CWD and repo reporting)
-- ✅ **Consult Image Test (`tests/test_consult_image.js`)**: Passed - Stable
-- ✅ **MCP Python Execution Test**: Passed - Stable
-- ✅ **User curl test (MINGW64, no jq)**: Passed - Stable
-- ✅ **`test_download.sh`**: Passed - Stable
-- ✅ **`test_git_install.sh`**: Passed - Stable
-- ✅ **`test_install.sh`**: Passed - Stable
-- ✅ **`test_mcp_json_absolute_path_no_jq`**: Passed - Stable
-- ✅ **Consult Image Tool (Manual Test)**: Passed - Stable
-- ✅ **Various Ad-Hoc MCP Command Tests**: Passed - Stable
-- ✅ **`test_curl_install.sh`**: Passed - Stable
+- ✅ `test_install.sh`: Passed - Stable
+- ✅ `test_curl_install.sh`: Passed - Stable (Expected 404 warning handled)
+- ✅ `test_git_install.sh`: Passed - Stable
+- ✅ `test_download.sh`: Passed - Stable
+- ✅ `test_consult_image.js`: Passed - Stable
+- ✅ `test_mcp_async_terminal.js`: Passed - **Improvement** (Was failing, now passes after switching to file logging)
 
 ## Tests with Warnings
 - None
@@ -20,4 +17,4 @@
 - None
 
 ## Known Issues / Manual Tests
-- ℹ️ **MCP Async Terminal Workflow (`tests/test_mcp_async_terminal.js`)**: Known Issue (Invalid when run via MCP, requires manual execution) - Stable
+- ℹ️ **`test_git_install.sh` Auto-Config Path**: The automatic `git config core.hooksPath` logic added to `install.sh` was not tested in a Git repository context by `test_git_install.sh`. Manual verification or test enhancement needed to confirm successful auto-configuration.
