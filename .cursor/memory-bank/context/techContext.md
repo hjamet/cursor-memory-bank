@@ -67,7 +67,7 @@ Un hook pre-commit est également fourni dans `.githooks/pre-commit` et install�
 
 ## Notes sur les Serveurs MCP
 - Le serveur MCP Commit (`mcp_MyMCP_*`, nommé `InternalAsyncTerminal` dans son code) fournit les outils suivants :
-  - `commit`: Pour effectuer des commits Git standardisés. (Uses auto-detected CWD based on server args/env/process. Reports repo name and committed files).
+  - `commit`: Pour effectuer des commits Git standardisés. Accepte `emoji`, `type`, `title`, `description` (optionnel), et `bypass_hooks` (optionnel boolean, default `false`). Utilise CWD auto-détecté. Rapporte le nom du dépôt et les fichiers committés.
   - `execute_command`: Pour exécuter des commandes shell de manière asynchrone.
   - `get_terminal_status`: Pour vérifier l'état des commandes en cours.
   - `get_terminal_output`: Pour récupérer la sortie d'une commande.

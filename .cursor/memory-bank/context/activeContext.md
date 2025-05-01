@@ -1,22 +1,25 @@
 # Active Context
 
 ## Current implementation context
-- **Completed**: Implemented pre-commit hook (`.githooks/pre-commit`) to check file lengths (max 500 lines). Modified `install.sh` to install it. Modified `fix.mdc` and `context-update.mdc` to handle the hook's error message and create refactoring tasks in `tasks.md`.
+- **Completed**: 
+    1. Tested hook installation (`tests/test_install.sh` enhanced & passed).
+    2. Documented manual hook verification steps in `README.md`.
+    3. Added `bypass_hooks` argument to `mcp_MyMCP_commit` tool (`commit.js` modified).
+    4. Modified `test-execution.mdc` rule with new `tests.md` format.
+    5. Refactored `tests.md` to new format.
 - **Test Results**: 
-    - `test_install.sh`, `test_download.sh`, `test_git_install.sh` passed.
-    - `test_curl_install.sh` failed as expected (404 fetching hook script, which is not yet in remote master).
-    - No unexpected regressions detected.
+    - All automated tests passed, except `test_curl_install.sh` which failed as expected (404 fetching hook). 
+    - No unexpected regressions.
+    - Manual verification required for hook failure message display and `bypass_hooks` functionality.
 
 ## Summary of Recent Changes
-- Called `implementation` -> `test-execution`.
-- Implemented pre-commit hook feature:
-    - Created `.githooks/pre-commit`.
-    - Modified `install.sh`.
-    - Modified `.cursor/rules/fix.mdc`.
-    - Modified `.cursor/rules/context-update.mdc`.
+- Called `context-loading` -> `request-analysis` -> `task-decomposition` -> `implementation` -> `test-execution`.
+- Enhanced `tests/test_install.sh`.
+- Updated `README.md`.
+- Modified `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`.
+- Modified `.cursor/rules/test-execution.mdc`.
+- Refactored `.cursor/memory-bank/workflow/tests.md`.
 - Updated `.cursor/memory-bank/workflow/tasks.md` (marked tasks In Progress).
-- Called `context-loading` -> `request-analysis` -> `task-decomposition` -> `implementation`.
-- Decomposed user request into tasks.
 - Called `context-loading` -> `consolidate-repo` -> `request-analysis` -> `implementation`.
 - Analyzed user request (from userbrief.md) to modify MCP `execute_command` and `get_terminal_status` tools.
 - Consolidated userbrief.md (attempted).

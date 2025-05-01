@@ -98,6 +98,18 @@ test_clean_install() {
         error "Rules directory was not created"
         return 1
     fi
+
+    # Verify pre-commit hook installation
+    local hook_file="$TEST_DIR/.githooks/pre-commit"
+    if [[ ! -f "$hook_file" ]]; then
+        error "Pre-commit hook file was not created at $hook_file"
+        return 1
+    fi
+    if [[ ! -x "$hook_file" ]]; then
+        error "Pre-commit hook file is not executable at $hook_file"
+        return 1
+    fi
+    log "Pre-commit hook installed and executable."
     
     # Verify MCP server dependency installation was attempted
     if ! echo "$install_output" | grep -q "Installing Internal MCP Commit Server dependencies"; then

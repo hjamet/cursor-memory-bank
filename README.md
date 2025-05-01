@@ -91,6 +91,21 @@ While this is primarily a personal project, contributions are welcome! Just note
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## Pre-commit Hook Verification (Manual)
+
+The installation script installs a pre-commit hook in `.githooks/pre-commit` to check for code files exceeding 500 lines. To manually verify this hook blocks commits correctly:
+
+1. Ensure the rules have been installed using `bash install.sh`.
+2. Initialize a temporary git repository: `mkdir temp_repo && cd temp_repo && git init`
+3. Configure git to use the installed hooks: `git config core.hooksPath ../.githooks`
+4. Create a file longer than 500 lines: `seq 510 > long_file.txt`
+5. Stage the file: `git add long_file.txt`
+6. Attempt to commit:
+   - Using the MCP tool: Call `mcp_MyMCP_commit` via Cursor with appropriate arguments (e.g., title, type).
+   - OR Using standard git: `git commit -m "Test long file"`
+7. Observe the output. The commit should fail, and you should see the error message from the hook script: `COMMIT FAILED: Files exceed maximum line count (500). ... The following files are too long...: long_file.txt`.
+8. Clean up: `cd .. && rm -rf temp_repo`
+
 ## Troubleshooting 🔧
 
 ### MCP Commit Server Issues
