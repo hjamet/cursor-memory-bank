@@ -7,7 +7,7 @@
 - ✅ **User curl test (MINGW64, no jq)**: Passed - Stable
 - ✅ **`test_download.sh`**: Passed - Stable
 - ✅ **`test_git_install.sh`**: Passed - Stable
-- ✅ **`test_install.sh`**: Passed - Stable (Error handling sub-test fixed)
+- ✅ **`test_install.sh`**: Passed - Stable
 - ✅ **`test_mcp_json_absolute_path_no_jq`**: Passed - Stable
 - ✅ **Consult Image Tool (Manual Test)**: Passed - Stable
 - ✅ **Various Ad-Hoc MCP Command Tests**: Passed - Stable

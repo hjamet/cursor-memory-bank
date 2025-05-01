@@ -1,5 +1,8 @@
 # ToDo
 
+## Temp: Debug install.sh Curl/No-JQ Failure [In Progress]
+- [x] **1.1 Analyze Failure**: Determine why `install.sh --use-curl` (when jq is not in PATH) exits with code 1, even after fixing 404 handling and `cp` issues.
+- [x] **1.2 Implement Fix**: Correct the logic in `install.sh`.
 
 # In Progress
 
