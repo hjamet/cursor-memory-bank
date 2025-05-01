@@ -4,6 +4,7 @@ const fs = require('fs');
 const assert = require('assert');
 const util = require('util'); // Needed for util.format
 
+// Revert: Use the commit server path again for spawning
 const SERVER_PATH = path.join(__dirname, '../.cursor/mcp/mcp-commit-server/server.js');
 const LOGS_DIR = path.join(__dirname, '../.cursor/mcp/mcp-commit-server/logs');
 const STATE_FILE = path.join(__dirname, '../.cursor/mcp/mcp-commit-server/terminals_status.json');
@@ -48,6 +49,7 @@ function startServer() {
         try { if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true }); } catch (e) { logToFile('ERROR', '[Test Setup] Failed to recreate logs dir:', e.message); reject(e); return; }
 
         logToFile('INFO', 'Spawning server process...');
+        // Revert: Use node to spawn the commit server script
         serverProcess = child_process.spawn('node', [SERVER_PATH], {
             stdio: ['pipe', 'pipe', 'pipe'] // Pipe stdin, stdout, stderr
         });
@@ -175,10 +177,11 @@ async function runTests() {
         // 1. Execute command
         logToFile('INFO', 'Executing command via sendRequest...');
         const testMessage = `MCP Test Message ${Date.now()}`;
+        // Ensure we use a simple command for testing the MCP tools themselves
         const commandToRun = `echo "${testMessage}" && >&2 echo test_command_stderr`;
         const execResultRaw = await sendRequest('execute_command', {
             command: commandToRun,
-            timeout: 5
+            timeout: 5 // Short timeout for simple echo
         });
         logToFile('INFO', 'Execute Result (Raw): %j', execResultRaw);
 

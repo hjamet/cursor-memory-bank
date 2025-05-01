@@ -10,6 +10,12 @@
 
 ## DONE
 
+*   **1. Enhance `fix` Rule**:
+    - [x] **1.1 Add Git History Check**: Modified `.cursor/rules/fix.mdc` to include an optional step in the analysis phase (2.2) suggesting the use of `mcp_MyMCP_execute_command` with `git log` or `git restore` for analyzing regressions.
+*   **2. Improve `install.sh` Robustness**:
+    - [x] **2.1 Add Pre-Install Cleanup**: Modified `install.sh` to perform cleanup of MCP server artifacts before `npm install`.
+*   **3. Simplify `architect` Rule**:
+    - [x] **3.1 Rewrite Rule**: Rewrote `.cursor/rules/architect.mdc` following user instructions (standard format, sequential reads, git log, no status command, French response).
 *   ~~**Improve Async Terminal Test Diagnostics**~~:
     - [x] **1.1 Implement File Logging in Test**: Modified `tests/test_mcp_async_terminal.js` to write logs to `./test_mcp_async_terminal.log`.
     - [x] **1.2 Modify Fix Rule**: Updated `.cursor/rules/fix.mdc` to read log file.

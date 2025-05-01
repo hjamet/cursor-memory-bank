@@ -846,6 +846,15 @@ merge_mcp_json "$INSTALL_DIR"
 # Install Internal MCP Commit Server dependencies if present in the TARGET directory
 INTERNAL_MCP_SERVER_DIR="$INSTALL_DIR/.cursor/mcp/mcp-commit-server"
 if [[ -d "$INTERNAL_MCP_SERVER_DIR" ]] && [[ -f "$INTERNAL_MCP_SERVER_DIR/package.json" ]]; then
+
+    # Clean up previous installs within the specific server directory before npm install
+    log "Cleaning up previous build artifacts in $INTERNAL_MCP_SERVER_DIR..."
+    if [[ -d "$INTERNAL_MCP_SERVER_DIR/node_modules" ]]; then
+        rm -rf "$INTERNAL_MCP_SERVER_DIR/node_modules" || warn "Could not remove existing node_modules directory."
+    fi
+    # Remove old log files if any
+    rm -f "$INTERNAL_MCP_SERVER_DIR"/*.log
+
     log "Installing Internal MCP Commit Server dependencies in $INTERNAL_MCP_SERVER_DIR..."
     
     # Ensure the server.js file exists (already copied by install_rules ideally)

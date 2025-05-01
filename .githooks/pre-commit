@@ -53,21 +53,18 @@ while IFS= read -r file; do
 done <<< "$STAGED_FILES"
 
 if [ ${#oversized_files[@]} -gt 0 ]; then
-    echo ""
-    echo "---------------------------------------------------------------------"
-    echo "WARNING: Files exceed maximum line count ($MAX_LINES)."
-    echo "The following files are too long and should be refactored into smaller sub-files:"
-    echo ""
-    # Join array elements with a comma and space
-    printf "  %s" "${oversized_files[0]}"
-    for (( i=1; i<${#oversized_files[@]}; i++ )); do
-        printf ", %s" "${oversized_files[i]}"
-    done
-    echo "" # Newline after the list
-    echo "---------------------------------------------------------------------"
+    # Print warning to STDOUT but allow commit
+    echo "" >&1 # Redirect to stdout explicitly for clarity if needed, though default
+    echo "---------------------------------------------------------------------" >&1
+    echo "WARNING: Files exceed maximum line count ($MAX_LINES)." >&1
+    echo "The following files are too long and should ideally be refactored:" >&1
+    echo "" >&1
+    # Print list to stdout
+    printf "  %s\n" "${oversized_files[@]}" >&1
+    echo "---------------------------------------------------------------------" >&1
+    # Exit 0 to allow the commit despite the warning
+    exit 0 
 else
     echo "All checked files are within the line limit."
-fi
-
-# Always exit 0 to allow the commit
-exit 0 
+    exit 0
+fi 
