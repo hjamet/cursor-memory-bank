@@ -195,6 +195,22 @@ test_error_handling() {
         return 1
     fi
     
+    log "Testing failure with invalid repository using curl..."
+    
+    # Temporarily disable exit on error
+    set +e 
+    bash "$install_script" --dir "$TEST_DIR" --no-backup --use-curl --repo "https://invalid-repo-url" 2>/dev/null
+    local install_status=$?
+    # Re-enable exit on error
+    set -e 
+
+    if [[ $install_status -eq 0 ]]; then
+        log_error "Installation should fail with invalid repository (using curl)"
+        return 1
+    else
+        log "OK: Failed with invalid repository (using curl) as expected."
+    fi
+    
     log "Error handling test passed"
     return 0
 }

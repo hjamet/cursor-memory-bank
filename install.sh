@@ -144,9 +144,8 @@ download_file() {
             return 0
             ;;
         404)
-            # Changed from error to warn for 404
-            warn "URL not found (HTTP 404). Skipping download for: $url"
-            return 0 # Allow script to continue
+            # Reverted: 404 is an error again
+            error "Failed to download file: URL not found (HTTP 404). Please check that the URL is correct: $url"
             ;;
         403)
             error "Failed to download file: Access denied (HTTP 403). Please check your access permissions to: $url"
