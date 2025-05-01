@@ -39,7 +39,7 @@ Un hook pre-commit est également fourni dans `.githooks/pre-commit` et install�
 - Traitement amélioré des codes HTTP non standards
 - **Utilisation systématique des outils MCP (`mcp_MyMCP_*`) pour l'exécution de commandes externes dans les règles**
 - **WORKAROUND:** Pour modifier de manière fiable les fichiers `.mdc` (règles), renommer temporairement en `.md`, éditer, puis renommer en `.mdc` pour assurer la détection par Git.
-- **Pre-commit Hook**: Bloque les commits si des fichiers de code (.py, .js, .ts, .java, .go, .rb, .php, .sh) dépassent 500 lignes.
+- **Pre-commit Hook**: Bloque les commits si des fichiers de code (.py, .js, .ts, .java, .go, .rb, .php, .sh) dépassent 500 lignes. Le message d'erreur mentionne la possibilité de bypass via `--no-verify` ou l'option `bypass_hooks: true` du tool `mcp_MyMCP_commit`.
 
 ## Dépendances Externes
 - Cursor: Dernière version - Environnement d'exécution principal
