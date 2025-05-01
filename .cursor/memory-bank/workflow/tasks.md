@@ -1,5 +1,53 @@
 # ToDo
 
+
+# In Progress
+
+# Done
+
+## 1. Pre-commit Hook Implementation [Done]
+- [x] **1.1 Create Hook Script**: Create the pre-commit hook script.
+  - *Description*: Write a Bash script (`.githooks/pre-commit`) that checks the line count of staged code files. Use `git diff --cached --name-only` to get staged files. Filter for extensions: `.py`, `.js`, `.ts`, `.java`, `.go`, `.rb`, `.php`, `.sh`. Use `wc -l` to count lines. If any file exceeds 500 lines, collect filenames, print the specified error message in English, and exit with a non-zero status.
+  - *Impacted Files/Components*: `.githooks/pre-commit` (New file)
+  - *Dependencies*: Git
+  - *Validation Criteria*: The script correctly identifies oversized staged code files and blocks commits with the specified error message.
+
+## 2. Installation Script Update [Done]
+- [x] **2.1 Add Hook Installation**: Modify `install.sh` to install the hook.
+  - *Description*: Add steps in `install.sh` to:
+    1. Create the `$INSTALL_DIR/.githooks` directory if it doesn't exist.
+    2. Copy the pre-commit script (created in task 1.1, assume it exists in the source repo at `.githooks/pre-commit`) to `$INSTALL_DIR/.githooks/pre-commit`.
+    3. Make the copied script executable (`chmod +x`).
+    4. Add a final `log` message instructing the user to run `git config core.hooksPath .githooks` in their repository to activate the hook.
+  - *Impacted Files/Components*: `install.sh`, `.githooks/pre-commit` (from source)
+  - *Dependencies*: Task 1.1 (pre-commit script available in source repo)
+  - *Validation Criteria*: `install.sh` successfully copies the hook, makes it executable, creates the directory, and displays the user instruction message.
+
+## 3. Rule Modification: `fix.mdc` [Done]
+- [x] **3.1 Add Hook Error Handling**: Modify the `fix.mdc` rule to handle the pre-commit error.
+  - *Description*: Using the rename-edit-rename workaround (`.mdc` -> `.md` -> edit -> `.mdc`), modify the `fix` rule. Identify where commits are attempted (likely using `mcp_MyMCP_commit` or potentially `run_terminal_cmd` in step 2.5). After the commit attempt, check the result/output for the specific error message: "Echec du commit. Les fichiers suivants font plus de 500 lignes et devraient être refactorisés...". If this error is detected:
+    1. Parse the list of filenames from the error message.
+    2. Read `.cursor/memory-bank/workflow/tasks.md`.
+    3. For each oversized file, check if a corresponding refactoring task already exists in the "ToDo" or "In Progress" sections.
+    4. If not, add a new task to the "ToDo" section (or highest priority) with:
+       - Title: `Refactor oversized file: [filename]`
+       - Description: `Refactor [filename] (currently over 500 lines) into smaller, logical sub-files each under 500 lines. CRITICAL: After each significant change during refactoring, run relevant tests (`pytest`, `npm test`, etc. for the affected module/component) to ensure no regressions are introduced.`
+       - Impacted Files: `[filename]`, potentially new files.
+       - Dependencies: None.
+       - Validation: File(s) refactored, all related tests pass.
+    5. Update `tasks.md` with the new task(s).
+    6. Adjust the rule's flow: Instead of proceeding as if the fix was successful, potentially call `context-update` to save the new task list or directly call `implementation` if appropriate.
+  - *Impacted Files/Components*: `.cursor/rules/fix.mdc`, `.cursor/memory-bank/workflow/tasks.md`
+  - *Dependencies*: Task 1.1 (for the specific error message)
+  - *Validation Criteria*: The `fix` rule correctly detects the line-count error, adds appropriate refactoring tasks to `tasks.md` if they don't exist, and adjusts its control flow.
+
+## 4. Rule Modification: `context-update.mdc` [Done]
+- [x] **4.1 Add Hook Error Handling**: Modify the `context-update.mdc` rule similarly to `fix.mdc`.
+  - *Description*: Using the rename-edit-rename workaround, modify the `context-update` rule. In step 4 ("Commit changes"), after the `mcp_MyMCP_commit` call, check the result/output for the specific pre-commit error message. If detected, perform the same actions as described in Task 3.1 (parse files, read tasks.md, check for existing tasks, add new refactoring tasks if needed, update tasks.md). Adjust the rule's flow: Instead of proceeding to step 5, call the `implementation` rule to address the newly added refactoring tasks.
+  - *Impacted Files/Components*: `.cursor/rules/context-update.mdc`, `.cursor/memory-bank/workflow/tasks.md`
+  - *Dependencies*: Task 1.1, Task 3.1
+  - *Validation Criteria*: The `context-update` rule correctly detects the line-count error during its commit step, adds appropriate refactoring tasks to `tasks.md` if they don't exist, and calls `implementation`.
+
 # Done
 
 ## UserBrief Modifications (Aug 7, 2024)
@@ -27,36 +75,4 @@
     - *Dependencies*: None
     - *Validation Criteria*: Step 2 text reflects the use of a short, fixed timeout (30s) for the initial command execution.
 - [x] **1.2 Implement Monitoring Loop (New Step 2.5 / Modify Step 3)**: Add a new step or modify Step 3 to implement the iterative monitoring loop.
-    - *Description*: Introduce logic after the initial execution (Step 2) to repeatedly call `mcp_MyMCP_get_terminal_status`. Start with a short timeout (e.g., 15s) and progressively increase it on subsequent calls (e.g., double it, up to 300s max) as long as the command runs without critical errors/anomalies. Ensure the 300s maximum timeout per call is explicit.
-    - *Impacted Files/Components*: `.cursor/rules/experience-execution.mdc`
-    - *Dependencies*: 1.1
-    - *Validation Criteria*: The rule includes a new step or modified Step 3 detailing the monitoring loop with `mcp_MyMCP_get_terminal_status`, increasing timeouts, and a 300s max limit per call.
-- [x] **1.3 Integrate Analysis within Monitoring (Step 2.5 / Modify Step 3)**: Add analysis using `<think>` within the monitoring loop.
-    - *Description*: Within the monitoring loop (Task 1.2), explicitly instruct the agent to use `<think>` blocks after each `get_terminal_status` call to analyze the received status/output. This analysis should check for anomalies or potential issues.
-    - *Impacted Files/Components*: `.cursor/rules/experience-execution.mdc`
-    - *Dependencies*: 1.2
-    - *Validation Criteria*: The monitoring loop description includes mandatory `<think>` blocks for intermediate analysis.
-- [x] **1.4 Add In-Loop Code Investigation & Decision (Step 2.5 / Modify Step 3)**: Allow code investigation and decision-making during monitoring.
-    - *Description*: Enhance the `<think>` block (Task 1.3) to allow optional code investigation (`read_file`, `codebase_search`) if anomalies are suspected, without immediately stopping the command. Add logic for the agent to decide based on this analysis whether to continue monitoring, stop the command (`mcp_MyMCP_stop_terminal_command`), or proceed to the final analysis step.
-    - *Impacted Files/Components*: `.cursor/rules/experience-execution.mdc`
-    - *Dependencies*: 1.3
-    - *Validation Criteria*: The monitoring loop's `<think>` block describes the possibility of code investigation and the decision logic (continue/stop/proceed).
-- [x] **1.5 Adapt Final Analysis (Step 3/4)**: Adjust the final analysis step (currently Step 3, may become Step 4) to account for the new monitoring loop.
-    - *Description*: Ensure the final critical analysis step logically follows the monitoring loop and uses the *final* state/output gathered, incorporating any insights from the intermediate `<think>` analyses.
-    - *Impacted Files/Components*: `.cursor/rules/experience-execution.mdc`
-    - *Dependencies*: 1.2, 1.3, 1.4
-    - *Validation Criteria*: The final analysis step is clearly distinct from the monitoring loop analysis and uses the comprehensive final results.
-
-## 2. Enhance `architect.mdc`: Pre-Edit Read and Proactive Code Search
-- [x] **1.1 Add Pre-`userbrief.md` Edit Read**: Ensure `architect.mdc` re-reads `userbrief.md` before modifying it.
-    - *Description*: Locate the section(s) in `architect.mdc` responsible for potentially modifying `userbrief.md`. Immediately before the edit action, insert an instruction to re-read `.cursor/memory-bank/userbrief.md` using the file reader tool. If the rule currently forbids editing `userbrief.md`, add a note clarifying this restriction and omit the read step.
-    - *Impacted Files/Components*: `.cursor/rules/architect.mdc`
-    - *Dependencies*: None
-    - *Validation Criteria*: The rule includes a step to read `userbrief.md` immediately before any potential modification, or clarifies the restriction if editing is forbidden.
-- [x] **1.2 Implement Proactive Code Search**: Modify `architect.mdc` to actively search for code elements mentioned by the user.
-    - *Description*: Enhance the step related to analyzing the user request (likely Step 2 in the current version). Add explicit instructions: If the user request mentions specific code elements (functions, files, variables, concepts), the agent MUST use tools like `codebase_search`, `grep_search`, and `read_file` to locate and understand these elements *before* formulating a detailed response or plan.
-    - *Impacted Files/Components*: `.cursor/rules/architect.mdc`
-    - *Dependencies*: None
-    - *Validation Criteria*: The rule text explicitly mandates proactive code searching/reading based on user request content.
-
-# In Progress
+    - *Description*: Introduce logic after the initial execution (Step 2) to repeatedly call `

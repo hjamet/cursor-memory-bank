@@ -18,10 +18,10 @@
   - Issue: This test script attempts to start its own nested MCP server instance, which conflicts with the primary MCP server running it. Executing it via `mcp_MyMCP_execute_command` (even with absolute path) fails silently (exit code 1, no captured stdout/stderr), likely during internal server setup.
   - Recommendation: Run this test directly using `node tests/test_mcp_async_terminal.js` in a separate terminal to validate MCP server functionality.
 - [✅] User curl test (MINGW64, no jq): Passed (Latest Run: 2025-04-27 - Required `tr -d '\r'` before `bash` to fix CRLF issue causing `: command not found`)
-- [✅] `test_curl_install.sh`: Passed (Latest Run: 2025-04-27 - Fixed no-jq subtest failures related to `--target` option, log file checking, and path extraction)
-- [✅] `test_download.sh`: Passed (Latest Run: 2025-04-27)
-- [✅] `test_git_install.sh`: Passed (Latest Run: 2025-04-27)
-- [✅] `test_install.sh`: Passed (Latest Run: 2025-04-27)
+- [❌] `test_curl_install.sh`: **Failed (Expected)** (Latest Run: Current Cycle - Failed with 404 downloading `.githooks/pre-commit`. This is expected as the hook file is not yet in the remote master branch.)
+- [✅] `test_download.sh`: Passed (Latest Run: Current Cycle)
+- [✅] `test_git_install.sh`: Passed (Latest Run: Current Cycle)
+- [✅] `test_install.sh`: Passed (Latest Run: Current Cycle)
 - [✅] `test_mcp_json_absolute_path_no_jq`: Passed (Latest Run: 2025-04-27 - Verified `sed` fallback correctly sets *key* to "Commit" but leaves *relative path* and warns when jq missing)
 - [✅] **Consult Image Tool (Manual Test)**: Passed (Latest Run: Current Cycle)
   - Call: `mcp_MyMCP_consult_image(path="tests/assets/image.png")`
@@ -59,30 +59,30 @@
 # Fichier de tests
 
 ## Tests d'installation via curl
-- ✅ **Test d'installation via curl** : Passed (Latest Run: 2025-04-27 - Fixed)
+- [❌] **Test d'installation via curl** : **Failed (Expected)** (Latest Run: Current Cycle - Failed with 404 downloading `.githooks/pre-commit`. This is expected as the hook file is not yet in the remote master branch.)
 - ✅ **Test d'installation curl avec options par défaut (pas de backup)** : Passed - Stable (Latest Run: 2025-04-27)
 - ✅ **Test de gestion d'erreur curl** : Passed - Stable (Latest Run: 2025-04-27)
 - ✅ **Test d'affichage de la date du dernier commit (curl)** : Passed - Stable (Latest Run: 2025-04-27)
 - ✅ **Test chemin absolu MCP sans jq** : Passed (Latest Run: 2025-04-27 - Fixed)
 
 ## Tests de téléchargement
-- ✅ **Test de téléchargement de fichier** : Passed - Stable (Latest Run: 2025-04-27)
+- ✅ **Test de téléchargement de fichier** : Passed (Latest Run: Current Cycle)
 - ✅ **Test d'URL invalide** : Passed - Stable (Latest Run: 2025-04-27)
-- ✅ **Test de téléchargement d'archive** : Passed - Stable (Latest Run: 2025-04-27)
+- ✅ **Test de téléchargement d'archive** : Passed (Latest Run: Current Cycle)
 - ✅ **Test d'URL d'archive invalide** : Passed - Stable (Latest Run: 2025-04-27)
 
 ## Tests d'installation via git
-- ✅ **Test d'installation de base** : Passed - Stable (Latest Run: 2025-04-27)
-- ✅ **Test de préservation des règles personnalisées** : Passed - Stable (Latest Run: 2025-04-27)
-- ✅ **Test d'option --no-backup** : Passed - Stable (Latest Run: 2025-04-27)
-- ✅ **Test d'option --force** : Passed - Stable (Latest Run: 2025-04-27)
-- ✅ **Test de répertoire invalide** : Passed - Stable (Latest Run: 2025-04-27)
-- ✅ **Test d'affichage de la date du dernier commit (git)** : Passed - Stable (Latest Run: 2025-04-27)
+- ✅ **Test d'installation de base** : Passed (Latest Run: Current Cycle)
+- ✅ **Test de préservation des règles personnalisées** : Passed (Latest Run: Current Cycle)
+- ✅ **Test d'option --no-backup** : Passed (Latest Run: Current Cycle)
+- ✅ **Test d'option --force** : Passed (Latest Run: Current Cycle)
+- ✅ **Test de répertoire invalide** : Passed (Latest Run: Current Cycle)
+- ✅ **Test d'affichage de la date du dernier commit (git)** : Passed (Latest Run: Current Cycle)
 
 ## Tests d'installation standard
-- ✅ **Test d'installation de base**: Passed (Latest Run: 2025-04-27)
-- ✅ **Test de backup et restauration** : Passed - Stable (Latest Run: 2025-04-27)
-- ✅ **Test de gestion d'erreur** : Passed - Stable (Latest Run: 2025-04-27)
+- ✅ **Test d'installation de base**: Passed (Latest Run: Current Cycle)
+- ✅ **Test de backup et restauration** : Passed (Latest Run: Current Cycle)
+- ✅ **Test de gestion d'erreur** : Passed (Latest Run: Current Cycle)
 
 ## MCP Async Terminal Tests (`tests/test_mcp_async_terminal.js`)
 
@@ -120,7 +120,7 @@
 - ✅ **Mise à jour du README** : curl est maintenant présenté comme la méthode d'installation par défaut
 - ✅ **Tests de téléchargement** : Corrigé en isolant les fonctions de test dans le script de test dédié. 
 
-*   **Last Run:** 2025-04-27
+*   **Last Run:** Current Cycle
 *   **Status:** ✅ Pass
 *   **Description:** Test basique de l'installation via Git (`tests/test_git_install.sh`). Vérifie le clonage, la copie des fichiers MCP, la gestion des règles personnalisées et les dépendances npm.
     *   Test: Installation de base
@@ -130,14 +130,14 @@
     *   Test: Répertoire invalide
     *   Test: Affichage de la date du dernier commit
 
-*   **Last Run:** 2025-04-27
-*   **Status:** ✅ Pass (Improved)
+*   **Last Run:** Current Cycle
+*   **Status:** ❌ Fail (Expected)
 *   **Description:** Test de l'installation via `curl | bash` (`tests/test_curl_install.sh`). Vérifie le téléchargement, l'exécution du script, la gestion de l'absence de `jq`, et les erreurs de téléchargement.
-    *   Test: Curl Install (Default) - Passed
+    *   Test: Curl Install (Default) - Failed (404 downloading `.githooks/pre-commit`)
     *   Test: Curl Install Error Handling (Invalid URL) - Passed
-    *   Test: MCP JSON Absolute Path (No jq) - Passed (Fixed issues with `--target` option, log checking, and path extraction)
+    *   Test: MCP JSON Absolute Path (No jq) - Passed
 
-*   **Last Run:** 2025-04-27
+*   **Last Run:** Current Cycle
 *   **Status:** ✅ Pass
 *   **Description:** Test des fonctions de téléchargement (`tests/test_download.sh`). Vérifie le téléchargement de fichiers simples et d'archives, ainsi que la gestion des URL invalides.
     *   Test: File Download
@@ -145,7 +145,7 @@
     *   Test: Archive Download
     *   Test: Invalid Archive URL
 
-*   **Last Run:** 2025-04-27
+*   **Last Run:** Current Cycle
 *   **Status:** ✅ Pass
 *   **Description:** Test complet du script d'installation principal (`tests/test_install.sh`). Couvre l'installation propre, la sauvegarde, la restauration, les options et la gestion des erreurs.
     *   Test: Clean Install

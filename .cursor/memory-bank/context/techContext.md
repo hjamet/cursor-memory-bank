@@ -24,9 +24,12 @@ Le projet est organisé en une structure de fichiers cohérente avec des règles
 
 Le projet comprend aussi un serveur MCP Commit qui doit être correctement installé dans le répertoire d'installation de Cursor pour fonctionner. Ce serveur se connecte via le protocole StdioTransport et permet d'effectuer des commits Git standardisés depuis l'interface de Cursor.
 
+Un hook pre-commit est également fourni dans `.githooks/pre-commit` et installé par `install.sh` pour vérifier la longueur des fichiers de code avant le commit.
+
 ## Environnement de Développement
 - **Configuration requise**: Cursor, Bash, Git (optionnel), Curl (recommandé)
 - **Installation**: Via le script install.sh avec diverses options (--dir, --backup, --force)
+- **Post-installation Git**: Exécuter `git config core.hooksPath .githooks` pour activer les hooks.
 
 ## Conventions de Code
 - Utilisation de fichiers .mdc pour les règles de Cursor
@@ -36,6 +39,7 @@ Le projet comprend aussi un serveur MCP Commit qui doit être correctement insta
 - Traitement amélioré des codes HTTP non standards
 - **Utilisation systématique des outils MCP (`mcp_MyMCP_*`) pour l'exécution de commandes externes dans les règles**
 - **WORKAROUND:** Pour modifier de manière fiable les fichiers `.mdc` (règles), renommer temporairement en `.md`, éditer, puis renommer en `.mdc` pour assurer la détection par Git.
+- **Pre-commit Hook**: Bloque les commits si des fichiers de code (.py, .js, .ts, .java, .go, .rb, .php, .sh) dépassent 500 lignes.
 
 ## Dépendances Externes
 - Cursor: Dernière version - Environnement d'exécution principal
@@ -56,6 +60,7 @@ Le projet comprend aussi un serveur MCP Commit qui doit être correctement insta
 - Gestion robuste des erreurs HTTP
 - Récupération de la date du dernier commit pour indiquer la fraîcheur des règles
 - Vérification et restauration des règles personnalisées
+- Installation du hook pre-commit dans `.githooks/` et message d'activation pour l'utilisateur.
 - Installation des dépendances du serveur MCP commit si Node.js et npm sont disponibles
 - Fusion du fichier mcp.json pour configurer le serveur MCP commit 
 - **jq (Optionnel mais recommandé)**: `jq` est nécessaire pour modifier le `mcp.json` afin d'utiliser un chemin absolu pour le serveur MCP commit et pour fusionner la configuration avec un `mcp.json` existant. Si `jq` n'est pas trouvé, le script utilise un chemin relatif et ne fusionne pas, ce qui peut entraîner des problèmes si le script d'installation n'est pas exécuté depuis le répertoire racine de Cursor. 

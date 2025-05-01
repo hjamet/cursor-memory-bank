@@ -1,18 +1,22 @@
 # Active Context
 
 ## Current implementation context
-- Completed modifications to MCP tools based on userbrief.md request:
-  - Modified `execute_command` (`terminal_execution.js`): Changed `MAX_CHARS_EXEC_PARTIAL` to 1500, used `readLastLogChars`, added prefix logic for limit hit.
-  - Modified `get_terminal_status` (`terminal_status.js`): Changed `MAX_CHARS_STATUS` to 1500, added prefix logic for limit hit.
-- Attempted test execution (`tests/test_mcp_async_terminal.js`), failed due to known MCP incompatibility (silent exit 1).
+- **Completed**: Implemented pre-commit hook (`.githooks/pre-commit`) to check file lengths (max 500 lines). Modified `install.sh` to install it. Modified `fix.mdc` and `context-update.mdc` to handle the hook's error message and create refactoring tasks in `tasks.md`.
+- **Test Results**: 
+    - `test_install.sh`, `test_download.sh`, `test_git_install.sh` passed.
+    - `test_curl_install.sh` failed as expected (404 fetching hook script, which is not yet in remote master).
+    - No unexpected regressions detected.
 
 ## Summary of Recent Changes
-- Called `implementation` -> `test-execution` -> `context-update`.
-- Updated `.cursor/memory-bank/workflow/tests.md` to reconfirm known issue with `test_mcp_async_terminal.js`.
-- Updated `.cursor/memory-bank/workflow/tasks.md` adding done tasks for userbrief modifications.
-- Executed `implementation` rule:
-    - Modified `terminal_execution.js` (MCP tool).
-    - Modified `terminal_status.js` (MCP tool).
+- Called `implementation` -> `test-execution`.
+- Implemented pre-commit hook feature:
+    - Created `.githooks/pre-commit`.
+    - Modified `install.sh`.
+    - Modified `.cursor/rules/fix.mdc`.
+    - Modified `.cursor/rules/context-update.mdc`.
+- Updated `.cursor/memory-bank/workflow/tasks.md` (marked tasks In Progress).
+- Called `context-loading` -> `request-analysis` -> `task-decomposition` -> `implementation`.
+- Decomposed user request into tasks.
 - Called `context-loading` -> `consolidate-repo` -> `request-analysis` -> `implementation`.
 - Analyzed user request (from userbrief.md) to modify MCP `execute_command` and `get_terminal_status` tools.
 - Consolidated userbrief.md (attempted).

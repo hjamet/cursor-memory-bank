@@ -619,6 +619,62 @@ EOF
     fi
 }
 
+# Function to install pre-commit hook
+install_pre_commit_hook() {
+    local target_dir="$1"
+    local temp_dir="$2"
+    local hooks_dir="$target_dir/.githooks"
+    local hook_file="$hooks_dir/pre-commit"
+    local source_hook_file=""
+
+    log "Installing pre-commit hook..."
+
+    # Determine source hook file path based on install method
+    if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1;
+    then
+        # Curl method: Download hook file directly
+        local api_dir="$temp_dir/api-files"
+        local temp_hook_file="$api_dir/githooks/pre-commit"
+        local hook_url="$RAW_URL_BASE/.githooks/pre-commit"
+
+        log "Downloading pre-commit hook script via curl from $hook_url"
+        mkdir -p "$(dirname "$temp_hook_file")"
+        if download_file "$hook_url" "$temp_hook_file"; then
+            source_hook_file="$temp_hook_file"
+        else
+            warn "Failed to download pre-commit hook script. Skipping hook installation."
+            return
+        fi
+    else
+        # Git method: Use hook file from cloned repo
+        local clone_dir="$temp_dir/repo"
+        if [[ -f "$clone_dir/.githooks/pre-commit" ]]; then
+            source_hook_file="$clone_dir/.githooks/pre-commit"
+            log "Using pre-commit hook script from git clone."
+        else
+            warn "Pre-commit hook script not found in cloned repository. Skipping hook installation."
+            return
+        fi
+    fi
+
+    # Create hooks directory in target
+    if ! mkdir -p "$hooks_dir"; then
+        error "Failed to create hooks directory: $hooks_dir. Please check permissions."
+    fi
+
+    # Copy hook file
+    if ! cp "$source_hook_file" "$hook_file"; then
+        error "Failed to copy pre-commit hook to $hook_file. Please check permissions."
+    fi
+
+    # Make hook executable
+    if ! chmod +x "$hook_file"; then
+        error "Failed to make pre-commit hook executable: $hook_file"
+    fi
+
+    log "Pre-commit hook installed to $hook_file"
+}
+
 show_help() {
     cat << EOF
 Cursor Memory Bank Installation Script v${VERSION}
@@ -731,6 +787,9 @@ create_dirs "$INSTALL_DIR"
 # Install rules AND copy base MCP server files
 install_rules "$INSTALL_DIR" "$TEMP_DIR"
 
+# Install pre-commit hook
+install_pre_commit_hook "$INSTALL_DIR" "$TEMP_DIR"
+
 # Merge MCP JSON template with existing config (NOW uses absolute path logic)
 merge_mcp_json "$INSTALL_DIR"
 
@@ -786,4 +845,6 @@ else
     log "MCP directory structure not found in $INSTALL_DIR/.cursor/. Skipping MCP server setup."
 fi
 
-log "Installation completed successfully!" 
+log "Installation completed successfully!"
+log "${YELLOW}ACTION REQUIRED:${NC} To enable the installed git hooks (e.g., pre-commit), run the following command in your repository root:"
+log "  git config core.hooksPath .githooks" 

@@ -1,4 +1,5 @@
 {
+    "mcpVersion": "0.1",
     "mcpServers": {
         "MyMCP": {
             "command": "node",

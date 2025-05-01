@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# Pre-commit hook to check for files exceeding a line limit.
+
+MAX_LINES=500
+# Code file extensions to check (lowercase)
+CODE_EXTENSIONS=("py" "js" "ts" "java" "go" "rb" "php" "sh")
+
+# Get list of staged files (Added, Copied, Modified)
+# Exclude deleted files from the line count check
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+if [ -z "$STAGED_FILES" ]; then
+    exit 0 # No staged files to check
+fi
+
+oversized_files=()
+
+echo "Checking line counts for staged files..."
+
+while IFS= read -r file; do
+    # Check if the file exists (it might be staged for deletion)
+    if [ ! -f "$file" ]; then
+        continue
+    fi
+
+    # Get file extension in lowercase
+    extension="${file##*.}"
+    extension_lower=$(echo "$extension" | tr '[:upper:]' '[:lower:]')
+
+    # Check if the extension is in our list
+    is_code_file=0
+    for ext in "${CODE_EXTENSIONS[@]}"; do
+        if [[ "$extension_lower" == "$ext" ]]; then
+            is_code_file=1
+            break
+        fi
+    done
+
+    if [[ "$is_code_file" -eq 1 ]]; then
+        # Count lines using wc -l
+        line_count=$(wc -l < "$file")
+
+        # Trim leading/trailing whitespace from line_count
+        line_count=$(echo "$line_count" | tr -d '[:space:]')
+
+        echo " - Checking $file ($line_count lines)"
+
+        if [[ "$line_count" -gt "$MAX_LINES" ]]; then
+            oversized_files+=("$file")
+        fi
+    fi
+done <<< "$STAGED_FILES"
+
+if [ ${#oversized_files[@]} -gt 0 ]; then
+    echo ""
+    echo "---------------------------------------------------------------------"
+    echo "COMMIT FAILED: Files exceed maximum line count ($MAX_LINES)."
+    echo "The following files are too long and should be refactored into smaller sub-files:"
+    echo ""
+    # Join array elements with a comma and space
+    printf "  %s" "${oversized_files[0]}"
+    for (( i=1; i<${#oversized_files[@]}; i++ )); do
+        printf ", %s" "${oversized_files[i]}"
+    done
+    echo "" # Newline after the list
+    echo "---------------------------------------------------------------------"
+    exit 1
+else
+    echo "All checked files are within the line limit."
+    exit 0
+fi 
