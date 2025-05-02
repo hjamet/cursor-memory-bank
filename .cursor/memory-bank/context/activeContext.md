@@ -1,18 +1,13 @@
 # Active Context
 
 ## Current implementation context
-- **Overall Goal**: Finalizing workflow after attempting to rewrite `architect` rule.
-- **Current Task**: Committing changes (if any applied) and checking workflow status.
-  - **Logic**: Update context, attempt commit, check file integrity and tests/tasks status.
-  - **Dependencies**: None.
-  - **Attention Points**: The rewrite of `architect.mdc` likely failed due to tool issues.
+- **Overall Goal**: Fix MCP commit server logic.
+- **Current Task**: Modify `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`.
+  - **Logic**: Refactor `handleCommit` to correctly determine commit success/failure based primarily on the `git commit` command's exit code, not just the presence of stderr output. Report success if exit code is 0, even with stderr warnings.
+  - **Dependencies**: Relies on `execAsync` (likely from Node.js `child_process`) throwing an error for non-zero exit codes.
+  - **Attention Points**: Ensure logic correctly handles 'nothing to commit' case and still retrieves committed files on success.
 
 ## Summary of Recent Changes
+- Identified that `mcp_MyMCP_commit` tool incorrectly reports failure on non-blocking hook warnings (stderr output with exit code 0).
 - Attempted to rewrite `architect.mdc` completely to remove XML; the edit likely failed.
-- Previous attempts to remove XML from `architect.mdc` via targeted edits also failed.
-- Rule `fix.mdc` enhanced with optional Git history check.
-- Script `install.sh` improved with pre-install MCP cleanup.
-- `tasks.md` updated with new tasks and marked current ones as completed.
-- Previous changes might have been reverted, hence re-implementing these modifications.
-- All tests are now passing.
-- Changes successfully committed (Commit: 9b5a48ed...), despite MCP tool reporting failure due to hook output.
+- Previous attempts to remove XML from `
