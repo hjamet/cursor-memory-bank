@@ -90,33 +90,109 @@ This workflow allows managing long processes without blocking and retrieving int
 
 ## Example
 
+[...fetching rule `fix`...] # Use your rule-calling tool to call the rule, then apply it.
+
 # Fix: 1 - Error identification
-I read `tests.md` and found that `test_login_flow` is failing with "AssertionError: Expected status code 200 but got 403". **(Fix: 1 - Error identification completed)**
+I begin by reading the tests.md file to understand test errors. **(Fix: 1 - Error identification)**
+[...reading .cursor/memory-bank/workflow/tests.md file...]
 
-# Fix: 2 - Correction loop - test_login_flow - Iteration 1
-**(Fix: 2 - Correction loop - test_login_flow - Iteration 1)**
+I've identified the following failing tests:
+1.  TestUserAuthentication.test_login_with_invalid_token - TypeError: Object of type bytes is not JSON serializable
+2.  TestDataProcessing.test_large_file_processing - MemoryError: Unable to allocate memory for operation
+3.  TestAPIConnection.test_retry_mechanism - AssertionError: Expected 3 retry attempts, got 0
+**(Fix: 1 - Error identification completed)**
 
-*Analysis:* I examine `auth.py` and `test_auth.py`. 
-*Optional: Search `.cursor_memory` for auth-related context: `codebase_search(...)`.*
-<think>The 403 error suggests a permission issue. This test used to pass. Could it be a regression? I'll check the recent git history for `auth.py`.</think>
-*Git History Check*: I'll use MCP to check the log: `mcp_MyMCP_execute_command(command='git log -n 5 -p .\src\auth.py | cat')`. The logs show a recent change related to permission checks. That seems likely to be the cause.
-*Implementation*: I modify `auth.py` to correct the permission logic based on the history.
-*Test*: `mcp_MyMCP_execute_command(command='pytest tests/test_auth.py::test_login_flow')`...
-*Result*: Test passes!
-*Update tests.md*: I update `tests.md` to mark `test_login_flow` as passing. **(Fix: 2 - Correction loop - test_login_flow - Implementation 1 completed)**
-*Quick Commit*: `mcp_MyMCP_commit(type='fix', emoji=':wrench:', title='fix(test_login_flow): Quick fix for auth regression', description='Corrected permission logic in auth.py based on git history review.')`.
+# Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1
+**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1)**
 
-# Fix: 3 - Calling the next rule
-All tests passed or were handed over. 
+## 2.1 Marking
+**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1)**
+
+## 2.2 Analysis
+*(Optional) I search for high-level context in `.cursor_memory` related to authentication logic: [...]*
+`codebase_search(query='authentication vision', target_directories=['.cursor/memory'])`
+[...examining authentication code files...]
+*(Optional) As it is a regression, I check the git history for recent changes to related files.*
+[...using mcp_MyMCP_execute_command to check the git history...]
+Ok, I found the commit that introduced the regression, I'll check the old version of the file for comparison.
+[...using mcp_MyMCP_execute_command to checkout the old version of the file...]
 <think>
-Reading `activeContext.md`, this fix was triggered by a standard `test-execution` run. `invoked_by_test_failure = true`.
-Checking `userbrief.md`, there are no unprocessed items.
-Since `invoked_by_test_failure` is true, I call `test-execution` for final verification.
+The error occurs because we're trying to JSON serialize a bytes object. Decoding to 'utf-8' before serialization should work.
 </think>
-I will call `test-execution` for final verification. **(Fix: 3 - Calling the next rule)**
 
-[...calling tool 'fetch_rules' with rule_names=["test-execution"]...]
+## 2.3 Research
+*I search the web for information on JSON serializing bytes objects.*
+`mcp_brave-search_brave_web_search(query='python json serialize bytes error')`
+
+## 2.4 Implementation
+[...modifying the authentication code to decode bytes before JSON serialization...]
+**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Implementation 1 completed)**
+
+## 2.5 Test
+[...determining command for specific test, e.g., `pytest tests/auth_tests.py::TestUserAuthentication::test_login_with_invalid_token`...]
+[...calling `mcp_MyMCP_execute_command` with the specific test command...]
+**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Test execution 1)**
+
+Great! The test now passes. 
+*(Situational) The error was simple, no need to reflect on high-level vision.*
+Moving to the next failing test.
+
+# Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1)**
+
+## 2.1 Marking
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1)**
+
+## 2.2 Analysis
+[...examining data processing code...]
+<think>
+MemoryError indicates loading the whole file. A streaming approach is likely needed.
+</think>
+
+## 2.3 Research
+*I search the web for Python techniques for processing large files efficiently.*
+`mcp_brave-search_brave_web_search(query='python streaming large file processing memory efficient')`
+
+## 2.4 Implementation
+[...modifying the processor to use a basic streaming approach...]
+
+## 2.3 Research
+*I search the web for resolving Python NameErrors.*
+`mcp_brave-search_brave_web_search(query='python NameError: name process_chunk is not defined')`
+
+## 2.4 Implementation
+[...implementing the missing function...]
+
+## 2.3 Research
+*I search the web again for advanced large file processing patterns.*
+`mcp_brave-search_brave_web_search(query='python advanced large file processing memory management')`
+
+## 2.4 Implementation
+[...No further implementation attempt...]
+
+## 2.5 Test
+The test failed on the previous iteration, and analysis confirms it needs major refactoring beyond simple iteration.
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Handing over to request-analysis)**
+
+Calling `request-analysis` to handle the complex task of implementing efficient large file processing.
+[Provide context: Problem="MemoryError during large file processing requires major refactoring (streaming/chunking insufficient)", Files=[...], Analysis="Initial attempts failed, needs new architectural approach."]
+
+[...Here, the agent calls the rule 'request-analysis' using its rule calling tool...]
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
+
+**(Alternative Scenario in Step 3)**
+
+# Fix: 3 - Calling the next rule (Scenario: Fix for non-test issue)
+<think>
+Determine Invocation Context: Reading activeContext.md... Found section '## Experience Execution Anomaly' detailing the issue fixed. This wasn't from tests.md.
+Set invoked_by_test_failure = false.
+</think>
+Decision Logic:
+Checking userbrief.md... No unprocessed comments.
+invoked_by_test_failure is false.
+Calling `test-implementation` to create a regression test for the specific behavior fixed.
+**(Fix: 3 - Calling the next rule)**
+[...calling tool 'fetch_rules' with rule_names=["test-implementation"]...]
 
 
