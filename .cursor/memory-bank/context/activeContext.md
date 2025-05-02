@@ -3,10 +3,9 @@
 ## Current implementation context
 - **Overall Goal**: Implement user requests from the latest `userbrief.md` processing.
 - **Current Tasks (from tasks.md)**:
-    - All priority tasks related to rule/script modification completed.
-    - Task to implement `consult_pdf` MCP tool was cancelled by the user.
+    - All tasks completed.
 - **Dependencies**: N/A.
-- **Attention Points**: Commit is currently blocked by pre-commit hook due to `install.sh` length.
+- **Attention Points**: Pre-commit hook correctly warns about `install.sh` length and allows commit, but `mcp_MyMCP_commit` tool incorrectly reports failure due to hook output.
 
 ## Summary of Recent Changes
 - Rules `fix` and `architect` modified according to userbrief.
@@ -14,3 +13,4 @@
 - Attempt to implement `consult_pdf` was cancelled.
 - Fix cycle completed: Resolved regressions in installation and async terminal tests.
 - All tests are now passing.
+- Changes successfully committed (Commit: 9b5a48ed...), despite MCP tool reporting failure due to hook output.
