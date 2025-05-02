@@ -78,7 +78,12 @@ Execute potentially long-running commands (experiments, data processing, model t
     *   Call `mcp_stop_terminal_command` with the correct `pid` to ensure termination and cleanup if it wasn't already confirmed stopped/completed and cleaned.
     *   **(Experience-Execution: 6 - MCP cleanup performed)**
 
-7.  **Calling the next rule**: Decide the next step based on final analysis.
+7. **Commit changes**: Make a commit with the modifications using the MCP tool:
+   - Determine the appropriate `emoji`, `type`, `title`, and `description` based on the changes made during the preceding rules (refer to the commit message format section below).
+   - Call the `mcp_MyMCP_commit` tool with these arguments.
+   - The tool handles staging automatically (equivalent to `git add .` or `git commit -a`).
+
+8.  **Calling the next rule**: Decide the next step based on final analysis.
     *   `<think>`
         *   Review the final critical analysis summary from Step 4.
         *   Did the analysis explicitly note any anomalies or strange findings?
@@ -145,7 +150,13 @@ Analysis: Execution successful and results conform.
 [...optional call to `mcp_stop_terminal_command` if needed...]
 **(Experience-Execution: 6 - MCP cleanup performed)**
 
-# Experience-Execution: 7 - Calling the next rule
+# Experience-Execution: 7 - Making a commit
+I prepare and make a commit with the changes made using the MCP commit tool. **(Context-update: 4 - Making a commit)**
+[...determining commit details: emoji, type, title, description...]
+[...calling tool `mcp_MyMCP_commit` with appropriate arguments...]
+**(Context-update: 4 - Making a commit)**
+
+# Experience-Execution: 8 - Calling the next rule
 <think> Final analysis showed success and no anomalies. </think>
 Calling `context-update`.
 **(Experience-Execution: 7 - Calling next rule)**
