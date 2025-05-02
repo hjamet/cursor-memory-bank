@@ -1,14 +1,15 @@
 # Active Context
 
 ## Current implementation context
-- **Overall Goal**: Finalizing workflow after refactoring `architect` rule.
-- **Current Task**: Committing changes and checking workflow status.
-  - **Logic**: Update context, commit changes, check file integrity and tests/tasks status.
+- **Overall Goal**: Finalizing workflow after attempting to rewrite `architect` rule.
+- **Current Task**: Committing changes (if any applied) and checking workflow status.
+  - **Logic**: Update context, attempt commit, check file integrity and tests/tasks status.
   - **Dependencies**: None.
-  - **Attention Points**: Use MCP tools for commit and commands.
+  - **Attention Points**: The rewrite of `architect.mdc` likely failed due to tool issues.
 
 ## Summary of Recent Changes
-- Rule `architect.mdc` further simplified by removing all XML structures and integrating content into Markdown.
+- Attempted to rewrite `architect.mdc` completely to remove XML; the edit likely failed.
+- Previous attempts to remove XML from `architect.mdc` via targeted edits also failed.
 - Rule `fix.mdc` enhanced with optional Git history check.
 - Script `install.sh` improved with pre-install MCP cleanup.
 - `tasks.md` updated with new tasks and marked current ones as completed.
