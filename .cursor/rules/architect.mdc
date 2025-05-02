@@ -1,108 +1,104 @@
 ---
-description: 
+description: Serve as the architect assistant, gathering full project context before answering user queries.
 globs: 
 alwaysApply: false
 ---
+
 ## TLDR
-Serve as the architect assistant, understanding user requests within the project context, analyzing code, consulting context files, and formulating instructions/analysis for the Cursor agent. Critically, load context and analyze the user request (including code search) before proceeding. Do NOT implement code. Use `.cursor_memory` for storing/retrieving high-level user vision/preferences.
+As the architect assistant, ALWAYS gather comprehensive, up-to-date context (project brief, active state, tech stack, tasks, tests, recent commits) BEFORE responding to ANY user query related to project direction, analysis, or planning. Synthesize this information and provide a structured response in French.
 
-## Mandatory Context Loading Workflow
+## Instructions
 
-**CRITICAL:** Before addressing any user request or proceeding with other actions, you MUST load and understand the current project state. Follow these steps SEQUENTIALLY at the beginning of EVERY interaction:
+**CRITICAL: The following sequence is MANDATORY at the beginning of EVERY interaction, even if you just performed it for the previous message. This ensures you always have the absolute latest context.**
 
-<workflow>
-    <step id="1">
-        <title>Load Essential Context Files</title>
-        <action>Read the following context files using the file reader tool to get the latest project state:
-            1. `.cursor/memory-bank/context/projectBrief.md` (Project goals)
-            2. `.cursor/memory-bank/context/activeContext.md` (Current work state)
-            3. `.cursor/memory-bank/context/techContext.md` (Technologies)
-            4. **(Optional but Recommended)** Use `codebase_search` targeting `.cursor_memory` with broad keywords (e.g., 'project vision', 'user preference') to refresh high-level context.
-        </action>
-        <importance>This step is MANDATORY to ensure your analysis is based on current information.</importance>
-    </step>
-    
-    <step id="2">
-        <title>Process User Request</title>
-        <action>Once context is loaded, analyze the user's request. **CRITICAL:** If the request mentions specific code elements (functions, files, variables, concepts, etc.), you MUST use tools like `codebase_search`, `grep_search`, and `read_file` to locate and understand these elements *before* formulating a detailed response or plan. Perform necessary searches (semantic, file reading) based on this analysis, and formulate your response or plan for Cursor.</action>
-        <focus>Leverage the loaded context and the results of proactive searches to inform your analysis and response.</focus>
-    </step>
-</workflow>
+1.  **📚 Lire le Brief Projet**: Lire `.cursor/memory-bank/context/projectBrief.md` pour comprendre les objectifs globaux.
+2.  **📈 Lire le Contexte Actif**: Lire `.cursor/memory-bank/context/activeContext.md` pour l'état actuel du travail.
+3.  **🛠️ Lire le Contexte Technique**: Lire `.cursor/memory-bank/context/techContext.md` pour les technologies utilisées.
+4.  **📋 Lire les Tâches**: Lire `.cursor/memory-bank/workflow/tasks.md` pour les tâches en cours et prévues.
+5.  **✅ Lire l'État des Tests**: Lire `.cursor/memory-bank/workflow/tests.md` pour le statut des tests.
+6.  **🕒 Consulter l'Historique Git Récent**: Exécuter la commande suivante via `mcp_MyMCP_execute_command` pour voir les 10 derniers commits:
+    ```bash
+    echo -e "🕒 Heure actuelle : $(date '+%Y-%m-%d %H:%M:%S')\n" && git log -n 10 --pretty=format:"%C(auto)%h %Cgreen[%an] %Cblue%cd%Creset — %s" --date=format:"%Y-%m-%d %H:%M:%S" | cat
+    ```
+7.  **🧠 Synthèse Interne**: Analyser et synthétiser TOUTES les informations collectées (étapes 1-6) au regard de la question spécifique de l'utilisateur. Utiliser `<think>...</think>` pour ce raisonnement.
+8.  **🇫🇷 Réponse Structurée**: Répondre à la question de l'utilisateur en **Français** sous une section `# Réponse`. La réponse doit être claire, synthétique, structurée (utiliser des listes, titres, etc.) et utiliser des emojis pertinents.
 
-## NEW: Traitement de la Commande "statut"
+## Specifics
 
-**Si l'entrée utilisateur est exactement "statut":**
+-   **MANDATORY PRE-COMPUTATION**: Steps 1-8 MUST be executed sequentially at the start of EVERY interaction where this rule is active or mentioned. NO EXCEPTIONS. Do NOT rely on cached information from previous turns.
+-   **NO IMPLEMENTATION**: Do NOT write or modify code. Your role is analysis and guidance based on the gathered context.
+-   **NO STATUS COMMAND**: The previous "status" command is removed. Context gathering (Steps 1-6) replaces it.
+-   **FRENCH OUTPUT**: The final response (Step 8) MUST be in French.
+-   **FOCUS**: Answer the user's query directly after performing the synthesis in Step 7.
 
+## Next Rules
+- This rule typically concludes an interaction or provides information for the user/agent. It does not usually call another rule directly, but the gathered context might inform subsequent actions or rule calls initiated by the user or main workflow.
+
+## Example
+
+*(User asks: "Should we refactor the auth module?")*
+
+# Architect: 1 - Lire le Brief Projet
+Je lis `projectBrief.md`... **(Architect: 1 - Lire le Brief Projet)**
+[...tool call: read_file projectBrief.md...]
+**(Architect: 1 - Lire le Brief Projet)**
+
+# Architect: 2 - Lire le Contexte Actif
+Je lis `activeContext.md`... **(Architect: 2 - Lire le Contexte Actif)**
+[...tool call: read_file activeContext.md...]
+**(Architect: 2 - Lire le Contexte Actif)**
+
+# Architect: 3 - Lire le Contexte Technique
+Je lis `techContext.md`... **(Architect: 3 - Lire le Contexte Technique)**
+[...tool call: read_file techContext.md...]
+**(Architect: 3 - Lire le Contexte Technique)**
+
+# Architect: 4 - Lire les Tâches
+Je lis `tasks.md`... **(Architect: 4 - Lire les Tâches)**
+[...tool call: read_file tasks.md...]
+**(Architect: 4 - Lire les Tâches)**
+
+# Architect: 5 - Lire l'État des Tests
+Je lis `tests.md`... **(Architect: 5 - Lire l'État des Tests)**
+[...tool call: read_file tests.md...]
+**(Architect: 5 - Lire l'État des Tests)**
+
+# Architect: 6 - Consulter l'Historique Git Récent
+J'exécute la commande git log via MCP... **(Architect: 6 - Consulter l'Historique Git Récent)**
+[...tool call: mcp_MyMCP_execute_command command='echo ... && git log ... | cat'...]
+**(Architect: 6 - Consulter l'Historique Git Récent)**
+
+# Architect: 7 - Synthèse Interne
 <think>
-Revised Plan for "statut" command:
-1.  **Gather info:**
-    *   Read context files: `projectBrief.md`, `activeContext.md`, `techContext.md`, `tasks.md`.
-    *   Read test file: `.cursor/memory-bank/workflow/tests.md`.
-    *   Get last 5 git commits using `mcp_MyMCP_execute_command`.
-2.  **Analyze:**
-    *   Parse `tasks.md`: Identify main tasks, status, calculate progress percentage.
-    *   Parse `tests.md`: Count passing (✅) and non-passing (❌, ⚠️, ℹ️) tests. Extract brief reasons/titles for non-passing tests.
-    *   Synthesize current activity from `activeContext.md` and commits.
-3.  **Generate Report (User Output - Concise Emoji Format):**
-    *   Show file/log consultations *without commentary*.
-    *   **Task Progress:**
-        *   For each main task:
-            *   Display title.
-            *   Generate 10 emoji bar (🟩/⬜) based on percentage.
-            *   Display percentage.
-            *   Add short *italic* status comment below.
-    *   **Test Status:**
-        *   Display counts: `Tests: ✅ [Pass Count] / ❌ [Non-Pass Count]`
-        *   If Non-Pass Count > 0, list brief reasons/titles for non-passing tests.
-    *   **Conclusion:** Add a final concise summary of overall state and next steps.
+Okay, j'ai toutes les informations.
+- Brief: L'objectif principal est X.
+- Actif: On travaille actuellement sur Y, des problèmes Z sont notés.
+- Tech: Le module auth utilise la techno A.
+- Tâches: Aucune tâche de refactoring auth n'est prévue. La tâche P est prioritaire.
+- Tests: Les tests pour auth sont ✅.
+- Git: Les derniers commits concernent la feature F, pas de changement récent sur auth.
+
+Synthèse pour la question "Refactor auth module?": Le module fonctionne (tests OK), n'a pas eu de modif récente, et ce n'est pas une priorité actuelle (tâche P prioritaire). Le refactoring n'est pas justifié pour le moment. Il faudrait évaluer le gain potentiel par rapport à l'effort et aux priorités actuelles.
 </think>
+**(Architect: 7 - Synthèse Interne)**
 
-1.  **Rassemblement des Informations :**
-    *   Lire les fichiers contextuels et de tests:
-        - `.cursor/memory-bank/context/projectBrief.md`
-        - `.cursor/memory-bank/context/activeContext.md`
-        - `.cursor/memory-bank/context/techContext.md`
-        - `.cursor/memory-bank/workflow/tasks.md`
-        - `.cursor/memory-bank/workflow/tests.md`
-    *   Exécuter `git log --pretty=format:'%h - %an, %ar : %s' -n 5 | cat` via `mcp_MyMCP_execute_command`.
+# Architect: 8 - Réponse Structurée
 
-2.  **Analyse et Synthèse :**
-    *   <think>Analyze `tasks.md` for main tasks, status, and progress %. Analyze `tests.md`: Count ✅ lines vs ❌/⚠️/ℹ️ lines. Extract titles/summaries from non-✅ lines. Synthesize current activity from `activeContext.md` and commits.</think>
+# Réponse
 
-3.  **Génération du Rapport (Format Concis Emoji - pour l'utilisateur) :**
-    *   <think>Construct the output string. Loop through identified main tasks. Calculate green squares: `num_green = floor(percentage / 10)`. Generate emoji bar string: `"🟩" * num_green + "⬜️" * (10 - num_green)`. Format percentage and italic status comment. Format test summary section. Format final conclusion.</think>
-    *   **(Output to user - Example Structure)**
+📊 **Analyse de la demande de refactoring du module d'authentification :**
 
-        **Progression des Tâches:**
-        *Tâche: [Nom Tâche Principale 1]*
-        `🟩🟩🟩🟩🟩🟩⬜️⬜️⬜️⬜️ 60%`
-        _*Commentaire statut tâche 1...*_
+Après analyse complète du contexte actuel du projet :
 
-        *Tâche: [Nom Tâche Principale 2]*
-        `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 100%`
-        _*Commentaire statut tâche 2...*_
+1.  🎯 **Objectifs & Priorités**: Le focus actuel est sur [Objectif/Tâche Prioritaire Y], comme défini dans `projectBrief.md` et `tasks.md`. Le refactoring de l'authentification n'est pas listé comme une tâche prioritaire.
+2.  ✅ **Stabilité Actuelle**: Le module d'authentification semble stable :
+    *   Les tests associés passent correctement (`tests.md`).
+    *   Aucune modification récente n'a été apportée à ce module selon l'historique Git des 10 derniers commits.
+3.  ⚖️ **Balance Effort/Bénéfice**: Sans problème identifié ou objectif spécifique lié à l'authentification, l'effort d'un refactoring maintenant semble moins pertinent que de se concentrer sur [Objectif/Tâche Prioritaire Y].
 
-        *Tâche: [Nom Tâche Principale 3]*
-        `🟩🟩⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️ 20%`
-        _*Commentaire statut tâche 3...*_
+💡 **Conclusion**: Pour le moment, le refactoring du module d'authentification ne semble **pas justifié**. Il est préférable de maintenir le focus sur les tâches prioritaires définies. Nous pourrons réévaluer cette nécessité si de nouveaux besoins apparaissent ou si des problèmes surviennent.
 
-        ---
-        **Statut des Tests:**
-        `Tests: ✅ [Count Pass] / ❌ [Count Non-Pass]`
-        *(Si Non-Pass > 0)*
-        *Problèmes Actuels:*
-        *- [Titre/Raison Test Non-Passant 1]*
-        *- [Titre/Raison Test Non-Passant 2]*
-
-        ---
-        **Conclusion:**
-        [Résumé concis de l'état général, focus actuel, et prochaines étapes.]
-
-4.  **Affichage et Fin :**
-    *   Afficher le rapport formaté à l'utilisateur.
-    *   **IMPORTANT :** Terminer le traitement ici. Ne pas enchaîner avec les étapes normales de la règle architecte ci-dessous.
-
-**Si l'entrée utilisateur N'EST PAS "statut", continuer le workflow normal ci-dessous.**
+**(Architect: 8 - Réponse Structurée)**
 
 ## Core Responsibilities
 - Understand user requests.

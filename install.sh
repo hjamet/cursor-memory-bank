@@ -380,6 +380,11 @@ install_rules() {
         mkdir -p "$commit_server_target_dir" # Ensure directory exists
         download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/server.js" "$commit_server_target_dir/server.js"
 
+        # --- Clean existing MCP directory before installing/copying files ---
+        log "Cleaning existing MCP directory: $target_dir/.cursor/mcp"
+        rm -rf "$target_dir/.cursor/mcp" || warn "Failed to remove existing MCP directory (may not exist)"
+        mkdir -p "$target_dir/.cursor/mcp" || error "Failed to create MCP directory: $target_dir/.cursor/mcp"
+
         # --- Loop through MCP servers for curl mode ---
         for server_name in "${mcp_servers[@]}"; do
             mcp_server_source_dir="$api_dir/.cursor/mcp/$server_name" # Assumed path for downloaded files
@@ -429,6 +434,11 @@ install_rules() {
             # Create an empty file to avoid errors later if merge is attempted
             touch "$template_mcp_json"
         fi
+
+        # --- Clean existing MCP directory before installing/copying files ---
+        log "Cleaning existing MCP directory: $target_dir/.cursor/mcp"
+        rm -rf "$target_dir/.cursor/mcp" || warn "Failed to remove existing MCP directory (may not exist)"
+        mkdir -p "$target_dir/.cursor/mcp" || error "Failed to create MCP directory: $target_dir/.cursor/mcp"
 
         # --- Loop through MCP servers for git mode ---
         for server_name in "${mcp_servers[@]}"; do
