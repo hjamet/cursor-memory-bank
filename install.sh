@@ -2,6 +2,7 @@
 
 # Cursor Memory Bank Installation Script
 # This script installs the Cursor Memory Bank rules using git clone or curl as fallback.
+# Test comment to trigger pre-commit hook line count check.
 
 set -e  # Exit on error
 set -u  # Exit on undefined variable
