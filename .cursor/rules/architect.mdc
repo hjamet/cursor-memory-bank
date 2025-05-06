@@ -132,7 +132,11 @@ Synthèse pour la question "Refactor auth module?": Le module fonctionne (tests 
 [Si oui:]
 <think>C'est une demande de modification. Je dois chercher le contexte, lire userbrief, relire userbrief, et l'ajouter à userbrief.</think>
 **(Architect: 7.bis - Traitement des demandes de modification utilisateur)**
-[...tool call: codebase_search...]\n[...tool call: read_file userbrief.md...]\n[...tool call: read_file userbrief.md...]\n[...tool call: edit_file userbrief.md with format: '- Nouvelle demande de l'utilisateur: L'utilisateur demande de... [Description 3e personne + description images]...']\nJe passe à l'étape 8. **(Architect: 7.bis - Traitement des demandes de modification utilisateur)**
+[...tool call: codebase_search...]
+[...tool call: read_file userbrief.md...]
+[...tool call: read_file userbrief.md...]
+[...tool call: edit_file userbrief.md with format: '- Nouvelle demande de l'utilisateur: L'utilisateur demande de... [Description 3e personne + description images]...']
+Je passe à l'étape 8. **(Architect: 7.bis - Traitement des demandes de modification utilisateur)**
 [Si non:]
 <think>Ce n'est pas une demande de modification de code. Je passe à l'étape 8.</think>
 **(Architect: 7.bis - Traitement des demandes de modification utilisateur)**
