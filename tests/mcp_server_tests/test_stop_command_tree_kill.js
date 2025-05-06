@@ -2,10 +2,24 @@ import assert from 'assert';
 import { Client as McpClient } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import os from 'os';
 
+// ES module equivalent for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const toolName = 'InternalAsyncTerminal'; // Server name for context, toolID is used in callTool
-const SCRIPT_PATH = '../../tests/mcp_server_tests/helper_scripts/persistent_child.sh';
+
+// Construct an absolute POSIX-style path for SCRIPT_PATH
+const projectRoot = path.resolve(__dirname, '../../');
+const helperScriptRelativePath = 'tests/mcp_server_tests/helper_scripts/persistent_child.sh';
+let SCRIPT_PATH = path.resolve(projectRoot, helperScriptRelativePath);
+
+if (os.platform() === 'win32') {
+    SCRIPT_PATH = SCRIPT_PATH.replace(/^([A-Za-z]):\\/, (match, drive) => `/${drive.toLowerCase()}/`);
+    SCRIPT_PATH = SCRIPT_PATH.replace(/\\/g, '/');
+}
 
 async function main() {
     console.log('[Test] Starting test_stop_command_tree_kill.js...');

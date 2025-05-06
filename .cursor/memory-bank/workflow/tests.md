@@ -13,8 +13,8 @@
   - **Evolution**: Was failing due to `__dirname` error after move, now fixed.
 - ✅ `tests/mcp_server_tests/test_get_terminal_status_timeout_rejection.js`: Passed
   - **Evolution**: Previously marked as FIXED, assumed failed due to `__dirname` error after move, now confirmed fixed and passing.
-- ✅ **FIXED** `test_stop_command_tree_kill.js`: Passed
-  - **Evolution**: Was failing due to SDK usage and script path issues, now fixed. Tree killing appears functional.
+- ✅ `tests/mcp_server_tests/test_stop_command_tree_kill.js`: Passed
+  - **Evolution**: Was failing due to `__dirname` and then script path issues after move, now fixed.
 
 ## Tests with Warnings
 - None
