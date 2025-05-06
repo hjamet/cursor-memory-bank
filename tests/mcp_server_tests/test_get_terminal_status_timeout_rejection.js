@@ -2,6 +2,11 @@ import assert from 'assert';
 import { Client as McpClient } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+// ES module equivalent for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function main() {
     console.log('[Test] Starting test_get_terminal_status_timeout_rejection.js...');

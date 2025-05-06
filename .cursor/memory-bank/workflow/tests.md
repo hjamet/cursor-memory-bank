@@ -11,8 +11,8 @@
 - ✅ `test_consult_image.js`: Passed - Stable
 - ✅ `tests/mcp_server_tests/test_execute_command_timeout_rejection.js`: Passed
   - **Evolution**: Was failing due to `__dirname` error after move, now fixed.
-- ✅ **FIXED** `test_get_terminal_status_timeout_rejection.js`: Passed
-  - **Evolution**: Was failing (regression with -32603 error), now fixed by correcting client.callTool params structure.
+- ✅ `tests/mcp_server_tests/test_get_terminal_status_timeout_rejection.js`: Passed
+  - **Evolution**: Previously marked as FIXED, assumed failed due to `__dirname` error after move, now confirmed fixed and passing.
 - ✅ **FIXED** `test_stop_command_tree_kill.js`: Passed
   - **Evolution**: Was failing due to SDK usage and script path issues, now fixed. Tree killing appears functional.
 
