@@ -197,7 +197,7 @@ server.tool(
     {
         command: z.string().describe("The command line to execute."),
         reuse_terminal: z.boolean().optional().default(true).describe("If true (default), attempts to clean up one finished terminal state before spawning a new process. Otherwise, always spawns without cleanup."),
-        timeout: z.number().int().optional().default(10).describe("Maximum time in seconds to wait for the command to complete before returning. The command continues in the background if timeout is reached.")
+        timeout: z.number().int().optional().default(10).describe("Maximum time in seconds to wait for the command to complete before returning. The command continues in the background if timeout is reached. Enforced maximum is 300 seconds (5 minutes).")
     },
     handleExecuteCommand // Use the imported handler
 );
@@ -206,7 +206,7 @@ server.tool(
 server.tool(
     'get_terminal_status',
     {
-        timeout: z.number().int().optional().default(0).describe("Maximum time in seconds to wait for any running process status to change before returning. 0 means return immediately.")
+        timeout: z.number().int().optional().default(0).describe("Maximum time in seconds to wait for any running process status to change before returning. 0 means return immediately. Enforced maximum is 300 seconds (5 minutes).")
     },
     handleGetTerminalStatus // Use the imported handler
 );

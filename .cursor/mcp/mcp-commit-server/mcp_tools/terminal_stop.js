@@ -1,5 +1,6 @@
 import * as StateManager from '../lib/state_manager.js';
-import * as ProcessManager from '../lib/process_manager.js';
+// import * as ProcessManager from '../lib/process_manager.js'; // No longer using ProcessManager.killProcess
+import { killProcessTree } from '../lib/util/process_killer.js';
 import { readLogChars, deleteLogFiles } from '../lib/logger.js';
 
 // Define character limit for final output retrieval
@@ -16,7 +17,7 @@ export async function handleStopTerminalCommand({ pids, lines = 0 /* If lines > 
         const state = StateManager.findStateByPid(pid);
         let stdoutContent = '';
         let stderrContent = '';
-        let stopStatus = '';
+        let stopStatus = ''; // Initialize stopStatus
 
         // Only attempt to read logs if lines > 0 AND state exists
         if (lines > 0 && state) {
@@ -38,7 +39,6 @@ export async function handleStopTerminalCommand({ pids, lines = 0 /* If lines > 
                 stderrContent = `[Stderr Log Read Error: ${logReadErr.code || logReadErr.message}]`;
             }
 
-            // Update state with new read indices *before* killing/cleanup (best effort)
             if (newStdoutIndex > stdoutStartIndex || newStderrIndex > stderrStartIndex) {
                 StateManager.updateState(pid, {
                     stdout_read_index: newStdoutIndex,
@@ -46,36 +46,40 @@ export async function handleStopTerminalCommand({ pids, lines = 0 /* If lines > 
                 }).catch(err => console.error(`[StopCmd] Error updating final state indices for PID ${pid}:`, err));
             }
         } else if (lines > 0) {
-            // State not found, cannot read logs
             stdoutContent = "[State not found for log reading]";
             stderrContent = "[State not found for log reading]";
         }
 
-        // Attempt to kill the process
-        try {
-            stopStatus = await ProcessManager.killProcess(pid);
-        } catch (killError) {
-            stopStatus = `Error during kill attempt: ${killError.message}`;
-            // Ensure state is still cleaned up even if kill fails
-        }
+        // Attempt to kill the process tree
+        await new Promise((resolveKill) => {
+            killProcessTree(pid, (killError) => {
+                if (killError) {
+                    // console.error(`[StopCmd] killProcessTree failed for PID ${pid}:`, killError);
+                    stopStatus = `Error during tree kill for PID ${pid}: ${killError.message}.`;
+                } else {
+                    // console.log(`[StopCmd] killProcessTree signal sent for PID ${pid}.`);
+                    stopStatus = `Process tree kill signal sent for PID ${pid}.`;
+                }
+                resolveKill();
+            });
+        });
 
         // Attempt to clean up state and log files
         try {
-            await deleteLogFiles(pid); // Use logger's delete function
+            // Ensure state exists before trying to use its properties for log deletion if deleteLogFiles needs it
+            // However, based on previous search, deleteLogFiles(pid) was used.
+            await deleteLogFiles(pid);
             await StateManager.removeStateByPid(pid);
-            // Append success only if kill didn't report an error initially
-            if (!stopStatus.startsWith('Error')) {
-                stopStatus += " Log cleanup successful.";
-            }
+            stopStatus += " State and log cleanup attempted."; // Append this regardless of kill success, as cleanup is always tried.
         } catch (cleanupError) {
-            console.error(`[StopCmd] Error during cleanup for PID ${pid}:`, cleanupError);
-            stopStatus += " Error during cleanup.";
+            // console.error(`[StopCmd] Error during cleanup for PID ${pid}:`, cleanupError);
+            stopStatus += ` Error during cleanup: ${cleanupError.message}.`;
         }
 
         results.push({
             pid: pid,
             status: stopStatus,
-            stdout: stdoutContent, // Include content read (or error message)
+            stdout: stdoutContent,
             stderr: stderrContent
         });
     }

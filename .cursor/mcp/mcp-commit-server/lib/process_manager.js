@@ -98,25 +98,19 @@ export async function spawnProcess(command, explicitWorkingDirectory) {
     // console.log(`[ProcessManager] Spawning process in CWD: ${executionCwd}`);
 
     if (os.platform() === 'win32') {
-        shell = 'C:\\\\Program Files\\\\Git\\\\bin\\\\bash.exe';
+        shell = 'C:\\Program Files\\Git\\bin\\bash.exe';
 
         // Convert CWD to Git Bash format (e.g., C:\\Users\\Jamet -> /c/Users/Jamet)
-        // CORRECTED: Use match and lowercase group, ensure single slash
         let bashCwd = executionCwd.replace(/^([A-Za-z]):\\/, (match, drive) => `/${drive.toLowerCase()}/`);
         bashCwd = bashCwd.replace(/\\\\/g, '/'); // Convert backslashes
 
-        // Prepend cd command to the actual command for Windows + Git Bash
-        // Escape the path properly for the bash shell
-        const escapedBashCwd = bashCwd.replace(/([\\\'\"])/g, '\\\\$1'); // Minimal escape for cd
-        const fullCommand = `cd "${escapedBashCwd}" && ${command}`;
-
-        // Escape the *entire* command string for the outer shell/Node spawn
+        const fullCommand = `cd "${bashCwd.replace(/(["'`$\\])/g, '\\$1')}" && ${command}`;
         const base64Command = Buffer.from(fullCommand).toString('base64');
         args = ['-c', `eval $(echo ${base64Command} | base64 --decode)`];
         spawnOptions = {
             stdio: ['ignore', 'pipe', 'pipe'],
-            detached: false,
-            shell: false,
+            detached: true, // Ensure this is true for Windows
+            shell: false,   // Crucial for direct bash.exe invocation
             windowsHide: true,
         };
     } else { // macOS, Linux, etc.
@@ -124,14 +118,19 @@ export async function spawnProcess(command, explicitWorkingDirectory) {
         args = ['-c', command];
         spawnOptions = {
             stdio: ['ignore', 'pipe', 'pipe'],
-            detached: false,
-            shell: false,
+            detached: false, // Keep false for non-Windows, or true if desired for all
+            shell: false,    // Using /bin/bash -c implies a shell layer already
             cwd: executionCwd
         };
     }
 
     // --- Spawn the process ---
     const child = spawn(shell, args, spawnOptions);
+
+    // For Windows, if detached, unref the child process
+    if (os.platform() === 'win32' && spawnOptions.detached && child.pid) {
+        child.unref();
+    }
 
     // --- Get PID AFTER spawning ---
     const pid = child.pid;

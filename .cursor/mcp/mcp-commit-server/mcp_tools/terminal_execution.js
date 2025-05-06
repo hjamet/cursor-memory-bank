@@ -8,6 +8,10 @@ const DEFAULT_TIMEOUT_MS = 10000;
 // Character limit for partial output on timeout
 const MAX_CHARS_EXEC_PARTIAL = 1500;
 
+// Define character limit for initial output retrieval
+const MAX_CHARS_INITIAL = 10000; // Max 10k chars for initial response
+const MAX_RUNNING_PROCESSES = 10; // Limit concurrent processes
+
 /**
  * MCP Tool handler for 'execute_command'.
  * Spawns a command, manages state, handles optional terminal reuse,
@@ -15,6 +19,17 @@ const MAX_CHARS_EXEC_PARTIAL = 1500;
  * Retrieves NEW characters on timeout, or ALL characters on completion.
  */
 export async function handleExecuteCommand({ command, working_directory, reuse_terminal, timeout /* timeout is in seconds */ }) {
+    if (timeout > 300) {
+        const errorResult = {
+            pid: null,
+            cwd: working_directory || null, // Capture cwd if provided
+            status: 'Failure',
+            exit_code: null,
+            stdout: '',
+            stderr: 'Error: Timeout cannot exceed 300 seconds (5 minutes).'
+        };
+        return { content: [{ type: "text", text: JSON.stringify(errorResult) }] };
+    }
 
     // Handle terminal reuse: Find a finished terminal state index
     if (reuse_terminal) {
