@@ -25,8 +25,8 @@ async function main() {
         console.log(`[Test] Calling tool 'get_terminal_status' with params:`, toolParams);
 
         const result = await client.callTool({
-            toolID: 'get_terminal_status',
-            params: toolParams
+            name: 'get_terminal_status',
+            arguments: toolParams
         });
         console.log('[Test] Result from callTool("get_terminal_status"):', JSON.stringify(result, null, 2));
 
