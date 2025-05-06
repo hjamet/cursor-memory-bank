@@ -15,6 +15,10 @@
   - **Evolution**: Previously marked as FIXED, assumed failed due to `__dirname` error after move, now confirmed fixed and passing.
 - ✅ `tests/mcp_server_tests/test_stop_command_tree_kill.js`: Passed
   - **Evolution**: Was failing due to `__dirname` and then script path issues after move, now fixed.
+- ✅ `tests/mcp_server_tests/test_python_interrupt.js`: Passed (New)
+  - **Evolution**: New test for Python script execution and interruption via tree-kill.
+- ✅ `tests/mcp_server_tests/test_execute_command_long_timeout.js`: Passed (New)
+  - **Evolution**: New test for `execute_command` with long-running commands and valid shorter timeouts. Validated with `sleep` command after `persistent_child.sh` proved problematic.
 
 ## Tests with Warnings
 - None
