@@ -5,11 +5,11 @@ import path from 'path';
 import os from 'os';
 
 const toolName = 'InternalAsyncTerminal'; // Server name for context, toolID is used in callTool
-const SCRIPT_PATH = path.join(process.cwd(), '.cursor/mcp/mcp-commit-server/tests/helper_scripts/persistent_child.sh').replace(/\\/g, '/');
+const SCRIPT_PATH = '../../tests/mcp_server_tests/helper_scripts/persistent_child.sh';
 
 async function main() {
     console.log('[Test] Starting test_stop_command_tree_kill.js...');
-    const serverDir = process.cwd(); // Assuming test is run from .cursor/mcp/mcp-commit-server
+    const serverDir = path.resolve(__dirname, '../../.cursor/mcp/mcp-commit-server');
     const transport = new StdioClientTransport({
         command: 'node',
         args: ['server.js'],
@@ -26,8 +26,8 @@ async function main() {
 
         console.log(`[Test] Executing script: ${SCRIPT_PATH}`);
         const execResult = await client.callTool({
-            toolID: 'execute_command',
-            params: { command: SCRIPT_PATH, timeout: 10 }
+            name: 'execute_command',
+            arguments: { command: SCRIPT_PATH, timeout: 10 }
         });
         console.log('[Test] Result from initial execute_command:', JSON.stringify(execResult, null, 2));
 
@@ -45,8 +45,8 @@ async function main() {
 
         console.log(`[Test] Calling stop_terminal_command for parent PID: ${parentPid}`);
         const stopResult = await client.callTool({
-            toolID: 'stop_terminal_command',
-            params: { pids: [parentPid], lines: 10 }
+            name: 'stop_terminal_command',
+            arguments: { pids: [parentPid], lines: 10 }
         });
         console.log('[Test] Result from stop_terminal_command:', JSON.stringify(stopResult, null, 2));
         const stopResponse = JSON.parse(stopResult.content[0].text);
@@ -63,8 +63,8 @@ async function main() {
         }
         console.log(`[Test] Checking for child PID ${childPidToWatch} using command: ${checkCmd}`);
         const checkPidResult = await client.callTool({
-            toolID: 'execute_command',
-            params: { command: checkCmd, timeout: 5 }
+            name: 'execute_command',
+            arguments: { command: checkCmd, timeout: 5 }
         });
         console.log('[Test] Result from PID check command:', JSON.stringify(checkPidResult, null, 2));
         const checkPidResponse = JSON.parse(checkPidResult.content[0].text);
@@ -91,7 +91,7 @@ async function main() {
         if (parentPid && client.isConnected) {
             try {
                 console.log(`[Test] Attempting cleanup: stopping parent PID ${parentPid} if test failed.`);
-                await client.callTool({ toolID: 'stop_terminal_command', params: { pids: [parentPid] } });
+                await client.callTool({ name: 'stop_terminal_command', arguments: { pids: [parentPid] } });
             } catch (cleanupError) {
                 console.error('[Test] Error during test failure cleanup:', cleanupError);
             }

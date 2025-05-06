@@ -2,10 +2,55 @@
 
 ### Priority Tasks
 
-*No current priority tasks here, moved to In Progress or Done.*
-
 # IN PROGRESS
-*No tasks currently in progress here.*
+
+1.  **Refactor Test File Locations**
+    *   [x] **1.1 Create New Test Directory Structure**
+        *   **Description**: Create a new directory `tests/mcp_server_tests/` and a subdirectory `tests/mcp_server_tests/helper_scripts/` at the project root to house MCP server-specific tests, aligning with standard project structure.
+        *   **Impacted Files/Components**: File system (new directories).
+        *   **Dependencies**: None.
+        *   **Validation**: Directories `tests/mcp_server_tests/` and `tests/mcp_server_tests/helper_scripts/` are created successfully.
+    *   [x] **1.2 Move Existing MCP Server Tests**
+        *   **Description**: Move the existing test files (`test_execute_command_timeout_rejection.js`, `test_get_terminal_status_timeout_rejection.js`, `test_stop_command_tree_kill.js`) from `.cursor/mcp/mcp-commit-server/tests/` to the new `tests/mcp_server_tests/` directory.
+        *   **Impacted Files/Components**:
+            *   `.cursor/mcp/mcp-commit-server/tests/test_execute_command_timeout_rejection.js` (Moved)
+            *   `.cursor/mcp/mcp-commit-server/tests/test_get_terminal_status_timeout_rejection.js` (Moved)
+            *   `.cursor/mcp/mcp-commit-server/tests/test_stop_command_tree_kill.js` (Moved)
+            *   `tests/mcp_server_tests/` (Receives files)
+        *   **Dependencies**: Task 1.1.
+        *   **Validation**: Files are successfully moved to the new location. The old directory `.cursor/mcp/mcp-commit-server/tests/` (excluding `helper_scripts` for now) should be empty or removed.
+    *   [x] **1.3 Move Existing Helper Scripts**
+        *   **Description**: Move the existing helper script directory `.cursor/mcp/mcp-commit-server/tests/helper_scripts/` (and its contents like `persistent_child.sh`) to the new `tests/mcp_server_tests/helper_scripts/` directory.
+        *   **Impacted Files/Components**:
+            *   `.cursor/mcp/mcp-commit-server/tests/helper_scripts/` (Moved)
+            *   `tests/mcp_server_tests/helper_scripts/` (Receives directory)
+        *   **Dependencies**: Task 1.1.
+        *   **Validation**: Directory and its contents are successfully moved. The old path `.cursor/mcp/mcp-commit-server/tests/helper_scripts/` is removed.
+    *   [x] **1.4 Update Paths in Moved Test Scripts**
+        *   **Description**: Review and update any internal paths within the moved test scripts. This primarily includes the `StdioClientTransport` CWD and server script path (e.g., `args: ['../../.cursor/mcp/mcp-commit-server/server.js']`, `cwd: projectRoot`) and paths to helper scripts.
+        *   **Impacted Files/Components**:
+            *   `tests/mcp_server_tests/test_execute_command_timeout_rejection.js`
+            *   `tests/mcp_server_tests/test_get_terminal_status_timeout_rejection.js`
+            *   `tests/mcp_server_tests/test_stop_command_tree_kill.js`
+        *   **Dependencies**: Task 1.2, 1.3.
+        *   **Validation**: All moved tests pass successfully after path updates.
+
+2.  **Enhance MCP Server Testing**
+    *   [ ] **2.1 Create Python Helper Script for Interruption Test**
+        *   **Description**: Create a simple Python script (e.g., `temp_python_script.py` at the project root or in `tests/mcp_server_tests/helper_scripts/`) that runs for a noticeable duration (e.g., sleeps, writes to a file periodically) and can indicate whether it terminated gracefully or was killed.
+        *   **Impacted Files/Components**: `tests/mcp_server_tests/helper_scripts/temp_python_script.py` (New file).
+        *   **Dependencies**: Task 1.1 (for location).
+        *   **Validation**: Python script is created and functions as expected when run manually.
+    *   [ ] **2.2 Implement Python Script Execution/Interruption Test**
+        *   **Description**: Create a new test script (e.g., `tests/mcp_server_tests/test_python_interrupt.js`) that uses the MCP server's `execute_command` to run the Python helper script and `stop_terminal_command` to terminate it. The test should verify that the Python script (and any child processes, if applicable) is properly terminated by `tree-kill`.
+        *   **Impacted Files/Components**: `tests/mcp_server_tests/test_python_interrupt.js` (New file).
+        *   **Dependencies**: Task 1.4 (for SDK setup), Task 2.1.
+        *   **Validation**: The new test script successfully executes the Python script, stops it, and verifies termination of the entire process tree.
+    *   [ ] **2.3 Test Long Timeout Behavior (Valid Timeout)**
+        *   **Description**: Create or modify an existing test to use a *valid* long timeout (e.g., 20-30 seconds, less than 300s) with a long-running command (like `sleep 25` or the `persistent_child.sh`). Verify that `execute_command` initially returns a 'Running' status, and the process can be subsequently queried or stopped. (The existing `test_execute_command_timeout_rejection.js` tests *invalid* timeouts > 300s).
+        *   **Impacted Files/Components**: `tests/mcp_server_tests/test_execute_command_long_timeout.js` (New or modified existing test).
+        *   **Dependencies**: Task 1.4.
+        *   **Validation**: Test confirms `execute_command` handles valid long timeouts correctly, allowing for asynchronous operation and status checks/stops.
 
 # DONE
 
@@ -35,31 +80,6 @@
         *   **Description**: Modify the `spawnProcess` function in `lib/process_manager.js` for Windows environments. Ensure `detached: true` and `shell: false` in `spawnOptions`, and call `child.unref()`.
         *   **Impacted Files/Components**: `.cursor/mcp/mcp-commit-server/lib/process_manager.js`.
         *   **Validation**: `detached: true` and `child.unref()` implemented for Windows in `process_manager.js`.
-
-## BACKLOG
-
-*   Monitor `test_curl_install.sh` failure (Expected 404 until hook is merged to main/master).
-*   **Debug MCP Async Terminal Test Regression**: `tests/test_mcp_async_terminal.js` fails (Exit Code 1, no output) when run via `mcp_MyMCP_execute_command`. Issue seems related to MCP tool's output capture with complex Node.js scripts involving child processes and stdio manipulation. Requires manual investigation or potential MCP tool enhancement.
-    - *Attempted*: Analysis, test simplification, fix attempts.
-    - *Status*: Unresolved.
-
-## DONE
-(Retaining recent DONE items for context, older ones can be further pruned if needed)
-*   **Improve Async Terminal Test Diagnostics**:
-    - [x] **1.1 Implement File Logging in Test**: Modified `tests/test_mcp_async_terminal.js` to write logs to `./test_mcp_async_terminal.log`.
-    - [x] **1.2 Modify Fix Rule**: Updated `.cursor/rules/fix.mdc` to read log file.
-*   **Rule & Script Modifications**
-    *   [x] **1.1 Enhance `fix` Rule**: Added Git history check suggestion and updated example in `.cursor/rules/fix.mdc`.
-    *   [x] **1.2 Improve `install.sh` Robustness**: Added pre-install cleanup (`rm -rf .cursor/mcp`) in `install.sh`.
-    *   [x] **1.3 Simplify `architect` Rule**: Refactored `.cursor/rules/architect.mdc` to Markdown, removed status command, added mandatory context/git log sequence, and enforced French output.
-
-## Temp: Debug install.sh Curl/No-JQ Failure [Done]
-- [x] **1.1 Analyze Failure**: Determine why `install.sh --use-curl` (when jq is not in PATH) exits with code 1, even after fixing 404 handling and `cp` issues.
-- [x] **1.2 Implement Fix**: Correct the logic in `install.sh`.
-
-## 1. Testing Pre-commit Hook [Done]
-- [x] **1.1 Test Hook Installation**: Enhance `tests/test_install.sh` to verify hook installation.
-- [x] **1.2 Verify Hook Failure Message (Manual/Documentation)**: Verify or document how to verify the pre-commit hook failure message.
 
 ## 2. Enhance MCP Commit Tool [Done]
 - [x] **2.1 Add `bypass_hooks` Argument**: Modify the `mcp_MyMCP_commit` tool to support bypassing hooks.

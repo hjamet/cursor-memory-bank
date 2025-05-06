@@ -3,13 +3,17 @@ import assert from 'assert';
 import { Client as McpClient } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import path from 'path'; // Keep path for potential future use if needed, but cwd logic changing
+import { fileURLToPath } from 'url'; // Import fileURLToPath
+
+// ES module equivalent for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function main() {
     console.log('[Test] Starting test_execute_command_timeout_rejection.js...');
-    // Assuming the test is run from .cursor/mcp/mcp-commit-server directory,
-    // process.cwd() will be the server's directory.
-    // server.js is directly in that CWD.
-    const serverDir = process.cwd(); // This should be .cursor/mcp/mcp-commit-server
+    // Server is at .cursor/mcp/mcp-commit-server/server.js
+    // Test is at tests/mcp_server_tests/
+    const serverDir = path.resolve(__dirname, '../../.cursor/mcp/mcp-commit-server');
     const serverScriptPath = path.join(serverDir, 'server.js');
 
     // console.log(`[Test] Server script path for StdioClientTransport: ${serverScriptPath}`);
@@ -17,7 +21,7 @@ async function main() {
 
     const transport = new StdioClientTransport({
         command: 'node',
-        args: ['server.js'], // server.js should be directly in the CWD
+        args: ['server.js'], // server.js is directly in serverDir
         cwd: serverDir // Set CWD to the server's directory
     });
 

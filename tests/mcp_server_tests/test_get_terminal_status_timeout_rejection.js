@@ -5,10 +5,12 @@ import path from 'path';
 
 async function main() {
     console.log('[Test] Starting test_get_terminal_status_timeout_rejection.js...');
-    const serverDir = process.cwd(); // Assuming test is run from .cursor/mcp/mcp-commit-server
+    // Server is at .cursor/mcp/mcp-commit-server/server.js
+    // Test is at tests/mcp_server_tests/
+    const serverDir = path.resolve(__dirname, '../../.cursor/mcp/mcp-commit-server');
     const transport = new StdioClientTransport({
         command: 'node',
-        args: ['server.js'],
+        args: ['server.js'], // server.js is directly in serverDir
         cwd: serverDir
     });
     const client = new McpClient({ name: "TestClient", version: "0.0.1" });
