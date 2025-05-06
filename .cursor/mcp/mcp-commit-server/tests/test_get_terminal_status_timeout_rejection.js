@@ -1,25 +1,34 @@
 import assert from 'assert';
-import { McpClient, StdioClientTransport } from '@modelcontextprotocol/sdk';
+import { Client as McpClient } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import path from 'path';
 
 async function main() {
     console.log('[Test] Starting test_get_terminal_status_timeout_rejection.js...');
-    const transport = new StdioClientTransport({ command: 'node', args: ['../server.js'] });
-    const client = new McpClient({ transport });
+    const serverDir = process.cwd(); // Assuming test is run from .cursor/mcp/mcp-commit-server
+    const transport = new StdioClientTransport({
+        command: 'node',
+        args: ['server.js'],
+        cwd: serverDir
+    });
+    const client = new McpClient({ name: "TestClient", version: "0.0.1" });
 
     try {
-        await client.connect();
+        await client.connect(transport);
         console.log('[Test] Connected to MCP server.');
 
-        const toolName = 'InternalAsyncTerminal'; // Make sure this matches server name
+        // const toolName = 'InternalAsyncTerminal'; // Server name, not used directly
 
-        // Attempt to get terminal status with a timeout greater than 300 seconds
-        const params = {
+        const toolParams = {
             timeout: 301 // Exceeds the 300-second limit
         };
-        console.log(`[Test] Calling get_terminal_status on ${toolName} with params:`, params);
+        console.log(`[Test] Calling tool 'get_terminal_status' with params:`, toolParams);
 
-        const result = await client.tool(toolName, 'get_terminal_status', params);
-        console.log('[Test] Result from get_terminal_status:', JSON.stringify(result, null, 2));
+        const result = await client.callTool({
+            toolID: 'get_terminal_status',
+            params: toolParams
+        });
+        console.log('[Test] Result from callTool("get_terminal_status"):', JSON.stringify(result, null, 2));
 
         assert(result.content && result.content[0] && typeof result.content[0].text === 'string', 'Result content text is missing or not a string');
         const response = JSON.parse(result.content[0].text);
@@ -33,7 +42,9 @@ async function main() {
         console.error('[Test] test_get_terminal_status_timeout_rejection.js FAILED:', error);
         process.exit(1);
     } finally {
-        await client.disconnect();
+        if (client.isConnected) {
+            await client.disconnect();
+        }
         console.log('[Test] Disconnected from MCP server.');
     }
 }
