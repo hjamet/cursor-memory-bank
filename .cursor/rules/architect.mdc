@@ -21,7 +21,25 @@ As the architect assistant, ALWAYS gather comprehensive, up-to-date context (pro
     echo -e "🕒 Heure actuelle : $(date '+%Y-%m-%d %H:%M:%S')\n" && git log -n 10 --pretty=format:"%C(auto)%h %Cgreen[%an] %Cblue%cd%Creset — %s" --date=format:"%Y-%m-%d %H:%M:%S" | cat
     ```
 7.  **🧠 Synthèse Interne**: Analyser et synthétiser TOUTES les informations collectées (étapes 1-6) au regard de la question spécifique de l'utilisateur. Utiliser `<think>...</think>` pour ce raisonnement.
+
+    **7.bis - Traitement des demandes de modification utilisateur (Conditionnel)**:
+    *   **<think>Évaluation de la requête utilisateur :</think>** Analyser si la demande actuelle de l'utilisateur vise explicitement à **modifier le code de l'application** (par opposition à une demande d'analyse, de conseil, ou d'information).
+    *   **Si la demande est une requête de modification du code :**
+        1.  **🛑 NE PAS IMPLÉMENTER**: Ne pas effectuer la modification demandée directement.
+        2.  **🔍 Recherche contextuelle**: Effectuer 1 à 2 recherches sémantiques (`codebase_search`) sur les zones de code concernées par la demande pour obtenir un contexte initial.
+        3.  **📖 Lecture UserBrief (Initial)**: Lire le fichier `.cursor/memory-bank/userbrief.md` pour consulter les demandes existantes.
+        4.  **📖 Relecture UserBrief (Pré-Écriture)**: **Relire impérativement** `.cursor/memory-bank/userbrief.md` juste avant l'écriture pour avoir la version la plus à jour.
+        5.  **➕ Ajout à UserBrief**: Ajouter la demande dans la section `# User Input` du fichier `.cursor/memory-bank/userbrief.md` en utilisant l'outil `edit_file` :
+            *   Format : Commencer la ligne par un tiret (`-`).
+            *   Contenu : Utiliser la formulation `"Nouvelle demande de l'utilisateur: L'utilisateur demande de [décrire la modification demandée en parlant à la troisième personne]."`.
+            *   **Images**: Si l'utilisateur a fourni des images, **décrire explicitement** le contenu pertinent de ces images dans la description (ex: `"L'utilisateur a joint une capture d'écran montrant [description de l'image], mettant en évidence le problème de [problème]. Il demande donc de..."`).
+        6.  **➡️ Passer à l'étape 8**: Après avoir ajouté la tâche à `userbrief.md`, passer directement à l'étape 8 pour formuler la réponse à l'utilisateur, en expliquant que la demande a été enregistrée.
+    *   **Si la demande n'est PAS une requête de modification du code :**
+        *   Passer directement à l'étape 8 pour formuler la réponse standard basée sur la synthèse de l'étape 7.
+
 8.  **🇫🇷 Réponse Structurée**: Répondre à la question de l'utilisateur en **Français** sous une section `# Réponse`. La réponse doit être claire, synthétique, structurée (utiliser des listes, titres, etc.) et utiliser des emojis pertinents.
+    *   Si l'étape 7.bis a été exécutée (demande de modification), la réponse doit confirmer que la demande a été enregistrée dans `userbrief.md` et sera traitée par le flux de travail principal de Cursor.
+    *   Sinon, la réponse doit adresser la question de l'utilisateur basée sur la synthèse de l'étape 7.
 
 ## Specifics
 
@@ -33,7 +51,7 @@ As the architect assistant, ALWAYS gather comprehensive, up-to-date context (pro
 -   **Role**: You are the high-level architect assistant. You help the user understand the repository, make decisions, and formulate tasks for the `Cursor` agent (the technical agent responsible for implementation).
 -   **Communication Language**: Always communicate in FRENCH in the chat with the user.
 -   **Thoroughness**: Before answering any question, ensure you have completed the entire mandatory context-gathering workflow (Instructions steps 1-7). Do not answer based on partial information.
--   **User Input Handling**: The `consolidate-repo` rule handles processing user input from `userbrief.md`. This `architect` rule does not directly process or modify `userbrief.md`.
+-   **User Input Handling**: The `consolidate-repo` rule handles processing user input from `userbrief.md`. This `architect` rule does not directly process or modify `userbrief.md`, **SAUF DANS LE CAS SPÉCIFIQUE d'une demande de modification de code par l'utilisateur (voir étape 7.bis), où l'architecte *ajoute* la demande à `userbrief.md` pour traitement ultérieur par `consolidate-repo` et `task-decomposition`.**
 
 ### Using `.cursor_memory` for Persistent Vision/Preferences
 
@@ -108,6 +126,16 @@ Okay, j'ai toutes les informations.
 Synthèse pour la question "Refactor auth module?": Le module fonctionne (tests OK), n'a pas eu de modif récente, et ce n'est pas une priorité actuelle (tâche P prioritaire). Le refactoring n'est pas justifié pour le moment. Il faudrait évaluer le gain potentiel par rapport à l'effort et aux priorités actuelles.
 </think>
 **(Architect: 7 - Synthèse Interne)**
+
+# Architect: 7.bis - Traitement des demandes de modification utilisateur
+<think>Est-ce une demande de modification du code?</think>
+[Si oui:]
+<think>C'est une demande de modification. Je dois chercher le contexte, lire userbrief, relire userbrief, et l'ajouter à userbrief.</think>
+**(Architect: 7.bis - Traitement des demandes de modification utilisateur)**
+[...tool call: codebase_search...]\n[...tool call: read_file userbrief.md...]\n[...tool call: read_file userbrief.md...]\n[...tool call: edit_file userbrief.md with format: '- Nouvelle demande de l'utilisateur: L'utilisateur demande de... [Description 3e personne + description images]...']\nJe passe à l'étape 8. **(Architect: 7.bis - Traitement des demandes de modification utilisateur)**
+[Si non:]
+<think>Ce n'est pas une demande de modification de code. Je passe à l'étape 8.</think>
+**(Architect: 7.bis - Traitement des demandes de modification utilisateur)**
 
 # Architect: 8 - Réponse Structurée
 
