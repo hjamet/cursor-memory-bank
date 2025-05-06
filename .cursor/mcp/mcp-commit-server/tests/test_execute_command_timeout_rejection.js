@@ -27,26 +27,37 @@ async function main() {
         await client.connect(transport);
         console.log('[Test] Connected to MCP server.');
 
-        // const toolName = 'InternalAsyncTerminal'; // Server name, not used directly in callTool like this
+        // Attempt a minimal call first to see if the base command works
+        const minimalParams = { command: 'echo MinimalCall' };
+        console.log(`[Test] Calling tool 'execute_command' with minimal params:`, minimalParams);
+        const minimalResult = await client.callTool({
+            name: 'execute_command',
+            arguments: minimalParams
+        });
+        console.log('[Test] Result from minimal callTool("execute_command"):', JSON.stringify(minimalResult, null, 2));
+        const minimalResponse = JSON.parse(minimalResult.content[0].text);
+        // Basic assertion for the minimal call - should succeed or be 'Running' if timeout is default 10s
+        assert(minimalResponse.status === 'Success' || minimalResponse.status === 'Running', 'Minimal call failed unexpectedly: ' + minimalResponse.stderr);
+        console.log('[Test] Minimal call to execute_command seems okay.');
 
-        const toolParams = {
-            command: 'echo Hello',
+        // Now test the timeout rejection
+        const timeoutRejectParams = {
+            command: 'echo HelloTimeout',
             timeout: 301
         };
-        console.log(`[Test] Calling tool 'execute_command' with params:`, toolParams);
+        console.log(`[Test] Calling tool 'execute_command' with timeout rejection params:`, timeoutRejectParams);
 
-        // Corrected: Use client.callTool with structured parameters
-        const result = await client.callTool({
-            toolID: 'execute_command', // The specific tool to call
-            params: toolParams         // Parameters for the 'execute_command' tool itself
+        const timeoutRejectResult = await client.callTool({
+            name: 'execute_command',
+            arguments: timeoutRejectParams
         });
-        console.log('[Test] Result from callTool("execute_command"):', JSON.stringify(result, null, 2));
+        console.log('[Test] Result from timeout rejection callTool("execute_command"):', JSON.stringify(timeoutRejectResult, null, 2));
 
-        assert(result.content && result.content[0] && typeof result.content[0].text === 'string', 'Result content text is missing or not a string');
-        const response = JSON.parse(result.content[0].text);
+        assert(timeoutRejectResult.content && timeoutRejectResult.content[0] && typeof timeoutRejectResult.content[0].text === 'string', 'Result content text is missing or not a string for timeout rejection call');
+        const timeoutRejectResponse = JSON.parse(timeoutRejectResult.content[0].text);
 
-        assert.strictEqual(response.status, 'Failure', 'Expected status to be Failure for timeout > 300');
-        assert(response.stderr && response.stderr.includes('Timeout cannot exceed 300 seconds'), 'Expected stderr to contain timeout error message');
+        assert.strictEqual(timeoutRejectResponse.status, 'Failure', 'Expected status to be Failure for timeout > 300');
+        assert(timeoutRejectResponse.stderr && timeoutRejectResponse.stderr.includes('Timeout cannot exceed 300 seconds'), 'Expected stderr to contain timeout error message for timeout > 300');
 
         console.log('[Test] test_execute_command_timeout_rejection.js PASSED');
     } catch (error) {
