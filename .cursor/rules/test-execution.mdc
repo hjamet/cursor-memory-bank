@@ -38,6 +38,7 @@ Execute unit tests, analyze results and document successes and failures in tests
 - An "improvement" means a previously failing test now passes or a warning is resolved
 - A "regression" means a previously successful test now fails or generates a warning
 - To avoid losing the workflow, systematically write **(Test-execution - [number].[Name] in progress...)** between each step
+- The file `.cursor\memory-bank\workflow\tests.md` should not exceed 250 lines: it should not be a history log, but simply the current state of the tests, with their evolution compared to the last execution indicated in parentheses. If there are errors, they can be described. There should be no dates or timestamps.
 
 **Using the Advanced MCP Terminal Tools:**
 
