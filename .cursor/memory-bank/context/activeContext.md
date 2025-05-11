@@ -4,8 +4,8 @@
 - **Tâche principale (Terminée)**: Ajouter un nouvel outil au serveur MyMCP pour prendre des captures d'écran de pages web.
     - **Fonctionnalité implémentée**: Outil `take_webpage_screenshot`.
     - **Entrée**: URL d'une page web.
-    - **Sortie**: Image de la page web encodée en base64.
-    - **Bibliothèque utilisée**: `puppeteer`.
+    - **Sortie**: Image de la page web (redimensionnée à 1024px de large, compressée en JPEG) encodée en base64.
+    - **Bibliothèques utilisées**: `puppeteer` (pour la capture), `sharp` (pour le redimensionnement/compression).
     - **Fichiers impactés**:
         - `.cursor/mcp/mcp-commit-server/package.json` (dépendance `puppeteer` ajoutée).
         - `.cursor/mcp/mcp-commit-server/server.js` (outil `take_webpage_screenshot` enregistré).

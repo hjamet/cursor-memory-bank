@@ -5,13 +5,16 @@
 - Markdown (`.md`, `.mdc` for rules)
 - MCP Servers (specifically `mcp_memory_*` tools for knowledge graph/memory)
 - Node.js with ESM (for MCP commit server)
+- Access to `mcp_debug_*` tools for interactive debugging.
+- Underlying Cursor infrastructure for rule execution and tool calls.
+- For MCP commit server: `@modelcontextprotocol/sdk`, `zod`, `puppeteer`, `sharp`
 
 **Dependencies:**
 - Access to `mcp_memory_create_entities`, `mcp_memory_create_relations`, `mcp_memory_add_observations`, `mcp_memory_search_nodes`, etc. (Used for agent's knowledge graph memory within workflow rules)
 - Access to `mcp_context7_*` tools for library documentation lookup.
 - Access to `mcp_debug_*` tools for interactive debugging.
 - Underlying Cursor infrastructure for rule execution and tool calls.
-- For MCP commit server: `@modelcontextprotocol/sdk`, `zod`
+- For MCP commit server: `@modelcontextprotocol/sdk`, `zod`, `puppeteer`, `sharp`
 
 ## Pile Technologique
 - **Langages**: Bash, Markdown
@@ -72,19 +75,12 @@ Un hook pre-commit est également fourni dans `.githooks/pre-commit` et install�
   - `get_terminal_status`: Pour vérifier l'état des commandes en cours.
   - `get_terminal_output`: Pour récupérer la sortie d'une commande.
   - `stop_terminal_command`: Pour arrêter une commande en cours.
-  - `consult_image`: Pour lire un fichier image et le retourner en base64.
-  - `take_webpage_screenshot`: Pour prendre une capture d'écran d'une page web et la retourner en base64 (utilise Puppeteer).
+  - `consult_image`: Pour lire un fichier image et le retourner en base64 (utilise `sharp` pour redimensionnement/compression).
+  - `take_webpage_screenshot`: Pour prendre une capture d'écran d'une page web et la retourner en base64 (utilise `puppeteer` pour la capture et `sharp` pour redimensionnement/compression).
 - Le serveur MCP Commit (`mcp_MyMCP_*`) est sensible à la configuration `cwd` (Current Working Directory) lors de l'exécution de commandes via `spawn`, en particulier avec `shell: false`. CWD is auto-detected based on server startup args (`--cwd`), `CURSOR_WORKSPACE_ROOT` env var, or the server process's CWD.
 - Toute sortie `console.log` ou `console.warn` non JSON du serveur MCP peut interrompre la communication avec le client Cursor, entraînant des erreurs "Unexpected token". Les logs de débogage doivent être commentés ou supprimés en production.
 - L'outil `mcp_MyMCP_execute_command` rencontrait des difficultés à capturer `stdout`/`stderr` pour `tests/test_mcp_async_terminal.js`. L'ajout de logging fichier dans le script de test semble avoir résolu le problème (test passe désormais).
-- Le retour d'images volumineuses en base64 (`type: "image"`) via MCP peut entraîner des erreurs `Maximum call stack size exceeded`. La solution consiste à traiter l'image côté serveur (ex: avec `sharp`) pour réduire sa taille avant l'encodage base64.
+- Le retour d'images volumineuses en base64 (`type: "image"`) via MCP peut entraîner des erreurs `Maximum call stack size exceeded` ou des interruptions. La solution consiste à traiter l'image côté serveur (ex: avec `sharp`) pour réduire sa taille (e.g., redimensionner à 1024px de large, compresser en JPEG) avant l'encodage base64.
 
 ## Dependencies
 ```
-{
-    "@modelcontextprotocol/sdk": "^1.10.2",
-    "execa": "^9.5.2",
-    "puppeteer": "^22.10.0",
-    "sharp": "^0.33.4",
-    "zod": "^3.23.8"
-} 

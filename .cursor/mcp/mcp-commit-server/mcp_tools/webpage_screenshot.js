@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import sharp from 'sharp';
 
 /**
  * MCP Tool handler for taking a full webpage screenshot.
@@ -26,17 +27,26 @@ export async function handleWebpageScreenshot(params) {
         // Navigate to the URL
         await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 }); // Wait until network is idle, 60s timeout
 
-        // Take screenshot as base64
-        const base64Data = await page.screenshot({ encoding: 'base64', fullPage: true });
+        // Take screenshot as a buffer for sharp processing
+        const imageBuffer = await page.screenshot({ encoding: 'binary', fullPage: true });
 
-        await browser.close();
+        await browser.close(); // Close browser as soon as screenshot is taken
+        browser = null; // Prevent trying to close it again in catch block if sharp fails
+
+        // Resize and compress the image using sharp
+        const processedImageBuffer = await sharp(imageBuffer)
+            .resize({ width: 1024, withoutEnlargement: true }) // Resize to max 1024 width, don't enlarge
+            .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+            .toBuffer();
+
+        const base64Data = processedImageBuffer.toString('base64');
 
         return {
             content: [
                 {
                     type: "image",
                     data: base64Data,
-                    mimeType: "image/png", // Puppeteer defaults to png for screenshots
+                    mimeType: "image/jpeg", // MimeType is now always jpeg
                 },
             ]
         };
