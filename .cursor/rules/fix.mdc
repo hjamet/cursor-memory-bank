@@ -52,9 +52,7 @@ Analyze test errors and fix them through an iterative execution-correction loop 
         *   If context is unclear, default to `invoked_by_test_failure = true` for safety (prioritizing running existing tests).
         *</think>`
     *   **Decision Logic:**
-        *   First check for unprocessed comments in `.cursor/memory-bank/userbrief.md`.
-            *   If unprocessed comments exist → call `consolidate-repo`.
-        *   ELSE IF `invoked_by_test_failure == false`:
+        * IF `invoked_by_test_failure == false`:
             *   Call `test-implementation`, instructing it to create a test case for the specific behavior/scenario that was just fixed to prevent regression.
         *   ELSE (i.e., `invoked_by_test_failure == true` or context unclear):
             *   Assuming all initially identified failing tests were addressed in the loop, call `test-execution` for final verification of the fixes against the existing test suite.
@@ -189,7 +187,6 @@ Determine Invocation Context: Reading activeContext.md... Found section '## Expe
 Set invoked_by_test_failure = false.
 </think>
 Decision Logic:
-Checking userbrief.md... No unprocessed comments.
 invoked_by_test_failure is false.
 Calling `test-implementation` to create a regression test for the specific behavior fixed.
 **(Fix: 3 - Calling the next rule)**

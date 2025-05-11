@@ -24,11 +24,12 @@ tests/                       # Unit and integration tests
 ## Instructions
 
 1. **Processing userbrief.md**: Analyze and transform content:
-   - Read content from "User Input" section in `.cursor/memory-bank/userbrief.md` (lines starting with `-`)
-   - Identify content type: tasks or preferences
-   - For tasks: mark with ⏳ and move to "Processing"
-   - For preferences: mark with 📌 and move to "Precisions"
-   - Don't convert tasks for tasks.md yet (this will be done by task-decomposition)
+   - Read content from "User Input" section in `.cursor/memory-bank/userbrief.md` (lines starting with `-`).
+   - **If multiple items are present in "User Input", select only the first one for processing in this iteration of the rule. Subsequent items will be processed in later iterations.**
+   - Identify the content type of the selected item: task or preference.
+   - If it's a task: mark with ⏳ and move it to "Processing".
+   - If it's a preference: mark with 📌 and move it to "Precisions".
+   - Don't convert tasks for tasks.md yet (this will be done by task-decomposition).
 
 2. **Organizing userbrief.md**: Structure content according to template:
    - Maintain sections: "User Input", "Processing", "Precisions" (and potentially "Archives", although this rule doesn't interact with it)
