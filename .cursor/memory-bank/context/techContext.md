@@ -73,6 +73,7 @@ Un hook pre-commit est également fourni dans `.githooks/pre-commit` et install�
   - `get_terminal_output`: Pour récupérer la sortie d'une commande.
   - `stop_terminal_command`: Pour arrêter une commande en cours.
   - `consult_image`: Pour lire un fichier image et le retourner en base64.
+  - `take_webpage_screenshot`: Pour prendre une capture d'écran d'une page web et la retourner en base64 (utilise Puppeteer).
 - Le serveur MCP Commit (`mcp_MyMCP_*`) est sensible à la configuration `cwd` (Current Working Directory) lors de l'exécution de commandes via `spawn`, en particulier avec `shell: false`. CWD is auto-detected based on server startup args (`--cwd`), `CURSOR_WORKSPACE_ROOT` env var, or the server process's CWD.
 - Toute sortie `console.log` ou `console.warn` non JSON du serveur MCP peut interrompre la communication avec le client Cursor, entraînant des erreurs "Unexpected token". Les logs de débogage doivent être commentés ou supprimés en production.
 - L'outil `mcp_MyMCP_execute_command` rencontrait des difficultés à capturer `stdout`/`stderr` pour `tests/test_mcp_async_terminal.js`. L'ajout de logging fichier dans le script de test semble avoir résolu le problème (test passe désormais).
@@ -83,6 +84,7 @@ Un hook pre-commit est également fourni dans `.githooks/pre-commit` et install�
 {
     "@modelcontextprotocol/sdk": "^1.10.2",
     "execa": "^9.5.2",
+    "puppeteer": "^22.10.0",
     "sharp": "^0.33.4",
     "zod": "^3.23.8"
 } 

@@ -19,6 +19,8 @@
   - **Evolution**: New test for Python script execution and interruption via tree-kill.
 - ✅ `tests/mcp_server_tests/test_execute_command_long_timeout.js`: Passed (New)
   - **Evolution**: New test for `execute_command` with long-running commands and valid shorter timeouts. Validated with `sleep` command after `persistent_child.sh` proved problematic.
+- ✅ `tests/mcp_server_tests/test_take_webpage_screenshot.js`: Passed (New)
+  - **Evolution**: New test for the `take_webpage_screenshot` MCP tool. Validated with `http://httpbin.org/html`.
 
 ## Tests with Warnings
 - None

@@ -27,6 +27,7 @@ import { handleGetTerminalStatus } from './mcp_tools/terminal_status.js';
 import { handleGetTerminalOutput } from './mcp_tools/terminal_output.js';
 import { handleStopTerminalCommand } from './mcp_tools/terminal_stop.js';
 import { handleConsultImage } from './mcp_tools/consult_image.js';
+import { handleWebpageScreenshot } from './mcp_tools/webpage_screenshot.js';
 
 // --- State Persistence and Logging Setup --- START ---
 const LOGS_DIR = path.join(__dirname, 'logs');
@@ -164,7 +165,7 @@ const escapeShellArg = (arg) => {
 // Create an MCP server instance
 const server = new McpServer({
     name: "InternalAsyncTerminal",
-    version: "0.4.0", // Incremented version for new tool
+    version: "0.5.0", // Incremented version for new tool
     capabilities: {
         tools: {
             'commit': true,
@@ -172,7 +173,8 @@ const server = new McpServer({
             'get_terminal_status': true,
             'get_terminal_output': true,
             'stop_terminal_command': true,
-            'consult_image': true
+            'consult_image': true,
+            'take_webpage_screenshot': true
         }
     }
 });
@@ -239,6 +241,15 @@ server.tool(
         // Ensure working_directory schema is removed
     },
     handleConsultImage // Use direct handler reference
+);
+
+// Define take_webpage_screenshot tool
+server.tool(
+    'take_webpage_screenshot',
+    {
+        url: z.string().url().describe("URL of the webpage to capture.")
+    },
+    handleWebpageScreenshot
 );
 
 // --- Server Startup --- 

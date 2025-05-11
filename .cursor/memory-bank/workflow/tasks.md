@@ -8,6 +8,15 @@
 
 # DONE
 
+3.  **Feature: Ajout de l'outil de capture d'écran web**
+    *   [x] **3.1 Implémentation de l'outil `take_webpage_screenshot`**
+        *   **Description**: Ajout d'un nouvel outil au serveur MyMCP pour prendre une capture d'écran complète d'une page web via son URL et la retourner en base64.
+        *   **Impacted Files/Components**:
+            *   `.cursor/mcp/mcp-commit-server/package.json` (ajout de `puppeteer`)
+            *   `.cursor/mcp/mcp-commit-server/server.js` (enregistrement de l'outil `take_webpage_screenshot`)
+            *   `.cursor/mcp/mcp-commit-server/mcp_tools/webpage_screenshot.js` (logique de l'outil)
+        *   **Validation**: L'outil a été testé manuellement avec succès avec l'URL `https://www.webpagetest.org/about` et a retourné une confirmation de génération d'image. Le problème de crash serveur initial a été résolu.
+
 2.  **Enhance MCP Server Testing**
     *   [x] **2.1 Create Python Helper Script for Interruption Test**
         *   **Description**: Create a simple Python script (e.g., `temp_python_script.py` at the project root or in `tests/mcp_server_tests/helper_scripts/`) that runs for a noticeable duration (e.g., sleeps, writes to a file periodically) and can indicate whether it terminated gracefully or was killed.
