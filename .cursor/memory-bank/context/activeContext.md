@@ -1,6 +1,17 @@
 # Active Context
 
 ## Current implementation context
+- **Previous Task (Completed)**: Refactor Commit Message Generation across workflow rules.
+    - **Outcome**: The `description` field for `mcp_MyMCP_commit` in rules `context-update.mdc`, `experience-execution.mdc`, and `fix.mdc` now requires a highly verbose markdown format with sections for Changes, Testing, Observations, and a Conclusion. The standard is defined in `context-update.mdc`.
+- **Main Task**: Update Memory Bank File Formats & Integrate Templates (Task 2 from `tasks.md`).
+    - **Objective**: Remove section titles from `userbrief.md`, `tasks.md`, `tests.md` (and potentially context files). Implement emoji-based status systems. Define these new formats directly within the managing rules. Delete template files from `.cursor/rules/templates/`.
+    - **Sub-Tasks (from `tasks.md`):
+        *   `userbrief.md` Refactor (rule `consolidate-repo.mdc`)
+        *   `tasks.md` Refactor (rule `task-decomposition.mdc`)
+        *   `tests.md` Refactor (rule `test-execution.mdc`)
+        *   Context Files Refactor (rules `context-loading.mdc`, `context-update.mdc`)
+        *   Delete Template Files
+    - **Key Attention Point**: Ensure all rules interacting with these memory bank files are updated to use and correctly interpret the new formats. The guidance from the deleted template files must be successfully integrated into the operational rules.
 - **Tâche principale (Terminée)**: Ajouter un nouvel outil au serveur MyMCP pour prendre des captures d'écran de pages web.
     - **Fonctionnalité implémentée**: Outil `take_webpage_screenshot`.
     - **Entrée**: URL d'une page web.

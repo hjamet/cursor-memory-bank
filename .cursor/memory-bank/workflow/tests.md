@@ -30,3 +30,5 @@
 
 ## Known Issues / Manual Tests
 - ℹ️ **`test_git_install.sh` Auto-Config Path**: Although the test passes, the automatic `git config core.hooksPath` logic added to `install.sh` was not verified in a true Git repository context by the test suite. Manual verification recommended.
+
+
