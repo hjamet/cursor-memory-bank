@@ -24,11 +24,11 @@
             *   **Action**: Modify `consolidate-repo.mdc` to handle `userbrief.md` without section titles, using only emojis (e.g., 🆕 for new, ⏳ for processing, 📌 for precision, 🗄️ for archived) at the start of lines to denote status. Integrate the content/guidance from `userbrief-template.mdc` into `consolidate-repo.mdc`.
             *   **Impacted Rules/Files**: `consolidate-repo.mdc`, `userbrief-template.mdc` (for deletion).
             *   **Validation**: `consolidate-repo.mdc` correctly processes and updates `userbrief.md` using the new emoji-only format. `userbrief-template.mdc` is deleted.
-        *   🟡 **2.2 `tasks.md` Refactor**:
+        *   🟢 **2.2 `tasks.md` Refactor**:
             *   **Action**: Modify `task-decomposition.mdc` (and potentially `context-update.mdc` if it modifies tasks status) to handle `tasks.md` without section titles, using an emoji system (⚪️ TODO, 🟡 IN_PROGRESS, 🟢 DONE, 🔴 BLOCKED, 🔵 REVIEW) at the start of task lines. Define this format and emoji legend within `task-decomposition.mdc`. Integrate content/guidance from `task-template.mdc`.
             *   **Impacted Rules/Files**: `task-decomposition.mdc`, `context-update.mdc`, `task-template.mdc` (for deletion).
             *   **Validation**: `tasks.md` uses the new emoji-based format, and rules correctly interact with it. `task-template.mdc` is deleted.
-        *   ⚪️ **2.3 `tests.md` Refactor**:
+        *   🟡 **2.3 `tests.md` Refactor**:
             *   **Action**: Modify `test-execution.mdc` (and `fix.mdc` if it reads/updates `tests.md`) to handle `tests.md` without section titles. Implement the new format: line 1 `✅{nbr_success} ❌{nbr_fails} ℹ️{nbr_skip}`, followed by a list of only failing/skipped tests with details: `- ❌ Test Name: Description - Progress notes`. Define this format within `test-execution.mdc`. Integrate content/guidance from `tests-template.mdc`.
             *   **Impacted Rules/Files**: `test-execution.mdc`, `fix.mdc`, `tests-template.mdc` (for deletion).
             *   **Validation**: `tests.md` follows the new summary header and failing-tests-only list format. Rules interact correctly. `tests-template.mdc` is deleted.

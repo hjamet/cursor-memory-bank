@@ -4,13 +4,16 @@
 - **Previous Task (Completed)**: Refactor Commit Message Generation across workflow rules.
     - **Outcome**: The `description` field for `mcp_MyMCP_commit` in rules `context-update.mdc`, `experience-execution.mdc`, and `fix.mdc` now requires a highly verbose markdown format with sections for Changes, Testing, Observations, and a Conclusion. The standard is defined in `context-update.mdc`.
 - **Current Main Task**: Update Memory Bank File Formats & Integrate Templates (Task 2 from `tasks.md`).
-    - **Current Sub-Task (2.1)**: `userbrief.md` Refactor.
-        -   **Objective**: Modify `consolidate-repo.mdc` to handle `userbrief.md` without section titles, using only emojis (e.g., 🆕 for new user input, ⏳ for items being processed, 📌 for retained precisions, 🗄️ for archived items) at the start of lines to denote status/type. Integrate the content/guidance from `.cursor/rules/templates/userbrief-template.mdc` directly into `consolidate-repo.mdc` which will define the new format.
-        -   **Impacted Rules/Files**: `consolidate-repo.mdc`, `.cursor/rules/templates/userbrief-template.mdc` (for deletion), `.cursor/memory-bank/userbrief.md` (format change guidance).
-        -   **Key Attention Point**: The `consolidate-repo.mdc` rule must clearly define the new section-less, emoji-driven format for `userbrief.md` and correctly manipulate items based on these emojis. The old template file will be deleted.
+    - **Previous Sub-Task (2.1 - Completed)**: `userbrief.md` Refactor.
+        -   **Outcome**: `consolidate-repo.mdc` was updated to handle a section-less, emoji-driven `userbrief.md`. The new format and emoji legend (🆕, ⏳, 📌, 🗄️) are defined within `consolidate-repo.mdc`. The template `.cursor/rules/templates/userbrief-template.mdc` has been deleted.
+    - **Previous Sub-Task (2.2 - Completed)**: `tasks.md` Refactor.
+        -   **Outcome**: `task-decomposition.mdc` was updated to define and handle a section-less, emoji-driven `tasks.md` format (⚪️, 🟡, 🟢, 🔴, 🔵). `context-update.mdc` was also updated for compatibility. The template `.cursor/rules/templates/task-template.mdc` has been deleted.
+    - **Current Sub-Task (2.3)**: `tests.md` Refactor.
+        -   **Objective**: Modify `test-execution.mdc` (and `fix.mdc`) to handle `tests.md` without section titles. Implement the new format: line 1 `✅{nbr_success} ❌{nbr_fails} ℹ️{nbr_skip}`, followed by a list of only failing/skipped tests with details. Define this format within `test-execution.mdc`. Integrate content/guidance from `tests-template.mdc` (which will then be deleted).
+        -   **Impacted Rules/Files**: `test-execution.mdc`, `fix.mdc`, `.cursor/rules/templates/tests-template.mdc` (for deletion), `.cursor/memory-bank/workflow/tests.md` (format change guidance).
+        -   **Key Attention Point**: `test-execution.mdc` must clearly define the new format for `tests.md`. `fix.mdc` might need adjustments if it reads `tests.md`.
     - **Overall Objective (Task 2)**: Remove section titles from `userbrief.md`, `tasks.md`, `tests.md` (and potentially context files). Implement emoji-based status systems. Define these new formats directly within the managing rules. Delete template files from `.cursor/rules/templates/`.
     - **Remaining Sub-Tasks (from `tasks.md`):
-        *   `tasks.md` Refactor (rule `task-decomposition.mdc`)
         *   `tests.md` Refactor (rule `test-execution.mdc`)
         *   Context Files Refactor (rules `context-loading.mdc`, `context-update.mdc`)
         *   Delete All Template Files (final cleanup step of Task 2)
