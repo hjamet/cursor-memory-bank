@@ -23,8 +23,9 @@ Update context files to reflect changes, update tasks.md based on test results, 
    - Move successful tasks from "In Progress" to "Done"
 
 4. **Commit changes**: Make a commit with the modifications using the MCP tool:
-   - Determine the appropriate `emoji`, `type`, `title`, and `description` based on the changes made during the preceding rules (refer to the commit message format section below).
-   - Call the `mcp_MyMCP_commit` tool with these arguments.
+   - Determine the appropriate `emoji`, `type`, and `title` based on the changes made during the preceding rules.
+   - **Construct a detailed `description`**: This description is CRITICAL and must be a comprehensive markdown-formatted text. Refer to the "Format for Detailed Commit Description" section below. It should summarize all work done, tests performed, observations, and a conclusion.
+   - Call the `mcp_MyMCP_commit` tool with these arguments (`emoji`, `type`, `title`, `description`).
    - The tool handles staging automatically (equivalent to `git add .` or `git commit -a`).
 
 5. **File integrity verification**: Look for structural problems:
@@ -60,42 +61,56 @@ Update context files to reflect changes, update tasks.md based on test results, 
    - Explicitly state: "The workflow is complete, no next rule to call."
 - If the workflow is not complete, call the appropriate next rule
 
-## Format for commit message
+## Format for Detailed Commit Description
+The `description` argument for the `mcp_MyMCP_commit` tool must be a detailed markdown-formatted string. It serves as a comprehensive record of the work performed. Structure it like a mini-article with the following sections:
+
+```markdown
+### Changes Made
+*   Detailed bullet point list of all modifications.
+*   Be specific: mention file names, functions changed, new features added, bugs fixed.
+*   Example:
+    *   Modified `src/moduleA/logic.py` to handle edge case X by adding a new validation step.
+    *   Created new component `src/components/NewWidget.jsx` for displaying user data.
+    *   Refactored `utils/helper.js` for improved performance by optimizing the `calculateValue` function.
+
+### Testing Performed
+*   Describe how the changes were tested.
+*   Mention specific test scenarios, manual testing steps, or automated tests run.
+*   If applicable, include results (e.g., "All 5 new unit tests for `logic.py` passed.").
+*   Example:
+    *   Manually tested the new widget with various user inputs (empty, long strings, special characters).
+    *   Ran the full test suite (`npm test`), all 125 tests passed.
+    *   Verified the fix for bug #123 by reproducing the original issue and confirming it's resolved.
+
+### Observations & Learnings
+*   Note any interesting observations, challenges encountered, or learnings during the development and testing process.
+*   This could include unexpected behaviors, performance insights, or alternative approaches considered.
+*   Example:
+    *   Observed that the `calculateValue` optimization also reduced memory usage by 10%.
+    *   Encountered an issue with library X's compatibility, requiring a workaround (describe briefly).
+    *   Learned about a new API feature in Y that could be useful for future tasks.
+
+### Conclusion
+*   Provide an overall summary of the work completed and its outcome.
+*   State the impact of the changes (e.g., "This resolves critical bug #123 and improves system stability.").
+*   Reiterate any key discoveries or insights.
+*   Example:
+    *   The implementation of the new user data widget is now complete and meets all specified requirements. This feature enhances user experience by providing a clear and interactive way to view their information. The refactoring of `calculateValue` has yielded significant performance gains.
 ```
-<emoji_code><type>: description générale
-- détail 1
-- détail 2
-- détail 3
-[etc...]
 
-[optional footer]
-```
-
-Examples avec codes emoji:
-- :sparkles: feat: pour une nouvelle fonctionnalité
-  - amélioration X ajoutée
-  - nouvelle feature Y
-  - support de Z
-
-- :bug: fix: pour une correction de bug
-  - correction du problème A
-  - résolution du crash B
-
-- :memo: docs: pour la documentation
-  - mise à jour de la section X
-  - clarification de Y
-  
-- :recycle: refactor: pour une refactorisation
-  - restructuration du module X
-  - optimisation de Y
-
-- :white_check_mark: test: pour les tests
-  - nouveaux tests pour X
-  - amélioration couverture Y
-
-- :wrench: chore: pour la maintenance
-  - mise à jour dépendance X
-  - nettoyage Y
+**Emoji and Type Reference (for `title`):**
+- :sparkles: `feat`: A new feature
+- :bug: `fix`: A bug fix
+- :memo: `docs`: Documentation only changes
+- :recycle: `refactor`: A code change that neither fixes a bug nor adds a feature
+- :white_check_mark: `test`: Adding missing tests or correcting existing tests
+- :wrench: `chore`: Changes to the build process or auxiliary tools and libraries such as documentation generation
+- :art: `style`: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+- :zap: `perf`: A code change that improves performance
+- :construction: `wip`: Work in progress (use sparingly, prefer complete changes)
+- :package: `build`: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
+- :construction_worker: `ci`: Changes to CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)
+- :rewind: `revert`: Reverts a previous commit
 
 ## Next Rules
 - `consolidate-repo` - If file structure problems are detected or unprocessed comments exist in userbrief.md
@@ -125,8 +140,19 @@ I update the tasks.md file by moving completed tasks to Done. **(Context-update:
 
 # Context-update: 4 - Making a commit
 I prepare and make a commit with the changes made using the MCP commit tool. **(Context-update: 4 - Making a commit)**
-[...determining commit details: emoji, type, title, description...]
-[...calling tool `mcp_MyMCP_commit` with appropriate arguments...]
+<think>
+To construct the commit message, I need to determine:
+1.  `emoji` and `type`: Based on the overall nature of the changes (e.g., :sparkles: feat, :bug: fix).
+2.  `title`: A concise summary of the changes.
+3.  `description`: This needs to be very detailed, following the new markdown format. I will need to synthesize information from `activeContext.md`, possibly `projectBrief.md`, `tasks.md` (for what was planned), and `tests.md` (for test results) to fill in:
+    *   `### Changes Made`: What code/files were altered? What was the specific change?
+    *   `### Testing Performed`: How was it tested? What were the results?
+    *   `### Observations & Learnings`: Any notable points during the process?
+    *   `### Conclusion`: Overall summary and impact.
+This requires gathering and structuring a lot of information.
+</think>
+[...gathering information and constructing the detailed emoji, type, title, and multi-section markdown description...]\
+[...calling tool `mcp_MyMCP_commit` with appropriate arguments, including the detailed markdown description...]\
 **(Context-update: 4 - Making a commit)**
 
 # Context-update: 5 - File integrity verification

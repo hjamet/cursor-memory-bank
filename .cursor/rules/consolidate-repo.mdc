@@ -3,9 +3,8 @@ description: Rule to consolidate the repository, manage userbrief.md, and mainta
 globs: 
 alwaysApply: false
 ---
-
 ## TLDR
-Repository consolidation, transformation of user requests into tasks, cleaning userbrief.md, and verification of memory files integrity.
+Consolidates user requests from a section-less, emoji-driven `userbrief.md`, manages item statuses (🆕, ⏳, 📌), and verifies memory file integrity.
 
 ## Repository Structure (for reference)
 ```
@@ -21,30 +20,50 @@ src/                         # Project source scripts
 tests/                       # Unit and integration tests  
 ```
 
+## userbrief.md: New Format Definition
+
+The `.cursor/memory-bank/userbrief.md` file no longer uses H1 section titles (e.g., `# User Input`, `# Processing`). It is a flat list of items, each starting with an emoji indicating its status or type. This rule (`consolidate-repo`) is primarily responsible for processing new user inputs (🆕) and categorizing them.
+
+**Emoji Legend & Handling by `consolidate-repo`:**
+*   `🆕 - [User's original request or idea]`
+    *   Represents raw user input. Users should ideally prefix new requests with `🆕 -` or just `- ` (which this rule will treat as 🆕).
+    *   This rule identifies these items.
+    *   If it's a task-like request, this rule changes 🆕 to ⏳.
+    *   If it's a preference/directive, this rule changes 🆕 to 📌.
+*   `⏳ - [Task identified, awaiting decomposition by task-decomposition rule]`
+    *   This rule changes 🆕 to ⏳ for actionable tasks.
+    *   The `task-decomposition` rule will later process these ⏳ items.
+*   `📌 - [User preference or long-term directive to be retained]`
+    *   This rule changes 🆕 to 📌 for preferences.
+    *   These items are generally preserved unless explicitly changed by the user.
+*   `🗄️ - [Request archived by task-decomposition after being added to tasks.md]`
+    *   This rule does NOT create or directly manage 🗄️ items. They are an outcome of the `task-decomposition` rule.
+
+**Key Principles (from former `userbrief-template.mdc`):**
+*   **Persistence**: The `userbrief.md` file should generally not be emptied by the agent; only the user should clear its content.
+*   **Status Updates**: When changing status, only the leading emoji should be modified by the agent, not the content of the request/preference itself unless explicitly instructed.
+*   **Conciseness**: The file should be kept as concise as possible without losing information.
+*   **User Input**: Users can add new items by prefixing with `🆕 - ` or just `- `.
+
 ## Instructions
 
-1. **Processing userbrief.md**: Analyze and transform content:
-   - Read content from "User Input" section in `.cursor/memory-bank/userbrief.md` (lines starting with `-`).
-   - **If multiple items are present in "User Input", select only the first one for processing in this iteration of the rule. Subsequent items will be processed in later iterations.**
-   - Identify the content type of the selected item: task or preference.
-   - If it's a task: mark with ⏳ and move it to "Processing".
-   - If it's a preference: mark with 📌 and move it to "Precisions".
-   - Don't convert tasks for tasks.md yet (this will be done by task-decomposition).
+1. **Process `userbrief.md` Items**: Analyze and update item statuses:
+   - Read all lines from `.cursor/memory-bank/userbrief.md`.
+   - Iterate through the lines:
+     - If a line starts with `🆕 - ` or `- ` (treat as new input):
+       - **Select only the first such unprocessed item per rule execution.** (To maintain focused processing).
+       - Analyze its content to determine if it's an actionable task or a preference/directive.
+       - If it's a task: Change the line to start with `⏳ - `.
+       - If it's a preference: Change the line to start with `📌 - `.
+       - Re-write the `userbrief.md` file with this single change.
+       - **Stop processing further items in this rule execution.** Subsequent 🆕 items will be handled in later calls to this rule.
+     - Lines starting with ⏳, 📌, or 🗄️ are generally left unchanged by this step of this rule (they are managed by their current status or by other rules like `task-decomposition`).
 
-2. **Organizing userbrief.md**: Structure content according to template:
-   - Maintain sections: "User Input", "Processing", "Precisions" (and potentially "Archives", although this rule doesn't interact with it)
-   - Apply appropriate statuses:
-     - - : To be processed (in "User Input")
-     - ⏳ : In processing (in "Processing", for tasks only)
-     - 📌 : Long-term preference (in "Precisions")
-     - (Do not use 🗄️ - these are handled by other rules)
-   - Ensure structure remains clear and readable
-
-3. **Integrity verification**: Control of memory files:
+2. **Integrity verification**: Control of memory files:
    - Use the MCP command execution tool via Git Bash to list all markdown files: `mcp_MyMCP_execute_command(command = "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"find . -type f -name '*.md'\"")`
    - Analyze results to identify duplicates or misplaced files in `memory-bank` directories.
 
-4. **Direct Cleanup**: Directly resolve integrity issues identified in step 3:
+3. **Direct Cleanup**: Directly resolve integrity issues identified in step 2:
    - If duplicates found:
      - Merge content of duplicate files into the main corresponding file (using file edit tools).
      - Delete duplicates after merging using the MCP command execution tool via Git Bash (e.g., `mcp_MyMCP_execute_command(command = "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"rm <duplicate_file_path>\""")`).
@@ -53,77 +72,65 @@ tests/                       # Unit and integration tests
    - If other temporary/unnecessary files identified:
      - Delete them using the MCP command execution tool via Git Bash (`rm`).
 
-5. **MCP Terminal Cleanup**: Clean up finished terminal processes used in this rule.
+4. **MCP Terminal Cleanup**: Clean up finished terminal processes used in this rule.
    - Call `mcp_get_terminal_status` to check the status of running/finished processes.
    - For each process with a final status (e.g., 'Success', 'Failure'), call `mcp_stop_terminal_command` with its `pid` to release resources.
 
-6. **Evaluation of user requests**: Decide next workflow step:
-   - IF new requests identified in userbrief.md:
-     - Clearly formulate user request extracted from userbrief.md
-     - Call `request-analysis` rule to process this request
-   - ELSE:
-     - Call `context-update` rule to continue workflow
+5. **Evaluation of user requests & Next Rule**: Decide next workflow step:
+   - Re-read `.cursor/memory-bank/userbrief.md`.
+   - IF any line now starts with `⏳ - ` (indicating a task was just marked for processing by this rule in step 1 OR was already pending from a previous run):
+     - Extract the content of the first such `⏳` item.
+     - Formulate this as the user request to be analyzed.
+     - Call `request-analysis` rule to process this specific request (which will then likely lead to `task-decomposition`).
+   - ELSE (no ⏳ items found, meaning no new tasks were identified or are pending from `userbrief.md`):
+     - Call `context-update` rule to continue the general workflow (e.g., check for structural issues if this rule was called for that purpose, or proceed if it was a routine check).
 
 ## Specifics
 
-- Only structure and organization can be modified
-- User requests must always be processed with priority
-- Duplicates must be carefully merged to lose no information
-- Files to be deleted should be deleted only after merging and using the MCP command execution tool (`mcp_MyMCP_execute_command`) with Git Bash to run the `rm` command (not the `delete_file` tool because of a bug)
-- This rule should only be called by context-update when structure problems are detected
-- IMPORTANT: Only this rule is authorized to modify userbrief.md to move items from "User Input" to "Processing" or "Precisions".
-- IMPORTANT: Mark new tasks from "User Input" with ⏳ (only) and move to "Processing". Mark preferences with 📌 and move to "Precisions".
-- IMPORTANT: Never use 🗄️ in this rule; these are handled by `task-decomposition`.
+- This rule now focuses on processing one `🆕` user input item from `userbrief.md` at a time.
+- It changes `🆕` to `⏳` (for tasks) or `📌` (for preferences).
+- The `task-decomposition` rule is responsible for processing `⏳` items and changing them to `🗄️`.
+- Avoid directly modifying the content of user requests; only update the leading emoji.
+- Integrity verification and cleanup steps (2, 3, 4) remain important.
 
 ## Next Rules
 
-- `request-analysis` - If new requests identified in userbrief.md
-- `context-update` - If no new request identified in userbrief.md
+- `request-analysis` - If a `🆕` item was converted to `⏳` (or an existing `⏳` item is found), to analyze this specific task.
+- `context-update` - If no `🆕` items were processed into `⏳` tasks (e.g., only preferences found, or no new input).
 
 ## Example
 
-# Consolidate-repo: 1 - Processing userbrief.md  
-I begin by analyzing the content of `.cursor/memory-bank/userbrief.md`. **(Consolidate-repo: 1 - Processing userbrief.md)**  
-[...reading and analyzing userbrief.md content...]  
-I've identified several user requests that I will mark as follows:  
-- Tasks to perform: ⏳ (moving to "Processing")  
-- Long-term preferences: 📌 (moving to "Precisions")  
-**(Consolidate-repo: 1 - Processing userbrief.md)**  
+# Consolidate-repo: 1 - Process `userbrief.md` Items
+I begin by reading `.cursor/memory-bank/userbrief.md` to find new user inputs (starting with `🆕 - ` or `- `). **(Consolidate-repo: 1 - Process `userbrief.md` Items)**
+[...reading `userbrief.md`... Assume it contains:
+- `- Add a new feature X.
+- Make the UI blue.
+`]
+I found the first new item: `- Add a new feature X.` This appears to be a task. I will change its prefix to `⏳ - `.
+[...editing `userbrief.md` to become:
+`⏳ - Add a new feature X.
+- Make the UI blue.
+` ...]
+**(Consolidate-repo: 1 - Process `userbrief.md` Items)**
 
-# Consolidate-repo: 2 - Organizing userbrief.md  
-I'm now reorganizing the content of `.cursor/memory-bank/userbrief.md` according to the template. **(Consolidate-repo: 2 - Organizing userbrief.md)**  
-[...content reorganization...]  
-I've applied appropriate statuses to the different elements.  
-**(Consolidate-repo: 2 - Organizing userbrief.md)**  
+# Consolidate-repo: 2 - Integrity verification
+(Assuming no integrity issues for this example path)
+I'm now verifying the integrity of memory files. **(Consolidate-repo: 2 - Integrity verification)**
+[...MCP find command...]
+No integrity issues found.
+**(Consolidate-repo: 2 - Integrity verification)**
 
-# Consolidate-repo: 3 - Integrity verification  
-I'm now verifying the integrity of memory files using MCP via Git Bash. **(Consolidate-repo: 3 - Integrity verification)**  
-[...calling tool `mcp_MyMCP_execute_command` with command="\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"find . -type f -name '*.md'\""...]
-[...analyzing command results...]
-I've identified some duplicates/misplaced files.
-**(Consolidate-repo: 3 - Integrity verification)**  
+# Consolidate-repo: 3 - Direct Cleanup
+No cleanup needed. **(Consolidate-repo: 3 - Direct Cleanup)**
 
-# Consolidate-repo: 4 - Direct Cleanup
-I will now directly resolve the identified integrity issues. **(Consolidate-repo: 4 - Direct Cleanup)**
-[...merging duplicate file content using edit tools...]
-[...deleting duplicate file using `mcp_MyMCP_execute_command` with `rm`...]
-[...moving misplaced file using `mcp_MyMCP_execute_command` with `mv`...]
-Cleanup actions performed.
-**(Consolidate-repo: 4 - Direct Cleanup)**
+# Consolidate-repo: 4 - MCP Terminal Cleanup
+No terminal commands were used that require cleanup in this path. **(Consolidate-repo: 4 - MCP Terminal Cleanup)**
 
-# Consolidate-repo: 5 - MCP Terminal Cleanup  
-I'm now checking MCP terminal processes used in this rule for cleanup. **(Consolidate-repo: 5 - MCP Terminal Cleanup)**  
-Calling `mcp_get_terminal_status`...  
-[...retrieving process statuses...]
-I've found finished processes used for verification/cleanup. Stopping these with `mcp_stop_terminal_command` to free up resources.  
-Cleanup complete.  
-**(Consolidate-repo: 5 - MCP Terminal Cleanup)**  
+# Consolidate-repo: 5 - Evaluation of user requests & Next Rule
+I re-read `userbrief.md`. It now contains `⏳ - Add a new feature X.`. **(Consolidate-repo: 5 - Evaluation of user requests & Next Rule)**
+I found a task marked `⏳`. I will formulate "Add a new feature X" as the request and call `request-analysis`.
+**(Consolidate-repo: 5 - Evaluation of user requests & Next Rule)**
 
-# Consolidate-repo: 6 - Evaluation of user requests  
-I'm now evaluating if new user requests were identified in userbrief.md during step 1. **(Consolidate-repo: 6 - Evaluation of user requests)**  
-[...checking if any requests were marked ⏳ or 📌 in step 1...]
-[If yes:] I found the following requests: [...]. I will now call the `request-analysis` rule.
-[If no:] No new requests were identified. I will call `context-update`.
-**(Consolidate-repo: 6 - Evaluation of user requests)**  
+[...Calling `request-analysis` rule...]
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)  

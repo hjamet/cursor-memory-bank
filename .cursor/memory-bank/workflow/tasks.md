@@ -20,11 +20,11 @@
 🟡 **2. Update Memory Bank File Formats & Integrate Templates**
     *   **Description**: Remove section titles from `userbrief.md`, `tasks.md`, and `tests.md`. Implement emoji-based status systems for them. Define these new formats directly within the primary rules that manage these files, and delete the old template files from `.cursor/rules/templates/`. Also, consider if context files (`projectBrief.md`, `activeContext.md`, `techContext.md`) should also have sections removed and their structure defined in rules.
     *   **Sub-Tasks**:
-        *   ⚪️ **2.1 `userbrief.md` Refactor**:
+        *   🟢 **2.1 `userbrief.md` Refactor**:
             *   **Action**: Modify `consolidate-repo.mdc` to handle `userbrief.md` without section titles, using only emojis (e.g., 🆕 for new, ⏳ for processing, 📌 for precision, 🗄️ for archived) at the start of lines to denote status. Integrate the content/guidance from `userbrief-template.mdc` into `consolidate-repo.mdc`.
             *   **Impacted Rules/Files**: `consolidate-repo.mdc`, `userbrief-template.mdc` (for deletion).
             *   **Validation**: `consolidate-repo.mdc` correctly processes and updates `userbrief.md` using the new emoji-only format. `userbrief-template.mdc` is deleted.
-        *   ⚪️ **2.2 `tasks.md` Refactor**:
+        *   🟡 **2.2 `tasks.md` Refactor**:
             *   **Action**: Modify `task-decomposition.mdc` (and potentially `context-update.mdc` if it modifies tasks status) to handle `tasks.md` without section titles, using an emoji system (⚪️ TODO, 🟡 IN_PROGRESS, 🟢 DONE, 🔴 BLOCKED, 🔵 REVIEW) at the start of task lines. Define this format and emoji legend within `task-decomposition.mdc`. Integrate content/guidance from `task-template.mdc`.
             *   **Impacted Rules/Files**: `task-decomposition.mdc`, `context-update.mdc`, `task-template.mdc` (for deletion).
             *   **Validation**: `tasks.md` uses the new emoji-based format, and rules correctly interact with it. `task-template.mdc` is deleted.

@@ -33,8 +33,12 @@ Analyze test errors and fix them through an iterative execution-correction loop 
             * **2.5.2 Quick commit**: Call the MCP tool named "Commit".
               - Use `type` = "fix"
               - Use `emoji` = ":wrench:"
-              - Construct `title` = "fix([Test name]): Quick fix"
-              - Construct `description` = "Applied quick fix for [Test name] after successful test run."
+              - Construct `title` = "fix([Test name]): Quick fix for [Test name]"
+              - **Construct a `description`** adhering to the verbose markdown format (see "Format for Detailed Commit Description" in `context-update.mdc`). It should at least include:
+                - `### Changes Made`: Specific change made to fix [Test name].
+                - `### Testing Performed`: Confirmation that [Test name] (the specific test being fixed) now passes. Mention the command used if readily available.
+                - `### Observations & Learnings`: (Optional but encouraged) Any brief observation about the fix or cause of the error.
+                - `### Conclusion`: Summary that the fix for [Test name] was successful.
               - Provide these arguments to the MCP "Commit" tool. It handles staging automatically.
             * **(Situational) Consider Vision Note**: If the fix reveals a misunderstanding or needed clarification of high-level project goals/vision relevant to the error, consider suggesting the user add a note to `.cursor_memory` or asking for clarification, but do *not* create notes directly in the `fix` rule.
             * **2.5.3 Continue**: Move to the next failing test in the list and repeat the loop from step 2.1.

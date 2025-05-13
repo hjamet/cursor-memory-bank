@@ -3,15 +3,17 @@
 ## Current implementation context
 - **Previous Task (Completed)**: Refactor Commit Message Generation across workflow rules.
     - **Outcome**: The `description` field for `mcp_MyMCP_commit` in rules `context-update.mdc`, `experience-execution.mdc`, and `fix.mdc` now requires a highly verbose markdown format with sections for Changes, Testing, Observations, and a Conclusion. The standard is defined in `context-update.mdc`.
-- **Main Task**: Update Memory Bank File Formats & Integrate Templates (Task 2 from `tasks.md`).
-    - **Objective**: Remove section titles from `userbrief.md`, `tasks.md`, `tests.md` (and potentially context files). Implement emoji-based status systems. Define these new formats directly within the managing rules. Delete template files from `.cursor/rules/templates/`.
-    - **Sub-Tasks (from `tasks.md`):
-        *   `userbrief.md` Refactor (rule `consolidate-repo.mdc`)
+- **Current Main Task**: Update Memory Bank File Formats & Integrate Templates (Task 2 from `tasks.md`).
+    - **Current Sub-Task (2.1)**: `userbrief.md` Refactor.
+        -   **Objective**: Modify `consolidate-repo.mdc` to handle `userbrief.md` without section titles, using only emojis (e.g., 🆕 for new user input, ⏳ for items being processed, 📌 for retained precisions, 🗄️ for archived items) at the start of lines to denote status/type. Integrate the content/guidance from `.cursor/rules/templates/userbrief-template.mdc` directly into `consolidate-repo.mdc` which will define the new format.
+        -   **Impacted Rules/Files**: `consolidate-repo.mdc`, `.cursor/rules/templates/userbrief-template.mdc` (for deletion), `.cursor/memory-bank/userbrief.md` (format change guidance).
+        -   **Key Attention Point**: The `consolidate-repo.mdc` rule must clearly define the new section-less, emoji-driven format for `userbrief.md` and correctly manipulate items based on these emojis. The old template file will be deleted.
+    - **Overall Objective (Task 2)**: Remove section titles from `userbrief.md`, `tasks.md`, `tests.md` (and potentially context files). Implement emoji-based status systems. Define these new formats directly within the managing rules. Delete template files from `.cursor/rules/templates/`.
+    - **Remaining Sub-Tasks (from `tasks.md`):
         *   `tasks.md` Refactor (rule `task-decomposition.mdc`)
         *   `tests.md` Refactor (rule `test-execution.mdc`)
         *   Context Files Refactor (rules `context-loading.mdc`, `context-update.mdc`)
-        *   Delete Template Files
-    - **Key Attention Point**: Ensure all rules interacting with these memory bank files are updated to use and correctly interpret the new formats. The guidance from the deleted template files must be successfully integrated into the operational rules.
+        *   Delete All Template Files (final cleanup step of Task 2)
 - **Tâche principale (Terminée)**: Ajouter un nouvel outil au serveur MyMCP pour prendre des captures d'écran de pages web.
     - **Fonctionnalité implémentée**: Outil `take_webpage_screenshot`.
     - **Entrée**: URL d'une page web.
