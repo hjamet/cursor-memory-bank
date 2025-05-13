@@ -4,84 +4,126 @@ globs:
 alwaysApply: false
 ---
 ## TLDR
-Decompose user request into concrete tasks and organize them in tasks.md by numbered logical sections.
+Decomposes user requests into concrete tasks and organizes them in `.cursor/memory-bank/workflow/tasks.md` using an emoji-based status system.
 
 ## Instructions
 
-1. **Existing tasks analysis**: Read the `.cursor/memory-bank/workflow/tasks.md` file if it exists
+1.  **Existing tasks analysis**: Read the `.cursor/memory-bank/workflow/tasks.md` file if it exists.
+    - Parse existing tasks based on the emoji-led format.
 
-2. **Userbrief processing identification**: Consult the `.cursor/memory-bank/userbrief.md` file
-   - Identify requests marked with ⏳ in the "Processing" section.
-   - Prepare these identified requests for transformation into structured tasks for `tasks.md` in step 4.
-   - IMPORTANT: Do NOT modify `userbrief.md` at this stage.
+2.  **Userbrief processing identification**: Consult the `.cursor/memory-bank/userbrief.md` file.
+    - Identify requests marked with ⏳. (This assumes `consolidate-repo.mdc` has marked them).
+    - Prepare these identified requests for transformation into structured tasks for `tasks.md` in step 4.
+    - IMPORTANT: Do NOT modify `userbrief.md` at this stage.
 
-3. **Completed tasks removal**: Eliminate completed tasks unrelated to current work from the `.cursor/memory-bank/workflow/tasks.md` file to keep it reasonably sized
+3.  **Completed tasks archival/removal (Optional Refinement)**:
+    - While this rule focuses on adding tasks, a future enhancement or a separate cleanup rule might handle archiving very old `🟢 DONE` tasks from `tasks.md` to keep it manageable. For now, this rule primarily adds new tasks. Ensure new tasks are added after any existing `🟢 DONE` tasks if a "DONE" section was previously used, or simply at the end of the list of active tasks.
 
-4. **New tasks integration**: Structure tasks in tasks.md
-   - Integrate the main request (from the calling rule or active context) AND any requests identified in step 2 (marked with ⏳ in `userbrief.md`).
-   - Create maximum 3-4 very high-level sections (e.g., "Preparation", "Development")
-   - Number sections by resolution order (1., 2., 3.)
-   - Sub-number tasks (1.1, 1.2, 2.1, 2.2)
-   - Each task must include:
-     * Concise title
-     * Complete description
-     * Impacted files/components
-     * Dependencies
-     * Validation criteria
-   - Prioritize by importance, dependencies, impact and complexity
+4.  **New tasks integration**: Structure new tasks in `tasks.md`.
+    - Integrate the main request (from the calling rule or active context) AND any requests identified in step 2 (marked with ⏳ in `userbrief.md`).
+    - Add new tasks/sub-tasks starting with the `⚪️ TODO` emoji.
+    - Follow the **Task Item Structure** defined above for each task:
+        *   Emoji (⚪️) and Bold Title (with numbering like **1.** or **1.1.**)
+        *   Detailed `Description`
+        *   `Impacted Rules/Files`
+        *   `Dependencies`
+        *   `Validation` criteria.
+    - New tasks should be added logically, typically after existing 🟡 IN_PROGRESS or ⚪️ TODO tasks, and before any archived/very old 🟢 DONE tasks if a bottom section for them is maintained.
+    - Prioritize by importance, dependencies, impact, and complexity when ordering new tasks amongst themselves.
 
-5. **Userbrief archiving**: Update `.cursor/memory-bank/userbrief.md`
-   - For EACH request identified in Step 2 (marked with ⏳) that was successfully integrated into `tasks.md` in Step 4:
-     - Move the item from the "Processing" section to the "Archives" section.
-     - Change its status marker from ⏳ to 🗄️.
-   - IMPORTANT: Only modify items that were successfully added to `tasks.md`.
+5.  **Userbrief archiving**: Update `.cursor/memory-bank/userbrief.md`.
+    - For EACH request identified in Step 2 (marked with ⏳) that was successfully integrated into `tasks.md` in Step 4:
+        - Call the `consolidate-repo.mdc` rule or ensure its logic for moving ⏳ to 🗄️ is triggered. (This step might be better handled by `consolidate-repo.mdc` itself after this rule successfully adds tasks).
+        *Alternatively, if direct modification is kept in this rule: Move the item and change its status marker from ⏳ to 🗄️ in `userbrief.md`.*
+    - IMPORTANT: Only modify items that were successfully added to `tasks.md`.
 
-6. **Call next rule**: Mandatory call to `implementation`
+6.  **Call next rule**: Mandatory call to `implementation`.
 
 ## Specifics
-- Group similar tasks, even if apparently different
-- Favor detailed descriptions rather than multiplication of sections
-- Use generic sections that can accommodate different types of tasks
-- Minimize dependencies between sections/tasks
-- The tasks.md file format is defined in the tasks-md editing rule
-- IMPORTANT: Do not add new tasks to userbrief.md.
-- IMPORTANT: In step 5, only move items from "Processing" to "Archives" and change ⏳ to 🗄️. Do not modify content or other sections.
-- IMPORTANT: Crucially, NEVER move an item to "Archives" (Step 5) if its corresponding task(s) were NOT successfully added to `.cursor/memory-bank/workflow/tasks.md` in Step 4.
+- Group similar tasks under common main task structures, even if apparently different.
+- Favor detailed descriptions for each task item.
+- Minimize dependencies between major tasks where possible.
+- IMPORTANT: Do not add new tasks to `userbrief.md`.
+- IMPORTANT: Crucially, NEVER archive an item in `userbrief.md` (Step 5) if its corresponding task(s) were NOT successfully added to `.cursor/memory-bank/workflow/tasks.md` in Step 4.
+
+## tasks.md: New Format Definition
+
+The `.cursor/memory-bank/workflow/tasks.md` file no longer uses H1/H2 section titles (e.g., `# In Progress`, `# ToDo`). It is a flat list of task items, each starting with an emoji indicating its status. This rule (`task-decomposition`) is primarily responsible for creating new tasks (usually with ⚪️) and structuring them.
+
+**Emoji Legend & Handling by `task-decomposition`:**
+*   `⚪️ TODO`: For new tasks or sub-tasks. This rule will primarily add tasks with this emoji.
+*   `🟡 IN_PROGRESS`: Tasks currently being worked on (status set by `implementation` or `context-update` rules).
+*   `🟢 DONE`: Completed tasks (status set by `implementation` or `context-update` rules).
+*   `🔴 BLOCKED`: Tasks that cannot proceed.
+*   `🔵 REVIEW`: Tasks awaiting review.
+
+**Task Item Structure:**
+Each task, regardless of status, should generally follow this structure:
+```markdown
+[EMOJI] **[Concise Title - Main Task or Sub-Task Numbering, e.g., 1. or 1.1]**
+    *   **Description**: [Detailed explanation of what needs to be done.]
+    *   **Impacted Rules/Files**: [List of rules or files affected by this task.]
+    *   **Dependencies**: [List of other tasks this one depends on, if any. Use task numbers if available.]
+    *   **Validation**: [Clear criteria to determine when the task is successfully completed.]
+```
+- Main tasks can be numbered (e.g., `⚪️ **1. Main Task Title**`).
+- Sub-tasks should be indented and can use sub-numbering (e.g., `    *   ⚪️ **1.1. Sub-Task Title**`).
+- The `---` separator can be used to visually group related sets of tasks if helpful, but is not structurally mandatory.
 
 ## Next Rules
-- `implementation` - To begin implementing tasks
+- `implementation` - To begin implementing tasks.
 
 ## Example
 
 # Task-decomposition: 1 - Existing tasks analysis
-I begin by reading the tasks.md file to understand the current state of tasks. **(Task-decomposition: 1 - Existing tasks analysis)**
-[...reading tasks.md file...]
+I begin by reading the `tasks.md` file to understand the current state of tasks using the emoji-based format. **(Task-decomposition: 1 - Existing tasks analysis)**
+// ... tool_code: print(default_api.read_file(target_file=".cursor/memory-bank/workflow/tasks.md")) ...
 **(Task-decomposition: 1 - Existing tasks analysis)**
 
 # Task-decomposition: 2 - Userbrief processing identification
-I now consult the userbrief.md file to identify tasks marked with ⏳ in the "Processing" section. **(Task-decomposition: 2 - Userbrief processing identification)**
-[...reading userbrief.md file...]
-I identified several tasks marked with ⏳. I will prepare them for integration into tasks.md in step 4.
+I now consult the `userbrief.md` file to identify tasks marked with ⏳. **(Task-decomposition: 2 - Userbrief processing identification)**
+// ... tool_code: print(default_api.read_file(target_file=".cursor/memory-bank/userbrief.md")) ...
+I identified several items marked with ⏳. I will prepare them for integration into `tasks.md` in step 4.
 **(Task-decomposition: 2 - Userbrief processing identification)**
 
-# Task-decomposition: 3 - Completed tasks removal
-I remove completed tasks from tasks.md that are no longer relevant to current work. **(Task-decomposition: 3 - Completed tasks removal)**
-[...obsolete tasks deletion from tasks.md...]
-**(Task-decomposition: 3 - Completed tasks removal)**
+# Task-decomposition: 3 - Completed tasks archival/removal (Optional Refinement)
+(No action taken in this step for now by this rule regarding removal of old 🟢 tasks).
+**(Task-decomposition: 3 - Completed tasks archival/removal)**
 
 # Task-decomposition: 4 - New tasks integration
-I decompose the main request and the identified ⏳ userbrief items into concrete tasks in tasks.md, organizing them into high-level sections. **(Task-decomposition: 4 - New tasks integration)**
-[...integrating main request into tasks.md...]
-[...integrating identified ⏳ items into tasks.md...]
+I decompose the main request and the identified ⏳ userbrief items into concrete tasks in `tasks.md`, using the new emoji-based format. **(Task-decomposition: 4 - New tasks integration)**
+```json
+// ... tool_code: print(default_api.edit_file(target_file=".cursor/memory-bank/workflow/tasks.md", code_edit=\'\'\'
+// ... existing tasks ...
+⚪️ **3. New Main Task from Request**
+    *   **Description**: [Detailed description of the new main task based on the original user request or active context.]
+    *   **Impacted Rules/Files**: [List relevant files/rules.]
+    *   **Dependencies**: [List dependencies.]
+    *   **Validation**: [Define validation criteria.]
+
+⚪️ **4. Task from Userbrief Item 1**
+    *   **Description**: [Description based on the ⏳ userbrief item.]
+    *   **Impacted Rules/Files**: [files/rules.]
+    *   **Dependencies**: [dependencies.]
+    *   **Validation**: [validation criteria.]
+    *   **Sub-Tasks**:
+        *   ⚪️ **4.1. Sub-task for Userbrief Item 1**
+            *   **Description**: [Detailed sub-task description.]
+            *   **Impacted Rules/Files**: [files/rules.]
+            *   **Dependencies**: [dependencies.]
+            *   **Validation**: [validation criteria.]
+\'\'\')) ...
+```
 **(Task-decomposition: 4 - New tasks integration)**
 
 # Task-decomposition: 5 - Userbrief archiving
-Now that the tasks from userbrief have been integrated into tasks.md, I will move the original items from the "Processing" section to "Archives" in userbrief.md and mark them with 🗄️. **(Task-decomposition: 5 - Userbrief archiving)**
-[...editing userbrief.md to move items and change ⏳ to 🗄️...]
+Now that the tasks from userbrief have been integrated into `tasks.md`, I will ensure the original items in `userbrief.md` are updated from ⏳ to 🗄️. (Ideally, by triggering `consolidate-repo` or if done directly, by editing `userbrief.md`). **(Task-decomposition: 5 - Userbrief archiving)**
+// ... tool_code to modify userbrief.md or call consolidate-repo ...
 **(Task-decomposition: 5 - Userbrief archiving)**
 
 # Task-decomposition: 6 - Call next rule
-I must now call the implementation rule to begin work on the newly structured tasks.
-The implementation rule must be called to begin implementing the tasks. **(Task-decomposition: 6 - Call next rule)**
+I must now call the `implementation` rule to begin work on the newly structured tasks.
+The `implementation` rule must be called to begin implementing the tasks. **(Task-decomposition: 6 - Call next rule)**
+// ... tool_code: print(default_api.fetch_rules(rule_names=["implementation"])) ...
 
-[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
+[...] (The workflow must continue uninterrupted)

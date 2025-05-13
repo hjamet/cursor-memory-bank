@@ -8,15 +8,12 @@
         -   **Outcome**: `consolidate-repo.mdc` was updated to handle a section-less, emoji-driven `userbrief.md`. The new format and emoji legend (🆕, ⏳, 📌, 🗄️) are defined within `consolidate-repo.mdc`. The template `.cursor/rules/templates/userbrief-template.mdc` has been deleted.
     - **Previous Sub-Task (2.2 - Completed)**: `tasks.md` Refactor.
         -   **Outcome**: `task-decomposition.mdc` was updated to define and handle a section-less, emoji-driven `tasks.md` format (⚪️, 🟡, 🟢, 🔴, 🔵). `context-update.mdc` was also updated for compatibility. The template `.cursor/rules/templates/task-template.mdc` has been deleted.
-    - **Current Sub-Task (2.3)**: `tests.md` Refactor.
-        -   **Objective**: Modify `test-execution.mdc` (and `fix.mdc`) to handle `tests.md` without section titles. Implement the new format: line 1 `✅{nbr_success} ❌{nbr_fails} ℹ️{nbr_skip}`, followed by a list of only failing/skipped tests with details. Define this format within `test-execution.mdc`. Integrate content/guidance from `tests-template.mdc` (which will then be deleted).
-        -   **Impacted Rules/Files**: `test-execution.mdc`, `fix.mdc`, `.cursor/rules/templates/tests-template.mdc` (for deletion), `.cursor/memory-bank/workflow/tests.md` (format change guidance).
-        -   **Key Attention Point**: `test-execution.mdc` must clearly define the new format for `tests.md`. `fix.mdc` might need adjustments if it reads `tests.md`.
+    - **Previous Sub-Task (2.3 - Completed)**: `tests.md` Refactor.
+        -   **Outcome**: `test-execution.mdc` was updated to define and handle a section-less `tests.md` format (header line with counts ✅❌ℹ️, followed by list of ❌/ℹ️ tests only). `fix.mdc` was also updated for compatibility. The template `.cursor/rules/templates/tests-template.mdc` has been deleted.
+    - **Current Sub-Task (2.4)**: Context Files (`projectBrief.md`, `activeContext.md`, `techContext.md`) Refactor.
+        -   **Objective**: Modify `context-loading.mdc` and `context-update.mdc` to define the structure of these files directly within the rules, removing reliance on section titles if appropriate, or ensuring the rules clearly state the expected (potentially section-less) structure. Integrate content/guidance from their respective template files.
+        -   **Impacted Rules/Files**: `context-loading.mdc`, `context-update.mdc`, `.cursor/rules/templates/projectBrief-template.mdc`, `.cursor/rules/templates/activeContext-template.mdc`, `.cursor/rules/templates/techContext-template.mdc` (for deletion).
     - **Overall Objective (Task 2)**: Remove section titles from `userbrief.md`, `tasks.md`, `tests.md` (and potentially context files). Implement emoji-based status systems. Define these new formats directly within the managing rules. Delete template files from `.cursor/rules/templates/`.
-    - **Remaining Sub-Tasks (from `tasks.md`):
-        *   `tests.md` Refactor (rule `test-execution.mdc`)
-        *   Context Files Refactor (rules `context-loading.mdc`, `context-update.mdc`)
-        *   Delete All Template Files (final cleanup step of Task 2)
 - **Tâche principale (Terminée)**: Ajouter un nouvel outil au serveur MyMCP pour prendre des captures d'écran de pages web.
     - **Fonctionnalité implémentée**: Outil `take_webpage_screenshot`.
     - **Entrée**: URL d'une page web.

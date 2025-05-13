@@ -28,11 +28,11 @@
             *   **Action**: Modify `task-decomposition.mdc` (and potentially `context-update.mdc` if it modifies tasks status) to handle `tasks.md` without section titles, using an emoji system (⚪️ TODO, 🟡 IN_PROGRESS, 🟢 DONE, 🔴 BLOCKED, 🔵 REVIEW) at the start of task lines. Define this format and emoji legend within `task-decomposition.mdc`. Integrate content/guidance from `task-template.mdc`.
             *   **Impacted Rules/Files**: `task-decomposition.mdc`, `context-update.mdc`, `task-template.mdc` (for deletion).
             *   **Validation**: `tasks.md` uses the new emoji-based format, and rules correctly interact with it. `task-template.mdc` is deleted.
-        *   🟡 **2.3 `tests.md` Refactor**:
+        *   🟢 **2.3 `tests.md` Refactor**:
             *   **Action**: Modify `test-execution.mdc` (and `fix.mdc` if it reads/updates `tests.md`) to handle `tests.md` without section titles. Implement the new format: line 1 `✅{nbr_success} ❌{nbr_fails} ℹ️{nbr_skip}`, followed by a list of only failing/skipped tests with details: `- ❌ Test Name: Description - Progress notes`. Define this format within `test-execution.mdc`. Integrate content/guidance from `tests-template.mdc`.
             *   **Impacted Rules/Files**: `test-execution.mdc`, `fix.mdc`, `tests-template.mdc` (for deletion).
             *   **Validation**: `tests.md` follows the new summary header and failing-tests-only list format. Rules interact correctly. `tests-template.mdc` is deleted.
-        *   ⚪️ **2.4 Context Files (`projectBrief.md`, `activeContext.md`, `techContext.md`) Refactor**:
+        *   🟡 **2.4 Context Files (`projectBrief.md`, `activeContext.md`, `techContext.md`) Refactor**:
             *   **Action**: Modify `context-loading.mdc` and `context-update.mdc` to define the structure of these files directly within the rules, removing reliance on section titles if appropriate, or ensuring the rules clearly state the expected (potentially section-less) structure. Integrate content/guidance from `projectBrief-template.mdc`, `activeContext-template.mdc`, `techContext-template.mdc`.
             *   **Impacted Rules/Files**: `context-loading.mdc`, `context-update.mdc`, `projectBrief-template.mdc`, `activeContext-template.mdc`, `techContext-template.mdc` (for deletion).
             *   **Validation**: Context files have their structure/format defined within the rules. Templates are deleted.
@@ -46,6 +46,28 @@
     *   **Description**: Review all other relevant workflow rules to ensure they are compatible with the new file formats (e.g., rules that might read these files for context even if they don't primarily manage them). For example, `system.mdc` itself refers to file structures; ensure it's still accurate or update it.
     *   **Impacted Rules/Files**: Potentially any rule, including `system.mdc`.
     *   **Validation**: Workflow remains coherent and functional after all changes.
+
+⚪️ **4. Enhance `consolidate-repo` with Memory File Format Validation**
+    *   **Description**: Modify `consolidate-repo.mdc`'s "Integrity verification" step to check key memory bank files (`userbrief.md`, `tasks.md`, `tests.md`, `projectBrief.md`, `activeContext.md`, `techContext.md`) against their defined formats. If a format violation is detected, `consolidate-repo.mdc` should call the `request-analysis` rule with a detailed message specifying the incorrect file and the violated format expectation.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/rules/consolidate-repo.mdc` (Primary modification)
+        *   Needs to be aware of formats defined in:
+            *   `.cursor/rules/consolidate-repo.mdc` (for `userbrief.md`)
+            *   `.cursor/rules/task-decomposition.mdc` (for `tasks.md`)
+            *   `.cursor/rules/test-execution.mdc` (for `tests.md`)
+            *   `.cursor/rules/context-loading.mdc` & `.cursor/rules/context-update.mdc` (for context files)
+    *   **Dependencies**: Sub-tasks 2.3 and 2.4 (ensure formats for `tests.md` and context files are defined).
+    *   **Validation**:
+        *   `consolidate-repo.mdc` includes logic to read and check the format of specified memory bank files.
+        *   Format definitions in managing rules are clear.
+        *   If a deliberately malformed memory file is processed by `consolidate-repo.mdc`, it correctly identifies the error and calls `request-analysis`.
+    *   **Sub-Tasks**:
+        *   ⚪️ **4.1. Implement Format Definition Access**: Determine how `consolidate-repo.mdc` will access/understand format definitions from other rules.
+        *   ⚪️ **4.2. Implement `userbrief.md` Format Check**: Add logic to `consolidate-repo.mdc` to validate `userbrief.md`.
+        *   ⚪️ **4.3. Implement `tasks.md` Format Check**: Add logic to `consolidate-repo.mdc` to validate `tasks.md`.
+        *   ⚪️ **4.4. Implement `tests.md` Format Check**: (Depends on 2.3) Add logic for `tests.md`.
+        *   ⚪️ **4.5. Implement Context Files Format Check**: (Depends on 2.4) Add logic for context files.
+        *   ⚪️ **4.6. Implement Conditional `request-analysis` Call**: Add logic to call `request-analysis` on format violation.
 
 # DONE
 
