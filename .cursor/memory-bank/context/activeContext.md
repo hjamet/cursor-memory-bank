@@ -43,3 +43,30 @@
 - La règle `test-implementation` a été appelée pour créer un test automatisé.
 - La règle `test-execution` a exécuté le nouveau test avec succès.
 - La règle actuelle est `context-update`.
+
+<SYSTEM>
+Workflow interrupted by new-chat rule. If you are reading this and the user has just called the `system` rule, it means that you are in this new chat and that you must now resume the workflow where you left off. Exceptionally, you will be able to skip steps to resume directly to the next rule once you have finished reading your context files.
+Resume from rule: consolidate-repo
+Previous detailed context summary: I am in the middle of **Task 2: Update Memory Bank File Formats & Integrate Templates**, specifically working on **Sub-task 2.4: Context Files (`projectBrief.md`, `activeContext.md`, `techContext.md`) Refactor**.
+
+My immediate objective for sub-task 2.4 is to:
+1.  Modify `context-loading.mdc` and `context-update.mdc` to define the structure of `projectBrief.md`, `activeContext.md`, and `techContext.md` directly within these rules. This involves deciding if they should become section-less or if their existing section-based structure should be explicitly defined in the rules.
+2.  Integrate the content and guidance from their respective template files:
+    *   `.cursor/rules/templates/projectBrief-template.mdc`
+    *   `.cursor/rules/templates/activeContext-template.mdc`
+    *   `.cursor/rules/templates/techContext-template.mdc`
+3.  Delete these template files once their content is integrated.
+
+Just before this `new-chat` rule was invoked, I had completed a run of the `consolidate-repo` rule. During that run, the `userbrief.md` file was processed. An item in it was correctly updated with the `⏳` emoji, but the section headers ("# User Input", "# Processing", etc.) were *not* removed, which is a persistent issue noted with the `edit_file` tool's capability to remove sections.
+
+My next intended step, had `new-chat` not been called, was to invoke the `context-update` rule. This was a slight deviation from the `consolidate-repo` rule's typical flow (which might suggest `request-analysis` for an unprocessed `⏳` item), because the `⏳` item in `userbrief.md` ("Dans la règle consolidate-repo, ajoute que lors de la phase de check des fichiers memoire...") had already been analyzed and decomposed into **Task 4: Enhance `consolidate-repo` with Memory File Format Validation**. So, the immediate plan was to use `context-update` to commit the partial fix to `userbrief.md` (the emoji change) and to update `activeContext.md` to reflect the start of sub-task 2.4.
+
+Files I was about to work with or had just worked with:
+*   `.cursor/memory-bank/workflow/tasks.md` (to check current task status)
+*   `.cursor/memory-bank/context/activeContext.md` (to update for sub-task 2.4)
+*   `.cursor/memory-bank/userbrief.md` (just processed by `consolidate-repo`)
+*   `.cursor/rules/consolidate-repo.mdc` (rule I was operating under)
+*   `.cursor/rules/context-update.mdc` (rule I was about to call, and also target for modification in sub-task 2.4)
+*   `.cursor/rules/context-loading.mdc` (target for modification in sub-task 2.4)
+*   The context file templates listed above (targets for integration and deletion).
+</SYSTEM>
