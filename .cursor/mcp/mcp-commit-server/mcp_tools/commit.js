@@ -98,10 +98,26 @@ export async function handleCommit({ emoji, type, title, description }) {
 
         // Add recent git log output as requested by user
         try {
-            const gitLogCommand = 'echo -e "  Heure actuelle : $(date \'%Y-%m-%d %H:%M:%S\')\n" && git log -n 5 --pretty=format:"%C(auto)%h %Cgreen[%an] %Cblue%cd%Creset — %s%n%b" --date=format:"%Y-%m-%d %H:%M:%S" | cat';
-            const { stdout: gitLogStdout } = await execAsync(gitLogCommand, { cwd, shell: "C:\\Program Files\\Git\\bin\\bash.exe" });
+            // 1. Get current date/time in JavaScript and format it
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            const datePrefix = `  Heure actuelle : ${formattedDate}\n`;
+
+            // 2. Define the git log command (without the echo part)
+            const gitLogOnlyCommand = 'git log -n 5 --pretty=format:"%C(auto)%h %Cgreen[%an] %Cblue%cd%Creset — %s%n%b" --date=format:"%Y-%m-%d %H:%M:%S" | cat';
+
+            // 3. Execute the git log command
+            const { stdout: gitLogStdout } = await execAsync(gitLogOnlyCommand, { cwd, shell: "C:\\Program Files\\Git\\bin\\bash.exe" });
+
+            // 4. Prepend date and append git log to successMessage
             if (gitLogStdout && gitLogStdout.trim() !== '') {
-                successMessage += `\n\n--- Recent Activity (Last 5 Commits) ---\n${gitLogStdout.trim()}`;
+                successMessage += `\n\n--- Recent Activity (Last 5 Commits) ---\n${datePrefix}${gitLogStdout.trim()}`;
             }
         } catch (logCmdError) {
             console.error('[handleCommit] Error executing git log command:', logCmdError);

@@ -17,9 +17,14 @@
         - **Outcome**: Modified `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js` to split multi-line descriptions into separate `-m` arguments for the `git commit` command, ensuring each paragraph is correctly passed.
     - **Completed Sub-Task (5.3)**: Test and Verify Fix.
         - **Outcome**: Successfully triggered a commit with a multi-line description via `context-update`. `git log -1 --pretty=format:%B` confirmed the entire multi-paragraph message was correctly recorded. The fix is verified.
-    - **Next Steps**: Task 5 is 🟢 DONE. 
-    - **Current Task (from User Request)**: Enhance MCP Commit Tool Output.
-        - **Goal**: Modify `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js` so that after a successful commit, it executes an additional command (`echo -e "  Heure actuelle : $(date '+%Y-%m-%d %H:%M:%S')\n" && git log -n 5 --pretty=format:"%C(auto)%h %Cgreen[%an] %Cblue%cd%Creset — %s%n%b" --date=format:"%Y-%m-%d %H:%M:%S" | cat`) and appends its output to the success message returned by the `mcp_MyMCP_commit` tool.
-        - **Details**: The command should be executed in the same CWD as the commit. Its `stdout` should be captured and appended. Error handling for this new command execution should be considered (e.g., if `git log` fails for some reason, it shouldn't cause the entire commit tool to fail, but perhaps append an error note).
+    - **Next Steps**: Task 5 is 🟢 DONE.
+
+- **Current Task (Task 6 from `tasks.md`): Enhance MCP Commit Tool with Git Log Output**
+    - **Sub-Task 6.1 (Implement `git log` Execution)**: 🟢 DONE.
+        - **Outcome**: Modified `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js` to execute the user-specified `git log` command (using bash explicitly) after a successful commit and append its output to the success message.
+    - **Sub-Task 6.2 (Test and Verify Enhancement - In Progress)**: 🟡 IN_PROGRESS
+        - **Current Status**: The `git log` output is correctly appended. However, the prepended "Heure actuelle : DATE" string is not displaying the DATE correctly (shows "Heure actuelle : " followed by a newline, then the git log).
+        - **Goal**: Modify `commit.js` to correctly generate and prepend the full "Heure actuelle : YYYY-MM-DD HH:MM:SS" string.
+        - **Proposed Solution**: Generate the date string directly in JavaScript within `commit.js` instead of relying on `echo` and `date` shell command substitution, then prepend this to the `git log` output.
 
 *(Previous content related to Task 3 focus has been condensed or removed as it is now historical or superseded by the current workflow progression.)*
