@@ -32,11 +32,11 @@
             *   **Action**: Modify `test-execution.mdc` (and `fix.mdc` if it reads/updates `tests.md`) to handle `tests.md` without section titles. Implement the new format: line 1 `✅{nbr_success} ❌{nbr_fails} ℹ️{nbr_skip}`, followed by a list of only failing/skipped tests with details: `- ❌ Test Name: Description - Progress notes`. Define this format within `test-execution.mdc`. Integrate content/guidance from `tests-template.mdc`.
             *   **Impacted Rules/Files**: `test-execution.mdc`, `fix.mdc`, `tests-template.mdc` (for deletion).
             *   **Validation**: `tests.md` follows the new summary header and failing-tests-only list format. Rules interact correctly. `tests-template.mdc` is deleted.
-        *   🟡 **2.4 Context Files (`projectBrief.md`, `activeContext.md`, `techContext.md`) Refactor**:
+        *   🟢 **2.4 Context Files (`projectBrief.md`, `activeContext.md`, `techContext.md`) Refactor**:
             *   **Action**: Modify `context-loading.mdc` and `context-update.mdc` to define the structure of these files directly within the rules, removing reliance on section titles if appropriate, or ensuring the rules clearly state the expected (potentially section-less) structure. Integrate content/guidance from `projectBrief-template.mdc`, `activeContext-template.mdc`, `techContext-template.mdc`.
             *   **Impacted Rules/Files**: `context-loading.mdc`, `context-update.mdc`, `projectBrief-template.mdc`, `activeContext-template.mdc`, `techContext-template.mdc` (for deletion).
             *   **Validation**: Context files have their structure/format defined within the rules. Templates are deleted.
-        *   ⚪️ **2.5 Delete Template Files**:
+        *   🟢 **2.5 Delete Template Files**:
             *   **Action**: Delete all files from the `.cursor/rules/templates/` directory.
             *   **Impacted Files/Directory**: All files in `.cursor/rules/templates/`.
             *   **Validation**: The `.cursor/rules/templates/` directory is empty or deleted.

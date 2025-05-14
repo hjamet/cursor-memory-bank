@@ -8,16 +8,17 @@ alwaysApply: false
 Update context files to reflect changes, update tasks.md based on test results, and make a commit following conventions.
 
 ## Instructions
-1. **Context update**: Update the three context files if necessary:
-   - `.cursor/memory-bank/context/projectBrief.md`: Update global vision if impacted
-   - `.cursor/memory-bank/context/activeContext.md`: Reflect current state after modifications
-   - `.cursor/memory-bank/context/techContext.md`: Add/modify technical information if necessary
+1. **Context update**: Update the three context files if necessary, ensuring they adhere to their defined structures:
+   - `.cursor/memory-bank/context/projectBrief.md`: Update global vision if impacted. Max 200 lines. Sections: Vision, Objectives (3-7 points), Constraints, Stakeholders, Success Metrics, History and Context (optional).
+   - `.cursor/memory-bank/context/activeContext.md`: Reflect current state after modifications. Max 200 lines. Focus on recent (2-4 weeks) info. Sections: Current Focus, Ongoing Issues, Recent Decisions, Next Steps, Important Notes, Recent Learnings (optional).
+   - `.cursor/memory-bank/context/techContext.md`: Add/modify technical information if necessary. Sections: Development Platform, Console/Shell, Installation/Dependency Management, Technology Stack, Code Conventions, Server Architecture/Deployment, Testing/Quality, Known Issues/Solutions.
 
-2. **Context cleanup**: Clean context and workflow files:
-   - Remove obsolete or redundant information
-   - Condense overly detailed sections
-   - Ensure each file remains under 200 lines
-   - Prioritize conciseness while maintaining clarity
+
+2. **Context cleanup**: Clean context and workflow files, maintaining structural integrity:
+   - Remove obsolete or redundant information.
+   - Condense overly detailed sections.
+   - Ensure each file remains under 200 lines (especially `projectBrief.md` and `activeContext.md`).
+   - Prioritize conciseness while maintaining clarity and all mandatory sections for `projectBrief.md`, `activeContext.md`, and `techContext.md` as defined in Step 1.
 
 3. **tasks.md update**: Update `.cursor/memory-bank/workflow/tasks.md` based on test results and task completion:
    - Identify tasks that were 🟡 IN_PROGRESS and are now completed (e.g., based on `activeContext.md` or if the `implementation` rule just finished a task).
