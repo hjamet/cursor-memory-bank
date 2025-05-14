@@ -59,11 +59,42 @@ The `.cursor/memory-bank/userbrief.md` file no longer uses H1 section titles (e.
        - **Stop processing further items in this rule execution.** Subsequent 🆕 items will be handled in later calls to this rule.
      - Lines starting with ⏳, 📌, or 🗄️ are generally left unchanged by this step of this rule (they are managed by their current status or by other rules like `task-decomposition`).
 
-2. **Integrity verification**: Control of memory files:
-   - Use the MCP command execution tool via Git Bash to list all markdown files: `mcp_MyMCP_execute_command(command = "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"find . -type f -name '*.md'\"")`
-   - Analyze results to identify duplicates or misplaced files in `memory-bank` directories.
+2. **Integrity and Format Verification**: Control of memory files' structure and basic format.
+   - **File Structure Check**:
+     - Use the MCP command execution tool via Git Bash to list all markdown files: `mcp_MyMCP_execute_command(command = "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"find . -type f -name '*.md'\"")`
+     - Analyze results to identify duplicates or misplaced files in `memory-bank` directories. Store findings (e.g., set a boolean `structural_issues_found`).
+   - **Memory File Format Checks**:
+     - Initialize a list `format_violations = []`.
+     - **For each key memory file**: Read the file and perform basic checks. If a check fails, add a descriptive string to `format_violations`.
+       - **`userbrief.md`**:
+         - Read `.cursor/memory-bank/userbrief.md`.
+         - Check: Does each non-empty line start with one of the known emojis (🆕, ⏳, 📌, 🗄️) followed by ` - `?
+         - If not, add: "`userbrief.md` line does not start with a standard emoji prefix (🆕, ⏳, 📌, 🗄️) followed by ' - '. Format definition in `consolidate-repo.mdc`."
+       - **`tasks.md`**:
+         - Read `.cursor/memory-bank/workflow/tasks.md`.
+         - Check 1: Does the file contain the line "**Emoji Legend for Tasks:**"?
+         - Check 2: Do most lines intended as tasks start with a task emoji (⚪️, 🟡, 🟢, 🔴, 🔵) followed by ` **`? (Allow for section headers like `---` or `# DONE`).
+         - If violations, add: "`tasks.md` format violation (e.g., missing legend, task lines not starting with emoji + ' **'). Format definition in `task-decomposition.mdc`."
+       - **`tests.md`**:
+         - Read `.cursor/memory-bank/workflow/tests.md`.
+         - Check 1: Does the first non-empty line match the pattern `✅{number} ❌{number} ℹ️{number}`?
+         - (Further checks, e.g., for format of listed failing tests, can be added later if deemed critical for basic validation here).
+         - If violations, add: "`tests.md` format violation (e.g., summary header like '✅0 ❌0 ℹ️0' missing or malformed). Format definition in `test-execution.mdc`."
+       - **`projectBrief.md`**:
+         - Read `.cursor/memory-bank/context/projectBrief.md`.
+         - Check: Does the file appear to follow a basic markdown structure with H2 sections like `## Vision`, `## Objectives`, etc.? (Exact section names are defined in `context-loading.mdc`). This is a loose check.
+         - If it seems highly unstructured (e.g. no H2 headings), add: "`projectBrief.md` appears to lack basic H2 section structure. Format definition in `context-loading.mdc`."
+       - **`activeContext.md`**:
+         - Read `.cursor/memory-bank/context/activeContext.md`.
+         - Check: Does it contain `## Current implementation context` or `## Current Focus`? (Format defined in `context-loading.mdc`/`context-update.mdc`).
+         - If not, add: "`activeContext.md` appears to lack key H2 sections like '## Current implementation context' or '## Current Focus'. Format definition in `context-loading.mdc`/`context-update.mdc`."
+       - **`techContext.md`**:
+         - Read `.cursor/memory-bank/context/techContext.md`.
+         - Check: Does it contain H2 sections like `## Technology Stack`? (Format defined in `context-loading.mdc`).
+         - If not, add: "`techContext.md` appears to lack key H2 sections like '## Technology Stack'. Format definition in `context-loading.mdc`."
+   - After all checks, if `format_violations` is not empty, this indicates format issues.
 
-3. **Direct Cleanup**: Directly resolve integrity issues identified in step 2:
+3. **Direct Cleanup**: Directly resolve structural integrity issues identified in step 2 (File Structure Check).
    - If duplicates found:
      - Merge content of duplicate files into the main corresponding file (using file edit tools).
      - Delete duplicates after merging using the MCP command execution tool via Git Bash (e.g., `mcp_MyMCP_execute_command(command = "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"rm <duplicate_file_path>\""")`).
@@ -78,12 +109,19 @@ The `.cursor/memory-bank/userbrief.md` file no longer uses H1 section titles (e.
 
 5. **Evaluation of user requests & Next Rule**: Decide next workflow step:
    - Re-read `.cursor/memory-bank/userbrief.md`.
-   - IF any line now starts with `⏳ - ` (indicating a task was just marked for processing by this rule in step 1 OR was already pending from a previous run):
-     - Extract the content of the first such `⏳` item.
-     - Formulate this as the user request to be analyzed.
-     - Call `request-analysis` rule to process this specific request (which will then likely lead to `task-decomposition`).
-   - ELSE (no ⏳ items found, meaning no new tasks were identified or are pending from `userbrief.md`):
-     - Call `context-update` rule to continue the general workflow (e.g., check for structural issues if this rule was called for that purpose, or proceed if it was a routine check).
+   - **Decision Point for Next Rule**:
+     - IF `format_violations` list (from Step 2) is NOT empty:
+       - Formulate a request detailing all violations: "Memory file format violations detected: [join `format_violations` with '; ']. Please analyze and correct these issues based on their respective format-defining rules."
+       - Call `request-analysis` with this formulated request.
+     - ELSE IF `structural_issues_found` (from Step 2) is true (e.g., misplaced files):
+       - (This case might be rare if Direct Cleanup in Step 3 was effective. If issues persist, `consolidate-repo` might be called again by `context-update`, or `request-analysis` could be called here with details of the structural problem if it's complex and needs decomposition.)
+       - For now, assume Step 3 handles most direct structural issues. If structural issues *persist* that Step 3 couldn't fix, or if `userbrief.md` still has `🆕` items (which Step 1 should have processed one of), then leaning towards re-evaluating user brief makes sense.
+       - IF any line in `userbrief.md` (re-read) starts with `🆕 - ` OR if any line (still) starts with `⏳ - `:
+         - Extract the content of the first such `🆕` or `⏳` item.
+         - Formulate this as the user request.
+         - Call `request-analysis` to process this specific item.
+     - ELSE (no format violations, no structural issues needing this rule's immediate re-attention, no new/pending tasks in `userbrief.md`):
+       - Call `context-update` rule to continue the general workflow.
 
 ## Specifics
 
@@ -95,8 +133,8 @@ The `.cursor/memory-bank/userbrief.md` file no longer uses H1 section titles (e.
 
 ## Next Rules
 
-- `request-analysis` - If a `🆕` item was converted to `⏳` (or an existing `⏳` item is found), to analyze this specific task.
-- `context-update` - If no `🆕` items were processed into `⏳` tasks (e.g., only preferences found, or no new input).
+- `request-analysis` - If format violations are found, OR if a `🆕` item was converted to `⏳` (or an existing `⏳` item is found in `userbrief.md` and no format violations).
+- `context-update` - If no format violations, no new/pending tasks in `userbrief.md`.
 
 ## Example
 
@@ -113,24 +151,28 @@ I found the first new item: `- Add a new feature X.` This appears to be a task. 
 ` ...]
 **(Consolidate-repo: 1 - Process `userbrief.md` Items)**
 
-# Consolidate-repo: 2 - Integrity verification
+# Consolidate-repo: 2 - Integrity and Format Verification
 (Assuming no integrity issues for this example path)
-I'm now verifying the integrity of memory files. **(Consolidate-repo: 2 - Integrity verification)**
-[...MCP find command...]
-No integrity issues found.
-**(Consolidate-repo: 2 - Integrity verification)**
+I'm now verifying the integrity and format of memory files. **(Consolidate-repo: 2 - Integrity and Format Verification)**
+[...MCP find command... structural_issues_found = false ...]
+[...Reading userbrief.md... no format violations...]
+[...Reading tasks.md... Assume a violation: tasks.md missing legend. format_violations = ["`tasks.md` format violation..."] ...]
+[...Reading other files... no further violations...]
+Format violations were found.
+**(Consolidate-repo: 2 - Integrity and Format Verification)**
 
 # Consolidate-repo: 3 - Direct Cleanup
-No cleanup needed. **(Consolidate-repo: 3 - Direct Cleanup)**
+No structural cleanup needed. **(Consolidate-repo: 3 - Direct Cleanup)**
 
 # Consolidate-repo: 4 - MCP Terminal Cleanup
 No terminal commands were used that require cleanup in this path. **(Consolidate-repo: 4 - MCP Terminal Cleanup)**
 
 # Consolidate-repo: 5 - Evaluation of user requests & Next Rule
-I re-read `userbrief.md`. It now contains `⏳ - Add a new feature X.`. **(Consolidate-repo: 5 - Evaluation of user requests & Next Rule)**
-I found a task marked `⏳`. I will formulate "Add a new feature X" as the request and call `request-analysis`.
+I check the `format_violations` list. It is NOT empty (contains "tasks.md violation..."). **(Consolidate-repo: 5 - Evaluation of user requests & Next Rule)**
+I will formulate a request about these violations and call `request-analysis`.
+Request: "Memory file format violations detected: `tasks.md` format violation (e.g., missing legend, task lines not starting with emoji + ' **'). Format definition in `task-decomposition.mdc`. Please analyze and correct these issues based on their respective format-defining rules."
 **(Consolidate-repo: 5 - Evaluation of user requests & Next Rule)**
 
-[...Calling `request-analysis` rule...]
+[...Calling `request-analysis` rule with the formulated request...]
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)  

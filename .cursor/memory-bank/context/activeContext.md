@@ -19,12 +19,8 @@
         - **Outcome**: Successfully triggered a commit with a multi-line description via `context-update`. `git log -1 --pretty=format:%B` confirmed the entire multi-paragraph message was correctly recorded. The fix is verified.
     - **Next Steps**: Task 5 is 🟢 DONE.
 
-- **Current Task (Task 6 from `tasks.md`): Enhance MCP Commit Tool with Git Log Output**
-    - **Sub-Task 6.1 (Implement `git log` Execution)**: 🟢 DONE.
-        - **Outcome**: Modified `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js` to execute the user-specified `git log` command (using bash explicitly) after a successful commit and append its output to the success message.
-    - **Sub-Task 6.2 (Test and Verify Enhancement - In Progress)**: 🟡 IN_PROGRESS
-        - **Current Status**: The `git log` output is correctly appended. However, the prepended "Heure actuelle : DATE" string is not displaying the DATE correctly (shows "Heure actuelle : " followed by a newline, then the git log).
-        - **Goal**: Modify `commit.js` to correctly generate and prepend the full "Heure actuelle : YYYY-MM-DD HH:MM:SS" string.
-        - **Proposed Solution**: Generate the date string directly in JavaScript within `commit.js` instead of relying on `echo` and `date` shell command substitution, then prepend this to the `git log` output.
+- **Completed Task (Task 4 from `tasks.md`): Enhance `consolidate-repo` with Memory File Format Validation**
+    - **Outcome**: Modified `consolidate-repo.mdc` (Step 2 and Step 5) to include validation checks for key memory files (`userbrief.md`, `tasks.md`, `tests.md`, and context files). If violations are found, `consolidate-repo` will now formulate a request detailing these violations and call `request-analysis`.
+    - **Next Steps**: Task 4 is 🟢 DONE. All tasks in `tasks.md` are now complete.
 
-*(Previous content related to Task 3 focus has been condensed or removed as it is now historical or superseded by the current workflow progression.)*
+*(Previous content related to Task 3, 4 and 6 focus has been condensed or removed as it is now historical or superseded by the current workflow progression.)*

@@ -47,7 +47,7 @@
     *   **Impacted Rules/Files**: Potentially any rule, including `system.mdc`.
     *   **Validation**: Workflow remains coherent and functional after all changes.
 
-⚪️ **4. Enhance `consolidate-repo` with Memory File Format Validation**
+🟢 **4. Enhance `consolidate-repo` with Memory File Format Validation**
     *   **Description**: Modify `consolidate-repo.mdc`'s "Integrity verification" step to check key memory bank files (`userbrief.md`, `tasks.md`, `tests.md`, `projectBrief.md`, `activeContext.md`, `techContext.md`) against their defined formats. If a format violation is detected, `consolidate-repo.mdc` should call the `request-analysis` rule with a detailed message specifying the incorrect file and the violated format expectation.
     *   **Impacted Rules/Files**:
         *   `.cursor/rules/consolidate-repo.mdc` (Primary modification)
@@ -62,12 +62,12 @@
         *   Format definitions in managing rules are clear.
         *   If a deliberately malformed memory file is processed by `consolidate-repo.mdc`, it correctly identifies the error and calls `request-analysis`.
     *   **Sub-Tasks**:
-        *   ⚪️ **4.1. Implement Format Definition Access**: Determine how `consolidate-repo.mdc` will access/understand format definitions from other rules.
-        *   ⚪️ **4.2. Implement `userbrief.md` Format Check**: Add logic to `consolidate-repo.mdc` to validate `userbrief.md`.
-        *   ⚪️ **4.3. Implement `tasks.md` Format Check**: Add logic to `consolidate-repo.mdc` to validate `tasks.md`.
-        *   ⚪️ **4.4. Implement `tests.md` Format Check**: (Depends on 2.3) Add logic for `tests.md`.
-        *   ⚪️ **4.5. Implement Context Files Format Check**: (Depends on 2.4) Add logic for context files.
-        *   ⚪️ **4.6. Implement Conditional `request-analysis` Call**: Add logic to call `request-analysis` on format violation.
+        *   🟢 **4.1. Implement Format Definition Access**: Determine how `consolidate-repo.mdc` will access/understand format definitions from other rules. (Decision: Basic checks within `consolidate-repo`, pointers to defining rules in `request-analysis` call).
+        *   🟢 **4.2. Implement `userbrief.md` Format Check**: Add logic to `consolidate-repo.mdc` to validate `userbrief.md`.
+        *   🟢 **4.3. Implement `tasks.md` Format Check**: Add logic to `consolidate-repo.mdc` to validate `tasks.md`.
+        *   🟢 **4.4. Implement `tests.md` Format Check**: Add logic for `tests.md`.
+        *   🟢 **4.5. Implement Context Files Format Check**: Add logic for context files.
+        *   🟢 **4.6. Implement Conditional `request-analysis` Call**: Add logic to call `request-analysis` on format violation.
 
 🟢 **5. Fix MCP Commit Tool Multi-line Description**
     *   **Description**: The `mcp_MyMCP_commit` tool in the MCP server does not correctly handle multi-line descriptions, leading to malformed commit messages. This task involves investigating the issue, implementing a fix, and verifying it.
@@ -82,16 +82,16 @@
             *   Inspect the resulting commit message using `git log -1` or a similar command to ensure it's correctly formatted with multiple paragraphs.
             *   Confirm that the `escapeShellArg` function still correctly handles other special characters within the description paragraphs.
 
-⚪️ **6. Enhance MCP Commit Tool with Git Log Output**
+🟢 **6. Enhance MCP Commit Tool with Git Log Output**
     *   **Description**: Modify the `mcp_MyMCP_commit` tool in the MCP server to execute a specific `git log` command after a successful commit and append its output to the success message returned by the tool. This provides immediate visibility into the recent commit history.
     *   **Impacted Rules/Files**: `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`
     *   **Dependencies**: None.
-    *   **Validation**: After a commit is made using `mcp_MyMCP_commit`, the success message includes the output of the specified `git log` command.
+    *   **Validation**: After a commit is made using `mcp_MyMCP_commit`, the success message includes the output of the specified `git log` command, preceded by a correctly formatted timestamp.
     *   **Sub-Tasks**:
-        *   🟢 **6.1. Implement `git log` Execution in `commit.js`**: Modify `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js` to execute the command `echo -e "  Heure actuelle : $(date '+%Y-%m-%d %H:%M:%S')\n" && git log -n 5 --pretty=format:"%C(auto)%h %Cgreen[%an] %Cblue%cd%Creset — %s%n%b" --date=format:"%Y-%m-%d %H:%M:%S" | cat` after a successful commit. Capture its `stdout` and append it to the JSON response's success message.
-        *   🟡 **6.2. Test and Verify Enhancement**:
+        *   🟢 **6.1. Implement `git log` Execution in `commit.js`**: Modify `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js` to execute the command `echo -e "  Heure actuelle : $(date '+%Y-%m-%d %H:%M:%S')\n" && git log -n 5 --pretty=format:"%C(auto)%h %Cgreen[%an] %Cblue%cd%Creset — %s%n%b" --date=format:"%Y-%m-%d %H:%M:%S" | cat` after a successful commit. Capture its `stdout` and append it to the JSON response's success message. (Initial implementation and subsequent fixes by generating date in JS).
+        *   🟢 **6.2. Test and Verify Enhancement**:
             *   Trigger a commit using a rule or manually (e.g., `context-update.mdc` committing a test file).
-            *   Verify that the tool's response includes the formatted `git log` output.
+            *   Verify that the tool's response includes the formatted `git log` output and the correctly formatted timestamp.
             *   Ensure the commit itself is still successful and the primary commit message is not affected.
 
 # DONE
