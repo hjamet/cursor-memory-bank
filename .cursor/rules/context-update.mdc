@@ -19,8 +19,9 @@ Update context files to reflect changes, update tasks.md based on test results, 
    - Ensure each file remains under 200 lines
    - Prioritize conciseness while maintaining clarity
 
-3. **tasks.md update**: Update tasks.md file based on test results:
-   - Move successful tasks from "In Progress" to "Done"
+3. **tasks.md update**: Update `.cursor/memory-bank/workflow/tasks.md` based on test results and task completion:
+   - Identify tasks that were 🟡 IN_PROGRESS and are now completed (e.g., based on `activeContext.md` or if the `implementation` rule just finished a task).
+   - Change their status emoji from 🟡 IN_PROGRESS to 🟢 DONE.
 
 4. **Commit changes**: Make a commit with the modifications using the MCP tool:
    - Determine the appropriate `emoji`, `type`, and `title` based on the changes made during the preceding rules.
@@ -43,18 +44,18 @@ Update context files to reflect changes, update tasks.md based on test results, 
    - Read the `.cursor/memory-bank/workflow/test.md` file
      - IF at least one test fails, call the `fix` rule
      - ELSE IF structural problems were identified OR if the `.cursor/memory-bank/userbrief.md` file contains unprocessed comments (marked with - symbol in the # User input section), call the `consolidate-repo` rule
-     - ELSE, check if there are still tasks in progress or to do in tasks.md
-       - IF yes, call the `implementation` rule
-       - ELSE, indicate that the workflow is complete
+     - ELSE, check `.cursor/memory-bank/workflow/tasks.md` for any tasks marked with 🟡 IN_PROGRESS or ⚪️ TODO emojis.
+       - IF yes (tasks still active), call the `implementation` rule
+       - ELSE (no 🟡 or ⚪️ tasks found, meaning all are 🟢 DONE, 🔴 BLOCKED, or 🔵 REVIEW), indicate that the workflow is complete.
 
 ## Specifics
-- Mark tasks as complete only if all associated tests pass
+- Mark tasks as 🟢 DONE only if all associated tests pass and the work for that task is fully completed.
 - Use conventional commit format by adding an emoji to describe the operation performed
 - Systematically delete old history entries that are no longer relevant
 - NEVER end without either explicitly calling a next rule or explicitly indicating that the workflow is complete
-- The workflow must NEVER be considered complete if there are remaining tasks in "In Progress" or "ToDo" OR if there is at least one failing test (marked ❌) or with warning (marked ⚠️)
+- The workflow must NEVER be considered complete if there are remaining tasks with 🟡 IN_PROGRESS or ⚪️ TODO emojis OR if there is at least one failing test (marked ❌) or with warning (marked ⚠️)
 - For the commit, use the `mcp_MyMCP_commit` tool, which handles staging automatically.
-- If all tasks are complete (meaning there are NO MORE tasks in the "In Progress" and "ToDo" sections of the tasks.md file) AND all tests pass (ALL marked ✅), then:
+- If all tasks are complete (meaning there are NO MORE tasks with 🟡 IN_PROGRESS or ⚪️ TODO emojis in the `tasks.md` file) AND all tests pass (ALL marked ✅), then:
    - Present a clear and concise synthesis of the work done
    - Summarize implemented features and resolved issues
    - Explicitly indicate that the workflow is successfully completed
@@ -134,7 +135,7 @@ I clean up context files by removing obsolete information. **(Context-update: 2 
 **(Context-update: 2 - Context cleanup)**
 
 # Context-update: 3 - Updating tasks.md file
-I update the tasks.md file by moving completed tasks to Done. **(Context-update: 3 - Updating tasks.md file)**
+I update the tasks.md file by changing the status of completed tasks from 🟡 IN_PROGRESS to 🟢 DONE. **(Context-update: 3 - Updating tasks.md file)**
 [...updating tasks.md file...]
 **(Context-update: 3 - Updating tasks.md file)**
 
@@ -164,8 +165,8 @@ I don't see new tasks or advice to process. I will therefore proceed to the next
 **(Context-update: 5 - File integrity verification)**
 
 # Context-update: 6 - Calling the next rule
-I now check the tests and remaining tasks to determine which rule to call. **(Context-update: 6 - Calling the next rule)**
+I now check the tests and remaining tasks (looking for 🟡 or ⚪️ emojis) to determine which rule to call. **(Context-update: 6 - Calling the next rule)**
 [...checking tests and tasks...]
-I see there are tasks left to do and all tests pass. I will therefore call the `implementation` rule. **(Context-update: 6 - Calling the next rule)**
+I see there are tasks with 🟡 or ⚪️ emojis and all tests pass. I will therefore call the `implementation` rule. **(Context-update: 6 - Calling the next rule)**
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

@@ -3,15 +3,15 @@ description: Call this rule to analyze and correct test errors via an iterative 
 globs: 
 alwaysApply: false
 ---
-
 ## TLDR
 Analyze test errors and fix them through an iterative execution-correction loop until all tests pass or truly complex issues (requiring major refactoring or showing no progress after 3 attempts) are identified and handed over to `request-analysis`. Retrieve high-level context when needed.
 
 ## Instructions
 
 1.  **Error identification**: Analyze and catalog test errors
-    *   Read `.cursor/memory-bank/workflow/tests.md` to understand test results
-    *   Establish a precise list of failing tests to address and their error messages
+    *   Read `.cursor/memory-bank/workflow/tests.md`.
+    *   Parse the header line (e.g., `✅17 ❌2 ℹ️1`) to get overall counts.
+    *   Parse the subsequent lines to establish a precise list of failing tests (lines starting with `❌`) to address, their names, and their error messages/descriptions.
     *   Write **(Fix: 1 - Error identification completed)** after this step
 
 2.  **Correction loop**: For each failing test, iterate until fixed or handed over
@@ -29,7 +29,13 @@ Analyze test errors and fix them through an iterative execution-correction loop 
     *   **2.4 Implementation**: Make the correction and document the changes
     *   **2.5 Test**: Execute ONLY the specific test currently being fixed using `mcp_MyMCP_execute_command` (determine the correct command, e.g., `pytest tests/test_module.py::test_function`) and analyze the result:
         *   If test passes :
-            * **2.5.1 Update tests.md**: If the test passes, update the `.cursor/memory-bank/workflow/tests.md` file to reflect the new status of the test. Write **(Fix: 2 - Correction loop - [Test name] - Implementation [number] completed)** after this step.
+            * **2.5.1 Update tests.md**: If the test passes:
+                *   Read the current content of `.cursor/memory-bank/workflow/tests.md`.
+                *   Parse its header line (e.g., `✅{old_pass_count} ❌{old_fail_count} ℹ️{old_skip_count}`).
+                *   Create a new header line: `✅{old_pass_count + 1} ❌{old_fail_count - 1} ℹ️{old_skip_count}`.
+                *   Filter the list of failing/skipped tests to remove the entry for the test that just passed.
+                *   Re-write `.cursor/memory-bank/workflow/tests.md` with the new header line followed by the updated list of (remaining) failing/skipped tests.
+                *   Write **(Fix: 2 - Correction loop - [Test name] - Implementation [number] completed)** after this step.
             * **2.5.2 Quick commit**: Call the MCP tool named "Commit".
               - Use `type` = "fix"
               - Use `emoji` = ":wrench:"
@@ -96,9 +102,14 @@ This workflow allows managing long processes without blocking and retrieving int
 
 # Fix: 1 - Error identification
 I begin by reading the tests.md file to understand test errors. **(Fix: 1 - Error identification)**
-[...reading .cursor/memory-bank/workflow/tests.md file...]
+[...reading .cursor/memory-bank/workflow/tests.md file, assuming new format, e.g.:
+✅15 ❌3 ℹ️0
+- ❌ TestUserAuthentication.test_login_with_invalid_token: TypeError: Object of type bytes is not JSON serializable - (Evolution: new failure)
+- ❌ TestDataProcessing.test_large_file_processing: MemoryError: Unable to allocate memory for operation - (Evolution: same error)
+- ❌ TestAPIConnection.test_retry_mechanism: AssertionError: Expected 3 retry attempts, got 0 - (Evolution: new regression)
+...]
 
-I've identified the following failing tests:
+I've identified the following failing tests from `tests.md`:
 1.  TestUserAuthentication.test_login_with_invalid_token - TypeError: Object of type bytes is not JSON serializable
 2.  TestDataProcessing.test_large_file_processing - MemoryError: Unable to allocate memory for operation
 3.  TestAPIConnection.test_retry_mechanism - AssertionError: Expected 3 retry attempts, got 0
@@ -135,7 +146,26 @@ The error occurs because we're trying to JSON serialize a bytes object. Decoding
 [...calling `mcp_MyMCP_execute_command` with the specific test command...]
 **(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Test execution 1)**
 
-Great! The test now passes. 
+Great! The test now passes.
+
+### 2.5.1 Update tests.md
+I will update `tests.md`. Assuming it was:
+✅15 ❌3 ℹ️0
+- ❌ TestUserAuthentication.test_login_with_invalid_token: TypeError: ...
+- ❌ TestDataProcessing.test_large_file_processing: MemoryError: ...
+- ❌ TestAPIConnection.test_retry_mechanism: AssertionError: ...
+
+It will become:
+✅16 ❌2 ℹ️0
+- ❌ TestDataProcessing.test_large_file_processing: MemoryError: ...
+- ❌ TestAPIConnection.test_retry_mechanism: AssertionError: ...
+
+[...tool call to edit tests.md with the new content...]
+**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Implementation 1 completed)**
+
+### 2.5.2 Quick commit
+[...commit logic...]
+
 *(Situational) The error was simple, no need to reflect on high-level vision.*
 Moving to the next failing test.
 
