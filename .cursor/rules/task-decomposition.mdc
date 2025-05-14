@@ -8,19 +8,20 @@ Decomposes user requests into concrete tasks and organizes them in `.cursor/memo
 
 ## Instructions
 
-1.  **Existing tasks analysis**: Read the `.cursor/memory-bank/workflow/tasks.md` file if it exists.
-    - Parse existing tasks based on the emoji-led format.
+1.  **Existing tasks analysis**:
+    - Read the `.cursor/memory-bank/workflow/tasks.md` file if it exists.
 
 2.  **Userbrief processing identification**: Consult the `.cursor/memory-bank/userbrief.md` file.
-    - Identify requests marked with ⏳. (This assumes `consolidate-repo.mdc` has marked them).
+    - Identify requests marked with  (AND ONLY THEM). (This assumes `consolidate-repo.mdc` has marked them).
     - Prepare these identified requests for transformation into structured tasks for `tasks.md` in step 4.
     - IMPORTANT: Do NOT modify `userbrief.md` at this stage.
 
-3.  **Completed tasks archival/removal (Optional Refinement)**:
-    - While this rule focuses on adding tasks, a future enhancement or a separate cleanup rule might handle archiving very old `🟢 DONE` tasks from `tasks.md` to keep it manageable. For now, this rule primarily adds new tasks. Ensure new tasks are added after any existing `🟢 DONE` tasks if a "DONE" section was previously used, or simply at the end of the list of active tasks.
+3.  **Completed tasks archival/removal**:
+    - Identify completed tasks (🟢 DONE) that are very old and could be archived or deleted because they are no longer relevant to the current focus.
+    - Remove these outdated `🟢 DONE` tasks from `tasks.md`.
 
 4.  **New tasks integration**: Structure new tasks in `tasks.md`.
-    - Integrate the main request (from the calling rule or active context) AND any requests identified in step 2 (marked with ⏳ in `userbrief.md`).
+    - Integrate the main request (from the calling rule or active context) AND any requests identified in step 2 (marked with ⏳ in `userbrief.md` AND ONLY THEM).
     - Add new tasks/sub-tasks starting with the `⚪️ TODO` emoji.
     - Follow the **Task Item Structure** defined above for each task:
         *   Emoji (⚪️) and Bold Title (with numbering like **1.** or **1.1.**)
@@ -28,13 +29,13 @@ Decomposes user requests into concrete tasks and organizes them in `.cursor/memo
         *   `Impacted Rules/Files`
         *   `Dependencies`
         *   `Validation` criteria.
-    - New tasks should be added logically, typically after existing 🟡 IN_PROGRESS or ⚪️ TODO tasks, and before any archived/very old 🟢 DONE tasks if a bottom section for them is maintained.
+    - New tasks should be added logically, typically after existing 🟡 IN_PROGRESS or ⚪️ TODO tasks, and before any archived/very old 🟢 DONE tasks.
     - Prioritize by importance, dependencies, impact, and complexity when ordering new tasks amongst themselves.
 
 5.  **Userbrief archiving**: Update `.cursor/memory-bank/userbrief.md`.
     - For EACH request identified in Step 2 (marked with ⏳) that was successfully integrated into `tasks.md` in Step 4:
-        - Marque cette requête comme traité en supprimant son emoji "processing" (⏳) pour le remplacer par un emoji "archive" (🗄️)
-    - IMPORTANT: Only modify items that were successfully added to `tasks.md`.
+        - Mark this request as processed by removing its "processing" emoji (⏳) and replacing it with an "archive" emoji (🗄️).
+    - IMPORTANT: Only modify items which were marked with ⏳ in `userbrief.md` and that were successfully added to `tasks.md` in Step 4.
 
 6.  **Call next rule**: Mandatory call to `implementation`.
 
@@ -44,6 +45,7 @@ Decomposes user requests into concrete tasks and organizes them in `.cursor/memo
 - Minimize dependencies between major tasks where possible.
 - IMPORTANT: Do not add new tasks to `userbrief.md`.
 - IMPORTANT: Crucially, NEVER archive an item in `userbrief.md` (Step 5) if its corresponding task(s) were NOT successfully added to `.cursor/memory-bank/workflow/tasks.md` in Step 4.
+- IMPORTANT: Only process items marked with ⏳ in `userbrief.md`. Never process items marked with other emojis or even simple "-".
 
 ## tasks.md: New Format Definition
 
@@ -85,8 +87,8 @@ I now consult the `userbrief.md` file to identify tasks marked with ⏳. **(Task
 I identified several items marked with ⏳. I will prepare them for integration into `tasks.md` in step 4.
 **(Task-decomposition: 2 - Userbrief processing identification)**
 
-# Task-decomposition: 3 - Completed tasks archival/removal (Optional Refinement)
-(No action taken in this step for now by this rule regarding removal of old 🟢 tasks).
+# Task-decomposition: 3 - Completed tasks archival/removal
+The tasks X, Y, and Z are marked as 🟢 DONE aren't linked to our current focus. I will remove them from `tasks.md` to keep it clean and relevant. **
 **(Task-decomposition: 3 - Completed tasks archival/removal)**
 
 # Task-decomposition: 4 - New tasks integration
