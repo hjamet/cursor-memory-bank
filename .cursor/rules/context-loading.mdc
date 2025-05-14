@@ -16,7 +16,10 @@ Load or create project context files to establish the working environment.
 2. **Context initialization**: If absent:
    - Analyze the structure and objectives of the project
    - Create the `.cursor/memory-bank/context/` folder if necessary
-   - Initialize missing files with appropriate structure
+   - Initialize missing files with appropriate structure. The expected structures are:
+     - **`projectBrief.md`**: Max 200 lines. Sections: Vision, Objectives (3-7 points), Constraints, Stakeholders, Success Metrics, History and Context (optional).
+     - **`activeContext.md`**: Max 200 lines. Focus on recent (2-4 weeks) and relevant info. Sections: Current Focus, Ongoing Issues, Recent Decisions, Next Steps, Important Notes, Recent Learnings (optional).
+     - **`techContext.md`**: Sections: Development Platform, Console/Shell, Installation and Dependency Management, Technology Stack, Code Conventions, Server Architecture and Deployment, Testing and Quality, Known Issues and Solutions.
    - Create a `.cursor/memory-bank/userbrief.md` if non-existent
 
 3. **Request reformulation**: Reformulate the user instruction in the project context
