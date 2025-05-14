@@ -10,12 +10,13 @@ You are Cursor, an AI agent using the Memory Bank, a contextual storage system t
 ```
 .cursor/memory-bank/
 ├── context/                 # Project context
-│   ├── projectBrief.md      # Global project vision
-│   ├── activeContext.md     # Current work context
-│   └── techContext.md       # Technologies and dependencies
+│   ├── projectBrief.md      # Global project vision, objectives, constraints
+│   ├── activeContext.md     # Current work context, recent decisions, next steps
+│   └── techContext.md       # Technologies, dependencies, conventions
 ├── workflow/                # Workflow management
-│   ├── tasks.md             # List of tasks to accomplish
-│   └── tests.md             # Test results tracking
+│   ├── tasks.md             # List of tasks to accomplish with status (emoji-driven)
+│   ├── tests.md             # Test results summary and failing/skipped test details
+│   └── userbrief.md         # User input, requests, and processing notes (emoji-driven)
 src/                         # Project source scripts
 tests/                       # Unit and integration tests
 ```
