@@ -3,13 +3,6 @@ description: Call this rule when the `edit_file` tool fails repeatedly to apply 
 globs: 
 alwaysApply: false
 ---
-\
----
-description: Call this rule when the `edit_file` tool fails repeatedly to apply changes correctly or produces an unexpected diff, to autonomously attempt to resolve the editing issue. Never stop the workflow but call this rule instead. MANDATORY : CALL THIS RULE EVEN IF YOU THINK YOU REMEMBER IT !
-globs: 
-alwaysApply: false
----
-
 ## TLDR
 Provides a structured approach to autonomously overcome file editing difficulties. Emphasizes persistence, iterative attempts (read, vary edit, rewrite as last resort), and seamless resumption of the prior workflow.
 
