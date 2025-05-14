@@ -1,6 +1,6 @@
 ---
 description: Call this rule to analyze the user's request in detail and situate it in relation to the project objectives.
-globs:
+globs: 
 alwaysApply: false
 ---
 
@@ -40,7 +40,6 @@ Analyze user request, explore existing code, search for additional information, 
 
 6. **Call next rule**:
    - If complex/multi-step request → `task-decomposition`
-   - If simple request → `implementation`
 
 ## Specifics
 
@@ -53,7 +52,6 @@ Analyze user request, explore existing code, search for additional information, 
 
 ## Next Rules
 - `task-decomposition` - To decompose request into specific tasks
-- `implementation` - To proceed directly to implementation if request is simple
 
 ## Example
 
@@ -96,7 +94,6 @@ I summarize the results of my analysis and determine the next step. **(Request-a
 **(Request-analysis: 5 - Conclusion)**
 
 # Request-analysis: 6 - Call next rule
-I must now call the task-decomposition rule because the request requires multiple steps.
 The task-decomposition rule must be called to decompose the request into specific tasks. **(Request-analysis: 6 - Call next rule)**
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

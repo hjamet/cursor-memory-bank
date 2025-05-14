@@ -3,7 +3,6 @@ description: Call this rule to update context files and commit the changes.
 globs: 
 alwaysApply: false
 ---
-
 ## TLDR
 Update context files to reflect changes, update tasks.md based on test results, and make a commit following conventions.
 
@@ -12,7 +11,6 @@ Update context files to reflect changes, update tasks.md based on test results, 
    - `.cursor/memory-bank/context/projectBrief.md`: Update global vision if impacted. Max 200 lines. Sections: Vision, Objectives (3-7 points), Constraints, Stakeholders, Success Metrics, History and Context (optional).
    - `.cursor/memory-bank/context/activeContext.md`: Reflect current state after modifications. Max 200 lines. Focus on recent (2-4 weeks) info. Sections: Current Focus, Ongoing Issues, Recent Decisions, Next Steps, Important Notes, Recent Learnings (optional).
    - `.cursor/memory-bank/context/techContext.md`: Add/modify technical information if necessary. Sections: Development Platform, Console/Shell, Installation/Dependency Management, Technology Stack, Code Conventions, Server Architecture/Deployment, Testing/Quality, Known Issues/Solutions.
-
 
 2. **Context cleanup**: Clean context and workflow files, maintaining structural integrity:
    - Remove obsolete or redundant information.

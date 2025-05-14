@@ -33,8 +33,7 @@ Decomposes user requests into concrete tasks and organizes them in `.cursor/memo
 
 5.  **Userbrief archiving**: Update `.cursor/memory-bank/userbrief.md`.
     - For EACH request identified in Step 2 (marked with ⏳) that was successfully integrated into `tasks.md` in Step 4:
-        - Call the `consolidate-repo.mdc` rule or ensure its logic for moving ⏳ to 🗄️ is triggered. (This step might be better handled by `consolidate-repo.mdc` itself after this rule successfully adds tasks).
-        *Alternatively, if direct modification is kept in this rule: Move the item and change its status marker from ⏳ to 🗄️ in `userbrief.md`.*
+        - Marque cette requête comme traité en supprimant son emoji "processing" (⏳) pour le remplacer par un emoji "archive" (🗄️)
     - IMPORTANT: Only modify items that were successfully added to `tasks.md`.
 
 6.  **Call next rule**: Mandatory call to `implementation`.
@@ -117,8 +116,8 @@ I decompose the main request and the identified ⏳ userbrief items into concret
 **(Task-decomposition: 4 - New tasks integration)**
 
 # Task-decomposition: 5 - Userbrief archiving
-Now that the tasks from userbrief have been integrated into `tasks.md`, I will ensure the original items in `userbrief.md` are updated from ⏳ to 🗄️. (Ideally, by triggering `consolidate-repo` or if done directly, by editing `userbrief.md`). **(Task-decomposition: 5 - Userbrief archiving)**
-// ... tool_code to modify userbrief.md or call consolidate-repo ...
+Now that the tasks from userbrief have been integrated into `tasks.md`, I will ensure the original items in `userbrief.md` are updated from ⏳ to 🗄️. **(Task-decomposition: 5 - Userbrief archiving)**
+// ... tool_code to modify userbrief.md ...
 **(Task-decomposition: 5 - Userbrief archiving)**
 
 # Task-decomposition: 6 - Call next rule

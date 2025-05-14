@@ -20,31 +20,6 @@ src/                         # Project source scripts
 tests/                       # Unit and integration tests  
 ```
 
-## userbrief.md: New Format Definition
-
-The `.cursor/memory-bank/userbrief.md` file no longer uses H1 section titles (e.g., `# User Input`, `# Processing`). It is a flat list of items, each starting with an emoji indicating its status or type. This rule (`consolidate-repo`) is primarily responsible for processing new user inputs (🆕) and categorizing them.
-
-**Emoji Legend & Handling by `consolidate-repo`:**
-*   `🆕 - [User's original request or idea]`
-    *   Represents raw user input. Users should ideally prefix new requests with `🆕 -` or just `- ` (which this rule will treat as 🆕).
-    *   This rule identifies these items.
-    *   If it's a task-like request, this rule changes 🆕 to ⏳.
-    *   If it's a preference/directive, this rule changes 🆕 to 📌.
-*   `⏳ - [Task identified, awaiting decomposition by task-decomposition rule]`
-    *   This rule changes 🆕 to ⏳ for actionable tasks.
-    *   The `task-decomposition` rule will later process these ⏳ items.
-*   `📌 - [User preference or long-term directive to be retained]`
-    *   This rule changes 🆕 to 📌 for preferences.
-    *   These items are generally preserved unless explicitly changed by the user.
-*   `🗄️ - [Request archived by task-decomposition after being added to tasks.md]`
-    *   This rule does NOT create or directly manage 🗄️ items. They are an outcome of the `task-decomposition` rule.
-
-**Key Principles (from former `userbrief-template.mdc`):**
-*   **Persistence**: The `userbrief.md` file should generally not be emptied by the agent; only the user should clear its content.
-*   **Status Updates**: When changing status, only the leading emoji should be modified by the agent, not the content of the request/preference itself unless explicitly instructed.
-*   **Conciseness**: The file should be kept as concise as possible without losing information.
-*   **User Input**: Users can add new items by prefixing with `🆕 - ` or just `- `.
-
 ## Instructions
 
 1. **Process `userbrief.md` Items**: Analyze and update item statuses:
@@ -130,6 +105,31 @@ The `.cursor/memory-bank/userbrief.md` file no longer uses H1 section titles (e.
 - The `task-decomposition` rule is responsible for processing `⏳` items and changing them to `🗄️`.
 - Avoid directly modifying the content of user requests; only update the leading emoji.
 - Integrity verification and cleanup steps (2, 3, 4) remain important.
+
+## userbrief.md: New Format Definition
+
+The `.cursor/memory-bank/userbrief.md` file no longer uses H1 section titles (e.g., `# User Input`, `# Processing`). It is a flat list of items, each starting with an emoji indicating its status or type. This rule (`consolidate-repo`) is primarily responsible for processing new user inputs (🆕) and categorizing them.
+
+**Emoji Legend & Handling by `consolidate-repo`:**
+*   `🆕 - [User's original request or idea]`
+    *   Represents raw user input. Users should ideally prefix new requests with `🆕 -` or just `- ` (which this rule will treat as 🆕).
+    *   This rule identifies these items.
+    *   If it's a task-like request, this rule changes 🆕 to ⏳.
+    *   If it's a preference/directive, this rule changes 🆕 to 📌.
+*   `⏳ - [Task identified, awaiting decomposition by task-decomposition rule]`
+    *   This rule changes 🆕 to ⏳ for actionable tasks.
+    *   The `task-decomposition` rule will later process these ⏳ items.
+*   `📌 - [User preference or long-term directive to be retained]`
+    *   This rule changes 🆕 to 📌 for preferences.
+    *   These items are generally preserved unless explicitly changed by the user.
+*   `🗄️ - [Request archived by task-decomposition after being added to tasks.md]`
+    *   This rule does NOT create or directly manage 🗄️ items. They are an outcome of the `task-decomposition` rule.
+
+**Key Principles (from former `userbrief-template.mdc`):**
+*   **Persistence**: The `userbrief.md` file should generally not be emptied by the agent; only the user should clear its content.
+*   **Status Updates**: When changing status, only the leading emoji should be modified by the agent, not the content of the request/preference itself unless explicitly instructed.
+*   **Conciseness**: The file should be kept as concise as possible without losing information.
+*   **User Input**: Users can add new items by prefixing with `🆕 - ` or just `- `.
 
 ## Next Rules
 
