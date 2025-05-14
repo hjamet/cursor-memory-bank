@@ -82,6 +82,18 @@
             *   Inspect the resulting commit message using `git log -1` or a similar command to ensure it's correctly formatted with multiple paragraphs.
             *   Confirm that the `escapeShellArg` function still correctly handles other special characters within the description paragraphs.
 
+⚪️ **6. Enhance MCP Commit Tool with Git Log Output**
+    *   **Description**: Modify the `mcp_MyMCP_commit` tool in the MCP server to execute a specific `git log` command after a successful commit and append its output to the success message returned by the tool. This provides immediate visibility into the recent commit history.
+    *   **Impacted Rules/Files**: `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`
+    *   **Dependencies**: None.
+    *   **Validation**: After a commit is made using `mcp_MyMCP_commit`, the success message includes the output of the specified `git log` command.
+    *   **Sub-Tasks**:
+        *   🟢 **6.1. Implement `git log` Execution in `commit.js`**: Modify `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js` to execute the command `echo -e "  Heure actuelle : $(date '+%Y-%m-%d %H:%M:%S')\n" && git log -n 5 --pretty=format:"%C(auto)%h %Cgreen[%an] %Cblue%cd%Creset — %s%n%b" --date=format:"%Y-%m-%d %H:%M:%S" | cat` after a successful commit. Capture its `stdout` and append it to the JSON response's success message.
+        *   🟡 **6.2. Test and Verify Enhancement**:
+            *   Trigger a commit using a rule or manually (e.g., `context-update.mdc` committing a test file).
+            *   Verify that the tool's response includes the formatted `git log` output.
+            *   Ensure the commit itself is still successful and the primary commit message is not affected.
+
 # DONE
 
 3.  **Feature: Ajout de l'outil de capture d'écran web**

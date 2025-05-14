@@ -19,7 +19,7 @@ As the architect assistant, ALWAYS gather comprehensive, up-to-date context (pro
 
 2.  **Gather Context - Git History**: Execute the following command via `mcp_MyMCP_execute_command` to review the 10 most recent commits:
     ```bash
-    echo -e "🕒 Heure actuelle : $(date '+%Y-%m-%d %H:%M:%S')\n" && git log -n 10 --pretty=format:"%C(auto)%h %Cgreen[%an] %Cblue%cd%Creset — %s" --date=format:"%Y-%m-%d %H:%M:%S" | cat
+    echo -e "  Heure actuelle : $(date '+%Y-%m-%d %H:%M:%S')\n" && git log -n 5 --pretty=format:"%C(auto)%h %Cgreen[%an] %Cblue%cd%Creset — %s%n%b" --date=format:"%Y-%m-%d %H:%M:%S" | cat
     ```
 
 3.  **Internal Synthesis**: Analyze and synthesize ALL information gathered in steps 1 & 2 in relation to the user's specific query. Use `<think>...</think>` for this internal reasoning process.
@@ -120,5 +120,6 @@ Noted that the response should confirm logging. **(Architect: 5 - Handle Code Mo
 Votre demande d'ajout d'un nouveau bouton à la page principale effectuant X a bien été enregistrée. Elle a été ajoutée au fichier `userbrief.md` et sera traitée dans le cadre du flux de travail principal de Cursor.
 
 Vous pouvez suivre son avancement via le fichier `tasks.md` une fois qu'elle aura été décomposée en tâches spécifiques.
+
 
 **(Architect: 6 - Formulate and Provide Response)** 

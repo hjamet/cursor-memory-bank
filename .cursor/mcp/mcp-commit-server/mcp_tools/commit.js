@@ -95,6 +95,19 @@ export async function handleCommit({ emoji, type, title, description }) {
         if (commitStderr) {
             successMessage += `\nCommit Warnings/Info (stderr):\n${commitStderr.trim()}`;
         }
+
+        // Add recent git log output as requested by user
+        try {
+            const gitLogCommand = 'echo -e "  Heure actuelle : $(date \'%Y-%m-%d %H:%M:%S\')\n" && git log -n 5 --pretty=format:"%C(auto)%h %Cgreen[%an] %Cblue%cd%Creset — %s%n%b" --date=format:"%Y-%m-%d %H:%M:%S" | cat';
+            const { stdout: gitLogStdout } = await execAsync(gitLogCommand, { cwd });
+            if (gitLogStdout && gitLogStdout.trim() !== '') {
+                successMessage += `\n\n--- Recent Activity (Last 5 Commits) ---\n${gitLogStdout.trim()}`;
+            }
+        } catch (logCmdError) {
+            console.error('[handleCommit] Error executing git log command:', logCmdError);
+            successMessage += '\n\n(Failed to retrieve recent git log output)';
+        }
+
         return { content: [{ type: "text", text: successMessage }] };
 
     } catch (error) {
