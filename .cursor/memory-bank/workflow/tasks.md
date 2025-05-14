@@ -94,6 +94,12 @@
             *   Verify that the tool's response includes the formatted `git log` output and the correctly formatted timestamp.
             *   Ensure the commit itself is still successful and the primary commit message is not affected.
 
+🟢 **7. Modify `on-edit-tool-fail.mdc` for Manual Intervention**
+    *   **Description**: Update the `.cursor/rules/on-edit-tool-fail.mdc` rule. If all automated edit attempts (including full rewrite in Step 5) fail, the rule should interrupt the workflow and instruct the user to perform the edit manually. It must provide details of the file and a code block summarizing the intended changes. Steps 6, 7, and 8 of the rule were also updated to clarify they are only executed if an edit attempt succeeds.
+    *   **Impacted Rules/Files**: `.cursor/rules/on-edit-tool-fail.mdc`
+    *   **Dependencies**: None.
+    *   **Validation**: The `on-edit-tool-fail.mdc` rule incorporates the new logic in its Step 5 for handling complete failure of automated edits, and Steps 6-8 are correctly conditionalized.
+
 # DONE
 
 3.  **Feature: Ajout de l'outil de capture d'écran web**
