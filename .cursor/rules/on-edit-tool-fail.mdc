@@ -37,7 +37,8 @@ Provides a structured approach to autonomously overcome file editing difficultie
 5.  **Last Resort - Full Rewrite (Use with Extreme Caution)**: If multiple distinct variations (at least 2-3 combinations of context/instruction changes) have failed AND the file is not excessively long (e.g., < 300-500 lines, assess based on file type and complexity):
     *   Read the entire file again using `read_file` to ensure the rewrite is based on the absolute latest version.
     *   Construct the *complete* new content of the file with your modification correctly integrated.
-    *   Use `edit_file` with the `code_edit` being the *entire new file content* and `instructions` clearly stating "Rewriting entire file to apply modification."
+    *   Use `edit_file` with the `code_edit` being the *entire new file content*. Write to a new file with a different name.
+    * Execute the `mv` command via MyMCP to replace the file with its new version.
     *   "(edit-retry-strategies: 5 - Attempting full rewrite for 'filename.ext' as last resort)"
     *   If successful, proceed to step 6. If this also fails, acknowledge that the edit could not be applied with current strategies and proceed to step 6 to return control.
 

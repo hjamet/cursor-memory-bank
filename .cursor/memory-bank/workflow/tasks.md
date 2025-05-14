@@ -69,6 +69,19 @@
         *   ⚪️ **4.5. Implement Context Files Format Check**: (Depends on 2.4) Add logic for context files.
         *   ⚪️ **4.6. Implement Conditional `request-analysis` Call**: Add logic to call `request-analysis` on format violation.
 
+🟡 **5. Fix MCP Commit Tool Multi-line Description**
+    *   **Description**: The `mcp_MyMCP_commit` tool in the MCP server does not correctly handle multi-line descriptions, leading to malformed commit messages. This task involves investigating the issue, implementing a fix, and verifying it.
+    *   **Impacted Rules/Files**: `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`
+    *   **Dependencies**: None.
+    *   **Validation**: Multi-line descriptions provided to `mcp_MyMCP_commit` (e.g., by `context-update.mdc`) result in correctly formatted git commit messages, with each line of the description appearing as a separate paragraph in the commit body. Recent malformed commits are reviewed to confirm the nature of the problem.
+    *   **Sub-Tasks**:
+        *   🟢 **5.1. Investigate Commit Logs**: Review recent git commit logs to observe how multi-line descriptions are currently being malformed. Capture an example of a malformed message.
+        *   🟢 **5.2. Implement Fix in `commit.js`**: Modify `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js` to correctly handle multi-line descriptions. This likely involves splitting the input description string by newlines and appending each resulting line as a separate `-m "paragraph"` argument to the `git commit` command, ensuring each part is properly escaped using `escapeShellArg`.
+        *   🟡 **5.3. Test and Verify Fix**:
+            *   Manually trigger a commit using a rule that generates a multi-line description (e.g., `context-update.mdc` after a minor change, or by creating a temporary test scenario).
+            *   Inspect the resulting commit message using `git log -1` or a similar command to ensure it's correctly formatted with multiple paragraphs.
+            *   Confirm that the `escapeShellArg` function still correctly handles other special characters within the description paragraphs.
+
 # DONE
 
 3.  **Feature: Ajout de l'outil de capture d'écran web**

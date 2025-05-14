@@ -49,14 +49,21 @@ export async function handleCommit({ emoji, type, title, description }) {
         // Stage all changes - Execute in auto-detected CWD
         await execAsync('git add .', { cwd });
 
-        // Escape title and description
+        // Escape title
         const escapedCommitTitle = escapeShellArg(commitTitle);
-        const escapedDescription = description ? escapeShellArg(description) : '';
 
         // Construct the commit command
         let commitCommand = `git commit -m "${escapedCommitTitle}"`;
-        if (escapedDescription) {
-            commitCommand += ` -m "${escapedDescription}"`;
+
+        // Handle multi-line description by adding multiple -m flags
+        if (description && description.trim() !== '') {
+            const paragraphs = description.split('\n');
+            for (const paragraph of paragraphs) {
+                if (paragraph.trim() !== '') { // Avoid adding -m for empty lines
+                    const escapedParagraph = escapeShellArg(paragraph);
+                    commitCommand += ` -m "${escapedParagraph}"`;
+                }
+            }
         }
 
         // Execute commit command
