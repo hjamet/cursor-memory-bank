@@ -1,6 +1,20 @@
 # Active Context
 
 ## Current implementation context
+- **Current Task**: Correcting memory file format violations identified by `consolidate-repo`.
+    - **Origin**: `consolidate-repo` -> `request-analysis`.
+    - **Files to fix**:
+        1.  `.cursor/memory-bank/workflow/tests.md`: Summary line (`✅❌ℹ️`) needs to be the first non-empty line.
+        2.  `.cursor/memory-bank/context/projectBrief.md`: Needs to use H2 sections (`## Vision`, `## Objectives`, etc.) instead of H1 + bolded text.
+    - **Guiding Rules**:
+        - `test-execution.mdc` for `tests.md` format.
+        - `context-loading.mdc` for `projectBrief.md` format.
+- **Previous Status**: All tasks in `tasks.md` (Tasks 1-7) were 🟢 DONE (before this corrective action).
+- **Next Steps**: After these corrections, proceed to `context-update`.
+
+*(Historical context is further condensed as all defined tasks are complete.)*
+
+## Current implementation context
 - **Completed Task**: Modify `on-edit-tool-fail.mdc` for Manual Intervention on Exhausted Retries (Task 7)
     - **Origin**: User request.
     - **Outcome**: Successfully modified Step 5 of `.cursor/rules/on-edit-tool-fail.mdc`. If all automated edit attempts fail, the rule will now interrupt the workflow and instruct the user to perform the edit manually, providing necessary details. Steps 6-8 were made conditional on edit success.
