@@ -99,7 +99,7 @@ export async function handleCommit({ emoji, type, title, description }) {
         // Add recent git log output as requested by user
         try {
             const gitLogCommand = 'echo -e "  Heure actuelle : $(date \'%Y-%m-%d %H:%M:%S\')\n" && git log -n 5 --pretty=format:"%C(auto)%h %Cgreen[%an] %Cblue%cd%Creset — %s%n%b" --date=format:"%Y-%m-%d %H:%M:%S" | cat';
-            const { stdout: gitLogStdout } = await execAsync(gitLogCommand, { cwd });
+            const { stdout: gitLogStdout } = await execAsync(gitLogCommand, { cwd, shell: "C:\\Program Files\\Git\\bin\\bash.exe" });
             if (gitLogStdout && gitLogStdout.trim() !== '') {
                 successMessage += `\n\n--- Recent Activity (Last 5 Commits) ---\n${gitLogStdout.trim()}`;
             }
