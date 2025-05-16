@@ -1,55 +1,59 @@
 ---
-description: Call this rule to create unit tests for new features
+description: Call this rule to create or update unit tests for new or existing features
 globs: 
 alwaysApply: false
 ---
 ## TLDR
-Create unit tests for implemented features following testing best practices.
+Create or modify unit tests for implemented features, or to enrich existing tests, following testing best practices.
 
 ## Instructions
 
-1. **Feature analysis**: Identify what needs to be tested
-   - Examine modified/created files to find behaviors to test
-   - List necessary test cases (basic behavior only)
-   - After each tool call, write **(Test-implementation - 1.[Feature name] in progress...)**
+1.  **Feature Analysis**: Identify what needs to be tested.
+    * Examine modified/created files to identify behaviors to test.
+    * List necessary test cases (basic behavior or enrichment of an existing test).
+    * After each tool call, write **(Test-implementation - 1.[Feature name] in progress...)**
 
-2. **Test creation**: For each feature
-   - Create a test file in the `tests/` folder starting with `test_`
-   - Implement a single test focusing on basic, expected behavior
-   - Use the format defined in the test-files editing rule
-   - After each tool call, write **(Test-implementation - 2.[Test name] in progress...)**
+2.  **Test Creation or Modification**: For each feature or aspect to test.
+    * **Identify Existing Tests**: Check if relevant tests already exist for the feature.
+    * **Decision and Action**:
+        * If existing tests cover the feature and the goal is to enrich them: Modify the test file and/or the relevant test methods.
+        * If no relevant test exists, or if a new, distinct test is more appropriate: Create a new test file in the `tests/` folder (named `test_*`) or add a new test method to a relevant existing file.
+    * **Implementation**:
+        * Implement targeted tests (new or modified) for the identified behaviors.
+        * Ensure each test (or modification) clearly targets a specific aspect of the feature.
+    * Use the format defined in the test-files editing rule.
+    * After each tool call (creation or modification), write **(Test-implementation - 2.[Test name or Modified test name] in progress...)**
 
-3. **Call next rule**: Mandatory call to `test-execution`
+3.  **Call Next Rule**: Mandatory call to `test-execution`.
 
 ## Specifics
 
-- Verify expected behavior, not internal implementation
-- STRICTLY create only one test per function/method, focusing solely on its basic intended behavior. DO NOT test edge cases, error conditions, or complex scenarios.
-- Create only classic usage tests, focusing on basic behavior
-- Use descriptive names clearly explaining what is being tested
-- All test files must begin with `test_` and be placed in the `tests/` folder
-- Include logging using `src/utils/logger.py` if the code is in Python
-- To avoid losing the workflow, systematically write `Test-implementation - [number].[Name] in progress...` between each step
+* Verify expected behavior, not internal implementation.
+* Each test, whether new or an addition to an existing test, must be targeted and verify a specific behavior. The main goal is to cover the basic expected behavior; enriching existing tests for an already tested feature is encouraged.
+* When creating *new* test files, they must begin with `test_` and be placed in the `tests/` folder.
+* Use descriptive names for new tests or clearly indicate the modifications made to existing tests, explaining what is being tested or enriched.
+* Include logging using `src/utils/logger.py` if the code is in Python.
+* To avoid losing the workflow, systematically write `Test-implementation - [number].[Name] in progress...` between each step.
 
 ## Next Rules
-- `test-execution` - To execute created tests and analyze results
+* `test-execution` - To execute created/modified tests and analyze results.
 
 ## Example
 
 # Test-implementation: 1 - Feature analysis
-I begin by identifying features to test. **(Test-implementation: 1 - Feature analysis)**
+I start by identifying features to test or tests to enrich. **(Test-implementation: 1 - Feature analysis)**
 [...analysis of modified files...]
 **(Test-implementation - 1.Authentication in progress...)**
-[...identification of behaviors to test...]
+[...identification of behaviors to test or tests to complete...]
 **(Test-implementation: 1 - Feature analysis)**
 
-# Test-implementation: 2 - Test creation
-I will create tests for each identified feature. **(Test-implementation: 2 - Test creation)**
-[...creation of first test file...]
-**(Test-implementation - 2.TestLogin in progress...)**
-[...creation of second test file...]
-**(Test-implementation - 2.TestValidation in progress...)**
-**(Test-implementation: 2 - Test creation)**
+# Test-implementation: 2 - Test creation or modification
+I will create or modify tests for each identified item. **(Test-implementation: 2 - Test creation or modification)**
+[...modification of an existing test for login...]
+**(Test-implementation - 2.Enrichment_TestLogin in progress...)**
+[...creation of a new test file for a new feature...]
+**(Test-implementation - 2.TestNewValidation in progress...)**
+**(Test-implementation: 2 - Test creation or modification)**
 
 # Test-implementation: 3 - Call next rule
 I must now call the test-execution rule to execute the tests.
