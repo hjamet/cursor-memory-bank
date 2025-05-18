@@ -7,10 +7,11 @@ alwaysApply: false
 Update context files to reflect changes, update tasks.md based on test results, and make a commit following conventions.
 
 ## Instructions
-1. **Context update**: Update the three context files if necessary, ensuring they adhere to their defined structures:
+1. **Context update**: Read again and if necessary update the three context files, ensuring they adhere to their defined structures:
    - `.cursor/memory-bank/context/projectBrief.md`: Update global vision if impacted. Max 200 lines. Sections: Vision, Objectives (3-7 points), Constraints, Stakeholders, Success Metrics, History and Context (optional).
    - `.cursor/memory-bank/context/activeContext.md`: Reflect current state after modifications. Max 200 lines. Focus on recent (2-4 weeks) info. Sections: Current Focus, Ongoing Issues, Recent Decisions, Next Steps, Important Notes, Recent Learnings (optional).
    - `.cursor/memory-bank/context/techContext.md`: Add/modify technical information if necessary. Sections: Development Platform, Console/Shell, Installation/Dependency Management, Technology Stack, Code Conventions, Server Architecture/Deployment, Testing/Quality, Known Issues/Solutions.
+   - IMPORTANT: You should always read the context files, even if you think you remember them.
 
 2. **Context cleanup**: Clean context and workflow files, maintaining structural integrity:
    - Remove obsolete or redundant information.
@@ -48,6 +49,7 @@ Update context files to reflect changes, update tasks.md based on test results, 
        - ELSE (no 🟡 or ⚪️ tasks found, meaning all are 🟢 DONE, 🔴 BLOCKED, or 🔵 REVIEW), indicate that the workflow is complete.
 
 ## Specifics
+- IMPORTANT: You should always read the context files, even if you think you remember them. It is a good way for you to keep a big picture in mind while staying focused on the details of what you are doing.
 - Mark tasks as 🟢 DONE only if all associated tests pass and the work for that task is fully completed.
 - Use conventional commit format by adding an emoji to describe the operation performed
 - Systematically delete old history entries that are no longer relevant
