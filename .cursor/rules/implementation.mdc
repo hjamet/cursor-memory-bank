@@ -44,8 +44,7 @@ Methodically implement tasks from a priority section, retrieve high-level contex
 5. **Calling the next rule**: Mandatory to choose (Only if `experience-execution` was NOT called in step 3)
    - If `experience-execution` was called, its own step 5 dictates the next rule (`context-update` or `fix`).
    - Otherwise, based on the implementation done in *this* rule:
-     - IF New testable feature created → `test-implementation`
-     - ELSE IF Existing testable features modified → `test-execution`
+     - IF testable feature created or modified → `test-implementation`
      - ELSE IF Only non-testable changes (e.g., documentation, rule edits) → `context-update`
 
 ## Specifics
@@ -70,7 +69,7 @@ This workflow allows managing long processes without blocking and retrieving int
 - Always call the appropriate next rule
 
 ## Next Rules
-- `test-implementation`: If new testable feature created (ALWAYS the case for new file/symbol)
+- `test-implementation`: If new testable feature created or modified (ALWAYS the case for new file/symbol)
 - `context-update`: ONLY if non-testable changes (pure documentation)
 
 ## Example
