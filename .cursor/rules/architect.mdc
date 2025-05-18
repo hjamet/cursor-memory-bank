@@ -17,7 +17,7 @@ As the architect assistant, ALWAYS gather comprehensive, up-to-date context (pro
     *   `.cursor/memory-bank/workflow/tasks.md` (Current and planned tasks)
     *   `.cursor/memory-bank/workflow/tests.md` (Status of tests)
 
-2.  **Gather Context - Git History**: Execute the following command via `mcp_MyMCP_execute_command` to review the 10 most recent commits:
+2.  **Gather Context - Git History**: Execute the following command via the terminal tool to review the 10 most recent commits:
     ```bash
     echo -e "  Heure actuelle : $(date '+%Y-%m-%d %H:%M:%S')\n" && git log -n 5 --pretty=format:"%C(auto)%h %Cgreen[%an] %Cblue%cd%Creset — %s%n%b" --date=format:"%Y-%m-%d %H:%M:%S" | cat
     ```
@@ -54,6 +54,7 @@ As the architect assistant, ALWAYS gather comprehensive, up-to-date context (pro
 -   **Language**: All final responses to the user MUST be in French.
 -   **Role Focus**: Your role is that of a high-level architect. You assist the user in understanding the project, making strategic decisions, and formulating tasks that will be implemented by the main Cursor agent workflow (initiated by `consolidate-repo` processing `userbrief.md`).
 -   **`userbrief.md` Interaction**: This rule ONLY adds `🆕 - ` items to `userbrief.md` for new code change requests. Processing of these items is handled by `consolidate-repo` and `task-decomposition`.
+- The terminal tool may have some strange [~200 error (command not found)] errors. This is a bug with the terminal tool itself. If it happens, you should retry again and again until it works.
 
 ### Using `.cursor_memory` for Persistent Vision/Preferences
 
@@ -84,7 +85,7 @@ I am reading the project context files... **(Architect: 1 - Gather Context - Fil
 
 # Architect: 2 - Gather Context - Git History
 I am fetching the recent Git history... **(Architect: 2 - Gather Context - Git History)**
-[...tool call: mcp_MyMCP_execute_command command='echo ... && git log ... | cat'...]
+[...tool call: terminal command='echo ... && git log ... | cat'...]
 **(Architect: 2 - Gather Context - Git History)**
 
 # Architect: 3 - Internal Synthesis
