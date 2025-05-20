@@ -24,7 +24,11 @@ Analyze test errors and fix them through an iterative execution-correction loop 
             - This is the 3rd iteration for this test without clear progress.
             - The test logic or the code under test seems particularly complex.
         *   **Remember to remove temporary logs** after the issue is resolved.
-        *   **(Optional) Git History Check**: If the error seems like a *regression*, consider checking Git history for recent changes to related files. Use `mcp_MyMCP_execute_command` with commands like `git log -p <file_path>` or `git diff <commit_hash>^! -- <file_path>` to review changes. If a problematic change is identified, consider using `git restore --source=<commit_hash> <file_path>` or `git checkout <commit_hash> -- <file_path>` to view or restore the previous version (use with caution).
+        *   **(Optional) Mysterious Problem Git Log Check**: If the error is proving difficult to diagnose directly after 1-2 iterations, seems like a regression, or points to obscure behavior in external libraries/frameworks (a "mysterious problem"), consider searching the Git history for similar past occurrences or solutions.
+            *   Formulate a relevant grep pattern based on key error messages, function/class names, or library names involved (e.g., "MySpecificError|problematicFunction").
+            *   Use `mcp_MyMCP_execute_command` to run `git log --grep="<pattern>" -i --all-match` (or `--any-match` as appropriate) to search all branches. Add `-p` if you want to see the diffs directly.
+            *   Analyze the output for commits that might shed light on the current issue or offer a solution pattern. If useful information is found, use it to inform the fix. If not, or if the search is inconclusive, proceed with other diagnostic steps.
+        *   **(Optional) Git History Check**: If the error seems like a *regression* (and the above `git log --grep` was not conclusive or used for a different purpose), consider checking Git history for recent changes to related files. Use `mcp_MyMCP_execute_command` with commands like `git log -p <file_path>` or `git diff <commit_hash>^! -- <file_path>` to review changes. If a problematic change is identified, consider using `git restore --source=<commit_hash> <file_path>` or `git checkout <commit_hash> -- <file_path>` to view or restore the previous version (use with caution).
     *   **2.3 Research**: If needed, use `mcp_brave-search_brave_web_search` to find solutions for specific errors
     *   **2.4 Implementation**: Make the correction and document the changes
     *   **2.5 Test**: Execute ONLY the specific test currently being fixed using `mcp_MyMCP_execute_command` (CF section on MyMCP below) (determine the correct command, e.g., `pytest tests/test_module.py::test_function`) and analyze the result:
@@ -72,6 +76,7 @@ Analyze test errors and fix them through an iterative execution-correction loop 
 
 -   The `<think></think>` token must be used for each complex correction requiring in-depth analysis
 -   You should examinate the files you know related to the problem but you should also use the codebase search tool in case you are missing something.
+-   For "mysterious problems" or suspected regressions, consider using `git log --grep` or `git log -p` (via `mcp_MyMCP_execute_command`) to check commit history for clues before extensive web searching.
 -   For debugging, consider adding temporary logging (e.g., `console.log` statements) within the code to inspect values and control flow. Remember to remove these logs afterwards.
 -   NEVER execute all tests, but ONLY the specific test you are currently fixing
 -   Running the complete test suite is exclusively the responsibility of the `test-execution` rule
@@ -177,43 +182,93 @@ Moving to the next failing test.
 
 ## 2.2 Analysis
 [...examining data processing code...]
+This is the second iteration for this `MemoryError`. The initial attempt to use a basic streaming approach didn't fully resolve it. This feels like a more mysterious problem possibly related to how the `LargeFileProcessor` library handles internal buffers, or a subtle interaction with our data format.
+
+**(Optional) Mysterious Problem Git Log Check**
+I will search the git history for commits related to `MemoryError` or `LargeFileProcessor`.
+`mcp_MyMCP_execute_command(command='git log --grep="MemoryError\|LargeFileProcessor" -i --any-match -p')`
+[...analyzing git log output...]
+Ah, commit `abc123ef` mentions a similar `MemoryError` with `LargeFileProcessor` when processing type `XYZ` files and notes a workaround involving pre-setting a configuration option `max_buffer_size`. This might be relevant!
+
 <think>
-MemoryError indicates loading the whole file. A streaming approach is likely needed.
+Based on the git log, a previous similar `MemoryError` with `LargeFileProcessor` was resolved by configuring `max_buffer_size`. I should try applying that configuration before processing the file.
 </think>
 
 ## 2.3 Research
-*I search the web for Python techniques for processing large files efficiently.*
-`mcp_brave-search_brave_web_search(query='python streaming large file processing memory efficient')`
+*No immediate web research needed due to the promising lead from git log.*
 
 ## 2.4 Implementation
-[...modifying the processor to use a basic streaming approach...]
-
-## 2.3 Research
-*I search the web for resolving Python NameErrors.*
-`mcp_brave-search_brave_web_search(query='python NameError: name process_chunk is not defined')`
-
-## 2.4 Implementation
-[...implementing the missing function...]
-
-## 2.3 Research
-*I search the web again for advanced large file processing patterns.*
-`mcp_brave-search_brave_web_search(query='python advanced large file processing memory management')`
-
-## 2.4 Implementation
-[...No further implementation attempt...]
+[...modifying the data processing code to set `LargeFileProcessor.config.max_buffer_size = 1024` before processing...]
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Implementation 2 completed)**
 
 ## 2.5 Test
-The test failed on the previous iteration, and analysis confirms it needs major refactoring beyond simple iteration.
-**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Handing over to request-analysis)**
+[...determining command for specific test, e.g., `pytest tests/data_proc_tests.py::TestDataProcessing::test_large_file_processing`...]
+[...calling `mcp_MyMCP_execute_command` with the specific test command...]
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Test execution 2)**
 
-Calling `request-analysis` to handle the complex task of implementing efficient large file processing.
-[Provide context: Problem="MemoryError during large file processing requires major refactoring (streaming/chunking insufficient)", Files=[...], Analysis="Initial attempts failed, needs new architectural approach."]
+Success! The test now passes with the `max_buffer_size` configuration.
 
-[...Here, the agent calls the rule 'request-analysis' using its rule calling tool...]
+### 2.5.1 Update tests.md
+I will update `tests.md`. Assuming it was:
+✅16 ❌2 ℹ️0
+- ❌ TestDataProcessing.test_large_file_processing: MemoryError: ...
+- ❌ TestAPIConnection.test_retry_mechanism: AssertionError: ...
 
-[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
+It will become:
+✅17 ❌1 ℹ️0
+- ❌ TestAPIConnection.test_retry_mechanism: AssertionError: ...
 
-**(Alternative Scenario in Step 3)**
+[...tool call to edit tests.md with the new content...]
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Implementation 2 completed)**
+
+### 2.5.2 Quick commit
+[...commit logic for the fix to TestDataProcessing.test_large_file_processing...]
+
+Moving to the next failing test.
+
+# Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Iteration 1
+**(Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Iteration 1)**
+
+## 2.1 Marking
+**(Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Iteration 1)**
+
+## 2.2 Analysis
+[...examining API connection code...]
+<think>
+The error seems to be related to the retry mechanism. The initial attempt to use a basic retry mechanism might not be sufficient.
+</think>
+
+## 2.3 Research
+*I search the web for advanced retry mechanisms in APIs.*
+`mcp_brave-search_brave_web_search(query='python advanced retry mechanism API')`
+
+## 2.4 Implementation
+[...modifying the API connection code to implement a more robust retry mechanism...]
+**(Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Implementation 1 completed)**
+
+## 2.5 Test
+[...determining command for specific test, e.g., `pytest tests/api_tests.py::TestAPIConnection::test_retry_mechanism`...]
+[...calling `mcp_MyMCP_execute_command` with the specific test command...]
+**(Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Test execution 1)**
+
+Success! The test now passes with the new retry mechanism.
+
+### 2.5.1 Update tests.md
+I will update `tests.md`. Assuming it was:
+✅17 ❌1 ℹ️0
+- ❌ TestAPIConnection.test_retry_mechanism: AssertionError: ...
+
+It will become:
+✅18 ❌0 ℹ️0
+
+[...tool call to edit tests.md with the new content...]
+**(Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Implementation 1 completed)**
+
+### 2.5.2 Quick commit
+[...commit logic for the fix to TestAPIConnection.test_retry_mechanism...]
+
+*(Situational) The error was simple, no need to reflect on high-level vision.*
+Moving to the next failing test.
 
 # Fix: 3 - Calling the next rule (Scenario: Fix for non-test issue)
 <think>

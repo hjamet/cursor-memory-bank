@@ -128,6 +128,27 @@
             *   **Dependencies**: 8.2.
             *   **Validation**: Comments are correctly appended to targeted 🗄️ items in `userbrief.md`, and not to others. The agent's comment content is appropriate.
 
+🟢 **9. Enhance `fix.mdc` Rule with Git Log Search for Mysterious Problems**
+    *   **Description**: Modify the `.cursor/rules/fix.mdc` rule to add a new capability. When confronted with a "mysterious problem" (one not easily solvable by direct analysis, often related to external libraries or frameworks), the agent should use `git log --grep="<keywords>"` to search the Git history for similar past issues, documented solutions, or relevant tests.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/rules/fix.mdc`
+    *   **Dependencies**: None.
+    *   **Validation**:
+        *   The `fix.mdc` rule includes a new step or logic within its "Correction loop" (likely Step 2.2 Analysis) to trigger a `git log --grep` search under specific conditions (e.g., problem seems "mysterious", multiple failed attempts).
+        *   The rule defines how keywords for the grep search are determined.
+        *   The example section of `fix.mdc` is updated to illustrate a scenario where this `git log --grep` search is used.
+    *   **Sub-Tasks**:
+        *   🟢 **9.1. Design and Implement `git log` Search Logic in `fix.mdc`**
+            *   **Description**: Define the precise conditions under which the `git log --grep` search is triggered. Determine how the search keywords are formulated. Implement the new logic within Step 2.2 (Analysis) of the `fix.mdc` rule, including the call to `mcp_MyMCP_execute_command` for `git log`.
+            *   **Impacted Rules/Files**: `.cursor/rules/fix.mdc`.
+            *   **Dependencies**: None.
+            *   **Validation**: The `fix.mdc` rule contains the new conditional logic for `git log --grep` search.
+        *   🟢 **9.2. Update `fix.mdc` Example Section**
+            *   **Description**: Modify the "Example" section of `.cursor/rules/fix.mdc` to include a scenario demonstrating the agent using the `git log --grep` functionality for a mysterious problem.
+            *   **Impacted Rules/Files**: `.cursor/rules/fix.mdc`.
+            *   **Dependencies**: None.
+            *   **Validation**: The example in `fix.mdc` clearly shows the new `git log --grep` step in action.
+
 # DONE
 
 3.  **Feature: Ajout de l'outil de capture d'écran web**
