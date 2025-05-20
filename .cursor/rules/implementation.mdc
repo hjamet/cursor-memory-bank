@@ -57,13 +57,13 @@ Methodically implement tasks from a priority section, retrieve high-level contex
 - A feature is "testable" if it involves creating/modifying a script or function
 - To avoid losing the workflow, systematically write **(Implementation - 3.number.[Section Name]: [Task Title] in progress...)** between each step
 
-**Using the Advanced MCP Terminal Tools:**
+**VERY IMPORTANT : Using the Advanced MCP Terminal Tools:**
 
-For executing shell commands, prefer the advanced MCP terminal tools for better control and monitoring:
-1.  **Launch:** Call the `mcp_MyMCP_execute_command` MCP tool with the `command` to run and an optional `timeout` in seconds. It returns the `pid` and initial output/status after the timeout (default 15s) or command completion, whichever comes first. The command continues running in the background if the MCP timeout is reached.
-2.  **Check Status:** Call the `mcp_MyMCP_get_terminal_status` MCP tool with an optional `timeout` in seconds to get the list of all running/completed commands, their `pid`, `status` (`Running`, `Success`, `Failure`, `Stopped`), `exit_code`, and recent output. Providing a `timeout` waits for a status change.
-3.  **Get Output:** Call the `mcp_MyMCP_get_terminal_output` MCP tool with the target `pid` and an optional `lines` count to retrieve the last N lines (default 100) of stdout/stderr for that process.
-4.  **Stop & Cleanup:** Call the `mcp_MyMCP_stop_terminal_command` MCP tool with the target `pid` and an optional `lines` count to terminate a running command, retrieve its final output, and remove it from tracking.
+For executing shell commands, ALWAYS USE MyMCP and NEVER USE the terminal tool for better control and monitoring:
+1.  **Launch:** Call the `mcp_execute_command` MCP tool with the `command` to run and an optional `timeout` in seconds. It returns the `pid` and initial output/status after the timeout (default 15s) or command completion, whichever comes first. The command continues running in the background if the MCP timeout is reached. I STRONGLY encourage using short timeouts, even to the point of monitoring command execution with increasingly longer timeouts via `mcp_get_terminal_status`. The idea is to be as efficient as possible and to be able to interrupt commands with minimal issue or in the face of an unusually long wait.
+2.  **Check Status:** Call the `mcp_get_terminal_status` MCP tool with an optional `timeout` in seconds to get the list of all running/completed commands, their `pid`, `status` (`Running`, `Success`, `Failure`, `Stopped`), `exit_code`, and recent output. Providing a `timeout` waits for a status change.
+3.  **Get Output:** Call the `mcp_get_terminal_output` MCP tool with the target `pid` and an optional `lines` count to retrieve the last N lines (default 100) of stdout/stderr for that process.
+4.  **Stop & Cleanup:** Call the `mcp_stop_terminal_command` MCP tool with the target `pid` and an optional `lines` count to terminate a running command, retrieve its final output, and remove it from tracking.
 This workflow allows managing long processes without blocking and retrieving intermediate/final results reliably.
 
 - Always call the appropriate next rule

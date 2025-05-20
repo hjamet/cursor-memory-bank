@@ -27,7 +27,7 @@ Analyze test errors and fix them through an iterative execution-correction loop 
         *   **(Optional) Git History Check**: If the error seems like a *regression*, consider checking Git history for recent changes to related files. Use `mcp_MyMCP_execute_command` with commands like `git log -p <file_path>` or `git diff <commit_hash>^! -- <file_path>` to review changes. If a problematic change is identified, consider using `git restore --source=<commit_hash> <file_path>` or `git checkout <commit_hash> -- <file_path>` to view or restore the previous version (use with caution).
     *   **2.3 Research**: If needed, use `mcp_brave-search_brave_web_search` to find solutions for specific errors
     *   **2.4 Implementation**: Make the correction and document the changes
-    *   **2.5 Test**: Execute ONLY the specific test currently being fixed using `mcp_MyMCP_execute_command` (determine the correct command, e.g., `pytest tests/test_module.py::test_function`) and analyze the result:
+    *   **2.5 Test**: Execute ONLY the specific test currently being fixed using `mcp_MyMCP_execute_command` (CF section on MyMCP below) (determine the correct command, e.g., `pytest tests/test_module.py::test_function`) and analyze the result:
         *   If test passes :
             * **2.5.1 Update tests.md**: If the test passes:
                 *   Read the current content of `.cursor/memory-bank/workflow/tests.md`.
@@ -81,10 +81,10 @@ Analyze test errors and fix them through an iterative execution-correction loop 
     *   Updates that modify existing functionalities
 -   CRUCIAL: To avoid losing workflow tracking, ALWAYS indicate the current test and iteration
 
-**Using the Advanced MCP Terminal Tools:**
+**VERY IMPORTANT : Using the Advanced MCP Terminal Tools:**
 
-For executing shell commands, prefer the advanced MCP terminal tools for better control and monitoring:
-1.  **Launch:** Call the `mcp_execute_command` MCP tool with the `command` to run and an optional `timeout` in seconds. It returns the `pid` and initial output/status after the timeout (default 15s) or command completion, whichever comes first. The command continues running in the background if the MCP timeout is reached.
+For executing shell commands, ALWAYS USE MyMCP and NEVER USE the terminal tool for better control and monitoring:
+1.  **Launch:** Call the `mcp_execute_command` MCP tool with the `command` to run and an optional `timeout` in seconds. It returns the `pid` and initial output/status after the timeout (default 15s) or command completion, whichever comes first. The command continues running in the background if the MCP timeout is reached. I STRONGLY encourage using short timeouts, even to the point of monitoring command execution with increasingly longer timeouts via `mcp_get_terminal_status`. The idea is to be as efficient as possible and to be able to interrupt commands with minimal issue or in the face of an unusually long wait.
 2.  **Check Status:** Call the `mcp_get_terminal_status` MCP tool with an optional `timeout` in seconds to get the list of all running/completed commands, their `pid`, `status` (`Running`, `Success`, `Failure`, `Stopped`), `exit_code`, and recent output. Providing a `timeout` waits for a status change.
 3.  **Get Output:** Call the `mcp_get_terminal_output` MCP tool with the target `pid` and an optional `lines` count to retrieve the last N lines (default 100) of stdout/stderr for that process.
 4.  **Stop & Cleanup:** Call the `mcp_stop_terminal_command` MCP tool with the target `pid` and an optional `lines` count to terminate a running command, retrieve its final output, and remove it from tracking.
