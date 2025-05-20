@@ -19,24 +19,27 @@ Update context files to reflect changes, update tasks.md based on test results, 
    - Ensure each file remains under 200 lines (especially `projectBrief.md` and `activeContext.md`).
    - Prioritize conciseness while maintaining clarity and all mandatory sections for `projectBrief.md`, `activeContext.md`, and `techContext.md` as defined in Step 1.
 
-3. **Userbrief Archival Commenting**: Read `.cursor/memory-bank/userbrief.md` and `.cursor/memory-bank/context/activeContext.md`. For any archived task (🗄️) in `userbrief.md` that the agent "remembers" working on (based on its description being found in `activeContext.md`) and that does not already have an agent comment, append `-> 🧠 Task context found in active memory.` to that line in `userbrief.md`.
+3. **Userbrief Archival Commenting**: Read `.cursor/memory-bank/userbrief.md` and `.cursor/memory-bank/context/activeContext.md`. For any archived task (🗄️) in `userbrief.md` that the agent "remembers" working on (based on its description being found in `activeContext.md`) and that does not already have an agent comment, the agent will append a specific, informative comment in French.
     *   <think>
-        *   Read `.cursor/memory-bank/userbrief.md` (e.g., `userbrief_lines = read_file_lines(...)`).
-        *   Read `.cursor/memory-bank/context/activeContext.md` (e.g., `active_context_content = read_entire_file(...)`).
-        *   `new_userbrief_content = []`
-        *   `made_changes = false`
-        *   For each `line` in `userbrief_lines`:
-        *     If `line.strip().startswith("🗄️ - ")` and `"-> 🧠"` not in `line`:
-        *       `task_text_parts = line.split("🗄️ - ", 1)`
-        *       If `len(task_text_parts) > 1`:
-        *         `archived_task_description = task_text_parts[1].strip()`
-        *         `memory_check_segment = archived_task_description[:30]` (Use first 30 chars for memory check)
-        *         If `memory_check_segment` and `memory_check_segment in active_context_content`:
-        *           `line = line.rstrip() + " -> 🧠 Task context found in active memory."`
-        *           `made_changes = true`
-        *     `new_userbrief_content.append(line)`
-        *   If `made_changes`:
-        *     `edit_file(".cursor/memory-bank/userbrief.md", "".join(new_userbrief_content))`
+        *   I need to read `userbrief.md` and `activeContext.md`.
+        *   For each archived task (🗄️) in `userbrief.md` that doesn't have an agent comment (-> 🧠):
+        *     I will extract the `archived_task_description`.
+        *     I will then search `activeContext.md` for this `archived_task_description` (or its key identifying parts, e.g., the first 50 characters).
+        *     Let `my_french_comment = ""`.
+        *     If I find relevant information in `activeContext.md` about this task (e.g., its completion status, any problems encountered, or information/resources I needed for it):
+        *       I will use my understanding to formulate a concise, informative comment **in French**, summarizing this information.
+        *       This comment should be similar in style to the user's examples:
+        *         - "tâche terminée, tous les tests passent mais il y a encore un problème avec xxx qui a été ajouté à la liste des tâches"
+        *         - "J'ai besoin de la clé d'authentification together.ai présente dans le fichier .env pour pouvoir effectuer cette opération"
+        *       This is where I generate the actual `my_french_comment` string.
+        *     Else if I find the task mentioned in `activeContext.md` (e.g., `archived_task_description[:50]` is in `active_context_content`) but no *specific* details for a rich comment as described above, I will formulate a more general French comment indicating the task was processed, for example:
+        *       `my_french_comment = "La tâche concernant \'" + archived_task_description[:30].replace("'", "\\'") + "...\' a été traitée."` (This is a fallback, I should try to be more specific if possible based on context).
+        *
+        *     If `my_french_comment` is not empty:
+        *       I will append `" -> 🧠 " + my_french_comment` to the task line in `userbrief.md`.
+        *       And I will ensure `userbrief.md` is updated with these changes using the `edit_file` tool, joining all (potentially modified) lines.
+        *     If I don't find the task in `activeContext.md` or cannot generate a meaningful comment, I will make no change to that line.
+        *   After checking all lines, if I made any changes to `userbrief.md` content, I will use the `edit_file` tool to write the modified content back to the file.
     *   </think>
     *   (Agent will execute the logic described in the think block using available tools like `read_file` and `edit_file`.)
 
@@ -157,15 +160,18 @@ I clean up context files by removing obsolete information. **(Context-update: 2 
 **(Context-update: 2 - Context cleanup)**
 
 # Context-update: 3 - Userbrief Archival Commenting
-I will now check userbrief.md for archived tasks and add comments if I remember working on them. **(Context-update: 3 - Userbrief Archival Commenting)**
+I will now check `userbrief.md` for archived tasks and add specific French comments if I remember working on them and relevant information is found in `activeContext.md`. **(Context-update: 3 - Userbrief Archival Commenting)**
 <think>
 The agent reads `.cursor/memory-bank/userbrief.md` and `.cursor/memory-bank/context/activeContext.md`.
-It iterates through `userbrief.md`. For lines starting with "🗄️ - " and not containing "-> 🧠", it extracts the task description.
-It checks if the first 30 characters of this description exist in `activeContext.md`.
-If yes, it appends " -> 🧠 Task context found in active memory." to the line.
-Finally, if any changes were made, it writes back to `userbrief.md`.
+For each archived task (starting with "🗄️ - ") in `userbrief.md` that does not already have an agent comment ("-> 🧠"):
+1. It extracts the archived task description.
+2. It searches for this description (or key parts of it) in `activeContext.md`.
+3. If it finds relevant information (status, issues, needs), it formulates a concise and informative comment **in French**. For example, if `activeContext.md` states "Task 'Fix bug X' completed, but issue with Y", the comment could be "Tâche 'Corriger le bug X' terminée, mais un souci persiste avec Y.".
+4. If it finds the task in `activeContext.md` but no specific details, it formulates a more general French comment, like "La tâche concernant 'Corriger le bug X...' a été traitée.".
+5. It appends the generated comment to the task line in `userbrief.md` (e.g., "🗄️ - Fix display bug on homepage -> 🧠 Tâche corrigée, mais un souci d'alignement subsiste sur mobile.").
+If changes are made, the agent saves `userbrief.md` using file manipulation tools.
 </think>
-[...agent performs actions described in think block using file tools...]
+[...agent performs actions described in the think block using available file tools...]
 **(Context-update: 3 - Userbrief Archival Commenting)**
 
 # Context-update: 4 - Updating tasks.md file
