@@ -100,6 +100,34 @@
     *   **Dependencies**: None.
     *   **Validation**: The `on-edit-tool-fail.mdc` rule incorporates the new logic in its Step 5 for handling complete failure of automated edits, and Steps 6-8 are correctly conditionalized.
 
+🟢 **8. Enhance `context-update` to Comment on Archived Userbrief Tasks**
+    *   **Description**: Modify the `.cursor/rules/context-update.mdc` rule to add a new step. This step will involve reading `.cursor/memory-bank/userbrief.md`, identifying tasks marked as archived (🗄️), and checking `.cursor/memory-bank/context/activeContext.md` to determine if the agent "remembers" (i.e., has logged activity related to) processing those tasks. If remembered, the agent should append a comment in the format `-> 🧠 [comment_text]` to the corresponding line in `userbrief.md`. This aims to provide user feedback without interrupting the workflow.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/rules/context-update.mdc` (Primary modification)
+        *   `.cursor/memory-bank/userbrief.md` (Read and modified by the new step)
+        *   `.cursor/memory-bank/context/activeContext.md` (Read by the new step)
+    *   **Dependencies**: None.
+    *   **Validation**:
+        *   The `context-update.mdc` rule includes the new step.
+        *   When `context-update` runs, if `userbrief.md` contains 🗄️ items that have corresponding entries in `activeContext.md` (indicating they were processed), comments like `-> 🧠 Task acknowledged and processed.` are correctly appended to those items in `userbrief.md`.
+        *   Archived items in `userbrief.md` that have no corresponding "memory" in `activeContext.md` are not commented on.
+    *   **Sub-Tasks**:
+        *   🟢 **8.1. Design `context-update` New Step Logic**
+            *   **Description**: Define the precise insertion point and logic for the new step within `context-update.mdc`. This includes reading `userbrief.md` and `activeContext.md`, parsing `userbrief.md` for 🗄️ tasks, implementing the "memory check" against `activeContext.md`, formatting the agent's comment, and editing `userbrief.md`.
+            *   **Impacted Rules/Files**: `.cursor/rules/context-update.mdc`.
+            *   **Dependencies**: None.
+            *   **Validation**: The planned logic is sound and covers all requirements of the feature.
+        *   🟢 **8.2. Implement `context-update` Modification**
+            *   **Description**: Apply the designed changes to `.cursor/rules/context-update.mdc` using the `edit_file` tool.
+            *   **Impacted Rules/Files**: `.cursor/rules/context-update.mdc`.
+            *   **Dependencies**: 8.1.
+            *   **Validation**: The `edit_file` operation is successful, and the `context-update.mdc` rule is modified as intended.
+        *   🟢 **8.3. Test Commenting Feature**
+            *   **Description**: Manually prepare a `userbrief.md` with a mix of archived (🗄️) tasks, some of which have plausible corresponding entries in a test `activeContext.md`. Run the modified `context-update` rule (potentially by manually stepping through parts of the workflow or creating a test harness if feasible) and verify that comments are added correctly only to the "remembered" archived tasks.
+            *   **Impacted Rules/Files**: `.cursor/memory-bank/userbrief.md` (for test setup), `.cursor/memory-bank/context/activeContext.md` (for test setup), `.cursor/rules/context-update.mdc` (for execution).
+            *   **Dependencies**: 8.2.
+            *   **Validation**: Comments are correctly appended to targeted 🗄️ items in `userbrief.md`, and not to others. The agent's comment content is appropriate.
+
 # DONE
 
 3.  **Feature: Ajout de l'outil de capture d'écran web**
