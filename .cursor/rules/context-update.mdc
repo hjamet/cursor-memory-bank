@@ -19,17 +19,38 @@ Update context files to reflect changes, update tasks.md based on test results, 
    - Ensure each file remains under 200 lines (especially `projectBrief.md` and `activeContext.md`).
    - Prioritize conciseness while maintaining clarity and all mandatory sections for `projectBrief.md`, `activeContext.md`, and `techContext.md` as defined in Step 1.
 
-3. **tasks.md update**: Update `.cursor/memory-bank/workflow/tasks.md` based on test results and task completion:
+3. **Userbrief Archival Commenting**: Read `.cursor/memory-bank/userbrief.md` and `.cursor/memory-bank/context/activeContext.md`. For any archived task (🗄️) in `userbrief.md` that the agent "remembers" working on (based on its description being found in `activeContext.md`) and that does not already have an agent comment, append `-> 🧠 Task context found in active memory.` to that line in `userbrief.md`.
+    *   <think>
+        *   Read `.cursor/memory-bank/userbrief.md` (e.g., `userbrief_lines = read_file_lines(...)`).
+        *   Read `.cursor/memory-bank/context/activeContext.md` (e.g., `active_context_content = read_entire_file(...)`).
+        *   `new_userbrief_content = []`
+        *   `made_changes = false`
+        *   For each `line` in `userbrief_lines`:
+        *     If `line.strip().startswith("🗄️ - ")` and `"-> 🧠"` not in `line`:
+        *       `task_text_parts = line.split("🗄️ - ", 1)`
+        *       If `len(task_text_parts) > 1`:
+        *         `archived_task_description = task_text_parts[1].strip()`
+        *         `memory_check_segment = archived_task_description[:30]` (Use first 30 chars for memory check)
+        *         If `memory_check_segment` and `memory_check_segment in active_context_content`:
+        *           `line = line.rstrip() + " -> 🧠 Task context found in active memory."`
+        *           `made_changes = true`
+        *     `new_userbrief_content.append(line)`
+        *   If `made_changes`:
+        *     `edit_file(".cursor/memory-bank/userbrief.md", "".join(new_userbrief_content))`
+    *   </think>
+    *   (Agent will execute the logic described in the think block using available tools like `read_file` and `edit_file`.)
+
+4. **tasks.md update**: Update `.cursor/memory-bank/workflow/tasks.md` based on test results and task completion:
    - Identify tasks that were 🟡 IN_PROGRESS and are now completed (e.g., based on `activeContext.md` or if the `implementation` rule just finished a task).
    - Change their status emoji from 🟡 IN_PROGRESS to 🟢 DONE.
 
-4. **Commit changes**: Make a commit with the modifications using the MCP tool:
+5. **Commit changes**: Make a commit with the modifications using the MCP tool:
    - Determine the appropriate `emoji`, `type`, and `title` based on the changes made during the preceding rules.
    - **Construct a detailed `description`**: This description is CRITICAL and must be a comprehensive markdown-formatted text. Refer to the "Format for Detailed Commit Description" section below. It should summarize all work done, tests performed, observations, and a conclusion.
    - Call the `mcp_MyMCP_commit` tool with these arguments (`emoji`, `type`, `title`, `description`).
    - The tool handles staging automatically (equivalent to `git add .` or `git commit -a`).
 
-5. **File integrity verification**: Look for structural problems:
+6. **File integrity verification**: Look for structural problems:
    - Read the `.cursor/memory-bank/userbrief.md` file.
    - Use the MCP command execution tool via Git Bash to list all markdown files: `mcp_MyMCP_execute_command(command = "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"find . -type f -name '*.md'\"")`
    - Analyze results to identify:
@@ -38,9 +59,9 @@ Update context files to reflect changes, update tasks.md based on test results, 
      - Unnecessary temporary files
      - Files with incorrect names
    - If structural problems are identified OR if the `.cursor/memory-bank/userbrief.md` file contains unprocessed comments (marked with - symbol in the # User input section), call the `consolidate-repo` rule
-   - Otherwise, continue with the next step: 6. **Call the next rule**
+   - Otherwise, continue with the next step: 7. **Call the next rule**
 
-6. **Call the next rule**: Mandatory call to the next rule if the workflow is not complete:
+7. **Call the next rule**: Mandatory call to the next rule if the workflow is not complete:
    - Read the `.cursor/memory-bank/workflow/test.md` file
      - IF at least one test fails, call the `fix` rule
      - ELSE IF structural problems were identified OR if the `.cursor/memory-bank/userbrief.md` file contains unprocessed comments (marked with - symbol in the # User input section), call the `consolidate-repo` rule
@@ -135,13 +156,25 @@ I clean up context files by removing obsolete information. **(Context-update: 2 
 [...cleaning up context files...]
 **(Context-update: 2 - Context cleanup)**
 
-# Context-update: 3 - Updating tasks.md file
-I update the tasks.md file by changing the status of completed tasks from 🟡 IN_PROGRESS to 🟢 DONE. **(Context-update: 3 - Updating tasks.md file)**
-[...updating tasks.md file...]
-**(Context-update: 3 - Updating tasks.md file)**
+# Context-update: 3 - Userbrief Archival Commenting
+I will now check userbrief.md for archived tasks and add comments if I remember working on them. **(Context-update: 3 - Userbrief Archival Commenting)**
+<think>
+The agent reads `.cursor/memory-bank/userbrief.md` and `.cursor/memory-bank/context/activeContext.md`.
+It iterates through `userbrief.md`. For lines starting with "🗄️ - " and not containing "-> 🧠", it extracts the task description.
+It checks if the first 30 characters of this description exist in `activeContext.md`.
+If yes, it appends " -> 🧠 Task context found in active memory." to the line.
+Finally, if any changes were made, it writes back to `userbrief.md`.
+</think>
+[...agent performs actions described in think block using file tools...]
+**(Context-update: 3 - Userbrief Archival Commenting)**
 
-# Context-update: 4 - Making a commit
-I prepare and make a commit with the changes made using the MCP commit tool. **(Context-update: 4 - Making a commit)**
+# Context-update: 4 - Updating tasks.md file
+I update the tasks.md file by changing the status of completed tasks from 🟡 IN_PROGRESS to 🟢 DONE. **(Context-update: 4 - Updating tasks.md file)**
+[...updating tasks.md file...]
+**(Context-update: 4 - Updating tasks.md file)**
+
+# Context-update: 5 - Making a commit
+I prepare and make a commit with the changes made using the MCP commit tool. **(Context-update: 5 - Making a commit)**
 <think>
 To construct the commit message, I need to determine:
 1.  `emoji` and `type`: Based on the overall nature of the changes (e.g., :sparkles: feat, :bug: fix).
@@ -155,19 +188,19 @@ This requires gathering and structuring a lot of information.
 </think>
 [...gathering information and constructing the detailed emoji, type, title, and multi-section markdown description...]\
 [...calling tool `mcp_MyMCP_commit` with appropriate arguments, including the detailed markdown description...]\
-**(Context-update: 4 - Making a commit)**
+**(Context-update: 5 - Making a commit)**
 
-# Context-update: 5 - File integrity verification
-I now check the integrity of project files using the MCP command execution tool via Git Bash. **(Context-update: 5 - File integrity verification)**
+# Context-update: 6 - File integrity verification
+I now check the integrity of project files using the MCP command execution tool via Git Bash. **(Context-update: 6 - File integrity verification)**
 [...calling tool `mcp_MyMCP_execute_command` with command="\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"find . -type f -name '*.md'\""...]
-[...analyzing command results...]\nI have not identified structural problems in the files. I will now check the content of the `userbrief.md` file. **(Context-update: 5 - File integrity verification)**
+[...analyzing command results...]\nI have not identified structural problems in the files. I will now check the content of the `userbrief.md` file. **(Context-update: 6 - File integrity verification)**
 [...checking .cursor/memory-bank/userbrief.md file...]
 I don't see new tasks or advice to process. I will therefore proceed to the next step.
-**(Context-update: 5 - File integrity verification)**
+**(Context-update: 6 - File integrity verification)**
 
-# Context-update: 6 - Calling the next rule
-I now check the tests and remaining tasks (looking for 🟡 or ⚪️ emojis) to determine which rule to call. **(Context-update: 6 - Calling the next rule)**
+# Context-update: 7 - Calling the next rule
+I now check the tests and remaining tasks (looking for 🟡 or ⚪️ emojis) to determine which rule to call. **(Context-update: 7 - Calling the next rule)**
 [...checking tests and tasks...]
-I see there are tasks with 🟡 or ⚪️ emojis and all tests pass. I will therefore call the `implementation` rule. **(Context-update: 6 - Calling the next rule)**
+I see there are tasks with 🟡 or ⚪️ emojis and all tests pass. I will therefore call the `implementation` rule. **(Context-update: 7 - Calling the next rule)**
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
