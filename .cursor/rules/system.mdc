@@ -45,7 +45,7 @@ Example: "I will now read [...] **(Implementation: 2 - Context retrieval)**"
 ## ⚠️ STARTUP AND FINALIZATION ⚠️
 
 - MANDATORY: Always start by calling `context-loading` to start the workflow, unless the last executed rule was `workflow-perdu`
-- For each new user message that interrupts the flow, restart the workflow appropriately, often starting with `context-loading` or `request-analysis` depending on the message content.
+- For each new user message that interrupts the flow, restart the workflow appropriately, often starting with `context-loading` or `task-decomposition` depending on the message content.
 - The workflow is only completed when the `context-update` rule confirms that all tasks are completed and all tests validated
 
 ## ⚠️ CALLING THE NEXT RULE ⚠️
@@ -59,7 +59,7 @@ Example: "I will now read [...] **(Implementation: 2 - Context retrieval)**"
 Follow the workflow STRICTLY. Execute rules sequentially and autonomously. Never anticipate steps beyond the current rule's instructions before completing them.
 
 ## Next Rules
-- `request-analysis` - Detailed analysis of user request
+- `task-decomposition` - Detailed analysis of user request
 
 ## Example (Illustrating Continuous Flow)
 

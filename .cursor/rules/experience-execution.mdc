@@ -117,7 +117,7 @@ Execute potentially long-running commands (experiments, data processing, model t
         *</think>`
     *   **Decision Logic:**
         *   IF final analysis (Step 5) detected problems, errors, or non-conformity → call `fix`, providing context.
-        *   ELSE IF final analysis (Step 5) explicitly noted **anomalies or strange findings** (even if the execution technically succeeded) → call `request-analysis`, instructing it to create a new task to investigate these specific anomalies.
+        *   ELSE IF final analysis (Step 5) explicitly noted **anomalies or strange findings** (even if the execution technically succeeded) → call `task-decomposition`, instructing it to create a new task to investigate these specific anomalies.
         *   ELSE IF execution was successful AND there are stable behaviors that should be "frozen" with tests (behaviors unlikely to change) → call `test-implementation`.
         *   ELSE (execution successful, no anomalies noted, no need to freeze behaviors) → call `context-update`.
     *   **(Experience-Execution: 10 - Calling next rule)**
@@ -133,7 +133,7 @@ Execute potentially long-running commands (experiments, data processing, model t
 ## Next Rules
 -   `context-update` - If execution was successful and NO anomalies were noted in final analysis.
 -   `fix` - If execution failed or results were non-conformant in final analysis.
--   `request-analysis` - If execution succeeded BUT anomalies/strange results were noted during final critical analysis.
+-   `task-decomposition` - If execution succeeded BUT anomalies/strange results were noted during final critical analysis.
 
 ## Example (Conceptual)
 

@@ -185,6 +185,43 @@
             *   **Dependencies**: 10.1, 10.3, 10.4
             *   **Validation**: `test-execution.mdc` functions correctly in the new testing workflow.
 
+🟢 **11. Simplify Workflow Rules and Merge Request-Analysis with Task-Decomposition**
+    *   **Description**: Streamline the workflow by simplifying `implementation.mdc` decision logic and merging `request-analysis` functionality into `task-decomposition` to reduce complexity and improve efficiency. This involves moving all next rule decision logic in `implementation.mdc` to Step 5 only, enhancing `task-decomposition.mdc` with analysis capabilities, and updating all rule references.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/rules/implementation.mdc` (simplify decision logic)
+        *   `.cursor/rules/task-decomposition.mdc` (add analysis capabilities)
+        *   `.cursor/rules/consolidate-repo.mdc` (update references)
+        *   `.cursor/rules/context-loading.mdc` (update references)
+        *   `.cursor/rules/fix.mdc` (update references)
+        *   `.cursor/rules/experience-execution.mdc` (update references)
+        *   `.cursor/rules/system.mdc` (update references)
+        *   `.cursor/rules/workflow-perdu.mdc` (update references)
+        *   `.cursor/rules/new-chat.mdc` (update references)
+        *   `.cursor/rules/request-analysis.mdc` (for deletion)
+    *   **Dependencies**: None.
+    *   **Validation**: The workflow remains functional with simplified decision logic, all rule references are updated correctly, and the merged functionality preserves essential features like vision storage.
+    *   **Sub-Tasks**:
+        *   🟢 **11.1. Simplify `implementation.mdc` Decision Logic**
+            *   **Description**: Move all next rule calling logic exclusively to Step 5. Remove decision points from Step 3. Agent must complete all sub-tasks first, then decide between `experience-execution` (default for any code changes) or `context-update` (rare cases with no executable code changes like git operations, repo cleanup).
+            *   **Impacted Rules/Files**: `.cursor/rules/implementation.mdc`
+            *   **Dependencies**: None.
+            *   **Validation**: `implementation.mdc` has simplified logic with decision making only in Step 5.
+        *   🟢 **11.2. Enhance `task-decomposition.mdc` with Analysis Capabilities**
+            *   **Description**: Add request analysis capabilities to `task-decomposition.mdc` including: request analysis step, code analysis with codebase search (max 3), research with Context7 tools or web search (max 5), vision storage functionality. Remove tree creation step. Preserve all existing task decomposition functionality.
+            *   **Impacted Rules/Files**: `.cursor/rules/task-decomposition.mdc`
+            *   **Dependencies**: None.
+            *   **Validation**: `task-decomposition.mdc` includes comprehensive analysis capabilities while maintaining task decomposition functionality.
+        *   🟢 **11.3. Update Rule References**
+            *   **Description**: Replace all calls to `request-analysis` with `task-decomposition` in affected rules: `consolidate-repo.mdc`, `context-loading.mdc`, `fix.mdc`, `experience-execution.mdc`, `system.mdc`, `workflow-perdu.mdc`, `new-chat.mdc`.
+            *   **Impacted Rules/Files**: Multiple rule files as listed above.
+            *   **Dependencies**: 11.2.
+            *   **Validation**: All rule references are updated and workflow continuity is maintained.
+        *   🟢 **11.4. Delete Obsolete `request-analysis.mdc`**
+            *   **Description**: Remove the `request-analysis.mdc` file after successful migration of its functionality to `task-decomposition.mdc`.
+            *   **Impacted Rules/Files**: `.cursor/rules/request-analysis.mdc`
+            *   **Dependencies**: 11.2, 11.3.
+            *   **Validation**: The obsolete rule file is deleted and no references to it remain.
+
 # DONE
 
 3.  **Feature: Ajout de l'outil de capture d'écran web**

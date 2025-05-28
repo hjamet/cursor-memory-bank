@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 ## TLDR
-Analyze test errors and fix them through an iterative execution-correction loop until all tests pass or truly complex issues (requiring major refactoring or showing no progress after 3 attempts) are identified and handed over to `request-analysis`. Retrieve high-level context when needed.
+Analyze test errors and fix them through an iterative execution-correction loop until all tests pass or truly complex issues (requiring major refactoring or showing no progress after 3 attempts) are identified and handed over to `task-decomposition`. Retrieve high-level context when needed.
 
 ## Instructions
 
@@ -54,10 +54,10 @@ Analyze test errors and fix them through an iterative execution-correction loop 
             * **2.5.3 Continue**: Move to the next failing test in the list and repeat the loop from step 2.1.
         *   If test fails but shows progress → Continue loop with new iteration for the *same* test.
         *   If **truly complex correction** (after 3 attempts *without any progress* OR requires *major* refactoring / a completely new implementation approach):
-            *   Mark the test as **(Fix: 2 - Correction loop - [Test name] - Handing over to request-analysis)**
-            *   Call the `request-analysis` rule, providing the problem description, context, and the need for a new approach.
+            *   Mark the test as **(Fix: 2 - Correction loop - [Test name] - Handing over to task-decomposition)**
+            *   Call the `task-decomposition` rule, providing the problem description, context, and the need for a new approach.
 
-3.  **Calling the next rule (only if loop completed without handover)**: Determine the next step based on results *if and only if* step 2.5 did not trigger a handover to `request-analysis`.
+3.  **Calling the next rule (only if loop completed without handover)**: Determine the next step based on results *if and only if* step 2.5 did not trigger a handover to `task-decomposition`.
     *   `<think>`
         *   **Determine Invocation Context:** How was the `fix` rule invoked?
         *   Read `.cursor/memory-bank/context/activeContext.md`. Look for sections indicating the source of the problem (e.g., `## Test Execution Failure`, `## Experience Execution Anomaly`, `## User Reported Issue`).
@@ -99,7 +99,7 @@ This workflow allows managing long processes without blocking and retrieving int
 -   `consolidate-repo` - If loop completes and unprocessed comments exist
 -   `test-execution` - If loop completes and the fix was for issues identified by existing automated tests.
 -   `test-implementation` - If loop completes and the fix was for issues NOT identified by existing automated tests (to add regression test).
--   `request-analysis` - Called directly from step 2.5 for truly complex issues, terminating this rule's execution.
+-   `task-decomposition` - Called directly from step 2.5 for truly complex issues, terminating this rule's execution.
 
 ## Example
 

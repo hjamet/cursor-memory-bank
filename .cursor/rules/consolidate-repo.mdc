@@ -42,7 +42,7 @@ Consolidates user requests from a section-less, emoji-driven `userbrief.md`, man
    - IF any line now starts with `⏳ - ` (indicating a task was just marked for processing by this rule in step 1 OR was already pending from a previous run):
      - Extract the content of the first such `⏳` item.
      - Formulate this as the user request to be analyzed.
-     - Call `request-analysis` rule to process this specific request (which will then likely lead to `task-decomposition`).
+     - Call `task-decomposition` rule to process this specific request (which will then likely lead to `task-decomposition`).
    - ELSE (no ⏳ items found, meaning no new tasks were identified or are pending from `userbrief.md`):
      - Call `context-update` rule to continue the general workflow (e.g., check for structural issues if this rule was called for that purpose, or proceed if it was a routine check).
 
@@ -96,7 +96,7 @@ The `.cursor/memory-bank/userbrief.md` file no longer uses H1 section titles (e.
 
 ## Next Rules
 
-- `request-analysis` - If a `🆕` item was converted to `⏳` (or an existing `⏳` item is found), to analyze this specific task.
+- `task-decomposition` - If a `🆕` item was converted to `⏳` (or an existing `⏳` item is found), to analyze this specific task.
 - `context-update` - If no `🆕` items were processed into `⏳` tasks (e.g., only preferences found, or no new input).
 
 ## Example
@@ -129,9 +129,9 @@ No terminal commands were used that require cleanup in this path. **(Consolidate
 
 # Consolidate-repo: 5 - Evaluation of user requests & Next Rule
 I re-read `userbrief.md`. It now contains `⏳ - Add a new feature X.`. **(Consolidate-repo: 5 - Evaluation of user requests & Next Rule)**
-I found a task marked `⏳`. I will formulate "Add a new feature X" as the request and call `request-analysis`.
+I found a task marked `⏳`. I will formulate "Add a new feature X" as the request and call `task-decomposition`.
 **(Consolidate-repo: 5 - Evaluation of user requests & Next Rule)**
 
-[...Calling `request-analysis` rule...]
+[...Calling `task-decomposition` rule...]
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)  

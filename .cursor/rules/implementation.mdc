@@ -29,23 +29,17 @@ Methodically implement tasks from a priority section, retrieve high-level contex
    - Evaluate if the task is complex and requires in-depth reflection
    - If yes, use the think token: `<think>In-depth reflection using chain of thought, comparison of different implementation approaches, etc.</think>`
    - Briefly summarize the conclusions of the reflection if applicable
-
-   - **Decision Point:** Based on the task analysis and reflection:
-     - If the task primarily involves executing a complex command, script, or experiment (e.g., data processing, model training, performance test) AND requires analysis of the output → **Call the `experience-execution` rule instead of proceeding with direct implementation below.**
-     - Otherwise (standard code writing/modification) → Proceed with the implementation steps below.
-
-   - Implement the solution (Only if not calling `experience-execution`)
+   - Implement the solution for all sub-tasks in the current section
    - After each tool call, write **(Implementation - 3.number.[Section Name]: [Task Title] in progress...)**
 
 4. **Task update**: Update tasks.md
    - Move section from "ToDo" to "In Progress" if necessary
-   - Mark individual tasks as in progress
+   - Mark individual tasks as in progress or completed as appropriate
 
-5. **Calling the next rule**: Mandatory to choose (Only if `experience-execution` was NOT called in step 3)
-   - If `experience-execution` was called, its own step 8 dictates the next rule (`context-update`, `fix`, or `test-implementation`).
-   - Otherwise, based on the implementation done in *this* rule:
-     - IF testable feature created or modified → `experience-execution` (for manual testing and verification)
-     - ELSE IF Only non-testable changes (e.g., documentation, rule edits) → `context-update`
+5. **Calling the next rule**: Mandatory decision point after completing ALL sub-tasks
+   - Based on the implementation completed in this rule:
+     - IF any testable feature was created or modified (scripts, functions, executable code) → `experience-execution` (DEFAULT for testing approach)
+     - ELSE IF only non-testable changes were made (documentation, rule edits, git operations, repo cleanup) → `context-update`
 
 ## Specifics
 
@@ -56,6 +50,7 @@ Methodically implement tasks from a priority section, retrieve high-level contex
 - Comment complex parts of the code
 - A feature is "testable" if it involves creating/modifying a script or function
 - To avoid losing the workflow, systematically write **(Implementation - 3.number.[Section Name]: [Task Title] in progress...)** between each step
+- Complete ALL sub-tasks in the current section before proceeding to Step 5
 
 **VERY IMPORTANT : Using the Advanced MCP Terminal Tools:**
 
@@ -69,8 +64,8 @@ This workflow allows managing long processes without blocking and retrieving int
 - Always call the appropriate next rule
 
 ## Next Rules
-- `experience-execution`: If new testable feature created or modified (DEFAULT for testing approach)
-- `context-update`: ONLY if non-testable changes (pure documentation)
+- `experience-execution`: If any testable feature created or modified (DEFAULT for testing approach)
+- `context-update`: ONLY if non-testable changes (pure documentation, rule edits, git operations, repo cleanup)
 
 ## Example
 
@@ -109,11 +104,9 @@ I think option 2 is most appropriate as it offers a good balance between maintai
 - A main module for orchestration
 - A module for API connection management
 - A utility module for common functions
-
-**Decision Point Analysis:** This task involves writing new code (modules, functions). Although some simple commands might be run during development or testing locally, the core activity is code creation, not executing a predefined complex experiment requiring specific output analysis. Therefore, I will proceed with implementation within this rule and not call `experience-execution`.
 </think>
 
-After reflection, I determined that the best approach is to use a modular architecture with separation of concerns. This task is primarily code modification/creation, not a complex experiment execution, so I proceed here.
+After reflection, I determined that the best approach is to use a modular architecture with separation of concerns.
 
 I begin by creating the main script with the required functionalities. **(Implementation: 3.1 - Script creation)**
 [...script implementation...]
@@ -136,12 +129,9 @@ I update the tasks.md file to reflect task progress. **(Implementation: 4 - Task
 **(Implementation: 4 - Task update)**
 
 # Implementation: 5 - Calling the next rule
-I did not call `experience-execution`. Since I created a new testable feature (the script), I must now call the `experience-execution` rule.
-The experience-execution rule must be called to create tests for the new feature. **(Implementation: 5 - Calling the next rule)**
+Since I created a new testable feature (the script), I must now call the `experience-execution` rule.
+The experience-execution rule must be called to test the new feature. **(Implementation: 5 - Calling the next rule)**
 
 [...calling tool 'fetch_rules' with rule_names=["experience-execution"]...]
-
-
-
 
 [...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
