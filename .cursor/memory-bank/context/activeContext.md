@@ -7,6 +7,26 @@
     - 🟢 **9.1. Design and Implement `git log` Search Logic in `fix.mdc`**: Completed.
     - 🟢 **9.2. Update `fix.mdc` Example Section**: Completed.
 
+## Completed Task: 🟢 10. Optimize Testing Logic in Rule System
+- **Origin**: User request to improve the rule system's testing approach.
+- **Outcome**: Successfully refactored the testing approach to prioritize manual execution via `experience-execution` over systematic automated test creation. This reduces test complexity and execution time while maintaining code quality through practical verification.
+- **Key Changes Implemented**:
+    1. **`implementation.mdc`**: Modified Step 5 to call `experience-execution` by default instead of `test-implementation` for testable features.
+    2. **`experience-execution.mdc`**: Added temporary logging steps (Step 2: add logging, Step 7: remove if successful) and updated decision logic in Step 10 to optionally call `test-implementation` only when behaviors need to be "frozen".
+    3. **`test-implementation.mdc`**: Restricted usage to "freezing" stable behaviors only. Updated TLDR, instructions, and specifics to emphasize very few tests, simple execution, focus on outputs not internal behavior, avoid mocks, stay close to real usage.
+    4. **`test-execution.mdc`**: Reviewed and confirmed it works correctly in the new workflow where it's primarily called after `test-implementation`.
+- **Sub-Tasks Status**:
+    - 🟢 **10.1. Modify `implementation.mdc` Next Rule Logic**: Completed.
+    - 🟢 **10.2. Enhance `experience-execution.mdc` with Temporary Logging**: Completed.
+    - 🟢 **10.3. Update `experience-execution.mdc` Decision Logic**: Completed.
+    - 🟢 **10.4. Restrict and Simplify `test-implementation.mdc`**: Completed.
+    - 🟢 **10.5. Adjust `test-execution.mdc` for New Workflow**: Completed.
+- **Technical Decisions**:
+    - The new workflow prioritizes practical verification over comprehensive test coverage.
+    - Temporary logging helps identify issues during manual execution.
+    - Tests are only created for behaviors that are stable and unlikely to change.
+    - Focus shifted from internal implementation testing to output verification.
+
 ## Previously Completed Work Context (Condensed)
 - Enhanced `context-update` (Task 8) to add agent comments to archived `userbrief.md` tasks.
 - Modified `on-edit-tool-fail.mdc` for Manual Intervention on Exhausted Retries (Task 7).
@@ -62,3 +82,34 @@
             - Include a single code block with high-level instructions for the manual edit (e.g., "Replace line X with Y", "Delete lines A-B").
         - Steps 6, 7, and 8 of the rule will likely not be reached in this failure scenario and might need to be implicitly or explicitly bypassed.
     - **Attention Points**: Ensure the language used for the user prompt is clear, emphasizes the exceptional nature, and provides all necessary information for the manual edit.
+
+## Current implementation context
+- **Current Task**: ⚪️ **10. Optimize Testing Logic in Rule System**
+    - **Origin**: User request to improve the rule system's testing approach.
+    - **Goal**: Refactor the testing approach to prioritize manual execution via `experience-execution` over systematic automated test creation. This aims to reduce test complexity and execution time while maintaining code quality through practical verification.
+    - **Key Changes Required**:
+        1. **`implementation.mdc`**: Modify Step 5 to call `experience-execution` by default instead of `test-implementation` for testable features.
+        2. **`experience-execution.mdc`**: Add temporary logging steps (add at beginning, remove at end if successful) and modify decision logic to optionally call `test-implementation` only when behaviors need to be "frozen".
+        3. **`test-implementation.mdc`**: Restrict usage to "freezing" stable behaviors only. Emphasize very few tests, simple execution, focus on outputs not internal behavior, avoid mocks, stay close to real usage.
+        4. **`test-execution.mdc`**: Adjust to work correctly when called primarily after `test-implementation` rather than directly after `implementation`.
+    - **Sub-Tasks to perform (from tasks.md)**:
+        - ⚪️ **10.1. Modify `implementation.mdc` Next Rule Logic**: Update Step 5 calling logic.
+        - ⚪️ **10.2. Enhance `experience-execution.mdc` with Temporary Logging**: Add logging steps.
+        - ⚪️ **10.3. Update `experience-execution.mdc` Decision Logic**: Modify final decision logic.
+        - ⚪️ **10.4. Restrict and Simplify `test-implementation.mdc`**: Update TLDR, instructions, specifics.
+        - ⚪️ **10.5. Adjust `test-execution.mdc` for New Workflow**: Review and adjust for new workflow.
+    - **Technical Decisions**:
+        - The new workflow prioritizes practical verification over comprehensive test coverage.
+        - Temporary logging should be added to help identify issues during manual execution.
+        - Tests should only be created for behaviors that are stable and unlikely to change.
+        - The focus shifts from internal implementation testing to output verification.
+    - **Attention Points**: 
+        - Ensure the workflow remains coherent and functional after changes.
+        - Maintain the autonomous nature of the agent while improving efficiency.
+        - Preserve the ability to detect and fix issues through the new approach.
+
+## Previously Completed Work Context (Condensed)
+- Enhanced `fix.mdc` (Task 9) with Git log search for mysterious problems.
+- Enhanced `context-update` (Task 8) to add agent comments to archived `userbrief.md` tasks.
+- Modified `on-edit-tool-fail.mdc` for Manual Intervention on Exhausted Retries (Task 7).
+- Completed major refactoring of memory bank file formats and commit message generation (Tasks 1-6).

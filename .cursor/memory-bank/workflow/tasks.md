@@ -149,6 +149,42 @@
             *   **Dependencies**: None.
             *   **Validation**: The example in `fix.mdc` clearly shows the new `git log --grep` step in action.
 
+🟢 **10. Optimize Testing Logic in Rule System**
+    *   **Description**: Refactor the testing approach to prioritize manual execution via `experience-execution` over systematic automated test creation. This aims to reduce test complexity and execution time while maintaining code quality through practical verification.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/rules/implementation.mdc` (modify next rule calling logic)
+        *   `.cursor/rules/experience-execution.mdc` (add temporary logging, modify decision logic)
+        *   `.cursor/rules/test-implementation.mdc` (restrict usage, emphasize simplicity)
+        *   `.cursor/rules/test-execution.mdc` (adjust to be called only after test-implementation)
+    *   **Dependencies**: None.
+    *   **Validation**: The agent defaults to calling `experience-execution` for testing, only creates tests to "freeze" stable behaviors, and tests remain simple and focused on outputs.
+    *   **Sub-Tasks**:
+        *   🟢 **10.1. Modify `implementation.mdc` Next Rule Logic**
+            *   **Description**: Update Step 5 of `implementation.mdc` to call `experience-execution` by default instead of `test-implementation` when testable features are created or modified.
+            *   **Impacted Rules/Files**: `.cursor/rules/implementation.mdc`
+            *   **Dependencies**: None.
+            *   **Validation**: `implementation.mdc` calls `experience-execution` as the default next rule for testable features.
+        *   🟢 **10.2. Enhance `experience-execution.mdc` with Temporary Logging**
+            *   **Description**: Add two new steps to `experience-execution.mdc`: one near the beginning to add temporary debug logging to the code being tested, and one near the end to remove this logging if execution was successful (no call to `fix`).
+            *   **Impacted Rules/Files**: `.cursor/rules/experience-execution.mdc`
+            *   **Dependencies**: None.
+            *   **Validation**: `experience-execution.mdc` includes steps for adding and removing temporary debug logging.
+        *   🟢 **10.3. Update `experience-execution.mdc` Decision Logic**
+            *   **Description**: Modify the final decision logic in `experience-execution.mdc` to optionally call `test-implementation` (only when behaviors need to be "frozen") instead of always proceeding to `context-update`. The rule should call `fix` if problems are detected, `test-implementation` if stable behaviors need to be preserved, or `context-update` if everything works without needing test preservation.
+            *   **Impacted Rules/Files**: `.cursor/rules/experience-execution.mdc`
+            *   **Dependencies**: 10.2
+            *   **Validation**: `experience-execution.mdc` has updated decision logic that can route to `test-implementation` when appropriate.
+        *   🟢 **10.4. Restrict and Simplify `test-implementation.mdc`**
+            *   **Description**: Modify `test-implementation.mdc` to emphasize that it should only be called to "freeze" stable behaviors that will never change. Update the TLDR, instructions, and specifics to stress: very few tests, simple execution, focus on outputs not internal behavior, avoid mocks, stay close to real usage.
+            *   **Impacted Rules/Files**: `.cursor/rules/test-implementation.mdc`
+            *   **Dependencies**: None.
+            *   **Validation**: `test-implementation.mdc` clearly restricts its usage and emphasizes test simplicity.
+        *   🟢 **10.5. Adjust `test-execution.mdc` for New Workflow**
+            *   **Description**: Review and adjust `test-execution.mdc` to ensure it works correctly in the new workflow where it's primarily called after `test-implementation` rather than directly after `implementation`.
+            *   **Impacted Rules/Files**: `.cursor/rules/test-execution.mdc`
+            *   **Dependencies**: 10.1, 10.3, 10.4
+            *   **Validation**: `test-execution.mdc` functions correctly in the new testing workflow.
+
 # DONE
 
 3.  **Feature: Ajout de l'outil de capture d'écran web**
