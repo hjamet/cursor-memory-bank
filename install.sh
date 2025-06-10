@@ -634,6 +634,7 @@ merge_mcp_json() {
     
     # Overwrite the target file directly using here-document
     # Using cat > ensures the file is overwritten or created.
+    # Use absolute paths calculated dynamically to work from any execution directory
 cat > "$target_mcp_json" << EOF
 {
     "mcpVersion": "0.1",

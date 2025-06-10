@@ -4,9 +4,9 @@
         "MyMCP": {
             "command": "node",
             "args": [
-                "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\server.js",
+                "C:\\Users\\hjamet\\Code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\server.js",
                 "--cwd",
-                "C:\\Users\\Jamet\\code\\cursor-memory-bank"
+                "C:\\Users\\hjamet\\Code\\cursor-memory-bank"
             ]
         },
         "Context7": {
