@@ -26,7 +26,7 @@ Load or create project context files to establish the working environment.
 
 4. **Calling the next rule**: Check userbrief.md and call appropriate rule:
    - If `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment (starting with -), call `consolidate-repo`
-   - Otherwise, call `request-analysis` to analyze the request
+   - Otherwise, call `task-decomposition` to analyze the request
 
 ## Specifics
 - Concise but complete files
@@ -38,7 +38,7 @@ Load or create project context files to establish the working environment.
 
 ## Next Rules
 - `consolidate-repo` - If userbrief.md contains unprocessed comments (-)
-- `request-analysis` - Otherwise, to analyze in detail the user's request
+- `task-decomposition` - Otherwise, to analyze in detail the user's request
 
 ## Example
 

@@ -149,6 +149,79 @@
             *   **Dependencies**: None.
             *   **Validation**: The example in `fix.mdc` clearly shows the new `git log --grep` step in action.
 
+🟢 **10. Optimize Testing Logic in Rule System**
+    *   **Description**: Refactor the testing approach to prioritize manual execution via `experience-execution` over systematic automated test creation. This aims to reduce test complexity and execution time while maintaining code quality through practical verification.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/rules/implementation.mdc` (modify next rule calling logic)
+        *   `.cursor/rules/experience-execution.mdc` (add temporary logging, modify decision logic)
+        *   `.cursor/rules/test-implementation.mdc` (restrict usage, emphasize simplicity)
+        *   `.cursor/rules/test-execution.mdc` (adjust to be called only after test-implementation)
+    *   **Dependencies**: None.
+    *   **Validation**: The agent defaults to calling `experience-execution` for testing, only creates tests to "freeze" stable behaviors, and tests remain simple and focused on outputs.
+    *   **Sub-Tasks**:
+        *   🟢 **10.1. Modify `implementation.mdc` Next Rule Logic**
+            *   **Description**: Update Step 5 of `implementation.mdc` to call `experience-execution` by default instead of `test-implementation` when testable features are created or modified.
+            *   **Impacted Rules/Files**: `.cursor/rules/implementation.mdc`
+            *   **Dependencies**: None.
+            *   **Validation**: `implementation.mdc` calls `experience-execution` as the default next rule for testable features.
+        *   🟢 **10.2. Enhance `experience-execution.mdc` with Temporary Logging**
+            *   **Description**: Add two new steps to `experience-execution.mdc`: one near the beginning to add temporary debug logging to the code being tested, and one near the end to remove this logging if execution was successful (no call to `fix`).
+            *   **Impacted Rules/Files**: `.cursor/rules/experience-execution.mdc`
+            *   **Dependencies**: None.
+            *   **Validation**: `experience-execution.mdc` includes steps for adding and removing temporary debug logging.
+        *   🟢 **10.3. Update `experience-execution.mdc` Decision Logic**
+            *   **Description**: Modify the final decision logic in `experience-execution.mdc` to optionally call `test-implementation` (only when behaviors need to be "frozen") instead of always proceeding to `context-update`. The rule should call `fix` if problems are detected, `test-implementation` if stable behaviors need to be preserved, or `context-update` if everything works without needing test preservation.
+            *   **Impacted Rules/Files**: `.cursor/rules/experience-execution.mdc`
+            *   **Dependencies**: 10.2
+            *   **Validation**: `experience-execution.mdc` has updated decision logic that can route to `test-implementation` when appropriate.
+        *   🟢 **10.4. Restrict and Simplify `test-implementation.mdc`**
+            *   **Description**: Modify `test-implementation.mdc` to emphasize that it should only be called to "freeze" stable behaviors that will never change. Update the TLDR, instructions, and specifics to stress: very few tests, simple execution, focus on outputs not internal behavior, avoid mocks, stay close to real usage.
+            *   **Impacted Rules/Files**: `.cursor/rules/test-implementation.mdc`
+            *   **Dependencies**: None.
+            *   **Validation**: `test-implementation.mdc` clearly restricts its usage and emphasizes test simplicity.
+        *   🟢 **10.5. Adjust `test-execution.mdc` for New Workflow**
+            *   **Description**: Review and adjust `test-execution.mdc` to ensure it works correctly in the new workflow where it's primarily called after `test-implementation` rather than directly after `implementation`.
+            *   **Impacted Rules/Files**: `.cursor/rules/test-execution.mdc`
+            *   **Dependencies**: 10.1, 10.3, 10.4
+            *   **Validation**: `test-execution.mdc` functions correctly in the new testing workflow.
+
+🟢 **11. Simplify Workflow Rules and Merge Request-Analysis with Task-Decomposition**
+    *   **Description**: Streamline the workflow by simplifying `implementation.mdc` decision logic and merging `request-analysis` functionality into `task-decomposition` to reduce complexity and improve efficiency. This involves moving all next rule decision logic in `implementation.mdc` to Step 5 only, enhancing `task-decomposition.mdc` with analysis capabilities, and updating all rule references.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/rules/implementation.mdc` (simplify decision logic)
+        *   `.cursor/rules/task-decomposition.mdc` (add analysis capabilities)
+        *   `.cursor/rules/consolidate-repo.mdc` (update references)
+        *   `.cursor/rules/context-loading.mdc` (update references)
+        *   `.cursor/rules/fix.mdc` (update references)
+        *   `.cursor/rules/experience-execution.mdc` (update references)
+        *   `.cursor/rules/system.mdc` (update references)
+        *   `.cursor/rules/workflow-perdu.mdc` (update references)
+        *   `.cursor/rules/new-chat.mdc` (update references)
+        *   `.cursor/rules/request-analysis.mdc` (for deletion)
+    *   **Dependencies**: None.
+    *   **Validation**: The workflow remains functional with simplified decision logic, all rule references are updated correctly, and the merged functionality preserves essential features like vision storage.
+    *   **Sub-Tasks**:
+        *   🟢 **11.1. Simplify `implementation.mdc` Decision Logic**
+            *   **Description**: Move all next rule calling logic exclusively to Step 5. Remove decision points from Step 3. Agent must complete all sub-tasks first, then decide between `experience-execution` (default for any code changes) or `context-update` (rare cases with no executable code changes like git operations, repo cleanup).
+            *   **Impacted Rules/Files**: `.cursor/rules/implementation.mdc`
+            *   **Dependencies**: None.
+            *   **Validation**: `implementation.mdc` has simplified logic with decision making only in Step 5.
+        *   🟢 **11.2. Enhance `task-decomposition.mdc` with Analysis Capabilities**
+            *   **Description**: Add request analysis capabilities to `task-decomposition.mdc` including: request analysis step, code analysis with codebase search (max 3), research with Context7 tools or web search (max 5), vision storage functionality. Remove tree creation step. Preserve all existing task decomposition functionality.
+            *   **Impacted Rules/Files**: `.cursor/rules/task-decomposition.mdc`
+            *   **Dependencies**: None.
+            *   **Validation**: `task-decomposition.mdc` includes comprehensive analysis capabilities while maintaining task decomposition functionality.
+        *   🟢 **11.3. Update Rule References**
+            *   **Description**: Replace all calls to `request-analysis` with `task-decomposition` in affected rules: `consolidate-repo.mdc`, `context-loading.mdc`, `fix.mdc`, `experience-execution.mdc`, `system.mdc`, `workflow-perdu.mdc`, `new-chat.mdc`.
+            *   **Impacted Rules/Files**: Multiple rule files as listed above.
+            *   **Dependencies**: 11.2.
+            *   **Validation**: All rule references are updated and workflow continuity is maintained.
+        *   🟢 **11.4. Delete Obsolete `request-analysis.mdc`**
+            *   **Description**: Remove the `request-analysis.mdc` file after successful migration of its functionality to `task-decomposition.mdc`.
+            *   **Impacted Rules/Files**: `.cursor/rules/request-analysis.mdc`
+            *   **Dependencies**: 11.2, 11.3.
+            *   **Validation**: The obsolete rule file is deleted and no references to it remain.
+
 # DONE
 
 3.  **Feature: Ajout de l'outil de capture d'écran web**

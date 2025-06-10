@@ -32,8 +32,7 @@ Example: "I will now call the `system` rule to restart the workflow **(Lost work
 ## Reminder of each rule description to facilitate identification
 
 - `context-loading` - Loading project objectives and general context
-- `request-analysis` - Detailed analysis of user request and exploration of existing code
-- `task-decomposition` - Decomposition of user request into concrete tasks organized in tasks.md
+- `task-decomposition` - Detailed analysis of user request and exploration of existing code
 - `implementation` - Methodical implementation of project priority tasks
 - `test-implementation` - Creation of unit tests for new features
 - `test-execution` - Execution of unit tests and results analysis
