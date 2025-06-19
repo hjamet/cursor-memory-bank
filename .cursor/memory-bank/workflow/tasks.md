@@ -281,6 +281,73 @@
             *   **Dependencies**: 12.2, 12.6.
             *   **Validation**: mcp.json correctly includes memory-bank-mcp server with proper command and arguments, server is accessible from Cursor.
 
+🟡 **13. Enhance Memory Bank MCP Server with Task Management Tools and JSON Migration**
+    *   **Description**: Extend the existing Memory Bank MCP server to include comprehensive task management tools and migrate the tasks.md file from markdown format to a structured JSON format. Each task will have an auto-generated ID, title, short description, detailed description, dependencies list, and status. This enhancement will provide programmatic access to task management operations similar to the userbrief management tools.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/mcp/memory-bank-mcp/` (server enhancement)
+        *   `.cursor/memory-bank/workflow/tasks.json` (new JSON format file)
+        *   `.cursor/memory-bank/workflow/tasks.md` (migration and potential archival)
+        *   `.cursor/mcp/memory-bank-mcp/lib/task_manager.js` (new task management library)
+        *   `.cursor/mcp/memory-bank-mcp/mcp_tools/` (new task management tools)
+    *   **Dependencies**: Task 12 (Memory Bank MCP Server must be completed)
+    *   **Validation**: The enhanced server provides all requested task management tools, tasks.json format is properly structured with IDs and dependencies, all tools function correctly with comprehensive error handling, and migration from tasks.md preserves all existing task information.
+    *   **Sub-Tasks**:
+        *   🟢 **13.1. Design JSON Task Schema and Migration Strategy**
+            *   **Description**: Define the JSON schema for tasks with fields: id (auto-generated), title, short_description, detailed_description, dependencies (array of task IDs), status, created_date, updated_date. Plan migration strategy from current markdown format to JSON while preserving all existing task information and relationships.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/memory-bank/workflow/tasks.json` (schema design)
+                *   Migration planning documentation
+            *   **Dependencies**: None.
+            *   **Validation**: JSON schema is well-defined, supports all required fields including dependency tracking, and migration strategy preserves data integrity.
+        *   🟢 **13.2. Implement Task Manager Library**
+            *   **Description**: Create a comprehensive task management library (`task_manager.js`) that handles JSON task file operations, ID generation, dependency validation, status management, and task querying. Include functions for reading, writing, creating, updating, and querying tasks with proper error handling.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp/memory-bank-mcp/lib/task_manager.js`
+            *   **Dependencies**: 13.1.
+            *   **Validation**: Library provides all necessary task management operations, handles edge cases properly, validates dependencies, and maintains data consistency.
+        *   🟢 **13.3. Implement create_task Tool**
+            *   **Description**: Implement the `create_task` MCP tool that creates new tasks with auto-generated IDs. Takes parameters: title, short_description, detailed_description, dependencies (optional array of task IDs), status (default: TODO). Returns the created task with its assigned ID.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp/memory-bank-mcp/mcp_tools/create_task.js`
+                *   `.cursor/mcp/memory-bank-mcp/server.js` (tool registration)
+            *   **Dependencies**: 13.2.
+            *   **Validation**: Tool correctly creates tasks with unique IDs, validates dependencies exist, handles all parameters properly, and returns complete task information.
+        *   🟢 **13.4. Implement update-task Tool**
+            *   **Description**: Implement the `update-task` MCP tool that updates existing tasks by ID. Takes parameters: task_id (required), and optional fields to update (title, short_description, detailed_description, dependencies, status). Only provided parameters are updated, preserving existing values for omitted fields.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp/memory-bank-mcp/mcp_tools/update_task.js`
+                *   `.cursor/mcp/memory-bank-mcp/server.js` (tool registration)
+            *   **Dependencies**: 13.2.
+            *   **Validation**: Tool correctly updates only specified fields, validates task ID exists, handles dependency validation, and returns updated task information.
+        *   🟢 **13.5. Implement get_next_tasks Tool**
+            *   **Description**: Implement the `get_next_tasks` MCP tool that returns available tasks (tasks that have no pending dependencies). Analyzes task dependencies and returns tasks whose dependency tasks are all completed or don't exist. Supports filtering by status and limiting results count.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp/memory-bank-mcp/mcp_tools/get_next_tasks.js`
+                *   `.cursor/mcp/memory-bank-mcp/server.js` (tool registration)
+            *   **Dependencies**: 13.2.
+            *   **Validation**: Tool correctly identifies available tasks based on dependency analysis, supports filtering options, and returns properly formatted task information.
+        *   🟢 **13.6. Implement get_all_tasks Tool**
+            *   **Description**: Implement the `get_all_tasks` MCP tool that returns tasks with priority ordering and configurable count. Takes parameter: count (default: 10). Returns tasks prioritized by status: in_progress, then todo, then blocked, then archived/done. Includes dependency information and short descriptions.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp/memory-bank-mcp/mcp_tools/get_all_tasks.js`
+                *   `.cursor/mcp/memory-bank-mcp/server.js` (tool registration)
+            *   **Dependencies**: 13.2.
+            *   **Validation**: Tool returns tasks in correct priority order, respects count parameter, includes dependency links, and provides comprehensive task information.
+        *   ⚪️ **13.7. Migrate Existing Tasks to JSON Format**
+            *   **Description**: Create a migration script that converts the current tasks.md file to the new JSON format, preserving all task information, assigning unique IDs, and establishing dependency relationships where possible. Handle the emoji-based status system conversion to JSON status fields.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/memory-bank/workflow/tasks.json` (created from migration)
+                *   Migration script or tool
+            *   **Dependencies**: 13.1, 13.2.
+            *   **Validation**: All existing tasks are successfully migrated with preserved information, dependency relationships are maintained, and the JSON file is valid according to the defined schema.
+        *   ⚪️ **13.8. Test and Validate Task Management Tools**
+            *   **Description**: Create comprehensive tests for all new task management tools, including unit tests for the task manager library and integration tests for all MCP tools. Test edge cases, dependency validation, error handling, and tool interactions.
+            *   **Impacted Rules/Files**: 
+                *   `tests/memory_bank_mcp_task_tests/` (new test directory)
+                *   Individual test files for each tool and library component
+            *   **Dependencies**: 13.3, 13.4, 13.5, 13.6, 13.7.
+            *   **Validation**: All tests pass, tools handle edge cases correctly, error handling is comprehensive, and task management operations work reliably in various scenarios.
+
 # DONE
 
 3.  **Feature: Ajout de l'outil de capture d'écran web**

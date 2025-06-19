@@ -13,46 +13,72 @@ const __dirname = path.dirname(__filename);
 // Determine project root (assuming server.js is in .cursor/mcp/memory-bank-mcp/)
 const projectRoot = path.resolve(__dirname, '../../..');
 
-// Import tool handlers
+// Import userbrief tool handlers
 import { handleReadUserbrief, readUserbriefSchema } from './mcp_tools/read_userbrief.js';
 import { handleUpdateUserbrief, updateUserbriefSchema } from './mcp_tools/update_userbrief.js';
+
+// Import task management tool handlers
+import { handleCreateTask, createTaskSchema } from './mcp_tools/create_task.js';
+import { handleUpdateTask, updateTaskSchema } from './mcp_tools/update_task.js';
+import { handleGetNextTasks, getNextTasksSchema } from './mcp_tools/get_next_tasks.js';
+import { handleGetAllTasks, getAllTasksSchema } from './mcp_tools/get_all_tasks.js';
 
 // Create server instance
 const server = new McpServer({
     name: 'memory-bank-mcp',
-    version: '1.0.0'
+    version: '1.1.0'
 });
 
-// Register tools
+// Register userbrief management tools
 server.tool('read-userbrief', 'Read userbrief.md and return current unprocessed or in-progress request', readUserbriefSchema, handleReadUserbrief);
 server.tool('update-userbrief', 'Update userbrief.md entry status (mark in-progress, archived, or add comments)', updateUserbriefSchema, handleUpdateUserbrief);
 
-// Handle server startup
-async function main() {
-    console.log('[MemoryBankMCP] Server started successfully.');
+// Register task management tools
+server.tool('create_task', 'Create a new task with auto-generated ID and comprehensive validation', createTaskSchema, handleCreateTask);
+server.tool('update-task', 'Update an existing task by ID with only the provided fields', updateTaskSchema, handleUpdateTask);
+server.tool('get_next_tasks', 'Get available tasks that have no pending dependencies', getNextTasksSchema, handleGetNextTasks);
+server.tool('get_all_tasks', 'Get tasks with priority ordering and configurable count', getAllTasksSchema, handleGetAllTasks);
 
-    // Create transport for stdio communication
-    const transport = new StdioServerTransport();
+// Start the server
+async function startServer() {
+    try {
+        console.log('[MemoryBankMCP] Starting Memory Bank MCP Server v1.1.0');
+        console.log('[MemoryBankMCP] Project root:', projectRoot);
 
-    // Connect server to transport
-    await server.connect(transport);
+        // Initialize server transport
+        const transport = new StdioServerTransport();
 
-    console.log('[MemoryBankMCP] Connected to transport. Ready to handle requests.');
+        // Connect server to transport
+        await server.connect(transport);
+
+        console.log('[MemoryBankMCP] Server started successfully');
+        console.log('[MemoryBankMCP] Available tools:');
+        console.log('  - read-userbrief: Read userbrief.md and return unprocessed requests');
+        console.log('  - update-userbrief: Update userbrief.md entry status and add comments');
+        console.log('  - create_task: Create new tasks with auto-generated IDs');
+        console.log('  - update-task: Update existing tasks by ID');
+        console.log('  - get_next_tasks: Get available tasks with no pending dependencies');
+        console.log('  - get_all_tasks: Get tasks with priority ordering');
+
+    } catch (error) {
+        console.error('[MemoryBankMCP] Failed to start server:', error);
+        process.exit(1);
+    }
 }
 
-// Handle process signals
+// Handle graceful shutdown
 process.on('SIGINT', () => {
-    console.log('[MemoryBankMCP] Received SIGINT, shutting down gracefully...');
+    console.log('[MemoryBankMCP] Shutting down server...');
     process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-    console.log('[MemoryBankMCP] Received SIGTERM, shutting down gracefully...');
+    console.log('[MemoryBankMCP] Shutting down server...');
     process.exit(0);
 });
 
 // Start the server
-main().catch((error) => {
-    console.error('[MemoryBankMCP] Server error:', error);
+startServer().catch(error => {
+    console.error('[MemoryBankMCP] Server startup error:', error);
     process.exit(1);
 }); 

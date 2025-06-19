@@ -1,15 +1,33 @@
 # Active Context
 
-## Current Focus: 🟢 Memory Bank MCP Server Implementation - COMPLETED
-- **Task 12**: Memory Bank MCP Server creation and integration has been successfully completed and committed to the repository
-- **Status**: Fully implemented, tested, integrated, and committed (commit 273ab9b)
-- **Key Achievements**:
-    1. **Complete Server Implementation**: Created full MCP server with modular architecture
-    2. **Core Tools Implemented**:
-        - `read-userbrief`: Retrieves current/pending tasks and configurable archived entries (default 3)
-        - `update-userbrief`: Updates task status (pending, archived, or add comments) with auto-detection
-    3. **Full Integration**: Successfully integrated into install.sh script and mcp.json configuration
-    4. **Production Ready**: Server tested, validated, and committed to repository
+## Current Focus: 🟡 Task 13 - Enhance Memory Bank MCP Server with Task Management Tools and JSON Migration
+- **Task**: Extend the existing Memory Bank MCP server to include comprehensive task management tools and migrate tasks.md to JSON format
+- **Status**: In Progress - Starting implementation
+- **Key Objectives**:
+    1. **JSON Schema Design**: Create structured JSON format for tasks with auto-generated IDs, dependencies, and status tracking
+    2. **Task Manager Library**: Implement comprehensive task management operations (CRUD, dependency validation, querying)
+    3. **MCP Tools Implementation**: Create four new tools (create_task, update-task, get_next_tasks, get_all_tasks)
+    4. **Migration Strategy**: Convert existing markdown tasks to JSON while preserving all information and relationships
+
+## Technical Implementation Strategy
+- **Phase 1**: Design JSON schema and create task manager library foundation
+- **Phase 2**: Implement individual MCP tools with proper validation and error handling
+- **Phase 3**: Create migration script to convert existing tasks.md to JSON format
+- **Phase 4**: Comprehensive testing and validation of all new functionality
+
+## Key Dependencies and Attention Points
+- **Existing Memory Bank MCP Server**: Must build upon the current functional server without breaking existing userbrief tools
+- **JSON Schema Requirements**: ID auto-generation, dependency arrays, status mapping from emoji system
+- **Dependency Validation**: Ensure task dependencies reference valid existing tasks
+- **Data Integrity**: Migration must preserve all existing task information, relationships, and history
+- **Error Handling**: Comprehensive validation for all operations, especially dependency management
+
+## Technical Decisions to Make
+- **ID Generation Strategy**: Sequential integers vs UUIDs vs timestamp-based IDs
+- **Dependency Resolution**: How to handle circular dependencies and validation timing
+- **Status Mapping**: Convert emoji-based status system to JSON-compatible status strings
+- **File Management**: Whether to maintain both tasks.md and tasks.json or fully migrate
+- **Backward Compatibility**: How to handle rules that currently read tasks.md format
 
 ## Recent Accomplishments
 - **Memory Bank MCP Server**: Complete implementation from scratch following MyMCP patterns
