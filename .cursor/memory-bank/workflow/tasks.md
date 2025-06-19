@@ -222,6 +222,65 @@
             *   **Dependencies**: 11.2, 11.3.
             *   **Validation**: The obsolete rule file is deleted and no references to it remain.
 
+🟢 **12. Create Memory Bank MCP Server**
+    *   **Description**: Create a second MCP server called "memory-bank-mcp" to simplify and streamline operations related to the rule system implemented in this repository. The server will be inspired by the existing MyMCP server implementation and must be integrated into the install.sh script exactly like MyMCP. Initial focus is on userbrief management operations.
+    *   **Impacted Rules/Files**:
+        *   New directory: `.cursor/mcp/memory-bank-mcp/`
+        *   `install.sh` (integration of new server)
+        *   `.cursor/mcp.json` (server configuration)
+    *   **Dependencies**: None.
+    *   **Validation**: The memory-bank-mcp server is fully functional, tested, and integrated into the installation process. The server provides the specified userbrief management tools and can be used by Cursor rules.
+    *   **Sub-Tasks**:
+        *   ⚪️ **12.1. Analyze MyMCP Server Structure**
+            *   **Description**: Study the existing MyMCP server implementation in `.cursor/mcp/mcp-commit-server/` to understand the architecture, file structure, dependencies, and implementation patterns. This includes examining server.js, package.json, lib/ modules, mcp_tools/ handlers, and how tools are registered and handled.
+            *   **Impacted Rules/Files**: `.cursor/mcp/mcp-commit-server/` (analysis only)
+            *   **Dependencies**: None.
+            *   **Validation**: Complete understanding of MyMCP server architecture and implementation patterns documented.
+        *   ⚪️ **12.2. Create Memory Bank MCP Server Structure**
+            *   **Description**: Create the basic directory structure and core files for the memory-bank-mcp server, including server.js, package.json, and necessary subdirectories (lib/, mcp_tools/). Use MyMCP as template but adapt for memory-bank specific functionality.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp/memory-bank-mcp/server.js`
+                *   `.cursor/mcp/memory-bank-mcp/package.json`
+                *   `.cursor/mcp/memory-bank-mcp/lib/` (directory)
+                *   `.cursor/mcp/memory-bank-mcp/mcp_tools/` (directory)
+            *   **Dependencies**: 12.1.
+            *   **Validation**: Basic server structure is created with proper MCP SDK integration and can start without errors.
+        *   ⚪️ **12.3. Implement read-userbrief Tool**
+            *   **Description**: Implement the `read-userbrief` tool that returns the first unprocessed request from userbrief.md (text starting with "-" and a "new" emoji). If a request is in progress (hourglass emoji), return it instead indicating it's in progress. The function should also return the specified number of archived requests (default 3) clearly marked as archived.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp/memory-bank-mcp/mcp_tools/read_userbrief.js`
+                *   `.cursor/mcp/memory-bank-mcp/server.js` (tool registration)
+            *   **Dependencies**: 12.2.
+            *   **Validation**: The tool correctly reads userbrief.md, identifies unprocessed/in-progress requests, and returns archived requests with proper status indicators.
+        *   ⚪️ **12.4. Implement update-userbrief Tool**
+            *   **Description**: Implement the `update-userbrief` tool that updates the status of the current or pending task returned by read-userbrief. Supports status updates: "en cours" (in progress), "archivée" (archived), or adding a comment. If the argument is a comment, it's applied after the archived task. The tool returns the status update confirming the task text.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp/memory-bank-mcp/mcp_tools/update_userbrief.js`
+                *   `.cursor/mcp/memory-bank-mcp/server.js` (tool registration)
+            *   **Dependencies**: 12.2, 12.3.
+            *   **Validation**: The tool correctly updates userbrief.md status, handles comments properly, and returns confirmation of updates with task text.
+        *   ⚪️ **12.5. Test Memory Bank MCP Server**
+            *   **Description**: Create comprehensive tests for the memory-bank-mcp server, including unit tests for individual tools and integration tests. Test all userbrief management operations with various scenarios and edge cases.
+            *   **Impacted Rules/Files**: 
+                *   `tests/memory_bank_mcp_tests/` (new directory)
+                *   Test files for each tool and server functionality
+            *   **Dependencies**: 12.3, 12.4.
+            *   **Validation**: All tests pass, server handles edge cases correctly, and tools work as specified with various userbrief.md formats.
+        *   ⚪️ **12.6. Integrate into install.sh**
+            *   **Description**: Modify the install.sh script to include memory-bank-mcp server installation exactly like MyMCP. This includes copying server files, installing dependencies, and updating the MCP server list in the installation process.
+            *   **Impacted Rules/Files**: 
+                *   `install.sh` (server installation logic)
+                *   MCP server list in install.sh
+            *   **Dependencies**: 12.2, 12.3, 12.4.
+            *   **Validation**: install.sh successfully installs memory-bank-mcp server alongside MyMCP, with proper directory structure and dependencies.
+        *   ⚪️ **12.7. Update MCP Configuration**
+            *   **Description**: Update the mcp.json template and configuration logic to include memory-bank-mcp server configuration alongside MyMCP and Context7 servers.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp.json` (template update)
+                *   `install.sh` (mcp.json generation logic)
+            *   **Dependencies**: 12.2, 12.6.
+            *   **Validation**: mcp.json correctly includes memory-bank-mcp server with proper command and arguments, server is accessible from Cursor.
+
 # DONE
 
 3.  **Feature: Ajout de l'outil de capture d'écran web**

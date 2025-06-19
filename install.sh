@@ -256,7 +256,7 @@ install_rules() {
     local template_mcp_json="$temp_dir/mcp.json" # Define path for template
     
     # Define the MCP server names to install
-    local mcp_servers=("mcp-commit-server" "mcp-memory-server" "mcp-context7-server" "mcp-debug-server")
+    local mcp_servers=("mcp-commit-server" "memory-bank-mcp" "mcp-memory-server" "mcp-context7-server" "mcp-debug-server")
     local server_name # Loop variable
     local mcp_server_source_dir # Will be set inside the loop
     local mcp_server_target_dir # Will be set inside the loop
@@ -381,6 +381,18 @@ install_rules() {
         local commit_server_target_dir="$target_dir/.cursor/mcp/mcp-commit-server"
         mkdir -p "$commit_server_target_dir" # Ensure directory exists
         download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/server.js" "$commit_server_target_dir/server.js"
+
+        # ADD MEMORY-BANK-MCP SERVER FILES DOWNLOAD HERE
+        log "Downloading memory-bank-mcp server files"
+        local memory_bank_server_target_dir="$target_dir/.cursor/mcp/memory-bank-mcp"
+        mkdir -p "$memory_bank_server_target_dir" # Ensure directory exists
+        mkdir -p "$memory_bank_server_target_dir/lib"
+        mkdir -p "$memory_bank_server_target_dir/mcp_tools"
+        download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/server.js" "$memory_bank_server_target_dir/server.js"
+        download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/package.json" "$memory_bank_server_target_dir/package.json"
+        download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/lib/userbrief_manager.js" "$memory_bank_server_target_dir/lib/userbrief_manager.js"
+        download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/mcp_tools/read_userbrief.js" "$memory_bank_server_target_dir/mcp_tools/read_userbrief.js"
+        download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/mcp_tools/update_userbrief.js" "$memory_bank_server_target_dir/mcp_tools/update_userbrief.js"
 
         # --- Clean existing MCP directory before installing/copying files ---
         log "Cleaning existing MCP directory: $target_dir/.cursor/mcp"
@@ -632,6 +644,27 @@ merge_mcp_json() {
     echo "DEBUG: Target directory path (escaped): [$target_dir_json_safe]" >&2
     # --- End DEBUG ---
     
+    # Calculate memory-bank-mcp server script path
+    local memory_bank_script_rel_path=".cursor/mcp/memory-bank-mcp/server.js"
+    local memory_bank_script_path="$target_dir/$memory_bank_script_rel_path"
+    local memory_bank_script_abs_path="$target_dir_abs/${memory_bank_script_rel_path#./}"
+    local memory_bank_script_win_path="$memory_bank_script_abs_path"
+    
+    # Convert memory-bank-mcp script path for Windows if needed
+    if [[ "$os_type" == "Msys" ]]; then
+        if command -v cygpath >/dev/null 2>&1; then
+            if win_path=$(cygpath -w "$memory_bank_script_abs_path"); then
+                memory_bank_script_win_path="$win_path"
+            fi
+        else
+            memory_bank_script_win_path=$(echo "$memory_bank_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
+        fi
+    fi
+    
+    # Escape memory-bank-mcp script path for JSON
+    local memory_bank_script_json_safe
+    memory_bank_script_json_safe=$(echo "$memory_bank_script_win_path" | sed 's/\\/\\\\/g')
+
     # Overwrite the target file directly using here-document
     # Using cat > ensures the file is overwritten or created.
     # Use absolute paths calculated dynamically to work from any execution directory
@@ -643,6 +676,14 @@ cat > "$target_mcp_json" << EOF
             "command": "node",
             "args": [
                 "$server_script_json_safe",
+                "--cwd",
+                "$target_dir_json_safe"
+            ]
+        },
+        "MemoryBankMCP": {
+            "command": "node",
+            "args": [
+                "$memory_bank_script_json_safe",
                 "--cwd",
                 "$target_dir_json_safe"
             ]
@@ -915,6 +956,63 @@ elif [[ -d "$INSTALL_DIR/.cursor/mcp" ]]; then # Check if mcp dir exists but ser
     log "MCP commit server directory not found in $INSTALL_DIR/.cursor/mcp/. Skipping dependency installation."
 else
     log "MCP directory structure not found in $INSTALL_DIR/.cursor/. Skipping MCP server setup."
+fi
+
+# Install Memory Bank MCP Server dependencies if present in the TARGET directory
+MEMORY_BANK_MCP_SERVER_DIR="$INSTALL_DIR/.cursor/mcp/memory-bank-mcp"
+if [[ -d "$MEMORY_BANK_MCP_SERVER_DIR" ]] && [[ -f "$MEMORY_BANK_MCP_SERVER_DIR/package.json" ]]; then
+
+    # Clean up previous installs within the specific server directory before npm install
+    log "Cleaning up previous build artifacts in $MEMORY_BANK_MCP_SERVER_DIR..."
+    if [[ -d "$MEMORY_BANK_MCP_SERVER_DIR/node_modules" ]]; then
+        rm -rf "$MEMORY_BANK_MCP_SERVER_DIR/node_modules" || warn "Could not remove existing node_modules directory."
+    fi
+    # Remove old log files if any
+    rm -f "$MEMORY_BANK_MCP_SERVER_DIR"/*.log
+
+    log "Installing Memory Bank MCP Server dependencies in $MEMORY_BANK_MCP_SERVER_DIR..."
+    
+    # Ensure the server.js file exists (already copied by install_rules ideally)
+    if [[ ! -f "$MEMORY_BANK_MCP_SERVER_DIR/server.js" ]]; then
+        warn "server.js file not found in $MEMORY_BANK_MCP_SERVER_DIR. Dependency installation might fail or server won't run."
+    fi
+    
+    if command -v npm >/dev/null 2>&1; then
+        # Check if timeout command is available
+        timeout_cmd=""
+        if command -v timeout >/dev/null 2>&1; then
+            timeout_cmd="timeout 60s"
+        elif command -v gtimeout >/dev/null 2>&1; then # Handle macOS case (gtimeout via coreutils)
+            timeout_cmd="gtimeout 60s"
+        else
+            warn "'timeout' command not found. Proceeding without timeout for npm install."
+        fi
+
+        # Change directory, install (with timeout if available), and change back
+        log "Running npm install in $MEMORY_BANK_MCP_SERVER_DIR..."
+        (cd "$MEMORY_BANK_MCP_SERVER_DIR" && $timeout_cmd npm install)
+        npm_status=$?
+        
+        if [[ $npm_status -eq 124 ]]; then # 124 is the exit code for timeout command
+             warn "'npm install' in $MEMORY_BANK_MCP_SERVER_DIR timed out after 60 seconds. Please check network or run manually."
+        elif [[ $npm_status -ne 0 ]]; then
+            warn "Failed to install Memory Bank MCP Server dependencies (Exit code: $npm_status). Please check logs or run 'npm install' in $MEMORY_BANK_MCP_SERVER_DIR manually."
+        else
+            log "Memory Bank MCP Server dependencies installed."
+            
+            # Verify node_modules directory exists and has content
+            if [[ ! -d "$MEMORY_BANK_MCP_SERVER_DIR/node_modules" ]]; then
+                warn "node_modules directory not found in $MEMORY_BANK_MCP_SERVER_DIR after npm install. MCP server may not function properly."
+            else
+                log "node_modules directory verified. Memory Bank MCP Server should have all required dependencies."
+            fi
+        fi
+    else
+        warn "npm not found. Skipping Memory Bank MCP Server dependency installation. Please install Node.js and npm, then run 'npm install' in $MEMORY_BANK_MCP_SERVER_DIR manually."
+    fi
+    
+elif [[ -d "$INSTALL_DIR/.cursor/mcp" ]]; then # Check if mcp dir exists but server subdir doesn't
+    log "Memory Bank MCP Server directory not found in $INSTALL_DIR/.cursor/mcp/. Skipping dependency installation."
 fi
 
 # Attempt to automatically configure Git hooks path

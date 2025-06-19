@@ -1,0 +1,23 @@
+{
+    "name": "memory-bank-mcp",
+    "version": "1.0.0",
+    "description": "Memory Bank MCP Server for rule system operations",
+    "main": "server.js",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node server.js"
+    },
+    "keywords": [
+        "mcp",
+        "memory-bank",
+        "cursor",
+        "rules"
+    ],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.10.2",
+        "zod": "^3.23.8"
+    }
+}
