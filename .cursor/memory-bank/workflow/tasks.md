@@ -27,7 +27,7 @@
 
 ---
 
-🟢 **34. Systematically Test MCP Memory Bank Tools**
+🟡 **34. Systematically Test MCP Memory Bank Tools**
 *   **Description**: Conduct a comprehensive test of all `mcp_MemoryBank_*` tools to ensure they function correctly. This will be done within a dedicated experiment.
 *   **Impacted Rules/Files**: 
     *   `experience-execution.mdc` (will be called to perform this)
@@ -35,6 +35,6 @@
 *   **Dependencies**: Task 33 (to have the updated descriptions).
 *   **Validation**: All tools are called successfully, and their outputs are documented and analyzed. Any bugs are identified.
 *   **Sub-Tasks**:
-    *   🟢 **34.1. Invoke experience-execution rule**: The workflow should call the `experience-execution` rule to create a formal experiment.
-    *   🟢 **34.2. Test Each Tool**: Systematically call each `mcp_MemoryBank_*` tool with valid and, where appropriate, invalid parameters.
-    *   🟢 **34.3. Document and Analyze Results**: For each tool call, the generated experiment report must contain the input, the full output, and a critical analysis of the result's correctness and format.
+    *   🟡 **34.1. Invoke experience-execution rule**: The workflow should call the `experience-execution` rule to create a formal experiment.
+    *   ⚪️ **34.2. Test Each Tool**: Systematically call each `mcp_MemoryBank_*` tool with valid and, where appropriate, invalid parameters.
+    *   ⚪️ **34.3. Document and Analyze Results**: For each tool call, the generated experiment report must contain the input, the full output, and a critical analysis of the result's correctness and format.

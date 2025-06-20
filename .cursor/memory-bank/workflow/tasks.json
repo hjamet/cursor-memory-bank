@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 6,
+  "last_id": 7,
   "tasks": [
     {
       "id": 1,
@@ -90,6 +90,20 @@
       "validation_criteria": "",
       "created_date": "2025-06-20T15:47:21.815Z",
       "updated_date": "2025-06-20T15:47:21.830Z",
+      "parent_id": null,
+      "priority": 3
+    },
+    {
+      "id": 7,
+      "title": "Direct Tool Call Test Task",
+      "short_description": "A test task.",
+      "detailed_description": "This is a detailed description for a test task created directly via tool call.",
+      "status": "DONE",
+      "dependencies": [],
+      "impacted_files": [],
+      "validation_criteria": "",
+      "created_date": "2025-06-20T15:54:14.319Z",
+      "updated_date": "2025-06-20T15:55:44.153Z",
       "parent_id": null,
       "priority": 3
     }

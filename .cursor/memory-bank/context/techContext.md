@@ -113,7 +113,7 @@ Le serveur MemoryBank MCP (nommé `MemoryBank` dans sa configuration) fournit le
 - Sensibilité à la configuration `cwd` (Current Working Directory) lors de l'exécution de commandes via `spawn`, en particulier avec `shell: false`. CWD is auto-detected based on server startup args (`--cwd`), `CURSOR_WORKSPACE_ROOT` env var, or the server process's CWD.
 - Toute sortie `console.log` ou `console.warn` non JSON du serveur MCP peut interrompre la communication avec le client Cursor, entraînant des erreurs "Unexpected token". Les logs de débogage doivent être commentés ou supprimés en production.
 - L'outil `mcp_MyMCP_execute_command` rencontrait des difficultés à capturer `stdout`/`stderr` pour `tests/test_mcp_async_terminal.js`. L'ajout de logging fichier dans le script de test semble avoir résolu le problème (test passe désormais).
-- Le retour d'images volumineuses en base64 (`type: "image"`) via MCP peut entraîner des erreurs `Maximum call stack size exceeded` ou des interruptions. La solution consiste à traiter l'image côté serveur (ex: avec `sharp`) pour réduire sa taille (e.g., redimensionner à 1024px de large, compresser en JPEG) avant l'encodage base64.
+- Le retour d'images volumineuses en base64 (`type: \"image\"`) via MCP peut entraîner des erreurs `Maximum call stack size exceeded` ou des interruptions. La solution consiste à traiter l'image côté serveur (ex: avec `sharp`) pour réduire sa taille (e.g., redimensionner à 1024px de large, compresser en JPEG) avant l'encodage base64.
 
 ## Architecture des Serveurs MCP
 - **Format de Registration**: Tous les outils utilisent le format 3-paramètres `server.tool(name, schema, handler)` avec objets Zod inline
