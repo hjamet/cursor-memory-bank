@@ -2,7 +2,8 @@ import { z } from 'zod';
 import fs from 'fs/promises';
 import path from 'path';
 
-const TASKS_FILE_PATH = path.resolve(process.cwd(), '.cursor', 'memory-bank', 'streamlit_app', 'tasks.json');
+// Use the absolute path that we know works
+const TASKS_FILE_PATH = 'C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\memory-bank\\streamlit_app\\tasks.json';
 
 async function readTasks() {
     try {

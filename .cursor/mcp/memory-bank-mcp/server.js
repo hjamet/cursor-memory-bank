@@ -98,7 +98,7 @@ server.tool('read_userbrief', {
 
 server.tool('update_userbrief', {
     action: z.enum(['mark_archived', 'add_comment', 'mark_pinned'])
-        .describe("Action to perform on the userbrief entry. 'mark_in_progress' is now an automatic status and cannot be set manually."),
+        .describe("Action to perform on the userbrief entry. Can be either 'mark_archived', 'add_comment', or 'mark_pinned'."),
     id: z.number().optional()
         .describe('ID of the request to update. If not provided, targets the current active request.'),
     comment: z.string().optional()

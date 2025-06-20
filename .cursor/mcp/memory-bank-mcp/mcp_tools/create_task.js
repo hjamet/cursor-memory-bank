@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const TASKS_FILE_PATH = path.resolve(process.cwd(), '.cursor', 'memory-bank', 'streamlit_app', 'tasks.json');
+// Use the absolute path that we know works
+const TASKS_FILE_PATH = 'C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\memory-bank\\streamlit_app\\tasks.json';
 
 async function readTasks() {
     try {
@@ -17,6 +19,9 @@ async function readTasks() {
 }
 
 async function writeTasks(tasks) {
+    // Ensure the directory exists
+    const dir = path.dirname(TASKS_FILE_PATH);
+    await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(TASKS_FILE_PATH, JSON.stringify(tasks, null, 2), 'utf-8');
 }
 
