@@ -31,10 +31,10 @@ Analyzes user requests, explores existing code, searches for additional informat
 4. **Existing tasks analysis**:
     - Read the `.cursor/memory-bank/workflow/tasks.md` file if it exists.
 
-5. **Userbrief processing identification**: Consult the `.cursor/memory-bank/userbrief.md` file.
-    - Identify requests marked with ⏳ (AND ONLY THEM). (This assumes `consolidate-repo.mdc` has marked them).
-    - Prepare these identified requests for transformation into structured tasks for `tasks.md` in step 7.
-    - IMPORTANT: Do NOT modify `userbrief.md` at this stage.
+5. **Userbrief processing identification**: Consult the userbrief via the MCP tool.
+    - Call `mcp_MemoryBank_read-userbrief` to get the currently active request.
+    - Identify if there is a `current_request` with status `'in_progress'`.
+    - Prepare this identified request for transformation into structured tasks for `tasks.md` in step 7.
 
 6. **Completed tasks archival/removal**:
     - Identify completed tasks (🟢 DONE) that are very old and could be archived or deleted because they are no longer relevant to the current focus.
@@ -52,10 +52,13 @@ Analyzes user requests, explores existing code, searches for additional informat
     - New tasks should be added logically, typically after existing 🟡 IN_PROGRESS or ⚪️ TODO tasks, and before any archived/very old 🟢 DONE tasks.
     - Prioritize by importance, dependencies, impact, and complexity when ordering new tasks amongst themselves.
 
-8. **Userbrief archiving**: Update `.cursor/memory-bank/userbrief.md`.
-    - For EACH request identified in Step 5 (marked with ⏳) that was successfully integrated into `tasks.md` in Step 7:
-        - Mark this request as processed by removing its "processing" emoji (⏳) and replacing it with an "archive" emoji (🗄️).
-    - IMPORTANT: Only modify items which were marked with ⏳ in `userbrief.md` and that were successfully added to `tasks.md` in Step 7.
+8. **Userbrief archiving**: Update the processed request via the MCP tool.
+    - For EACH request identified in Step 5 that was successfully integrated into `tasks.md` in Step 7:
+        - Call `mcp_MemoryBank_update-userbrief` with the following parameters:
+            - `action: 'mark_archived'`
+            - `id`: The ID of the request being processed.
+            - `comment`: "Task decomposed and added to tasks.md."
+    - IMPORTANT: Only process items identified in Step 5.
 
 9. **Call next rule**: Mandatory call to `implementation`.
 
@@ -70,8 +73,8 @@ Analyzes user requests, explores existing code, searches for additional informat
 - Favor detailed descriptions for each task item.
 - Minimize dependencies between major tasks where possible.
 - IMPORTANT: Do not add new tasks to `userbrief.md`.
-- IMPORTANT: Crucially, NEVER archive an item in `userbrief.md` (Step 8) if its corresponding task(s) were NOT successfully added to `.cursor/memory-bank/workflow/tasks.md` in Step 7.
-- IMPORTANT: Only process items marked with ⏳ in `userbrief.md`. Never process items marked with other emojis or even simple "-".
+- IMPORTANT: Crucially, NEVER archive a request (Step 8) if its corresponding task(s) were NOT successfully added to `.cursor/memory-bank/workflow/tasks.md` in Step 7.
+- IMPORTANT: Only process the active request identified by the `read-userbrief` tool.
 
 ## tasks.md: New Format Definition
 
@@ -136,9 +139,9 @@ I begin by reading the `tasks.md` file to understand the current state of tasks 
 **(Task-decomposition: 4 - Existing tasks analysis)**
 
 # Task-decomposition: 5 - Userbrief processing identification
-I now consult the `userbrief.md` file to identify tasks marked with ⏳. **(Task-decomposition: 5 - Userbrief processing identification)**
-// ... tool_code: print(default_api.read_file(target_file=".cursor/memory-bank/userbrief.md")) ...
-I identified several items marked with ⏳. I will prepare them for integration into `tasks.md` in step 7.
+I now consult the userbrief via the MCP tool to identify the active task. **(Task-decomposition: 5 - Userbrief processing identification)**
+// ... tool_code: print(default_api.mcp_MemoryBank_read_userbrief()) ...
+I identified the active request. I will prepare it for integration into `tasks.md` in step 7.
 **(Task-decomposition: 5 - Userbrief processing identification)**
 
 # Task-decomposition: 6 - Completed tasks archival/removal
@@ -172,8 +175,8 @@ I decompose the main request and the identified ⏳ userbrief items into concret
 **(Task-decomposition: 7 - New tasks integration)**
 
 # Task-decomposition: 8 - Userbrief archiving
-Now that the tasks from userbrief have been integrated into `tasks.md`, I will ensure the original items in `userbrief.md` are updated from ⏳ to 🗄️. **(Task-decomposition: 8 - Userbrief archiving)**
-// ... tool_code to modify userbrief.md ...
+Now that the tasks from the userbrief have been integrated into `tasks.md`, I will ensure the original request is archived using the MCP tool. **(Task-decomposition: 8 - Userbrief archiving)**
+// ... tool_code: print(default_api.mcp_MemoryBank_update_userbrief(action='mark_archived', id=request_id, comment='Task decomposed and added to tasks.md.')) ...
 **(Task-decomposition: 8 - Userbrief archiving)**
 
 # Task-decomposition: 9 - Call next rule

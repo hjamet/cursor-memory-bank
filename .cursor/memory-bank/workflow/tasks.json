@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 4,
+  "last_id": 6,
   "tasks": [
     {
       "id": 1,
@@ -62,6 +62,34 @@
       "validation_criteria": "",
       "created_date": "2025-06-19T11:59:20.640Z",
       "updated_date": "2025-06-19T11:59:20.640Z",
+      "parent_id": null,
+      "priority": 3
+    },
+    {
+      "id": 5,
+      "title": "Test Task",
+      "short_description": "A task for testing.",
+      "detailed_description": "This task was created by the test suite.",
+      "status": "TODO",
+      "dependencies": [],
+      "impacted_files": [],
+      "validation_criteria": "",
+      "created_date": "2025-06-20T15:46:34.951Z",
+      "updated_date": "2025-06-20T15:46:34.951Z",
+      "parent_id": null,
+      "priority": 3
+    },
+    {
+      "id": 6,
+      "title": "Test Task",
+      "short_description": "A task for testing.",
+      "detailed_description": "This task was created by the test suite.",
+      "status": "IN_PROGRESS",
+      "dependencies": [],
+      "impacted_files": [],
+      "validation_criteria": "",
+      "created_date": "2025-06-20T15:47:21.815Z",
+      "updated_date": "2025-06-20T15:47:21.830Z",
       "parent_id": null,
       "priority": 3
     }

@@ -4,27 +4,26 @@ globs:
 alwaysApply: false
 ---
 ## TLDR
-Consolidates user requests from a section-less, emoji-driven `userbrief.md`, manages item statuses (🆕, ⏳, 📌), and verifies memory file integrity.
+Checks for new user requests using the MemoryBank MCP server, marks them as 'in_progress', and triggers their decomposition. Also verifies memory file integrity.
 
 ## Instructions
 
-1. **Process `userbrief.md` Items**: Analyze and update item statuses:
-   - Read all lines from `.cursor/memory-bank/userbrief.md`.
-   - Iterate through the lines:
-     - If a line starts with `🆕 - ` or `- ` (treat as new input):
-       - **Select only the first such unprocessed item per rule execution.** (To maintain focused processing).
-       - Analyze its content to determine if it's an actionable task or a preference/directive.
-       - If it's a task: Change the line to start with `⏳ - `.
-       - If it's a preference: Change the line to start with `📌 - `.
-       - Re-write the `userbrief.md` file with this single change.
-       - **Stop processing further items in this rule execution.** Subsequent 🆕 items will be handled in later calls to this rule.
-     - Lines starting with ⏳, 📌, or 🗄️ are generally left unchanged by this step of this rule (they are managed by their current status or by other rules like `task-decomposition`).
+1.  **Check for User Requests**: Use the `read-userbrief` MCP tool to check for new or pending user requests.
+    *   Call `mcp_MemoryBank_read-userbrief`.
+    *   This tool abstracts the direct reading of `userbrief.json`.
 
-2. **Integrity verification**: Control of memory files:
+2.  **Process New Request (if any)**: If a 'new' request is found, mark it as 'in_progress'.
+    *   Analyze the response from the previous step.
+    *   IF a `current_request` exists AND its `status` is `'new'`:
+        *   Call `mcp_MemoryBank_update-userbrief` with `action: 'mark_in_progress'` and the `id` of the request.
+        *   This marks the task for the next step without directly modifying any files.
+    *   Preferences (`📌`) are not handled by this version of the rule. All new items are treated as tasks.
+
+3. **Integrity verification**: Control of memory files:
    - Use the MCP command execution tool via Git Bash to list all markdown files: `mcp_MyMCP_execute_command(command = "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"find . -type f -name '*.md'\"")`
    - Analyze results to identify duplicates or misplaced files in `memory-bank` directories.
 
-3. **Direct Cleanup**: Directly resolve integrity issues identified in step 2:
+4. **Direct Cleanup**: Directly resolve integrity issues identified in step 3.
    - If duplicates found:
      - Merge content of duplicate files into the main corresponding file (using file edit tools).
      - Delete duplicates after merging using the MCP command execution tool via Git Bash (e.g., `mcp_MyMCP_execute_command(command = "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"rm <duplicate_file_path>\""")`).
@@ -33,26 +32,24 @@ Consolidates user requests from a section-less, emoji-driven `userbrief.md`, man
    - If other temporary/unnecessary files identified:
      - Delete them using the MCP command execution tool via Git Bash (`rm`).
 
-4. **MCP Terminal Cleanup**: Clean up finished terminal processes used in this rule.
+5. **MCP Terminal Cleanup**: Clean up finished terminal processes used in this rule.
    - Call `mcp_get_terminal_status` to check the status of running/finished processes.
    - For each process with a final status (e.g., 'Success', 'Failure'), call `mcp_stop_terminal_command` with its `pid` to release resources.
 
-5. **Evaluation of user requests & Next Rule**: Decide next workflow step:
-   - Re-read `.cursor/memory-bank/userbrief.md`.
-   - IF any line now starts with `⏳ - ` (indicating a task was just marked for processing by this rule in step 1 OR was already pending from a previous run):
-     - Extract the content of the first such `⏳` item.
+6. **Evaluation of user requests & Next Rule**: Decide next workflow step based on the initial check.
+   - Re-call `mcp_MemoryBank_read-userbrief` to get the latest status (which may have been updated in step 2).
+   - IF the tool returns a `current_request` with status `'in_progress'` or `'new'`:
+     - Extract the `content` of that request.
      - Formulate this as the user request to be analyzed.
-     - Call `task-decomposition` rule to process this specific request (which will then likely lead to `task-decomposition`).
-   - ELSE (no ⏳ items found, meaning no new tasks were identified or are pending from `userbrief.md`):
-     - Call `context-update` rule to continue the general workflow (e.g., check for structural issues if this rule was called for that purpose, or proceed if it was a routine check).
+     - Call `task-decomposition` rule to process this specific request.
+   - ELSE (no active request found):
+     - Call `context-update` rule to continue the general workflow.
 
 ## Specifics
-
-- This rule now focuses on processing one `🆕` user input item from `userbrief.md` at a time.
-- It changes `🆕` to `⏳` (for tasks) or `📌` (for preferences).
-- The `task-decomposition` rule is responsible for processing `⏳` items and changing them to `🗄️`.
-- Avoid directly modifying the content of user requests; only update the leading emoji.
-- Integrity verification and cleanup steps (2, 3, 4) remain important.
+- This rule no longer interacts with `.cursor/memory-bank/userbrief.md`. All userbrief operations are handled via `mcp_MemoryBank_*` tools.
+- It focuses on processing one user request at a time.
+- The `task-decomposition` rule is responsible for processing items marked `'in_progress'`.
+- Integrity verification and cleanup steps (3, 4, 5) remain important.
 
 ## Repository Structure (for reference)
 ```
