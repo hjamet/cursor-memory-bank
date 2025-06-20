@@ -33,6 +33,9 @@ import { handleEditMemory } from './mcp_tools/edit_memory.js';
 // Import remember tool
 import rememberTool from './mcp_tools/remember.js';
 
+// Import next_rule tool
+import nextRuleTool from './mcp_tools/next_rule.js';
+
 // Create server instance
 const server = new McpServer({
     name: 'memory-bank-mcp',
@@ -153,6 +156,9 @@ server.tool(
 
 // Register remember tool
 server.tool(rememberTool.name, rememberTool.args, rememberTool.run);
+
+// Register next_rule tool
+server.tool(nextRuleTool.name, nextRuleTool.args, nextRuleTool.run);
 
 // Start the server
 async function startServer() {

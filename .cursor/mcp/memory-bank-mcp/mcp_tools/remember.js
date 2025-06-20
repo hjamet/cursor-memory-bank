@@ -43,16 +43,19 @@ async function remember(args) {
     }
 
     const recentMemories = memories.slice(-15);
+    const lastMemory = memories[memories.length - 1];
 
     return {
         message: "Memory successfully recorded.",
+        current_state: lastMemory ? lastMemory.future : "No current state.",
+        possible_next_rules: [], // To be implemented by the next_rule tool
         recent_memories: recentMemories,
     };
 }
 
 const rememberTool = {
     name: "remember",
-    description: "Records a memory of the agent's state (past, present, future) and returns the last 15 memories. This tool replaces the need for activeContext.md.",
+    description: "Records a memory of the agent's state (past, present, future) and returns the current state, possible next rules, and the last 15 memories. This tool replaces the need for activeContext.md.",
     args: z.object({
         past: z.string().describe("A description of what the agent originally planned to do."),
         present: z.string().describe("A description of what the agent actually did, any problems encountered, and decisions made."),
