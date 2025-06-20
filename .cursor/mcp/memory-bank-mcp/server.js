@@ -30,6 +30,9 @@ import { handleCommit } from './mcp_tools/commit.js';
 import { handleReadMemory } from './mcp_tools/read_memory.js';
 import { handleEditMemory } from './mcp_tools/edit_memory.js';
 
+// Import remember tool
+import rememberTool from './mcp_tools/remember.js';
+
 // Create server instance
 const server = new McpServer({
     name: 'memory-bank-mcp',
@@ -147,6 +150,9 @@ server.tool(
     },
     handleEditMemory
 );
+
+// Register remember tool
+server.tool(rememberTool.name, rememberTool.args, rememberTool.run);
 
 // Start the server
 async function startServer() {
