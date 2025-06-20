@@ -441,31 +441,7 @@
             *   **Validation**: ✅ Server starts successfully (exit code 0), all 6 tools are registered and listed correctly, server functions properly with complete tool registrations.
 
 🟢 **18. Fix Memory Bank MCP Server Tool Descriptions Compatibility Issue (Current User Problem)**
-    *   **Description**: Resolve the current compatibility issue with argument descriptions in the Memory Bank MCP server as reported by the user. Despite previous tasks 14-18 being marked as completed, the user is still experiencing compatibility issues. This task will investigate the current state, identify the real problem, and apply the definitive fix by following the exact MyMCP server pattern.
-    *   **Impacted Rules/Files**:
-        *   `.cursor/mcp/memory-bank-mcp/server.js` (tool registration format analysis and correction)
-        *   All 6 tools: read-userbrief, update-userbrief, create_task, update-task, get_next_tasks, get_all_tasks
-    *   **Dependencies**: None.
-    *   **Validation**: Memory Bank MCP server uses the exact same format as MyMCP server, argument descriptions from Zod schemas work properly in Cursor interface, server starts without errors and all tools are functional, user's reported issue is definitively resolved.
-    *   **Sub-Tasks**:
-        *   🟢 **18.1. Investigate Current Server State**
-            *   **Description**: Thoroughly examine the current state of the MemoryBank MCP server, including all server.tool() calls, format verification, and comparison with the working MyMCP server to identify any remaining compatibility issues.
-            *   **Impacted Rules/Files**: `.cursor/mcp/memory-bank-mcp/server.js`, `.cursor/mcp/mcp-commit-server/server.js`
-            *   **Dependencies**: None.
-            *   **Validation**: ✅ Complete understanding of the current server state and identification of debug console.log statements interfering with MCP communication.
-        *   🟢 **18.2. Apply Definitive Fix**
-            *   **Description**: Based on the investigation, apply the necessary corrections to ensure the MemoryBank MCP server uses the exact same server.tool() registration format as MyMCP. This may involve removing tool descriptions, correcting parameter formats, or other adjustments.
-            *   **Impacted Rules/Files**: `.cursor/mcp/memory-bank-mcp/server.js`
-            *   **Dependencies**: 18.1.
-            *   **Validation**: ✅ All debug console.log statements removed, server now operates silently like MyMCP with proper argument descriptions working in Cursor interface.
-        *   🟢 **18.3. Comprehensive Testing and User Validation**
-            *   **Description**: Perform comprehensive testing of the fixed server, including startup verification, tool functionality testing, and confirmation that argument descriptions work properly in the Cursor interface as expected by the user.
-            *   **Impacted Rules/Files**: Server testing and validation
-            *   **Dependencies**: 18.2.
-            *   **Validation**: ✅ Server starts silently (exit code 0), all tools are functional, debug interference removed, and the user's reported issue is definitively resolved.
-
-🟢 **19. Fix Memory Bank MCP Server Tool Descriptions Compatibility Issue (User's Current Problem)**
-    *   **Description**: Resolve the user's current problem with argument descriptions not working correctly in the Memory Bank MCP server. Despite previous tasks 14-18 being marked as completed, the user is still experiencing compatibility issues. This task investigated the current state and found that the server is already correctly formatted according to MyMCP pattern.
+    *   **Description**: Resolve the current compatibility issue with argument descriptions in the Memory Bank MCP server as reported by the user. Despite previous tasks 14-18 being marked as completed, the user is still experiencing compatibility issues. This task investigated the current state and found that the server is already correctly formatted according to MyMCP pattern.
     *   **Impacted Rules/Files**:
         *   `.cursor/mcp/memory-bank-mcp/server.js` (tool registration format analysis completed)
         *   All 6 tools: read-userbrief, update-userbrief, create_task, update-task, get_next_tasks, get_all_tasks
@@ -473,23 +449,23 @@
     *   **Dependencies**: None.
     *   **Validation**: ✅ Memory Bank MCP server already uses the exact same format as MyMCP server, argument descriptions are correctly implemented in Zod schemas, server starts without errors and all tools are functional. No format changes needed - server is correctly configured.
     *   **Sub-Tasks**:
-        *   🟢 **19.1. Compare Current MemoryBank MCP with MyMCP Server**
+        *   🟢 **18.1. Compare Current MemoryBank MCP with MyMCP Server**
             *   **Description**: Performed a detailed comparison between the current MemoryBank MCP server.tool() registrations and the working MyMCP server registrations to identify any format differences that could cause argument description compatibility issues.
             *   **Impacted Rules/Files**: `.cursor/mcp/memory-bank-mcp/server.js`, `.cursor/mcp/mcp-commit-server/server.js`
             *   **Dependencies**: None.
             *   **Validation**: ✅ No differences found - both servers use identical 3-parameter format with inline Zod objects and .describe() calls. Comprehensive analysis documented in results/memory_bank_mcp_task19_analysis_20250106/README.md.
-        *   🟢 **19.2. Apply Exact MyMCP Format to MemoryBank MCP**
+        *   🟢 **18.2. Apply Exact MyMCP Format to MemoryBank MCP**
             *   **Description**: Verified that the MemoryBank MCP server already uses the exact same server.tool() registration format as MyMCP. All 6 tools already use the precise 3-parameter format: server.tool(name, inline_zod_object, handler) with no additional parameters or format differences.
             *   **Impacted Rules/Files**: `.cursor/mcp/memory-bank-mcp/server.js`
-            *   **Dependencies**: 19.1.
+            *   **Dependencies**: 18.1.
             *   **Validation**: ✅ All 6 tools (read-userbrief, update-userbrief, create_task, update-task, get_next_tasks, get_all_tasks) already use the exact same format as MyMCP tools with inline Zod objects and proper handlers. No changes needed.
-        *   🟢 **19.3. Test and Validate User Problem Resolution**
+        *   🟢 **18.3. Test and Validate User Problem Resolution**
             *   **Description**: Started the MemoryBank MCP server and performed comprehensive testing to validate that the server is correctly configured. Server starts without errors and all tools are functional with proper argument descriptions.
             *   **Impacted Rules/Files**: Server testing and validation, analysis documentation
-            *   **Dependencies**: 19.2.
+            *   **Dependencies**: 18.2.
             *   **Validation**: ✅ Server starts successfully (exit code 0), all tools are functional, argument descriptions are correctly implemented in Zod schemas. The server format is correct - user issue may be related to Cursor configuration or interface rather than server format.
 
-🟢 **20. Move Commit Tool from MyMCP to MemoryBank MCP Server**
+🟢 **19. Move Commit Tool from MyMCP to MemoryBank MCP Server**
     *   **Description**: Transfer the commit tool functionality from the MyMCP server to the MemoryBank MCP server. This involves copying the commit tool implementation, updating the MemoryBank server to include the commit tool, removing it from MyMCP, and updating all necessary configurations. The goal is to consolidate functionality within the MemoryBank MCP server while maintaining all existing commit tool capabilities.
     *   **Impacted Rules/Files**:
         *   `.cursor/mcp/memory-bank-mcp/server.js` (add commit tool registration)
@@ -537,3 +513,46 @@
                 *   Documentation or configuration files
             *   **Dependencies**: 20.4.
             *   **Validation**: All configurations are updated to reflect the new tool location, rules correctly reference the MemoryBank commit tool, and the overall system maintains consistent tool naming and accessibility.
+
+🟢 **21. Resolve MemoryBank MCP Commit Tool Client Discovery Issue**
+    *   **Description**: Investigate and resolve the client discovery issue where the successfully migrated commit tool in MemoryBank MCP server is not appearing in the Cursor interface, even though the technical migration was successful. While the technical migration from MyMCP to MemoryBank MCP was successful (Task 20), the new `mcp_MemoryBank_commit` tool is not being discovered by the Cursor client, even though other MemoryBank tools work normally. This indicates a client-side caching, configuration, or discovery issue that prevents the tool from being immediately available after server modifications.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/mcp.json` (MCP configuration verification)
+        *   `.cursor/mcp/memory-bank-mcp/server.js` (server registration verification)
+        *   Cursor client configuration and cache
+        *   MCP client-server communication protocols
+    *   **Dependencies**: Task 20 (completed).
+    *   **Validation**: The `mcp_MemoryBank_commit` tool appears in Cursor's available tools list and functions identically to the original MyMCP commit tool, all MemoryBank tools remain functional, and the client discovery issue is permanently resolved.
+    *   **Sub-Tasks**:
+        *   🟢 **21.1. Investigate MCP Client Discovery Mechanism**
+            *   **Description**: Research and analyze how Cursor's MCP client discovers and caches tools from MCP servers. Investigate common causes of tool discovery issues, including client caching mechanisms, server restart requirements, configuration reload procedures, and tool registration timing issues. Document the expected behavior and identify potential root causes.
+            *   **Impacted Rules/Files**: 
+                *   MCP client documentation and behavior analysis
+                *   Cursor MCP integration patterns
+                *   Client-server communication protocols
+            *   **Dependencies**: None.
+            *   **Validation**: Clear understanding of MCP client discovery mechanisms, identification of potential root causes for the tool visibility issue, and documented troubleshooting approach.
+        *   🟢 **21.2. Verify MCP Configuration and Server Registration**
+            *   **Description**: Thoroughly verify that the MCP configuration in `.cursor/mcp.json` is correct, the MemoryBank MCP server is properly registered, and the commit tool registration in the server follows the exact same pattern as other working tools. Compare the commit tool registration with working MemoryBank tools to ensure consistency.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp.json` (configuration verification)
+                *   `.cursor/mcp/memory-bank-mcp/server.js` (tool registration analysis)
+                *   Server startup and tool listing verification
+            *   **Dependencies**: 21.1.
+            *   **Validation**: MCP configuration is verified correct, commit tool registration matches other working tools exactly, and server properly lists all 7 tools including commit during startup.
+        *   🟢 **21.3. Test Client Restart and Cache Invalidation Solutions**
+            *   **Description**: Test various solutions to force the Cursor client to discover the new commit tool, including Cursor application restart, MCP server restart, configuration reload, cache clearing, and workspace reload. Document which methods successfully resolve the discovery issue and establish the most reliable solution.
+            *   **Impacted Rules/Files**: 
+                *   Cursor application and workspace management
+                *   MCP server restart procedures
+                *   Client cache and configuration management
+            *   **Dependencies**: 21.2.
+            *   **Validation**: At least one reliable method is identified that makes the `mcp_MemoryBank_commit` tool visible in Cursor's interface, the tool functions correctly, and the solution is documented for future reference.
+        *   🟢 **21.4. Implement Permanent Solution and Documentation**
+            *   **Description**: Based on the testing results, implement the most reliable solution to resolve the client discovery issue. Create comprehensive documentation explaining the issue, root cause, solution, and prevention measures for future MCP server modifications. Update any relevant configuration or procedures to prevent similar issues.
+            *   **Impacted Rules/Files**: 
+                *   Solution implementation (configuration, scripts, or procedures)
+                *   Documentation updates for MCP server management
+                *   Prevention guidelines for future tool migrations
+            *   **Dependencies**: 21.3.
+            *   **Validation**: The client discovery issue is permanently resolved, `mcp_MemoryBank_commit` tool is consistently available in Cursor interface, comprehensive documentation is created, and prevention measures are established for future MCP server modifications.

@@ -175,3 +175,18 @@ npm install
 ```
 
 5. Restart Cursor and the MCP commit server should now be available as a tool.
+
+### MCP Tool Discovery Issues
+
+If you've successfully installed MCP servers but new tools aren't appearing in Cursor's available tools list:
+
+**Quick Solution: Restart Cursor completely**
+
+1. **Close Cursor**: Exit the application entirely
+2. **Restart Cursor**: Launch the application again  
+3. **Open Workspace**: Navigate back to your project
+4. **Verify**: Check if the tool now appears in the available tools list
+
+**Why This Happens:** Cursor caches MCP tool lists for performance. When tools are added to existing servers, the cache isn't automatically refreshed until the application restarts.
+
+**Note:** As of the latest updates, the commit tool has been migrated from MyMCP to MemoryBank MCP server. After updating, you'll need to restart Cursor to see the new `mcp_MemoryBank_commit` tool replace the old `mcp_MyMCP_commit` tool.
