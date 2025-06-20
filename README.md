@@ -83,6 +83,52 @@ Cursor Memory Bank is a system that helps maintain context between coding sessio
 - 🔒 Safe updates with rule preservation
 - 📝 Structured workflows and rules
 
+## Workflow 🌊
+
+Here is a diagram of the workflow used by the agent to process requests:
+
+```mermaid
+graph TD
+    subgraph "Main Workflow"
+        System --> ConsolidateRepo[consolidate-repo];
+        ConsolidateRepo --> TaskDecomposition[task-decomposition];
+        TaskDecomposition --> Implementation;
+        Implementation -- "Code changed" --> ExperienceExecution[experience-execution];
+        Implementation -- "Docs/other changed" --> ContextUpdate[context-update];
+        ExperienceExecution -- "Success" --> ContextUpdate;
+        ExperienceExecution -- "Freeze behavior" --> TestImplementation[test-implementation];
+        TestImplementation --> TestExecution[test-execution];
+        TestExecution -- "Tests pass" --> ContextUpdate;
+        ContextUpdate -- "More tasks" --> TaskDecomposition;
+    end
+
+    subgraph "Error Handling & Fixes"
+        ExperienceExecution -- "Fail" --> Fix;
+        TestExecution -- "Tests fail" --> Fix;
+        ContextUpdate -- "Issues found" --> Fix;
+        Fix -- "Loop complete (regression check)" --> TestExecution;
+        Fix -- "Add regression test" --> TestImplementation;
+        Fix -- "Complex fix needed" --> TaskDecomposition;
+        ExperienceExecution -- "Anomaly found" --> TaskDecomposition;
+    end
+
+    subgraph "Utility Rules"
+        WorkflowPerdu[workflow-perdu] --> System;
+        OnEditToolFail[on-edit-tool-fail] -.-> System;
+        OnEditToolFail -.-> ConsolidateRepo;
+        OnEditToolFail -.-> TaskDecomposition;
+        OnEditToolFail -.-> Implementation;
+        OnEditToolFail -.-> ExperienceExecution;
+        OnEditToolFail -.-> TestImplementation;
+        OnEditToolFail -.-> TestExecution;
+        OnEditToolFail -.-> Fix;
+        OnEditToolFail -.-> ContextUpdate;
+    end
+
+    style WorkflowPerdu fill:#f9f,stroke:#333,stroke-width:2px
+    style OnEditToolFail fill:#f9f,stroke:#333,stroke-width:2px
+```
+
 ## Contributing 🤝
 
 While this is primarily a personal project, contributions are welcome! Just note that most of the documentation and rules are in French. If you'd like to help translate the project to English or improve its general-purpose usage, that would be especially appreciated!
