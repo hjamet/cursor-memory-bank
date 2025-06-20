@@ -120,7 +120,7 @@
     *   **Dependencies**: None.
     *   **Validation**: The tool correctly stores memories in JSON format, maintains a maximum of 100 entries, returns the last 15 memories, and provides a complete replacement for activeContext.md functionality.
 
-⚪️ **24. Update All Rules to Use MemoryBank MCP Tools**
+🟡 **24. Update All Rules to Use MemoryBank MCP Tools**
     *   **Description**: Systematically update all workflow rules to use MemoryBank MCP tools instead of direct file operations. This includes operations on userbrief.md, tasks.md, projectBrief.md, techContext.md, and replacing activeContext.md usage with the remember tool. Add a remember tool call at the end of each rule before calling the next rule, and update all examples in the rules.
     *   **Impacted Rules/Files**:
         *   All `.cursor/rules/*.mdc` files

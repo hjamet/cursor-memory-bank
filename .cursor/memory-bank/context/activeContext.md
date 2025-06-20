@@ -19,6 +19,19 @@
 
 ## Current Implementation Context: Task 24 - Update All Rules to Use MemoryBank MCP Tools
 
+### Progress on Task 24
+- **Objective**: Systematically update all workflow rules to use MemoryBank MCP tools.
+- **Status**: 🟡 IN_PROGRESS
+- **Changes Made**:
+    - Updated `system.mdc` to use MCP tools for context loading and added a `remember` step.
+    - Deleted obsolete `new-chat.mdc` rule.
+    - Updated `context-update.mdc` to use MCP tools for all file I/O and task management.
+    - Updated `consolidate-repo.mdc` to use MCP tools for `userbrief.md` processing.
+    - Updated `task-decomposition.mdc` to use MCP tools for task and userbrief management.
+    - Updated `fix.mdc` to remove dependency on `tests.md` and use MCP tools.
+- **Next Steps within Task 24**:
+    - Continue updating remaining rules (`test-implementation`, `test-execution`, etc.).
+
 ### Next Priority: Task 24
 - **Objective**: Systematically update all workflow rules to use MemoryBank MCP tools.
 - **Key Changes**:
