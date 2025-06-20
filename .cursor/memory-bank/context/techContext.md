@@ -95,6 +95,8 @@ Le serveur MemoryBank MCP (nommé `MemoryBank` dans sa configuration) fournit le
 - `get_next_tasks`: Retourne les tâches disponibles (sans dépendances en attente) avec filtrage et pagination.
 - `get_all_tasks`: Retourne les tâches avec ordre de priorité et informations de dépendances complètes.
 - `commit`: Pour effectuer des commits Git standardisés. Accepte `emoji`, `type`, `title`, `description`. Utilise CWD auto-détecté. Rapporte le nom du dépôt et les fichiers committés. **MIGRÉ DEPUIS MyMCP SERVER**
+- `read_memory`: **NOUVEAU** - Lit le contenu complet des fichiers de contexte (activeContext, projectBrief, techContext). Retourne le contenu avec métadonnées (statut, chemin, longueur). Validation des noms de fichiers et gestion d'erreur pour fichiers manquants.
+- `edit_memory`: **NOUVEAU** - Remplace complètement le contenu des fichiers de contexte. Prend le nom du fichier de contexte et le nouveau contenu. Crée automatiquement les répertoires si nécessaire. Suit les changements de contenu (longueur originale → nouvelle longueur).
 
 ## Problèmes Connus et Solutions MCP
 
