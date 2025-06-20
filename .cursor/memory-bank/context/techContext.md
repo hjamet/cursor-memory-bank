@@ -84,6 +84,11 @@ Un hook pre-commit est également fourni dans `.githooks/pre-commit` et install�
 - Le serveur Memory Bank MCP (`mcp_MemoryBankMCP_*`, nommé `MemoryBankMCP` dans sa configuration) fournit les outils suivants :
   - `read-userbrief`: Lit le fichier userbrief.md et retourne la première requête non traitée ou en cours, plus un nombre configurable d'entrées archivées (défaut: 3). Gère automatiquement le système d'emojis de statut (🆕, ⏳, 📌, 🗄️).
   - `update-userbrief`: Met à jour le statut d'une tâche dans userbrief.md (marquer en cours, archiver, ajouter des commentaires) avec détection automatique de la tâche courante. Supporte les transitions de statut et l'ajout de commentaires.
+  - `create_task`: Crée de nouvelles tâches avec des IDs auto-générés. Supporte tous les paramètres de tâche incluant les dépendances et la validation.
+  - `update-task`: Met à jour les tâches existantes par ID avec validation des dépendances et gestion des statuts.
+  - `get_next_tasks`: Retourne les tâches disponibles (sans dépendances en attente) avec filtrage et pagination.
+  - `get_all_tasks`: Retourne les tâches avec ordre de priorité et informations de dépendances complètes.
+  - **Status**: ✅ Entièrement fonctionnel et validé. Tous les outils utilisent le format correct server.tool(name, schema, handler) avec objets Zod inline et fonctions handler appropriées.
 
 - Le serveur MCP Commit (`mcp_MyMCP_*`) est sensible à la configuration `cwd` (Current Working Directory) lors de l'exécution de commandes via `spawn`, en particulier avec `shell: false`. CWD is auto-detected based on server startup args (`--cwd`), `CURSOR_WORKSPACE_ROOT` env var, or the server process's CWD.
 - Toute sortie `console.log` ou `console.warn` non JSON du serveur MCP peut interrompre la communication avec le client Cursor, entraînant des erreurs "Unexpected token". Les logs de débogage doivent être commentés ou supprimés en production.
@@ -92,4 +97,3 @@ Un hook pre-commit est également fourni dans `.githooks/pre-commit` et install�
 - Le serveur Memory Bank MCP utilise Express.js avec CORS et rate limiting pour la robustesse. Il inclut une gestion d'erreur complète et une validation des paramètres avec Zod. Architecture modulaire avec UserBriefManager pour les opérations de fichiers centralisées.
 
 ## Dependencies
-```

@@ -111,23 +111,11 @@ server.tool(
 // Start the server
 async function startServer() {
     try {
-        console.log('[MemoryBankMCP] Starting Memory Bank MCP Server v1.1.0');
-        console.log('[MemoryBankMCP] Project root:', projectRoot);
-
         // Initialize server transport
         const transport = new StdioServerTransport();
 
         // Connect server to transport
         await server.connect(transport);
-
-        console.log('[MemoryBankMCP] Server started successfully');
-        console.log('[MemoryBankMCP] Available tools:');
-        console.log('  - read-userbrief: Read userbrief.md and return unprocessed requests');
-        console.log('  - update-userbrief: Update userbrief.md entry status and add comments');
-        console.log('  - create_task: Create new tasks with auto-generated IDs');
-        console.log('  - update-task: Update existing tasks by ID');
-        console.log('  - get_next_tasks: Get available tasks with no pending dependencies');
-        console.log('  - get_all_tasks: Get tasks with priority ordering');
 
     } catch (error) {
         console.error('[MemoryBankMCP] Failed to start server:', error);
@@ -137,12 +125,10 @@ async function startServer() {
 
 // Handle graceful shutdown
 process.on('SIGINT', () => {
-    console.log('[MemoryBankMCP] Shutting down server...');
     process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-    console.log('[MemoryBankMCP] Shutting down server...');
     process.exit(0);
 });
 
