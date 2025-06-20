@@ -88,16 +88,17 @@ Le serveur MyMCP (nommé `InternalAsyncTerminal` dans son code) fournit les outi
 
 ### MemoryBank MCP Server (`mcp_MemoryBank_*`)
 Le serveur MemoryBank MCP (nommé `MemoryBank` dans sa configuration) fournit les outils suivants :
-- `read-userbrief`: Reads the `userbrief.json` file and returns the current request ('in_progress' or 'new'), plus a configurable number of archived entries.
-- `update-userbrief`: Updates a request's status in `userbrief.json` using its unique ID. Supports status changes and adding comments to a request's history.
-- `create_task`: Crée de nouvelles tâches avec des IDs auto-générés. Supporte tous les paramètres de tâche incluant les dépendances et la validation.
-- `update-task`: Met à jour les tâches existantes par ID avec validation des dépendances et gestion des statuts.
-- `get_next_tasks`: Retourne les tâches disponibles (sans dépendances en attente) avec filtrage et pagination.
-- `get_all_tasks`: Retourne les tâches avec ordre de priorité et informations de dépendances complètes.
-- `commit`: Pour effectuer des commits Git standardisés. Accepte `emoji`, `type`, `title`, `description`. Utilise CWD auto-détecté. Rapporte le nom du dépôt et les fichiers committés. **MIGRÉ DEPUIS MyMCP SERVER**
-- `read_memory`: **NOUVEAU** - Lit le contenu complet des fichiers de contexte (activeContext, projectBrief, techContext). Retourne le contenu avec métadonnées (statut, chemin, longueur). Validation des noms de fichiers et gestion d'erreur pour fichiers manquants.
-- `edit_memory`: **NOUVEAU** - Remplace complètement le contenu des fichiers de contexte. Prend le nom du fichier de contexte et le nouveau contenu. Crée automatiquement les répertoires si nécessaire. Suit les changements de contenu (longueur originale → nouvelle longueur).
-- `remember`: **NOUVEAU** - Enregistre un souvenir de l'état de l'agent (passé, présent, futur) dans un fichier JSON. Le fichier de mémoire est limité à 100 entrées et l'outil renvoie les 15 dernières mémoires.
+- `read-userbrief`: Reads the `userbrief.json` file and returns the current request ('in_progress' or 'new'), plus a configurable number of archived entries. (optional, default: 3)
+- `update-userbrief`: Updates a request's status in `userbrief.json` using its unique ID. Supports status changes and adding comments to a request's history. Action is required. ID is optional (targets active request if omitted). Comment is optional.
+- `create_task`: Creates a new task. Requires title, short_description, and detailed_description. Other fields like dependencies, status, etc., are optional.
+- `update-task`: Updates an existing task by its ID. Requires task_id. All other fields are optional.
+- `get_next_tasks`: Returns available tasks (whose dependencies are met). All parameters are optional filters.
+- `get_all_tasks`: Returns all tasks, with optional filters.
+- `commit`: Performs a standardized Git commit. Requires emoji, type, title, and description.
+- `read_memory`: Reads the full content of a specified context file (activeContext, projectBrief, techContext). Requires context_file.
+- `edit_memory`: Completely replaces the content of a specified context file. Requires context_file and content.
+- `remember`: Records a memory of the agent's state (past, present, future). Replaces `activeContext.md`.
+- `next_rule`: Fetches the instructions for the next rule to be executed.
 
 ## Problèmes Connus et Solutions MCP
 
