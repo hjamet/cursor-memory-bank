@@ -1,5 +1,24 @@
 import { z } from 'zod';
-import { taskManager } from '../lib/task_manager.js';
+import fs from 'fs/promises';
+import path from 'path';
+
+const TASKS_FILE_PATH = path.resolve(process.cwd(), '.cursor', 'memory-bank', 'streamlit_app', 'tasks.json');
+
+async function readTasks() {
+    try {
+        const data = await fs.readFile(TASKS_FILE_PATH, 'utf-8');
+        return JSON.parse(data);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            return [];
+        }
+        throw error;
+    }
+}
+
+async function writeTasks(tasks) {
+    await fs.writeFile(TASKS_FILE_PATH, JSON.stringify(tasks, null, 2), 'utf-8');
+}
 
 /**
  * Handles the update-task tool call
@@ -21,11 +40,12 @@ import { taskManager } from '../lib/task_manager.js';
 export async function handleUpdateTask(params) {
     try {
         const { task_id, ...updates } = params;
-        console.log(`[UpdateTask] Updating task ${task_id} with fields:`, Object.keys(updates));
+        console.log(`[UpdateTask] Updating task ${task_id} with fields:`, Object.keys(updates).filter(k => updates[k] !== undefined));
 
-        // Check if task exists
-        const existingTask = taskManager.getTaskById(task_id);
-        if (!existingTask) {
+        const tasks = await readTasks();
+        const taskIndex = tasks.findIndex(task => task.id === task_id);
+
+        if (taskIndex === -1) {
             return {
                 content: [{
                     type: 'text',
@@ -38,9 +58,11 @@ export async function handleUpdateTask(params) {
             };
         }
 
+        const existingTask = { ...tasks[taskIndex] };
+
         // Validate parent task exists if parent_id is being updated
         if (updates.parent_id !== undefined && updates.parent_id !== null) {
-            const parentTask = taskManager.getTaskById(updates.parent_id);
+            const parentTask = tasks.find(task => task.id === updates.parent_id);
             if (!parentTask) {
                 return {
                     content: [{
@@ -69,13 +91,15 @@ export async function handleUpdateTask(params) {
             }
         }
 
-        // Remove undefined values to only update provided fields
-        const cleanUpdates = Object.fromEntries(
-            Object.entries(updates).filter(([_, value]) => value !== undefined)
-        );
+        // Create the updated task object
+        const updatedTask = {
+            ...existingTask,
+            ...Object.fromEntries(Object.entries(updates).filter(([_, v]) => v !== undefined)),
+            updated_date: new Date().toISOString()
+        };
 
-        // Update the task using TaskManager
-        const updatedTask = taskManager.updateTask(task_id, cleanUpdates);
+        tasks[taskIndex] = updatedTask;
+        await writeTasks(tasks);
 
         // Prepare success response
         const response = {
@@ -83,8 +107,8 @@ export async function handleUpdateTask(params) {
             message: `Task ${task_id} updated successfully`,
             updated_task: updatedTask,
             changes_made: {
-                fields_updated: Object.keys(cleanUpdates),
-                update_count: Object.keys(cleanUpdates).length,
+                fields_updated: Object.keys(updates).filter(k => updates[k] !== undefined),
+                update_count: Object.keys(updates).filter(k => updates[k] !== undefined).length,
                 previous_status: existingTask.status,
                 new_status: updatedTask.status
             },

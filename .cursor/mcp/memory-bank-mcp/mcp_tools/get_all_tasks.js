@@ -1,5 +1,28 @@
 import { z } from 'zod';
-import { taskManager } from '../lib/task_manager.js';
+import fs from 'fs/promises';
+import path from 'path';
+
+const TASKS_FILE_PATH = path.resolve(process.cwd(), '.cursor', 'memory-bank', 'streamlit_app', 'tasks.json');
+
+async function readTasks() {
+    try {
+        const data = await fs.readFile(TASKS_FILE_PATH, 'utf-8');
+        return JSON.parse(data);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            return [];
+        }
+        throw error;
+    }
+}
+
+const STATUS_ORDER = {
+    'IN_PROGRESS': 1,
+    'TODO': 2,
+    'BLOCKED': 3,
+    'REVIEW': 4,
+    'DONE': 5,
+};
 
 /**
  * Handles the get_all_tasks tool call
@@ -23,92 +46,65 @@ export async function handleGetAllTasks(params) {
             include_dependencies = true
         } = params;
 
-        console.log(`[GetAllTasks] Retrieving ${count} tasks with priority ordering`);
+        console.log(`[GetAllTasks] Retrieving up to ${count} tasks.`);
 
-        // Get all tasks using TaskManager with priority sorting
-        const options = {
-            limit: count
-        };
+        let allTasks = await readTasks();
 
-        // Apply status filter if specified
+        // Apply filters
+        let filteredTasks = allTasks;
         if (status_filter) {
-            options.status = status_filter;
+            filteredTasks = filteredTasks.filter(task => task.status === status_filter);
         }
-
-        let allTasks = taskManager.getAllTasks(options);
-
-        // Apply additional filters
         if (priority_filter) {
-            allTasks = allTasks.filter(task => task.priority === priority_filter);
+            filteredTasks = filteredTasks.filter(task => task.priority === priority_filter);
         }
-
         if (!include_subtasks) {
-            allTasks = allTasks.filter(task => task.parent_id === null);
+            filteredTasks = filteredTasks.filter(task => !task.parent_id);
         }
 
-        // Apply count limit after filtering
-        allTasks = allTasks.slice(0, count);
+        // Sort tasks by status order, then priority
+        filteredTasks.sort((a, b) => {
+            const statusA = STATUS_ORDER[a.status] || 99;
+            const statusB = STATUS_ORDER[b.status] || 99;
+            if (statusA !== statusB) {
+                return statusA - statusB;
+            }
+            return (a.priority || 3) - (b.priority || 3);
+        });
+
+        // Apply count limit after filtering and sorting
+        const paginatedTasks = filteredTasks.slice(0, count);
 
         // Enhance tasks with additional information
-        const enhancedTasks = allTasks.map(task => {
-            const baseTask = {
-                id: task.id,
-                title: task.title,
-                short_description: task.short_description,
-                status: task.status,
-                priority: task.priority,
-                parent_id: task.parent_id,
-                created_date: task.created_date,
-                updated_date: task.updated_date
-            };
+        const enhancedTasks = paginatedTasks.map(task => {
+            const baseTask = { ...task };
 
             // Add dependency information if requested
-            if (include_dependencies) {
+            if (include_dependencies && task.dependencies && task.dependencies.length > 0) {
                 const dependencyDetails = task.dependencies.map(depId => {
-                    const depTask = taskManager.getTaskById(depId);
-                    return depTask ? {
-                        id: depTask.id,
-                        title: depTask.title,
-                        status: depTask.status,
-                        short_description: depTask.short_description
-                    } : {
-                        id: depId,
-                        title: 'Unknown Task',
-                        status: 'NOT_FOUND',
-                        short_description: 'Task not found in system'
-                    };
+                    const depTask = allTasks.find(t => t.id === depId);
+                    return depTask
+                        ? { id: depTask.id, title: depTask.title, status: depTask.status }
+                        : { id: depId, title: 'Unknown Task', status: 'NOT_FOUND' };
                 });
-
-                baseTask.dependencies = task.dependencies;
                 baseTask.dependency_details = dependencyDetails;
-                baseTask.all_dependencies_completed = dependencyDetails.every(dep =>
-                    dep.status === 'DONE' || dep.status === 'NOT_FOUND'
+                baseTask.all_dependencies_completed = dependencyDetails.every(
+                    dep => dep.status === 'DONE' || dep.status === 'NOT_FOUND'
                 );
             }
 
             // Add parent information if it's a subtask
             if (task.parent_id) {
-                const parentTask = taskManager.getTaskById(task.parent_id);
-                baseTask.parent_info = parentTask ? {
-                    id: parentTask.id,
-                    title: parentTask.title,
-                    status: parentTask.status
-                } : {
-                    id: task.parent_id,
-                    title: 'Unknown Parent',
-                    status: 'NOT_FOUND'
-                };
+                const parentTask = allTasks.find(t => t.id === task.parent_id);
+                baseTask.parent_info = parentTask
+                    ? { id: parentTask.id, title: parentTask.title, status: parentTask.status }
+                    : { id: task.parent_id, title: 'Unknown Parent', status: 'NOT_FOUND' };
             }
 
             // Add subtask information if it's a parent task
-            const subtasks = taskManager.getAllTasks({ parent_id: task.id });
+            const subtasks = allTasks.filter(t => t.parent_id === task.id);
             if (subtasks.length > 0) {
-                baseTask.subtasks = subtasks.map(subtask => ({
-                    id: subtask.id,
-                    title: subtask.title,
-                    status: subtask.status,
-                    short_description: subtask.short_description
-                }));
+                baseTask.subtasks = subtasks.map(sub => ({ id: sub.id, title: sub.title, status: sub.status }));
                 baseTask.subtask_count = subtasks.length;
                 baseTask.completed_subtasks = subtasks.filter(st => st.status === 'DONE').length;
             }
@@ -116,28 +112,22 @@ export async function handleGetAllTasks(params) {
             return baseTask;
         });
 
-        // Generate comprehensive statistics
-        const allTasksForStats = taskManager.getAllTasks();
+        // Generate comprehensive statistics from the full unfiltered list
         const statistics = {
-            total_tasks: allTasksForStats.length,
+            total_tasks: allTasks.length,
             tasks_returned: enhancedTasks.length,
-            status_breakdown: {
-                TODO: allTasksForStats.filter(t => t.status === 'TODO').length,
-                IN_PROGRESS: allTasksForStats.filter(t => t.status === 'IN_PROGRESS').length,
-                DONE: allTasksForStats.filter(t => t.status === 'DONE').length,
-                BLOCKED: allTasksForStats.filter(t => t.status === 'BLOCKED').length,
-                REVIEW: allTasksForStats.filter(t => t.status === 'REVIEW').length
-            },
-            priority_breakdown: {
-                'Priority 1 (Highest)': allTasksForStats.filter(t => t.priority === 1).length,
-                'Priority 2': allTasksForStats.filter(t => t.priority === 2).length,
-                'Priority 3 (Medium)': allTasksForStats.filter(t => t.priority === 3).length,
-                'Priority 4': allTasksForStats.filter(t => t.priority === 4).length,
-                'Priority 5 (Lowest)': allTasksForStats.filter(t => t.priority === 5).length
-            },
+            status_breakdown: allTasks.reduce((acc, task) => {
+                acc[task.status] = (acc[task.status] || 0) + 1;
+                return acc;
+            }, {}),
+            priority_breakdown: allTasks.reduce((acc, task) => {
+                const priority = `Priority ${task.priority}`;
+                acc[priority] = (acc[priority] || 0) + 1;
+                return acc;
+            }, {}),
             task_types: {
-                main_tasks: allTasksForStats.filter(t => t.parent_id === null).length,
-                subtasks: allTasksForStats.filter(t => t.parent_id !== null).length
+                main_tasks: allTasks.filter(t => !t.parent_id).length,
+                subtasks: allTasks.filter(t => t.parent_id).length
             },
             filters_applied: {
                 status_filter: status_filter || null,

@@ -1,5 +1,24 @@
 import { z } from 'zod';
-import { taskManager } from '../lib/task_manager.js';
+import fs from 'fs/promises';
+import path from 'path';
+
+const TASKS_FILE_PATH = path.resolve(process.cwd(), '.cursor', 'memory-bank', 'streamlit_app', 'tasks.json');
+
+async function readTasks() {
+    try {
+        const data = await fs.readFile(TASKS_FILE_PATH, 'utf-8');
+        return JSON.parse(data);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            return []; // Return empty array if file doesn't exist
+        }
+        throw error;
+    }
+}
+
+async function writeTasks(tasks) {
+    await fs.writeFile(TASKS_FILE_PATH, JSON.stringify(tasks, null, 2), 'utf-8');
+}
 
 /**
  * Handles the create_task tool call
@@ -19,11 +38,12 @@ import { taskManager } from '../lib/task_manager.js';
  */
 export async function handleCreateTask(params) {
     try {
-        console.log('[CreateTask] Creating new task:', params.title);
+        console.log(`[CreateTask] Creating new task: ${params.title}`);
+        const tasks = await readTasks();
 
         // Validate parent task exists if parent_id is provided
         if (params.parent_id) {
-            const parentTask = taskManager.getTaskById(params.parent_id);
+            const parentTask = tasks.find(task => task.id === params.parent_id);
             if (!parentTask) {
                 return {
                     content: [{
@@ -38,8 +58,12 @@ export async function handleCreateTask(params) {
             }
         }
 
-        // Create the task using TaskManager
-        const createdTask = taskManager.createTask({
+        // Generate a new task ID
+        const newTaskId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+
+        // Create the new task object
+        const createdTask = {
+            id: newTaskId,
             title: params.title,
             short_description: params.short_description,
             detailed_description: params.detailed_description,
@@ -47,9 +71,15 @@ export async function handleCreateTask(params) {
             status: params.status || 'TODO',
             impacted_files: params.impacted_files || [],
             validation_criteria: params.validation_criteria || '',
+            created_date: new Date().toISOString(),
+            updated_date: new Date().toISOString(),
             parent_id: params.parent_id || null,
             priority: params.priority || 3
-        });
+        };
+
+        // Add the new task and write to file
+        tasks.push(createdTask);
+        await writeTasks(tasks);
 
         // Prepare success response
         const response = {

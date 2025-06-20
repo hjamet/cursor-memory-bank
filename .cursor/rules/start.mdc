@@ -1,0 +1,26 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+## TLDR
+You are an AI agent kicking off your autonomous workflow. This `START` rule is the official entry point, executed by the `MemoryBank` MCP server. Its purpose is to load all necessary context and determine the first logical step, usually by decomposing user requests into actionable tasks.
+
+## State Machine Workflow
+
+You function as a state machine where each rule represents a state. The `MemoryBank` server orchestrates this workflow.
+
+1.  **Rule Execution**: You execute the instructions of the current rule (your current state).
+2.  **State Update (`remember`)**: Upon completing a rule, you **MUST** call the `remember` tool. This tool saves your `past` (what you planned), `present` (what you did and its outcome), and `future` (your plan for the next step) into the `activeContext.md`. This captures the state transition.
+3.  **Next State (`next_rule`)**: Immediately after `remember`, you **MUST** call the `next_rule` tool. This tool tells the `MemoryBank` server to determine and provide the next rule to execute. You will then receive a new `CallTool` action for the next rule in the sequence.
+
+This cycle (`execute` -> `remember` -> `next_rule`) forms the core of your autonomous operation. It ensures every step is logged and the workflow progresses logically from one state to the next without interruption.
+
+## Instructions
+
+1.  **Acknowledge Start**: Announce that you are starting the workflow.
+2.  **Read User Brief**: Use the `read_userbrief` tool to check for new user requests. This is your primary source of work. You must never add items to the user brief; your role is to process what the user has entered.
+3.  **Call Next Rule**: Call the `next_rule` tool with `task-decomposition` as the target. This will transition you to the state where you break down the user's requests into a concrete task plan.
+
+## Next Rules
+- `task-decomposition`: This is the standard next step after `START`, where you analyze the user's requests and create a detailed plan.

@@ -1,5 +1,20 @@
 import { z } from 'zod';
-import { taskManager } from '../lib/task_manager.js';
+import fs from 'fs/promises';
+import path from 'path';
+
+const TASKS_FILE_PATH = path.resolve(process.cwd(), '.cursor', 'memory-bank', 'streamlit_app', 'tasks.json');
+
+async function readTasks() {
+    try {
+        const data = await fs.readFile(TASKS_FILE_PATH, 'utf-8');
+        return JSON.parse(data);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            return [];
+        }
+        throw error;
+    }
+}
 
 /**
  * Handles the get_next_tasks tool call
@@ -25,14 +40,22 @@ export async function handleGetNextTasks(params) {
 
         console.log(`[GetNextTasks] Retrieving next available tasks (limit: ${limit})`);
 
-        // Get available tasks using TaskManager
-        const options = {
-            limit,
-            includeCompleted: include_completed,
-            includeBlocked: include_blocked
-        };
+        const allTasks = await readTasks();
 
-        let availableTasks = taskManager.getNextTasks(options);
+        // First, create a map for quick lookups
+        const taskMap = new Map(allTasks.map(task => [task.id, task]));
+
+        // Determine available tasks
+        let availableTasks = allTasks.filter(task => {
+            if (!include_completed && task.status === 'DONE') return false;
+            if (!include_blocked && task.status === 'BLOCKED') return false;
+            if (task.dependencies.length === 0) return true;
+
+            return task.dependencies.every(depId => {
+                const depTask = taskMap.get(depId);
+                return !depTask || depTask.status === 'DONE';
+            });
+        });
 
         // Apply additional filters if specified
         if (status_filter) {
@@ -43,13 +66,16 @@ export async function handleGetNextTasks(params) {
             availableTasks = availableTasks.filter(task => task.priority === priority_filter);
         }
 
+        // Sort by priority
+        availableTasks.sort((a, b) => (a.priority || 3) - (b.priority || 3));
+
         // Apply limit after filtering
-        availableTasks = availableTasks.slice(0, limit);
+        const paginatedTasks = availableTasks.slice(0, limit);
 
         // Enhance tasks with dependency information
-        const enhancedTasks = availableTasks.map(task => {
+        const enhancedTasks = paginatedTasks.map(task => {
             const dependencyDetails = task.dependencies.map(depId => {
-                const depTask = taskManager.getTaskById(depId);
+                const depTask = taskMap.get(depId);
                 return depTask ? {
                     id: depTask.id,
                     title: depTask.title,
@@ -77,18 +103,14 @@ export async function handleGetNextTasks(params) {
         });
 
         // Generate statistics
-        const allTasks = taskManager.getAllTasks();
         const statistics = {
             total_tasks: allTasks.length,
-            available_tasks: enhancedTasks.length,
+            available_tasks_count: availableTasks.length, // Total available before pagination
             tasks_returned: enhancedTasks.length,
-            status_breakdown: {
-                TODO: allTasks.filter(t => t.status === 'TODO').length,
-                IN_PROGRESS: allTasks.filter(t => t.status === 'IN_PROGRESS').length,
-                DONE: allTasks.filter(t => t.status === 'DONE').length,
-                BLOCKED: allTasks.filter(t => t.status === 'BLOCKED').length,
-                REVIEW: allTasks.filter(t => t.status === 'REVIEW').length
-            },
+            status_breakdown: allTasks.reduce((acc, task) => {
+                acc[task.status] = (acc[task.status] || 0) + 1;
+                return acc;
+            }, {}),
             filters_applied: {
                 status_filter: status_filter || null,
                 priority_filter: priority_filter || null,
@@ -104,8 +126,8 @@ export async function handleGetNextTasks(params) {
             statistics,
             query_info: {
                 limit_requested: limit,
-                filters_applied: Object.keys(params).length - 1, // Exclude limit
-                total_available: enhancedTasks.length
+                filters_applied: Object.keys(params).filter(key => key !== 'limit').length,
+                total_available: availableTasks.length
             }
         };
 
