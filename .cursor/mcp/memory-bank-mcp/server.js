@@ -23,6 +23,9 @@ import { handleUpdateTask } from './mcp_tools/update_task.js';
 import { handleGetNextTasks } from './mcp_tools/get_next_tasks.js';
 import { handleGetAllTasks } from './mcp_tools/get_all_tasks.js';
 
+// Import commit tool handler
+import { handleCommit } from './mcp_tools/commit.js';
+
 // Create server instance
 const server = new McpServer({
     name: 'memory-bank-mcp',
@@ -106,6 +109,18 @@ server.tool(
         include_dependencies: z.boolean().optional().default(true).describe('Include dependency information in response')
     },
     handleGetAllTasks
+);
+
+// Register commit tool
+server.tool(
+    'commit',
+    {
+        emoji: z.string().describe("Emoji to use in the commit message (e.g. :sparkles:)"),
+        type: z.string().describe("Type of change (e.g. feat, fix, docs, style, refactor, test, chore)"),
+        title: z.string().describe("Brief commit title"),
+        description: z.string().describe("Detailed description of changes")
+    },
+    handleCommit
 );
 
 // Start the server

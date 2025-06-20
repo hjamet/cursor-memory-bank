@@ -21,7 +21,6 @@ import * as StateManager from './lib/state_manager.js';
 // import * as ProcessManager from './lib/process_manager.js'; // Not directly needed
 
 // Import tool handlers
-import { handleCommit } from './mcp_tools/commit.js';
 import { handleExecuteCommand } from './mcp_tools/terminal_execution.js';
 import { handleGetTerminalStatus } from './mcp_tools/terminal_status.js';
 import { handleGetTerminalOutput } from './mcp_tools/terminal_output.js';
@@ -168,7 +167,6 @@ const server = new McpServer({
     version: "0.5.0", // Incremented version for new tool
     capabilities: {
         tools: {
-            'commit': true,
             'execute_command': true,
             'get_terminal_status': true,
             'get_terminal_output': true,
@@ -180,18 +178,6 @@ const server = new McpServer({
 });
 
 // --- Register Tools --- 
-
-// Define the commit tool schema (as before)
-server.tool(
-    'commit',
-    {
-        emoji: z.string().describe("Emoji to use in the commit message (e.g. :sparkles:)"),
-        type: z.string().describe("Type of change (e.g. feat, fix, docs, style, refactor, test, chore)"),
-        title: z.string().describe("Brief commit title"),
-        description: z.string().describe("Detailed description of changes")
-    },
-    handleCommit // Use the imported handler
-);
 
 // Define execute_command tool schema (as before)
 server.tool(

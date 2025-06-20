@@ -489,43 +489,51 @@
             *   **Dependencies**: 19.2.
             *   **Validation**: ✅ Server starts successfully (exit code 0), all tools are functional, argument descriptions are correctly implemented in Zod schemas. The server format is correct - user issue may be related to Cursor configuration or interface rather than server format.
 
-# DONE
-
-3.  **Feature: Ajout de l'outil de capture d'écran web**
-    *   [x] **3.1 Implémentation de l'outil `take_webpage_screenshot`**
-        *   **Description**: Ajout d'un nouvel outil au serveur MyMCP pour prendre une capture d'écran complète d'une page web via son URL et la retourner en base64.
-        *   **Impacted Files/Components**:
-            *   `.cursor/mcp/mcp-commit-server/package.json` (ajout de `puppeteer`)
-            *   `.cursor/mcp/mcp-commit-server/server.js` (enregistrement de l'outil `take_webpage_screenshot`)
-            *   `.cursor/mcp/mcp-commit-server/mcp_tools/webpage_screenshot.js` (logique de l'outil)
-        *   **Validation**: L'outil a été testé manuellement avec succès avec l'URL `https://www.webpagetest.org/about` et a retourné une confirmation de génération d'image. Le problème de crash serveur initial a été résolu.
-
-2.  **Enhance MCP Server Testing**
-    *   [x] **2.1 Create Python Helper Script for Interruption Test**
-        *   **Description**: Create a simple Python script (e.g., `test_interruption.py`) that prints some output, waits for a specified time (e.g., 5 seconds), then prints more output. This script will be used to test the terminal interruption functionality in the MCP server.
-        *   **Impacted Files/Components**: `test_interruption.py`
-        *   **Validation**: The script is created and can be used with the `execute_command` tool to test terminal interruption.
-
-⚪️ **19. Fix Memory Bank MCP Server Tool Descriptions Compatibility Issue (User's Current Problem)**
-    *   **Description**: Resolve the user's current problem with argument descriptions not working correctly in the Memory Bank MCP server. Despite previous tasks 14-18 being marked as completed, the user is still experiencing compatibility issues. This task will investigate the current state, identify the real problem, and apply the definitive fix by following the exact MyMCP server pattern.
+🟢 **20. Move Commit Tool from MyMCP to MemoryBank MCP Server**
+    *   **Description**: Transfer the commit tool functionality from the MyMCP server to the MemoryBank MCP server. This involves copying the commit tool implementation, updating the MemoryBank server to include the commit tool, removing it from MyMCP, and updating all necessary configurations. The goal is to consolidate functionality within the MemoryBank MCP server while maintaining all existing commit tool capabilities.
     *   **Impacted Rules/Files**:
-        *   `.cursor/mcp/memory-bank-mcp/server.js` (tool registration format analysis and correction)
-        *   All 6 tools: read-userbrief, update-userbrief, create_task, update-task, get_next_tasks, get_all_tasks
+        *   `.cursor/mcp/memory-bank-mcp/server.js` (add commit tool registration)
+        *   `.cursor/mcp/memory-bank-mcp/mcp_tools/commit.js` (new commit tool implementation)
+        *   `.cursor/mcp/mcp-commit-server/server.js` (remove commit tool registration)
+        *   `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js` (source for migration)
+        *   `.cursor/mcp.json` (update server configurations)
+        *   Any rules that reference `mcp_MyMCP_commit` (update to use MemoryBank version)
     *   **Dependencies**: None.
-    *   **Validation**: Memory Bank MCP server uses the exact same format as MyMCP server, argument descriptions from Zod schemas work properly in Cursor interface, server starts without errors and all tools are functional, user's reported issue is definitively resolved.
+    *   **Validation**: The commit tool is fully functional in MemoryBank MCP server with identical capabilities to the original MyMCP version, MyMCP server no longer includes the commit tool, all existing workflows continue to work with the migrated tool, and MCP configuration is properly updated.
     *   **Sub-Tasks**:
-        *   ⚪️ **19.1. Compare Current MemoryBank MCP with MyMCP Server**
-            *   **Description**: Perform a detailed comparison between the current MemoryBank MCP server.tool() registrations and the working MyMCP server registrations to identify any format differences that could cause argument description compatibility issues.
-            *   **Impacted Rules/Files**: `.cursor/mcp/memory-bank-mcp/server.js`, `.cursor/mcp/mcp-commit-server/server.js`
+        *   🟢 **20.1. Copy Commit Tool Implementation to MemoryBank MCP**
+            *   **Description**: Copy the commit tool handler from `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js` to `.cursor/mcp/memory-bank-mcp/mcp_tools/commit.js`. Ensure all dependencies and imports are properly adapted for the MemoryBank MCP environment.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp/memory-bank-mcp/mcp_tools/commit.js` (new file)
+                *   `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js` (source reference)
             *   **Dependencies**: None.
-            *   **Validation**: Clear identification of any differences in tool registration format between the two servers and root cause of the compatibility issue.
-        *   ⚪️ **19.2. Apply Exact MyMCP Format to MemoryBank MCP**
-            *   **Description**: Update the MemoryBank MCP server to use the exact same server.tool() registration format as MyMCP. Ensure all 6 tools use the precise 3-parameter format: server.tool(name, inline_zod_object, handler) with no additional parameters or format differences.
-            *   **Impacted Rules/Files**: `.cursor/mcp/memory-bank-mcp/server.js`
-            *   **Dependencies**: 19.1.
-            *   **Validation**: All 6 tools (read-userbrief, update-userbrief, create_task, update-task, get_next_tasks, get_all_tasks) use the exact same format as MyMCP tools with inline Zod objects and proper handlers.
-        *   ⚪️ **19.3. Test and Validate User Problem Resolution**
-            *   **Description**: Start the MemoryBank MCP server and perform comprehensive testing to ensure that argument descriptions work properly in the Cursor interface, server starts without errors, and the user's reported compatibility issue is definitively resolved.
-            *   **Impacted Rules/Files**: Server testing and validation
-            *   **Dependencies**: 19.2.
-            *   **Validation**: Server starts successfully, all tools are functional, argument descriptions work properly in Cursor interface, and user's problem is completely resolved without any compatibility issues.
+            *   **Validation**: The commit tool implementation is successfully copied and adapted for MemoryBank MCP with all necessary imports and dependencies resolved.
+        *   🟢 **20.2. Register Commit Tool in MemoryBank MCP Server**
+            *   **Description**: Update `.cursor/mcp/memory-bank-mcp/server.js` to import and register the commit tool using the same 3-parameter format as other tools. Ensure the tool registration follows the exact same pattern as MyMCP for compatibility.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp/memory-bank-mcp/server.js` (add commit tool registration)
+                *   `.cursor/mcp/memory-bank-mcp/mcp_tools/commit.js` (import source)
+            *   **Dependencies**: 20.1.
+            *   **Validation**: The commit tool is properly registered in MemoryBank MCP server with correct schema and handler, following the established 3-parameter format pattern.
+        *   🟢 **20.3. Test MemoryBank MCP with Commit Tool**
+            *   **Description**: Test the MemoryBank MCP server with the newly added commit tool to ensure it starts correctly, the commit tool is available, and it functions identically to the original MyMCP version. Verify all commit tool parameters and functionality work as expected.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp/memory-bank-mcp/server.js` (testing)
+                *   MemoryBank MCP server functionality validation
+            *   **Dependencies**: 20.2.
+            *   **Validation**: MemoryBank MCP server starts successfully with the commit tool available, the tool accepts all expected parameters (emoji, type, title, description), and produces identical commit results to the original MyMCP implementation.
+        *   🟢 **20.4. Remove Commit Tool from MyMCP Server**
+            *   **Description**: Remove the commit tool registration and related imports from `.cursor/mcp/mcp-commit-server/server.js`. Update the server capabilities to reflect the removal of the commit tool while maintaining all other MyMCP functionality.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp/mcp-commit-server/server.js` (remove commit tool)
+                *   Server capabilities configuration
+            *   **Dependencies**: 20.3.
+            *   **Validation**: MyMCP server starts successfully without the commit tool, all other tools remain functional, and the server capabilities are correctly updated to exclude the commit tool.
+        *   🟢 **20.5. Update MCP Configuration and Tool References**
+            *   **Description**: Update `.cursor/mcp.json` and any configuration files to reflect the new tool distribution. Update any rules or documentation that reference `mcp_MyMCP_commit` to use the MemoryBank equivalent. Ensure the tool naming convention is consistent.
+            *   **Impacted Rules/Files**: 
+                *   `.cursor/mcp.json` (configuration updates)
+                *   Any rules referencing `mcp_MyMCP_commit`
+                *   Documentation or configuration files
+            *   **Dependencies**: 20.4.
+            *   **Validation**: All configurations are updated to reflect the new tool location, rules correctly reference the MemoryBank commit tool, and the overall system maintains consistent tool naming and accessibility.

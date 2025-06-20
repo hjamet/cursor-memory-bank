@@ -1,42 +1,74 @@
 # Active Context
 
-## Current Focus: ✅ Task 19 - Fix Memory Bank MCP Server Tool Descriptions Compatibility Issue (COMPLETED)
-- **Task**: Resolve the user's current problem with argument descriptions not working correctly in the Memory Bank MCP server
-- **Status**: ✅ COMPLETED - Comprehensive analysis performed
-- **Finding**: MemoryBank MCP server is already correctly formatted according to MyMCP pattern
-- **Outcome**: No format changes needed - server uses identical 3-parameter format with inline Zod schemas
+## Lost workflow
+I was in the process of executing a context-update rule, specifically step 4 (commit changes). I had just completed updating the activeContext.md file to reflect the completion of Task 19 (Fix Memory Bank MCP Server Tool Descriptions Compatibility Issue) and successfully committed the changes. The user then called the workflow-perdu rule, indicating I should restart the workflow properly.
+
+Recent actions completed:
+- Updated activeContext.md with Task 19 completion status
+- Confirmed that MemoryBank MCP server was already correctly formatted
+- Committed changes with comprehensive documentation
+- Files involved: .cursor/mcp/memory-bank-mcp/server.js, context files, validation results
+
+## Current Focus: ⚪️ Task 20 - Move Commit Tool from MyMCP to MemoryBank MCP Server
+- **Task**: Transfer the commit tool functionality from the MyMCP server to the MemoryBank MCP server
+- **Status**: ⚪️ TODO - Ready for implementation
+- **User Request**: "Tu peux déplacer l'outil commit de MyMCP à MemoryBank ?" (from userbrief.md)
+- **Goal**: Consolidate functionality within the MemoryBank MCP server while maintaining all existing commit tool capabilities
 
 ## Current Implementation Context
 
-### Task 19 Resolution Summary
-- **Sub-task 19.1**: ✅ Detailed comparison between MemoryBank MCP and MyMCP servers completed
-- **Sub-task 19.2**: ✅ Verified that MemoryBank MCP already uses exact same format as MyMCP
-- **Sub-task 19.3**: ✅ Comprehensive testing confirmed server functionality and correct format
+### Task 20 Implementation Plan
+- **Sub-task 20.1**: ⚪️ Copy commit tool implementation from MyMCP to MemoryBank MCP
+- **Sub-task 20.2**: ⚪️ Register commit tool in MemoryBank MCP server
+- **Sub-task 20.3**: ⚪️ Test MemoryBank MCP with commit tool
+- **Sub-task 20.4**: ⚪️ Remove commit tool from MyMCP server
+- **Sub-task 20.5**: ⚪️ Update MCP configuration and tool references
 
-### Technical Analysis Results
+### Technical Analysis Results from Previous Tasks
 - **Format Compatibility**: ✅ Both servers use identical `server.tool(name, schema, handler)` format
 - **Schema Implementation**: ✅ Both use inline Zod objects with `.describe()` calls
 - **Dependencies**: ✅ Same MCP SDK and Zod versions
-- **Server Functionality**: ✅ MemoryBank MCP starts cleanly (exit code 0) with all 6 tools registered
-- **Tool Registration**: ✅ All tools properly configured with handler functions
+- **Server Functionality**: ✅ Both servers start cleanly with proper tool registration
+- **Tool Registration Pattern**: ✅ 3-parameter format established and working
 
-### Key Findings from Analysis
-- **No Format Differences**: Comprehensive comparison found zero differences between server formats
-- **Correct Implementation**: MemoryBank MCP already follows MyMCP pattern exactly
-- **Server Status**: Fully functional with proper argument descriptions in Zod schemas
-- **User Issue**: May be related to Cursor configuration or interface rather than server format
+### Key Implementation Considerations
+- **Tool Migration**: Copy commit tool handler from `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js`
+- **Dependencies**: Ensure all imports and dependencies are properly adapted
+- **Registration Format**: Maintain the exact 3-parameter format: `server.tool(name, schema, handler)`
+- **Compatibility**: Preserve all existing commit tool functionality and parameters
+- **Configuration**: Update `.cursor/mcp.json` to reflect new tool distribution
 
-### Files Analyzed and Validated
-- `.cursor/mcp/memory-bank-mcp/server.js` - All 6 tools use correct 3-parameter format
-- `.cursor/mcp/mcp-commit-server/server.js` - Reference MyMCP implementation for comparison
-- `results/memory_bank_mcp_task19_analysis_20250106/README.md` - Comprehensive analysis documentation
+### Files to be Modified
+- **Source**: `.cursor/mcp/mcp-commit-server/mcp_tools/commit.js` (reference for copying)
+- **Target**: `.cursor/mcp/memory-bank-mcp/mcp_tools/commit.js` (new implementation)
+- **Registration**: `.cursor/mcp/memory-bank-mcp/server.js` (add commit tool)
+- **Cleanup**: `.cursor/mcp/mcp-commit-server/server.js` (remove commit tool)
+- **Configuration**: `.cursor/mcp.json` (update tool references)
 
-### Validation Results
-- **Server Startup**: ✅ Exit code 0, silent operation (no debug output)
-- **Tool Registration**: ✅ All 6 tools registered successfully with proper handlers
-- **Format Consistency**: ✅ Identical to MyMCP server format
-- **Argument Descriptions**: ✅ Correctly implemented using inline Zod `.describe()` calls
-- **Dependencies**: ✅ Compatible versions of @modelcontextprotocol/sdk and zod
+### Technical Implementation Strategy
+1. **Copy and Adapt**: Copy the commit tool implementation with necessary import adaptations
+2. **Register Tool**: Add tool registration following the established 3-parameter pattern
+3. **Test Integration**: Verify MemoryBank MCP server works with the new tool
+4. **Clean MyMCP**: Remove commit tool from MyMCP server while preserving other functionality
+5. **Update Configuration**: Ensure all configurations and references are updated
+
+### Expected Outcomes
+- MemoryBank MCP server includes fully functional commit tool
+- MyMCP server continues to function without commit tool
+- All existing commit workflows continue to work seamlessly
+- Tool naming and accessibility remain consistent
+
+## Repository Status
+- **Current State**: Task 19 completed - MemoryBank MCP server format confirmed correct
+- **Next Priority**: Task 20 implementation - commit tool migration
+- **File Structure**: Clean and well-organized with both MCP servers functional
+- **Testing**: Ready for commit tool migration and testing
+
+## Recent Learnings from Previous Tasks
+- **MCP Server Format**: Both servers already use identical 3-parameter registration format
+- **Tool Registration**: Inline Zod objects with `.describe()` calls work correctly
+- **Server Compatibility**: No format changes needed - servers are properly configured
+- **Debug Output**: Silent operation is essential for MCP communication compatibility
 
 ## User Issue Resolution Status
 - **Original Problem**: User reported argument descriptions not working correctly in Cursor interface
