@@ -1,10 +1,42 @@
 # Active Context
 
 ## Current Focus: 🟡 Task 14 - Fix Memory Bank MCP Server Tool Descriptions Compatibility Issue
-- **Task**: Fix the incompatibility issue between tool descriptions and argument descriptions in the Memory Bank MCP server
-- **Status**: In Progress - Starting implementation
-- **Key Problem**: The server currently uses 4 parameters in server.tool() calls (including tool descriptions), while the MyMCP server uses 3 parameters (without tool descriptions). This incompatibility prevents argument descriptions from working correctly.
-- **Solution**: Remove tool descriptions and use only the schema with argument descriptions, following the MyMCP pattern.
+- **Task**: Fix the issue with missing tool registrations in the Memory Bank MCP server
+- **Status**: In Progress - Implementation phase
+- **Key Problem**: Several tools (update-userbrief, get_next_tasks, get_all_tasks) are imported but not actually registered with server.tool() calls, making them unavailable in Cursor interface
+- **Root Cause**: Missing server.tool() registration calls for 3 out of 6 imported tools
+
+## Technical Implementation Strategy
+- **Analysis**: The server imports 6 tools but only registers 3 of them (read-userbrief, create_task, update-task)
+- **Missing Registrations**: update-userbrief, get_next_tasks, get_all_tasks
+- **Fix Required**: Add the missing server.tool() calls for the 3 unregistered tools
+- **Validation**: All 6 tools should be available in Cursor interface with working argument descriptions
+
+## Key Files to Modify
+- **Primary**: `.cursor/mcp/memory-bank-mcp/server.js` - Add missing tool registrations
+- **Current State**: Only 3 out of 6 tools are registered
+- **Target State**: All 6 tools properly registered and functional
+
+## Technical Details
+- **Correct Format**: `server.tool('tool-name', schema, handler)` (3 parameters)
+- **Missing Lines**: 
+  - `server.tool('update-userbrief', updateUserbriefSchema, handleUpdateUserbrief);`
+  - `server.tool('get_next_tasks', getNextTasksSchema, handleGetNextTasks);`
+  - `server.tool('get_all_tasks', getAllTasksSchema, handleGetAllTasks);`
+- **Schema Already Contains**: Argument descriptions via `.describe()` method on Zod schema fields
+
+## Implementation Plan
+1. Add missing server.tool() registration for update-userbrief
+2. Add missing server.tool() registration for get_next_tasks  
+3. Add missing server.tool() registration for get_all_tasks
+4. Test that all 6 tools are now available in Cursor interface
+5. Verify argument descriptions work correctly
+
+## Validation Criteria
+- All 6 tools appear in Cursor MCP tools list
+- Argument descriptions display correctly for all tools
+- Server starts without errors
+- All tools respond to test calls appropriately
 
 ## Technical Implementation Strategy
 - **Analysis**: Compare MyMCP server (working correctly) with MemoryBank server (problematic)
