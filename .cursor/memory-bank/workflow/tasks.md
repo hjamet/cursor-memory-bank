@@ -556,3 +556,74 @@
                 *   Prevention guidelines for future tool migrations
             *   **Dependencies**: 21.3.
             *   **Validation**: The client discovery issue is permanently resolved, `mcp_MemoryBank_commit` tool is consistently available in Cursor interface, comprehensive documentation is created, and prevention measures are established for future MCP server modifications.
+
+🟢 **22. Implement Memory Management Tools for Context Files**
+    *   **Description**: Create two new tools in the MemoryBank MCP server to manage context files (activeContext.md, projectBrief.md, techContext.md). The `read_memory` tool takes a context file name and returns the complete file content. The `edit_memory` tool takes a context file name and new content, completely replacing the old content. Both tools should handle file creation if files don't exist and provide appropriate error handling.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/mcp/memory-bank-mcp/mcp_tools/read_memory.js` (new tool)
+        *   `.cursor/mcp/memory-bank-mcp/mcp_tools/edit_memory.js` (new tool)
+        *   `.cursor/mcp/memory-bank-mcp/server.js` (tool registration)
+        *   Context files: `.cursor/memory-bank/context/activeContext.md`, `.cursor/memory-bank/context/projectBrief.md`, `.cursor/memory-bank/context/techContext.md`
+    *   **Dependencies**: None.
+    *   **Validation**: ✅ Both tools function correctly with all three context files, handle non-existent files gracefully, provide clear error messages, and maintain file integrity during operations. Tools successfully tested with real file operations and error handling validated.
+
+⚪️ **23. Create Remember Tool for Agent Memory System**
+    *   **Description**: Create a `remember` tool in the MemoryBank MCP server that replaces the activeContext.md file functionality. The tool takes three arguments: past (what the model originally planned to do), present (what the model actually did, problems encountered, decisions made), and future (what the model plans to do next). The tool stores these memories in a JSON file with a maximum of 100 entries and returns the last 15 memories when called.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js` (new tool)
+        *   `.cursor/mcp/memory-bank-mcp/server.js` (tool registration)
+        *   `.cursor/memory-bank/workflow/agent_memory.json` (new memory storage file)
+    *   **Dependencies**: None.
+    *   **Validation**: The tool correctly stores memories in JSON format, maintains a maximum of 100 entries, returns the last 15 memories, and provides a complete replacement for activeContext.md functionality.
+
+⚪️ **24. Update All Rules to Use MemoryBank MCP Tools**
+    *   **Description**: Systematically update all workflow rules to use MemoryBank MCP tools instead of direct file operations. This includes operations on userbrief.md, tasks.md, projectBrief.md, techContext.md, and replacing activeContext.md usage with the remember tool. Add a remember tool call at the end of each rule before calling the next rule, and update all examples in the rules.
+    *   **Impacted Rules/Files**:
+        *   All `.cursor/rules/*.mdc` files
+        *   Rule examples and documentation
+        *   Workflow patterns and tool usage
+    *   **Dependencies**: Tasks 22, 23.
+    *   **Validation**: All rules use MemoryBank MCP tools consistently, no direct file operations remain for managed files, remember tool is called at the end of each rule, and all examples are updated to reflect new tool usage.
+
+⚪️ **25. Create New Branch for Memory Bank MCP Development**
+    *   **Description**: Create a new local branch called "Memory Bank MCP" to contain all commits related to the workflow system redesign. Move all unpushed commits and future commits to this new branch to isolate the development work. This should be done without requiring GitHub permissions, using only local Git operations.
+    *   **Impacted Rules/Files**:
+        *   Git repository branch structure
+        *   Local commit history
+    *   **Dependencies**: None.
+    *   **Validation**: New branch "Memory Bank MCP" is created locally, all relevant commits are moved to the new branch, and the development is isolated from the main branch.
+
+⚪️ **26. Design and Implement MCP-Based Workflow System**
+    *   **Description**: Completely redesign the workflow system to use MCP tools instead of .mdc rules. Enhance the remember tool to return current rule state and possible next rules. Create a `next_rule` tool that takes a selected next rule and returns the instructions for that rule. Convert .mdc files to .md format for MCP server consumption. Create a state management system in JSON format to track current rule and workflow state.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js` (enhancement)
+        *   `.cursor/mcp/memory-bank-mcp/mcp_tools/next_rule.js` (new tool)
+        *   `.cursor/rules/*.mdc` → `.cursor/workflow/*.md` (conversion)
+        *   `.cursor/memory-bank/workflow/workflow_state.json` (new state file)
+        *   `.cursor/mcp/memory-bank-mcp/server.js` (tool registration)
+    *   **Dependencies**: Tasks 22, 23, 24, 25.
+    *   **Validation**: MCP-based workflow system is functional, remember tool provides workflow state, next_rule tool provides rule instructions, .md rule files are accessible to MCP server, and state management works correctly.
+
+⚪️ **27. Add Regex-Based Edit Tool to MyMCP Server**
+    *   **Description**: Add a new editing tool to the MyMCP server that takes a file path, regex pattern, and replacement text, replacing only the first occurrence of the pattern. The tool should return an error if no pattern is found, and return the replacement zone plus 15 lines before and after on success. This tool should only be used when the standard edit_file tool fails.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/mcp/mcp-commit-server/mcp_tools/regex_edit.js` (new tool)
+        *   `.cursor/mcp/mcp-commit-server/server.js` (tool registration)
+    *   **Dependencies**: None.
+    *   **Validation**: The regex edit tool functions correctly, handles pattern matching and replacement accurately, provides appropriate error messages, and returns the correct context around replacements.
+
+⚪️ **28. Update on-edit-tool-fail Rule to Use Regex Edit Tool**
+    *   **Description**: Modify the on-edit-tool-fail.mdc rule to include the use of the new regex-based edit tool as an additional recovery method when standard editing fails. This rule should remain in .mdc format as it's called by the agent and user directly.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/rules/on-edit-tool-fail.mdc` (modification)
+    *   **Dependencies**: Task 27.
+    *   **Validation**: The on-edit-tool-fail rule includes the regex edit tool as a fallback option, the rule logic is updated appropriately, and the tool integration works correctly.
+
+⚪️ **29. Enhance Recall Tool with Long-term Memory**
+    *   **Description**: Improve the existing recall tool (if it exists) to include an optional long_term_memory argument for storing critical project information that remains true throughout the project (database formats, passwords, architectural decisions, library changes). This information should be stored in a database and retrieved with each recall call.
+    *   **Impacted Rules/Files**:
+        *   Existing recall tool implementation
+        *   Long-term memory database storage
+        *   Tool parameter enhancement
+    *   **Dependencies**: None.
+    *   **Validation**: The recall tool accepts the optional long_term_memory parameter, stores critical information persistently, retrieves long-term memories with each call, and clearly indicates the parameter is highly optional.

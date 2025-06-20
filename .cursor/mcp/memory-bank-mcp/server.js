@@ -26,6 +26,10 @@ import { handleGetAllTasks } from './mcp_tools/get_all_tasks.js';
 // Import commit tool handler
 import { handleCommit } from './mcp_tools/commit.js';
 
+// Import memory management tool handlers
+import { handleReadMemory } from './mcp_tools/read_memory.js';
+import { handleEditMemory } from './mcp_tools/edit_memory.js';
+
 // Create server instance
 const server = new McpServer({
     name: 'memory-bank-mcp',
@@ -121,6 +125,27 @@ server.tool(
         description: z.string().describe("Detailed description of changes")
     },
     handleCommit
+);
+
+// Register memory management tools
+server.tool(
+    'read_memory',
+    {
+        context_file: z.enum(['activeContext', 'projectBrief', 'techContext'])
+            .describe('Name of context file to read (activeContext, projectBrief, or techContext)')
+    },
+    handleReadMemory
+);
+
+server.tool(
+    'edit_memory',
+    {
+        context_file: z.enum(['activeContext', 'projectBrief', 'techContext'])
+            .describe('Name of context file to edit (activeContext, projectBrief, or techContext)'),
+        content: z.string().min(1)
+            .describe('New content to completely replace existing file content. WARNING: This will completely overwrite the existing content - ensure you include all necessary information from the original file.')
+    },
+    handleEditMemory
 );
 
 // Start the server
