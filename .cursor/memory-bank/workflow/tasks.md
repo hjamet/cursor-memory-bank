@@ -84,3 +84,20 @@
     *   🟢 **37.2. Modify `read_userbrief.js`**: Update the `read_userbrief` tool to automatically change the status of any 'new' request to 'in_progress'.
     *   🟢 **37.3. Update `server.js`**: Update the schema for `next_rule` in `server.js` to reflect the optional argument.
     *   🟢 **37.4. Adapt `.md` rules**: Review and simplify all `.md` rules in `.cursor/workflow/` to use the new automated `next_rule` logic, removing manual calls to `consolidate-repo` and complex decision-making at the end of rules.
+
+---
+
+🟢 **38. Relocate Streamlit Application**
+*   **Description**: Move the Streamlit application from `src/` to a new directory at `.cursor/memory-bank/streamlit_app/` and ensure it functions correctly from its new location when run from the repository root.
+*   **Impacted Rules/Files**: 
+    *   `src/main.py`
+    *   `src/pages/task_status.py`
+    *   `requirements.txt`
+    *   `install.sh`
+    *   `.cursor/memory-bank/streamlit_app/` (new directory)
+*   **Dependencies**: None.
+*   **Validation**: The Streamlit application is located in the new directory, the `install.sh` script installs its dependencies, and the application runs successfully from the project root, correctly loading all necessary files.
+*   **Sub-Tasks**:
+    *   🟢 **38.1. Move application files**: Move the `src` directory to `.cursor/memory-bank/streamlit_app`. Move `requirements.txt` into this new directory.
+    *   🟢 **38.2. Update Streamlit file paths**: Modify `task_status.py` to correctly locate `tasks.json` and other necessary files (like `userbrief.md`) using paths relative to the project root, from where the app will be launched.
+    *   🟢 **38.3. Update installation script**: Add logic to `install.sh` to check for Python/pip and install the Streamlit app's dependencies from the new `requirements.txt` location.

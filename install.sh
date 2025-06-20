@@ -779,6 +779,38 @@ install_pre_commit_hook() {
     log "Pre-commit hook installed to $hook_file"
 }
 
+# Funtion to install the Streamlit app dependencies
+install_streamlit_app() {
+    log "Checking for Streamlit app dependencies..."
+    # The target_dir is the root of the installation
+    local target_dir="$1"
+    local streamlit_dir="$target_dir/.cursor/memory-bank/streamlit_app"
+    local requirements_file="$streamlit_dir/requirements.txt"
+
+    if [ ! -f "$requirements_file" ]; then
+        warn "Streamlit requirements.txt not found at $requirements_file. Skipping dependency installation."
+        return
+    fi
+
+    if command -v python3 &>/dev/null && command -v pip3 &>/dev/null; then
+        log "Found python3 and pip3. Installing Streamlit dependencies..."
+        if pip3 install -r "$requirements_file"; then
+            log "Streamlit dependencies installed successfully."
+        else
+            warn "Failed to install Streamlit dependencies with pip3. Please install them manually from $requirements_file."
+        fi
+    elif command -v python &>/dev/null && command -v pip &>/dev/null; then
+        log "Found python and pip. Installing Streamlit dependencies..."
+        if pip install -r "$requirements_file"; then
+            log "Streamlit dependencies installed successfully."
+        else
+            warn "Failed to install Streamlit dependencies with pip. Please install them manually from $requirements_file."
+        fi
+    else
+        warn "python/pip not found. Cannot install Streamlit app dependencies. Please install Python and pip, then run 'pip install -r $requirements_file'."
+    fi
+}
+
 show_help() {
     cat << EOF
 Cursor Memory Bank Installation Script v${VERSION}
@@ -1034,6 +1066,9 @@ if command -v git >/dev/null 2>&1; then
 else
     warn "git command not found. Skipping automatic hook configuration."
 fi
+
+# Install Streamlit App
+install_streamlit_app "$INSTALL_DIR"
 
 log "Installation completed successfully!"
 

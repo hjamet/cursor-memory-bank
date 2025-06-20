@@ -9,9 +9,8 @@ st.sidebar.header("Task Status")
 
 # Correctly locate the tasks.json file relative to this script's location
 try:
-    # Go up one level from 'pages' to the 'src' directory
-    base_path = Path(__file__).parent.parent 
-    tasks_file = base_path / 'tasks.json'
+    # Path is relative to the project root, where the app is run
+    tasks_file = Path('.cursor/memory-bank/streamlit_app/tasks.json')
     
     with open(tasks_file, 'r') as f:
         tasks = json.load(f)
@@ -31,7 +30,7 @@ try:
         st.divider()
 
 except FileNotFoundError:
-    st.error("Could not find the `tasks.json` file. Make sure it is in the `src` directory.")
+    st.error(f"Could not find the `tasks.json` file. Make sure it is at `{tasks_file}` and you are running the app from the project root.")
 except json.JSONDecodeError:
     st.error("Could not decode the `tasks.json` file. Please check its format.")
 except Exception as e:
