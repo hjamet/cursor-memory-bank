@@ -49,6 +49,9 @@ export async function handleReadUserbrief(params) {
             .filter(req => req.status === 'archived')
             .slice(0, archived_count);
 
+        // Get all pinned entries
+        const pinnedEntries = requests.filter(req => req.status === 'pinned');
+
         // Prepare response
         const response = {
             status: currentRequest ? 'active' : 'no_pending',
@@ -56,16 +59,18 @@ export async function handleReadUserbrief(params) {
                 ? `Found request with status '${currentRequest.status}'`
                 : 'No pending requests found',
             current_request: currentRequest,
+            pinned_entries: pinnedEntries,
             archived_entries: archivedEntries,
             total_entries: requests.length,
             summary: {
                 new: requests.filter(r => r.status === 'new').length,
                 in_progress: requests.filter(r => r.status === 'in_progress').length,
+                pinned: pinnedEntries.length,
                 archived: requests.filter(r => r.status === 'archived').length
             }
         };
 
-        console.log(`[ReadUserbrief] Found ${response.summary.new} new, ${response.summary.in_progress} in progress, ${response.summary.archived} archived requests.`);
+        console.log(`[ReadUserbrief] Found ${response.summary.new} new, ${response.summary.in_progress} in progress, ${response.summary.pinned} pinned, ${response.summary.archived} archived requests.`);
 
         return {
             content: [{

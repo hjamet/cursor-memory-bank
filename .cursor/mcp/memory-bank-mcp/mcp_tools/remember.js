@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { readUserbriefData } from '../lib/userbrief_manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,6 +33,18 @@ async function remember(args) {
             }
             // File doesn't exist, which is fine if no memory is being written.
         }
+    }
+
+    // Read pinned items from userbrief
+    let pinnedItems = [];
+    try {
+        const userbriefData = readUserbriefData();
+        if (userbriefData && userbriefData.requests) {
+            pinnedItems = userbriefData.requests.filter(req => req.status === 'pinned');
+        }
+    } catch (error) {
+        console.warn(`[Remember] Could not read pinned items from userbrief: ${error.message}`);
+        // Do not throw; failing to read userbrief should not stop the remember tool.
     }
 
     let memories = [];
@@ -72,6 +85,7 @@ async function remember(args) {
         message: "Memory successfully recorded.",
         current_state: lastMemory ? lastMemory.future : "No current state.",
         possible_next_rules: [], // To be implemented by the next_rule tool
+        user_preferences: pinnedItems.map(item => item.content),
         long_term_memory: longTermMemoryContent,
         recent_memories: recentMemories,
     };

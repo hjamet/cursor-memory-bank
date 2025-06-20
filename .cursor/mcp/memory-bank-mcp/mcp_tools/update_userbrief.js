@@ -3,8 +3,8 @@ import { readUserbriefData, writeUserbriefData } from '../lib/userbrief_manager.
 
 // Schema for the update-userbrief tool parameters
 export const updateUserbriefSchema = z.object({
-    action: z.enum(['mark_in_progress', 'mark_archived', 'add_comment'])
-        .describe('Action to perform on userbrief entry'),
+    action: z.enum(['mark_archived', 'add_comment', 'mark_pinned'])
+        .describe("Action to perform on the userbrief entry. 'mark_in_progress' is now an automatic status and cannot be set manually."),
     id: z.number().optional()
         .describe('ID of the request to update. If not provided, targets the current active request.'),
     comment: z.string().optional()
@@ -65,9 +65,12 @@ export async function handleUpdateUserbrief(params) {
 
         switch (action) {
             case 'mark_in_progress':
-                newStatus = 'in_progress';
+                return { content: [{ type: 'text', text: JSON.stringify({ status: 'error', message: "Action 'mark_in_progress' is handled automatically by the system and cannot be called manually." }, null, 2) }] };
+
+            case 'mark_pinned':
+                newStatus = 'pinned';
                 targetRequest.status = newStatus;
-                actionDescription = 'Marked as in progress.';
+                actionDescription = 'Marked as pinned.';
                 break;
 
             case 'mark_archived':

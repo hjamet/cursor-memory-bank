@@ -113,3 +113,18 @@
 *   **Sub-Tasks**:
     *   🟢 **39.1. Create model download script**: Create a Python script that uses the `sentence-transformers` library to download the `all-MiniLM-L6-v2` model to a specified directory.
     *   🟢 **39.2. Update installation script**: Add a new function to `install.sh` that first installs the `sentence-transformers` library via pip, and then executes the download script.
+
+---
+
+🟢 **40. Refactor Userbrief Status Management**
+*   **Description**: Refactor the userbrief management tools to automate status changes and correctly handle pinned items, as requested by the user.
+*   **Impacted Rules/Files**: 
+    *   `.cursor/mcp/memory-bank-mcp/mcp_tools/update_userbrief.js`
+    *   `.cursor/mcp/memory-bank-mcp/mcp_tools/read_userbrief.js`
+    *   `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js`
+*   **Dependencies**: None.
+*   **Validation**: The `update-userbrief` tool prevents manual status changes to 'in_progress'. The `read-userbrief` and `remember` tools correctly include pinned items in their output.
+*   **Sub-Tasks**:
+    *   🟢 **40.1. Modify `update_userbrief.js`**: Prevent the agent from setting a request's status to 'in_progress'. This status should only be set automatically by the system.
+    *   🟢 **40.2. Modify `read_userbrief.js`**: Update the tool to always include pinned (📌) items in its response, in addition to the other statuses it already returns.
+    *   🟢 **40.3. Modify `remember.js`**: Update the `remember` tool to read the userbrief and include the content of any pinned (📌) items in the memory context it provides.
