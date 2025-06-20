@@ -30,14 +30,14 @@ const server = new McpServer({
 });
 
 // Register userbrief management tools
-server.tool('read-userbrief', 'Read userbrief.md and return current unprocessed or in-progress request', readUserbriefSchema, handleReadUserbrief);
-server.tool('update-userbrief', 'Update userbrief.md entry status (mark in-progress, archived, or add comments)', updateUserbriefSchema, handleUpdateUserbrief);
+server.tool('read-userbrief', readUserbriefSchema, handleReadUserbrief);
+server.tool('update-userbrief', updateUserbriefSchema, handleUpdateUserbrief);
 
 // Register task management tools
-server.tool('create_task', 'Create a new task with auto-generated ID and comprehensive validation', createTaskSchema, handleCreateTask);
-server.tool('update-task', 'Update an existing task by ID with only the provided fields', updateTaskSchema, handleUpdateTask);
-server.tool('get_next_tasks', 'Get available tasks that have no pending dependencies', getNextTasksSchema, handleGetNextTasks);
-server.tool('get_all_tasks', 'Get tasks with priority ordering and configurable count', getAllTasksSchema, handleGetAllTasks);
+server.tool('create_task', createTaskSchema, handleCreateTask);
+server.tool('update-task', updateTaskSchema, handleUpdateTask);
+server.tool('get_next_tasks', getNextTasksSchema, handleGetNextTasks);
+server.tool('get_all_tasks', getAllTasksSchema, handleGetAllTasks);
 
 // Start the server
 async function startServer() {

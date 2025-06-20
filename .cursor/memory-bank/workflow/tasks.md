@@ -348,6 +348,19 @@
             *   **Dependencies**: 13.3, 13.4, 13.5, 13.6, 13.7.
             *   **Validation**: All tests pass, tools handle edge cases correctly, error handling is comprehensive, and task management operations work reliably in various scenarios.
 
+🟢 **14. Fix Memory Bank MCP Server Tool Descriptions Compatibility Issue**
+    *   **Description**: Fix the incompatibility issue between tool descriptions and argument descriptions in the Memory Bank MCP server. The server currently uses 4 parameters in server.tool() calls (including tool descriptions), while the MyMCP server uses 3 parameters (without tool descriptions). This incompatibility prevents argument descriptions from working correctly. The fix involves removing tool descriptions and using only the schema with argument descriptions, following the MyMCP pattern.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/mcp/memory-bank-mcp/server.js` (tool registration corrections)
+    *   **Dependencies**: None.
+    *   **Validation**: All tools in the Memory Bank MCP server are registered using the 3-parameter format (name, schema, handler) without tool descriptions, argument descriptions work correctly, and the server functions properly with Cursor.
+    *   **Sub-Tasks**:
+        *   🟢 **14.1. Remove Tool Descriptions from server.tool() Calls**
+            *   **Description**: Modify all server.tool() calls in the Memory Bank MCP server to remove the tool description parameter (2nd parameter), changing from 4-parameter format to 3-parameter format like MyMCP. This affects read-userbrief, update-userbrief, create_task, update-task, get_next_tasks, and get_all_tasks tools.
+            *   **Impacted Rules/Files**: `.cursor/mcp/memory-bank-mcp/server.js`
+            *   **Dependencies**: None.
+            *   **Validation**: All server.tool() calls use the 3-parameter format (name, schema, handler) without tool descriptions, matching the MyMCP pattern.
+
 # DONE
 
 3.  **Feature: Ajout de l'outil de capture d'écran web**

@@ -1,5 +1,50 @@
 # Active Context
 
+## Current Focus: 🟡 Task 14 - Fix Memory Bank MCP Server Tool Descriptions Compatibility Issue
+- **Task**: Fix the incompatibility issue between tool descriptions and argument descriptions in the Memory Bank MCP server
+- **Status**: In Progress - Starting implementation
+- **Key Problem**: The server currently uses 4 parameters in server.tool() calls (including tool descriptions), while the MyMCP server uses 3 parameters (without tool descriptions). This incompatibility prevents argument descriptions from working correctly.
+- **Solution**: Remove tool descriptions and use only the schema with argument descriptions, following the MyMCP pattern.
+
+## Technical Implementation Strategy
+- **Analysis**: Compare MyMCP server (working correctly) with MemoryBank server (problematic)
+- **MyMCP Pattern**: `server.tool(name, schema_with_descriptions, handler)` (3 parameters)
+- **MemoryBank Current**: `server.tool(name, tool_description, schema, handler)` (4 parameters)
+- **Fix Required**: Remove tool_description parameter from all server.tool() calls
+
+## Key Files to Modify
+- **Primary**: `.cursor/mcp/memory-bank-mcp/server.js` - Contains all tool registrations that need correction
+- **Affected Tools**: read-userbrief, update-userbrief, create_task, update-task, get_next_tasks, get_all_tasks
+
+## Technical Details
+- **Current Problematic Format**: `server.tool('tool-name', 'Tool description', schema, handler)`
+- **Target Correct Format**: `server.tool('tool-name', schema, handler)`
+- **Schema Already Contains**: Argument descriptions via `.describe()` method on Zod schema fields
+- **Validation**: After fix, argument descriptions should work correctly in Cursor interface
+
+## Recent Context
+- **Previous Task**: Task 13 (Enhance Memory Bank MCP Server with Task Management Tools) is in progress
+- **User Issue**: User reported that argument descriptions are not working correctly due to incompatibility
+- **Reference Implementation**: MyMCP server working correctly as reference pattern
+- **Installation**: Both servers are integrated in install.sh and mcp.json configuration
+
+## Next Steps
+1. Modify server.tool() calls in `.cursor/mcp/memory-bank-mcp/server.js`
+2. Remove tool description parameter from all 6 tool registrations
+3. Verify the fix works with Cursor interface
+4. Test that argument descriptions are now displayed correctly
+
+## Previously Completed Task: 🟢 12. Create Memory Bank MCP Server
+- **Status**: Completed successfully with full integration
+- **Achievement**: Complete Memory Bank MCP Server implementation with userbrief management tools
+- **Integration**: Successfully integrated into install.sh and mcp.json configuration
+- **Commit**: 273ab9b - Complete Memory Bank MCP Server Implementation
+
+## Implementation Context
+- **Current Status**: Working on tool description compatibility fix
+- **Repository Status**: Up-to-date with latest implementations
+- **Focus**: Ensuring proper argument descriptions functionality in MemoryBank MCP server
+
 ## Current Focus: 🟡 Task 13 - Enhance Memory Bank MCP Server with Task Management Tools and JSON Migration
 - **Task**: Extend the existing Memory Bank MCP server to include comprehensive task management tools and migrate tasks.md to JSON format
 - **Status**: In Progress - Starting implementation
