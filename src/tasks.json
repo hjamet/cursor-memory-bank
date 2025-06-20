@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "title": "Setup project",
+        "description": "Setup the project structure and dependencies.",
+        "status": "DONE"
+    },
+    {
+        "id": 2,
+        "title": "Develop main feature",
+        "description": "Develop the main feature of the application.",
+        "status": "IN_PROGRESS"
+    },
+    {
+        "id": 3,
+        "title": "Write documentation",
+        "description": "Write documentation for the project.",
+        "status": "TODO"
+    }
+]

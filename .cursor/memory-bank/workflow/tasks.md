@@ -1,4 +1,4 @@
-🟡 **32. Investigate and Fix MCP Tool Argument Visibility**
+⚪️ **32. Investigate and Fix MCP Tool Argument Visibility**
 *   **Description**: The user reports that the `remember` and `next_rule` tools appear to have no arguments in the Cursor UI. This task is to investigate the root cause and propose a solution.
 *   **Impacted Rules/Files**: 
     *   `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js`
@@ -8,7 +8,7 @@
 *   **Dependencies**: None.
 *   **Validation**: A clear root cause is identified and documented. The issue is either fixed via code change or a solution is proposed (e.g., client restart).
 *   **Sub-Tasks**:
-    *   🟡 **32.1. Analyze Argument Schema**: Confirm that `remember` and `next_rule` tools correctly export a Zod schema in their `args` property.
+    *   ⚪️ **32.1. Analyze Argument Schema**: Confirm that `remember` and `next_rule` tools correctly export a Zod schema in their `args` property.
     *   ⚪️ **32.2. Hypothesize Root Cause**: Based on analysis and project documentation, determine the most likely root cause (e.g., client-side caching, stray debug logs).
     *   ⚪️ **32.3. Document Findings**: In the final experiment report, document the analysis, findings, and the recommended solution.
 
@@ -52,3 +52,18 @@
     *   🟢 **35.2. Modify `system.md` (new version)**: Remove the steps for reading context files.
     *   🟢 **35.3. Modify `consolidate-repo.md` (new version)**: Remove the file integrity/consolidation steps.
     *   🟢 **35.4. General review of other `.md` rules**: Check for similar patterns that can be simplified.
+
+---
+
+🟢 **36. Create Streamlit UI for Task Management**
+*   **Description**: Create a simple Python application using Streamlit to provide a UI for managing user requests and viewing task status.
+*   **Impacted Rules/Files**: 
+    *   `src/main.py`
+    *   `src/pages/task_status.py`
+    *   `requirements.txt`
+*   **Dependencies**: None.
+*   **Validation**: A Streamlit application is created with a "Hello World" page and a page that displays task statuses from a `tasks.json` file.
+*   **Sub-Tasks**:
+    *   🟢 **36.1. Create project structure**: Create the `src` directory and a `requirements.txt` file with `streamlit`.
+    *   🟢 **36.2. Create Hello World page**: Create a `src/main.py` with a simple "Hello World" Streamlit page.
+    *   🟢 **36.3. Create Task Status page**: Create a `src/pages/task_status.py` that reads task information from a (to-be-created) `tasks.json` and displays it.
