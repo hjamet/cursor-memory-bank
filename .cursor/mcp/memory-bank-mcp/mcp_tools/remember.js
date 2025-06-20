@@ -77,11 +77,11 @@ async function remember(args) {
     };
 }
 
-export const rememberSchema = z.object({
+export const rememberSchema = {
     past: z.string().describe("A description of what the agent originally planned to do."),
     present: z.string().describe("A description of what the agent actually did, any problems encountered, and decisions made."),
     future: z.string().describe("A description of what the agent plans to do next."),
     long_term_memory: z.string().optional().describe("Critical project information to be stored persistently (e.g., database schemas, architectural decisions). If provided, this will overwrite any existing long-term memory."),
-});
+};
 
 export { remember as handleRemember }; 

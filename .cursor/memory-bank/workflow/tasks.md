@@ -38,3 +38,17 @@
     *   🟢 **34.1. Invoke experience-execution rule**: The workflow should call the `experience-execution` rule to create a formal experiment.
     *   🟢 **34.2. Test Each Tool**: Systematically call each `mcp_MemoryBank_*` tool with valid and, where appropriate, invalid parameters.
     *   🟢 **34.3. Document and Analyze Results**: For each tool call, the generated experiment report must contain the input, the full output, and a critical analysis of the result's correctness and format.
+
+---
+
+🟢 **35. Simplify New `.md` Rule Files**
+*   **Description**: Simplify the new system's rules (`.md` files) by removing context loading and file validation steps, as this will be handled by the MCP server in the new system.
+*   **Impacted Rules/Files**: 
+    *   All files in `.cursor/workflow/`
+*   **Dependencies**: None.
+*   **Validation**: The new `.md` rule files are simplified and do not contain unnecessary steps.
+*   **Sub-Tasks**:
+    *   🟢 **35.1. Analyze new `.md` rule files**: Identify all rules that perform file reading for context (`projectBrief`, `activeContext`, etc.) and those that perform file validation/consolidation.
+    *   🟢 **35.2. Modify `system.md` (new version)**: Remove the steps for reading context files.
+    *   🟢 **35.3. Modify `consolidate-repo.md` (new version)**: Remove the file integrity/consolidation steps.
+    *   🟢 **35.4. General review of other `.md` rules**: Check for similar patterns that can be simplified.

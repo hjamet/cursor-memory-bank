@@ -1,19 +1,25 @@
 # Active Context
 
 ## Current Focus
-The current focus is to validate and improve the new MemoryBank MCP server tools based on user feedback. The previous validation via a test script was insufficient. The new plan is to call each tool directly to provide a hands-on analysis.
+Successfully resolved MCP server issues. Both MyMCP and MemoryBank MCP servers are now functioning correctly after fixing dependency and schema export problems.
+
+## Recent Issues Resolved
+- **MemoryBank MCP Server**: Fixed corrupted npm dependencies by complete reinstallation (missing dist folder in @modelcontextprotocol/sdk)
+- **Missing Zod Schemas**: Added missing schema exports (commitSchema, editMemorySchema, readMemorySchema) with proper z imports
+- **Server Validation**: Both servers now start without errors and pass timeout tests
 
 ## Current implementation context
--   **Tasks to perform**: I am re-doing Task 34: "Systematically Test MCP Memory Bank Tools".
--   **Execution Plan**: I will now call each `mcp_MemoryBank_*` tool sequentially. For each tool, I will display the output and provide a brief analysis of its correctness and format.
+-   **Repository State**: All MCP servers operational and validated
+-   **Branch**: Currently on `memory-bank-mcp`
+-   **Dependencies**: All npm packages properly installed with complete SDK builds
 
 ## Next Steps
-1.  Execute each MemoryBank tool directly.
-2.  Document findings in the chat.
-3.  Commit the final context updates once the validation is complete.
+1. Monitor MCP server stability in Cursor
+2. Validate tool functionality through actual usage
+3. Continue with any pending development tasks
 
 ## Repository Technical State
-- **Branch**: Currently on `memory-bank-mcp`.
-- **Userbrief System**: Fully migrated to `userbrief.json`.
-- **MCP Servers**: Both MemoryBank and MyMCP operational.
-- **Tool Schemas**: All tool argument descriptions in `server.js` have been improved.
+- **Branch**: Currently on `memory-bank-mcp`
+- **Userbrief System**: Fully migrated to `userbrief.json`
+- **MCP Servers**: Both MemoryBank and MyMCP fully operational and tested
+- **Tool Schemas**: All tool argument descriptions properly exported and functioning

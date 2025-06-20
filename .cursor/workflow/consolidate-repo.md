@@ -20,24 +20,7 @@ Consolidates user requests from a section-less, emoji-driven `userbrief.md`, man
        - **Stop processing further items in this rule execution.** Subsequent 🆕 items will be handled in later calls to this rule.
      - Lines starting with ⏳, 📌, or 🗄️ are generally left unchanged by this step of this rule (they are managed by their current status or by other rules like `task-decomposition`).
 
-2. **Integrity verification**: Control of memory files:
-   - Use the MCP command execution tool via Git Bash to list all markdown files: `mcp_MyMCP_execute_command(command = "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"find . -type f -name '*.md'\"")`
-   - Analyze results to identify duplicates or misplaced files in `memory-bank` directories.
-
-3. **Direct Cleanup**: Directly resolve integrity issues identified in step 2:
-   - If duplicates found:
-     - Merge content of duplicate files into the main corresponding file (using file edit tools).
-     - Delete duplicates after merging using the MCP command execution tool via Git Bash (e.g., `mcp_MyMCP_execute_command(command = "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"rm <duplicate_file_path>\""")`).
-   - If misplaced files found:
-     - Move misplaced files to their correct location within the `memory-bank` structure (using `mcp_MyMCP_execute_command` with `mv`).
-   - If other temporary/unnecessary files identified:
-     - Delete them using the MCP command execution tool via Git Bash (`rm`).
-
-4. **MCP Terminal Cleanup**: Clean up finished terminal processes used in this rule.
-   - Call `mcp_get_terminal_status` to check the status of running/finished processes.
-   - For each process with a final status (e.g., 'Success', 'Failure'), call `mcp_stop_terminal_command` with its `pid` to release resources.
-
-5. **Evaluation of user requests & Next Rule**: Decide next workflow step:
+2. **Evaluation of user requests & Next Rule**: Decide next workflow step:
    - Re-read `.cursor/memory-bank/userbrief.md`.
    - IF any line now starts with `⏳ - ` (indicating a task was just marked for processing by this rule in step 1 OR was already pending from a previous run):
      - Extract the content of the first such `⏳` item.
@@ -52,7 +35,6 @@ Consolidates user requests from a section-less, emoji-driven `userbrief.md`, man
 - It changes `🆕` to `⏳` (for tasks) or `📌` (for preferences).
 - The `task-decomposition` rule is responsible for processing `⏳` items and changing them to `🗄️`.
 - Avoid directly modifying the content of user requests; only update the leading emoji.
-- Integrity verification and cleanup steps (2, 3, 4) remain important.
 
 ## Repository Structure (for reference)
 ```

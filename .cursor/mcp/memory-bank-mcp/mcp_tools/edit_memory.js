@@ -15,6 +15,13 @@ const CONTEXT_FILES = {
     'techContext': '.cursor/memory-bank/context/techContext.md'
 };
 
+// Zod schema for the edit_memory tool
+export const editMemorySchema = {
+    context_file: z.enum(['activeContext', 'projectBrief', 'techContext'])
+        .describe('Name of context file to edit (activeContext, projectBrief, techContext)'),
+    content: z.string().describe('New content to completely replace existing content')
+};
+
 /**
  * Handles the edit_memory tool call
  * Completely replaces content of specified context file

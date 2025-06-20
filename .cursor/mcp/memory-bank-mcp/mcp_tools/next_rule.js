@@ -34,8 +34,8 @@ const nextRuleTool = {
     run: next_rule,
 };
 
-export const nextRuleSchema = z.object({
+export const nextRuleSchema = {
     rule_name: z.string().describe("The name of the rule to execute next (without the .md extension)."),
-});
+};
 
 export { next_rule as handleNextRule }; 

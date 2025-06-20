@@ -54,61 +54,13 @@ Example: "I will now read [...] **(Implementation: 2 - Context retrieval)**"
 ## Context Loading and Initialization
 
 ### TLDR
-Load or create project context files to establish the working environment.
+The project context is automatically loaded by the MCP server. This rule proceeds with the workflow based on the provided context.
 
 ### Instructions
-1. **Reading files**: Read existing context files using MemoryBank MCP tools:
-   - Call `mcp_MemoryBank_read_memory` for `projectBrief`, `activeContext`, and `techContext`.
-   - Call `mcp_MemoryBank_read-userbrief` to consult the user's requests.
-
-2. **Context initialization**: If absent:
-   - Analyze the structure and objectives of the project.
-   - If context files are missing, initialize them using `mcp_MemoryBank_edit_memory` with the appropriate structure. The expected structures are:
-     - **`projectBrief.md`**: Max 200 lines. Sections: Vision, Objectives (3-7 points), Constraints, Stakeholders, Success Metrics, History and Context (optional).
-     - **`activeContext.md`**: Max 200 lines. Focus on recent (2-4 weeks) and relevant info. Sections: Current Focus, Ongoing Issues, Recent Decisions, Next Steps, Important Notes, Recent Learnings (optional).
-     - **`techContext.md`**: Sections: Development Platform, Console/Shell, Installation and Dependency Management, Technology Stack, Code Conventions, Server Architecture and Deployment, Testing and Quality, Known Issues and Solutions.
-   - Create a `.cursor/memory-bank/userbrief.md` if non-existent.
-
-3. **Request reformulation**: Reformulate the user instruction in the project context.
-
-4. **Remember Execution**: Call `mcp_MemoryBank_remember` to record the system initialization.
-    - `past`: "System rule was invoked to initialize or verify project context."
-    - `present`: "Read all context files. Found them to be correctly structured and loaded. No new files were created." (Adjust if files were created).
-    - `future`: "Proceeding to the next rule based on userbrief content."
-
-5. **Calling the next rule**: Check userbrief.md and call appropriate rule:
-   - If `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment (starting with -), call `consolidate-repo`.
-   - Otherwise, call `task-decomposition` to analyze the request.
-
-### Specifics (Context Loading)
-1. **Reading files**: Read existing context files:
-   - `.cursor/memory-bank/context/projectBrief.md`
-   - `.cursor/memory-bank/context/activeContext.md`
-   - `.cursor/memory-bank/context/techContext.md`
-   - `.cursor/memory-bank/userbrief.md` (consult but NEVER modify)
-
-2. **Context initialization**: If absent:
-   - Analyze the structure and objectives of the project
-   - Create the `.cursor/memory-bank/context/` folder if necessary
-   - Initialize missing files with appropriate structure. The expected structures are:
-     - **`projectBrief.md`**: Max 200 lines. Sections: Vision, Objectives (3-7 points), Constraints, Stakeholders, Success Metrics, History and Context (optional).
-     - **`activeContext.md`**: Max 200 lines. Focus on recent (2-4 weeks) and relevant info. Sections: Current Focus, Ongoing Issues, Recent Decisions, Next Steps, Important Notes, Recent Learnings (optional).
-     - **`techContext.md`**: Sections: Development Platform, Console/Shell, Installation and Dependency Management, Technology Stack, Code Conventions, Server Architecture and Deployment, Testing and Quality, Known Issues and Solutions.
-   - Create a `.cursor/memory-bank/userbrief.md` if non-existent
-
-3. **Request reformulation**: Reformulate the user instruction in the project context
-
-4. **Calling the next rule**: Check userbrief.md and call appropriate rule:
-   - If `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment (starting with -), call `consolidate-repo`
-   - Otherwise, call `task-decomposition` to analyze the request
-
-### Specifics (Context Loading)
-- Concise but complete files
-- `.cursor/memory-bank/workflow/projectBrief.md`: vision and objectives of the project
-- `.cursor/memory-bank/workflow/activeContext.md`: current state, development and ongoing tasks
-- `.cursor/memory-bank/workflow/techContext.md`: technologies, frameworks and dependencies
-- `.cursor/memory-bank/userbrief.md`: consult but NEVER modify - only the consolidate-repo rule is authorized to modify it
-- ⚠️ IMPORTANT: Limit to the four context files listed in step 1
+1.  **Analyze User Request**: Analyze the user request provided by the MCP server.
+2.  **Calling the next rule**: Check for unprocessed user requests and call the appropriate rule:
+   - If there are unprocessed user requests, call `consolidate-repo`.
+   - Otherwise, call `task-decomposition`.
 
 ## Absolute Rule
 

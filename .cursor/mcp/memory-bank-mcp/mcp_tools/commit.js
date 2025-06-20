@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import process from 'process';
+import { z } from 'zod';
 
 // Promisify exec
 const execAsync = promisify(exec);
@@ -43,6 +44,14 @@ const escapeShellArg = (arg) => {
         .replace(/\$/g, '\\$')  // $ -> \$
         .replace(/"/g, '\\"')  // " -> \"
         .replace(/`/g, '\\`'); // ` -> \`
+};
+
+// Zod schema for the commit tool
+export const commitSchema = {
+    emoji: z.string().describe("Emoji to use in the commit message (e.g. :sparkles:)"),
+    type: z.string().describe("Type of change (e.g. feat, fix, docs, style, refactor, test, chore)"),
+    title: z.string().describe("Brief commit title"),
+    description: z.string().describe("Detailed description of changes")
 };
 
 /**

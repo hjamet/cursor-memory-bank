@@ -15,6 +15,12 @@ const CONTEXT_FILES = {
     'techContext': '.cursor/memory-bank/context/techContext.md'
 };
 
+// Zod schema for the read_memory tool
+export const readMemorySchema = {
+    context_file: z.enum(['activeContext', 'projectBrief', 'techContext'])
+        .describe('Name of context file to read (activeContext, projectBrief, techContext)')
+};
+
 /**
  * Handles the read_memory tool call
  * Reads complete content of specified context file

@@ -1,0 +1,3 @@
+{
+  "content": "MCP schema format: use plain objects, not z.object()"
+}

@@ -28,20 +28,17 @@ Analyzes user requests, explores existing code, searches for additional informat
    - ALTERNATIVE/General research: Use the `mcp_brave-search_brave_web_search` tool, limited to 5 searches maximum.
    - Note consulted sources.
 
-4. **Existing tasks analysis**:
-    - Read the `.cursor/memory-bank/workflow/tasks.md` file if it exists.
+4. **Analyze available context**:
+    - Analyze active user requests (from userbrief) and existing tasks (from tasks.md) provided by the MCP server.
+    - Identify requests marked with ⏳ (AND ONLY THEM).
+    - Prepare these identified requests for transformation into structured tasks for `tasks.md` in step 6.
 
-5. **Userbrief processing identification**: Consult the `.cursor/memory-bank/userbrief.md` file.
-    - Identify requests marked with ⏳ (AND ONLY THEM). (This assumes `consolidate-repo.mdc` has marked them).
-    - Prepare these identified requests for transformation into structured tasks for `tasks.md` in step 7.
-    - IMPORTANT: Do NOT modify `userbrief.md` at this stage.
-
-6. **Completed tasks archival/removal**:
+5. **Completed tasks archival/removal**:
     - Identify completed tasks (🟢 DONE) that are very old and could be archived or deleted because they are no longer relevant to the current focus.
     - Remove these outdated `🟢 DONE` tasks from `tasks.md`.
 
-7. **New tasks integration**: Structure new tasks in `tasks.md`.
-    - Integrate the main request (from the calling rule or active context) AND any requests identified in step 5 (marked with ⏳ in `userbrief.md` AND ONLY THEM).
+6. **New tasks integration**: Structure new tasks in `tasks.md`.
+    - Integrate the main request (from the calling rule or active context) AND any requests identified in step 4 (marked with ⏳ in `userbrief.md` AND ONLY THEM).
     - Add new tasks/sub-tasks starting with the `⚪️ TODO` emoji.
     - Follow the **Task Item Structure** defined below for each task:
         *   Emoji (⚪️) and Bold Title (with numbering like **1.** or **1.1.**)
@@ -52,12 +49,12 @@ Analyzes user requests, explores existing code, searches for additional informat
     - New tasks should be added logically, typically after existing 🟡 IN_PROGRESS or ⚪️ TODO tasks, and before any archived/very old 🟢 DONE tasks.
     - Prioritize by importance, dependencies, impact, and complexity when ordering new tasks amongst themselves.
 
-8. **Userbrief archiving**: Update `.cursor/memory-bank/userbrief.md`.
-    - For EACH request identified in Step 5 (marked with ⏳) that was successfully integrated into `tasks.md` in Step 7:
+7. **Userbrief archiving**: Update `.cursor/memory-bank/userbrief.md`.
+    - For EACH request identified in Step 4 (marked with ⏳) that was successfully integrated into `tasks.md` in Step 6:
         - Mark this request as processed by removing its "processing" emoji (⏳) and replacing it with an "archive" emoji (🗄️).
-    - IMPORTANT: Only modify items which were marked with ⏳ in `userbrief.md` and that were successfully added to `tasks.md` in Step 7.
+    - IMPORTANT: Only modify items which were marked with ⏳ in `userbrief.md` and that were successfully added to `tasks.md` in Step 6.
 
-9. **Call next rule**: Mandatory call to `implementation`.
+8. **Call next rule**: Mandatory call to `implementation`.
 
 ## Specifics
 - If you were called from consolidate-repo, consider the formulated request as the user request to analyze
@@ -130,23 +127,17 @@ Alternatively, I might search the web for general patterns related to [...]. **(
 `mcp_brave-search_brave_web_search(...)`
 **(Task-decomposition: 3 - Additional research)**
 
-# Task-decomposition: 4 - Existing tasks analysis
-I begin by reading the `tasks.md` file to understand the current state of tasks using the emoji-based format. **(Task-decomposition: 4 - Existing tasks analysis)**
-// ... tool_code: print(default_api.read_file(target_file=".cursor/memory-bank/workflow/tasks.md")) ...
-**(Task-decomposition: 4 - Existing tasks analysis)**
+# Task-decomposition: 4 - Analyze available context
+I begin by analyzing the tasks and user requests provided by the server. **(Task-decomposition: 4 - Analyze available context)**
+I identified several items marked with ⏳. I will prepare them for integration into `tasks.md` in step 6.
+**(Task-decomposition: 4 - Analyze available context)**
 
-# Task-decomposition: 5 - Userbrief processing identification
-I now consult the `userbrief.md` file to identify tasks marked with ⏳. **(Task-decomposition: 5 - Userbrief processing identification)**
-// ... tool_code: print(default_api.read_file(target_file=".cursor/memory-bank/userbrief.md")) ...
-I identified several items marked with ⏳. I will prepare them for integration into `tasks.md` in step 7.
-**(Task-decomposition: 5 - Userbrief processing identification)**
-
-# Task-decomposition: 6 - Completed tasks archival/removal
+# Task-decomposition: 5 - Completed tasks archival/removal
 The tasks X, Y, and Z are marked as 🟢 DONE aren't linked to our current focus. I will remove them from `tasks.md` to keep it clean and relevant. **
-**(Task-decomposition: 6 - Completed tasks archival/removal)**
+**(Task-decomposition: 5 - Completed tasks archival/removal)**
 
-# Task-decomposition: 7 - New tasks integration
-I decompose the main request and the identified ⏳ userbrief items into concrete tasks in `tasks.md`, using the new emoji-based format. **(Task-decomposition: 7 - New tasks integration)**
+# Task-decomposition: 6 - New tasks integration
+I decompose the main request and the identified ⏳ userbrief items into concrete tasks in `tasks.md`, using the new emoji-based format. **(Task-decomposition: 6 - New tasks integration)**
 ```json
 // ... tool_code: print(default_api.edit_file(target_file=".cursor/memory-bank/workflow/tasks.md", code_edit=\'\'\'
 // ... existing tasks ...
@@ -169,16 +160,16 @@ I decompose the main request and the identified ⏳ userbrief items into concret
             *   **Validation**: [validation criteria.]
 \'\'\')) ...
 ```
-**(Task-decomposition: 7 - New tasks integration)**
+**(Task-decomposition: 6 - New tasks integration)**
 
-# Task-decomposition: 8 - Userbrief archiving
-Now that the tasks from userbrief have been integrated into `tasks.md`, I will ensure the original items in `userbrief.md` are updated from ⏳ to 🗄️. **(Task-decomposition: 8 - Userbrief archiving)**
+# Task-decomposition: 7 - Userbrief archiving
+Now that the tasks from userbrief have been integrated into `tasks.md`, I will ensure the original items in `userbrief.md` are updated from ⏳ to 🗄️. **(Task-decomposition: 7 - Userbrief archiving)**
 // ... tool_code to modify userbrief.md ...
-**(Task-decomposition: 8 - Userbrief archiving)**
+**(Task-decomposition: 7 - Userbrief archiving)**
 
-# Task-decomposition: 9 - Call next rule
+# Task-decomposition: 8 - Call next rule
 I must now call the `implementation` rule to begin work on the newly structured tasks.
-The `implementation` rule must be called to begin implementing the tasks. **(Task-decomposition: 9 - Call next rule)**
+The `implementation` rule must be called to begin implementing the tasks. **(Task-decomposition: 8 - Call next rule)**
 // ... tool_code: print(default_api.fetch_rules(rule_names=["implementation"])) ...
 
 [...] (The workflow must continue uninterrupted)

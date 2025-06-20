@@ -4,5 +4,83 @@
     "past": "testing",
     "present": "testing remember",
     "future": "finish test"
+  },
+  {
+    "timestamp": "2025-06-20T19:10:33.917Z",
+    "past": "J'ai identifié le problème avec les outils remember et next_rule",
+    "present": "J'ai corrigé les schémas en remplaçant z.object() par des objets JavaScript simples",
+    "future": "Je vais valider que les outils fonctionnent maintenant correctement"
+  },
+  {
+    "timestamp": "2025-06-20T19:10:44.413Z",
+    "past": "J'ai identifié le problème avec les outils remember et next_rule",
+    "present": "J'ai corrigé les schémas en remplaçant z.object() par des objets JavaScript simples",
+    "future": "Je vais valider que les outils fonctionnent maintenant correctement"
+  },
+  {
+    "timestamp": "2025-06-20T19:10:52.884Z",
+    "past": "Test du problème résolu",
+    "present": "Validation des outils remember et next_rule",
+    "future": "Confirmer que la solution fonctionne"
+  },
+  {
+    "timestamp": "2025-06-20T19:11:01.053Z",
+    "past": "Problème identifié avec les schémas MCP",
+    "present": "Correction appliquée en remplaçant z.object() par des objets simples",
+    "future": "Test de validation des outils"
+  },
+  {
+    "timestamp": "2025-06-20T19:11:08.461Z",
+    "past": "Diagnostic du problème MCP",
+    "present": "Correction des schémas",
+    "future": "Validation"
+  },
+  {
+    "timestamp": "2025-06-20T19:11:16.081Z",
+    "past": "Test",
+    "present": "Test",
+    "future": "Test"
+  },
+  {
+    "timestamp": "2025-06-20T19:11:23.192Z",
+    "past": "A",
+    "present": "B",
+    "future": "C"
+  },
+  {
+    "timestamp": "2025-06-20T19:12:39.239Z",
+    "past": "Test past state - identified MCP schema issue",
+    "present": "Test present state - fixed z.object() to plain object",
+    "future": "Test future state - validate tools work correctly"
+  },
+  {
+    "timestamp": "2025-06-20T19:14:46.326Z",
+    "past": "Test past state - identified MCP schema issue",
+    "present": "Test present state - fixed z.object() to plain object",
+    "future": "Test future state - validate tools work correctly"
+  },
+  {
+    "timestamp": "2025-06-20T19:14:46.692Z",
+    "past": "Minimal test past",
+    "present": "Minimal test present",
+    "future": "Minimal test future"
+  },
+  {
+    "timestamp": "2025-06-20T19:15:19.986Z",
+    "past": "Debug past",
+    "present": "Debug present",
+    "future": "Debug future"
+  },
+  {
+    "timestamp": "2025-06-20T19:16:33.781Z",
+    "past": "Test past state - identified MCP schema issue",
+    "present": "Test present state - fixed z.object() to plain object",
+    "future": "Test future state - validate tools work correctly"
+  },
+  {
+    "timestamp": "2025-06-20T19:16:34.163Z",
+    "past": "Minimal test past",
+    "present": "Minimal test present",
+    "future": "Minimal test future"
   }
 ]

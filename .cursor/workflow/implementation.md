@@ -8,35 +8,25 @@ Methodically implement tasks from a priority section, retrieve high-level contex
 
 ## Instructions
 
-1. **Task analysis**: Identify the priority section
-   - Read `.cursor/memory-bank/workflow/tasks.md`
-   - Priority: first "In Progress" section, then first "ToDo" section
-   - If all tasks completed, move to the next rule
+1. **Analyze available context**:
+   - Analyze the active tasks and context provided by the MCP server.
+   - Identify the priority task to work on (first "In Progress", then first "ToDo").
+   - If all tasks are completed, move to the next rule.
 
-2. **Active context update**: Document current work context
-   - Read `.cursor/memory-bank/context/activeContext.md` to preserve useful information
-   - Update the "Current implementation context" section with:
-     - Tasks to perform and their logic
-     - Relevant information researched online for the task
-     - Particular attention points and dependencies
-     - Technical decisions to make
-   - Keep only information useful for the current task
-   - Ensure this file contains all necessary information for current work
-
-3. **Task implementation**: For each task in the section
-   - Display: `## Implementation - 3.number.[Section Name]: [Task Title]`
+2. **Task implementation**: For each task in the section
+   - Display: `## Implementation - 2.number.[Section Name]: [Task Title]`
    - **(Optional) High-Level Context Retrieval**: Use `codebase_search` targeting the `.cursor_memory` directory with keywords from the task to find relevant high-level vision or context notes that might inform the implementation.
    - Evaluate if the task is complex and requires in-depth reflection
    - If yes, use the think token: `<think>In-depth reflection using chain of thought, comparison of different implementation approaches, etc.</think>`
    - Briefly summarize the conclusions of the reflection if applicable
    - Implement the solution for all sub-tasks in the current section
-   - After each tool call, write **(Implementation - 3.number.[Section Name]: [Task Title] in progress...)**
+   - After each tool call, write **(Implementation - 2.number.[Section Name]: [Task Title] in progress...)**
 
-4. **Task update**: Update tasks.md
+3. **Task update**: Update tasks.md
    - Move section from "ToDo" to "In Progress" if necessary
    - Mark individual tasks as in progress or completed as appropriate
 
-5. **Calling the next rule**: Mandatory decision point after completing ALL sub-tasks
+4. **Calling the next rule**: Mandatory decision point after completing ALL sub-tasks
    - Based on the implementation completed in this rule:
      - IF any testable feature was created or modified (scripts, functions, executable code) → `experience-execution` (DEFAULT for testing approach)
      - ELSE IF only non-testable changes were made (documentation, rule edits, git operations, repo cleanup) → `context-update`
@@ -49,8 +39,8 @@ Methodically implement tasks from a priority section, retrieve high-level contex
 - Implement one task at a time, in logical order
 - Comment complex parts of the code
 - A feature is "testable" if it involves creating/modifying a script or function
-- To avoid losing the workflow, systematically write **(Implementation - 3.number.[Section Name]: [Task Title] in progress...)** between each step
-- Complete ALL sub-tasks in the current section before proceeding to Step 5
+- To avoid losing the workflow, systematically write **(Implementation - 2.number.[Section Name]: [Task Title] in progress...)** between each step
+- Complete ALL sub-tasks in the current section before proceeding to Step 4
 
 **VERY IMPORTANT : Using the Advanced MCP Terminal Tools:**
 
@@ -69,22 +59,14 @@ This workflow allows managing long processes without blocking and retrieving int
 
 ## Example
 
-# Implementation: 1 - Task analysis
-I begin by reading the tasks.md file to identify the highest priority section. **(Implementation: 1 - Task analysis)**
-[...reading tasks.md file...]
-**(Implementation: 1 - Task analysis)**
+# Implementation: 1 - Analyze available context
+I begin by analyzing the tasks provided by the server to identify the highest priority section. **(Implementation: 1 - Analyze available context)**
+**(Implementation: 1 - Analyze available context)**
 
-# Implementation: 2 - Active context update
-I will update the active context to document what I will be working on. **(Implementation: 2 - Active context update)**
-[...reading activeContext.md file...]
-[...updating with relevant information for tasks to perform...]
-[...adding information researched online...]
-**(Implementation: 2 - Active context update)**
+# Implementation: 2 - Task implementation
+I will implement each task in the section following a methodical approach. **(Implementation: 2 - Task implementation)**
 
-# Implementation: 3 - Task implementation
-I will implement each task in the section following a methodical approach. **(Implementation: 3 - Task implementation)**
-
-## Implementation - 3.1.Development: Script creation
+## Implementation - 2.1.Development: Script creation
 *(Optional) I search for high-level context in `.cursor_memory` related to script patterns or goals: [...]*
 `codebase_search(query='script creation goals patterns', target_directories=['.cursor/memory'])`
 This task is complex and requires in-depth reflection.
@@ -108,29 +90,29 @@ I think option 2 is most appropriate as it offers a good balance between maintai
 
 After reflection, I determined that the best approach is to use a modular architecture with separation of concerns.
 
-I begin by creating the main script with the required functionalities. **(Implementation: 3.1 - Script creation)**
+I begin by creating the main script with the required functionalities. **(Implementation: 2.1 - Script creation)**
 [...script implementation...]
-**(Implementation - 3.1.Development: Script creation in progress...)**
+**(Implementation - 2.1.Development: Script creation in progress...)**
 [...implementation continuation...]
-**(Implementation: 3.1 - Script creation)**
+**(Implementation: 2.1 - Script creation)**
 
-## Implementation - 3.2.Development: Documentation
+## Implementation - 2.2.Development: Documentation
 *(Optional) I search for high-level context in `.cursor_memory` related to documentation standards or project vision: [...]*
 `codebase_search(query='documentation standards vision', target_directories=['.cursor/memory'])`
-I add the necessary documentation to explain how the script works. **(Implementation: 3.2 - Documentation)**
+I add the necessary documentation to explain how the script works. **(Implementation: 2.2 - Documentation)**
 [...adding documentation...]
-**(Implementation - 3.2.Development: Documentation in progress...)**
+**(Implementation - 2.2.Development: Documentation in progress...)**
 [...documentation finalization...]
-**(Implementation: 3.2 - Documentation)**
+**(Implementation: 2.2 - Documentation)**
 
-# Implementation: 4 - Task update
-I update the tasks.md file to reflect task progress. **(Implementation: 4 - Task update)**
+# Implementation: 3 - Task update
+I update the tasks.md file to reflect task progress. **(Implementation: 3 - Task update)**
 [...updating tasks.md file...]
-**(Implementation: 4 - Task update)**
+**(Implementation: 3 - Task update)**
 
-# Implementation: 5 - Calling the next rule
+# Implementation: 4 - Calling the next rule
 Since I created a new testable feature (the script), I must now call the `experience-execution` rule.
-The experience-execution rule must be called to test the new feature. **(Implementation: 5 - Calling the next rule)**
+The experience-execution rule must be called to test the new feature. **(Implementation: 4 - Calling the next rule)**
 
 [...calling tool 'fetch_rules' with rule_names=["experience-execution"]...]
 

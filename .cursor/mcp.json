@@ -4,17 +4,17 @@
         "MyMCP": {
             "command": "node",
             "args": [
-                "C:\\Users\\hjamet\\Code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\server.js",
+                "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\server.js",
                 "--cwd",
-                "C:\\Users\\hjamet\\Code\\cursor-memory-bank"
+                "C:\\Users\\Jamet\\code\\cursor-memory-bank"
             ]
         },
         "MemoryBank": {
             "command": "node",
             "args": [
-                "C:\\Users\\hjamet\\Code\\cursor-memory-bank\\.cursor\\mcp\\memory-bank-mcp\\server.js",
+                "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\memory-bank-mcp\\server.js",
                 "--cwd",
-                "C:\\Users\\hjamet\\Code\\cursor-memory-bank"
+                "C:\\Users\\Jamet\\code\\cursor-memory-bank"
             ]
         },
         "Context7": {
