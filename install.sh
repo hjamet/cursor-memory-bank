@@ -811,6 +811,52 @@ install_streamlit_app() {
     fi
 }
 
+install_ml_model() {
+    log "Checking for ML model..."
+    local target_dir="$1"
+    # This path is relative to the installation directory
+    local download_script_path=".cursor/memory-bank/download_model.py"
+    
+    # Check if python/pip are available
+    local python_cmd=""
+    if command -v python3 &>/dev/null; then
+        python_cmd="python3"
+    elif command -v python &>/dev/null; then
+        python_cmd="python"
+    else
+        warn "Python not found. Cannot download ML model."
+        return
+    fi
+
+    local pip_cmd=""
+    if command -v pip3 &>/dev/null; then
+        pip_cmd="pip3"
+    elif command -v pip &>/dev/null; then
+        pip_cmd="pip"
+    else
+        warn "pip not found. Cannot download ML model."
+        return
+    fi
+
+    # Check if download script exists in the source repository before attempting to run
+    if [ ! -f "$download_script_path" ]; then
+        warn "ML model download script not found at '$download_script_path'. Skipping model download."
+        return
+    fi
+
+    log "Installing sentence-transformers for model download..."
+    if ! $pip_cmd install sentence-transformers &>/dev/null; then
+        warn "Failed to install 'sentence-transformers'. Model download might fail. Trying to proceed..."
+    fi
+
+    log "Running ML model download script. This may take a few minutes..."
+    if ! $python_cmd "$download_script_path"; then
+        warn "ML model download script failed. The model will be downloaded on first use instead."
+    else
+        log "ML model downloaded successfully."
+    fi
+}
+
 show_help() {
     cat << EOF
 Cursor Memory Bank Installation Script v${VERSION}
@@ -1069,6 +1115,9 @@ fi
 
 # Install Streamlit App
 install_streamlit_app "$INSTALL_DIR"
+
+# Install ML Model
+install_ml_model "$INSTALL_DIR"
 
 log "Installation completed successfully!"
 

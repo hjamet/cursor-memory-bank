@@ -101,3 +101,15 @@
     *   🟢 **38.1. Move application files**: Move the `src` directory to `.cursor/memory-bank/streamlit_app`. Move `requirements.txt` into this new directory.
     *   🟢 **38.2. Update Streamlit file paths**: Modify `task_status.py` to correctly locate `tasks.json` and other necessary files (like `userbrief.md`) using paths relative to the project root, from where the app will be launched.
     *   🟢 **38.3. Update installation script**: Add logic to `install.sh` to check for Python/pip and install the Streamlit app's dependencies from the new `requirements.txt` location.
+
+🟢 **39. Pre-download ML Model during Installation**
+*   **Description**: Modify the `install.sh` script to pre-download the `all-MiniLM-L6-v2` sentence-transformer model. This avoids a long download time on the first use of the `remember` tool.
+*   **Impacted Rules/Files**: 
+    *   `install.sh`
+    *   A new Python script for downloading the model (e.g., `.cursor/memory-bank/download_model.py`).
+    *   A new directory for the model (e.g., `.cursor/memory-bank/models/`).
+*   **Dependencies**: None.
+*   **Validation**: The `install.sh` script successfully downloads the ML model into the designated directory.
+*   **Sub-Tasks**:
+    *   🟢 **39.1. Create model download script**: Create a Python script that uses the `sentence-transformers` library to download the `all-MiniLM-L6-v2` model to a specified directory.
+    *   🟢 **39.2. Update installation script**: Add a new function to `install.sh` that first installs the `sentence-transformers` library via pip, and then executes the download script.
