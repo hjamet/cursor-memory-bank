@@ -9,52 +9,27 @@ Analyzes user requests, explores existing code, searches for additional informat
 ## Instructions
 
 1. **Request analysis**: Understand the user's request:
-   - Analyze direct request or request transmitted by calling rule
-   - Identify requested features or modifications
-   - Extract important keywords and concepts
-   - **High-Level Context Retrieval**: Use `codebase_search` targeting the `.cursor_memory` directory with keywords from the request to find relevant high-level vision or context notes.
-   - **Vision Storage**: If the user expresses high-level goals, preferences, or vision elements ("I want the app to...", "The overall goal is...", "I prefer bright colors..."), create a concise Markdown note summarizing this point and save it in the `.cursor_memory` directory using `edit_file`. Choose a descriptive filename (e.g., `user_preference_color_palette.md`, `project_goal_user_auth.md`).
+   - Analyze the user request provided by the MCP server.
+   - Identify requested features or modifications.
+   - Extract important keywords and concepts.
 
 2. **Code analysis**: Identify concerned files and symbols:
-   - ONLY AUTHORIZED: up to 3 semantic searches (code base search) based on request keywords
-   - OPTIONALLY AUTHORIZED: tree command to visualize directory structure
-   - STRICTLY FORBIDDEN: listing folders/files, reading specific files, or using any other tool
-   - Don't limit to files explicitly mentioned in the request
-   - Add brief descriptions for each important element
+   - Use `codebase_search` (up to 3 times) based on request keywords.
+   - Optionally, use `tree` to visualize directory structure.
+   - Strictly forbidden: listing folders/files, reading specific files, or using any other tool.
 
 3. **Additional research**: Consult documentation and resources:
-   - Research library documentation, patterns, or relevant best practices.
-   - PREFERRED for external library documentation (especially less common ones): Use `mcp_Context7_resolve-library-id` then `mcp_Context7_get-library-docs` for structured docs and examples.
-   - ALTERNATIVE/General research: Use the `mcp_brave-search_brave_web_search` tool, limited to 5 searches maximum.
-   - Note consulted sources.
+   - Use `mcp_Context7_*` tools for library documentation.
+   - Use `mcp_brave-search_brave_web_search` for general research (max 5 searches).
 
-4. **Analyze available context**:
-    - Analyze active user requests (from userbrief) and existing tasks (from tasks.md) provided by the MCP server.
-    - Identify requests marked with ⏳ (AND ONLY THEM).
-    - Prepare these identified requests for transformation into structured tasks for `tasks.md` in step 6.
+4. **New tasks integration**: Structure new tasks in `tasks.md`.
+   - Decompose the user request into concrete tasks and sub-tasks.
+   - Add them to `tasks.md` using the `⚪️ TODO` emoji and the defined structure.
 
-5. **Completed tasks archival/removal**:
-    - Identify completed tasks (🟢 DONE) that are very old and could be archived or deleted because they are no longer relevant to the current focus.
-    - Remove these outdated `🟢 DONE` tasks from `tasks.md`.
+5. **Userbrief archiving**: Update the processed request via the MCP tool.
+   - Call `mcp_MemoryBank_update-userbrief` with `action: 'mark_archived'` and the `id` of the request being processed.
 
-6. **New tasks integration**: Structure new tasks in `tasks.md`.
-    - Integrate the main request (from the calling rule or active context) AND any requests identified in step 4 (marked with ⏳ in `userbrief.md` AND ONLY THEM).
-    - Add new tasks/sub-tasks starting with the `⚪️ TODO` emoji.
-    - Follow the **Task Item Structure** defined below for each task:
-        *   Emoji (⚪️) and Bold Title (with numbering like **1.** or **1.1.**)
-        *   Detailed `Description`
-        *   `Impacted Rules/Files`
-        *   `Dependencies`
-        *   `Validation` criteria.
-    - New tasks should be added logically, typically after existing 🟡 IN_PROGRESS or ⚪️ TODO tasks, and before any archived/very old 🟢 DONE tasks.
-    - Prioritize by importance, dependencies, impact, and complexity when ordering new tasks amongst themselves.
-
-7. **Userbrief archiving**: Update `.cursor/memory-bank/userbrief.md`.
-    - For EACH request identified in Step 4 (marked with ⏳) that was successfully integrated into `tasks.md` in Step 6:
-        - Mark this request as processed by removing its "processing" emoji (⏳) and replacing it with an "archive" emoji (🗄️).
-    - IMPORTANT: Only modify items which were marked with ⏳ in `userbrief.md` and that were successfully added to `tasks.md` in Step 6.
-
-8. **Call next rule**: Mandatory call to `implementation`.
+6. **Call next rule**: Mandatory call to `implementation`.
 
 ## Specifics
 - If you were called from consolidate-repo, consider the formulated request as the user request to analyze

@@ -1,85 +1,57 @@
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Get the directory name of the current module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const userbriefFilePath = path.join(__dirname, '..', '..', '..', '..', '.cursor', 'memory-bank', 'userbrief.md');
 
-// Determine project root (assuming this file is in .cursor/mcp/memory-bank-mcp/lib/)
-const projectRoot = path.resolve(__dirname, '../../../..');
-const USERBRIEF_PATH = path.join(projectRoot, '.cursor/memory-bank/workflow/userbrief.json');
+function parseUserbrief(content) {
+    const requests = [];
+    const lines = content.split('\n');
+    let hasChanges = false;
+    const newLines = [];
 
-const defaultUserbrief = {
-    version: "1.0.0",
-    last_id: 0,
-    requests: []
-};
-
-/**
- * Reads the userbrief.json file and returns its content.
- * If the file doesn't exist, it creates it with a default structure.
- * @returns {object} The parsed userbrief data.
- */
-export function readUserbriefData() {
-    try {
-        if (!fs.existsSync(USERBRIEF_PATH)) {
-            console.warn(`[UserBriefManager] userbrief.json not found at ${USERBRIEF_PATH}. Creating a new one.`);
-            writeUserbriefData(defaultUserbrief);
-            return defaultUserbrief;
+    for (const line of lines) {
+        if (line.startsWith('- ')) {
+            const content = line.substring(2).trim();
+            requests.push({
+                content: content,
+                status: 'in_progress',
+            });
+            newLines.push(`⏳ - ${content}`);
+            hasChanges = true;
+        } else {
+            const requestMatch = line.match(/^([📌⏳🗄️])\s*-\s*(.*)/);
+            if (requestMatch) {
+                const statusMap = {
+                    '📌': 'preference',
+                    '⏳': 'in_progress',
+                    '🗄️': 'archived',
+                };
+                requests.push({
+                    content: requestMatch[2].trim(),
+                    status: statusMap[requestMatch[1]] || 'new',
+                });
+            }
+            newLines.push(line);
         }
-
-        const content = fs.readFileSync(USERBRIEF_PATH, 'utf-8');
-        return JSON.parse(content);
-    } catch (error) {
-        console.error('[UserBriefManager] Error reading userbrief.json:', error);
-        // If parsing fails, maybe return a default structure to avoid crashing consumers
-        return defaultUserbrief;
     }
+    return { requests, hasChanges, newLines };
 }
 
-/**
- * Writes data to the userbrief.json file.
- * @param {object} data - The data to write to userbrief.json.
- */
-export function writeUserbriefData(data) {
+export async function readUserbrief() {
     try {
-        const content = JSON.stringify(data, null, 2);
-        fs.writeFileSync(USERBRIEF_PATH, content, 'utf-8');
-        console.log('[UserBriefManager] userbrief.json updated successfully');
+        const content = await fs.readFile(userbriefFilePath, 'utf8');
+        const { requests, hasChanges, newLines } = parseUserbrief(content);
+        if (hasChanges) {
+            await fs.writeFile(userbriefFilePath, newLines.join('\n'), 'utf8');
+        }
+        return { requests };
     } catch (error) {
-        console.error('[UserBriefManager] Error writing userbrief.json:', error);
+        if (error.code === 'ENOENT') {
+            return { requests: [] }; // Return empty array if file doesn't exist
+        }
         throw error;
     }
-}
-
-/**
- * Adds a new request to the userbrief.json file.
- * @param {string} content - The content of the new request.
- * @returns {object} The newly created request object.
- */
-export function addUserbriefRequest(content) {
-    try {
-        const data = readUserbriefData();
-        const newId = data.last_id + 1;
-
-        const newRequest = {
-            id: newId,
-            content: content,
-            status: 'new',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            history: []
-        };
-
-        data.last_id = newId;
-        data.requests.push(newRequest);
-
-        writeUserbriefData(data);
-        console.log(`[UserBriefManager] Added new request with ID ${newId}`);
-        return newRequest;
-    } catch (error) {
-        console.error('[UserBriefManager] Error adding new request:', error);
-        throw error;
-    }
-}
+} 

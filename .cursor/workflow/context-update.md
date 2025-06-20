@@ -16,37 +16,15 @@ Analyzes the provided context, updates context files, manages task statuses, and
    - The MCP server will handle applying these updates.
 
 3. **Context cleanup**: 
-   - When formulating new content, ensure it is concise, removes obsolete information, and adheres to the structural requirements of each file (e.g., max 200 lines for `projectBrief.md` and `activeContext.md`).
+   - When formulating new content, ensure it is concise, removes obsolete information, and maintains structural integrity.
 
-4. **Userbrief Archival Commenting**: 
-    - Based on the provided content of `userbrief.md` and `activeContext.md`, check for any archived task (🗄️) that does not already have an agent comment (-> 🧠).
-    - If the agent "remembers" working on it (i.e., its description is found in `activeContext.md`), append a specific, informative comment in French.
-    *   <think>
-        *   For each archived task (🗄️) in the provided `userbrief.md` content:
-        *     If it lacks an agent comment (-> 🧠), extract its description.
-        *     Search for the description in the provided `activeContext.md` content.
-        *     If relevant info is found, formulate a concise French comment summarizing it.
-        *     If only the task mention is found, formulate a general comment.
-        *     If a comment is generated, prepare an update for the `userbrief.md` file.
-    *   </think>
-    - The MCP server will handle applying these updates.
+4. **Tasks update**: Mark completed tasks as `DONE` in `tasks.md`.
 
-5. **tasks.md update**: 
-   - Based on the provided context, identify tasks that were 🟡 IN_PROGRESS and are now completed.
-   - Prepare an update for `tasks.md` to change their status emoji from 🟡 IN_PROGRESS to 🟢 DONE.
-   - The MCP server will handle applying these updates.
-
-6. **Commit changes**: Make a commit with the modifications using the MCP tool:
+5. **Commit changes**: Make a commit with the modifications using the `mcp_MemoryBank_commit` tool.
    - Determine the appropriate `emoji`, `type`, and `title`.
-   - Construct a detailed `description` following the specified format.
-   - Call the `mcp_MyMCP_commit` tool.
+   - Construct a detailed `description`.
 
-7. **Call the next rule**: 
-   - Based on the provided context (test results, userbrief, tasks):
-     - IF at least one test fails → `fix`
-     - ELSE IF there are unprocessed user requests → `consolidate-repo`
-     - ELSE IF there are active tasks (🟡 or ⚪️) → `implementation`
-     - ELSE (workflow is complete) → Announce completion.
+6. **Call the next rule**: Mandatory call to `next_rule`.
 
 ## Specifics
 - This rule now operates on the assumption that all necessary context is provided by the MCP server at runtime, removing the need for direct file reads.
@@ -56,7 +34,7 @@ Analyzes the provided context, updates context files, manages task statuses, and
 - Systematically delete old history entries that are no longer relevant
 - NEVER end without either explicitly calling a next rule or explicitly indicating that the workflow is complete
 - The workflow must NEVER be considered complete if there are remaining tasks with 🟡 IN_PROGRESS or ⚪️ TODO emojis OR if there is at least one failing test (marked ❌) or with warning (marked ⚠️)
-- For the commit, use the `mcp_MyMCP_commit` tool, which handles staging automatically.
+- For the commit, use the `mcp_MemoryBank_commit` tool, which handles staging automatically.
 - If all tasks are complete (meaning there are NO MORE tasks with 🟡 IN_PROGRESS or ⚪️ TODO emojis in the `tasks.md` file) AND all tests pass (ALL marked ✅), then:
    - Present a clear and concise synthesis of the work done
    - Summarize implemented features and resolved issues
@@ -65,7 +43,7 @@ Analyzes the provided context, updates context files, manages task statuses, and
 - If the workflow is not complete, call the appropriate next rule
 
 ## Format for Detailed Commit Description
-The `description` argument for the `mcp_MyMCP_commit` tool must be a detailed markdown-formatted string. It serves as a comprehensive record of the work performed. Structure it like a mini-article with the following sections:
+The `description` argument for the `mcp_MemoryBank_commit` tool must be a detailed markdown-formatted string. It serves as a comprehensive record of the work performed. Structure it like a mini-article with the following sections:
 
 ```markdown
 ### Changes Made
@@ -134,7 +112,7 @@ I will formulate new content for context files if needed, ensuring they are clea
 I will now check the provided `userbrief.md` content for archived tasks and formulate comments if needed. **(Context-update: 4 - Userbrief Archival Commenting)**
 <think>
 The agent analyzes the provided `userbrief.md` and `activeContext.md` strings.
-For each archived task (starting with "🗄️ - ") in the userbrief string that does not already have an agent comment ("-> 🧠"):
+For each archived task (🗄️ - ) in the userbrief string that does not already have an agent comment (-> 🧠):
 1. It extracts the archived task description.
 2. It searches for this description in the active context string.
 3. If relevant info is found, it formulates a concise French comment.
@@ -150,10 +128,10 @@ I formulate an update for the tasks.md file to change completed tasks from 🟡 
 # Context-update: 6 - Making a commit
 I prepare and make a commit with the changes made using the MCP commit tool. **(Context-update: 6 - Making a commit)**
 <think>
-To construct the commit message, I will synthesize information from the provided context (activeContext, projectBrief, tasks, tests) to fill in the detailed markdown description for the `mcp_MyMCP_commit` tool.
+To construct the commit message, I will synthesize information from the provided context (activeContext, projectBrief, tasks, tests) to fill in the detailed markdown description for the `mcp_MemoryBank_commit` tool.
 </think>
 [...gathering information from provided context and constructing the commit arguments...]\
-[...calling tool `mcp_MyMCP_commit`...]\
+[...calling tool `mcp_MemoryBank_commit`...]\
 **(Context-update: 6 - Making a commit)**
 
 # Context-update: 7 - Calling the next rule

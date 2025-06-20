@@ -116,7 +116,9 @@ server.tool('commit', commitSchema, handleCommit);
 server.tool('read_memory', readMemorySchema, handleReadMemory);
 server.tool('edit_memory', editMemorySchema, handleEditMemory);
 server.tool('remember', rememberSchema, handleRemember);
-server.tool('next_rule', nextRuleSchema, handleNextRule);
+server.tool('next_rule', {
+    rule_name: z.string().optional().describe("The name of the rule to execute next (without the .md extension). If not provided, the server will decide the next rule."),
+}, handleNextRule);
 
 // Start the server
 async function startServer() {

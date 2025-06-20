@@ -1,10 +1,10 @@
 ---
-description: Rule to consolidate the repository, manage userbrief.md, and maintain a clean project structure
+description: This rule is now obsolete. Its logic has been integrated into the MCP server.
 globs: 
 alwaysApply: false
 ---
 ## TLDR
-Consolidates user requests from a section-less, emoji-driven `userbrief.md`, manages item statuses (🆕, ⏳, 📌), and verifies memory file integrity.
+This rule is obsolete and should not be called. The MCP server now automatically handles user request ingestion and workflow routing.
 
 ## Instructions
 

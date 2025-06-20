@@ -49,18 +49,11 @@ Example: "I will now read [...] **(Implementation: 2 - Context retrieval)**"
 
 - MANDATORY: Always start by loading project context, unless the last executed rule was `workflow-perdu`. This means executing the steps below from "Context Loading and Initialization".
 - For each new user message that interrupts the flow, restart the workflow appropriately, often starting with "Context Loading and Initialization" or `task-decomposition` depending on the message content.
-- The workflow is only completed when the `context-update` rule confirms that all tasks are completed and all tests validated
+- The workflow is only completed when the `context-update` rule confirms that all tasks are completed and all tests validated.
 
-## Context Loading and Initialization
+## Calling the next rule
 
-### TLDR
-The project context is automatically loaded by the MCP server. This rule proceeds with the workflow based on the provided context.
-
-### Instructions
-1.  **Analyze User Request**: Analyze the user request provided by the MCP server.
-2.  **Calling the next rule**: Check for unprocessed user requests and call the appropriate rule:
-   - If there are unprocessed user requests, call `consolidate-repo`.
-   - Otherwise, call `task-decomposition`.
+Call the `next_rule` tool to determine and execute the next step in the workflow.
 
 ## Absolute Rule
 

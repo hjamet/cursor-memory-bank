@@ -8,28 +8,20 @@ Methodically implement tasks from a priority section, retrieve high-level contex
 
 ## Instructions
 
-1. **Analyze available context**:
-   - Analyze the active tasks and context provided by the MCP server.
-   - Identify the priority task to work on (first "In Progress", then first "ToDo").
-   - If all tasks are completed, move to the next rule.
+1. **Task analysis**: 
+   -   Analyze the active tasks provided by the MCP server.
+   -   Identify the priority task to work on (first "In Progress", then first "ToDo").
 
 2. **Task implementation**: For each task in the section
-   - Display: `## Implementation - 2.number.[Section Name]: [Task Title]`
-   - **(Optional) High-Level Context Retrieval**: Use `codebase_search` targeting the `.cursor_memory` directory with keywords from the task to find relevant high-level vision or context notes that might inform the implementation.
-   - Evaluate if the task is complex and requires in-depth reflection
-   - If yes, use the think token: `<think>In-depth reflection using chain of thought, comparison of different implementation approaches, etc.</think>`
-   - Briefly summarize the conclusions of the reflection if applicable
-   - Implement the solution for all sub-tasks in the current section
-   - After each tool call, write **(Implementation - 2.number.[Section Name]: [Task Title] in progress...)**
+   -   Display: `## Implementation - 2.number.[Section Name]: [Task Title]`
+   -   Implement the solution for all sub-tasks in the current section
+   -   After each tool call, write **(Implementation - 2.number.[Section Name]: [Task Title] in progress...)**
 
 3. **Task update**: Update tasks.md
-   - Move section from "ToDo" to "In Progress" if necessary
-   - Mark individual tasks as in progress or completed as appropriate
+   -   Move section from "ToDo" to "In Progress" if necessary
+   -   Mark individual tasks as in progress or completed as appropriate
 
-4. **Calling the next rule**: Mandatory decision point after completing ALL sub-tasks
-   - Based on the implementation completed in this rule:
-     - IF any testable feature was created or modified (scripts, functions, executable code) → `experience-execution` (DEFAULT for testing approach)
-     - ELSE IF only non-testable changes were made (documentation, rule edits, git operations, repo cleanup) → `context-update`
+4. **Calling the next rule**: Mandatory call to `next_rule`.
 
 ## Specifics
 

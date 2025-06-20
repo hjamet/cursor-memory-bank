@@ -67,3 +67,20 @@
     *   🟢 **36.1. Create project structure**: Create the `src` directory and a `requirements.txt` file with `streamlit`.
     *   🟢 **36.2. Create Hello World page**: Create a `src/main.py` with a simple "Hello World" Streamlit page.
     *   🟢 **36.3. Create Task Status page**: Create a `src/pages/task_status.py` that reads task information from a (to-be-created) `tasks.json` and displays it.
+
+---
+
+🟢 **37. Automate Task Management**
+*   **Description**: Automate the task management process by updating the `next_rule` tool and related rules to handle task management automatically.
+*   **Impacted Rules/Files**: 
+    *   `.cursor/mcp/memory-bank-mcp/mcp_tools/next_rule.js`
+    *   `.cursor/mcp/memory-bank-mcp/mcp_tools/read_userbrief.js`
+    *   `.cursor/mcp/memory-bank-mcp/server.js`
+    *   All files in `.cursor/workflow/`
+*   **Dependencies**: None.
+*   **Validation**: The task management process is automated, and the `tasks.md` file is updated correctly.
+*   **Sub-Tasks**:
+    *   🟢 **37.1. Modify `next_rule.js`**: Update the `next_rule` tool to make the `rule_name` argument optional. If `rule_name` is not provided, implement logic to read `userbrief.md` and `tasks.md` to determine the next rule (`task-decomposition` if there are pending requests, `implementation` if there are pending tasks, `context-update` otherwise).
+    *   🟢 **37.2. Modify `read_userbrief.js`**: Update the `read_userbrief` tool to automatically change the status of any 'new' request to 'in_progress'.
+    *   🟢 **37.3. Update `server.js`**: Update the schema for `next_rule` in `server.js` to reflect the optional argument.
+    *   🟢 **37.4. Adapt `.md` rules**: Review and simplify all `.md` rules in `.cursor/workflow/` to use the new automated `next_rule` logic, removing manual calls to `consolidate-repo` and complex decision-making at the end of rules.
