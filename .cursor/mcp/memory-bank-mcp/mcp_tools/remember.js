@@ -77,16 +77,11 @@ async function remember(args) {
     };
 }
 
-const rememberTool = {
-    name: "remember",
-    description: "Records a memory of the agent's state (past, present, future) and returns the current state, possible next rules, and the last 15 memories. This tool replaces the need for activeContext.md. Can optionally store/update a persistent long-term memory.",
-    args: z.object({
-        past: z.string().describe("A description of what the agent originally planned to do."),
-        present: z.string().describe("A description of what the agent actually did, any problems encountered, and decisions made."),
-        future: z.string().describe("A description of what the agent plans to do next."),
-        long_term_memory: z.string().optional().describe("Critical project information to be stored persistently (e.g., database schemas, architectural decisions). If provided, this will overwrite any existing long-term memory."),
-    }),
-    run: remember,
-};
+export const rememberSchema = z.object({
+    past: z.string().describe("A description of what the agent originally planned to do."),
+    present: z.string().describe("A description of what the agent actually did, any problems encountered, and decisions made."),
+    future: z.string().describe("A description of what the agent plans to do next."),
+    long_term_memory: z.string().optional().describe("Critical project information to be stored persistently (e.g., database schemas, architectural decisions). If provided, this will overwrite any existing long-term memory."),
+});
 
-export default rememberTool; 
+export { remember as handleRemember }; 

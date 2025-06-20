@@ -21,20 +21,20 @@ import { handleUpdateUserbrief } from './mcp_tools/update_userbrief.js';
 import { handleCreateTask } from './mcp_tools/create_task.js';
 import { handleUpdateTask } from './mcp_tools/update_task.js';
 import { handleGetNextTasks } from './mcp_tools/get_next_tasks.js';
-import { handleGetAllTasks } from './mcp_tools/get_all_tasks.js';
+import { handleGetAllTasks, getAllTasksSchema } from './mcp_tools/get_all_tasks.js';
 
 // Import commit tool handler
-import { handleCommit } from './mcp_tools/commit.js';
+import { handleCommit, commitSchema } from './mcp_tools/commit.js';
 
 // Import memory management tool handlers
-import { handleReadMemory } from './mcp_tools/read_memory.js';
-import { handleEditMemory } from './mcp_tools/edit_memory.js';
+import { handleReadMemory, readMemorySchema } from './mcp_tools/read_memory.js';
+import { handleEditMemory, editMemorySchema } from './mcp_tools/edit_memory.js';
 
 // Import remember tool
-import rememberTool from './mcp_tools/remember.js';
+import { handleRemember, rememberSchema } from './mcp_tools/remember.js';
 
 // Import next_rule tool
-import nextRuleTool from './mcp_tools/next_rule.js';
+import { handleNextRule, nextRuleSchema } from './mcp_tools/next_rule.js';
 
 // Create server instance
 const server = new McpServer({
@@ -111,56 +111,12 @@ server.tool(
     handleGetNextTasks
 );
 
-server.tool(
-    'get_all_tasks',
-    {
-        count: z.number().int().min(1).max(100).optional().default(10).describe('Number of tasks to return. (optional, default: 10)'),
-        status_filter: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'BLOCKED', 'REVIEW']).optional().describe('Filter tasks by a specific status. (optional)'),
-        priority_filter: z.number().int().min(1).max(5).optional().describe('Filter tasks by a specific priority level. (optional)'),
-        include_subtasks: z.boolean().optional().default(true).describe('If true, include sub-tasks in the results. (optional, default: true)'),
-        include_dependencies: z.boolean().optional().default(true).describe('If true, include dependency information in the response. (optional, default: true)')
-    },
-    handleGetAllTasks
-);
-
-// Register commit tool
-server.tool(
-    'commit',
-    {
-        emoji: z.string().describe("Emoji for the commit message (e.g. :sparkles:). (required)"),
-        type: z.string().describe("Type of change (e.g. feat, fix, docs, style, refactor, test, chore). (required)"),
-        title: z.string().describe("A brief commit title. (required)"),
-        description: z.string().describe("A detailed description of the changes. (required)")
-    },
-    handleCommit
-);
-
-// Register memory management tools
-server.tool(
-    'read_memory',
-    {
-        context_file: z.enum(['activeContext', 'projectBrief', 'techContext'])
-            .describe("Name of the context file to read. (required)")
-    },
-    handleReadMemory
-);
-
-server.tool(
-    'edit_memory',
-    {
-        context_file: z.enum(['activeContext', 'projectBrief', 'techContext'])
-            .describe("Name of the context file to edit. (required)"),
-        content: z.string().min(1)
-            .describe('New content to completely replace the existing file content. WARNING: This will overwrite the entire file. (required)')
-    },
-    handleEditMemory
-);
-
-// Register remember tool
-server.tool(rememberTool.name, rememberTool.args, rememberTool.run);
-
-// Register next_rule tool
-server.tool(nextRuleTool.name, nextRuleTool.args, nextRuleTool.run);
+server.tool('get_all_tasks', getAllTasksSchema, handleGetAllTasks);
+server.tool('commit', commitSchema, handleCommit);
+server.tool('read_memory', readMemorySchema, handleReadMemory);
+server.tool('edit_memory', editMemorySchema, handleEditMemory);
+server.tool('remember', rememberSchema, handleRemember);
+server.tool('next_rule', nextRuleSchema, handleNextRule);
 
 // Start the server
 async function startServer() {
