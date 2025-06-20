@@ -163,11 +163,11 @@
     *   **Dependencies**: Task 27.
     *   **Validation**: ✅ The on-edit-tool-fail rule includes the regex edit tool as a fallback option, the rule logic is updated appropriately, and the tool integration works correctly.
 
-⚪️ **29. Enhance Recall Tool with Long-term Memory**
+🟢 **29. Enhance Recall Tool with Long-term Memory**
     *   **Description**: Improve the existing recall tool (if it exists) to include an optional long_term_memory argument for storing critical project information that remains true throughout the project (database formats, passwords, architectural decisions, library changes). This information should be stored in a database and retrieved with each recall call.
     *   **Impacted Rules/Files**:
         *   Existing recall tool implementation
         *   Long-term memory database storage
         *   Tool parameter enhancement
     *   **Dependencies**: None.
-    *   **Validation**: The recall tool accepts the optional long_term_memory parameter, stores critical information persistently, retrieves long-term memories with each call, and clearly indicates the parameter is highly optional.
+    *   **Validation**: ✅ The recall tool accepts the optional long_term_memory parameter, stores critical information persistently, retrieves long-term memories with each call, and clearly indicates the parameter is highly optional.
