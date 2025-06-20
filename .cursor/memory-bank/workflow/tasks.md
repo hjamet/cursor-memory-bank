@@ -1,4 +1,4 @@
-⚪️ **32. Investigate and Fix MCP Tool Argument Visibility**
+🟢 **32. Investigate and Fix MCP Tool Argument Visibility**
 *   **Description**: The user reports that the `remember` and `next_rule` tools appear to have no arguments in the Cursor UI. This task is to investigate the root cause and propose a solution.
 *   **Impacted Rules/Files**: 
     *   `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js`
@@ -8,9 +8,9 @@
 *   **Dependencies**: None.
 *   **Validation**: A clear root cause is identified and documented. The issue is either fixed via code change or a solution is proposed (e.g., client restart).
 *   **Sub-Tasks**:
-    *   ⚪️ **32.1. Analyze Argument Schema**: Confirm that `remember` and `next_rule` tools correctly export a Zod schema in their `args` property.
-    *   ⚪️ **32.2. Hypothesize Root Cause**: Based on analysis and project documentation, determine the most likely root cause (e.g., client-side caching, stray debug logs).
-    *   ⚪️ **32.3. Document Findings**: In the final experiment report, document the analysis, findings, and the recommended solution.
+    *   🟢 **32.1. Analyze Argument Schema**: Confirm that `remember` and `next_rule` tools correctly export a Zod schema in their `args` property.
+    *   🟢 **32.2. Hypothesize Root Cause**: Based on analysis and project documentation, determine the most likely root cause (e.g., client-side caching, stray debug logs).
+    *   🟢 **32.3. Document Findings**: In the final experiment report, document the analysis, findings, and the recommended solution.
 
 ---
 
