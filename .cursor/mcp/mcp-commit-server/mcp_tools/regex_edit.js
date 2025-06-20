@@ -57,10 +57,10 @@ const handleRegexEdit = async ({ file_path, regex_pattern, replacement_text }) =
 
 export const regexEditTool = {
     name: 'regex_edit',
-    args: z.object({
+    args: {
         file_path: z.string().describe('The path to the file to edit.'),
         regex_pattern: z.string().describe('The regex pattern to find.'),
         replacement_text: z.string().describe('The text to replace the found pattern with.'),
-    }),
+    },
     run: handleRegexEdit,
 }; 

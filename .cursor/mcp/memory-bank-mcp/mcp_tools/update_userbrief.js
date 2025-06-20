@@ -1,16 +1,6 @@
 import { z } from 'zod';
 import { readUserbriefData, writeUserbriefData } from '../lib/userbrief_manager.js';
 
-// Schema for the update-userbrief tool parameters
-export const updateUserbriefSchema = z.object({
-    action: z.enum(['mark_archived', 'add_comment', 'mark_pinned'])
-        .describe("Action to perform on the userbrief entry. 'mark_in_progress' is now an automatic status and cannot be set manually."),
-    id: z.number().optional()
-        .describe('ID of the request to update. If not provided, targets the current active request.'),
-    comment: z.string().optional()
-        .describe('Comment to add to the request history.'),
-});
-
 /**
  * Handles the update-userbrief tool call.
  * Can mark requests as 'in_progress', 'archived', or add comments.

@@ -1,15 +1,6 @@
 import { z } from 'zod';
 import { taskManager } from '../lib/task_manager.js';
 
-// Schema for the get_all_tasks tool parameters
-export const getAllTasksSchema = z.object({
-    count: z.number().int().min(1).max(100).optional().default(10).describe('Number of tasks to return (default: 10)'),
-    status_filter: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'BLOCKED', 'REVIEW']).optional().describe('Filter by specific status'),
-    priority_filter: z.number().int().min(1).max(5).optional().describe('Filter by specific priority level'),
-    include_subtasks: z.boolean().optional().default(true).describe('Include sub-tasks in results'),
-    include_dependencies: z.boolean().optional().default(true).describe('Include dependency information in response')
-});
-
 /**
  * Handles the get_all_tasks tool call
  * Returns tasks with priority ordering: in_progress, todo, blocked, review, done

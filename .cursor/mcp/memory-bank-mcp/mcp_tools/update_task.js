@@ -1,20 +1,6 @@
 import { z } from 'zod';
 import { taskManager } from '../lib/task_manager.js';
 
-// Schema for the update-task tool parameters
-export const updateTaskSchema = z.object({
-    task_id: z.number().int().positive().describe('ID of the task to update'),
-    title: z.string().min(1).max(200).optional().describe('Updated task title'),
-    short_description: z.string().min(1).max(500).optional().describe('Updated brief description'),
-    detailed_description: z.string().min(1).optional().describe('Updated detailed description'),
-    dependencies: z.array(z.number().int().positive()).optional().describe('Updated array of dependency task IDs'),
-    status: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'BLOCKED', 'REVIEW']).optional().describe('Updated task status'),
-    impacted_files: z.array(z.string()).optional().describe('Updated list of affected files'),
-    validation_criteria: z.string().optional().describe('Updated validation criteria'),
-    parent_id: z.number().int().positive().nullable().optional().describe('Updated parent task ID (null to remove parent)'),
-    priority: z.number().int().min(1).max(5).optional().describe('Updated priority level (1=highest, 5=lowest)')
-});
-
 /**
  * Handles the update-task tool call
  * Updates existing tasks by ID with only the provided fields

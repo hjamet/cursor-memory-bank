@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { readUserbriefData } from '../lib/userbrief_manager.js';
+import { readUserbrief } from '../lib/userbrief_manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,9 +38,9 @@ async function remember(args) {
     // Read pinned items from userbrief
     let pinnedItems = [];
     try {
-        const userbriefData = readUserbriefData();
+        const userbriefData = await readUserbrief();
         if (userbriefData && userbriefData.requests) {
-            pinnedItems = userbriefData.requests.filter(req => req.status === 'pinned');
+            pinnedItems = userbriefData.requests.filter(req => req.status === 'preference');
         }
     } catch (error) {
         console.warn(`[Remember] Could not read pinned items from userbrief: ${error.message}`);

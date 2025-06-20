@@ -1,11 +1,5 @@
 import { z } from 'zod';
-import { readUserbriefData } from '../lib/userbrief_manager.js';
-
-// Schema for the read-userbrief tool parameters
-export const readUserbriefSchema = z.object({
-    archived_count: z.number().min(0).max(10).default(3).optional()
-        .describe('Number of archived entries to include in response (default: 3)')
-});
+import { readUserbrief } from '../lib/userbrief_manager.js';
 
 /**
  * Handles the read-userbrief tool call.
@@ -23,7 +17,7 @@ export async function handleReadUserbrief(params) {
         console.log(`[ReadUserbrief] Reading userbrief with ${archived_count} archived entries`);
 
         // Read userbrief data from JSON file
-        const userbriefData = readUserbriefData();
+        const userbriefData = await readUserbrief();
 
         if (!userbriefData || !userbriefData.requests || userbriefData.requests.length === 0) {
             return {

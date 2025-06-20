@@ -1,19 +1,6 @@
 import { z } from 'zod';
 import { taskManager } from '../lib/task_manager.js';
 
-// Schema for the create_task tool parameters
-export const createTaskSchema = z.object({
-    title: z.string().min(1).max(200).describe('Short descriptive title of the task'),
-    short_description: z.string().min(1).max(500).describe('Brief one-sentence description of what needs to be done'),
-    detailed_description: z.string().min(1).describe('Comprehensive description with implementation details'),
-    dependencies: z.array(z.number().int().positive()).optional().default([]).describe('Array of task IDs that must be completed before this task'),
-    status: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'BLOCKED', 'REVIEW']).optional().default('TODO').describe('Initial status of the task'),
-    impacted_files: z.array(z.string()).optional().default([]).describe('List of files or rules affected by this task'),
-    validation_criteria: z.string().optional().default('').describe('Clear criteria to determine when the task is successfully completed'),
-    parent_id: z.number().int().positive().optional().describe('ID of parent task for sub-tasks'),
-    priority: z.number().int().min(1).max(5).optional().default(3).describe('Priority level (1=highest, 5=lowest)')
-});
-
 /**
  * Handles the create_task tool call
  * Creates new tasks with auto-generated IDs and comprehensive validation

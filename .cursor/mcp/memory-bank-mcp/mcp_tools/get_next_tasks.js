@@ -1,15 +1,6 @@
 import { z } from 'zod';
 import { taskManager } from '../lib/task_manager.js';
 
-// Schema for the get_next_tasks tool parameters
-export const getNextTasksSchema = z.object({
-    limit: z.number().int().min(1).max(50).optional().default(10).describe('Maximum number of tasks to return'),
-    include_completed: z.boolean().optional().default(false).describe('Include completed tasks in results'),
-    include_blocked: z.boolean().optional().default(false).describe('Include blocked tasks in results'),
-    status_filter: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'BLOCKED', 'REVIEW']).optional().describe('Filter by specific status'),
-    priority_filter: z.number().int().min(1).max(5).optional().describe('Filter by specific priority level')
-});
-
 /**
  * Handles the get_next_tasks tool call
  * Returns available tasks (tasks with no pending dependencies)
