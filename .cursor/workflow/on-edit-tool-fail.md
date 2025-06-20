@@ -33,13 +33,21 @@ Provides a structured approach to autonomously overcome file editing difficultie
     *   "(edit-retry-strategies: 4 - Applying refined strategy [A/B] for 'filename.ext')"
     *   If successful at any point, proceed to step 6.
 
-5.  **Last Resort - Full Rewrite (Use with Extreme Caution)**: If multiple distinct variations (at least 2-3 combinations of context/instruction changes) have failed AND the file is not excessively long (e.g., < 300-500 lines, assess based on file type and complexity):
+5.  **Alternative Strategy - Regex Edit**: If iterative refinements fail, and a specific, unique line or block can be targeted with a regular expression, use the `mcp_MyMCP_regex_edit` tool.
+    *   This is less risky than a full rewrite and is preferred if applicable.
+    *   Construct a precise regex pattern to match the code to be replaced.
+    *   Tool: `mcp_MyMCP_regex_edit`
+    *   "(edit-retry-strategies: 5 - Attempting regex edit on 'filename.ext')"
+    *   If successful, proceed to step 7.
+    *   If it fails (e.g., pattern not found), proceed to step 6 (Last Resort).
+
+6.  **Last Resort - Full Rewrite (Use with Extreme Caution)**: If multiple distinct variations (at least 2-3 combinations of context/instruction changes) have failed AND the file is not excessively long (e.g., < 300-500 lines, assess based on file type and complexity):
     *   Read the entire file again using `read_file` to ensure the rewrite is based on the absolute latest version.
     *   Construct the *complete* new content of the file with your modification correctly integrated.
     *   Use `edit_file` with the `code_edit` being the *entire new file content*. Write to a new file with a different name.
     *   Execute the `mv` command via MyMCP to replace the file with its new version.
-    *   "(edit-retry-strategies: 5 - Attempting full rewrite for 'filename.ext' as last resort)"
-    *   If successful, proceed to step 6.
+    *   "(edit-retry-strategies: 6 - Attempting full rewrite for 'filename.ext' as last resort)"
+    *   If successful, proceed to step 7.
     *   **If this also fails (Full Rewrite Fails)**:
         *   Acknowledge that the edit could not be applied with current strategies.
         *   State: "All automated edit attempts have failed for the file `[target_file]`. Manual intervention is exceptionally required. The workflow will now be interrupted."
@@ -51,17 +59,17 @@ Provides a structured approach to autonomously overcome file editing difficultie
             - Delete lines A-B
             - Insert ZZZ after line C]
             ```"
-        *   **IMPORTANT: This is a terminal step for the rule if all automated edits fail. Do NOT proceed to step 6, 7, or 8 in this scenario.**
+        *   **IMPORTANT: This is a terminal step for the rule if all automated edits fail. Do NOT proceed to step 7, 8, or 9 in this scenario.**
 
-6.  **Prepare to Return (If Edit Succeeded)**: This step is reached **only if an edit attempt in steps 3, 4, or 5 was successful**. Note that the edit was successful. This information is for the agent's internal context.
-    *   "(edit-retry-strategies: 6 - Edit on 'filename.ext' [successful]. Preparing to return.)"
+7.  **Prepare to Return (If Edit Succeeded)**: This step is reached **only if an edit attempt in steps 3, 4, 5 or 6 was successful**. Note that the edit was successful. This information is for the agent's internal context.
+    *   "(edit-retry-strategies: 7 - Edit on 'filename.ext' [successful]. Preparing to return.)"
 
-7.  **Recall Prior State (If Edit Succeeded)**: This step is reached **only if an edit attempt in steps 3, 4, or 5 was successful**. Identify the exact rule name and instruction number that was active *immediately before* this `edit-retry-strategies` rule was invoked. This information MUST have been passed to or be retrievable by this rule (e.g. if rules can accept parameters, or if the calling rule logs this before calling). *Self-correction: The system doesn't explicitly state rules can pass parameters. The agent invoking this rule must remember its state.* The agent needs to internally store "I was in rule X, step Y" before calling `edit-retry-strategies`.
+8.  **Recall Prior State (If Edit Succeeded)**: This step is reached **only if an edit attempt in steps 3, 4, 5 or 6 was successful**. Identify the exact rule name and instruction number that was active *immediately before* this `edit-retry-strategies` rule was invoked. This information MUST have been passed to or be retrievable by this rule (e.g. if rules can accept parameters, or if the calling rule logs this before calling). *Self-correction: The system doesn't explicitly state rules can pass parameters. The agent invoking this rule must remember its state.* The agent needs to internally store "I was in rule X, step Y" before calling `edit-retry-strategies`.
 
-8.  **Resume Prior Workflow (If Edit Succeeded)**: This step is reached **only if an edit attempt in steps 3, 4, or 5 was successful**. Fetch the prior rule using `fetch_rules`. Immediately continue execution from the recalled instruction number of that rule.
+9.  **Resume Prior Workflow (If Edit Succeeded)**: This step is reached **only if an edit attempt in steps 3, 4, 5 or 6 was successful**. Fetch the prior rule using `fetch_rules`. Immediately continue execution from the recalled instruction number of that rule.
     *   **CRITICAL**: Do NOT restart the prior rule from the beginning. Resume exactly where it left off.
     *   Reinforce autonomous operation: "Continuing autonomously with [Prior Rule Name]: [Prior Step Number] - [Prior Step Title]".
-    *   "(edit-retry-strategies: 8 - Fetching rule '[Prior_Rule_Name]' to resume at step [N])"
+    *   "(edit-retry-strategies: 9 - Fetching rule '[Prior_Rule_Name]' to resume at step [N])"
 
 ## Specifics
 

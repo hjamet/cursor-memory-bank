@@ -156,12 +156,12 @@
     *   **Dependencies**: None.
     *   **Validation**: ✅ The regex edit tool functions correctly, handles pattern matching and replacement accurately, provides appropriate error messages, and returns the correct context around replacements.
 
-⚪️ **28. Update on-edit-tool-fail Rule to Use Regex Edit Tool**
+🟢 **28. Update on-edit-tool-fail Rule to Use Regex Edit Tool**
     *   **Description**: Modify the on-edit-tool-fail.mdc rule to include the use of the new regex-based edit tool as an additional recovery method when standard editing fails. This rule should remain in .mdc format as it's called by the agent and user directly.
     *   **Impacted Rules/Files**:
         *   `.cursor/rules/on-edit-tool-fail.mdc` (modification)
     *   **Dependencies**: Task 27.
-    *   **Validation**: The on-edit-tool-fail rule includes the regex edit tool as a fallback option, the rule logic is updated appropriately, and the tool integration works correctly.
+    *   **Validation**: ✅ The on-edit-tool-fail rule includes the regex edit tool as a fallback option, the rule logic is updated appropriately, and the tool integration works correctly.
 
 ⚪️ **29. Enhance Recall Tool with Long-term Memory**
     *   **Description**: Improve the existing recall tool (if it exists) to include an optional long_term_memory argument for storing critical project information that remains true throughout the project (database formats, passwords, architectural decisions, library changes). This information should be stored in a database and retrieved with each recall call.
