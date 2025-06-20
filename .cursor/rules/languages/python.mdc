@@ -1,0 +1,24 @@
+---
+description: 
+globs: *.py
+alwaysApply: false
+---
+
+# Logging  
+
+- Use logging to clearly identify key locations in your code.  
+- Always use the logger found in `src/utils/logger.py`  
+- Be careful not to put logs in loops that could display too many times  
+- Use logger.debug when trying to solve a specific bug. Remove logger.debug statements once you've resolved the bug and they are no longer useful.  
+
+# Documentation  
+
+- Document your code in English!  
+- Add comments for each block of code  
+- Create Google-format docstrings for all your symbols  
+- Type your arguments  
+
+# General Guidelines  
+
+- Keep it simple, don't over-complicate.  
+- Never use Try-Except blocks: they prevent identifying problems  

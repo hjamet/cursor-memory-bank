@@ -1,0 +1,58 @@
+---
+description: Call this rule to load the objectives and overall context of the project
+globs: 
+alwaysApply: false
+---
+## TLDR
+Load or create project context files to establish the working environment.
+
+## Instructions
+1. **Reading files**: Read existing context files:
+   - `.cursor/memory-bank/context/projectBrief.md`
+   - `.cursor/memory-bank/context/activeContext.md`
+   - `.cursor/memory-bank/context/techContext.md`
+   - `.cursor/memory-bank/userbrief.md` (consult but NEVER modify)
+
+2. **Context initialization**: If absent:
+   - Analyze the structure and objectives of the project
+   - Create the `.cursor/memory-bank/context/` folder if necessary
+   - Initialize missing files with appropriate structure. The expected structures are:
+     - **`projectBrief.md`**: Max 200 lines. Sections: Vision, Objectives (3-7 points), Constraints, Stakeholders, Success Metrics, History and Context (optional).
+     - **`activeContext.md`**: Max 200 lines. Focus on recent (2-4 weeks) and relevant info. Sections: Current Focus, Ongoing Issues, Recent Decisions, Next Steps, Important Notes, Recent Learnings (optional).
+     - **`techContext.md`**: Sections: Development Platform, Console/Shell, Installation and Dependency Management, Technology Stack, Code Conventions, Server Architecture and Deployment, Testing and Quality, Known Issues and Solutions.
+   - Create a `.cursor/memory-bank/userbrief.md` if non-existent
+
+3. **Request reformulation**: Reformulate the user instruction in the project context
+
+4. **Calling the next rule**: Check userbrief.md and call appropriate rule:
+   - If `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment (starting with -), call `consolidate-repo`
+   - Otherwise, call `task-decomposition` to analyze the request
+
+## Specifics
+- Concise but complete files
+- `.cursor/memory-bank/workflow/projectBrief.md`: vision and objectives of the project
+- `.cursor/memory-bank/workflow/activeContext.md`: current state, development and ongoing tasks
+- `.cursor/memory-bank/workflow/techContext.md`: technologies, frameworks and dependencies
+- `.cursor/memory-bank/userbrief.md`: consult but NEVER modify - only the consolidate-repo rule is authorized to modify it
+- ⚠️ IMPORTANT: Limit to the four context files listed in step 1
+
+## Next Rules
+- `consolidate-repo` - If userbrief.md contains unprocessed comments (-)
+- `task-decomposition` - Otherwise, to analyze in detail the user's request
+
+## Example
+
+# Context-loading: 1 - Reading context files
+I begin by reading the four context files to understand the project environment. **(Context-loading: 1 - Reading context files)**
+[...reading projectBrief.md, activeContext.md, techContext.md and userbrief.md files...]
+**(Context-loading: 1 - Reading context files)**
+
+# Context-loading: 3 - Request reformulation
+I reformulate the user's request taking into account the project context. **(Context-loading: 3 - Request reformulation)**
+[...analysis of the user request in the project context...] **(Context-loading: 3 - Request reformulation)**
+
+# Context-loading: 4 - Calling the next rule
+I'm now checking the content of `.cursor/memory-bank/userbrief.md` to determine which rule to call next.
+I've found that `.cursor/memory-bank/userbrief.md` exists and contains at least one unprocessed comment starting with -, so I need to call the consolidate-repo rule. **(Context-loading: 4 - Calling the next rule)**
+
+[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)

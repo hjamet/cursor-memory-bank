@@ -1,0 +1,72 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Memory Bank User Brief Schema",
+    "description": "Schema for user brief management in the Memory Bank system",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "Schema version for compatibility tracking"
+        },
+        "last_id": {
+            "type": "integer",
+            "description": "Last assigned request ID for auto-generation"
+        },
+        "requests": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/request"
+            }
+        }
+    },
+    "required": [
+        "version",
+        "last_id",
+        "requests"
+    ],
+    "definitions": {
+        "request": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "Unique auto-generated request identifier"
+                },
+                "content": {
+                    "type": "string",
+                    "description": "The full content of the user request"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "new",
+                        "in_progress",
+                        "archived"
+                    ],
+                    "description": "Current status of the request"
+                },
+                "created_date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp when request was created"
+                },
+                "updated_date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp when request was last modified"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "A comment added by the agent after processing"
+                }
+            },
+            "required": [
+                "id",
+                "content",
+                "status",
+                "created_date",
+                "updated_date"
+            ]
+        }
+    }
+}

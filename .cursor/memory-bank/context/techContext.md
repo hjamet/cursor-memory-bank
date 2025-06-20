@@ -88,8 +88,8 @@ Le serveur MyMCP (nommé `InternalAsyncTerminal` dans son code) fournit les outi
 
 ### MemoryBank MCP Server (`mcp_MemoryBank_*`)
 Le serveur MemoryBank MCP (nommé `MemoryBank` dans sa configuration) fournit les outils suivants :
-- `read-userbrief`: Lit le fichier userbrief.md et retourne la première requête non traitée ou en cours, plus un nombre configurable d'entrées archivées (défaut: 3). Gère automatiquement le système d'emojis de statut (🆕, ⏳, 📌, 🗄️).
-- `update-userbrief`: Met à jour le statut d'une tâche dans userbrief.md (marquer en cours, archiver, ajouter des commentaires) avec détection automatique de la tâche courante. Supporte les transitions de statut et l'ajout de commentaires.
+- `read-userbrief`: Reads the `userbrief.json` file and returns the current request ('in_progress' or 'new'), plus a configurable number of archived entries.
+- `update-userbrief`: Updates a request's status in `userbrief.json` using its unique ID. Supports status changes and adding comments to a request's history.
 - `create_task`: Crée de nouvelles tâches avec des IDs auto-générés. Supporte tous les paramètres de tâche incluant les dépendances et la validation.
 - `update-task`: Met à jour les tâches existantes par ID avec validation des dépendances et gestion des statuts.
 - `get_next_tasks`: Retourne les tâches disponibles (sans dépendances en attente) avec filtrage et pagination.
@@ -97,7 +97,7 @@ Le serveur MemoryBank MCP (nommé `MemoryBank` dans sa configuration) fournit le
 - `commit`: Pour effectuer des commits Git standardisés. Accepte `emoji`, `type`, `title`, `description`. Utilise CWD auto-détecté. Rapporte le nom du dépôt et les fichiers committés. **MIGRÉ DEPUIS MyMCP SERVER**
 - `read_memory`: **NOUVEAU** - Lit le contenu complet des fichiers de contexte (activeContext, projectBrief, techContext). Retourne le contenu avec métadonnées (statut, chemin, longueur). Validation des noms de fichiers et gestion d'erreur pour fichiers manquants.
 - `edit_memory`: **NOUVEAU** - Remplace complètement le contenu des fichiers de contexte. Prend le nom du fichier de contexte et le nouveau contenu. Crée automatiquement les répertoires si nécessaire. Suit les changements de contenu (longueur originale → nouvelle longueur).
-- `remember`: **NOUVEAU** - Enregistre un souvenir de l'état de l'agent (passé, présent, futur) dans un fichier JSON. Remplace la fonctionnalité de `activeContext.md`. Le fichier de mémoire est limité à 100 entrées et l'outil renvoie les 15 dernières mémoires.
+- `remember`: **NOUVEAU** - Enregistre un souvenir de l'état de l'agent (passé, présent, futur) dans un fichier JSON. Le fichier de mémoire est limité à 100 entrées et l'outil renvoie les 15 dernières mémoires.
 
 ## Problèmes Connus et Solutions MCP
 

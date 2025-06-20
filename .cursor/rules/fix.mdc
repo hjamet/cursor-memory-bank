@@ -1,0 +1,284 @@
+---
+description: Call this rule to analyze and correct test errors via an iterative execution-correction loop
+globs: 
+alwaysApply: false
+---
+## TLDR
+Analyze test errors and fix them through an iterative execution-correction loop until all tests pass or truly complex issues (requiring major refactoring or showing no progress after 3 attempts) are identified and handed over to `task-decomposition`. Retrieve high-level context when needed.
+
+## Instructions
+
+1.  **Error identification**: Analyze and catalog test errors
+    *   Read `.cursor/memory-bank/workflow/tests.md`.
+    *   Parse the header line (e.g., `✅17 ❌2 ℹ️1`) to get overall counts.
+    *   Parse the subsequent lines to establish a precise list of failing tests (lines starting with `❌`) to address, their names, and their error messages/descriptions.
+    *   Write **(Fix: 1 - Error identification completed)** after this step
+
+2.  **Correction loop**: For each failing test, iterate until fixed or handed over
+    *   **2.1 Marking**: Always indicate **(Fix: 2 - Correction loop - [Test name] - Iteration [number])**
+    *   **2.2 Analysis**:
+        *   **(Optional) High-Level Context Retrieval**: Use `codebase_search` targeting the `.cursor_memory` directory with keywords from the error/test to find relevant high-level vision or context notes that might inform the fix.
+        *   Examine files involved in the error and identify the cause. Use `<think></think>` for complex analysis. Don't hesitate either to use the codebase search tool !
+        *   **Consider adding temporary logging** (e.g., `console.log`, `print` statements) directly into the code to understand the flow and variable states leading to the error, especially if:
+            - You are unsure about the fix after initial analysis.
+            - This is the 3rd iteration for this test without clear progress.
+            - The test logic or the code under test seems particularly complex.
+        *   **Remember to remove temporary logs** after the issue is resolved.
+        *   **(Optional) Mysterious Problem Git Log Check**: If the error is proving difficult to diagnose directly after 1-2 iterations, seems like a regression, or points to obscure behavior in external libraries/frameworks (a "mysterious problem"), consider searching the Git history for similar past occurrences or solutions.
+            *   Formulate a relevant grep pattern based on key error messages, function/class names, or library names involved (e.g., "MySpecificError|problematicFunction").
+            *   Use `mcp_MyMCP_execute_command` to run `git log --grep="<pattern>" -i --all-match` (or `--any-match` as appropriate) to search all branches. Add `-p` if you want to see the diffs directly.
+            *   Analyze the output for commits that might shed light on the current issue or offer a solution pattern. If useful information is found, use it to inform the fix. If not, or if the search is inconclusive, proceed with other diagnostic steps.
+        *   **(Optional) Git History Check**: If the error seems like a *regression* (and the above `git log --grep` was not conclusive or used for a different purpose), consider checking Git history for recent changes to related files. Use `mcp_MyMCP_execute_command` with commands like `git log -p <file_path>` or `git diff <commit_hash>^! -- <file_path>` to review changes. If a problematic change is identified, consider using `git restore --source=<commit_hash> <file_path>` or `git checkout <commit_hash> -- <file_path>` to view or restore the previous version (use with caution).
+    *   **2.3 Research**: If needed, use `mcp_brave-search_brave_web_search` to find solutions for specific errors
+    *   **2.4 Implementation**: Make the correction and document the changes
+    *   **2.5 Test**: Execute ONLY the specific test currently being fixed using `mcp_MyMCP_execute_command` (CF section on MyMCP below) (determine the correct command, e.g., `pytest tests/test_module.py::test_function`) and analyze the result:
+        *   If test passes :
+            * **2.5.1 Update tests.md**: If the test passes:
+                *   Read the current content of `.cursor/memory-bank/workflow/tests.md`.
+                *   Parse its header line (e.g., `✅{old_pass_count} ❌{old_fail_count} ℹ️{old_skip_count}`).
+                *   Create a new header line: `✅{old_pass_count + 1} ❌{old_fail_count - 1} ℹ️{old_skip_count}`.
+                *   Filter the list of failing/skipped tests to remove the entry for the test that just passed.
+                *   Re-write `.cursor/memory-bank/workflow/tests.md` with the new header line followed by the updated list of (remaining) failing/skipped tests.
+                *   Write **(Fix: 2 - Correction loop - [Test name] - Implementation [number] completed)** after this step.
+            * **2.5.2 Quick commit**: Call the MCP tool named "Commit".
+              - Use `type` = "fix"
+              - Use `emoji` = ":wrench:"
+              - Construct `title` = "fix([Test name]): Quick fix for [Test name]"
+              - **Construct a `description`** adhering to the verbose markdown format (see "Format for Detailed Commit Description" in `context-update.mdc`). It should at least include:
+                - `### Changes Made`: Specific change made to fix [Test name].
+                - `### Testing Performed`: Confirmation that [Test name] (the specific test being fixed) now passes. Mention the command used if readily available.
+                - `### Observations & Learnings`: (Optional but encouraged) Any brief observation about the fix or cause of the error.
+                - `### Conclusion`: Summary that the fix for [Test name] was successful.
+              - Provide these arguments to the MCP "Commit" tool. It handles staging automatically.
+            * **(Situational) Consider Vision Note**: If the fix reveals a misunderstanding or needed clarification of high-level project goals/vision relevant to the error, consider suggesting the user add a note to `.cursor_memory` or asking for clarification, but do *not* create notes directly in the `fix` rule.
+            * **2.5.3 Continue**: Move to the next failing test in the list and repeat the loop from step 2.1.
+        *   If test fails but shows progress → Continue loop with new iteration for the *same* test.
+        *   If **truly complex correction** (after 3 attempts *without any progress* OR requires *major* refactoring / a completely new implementation approach):
+            *   Mark the test as **(Fix: 2 - Correction loop - [Test name] - Handing over to task-decomposition)**
+            *   Call the `task-decomposition` rule, providing the problem description, context, and the need for a new approach.
+
+3.  **Calling the next rule (only if loop completed without handover)**: Determine the next step based on results *if and only if* step 2.5 did not trigger a handover to `task-decomposition`.
+    *   `<think>`
+        *   **Determine Invocation Context:** How was the `fix` rule invoked?
+        *   Read `.cursor/memory-bank/context/activeContext.md`. Look for sections indicating the source of the problem (e.g., `## Test Execution Failure`, `## Experience Execution Anomaly`, `## User Reported Issue`).
+        *   Set `invoked_by_test_failure = true` if the context clearly indicates this rule was called due to a failed automated test reported in `tests.md` (typically by `test-execution`).
+        *   Set `invoked_by_test_failure = false` if the context indicates the issue came from another source (e.g., `experience-execution` analysis, user input) and likely lacks specific test coverage.
+        *   If context is unclear, default to `invoked_by_test_failure = true` for safety (prioritizing running existing tests).
+        *</think>`
+    *   **Decision Logic:**
+        * IF `invoked_by_test_failure == false`:
+            *   Call `test-implementation`, instructing it to create a test case for the specific behavior/scenario that was just fixed to prevent regression.
+        *   ELSE (i.e., `invoked_by_test_failure == true` or context unclear):
+            *   Assuming all initially identified failing tests were addressed in the loop, call `test-execution` for final verification of the fixes against the existing test suite.
+    *   Write **(Fix: 3 - Calling the next rule)**
+
+## Specifics
+
+-   The `<think></think>` token must be used for each complex correction requiring in-depth analysis
+-   You should examinate the files you know related to the problem but you should also use the codebase search tool in case you are missing something.
+-   For "mysterious problems" or suspected regressions, consider using `git log --grep` or `git log -p` (via `mcp_MyMCP_execute_command`) to check commit history for clues before extensive web searching.
+-   For debugging, consider adding temporary logging (e.g., `console.log` statements) within the code to inspect values and control flow. Remember to remove these logs afterwards.
+-   NEVER execute all tests, but ONLY the specific test you are currently fixing
+-   Running the complete test suite is exclusively the responsibility of the `test-execution` rule
+-   Document ONLY errors related to:
+    *   API changes in libraries
+    *   Non-intuitive framework behaviors
+    *   Updates that modify existing functionalities
+-   CRUCIAL: To avoid losing workflow tracking, ALWAYS indicate the current test and iteration
+
+**VERY IMPORTANT : Using the Advanced MCP Terminal Tools:**
+
+For executing shell commands, ALWAYS USE MyMCP and NEVER USE the terminal tool for better control and monitoring:
+1.  **Launch:** Call the `mcp_execute_command` MCP tool with the `command` to run and an optional `timeout` in seconds. It returns the `pid` and initial output/status after the timeout (default 15s) or command completion, whichever comes first. The command continues running in the background if the MCP timeout is reached. I STRONGLY encourage using short timeouts, even to the point of monitoring command execution with increasingly longer timeouts via `mcp_get_terminal_status`. The idea is to be as efficient as possible and to be able to interrupt commands with minimal issue or in the face of an unusually long wait.
+2.  **Check Status:** Call the `mcp_get_terminal_status` MCP tool with an optional `timeout` in seconds to get the list of all running/completed commands, their `pid`, `status` (`Running`, `Success`, `Failure`, `Stopped`), `exit_code`, and recent output. Providing a `timeout` waits for a status change.
+3.  **Get Output:** Call the `mcp_get_terminal_output` MCP tool with the target `pid` and an optional `lines` count to retrieve the last N lines (default 100) of stdout/stderr for that process.
+4.  **Stop & Cleanup:** Call the `mcp_stop_terminal_command` MCP tool with the target `pid` and an optional `lines` count to terminate a running command, retrieve its final output, and remove it from tracking.
+This workflow allows managing long processes without blocking and retrieving intermediate/final results reliably.
+
+## Next Rules
+-   `consolidate-repo` - If loop completes and unprocessed comments exist
+-   `test-execution` - If loop completes and the fix was for issues identified by existing automated tests.
+-   `test-implementation` - If loop completes and the fix was for issues NOT identified by existing automated tests (to add regression test).
+-   `task-decomposition` - Called directly from step 2.5 for truly complex issues, terminating this rule's execution.
+
+## Example
+
+[...fetching rule `fix`...] # Use your rule-calling tool to call the rule, then apply it.
+
+# Fix: 1 - Error identification
+I begin by reading the tests.md file to understand test errors. **(Fix: 1 - Error identification)**
+[...reading .cursor/memory-bank/workflow/tests.md file, assuming new format, e.g.:
+✅15 ❌3 ℹ️0
+- ❌ TestUserAuthentication.test_login_with_invalid_token: TypeError: Object of type bytes is not JSON serializable - (Evolution: new failure)
+- ❌ TestDataProcessing.test_large_file_processing: MemoryError: Unable to allocate memory for operation - (Evolution: same error)
+- ❌ TestAPIConnection.test_retry_mechanism: AssertionError: Expected 3 retry attempts, got 0 - (Evolution: new regression)
+...]
+
+I've identified the following failing tests from `tests.md`:
+1.  TestUserAuthentication.test_login_with_invalid_token - TypeError: Object of type bytes is not JSON serializable
+2.  TestDataProcessing.test_large_file_processing - MemoryError: Unable to allocate memory for operation
+3.  TestAPIConnection.test_retry_mechanism - AssertionError: Expected 3 retry attempts, got 0
+**(Fix: 1 - Error identification completed)**
+
+# Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1
+**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1)**
+
+## 2.1 Marking
+**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Iteration 1)**
+
+## 2.2 Analysis
+*(Optional) I search for high-level context in `.cursor_memory` related to authentication logic: [...]*
+`codebase_search(query='authentication vision', target_directories=['.cursor/memory'])`
+[...examining authentication code files...]
+*(Optional) As it is a regression, I check the git history for recent changes to related files.*
+[...using mcp_MyMCP_execute_command to check the git history...]
+Ok, I found the commit that introduced the regression, I'll check the old version of the file for comparison.
+[...using mcp_MyMCP_execute_command to checkout the old version of the file...]
+<think>
+The error occurs because we're trying to JSON serialize a bytes object. Decoding to 'utf-8' before serialization should work.
+</think>
+
+## 2.3 Research
+*I search the web for information on JSON serializing bytes objects.*
+`mcp_brave-search_brave_web_search(query='python json serialize bytes error')`
+
+## 2.4 Implementation
+[...modifying the authentication code to decode bytes before JSON serialization...]
+**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Implementation 1 completed)**
+
+## 2.5 Test
+[...determining command for specific test, e.g., `pytest tests/auth_tests.py::TestUserAuthentication::test_login_with_invalid_token`...]
+[...calling `mcp_MyMCP_execute_command` with the specific test command...]
+**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Test execution 1)**
+
+Great! The test now passes.
+
+### 2.5.1 Update tests.md
+I will update `tests.md`. Assuming it was:
+✅15 ❌3 ℹ️0
+- ❌ TestUserAuthentication.test_login_with_invalid_token: TypeError: ...
+- ❌ TestDataProcessing.test_large_file_processing: MemoryError: ...
+- ❌ TestAPIConnection.test_retry_mechanism: AssertionError: ...
+
+It will become:
+✅16 ❌2 ℹ️0
+- ❌ TestDataProcessing.test_large_file_processing: MemoryError: ...
+- ❌ TestAPIConnection.test_retry_mechanism: AssertionError: ...
+
+[...tool call to edit tests.md with the new content...]
+**(Fix: 2 - Correction loop - TestUserAuthentication.test_login_with_invalid_token - Implementation 1 completed)**
+
+### 2.5.2 Quick commit
+[...commit logic...]
+
+*(Situational) The error was simple, no need to reflect on high-level vision.*
+Moving to the next failing test.
+
+# Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1)**
+
+## 2.1 Marking
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Iteration 1)**
+
+## 2.2 Analysis
+[...examining data processing code...]
+This is the second iteration for this `MemoryError`. The initial attempt to use a basic streaming approach didn't fully resolve it. This feels like a more mysterious problem possibly related to how the `LargeFileProcessor` library handles internal buffers, or a subtle interaction with our data format.
+
+**(Optional) Mysterious Problem Git Log Check**
+I will search the git history for commits related to `MemoryError` or `LargeFileProcessor`.
+`mcp_MyMCP_execute_command(command='git log --grep="MemoryError\|LargeFileProcessor" -i --any-match -p')`
+[...analyzing git log output...]
+Ah, commit `abc123ef` mentions a similar `MemoryError` with `LargeFileProcessor` when processing type `XYZ` files and notes a workaround involving pre-setting a configuration option `max_buffer_size`. This might be relevant!
+
+<think>
+Based on the git log, a previous similar `MemoryError` with `LargeFileProcessor` was resolved by configuring `max_buffer_size`. I should try applying that configuration before processing the file.
+</think>
+
+## 2.3 Research
+*No immediate web research needed due to the promising lead from git log.*
+
+## 2.4 Implementation
+[...modifying the data processing code to set `LargeFileProcessor.config.max_buffer_size = 1024` before processing...]
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Implementation 2 completed)**
+
+## 2.5 Test
+[...determining command for specific test, e.g., `pytest tests/data_proc_tests.py::TestDataProcessing::test_large_file_processing`...]
+[...calling `mcp_MyMCP_execute_command` with the specific test command...]
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Test execution 2)**
+
+Success! The test now passes with the `max_buffer_size` configuration.
+
+### 2.5.1 Update tests.md
+I will update `tests.md`. Assuming it was:
+✅16 ❌2 ℹ️0
+- ❌ TestDataProcessing.test_large_file_processing: MemoryError: ...
+- ❌ TestAPIConnection.test_retry_mechanism: AssertionError: ...
+
+It will become:
+✅17 ❌1 ℹ️0
+- ❌ TestAPIConnection.test_retry_mechanism: AssertionError: ...
+
+[...tool call to edit tests.md with the new content...]
+**(Fix: 2 - Correction loop - TestDataProcessing.test_large_file_processing - Implementation 2 completed)**
+
+### 2.5.2 Quick commit
+[...commit logic for the fix to TestDataProcessing.test_large_file_processing...]
+
+Moving to the next failing test.
+
+# Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Iteration 1
+**(Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Iteration 1)**
+
+## 2.1 Marking
+**(Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Iteration 1)**
+
+## 2.2 Analysis
+[...examining API connection code...]
+<think>
+The error seems to be related to the retry mechanism. The initial attempt to use a basic retry mechanism might not be sufficient.
+</think>
+
+## 2.3 Research
+*I search the web for advanced retry mechanisms in APIs.*
+`mcp_brave-search_brave_web_search(query='python advanced retry mechanism API')`
+
+## 2.4 Implementation
+[...modifying the API connection code to implement a more robust retry mechanism...]
+**(Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Implementation 1 completed)**
+
+## 2.5 Test
+[...determining command for specific test, e.g., `pytest tests/api_tests.py::TestAPIConnection::test_retry_mechanism`...]
+[...calling `mcp_MyMCP_execute_command` with the specific test command...]
+**(Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Test execution 1)**
+
+Success! The test now passes with the new retry mechanism.
+
+### 2.5.1 Update tests.md
+I will update `tests.md`. Assuming it was:
+✅17 ❌1 ℹ️0
+- ❌ TestAPIConnection.test_retry_mechanism: AssertionError: ...
+
+It will become:
+✅18 ❌0 ℹ️0
+
+[...tool call to edit tests.md with the new content...]
+**(Fix: 2 - Correction loop - TestAPIConnection.test_retry_mechanism - Implementation 1 completed)**
+
+### 2.5.2 Quick commit
+[...commit logic for the fix to TestAPIConnection.test_retry_mechanism...]
+
+*(Situational) The error was simple, no need to reflect on high-level vision.*
+Moving to the next failing test.
+
+# Fix: 3 - Calling the next rule (Scenario: Fix for non-test issue)
+<think>
+Determine Invocation Context: Reading activeContext.md... Found section '## Experience Execution Anomaly' detailing the issue fixed. This wasn't from tests.md.
+Set invoked_by_test_failure = false.
+</think>
+Decision Logic:
+invoked_by_test_failure is false.
+Calling `test-implementation` to create a regression test for the specific behavior fixed.
+**(Fix: 3 - Calling the next rule)**
+[...calling tool 'fetch_rules' with rule_names=["test-implementation"]...]
+
+

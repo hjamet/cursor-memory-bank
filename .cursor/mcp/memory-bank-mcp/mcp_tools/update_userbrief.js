@@ -1,199 +1,123 @@
 import { z } from 'zod';
-import { readUserbriefLines, parseUserbriefEntries, updateEntryStatus, writeUserbriefLines } from '../lib/userbrief_manager.js';
+import { readUserbriefData, writeUserbriefData } from '../lib/userbrief_manager.js';
 
 // Schema for the update-userbrief tool parameters
 export const updateUserbriefSchema = z.object({
-    action: z.enum(['mark_in_progress', 'mark_archived', 'add_comment']).describe('Action to perform on userbrief entry'),
-    line_number: z.number().min(1).optional().describe('Line number of the entry to update (optional if auto-detecting current request)'),
-    comment: z.string().optional().describe('Comment to add when archiving a task or adding notes'),
-    auto_current: z.boolean().default(true).optional().describe('Automatically find and update the current unprocessed/in-progress request (default: true)')
+    action: z.enum(['mark_in_progress', 'mark_archived', 'add_comment'])
+        .describe('Action to perform on userbrief entry'),
+    id: z.number().optional()
+        .describe('ID of the request to update. If not provided, targets the current active request.'),
+    comment: z.string().optional()
+        .describe('Comment to add to the request history.'),
 });
 
 /**
- * Handles the update-userbrief tool call
- * Can mark entries as in-progress, archived, or add comments
+ * Handles the update-userbrief tool call.
+ * Can mark requests as 'in_progress', 'archived', or add comments.
+ * Targets a request by its unique ID.
  * 
  * @param {Object} params - Tool parameters
- * @param {string} params.action - Action to perform ('mark_in_progress', 'mark_archived', 'add_comment')
- * @param {number} [params.line_number] - Specific line number to update
- * @param {string} [params.comment] - Comment to add
- * @param {boolean} [params.auto_current=true] - Auto-detect current request
- * @returns {Object} Tool response with update status
+ * @param {string} params.action - The action to perform.
+ * @param {number} [params.id] - The ID of the request to update.
+ * @param {string} [params.comment] - A comment to add to the request's history.
+ * @returns {Object} Tool response with update status.
  */
 export async function handleUpdateUserbrief(params) {
     try {
-        const { action, line_number, comment, auto_current = true } = params;
+        const { action, id, comment } = params;
 
-        console.log(`[UpdateUserbrief] Action: ${action}, Line: ${line_number || 'auto'}, Comment: ${comment ? 'yes' : 'no'}`);
+        console.log(`[UpdateUserbrief] Action: ${action}, ID: ${id || 'auto'}, Comment: ${comment ? 'yes' : 'no'}`);
 
-        // Read userbrief file
-        const lines = readUserbriefLines();
-        if (lines.length === 0) {
-            return {
-                content: [{
-                    type: 'text',
-                    text: JSON.stringify({
-                        status: 'error',
-                        message: 'Userbrief file is empty or not found',
-                        action_performed: null
-                    }, null, 2)
-                }]
-            };
+        const userbriefData = readUserbriefData();
+        const requests = userbriefData.requests;
+
+        if (requests.length === 0) {
+            return { content: [{ type: 'text', text: JSON.stringify({ status: 'error', message: 'Userbrief is empty.' }, null, 2) }] };
         }
 
-        // Parse entries to find target
-        const entries = parseUserbriefEntries(lines);
-        let targetEntry = null;
-        let targetLineNumber = line_number;
+        let targetRequest = null;
 
-        // Auto-detect current request if needed
-        if (auto_current && !line_number) {
-            // Find current request (in progress ⏳ takes priority, then first unprocessed 🆕 or -)
-            const inProgressEntry = entries.find(entry => entry.status === 'in_progress');
-            if (inProgressEntry) {
-                targetEntry = inProgressEntry;
-                targetLineNumber = inProgressEntry.line_number;
-            } else {
-                const unprocessedEntry = entries.find(entry =>
-                    entry.status === 'new' || entry.status === 'unprocessed'
-                );
-                if (unprocessedEntry) {
-                    targetEntry = unprocessedEntry;
-                    targetLineNumber = unprocessedEntry.line_number;
-                }
-            }
-        } else if (line_number) {
-            // Find specific entry by line number
-            targetEntry = entries.find(entry => entry.line_number === line_number);
+        if (id) {
+            targetRequest = requests.find(req => req.id === id);
+        } else {
+            // Auto-detect current request: 'in_progress' > 'new'
+            targetRequest = requests.find(req => req.status === 'in_progress') || requests.find(req => req.status === 'new') || null;
         }
 
-        if (!targetEntry || !targetLineNumber) {
-            return {
-                content: [{
-                    type: 'text',
-                    text: JSON.stringify({
-                        status: 'error',
-                        message: auto_current
-                            ? 'No current unprocessed or in-progress request found'
-                            : `No entry found at line ${line_number}`,
-                        action_performed: null
-                    }, null, 2)
-                }]
-            };
+        if (!targetRequest) {
+            const message = id ? `No request found with ID ${id}` : 'No current active request found to update.';
+            return { content: [{ type: 'text', text: JSON.stringify({ status: 'error', message }, null, 2) }] };
         }
 
-        let newStatus = targetEntry.status;
+        const originalStatus = targetRequest.status;
+        let newStatus = originalStatus;
         let actionDescription = '';
-        let success = false;
 
-        // Perform the requested action
+        // Initialize history if it doesn't exist
+        if (!targetRequest.history) {
+            targetRequest.history = [];
+        }
+
+        const historyEntry = {
+            timestamp: new Date().toISOString(),
+            action: action,
+        };
+
         switch (action) {
             case 'mark_in_progress':
                 newStatus = 'in_progress';
-                success = updateEntryStatus(targetLineNumber, newStatus);
-                actionDescription = 'Marked as in progress (⏳)';
+                targetRequest.status = newStatus;
+                actionDescription = 'Marked as in progress.';
                 break;
 
             case 'mark_archived':
                 newStatus = 'archived';
-                success = updateEntryStatus(targetLineNumber, newStatus);
-                actionDescription = 'Marked as archived (🗄️)';
-
-                // Add comment if provided
-                if (success && comment) {
-                    const updatedLines = readUserbriefLines();
-                    const commentLine = `    ${comment}`;
-                    updatedLines.splice(targetLineNumber, 0, commentLine);
-                    writeUserbriefLines(updatedLines);
-                    actionDescription += ` with comment: "${comment}"`;
+                targetRequest.status = newStatus;
+                actionDescription = 'Marked as archived.';
+                if (comment) {
+                    historyEntry.comment = comment;
+                    actionDescription += ` With comment: "${comment}"`;
                 }
                 break;
 
             case 'add_comment':
-                // Add comment without changing status
-                if (comment) {
-                    const updatedLines = readUserbriefLines();
-                    const commentLine = `    ${comment}`;
-                    updatedLines.splice(targetLineNumber, 0, commentLine);
-                    writeUserbriefLines(updatedLines);
-                    success = true;
-                    actionDescription = `Added comment: "${comment}"`;
-                } else {
-                    return {
-                        content: [{
-                            type: 'text',
-                            text: JSON.stringify({
-                                status: 'error',
-                                message: 'Comment text is required for add_comment action',
-                                action_performed: null
-                            }, null, 2)
-                        }]
-                    };
+                if (!comment) {
+                    return { content: [{ type: 'text', text: JSON.stringify({ status: 'error', message: 'Comment text is required for add_comment action.' }, null, 2) }] };
                 }
+                historyEntry.comment = comment;
+                actionDescription = `Added comment: "${comment}"`;
                 break;
 
             default:
-                return {
-                    content: [{
-                        type: 'text',
-                        text: JSON.stringify({
-                            status: 'error',
-                            message: `Unknown action: ${action}`,
-                            action_performed: null
-                        }, null, 2)
-                    }]
-                };
+                return { content: [{ type: 'text', text: JSON.stringify({ status: 'error', message: `Unknown action: ${action}` }, null, 2) }] };
         }
 
-        if (!success && action !== 'add_comment') {
-            return {
-                content: [{
-                    type: 'text',
-                    text: JSON.stringify({
-                        status: 'error',
-                        message: `Failed to update entry status to ${newStatus}`,
-                        action_performed: null
-                    }, null, 2)
-                }]
-            };
-        }
+        targetRequest.history.push(historyEntry);
+        targetRequest.updated_at = new Date().toISOString();
 
-        // Prepare response
+        writeUserbriefData(userbriefData);
+
         const response = {
             status: 'success',
-            message: `Successfully updated userbrief entry`,
+            message: `Successfully updated request #${targetRequest.id}`,
             action_performed: {
                 action: action,
                 description: actionDescription,
-                target_entry: {
-                    line_number: targetLineNumber,
-                    original_status: targetEntry.status,
+                target_request: {
+                    id: targetRequest.id,
+                    original_status: originalStatus,
                     new_status: newStatus,
-                    content_preview: targetEntry.content.substring(0, 100) + (targetEntry.content.length > 100 ? '...' : '')
+                    content_preview: targetRequest.content.substring(0, 100) + (targetRequest.content.length > 100 ? '...' : '')
                 }
             }
         };
 
-        console.log(`[UpdateUserbrief] Success: ${actionDescription} on line ${targetLineNumber}`);
+        console.log(`[UpdateUserbrief] Success: ${actionDescription} on request #${targetRequest.id}`);
 
-        return {
-            content: [{
-                type: 'text',
-                text: JSON.stringify(response, null, 2)
-            }]
-        };
+        return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
 
     } catch (error) {
         console.error('[UpdateUserbrief] Error:', error);
-        return {
-            content: [{
-                type: 'text',
-                text: JSON.stringify({
-                    status: 'error',
-                    message: `Error updating userbrief: ${error.message}`,
-                    action_performed: null
-                }, null, 2)
-            }]
-        };
+        return { content: [{ type: 'text', text: JSON.stringify({ status: 'error', message: `Error updating userbrief: ${error.message}` }, null, 2) }] };
     }
 } 

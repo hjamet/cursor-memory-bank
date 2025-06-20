@@ -55,10 +55,12 @@ server.tool(
 server.tool(
     'update-userbrief',
     {
-        action: z.enum(['mark_in_progress', 'mark_archived', 'add_comment']).describe('Action to perform on userbrief entry'),
-        line_number: z.number().min(1).optional().describe('Line number of the entry to update (optional if auto-detecting current request)'),
-        comment: z.string().optional().describe('Comment to add when archiving a task or adding notes'),
-        auto_current: z.boolean().default(true).optional().describe('Automatically find and update the current unprocessed/in-progress request (default: true)')
+        action: z.enum(['mark_in_progress', 'mark_archived', 'add_comment'])
+            .describe('Action to perform on userbrief entry'),
+        id: z.number().optional()
+            .describe('ID of the request to update. If not provided, targets the current active request.'),
+        comment: z.string().optional()
+            .describe('Comment to add to the request history.'),
     },
     handleUpdateUserbrief
 );

@@ -14,7 +14,6 @@ To create a robust and autonomous AI agent within Cursor that leverages a persis
 ## Constraints
 -   Operate within the Cursor extension environment.
 -   Rely on available tools and APIs provided by Cursor.
--   Markdown files as the primary medium for memory and rule definitions.
 
 ## Stakeholders
 -   User (hjamet)
@@ -31,4 +30,5 @@ This project involves building and refining an autonomous agent system. Recent e
 - Agent ability to provide feedback on its work by commenting on archived tasks in `userbrief.md` (Task 8).
 - Enhancement of the `fix.mdc` rule to include a `git log --grep` search capability for mysterious problems, improving diagnostic abilities (Task 9).
 - Optimization of the testing logic in the rule system to prioritize manual execution via `experience-execution` over systematic automated test creation, reducing complexity and execution time while maintaining code quality (Task 10).
-- Simplification of the workflow rules by merging `request-analysis` functionality into `task-decomposition` and streamlining `implementation.mdc` decision logic, reducing complexity while maintaining all essential functionality (Task 11). 
+- Simplification of the workflow rules by merging `request-analysis` functionality into `task-decomposition` and streamlining `implementation.mdc` decision logic, reducing complexity while maintaining all essential functionality (Task 11).
+- Refactoring of the userbrief management system from a line-based Markdown file to a structured JSON file (`userbrief.json`), improving robustness and enabling ID-based tracking of requests (Task 30). 
