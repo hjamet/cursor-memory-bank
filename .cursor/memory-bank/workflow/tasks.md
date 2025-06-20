@@ -63,3 +63,30 @@
                 *   `.cursor/memory-bank/userbrief.md`
             *   **Dependencies**: 30.6.
             *   **Validation**: The old markdown file is successfully deleted.
+
+---
+
+🟢 **31. Finalize Userbrief Refactoring in Workflow Rules**
+    *   **Description**: The userbrief system has been partially refactored to use `userbrief.json`, but the core workflow rules (`consolidate-repo`, `task-decomposition`) still interact directly with `userbrief.md`. This task is to complete the migration by refactoring these rules to use the `read-userbrief` and `update-userbrief` MCP tools instead. This will centralize userbrief logic and remove the dependency on the markdown file from the rules.
+    *   **Impacted Rules/Files**:
+        *   `.cursor/rules/consolidate-repo.mdc`
+        *   `.cursor/rules/task-decomposition.mdc`
+        *   `.cursor/memory-bank/userbrief.md` (for archival, then deletion)
+    *   **Dependencies**: Task 30.
+    *   **Validation**: The `consolidate-repo` and `task-decomposition` rules no longer read or write to `userbrief.md`. They use the MCP tools to manage user requests. The workflow for processing user requests functions correctly with the new JSON-based system.
+    *   **Sub-Tasks**:
+        *   🟢 **31.1. Refactor consolidate-repo.mdc**
+            *   **Description**: Modify the `consolidate-repo.mdc` rule. Replace all direct `read_file` and `edit_file` operations on `userbrief.md` with calls to the `read-userbrief` and `update-userbrief` MCP tools. The rule should now fetch the current request via the tool, and if a new request is found, it should use the `update-userbrief` tool to mark it as `in_progress`.
+            *   **Impacted Rules/Files**: `.cursor/rules/consolidate-repo.mdc`
+            *   **Dependencies**: 31.
+            *   **Validation**: The rule successfully identifies and marks a new user request as "in_progress" using only MCP tools.
+        *   🟢 **31.2. Refactor task-decomposition.mdc**
+            *   **Description**: Modify the `task-decomposition.mdc` rule. In steps 5 and 8, replace the direct file interactions with `userbrief.md` with calls to the MCP tools. Step 5 should use `read-userbrief` to get the `in_progress` task. Step 8 should use `update-userbrief` with the 'mark_archived' action to archive the request after it has been decomposed into `tasks.md`.
+            *   **Impacted Rules/Files**: `.cursor/rules/task-decomposition.mdc`
+            *   **Dependencies**: 31.
+            *   **Validation**: The rule successfully fetches an in-progress request, creates tasks, and archives the request in `userbrief.json` using only MCP tools.
+        *   🟢 **31.3. Cleanup userbrief.md**
+            *   **Description**: Once the rules are refactored and tested, and all remaining items from `userbrief.md` have been migrated or processed, delete the `.cursor/memory-bank/userbrief.md` file.
+            *   **Impacted Rules/Files**: `.cursor/memory-bank/userbrief.md`
+            *   **Dependencies**: 31.1, 31.2.
+            *   **Validation**: The `userbrief.md` file is deleted.
