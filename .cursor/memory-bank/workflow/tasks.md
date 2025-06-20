@@ -148,13 +148,13 @@
     *   **Dependencies**: Tasks 22, 23, 24, 25.
     *   **Validation**: ✅ MCP-based workflow system is functional, remember tool provides workflow state, next_rule tool provides rule instructions, .md rule files are accessible to MCP server, and state management works correctly.
 
-⚪️ **27. Add Regex-Based Edit Tool to MyMCP Server**
+🟢 **27. Add Regex-Based Edit Tool to MyMCP Server**
     *   **Description**: Add a new editing tool to the MyMCP server that takes a file path, regex pattern, and replacement text, replacing only the first occurrence of the pattern. The tool should return an error if no pattern is found, and return the replacement zone plus 15 lines before and after on success. This tool should only be used when the standard edit_file tool fails.
     *   **Impacted Rules/Files**:
         *   `.cursor/mcp/mcp-commit-server/mcp_tools/regex_edit.js` (new tool)
         *   `.cursor/mcp/mcp-commit-server/server.js` (tool registration)
     *   **Dependencies**: None.
-    *   **Validation**: The regex edit tool functions correctly, handles pattern matching and replacement accurately, provides appropriate error messages, and returns the correct context around replacements.
+    *   **Validation**: ✅ The regex edit tool functions correctly, handles pattern matching and replacement accurately, provides appropriate error messages, and returns the correct context around replacements.
 
 ⚪️ **28. Update on-edit-tool-fail Rule to Use Regex Edit Tool**
     *   **Description**: Modify the on-edit-tool-fail.mdc rule to include the use of the new regex-based edit tool as an additional recovery method when standard editing fails. This rule should remain in .mdc format as it's called by the agent and user directly.
