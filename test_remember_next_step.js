@@ -8,13 +8,18 @@
 import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import fs from 'fs';
+import assert from 'assert';
+import { McpClient } from '@modelcontextprotocol/sdk';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio';
+import { fork } from 'child_process';
+import { promises as fs } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Path to the MCP server
 const serverPath = path.join(__dirname, '.cursor', 'mcp', 'memory-bank-mcp', 'server.js');
+const workflowDir = path.join(__dirname, '.cursor', 'workflow');
 
 console.log('🧪 Testing remember and next_rule MCP tools (full validation)...\n');
 
@@ -63,7 +68,8 @@ async function sendToolRequest(toolName, params) {
                 }
 
                 if (toolResponse.error) {
-                    reject(new Error(`Tool error: ${JSON.stringify(toolResponse.error)}`));
+                    // Correctly reject the promise if the tool returns an error
+                    reject(new Error(`Tool error: ${JSON.stringify(toolResponse.error.data || toolResponse.error.message)}`));
                     return;
                 }
 
@@ -252,26 +258,25 @@ async function testNextRuleTool() {
  * Test edge cases and error handling
  */
 async function testEdgeCases() {
-    console.log('🔍 Testing edge cases...');
-
+    console.log('\n🔍 Testing edge cases...');
     let passed = 0;
     let total = 0;
 
-    // Test next_rule with non-existent rule
+    // Test: next_rule should fail with a non-existent rule
     total++;
     try {
-        await sendToolRequest('next_rule', { rule_name: 'non_existent_rule' });
-        console.log('   ⚠️  next_rule should have failed with non-existent rule');
+        await sendToolRequest('next_rule', { rule_name: 'non_existent_rule_12345' });
+        console.log('   ❌ next_rule should have failed with non-existent rule');
     } catch (error) {
-        if (error.message.includes('not found')) {
-            console.log('   ✅ next_rule correctly handles non-existent rule');
+        if (error.message.includes('Rule file not found')) {
+            console.log('   ✅ next_rule correctly failed with non-existent rule');
             passed++;
         } else {
-            console.log('   ❌ next_rule failed with unexpected error:', error.message);
+            console.log('   ❌ next_rule failed for an unexpected reason:', error.message);
         }
     }
 
-    // Test remember with minimal parameters (no long_term_memory)
+    // Test: remember tool with minimal parameters (no long_term_memory)
     total++;
     try {
         const result = await sendToolRequest('remember', {
@@ -298,48 +303,89 @@ async function testEdgeCases() {
  * Run all tests
  */
 async function runTests() {
-    console.log('🚀 Starting comprehensive MCP tool validation...\n');
+    console.log('🧪 Testing remember and next_rule MCP tools (full validation)...\n');
+    let coreFunctionalityPassed = 0;
+    const coreFunctionalityTotal = 2;
 
-    const results = [];
+    const rememberResult = await testRememberTool();
+    if (rememberResult) coreFunctionalityPassed++;
 
-    // Test remember tool
-    results.push(await testRememberTool());
-    console.log('');
+    const nextRuleResult = await testNextRuleTool();
+    if (nextRuleResult) coreFunctionalityPassed++;
 
-    // Test next_rule tool
-    results.push(await testNextRuleTool());
-    console.log('');
+    const { passed: edgeCasesPassed, total: edgeCasesTotal } = await testEdgeCases();
 
-    // Test edge cases
-    const edgeResults = await testEdgeCases();
-    console.log('');
+    const totalPassed = coreFunctionalityPassed + edgeCasesPassed;
+    const totalTests = coreFunctionalityTotal + edgeCasesTotal;
 
-    // Summary
-    const mainPassed = results.filter(r => r).length;
-    const mainTotal = results.length;
-    const totalPassed = mainPassed + edgeResults.passed;
-    const totalTests = mainTotal + edgeResults.total;
-
-    console.log('📊 Comprehensive Test Results:');
-    console.log(`   Core functionality: ${mainPassed}/${mainTotal}`);
-    console.log(`   Edge cases: ${edgeResults.passed}/${edgeResults.total}`);
+    console.log('\n📊 Comprehensive Test Results:');
+    console.log(`   Core functionality: ${coreFunctionalityPassed}/${coreFunctionalityTotal}`);
+    console.log(`   Edge cases: ${edgeCasesPassed}/${edgeCasesTotal}`);
     console.log(`   Overall: ${totalPassed}/${totalTests}`);
 
-    if (totalPassed === totalTests) {
-        console.log('🎉 ALL TESTS PASSED! Tools are fully functional.');
-        console.log('   ✅ Parameter acceptance');
-        console.log('   ✅ Response structure');
-        console.log('   ✅ Business logic');
-        console.log('   ✅ Error handling');
-        process.exit(0);
-    } else {
+    if (totalPassed < totalTests) {
         console.log('💥 Some tests failed. Issues detected.');
         process.exit(1);
+    } else {
+        console.log('🎉 All tests passed successfully!');
+        process.exit(0);
     }
 }
 
-// Run the tests
-runTests().catch(error => {
-    console.error('💥 Test runner failed:', error.message);
-    process.exit(1);
-}); 
+async function runTest() {
+    console.log('Starting test: New Remember -> Next Step Workflow');
+
+    // Ensure dummy step file exists
+    const dummyStepFile = path.join(workflowDir, 'implementation.md');
+    await fs.mkdir(workflowDir, { recursive: true });
+    await fs.writeFile(dummyStepFile, 'This is the implementation step.');
+
+    const serverProcess = fork(serverPath, [], { stdio: 'pipe' });
+
+    const transport = new StdioClientTransport(serverProcess);
+    const client = new McpClient({
+        transport,
+        // debug: true,
+    });
+
+    try {
+        await client.connect();
+        console.log('Client connected to server.');
+
+        // 1. Call remember to get possible next steps
+        console.log("Calling 'remember'...");
+        const rememberResult = await client.tool('mcp_MemoryBank_remember', {
+            past: "planning to test",
+            present: "testing now",
+            future: "verifying result"
+        });
+        console.log("'remember' result:", rememberResult);
+
+        assert(rememberResult.possible_next_steps, "Result from 'remember' should have a 'possible_next_steps' property.");
+        assert(Array.isArray(rememberResult.possible_next_steps), "'possible_next_steps' should be an array.");
+        assert(rememberResult.possible_next_steps.length > 0, "'possible_next_steps' array should not be empty.");
+
+        const nextStepName = rememberResult.possible_next_steps[0];
+        console.log(`Chose '${nextStepName}' as the next step.`);
+
+        // 2. Call next_step with the suggested step
+        console.log(`Calling 'next_step' with argument: ${nextStepName}`);
+        const nextStepResult = await client.tool('mcp_MemoryBank_next_step', { step_name: nextStepName });
+        console.log("'next_step' result:", nextStepResult);
+
+        assert.strictEqual(nextStepResult.step_name, nextStepName, "The returned step name should match the requested one.");
+        assert(nextStepResult.instructions, "The result should include instructions for the step.");
+
+        console.log('--- Test Suite Completed Successfully ---');
+    } catch (error) {
+        console.error('Test failed:', error);
+        process.exit(1);
+    } finally {
+        await client.disconnect();
+        serverProcess.kill();
+        // Clean up dummy file
+        await fs.unlink(dummyStepFile).catch(() => { });
+    }
+}
+
+runTest(); 

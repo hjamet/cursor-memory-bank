@@ -1,12 +1,12 @@
 ---
 description: Call this rule to understand and initialize Cursor's autonomous agent system.
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 --- REGLE SYSTEM ---
 
 ## TLDR
-You are Cursor, an AI agent using the Memory Bank, a contextual storage system that maintains continuity between sessions via an organized file structure. You operate **autonomously**, loading and managing project context as part of your core workflow.
+This is the main step defining the state machine and global functioning. It describes the agent's core components and autonomous execution principles. It is the entry point for understanding the entire workflow.
 
 ## File Structure
 
@@ -41,35 +41,35 @@ Example: "I will now read [...] **(Implementation: 2 - Context retrieval)**"
 
 ## AUTONOMOUS EXECUTION
 
-- **Continuous Flow**: The agent operates autonomously. Upon completing the instructions of a rule, it **immediately** fetches and begins executing the next designated rule without pausing for user confirmation.
-- **No Pauses**: Do NOT stop or wait for user input between rules unless a rule explicitly requires it for decision-making.
-- **User Interruption**: The user can interrupt the autonomous workflow at any point by sending a message. Address the user's message and then resume the workflow, potentially using the `workflow-perdu` rule if context is lost.
+- **Continuous Flow**: The agent operates autonomously. Upon completing the instructions of a step, it **immediately** fetches and begins executing the next designated step without pausing for user confirmation.
+- **No Pauses**: Do NOT stop or wait for user input between steps unless a step explicitly requires it for decision-making.
+- **User Interruption**: The user can interrupt the autonomous workflow at any point by sending a message. Address the user's message and then resume the workflow, potentially using the `workflow-perdu` step if context is lost.
 
 ## ⚠️ STARTUP AND FINALIZATION ⚠️
 
-- MANDATORY: Always start by loading project context, unless the last executed rule was `workflow-perdu`. This means executing the steps below from "Context Loading and Initialization".
+- MANDATORY: Always start by loading project context, unless the last executed step was `workflow-perdu`. This means executing the steps below from "Context Loading and Initialization".
 - For each new user message that interrupts the flow, restart the workflow appropriately, often starting with "Context Loading and Initialization" or `task-decomposition` depending on the message content.
-- The workflow is only completed when the `context-update` rule confirms that all tasks are completed and all tests validated.
+- The workflow is only completed when the `context-update` step confirms that all tasks are completed and all tests validated.
 
-## Calling the next rule
+## Calling the next step
 
-Call the `next_rule` tool to determine and execute the next step in the workflow.
+Call the `next_step` tool to determine and execute the next step in the workflow.
 
 ## Absolute Rule
 
-Follow the workflow STRICTLY. Execute rules sequentially and autonomously. Never anticipate steps beyond the current rule's instructions before completing them.
+Follow the workflow STRICTLY. Execute steps sequentially and autonomously. Never anticipate actions beyond the current step's instructions before completing them.
 
-## Next Rules
+## Next Steps
 - `consolidate-repo` - If userbrief.md contains unprocessed comments (-) from Context Loading and Initialization
 - `task-decomposition` - Otherwise, to analyze in detail the user's request from Context Loading and Initialization
 
 ## Example (Illustrating Continuous Flow)
 
-# Context-update: 6 - Calling the next rule
-I now need to call the implementation rule because there are still tasks to do.
-The implementation rule must be called to continue work on the remaining tasks. **(Context-update: 6 - Calling the next rule)**
+# Context-update: 6 - Calling the next step
+I now need to call the implementation step because there are still tasks to do.
+The implementation step must be called to continue work on the remaining tasks. **(Context-update: 6 - Calling the next step)**
 
-[...Here, the agent calls the rule 'implementation' using its rule calling tool...]
+[...Here, the agent calls the step 'implementation' using its step calling tool...]
 
 # Implementation: 1 - Task analysis
 I begin by reading the tasks.md file to identify the highest priority section. **(Implementation: 1 - Task analysis)**
@@ -79,4 +79,4 @@ I begin by reading the tasks.md file to identify the highest priority section. *
 # Implementation: 2 - Active context update
 I will update the active context... **(Implementation: 2 - Active context update)**
 
-[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
+[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following step, then the next, etc., without ever stopping -> It is completely autonomous.)

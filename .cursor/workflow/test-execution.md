@@ -1,5 +1,5 @@
 ---
-description: Call this rule to execute unit tests and analyze the results
+description: Call this step to execute unit tests and analyze the results
 globs: 
 alwaysApply: false
 ---
@@ -27,7 +27,7 @@ Execute unit tests, analyze results and document successes and failures in `.cur
      - Append a line following the format: `- [❌/ℹ️] [Test Name]: [Failure/Skip Reason] - (Evolution: [note change from previous state if known])`.
    - Ensure the file adheres strictly to the **tests.md: New Format Definition** section above.
 
-4. **Call next rule**
+4. **Call next step**
    - If at least one test improved without any regression → `context-update`
    - If no significant change → `context-update`
    - Otherwise, if at least one test regressed → `fix`
@@ -35,7 +35,7 @@ Execute unit tests, analyze results and document successes and failures in `.cur
 ## Specifics
 
 - Execute all available tests, not just new ones
-- Do not attempt to fix errors (that's the role of the `fix` rule)
+- Do not attempt to fix errors (that's the role of the `fix` step)
 - An "improvement" means a previously failing test now passes or a warning is resolved
 - A "regression" means a previously successful test now fails or generates a warning
 - To avoid losing the workflow, systematically write **(Test-execution - [number].[Name] in progress...)** between each step
@@ -50,74 +50,46 @@ The `.cursor/memory-bank/workflow/tests.md` file is now section-less and follows
     *   Example: `✅17 ❌2 ℹ️1`
     *   This line provides an at-a-glance summary of all tests executed.
 
-2.  **List of Failing/Skipped Tests (Optional, only if fails/skips > 0)**:
-    *   If there are failing (❌) or skipped (ℹ️) tests, they are listed below the header line.
-    *   **Successful tests (✅) are NOT listed individually.**
-    *   Each failing/skipped test item starts with its emoji, followed by its name, a colon, a detailed description of the failure (or reason for skipping), and optionally, progress notes or evolution since the last run.
-    *   Format for each item:
-        *   `- ❌ [Test Name]: [Detailed explanation of the failure, including error messages if concise] - (Evolution: [e.g., new failure, same error, regression from ✅])`
-        *   `- ℹ️ [Test Name]: [Reason for skipping] - (Evolution: [e.g., still skipped, newly skipped])`
-    *   Example:
-        ```markdown
-        ✅17 ❌2 ℹ️1
-        - ❌ TestUserAuthentication.test_login_with_invalid_token: TypeError: Object of type bytes is not JSON serializable - (Evolution: new failure)
-        - ❌ TestAPIConnection.test_retry_mechanism: AssertionError: Expected 3 retry attempts, got 0 - (Evolution: same error as last run)
-        - ℹ️ TestDataProcessing.test_large_file_processing_new_dataset: Skipped due to missing large dataset file - (Evolution: still skipped)
-        ```
+2.  **Failing/Skipped Test Lines (Optional, one per test)**:
+    *   `- [❌/ℹ️] [Test Name]: [Failure/Skip Reason] - (Evolution: [note])`
+    *   `[Test Name]` is the full, unique identifier of the test.
+    *   `[Failure/Skip Reason]` is the relevant error message or skip reason.
+    *   `(Evolution: [note])` is a mandatory parenthesized note indicating the change from the last run. Examples:
+        *   `(Evolution: new failure)`
+        *   `(Evolution: same error)`
+        *   `(Evolution: new regression)`
+        *   `(Evolution: still skipped)`
+        *   `(Evolution: error changed)`
 
-**Key Principles (adapted from former `tests-template.mdc`):**
-*   **Clarity**: Precise descriptions for failures/skips.
-*   **Emojis**: Use ✅, ❌, ℹ️ consistently.
-*   **Evolution**: Optionally note if the status is an improvement, regression, or unchanged for failing/skipped tests.
-*   **Detail for Failures**: Include concise error messages if helpful.
-*   **Conciseness**: The file should be kept brief by only detailing problematic tests.
+- **Only** failing (❌) or skipped (ℹ️) tests are listed. Passed tests (✅) are only represented in the header count.
 
-## **Using the Advanced MCP Terminal Tools:**
-
-For executing shell commands (including tests), prefer the advanced MCP terminal tools for better control and monitoring:
-1.  **Launch:** Call the `mcp_MyMCP_execute_command` MCP tool with the `command` to run and an optional `timeout` in seconds. It returns the `pid` and initial output/status after the timeout (default 15s) or command completion, whichever comes first. The command continues running in the background if the MCP timeout is reached.
-2.  **Check Status:** Call the `mcp_MyMCP_get_terminal_status` MCP tool with an optional `timeout` in seconds to get the list of all running/completed commands, their `pid`, `status` (`Running`, `Success`, `Failure`, `Stopped`), `exit_code`, and recent output. Providing a `timeout` waits for a status change.
-3.  **Get Output:** Call the `mcp_MyMCP_get_terminal_output` MCP tool with the target `pid` and an optional `lines` count to retrieve the last N lines (default 100) of stdout/stderr for that process.
-4.  **Stop & Cleanup:** Call the `mcp_MyMCP_stop_terminal_command` MCP tool with the target `pids` (array) and an optional `lines` count to terminate running commands, retrieve their final output, and remove them from tracking.
-This workflow allows managing long processes without blocking and retrieving intermediate/final results reliably.
-
-- Never skip calling the next rule
-
-## Next Rules
-- `fix` - If at least one test regressed
-- `context-update` - If at least one test improved or no significant change (and no regression)
+## Next Steps
+- `fix` - if test regressions are detected
+- `context-update` - if no regressions or no significant changes
+- `implementation` - should not be called directly, `context-update` will handle this.
 
 ## Example
 
 # Test-execution: 1 - Test execution
-I begin by executing the unit tests using the MCP tools. **(Test-execution: 1 - Test execution)**
-[...determining test command, e.g., "npm test"...]
-[...calling `mcp_MyMCP_execute_command` with command="npm test", timeout=180...]
-[...checking result exit_code and stderr/stdout...]
+I will execute the main test suite to validate the latest changes. **(Test-execution: 1 - Test execution)**
+[...calling `mcp_MyMCP_execute_command` with `npm test`...]
+**(Test-execution - 1.npm_test in progress...)**
+[...analysis of test results from stdout/stderr...]
 **(Test-execution: 1 - Test execution)**
 
 # Test-execution: 2 - Results analysis
-I compare the results with previous tests. I read the old `tests.md` (if it exists) to see if TestA, TestB, TestC had different statuses. **(Test-execution: 2 - Results analysis)**
-[...reading old tests.md file... Assume TestA was ✅, TestB was ❌ (same error), TestC was ℹ️ (same reason).
-**(Test-execution - 2.Comparison in progress...)**
-[...results comparison: TestA regressed. TestB same. TestC same.
+I will now compare the results with the previous test run. **(Test-execution: 2 - Results analysis)**
+[...reading old tests.md...]
+[...comparison logic...]
 **(Test-execution: 2 - Results analysis)**
 
 # Test-execution: 3 - Results documentation
-I update the tests.md file with new results, following the new format. **(Test-execution: 3 - Results documentation)**
-```json
-// ... tool_code: print(default_api.edit_file(target_file=".cursor/memory-bank/workflow/tests.md", code_edit=\'\'\'
-✅17 ❌2 ℹ️1
-- ❌ TestA: Null Pointer - (Evolution: regression from ✅)
-- ❌ TestB: Timeout - (Evolution: same error)
-- ℹ️ TestC: Manual skip - (Evolution: still skipped)
-\'\'\', instructions="Update tests.md with current results in new format.")) ...
-```
+I will now document the results in the `tests.md` file using the new format. **(Test-execution: 3 - Results documentation)**
+[...writing to tests.md...]
 **(Test-execution: 3 - Results documentation)**
 
-# Test-execution: 4 - Call next rule
-I must now call the appropriate rule based on test results. **(Test-execution: 4 - Call next rule)**
-[...analysis of improvements and regressions...]
-I note that [description of test status changes]. I will therefore call the [fix/context-update] rule because we have two tests that have progressed and no regression. **(Test-execution: 4 - Call next rule)**
+# Test-execution: 4 - Call next step
+Based on the results, one test has regressed. I must now call the `fix` step.
+The `fix` step must be called to address the test regression. **(Test-execution: 4 - Call next step)**
 
-[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
+[...] (The workflow must continue uninterrupted)

@@ -1,10 +1,10 @@
 ---
-description: Call this rule to update context files and commit the changes.
+description: Call this step to update context files and commit the changes.
 globs: 
 alwaysApply: false
 ---
 ## TLDR
-Analyzes the provided context, updates context files, manages task statuses, and makes a commit following conventions.
+Analyzes the provided context, updates context files, manages task statuses, and makes a commit following conventions. This step does not create any result files.
 
 ## Instructions
 1. **Analyze available context**: 
@@ -24,23 +24,23 @@ Analyzes the provided context, updates context files, manages task statuses, and
    - Determine the appropriate `emoji`, `type`, and `title`.
    - Construct a detailed `description`.
 
-6. **Call the next rule**: Mandatory call to `next_rule`.
+6. **Call the next step**: Mandatory call to `next_step`.
 
 ## Specifics
-- This rule now operates on the assumption that all necessary context is provided by the MCP server at runtime, removing the need for direct file reads.
+- This step now operates on the assumption that all necessary context is provided by the MCP server at runtime, removing the need for direct file reads.
 - The agent's responsibility is to analyze the provided context and formulate the *content* for any required updates.
 - Mark tasks as 🟢 DONE only if all associated tests pass and the work for that task is fully completed.
 - Use conventional commit format by adding an emoji to describe the operation performed
 - Systematically delete old history entries that are no longer relevant
-- NEVER end without either explicitly calling a next rule or explicitly indicating that the workflow is complete
+- NEVER end without either explicitly calling a next step or explicitly indicating that the workflow is complete
 - The workflow must NEVER be considered complete if there are remaining tasks with 🟡 IN_PROGRESS or ⚪️ TODO emojis OR if there is at least one failing test (marked ❌) or with warning (marked ⚠️)
 - For the commit, use the `mcp_MemoryBank_commit` tool, which handles staging automatically.
 - If all tasks are complete (meaning there are NO MORE tasks with 🟡 IN_PROGRESS or ⚪️ TODO emojis in the `tasks.md` file) AND all tests pass (ALL marked ✅), then:
    - Present a clear and concise synthesis of the work done
    - Summarize implemented features and resolved issues
    - Explicitly indicate that the workflow is successfully completed
-   - Explicitly state: "The workflow is complete, no next rule to call."
-- If the workflow is not complete, call the appropriate next rule
+   - Explicitly state: "The workflow is complete, no next step to call."
+- If the workflow is not complete, call the appropriate next step
 
 ## Format for Detailed Commit Description
 The `description` argument for the `mcp_MemoryBank_commit` tool must be a detailed markdown-formatted string. It serves as a comprehensive record of the work performed. Structure it like a mini-article with the following sections:
@@ -69,7 +69,7 @@ The `description` argument for the `mcp_MemoryBank_commit` tool must be a detail
 *   Example:
     *   Observed that the `calculateValue` optimization also reduced memory usage by 10%.
     *   Encountered an issue with library X's compatibility, requiring a workaround (describe briefly).
-    *   Learned about a new API feature in Y that could be useful for future tasks.
+    *   Learned about a new API feature in Y that could be useful for future steps.
 
 ### Conclusion
 *   Provide an overall summary of the work completed and its outcome.
@@ -93,7 +93,7 @@ The `description` argument for the `mcp_MemoryBank_commit` tool must be a detail
 - :construction_worker: `ci`: Changes to CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)
 - :rewind: `revert`: Reverts a previous commit
 
-## Next Rules
+## Next Steps
 - `consolidate-repo` - If file structure problems are detected or unprocessed comments exist in userbrief.md
 - `fix` - If at least one test fails
 - `implementation` - If at least one task is still in progress or to do and no test fails
@@ -134,9 +134,9 @@ To construct the commit message, I will synthesize information from the provided
 [...calling tool `mcp_MemoryBank_commit`...]\
 **(Context-update: 6 - Making a commit)**
 
-# Context-update: 7 - Calling the next rule
-I now check the provided context (tests, tasks, userbrief) to determine which rule to call. **(Context-update: 7 - Calling the next rule)**
+# Context-update: 7 - Calling the next step
+I now check the provided context (tests, tasks, userbrief) to determine which step to call. **(Context-update: 7 - Calling the next step)**
 [...analyzing provided context...]
-I see there are tasks with 🟡 or ⚪️ emojis and all tests pass. I will therefore call the `implementation` rule. **(Context-update: 7 - Calling the next rule)**
+I see there are tasks with 🟡 or ⚪️ emojis and all tests pass. I will therefore call the `implementation` step. **(Context-update: 7 - Calling the next step)**
 
-[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following rule, then the next, etc., without ever stopping -> It is completely autonomous.)
+[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following step, then the next, etc., without ever stopping -> It is completely autonomous.)

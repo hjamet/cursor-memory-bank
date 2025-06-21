@@ -3,12 +3,40 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { readUserbrief } from '../lib/userbrief_manager.js';
+import { readTasks } from '../lib/task_manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const memoryFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'agent_memory.json');
 const longTermMemoryFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'long_term_memory.json');
 const MAX_MEMORIES = 100;
+
+async function getPossibleNextSteps() {
+    try {
+        const userbrief = await readUserbrief();
+        if (userbrief && userbrief.requests && userbrief.requests.some(r => r.status === 'new' || r.status === 'in_progress')) {
+            return ['task-decomposition'];
+        }
+
+        const tasks = await readTasks();
+        if (tasks && tasks.some(t => t.status === 'TODO' || t.status === 'IN_PROGRESS')) {
+            return ['implementation'];
+        }
+
+        // Default when no work is pending
+        return ['context-update', 'system'];
+
+    } catch (error) {
+        // This can happen on first run if no context files exist.
+        // In this case, the only valid next step is to start the process.
+        if (error.code === 'ENOENT') {
+            return ['START'];
+        }
+        console.error(`Error determining next steps: ${error.message}`);
+        // Fallback to a safe default
+        return ['system'];
+    }
+}
 
 async function remember(args) {
     const { past, present, future, long_term_memory } = args;
@@ -43,7 +71,7 @@ async function remember(args) {
             pinnedItems = userbriefData.requests.filter(req => req.status === 'preference');
         }
     } catch (error) {
-        console.warn(`[Remember] Could not read pinned items from userbrief: ${error.message}`);
+        // console.warn(`[Remember] Could not read pinned items from userbrief: ${error.message}`);
         // Do not throw; failing to read userbrief should not stop the remember tool.
     }
 
@@ -80,11 +108,12 @@ async function remember(args) {
 
     const recentMemories = memories.slice(-15);
     const lastMemory = memories[memories.length - 1];
+    const possible_next_steps = await getPossibleNextSteps();
 
     return {
         message: "Memory successfully recorded.",
         current_state: lastMemory ? lastMemory.future : "No current state.",
-        possible_next_rules: [], // To be implemented by the next_rule tool
+        possible_next_steps: possible_next_steps,
         user_preferences: pinnedItems.map(item => item.content),
         long_term_memory: longTermMemoryContent,
         recent_memories: recentMemories,
