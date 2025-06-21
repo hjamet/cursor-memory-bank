@@ -1,17 +1,16 @@
 #!/usr/bin/env node
 
 /**
- * Test script to validate remember and next_rule MCP tools
+ * Test script to validate remember and next_step MCP tools
  * Tests that the tools accept their real parameters AND return correct responses
  */
 
-import { spawn } from 'child_process';
+import { spawn, fork } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import assert from 'assert';
-import { McpClient } from '@modelcontextprotocol/sdk';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio';
-import { fork } from 'child_process';
+// Note: McpClient and StdioClientTransport imports removed due to SDK export issues
+// This test uses spawn to communicate directly with the MCP server via JSON-RPC
 import { promises as fs } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,7 +20,7 @@ const __dirname = path.dirname(__filename);
 const serverPath = path.join(__dirname, '.cursor', 'mcp', 'memory-bank-mcp', 'server.js');
 const workflowDir = path.join(__dirname, '.cursor', 'workflow');
 
-console.log('🧪 Testing remember and next_rule MCP tools (full validation)...\n');
+console.log('🧪 Testing remember and next_step MCP tools (full validation)...\n');
 
 /**
  * Send a tool request to the MCP server and return the parsed response
@@ -145,7 +144,7 @@ async function testRememberTool() {
         }
 
         // Validate response content
-        const expectedFields = ['message', 'current_state', 'possible_next_rules', 'long_term_memory', 'recent_memories'];
+        const expectedFields = ['message', 'current_state', 'possible_next_steps', 'long_term_memory', 'recent_memories'];
         const missingFields = expectedFields.filter(field => !(field in result));
 
         if (missingFields.length > 0) {
@@ -191,17 +190,17 @@ async function testRememberTool() {
 }
 
 /**
- * Test the next_rule tool with real parameters and validate response
+ * Test the next_step tool with real parameters and validate response
  */
-async function testNextRuleTool() {
-    console.log('🔍 Testing next_rule tool...');
+async function testNextStepTool() {
+    console.log('🔍 Testing next_step tool...');
 
     try {
         const params = {
-            rule_name: "system"
+            step_name: "system"
         };
 
-        const result = await sendToolRequest('next_rule', params);
+        const result = await sendToolRequest('next_step', params);
 
         // Validate response structure - result is directly the tool response
         if (!result || typeof result !== 'object') {
@@ -209,12 +208,12 @@ async function testNextRuleTool() {
         }
 
         // Validate response content
-        if (!result.rule_name || !result.instructions) {
-            throw new Error('Missing required fields: rule_name or instructions');
+        if (!result.step_name || !result.instructions) {
+            throw new Error('Missing required fields: step_name or instructions');
         }
 
-        if (result.rule_name !== params.rule_name) {
-            throw new Error(`Rule name mismatch. Expected: "${params.rule_name}", Got: "${result.rule_name}"`);
+        if (result.step_name !== params.step_name) {
+            throw new Error(`Step name mismatch. Expected: "${params.step_name}", Got: "${result.step_name}"`);
         }
 
         // Validate that instructions contain expected content for system rule
@@ -230,9 +229,9 @@ async function testNextRuleTool() {
             throw new Error(`System rule missing expected sections: ${missingContent.join(', ')}`);
         }
 
-        // Check if the rule mentions Memory Bank (specific to system rule)
-        if (!instructions.includes('Memory Bank')) {
-            throw new Error('System rule should mention Memory Bank');
+        // Check if the step mentions memory-bank (specific to system step)
+        if (!instructions.includes('memory-bank')) {
+            throw new Error('System step should mention memory-bank');
         }
 
         // Check if it mentions autonomous execution
@@ -240,15 +239,15 @@ async function testNextRuleTool() {
             throw new Error('System rule should mention autonomous execution');
         }
 
-        console.log('✅ next_rule tool test PASSED');
+        console.log('✅ next_step tool test PASSED');
         console.log('   Parameters accepted:', Object.keys(params).join(', '));
         console.log('   Response structure: Valid');
-        console.log('   Rule content: Complete system rule loaded');
+        console.log('   Step content: Complete system step loaded');
         console.log('   Content length:', instructions.length, 'characters');
         console.log('   Contains expected sections: Yes');
         return true;
     } catch (error) {
-        console.log('❌ next_rule tool test FAILED');
+        console.log('❌ next_step tool test FAILED');
         console.log('   Error:', error.message);
         return false;
     }
@@ -262,17 +261,17 @@ async function testEdgeCases() {
     let passed = 0;
     let total = 0;
 
-    // Test: next_rule should fail with a non-existent rule
+    // Test: next_step should fail with a non-existent step
     total++;
     try {
-        await sendToolRequest('next_rule', { rule_name: 'non_existent_rule_12345' });
-        console.log('   ❌ next_rule should have failed with non-existent rule');
+        await sendToolRequest('next_step', { step_name: 'non_existent_step_12345' });
+        console.log('   ❌ next_step should have failed with non-existent step');
     } catch (error) {
-        if (error.message.includes('Rule file not found')) {
-            console.log('   ✅ next_rule correctly failed with non-existent rule');
+        if (error.message.includes('Step file not found')) {
+            console.log('   ✅ next_step correctly failed with non-existent step');
             passed++;
         } else {
-            console.log('   ❌ next_rule failed for an unexpected reason:', error.message);
+            console.log('   ❌ next_step failed for an unexpected reason:', error.message);
         }
     }
 
@@ -303,15 +302,15 @@ async function testEdgeCases() {
  * Run all tests
  */
 async function runTests() {
-    console.log('🧪 Testing remember and next_rule MCP tools (full validation)...\n');
+    console.log('🧪 Testing remember and next_step MCP tools (full validation)...\n');
     let coreFunctionalityPassed = 0;
     const coreFunctionalityTotal = 2;
 
     const rememberResult = await testRememberTool();
     if (rememberResult) coreFunctionalityPassed++;
 
-    const nextRuleResult = await testNextRuleTool();
-    if (nextRuleResult) coreFunctionalityPassed++;
+    const nextStepResult = await testNextStepTool();
+    if (nextStepResult) coreFunctionalityPassed++;
 
     const { passed: edgeCasesPassed, total: edgeCasesTotal } = await testEdgeCases();
 
@@ -388,4 +387,4 @@ async function runTest() {
     }
 }
 
-runTest(); 
+runTests(); 

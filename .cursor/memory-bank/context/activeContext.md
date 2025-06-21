@@ -62,3 +62,25 @@ I am starting the implementation of a major workflow refactoring. The goal is to
 5.  **Testing**: Update all tests to match the new workflow.
 
 I will proceed by implementing the sub-tasks of #42 in order, starting with 42.1.
+
+## Current Status
+The agent has been working on refactoring the MCP workflow system (task #42) to replace "rules" with "steps" and improve tool stability. Several sub-tasks have been completed or are in progress, with some blocked due to tooling issues.
+
+## Lost workflow
+The user has just restarted the MCP server and requested testing and fixing any remaining issues. I was in the middle of implementing task #42 (comprehensive workflow refactoring) which involved:
+
+- Renaming `next_rule` to `next_step` tool ✅ COMPLETED
+- Updating `remember` tool to suggest next steps ✅ COMPLETED  
+- Updating workflow files to use "step" terminology (PARTIALLY DONE)
+- Removing results directory creation logic (PENDING)
+- Updating test scripts (IN PROGRESS - renamed file, need to test)
+- Enforcing mcp_MyMCP_* tools usage (PENDING)
+
+Files recently modified:
+- `.cursor/mcp/memory-bank-mcp/mcp_tools/next_step.js` (renamed from next_rule.js)
+- `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js` (updated logic)
+- `.cursor/mcp/memory-bank-mcp/server.js` (updated tool registration)
+- `test_remember_next_step.js` (renamed and updated)
+- Various workflow markdown files (partially updated)
+
+The user wants me to test the restarted server and fix any remaining issues with the new MCP workflow system.
