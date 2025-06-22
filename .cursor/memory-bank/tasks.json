@@ -1,25 +1,3 @@
 {
-  "tasks": [
-    {
-      "id": 5,
-      "title": "Error Handling System",
-      "short_description": "Implement comprehensive error handling across the application",
-      "detailed_description": "Create a centralized error handling system that captures, logs, and responds to errors appropriately across all application layers.",
-      "status": "TODO",
-      "priority": 3,
-      "validation_criteria": "All errors are properly caught, logged, and user-friendly error messages are displayed.",
-      "impacted_files": [
-        "src/utils/errorHandler.js",
-        "src/middleware/errorMiddleware.js",
-        "src/services/logger.js"
-      ],
-      "dependencies": [
-        1,
-        2
-      ],
-      "parent_id": null,
-      "created_at": "2024-01-14T16:00:00Z",
-      "updated_at": "2025-06-22T22:54:30.910096"
-    }
-  ]
+  "tasks": []
 }

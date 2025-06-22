@@ -1,24 +1,3 @@
 {
-    "memories": [
-        {
-            "content": "When implementing authentication, always hash passwords using bcrypt with a salt rounds of at least 12 for security. Never store plain text passwords in the database.",
-            "timestamp": "2024-01-15T10:30:00Z",
-            "embedding": null
-        },
-        {
-            "content": "The user prefers TypeScript over JavaScript for better type safety. All new code should be written in TypeScript when possible.",
-            "timestamp": "2024-01-14T16:45:00Z",
-            "embedding": null
-        },
-        {
-            "content": "Database migrations should always be reversible. Include both up and down migration scripts to ensure we can rollback changes if needed.",
-            "timestamp": "2024-01-12T09:20:00Z",
-            "embedding": null
-        },
-        {
-            "content": "API endpoints should follow RESTful conventions. Use proper HTTP status codes: 200 for success, 201 for creation, 400 for client errors, 500 for server errors.",
-            "timestamp": "2024-01-10T14:15:00Z",
-            "embedding": null
-        }
-    ]
+  "memories": []
 }

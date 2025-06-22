@@ -98,76 +98,127 @@ memory_paths = {
 # Tabs for different memory types
 tab1, tab2, tab3, tab4 = st.tabs(["📝 Requêtes", "🧠 Long-term Memory", "📋 Project Brief", "⚙️ Tech Context"])
 
-# Tab 1: User Preferences
+# Tab 1: Requêtes (All userbrief entries)
 with tab1:
-    st.header("📌 User Preferences")
-    st.markdown("Manage your personal preferences that should be remembered throughout the project.")
+    st.header("📝 Gestion des Requêtes")
+    st.markdown("Gérez tous les éléments du userbrief : requêtes actives, préférences et archives.")
     
     userbrief_content = load_text_file(memory_paths['userbrief'])
-    preferences = parse_userbrief(userbrief_content) if userbrief_content else []
     
-    if preferences:
-        st.subheader(f"Current Preferences ({len(preferences)})")
+    if userbrief_content:
+        # Parse all userbrief entries
+        lines = userbrief_content.split('\n')
+        active_requests = []
+        preferences = []
+        archived_entries = []
         
-        # Display and edit preferences
-        updated_preferences = []
-        for i, pref in enumerate(preferences):
-            with st.expander(f"Preference #{i+1}", expanded=False):
-                col1, col2 = st.columns([4, 1])
-                
-                with col1:
-                    # Edit preference text
-                    new_text = st.text_area(
-                        f"Preference Text:",
-                        value=pref['text'],
-                        key=f"pref_edit_{i}",
-                        height=100
-                    )
-                    
-                    if new_text.strip():
-                        updated_preferences.append({
-                            'id': pref['id'],
-                            'text': new_text.strip(),
-                            'line_number': pref['line_number']
+        for i, line in enumerate(lines):
+            line = line.strip()
+            if line and not line.startswith('#'):
+                if line.startswith('🗄️'):
+                    # Active request
+                    if ' - ' in line:
+                        text = line.split(' - ', 1)[1]
+                        active_requests.append({
+                            'line_number': i,
+                            'text': text,
+                            'full_line': line,
+                            'type': 'active'
                         })
-                
-                with col2:
-                    st.markdown("**Actions:**")
-                    if st.button(f"🗑️ Delete", key=f"pref_delete_{i}", help="Delete this preference"):
-                        # Don't add to updated_preferences (effectively deletes it)
-                        st.success(f"Preference #{i+1} will be deleted when you save changes.")
+                elif line.startswith('📌'):
+                    # Preference
+                    if ' - ' in line:
+                        text = line.split(' - ', 1)[1]
+                        preferences.append({
+                            'line_number': i,
+                            'text': text,
+                            'full_line': line,
+                            'type': 'preference'
+                        })
+                elif line.startswith('🧠'):
+                    # Archived
+                    if ' - ' in line:
+                        text = line.split(' - ', 1)[1]
+                        archived_entries.append({
+                            'line_number': i,
+                            'text': text,
+                            'full_line': line,
+                            'type': 'archived'
+                        })
         
-        # Auto-save preferences when modified
-        if updated_preferences != preferences:
-            updated_content = update_userbrief_preferences(userbrief_content, updated_preferences)
-            if save_text_file(memory_paths['userbrief'], updated_content):
-                st.success("✅ Preferences updated automatically!")
-                st.rerun()
+        # Display statistics
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("🗄️ Requêtes Actives", len(active_requests))
+        with col2:
+            st.metric("📌 Préférences", len(preferences))
+        with col3:
+            st.metric("🧠 Archives", len(archived_entries))
+        
+        st.markdown("---")
+        
+        # Active Requests Section
+        if active_requests:
+            st.subheader(f"🗄️ Requêtes Actives ({len(active_requests)})")
+            for i, entry in enumerate(active_requests):
+                with st.expander(f"Requête #{i+1}", expanded=False):
+                    col1, col2 = st.columns([4, 1])
+                    
+                    with col1:
+                        st.write(entry['text'])
+                    
+                    with col2:
+                        if st.button(f"🗑️", key=f"active_delete_{i}", help="Supprimer cette requête"):
+                            # Remove entry and auto-save
+                            updated_lines = [line for line in lines if line.strip() != entry['full_line']]
+                            updated_content = '\n'.join(updated_lines)
+                            if save_text_file(memory_paths['userbrief'], updated_content):
+                                st.success("Requête supprimée!")
+                                st.rerun()
+        
+        # Preferences Section
+        if preferences:
+            st.subheader(f"📌 Préférences ({len(preferences)})")
+            for i, entry in enumerate(preferences):
+                with st.expander(f"Préférence #{i+1}", expanded=False):
+                    col1, col2 = st.columns([4, 1])
+                    
+                    with col1:
+                        st.write(entry['text'])
+                    
+                    with col2:
+                        if st.button(f"🗑️", key=f"pref_delete_{i}", help="Supprimer cette préférence"):
+                            # Remove entry and auto-save
+                            updated_lines = [line for line in lines if line.strip() != entry['full_line']]
+                            updated_content = '\n'.join(updated_lines)
+                            if save_text_file(memory_paths['userbrief'], updated_content):
+                                st.success("Préférence supprimée!")
+                                st.rerun()
+        
+        # Archived Section
+        if archived_entries:
+            st.subheader(f"🧠 Archives ({len(archived_entries)})")
+            for i, entry in enumerate(archived_entries):
+                with st.expander(f"Archive #{i+1}", expanded=False):
+                    col1, col2 = st.columns([4, 1])
+                    
+                    with col1:
+                        st.write(entry['text'])
+                    
+                    with col2:
+                        if st.button(f"🗑️", key=f"archive_delete_{i}", help="Supprimer cette archive"):
+                            # Remove entry and auto-save
+                            updated_lines = [line for line in lines if line.strip() != entry['full_line']]
+                            updated_content = '\n'.join(updated_lines)
+                            if save_text_file(memory_paths['userbrief'], updated_content):
+                                st.success("Archive supprimée!")
+                                st.rerun()
+        
+        if not (active_requests or preferences or archived_entries):
+            st.info("Aucune entrée trouvée dans le userbrief.")
     
     else:
-        st.info("No preferences found.")
-    
-    # Add new preference
-    st.subheader("➕ Add New Preference")
-    with st.form("add_preference_form"):
-        new_pref_text = st.text_area(
-            "New Preference:",
-            height=100,
-            placeholder="Describe a preference you want to remember throughout the project...",
-            help="This will be added to your userbrief as a pinned preference."
-        )
-        
-        if st.form_submit_button("➕ Add Preference"):
-            if new_pref_text.strip():
-                # Add to userbrief
-                new_entry = f"📌 - {new_pref_text.strip()}\n"
-                updated_content = (userbrief_content + "\n" + new_entry).strip()
-                
-                if save_text_file(memory_paths['userbrief'], updated_content):
-                    st.success("✅ New preference added!")
-                    st.rerun()
-            else:
-                st.error("Please enter a preference text.")
+        st.warning("Fichier userbrief non trouvé.")
 
 # Tab 2: Long-term Memory
 with tab2:
@@ -322,61 +373,7 @@ with tab4:
             line_count = len(tech_context_content.split('\n'))
             st.metric("Lines", line_count)
 
-# Tab 5: Archives
-with tab5:
-    st.header("🗄️ Request Archives")
-    st.markdown("View and manage archived requests from the userbrief.")
-    
-    userbrief_content = load_text_file(memory_paths['userbrief'])
-    
-    if userbrief_content:
-        # Parse archived entries
-        lines = userbrief_content.split('\n')
-        archived_entries = []
-        
-        for i, line in enumerate(lines):
-            line = line.strip()
-            if line and line.startswith('🧠'):
-                # Extract archived request text
-                if ' - ' in line:
-                    archived_text = line.split(' - ', 1)[1]
-                    archived_entries.append({
-                        'line_number': i,
-                        'text': archived_text,
-                        'full_line': line
-                    })
-        
-        if archived_entries:
-            st.subheader(f"Archived Requests ({len(archived_entries)})")
-            
-            # Display archived entries with delete option
-            for i, entry in enumerate(archived_entries):
-                with st.expander(f"Archive #{i+1}", expanded=False):
-                    col1, col2 = st.columns([4, 1])
-                    
-                    with col1:
-                        st.markdown("**Content:**")
-                        st.write(entry['text'])
-                    
-                    with col2:
-                        st.markdown("**Actions:**")
-                        if st.button(f"🗑️ Delete", key=f"archive_delete_{i}", help="Delete this archived request"):
-                            # Remove the archived entry and auto-save
-                            lines = userbrief_content.split('\n')
-                            # Find and remove the line
-                            updated_lines = []
-                            for line in lines:
-                                if line.strip() != entry['full_line']:
-                                    updated_lines.append(line)
-                            
-                            updated_content = '\n'.join(updated_lines)
-                            if save_text_file(memory_paths['userbrief'], updated_content):
-                                st.success("Archive deleted automatically!")
-                                st.rerun()
-        else:
-            st.info("No archived requests found.")
-    else:
-        st.warning("No userbrief file found.")
+
 
 # Sidebar: Memory Overview
 st.sidebar.markdown("---")

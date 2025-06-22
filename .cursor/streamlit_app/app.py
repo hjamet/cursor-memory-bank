@@ -158,17 +158,6 @@ st.header("📋 Current Workflow Step")
 current_step = get_current_workflow_step()
 if current_step != "Unknown":
     st.success(f"**Active Step:** {current_step}")
-    
-    # Try to read the step file content
-    step_file_path = Path(f'.cursor/workflow-steps/{current_step}.md')
-    if step_file_path.exists():
-        with st.expander("View Step Details"):
-            try:
-                with open(step_file_path, 'r', encoding='utf-8') as f:
-                    step_content = f.read()
-                    st.markdown(step_content)
-            except Exception as e:
-                st.error(f"Error reading step file: {e}")
 else:
     st.warning("No active workflow step detected")
 
@@ -182,12 +171,10 @@ with col1:
     latest_memory = get_latest_memory()
     if latest_memory:
         st.success("✅ Active")
-        with st.expander("View Latest Memory"):
-            if isinstance(latest_memory, dict):
-                for key, value in latest_memory.items():
-                    st.write(f"**{key.title()}:** {value}")
-            else:
-                st.write(latest_memory)
+        if isinstance(latest_memory, dict):
+            st.write(f"**File:** {latest_memory.get('file', 'Unknown')}")
+            st.write(f"**Type:** {latest_memory.get('type', 'Unknown')}")
+            st.write(f"**Last Modified:** {latest_memory.get('last_modified', 'Unknown')}")
     else:
         st.warning("No recent memory found")
 
@@ -233,66 +220,107 @@ if userbrief_status:
     with col5:
         st.metric("User Preferences", len(userbrief_status['preferences']))
     
+    # Show recent items directly without expanders
     if userbrief_status['active_requests']:
-        with st.expander("Active Requests"):
-            for req in userbrief_status['active_requests'][:3]:  # Show first 3
-                st.write(f"• {req[:100]}..." if len(req) > 100 else f"• {req}")
-            if len(userbrief_status['active_requests']) > 3:
-                st.caption(f"... and {len(userbrief_status['active_requests']) - 3} more")
+        st.subheader("🗄️ Recent Active Requests")
+        for req in userbrief_status['active_requests'][:3]:  # Show first 3
+            st.write(f"• {req[:100]}..." if len(req) > 100 else f"• {req}")
+        if len(userbrief_status['active_requests']) > 3:
+            st.caption(f"... and {len(userbrief_status['active_requests']) - 3} more")
     
     if userbrief_status['preferences']:
-        with st.expander("User Preferences"):
-            for pref in userbrief_status['preferences'][:3]:  # Show first 3
-                st.write(f"• {pref[:100]}..." if len(pref) > 100 else f"• {pref}")
-            if len(userbrief_status['preferences']) > 3:
-                st.caption(f"... and {len(userbrief_status['preferences']) - 3} more")
+        st.subheader("📌 Recent User Preferences")
+        for pref in userbrief_status['preferences'][:3]:  # Show first 3
+            st.write(f"• {pref[:100]}..." if len(pref) > 100 else f"• {pref}")
+        if len(userbrief_status['preferences']) > 3:
+            st.caption(f"... and {len(userbrief_status['preferences']) - 3} more")
 else:
     st.warning("No userbrief found or empty")
 
-# Display Task Status Summary
+# Display Task Status Summary with Progress Bar
 st.header("✅ Current Tasks")
 
 task_status = get_task_status()
 if task_status:
-    col6, col7, col8 = st.columns(3)
+    # Progress bar with colored segments
+    total = task_status['total']
+    done = task_status['by_status'].get('DONE', 0)
+    in_progress = task_status['by_status'].get('IN_PROGRESS', 0)
+    review = task_status['by_status'].get('REVIEW', 0)
+    blocked = task_status['by_status'].get('BLOCKED', 0)
+    todo = task_status['by_status'].get('TODO', 0)
     
-    with col6:
-        st.metric("Total Tasks", task_status['total'])
+    # Calculate percentages
+    done_pct = (done / total) * 100 if total > 0 else 0
+    in_progress_pct = (in_progress / total) * 100 if total > 0 else 0
+    review_pct = (review / total) * 100 if total > 0 else 0
+    blocked_pct = (blocked / total) * 100 if total > 0 else 0
+    todo_pct = (todo / total) * 100 if total > 0 else 0
     
-    with col7:
-        completed = task_status['by_status'].get('DONE', 0)
-        completion_rate = (completed / task_status['total'] * 100) if task_status['total'] > 0 else 0
-        st.metric("Completion Rate", f"{completion_rate:.1f}%")
+    # Create progress bar with HTML and CSS
+    progress_html = f"""
+    <div style="width: 100%; background-color: #f0f0f0; border-radius: 10px; overflow: hidden; margin: 20px 0;">
+        <div style="display: flex; height: 30px;">
+            <div style="width: {done_pct}%; background-color: #28a745; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                {"✅" if done > 0 else ""}
+            </div>
+            <div style="width: {in_progress_pct}%; background-color: #007bff; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                {"🔄" if in_progress > 0 else ""}
+            </div>
+            <div style="width: {review_pct}%; background-color: #ffc107; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold;">
+                {"👀" if review > 0 else ""}
+            </div>
+            <div style="width: {blocked_pct}%; background-color: #dc3545; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                {"🚫" if blocked > 0 else ""}
+            </div>
+            <div style="width: {todo_pct}%; background-color: #6c757d; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                {"⏳" if todo > 0 else ""}
+            </div>
+        </div>
+    </div>
+    """
     
-    with col8:
-        in_progress = task_status['by_status'].get('IN_PROGRESS', 0)
-        st.metric("In Progress", in_progress)
+    st.markdown(progress_html, unsafe_allow_html=True)
     
-    # Status breakdown
-    if task_status['by_status']:
-        with st.expander("Task Status Breakdown"):
-            for status, count in task_status['by_status'].items():
-                emoji = {
-                    'TODO': '⏳',
-                    'IN_PROGRESS': '🔄',
-                    'DONE': '✅',
-                    'BLOCKED': '🚫',
-                    'REVIEW': '👀'
-                }.get(status, '📝')
-                st.write(f"{emoji} **{status}**: {count} tasks")
+    # Legend
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        st.metric("✅ Done", f"{done} ({done_pct:.1f}%)")
+    with col2:
+        st.metric("🔄 In Progress", f"{in_progress} ({in_progress_pct:.1f}%)")
+    with col3:
+        st.metric("👀 Review", f"{review} ({review_pct:.1f}%)")
+    with col4:
+        st.metric("🚫 Blocked", f"{blocked} ({blocked_pct:.1f}%)")
+    with col5:
+        st.metric("⏳ TODO", f"{todo} ({todo_pct:.1f}%)")
     
-    # Recent tasks
+    st.markdown("---")
+    
+    # Status breakdown - direct display without expander
+    st.subheader("📊 Task Status Breakdown")
+    for status, count in task_status['by_status'].items():
+        emoji = {
+            'TODO': '⏳',
+            'IN_PROGRESS': '🔄',
+            'DONE': '✅',
+            'BLOCKED': '🚫',
+            'REVIEW': '👀'
+        }.get(status, '📝')
+        st.write(f"{emoji} **{status}**: {count} tasks")
+    
+    # Recent tasks - direct display without expander
     if task_status['recent_tasks']:
-        with st.expander("Recent Tasks"):
-            for task in task_status['recent_tasks']:
-                status_emoji = {
-                    'TODO': '⏳',
-                    'IN_PROGRESS': '🔄',
-                    'DONE': '✅',
-                    'BLOCKED': '🚫',
-                    'REVIEW': '👀'
-                }.get(task.get('status', 'TODO'), '📝')
-                st.write(f"{status_emoji} **#{task.get('id', 'N/A')}** - {task.get('title', 'Untitled')}")
+        st.subheader("📋 Recent Tasks")
+        for task in task_status['recent_tasks']:
+            status_emoji = {
+                'TODO': '⏳',
+                'IN_PROGRESS': '🔄',
+                'DONE': '✅',
+                'BLOCKED': '🚫',
+                'REVIEW': '👀'
+            }.get(task.get('status', 'TODO'), '📝')
+            st.write(f"{status_emoji} **#{task.get('id', 'N/A')}** - {task.get('title', 'Untitled')}")
 else:
     st.info("No tasks found. Tasks will appear here once created through the workflow system.")
 

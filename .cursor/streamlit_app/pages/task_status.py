@@ -242,11 +242,13 @@ if tasks_file and tasks_file.exists():
                             
                             # Action buttons
                             st.markdown("---")
-                            button_col1, button_col2, button_col3, button_col4 = st.columns(4)
+                            st.markdown("**🔧 Actions:**")
+                            
+                            # Status change buttons
+                            button_col1, button_col2, button_col3, button_col4, button_col5 = st.columns(5)
                             
                             with button_col1:
                                 if st.button(f"⏳ TODO", key=f"todo_{task_id}", help="Reset to TODO"):
-                                    # Update task status to TODO
                                     if update_task_status(task_id, "TODO"):
                                         st.success(f"Task #{task_id} reset to TODO!")
                                         st.rerun()
@@ -258,16 +260,29 @@ if tasks_file and tasks_file.exists():
                                         st.rerun()
                             
                             with button_col3:
+                                if st.button(f"👀 Review", key=f"review_{task_id}", help="Mark for Review"):
+                                    if update_task_status(task_id, "REVIEW"):
+                                        st.warning(f"Task #{task_id} marked for Review!")
+                                        st.rerun()
+                            
+                            with button_col4:
+                                if st.button(f"🚫 Block", key=f"block_{task_id}", help="Mark as Blocked"):
+                                    if update_task_status(task_id, "BLOCKED"):
+                                        st.error(f"Task #{task_id} marked as Blocked!")
+                                        st.rerun()
+                            
+                            with button_col5:
                                 if st.button(f"✅ Complete", key=f"complete_{task_id}", help="Mark as Done"):
                                     if update_task_status(task_id, "DONE"):
                                         st.success(f"Task #{task_id} marked as Complete!")
                                         st.rerun()
                             
-                            with button_col4:
-                                if st.button(f"🗑️ Delete", key=f"delete_{task_id}", help="Delete this task"):
-                                    if delete_task(task_id):
-                                        st.success(f"Task #{task_id} deleted!")
-                                        st.rerun()
+                            # Delete button on separate row for safety
+                            st.markdown("---")
+                            if st.button(f"🗑️ Delete Task #{task_id}", key=f"delete_{task_id}", help="Permanently delete this task"):
+                                if delete_task(task_id):
+                                    st.success(f"Task #{task_id} deleted!")
+                                    st.rerun()
         else:
             st.info("No tasks found in the system.")
             st.markdown("Tasks will appear here once they are created through the workflow system.")
