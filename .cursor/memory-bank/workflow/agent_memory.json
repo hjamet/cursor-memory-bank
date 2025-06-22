@@ -316,5 +316,17 @@
     "past": "L'utilisateur a signalé deux problèmes : 1) La barre de progression des tâches avait encore des soucis d'affichage, 2) Le tableau des souvenirs n'était pas très lisible et il souhaitait le séparer en sections",
     "present": "J'ai corrigé les deux problèmes : 1) Remplacé la barre de progression HTML personnalisée par des barres de progression natives Streamlit avec métriques individuelles pour chaque statut, 2) Complètement refait l'affichage des souvenirs avec des expandeurs séparés pour chaque mémoire, des onglets pour organiser le contenu (Past/Present/Future/Long Term), et une section de résumé. L'interface est maintenant beaucoup plus claire et lisible",
     "future": "L'interface utilisateur est maintenant améliorée avec un affichage plus clair et plus fonctionnel. Je vais continuer à surveiller les retours utilisateur pour d'autres améliorations potentielles"
+  },
+  {
+    "timestamp": "2025-06-22T21:52:38.237Z",
+    "past": "J'ai testé systématiquement toutes les étapes du workflow (start-workflow, task-decomposition, implementation, fix, context-update, experience-execution) et les outils MCP associés",
+    "present": "J'ai identifié plusieurs problèmes dans les instructions des étapes du workflow qui nécessitent des corrections pour être cohérents avec les nouveaux outils MCP. Tous les outils MCP fonctionnent correctement mais les instructions font encore référence aux anciens systèmes basés sur des fichiers",
+    "future": "Je vais documenter tous les problèmes identifiés dans les souvenirs à long terme pour que l'utilisateur puisse les consulter et me demander de les résoudre"
+  },
+  {
+    "timestamp": "2025-06-22T21:58:28.511Z",
+    "past": "Je venais de tester systématiquement toutes les étapes du workflow pour identifier les problèmes et améliorations possibles",
+    "present": "J'ai identifié un problème fondamental dans la structure du workflow : les règles ne respectent pas le pattern start-workflow -> next_rule -> exécution -> remember -> next_rule en boucle. Les règles actuelles appellent directement d'autres règles au lieu de terminer par remember qui indique les règles suivantes possibles. Les outils MCP ont aussi des noms incorrects dans plusieurs règles.",
+    "future": "Je vais corriger toutes les règles pour qu'elles respectent le pattern correct : chaque règle doit se terminer par un appel à remember qui stocke les souvenirs et indique les règles suivantes possibles, puis l'agent appelle next_rule pour continuer le workflow en boucle infinie"
   }
 ]
