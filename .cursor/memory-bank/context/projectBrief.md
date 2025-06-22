@@ -1,15 +1,38 @@
 # Project Brief
 
-## Vision
-To create a robust and autonomous AI agent within Cursor that leverages a persistent memory system to manage complex tasks, learn from interactions, and maintain context across sessions.
+## Overview
+This project is a modern web application that provides user authentication, task management, and API services. The application is built with a focus on security, scalability, and maintainability.
 
 ## Objectives
-1.  Define and implement a clear file structure for the agent's memory (Memory Bank).
-2.  Develop a set of extensible rules that govern the agent's behavior and workflow.
-3.  Enable the agent to autonomously manage tasks, track progress, and update its context.
-4.  Facilitate indirect communication between the user and the agent via the Memory Bank files.
-5.  Ensure the agent can understand and modify its own operational rules.
-6.  Maintain a high level of reliability and error recovery in the agent's operations.
+- Create a secure authentication system using JWT tokens
+- Implement a robust task management system
+- Provide RESTful API endpoints for all functionality
+- Ensure high code quality with comprehensive testing
+- Follow best practices for security and performance
+
+## Key Features
+1. **User Authentication**: Registration, login, logout with JWT tokens
+2. **Task Management**: Create, update, delete, and track tasks
+3. **API Documentation**: Comprehensive Swagger/OpenAPI documentation
+4. **Error Handling**: Centralized error handling and logging
+5. **Rate Limiting**: Protection against API abuse
+
+## Technical Requirements
+- Use TypeScript for better type safety
+- Implement proper error handling throughout
+- Follow clean code principles
+- Include comprehensive unit and integration tests
+- Use modern async/await patterns
+
+## Success Criteria
+- All authentication flows work securely
+- Task management is fully functional
+- API documentation is complete and accurate
+- Test coverage is above 80%
+- Application handles errors gracefully
+
+## Vision
+To create a robust and autonomous AI agent within Cursor that leverages a persistent memory system to manage complex tasks, learn from interactions, and maintain context across sessions.
 
 ## Constraints
 -   Operate within the Cursor extension environment.

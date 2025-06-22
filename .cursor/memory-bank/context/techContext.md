@@ -1,5 +1,91 @@
 # Technical Context
 
+## Technology Stack
+
+### Backend
+- **Runtime**: Node.js 18+
+- **Language**: TypeScript 5.0+
+- **Framework**: Express.js
+- **Database**: PostgreSQL 15+
+- **ORM**: Prisma
+- **Authentication**: JWT (jsonwebtoken)
+- **Password Hashing**: bcrypt
+- **Validation**: Joi or Zod
+
+### Frontend
+- **Framework**: React 18+
+- **Language**: TypeScript
+- **State Management**: Redux Toolkit
+- **Styling**: Tailwind CSS
+- **Build Tool**: Vite
+- **Testing**: Jest + React Testing Library
+
+### Development Tools
+- **Linting**: ESLint
+- **Formatting**: Prettier
+- **Version Control**: Git
+- **Package Manager**: npm
+- **API Documentation**: Swagger/OpenAPI
+
+## Architecture Patterns
+
+### Backend Architecture
+- **Pattern**: Layered Architecture (Controller → Service → Repository)
+- **Error Handling**: Centralized error middleware
+- **Logging**: Winston or similar structured logging
+- **Rate Limiting**: express-rate-limit
+- **CORS**: Configured for frontend domain
+
+### Database Design
+- **Schema**: Normalized relational design
+- **Migrations**: Prisma migrations
+- **Indexing**: Proper indexing on frequently queried fields
+- **Constraints**: Foreign key constraints and validation
+
+### Security Considerations
+- **Authentication**: JWT with refresh tokens
+- **Authorization**: Role-based access control (RBAC)
+- **Input Validation**: Validate all inputs
+- **SQL Injection**: Use parameterized queries (Prisma ORM)
+- **XSS Protection**: Sanitize outputs
+- **HTTPS**: Enforce HTTPS in production
+
+## Development Standards
+
+### Code Quality
+- **TypeScript**: Strict mode enabled
+- **ESLint**: Airbnb configuration with TypeScript
+- **Prettier**: Consistent code formatting
+- **Husky**: Pre-commit hooks for linting
+- **Testing**: Minimum 80% code coverage
+
+### API Design
+- **REST**: RESTful API design principles
+- **Versioning**: API versioning strategy (v1, v2, etc.)
+- **Status Codes**: Proper HTTP status codes
+- **Error Responses**: Consistent error response format
+- **Documentation**: OpenAPI/Swagger documentation
+
+### Performance
+- **Caching**: Redis for session storage and caching
+- **Database**: Query optimization and indexing
+- **Pagination**: Implement pagination for large datasets
+- **Compression**: Gzip compression for responses
+
+## Deployment & Infrastructure
+
+### Environment Configuration
+- **Development**: Local development with hot reload
+- **Testing**: Automated testing environment
+- **Staging**: Pre-production environment
+- **Production**: Production environment with monitoring
+
+### CI/CD Pipeline
+- **Source Control**: Git with feature branch workflow
+- **Testing**: Automated tests on every commit
+- **Deployment**: Automated deployment to staging/production
+- **Monitoring**: Application and infrastructure monitoring
+
 **Core Technologies:**
 - Cursor AI Agent
 - Markdown (`.md`, `.mdc` for rules)
