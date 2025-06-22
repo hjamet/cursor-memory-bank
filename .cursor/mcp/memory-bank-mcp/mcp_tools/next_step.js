@@ -2,18 +2,31 @@ import { z } from 'zod';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import nunjucks from 'nunjucks';
+import { readMemoryContext } from '../lib/memory_context.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const workflowDirPath = path.join(__dirname, '..', '..', '..', 'workflow');
+const workflowDirPath = path.join(__dirname, '..', '..', 'workflow-steps');
+
+// Configure nunjucks
+nunjucks.configure(workflowDirPath, { autoescape: false });
 
 async function getStep(step_name) {
     const stepFilePath = path.join(workflowDirPath, `${step_name}.md`);
     try {
-        const data = await fs.readFile(stepFilePath, 'utf8');
+        const templateContent = await fs.readFile(stepFilePath, 'utf8');
+
+        // Get context for template rendering
+        const context = await readMemoryContext();
+
+        // Render template with Jinja2 (nunjucks)
+        const renderedContent = nunjucks.renderString(templateContent, context);
+
         return {
             step_name: step_name,
-            instructions: data,
+            instructions: renderedContent,
+            context: context
         };
     } catch (error) {
         if (error.code === 'ENOENT') {
