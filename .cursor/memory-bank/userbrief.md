@@ -14,6 +14,7 @@
 
 ## User Preferences  
 
+🗄️ - Test
 ## Archived Requests
 🧠 - DONE: Set up the initial project structure and dependencies
 🧠 - DONE: Configure ESLint and Prettier for code formatting
@@ -22,3 +23,5 @@
 📌 - Always use async/await instead of Promises for better readability
 📌 - Follow clean code principles with meaningful variable names
 📌 - Implement proper error handling with try-catch blocks
+🗄️ - Test pour voir
+🗄️ - Autre test

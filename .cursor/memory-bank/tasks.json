@@ -1,99 +1,25 @@
 {
-    "tasks": [
-        {
-            "id": 1,
-            "title": "Implement User Authentication",
-            "short_description": "Add JWT-based authentication system with login/logout functionality",
-            "detailed_description": "Create a complete authentication system using JWT tokens. This includes:\n- User registration and login endpoints\n- Password hashing with bcrypt\n- JWT token generation and validation\n- Protected route middleware\n- Session management",
-            "status": "IN_PROGRESS",
-            "priority": 4,
-            "validation_criteria": "Users can register, login, logout, and access protected routes. Passwords are securely hashed.",
-            "impacted_files": [
-                "src/auth/auth.controller.js",
-                "src/auth/auth.service.js",
-                "src/middleware/auth.middleware.js",
-                "src/models/user.model.js"
-            ],
-            "dependencies": [],
-            "parent_id": null,
-            "created_at": "2024-01-15T10:30:00Z",
-            "updated_at": "2024-01-16T14:22:00Z"
-        },
-        {
-            "id": 2,
-            "title": "Database Schema Design",
-            "short_description": "Design and implement the core database schema for the application",
-            "detailed_description": "Create a comprehensive database schema that supports all application features including users, authentication, and core business logic.",
-            "status": "DONE",
-            "priority": 5,
-            "validation_criteria": "Database schema is created, migrations run successfully, and all tables are properly indexed.",
-            "impacted_files": [
-                "migrations/001_initial_schema.sql",
-                "src/models/index.js"
-            ],
-            "dependencies": [],
-            "parent_id": null,
-            "created_at": "2024-01-10T09:00:00Z",
-            "updated_at": "2024-01-14T16:45:00Z"
-        },
-        {
-            "id": 3,
-            "title": "API Rate Limiting",
-            "short_description": "Implement rate limiting to prevent API abuse",
-            "detailed_description": "Add rate limiting middleware to protect API endpoints from abuse and ensure fair usage across all users.",
-            "status": "TODO",
-            "priority": 2,
-            "validation_criteria": "Rate limiting is active on all public endpoints with appropriate limits and error messages.",
-            "impacted_files": [
-                "src/middleware/rateLimiter.js",
-                "src/config/rateLimits.js"
-            ],
-            "dependencies": [
-                1
-            ],
-            "parent_id": null,
-            "created_at": "2024-01-16T11:20:00Z",
-            "updated_at": "2024-01-16T11:20:00Z"
-        },
-        {
-            "id": 4,
-            "title": "Frontend UI Components",
-            "short_description": "Create reusable UI components for the frontend application",
-            "detailed_description": "Develop a comprehensive set of reusable React components including buttons, forms, modals, and navigation elements following design system principles.",
-            "status": "REVIEW",
-            "priority": 3,
-            "validation_criteria": "All components are documented, tested, and follow the design system guidelines.",
-            "impacted_files": [
-                "src/components/Button.jsx",
-                "src/components/Form.jsx",
-                "src/components/Modal.jsx",
-                "src/components/Navigation.jsx"
-            ],
-            "dependencies": [],
-            "parent_id": null,
-            "created_at": "2024-01-12T14:00:00Z",
-            "updated_at": "2024-01-17T10:30:00Z"
-        },
-        {
-            "id": 5,
-            "title": "Error Handling System",
-            "short_description": "Implement comprehensive error handling across the application",
-            "detailed_description": "Create a centralized error handling system that captures, logs, and responds to errors appropriately across all application layers.",
-            "status": "BLOCKED",
-            "priority": 3,
-            "validation_criteria": "All errors are properly caught, logged, and user-friendly error messages are displayed.",
-            "impacted_files": [
-                "src/utils/errorHandler.js",
-                "src/middleware/errorMiddleware.js",
-                "src/services/logger.js"
-            ],
-            "dependencies": [
-                1,
-                2
-            ],
-            "parent_id": null,
-            "created_at": "2024-01-14T16:00:00Z",
-            "updated_at": "2024-01-16T09:15:00Z"
-        }
-    ]
+  "tasks": [
+    {
+      "id": 5,
+      "title": "Error Handling System",
+      "short_description": "Implement comprehensive error handling across the application",
+      "detailed_description": "Create a centralized error handling system that captures, logs, and responds to errors appropriately across all application layers.",
+      "status": "TODO",
+      "priority": 3,
+      "validation_criteria": "All errors are properly caught, logged, and user-friendly error messages are displayed.",
+      "impacted_files": [
+        "src/utils/errorHandler.js",
+        "src/middleware/errorMiddleware.js",
+        "src/services/logger.js"
+      ],
+      "dependencies": [
+        1,
+        2
+      ],
+      "parent_id": null,
+      "created_at": "2024-01-14T16:00:00Z",
+      "updated_at": "2025-06-22T22:54:30.910096"
+    }
+  ]
 }

@@ -18,7 +18,7 @@ def add_request_to_userbrief(request_text, is_preference=False):
         # Determine emoji based on request type
         emoji = "📌" if is_preference else "🗄️"
         
-        # Format the new entry
+        # Format the new entry (TODO mode, not archived)
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         new_entry = f"{emoji} - {request_text}\n"
         
@@ -28,10 +28,22 @@ def add_request_to_userbrief(request_text, is_preference=False):
             with open(userbrief_file, 'r', encoding='utf-8') as f:
                 existing_content = f.read()
         
-        # Add new entry at the end
-        updated_content = existing_content.rstrip() + "\n" + new_entry
+        # Find the right section to add the request
+        lines = existing_content.split('\n') if existing_content else []
         
-        # Write back to file
+        # Find where to insert the new request (before archived section if it exists)
+        insert_index = len(lines)
+        for i, line in enumerate(lines):
+            if line.strip().startswith('## Archived') or line.strip().startswith('🧠'):
+                insert_index = i
+                break
+        
+        # Insert the new entry
+        lines.insert(insert_index, new_entry.rstrip())
+        
+        # Join back and write
+        updated_content = '\n'.join(lines)
+        
         with open(userbrief_file, 'w', encoding='utf-8') as f:
             f.write(updated_content)
         
@@ -41,40 +53,15 @@ def add_request_to_userbrief(request_text, is_preference=False):
         return False, f"Error adding request: {str(e)}"
 
 # Main form
-st.header("📝 New Request Form")
+st.header("📝 New Request")
 
 with st.form("add_request_form"):
-    st.markdown("### Request Details")
-    
-    # Request type selection
-    request_type = st.radio(
-        "Request Type:",
-        options=["Task Request", "User Preference"],
-        help="Task Request: A specific task or feature to implement. User Preference: A general preference that should be remembered throughout the project."
-    )
-    
-    # Text area for request
+    # Simple text input for request
     request_text = st.text_area(
         "Request Description:",
         height=150,
-        placeholder="Describe your request in detail. Be specific about what you want to accomplish...",
-        help="Provide a clear and detailed description of what you want. For tasks, include specific requirements. For preferences, explain the general approach or style you prefer."
-    )
-    
-    # Additional context (optional)
-    context = st.text_area(
-        "Additional Context (Optional):",
-        height=100,
-        placeholder="Any additional context, constraints, or background information...",
-        help="Optional: Provide any additional context that might help the agent understand and implement your request better."
-    )
-    
-    # Priority selection
-    priority = st.selectbox(
-        "Priority Level:",
-        options=["Normal", "High", "Low"],
-        index=0,
-        help="Priority level for this request. High priority requests may be processed sooner."
+        placeholder="Describe what you want to accomplish...",
+        help="Enter your request. It will be processed automatically by the task-analysis workflow."
     )
     
     # Submit button
@@ -82,35 +69,15 @@ with st.form("add_request_form"):
     
     if submitted:
         if request_text.strip():
-            # Combine request text with additional info
-            full_request = request_text.strip()
-            
-            # Add context if provided
-            if context.strip():
-                full_request += f"\n\nAdditional Context: {context.strip()}"
-            
-            # Add priority if not normal
-            if priority != "Normal":
-                full_request += f"\n\nPriority: {priority}"
-            
-            # Determine if it's a preference
-            is_preference = (request_type == "User Preference")
-            
-            # Add to userbrief
-            success, message = add_request_to_userbrief(full_request, is_preference)
+            # Add to userbrief as unprocessed request (🗄️)
+            success, message = add_request_to_userbrief(request_text.strip(), is_preference=False)
             
             if success:
-                st.success(f"✅ {message}")
+                st.success(f"✅ Request added and will be processed automatically!")
                 st.balloons()
                 
-                # Show what was added
-                with st.expander("View Added Request"):
-                    emoji = "📌" if is_preference else "🗄️"
-                    st.markdown(f"**Type:** {request_type}")
-                    st.markdown(f"**Content:** {emoji} - {full_request}")
-                
                 # Clear form suggestion
-                st.info("💡 You can add another request by filling out the form again.")
+                st.info("💡 Your request will be analyzed and converted to tasks by the workflow system.")
                 
             else:
                 st.error(f"❌ {message}")
@@ -174,25 +141,7 @@ if userbrief_file.exists():
 else:
     st.warning("No userbrief file found. Your first request will create the file.")
 
-# Help section
-with st.expander("💡 Tips for Writing Good Requests"):
-    st.markdown("""
-    **For Task Requests:**
-    - Be specific about what you want to accomplish
-    - Include any technical requirements or constraints
-    - Mention if this relates to existing code or features
-    - Specify expected outcomes or acceptance criteria
-    
-    **For User Preferences:**
-    - Describe general approaches or styles you prefer
-    - Mention coding standards or patterns you like
-    - Include any architectural preferences
-    - Note any tools or technologies you prefer to use
-    
-    **Examples:**
-    - Task: "Implement user authentication with JWT tokens, including login/logout endpoints and password hashing"
-    - Preference: "I prefer using TypeScript over JavaScript for better type safety in all new code"
-    """)
+
 
 # Auto-refresh info
 st.sidebar.markdown("---")

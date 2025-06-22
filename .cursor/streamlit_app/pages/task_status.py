@@ -2,11 +2,109 @@ import streamlit as st
 import json
 import os
 from pathlib import Path
+from datetime import datetime
 
 st.set_page_config(page_title="Task Status", page_icon="✅")
 
 st.markdown("# ✅ Task Status")
 st.sidebar.header("Task Status")
+
+# Helper functions for task management
+def update_task_status(task_id, new_status):
+    """Update a task's status in the tasks file"""
+    # Check multiple possible task file locations
+    task_locations = [
+        Path('.cursor/memory-bank/tasks.json'),
+        Path('.cursor/streamlit_app/tasks.json'),
+        Path('tasks.json')
+    ]
+    
+    for tasks_file in task_locations:
+        if tasks_file.exists():
+            try:
+                with open(tasks_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                # Handle both array format and object format
+                if isinstance(data, list):
+                    tasks = data
+                    data_format = 'array'
+                else:
+                    tasks = data.get('tasks', [])
+                    data_format = 'object'
+                
+                # Find and update the task
+                for task in tasks:
+                    if str(task.get('id', task.get('task_id'))) == str(task_id):
+                        task['status'] = new_status
+                        task['updated_at'] = datetime.now().isoformat()
+                        
+                        # Save back to file
+                        if data_format == 'array':
+                            save_data = tasks
+                        else:
+                            save_data = {'tasks': tasks}
+                        
+                        with open(tasks_file, 'w', encoding='utf-8') as f:
+                            json.dump(save_data, f, indent=2, ensure_ascii=False)
+                        
+                        return True
+                        
+            except Exception as e:
+                st.error(f"Error updating task: {e}")
+                return False
+    
+    st.error("Tasks file not found")
+    return False
+
+def delete_task(task_id):
+    """Delete a task from the tasks file"""
+    # Check multiple possible task file locations
+    task_locations = [
+        Path('.cursor/memory-bank/tasks.json'),
+        Path('.cursor/streamlit_app/tasks.json'),
+        Path('tasks.json')
+    ]
+    
+    for tasks_file in task_locations:
+        if tasks_file.exists():
+            try:
+                with open(tasks_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                # Handle both array format and object format
+                if isinstance(data, list):
+                    tasks = data
+                    data_format = 'array'
+                else:
+                    tasks = data.get('tasks', [])
+                    data_format = 'object'
+                
+                # Find and remove the task
+                original_length = len(tasks)
+                tasks = [task for task in tasks if str(task.get('id', task.get('task_id'))) != str(task_id)]
+                
+                if len(tasks) < original_length:
+                    # Save back to file
+                    if data_format == 'array':
+                        save_data = tasks
+                    else:
+                        save_data = {'tasks': tasks}
+                    
+                    with open(tasks_file, 'w', encoding='utf-8') as f:
+                        json.dump(save_data, f, indent=2, ensure_ascii=False)
+                    
+                    return True
+                else:
+                    st.error(f"Task #{task_id} not found")
+                    return False
+                        
+            except Exception as e:
+                st.error(f"Error deleting task: {e}")
+                return False
+    
+    st.error("Tasks file not found")
+    return False
 
 # Path to tasks file (check multiple possible locations)
 possible_paths = [
@@ -82,11 +180,13 @@ if tasks_file and tasks_file.exists():
                         # Priority indicator
                         priority_emoji = '🔴' if priority >= 4 else '🟡' if priority == 3 else '🟢'
                         
-                        # Create accordion for each task
-                        with st.expander(f"#{task_id} - {title} {priority_emoji}", expanded=False):
-                            # Short description at the top
-                            st.markdown("**📝 Description:**")
-                            st.write(short_desc)
+                        # Display task title and short description
+                        st.markdown(f"### {title} {priority_emoji}")
+                        st.markdown(f"**#{task_id}** - {short_desc}")
+                        
+                        # Create accordion for detailed information
+                        with st.expander(f"Details for #{task_id}", expanded=False):
+                            # Skip short description since it's shown above
                             
                             # Create columns for better layout
                             col1, col2 = st.columns([2, 1])
@@ -142,19 +242,32 @@ if tasks_file and tasks_file.exists():
                             
                             # Action buttons
                             st.markdown("---")
-                            button_col1, button_col2, button_col3 = st.columns(3)
+                            button_col1, button_col2, button_col3, button_col4 = st.columns(4)
                             
                             with button_col1:
-                                if st.button(f"🔄 In Progress", key=f"progress_{task_id}", help="Mark as In Progress"):
-                                    st.info(f"Task #{task_id} marked as In Progress (functionality to be implemented)")
+                                if st.button(f"⏳ TODO", key=f"todo_{task_id}", help="Reset to TODO"):
+                                    # Update task status to TODO
+                                    if update_task_status(task_id, "TODO"):
+                                        st.success(f"Task #{task_id} reset to TODO!")
+                                        st.rerun()
                             
                             with button_col2:
-                                if st.button(f"✅ Complete", key=f"complete_{task_id}", help="Mark as Done"):
-                                    st.success(f"Task #{task_id} marked as Complete (functionality to be implemented)")
+                                if st.button(f"🔄 In Progress", key=f"progress_{task_id}", help="Mark as In Progress"):
+                                    if update_task_status(task_id, "IN_PROGRESS"):
+                                        st.info(f"Task #{task_id} marked as In Progress!")
+                                        st.rerun()
                             
                             with button_col3:
-                                if st.button(f"🚫 Block", key=f"block_{task_id}", help="Mark as Blocked"):
-                                    st.warning(f"Task #{task_id} marked as Blocked (functionality to be implemented)")
+                                if st.button(f"✅ Complete", key=f"complete_{task_id}", help="Mark as Done"):
+                                    if update_task_status(task_id, "DONE"):
+                                        st.success(f"Task #{task_id} marked as Complete!")
+                                        st.rerun()
+                            
+                            with button_col4:
+                                if st.button(f"🗑️ Delete", key=f"delete_{task_id}", help="Delete this task"):
+                                    if delete_task(task_id):
+                                        st.success(f"Task #{task_id} deleted!")
+                                        st.rerun()
         else:
             st.info("No tasks found in the system.")
             st.markdown("Tasks will appear here once they are created through the workflow system.")
@@ -220,4 +333,4 @@ if tasks_file and tasks_file.exists():
 # Help section in sidebar
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 💡 Help")
-st.sidebar.info("Click on any task to expand and see full details. Use the action buttons to change task status (functionality coming soon).") 
+st.sidebar.info("Click on any task to expand and see full details. Use the action buttons to manage task status and lifecycle.") 

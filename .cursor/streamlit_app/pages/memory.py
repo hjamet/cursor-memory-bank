@@ -96,7 +96,7 @@ memory_paths = {
 }
 
 # Tabs for different memory types
-tab1, tab2, tab3, tab4 = st.tabs(["📌 Preferences", "🧠 Long-term Memory", "📋 Project Brief", "⚙️ Tech Context"])
+tab1, tab2, tab3, tab4 = st.tabs(["📝 Requêtes", "🧠 Long-term Memory", "📋 Project Brief", "⚙️ Tech Context"])
 
 # Tab 1: User Preferences
 with tab1:
@@ -137,17 +137,11 @@ with tab1:
                         # Don't add to updated_preferences (effectively deletes it)
                         st.success(f"Preference #{i+1} will be deleted when you save changes.")
         
-        # Save preferences
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("💾 Save Changes", type="primary"):
-                updated_content = update_userbrief_preferences(userbrief_content, updated_preferences)
-                if save_text_file(memory_paths['userbrief'], updated_content):
-                    st.success("✅ Preferences updated successfully!")
-                    st.rerun()
-        
-        with col2:
-            if st.button("🔄 Reset Changes"):
+        # Auto-save preferences when modified
+        if updated_preferences != preferences:
+            updated_content = update_userbrief_preferences(userbrief_content, updated_preferences)
+            if save_text_file(memory_paths['userbrief'], updated_content):
+                st.success("✅ Preferences updated automatically!")
                 st.rerun()
     
     else:
@@ -204,11 +198,11 @@ with tab2:
                     st.write(f"**Date:** {memory.get('timestamp', 'Unknown')}")
                     
                     if st.button(f"🗑️ Delete", key=f"memory_delete_{i}"):
-                        # Remove memory
+                        # Remove memory and auto-save
                         memories.pop(i)
                         updated_data = {'memories': memories}
                         if save_json_file(memory_paths['long_term_memory'], updated_data):
-                            st.success("Memory deleted!")
+                            st.success("Memory deleted automatically!")
                             st.rerun()
     else:
         st.info("No long-term memories found.")
@@ -247,27 +241,26 @@ with tab3:
     
     project_brief_content = load_text_file(memory_paths['project_brief'])
     
-    # Edit project brief
-    with st.form("edit_project_brief"):
-        updated_brief = st.text_area(
-            "Project Brief Content:",
-            value=project_brief_content,
-            height=300,
-            help="Describe your project's goals, scope, and key requirements."
-        )
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.form_submit_button("💾 Save Project Brief", type="primary"):
-                if save_text_file(memory_paths['project_brief'], updated_brief):
-                    st.success("✅ Project brief updated successfully!")
-                    st.rerun()
-        
-        with col2:
-            if st.form_submit_button("🗑️ Clear Brief"):
-                if save_text_file(memory_paths['project_brief'], ""):
-                    st.success("Project brief cleared!")
-                    st.rerun()
+    # Edit project brief with auto-save
+    updated_brief = st.text_area(
+        "Project Brief Content:",
+        value=project_brief_content,
+        height=300,
+        help="Describe your project's goals, scope, and key requirements.",
+        key="project_brief_editor"
+    )
+    
+    # Auto-save on change
+    if updated_brief != project_brief_content:
+        if save_text_file(memory_paths['project_brief'], updated_brief):
+            st.success("✅ Project brief updated automatically!")
+            st.rerun()
+    
+    # Clear button
+    if st.button("🗑️ Clear Brief"):
+        if save_text_file(memory_paths['project_brief'], ""):
+            st.success("Project brief cleared!")
+            st.rerun()
     
     # Show current stats
     if project_brief_content:
@@ -292,27 +285,26 @@ with tab4:
     
     tech_context_content = load_text_file(memory_paths['tech_context'])
     
-    # Edit tech context
-    with st.form("edit_tech_context"):
-        updated_context = st.text_area(
-            "Technical Context Content:",
-            value=tech_context_content,
-            height=300,
-            help="Describe technical architecture, frameworks, constraints, and requirements."
-        )
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.form_submit_button("💾 Save Tech Context", type="primary"):
-                if save_text_file(memory_paths['tech_context'], updated_context):
-                    st.success("✅ Technical context updated successfully!")
-                    st.rerun()
-        
-        with col2:
-            if st.form_submit_button("🗑️ Clear Context"):
-                if save_text_file(memory_paths['tech_context'], ""):
-                    st.success("Technical context cleared!")
-                    st.rerun()
+    # Edit tech context with auto-save
+    updated_context = st.text_area(
+        "Technical Context Content:",
+        value=tech_context_content,
+        height=300,
+        help="Describe technical architecture, frameworks, constraints, and requirements.",
+        key="tech_context_editor"
+    )
+    
+    # Auto-save on change
+    if updated_context != tech_context_content:
+        if save_text_file(memory_paths['tech_context'], updated_context):
+            st.success("✅ Technical context updated automatically!")
+            st.rerun()
+    
+    # Clear button
+    if st.button("🗑️ Clear Context"):
+        if save_text_file(memory_paths['tech_context'], ""):
+            st.success("Technical context cleared!")
+            st.rerun()
     
     # Show current stats
     if tech_context_content:
@@ -329,6 +321,62 @@ with tab4:
         with col3:
             line_count = len(tech_context_content.split('\n'))
             st.metric("Lines", line_count)
+
+# Tab 5: Archives
+with tab5:
+    st.header("🗄️ Request Archives")
+    st.markdown("View and manage archived requests from the userbrief.")
+    
+    userbrief_content = load_text_file(memory_paths['userbrief'])
+    
+    if userbrief_content:
+        # Parse archived entries
+        lines = userbrief_content.split('\n')
+        archived_entries = []
+        
+        for i, line in enumerate(lines):
+            line = line.strip()
+            if line and line.startswith('🧠'):
+                # Extract archived request text
+                if ' - ' in line:
+                    archived_text = line.split(' - ', 1)[1]
+                    archived_entries.append({
+                        'line_number': i,
+                        'text': archived_text,
+                        'full_line': line
+                    })
+        
+        if archived_entries:
+            st.subheader(f"Archived Requests ({len(archived_entries)})")
+            
+            # Display archived entries with delete option
+            for i, entry in enumerate(archived_entries):
+                with st.expander(f"Archive #{i+1}", expanded=False):
+                    col1, col2 = st.columns([4, 1])
+                    
+                    with col1:
+                        st.markdown("**Content:**")
+                        st.write(entry['text'])
+                    
+                    with col2:
+                        st.markdown("**Actions:**")
+                        if st.button(f"🗑️ Delete", key=f"archive_delete_{i}", help="Delete this archived request"):
+                            # Remove the archived entry and auto-save
+                            lines = userbrief_content.split('\n')
+                            # Find and remove the line
+                            updated_lines = []
+                            for line in lines:
+                                if line.strip() != entry['full_line']:
+                                    updated_lines.append(line)
+                            
+                            updated_content = '\n'.join(updated_lines)
+                            if save_text_file(memory_paths['userbrief'], updated_content):
+                                st.success("Archive deleted automatically!")
+                                st.rerun()
+        else:
+            st.info("No archived requests found.")
+    else:
+        st.warning("No userbrief file found.")
 
 # Sidebar: Memory Overview
 st.sidebar.markdown("---")
@@ -349,29 +397,7 @@ st.sidebar.metric("🧠 Memories", memories_count)
 st.sidebar.metric("📋 Project Brief", "✅" if project_brief_exists else "❌")
 st.sidebar.metric("⚙️ Tech Context", "✅" if tech_context_exists else "❌")
 
-# Backup/Export functionality
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 🔄 Backup & Export")
 
-if st.sidebar.button("📥 Export All Memory"):
-    # Create a comprehensive export
-    export_data = {
-        'export_date': datetime.now().isoformat(),
-        'preferences': parse_userbrief(userbrief_content) if userbrief_content else [],
-        'long_term_memories': long_term_data.get('memories', []) if long_term_data else [],
-        'project_brief': load_text_file(memory_paths['project_brief']),
-        'tech_context': load_text_file(memory_paths['tech_context'])
-    }
-    
-    # Convert to JSON string for download
-    export_json = json.dumps(export_data, indent=2, ensure_ascii=False)
-    
-    st.sidebar.download_button(
-        label="💾 Download Export",
-        data=export_json,
-        file_name=f"memory_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
-        mime="application/json"
-    )
 
 # Help section
 st.sidebar.markdown("---")
