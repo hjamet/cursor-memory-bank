@@ -24,22 +24,34 @@ def read_json_file(file_path):
 
 # Helper function to get the latest memory entry
 def get_latest_memory():
-    memory_dir = Path('.cursor/memory-bank/context')
-    if not memory_dir.exists():
-        return None
+    # Check multiple possible memory locations
+    memory_locations = [
+        Path('.cursor/memory-bank/context'),
+        Path('.cursor/memory-bank/workflow'),
+        Path('.cursor/memory-bank')
+    ]
     
-    try:
-        # Look for memory files (they usually have timestamps)
-        memory_files = list(memory_dir.glob('*.json'))
-        if not memory_files:
-            return None
-        
-        # Get the most recent memory file
-        latest_file = max(memory_files, key=os.path.getmtime)
-        return read_json_file(latest_file)
-    except Exception as e:
-        st.error(f"Error accessing memory files: {e}")
-        return None
+    for memory_dir in memory_locations:
+        if memory_dir.exists():
+            try:
+                # Look for memory files (JSON or markdown)
+                memory_files = list(memory_dir.glob('*.json')) + list(memory_dir.glob('*.md'))
+                if memory_files:
+                    # Get the most recent memory file
+                    latest_file = max(memory_files, key=os.path.getmtime)
+                    if latest_file.suffix == '.json':
+                        return read_json_file(latest_file)
+                    else:
+                        # For markdown files, return basic info
+                        return {
+                            'file': latest_file.name,
+                            'type': 'context',
+                            'last_modified': datetime.fromtimestamp(latest_file.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+                        }
+            except Exception as e:
+                st.error(f"Error accessing memory files in {memory_dir}: {e}")
+    
+    return None
 
 # Helper function to get current workflow step
 def get_current_workflow_step():
@@ -51,6 +63,16 @@ def get_current_workflow_step():
                 return f.read().strip()
         except:
             pass
+    
+    # Try to get from workflow directory if available
+    workflow_dir = Path('.cursor/memory-bank/workflow')
+    if workflow_dir.exists():
+        # Look for the most recent workflow file
+        workflow_files = list(workflow_dir.glob('*.md'))
+        if workflow_files:
+            latest_file = max(workflow_files, key=os.path.getmtime)
+            return latest_file.stem
+    
     return "Unknown"
 
 # Helper function to get userbrief status
@@ -60,26 +82,30 @@ def get_userbrief_status():
         try:
             with open(userbrief_file, 'r', encoding='utf-8') as f:
                 content = f.read()
-                # Count active requests (lines that don't start with DONE or ARCHIVED)
+                # Parse userbrief entries properly
                 lines = content.split('\n')
                 active_requests = []
                 preferences = []
+                total_entries = 0
                 
                 for line in lines:
                     line = line.strip()
                     if line and not line.startswith('#'):
-                        if line.startswith('- '):
-                            request_text = line[2:].strip()
-                            if not request_text.startswith('DONE:') and not request_text.startswith('ARCHIVED:'):
-                                if 'preference:' in request_text.lower() or 'prefer' in request_text.lower():
+                        # Count entries that start with emoji indicators
+                        if line.startswith('📌') or line.startswith('🗄️') or line.startswith('🧠'):
+                            total_entries += 1
+                            # Extract the actual request text after the emoji and dash
+                            if ' - ' in line:
+                                request_text = line.split(' - ', 1)[1]
+                                if '📌' in line:  # Pinned preferences
                                     preferences.append(request_text)
-                                else:
+                                elif not request_text.startswith('DONE:') and not request_text.startswith('ARCHIVED:'):
                                     active_requests.append(request_text)
                 
                 return {
                     'active_requests': active_requests,
                     'preferences': preferences,
-                    'total_lines': len([l for l in lines if l.strip() and not l.startswith('#')])
+                    'total_lines': total_entries
                 }
         except Exception as e:
             st.error(f"Error reading userbrief: {e}")
@@ -125,17 +151,32 @@ with col1:
 
 with col2:
     st.subheader("Long-term Memory")
-    # Check for semantic search model
-    models_dir = Path('.cursor/memory-bank/models')
-    if models_dir.exists() and any(models_dir.iterdir()):
-        st.success("✅ Semantic search enabled")
-        st.caption("all-MiniLM-L6-v2 model loaded")
-    else:
+    # Check for semantic search model in multiple locations
+    model_locations = [
+        Path('.cursor/memory-bank/models'),
+        Path('models'),
+        Path('.cursor/models')
+    ]
+    
+    model_found = False
+    for models_dir in model_locations:
+        if models_dir.exists() and any(models_dir.iterdir()):
+            # Check if it contains the actual model files
+            model_files = list(models_dir.rglob('*'))
+            if any('sentence-transformers' in str(f) or 'all-MiniLM' in str(f) for f in model_files):
+                st.success("✅ Semantic search enabled")
+                st.caption(f"all-MiniLM-L6-v2 model in {models_dir}")
+                model_found = True
+                break
+    
+    if not model_found:
         st.warning("⚠️ Semantic search not available")
-        st.caption("Model not downloaded")
+        st.caption("Model not downloaded - run install.sh to download")
 
 # Display User Requests Status
 st.header("📝 User Requests & Preferences")
+st.info("ℹ️ User requests and next tasks are now automatically managed by the `next_rule` tool. The system will automatically detect pending requests and guide the workflow to either `task-decomposition` (for new user requests) or `implementation` (for existing tasks).")
+
 userbrief_status = get_userbrief_status()
 
 if userbrief_status:
@@ -151,16 +192,16 @@ if userbrief_status:
         st.metric("User Preferences", len(userbrief_status['preferences']))
     
     if userbrief_status['active_requests']:
-        with st.expander("Active Requests"):
-            for req in userbrief_status['active_requests'][:5]:  # Show first 5
-                st.write(f"• {req}")
-            if len(userbrief_status['active_requests']) > 5:
-                st.caption(f"... and {len(userbrief_status['active_requests']) - 5} more")
+        with st.expander("Active Requests (managed by next_rule)"):
+            for req in userbrief_status['active_requests'][:3]:  # Show first 3
+                st.write(f"• {req[:100]}..." if len(req) > 100 else f"• {req}")
+            if len(userbrief_status['active_requests']) > 3:
+                st.caption(f"... and {len(userbrief_status['active_requests']) - 3} more")
     
     if userbrief_status['preferences']:
-        with st.expander("User Preferences"):
+        with st.expander("User Preferences (always included)"):
             for pref in userbrief_status['preferences']:
-                st.write(f"• {pref}")
+                st.write(f"📌 {pref[:100]}..." if len(pref) > 100 else f"📌 {pref}")
 else:
     st.warning("No userbrief found")
 
@@ -199,36 +240,7 @@ if tasks:
 else:
     st.warning("No tasks found")
 
-# Display System Status
-st.header("⚙️ System Status")
-
-col6, col7 = st.columns(2)
-
-with col6:
-    st.subheader("MCP Servers")
-    mcp_config = read_json_file('.cursor/mcp.json')
-    if mcp_config and 'mcpServers' in mcp_config:
-        server_count = len(mcp_config['mcpServers'])
-        st.success(f"✅ {server_count} servers configured")
-        
-        with st.expander("Server Details"):
-            for server_name in mcp_config['mcpServers'].keys():
-                st.write(f"• {server_name}")
-    else:
-        st.warning("⚠️ No MCP configuration found")
-
-with col7:
-    st.subheader("Workflow System")
-    workflow_dir = Path('.cursor/workflow-steps')
-    if workflow_dir.exists():
-        step_files = list(workflow_dir.glob('*.md'))
-        st.success(f"✅ {len(step_files)} workflow steps available")
-        
-        with st.expander("Available Steps"):
-            for step_file in step_files:
-                st.write(f"• {step_file.stem}")
-    else:
-        st.warning("⚠️ Workflow steps not found")
+# System Status section removed as requested
 
 # Auto-refresh option
 st.sidebar.markdown("---")

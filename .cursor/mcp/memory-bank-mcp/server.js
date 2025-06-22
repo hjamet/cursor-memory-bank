@@ -8,7 +8,7 @@ import { handleCreateTask } from './mcp_tools/create_task.js';
 import { handleUpdateTask } from './mcp_tools/update_task.js';
 import { handleGetAllTasks } from './mcp_tools/get_all_tasks.js';
 import { handleGetNextTasks } from './mcp_tools/get_next_tasks.js';
-import { handleReadUserbrief } from './mcp_tools/read_userbrief.js';
+// import { handleReadUserbrief } from './mcp_tools/read_userbrief.js'; // REMOVED: Information now comes from next_rule
 import { handleUpdateUserbrief } from './mcp_tools/update_userbrief.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import process from 'process';
@@ -78,9 +78,7 @@ server.tool('get_all_tasks', {}, safeHandler(handleGetAllTasks));
 
 server.tool('get_next_tasks', {}, safeHandler(handleGetNextTasks));
 
-server.tool('read_userbrief', {
-    archived_count: z.number().min(0).max(10).default(3).optional().describe("ARCHIVED ENTRIES COUNT: Number of archived (completed) user requests to include in the response alongside active requests (0-10, default: 3). Archived entries provide context about recently completed work and user interaction history. Use 0 to see only active requests, or increase to 10 for full recent history when debugging or understanding project context.")
-}, safeHandler(handleReadUserbrief));
+// read_userbrief tool REMOVED: Information now automatically provided by next_rule tool
 
 server.tool('update_userbrief', {
     action: z.enum(['mark_archived', 'add_comment', 'mark_pinned']).describe("USERBRIEF ACTION: The operation to perform on a user request entry. 'mark_archived' = move request to completed/archived status (use when work is finished), 'add_comment' = append a progress update or note to the request history (use for status updates, findings, or communication), 'mark_pinned' = mark request as important/priority (use for high-priority items that should stay visible)."),
