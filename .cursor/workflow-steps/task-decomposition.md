@@ -1,6 +1,5 @@
-
 ## TLDR
-Analyzes user requests, explores existing code, searches for additional information, retrieves high-level context, stores relevant vision elements, and decomposes requests into concrete tasks organized in `.cursor/memory-bank/workflow/tasks.md` using an emoji-based status system.
+Analyzes user requests, explores existing code, searches for additional information, retrieves high-level context, stores relevant vision elements, and decomposes requests into concrete tasks using the MCP task management tools.
 
 ## Instructions
 
@@ -18,18 +17,20 @@ Analyzes user requests, explores existing code, searches for additional informat
    - Use `mcp_Context7_*` tools for library documentation.
    - Use `mcp_brave-search_brave_web_search` for general research (max 5 searches).
 
-4. **New tasks integration**: Structure new tasks in `tasks.md`.
+4. **New tasks integration**: Create new tasks using MCP tools.
    - Decompose the user request into concrete tasks and sub-tasks.
-   - Add them to `tasks.md` using the `⚪️ TODO` emoji and the defined structure.
+   - Use `mcp_MemoryBankMCP_create_task` to create new tasks with appropriate details.
 
 5. **Userbrief archiving**: Update the processed request via the MCP tool.
-   - Call `mcp_MemoryBank_update-userbrief` with `action: 'mark_archived'` and the `id` of the request being processed.
+   - Call `mcp_MemoryBankMCP_update_userbrief` with `action: 'mark_archived'` and the `id` of the request being processed.
 
-6. **Call next rule**: Mandatory call to `implementation`.
+6. **Record state and determine next steps**: Use remember tool to record progress and get next steps.
+   - Call `mcp_MemoryBankMCP_remember` to record the current state and analysis
+   - The remember tool will indicate the appropriate next steps
 
 ## Specifics
 - If you were called from consolidate-repo, consider the formulated request as the user request to analyze
-- If the brief is empty without explicit request, consider tasks.md content as request
+- If the brief is empty without explicit request, consider current tasks as context for analysis
 - Strict tool limits:
   - Phase 2 (Code analysis): only code base search (max 3) and tree
   - Phase 3 (Research): only mcp_Context7_* tools OR `mcp_brave-search_brave_web_search` (max 5 searches)
@@ -37,36 +38,24 @@ Analyzes user requests, explores existing code, searches for additional informat
 - Group similar tasks under common main task structures, even if apparently different.
 - Favor detailed descriptions for each task item.
 - Minimize dependencies between major tasks where possible.
-- IMPORTANT: Do not add new tasks to `userbrief.md`.
-- IMPORTANT: Crucially, NEVER archive an item in `userbrief.md` (Step 8) if its corresponding task(s) were NOT successfully added to `.cursor/memory-bank/workflow/tasks.md` in Step 7.
-- IMPORTANT: Only process items marked with ⏳ in `userbrief.md`. Never process items marked with other emojis or even simple "-".
+- Use MCP tools for all task and userbrief management operations.
 
-## tasks.md: New Format Definition
+## Task Creation Guidelines
 
-The `.cursor/memory-bank/workflow/tasks.md` file no longer uses H1/H2 section titles (e.g., `# In Progress`, `# ToDo`). It is a flat list of task items, each starting with an emoji indicating its status. This rule (`task-decomposition`) is primarily responsible for creating new tasks (usually with ⚪️) and structuring them.
+When creating tasks with `mcp_MemoryBankMCP_create_task`, use the following structure:
+- **title**: Concise, actionable title
+- **short_description**: Brief overview (1-500 characters)
+- **detailed_description**: Comprehensive description with requirements, acceptance criteria, and technical details
+- **priority**: 1-5 (5 being highest priority)
+- **status**: Usually "TODO" for new tasks
+- **dependencies**: Array of task IDs that must be completed first
+- **impacted_files**: List of files that will be modified
+- **validation_criteria**: Specific criteria for task completion
 
-**Emoji Legend & Handling by `task-decomposition`:**
-*   `⚪️ TODO`: For new tasks or sub-tasks. This rule will primarily add tasks with this emoji.
-*   `🟡 IN_PROGRESS`: Tasks currently being worked on (status set by `implementation` or `context-update` rules).
-*   `🟢 DONE`: Completed tasks (status set by `implementation` or `context-update` rules).
-*   `🔴 BLOCKED`: Tasks that cannot proceed.
-*   `🔵 REVIEW`: Tasks awaiting review.
-
-**Task Item Structure:**
-Each task, regardless of status, should generally follow this structure:
-```markdown
-[EMOJI] **[Concise Title - Main Task or Sub-Task Numbering, e.g., 1. or 1.1]**
-    *   **Description**: [Detailed explanation of what needs to be done.]
-    *   **Impacted Rules/Files**: [List of rules or files affected by this task.]
-    *   **Dependencies**: [List of other tasks this one depends on, if any. Use task numbers if available.]
-    *   **Validation**: [Clear criteria to determine when the task is successfully completed.]
-```
-- Main tasks can be numbered (e.g., `⚪️ **1. Main Task Title**`).
-- Sub-tasks should be indented and can use sub-numbering (e.g., `    *   ⚪️ **1.1. Sub-Task Title**`).
-- The `---` separator can be used to visually group related sets of tasks if helpful, but is not structurally mandatory.
-
-## Next Rules
-- `implementation` - To begin implementing tasks.
+## Next Steps
+- `implementation` - To begin implementing tasks
+- `context-update` - If context needs updating
+- `fix` - If issues are detected during analysis
 
 ## Example
 
@@ -74,11 +63,6 @@ Each task, regardless of status, should generally follow this structure:
 I begin by analyzing the user's request to properly understand their demand. **(Task-decomposition: 1 - Request analysis)**
 [...request analysis...]
 I identified the following key elements in the request: [...] **(Task-decomposition: 1 - Request analysis)**
-*I search for existing high-level context notes related to these keywords in `.cursor_memory`.*
-`codebase_search(query='...', target_directories=['.cursor/memory'])`
-*If the user stated a new high-level vision element like 'The UI should feel modern and clean', I create a note:*
-`edit_file(target_file='.cursor/memory/ui_vision_modern_clean.md', code_edit='The user wants a modern and clean UI.', instructions='Create new vision note.')`
-**(Task-decomposition: 1 - Request analysis)**
 
 # Task-decomposition: 2 - Code analysis
 I begin by performing semantic searches to identify relevant files.
@@ -98,49 +82,17 @@ Alternatively, I might search the web for general patterns related to [...]. **(
 `mcp_brave-search_brave_web_search(...)`
 **(Task-decomposition: 3 - Additional research)**
 
-# Task-decomposition: 4 - Analyze available context
-I begin by analyzing the tasks and user requests provided by the server. **(Task-decomposition: 4 - Analyze available context)**
-I identified several items marked with ⏳. I will prepare them for integration into `tasks.md` in step 6.
-**(Task-decomposition: 4 - Analyze available context)**
+# Task-decomposition: 4 - New tasks integration
+I decompose the main request into concrete tasks using the MCP task management tools. **(Task-decomposition: 4 - New tasks integration)**
+[...calling `mcp_MemoryBankMCP_create_task` with appropriate parameters...]
+**(Task-decomposition: 4 - New tasks integration)**
 
-# Task-decomposition: 5 - Completed tasks archival/removal
-The tasks X, Y, and Z are marked as 🟢 DONE aren't linked to our current focus. I will remove them from `tasks.md` to keep it clean and relevant. **
-**(Task-decomposition: 5 - Completed tasks archival/removal)**
+# Task-decomposition: 5 - Userbrief archiving
+Now that the tasks have been created, I will update the userbrief to mark the request as processed. **(Task-decomposition: 5 - Userbrief archiving)**
+[...calling `mcp_MemoryBankMCP_update_userbrief` with action: 'mark_archived'...]
+**(Task-decomposition: 5 - Userbrief archiving)**
 
-# Task-decomposition: 6 - New tasks integration
-I decompose the main request and the identified ⏳ userbrief items into concrete tasks in `tasks.md`, using the new emoji-based format. **(Task-decomposition: 6 - New tasks integration)**
-```json
-// ... tool_code: print(default_api.edit_file(target_file=".cursor/memory-bank/workflow/tasks.md", code_edit=\'\'\'
-// ... existing tasks ...
-⚪️ **3. New Main Task from Request**
-    *   **Description**: [Detailed description of the new main task based on the original user request or active context.]
-    *   **Impacted Rules/Files**: [List relevant files/rules.]
-    *   **Dependencies**: [List dependencies.]
-    *   **Validation**: [Define validation criteria.]
-
-⚪️ **4. Task from Userbrief Item 1**
-    *   **Description**: [Description based on the ⏳ userbrief item.]
-    *   **Impacted Rules/Files**: [files/rules.]
-    *   **Dependencies**: [dependencies.]
-    *   **Validation**: [validation criteria.]
-    *   **Sub-Tasks**:
-        *   ⚪️ **4.1. Sub-task for Userbrief Item 1**
-            *   **Description**: [Detailed sub-task description.]
-            *   **Impacted Rules/Files**: [files/rules.]
-            *   **Dependencies**: [dependencies.]
-            *   **Validation**: [validation criteria.]
-\'\'\')) ...
-```
-**(Task-decomposition: 6 - New tasks integration)**
-
-# Task-decomposition: 7 - Userbrief archiving
-Now that the tasks from userbrief have been integrated into `tasks.md`, I will ensure the original items in `userbrief.md` are updated from ⏳ to 🗄️. **(Task-decomposition: 7 - Userbrief archiving)**
-// ... tool_code to modify userbrief.md ...
-**(Task-decomposition: 7 - Userbrief archiving)**
-
-# Task-decomposition: 8 - Call next rule
-I must now call the `implementation` rule to begin work on the newly structured tasks.
-The `implementation` rule must be called to begin implementing the tasks. **(Task-decomposition: 8 - Call next rule)**
-// ... tool_code: print(default_api.fetch_rules(rule_names=["implementation"])) ...
-
-[...] (The workflow must continue uninterrupted)
+# Task-decomposition: 6 - Record state and determine next steps
+I will now record the current state and let the remember tool indicate the next appropriate steps. **(Task-decomposition: 6 - Record state and determine next steps)**
+[...calling `mcp_MemoryBankMCP_remember` with past, present, and future state...]
+**(Task-decomposition: 6 - Record state and determine next steps)**

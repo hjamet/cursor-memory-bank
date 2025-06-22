@@ -26,7 +26,9 @@ Analyzes the provided context, updates context files, manages task statuses, and
    - Determine the appropriate `emoji`, `type`, and `title`.
    - Construct a detailed `description`.
 
-7. **Call the next step**: Mandatory call to `next_rule`.
+7. **Record state and determine next steps**: Use remember tool to record progress and get next steps.
+   - Call `mcp_MemoryBankMCP_remember` to record the current state and context updates
+   - The remember tool will indicate the appropriate next steps
 
 ## Specifics
 - This step now operates on the assumption that all necessary context is provided by the MCP server at runtime, removing the need for direct file reads.
@@ -36,7 +38,7 @@ Analyzes the provided context, updates context files, manages task statuses, and
 - Systematically delete old history entries that are no longer relevant
 - NEVER end without either explicitly calling a next step or explicitly indicating that the workflow is complete
 - The workflow must NEVER be considered complete if there are remaining tasks with 🟡 IN_PROGRESS or ⚪️ TODO emojis OR if there is at least one failing test (marked ❌) or with warning (marked ⚠️)
-- For the commit, use the `mcp_MemoryBank_commit` tool, which handles staging automatically.
+- For the commit, use the `mcp_MemoryBankMCP_commit` tool, which handles staging automatically.
 - If all tasks are complete (meaning there are NO MORE tasks with 🟡 IN_PROGRESS or ⚪️ TODO emojis in the `tasks.md` file) AND all tests pass (ALL marked ✅), then:
    - Present a clear and concise synthesis of the work done
    - Summarize implemented features and resolved issues
@@ -45,7 +47,7 @@ Analyzes the provided context, updates context files, manages task statuses, and
 - If the workflow is not complete, call the appropriate next step
 
 ## Format for Detailed Commit Description
-The `description` argument for the `mcp_MemoryBank_commit` tool must be a detailed markdown-formatted string. It serves as a comprehensive record of the work performed. Structure it like a mini-article with the following sections:
+The `description` argument for the `mcp_MemoryBankMCP_commit` tool must be a detailed markdown-formatted string. It serves as a comprehensive record of the work performed. Structure it like a mini-article with the following sections:
 
 ```markdown
 ### Changes Made
@@ -135,12 +137,10 @@ I prepare and make a commit with the changes made using the MCP commit tool. **(
 To construct the commit message, I will synthesize information from the provided context (activeContext, projectBrief, tasks, tests) to fill in the detailed markdown description for the `mcp_MemoryBank_commit` tool.
 </think>
 [...gathering information from provided context and constructing the commit arguments...]\
-[...calling tool `mcp_MemoryBank_commit`...]\
+[...calling tool `mcp_MemoryBankMCP_commit`...]\
 **(Context-update: 6 - Making a commit)**
 
-# Context-update: 7 - Calling the next step
-I now check the provided context (tests, tasks, userbrief) to determine which step to call. **(Context-update: 7 - Calling the next step)**
-[...analyzing provided context...]
-I see there are tasks with 🟡 or ⚪️ emojis and all tests pass. I will therefore call the `implementation` step. **(Context-update: 7 - Calling the next step)**
-
-[...] (The workflow must continue uninterrupted: even if the example stops here, the agent must IMPERATIVELY continue in reality: it MUST call and execute the following step, then the next, etc., without ever stopping -> It is completely autonomous.)
+# Context-update: 7 - Record state and determine next steps
+I will now record the current state and let the remember tool determine the next appropriate steps. **(Context-update: 7 - Record state and determine next steps)**
+[...calling `mcp_MemoryBankMCP_remember` with current state and context updates...]
+**(Context-update: 7 - Record state and determine next steps)**

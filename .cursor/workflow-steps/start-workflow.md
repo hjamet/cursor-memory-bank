@@ -20,21 +20,23 @@ Cette step initialise l'agent en chargeant son état précédent et en fournissa
    - Résumer les tâches en cours et les prochaines étapes
    - Afficher les informations de contexte récupérées
 
-5. **Resume workflow**: Reprendre le workflow à partir de la règle appropriée.
-   - Si une règle précédente était identifiée, la reprendre
-   - Sinon, commencer par `task-decomposition` ou `implementation` selon l'état des tâches
+5. **Record state and determine next steps**: Enregistrer l'état actuel et déterminer les prochaines étapes.
+   - Utiliser l'outil `remember` pour enregistrer l'état de démarrage
+   - L'outil `remember` indiquera les règles suivantes possibles
 
 ## Specifics
 - Cette step est le point d'entrée pour reprendre un workflow interrompu
 - Elle doit fournir une vue complète de l'état du projet et de l'agent
 - Les informations de contexte doivent être clairement formatées et organisées
 - La transition vers la prochaine step doit être fluide et logique
+- Les objets mémoire doivent être formatés avec JSON.stringify pour un affichage lisible
 
 ## Next Steps
-- `{{ previous_rule }}` - Si une règle précédente était identifiée dans l'état
 - `task-decomposition` - Si des demandes utilisateur sont en attente
 - `implementation` - Si des tâches sont en cours
-- `system` - Par défaut si aucun état précédent n'est trouvé
+- `context-update` - Si une mise à jour du contexte est nécessaire
+- `fix` - Si des problèmes ont été détectés
+- `experience-execution` - Si des tests manuels sont requis
 
 ## Template Variables
 - `{{ project_brief }}` - Contenu du fichier projectBrief.md
@@ -48,29 +50,34 @@ Cette step initialise l'agent en chargeant son état précédent et en fournissa
 
 # Start-workflow: 1 - Load previous agent state
 Je commence par charger l'état précédent de l'agent pour comprendre où il en était. **(Start-workflow: 1 - Load previous agent state)**
-[...lecture de agent_memory.json...]
-L'agent était précédemment dans la règle: {{ previous_rule }} **(Start-workflow: 1 - Load previous agent state)**
 
-# Start-workflow: 2 - Load project context
+L'agent était précédemment dans la règle: **{{ previous_rule }}** **(Start-workflow: 1 - Load previous agent state)**
+
+# Start-workflow: 2 - Load project context  
 Le contexte complet du projet (projectBrief et techContext) est automatiquement chargé et disponible dans le contexte de cette règle. **(Start-workflow: 2 - Load project context)**
 
 # Start-workflow: 3 - Load working memory
 Je récupère les souvenirs pertinents de la mémoire de travail. **(Start-workflow: 3 - Load working memory)**
 
 ## Recent Memories (10 derniers)
-{{ recent_memories }}
+```json
+{{ recent_memories | map(memory => JSON.stringify(memory, null, 2)) | join('\n\n') }}
+```
 
 ## Relevant Long-term Memories (3 plus pertinents)
-{{ relevant_long_term_memories }}
+```json
+{{ relevant_long_term_memories | map(memory => JSON.stringify(memory, null, 2)) | join('\n\n') }}
+```
 **(Start-workflow: 3 - Load working memory)**
 
 # Start-workflow: 4 - Display agent status
 État actuel de l'agent: **(Start-workflow: 4 - Display agent status)**
-- Dernière règle exécutée: {{ previous_rule }}
-- Tâches en cours: {{ current_tasks_summary }}
+- Dernière règle exécutée: **{{ previous_rule }}**
+- Tâches en cours: **{{ current_tasks_summary }}**
 - Contexte chargé avec succès
 **(Start-workflow: 4 - Display agent status)**
 
-# Start-workflow: 5 - Resume workflow
-Je reprends maintenant le workflow avec la règle appropriée. **(Start-workflow: 5 - Resume workflow)**
-[...appel de la prochaine règle...] 
+# Start-workflow: 5 - Record state and determine next steps
+Je vais maintenant enregistrer l'état de démarrage et déterminer les prochaines étapes appropriées. **(Start-workflow: 5 - Record state and determine next steps)**
+[...appel de l'outil remember...]
+**(Start-workflow: 5 - Record state and determine next steps)** 
