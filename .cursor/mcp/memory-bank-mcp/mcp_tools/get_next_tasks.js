@@ -19,38 +19,24 @@ async function readTasks() {
 
 /**
  * Handles the get_next_tasks tool call
- * Returns available tasks (tasks with no pending dependencies)
+ * Returns the most urgent available tasks automatically determined by dependencies and priorities
  * 
- * @param {Object} params - Tool parameters
- * @param {number} [params.limit=10] - Maximum number of tasks to return
- * @param {boolean} [params.include_completed=false] - Include completed tasks
- * @param {boolean} [params.include_blocked=false] - Include blocked tasks
- * @param {string} [params.status_filter] - Filter by specific status
- * @param {number} [params.priority_filter] - Filter by specific priority
- * @returns {Object} Tool response with available tasks
+ * @param {Object} params - Tool parameters (no parameters needed)
+ * @returns {Object} Tool response with highest priority available tasks
  */
 export async function handleGetNextTasks(params) {
     try {
-        const {
-            limit = 10,
-            include_completed = false,
-            include_blocked = false,
-            status_filter,
-            priority_filter
-        } = params;
-
-        console.log(`[GetNextTasks] Retrieving next available tasks (limit: ${limit})`);
+        console.log(`[GetNextTasks] Automatically determining most urgent available tasks`);
 
         const allTasks = await readTasks();
 
         // First, create a map for quick lookups
         const taskMap = new Map(allTasks.map(task => [task.id, task]));
 
-        // Determine available tasks
+        // Determine available tasks (dependencies met, not completed)
         let availableTasks = allTasks.filter(task => {
-            if (!include_completed && task.status === 'DONE') return false;
-            if (!include_blocked && task.status === 'BLOCKED') return false;
-            if (task.dependencies.length === 0) return true;
+            if (task.status === 'DONE') return false; // Exclude completed
+            if (!task.dependencies || task.dependencies.length === 0) return true; // No dependencies = available
 
             return task.dependencies.every(depId => {
                 const depTask = taskMap.get(depId);
@@ -58,24 +44,26 @@ export async function handleGetNextTasks(params) {
             });
         });
 
-        // Apply additional filters if specified
-        if (status_filter) {
-            availableTasks = availableTasks.filter(task => task.status === status_filter);
-        }
+        // Sort by priority (highest first), then by status importance
+        const statusPriority = { 'IN_PROGRESS': 1, 'TODO': 2, 'BLOCKED': 3, 'REVIEW': 4 };
+        availableTasks.sort((a, b) => {
+            // First by priority (5 = highest, 1 = lowest)
+            const priorityDiff = (b.priority || 3) - (a.priority || 3);
+            if (priorityDiff !== 0) return priorityDiff;
 
-        if (priority_filter) {
-            availableTasks = availableTasks.filter(task => task.priority === priority_filter);
-        }
+            // Then by status importance
+            return (statusPriority[a.status] || 99) - (statusPriority[b.status] || 99);
+        });
 
-        // Sort by priority
-        availableTasks.sort((a, b) => (a.priority || 3) - (b.priority || 3));
+        // Find the highest priority level among available tasks
+        const highestPriority = availableTasks.length > 0 ? availableTasks[0].priority || 3 : 3;
 
-        // Apply limit after filtering
-        const paginatedTasks = availableTasks.slice(0, limit);
+        // Return all tasks at the highest priority level
+        const topPriorityTasks = availableTasks.filter(task => (task.priority || 3) === highestPriority);
 
         // Enhance tasks with dependency information
-        const enhancedTasks = paginatedTasks.map(task => {
-            const dependencyDetails = task.dependencies.map(depId => {
+        const enhancedTasks = topPriorityTasks.map(task => {
+            const dependencyDetails = (task.dependencies || []).map(depId => {
                 const depTask = taskMap.get(depId);
                 return depTask ? {
                     id: depTask.id,
@@ -94,7 +82,7 @@ export async function handleGetNextTasks(params) {
                 short_description: task.short_description,
                 status: task.status,
                 priority: task.priority,
-                dependencies: task.dependencies,
+                dependencies: task.dependencies || [],
                 dependency_details: dependencyDetails,
                 is_available: dependencyDetails.every(dep => dep.status === 'DONE' || dep.status === 'NOT_FOUND'),
                 parent_id: task.parent_id,
@@ -106,28 +94,28 @@ export async function handleGetNextTasks(params) {
         // Generate statistics
         const statistics = {
             total_tasks: allTasks.length,
-            available_tasks_count: availableTasks.length, // Total available before pagination
+            available_tasks_count: availableTasks.length,
             tasks_returned: enhancedTasks.length,
+            highest_priority_level: highestPriority,
             status_breakdown: allTasks.reduce((acc, task) => {
                 acc[task.status] = (acc[task.status] || 0) + 1;
                 return acc;
             }, {}),
             filters_applied: {
-                status_filter: status_filter || null,
-                priority_filter: priority_filter || null,
-                include_completed,
-                include_blocked
+                automatic_priority_selection: true,
+                excludes_completed: true,
+                includes_blocked: true
             }
         };
 
         const response = {
             status: 'success',
-            message: `Found ${enhancedTasks.length} available tasks`,
+            message: `Found ${enhancedTasks.length} highest priority available tasks (priority ${highestPriority})`,
             available_tasks: enhancedTasks,
             statistics,
             query_info: {
-                limit_requested: limit,
-                filters_applied: Object.keys(params).filter(key => key !== 'limit').length,
+                selection_strategy: "All tasks at highest available priority level",
+                priority_level_selected: highestPriority,
                 total_available: availableTasks.length
             }
         };

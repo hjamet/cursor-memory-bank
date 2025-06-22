@@ -208,5 +208,83 @@
     "past": "Minimal test past",
     "present": "Minimal test present",
     "future": "Minimal test future"
+  },
+  {
+    "timestamp": "2025-06-22T18:27:54.919Z",
+    "past": "test past",
+    "present": "test present",
+    "future": "test future"
+  },
+  {
+    "timestamp": "2025-06-22T18:27:58.524Z",
+    "past": "test past",
+    "present": "test present",
+    "future": "test future"
+  },
+  {
+    "timestamp": "2025-06-22T18:39:41.078Z",
+    "past": "past",
+    "present": "present",
+    "future": "future"
+  },
+  {
+    "timestamp": "2025-06-22T19:31:26.724Z",
+    "past": "Test past state - identified MCP schema issue",
+    "present": "Test present state - fixed z.object() to plain object",
+    "future": "Test future state - validate tools work correctly"
+  },
+  {
+    "timestamp": "2025-06-22T19:31:27.497Z",
+    "past": "Minimal test past",
+    "present": "Minimal test present",
+    "future": "Minimal test future"
+  },
+  {
+    "timestamp": "2025-06-22T19:33:26.057Z",
+    "past": "Test past state - identified MCP schema issue",
+    "present": "Test present state - fixed z.object() to plain object",
+    "future": "Test future state - validate tools work correctly"
+  },
+  {
+    "timestamp": "2025-06-22T19:33:26.990Z",
+    "past": "Minimal test past",
+    "present": "Minimal test present",
+    "future": "Minimal test future"
+  },
+  {
+    "timestamp": "2025-06-22T19:34:19.587Z",
+    "past": "Test past state - identified MCP schema issue",
+    "present": "Test present state - fixed z.object() to plain object",
+    "future": "Test future state - validate tools work correctly"
+  },
+  {
+    "timestamp": "2025-06-22T19:34:20.538Z",
+    "past": "Minimal test past",
+    "present": "Minimal test present",
+    "future": "Minimal test future"
+  },
+  {
+    "timestamp": "2025-06-22T19:34:51.393Z",
+    "past": "Test past state - identified MCP schema issue",
+    "present": "Test present state - fixed z.object() to plain object",
+    "future": "Test future state - validate tools work correctly"
+  },
+  {
+    "timestamp": "2025-06-22T19:34:52.330Z",
+    "past": "Minimal test past",
+    "present": "Minimal test present",
+    "future": "Minimal test future"
+  },
+  {
+    "timestamp": "2025-06-22T19:35:12.451Z",
+    "past": "Test past state - identified MCP schema issue",
+    "present": "Test present state - fixed z.object() to plain object",
+    "future": "Test future state - validate tools work correctly"
+  },
+  {
+    "timestamp": "2025-06-22T19:35:13.442Z",
+    "past": "Minimal test past",
+    "present": "Minimal test present",
+    "future": "Minimal test future"
   }
 ]

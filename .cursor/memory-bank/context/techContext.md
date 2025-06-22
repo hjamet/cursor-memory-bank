@@ -3,7 +3,7 @@
 **Core Technologies:**
 - Cursor AI Agent
 - Markdown (`.md`, `.mdc` for rules)
-- MCP Servers (specifically `mcp_memory_*` tools for knowledge graph/memory, `mcp_MyMCP_*` for terminal operations, `mcp_MemoryBank_*` for userbrief management and commit operations)
+- MCP Servers (specifically `mcp_memory_*` tools for knowledge graph/memory, `mcp_ToolsMCP_*` for terminal operations, `mcp_MemoryBankMCP_*` for userbrief management and commit operations)
 - Node.js with ESM (for MCP servers)
 - Access to `mcp_debug_*` tools for interactive debugging.
 - Underlying Cursor infrastructure for rule execution and tool calls.
@@ -14,7 +14,7 @@
 - Access to `mcp_memory_create_entities`, `mcp_memory_create_relations`, `mcp_memory_add_observations`, `mcp_memory_search_nodes`, etc. (Used for agent's knowledge graph memory within workflow rules)
 - Access to `mcp_context7_*` tools for library documentation lookup.
 - Access to `mcp_debug_*` tools for interactive debugging.
-- Access to `mcp_MemoryBank_*` tools for userbrief management and commit operations
+- Access to `mcp_MemoryBankMCP_*` tools for userbrief management and commit operations
 - Underlying Cursor infrastructure for rule execution and tool calls.
 - For MCP commit server: `@modelcontextprotocol/sdk`, `zod`, `puppeteer`, `sharp`
 - For Memory Bank MCP server: `@modelcontextprotocol/sdk`, `express`, `cors`, `express-rate-limit`, `zod`
@@ -29,8 +29,8 @@
 Le projet est organisé en une structure de fichiers cohérente avec des règles spécifiques pour Cursor et un script d'installation bash.
 
 Le projet comprend deux serveurs MCP principaux :
-1. **MyMCP Server** : Serveur pour les opérations de terminal et manipulation d'images/captures d'écran
-2. **MemoryBank MCP Server** : Serveur consolidé pour la gestion des tâches, userbrief et opérations de commit
+1. **ToolsMCP Server** : Serveur pour les opérations de terminal et manipulation d'images/captures d'écran
+2. **MemoryBankMCP Server** : Serveur consolidé pour la gestion des tâches, userbrief et opérations de commit
 
 Ces serveurs se connectent via le protocole StdioTransport et doivent être correctement installés dans le répertoire d'installation de Cursor pour fonctionner.
 
@@ -47,7 +47,7 @@ Un hook pre-commit est également fourni dans `.githooks/pre-commit` et install�
 - Documentation en français
 - Gestion explicite des protocoles file:// pour les téléchargements
 - Traitement amélioré des codes HTTP non standards
-- **Utilisation systématique des outils MCP (`mcp_MyMCP_*` pour terminal, `mcp_MemoryBank_*` pour tâches/commits) pour l'exécution de commandes externes dans les règles**
+- **Utilisation systématique des outils MCP (`mcp_ToolsMCP_*` pour terminal, `mcp_MemoryBankMCP_*` pour tâches/commits) pour l'exécution de commandes externes dans les règles**
 - **WORKAROUND:** Pour modifier de manière fiable les fichiers `.mdc` (règles), renommer temporairement en `.md`, éditer, puis renommer en `.mdc` pour assurer la détection par Git.
 - **Pre-commit Hook**: Warns (but does not block) if code files (.py, .js, .ts, .java, .go, .rb, .php, .sh) exceed 500 lines.
 
@@ -77,8 +77,8 @@ Un hook pre-commit est également fourni dans `.githooks/pre-commit` et install�
 
 ## Notes sur les Serveurs MCP
 
-### MyMCP Server (`mcp_MyMCP_*`)
-Le serveur MyMCP (nommé `InternalAsyncTerminal` dans son code) fournit les outils suivants :
+### ToolsMCP Server (`mcp_ToolsMCP_*`)
+Le serveur ToolsMCP (nommé `ToolsMCP` dans son code) fournit les outils suivants :
 - `execute_command`: Pour exécuter des commandes shell de manière asynchrone.
 - `get_terminal_status`: Pour vérifier l'état des commandes en cours.
 - `get_terminal_output`: Pour récupérer la sortie d'une commande.
@@ -86,8 +86,8 @@ Le serveur MyMCP (nommé `InternalAsyncTerminal` dans son code) fournit les outi
 - `consult_image`: Pour lire un fichier image et le retourner en base64 (utilise `sharp` pour redimensionnement/compression).
 - `take_webpage_screenshot`: Pour prendre une capture d'écran d'une page web et la retourner en base64 (utilise `puppeteer` pour la capture et `sharp` pour redimensionnement/compression).
 
-### MemoryBank MCP Server (`mcp_MemoryBank_*`)
-Le serveur MemoryBank MCP (nommé `MemoryBank` dans sa configuration) fournit les outils suivants :
+### MemoryBankMCP Server (`mcp_MemoryBankMCP_*`)
+Le serveur MemoryBankMCP (nommé `MemoryBankMCP` dans sa configuration) fournit les outils suivants :
 - `read-userbrief`: Reads the `userbrief.json` file and returns the current request ('in_progress' or 'new'), plus a configurable number of archived entries. (optional, default: 3)
 - `update-userbrief`: Updates a request's status in `userbrief.json` using its unique ID. Supports status changes and adding comments to a request's history. Action is required. ID is optional (targets active request if omitted). Comment is optional.
 - `create_task`: Creates a new task. Requires title, short_description, and detailed_description. Other fields like dependencies, status, etc., are optional.
@@ -95,8 +95,6 @@ Le serveur MemoryBank MCP (nommé `MemoryBank` dans sa configuration) fournit le
 - `get_next_tasks`: Returns available tasks (whose dependencies are met). All parameters are optional filters.
 - `get_all_tasks`: Returns all tasks, with optional filters.
 - `commit`: Performs a standardized Git commit. Requires emoji, type, title, and description.
-- `read_memory`: Reads the full content of a specified context file (activeContext, projectBrief, techContext). Requires context_file.
-- `edit_memory`: Completely replaces the content of a specified context file. Requires context_file and content.
 - `remember`: Records a memory of the agent's state (past, present, future). Replaces `activeContext.md`.
 - `next_rule`: Fetches the instructions for the next rule to be executed.
 
@@ -112,13 +110,13 @@ Le serveur MemoryBank MCP (nommé `MemoryBank` dans sa configuration) fournit le
 ### General MCP Issues
 - Sensibilité à la configuration `cwd` (Current Working Directory) lors de l'exécution de commandes via `spawn`, en particulier avec `shell: false`. CWD is auto-detected based on server startup args (`--cwd`), `CURSOR_WORKSPACE_ROOT` env var, or the server process's CWD.
 - Toute sortie `console.log` ou `console.warn` non JSON du serveur MCP peut interrompre la communication avec le client Cursor, entraînant des erreurs "Unexpected token". Les logs de débogage doivent être commentés ou supprimés en production.
-- L'outil `mcp_MyMCP_execute_command` rencontrait des difficultés à capturer `stdout`/`stderr` pour `tests/test_mcp_async_terminal.js`. L'ajout de logging fichier dans le script de test semble avoir résolu le problème (test passe désormais).
+- L'outil `mcp_ToolsMCP_execute_command` rencontrait des difficultés à capturer `stdout`/`stderr` pour `tests/test_mcp_async_terminal.js`. L'ajout de logging fichier dans le script de test semble avoir résolu le problème (test passe désormais).
 - Le retour d'images volumineuses en base64 (`type: \"image\"`) via MCP peut entraîner des erreurs `Maximum call stack size exceeded` ou des interruptions. La solution consiste à traiter l'image côté serveur (ex: avec `sharp`) pour réduire sa taille (e.g., redimensionner à 1024px de large, compresser en JPEG) avant l'encodage base64.
 - **Problème de propagation des erreurs**: Le SDK `@modelcontextprotocol/sdk` semble ne pas propager correctement les erreurs lancées par les handlers d'outils. Les exceptions sont interceptées par le SDK mais ne sont pas converties en une réponse d'erreur JSON-RPC valide, ce qui empêche le client de détecter les échecs. Ce problème a été identifié en essayant de faire échouer un appel à `next_rule` avec une règle inexistante.
 
 ### Known Issues/Solutions
 - **`@modelcontextprotocol/sdk` Error**: The SDK can throw `ERR_PACKAGE_PATH_NOT_EXPORTED` on certain imports. The correct import for the client seems to be `import { McpClient } from '@modelcontextprotocol/sdk/client/mcp.js';`, but this can also fail. There appears to be an underlying issue with the SDK's package exports that makes imports unstable.
-- **`edit_file` Tool Instability**: The `edit_file` tool is currently highly unstable, especially for `.js` and `.md` files. It often fails to apply changes, applies them partially, or makes destructive, unintended changes. Using more direct tools like `mcp_MyMCP_regex_edit` or breaking down changes into very small, targeted edits may be a necessary workaround.
+- **`edit_file` Tool Instability**: The `edit_file` tool is currently highly unstable, especially for `.js` and `.md` files. It often fails to apply changes, applies them partially, or makes destructive, unintended changes. Using more direct tools like `mcp_ToolsMCP_regex_edit` or breaking down changes into very small, targeted edits may be a necessary workaround.
 
 ## Architecture des Serveurs MCP
 - **Format de Registration**: Tous les outils utilisent le format 3-paramètres `server.tool(name, schema, handler)` avec objets Zod inline

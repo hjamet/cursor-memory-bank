@@ -27,41 +27,19 @@ const STATUS_ORDER = {
 
 /**
  * Handles the get_all_tasks tool call
- * Returns tasks with priority ordering: in_progress, todo, blocked, review, done
+ * Returns all tasks except completed ones, with priority ordering: in_progress, todo, blocked, review
  * 
- * @param {Object} params - Tool parameters
- * @param {number} [params.count=10] - Number of tasks to return
- * @param {string} [params.status_filter] - Filter by specific status
- * @param {number} [params.priority_filter] - Filter by specific priority
- * @param {boolean} [params.include_subtasks=true] - Include sub-tasks
- * @param {boolean} [params.include_dependencies=true] - Include dependency info
- * @returns {Object} Tool response with prioritized tasks
+ * @param {Object} params - Tool parameters (no parameters needed)
+ * @returns {Object} Tool response with all non-completed tasks
  */
 export async function handleGetAllTasks(params) {
     try {
-        const {
-            count = 10,
-            status_filter,
-            priority_filter,
-            include_subtasks = true,
-            include_dependencies = true
-        } = params;
-
-        console.log(`[GetAllTasks] Retrieving up to ${count} tasks.`);
+        console.log(`[GetAllTasks] Retrieving all non-completed tasks.`);
 
         let allTasks = await readTasks();
 
-        // Apply filters
-        let filteredTasks = allTasks;
-        if (status_filter) {
-            filteredTasks = filteredTasks.filter(task => task.status === status_filter);
-        }
-        if (priority_filter) {
-            filteredTasks = filteredTasks.filter(task => task.priority === priority_filter);
-        }
-        if (!include_subtasks) {
-            filteredTasks = filteredTasks.filter(task => !task.parent_id);
-        }
+        // Filter out completed tasks
+        let filteredTasks = allTasks.filter(task => task.status !== 'DONE');
 
         // Sort tasks by status order, then priority
         filteredTasks.sort((a, b) => {
@@ -70,18 +48,18 @@ export async function handleGetAllTasks(params) {
             if (statusA !== statusB) {
                 return statusA - statusB;
             }
-            return (a.priority || 3) - (b.priority || 3);
+            return (b.priority || 3) - (a.priority || 3); // Higher priority first
         });
 
-        // Apply count limit after filtering and sorting
-        const paginatedTasks = filteredTasks.slice(0, count);
+        // Use all filtered tasks (no pagination)
+        const paginatedTasks = filteredTasks;
 
         // Enhance tasks with additional information
         const enhancedTasks = paginatedTasks.map(task => {
             const baseTask = { ...task };
 
-            // Add dependency information if requested
-            if (include_dependencies && task.dependencies && task.dependencies.length > 0) {
+            // Always add dependency information
+            if (task.dependencies && task.dependencies.length > 0) {
                 const dependencyDetails = task.dependencies.map(depId => {
                     const depTask = allTasks.find(t => t.id === depId);
                     return depTask
@@ -131,23 +109,22 @@ export async function handleGetAllTasks(params) {
                 subtasks: allTasks.filter(t => t.parent_id).length
             },
             filters_applied: {
-                status_filter: status_filter || null,
-                priority_filter: priority_filter || null,
-                include_subtasks,
-                include_dependencies
+                status_filter: "Excludes DONE tasks",
+                priority_filter: null,
+                include_subtasks: true,
+                include_dependencies: true
             }
         };
 
         const response = {
             status: 'success',
-            message: `Retrieved ${enhancedTasks.length} tasks in priority order`,
+            message: `Retrieved ${enhancedTasks.length} non-completed tasks in priority order`,
             tasks: enhancedTasks,
             statistics,
             query_info: {
-                count_requested: count,
                 count_returned: enhancedTasks.length,
-                priority_order: 'IN_PROGRESS → TODO → BLOCKED → REVIEW → DONE',
-                filters_applied: Object.keys(params).filter(key => key !== 'count').length
+                priority_order: 'IN_PROGRESS → TODO → BLOCKED → REVIEW (excludes DONE)',
+                filters_applied: "Excludes completed tasks only"
             }
         };
 

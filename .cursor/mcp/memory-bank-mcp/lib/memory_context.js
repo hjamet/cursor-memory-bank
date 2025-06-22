@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { findSimilarMemories } from './semantic_search.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -66,9 +67,21 @@ export async function readMemoryContext() {
         context.previous_rule = 'system';
     }
 
-    // Get relevant long-term memories (for now, just return all if available)
-    // In a more sophisticated implementation, we would use semantic similarity
-    context.relevant_long_term_memories = longTermMemory ? [longTermMemory] : [];
+    // Get relevant long-term memories using semantic search
+    let relevantLongTermMemories = [];
+    if (agentMemory && agentMemory.length > 0 && longTermMemory) {
+        const lastMemory = agentMemory[agentMemory.length - 1];
+        if (lastMemory.future) {
+            try {
+                const longTermMemories = Array.isArray(longTermMemory) ? longTermMemory : [longTermMemory];
+                relevantLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 3);
+            } catch (error) {
+                console.warn(`Could not perform semantic search: ${error.message}`);
+                relevantLongTermMemories = Array.isArray(longTermMemory) ? longTermMemory.slice(0, 3) : [longTermMemory];
+            }
+        }
+    }
+    context.relevant_long_term_memories = relevantLongTermMemories;
 
     // Get current tasks summary
     try {

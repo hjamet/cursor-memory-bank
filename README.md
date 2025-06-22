@@ -89,44 +89,27 @@ Here is a diagram of the workflow used by the agent to process requests:
 
 ```mermaid
 graph TD
-    subgraph "Main Workflow"
-        System --> ConsolidateRepo[consolidate-repo];
-        ConsolidateRepo --> TaskDecomposition[task-decomposition];
-        TaskDecomposition --> Implementation;
-        Implementation -- "Code changed" --> ExperienceExecution[experience-execution];
-        Implementation -- "Docs/other changed" --> ContextUpdate[context-update];
-        ExperienceExecution -- "Success" --> ContextUpdate;
-        ExperienceExecution -- "Freeze behavior" --> TestImplementation[test-implementation];
-        TestImplementation --> TestExecution[test-execution];
-        TestExecution -- "Tests pass" --> ContextUpdate;
-        ContextUpdate -- "More tasks" --> TaskDecomposition;
-    end
-
-    subgraph "Error Handling & Fixes"
-        ExperienceExecution -- "Fail" --> Fix;
-        TestExecution -- "Tests fail" --> Fix;
-        ContextUpdate -- "Issues found" --> Fix;
-        Fix -- "Loop complete (regression check)" --> TestExecution;
-        Fix -- "Add regression test" --> TestImplementation;
-        Fix -- "Complex fix needed" --> TaskDecomposition;
-        ExperienceExecution -- "Anomaly found" --> TaskDecomposition;
-    end
-
-    subgraph "Utility Rules"
-        WorkflowPerdu[workflow-perdu] --> System;
-        OnEditToolFail[on-edit-tool-fail] -.-> System;
-        OnEditToolFail -.-> ConsolidateRepo;
-        OnEditToolFail -.-> TaskDecomposition;
-        OnEditToolFail -.-> Implementation;
-        OnEditToolFail -.-> ExperienceExecution;
-        OnEditToolFail -.-> TestImplementation;
-        OnEditToolFail -.-> TestExecution;
-        OnEditToolFail -.-> Fix;
-        OnEditToolFail -.-> ContextUpdate;
-    end
-
-    style WorkflowPerdu fill:#f9f,stroke:#333,stroke-width:2px
-    style OnEditToolFail fill:#f9f,stroke:#333,stroke-width:2px
+    A["start-workflow<br/>🚀 Initialize workflow<br/>Load context & memory"] --> B["task-decomposition<br/>📋 Break down requests<br/>Create tasks"]
+    
+    B --> C["implementation<br/>⚙️ Execute tasks<br/>Code & develop"]
+    
+    C --> D["experience-execution<br/>🧪 Manual testing<br/>Validate functionality"]
+    
+    D --> E["fix<br/>🔧 Debug & resolve<br/>Handle issues"]
+    D --> F["context-update<br/>📝 Update context<br/>Process userbrief<br/>Commit changes"]
+    
+    E --> C
+    E --> D
+    
+    F --> B
+    F --> A
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style D fill:#fff3e0
+    style E fill:#ffebee
+    style F fill:#f1f8e9
 ```
 
 ## Contributing 🤝

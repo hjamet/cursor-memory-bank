@@ -8,9 +8,8 @@ Cette step initialise l'agent en chargeant son état précédent et en fournissa
    - Si aucun état précédent n'existe, commencer par la règle `system`
 
 2. **Load project context**: Charger le contexte complet du projet.
-   - Lire `.cursor/memory-bank/context/projectBrief.md`
-   - Lire `.cursor/memory-bank/context/techContext.md`
-   - Afficher le contenu de ces fichiers pour établir le contexte
+   - Le contexte du projet (projectBrief et techContext) est automatiquement chargé et disponible
+   - Ces informations sont intégrées dans le contexte de la règle
 
 3. **Load working memory**: Récupérer les souvenirs de la mémoire de travail.
    - Récupérer les 10 derniers souvenirs de la mémoire de travail
@@ -53,14 +52,7 @@ Je commence par charger l'état précédent de l'agent pour comprendre où il en
 L'agent était précédemment dans la règle: {{ previous_rule }} **(Start-workflow: 1 - Load previous agent state)**
 
 # Start-workflow: 2 - Load project context
-Je charge maintenant le contexte complet du projet. **(Start-workflow: 2 - Load project context)**
-
-## Project Brief
-{{ project_brief }}
-
-## Technical Context  
-{{ tech_context }}
-**(Start-workflow: 2 - Load project context)**
+Le contexte complet du projet (projectBrief et techContext) est automatiquement chargé et disponible dans le contexte de cette règle. **(Start-workflow: 2 - Load project context)**
 
 # Start-workflow: 3 - Load working memory
 Je récupère les souvenirs pertinents de la mémoire de travail. **(Start-workflow: 3 - Load working memory)**

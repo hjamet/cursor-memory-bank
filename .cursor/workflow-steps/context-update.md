@@ -4,23 +4,29 @@ Analyzes the provided context, updates context files, manages task statuses, and
 
 ## Instructions
 1. **Analyze available context**: 
-   - Analyze the full context provided by the MCP server, including `projectBrief.md`, `activeContext.md`, `techContext.md`, `userbrief.md`, `tasks.md`, and test results.
+   - Analyze the full context provided by the MCP server, including `projectBrief.md`, `techContext.md`, recent memories, and current tasks.
+   - Read the userbrief to check for new user requests and preferences.
 
-2. **Context update**: Update the three context files if necessary.
+2. **Context update**: Update the context files if necessary.
    - Based on the analysis, determine if any context files need updates to reflect the latest changes.
-   - If so, formulate the new content for the required files (`projectBrief.md`, `activeContext.md`, `techContext.md`).
-   - The MCP server will handle applying these updates.
+   - If so, formulate the new content for the required files (`projectBrief.md`, `techContext.md`).
+   - Use the `remember` tool to record the current state and learnings.
 
 3. **Context cleanup**: 
    - When formulating new content, ensure it is concise, removes obsolete information, and maintains structural integrity.
 
-4. **Tasks update**: Mark completed tasks as `DONE` in `tasks.md`.
+4. **Tasks update**: Mark completed tasks as `DONE` using the `update_task` tool.
 
-5. **Commit changes**: Make a commit with the modifications using the `mcp_MemoryBank_commit` tool.
+5. **Userbrief processing**: Check for new user requests and update their status if needed.
+   - Use `read_userbrief` to get current requests
+   - Process any new requests by updating their status or adding comments
+   - Use `update_userbrief` to mark requests as processed
+
+6. **Commit changes**: Make a commit with the modifications using the `commit` tool.
    - Determine the appropriate `emoji`, `type`, and `title`.
    - Construct a detailed `description`.
 
-6. **Call the next step**: Mandatory call to `next_step`.
+7. **Call the next step**: Mandatory call to `next_rule`.
 
 ## Specifics
 - This step now operates on the assumption that all necessary context is provided by the MCP server at runtime, removing the need for direct file reads.
@@ -90,9 +96,11 @@ The `description` argument for the `mcp_MemoryBank_commit` tool must be a detail
 - :rewind: `revert`: Reverts a previous commit
 
 ## Next Steps
-- `consolidate-repo` - If file structure problems are detected or unprocessed comments exist in userbrief.md
-- `fix` - If at least one test fails
-- `implementation` - If at least one task is still in progress or to do and no test fails
+- `task-decomposition` - If new user requests are found in userbrief
+- `fix` - If issues are detected during analysis
+- `implementation` - If tasks are still in progress or to do
+- `experience-execution` - If implementation is complete and manual testing is needed
+- `start-workflow` - If workflow is complete and ready for next iteration
 
 ## Example
 

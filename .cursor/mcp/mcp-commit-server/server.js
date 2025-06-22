@@ -164,7 +164,7 @@ const escapeShellArg = (arg) => {
 
 // Create an MCP server instance
 const server = new McpServer({
-    name: "InternalAsyncTerminal",
+    name: "ToolsMCP",
     version: "0.6.0", // Incremented version for new tool
     capabilities: {
         tools: {
