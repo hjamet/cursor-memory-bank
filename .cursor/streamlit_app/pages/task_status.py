@@ -10,7 +10,7 @@ st.sidebar.header("Task Status")
 # Correctly locate the tasks.json file relative to this script's location
 try:
     # Path is relative to the project root, where the app is run
-    tasks_file = Path('.cursor/memory-bank/streamlit_app/tasks.json')
+    tasks_file = Path('.cursor/streamlit_app/tasks.json')
     
     with open(tasks_file, 'r') as f:
         tasks = json.load(f)

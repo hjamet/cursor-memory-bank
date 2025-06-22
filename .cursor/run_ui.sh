@@ -5,4 +5,4 @@
 echo "Launching Streamlit UI..."
 echo "You can view the app in your browser."
 echo ""
-streamlit run .cursor/memory-bank/streamlit_app/app.py 
+streamlit run .cursor/streamlit_app/app.py 
