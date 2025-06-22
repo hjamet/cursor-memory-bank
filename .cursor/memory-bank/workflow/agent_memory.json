@@ -286,5 +286,35 @@
     "past": "Minimal test past",
     "present": "Minimal test present",
     "future": "Minimal test future"
+  },
+  {
+    "timestamp": "2025-06-22T21:24:53.382Z",
+    "past": "Je venais de lancer le workflow start-workflow pour commencer la vérification systématique de chaque étape et outil du workflow",
+    "present": "L'étape start-workflow fonctionne correctement mais j'ai identifié des problèmes d'affichage des objets mémoire et de clarté dans les instructions. Le workflow est opérationnel et les outils MCP répondent bien",
+    "future": "Je vais maintenant tester chaque étape du workflow (task-decomposition, implementation, fix, context-update, experience-execution) et noter tous les problèmes ou améliorations dans les souvenirs à long terme"
+  },
+  {
+    "timestamp": "2025-06-22T21:25:40.388Z",
+    "past": "J'ai testé systématiquement toutes les étapes du workflow (start-workflow, task-decomposition, implementation, fix, context-update, experience-execution) et les outils MCP associés",
+    "present": "J'ai identifié plusieurs problèmes dans les instructions des étapes du workflow qui nécessitent des corrections pour être cohérents avec les nouveaux outils MCP. Tous les outils MCP fonctionnent correctement mais les instructions font encore référence aux anciens systèmes basés sur des fichiers",
+    "future": "Je vais documenter tous les problèmes identifiés dans les souvenirs à long terme pour que l'utilisateur puisse les consulter et me demander de les résoudre"
+  },
+  {
+    "timestamp": "2025-06-22T21:25:49.301Z",
+    "past": "Vérification complète du workflow terminée",
+    "present": "PROBLÈMES IDENTIFIÉS DANS LE WORKFLOW : 1) start-workflow : Affichage des objets mémoire comme [object Object] au lieu d'être formatés lisiblement. 2) task-decomposition : Références obsolètes à userbrief.md et tasks.md, noms d'outils MCP incorrects (mcp_MemoryBank_* au lieu de mcp_MemoryBankMCP_*). 3) implementation : Références à tasks.md et activeContext.md, référence à test-implementation inexistant. 4) fix : Références à tests.md, tasks.md, activeContext.md, outils mal nommés (mcp_MyMCP_* au lieu de mcp_ToolsMCP_*), références à test-execution inexistant. 5) context-update : Références à userbrief.md, tasks.md, activeContext.md. 6) experience-execution : Outils mal nommés (mcp_MyMCP_* au lieu de mcp_ToolsMCP_*)",
+    "future": "Ces problèmes doivent être corrigés pour que le workflow soit entièrement cohérent avec les nouveaux outils MCP et le système JSON"
+  },
+  {
+    "timestamp": "2025-06-22T21:36:53.911Z",
+    "past": "L'utilisateur a signalé trois problèmes : 1) Serveur MCP MemoryBankMCP en erreur à cause du fichier read_userbrief.js manquant, 2) Problème d'affichage de la barre de progression dans l'interface Streamlit, 3) Demande d'ajout de l'affichage des 10 derniers souvenirs de l'agent dans la page principale",
+    "present": "J'ai résolu les trois problèmes : 1) Créé le fichier read_userbrief.js manquant et l'ai ajouté au serveur MCP, 2) Corrigé la barre de progression avec un meilleur CSS et affichage des nombres, 3) Ajouté une section complète d'affichage des souvenirs de l'agent avec un tableau pandas et une vue détaillée. L'application Streamlit fonctionne maintenant correctement sur le port 8505",
+    "future": "Les améliorations sont maintenant opérationnelles. Je vais surveiller si d'autres problèmes apparaissent et continuer à améliorer l'interface utilisateur et les outils MCP selon les besoins"
+  },
+  {
+    "timestamp": "2025-06-22T21:46:46.707Z",
+    "past": "L'utilisateur a signalé deux problèmes : 1) La barre de progression des tâches avait encore des soucis d'affichage, 2) Le tableau des souvenirs n'était pas très lisible et il souhaitait le séparer en sections",
+    "present": "J'ai corrigé les deux problèmes : 1) Remplacé la barre de progression HTML personnalisée par des barres de progression natives Streamlit avec métriques individuelles pour chaque statut, 2) Complètement refait l'affichage des souvenirs avec des expandeurs séparés pour chaque mémoire, des onglets pour organiser le contenu (Past/Present/Future/Long Term), et une section de résumé. L'interface est maintenant beaucoup plus claire et lisible",
+    "future": "L'interface utilisateur est maintenant améliorée avec un affichage plus clair et plus fonctionnel. Je vais continuer à surveiller les retours utilisateur pour d'autres améliorations potentielles"
   }
 ]

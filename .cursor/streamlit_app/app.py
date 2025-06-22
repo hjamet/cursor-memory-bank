@@ -26,6 +26,27 @@ def read_json_file(file_path):
         st.error(f"Error reading {file_path}: {e}")
         return None
 
+# Helper function to get agent memories
+def get_agent_memories(limit=10):
+    memory_locations = [
+        Path('.cursor/memory-bank/context/agent_memory.json'),
+        Path('.cursor/memory-bank/workflow/agent_memory.json'),
+        Path('.cursor/memory-bank/agent_memory.json')
+    ]
+    
+    for memory_file in memory_locations:
+        if memory_file.exists():
+            try:
+                with open(memory_file, 'r', encoding='utf-8') as f:
+                    memories = json.load(f)
+                    if isinstance(memories, list) and memories:
+                        # Return the last 'limit' memories
+                        return memories[-limit:] if len(memories) > limit else memories
+            except Exception as e:
+                st.error(f"Error reading memories from {memory_file}: {e}")
+    
+    return []
+
 # Helper function to get the latest memory entry
 def get_latest_memory():
     # Check multiple possible memory locations
@@ -257,43 +278,36 @@ if task_status:
     blocked_pct = (blocked / total) * 100 if total > 0 else 0
     todo_pct = (todo / total) * 100 if total > 0 else 0
     
-    # Create progress bar with HTML and CSS
-    progress_html = f"""
-    <div style="width: 100%; background-color: #f0f0f0; border-radius: 10px; overflow: hidden; margin: 20px 0;">
-        <div style="display: flex; height: 30px;">
-            <div style="width: {done_pct}%; background-color: #28a745; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                {"✅" if done > 0 else ""}
-            </div>
-            <div style="width: {in_progress_pct}%; background-color: #007bff; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                {"🔄" if in_progress > 0 else ""}
-            </div>
-            <div style="width: {review_pct}%; background-color: #ffc107; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold;">
-                {"👀" if review > 0 else ""}
-            </div>
-            <div style="width: {blocked_pct}%; background-color: #dc3545; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                {"🚫" if blocked > 0 else ""}
-            </div>
-            <div style="width: {todo_pct}%; background-color: #6c757d; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                {"⏳" if todo > 0 else ""}
-            </div>
-        </div>
-    </div>
-    """
+    # Use Streamlit's native progress bar instead of custom HTML
+    st.write(f"**Total Tasks: {total}**")
     
-    st.markdown(progress_html, unsafe_allow_html=True)
-    
-    # Legend
+    # Create individual progress bars for each status
     col1, col2, col3, col4, col5 = st.columns(5)
+    
     with col1:
-        st.metric("✅ Done", f"{done} ({done_pct:.1f}%)")
+        st.metric("✅ Done", f"{done}")
+        if total > 0:
+            st.progress(done / total, text=f"{done_pct:.1f}%")
+    
     with col2:
-        st.metric("🔄 In Progress", f"{in_progress} ({in_progress_pct:.1f}%)")
+        st.metric("🔄 In Progress", f"{in_progress}")
+        if total > 0:
+            st.progress(in_progress / total, text=f"{in_progress_pct:.1f}%")
+    
     with col3:
-        st.metric("👀 Review", f"{review} ({review_pct:.1f}%)")
+        st.metric("👀 Review", f"{review}")
+        if total > 0:
+            st.progress(review / total, text=f"{review_pct:.1f}%")
+    
     with col4:
-        st.metric("🚫 Blocked", f"{blocked} ({blocked_pct:.1f}%)")
+        st.metric("🚫 Blocked", f"{blocked}")
+        if total > 0:
+            st.progress(blocked / total, text=f"{blocked_pct:.1f}%")
+    
     with col5:
-        st.metric("⏳ TODO", f"{todo} ({todo_pct:.1f}%)")
+        st.metric("⏳ TODO", f"{todo}")
+        if total > 0:
+            st.progress(todo / total, text=f"{todo_pct:.1f}%")
     
     st.markdown("---")
     
@@ -338,6 +352,82 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚡ Quick Actions")
 if st.sidebar.button("🔄 Refresh Dashboard"):
     st.rerun()
+
+# Display Agent Memories
+st.header("🧠 Agent Memory Timeline")
+agent_memories = get_agent_memories(10)
+
+if agent_memories:
+    st.subheader("📖 Last 10 Agent Memories")
+    st.write(f"Showing {len(agent_memories)} most recent memories (newest first)")
+    
+    # Display memories in separate sections for better readability
+    for i, memory in enumerate(reversed(agent_memories)):  # Most recent first
+        memory_id = len(agent_memories) - i
+        timestamp = memory.get('timestamp', 'Unknown')[:19].replace('T', ' ') if memory.get('timestamp') else 'Unknown'
+        
+        # Create an expander for each memory
+        with st.expander(f"💭 Memory #{memory_id} - {timestamp}", expanded=(i == 0)):  # Expand only the most recent
+            
+            # Use tabs for better organization
+            tab1, tab2, tab3, tab4 = st.tabs(["🕐 Past", "⏰ Present", "🔮 Future", "🧠 Long Term"])
+            
+            with tab1:
+                st.write("**Past Context:**")
+                past_content = memory.get('past', 'N/A')
+                if past_content and past_content != 'N/A':
+                    st.write(past_content)
+                else:
+                    st.info("No past context recorded")
+            
+            with tab2:
+                st.write("**Present Reality:**")
+                present_content = memory.get('present', 'N/A')
+                if present_content and present_content != 'N/A':
+                    st.write(present_content)
+                else:
+                    st.info("No present reality recorded")
+            
+            with tab3:
+                st.write("**Future Plans:**")
+                future_content = memory.get('future', 'N/A')
+                if future_content and future_content != 'N/A':
+                    st.write(future_content)
+                else:
+                    st.info("No future plans recorded")
+            
+            with tab4:
+                st.write("**Long Term Memory:**")
+                long_term_content = memory.get('long_term_memory', '')
+                if long_term_content and long_term_content.strip():
+                    st.write(long_term_content)
+                else:
+                    st.info("No long term memory recorded")
+            
+            # Add timestamp info at the bottom
+            st.caption(f"📅 Recorded: {timestamp}")
+            
+            # Add separator except for the last item
+            if i < len(agent_memories) - 1:
+                st.markdown("---")
+    
+    # Summary section
+    st.markdown("---")
+    with st.expander("📊 Memory Summary", expanded=False):
+        st.write(f"**Total memories displayed:** {len(agent_memories)}")
+        
+        # Count memories with long-term content
+        long_term_count = sum(1 for m in agent_memories if m.get('long_term_memory', '').strip())
+        st.write(f"**Memories with long-term insights:** {long_term_count}")
+        
+        # Show date range
+        if len(agent_memories) > 1:
+            oldest = agent_memories[0].get('timestamp', '')[:19].replace('T', ' ')
+            newest = agent_memories[-1].get('timestamp', '')[:19].replace('T', ' ')
+            st.write(f"**Time range:** {oldest} to {newest}")
+
+else:
+    st.info("No agent memories found. Memories will appear here as the agent works and learns.")
 
 st.sidebar.markdown("---")
 st.sidebar.info("💡 Use the pages in the sidebar to add requests, manage tasks, or edit memory.") 

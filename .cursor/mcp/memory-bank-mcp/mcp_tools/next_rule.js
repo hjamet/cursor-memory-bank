@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import nunjucks from 'nunjucks';
 import { readMemoryContext } from '../lib/memory_context.js';
-import { handleReadUserbrief } from './read_userbrief.js';
+import { readUserbriefData } from '../lib/userbrief_manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,22 +23,19 @@ async function getStep(step_name) {
 
         // Get userbrief information
         try {
-            const userbriefResult = await handleReadUserbrief({ archived_count: 3 });
-            if (userbriefResult && userbriefResult.content && userbriefResult.content[0]) {
-                const userbriefData = JSON.parse(userbriefResult.content[0].text);
-                context.userbrief = userbriefData;
+            const userbriefData = readUserbriefData();
+            context.userbrief = userbriefData;
 
-                // Extract unprocessed requests for easy access
-                context.unprocessed_requests = userbriefData.requests ?
-                    userbriefData.requests.filter(req => req.status === 'new' || req.status === 'in_progress') : [];
+            // Extract unprocessed requests for easy access
+            context.unprocessed_requests = userbriefData.requests ?
+                userbriefData.requests.filter(req => req.status === 'new' || req.status === 'in_progress') : [];
 
-                // Extract preferences for easy access
-                context.user_preferences = userbriefData.requests ?
-                    userbriefData.requests.filter(req => req.status === 'preference').map(req => req.content) : [];
-            }
+            // Extract preferences for easy access
+            context.user_preferences = userbriefData.requests ?
+                userbriefData.requests.filter(req => req.status === 'preference' || req.status === 'pinned').map(req => req.content) : [];
         } catch (error) {
             console.warn(`Could not load userbrief in next_rule: ${error.message}`);
-            context.userbrief = null;
+            context.userbrief = { requests: [] };
             context.unprocessed_requests = [];
             context.user_preferences = [];
         }
