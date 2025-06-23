@@ -65,5 +65,73 @@
     "updated_date": "2025-06-23T07:58:41.228Z",
     "parent_id": null,
     "priority": 3
+  },
+  {
+    "id": 5,
+    "title": "Investigate and fix update_userbrief MCP tool error",
+    "short_description": "Diagnose and resolve the \"fs.readFileSync is not a function\" error in the update_userbrief MCP tool that prevents proper userbrief management.",
+    "detailed_description": "**Problem Analysis:**\nThe update_userbrief MCP tool is failing with \"fs.readFileSync is not a function\" error, preventing proper userbrief management through the MCP interface.\n\n**Root Cause Investigation Required:**\n1. Check ES6 import issues in userbrief_manager.js (likely already fixed based on recent commits)\n2. Verify MCP server restart status and cache issues\n3. Test direct functionality vs MCP tool interface\n4. Identify any remaining module compatibility issues\n\n**Implementation Steps:**\n1. Restart MCP server to ensure latest ES6 fixes are loaded\n2. Test update_userbrief tool directly via MCP interface\n3. Debug any remaining import or module issues\n4. Verify all userbrief operations work correctly\n5. Test end-to-end functionality with Streamlit interface\n\n**Acceptance Criteria:**\n- update_userbrief MCP tool works without errors\n- Can successfully mark requests as archived, in_progress, or add comments\n- Streamlit interface can interact with userbrief via MCP tools\n- All ES6 import issues resolved\n- MCP server runs stably without module errors\n\n**Technical Notes:**\n- Recent commits show ES6 fixes were implemented in userbrief_manager.js\n- Problem may be server restart/cache related rather than code issue\n- Need to verify MCP server is using latest code version",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/lib/userbrief_manager.js",
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/update_userbrief.js",
+      ".cursor/mcp/memory-bank-mcp/server.js"
+    ],
+    "validation_criteria": "Task completed when: (1) update_userbrief MCP tool executes without errors, (2) Can mark requests as archived/in_progress via MCP, (3) Streamlit interface works with MCP tools, (4) MCP server runs stably, (5) All userbrief operations tested and functional",
+    "created_date": "2025-06-23T08:06:59.606Z",
+    "updated_date": "2025-06-23T09:00:53.495Z",
+    "parent_id": null,
+    "priority": 5
+  },
+  {
+    "id": 6,
+    "title": "Enhance get_next_tasks selection algorithm with dependency graph analysis",
+    "short_description": "Improve the get_next_tasks function to automatically identify the most urgent available tasks using dependency graph analysis and priority weighting, with intelligent tie-breaking.",
+    "detailed_description": "**Current Problem:**\nThe get_next_tasks function has suboptimal task selection logic that doesn't effectively analyze the dependency graph and priority system to identify the most urgent tasks automatically.\n\n**Requirements:**\n1. **Dependency Graph Analysis**: Implement proper topological analysis to identify tasks whose dependencies are fully satisfied\n2. **Priority Weighting**: Use task priorities (1-5 scale) as primary selection criteria\n3. **Intelligent Selection**: Automatically determine the single most urgent task or group of equal-priority tasks\n4. **Tie-Breaking Logic**: When multiple tasks have equal priority and no dependencies, return all of them with explanation\n5. **Clear Communication**: Explain to the agent why specific tasks were selected and provide decision rationale\n\n**Implementation Approach:**\n1. Create dependency graph analysis function to validate all dependencies are DONE\n2. Implement priority-based sorting with dependency-readiness filtering\n3. Add tie-breaking logic for equal-priority tasks\n4. Enhance response format to include selection rationale\n5. Add comprehensive logging for debugging task selection decisions\n\n**Enhanced Response Format:**\n- Most urgent available task(s) with rationale\n- Dependency status for each returned task\n- Priority level explanation\n- Selection strategy used (single highest priority vs multiple equal priority)\n- Clear guidance for agent on which task(s) to tackle\n\n**Acceptance Criteria:**\n- Function automatically identifies highest priority available tasks\n- Properly validates all dependencies are completed before marking tasks available\n- Returns multiple tasks only when they have equal priority and no blocking dependencies\n- Provides clear rationale for task selection decisions\n- Handles edge cases (no available tasks, circular dependencies, etc.)\n- Performance optimized for large task sets\n\n**Technical Implementation:**\n- Modify get_next_tasks.js with enhanced algorithm\n- Add dependency graph validation utilities\n- Implement priority-based task ranking system\n- Add comprehensive response formatting\n- Include detailed logging and error handling",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/get_next_tasks.js",
+      ".cursor/mcp/memory-bank-mcp/lib/task_manager.js"
+    ],
+    "validation_criteria": "Task completed when: (1) get_next_tasks automatically identifies most urgent tasks using dependency+priority analysis, (2) Returns single task or group of equal-priority tasks with rationale, (3) Properly validates dependencies before marking tasks available, (4) Provides clear selection explanation to agent, (5) Handles all edge cases gracefully, (6) Performance tested with large task sets",
+    "created_date": "2025-06-23T08:07:13.875Z",
+    "updated_date": "2025-06-23T09:00:59.348Z",
+    "parent_id": null,
+    "priority": 4
+  },
+  {
+    "id": 7,
+    "title": "Clear text area after successful request submission in Streamlit",
+    "short_description": "Modify the Streamlit add_request interface to automatically clear the text area after successful request submission for better user experience.",
+    "detailed_description": "**User Experience Issue:**\nCurrently, when users submit a request via the Streamlit \"Add New Request\" page, the text area retains the submitted content, requiring manual deletion for the next request.\n\n**Desired Behavior:**\nAfter successful request submission, the text area should automatically clear, providing immediate visual feedback that the request was processed and preparing the interface for the next request.\n\n**Technical Challenge:**\nStreamlit's form-based approach makes text clearing non-trivial. The text area is controlled by Streamlit's session state and form submission mechanics.\n\n**Implementation Approaches:**\n1. **Session State Management**: Use st.session_state to control text area value and reset after successful submission\n2. **Form Key Rotation**: Change form key after submission to force form reset\n3. **JavaScript Integration**: Use Streamlit components with JavaScript for direct DOM manipulation\n4. **Rerun with State Reset**: Trigger st.rerun() with cleared session state\n\n**Recommended Solution:**\nImplement session state management approach:\n1. Store text area content in st.session_state\n2. On successful submission, clear the session state variable\n3. Use st.rerun() to refresh the interface with cleared text\n4. Maintain all other functionality (success messages, metrics, etc.)\n\n**Files to Modify:**\n- `.cursor/streamlit_app/pages/add_request.py`: Main implementation\n- Potentially add session state management utilities\n\n**Acceptance Criteria:**\n- Text area clears automatically after successful request submission\n- Success message still displays properly\n- All other functionality remains intact (metrics, validation, error handling)\n- User experience feels smooth and responsive\n- No side effects on other Streamlit pages\n\n**Technical Notes:**\n- Test with different Streamlit versions for compatibility\n- Ensure clearing works with both successful and failed submissions appropriately\n- Maintain form validation behavior\n- Consider accessibility implications",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/add_request.py"
+    ],
+    "validation_criteria": "Task completed when: (1) Text area automatically clears after successful request submission, (2) Success/error messages display correctly, (3) All form validation works as before, (4) User can immediately type new request without manual clearing, (5) No negative impact on other Streamlit functionality, (6) Solution tested with multiple consecutive submissions",
+    "created_date": "2025-06-23T08:07:27.614Z",
+    "updated_date": "2025-06-23T09:01:31.952Z",
+    "parent_id": null,
+    "priority": 2
+  },
+  {
+    "id": 8,
+    "title": "Implement archive size limitation for tasks and userbrief files",
+    "short_description": "Limit the archive size of tasks.json and userbrief.json to maximum 25 archived entries, automatically removing oldest entries when limit is exceeded to prevent infinite file growth.",
+    "detailed_description": "**Problem:**\nThe tasks.json and userbrief.json files can grow infinitely as archived entries accumulate, potentially causing performance issues and making the files unwieldy.\n\n**Requirements:**\n1. **Archive Size Limit**: Cap archived entries at 25 maximum for both files\n2. **Automatic Cleanup**: When limit is exceeded, remove oldest archived entries\n3. **Retention Strategy**: Keep only the most recent 25 archived entries\n4. **Non-Intrusive**: Only affect archived entries, never touch active/new/in-progress items\n5. **Consistent Implementation**: Apply same logic to both task and userbrief management\n\n**Implementation Approach:**\n1. **Task Manager Enhancement**: Modify task archival process to check archive count\n2. **Userbrief Manager Enhancement**: Modify userbrief archival process similarly  \n3. **Cleanup Function**: Create utility to remove excess archived entries by date\n4. **Automatic Triggering**: Run cleanup automatically when archiving new entries\n5. **Preservation Logic**: Always preserve the 25 most recent archived entries\n\n**Technical Implementation:**\n- Modify `task_manager.js` to add archive size checking\n- Modify `userbrief_manager.js` to add archive size checking  \n- Create `cleanup_archives()` function for both managers\n- Sort archived entries by date and keep only newest 25\n- Trigger cleanup automatically in `update_task()` and `update_userbrief()` when status changes to archived\n\n**Files to Modify:**\n- `.cursor/mcp/memory-bank-mcp/lib/task_manager.js`\n- `.cursor/mcp/memory-bank-mcp/lib/userbrief_manager.js`\n\n**Acceptance Criteria:**\n- Archives never exceed 25 entries for both tasks and userbrief\n- Oldest entries are automatically removed when limit is reached\n- Active/new/in-progress entries are never affected by cleanup\n- Cleanup happens transparently during normal archival operations\n- Performance remains good even with frequent archival operations\n- No data loss for recent archived entries\n\n**Testing Requirements:**\n- Test with exactly 25 archived entries (no cleanup)\n- Test with 26+ archived entries (cleanup triggered)\n- Verify oldest entries are removed correctly\n- Ensure active entries are never touched\n- Test both task and userbrief cleanup independently",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "/.cursor/mcp/memory-bank-mcp/lib/task_manager.js",
+      "/.cursor/mcp/memory-bank-mcp/lib/userbrief_manager.js"
+    ],
+    "validation_criteria": "Task completed when: (1) Both task and userbrief archives are capped at 25 entries maximum, (2) Automatic cleanup removes oldest entries when limit exceeded, (3) Active/new/in-progress entries never affected, (4) Cleanup triggers automatically during archival operations, (5) All functionality tested with various archive sizes, (6) Performance remains optimal",
+    "created_date": "2025-06-23T09:02:06.659Z",
+    "updated_date": "2025-06-23T09:02:06.659Z",
+    "parent_id": null,
+    "priority": 3
   }
 ]

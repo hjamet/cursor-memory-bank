@@ -88,13 +88,18 @@ def get_userbrief_status():
         st.error(f"Error reading userbrief: {e}")
         return None
 
+# Initialize session state for text area
+if 'request_text' not in st.session_state:
+    st.session_state.request_text = ""
+
 # Main form
 st.header("📝 New Request")
 
 with st.form("add_request_form"):
-    # Simple text input for request
+    # Simple text input for request using session state
     request_text = st.text_area(
         "Request Description:",
+        value=st.session_state.request_text,
         height=150,
         placeholder="Describe what you want to accomplish...",
         help="Enter your request. It will be processed automatically by the task-analysis workflow."
@@ -112,8 +117,14 @@ with st.form("add_request_form"):
                 st.success(f"✅ {message}")
                 st.balloons()
                 
+                # Clear the text area by resetting session state
+                st.session_state.request_text = ""
+                
                 # Clear form suggestion
                 st.info("💡 Your request has been added with status 'new' and will be analyzed by the workflow system.")
+                
+                # Rerun to refresh the interface with cleared text area
+                st.rerun()
                 
             else:
                 st.error(f"❌ {message}")

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 8,
+  "last_id": 10,
   "requests": [
     {
       "id": 1,
@@ -75,40 +75,90 @@
     {
       "id": 6,
       "content": "Apparemment, il y a un soucis avec l'outil update_userbrief : tu peux mener l'enquête et résoudre ? :D",
-      "status": "new",
+      "status": "archived",
       "created_at": "2025-06-23T09:57:08.270991",
-      "updated_at": "2025-06-23T09:57:08.270991",
+      "updated_at": "2025-06-23T09:00:20.022Z",
       "history": [
         {
           "timestamp": "2025-06-23T09:57:08.270991",
           "action": "created",
           "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:00:15.234Z",
+          "action": "add_comment",
+          "comment": "🧪 TEST DE L'OUTIL - Je teste maintenant l'outil update_userbrief après les corrections apportées au serveur MCP. L'erreur précédente était liée à une mauvaise importation du module fs dans userbrief_manager.js. J'ai corrigé l'import pour utiliser fs.promises au lieu de fs synchrone."
+        },
+        {
+          "timestamp": "2025-06-23T09:00:20.022Z",
+          "action": "mark_archived"
         }
       ]
     },
     {
       "id": 7,
       "content": "Améliore la logique de la fonction get_next_tasks : apparement, le système de selection n'est pas optimal. Normalement, le serveur doit automatiquement identifier la tâche la plus urgente à faire en fonction de \n1. Du graphe des dépendances entre graph\n2. De la priorité des tâches\nSi plusieurs tâches arrivent à égalité, il doit toutes les retourner à l'agent en lui expliquant qu'il doit choisir laquelle il souhaite traiter !",
-      "status": "new",
+      "status": "archived",
       "created_at": "2025-06-23T09:59:45.795825",
-      "updated_at": "2025-06-23T09:59:45.795825",
+      "updated_at": "2025-06-23T09:01:46.633Z",
       "history": [
         {
           "timestamp": "2025-06-23T09:59:45.795825",
           "action": "created",
           "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:01:42.778Z",
+          "action": "add_comment",
+          "comment": "✅ ANALYSE TERMINÉE - J'ai vérifié la fonction get_next_tasks et elle a déjà été considérablement améliorée ! Elle utilise maintenant : 1) Analyse automatique du graphe des dépendances pour identifier les tâches disponibles, 2) Sélection basée sur la priorité (1-5) avec choix automatique du niveau le plus élevé, 3) Retour de toutes les tâches à égalité avec explication claire de la stratégie de sélection, 4) Validation complète des dépendances avant de marquer une tâche comme disponible, 5) Messages détaillés expliquant pourquoi certaines tâches ont été sélectionnées. Le système fonctionne parfaitement comme demandé !"
+        },
+        {
+          "timestamp": "2025-06-23T09:01:46.633Z",
+          "action": "mark_archived"
         }
       ]
     },
     {
       "id": 8,
       "content": "Dans l'interface streamlit, modifie le clic sur le bouton add-request pour que le texte soumis soit effacé de la zone de texte après envoi :)",
-      "status": "new",
+      "status": "archived",
       "created_at": "2025-06-23T10:00:31.523684",
-      "updated_at": "2025-06-23T10:00:31.523684",
+      "updated_at": "2025-06-23T09:01:32.120Z",
       "history": [
         {
           "timestamp": "2025-06-23T10:00:31.523684",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:01:32.120Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "content": "Bug avec l'outil update task sur le serveur MCP il me semble : 2025-06-23 11:00:53.495 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:53.497 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:53.497 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'update_task'\n2025-06-23 11:00:59.348 [info] project-0-cursor-memory-bank-MemoryBankMCP: Handling CallTool action for tool 'update_task'\n2025-06-23 11:00:59.348 [info] project-0-cursor-memory-bank-MemoryBankMCP: Calling tool 'update_task' with toolCallId: toolu_01KMK1yU6sGJjNyy2shx1KCo\n2025-06-23 11:00:59.349 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:59.350 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:59.350 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'update_task'\n2025-06-23 11:01:00.028 [info] project-0-cursor-memory-bank-MemoryBankMCP: Handling CallTool action for tool 'update_task'\n2025-06-23 11:01:00.028 [info] project-0-cursor-memory-bank-MemoryBankMCP: Calling tool 'update_task' with toolCallId: toolu_01VSczuvbJ5vf8wghKdhdBYL\n2025-06-23 11:01:00.029 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:01:00.031 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:01:00.031 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'update_task'",
+      "status": "new",
+      "created_at": "2025-06-23T11:01:29.767104",
+      "updated_at": "2025-06-23T11:01:29.767104",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:01:29.767104",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "content": "Bug avec l'outil update task sur le serveur MCP il me semble : 2025-06-23 11:00:53.495 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:53.497 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:53.497 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'update_task'\n2025-06-23 11:00:59.348 [info] project-0-cursor-memory-bank-MemoryBankMCP: Handling CallTool action for tool 'update_task'\n2025-06-23 11:00:59.348 [info] project-0-cursor-memory-bank-MemoryBankMCP: Calling tool 'update_task' with toolCallId: toolu_01KMK1yU6sGJjNyy2shx1KCo\n2025-06-23 11:00:59.349 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:59.350 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:59.350 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'update_task'\n2025-06-23 11:01:00.028 [info] project-0-cursor-memory-bank-MemoryBankMCP: Handling CallTool action for tool 'update_task'\n2025-06-23 11:01:00.028 [info] project-0-cursor-memory-bank-MemoryBankMCP: Calling tool 'update_task' with toolCallId: toolu_01VSczuvbJ5vf8wghKdhdBYL\n2025-06-23 11:01:00.029 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:01:00.031 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:01:00.031 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'update_task'",
+      "status": "new",
+      "created_at": "2025-06-23T11:01:36.297477",
+      "updated_at": "2025-06-23T11:01:36.297477",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:01:36.297477",
           "action": "created",
           "comment": "New request added via Streamlit interface with status 'new' for processing."
         }
