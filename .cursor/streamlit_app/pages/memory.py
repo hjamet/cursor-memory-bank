@@ -325,11 +325,16 @@ with tab2:
     if long_term_data is None:
         memories = []
     elif isinstance(long_term_data, list):
-        # If data is already a list, use it directly
-        memories = long_term_data
+        # If data is already a list, use it directly but filter out invalid entries
+        memories = [mem for mem in long_term_data if isinstance(mem, dict)]
+        if len(memories) < len(long_term_data):
+            st.warning(f"⚠️ Filtered out {len(long_term_data) - len(memories)} invalid memory entries.")
     elif isinstance(long_term_data, dict):
-        # If data is a dictionary, extract memories array
-        memories = long_term_data.get('memories', [])
+        # If data is a dictionary, extract memories array and filter
+        raw_memories = long_term_data.get('memories', [])
+        memories = [mem for mem in raw_memories if isinstance(mem, dict)]
+        if len(memories) < len(raw_memories):
+            st.warning(f"⚠️ Filtered out {len(raw_memories) - len(memories)} invalid memory entries.")
     else:
         # Fallback for unexpected data types
         st.error("⚠️ Unexpected long-term memory data format. Using empty list.")
@@ -340,6 +345,11 @@ with tab2:
         
         # Display memories directly without accordions
         for i, memory in enumerate(memories):
+            # Skip non-dictionary memory objects to prevent AttributeError
+            if not isinstance(memory, dict):
+                st.warning(f"⚠️ Memory #{i+1} has invalid format (expected dictionary, got {type(memory).__name__}). Skipping.")
+                continue
+                
             # Create a container for each memory with visual separation
             memory_container = st.container()
             with memory_container:
@@ -412,10 +422,14 @@ with tab2:
                     
                     # Delete button (direct deletion without confirmation)
                     if st.button(f"🗑️ Delete", key=f"delete_btn_{i}", help="Delete this memory"):
-                        memories.pop(i)
-                        if save_long_term_memories(memories):
-                            st.success("Memory deleted!")
-                            st.rerun()
+                        # Ensure we're deleting the correct memory by checking bounds
+                        if 0 <= i < len(memories):
+                            memories.pop(i)
+                            if save_long_term_memories(memories):
+                                st.success("Memory deleted!")
+                                st.rerun()
+                        else:
+                            st.error("Error: Invalid memory index for deletion.")
                 
                 # Add visual separator between memories
                 st.markdown("---")

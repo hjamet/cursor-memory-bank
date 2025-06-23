@@ -30,6 +30,8 @@ Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant 
 - **RÈGLE #2** : LA tâche à traiter est celle retournée par `mcp_MemoryBankMCP_get_next_tasks` - pas d'autres
 - **RÈGLE #3** : Terminer OBLIGATOIREMENT par `mcp_MemoryBankMCP_remember` pour maintenir le workflow
 - **RÈGLE #4** : Ne pas décider arbitrairement de traiter d'autres tâches "tant qu'on y est"
+- **RÈGLE #5** : Si une tâche semble liée à d'autres, traiter UNIQUEMENT la tâche prioritaire retournée par l'outil
+- **RÈGLE #6** : Les sous-tâches sont autorisées UNIQUEMENT si elles font partie intégrante de la tâche principale
 - Utiliser les outils MCP pour toute gestion de tâches
 - Respecter les conventions de code établies
 - Tester les modifications localement si possible
@@ -40,6 +42,17 @@ Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant 
 - **INTERDIT** : Ignorer l'appel à remember à la fin - cela casse le workflow autonome
 - **INTERDIT** : Décider soi-même quelle tâche traiter - utiliser next_rule/get_next_tasks
 - **INTERDIT** : Continuer sur d'autres tâches après avoir terminé la tâche principale
+- **INTERDIT** : Se dire "pendant que j'y suis, je vais aussi faire..." - NON, une seule tâche
+- **INTERDIT** : Traiter des tâches "évidentes" ou "rapides" en plus de la tâche principale
+- **INTERDIT** : Grouper des tâches similaires ensemble - chaque tâche doit être traitée individuellement
+- **INTERDIT** : Sauter l'étape remember sous prétexte de "continuer directement"
+
+## 🎯 SINGLE-TASK FOCUS ENFORCEMENT
+- **MANTRA** : "Une tâche, un cycle, un focus"
+- **VÉRIFICATION** : Avant chaque action, demandez-vous "Est-ce que cela concerne MA tâche unique ?"
+- **LIMITE** : Si vous voyez d'autres problèmes, les noter dans remember mais NE PAS les traiter
+- **CYCLE COMPLET** : Task analysis → Implementation → Status update → Remember → STOP
+- **PROCHAINE TÂCHE** : Sera déterminée par le prochain appel à next_rule, pas par vous
 
 ## Next Steps
 - `context-update` - Pour finaliser et commiter les changements

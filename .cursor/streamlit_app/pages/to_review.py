@@ -259,8 +259,8 @@ def main():
         st.warning("No tasks found. Make sure the tasks file exists and contains data.")
         return
     
-    # Filter tasks with TO_REVIEW status
-    review_tasks = [task for task in tasks if task.get('status') == 'TO_REVIEW']
+    # Filter tasks with DONE status (ready for validation)
+    review_tasks = [task for task in tasks if task.get('status') == 'DONE']
     
     if not review_tasks:
         st.info("🎉 No tasks currently need review! All tasks are either completed, in progress, or waiting in the queue.")

@@ -195,15 +195,15 @@ async function remember(args) {
             return null;
         }
 
-        workflowInstruction = `CONTINUE WORKFLOW: New user requests detected. You must now call mcp_MemoryBankMCP_next_rule with 'task-decomposition' to process pending requests.${exampleRequestInfo}`;
+        workflowInstruction = `CONTINUE WORKFLOW: New user requests detected. You must now call mcp_MemoryBankMCP_next_rule with 'task-decomposition' to process pending requests. STOPPING IS PROHIBITED.${exampleRequestInfo}`;
     } else if (possible_next_steps.includes('implementation')) {
         recommendedNextStep = 'implementation';
-        workflowInstruction = "CONTINUE WORKFLOW: Tasks are available for implementation. You must now call mcp_MemoryBankMCP_next_rule with 'implementation' to continue working on tasks.";
+        workflowInstruction = "CONTINUE WORKFLOW: Tasks are available for implementation. You must now call mcp_MemoryBankMCP_next_rule with 'implementation' to continue working on tasks. STOPPING IS PROHIBITED.";
     } else if (possible_next_steps.includes('context-update')) {
         recommendedNextStep = 'context-update';
-        workflowInstruction = "CONTINUE WORKFLOW: Context refresh needed. You must now call mcp_MemoryBankMCP_next_rule with 'context-update' to refresh project context.";
+        workflowInstruction = "CONTINUE WORKFLOW: Context refresh needed. You must now call mcp_MemoryBankMCP_next_rule with 'context-update' to refresh project context. STOPPING IS PROHIBITED.";
     } else {
-        workflowInstruction = "CONTINUE WORKFLOW: You must now call mcp_MemoryBankMCP_next_rule to continue the autonomous workflow. Do not stop here.";
+        workflowInstruction = "CONTINUE WORKFLOW: You must now call mcp_MemoryBankMCP_next_rule to continue the autonomous workflow. STOPPING IS ABSOLUTELY PROHIBITED. Memory recording is a continuation point, not an end point.";
     }
 
     const response = {
@@ -220,7 +220,13 @@ async function remember(args) {
         semantic_long_term_memories: semanticLongTermMemories, // 3 most semantically relevant long-term memories
         total_memories_count: memories.length,
         total_long_term_memories_count: longTermMemories.length,
-        user_message_result: userMessageResult // Include user message result if provided
+        user_message_result: userMessageResult, // Include user message result if provided
+
+        // Enhanced workflow continuation directives
+        continuation_mandatory: true,
+        stopping_prohibited: "CRITICAL: Memory recording is NOT a completion signal. You MUST continue the autonomous workflow.",
+        immediate_next_action: `Call mcp_MemoryBankMCP_next_rule with parameter: '${recommendedNextStep}'`,
+        workflow_cycle_reminder: "Remember: record → next_rule → execute → remember → next_rule (infinite loop)"
     };
 
     return {

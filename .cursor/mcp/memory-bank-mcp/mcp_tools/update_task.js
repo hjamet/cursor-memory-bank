@@ -36,6 +36,7 @@ async function writeTasks(tasks) {
  * @param {string} [params.validation_criteria] - Updated validation criteria
  * @param {number|null} [params.parent_id] - Updated parent task ID
  * @param {number} [params.priority] - Updated priority level
+ * @param {string} [params.image] - Updated image path for the task
  * @returns {Object} Tool response with updated task information
  */
 export async function handleUpdateTask(params) {

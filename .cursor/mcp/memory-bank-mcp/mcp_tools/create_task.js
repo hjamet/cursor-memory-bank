@@ -39,6 +39,7 @@ async function writeTasks(tasks) {
  * @param {string} [params.validation_criteria=''] - Validation criteria
  * @param {number} [params.parent_id] - Parent task ID for sub-tasks
  * @param {number} [params.priority=3] - Priority level
+ * @param {string} [params.image] - Optional image path for the task
  * @returns {Object} Tool response with created task information
  */
 export async function handleCreateTask(params) {
@@ -78,7 +79,8 @@ export async function handleCreateTask(params) {
             created_date: new Date().toISOString(),
             updated_date: new Date().toISOString(),
             parent_id: params.parent_id || null,
-            priority: params.priority || 3
+            priority: params.priority || 3,
+            image: params.image || null
         };
 
         // Add the new task and write to file
@@ -101,7 +103,8 @@ export async function handleCreateTask(params) {
                 created_date: createdTask.created_date,
                 updated_date: createdTask.updated_date,
                 parent_id: createdTask.parent_id,
-                priority: createdTask.priority
+                priority: createdTask.priority,
+                image: createdTask.image
             },
             summary: {
                 task_id: createdTask.id,
