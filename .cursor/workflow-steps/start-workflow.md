@@ -38,46 +38,21 @@ Cette step initialise l'agent en chargeant son état précédent et en fournissa
 - `fix` - Si des problèmes ont été détectés
 - `experience-execution` - Si des tests manuels sont requis
 
-## Template Variables
-- `{{ project_brief }}` - Contenu du fichier projectBrief.md
-- `{{ tech_context }}` - Contenu du fichier techContext.md  
-- `{{ recent_memories }}` - Les 10 derniers souvenirs de la mémoire de travail
-- `{{ relevant_long_term_memories }}` - Les 3 souvenirs à long terme les plus pertinents
-- `{{ previous_rule }}` - La dernière règle exécutée par l'agent
-- `{{ current_tasks_summary }}` - Résumé des tâches en cours
+## Format de sortie
 
-## Example
+L'agent doit suivre le format suivant pour chaque étape :
 
 # Start-workflow: 1 - Load previous agent state
-Je commence par charger l'état précédent de l'agent pour comprendre où il en était. **(Start-workflow: 1 - Load previous agent state)**
-
-L'agent était précédemment dans la règle: **{{ previous_rule }}** **(Start-workflow: 1 - Load previous agent state)**
+Je commence par charger l'état précédent de l'agent pour comprendre où il en était.
 
 # Start-workflow: 2 - Load project context  
-Le contexte complet du projet (projectBrief et techContext) est automatiquement chargé et disponible dans le contexte de cette règle. **(Start-workflow: 2 - Load project context)**
+Le contexte complet du projet est automatiquement disponible dans le contexte de cette règle.
 
 # Start-workflow: 3 - Load working memory
-Je récupère les souvenirs pertinents de la mémoire de travail. **(Start-workflow: 3 - Load working memory)**
-
-## Recent Memories (10 derniers)
-```json
-{{ recent_memories | map(memory => JSON.stringify(memory, null, 2)) | join('\n\n') }}
-```
-
-## Relevant Long-term Memories (3 plus pertinents)
-```json
-{{ relevant_long_term_memories | map(memory => JSON.stringify(memory, null, 2)) | join('\n\n') }}
-```
-**(Start-workflow: 3 - Load working memory)**
+Je récupère les souvenirs pertinents de la mémoire de travail en utilisant les outils MCP.
 
 # Start-workflow: 4 - Display agent status
-État actuel de l'agent: **(Start-workflow: 4 - Display agent status)**
-- Dernière règle exécutée: **{{ previous_rule }}**
-- Tâches en cours: **{{ current_tasks_summary }}**
-- Contexte chargé avec succès
-**(Start-workflow: 4 - Display agent status)**
+État actuel de l'agent avec résumé des tâches en cours et prochaines étapes.
 
 # Start-workflow: 5 - Record state and determine next steps
-Je vais maintenant enregistrer l'état de démarrage et déterminer les prochaines étapes appropriées. **(Start-workflow: 5 - Record state and determine next steps)**
-[...appel de l'outil remember...]
-**(Start-workflow: 5 - Record state and determine next steps)** 
+Je vais maintenant enregistrer l'état de démarrage et déterminer les prochaines étapes appropriées en utilisant l'outil remember. 

@@ -1,0 +1,123 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# START - Workflow Autonome MCP Memory Bank
+
+## OBJECTIF
+Cette règle explique le fonctionnement complet du système de workflow autonome MCP Memory Bank. L'agent doit comprendre qu'il va entrer dans une boucle infinie de traitement des tâches et ne doit jamais s'arrêter sans instruction explicite de l'utilisateur.
+
+## FONCTIONNEMENT DU WORKFLOW AUTONOME
+
+### Vue d'ensemble
+Le système fonctionne selon un pattern de boucle infinie qui permet à l'agent de traiter de manière autonome toutes les demandes utilisateur et tâches du projet :
+
+```
+START → start-workflow → next_rule → [étape] → remember → next_rule → [étape] → remember → ...
+```
+
+### Étapes détaillées du workflow
+
+#### 1. INITIALISATION (première fois seulement)
+- L'agent lit cette règle START pour comprendre le fonctionnement
+- L'agent appelle `mcp_MemoryBankMCP_next_rule` avec le paramètre `step_name: "start-workflow"`
+- **IMPORTANT** : Cette étape d'initialisation ne se fait qu'une seule fois au début
+
+#### 2. START-WORKFLOW (point d'entrée du cycle)
+- Charge l'état précédent de l'agent depuis la mémoire
+- Affiche le contexte complet du projet
+- Récupère les souvenirs pertinents
+- Indique où l'agent en était dans le workflow précédent
+- **Se termine TOUJOURS par un appel à `remember`** qui indique les étapes suivantes possibles
+
+#### 3. BOUCLE INFINIE DU WORKFLOW
+À partir de `start-workflow`, l'agent entre dans une boucle infinie :
+
+**3a. APPEL NEXT_RULE**
+- L'agent appelle `mcp_MemoryBankMCP_next_rule` avec l'une des étapes suggérées par `remember`
+- Cet outil retourne les instructions détaillées de l'étape à exécuter
+
+**3b. EXÉCUTION DE L'ÉTAPE**
+- L'agent suit scrupuleusement toutes les instructions de l'étape retournée
+- L'agent utilise tous les outils MCP nécessaires (gestion des tâches, lecture de fichiers, etc.)
+- **CRITIQUE** : La dernière action de chaque étape est TOUJOURS un appel à `remember`
+
+**3c. STOCKAGE ET TRANSITION**
+- L'outil `remember` stocke les souvenirs de ce qui vient d'être accompli
+- `remember` retourne les étapes suivantes possibles dans le workflow
+- L'agent choisit l'étape la plus appropriée et retourne à 3a
+
+### Étapes disponibles dans le workflow
+
+#### `start-workflow`
+- **Quand** : Au début de chaque session ou après une interruption
+- **Objectif** : Charger le contexte et l'état précédent
+- **Suivantes** : task-decomposition, implementation, context-update, fix, experience-execution
+
+#### `task-decomposition`
+- **Quand** : Nouvelles demandes utilisateur à traiter
+- **Objectif** : Analyser et décomposer les demandes en tâches concrètes
+- **Suivantes** : implementation, context-update
+
+#### `implementation`
+- **Quand** : Tâches techniques à réaliser
+- **Objectif** : Implémenter du code, créer des fichiers, modifier le système
+- **Suivantes** : fix, experience-execution, context-update
+
+#### `fix`
+- **Quand** : Bugs ou problèmes à résoudre
+- **Objectif** : Diagnostiquer et corriger les problèmes
+- **Suivantes** : implementation, experience-execution, context-update
+
+#### `context-update`
+- **Quand** : Besoin de faire le point sur l'état du projet
+- **Objectif** : Analyser l'état complet, mettre à jour les tâches, faire des commits
+- **Suivantes** : task-decomposition, implementation, fix, experience-execution
+
+#### `experience-execution`
+- **Quand** : Tests manuels ou validation requise
+- **Objectif** : Tester les fonctionnalités, valider les implémentations
+- **Suivantes** : fix, implementation, context-update
+
+## RÈGLES CRITIQUES POUR L'AGENT
+
+### 🔄 BOUCLE INFINIE OBLIGATOIRE
+- **L'agent ne doit JAMAIS s'arrêter** sauf instruction explicite de l'utilisateur
+- Après chaque `remember`, l'agent DOIT appeler `next_rule` avec l'étape suivante
+- Si aucune tâche n'est en cours, l'agent doit appeler `context-update` pour analyser la situation
+
+### 📝 PATTERN OBLIGATOIRE DE CHAQUE ÉTAPE
+1. Lire les instructions de l'étape via `next_rule`
+2. Exécuter toutes les actions demandées
+3. **TERMINER OBLIGATOIREMENT** par un appel à `remember`
+4. Choisir l'étape suivante parmi celles suggérées par `remember`
+5. Retourner à l'étape 1 avec la nouvelle étape
+
+### 🛠️ OUTILS MCP DISPONIBLES
+- `mcp_MemoryBankMCP_next_rule` : Obtenir les instructions d'une étape
+- `mcp_MemoryBankMCP_remember` : Stocker les souvenirs et obtenir les étapes suivantes
+- `mcp_MemoryBankMCP_create_task` : Créer de nouvelles tâches
+- `mcp_MemoryBankMCP_update_task` : Mettre à jour les tâches existantes
+- `mcp_MemoryBankMCP_get_all_tasks` : Lister toutes les tâches
+- `mcp_MemoryBankMCP_get_next_tasks` : Obtenir les prochaines tâches à traiter
+- `mcp_MemoryBankMCP_read_userbrief` : Lire les demandes utilisateur
+- `mcp_MemoryBankMCP_update_userbrief` : Mettre à jour les demandes utilisateur
+- `mcp_MemoryBankMCP_commit` : Faire des commits git avec description
+- `mcp_ToolsMCP_*` : Outils pour l'exécution de commandes, lecture de fichiers, etc.
+
+### 🎯 PRIORITÉS DE L'AGENT
+1. **Traiter les demandes utilisateur** (task-decomposition → implementation)
+2. **Résoudre les problèmes** (fix → implementation)
+3. **Tester et valider** (experience-execution → fix si nécessaire)
+4. **Maintenir le contexte à jour** (context-update régulièrement)
+
+## DÉMARRAGE IMMÉDIAT
+
+**L'agent doit maintenant :**
+1. Appeler `mcp_MemoryBankMCP_next_rule` avec `step_name: "start-workflow"`
+2. Entrer dans la boucle infinie du workflow
+3. Ne jamais s'arrêter sans instruction explicite
+
+**COMMENCER MAINTENANT LE WORKFLOW AUTONOME !**
+
