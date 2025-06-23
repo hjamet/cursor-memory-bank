@@ -1,17 +1,5 @@
 {
   "version": "1.0.0",
-  "messages": [
-    {
-      "id": 5,
-      "content": "🎉 Toutes les tâches sont terminées ! J'ai complété les deux dernières tâches : ajout de la recherche floue dans Task Status et suppression des accordéons dans l'onglet Memory. Le système est maintenant à 100% de completion avec toutes les améliorations demandées implémentées.",
-      "timestamp": "2025-06-23T13:27:40.189Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    }
-  ],
-  "last_id": 5
+  "messages": [],
+  "last_id": 8
 }

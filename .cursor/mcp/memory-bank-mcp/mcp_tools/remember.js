@@ -228,11 +228,11 @@ async function remember(args) {
 }
 
 export const rememberSchema = {
-    past: z.string().describe("A description of what the agent originally planned to do."),
-    present: z.string().describe("A description of what the agent actually did, any problems encountered, and decisions made."),
-    future: z.string().describe("A description of what the agent plans to do next."),
-    long_term_memory: z.string().optional().describe("Critical project information to be stored persistently (e.g., database schemas, architectural decisions). If provided, this will overwrite any existing long-term memory."),
-    user_message: z.string().optional().describe("Optional message from agent to user (1-2 sentences max). Use for responses to user questions, status updates, recommendations, or requests for clarification. Examples: 'Task completed successfully, ready for your review.', 'Need clarification on the database schema requirements.'"),
+    past: z.string().describe("PASSÉ - Rédigez en français une description de ce que l'agent avait initialement prévu de faire. Exemple : 'J'ai été appelé pour implémenter la fonctionnalité d'authentification JWT selon les spécifications de la tâche #15.'"),
+    present: z.string().describe("PRÉSENT - Rédigez en français une description détaillée de ce que l'agent a réellement accompli, les problèmes rencontrés et les décisions prises. Exemple : 'J'ai implémenté avec succès le système d'authentification JWT en créant les middlewares de validation, les routes de connexion et les tests unitaires. Quelques ajustements ont été nécessaires pour la gestion des tokens expirés.'"),
+    future: z.string().describe("FUTUR - Rédigez en français une description de ce que l'agent prévoit de faire ensuite. Exemple : 'Je vais maintenant passer à l'implémentation des permissions utilisateur selon la tâche #16, en me concentrant sur le système de rôles.'"),
+    long_term_memory: z.string().optional().describe("MÉMOIRE LONG TERME - Rédigez en français uniquement les informations critiques du projet à conserver de façon persistante (ex: schémas de base de données, décisions architecturales, conventions de code, bugs récurrents à éviter). N'utilisez cet argument QUE pour des informations qui resteront toujours vraies et utiles. Exemple : 'Architecture MCP : Les outils MCP doivent utiliser le format 3-paramètres server.tool(name, schema, handler) avec objets Zod inline pour éviter les erreurs de sérialisation.'"),
+    user_message: z.string().optional().describe("MESSAGE UTILISATEUR - Rédigez en français un message facultatif pour communiquer avec l'utilisateur (1-2 phrases max). Utilisez UNIQUEMENT pour des informations importantes : réponses aux questions, problèmes critiques identifiés, décisions importantes prises qui diffèrent des demandes. Exemple : 'La tâche a été complétée avec succès, prête pour votre validation.' ou 'J'ai dû modifier l'approche en raison d'un conflit de dépendances, voir les détails dans les commentaires de la tâche.'"),
 };
 
 export { remember as handleRemember }; 

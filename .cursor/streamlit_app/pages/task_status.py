@@ -152,7 +152,7 @@ def get_userbrief_requests():
 
 def calculate_task_completion_stats(tasks) -> Tuple[Optional[float], Optional[float]]:
     """Calculate average completion time and standard deviation for completed tasks"""
-    completed_tasks = [t for t in tasks if t.get('status') == 'DONE']
+    completed_tasks = [t for t in tasks if t.get('status') in ['DONE', 'APPROVED']]
     completion_times = []
     
     for task in completed_tasks:
@@ -257,7 +257,8 @@ def render_task_card(task, show_inline_edit=True):
         'IN_PROGRESS': '🔄', 
         'BLOCKED': '🚫',
         'REVIEW': '👀',
-        'DONE': '✅'
+        'DONE': '✅',
+        'APPROVED': '🎯'
     }
     status_emoji = status_emojis.get(status, '📝')
     
@@ -310,12 +311,15 @@ def render_task_card(task, show_inline_edit=True):
                 'IN_PROGRESS': '🔄 In Progress',
                 'BLOCKED': '🚫 Blocked',
                 'REVIEW': '👀 Review',
-                'DONE': '✅ Done'
+                'DONE': '✅ Done',
+                'APPROVED': '🎯 Approved'
             }
+            status_list = ['TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW', 'DONE', 'APPROVED']
+            current_index = status_list.index(status) if status in status_list else 0
             new_status = st.selectbox(
                 "Status:",
-                ['TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW', 'DONE'],
-                index=['TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW', 'DONE'].index(status),
+                status_list,
+                index=current_index,
                 format_func=lambda x: status_options[x],
                 key=f"status_{task_id}",
                 label_visibility="collapsed"
@@ -342,7 +346,7 @@ def render_task_card(task, show_inline_edit=True):
                 st.session_state[detail_key] = not st.session_state[detail_key]
         
         with action_col2:
-            if status != 'DONE':
+            if status not in ['DONE', 'APPROVED']:
                 if st.button(f"✅ Complete", key=f"complete_{task_id}", type="primary"):
                     if update_task_via_mcp(task_id, status='DONE'):
                         st.success(f"Task #{task_id} completed!")
@@ -650,7 +654,7 @@ if tasks:
             st.metric("📈 Avg Completion Time", format_time_estimate(mean_time))
         
         with col2:
-            completed_count = len([t for t in tasks if t.get('status') == 'DONE'])
+            completed_count = len([t for t in tasks if t.get('status') in ['DONE', 'APPROVED']])
             st.metric("✅ Completed Tasks", f"{completed_count}")
         
         with col3:
@@ -677,7 +681,7 @@ if tasks:
                     
                     time_range = f"{format_time_estimate(lower_bound)} - {format_time_estimate(upper_bound)}"
                     st.success(f"⏱️ **Estimated completion time:** {time_range}")
-                    st.caption(f"📊 Based on {len([t for t in tasks if t.get('status') == 'DONE'])} completed tasks | Includes {len(userbrief_requests)} unprocessed requests")
+                    st.caption(f"📊 Based on {len([t for t in tasks if t.get('status') in ['DONE', 'APPROVED']])} completed tasks | Includes {len(userbrief_requests)} unprocessed requests")
                 else:
                     # Display without margin of error (only one completed task)
                     st.success(f"⏱️ **Estimated completion time:** ~{format_time_estimate(estimated_total)}")
@@ -735,7 +739,7 @@ else:
     st.info("📭 No unprocessed requests - all user requests have been converted to tasks!")
 
 # SECTION 4: ARCHIVED/COMPLETED TASKS - Collapsed by default, limited selection
-done_tasks = [t for t in tasks if t.get('status') == 'DONE']
+done_tasks = [t for t in tasks if t.get('status') in ['DONE', 'APPROVED']]
 if done_tasks:
     # Sort by updated date (most recent first) and show only last 10
     done_tasks.sort(key=lambda x: x.get('updated_date', ''), reverse=True)
@@ -778,7 +782,7 @@ if tasks:
     st.sidebar.markdown("### 📊 Quick Stats")
     
     # Calculate completion rate
-    completed = len([t for t in tasks if t.get('status') == 'DONE'])
+    completed = len([t for t in tasks if t.get('status') in ['DONE', 'APPROVED']])
     total = len(tasks)
     completion_rate = (completed / total * 100) if total > 0 else 0
     

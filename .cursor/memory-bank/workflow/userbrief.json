@@ -1,188 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 56,
+  "last_id": 68,
   "requests": [
-    {
-      "id": 30,
-      "content": "Toujours sur l'interface Streamlitz dans l'onglet Task Status ne t'occupe pas d'afficher le nombre de tâches effectuées sans s'en fiche. En fait, ce qui compte, c'est plutôt les tâches qui restent à faire et au sein de ces tâches qui restent à faire. Quelles sont la effectivement la distribution des priorités ? Et ensuite, comme je te l'ai demandé en dessous, on devrait avoir la liste des tâches cliquables quand on clique dessus, ça affiche les détails de la tâche, à savoir sa description complète et pas seulement sa description rapide en dessous de son titre et ainsi que des boutons pour permettre d'éditer la priorité de la tâche ou de la supprimer",
-      "status": "archived",
-      "created_at": "2025-06-23T13:09:31.896052",
-      "updated_at": "2025-06-23T11:13:19.139Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T13:09:31.896052",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T11:13:19.138Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 31,
-      "content": "Encore dans l'interface streaming ajoute une tâche à ajout, pardon, une page. Euh Grosso modo, communication avec l'utilisateur qui affiche la liste des messages triés par ordre d'envoi du. Du plus récent au plus ancien envoyé. Envoyé par le modèle à l'utilisateur via le nouvel argument qu'on a rajouté à l'outil remember. Euh. Ces messages doivent avoir tous, donc le message complet bien affiché et avec la la la l'heure à laquelle ils ont été affichés aussi il doit y avoir écrit la règle. Où on se trouvait donc ça faudra modifier la base de données d'enregistrement des messages à l'utilisateur, mais faudra indiquer la règle où on se trouvait au moment où où le modèle a répondu ça et sur quelle tâche il travaillait, quelle tâche était en cours de travail. Tout ça, ça doit être indiqué. Il doit aussi y avoir un bouton pour supprimer le message, donc ça, ça veut dire qu'en gros, le l'utilisateur enfin c'est pas supprimé, ça doit pas être une poubelle, ça doit être un genre validé pour dire que l'utilisateur a lu le message et et donc c'est bon, on peut le supprimer du fichier de de sauvegarde des de des messages envoyés par le modèle à l'utilisateur.",
-      "status": "archived",
-      "created_at": "2025-06-23T13:11:15.701650",
-      "updated_at": "2025-06-23T11:14:27.909Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T13:11:15.701650",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T11:14:27.909Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 32,
-      "content": "Est ce que tu peux afficher les requêtes qui se trouvent encore dans le user brief et qui n'ont donc pas encore été décomposées dans l'onglet Task Status du serveur Stream Lit ? L'idée étant que en fait, c'est la première étape d'une tâche, une tâche est d'abord une requête user. Vous voyez ? Ensuite, elle est décomposée en tâche. Ensuite, elle est observée puis traitée et et donc du coup les user brief devraient être affichés, alors ils devraient être affichés. De manière un peu particulière puisqu'ils ont pas encore de priorité, mais ils devraient être affichés pour indiquer OK ces tâches là sont non encore traitées et elles vont être prises en compte par le système. Cette manière, quand on va dans Task Status, on devrait avoir un aperçu général de tout ce que l'agent a encore à faire. Très clair, on voit combien de tâches sont à l'étape 0 non encore traité à l'étape un traité à l'étape 2 en cours de de d'implémentation et à l'étape. 3 terminer",
-      "status": "archived",
-      "created_at": "2025-06-23T13:21:19.081058",
-      "updated_at": "2025-06-23T11:33:15.061Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T13:21:19.081058",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T11:33:15.061Z",
-          "action": "mark_archived",
-          "comment": "✅ TÂCHE CRÉÉE - Requête décomposée avec succès en tâche #33 \"Display unprocessed userbrief requests in Task Status tab\". Cette tâche implémentera l'affichage des requêtes userbrief non décomposées dans l'onglet Task Status avec une visualisation complète du workflow en 4 étapes : Étape 0 (Requêtes non traitées), Étape 1 (Tâches décomposées), Étape 2 (En cours d'implémentation), Étape 3 (Terminées). Priorité 4 assignée pour traitement rapide."
-        }
-      ]
-    },
-    {
-      "id": 33,
-      "content": "En fait, supprime les st.toast affichés dans l'interface streamlit à chaque appel de remember par l'agent : ils sont illisibles et peu pratiques.",
-      "status": "archived",
-      "created_at": "2025-06-23T13:22:26.107163",
-      "updated_at": "2025-06-23T11:34:22.331Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T13:22:26.107163",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T11:34:22.331Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 34,
-      "content": "Sur l'interface Stream Lit améliore encore la page Task Status parce que elle est vraiment pas partie d'utilisation. L'idée, ce serait vraiment tout simple, sans avoir besoin de rajouter des colouts de partout pour expliquer à quoi sert telle section et telle autre section en haut, tu affiches la tâche sur laquelle le l'agent est actuellement en train de travailler. La tâche en cours s'il y en a une en dessous, tu affiches la liste des tâches qui vont, qui sont tout doux de. Ordonner par priorité en prenant d'abord en compte le le graphe des dépendances, c'est à dire que si une tâche dépend d'une autre tâche, Eh Ben cette autre tâche doit être affichée en premier bien sûr et ensuite la priorité de de chaque tâche. Finalement en dessous, tu dois avoir la liste Les requêtes utilisateurs user brief non encore transformées en tâches. Donc tous les les requêtes user brief qui sont à traiter. Et en dessous, tu dois avoir une partie des tâches archivées Qui est par défaut bien sûr réduite. Toutes les autres sections doivent être ouvertes pour faciliter la lecture sans que l'utilisateur et à cliquer dessus pour les ouvrir. Et par ailleurs, l'ensemble des tâches, sauf les tâches archivées et des tâches en mode user brief doivent avoir directement dans leur affichage des boutons qui permet de les modifier. Donc dans les modifications parce que actuellement t'as mis tout en bas de la page un truc qui permet de de sélectionner la tâche à modifier puis de la modifier, mais en fait ça c'est trop complexe et pas pratique, c'est beaucoup plus pratique de voir la liste des tâches se dire Ah cette tâche elle est pas bien, je vais la modifier directement et pour ça il faut pouvoir modifier la priorité de la tâche, pouvoir modifier son statut actuel. Est ce que elle est en cours ? Est ce que elle est à faire, est ce que elle est bloquée, débloquée, finie et finalement Pouvoir supprimer la tâche Voilà, est ce que tu peux effectuer ces corrections ? L'idée, c'est vraiment d'avoir quelque chose de simple, facile à lire, pratique d'accès sans trop d'informations à droite à gauche, vraiment des trucs en un clic, on on un coup d'œil, on a toute l'idée et en un clic on fait les modifications qu'on veut.",
-      "status": "archived",
-      "created_at": "2025-06-23T13:30:53.772282",
-      "updated_at": "2025-06-23T11:35:35.357Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T13:30:53.772282",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T11:35:35.357Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 35,
-      "content": "Dans l'interface streaming dans l'onglet ad request, t'as mis 2 graphes, moi il m'en faudrait qu'un seul. Le curiant current workflow trend me paraît le mieux. Je pense qu'il y a un problème à dans ce graphe d'ailleurs parce que il est constamment vide alors que je t'ai dit moi j'aimerais voir l'évolution en analysant les timestamps de création et de changement de statut des différentes tâches, pouvoir des différents user brief pardon des différentes requêtes user brief. Pouvoir savoir combien il en reste, qui. Ont été ajoutés traités au fil du temps et comme ça, on voit l'évolution de ce que moi j'ai ajouté, de ce que l'agent a traité supprime le 2e graphe par simplicité et enfin dernière chose en dessous, il y a une une section recent New request avec. Euh avec un accordéon, supprime l'accordéon, mais directement le contenu de l'accordéon juste en dessous pour ne pas avoir à cliquer dessus pour afficher les tâches. Par ailleurs, comme c'est le cas dans L'onglet Memory Sous onglet request reprend exactement le même code, mais il devrait être possible d'éditer les requêtes dans ce dans cet aperçu, c'est à dire qu'on a la liste des requêtes non encore traitées et il doit être possible de les éditer et de les supprimer",
-      "status": "archived",
-      "created_at": "2025-06-23T13:33:19.530076",
-      "updated_at": "2025-06-23T11:36:44.555Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T13:33:19.530076",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T11:36:44.555Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 36,
-      "content": "Dans la page principale de l'interface streaming, je veux que tu simplifies énormément essentiellement que tu supprimes tous les accordéons puisque ça ça fait que ça oblige l'utilisateur à cliquer pour avoir des informations. Ce serait mieux d'avoir directement les les, les éléments sans avoir à cliquer dessus pour les ouvrir. Par ailleurs, je souhaite que tu ne gardes finalement que la section 🧠 Agent Memory Timeline. Supprime toutes les autres sections :",
-      "status": "archived",
-      "created_at": "2025-06-23T13:38:13.837994",
-      "updated_at": "2025-06-23T11:41:03.033Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T13:38:13.837994",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T11:41:03.033Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 37,
-      "content": "Dans l'onglet communication du serveur streamlit, fais en sorte que cliquer sur un message comme lu le suipprime de la base de donnée. Il est inutile de le conserver en indiquant qu'il a été lu, tu peux carrément directement le supprimer. Ce sera juste beaucoup plus simple.",
-      "status": "archived",
-      "created_at": "2025-06-23T14:12:47.704121",
-      "updated_at": "2025-06-23T12:18:53.966Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T14:12:47.704121",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T12:18:53.966Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 38,
-      "content": "Dans la page New request déjà supprime le sous titre current workload trend et ensuite Le graphique ne fonctionne toujours pas correctement. Je te rappelle que ça doit être un historique. Actuellement je sais pas ce qui t'empêche de afficher correctement cet historique mais il y a 0 point qui s'affiche, ça doit être un graphe qui indique au fil du temps l'évolution du nombre de requêtes à traiter. Donc à chaque fois que en gros il y a une modification d'une quelconque requête, tu dois mettre à jour le graphe et conserver à partir des timestamps des même des requêtes qui ont été archivées hein. Quel a été l'évolution de la charge de travail au fil du temps et. Et quelle est elle actuellement ?",
-      "status": "archived",
-      "created_at": "2025-06-23T14:13:45.724408",
-      "updated_at": "2025-06-23T12:20:37.582Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T14:13:45.724408",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T12:20:37.582Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 39,
-      "content": "Je ne vois toujours aucun souvenir à long terme dans l'onglet Memory du serveur Stream Lit. Je sais pas si c'est normal et si t'as bien réglé le problème mais est-ce que tu pourrais faire un test enregistrer des souvenirs à long terme et vérifier s'ils existent ? Il faudrait aussi que je puisse donc les supprimer ou les modifier. Comme c'est le cas pour les otages dans les autres onglets de cette page.",
-      "status": "archived",
-      "created_at": "2025-06-23T14:14:42.212665",
-      "updated_at": "2025-06-23T12:22:31.367Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T14:14:42.212665",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T12:22:31.367Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 40,
       "content": "Toujours sur le serveur Stream Lite lorsque j'enregistre une nouvelle requête, déjà le raccourci contrôle plus enter ne fonctionne pas toujours. Ensuite, parfois, lorsque j'appuie sur adrequest, le texte ne disparaît pas, même si la requête est bien enregistrée dans le système et finalement l'animation ballon que je t'avais demandé d'ajouter n'est toujours pas présente.",
@@ -466,12 +285,235 @@
     {
       "id": 56,
       "content": "Tu peux insister sur dans la règle implémentation pour que l'agent ne traite qu'une tâche à la fois lorsqu'il appelle la règle implémentation, le retour de l'outil Next Wol doit lui retourner la tâche la plus urgente et uniquement la tâche la plus urgente et lui dire que il doit régler cette tâche et uniquement cette tâche. Et c'est sous tâche éventuellement Mais voilà, il doit vraiment régler, régler cette tâche uniquement, il ne doit pas régler plusieurs tâches à la suite, ça c'est vraiment très important de souligner. Il doit régler cette tâche. Puis à la fin, appeler Remember, remember va lui dire quelle prochaine règle il peut appeler et ensuite il appelle la règle prochaine. Peut-être que la règle prochaine sera implémentation. Ça je sais pas, c'est le serveur qui gère, mais l'idée c'est vraiment qu'il doit pas fixe toutes les tâches dans l'ordre parce que sinon il va juste se perdre, oublier le workflow, oublier d'appeler Next rule et au final il se perd et il est plus efficace. Donc il faut vraiment insister sur le fait que il doit gérer une seule tâche, c'est la tâche que du retourne l'appel à l'outil Next rule. Avec implémentation",
-      "status": "new",
+      "status": "archived",
       "created_at": "2025-06-23T15:28:07.826558",
-      "updated_at": "2025-06-23T15:28:07.826558",
+      "updated_at": "2025-06-23T13:30:25.911Z",
       "history": [
         {
           "timestamp": "2025-06-23T15:28:07.826558",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T13:30:25.911Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #56: Enhance implementation rule to enforce single-task focus and strict workflow adherence. Cette tâche implémentera les améliorations demandées pour s'assurer que l'agent ne traite qu'une seule tâche à la fois, avec des instructions claires pour éviter la dérive du workflow et maintenir le focus sur la tâche unique la plus prioritaire retournée par l'outil next_rule. Priorité 5 assignée pour traitement immédiat."
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "content": "Comme on l'a fait pour les tâches et les autres et les souvenirs ne demande pas de confirmation pour la suppression des requêtes dans l'interface Stream Leitz, onglet Adre Quest en dessous, il y a unprocess request, c'est une session et dans cette section donc tu as la liste des des requêtes qui n'ont pas encore été transformées en tâches avec 2 boutons édit et dilate. Quand je clique sur dilate, ça me demande une confirmation, ça devrait pas être le cas. En fait, ça devrait immédiatement supprimer le. Euh le la requête sans me demander de confirmation, c'est juste plus simple parce que sinon ça fait perdre du temps et en fait ça ça sert à rien d'avoir une confirmation Tu peux corriger ça ?",
+      "status": "archived",
+      "created_at": "2025-06-23T15:29:15.120383",
+      "updated_at": "2025-06-23T15:10:59.730Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T15:29:15.120383",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T15:10:59.730Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #57: Remove confirmation dialog for request deletion in Add Request tab. Cette tâche implémentera la suppression immédiate des requêtes sans confirmation dans l'interface Streamlit, améliorant ainsi l'expérience utilisateur. Priorité 3 assignée."
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "content": "Modifie la description des arguments sans toucher au code lui même, hein ? Je te demande vraiment de modifier juste le texte de description des arguments pour l'outil remember. Euh. En effet, là, actuellement l'agent a tendance à beaucoup trop souvent faire des souvenirs à long terme. Les souvenirs à long terme, ça doit uniquement être pour retenir des informations très importantes, comme par exemple la structure de base de données, des mots de passe à retenir des. Des conventions de style, des des manières de toujours enregistrer des callbacks ou que sais-je ? Des préférences utilisateurs, ce genre de choses, ça doit être mis dans les mémoires à long terme. Des exemples de choses qui doivent surtout pas être mis dans des mémoires à long terme, c'est. Dire OK, maintenant, j'ai terminé le workflow, ça, on s'en fiche, ce sera plus le cas très bientôt. Enfin, en fait, c'est c'est, c'est pas quelque chose qui sera toujours vrai et qui doit être conservé Qu'on euh. En gros, l'agent doit doit uniquement enregistrer les souvenirs à long terme lorsqu'il s'agit d'une information qui restera toujours vraie, quoi qu'il arrive ou alors bah il pourra visiter hein, mais vraiment une information toujours vraie et donc s'il a besoin pour faire le code souhaité par l'utilisateur Ça peut aussi être des modifications de bibliothèque dont il avait pas conscience des erreurs qu'il a faites mais qui sont des erreurs qui qui risquent de reproduire en permanence parce qu'elles sont basées sur quelque chose qui l'a mal compris ou que sais-je ça, ça doit être placé dans les les souvenirs à long terme, mais c'est quelque chose d'assez rare en fait, il doit surtout pas en enregistrer à chaque fois. C'est vraiment seulement si au cours de l'État qui vient d'effectuer, il y avait besoin absolument d'enregistrer une information pour qu'il s'en souvienne, parce que vraiment c'est important de la garder cette information. 2e chose, le. Le l'argument communication à l'utilisateur C'est pareil, c'est un argument purement facultatif, donc en général, l'agent ne doit pas l'utiliser sauf si il a une information très importante à à dire à l'utilisateur, ça peut être une décision prise, ça peut être un gros problème identifié, ça peut être quelque chose de louche qu'il a vu et qu'il tient à souligner. Par exemple, si l'agent a rencontré un problème et a pris la décision de faire les choses légèrement différemment ou d'ignorer une partie du problème, ce qu'il doit éviter de faire au maximum. Mais si il a fait cette décision, il doit absolument l'indiquer dans la communication utilisateur parce que c'est la seule chose en fait que va lire l'utilisateur. Donc il faut absolument l'avertir que par exemple il a pas fait exactement les choses comme l'utilisateur lui avait demandé parce que il a rencontré ce problème ou ce genre de chose. C'est aussi un argument qui peut être utilisé pour répondre aux questions de l'utilisateur, mais ça doit pas être utilisé tout le temps. Tout le temps pour rien par exemple, ça sert à rien de dire à l'utilisateur que le workflow est terminé, il va s'en rendre compte vu que bah toutes les tâches sont terminées, ça sert à rien de c'est c'est uniquement pour donner des informations de progression ce genre de choses",
+      "status": "archived",
+      "created_at": "2025-06-23T15:34:01.974860",
+      "updated_at": "2025-06-23T15:11:02.200Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T15:34:01.974860",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T15:11:02.200Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #58: Enhance remember tool argument descriptions for better usage guidance. Cette tâche améliorera les descriptions des paramètres long_term_memory et user_message avec des exemples concrets et des guidelines d'usage. Priorité 2 assignée."
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "content": "Est ce que tu peux également ajouter au script d'installation le fait que il identifie s'il y a un fichier . githignore, sinon il le crée et si il y en a un il ajoute ou vérifie que à l'intérieur de ce fichier Gettingor, les dossiers . cor slash MCP.. cursor. Slash, mcp.jsen, ça c'est un fichier avant, c'était un dossier et finalement .cursor\\memory-bank\\streamlit_app En gros, les seuls éléments qui devraient être sauvegardés depuis le dossier point curs, ce sont les éléments de l'utilisateur, c'est à dire les éléments qui se trouvent dans .cursor\\memory-bank\\workflow . Tous les autres éléments qui se trouvent dans le point curs ne devraient pas être synchronisés avec git. Du coup, est ce que tu pourrais améliorer le script d'installation pour que voilà, il modifie, créer ou vérifie le gitignore du dossier ou il est executé de manière à ce que. Euh ces éléments ne soient pas push",
+      "status": "archived",
+      "created_at": "2025-06-23T16:22:59.198956",
+      "updated_at": "2025-06-23T15:11:04.499Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T16:22:59.198956",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T15:11:04.499Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #59: Enhance installation script to automatically manage .gitignore file. Cette tâche automatisera la gestion du fichier .gitignore pendant l'installation pour inclure automatiquement les exclusions nécessaires. Priorité 3 assignée."
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "content": "Il y a pas mal de scripts de test de rapport de fixes au format markdown. Euh et de fichiers un peu partout dans le repository que je suis pas certain qu'il soit utile l'idée, ce serait vraiment de garder le minimum, ce qui permet vraiment au système de fonctionner de manière parfaite. Par exemple, est ce que je je vois qu'il y a 2 scripts pour démarrer l'interface run ? Run Streamit . SH et run ui . SH, quelle est la différence ? Lequel il faut utiliser ? Moi je crois que j'ai toujours utilisé run UI et il a bien fonctionné mais je sais pas dis moi et puis est ce que tu pourrais faire un peu le ménage et supprimer tous les autres éléments qui ? Qui n'appartiennent pas au système de de mémory banque en fait tous les scripts temporaires, les rapports de bugs de fixe, et cetera. Tout ça on s'en on s'en fiche, il faut vraiment juste garder le code utile par l'utilisateur. Fais attention à ne pas supprimer des trucs qui pourraient être utiles. Par contre c'est vraiment suppriment les vieux scripts de test, les éléments temporaires, ce genre de choses pour vraiment avoir un un repository tout beau tout propre.",
+      "status": "archived",
+      "created_at": "2025-06-23T16:50:42.186039",
+      "updated_at": "2025-06-23T15:11:06.413Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T16:50:42.186039",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T15:11:06.413Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #60: Clean up repository by removing temporary scripts and test files. Cette tâche nettoiera le repository en supprimant les fichiers temporaires de test et debug qui ne sont plus nécessaires. Priorité 2 assignée."
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "content": "Dans l'interface streaming dans l'onglet Task Status, tu peux supprimer les informations qu'il y a dans l'onglet de gauche, là sur il y a il y a un Call out qui parle de quelles sont les les étapes des tâches. Il y a un truc qui affiche genre un pourcentage des tâches effectuées mais en fait comme le nombre de tâches archivées augmente tandis que le nombre de tâches restantes va avoir tendance à rester stable puisque à chaque fois moi j'en ajoute puis tu ressors les réseaux ce pourcentage va juste tendre vers 100% donc il a pas beaucoup d'intérêt donc il faudrait le supprimer mais grosso modo je crois que tu peux supprimer tout ce qu'il y a sur ce côté dans cette dans cette bande. Voilà\n\nEt d'ailleurs, après vérification, tu peux aussi supprimer tout ce qu'il y a sur ce côté pour toutes les autres pages. Il y a pas vraiment d'éléments utiles il me semble, à part les boutons, notamment pour le tu devrais avoir un bouton de rafraîchissement automatique sur toutes les pages, mais à la place de le faire toutes les transsecondes, c'est le toutes les 10 secondes s'il te plaît. Donc c'est un une case à cocher et si elle est cochée, l'interface s'actualise automatiquement toutes les 10 secondes. C'est uniquement ce qui devrait se trouver sur le côté De chaque de chaque tab.",
+      "status": "archived",
+      "created_at": "2025-06-23T16:52:55.753567",
+      "updated_at": "2025-06-23T15:11:08.806Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T16:52:55.753567",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T15:11:08.806Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #61: Simplify Streamlit interface by removing sidebars and adding auto-refresh. Cette tâche simplifiera l'interface en supprimant les sidebars et en ajoutant un auto-refresh de 10 secondes pour une meilleure expérience utilisateur. Priorité 3 assignée."
+        }
+      ]
+    },
+    {
+      "id": 62,
+      "content": "Lorsque les tâches sont complétées lorsqu'elles ont été finies par l'agent, elles devraient être indiquées comme. Two review, ça veut dire que l'utilisateur va devoir vérifier si elles sont correctement implémentées, et cetera Toutes les tâches ainsi terminées et mises en mode tout review doivent être ajoutées à une. Page de l'interface Stream Leitz qui va te falloir créer, donc s'appelle to review et. Et du coup là c'est très simple, c'est vraiment une liste des. Des tâches qui ont été complétées avec. Euh avec juste un bouton en forme de avec un icône validation dessus. Euh. Non validation, soit une Croix Rouge, soit un un icône vert. Euh. Si l'utilisateur clique sur l'icône vert, cela valide la la tâche comme étant bel et bien finie et créée. L'utilisateur est donc satisfait et donc ça la supprime vraiment. Là on peut on on la met dans l'archive et on la supprime de cette page, elle disparaît de cette page et en fait elle passe dans les tâches archivées. Si l'utilisateur clique sur la Croix Rouge, la non validation à ce moment là il y a un pop-up qui apparaît qui demande à l'utilisateur si il veut un ajouter un commentaire pour expliquer pourquoi il est pas satisfait de cette tâche, c'est facultatif mais. Euh mais après avoir validé le commentaire l'utilisateur peut donc enregistrer un commentaire dans une zone de texte exactement comme dans adrequest et ensuite il clique sur le bouton valider du pop-up et. Et Et en fait, ça va créer un nouveau, une nouvelle requête userbray exactement comme si on l'avait fait par adrequest, qui explique au modèle que cette tâche n'a pas été validée par l'utilisateur et qui donne la raison si si. Si l'utilisateur en a donné une, sinon dit simplement bah voilà, cette tâche n'a pas été validée, revérifie si elle a été correctement implémentée, rechec dans le détail, soit critique. Heu fait une analyse vraiment poussée des résultats tests manuellement le code pour vérifier si. Y a le comportement souhaité et et donc ça crée cette nouvelle requête qui va ensuite être traitée par le système automatiquement..",
+      "status": "archived",
+      "created_at": "2025-06-23T16:57:36.222387",
+      "updated_at": "2025-06-23T15:11:11.068Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T16:57:36.222387",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T15:11:11.068Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #62: Create To Review page for user validation of completed tasks. Cette tâche créera une nouvelle page Streamlit permettant à l'utilisateur de valider les tâches terminées avec des boutons Approve/Reject. Priorité 4 assignée."
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "content": "OK, gros souci que j'ai identifié dans le système de tâches et qui va t'amener à modifier le retour de la l'outil Next Roll. L'idée c'est que là cet outil retourne trop d'informations. Il y a vraiment beaucoup trop de textes en particulier parce que il retourne les fichiers complets alors que il devrait se focaliser sur les tâches actives par exemple dans la tâche Task décomposition au lieu de donner l'intégralité du fichier user bridge qui est énorme, qui contient beaucoup trop d'informations. Le serveur mcp lorsqu'on est, on appelle cette règle-là avec next Pro, il devrait simplement retourner le. Le La requête user brief non traitée la plus ancienne et il devrait n'en retourner qu'une indiquer qu'il y en a d'autres, mais spécifier à l'agent que pour le moment, il ne doit décomposer les tâches que de cette requête là de manière à ne pas saturer le contexte de l'agent avec beaucoup trop d'informations très difficiles à comprendre.\n\nMême chose pour la règle implémentation, il faut pas du tout retourner tout le contenu du fichier userbrise, ça sert à rien, ça donne beaucoup trop d'informations, au contraire, tu dois en fait même pour la règle implémentation. Il y a même pas besoin de retourner le user brief. Il doit simplement gérer la tâche la plus récente, donc tu dois simplement retourner la tâche concernée..",
+      "status": "archived",
+      "created_at": "2025-06-23T17:12:07.320177",
+      "updated_at": "2025-06-23T15:14:14.301Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T17:12:07.320177",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T17:13:35.898396",
+          "action": "content_updated",
+          "comment": "Request content updated via Add Request interface"
+        },
+        {
+          "timestamp": "2025-06-23T15:14:14.301Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #63: Optimize next_rule tool to return focused context and prevent agent saturation. Cette tâche critique de priorité 5 optimisera l'outil next_rule pour retourner moins d'informations contextuelles, se concentrant uniquement sur les données essentielles pour chaque étape de workflow. Pour task-decomposition, seule la requête userbrief non traitée la plus ancienne sera retournée avec un indicateur du nombre total, évitant ainsi la saturation du contexte de l'agent."
+        }
+      ]
+    },
+    {
+      "id": 64,
+      "content": "En fait, lorsque l'agent utilise l'outil next_rule, le serveur MCP doit retourner des informations supplémentaires (en plus des instructions de la règle elle même) différentes en fonction de la règle appelée :\n- start workflow : doit inclure projectbrief et techcontext ainsi que la tâche en cours si il y en a une, les 3 requêtes userbrief non traitées les plus anciennes et les 3 tâches non terminées les plus  urgentes (seulement leur titres et courte description)\n- task-decomposition : doit fournir une et une seule requête userbrief (la plus ancienne non traitée) ainsi que la liste complète des tâches actuelles à faire ou en cours (seulement leur titres, id et courte description) afin que l'agent intègre la requête à la liste de tâche\n- implementation : Fournit uniquement la tâche la plus urgente avec tous ses détails afin que le modèle l'implémente\n- experience-execution : Fournit plus de souvenirs long terme que d'abithude (10 au lieu de 3). Fournit la tâche en cours de traitement si il y en a une avec tous ses détails\n- fix :  Fournit plus de souvenirs long terme que d'abithude (10 au lieu de 3). Fournit la tâche en cours de traitement si il y en a une avec tous ses détails\n- context-update : doit inclure projectbrief et techcontext ainsi que la tâche en cours si il y en a une, les 3 requêtes userbrief non traitées les plus anciennes et les 3 tâches non terminées les plus  urgentes (seulement leur titres et courte description)\n\nVérifie dans le détail que toutes ces règles ne fournissent que ces éléments supplémentaires Plus éventuellement des textes courts, hein, je je je sais plus exactement, mais je sais que tu avais des bonnes idées, de petits trucs à inclure qui étaient assez intéressants et pas plus. Plus Mais en fait, essentiellement ces trucs pour ne pas saturer le contexte. Typiquement, j'ai vu beaucoup de d'appels qui retournaient l'intégralité du fichier user brief en intégrant même des trucs archivés. Donc ça, ça sert strictement à rien. Donc voilà, vérifie bien tout et modifie le code pour que ça se se se conforme exactement à ces demandes. Fais bien attention à vérifier le comportement différent pour chaque règle.",
+      "status": "archived",
+      "created_at": "2025-06-23T17:21:24.371477",
+      "updated_at": "2025-06-23T15:25:08.618Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T17:21:24.371477",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T15:25:08.618Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #64: Refine next_rule tool context optimization according to specific rule requirements. Cette tâche critique de priorité 5 implémentera les spécifications détaillées pour optimiser l'outil next_rule avec des informations contextuelles spécifiques selon chaque type de règle (start-workflow, task-decomposition, implementation, experience-execution, fix, context-update). L'objectif est d'éviter la saturation du contexte de l'agent tout en fournissant les informations pertinentes pour chaque étape du workflow."
+        }
+      ]
+    },
+    {
+      "id": 65,
+      "content": "Effectue une experience vraiment approfondie pour tester chaque appel de règle afin de vérifier en détails le bon fonctionnement de l'implémentation de la requête #64 : si tu ne vois pas de quoi il s'agit, écrit moi un message via l'outil remember :)",
+      "status": "archived",
+      "created_at": "2025-06-23T17:22:34.685341",
+      "updated_at": "2025-06-23T15:27:24.413Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T17:22:34.685341",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T15:27:24.413Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #65: Test approfondi de l'implémentation de l'optimisation next_rule (requête #64). Cette tâche critique de priorité 4 effectuera une expérience approfondie pour tester chaque appel de règle (start-workflow, task-decomposition, implementation, experience-execution, fix, context-update) et vérifier en détail le bon fonctionnement de l'implémentation de l'optimisation de l'outil next_rule avec des spécifications contextuelles spécifiques selon chaque type de règle appelée. L'objectif est de valider que l'implémentation de la requête #64 fonctionne correctement et répond aux spécifications demandées."
+        }
+      ]
+    },
+    {
+      "id": 66,
+      "content": "Modifie légèrement la description Des arguments des différents outils du. De du serveur MCP Memory banque MCP. Pour que l'agent fasse toujours des requêtes À ces outils en français. En particulier l'outil remember Et Task et l'édition ou la création de tâches",
+      "status": "new",
+      "created_at": "2025-06-23T17:24:07.146605",
+      "updated_at": "2025-06-23T17:24:07.146605",
+      "history": [
+        {
+          "timestamp": "2025-06-23T17:24:07.146605",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        }
+      ]
+    },
+    {
+      "id": 67,
+      "content": "Je pense que le nouveau mécanisme de revue des. Des travaux effectués par l'agent, la page tout review a provoqué un problème qui qui fait que l'estimation du temps restant pour les tâches ne fonctionne plus correctement. J'ai ce message d'erreur quand je vais sur la page principale de l'interface Streamlit : tu peux enquêter et résoudre le soucis ? :D\n\nTime estimation unavailable - No completed tasks yet to calculate average completion time",
+      "status": "new",
+      "created_at": "2025-06-23T17:27:37.186031",
+      "updated_at": "2025-06-23T17:27:37.186031",
+      "history": [
+        {
+          "timestamp": "2025-06-23T17:27:37.186031",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        }
+      ]
+    },
+    {
+      "id": 68,
+      "content": "Tu peux réunir sur une même page la page communication et la page to_review pour l'interface streamlit ? :D",
+      "status": "new",
+      "created_at": "2025-06-23T17:28:29.373654",
+      "updated_at": "2025-06-23T17:28:29.373654",
+      "history": [
+        {
+          "timestamp": "2025-06-23T17:28:29.373654",
           "action": "created",
           "comment": "New request added via Streamlit interface with status 'new' for processing."
         }
