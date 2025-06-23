@@ -338,9 +338,14 @@ with tab2:
     if memories:
         st.subheader(f"Stored Memories ({len(memories)})")
         
-        # Display memories with enhanced edit/delete options
+        # Display memories directly without accordions
         for i, memory in enumerate(memories):
-            with st.expander(f"Memory #{i+1}: {memory.get('timestamp', 'No date')}", expanded=False):
+            # Create a container for each memory with visual separation
+            memory_container = st.container()
+            with memory_container:
+                # Header with memory number and timestamp
+                st.markdown(f"### 🧠 Memory #{i+1}")
+                
                 col1, col2 = st.columns([3, 1])
                 
                 with col1:
@@ -377,12 +382,12 @@ with tab2:
                                 st.session_state[edit_key] = False
                                 st.rerun()
                     else:
-                        # Display mode: show content
-                        st.write(memory.get('content', 'No content'))
+                        # Display mode: show content directly
+                        st.markdown(f"*{memory.get('content', 'No content')}*")
                     
                     # Show embedding info if available
                     if memory.get('embedding'):
-                        st.markdown(f"**Embedding:** {len(memory['embedding'])} dimensions")
+                        st.caption(f"📊 Embedding: {len(memory['embedding'])} dimensions")
                 
                 with col2:
                     st.markdown("**Info:**")
@@ -405,30 +410,15 @@ with tab2:
                             st.session_state[edit_key] = True
                             st.rerun()
                     
-                    # Delete button with confirmation
-                    delete_confirm_key = f"delete_confirm_{i}"
-                    if delete_confirm_key not in st.session_state:
-                        st.session_state[delete_confirm_key] = False
-                    
-                    if st.session_state[delete_confirm_key]:
-                        st.warning("⚠️ Confirm deletion?")
-                        col_confirm, col_abort = st.columns(2)
-                        with col_confirm:
-                            if st.button("🗑️ Yes", key=f"confirm_delete_{i}"):
-                                memories.pop(i)
-                                updated_data = {'memories': memories}
-                                if save_long_term_memories(memories):
-                                    st.success("Memory deleted!")
-                                    st.session_state[delete_confirm_key] = False
-                                    st.rerun()
-                        with col_abort:
-                            if st.button("❌ No", key=f"abort_delete_{i}"):
-                                st.session_state[delete_confirm_key] = False
-                                st.rerun()
-                    else:
-                        if st.button(f"🗑️ Delete", key=f"delete_btn_{i}", help="Delete this memory"):
-                            st.session_state[delete_confirm_key] = True
+                    # Delete button (direct deletion without confirmation)
+                    if st.button(f"🗑️ Delete", key=f"delete_btn_{i}", help="Delete this memory"):
+                        memories.pop(i)
+                        if save_long_term_memories(memories):
+                            st.success("Memory deleted!")
                             st.rerun()
+                
+                # Add visual separator between memories
+                st.markdown("---")
     else:
         st.info("No long-term memories found.")
     
@@ -558,7 +548,16 @@ userbrief_content = load_text_file(memory_paths['userbrief'])
 preferences_count = len(parse_userbrief(userbrief_content)) if userbrief_content else 0
 
 long_term_data = load_json_file(memory_paths['long_term_memory'])
-memories_count = len(long_term_data.get('memories', [])) if long_term_data else 0
+# Handle both list and dictionary formats for backward compatibility
+if long_term_data:
+    if isinstance(long_term_data, list):
+        memories_count = len(long_term_data)
+    elif isinstance(long_term_data, dict):
+        memories_count = len(long_term_data.get('memories', []))
+    else:
+        memories_count = 0
+else:
+    memories_count = 0
 
 project_brief_exists = memory_paths['project_brief'].exists() and len(load_text_file(memory_paths['project_brief'])) > 0
 tech_context_exists = memory_paths['tech_context'].exists() and len(load_text_file(memory_paths['tech_context'])) > 0

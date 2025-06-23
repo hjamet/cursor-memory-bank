@@ -296,94 +296,106 @@ def delete_request(request_id):
         return False
 
 # Initialize session state for text area and form control
-if 'request_text' not in st.session_state:
-    st.session_state.request_text = ""
-if 'form_submitted' not in st.session_state:
-    st.session_state.form_submitted = False
-
-# Main form
+# Main form with native Streamlit approach
 st.header("📝 New Request")
 
-# Text area for request input (outside of form for better control)
-request_text = st.text_area(
-    "Request Description:",
-    value=st.session_state.request_text,
-    height=150,
-    placeholder="Describe what you want to accomplish...",
-    help="Enter your request. It will be processed automatically by the task-analysis workflow.",
-    key="request_input"
-)
-
-# Update session state when text changes (ensure synchronization)
-st.session_state.request_text = request_text
-
-# Submit button (outside of form for immediate response)
-col1, col2 = st.columns([1, 4])
-with col1:
-    submitted = st.button("➕ Add Request", type="primary", use_container_width=True)
-
-with col2:
-    st.markdown("*Press Ctrl+Enter in the text area or click the button to submit*")
-
-# Handle form submission with improved reliability
-if submitted or st.session_state.form_submitted:
-    if st.session_state.form_submitted:
-        st.session_state.form_submitted = False  # Reset flag
+# Use Streamlit form for reliable submission handling
+with st.form("request_form", clear_on_submit=True):
+    request_text = st.text_area(
+        "Request Description:",
+        height=150,
+        placeholder="Describe what you want to accomplish...",
+        help="Enter your request. It will be processed automatically by the task-analysis workflow. Press Ctrl+Enter to submit quickly.",
+        key="request_input"
+    )
     
-    # Get the current text content (prioritize session state)
-    current_text = st.session_state.request_text.strip()
+    # Submit button within form for native behavior
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        submitted = st.form_submit_button("➕ Add Request", type="primary", use_container_width=True)
+    
+    with col2:
+        st.markdown("*Press Ctrl+Enter in the text area or click the button to submit*")
+
+# Handle form submission with simplified approach
+if submitted:
+    current_text = request_text.strip()
     
     if current_text:
-        # Store the text before submission to avoid race conditions
-        submitted_text = current_text
-        
         # Add to userbrief via MCP as new request (status "new")
-        success, message = add_request_via_mcp(submitted_text)
+        success, message = add_request_via_mcp(current_text)
         
         if success:
-            # Show success message and balloons FIRST
+            # Show success message and balloons
             st.success(f"✅ {message}")
-            st.balloons()  # Show balloons immediately
+            st.balloons()  # Show balloons immediately after success
             st.toast("🎉 Request submitted successfully! The agent will process it automatically.", icon="✅")
-            
-            # THEN clear the text area
-            st.session_state.request_text = ""
-            
-            # Force immediate rerun to refresh interface
-            st.rerun()
-            
         else:
             st.error(f"❌ {message}")
     else:
         st.error("⚠️ Please enter a request description before submitting.")
 
-# Add simplified JavaScript for Ctrl+Enter support
+# Enhanced JavaScript for reliable Ctrl+Enter support
 st.markdown("""
 <script>
-// Simple and reliable Ctrl+Enter handler
-function setupCtrlEnter() {
-    // Find the text area
-    const textArea = document.querySelector('textarea[data-testid="stTextArea"]');
-    const submitButton = document.querySelector('button[kind="primary"]');
-    
-    if (textArea && submitButton && !textArea.hasAttribute('data-ctrl-enter-ready')) {
-        textArea.setAttribute('data-ctrl-enter-ready', 'true');
+function setupCtrlEnterForForm() {
+    // Wait for DOM to be ready
+    setTimeout(function() {
+        // Find the form text area and submit button
+        const formContainer = document.querySelector('[data-testid="stForm"]');
+        if (!formContainer) return;
         
-        textArea.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'Enter') {
-                e.preventDefault();
-                submitButton.click();
-            }
-        });
-    }
+        const textArea = formContainer.querySelector('textarea');
+        const submitButton = formContainer.querySelector('button[type="submit"]');
+        
+        if (textArea && submitButton && !textArea.hasAttribute('data-ctrl-enter-setup')) {
+            textArea.setAttribute('data-ctrl-enter-setup', 'true');
+            
+            textArea.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    submitButton.click();
+                }
+            });
+            
+            // Also handle keypress for better compatibility
+            textArea.addEventListener('keypress', function(e) {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    submitButton.click();
+                }
+            });
+        }
+    }, 100);
 }
 
-// Setup after DOM is ready
-setTimeout(setupCtrlEnter, 500);
+// Setup immediately and after any DOM changes
+setupCtrlEnterForForm();
 
-// Re-setup after Streamlit updates
-const observer = new MutationObserver(setupCtrlEnter);
-observer.observe(document.body, { childList: true, subtree: true });
+// Re-setup when Streamlit updates the page
+const observer = new MutationObserver(function(mutations) {
+    let shouldResetup = false;
+    mutations.forEach(function(mutation) {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+            for (let node of mutation.addedNodes) {
+                if (node.nodeType === 1 && (node.querySelector('[data-testid="stForm"]') || node.matches('[data-testid="stForm"]'))) {
+                    shouldResetup = true;
+                    break;
+                }
+            }
+        }
+    });
+    if (shouldResetup) {
+        setTimeout(setupCtrlEnterForForm, 100);
+    }
+});
+
+observer.observe(document.body, {
+    childList: true,
+    subtree: true
+});
 </script>
 """, unsafe_allow_html=True)
 

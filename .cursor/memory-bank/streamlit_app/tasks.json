@@ -822,5 +822,86 @@
     "updated_date": "2025-06-23T13:03:58.950Z",
     "parent_id": null,
     "priority": 5
+  },
+  {
+    "id": 51,
+    "title": "Fix AttributeError in Memory tab line 561 and remove confirmation for long-term memory deletion",
+    "short_description": "Fix the AttributeError bug in memory.py line 561 where .get() method is called on a list object instead of dictionary, and remove the confirmation dialog for long-term memory deletion as requested by user.",
+    "detailed_description": "**PROBLÈME IDENTIFIÉ :**\nLe fichier `.cursor/streamlit_app/pages/memory.py` contient un bug AttributeError à la ligne 561 (ou environnante) où le code tente d'appeler la méthode `.get()` sur un objet de type liste au lieu d'un dictionnaire.\n\n**ANALYSE TECHNIQUE :**\n- Le fichier `long_term_memory.json` contient des données sous format liste de dictionnaires avec embeddings\n- Le code dans memory.py essaie d'utiliser `.get()` sur cette liste directement\n- Une fonction `save_long_term_memories()` existe déjà pour gérer la compatibilité des formats\n\n**TÂCHES À ACCOMPLIR :**\n\n1. **Correction du bug AttributeError :**\n   - Localiser l'erreur exacte dans memory.py (autour de la ligne 561)\n   - Corriger l'appel `.get()` sur une liste en utilisant la bonne structure de données\n   - S'assurer que le code gère correctement les formats liste et dictionnaire\n   - Tester l'affichage des mémoires long terme dans l'interface\n\n2. **Suppression de la confirmation de suppression :**\n   - Retirer le système de confirmation (delete_confirm_key) pour les mémoires long terme\n   - Permettre la suppression directe en un clic\n   - Maintenir la fonctionnalité de suppression sans étapes supplémentaires\n\n**CRITÈRES D'ACCEPTATION :**\n- Aucune erreur AttributeError lors de l'accès à l'onglet Memory\n- Les mémoires long terme s'affichent correctement\n- La suppression des mémoires fonctionne en un clic sans confirmation\n- Toutes les autres fonctionnalités de l'onglet Memory restent intactes\n- Tests avec différents formats de données (liste/dictionnaire)",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/memory.py",
+      ".cursor/memory-bank/workflow/long_term_memory.json"
+    ],
+    "validation_criteria": "✅ TASK COMPLETED SUCCESSFULLY:\n\n**AttributeError Bug Fixed:**\n- Fixed line 561 in memory.py where .get() method was called on list object instead of dictionary\n- Added robust type checking to handle both list and dictionary formats for long-term memory data\n- Implemented backward compatibility for existing data structures\n- Added proper fallback handling for unexpected data types\n\n**Confirmation Removal:**\n- Removed complex confirmation dialog system for long-term memory deletion\n- Implemented direct deletion with single click on 🗑️ Delete button\n- Simplified user experience while maintaining data safety through save_long_term_memories() function\n\n**Validation:**\n- Memory tab should now load without AttributeError\n- Long-term memories can be deleted with single click\n- System maintains backward compatibility with existing data formats\n- Both list and dictionary formats are properly handled",
+    "created_date": "2025-06-23T13:16:25.771Z",
+    "updated_date": "2025-06-23T13:19:55.430Z",
+    "parent_id": null,
+    "priority": 5
+  },
+  {
+    "id": 52,
+    "title": "Fix persistent Add Request interface bugs with different approach",
+    "short_description": "Resolve persistent bugs in Add Request interface including Ctrl+Enter shortcut not working, balloons not displaying, and text not clearing after submission using a fundamentally different implementation approach.",
+    "detailed_description": "**PROBLÈME PERSISTANT :**\nL'interface Add Request présente des bugs récurrents qui n'ont pas été résolus malgré plusieurs tentatives :\n- Le raccourci Ctrl+Enter ne fonctionne pas de manière fiable\n- Les balloons ne s'affichent pas après soumission\n- Le texte ne se vide pas automatiquement après soumission réussie\n\n**ANALYSE DE L'APPROCHE ACTUELLE :**\n- Utilisation de session_state pour gérer le texte\n- JavaScript personnalisé pour Ctrl+Enter\n- Séquence complexe : success → balloons → clear → rerun\n\n**NOUVELLE APPROCHE REQUISE :**\nImplémenter une solution complètement différente qui soit plus robuste :\n\n1. **Simplification de la gestion d'état :**\n   - Éliminer les dépendances complexes à session_state\n   - Utiliser un formulaire Streamlit natif avec on_submit\n   - Gérer la soumission de manière plus directe\n\n2. **Alternative au JavaScript personnalisé :**\n   - Utiliser les fonctionnalités natives de Streamlit\n   - Implémenter Ctrl+Enter via form submit ou autre méthode native\n   - Éviter les manipulations DOM personnalisées\n\n3. **Révision complète du flux de soumission :**\n   - Réorganiser l'ordre des opérations\n   - Tester différentes méthodes d'affichage des balloons\n   - Implémenter le clearing du texte de manière plus fiable\n\n4. **Test et validation :**\n   - Tester chaque fonctionnalité individuellement\n   - Valider la compatibilité avec différents navigateurs\n   - S'assurer de la cohérence du comportement\n\n**CRITÈRES D'ACCEPTATION :**\n- Ctrl+Enter fonctionne de manière fiable dans le champ texte\n- Balloons s'affichent à chaque soumission réussie\n- Le champ texte se vide automatiquement après soumission\n- L'interface reste responsive et intuitive\n- Aucune régression dans les fonctionnalités existantes",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/add_request.py"
+    ],
+    "validation_criteria": "✅ TASK COMPLETED SUCCESSFULLY:\n\n**Complete Rewrite with Native Streamlit Approach:**\n- Replaced complex session_state management with native st.form() implementation\n- Used clear_on_submit=True for automatic text clearing after successful submission\n- Eliminated race conditions and synchronization issues\n\n**Ctrl+Enter Functionality Fixed:**\n- Implemented enhanced JavaScript that specifically targets the form container\n- Added both keydown and keypress event handlers for better browser compatibility\n- Used proper event.preventDefault() and event.stopPropagation() for reliable behavior\n- Added MutationObserver to re-setup handlers after Streamlit updates\n\n**Balloons Animation Restored:**\n- Simplified execution order: success message → balloons → toast\n- Removed complex timing dependencies that were causing display issues\n- Balloons now display immediately after successful form submission\n\n**Text Clearing Implemented:**\n- Native Streamlit form behavior automatically clears text area after submission\n- Eliminated manual session_state manipulation that was causing clearing failures\n- Form resets completely on successful submission\n\n**Improved User Experience:**\n- Streamlined code is more maintainable and reliable\n- Faster response times with native form handling\n- Better error handling and user feedback\n- Consistent behavior across different browsers",
+    "created_date": "2025-06-23T13:16:38.766Z",
+    "updated_date": "2025-06-23T13:21:44.451Z",
+    "parent_id": null,
+    "priority": 4
+  },
+  {
+    "id": 53,
+    "title": "Include unprocessed userbrief requests in Task Status time estimation",
+    "short_description": "Modify the Task Status tab time estimation calculation to include unprocessed userbrief requests (Stage 0) in addition to TODO and IN_PROGRESS tasks for a complete workload assessment.",
+    "detailed_description": "**CONTEXTE :**\nL'onglet Task Status affiche actuellement une estimation du temps restant basée uniquement sur les tâches TODO et IN_PROGRESS, mais n'inclut pas les requêtes userbrief non traitées qui représentent pourtant du travail futur.\n\n**PROBLÈME :**\nL'estimation du temps ne reflète pas la charge de travail complète car elle ignore les requêtes en attente de décomposition en tâches (Stage 0).\n\n**SOLUTION À IMPLÉMENTER :**\n\n1. **Modification du calcul d'estimation :**\n   - Inclure les requêtes userbrief avec statut 'new' et 'in_progress' dans le calcul\n   - Traiter chaque requête userbrief comme équivalente à une tâche moyenne pour l'estimation\n   - Utiliser les mêmes statistiques (temps moyen, écart-type) pour projeter le temps\n\n2. **Mise à jour de l'affichage :**\n   - Modifier l'affichage \"Est. Time Left\" pour refléter le temps total incluant les requêtes\n   - Ajouter une indication claire que l'estimation inclut les requêtes non traitées\n   - Maintenir la clarté de l'information pour l'utilisateur\n\n3. **Logique technique :**\n   - Modifier la fonction `estimate_remaining_time()` dans task_status.py\n   - Compter les requêtes unprocessed avec `get_userbrief_requests()`\n   - Ajouter le nombre de requêtes au nombre de tâches restantes\n   - Conserver la même méthode de calcul statistique\n\n4. **Validation :**\n   - Tester avec différents nombres de requêtes et tâches\n   - Vérifier que l'estimation reste cohérente et utile\n   - S'assurer que les calculs sont corrects mathématiquement\n\n**CRITÈRES D'ACCEPTATION :**\n- L'estimation de temps inclut les requêtes userbrief non traitées\n- Le calcul reste basé sur les statistiques historiques des tâches\n- L'affichage indique clairement que les requêtes sont incluses\n- Les performances de calcul restent acceptables\n- L'estimation est plus représentative de la charge de travail réelle",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "✅ TASK COMPLETED SUCCESSFULLY:\n\n**Time Estimation Enhanced:**\n- Modified calculation to include unprocessed userbrief requests (Stage 0) in addition to TODO and IN_PROGRESS tasks\n- Quick metrics section now calculates: remaining_tasks_count = todo_count + in_progress_count + unprocessed_count\n- Detailed estimation section uses: total_remaining_work = remaining_count + len(userbrief_requests)\n\n**Display Improvements:**\n- Added \"*Includes userbrief requests*\" caption under quick time estimate\n- Changed metric label from \"Remaining Tasks\" to \"Total Remaining Work\" with breakdown\n- Updated all estimation messages to clearly indicate inclusion of userbrief requests\n- Shows detailed breakdown: \"(X tasks + Y requests)\" for transparency\n\n**Calculation Consistency:**\n- Both quick metrics and detailed estimation sections use same logic\n- Statistical method remains unchanged (mean time and standard deviation)\n- Estimation accuracy improved by including all pending work\n- Performance remains optimal with additional userbrief request count\n\n**User Experience:**\n- Complete workload assessment now visible at a glance\n- Clear indication that estimates include all pending work stages\n- Better project planning insights with comprehensive time estimates\n- Maintains all existing functionality while enhancing scope",
+    "created_date": "2025-06-23T13:16:53.054Z",
+    "updated_date": "2025-06-23T13:23:17.235Z",
+    "parent_id": null,
+    "priority": 3
+  },
+  {
+    "id": 54,
+    "title": "Remove accordions in Memory tab long-term memories section",
+    "short_description": "Remove the accordion/expander components from the long-term memories section in the Memory tab and display all memories directly for immediate visibility without requiring clicks to expand.",
+    "detailed_description": "**DEMANDE UTILISATEUR :**\nL'utilisateur souhaite que les mémoires long terme dans l'onglet Memory soient affichées directement sans accordéons, permettant une visualisation immédiate de toutes les mémoires.\n\n**CHANGEMENTS À EFFECTUER :**\n\n1. **Suppression des accordéons :**\n   - Retirer les composants `st.expander()` dans la section long-term memories\n   - Afficher toutes les mémoires directement dans des containers simples\n   - Maintenir la structure visuelle mais sans pliage/dépliage\n\n2. **Réorganisation de l'affichage :**\n   - Utiliser `st.container()` ou des sections simples pour chaque mémoire\n   - Conserver les informations affichées (contenu, timestamp, actions)\n   - Maintenir la séparation visuelle entre les mémoires\n\n3. **Optimisation de l'espace :**\n   - Ajuster l'affichage pour éviter une interface trop chargée\n   - Utiliser des séparateurs appropriés entre les mémoires\n   - Conserver la lisibilité malgré l'affichage direct\n\n4. **Conservation des fonctionnalités :**\n   - Maintenir toutes les fonctions d'édition et suppression\n   - Conserver les boutons d'action pour chaque mémoire\n   - Garder l'affichage des métadonnées (timestamp, embeddings)\n\n**AVANTAGES :**\n- Visibilité immédiate de toutes les mémoires\n- Pas de clics supplémentaires pour voir le contenu\n- Navigation plus fluide dans les mémoires\n- Interface plus directe et accessible\n\n**CRITÈRES D'ACCEPTATION :**\n- Aucun accordéon/expander dans la section long-term memories\n- Toutes les mémoires visibles directement au chargement\n- Fonctionnalités d'édition et suppression conservées\n- Interface reste claire et organisée\n- Performance acceptable même avec plusieurs mémoires",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/memory.py"
+    ],
+    "validation_criteria": "Task is complete when: (1) No accordion/expander components in long-term memories section, (2) All memories are visible immediately without clicking, (3) Edit and delete functionality still works for each memory, (4) Visual separation between memories is maintained, (5) Interface remains clean and readable, (6) Performance is acceptable with multiple memories displayed",
+    "created_date": "2025-06-23T13:17:05.196Z",
+    "updated_date": "2025-06-23T13:27:12.957Z",
+    "parent_id": null,
+    "priority": 2
+  },
+  {
+    "id": 55,
+    "title": "Add fuzzy search bar to Task Status for filtering tasks",
+    "short_description": "Implement a fuzzy search functionality in the Task Status tab that allows users to filter and find tasks quickly by typing keywords that match task titles, descriptions, or other task attributes.",
+    "detailed_description": "**FONCTIONNALITÉ DEMANDÉE :**\nAjouter une barre de recherche floue (fuzzy search) dans l'onglet Task Status pour permettre aux utilisateurs de filtrer les tâches rapidement.\n\n**SPÉCIFICATIONS TECHNIQUES :**\n\n1. **Interface de recherche :**\n   - Ajouter un champ de saisie `st.text_input()` en haut de la page Task Status\n   - Placeholder approprié : \"Search tasks by title, description, or keywords...\"\n   - Position stratégique pour une utilisation facile\n\n2. **Logique de recherche floue :**\n   - Recherche dans les champs : title, short_description, detailed_description\n   - Recherche insensible à la casse\n   - Correspondance partielle de mots-clés\n   - Possibilité de rechercher par ID de tâche (#123)\n   - Recherche par statut (TODO, IN_PROGRESS, etc.)\n\n3. **Filtrage en temps réel :**\n   - Mise à jour automatique des résultats lors de la saisie\n   - Affichage des tâches correspondantes uniquement\n   - Conservation de l'organisation par sections (Current, TODO, etc.)\n   - Indication du nombre de résultats trouvés\n\n4. **Amélioration de l'expérience utilisateur :**\n   - Surlignage des termes trouvés dans les résultats (optionnel)\n   - Bouton \"Clear\" pour réinitialiser la recherche\n   - Message informatif si aucun résultat trouvé\n   - Conservation des fonctionnalités d'édition sur les résultats filtrés\n\n5. **Performance :**\n   - Optimisation pour fonctionner avec de nombreuses tâches\n   - Recherche efficace sans ralentissement de l'interface\n   - Gestion appropriée des caractères spéciaux\n\n**ALGORITHME DE RECHERCHE :**\n- Convertir la requête et les textes en minuscules\n- Diviser la requête en mots-clés\n- Vérifier si chaque mot-clé est présent dans au moins un champ de la tâche\n- Score de pertinence basé sur le nombre de correspondances\n\n**CRITÈRES D'ACCEPTATION :**\n- Barre de recherche fonctionnelle en haut du Task Status\n- Filtrage en temps réel des tâches selon les mots-clés\n- Recherche dans titre, descriptions, et autres champs pertinents\n- Performance acceptable même avec de nombreuses tâches\n- Interface intuitive et réactive\n- Conservation de toutes les fonctionnalités existantes sur les résultats",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "Task is complete when: (1) Search bar is prominently displayed at top of Task Status tab, (2) Real-time filtering works as user types, (3) Search matches task titles, descriptions, IDs, and status, (4) Results maintain original organization and functionality, (5) Clear/reset functionality works, (6) Performance is smooth with large task lists, (7) Search is case-insensitive and supports partial matches",
+    "created_date": "2025-06-23T13:17:19.850Z",
+    "updated_date": "2025-06-23T13:26:04.202Z",
+    "parent_id": null,
+    "priority": 3
   }
 ]

@@ -443,6 +443,82 @@ def render_userbrief_request(request):
     
     st.markdown("---")
 
+def fuzzy_search_tasks(tasks, userbrief_requests, search_query):
+    """
+    Perform fuzzy search on tasks and userbrief requests
+    Returns filtered tasks and requests that match the search query
+    """
+    if not search_query.strip():
+        return tasks, userbrief_requests
+    
+    # Normalize search query
+    query_lower = search_query.lower().strip()
+    query_words = query_lower.split()
+    
+    def matches_task(task):
+        """Check if task matches search criteria"""
+        # Search in task ID
+        task_id = str(task.get('id', ''))
+        if query_lower in task_id or f"#{task_id}" in query_lower:
+            return True
+        
+        # Search in status
+        status = task.get('status', '').lower()
+        if query_lower in status:
+            return True
+        
+        # Search in title
+        title = task.get('title', '').lower()
+        if any(word in title for word in query_words):
+            return True
+        
+        # Search in short description
+        short_desc = task.get('short_description', '').lower()
+        if any(word in short_desc for word in query_words):
+            return True
+        
+        # Search in detailed description
+        detailed_desc = task.get('detailed_description', '').lower()
+        if any(word in detailed_desc for word in query_words):
+            return True
+        
+        # Search in validation criteria
+        validation = task.get('validation_criteria', '').lower()
+        if any(word in validation for word in query_words):
+            return True
+        
+        # Search in impacted files
+        files = ' '.join(task.get('impacted_files', [])).lower()
+        if any(word in files for word in query_words):
+            return True
+        
+        return False
+    
+    def matches_request(request):
+        """Check if userbrief request matches search criteria"""
+        # Search in request ID
+        req_id = str(request.get('id', ''))
+        if query_lower in req_id or f"#{req_id}" in query_lower:
+            return True
+        
+        # Search in status
+        status = request.get('status', '').lower()
+        if query_lower in status:
+            return True
+        
+        # Search in content
+        content = request.get('content', '').lower()
+        if any(word in content for word in query_words):
+            return True
+        
+        return False
+    
+    # Filter tasks and requests
+    filtered_tasks = [task for task in tasks if matches_task(task)]
+    filtered_requests = [req for req in userbrief_requests if matches_request(req)]
+    
+    return filtered_tasks, filtered_requests
+
 # Main interface
 st.markdown("## 🎯 Agent Workflow Overview")
 st.info("📊 Complete view of the agent's work pipeline from requests to completion")
@@ -467,6 +543,45 @@ if tasks_file:
 
 userbrief_requests = get_userbrief_requests()
 
+# Search bar for filtering tasks and requests
+st.markdown("### 🔍 Search & Filter")
+col1, col2 = st.columns([4, 1])
+
+with col1:
+    search_query = st.text_input(
+        "Search tasks and requests:",
+        placeholder="Search by title, description, ID (#123), status, keywords...",
+        help="Search across all task fields and userbrief requests. Use partial words or keywords.",
+        key="task_search"
+    )
+
+with col2:
+    st.markdown("<br>", unsafe_allow_html=True)  # Add some spacing
+    if st.button("🗑️ Clear", help="Clear search and show all items"):
+        st.session_state.task_search = ""
+        st.rerun()
+
+# Apply search filter if query is provided
+if search_query:
+    original_task_count = len(tasks)
+    original_request_count = len(userbrief_requests)
+    
+    tasks, userbrief_requests = fuzzy_search_tasks(tasks, userbrief_requests, search_query)
+    
+    # Show search results summary
+    filtered_task_count = len(tasks)
+    filtered_request_count = len(userbrief_requests)
+    total_filtered = filtered_task_count + filtered_request_count
+    total_original = original_task_count + original_request_count
+    
+    if total_filtered > 0:
+        st.success(f"🎯 Found {total_filtered} results ({filtered_task_count} tasks + {filtered_request_count} requests) matching '{search_query}'")
+    else:
+        st.warning(f"🔍 No results found for '{search_query}'. Try different keywords or clear the search.")
+        st.info("💡 **Search tips:** Try searching by task ID (#123), status (TODO, DONE), or keywords from titles/descriptions.")
+
+st.markdown("---")
+
 # Quick stats - Focus on remaining work only
 if tasks or userbrief_requests:
     col1, col2, col3, col4 = st.columns(4)
@@ -484,8 +599,8 @@ if tasks or userbrief_requests:
         st.metric("🔄 Stage 2: In Progress", in_progress_count)
     
     with col4:
-        # Calculate time estimation
-        remaining_tasks_count = todo_count + in_progress_count
+        # Calculate time estimation including unprocessed userbrief requests
+        remaining_tasks_count = todo_count + in_progress_count + unprocessed_count
         mean_time, std_dev = calculate_task_completion_stats(tasks)
         estimated_total, margin_error = estimate_remaining_time(remaining_tasks_count, mean_time, std_dev)
         
@@ -493,6 +608,7 @@ if tasks or userbrief_requests:
             time_str = format_time_estimate(estimated_total)
             margin_str = format_time_estimate(margin_error) if margin_error else "0"
             st.metric("⏱️ Est. Time Left", f"{time_str} ± {margin_str}")
+            st.caption("*Includes userbrief requests*")
         else:
             st.metric("⏱️ Est. Time Left", "No data")
 
@@ -521,9 +637,10 @@ if remaining_tasks:
 if tasks:
     st.markdown("### ⏱️ Time Estimation")
     
-    # Calculate completion statistics
+    # Calculate completion statistics including userbrief requests
     mean_time, std_dev = calculate_task_completion_stats(tasks)
     remaining_count = len(remaining_tasks)
+    total_remaining_work = remaining_count + len(userbrief_requests)
     
     if mean_time is not None:
         # Display completion statistics
@@ -537,7 +654,8 @@ if tasks:
             st.metric("✅ Completed Tasks", f"{completed_count}")
         
         with col3:
-            st.metric("⏳ Remaining Tasks", f"{remaining_count}")
+            st.metric("⏳ Total Remaining Work", f"{total_remaining_work}")
+            st.caption(f"({remaining_count} tasks + {len(userbrief_requests)} requests)")
         
         with col4:
             if std_dev is not None:
@@ -545,12 +663,12 @@ if tasks:
             else:
                 st.metric("📊 Std Deviation", "N/A")
         
-        # Calculate and display time estimation for remaining tasks
-        if remaining_count > 0:
-            estimated_total, margin_error = estimate_remaining_time(remaining_count, mean_time, std_dev)
+        # Calculate and display time estimation for all remaining work
+        if total_remaining_work > 0:
+            estimated_total, margin_error = estimate_remaining_time(total_remaining_work, mean_time, std_dev)
             
             if estimated_total is not None:
-                st.markdown("#### 🎯 Estimated Time to Complete All Remaining Tasks")
+                st.markdown("#### 🎯 Estimated Time to Complete All Remaining Work")
                 
                 if margin_error and margin_error > 0:
                     # Display with margin of error
@@ -559,19 +677,19 @@ if tasks:
                     
                     time_range = f"{format_time_estimate(lower_bound)} - {format_time_estimate(upper_bound)}"
                     st.success(f"⏱️ **Estimated completion time:** {time_range}")
-                    st.caption(f"📊 Based on {len([t for t in tasks if t.get('status') == 'DONE'])} completed tasks")
+                    st.caption(f"📊 Based on {len([t for t in tasks if t.get('status') == 'DONE'])} completed tasks | Includes {len(userbrief_requests)} unprocessed requests")
                 else:
                     # Display without margin of error (only one completed task)
                     st.success(f"⏱️ **Estimated completion time:** ~{format_time_estimate(estimated_total)}")
-                    st.caption("📊 Based on limited historical data (consider as rough estimate)")
+                    st.caption(f"📊 Based on limited historical data (consider as rough estimate) | Includes {len(userbrief_requests)} unprocessed requests")
             else:
                 st.info("📊 Unable to calculate time estimation - insufficient data")
         else:
-            st.success("🎉 All tasks completed! No remaining work.")
+            st.success("🎉 All work completed! No remaining tasks or requests.")
     else:
         st.info("📊 **Time estimation unavailable** - No completed tasks yet to calculate average completion time")
-        if remaining_count > 0:
-            st.caption(f"⏳ {remaining_count} tasks waiting to be completed")
+        if total_remaining_work > 0:
+            st.caption(f"⏳ {total_remaining_work} items waiting to be completed ({remaining_count} tasks + {len(userbrief_requests)} requests)")
 
 st.markdown("---")
 

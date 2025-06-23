@@ -1,100 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 49,
+  "last_id": 56,
   "requests": [
-    {
-      "id": 23,
-      "content": "Il arrive que à la fin de la règle implémentation en particulier, mais je crois que ça peut être un peu général à toutes les règles. L'agent s'arrête en disant, Voilà Ben j'ai bien avancé, maintenant je m'arrête souvent. Souvent, c'est en plus après l'appel à la règle remember, donc ça veut dire que la règle remember n'est pas assez claire. Son retour doit clairement indiquer à l'agent OK maintenant ce que tu dois faire, c'est absolument et c'est obligatoire, tu ne dois surtout pas t'arrêter, tu dois appeler l'une de ces règles et là il indique les règles possibles étant donné l'état actuel du workflow. Donc est-ce que tu peux corriger, est-ce que tu peux corriger ça de manière à ce que l'agent ne s'arrête jamais et que quand il appelle la règle remember comme il le fait à la fin de chaque règle, ils comprennent que il doit tout de suite appeler, enchaîner en appelant la règle suivante, Parmi celles qu'ils ont proposées",
-      "status": "archived",
-      "created_at": "2025-06-23T11:48:04.214156",
-      "updated_at": "2025-06-23T09:51:27.122Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T11:48:04.214156",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T09:51:27.122Z",
-          "action": "mark_archived",
-          "comment": "Task created: Fix workflow logic to prevent agent from stopping after remember calls (Task #26)"
-        }
-      ]
-    },
-    {
-      "id": 24,
-      "content": "Dans la règle Task décomposition, tu sais, lors de l'appel de la règle, le serveur mcp retourne automatiquement. Euh le contenu du fichier user brief pour permettre à l'agent de d'implémenter. Euh l'idée, ce serait d'optimiser ça et plutôt que de retourner l'intégralité du fichier user French, il retourne une requête. La plus ancienne enregistrée encore non traitée Pour ne pas saturer l'agent avec plein de requêtes différentes Parce que cette. Dans cette partie Task décomposition, l'agent doit traiter une requête à la fois. Au lieu de de tous les traiter donc c'est pour ça que en fait ta décomposition retourne la Rocket user brief la plus ancienne. L'agent la transforme en tâche puis passe à l'étape la la ensuite marque le user briefet est traité puis passe à l'étape d'implémentation, et cetera. Et comme ça on traite une chose à la fois et on ne sature pas l'agent avec beaucoup trop de tâches en même temps. C'est pas grave. Plus tard, il va retourner à taxe de composition et il pourra traiter la prochaine requête user briefing.",
-      "status": "archived",
-      "created_at": "2025-06-23T11:50:53.819950",
-      "updated_at": "2025-06-23T10:14:15.001Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T11:50:53.819950",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T10:14:15.001Z",
-          "action": "mark_archived",
-          "comment": "Task created: Optimize task-decomposition rule to process one request at a time (Task #27)"
-        }
-      ]
-    },
-    {
-      "id": 25,
-      "content": "Tu peux modifier le script d'installation en particulier avec Curl pour t'assurer que il installe également qu'il installe bientôt, à savoir les 2 serveurs MCP le. Le serveur Streamlitz avec ces dépendances nécessaires pour l'exécuter, le script de démarrage du serveur Stream Leit que le script d'installation aussi télécharge le modèle pour les embedings. Pour la gestion de la mémoire à long terme et finalement qu'il. Euh, qui la place dans le bon dossier, .cursor/rules La règle start.mdc",
-      "status": "archived",
-      "created_at": "2025-06-23T11:52:45.960089",
-      "updated_at": "2025-06-23T10:14:16.359Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T11:52:45.960089",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T10:14:16.359Z",
-          "action": "mark_archived",
-          "comment": "Task created: Enhance installation script with comprehensive component installation (Task #28)"
-        }
-      ]
-    },
-    {
-      "id": 26,
-      "content": "Ajoute à l'outil remember un, une section messages à l'utilisateur doit être. Ça doit être un message court mais clair qui indique ce que le modèle peut vouloir dire à l'utilisateur. Il doit pas, c'est, c'est facultatif comme comme argument si. Euh. S'il le donne, ça doit être relativement court, genre une ou 2 phrases. Et et du coup, ça doit enregistrer dans un fichier too user le. Le Les messages écrits par le modèle à l'utilisateur Ça peut être des requêtes, ça peut être des propositions, ça peut être des réponses à des questions posées par l'utilisateur Ça peut être plein de choses différentes Typiquement si l'utilisateur avait posé une question ou demandé une précision, c'est cet outil que va utiliser l'agent pour donner la réponse à la question à l'utilisateur",
-      "status": "archived",
-      "created_at": "2025-06-23T13:07:09.319187",
-      "updated_at": "2025-06-23T11:09:13.322Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T13:07:09.319187",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T11:09:13.322Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 29,
-      "content": "Dans le système d'ajout de nouvelles requests sur Stream litt Le fait d'appuyer sur le bouton AD request ne déclenche toujours pas l'animation avec les ballons et ne supprime pas le texte de la description de requête. Moi ce que j'avais demandé, c'est que quand en gros, quand on appuie sur contrôle le plus center ou sur le bouton ad request, ça envoie le formulaire donc ça vide les Le contenu de l'entrée de texte et ça lance l'animation des ballons pour dire que bah la requête a bien été soumise",
-      "status": "archived",
-      "created_at": "2025-06-23T13:07:54.534043",
-      "updated_at": "2025-06-23T11:10:14.768Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T13:07:54.534043",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T11:10:14.768Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 30,
       "content": "Toujours sur l'interface Streamlitz dans l'onglet Task Status ne t'occupe pas d'afficher le nombre de tâches effectuées sans s'en fiche. En fait, ce qui compte, c'est plutôt les tâches qui restent à faire et au sein de ces tâches qui restent à faire. Quelles sont la effectivement la distribution des priorités ? Et ensuite, comme je te l'ai demandé en dessous, on devrait avoir la liste des tâches cliquables quand on clique dessus, ça affiche les détails de la tâche, à savoir sa description complète et pas seulement sa description rapide en dessous de son titre et ainsi que des boutons pour permettre d'éditer la priorité de la tâche ou de la supprimer",
@@ -458,6 +365,115 @@
         {
           "timestamp": "2025-06-23T13:02:19.429Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "content": "Toujours sur l'interface Stream Lite, je continue d'avoir une erreur. Dans l'onglet Memory Et si tu peux la régler, ce serait vraiment chouette, même si je vois pas ce que ça concerne parce que tout a l'air de fonctionner.\n\nAttributeError: 'list' object has no attribute 'get'\nTraceback:\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\memory.py\", line 561, in <module>\n    memories_count = len(long_term_data.get('memories', [])) if long_term_data else 0\n                         ^^^^^^^^^^^^^^^^^^\nCopy\nAsk Google\nAsk ChatGPT\n\n---\n\nTu peux aussi enlever la confirmation pour la suppression des souvenirs à long terme. Actuellement, il faut cliquer sur supprimer puis re cliquer sur supprimer. Il suffirait de cliquer une fois sur supprimer, ça devrait marcher. Pas la peine d'avoir une confirmation.",
+      "status": "archived",
+      "created_at": "2025-06-23T15:10:54.444451",
+      "updated_at": "2025-06-23T13:17:29.127Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T15:10:54.444451",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T13:17:29.127Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #51: Fix AttributeError in Memory tab line 561 and remove confirmation for long-term memory deletion. Bug identifié dans memory.py ligne 561 où .get() est appelé sur une liste au lieu d'un dictionnaire, plus suppression de la confirmation de suppression des mémoires long terme."
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "content": "Toujours sur streaming dans la soumission des Pessages, le raccourci contrôle plus senteur n'a toujours pas l'air de fonctionner. Les ballons ne s'affichent pas et le texte ne disparaît pas quand on appuie sur adrequest. Essaie de changer d'approche, je pense que tu tu fais quelque chose pas correctement, c'est pas normal que ce soit si difficile de faire quelque chose d'aussi simple",
+      "status": "archived",
+      "created_at": "2025-06-23T15:12:11.847359",
+      "updated_at": "2025-06-23T13:17:31.565Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T15:12:11.847359",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T13:17:31.565Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #52: Fix persistent Add Request interface bugs with different approach. Nouvelle approche requise pour résoudre les bugs persistants (Ctrl+Enter, balloons, clearing du texte) qui n'ont pas été résolus malgré plusieurs tentatives."
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "content": "Dans Task Status toujours sur l'interface streaming, prends en compte les requêtes user brief non traitées pour l'estimation du temps",
+      "status": "archived",
+      "created_at": "2025-06-23T15:12:45.982327",
+      "updated_at": "2025-06-23T13:17:33.465Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T15:12:45.982327",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T13:17:33.465Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #53: Include unprocessed userbrief requests in Task Status time estimation. Modification du calcul d'estimation pour inclure les requêtes userbrief non traitées (Stage 0) dans l'estimation du temps restant."
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "content": "Toujours sur l'interface Stream Leit dans l'onglet Memory puis dans l'onglet mémoire à long terme Ne place pas chaque souvenir dans un accordéon, mêler directement déplié pour faciliter la lecture avec juste un bouton édition et un bouton suppression pour chacun d'entre eux. Comme ça, c'est plus simple parce que sinon ça oblige de tous de cliquer sur tous pour trouver les souvenirs. Enfin, c'est assez compliqué et pas pratique.",
+      "status": "archived",
+      "created_at": "2025-06-23T15:13:39.984273",
+      "updated_at": "2025-06-23T13:17:35.777Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T15:13:39.984273",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T13:17:35.777Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #54: Remove accordions in Memory tab long-term memories section. Suppression des accordéons/expanders pour affichage direct de toutes les mémoires long terme sans nécessité de cliquer pour les déplier."
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "content": "Dans l'onglet Task Status de l'interface streaming est ce que tu peux rajouter tout en haut une barre de recherche pour filtrer les tâches par mots clés et facilement les les retrouver avec une fonction de recherche un peu un peu optimale, pas basée sur des modèles de langage mais mais mais qui acceptent des petites erreurs dans la requête ou des mots pas exactement semblables.",
+      "status": "archived",
+      "created_at": "2025-06-23T15:14:23.302815",
+      "updated_at": "2025-06-23T13:17:38.126Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T15:14:23.302815",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T13:17:38.126Z",
+          "action": "mark_archived",
+          "comment": "Décomposée en tâche #55: Add fuzzy search bar to Task Status for filtering tasks. Implémentation d'une barre de recherche floue dans l'onglet Task Status pour filtrer les tâches par mots-clés dans les titres, descriptions et autres attributs."
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "content": "Tu peux insister sur dans la règle implémentation pour que l'agent ne traite qu'une tâche à la fois lorsqu'il appelle la règle implémentation, le retour de l'outil Next Wol doit lui retourner la tâche la plus urgente et uniquement la tâche la plus urgente et lui dire que il doit régler cette tâche et uniquement cette tâche. Et c'est sous tâche éventuellement Mais voilà, il doit vraiment régler, régler cette tâche uniquement, il ne doit pas régler plusieurs tâches à la suite, ça c'est vraiment très important de souligner. Il doit régler cette tâche. Puis à la fin, appeler Remember, remember va lui dire quelle prochaine règle il peut appeler et ensuite il appelle la règle prochaine. Peut-être que la règle prochaine sera implémentation. Ça je sais pas, c'est le serveur qui gère, mais l'idée c'est vraiment qu'il doit pas fixe toutes les tâches dans l'ordre parce que sinon il va juste se perdre, oublier le workflow, oublier d'appeler Next rule et au final il se perd et il est plus efficace. Donc il faut vraiment insister sur le fait que il doit gérer une seule tâche, c'est la tâche que du retourne l'appel à l'outil Next rule. Avec implémentation",
+      "status": "new",
+      "created_at": "2025-06-23T15:28:07.826558",
+      "updated_at": "2025-06-23T15:28:07.826558",
+      "history": [
+        {
+          "timestamp": "2025-06-23T15:28:07.826558",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
         }
       ]
     }
