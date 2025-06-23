@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 5,
+  "last_id": 8,
   "requests": [
     {
       "id": 1,
@@ -69,6 +69,48 @@
           "timestamp": "2025-06-23T07:49:30.000Z",
           "action": "migrated_from_md",
           "comment": "Migrated from userbrief.md - Request to rewrite start.mdc rule in English, addressing the agent directly in second person instead of third person, since the agent will be reading the text directly."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "content": "Apparemment, il y a un soucis avec l'outil update_userbrief : tu peux mener l'enquête et résoudre ? :D",
+      "status": "new",
+      "created_at": "2025-06-23T09:57:08.270991",
+      "updated_at": "2025-06-23T09:57:08.270991",
+      "history": [
+        {
+          "timestamp": "2025-06-23T09:57:08.270991",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "content": "Améliore la logique de la fonction get_next_tasks : apparement, le système de selection n'est pas optimal. Normalement, le serveur doit automatiquement identifier la tâche la plus urgente à faire en fonction de \n1. Du graphe des dépendances entre graph\n2. De la priorité des tâches\nSi plusieurs tâches arrivent à égalité, il doit toutes les retourner à l'agent en lui expliquant qu'il doit choisir laquelle il souhaite traiter !",
+      "status": "new",
+      "created_at": "2025-06-23T09:59:45.795825",
+      "updated_at": "2025-06-23T09:59:45.795825",
+      "history": [
+        {
+          "timestamp": "2025-06-23T09:59:45.795825",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "content": "Dans l'interface streamlit, modifie le clic sur le bouton add-request pour que le texte soumis soit effacé de la zone de texte après envoi :)",
+      "status": "new",
+      "created_at": "2025-06-23T10:00:31.523684",
+      "updated_at": "2025-06-23T10:00:31.523684",
+      "history": [
+        {
+          "timestamp": "2025-06-23T10:00:31.523684",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
         }
       ]
     }

@@ -6,6 +6,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const tasksFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'streamlit_app', 'tasks.json');
 
+// Archive size limits
+const MAX_ARCHIVED_TASKS = 25;
+
 class TaskManager {
     constructor() {
         this.tasks = [];
@@ -36,6 +39,33 @@ class TaskManager {
             await fs.writeFile(tasksFilePath, JSON.stringify(this.tasks, null, 2), 'utf8');
         } catch (error) {
             throw new Error(`Failed to save tasks: ${error.message}`);
+        }
+    }
+
+    /**
+     * Clean up archived tasks to maintain maximum limit
+     * Keeps only the most recent archived tasks based on updated_date
+     */
+    cleanupArchivedTasks() {
+        const archivedTasks = this.tasks.filter(task => task.status === 'DONE');
+
+        if (archivedTasks.length > MAX_ARCHIVED_TASKS) {
+            // Sort archived tasks by updated_date (most recent first)
+            archivedTasks.sort((a, b) => new Date(b.updated_date) - new Date(a.updated_date));
+
+            // Keep only the most recent MAX_ARCHIVED_TASKS
+            const tasksToKeep = archivedTasks.slice(0, MAX_ARCHIVED_TASKS);
+            const tasksToRemove = archivedTasks.slice(MAX_ARCHIVED_TASKS);
+
+            // Remove old archived tasks from the main tasks array
+            tasksToRemove.forEach(taskToRemove => {
+                const index = this.tasks.findIndex(task => task.id === taskToRemove.id);
+                if (index !== -1) {
+                    this.tasks.splice(index, 1);
+                }
+            });
+
+            console.log(`[TaskManager] Cleaned up ${tasksToRemove.length} old archived tasks, keeping ${tasksToKeep.length} most recent`);
         }
     }
 
@@ -71,6 +101,7 @@ class TaskManager {
             throw new Error(`Task with ID ${id} not found`);
         }
 
+        const originalStatus = this.tasks[taskIndex].status;
         const updatedTask = {
             ...this.tasks[taskIndex],
             ...updates,
@@ -78,6 +109,12 @@ class TaskManager {
         };
 
         this.tasks[taskIndex] = updatedTask;
+
+        // If task was just marked as DONE, cleanup archived tasks
+        if (originalStatus !== 'DONE' && updatedTask.status === 'DONE') {
+            this.cleanupArchivedTasks();
+        }
+
         this.saveTasks(); // Save asynchronously
         return updatedTask;
     }
