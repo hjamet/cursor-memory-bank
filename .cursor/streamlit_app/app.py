@@ -102,38 +102,36 @@ def get_current_workflow_step():
 
 # Helper function to get userbrief status
 def get_userbrief_status():
-    userbrief_file = Path('.cursor/memory-bank/userbrief.md')
-    if userbrief_file.exists():
-        try:
+    """Get userbrief status from the JSON file"""
+    try:
+        userbrief_file = Path('.cursor/memory-bank/workflow/userbrief.json')
+        if userbrief_file.exists():
             with open(userbrief_file, 'r', encoding='utf-8') as f:
-                content = f.read()
-                # Parse userbrief entries properly
-                lines = content.split('\n')
-                active_requests = []
-                preferences = []
-                total_entries = 0
-                
-                for line in lines:
-                    line = line.strip()
-                    if line and not line.startswith('#'):
-                        # Count entries that start with emoji indicators
-                        if line.startswith('📌') or line.startswith('🗄️') or line.startswith('🧠'):
-                            total_entries += 1
-                            # Extract the actual request text after the emoji and dash
-                            if ' - ' in line:
-                                request_text = line.split(' - ', 1)[1]
-                                if '📌' in line:  # Pinned preferences
-                                    preferences.append(request_text)
-                                elif not request_text.startswith('DONE:') and not request_text.startswith('ARCHIVED:'):
-                                    active_requests.append(request_text)
-                
-                return {
-                    'active_requests': active_requests,
-                    'preferences': preferences,
-                    'total_lines': total_entries
-                }
-        except Exception as e:
-            st.error(f"Error reading userbrief: {e}")
+                userbrief_data = json.load(f)
+            
+            requests = userbrief_data.get("requests", [])
+            
+            # Count by status
+            new_requests = [req for req in requests if req.get("status") == "new"]
+            in_progress_requests = [req for req in requests if req.get("status") == "in_progress"]
+            archived_requests = [req for req in requests if req.get("status") == "archived"]
+            
+            # Extract active requests content (new + in_progress)
+            active_requests = [req['content'] for req in new_requests + in_progress_requests]
+            
+            # For now, we don't have preferences in the new system, but we could add them later
+            preferences = []
+            
+            return {
+                'active_requests': active_requests,
+                'preferences': preferences,
+                'total_lines': len(requests),
+                'new_count': len(new_requests),
+                'in_progress_count': len(in_progress_requests),
+                'archived_count': len(archived_requests)
+            }
+    except Exception as e:
+        st.error(f"Error reading userbrief: {e}")
     return None
 
 # Helper function to get task status
@@ -230,16 +228,19 @@ st.info("ℹ️ User requests are automatically managed by the `next_rule` tool.
 userbrief_status = get_userbrief_status()
 
 if userbrief_status:
-    col3, col4, col5 = st.columns(3)
+    col3, col4, col5, col6 = st.columns(4)
     
     with col3:
-        st.metric("Total Entries", userbrief_status['total_lines'])
+        st.metric("Total Requests", userbrief_status['total_lines'])
     
     with col4:
-        st.metric("Active Requests", len(userbrief_status['active_requests']))
+        st.metric("New Requests", userbrief_status['new_count'], help="Waiting to be processed")
     
     with col5:
-        st.metric("User Preferences", len(userbrief_status['preferences']))
+        st.metric("In Progress", userbrief_status['in_progress_count'], help="Currently being worked on")
+    
+    with col6:
+        st.metric("Archived", userbrief_status['archived_count'], help="Completed requests")
     
     # Show recent items directly without expanders
     if userbrief_status['active_requests']:

@@ -89,7 +89,7 @@ def update_userbrief_preferences(content, preferences):
 
 # File paths
 memory_paths = {
-    'userbrief': Path('.cursor/memory-bank/userbrief.md'),
+    'userbrief': Path('.cursor/memory-bank/workflow/userbrief.json'),
     'long_term_memory': Path('.cursor/memory-bank/long_term_memory.json'),
     'project_brief': Path('.cursor/memory-bank/context/projectBrief.md'),
     'tech_context': Path('.cursor/memory-bank/context/techContext.md')
@@ -98,127 +98,121 @@ memory_paths = {
 # Tabs for different memory types
 tab1, tab2, tab3, tab4 = st.tabs(["📝 Requêtes", "🧠 Long-term Memory", "📋 Project Brief", "⚙️ Tech Context"])
 
-# Tab 1: Requêtes (All userbrief entries)
+# Tab 1: Requêtes (All userbrief entries from JSON)
 with tab1:
     st.header("📝 Gestion des Requêtes")
-    st.markdown("Gérez tous les éléments du userbrief : requêtes actives, préférences et archives.")
+    st.markdown("Gérez toutes les requêtes du nouveau système JSON avec statuts structurés.")
     
-    userbrief_content = load_text_file(memory_paths['userbrief'])
+    userbrief_data = load_json_file(memory_paths['userbrief'])
     
-    if userbrief_content:
-        # Parse all userbrief entries
-        lines = userbrief_content.split('\n')
-        active_requests = []
-        preferences = []
-        archived_entries = []
+    if userbrief_data:
+        requests = userbrief_data.get("requests", [])
         
-        for i, line in enumerate(lines):
-            line = line.strip()
-            if line and not line.startswith('#'):
-                if line.startswith('🗄️'):
-                    # Active request
-                    if ' - ' in line:
-                        text = line.split(' - ', 1)[1]
-                        active_requests.append({
-                            'line_number': i,
-                            'text': text,
-                            'full_line': line,
-                            'type': 'active'
-                        })
-                elif line.startswith('📌'):
-                    # Preference
-                    if ' - ' in line:
-                        text = line.split(' - ', 1)[1]
-                        preferences.append({
-                            'line_number': i,
-                            'text': text,
-                            'full_line': line,
-                            'type': 'preference'
-                        })
-                elif line.startswith('🧠'):
-                    # Archived
-                    if ' - ' in line:
-                        text = line.split(' - ', 1)[1]
-                        archived_entries.append({
-                            'line_number': i,
-                            'text': text,
-                            'full_line': line,
-                            'type': 'archived'
-                        })
-        
-        # Display statistics
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("🗄️ Requêtes Actives", len(active_requests))
-        with col2:
-            st.metric("📌 Préférences", len(preferences))
-        with col3:
-            st.metric("🧠 Archives", len(archived_entries))
-        
-        st.markdown("---")
-        
-        # Active Requests Section
-        if active_requests:
-            st.subheader(f"🗄️ Requêtes Actives ({len(active_requests)})")
-            for i, entry in enumerate(active_requests):
-                with st.expander(f"Requête #{i+1}", expanded=False):
-                    col1, col2 = st.columns([4, 1])
+        if requests:
+            # Count by status
+            new_requests = [req for req in requests if req.get("status") == "new"]
+            in_progress_requests = [req for req in requests if req.get("status") == "in_progress"]
+            archived_requests = [req for req in requests if req.get("status") == "archived"]
+            
+            # Display statistics
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("📊 Total", len(requests))
+            with col2:
+                st.metric("🆕 Nouvelles", len(new_requests))
+            with col3:
+                st.metric("⚡ En cours", len(in_progress_requests))
+            with col4:
+                st.metric("✅ Archivées", len(archived_requests))
+            
+            st.markdown("---")
+            
+            # Filter options
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                show_new = st.checkbox("Afficher Nouvelles (🆕)", value=True)
+            with col2:
+                show_in_progress = st.checkbox("Afficher En cours (⚡)", value=True)
+            with col3:
+                show_archived = st.checkbox("Afficher Archivées (✅)", value=False)
+            
+            # Filter and sort requests
+            filtered_requests = []
+            for req in requests:
+                status = req.get('status', 'unknown')
+                if (status == 'new' and show_new) or \
+                   (status == 'in_progress' and show_in_progress) or \
+                   (status == 'archived' and show_archived):
+                    filtered_requests.append(req)
+            
+            # Sort by most recent first
+            filtered_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+            
+            if filtered_requests:
+                st.info(f"Affichage de {len(filtered_requests)} requête(s) sur {len(requests)} au total")
+                
+                # Display requests
+                for req in filtered_requests:
+                    status = req.get('status', 'unknown')
+                    status_emoji = {'new': '🆕', 'in_progress': '⚡', 'archived': '✅'}.get(status, '❓')
                     
-                    with col1:
-                        st.write(entry['text'])
-                    
-                    with col2:
-                        if st.button(f"🗑️", key=f"active_delete_{i}", help="Supprimer cette requête"):
-                            # Remove entry and auto-save
-                            updated_lines = [line for line in lines if line.strip() != entry['full_line']]
-                            updated_content = '\n'.join(updated_lines)
-                            if save_text_file(memory_paths['userbrief'], updated_content):
-                                st.success("Requête supprimée!")
-                                st.rerun()
-        
-        # Preferences Section
-        if preferences:
-            st.subheader(f"📌 Préférences ({len(preferences)})")
-            for i, entry in enumerate(preferences):
-                with st.expander(f"Préférence #{i+1}", expanded=False):
-                    col1, col2 = st.columns([4, 1])
-                    
-                    with col1:
-                        st.write(entry['text'])
-                    
-                    with col2:
-                        if st.button(f"🗑️", key=f"pref_delete_{i}", help="Supprimer cette préférence"):
-                            # Remove entry and auto-save
-                            updated_lines = [line for line in lines if line.strip() != entry['full_line']]
-                            updated_content = '\n'.join(updated_lines)
-                            if save_text_file(memory_paths['userbrief'], updated_content):
-                                st.success("Préférence supprimée!")
-                                st.rerun()
-        
-        # Archived Section
-        if archived_entries:
-            st.subheader(f"🧠 Archives ({len(archived_entries)})")
-            for i, entry in enumerate(archived_entries):
-                with st.expander(f"Archive #{i+1}", expanded=False):
-                    col1, col2 = st.columns([4, 1])
-                    
-                    with col1:
-                        st.write(entry['text'])
-                    
-                    with col2:
-                        if st.button(f"🗑️", key=f"archive_delete_{i}", help="Supprimer cette archive"):
-                            # Remove entry and auto-save
-                            updated_lines = [line for line in lines if line.strip() != entry['full_line']]
-                            updated_content = '\n'.join(updated_lines)
-                            if save_text_file(memory_paths['userbrief'], updated_content):
-                                st.success("Archive supprimée!")
-                                st.rerun()
-        
-        if not (active_requests or preferences or archived_entries):
-            st.info("Aucune entrée trouvée dans le userbrief.")
-    
+                    with st.expander(f"{status_emoji} #{req.get('id', 'N/A')}: {req.get('content', '')[:80]}...", expanded=False):
+                        col1, col2 = st.columns([3, 1])
+                        
+                        with col1:
+                            st.markdown("**Contenu:**")
+                            st.write(req.get('content', 'Pas de contenu'))
+                            
+                            st.markdown("**Informations:**")
+                            st.write(f"**Statut:** {status.title()}")
+                            st.write(f"**Créé:** {req.get('created_at', 'Inconnu')[:19].replace('T', ' ')}")
+                            st.write(f"**Modifié:** {req.get('updated_at', 'Inconnu')[:19].replace('T', ' ')}")
+                            
+                            # Show history if available
+                            history = req.get('history', [])
+                            if history:
+                                st.markdown("**Historique:**")
+                                for entry in history[-3:]:  # Show last 3 entries
+                                    timestamp = entry.get('timestamp', 'Inconnu')[:19].replace('T', ' ')
+                                    action = entry.get('action', 'Inconnu')
+                                    comment = entry.get('comment', 'Pas de commentaire')
+                                    st.write(f"- {timestamp}: **{action}** - {comment}")
+                        
+                        with col2:
+                            st.markdown("**Actions:**")
+                            
+                            # Show appropriate actions based on status
+                            if status == 'new':
+                                if st.button(f"⚡ En cours", key=f"progress_{req.get('id')}", help="Marquer comme en cours"):
+                                    st.info("💡 Dans une vraie implémentation, ceci appellerait `mcp_MemoryBankMCP_update_userbrief` pour changer le statut vers 'in_progress'")
+                                
+                                if st.button(f"✅ Archiver", key=f"archive_new_{req.get('id')}", help="Marquer comme archivée"):
+                                    st.info("💡 Dans une vraie implémentation, ceci appellerait `mcp_MemoryBankMCP_update_userbrief` pour changer le statut vers 'archived'")
+                            
+                            elif status == 'in_progress':
+                                if st.button(f"✅ Archiver", key=f"archive_progress_{req.get('id')}", help="Marquer comme archivée"):
+                                    st.info("💡 Dans une vraie implémentation, ceci appellerait `mcp_MemoryBankMCP_update_userbrief` pour changer le statut vers 'archived'")
+                            
+                            elif status == 'archived':
+                                st.write("*Requête terminée*")
+            else:
+                st.info("Aucune requête ne correspond aux filtres sélectionnés.")
+        else:
+            st.info("Aucune requête trouvée dans le fichier JSON.")
     else:
-        st.warning("Fichier userbrief non trouvé.")
+        st.warning("Fichier userbrief JSON non trouvé.")
+    
+    # Information about the new system
+    st.markdown("---")
+    st.subheader("ℹ️ À propos du nouveau système")
+    st.info("""
+    **Système de statuts des requêtes:**
+    - **Nouvelles (🆕)**: Requêtes en attente de traitement par le workflow de l'agent
+    - **En cours (⚡)**: Requêtes actuellement en cours de traitement
+    - **Archivées (✅)**: Requêtes terminées avec commentaires de résolution
+    
+    Pour ajouter de nouvelles requêtes, utilisez la page "Add New Request". Les requêtes sont maintenant gérées via un système JSON structuré qui s'intègre avec les outils MCP (Model Context Protocol).
+    """)
 
 # Tab 2: Long-term Memory
 with tab2:

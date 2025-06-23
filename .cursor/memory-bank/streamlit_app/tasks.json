@@ -12,5 +12,25 @@
     "updated_date": "2025-06-22T22:04:09.965Z",
     "parent_id": null,
     "priority": 5
+  },
+  {
+    "id": 2,
+    "title": "Fix Streamlit interface to use userbrief.json instead of userbrief.md",
+    "short_description": "L'interface Streamlit utilise encore l'ancien fichier userbrief.md au lieu du nouveau userbrief.json. Les nouvelles requêtes sont mal catégorisées comme archives au lieu d'être marquées \"à traiter\". Migration requise des requêtes existantes et correction complète de l'interface.",
+    "detailed_description": "**PROBLÈME IDENTIFIÉ :**\nL'interface Streamlit (pages \"Add New Request\" et \"Memory Management\" tab \"Requêtes\") utilise encore l'ancien système de fichier userbrief.md au lieu du nouveau système userbrief.json basé sur les outils MCP.\n\n**TÂCHES À ACCOMPLIR :**\n\n1. **Migration des requêtes existantes :**\n   - Migrer les 2 requêtes du fichier userbrief.md vers userbrief.json avec le statut \"new\" (à traiter)\n   - Conserver l'historique et les métadonnées appropriées\n\n2. **Correction de add_request.py :**\n   - Remplacer la fonction add_request_to_userbrief() pour utiliser les outils MCP\n   - Utiliser mcp_MemoryBankMCP_update_userbrief pour ajouter les nouvelles requêtes\n   - S'assurer que les nouvelles requêtes ont le statut \"new\" au lieu d'être archivées\n   - Mettre à jour la fonction get_userbrief_status() pour lire depuis userbrief.json\n\n3. **Correction de memory.py :**\n   - Remplacer toutes les fonctions qui lisent/écrivent userbrief.md\n   - Utiliser les outils MCP pour la gestion des requêtes dans l'onglet \"Requêtes\"\n   - Mettre à jour l'affichage pour refléter le nouveau format JSON\n\n4. **Correction de app.py :**\n   - Mettre à jour get_userbrief_status() pour utiliser userbrief.json\n   - S'assurer que l'affichage des requêtes utilise le bon format\n\n5. **Suppression de l'ancien fichier :**\n   - Supprimer userbrief.md après migration complète\n   - Nettoyer toutes les références à l'ancien système\n\n**CRITÈRES D'ACCEPTATION :**\n- Les nouvelles requêtes ajoutées via Streamlit ont le statut \"new\" (à traiter)\n- L'interface affiche correctement les requêtes depuis userbrief.json\n- Les 2 requêtes existantes sont migrées avec le bon statut\n- L'ancien fichier userbrief.md est supprimé\n- Toutes les fonctionnalités de l'interface fonctionnent avec le nouveau système",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/add_request.py",
+      ".cursor/streamlit_app/pages/memory.py",
+      ".cursor/streamlit_app/app.py",
+      ".cursor/memory-bank/userbrief.md",
+      ".cursor/memory-bank/workflow/userbrief.json"
+    ],
+    "validation_criteria": "✅ TÂCHE TERMINÉE AVEC SUCCÈS - Toutes les étapes ont été accomplies : 1) Migration des 2 requêtes existantes de userbrief.md vers userbrief.json avec statut \"new\" (requêtes #4 et #5), 2) Correction complète de add_request.py pour utiliser les outils MCP et s'assurer que les nouvelles requêtes ont le statut \"new\" au lieu d'être archivées, 3) Correction de app.py pour lire depuis userbrief.json avec nouvelles métriques (Total, New, In Progress, Archived), 4) Correction complète de memory.py pour l'onglet \"Requêtes\" avec nouveau système JSON structuré, filtres par statut et informations détaillées, 5) Suppression de l'ancien fichier userbrief.md. L'interface Streamlit utilise maintenant exclusivement le système userbrief.json avec les outils MCP.",
+    "created_date": "2025-06-23T07:48:01.613Z",
+    "updated_date": "2025-06-23T07:53:29.233Z",
+    "parent_id": null,
+    "priority": 5
   }
 ]

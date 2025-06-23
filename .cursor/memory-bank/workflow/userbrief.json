@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 2,
+  "last_id": 5,
   "requests": [
     {
       "id": 1,
@@ -27,6 +27,48 @@
           "timestamp": "2025-01-06T21:30:00.000Z",
           "action": "mark_archived",
           "comment": "✅ PROBLÈME RÉSOLU - Les deux serveurs MCP fonctionnent maintenant correctement. Le problème était : 1) MemoryBank MCP avait des dépendances npm corrompues (dossier dist manquant du SDK MCP) - résolu par réinstallation complète. 2) Plusieurs outils MCP n'exportaient pas leurs schémas Zod (commitSchema, editMemorySchema, readMemorySchema) - ajoutés avec les imports z requis. Les deux serveurs démarrent maintenant sans erreur après test avec timeout."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "content": "Il y a un gros soucis avec l'interface streamlit : j'ai l'impression que la page \"➕ Add New Request\" et la page \"🧠 Memory Management\", tab \"Requêtes\" intéragit avec l'ancien fichier userbrief.md qu'il faut supprimer !! Désormais, on utilise uniquement le nouveau fichier userbrief.json ! Tu peux corriger ? Avant de supprimer l'ancien userbrief, déplace les requêtes qui s'y trouvent dans le nouveau. Fais aussi bien attention à ce que les nouvelles requêtes ajoutées via l'interface streamlit soit indiqué comme \"à traiter\", j'ai l'impression qu'actuellement, elles étaient enregistrées comme sorte d'archive de préférence, ce qui n'avait aucun sens",
+      "status": "archived",
+      "created_at": "2025-06-23T07:48:01.000Z",
+      "updated_at": "2025-06-23T07:48:01.000Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T07:48:01.000Z",
+          "action": "mark_archived",
+          "comment": "✅ PROBLÈME ANALYSÉ ET TÂCHE CRÉÉE - J'ai identifié le problème : l'interface Streamlit utilise encore l'ancien fichier userbrief.md au lieu du nouveau userbrief.json. Les pages \"Add New Request\" et \"Memory Management\" tab \"Requêtes\" sont affectées. J'ai créé la tâche #2 \"Fix Streamlit interface to use userbrief.json instead of userbrief.md\" avec priorité 5 pour : 1) Migrer les 2 requêtes existantes de userbrief.md vers userbrief.json avec statut \"new\", 2) Corriger add_request.py pour utiliser les outils MCP, 3) Corriger memory.py et app.py pour le nouveau format JSON, 4) S'assurer que les nouvelles requêtes sont marquées \"à traiter\" au lieu d'archivées, 5) Supprimer l'ancien fichier userbrief.md. La tâche est prête pour implémentation."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "content": "Tu peux limiter la taille du fichier Task Et user bref, de manière à ce que il n'y ait jamais plus de. 25 taches ou Rocket archivées terminées. En gros, tant qu'on est pas à 25, on augmente et enfin c'est à dire qu'on peut continuer à archiver et les garder dans les archives. Mais dès que il y en a 25, va on se met à supprimer celle qui dépasse le 25 en ne gardant que les plus récentes. En gros, on est cap à 25 taches archivées pour ne pas avoir un fichier infini mais avoir une limitation dans la taille du fichier.",
+      "status": "new",
+      "created_at": "2025-06-23T07:49:30.000Z",
+      "updated_at": "2025-06-23T07:49:30.000Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T07:49:30.000Z",
+          "action": "migrated_from_md",
+          "comment": "Migrated from userbrief.md - Request to limit task and userbrief archive size to maximum 25 entries, keeping only the most recent ones when limit is exceeded."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "content": "Tu peux réécrire la règle start.mdc En anglais et en t'adressant directement à l'agent. Au lieu de de parler en en exprimant la 3e personne, l'agent devrait faire ça. Tu t'adresses à l'agent. En fait, c'est l'agent qui va lire ce texte. Du coup tu lui donnes les instructions de ce qu'il doit faire",
+      "status": "new",
+      "created_at": "2025-06-23T07:49:30.000Z",
+      "updated_at": "2025-06-23T07:49:30.000Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T07:49:30.000Z",
+          "action": "migrated_from_md",
+          "comment": "Migrated from userbrief.md - Request to rewrite start.mdc rule in English, addressing the agent directly in second person instead of third person, since the agent will be reading the text directly."
         }
       ]
     }

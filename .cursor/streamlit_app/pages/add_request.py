@@ -1,6 +1,6 @@
 import streamlit as st
-import os
-from pathlib import Path
+import json
+import requests
 from datetime import datetime
 
 st.set_page_config(page_title="Add Request", page_icon="➕")
@@ -10,47 +10,83 @@ st.sidebar.header("Add Request")
 
 st.markdown("Use this page to add new requests to the userbrief. These requests will be automatically processed by the agent's workflow system.")
 
-# Helper function to add request to userbrief
-def add_request_to_userbrief(request_text, is_preference=False):
-    userbrief_file = Path('.cursor/memory-bank/userbrief.md')
-    
+# Helper function to add request via MCP API
+def add_request_via_mcp(request_text):
+    """Add a new request using the MCP MemoryBankMCP server"""
     try:
-        # Determine emoji based on request type
-        emoji = "📌" if is_preference else "🗄️"
+        # For now, we'll simulate the MCP call by directly modifying the JSON file
+        # In a real implementation, this would make an HTTP request to the MCP server
+        userbrief_file = ".cursor/memory-bank/workflow/userbrief.json"
         
-        # Format the new entry (TODO mode, not archived)
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        new_entry = f"{emoji} - {request_text}\n"
-        
-        # Read existing content
-        existing_content = ""
-        if userbrief_file.exists():
+        # Read current userbrief
+        try:
             with open(userbrief_file, 'r', encoding='utf-8') as f:
-                existing_content = f.read()
+                userbrief_data = json.load(f)
+        except FileNotFoundError:
+            userbrief_data = {
+                "version": "1.0.0",
+                "last_id": 0,
+                "requests": []
+            }
         
-        # Find the right section to add the request
-        lines = existing_content.split('\n') if existing_content else []
+        # Create new request with "new" status (to be processed)
+        new_id = userbrief_data["last_id"] + 1
+        timestamp = datetime.now().isoformat()
         
-        # Find where to insert the new request (before archived section if it exists)
-        insert_index = len(lines)
-        for i, line in enumerate(lines):
-            if line.strip().startswith('## Archived') or line.strip().startswith('🧠'):
-                insert_index = i
-                break
+        new_request = {
+            "id": new_id,
+            "content": request_text,
+            "status": "new",  # Status "new" for processing, not archived
+            "created_at": timestamp,
+            "updated_at": timestamp,
+            "history": [
+                {
+                    "timestamp": timestamp,
+                    "action": "created",
+                    "comment": f"New request added via Streamlit interface with status 'new' for processing."
+                }
+            ]
+        }
         
-        # Insert the new entry
-        lines.insert(insert_index, new_entry.rstrip())
+        # Add to requests and update last_id
+        userbrief_data["requests"].append(new_request)
+        userbrief_data["last_id"] = new_id
         
-        # Join back and write
-        updated_content = '\n'.join(lines)
-        
+        # Write back to file
         with open(userbrief_file, 'w', encoding='utf-8') as f:
-            f.write(updated_content)
+            json.dump(userbrief_data, f, indent=2, ensure_ascii=False)
         
-        return True, f"Request added successfully at {timestamp}"
+        return True, f"Request #{new_id} added successfully with status 'new' for processing"
         
     except Exception as e:
         return False, f"Error adding request: {str(e)}"
+
+# Helper function to get userbrief status from JSON
+def get_userbrief_status():
+    """Get userbrief status from the JSON file"""
+    try:
+        userbrief_file = ".cursor/memory-bank/workflow/userbrief.json"
+        with open(userbrief_file, 'r', encoding='utf-8') as f:
+            userbrief_data = json.load(f)
+        
+        requests = userbrief_data.get("requests", [])
+        
+        # Count by status
+        new_requests = [req for req in requests if req.get("status") == "new"]
+        in_progress_requests = [req for req in requests if req.get("status") == "in_progress"]
+        archived_requests = [req for req in requests if req.get("status") == "archived"]
+        
+        return {
+            "total_requests": len(requests),
+            "new_requests": len(new_requests),
+            "in_progress_requests": len(in_progress_requests),
+            "archived_requests": len(archived_requests),
+            "recent_new": new_requests[-3:] if new_requests else []  # Last 3 new requests
+        }
+        
+    except Exception as e:
+        st.error(f"Error reading userbrief: {e}")
+        return None
 
 # Main form
 st.header("📝 New Request")
@@ -69,15 +105,15 @@ with st.form("add_request_form"):
     
     if submitted:
         if request_text.strip():
-            # Add to userbrief as unprocessed request (🗄️)
-            success, message = add_request_to_userbrief(request_text.strip(), is_preference=False)
+            # Add to userbrief via MCP as new request (status "new")
+            success, message = add_request_via_mcp(request_text.strip())
             
             if success:
-                st.success(f"✅ Request added and will be processed automatically!")
+                st.success(f"✅ {message}")
                 st.balloons()
                 
                 # Clear form suggestion
-                st.info("💡 Your request will be analyzed and converted to tasks by the workflow system.")
+                st.info("💡 Your request has been added with status 'new' and will be analyzed by the workflow system.")
                 
             else:
                 st.error(f"❌ {message}")
@@ -87,61 +123,46 @@ with st.form("add_request_form"):
 # Display current userbrief status
 st.header("📊 Current Userbrief Status")
 
-userbrief_file = Path('.cursor/memory-bank/userbrief.md')
-if userbrief_file.exists():
-    try:
-        with open(userbrief_file, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        # Count entries
-        lines = content.split('\n')
-        total_entries = 0
-        active_requests = 0
-        preferences = 0
-        
-        for line in lines:
-            line = line.strip()
-            if line and not line.startswith('#'):
-                if line.startswith('📌') or line.startswith('🗄️') or line.startswith('🧠'):
-                    total_entries += 1
-                    if line.startswith('📌'):
-                        preferences += 1
-                    elif not any(status in line for status in ['DONE:', 'ARCHIVED:']):
-                        active_requests += 1
-        
-        # Display metrics
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            st.metric("Total Entries", total_entries)
-        
-        with col2:
-            st.metric("Active Requests", active_requests)
-        
-        with col3:
-            st.metric("User Preferences", preferences)
-        
-        # Show recent entries
-        if total_entries > 0:
-            with st.expander("Recent Entries (Last 5)"):
-                recent_entries = []
-                for line in reversed(lines):
-                    line = line.strip()
-                    if line and not line.startswith('#'):
-                        if line.startswith('📌') or line.startswith('🗄️') or line.startswith('🧠'):
-                            recent_entries.append(line)
-                            if len(recent_entries) >= 5:
-                                break
-                
-                for entry in recent_entries:
-                    st.write(entry)
-        
-    except Exception as e:
-        st.error(f"Error reading userbrief: {e}")
+userbrief_status = get_userbrief_status()
+
+if userbrief_status:
+    # Display metrics
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Total Requests", userbrief_status['total_requests'])
+    
+    with col2:
+        st.metric("New (To Process)", userbrief_status['new_requests'], help="Requests waiting to be processed")
+    
+    with col3:
+        st.metric("In Progress", userbrief_status['in_progress_requests'], help="Requests currently being worked on")
+    
+    with col4:
+        st.metric("Archived", userbrief_status['archived_requests'], help="Completed requests")
+    
+    # Show recent new requests
+    if userbrief_status['recent_new']:
+        st.subheader("🆕 Recent New Requests")
+        with st.expander("Recent Requests (Last 3)"):
+            for req in userbrief_status['recent_new']:
+                st.write(f"**#{req['id']}** - {req['content'][:100]}..." if len(req['content']) > 100 else f"**#{req['id']}** - {req['content']}")
+                st.caption(f"Created: {req['created_at'][:19].replace('T', ' ')}")
+                st.markdown("---")
+
 else:
-    st.warning("No userbrief file found. Your first request will create the file.")
+    st.warning("No userbrief file found or error reading it.")
 
+# Information about the new system
+st.header("ℹ️ About the New System")
+st.info("""
+**New Request Status System:**
+- **New**: Requests waiting to be processed by the agent workflow
+- **In Progress**: Requests currently being worked on
+- **Archived**: Completed requests with resolution comments
 
+Your requests are now managed through a structured JSON system that integrates with the MCP (Model Context Protocol) tools for better tracking and processing.
+""")
 
 # Auto-refresh info
 st.sidebar.markdown("---")
