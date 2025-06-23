@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 from datetime import datetime
 import requests
+import statistics
+from typing import Tuple, Optional
 
 st.set_page_config(page_title="Task Status", page_icon="✅")
 
@@ -148,6 +150,57 @@ def get_userbrief_requests():
         st.error(f"Error reading userbrief: {e}")
         return []
 
+def calculate_task_completion_stats(tasks) -> Tuple[Optional[float], Optional[float]]:
+    """Calculate average completion time and standard deviation for completed tasks"""
+    completed_tasks = [t for t in tasks if t.get('status') == 'DONE']
+    completion_times = []
+    
+    for task in completed_tasks:
+        created_str = task.get('created_date', '')
+        updated_str = task.get('updated_date', '')
+        
+        if created_str and updated_str:
+            try:
+                # Parse ISO format datetime strings
+                start = datetime.fromisoformat(created_str.replace('Z', '+00:00'))
+                end = datetime.fromisoformat(updated_str.replace('Z', '+00:00'))
+                completion_time_hours = (end - start).total_seconds() / 3600
+                
+                # Only consider reasonable completion times (between 1 minute and 30 days)
+                if 0.017 <= completion_time_hours <= 720:  # 1 minute to 30 days
+                    completion_times.append(completion_time_hours)
+            except (ValueError, TypeError):
+                continue
+    
+    if len(completion_times) >= 1:
+        mean_time = statistics.mean(completion_times)
+        std_dev = statistics.stdev(completion_times) if len(completion_times) > 1 else 0
+        return mean_time, std_dev
+    
+    return None, None
+
+def estimate_remaining_time(remaining_tasks_count: int, mean_time: Optional[float], std_dev: Optional[float]) -> Tuple[Optional[float], Optional[float]]:
+    """Estimate total time needed for remaining tasks with margin of error"""
+    if mean_time is not None and remaining_tasks_count > 0:
+        estimated_total = remaining_tasks_count * mean_time
+        margin_error = remaining_tasks_count * std_dev if std_dev else 0
+        return estimated_total, margin_error
+    return None, None
+
+def format_time_estimate(hours: Optional[float]) -> str:
+    """Format time estimate in a user-friendly way"""
+    if hours is None:
+        return "N/A"
+    
+    if hours < 1:
+        minutes = int(hours * 60)
+        return f"{minutes}min"
+    elif hours < 24:
+        return f"{hours:.1f}h"
+    else:
+        days = hours / 24
+        return f"{days:.1f}d"
+
 def sort_tasks_by_dependencies_and_priority(tasks):
     """Sort tasks by dependencies first, then by priority"""
     # Create a dependency graph
@@ -282,10 +335,11 @@ def render_task_card(task, show_inline_edit=True):
         
         with action_col1:
             if st.button(f"📋 Details", key=f"details_{task_id}"):
-                # Show detailed description in expander
-                detailed_desc = task.get('detailed_description', 'No detailed description available')
-                with st.expander(f"📋 Task #{task_id} Details", expanded=True):
-                    st.write(detailed_desc)
+                # Toggle detailed view state
+                detail_key = f"show_details_{task_id}"
+                if detail_key not in st.session_state:
+                    st.session_state[detail_key] = False
+                st.session_state[detail_key] = not st.session_state[detail_key]
         
         with action_col2:
             if status != 'DONE':
@@ -305,6 +359,67 @@ def render_task_card(task, show_inline_edit=True):
                         st.success(f"Task #{task_id} deleted!")
                         del st.session_state[f"confirm_delete_{task_id}"]
                         st.rerun()
+    
+    # Show detailed view if toggled
+    detail_key = f"show_details_{task_id}"
+    if st.session_state.get(detail_key, False):
+        st.markdown("### 📋 Task Details")
+        
+        # Create a prominent details container
+        with st.container():
+            st.markdown(f"**Task ID:** #{task_id}")
+            st.markdown(f"**Title:** {title}")
+            st.markdown(f"**Status:** {status_emoji} {status}")
+            st.markdown(f"**Priority:** {priority_emoji} {priority}")
+            
+            if dependencies:
+                dep_str = ', '.join([f"#{dep}" for dep in dependencies])
+                st.markdown(f"**Dependencies:** {dep_str}")
+            else:
+                st.markdown("**Dependencies:** None")
+            
+            st.markdown("**Short Description:**")
+            st.write(short_desc)
+            
+            detailed_desc = task.get('detailed_description', 'No detailed description available')
+            st.markdown("**Detailed Description:**")
+            st.write(detailed_desc)
+            
+            # Additional metadata
+            created_date = task.get('created_date', 'Unknown')
+            updated_date = task.get('updated_date', 'Unknown')
+            
+            if created_date != 'Unknown':
+                try:
+                    created_dt = datetime.fromisoformat(created_date.replace('Z', '+00:00'))
+                    st.markdown(f"**Created:** {created_dt.strftime('%Y-%m-%d %H:%M:%S')}")
+                except:
+                    st.markdown(f"**Created:** {created_date}")
+            
+            if updated_date != 'Unknown':
+                try:
+                    updated_dt = datetime.fromisoformat(updated_date.replace('Z', '+00:00'))
+                    st.markdown(f"**Updated:** {updated_dt.strftime('%Y-%m-%d %H:%M:%S')}")
+                except:
+                    st.markdown(f"**Updated:** {updated_date}")
+            
+            # Validation criteria if available
+            validation_criteria = task.get('validation_criteria', '')
+            if validation_criteria:
+                st.markdown("**Validation Criteria:**")
+                st.write(validation_criteria)
+            
+            # Impacted files if available
+            impacted_files = task.get('impacted_files', [])
+            if impacted_files:
+                st.markdown("**Impacted Files:**")
+                for file in impacted_files:
+                    st.code(file)
+        
+        # Hide details button
+        if st.button(f"🔼 Hide Details", key=f"hide_details_{task_id}"):
+            st.session_state[detail_key] = False
+            st.rerun()
     
     st.markdown("---")
 
@@ -354,7 +469,7 @@ userbrief_requests = get_userbrief_requests()
 
 # Quick stats - Focus on remaining work only
 if tasks or userbrief_requests:
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         unprocessed_count = len(userbrief_requests)
@@ -367,6 +482,19 @@ if tasks or userbrief_requests:
     with col3:
         in_progress_count = len([t for t in tasks if t.get('status') == 'IN_PROGRESS'])
         st.metric("🔄 Stage 2: In Progress", in_progress_count)
+    
+    with col4:
+        # Calculate time estimation
+        remaining_tasks_count = todo_count + in_progress_count
+        mean_time, std_dev = calculate_task_completion_stats(tasks)
+        estimated_total, margin_error = estimate_remaining_time(remaining_tasks_count, mean_time, std_dev)
+        
+        if estimated_total is not None:
+            time_str = format_time_estimate(estimated_total)
+            margin_str = format_time_estimate(margin_error) if margin_error else "0"
+            st.metric("⏱️ Est. Time Left", f"{time_str} ± {margin_str}")
+        else:
+            st.metric("⏱️ Est. Time Left", "No data")
 
 # Add priority distribution visualization for remaining tasks
 remaining_tasks = [t for t in tasks if t.get('status') in ['TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW']]
@@ -388,6 +516,62 @@ if remaining_tasks:
             count = priority_counts.get(priority, 0)
             emoji = priority_emojis.get(priority, "📝")
             st.metric(f"{emoji} P{priority}", count)
+
+# Add time estimation section
+if tasks:
+    st.markdown("### ⏱️ Time Estimation")
+    
+    # Calculate completion statistics
+    mean_time, std_dev = calculate_task_completion_stats(tasks)
+    remaining_count = len(remaining_tasks)
+    
+    if mean_time is not None:
+        # Display completion statistics
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("📈 Avg Completion Time", format_time_estimate(mean_time))
+        
+        with col2:
+            completed_count = len([t for t in tasks if t.get('status') == 'DONE'])
+            st.metric("✅ Completed Tasks", f"{completed_count}")
+        
+        with col3:
+            st.metric("⏳ Remaining Tasks", f"{remaining_count}")
+        
+        with col4:
+            if std_dev is not None:
+                st.metric("📊 Std Deviation", format_time_estimate(std_dev))
+            else:
+                st.metric("📊 Std Deviation", "N/A")
+        
+        # Calculate and display time estimation for remaining tasks
+        if remaining_count > 0:
+            estimated_total, margin_error = estimate_remaining_time(remaining_count, mean_time, std_dev)
+            
+            if estimated_total is not None:
+                st.markdown("#### 🎯 Estimated Time to Complete All Remaining Tasks")
+                
+                if margin_error and margin_error > 0:
+                    # Display with margin of error
+                    lower_bound = max(0, estimated_total - margin_error)
+                    upper_bound = estimated_total + margin_error
+                    
+                    time_range = f"{format_time_estimate(lower_bound)} - {format_time_estimate(upper_bound)}"
+                    st.success(f"⏱️ **Estimated completion time:** {time_range}")
+                    st.caption(f"📊 Based on {len([t for t in tasks if t.get('status') == 'DONE'])} completed tasks")
+                else:
+                    # Display without margin of error (only one completed task)
+                    st.success(f"⏱️ **Estimated completion time:** ~{format_time_estimate(estimated_total)}")
+                    st.caption("📊 Based on limited historical data (consider as rough estimate)")
+            else:
+                st.info("📊 Unable to calculate time estimation - insufficient data")
+        else:
+            st.success("🎉 All tasks completed! No remaining work.")
+    else:
+        st.info("📊 **Time estimation unavailable** - No completed tasks yet to calculate average completion time")
+        if remaining_count > 0:
+            st.caption(f"⏳ {remaining_count} tasks waiting to be completed")
 
 st.markdown("---")
 

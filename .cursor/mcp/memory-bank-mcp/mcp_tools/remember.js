@@ -167,7 +167,31 @@ async function remember(args) {
 
     if (possible_next_steps.includes('task-decomposition')) {
         recommendedNextStep = 'task-decomposition';
-        workflowInstruction = "CONTINUE WORKFLOW: New user requests detected. You must now call mcp_MemoryBankMCP_next_rule with 'task-decomposition' to process pending requests.";
+
+        // Get example request to provide context
+        let exampleRequestInfo = "";
+        try {
+            const userbriefData = await readUserbrief();
+            if (userbriefData && userbriefData.requests) {
+                const newRequests = userbriefData.requests.filter(req => req.status === 'new');
+                if (newRequests.length > 0) {
+                    // Sort by ID to get the oldest unprocessed request
+                    newRequests.sort((a, b) => a.id - b.id);
+                    const oldestRequest = newRequests[0];
+                    const contentPreview = oldestRequest.content.length > 200
+                        ? oldestRequest.content.substring(0, 200) + "..."
+                        : oldestRequest.content;
+                    const createdDate = new Date(oldestRequest.created_at).toLocaleDateString();
+
+                    exampleRequestInfo = `\n\nExample request to process:\nRequest #${oldestRequest.id} (created ${createdDate}):\n"${contentPreview}"`;
+                }
+            }
+        } catch (error) {
+            // If we can't read userbrief, continue without example
+            console.warn(`[Remember] Could not read userbrief for example request: ${error.message}`);
+        }
+
+        workflowInstruction = `CONTINUE WORKFLOW: New user requests detected. You must now call mcp_MemoryBankMCP_next_rule with 'task-decomposition' to process pending requests.${exampleRequestInfo}`;
     } else if (possible_next_steps.includes('implementation')) {
         recommendedNextStep = 'implementation';
         workflowInstruction = "CONTINUE WORKFLOW: Tasks are available for implementation. You must now call mcp_MemoryBankMCP_next_rule with 'implementation' to continue working on tasks.";

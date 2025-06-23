@@ -55,55 +55,74 @@ if agent_memories:
     st.subheader("📖 Last 10 Agent Memories")
     st.write(f"Showing {len(agent_memories)} most recent memories (newest first)")
     
-    # Display memories in separate sections for better readability
-    for i, memory in enumerate(reversed(agent_memories)):  # Most recent first
-        memory_id = len(agent_memories) - i
-        timestamp = memory.get('timestamp', 'Unknown')[:19].replace('T', ' ') if memory.get('timestamp') else 'Unknown'
-        
-        # Create an expander for each memory
-        with st.expander(f"💭 Memory #{memory_id} - {timestamp}", expanded=(i == 0)):  # Expand only the most recent
+    # Use tabs for better organization (Present as default)
+    tab1, tab2, tab3, tab4 = st.tabs(["🕐 Past", "⏰ Present", "🔮 Future", "🧠 Long Term"])
+    
+    with tab2:  # Present tab (default)
+        st.write("**Present Reality - Most Recent Memories**")
+        for i, memory in enumerate(reversed(agent_memories)):  # Most recent first
+            memory_id = len(agent_memories) - i
+            timestamp = memory.get('timestamp', 'Unknown')[:19].replace('T', ' ') if memory.get('timestamp') else 'Unknown'
             
-            # Use tabs for better organization
-            tab1, tab2, tab3, tab4 = st.tabs(["🕐 Past", "⏰ Present", "🔮 Future", "🧠 Long Term"])
+            st.markdown(f"### 💭 Memory #{memory_id} - {timestamp}")
+            present_content = memory.get('present', 'N/A')
+            if present_content and present_content != 'N/A':
+                st.write(present_content)
+            else:
+                st.info("No present reality recorded")
             
-            with tab1:
-                st.write("**Past Context:**")
-                past_content = memory.get('past', 'N/A')
-                if past_content and past_content != 'N/A':
-                    st.write(past_content)
-                else:
-                    st.info("No past context recorded")
-            
-            with tab2:
-                st.write("**Present Reality:**")
-                present_content = memory.get('present', 'N/A')
-                if present_content and present_content != 'N/A':
-                    st.write(present_content)
-                else:
-                    st.info("No present reality recorded")
-            
-            with tab3:
-                st.write("**Future Plans:**")
-                future_content = memory.get('future', 'N/A')
-                if future_content and future_content != 'N/A':
-                    st.write(future_content)
-                else:
-                    st.info("No future plans recorded")
-            
-            with tab4:
-                st.write("**Long Term Memory:**")
-                long_term_content = memory.get('long_term_memory', '')
-                if long_term_content and long_term_content.strip():
-                    st.write(long_term_content)
-                else:
-                    st.info("No long term memory recorded")
-            
-            # Add timestamp info at the bottom
             st.caption(f"📅 Recorded: {timestamp}")
+            st.markdown("---")
+    
+    with tab1:  # Past tab
+        st.write("**Past Context - Historical Memories**")
+        for i, memory in enumerate(reversed(agent_memories)):  # Most recent first
+            memory_id = len(agent_memories) - i
+            timestamp = memory.get('timestamp', 'Unknown')[:19].replace('T', ' ') if memory.get('timestamp') else 'Unknown'
             
-            # Add separator except for the last item
-            if i < len(agent_memories) - 1:
+            st.markdown(f"### 💭 Memory #{memory_id} - {timestamp}")
+            past_content = memory.get('past', 'N/A')
+            if past_content and past_content != 'N/A':
+                st.write(past_content)
+            else:
+                st.info("No past context recorded")
+            
+            st.caption(f"📅 Recorded: {timestamp}")
+            st.markdown("---")
+    
+    with tab3:  # Future tab
+        st.write("**Future Plans - Upcoming Actions**")
+        for i, memory in enumerate(reversed(agent_memories)):  # Most recent first
+            memory_id = len(agent_memories) - i
+            timestamp = memory.get('timestamp', 'Unknown')[:19].replace('T', ' ') if memory.get('timestamp') else 'Unknown'
+            
+            st.markdown(f"### 💭 Memory #{memory_id} - {timestamp}")
+            future_content = memory.get('future', 'N/A')
+            if future_content and future_content != 'N/A':
+                st.write(future_content)
+            else:
+                st.info("No future plans recorded")
+            
+            st.caption(f"📅 Recorded: {timestamp}")
+            st.markdown("---")
+    
+    with tab4:  # Long Term tab
+        st.write("**Long Term Memory - Persistent Knowledge**")
+        for i, memory in enumerate(reversed(agent_memories)):  # Most recent first
+            memory_id = len(agent_memories) - i
+            timestamp = memory.get('timestamp', 'Unknown')[:19].replace('T', ' ') if memory.get('timestamp') else 'Unknown'
+            
+            long_term_content = memory.get('long_term_memory', '')
+            if long_term_content and long_term_content.strip():
+                st.markdown(f"### 💭 Memory #{memory_id} - {timestamp}")
+                st.write(long_term_content)
+                st.caption(f"📅 Recorded: {timestamp}")
                 st.markdown("---")
+        
+        # Show message if no long-term memories found
+        long_term_count = sum(1 for m in agent_memories if m.get('long_term_memory', '').strip())
+        if long_term_count == 0:
+            st.info("No long term memories recorded yet")
     
     # Summary section
     st.markdown("---")

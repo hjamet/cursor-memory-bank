@@ -87,10 +87,28 @@ def update_userbrief_preferences(content, preferences):
     
     return '\n'.join(lines)
 
+def save_long_term_memories(memories):
+    """Save long-term memories in the correct format based on existing file structure"""
+    try:
+        # Check current file format to maintain consistency
+        existing_data = load_json_file(memory_paths['long_term_memory'])
+        
+        if existing_data is None or isinstance(existing_data, list):
+            # Save as list format (current format)
+            data_to_save = memories
+        else:
+            # Save as dictionary format
+            data_to_save = {'memories': memories}
+        
+        return save_json_file(memory_paths['long_term_memory'], data_to_save)
+    except Exception as e:
+        st.error(f"Error saving long-term memories: {e}")
+        return False
+
 # File paths
 memory_paths = {
     'userbrief': Path('.cursor/memory-bank/workflow/userbrief.json'),
-    'long_term_memory': Path('.cursor/memory-bank/long_term_memory.json'),
+    'long_term_memory': Path('.cursor/memory-bank/workflow/long_term_memory.json'),
     'project_brief': Path('.cursor/memory-bank/context/projectBrief.md'),
     'tech_context': Path('.cursor/memory-bank/context/techContext.md')
 }
@@ -302,7 +320,20 @@ with tab2:
     st.markdown("Manage important memories and learnings from the project.")
     
     long_term_data = load_json_file(memory_paths['long_term_memory'])
-    memories = long_term_data.get('memories', []) if long_term_data else []
+    
+    # Handle both list and dictionary formats for backward compatibility
+    if long_term_data is None:
+        memories = []
+    elif isinstance(long_term_data, list):
+        # If data is already a list, use it directly
+        memories = long_term_data
+    elif isinstance(long_term_data, dict):
+        # If data is a dictionary, extract memories array
+        memories = long_term_data.get('memories', [])
+    else:
+        # Fallback for unexpected data types
+        st.error("⚠️ Unexpected long-term memory data format. Using empty list.")
+        memories = []
     
     if memories:
         st.subheader(f"Stored Memories ({len(memories)})")
@@ -336,7 +367,7 @@ with tab2:
                                 memories[i]['content'] = new_content
                                 memories[i]['timestamp'] = datetime.now().isoformat()  # Update timestamp
                                 updated_data = {'memories': memories}
-                                if save_json_file(memory_paths['long_term_memory'], updated_data):
+                                if save_long_term_memories(memories):
                                     st.success("Memory updated!")
                                     st.session_state[edit_key] = False
                                     st.rerun()
@@ -386,7 +417,7 @@ with tab2:
                             if st.button("🗑️ Yes", key=f"confirm_delete_{i}"):
                                 memories.pop(i)
                                 updated_data = {'memories': memories}
-                                if save_json_file(memory_paths['long_term_memory'], updated_data):
+                                if save_long_term_memories(memories):
                                     st.success("Memory deleted!")
                                     st.session_state[delete_confirm_key] = False
                                     st.rerun()
@@ -422,7 +453,7 @@ with tab2:
                 memories.append(new_memory)
                 updated_data = {'memories': memories}
                 
-                if save_json_file(memory_paths['long_term_memory'], updated_data):
+                if save_long_term_memories(memories):
                     st.success("✅ New memory added!")
                     st.rerun()
             else:

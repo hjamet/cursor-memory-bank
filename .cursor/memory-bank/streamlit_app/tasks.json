@@ -609,5 +609,218 @@
     "updated_date": "2025-06-23T11:42:33.218Z",
     "parent_id": null,
     "priority": 3
+  },
+  {
+    "id": 38,
+    "title": "Modify communication tab to delete messages instead of marking as read",
+    "short_description": "Change the Streamlit communication page behavior to delete messages directly from database instead of marking them as read, simplifying message management workflow.",
+    "detailed_description": "Modify the communication tab in the Streamlit interface to delete messages instead of marking them as read for simplified message management.\n\n**Requirements:**\n- Replace \"Mark as Read\" functionality with direct message deletion\n- Update communication.py to call UserMessageManager.deleteMessage() instead of markAsRead()\n- Change button text from \"✓ Mark as Read\" to \"🗑️ Delete\" or similar\n- Remove read status tracking and display logic\n- Maintain message statistics (total messages, but remove read/unread counts)\n- Preserve all other functionality (message display, context information, etc.)\n\n**Acceptance Criteria:**\n- Clicking the button deletes the message permanently from to_user.json\n- Button text reflects deletion action (not read marking)\n- Message disappears from interface after deletion\n- No read status indicators needed (remove 🔵/✅ icons)\n- Message statistics updated to reflect simplified workflow\n- UserMessageManager.deleteMessage() method is properly called\n- Error handling for failed deletions\n- Confirmation dialog for deletion action (optional but recommended)\n\n**Technical Implementation:**\n- Modify delete_message() function in communication.py to call UserMessageManager\n- Update button UI and text to reflect deletion action\n- Remove read status logic and display elements\n- Simplify message statistics (total only)\n- Update help text to reflect new behavior\n\n**Files to Modify:**\n- .cursor/streamlit_app/pages/communication.py (main changes)\n- UserMessageManager.deleteMessage() already exists and functional\n\n**Impact:**\nSimplified message management where users can directly delete messages they've seen instead of marking them as read, reducing complexity and storage overhead.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/communication.py"
+    ],
+    "validation_criteria": "Task is complete when: (1) Communication page shows delete buttons instead of mark as read, (2) Clicking delete removes message from to_user.json file, (3) Message disappears from interface after deletion, (4) No read status indicators displayed, (5) Error handling works for failed deletions, (6) Message statistics reflect simplified workflow, (7) All other communication page functionality preserved",
+    "created_date": "2025-06-23T12:18:48.159Z",
+    "updated_date": "2025-06-23T12:51:39.461Z",
+    "parent_id": null,
+    "priority": 3
+  },
+  {
+    "id": 39,
+    "title": "Fix Add Request page graph and remove subtitle",
+    "short_description": "Fix the non-functional request evolution graph in Add Request page that shows 0 points and remove the \"Current Workload Trend\" subtitle as requested by user.",
+    "detailed_description": "**Problem Analysis:**\nThe request evolution graph in the Add Request page currently shows 0 points and doesn't display the historical evolution of pending requests over time. The user also wants to remove the \"Current Workload Trend\" subtitle.\n\n**Issues to Fix:**\n1. **Graph not displaying data**: The get_request_evolution_data() function may have issues with timestamp parsing or data processing\n2. **Timeline events logic**: The function needs to correctly analyze creation and archiving timestamps from userbrief.json\n3. **Subtitle removal**: Remove \"Current Workload Trend\" subtitle (line 340 in add_request.py)\n\n**Requirements:**\n- Fix the graph to properly show request evolution over time based on timestamps\n- Display workload evolution showing when requests are created (increase) and archived (decrease)\n- Use creation timestamps (created_at) and archiving timestamps (history.mark_archived) from userbrief.json\n- Remove the \"Current Workload Trend\" subtitle as requested\n- Ensure the graph shows actual historical data with proper timeline analysis\n\n**Technical Implementation:**\n- Debug and fix get_request_evolution_data() function in add_request.py\n- Improve timestamp parsing and timeline event processing\n- Ensure proper calculation of pending requests count over time\n- Test with actual userbrief.json data to verify graph displays correctly\n- Remove st.subheader(\"📈 Current Workload Trend\") line\n\n**Acceptance Criteria:**\n- Graph displays actual data points instead of being empty\n- Timeline correctly shows request creation and archiving events\n- Workload evolution accurately reflects when requests are added/processed\n- Subtitle \"Current Workload Trend\" is removed\n- Graph provides meaningful visual insight into request processing patterns",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/add_request.py"
+    ],
+    "validation_criteria": "Task is complete when: (1) Graph displays actual data points showing request evolution, (2) Timeline correctly processes creation and archiving timestamps, (3) Workload trend accurately reflects request processing activity, (4) \"Current Workload Trend\" subtitle is removed, (5) Graph provides meaningful historical insights, (6) Testing confirms graph works with real userbrief.json data",
+    "created_date": "2025-06-23T12:20:30.787Z",
+    "updated_date": "2025-06-23T12:53:15.903Z",
+    "parent_id": null,
+    "priority": 3
+  },
+  {
+    "id": 40,
+    "title": "Test and display long-term memories in Memory tab with edit/delete functionality",
+    "short_description": "Investigate why long-term memories are not displayed in Streamlit Memory tab, test the long-term memory system by creating test memories, and ensure edit/delete functionality works properly.",
+    "detailed_description": "Test and fix the long-term memory display system in the Streamlit Memory tab to ensure proper functionality.\n\n**Requirements:**\n- Investigate why long-term memories don't appear in Memory tab despite working remember tool\n- Test the long-term memory system by creating test memories via remember tool\n- Verify file path consistency between remember tool and Streamlit interface\n- Ensure edit/delete functionality works correctly for long-term memories\n- Validate that new memories created via remember tool appear in interface\n\n**Technical Investigation:**\n- Check file path discrepancy: remember tool uses `.cursor/memory-bank/workflow/long_term_memory.json` vs Streamlit uses `.cursor/memory-bank/long_term_memory.json`\n- Test remember tool with long_term_memory parameter to create test memories\n- Verify Streamlit interface reads from correct location\n- Test edit/delete buttons functionality for long-term memories\n- Ensure consistency between remember tool storage and Streamlit display\n\n**Acceptance Criteria:**\n- Long-term memories created via remember tool appear in Streamlit Memory tab\n- Edit functionality allows modification of memory content with proper saving\n- Delete functionality removes memories with confirmation dialog\n- File path consistency ensured between backend and frontend\n- Test memories successfully created and displayed\n- Interface matches functionality described in other tabs (similar to request editing)\n\n**Testing Plan:**\n1. Create test long-term memories using remember tool\n2. Verify memories appear in Streamlit interface\n3. Test edit functionality on existing memories\n4. Test delete functionality with confirmation\n5. Verify file persistence after operations",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      "cursor/streamlit_app/pages/memory.py",
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/remember.js",
+      ".cursor/memory-bank/workflow/long_term_memory.json",
+      ".cursor/memory-bank/long_term_memory.json"
+    ],
+    "validation_criteria": "Task is complete when: (1) Long-term memories created via remember tool appear in Streamlit Memory tab, (2) Edit functionality works correctly with proper content saving, (3) Delete functionality works with confirmation dialog, (4) File path consistency is ensured between remember tool and Streamlit interface, (5) At least 2-3 test memories are successfully created and displayed, (6) All edit/delete operations persist correctly to storage files.",
+    "created_date": "2025-06-23T12:22:24.080Z",
+    "updated_date": "2025-06-23T12:54:47.112Z",
+    "parent_id": null,
+    "priority": 3
+  },
+  {
+    "id": 41,
+    "title": "Fix Add Request bugs: Ctrl+Enter shortcut, text clearing, and balloon animation",
+    "short_description": "Fix persistent bugs in Add Request interface: unreliable Ctrl+Enter shortcut, text not clearing after submission, and missing balloon animation despite existing implementation.",
+    "detailed_description": "Fix critical user experience bugs in the Streamlit Add Request interface that prevent proper form submission and feedback.\n\n**Issues to Fix:**\n1. **Ctrl+Enter shortcut unreliable**: JavaScript implementation doesn't consistently trigger form submission\n2. **Text not clearing**: Despite `st.session_state.request_text = \"\"` and `st.rerun()`, text sometimes persists\n3. **Missing balloon animation**: `st.balloons()` is implemented but not consistently showing\n\n**Root Cause Analysis:**\n- JavaScript selector `'textarea[data-testid=\"stTextArea\"]'` may be inconsistent across Streamlit versions\n- Button selector `'button[kind=\"primary\"]'` may not reliably find the submit button\n- Session state and rerun timing issues may prevent proper text clearing\n- Balloon animation may be blocked by subsequent UI updates\n\n**Technical Implementation:**\n1. **Improve Ctrl+Enter JavaScript**: Use more robust selectors and event handling\n2. **Fix text clearing**: Implement more reliable session state management with proper timing\n3. **Ensure balloon animation**: Verify timing and placement of st.balloons() call\n4. **Add fallback mechanisms**: Implement alternative approaches if primary methods fail\n\n**Acceptance Criteria:**\n- Ctrl+Enter consistently submits form in all browsers\n- Text area always clears after successful submission\n- Balloon animation always appears after successful submission\n- No regression in existing functionality\n- Improved user feedback and reliability\n\n**Testing Requirements:**\n- Test across different browsers (Chrome, Firefox, Safari)\n- Test rapid successive submissions\n- Test with various text lengths\n- Verify session state behavior consistency\n\n**Files to Modify:**\n- `.cursor/streamlit_app/pages/add_request.py`",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/add_request.py"
+    ],
+    "validation_criteria": "Task is complete when: (1) Ctrl+Enter shortcut works consistently across browsers, (2) Text area always clears after successful submission, (3) Balloon animation appears reliably after submission, (4) No timing issues or race conditions, (5) User experience is smooth and reliable, (6) All edge cases are handled properly",
+    "created_date": "2025-06-23T12:24:32.087Z",
+    "updated_date": "2025-06-23T12:49:12.572Z",
+    "parent_id": null,
+    "priority": 3
+  },
+  {
+    "id": 42,
+    "title": "Simplify main dashboard by removing accordions and showing memories directly",
+    "short_description": "Modify the main Streamlit dashboard to remove expandable accordions and display all memory content directly, while maintaining the 3-tab structure (Past, Present, Future) with Present as default tab.",
+    "detailed_description": "**OBJECTIF :**\nSimplifier drastiquement l'interface de la page principale de l'Agent Dashboard en supprimant tous les accordéons (st.expander) et en affichant directement le contenu des souvenirs sans nécessiter de clic de l'utilisateur.\n\n**SPÉCIFICATIONS TECHNIQUES :**\n\n1. **Suppression des accordéons :**\n   - Éliminer tous les `st.expander()` pour chaque souvenir individuel\n   - Afficher directement le contenu de chaque mémoire sans interaction requise\n   - Conserver la structure organisationnelle mais rendre tout visible immédiatement\n\n2. **Maintien de la structure à onglets :**\n   - Garder les 4 onglets existants : \"🕐 Past\", \"⏰ Present\", \"🔮 Future\", \"🧠 Long Term\"\n   - Modifier l'onglet par défaut pour afficher \"Present\" au lieu du premier onglet\n   - Permettre la navigation entre onglets comme alternative d'organisation\n\n3. **Affichage direct des souvenirs :**\n   - Chaque souvenir doit être affiché dans une section distincte mais ouverte\n   - Utiliser des séparateurs visuels (st.markdown(\"---\")) entre les souvenirs\n   - Maintenir les informations de timestamp et numérotation des souvenirs\n   - Conserver la fonctionnalité d'affichage du plus récent en premier\n\n4. **Alternative d'implémentation :**\n   - Si l'affichage par défaut ouvert n'est pas possible techniquement avec Streamlit\n   - Supprimer complètement les accordéons et afficher tout le contenu en format linéaire\n   - Organiser le contenu par sections claires avec titres et séparateurs\n\n**CRITÈRES D'ACCEPTATION :**\n- L'utilisateur peut voir immédiatement tout le contenu sans cliquer\n- La navigation par onglets fonctionne correctement avec \"Present\" par défaut\n- Tous les souvenirs sont visibles et organisés chronologiquement\n- L'interface reste lisible et bien structurée malgré l'affichage direct\n- La fonctionnalité de rafraîchissement et sidebar sont préservées\n\n**FICHIER À MODIFIER :**\n- `.cursor/streamlit_app/app.py` : Modification de la section d'affichage des souvenirs (lignes ~60-100)\n\n**IMPACT UTILISATEUR :**\nInterface beaucoup plus simple et directe, éliminant la friction des clics multiples pour accéder au contenu des souvenirs tout en conservant l'organisation par onglets temporels.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      "cursor/streamlit_app/app.py"
+    ],
+    "validation_criteria": "Task is complete when: (1) All st.expander elements for individual memories are removed, (2) Memory content is displayed directly without requiring clicks, (3) Tab structure is maintained with Present tab as default, (4) All memories remain visible and chronologically organized, (5) Interface remains clean and readable with proper visual separators, (6) Auto-refresh and sidebar functionality continue to work correctly.",
+    "created_date": "2025-06-23T12:26:39.294Z",
+    "updated_date": "2025-06-23T12:47:50.747Z",
+    "parent_id": null,
+    "priority": 3
+  },
+  {
+    "id": 43,
+    "title": "Remove Current user brief status graph and About New System callout from Add Request page",
+    "short_description": "Simplify the Add Request page by removing the \"Current user brief status\" graph with its subtitle and the \"About New System\" callout section at the bottom, as requested by the user for a cleaner interface.",
+    "detailed_description": "**OBJECTIF :**\nSimplifier l'interface de la page Add Request en supprimant deux éléments spécifiques identifiés par l'utilisateur comme non nécessaires.\n\n**ÉLÉMENTS À SUPPRIMER :**\n\n1. **Graphique \"Current user brief status\" :**\n   - Supprimer la section complète du graphique avec le sous-titre \"📈 Current Workload Trend\"\n   - Éliminer les lignes ~340-360 dans add_request.py incluant :\n     - `st.subheader(\"📈 Current Workload Trend\")`\n     - Le graphique evolution_data et st.line_chart\n     - Les métriques associées (Current Pending, Peak Workload, Average Workload)\n   - Conserver uniquement les métriques de statut userbrief (Total, New, In Progress, Archived)\n\n2. **Section \"About the New System\" :**\n   - Supprimer complètement la section d'information en bas de page\n   - Éliminer les lignes ~475-487 incluant :\n     - `st.header(\"ℹ️ About the New System\")`\n     - Le contenu informatif st.info avec les explications du système\n   - Supprimer aussi la ligne sidebar info sur l'auto-refresh\n\n**SPÉCIFICATIONS TECHNIQUES :**\n- Modifier `.cursor/streamlit_app/pages/add_request.py`\n- Conserver toutes les autres fonctionnalités :\n  - Formulaire d'ajout de requête avec ballons et Ctrl+Enter\n  - Section \"📊 Current Userbrief Status\" avec métriques\n  - Section \"🆕 Unprocessed Requests\" avec édition inline\n  - Toutes les fonctions helper (add_request_via_mcp, get_userbrief_status, etc.)\n\n**CRITÈRES D'ACCEPTATION :**\n- Le graphique \"Current Workload Trend\" et son sous-titre sont complètement supprimés\n- La section \"About the New System\" en bas de page est supprimée\n- L'interface Add Request reste fonctionnelle pour l'ajout et la gestion des requêtes\n- Les métriques de statut userbrief (Total, New, In Progress, Archived) sont conservées\n- Aucune régression sur les fonctionnalités existantes (ajout, édition, suppression)\n- Interface plus épurée et simplifiée selon la demande utilisateur\n\n**IMPACT UTILISATEUR :**\nInterface Add Request simplifiée avec suppression des éléments visuels jugés non essentiels, permettant une meilleure concentration sur les fonctionnalités principales d'ajout et de gestion des requêtes.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/add_request.py"
+    ],
+    "validation_criteria": "Task is complete when: (1) \"Current user brief status\" graph with \"📈 Current Workload Trend\" subtitle is completely removed, (2) \"About the New System\" section at bottom of page is removed, (3) All other Add Request functionality remains intact (form submission, balloons, Ctrl+Enter, editing), (4) Userbrief status metrics (Total, New, In Progress, Archived) are preserved, (5) Unprocessed requests section with inline editing works correctly, (6) Interface is cleaner and more focused on core functionality, (7) No regressions in existing features.",
+    "created_date": "2025-06-23T12:28:59.602Z",
+    "updated_date": "2025-06-23T12:47:02.347Z",
+    "parent_id": null,
+    "priority": 3
+  },
+  {
+    "id": 44,
+    "title": "Enhance remember tool to provide example requests when suggesting task-decomposition",
+    "short_description": "Modify the remember tool to include an example unprocessed request when suggesting task-decomposition, eliminating the need for agents to manually check userbrief and providing immediate context for processing.",
+    "detailed_description": "**OBJECTIF :**\nAméliorer l'outil remember pour qu'il fournisse automatiquement un exemple de requête à traiter lorsqu'il indique à l'agent d'appeler la règle task-decomposition.\n\n**PROBLÈME ACTUEL :**\nQuand l'outil remember détecte des requêtes non traitées dans le userbrief, il indique simplement à l'agent d'appeler task-decomposition sans fournir de contexte sur les requêtes en attente. L'agent doit alors manuellement vérifier le userbrief.\n\n**SOLUTION PROPOSÉE :**\nModifier la logique de l'outil remember pour qu'il :\n1. Détecte automatiquement les requêtes avec statut \"new\" dans userbrief.json\n2. Inclue un exemple de requête (la plus ancienne non traitée) dans sa réponse\n3. Fournisse un aperçu du contenu pour orienter l'agent\n\n**SPÉCIFICATIONS TECHNIQUES :**\n\n1. **Modification de remember.js :**\n   - Ajouter une fonction pour lire et analyser userbrief.json\n   - Identifier les requêtes avec statut \"new\" \n   - Sélectionner la plus ancienne requête non traitée (plus petit ID avec statut \"new\")\n   - Inclure les détails de cette requête dans la réponse du tool\n\n2. **Format de réponse amélioré :**\n   ```\n   \"Il y a X requêtes non traitées dans le userbrief. Voici un exemple de requête à traiter :\n   \n   Requête #XX (créée le YYYY-MM-DD):\n   [Premier extrait de 200 caractères du contenu...]\n   \n   Vous devez appeler la règle task-decomposition pour traiter ces requêtes.\"\n   ```\n\n3. **Gestion d'erreurs :**\n   - Si userbrief.json n'est pas accessible, utiliser le message actuel\n   - Si aucune requête \"new\" trouvée, ne pas mentionner d'exemple\n   - Gérer les cas où le fichier userbrief est corrompu\n\n**CRITÈRES D'ACCEPTATION :**\n- L'outil remember détecte automatiquement les requêtes non traitées\n- Il fournit un exemple concret de requête dans sa réponse\n- L'agent n'a plus besoin de vérifier manuellement le userbrief\n- La réponse inclut suffisamment de contexte pour orienter l'agent\n- Le système reste robuste en cas d'erreur de lecture du userbrief\n- Les performances de l'outil remember ne sont pas dégradées\n\n**FICHIERS À MODIFIER :**\n- `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js`\n- Possiblement `.cursor/mcp/memory-bank-mcp/mcp_tools/utils.js` pour helper functions\n\n**IMPACT WORKFLOW :**\nAmélioration significative de l'efficacité du workflow autonome en éliminant une étape manuelle de vérification et en fournissant un contexte immédiat pour la décomposition de tâches.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/remember.js",
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/utils.js"
+    ],
+    "validation_criteria": "Task is complete when: (1) Remember tool automatically detects unprocessed requests in userbrief.json, (2) Tool provides example of oldest unprocessed request in response, (3) Response includes request ID, creation date, and content preview (200 chars), (4) Agent no longer needs to manually check userbrief when task-decomposition is suggested, (5) Error handling works for inaccessible or corrupted userbrief files, (6) Tool performance remains optimal, (7) Testing confirms improved workflow efficiency with example requests provided.",
+    "created_date": "2025-06-23T12:34:27.772Z",
+    "updated_date": "2025-06-23T12:39:13.624Z",
+    "parent_id": null,
+    "priority": 4
+  },
+  {
+    "id": 45,
+    "title": "Manually delete all legacy messages from to_user.json",
+    "short_description": "Clean up the to_user.json file by manually removing all existing legacy messages that cannot be automatically deleted by the new deletion system, ensuring a fresh start for the communication system.",
+    "detailed_description": "**OBJECTIF :**\nNettoyer manuellement le fichier to_user.json en supprimant tous les messages existants qui sont des résidus de l'ancien système et qui ne seront jamais supprimés automatiquement par le nouveau système de suppression.\n\n**CONTEXTE DU PROBLÈME :**\n- L'ancien système marquait les messages comme \"read\" au lieu de les supprimer\n- Le nouveau système (tâche #38) supprime directement les messages au lieu de les marquer comme lus\n- Les 9 messages existants dans to_user.json sont des résidus de l'ancien système\n- Ces messages ne seront jamais supprimés automatiquement car ils utilisent l'ancien format\n\n**MESSAGES À SUPPRIMER :**\nTous les messages actuellement présents (IDs 1-9) dans `.cursor/memory-bank/workflow/to_user.json` :\n- Message #1: \"Test message from direct script\"\n- Message #2: \"Parfait ! Le système fonctionne correctement...\"\n- Message #3: \"Test réussi ! La fonctionnalité user_message...\"\n- Message #4: \"Tâche #29 terminée ! La fonctionnalité...\"\n- Message #5: \"Page de communication créée ! Vous pouvez...\"\n- Message #6: \"🎉 Toutes les tâches sont terminées !...\"\n- Message #7: \"Système Memory Bank MCP redémarré...\"\n- Message #8: \"Workflow autonome complètement validé !...\"\n- Message #9: \"Requête #37 traitée avec succès !...\"\n\n**SPÉCIFICATIONS TECHNIQUES :**\n1. **Nettoyage complet du fichier :**\n   - Vider le tableau \"messages\" dans to_user.json\n   - Réinitialiser \"last_id\" à 0\n   - Conserver la structure JSON et la version\n\n2. **Structure finale souhaitée :**\n   ```json\n   {\n     \"version\": \"1.0.0\",\n     \"messages\": [],\n     \"last_id\": 0\n   }\n   ```\n\n3. **Validation post-nettoyage :**\n   - Vérifier que le fichier reste valide JSON\n   - Confirmer que l'interface Streamlit Communication affiche correctement l'état vide\n   - Tester qu'un nouveau message peut être ajouté correctement\n\n**CRITÈRES D'ACCEPTATION :**\n- Le fichier to_user.json contient un tableau messages vide\n- last_id est réinitialisé à 0\n- La structure JSON reste valide et fonctionnelle\n- L'interface Streamlit Communication affiche correctement l'absence de messages\n- Le système peut ajouter de nouveaux messages après le nettoyage\n- Aucune régression dans la fonctionnalité de communication\n\n**IMPACT UTILISATEUR :**\nInterface de communication propre sans résidus de l'ancien système, permettant un démarrage frais avec le nouveau système de suppression directe des messages.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/memory-bank/workflow/to_user.json"
+    ],
+    "validation_criteria": "Task is complete when: (1) All 9 legacy messages are removed from to_user.json, (2) Messages array is empty [], (3) last_id is reset to 0, (4) JSON structure remains valid, (5) Streamlit Communication page displays empty state correctly, (6) New messages can be added successfully after cleanup, (7) No regressions in communication functionality.",
+    "created_date": "2025-06-23T12:34:44.572Z",
+    "updated_date": "2025-06-23T12:36:38.592Z",
+    "parent_id": null,
+    "priority": 2
+  },
+  {
+    "id": 46,
+    "title": "Add time estimation and improve task detail display in Task Status interface",
+    "short_description": "Enhance Task Status page with time estimation for remaining tasks based on historical completion data, and replace small accordion task details with full-page view for better usability.",
+    "detailed_description": "**OBJECTIF :**\nAméliorer significativement l'interface Task Status avec estimation temporelle et meilleur affichage des détails de tâches.\n\n**FONCTIONNALITÉS À AJOUTER :**\n\n1. **Estimation du temps de completion :**\n   - Calculer le temps moyen de résolution d'une tâche à partir des timestamps\n   - Calculer l'écart-type pour fournir une marge d'erreur\n   - Estimer le temps restant pour terminer toutes les tâches en cours\n   - Afficher l'estimation avec intervalle de confiance (ex: \"2.5 ± 0.8 heures\")\n\n2. **Amélioration de l'affichage des détails :**\n   - Remplacer le petit accordéon \"Task Details\" par une vue pleine page\n   - Créer une div expansible qui prend tout l'espace disponible\n   - Améliorer la lisibilité des informations détaillées de la tâche\n   - Rendre l'interface plus utilisable pour consulter les détails\n\n**SPÉCIFICATIONS TECHNIQUES :**\n\n1. **Calcul des statistiques temporelles :**\n   ```python\n   def calculate_task_completion_stats(tasks):\n       completed_tasks = [t for t in tasks if t['status'] == 'DONE']\n       completion_times = []\n       for task in completed_tasks:\n           start = datetime.fromisoformat(task['created_date'])\n           end = datetime.fromisoformat(task['updated_date'])\n           completion_times.append((end - start).total_seconds() / 3600)  # heures\n       \n       if completion_times:\n           mean_time = statistics.mean(completion_times)\n           std_dev = statistics.stdev(completion_times) if len(completion_times) > 1 else 0\n           return mean_time, std_dev\n       return None, None\n   ```\n\n2. **Estimation pour tâches restantes :**\n   ```python\n   def estimate_remaining_time(remaining_tasks_count, mean_time, std_dev):\n       if mean_time is not None:\n           estimated_total = remaining_tasks_count * mean_time\n           margin_error = remaining_tasks_count * std_dev if std_dev else 0\n           return estimated_total, margin_error\n       return None, None\n   ```\n\n3. **Amélioration de l'affichage des détails :**\n   - Remplacer `st.expander(\"📋 Task Details\")` par une solution plus visible\n   - Utiliser `st.container()` ou `st.columns()` pour créer un affichage étendu\n   - Améliorer la mise en forme des informations détaillées\n   - Ajouter plus d'espace et de clarté visuelle\n\n**CRITÈRES D'ACCEPTATION :**\n- Affichage du temps moyen de résolution des tâches terminées\n- Calcul et affichage de l'écart-type pour la marge d'erreur\n- Estimation du temps restant pour toutes les tâches en cours\n- Format d'affichage clair : \"Temps estimé: X.X ± Y.Y heures\"\n- Remplacement du petit accordéon par une vue détaillée expansible\n- Amélioration significative de la lisibilité des détails de tâche\n- Interface plus utilisable pour consulter les informations détaillées\n- Gestion des cas où il n'y a pas assez de données historiques\n\n**FICHIERS À MODIFIER :**\n- `.cursor/streamlit_app/pages/task_status.py`\n- Possiblement ajouter des fonctions helper pour les calculs statistiques\n\n**IMPACT UTILISATEUR :**\nInterface Task Status beaucoup plus informative avec prédictions temporelles et détails de tâches facilement consultables, permettant une meilleure planification et suivi des projets.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "Task is complete when: (1) Time estimation displays average completion time and standard deviation from historical data, (2) Remaining time estimation shows total time needed with margin of error, (3) Task details view is replaced with full-page expandable display, (4) Details are much more readable and usable than small accordion, (5) Statistics handle edge cases (no completed tasks, single task), (6) Time format is user-friendly (hours with decimals), (7) Interface provides meaningful project planning insights.",
+    "created_date": "2025-06-23T12:35:03.371Z",
+    "updated_date": "2025-06-23T12:46:13.731Z",
+    "parent_id": null,
+    "priority": 3
+  },
+  {
+    "id": 47,
+    "title": "Conduct workflow analysis and document next_rule response structure",
+    "short_description": "Perform detailed analysis of the autonomous workflow system to identify problematic or suboptimal aspects, provide recommendations via user communication tools, and document the next_rule response structure in README.",
+    "detailed_description": "**OBJECTIF :**\nEffectuer une analyse complète du système de workflow autonome après utilisation extensive, identifier les points problématiques, et documenter la structure des réponses next_rule.\n\n**PARTIE 1: ANALYSE DÉTAILLÉE DU WORKFLOW**\n\n**Domaines d'analyse à couvrir :**\n1. **Efficacité des étapes du workflow :**\n   - Pertinence de chaque règle (start-workflow, task-decomposition, implementation, fix, context-update, experience-execution)\n   - Logique de routage entre les étapes\n   - Points de friction ou d'inefficacité observés\n\n2. **Qualité des textes et descriptions :**\n   - Clarté des instructions dans chaque règle\n   - Redondance d'informations entre étapes\n   - Pertinence des contextes fournis\n\n3. **Outils et fonctionnalités MCP :**\n   - Utilité et ergonomie des outils MemoryBankMCP\n   - Cohérence des réponses des outils\n   - Manque d'informations ou surcharge informationnelle\n\n4. **Gestion de la mémoire et du contexte :**\n   - Efficacité du système de souvenirs (working memory)\n   - Pertinence des souvenirs à long terme\n   - Gestion du contexte entre sessions\n\n5. **Interface utilisateur et communication :**\n   - Ergonomie de l'interface Streamlit\n   - Qualité de la communication agent-utilisateur\n   - Facilité de suivi et de contrôle du workflow\n\n**PARTIE 2: DOCUMENTATION TECHNIQUE**\n\n**Structure à documenter pour chaque règle next_rule :**\n```markdown\n## Next Rule Response Structure\n\n### start-workflow\n**Returns:**\n- Project brief and technical context\n- Recent memories (last 10 working memories)\n- Long-term memories (relevant ones)\n- Current tasks status\n- Unprocessed user requests\n- System state information\n\n### task-decomposition\n**Returns:**\n- Oldest unprocessed user request details\n- Context for task creation\n- Guidance for request analysis\n- Task creation instructions\n- Archiving requirements\n\n### implementation\n**Returns:**\n- Next task to execute\n- Task details and specifications\n- Context about project state\n- Implementation guidance\n- Success criteria\n\n### fix\n**Returns:**\n- Error context and debugging info\n- Suggested resolution approaches\n- Related task information\n- Recovery guidance\n\n### context-update\n**Returns:**\n- Updated project context\n- Refreshed technical information\n- Memory consolidation results\n- State synchronization info\n\n### experience-execution\n**Returns:**\n- Testing and validation guidance\n- User experience scenarios\n- Quality assurance criteria\n- Validation procedures\n```\n\n**LIVRABLES :**\n1. **Rapport d'analyse via communication utilisateur :**\n   - Observations détaillées sur les aspects problématiques\n   - Recommandations d'amélioration spécifiques\n   - Suggestions de modifications concrètes\n   - Points forts à conserver\n\n2. **Documentation README mise à jour :**\n   - Section complète sur la structure des réponses next_rule\n   - Exemples concrets pour chaque type de réponse\n   - Guide de référence pour les développeurs\n\n**CRITÈRES D'ACCEPTATION :**\n- Analyse approfondie couvrant tous les aspects du workflow\n- Rapport détaillé envoyé via outils de communication utilisateur\n- Identification claire des points problématiques et suboptimaux\n- Recommandations concrètes et actionables\n- Documentation complète de la structure next_rule dans README\n- Exemples pratiques pour chaque type de réponse\n- Guide de référence utilisable pour le développement futur",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      "README.md",
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/remember.js"
+    ],
+    "validation_criteria": "Task is complete when: (1) Comprehensive workflow analysis report is sent via user communication tools, (2) All problematic and suboptimal aspects are identified with specific examples, (3) Concrete improvement recommendations are provided, (4) README contains detailed next_rule response structure documentation, (5) Each workflow rule response format is clearly documented with examples, (6) Developer reference guide is complete and usable, (7) Analysis covers efficiency, text quality, tools, memory management, and UI aspects.",
+    "created_date": "2025-06-23T12:35:24.509Z",
+    "updated_date": "2025-06-23T12:41:58.991Z",
+    "parent_id": null,
+    "priority": 4
+  },
+  {
+    "id": 48,
+    "title": "Simplify Communication tab message deletion interface",
+    "short_description": "Remove confirmation dialogs from Communication tab and replace with direct deletion using validation icon. Users want streamlined message deletion without popup confirmations.",
+    "detailed_description": "**Requirements:**\n- Remove existing confirmation dialog for message deletion in Communication tab\n- Replace with direct deletion mechanism using validation icon\n- Ensure messages are properly deleted from database without confirmation step\n- Maintain user feedback through visual cues (icon state changes, success indicators)\n\n**Acceptance Criteria:**\n- Clicking delete/validation icon immediately removes message from database\n- No confirmation dialogs appear during deletion process\n- Visual feedback confirms successful deletion\n- Database consistency maintained during deletion operations\n- UI remains responsive during deletion\n\n**Technical Notes:**\n- Modify communication.py to remove st.dialog() confirmation flows\n- Update delete button handlers to directly call database deletion\n- Ensure proper error handling for failed deletions\n- Test with multiple message types and states",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/communication.py"
+    ],
+    "validation_criteria": "Task complete when: (1) No confirmation dialogs appear when deleting messages, (2) Messages are immediately removed from interface and database, (3) Visual feedback confirms deletion success, (4) No errors occur during deletion process, (5) All message types can be deleted successfully",
+    "created_date": "2025-06-23T13:01:55.413Z",
+    "updated_date": "2025-06-23T13:04:41.783Z",
+    "parent_id": null,
+    "priority": 4
+  },
+  {
+    "id": 49,
+    "title": "Fix Add Request interface bugs and functionality",
+    "short_description": "Resolve multiple issues in Add Request interface: non-functional Ctrl+Enter shortcut, text not clearing after submission, and missing balloon animations for user feedback.",
+    "detailed_description": "**Requirements:**\n- Fix Ctrl+Enter keyboard shortcut to properly submit requests\n- Ensure text area clears completely after successful submission\n- Restore balloon animations for submission feedback\n- Maintain all existing functionality while fixing these bugs\n\n**Acceptance Criteria:**\n- Ctrl+Enter keyboard shortcut submits requests reliably\n- Text area content clears immediately after successful submission\n- Balloon animations appear for submission success/failure states\n- Form validation continues to work properly\n- No regression in existing features\n\n**Technical Notes:**\n- Debug JavaScript event handlers for Ctrl+Enter functionality\n- Check text area clearing logic in submission callback\n- Verify balloon animation triggering conditions\n- Test form submission flow end-to-end\n- Ensure proper state management during submission process",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/add_request.py"
+    ],
+    "validation_criteria": "Task complete when: (1) Ctrl+Enter reliably submits requests, (2) Text area clears after successful submission, (3) Balloon animations show for all submission states, (4) Form validation works correctly, (5) No JavaScript errors in browser console",
+    "created_date": "2025-06-23T13:02:01.622Z",
+    "updated_date": "2025-06-23T13:05:45.558Z",
+    "parent_id": null,
+    "priority": 4
+  },
+  {
+    "id": 50,
+    "title": "Fix AttributeError in Memory tab long-term memory access",
+    "short_description": "Resolve 'list' object has no attribute 'get' error at line 305 in memory.py when accessing long-term memories. The code expects a dictionary but receives a list object.",
+    "detailed_description": "**Requirements:**\n- Fix AttributeError: 'list' object has no attribute 'get' at line 305 in memory.py\n- Ensure proper data type handling for long-term memory data structure\n- Maintain backward compatibility with existing memory data\n- Implement proper error handling for data type mismatches\n\n**Acceptance Criteria:**\n- Memory tab loads without AttributeError exceptions\n- Long-term memories display correctly regardless of data structure\n- Proper error handling for malformed memory data\n- No regression in memory display functionality\n- Robust handling of both list and dictionary memory formats\n\n**Technical Notes:**\n- Investigate line 305 in memory.py where long_term_data.get() is called\n- Determine if long_term_data should be dict or list based on context\n- Add type checking and conversion logic if needed\n- Review memory data loading and parsing logic\n- Test with various memory data formats and edge cases",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/memory.py"
+    ],
+    "validation_criteria": "Task complete when: (1) Memory tab loads without AttributeError, (2) Long-term memories display correctly, (3) Error handling prevents crashes on malformed data, (4) Both list and dict memory formats supported, (5) No console errors when accessing memory data",
+    "created_date": "2025-06-23T13:02:10.036Z",
+    "updated_date": "2025-06-23T13:03:58.950Z",
+    "parent_id": null,
+    "priority": 5
   }
 ]

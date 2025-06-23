@@ -25,36 +25,33 @@ def read_user_messages():
         st.error(f"Error reading messages: {e}")
         return []
 
-def mark_message_as_read(message_id):
-    """Mark a message as read in the to_user.json file"""
+def delete_message(message_id):
+    """Delete a message from the to_user.json file"""
     try:
         messages_file = Path(".cursor/memory-bank/workflow/to_user.json")
         if messages_file.exists():
             with open(messages_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
             
-            # Find and update the message
-            for message in data.get('messages', []):
-                if message['id'] == message_id:
-                    message['status'] = 'read'
-                    message['read_at'] = datetime.now().isoformat()
-                    break
+            # Remove the message with the specified ID
+            original_count = len(data.get('messages', []))
+            data['messages'] = [msg for msg in data.get('messages', []) if msg.get('id') != message_id]
             
-            # Write back to file
-            with open(messages_file, 'w', encoding='utf-8') as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
-            
-            return True
+            # Check if message was actually removed
+            if len(data['messages']) < original_count:
+                # Write back to file
+                with open(messages_file, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                return True
+            else:
+                return False
     except Exception as e:
-        st.error(f"Error marking message as read: {e}")
+        st.error(f"Error deleting message: {e}")
         return False
 
-def get_status_color(status):
-    """Get color for message status"""
-    if status == 'unread':
-        return '🔵'  # Blue circle for unread
-    else:
-        return '✅'  # Green checkmark for read
+def get_message_icon():
+    """Get icon for messages (simplified since no status tracking)"""
+    return '💬'  # Message icon for all messages
 
 def format_timestamp(timestamp_str):
     """Format timestamp for display"""
@@ -87,17 +84,20 @@ else:
     # Sort messages by timestamp (most recent first)
     sorted_messages = sorted(messages, key=lambda x: x['timestamp'], reverse=True)
     
-    # Display message statistics
+    # Display message statistics (simplified)
     total_messages = len(messages)
-    unread_messages = len([m for m in messages if m.get('status') == 'unread'])
     
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric("Total Messages", total_messages)
     with col2:
-        st.metric("Unread Messages", unread_messages)
+        st.metric("💬 Active Messages", total_messages, help="Messages waiting for your review")
     with col3:
-        st.metric("Read Messages", total_messages - unread_messages)
+        # Show most recent message timestamp
+        if messages:
+            latest_msg = max(messages, key=lambda x: x.get('timestamp', ''))
+            latest_time = format_timestamp(latest_msg.get('timestamp', ''))
+            st.metric("Latest Message", latest_time[:10], help="Date of most recent message")
     
     st.markdown("---")
     
@@ -111,25 +111,23 @@ else:
         
         # Create message container
         with st.container():
-            # Message header with status and timestamp
+            # Message header with delete button
             col1, col2, col3 = st.columns([1, 6, 2])
             
             with col1:
-                st.markdown(f"**{get_status_color(status)}**")
+                st.markdown(f"**{get_message_icon()}**")
             
             with col2:
                 st.markdown(f"**Message #{message_id}** - {format_timestamp(timestamp)}")
             
             with col3:
-                if status == 'unread':
-                    if st.button(f"✓ Mark as Read", key=f"mark_read_{message_id}"):
-                        if mark_message_as_read(message_id):
-                            st.success("Message marked as read!")
-                            st.rerun()
-                        else:
-                            st.error("Failed to mark message as read")
-                else:
-                    st.markdown("*Read*")
+                # Direct deletion with validation icon (no confirmation)
+                if st.button("✅ Mark Read", key=f"delete_{message_id}", help="Mark as read and delete this message"):
+                    if delete_message(message_id):
+                        st.success("Message deleted!")
+                        st.rerun()
+                    else:
+                        st.error("Failed to delete message")
             
             # Message content
             st.markdown(f"**Content:** {content}")
@@ -152,11 +150,6 @@ else:
                             st.markdown(f"**Active Task:** {active_task}")
                         else:
                             st.markdown("**Active Task:** *None*")
-                        
-                        # Show read timestamp if available
-                        if status == 'read' and 'read_at' in message:
-                            read_at = format_timestamp(message['read_at'])
-                            st.markdown(f"**Read At:** {read_at}")
             
             st.markdown("---")
 
@@ -166,15 +159,16 @@ with st.sidebar:
     st.markdown("""
     This page displays messages sent by the agent to you via the remember tool.
     
-    **Message Status:**
-    - 🔵 Unread message
-    - ✅ Read message
-    
     **Features:**
     - Messages are sorted by most recent first
-    - Click "✓ Mark as Read" to mark messages as read
+    - Click "✅ Mark Read" to instantly delete messages
+    - No confirmation needed - streamlined workflow
     - Expand context information to see workflow details
-    - Messages persist across sessions
+    
+    **Message Management:**
+    - 💬 All messages are active until marked as read
+    - Marked messages are immediately and permanently removed
+    - Simplified one-click deletion process
     
     **Context Information:**
     - **Workflow Rule:** The workflow step the agent was executing

@@ -82,30 +82,71 @@ def get_request_evolution_data():
         timeline_events = []
         
         for req in requests:
+            req_id = req.get('id')
+            
+            # Add creation event
             created_at = req.get('created_at', '')
             if created_at:
                 try:
-                    created_date = datetime.fromisoformat(created_at.replace('Z', '+00:00')).date()
+                    # Handle different timestamp formats
+                    if created_at.endswith('Z'):
+                        created_dt = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                    else:
+                        created_dt = datetime.fromisoformat(created_at)
+                    
                     timeline_events.append({
-                        'date': created_date,
+                        'datetime': created_dt,
+                        'date': created_dt.date(),
                         'event': 'created',
-                        'request_id': req.get('id')
+                        'request_id': req_id
                     })
-                except:
-                    pass
+                except Exception as e:
+                    # Fallback parsing
+                    try:
+                        created_dt = datetime.fromisoformat(created_at.split('.')[0])
+                        timeline_events.append({
+                            'datetime': created_dt,
+                            'date': created_dt.date(),
+                            'event': 'created',
+                            'request_id': req_id
+                        })
+                    except:
+                        pass
             
-            # Check history for status changes
-            history = req.get('history', [])
-            for entry in history:
-                if entry.get('action') == 'mark_archived':
-                    timestamp = entry.get('timestamp', '')
-                    if timestamp:
+            # Add archived event if request is archived
+            if req.get('status') == 'archived':
+                # Look for the most recent mark_archived action in history
+                history = req.get('history', [])
+                archived_timestamp = None
+                
+                for entry in reversed(history):  # Start from most recent
+                    if entry.get('action') == 'mark_archived':
+                        archived_timestamp = entry.get('timestamp', '')
+                        break
+                
+                if archived_timestamp:
+                    try:
+                        # Handle different timestamp formats
+                        if archived_timestamp.endswith('Z'):
+                            archived_dt = datetime.fromisoformat(archived_timestamp.replace('Z', '+00:00'))
+                        else:
+                            archived_dt = datetime.fromisoformat(archived_timestamp)
+                        
+                        timeline_events.append({
+                            'datetime': archived_dt,
+                            'date': archived_dt.date(),
+                            'event': 'archived',
+                            'request_id': req_id
+                        })
+                    except Exception as e:
+                        # Fallback parsing
                         try:
-                            archived_date = datetime.fromisoformat(timestamp.replace('Z', '+00:00')).date()
+                            archived_dt = datetime.fromisoformat(archived_timestamp.split('.')[0])
                             timeline_events.append({
-                                'date': archived_date,
+                                'datetime': archived_dt,
+                                'date': archived_dt.date(),
                                 'event': 'archived',
-                                'request_id': req.get('id')
+                                'request_id': req_id
                             })
                         except:
                             pass
@@ -113,10 +154,10 @@ def get_request_evolution_data():
         if not timeline_events:
             return pd.DataFrame()
         
-        # Sort events by date
-        timeline_events.sort(key=lambda x: x['date'])
+        # Sort events by datetime (chronological order)
+        timeline_events.sort(key=lambda x: x['datetime'])
         
-        # Create daily counts
+        # Group by date and count events
         daily_data = defaultdict(lambda: {'created': 0, 'archived': 0})
         
         for event in timeline_events:
@@ -129,9 +170,9 @@ def get_request_evolution_data():
         if not dates:
             return pd.DataFrame()
         
-        # Create date range from first to last date
+        # Extend date range to include today if needed
         start_date = min(dates)
-        end_date = max(dates)
+        end_date = max(max(dates), datetime.now().date())
         
         # Generate all dates in range
         date_range = pd.date_range(start=start_date, end=end_date, freq='D')
@@ -144,20 +185,25 @@ def get_request_evolution_data():
             created = daily_data[date_obj]['created']
             archived = daily_data[date_obj]['archived']
             
+            # Update pending count
             pending_count += created - archived
+            pending_count = max(0, pending_count)  # Ensure non-negative
             
             data.append({
                 'Date': date_obj,
-                'Pending Requests': max(0, pending_count),  # Ensure non-negative
-                'New': created,
-                'Archived': archived,
-                'Total Created': pending_count + sum(daily_data[d]['archived'] for d in daily_data if d <= date_obj)
+                'Pending Requests': pending_count,
+                'Created Today': created,
+                'Archived Today': archived,
+                'Net Change': created - archived
             })
         
-        return pd.DataFrame(data)
+        df = pd.DataFrame(data)
+        return df
         
     except Exception as e:
         st.error(f"Error generating evolution data: {e}")
+        import traceback
+        st.error(f"Traceback: {traceback.format_exc()}")
         return pd.DataFrame()
 
 def get_userbrief_status():
@@ -268,9 +314,8 @@ request_text = st.text_area(
     key="request_input"
 )
 
-# Update session state when text changes
-if request_text != st.session_state.request_text:
-    st.session_state.request_text = request_text
+# Update session state when text changes (ensure synchronization)
+st.session_state.request_text = request_text
 
 # Submit button (outside of form for immediate response)
 col1, col2 = st.columns([1, 4])
@@ -280,31 +325,31 @@ with col1:
 with col2:
     st.markdown("*Press Ctrl+Enter in the text area or click the button to submit*")
 
-# Handle form submission
+# Handle form submission with improved reliability
 if submitted or st.session_state.form_submitted:
     if st.session_state.form_submitted:
         st.session_state.form_submitted = False  # Reset flag
     
-    if st.session_state.request_text.strip():
+    # Get the current text content (prioritize session state)
+    current_text = st.session_state.request_text.strip()
+    
+    if current_text:
+        # Store the text before submission to avoid race conditions
+        submitted_text = current_text
+        
         # Add to userbrief via MCP as new request (status "new")
-        success, message = add_request_via_mcp(st.session_state.request_text.strip())
+        success, message = add_request_via_mcp(submitted_text)
         
         if success:
+            # Show success message and balloons FIRST
             st.success(f"✅ {message}")
-            
-            # Trigger balloons animation
-            st.balloons()
-            
-            # Show toast notification for successful request submission
+            st.balloons()  # Show balloons immediately
             st.toast("🎉 Request submitted successfully! The agent will process it automatically.", icon="✅")
             
-            # Clear the text area by resetting session state
+            # THEN clear the text area
             st.session_state.request_text = ""
             
-            # Clear form suggestion
-            st.info("💡 Your request has been added with status 'new' and will be analyzed by the workflow system.")
-            
-            # Force rerun to refresh the interface with cleared text area
+            # Force immediate rerun to refresh interface
             st.rerun()
             
         else:
@@ -312,55 +357,40 @@ if submitted or st.session_state.form_submitted:
     else:
         st.error("⚠️ Please enter a request description before submitting.")
 
-# Add JavaScript for Ctrl+Enter support
+# Add simplified JavaScript for Ctrl+Enter support
 st.markdown("""
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+// Simple and reliable Ctrl+Enter handler
+function setupCtrlEnter() {
+    // Find the text area
     const textArea = document.querySelector('textarea[data-testid="stTextArea"]');
-    if (textArea) {
+    const submitButton = document.querySelector('button[kind="primary"]');
+    
+    if (textArea && submitButton && !textArea.hasAttribute('data-ctrl-enter-ready')) {
+        textArea.setAttribute('data-ctrl-enter-ready', 'true');
+        
         textArea.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.key === 'Enter') {
                 e.preventDefault();
-                // Trigger form submission by setting session state
-                const submitButton = document.querySelector('button[kind="primary"]');
-                if (submitButton) {
-                    submitButton.click();
-                }
+                submitButton.click();
             }
         });
     }
-});
+}
+
+// Setup after DOM is ready
+setTimeout(setupCtrlEnter, 500);
+
+// Re-setup after Streamlit updates
+const observer = new MutationObserver(setupCtrlEnter);
+observer.observe(document.body, { childList: true, subtree: true });
 </script>
 """, unsafe_allow_html=True)
 
 # Display current userbrief status
 st.header("📊 Current Userbrief Status")
 
-# Add request evolution graph (single graph only)
-evolution_data = get_request_evolution_data()
-if evolution_data is not None and not evolution_data.empty:
-    st.subheader("📈 Current Workload Trend")
-    st.markdown("**Pending requests evolution over time** - Shows how requests are added and processed")
-    
-    # Display the main graph with smooth line
-    pending_data = evolution_data.set_index('Date')[['Pending Requests']]
-    st.line_chart(pending_data, height=300, use_container_width=True)
-    
-    # Quick metrics for current workload
-    current_pending = evolution_data['Pending Requests'].iloc[-1] if not evolution_data.empty else 0
-    peak_pending = evolution_data['Pending Requests'].max()
-    avg_pending = evolution_data['Pending Requests'].mean()
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Current Pending", int(current_pending), 
-                 help="Requests currently waiting or in progress")
-    with col2:
-        st.metric("Peak Workload", int(peak_pending), 
-                 help="Highest number of pending requests")
-    with col3:
-        st.metric("Average Workload", f"{avg_pending:.1f}", 
-                 help="Average number of pending requests")
+
 
 userbrief_status = get_userbrief_status()
 
@@ -471,17 +501,4 @@ if userbrief_status:
 else:
     st.warning("No userbrief file found or error reading it.")
 
-# Information about the new system
-st.header("ℹ️ About the New System")
-st.info("""
-**New Request Status System:**
-- **New**: Requests waiting to be processed by the agent workflow
-- **In Progress**: Requests currently being worked on
-- **Archived**: Completed requests with resolution comments
-
-Your requests are now managed through a structured JSON system that integrates with the MCP (Model Context Protocol) tools for better tracking and processing.
-""")
-
-# Auto-refresh info
-st.sidebar.markdown("---")
-st.sidebar.info("💡 After adding a request, check the Agent Status page to see how the system processes it automatically via the `next_rule` tool.") 
+ 
