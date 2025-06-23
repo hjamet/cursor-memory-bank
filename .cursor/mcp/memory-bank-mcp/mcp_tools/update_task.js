@@ -41,7 +41,6 @@ async function writeTasks(tasks) {
 export async function handleUpdateTask(params) {
     try {
         const { task_id, ...updates } = params;
-        // console.log(`[UpdateTask] Updating task ${task_id} with fields:`, Object.keys(updates).filter(k => updates[k] !== undefined));
 
         const tasks = await readTasks();
         const taskIndex = tasks.findIndex(task => task.id === task_id);
@@ -123,8 +122,6 @@ export async function handleUpdateTask(params) {
             }
         };
 
-        // console.log(`[UpdateTask] Successfully updated task ${task_id}: ${updatedTask.title}`);
-
         return {
             content: [{
                 type: 'text',
@@ -133,8 +130,6 @@ export async function handleUpdateTask(params) {
         };
 
     } catch (error) {
-        // console.error('[UpdateTask] Error:', error);
-
         return {
             content: [{
                 type: 'text',

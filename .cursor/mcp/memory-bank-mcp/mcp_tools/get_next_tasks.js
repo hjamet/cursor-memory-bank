@@ -26,7 +26,7 @@ async function readTasks() {
  */
 export async function handleGetNextTasks(params) {
     try {
-        console.log(`[GetNextTasks] Automatically determining most urgent available tasks`);
+        const { status, priority, limit = 10 } = params || {};
 
         const allTasks = await readTasks();
 
@@ -120,8 +120,6 @@ export async function handleGetNextTasks(params) {
             }
         };
 
-        console.log(`[GetNextTasks] Returning ${enhancedTasks.length} available tasks`);
-
         return {
             content: [{
                 type: 'text',
@@ -130,8 +128,6 @@ export async function handleGetNextTasks(params) {
         };
 
     } catch (error) {
-        console.error('[GetNextTasks] Error:', error);
-
         return {
             content: [{
                 type: 'text',

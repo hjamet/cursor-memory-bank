@@ -157,7 +157,14 @@ def calculate_task_completion_stats(tasks) -> Tuple[Optional[float], Optional[fl
     
     for task in completed_tasks:
         created_str = task.get('created_date', '')
-        updated_str = task.get('updated_date', '')
+        
+        # For APPROVED tasks, use validation.approved_at as completion date
+        # For DONE tasks, use updated_date as completion date
+        if task.get('status') == 'APPROVED':
+            validation = task.get('validation', {})
+            updated_str = validation.get('approved_at', '')
+        else:
+            updated_str = task.get('updated_date', '')
         
         if created_str and updated_str:
             try:

@@ -16,8 +16,6 @@ export async function handleUpdateUserbrief(params) {
     try {
         const { action, id, comment } = params;
 
-        console.log(`[UpdateUserbrief] Action: ${action}, ID: ${id || 'auto'}, Comment: ${comment ? 'yes' : 'no'}`);
-
         const userbriefData = readUserbriefData();
         const requests = userbriefData.requests;
 
@@ -105,12 +103,9 @@ export async function handleUpdateUserbrief(params) {
             }
         };
 
-        console.log(`[UpdateUserbrief] Success: ${actionDescription} on request #${targetRequest.id}`);
-
         return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
 
     } catch (error) {
-        console.error('[UpdateUserbrief] Error:', error);
         return { content: [{ type: 'text', text: JSON.stringify({ status: 'error', message: `Error updating userbrief: ${error.message}` }, null, 2) }] };
     }
 } 

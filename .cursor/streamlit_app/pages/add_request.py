@@ -4,8 +4,83 @@ import requests
 from datetime import datetime
 import pandas as pd
 from collections import defaultdict
+import os
+import base64
+import shutil
+from PIL import Image
+import io
 
 st.set_page_config(page_title="Add Request", page_icon="➕")
+
+def process_uploaded_image(uploaded_file, request_id):
+    """
+    Process uploaded image: resize, compress, and save temporarily
+    Returns image metadata dict or None if error
+    """
+    try:
+        # Create temp directory if it doesn't exist
+        temp_dir = ".cursor/temp/images"
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Open image with PIL
+        image = Image.open(uploaded_file)
+        
+        # Convert to RGB if necessary (for JPEG compatibility)
+        if image.mode in ('RGBA', 'LA', 'P'):
+            image = image.convert('RGB')
+        
+        # Resize if width > 1024px
+        if image.width > 1024:
+            ratio = 1024 / image.width
+            new_height = int(image.height * ratio)
+            image = image.resize((1024, new_height), Image.Resampling.LANCZOS)
+        
+        # Generate unique filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"req_{request_id}_{timestamp}.jpg"
+        filepath = os.path.join(temp_dir, filename)
+        
+        # Save as JPEG with 80% quality
+        image.save(filepath, "JPEG", quality=80, optimize=True)
+        
+        # Get file size
+        file_size = os.path.getsize(filepath)
+        
+        # Create metadata
+        image_metadata = {
+            "path": filepath,
+            "original_name": uploaded_file.name,
+            "size": file_size,
+            "format": "JPEG",
+            "width": image.width,
+            "height": image.height,
+            "timestamp": timestamp
+        }
+        
+        return image_metadata
+        
+    except Exception as e:
+        st.error(f"Error processing image: {e}")
+        return None
+
+def cleanup_temp_images(older_than_hours=24):
+    """Clean up temporary images older than specified hours"""
+    try:
+        temp_dir = ".cursor/temp/images"
+        if not os.path.exists(temp_dir):
+            return
+        
+        cutoff_time = datetime.now().timestamp() - (older_than_hours * 3600)
+        
+        for filename in os.listdir(temp_dir):
+            filepath = os.path.join(temp_dir, filename)
+            if os.path.isfile(filepath) and os.path.getmtime(filepath) < cutoff_time:
+                try:
+                    os.remove(filepath)
+                except:
+                    pass  # Ignore errors during cleanup
+    except:
+        pass  # Ignore cleanup errors
 
 st.markdown("# ➕ Add New Request")
 st.sidebar.header("Add Request")
@@ -13,7 +88,7 @@ st.sidebar.header("Add Request")
 st.markdown("Use this page to add new requests to the userbrief. These requests will be automatically processed by the agent's workflow system.")
 
 # Helper function to add request via MCP API
-def add_request_via_mcp(request_text):
+def add_request_via_mcp(request_text, image_metadata=None):
     """Add a new request using the MCP MemoryBankMCP server"""
     try:
         # For now, we'll simulate the MCP call by directly modifying the JSON file
@@ -49,6 +124,11 @@ def add_request_via_mcp(request_text):
                 }
             ]
         }
+        
+        # Add image metadata if provided
+        if image_metadata:
+            new_request["image"] = image_metadata
+            new_request["history"][0]["comment"] += f" Includes image: {image_metadata['original_name']}"
         
         # Add to requests and update last_id
         userbrief_data["requests"].append(new_request)
@@ -299,6 +379,9 @@ def delete_request(request_id):
 # Main form with native Streamlit approach
 st.header("📝 New Request")
 
+# Clean up old temporary images
+cleanup_temp_images()
+
 # Use Streamlit form for reliable submission handling
 with st.form("request_form", clear_on_submit=True):
     request_text = st.text_area(
@@ -308,6 +391,41 @@ with st.form("request_form", clear_on_submit=True):
         help="Enter your request. It will be processed automatically by the task-analysis workflow. Press Ctrl+Enter to submit quickly.",
         key="request_input"
     )
+    
+    # Image upload section
+    st.markdown("**📸 Optional: Attach Image**")
+    uploaded_image = st.file_uploader(
+        "Upload an image to include with your request:",
+        type=['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'],
+        help="Supported formats: PNG, JPG, JPEG, GIF, WEBP, BMP. Images will be automatically resized and optimized.",
+        key="image_upload"
+    )
+    
+    # Show image preview if uploaded
+    if uploaded_image is not None:
+        st.markdown("**🖼️ Image Preview:**")
+        col_img, col_info = st.columns([2, 1])
+        
+        with col_img:
+            # Display the uploaded image
+            image = Image.open(uploaded_image)
+            st.image(image, caption=f"Uploaded: {uploaded_image.name}", use_column_width=True)
+        
+        with col_info:
+            # Show image info
+            st.markdown("**Image Information:**")
+            st.write(f"**Filename:** {uploaded_image.name}")
+            st.write(f"**Size:** {uploaded_image.size:,} bytes")
+            st.write(f"**Dimensions:** {image.width} x {image.height} px")
+            st.write(f"**Format:** {image.format}")
+            
+            # Show what will happen
+            if image.width > 1024:
+                ratio = 1024 / image.width
+                new_height = int(image.height * ratio)
+                st.info(f"📏 Will be resized to: 1024 x {new_height} px")
+            else:
+                st.success("✅ Size is optimal")
     
     # Submit button within form for native behavior
     col1, col2 = st.columns([1, 4])
@@ -322,16 +440,51 @@ if submitted:
     current_text = request_text.strip()
     
     if current_text:
+        image_metadata = None
+        
+        # Process uploaded image if present
+        if uploaded_image is not None:
+            # We need to get the next request ID first for the filename
+            try:
+                userbrief_file = ".cursor/memory-bank/workflow/userbrief.json"
+                try:
+                    with open(userbrief_file, 'r', encoding='utf-8') as f:
+                        userbrief_data = json.load(f)
+                    next_id = userbrief_data.get("last_id", 0) + 1
+                except FileNotFoundError:
+                    next_id = 1
+                
+                # Process the image
+                image_metadata = process_uploaded_image(uploaded_image, next_id)
+                
+                if image_metadata:
+                    st.success(f"📸 Image processed: {image_metadata['original_name']} → {image_metadata['width']}x{image_metadata['height']} JPEG ({image_metadata['size']:,} bytes)")
+                else:
+                    st.error("❌ Failed to process image. Request will be submitted without image.")
+                    
+            except Exception as e:
+                st.error(f"❌ Error processing image: {e}")
+                image_metadata = None
+        
         # Add to userbrief via MCP as new request (status "new")
-        success, message = add_request_via_mcp(current_text)
+        success, message = add_request_via_mcp(current_text, image_metadata)
         
         if success:
             # Show success message and balloons
-            st.success(f"✅ {message}")
+            success_msg = f"✅ {message}"
+            if image_metadata:
+                success_msg += f" (with image: {image_metadata['original_name']})"
+            st.success(success_msg)
             st.balloons()  # Show balloons immediately after success
             st.toast("🎉 Request submitted successfully! The agent will process it automatically.", icon="✅")
         else:
             st.error(f"❌ {message}")
+            # Clean up image file if request failed
+            if image_metadata and os.path.exists(image_metadata['path']):
+                try:
+                    os.remove(image_metadata['path'])
+                except:
+                    pass
     else:
         st.error("⚠️ Please enter a request description before submitting.")
 
@@ -401,8 +554,6 @@ observer.observe(document.body, {
 
 # Display current userbrief status
 st.header("📊 Current Userbrief Status")
-
-
 
 userbrief_status = get_userbrief_status()
 

@@ -34,12 +34,12 @@ const STATUS_ORDER = {
  */
 export async function handleGetAllTasks(params) {
     try {
-        console.log(`[GetAllTasks] Retrieving all non-completed tasks.`);
+        const { status, priority, search, sort_by = 'priority' } = params || {};
 
-        let allTasks = await readTasks();
+        const tasksData = await readTasks();
 
         // Filter out completed tasks
-        let filteredTasks = allTasks.filter(task => task.status !== 'DONE');
+        let filteredTasks = tasksData.filter(task => task.status !== 'DONE');
 
         // Sort tasks by status order, then priority
         filteredTasks.sort((a, b) => {
@@ -61,7 +61,7 @@ export async function handleGetAllTasks(params) {
             // Always add dependency information
             if (task.dependencies && task.dependencies.length > 0) {
                 const dependencyDetails = task.dependencies.map(depId => {
-                    const depTask = allTasks.find(t => t.id === depId);
+                    const depTask = tasksData.find(t => t.id === depId);
                     return depTask
                         ? { id: depTask.id, title: depTask.title, status: depTask.status }
                         : { id: depId, title: 'Unknown Task', status: 'NOT_FOUND' };
@@ -74,14 +74,14 @@ export async function handleGetAllTasks(params) {
 
             // Add parent information if it's a subtask
             if (task.parent_id) {
-                const parentTask = allTasks.find(t => t.id === task.parent_id);
+                const parentTask = tasksData.find(t => t.id === task.parent_id);
                 baseTask.parent_info = parentTask
                     ? { id: parentTask.id, title: parentTask.title, status: parentTask.status }
                     : { id: task.parent_id, title: 'Unknown Parent', status: 'NOT_FOUND' };
             }
 
             // Add subtask information if it's a parent task
-            const subtasks = allTasks.filter(t => t.parent_id === task.id);
+            const subtasks = tasksData.filter(t => t.parent_id === task.id);
             if (subtasks.length > 0) {
                 baseTask.subtasks = subtasks.map(sub => ({ id: sub.id, title: sub.title, status: sub.status }));
                 baseTask.subtask_count = subtasks.length;
@@ -93,20 +93,20 @@ export async function handleGetAllTasks(params) {
 
         // Generate comprehensive statistics from the full unfiltered list
         const statistics = {
-            total_tasks: allTasks.length,
+            total_tasks: tasksData.length,
             tasks_returned: enhancedTasks.length,
-            status_breakdown: allTasks.reduce((acc, task) => {
+            status_breakdown: tasksData.reduce((acc, task) => {
                 acc[task.status] = (acc[task.status] || 0) + 1;
                 return acc;
             }, {}),
-            priority_breakdown: allTasks.reduce((acc, task) => {
+            priority_breakdown: tasksData.reduce((acc, task) => {
                 const priority = `Priority ${task.priority}`;
                 acc[priority] = (acc[priority] || 0) + 1;
                 return acc;
             }, {}),
             task_types: {
-                main_tasks: allTasks.filter(t => !t.parent_id).length,
-                subtasks: allTasks.filter(t => t.parent_id).length
+                main_tasks: tasksData.filter(t => !t.parent_id).length,
+                subtasks: tasksData.filter(t => t.parent_id).length
             },
             filters_applied: {
                 status_filter: "Excludes DONE tasks",
@@ -128,8 +128,6 @@ export async function handleGetAllTasks(params) {
             }
         };
 
-        console.log(`[GetAllTasks] Returning ${enhancedTasks.length} tasks in priority order`);
-
         return {
             content: [{
                 type: 'text',
@@ -138,8 +136,6 @@ export async function handleGetAllTasks(params) {
         };
 
     } catch (error) {
-        console.error('[GetAllTasks] Error:', error);
-
         return {
             content: [{
                 type: 'text',

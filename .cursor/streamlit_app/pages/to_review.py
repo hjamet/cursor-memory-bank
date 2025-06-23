@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 from datetime import datetime
+import requests
 from typing import List, Dict, Optional
 
 st.set_page_config(page_title="To Review", page_icon="🔍")
@@ -10,7 +11,9 @@ st.set_page_config(page_title="To Review", page_icon="🔍")
 st.markdown("# 🔍 To Review")
 st.sidebar.header("To Review")
 
-# Helper functions for task management
+st.markdown("This page displays tasks that are ready for review and validation. You can approve or reject tasks, and rejections will automatically create new userbrief requests for corrections.")
+
+# Helper functions for task and userbrief management
 def get_tasks_file():
     """Get the path to the tasks file, prioritizing MCP-managed file"""
     possible_paths = [
@@ -44,8 +47,8 @@ def load_tasks() -> List[Dict]:
         st.error(f"Error loading tasks: {e}")
         return []
 
-def update_task_status(task_id: int, new_status: str, user_comment: str = "") -> bool:
-    """Update task status with validation info"""
+def update_task_status(task_id: int, new_status: str, validation_data: Optional[Dict] = None) -> bool:
+    """Update task status and optionally add validation data"""
     tasks_file = get_tasks_file()
     if not tasks_file:
         return False
@@ -68,30 +71,9 @@ def update_task_status(task_id: int, new_status: str, user_comment: str = "") ->
                 task['status'] = new_status
                 task['updated_date'] = datetime.now().isoformat()
                 
-                # Add validation info
-                if 'validation' not in task:
-                    task['validation'] = {}
-                
-                if new_status == 'APPROVED':
-                    task['validation']['approved_at'] = datetime.now().isoformat()
-                    task['validation']['approved_by'] = 'user'
-                    if user_comment:
-                        task['validation']['user_comment'] = user_comment
-                elif new_status == 'TODO':
-                    task['validation']['rejected_at'] = datetime.now().isoformat()
-                    task['validation']['rejected_by'] = 'user'
-                    if user_comment:
-                        task['validation']['rejection_reason'] = user_comment
-                
-                # Save validation history
-                if 'validation_history' not in task['validation']:
-                    task['validation']['validation_history'] = []
-                
-                task['validation']['validation_history'].append({
-                    'timestamp': datetime.now().isoformat(),
-                    'action': 'approved' if new_status == 'APPROVED' else 'rejected',
-                    'comment': user_comment
-                })
+                # Add validation data if provided
+                if validation_data:
+                    task['validation'] = validation_data
                 
                 # Save back to file
                 if data_format == 'array':
@@ -111,45 +93,47 @@ def update_task_status(task_id: int, new_status: str, user_comment: str = "") ->
     return False
 
 def create_userbrief_request(content: str) -> bool:
-    """Create a new userbrief request for rejected tasks"""
-    userbrief_file = Path('.cursor/memory-bank/workflow/userbrief.json')
-    
+    """Create a new userbrief request for task corrections"""
     try:
-        # Load existing userbrief data
-        if userbrief_file.exists():
+        userbrief_file = ".cursor/memory-bank/workflow/userbrief.json"
+        
+        # Read current userbrief
+        try:
             with open(userbrief_file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-        else:
-            data = {
+                userbrief_data = json.load(f)
+        except FileNotFoundError:
+            userbrief_data = {
                 "version": "1.0.0",
                 "last_id": 0,
                 "requests": []
             }
         
         # Create new request
-        new_id = data.get('last_id', 0) + 1
+        new_id = userbrief_data["last_id"] + 1
+        timestamp = datetime.now().isoformat()
+        
         new_request = {
             "id": new_id,
             "content": content,
             "status": "new",
-            "created_at": datetime.now().isoformat(),
-            "updated_at": datetime.now().isoformat(),
+            "created_at": timestamp,
+            "updated_at": timestamp,
             "history": [
                 {
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": timestamp,
                     "action": "created",
-                    "comment": "Request created from task rejection in To Review page"
+                    "comment": "Request created automatically from task rejection in To Review page."
                 }
             ]
         }
         
         # Add to requests and update last_id
-        data['requests'].append(new_request)
-        data['last_id'] = new_id
+        userbrief_data["requests"].append(new_request)
+        userbrief_data["last_id"] = new_id
         
-        # Save back to file
+        # Save updated userbrief
         with open(userbrief_file, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
+            json.dump(userbrief_data, f, indent=2, ensure_ascii=False)
         
         return True
         
@@ -157,127 +141,112 @@ def create_userbrief_request(content: str) -> bool:
         st.error(f"Error creating userbrief request: {e}")
         return False
 
-def render_task_for_review(task: Dict):
-    """Render a task card for review with approve/reject buttons"""
+def render_task_review_card(task: Dict):
+    """Render a task card with review/validation options"""
     task_id = task.get('id', task.get('task_id'))
     title = task.get('title', 'Untitled Task')
-    short_desc = task.get('short_description', '')
-    detailed_desc = task.get('detailed_description', '')
-    validation_criteria = task.get('validation_criteria', '')
+    status = task.get('status', 'UNKNOWN')
     priority = task.get('priority', 3)
-    created_date = task.get('created_date', '')
-    updated_date = task.get('updated_date', '')
-    impacted_files = task.get('impacted_files', [])
     
-    # Format dates
-    try:
-        if created_date:
-            created_dt = datetime.fromisoformat(created_date.replace('Z', '+00:00'))
-            created_str = created_dt.strftime('%Y-%m-%d %H:%M')
-        else:
-            created_str = 'Unknown'
-            
-        if updated_date:
-            updated_dt = datetime.fromisoformat(updated_date.replace('Z', '+00:00'))
-            updated_str = updated_dt.strftime('%Y-%m-%d %H:%M')
-        else:
-            updated_str = 'Unknown'
-    except:
-        created_str = created_date[:19] if created_date else 'Unknown'
-        updated_str = updated_date[:19] if updated_date else 'Unknown'
+    # Priority color mapping
+    priority_colors = {
+        1: "🟢",  # Low
+        2: "🟡",  # Medium-Low
+        3: "🔵",  # Medium
+        4: "🟠",  # High
+        5: "🔴"   # Critical
+    }
     
-    # Priority color
-    priority_colors = {1: "🔵", 2: "🟢", 3: "🟡", 4: "🟠", 5: "🔴"}
-    priority_color = priority_colors.get(priority, "⚪")
+    priority_icon = priority_colors.get(priority, "⚪")
     
     with st.container():
-        st.markdown(f"### {priority_color} Task #{task_id}: {title}")
+        st.markdown(f"### {priority_icon} Task #{task_id}: {title}")
         
-        col1, col2 = st.columns([3, 1])
+        # Task details
+        col1, col2 = st.columns([2, 1])
         
         with col1:
-            st.markdown(f"**Priority:** {priority} | **Created:** {created_str} | **Completed:** {updated_str}")
+            st.markdown(f"**Status:** {status}")
+            st.markdown(f"**Priority:** {priority}/5")
             
+            short_desc = task.get('short_description', '')
             if short_desc:
-                st.markdown(f"**Summary:** {short_desc}")
+                st.markdown(f"**Description:** {short_desc}")
             
-            # Show task details in expander
-            with st.expander("📋 Task Details", expanded=False):
-                if detailed_desc:
-                    st.markdown("**Detailed Description:**")
+            detailed_desc = task.get('detailed_description', '')
+            if detailed_desc:
+                with st.expander("📋 Detailed Specifications"):
                     st.markdown(detailed_desc)
-                
-                if validation_criteria:
-                    st.markdown("**Validation Criteria:**")
+            
+            validation_criteria = task.get('validation_criteria', '')
+            if validation_criteria:
+                with st.expander("✅ Validation Criteria"):
                     st.markdown(validation_criteria)
-                
-                if impacted_files:
-                    st.markdown("**Impacted Files:**")
+            
+            impacted_files = task.get('impacted_files', [])
+            if impacted_files:
+                with st.expander("📁 Impacted Files"):
                     for file in impacted_files:
                         st.markdown(f"- `{file}`")
         
         with col2:
-            st.markdown("**Actions:**")
+            st.markdown("**Review Actions:**")
             
             # Approve button
-            if st.button("✅ Approve", key=f"approve_{task_id}", type="primary"):
-                comment = st.session_state.get(f"comment_{task_id}", "")
-                if update_task_status(task_id, 'APPROVED', comment):
-                    st.success(f"✅ Task #{task_id} approved!")
+            if st.button(f"✅ Approve Task #{task_id}", key=f"approve_{task_id}", type="primary"):
+                validation_data = {
+                    "approved_at": datetime.now().isoformat(),
+                    "approved_by": "streamlit_reviewer",
+                    "review_notes": "Task approved via Streamlit To Review page"
+                }
+                
+                if update_task_status(task_id, "APPROVED", validation_data):
+                    st.success(f"✅ Task #{task_id} has been approved!")
                     st.rerun()
                 else:
-                    st.error("Failed to approve task")
+                    st.error(f"❌ Failed to approve task #{task_id}")
             
             # Reject button
-            if st.button("❌ Reject", key=f"reject_{task_id}", type="secondary"):
-                st.session_state[f"show_reject_form_{task_id}"] = True
-            
-            # Comment area (always visible)
-            comment = st.text_area(
-                "Comment (optional):",
-                key=f"comment_{task_id}",
-                height=80,
-                placeholder="Add feedback or notes about this task..."
-            )
-        
-        # Reject form popup
-        if st.session_state.get(f"show_reject_form_{task_id}", False):
-            st.markdown("---")
-            st.markdown("### ❌ Reject Task")
-            st.warning("You are about to reject this task. Please provide feedback to help improve future implementations.")
-            
-            rejection_reason = st.text_area(
-                "Why are you rejecting this task? (optional but recommended)",
-                key=f"rejection_reason_{task_id}",
-                height=100,
-                placeholder="Explain what needs to be fixed or improved..."
-            )
-            
-            col_confirm, col_cancel = st.columns(2)
-            
-            with col_confirm:
-                if st.button("🚫 Confirm Rejection", key=f"confirm_reject_{task_id}", type="primary"):
-                    # Create rejection message
-                    rejection_content = f"Task #{task_id} '{title}' was rejected by the user."
-                    if rejection_reason:
-                        rejection_content += f"\n\nUser feedback: {rejection_reason}"
-                    rejection_content += f"\n\nPlease review this task implementation carefully, test the functionality, and ensure it meets the requirements. Check the validation criteria and verify all impacted files have been correctly modified."
+            if st.button(f"❌ Reject Task #{task_id}", key=f"reject_{task_id}", type="secondary"):
+                # Show rejection form
+                with st.form(f"reject_form_{task_id}"):
+                    st.markdown("**Rejection Reason:**")
+                    rejection_reason = st.text_area(
+                        "Explain why this task is being rejected and what needs to be corrected:",
+                        key=f"rejection_reason_{task_id}",
+                        height=100,
+                        placeholder="Example: The implementation doesn't meet the validation criteria because..."
+                    )
                     
-                    # Update task status to TODO and create userbrief request
-                    success1 = update_task_status(task_id, 'TODO', rejection_reason)
-                    success2 = create_userbrief_request(rejection_content)
+                    col_cancel, col_confirm = st.columns(2)
+                    with col_cancel:
+                        cancel_rejection = st.form_submit_button("Cancel", type="secondary")
+                    with col_confirm:
+                        confirm_rejection = st.form_submit_button("Confirm Rejection", type="primary")
                     
-                    if success1 and success2:
-                        st.success(f"✅ Task #{task_id} rejected and new request created for re-implementation!")
-                        st.session_state[f"show_reject_form_{task_id}"] = False
-                        st.rerun()
-                    else:
-                        st.error("Failed to reject task or create new request")
-            
-            with col_cancel:
-                if st.button("↩️ Cancel", key=f"cancel_reject_{task_id}"):
-                    st.session_state[f"show_reject_form_{task_id}"] = False
-                    st.rerun()
+                    if confirm_rejection and rejection_reason.strip():
+                        # Update task status to REJECTED
+                        validation_data = {
+                            "rejected_at": datetime.now().isoformat(),
+                            "rejected_by": "streamlit_reviewer",
+                            "rejection_reason": rejection_reason.strip(),
+                            "review_notes": "Task rejected via Streamlit To Review page"
+                        }
+                        
+                        # Create userbrief request for correction
+                        correction_request = f"Corriger la tâche #{task_id} '{title}' qui a été rejetée.\n\nRaison du rejet:\n{rejection_reason.strip()}\n\nSpécifications originales:\n{detailed_desc}\n\nCritères de validation:\n{validation_criteria}"
+                        
+                        task_updated = update_task_status(task_id, "REJECTED", validation_data)
+                        request_created = create_userbrief_request(correction_request)
+                        
+                        if task_updated and request_created:
+                            st.success(f"❌ Task #{task_id} has been rejected and a correction request has been created!")
+                            st.rerun()
+                        else:
+                            st.error(f"❌ Failed to reject task #{task_id} or create correction request")
+                    
+                    elif confirm_rejection and not rejection_reason.strip():
+                        st.error("Please provide a rejection reason.")
         
         st.markdown("---")
 
@@ -287,123 +256,36 @@ def main():
     tasks = load_tasks()
     
     if not tasks:
-        st.warning("No tasks file found. Please ensure the task management system is properly set up.")
+        st.warning("No tasks found. Make sure the tasks file exists and contains data.")
         return
     
-    # Filter tasks that are DONE (ready for review)
-    done_tasks = [task for task in tasks if task.get('status') == 'DONE']
-    approved_tasks = [task for task in tasks if task.get('status') == 'APPROVED']
+    # Filter tasks with TO_REVIEW status
+    review_tasks = [task for task in tasks if task.get('status') == 'TO_REVIEW']
     
-    # Metrics
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric("📋 Tasks Pending Review", len(done_tasks))
-    
-    with col2:
-        st.metric("✅ Tasks Approved", len(approved_tasks))
-    
-    with col3:
-        total_completed = len(done_tasks) + len(approved_tasks)
-        st.metric("🎯 Total Completed", total_completed)
-    
-    with col4:
-        if total_completed > 0:
-            approval_rate = (len(approved_tasks) / total_completed) * 100
-            st.metric("📊 Approval Rate", f"{approval_rate:.1f}%")
-        else:
-            st.metric("📊 Approval Rate", "N/A")
-    
-    # Main content
-    if not done_tasks:
-        st.info("🎉 No tasks pending review! All completed tasks have been validated.")
+    if not review_tasks:
+        st.info("🎉 No tasks currently need review! All tasks are either completed, in progress, or waiting in the queue.")
         
-        if approved_tasks:
-            st.markdown("### ✅ Recently Approved Tasks")
-            # Show last 5 approved tasks
-            recent_approved = sorted(approved_tasks, 
-                                   key=lambda x: x.get('updated_date', ''), 
-                                   reverse=True)[:5]
-            
-            for task in recent_approved:
-                task_id = task.get('id', task.get('task_id'))
-                title = task.get('title', 'Untitled Task')
-                approved_at = task.get('validation', {}).get('approved_at', '')
-                user_comment = task.get('validation', {}).get('user_comment', '')
-                
-                try:
-                    if approved_at:
-                        approved_dt = datetime.fromisoformat(approved_at.replace('Z', '+00:00'))
-                        approved_str = approved_dt.strftime('%Y-%m-%d %H:%M')
-                    else:
-                        approved_str = 'Unknown'
-                except:
-                    approved_str = approved_at[:19] if approved_at else 'Unknown'
-                
-                with st.expander(f"✅ Task #{task_id}: {title} (Approved {approved_str})"):
-                    st.markdown(task.get('short_description', ''))
-                    if user_comment:
-                        st.markdown(f"**User Comment:** {user_comment}")
+        # Show summary of task statuses
+        status_counts = {}
+        for task in tasks:
+            status = task.get('status', 'UNKNOWN')
+            status_counts[status] = status_counts.get(status, 0) + 1
+        
+        st.markdown("### 📊 Current Task Status Summary:")
+        for status, count in sorted(status_counts.items()):
+            st.markdown(f"- **{status}**: {count} tasks")
         
         return
     
-    # Sort tasks by priority (highest first) and then by completion date
-    done_tasks.sort(key=lambda x: (-x.get('priority', 3), x.get('updated_date', '')))
+    # Show review tasks
+    st.markdown(f"### 📋 Tasks Ready for Review ({len(review_tasks)})")
+    st.markdown("Review the tasks below and approve or reject them based on the validation criteria.")
     
-    st.markdown("### 📋 Tasks Ready for Review")
-    st.markdown(f"Found **{len(done_tasks)}** completed tasks awaiting your validation.")
+    # Sort tasks by priority (highest first) and then by ID
+    review_tasks.sort(key=lambda x: (-x.get('priority', 3), x.get('id', x.get('task_id', 0))))
     
-    # Filter options
-    with st.expander("🔍 Filter Options", expanded=False):
-        col_filter1, col_filter2 = st.columns(2)
-        
-        with col_filter1:
-            priority_filter = st.selectbox(
-                "Filter by Priority:",
-                options=["All", "5 (Critical)", "4 (High)", "3 (Normal)", "2 (Low)", "1 (Very Low)"],
-                index=0
-            )
-        
-        with col_filter2:
-            sort_option = st.selectbox(
-                "Sort by:",
-                options=["Priority (High to Low)", "Completion Date (Recent First)", "Completion Date (Oldest First)"],
-                index=0
-            )
-    
-    # Apply filters
-    filtered_tasks = done_tasks.copy()
-    
-    if priority_filter != "All":
-        priority_num = int(priority_filter.split()[0])
-        filtered_tasks = [task for task in filtered_tasks if task.get('priority', 3) == priority_num]
-    
-    # Apply sorting
-    if sort_option == "Priority (High to Low)":
-        filtered_tasks.sort(key=lambda x: (-x.get('priority', 3), x.get('updated_date', '')))
-    elif sort_option == "Completion Date (Recent First)":
-        filtered_tasks.sort(key=lambda x: x.get('updated_date', ''), reverse=True)
-    elif sort_option == "Completion Date (Oldest First)":
-        filtered_tasks.sort(key=lambda x: x.get('updated_date', ''))
-    
-    if not filtered_tasks:
-        st.info("No tasks match the current filter criteria.")
-        return
-    
-    st.markdown(f"Showing **{len(filtered_tasks)}** tasks:")
-    
-    # Render tasks for review
-    for task in filtered_tasks:
-        render_task_for_review(task)
+    for task in review_tasks:
+        render_task_review_card(task)
 
-# Auto-refresh option in sidebar
-st.sidebar.markdown("### ⚙️ Settings")
-
-if st.sidebar.checkbox("🔄 Auto-refresh (10s)", value=False):
-    import time
-    time.sleep(10)
-    st.rerun()
-
-# Run main function
 if __name__ == "__main__":
     main() 

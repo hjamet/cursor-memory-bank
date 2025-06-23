@@ -71,7 +71,8 @@ export async function handleCommit({ emoji, type, title, description }) {
         const { stdout: repoPathStdout } = await execAsync('git rev-parse --show-toplevel', { cwd });
         repoName = path.basename(repoPathStdout.trim());
     } catch (setupError) {
-        console.error('[handleCommit] Error determining CWD or repo name:', setupError);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.error('[handleCommit] Error determining CWD or repo name:', setupError);
         throw new Error(`Failed to determine execution context: ${setupError.message}`);
     }
     // --- End CWD / Repo Name --- 
@@ -119,7 +120,8 @@ export async function handleCommit({ emoji, type, title, description }) {
                 committedFilesList = `\nFiles committed:\n- ${committedFiles.join('\n- ')}`;
             }
         } catch (diffError) {
-            console.error('[handleCommit] Error getting diff-tree after successful commit:', diffError);
+            // Debug logging removed to prevent JSON-RPC pollution
+            // console.error('[handleCommit] Error getting diff-tree after successful commit:', diffError);
             committedFilesList = '\n(Could not retrieve list of committed files)';
         }
 
@@ -153,13 +155,17 @@ export async function handleCommit({ emoji, type, title, description }) {
                 successMessage += `\n\n--- Recent Activity (Last 5 Commits) ---\n${datePrefix}${gitLogStdout.trim()}`;
             }
         } catch (logCmdError) {
-            console.error('[handleCommit] Error executing git log command:', logCmdError);
+            // Debug logging removed to prevent JSON-RPC pollution
+            // console.error('[handleCommit] Error executing git log command:', logCmdError);
             successMessage += '\n\n(Failed to retrieve recent git log output)';
         }
 
         return { content: [{ type: "text", text: successMessage }] };
 
     } catch (error) {
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.error('[handleCommit] Git operation failed:', error);
+
         // --- If execAsync rejected, commit failed (non-zero exit code) --- 
         // The error object from execAsync usually contains stdout/stderr
         const errorMessage = error.stderr || error.stdout || error.message || 'Unknown error during git operation';

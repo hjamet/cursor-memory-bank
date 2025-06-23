@@ -43,7 +43,6 @@ async function writeTasks(tasks) {
  */
 export async function handleCreateTask(params) {
     try {
-        console.log(`[CreateTask] Creating new task: ${params.title}`);
         const tasks = await readTasks();
 
         // Validate parent task exists if parent_id is provided
@@ -113,8 +112,6 @@ export async function handleCreateTask(params) {
             }
         };
 
-        console.log(`[CreateTask] Successfully created task ${createdTask.id}: ${createdTask.title}`);
-
         return {
             content: [{
                 type: 'text',
@@ -123,8 +120,6 @@ export async function handleCreateTask(params) {
         };
 
     } catch (error) {
-        console.error('[CreateTask] Error:', error);
-
         return {
             content: [{
                 type: 'text',

@@ -11,9 +11,10 @@ import { readUserbriefData } from '../lib/userbrief_manager.js';
  */
 export async function handleReadUserbrief(params) {
     try {
-        const { archived_count = 3 } = params;
+        const { archived_count = 3 } = params || {};
 
-        console.log(`[ReadUserbrief] Reading userbrief with ${archived_count} archived entries`);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.log(`[ReadUserbrief] Reading userbrief with ${archived_count} archived entries`);
 
         const userbriefData = readUserbriefData();
         const requests = userbriefData.requests || [];
@@ -64,12 +65,15 @@ export async function handleReadUserbrief(params) {
             }
         };
 
-        console.log(`[ReadUserbrief] Success: Found ${requests.length} total requests, current: ${currentRequest ? `#${currentRequest.id}` : 'none'}`);
+        // Debug logging removed to prevent JSON-RPC pollution  
+        // console.log(`[ReadUserbrief] Success: Found ${requests.length} total requests, current: ${currentRequest ? `#${currentRequest.id}` : 'none'}`);
 
         return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
 
     } catch (error) {
-        console.error('[ReadUserbrief] Error:', error);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.error('[ReadUserbrief] Error:', error);
+
         return {
             content: [{
                 type: 'text',

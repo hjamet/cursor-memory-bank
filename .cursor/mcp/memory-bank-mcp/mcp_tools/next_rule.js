@@ -115,7 +115,9 @@ async function loadStartWorkflowContext(context) {
         context.project_brief = projectBrief;
         context.tech_context = techContext;
     } catch (error) {
-        console.warn(`Could not load project context: ${error.message}`);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.warn(`Could not load project context: ${error.message}`);
+        return null;
     }
 
     // Load recent memories (standard 10)
@@ -233,7 +235,8 @@ async function loadRecentMemories(context, limit = 10) {
             context.previous_rule = 'system';
         }
     } catch (error) {
-        console.warn(`Could not load memory context: ${error.message}`);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.warn(`Could not load memory context: ${error.message}`);
         context.recent_memories = [];
         context.previous_rule = 'system';
     }
@@ -250,9 +253,18 @@ async function loadLongTermMemories(context, limit = 3) {
         const longTermMemory = JSON.parse(longTermData);
 
         const memories = Array.isArray(longTermMemory) ? longTermMemory : [longTermMemory];
-        context.relevant_long_term_memories = memories.slice(0, limit);
+
+        // Remove embeddings from memories to prevent context saturation
+        // Keep only content and timestamp for agent readability
+        const memoriesWithoutEmbeddings = memories.slice(0, limit).map(memory => ({
+            content: memory.content,
+            timestamp: memory.timestamp
+        }));
+
+        context.relevant_long_term_memories = memoriesWithoutEmbeddings;
     } catch (error) {
-        console.warn(`Could not load long-term memory: ${error.message}`);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.warn(`Could not load long-term memory: ${error.message}`);
         context.relevant_long_term_memories = [];
     }
 }
@@ -272,7 +284,8 @@ async function loadCurrentTask(context) {
             context.current_task = null;
         }
     } catch (error) {
-        console.warn(`Could not load current task: ${error.message}`);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.warn(`Could not load current task: ${error.message}`);
         context.current_task = null;
     }
 }
@@ -308,7 +321,8 @@ async function loadUnprocessedRequests(context, limit = 3) {
             };
         }
     } catch (error) {
-        console.warn(`Could not load userbrief in next_rule: ${error.message}`);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.warn(`Could not load userbrief in next_rule: ${error.message}`);
         context.userbrief = { requests: [], total_unprocessed_count: 0 };
         context.unprocessed_requests = [];
     }
@@ -348,7 +362,8 @@ async function loadUrgentTasks(context, limit = 3) {
 
         context.current_tasks_summary = `Tasks: ${taskCounts.TODO} TODO, ${taskCounts.IN_PROGRESS} IN_PROGRESS, ${taskCounts.BLOCKED} BLOCKED, ${taskCounts.REVIEW} REVIEW, ${taskCounts.DONE} DONE`;
     } catch (error) {
-        console.warn(`Could not load urgent tasks: ${error.message}`);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.warn(`Could not load urgent tasks: ${error.message}`);
         context.urgent_tasks = [];
         context.current_tasks_summary = 'Task summary unavailable';
     }
@@ -382,7 +397,8 @@ async function loadCompleteTaskList(context) {
 
         context.current_tasks_summary = `Tasks: ${taskCounts.TODO} TODO, ${taskCounts.IN_PROGRESS} IN_PROGRESS, ${taskCounts.BLOCKED} BLOCKED, ${taskCounts.REVIEW} REVIEW, ${taskCounts.DONE} DONE`;
     } catch (error) {
-        console.warn(`Could not load complete task list: ${error.message}`);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.warn(`Could not load complete task list: ${error.message}`);
         context.complete_task_list = [];
         context.current_tasks_summary = 'Task summary unavailable';
     }
@@ -420,7 +436,8 @@ async function loadMostUrgentTask(context) {
 
         context.current_tasks_summary = `Tasks: ${taskCounts.TODO} TODO, ${taskCounts.IN_PROGRESS} IN_PROGRESS, ${taskCounts.BLOCKED} BLOCKED, ${taskCounts.REVIEW} REVIEW, ${taskCounts.DONE} DONE`;
     } catch (error) {
-        console.warn(`Could not load most urgent task: ${error.message}`);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.warn(`Could not load most urgent task: ${error.message}`);
         context.most_urgent_task = null;
         context.current_tasks_summary = 'Task summary unavailable';
     }
@@ -438,7 +455,8 @@ async function loadUserPreferences(context, limit = 3) {
                 .slice(0, limit)
                 .map(req => req.content) : [];
     } catch (error) {
-        console.warn(`Could not load user preferences: ${error.message}`);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.warn(`Could not load user preferences: ${error.message}`);
         context.user_preferences = [];
     }
 }

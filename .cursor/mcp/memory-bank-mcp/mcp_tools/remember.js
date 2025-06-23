@@ -34,7 +34,8 @@ async function getPossibleNextSteps() {
         if (error.code === 'ENOENT') {
             return ['START'];
         }
-        console.error(`Error determining next steps: ${error.message}`);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.error(`Error determining next steps: ${error.message}`);
         // Fallback to a safe default
         return ['system'];
     }
@@ -116,8 +117,10 @@ async function remember(args) {
                 .map(req => req.content);
         }
     } catch (error) {
+        // Debug logging removed to prevent JSON-RPC pollution
         // console.warn(`[Remember] Could not read preferences from userbrief: ${error.message}`);
         // Do not throw; failing to read userbrief should not stop the remember tool.
+        return [];
     }
 
     let memories = [];
@@ -187,8 +190,9 @@ async function remember(args) {
                 }
             }
         } catch (error) {
-            // If we can't read userbrief, continue without example
-            console.warn(`[Remember] Could not read userbrief for example request: ${error.message}`);
+            // Debug logging removed to prevent JSON-RPC pollution
+            // console.warn(`[Remember] Could not read userbrief for example request: ${error.message}`);
+            return null;
         }
 
         workflowInstruction = `CONTINUE WORKFLOW: New user requests detected. You must now call mcp_MemoryBankMCP_next_rule with 'task-decomposition' to process pending requests.${exampleRequestInfo}`;

@@ -153,3 +153,19 @@ The system will intelligently route to the most appropriate step based on curren
 4. Continue the infinite autonomous loop
 
 **START YOUR AUTONOMOUS WORKFLOW NOW!** 
+
+## Example
+
+# Start-Workflow: Record State and Continue Workflow
+I will now record my current state and continue the autonomous workflow as required. **(Start-Workflow: Record State and Continue Workflow)**
+
+Based on the comprehensive context provided, I understand:
+- **System State**: {{ current_tasks_summary }}
+- **User Requests**: {% if unprocessed_requests and unprocessed_requests.length > 0 %}{{ unprocessed_requests.length }} unprocessed requests{% else %}No pending requests{% endif %}
+- **Priority Action**: {% if hasUnprocessedRequests %}Process user requests via task-decomposition{% elif hasInProgressTasks %}Continue implementation work{% elif hasBlockedTasks %}Resolve blocked tasks via fix{% elif hasTodoTasks %}Execute pending tasks via implementation{% else %}Analyze system via context-update{% endif %}
+
+I will now record this state and proceed to the next step. **(Start-Workflow: Record State and Continue Workflow)**
+
+[...calling `mcp_MemoryBankMCP_remember` with current state analysis...]
+[...calling `mcp_MemoryBankMCP_next_rule` with recommended step name...]
+**(Start-Workflow: Record State and Continue Workflow)** 

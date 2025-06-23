@@ -39,7 +39,7 @@ Analyzes the provided context, updates context files, manages task statuses, and
 - NEVER end without either explicitly calling a next step or explicitly indicating that the workflow is complete
 - The workflow must NEVER be considered complete if there are remaining tasks with 🟡 IN_PROGRESS or ⚪️ TODO emojis OR if there is at least one failing test (marked ❌) or with warning (marked ⚠️)
 - For the commit, use the `mcp_MemoryBankMCP_commit` tool, which handles staging automatically.
-- If all tasks are complete (meaning there are NO MORE tasks with 🟡 IN_PROGRESS or ⚪️ TODO emojis in the `tasks.md` file) AND all tests pass (ALL marked ✅), then:
+- If all tasks are complete (meaning there are NO MORE tasks with 🟡 IN_PROGRESS or ⚪️ TODO emojis according to MCP task tools) AND all tests pass (ALL marked ✅), then:
    - Present a clear and concise synthesis of the work done
    - Summarize implemented features and resolved issues
    - Explicitly indicate that the workflow is successfully completed
@@ -114,27 +114,20 @@ I begin by analyzing all the context provided by the server. **(Context-update: 
 I will formulate new content for context files if needed, ensuring they are clean and concise. **(Context-update: 2 & 3 - Context update and cleanup)**
 **(Context-update: 2 & 3 - Context update and cleanup)**
 
-# Context-update: 4 - Userbrief Archival Commenting
-I will now check the provided `userbrief.md` content for archived tasks and formulate comments if needed. **(Context-update: 4 - Userbrief Archival Commenting)**
-<think>
-The agent analyzes the provided `userbrief.md` and `activeContext.md` strings.
-For each archived task (🗄️ - ) in the userbrief string that does not already have an agent comment (-> 🧠):
-1. It extracts the archived task description.
-2. It searches for this description in the active context string.
-3. If relevant info is found, it formulates a concise French comment.
-4. It prepares the full new content for `userbrief.md`.
-</think>
-[...agent performs analysis described in the think block...]
-**(Context-update: 4 - Userbrief Archival Commenting)**
+# Context-update: 4 - Tasks update
+I will mark completed tasks as DONE using the MCP task management tools. **(Context-update: 4 - Tasks update)**
+[...calling `mcp_MemoryBankMCP_update_task` for completed tasks...]
+**(Context-update: 4 - Tasks update)**
 
-# Context-update: 5 - Updating tasks.md file
-I formulate an update for the tasks.md file to change completed tasks from 🟡 to 🟢. **(Context-update: 5 - Updating tasks.md file)**
-**(Context-update: 5 - Updating tasks.md file)**
+# Context-update: 5 - Userbrief processing
+I will check for new user requests and update their status if needed using MCP tools. **(Context-update: 5 - Userbrief processing)**
+[...calling `mcp_MemoryBankMCP_read_userbrief` and `mcp_MemoryBankMCP_update_userbrief` as needed...]
+**(Context-update: 5 - Userbrief processing)**
 
 # Context-update: 6 - Making a commit
 I prepare and make a commit with the changes made using the MCP commit tool. **(Context-update: 6 - Making a commit)**
 <think>
-To construct the commit message, I will synthesize information from the provided context (activeContext, projectBrief, tasks, tests) to fill in the detailed markdown description for the `mcp_MemoryBank_commit` tool.
+To construct the commit message, I will synthesize information from the provided context (activeContext, projectBrief, tasks, tests) to fill in the detailed markdown description for the `mcp_MemoryBankMCP_commit` tool.
 </think>
 [...gathering information from provided context and constructing the commit arguments...]\
 [...calling tool `mcp_MemoryBankMCP_commit`...]\
