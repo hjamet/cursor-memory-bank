@@ -1690,15 +1690,26 @@
     "short_description": "Modifier l'outil next_rule pour retourner des informations contextuelles spécifiques et optimisées selon chaque type de règle appelée, conformément aux spécifications détaillées de la requête #64.",
     "detailed_description": "**Objectif :**\nOptimiser l'outil `next_rule` du serveur MCP MemoryBankMCP pour retourner des informations contextuelles différentes et spécifiques selon la règle appelée, évitant ainsi la saturation du contexte de l'agent.\n\n**Spécifications par règle :**\n\n**1. start-workflow :**\n- Inclure projectbrief et techcontext complets\n- Inclure la tâche en cours si elle existe (avec tous ses détails)\n- Inclure les 3 requêtes userbrief non traitées les plus anciennes\n- Inclure les 3 tâches non terminées les plus urgentes (titres et courtes descriptions seulement)\n\n**2. task-decomposition :**\n- Fournir une et une seule requête userbrief (la plus ancienne non traitée)\n- Inclure la liste complète des tâches actuelles à faire ou en cours (titres, ID et courtes descriptions seulement)\n- But : permettre à l'agent d'intégrer la requête à la liste de tâches\n\n**3. implementation :**\n- Fournir uniquement la tâche la plus urgente avec tous ses détails\n- Aucune information userbrief nécessaire (agent doit se concentrer sur les tâches)\n\n**4. experience-execution :**\n- Fournir plus de souvenirs long terme que d'habitude (10 au lieu de 3)\n- Fournir la tâche en cours de traitement si elle existe avec tous ses détails\n\n**5. fix :**\n- Fournir plus de souvenirs long terme que d'habitude (10 au lieu de 3)\n- Fournir la tâche en cours de traitement si elle existe avec tous ses détails\n\n**6. context-update :**\n- Même contenu que start-workflow : projectbrief, techcontext, tâche en cours, 3 requêtes userbrief, 3 tâches urgentes\n\n**Exigences techniques :**\n- Modifier la fonction `getOptimizedContext()` dans `.cursor/mcp/memory-bank-mcp/mcp_tools/next_rule.js`\n- Implémenter la logique conditionnelle selon le `step_name` paramètre\n- Maintenir la compatibilité avec le système de templates Nunjucks existant\n- Conserver toutes les fonctionnalités actuelles tout en réduisant la taille du contexte\n- Éviter de retourner l'intégralité du fichier userbrief avec les éléments archivés (inutiles)\n\n**Critères d'acceptation :**\n- Chaque règle retourne exactement les informations spécifiées\n- Réduction significative de la taille du contexte pour éviter la saturation de l'agent\n- Maintien de toutes les fonctionnalités existantes\n- Tests de validation pour chaque type de règle\n- Documentation des changements effectués",
     "dependencies": [],
-    "status": "DONE",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/mcp_tools/next_rule.js"
     ],
     "validation_criteria": "✅ IMPLÉMENTATION TERMINÉE AVEC SUCCÈS - Tâche #64 complétée selon toutes les spécifications :\n\n**Modifications apportées :**\n1. ✅ **Refactorisation complète de getOptimizedContext()** avec logique conditionnelle par règle\n2. ✅ **start-workflow & context-update** : projectbrief + techcontext + tâche en cours + 3 requêtes + 3 tâches urgentes\n3. ✅ **task-decomposition** : 1 seule requête + liste complète des tâches (titres/ID/descriptions)\n4. ✅ **implementation** : uniquement la tâche la plus urgente avec détails complets\n5. ✅ **experience-execution & fix** : 10 souvenirs long terme + tâche en cours + focus debugging\n6. ✅ **Suppression des informations userbrief archivées inutiles** pour éviter saturation\n7. ✅ **Architecture modulaire** avec fonctions helper spécialisées\n8. ✅ **Tests de validation** effectués pour toutes les règles\n9. ✅ **Réduction significative du contexte** validée par les tests\n\n**Fichiers modifiés :**\n- `.cursor/mcp/memory-bank-mcp/mcp_tools/next_rule.js` : Refactorisation complète selon spécifications Task #64\n\n**Impact :**\n- Prévention de la saturation du contexte de l'agent\n- Optimisation des performances du workflow autonome\n- Informations contextuelles spécifiques et pertinentes par règle\n- Maintien de toutes les fonctionnalités existantes\n\nL'implémentation respecte exactement les spécifications de la requête #64 et améliore significativement l'efficacité du système.",
     "created_date": "2025-06-23T15:24:59.110Z",
-    "updated_date": "2025-06-23T15:31:50.879Z",
+    "updated_date": "2025-06-23T17:50:44.099796",
     "parent_id": null,
-    "priority": 5
+    "priority": 5,
+    "validation": {
+      "approved_at": "2025-06-23T17:50:44.099803",
+      "approved_by": "user",
+      "validation_history": [
+        {
+          "timestamp": "2025-06-23T17:50:44.099805",
+          "action": "approved",
+          "comment": ""
+        }
+      ]
+    }
   },
   {
     "id": 65,
@@ -1722,15 +1733,26 @@
     "short_description": "Modifier les descriptions des arguments des outils MCP MemoryBankMCP (remember, create_task, update_task, etc.) pour inciter l'agent à utiliser systématiquement le français dans ses interactions avec ces outils, tout en conservant la fonctionnalité technique en anglais.",
     "detailed_description": "**Objectif :**\nModifier les descriptions des arguments des outils du serveur MCP MemoryBankMCP pour encourager l'agent à utiliser le français dans ses interactions, particulièrement pour les outils `remember` et de gestion des tâches (`create_task`, `update_task`).\n\n**Outils concernés :**\n1. **remember** - Outil de mémorisation des étapes du workflow\n2. **create_task** - Création de nouvelles tâches\n3. **update_task** - Mise à jour des tâches existantes\n4. **commit** - Commits Git\n5. **update_userbrief** - Mise à jour des demandes utilisateur\n\n**Modifications requises :**\n\n**1. Fichier `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js` :**\n- Modifier le `rememberSchema` pour encourager l'usage du français dans les descriptions `past`, `present`, `future`\n- Ajouter des exemples en français dans les descriptions\n- Conserver la structure technique en anglais\n\n**2. Fichier `.cursor/mcp/memory-bank-mcp/server.js` :**\n- Modifier les descriptions des arguments de `create_task` pour encourager les titres et descriptions en français\n- Modifier les descriptions des arguments de `update_task` de la même manière\n- Modifier les descriptions de `commit` pour encourager les messages en français\n- Modifier les descriptions de `update_userbrief` pour les commentaires en français\n\n**Approche :**\n- Ajouter des mentions explicites dans les descriptions comme \"Utilisez le français pour...\" ou \"Rédigez en français...\"\n- Fournir des exemples concrets en français\n- Maintenir la clarté technique des instructions\n- Conserver les termes techniques en anglais (status, TODO, IN_PROGRESS, etc.)\n\n**Critères d'acceptation :**\n- Les descriptions encouragent explicitement l'usage du français\n- Les exemples fournis sont en français\n- La fonctionnalité technique reste intacte\n- Les termes de statut et techniques restent en anglais\n- L'agent sera naturellement incité à utiliser le français dans ses interactions avec ces outils",
     "dependencies": [],
-    "status": "DONE",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/server.js",
       ".cursor/mcp/memory-bank-mcp/mcp_tools/remember.js"
     ],
     "validation_criteria": "✅ TÂCHE TERMINÉE AVEC SUCCÈS - Toutes les modifications ont été implémentées :\n\n1. ✅ **Outil remember** : Descriptions modifiées pour encourager l'usage du français avec exemples concrets\n   - `past` : \"PASSÉ - Rédigez en français...\" avec exemple\n   - `present` : \"PRÉSENT - Rédigez en français...\" avec exemple détaillé\n   - `future` : \"FUTUR - Rédigez en français...\" avec exemple\n   - `long_term_memory` : Instructions spécifiques pour usage parcimonieux en français\n   - `user_message` : Guidelines pour communication utilisateur en français\n\n2. ✅ **Outil create_task** : Descriptions modifiées pour inciter à rédiger en français\n   - `title` : \"TITRE DE TÂCHE - Rédigez en français...\" avec exemples\n   - `short_description` : \"RÉSUMÉ BREF - Rédigez en français...\" avec exemple\n   - `detailed_description` : \"SPÉCIFICATIONS DÉTAILLÉES - Rédigez en français...\" avec exemple complet\n   - `validation_criteria` : \"CRITÈRES DE VALIDATION - Rédigez en français...\" avec exemple\n\n3. ✅ **Outil update_task** : Descriptions modifiées pour encourager le français\n   - `title` : \"NOUVEAU TITRE DE TÂCHE - Rédigez en français...\" \n   - `short_description` : \"NOUVEAU RÉSUMÉ BREF - Rédigez en français...\"\n   - `detailed_description` : \"NOUVELLES SPÉCIFICATIONS DÉTAILLÉES - Rédigez en français...\"\n   - `validation_criteria` : \"NOUVEAUX CRITÈRES DE VALIDATION - Rédigez en français...\"\n\n4. ✅ **Outil commit** : Descriptions modifiées pour messages en français\n   - `title` : \"TITRE DE COMMIT - Rédigez en français...\" avec exemples\n   - `description` : \"DESCRIPTION DE COMMIT - Rédigez en français...\" avec exemple détaillé\n\n5. ✅ **Outil update_userbrief** : Descriptions modifiées pour commentaires en français\n   - `comment` : \"COMMENTAIRE DE MISE À JOUR - Rédigez en français...\" avec exemples\n\n✅ **Fonctionnalité technique intacte** : Tous les termes de statut (TODO, IN_PROGRESS, DONE, etc.) et la structure technique restent en anglais\n✅ **Exemples concrets fournis** : Chaque description inclut des exemples pratiques en français\n✅ **Instructions explicites** : Mentions claires \"Rédigez en français\" dans chaque description pertinente",
     "created_date": "2025-06-23T15:34:57.713Z",
-    "updated_date": "2025-06-23T15:38:27.234Z",
+    "updated_date": "2025-06-23T17:50:43.044300",
     "parent_id": null,
-    "priority": 4
+    "priority": 4,
+    "validation": {
+      "approved_at": "2025-06-23T17:50:43.044307",
+      "approved_by": "user",
+      "validation_history": [
+        {
+          "timestamp": "2025-06-23T17:50:43.044310",
+          "action": "approved",
+          "comment": ""
+        }
+      ]
+    }
   }
 ]
