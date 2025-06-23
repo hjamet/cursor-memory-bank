@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import nunjucks from 'nunjucks';
 import { readMemoryContext } from '../lib/memory_context.js';
 import { readUserbriefData } from '../lib/userbrief_manager.js';
+import { taskManager } from '../lib/task_manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,6 +13,59 @@ const workflowDirPath = path.join(__dirname, '..', '..', '..', 'workflow-steps')
 
 // Configure nunjucks
 nunjucks.configure(workflowDirPath, { autoescape: false });
+
+/**
+ * Analyze system state to determine optimal next workflow step
+ * @param {Object} context - System context including tasks and requests
+ * @returns {Object} Analysis result with recommended step and reasoning
+ */
+function analyzeSystemState(context) {
+    const tasks = taskManager.getAllTasks();
+
+    // Count tasks by status
+    const taskCounts = {
+        TODO: tasks.filter(t => t.status === 'TODO').length,
+        IN_PROGRESS: tasks.filter(t => t.status === 'IN_PROGRESS').length,
+        BLOCKED: tasks.filter(t => t.status === 'BLOCKED').length,
+        REVIEW: tasks.filter(t => t.status === 'REVIEW').length,
+        DONE: tasks.filter(t => t.status === 'DONE').length
+    };
+
+    // Check for unprocessed requests
+    const unprocessedRequests = context.unprocessed_requests || [];
+    const hasUnprocessedRequests = unprocessedRequests.length > 0;
+
+    // Determine optimal next step
+    let recommendedStep = 'context-update';
+    let reasoning = 'Default system analysis and planning';
+
+    if (hasUnprocessedRequests) {
+        recommendedStep = 'task-decomposition';
+        reasoning = `${unprocessedRequests.length} unprocessed user requests need to be converted to tasks`;
+    } else if (taskCounts.IN_PROGRESS > 0) {
+        recommendedStep = 'implementation';
+        reasoning = `${taskCounts.IN_PROGRESS} tasks currently in progress need completion`;
+    } else if (taskCounts.BLOCKED > 0) {
+        recommendedStep = 'fix';
+        reasoning = `${taskCounts.BLOCKED} blocked tasks need resolution`;
+    } else if (taskCounts.TODO > 0) {
+        recommendedStep = 'implementation';
+        reasoning = `${taskCounts.TODO} TODO tasks ready for execution`;
+    } else if (taskCounts.REVIEW > 0) {
+        recommendedStep = 'experience-execution';
+        reasoning = `${taskCounts.REVIEW} tasks need review and testing`;
+    }
+
+    return {
+        recommendedStep,
+        reasoning,
+        systemState: {
+            taskCounts,
+            unprocessedRequestCount: unprocessedRequests.length,
+            totalTasks: tasks.length
+        }
+    };
+}
 
 async function getStep(step_name) {
     const stepFilePath = path.join(workflowDirPath, `${step_name}.md`);
@@ -27,8 +81,19 @@ async function getStep(step_name) {
             context.userbrief = userbriefData;
 
             // Extract unprocessed requests for easy access
-            context.unprocessed_requests = userbriefData.requests ?
+            // For task-decomposition, return only the oldest unprocessed request to prevent agent saturation
+            const allUnprocessedRequests = userbriefData.requests ?
                 userbriefData.requests.filter(req => req.status === 'new' || req.status === 'in_progress') : [];
+
+            if (step_name === 'task-decomposition' && allUnprocessedRequests.length > 0) {
+                // Sort by creation date (oldest first) and take only the first one
+                const sortedRequests = allUnprocessedRequests.sort((a, b) =>
+                    new Date(a.created_at) - new Date(b.created_at)
+                );
+                context.unprocessed_requests = [sortedRequests[0]];
+            } else {
+                context.unprocessed_requests = allUnprocessedRequests;
+            }
 
             // Extract preferences for easy access
             context.user_preferences = userbriefData.requests ?
@@ -38,6 +103,19 @@ async function getStep(step_name) {
             context.userbrief = { requests: [] };
             context.unprocessed_requests = [];
             context.user_preferences = [];
+        }
+
+        // Add intelligent system state analysis
+        const systemAnalysis = analyzeSystemState(context);
+        context.system_analysis = systemAnalysis;
+
+        // Add routing decision logging
+        if (step_name === 'start-workflow') {
+            context.routing_decision = {
+                recommended_step: systemAnalysis.recommendedStep,
+                reasoning: systemAnalysis.reasoning,
+                timestamp: new Date().toISOString()
+            };
         }
 
         // Render template with Jinja2 (nunjucks)

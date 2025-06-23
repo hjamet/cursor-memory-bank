@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
-import { handleRemember } from './mcp_tools/remember.js';
+import { handleRemember, rememberSchema } from './mcp_tools/remember.js';
 import handleNextRule, { nextRuleSchema } from './mcp_tools/next_rule.js';
 import { handleCommit } from './mcp_tools/commit.js';
 import { handleCreateTask } from './mcp_tools/create_task.js';
@@ -33,12 +33,7 @@ function safeHandler(handler) {
 
 // Register the tools with the server
 
-server.tool('remember', {
-    past: z.string().describe("PAST CONTEXT: What the agent originally planned to do at the beginning of the current workflow step. This should describe the initial intentions, expectations, and planned approach before starting the current task. Example: 'I planned to implement user authentication by creating a login form and connecting it to the database.'"),
-    present: z.string().describe("PRESENT REALITY: What the agent actually accomplished, discovered, encountered, or learned during execution. Include what worked, what didn't work, problems encountered, solutions found, decisions made, and any deviations from the original plan. Example: 'I successfully created the login form but discovered the database connection was misconfigured. I fixed the connection string and implemented password hashing, but the session management still needs work.'"),
-    future: z.string().describe("FUTURE INTENTIONS: What the agent now plans to do next based on the current situation and learnings. This should be specific and actionable, taking into account what was learned in the present phase. Example: 'I will now implement session management using JWT tokens, then test the complete authentication flow and handle edge cases like password reset.'"),
-    long_term_memory: z.string().optional().describe("PERSISTENT KNOWLEDGE: Critical project information, architectural decisions, patterns, or insights that should be permanently stored and remain accessible across all future sessions. Only include information that will be relevant for the entire project lifecycle. Example: 'Database schema uses UUID primary keys, authentication system uses JWT with 24h expiry, API follows RESTful conventions with /api/v1/ prefix.'")
-}, safeHandler(handleRemember));
+server.tool('remember', rememberSchema, safeHandler(handleRemember));
 
 server.tool('next_rule', nextRuleSchema, safeHandler(handleNextRule));
 

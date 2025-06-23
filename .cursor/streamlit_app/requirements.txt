@@ -1,1 +1,5 @@
-streamlit 
+streamlit>=1.28.0
+plotly>=5.17.0
+sentence-transformers>=2.2.2
+numpy>=1.24.0
+pandas>=2.0.0 

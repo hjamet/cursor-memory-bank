@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { readUserbrief } from '../lib/userbrief_manager.js';
 import { readTasks } from '../lib/task_manager.js';
 import { encodeText, findSimilarMemories } from '../lib/semantic_search.js';
+import { UserMessageManager } from '../lib/user_message_manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,7 +41,31 @@ async function getPossibleNextSteps() {
 }
 
 async function remember(args) {
-    const { past, present, future, long_term_memory } = args;
+    const { past, present, future, long_term_memory, user_message } = args;
+
+    // Handle user message if provided
+    let userMessageResult = null;
+    if (user_message) {
+        try {
+            const userMessageManager = new UserMessageManager();
+
+            // Get current context for the message
+            const context = {
+                workflow_rule: 'implementation', // This could be enhanced to detect current rule
+                active_task: null, // This could be enhanced to detect current task
+                agent_state: 'processing'
+            };
+
+            userMessageResult = await userMessageManager.addMessage(user_message, context);
+        } catch (error) {
+            // Include the error details in the response instead of throwing
+            userMessageResult = {
+                success: false,
+                error: error.message,
+                message: `Failed to record user message: ${error.message}`
+            };
+        }
+    }
 
     // Handle long-term memory with semantic encoding
     let longTermMemories = [];
@@ -136,8 +161,29 @@ async function remember(args) {
         semanticLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 3);
     }
 
+    // Determine the most appropriate next step based on current state
+    let recommendedNextStep = possible_next_steps[0];
+    let workflowInstruction = "";
+
+    if (possible_next_steps.includes('task-decomposition')) {
+        recommendedNextStep = 'task-decomposition';
+        workflowInstruction = "CONTINUE WORKFLOW: New user requests detected. You must now call mcp_MemoryBankMCP_next_rule with 'task-decomposition' to process pending requests.";
+    } else if (possible_next_steps.includes('implementation')) {
+        recommendedNextStep = 'implementation';
+        workflowInstruction = "CONTINUE WORKFLOW: Tasks are available for implementation. You must now call mcp_MemoryBankMCP_next_rule with 'implementation' to continue working on tasks.";
+    } else if (possible_next_steps.includes('context-update')) {
+        recommendedNextStep = 'context-update';
+        workflowInstruction = "CONTINUE WORKFLOW: Context refresh needed. You must now call mcp_MemoryBankMCP_next_rule with 'context-update' to refresh project context.";
+    } else {
+        workflowInstruction = "CONTINUE WORKFLOW: You must now call mcp_MemoryBankMCP_next_rule to continue the autonomous workflow. Do not stop here.";
+    }
+
     const response = {
         message: "Memory successfully recorded.",
+        workflow_status: "CONTINUE_REQUIRED",
+        next_action_required: `You MUST continue the workflow by calling mcp_MemoryBankMCP_next_rule with '${recommendedNextStep}'. Do not stop here.`,
+        workflow_instruction: workflowInstruction,
+        recommended_next_step: recommendedNextStep,
         current_state: lastMemory ? lastMemory.future : "No current state.",
         possible_next_steps: possible_next_steps,
         user_preferences: preferences, // Always show preferences
@@ -145,7 +191,8 @@ async function remember(args) {
         recent_working_memories: recentMemories, // 10 most recent working memories
         semantic_long_term_memories: semanticLongTermMemories, // 3 most semantically relevant long-term memories
         total_memories_count: memories.length,
-        total_long_term_memories_count: longTermMemories.length
+        total_long_term_memories_count: longTermMemories.length,
+        user_message_result: userMessageResult // Include user message result if provided
     };
 
     return {
@@ -161,6 +208,7 @@ export const rememberSchema = {
     present: z.string().describe("A description of what the agent actually did, any problems encountered, and decisions made."),
     future: z.string().describe("A description of what the agent plans to do next."),
     long_term_memory: z.string().optional().describe("Critical project information to be stored persistently (e.g., database schemas, architectural decisions). If provided, this will overwrite any existing long-term memory."),
+    user_message: z.string().optional().describe("Optional message from agent to user (1-2 sentences max). Use for responses to user questions, status updates, recommendations, or requests for clarification. Examples: 'Task completed successfully, ready for your review.', 'Need clarification on the database schema requirements.'"),
 };
 
 export { remember as handleRemember }; 

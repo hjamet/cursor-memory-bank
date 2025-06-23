@@ -1,166 +1,496 @@
 {
   "version": "1.0.0",
-  "last_id": 10,
+  "last_id": 36,
   "requests": [
-    {
-      "id": 1,
-      "content": "Test request to be archived.",
-      "status": "archived",
-      "created_at": "2025-06-20T15:13:04.092Z",
-      "updated_at": "2025-06-20T15:13:04.103Z",
-      "history": [
-        {
-          "timestamp": "2025-06-20T15:13:04.103Z",
-          "action": "mark_archived",
-          "comment": "Archiving this request now."
-        }
-      ]
-    },
-    {
-      "id": 2,
-      "content": "Depuis nos dernières modifications, les deux serveurs MCP MyMCP et MemoryBank ne fonctionnent plus il me semble. Tu peux résoudre le soucis ?",
-      "status": "archived",
-      "created_at": "2025-01-06T21:00:00.000Z",
-      "updated_at": "2025-01-06T21:30:00.000Z",
-      "history": [
-        {
-          "timestamp": "2025-01-06T21:30:00.000Z",
-          "action": "mark_archived",
-          "comment": "✅ PROBLÈME RÉSOLU - Les deux serveurs MCP fonctionnent maintenant correctement. Le problème était : 1) MemoryBank MCP avait des dépendances npm corrompues (dossier dist manquant du SDK MCP) - résolu par réinstallation complète. 2) Plusieurs outils MCP n'exportaient pas leurs schémas Zod (commitSchema, editMemorySchema, readMemorySchema) - ajoutés avec les imports z requis. Les deux serveurs démarrent maintenant sans erreur après test avec timeout."
-        }
-      ]
-    },
-    {
-      "id": 3,
-      "content": "Il y a un gros soucis avec l'interface streamlit : j'ai l'impression que la page \"➕ Add New Request\" et la page \"🧠 Memory Management\", tab \"Requêtes\" intéragit avec l'ancien fichier userbrief.md qu'il faut supprimer !! Désormais, on utilise uniquement le nouveau fichier userbrief.json ! Tu peux corriger ? Avant de supprimer l'ancien userbrief, déplace les requêtes qui s'y trouvent dans le nouveau. Fais aussi bien attention à ce que les nouvelles requêtes ajoutées via l'interface streamlit soit indiqué comme \"à traiter\", j'ai l'impression qu'actuellement, elles étaient enregistrées comme sorte d'archive de préférence, ce qui n'avait aucun sens",
-      "status": "archived",
-      "created_at": "2025-06-23T07:48:01.000Z",
-      "updated_at": "2025-06-23T07:48:01.000Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T07:48:01.000Z",
-          "action": "mark_archived",
-          "comment": "✅ PROBLÈME ANALYSÉ ET TÂCHE CRÉÉE - J'ai identifié le problème : l'interface Streamlit utilise encore l'ancien fichier userbrief.md au lieu du nouveau userbrief.json. Les pages \"Add New Request\" et \"Memory Management\" tab \"Requêtes\" sont affectées. J'ai créé la tâche #2 \"Fix Streamlit interface to use userbrief.json instead of userbrief.md\" avec priorité 5 pour : 1) Migrer les 2 requêtes existantes de userbrief.md vers userbrief.json avec statut \"new\", 2) Corriger add_request.py pour utiliser les outils MCP, 3) Corriger memory.py et app.py pour le nouveau format JSON, 4) S'assurer que les nouvelles requêtes sont marquées \"à traiter\" au lieu d'archivées, 5) Supprimer l'ancien fichier userbrief.md. La tâche est prête pour implémentation."
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "content": "Tu peux limiter la taille du fichier Task Et user bref, de manière à ce que il n'y ait jamais plus de. 25 taches ou Rocket archivées terminées. En gros, tant qu'on est pas à 25, on augmente et enfin c'est à dire qu'on peut continuer à archiver et les garder dans les archives. Mais dès que il y en a 25, va on se met à supprimer celle qui dépasse le 25 en ne gardant que les plus récentes. En gros, on est cap à 25 taches archivées pour ne pas avoir un fichier infini mais avoir une limitation dans la taille du fichier.",
-      "status": "new",
-      "created_at": "2025-06-23T07:49:30.000Z",
-      "updated_at": "2025-06-23T07:49:30.000Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T07:49:30.000Z",
-          "action": "migrated_from_md",
-          "comment": "Migrated from userbrief.md - Request to limit task and userbrief archive size to maximum 25 entries, keeping only the most recent ones when limit is exceeded."
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "content": "Tu peux réécrire la règle start.mdc En anglais et en t'adressant directement à l'agent. Au lieu de de parler en en exprimant la 3e personne, l'agent devrait faire ça. Tu t'adresses à l'agent. En fait, c'est l'agent qui va lire ce texte. Du coup tu lui donnes les instructions de ce qu'il doit faire",
-      "status": "new",
-      "created_at": "2025-06-23T07:49:30.000Z",
-      "updated_at": "2025-06-23T07:49:30.000Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T07:49:30.000Z",
-          "action": "migrated_from_md",
-          "comment": "Migrated from userbrief.md - Request to rewrite start.mdc rule in English, addressing the agent directly in second person instead of third person, since the agent will be reading the text directly."
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "content": "Apparemment, il y a un soucis avec l'outil update_userbrief : tu peux mener l'enquête et résoudre ? :D",
-      "status": "archived",
-      "created_at": "2025-06-23T09:57:08.270991",
-      "updated_at": "2025-06-23T09:00:20.022Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T09:57:08.270991",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T09:00:15.234Z",
-          "action": "add_comment",
-          "comment": "🧪 TEST DE L'OUTIL - Je teste maintenant l'outil update_userbrief après les corrections apportées au serveur MCP. L'erreur précédente était liée à une mauvaise importation du module fs dans userbrief_manager.js. J'ai corrigé l'import pour utiliser fs.promises au lieu de fs synchrone."
-        },
-        {
-          "timestamp": "2025-06-23T09:00:20.022Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 7,
-      "content": "Améliore la logique de la fonction get_next_tasks : apparement, le système de selection n'est pas optimal. Normalement, le serveur doit automatiquement identifier la tâche la plus urgente à faire en fonction de \n1. Du graphe des dépendances entre graph\n2. De la priorité des tâches\nSi plusieurs tâches arrivent à égalité, il doit toutes les retourner à l'agent en lui expliquant qu'il doit choisir laquelle il souhaite traiter !",
-      "status": "archived",
-      "created_at": "2025-06-23T09:59:45.795825",
-      "updated_at": "2025-06-23T09:01:46.633Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T09:59:45.795825",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T09:01:42.778Z",
-          "action": "add_comment",
-          "comment": "✅ ANALYSE TERMINÉE - J'ai vérifié la fonction get_next_tasks et elle a déjà été considérablement améliorée ! Elle utilise maintenant : 1) Analyse automatique du graphe des dépendances pour identifier les tâches disponibles, 2) Sélection basée sur la priorité (1-5) avec choix automatique du niveau le plus élevé, 3) Retour de toutes les tâches à égalité avec explication claire de la stratégie de sélection, 4) Validation complète des dépendances avant de marquer une tâche comme disponible, 5) Messages détaillés expliquant pourquoi certaines tâches ont été sélectionnées. Le système fonctionne parfaitement comme demandé !"
-        },
-        {
-          "timestamp": "2025-06-23T09:01:46.633Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 8,
-      "content": "Dans l'interface streamlit, modifie le clic sur le bouton add-request pour que le texte soumis soit effacé de la zone de texte après envoi :)",
-      "status": "archived",
-      "created_at": "2025-06-23T10:00:31.523684",
-      "updated_at": "2025-06-23T09:01:32.120Z",
-      "history": [
-        {
-          "timestamp": "2025-06-23T10:00:31.523684",
-          "action": "created",
-          "comment": "New request added via Streamlit interface with status 'new' for processing."
-        },
-        {
-          "timestamp": "2025-06-23T09:01:32.120Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 9,
       "content": "Bug avec l'outil update task sur le serveur MCP il me semble : 2025-06-23 11:00:53.495 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:53.497 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:53.497 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'update_task'\n2025-06-23 11:00:59.348 [info] project-0-cursor-memory-bank-MemoryBankMCP: Handling CallTool action for tool 'update_task'\n2025-06-23 11:00:59.348 [info] project-0-cursor-memory-bank-MemoryBankMCP: Calling tool 'update_task' with toolCallId: toolu_01KMK1yU6sGJjNyy2shx1KCo\n2025-06-23 11:00:59.349 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:59.350 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:59.350 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'update_task'\n2025-06-23 11:01:00.028 [info] project-0-cursor-memory-bank-MemoryBankMCP: Handling CallTool action for tool 'update_task'\n2025-06-23 11:01:00.028 [info] project-0-cursor-memory-bank-MemoryBankMCP: Calling tool 'update_task' with toolCallId: toolu_01VSczuvbJ5vf8wghKdhdBYL\n2025-06-23 11:01:00.029 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:01:00.031 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:01:00.031 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'update_task'",
-      "status": "new",
+      "status": "archived",
       "created_at": "2025-06-23T11:01:29.767104",
-      "updated_at": "2025-06-23T11:01:29.767104",
+      "updated_at": "2025-06-23T09:09:06.323Z",
       "history": [
         {
           "timestamp": "2025-06-23T11:01:29.767104",
           "action": "created",
           "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:05:36.354Z",
+          "action": "add_comment",
+          "comment": "🔍 BUG ANALYSÉ ET TÂCHE CRÉÉE - J'ai identifié la cause exacte du problème : erreurs de syntaxe dans update_task.js (lignes 39 et 131 manquent les accolades ouvrantes après try et catch). J'ai créé la tâche #9 \\\"Fix critical syntax errors in update_task.js MCP tool\\\" avec priorité 5 pour résoudre ce bug critique qui empêche complètement le fonctionnement de l'outil update_task MCP."
+        },
+        {
+          "timestamp": "2025-06-23T09:09:06.323Z",
+          "action": "mark_archived",
+          "comment": "✅ BUG RÉSOLU ET TESTÉ - Le problème de l'outil update_task MCP a été complètement résolu ! La cause était des logs de débogage (console.log et console.error) dans update_task.js qui polluaient la communication JSON-RPC avec des sorties non-JSON, causant les erreurs \\\"Unexpected token 'U'\\\". J'ai commenté tous les logs problématiques et testé avec succès l'outil - il fonctionne maintenant parfaitement. Le serveur MCP a été redémarré via la stratégie de modification temporaire du mcp.json. Tâche #9 DONE, doublon #10 archivé."
         }
       ]
     },
     {
-      "id": 10,
-      "content": "Bug avec l'outil update task sur le serveur MCP il me semble : 2025-06-23 11:00:53.495 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:53.497 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:53.497 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'update_task'\n2025-06-23 11:00:59.348 [info] project-0-cursor-memory-bank-MemoryBankMCP: Handling CallTool action for tool 'update_task'\n2025-06-23 11:00:59.348 [info] project-0-cursor-memory-bank-MemoryBankMCP: Calling tool 'update_task' with toolCallId: toolu_01KMK1yU6sGJjNyy2shx1KCo\n2025-06-23 11:00:59.349 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:59.350 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:00:59.350 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'update_task'\n2025-06-23 11:01:00.028 [info] project-0-cursor-memory-bank-MemoryBankMCP: Handling CallTool action for tool 'update_task'\n2025-06-23 11:01:00.028 [info] project-0-cursor-memory-bank-MemoryBankMCP: Calling tool 'update_task' with toolCallId: toolu_01VSczuvbJ5vf8wghKdhdBYL\n2025-06-23 11:01:00.029 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:01:00.031 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UpdateTask\"... is not valid JSON\n2025-06-23 11:01:00.031 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'update_task'",
-      "status": "new",
-      "created_at": "2025-06-23T11:01:36.297477",
-      "updated_at": "2025-06-23T11:01:36.297477",
+      "id": 11,
+      "content": "Modifie l'étape un de l'étape Start workflow et aussi l'étape 2 d'ailleurs. En fait, plutôt que de demander à l'agent de charger les fichiers manuellement, ce serait beaucoup mieux si l'outil Startworkflow, les données directement. Donc en fait, il devrait donner les instructions, les choses à faire donc. Donc on typiquement l'explication du workflow, Comment ça va se passer des étapes à faire et ensuite ils devraient automatiquement donner la prochaine tâche à exécuter la mémoire, et cetera. Donner aussi le Project brief et le tech contexte pour donner tout le contexte automatiquement sans que l'agent ait le faire. Donc voilà, il faudrait modifier l'outil pour que il le fasse. Ensuite, tu sais, on a, on a pu voir et dire je devrais le noter dans tes souvenirs à long terme, mais on va voir que normalement tu peux redémarrer manuellement le serveur. Le serveur pour le tester toi même en effectuant une modification, même incorrecte au fichier MCP . json et ensuite en annulant cette modification et ça devrait normalement faire redémarrer le serveur Peut-être que mon analyse est incorrecte, peut-être que ça marche pas correctement. Cette stratégie et à ce moment-là, si tu détectes que la stratégie ne fonctionne pas, n'hésite pas à me le dire et je pourrais redémarrer curseur manuellement.",
+      "status": "archived",
+      "created_at": "2025-06-23T11:05:09.628794",
+      "updated_at": "2025-06-23T09:24:02.295Z",
       "history": [
         {
-          "timestamp": "2025-06-23T11:01:36.297477",
+          "timestamp": "2025-06-23T11:05:09.628794",
           "action": "created",
           "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:11:26.874Z",
+          "action": "add_comment",
+          "comment": "Task created (#11) to enhance start-workflow tool with automatic context loading. This will eliminate manual context loading steps and provide comprehensive project information in a single tool call, streamlining workflow initialization."
+        },
+        {
+          "timestamp": "2025-06-23T09:24:02.295Z",
+          "action": "mark_archived",
+          "comment": "✅ TÂCHE #11 COMPLÉTÉE - L'amélioration de l'outil start-workflow a été complètement implémentée. Le fichier start-workflow.md a été entièrement réécrit pour fournir automatiquement tout le contexte nécessaire (project brief, tech context, mémoire de travail, état système, requêtes utilisateur) via les templates Nunjucks dans l'outil next_rule. Plus besoin de chargement manuel de contexte - le workflow est maintenant entièrement autonome et streamliné."
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "content": "Dans l'interface streamlitz améliore la présentation de la section recent New request. Parce que actuellement, c'est assez difficile L'utilisation parce que Le texte n'est pas complet Et ensuite, ce serait intéressant en fait de d'avoir Les différentes catégories de dire ce qui est en cours, ce qui est à faire, ce qui a été archivé avec une petite sélection on peut mettre l'ensemble des données en cours et des données à faire, des requêtes, pardon en cours et des requêtes à faire et par exemple les 5 dernières requêtes archivées, émet le texte complet parce qu'actuellement le texte n'est pas complet.",
+      "status": "archived",
+      "created_at": "2025-06-23T11:06:28.991617",
+      "updated_at": "2025-06-23T09:51:18.423Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:06:28.991617",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:11:31.826Z",
+          "action": "add_comment",
+          "comment": "Task created (#12) to improve Streamlit interface presentation with better categorization (in progress, to do, archived) and complete text display. This will enhance user experience with clearer organization and full content visibility."
+        },
+        {
+          "timestamp": "2025-06-23T09:51:18.423Z",
+          "action": "mark_archived",
+          "comment": "Task created: Improve Streamlit interface presentation with categorized request display (Task #20)"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "content": "J'ai l'impression que l'onglet Task Status De l'interface streamlit ne fonctionne pas : actuellem,ent, il m'affiche qu'il n'y a aucun tâche alors que je sais qu'il y en a : Je pense que c'est lié à une lecture du mauvais fichier, peut être un ancien fichier markdown alors que maintenant on travaille avec les fichiers json Est ce que tu peux mener l'enquête et corriger ce problème ?",
+      "status": "archived",
+      "created_at": "2025-06-23T11:08:38.272545",
+      "updated_at": "2025-06-23T09:51:20.100Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:08:38.272545",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:11:37.305Z",
+          "action": "add_comment",
+          "comment": "Task created (#13) to fix the Streamlit Task Status tab that currently shows no tasks. Investigation needed to identify file reading issues or outdated references that prevent task display."
+        },
+        {
+          "timestamp": "2025-06-23T09:51:20.100Z",
+          "action": "mark_archived",
+          "comment": "Task created: Fix Task Status tab functionality - no tasks displayed (Task #21)"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "content": "Dans l'interface streamlit, onglet \"add request\", tu peux afficher les requêtes les plus récentes en premier et pas en dernier ?",
+      "status": "archived",
+      "created_at": "2025-06-23T11:09:29.832782",
+      "updated_at": "2025-06-23T09:51:21.491Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:09:29.832782",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:11:42.797Z",
+          "action": "add_comment",
+          "comment": "Task created (#14) to display most recent requests first in Streamlit add request tab. This will improve user experience by showing current activity at the top instead of requiring scrolling to see recent requests."
+        },
+        {
+          "timestamp": "2025-06-23T09:51:21.491Z",
+          "action": "mark_archived",
+          "comment": "Task created: Display most recent requests first in add request tab (Task #22)"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "content": "Il me semble que la page principale, le agent dashboard. N'est pas correct non plus. Il y a des bugs, ça, ça n'affiche pas la bonne étape actuelle, et je crois que l'avancement des tâcehs n'est pas corerct non plus. D'ailleurs simplifie cet affichage : mets une seule barre de progression, pas 4 !",
+      "status": "archived",
+      "created_at": "2025-06-23T11:12:36.061322",
+      "updated_at": "2025-06-23T09:33:46.436Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:12:36.061322",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:33:46.436Z",
+          "action": "mark_archived",
+          "comment": "Task created: Fix and simplify main dashboard progress display (Task #15)"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "content": "Dans l'interface streamlit, onglet \"Memory Management\", les boutons d'action sur les requêtes ne semblent pas implémentés. Par ailleurs, il devrait aussi être possible d'éditer ou supprimer une requête :)",
+      "status": "archived",
+      "created_at": "2025-06-23T11:14:35.031671",
+      "updated_at": "2025-06-23T09:33:47.978Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:14:35.031671",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:33:47.978Z",
+          "action": "mark_archived",
+          "comment": "Task created: Implement action buttons in Memory Management tab (Task #16)"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "content": "Dans l'interface streamlit, onglet \"➕ Add New Request\", ajoute un petit graphe tout simple dans la section \"📊 Current Userbrief Status\" affichant l'évolution du nombre de requêtes à faire. Rends la courbe lisse et jolie, n'affiche aps la grille : c'est simplement pour se faire une idée de l'évolution du travail :D",
+      "status": "archived",
+      "created_at": "2025-06-23T11:18:09.975806",
+      "updated_at": "2025-06-23T09:33:49.469Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:18:09.975806",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:33:49.469Z",
+          "action": "mark_archived",
+          "comment": "Task created: Add request evolution graph to Add New Request tab (Task #17)"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "content": "Dans l'interface streamlit, onglet task status, améliore et simplifie l'affichage : actuellement, c'est assez difficile à lire. Il faudrait aussi lister par ordre de priorité (et donc de traitement théorique par l'agent).",
+      "status": "archived",
+      "created_at": "2025-06-23T11:20:50.713255",
+      "updated_at": "2025-06-23T09:33:50.904Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:20:50.713255",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:33:50.904Z",
+          "action": "mark_archived",
+          "comment": "Task created: Improve task status display with priority sorting (Task #18)"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "content": "D'après le mermaid dans le readme, start-workflow mène forcément à task-decomposition. Or, de deux choses l'une :\n1. start-workflow doit en fait amener à la règle sauvegardée dans les fichiers d'état du modèle (en somme là où en était l'agent dans une session précédente : la règle doit lui permettre de reprendre là où il en était !)\n2. Autrement, si il n'y avait pas d'état enregistré ou si l'état était contet-update, start-workflow doit effectivement mener à task-decomposition ssi il y a une demande utilisateur ou si le userbrief contient des requêtes non traitées ! Autrement, il doit directement jump à implementation !\n\nPar ailleurs, toujours dans ce mermaid, le lien context-udpate -> start-workflow ne devrait pas exister. Par contre, il devrait aussi être possible, exactemetn comme expliqué ci dessus pour start-workflow, de jump directement à implementation si il n'y a pas de userbrief non traité !",
+      "status": "archived",
+      "created_at": "2025-06-23T11:28:53.219395",
+      "updated_at": "2025-06-23T09:33:52.209Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:28:53.219395",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:33:52.209Z",
+          "action": "mark_archived",
+          "comment": "Task created: Fix workflow routing logic for intelligent step selection (Task #19)"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "content": "Dans l'interface streamlit, lors de l'enregistreement d'une nouvelle requête, tu peux afficher les ballons ? st.balloons() :D\nPar ailleurs, à chaque fois que l'agent appelle l'outil remember, je veux bien que tu affiches une petite nofication st.toast avec le contenu de la clé \"present\" du souvenir et si l'agent a enregistré un souvenir à long terme, je souhaiterai aussi une notification pour  ce souvenir à long terme (avec un icone différent pour différencier)",
+      "status": "archived",
+      "created_at": "2025-06-23T11:35:58.925846",
+      "updated_at": "2025-06-23T09:51:23.022Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:35:58.925846",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:51:23.022Z",
+          "action": "mark_archived",
+          "comment": "Task created: Add balloons and toast notifications to Streamlit interface (Task #23)"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "content": "Dans l'interface streaming onglet Task Status Du coup, je, je crois que j'ai déjà mis une requête d'amélioration, donc elle a pas encore été traitée donc si ça se trouve t'auras déjà traité une partie de cette demande, mais l'idée ce serait vraiment de simplifier, d'améliorer le design d'abord parce que les énergies sont pas du tout compréhensibles en termes de couleurs par exemple le rond rouge. On a l'impression que c'est une tache bloquée alors que ça l'est pas. Ce que j'imagine c'est voir la tache en cours en haut toujours ouvert, toujours affiché donc là on voit la tâche en cours. Euh en mode accordéon fermé mais cliquable et en dessous on a la liste des tâches à faire trier par priorité. Et ensuite en dessous, on a bah les les autres taches, les tâches terminées pas. Euh pas toutes, on va dire une petite sélection et plier par défaut dans un accordéon plié par défaut. Par ailleurs, il faudrait que t'améliores un peu la légende parce que là c'est vraiment pas lisible et que tu améliores le design général par exemple. Les titres sont pas clairs, c'est c'est, c'est pas facile à lire en fait. L'idée, ce serait de voir en un coup d'oeil ce que l'agent est en train de faire, ce qui compte faire, et cetera. Ah et d'ailleurs, il faudrait rendre les tâches supprimables et éditables, en particulier les. Le score de priorité En fait le texte de la tâche ne doit pas être éditable, ni les dépendances. Les seules choses qui doivent être éditables, c'est le score de priorité. Et par contre, ça doit être possible de marquer une tâche comme bloquer, débloquer todo Et il devrait également être possible de les supprimer Donc voilà, il devrait y avoir un bouton pour chacun de ces trucs, un peu comme ça a été fait pour le user brief dans Memory dans l'onglet Memory de du. De l'interface streamlit il me semble",
+      "status": "archived",
+      "created_at": "2025-06-23T11:41:38.727649",
+      "updated_at": "2025-06-23T09:51:24.121Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:41:38.727649",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:51:24.121Z",
+          "action": "mark_archived",
+          "comment": "Task created: Redesign Task Status tab with accordion layout and editing capabilities (Task #24)"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "content": "Petites modifications dans l'onglet ad request de l'interface Streamlitz le graphe déjà Il faudrait que la courbe soit arrondie, qu'elle soit, c'est elle doit pas être mathématiquement exacte, simplement un peu arrondie et ensuite c'est pas le nombre total de requêtes qui doit être affiché, ni le nombre de requêtes archivées ou que sais je c'est le nombre, l'évolution du nombre de requêtes à process au fil du temps. Donc pour ça, il faudrait rajouter dans la base de données entre guillemets user-brief . json Il faudrait rajouter un timestamp pour quand une tâche, une requête a été ajoutée et quand elle a vu son statut changer. Euh. Ça, ça doit être le même timestamp. En fait, c'est le timestamp, c'est la dernière non pardon. Il y a 2 timestamp différents, il y a la timestamp de création, le le timestamp de dernière modification et à partir de ce timestamp, bah on peut tracer la courbe de l'évolution au cours du temps du nombre de requêtes à traiter Donc ça veut dire que, par exemple, moi, quand je veux ajouter des requêtes, la courbe devrait augmenter et quand l'agent en en en résout, bah la courbe devrait diminuer. Tu peux améliorer tout ça ?",
+      "status": "archived",
+      "created_at": "2025-06-23T11:46:38.502653",
+      "updated_at": "2025-06-23T09:51:25.711Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:46:38.502653",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:51:25.711Z",
+          "action": "mark_archived",
+          "comment": "Task created: Improve graph display with rounded curves and request evolution tracking (Task #25)"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "content": "Il arrive que à la fin de la règle implémentation en particulier, mais je crois que ça peut être un peu général à toutes les règles. L'agent s'arrête en disant, Voilà Ben j'ai bien avancé, maintenant je m'arrête souvent. Souvent, c'est en plus après l'appel à la règle remember, donc ça veut dire que la règle remember n'est pas assez claire. Son retour doit clairement indiquer à l'agent OK maintenant ce que tu dois faire, c'est absolument et c'est obligatoire, tu ne dois surtout pas t'arrêter, tu dois appeler l'une de ces règles et là il indique les règles possibles étant donné l'état actuel du workflow. Donc est-ce que tu peux corriger, est-ce que tu peux corriger ça de manière à ce que l'agent ne s'arrête jamais et que quand il appelle la règle remember comme il le fait à la fin de chaque règle, ils comprennent que il doit tout de suite appeler, enchaîner en appelant la règle suivante, Parmi celles qu'ils ont proposées",
+      "status": "archived",
+      "created_at": "2025-06-23T11:48:04.214156",
+      "updated_at": "2025-06-23T09:51:27.122Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:48:04.214156",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T09:51:27.122Z",
+          "action": "mark_archived",
+          "comment": "Task created: Fix workflow logic to prevent agent from stopping after remember calls (Task #26)"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "content": "Dans la règle Task décomposition, tu sais, lors de l'appel de la règle, le serveur mcp retourne automatiquement. Euh le contenu du fichier user brief pour permettre à l'agent de d'implémenter. Euh l'idée, ce serait d'optimiser ça et plutôt que de retourner l'intégralité du fichier user French, il retourne une requête. La plus ancienne enregistrée encore non traitée Pour ne pas saturer l'agent avec plein de requêtes différentes Parce que cette. Dans cette partie Task décomposition, l'agent doit traiter une requête à la fois. Au lieu de de tous les traiter donc c'est pour ça que en fait ta décomposition retourne la Rocket user brief la plus ancienne. L'agent la transforme en tâche puis passe à l'étape la la ensuite marque le user briefet est traité puis passe à l'étape d'implémentation, et cetera. Et comme ça on traite une chose à la fois et on ne sature pas l'agent avec beaucoup trop de tâches en même temps. C'est pas grave. Plus tard, il va retourner à taxe de composition et il pourra traiter la prochaine requête user briefing.",
+      "status": "archived",
+      "created_at": "2025-06-23T11:50:53.819950",
+      "updated_at": "2025-06-23T10:14:15.001Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:50:53.819950",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T10:14:15.001Z",
+          "action": "mark_archived",
+          "comment": "Task created: Optimize task-decomposition rule to process one request at a time (Task #27)"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "content": "Tu peux modifier le script d'installation en particulier avec Curl pour t'assurer que il installe également qu'il installe bientôt, à savoir les 2 serveurs MCP le. Le serveur Streamlitz avec ces dépendances nécessaires pour l'exécuter, le script de démarrage du serveur Stream Leit que le script d'installation aussi télécharge le modèle pour les embedings. Pour la gestion de la mémoire à long terme et finalement qu'il. Euh, qui la place dans le bon dossier, .cursor/rules La règle start.mdc",
+      "status": "archived",
+      "created_at": "2025-06-23T11:52:45.960089",
+      "updated_at": "2025-06-23T10:14:16.359Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T11:52:45.960089",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T10:14:16.359Z",
+          "action": "mark_archived",
+          "comment": "Task created: Enhance installation script with comprehensive component installation (Task #28)"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "content": "Ajoute à l'outil remember un, une section messages à l'utilisateur doit être. Ça doit être un message court mais clair qui indique ce que le modèle peut vouloir dire à l'utilisateur. Il doit pas, c'est, c'est facultatif comme comme argument si. Euh. S'il le donne, ça doit être relativement court, genre une ou 2 phrases. Et et du coup, ça doit enregistrer dans un fichier too user le. Le Les messages écrits par le modèle à l'utilisateur Ça peut être des requêtes, ça peut être des propositions, ça peut être des réponses à des questions posées par l'utilisateur Ça peut être plein de choses différentes Typiquement si l'utilisateur avait posé une question ou demandé une précision, c'est cet outil que va utiliser l'agent pour donner la réponse à la question à l'utilisateur",
+      "status": "archived",
+      "created_at": "2025-06-23T13:07:09.319187",
+      "updated_at": "2025-06-23T11:09:13.322Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T13:07:09.319187",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T11:09:13.322Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "content": "Dans le système d'ajout de nouvelles requests sur Stream litt Le fait d'appuyer sur le bouton AD request ne déclenche toujours pas l'animation avec les ballons et ne supprime pas le texte de la description de requête. Moi ce que j'avais demandé, c'est que quand en gros, quand on appuie sur contrôle le plus center ou sur le bouton ad request, ça envoie le formulaire donc ça vide les Le contenu de l'entrée de texte et ça lance l'animation des ballons pour dire que bah la requête a bien été soumise",
+      "status": "archived",
+      "created_at": "2025-06-23T13:07:54.534043",
+      "updated_at": "2025-06-23T11:10:14.768Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T13:07:54.534043",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T11:10:14.768Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "content": "Toujours sur l'interface Streamlitz dans l'onglet Task Status ne t'occupe pas d'afficher le nombre de tâches effectuées sans s'en fiche. En fait, ce qui compte, c'est plutôt les tâches qui restent à faire et au sein de ces tâches qui restent à faire. Quelles sont la effectivement la distribution des priorités ? Et ensuite, comme je te l'ai demandé en dessous, on devrait avoir la liste des tâches cliquables quand on clique dessus, ça affiche les détails de la tâche, à savoir sa description complète et pas seulement sa description rapide en dessous de son titre et ainsi que des boutons pour permettre d'éditer la priorité de la tâche ou de la supprimer",
+      "status": "archived",
+      "created_at": "2025-06-23T13:09:31.896052",
+      "updated_at": "2025-06-23T11:13:19.139Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T13:09:31.896052",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T11:13:19.138Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "content": "Encore dans l'interface streaming ajoute une tâche à ajout, pardon, une page. Euh Grosso modo, communication avec l'utilisateur qui affiche la liste des messages triés par ordre d'envoi du. Du plus récent au plus ancien envoyé. Envoyé par le modèle à l'utilisateur via le nouvel argument qu'on a rajouté à l'outil remember. Euh. Ces messages doivent avoir tous, donc le message complet bien affiché et avec la la la l'heure à laquelle ils ont été affichés aussi il doit y avoir écrit la règle. Où on se trouvait donc ça faudra modifier la base de données d'enregistrement des messages à l'utilisateur, mais faudra indiquer la règle où on se trouvait au moment où où le modèle a répondu ça et sur quelle tâche il travaillait, quelle tâche était en cours de travail. Tout ça, ça doit être indiqué. Il doit aussi y avoir un bouton pour supprimer le message, donc ça, ça veut dire qu'en gros, le l'utilisateur enfin c'est pas supprimé, ça doit pas être une poubelle, ça doit être un genre validé pour dire que l'utilisateur a lu le message et et donc c'est bon, on peut le supprimer du fichier de de sauvegarde des de des messages envoyés par le modèle à l'utilisateur.",
+      "status": "archived",
+      "created_at": "2025-06-23T13:11:15.701650",
+      "updated_at": "2025-06-23T11:14:27.909Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T13:11:15.701650",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T11:14:27.909Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "content": "Est ce que tu peux afficher les requêtes qui se trouvent encore dans le user brief et qui n'ont donc pas encore été décomposées dans l'onglet Task Status du serveur Stream Lit ? L'idée étant que en fait, c'est la première étape d'une tâche, une tâche est d'abord une requête user. Vous voyez ? Ensuite, elle est décomposée en tâche. Ensuite, elle est observée puis traitée et et donc du coup les user brief devraient être affichés, alors ils devraient être affichés. De manière un peu particulière puisqu'ils ont pas encore de priorité, mais ils devraient être affichés pour indiquer OK ces tâches là sont non encore traitées et elles vont être prises en compte par le système. Cette manière, quand on va dans Task Status, on devrait avoir un aperçu général de tout ce que l'agent a encore à faire. Très clair, on voit combien de tâches sont à l'étape 0 non encore traité à l'étape un traité à l'étape 2 en cours de de d'implémentation et à l'étape. 3 terminer",
+      "status": "archived",
+      "created_at": "2025-06-23T13:21:19.081058",
+      "updated_at": "2025-06-23T11:33:15.061Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T13:21:19.081058",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T11:33:15.061Z",
+          "action": "mark_archived",
+          "comment": "✅ TÂCHE CRÉÉE - Requête décomposée avec succès en tâche #33 \"Display unprocessed userbrief requests in Task Status tab\". Cette tâche implémentera l'affichage des requêtes userbrief non décomposées dans l'onglet Task Status avec une visualisation complète du workflow en 4 étapes : Étape 0 (Requêtes non traitées), Étape 1 (Tâches décomposées), Étape 2 (En cours d'implémentation), Étape 3 (Terminées). Priorité 4 assignée pour traitement rapide."
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "content": "En fait, supprime les st.toast affichés dans l'interface streamlit à chaque appel de remember par l'agent : ils sont illisibles et peu pratiques.",
+      "status": "archived",
+      "created_at": "2025-06-23T13:22:26.107163",
+      "updated_at": "2025-06-23T11:34:22.331Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T13:22:26.107163",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T11:34:22.331Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "content": "Sur l'interface Stream Lit améliore encore la page Task Status parce que elle est vraiment pas partie d'utilisation. L'idée, ce serait vraiment tout simple, sans avoir besoin de rajouter des colouts de partout pour expliquer à quoi sert telle section et telle autre section en haut, tu affiches la tâche sur laquelle le l'agent est actuellement en train de travailler. La tâche en cours s'il y en a une en dessous, tu affiches la liste des tâches qui vont, qui sont tout doux de. Ordonner par priorité en prenant d'abord en compte le le graphe des dépendances, c'est à dire que si une tâche dépend d'une autre tâche, Eh Ben cette autre tâche doit être affichée en premier bien sûr et ensuite la priorité de de chaque tâche. Finalement en dessous, tu dois avoir la liste Les requêtes utilisateurs user brief non encore transformées en tâches. Donc tous les les requêtes user brief qui sont à traiter. Et en dessous, tu dois avoir une partie des tâches archivées Qui est par défaut bien sûr réduite. Toutes les autres sections doivent être ouvertes pour faciliter la lecture sans que l'utilisateur et à cliquer dessus pour les ouvrir. Et par ailleurs, l'ensemble des tâches, sauf les tâches archivées et des tâches en mode user brief doivent avoir directement dans leur affichage des boutons qui permet de les modifier. Donc dans les modifications parce que actuellement t'as mis tout en bas de la page un truc qui permet de de sélectionner la tâche à modifier puis de la modifier, mais en fait ça c'est trop complexe et pas pratique, c'est beaucoup plus pratique de voir la liste des tâches se dire Ah cette tâche elle est pas bien, je vais la modifier directement et pour ça il faut pouvoir modifier la priorité de la tâche, pouvoir modifier son statut actuel. Est ce que elle est en cours ? Est ce que elle est à faire, est ce que elle est bloquée, débloquée, finie et finalement Pouvoir supprimer la tâche Voilà, est ce que tu peux effectuer ces corrections ? L'idée, c'est vraiment d'avoir quelque chose de simple, facile à lire, pratique d'accès sans trop d'informations à droite à gauche, vraiment des trucs en un clic, on on un coup d'œil, on a toute l'idée et en un clic on fait les modifications qu'on veut.",
+      "status": "archived",
+      "created_at": "2025-06-23T13:30:53.772282",
+      "updated_at": "2025-06-23T11:35:35.357Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T13:30:53.772282",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T11:35:35.357Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "content": "Dans l'interface streaming dans l'onglet ad request, t'as mis 2 graphes, moi il m'en faudrait qu'un seul. Le curiant current workflow trend me paraît le mieux. Je pense qu'il y a un problème à dans ce graphe d'ailleurs parce que il est constamment vide alors que je t'ai dit moi j'aimerais voir l'évolution en analysant les timestamps de création et de changement de statut des différentes tâches, pouvoir des différents user brief pardon des différentes requêtes user brief. Pouvoir savoir combien il en reste, qui. Ont été ajoutés traités au fil du temps et comme ça, on voit l'évolution de ce que moi j'ai ajouté, de ce que l'agent a traité supprime le 2e graphe par simplicité et enfin dernière chose en dessous, il y a une une section recent New request avec. Euh avec un accordéon, supprime l'accordéon, mais directement le contenu de l'accordéon juste en dessous pour ne pas avoir à cliquer dessus pour afficher les tâches. Par ailleurs, comme c'est le cas dans L'onglet Memory Sous onglet request reprend exactement le même code, mais il devrait être possible d'éditer les requêtes dans ce dans cet aperçu, c'est à dire qu'on a la liste des requêtes non encore traitées et il doit être possible de les éditer et de les supprimer",
+      "status": "archived",
+      "created_at": "2025-06-23T13:33:19.530076",
+      "updated_at": "2025-06-23T11:36:44.555Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T13:33:19.530076",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T11:36:44.555Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "content": "Dans la page principale de l'interface streaming, je veux que tu simplifies énormément essentiellement que tu supprimes tous les accordéons puisque ça ça fait que ça oblige l'utilisateur à cliquer pour avoir des informations. Ce serait mieux d'avoir directement les les, les éléments sans avoir à cliquer dessus pour les ouvrir. Par ailleurs, je souhaite que tu ne gardes finalement que la section 🧠 Agent Memory Timeline. Supprime toutes les autres sections :",
+      "status": "archived",
+      "created_at": "2025-06-23T13:38:13.837994",
+      "updated_at": "2025-06-23T11:41:03.033Z",
+      "history": [
+        {
+          "timestamp": "2025-06-23T13:38:13.837994",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-23T11:41:03.033Z",
+          "action": "mark_archived"
         }
       ]
     }

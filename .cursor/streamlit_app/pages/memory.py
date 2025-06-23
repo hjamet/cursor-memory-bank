@@ -181,20 +181,102 @@ with tab1:
                         with col2:
                             st.markdown("**Actions:**")
                             
-                            # Show appropriate actions based on status
+                            # Enhanced action buttons with simulated functionality
+                            req_id = req.get('id')
+                            
                             if status == 'new':
-                                if st.button(f"⚡ En cours", key=f"progress_{req.get('id')}", help="Marquer comme en cours"):
-                                    st.info("💡 Dans une vraie implémentation, ceci appellerait `mcp_MemoryBankMCP_update_userbrief` pour changer le statut vers 'in_progress'")
+                                if st.button(f"⚡ En cours", key=f"progress_{req_id}", help="Marquer comme en cours"):
+                                    # Simulate status update
+                                    req['status'] = 'in_progress'
+                                    req['updated_at'] = datetime.now().isoformat()
+                                    if 'history' not in req:
+                                        req['history'] = []
+                                    req['history'].append({
+                                        'timestamp': datetime.now().isoformat(),
+                                        'action': 'status_update',
+                                        'comment': 'Marked as in progress via Memory Management interface'
+                                    })
+                                    
+                                    # Save updated userbrief
+                                    if save_json_file(memory_paths['userbrief'], userbrief_data):
+                                        st.success(f"✅ Requête #{req_id} marquée comme en cours!")
+                                        st.toast(f"⚡ Request #{req_id} marked as in progress", icon="⚡")
+                                        st.rerun()
                                 
-                                if st.button(f"✅ Archiver", key=f"archive_new_{req.get('id')}", help="Marquer comme archivée"):
-                                    st.info("💡 Dans une vraie implémentation, ceci appellerait `mcp_MemoryBankMCP_update_userbrief` pour changer le statut vers 'archived'")
+                                if st.button(f"✅ Archiver", key=f"archive_new_{req_id}", help="Marquer comme archivée"):
+                                    # Simulate archiving
+                                    req['status'] = 'archived'
+                                    req['updated_at'] = datetime.now().isoformat()
+                                    if 'history' not in req:
+                                        req['history'] = []
+                                    req['history'].append({
+                                        'timestamp': datetime.now().isoformat(),
+                                        'action': 'mark_archived',
+                                        'comment': 'Manually archived via Memory Management interface'
+                                    })
+                                    
+                                    # Save updated userbrief
+                                    if save_json_file(memory_paths['userbrief'], userbrief_data):
+                                        st.success(f"✅ Requête #{req_id} archivée!")
+                                        st.toast(f"✅ Request #{req_id} archived successfully", icon="✅")
+                                        st.rerun()
                             
                             elif status == 'in_progress':
-                                if st.button(f"✅ Archiver", key=f"archive_progress_{req.get('id')}", help="Marquer comme archivée"):
-                                    st.info("💡 Dans une vraie implémentation, ceci appellerait `mcp_MemoryBankMCP_update_userbrief` pour changer le statut vers 'archived'")
+                                if st.button(f"✅ Archiver", key=f"archive_progress_{req_id}", help="Marquer comme archivée"):
+                                    # Simulate archiving
+                                    req['status'] = 'archived'
+                                    req['updated_at'] = datetime.now().isoformat()
+                                    if 'history' not in req:
+                                        req['history'] = []
+                                    req['history'].append({
+                                        'timestamp': datetime.now().isoformat(),
+                                        'action': 'mark_archived',
+                                        'comment': 'Manually archived via Memory Management interface'
+                                    })
+                                    
+                                    # Save updated userbrief
+                                    if save_json_file(memory_paths['userbrief'], userbrief_data):
+                                        st.success(f"✅ Requête #{req_id} archivée!")
+                                        st.toast(f"✅ Request #{req_id} archived successfully", icon="✅")
+                                        st.rerun()
+                                
+                                if st.button(f"🔄 Retour nouveau", key=f"back_new_{req_id}", help="Remettre en statut nouveau"):
+                                    # Simulate status rollback
+                                    req['status'] = 'new'
+                                    req['updated_at'] = datetime.now().isoformat()
+                                    if 'history' not in req:
+                                        req['history'] = []
+                                    req['history'].append({
+                                        'timestamp': datetime.now().isoformat(),
+                                        'action': 'status_update',
+                                        'comment': 'Reset to new status via Memory Management interface'
+                                    })
+                                    
+                                    # Save updated userbrief
+                                    if save_json_file(memory_paths['userbrief'], userbrief_data):
+                                        st.success(f"✅ Requête #{req_id} remise en statut nouveau!")
+                                        st.rerun()
                             
                             elif status == 'archived':
-                                st.write("*Requête terminée*")
+                                if st.button(f"🔄 Réactiver", key=f"reactivate_{req_id}", help="Remettre en statut nouveau"):
+                                    # Simulate reactivation
+                                    req['status'] = 'new'
+                                    req['updated_at'] = datetime.now().isoformat()
+                                    if 'history' not in req:
+                                        req['history'] = []
+                                    req['history'].append({
+                                        'timestamp': datetime.now().isoformat(),
+                                        'action': 'reactivate',
+                                        'comment': 'Reactivated from archived status via Memory Management interface'
+                                    })
+                                    
+                                    # Save updated userbrief
+                                    if save_json_file(memory_paths['userbrief'], userbrief_data):
+                                        st.success(f"✅ Requête #{req_id} réactivée!")
+                                        st.toast(f"🔄 Request #{req_id} reactivated", icon="🔄")
+                                        st.rerun()
+                                
+                                st.caption("*Requête archivée*")
             else:
                 st.info("Aucune requête ne correspond aux filtres sélectionnés.")
         else:
@@ -225,14 +307,47 @@ with tab2:
     if memories:
         st.subheader(f"Stored Memories ({len(memories)})")
         
-        # Display memories with edit/delete options
+        # Display memories with enhanced edit/delete options
         for i, memory in enumerate(memories):
             with st.expander(f"Memory #{i+1}: {memory.get('timestamp', 'No date')}", expanded=False):
                 col1, col2 = st.columns([3, 1])
                 
                 with col1:
                     st.markdown("**Content:**")
-                    st.write(memory.get('content', 'No content'))
+                    
+                    # Check if this memory is being edited
+                    edit_key = f"edit_memory_{i}"
+                    if edit_key not in st.session_state:
+                        st.session_state[edit_key] = False
+                    
+                    if st.session_state[edit_key]:
+                        # Edit mode: show text area
+                        new_content = st.text_area(
+                            "Edit memory content:",
+                            value=memory.get('content', ''),
+                            height=100,
+                            key=f"edit_content_{i}"
+                        )
+                        
+                        # Save/Cancel buttons
+                        col_save, col_cancel = st.columns(2)
+                        with col_save:
+                            if st.button("💾 Save", key=f"save_{i}"):
+                                memories[i]['content'] = new_content
+                                memories[i]['timestamp'] = datetime.now().isoformat()  # Update timestamp
+                                updated_data = {'memories': memories}
+                                if save_json_file(memory_paths['long_term_memory'], updated_data):
+                                    st.success("Memory updated!")
+                                    st.session_state[edit_key] = False
+                                    st.rerun()
+                        
+                        with col_cancel:
+                            if st.button("❌ Cancel", key=f"cancel_{i}"):
+                                st.session_state[edit_key] = False
+                                st.rerun()
+                    else:
+                        # Display mode: show content
+                        st.write(memory.get('content', 'No content'))
                     
                     # Show embedding info if available
                     if memory.get('embedding'):
@@ -240,14 +355,48 @@ with tab2:
                 
                 with col2:
                     st.markdown("**Info:**")
-                    st.write(f"**Date:** {memory.get('timestamp', 'Unknown')}")
+                    timestamp = memory.get('timestamp', 'Unknown')
+                    if timestamp != 'Unknown':
+                        # Format timestamp nicely
+                        try:
+                            formatted_date = timestamp[:19].replace('T', ' ')
+                            st.write(f"**Date:** {formatted_date}")
+                        except:
+                            st.write(f"**Date:** {timestamp}")
+                    else:
+                        st.write(f"**Date:** {timestamp}")
                     
-                    if st.button(f"🗑️ Delete", key=f"memory_delete_{i}"):
-                        # Remove memory and auto-save
-                        memories.pop(i)
-                        updated_data = {'memories': memories}
-                        if save_json_file(memory_paths['long_term_memory'], updated_data):
-                            st.success("Memory deleted automatically!")
+                    st.markdown("**Actions:**")
+                    
+                    # Edit button
+                    if not st.session_state[edit_key]:
+                        if st.button(f"✏️ Edit", key=f"edit_btn_{i}", help="Edit memory content"):
+                            st.session_state[edit_key] = True
+                            st.rerun()
+                    
+                    # Delete button with confirmation
+                    delete_confirm_key = f"delete_confirm_{i}"
+                    if delete_confirm_key not in st.session_state:
+                        st.session_state[delete_confirm_key] = False
+                    
+                    if st.session_state[delete_confirm_key]:
+                        st.warning("⚠️ Confirm deletion?")
+                        col_confirm, col_abort = st.columns(2)
+                        with col_confirm:
+                            if st.button("🗑️ Yes", key=f"confirm_delete_{i}"):
+                                memories.pop(i)
+                                updated_data = {'memories': memories}
+                                if save_json_file(memory_paths['long_term_memory'], updated_data):
+                                    st.success("Memory deleted!")
+                                    st.session_state[delete_confirm_key] = False
+                                    st.rerun()
+                        with col_abort:
+                            if st.button("❌ No", key=f"abort_delete_{i}"):
+                                st.session_state[delete_confirm_key] = False
+                                st.rerun()
+                    else:
+                        if st.button(f"🗑️ Delete", key=f"delete_btn_{i}", help="Delete this memory"):
+                            st.session_state[delete_confirm_key] = True
                             st.rerun()
     else:
         st.info("No long-term memories found.")

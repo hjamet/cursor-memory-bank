@@ -259,6 +259,11 @@ install_workflow_system() {
         for file in "${workflow_files[@]}"; do
             download_file "$RAW_URL_BASE/.cursor/workflow-steps/$file" "$workflow_path/$file"
         done
+        
+        # Download start.mdc rule
+        log "Downloading start.mdc rule..."
+        mkdir -p "$target_dir/.cursor/rules"
+        download_file "$RAW_URL_BASE/.cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"
 
         # Download pre-commit hook
         log "Downloading .githooks/pre-commit"
@@ -325,6 +330,17 @@ install_workflow_system() {
             fi
         else
             warn "workflow-steps directory not found in repository"
+        fi
+        
+        # Copy start.mdc rule
+        if [[ -f "$clone_dir/.cursor/rules/start.mdc" ]]; then
+            log "Copying start.mdc rule..."
+            mkdir -p "$target_dir/.cursor/rules"
+            if ! cp "$clone_dir/.cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"; then
+                error "Failed to copy start.mdc rule. Please check disk space and permissions."
+            fi
+        else
+            warn "start.mdc rule not found in repository"
         fi
         
         # Copy mcp.json template
@@ -622,35 +638,97 @@ install_pre_commit_hook() {
     log "Pre-commit hook installed to $hook_file"
 }
 
-# Funtion to install the Streamlit app dependencies
+# Function to install the Streamlit app and dependencies
 install_streamlit_app() {
-    log "Checking for Streamlit app dependencies..."
-    # The target_dir is the root of the installation
+    log "Installing Streamlit app and dependencies..."
     local target_dir="$1"
-    local streamlit_dir="$target_dir/.cursor/memory-bank/streamlit_app"
+    local temp_dir="$2"
+    local streamlit_dir="$target_dir/.cursor/streamlit_app"
     local requirements_file="$streamlit_dir/requirements.txt"
+    local startup_script="$target_dir/.cursor/run_streamlit.sh"
+    local clone_dir="$temp_dir/repo"
+    local api_dir="$temp_dir/api-files"
 
-    if [ ! -f "$requirements_file" ]; then
+    # Create streamlit directory
+    mkdir -p "$streamlit_dir" || {
+        warn "Failed to create Streamlit directory. Skipping Streamlit installation."
+        return
+    }
+
+    # Download or copy Streamlit app files
+    if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
+        log "Downloading Streamlit app files..."
+        
+        # Download main app file
+        download_file "$RAW_URL_BASE/.cursor/streamlit_app/app.py" "$streamlit_dir/app.py"
+        download_file "$RAW_URL_BASE/.cursor/streamlit_app/requirements.txt" "$streamlit_dir/requirements.txt"
+        download_file "$RAW_URL_BASE/.cursor/streamlit_app/tasks.json" "$streamlit_dir/tasks.json"
+        
+        # Download pages directory
+        mkdir -p "$streamlit_dir/pages"
+        local page_files=("add_request.py" "memory.py" "task_status.py")
+        for page in "${page_files[@]}"; do
+            download_file "$RAW_URL_BASE/.cursor/streamlit_app/pages/$page" "$streamlit_dir/pages/$page"
+        done
+        
+        # Download startup script
+        download_file "$RAW_URL_BASE/.cursor/run_streamlit.sh" "$startup_script"
+    else
+        log "Copying Streamlit app files from git clone..."
+        
+        if [[ -d "$clone_dir/.cursor/streamlit_app" ]]; then
+            if ! cp -r "$clone_dir/.cursor/streamlit_app/"* "$streamlit_dir/"; then
+                warn "Failed to copy Streamlit app files. Please check permissions."
+                return
+            fi
+        else
+            warn "Streamlit app directory not found in repository clone"
+            return
+        fi
+        
+        # Copy startup script
+        if [[ -f "$clone_dir/.cursor/run_streamlit.sh" ]]; then
+            cp "$clone_dir/.cursor/run_streamlit.sh" "$startup_script"
+        else
+            warn "Streamlit startup script not found in repository clone"
+        fi
+    fi
+
+    # Make startup script executable
+    if [[ -f "$startup_script" ]]; then
+        chmod +x "$startup_script" || warn "Failed to make startup script executable"
+        log "Streamlit startup script installed at: $startup_script"
+    fi
+
+    # Install dependencies if requirements file exists
+    if [[ ! -f "$requirements_file" ]]; then
         warn "Streamlit requirements.txt not found at $requirements_file. Skipping dependency installation."
         return
     fi
 
+    log "Installing Streamlit dependencies..."
+    
+    # Determine Python and pip commands
+    local python_cmd=""
+    local pip_cmd=""
+    
     if command -v python3 &>/dev/null && command -v pip3 &>/dev/null; then
-        log "Found python3 and pip3. Installing Streamlit dependencies..."
-        if pip3 install -r "$requirements_file"; then
-            log "Streamlit dependencies installed successfully."
-        else
-            warn "Failed to install Streamlit dependencies with pip3. Please install them manually from $requirements_file."
-        fi
+        python_cmd="python3"
+        pip_cmd="pip3"
     elif command -v python &>/dev/null && command -v pip &>/dev/null; then
-        log "Found python and pip. Installing Streamlit dependencies..."
-        if pip install -r "$requirements_file"; then
-            log "Streamlit dependencies installed successfully."
-        else
-            warn "Failed to install Streamlit dependencies with pip. Please install them manually from $requirements_file."
-        fi
+        python_cmd="python"
+        pip_cmd="pip"
     else
         warn "python/pip not found. Cannot install Streamlit app dependencies. Please install Python and pip, then run 'pip install -r $requirements_file'."
+        return
+    fi
+
+    log "Found $python_cmd and $pip_cmd. Installing Streamlit dependencies..."
+    if $pip_cmd install -r "$requirements_file"; then
+        log "Streamlit dependencies installed successfully."
+        log "To start the Streamlit UI, run: $startup_script"
+    else
+        warn "Failed to install Streamlit dependencies with $pip_cmd. Please install them manually from $requirements_file."
     fi
 }
 
@@ -744,7 +822,8 @@ This script will:
 2. Set up MCP servers (ToolsMCP, MemoryBankMCP, mcp-commit-server)
 3. Download the all-MiniLM-L6-v2 model for semantic search
 4. Install Streamlit UI for monitoring agent status
-5. Clean up temporary files
+5. Install start.mdc rule for autonomous workflow operation
+6. Clean up temporary files
 
 For more information, visit: ${REPO_URL}
 EOF

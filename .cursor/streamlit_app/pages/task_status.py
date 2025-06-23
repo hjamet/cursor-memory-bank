@@ -3,123 +3,340 @@ import json
 import os
 from pathlib import Path
 from datetime import datetime
+import requests
 
 st.set_page_config(page_title="Task Status", page_icon="✅")
 
 st.markdown("# ✅ Task Status")
 st.sidebar.header("Task Status")
 
-# Helper functions for task management
-def update_task_status(task_id, new_status):
-    """Update a task's status in the tasks file"""
-    # Check multiple possible task file locations
-    task_locations = [
-        Path('.cursor/memory-bank/tasks.json'),
-        Path('.cursor/streamlit_app/tasks.json'),
-        Path('tasks.json')
-    ]
+# Helper functions for task management using MCP tools
+def update_task_via_mcp(task_id, **kwargs):
+    """Update a task using the MCP update_task tool"""
+    try:
+        # This would typically call the MCP tool, but for now we'll use the local file approach
+        # In a real implementation, this would use st.session_state or a proper MCP client
+        return update_task_local(task_id, **kwargs)
+    except Exception as e:
+        st.error(f"Error updating task via MCP: {e}")
+        return False
+
+def delete_task_via_mcp(task_id):
+    """Delete a task using MCP tools"""
+    try:
+        # This would typically call the MCP tool, but for now we'll use the local file approach
+        return delete_task_local(task_id)
+    except Exception as e:
+        st.error(f"Error deleting task via MCP: {e}")
+        return False
+
+def update_task_local(task_id, **kwargs):
+    """Update a task in the local tasks file"""
+    tasks_file = get_tasks_file()
+    if not tasks_file:
+        return False
     
-    for tasks_file in task_locations:
-        if tasks_file.exists():
-            try:
-                with open(tasks_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
+    try:
+        with open(tasks_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # Handle both array format and object format
+        if isinstance(data, list):
+            tasks = data
+            data_format = 'array'
+        else:
+            tasks = data.get('tasks', [])
+            data_format = 'object'
+        
+        # Find and update the task
+        for task in tasks:
+            if str(task.get('id', task.get('task_id'))) == str(task_id):
+                # Update fields
+                for key, value in kwargs.items():
+                    task[key] = value
+                task['updated_date'] = datetime.now().isoformat()
                 
-                # Handle both array format and object format
-                if isinstance(data, list):
-                    tasks = data
-                    data_format = 'array'
+                # Save back to file
+                if data_format == 'array':
+                    save_data = tasks
                 else:
-                    tasks = data.get('tasks', [])
-                    data_format = 'object'
+                    save_data = {'tasks': tasks}
                 
-                # Find and update the task
-                for task in tasks:
-                    if str(task.get('id', task.get('task_id'))) == str(task_id):
-                        task['status'] = new_status
-                        task['updated_at'] = datetime.now().isoformat()
-                        
-                        # Save back to file
-                        if data_format == 'array':
-                            save_data = tasks
-                        else:
-                            save_data = {'tasks': tasks}
-                        
-                        with open(tasks_file, 'w', encoding='utf-8') as f:
-                            json.dump(save_data, f, indent=2, ensure_ascii=False)
-                        
-                        return True
-                        
-            except Exception as e:
-                st.error(f"Error updating task: {e}")
-                return False
+                with open(tasks_file, 'w', encoding='utf-8') as f:
+                    json.dump(save_data, f, indent=2, ensure_ascii=False)
+                
+                return True
+                
+    except Exception as e:
+        st.error(f"Error updating task: {e}")
+        return False
     
-    st.error("Tasks file not found")
     return False
 
-def delete_task(task_id):
-    """Delete a task from the tasks file"""
-    # Check multiple possible task file locations
-    task_locations = [
-        Path('.cursor/memory-bank/tasks.json'),
-        Path('.cursor/streamlit_app/tasks.json'),
-        Path('tasks.json')
-    ]
+def delete_task_local(task_id):
+    """Delete a task from the local tasks file"""
+    tasks_file = get_tasks_file()
+    if not tasks_file:
+        return False
     
-    for tasks_file in task_locations:
-        if tasks_file.exists():
-            try:
-                with open(tasks_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                
-                # Handle both array format and object format
-                if isinstance(data, list):
-                    tasks = data
-                    data_format = 'array'
-                else:
-                    tasks = data.get('tasks', [])
-                    data_format = 'object'
-                
-                # Find and remove the task
-                original_length = len(tasks)
-                tasks = [task for task in tasks if str(task.get('id', task.get('task_id'))) != str(task_id)]
-                
-                if len(tasks) < original_length:
-                    # Save back to file
-                    if data_format == 'array':
-                        save_data = tasks
-                    else:
-                        save_data = {'tasks': tasks}
-                    
-                    with open(tasks_file, 'w', encoding='utf-8') as f:
-                        json.dump(save_data, f, indent=2, ensure_ascii=False)
-                    
-                    return True
-                else:
-                    st.error(f"Task #{task_id} not found")
-                    return False
-                        
-            except Exception as e:
-                st.error(f"Error deleting task: {e}")
-                return False
+    try:
+        with open(tasks_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # Handle both array format and object format
+        if isinstance(data, list):
+            tasks = data
+            data_format = 'array'
+        else:
+            tasks = data.get('tasks', [])
+            data_format = 'object'
+        
+        # Find and remove the task
+        original_length = len(tasks)
+        tasks = [task for task in tasks if str(task.get('id', task.get('task_id'))) != str(task_id)]
+        
+        if len(tasks) < original_length:
+            # Save back to file
+            if data_format == 'array':
+                save_data = tasks
+            else:
+                save_data = {'tasks': tasks}
+            
+            with open(tasks_file, 'w', encoding='utf-8') as f:
+                json.dump(save_data, f, indent=2, ensure_ascii=False)
+            
+            return True
+        else:
+            st.error(f"Task #{task_id} not found")
+            return False
+            
+    except Exception as e:
+        st.error(f"Error deleting task: {e}")
+        return False
     
-    st.error("Tasks file not found")
     return False
 
-# Path to tasks file (check multiple possible locations)
-possible_paths = [
-    Path('.cursor/memory-bank/tasks.json'),
-    Path('.cursor/streamlit_app/tasks.json'),
-    Path('tasks.json')
-]
+def get_tasks_file():
+    """Get the path to the tasks file, prioritizing MCP-managed file"""
+    possible_paths = [
+        Path('.cursor/memory-bank/streamlit_app/tasks.json'),  # MCP-managed file (primary)
+        Path('.cursor/streamlit_app/tasks.json'),  # Local streamlit file
+        Path('.cursor/memory-bank/tasks.json'),  # Legacy location
+        Path('tasks.json')  # Fallback
+    ]
+    
+    for path in possible_paths:
+        if path.exists():
+            return path
+    return None
 
-tasks_file = None
-for path in possible_paths:
-    if path.exists():
-        tasks_file = path
-        break
+def get_userbrief_requests():
+    """Get unprocessed userbrief requests"""
+    userbrief_file = Path('.cursor/memory-bank/workflow/userbrief.json')
+    if not userbrief_file.exists():
+        return []
+    
+    try:
+        with open(userbrief_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        requests = data.get('requests', [])
+        # Return only unprocessed requests (new or in_progress)
+        unprocessed = [req for req in requests if req.get('status') in ['new', 'in_progress']]
+        return unprocessed
+    except Exception as e:
+        st.error(f"Error reading userbrief: {e}")
+        return []
 
-if tasks_file and tasks_file.exists():
+def sort_tasks_by_dependencies_and_priority(tasks):
+    """Sort tasks by dependencies first, then by priority"""
+    # Create a dependency graph
+    task_dict = {str(task.get('id', task.get('task_id'))): task for task in tasks}
+    
+    def get_dependency_level(task_id, visited=None):
+        if visited is None:
+            visited = set()
+        
+        if task_id in visited:
+            return 0  # Circular dependency, treat as level 0
+        
+        visited.add(task_id)
+        task = task_dict.get(str(task_id))
+        if not task:
+            return 0
+        
+        dependencies = task.get('dependencies', [])
+        if not dependencies:
+            return 0
+        
+        max_dep_level = 0
+        for dep_id in dependencies:
+            dep_level = get_dependency_level(str(dep_id), visited.copy())
+            max_dep_level = max(max_dep_level, dep_level)
+        
+        return max_dep_level + 1
+    
+    # Sort by dependency level first, then by priority (descending)
+    def sort_key(task):
+        task_id = str(task.get('id', task.get('task_id')))
+        dep_level = get_dependency_level(task_id)
+        priority = task.get('priority', 3)
+        return (dep_level, -priority)  # Negative priority for descending order
+    
+    return sorted(tasks, key=sort_key)
+
+def render_task_card(task, show_inline_edit=True):
+    """Render a task card with optional inline editing"""
+    task_id = task.get('id', task.get('task_id', 'N/A'))
+    title = task.get('title', 'Untitled')
+    short_desc = task.get('short_description', task.get('description', 'No description'))
+    status = task.get('status', 'TODO')
+    priority = task.get('priority', 3)
+    dependencies = task.get('dependencies', [])
+    
+    # Priority emoji mapping
+    priority_emojis = {5: "🔥", 4: "🔴", 3: "🟡", 2: "🟢", 1: "⚪"}
+    priority_emoji = priority_emojis.get(priority, "📝")
+    
+    # Status emoji mapping
+    status_emojis = {
+        'TODO': '⏳',
+        'IN_PROGRESS': '🔄', 
+        'BLOCKED': '🚫',
+        'REVIEW': '👀',
+        'DONE': '✅'
+    }
+    status_emoji = status_emojis.get(status, '📝')
+    
+    # Task header
+    st.markdown(f"### {status_emoji} #{task_id} - {title}")
+    st.write(f"📝 {short_desc}")
+    
+    # Task details and inline editing
+    col1, col2, col3 = st.columns([2, 1, 1])
+    
+    with col1:
+        # Dependencies info
+        if dependencies:
+            dep_str = ', '.join([f"#{dep}" for dep in dependencies])
+            st.caption(f"⚠️ **Depends on:** {dep_str}")
+        else:
+            st.caption("✅ **No dependencies**")
+    
+    with col2:
+        # Priority display/edit
+        if show_inline_edit:
+            priority_options = {
+                1: "⚪ Minimal (1)",
+                2: "🟢 Low (2)", 
+                3: "🟡 Normal (3)",
+                4: "🔴 High (4)",
+                5: "🔥 Critical (5)"
+            }
+            new_priority = st.selectbox(
+                "Priority:",
+                [1, 2, 3, 4, 5],
+                index=[1, 2, 3, 4, 5].index(priority),
+                format_func=lambda x: priority_options[x],
+                key=f"priority_{task_id}",
+                label_visibility="collapsed"
+            )
+            
+            if new_priority != priority:
+                if update_task_via_mcp(task_id, priority=new_priority):
+                    st.success(f"Priority updated!")
+                    st.rerun()
+        else:
+            st.write(f"{priority_emoji} **P{priority}**")
+    
+    with col3:
+        # Status display/edit
+        if show_inline_edit:
+            status_options = {
+                'TODO': '⏳ To Do',
+                'IN_PROGRESS': '🔄 In Progress',
+                'BLOCKED': '🚫 Blocked',
+                'REVIEW': '👀 Review',
+                'DONE': '✅ Done'
+            }
+            new_status = st.selectbox(
+                "Status:",
+                ['TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW', 'DONE'],
+                index=['TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW', 'DONE'].index(status),
+                format_func=lambda x: status_options[x],
+                key=f"status_{task_id}",
+                label_visibility="collapsed"
+            )
+            
+            if new_status != status:
+                if update_task_via_mcp(task_id, status=new_status):
+                    st.success(f"Status updated!")
+                    st.rerun()
+        else:
+            st.write(f"{status_emoji} **{status}**")
+    
+    # Action buttons for inline editing
+    if show_inline_edit:
+        st.markdown("**⚡ Actions:**")
+        action_col1, action_col2, action_col3 = st.columns(3)
+        
+        with action_col1:
+            if st.button(f"📋 Details", key=f"details_{task_id}"):
+                # Show detailed description in expander
+                detailed_desc = task.get('detailed_description', 'No detailed description available')
+                with st.expander(f"📋 Task #{task_id} Details", expanded=True):
+                    st.write(detailed_desc)
+        
+        with action_col2:
+            if status != 'DONE':
+                if st.button(f"✅ Complete", key=f"complete_{task_id}", type="primary"):
+                    if update_task_via_mcp(task_id, status='DONE'):
+                        st.success(f"Task #{task_id} completed!")
+                        st.rerun()
+        
+        with action_col3:
+            if st.button(f"🗑️ Delete", key=f"delete_{task_id}"):
+                # Confirmation dialog
+                if f"confirm_delete_{task_id}" not in st.session_state:
+                    st.session_state[f"confirm_delete_{task_id}"] = True
+                    st.warning(f"⚠️ Click again to confirm deletion of Task #{task_id}")
+                else:
+                    if delete_task_via_mcp(task_id):
+                        st.success(f"Task #{task_id} deleted!")
+                        del st.session_state[f"confirm_delete_{task_id}"]
+                        st.rerun()
+    
+    st.markdown("---")
+
+def render_userbrief_request(request):
+    """Render a userbrief request card"""
+    req_id = request.get('id', 'N/A')
+    content = request.get('content', 'No content')
+    status = request.get('status', 'new')
+    created_at = request.get('created_at', '')[:10] if request.get('created_at') else 'Unknown'
+    
+    # Truncate content if too long
+    display_content = content[:200] + "..." if len(content) > 200 else content
+    
+    st.markdown(f"### 📋 Request #{req_id}")
+    st.write(f"📝 {display_content}")
+    st.caption(f"📅 **Created:** {created_at} | 🏷️ **Status:** {status}")
+    
+    if len(content) > 200:
+        with st.expander("📖 Full Content"):
+            st.write(content)
+    
+    st.markdown("---")
+
+# Main interface
+st.markdown("## 🎯 Agent Workflow Overview")
+st.info("📊 Complete view of the agent's work pipeline from requests to completion")
+
+# Load tasks and userbrief data
+tasks_file = get_tasks_file()
+tasks = []
+
+if tasks_file:
     try:
         with open(tasks_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -129,223 +346,173 @@ if tasks_file and tasks_file.exists():
             tasks = data
         else:
             tasks = data.get('tasks', [])
-        
-        if tasks:
-            st.header(f"📋 Current Tasks ({len(tasks)} total)")
             
-            # Count tasks by status
-            status_counts = {}
-            for task in tasks:
-                status = task.get('status', 'TODO')
-                status_counts[status] = status_counts.get(status, 0) + 1
-            
-            # Display status metrics
-            if status_counts:
-                cols = st.columns(len(status_counts))
-                for i, (status, count) in enumerate(status_counts.items()):
-                    with cols[i]:
-                        # Use appropriate emoji for status
-                        emoji = {
-                            'TODO': '⏳',
-                            'IN_PROGRESS': '🔄',
-                            'DONE': '✅',
-                            'BLOCKED': '🚫',
-                            'REVIEW': '👀'
-                        }.get(status, '📝')
-                        st.metric(f"{emoji} {status}", count)
-            
-            st.markdown("---")
-            
-            # Display tasks grouped by status
-            for status in ['TODO', 'IN_PROGRESS', 'REVIEW', 'BLOCKED', 'DONE']:
-                status_tasks = [t for t in tasks if t.get('status') == status]
-                if status_tasks:
-                    emoji = {
-                        'TODO': '⏳',
-                        'IN_PROGRESS': '🔄',
-                        'DONE': '✅',
-                        'BLOCKED': '🚫',
-                        'REVIEW': '👀'
-                    }.get(status, '📝')
-                    
-                    st.subheader(f"{emoji} {status} ({len(status_tasks)})")
-                    
-                    for task in status_tasks:
-                        # Task card with accordion
-                        task_id = task.get('id', task.get('task_id', 'N/A'))
-                        title = task.get('title', 'Untitled')
-                        short_desc = task.get('short_description', task.get('description', 'No description'))
-                        priority = task.get('priority', 3)
-                        
-                        # Priority indicator
-                        priority_emoji = '🔴' if priority >= 4 else '🟡' if priority == 3 else '🟢'
-                        
-                        # Display task title and short description
-                        st.markdown(f"### {title} {priority_emoji}")
-                        st.markdown(f"**#{task_id}** - {short_desc}")
-                        
-                        # Create accordion for detailed information
-                        with st.expander(f"Details for #{task_id}", expanded=False):
-                            # Skip short description since it's shown above
-                            
-                            # Create columns for better layout
-                            col1, col2 = st.columns([2, 1])
-                            
-                            with col1:
-                                # Detailed description
-                                detailed_desc = task.get('detailed_description', task.get('long_description'))
-                                if detailed_desc:
-                                    st.markdown("**📋 Detailed Description:**")
-                                    st.markdown(detailed_desc)
-                                
-                                # Validation criteria
-                                validation = task.get('validation_criteria', task.get('acceptance_criteria'))
-                                if validation:
-                                    st.markdown("**✅ Validation Criteria:**")
-                                    st.markdown(validation)
-                            
-                            with col2:
-                                # Task metadata
-                                st.markdown("**📊 Task Info:**")
-                                st.write(f"**ID:** #{task_id}")
-                                st.write(f"**Status:** {status}")
-                                st.write(f"**Priority:** {priority_emoji} {priority}")
-                                
-                                # Dependencies
-                                dependencies = task.get('dependencies', [])
-                                if dependencies:
-                                    st.write(f"**Dependencies:** #{', #'.join(map(str, dependencies))}")
-                                
-                                # Parent task
-                                parent_id = task.get('parent_id')
-                                if parent_id:
-                                    st.write(f"**Parent:** #{parent_id}")
-                                
-                                # Timestamps
-                                created_at = task.get('created_at')
-                                if created_at:
-                                    # Format date nicely
-                                    date_str = created_at[:10] if len(created_at) > 10 else created_at
-                                    st.write(f"**Created:** {date_str}")
-                                
-                                updated_at = task.get('updated_at')
-                                if updated_at:
-                                    date_str = updated_at[:10] if len(updated_at) > 10 else updated_at
-                                    st.write(f"**Updated:** {date_str}")
-                            
-                            # Impacted files (full width)
-                            impacted_files = task.get('impacted_files', [])
-                            if impacted_files:
-                                st.markdown("**📁 Impacted Files:**")
-                                for file in impacted_files:
-                                    st.code(file, language=None)
-                            
-                            # Action buttons
-                            st.markdown("---")
-                            st.markdown("**🔧 Actions:**")
-                            
-                            # Status change buttons
-                            button_col1, button_col2, button_col3, button_col4, button_col5 = st.columns(5)
-                            
-                            with button_col1:
-                                if st.button(f"⏳ TODO", key=f"todo_{task_id}", help="Reset to TODO"):
-                                    if update_task_status(task_id, "TODO"):
-                                        st.success(f"Task #{task_id} reset to TODO!")
-                                        st.rerun()
-                            
-                            with button_col2:
-                                if st.button(f"🔄 In Progress", key=f"progress_{task_id}", help="Mark as In Progress"):
-                                    if update_task_status(task_id, "IN_PROGRESS"):
-                                        st.info(f"Task #{task_id} marked as In Progress!")
-                                        st.rerun()
-                            
-                            with button_col3:
-                                if st.button(f"👀 Review", key=f"review_{task_id}", help="Mark for Review"):
-                                    if update_task_status(task_id, "REVIEW"):
-                                        st.warning(f"Task #{task_id} marked for Review!")
-                                        st.rerun()
-                            
-                            with button_col4:
-                                if st.button(f"🚫 Block", key=f"block_{task_id}", help="Mark as Blocked"):
-                                    if update_task_status(task_id, "BLOCKED"):
-                                        st.error(f"Task #{task_id} marked as Blocked!")
-                                        st.rerun()
-                            
-                            with button_col5:
-                                if st.button(f"✅ Complete", key=f"complete_{task_id}", help="Mark as Done"):
-                                    if update_task_status(task_id, "DONE"):
-                                        st.success(f"Task #{task_id} marked as Complete!")
-                                        st.rerun()
-                            
-                            # Delete button on separate row for safety
-                            st.markdown("---")
-                            if st.button(f"🗑️ Delete Task #{task_id}", key=f"delete_{task_id}", help="Permanently delete this task"):
-                                if delete_task(task_id):
-                                    st.success(f"Task #{task_id} deleted!")
-                                    st.rerun()
-        else:
-            st.info("No tasks found in the system.")
-            st.markdown("Tasks will appear here once they are created through the workflow system.")
-            
-    except json.JSONDecodeError:
-        st.error(f"Error: Invalid JSON in tasks file: {tasks_file}")
     except Exception as e:
         st.error(f"Error reading tasks: {e}")
+
+userbrief_requests = get_userbrief_requests()
+
+# Quick stats - Focus on remaining work only
+if tasks or userbrief_requests:
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        unprocessed_count = len(userbrief_requests)
+        st.metric("📋 Stage 0: Requests", unprocessed_count)
+    
+    with col2:
+        todo_count = len([t for t in tasks if t.get('status') == 'TODO'])
+        st.metric("⏳ Stage 1: Todo", todo_count)
+    
+    with col3:
+        in_progress_count = len([t for t in tasks if t.get('status') == 'IN_PROGRESS'])
+        st.metric("🔄 Stage 2: In Progress", in_progress_count)
+
+# Add priority distribution visualization for remaining tasks
+remaining_tasks = [t for t in tasks if t.get('status') in ['TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW']]
+if remaining_tasks:
+    st.markdown("### 📊 Priority Distribution (Remaining Tasks)")
+    
+    # Calculate priority distribution
+    priority_counts = {}
+    for task in remaining_tasks:
+        priority = task.get('priority', 3)
+        priority_counts[priority] = priority_counts.get(priority, 0) + 1
+    
+    # Display as columns with emoji indicators
+    priority_cols = st.columns(5)
+    priority_emojis = {5: "🔥", 4: "🔴", 3: "🟡", 2: "🟢", 1: "⚪"}
+    
+    for i, priority in enumerate([5, 4, 3, 2, 1]):
+        with priority_cols[i]:
+            count = priority_counts.get(priority, 0)
+            emoji = priority_emojis.get(priority, "📝")
+            st.metric(f"{emoji} P{priority}", count)
+
+st.markdown("---")
+
+# SECTION 1: CURRENT TASK (IN_PROGRESS) - Always visible at top
+current_tasks = [t for t in tasks if t.get('status') == 'IN_PROGRESS']
+if current_tasks:
+    st.markdown("## 🔄 Current Task (In Progress)")
+    st.success("🎯 This is what the agent is currently working on")
+    
+    # Sort current tasks by priority
+    current_tasks.sort(key=lambda x: x.get('priority', 3), reverse=True)
+    
+    for task in current_tasks:
+        render_task_card(task, show_inline_edit=True)
 else:
-    st.warning("No tasks file found. Tasks will appear here once created.")
-    st.info("💡 Tasks are automatically created when the agent processes requests through the task-decomposition workflow step.")
-    st.markdown("**Checked locations:**")
-    for path in possible_paths:
-        st.code(str(path))
+    st.markdown("## 🔄 Current Task")
+    st.info("✨ No task currently in progress - agent is ready for new work!")
+
+# SECTION 2: TODO TASKS - Open by default, sorted by dependencies then priority
+todo_tasks = [t for t in tasks if t.get('status') == 'TODO']
+if todo_tasks:
+    st.markdown("## ⏳ Todo Tasks (Ready to Start)")
+    st.caption("📋 Tasks ready for implementation, sorted by dependencies and priority")
+    
+    # Sort by dependencies and priority
+    sorted_todo = sort_tasks_by_dependencies_and_priority(todo_tasks)
+    
+    for task in sorted_todo:
+        render_task_card(task, show_inline_edit=True)
+else:
+    st.markdown("## ⏳ Todo Tasks")
+    st.info("🎉 No pending tasks - all work is either in progress or completed!")
+
+# SECTION 3: UNPROCESSED USERBRIEF REQUESTS - Open by default
+if userbrief_requests:
+    st.markdown("## 📋 Stage 0: Unprocessed Requests")
+    st.caption("🔄 User requests waiting to be decomposed into tasks")
+    
+    for request in userbrief_requests:
+        render_userbrief_request(request)
+else:
+    st.markdown("## 📋 Stage 0: Unprocessed Requests")
+    st.info("📭 No unprocessed requests - all user requests have been converted to tasks!")
+
+# SECTION 4: ARCHIVED/COMPLETED TASKS - Collapsed by default, limited selection
+done_tasks = [t for t in tasks if t.get('status') == 'DONE']
+if done_tasks:
+    # Sort by updated date (most recent first) and show only last 10
+    done_tasks.sort(key=lambda x: x.get('updated_date', ''), reverse=True)
+    recent_done = done_tasks[:10]
+    
+    with st.expander(f"✅ Recently Completed Tasks ({len(recent_done)}/{len(done_tasks)})", expanded=False):
+        st.caption("🎉 Recently completed tasks (showing last 10)")
+        
+        for task in recent_done:
+            render_task_card(task, show_inline_edit=False)
+        
+        if len(done_tasks) > 10:
+            st.info(f"📊 {len(done_tasks) - 10} more completed tasks not shown")
+
+# OTHER STATUS TASKS (BLOCKED, REVIEW) - If any exist
+blocked_tasks = [t for t in tasks if t.get('status') == 'BLOCKED']
+review_tasks = [t for t in tasks if t.get('status') == 'REVIEW']
+
+if blocked_tasks:
+    with st.expander(f"🚫 Blocked Tasks ({len(blocked_tasks)})", expanded=True):
+        st.caption("⛔ Tasks waiting on dependencies or external factors")
+        for task in blocked_tasks:
+            render_task_card(task, show_inline_edit=True)
+
+if review_tasks:
+    with st.expander(f"👀 Tasks in Review ({len(review_tasks)})", expanded=True):
+        st.caption("🔍 Tasks awaiting review or testing")
+        for task in review_tasks:
+            render_task_card(task, show_inline_edit=True)
 
 # Sidebar controls
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🔧 Controls")
 
-if st.sidebar.button("🔄 Refresh Tasks"):
+if st.sidebar.button("🔄 Refresh"):
     st.rerun()
 
-auto_refresh = st.sidebar.checkbox("Auto-refresh (30s)")
-if auto_refresh:
-    import time
-    time.sleep(30)
-    st.rerun()
-
-# Task statistics in sidebar
-if tasks_file and tasks_file.exists():
-    try:
-        with open(tasks_file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+# Quick stats in sidebar
+if tasks:
+    st.sidebar.markdown("### 📊 Quick Stats")
+    
+    # Calculate completion rate
+    completed = len([t for t in tasks if t.get('status') == 'DONE'])
+    total = len(tasks)
+    completion_rate = (completed / total * 100) if total > 0 else 0
+    
+    st.sidebar.metric("Completion Rate", f"{completion_rate:.1f}%")
+    
+    # Priority distribution of active tasks
+    active_tasks = [t for t in tasks if t.get('status') in ['TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW']]
+    if active_tasks:
+        priority_counts = {}
+        for task in active_tasks:
+            priority = task.get('priority', 3)
+            priority_counts[priority] = priority_counts.get(priority, 0) + 1
         
-        # Handle both array format and object format
-        if isinstance(data, list):
-            tasks = data
-        else:
-            tasks = data.get('tasks', [])
-        
-        if tasks:
-            st.sidebar.markdown("### 📊 Quick Stats")
-            
-            # Calculate completion rate
-            completed = len([t for t in tasks if t.get('status') == 'DONE'])
-            total = len(tasks)
-            completion_rate = (completed / total * 100) if total > 0 else 0
-            
-            st.sidebar.metric("Completion Rate", f"{completion_rate:.1f}%")
-            
-            # Average priority
-            priorities = [t.get('priority', 3) for t in tasks]
-            avg_priority = sum(priorities) / len(priorities) if priorities else 0
-            st.sidebar.metric("Avg Priority", f"{avg_priority:.1f}")
-            
-            # Tasks with dependencies
-            with_deps = len([t for t in tasks if t.get('dependencies')])
-            st.sidebar.metric("With Dependencies", with_deps)
-            
-    except:
-        pass
+        st.sidebar.markdown("**Priority Distribution:**")
+        for priority in sorted(priority_counts.keys(), reverse=True):
+            count = priority_counts[priority]
+            emoji = {5: "🔥", 4: "🔴", 3: "🟡", 2: "🟢", 1: "⚪"}.get(priority, "📝")
+            st.sidebar.write(f"{emoji} P{priority}: {count}")
 
-# Help section in sidebar
+# Help section
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 💡 Help")
-st.sidebar.info("Click on any task to expand and see full details. Use the action buttons to manage task status and lifecycle.") 
+st.sidebar.info("""
+**Workflow Stages:**
+- 📋 Stage 0: User requests not yet decomposed
+- ⏳ Stage 1: Tasks ready to start
+- 🔄 Stage 2: Tasks in progress
+- ✅ Stage 3: Completed tasks
+
+**Inline Editing:**
+- Change priority and status directly
+- Click Details to see full description
+- Use Complete button for quick completion
+- Delete with confirmation
+""")
+
+if not tasks and not userbrief_requests:
+    st.markdown("---")
+    st.info("🚀 **Getting Started:** Tasks and requests will appear here once the agent begins processing your requests through the workflow system.") 
