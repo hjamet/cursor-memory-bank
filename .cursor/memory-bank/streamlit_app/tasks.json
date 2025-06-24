@@ -3688,5 +3688,145 @@
     "parent_id": null,
     "priority": 3,
     "image": null
+  },
+  {
+    "id": 177,
+    "title": "Fix install.sh to include run_ui.sh and preserve local state",
+    "short_description": "Update the installation script to correctly download the `run_ui.sh` utility and prevent it from overwriting the user's local `tasks.json` and `userbrief.json` files.",
+    "detailed_description": "The `install.sh` script needs to be updated to address two critical issues:\n\n1.  **Include `run_ui.sh` in download:** The script must be modified to download the `run_ui.sh` file alongside the other project files.\n\n2.  **Preserve Local Memory Bank:** The script currently overwrites the `.cursor/memory-bank` directory with the one from the template repository. This is incorrect. The script should be changed to:\n    *   Check if a `.cursor/memory-bank` directory exists in the target location.\n    *   If it exists, do nothing and leave the user's local files (`tasks.json`, `userbrief.json`, etc.) untouched.\n    *   If it does not exist, create an empty `.cursor/memory-bank` directory.\n    *   Under no circumstances should the script download or overwrite the state files from the `cursor-memory-bank` repository.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      "install.sh"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T22:45:08.962Z",
+    "updated_date": "2025-06-24T22:57:06.119Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 178,
+    "title": "Investigate and remove console logs from MemoryBank MCP server",
+    "short_description": "A user reported a JSON parsing error (`Unexpected token 'U', \"[UserBrief]\"...`) which indicates that a `console.log` is polluting the STDOUT communication from the MemoryBank MCP server. This task is to find and remove the offending log statement.",
+    "detailed_description": "The MemoryBank MCP server is producing non-JSON output, causing communication failures with the client. The error message `Unexpected token 'U', \"[UserBrief]\"...` points towards a debug log in a userbrief-related tool.\n\n**Plan:**\n1.  Search the entire `.cursor/mcp/memory-bank-mcp/` directory for any instances of `console.log`, `console.warn`, `console.error`, etc.\n2.  Pay special attention to files related to userbrief management, such as `lib/userbrief_manager.js` and `mcp_tools/read_userbrief.js` or `update_userbrief.js`.\n3.  Remove any discovered log statements that are not part of the intended JSON-RPC communication.\n4.  This is a critical bug that affects server stability.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/lib/userbrief_manager.js",
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/read_userbrief.js",
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/update_userbrief.js"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T22:48:51.231Z",
+    "updated_date": "2025-06-24T22:57:17.614Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 179,
+    "title": "Modifier l'interface Streamlit pour afficher les tâches bloquées en revue",
+    "short_description": "Affiche les tâches bloquées dans l'onglet \"Task to review\" de l'interface Streamlit avec un style visuel distinctif (rouge) pour faciliter leur identification et leur résolution.",
+    "detailed_description": "Modifier l'interface Streamlit pour améliorer la gestion des tâches bloquées.\n\n1.  **Localiser la logique d'affichage** : Identifier le fichier et la fonction responsables de l'affichage des tâches dans l'onglet \"Task to review\".\n2.  **Modifier la requête de filtrage** : Altérer la logique pour inclure les tâches ayant le statut `BLOCKED` en plus de celles ayant le statut `REVIEW`.\n3.  **Appliquer un style conditionnel** :\n    *   Lors de l'affichage de la liste des tâches, vérifier le statut de chaque tâche.\n    *   Si le statut est `BLOCKED`, afficher la tâche avec un fond ou une police de couleur rouge pour la distinguer visuellement.\n4.  **Assurer la non-régression** : Vérifier que les tâches avec le statut `REVIEW` continuent de s'afficher normalement sans changement de couleur.\n\nLes fichiers potentiellement impactés sont ceux liés à l'application Streamlit, notamment `task_status.py`.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T22:56:29.908Z",
+    "updated_date": "2025-06-24T23:02:11.281Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 180,
+    "title": "Valider et corriger l'outil `regex_edit`",
+    "short_description": "Valider, corriger et tester l'outil `regex_edit` pour assurer sa conformité avec le protocole de communication de Cursor et sa robustesse en cas d'erreur.",
+    "detailed_description": "L'objectif est de valider et de corriger l'outil `regex_edit` et de fournir un moyen de le tester.\n\n1.  **Analyser l'outil `regex_edit` existant** : Examiner le code source de l'outil `regex_edit` pour comprendre son fonctionnement actuel. Il se trouve probablement dans le répertoire des serveurs MCP (`.cursor/mcp/tools-mcp/mcp_tools/regex_edit.js`).\n2.  **Identifier les problèmes potentiels** :\n    *   Vérifier l'absence de `console.log` ou d'autres sorties qui pourraient polluer la réponse JSON.\n    *   S'assurer que l'outil retourne une réponse structurée et informative dans tous les cas (succès, pattern non trouvé, fichier non trouvé, etc.).\n    *   La réponse en cas de succès doit inclure le contexte de la modification (par exemple, les lignes avant et après).\n3.  **Corriger l'outil** : Apporter les modifications nécessaires pour qu'il respecte le protocole de communication et gère correctement les erreurs.\n4.  **Créer un script de test** :\n    *   Développer un script (par exemple, en Node.js) qui simule un appel à l'outil `regex_edit`.\n    *   Ce script doit :\n        *   Créer un fichier de test temporaire.\n        *   Appeler la logique de `regex_edit` pour modifier ce fichier.\n        *   Vérifier que le contenu du fichier a bien été modifié comme attendu.\n        *   Capturer et analyser la sortie de l'outil pour s'assurer qu'elle est conforme au format attendu (pas de logs parasites, structure JSON correcte).\n        *   Nettoyer le fichier de test après l'exécution.\n5.  **Documenter le test** : Ajouter des commentaires clairs dans le script de test pour expliquer son fonctionnement.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T22:56:49.466Z",
+    "updated_date": "2025-06-24T22:59:50.339Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 181,
+    "title": "Corriger le processus d'installation et nettoyer les fichiers mal placés",
+    "short_description": "Déplacer `run_ui.sh` au bon endroit et corriger `install.sh` pour préserver les données utilisateur et gérer correctement les téléchargements.",
+    "detailed_description": "L'objectif est de corriger le processus d'installation pour qu'il respecte la structure de fichiers du projet et préserve les données de l'utilisateur.\n\n1.  **Supprimer `run_ui.sh` de la racine** : Le script `run_ui.sh` a été incorrectement placé à la racine du projet. Il doit être supprimé de cet emplacement.\n\n2.  **Corriger le script `install.sh`** : Le script `install.sh` doit être modifié pour effectuer les actions suivantes :\n    *   **Télécharger `run_ui.sh` au bon endroit** : Le script doit télécharger `run_ui.sh` depuis le dépôt GitHub et le placer dans le répertoire `.cursor/`, et non à la racine.\n    *   **Préserver le `memory-bank`** : Le script doit vérifier l'existence du répertoire `.cursor/memory-bank`. S'il existe, il ne doit PAS le modifier. S'il n'existe pas, il doit le créer. En aucun cas il ne doit écraser les données existantes.\n\nCette tâche remplace et affine les objectifs de la tâche #177, qui avait été marquée comme 'DONE' par contournement.",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      "run_ui.sh",
+      "install.sh"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T23:00:07.392Z",
+    "updated_date": "2025-06-25T01:06:54.820446",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 182,
+    "title": "Corriger le bug d'affichage des tâches dans l'interface Streamlit",
+    "short_description": "Corriger une `NameError` dans `task_status.py` pour restaurer l'affichage des tâches dans l'interface Streamlit.",
+    "detailed_description": "L'objectif est de corriger une erreur `NameError` dans l'interface Streamlit qui empêche l'affichage des tâches.\n\n1.  **Identifier la cause** : L'erreur `NameError: name 'dependencies' is not defined` se produit dans `task_status.py` à la ligne 272, dans la fonction `render_task_card`. La variable `dependencies` est utilisée sans avoir été préalablement extraite de l'objet `task`.\n\n2.  **Corriger le code** : Modifier la fonction `render_task_card` pour extraire la liste des dépendances de l'objet `task` avant de l'utiliser. La ligne `dependencies = task.get('dependencies', [])` doit être ajoutée au début de la fonction.\n\n3.  **Validation** : Après la correction, il faudra s'assurer que l'onglet \"Task Status\" s'affiche correctement sans erreur et que les dépendances des tâches sont affichées comme prévu.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T23:00:25.359Z",
+    "updated_date": "2025-06-25T01:05:19.503088",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "status_history": [
+      {
+        "status": "TODO",
+        "timestamp": "2025-06-24T23:00:25.359Z"
+      },
+      {
+        "status": "DONE",
+        "timestamp": "2025-06-25T01:05:19.503088"
+      }
+    ]
+  },
+  {
+    "id": 183,
+    "title": "Retenter la modification de l'interface Streamlit avec `regex_edit`",
+    "short_description": "Utiliser `regex_edit` pour corriger l'interface Streamlit et afficher les tâches bloquées.",
+    "detailed_description": "L'objectif est de corriger le bug d'affichage des tâches dans l'interface Streamlit et d'implémenter l'affichage des tâches bloquées en rouge, en utilisant une approche plus robuste. Cette tâche remplace la tâche bloquée #179.\n\n1.  **Réactiver la tâche bloquée** : La tâche #179 sera marquée comme 'DONE' car celle-ci la remplace.\n\n2.  **Corriger le `NameError`** :\n    *   Utiliser l'outil `regex_edit` pour ajouter la ligne `dependencies = task.get('dependencies', [])` au début de la fonction `render_task_card` dans `task_status.py`.\n\n3.  **Implémenter le style pour les tâches bloquées** :\n    *   Utiliser `regex_edit` pour modifier la fonction `apply_advanced_filters` afin d'inclure les tâches `BLOCKED` lorsque le filtre `REVIEW` est sélectionné.\n\n4.  **Validation** : Vérifier que l'interface s'affiche sans erreur, que les tâches bloquées apparaissent bien dans la section \"Review\" et qu'elles ont un style distinctif.\n",
+    "dependencies": [
+      182
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T23:01:56.378Z",
+    "updated_date": "2025-06-25T01:05:23.518655",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "status_history": [
+      {
+        "status": "TODO",
+        "timestamp": "2025-06-24T23:01:56.378Z"
+      },
+      {
+        "status": "DONE",
+        "timestamp": "2025-06-25T01:05:23.518655"
+      }
+    ]
   }
 ]

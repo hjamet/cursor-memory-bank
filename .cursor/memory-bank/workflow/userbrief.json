@@ -1,154 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 135,
+  "last_id": 145,
   "requests": [
-    {
-      "id": 108,
-      "content": "Correction for Task #138 (Sub-task: Make Review Page the Main Page):\n\nAlors, c'est presque bon, ça a super bien fonctionné. Simplement problème. La page review existe toujours, ce qui fait qu'on a une page dupliquée. On a la page APP qui contient le contenu de la page review et la page review qui contient le contenu de la page review. Donc voilà, tu peux supprimer la page review et si c'est possible mais uniquement si c'est possible je sais pas si c'est possible renommer la page APP review c'est simplement en faire la page par défaut sur laquelle on arrive quand on se connecte.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T19:28:01.472148",
-      "updated_at": "2025-06-24T17:37:01.217Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T19:28:01.472148",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T17:37:01.217Z",
-          "action": "mark_archived",
-          "comment": "The file review.py appears to be already deleted according to the git status. No new task was created."
-        }
-      ]
-    },
-    {
-      "id": 109,
-      "content": "Dans l'interface streaming dans la page Memory. Agent working Memory Tu peux supprimer tout ce qu'il y a sous le titre en incluant bien sur ce titre : \"📋 Recent Requests Overview\", L'idée, c'est de garder simplement la liste des DI derniers souvenirs de la mémoire active de l'agent Le résumé des user-brise, on s'en fiche ça n'a rien à faire là !",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T19:29:23.826693",
-      "updated_at": "2025-06-24T17:37:39.702Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T19:29:23.826693",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T17:37:39.702Z",
-          "action": "mark_archived",
-          "comment": "Created task #151 to remove the 'Recent Requests Overview' section from the memory page."
-        }
-      ]
-    },
-    {
-      "id": 110,
-      "content": "Ça, c'est une toute petite tache toute simple, mais est-ce que tu peux m'envoyer un message, un aide agent message via remember ? C'est simplement pour vérifier que la la, la fonctionnalité marche bien.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T19:30:11.291240",
-      "updated_at": "2025-06-24T17:37:59.140Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T19:30:11.291240",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T17:37:59.140Z",
-          "action": "mark_archived",
-          "comment": "Sent a test message to the user as requested."
-        }
-      ]
-    },
-    {
-      "id": 111,
-      "content": "Un gros souci lors du chargement de la page Task Status :\n\nValueError: too many values to unpack (expected 2)\n\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py\", line 944, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py\", line 901, in main\n    search_query, filters = render_advanced_search_and_filters()\n    ^^^^^^^^^^^^^^^^^^^^^",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T19:33:39.036076",
-      "updated_at": "2025-06-24T17:38:34.109Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T19:33:39.036076",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T17:38:34.109Z",
-          "action": "mark_archived",
-          "comment": "Created task #152 to fix the ValueError on the Task Status Page."
-        }
-      ]
-    },
-    {
-      "id": 113,
-      "content": "Coucou dans l'application principale côté review et communication dans l'Onglet Task to review, tu peux supprimer le bouton. Euh Marc Asden et subreove Image. En fait, ça devrait être le cas par défaut si la tâche a une image, l'image devrait être supprimée par défaut. Euh. Valider le le changement, dire c'est bon, ça supprime automatiquement l'image si elle existe sans confirmation, sans rien, c'est automatique. Tu peux effectuer cette modification ? :D",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T19:42:34.389354",
-      "updated_at": "2025-06-24T17:43:35.639Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T19:42:34.389354",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T17:43:35.639Z",
-          "action": "mark_archived",
-          "comment": "Created task #153 to simplify image deletion on task approval."
-        }
-      ]
-    },
-    {
-      "id": 114,
-      "content": "Correction for Task #129 (Standardize Auto-Refresh Sidebar Feature):\n\nParu de malheureusement, depuis ta dernière modification, le bouton d'actualisation a simplement disparu. Euh. Donc de la side-barres y a y a on voit le titre contrôle mais en dessous y a rien donc du coup je je sais pas trop ce que t'as fait mais ça ne fonctionne malheureusement plus.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T20:05:04.520825",
-      "updated_at": "2025-06-24T18:06:21.454Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:05:04.520825",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:06:21.454Z",
-          "action": "mark_archived",
-          "comment": "The bug report about the missing auto-refresh button has been analyzed. The root cause was an incorrect usage of the `streamlit-autorefresh` library. A new high-priority task (#154) has been created to fix this by implementing a proper checkbox control in the sidebar. Archiving this request as it is now converted into a task."
-        }
-      ]
-    },
-    {
-      "id": 115,
-      "content": "Petite tache simplement pour t'aider à vérifier que la suppression des images se passe correctement, donc j'ai attaché une image. On s'en fiche un peu à cette tâche et du coup il faudrait vérifier que une fois que tu as résolu la tâche, que la tâche est archivée, Eh bien l'image est supprimée. Note que c'est quand la tâche est archivée, c'est à dire que je l'ai revu pas quand la tâche est simplement terminée par toi.",
-      "status": "archived",
-      "image": {
-        "path": ".cursor\\temp\\images\\req_115_20250624_200651_pasted.png",
-        "filename": "req_115_20250624_200651_pasted.png",
-        "size": 57689,
-        "width": 1338,
-        "height": 935,
-        "content_type": "image/png"
-      },
-      "created_at": "2025-06-24T20:06:51.458114",
-      "updated_at": "2025-06-24T18:08:54.235Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:06:51.458114",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:08:54.235Z",
-          "action": "mark_archived",
-          "comment": "The user's test request to verify image deletion has been analyzed. A new test task (#155) has been created, which is associated with the provided image. This task will be used to confirm that the image is deleted upon approval. Archiving the user request."
-        }
-      ]
-    },
     {
       "id": 116,
       "content": "Dans la Sidebar de l'application est ce que tu peux ajouter la courte description de la tâche en dessous du titre pour la tâche sur laquelle est en train de travailler l'agent, s'il te plaît ?",
@@ -518,6 +371,171 @@
           "timestamp": "2025-06-24T20:05:06.050Z",
           "action": "add_comment",
           "comment": "Votre suggestion d'ajouter `node_modules` et `package-lock.json` au fichier `.gitignore` et de les supprimer du dépôt était tout à fait pertinente. C'est une pratique standard pour alléger le dépôt et éviter les conflits. J'ai appliqué ces changements. Merci pour votre contribution !"
+        }
+      ]
+    },
+    {
+      "id": 136,
+      "content": "Je me suis rendu compte que le script d'installation avait plusieurs soucis. D'abord par exemple, il ne permet pas de télécharger le script utilitaire run UI . SH. Du coup, il faudrait qu'il l'intègre et puis aussi autre problème dans le même style, il va avoir tendance à copier l'état. L'état des tâches du projet. Euh, qui se trouve actuellement dans le repository cursor-memory-bank. En fait l'idée, c'est que normalement on utilise le script curl dans d'autres projets. Je suis dans un autre projet, je télécharge le système de règles et ensuite je peux me mettre à travailler sur l'autre projet. Or là ça ajoute les tâches, les en plus d'anciennes tâches qui se trouvent sur les repos de curseur Memory Bank. Et ça les ça devrait pas être le cas. En fait le le le, le dossier, même s'il est présent sur le repository, ce qui est normal parce que si je travaille, je veux quand même que les modifications de mes user brief Task et cetera soient synchronisés avec git mais je veux pas qu'elle soit téléchargée par les personnes qui utilisent ce repository Donc du coup il faudrait pas que ça se soit téléchargé, Au contraire, le script d'installation devrait créer un dossier vide ou simplement laisser les fichiers qu'il y a dans le repository où il est installé. S'il y en a, s'il y a déjà des fichiers Task, des fichiers user way et cetera, il doit les laisser et les intégrer sans les écraser. Ça c'est assez important. Donc voilà, il faudrait corriger de manière à ce que le script d'installation garde ce qui est dans le dossier actuel et en tout cas n'écrase pas avec les données de. Euh de des tâches et des requêtes de de de du repository cursor-memory-bank. tu peux corriger ces 2 choses ?",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T00:44:30.001442",
+      "updated_at": "2025-06-24T22:45:13.219Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T00:44:30.001442",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T22:45:13.219Z",
+          "action": "mark_archived",
+          "comment": "This request has been converted into task #177."
+        }
+      ]
+    },
+    {
+      "id": 137,
+      "content": "Encore un problème lié au à l'affichage de log dans le serveur mcp Memory banque MCP il me semble. Je pense que c'est lié à ça. Check si c'est toujours le cas et s'il y a pas des logs qui traînent et qui polluent la communication avec le. Le protocole. Le protocole de communication StDIO :\n\n2025-06-25 00:45:13.223 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'U', \"[UserBrief]\"... is not valid JSON",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T00:48:22.594953",
+      "updated_at": "2025-06-24T22:48:55.386Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T00:48:22.594953",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T22:48:55.386Z",
+          "action": "mark_archived",
+          "comment": "This request has been converted into task #178."
+        }
+      ]
+    },
+    {
+      "id": 139,
+      "content": "Est ce que tu peux modifier légèrement le L'interface streaming pour que les taches marquées comme bloquées soient affichées dans les tâches à revoir Task to review de manière à ce que je puisse. Bah les débloquer en donnant un conseil à à l'Agence sur comment les continuer, et cetera donc. Mêlé dans dans les Task to Rio quand une tache est marquée comme bloquée, elle devient à tout review. Euh. Afficher simplement avec une couleur légèrement différente pour que je puisse immédiatement les identifier genre mets les en rouge dans l'interface (pae review & communication, tab task to review)",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T00:53:06.331786",
+      "updated_at": "2025-06-24T22:56:32.846Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T00:53:06.331786",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T22:56:32.846Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 140,
+      "content": "Tu peux valider checker le comportement de regex Edit, l'outil regex Edit Vérifier que ça fonctionne bien et si tu remarques que ça ne fonctionne pas correctement, le. Le fixe Pour le tester, tu pourras pas le tester directement parce qu'il faut que le curseur redémarre pour que tu puisses utiliser des nouvelles versions d'un outil. C'est très chiant mais c'est comme ça. Mais par contre ce que tu peux faire c'est créer un script qui teste la communication STO et qui vérifie si la valeur de retour et bien enfin si ça fonctionne correctement, fait très attention à avoir une valeur de retour et une valeur d'entrée et un style de communication qui est exactement celui souhaité par cursor. Typiquement il faut pas mettre de logs, ça tu dois le savoir et puis. Et puis puis du coup je t'ai dit hein ? La sortie de l'outil c'est une confirmation de si la modification a été appliquée ou pas. Enfin non, c'est plutôt la modification appliquée, les 10 lignes avant les 10 lignes après. Euh. Et si la modification n'a pas été effectuée pour une quelconque raison, un message d'erreur avec des détails si possible le. Genre le Pattern n'a pas été trouvé, le fichier n'a pas été trouvé Mais vraiment, il faut qu'il y ait un message, il faut que l'outil retourne quelque chose.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T00:56:14.854762",
+      "updated_at": "2025-06-24T22:56:52.366Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T00:56:14.854762",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T22:56:52.366Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 141,
+      "content": "Question regarding agent message #65: \"Les problèmes ont été résolus. Le serveur ne devrait plus générer d'erreur JSON, et le script `run_u...\"\n\nMy question: Euh, attends, il doit surtout pas être la racine du répo. Je l'ai supprimé le le script run UI il se trouve sur le github dans le dossier .cursor Et lorsqu'il est téléchargé via le script installe, il doit aussi être placé dans ce même dossier, exactement au même endroit. C'est vraiment une copie conforme. En fait, le dossier va être une copie conforme générale. Il y a juste 2 choses supplémentaires à faire, l'installation des 2 serveurs MCP avec NPM Install et. Et aussi la non suppression des tâches de l'utilisateur, c'est à dire que on laisse le dossier avec les tâches utilisateurs s'il y avait des tâches utilisateurs de bord. En fait, c'est juste. Voilà, on va copier le reste des éléments qu'il y a autour. Mais ce dossier workflow de l'utilisateur qui est dans le dossier dans lequel sur le repository sur lequel on exécute la commande pour le curn qui va exécuter le script installe. Eh Ben ça, on n'y Touche pas puisqu'on veut pas remplacer les tâches du projet actuel",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T00:59:16.856289",
+      "updated_at": "2025-06-24T23:00:10.480Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T00:59:16.856289",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:00:10.480Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 142,
+      "content": "Maintenant, j'ai l'erreur suivante, quand je vais dans l'onglet Task Status de l'interface streaming, j'ai l'erreur suivante qui est assez embêtante, qui m'empêche de voir toutes les tâches : NameError: name 'dependencies' is not defined\n\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py\", line 654, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py\", line 643, in main\n    render_task_card(task)\n    ~~~~~~~~~~~~~~~~^^^^^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py\", line 272, in render_task_card\n    st.write(f\"**Dependencies:** {', '.join(map(str, dependencies))}\" if dependencies else \"None\")\n                                                                         ^^^^^^^^^^^^",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T01:00:08.657622",
+      "updated_at": "2025-06-24T23:00:28.299Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:00:08.657622",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:00:28.299Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 143,
+      "content": "Question regarding agent message #66: \"Je suis désolé, mais je suis incapable de modifier l'interface Streamlit comme vous l'avez demandé. ...\"\n\nMy question: Réessaye, je te rappelle que t'as un outil regex Edit pour des modifications précises au besoin Essaie de réessayer plusieurs fois les modifications, de changer ton approche, de relire, lit toujours les fichiers avant de les modifier parce que si ça se trouve, tu penses que tu n'arrives pas à appliquer la modification, mais en fait peut être que le modèle a réussi à à l'appliquer et t'as juste pas compris que il avait réussi à l'appliquer.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T01:01:11.776234",
+      "updated_at": "2025-06-24T23:02:03.161Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:01:11.776234",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:02:03.161Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 144,
+      "content": "Est ce que tu peux modifier l'interface streamlit ? Euh pour que les taches Que l'agent marque comme bloqué soit affiché dans la table. La Tab Task to review à l'intérieur de la page review et communication. Comme ça, quand une tâche est bloquée, bah moi je peux regarder comment la débloquer, dire à l'agent comment faire, et cetera. Donc c'est de la la tâche bloquée doit être en mode tout review pour que je puisse l'éditer. Voilà, est-ce que est-ce que tu peux, est-ce que tu peux corriger ça s'il te plaît ?",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-06-25T01:06:23.281717",
+      "updated_at": "2025-06-25T01:06:23.281717",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:06:23.281717",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        }
+      ]
+    },
+    {
+      "id": 145,
+      "content": "Tu peux aussi t'assurer que le script d'installation garde complètement intact le dossier workflow du repository où il est installé. Si ce dossier existe déjà, il doit surtout pas écraser ce dossier avec les tâches et requêtes venant du du github de Memory Bank. Au contraire, il doit bah simplement installer tout le reste tout autour sans toucher au dossier où il y a des tâches et les requêtes user brief du projet où il est installé. Et avec lesquels il va devoir désormais travailler",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-06-25T01:08:21.319757",
+      "updated_at": "2025-06-25T01:08:21.319757",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:08:21.319757",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }
