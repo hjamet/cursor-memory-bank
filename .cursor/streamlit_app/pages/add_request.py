@@ -9,7 +9,7 @@ import base64
 import shutil
 from PIL import Image
 import io
-from st_img_pastebutton import paste_img_button
+from st_img_pastebutton import paste
 
 st.set_page_config(page_title="Add Request", page_icon="➕")
 
@@ -474,8 +474,8 @@ with st.form("request_form", clear_on_submit=True):
     
     with col_paste:
         st.write("Or paste an image from clipboard:")
-        pasted_data = paste_img_button(
-            "📋 Paste Image (Ctrl+V)",
+        pasted_data = paste(
+            label="📋 Paste Image (Ctrl+V)",
             key="paste_button"
         )
 
