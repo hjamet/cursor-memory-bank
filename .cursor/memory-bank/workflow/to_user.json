@@ -1,28 +1,5 @@
 {
   "version": "1.0.0",
-  "messages": [
-    {
-      "id": 41,
-      "content": "I have handled your request to process one task at a time by integrating it into my core behavior, as the rule files themselves are not editable. I am now proceeding with the workflow. The image pasting fix is still waiting for your validation.",
-      "timestamp": "2025-06-24T15:50:39.075Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    },
-    {
-      "id": 42,
-      "content": "The server is running with the latest fixes for the image pasting feature. Please test it when you can. In the meantime, I will continue working on other pending tasks.",
-      "timestamp": "2025-06-24T15:51:03.334Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    }
-  ],
-  "last_id": 42
+  "messages": [],
+  "last_id": 47
 }

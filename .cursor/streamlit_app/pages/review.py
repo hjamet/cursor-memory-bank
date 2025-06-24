@@ -6,12 +6,101 @@ from datetime import datetime
 import requests
 from typing import List, Dict, Optional
 from PIL import Image
+import uuid
 
 st.set_page_config(page_title="Review & Communication", page_icon="📨")
 
 st.markdown("# 📨 Review & Communication")
 
 st.markdown("Review tasks awaiting validation and view messages from the agent.")
+
+# --- Start of functions from add_request.py ---
+
+def get_next_request_id():
+    """Get the next available request ID from userbrief.json"""
+    userbrief_file = Path(".cursor/memory-bank/workflow/userbrief.json")
+    if userbrief_file.exists():
+        with open(userbrief_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data.get("last_id", 0) + 1
+    return 1
+
+def save_uploaded_image(uploaded_file, request_id):
+    """Save uploaded image to a structured directory and return metadata."""
+    if uploaded_file is not None:
+        try:
+            # Create a unique filename to avoid collisions
+            ext = os.path.splitext(uploaded_file.name)[1]
+            unique_filename = f"req_{request_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}{ext}"
+            
+            # Define save path
+            save_dir = Path(".cursor/temp/images")
+            save_dir.mkdir(parents=True, exist_ok=True)
+            image_path = save_dir / unique_filename
+            
+            # Save the file
+            with open(image_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+
+            # Get image dimensions
+            with Image.open(image_path) as img:
+                width, height = img.size
+            
+            # Return image metadata
+            return {
+                "path": str(image_path),
+                "filename": unique_filename,
+                "size": uploaded_file.size,
+                "width": width,
+                "height": height,
+                "content_type": uploaded_file.type
+            }
+        except Exception as e:
+            st.error(f"Error saving image: {e}")
+            return None
+    return None
+
+def create_new_request(content: str, image_metadata: Optional[Dict] = None):
+    """Create a new request in userbrief.json, with optional image attachment."""
+    try:
+        userbrief_file = Path(".cursor/memory-bank/workflow/userbrief.json")
+        
+        if userbrief_file.exists():
+            with open(userbrief_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        else:
+            data = {"version": "1.0.0", "last_id": 0, "requests": []}
+
+        new_id = data.get("last_id", 0) + 1
+        timestamp = datetime.now().isoformat()
+        
+        new_req = {
+            "id": new_id,
+            "content": content,
+            "status": "new",
+            "image": image_metadata, # Can be None
+            "created_at": timestamp,
+            "updated_at": timestamp,
+            "history": [{
+                "timestamp": timestamp,
+                "action": "created",
+                "comment": "Request created via Streamlit app."
+            }]
+        }
+
+        data["requests"].append(new_req)
+        data["last_id"] = new_id
+
+        with open(userbrief_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        
+        return True
+    except Exception as e:
+        st.error(f"Error creating request: {e}")
+        return False
+
+# --- End of functions from add_request.py ---
+
 
 # --- Start of functions from communication.py ---
 
@@ -153,55 +242,6 @@ def update_task_status(task_id: int, new_status: str, validation_data: Optional[
     
     return False
 
-def create_userbrief_request(content: str) -> bool:
-    """Create a new userbrief request for task corrections"""
-    try:
-        userbrief_file = ".cursor/memory-bank/workflow/userbrief.json"
-        
-        # Read current userbrief
-        try:
-            with open(userbrief_file, 'r', encoding='utf-8') as f:
-                userbrief_data = json.load(f)
-        except FileNotFoundError:
-            userbrief_data = {
-                "version": "1.0.0",
-                "last_id": 0,
-                "requests": []
-            }
-        
-        # Create new request
-        new_id = userbrief_data["last_id"] + 1
-        timestamp = datetime.now().isoformat()
-        
-        new_request = {
-            "id": new_id,
-            "content": content,
-            "status": "new",
-            "created_at": timestamp,
-            "updated_at": timestamp,
-            "history": [
-                {
-                    "timestamp": timestamp,
-                    "action": "created",
-                    "comment": "Request created automatically from task rejection in To Review page."
-                }
-            ]
-        }
-        
-        # Add to requests and update last_id
-        userbrief_data["requests"].append(new_request)
-        userbrief_data["last_id"] = new_id
-        
-        # Save updated userbrief
-        with open(userbrief_file, 'w', encoding='utf-8') as f:
-            json.dump(userbrief_data, f, indent=2, ensure_ascii=False)
-        
-        return True
-        
-    except Exception as e:
-        st.error(f"Error creating userbrief request: {e}")
-        return False
-
 def has_associated_image(task: Dict) -> bool:
     """Check if task has an associated image"""
     return task.get('image') is not None and task.get('image') != ''
@@ -338,7 +378,7 @@ def render_task_review_card(task: Dict):
                 if submitted:
                     if rejection_reason:
                         rejection_content = f"Correction for Task #{task_id} ({title}):\n\n{rejection_reason}"
-                        if create_userbrief_request(rejection_content) and update_task_status(task_id, 'TODO'):
+                        if create_new_request(rejection_content) and update_task_status(task_id, 'TODO'):
                             st.success(f"Task #{task_id} rejected. New userbrief request created.")
                             del st.session_state[f'reject_form_{task_id}']
                             st.rerun()
@@ -360,53 +400,89 @@ def render_message_review_card(message: Dict):
     content = message.get('content', 'No content')
     timestamp = message.get('timestamp', '')
     
-    with st.expander(f"**{format_timestamp(timestamp)}**: {content[:80]}..."):
+    with st.container(border=True):
+        st.caption(f"📨 Agent Message | {format_timestamp(timestamp)} | ID: {message_id}")
         st.markdown(f"> {content}")
-        st.caption(f"Message ID: {message_id}")
 
-        col1, col2 = st.columns([1, 5])
+        action_col1, action_col2 = st.columns([1, 5])
         
-        with col1:
-            if st.button("✅ Validate", key=f"validate_{message_id}"):
+        with action_col1:
+            if st.button("✅ Acknowledge", key=f"validate_{message_id}", help="Acknowledge and delete this message."):
                 if delete_message(message_id):
-                    st.toast(f"Message {message_id} validated.")
+                    st.toast(f"Message {message_id} acknowledged.")
                     if 'answering_message_id' in st.session_state and st.session_state.answering_message_id == message_id:
                         del st.session_state.answering_message_id
                     st.rerun()
                 else:
                     st.error("Failed to delete message.")
 
-        with col2:
-            if st.button("❓ Answer", key=f"answer_{message_id}"):
+        with action_col2:
+            if st.button("❓ Ask a question", key=f"answer_{message_id}", help="Ask a follow-up question. This will create a new request."):
                 st.session_state.answering_message_id = message_id
 
-        # Answer form
+        # Answer form, now inside the container
         if st.session_state.get('answering_message_id') == message_id:
             with st.form(key=f"answer_form_{message_id}"):
-                user_question = st.text_area("Your question or comment:", key=f"question_{message_id}")
-                submitted = st.form_submit_button("Send Answer")
+                user_question = st.text_area("Your question or comment:", key=f"question_{message_id}", height=100)
+                submitted = st.form_submit_button("Send Question")
                 
                 if submitted:
                     if user_question:
                         # Create new userbrief request
-                        request_content = f"Question about your comment: \"{content}\"\\n\\n{user_question}"
-                        if create_userbrief_request(request_content):
+                        request_content = f"Question regarding agent message #{message_id}: \"{content[:100]}...\"\n\nMy question: {user_question}"
+                        if create_new_request(request_content):
                             st.success("Your question has been sent as a new request.")
-                            # Delete the original message
+                            # Delete the original message after it has been answered
                             delete_message(message_id)
-                            # Clean up session state
                             del st.session_state.answering_message_id
                             st.rerun()
                         else:
                             st.error("Failed to create a new request.")
                     else:
                         st.warning("Please enter a question or comment.")
+        
+        st.markdown("---")
+
+def render_add_request_tab():
+    """Render the UI for adding a new user request."""
+    st.header("✨ Add New Request")
+    
+    request_content = st.text_area("Request Description", height=250, placeholder="Please provide a detailed description of your request...", label_visibility="collapsed")
+    
+    with st.expander("📎 Attach an Image (Optional)"):
+        uploaded_image = st.file_uploader(
+            "Upload an image for context (e.g., screenshot, mockup).",
+            type=['png', 'jpg', 'jpeg', 'gif']
+        )
+        if uploaded_image:
+            st.image(uploaded_image, width=300)
+
+    if st.button("Submit New Request", type="primary", use_container_width=True):
+        if request_content:
+            next_id = get_next_request_id()
+            
+            # Save image if provided
+            image_meta = None
+            if uploaded_image:
+                image_meta = save_uploaded_image(uploaded_image, next_id)
+
+            # Create the new request
+            if create_new_request(request_content, image_meta):
+                st.success(f"Request #{next_id} submitted successfully!")
+                st.balloons()
+            else:
+                st.error("Failed to submit the request.")
+        else:
+            st.warning("Please enter a description for your request.")
 
 def main():
     """Main function to render the review page"""
-    tab1, tab2 = st.tabs(["Tasks to Review", "Agent Messages"])
+    add_request_tab, review_tab, messages_tab = st.tabs(["✨ Add Request", "✅ Tasks to Review", "📨 Agent Messages"])
 
-    with tab1:
+    with add_request_tab:
+        render_add_request_tab()
+
+    with review_tab:
         st.header("Tasks Awaiting Validation")
         tasks = load_tasks()
         review_tasks = [t for t in tasks if t.get('status') == 'REVIEW']
@@ -418,7 +494,7 @@ def main():
             for task in sorted(review_tasks, key=lambda x: x.get('id', 0), reverse=True):
                 render_task_review_card(task)
 
-    with tab2:
+    with messages_tab:
         st.header("Messages from Agent")
         messages = read_user_messages()
 

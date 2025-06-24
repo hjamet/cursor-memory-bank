@@ -2539,13 +2539,13 @@
     "short_description": "Refactor the agent message display in the Streamlit 'Review' tab to replace the accordion view with a more direct and user-friendly callout-style UI.",
     "detailed_description": "The user finds the current accordion display for agent messages in the 'Review' tab to be impractical. This task is to refactor the UI to display messages more directly and elegantly.\n\n**Implementation Steps:**\n\n1.  **Locate the rendering function**: The target function is `render_message_review_card` in the file `.cursor/streamlit_app/pages/review.py`.\n2.  **Remove `st.expander`**: Replace the `st.expander` component with a `st.container` that has a visible border (`border=True`) to create a distinct \"callout\" for each message.\n3.  **Display Content Directly**: The full message content should be displayed within this container using `st.markdown`.\n4.  **Reposition Action Buttons**: Move the 'Validate' and 'Answer' buttons inside the container. Use `st.columns` to place them side-by-side to the right of the message content for a cleaner layout.\n5.  **Ensure Functionality**: Verify that the 'Validate' (delete message) and 'Answer' (create new userbrief) actions still work correctly after the UI modification.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [
       ".cursor/streamlit_app/pages/review.py"
     ],
     "validation_criteria": "1. The accordion (`st.expander`) in the 'Agent Messages' tab is replaced with a different container. 2. The full message content is visible by default within the new container. 3. The 'Validate' and 'Answer' buttons are present and functional within the new container. 4. The overall look is cleaner and more direct, as requested by the user.",
     "created_date": "2025-06-24T15:24:16.576Z",
-    "updated_date": "2025-06-24T15:24:16.576Z",
+    "updated_date": "2025-06-24T16:03:27.799Z",
     "parent_id": null,
     "priority": 3,
     "image": null
@@ -2556,13 +2556,83 @@
     "short_description": "This is a meta-task to modify the `task-decomposition.md` rule file. The goal is to enforce the processing of only one user request at a time during that workflow step, as requested by the user for better focus and quality.",
     "detailed_description": "The user has emphasized that the `task-decomposition` workflow step must be stricter. The agent must process only one user request at a time. This task is to modify the instruction file for that step to enforce this behavior.\\n\\n**Sub-tasks:**\\n\\n1.  **Read the existing rule:** Load the content of `.cursor/memory-bank/workflow/task-decomposition.md`.\\n2.  **Strengthen the instruction:** Modify the markdown to make it unambiguously clear that only the oldest unprocessed request (provided in the context) should be analyzed and decomposed into tasks in a single run. Emphasize that all other requests must be ignored until the next cycle.\\n3.  **Save the modified rule:** Overwrite the existing file with the new, stricter instructions.",
     "dependencies": [],
-    "status": "DONE",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/memory-bank/workflow/task-decomposition.md"
     ],
     "validation_criteria": "1. The `task-decomposition.md` file is modified.\\n2. The new instructions clearly and forcefully state that only one request must be processed per cycle.\\n3. In subsequent runs, the agent demonstrably follows this new rule.",
     "created_date": "2025-06-24T15:49:56.096Z",
-    "updated_date": "2025-06-24T15:50:32.101Z",
+    "updated_date": "2025-06-24T17:53:12.281444",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 115,
+    "title": "Refactor UI of 'Add Request' Page for Better Readability",
+    "short_description": "The user has validated that the image pasting now works, but finds the new UI on the `add_request.py` page confusing. This task is to refactor the UI to be more user-friendly and readable, similar to a previous design, while keeping the functional backend code.",
+    "detailed_description": "This is a correction to the previous UI refactor. The user has provided specific feedback on how to improve the layout of the 'Add Request' page.\n\n**Original Goal:** Refactor the UI of `add_request.py` to improve its clarity and usability, likely by reverting to a previous, more organized design, while keeping the new, stable backend logic.\n\n**User Feedback / New Requirements:**\n1.  **Remove Subtitle:** The subtitle 'Add request' should be removed.\n2.  **Move Text Area Up:** The main text area for the request description should be moved to the top of the page to prevent the user from having to scroll down to access it.\n3.  **Consolidate Image Buttons:** The 'Paste Image' button should be moved *inside* the container that also holds the 'Upload an image' button. The two buttons for adding an image should be grouped together for better usability.\n\n**Updated Sub-tasks:**\n1.  **Analyze the current layout in `add_request.py`**.\n2.  **Implement the three specific changes requested by the user.**\n3.  **Ensure all functionality is preserved:** The image upload, paste, and request submission logic must remain fully functional.\n4.  **Validate the new layout:** The final layout must match the user's specific instructions.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/add_request.py"
+    ],
+    "validation_criteria": "1. The 'Add request' subtitle is removed from the page.\n2. The request description text area is the first major element at the top of the page.\n3. The 'Paste Image' button is located inside the same container as the 'Upload an image' button.\n4. All previous functionalities (image handling, form submission) work correctly.\n5. The user confirms the new design meets their requirements.",
+    "created_date": "2025-06-24T15:51:34.185Z",
+    "updated_date": "2025-06-24T16:02:55.974Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null
+  },
+  {
+    "id": 116,
+    "title": "Find Editable Workflow Rule Files in Project",
+    "short_description": "Following direct user feedback, my previous conclusion that rule files are not editable was wrong. This task is to perform an exhaustive search for the workflow rule files (e.g., `*.md`, `*.mdc`) within the entire project workspace.",
+    "detailed_description": "The user has strongly indicated that the workflow rule files (as `.md` files) are editable and exist within the project structure. My previous attempt to locate them in `.cursor/memory-bank/workflow/` failed, leading me to an incorrect conclusion.\n\nThis task is to conduct a thorough, project-wide search to locate these rule files.\n\n**Sub-tasks:**\n1.  **Perform a global search:** Use file search tools to look for any file ending in `.md` or `.mdc` across the entire project, not just in the `.cursor` directory.\n2.  **Analyze search results:** Examine the results to identify the directory containing the workflow rule files.\n3.  **Document the location:** Once found, the location of these files must be documented in this task's comments for future reference.\n\nThis task blocks Task #114, as we cannot modify the rule until we find it.",
+    "dependencies": [
+      114
+    ],
+    "status": "DONE",
+    "impacted_files": [],
+    "validation_criteria": "1. The exact path to the directory containing the workflow rule files (e.g., `task-decomposition.md`) is identified and confirmed.\n2. The agent can successfully read the content of one of these files.",
+    "created_date": "2025-06-24T15:52:01.819Z",
+    "updated_date": "2025-06-24T15:52:27.298Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 117,
+    "title": "Refactor UI: Move 'Add Request' Page into 'Review' Page Tab",
+    "short_description": "Merge the 'Add Request' page into a new tab within the 'Review' page to streamline the user interface.",
+    "detailed_description": "This task involves a significant refactoring of the Streamlit UI. The goal is to merge the 'Add Request' page into the 'Review' page as a new tab, simplifying the navigation for the user.\n\n**Requirements:**\n1.  **Create a new tab:** Add a new tab titled '➕ Add Request' to the `review.py` page.\n2.  **Tab Position:** This new tab must be the first tab displayed.\n3.  **Move Content:** All functionality and UI components from `add_request.py` must be moved into this new tab.\n4.  **Preserve Functionality:** The moved 'Add Request' functionality must work exactly as it did before, including form submission, image uploads, and status display.\n5.  **Cleanup:** The original `add_request.py` file must be deleted after its content has been successfully migrated.\n\n**Acceptance Criteria:**\n- The `review.py` page has three tabs: '➕ Add Request', 'Tasks to Review', and 'Agent Messages', in that order.\n- The '➕ Add Request' tab contains the full user interface for adding new requests, identical to the previous `add_request.py` page.\n- Users can successfully submit new requests with or without images from the new tab.\n- The `add_request.py` file is no longer present in the `pages` directory.\n- The application runs without errors after the changes.\n\n**Technical Notes:**\n- The code from `add_request.py` will need to be carefully integrated into `review.py`.\n- Pay attention to function names and imports to avoid conflicts.\n- It might be necessary to refactor some helper functions from `add_request.py` to be self-contained within the new tab's rendering function in `review.py`.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/review.py",
+      ".cursor/streamlit_app/pages/add_request.py"
+    ],
+    "validation_criteria": "Task is complete when: (1) The 'Review' page displays a new first tab called '➕ Add Request'. (2) The content and functionality of the former 'add_request.py' page are fully present and working within this new tab. (3) The file `.cursor/streamlit_app/pages/add_request.py` has been deleted. (4) The Streamlit application runs correctly without any errors related to this change.",
+    "created_date": "2025-06-24T15:57:23.564Z",
+    "updated_date": "2025-06-24T16:01:11.684Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 118,
+    "title": "Fix Task Time Estimation Calculation to Use 'IN_PROGRESS' Timestamp",
+    "short_description": "Correct the task completion time estimation to be based on the duration between 'IN_PROGRESS' and 'DONE' statuses, not 'created' and 'done'. This involves adding a status history to each task.",
+    "detailed_description": "The user has reported that the task time estimation is inaccurate because it calculates the duration from task creation to completion, rather than the time spent actively working on it. This task is to fix this by implementing a more precise time tracking mechanism.\n\n**Requirements:**\n\n1.  **Modify Task Data Structure:**\n    *   Add a new field to the task object in `tasks.json` called `status_history`.\n    *   This field will be an array of objects, where each object records a status change: `{'status': 'IN_PROGRESS', 'timestamp': '...'}`.\n\n2.  **Update Task Update Logic:**\n    *   Modify the function responsible for updating tasks (likely `update_task_local` or a similar function in `.cursor/streamlit_app/pages/task_status.py` and any MCP server-side equivalent).\n    *   Whenever a task's status is changed, a new entry must be appended to its `status_history` array.\n\n3.  **Correct the Time Calculation Logic:**\n    *   Modify the `calculate_task_completion_stats` function in `.cursor/streamlit_app/pages/task_status.py`.\n    *   The function must now calculate the completion time by finding the difference between the timestamp when the status became `DONE` or `APPROVED` and the timestamp when it became `IN_PROGRESS`.\n    *   It should iterate through the `status_history` to find the relevant timestamps.\n    *   **Graceful Fallback:** If a task does not have an `IN_PROGRESS` status in its history, it should either be excluded from the calculation or the calculation should fall back to using the `created_date`.\n\n**Acceptance Criteria:**\n- The time estimation for tasks is now based on the duration between the `IN_PROGRESS` and `DONE`/`APPROVED` statuses.\n- The `tasks.json` file now contains a `status_history` for tasks that have had their status changed.\n- The average completion time displayed in the Streamlit UI is accurate and reflects the actual work time.\n- The system does not crash if a completed task is missing an `IN_PROGRESS` status in its history.\n\n**Technical Notes:**\n- This change will require a migration for existing tasks, but for now, the logic should handle tasks that do not have the `status_history` field.\n- Careful error handling is needed when parsing the new history field.\n- The changes will impact both the data model and the application logic.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py",
+      ".cursor/memory-bank/streamlit_app/tasks.json"
+    ],
+    "validation_criteria": "Task is complete when: (1) The average completion time is calculated based on the time difference between a task entering 'IN_PROGRESS' and 'DONE'/'APPROVED'. (2) Task objects in `tasks.json` are updated with a `status_history` array whenever their status changes. (3) The Streamlit UI correctly displays the new, more accurate time estimation. (4) The system handles older tasks without a `status_history` field without errors.",
+    "created_date": "2025-06-24T15:58:33.339Z",
+    "updated_date": "2025-06-24T16:02:23.804Z",
     "parent_id": null,
     "priority": 5,
     "image": null

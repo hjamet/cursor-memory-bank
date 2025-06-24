@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 89,
+  "last_id": 93,
   "requests": [
     {
       "id": 76,
@@ -277,14 +277,18 @@
     {
       "id": 89,
       "content": "Ok, super bonne nouvelle, j'ai l'impression que la copie d'image fonctionne mais par contre donc avec tes corrections ça a l'air de très bien marcher avec le bouton. Par contre idéalement. Il faudrait que tu remettes un peu le le design de la page qu'il y avait avant parce que c'était juste mieux fait. Là, c'est très difficile à lire, mais par contre en termes de fonctionnement, ça marche beaucoup mieux maintenant, donc garde le code actuel pour la la copie d'image, ça marche très bien.",
-      "status": "new",
+      "status": "archived",
       "created_at": "2025-06-24T17:50:33.476930",
-      "updated_at": "2025-06-24T17:50:33.476930",
+      "updated_at": "2025-06-24T15:51:37.487Z",
       "history": [
         {
           "timestamp": "2025-06-24T17:50:33.476930",
           "action": "created",
           "comment": "New request added via Streamlit interface with status 'new' for processing. Includes image: pasted_image_20250624_175000.jpg"
+        },
+        {
+          "timestamp": "2025-06-24T15:51:37.487Z",
+          "action": "mark_archived"
         }
       ],
       "image": {
@@ -297,6 +301,78 @@
         "timestamp": "20250624_175000",
         "source": "clipboard"
       }
+    },
+    {
+      "id": 90,
+      "content": "Question about your comment: \"I have handled your request to process one task at a time by integrating it into my core behavior, as the rule files themselves are not editable. I am now proceeding with the workflow. The image pasting fix is still waiting for your validation.\"\\n\\nAlors tu dis que les règles elles mêmes sont pas éditables ? C'est totalement faux. Si des fichiers . MD qui sont totalement éditables, il faut que tu les cherches et ensuite là c'est peut être plus l'édition du serveur MCP qu'il faudrait faire. En tout cas j'ai du mal à comprendre ce que tu veux dire par un. J'ai intégré ça à mon propre comportement. C'est assez louche et je crois pas que tu puisses faire ça donc ça me paraît vraiment bizarre. Tu peux me confirmer et régler les soucis ?",
+      "status": "archived",
+      "created_at": "2025-06-24T17:51:41.546515",
+      "updated_at": "2025-06-24T15:52:05.308Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T17:51:41.546515",
+          "action": "created",
+          "comment": "Request created automatically from task rejection in To Review page."
+        },
+        {
+          "timestamp": "2025-06-24T15:52:05.308Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 91,
+      "content": "Modification assez importante mais est ce que tu pourrais déplacer la page ? La page adrequest dans la page Review comme une sorte d'onglet le la page review possède déjà 2 onglets et donc tu mettrais comme premier onglet enfin tu ajouteras un 3e onglet que tu mettras en première position qui est l'onglet request qui permet d'envoyer les requêtes et là tu peux tu peux vraiment prendre ce qui le le contenu actuel de la page c'est juste en déplacement pour que ce soit plus pratique pour moi",
+      "status": "archived",
+      "created_at": "2025-06-24T17:52:46.498107",
+      "updated_at": "2025-06-24T15:57:27.817Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T17:52:46.498107",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-24T15:57:27.817Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 92,
+      "content": "Correction for Task #115 (Refactor UI of 'Add Request' Page for Better Readability):\n\nAlors c'est pas mal, mais il faudrait que tu enlèves le sous-titre Ad request et que tu montes la zone de texte pour rentrer tout en haut de la page que l'utilisateur est pas un scroll pour faire son entrée. Par ailleurs, déplace aussi le bouton copier l'image juste à l'intérieur du container qui dit Dragon Drop ou ajouter une image depuis enfin upload animage comme ça il y a les 2 boutons upload depuis votre ordinateur et copier depuis le presse papier dans le même container parce que sinon le bouton il est assez introuvable, il se trouve un autre endroit c'est c'est pas bien fichu",
+      "status": "archived",
+      "created_at": "2025-06-24T17:56:07.874785",
+      "updated_at": "2025-06-24T15:57:57.979Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T17:56:07.874785",
+          "action": "created",
+          "comment": "Request created automatically from task rejection in To Review page."
+        },
+        {
+          "timestamp": "2025-06-24T15:57:57.979Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 93,
+      "content": "Encore une fois, il me semble que l'estimation du temps pour les tâches est complètement foireuse. Je sais pas trop où est le problème, mais je pense que il y a un souci lié au tamstamp, peut-être lié au fait que lorsque le le. Le certaines tâches en fait elles elles sont restées non démarrées. Pendant plusieurs jours avant que le le l'agent se mette à les démarrer, c'est pas ce temps-là que tu dois prendre en compte, c'est le temps entre le moment où les gens a mis la tâche sur inprogress et le. Et le moment où la tâche a été mis dans done, c'est ce temps-là qu'il faut mesurer. Donc ça, ça met un énorme biais donc il faut je pense qu'il va falloir modifier un peu la structure de tes tâches en ajoutant un un autre timestamp. Enfin le timestamp de la dernière modification. En fait, il faudrait avoir le timestamp du moment où c'est passé en mode to do ou avoir une liste de timestorms. Je sais pas exactement comment il faudrait faire ça mais là actuellement l'estimation est complètement foireuse à cause de ça Je te laisse trouver une solution et résoudre. :D",
+      "status": "archived",
+      "created_at": "2025-06-24T17:57:53.217412",
+      "updated_at": "2025-06-24T15:58:37.342Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T17:57:53.217412",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-24T15:58:37.342Z",
+          "action": "mark_archived"
+        }
+      ]
     }
   ]
 }

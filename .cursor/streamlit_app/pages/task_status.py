@@ -52,10 +52,27 @@ def update_task_local(task_id, **kwargs):
         # Find and update the task
         for task in tasks:
             if str(task.get('id', task.get('task_id'))) == str(task_id):
-                # Update fields
+                
+                # If status is being updated, manage history
+                if 'status' in kwargs and kwargs['status'] != task.get('status'):
+                    now_iso = datetime.now().isoformat()
+                    if 'status_history' not in task or not task['status_history']:
+                        # Initialize history for older tasks.
+                        # This creates a baseline from its creation date and current status.
+                        task['status_history'] = [{'status': task.get('status', 'TODO'), 'timestamp': task.get('created_date')}]
+                    
+                    # Append new status change
+                    task['status_history'].append({
+                        'status': kwargs['status'],
+                        'timestamp': now_iso
+                    })
+                    task['updated_date'] = now_iso
+                else:
+                    task['updated_date'] = datetime.now().isoformat()
+
+                # Update other fields
                 for key, value in kwargs.items():
                     task[key] = value
-                task['updated_date'] = datetime.now().isoformat()
                 
                 # Save back to file
                 if data_format == 'array':
@@ -159,40 +176,47 @@ def get_userbrief_requests():
         return []
 
 def calculate_task_completion_stats(tasks) -> Tuple[Optional[float], Optional[float]]:
-    """Calculate average completion time and standard deviation for completed tasks"""
+    """Calculate average completion time and standard deviation for completed tasks based on status history."""
     completed_tasks = [t for t in tasks if t.get('status') in ['DONE', 'APPROVED']]
     completion_times = []
     
     for task in completed_tasks:
-        created_str = task.get('created_date', '')
-        
-        # For APPROVED tasks, use validation.approved_at as completion date
-        # For DONE tasks, use updated_date as completion date
-        if task.get('status') == 'APPROVED':
-            validation = task.get('validation', {})
-            updated_str = validation.get('approved_at', '')
-        else:
-            updated_str = task.get('updated_date', '')
-        
-        if created_str and updated_str:
-            try:
-                # Parse ISO format datetime strings
-                start = datetime.fromisoformat(created_str.replace('Z', '+00:00'))
-                end = datetime.fromisoformat(updated_str.replace('Z', '+00:00'))
-                completion_time_hours = (end - start).total_seconds() / 3600
-                
-                # Temporary logging to debug completion times
-                # st.sidebar.write(f"Task #{task.get('id')}: {completion_time_hours:.2f} hours") # Commenting out the debug log
+        history = task.get('status_history', [])
+        if not history:
+            continue
 
-                # Only consider reasonable completion times (between 1 minute and 24 hours)
-                if 0.017 <= completion_time_hours <= 24:  # 1 minute to 24 hours
-                    completion_times.append(completion_time_hours)
-            except (ValueError, TypeError):
-                continue
-    
+        t_in_progress = None
+        t_done = None
+
+        # Find the first 'IN_PROGRESS' and the last 'DONE'/'APPROVED' timestamp
+        for event in history:
+            status = event.get('status')
+            timestamp = event.get('timestamp')
+            
+            if timestamp:
+                if status == 'IN_PROGRESS' and t_in_progress is None:
+                    try:
+                        t_in_progress = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                    except (ValueError, TypeError):
+                        continue
+                
+                if status in ['DONE', 'APPROVED']:
+                    try:
+                        # Always take the latest completion timestamp
+                        t_done = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                    except (ValueError, TypeError):
+                        continue
+        
+        if t_in_progress and t_done and t_done > t_in_progress:
+            completion_time_hours = (t_done - t_in_progress).total_seconds() / 3600
+            
+            # Only consider reasonable completion times (e.g., > 1 minute)
+            if completion_time_hours > (1/60):
+                completion_times.append(completion_time_hours)
+
     if len(completion_times) >= 1:
         mean_time = statistics.mean(completion_times)
-        std_dev = statistics.stdev(completion_times) if len(completion_times) > 1 else 0
+        std_dev = statistics.stdev(completion_times) if len(completion_times) > 1 else 0.0
         return mean_time, std_dev
     
     return None, None

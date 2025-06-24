@@ -5,7 +5,8 @@ Analyzes user requests, explores existing code, searches for additional informat
 
 1. **Request analysis**: Understand the user's request:
    - Analyze the user request provided by the MCP server.
-   - Identify requested features or modifications.
+   - **IMPORTANT**: Focus exclusively on the oldest unprocessed request. All other requests must be ignored until the next cycle.
+   - Identify requested features or modifications for that single request.
    - Extract important keywords and concepts.
 
 2. **Code analysis**: Identify concerned files and symbols:
@@ -27,6 +28,13 @@ Analyzes user requests, explores existing code, searches for additional informat
 6. **Record state and determine next steps**: Use remember tool to record progress and get next steps.
    - Call `mcp_MemoryBankMCP_remember` to record the current state and analysis
    - The remember tool will indicate the appropriate next steps
+
+## Specifics - RÈGLES STRICTES
+- **RÈGLE #1 : UNE SEULE REQUÊTE** : Vous devez analyser et décomposer **une seule requête utilisateur** par cycle. Concentrez-vous sur la requête la plus ancienne non traitée (`unprocessed_requests`[0]).
+- **RÈGLE #2 : IGNORER LE RESTE** : Toutes les autres requêtes utilisateur doivent être complètement ignorées pendant ce cycle. Ne les analysez pas, ne créez pas de tâches pour elles.
+- **RÈGLE #3 : CYCLE COMPLET POUR UNE REQUÊTE** : Le cycle complet (analyse, création de tâche, archivage) doit concerner uniquement cette seule requête.
+- **RÈGLE #4 : PAS D'ANTICIPATION** : Ne tentez pas de regrouper ou d'anticiper le traitement des requêtes futures.
+- **RÈGLE #5 : DISCIPLINE** : Le respect de cette règle est essentiel pour la stabilité et la prévisibilité du workflow.
 
 ## Specifics
 - If you were called from consolidate-repo, consider the formulated request as the user request to analyze
