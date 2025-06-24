@@ -3,11 +3,14 @@ import json
 import os
 from pathlib import Path
 from datetime import datetime
+from streamlit_autorefresh import st_autorefresh
+
+# Run the autorefresh component every 10 seconds
+st_autorefresh(interval=10000, key="memory_refresh")
 
 st.set_page_config(page_title="Memory Management", page_icon="🧠")
 
 st.markdown("# 🧠 Memory Management")
-st.sidebar.header("Memory Management")
 
 st.markdown("Manage your project's memory: preferences, long-term memories, project brief, and technical context.")
 
@@ -145,157 +148,253 @@ with tab1:
             
             st.markdown("---")
             
-            # Filter options
-            col1, col2, col3 = st.columns(3)
+            # Enhanced categorized display
+            st.subheader("🔍 Filter & Display Options")
+            
+            # Filter options with better layout
+            col1, col2, col3, col4 = st.columns(4)
             with col1:
-                show_new = st.checkbox("Afficher Nouvelles (🆕)", value=True)
+                show_new = st.checkbox("🆕 Nouvelles", value=True)
             with col2:
-                show_in_progress = st.checkbox("Afficher En cours (⚡)", value=True)
+                show_in_progress = st.checkbox("⚡ En cours", value=True)
             with col3:
-                show_archived = st.checkbox("Afficher Archivées (✅)", value=False)
+                show_archived = st.checkbox("✅ Archivées", value=False)
+            with col4:
+                show_full_content = st.checkbox("📄 Contenu complet", value=True, help="Afficher le contenu complet au lieu du résumé")
             
-            # Filter and sort requests
-            filtered_requests = []
-            for req in requests:
-                status = req.get('status', 'unknown')
-                if (status == 'new' and show_new) or \
-                   (status == 'in_progress' and show_in_progress) or \
-                   (status == 'archived' and show_archived):
-                    filtered_requests.append(req)
+            st.markdown("---")
             
-            # Sort by most recent first
-            filtered_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+            # Sort all requests by updated_at (most recent first)
+            new_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+            in_progress_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+            archived_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
             
-            if filtered_requests:
-                st.info(f"Affichage de {len(filtered_requests)} requête(s) sur {len(requests)} au total")
+            # Display In Progress Requests
+            if show_in_progress and in_progress_requests:
+                st.header("⚡ Requêtes en cours")
+                st.success(f"🔥 {len(in_progress_requests)} requête(s) actuellement en traitement")
                 
-                # Display requests
-                for req in filtered_requests:
+                for req in in_progress_requests:
+                    req_id = req.get('id')
                     status = req.get('status', 'unknown')
-                    status_emoji = {'new': '🆕', 'in_progress': '⚡', 'archived': '✅'}.get(status, '❓')
                     
-                    with st.expander(f"{status_emoji} #{req.get('id', 'N/A')}: {req.get('content', '')[:80]}...", expanded=False):
-                        col1, col2 = st.columns([3, 1])
+                    with st.container():
+                        st.markdown(f"### ⚡ Requête #{req_id} - En cours")
                         
+                        # Content display
+                        content = req.get('content', 'Pas de contenu')
+                        if show_full_content:
+                            st.markdown("**📝 Contenu complet:**")
+                            st.write(content)
+                        else:
+                            st.markdown("**📝 Aperçu:**")
+                            preview = content[:150] + "..." if len(content) > 150 else content
+                            st.write(preview)
+                            if len(content) > 150:
+                                with st.expander("📖 Voir le contenu complet"):
+                                    st.write(content)
+                        
+                        # Metadata
+                        col1, col2, col3 = st.columns(3)
                         with col1:
-                            st.markdown("**Contenu:**")
-                            st.write(req.get('content', 'Pas de contenu'))
-                            
-                            st.markdown("**Informations:**")
-                            st.write(f"**Statut:** {status.title()}")
-                            st.write(f"**Créé:** {req.get('created_at', 'Inconnu')[:19].replace('T', ' ')}")
-                            st.write(f"**Modifié:** {req.get('updated_at', 'Inconnu')[:19].replace('T', ' ')}")
-                            
-                            # Show history if available
-                            history = req.get('history', [])
-                            if history:
-                                st.markdown("**Historique:**")
-                                for entry in history[-3:]:  # Show last 3 entries
+                            st.caption(f"🕐 **Créé:** {req.get('created_at', 'Inconnu')[:19].replace('T', ' ')}")
+                        with col2:
+                            st.caption(f"🔄 **Modifié:** {req.get('updated_at', 'Inconnu')[:19].replace('T', ' ')}")
+                        with col3:
+                            st.caption(f"🏷️ **Statut:** En cours")
+                        
+                        # Actions
+                        col_actions1, col_actions2 = st.columns(2)
+                        with col_actions1:
+                            if st.button(f"✅ Archiver", key=f"archive_progress_{req_id}", help="Marquer comme archivée"):
+                                req['status'] = 'archived'
+                                req['updated_at'] = datetime.now().isoformat()
+                                if 'history' not in req:
+                                    req['history'] = []
+                                req['history'].append({
+                                    'timestamp': datetime.now().isoformat(),
+                                    'action': 'mark_archived',
+                                    'comment': 'Manually archived via Memory Management interface'
+                                })
+                                
+                                if save_json_file(memory_paths['userbrief'], userbrief_data):
+                                    st.success(f"✅ Requête #{req_id} archivée!")
+                                    st.toast(f"✅ Request #{req_id} archived successfully", icon="✅")
+                                    st.rerun()
+                        
+                        with col_actions2:
+                            if st.button(f"🔄 Retour nouveau", key=f"back_new_{req_id}", help="Remettre en statut nouveau"):
+                                req['status'] = 'new'
+                                req['updated_at'] = datetime.now().isoformat()
+                                if 'history' not in req:
+                                    req['history'] = []
+                                req['history'].append({
+                                    'timestamp': datetime.now().isoformat(),
+                                    'action': 'status_update',
+                                    'comment': 'Reset to new status via Memory Management interface'
+                                })
+                                
+                                if save_json_file(memory_paths['userbrief'], userbrief_data):
+                                    st.success(f"✅ Requête #{req_id} remise en statut nouveau!")
+                                    st.rerun()
+                        
+                        # Show history
+                        history = req.get('history', [])
+                        if history:
+                            with st.expander("📋 Historique récent", expanded=False):
+                                for entry in history[-3:]:
                                     timestamp = entry.get('timestamp', 'Inconnu')[:19].replace('T', ' ')
                                     action = entry.get('action', 'Inconnu')
                                     comment = entry.get('comment', 'Pas de commentaire')
-                                    st.write(f"- {timestamp}: **{action}** - {comment}")
+                                    st.write(f"• **{timestamp}** - {action}: {comment}")
                         
+                        st.markdown("---")
+            
+            # Display New Requests
+            if show_new and new_requests:
+                st.header("🆕 Nouvelles requêtes")
+                st.info(f"📊 {len(new_requests)} nouvelle(s) requête(s) en attente de traitement")
+                
+                for req in new_requests:
+                    req_id = req.get('id')
+                    
+                    with st.container():
+                        st.markdown(f"### 🆕 Requête #{req_id} - Nouvelle")
+                        
+                        # Content display
+                        content = req.get('content', 'Pas de contenu')
+                        if show_full_content:
+                            st.markdown("**📝 Contenu complet:**")
+                            st.write(content)
+                        else:
+                            st.markdown("**📝 Aperçu:**")
+                            preview = content[:150] + "..." if len(content) > 150 else content
+                            st.write(preview)
+                            if len(content) > 150:
+                                with st.expander("📖 Voir le contenu complet"):
+                                    st.write(content)
+                        
+                        # Metadata
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.caption(f"🕐 **Créé:** {req.get('created_at', 'Inconnu')[:19].replace('T', ' ')}")
                         with col2:
-                            st.markdown("**Actions:**")
-                            
-                            # Enhanced action buttons with simulated functionality
-                            req_id = req.get('id')
-                            
-                            if status == 'new':
-                                if st.button(f"⚡ En cours", key=f"progress_{req_id}", help="Marquer comme en cours"):
-                                    # Simulate status update
-                                    req['status'] = 'in_progress'
-                                    req['updated_at'] = datetime.now().isoformat()
-                                    if 'history' not in req:
-                                        req['history'] = []
-                                    req['history'].append({
-                                        'timestamp': datetime.now().isoformat(),
-                                        'action': 'status_update',
-                                        'comment': 'Marked as in progress via Memory Management interface'
-                                    })
-                                    
-                                    # Save updated userbrief
-                                    if save_json_file(memory_paths['userbrief'], userbrief_data):
-                                        st.success(f"✅ Requête #{req_id} marquée comme en cours!")
-                                        st.toast(f"⚡ Request #{req_id} marked as in progress", icon="⚡")
-                                        st.rerun()
+                            st.caption(f"🔄 **Modifié:** {req.get('updated_at', 'Inconnu')[:19].replace('T', ' ')}")
+                        with col3:
+                            st.caption(f"🏷️ **Statut:** Nouvelle")
+                        
+                        # Actions
+                        col_actions1, col_actions2 = st.columns(2)
+                        with col_actions1:
+                            if st.button(f"⚡ En cours", key=f"progress_{req_id}", help="Marquer comme en cours"):
+                                req['status'] = 'in_progress'
+                                req['updated_at'] = datetime.now().isoformat()
+                                if 'history' not in req:
+                                    req['history'] = []
+                                req['history'].append({
+                                    'timestamp': datetime.now().isoformat(),
+                                    'action': 'status_update',
+                                    'comment': 'Marked as in progress via Memory Management interface'
+                                })
                                 
-                                if st.button(f"✅ Archiver", key=f"archive_new_{req_id}", help="Marquer comme archivée"):
-                                    # Simulate archiving
-                                    req['status'] = 'archived'
-                                    req['updated_at'] = datetime.now().isoformat()
-                                    if 'history' not in req:
-                                        req['history'] = []
-                                    req['history'].append({
-                                        'timestamp': datetime.now().isoformat(),
-                                        'action': 'mark_archived',
-                                        'comment': 'Manually archived via Memory Management interface'
-                                    })
-                                    
-                                    # Save updated userbrief
-                                    if save_json_file(memory_paths['userbrief'], userbrief_data):
-                                        st.success(f"✅ Requête #{req_id} archivée!")
-                                        st.toast(f"✅ Request #{req_id} archived successfully", icon="✅")
-                                        st.rerun()
-                            
-                            elif status == 'in_progress':
-                                if st.button(f"✅ Archiver", key=f"archive_progress_{req_id}", help="Marquer comme archivée"):
-                                    # Simulate archiving
-                                    req['status'] = 'archived'
-                                    req['updated_at'] = datetime.now().isoformat()
-                                    if 'history' not in req:
-                                        req['history'] = []
-                                    req['history'].append({
-                                        'timestamp': datetime.now().isoformat(),
-                                        'action': 'mark_archived',
-                                        'comment': 'Manually archived via Memory Management interface'
-                                    })
-                                    
-                                    # Save updated userbrief
-                                    if save_json_file(memory_paths['userbrief'], userbrief_data):
-                                        st.success(f"✅ Requête #{req_id} archivée!")
-                                        st.toast(f"✅ Request #{req_id} archived successfully", icon="✅")
-                                        st.rerun()
+                                if save_json_file(memory_paths['userbrief'], userbrief_data):
+                                    st.success(f"✅ Requête #{req_id} marquée comme en cours!")
+                                    st.toast(f"⚡ Request #{req_id} marked as in progress", icon="⚡")
+                                    st.rerun()
+                        
+                        with col_actions2:
+                            if st.button(f"✅ Archiver", key=f"archive_new_{req_id}", help="Marquer comme archivée"):
+                                req['status'] = 'archived'
+                                req['updated_at'] = datetime.now().isoformat()
+                                if 'history' not in req:
+                                    req['history'] = []
+                                req['history'].append({
+                                    'timestamp': datetime.now().isoformat(),
+                                    'action': 'mark_archived',
+                                    'comment': 'Manually archived via Memory Management interface'
+                                })
                                 
-                                if st.button(f"🔄 Retour nouveau", key=f"back_new_{req_id}", help="Remettre en statut nouveau"):
-                                    # Simulate status rollback
-                                    req['status'] = 'new'
-                                    req['updated_at'] = datetime.now().isoformat()
-                                    if 'history' not in req:
-                                        req['history'] = []
-                                    req['history'].append({
-                                        'timestamp': datetime.now().isoformat(),
-                                        'action': 'status_update',
-                                        'comment': 'Reset to new status via Memory Management interface'
-                                    })
-                                    
-                                    # Save updated userbrief
-                                    if save_json_file(memory_paths['userbrief'], userbrief_data):
-                                        st.success(f"✅ Requête #{req_id} remise en statut nouveau!")
-                                        st.rerun()
+                                if save_json_file(memory_paths['userbrief'], userbrief_data):
+                                    st.success(f"✅ Requête #{req_id} archivée!")
+                                    st.toast(f"✅ Request #{req_id} archived successfully", icon="✅")
+                                    st.rerun()
+                        
+                        st.markdown("---")
+            
+            # Display Archived Requests
+            if show_archived and archived_requests:
+                st.header("✅ Requêtes archivées")
+                st.info(f"📊 {len(archived_requests)} requête(s) archivée(s)")
+                
+                # Show only first 10 archived requests by default
+                display_count = min(10, len(archived_requests))
+                show_all_archived = st.checkbox(f"Afficher toutes les {len(archived_requests)} requêtes archivées", value=False)
+                
+                display_archived = archived_requests if show_all_archived else archived_requests[:display_count]
+                
+                for req in display_archived:
+                    req_id = req.get('id')
+                    
+                    with st.container():
+                        st.markdown(f"### ✅ Requête #{req_id} - Archivée")
+                        
+                        # Content display
+                        content = req.get('content', 'Pas de contenu')
+                        if show_full_content:
+                            st.markdown("**📝 Contenu complet:**")
+                            st.write(content)
+                        else:
+                            st.markdown("**📝 Aperçu:**")
+                            preview = content[:150] + "..." if len(content) > 150 else content
+                            st.write(preview)
+                            if len(content) > 150:
+                                with st.expander("📖 Voir le contenu complet"):
+                                    st.write(content)
+                        
+                        # Metadata
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.caption(f"🕐 **Créé:** {req.get('created_at', 'Inconnu')[:19].replace('T', ' ')}")
+                        with col2:
+                            st.caption(f"✅ **Archivé:** {req.get('updated_at', 'Inconnu')[:19].replace('T', ' ')}")
+                        with col3:
+                            st.caption(f"🏷️ **Statut:** Archivée")
+                        
+                        # Reactivation action
+                        if st.button(f"🔄 Réactiver", key=f"reactivate_{req_id}", help="Remettre en statut nouveau"):
+                            req['status'] = 'new'
+                            req['updated_at'] = datetime.now().isoformat()
+                            if 'history' not in req:
+                                req['history'] = []
+                            req['history'].append({
+                                'timestamp': datetime.now().isoformat(),
+                                'action': 'reactivate',
+                                'comment': 'Reactivated from archived status via Memory Management interface'
+                            })
                             
-                            elif status == 'archived':
-                                if st.button(f"🔄 Réactiver", key=f"reactivate_{req_id}", help="Remettre en statut nouveau"):
-                                    # Simulate reactivation
-                                    req['status'] = 'new'
-                                    req['updated_at'] = datetime.now().isoformat()
-                                    if 'history' not in req:
-                                        req['history'] = []
-                                    req['history'].append({
-                                        'timestamp': datetime.now().isoformat(),
-                                        'action': 'reactivate',
-                                        'comment': 'Reactivated from archived status via Memory Management interface'
-                                    })
-                                    
-                                    # Save updated userbrief
-                                    if save_json_file(memory_paths['userbrief'], userbrief_data):
-                                        st.success(f"✅ Requête #{req_id} réactivée!")
-                                        st.toast(f"🔄 Request #{req_id} reactivated", icon="🔄")
-                                        st.rerun()
-                                
-                                st.caption("*Requête archivée*")
-            else:
+                            if save_json_file(memory_paths['userbrief'], userbrief_data):
+                                st.success(f"✅ Requête #{req_id} réactivée!")
+                                st.toast(f"🔄 Request #{req_id} reactivated", icon="🔄")
+                                st.rerun()
+                        
+                        # Show completion history
+                        history = req.get('history', [])
+                        if history:
+                            completion_entries = [entry for entry in history if 'archive' in entry.get('action', '').lower()]
+                            if completion_entries:
+                                latest_completion = completion_entries[-1]
+                                comment = latest_completion.get('comment', 'Request completed')
+                                st.caption(f"📝 **Note de completion:** {comment}")
+                        
+                        st.markdown("---")
+                
+                if not show_all_archived and len(archived_requests) > display_count:
+                    st.info(f"💡 Affichage des {display_count} requêtes archivées les plus récentes. Cochez la case ci-dessus pour voir toutes les {len(archived_requests)} requêtes.")
+            
+            # Summary information
+            if not show_new and not show_in_progress and not show_archived:
+                st.info("Sélectionnez au moins un type de requête à afficher.")
+            elif not any([new_requests and show_new, in_progress_requests and show_in_progress, archived_requests and show_archived]):
                 st.info("Aucune requête ne correspond aux filtres sélectionnés.")
         else:
             st.info("Aucune requête trouvée dans le fichier JSON.")

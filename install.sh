@@ -217,6 +217,51 @@ download_archive() {
     esac
 }
 
+# Function to manage .gitignore file
+manage_gitignore() {
+    local target_dir="$1"
+    local gitignore_file="$target_dir/.gitignore"
+    local no_gitignore_flag="${NO_GITIGNORE:-}"
+
+    if [[ -n "$no_gitignore_flag" ]]; then
+        log "Skipping .gitignore management due to --no-gitignore flag"
+        return
+    fi
+
+    log "Managing .gitignore file..."
+
+    # Create .gitignore if it doesn't exist
+    if [[ ! -f "$gitignore_file" ]]; then
+        touch "$gitignore_file"
+        log "Created .gitignore file at: $gitignore_file"
+    fi
+
+    # Entries to be added
+    local entries=(
+        "# Cursor Memory Bank - Auto-generated entries"
+        ".cursor/mcp/*/node_modules/"
+        ".cursor/mcp/*/*.log"
+        ".cursor/memory-bank/workflow/temp/"
+        ".cursor/streamlit_app/__pycache__/"
+        ".cursor/memory-bank/models/"
+        "*.pyc"
+        "__pycache__/"
+        "# MCP Server State Files"
+        ".cursor/mcp/*/terminals_status.json"
+        ".cursor/mcp/*/temp_*"
+    )
+
+    # Add entries if they don't exist
+    for entry in "${entries[@]}"; do
+        if ! grep -qF -- "$entry" "$gitignore_file"; then
+            echo "$entry" >> "$gitignore_file"
+            log "Added to .gitignore: $entry"
+        else
+            log "Already in .gitignore: $entry"
+        fi
+    done
+}
+
 # Backup and create_dirs functions removed - no longer needed for workflow system
 
 install_workflow_system() {
@@ -393,6 +438,9 @@ install_workflow_system() {
             chmod -R u+rw "$mcp_server_target_dir" || true
         fi
     done
+
+    # Manage .gitignore file
+    manage_gitignore "$target_dir"
 
     log "Workflow system and MCP servers installed successfully"
 }

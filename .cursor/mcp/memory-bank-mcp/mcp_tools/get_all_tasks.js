@@ -39,7 +39,7 @@ export async function handleGetAllTasks(params) {
         const tasksData = await readTasks();
 
         // Filter out completed tasks
-        let filteredTasks = tasksData.filter(task => task.status !== 'DONE');
+        let filteredTasks = tasksData.filter(task => task.status !== 'DONE' && task.status !== 'APPROVED');
 
         // Sort tasks by status order, then priority
         filteredTasks.sort((a, b) => {
@@ -109,7 +109,7 @@ export async function handleGetAllTasks(params) {
                 subtasks: tasksData.filter(t => t.parent_id).length
             },
             filters_applied: {
-                status_filter: "Excludes DONE tasks",
+                status_filter: "Excludes DONE and APPROVED tasks",
                 priority_filter: null,
                 include_subtasks: true,
                 include_dependencies: true
@@ -123,8 +123,8 @@ export async function handleGetAllTasks(params) {
             statistics,
             query_info: {
                 count_returned: enhancedTasks.length,
-                priority_order: 'IN_PROGRESS → TODO → BLOCKED → REVIEW (excludes DONE)',
-                filters_applied: "Excludes completed tasks only"
+                priority_order: 'IN_PROGRESS → TODO → BLOCKED → REVIEW (excludes DONE & APPROVED)',
+                filters_applied: "Excludes completed and approved tasks"
             }
         };
 

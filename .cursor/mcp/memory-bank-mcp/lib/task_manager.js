@@ -122,6 +122,11 @@ class TaskManager {
     getAllTasks(options = {}) {
         let filteredTasks = [...this.tasks];
 
+        // Default to excluding DONE tasks unless explicitly requested
+        if (!options.include_done) {
+            filteredTasks = filteredTasks.filter(task => task.status !== 'DONE');
+        }
+
         // Filter by parent_id if specified
         if (options.parent_id !== undefined) {
             filteredTasks = filteredTasks.filter(task => task.parent_id === options.parent_id);

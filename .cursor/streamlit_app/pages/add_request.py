@@ -9,6 +9,10 @@ import base64
 import shutil
 from PIL import Image
 import io
+from streamlit_autorefresh import st_autorefresh
+
+# Run the autorefresh component every 10 seconds
+st_autorefresh(interval=10000, key="add_request_refresh")
 
 st.set_page_config(page_title="Add Request", page_icon="➕")
 
@@ -63,6 +67,67 @@ def process_uploaded_image(uploaded_file, request_id):
         st.error(f"Error processing image: {e}")
         return None
 
+def process_pasted_image(image_data, request_id):
+    """
+    Process pasted image from clipboard: decode base64, resize, compress, and save temporarily
+    Returns image metadata dict or None if error
+    """
+    try:
+        # Create temp directory if it doesn't exist
+        temp_dir = ".cursor/temp/images"
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Decode base64 image data
+        if image_data.startswith('data:image/'):
+            # Remove data URL prefix (e.g., "data:image/png;base64,")
+            header, data = image_data.split(',', 1)
+            image_bytes = base64.b64decode(data)
+        else:
+            # Direct base64 data
+            image_bytes = base64.b64decode(image_data)
+        
+        # Open image with PIL
+        image = Image.open(io.BytesIO(image_bytes))
+        
+        # Convert to RGB if necessary (for JPEG compatibility)
+        if image.mode in ('RGBA', 'LA', 'P'):
+            image = image.convert('RGB')
+        
+        # Resize if width > 1024px
+        if image.width > 1024:
+            ratio = 1024 / image.width
+            new_height = int(image.height * ratio)
+            image = image.resize((1024, new_height), Image.Resampling.LANCZOS)
+        
+        # Generate unique filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"req_{request_id}_{timestamp}_pasted.jpg"
+        filepath = os.path.join(temp_dir, filename)
+        
+        # Save as JPEG with 80% quality
+        image.save(filepath, "JPEG", quality=80, optimize=True)
+        
+        # Get file size
+        file_size = os.path.getsize(filepath)
+        
+        # Create metadata
+        image_metadata = {
+            "path": filepath,
+            "original_name": f"pasted_image_{timestamp}.jpg",
+            "size": file_size,
+            "format": "JPEG",
+            "width": image.width,
+            "height": image.height,
+            "timestamp": timestamp,
+            "source": "clipboard"
+        }
+        
+        return image_metadata
+        
+    except Exception as e:
+        st.error(f"Error processing pasted image: {e}")
+        return None
+
 def cleanup_temp_images(older_than_hours=24):
     """Clean up temporary images older than specified hours"""
     try:
@@ -83,7 +148,6 @@ def cleanup_temp_images(older_than_hours=24):
         pass  # Ignore cleanup errors
 
 st.markdown("# ➕ Add New Request")
-st.sidebar.header("Add Request")
 
 st.markdown("Use this page to add new requests to the userbrief. These requests will be automatically processed by the agent's workflow system.")
 
@@ -382,18 +446,58 @@ st.header("📝 New Request")
 # Clean up old temporary images
 cleanup_temp_images()
 
+# Initialize session state for pasted images
+if 'pasted_image_data' not in st.session_state:
+    st.session_state.pasted_image_data = None
+if 'pasted_image_metadata' not in st.session_state:
+    st.session_state.pasted_image_metadata = None
+
+# Check for pasted image data from JavaScript via URL parameters
+query_params = st.query_params
+if 'pasted_image' in query_params:
+    try:
+        # Get the next request ID for filename
+        userbrief_file = ".cursor/memory-bank/workflow/userbrief.json"
+        try:
+            with open(userbrief_file, 'r', encoding='utf-8') as f:
+                userbrief_data = json.load(f)
+            next_id = userbrief_data.get("last_id", 0) + 1
+        except FileNotFoundError:
+            next_id = 1
+        
+        # Process the pasted image
+        image_data = query_params['pasted_image']
+        image_metadata = process_pasted_image(image_data, next_id)
+        
+        if image_metadata:
+            st.session_state.pasted_image_metadata = image_metadata
+            st.success(f"📋 Image pasted successfully! {image_metadata['original_name']} ({image_metadata['width']}x{image_metadata['height']})")
+        else:
+            st.error("❌ Failed to process pasted image.")
+        
+        # Clear the query parameters to avoid reprocessing
+        st.query_params.clear()
+        st.rerun()
+            
+    except Exception as e:
+        st.error(f"❌ Error processing pasted image: {e}")
+        # Clear query parameters even on error
+        st.query_params.clear()
+        st.rerun()
+
 # Use Streamlit form for reliable submission handling
 with st.form("request_form", clear_on_submit=True):
     request_text = st.text_area(
         "Request Description:",
         height=150,
         placeholder="Describe what you want to accomplish...",
-        help="Enter your request. It will be processed automatically by the task-analysis workflow. Press Ctrl+Enter to submit quickly.",
+        help="Enter your request. It will be processed automatically by the task-analysis workflow. Press Ctrl+Enter to submit quickly. You can also paste images directly with Ctrl+V!",
         key="request_input"
     )
     
-    # Image upload section
+    # Image upload section with Ctrl+V instructions
     st.markdown("**📸 Optional: Attach Image**")
+    st.markdown("*💡 You can upload a file below OR paste an image directly in the text area with **Ctrl+V***")
     uploaded_image = st.file_uploader(
         "Upload an image to include with your request:",
         type=['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'],
@@ -401,8 +505,42 @@ with st.form("request_form", clear_on_submit=True):
         key="image_upload"
     )
     
+    # Show pasted image preview if available
+    if st.session_state.pasted_image_metadata is not None:
+        st.markdown("**🖼️ Pasted Image Preview:**")
+        col_img, col_info = st.columns([2, 1])
+        
+        with col_img:
+            # Display the pasted image
+            try:
+                pasted_image = Image.open(st.session_state.pasted_image_metadata['path'])
+                st.image(pasted_image, caption=f"Pasted: {st.session_state.pasted_image_metadata['original_name']}", use_column_width=True)
+            except Exception as e:
+                st.error(f"Error displaying pasted image: {e}")
+        
+        with col_info:
+            # Show image info
+            st.markdown("**Image Information:**")
+            st.write(f"**Source:** Clipboard (Ctrl+V)")
+            st.write(f"**Filename:** {st.session_state.pasted_image_metadata['original_name']}")
+            st.write(f"**Size:** {st.session_state.pasted_image_metadata['size']:,} bytes")
+            st.write(f"**Dimensions:** {st.session_state.pasted_image_metadata['width']} x {st.session_state.pasted_image_metadata['height']} px")
+            st.write(f"**Format:** {st.session_state.pasted_image_metadata['format']}")
+            st.success("✅ Ready to submit with request")
+            
+            # Button to clear pasted image
+            if st.button("🗑️ Remove Pasted Image", key="clear_pasted_image"):
+                try:
+                    if os.path.exists(st.session_state.pasted_image_metadata['path']):
+                        os.remove(st.session_state.pasted_image_metadata['path'])
+                except:
+                    pass
+                st.session_state.pasted_image_data = None
+                st.session_state.pasted_image_metadata = None
+                st.rerun()
+    
     # Show image preview if uploaded
-    if uploaded_image is not None:
+    elif uploaded_image is not None:
         st.markdown("**🖼️ Image Preview:**")
         col_img, col_info = st.columns([2, 1])
         
@@ -442,8 +580,12 @@ if submitted:
     if current_text:
         image_metadata = None
         
-        # Process uploaded image if present
-        if uploaded_image is not None:
+        # Priority: Use pasted image if available, otherwise use uploaded image
+        if st.session_state.pasted_image_metadata is not None:
+            # Use the already processed pasted image
+            image_metadata = st.session_state.pasted_image_metadata
+            st.success(f"📋 Using pasted image: {image_metadata['original_name']} → {image_metadata['width']}x{image_metadata['height']} JPEG ({image_metadata['size']:,} bytes)")
+        elif uploaded_image is not None:
             # We need to get the next request ID first for the filename
             try:
                 userbrief_file = ".cursor/memory-bank/workflow/userbrief.json"
@@ -473,10 +615,18 @@ if submitted:
             # Show success message and balloons
             success_msg = f"✅ {message}"
             if image_metadata:
-                success_msg += f" (with image: {image_metadata['original_name']})"
+                if image_metadata.get('source') == 'clipboard':
+                    success_msg += f" (with pasted image: {image_metadata['original_name']})"
+                else:
+                    success_msg += f" (with image: {image_metadata['original_name']})"
             st.success(success_msg)
             st.balloons()  # Show balloons immediately after success
             st.toast("🎉 Request submitted successfully! The agent will process it automatically.", icon="✅")
+            
+            # Clear pasted image from session state after successful submission
+            if st.session_state.pasted_image_metadata is not None:
+                st.session_state.pasted_image_data = None
+                st.session_state.pasted_image_metadata = None
         else:
             st.error(f"❌ {message}")
             # Clean up image file if request failed
@@ -488,10 +638,12 @@ if submitted:
     else:
         st.error("⚠️ Please enter a request description before submitting.")
 
-# Enhanced JavaScript for reliable Ctrl+Enter support
+# Enhanced JavaScript for Ctrl+Enter and Ctrl+V support
 st.markdown("""
 <script>
-function setupCtrlEnterForForm() {
+let isProcessingPaste = false;
+
+function setupFormEnhancements() {
     // Wait for DOM to be ready
     setTimeout(function() {
         // Find the form text area and submit button
@@ -501,9 +653,10 @@ function setupCtrlEnterForForm() {
         const textArea = formContainer.querySelector('textarea');
         const submitButton = formContainer.querySelector('button[type="submit"]');
         
-        if (textArea && submitButton && !textArea.hasAttribute('data-ctrl-enter-setup')) {
-            textArea.setAttribute('data-ctrl-enter-setup', 'true');
+        if (textArea && submitButton && !textArea.hasAttribute('data-enhanced-setup')) {
+            textArea.setAttribute('data-enhanced-setup', 'true');
             
+            // Ctrl+Enter support
             textArea.addEventListener('keydown', function(e) {
                 if (e.ctrlKey && e.key === 'Enter') {
                     e.preventDefault();
@@ -520,12 +673,69 @@ function setupCtrlEnterForForm() {
                     submitButton.click();
                 }
             });
+            
+            // Ctrl+V paste support for images
+            textArea.addEventListener('paste', function(e) {
+                if (isProcessingPaste) return;
+                
+                const clipboardData = e.clipboardData || window.clipboardData;
+                if (!clipboardData) return;
+                
+                const items = clipboardData.items;
+                let hasImage = false;
+                
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.type.indexOf('image') !== -1) {
+                        hasImage = true;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        isProcessingPaste = true;
+                        
+                        // Show processing message
+                        const processingDiv = document.createElement('div');
+                        processingDiv.id = 'paste-processing';
+                        processingDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #0066cc; color: white; padding: 10px; border-radius: 5px; z-index: 9999;';
+                        processingDiv.textContent = '📋 Processing pasted image...';
+                        document.body.appendChild(processingDiv);
+                        
+                        const file = item.getAsFile();
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(event) {
+                            const imageData = event.target.result;
+                            
+                            // Use URL parameters to pass image data to Streamlit
+                            const currentUrl = new URL(window.location);
+                            currentUrl.searchParams.set('pasted_image', imageData);
+                            currentUrl.searchParams.set('paste_time', Date.now().toString());
+                            
+                            // Update URL and reload page to trigger Streamlit processing
+                            window.location.href = currentUrl.toString();
+                        };
+                        
+                        reader.onerror = function() {
+                            const processMsg = document.getElementById('paste-processing');
+                            if (processMsg) {
+                                processMsg.textContent = '❌ Error processing image';
+                                processMsg.style.background = '#cc0000';
+                                setTimeout(() => processMsg.remove(), 2000);
+                            }
+                            isProcessingPaste = false;
+                        };
+                        
+                        reader.readAsDataURL(file);
+                        break;
+                    }
+                }
+            });
         }
     }, 100);
 }
 
 // Setup immediately and after any DOM changes
-setupCtrlEnterForForm();
+setupFormEnhancements();
 
 // Re-setup when Streamlit updates the page
 const observer = new MutationObserver(function(mutations) {
@@ -541,7 +751,7 @@ const observer = new MutationObserver(function(mutations) {
         }
     });
     if (shouldResetup) {
-        setTimeout(setupCtrlEnterForForm, 100);
+        setTimeout(setupFormEnhancements, 100);
     }
 });
 
@@ -549,6 +759,8 @@ observer.observe(document.body, {
     childList: true,
     subtree: true
 });
+
+
 </script>
 """, unsafe_allow_html=True)
 
@@ -573,93 +785,196 @@ if userbrief_status:
     with col4:
         st.metric("Archived", userbrief_status['archived_requests'], help="Completed requests")
     
-    # Show unprocessed requests with inline editing (no accordion)
-    if userbrief_status['unprocessed_requests']:
-        st.subheader("🆕 Unprocessed Requests")
-        st.markdown("**Requests waiting to be processed** - You can edit or delete them directly")
+    # Enhanced categorized display of requests
+    st.markdown("---")
+    
+    # Get all requests for categorized display
+    userbrief_file = ".cursor/memory-bank/workflow/userbrief.json"
+    try:
+        with open(userbrief_file, 'r', encoding='utf-8') as f:
+            userbrief_data = json.load(f)
+        all_requests = userbrief_data.get("requests", [])
+    except FileNotFoundError:
+        all_requests = []
+    
+    # Categorize requests
+    new_requests = [req for req in all_requests if req.get("status") == "new"]
+    in_progress_requests = [req for req in all_requests if req.get("status") == "in_progress"]
+    archived_requests = [req for req in all_requests if req.get("status") == "archived"]
+    
+    # Sort requests by updated_at (most recent first)
+    new_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+    in_progress_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+    archived_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+    
+    # Display categorized requests
+    if new_requests or in_progress_requests:
+        st.header("🔄 Active Requests")
+        st.markdown("**Requests currently being processed by the agent**")
         
-        for req in userbrief_status['unprocessed_requests']:
-            req_id = req['id']
-            status = req.get('status', 'unknown')
+        # Section 1: In Progress Requests
+        if in_progress_requests:
+            st.subheader("⚡ In Progress")
+            st.info(f"📊 {len(in_progress_requests)} request(s) currently being worked on")
             
-            # Container for each request
-            with st.container():
-                col1, col2 = st.columns([3, 1])
+            for req in in_progress_requests:
+                req_id = req['id']
                 
-                with col1:
-                    # Status indicator
-                    status_emoji = "🆕" if status == "new" else "⚡" if status == "in_progress" else "❓"
-                    st.markdown(f"**#{req_id}** {status_emoji} **{status.title()}**")
+                with st.container():
+                    st.markdown(f"### 🔥 Request #{req_id} - In Progress")
                     
-                    # Check if this request is being edited
-                    edit_key = f"edit_request_{req_id}"
-                    if edit_key not in st.session_state:
-                        st.session_state[edit_key] = False
+                    # Full content display with proper formatting
+                    content = req.get('content', 'No content available')
+                    st.markdown("**📝 Full Content:**")
+                    st.write(content)
                     
-                    if st.session_state[edit_key]:
-                        # Edit mode: show text area
-                        new_content = st.text_area(
-                            "Edit request content:",
-                            value=req.get('content', ''),
-                            height=100,
-                            key=f"edit_content_{req_id}"
-                        )
+                    # Metadata in columns
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        created_time = req.get('created_at', '')[:19].replace('T', ' ') if req.get('created_at') else 'Unknown'
+                        st.caption(f"🕐 **Created:** {created_time}")
+                    with col2:
+                        updated_time = req.get('updated_at', '')[:19].replace('T', ' ') if req.get('updated_at') else 'Unknown'
+                        st.caption(f"🔄 **Updated:** {updated_time}")
+                    with col3:
+                        st.caption(f"🏷️ **Status:** In Progress")
+                    
+                    # Show recent history if available
+                    history = req.get('history', [])
+                    if history:
+                        with st.expander("📋 Recent History", expanded=False):
+                            for entry in history[-3:]:  # Show last 3 entries
+                                timestamp = entry.get('timestamp', 'Unknown')[:19].replace('T', ' ')
+                                action = entry.get('action', 'Unknown')
+                                comment = entry.get('comment', 'No comment')
+                                st.write(f"• **{timestamp}** - {action}: {comment}")
+                    
+                    st.markdown("---")
+        
+        # Section 2: New Requests (To Do)
+        if new_requests:
+            st.subheader("🆕 New Requests (To Do)")
+            st.info(f"📊 {len(new_requests)} request(s) waiting to be processed")
+            
+            for req in new_requests:
+                req_id = req['id']
+                
+                # Check if this request is being edited
+                edit_key = f"edit_request_{req_id}"
+                if edit_key not in st.session_state:
+                    st.session_state[edit_key] = False
+                
+                with st.container():
+                    col1, col2 = st.columns([4, 1])
+                    
+                    with col1:
+                        st.markdown(f"### 🆕 Request #{req_id} - New")
                         
-                        # Save/Cancel buttons
-                        col_save, col_cancel = st.columns(2)
-                        with col_save:
-                            if st.button("💾 Save", key=f"save_{req_id}"):
-                                if update_request_content(req_id, new_content):
-                                    st.success(f"✅ Request #{req_id} updated!")
+                        if st.session_state[edit_key]:
+                            # Edit mode: show text area
+                            new_content = st.text_area(
+                                "Edit request content:",
+                                value=req.get('content', ''),
+                                height=150,
+                                key=f"edit_content_{req_id}"
+                            )
+                            
+                            # Save/Cancel buttons
+                            col_save, col_cancel = st.columns(2)
+                            with col_save:
+                                if st.button("💾 Save Changes", key=f"save_{req_id}"):
+                                    if update_request_content(req_id, new_content):
+                                        st.success(f"✅ Request #{req_id} updated successfully!")
+                                        st.session_state[edit_key] = False
+                                        st.rerun()
+                            
+                            with col_cancel:
+                                if st.button("❌ Cancel Edit", key=f"cancel_{req_id}"):
                                     st.session_state[edit_key] = False
                                     st.rerun()
+                        else:
+                            # Display mode: show full content
+                            content = req.get('content', 'No content available')
+                            st.markdown("**📝 Full Content:**")
+                            st.write(content)
+                            
+                            # Metadata in columns
+                            col_meta1, col_meta2, col_meta3 = st.columns(3)
+                            with col_meta1:
+                                created_time = req.get('created_at', '')[:19].replace('T', ' ') if req.get('created_at') else 'Unknown'
+                                st.caption(f"🕐 **Created:** {created_time}")
+                            with col_meta2:
+                                updated_time = req.get('updated_at', '')[:19].replace('T', ' ') if req.get('updated_at') else 'Unknown'
+                                st.caption(f"🔄 **Updated:** {updated_time}")
+                            with col_meta3:
+                                st.caption(f"🏷️ **Status:** New")
+                    
+                    with col2:
+                        st.markdown("**⚡ Actions:**")
                         
-                        with col_cancel:
-                            if st.button("❌ Cancel", key=f"cancel_{req_id}"):
-                                st.session_state[edit_key] = False
+                        # Edit button
+                        if not st.session_state[edit_key]:
+                            if st.button(f"✏️ Edit", key=f"edit_btn_{req_id}", help="Edit request content"):
+                                st.session_state[edit_key] = True
                                 st.rerun()
-                    else:
-                        # Display mode: show content
-                        st.write(req['content'])
                         
-                        # Show timestamps
-                        created_time = req['created_at'][:19].replace('T', ' ') if req.get('created_at') else 'Unknown'
-                        updated_time = req['updated_at'][:19].replace('T', ' ') if req.get('updated_at') else 'Unknown'
-                        st.caption(f"Created: {created_time} | Updated: {updated_time}")
-                
-                with col2:
-                    st.markdown("**Actions:**")
-                    
-                    # Edit button
-                    if not st.session_state[edit_key]:
-                        if st.button(f"✏️ Edit", key=f"edit_btn_{req_id}", help="Edit request content"):
-                            st.session_state[edit_key] = True
-                            st.rerun()
-                    
-                    # Delete button with confirmation
-                    delete_confirm_key = f"delete_confirm_{req_id}"
-                    if delete_confirm_key not in st.session_state:
-                        st.session_state[delete_confirm_key] = False
-                    
-                    if st.session_state[delete_confirm_key]:
-                        st.warning("⚠️ Confirm deletion?")
-                        col_confirm, col_abort = st.columns(2)
-                        with col_confirm:
-                            if st.button("🗑️ Yes", key=f"confirm_delete_{req_id}"):
-                                if delete_request(req_id):
-                                    st.success(f"✅ Request #{req_id} deleted!")
-                                    st.session_state[delete_confirm_key] = False
-                                    st.rerun()
-                        with col_abort:
-                            if st.button("❌ No", key=f"abort_delete_{req_id}"):
-                                st.session_state[delete_confirm_key] = False
+                        # Delete button with immediate action
+                        if st.button(f"🗑️ Delete", key=f"delete_btn_{req_id}", help="Delete this request immediately"):
+                            if delete_request(req_id):
+                                st.success(f"✅ Request #{req_id} deleted!")
                                 st.rerun()
-                    else:
-                        if st.button(f"🗑️ Delete", key=f"delete_btn_{req_id}", help="Delete this request"):
-                            st.session_state[delete_confirm_key] = True
-                            st.rerun()
+                    
+                    st.markdown("---")
+    
+    # Section 3: Recent Archived Requests (Last 5)
+    if archived_requests:
+        st.header("✅ Recent Completed Requests")
+        st.markdown("**Last 5 completed requests for reference**")
+        
+        # Show only the 5 most recent archived requests
+        recent_archived = archived_requests[:5]
+        
+        with st.expander(f"📋 View {len(recent_archived)} Recent Completed Requests", expanded=False):
+            for req in recent_archived:
+                req_id = req['id']
                 
-                st.markdown("---")
+                with st.container():
+                    st.markdown(f"### ✅ Request #{req_id} - Completed")
+                    
+                    # Full content display
+                    content = req.get('content', 'No content available')
+                    st.markdown("**📝 Content:**")
+                    st.write(content)
+                    
+                    # Metadata in columns
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        created_time = req.get('created_at', '')[:19].replace('T', ' ') if req.get('created_at') else 'Unknown'
+                        st.caption(f"🕐 **Created:** {created_time}")
+                    with col2:
+                        updated_time = req.get('updated_at', '')[:19].replace('T', ' ') if req.get('updated_at') else 'Unknown'
+                        st.caption(f"✅ **Completed:** {updated_time}")
+                    with col3:
+                        st.caption(f"🏷️ **Status:** Archived")
+                    
+                    # Show completion history
+                    history = req.get('history', [])
+                    if history:
+                        completion_entries = [entry for entry in history if 'archive' in entry.get('action', '').lower()]
+                        if completion_entries:
+                            latest_completion = completion_entries[-1]
+                            comment = latest_completion.get('comment', 'Request completed')
+                            st.caption(f"📝 **Completion note:** {comment}")
+                    
+                    st.markdown("---")
+        
+        # Summary for all archived requests
+        if len(archived_requests) > 5:
+            st.info(f"💡 Showing 5 most recent completed requests. Total archived: {len(archived_requests)}")
+    
+    # No requests message
+    if not new_requests and not in_progress_requests and not archived_requests:
+        st.info("📭 No requests found. Add your first request above to get started!")
 
 else:
     st.warning("No userbrief file found or error reading it.")

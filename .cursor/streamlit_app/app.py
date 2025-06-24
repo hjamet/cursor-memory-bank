@@ -3,6 +3,10 @@ import json
 import os
 from pathlib import Path
 from datetime import datetime
+from streamlit_autorefresh import st_autorefresh
+
+# Run the autorefresh component every 10 seconds
+st_autorefresh(interval=10000, key="data_refresh")
 
 st.set_page_config(
     page_title="Agent Dashboard",
@@ -10,8 +14,6 @@ st.set_page_config(
 )
 
 st.write("# 🤖 Agent Dashboard")
-
-st.sidebar.success("Select a page from the sidebar to manage specific aspects.")
 
 st.markdown("Monitor your AI agent's memory and learning progress.")
 
@@ -46,6 +48,44 @@ def get_agent_memories(limit=10):
                 st.error(f"Error reading memories from {memory_file}: {e}")
     
     return []
+
+# Helper function to get recent userbrief requests
+def get_recent_requests(limit=5):
+    userbrief_file = Path('.cursor/memory-bank/workflow/userbrief.json')
+    if not userbrief_file.exists():
+        return []
+    
+    try:
+        with open(userbrief_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        requests = data.get('requests', [])
+        if not requests:
+            return []
+        
+        # Categorize requests
+        new_requests = [req for req in requests if req.get('status') == 'new']
+        in_progress_requests = [req for req in requests if req.get('status') == 'in_progress']
+        archived_requests = [req for req in requests if req.get('status') == 'archived']
+        
+        # Sort by updated_at (most recent first)
+        new_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+        in_progress_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+        archived_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+        
+        return {
+            'new': new_requests[:limit],
+            'in_progress': in_progress_requests[:limit],
+            'archived': archived_requests[:limit],
+            'total_counts': {
+                'new': len(new_requests),
+                'in_progress': len(in_progress_requests),
+                'archived': len(archived_requests)
+            }
+        }
+    except Exception as e:
+        st.error(f"Error reading userbrief: {e}")
+        return []
 
 # Display Agent Memories
 st.header("🧠 Agent Memory Timeline")
@@ -141,6 +181,96 @@ if agent_memories:
 
 else:
     st.info("No agent memories found. Memories will appear here as the agent works and learns.")
+
+# Recent Requests Overview
+st.header("📋 Recent Requests Overview")
+
+recent_requests = get_recent_requests(3)
+
+if recent_requests:
+    # Display metrics
+    counts = recent_requests['total_counts']
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        total_requests = sum(counts.values())
+        st.metric("Total Requests", total_requests)
+    
+    with col2:
+        st.metric("🆕 New", counts['new'], help="Requests waiting to be processed")
+    
+    with col3:
+        st.metric("⚡ In Progress", counts['in_progress'], help="Requests currently being worked on")
+    
+    with col4:
+        st.metric("✅ Archived", counts['archived'], help="Completed requests")
+    
+    # Display active requests (in progress and new)
+    active_requests = recent_requests['in_progress'] + recent_requests['new']
+    
+    if active_requests:
+        st.subheader("🔄 Active Requests")
+        st.info("Current requests being processed by the agent")
+        
+        for req in active_requests:
+            req_id = req.get('id', 'N/A')
+            status = req.get('status', 'unknown')
+            content = req.get('content', 'No content')
+            
+            # Status styling
+            if status == 'in_progress':
+                status_emoji = "⚡"
+                status_color = "🔥"
+            else:
+                status_emoji = "🆕"
+                status_color = "🆕"
+            
+            with st.container():
+                st.markdown(f"### {status_color} Request #{req_id} - {status.title()}")
+                
+                # Content preview (first 200 characters)
+                content_preview = content[:200] + "..." if len(content) > 200 else content
+                st.write(content_preview)
+                
+                if len(content) > 200:
+                    with st.expander("📖 View Full Content"):
+                        st.write(content)
+                
+                # Metadata
+                col1, col2 = st.columns(2)
+                with col1:
+                    created_time = req.get('created_at', '')[:19].replace('T', ' ') if req.get('created_at') else 'Unknown'
+                    st.caption(f"🕐 **Created:** {created_time}")
+                with col2:
+                    updated_time = req.get('updated_at', '')[:19].replace('T', ' ') if req.get('updated_at') else 'Unknown'
+                    st.caption(f"🔄 **Updated:** {updated_time}")
+                
+                st.markdown("---")
+    
+    # Show recent completed requests
+    if recent_requests['archived']:
+        with st.expander(f"✅ Recent Completed Requests ({len(recent_requests['archived'])})", expanded=False):
+            for req in recent_requests['archived']:
+                req_id = req.get('id', 'N/A')
+                content = req.get('content', 'No content')
+                
+                st.markdown(f"**✅ Request #{req_id}**")
+                
+                # Content preview
+                content_preview = content[:150] + "..." if len(content) > 150 else content
+                st.write(content_preview)
+                
+                # Completion time
+                completed_time = req.get('updated_at', '')[:19].replace('T', ' ') if req.get('updated_at') else 'Unknown'
+                st.caption(f"✅ **Completed:** {completed_time}")
+                
+                st.markdown("---")
+    
+    # Navigation hint
+    st.info("💡 **Want to manage requests?** Use the sidebar to navigate to 'Add Request' or 'Memory' pages for full request management.")
+
+else:
+    st.info("No requests found. Add your first request using the 'Add Request' page in the sidebar.")
 
 # Auto-refresh option
 st.sidebar.markdown("---")

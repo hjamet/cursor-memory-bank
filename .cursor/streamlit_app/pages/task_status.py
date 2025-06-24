@@ -6,11 +6,14 @@ from datetime import datetime
 import requests
 import statistics
 from typing import Tuple, Optional
+from streamlit_autorefresh import st_autorefresh
+
+# Run the autorefresh component every 10 seconds
+st_autorefresh(interval=10000, key="task_status_refresh")
 
 st.set_page_config(page_title="Task Status", page_icon="✅")
 
 st.markdown("# ✅ Task Status")
-st.sidebar.header("Task Status")
 
 # Helper functions for task management using MCP tools
 def update_task_via_mcp(task_id, **kwargs):
@@ -127,9 +130,18 @@ def get_tasks_file():
         Path('tasks.json')  # Fallback
     ]
     
+    # Debug: show which files exist and their sizes
+    found_files = []
     for path in possible_paths:
         if path.exists():
-            return path
+            file_size = path.stat().st_size
+            found_files.append((str(path), file_size))
+    
+    # Display file source information
+    if found_files:
+        selected_file, selected_size = found_files[0]  # First found file (highest priority)
+        return Path(selected_file)
+    
     return None
 
 def get_userbrief_requests():
@@ -246,7 +258,7 @@ def sort_tasks_by_dependencies_and_priority(tasks):
     return sorted(tasks, key=sort_key)
 
 def render_task_card(task, show_inline_edit=True):
-    """Render a task card with optional inline editing"""
+    """Render a task card with optional inline editing and improved visual design"""
     task_id = task.get('id', task.get('task_id', 'N/A'))
     title = task.get('title', 'Untitled')
     short_desc = task.get('short_description', task.get('description', 'No description'))
@@ -254,183 +266,281 @@ def render_task_card(task, show_inline_edit=True):
     priority = task.get('priority', 3)
     dependencies = task.get('dependencies', [])
     
-    # Priority emoji mapping
-    priority_emojis = {5: "🔥", 4: "🔴", 3: "🟡", 2: "🟢", 1: "⚪"}
-    priority_emoji = priority_emojis.get(priority, "📝")
-    
-    # Status emoji mapping
-    status_emojis = {
-        'TODO': '⏳',
-        'IN_PROGRESS': '🔄', 
-        'BLOCKED': '🚫',
-        'REVIEW': '👀',
-        'DONE': '✅',
-        'APPROVED': '🎯'
+    # Priority emoji and color mapping
+    priority_config = {
+        5: {"emoji": "🔥", "color": "#FF4B4B", "label": "Critical"},
+        4: {"emoji": "🔴", "color": "#FF6B6B", "label": "High"},
+        3: {"emoji": "🟡", "color": "#FFD93D", "label": "Normal"},
+        2: {"emoji": "🟢", "color": "#6BCF7F", "label": "Low"},
+        1: {"emoji": "⚪", "color": "#E0E0E0", "label": "Minimal"}
     }
-    status_emoji = status_emojis.get(status, '📝')
+    priority_info = priority_config.get(priority, {"emoji": "📝", "color": "#808080", "label": "Unknown"})
     
-    # Task header
-    st.markdown(f"### {status_emoji} #{task_id} - {title}")
-    st.write(f"📝 {short_desc}")
+    # Status emoji and color mapping (improved colors)
+    status_config = {
+        'TODO': {"emoji": "⏳", "color": "#FFA500", "bg_color": "#FFF4E6"},
+        'IN_PROGRESS': {"emoji": "🔄", "color": "#4169E1", "bg_color": "#E6F0FF"},
+        'BLOCKED': {"emoji": "🚫", "color": "#DC143C", "bg_color": "#FFE6E6"},
+        'REVIEW': {"emoji": "👀", "color": "#9932CC", "bg_color": "#F3E6FF"},
+        'DONE': {"emoji": "✅", "color": "#228B22", "bg_color": "#E6FFE6"},
+        'APPROVED': {"emoji": "🎯", "color": "#008B8B", "bg_color": "#E6FFFF"}
+    }
+    status_info = status_config.get(status, {"emoji": "📝", "color": "#808080", "bg_color": "#F5F5F5"})
     
-    # Task details and inline editing
-    col1, col2, col3 = st.columns([2, 1, 1])
+    # Check if task has associated image
+    has_image = task.get('image') and task.get('image').strip()
+    image_indicator = " 📸" if has_image else ""
     
-    with col1:
-        # Dependencies info
-        if dependencies:
-            dep_str = ', '.join([f"#{dep}" for dep in dependencies])
-            st.caption(f"⚠️ **Depends on:** {dep_str}")
-        else:
-            st.caption("✅ **No dependencies**")
-    
-    with col2:
-        # Priority display/edit
-        if show_inline_edit:
-            priority_options = {
-                1: "⚪ Minimal (1)",
-                2: "🟢 Low (2)", 
-                3: "🟡 Normal (3)",
-                4: "🔴 High (4)",
-                5: "🔥 Critical (5)"
-            }
-            new_priority = st.selectbox(
-                "Priority:",
-                [1, 2, 3, 4, 5],
-                index=[1, 2, 3, 4, 5].index(priority),
-                format_func=lambda x: priority_options[x],
-                key=f"priority_{task_id}",
-                label_visibility="collapsed"
-            )
-            
-            if new_priority != priority:
-                if update_task_via_mcp(task_id, priority=new_priority):
-                    st.success(f"Priority updated!")
-                    st.rerun()
-        else:
-            st.write(f"{priority_emoji} **P{priority}**")
-    
-    with col3:
-        # Status display/edit
-        if show_inline_edit:
-            status_options = {
-                'TODO': '⏳ To Do',
-                'IN_PROGRESS': '🔄 In Progress',
-                'BLOCKED': '🚫 Blocked',
-                'REVIEW': '👀 Review',
-                'DONE': '✅ Done',
-                'APPROVED': '🎯 Approved'
-            }
-            status_list = ['TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW', 'DONE', 'APPROVED']
-            current_index = status_list.index(status) if status in status_list else 0
-            new_status = st.selectbox(
-                "Status:",
-                status_list,
-                index=current_index,
-                format_func=lambda x: status_options[x],
-                key=f"status_{task_id}",
-                label_visibility="collapsed"
-            )
-            
-            if new_status != status:
-                if update_task_via_mcp(task_id, status=new_status):
-                    st.success(f"Status updated!")
-                    st.rerun()
-        else:
-            st.write(f"{status_emoji} **{status}**")
-    
-    # Action buttons for inline editing
-    if show_inline_edit:
-        st.markdown("**⚡ Actions:**")
-        action_col1, action_col2, action_col3 = st.columns(3)
+    # Create a styled container for the task
+    with st.container():
+        # Task header with improved styling
+        st.markdown(
+            f"""
+            <div style="
+                background-color: {status_info['bg_color']};
+                padding: 10px;
+                border-radius: 8px;
+                border-left: 4px solid {status_info['color']};
+                margin-bottom: 10px;
+            ">
+                <h3 style="margin: 0; color: {status_info['color']};">
+                    {status_info['emoji']} #{task_id} - {title}{image_indicator}
+                </h3>
+                <p style="margin: 5px 0 0 0; color: #666;">
+                    📝 {short_desc}
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         
-        with action_col1:
-            if st.button(f"📋 Details", key=f"details_{task_id}"):
-                # Toggle detailed view state
-                detail_key = f"show_details_{task_id}"
-                if detail_key not in st.session_state:
-                    st.session_state[detail_key] = False
-                st.session_state[detail_key] = not st.session_state[detail_key]
+        # Task metadata and controls in organized columns
+        col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
         
-        with action_col2:
-            if status not in ['DONE', 'APPROVED']:
-                if st.button(f"✅ Complete", key=f"complete_{task_id}", type="primary"):
-                    if update_task_via_mcp(task_id, status='DONE'):
-                        st.success(f"Task #{task_id} completed!")
-                        st.rerun()
-        
-        with action_col3:
-            if st.button(f"🗑️ Delete", key=f"delete_{task_id}"):
-                # Confirmation dialog
-                if f"confirm_delete_{task_id}" not in st.session_state:
-                    st.session_state[f"confirm_delete_{task_id}"] = True
-                    st.warning(f"⚠️ Click again to confirm deletion of Task #{task_id}")
-                else:
-                    if delete_task_via_mcp(task_id):
-                        st.success(f"Task #{task_id} deleted!")
-                        del st.session_state[f"confirm_delete_{task_id}"]
-                        st.rerun()
-    
-    # Show detailed view if toggled
-    detail_key = f"show_details_{task_id}"
-    if st.session_state.get(detail_key, False):
-        st.markdown("### 📋 Task Details")
-        
-        # Create a prominent details container
-        with st.container():
-            st.markdown(f"**Task ID:** #{task_id}")
-            st.markdown(f"**Title:** {title}")
-            st.markdown(f"**Status:** {status_emoji} {status}")
-            st.markdown(f"**Priority:** {priority_emoji} {priority}")
-            
+        with col1:
+            # Dependencies info with better styling
             if dependencies:
                 dep_str = ', '.join([f"#{dep}" for dep in dependencies])
-                st.markdown(f"**Dependencies:** {dep_str}")
+                st.markdown(f"⚠️ **Depends on:** {dep_str}")
+                st.caption("🔗 This task cannot start until dependencies are completed")
             else:
-                st.markdown("**Dependencies:** None")
-            
-            st.markdown("**Short Description:**")
-            st.write(short_desc)
-            
-            detailed_desc = task.get('detailed_description', 'No detailed description available')
-            st.markdown("**Detailed Description:**")
-            st.write(detailed_desc)
-            
-            # Additional metadata
+                st.markdown("✅ **No dependencies** - Ready to start")
+        
+        with col2:
+            # Priority display/edit with visual improvements
+            if show_inline_edit:
+                priority_options = {
+                    1: f"⚪ Minimal (1)",
+                    2: f"🟢 Low (2)", 
+                    3: f"🟡 Normal (3)",
+                    4: f"🔴 High (4)",
+                    5: f"🔥 Critical (5)"
+                }
+                new_priority = st.selectbox(
+                    "Priority:",
+                    [1, 2, 3, 4, 5],
+                    index=[1, 2, 3, 4, 5].index(priority),
+                    format_func=lambda x: priority_options[x],
+                    key=f"priority_{task_id}",
+                    help="Change task priority level"
+                )
+                
+                if new_priority != priority:
+                    if update_task_via_mcp(task_id, priority=new_priority):
+                        st.success(f"Priority updated to {priority_config[new_priority]['label']}!")
+                        st.rerun()
+            else:
+                st.markdown(
+                    f"""
+                    <div style="text-align: center; padding: 5px; background-color: {priority_info['color']}20; border-radius: 5px;">
+                        <strong>{priority_info['emoji']} P{priority}</strong><br>
+                        <small>{priority_info['label']}</small>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+        
+        with col3:
+            # Status display/edit with improved visuals
+            if show_inline_edit:
+                status_options = {
+                    'TODO': '⏳ To Do',
+                    'IN_PROGRESS': '🔄 In Progress',
+                    'BLOCKED': '🚫 Blocked',
+                    'REVIEW': '👀 Review',
+                    'DONE': '✅ Done',
+                    'APPROVED': '🎯 Approved'
+                }
+                status_list = ['TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW', 'DONE', 'APPROVED']
+                current_index = status_list.index(status) if status in status_list else 0
+                new_status = st.selectbox(
+                    "Status:",
+                    status_list,
+                    index=current_index,
+                    format_func=lambda x: status_options[x],
+                    key=f"status_{task_id}",
+                    help="Change task status"
+                )
+                
+                if new_status != status:
+                    if update_task_via_mcp(task_id, status=new_status):
+                        st.success(f"Status updated to {new_status}!")
+                        st.rerun()
+            else:
+                st.markdown(
+                    f"""
+                    <div style="text-align: center; padding: 5px; background-color: {status_info['color']}20; border-radius: 5px;">
+                        <strong>{status_info['emoji']} {status}</strong>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+        
+        with col4:
+            # Task metadata display
             created_date = task.get('created_date', 'Unknown')
-            updated_date = task.get('updated_date', 'Unknown')
-            
             if created_date != 'Unknown':
                 try:
                     created_dt = datetime.fromisoformat(created_date.replace('Z', '+00:00'))
-                    st.markdown(f"**Created:** {created_dt.strftime('%Y-%m-%d %H:%M:%S')}")
+                    days_old = (datetime.now().replace(tzinfo=created_dt.tzinfo) - created_dt).days
+                    st.caption(f"📅 **Created:** {days_old} days ago")
                 except:
-                    st.markdown(f"**Created:** {created_date}")
-            
-            if updated_date != 'Unknown':
-                try:
-                    updated_dt = datetime.fromisoformat(updated_date.replace('Z', '+00:00'))
-                    st.markdown(f"**Updated:** {updated_dt.strftime('%Y-%m-%d %H:%M:%S')}")
-                except:
-                    st.markdown(f"**Updated:** {updated_date}")
-            
-            # Validation criteria if available
-            validation_criteria = task.get('validation_criteria', '')
-            if validation_criteria:
-                st.markdown("**Validation Criteria:**")
-                st.write(validation_criteria)
-            
-            # Impacted files if available
-            impacted_files = task.get('impacted_files', [])
-            if impacted_files:
-                st.markdown("**Impacted Files:**")
-                for file in impacted_files:
-                    st.code(file)
+                    st.caption(f"📅 **Created:** {created_date[:10]}")
+            else:
+                st.caption("📅 **Created:** Unknown")
         
-        # Hide details button
-        if st.button(f"🔼 Hide Details", key=f"hide_details_{task_id}"):
-            st.session_state[detail_key] = False
-            st.rerun()
+        # Action buttons for inline editing with improved layout
+        if show_inline_edit:
+            st.markdown("### ⚡ Quick Actions")
+            action_col1, action_col2, action_col3, action_col4 = st.columns(4)
+            
+            with action_col1:
+                if st.button(f"📋 Details", key=f"details_{task_id}", help="Show/hide detailed information"):
+                    # Toggle detailed view state
+                    detail_key = f"show_details_{task_id}"
+                    if detail_key not in st.session_state:
+                        st.session_state[detail_key] = False
+                    st.session_state[detail_key] = not st.session_state[detail_key]
+                    st.rerun()
+            
+            with action_col2:
+                if status not in ['DONE', 'APPROVED']:
+                    if st.button(f"✅ Complete", key=f"complete_{task_id}", type="primary", help="Mark task as completed"):
+                        if update_task_via_mcp(task_id, status='DONE'):
+                            st.success(f"Task #{task_id} completed!")
+                            st.rerun()
+            
+            with action_col3:
+                if status == 'TODO':
+                    if st.button(f"🚀 Start", key=f"start_{task_id}", help="Mark task as in progress"):
+                        if update_task_via_mcp(task_id, status='IN_PROGRESS'):
+                            st.success(f"Task #{task_id} started!")
+                            st.rerun()
+                elif status == 'IN_PROGRESS':
+                    if st.button(f"⏸️ Pause", key=f"pause_{task_id}", help="Move task back to TODO"):
+                        if update_task_via_mcp(task_id, status='TODO'):
+                            st.success(f"Task #{task_id} paused!")
+                            st.rerun()
+            
+            with action_col4:
+                # Delete button with confirmation
+                delete_key = f"confirm_delete_{task_id}"
+                if delete_key in st.session_state and st.session_state[delete_key]:
+                    if st.button(f"⚠️ Confirm Delete", key=f"confirm_del_{task_id}", help="Confirm deletion"):
+                        if delete_task_via_mcp(task_id):
+                            st.success(f"Task #{task_id} deleted!")
+                            if delete_key in st.session_state:
+                                del st.session_state[delete_key]
+                            st.rerun()
+                else:
+                    if st.button(f"🗑️ Delete", key=f"delete_{task_id}", help="Delete this task"):
+                        st.session_state[delete_key] = True
+                        st.warning(f"⚠️ Click 'Confirm Delete' to delete Task #{task_id}")
+                        st.rerun()
+        
+        # Show detailed view if toggled
+        detail_key = f"show_details_{task_id}"
+        if st.session_state.get(detail_key, False):
+            st.markdown("---")
+            st.markdown("### 📋 Detailed Task Information")
+            
+            # Create a detailed information container
+            with st.container():
+                # Basic information in columns
+                info_col1, info_col2 = st.columns(2)
+                
+                with info_col1:
+                    st.markdown(f"**🆔 Task ID:** #{task_id}")
+                    st.markdown(f"**📝 Title:** {title}")
+                    st.markdown(f"**🎯 Status:** {status_info['emoji']} {status}")
+                    st.markdown(f"**⭐ Priority:** {priority_info['emoji']} {priority} ({priority_info['label']})")
+                
+                with info_col2:
+                    if dependencies:
+                        dep_str = ', '.join([f"#{dep}" for dep in dependencies])
+                        st.markdown(f"**🔗 Dependencies:** {dep_str}")
+                    else:
+                        st.markdown("**🔗 Dependencies:** None")
+                    
+                    # Timestamps
+                    created_date = task.get('created_date', 'Unknown')
+                    updated_date = task.get('updated_date', 'Unknown')
+                    
+                    if created_date != 'Unknown':
+                        try:
+                            created_dt = datetime.fromisoformat(created_date.replace('Z', '+00:00'))
+                            st.markdown(f"**📅 Created:** {created_dt.strftime('%Y-%m-%d %H:%M')}")
+                        except:
+                            st.markdown(f"**📅 Created:** {created_date}")
+                    
+                    if updated_date != 'Unknown':
+                        try:
+                            updated_dt = datetime.fromisoformat(updated_date.replace('Z', '+00:00'))
+                            st.markdown(f"**🔄 Updated:** {updated_dt.strftime('%Y-%m-%d %H:%M')}")
+                        except:
+                            st.markdown(f"**🔄 Updated:** {updated_date}")
+                
+                # Descriptions
+                st.markdown("**📋 Short Description:**")
+                st.write(short_desc)
+                
+                detailed_desc = task.get('detailed_description', 'No detailed description available')
+                if detailed_desc and detailed_desc != 'No detailed description available':
+                    st.markdown("**📖 Detailed Description:**")
+                    st.write(detailed_desc)
+                
+                # Validation criteria if available
+                validation_criteria = task.get('validation_criteria', '')
+                if validation_criteria:
+                    st.markdown("**✅ Validation Criteria:**")
+                    st.write(validation_criteria)
+                
+                # Impacted files if available
+                impacted_files = task.get('impacted_files', [])
+                if impacted_files:
+                    st.markdown("**📁 Impacted Files:**")
+                    for file in impacted_files:
+                        st.code(file, language="text")
+                
+                # Image preview if available
+                if has_image:
+                    st.markdown("**📸 Associated Image:**")
+                    image_path = task.get('image')
+                    if os.path.exists(image_path):
+                        try:
+                            st.image(image_path, caption=f"Image for Task #{task_id}", use_column_width=True)
+                            # Show image metadata
+                            file_size = os.path.getsize(image_path)
+                            st.caption(f"📄 File: {os.path.basename(image_path)} ({file_size:,} bytes)")
+                        except Exception as e:
+                            st.error(f"❌ Could not display image: {str(e)}")
+                    else:
+                        st.warning(f"⚠️ Image file not found: {image_path}")
+             
+            # Hide details button
+            if st.button(f"🔼 Hide Details", key=f"hide_details_{task_id}"):
+                st.session_state[detail_key] = False
+                st.rerun()
     
     st.markdown("---")
 
@@ -530,6 +640,210 @@ def fuzzy_search_tasks(tasks, userbrief_requests, search_query):
     
     return filtered_tasks, filtered_requests
 
+def render_advanced_search_and_filters():
+    """Render advanced search and filtering controls"""
+    st.markdown("### 🔍 Search & Filters")
+    
+    # Create columns for search and filters
+    search_col, filter_col1, filter_col2, filter_col3 = st.columns([3, 1, 1, 1])
+    
+    with search_col:
+        search_query = st.text_input(
+            "🔍 Search tasks...",
+            placeholder="Search by ID, title, description, status, or files",
+            help="Enter keywords to search across all task fields",
+            key="task_search_query"
+        )
+    
+    with filter_col1:
+        # Status filter
+        status_options = ['All', 'TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW', 'DONE', 'APPROVED']
+        status_filter = st.selectbox(
+            "📊 Status:",
+            status_options,
+            help="Filter tasks by status",
+            key="status_filter"
+        )
+    
+    with filter_col2:
+        # Priority filter
+        priority_options = ['All', '🔥 Critical (5)', '🔴 High (4)', '🟡 Normal (3)', '🟢 Low (2)', '⚪ Minimal (1)']
+        priority_filter = st.selectbox(
+            "⭐ Priority:",
+            priority_options,
+            help="Filter tasks by priority level",
+            key="priority_filter"
+        )
+    
+    with filter_col3:
+        # Dependency filter
+        dependency_options = ['All', 'No Dependencies', 'Has Dependencies', 'Blocked by Dependencies']
+        dependency_filter = st.selectbox(
+            "🔗 Dependencies:",
+            dependency_options,
+            help="Filter tasks by dependency status",
+            key="dependency_filter"
+        )
+    
+    # Additional filters row
+    filter_row2_col1, filter_row2_col2, filter_row2_col3, filter_row2_col4 = st.columns(4)
+    
+    with filter_row2_col1:
+        # Date range filter
+        date_filter = st.selectbox(
+            "📅 Created:",
+            ['All Time', 'Last 7 days', 'Last 30 days', 'Last 90 days'],
+            help="Filter tasks by creation date",
+            key="date_filter"
+        )
+    
+    with filter_row2_col2:
+        # Image filter
+        image_filter = st.selectbox(
+            "📸 Images:",
+            ['All', 'With Images', 'Without Images'],
+            help="Filter tasks with or without associated images",
+            key="image_filter"
+        )
+    
+    with filter_row2_col3:
+        # Sort options
+        sort_options = [
+            'Dependencies & Priority',
+            'Priority (High to Low)',
+            'Priority (Low to High)',
+            'Created Date (Newest)',
+            'Created Date (Oldest)',
+            'Status',
+            'Title (A-Z)',
+            'Title (Z-A)'
+        ]
+        sort_option = st.selectbox(
+            "📊 Sort by:",
+            sort_options,
+            help="Choose how to sort the tasks",
+            key="sort_option"
+        )
+    
+    with filter_row2_col4:
+        # Reset filters button
+        if st.button("🔄 Reset Filters", help="Clear all filters and search"):
+            # Clear all filter states
+            for key in ['task_search_query', 'status_filter', 'priority_filter', 'dependency_filter', 
+                       'date_filter', 'image_filter', 'sort_option']:
+                if key in st.session_state:
+                    del st.session_state[key]
+            st.rerun()
+    
+    return {
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'priority_filter': priority_filter,
+        'dependency_filter': dependency_filter,
+        'date_filter': date_filter,
+        'image_filter': image_filter,
+        'sort_option': sort_option
+    }
+
+def apply_advanced_filters(tasks, filters):
+    """Apply advanced filters to task list"""
+    filtered_tasks = tasks.copy()
+    
+    # Apply search query
+    if filters['search_query'].strip():
+        search_results, _ = fuzzy_search_tasks(filtered_tasks, [], filters['search_query'])
+        filtered_tasks = search_results
+    
+    # Apply status filter
+    if filters['status_filter'] != 'All':
+        filtered_tasks = [task for task in filtered_tasks if task.get('status') == filters['status_filter']]
+    
+    # Apply priority filter
+    if filters['priority_filter'] != 'All':
+        priority_map = {'🔥 Critical (5)': 5, '🔴 High (4)': 4, '🟡 Normal (3)': 3, '🟢 Low (2)': 2, '⚪ Minimal (1)': 1}
+        target_priority = priority_map.get(filters['priority_filter'])
+        if target_priority:
+            filtered_tasks = [task for task in filtered_tasks if task.get('priority') == target_priority]
+    
+    # Apply dependency filter
+    if filters['dependency_filter'] != 'All':
+        if filters['dependency_filter'] == 'No Dependencies':
+            filtered_tasks = [task for task in filtered_tasks if not task.get('dependencies')]
+        elif filters['dependency_filter'] == 'Has Dependencies':
+            filtered_tasks = [task for task in filtered_tasks if task.get('dependencies')]
+        elif filters['dependency_filter'] == 'Blocked by Dependencies':
+            # This would require checking if dependencies are completed
+            # For now, just show tasks with dependencies
+            filtered_tasks = [task for task in filtered_tasks if task.get('dependencies')]
+    
+    # Apply date filter
+    if filters['date_filter'] != 'All Time':
+        from datetime import datetime, timedelta
+        now = datetime.now()
+        
+        if filters['date_filter'] == 'Last 7 days':
+            cutoff = now - timedelta(days=7)
+        elif filters['date_filter'] == 'Last 30 days':
+            cutoff = now - timedelta(days=30)
+        elif filters['date_filter'] == 'Last 90 days':
+            cutoff = now - timedelta(days=90)
+        else:
+            cutoff = None
+        
+        if cutoff:
+            def is_recent(task):
+                created_date = task.get('created_date')
+                if not created_date:
+                    return False
+                try:
+                    created_dt = datetime.fromisoformat(created_date.replace('Z', '+00:00'))
+                    return created_dt.replace(tzinfo=None) >= cutoff
+                except:
+                    return False
+            
+            filtered_tasks = [task for task in filtered_tasks if is_recent(task)]
+    
+    # Apply image filter
+    if filters['image_filter'] != 'All':
+        if filters['image_filter'] == 'With Images':
+            filtered_tasks = [task for task in filtered_tasks if task.get('image') and task.get('image').strip()]
+        elif filters['image_filter'] == 'Without Images':
+            filtered_tasks = [task for task in filtered_tasks if not (task.get('image') and task.get('image').strip())]
+    
+    # Apply sorting
+    sort_option = filters['sort_option']
+    if sort_option == 'Dependencies & Priority':
+        filtered_tasks = sort_tasks_by_dependencies_and_priority(filtered_tasks)
+    elif sort_option == 'Priority (High to Low)':
+        filtered_tasks = sorted(filtered_tasks, key=lambda x: x.get('priority', 3), reverse=True)
+    elif sort_option == 'Priority (Low to High)':
+        filtered_tasks = sorted(filtered_tasks, key=lambda x: x.get('priority', 3))
+    elif sort_option == 'Created Date (Newest)':
+        def sort_by_date_desc(task):
+            created_date = task.get('created_date', '')
+            try:
+                return datetime.fromisoformat(created_date.replace('Z', '+00:00'))
+            except:
+                return datetime.min.replace(tzinfo=None)
+        filtered_tasks = sorted(filtered_tasks, key=sort_by_date_desc, reverse=True)
+    elif sort_option == 'Created Date (Oldest)':
+        def sort_by_date_asc(task):
+            created_date = task.get('created_date', '')
+            try:
+                return datetime.fromisoformat(created_date.replace('Z', '+00:00'))
+            except:
+                return datetime.max.replace(tzinfo=None)
+        filtered_tasks = sorted(filtered_tasks, key=sort_by_date_asc)
+    elif sort_option == 'Status':
+        status_order = {'TODO': 1, 'IN_PROGRESS': 2, 'BLOCKED': 3, 'REVIEW': 4, 'DONE': 5, 'APPROVED': 6}
+        filtered_tasks = sorted(filtered_tasks, key=lambda x: status_order.get(x.get('status', 'TODO'), 0))
+    elif sort_option == 'Title (A-Z)':
+        filtered_tasks = sorted(filtered_tasks, key=lambda x: x.get('title', '').lower())
+    elif sort_option == 'Title (Z-A)':
+        filtered_tasks = sorted(filtered_tasks, key=lambda x: x.get('title', '').lower(), reverse=True)
+    
+    return filtered_tasks
+
 # Main interface
 st.markdown("## 🎯 Agent Workflow Overview")
 st.info("📊 Complete view of the agent's work pipeline from requests to completion")
@@ -548,48 +862,75 @@ if tasks_file:
             tasks = data
         else:
             tasks = data.get('tasks', [])
+        
+        # Debug information
+        st.info(f"📊 **Loaded {len(tasks)} tasks** from `{tasks_file}`")
+        if len(tasks) == 0:
+            st.warning("⚠️ Task file found but contains no tasks. This might indicate a data loading issue.")
             
     except Exception as e:
         st.error(f"Error reading tasks: {e}")
+        st.error(f"File path: {tasks_file}")
+else:
+    st.error("❌ **No task file found!** The Task Status tab cannot display tasks without a valid task data file.")
+    st.markdown("""
+    **Possible solutions:**
+    1. Ensure the MCP Memory Bank system is running
+    2. Check that tasks have been created through the workflow
+    3. Verify file permissions for the task data directory
+    """)
 
 userbrief_requests = get_userbrief_requests()
 
-# Search bar for filtering tasks and requests
-st.markdown("### 🔍 Search & Filter")
-col1, col2 = st.columns([4, 1])
+# Advanced search and filtering interface
+filters = render_advanced_search_and_filters()
 
-with col1:
-    search_query = st.text_input(
-        "Search tasks and requests:",
-        placeholder="Search by title, description, ID (#123), status, keywords...",
-        help="Search across all task fields and userbrief requests. Use partial words or keywords.",
-        key="task_search"
-    )
-
-with col2:
-    st.markdown("<br>", unsafe_allow_html=True)  # Add some spacing
-    if st.button("🗑️ Clear", help="Clear search and show all items"):
-        st.session_state.task_search = ""
-        st.rerun()
-
-# Apply search filter if query is provided
-if search_query:
+# Apply filters to tasks
+if filters['search_query'] or any(v != 'All' and v != 'All Time' and v != 'Dependencies & Priority' for k, v in filters.items() if k != 'search_query'):
     original_task_count = len(tasks)
     original_request_count = len(userbrief_requests)
     
-    tasks, userbrief_requests = fuzzy_search_tasks(tasks, userbrief_requests, search_query)
+    # Apply advanced filters to tasks
+    tasks = apply_advanced_filters(tasks, filters)
     
-    # Show search results summary
+    # Apply search to userbrief requests if search query is provided
+    if filters['search_query']:
+        _, userbrief_requests = fuzzy_search_tasks([], userbrief_requests, filters['search_query'])
+    
+    # Show filter results summary
     filtered_task_count = len(tasks)
     filtered_request_count = len(userbrief_requests)
     total_filtered = filtered_task_count + filtered_request_count
     total_original = original_task_count + original_request_count
     
+    # Build filter summary message
+    active_filters = []
+    if filters['search_query']:
+        active_filters.append(f"search: '{filters['search_query']}'")
+    if filters['status_filter'] != 'All':
+        active_filters.append(f"status: {filters['status_filter']}")
+    if filters['priority_filter'] != 'All':
+        active_filters.append(f"priority: {filters['priority_filter']}")
+    if filters['dependency_filter'] != 'All':
+        active_filters.append(f"dependencies: {filters['dependency_filter']}")
+    if filters['date_filter'] != 'All Time':
+        active_filters.append(f"date: {filters['date_filter']}")
+    if filters['image_filter'] != 'All':
+        active_filters.append(f"images: {filters['image_filter']}")
+    if filters['sort_option'] != 'Dependencies & Priority':
+        active_filters.append(f"sorted by: {filters['sort_option']}")
+    
+    filter_summary = " | ".join(active_filters)
+    
     if total_filtered > 0:
-        st.success(f"🎯 Found {total_filtered} results ({filtered_task_count} tasks + {filtered_request_count} requests) matching '{search_query}'")
+        st.success(f"🎯 Found {total_filtered} results ({filtered_task_count} tasks + {filtered_request_count} requests)")
+        if filter_summary:
+            st.caption(f"🔧 Active filters: {filter_summary}")
     else:
-        st.warning(f"🔍 No results found for '{search_query}'. Try different keywords or clear the search.")
-        st.info("💡 **Search tips:** Try searching by task ID (#123), status (TODO, DONE), or keywords from titles/descriptions.")
+        st.warning(f"🔍 No results found with current filters.")
+        st.info("💡 **Try:** Adjusting filters, using broader search terms, or clicking 'Reset Filters'")
+        if filter_summary:
+            st.caption(f"🔧 Current filters: {filter_summary}")
 
 st.markdown("---")
 
@@ -704,78 +1045,122 @@ if tasks:
 
 st.markdown("---")
 
-# SECTION 1: CURRENT TASK (IN_PROGRESS) - Always visible at top
+# ========================================
+# ACCORDION LAYOUT IMPLEMENTATION
+# ========================================
+
+# SECTION 1: CURRENT TASK (IN_PROGRESS) - Always visible at top (no accordion)
 current_tasks = [t for t in tasks if t.get('status') == 'IN_PROGRESS']
 if current_tasks:
-    st.markdown("## 🔄 Current Task (In Progress)")
+    st.markdown("## 🔥 Current Task (In Progress)")
     st.success("🎯 This is what the agent is currently working on")
     
-    # Sort current tasks by priority
+    # Sort current tasks by priority (highest first)
     current_tasks.sort(key=lambda x: x.get('priority', 3), reverse=True)
     
     for task in current_tasks:
         render_task_card(task, show_inline_edit=True)
 else:
-    st.markdown("## 🔄 Current Task")
+    st.markdown("## 🔥 Current Task")
     st.info("✨ No task currently in progress - agent is ready for new work!")
 
-# SECTION 2: TODO TASKS - Open by default, sorted by dependencies then priority
+# SECTION 2: UNPROCESSED USERBRIEF REQUESTS - Accordion (expanded by default)
+if userbrief_requests:
+    with st.expander(f"📋 Stage 0: Unprocessed Requests ({len(userbrief_requests)})", expanded=True):
+        st.caption("🔄 User requests waiting to be decomposed into tasks")
+        
+        for request in userbrief_requests:
+            render_userbrief_request(request)
+else:
+    with st.expander("📋 Stage 0: Unprocessed Requests (0)", expanded=False):
+        st.info("📭 No unprocessed requests - all user requests have been converted to tasks!")
+
+# SECTION 3: TODO TASKS - Accordion (expanded by default), sorted by priority
 todo_tasks = [t for t in tasks if t.get('status') == 'TODO']
 if todo_tasks:
-    st.markdown("## ⏳ Todo Tasks (Ready to Start)")
-    st.caption("📋 Tasks ready for implementation, sorted by dependencies and priority")
-    
     # Sort by dependencies and priority
     sorted_todo = sort_tasks_by_dependencies_and_priority(todo_tasks)
     
-    for task in sorted_todo:
-        render_task_card(task, show_inline_edit=True)
+    with st.expander(f"⏳ Todo Tasks - Ready to Start ({len(todo_tasks)})", expanded=True):
+        st.caption("📋 Tasks ready for implementation, sorted by dependencies and priority")
+        
+        # Group by priority for better visual organization
+        priority_groups = {}
+        for task in sorted_todo:
+            priority = task.get('priority', 3)
+            if priority not in priority_groups:
+                priority_groups[priority] = []
+            priority_groups[priority].append(task)
+        
+        # Display tasks grouped by priority (highest first)
+        for priority in sorted([5, 4, 3, 2, 1]):
+            if priority in priority_groups:
+                priority_emojis = {5: "🔥", 4: "🔴", 3: "🟡", 2: "🟢", 1: "⚪"}
+                priority_emoji = priority_emojis.get(priority, "📝")
+                
+                st.markdown(f"### {priority_emoji} Priority {priority} Tasks ({len(priority_groups[priority])})")
+                
+                for task in priority_groups[priority]:
+                    render_task_card(task, show_inline_edit=True)
 else:
-    st.markdown("## ⏳ Todo Tasks")
-    st.info("🎉 No pending tasks - all work is either in progress or completed!")
+    with st.expander("⏳ Todo Tasks - Ready to Start (0)", expanded=False):
+        st.info("🎉 No pending tasks - all work is either in progress or completed!")
 
-# SECTION 3: UNPROCESSED USERBRIEF REQUESTS - Open by default
-if userbrief_requests:
-    st.markdown("## 📋 Stage 0: Unprocessed Requests")
-    st.caption("🔄 User requests waiting to be decomposed into tasks")
+# SECTION 4: BLOCKED/REVIEW TASKS - Accordion (collapsed by default)
+blocked_tasks = [t for t in tasks if t.get('status') in ['BLOCKED', 'REVIEW']]
+if blocked_tasks:
+    # Sort by priority
+    blocked_tasks.sort(key=lambda x: x.get('priority', 3), reverse=True)
     
-    for request in userbrief_requests:
-        render_userbrief_request(request)
+    with st.expander(f"🚫 Blocked/Review Tasks ({len(blocked_tasks)})", expanded=False):
+        st.caption("⚠️ Tasks that need attention before they can proceed")
+        
+        # Group by status
+        blocked_only = [t for t in blocked_tasks if t.get('status') == 'BLOCKED']
+        review_only = [t for t in blocked_tasks if t.get('status') == 'REVIEW']
+        
+        if blocked_only:
+            st.markdown(f"#### 🚫 Blocked Tasks ({len(blocked_only)})")
+            for task in blocked_only:
+                render_task_card(task, show_inline_edit=True)
+        
+        if review_only:
+            st.markdown(f"#### 👀 Review Tasks ({len(review_only)})")
+            for task in review_only:
+                render_task_card(task, show_inline_edit=True)
 else:
-    st.markdown("## 📋 Stage 0: Unprocessed Requests")
-    st.info("📭 No unprocessed requests - all user requests have been converted to tasks!")
+    with st.expander("🚫 Blocked/Review Tasks (0)", expanded=False):
+        st.info("✅ No blocked or review tasks - workflow is running smoothly!")
 
-# SECTION 4: ARCHIVED/COMPLETED TASKS - Collapsed by default, limited selection
+# SECTION 5: COMPLETED TASKS - Accordion (collapsed by default), limited to recent
 done_tasks = [t for t in tasks if t.get('status') in ['DONE', 'APPROVED']]
 if done_tasks:
-    # Sort by updated date (most recent first) and show only last 10
+    # Sort by updated date (most recent first) and show only last 15
     done_tasks.sort(key=lambda x: x.get('updated_date', ''), reverse=True)
-    recent_done = done_tasks[:10]
+    recent_done = done_tasks[:15]
     
     with st.expander(f"✅ Recently Completed Tasks ({len(recent_done)}/{len(done_tasks)})", expanded=False):
-        st.caption("🎉 Recently completed tasks (showing last 10)")
+        st.caption("🎉 Recently completed tasks (showing last 15)")
         
-        for task in recent_done:
-            render_task_card(task, show_inline_edit=False)
+        # Group by status for better organization
+        approved_tasks = [t for t in recent_done if t.get('status') == 'APPROVED']
+        done_only_tasks = [t for t in recent_done if t.get('status') == 'DONE']
         
-        if len(done_tasks) > 10:
-            st.info(f"📊 {len(done_tasks) - 10} more completed tasks not shown")
-
-# OTHER STATUS TASKS (BLOCKED, REVIEW) - If any exist
-blocked_tasks = [t for t in tasks if t.get('status') == 'BLOCKED']
-review_tasks = [t for t in tasks if t.get('status') == 'REVIEW']
-
-if blocked_tasks:
-    with st.expander(f"🚫 Blocked Tasks ({len(blocked_tasks)})", expanded=True):
-        st.caption("⛔ Tasks waiting on dependencies or external factors")
-        for task in blocked_tasks:
-            render_task_card(task, show_inline_edit=True)
-
-if review_tasks:
-    with st.expander(f"👀 Tasks in Review ({len(review_tasks)})", expanded=True):
-        st.caption("🔍 Tasks awaiting review or testing")
-        for task in review_tasks:
-            render_task_card(task, show_inline_edit=True)
+        if approved_tasks:
+            st.markdown(f"#### 🎯 Approved Tasks ({len(approved_tasks)})")
+            for task in approved_tasks:
+                render_task_card(task, show_inline_edit=False)
+        
+        if done_only_tasks:
+            st.markdown(f"#### ✅ Done Tasks ({len(done_only_tasks)})")
+            for task in done_only_tasks:
+                render_task_card(task, show_inline_edit=False)
+        
+        if len(done_tasks) > 15:
+            st.info(f"📊 {len(done_tasks) - 15} more completed tasks not shown. Use search to find specific completed tasks.")
+else:
+    with st.expander("✅ Recently Completed Tasks (0)", expanded=False):
+        st.info("📝 No completed tasks yet - work in progress!")
 
 # Sidebar controls
 st.sidebar.markdown("---")

@@ -420,9 +420,25 @@ async function loadMostUrgentTask(context) {
             });
 
             // Return the most urgent task with full details
-            context.most_urgent_task = sortedTasks[0];
+            const mostUrgentTask = sortedTasks.slice(0, 1);
+            context.most_urgent_task = mostUrgentTask[0];
         } else {
             context.most_urgent_task = null;
+        }
+
+        // Enhance task with image data if available
+        if (context.most_urgent_task && context.most_urgent_task.image) {
+            const imagePath = path.join('C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\temp\\images', context.most_urgent_task.image);
+            try {
+                const imageBuffer = await fs.readFile(imagePath);
+                context.most_urgent_task.image_data = {
+                    type: 'image',
+                    data: imageBuffer.toString('base64'),
+                    mimeType: 'image/jpeg' // Assuming jpeg for now
+                };
+            } catch (error) {
+                // Image not found or could not be read, do not add image_data
+            }
         }
 
         // Add simplified task summary

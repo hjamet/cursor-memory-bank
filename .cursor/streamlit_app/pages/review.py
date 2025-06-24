@@ -7,12 +7,11 @@ import requests
 from typing import List, Dict, Optional
 from PIL import Image
 
-st.set_page_config(page_title="To Review", page_icon="🔍")
+st.set_page_config(page_title="Review & Communication", page_icon="📨")
 
-st.markdown("# 🔍 To Review")
-st.sidebar.header("To Review")
+st.markdown("# 📨 Review & Communication")
 
-st.markdown("This page displays tasks that are ready for review and validation. You can approve or reject tasks, and rejections will automatically create new userbrief requests for corrections.")
+st.markdown("This page displays tasks that are ready for review and messages from the agent.")
 
 # Helper functions for task and userbrief management
 def get_tasks_file():
@@ -250,159 +249,202 @@ def render_task_review_card(task: Dict):
     
     with st.container():
         st.markdown(f"### {priority_icon} Task #{task_id}: {title}{image_icon}")
+        st.markdown(f"**Status:** {status}")
         
-        # Task details
-        col1, col2 = st.columns([2, 1])
+        short_desc = task.get('short_description')
+        if short_desc:
+            st.write(short_desc)
         
-        with col1:
-            st.markdown(f"**Status:** {status}")
-            st.markdown(f"**Priority:** {priority}/5")
+        with st.expander("📖 Task Details", expanded=False):
+            st.markdown(f"**Detailed Description:**")
+            st.write(task.get('detailed_description', 'No detailed description.'))
             
-            short_desc = task.get('short_description', '')
-            if short_desc:
-                st.markdown(f"**Description:** {short_desc}")
-            
-            detailed_desc = task.get('detailed_description', '')
-            if detailed_desc:
-                with st.expander("📋 Detailed Specifications"):
-                    st.markdown(detailed_desc)
-            
-            validation_criteria = task.get('validation_criteria', '')
-            if validation_criteria:
-                with st.expander("✅ Validation Criteria"):
-                    st.markdown(validation_criteria)
-            
+            st.markdown("**Validation Criteria:**")
+            st.write(task.get('validation_criteria', 'No validation criteria.'))
+
             impacted_files = task.get('impacted_files', [])
             if impacted_files:
-                with st.expander("📁 Impacted Files"):
-                    for file in impacted_files:
-                        st.markdown(f"- `{file}`")
-            
-            # Show image preview if task has associated image
-            render_image_preview(task)
-        
-        with col2:
-            st.markdown("**Review Actions:**")
-            
-            # Show image deletion info if task has image
-            if has_associated_image(task):
-                st.info("📸 **Image Management:**\n- ✅ **Approve**: Image will be automatically deleted\n- ❌ **Reject**: Image will be preserved for revision")
-            
-            # Approve button
-            if st.button(f"✅ Approve Task #{task_id}", key=f"approve_{task_id}", type="primary"):
+                st.markdown("**Impacted Files:**")
+                for file in impacted_files:
+                    st.code(file)
+
+        render_image_preview(task)
+
+        # Rejection form
+        rejection_reason = st.text_area(
+            "Rejection Reason (if any):", 
+            key=f"rejection_{task_id}",
+            help="If you reject this task, provide a reason for the new request."
+        )
+
+        # Action buttons
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("👍 Approve", key=f"approve_{task_id}"):
                 validation_data = {
-                    "approved_at": datetime.now().isoformat(),
-                    "approved_by": "streamlit_reviewer",
-                    "review_notes": "Task approved via Streamlit To Review page"
+                    'status': 'approved',
+                    'approved_at': datetime.now().isoformat(),
+                    'comment': 'Approved via To Review interface'
                 }
-                
-                # Delete associated image if present (only on approval)
-                image_deleted = False
-                image_deletion_message = ""
-                if has_associated_image(task):
-                    image_deleted = delete_task_image(task)
-                    if image_deleted:
-                        image_data = task.get('image', {})
-                        if isinstance(image_data, dict):
-                            image_name = image_data.get('original_name', 'image')
-                        else:
-                            image_name = 'associated image'
-                        image_deletion_message = f" Image '{image_name}' has been automatically deleted to free up storage space."
-                    else:
-                        image_deletion_message = " Note: Associated image could not be deleted automatically."
-                
-                if update_task_status(task_id, "APPROVED", validation_data):
-                    success_message = f"✅ Task #{task_id} has been approved!"
-                    if image_deletion_message:
-                        success_message += image_deletion_message
-                    st.success(success_message)
+                if update_task_status(task_id, 'APPROVED', validation_data):
+                    st.success(f"Task #{task_id} approved!")
+                    # Clean up associated image if it exists
+                    delete_task_image(task)
                     st.rerun()
-                else:
-                    st.error(f"❌ Failed to approve task #{task_id}")
-            
-            # Reject button
-            if st.button(f"❌ Reject Task #{task_id}", key=f"reject_{task_id}", type="secondary"):
-                # Show rejection form
-                with st.form(f"reject_form_{task_id}"):
-                    st.markdown("**Rejection Reason:**")
-                    rejection_reason = st.text_area(
-                        "Explain why this task is being rejected and what needs to be corrected:",
-                        key=f"rejection_reason_{task_id}",
-                        height=100,
-                        placeholder="Example: The implementation doesn't meet the validation criteria because..."
-                    )
-                    
-                    col_cancel, col_confirm = st.columns(2)
-                    with col_cancel:
-                        cancel_rejection = st.form_submit_button("Cancel", type="secondary")
-                    with col_confirm:
-                        confirm_rejection = st.form_submit_button("Confirm Rejection", type="primary")
-                    
-                    if confirm_rejection and rejection_reason.strip():
-                        # Update task status to REJECTED
+
+        with col2:
+            if st.button("👎 Reject", key=f"reject_{task_id}"):
+                if rejection_reason.strip():
+                    request_content = f"Task #{task_id} was rejected.\n\nReason: {rejection_reason}\n\nOriginal Task Title: {title}"
+                    if create_userbrief_request(request_content):
                         validation_data = {
-                            "rejected_at": datetime.now().isoformat(),
-                            "rejected_by": "streamlit_reviewer",
-                            "rejection_reason": rejection_reason.strip(),
-                            "review_notes": "Task rejected via Streamlit To Review page"
+                            'status': 'rejected',
+                            'rejected_at': datetime.now().isoformat(),
+                            'comment': rejection_reason
                         }
-                        
-                        # Create userbrief request for correction
-                        correction_request = f"Corriger la tâche #{task_id} '{title}' qui a été rejetée.\n\nRaison du rejet:\n{rejection_reason.strip()}\n\nSpécifications originales:\n{detailed_desc}\n\nCritères de validation:\n{validation_criteria}"
-                        
-                        task_updated = update_task_status(task_id, "REJECTED", validation_data)
-                        request_created = create_userbrief_request(correction_request)
-                        
-                        if task_updated and request_created:
-                            success_message = f"❌ Task #{task_id} has been rejected and a correction request has been created!"
-                            if has_associated_image(task):
-                                success_message += " Associated image has been preserved for revision."
-                            st.success(success_message)
-                            st.rerun()
-                        else:
-                            st.error(f"❌ Failed to reject task #{task_id} or create correction request")
-                    
-                    elif confirm_rejection and not rejection_reason.strip():
-                        st.error("Please provide a rejection reason.")
+                        # Update task status to TODO to be re-evaluated
+                        update_task_status(task_id, 'TODO', validation_data)
+                        st.success(f"Task #{task_id} rejected. New request created.")
+                        st.rerun()
+                else:
+                    st.warning("Please provide a reason for rejection.")
         
         st.markdown("---")
 
-# Main page content
+# Functions from communication.py
+def read_user_messages():
+    """Read messages from to_user.json file"""
+    try:
+        messages_file = Path(".cursor/memory-bank/workflow/to_user.json")
+        if messages_file.exists():
+            with open(messages_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get('messages', [])
+        return []
+    except Exception as e:
+        st.error(f"Error reading messages: {e}")
+        return []
+
+def delete_message(message_id):
+    """Delete a message from the to_user.json file"""
+    try:
+        messages_file = Path(".cursor/memory-bank/workflow/to_user.json")
+        if messages_file.exists():
+            with open(messages_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            # Remove the message with the specified ID
+            original_count = len(data.get('messages', []))
+            data['messages'] = [msg for msg in data.get('messages', []) if msg.get('id') != message_id]
+            
+            # Check if message was actually removed
+            if len(data['messages']) < original_count:
+                # Write back to file
+                with open(messages_file, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                return True
+            else:
+                return False
+    except Exception as e:
+        st.error(f"Error deleting message: {e}")
+        return False
+
+def format_timestamp(timestamp_str):
+    """Format timestamp for display"""
+    try:
+        timestamp = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+        return timestamp.strftime("%Y-%m-%d %H:%M:%S")
+    except:
+        return timestamp_str
+
+def get_rule_emoji(rule):
+    """Get emoji for workflow rule"""
+    rule_emojis = {
+        'start-workflow': '🚀',
+        'task-decomposition': '📋',
+        'implementation': '⚙️',
+        'context-update': '🔄',
+        'fix': '🔧',
+        'experience-execution': '🧪',
+        'system': '💻',
+        'test': '🧪'
+    }
+    return rule_emojis.get(rule, '📝')
+
+def render_messages(messages):
+    st.markdown("## 💬 Agent Messages")
+    if not messages:
+        st.info("No messages from the agent yet.")
+        return
+
+    sorted_messages = sorted(messages, key=lambda x: x['timestamp'], reverse=True)
+    
+    total_messages = len(messages)
+    st.metric("Total Messages", total_messages)
+    st.markdown("---")
+
+    for message in sorted_messages:
+        message_id = message.get('id')
+        content = message.get('content', '')
+        timestamp = message.get('timestamp', '')
+        context = message.get('context', {})
+        
+        with st.container():
+            col1, col2, col3 = st.columns([1, 6, 2])
+            with col1:
+                st.markdown(f"**💬**")
+            with col2:
+                st.markdown(f"**Message #{message_id}** - {format_timestamp(timestamp)}")
+            with col3:
+                if st.button("✅ Mark Read", key=f"delete_msg_{message_id}", help="Mark as read and delete this message"):
+                    if delete_message(message_id):
+                        st.success("Message deleted!")
+                        st.rerun()
+                    else:
+                        st.error("Failed to delete message")
+            
+            st.markdown(f"**Content:** {content}")
+            
+            if context:
+                with st.expander("📋 Context Information", expanded=False):
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        workflow_rule = context.get('workflow_rule', 'unknown')
+                        st.markdown(f"**Workflow Rule:** {get_rule_emoji(workflow_rule)} {workflow_rule}")
+                        
+                        agent_state = context.get('agent_state', 'unknown')
+                        st.markdown(f"**Agent State:** {agent_state}")
+                    
+                    with col2:
+                        active_task = context.get('active_task')
+                        if active_task:
+                            st.markdown(f"**Active Task:** {active_task}")
+                        else:
+                            st.markdown("**Active Task:** *None*")
+            
+            st.markdown("---")
+
 def main():
-    # Load tasks
-    tasks = load_tasks()
-    
-    if not tasks:
-        st.warning("No tasks found. Make sure the tasks file exists and contains data.")
-        return
-    
-    # Filter tasks with DONE status (ready for validation)
-    review_tasks = [task for task in tasks if task.get('status') == 'DONE']
-    
-    if not review_tasks:
-        st.info("🎉 No tasks currently need review! All tasks are either completed, in progress, or waiting in the queue.")
+    # Tabs for Tasks and Messages
+    tab1, tab2 = st.tabs(["🔍 Tasks to Review", "💬 Agent Messages"])
+
+    with tab1:
+        tasks = load_tasks()
+        review_tasks = [task for task in tasks if task.get('status') == 'REVIEW']
         
-        # Show summary of task statuses
-        status_counts = {}
-        for task in tasks:
-            status = task.get('status', 'UNKNOWN')
-            status_counts[status] = status_counts.get(status, 0) + 1
+        st.metric("Tasks to Review", len(review_tasks))
         
-        st.markdown("### 📊 Current Task Status Summary:")
-        for status, count in sorted(status_counts.items()):
-            st.markdown(f"- **{status}**: {count} tasks")
-        
-        return
-    
-    # Show review tasks
-    st.markdown(f"### 📋 Tasks Ready for Review ({len(review_tasks)})")
-    st.markdown("Review the tasks below and approve or reject them based on the validation criteria.")
-    
-    # Sort tasks by priority (highest first) and then by ID
-    review_tasks.sort(key=lambda x: (-x.get('priority', 3), x.get('id', x.get('task_id', 0))))
-    
-    for task in review_tasks:
-        render_task_review_card(task)
+        if not review_tasks:
+            st.success("🎉 No tasks are currently waiting for review.")
+        else:
+            sorted_tasks = sorted(review_tasks, key=lambda x: x.get('updated_date', ''), reverse=True)
+            for task in sorted_tasks:
+                render_task_review_card(task)
+
+    with tab2:
+        messages = read_user_messages()
+        render_messages(messages)
+
 
 if __name__ == "__main__":
     main() 

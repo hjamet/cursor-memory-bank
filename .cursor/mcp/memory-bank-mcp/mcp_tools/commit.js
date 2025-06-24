@@ -174,6 +174,13 @@ export async function handleCommit({ emoji, type, title, description }) {
         if (errorMessage.includes('nothing to commit, working tree clean')) {
             return { content: [{ type: "text", text: `Nothing to commit in ${repoName}, working tree clean.` }] };
         }
-        throw new Error(`Git operation failed in ${repoName}: ${errorMessage.trim()}`);
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify({ status: 'error', message: `Git operation failed: ${error.message}` }, null, 2)
+            }]
+        };
+    } finally {
+        // console.error('[handleCommit] Git operation failed:', error);
     }
 } 
