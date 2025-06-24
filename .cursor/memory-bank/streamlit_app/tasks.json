@@ -2459,5 +2459,61 @@
     "parent_id": null,
     "priority": 4,
     "image": null
+  },
+  {
+    "id": 109,
+    "title": "[BUGFIX] Fix critical ImportError on Streamlit 'add_request' page",
+    "short_description": "The Streamlit 'add_request' page is still broken due to an `ImportError` related to `streamlit_paste_button`. This task is to definitively fix the import issue and validate it using the user's specified testing methodology (curl, logs, and mcp tools).",
+    "detailed_description": "**Problem:**\\nThe Streamlit application's \"Add Request\" page is failing with an `ImportError: cannot import name 'paste_button' from 'streamlit_paste_button'`. My previous attempt to fix this by changing the import statement to `from streamlit_paste_button import paste as paste_button` did not work. This is a critical bug as it prevents the user from adding new requests.\\n\\n**User's Suggested Testing Plan:**\\n1.  Do not use `run_terminal_cmd` to test.\\n2.  Use the `experience-execution` workflow rule.\\n3.  Start the Streamlit server using the `mcp_ToolsMCP_execute_command` tool.\\n4.  Once the server is running, use `curl` to test the `http://localhost:8501/add_request` endpoint.\\n5.  Consult the server logs to diagnose the error.\\n\\n**Implementation Steps:**\\n1. Re-evaluate the `ImportError`. The issue might be with the library itself or its installation.\\n2. Since `pip install --upgrade` showed version `0.1.2` is the latest, I might need to investigate the library's source code or find a working alternative for pasting images in Streamlit.\\n3. Implement a definitive fix in `.cursor/streamlit_app/pages/add_request.py` and potentially `.cursor/streamlit_app/requirements.txt`.\\n4. Follow the user's testing plan precisely within the `experience-execution` rule to validate the fix.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/add_request.py",
+      ".cursor/streamlit_app/requirements.txt",
+      ".cursor/workflow-steps/experience-execution.md"
+    ],
+    "validation_criteria": "The Streamlit application runs without any `ImportError`. The 'add_request' page is fully functional. The fix is validated by successfully running the `experience-execution` workflow, starting the app with `mcp_ToolsMCP_execute_command`, and confirming the page works via `curl` without errors in the logs.",
+    "created_date": "2025-06-24T15:04:25.215Z",
+    "updated_date": "2025-06-24T15:06:13.245Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 110,
+    "title": "[WORKFLOW] Prevent infinite `context-update` loop when agent is idle",
+    "short_description": "The agent currently gets stuck in an infinite loop calling `context-update` when idle. This task is to modify the workflow logic (`next_rule.js`) to prevent this loop, allowing the agent to stop when all tasks and requests are processed.",
+    "detailed_description": "**Problem:**\\nThe user has reported that the agent enters an infinite loop, repeatedly calling the `context-update` rule when there are no pending tasks or user requests. This is inefficient and not the desired behavior. The agent should be ableto stop or enter a quiescent state.\\n\\n**Analysis:**\\nMy code analysis revealed that `mcp/memory-bank-mcp/mcp_tools/next_rule.js` contains the `analyzeSystemState` function. This function's logic currently defaults to returning `context-update` when no other conditions (like pending tasks or requests) are met. This is the root cause of the loop.\\n\\n**Implementation Steps:**\\n1.  **Modify `next_rule.js`:**\\n    -   Alter the logic in `analyzeSystemState`.\\n    -   When no unprocessed requests and no actionable tasks (TODO, IN_PROGRESS, REVIEW, BLOCKED) are found, the function should recommend a new, special step like `workflow-complete` or `idle` instead of `context-update`.\\n    -   Alternatively, it could return a specific signal that the `remember` tool can interpret as \"stop\".\\n2.  **Create a new `workflow-complete.md` rule (if applicable):**\\n    -   If a new step is introduced, a corresponding rule file must be created. This rule would instruct the agent to inform the user that all work is complete and it is now idle, awaiting new instructions.\\n3.  **Update `remember.js` (if applicable):**\\n    -   If the solution involves the `remember` tool, its logic for suggesting next steps might need to be updated to handle the \"idle\" state.\\n\\n**Goal:**\\nThe agent's autonomous loop should gracefully terminate or pause when its work queue is empty, preventing unnecessary processing and clearly indicating to the user that it is finished.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/next_rule.js",
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/remember.js",
+      ".cursor/workflow-steps/context-update.md"
+    ],
+    "validation_criteria": "When all tasks are `DONE` or `APPROVED` and there are no unprocessed userbrief requests, the agent no longer calls `context-update` repeatedly. Instead, it either calls a final `workflow-complete` step or stops processing and informs the user that it is idle.",
+    "created_date": "2025-06-24T15:04:35.596Z",
+    "updated_date": "2025-06-24T15:04:35.596Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null
+  },
+  {
+    "id": 111,
+    "title": "[FEATURE] Implement 'Answer' button for agent messages in Streamlit UI",
+    "short_description": "The user wants a new feature in the Streamlit 'Review' tab to answer agent messages. This task is to add a 'Validate' button to dismiss messages and an 'Answer' button that creates a new userbrief request quoting the agent's message and adding the user's question.",
+    "detailed_description": "**Feature Request:**\\nThe user wants to be able to reply to or ask questions about the agent's messages within the Streamlit UI. This creates a more interactive communication loop.\\n\\n**Implementation Plan:**\\n1.  **Modify the Streamlit UI (`pages/review.py`):**\\n    -   Currently, `review.py` is for reviewing completed tasks. It should be augmented or a new page/tab should be created to handle agent messages to the user.\\n    -   For each agent message displayed, add two buttons:\\n        -   **`Validate` button:** Acknowledges the message and removes it from the review queue (similar to the current 'Approve' button for tasks).\\n        -   **`Answer` button (with a `?` icon):** This will open a text area or form for the user to type their question/response.\\n2.  **Implement 'Answer' button logic:**\\n    -   When the user submits their question via the 'Answer' form, a new userbrief request must be created.\\n    -   The content of this new request should be structured as the user specified: `Question about your comment: \\\"[quoted agent message]\\\"\\n\\n[user's question]`\\n    -   The function `create_userbrief_request` in `review.py` is a perfect template for this. I will create a new, similar function or adapt the existing one to handle this specific format.\\n3.  **Agent Message Data Source:**\\n    -   I need a mechanism to get the agent's messages that require user review. The `to_user.json` file seems like the intended place for this. I will need to ensure the agent writes messages there and that the Streamlit app reads from it.\\n\\n**Goal:**\\nA new section in the Streamlit UI allows the user to see messages from the agent. The user can either dismiss them or answer them, with the latter creating a new, properly formatted request in `userbrief.json`, enabling a seamless two-way communication channel.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/review.py",
+      ".cursor/memory-bank/workflow/to_user.json"
+    ],
+    "validation_criteria": "A new 'Review Messages' tab or section exists in the Streamlit UI. It displays messages from `to_user.json`. A 'Validate' button removes the message. An 'Answer' button allows the user to type a question, which, upon submission, creates a new request in `userbrief.json` with the correct format (quoted agent message + user question).",
+    "created_date": "2025-06-24T15:04:46.064Z",
+    "updated_date": "2025-06-24T15:04:46.064Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
   }
 ]

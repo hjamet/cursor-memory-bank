@@ -11,7 +11,40 @@
         "agent_state": "processing"
       },
       "status": "unread"
+    },
+    {
+      "id": 23,
+      "content": "J'ai effectué une petite tâche de maintenance en arrière-plan. J'attends toujours votre confirmation pour le bug de Streamlit.",
+      "timestamp": "2025-06-24T14:59:18.538Z",
+      "context": {
+        "workflow_rule": "implementation",
+        "active_task": null,
+        "agent_state": "processing"
+      },
+      "status": "unread"
+    },
+    {
+      "id": 24,
+      "content": "J'ai bien analysé vos demandes et les ai transformées en trois tâches distinctes : la correction du bug, l'amélioration du workflow, et la nouvelle fonctionnalité de réponse. Je vais maintenant commencer par corriger le bug de la page \"add request\".",
+      "timestamp": "2025-06-24T15:04:56.268Z",
+      "context": {
+        "workflow_rule": "implementation",
+        "active_task": null,
+        "agent_state": "processing"
+      },
+      "status": "unread"
+    },
+    {
+      "id": 25,
+      "content": "J'ai remplacé la bibliothèque qui causait l'erreur par une alternative qui semble plus fiable. La correction est prête à être testée. Je vais maintenant lancer la procédure de test que vous m'avez indiquée pour valider la solution.",
+      "timestamp": "2025-06-24T15:06:19.047Z",
+      "context": {
+        "workflow_rule": "implementation",
+        "active_task": null,
+        "agent_state": "processing"
+      },
+      "status": "unread"
     }
   ],
-  "last_id": 22
+  "last_id": 25
 }

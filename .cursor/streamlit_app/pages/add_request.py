@@ -9,7 +9,7 @@ import base64
 import shutil
 from PIL import Image
 import io
-from streamlit_paste_button import paste as paste_button
+from st_img_pastebutton import paste_img_button
 
 st.set_page_config(page_title="Add Request", page_icon="➕")
 
@@ -474,14 +474,13 @@ with st.form("request_form", clear_on_submit=True):
     
     with col_paste:
         st.write("Or paste an image from clipboard:")
-        pasted_data = paste_button(
+        pasted_data = paste_img_button(
             "📋 Paste Image (Ctrl+V)",
-            button_text="📋 Paste from Clipboard",
             key="paste_button"
         )
 
     # Process pasted image if data is returned
-    if pasted_data and pasted_data.is_image:
+    if pasted_data:
         try:
             # Get the next request ID for filename
             userbrief_file = ".cursor/memory-bank/workflow/userbrief.json"
@@ -493,7 +492,7 @@ with st.form("request_form", clear_on_submit=True):
                 next_id = 1
             
             # Process the pasted image data
-            image_metadata = process_pasted_image(pasted_data.image_data, next_id)
+            image_metadata = process_pasted_image(pasted_data, next_id)
             
             if image_metadata:
                 st.session_state.pasted_image_metadata = image_metadata
