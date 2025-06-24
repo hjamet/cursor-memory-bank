@@ -181,8 +181,11 @@ def calculate_task_completion_stats(tasks) -> Tuple[Optional[float], Optional[fl
                 end = datetime.fromisoformat(updated_str.replace('Z', '+00:00'))
                 completion_time_hours = (end - start).total_seconds() / 3600
                 
-                # Only consider reasonable completion times (between 1 minute and 30 days)
-                if 0.017 <= completion_time_hours <= 720:  # 1 minute to 30 days
+                # Temporary logging to debug completion times
+                # st.sidebar.write(f"Task #{task.get('id')}: {completion_time_hours:.2f} hours") # Commenting out the debug log
+
+                # Only consider reasonable completion times (between 1 minute and 24 hours)
+                if 0.017 <= completion_time_hours <= 24:  # 1 minute to 24 hours
                     completion_times.append(completion_time_hours)
             except (ValueError, TypeError):
                 continue

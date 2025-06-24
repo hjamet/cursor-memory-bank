@@ -2252,5 +2252,22 @@
       "approved_by": "streamlit_reviewer",
       "review_notes": "Task approved via Streamlit To Review page"
     }
+  },
+  {
+    "id": 97,
+    "title": "🐛 Corriger le calcul du temps de complétion des tâches",
+    "short_description": "Corriger le calcul erroné du temps de complétion moyen dans l'interface Streamlit.",
+    "detailed_description": "**Objectif :** Corriger le bug dans le calcul du temps moyen de complétion des tâches dans l'interface Streamlit.\n\n**Problème :** L'estimation du temps moyen de complétion affiche une valeur incorrecte (\"23h\"), ce qui suggère un problème dans la logique de calcul de la fonction `calculate_task_completion_stats` dans le fichier `.cursor/streamlit_app/pages/task_status.py`.\n\n**Plan d'action :**\n1.  **Analyser la fonction `calculate_task_completion_stats`** : Examiner en détail comment les dates `created_date`, `updated_date`, et `validation.approved_at` sont utilisées.\n2.  **Valider les données de temps** : Vérifier le format et la validité des timestamps dans le fichier `tasks.json` pour les tâches terminées.\n3.  **Déboguer le calcul** : Ajouter des logs ou des points d'arrêt pour inspecter les valeurs intermédiaires de `completion_time_hours` et s'assurer qu'elles sont correctes.\n4.  **Ajuster la logique de filtrage** : Revoir la condition `if 0.017 <= completion_time_hours <= 720:` pour s'assurer qu'elle n'exclut pas des tâches valides.\n5.  **Corriger le code** : Appliquer les corrections nécessaires pour garantir un calcul précis du temps de complétion.\n6.  **Tester la correction** : Recharger l'application Streamlit et vérifier que la valeur affichée pour \"Avg. Completion\" est maintenant correcte et réaliste.\n\n**Fichiers impactés :**\n- `.cursor/streamlit_app/pages/task_status.py`\n",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "La tâche sera considérée comme terminée lorsque le temps de complétion moyen affiché dans la page \"Task Status\" de Streamlit sera correct et reflétera la réalité des données de tâches.",
+    "created_date": "2025-06-24T13:56:51.070Z",
+    "updated_date": "2025-06-24T13:57:45.151Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
   }
 ]

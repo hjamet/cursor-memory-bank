@@ -97,14 +97,18 @@
     {
       "id": 79,
       "content": "Il y a un souci dans le calcul du temps de complétion, il m'affiche 23 h en moyenne pour résoudre une tâche. C'est pas du tout correct donc doit y avoir un problème dans le calcul tu peux résoudre dans l'interface Stream Lit dans l'affichage dans Task Status.",
-      "status": "new",
+      "status": "archived",
       "created_at": "2025-06-24T15:55:58.708840",
-      "updated_at": "2025-06-24T15:55:58.708840",
+      "updated_at": "2025-06-24T13:56:56.024Z",
       "history": [
         {
           "timestamp": "2025-06-24T15:55:58.708840",
           "action": "created",
           "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-24T13:56:56.024Z",
+          "action": "mark_archived"
         }
       ]
     }
