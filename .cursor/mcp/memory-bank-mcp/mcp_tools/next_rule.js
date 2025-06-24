@@ -19,7 +19,8 @@ nunjucks.configure(workflowDirPath, { autoescape: false });
  * @param {Object} context - System context including tasks and requests
  * @returns {Object} Analysis result with recommended step and reasoning
  */
-function analyzeSystemState(context) {
+async function analyzeSystemState(context) {
+    await taskManager.loadTasks(); // Force reload from disk
     const tasks = taskManager.getAllTasks({ include_done: true });
 
     // Count tasks by status
@@ -490,7 +491,7 @@ async function getStep(step_name) {
         const context = await getOptimizedContext(step_name);
 
         // Add intelligent system state analysis
-        const systemAnalysis = analyzeSystemState(context);
+        const systemAnalysis = await analyzeSystemState(context);
         context.system_analysis = systemAnalysis;
 
         // Add routing decision logging
