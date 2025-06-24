@@ -26,3 +26,7 @@ Thumbs.db
 
 # MCP Server State
 .cursor/mcp/mcp-commit-server/terminals_status.json
+
+# Memory Bank state
+.cursor/memory-bank/streamlit_app/tasks.json
+.cursor/memory-bank/workflow/agent_memory.json

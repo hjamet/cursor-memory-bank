@@ -21,11 +21,17 @@ Quickly test the recent changes manually. If the test is successful, commit the 
         `</think>`
         - Call the `mcp_MemoryBankMCP_commit` tool with the composed message.
         - `<think>`
-            - Now that the work is committed, what is the next logical step?
-            - Are there more `TODO` tasks waiting? If so, the next step is `implementation`.
-            - If no tasks are left, `context-update` is appropriate to finalize the session.
+            - Now that the work is committed, I must evaluate if the changes were "drastic" to decide the next step.
+            - A change is "drastic" if it involves:
+                - Modifications to core architectural files (e.g., workflow rules, MCP server logic).
+                - A large number of files being changed at once.
+                - The completion of a major feature or epic.
+            - Based on my last commit, were the changes drastic?
+            - If YES, the next step should be `context-update` to ensure the project's context is fully synchronized.
+            - If NO, and there are more tasks, the next step is `implementation`.
+            - If NO, and there are no more tasks, `context-update` is still appropriate.
         `</think>`
-        - Call `mcp_MemoryBankMCP_remember` to record the successful test and set the future step.
+        - Call `mcp_MemoryBankMCP_remember` to record the successful test and set the future step based on the evaluation above.
 
     - **If the test was a FAILURE**:
         - `<think>`
@@ -43,10 +49,10 @@ Quickly test the recent changes manually. If the test is successful, commit the 
 
 ## Next Steps
 - `fix` - If the manual test failed.
-- `implementation` - If the test was successful and there are more tasks to be done.
-- `context-update` - If the test was successful and it's a good time to sync the project state.
+- `implementation` - If the test was successful and the change was not drastic, and there are more tasks.
+- `context-update` - If the test was successful and the change was drastic, or if no tasks are left.
 
-## Example (Successful Test)
+## Example (Successful Test, Minor Change)
 
 # Experience-Execution: 1 - Execute Manual Test
 <think> I just implemented the JWT token generation in `auth.js`. I will run the associated test file `auth.test.js` to see if it passes and generates a token as expected. </think>
@@ -57,8 +63,22 @@ The test command finished successfully with all tests passing. The outcome is a 
 # Experience-Execution: 2 - Report Outcome & Next Steps
 <think> The change adds the JWT feature. A good commit message would be `feat(auth): Implement JWT generation`. I'll use the ✨ emoji. The description will detail the new endpoint. </think>
 [...calling `mcp_MemoryBankMCP_commit` with emoji: '✨', type: 'feat', title: 'feat(auth): Implement JWT generation', description: '- Added /login endpoint to generate JWT...']
-<think> The commit was successful. I see there is another task in my TODO list to implement user permissions. The next step should be `implementation`. </think>
+<think> The commit was successful. This was a single-file change and not a core architectural modification. The change was not drastic. I see other tasks are pending. The next step should be `implementation`. </think>
 [...calling `mcp_MemoryBankMCP_remember` with PAST: "Successfully tested JWT generation", PRESENT: "Changes committed", FUTURE: "Proceed to the next task in `implementation`."...]
+
+## Example (Successful Test, Drastic Change)
+
+# Experience-Execution: 1 - Execute Manual Test
+<think> I just refactored three workflow rules (`.mdc` files) to streamline the agent's decision-making. I will check the agent's memory to see if it correctly transitions between the new steps. </think>
+I will check the agent's memory logs.
+`cat .cursor/memory-bank/agent_memory.json`
+The logs show the agent correctly followed the new workflow path. The outcome is a **SUCCESS**.
+
+# Experience-Execution: 2 - Report Outcome & Next Steps
+<think> The changes affected multiple core workflow files. This is a drastic architectural change. The commit message should reflect this. </think>
+[...calling `mcp_MemoryBankMCP_commit` with emoji: '♻️', type: 'refactor', title: 'refactor(workflow): Streamline agent decision logic', description: '- Refactored experience-execution.md and implementation.md...']
+<think> The commit was successful. Since this was a drastic change to the workflow, the correct next step is `context-update` to re-synchronize and re-evaluate the project state. </think>
+[...calling `mcp_MemoryBankMCP_remember` with PAST: "Successfully tested the refactored workflow", PRESENT: "Drastic changes committed", FUTURE: "Proceed to `context-update` for project re-synchronization."...]
 
 ## Example (Failed Test)
 

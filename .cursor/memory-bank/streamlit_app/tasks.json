@@ -2342,7 +2342,7 @@
     "short_description": "Refactor the context-update rule to perform repository cleaning (deleting temp/misplaced files) and to manage project context files (`techContext.md`, `projectBrief.md`) via complete rewrites.",
     "detailed_description": "This task implements the user's request #82. The `context-update` rule needs a major overhaul to become a powerful tool for project maintenance and context management.\n\nThe new responsibilities are:\n\n1.  **Repository Janitor**:\n    - The rule must perform a scan of the repository.\n    - It should use `list_dir` recursively to explore the file structure.\n    - It must identify files that appear to be temporary (`*.tmp`, `*.bak`), misplaced (e.g., source files in a `docs` directory), or duplicates.\n    - The agent should then decide which files to delete (`delete_file`) or move (`edit_file` with rename). This process requires careful thought to avoid breaking the project.\n\n2.  **Context Archivist**:\n    - The rule must be able to update the core context files: `.cursor/memory-bank/context/techContext.md` and `.cursor/memory-bank/context/projectBrief.md`.\n    - The user specified that this should be a **complete rewrite**. The agent must first read the existing files to understand their content, then formulate a complete, new version, and finally use `edit_file` to overwrite the old content entirely.\n\n3.  **Commit Creation**:\n    - The rule retains its original responsibility of creating a Git commit using `mcp_MemoryBankMCP_commit` to save the state of the project after cleaning and context updates.\n\nThe implementation will require a complete rewrite of the `.cursor/workflow-steps/context-update.md` file to guide the agent through this new, more complex logic.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/workflow-steps/context-update.md",
       ".cursor/memory-bank/context/techContext.md",
@@ -2350,7 +2350,7 @@
     ],
     "validation_criteria": "The `context-update.md` rule is successfully rewritten to include steps for repository scanning, file cleanup, and full context file rewriting. The agent can successfully execute this rule, identifying and deleting a temporary file, and updating the `projectBrief.md` file.",
     "created_date": "2025-06-24T14:08:51.187Z",
-    "updated_date": "2025-06-24T14:17:54.923Z",
+    "updated_date": "2025-06-24T16:33:37.875884",
     "parent_id": null,
     "priority": 3,
     "image": null
@@ -2361,14 +2361,14 @@
     "short_description": "Modify the `experience-execution` rule to add a decision step after a successful commit. The agent will evaluate if the change was \"drastic\" and decide whether to proceed to `implementation` or trigger the new `context-update` rule.",
     "detailed_description": "Following the refactoring of the `context-update` rule (Task #102), this task is to implement the trigger mechanism as requested by the user in #82.\n\nThe user wants `context-update` to be called from `experience-execution` only when a \"drastic modification\" has occurred. This requires adding decision logic to the `experience-execution` flow.\n\n1.  **Modify `experience-execution.md`**:\n    - After a successful test and commit, the rule needs a new decision step.\n    - The agent must evaluate the nature of the changes just committed.\n    - A heuristic for \"drastic\" could be:\n        - A large number of files were changed.\n        - Core configuration or architectural files were modified.\n        - A new major feature was added.\n    - Based on this evaluation, the agent must choose between:\n        - `implementation` (for the next task).\n        - `context-update` (if the change was drastic).\n\n2.  **Potential `remember.js` modification**:\n    - The logic for suggesting next steps in `remember.js` might need to be updated to more prominently feature `context-update` as a possible transition from `experience-execution` if certain conditions are met in the agent's memory.\n\nThis task ensures the new, powerful `context-update` rule is used appropriately and not on every minor change.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/workflow-steps/experience-execution.md",
       ".cursor/mcp/memory-bank-mcp/mcp_tools/remember.js"
     ],
     "validation_criteria": "The `experience-execution.md` rule is updated with a new decision step. After a test, if the agent notes that the changes were significant, it correctly chooses `context-update` as the next step when calling `remember`. Otherwise, it defaults to `implementation`.",
     "created_date": "2025-06-24T14:09:01.559Z",
-    "updated_date": "2025-06-24T14:17:58.532Z",
+    "updated_date": "2025-06-24T16:38:31.982629",
     "parent_id": null,
     "priority": 3,
     "image": null

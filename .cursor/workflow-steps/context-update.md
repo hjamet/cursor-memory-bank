@@ -1,50 +1,35 @@
-
 ## TLDR
-Analyzes the provided context, updates context files, manages task statuses, and makes a commit following conventions. This step does not create any result files.
+Performs advanced repository maintenance by cleaning temporary files, rewriting core context files for clarity, and committing the changes to ensure a clean and up-to-date project state.
 
 ## Instructions
-1. **Analyze available context**: 
-   - Analyze the full context provided by the MCP server, including `projectBrief.md`, `techContext.md`, recent memories, and current tasks.
-   - Read the userbrief to check for new user requests and preferences.
 
-2. **Context update**: Update the context files if necessary.
-   - Based on the analysis, determine if any context files need updates to reflect the latest changes.
-   - If so, formulate the new content for the required files (`projectBrief.md`, `techContext.md`).
-   - Use the `remember` tool to record the current state and learnings.
+1.  **Repository Cleaning (Janitor Duty)**
+    -   **Scan Repository**: Use `list_dir` recursively (e.g., `list_dir -R .`) to get a full overview of the repository's file structure.
+    -   **Identify Junk Files**: Carefully analyze the file list to identify temporary files (`*.tmp`, `*.bak`, `*.swp`), misplaced build artifacts, or other unnecessary files.
+    -   **Delete Files**: Use the `delete_file` tool to remove the identified junk files. Exercise caution to avoid deleting important files. Log your reasoning for each deletion in your memory.
 
-3. **Context cleanup**: 
-   - When formulating new content, ensure it is concise, removes obsolete information, and maintains structural integrity.
+2.  **Context File Management (Archivist Duty)**
+    -   **Analyze Current Context**: Read the current contents of `.cursor/memory-bank/context/techContext.md` and `.cursor/memory-bank/context/projectBrief.md`.
+    -   **Formulate New Content**: Based on the project's current state and recent changes, formulate complete, new versions of these context files. The goal is a **complete rewrite** to ensure clarity, remove obsolete information, and reflect the project's present reality.
+    -   **Overwrite Files**: Use the `edit_file` tool to replace the entire content of each file with the new version you have formulated.
 
-4. **Tasks update**: Mark completed tasks as `DONE` using the `update_task` tool.
+3.  **Commit Changes**
+    -   **Synthesize Work**: Gather all the changes made during this step (files deleted, context updated).
+    -   **Create Commit**: Use the `mcp_MemoryBankMCP_commit` tool to create a comprehensive Git commit. Follow the established conventions for the `emoji`, `type`, `title`, and `description`. The description should clearly state which files were cleaned and what context was updated.
 
-5. **Userbrief processing**: Check for new user requests and update their status if needed.
-   - Use `read_userbrief` to get current requests
-   - Process any new requests by updating their status or adding comments
-   - Use `update_userbrief` to mark requests as processed
-
-6. **Commit changes**: Make a commit with the modifications using the `commit` tool.
-   - Determine the appropriate `emoji`, `type`, and `title`.
-   - Construct a detailed `description`.
-
-7. **Record state and determine next steps**: Use remember tool to record progress and get next steps.
-   - Call `mcp_MemoryBankMCP_remember` to record the current state and context updates
-   - The remember tool will indicate the appropriate next steps
+4.  **Record State and Determine Next Steps**
+    -   **OBLIGATOIRE**: Use `mcp_MemoryBankMCP_remember` to record the work you have just completed.
+    -   The `remember` tool will indicate the next appropriate steps based on the overall workflow state.
 
 ## Specifics
-- This step now operates on the assumption that all necessary context is provided by the MCP server at runtime, removing the need for direct file reads.
-- The agent's responsibility is to analyze the provided context and formulate the *content* for any required updates.
-- Mark tasks as 🟢 DONE only if all associated tests pass and the work for that task is fully completed.
-- Use conventional commit format by adding an emoji to describe the operation performed
-- Systematically delete old history entries that are no longer relevant
-- NEVER end without either explicitly calling a next step or explicitly indicating that the workflow is complete
-- The workflow must NEVER be considered complete if there are remaining tasks with 🟡 IN_PROGRESS or ⚪️ TODO emojis OR if there is at least one failing test (marked ❌) or with warning (marked ⚠️)
-- For the commit, use the `mcp_MemoryBankMCP_commit` tool, which handles staging automatically.
-- If all tasks are complete (meaning there are NO MORE tasks with 🟡 IN_PROGRESS or ⚪️ TODO emojis according to MCP task tools) AND all tests pass (ALL marked ✅), then:
-   - Present a clear and concise synthesis of the work done
-   - Summarize implemented features and resolved issues
-   - Explicitly indicate that the workflow is successfully completed
-   - Explicitly state: "The workflow is complete, no next step to call."
-- If the workflow is not complete, call the appropriate next step
+-   This rule is a maintenance step. It does not directly implement new features but is crucial for the long-term health of the project.
+-   Be conservative when deleting files. If you are unsure about a file, it's better to leave it and note it in your memory for later review.
+-   The context file rewrites should be comprehensive. Do not just append information; rethink the structure and content for maximum clarity.
+
+## Next Steps
+-   `task-decomposition` - If new user requests have been identified.
+-   `implementation` - If there are pending tasks to be worked on.
+-   `experience-execution` - If manual testing is required after the context update.
 
 ## Format for Detailed Commit Description
 The `description` argument for the `mcp_MemoryBankMCP_commit` tool must be a detailed markdown-formatted string. It serves as a comprehensive record of the work performed. Structure it like a mini-article with the following sections:
@@ -96,13 +81,6 @@ The `description` argument for the `mcp_MemoryBankMCP_commit` tool must be a det
 - :package: `build`: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
 - :construction_worker: `ci`: Changes to CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)
 - :rewind: `revert`: Reverts a previous commit
-
-## Next Steps
-- `task-decomposition` - If new user requests are found in userbrief
-- `fix` - If issues are detected during analysis
-- `implementation` - If tasks are still in progress or to do
-- `experience-execution` - If implementation is complete and manual testing is needed
-- `start-workflow` - If workflow is complete and ready for next iteration
 
 ## Example
 

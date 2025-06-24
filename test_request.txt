@@ -1,1 +1,0 @@
-Test de création d'une requête avec image pour valider le support des images dans l'interface Streamlit
