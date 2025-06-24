@@ -1440,15 +1440,20 @@
     "short_description": "Simplifier l'interface utilisateur en supprimant la confirmation de suppression des requêtes dans l'onglet Add Request. Actuellement, cliquer sur \"Delete\" demande une confirmation \"Yes/No\" ce qui fait perdre du temps. L'action devrait être immédiate comme pour les tâches et les souvenirs.",
     "detailed_description": "**Problème actuel :**\n- Dans l'onglet Add Request de Streamlit, section \"Unprocessed Requests\"\n- Bouton \"Delete\" demande une confirmation avec \"Yes/No\"\n- Cette confirmation ralentit le workflow utilisateur\n- Inconsistant avec les autres interfaces (tâches, souvenirs) qui n'ont pas de confirmation\n\n**Objectif :**\n- Supprimer la logique de confirmation pour les boutons Delete\n- Rendre la suppression immédiate au clic\n- Maintenir un feedback visuel (message de succès)\n- Conserver toutes les autres fonctionnalités\n\n**Implémentation technique :**\n- Modifier `.cursor/streamlit_app/pages/add_request.py`\n- Supprimer la logique `delete_confirm_key` et les états de session associés\n- Remplacer les boutons de confirmation par un appel direct à `delete_request()`\n- Maintenir le message de succès et le `st.rerun()`\n\n**Critères d'acceptation :**\n- ✅ Clic sur \"Delete\" supprime immédiatement la requête\n- ✅ Aucune boîte de dialogue de confirmation\n- ✅ Message de succès affiché après suppression\n- ✅ Interface mise à jour automatiquement\n- ✅ Fonctionnalité Edit inchangée\n- ✅ Comportement cohérent avec les autres interfaces",
     "dependencies": [],
-    "status": "DONE",
+    "status": "APPROVED",
     "impacted_files": [
       "pages/add_request.py"
     ],
     "validation_criteria": "Tâche terminée quand : (1) Boutons Delete dans section Unprocessed Requests suppriment immédiatement sans confirmation, (2) Message de succès affiché après suppression, (3) Interface mise à jour automatiquement avec st.rerun(), (4) Aucune régression sur fonctionnalité Edit, (5) Comportement cohérent avec autres interfaces du système",
     "created_date": "2025-06-23T15:09:25.341Z",
-    "updated_date": "2025-06-24T13:41:22.487Z",
+    "updated_date": "2025-06-24T15:52:20.309916",
     "parent_id": null,
-    "priority": 3
+    "priority": 3,
+    "validation": {
+      "approved_at": "2025-06-24T15:52:20.307324",
+      "approved_by": "streamlit_reviewer",
+      "review_notes": "Task approved via Streamlit To Review page"
+    }
   },
   {
     "id": 58,
@@ -1456,13 +1461,13 @@
     "short_description": "Améliorer les descriptions des paramètres de l'outil remember pour fournir des directives claires sur l'utilisation de long_term_memory et user_message. Actuellement les descriptions sont trop génériques et ne donnent pas assez de contexte sur quand et comment utiliser ces paramètres optionnels.",
     "detailed_description": "**Problème actuel :**\n- Paramètre `long_term_memory` : description trop vague \"Critical project information to be stored persistently\"\n- Paramètre `user_message` : description basique sans exemples concrets d'usage\n- Manque de guidance sur quand utiliser ces paramètres optionnels\n- Pas d'exemples pratiques dans les descriptions\n\n**Objectifs d'amélioration :**\n- Fournir des descriptions plus détaillées et pratiques\n- Ajouter des exemples d'usage pour chaque paramètre\n- Clarifier la différence entre mémoire de travail et mémoire long terme\n- Donner des guidelines sur l'utilisation de user_message\n\n**Implémentation technique :**\n- Modifier `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js`\n- Mettre à jour le `rememberSchema` avec des descriptions enrichies\n- Ajouter des exemples concrets dans les descriptions\n- Maintenir la compatibilité avec l'existant\n\n**Nouvelles descriptions proposées :**\n\n**long_term_memory :**\n\"Critical project information to be stored persistently across sessions (e.g., database schemas, architectural decisions, important discoveries, recurring patterns, system configurations). Use for information that should be remembered long-term and retrieved semantically when relevant. Examples: 'Database uses PostgreSQL with users table having columns: id, email, password_hash, created_at', 'Authentication system uses JWT tokens with 24h expiry stored in httpOnly cookies', 'Bug pattern: MCP schema requires plain objects, not z.object() calls'.\"\n\n**user_message :**\n\"Direct message to user (1-2 sentences max, 500 chars limit). Use for: responding to user questions, providing status updates, sharing important findings, requesting clarification, or giving recommendations. Examples: 'Task completed successfully, ready for your review.', 'Found potential security issue in authentication, please review.', 'Need clarification on database schema requirements.', 'Discovered optimization opportunity that could improve performance by 40%.'.\"\n\n**Critères d'acceptation :**\n- ✅ Descriptions plus détaillées avec exemples concrets\n- ✅ Guidelines claires sur quand utiliser chaque paramètre\n- ✅ Exemples pratiques intégrés dans les descriptions\n- ✅ Compatibilité maintenue avec l'usage existant\n- ✅ Documentation améliorée pour les développeurs",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/mcp_tools/remember.js"
     ],
     "validation_criteria": "Tâche terminée quand : (1) Description long_term_memory enrichie avec exemples concrets et guidance d'usage, (2) Description user_message détaillée avec cas d'usage et limites, (3) Exemples pratiques intégrés dans les descriptions des paramètres, (4) Guidelines claires sur quand utiliser chaque paramètre optionnel, (5) Compatibilité maintenue avec l'usage existant de l'outil",
     "created_date": "2025-06-23T15:09:43.658Z",
-    "updated_date": "2025-06-23T15:09:43.658Z",
+    "updated_date": "2025-06-24T13:54:03.358Z",
     "parent_id": null,
     "priority": 2
   },
@@ -1472,16 +1477,21 @@
     "short_description": "Améliorer le script d'installation pour gérer automatiquement le fichier .gitignore en ajoutant les entrées nécessaires pour le système Cursor Memory Bank. Actuellement, l'utilisateur doit manuellement ajouter les exclusions pour les fichiers temporaires, logs, et dépendances.",
     "detailed_description": "**Problème actuel :**\n- Le script install.sh n'ajoute pas automatiquement les entrées .gitignore nécessaires\n- Les utilisateurs doivent manuellement configurer .gitignore pour exclure :\n  - Les dépendances Node.js (node_modules)\n  - Les fichiers de logs (*.log)\n  - Les fichiers temporaires du système MCP\n  - Les fichiers de cache et de build\n\n**Objectif :**\n- Automatiser la gestion du .gitignore pendant l'installation\n- Ajouter intelligemment les entrées nécessaires sans écraser l'existant\n- Éviter les doublons si le script est exécuté plusieurs fois\n- Préserver les règles gitignore existantes de l'utilisateur\n\n**Implémentation technique :**\n- Ajouter une fonction `manage_gitignore()` dans install.sh\n- Détecter si .gitignore existe déjà\n- Ajouter seulement les entrées manquantes\n- Utiliser des marqueurs de section pour organiser les ajouts\n- Créer .gitignore s'il n'existe pas\n\n**Entrées à ajouter :**\n```\n# Cursor Memory Bank - Auto-generated entries\n.cursor/mcp/*/node_modules/\n.cursor/mcp/*/*.log\n.cursor/memory-bank/workflow/temp/\n.cursor/streamlit_app/__pycache__/\n.cursor/memory-bank/models/\n*.pyc\n__pycache__/\n\n# MCP Server State Files\n.cursor/mcp/*/terminals_status.json\n.cursor/mcp/*/temp_*\n```\n\n**Fonctionnalités :**\n- Vérification des doublons avant ajout\n- Section commentée pour identification\n- Préservation des règles existantes\n- Option --no-gitignore pour désactiver cette fonctionnalité\n- Logging des modifications apportées\n\n**Critères d'acceptation :**\n- ✅ Script ajoute automatiquement les entrées .gitignore nécessaires\n- ✅ Pas de doublons même si script exécuté plusieurs fois\n- ✅ Préservation des règles gitignore existantes\n- ✅ Création de .gitignore s'il n'existe pas\n- ✅ Option pour désactiver cette fonctionnalité\n- ✅ Messages informatifs sur les modifications apportées",
     "dependencies": [],
-    "status": "DONE",
+    "status": "APPROVED",
     "impacted_files": [
       "install.sh",
       ".gitignore"
     ],
     "validation_criteria": "Tâche terminée quand : (1) Fonction manage_gitignore() ajoutée au script install.sh, (2) Entrées gitignore nécessaires ajoutées automatiquement sans doublons, (3) Préservation des règles existantes de l'utilisateur, (4) Création de .gitignore si inexistant, (5) Option --no-gitignore pour désactiver la fonctionnalité, (6) Messages informatifs lors des modifications",
     "created_date": "2025-06-23T15:09:59.498Z",
-    "updated_date": "2025-06-24T13:42:14.432Z",
+    "updated_date": "2025-06-24T15:52:20.803175",
     "parent_id": null,
-    "priority": 3
+    "priority": 3,
+    "validation": {
+      "approved_at": "2025-06-24T15:52:20.800872",
+      "approved_by": "streamlit_reviewer",
+      "review_notes": "Task approved via Streamlit To Review page"
+    }
   },
   {
     "id": 60,
@@ -1489,7 +1499,7 @@
     "short_description": "Nettoyer le repository en supprimant les fichiers temporaires de test et de debug qui ne sont plus nécessaires. Ces fichiers encombrent le repository et peuvent créer de la confusion pour les utilisateurs.",
     "detailed_description": "**Fichiers à supprimer :**\n- `debug_mcp_response.js` - Script de debug pour les réponses MCP\n- `test_remember_next_step.js` - Tests temporaires pour l'outil remember\n- `test_remember_tool.js` - Tests unitaires temporaires\n- `test_task_management.js` - Tests de gestion des tâches\n- `STREAMLIT_FIXES.md` - Documentation temporaire des corrections\n- `INSTALL_CHANGES.md` - Documentation temporaire des changements d'installation\n\n**Justification :**\n- Ces fichiers étaient utiles pendant le développement mais ne sont plus nécessaires\n- Ils peuvent créer de la confusion pour les nouveaux utilisateurs\n- Le repository sera plus propre et plus facile à naviguer\n- Les tests importants ont été intégrés dans le système principal\n\n**Vérifications avant suppression :**\n- Confirmer que les fonctionnalités testées sont stables\n- S'assurer qu'aucun autre fichier ne dépend de ces scripts\n- Vérifier que les informations importantes sont documentées ailleurs\n\n**Impact :**\n- Repository plus propre et professionnel\n- Moins de confusion pour les nouveaux utilisateurs\n- Focus sur les fichiers essentiels du système\n- Maintenance simplifiée\n\n**Critères d'acceptation :**\n- ✅ Tous les fichiers temporaires listés sont supprimés\n- ✅ Aucune régression dans les fonctionnalités principales\n- ✅ Aucune référence cassée vers ces fichiers\n- ✅ Repository plus propre et organisé\n- ✅ Documentation mise à jour si nécessaire",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [
       "debug_mcp_response.js",
       "test_remember_next_step.js",
@@ -1500,7 +1510,7 @@
     ],
     "validation_criteria": "Tâche terminée quand : (1) Fichiers temporaires supprimés du repository, (2) Aucune référence cassée vers ces fichiers, (3) Fonctionnalités principales inchangées, (4) Repository plus propre et organisé, (5) Documentation mise à jour si références à ces fichiers",
     "created_date": "2025-06-23T15:10:12.049Z",
-    "updated_date": "2025-06-23T15:10:12.049Z",
+    "updated_date": "2025-06-24T13:55:03.199Z",
     "parent_id": null,
     "priority": 2
   },
@@ -1510,7 +1520,7 @@
     "short_description": "Simplifier l'interface Streamlit en supprimant les sidebars inutiles et en ajoutant un auto-refresh de 10 secondes pour maintenir les informations à jour automatiquement. Cela créera une interface plus épurée et plus pratique pour le monitoring.",
     "detailed_description": "**Modifications à apporter :**\n\n**1. Suppression des sidebars :**\n- Supprimer `st.sidebar.header()` dans toutes les pages\n- Déplacer le contenu utile des sidebars vers le contenu principal\n- Conserver uniquement les informations d'aide essentielles\n\n**2. Auto-refresh 10 secondes :**\n- Ajouter `st_autorefresh(interval=10000)` (10 secondes) sur toutes les pages\n- Installer la dépendance `streamlit-autorefresh` dans requirements.txt\n- Configurer l'auto-refresh pour maintenir les données à jour\n\n**3. Pages à modifier :**\n- `pages/add_request.py` - Supprimer sidebar, ajouter auto-refresh\n- `pages/memory.py` - Supprimer sidebar, ajouter auto-refresh  \n- `pages/task_status.py` - Supprimer sidebar, ajouter auto-refresh\n- `pages/communication.py` - Supprimer sidebar, ajouter auto-refresh\n- `app.py` - Ajouter auto-refresh sur la page principale\n\n**4. Améliorer l'expérience utilisateur :**\n- Interface plus épurée sans distractions\n- Données toujours à jour grâce à l'auto-refresh\n- Plus d'espace pour le contenu principal\n- Navigation plus fluide\n\n**Implémentation technique :**\n- Installer `streamlit-autorefresh` : `pip install streamlit-autorefresh`\n- Ajouter l'import : `from streamlit_autorefresh import st_autorefresh`\n- Configurer l'intervalle : `st_autorefresh(interval=10000, key=\"data_refresh\")`\n- Supprimer tous les appels `st.sidebar.*` non essentiels\n\n**Critères d'acceptation :**\n- ✅ Sidebars supprimées de toutes les pages Streamlit\n- ✅ Auto-refresh 10 secondes configuré sur toutes les pages\n- ✅ Dépendance streamlit-autorefresh ajoutée à requirements.txt\n- ✅ Interface plus épurée et plus spacieuse\n- ✅ Données mises à jour automatiquement\n- ✅ Aucune régression dans les fonctionnalités",
     "dependencies": [],
-    "status": "DONE",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/streamlit_app/pages/add_request.py",
       ".cursor/streamlit_app/pages/memory.py",
@@ -1521,9 +1531,14 @@
     ],
     "validation_criteria": "Tâche terminée quand : (1) Sidebars supprimées de toutes les pages Streamlit, (2) Auto-refresh 10 secondes configuré et fonctionnel, (3) streamlit-autorefresh ajouté à requirements.txt, (4) Interface plus épurée sans perte de fonctionnalité, (5) Données mises à jour automatiquement toutes les 10 secondes, (6) Tests sur toutes les pages confirment le bon fonctionnement",
     "created_date": "2025-06-23T15:10:29.307Z",
-    "updated_date": "2025-06-24T13:43:53.945Z",
+    "updated_date": "2025-06-24T15:52:21.291497",
     "parent_id": null,
-    "priority": 3
+    "priority": 3,
+    "validation": {
+      "approved_at": "2025-06-24T15:52:21.287293",
+      "approved_by": "streamlit_reviewer",
+      "review_notes": "Task approved via Streamlit To Review page"
+    }
   },
   {
     "id": 62,
@@ -1658,15 +1673,20 @@
     "short_description": "Modifier l'interface Streamlit pour que le bouton de suppression des demandes fonctionne immédiatement sans boîte de dialogue de confirmation, comme dans l'onglet Communication.",
     "detailed_description": "Modifier le fichier `.cursor/streamlit_app/pages/add_request.py` pour supprimer la logique de confirmation de suppression des demandes non traitées.\n\n**Changements requis :**\n- Supprimer la gestion de session state pour la confirmation (lignes ~480-514)\n- Remplacer le système de confirmation par une suppression directe\n- S'inspirer de l'implémentation dans `communication.py` qui fait déjà une suppression directe\n- Maintenir la même fonctionnalité de suppression mais sans étape de confirmation\n\n**Critères d'acceptation :**\n- Le bouton \"Delete\" supprime immédiatement la demande sans popup\n- L'interface se rafraîchit automatiquement après suppression\n- Aucune régression sur les autres fonctionnalités de l'onglet\n- Cohérence avec le comportement de l'onglet Communication",
     "dependencies": [],
-    "status": "DONE",
+    "status": "APPROVED",
     "impacted_files": [
       "cursor/streamlit_app/pages/add_request.py"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Le bouton de suppression fonctionne sans confirmation, (2) L'interface se met à jour correctement après suppression, (3) Aucune erreur dans les logs Streamlit, (4) Test manuel confirmant le fonctionnement.",
     "created_date": "2025-06-23T16:17:20.750Z",
-    "updated_date": "2025-06-24T13:47:06.315Z",
+    "updated_date": "2025-06-24T15:52:21.779408",
     "parent_id": null,
-    "priority": 3
+    "priority": 3,
+    "validation": {
+      "approved_at": "2025-06-24T15:52:21.776739",
+      "approved_by": "streamlit_reviewer",
+      "review_notes": "Task approved via Streamlit To Review page"
+    }
   },
   {
     "id": 68,
@@ -1674,13 +1694,13 @@
     "short_description": "Modifier les descriptions des paramètres long_term_memory et user_message dans l'outil remember pour réduire leur utilisation excessive et les réserver aux informations vraiment importantes.",
     "detailed_description": "Mettre à jour le fichier `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js` pour modifier les descriptions des paramètres afin de décourager l'utilisation excessive.\n\n**Modifications requises :**\n- Paramètre `long_term_memory` : Ajouter des avertissements sur l'utilisation parcimonieuse, exemples de ce qui NE doit PAS être inclus\n- Paramètre `user_message` : Clarifier qu'il est optionnel et réservé aux communications critiques uniquement\n- Ajouter des exemples négatifs pour montrer ce qu'il faut éviter\n- Maintenir la fonctionnalité existante tout en guidant vers un meilleur usage\n\n**Critères d'acceptation :**\n- Les descriptions découragent l'usage excessif de ces paramètres\n- Les exemples montrent clairement quand NE PAS utiliser ces champs\n- La fonctionnalité reste intacte\n- Les futurs appels à l'outil sont plus ciblés",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/mcp_tools/remember.js"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Les descriptions des paramètres sont mises à jour avec des avertissements, (2) Des exemples négatifs sont ajoutés, (3) L'outil fonctionne toujours correctement, (4) Les descriptions guident vers un usage plus parcimonieux.",
     "created_date": "2025-06-23T16:17:28.471Z",
-    "updated_date": "2025-06-23T16:17:28.471Z",
+    "updated_date": "2025-06-24T13:54:06.349Z",
     "parent_id": null,
     "priority": 2
   },
@@ -1690,7 +1710,7 @@
     "short_description": "Supprimer les scripts de test temporaires, rapports de bugs et fichiers non essentiels du repository, en gardant uniquement le code essentiel. Clarifier la différence entre run_streamlit.sh et run_ui.sh.",
     "detailed_description": "Nettoyer le repository en supprimant les fichiers temporaires et en organisant les scripts.\n\n**Fichiers à supprimer :**\n- Scripts de test : `test_*.js`, `debug_*.js`\n- Fichiers de documentation temporaires : `*_FIXES.md`, `*_CHANGES.md`\n- Autres fichiers temporaires identifiés\n\n**Clarification des scripts :**\n- Documenter la différence entre `run_streamlit.sh` et `run_ui.sh`\n- Supprimer l'un des deux s'ils font la même chose\n- Ou clarifier leurs rôles respectifs dans README.md\n\n**Critères d'acceptation :**\n- Tous les fichiers temporaires sont supprimés\n- Le repository ne contient que le code essentiel\n- La différence entre les scripts de lancement est claire\n- README.md est mis à jour si nécessaire",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [
       "test_remember_next_step.js",
       "test_remember_tool.js",
@@ -1702,7 +1722,7 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Tous les fichiers temporaires sont supprimés, (2) La différence entre run_streamlit.sh et run_ui.sh est documentée ou l'un est supprimé, (3) README.md est à jour, (4) Le repository est propre et organisé.",
     "created_date": "2025-06-23T16:17:43.487Z",
-    "updated_date": "2025-06-23T16:17:43.487Z",
+    "updated_date": "2025-06-24T13:55:06.968Z",
     "parent_id": null,
     "priority": 2
   },
@@ -1755,7 +1775,7 @@
     "short_description": "Combiner les fonctionnalités des pages communication et to_review en une seule page unifiée pour simplifier l'interface utilisateur et améliorer l'expérience de navigation dans l'interface Streamlit.",
     "detailed_description": "The `edit_file` tool has failed three times on this task. Twice it failed to create a new file, and once it failed to modify an existing file. This tool is completely preventing any progress on this task. Manual intervention is required to either fix the tool or perform the file merge manually.",
     "dependencies": [],
-    "status": "BLOCKED",
+    "status": "DONE",
     "impacted_files": [
       "/.cursor/streamlit_app/pages/communication_review.py",
       "/.cursor/streamlit_app/pages/communication.py",
@@ -1763,7 +1783,7 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) La nouvelle page communication_review.py est créée et fonctionnelle, (2) Toutes les fonctionnalités de communication.py sont intégrées et fonctionnent, (3) Toutes les fonctionnalités de to_review.py sont intégrées et fonctionnent, (4) La navigation entre sections est fluide et intuitive, (5) Les anciennes pages peuvent être supprimées sans perte de fonctionnalité, (6) L'interface est cohérente et professionnelle, (7) Tous les tests de fonctionnalité passent avec succès.",
     "created_date": "2025-06-23T16:26:54.716Z",
-    "updated_date": "2025-06-24T13:46:46.289Z",
+    "updated_date": "2025-06-24T13:53:27.461Z",
     "parent_id": null,
     "priority": 3
   },
@@ -1847,15 +1867,20 @@
     "short_description": "Ajouter un tri chronologique des mémoires long terme (plus récent au plus ancien) et implémenter une barre de recherche pour filtrer les mémoires, similaire à la fonctionnalité existante dans l'onglet Task Status.",
     "detailed_description": "**DEMANDE UTILISATEUR :**\nAméliorer l'onglet \"🧠 Memory Management\" de l'interface Streamlit en ajoutant deux fonctionnalités importantes pour améliorer l'expérience utilisateur lors de la navigation dans les mémoires long terme.\n\n**FONCTIONNALITÉS À IMPLÉMENTER :**\n\n1. **Tri chronologique des mémoires long terme :**\n   - Modifier l'affichage pour trier les mémoires du plus récent au plus ancien\n   - Utiliser le champ `timestamp` de chaque mémoire pour le tri\n   - Maintenir la numérotation logique (Memory #1, #2, etc.) avec les plus récents en premier\n   - Conserver toutes les fonctionnalités existantes (édition, suppression, ajout)\n\n2. **Barre de recherche pour filtrer les mémoires :**\n   - Implémenter une barre de recherche similaire à celle de l'onglet Task Status\n   - Recherche dans le contenu des mémoires long terme\n   - Filtrage en temps réel lors de la saisie\n   - Recherche insensible à la casse avec correspondance partielle\n   - Bouton \"Clear\" pour réinitialiser la recherche\n   - Indication du nombre de résultats trouvés\n\n**SPÉCIFICATIONS TECHNIQUES :**\n\n**Tri chronologique :**\n- Modifier la section \"Tab 2: Long-term Memory\" dans `.cursor/streamlit_app/pages/memory.py`\n- Trier le tableau `memories` par timestamp décroissant avant l'affichage\n- Ajuster la numérotation pour refléter l'ordre chronologique inversé\n- Code de tri : `memories.sort(key=lambda x: x.get('timestamp', ''), reverse=True)`\n\n**Barre de recherche :**\n- Ajouter un champ de recherche après le header \"🧠 Long-term Memory\"\n- Utiliser `st.text_input()` avec placeholder approprié\n- Implémenter une fonction de filtrage similaire à `fuzzy_search_tasks()` du Task Status\n- Recherche dans le champ `content` des mémoires\n- Affichage conditionnel des mémoires selon les résultats de recherche\n- Interface : colonnes avec champ de recherche et bouton Clear\n\n**MODÈLE DE RÉFÉRENCE :**\nUtiliser l'implémentation existante dans `.cursor/streamlit_app/pages/task_status.py` :\n- Structure de la barre de recherche (lignes ~530-550)\n- Fonction `fuzzy_search_tasks()` comme modèle pour la logique de filtrage\n- Interface utilisateur avec colonnes et bouton Clear\n\n**AVANTAGES :**\n- Navigation plus intuitive avec les mémoires récentes en premier\n- Recherche rapide dans de nombreuses mémoires long terme\n- Cohérence avec l'interface Task Status existante\n- Amélioration significative de l'expérience utilisateur\n\n**CRITÈRES D'ACCEPTATION :**\n- Les mémoires long terme sont affichées du plus récent au plus ancien\n- Barre de recherche fonctionnelle avec filtrage en temps réel\n- Recherche insensible à la casse dans le contenu des mémoires\n- Bouton Clear pour réinitialiser la recherche\n- Conservation de toutes les fonctionnalités existantes (édition, suppression, ajout)\n- Interface cohérente avec le style existant de l'application\n- Performance acceptable même avec de nombreuses mémoires\n- Indication visuelle du nombre de résultats trouvés lors de la recherche",
     "dependencies": [],
-    "status": "TODO",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/streamlit_app/pages/memory.py"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Les mémoires long terme sont triées du plus récent au plus ancien par timestamp, (2) Une barre de recherche fonctionnelle est présente dans l'onglet Memory Management, (3) Le filtrage en temps réel fonctionne lors de la saisie, (4) La recherche est insensible à la casse et supporte les correspondances partielles, (5) Un bouton Clear permet de réinitialiser la recherche, (6) Toutes les fonctionnalités existantes (édition, suppression, ajout) sont conservées, (7) L'interface est cohérente avec le style existant, (8) Les performances restent fluides avec de nombreuses mémoires",
     "created_date": "2025-06-23T16:37:12.390Z",
-    "updated_date": "2025-06-23T16:37:12.390Z",
+    "updated_date": "2025-06-24T15:52:22.266866",
     "parent_id": null,
-    "priority": 3
+    "priority": 3,
+    "validation": {
+      "approved_at": "2025-06-24T15:52:22.264439",
+      "approved_by": "streamlit_reviewer",
+      "review_notes": "Task approved via Streamlit To Review page"
+    }
   },
   {
     "id": 79,
@@ -1863,15 +1888,20 @@
     "short_description": "Modifier le bouton \"Delete\" de la section \"Unprocessed Requests\" pour supprimer directement les demandes sans afficher de dialogue de confirmation, comme demandé dans la requête #57.",
     "detailed_description": "Modifier le fichier `.cursor/streamlit_app/pages/add_request.py` pour supprimer la logique de confirmation lors de la suppression des demandes non traitées.\n\n**Exigences :**\n- Retirer le dialogue de confirmation pour le bouton \"Delete\" dans la section \"Unprocessed Requests\"\n- Maintenir la suppression directe comme dans la page Communication\n- Conserver la fonctionnalité de suppression existante\n- S'assurer que la suppression fonctionne correctement avec le backend MCP\n\n**Critères d'acceptation :**\n- Le bouton \"Delete\" supprime immédiatement la demande sans demander confirmation\n- L'interface se met à jour automatiquement après suppression\n- Aucune régression sur les autres fonctionnalités de la page\n- Le comportement est cohérent avec la page Communication\n\n**Notes techniques :**\n- Examiner la logique actuelle dans add_request.py\n- Comparer avec l'implémentation dans communication.py\n- Utiliser l'API MCP update_userbrief pour la suppression",
     "dependencies": [],
-    "status": "DONE",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/streamlit_app/pages/add_request.py"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Le bouton \"Delete\" supprime directement sans confirmation, (2) L'interface se rafraîchit correctement après suppression, (3) Aucune erreur dans les logs Streamlit, (4) Le comportement est testé manuellement et fonctionne comme attendu.",
     "created_date": "2025-06-23T17:02:03.068Z",
-    "updated_date": "2025-06-24T13:47:10.738Z",
+    "updated_date": "2025-06-24T15:52:22.986185",
     "parent_id": null,
-    "priority": 3
+    "priority": 3,
+    "validation": {
+      "approved_at": "2025-06-24T15:52:22.983880",
+      "approved_by": "streamlit_reviewer",
+      "review_notes": "Task approved via Streamlit To Review page"
+    }
   },
   {
     "id": 80,
@@ -1879,13 +1909,13 @@
     "short_description": "Modifier les descriptions des paramètres long_term_memory et user_message dans l'outil MCP remember pour réduire l'usage excessif et clarifier leur utilisation appropriée selon la requête #58.",
     "detailed_description": "Mettre à jour le fichier `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js` pour optimiser les descriptions des paramètres et réduire l'usage inapproprié.\n\n**Exigences :**\n- Modifier la description du paramètre `long_term_memory` pour indiquer qu'il ne doit être utilisé QUE pour des informations permanentes (schémas DB, conventions de code, décisions architecturales)\n- Modifier la description du paramètre `user_message` pour limiter son usage aux décisions critiques, problèmes importants, ou changements significatifs\n- Ajouter des exemples clairs de ce qui doit et ne doit pas être inclus\n- Conserver la fonctionnalité existante tout en guidant un meilleur usage\n\n**Critères d'acceptation :**\n- Les descriptions sont plus précises et restrictives\n- Des exemples concrets sont fournis pour chaque paramètre\n- L'agent comprendra mieux quand utiliser ces paramètres\n- La fonctionnalité MCP reste intacte\n\n**Notes techniques :**\n- Modifier uniquement les descriptions dans le schéma JSON\n- Tester que l'outil MCP fonctionne toujours correctement\n- S'assurer que les paramètres restent optionnels/requis selon la logique actuelle",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/mcp_tools/remember.js"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Les descriptions sont mises à jour avec des restrictions claires, (2) Des exemples concrets sont ajoutés, (3) L'outil MCP fonctionne sans erreur, (4) Les changements sont testés avec le serveur MCP.",
     "created_date": "2025-06-23T17:02:12.652Z",
-    "updated_date": "2025-06-23T17:02:12.652Z",
+    "updated_date": "2025-06-24T13:54:13.097Z",
     "parent_id": null,
     "priority": 2
   },
@@ -1895,16 +1925,21 @@
     "short_description": "Modifier le script install.sh pour automatiquement configurer le fichier .gitignore avec les exclusions appropriées pour les fichiers MCP et Streamlit selon la requête #59.",
     "detailed_description": "Étendre le script `install.sh` pour gérer automatiquement la configuration du fichier .gitignore.\n\n**Exigences :**\n- Ajouter les exclusions : `.cursor/mcp/`, `.cursor/mcp.json`, `.cursor/memory-bank/streamlit_app`\n- Conserver uniquement `.cursor/memory-bank/workflow` dans git\n- Créer ou modifier le .gitignore de manière idempotente\n- Éviter les doublons si le script est exécuté plusieurs fois\n- Ajouter des commentaires explicatifs dans le .gitignore\n\n**Critères d'acceptation :**\n- Le .gitignore est automatiquement configuré lors de l'installation\n- Les fichiers appropriés sont exclus du versioning\n- Le workflow reste versionné\n- Le script peut être exécuté plusieurs fois sans problème\n- Les exclusions sont correctement appliquées\n\n**Notes techniques :**\n- Utiliser des commandes bash pour modifier .gitignore\n- Vérifier l'existence du fichier avant modification\n- Ajouter une section dédiée avec commentaires\n- Tester que les patterns d'exclusion fonctionnent correctement",
     "dependencies": [],
-    "status": "DONE",
+    "status": "APPROVED",
     "impacted_files": [
       "install.sh",
       ".gitignore"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Le script modifie automatiquement .gitignore, (2) Les exclusions appropriées sont ajoutées, (3) Le script est idempotent, (4) Les fichiers sont correctement exclus de git, (5) Le workflow reste versionné.",
     "created_date": "2025-06-23T17:02:20.353Z",
-    "updated_date": "2025-06-24T13:47:15.792Z",
+    "updated_date": "2025-06-24T15:52:23.549090",
     "parent_id": null,
-    "priority": 3
+    "priority": 3,
+    "validation": {
+      "approved_at": "2025-06-24T15:52:23.546593",
+      "approved_by": "streamlit_reviewer",
+      "review_notes": "Task approved via Streamlit To Review page"
+    }
   },
   {
     "id": 82,
@@ -1912,7 +1947,7 @@
     "short_description": "Supprimer les scripts temporaires, fichiers de test, et rapports de bugs selon la requête #60, et clarifier la différence entre run_streamlit.sh et run_ui.sh.",
     "detailed_description": "Nettoyer le repository en supprimant les fichiers temporaires et en clarifiant les scripts d'exécution.\n\n**Exigences :**\n- Supprimer les fichiers temporaires : debug_mcp_response.js, test_*.js, STREAMLIT_FIXES.md, INSTALL_CHANGES.md\n- Clarifier la différence entre run_streamlit.sh et run_ui.sh (ou fusionner si redondants)\n- Conserver uniquement les fichiers essentiels au fonctionnement\n- Mettre à jour le README si nécessaire pour refléter les changements\n- S'assurer que la suppression n'affecte pas le fonctionnement\n\n**Critères d'acceptation :**\n- Les fichiers temporaires sont supprimés du repository\n- Les scripts d'exécution sont clarifiés ou consolidés\n- Le système fonctionne toujours correctement\n- Le README est mis à jour si nécessaire\n- La structure du projet est plus propre\n\n**Notes techniques :**\n- Identifier tous les fichiers temporaires à supprimer\n- Vérifier les dépendances avant suppression\n- Tester que les scripts restants fonctionnent\n- Utiliser git rm pour supprimer les fichiers versionnés",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [
       "debug_mcp_response.js",
       "test_remember_next_step.js",
@@ -1924,7 +1959,7 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Tous les fichiers temporaires sont supprimés, (2) Les scripts sont clarifiés, (3) Le système fonctionne normalement, (4) Le README est à jour, (5) La structure est plus propre.",
     "created_date": "2025-06-23T17:02:29.494Z",
-    "updated_date": "2025-06-23T17:02:29.494Z",
+    "updated_date": "2025-06-24T13:55:09.958Z",
     "parent_id": null,
     "priority": 2
   },
@@ -1934,7 +1969,7 @@
     "short_description": "Supprimer tous les panneaux d'information de la sidebar sur toutes les pages Streamlit et ajouter uniquement une checkbox d'auto-refresh (10 secondes) selon la requête #61.",
     "detailed_description": "Simplifier l'interface Streamlit en supprimant les panneaux d'information de la sidebar et en ajoutant une fonctionnalité d'auto-refresh.\n\n**Exigences :**\n- Supprimer tous les panneaux d'information de la sidebar sur toutes les pages\n- Ajouter une checkbox \"Auto-refresh (10s)\" comme seul contenu de la sidebar\n- Implémenter la logique d'auto-refresh avec st.rerun() toutes les 10 secondes\n- Appliquer les changements sur toutes les pages : add_request.py, task_status.py, memory.py, communication.py\n- Conserver la fonctionnalité principale de chaque page\n\n**Critères d'acceptation :**\n- Toutes les sidebars sont nettoyées des panneaux d'information\n- La checkbox d'auto-refresh est présente sur toutes les pages\n- L'auto-refresh fonctionne correctement quand activé\n- L'interface est plus épurée et moderne\n- Aucune régression sur les fonctionnalités principales\n\n**Notes techniques :**\n- Utiliser st.sidebar.checkbox() pour l'auto-refresh\n- Implémenter avec st.rerun() et time.sleep() ou st.empty()\n- Modifier tous les fichiers de pages Streamlit\n- Tester que l'auto-refresh ne cause pas de problèmes de performance",
     "dependencies": [],
-    "status": "DONE",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/streamlit_app/pages/add_request.py",
       ".cursor/streamlit_app/pages/task_status.py",
@@ -1943,9 +1978,14 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Toutes les sidebars sont nettoyées, (2) L'auto-refresh fonctionne sur toutes les pages, (3) L'interface est plus épurée, (4) Aucune régression fonctionnelle, (5) L'auto-refresh peut être activé/désactivé.",
     "created_date": "2025-06-23T17:02:37.217Z",
-    "updated_date": "2025-06-24T13:47:19.156Z",
+    "updated_date": "2025-06-24T15:52:24.141303",
     "parent_id": null,
-    "priority": 3
+    "priority": 3,
+    "validation": {
+      "approved_at": "2025-06-24T15:52:24.138796",
+      "approved_by": "streamlit_reviewer",
+      "review_notes": "Task approved via Streamlit To Review page"
+    }
   },
   {
     "id": 84,
@@ -2063,11 +2103,11 @@
     "short_description": "Tâche de test pour valider que le paramètre image facultatif fonctionne correctement dans l'outil create_task",
     "detailed_description": "Cette tâche de test valide l'implémentation du paramètre image facultatif dans l'outil MCP create_task. Elle vérifie que :\n\n**Objectifs :**\n- Le paramètre image peut être fourni et est correctement stocké\n- L'image est accessible via l'outil mcp_ToolsMCP_consult_image\n- La tâche peut être créée avec ou sans image\n- Les métadonnées d'image sont correctement intégrées\n\n**Test :**\n- Créer une tâche avec une image existante\n- Vérifier que l'image est stockée dans les métadonnées\n- Valider l'accès à l'image via l'outil de consultation",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [],
     "validation_criteria": "",
     "created_date": "2025-06-23T18:08:19.940Z",
-    "updated_date": "2025-06-23T18:08:19.940Z",
+    "updated_date": "2025-06-24T13:55:24.603Z",
     "parent_id": null,
     "priority": 2
   },
@@ -2077,11 +2117,11 @@
     "short_description": "Deuxième test pour valider que le paramètre image facultatif fonctionne correctement après redémarrage du serveur MCP",
     "detailed_description": "Cette tâche de test valide l'implémentation du paramètre image facultatif dans l'outil MCP create_task après redémarrage du serveur. Elle vérifie que :\n\n**Objectifs :**\n- Le paramètre image peut être fourni et est correctement stocké\n- L'image est accessible via l'outil mcp_ToolsMCP_consult_image\n- La tâche peut être créée avec ou sans image\n- Les métadonnées d'image sont correctement intégrées\n\n**Test :**\n- Créer une tâche avec une image existante\n- Vérifier que l'image est stockée dans les métadonnées\n- Valider l'accès à l'image via l'outil de consultation",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [],
     "validation_criteria": "",
     "created_date": "2025-06-23T18:08:48.366Z",
-    "updated_date": "2025-06-23T18:09:05.741Z",
+    "updated_date": "2025-06-24T13:55:27.595Z",
     "parent_id": null,
     "priority": 2
   },
@@ -2091,11 +2131,11 @@
     "short_description": "Test final pour valider que le paramètre image facultatif fonctionne après redémarrage complet du serveur MCP",
     "detailed_description": "Cette tâche de test valide l'implémentation finale du paramètre image facultatif dans l'outil MCP create_task après redémarrage complet. Elle vérifie que :\n\n**Objectifs :**\n- Le paramètre image peut être fourni et est correctement stocké\n- L'image est accessible via l'outil mcp_ToolsMCP_consult_image\n- La tâche peut être créée avec ou sans image\n- Les métadonnées d'image sont correctement intégrées\n\n**Test :**\n- Créer une tâche avec une image existante\n- Vérifier que l'image est stockée dans les métadonnées\n- Valider l'accès à l'image via l'outil de consultation",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [],
     "validation_criteria": "",
     "created_date": "2025-06-23T18:09:39.318Z",
-    "updated_date": "2025-06-23T18:09:39.318Z",
+    "updated_date": "2025-06-24T13:55:30.700Z",
     "parent_id": null,
     "priority": 2
   },
@@ -2153,16 +2193,21 @@
     "short_description": "The Task Status UI page shows a total task count that never decreases, confusing the user. The display should be changed to show a breakdown of active vs. completed tasks to accurately reflect progress.",
     "detailed_description": "**Problem:** The Task Status page in the Streamlit UI displays a total task count (`Loaded X tasks`) that includes all tasks from the `tasks.json` file, regardless of their status. When a user approves a task, the status changes from 'DONE' to 'APPROVED', but the task remains in the file, so the total count does not decrease. This is confusing and gives the impression that no progress is being made.\n\n**Analysis:**\n- The file `.cursor/streamlit_app/pages/task_status.py` is responsible for this page.\n- The message at line 893 (`st.info(f\"📊 **Loaded {len(tasks)} tasks**...\")`) is the source of the confusion.\n\n**Implementation Steps:**\n1.  Read the content of `.cursor/streamlit_app/pages/task_status.py`.\n2.  Change the main info message to be more descriptive. Instead of a single total, it should provide a breakdown of active vs. completed tasks.\n3.  For example, calculate `active_tasks = len([t for t in tasks if t.get('status') not in ['DONE', 'APPROVED']])` and `completed_tasks = len([t for t in tasks if t.get('status') in ['DONE', 'APPROVED']])`.\n4.  Update the info message to something like: `st.info(f\"📊 **{active_tasks} Active Tasks** | {completed_tasks} Completed Tasks\")`. This clearly communicates progress.\n\n**Acceptance Criteria:**\n- The main task count on the Task Status page no longer shows a static total.\n- The page clearly distinguishes between active (TODO, IN_PROGRESS, etc.) and completed (DONE, APPROVED) tasks in its primary summary.\n- The user can easily see the number of active tasks decreasing as work is completed and approved.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/streamlit_app/pages/task_status.py"
     ],
     "validation_criteria": "The Task Status page in Streamlit clearly displays a count of active tasks and a separate count of completed tasks. The 'total loaded' message is removed or rephrased to avoid confusion. User can now clearly see progress as tasks move from active to completed.",
     "created_date": "2025-06-24T13:31:39.542Z",
-    "updated_date": "2025-06-24T13:31:39.542Z",
+    "updated_date": "2025-06-24T15:52:25.146644",
     "parent_id": null,
     "priority": 3,
-    "image": null
+    "image": null,
+    "validation": {
+      "approved_at": "2025-06-24T15:52:25.143708",
+      "approved_by": "streamlit_reviewer",
+      "review_notes": "Task approved via Streamlit To Review page"
+    }
   },
   {
     "id": 95,
@@ -2192,15 +2237,20 @@
     "short_description": "The `get_next_tasks` tool is failing with a critical `ReferenceError: topTask is not defined`, blocking the agent's workflow.",
     "detailed_description": "The `mcp_MemoryBankMCP_get_next_tasks` tool is failing with a `ReferenceError: topTask is not defined`. The fix has been identified (scope issue with `topTask` variable), but the `edit_file` tool has failed three times to apply the correction, even with different strategies (small edit, large edit, full function replacement). The tool seems unable to modify this file correctly. The task is now blocked by this tool failure. Manual intervention may be required to apply the fix.\n\n**Original Plan:**\n1. Read the file `.cursor/mcp/memory-bank-mcp/mcp_tools/get_next_tasks.js`.\n2. Analyze the code around line 370 to understand the cause of the ReferenceError.\n3. Propose a fix to correctly handle the `topTask` variable. It's likely a typo or a scoping issue.\n4. Apply the fix using `edit_file`.\n5. There is no specific test file for this tool, so the validation will be to call the tool again and ensure it returns tasks without error.",
     "dependencies": [],
-    "status": "DONE",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/mcp_tools/get_next_tasks.js"
     ],
     "validation_criteria": "The task is done when calling `mcp_MemoryBankMCP_get_next_tasks` successfully returns a list of tasks without any errors.",
     "created_date": "2025-06-24T13:37:24.598Z",
-    "updated_date": "2025-06-24T13:40:22.955Z",
+    "updated_date": "2025-06-24T15:52:19.750293",
     "parent_id": null,
     "priority": 5,
-    "image": null
+    "image": null,
+    "validation": {
+      "approved_at": "2025-06-24T15:52:19.747669",
+      "approved_by": "streamlit_reviewer",
+      "review_notes": "Task approved via Streamlit To Review page"
+    }
   }
 ]

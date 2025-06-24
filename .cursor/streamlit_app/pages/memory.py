@@ -3,10 +3,6 @@ import json
 import os
 from pathlib import Path
 from datetime import datetime
-from streamlit_autorefresh import st_autorefresh
-
-# Run the autorefresh component every 10 seconds
-st_autorefresh(interval=10000, key="memory_refresh")
 
 st.set_page_config(page_title="Memory Management", page_icon="🧠")
 
@@ -107,6 +103,16 @@ def save_long_term_memories(memories):
     except Exception as e:
         st.error(f"Error saving long-term memories: {e}")
         return False
+
+def fuzzy_search_memories(memories, query):
+    """Filter memories based on a fuzzy search query in their content"""
+    if not query:
+        return memories
+    
+    query = query.lower()
+    
+    # Simple search: check if query is a substring of content
+    return [mem for mem in memories if query in mem.get('content', '').lower()]
 
 # File paths
 memory_paths = {
@@ -439,11 +445,34 @@ with tab2:
         st.error("⚠️ Unexpected long-term memory data format. Using empty list.")
         memories = []
     
-    if memories:
-        st.subheader(f"Stored Memories ({len(memories)})")
+    # Sort memories by timestamp (most recent first)
+    memories.sort(key=lambda x: x.get('timestamp', ''), reverse=True)
+
+    # Search bar
+    st.subheader("🔍 Search Memories")
+    search_col1, search_col2 = st.columns([4, 1])
+    with search_col1:
+        search_query = st.text_input(
+            "Search by keyword in memory content:",
+            key="memory_search_query",
+            placeholder="e.g., 'database schema', 'API key'"
+        )
+    with search_col2:
+        if st.button("❌ Clear Search", key="clear_memory_search"):
+            st.session_state.memory_search_query = ""
+            st.rerun()
+
+    # Filter memories based on search query
+    filtered_memories = fuzzy_search_memories(memories, search_query)
+    
+    if search_query:
+        st.info(f"Found {len(filtered_memories)} matching memories for query: \"{search_query}\"")
+
+    if filtered_memories:
+        st.subheader(f"Stored Memories ({len(filtered_memories)} / {len(memories)})")
         
         # Display memories directly without accordions
-        for i, memory in enumerate(memories):
+        for i, memory in enumerate(filtered_memories):
             # Skip non-dictionary memory objects to prevent AttributeError
             if not isinstance(memory, dict):
                 st.warning(f"⚠️ Memory #{i+1} has invalid format (expected dictionary, got {type(memory).__name__}). Skipping.")
@@ -532,12 +561,14 @@ with tab2:
                 
                 # Add visual separator between memories
                 st.markdown("---")
+    elif search_query:
+        st.warning(f"No memories found matching your search for \"{search_query}\".")
     else:
         st.info("No long-term memories found.")
     
     # Add new memory
     st.subheader("➕ Add New Memory")
-    with st.form("add_memory_form"):
+    with st.form("add_memory_form", clear_on_submit=True):
         new_memory_content = st.text_area(
             "Memory Content:",
             height=150,

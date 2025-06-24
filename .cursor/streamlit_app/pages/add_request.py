@@ -9,10 +9,6 @@ import base64
 import shutil
 from PIL import Image
 import io
-from streamlit_autorefresh import st_autorefresh
-
-# Run the autorefresh component every 10 seconds
-st_autorefresh(interval=10000, key="add_request_refresh")
 
 st.set_page_config(page_title="Add Request", page_icon="➕")
 

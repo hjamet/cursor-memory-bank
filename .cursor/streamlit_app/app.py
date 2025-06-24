@@ -3,10 +3,6 @@ import json
 import os
 from pathlib import Path
 from datetime import datetime
-from streamlit_autorefresh import st_autorefresh
-
-# Run the autorefresh component every 10 seconds
-st_autorefresh(interval=10000, key="data_refresh")
 
 st.set_page_config(
     page_title="Agent Dashboard",

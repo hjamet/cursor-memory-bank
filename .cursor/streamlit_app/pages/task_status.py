@@ -6,10 +6,6 @@ from datetime import datetime
 import requests
 import statistics
 from typing import Tuple, Optional
-from streamlit_autorefresh import st_autorefresh
-
-# Run the autorefresh component every 10 seconds
-st_autorefresh(interval=10000, key="task_status_refresh")
 
 st.set_page_config(page_title="Task Status", page_icon="✅")
 
@@ -848,202 +844,86 @@ def apply_advanced_filters(tasks, filters):
 st.markdown("## 🎯 Agent Workflow Overview")
 st.info("📊 Complete view of the agent's work pipeline from requests to completion")
 
-# Load tasks and userbrief data
+# Load tasks from file
 tasks_file = get_tasks_file()
 tasks = []
-
 if tasks_file:
-    try:
-        with open(tasks_file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        
+    with open(tasks_file, 'r', encoding='utf-8') as f:
         # Handle both array format and object format
+        data = json.load(f)
         if isinstance(data, list):
             tasks = data
         else:
             tasks = data.get('tasks', [])
-        
-        # Debug information
-        st.info(f"📊 **Loaded {len(tasks)} tasks** from `{tasks_file}`")
-        if len(tasks) == 0:
-            st.warning("⚠️ Task file found but contains no tasks. This might indicate a data loading issue.")
-            
-    except Exception as e:
-        st.error(f"Error reading tasks: {e}")
-        st.error(f"File path: {tasks_file}")
 else:
-    st.error("❌ **No task file found!** The Task Status tab cannot display tasks without a valid task data file.")
-    st.markdown("""
-    **Possible solutions:**
-    1. Ensure the MCP Memory Bank system is running
-    2. Check that tasks have been created through the workflow
-    3. Verify file permissions for the task data directory
-    """)
+    st.warning("Task file not found. Please ensure tasks.json is in the correct directory.")
 
+# Load unprocessed userbrief requests
 userbrief_requests = get_userbrief_requests()
 
-# Advanced search and filtering interface
-filters = render_advanced_search_and_filters()
+# Main page content
+if not tasks and not userbrief_requests:
+    st.markdown("---")
+    st.info("🚀 **Getting Started:** Tasks and requests will appear here once the agent begins processing your requests through the workflow system.")
 
-# Apply filters to tasks
-if filters['search_query'] or any(v != 'All' and v != 'All Time' and v != 'Dependencies & Priority' for k, v in filters.items() if k != 'search_query'):
-    original_task_count = len(tasks)
-    original_request_count = len(userbrief_requests)
-    
-    # Apply advanced filters to tasks
-    tasks = apply_advanced_filters(tasks, filters)
-    
-    # Apply search to userbrief requests if search query is provided
-    if filters['search_query']:
-        _, userbrief_requests = fuzzy_search_tasks([], userbrief_requests, filters['search_query'])
-    
-    # Show filter results summary
-    filtered_task_count = len(tasks)
-    filtered_request_count = len(userbrief_requests)
-    total_filtered = filtered_task_count + filtered_request_count
-    total_original = original_task_count + original_request_count
-    
-    # Build filter summary message
-    active_filters = []
-    if filters['search_query']:
-        active_filters.append(f"search: '{filters['search_query']}'")
-    if filters['status_filter'] != 'All':
-        active_filters.append(f"status: {filters['status_filter']}")
-    if filters['priority_filter'] != 'All':
-        active_filters.append(f"priority: {filters['priority_filter']}")
-    if filters['dependency_filter'] != 'All':
-        active_filters.append(f"dependencies: {filters['dependency_filter']}")
-    if filters['date_filter'] != 'All Time':
-        active_filters.append(f"date: {filters['date_filter']}")
-    if filters['image_filter'] != 'All':
-        active_filters.append(f"images: {filters['image_filter']}")
-    if filters['sort_option'] != 'Dependencies & Priority':
-        active_filters.append(f"sorted by: {filters['sort_option']}")
-    
-    filter_summary = " | ".join(active_filters)
-    
-    if total_filtered > 0:
-        st.success(f"🎯 Found {total_filtered} results ({filtered_task_count} tasks + {filtered_request_count} requests)")
-        if filter_summary:
-            st.caption(f"🔧 Active filters: {filter_summary}")
-    else:
-        st.warning(f"🔍 No results found with current filters.")
-        st.info("💡 **Try:** Adjusting filters, using broader search terms, or clicking 'Reset Filters'")
-        if filter_summary:
-            st.caption(f"🔧 Current filters: {filter_summary}")
+# Calculate task statistics
+active_tasks = [t for t in tasks if t.get('status') not in ['DONE', 'APPROVED']]
+completed_tasks = [t for t in tasks if t.get('status') in ['DONE', 'APPROVED']]
 
-st.markdown("---")
-
-# Quick stats - Focus on remaining work only
-if tasks or userbrief_requests:
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        unprocessed_count = len(userbrief_requests)
-        st.metric("📋 Stage 0: Requests", unprocessed_count)
-    
-    with col2:
-        todo_count = len([t for t in tasks if t.get('status') == 'TODO'])
-        st.metric("⏳ Stage 1: Todo", todo_count)
-    
-    with col3:
-        in_progress_count = len([t for t in tasks if t.get('status') == 'IN_PROGRESS'])
-        st.metric("🔄 Stage 2: In Progress", in_progress_count)
-    
-    with col4:
-        # Calculate time estimation including unprocessed userbrief requests
-        remaining_tasks_count = todo_count + in_progress_count + unprocessed_count
-        mean_time, std_dev = calculate_task_completion_stats(tasks)
-        estimated_total, margin_error = estimate_remaining_time(remaining_tasks_count, mean_time, std_dev)
-        
-        if estimated_total is not None:
-            time_str = format_time_estimate(estimated_total)
-            margin_str = format_time_estimate(margin_error) if margin_error else "0"
-            st.metric("⏱️ Est. Time Left", f"{time_str} ± {margin_str}")
-            st.caption("*Includes userbrief requests*")
-        else:
-            st.metric("⏱️ Est. Time Left", "No data")
-
-# Add priority distribution visualization for remaining tasks
-remaining_tasks = [t for t in tasks if t.get('status') in ['TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW']]
-if remaining_tasks:
-    st.markdown("### 📊 Priority Distribution (Remaining Tasks)")
-    
-    # Calculate priority distribution
-    priority_counts = {}
-    for task in remaining_tasks:
-        priority = task.get('priority', 3)
-        priority_counts[priority] = priority_counts.get(priority, 0) + 1
-    
-    # Display as columns with emoji indicators
-    priority_cols = st.columns(5)
-    priority_emojis = {5: "🔥", 4: "🔴", 3: "🟡", 2: "🟢", 1: "⚪"}
-    
-    for i, priority in enumerate([5, 4, 3, 2, 1]):
-        with priority_cols[i]:
-            count = priority_counts.get(priority, 0)
-            emoji = priority_emojis.get(priority, "📝")
-            st.metric(f"{emoji} P{priority}", count)
-
-# Add time estimation section
-if tasks:
-    st.markdown("### ⏱️ Time Estimation")
-    
-    # Calculate completion statistics including userbrief requests
+# Main statistics display
+st.subheader("📊 Task Overview")
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.metric("Total Tasks", len(tasks))
+with col2:
+    st.metric("Active Tasks", len(active_tasks), delta=f"{len(completed_tasks)} Completed", delta_color="off")
+with col3:
+    # Completion stats
     mean_time, std_dev = calculate_task_completion_stats(tasks)
-    remaining_count = len(remaining_tasks)
-    total_remaining_work = remaining_count + len(userbrief_requests)
-    
-    if mean_time is not None:
-        # Display completion statistics
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.metric("📈 Avg Completion Time", format_time_estimate(mean_time))
-        
-        with col2:
-            completed_count = len([t for t in tasks if t.get('status') in ['DONE', 'APPROVED']])
-            st.metric("✅ Completed Tasks", f"{completed_count}")
-        
-        with col3:
-            st.metric("⏳ Total Remaining Work", f"{total_remaining_work}")
-            st.caption(f"({remaining_count} tasks + {len(userbrief_requests)} requests)")
-        
-        with col4:
-            if std_dev is not None:
-                st.metric("📊 Std Deviation", format_time_estimate(std_dev))
-            else:
-                st.metric("📊 Std Deviation", "N/A")
-        
-        # Calculate and display time estimation for all remaining work
-        if total_remaining_work > 0:
-            estimated_total, margin_error = estimate_remaining_time(total_remaining_work, mean_time, std_dev)
-            
-            if estimated_total is not None:
-                st.markdown("#### 🎯 Estimated Time to Complete All Remaining Work")
-                
-                if margin_error and margin_error > 0:
-                    # Display with margin of error
-                    lower_bound = max(0, estimated_total - margin_error)
-                    upper_bound = estimated_total + margin_error
-                    
-                    time_range = f"{format_time_estimate(lower_bound)} - {format_time_estimate(upper_bound)}"
-                    st.success(f"⏱️ **Estimated completion time:** {time_range}")
-                    st.caption(f"📊 Based on {len([t for t in tasks if t.get('status') in ['DONE', 'APPROVED']])} completed tasks | Includes {len(userbrief_requests)} unprocessed requests")
-                else:
-                    # Display without margin of error (only one completed task)
-                    st.success(f"⏱️ **Estimated completion time:** ~{format_time_estimate(estimated_total)}")
-                    st.caption(f"📊 Based on limited historical data (consider as rough estimate) | Includes {len(userbrief_requests)} unprocessed requests")
-            else:
-                st.info("📊 Unable to calculate time estimation - insufficient data")
-        else:
-            st.success("🎉 All work completed! No remaining tasks or requests.")
-    else:
-        st.info("📊 **Time estimation unavailable** - No completed tasks yet to calculate average completion time")
-        if total_remaining_work > 0:
-            st.caption(f"⏳ {total_remaining_work} items waiting to be completed ({remaining_count} tasks + {len(userbrief_requests)} requests)")
+    st.metric("Avg. Completion", format_time_estimate(mean_time) if mean_time is not None else "N/A")
+with col4:
+    # Estimated time remaining
+    est_total, margin_error = estimate_remaining_time(len(active_tasks), mean_time, std_dev)
+    st.metric("Est. Remaining", format_time_estimate(est_total) if est_total is not None else "N/A")
 
+if est_total is not None and margin_error:
+    st.info(f"💡 Estimated remaining time for active tasks is **{format_time_estimate(est_total)} ± {format_time_estimate(margin_error)}** based on past performance.")
+
+# Display unprocessed userbrief requests
 st.markdown("---")
+st.subheader("📬 Unprocessed Userbrief Requests")
+if userbrief_requests:
+    st.info(f"💡 {len(userbrief_requests)} user request(s) waiting to be converted into tasks.")
+    
+    for request in userbrief_requests:
+        render_userbrief_request(request)
+else:
+    st.info("📭 No unprocessed requests - all user requests have been converted to tasks!")
+
+# Advanced Search and Filters
+st.markdown("---")
+filters = render_advanced_search_and_filters()
+search_query = filters['search_query']
+
+# Apply basic search first
+if search_query:
+    tasks, userbrief_requests = fuzzy_search_tasks(tasks, userbrief_requests, search_query)
+
+# Apply advanced filters
+tasks = apply_advanced_filters(tasks, filters)
+
+# Display tasks in a structured layout
+st.markdown("---")
+st.header("📋 Task List")
+
+if tasks:
+    # Display summary based on filters
+    st.info(f"Displaying {len(tasks)} tasks matching your criteria.")
+    
+    for task in tasks:
+        render_task_card(task)
+else:
+    st.warning("No tasks match your current search and filter criteria.")
 
 # ========================================
 # ACCORDION LAYOUT IMPLEMENTATION
@@ -1209,8 +1089,4 @@ st.sidebar.info("""
 - Click Details to see full description
 - Use Complete button for quick completion
 - Delete with confirmation
-""")
-
-if not tasks and not userbrief_requests:
-    st.markdown("---")
-    st.info("🚀 **Getting Started:** Tasks and requests will appear here once the agent begins processing your requests through the workflow system.") 
+""") 

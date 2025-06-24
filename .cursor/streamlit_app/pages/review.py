@@ -11,7 +11,68 @@ st.set_page_config(page_title="Review & Communication", page_icon="📨")
 
 st.markdown("# 📨 Review & Communication")
 
-st.markdown("This page displays tasks that are ready for review and messages from the agent.")
+st.markdown("Review tasks awaiting validation and view messages from the agent.")
+
+# --- Start of functions from communication.py ---
+
+def read_user_messages():
+    """Read messages from to_user.json file"""
+    try:
+        messages_file = Path(".cursor/memory-bank/workflow/to_user.json")
+        if messages_file.exists():
+            with open(messages_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get('messages', [])
+        return []
+    except Exception as e:
+        st.error(f"Error reading messages: {e}")
+        return []
+
+def delete_message(message_id):
+    """Delete a message from the to_user.json file"""
+    try:
+        messages_file = Path(".cursor/memory-bank/workflow/to_user.json")
+        if messages_file.exists():
+            with open(messages_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            original_count = len(data.get('messages', []))
+            data['messages'] = [msg for msg in data.get('messages', []) if msg.get('id') != message_id]
+            
+            if len(data['messages']) < original_count:
+                with open(messages_file, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                return True
+            else:
+                return False
+    except Exception as e:
+        st.error(f"Error deleting message: {e}")
+        return False
+
+def format_timestamp(timestamp_str):
+    """Format timestamp for display"""
+    try:
+        timestamp = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+        return timestamp.strftime("%Y-%m-%d %H:%M:%S")
+    except:
+        return timestamp_str
+
+def get_rule_emoji(rule):
+    """Get emoji for workflow rule"""
+    rule_emojis = {
+        'start-workflow': '🚀',
+        'task-decomposition': '📋',
+        'implementation': '⚙️',
+        'context-update': '🔄',
+        'fix': '🔧',
+        'experience-execution': '🧪',
+        'system': '💻',
+        'test': '🧪'
+    }
+    return rule_emojis.get(rule, '📝')
+
+# --- End of functions from communication.py ---
+
 
 # Helper functions for task and userbrief management
 def get_tasks_file():
@@ -248,203 +309,134 @@ def render_task_review_card(task: Dict):
     image_icon = " 📸" if has_image else ""
     
     with st.container():
-        st.markdown(f"### {priority_icon} Task #{task_id}: {title}{image_icon}")
-        st.markdown(f"**Status:** {status}")
+        col1, col2, col3 = st.columns([1, 6, 2])
         
-        short_desc = task.get('short_description')
-        if short_desc:
-            st.write(short_desc)
+        with col1:
+            st.markdown(f"**{priority_icon}**")
         
-        with st.expander("📖 Task Details", expanded=False):
-            st.markdown(f"**Detailed Description:**")
-            st.write(task.get('detailed_description', 'No detailed description.'))
-            
-            st.markdown("**Validation Criteria:**")
-            st.write(task.get('validation_criteria', 'No validation criteria.'))
-
-            impacted_files = task.get('impacted_files', [])
-            if impacted_files:
-                st.markdown("**Impacted Files:**")
-                for file in impacted_files:
-                    st.code(file)
-
+        with col2:
+            st.markdown(f"**Task #{task_id}**: {title}{image_icon}")
+        
+        with col3:
+            st.markdown(f"**Status: {status}**")
+        
+        # Render image preview if available
         render_image_preview(task)
-
-        # Rejection form
-        rejection_reason = st.text_area(
-            "Rejection Reason (if any):", 
-            key=f"rejection_{task_id}",
-            help="If you reject this task, provide a reason for the new request."
-        )
+        
+        # Task details expander
+        with st.expander("View Task Details", expanded=False):
+            st.markdown(f"**Short Description:**")
+            st.info(task.get('short_description', 'N/A'))
+            
+            st.markdown(f"**Detailed Description:**")
+            st.code(task.get('detailed_description', 'N/A'), language='markdown')
+            
+            st.markdown(f"**Validation Criteria:**")
+            st.code(task.get('validation_criteria', 'N/A'), language='markdown')
+            
+            col_created, col_updated = st.columns(2)
+            with col_created:
+                st.write(f"**Created:** {format_timestamp(task.get('created_date', ''))}")
+            with col_updated:
+                st.write(f"**Updated:** {format_timestamp(task.get('updated_date', ''))}")
 
         # Action buttons
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("👍 Approve", key=f"approve_{task_id}"):
-                validation_data = {
-                    'status': 'approved',
-                    'approved_at': datetime.now().isoformat(),
-                    'comment': 'Approved via To Review interface'
-                }
-                if update_task_status(task_id, 'APPROVED', validation_data):
+        st.markdown("**Actions:**")
+        approve_col, reject_col, notes_col = st.columns([1,1,2])
+        
+        with approve_col:
+            if st.button("👍 Approve", key=f"approve_{task_id}", help="Approve this task. The task status will be set to 'APPROVED'."):
+                if update_task_status(task_id, 'APPROVED'):
                     st.success(f"Task #{task_id} approved!")
                     # Clean up associated image if it exists
                     delete_task_image(task)
                     st.rerun()
-
-        with col2:
-            if st.button("👎 Reject", key=f"reject_{task_id}"):
-                if rejection_reason.strip():
-                    request_content = f"Task #{task_id} was rejected.\n\nReason: {rejection_reason}\n\nOriginal Task Title: {title}"
-                    if create_userbrief_request(request_content):
-                        validation_data = {
-                            'status': 'rejected',
-                            'rejected_at': datetime.now().isoformat(),
-                            'comment': rejection_reason
-                        }
-                        # Update task status to TODO to be re-evaluated
-                        update_task_status(task_id, 'TODO', validation_data)
-                        st.success(f"Task #{task_id} rejected. New request created.")
-                        st.rerun()
-                else:
-                    st.warning("Please provide a reason for rejection.")
         
+        with reject_col:
+            if st.button("👎 Reject", key=f"reject_{task_id}", help="Reject this task. A new userbrief request will be created automatically for correction."):
+                st.session_state[f'reject_form_{task_id}'] = True
+        
+        # Rejection form (if reject button was clicked)
+        if st.session_state.get(f'reject_form_{task_id}', False):
+            with st.form(f"rejection_form_{task_id}"):
+                st.warning(f"Please provide feedback for rejecting Task #{task_id}:")
+                rejection_reason = st.text_area("Reason for rejection:", key=f"rejection_reason_{task_id}", height=100)
+                submitted = st.form_submit_button("Submit Rejection")
+                
+                if submitted:
+                    if rejection_reason:
+                        rejection_content = f"Correction for Task #{task_id} ({title}):\n\n{rejection_reason}"
+                        if create_userbrief_request(rejection_content) and update_task_status(task_id, 'TODO'):
+                            st.success(f"Task #{task_id} rejected. New userbrief request created.")
+                            del st.session_state[f'reject_form_{task_id}']
+                            st.rerun()
+                        else:
+                            st.error("Failed to process rejection.")
+                    else:
+                        st.error("Please provide a reason for rejection.")
+
         st.markdown("---")
 
-# Functions from communication.py
-def read_user_messages():
-    """Read messages from to_user.json file"""
-    try:
-        messages_file = Path(".cursor/memory-bank/workflow/to_user.json")
-        if messages_file.exists():
-            with open(messages_file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                return data.get('messages', [])
-        return []
-    except Exception as e:
-        st.error(f"Error reading messages: {e}")
-        return []
-
-def delete_message(message_id):
-    """Delete a message from the to_user.json file"""
-    try:
-        messages_file = Path(".cursor/memory-bank/workflow/to_user.json")
-        if messages_file.exists():
-            with open(messages_file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-            
-            # Remove the message with the specified ID
-            original_count = len(data.get('messages', []))
-            data['messages'] = [msg for msg in data.get('messages', []) if msg.get('id') != message_id]
-            
-            # Check if message was actually removed
-            if len(data['messages']) < original_count:
-                # Write back to file
-                with open(messages_file, 'w', encoding='utf-8') as f:
-                    json.dump(data, f, indent=2, ensure_ascii=False)
-                return True
-            else:
-                return False
-    except Exception as e:
-        st.error(f"Error deleting message: {e}")
-        return False
-
-def format_timestamp(timestamp_str):
-    """Format timestamp for display"""
-    try:
-        timestamp = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
-        return timestamp.strftime("%Y-%m-%d %H:%M:%S")
-    except:
-        return timestamp_str
-
-def get_rule_emoji(rule):
-    """Get emoji for workflow rule"""
-    rule_emojis = {
-        'start-workflow': '🚀',
-        'task-decomposition': '📋',
-        'implementation': '⚙️',
-        'context-update': '🔄',
-        'fix': '🔧',
-        'experience-execution': '🧪',
-        'system': '💻',
-        'test': '🧪'
-    }
-    return rule_emojis.get(rule, '📝')
-
-def render_messages(messages):
-    st.markdown("## 💬 Agent Messages")
-    if not messages:
-        st.info("No messages from the agent yet.")
-        return
-
-    sorted_messages = sorted(messages, key=lambda x: x['timestamp'], reverse=True)
-    
-    total_messages = len(messages)
-    st.metric("Total Messages", total_messages)
-    st.markdown("---")
-
-    for message in sorted_messages:
-        message_id = message.get('id')
-        content = message.get('content', '')
-        timestamp = message.get('timestamp', '')
-        context = message.get('context', {})
-        
-        with st.container():
-            col1, col2, col3 = st.columns([1, 6, 2])
-            with col1:
-                st.markdown(f"**💬**")
-            with col2:
-                st.markdown(f"**Message #{message_id}** - {format_timestamp(timestamp)}")
-            with col3:
-                if st.button("✅ Mark Read", key=f"delete_msg_{message_id}", help="Mark as read and delete this message"):
-                    if delete_message(message_id):
-                        st.success("Message deleted!")
-                        st.rerun()
-                    else:
-                        st.error("Failed to delete message")
-            
-            st.markdown(f"**Content:** {content}")
-            
-            if context:
-                with st.expander("📋 Context Information", expanded=False):
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        workflow_rule = context.get('workflow_rule', 'unknown')
-                        st.markdown(f"**Workflow Rule:** {get_rule_emoji(workflow_rule)} {workflow_rule}")
-                        
-                        agent_state = context.get('agent_state', 'unknown')
-                        st.markdown(f"**Agent State:** {agent_state}")
-                    
-                    with col2:
-                        active_task = context.get('active_task')
-                        if active_task:
-                            st.markdown(f"**Active Task:** {active_task}")
-                        else:
-                            st.markdown("**Active Task:** *None*")
-            
-            st.markdown("---")
-
 def main():
-    # Tabs for Tasks and Messages
+    # Create tabs
     tab1, tab2 = st.tabs(["🔍 Tasks to Review", "💬 Agent Messages"])
 
     with tab1:
+        st.header("Tasks Awaiting Your Review")
+        # Load tasks
         tasks = load_tasks()
-        review_tasks = [task for task in tasks if task.get('status') == 'REVIEW']
-        
-        st.metric("Tasks to Review", len(review_tasks))
-        
+        review_tasks = [t for t in tasks if t.get('status') == 'REVIEW']
+
         if not review_tasks:
-            st.success("🎉 No tasks are currently waiting for review.")
+            st.info("No tasks are currently awaiting review.")
         else:
-            sorted_tasks = sorted(review_tasks, key=lambda x: x.get('updated_date', ''), reverse=True)
+            st.metric("Tasks to Review", len(review_tasks))
+            
+            # Sort tasks by priority
+            sorted_tasks = sorted(review_tasks, key=lambda x: x.get('priority', 3), reverse=True)
+            
+            # Render task cards
             for task in sorted_tasks:
                 render_task_review_card(task)
 
     with tab2:
+        st.header("Messages from the Agent")
         messages = read_user_messages()
-        render_messages(messages)
 
+        if not messages:
+            st.info("No messages from the agent yet.")
+        else:
+            sorted_messages = sorted(messages, key=lambda x: x['timestamp'], reverse=True)
+            st.metric("Unread Messages", len(sorted_messages))
+            
+            for message in sorted_messages:
+                message_id = message.get('id')
+                content = message.get('content', '')
+                timestamp = message.get('timestamp', '')
+                context = message.get('context', {})
+                
+                with st.container():
+                    col1, col2 = st.columns([8, 2])
+                    with col1:
+                        st.markdown(f"**Message #{message_id}** - {format_timestamp(timestamp)}")
+                    with col2:
+                        if st.button("✅ Mark Read", key=f"delete_{message_id}"):
+                            if delete_message(message_id):
+                                st.success("Message deleted!")
+                                st.rerun()
+                    
+                    st.info(content)
+
+                    if context:
+                        with st.expander("Context"):
+                            workflow_rule = context.get('workflow_rule', 'unknown')
+                            st.markdown(f"**Workflow Rule:** {get_rule_emoji(workflow_rule)} {workflow_rule}")
+                            agent_state = context.get('agent_state', 'unknown')
+                            st.markdown(f"**Agent State:** {agent_state}")
+                            active_task = context.get('active_task')
+                            st.markdown(f"**Active Task:** {active_task or 'None'}")
+                    
+                    st.markdown("---")
 
 if __name__ == "__main__":
     main() 
