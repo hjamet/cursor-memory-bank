@@ -6,3 +6,4 @@ pandas>=2.0.0
 Pillow>=10.0.0
 streamlit-autorefresh>=0.0.1
 st-img-pastebutton 
+streamlit-shortcuts 

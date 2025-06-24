@@ -3,6 +3,12 @@ Performs advanced repository maintenance by cleaning temporary files, rewriting 
 
 ## Instructions
 
+0.  **Check for Idle State**
+    -   **Analyze Workflow State**: Before performing maintenance, check if the system is idle. Use `mcp_MemoryBankMCP_get_all_tasks` and `mcp_MemoryBankMCP_read_userbrief` to assess the current workload.
+    -   **Condition**: If there are no active tasks (i.e., all tasks are 'DONE' or the task list is empty) AND there are no unprocessed user requests.
+    -   **Action**: If the condition is met, the system is idle. Call `mcp_MemoryBankMCP_next_rule` with `step_name: "workflow-complete"` to terminate the workflow gracefully.
+    -   **Else**: If there is work to be done, proceed with the maintenance steps below.
+
 1.  **Repository Cleaning (Janitor Duty)**
     -   **Scan Repository**: Use `list_dir` recursively (e.g., `list_dir -R .`) to get a full overview of the repository's file structure.
     -   **Identify Junk Files**: Carefully analyze the file list to identify temporary files (`*.tmp`, `*.bak`, `*.swp`), misplaced build artifacts, or other unnecessary files.

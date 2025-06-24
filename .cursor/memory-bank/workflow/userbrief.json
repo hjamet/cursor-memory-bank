@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 95,
+  "last_id": 97,
   "requests": [
     {
       "id": 76,
@@ -377,28 +377,70 @@
     {
       "id": 94,
       "content": "Alors impeccable, la nouvelle UI pour l'ajout de nouvelles requêtes est vraiment très propre et très jolie. Mais par contre tu as supprimé le bouton qu'il y avait pour la copie depuis le presse papier alors que on a passé pas mal de temps à le faire fonctionner celui ci je t'ai dit qu'il faudrait l'ajouter à l'encadré Dragon Drop file ou juste en dessous. Enfin dans le même truc grosso modo donc s'il te plaît rajoute le si tu te souviens plus exactement comment on a fait, regarde, regarde dans l'historique git. Peut-être que ça t'aidera mais en tout cas il faut que tu l'ajoutes sur l'interfacetreamlitz parce que c'est trop bête de l'avoir enlevé, il fonctionnait et tout !",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-06-24T18:04:16.782716",
-      "updated_at": "2025-06-24T18:04:16.782716",
+      "updated_at": "2025-06-24T16:10:02.584Z",
       "history": [
         {
           "timestamp": "2025-06-24T18:04:16.782716",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T16:10:02.584Z",
+          "action": "mark_archived"
         }
       ]
     },
     {
       "id": 95,
       "content": "Je réalise aussi que maintenant, dans l'ajout de nouvelles requêtes, le raccourci contrôle plus Entre n'a plus l'air de correctement fonctionner. J'ai l'impression. Tu peux corriger cette regression ? Encore une fois, regarde l'historique git au besoin !",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-06-24T18:04:55.028457",
-      "updated_at": "2025-06-24T18:04:55.028457",
+      "updated_at": "2025-06-24T16:11:33.087Z",
       "history": [
         {
           "timestamp": "2025-06-24T18:04:55.028457",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T16:11:33.087Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 96,
+      "content": "J'ai l'impression qu'il y a toujours un problème lors de l'appel de la règle Context update et le. Et que le workflow est terminé. Si le workflow est terminé, c'est très important, c'est à dire que il n'y a plus de tâches à faire et qu'il n'y a plus de user raif. La règle contexte update doit dire OK, tu fais ton commit, tu fais tes opérations habituelles et à la fin au lieu d'appeler. Hum hum, lorsque tu appelleras en fait c'est plutôt la la règle qu'il faut corriger, c'est la règle remember, la règle remember quand elle va, quand elle est appelée et qu'il n'y a plus aucune tâche ni aucun, aucune requête dans le user bref, elle doit indiquer très clairement à à l'agent que c'est terminé et que il ne doit plus arrêter de il ne doit plus appeler de règles et qu'il doit s'arrêter maintenant mais uniquement lorsqu'il n'y a plus de requête user brief, aucune et plus aucune tâche non plus. Il faut absolument corriger ça parce qu'actuellement, sinon le workflow continue à l'infini même quand il y a plus de tâches qui est vraiment un gros souci.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T18:06:38.155900",
+      "updated_at": "2025-06-24T16:12:51.847Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T18:06:38.155900",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T16:12:51.847Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 97,
+      "content": "Test",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-06-24T18:53:53.681446",
+      "updated_at": "2025-06-24T18:53:53.681446",
+      "history": [
+        {
+          "timestamp": "2025-06-24T18:53:53.681446",
           "action": "created",
           "comment": "Request created via Streamlit app."
         }

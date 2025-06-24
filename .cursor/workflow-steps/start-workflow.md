@@ -105,8 +105,8 @@ Based on the current system state, the system will intelligently select the next
 - **Reasoning**: Execute ready tasks to make progress on project objectives
 {% else %}
 **SYSTEM READY**: No immediate tasks or requests pending.
-- **Recommended next step**: `context-update` to analyze overall system state and plan next actions
-- **Reasoning**: With no pending work, assess system state and identify potential improvements or maintenance needs
+- **Recommended next step**: `workflow-complete`
+- **Reasoning**: With no pending work, the workflow is complete. The agent will inform the user and enter an idle state.
 {% endif %}
 
 **Routing Decision Logic:**
@@ -141,7 +141,8 @@ The system will intelligently route to the most appropriate step based on curren
 2. `implementation` - When tasks are in progress or ready to execute  
 3. `fix` - When blocked tasks need resolution
 4. `context-update` - When system analysis and planning is needed
-5. `experience-execution` - When manual testing/validation is required
+5. `workflow-complete` - When all tasks and requests are processed
+6. `experience-execution` - When manual testing/validation is required
 
 **Intelligent Routing:** The system analyzes current tasks, user requests, and system state to automatically select the optimal next step, avoiding unnecessary cycles and improving workflow efficiency.
 
@@ -162,7 +163,7 @@ I will now record my current state and continue the autonomous workflow as requi
 Based on the comprehensive context provided, I understand:
 - **System State**: {{ current_tasks_summary }}
 - **User Requests**: {% if unprocessed_requests and unprocessed_requests.length > 0 %}{{ unprocessed_requests.length }} unprocessed requests{% else %}No pending requests{% endif %}
-- **Priority Action**: {% if hasUnprocessedRequests %}Process user requests via task-decomposition{% elif hasInProgressTasks %}Continue implementation work{% elif hasBlockedTasks %}Resolve blocked tasks via fix{% elif hasTodoTasks %}Execute pending tasks via implementation{% else %}Analyze system via context-update{% endif %}
+- **Priority Action**: {% if hasUnprocessedRequests %}Process user requests via task-decomposition{% elif hasInProgressTasks %}Continue implementation work{% elif hasBlockedTasks %}Resolve blocked tasks via fix{% elif hasTodoTasks %}Execute pending tasks via implementation{% else %}Finalize workflow via workflow-complete{% endif %}
 
 I will now record this state and proceed to the next step. **(Start-Workflow: Record State and Continue Workflow)**
 

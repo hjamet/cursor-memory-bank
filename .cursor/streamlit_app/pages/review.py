@@ -5,8 +5,9 @@ from pathlib import Path
 from datetime import datetime
 import requests
 from typing import List, Dict, Optional
-from PIL import Image
+from PIL import Image, ImageGrab
 import uuid
+from streamlit_shortcuts import shortcut_button
 
 st.set_page_config(page_title="Review & Communication", page_icon="📨")
 
@@ -57,6 +58,50 @@ def save_uploaded_image(uploaded_file, request_id):
             }
         except Exception as e:
             st.error(f"Error saving image: {e}")
+            return None
+    return None
+
+def get_image_from_clipboard():
+    """Attempt to get an image from the clipboard."""
+    try:
+        image = ImageGrab.grabclipboard()
+        if isinstance(image, Image.Image):
+            return image
+    except Exception:
+        # Silently ignore errors, as this can fail on some OS
+        # if the clipboard is empty or doesn't contain an image.
+        pass
+    return None
+
+def save_pasted_image(image: Image.Image, request_id: int):
+    """Save a pasted image from clipboard to a structured directory and return metadata."""
+    if image:
+        try:
+            # Create a unique filename
+            unique_filename = f"req_{request_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_pasted.png"
+            
+            # Define save path
+            save_dir = Path(".cursor/temp/images")
+            save_dir.mkdir(parents=True, exist_ok=True)
+            image_path = save_dir / unique_filename
+            
+            # Save the image as PNG
+            image.save(image_path, "PNG")
+
+            # Get image metadata
+            width, height = image.size
+            size = os.path.getsize(image_path)
+            
+            return {
+                "path": str(image_path),
+                "filename": unique_filename,
+                "size": size,
+                "width": width,
+                "height": height,
+                "content_type": "image/png"
+            }
+        except Exception as e:
+            st.error(f"Error saving pasted image: {e}")
             return None
     return None
 
@@ -447,29 +492,56 @@ def render_add_request_tab():
     """Render the UI for adding a new user request."""
     st.header("✨ Add New Request")
     
+    # Initialize session state for pasted image object
+    if 'pasted_image_obj' not in st.session_state:
+        st.session_state.pasted_image_obj = None
+
     request_content = st.text_area("Request Description", height=250, placeholder="Please provide a detailed description of your request...", label_visibility="collapsed")
     
     with st.expander("📎 Attach an Image (Optional)"):
-        uploaded_image = st.file_uploader(
-            "Upload an image for context (e.g., screenshot, mockup).",
-            type=['png', 'jpg', 'jpeg', 'gif']
-        )
-        if uploaded_image:
-            st.image(uploaded_image, width=300)
+        col1, col2 = st.columns(2)
+        with col1:
+            uploaded_image = st.file_uploader(
+                "Upload an image",
+                type=['png', 'jpg', 'jpeg', 'gif'],
+                label_visibility="collapsed"
+            )
 
-    if st.button("Submit New Request", type="primary", use_container_width=True):
+        with col2:
+            if st.button("📋 Paste from clipboard"):
+                pasted_image = get_image_from_clipboard()
+                if pasted_image:
+                    st.session_state.pasted_image_obj = pasted_image
+                    st.toast("Image captured from clipboard! Preview below.")
+                    uploaded_image = None # Clear file uploader
+                else:
+                    st.warning("No image found on clipboard.")
+    
+        # Display preview for uploaded or pasted image
+        if uploaded_image:
+            st.image(uploaded_image, caption="Uploaded image preview", width=300)
+            st.session_state.pasted_image_obj = None  # Clear pasted image if user uploads
+        elif st.session_state.pasted_image_obj:
+            st.image(st.session_state.pasted_image_obj, caption="Pasted image preview", width=300)
+
+    # Use shortcut_button with Ctrl+Enter shortcut
+    if shortcut_button("Submit New Request", "ctrl+enter", type="primary", use_container_width=True):
         if request_content:
             next_id = get_next_request_id()
             
-            # Save image if provided
+            # Determine which image to save
             image_meta = None
             if uploaded_image:
                 image_meta = save_uploaded_image(uploaded_image, next_id)
+            elif st.session_state.pasted_image_obj:
+                image_meta = save_pasted_image(st.session_state.pasted_image_obj, next_id)
 
             # Create the new request
             if create_new_request(request_content, image_meta):
                 st.success(f"Request #{next_id} submitted successfully!")
                 st.balloons()
+                # Reset pasted image state
+                st.session_state.pasted_image_obj = None
             else:
                 st.error("Failed to submit the request.")
         else:
@@ -486,7 +558,7 @@ def main():
         st.header("Tasks Awaiting Validation")
         tasks = load_tasks()
         review_tasks = [t for t in tasks if t.get('status') == 'REVIEW']
-
+        
         if not review_tasks:
             st.info("No tasks are currently awaiting review.")
         else:
@@ -504,6 +576,7 @@ def main():
             st.markdown(f"**{len(messages)}** message(s) to review:")
             for message in sorted(messages, key=lambda x: x.get('id', 0), reverse=True):
                 render_message_review_card(message)
+
 
 if __name__ == "__main__":
     main() 

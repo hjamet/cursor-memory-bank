@@ -2636,5 +2636,57 @@
     "parent_id": null,
     "priority": 5,
     "image": null
+  },
+  {
+    "id": 119,
+    "title": "Restore 'Paste from Clipboard' Button Functionality",
+    "short_description": "Re-implement the 'paste image from clipboard' button in the 'Add Request' tab.",
+    "detailed_description": "The user has pointed out that the 'paste from clipboard' button was removed during the recent UI refactoring of the 'Add Request' page. This task is to re-implement this functionality.\n\n1.  **Identify the target location**: The 'Add Request' functionality is now in a tab within `.cursor/streamlit_app/pages/review.py`. The button should be placed logically within the image attachment section.\n2.  **Restore functionality**:\n    - Add a 'Paste from clipboard' button.\n    - Implement the logic to grab an image from the system clipboard using the PIL/Pillow library.\n    - The pasted image should be previewed in the UI.\n    - On submission, the pasted image should be saved to the `.cursor/temp/images` directory, and its metadata should be included in the new user request, similar to how uploaded images are handled.\n3.  **Ensure consistency**: The implementation should be consistent with the existing code style and logic for handling file uploads and session state.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/review.py"
+    ],
+    "validation_criteria": "1. A 'Paste from clipboard' button is visible in the 'Add Request' tab's image attachment section.\n2. Clicking the button when an image is in the clipboard displays a preview of that image.\n3. Submitting a request with a pasted image successfully creates the request with the image attached.\n4. The functionality does not interfere with the existing image upload feature.\n5. The task is marked as DONE because the implementation was completed preemptively in the previous step before task creation.",
+    "created_date": "2025-06-24T16:09:58.735Z",
+    "updated_date": "2025-06-24T16:09:58.735Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 120,
+    "title": "Fix Ctrl+Enter Shortcut Regression in Add Request Form",
+    "short_description": "Fix the `Ctrl+Enter` keyboard shortcut for submitting a new request.",
+    "detailed_description": "The user reported that the `Ctrl+Enter` shortcut to submit a new request stopped working after the UI was refactored into tabs. This task is to fix this regression.\n\n**Implementation Details:**\n1.  **Dependency Management:** A `requirements.txt` file was created to manage Python dependencies, and the `streamlit-shortcuts` library was added.\n2.  **Shortcut Re-implementation:** The `streamlit-shortcuts` library is used to bind the `Control+Enter` key combination to the \"Submit New Request\" button.\n3.  **Code Changes:** The `add_keyboard_shortcuts` function is called within the `render_add_request_tab` function in `.cursor/streamlit_app/pages/review.py`.\n\nThis approach is more robust than the previous JavaScript injection method.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      "requirements.txt",
+      ".cursor/streamlit_app/pages/review.py"
+    ],
+    "validation_criteria": "1. Pressing `Ctrl+Enter` inside the request description text area successfully submits the new request.\n2. The `streamlit-shortcuts` library is added to a new `requirements.txt` file.\n3. The implementation does not break any other functionality on the page.\n4. The task is marked as DONE because the implementation has been completed in this step.",
+    "created_date": "2025-06-24T16:11:29.819Z",
+    "updated_date": "2025-06-24T16:11:29.819Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null
+  },
+  {
+    "id": 121,
+    "title": "Fix Workflow Infinite Loop by Correctly Routing to `workflow-complete`",
+    "short_description": "Fix the infinite loop bug in the autonomous workflow by routing to a 'workflow-complete' step when idle.",
+    "detailed_description": "The user identified a critical bug where the autonomous workflow would loop indefinitely by calling the `context-update` rule, even when all tasks and user requests were completed.\n\n**Analysis:**\n- The root cause was the routing logic in `start-workflow.md`.\n- When no tasks or requests were pending, the system defaulted to the `context-update` rule.\n- The `context-update` rule is designed for maintenance and always ends by continuing the workflow loop.\n\n**Solution:**\n- The routing logic in `start-workflow.md` has been modified.\n- When the system is idle (no pending tasks or requests), it is now directed to the `workflow-complete` rule instead of `context-update`.\n- The `workflow-complete` rule is designed to properly terminate the workflow by informing the user and not calling the next rule, thus stopping the infinite loop.\n- The documentation within `start-workflow.md` was also updated to reflect this change in the workflow's priority and routing logic.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/workflow-steps/start-workflow.md"
+    ],
+    "validation_criteria": "1. The `start-workflow.md` file is modified to direct the agent to `workflow-complete` when no tasks or requests are pending.\n2. The agent correctly enters the `workflow-complete` step when idle.\n3. The autonomous workflow terminates gracefully instead of looping indefinitely.\n4. This task is marked DONE as the fix has been implemented.",
+    "created_date": "2025-06-24T16:12:48.776Z",
+    "updated_date": "2025-06-24T16:12:48.776Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
   }
 ]
