@@ -2515,5 +2515,56 @@
     "parent_id": null,
     "priority": 3,
     "image": null
+  },
+  {
+    "id": 112,
+    "title": "Fix Bug and Improve Layout of Existing Image Paste Button",
+    "short_description": "Per user's priority request, abandon the custom component. This task is now to fix the bug in the existing `st-img-pastebutton` implementation and improve its UI layout to be more practical and less intrusive.",
+    "detailed_description": "The user has issued an absolute priority request to abandon the custom component approach. The new goal is to work with the existing `st-img-pastebutton` component.\n\n**Sub-tasks:**\n\n1.  **Investigate and Fix Bug**: Analyze the code in `add_request.py` to identify the root cause of the bug when processing a pasted image. The error seems to happen within the `process_pasted_image` function or how its result is handled. Fix the bug to ensure pasted images are processed reliably.\n2.  **Improve UI Layout**: The user noted that the current paste button layout is not practical (\"prend une colonne entière de manière pas pratique\"). Modify the layout in `add_request.py`. Instead of two columns, consider placing the \"Paste\" button directly below the \"Upload\" button or find a more compact and intuitive arrangement.\n3.  **Validate End-to-End Flow**:\n    *   Pasting an image works correctly.\n    *   The \"Remove Pasted Image\" button functions as expected.\n    *   The UI layout is improved and less intrusive.\n    *   Submitting a request with a pasted image is successful.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/add_request.py"
+    ],
+    "validation_criteria": "1. The bug preventing reliable image pasting is fixed. 2. The UI layout for the paste button is improved and more compact. 3. The end-to-end functionality of pasting, removing, and submitting an image works flawlessly. 4. The `st-img-pastebutton` library is kept.",
+    "created_date": "2025-06-24T15:23:33.090Z",
+    "updated_date": "2025-06-24T15:51:12.495Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 113,
+    "title": "Simplify Agent Message Display in Review Tab",
+    "short_description": "Refactor the agent message display in the Streamlit 'Review' tab to replace the accordion view with a more direct and user-friendly callout-style UI.",
+    "detailed_description": "The user finds the current accordion display for agent messages in the 'Review' tab to be impractical. This task is to refactor the UI to display messages more directly and elegantly.\n\n**Implementation Steps:**\n\n1.  **Locate the rendering function**: The target function is `render_message_review_card` in the file `.cursor/streamlit_app/pages/review.py`.\n2.  **Remove `st.expander`**: Replace the `st.expander` component with a `st.container` that has a visible border (`border=True`) to create a distinct \"callout\" for each message.\n3.  **Display Content Directly**: The full message content should be displayed within this container using `st.markdown`.\n4.  **Reposition Action Buttons**: Move the 'Validate' and 'Answer' buttons inside the container. Use `st.columns` to place them side-by-side to the right of the message content for a cleaner layout.\n5.  **Ensure Functionality**: Verify that the 'Validate' (delete message) and 'Answer' (create new userbrief) actions still work correctly after the UI modification.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/review.py"
+    ],
+    "validation_criteria": "1. The accordion (`st.expander`) in the 'Agent Messages' tab is replaced with a different container. 2. The full message content is visible by default within the new container. 3. The 'Validate' and 'Answer' buttons are present and functional within the new container. 4. The overall look is cleaner and more direct, as requested by the user.",
+    "created_date": "2025-06-24T15:24:16.576Z",
+    "updated_date": "2025-06-24T15:24:16.576Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 114,
+    "title": "Strengthen 'task-decomposition' rule to enforce single-request processing",
+    "short_description": "This is a meta-task to modify the `task-decomposition.md` rule file. The goal is to enforce the processing of only one user request at a time during that workflow step, as requested by the user for better focus and quality.",
+    "detailed_description": "The user has emphasized that the `task-decomposition` workflow step must be stricter. The agent must process only one user request at a time. This task is to modify the instruction file for that step to enforce this behavior.\\n\\n**Sub-tasks:**\\n\\n1.  **Read the existing rule:** Load the content of `.cursor/memory-bank/workflow/task-decomposition.md`.\\n2.  **Strengthen the instruction:** Modify the markdown to make it unambiguously clear that only the oldest unprocessed request (provided in the context) should be analyzed and decomposed into tasks in a single run. Emphasize that all other requests must be ignored until the next cycle.\\n3.  **Save the modified rule:** Overwrite the existing file with the new, stricter instructions.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/memory-bank/workflow/task-decomposition.md"
+    ],
+    "validation_criteria": "1. The `task-decomposition.md` file is modified.\\n2. The new instructions clearly and forcefully state that only one request must be processed per cycle.\\n3. In subsequent runs, the agent demonstrably follows this new rule.",
+    "created_date": "2025-06-24T15:49:56.096Z",
+    "updated_date": "2025-06-24T15:50:32.101Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
   }
 ]

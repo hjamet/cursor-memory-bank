@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 83,
+  "last_id": 89,
   "requests": [
     {
       "id": 76,
@@ -183,6 +183,120 @@
           "action": "mark_archived"
         }
       ]
+    },
+    {
+      "id": 84,
+      "content": "La copie d'image dans le formulaire New request qui fonctionne désormais à bien joué, ne fonctionne toujours pas, ni le contrôle V, ni le bouton past image. Alors le Navigateur me dit bien que l'application tente d'accéder à mon presse papier, donc ça ça a l'air très positif mais à la fin, rien n'est ajouté lorsque je clique sur Ctrl+V !",
+      "status": "archived",
+      "created_at": "2025-06-24T17:20:01.542550",
+      "updated_at": "2025-06-24T15:23:36.504Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T17:20:01.542550",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-24T15:23:36.504Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 85,
+      "content": "Alors je vais rajouter du détail, j'ai l'impression que en fait la copie a l'air de fonctionner quand je clique en tout cas sur le bouton. Enfin je sais pas lequel fonctionne mais Mais d'abord, l'image ne s'affiche pas comme comme lorsque je dragon drop ou je clique sur le bouton browsefile et en plus et bien après, quand l'image est chargée avec la tâche. Euh, il y a une grosse erreur serveur qui est affichée et donc du coup il faudrait résoudre ça. Par ailleurs, si c'est possible uniquement si c'est possible, ce serait sympa d'enlever le bouton passe image pour simplement se reposer sur le raccourci contrôle V parce que le bouton prend énormément de place et pas très pratique et. Et pas très beau. Donc si c'est possible, autant l'enlever, je te mets les logs serveurs que j'ai eus, je sais pas exactement à quel moment ils ont été Trigger. Je l'ai, je suppose que c'est au moment où je clique sur adrequest. Mais je suis pas sûr\n\nJamet@Eustache MINGW64 ~/code/cursor-memory-bank (memory-bank-mcp)\n$ ./.cursor/run_ui.sh \nLaunching Streamlit UI...\nYou can view the app in your browser.\n\n\n  You can now view your Streamlit app in your browser.\n\n  Local URL: http://localhost:8501\n  Network URL: http://192.168.8.118:8501\n\n2025-06-24 17:19:35.142 The `use_column_width` parameter has been deprecated and will be removed in a future release. Please utilize the `use_container_width` parameter instead.\n────────────────────────── Traceback (most recent call last) ───────────────────────────\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\exec_code.py:128 in exec_func_with_error_handling\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\script_runner.py:667 in code_to_exec\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\script_runner.py:165 in _mpa_v1\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\n\n  avigation\\page.py:300 in run\n\n  C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\add_request.py:53\n  0 in <module>\n\n    527 │   │   │   st.success(\"✅ Ready to submit with request\")\n    528 │   │   │   \n    529 │   │   │   # Button to clear pasted image\n  ❱ 530 │   │   │   if st.button(\"🗑️ Remove Pasted Image\", key=\"clear_pasted_image\"):\n    531 │   │   │   │   try:\n    532 │   │   │   │   │   if os.path.exists(st.session_state.pasted_image_metadata['\n    533 │   │   │   │   │   │   os.remove(st.session_state.pasted_image_metadata['path\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\metrics_util.py:443 in wrapped_func\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\widgets\\button.py:243 in button\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\widgets\\button.py:1034 in _button\n────────────────────────────────────────────────────────────────────────────────────────\nStreamlitAPIException: `st.button()` can't be used in an `st.form()`.\n\nFor more information, refer to the\n[documentation for\nforms](https://docs.streamlit.io/develop/api-reference/execution-flow/st.form).\n\n2025-06-24 17:19:52.651 The `use_column_width` parameter has been deprecated and will be removed in a future release. Please utilize the `use_container_width` parameter instead.\n────────────────────────── Traceback (most recent call last) ───────────────────────────\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\exec_code.py:128 in exec_func_with_error_handling\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\script_runner.py:667 in code_to_exec\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\script_runner.py:165 in _mpa_v1\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\n\n  avigation\\page.py:300 in run\n\n  C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\add_request.py:53\n  0 in <module>\n\n    527 │   │   │   st.success(\"✅ Ready to submit with request\")\n    528 │   │   │   \n    529 │   │   │   # Button to clear pasted image\n  ❱ 530 │   │   │   if st.button(\"🗑️ Remove Pasted Image\", key=\"clear_pasted_image\"):\n    531 │   │   │   │   try:\n    532 │   │   │   │   │   if os.path.exists(st.session_state.pasted_image_metadata['\n    533 │   │   │   │   │   │   os.remove(st.session_state.pasted_image_metadata['path\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\metrics_util.py:443 in wrapped_func\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\widgets\\button.py:243 in button\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\widgets\\button.py:1034 in _button\n────────────────────────────────────────────────────────────────────────────────────────\nStreamlitAPIException: `st.button()` can't be used in an `st.form()`.\n\nFor more information, refer to the\n[documentation for\nforms](https://docs.streamlit.io/develop/api-reference/execution-flow/st.form).\n\n2025-06-24 17:19:55.347 The `use_column_width` parameter has been deprecated and will be removed in a future release. Please utilize the `use_container_width` parameter instead.\n────────────────────────── Traceback (most recent call last) ───────────────────────────\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\exec_code.py:128 in exec_func_with_error_handling\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\script_runner.py:667 in code_to_exec\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\script_runner.py:165 in _mpa_v1\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\n\n  avigation\\page.py:300 in run\n\n  C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\add_request.py:53\n  0 in <module>\n\n    527 │   │   │   st.success(\"✅ Ready to submit with request\")\n    528 │   │   │   \n    529 │   │   │   # Button to clear pasted image\n  ❱ 530 │   │   │   if st.button(\"🗑️ Remove Pasted Image\", key=\"clear_pasted_image\"):\n    531 │   │   │   │   try:\n    532 │   │   │   │   │   if os.path.exists(st.session_state.pasted_image_metadata['\n    533 │   │   │   │   │   │   os.remove(st.session_state.pasted_image_metadata['path\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\metrics_util.py:443 in wrapped_func\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\widgets\\button.py:243 in button\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\widgets\\button.py:1034 in _button\n────────────────────────────────────────────────────────────────────────────────────────\nStreamlitAPIException: `st.button()` can't be used in an `st.form()`.\n\nFor more information, refer to the\n[documentation for\nforms](https://docs.streamlit.io/develop/api-reference/execution-flow/st.form).",
+      "status": "archived",
+      "created_at": "2025-06-24T17:21:38.158977",
+      "updated_at": "2025-06-24T15:23:40.196Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T17:21:38.158977",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-24T15:23:40.196Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 86,
+      "content": "Simplifier l'affichage des messages dans review dans la. Dans l'interface streaming Tab Review at agent review n'utilise pas des accordéons, c'est lourd et pas pratique, mais directement les messages dans des sortes de Call out jolis avec le contenu du message et 2 boutons sur le côté, un pour valider et un pour ajouter un commentaire Et donc renvoyer vers le userbrief comme une nouvelle requête.",
+      "status": "archived",
+      "created_at": "2025-06-24T17:23:07.213096",
+      "updated_at": "2025-06-24T15:24:19.648Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T17:23:07.213096",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-24T15:24:19.648Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "content": "Alors je te l'avais déjà fait remarquer, mais c'est très important dans la règle Task décomposition. Il est vraiment très important que l'agent ne gère Que une requête user brief à la fois, il doit l'appel à Next True avec la règle Task de Composition Doit retourner le nombre de requêtes user Brexia et dire OK, maintenant tu vas ne t'occuper que de celle là et là il donne la requête user brief la plus ancienne traitée. Non traitée et c'est vraiment très important. Il faut insister dans la règle pour que l'agent ne décompose en tâche que cette requête là plus tard c'est pas grave hein, il reviendra, il reviendra à Task décomposition mais ça rien ça arrivera plus tard parce que si il traite trop de regards en même temps et Ben il va mal les traiter, ça va mal jouer donc c'est mieux de d'en traiter qu'une seule à la fois et donc c'est important que la règle précise cela.",
+      "status": "archived",
+      "created_at": "2025-06-24T17:25:24.433144",
+      "updated_at": "2025-06-24T15:49:58.768Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T17:25:24.433144",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-24T15:49:58.768Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 88,
+      "content": "Priorité un peu absolue. J'ai vu que t'avais une tache sur la modification drastique du système de copie d'image pour l'ajout de nouvelles requêtes. Euh en en utilisant un composant fait maison ne fait pas ça vraiment garde en fait annule cette approche, simplement regarde l'erreur, garde le bouton passe image simplement rends le un peu plus beau et pratique d'utilisation. Là là il prend une colonne entière de manière pas pratique, c'est pas chouette à utiliser mais garde le comme il est parce qu'il avait l'air de fonctionner simplement corrige le bug qui est derrière dans la gestion de l'image venant de passe image, ça avait l'air de plutôt bien fonctionner. Il y a l'air d'y avoir une petite erreur mais ne crée surtout pas de composants maison.",
+      "status": "archived",
+      "created_at": "2025-06-24T17:31:46.257032",
+      "updated_at": "2025-06-24T15:34:45.489Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T17:31:46.257032",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing."
+        },
+        {
+          "timestamp": "2025-06-24T15:34:45.489Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 89,
+      "content": "Ok, super bonne nouvelle, j'ai l'impression que la copie d'image fonctionne mais par contre donc avec tes corrections ça a l'air de très bien marcher avec le bouton. Par contre idéalement. Il faudrait que tu remettes un peu le le design de la page qu'il y avait avant parce que c'était juste mieux fait. Là, c'est très difficile à lire, mais par contre en termes de fonctionnement, ça marche beaucoup mieux maintenant, donc garde le code actuel pour la la copie d'image, ça marche très bien.",
+      "status": "new",
+      "created_at": "2025-06-24T17:50:33.476930",
+      "updated_at": "2025-06-24T17:50:33.476930",
+      "history": [
+        {
+          "timestamp": "2025-06-24T17:50:33.476930",
+          "action": "created",
+          "comment": "New request added via Streamlit interface with status 'new' for processing. Includes image: pasted_image_20250624_175000.jpg"
+        }
+      ],
+      "image": {
+        "path": ".cursor/temp/images\\req_89_20250624_175000_pasted.jpg",
+        "original_name": "pasted_image_20250624_175000.jpg",
+        "size": 30516,
+        "format": "JPEG",
+        "width": 777,
+        "height": 521,
+        "timestamp": "20250624_175000",
+        "source": "clipboard"
+      }
     }
   ]
 }

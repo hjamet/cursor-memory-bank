@@ -12,11 +12,11 @@
         "MemoryBankMCP": {
             "command": "node",
             "args": [
-                "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\memory-bank-mcp\\server.js",
+                "C:\\\\Users\\\\Jamet\\\\code\\\\cursor-memory-bank\\\\.cursor\\\\mcp\\\\memory-bank-mcp\\\\server.js",
                 "--cwd",
-                "C:\\Users\\Jamet\\code\\cursor-memory-bank"
+                "C:\\\\Users\\\\Jamet\\\\code\\\\cursor-memory-bank"
             ],
-            "forceReload": "2025-06-24T15:13:56.541Z"
+            "forceReload": "2025-06-24T15:16:00.000Z"
         },
         "Context7": {
             "command": "npx",

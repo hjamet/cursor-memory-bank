@@ -449,40 +449,35 @@ if 'pasted_image_data' not in st.session_state:
 if 'pasted_image_metadata' not in st.session_state:
     st.session_state.pasted_image_metadata = None
 
-# Use Streamlit form for reliable submission handling
-with st.form("request_form", clear_on_submit=True):
-    request_text = st.text_area(
-        "Request Description:",
-        height=150,
-        placeholder="Describe what you want to accomplish...",
-        help="Enter your request. It will be processed automatically by the task-analysis workflow. Press Ctrl+Enter to submit quickly. You can also paste images directly with Ctrl+V!",
-        key="request_input"
+# We use session state to check if the pasted data is new
+if 'last_pasted_data' not in st.session_state:
+    st.session_state.last_pasted_data = None
+
+# --- Image Handling Area (now fully outside the form) ---
+st.markdown("---")
+st.markdown("### 📸 Attach an Image (Optional)")
+st.markdown("You can upload a file or paste an image directly from your clipboard (Ctrl+V).")
+
+uploaded_file = st.file_uploader(
+    "Upload a file:",
+    type=['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'],
+    help="Images will be automatically resized and optimized.",
+    key="image_uploader"
+)
+
+# Only show the paste button if no file has been uploaded
+if uploaded_file is None:
+    st.markdown("---")
+    st.write("Or paste an image directly:")
+    pasted_data = paste(
+        label="📋 Paste Image Here",
+        key="paste_button"
     )
-    
-    # Image upload section with Ctrl+V instructions
-    st.markdown("**📸 Optional: Attach Image**")
-    
-    col_upload, col_paste = st.columns(2)
 
-    with col_upload:
-        uploaded_image = st.file_uploader(
-            "Upload an image:",
-            type=['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'],
-            help="Supported formats: PNG, JPG, JPEG, GIF, WEBP, BMP. Images will be automatically resized and optimized.",
-            key="image_upload"
-        )
-    
-    with col_paste:
-        st.write("Or paste an image from clipboard:")
-        pasted_data = paste(
-            label="📋 Paste Image (Ctrl+V)",
-            key="paste_button"
-        )
-
-    # Process pasted image if data is returned
-    if pasted_data:
+    # Process pasted image only if the data is new
+    if pasted_data and pasted_data != st.session_state.last_pasted_data:
+        st.session_state.last_pasted_data = pasted_data # Store the new data
         try:
-            # Get the next request ID for filename
             userbrief_file = ".cursor/memory-bank/workflow/userbrief.json"
             try:
                 with open(userbrief_file, 'r', encoding='utf-8') as f:
@@ -491,100 +486,104 @@ with st.form("request_form", clear_on_submit=True):
             except FileNotFoundError:
                 next_id = 1
             
-            # Process the pasted image data
             image_metadata = process_pasted_image(pasted_data, next_id)
             
             if image_metadata:
                 st.session_state.pasted_image_metadata = image_metadata
-                st.success(f"📋 Image pasted successfully! {image_metadata['original_name']} ({image_metadata['width']}x{image_metadata['height']})")
+                st.rerun()
             else:
                 st.error("❌ Failed to process pasted image.")
         except Exception as e:
             st.error(f"❌ Error processing pasted image: {e}")
 
-
-    # Show pasted image preview if available
-    if st.session_state.get('pasted_image_metadata'):
-        st.markdown("**🖼️ Pasted Image Preview:**")
-        col_img, col_info = st.columns([2, 1])
+# --- Image Preview (outside form) ---
+if st.session_state.get('pasted_image_metadata') and uploaded_file is None:
+    st.markdown("---")
+    st.markdown("**🖼️ Pasted Image Preview:**")
+    col_img, col_info = st.columns([2, 1])
+    
+    with col_img:
+        # Display the pasted image
+        try:
+            pasted_image = Image.open(st.session_state.pasted_image_metadata['path'])
+            st.image(pasted_image, caption=f"Pasted: {st.session_state.pasted_image_metadata['original_name']}", use_column_width=True)
+        except Exception as e:
+            st.error(f"Error displaying pasted image: {e}")
+    
+    with col_info:
+        # Show image info
+        st.markdown("**Image Information:**")
+        st.write(f"**Source:** Clipboard (Ctrl+V)")
+        st.write(f"**Filename:** {st.session_state.pasted_image_metadata['original_name']}")
+        st.write(f"**Size:** {st.session_state.pasted_image_metadata['size']:,} bytes")
+        st.write(f"**Dimensions:** {st.session_state.pasted_image_metadata['width']} x {st.session_state.pasted_image_metadata['height']} px")
+        st.write(f"**Format:** {st.session_state.pasted_image_metadata['format']}")
+        st.success("✅ Ready to submit with request")
         
-        with col_img:
-            # Display the pasted image
+        # Button to clear pasted image (now outside the form)
+        if st.button("🗑️ Remove Pasted Image", key="clear_pasted_image_outside"):
             try:
-                pasted_image = Image.open(st.session_state.pasted_image_metadata['path'])
-                st.image(pasted_image, caption=f"Pasted: {st.session_state.pasted_image_metadata['original_name']}", use_column_width=True)
-            except Exception as e:
-                st.error(f"Error displaying pasted image: {e}")
-        
-        with col_info:
-            # Show image info
-            st.markdown("**Image Information:**")
-            st.write(f"**Source:** Clipboard (Ctrl+V)")
-            st.write(f"**Filename:** {st.session_state.pasted_image_metadata['original_name']}")
-            st.write(f"**Size:** {st.session_state.pasted_image_metadata['size']:,} bytes")
-            st.write(f"**Dimensions:** {st.session_state.pasted_image_metadata['width']} x {st.session_state.pasted_image_metadata['height']} px")
-            st.write(f"**Format:** {st.session_state.pasted_image_metadata['format']}")
-            st.success("✅ Ready to submit with request")
-            
-            # Button to clear pasted image
-            if st.button("🗑️ Remove Pasted Image", key="clear_pasted_image"):
-                try:
-                    if os.path.exists(st.session_state.pasted_image_metadata['path']):
-                        os.remove(st.session_state.pasted_image_metadata['path'])
-                except:
-                    pass
-                st.session_state.pasted_image_data = None
-                st.session_state.pasted_image_metadata = None
-                st.rerun()
+                if os.path.exists(st.session_state.pasted_image_metadata['path']):
+                    os.remove(st.session_state.pasted_image_metadata['path'])
+            except:
+                pass
+            st.session_state.pasted_image_data = None
+            st.session_state.pasted_image_metadata = None
+            st.session_state.last_pasted_data = None # Reset to allow re-pasting the same image
+            st.rerun()
+    st.markdown("---")
+elif uploaded_file is not None:
+    st.markdown("---")
+    st.markdown("**🖼️ Uploaded Image Preview:**")
+    col_img, col_info = st.columns([2, 1])
     
-    # Show image preview if uploaded
-    elif uploaded_image is not None:
-        st.markdown("**🖼️ Image Preview:**")
-        col_img, col_info = st.columns([2, 1])
-        
-        with col_img:
-            # Display the uploaded image
-            image = Image.open(uploaded_image)
-            st.image(image, caption=f"Uploaded: {uploaded_image.name}", use_column_width=True)
-        
-        with col_info:
-            # Show image info
-            st.markdown("**Image Information:**")
-            st.write(f"**Filename:** {uploaded_image.name}")
-            st.write(f"**Size:** {uploaded_image.size:,} bytes")
-            st.write(f"**Dimensions:** {image.width} x {image.height} px")
-            st.write(f"**Format:** {image.format}")
-            
-            # Show what will happen
-            if image.width > 1024:
-                ratio = 1024 / image.width
-                new_height = int(image.height * ratio)
-                st.info(f"📏 Will be resized to: 1024 x {new_height} px")
-            else:
-                st.success("✅ Size is optimal")
+    with col_img:
+        # Display the uploaded image
+        image = Image.open(uploaded_file)
+        st.image(image, caption=f"Uploaded: {uploaded_file.name}", use_column_width=True)
     
+    with col_info:
+        # Show image info
+        st.markdown("**Image Information:**")
+        st.write(f"**Filename:** {uploaded_file.name}")
+        st.write(f"**Size:** {uploaded_file.size:,} bytes")
+        st.write(f"**Dimensions:** {image.width} x {image.height} px")
+        st.write(f"**Format:** {image.format}")
+        
+        # Show what will happen
+        if image.width > 1024:
+            ratio = 1024 / image.width
+            new_height = int(image.height * ratio)
+            st.info(f"📏 Will be resized to: 1024 x {new_height} px")
+        else:
+            st.success("✅ Size is optimal")
+            
+st.markdown("---")
+st.markdown("### 📝 Enter Your Request")
+
+with st.form("request_form", clear_on_submit=True):
+    request_text = st.text_area(
+        "Request Description:",
+        height=150,
+        placeholder="Describe what you want to accomplish...",
+        help="Enter your request. It will be processed automatically by the task-analysis workflow. Press Ctrl+Enter to submit quickly.",
+        key="request_input"
+    )
+
     # Submit button within form for native behavior
-    col1, col2 = st.columns([1, 4])
-    with col1:
-        submitted = st.form_submit_button("➕ Add Request", type="primary", use_container_width=True)
-    
-    with col2:
-        st.markdown("*Press Ctrl+Enter in the text area or click the button to submit*")
+    submitted = st.form_submit_button("➕ Add Request", type="primary", use_container_width=True)
 
 # Handle form submission with simplified approach
 if submitted:
     current_text = request_text.strip()
     
     if current_text:
-        image_metadata = None
+        image_metadata_to_submit = None
         
         # Priority: Use pasted image if available, otherwise use uploaded image
-        if st.session_state.pasted_image_metadata is not None:
-            # Use the already processed pasted image
-            image_metadata = st.session_state.pasted_image_metadata
-            st.success(f"📋 Using pasted image: {image_metadata['original_name']} → {image_metadata['width']}x{image_metadata['height']} JPEG ({image_metadata['size']:,} bytes)")
-        elif uploaded_image is not None:
-            # We need to get the next request ID first for the filename
+        if st.session_state.get('pasted_image_metadata') and uploaded_file is None:
+            image_metadata_to_submit = st.session_state.pasted_image_metadata
+        elif uploaded_file is not None:
             try:
                 userbrief_file = ".cursor/memory-bank/workflow/userbrief.json"
                 try:
@@ -594,45 +593,36 @@ if submitted:
                 except FileNotFoundError:
                     next_id = 1
                 
-                # Process the image
-                image_metadata = process_uploaded_image(uploaded_image, next_id)
-                
-                if image_metadata:
-                    st.success(f"📸 Image processed: {image_metadata['original_name']} → {image_metadata['width']}x{image_metadata['height']} JPEG ({image_metadata['size']:,} bytes)")
-                else:
-                    st.error("❌ Failed to process image. Request will be submitted without image.")
-                    
+                image_metadata_to_submit = process_uploaded_image(uploaded_file, next_id)
             except Exception as e:
-                st.error(f"❌ Error processing image: {e}")
-                image_metadata = None
+                st.error(f"❌ Error processing uploaded image: {e}")
+                image_metadata_to_submit = None
         
-        # Add to userbrief via MCP as new request (status "new")
-        success, message = add_request_via_mcp(current_text, image_metadata)
+        # Add to userbrief
+        success, message = add_request_via_mcp(current_text, image_metadata_to_submit)
         
         if success:
-            # Show success message and balloons
-            success_msg = f"✅ {message}"
-            if image_metadata:
-                if image_metadata.get('source') == 'clipboard':
-                    success_msg += f" (with pasted image: {image_metadata['original_name']})"
-                else:
-                    success_msg += f" (with image: {image_metadata['original_name']})"
-            st.success(success_msg)
-            st.balloons()  # Show balloons immediately after success
-            st.toast("🎉 Request submitted successfully! The agent will process it automatically.", icon="✅")
+            st.success(f"✅ {message}")
+            st.balloons()
             
             # Clear pasted image from session state after successful submission
-            if st.session_state.pasted_image_metadata is not None:
+            if st.session_state.get('pasted_image_metadata'):
+                # Clean up file
+                try:
+                    if os.path.exists(st.session_state.pasted_image_metadata['path']):
+                        os.remove(st.session_state.pasted_image_metadata['path'])
+                except: pass
+                # Clear state
                 st.session_state.pasted_image_data = None
                 st.session_state.pasted_image_metadata = None
+                st.session_state.last_pasted_data = None
+                st.rerun() # Rerun to clear the preview
         else:
             st.error(f"❌ {message}")
-            # Clean up image file if request failed
-            if image_metadata and os.path.exists(image_metadata['path']):
+            if image_metadata_to_submit and os.path.exists(image_metadata_to_submit['path']):
                 try:
-                    os.remove(image_metadata['path'])
-                except:
-                    pass
+                    os.remove(image_metadata_to_submit['path'])
+                except: pass
     else:
         st.error("⚠️ Please enter a request description before submitting.")
 
