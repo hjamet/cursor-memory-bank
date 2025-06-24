@@ -39,7 +39,7 @@ export async function handleGetAllTasks(params) {
         const tasksData = await readTasks();
 
         // Filter out completed tasks
-        let filteredTasks = tasksData.filter(task => task.status !== 'DONE' && task.status !== 'APPROVED');
+        let filteredTasks = tasksData.filter(task => task.status !== 'DONE' && task.status !== 'APPROVED' && task.status !== 'REVIEW');
 
         // Sort tasks by status order, then priority
         filteredTasks.sort((a, b) => {
@@ -68,7 +68,7 @@ export async function handleGetAllTasks(params) {
                 });
                 baseTask.dependency_details = dependencyDetails;
                 baseTask.all_dependencies_completed = dependencyDetails.every(
-                    dep => dep.status === 'DONE' || dep.status === 'NOT_FOUND'
+                    dep => dep.status === 'DONE' || dep.status === 'REVIEW' || dep.status === 'NOT_FOUND'
                 );
             }
 
@@ -85,7 +85,7 @@ export async function handleGetAllTasks(params) {
             if (subtasks.length > 0) {
                 baseTask.subtasks = subtasks.map(sub => ({ id: sub.id, title: sub.title, status: sub.status }));
                 baseTask.subtask_count = subtasks.length;
-                baseTask.completed_subtasks = subtasks.filter(st => st.status === 'DONE').length;
+                baseTask.completed_subtasks = subtasks.filter(st => st.status === 'DONE' || st.status === 'REVIEW').length;
             }
 
             return baseTask;
@@ -109,7 +109,7 @@ export async function handleGetAllTasks(params) {
                 subtasks: tasksData.filter(t => t.parent_id).length
             },
             filters_applied: {
-                status_filter: "Excludes DONE and APPROVED tasks",
+                status_filter: "Excludes DONE, APPROVED, and REVIEW tasks",
                 priority_filter: null,
                 include_subtasks: true,
                 include_dependencies: true
@@ -123,8 +123,8 @@ export async function handleGetAllTasks(params) {
             statistics,
             query_info: {
                 count_returned: enhancedTasks.length,
-                priority_order: 'IN_PROGRESS → TODO → BLOCKED → REVIEW (excludes DONE & APPROVED)',
-                filters_applied: "Excludes completed and approved tasks"
+                priority_order: 'IN_PROGRESS → TODO → BLOCKED (excludes REVIEW, DONE & APPROVED)',
+                filters_applied: "Excludes completed, approved, and review tasks"
             }
         };
 

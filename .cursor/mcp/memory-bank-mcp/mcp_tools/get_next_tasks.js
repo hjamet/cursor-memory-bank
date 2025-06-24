@@ -34,7 +34,7 @@ function analyzeDependencyGraph(tasks, taskMap) {
 
     // First pass: identify tasks with satisfied dependencies
     tasks.forEach(task => {
-        if (task.status === 'DONE' || task.status === 'APPROVED') return;
+        if (task.status === 'DONE' || task.status === 'APPROVED' || task.status === 'REVIEW') return;
 
         const dependencyStatus = analyzeDependencies(task, taskMap);
 
@@ -90,7 +90,7 @@ function analyzeDependencies(task, taskMap) {
             result.missingDependencies.push(depId);
             result.isAvailable = false;
             result.blockingReason = `Missing dependency: Task ${depId}`;
-        } else if (depTask.status === 'DONE' || depTask.status === 'APPROVED') {
+        } else if (depTask.status === 'DONE' || depTask.status === 'APPROVED' || depTask.status === 'REVIEW') {
             result.completedDependencies.push({
                 id: depTask.id,
                 title: depTask.title,
@@ -145,7 +145,7 @@ function calculateReadinessScore(task, taskMap) {
     } else {
         const completedDeps = task.dependencies.filter(depId => {
             const depTask = taskMap.get(depId);
-            return depTask && (depTask.status === 'DONE' || depTask.status === 'APPROVED');
+            return depTask && (depTask.status === 'DONE' || depTask.status === 'APPROVED' || depTask.status === 'REVIEW');
         });
         score += (completedDeps.length / task.dependencies.length) * 15;
     }
@@ -295,8 +295,8 @@ export async function handleGetNextTasks(params) {
     try {
         const allTasks = await readTasks();
 
-        // ** CRITICAL FILTER: Exclude completed and approved tasks from consideration **
-        const activeTasks = allTasks.filter(task => task.status !== 'DONE' && task.status !== 'APPROVED');
+        // Filter out tasks that are done, approved, or in review
+        const activeTasks = allTasks.filter(task => task.status !== 'DONE' && task.status !== 'APPROVED' && task.status !== 'REVIEW');
 
         if (activeTasks.length === 0) {
             return {

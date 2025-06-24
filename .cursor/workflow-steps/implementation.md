@@ -16,7 +16,7 @@ Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant 
    - **FOCUS ABSOLU** : Concentrez-vous uniquement sur cette tâche, ses sous-tâches éventuelles, mais JAMAIS sur d'autres tâches
 
 3. **Task status update**: Mettre à jour le statut de LA tâche terminée.
-   - Marquer LA tâche terminée comme DONE avec `mcp_MemoryBankMCP_update_task`
+   - Marquer LA tâche terminée comme REVIEW avec `mcp_MemoryBankMCP_update_task` pour que l'utilisateur la valide.
    - Documenter les modifications apportées dans les commentaires de tâche
    - **RAPPEL** : Une seule tâche = un seul update de statut
 
@@ -80,8 +80,8 @@ Je procède maintenant à l'implémentation des modifications pour LA tâche uni
 
 # Implementation: 3 - Task status update
 Je mets à jour le statut de LA tâche terminée. **(Implementation: 3 - Task status update)**
-[...appel de mcp_MemoryBankMCP_update_task pour marquer CETTE tâche comme DONE...]
-**TERMINÉ** : Cette tâche unique est maintenant complétée. **(Implementation: 3 - Task status update)**
+[...appel de mcp_MemoryBankMCP_update_task pour marquer CETTE tâche comme REVIEW...]
+**TERMINÉ** : Cette tâche unique est maintenant complétée et en attente de revue. **(Implementation: 3 - Task status update)**
 
 # Implementation: 4 - Record progress and determine next steps
 Je vais maintenant enregistrer les progrès et déterminer les prochaines étapes appropriées. **(Implementation: 4 - Record progress and determine next steps)**

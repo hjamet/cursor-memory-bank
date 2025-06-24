@@ -2341,9 +2341,7 @@
     "title": "Refactor `context-update` rule for advanced repository cleaning and context management",
     "short_description": "Refactor the context-update rule to perform repository cleaning (deleting temp/misplaced files) and to manage project context files (`techContext.md`, `projectBrief.md`) via complete rewrites.",
     "detailed_description": "This task implements the user's request #82. The `context-update` rule needs a major overhaul to become a powerful tool for project maintenance and context management.\n\nThe new responsibilities are:\n\n1.  **Repository Janitor**:\n    - The rule must perform a scan of the repository.\n    - It should use `list_dir` recursively to explore the file structure.\n    - It must identify files that appear to be temporary (`*.tmp`, `*.bak`), misplaced (e.g., source files in a `docs` directory), or duplicates.\n    - The agent should then decide which files to delete (`delete_file`) or move (`edit_file` with rename). This process requires careful thought to avoid breaking the project.\n\n2.  **Context Archivist**:\n    - The rule must be able to update the core context files: `.cursor/memory-bank/context/techContext.md` and `.cursor/memory-bank/context/projectBrief.md`.\n    - The user specified that this should be a **complete rewrite**. The agent must first read the existing files to understand their content, then formulate a complete, new version, and finally use `edit_file` to overwrite the old content entirely.\n\n3.  **Commit Creation**:\n    - The rule retains its original responsibility of creating a Git commit using `mcp_MemoryBankMCP_commit` to save the state of the project after cleaning and context updates.\n\nThe implementation will require a complete rewrite of the `.cursor/workflow-steps/context-update.md` file to guide the agent through this new, more complex logic.",
-    "dependencies": [
-      101
-    ],
+    "dependencies": [],
     "status": "TODO",
     "impacted_files": [
       ".cursor/workflow-steps/context-update.md",
@@ -2352,7 +2350,7 @@
     ],
     "validation_criteria": "The `context-update.md` rule is successfully rewritten to include steps for repository scanning, file cleanup, and full context file rewriting. The agent can successfully execute this rule, identifying and deleting a temporary file, and updating the `projectBrief.md` file.",
     "created_date": "2025-06-24T14:08:51.187Z",
-    "updated_date": "2025-06-24T14:08:51.187Z",
+    "updated_date": "2025-06-24T14:17:54.923Z",
     "parent_id": null,
     "priority": 3,
     "image": null
@@ -2362,9 +2360,7 @@
     "title": "Implement conditional trigger for `context-update` from `experience-execution`",
     "short_description": "Modify the `experience-execution` rule to add a decision step after a successful commit. The agent will evaluate if the change was \"drastic\" and decide whether to proceed to `implementation` or trigger the new `context-update` rule.",
     "detailed_description": "Following the refactoring of the `context-update` rule (Task #102), this task is to implement the trigger mechanism as requested by the user in #82.\n\nThe user wants `context-update` to be called from `experience-execution` only when a \"drastic modification\" has occurred. This requires adding decision logic to the `experience-execution` flow.\n\n1.  **Modify `experience-execution.md`**:\n    - After a successful test and commit, the rule needs a new decision step.\n    - The agent must evaluate the nature of the changes just committed.\n    - A heuristic for \"drastic\" could be:\n        - A large number of files were changed.\n        - Core configuration or architectural files were modified.\n        - A new major feature was added.\n    - Based on this evaluation, the agent must choose between:\n        - `implementation` (for the next task).\n        - `context-update` (if the change was drastic).\n\n2.  **Potential `remember.js` modification**:\n    - The logic for suggesting next steps in `remember.js` might need to be updated to more prominently feature `context-update` as a possible transition from `experience-execution` if certain conditions are met in the agent's memory.\n\nThis task ensures the new, powerful `context-update` rule is used appropriately and not on every minor change.",
-    "dependencies": [
-      102
-    ],
+    "dependencies": [],
     "status": "TODO",
     "impacted_files": [
       ".cursor/workflow-steps/experience-execution.md",
@@ -2372,7 +2368,7 @@
     ],
     "validation_criteria": "The `experience-execution.md` rule is updated with a new decision step. After a test, if the agent notes that the changes were significant, it correctly chooses `context-update` as the next step when calling `remember`. Otherwise, it defaults to `implementation`.",
     "created_date": "2025-06-24T14:09:01.559Z",
-    "updated_date": "2025-06-24T14:09:01.559Z",
+    "updated_date": "2025-06-24T14:17:58.532Z",
     "parent_id": null,
     "priority": 3,
     "image": null
@@ -2426,6 +2422,42 @@
     "updated_date": "2025-06-24T14:16:57.859Z",
     "parent_id": null,
     "priority": 3,
+    "image": null
+  },
+  {
+    "id": 107,
+    "title": "Fix critical `ModuleNotFoundError` for `streamlit_paste_button` in Streamlit app",
+    "short_description": "The Streamlit application is currently crashing due to a missing Python module, `streamlit_paste_button`. This task is to add the dependency to the project and ensure it is installed, unblocking the user from adding new requests.",
+    "detailed_description": "**Problem:** The app fails with `ModuleNotFoundError: No module named 'streamlit_paste_button'` in `.cursor/streamlit_app/pages/add_request.py`.\n**Investigation:** A previous task (#101) supposedly added this dependency, but it seems to have failed or been reverted.\n**Action:**\n1. Add `streamlit-paste-button` to `.cursor/streamlit_app/requirements.txt` if it is missing.\n2. Ensure the dependencies are installed by running `pip install -r .cursor/streamlit_app/requirements.txt`.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/requirements.txt",
+      ".cursor/streamlit_app/pages/add_request.py"
+    ],
+    "validation_criteria": "The Streamlit application starts without the `ModuleNotFoundError` and the 'add request' page is accessible.",
+    "created_date": "2025-06-24T14:27:30.953Z",
+    "updated_date": "2025-06-24T14:30:09.686Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 108,
+    "title": "Modify workflow to send completed tasks to 'Review' state",
+    "short_description": "Currently, tasks are marked as `DONE` and archived directly. The workflow should be changed so that when the agent finishes a task, it is moved to a `REVIEW` status, allowing the user to validate it before final approval.",
+    "detailed_description": "**Goal:** Tasks completed by the agent should have their status set to `REVIEW`, not `DONE`.\n\n**Implementation:**\n1. Search the codebase (workflow rules `.mdc` and MCP scripts `.js`) for logic that updates task statuses to `DONE`. This is likely a call to `mcp_MemoryBankMCP_update_task`.\n2. Change the status from `'DONE'` to `'REVIEW'`.\n3. Carefully review the changes to avoid the previous bug where tasks would never terminate. The transition from `REVIEW` to `DONE` or `APPROVED` should be handled by the user through the Streamlit interface, not the agent.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/update_task.js",
+      ".cursor/memory-bank/workflow/implementation.mdc"
+    ],
+    "validation_criteria": "When the agent marks a task as complete, its status changes to 'REVIEW' in `tasks.json`. The user can then see this task in the 'Review' section of the Streamlit UI.",
+    "created_date": "2025-06-24T14:27:36.908Z",
+    "updated_date": "2025-06-24T14:32:01.424Z",
+    "parent_id": null,
+    "priority": 4,
     "image": null
   }
 ]
