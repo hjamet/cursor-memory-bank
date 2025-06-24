@@ -37,4 +37,5 @@ def display_sidebar():
 
         st.markdown("---")
         st.header("⚙️ Controls")
-        st_autorefresh(interval=10000, limit=None, key="auto_refresh_widget") 
+        if st.checkbox("Enable Auto-Refresh (10s)", key="auto_refresh_checkbox"):
+            st_autorefresh(interval=10000, limit=None, key="auto_refresh_widget")
