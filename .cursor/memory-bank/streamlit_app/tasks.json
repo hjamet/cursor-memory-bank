@@ -3324,13 +3324,13 @@
     "short_description": "A test task to verify the automatic deletion of the associated image when the task is approved by the user.",
     "detailed_description": "This is a test task created to verify the automatic deletion of task-associated images upon approval.\n\n**Objective:**\nVerify that the image attached to this task is automatically deleted from the `.cursor/temp/images/` directory after the user approves this task in the Streamlit \"To Review\" interface.\n\n**Instructions for the Agent:**\n1. This task requires no action from the agent other than to be marked as 'REVIEW'.\n2. After the user approves this task, the agent should, in a subsequent step, verify that the image file `req_115_20250624_200651_pasted.png` has been deleted from the filesystem.\n\n**Instructions for the User:**\n1. Please move this task to the \"REVIEW\" status.\n2. In the Streamlit UI, navigate to the \"Review & Communication\" page.\n3. Approve this task.\n4. The system should automatically delete the associated image upon approval.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/temp/images/req_115_20250624_200651_pasted.png"
     ],
     "validation_criteria": "The task is successfully validated if the associated image (`req_115_20250624_200651_pasted.png`) is confirmed to be deleted from the `.cursor/temp/images/` directory after the user approves the task.",
     "created_date": "2025-06-24T18:08:50.443Z",
-    "updated_date": "2025-06-24T18:38:58.709Z",
+    "updated_date": "2025-06-24T20:43:34.529139",
     "parent_id": null,
     "priority": 3,
     "image": "req_115_20250624_200651_pasted.png"
@@ -3409,7 +3409,7 @@
     "short_description": "Add workflow adherence reminders to key MCP tools to ensure the agent consistently follows the mandatory `remember` step in the autonomous loop.",
     "detailed_description": "The user has requested to add reminders to several MCP tools to ensure the agent follows the workflow correctly. The agent sometimes \"forgets\" to call `remember` at the end of a rule.\n\nThis task involves modifying the following MCP tools to add a reminder in their output or description:\n- `get_all_tasks`: Add a reminder to only handle one task at a time and to call `remember`.\n- `get_next_tasks`: Add a reminder to only handle one task at a time and to call `remember`.\n- `read_userbrief`: Add a reminder to only handle one user request at a time and to call `remember`.\n- `update_userbrief`: Add a reminder about the importance of calling `remember` after this action.\n- `update_task`: Add a reminder about the importance of calling `remember` after this action.\n\nThe reminder should be a clear and concise text added to the tool's response or description to be visible to the agent during its operation.\n\\n**Acceptance Criteria:**\\n- The specified tools' outputs or descriptions in the MCP server are updated to include the workflow reminders.\\n- The agent, when using these tools, is presented with the reminder message.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/mcp_tools/get_all_tasks.js",
       ".cursor/mcp/memory-bank-mcp/mcp_tools/get_next_tasks.js",
@@ -3419,7 +3419,7 @@
     ],
     "validation_criteria": "- Run the `get_all_tasks` tool and verify the reminder is present in the output.\\n- Run the `get_next_tasks` tool and verify the reminder is present in the output.\\n- Run the `read_userbrief` tool and verify the reminder is present in the output.\\n- Run the `update_userbrief` tool and verify the reminder is present in the output.\\n- Run the `update_task` tool and verify the reminder is present in the output.",
     "created_date": "2025-06-24T18:32:48.405Z",
-    "updated_date": "2025-06-24T18:35:44.987Z",
+    "updated_date": "2025-06-24T20:43:48.194444",
     "parent_id": null,
     "priority": 5,
     "image": null
@@ -3430,13 +3430,13 @@
     "short_description": "Re-implement the `st.balloons()` animation in the Streamlit app, which appears after a user successfully submits a new request.",
     "detailed_description": "The user has requested to re-enable the `st.balloons` animation upon the successful submission of a new user request in the Streamlit application. This feature was previously present but seems to have been removed.\n\nThis task involves modifying the `.cursor/streamlit_app/app.py` file.\nThe `st.balloons()` function should be called right after the confirmation message that the request has been submitted successfully.\n\n**Acceptance Criteria:**\n- When a user submits a new request through the Streamlit interface, the balloon animation is displayed.\n- The animation does not interfere with the request submission process.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "DONE",
     "impacted_files": [
       ".cursor/streamlit_app/app.py"
     ],
     "validation_criteria": "- Navigate to the \"Review & Communicate\" page in the Streamlit app.\\n- Submit a new user request.\\n- Verify that the `st.balloons()` animation is triggered immediately after the success message is shown.",
     "created_date": "2025-06-24T18:33:11.400Z",
-    "updated_date": "2025-06-24T18:39:17.379Z",
+    "updated_date": "2025-06-24T18:46:42.469Z",
     "parent_id": null,
     "priority": 3,
     "image": null
@@ -3473,6 +3473,40 @@
     "updated_date": "2025-06-24T20:42:07.587959",
     "parent_id": null,
     "priority": 5,
+    "image": null
+  },
+  {
+    "id": 164,
+    "title": "Fix Bug: Balloons Animation Not Appearing on New Request Submission",
+    "short_description": "The st.balloons() animation is not triggering after a user submits a new request in the Streamlit app. This task is to fix the bug and ensure the animation works as expected.",
+    "detailed_description": "**Goal:** Restore the `st.balloons()` animation upon successful submission of a new user request in the Streamlit application.\n\n**Context:** This is a correction for Task #161, which was intended to fix the same issue but was unsuccessful.\n\n**Acceptance Criteria:**\n- When a user submits a new request on the \"Review & Communicate\" page, the `st.balloons()` animation is displayed.\n\n**Affected Files:**\n- Likely `.cursor/memory-bank/streamlit_app/app.py`",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/memory-bank/streamlit_app/app.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T18:45:54.376Z",
+    "updated_date": "2025-06-24T18:47:53.288Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 165,
+    "title": "Improve UI: Display Short Task Descriptions by Default in Review Tab",
+    "short_description": "Modify the 'Task to review' tab in the Streamlit app to display the short description of each task directly under its title, instead of inside an accordion.",
+    "detailed_description": "**Goal:** Enhance the user interface of the \"Task to review\" tab for better readability and a quicker overview.\n\n**Current Behavior:** Task short descriptions are hidden within an `st.expander` (accordion).\n\n**Desired Behavior:**\n- The short description of each task should be displayed as plain text directly beneath the task title.\n- The `st.expander` should still exist but should contain the *detailed* description and other task metadata.\n\n**Acceptance Criteria:**\n- On the \"Task to review\" tab, task titles are immediately followed by their short descriptions.\n- An expander/accordion is still present for each task, containing the more detailed information.\n\n**Affected Files:**\n- Likely `.cursor/memory-bank/streamlit_app/app.py`.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/memory-bank/streamlit_app/app.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T18:46:11.843Z",
+    "updated_date": "2025-06-24T18:48:26.092Z",
+    "parent_id": null,
+    "priority": 3,
     "image": null
   }
 ]

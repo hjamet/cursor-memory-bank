@@ -1,46 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 125,
+  "last_id": 127,
   "requests": [
-    {
-      "id": 99,
-      "content": "Une 2 petites améliorations que tu pourrais faire à la page review sur encore une fois le serveur Streamit lors de l'ajout de nouvelles requêtes. La première, c'est que j'ai l'impression que quand je soumets une requête, le texte ne disparaît pas de la zone d'entrée, alors. Euh alors que c'est ce que je souhaiterais. En fait, j'aimerais que lorsque j'appuie sur le bouton Summit New request ou que je fais le raccourci contrôle plus Center et Ben ça soumet la requête et ça risette la zone de texte comme ça je peux commencer avec une nouvelle requête et 2e chose j'ai vu que du coup tu avais pu assigner le raccourci contrôle plus enter au bouton SMit New request et je me demandais si tu pouvais. Lier le raccourci contrôle V au bouton pour attacher l'image depuis le presse papier. Voilà essaye de traiter cette tâche en modifiant au minimum le fonctionnement profond du code parce que actuellement ça marche vraiment bien et j'ai pas envie que tu casses tout pour des petites optimisations. Donc sois prudent s'il te plaît",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T19:08:34.284288",
-      "updated_at": "2025-06-24T17:12:59.596Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T19:08:34.284288",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T17:12:59.596Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 100,
-      "content": "J'ai vu que dans la page principale APP de l'interface streaming, il y avait une case à cocher sur le côté bouton auto reflech 30 secondes. Je sais pas si il fonctionne ce bouton auto refresh déjà. Déjà mais mais il a l'air de fonctionner donc si si c'est le cas et s'il y a vraiment il est connecté à un truc qui devrait faire que ça autorise toutes les 30 secondes déjà est ce que tu peux passer le le timer à 10 secondes et ensuite étendre la fonctionnalité enfin étendre en fait faire que ce cette case à cocher soit présente sur tous les bords de page de toutes les tables et d'ailleurs supprime le contenu de toutes tous les bords de page de toutes les tables actuelles Memory review Task status s'il y a des choses tu sais sur le côté sur l'espèce de barre sur le côté supprime Il remplace uniquement par cette case à cocher pour un auto rafraîchissement de l'application toutes les 10 secondes.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T19:11:56.824851",
-      "updated_at": "2025-06-24T17:15:13.097Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T19:11:56.824851",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T17:15:13.097Z",
-          "action": "mark_archived",
-          "comment": "The user request to standardize the auto-refresh sidebar has been analyzed and decomposed into actionable development tasks. The implementation will involve creating a shared sidebar component and integrating it across all pages. Archiving this request to proceed with implementation."
-        }
-      ]
-    },
     {
       "id": 101,
       "content": "J'ai l'erreur suivante, quand je glisse dans quand je clique sur la table Task Status dans l'interface premlit, tu peux résoudre ?\n\nstreamlit.errors.StreamlitDuplicateElementKey: There are multiple elements with the same key='start_edit_99'. To fix this, please make sure that the key argument is unique for each element you create.\n\nTraceback:\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py\", line 1070, in <module>\n    render_userbrief_request(request)\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py\", line 677, in render_userbrief_request\n    if st.button(\"✏️ Edit\", key=f\"start_edit_{req_id}\", help=\"Edit this request\"):\n       ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\widgets\\button.py\", line 243, in button\n    return self.dg._button(\n           ~~~~~~~~~~~~~~~^\n        label,\n        ^^^^^^\n    ...<10 lines>...\n        ctx=ctx,\n        ^^^^^^^^\n    )\n    ^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\widgets\\button.py\", line 1013, in _button\n    element_id = compute_and_register_element_id(\n        \"button\",\n    ...<9 lines>...\n        use_container_width=use_container_width,\n    )\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\utils.py\", line 254, in compute_and_register_element_id\n    _register_element_id(ctx, element_type, element_id)\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\utils.py\", line 143, in _register_element_id\n    raise StreamlitDuplicateElementKey(user_key)",
@@ -509,6 +470,46 @@
           "timestamp": "2025-06-24T18:34:12.493Z",
           "action": "mark_archived",
           "comment": "The user request has been analyzed and converted into task #163."
+        }
+      ]
+    },
+    {
+      "id": 126,
+      "content": "Correction for Task #161 (Restore `st.balloons` Animation on New Request Submission):\n\nLes ballons n'apparaissent toujours pas lors de la soumission d'une nouvelle tâche via l'interface streamlit",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:43:26.317053",
+      "updated_at": "2025-06-24T18:45:58.005Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:43:26.317053",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:45:58.005Z",
+          "action": "mark_archived",
+          "comment": "This request has been converted into task #164."
+        }
+      ]
+    },
+    {
+      "id": 127,
+      "content": "Dans l'interface streaming dans la page Review et communication, la page principale dans la l'onglet Task to review est ce que tu peux directement afficher les descriptions courtes des tâches sous leur titre sans avoir à ouvrir l'accordéon. L'accordéon, ça devrait être pour les détails supplémentaires, mais les descriptions courtes devraient être présentes juste sous le titre de chaque tâche pour facilement avoir un un aperçu. Voilà.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:44:25.807310",
+      "updated_at": "2025-06-24T18:46:15.090Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:44:25.807310",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:46:15.090Z",
+          "action": "mark_archived",
+          "comment": "This request has been converted into task #165."
         }
       ]
     }

@@ -445,14 +445,13 @@ def render_task_review_card(task: Dict):
         with col3:
             st.markdown(f"**Status: {status}**")
         
+        st.info(task.get('short_description', 'N/A'))
+        
         # Render image preview if available
         render_image_preview(task)
         
         # Task details expander
         with st.expander("View Task Details", expanded=False):
-            st.markdown(f"**Short Description:**")
-            st.info(task.get('short_description', 'N/A'))
-            
             st.markdown(f"**Detailed Description:**")
             st.code(task.get('detailed_description', 'N/A'), language='markdown')
             
@@ -620,7 +619,7 @@ def render_add_request_tab():
                     st.session_state.last_submitted_request_id = st.session_state.editing_request_id
                     st.session_state.editing_request_id = None
                     st.session_state.clear_request_form = True # Clear form on next run
-                    st.rerun()
+                    # st.rerun() # This is likely interrupting the balloons animation
                 else:
                     st.error("Failed to update the request.")
             else:
@@ -638,7 +637,7 @@ def render_add_request_tab():
                     st.session_state.pasted_image_obj = None
                     st.session_state.last_submitted_request_id = next_id
                     st.session_state.clear_request_form = True # Clear form on next run
-                    st.rerun()
+                    # st.rerun() # This is likely interrupting the balloons animation
                 else:
                     st.error("Failed to submit the request. Please check the logs.")
         else:
