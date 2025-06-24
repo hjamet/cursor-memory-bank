@@ -656,11 +656,12 @@ def render_advanced_search_and_filters():
     
     with filter_col1:
         # Status filter
-        status_options = ['All', 'TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW', 'DONE', 'APPROVED']
+        status_options = ['Active', 'All', 'TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW', 'DONE', 'APPROVED']
         status_filter = st.selectbox(
             "📊 Status:",
             status_options,
-            help="Filter tasks by status",
+            index=0, # Default to 'Active'
+            help="Filter tasks by status. 'Active' hides DONE and APPROVED.",
             key="status_filter"
         )
     
@@ -754,7 +755,9 @@ def apply_advanced_filters(tasks, filters):
         filtered_tasks = search_results
     
     # Apply status filter
-    if filters['status_filter'] != 'All':
+    if filters['status_filter'] == 'Active':
+        filtered_tasks = [task for task in filtered_tasks if task.get('status') not in ['DONE', 'APPROVED']]
+    elif filters['status_filter'] != 'All':
         filtered_tasks = [task for task in filtered_tasks if task.get('status') == filters['status_filter']]
     
     # Apply priority filter
@@ -915,19 +918,6 @@ if search_query:
 # Apply advanced filters
 tasks = apply_advanced_filters(tasks, filters)
 
-# Display tasks in a structured layout
-st.markdown("---")
-st.header("📋 Task List")
-
-if tasks:
-    # Display summary based on filters
-    st.info(f"Displaying {len(tasks)} tasks matching your criteria.")
-    
-    for task in tasks:
-        render_task_card(task)
-else:
-    st.warning("No tasks match your current search and filter criteria.")
-
 # ========================================
 # ACCORDION LAYOUT IMPLEMENTATION
 # ========================================
@@ -958,7 +948,33 @@ else:
     with st.expander("📋 Stage 0: Unprocessed Requests (0)", expanded=False):
         st.info("📭 No unprocessed requests - all user requests have been converted to tasks!")
 
-# SECTION 3: TODO TASKS - Accordion (expanded by default), sorted by priority
+# SECTION 3: BLOCKED/REVIEW TASKS - Accordion (now expanded by default if non-empty)
+blocked_tasks = [t for t in tasks if t.get('status') in ['BLOCKED', 'REVIEW']]
+if blocked_tasks:
+    # Sort by priority
+    blocked_tasks.sort(key=lambda x: x.get('priority', 3), reverse=True)
+    
+    with st.expander(f"🚫 Blocked/Review Tasks ({len(blocked_tasks)})", expanded=True):
+        st.caption("⚠️ Tasks that need attention before they can proceed")
+        
+        # Group by status
+        blocked_only = [t for t in blocked_tasks if t.get('status') == 'BLOCKED']
+        review_only = [t for t in blocked_tasks if t.get('status') == 'REVIEW']
+        
+        if blocked_only:
+            st.markdown(f"#### 🚫 Blocked Tasks ({len(blocked_only)})")
+            for task in blocked_only:
+                render_task_card(task, show_inline_edit=True)
+        
+        if review_only:
+            st.markdown(f"#### 👀 Review Tasks ({len(review_only)})")
+            for task in review_only:
+                render_task_card(task, show_inline_edit=True)
+else:
+    with st.expander("🚫 Blocked/Review Tasks (0)", expanded=False):
+        st.info("✅ No blocked or review tasks - workflow is running smoothly!")
+
+# SECTION 4: TODO TASKS - Accordion (expanded by default), sorted by priority
 todo_tasks = [t for t in tasks if t.get('status') == 'TODO']
 if todo_tasks:
     # Sort by dependencies and priority
@@ -988,32 +1004,6 @@ if todo_tasks:
 else:
     with st.expander("⏳ Todo Tasks - Ready to Start (0)", expanded=False):
         st.info("🎉 No pending tasks - all work is either in progress or completed!")
-
-# SECTION 4: BLOCKED/REVIEW TASKS - Accordion (collapsed by default)
-blocked_tasks = [t for t in tasks if t.get('status') in ['BLOCKED', 'REVIEW']]
-if blocked_tasks:
-    # Sort by priority
-    blocked_tasks.sort(key=lambda x: x.get('priority', 3), reverse=True)
-    
-    with st.expander(f"🚫 Blocked/Review Tasks ({len(blocked_tasks)})", expanded=False):
-        st.caption("⚠️ Tasks that need attention before they can proceed")
-        
-        # Group by status
-        blocked_only = [t for t in blocked_tasks if t.get('status') == 'BLOCKED']
-        review_only = [t for t in blocked_tasks if t.get('status') == 'REVIEW']
-        
-        if blocked_only:
-            st.markdown(f"#### 🚫 Blocked Tasks ({len(blocked_only)})")
-            for task in blocked_only:
-                render_task_card(task, show_inline_edit=True)
-        
-        if review_only:
-            st.markdown(f"#### 👀 Review Tasks ({len(review_only)})")
-            for task in review_only:
-                render_task_card(task, show_inline_edit=True)
-else:
-    with st.expander("🚫 Blocked/Review Tasks (0)", expanded=False):
-        st.info("✅ No blocked or review tasks - workflow is running smoothly!")
 
 # SECTION 5: COMPLETED TASKS - Accordion (collapsed by default), limited to recent
 done_tasks = [t for t in tasks if t.get('status') in ['DONE', 'APPROVED']]
@@ -1046,10 +1036,8 @@ else:
         st.info("📝 No completed tasks yet - work in progress!")
 
 # Sidebar controls
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 🔧 Controls")
-
-if st.sidebar.button("🔄 Refresh"):
+st.sidebar.title("⚙️ Controls")
+if st.sidebar.button("🔄 Refresh Data"):
     st.rerun()
 
 # Quick stats in sidebar

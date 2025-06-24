@@ -9,6 +9,7 @@ import base64
 import shutil
 from PIL import Image
 import io
+from streamlit_paste_button import paste_button
 
 st.set_page_config(page_title="Add Request", page_icon="➕")
 
@@ -448,39 +449,6 @@ if 'pasted_image_data' not in st.session_state:
 if 'pasted_image_metadata' not in st.session_state:
     st.session_state.pasted_image_metadata = None
 
-# Check for pasted image data from JavaScript via URL parameters
-query_params = st.query_params
-if 'pasted_image' in query_params:
-    try:
-        # Get the next request ID for filename
-        userbrief_file = ".cursor/memory-bank/workflow/userbrief.json"
-        try:
-            with open(userbrief_file, 'r', encoding='utf-8') as f:
-                userbrief_data = json.load(f)
-            next_id = userbrief_data.get("last_id", 0) + 1
-        except FileNotFoundError:
-            next_id = 1
-        
-        # Process the pasted image
-        image_data = query_params['pasted_image']
-        image_metadata = process_pasted_image(image_data, next_id)
-        
-        if image_metadata:
-            st.session_state.pasted_image_metadata = image_metadata
-            st.success(f"📋 Image pasted successfully! {image_metadata['original_name']} ({image_metadata['width']}x{image_metadata['height']})")
-        else:
-            st.error("❌ Failed to process pasted image.")
-        
-        # Clear the query parameters to avoid reprocessing
-        st.query_params.clear()
-        st.rerun()
-            
-    except Exception as e:
-        st.error(f"❌ Error processing pasted image: {e}")
-        # Clear query parameters even on error
-        st.query_params.clear()
-        st.rerun()
-
 # Use Streamlit form for reliable submission handling
 with st.form("request_form", clear_on_submit=True):
     request_text = st.text_area(
@@ -493,16 +461,51 @@ with st.form("request_form", clear_on_submit=True):
     
     # Image upload section with Ctrl+V instructions
     st.markdown("**📸 Optional: Attach Image**")
-    st.markdown("*💡 You can upload a file below OR paste an image directly in the text area with **Ctrl+V***")
-    uploaded_image = st.file_uploader(
-        "Upload an image to include with your request:",
-        type=['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'],
-        help="Supported formats: PNG, JPG, JPEG, GIF, WEBP, BMP. Images will be automatically resized and optimized.",
-        key="image_upload"
-    )
     
+    col_upload, col_paste = st.columns(2)
+
+    with col_upload:
+        uploaded_image = st.file_uploader(
+            "Upload an image:",
+            type=['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'],
+            help="Supported formats: PNG, JPG, JPEG, GIF, WEBP, BMP. Images will be automatically resized and optimized.",
+            key="image_upload"
+        )
+    
+    with col_paste:
+        st.write("Or paste an image from clipboard:")
+        pasted_data = paste_button(
+            "📋 Paste Image (Ctrl+V)",
+            button_text="📋 Paste from Clipboard",
+            key="paste_button"
+        )
+
+    # Process pasted image if data is returned
+    if pasted_data and pasted_data.is_image:
+        try:
+            # Get the next request ID for filename
+            userbrief_file = ".cursor/memory-bank/workflow/userbrief.json"
+            try:
+                with open(userbrief_file, 'r', encoding='utf-8') as f:
+                    userbrief_data = json.load(f)
+                next_id = userbrief_data.get("last_id", 0) + 1
+            except FileNotFoundError:
+                next_id = 1
+            
+            # Process the pasted image data
+            image_metadata = process_pasted_image(pasted_data.image_data, next_id)
+            
+            if image_metadata:
+                st.session_state.pasted_image_metadata = image_metadata
+                st.success(f"📋 Image pasted successfully! {image_metadata['original_name']} ({image_metadata['width']}x{image_metadata['height']})")
+            else:
+                st.error("❌ Failed to process pasted image.")
+        except Exception as e:
+            st.error(f"❌ Error processing pasted image: {e}")
+
+
     # Show pasted image preview if available
-    if st.session_state.pasted_image_metadata is not None:
+    if st.session_state.get('pasted_image_metadata'):
         st.markdown("**🖼️ Pasted Image Preview:**")
         col_img, col_info = st.columns([2, 1])
         
@@ -633,132 +636,6 @@ if submitted:
                     pass
     else:
         st.error("⚠️ Please enter a request description before submitting.")
-
-# Enhanced JavaScript for Ctrl+Enter and Ctrl+V support
-st.markdown("""
-<script>
-let isProcessingPaste = false;
-
-function setupFormEnhancements() {
-    // Wait for DOM to be ready
-    setTimeout(function() {
-        // Find the form text area and submit button
-        const formContainer = document.querySelector('[data-testid="stForm"]');
-        if (!formContainer) return;
-        
-        const textArea = formContainer.querySelector('textarea');
-        const submitButton = formContainer.querySelector('button[type="submit"]');
-        
-        if (textArea && submitButton && !textArea.hasAttribute('data-enhanced-setup')) {
-            textArea.setAttribute('data-enhanced-setup', 'true');
-            
-            // Ctrl+Enter support
-            textArea.addEventListener('keydown', function(e) {
-                if (e.ctrlKey && e.key === 'Enter') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    submitButton.click();
-                }
-            });
-            
-            // Also handle keypress for better compatibility
-            textArea.addEventListener('keypress', function(e) {
-                if (e.ctrlKey && e.key === 'Enter') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    submitButton.click();
-                }
-            });
-            
-            // Ctrl+V paste support for images
-            textArea.addEventListener('paste', function(e) {
-                if (isProcessingPaste) return;
-                
-                const clipboardData = e.clipboardData || window.clipboardData;
-                if (!clipboardData) return;
-                
-                const items = clipboardData.items;
-                let hasImage = false;
-                
-                for (let i = 0; i < items.length; i++) {
-                    const item = items[i];
-                    if (item.type.indexOf('image') !== -1) {
-                        hasImage = true;
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        isProcessingPaste = true;
-                        
-                        // Show processing message
-                        const processingDiv = document.createElement('div');
-                        processingDiv.id = 'paste-processing';
-                        processingDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #0066cc; color: white; padding: 10px; border-radius: 5px; z-index: 9999;';
-                        processingDiv.textContent = '📋 Processing pasted image...';
-                        document.body.appendChild(processingDiv);
-                        
-                        const file = item.getAsFile();
-                        const reader = new FileReader();
-                        
-                        reader.onload = function(event) {
-                            const imageData = event.target.result;
-                            
-                            // Use URL parameters to pass image data to Streamlit
-                            const currentUrl = new URL(window.location);
-                            currentUrl.searchParams.set('pasted_image', imageData);
-                            currentUrl.searchParams.set('paste_time', Date.now().toString());
-                            
-                            // Update URL and reload page to trigger Streamlit processing
-                            window.location.href = currentUrl.toString();
-                        };
-                        
-                        reader.onerror = function() {
-                            const processMsg = document.getElementById('paste-processing');
-                            if (processMsg) {
-                                processMsg.textContent = '❌ Error processing image';
-                                processMsg.style.background = '#cc0000';
-                                setTimeout(() => processMsg.remove(), 2000);
-                            }
-                            isProcessingPaste = false;
-                        };
-                        
-                        reader.readAsDataURL(file);
-                        break;
-                    }
-                }
-            });
-        }
-    }, 100);
-}
-
-// Setup immediately and after any DOM changes
-setupFormEnhancements();
-
-// Re-setup when Streamlit updates the page
-const observer = new MutationObserver(function(mutations) {
-    let shouldResetup = false;
-    mutations.forEach(function(mutation) {
-        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-            for (let node of mutation.addedNodes) {
-                if (node.nodeType === 1 && (node.querySelector('[data-testid="stForm"]') || node.matches('[data-testid="stForm"]'))) {
-                    shouldResetup = true;
-                    break;
-                }
-            }
-        }
-    });
-    if (shouldResetup) {
-        setTimeout(setupFormEnhancements, 100);
-    }
-});
-
-observer.observe(document.body, {
-    childList: true,
-    subtree: true
-});
-
-
-</script>
-""", unsafe_allow_html=True)
 
 # Display current userbrief status
 st.header("📊 Current Userbrief Status")

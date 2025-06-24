@@ -2269,5 +2269,163 @@
     "parent_id": null,
     "priority": 5,
     "image": null
+  },
+  {
+    "id": 98,
+    "title": "Modify `remember` tool to allow branching after `implementation`",
+    "short_description": "Modify the `remember` tool's logic to allow for more flexible workflow branching after the `implementation` step, instead of always looping back to `implementation`.",
+    "detailed_description": "The current `remember` tool logic in `remember.js` almost always forces the workflow to loop back to the `implementation` step if there are `TODO` tasks. This logic needs to be modified to allow for more flexible branching after the `implementation` step. Specifically, it should respect the `Next Steps` suggested by the `implementation.md` rule, which includes `experience-execution` and `fix`. The goal is to make `experience-execution` a common path after implementing a task, allowing for manual testing before moving on. The hardcoded priority for `implementation` in `remember.js` should be relaxed when the previous step was `implementation`.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/remember.js"
+    ],
+    "validation_criteria": "After an `implementation` step, the `remember` tool should be able to recommend `experience-execution` as the next step if appropriate, instead of defaulting to another `implementation` cycle. The logic in `remember.js` is successfully updated to reflect this.",
+    "created_date": "2025-06-24T14:03:52.786Z",
+    "updated_date": "2025-06-24T14:06:26.298Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 99,
+    "title": "Simplify `experience-execution` rule and add commit step",
+    "short_description": "Simplify the `experience-execution` rule to be a quick manual test and add a conditional commit step upon successful testing.",
+    "detailed_description": "The user wants the `experience-execution` rule to be a 'quick manual test'. The current version is a bit heavy with its formal Planning/Execution/Analysis steps. This rule should be simplified to encourage a faster, more direct testing process. More importantly, a call to the `mcp_MemoryBankMCP_commit` tool must be added to this rule. This commit should only be performed if the manual test is successful. After a successful test and commit, the rule should suggest appropriate next steps, such as `implementation` (if more tasks are pending) or `context-update` (if it's a good time to sync). If the test fails, it should lead to the `fix` rule.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/workflow-steps/experience-execution.md"
+    ],
+    "validation_criteria": "The `experience-execution.md` file is updated to reflect a simpler, faster testing process. It includes a step that calls `mcp_MemoryBankMCP_commit` if the test is successful. The rule's next steps logic correctly points to `fix` on failure and other steps on success.",
+    "created_date": "2025-06-24T14:04:00.402Z",
+    "updated_date": "2025-06-24T14:08:10.312Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 100,
+    "title": "Provide summary of `context-update` rule to user",
+    "short_description": "Prepare and deliver a summary of the `context-update` rule's purpose to the user as requested.",
+    "detailed_description": "As part of Request #80, the user asked for a summary of the `context-update` rule to better understand its purpose. I have analyzed the rule and prepared a summary. This task is to track the work of communicating this summary to the user. The summary will be delivered via the `user_message` parameter in the `mcp_MemoryBankMCP_remember` call at the end of this `task-decomposition` step. The summary is: 'The `context-update` rule acts as a global project synchronization and finalization step. Its main roles are to perform cleanup (like marking tasks as `DONE`), process any new user requests, and, most importantly, create a Git commit that bundles a set of completed work. It is typically called when there are no active tasks to work on, serving as a way to take stock of the project's state and save the progress.'",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [],
+    "validation_criteria": "The summary of the `context-update` rule has been successfully passed to the user via the `remember` tool's user_message. The user has acknowledged receipt or the message is visible in the agent's response.",
+    "created_date": "2025-06-24T14:04:06.895Z",
+    "updated_date": "2025-06-24T14:07:34.052Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 101,
+    "title": "Implement robust image pasting in Streamlit UI",
+    "short_description": "The current implementation for pasting images in Streamlit is unreliable. Research and implement a robust solution for pasting images from the clipboard, likely avoiding the use of URL parameters for data transfer.",
+    "detailed_description": "The current implementation for pasting images from the clipboard in the Streamlit \"Add Request\" page is not working reliably. It uses a fragile method of passing base64 data via URL parameters, which can fail due to URL length limits. The task is to research and implement a more robust solution. This will likely involve finding a Streamlit component or a different JavaScript-to-Python communication technique to handle the image data transfer without relying on query parameters. The goal is to make Ctrl+V image pasting work seamlessly for the user. This task will require web research to find a suitable solution.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/add_request.py"
+    ],
+    "validation_criteria": "The user can paste an image from the clipboard into the 'Add Request' page using Ctrl+V, and the image is successfully uploaded and attached to the new request. The implementation does not rely on passing large amounts of data in URL query parameters.",
+    "created_date": "2025-06-24T14:04:46.773Z",
+    "updated_date": "2025-06-24T14:11:10.141Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null
+  },
+  {
+    "id": 102,
+    "title": "Refactor `context-update` rule for advanced repository cleaning and context management",
+    "short_description": "Refactor the context-update rule to perform repository cleaning (deleting temp/misplaced files) and to manage project context files (`techContext.md`, `projectBrief.md`) via complete rewrites.",
+    "detailed_description": "This task implements the user's request #82. The `context-update` rule needs a major overhaul to become a powerful tool for project maintenance and context management.\n\nThe new responsibilities are:\n\n1.  **Repository Janitor**:\n    - The rule must perform a scan of the repository.\n    - It should use `list_dir` recursively to explore the file structure.\n    - It must identify files that appear to be temporary (`*.tmp`, `*.bak`), misplaced (e.g., source files in a `docs` directory), or duplicates.\n    - The agent should then decide which files to delete (`delete_file`) or move (`edit_file` with rename). This process requires careful thought to avoid breaking the project.\n\n2.  **Context Archivist**:\n    - The rule must be able to update the core context files: `.cursor/memory-bank/context/techContext.md` and `.cursor/memory-bank/context/projectBrief.md`.\n    - The user specified that this should be a **complete rewrite**. The agent must first read the existing files to understand their content, then formulate a complete, new version, and finally use `edit_file` to overwrite the old content entirely.\n\n3.  **Commit Creation**:\n    - The rule retains its original responsibility of creating a Git commit using `mcp_MemoryBankMCP_commit` to save the state of the project after cleaning and context updates.\n\nThe implementation will require a complete rewrite of the `.cursor/workflow-steps/context-update.md` file to guide the agent through this new, more complex logic.",
+    "dependencies": [
+      101
+    ],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/workflow-steps/context-update.md",
+      ".cursor/memory-bank/context/techContext.md",
+      ".cursor/memory-bank/context/projectBrief.md"
+    ],
+    "validation_criteria": "The `context-update.md` rule is successfully rewritten to include steps for repository scanning, file cleanup, and full context file rewriting. The agent can successfully execute this rule, identifying and deleting a temporary file, and updating the `projectBrief.md` file.",
+    "created_date": "2025-06-24T14:08:51.187Z",
+    "updated_date": "2025-06-24T14:08:51.187Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 103,
+    "title": "Implement conditional trigger for `context-update` from `experience-execution`",
+    "short_description": "Modify the `experience-execution` rule to add a decision step after a successful commit. The agent will evaluate if the change was \"drastic\" and decide whether to proceed to `implementation` or trigger the new `context-update` rule.",
+    "detailed_description": "Following the refactoring of the `context-update` rule (Task #102), this task is to implement the trigger mechanism as requested by the user in #82.\n\nThe user wants `context-update` to be called from `experience-execution` only when a \"drastic modification\" has occurred. This requires adding decision logic to the `experience-execution` flow.\n\n1.  **Modify `experience-execution.md`**:\n    - After a successful test and commit, the rule needs a new decision step.\n    - The agent must evaluate the nature of the changes just committed.\n    - A heuristic for \"drastic\" could be:\n        - A large number of files were changed.\n        - Core configuration or architectural files were modified.\n        - A new major feature was added.\n    - Based on this evaluation, the agent must choose between:\n        - `implementation` (for the next task).\n        - `context-update` (if the change was drastic).\n\n2.  **Potential `remember.js` modification**:\n    - The logic for suggesting next steps in `remember.js` might need to be updated to more prominently feature `context-update` as a possible transition from `experience-execution` if certain conditions are met in the agent's memory.\n\nThis task ensures the new, powerful `context-update` rule is used appropriately and not on every minor change.",
+    "dependencies": [
+      102
+    ],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/workflow-steps/experience-execution.md",
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/remember.js"
+    ],
+    "validation_criteria": "The `experience-execution.md` rule is updated with a new decision step. After a test, if the agent notes that the changes were significant, it correctly chooses `context-update` as the next step when calling `remember`. Otherwise, it defaults to `implementation`.",
+    "created_date": "2025-06-24T14:09:01.559Z",
+    "updated_date": "2025-06-24T14:09:01.559Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 104,
+    "title": "Fix StreamlitDuplicateElementKey error in task_status.py",
+    "short_description": "Remove the redundant task rendering loop in `task_status.py` to prevent duplicate widget keys.",
+    "detailed_description": "In `task_status.py`, there are two sections that render task cards from the same filtered list of tasks. The first is a generic loop under the \"Task List\" header. The second is an accordion layout that groups tasks by status ('IN_PROGRESS', 'TODO', etc.). This causes `render_task_card` to be called multiple times for the same task if it matches the filter criteria, leading to a `StreamlitDuplicateElementKey` error.\n\nThe fix is to remove the first, redundant rendering loop. The accordion layout is the intended primary display.\n\n**Plan:**\n1.  Open `.cursor/streamlit_app/pages/task_status.py`.\n2.  Locate the first task rendering loop around line 932.\n3.  Remove the entire block that renders the generic \"Task List\".\n4.  Ensure the accordion layout remains as the sole method for displaying tasks.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "- The `StreamlitDuplicateElementKey` error no longer occurs when filtering tasks.\n- The main task view only uses the accordion layout to display tasks.\n- The generic, non-accordion task list has been removed.",
+    "created_date": "2025-06-24T14:13:11.802Z",
+    "updated_date": "2025-06-24T14:13:48.774Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 105,
+    "title": "Modify default task filter to hide completed tasks",
+    "short_description": "Change the default task filter in `task_status.py` to show only 'Active' (not 'DONE' or 'APPROVED') tasks by default.",
+    "detailed_description": "The user wants the default view of the task list to be less cluttered by hiding completed tasks. Currently, the status filter defaults to 'All', showing every task.\n\nThis will be addressed by:\n1.  Changing the default option in the status filter to a new, more intuitive \"Active\" state.\n2.  Making \"Active\" the default selection, which will show all tasks *except* for 'DONE' and 'APPROVED'.\n3.  The user can still select 'All' from the dropdown to see all tasks, or filter by specific statuses as before.\n\n**Plan:**\n1.  Open `.cursor/streamlit_app/pages/task_status.py`.\n2.  In `render_advanced_search_and_filters`, modify the `status_options` list to include \"Active\" as the first option.\n3.  Set the `index` of the `st.selectbox` for the status filter to 0, making \"Active\" the default.\n4.  In `apply_advanced_filters`, add logic to handle the new \"Active\" filter option. If `status_filter` is \"Active\", it should filter the tasks to include only those whose status is not 'DONE' or 'APPROVED'.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "- When the task page loads, the status filter defaults to 'Active'.\n- By default, tasks with status 'DONE' or 'APPROVED' are not visible.\n- The user can still select 'All' in the status filter to see every task.\n- Other status filters ('TODO', 'IN_PROGRESS', etc.) work as expected.",
+    "created_date": "2025-06-24T14:13:20.178Z",
+    "updated_date": "2025-06-24T14:15:01.551Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 106,
+    "title": "Reorder accordion sections in task status page",
+    "short_description": "Reorder the accordion sections in `task_status.py` to match the user's preferred workflow: IN_PROGRESS, BLOCKED, TODO.",
+    "detailed_description": "The user wants the task status page to display task groups in a specific order of importance: In Progress, then Blocked, then To Do. The current implementation shows 'IN_PROGRESS' first, but then 'TODO', and 'BLOCKED'/'REVIEW' are in a collapsed section further down.\n\n**Plan:**\n1.  Open `.cursor/streamlit_app/pages/task_status.py`.\n2.  Locate the \"ACCORDION LAYOUT IMPLEMENTATION\" section (around line 943).\n3.  Reorder the sections so that the 'BLOCKED/REVIEW TASKS' accordion appears immediately after the 'CURRENT TASK (IN_PROGRESS)' section and before the 'TODO TASKS' accordion.\n4.  Ensure the 'BLOCKED/REVIEW' section is expanded by default if it contains tasks, to match the behavior of the other active sections.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "- The task status page displays the 'IN_PROGRESS' section first.\n- The 'BLOCKED/REVIEW' section is displayed second.\n- The 'TODO' section is displayed third.\n- The 'BLOCKED/REVIEW' accordion is expanded by default if it contains tasks.",
+    "created_date": "2025-06-24T14:14:15.473Z",
+    "updated_date": "2025-06-24T14:16:57.859Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
   }
 ]

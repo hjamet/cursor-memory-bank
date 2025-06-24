@@ -13,20 +13,35 @@ const memoryFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'wo
 const longTermMemoryFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'long_term_memory.json');
 const MAX_MEMORIES = 100;
 
-async function getPossibleNextSteps() {
+async function getPossibleNextSteps(lastStep = null) {
+    let possibleSteps = new Set();
+
     try {
         const userbrief = await readUserbrief();
         if (userbrief && userbrief.requests && userbrief.requests.some(r => r.status === 'new' || r.status === 'in_progress')) {
-            return ['task-decomposition'];
+            possibleSteps.add('task-decomposition');
         }
 
         const tasks = await readTasks();
         if (tasks && tasks.some(t => t.status === 'TODO' || t.status === 'IN_PROGRESS')) {
-            return ['implementation'];
+            possibleSteps.add('implementation');
+            // After implementation, testing is a very common next step.
+            if (lastStep === 'implementation') {
+                possibleSteps.add('experience-execution');
+            }
+            possibleSteps.add('fix');
         }
 
-        // Default when no work is pending
-        return ['context-update', 'system'];
+        // Default steps that are almost always possible
+        possibleSteps.add('context-update');
+        possibleSteps.add('system');
+
+        if (possibleSteps.size === 0) {
+            // Fallback to a safe default if no other steps are identified
+            return ['context-update', 'system'];
+        }
+
+        return Array.from(possibleSteps);
 
     } catch (error) {
         // This can happen on first run if no context files exist.
@@ -156,7 +171,17 @@ async function remember(args) {
 
     const recentMemories = memories.slice(-10); // Get 10 most recent working memories
     const lastMemory = memories[memories.length - 1];
-    const possible_next_steps = await getPossibleNextSteps();
+
+    // Extract the last rule from the 'past' field of the last memory
+    let lastStep = null;
+    if (lastMemory && lastMemory.past) {
+        const match = lastMemory.past.match(/`([^`]+)`/);
+        if (match && match[1]) {
+            lastStep = match[1];
+        }
+    }
+
+    const possible_next_steps = await getPossibleNextSteps(lastStep);
 
     // Find semantically similar long-term memories based on the last "future" 
     let semanticLongTermMemories = [];
@@ -168,7 +193,11 @@ async function remember(args) {
     let recommendedNextStep = possible_next_steps[0];
     let workflowInstruction = "";
 
-    if (possible_next_steps.includes('task-decomposition')) {
+    // Prioritize experience-execution after implementation, per user request
+    if (lastStep === 'implementation' && possible_next_steps.includes('experience-execution')) {
+        recommendedNextStep = 'experience-execution';
+        workflowInstruction = "CONTINUE WORKFLOW: Implementation complete. You should now test the changes manually using 'experience-execution'.";
+    } else if (possible_next_steps.includes('task-decomposition')) {
         recommendedNextStep = 'task-decomposition';
 
         // Get example request to provide context
