@@ -3341,13 +3341,13 @@
     "short_description": "Add the short description of the current in-progress task to the Streamlit sidebar, just below the task title.",
     "detailed_description": "Currently, the sidebar's \"Current Task\" section only displays the title of the in-progress task. This request is to enhance the display by also showing the task's short description.\n\n**Requirements:**\n1.  Locate the code in `components/sidebar.py` that displays the current `in_progress` task.\n2.  Modify the display logic to include the `short_description` of the task.\n3.  The short description should be displayed directly below the task title, within the same `st.info` block or a similar styled component.\n4.  Ensure that if a task does not have a short description, the UI does not break.\n\n**Implementation Plan:**\n-   In `components/sidebar.py`, inside the `for task in in_progress_tasks:` loop.\n-   Retrieve `short_description` from the `task` dictionary.\n-   Update the `st.info` call to include both the title and the short description. A newline can be used to separate them.\n-   Example format: `f\"**{title}**\\n\\n{short_description}\"`\n\n**Acceptance Criteria:**\n-   When a task is in progress, the sidebar displays both its title and its short description.\n-   The formatting is clean and readable.\n-   If there is no active task, the \"Agent is idle\" message is displayed as before.\n-   The application runs without errors.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "impacted_files": [
       ".cursor/streamlit_app/components/sidebar.py"
     ],
     "validation_criteria": "The task is complete when the short description of the currently active task is visible in the sidebar below the task's title. This can be verified by setting a task to \"IN_PROGRESS\" and observing the Streamlit UI.",
     "created_date": "2025-06-24T18:09:23.010Z",
-    "updated_date": "2025-06-24T18:09:23.010Z",
+    "updated_date": "2025-06-24T18:22:51.703Z",
     "parent_id": null,
     "priority": 3,
     "image": null
@@ -3392,13 +3392,13 @@
     "short_description": "Modify the Streamlit sidebar component to remove the manual \"Enable Auto-Refresh\" checkbox and enable a 10-second auto-refresh by default on all pages.",
     "detailed_description": "The user has requested to change the behavior of the auto-refresh feature. Instead of a manual toggle, the refresh should be active by default with a 10-second interval across the entire Streamlit application. This involves editing the `display_sidebar` function in `.cursor/streamlit_app/components/sidebar.py`. The `if st.checkbox(...)` block will be removed and replaced with a direct, unconditional call to `st_autorefresh(interval=10000, limit=None, key=\"auto_refresh_widget\")`.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [
       ".cursor/streamlit_app/components/sidebar.py"
     ],
     "validation_criteria": "1. The \"Enable Auto-Refresh (10s)\" checkbox is no longer visible in the sidebar.\n2. All pages that use the `display_sidebar` component automatically refresh every 10 seconds.\n3. The rest of the sidebar functionality remains unchanged.",
     "created_date": "2025-06-24T18:18:14.846Z",
-    "updated_date": "2025-06-24T18:18:14.846Z",
+    "updated_date": "2025-06-24T18:22:10.572Z",
     "parent_id": null,
     "priority": 3,
     "image": null

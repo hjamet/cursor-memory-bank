@@ -29,7 +29,12 @@ def display_sidebar():
             st.markdown("---")
             st.subheader("⚡ Current Task")
             for task in in_progress_tasks:
-                st.info(f"**{task.get('title', 'No Title')}**")
+                title = task.get('title', 'No Title')
+                description = task.get('short_description', '')
+                info_text = f"**{title}**"
+                if description:
+                    info_text += f"\\n\\n{description}"
+                st.info(info_text)
         else:
             st.markdown("---")
             st.subheader("Agent Status")
