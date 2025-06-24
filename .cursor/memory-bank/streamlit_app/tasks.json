@@ -2504,14 +2504,14 @@
     "short_description": "The user wants a new feature in the Streamlit 'Review' tab to answer agent messages. This task is to add a 'Validate' button to dismiss messages and an 'Answer' button that creates a new userbrief request quoting the agent's message and adding the user's question.",
     "detailed_description": "**Feature Request:**\\nThe user wants to be able to reply to or ask questions about the agent's messages within the Streamlit UI. This creates a more interactive communication loop.\\n\\n**Implementation Plan:**\\n1.  **Modify the Streamlit UI (`pages/review.py`):**\\n    -   Currently, `review.py` is for reviewing completed tasks. It should be augmented or a new page/tab should be created to handle agent messages to the user.\\n    -   For each agent message displayed, add two buttons:\\n        -   **`Validate` button:** Acknowledges the message and removes it from the review queue (similar to the current 'Approve' button for tasks).\\n        -   **`Answer` button (with a `?` icon):** This will open a text area or form for the user to type their question/response.\\n2.  **Implement 'Answer' button logic:**\\n    -   When the user submits their question via the 'Answer' form, a new userbrief request must be created.\\n    -   The content of this new request should be structured as the user specified: `Question about your comment: \\\"[quoted agent message]\\\"\\n\\n[user's question]`\\n    -   The function `create_userbrief_request` in `review.py` is a perfect template for this. I will create a new, similar function or adapt the existing one to handle this specific format.\\n3.  **Agent Message Data Source:**\\n    -   I need a mechanism to get the agent's messages that require user review. The `to_user.json` file seems like the intended place for this. I will need to ensure the agent writes messages there and that the Streamlit app reads from it.\\n\\n**Goal:**\\nA new section in the Streamlit UI allows the user to see messages from the agent. The user can either dismiss them or answer them, with the latter creating a new, properly formatted request in `userbrief.json`, enabling a seamless two-way communication channel.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "DONE",
     "impacted_files": [
       ".cursor/streamlit_app/pages/review.py",
       ".cursor/memory-bank/workflow/to_user.json"
     ],
     "validation_criteria": "A new 'Review Messages' tab or section exists in the Streamlit UI. It displays messages from `to_user.json`. A 'Validate' button removes the message. An 'Answer' button allows the user to type a question, which, upon submission, creates a new request in `userbrief.json` with the correct format (quoted agent message + user question).",
     "created_date": "2025-06-24T15:04:46.064Z",
-    "updated_date": "2025-06-24T15:12:14.436Z",
+    "updated_date": "2025-06-24T15:13:09.061Z",
     "parent_id": null,
     "priority": 3,
     "image": null

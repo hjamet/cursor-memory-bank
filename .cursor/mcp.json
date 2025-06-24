@@ -15,7 +15,8 @@
                 "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\memory-bank-mcp\\server.js",
                 "--cwd",
                 "C:\\Users\\Jamet\\code\\cursor-memory-bank"
-            ]
+            ],
+            "forceReload": "2025-06-24T15:13:56.541Z"
         },
         "Context7": {
             "command": "npx",

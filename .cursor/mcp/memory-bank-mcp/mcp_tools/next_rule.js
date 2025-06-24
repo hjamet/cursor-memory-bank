@@ -20,7 +20,7 @@ nunjucks.configure(workflowDirPath, { autoescape: false });
  * @returns {Object} Analysis result with recommended step and reasoning
  */
 function analyzeSystemState(context) {
-    const tasks = taskManager.getAllTasks();
+    const tasks = taskManager.getAllTasks({ include_done: true });
 
     // Count tasks by status
     const taskCounts = {
