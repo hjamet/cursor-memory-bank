@@ -3464,13 +3464,13 @@
     "short_description": "Refine the `task-decomposition.mdc` rule to instruct the agent to create one high-level task per user request, avoiding sub-tasks, and detailing the plan in the description.",
     "detailed_description": "The user wants to refine the `task-decomposition` process to prevent the agent from creating unnecessary sub-tasks.\n\nThe `task-decomposition.mdc` rule file must be modified to instruct the agent to:\n1.  Identify the high-level, distinct requests within a single user brief.\n2.  Create **one single task** for each high-level request.\n3.  **Avoid creating sub-tasks** or breaking down a high-level request into multiple smaller tasks during this phase.\n4.  Instead, the agent should formulate its implementation plan and outline the steps in the `detailed_description` of the single task.\n\nThis change aims to streamline the workflow, prevent the agent from getting bogged down in organizational sub-tasks, and help it maintain a better high-level overview.\n\n**Acceptance Criteria:**\n- The `task-decomposition.mdc` rule is updated with clear, explicit instructions to create one task per major user request and to avoid creating sub-tasks.\n- The new instructions emphasize putting implementation plans inside the task's detailed description.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/workflow-steps/task-decomposition.mdc"
     ],
     "validation_criteria": "- Review the `.cursor/workflow-steps/task-decomposition.mdc` file.\\n- Confirm that the instructions have been updated to reflect the new guidance on creating single, high-level tasks and avoiding sub-task creation during the decomposition phase.",
     "created_date": "2025-06-24T18:34:08.889Z",
-    "updated_date": "2025-06-24T18:37:38.875Z",
+    "updated_date": "2025-06-24T20:42:07.587959",
     "parent_id": null,
     "priority": 5,
     "image": null
