@@ -3375,13 +3375,13 @@
     "short_description": "Update the description of the `mcp_ToolsMCP_regex_edit` tool and its arguments to clarify its use case as a robust alternative to `edit_file` for targeted, non-model-based file modifications.",
     "detailed_description": "The user has pointed out that the agent (I) failed to use `mcp_ToolsMCP_regex_edit` when the `edit_file` tool was consistently failing. This suggests the documentation for `regex_edit` is not clear enough about its role as a primary tool for precise, regex-based edits. The goal is to update the descriptions of the tool's arguments (`file_path`, `regex_pattern`, `replacement_text`) in `.cursor/mcp/mcp-commit-server/mcp_tools/regex_edit.js` to be more explicit. The updated descriptions should emphasize that this tool is ideal for making exact, targeted changes and should be preferred when `edit_file` fails or when the modification can be expressed as a simple find-and-replace operation. Crucially, only the argument descriptions should be modified.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [
       ".cursor/mcp/mcp-commit-server/mcp_tools/regex_edit.js"
     ],
     "validation_criteria": "1. The descriptions for the arguments of the `mcp_ToolsMCP_regex_edit` tool are updated to be clearer and more helpful.\n2. The updated descriptions guide the agent to use this tool as a fallback when `edit_file` fails.\n3. The top-level description of the tool is not modified.\n4. The tool continues to function correctly after the description change.",
     "created_date": "2025-06-24T18:17:46.788Z",
-    "updated_date": "2025-06-24T18:17:46.788Z",
+    "updated_date": "2025-06-24T18:21:42.614Z",
     "parent_id": null,
     "priority": 4,
     "image": null
