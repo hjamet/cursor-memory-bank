@@ -9,7 +9,7 @@ import base64
 import shutil
 from PIL import Image
 import io
-from streamlit_paste_button import paste_button
+from streamlit_paste_button import paste as paste_button
 
 st.set_page_config(page_title="Add Request", page_icon="➕")
 
