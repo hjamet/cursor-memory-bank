@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 134,
+  "last_id": 135,
   "requests": [
     {
       "id": 107,
@@ -514,6 +514,21 @@
         {
           "timestamp": "2025-06-24T19:52:54.492Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 135,
+      "content": "C'est une question, et si ? Et si, si la réponse est positive, bah je veux bien que tu m'écrives un message pour me l'expliquer et ensuite que tu appliques ce truc. Mais en fait j'ai vu que il y avait des dossiers assez lourds je pense des dossiers d'installation, c'est des nodes modules pour chacun des 2 serveurs MCP qui se trouvent dans leur dossier et je me demandais si ce serait pas bien de les supprimer notamment sur le github pour regagner de l'espace. Est ce que le script d'installation va toujours fonctionner avec ces dossiers supprimés ? Parce que j'ai l'impression que ça l'accélérerait que comme de toute manière on lance MPM install ça ça, ça marcherait et puis pareil je crois que y a les loc . loc peut être qu'il faudrait les supprimer non je sais pas si c'est le cas je te laisse les supprimer sinon explique moi pourquoi dans un message :D",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-06-24T22:01:56.937573",
+      "updated_at": "2025-06-24T22:01:56.937573",
+      "history": [
+        {
+          "timestamp": "2025-06-24T22:01:56.937573",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }

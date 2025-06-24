@@ -690,7 +690,15 @@ install_pre_commit_hook() {
 install_streamlit_app() {
     log "Installing Streamlit app and dependencies..."
     local target_dir="$1"
-    local temp_dir="$2"
+    local temp_dir="${2:-}"
+
+    if [[ -z "$temp_dir" ]]; then
+        # Fallback to the global temporary directory if the second argument is not provided.
+        # This prevents an 'unbound variable' error if the function is called without all its arguments.
+        warn "install_streamlit_app was called without a temporary directory argument. Falling back to global TEMP_DIR."
+        temp_dir="$TEMP_DIR"
+    fi
+
     local streamlit_dir="$target_dir/.cursor/streamlit_app"
     local requirements_file="$streamlit_dir/requirements.txt"
     local startup_script="$target_dir/.cursor/run_streamlit.sh"
