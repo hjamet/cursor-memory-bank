@@ -56,11 +56,12 @@ const handleRegexEdit = async ({ file_path, regex_pattern, replacement_text }) =
 };
 
 export const regexEditTool = {
-    name: 'regex_edit',
+    name: 'mcp_ToolsMCP_regex_edit',
+    description: "Performs a targeted file modification using a regular expression. This tool is a robust, non-model-based alternative to 'edit_file', ideal for precise changes where the exact location can be identified by a regex pattern. It replaces the first occurrence of the pattern with the provided text.",
     args: {
-        file_path: z.string().describe('The path to the file to edit.'),
-        regex_pattern: z.string().describe('The regex pattern to find.'),
-        replacement_text: z.string().describe('The text to replace the found pattern with.'),
+        file_path: z.string().describe('The absolute or relative path to the file that needs to be modified.'),
+        regex_pattern: z.string().describe("The JavaScript-compatible regular expression pattern to search for within the file. The first match will be targeted for replacement. Remember to escape special characters, e.g., use '\\\\.' to match a literal dot."),
+        replacement_text: z.string().describe("The text that will replace the content matched by the `regex_pattern`. Newlines can be included using '\\n'."),
     },
     run: handleRegexEdit,
 }; 
