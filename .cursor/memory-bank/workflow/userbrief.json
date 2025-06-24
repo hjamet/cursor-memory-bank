@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 127,
+  "last_id": 128,
   "requests": [
     {
       "id": 101,
@@ -510,6 +510,21 @@
           "timestamp": "2025-06-24T18:46:15.090Z",
           "action": "mark_archived",
           "comment": "This request has been converted into task #165."
+        }
+      ]
+    },
+    {
+      "id": 128,
+      "content": "Cette tâche, c'est juste un test pour voir si ça fonctionne.",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-06-24T20:51:03.389035",
+      "updated_at": "2025-06-24T20:51:03.389035",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:51:03.389035",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }

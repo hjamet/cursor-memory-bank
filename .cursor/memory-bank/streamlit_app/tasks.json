@@ -3498,13 +3498,13 @@
     "short_description": "Modify the 'Task to review' tab in the Streamlit app to display the short description of each task directly under its title, instead of inside an accordion.",
     "detailed_description": "**Goal:** Enhance the user interface of the \"Task to review\" tab for better readability and a quicker overview.\n\n**Current Behavior:** Task short descriptions are hidden within an `st.expander` (accordion).\n\n**Desired Behavior:**\n- The short description of each task should be displayed as plain text directly beneath the task title.\n- The `st.expander` should still exist but should contain the *detailed* description and other task metadata.\n\n**Acceptance Criteria:**\n- On the \"Task to review\" tab, task titles are immediately followed by their short descriptions.\n- An expander/accordion is still present for each task, containing the more detailed information.\n\n**Affected Files:**\n- Likely `.cursor/memory-bank/streamlit_app/app.py`.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/memory-bank/streamlit_app/app.py"
     ],
     "validation_criteria": "",
     "created_date": "2025-06-24T18:46:11.843Z",
-    "updated_date": "2025-06-24T18:48:26.092Z",
+    "updated_date": "2025-06-24T20:50:36.681015",
     "parent_id": null,
     "priority": 3,
     "image": null
