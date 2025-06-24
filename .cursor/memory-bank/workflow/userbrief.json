@@ -1,251 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 145,
+  "last_id": 156,
   "requests": [
-    {
-      "id": 116,
-      "content": "Dans la Sidebar de l'application est ce que tu peux ajouter la courte description de la tâche en dessous du titre pour la tâche sur laquelle est en train de travailler l'agent, s'il te plaît ?",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T20:08:08.436073",
-      "updated_at": "2025-06-24T18:09:26.671Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:08:08.436073",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:09:26.671Z",
-          "action": "mark_archived",
-          "comment": "The user request to add the short description to the sidebar has been analyzed and a new task (#156) has been created to implement this UI enhancement. Archiving the user request."
-        }
-      ]
-    },
-    {
-      "id": 117,
-      "content": "Il y a un bug qui apparaît lors de la soumission D'une nouvelle tâche Via l'interface AD New request de l'interface streamlit. Tu peux résoudre le problème ?\n\nstreamlit.errors.StreamlitAPIException: `st.session_state.request_content_area` cannot be modified after the widget with key `request_content_area` is instantiated.\n\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 709, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 684, in main\n    render_add_request_tab()\n    ~~~~~~~~~~~~~~~~~~~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 632, in render_add_request_tab\n    st.session_state.request_content_area = \"\" # Clear text area\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\session_state_proxy.py\", line 136, in __setattr__\n    self[key] = value\n    ~~~~^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\session_state_proxy.py\", line 114, in __setitem__\n    get_session_state()[key] = value\n    ~~~~~~~~~~~~~~~~~~~^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\safe_session_state.py\", line 101, in __setitem__\n    self._state[key] = value\n    ~~~~~~~~~~~^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\session_state.py\", line 527, in __setitem__\n    raise StreamlitAPIException(\n    ...<2 lines>...\n    )",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T20:09:04.664432",
-      "updated_at": "2025-06-24T18:17:14.934Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:09:04.664432",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:17:14.934Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 118,
-      "content": "Question regarding agent message #56: \"Je rencontre des difficultés techniques persistantes pour modifier un fichier, ce qui bloque la prog...\"\n\nMy question: Alors normalement est un outil pour ça, c'est l'outil. regex_edit ! J'ai pas trop eu le temps de le tester donc c'est possible qu'il ait des problèmes. Il faudrait que tu vérifies si. Si normalement c'est un outil, alors il faudrait en améliorer la description parce que si tu n'as pas pensé à l'utiliser c'est que la description des arguments n'est pas claire donc il faudrait que tu améliores. Euh la description des arguments, fais attention à ne pas ajouter de description à l'outil général parce que ça ça provoque un crash de l'outil, donc ne modifie que le texte, pas le code, mais le texte de description des arguments pour que ce soit très clair pour l'agent que s'il a des soucis avec l'outil d'édition standard qui est genre il a essayé 23 fois que ça marche toujours pas, il devrait se tourner vers cet outil qui permet de faire des modifications très ciblées de manière automatique en fait sans sans se baser sur un modèle donc voilà éventuellement ça devrait te permettre de résoudre ce problème et souviens toi que si cet outil a un souci que tu te rends compte qu'il fonctionne pas correctement, il faudra le réparer donc hésite pas à créer une tâche pour le réparer mais souviens toi que pour le tester il faut redémarrer cursor malheureusement ce que tu ne peux pas faire toi-même donc il faut me demander de redémarrer curseur alors quand tu me demandes de redémarc ressort utilise n'arrête pas le workflow pour ça envoie moi simplement un message puis passe à la tâche suivante et et moi dès que j'aurai redémarré curseur bah je t'informerai et du coup tu pourras reprendre cette tâche de manière automatique. Il y a pas de souci.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T20:14:06.856070",
-      "updated_at": "2025-06-24T18:17:49.638Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:14:06.856070",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:17:49.638Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 119,
-      "content": "Alors je suis désolé, je sais que je t'ai demandé de de de l'ajouter mais finalement le bouton hennable auto refresh dans le côté Ben sur le côté dans la Side bar tu peux le le supprimer et activer ce système d'auto rafraîchissement toutes les 10 secondes par défaut. Il doit être présent sur toutes les pages et et donc le l'auto rafraîchissement toutes les 10 secondes doit avoir lieu de manière automatique sur. Sur toutes les pages. Tu peux faire ça ?",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T20:15:34.346179",
-      "updated_at": "2025-06-24T18:18:19.459Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:15:34.346179",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:18:19.459Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 120,
-      "content": "Il y a toujours un étrange bug lors de la soumission de nouvelles requêtes via l'interface streamlit : streamlit.errors.StreamlitAPIException: `st.session_state.request_content_area` cannot be modified after the widget with key `request_content_area` is instantiated.\n\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 709, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 684, in main\n    render_add_request_tab()\n    ~~~~~~~~~~~~~~~~~~~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 632, in render_add_request_tab\n    st.session_state.request_content_area = \"\" # Clear text area\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\session_state_proxy.py\", line 136, in __setattr__\n    self[key] = value\n    ~~~~^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\session_state_proxy.py\", line 114, in __setitem__\n    get_session_state()[key] = value\n    ~~~~~~~~~~~~~~~~~~~^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\safe_session_state.py\", line 101, in __setitem__\n    self._state[key] = value\n    ~~~~~~~~~~~^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\session_state.py\", line 527, in __setitem__\n    raise StreamlitAPIException(\n    ...<2 lines>...\n    )",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T20:16:14.832853",
-      "updated_at": "2025-06-24T18:18:35.798Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:16:14.832853",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:18:35.798Z",
-          "action": "mark_archived",
-          "comment": "This is a duplicate of request #117. Task #157 has already been created to address this bug."
-        }
-      ]
-    },
-    {
-      "id": 121,
-      "content": "Malheureusement, il y a un petit souci, c'est que t'as tendance à quitter le workflow. Enfin, l'agent a tendance à quitter le workflow régulièrement. En fait, quand il se lance dans des corrections trop longues, il oublie qu'il est à l'intérieur d'une règle et qu'il doit appeler remember à la fin de cette règle. Du coup, il faudrait s'il te plaît que tu ajoutes un petit Call out, un petit, un petit message, un argument supplémentaire, un rappel à la fin de de l'appel à la règle. Euh guette all Task ou Get next Task. Je je sais plus si c'est exactement les noms des outils, mais tu vas les trouver bien sûr, et aussi update user brief et gate user brief pour rappeler que l'agent ne doit gérer qu'une tâche ou qu'une requête user-brief à chaque fois. Si la requête user brief ça veut dire qu'il est dans tasque décomposition et donc il doit simplement la transformer en taches et ensuite il doit appeler remember. C'est hyper important à la fin. Une fois qu'il a effectué cette opération pour une seule tâche, il doit pas les faire tout ensemble et pareil pour la la résolution. Enfin l'implémentation s'il est en train de de d'implémenter une feature, il doit se l'appel à l'outil get next tax Get next Task doit rappeler à la fin un petit rappel. Euh tu dois absolument faire que cette tâche, aucune autre. Hum. Et puis quand t'as fini d'implémenter une tache, je te rappelle que t'es à l'intérieur d'une règle à l'intérieur d'un workflow que tu dois suivre à la lettre et tu dois appeler Remember à la fin pour suivre le workflow. C'est extrêmement important. Du coup, est ce que tu peux faire des petites notifications sur ces outils pour ajouter ces rappels afin de de de de pousser le l'agent à suivre davantage le workflow ?\n\nFais le aussi pour l'outil update_task :)",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T20:24:38.332547",
-      "updated_at": "2025-06-24T18:32:52.448Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:24:38.332547",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:32:52.448Z",
-          "action": "mark_archived",
-          "comment": "The user request has been analyzed and converted into task #160."
-        }
-      ]
-    },
-    {
-      "id": 122,
-      "content": "Rien de bien grave, mais je je me rends compte que t'as dû faire une modification récemment et ça a enlevé la chouette animation de ballon lorsqu'on ajoutait une nouvelle tâche. J'avoue que j'aimais bien cette animation. Est-ce que tu peux la remettre sur l'interface streaming dans l'application principale review et communication lorsqu'on soumet une nouvelle requête ?\n\nhttps://docs.streamlit.io/develop/api-reference/status/st.balloons",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T20:26:37.457913",
-      "updated_at": "2025-06-24T18:33:14.438Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:26:37.457913",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:33:14.438Z",
-          "action": "mark_archived",
-          "comment": "The user request has been analyzed and converted into task #161."
-        }
-      ]
-    },
-    {
-      "id": 123,
-      "content": "Il y a un petit souci avec l'affichage de la tâche actuelle dans la sidebar, c'est vraiment très très chouette, hein ? À la manière dont tu l'affiches, c'est parfait. Simplement les retours à la ligne, le double retour à la ligne avant la description courte est affichée en double antislash n. Ce qui est pas terrible, est ce que tu pourrais modifier pour que la la description courte soit vraiment séparée du titre qui est le titre et la description courte en dessous ?",
-      "status": "archived",
-      "image": {
-        "path": ".cursor\\temp\\images\\req_123_20250624_202823_pasted.png",
-        "filename": "req_123_20250624_202823_pasted.png",
-        "size": 29991,
-        "width": 492,
-        "height": 403,
-        "content_type": "image/png"
-      },
-      "created_at": "2025-06-24T20:28:23.392853",
-      "updated_at": "2025-06-24T18:33:39.951Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:28:23.392853",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:33:39.951Z",
-          "action": "mark_archived",
-          "comment": "The user request has been analyzed and converted into task #162."
-        }
-      ]
-    },
-    {
-      "id": 124,
-      "content": "Tu peux modifier légèrement la règle Task décomposition pour dire de d'identifier en fait pour éviter les sous tâches. C'est à dire que en fait, quand il analyse une requête utilisateur, l'agent doit identifier les différentes, les différentes demandes qui sont dans cette requête. Parfois, il y a plusieurs demandes en même temps, 2 ou 3. Parfois, il y en a qu'une seule et créer une tâche pour chaque demande, mais il doit pas déjà créer des sous tâches d'organisation qui va d'abord falloir que je fasse ça, puis que je fasse ça, ça, il peut l'indiquer dans la description de sa tâche, faire son plan, mais il doit pas créer plusieurs tâches pour une même grande tâche Comme je dis souvent dans les requêtes utilisateurs, il va y avoir plusieurs grandes tâches, donc là le but de l'Agence est d'identifier ces grandes tâches. Euh mais ensuite il doit pas les sous décomposer ces grandes tâches, il doit simplement éventuellement déjà planifier un peu ce qu'il doit faire dans la description de la tâche description complète de la tâche mais. À priori, il ne doit pas créer plusieurs sortes de sous tâches par grandes tâches. Ça, ça ne fait que ralentir inutilement le workflow et ça lui fait perdre de vue certains objectifs Et la vue d'ensemble Donc voilà, est ce que tu peux corriger un peu le fichier markdown qui décrit la règle Task Analysis pour inciter l'agent à avoir plus ce type de comportement ?",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T20:30:46.652628",
-      "updated_at": "2025-06-24T18:34:12.493Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:30:46.652628",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:34:12.493Z",
-          "action": "mark_archived",
-          "comment": "The user request has been analyzed and converted into task #163."
-        }
-      ]
-    },
-    {
-      "id": 126,
-      "content": "Correction for Task #161 (Restore `st.balloons` Animation on New Request Submission):\n\nLes ballons n'apparaissent toujours pas lors de la soumission d'une nouvelle tâche via l'interface streamlit",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T20:43:26.317053",
-      "updated_at": "2025-06-24T18:45:58.005Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:43:26.317053",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:45:58.005Z",
-          "action": "mark_archived",
-          "comment": "This request has been converted into task #164."
-        }
-      ]
-    },
-    {
-      "id": 127,
-      "content": "Dans l'interface streaming dans la page Review et communication, la page principale dans la l'onglet Task to review est ce que tu peux directement afficher les descriptions courtes des tâches sous leur titre sans avoir à ouvrir l'accordéon. L'accordéon, ça devrait être pour les détails supplémentaires, mais les descriptions courtes devraient être présentes juste sous le titre de chaque tâche pour facilement avoir un un aperçu. Voilà.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T20:44:25.807310",
-      "updated_at": "2025-06-24T18:46:15.090Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:44:25.807310",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:46:15.090Z",
-          "action": "mark_archived",
-          "comment": "This request has been converted into task #165."
-        }
-      ]
-    },
-    {
-      "id": 129,
-      "content": "T'as ajouté un raccourci très sympa lorsque on clique sur dans la sur la page dans l'interface streaming sur la page Review et communication onglet Task to retrrive. Quand je valide une tâche, ça retourne sur ad request. L'onglet ad request, c'est plutôt une bonne idée. C'est très sympa, mais il faudrait que ça n'ait lieu que lorsque il n'y a plus de tâches. Euh à revoir s'il reste des tâches à revoir, on devrait rester sur la table Task to review. Tu peux modifier ça s'il te plaît ?",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T20:51:52.945622",
-      "updated_at": "2025-06-24T18:52:35.850Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:51:52.945622",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:52:35.850Z",
-          "action": "mark_archived",
-          "comment": "Task #168 has been created to address this request."
-        }
-      ]
-    },
     {
       "id": 130,
       "content": "Dans la Side bar sur l'interface Stream Lit est ce que tu peux enlever l'affichage du nombre total de tâches affiches seulement le nombre de tâches restantes en prenant en compte les requêtes non transformées du userbrief :)",
@@ -512,28 +268,250 @@
     {
       "id": 144,
       "content": "Est ce que tu peux modifier l'interface streamlit ? Euh pour que les taches Que l'agent marque comme bloqué soit affiché dans la table. La Tab Task to review à l'intérieur de la page review et communication. Comme ça, quand une tâche est bloquée, bah moi je peux regarder comment la débloquer, dire à l'agent comment faire, et cetera. Donc c'est de la la tâche bloquée doit être en mode tout review pour que je puisse l'éditer. Voilà, est-ce que est-ce que tu peux, est-ce que tu peux corriger ça s'il te plaît ?",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-06-25T01:06:23.281717",
-      "updated_at": "2025-06-25T01:06:23.281717",
+      "updated_at": "2025-06-24T23:11:03.915Z",
       "history": [
         {
           "timestamp": "2025-06-25T01:06:23.281717",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:11:03.915Z",
+          "action": "mark_archived"
         }
       ]
     },
     {
       "id": 145,
       "content": "Tu peux aussi t'assurer que le script d'installation garde complètement intact le dossier workflow du repository où il est installé. Si ce dossier existe déjà, il doit surtout pas écraser ce dossier avec les tâches et requêtes venant du du github de Memory Bank. Au contraire, il doit bah simplement installer tout le reste tout autour sans toucher au dossier où il y a des tâches et les requêtes user brief du projet où il est installé. Et avec lesquels il va devoir désormais travailler",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-06-25T01:08:21.319757",
-      "updated_at": "2025-06-25T01:08:21.319757",
+      "updated_at": "2025-06-24T23:11:25.833Z",
       "history": [
         {
           "timestamp": "2025-06-25T01:08:21.319757",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:11:25.833Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 146,
+      "content": "J'ai l'impression que l'outil regex_edit ne fonctionne pas correctement. Tu peux identifier pourquoi et résoudre le problème note que tu ne pourras pas le tester, il faudra me demander de redémarrer curseur Pour ce faire, tu peux me le faire via un agent, un un message lors de l'utilisation de ton tee remember quand tu auras fini d'implémenter toutes les modifications, tu peux me dire s'il te plaît, redis mercursore et à ce moment là et ensuite continue sur une autre tâche et puis plus tard je redémarrerai curseur et je te dirai que je l'ai redémarré et donc que tu peux re-continuer sur cette tâche",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T01:10:12.538445",
+      "updated_at": "2025-06-24T23:11:49.691Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:10:12.538445",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:11:49.691Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 147,
+      "content": "En fait, supprime l'estimation du temps de complétion, ça fonctionne pas bien, ça prend de la place et en plus c'est pas lisible sur l'interface streaming dans la Side-bar en particulier, supprime la et à la place laisse uniquement. Euh L'indicateur remaining Task est centre le pour plus de lisibilité",
+      "status": "archived",
+      "image": {
+        "path": ".cursor\\temp\\images\\req_147_20250625_011111_pasted.png",
+        "filename": "req_147_20250625_011111_pasted.png",
+        "size": 26526,
+        "width": 530,
+        "height": 609,
+        "content_type": "image/png"
+      },
+      "created_at": "2025-06-25T01:11:11.462254",
+      "updated_at": "2025-06-24T23:12:42.918Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:11:11.462254",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:12:42.918Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 148,
+      "content": "Par contre, petite erreur dans l'interface streaming. L'indicateur remaining Task doit non seulement afficher les tâches qu'il reste à faire, qui sont en mode too doux, mais aussi les requêtes user brief non traitées. C'est la somme des 2 en fait",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T01:12:17.258937",
+      "updated_at": "2025-06-24T23:13:43.923Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:12:17.258937",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:13:43.923Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 149,
+      "content": "Correction for Task #184 (Ajouter l'affichage des tâches bloquées dans l'interface Streamlit):\n\nTu peux bloquer une, tu peux bloquer une tâche en fait actuellement par exemple cette tâche juste pour voir si la modification fonctionne correctement. C'est un moyen pour moi de vérifier en fait si ça se trouve ton code fonctionne parfaitement mais justement c'est c'est juste pour voir si ça fonctionne donc s'il te plaît bloc cette requête et comme ça on pourra voir. Enfin je pourrai vérifier si ça ça fonctionne correctement.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T01:23:02.095761",
+      "updated_at": "2025-06-24T23:23:33.818Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:23:02.095761",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:23:33.818Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 150,
+      "content": "Correction for Task #189 (Bloquer temporairement une tâche pour tester l'affichage des tâches bloquées):\n\nEn fait, il devrait pas être possible de laisser une tâche bloquée de manière permanente. Le seul bouton possible, c'est de la débloquer en ajoutant un commentaire. Et ça, ça l'ajoute, ça renvoie à une nouvelle requête dans le user brief exactement comme lorsqu'on rejette une tâche. Euh dans la même interface. Donc voilà simplement, il devrait y avoir un unique bouton qui est en gros débloquer la tâche avec un commentaire. Autrement, la tâche va rester bloquée, mais elle doit rester visiblement bloquée pour l'utilisateur !",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T01:25:39.650167",
+      "updated_at": "2025-06-24T23:26:44.005Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:25:39.650167",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:26:44.005Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 151,
+      "content": "Correction for Task #189 (Bloquer temporairement une tâche pour tester l'affichage des tâches bloquées):\n\nBah non, du coup j'ai pas vu de modification. La tâche bloquée est toujours apparue mais toujours avec le bouton un bloc et cancel alors que moi je veux juste un bouton un bloc qui débloque la tâche mais qui aussi m'oblige à écrire un message pour. Pour pour donner des conseils sur comment gérer le blocage qui a eu lieu à l'agent et ça. Et ça, ça renvoie dans une nouvelle request avec tous les détails de la tâche originale. En gros c'est vraiment encore une fois comme le fait d'appuyer sur reeject pour une tâche normale. Sauf que là voilà, elle est affichée de manière un peu particulière parce que c'est une tâche bloquée.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T01:31:06.666636",
+      "updated_at": "2025-06-24T23:32:21.771Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:31:06.666636",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:32:21.771Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 152,
+      "content": "Question regarding agent message #79: \"Interface des tâches bloquées corrigée ! Le nouveau bouton \"Débloquer avec commentaire\" remplace les...\"\n\nMy question: Du coup, j'avais débloqué la tâche : tu peux en bloquer une autre, que je puisse tester ? :D",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T01:32:52.280921",
+      "updated_at": "2025-06-24T23:34:38.198Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:32:52.280921",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:34:38.198Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 153,
+      "content": "Correction for Task #190 (Corriger l'interface des tâches bloquées avec un bouton unique de déblocage):\n\nOk, maintenant il a l'air d'y avoir effectivement uniquement le bouton pour débloquer. Par contre lorsque je clique dessus et bien j'ai un message d'erreur que je te mets ici dessous pour que tu puisses corriger :\n\nstreamlit.errors.StreamlitValueAssignmentNotAllowedError: Values for the widget with `key` 'unblock_form_187' cannot be set using `st.session_state`.\n\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 813, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 800, in main\n    render_task_review_card(task)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 503, in render_task_review_card\n    with st.form(f\"unblock_form_{task_id}\"):\n         ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\form.py\", line 203, in form\n    check_session_state_rules(default_value=None, key=key, writes_allowed=False)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\policies.py\", line 83, in check_session_state_rules\n    raise StreamlitValueAssignmentNotAllowedError(key=key)",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T01:34:23.520746",
+      "updated_at": "2025-06-24T23:35:24.855Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:34:23.520746",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:35:24.855Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 154,
+      "content": "Déblocage de la Tâche #187 (Supprimer l'estimation de temps et améliorer l'affichage de la sidebar):\n\nC'est tout bon, c'est débloqué ! :D",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T01:34:39.252439",
+      "updated_at": "2025-06-24T23:37:34.074Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:34:39.252439",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:37:34.074Z",
+          "action": "mark_archived",
+          "comment": "Requête de confirmation de déblocage de la tâche #187 traitée. Aucune action supplémentaire requise - la tâche #187 est maintenant disponible pour l'implémentation."
+        }
+      ]
+    },
+    {
+      "id": 155,
+      "content": "Déblocage de la Tâche #188 (Corriger l'indicateur \"Remaining Tasks\" pour inclure les requêtes non traitées):\n\nOk, à priori, tout a l'air de fonctionner !!! :D GG",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T01:41:15.910494",
+      "updated_at": "2025-06-24T23:41:50.208Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:41:15.910494",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:41:50.208Z",
+          "action": "mark_archived",
+          "comment": "Requête de confirmation traitée : L'utilisateur confirme que le test de l'interface des tâches bloquées corrigée fonctionne parfaitement. Le nouveau bouton \"Débloquer avec commentaire\", le formulaire obligatoire et la création automatique de requête fonctionnent comme attendu. La tâche #188 peut maintenant être débloquée et remise en statut TODO pour continuer le développement normal. Test validé avec succès."
+        }
+      ]
+    },
+    {
+      "id": 156,
+      "content": "Correction for Task #187 (Supprimer l'estimation de temps et améliorer l'affichage de la sidebar):\n\nC'est parfait, ça a super bien fonctionné. Par contre, le problème c'est que le nombre de reminding Task est passé en gris sur fond gris et du coup quasiment pas visible comme d'ailleurs le texte remaining Task qui est bleu sur fond gris c'est aussi assez peu visible. Tu peux corriger pour mettre ça je sais pas dans un enfin utiliser un élément de design moderne clair qui permet de mieux voir. ?",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-06-25T01:46:24.590521",
+      "updated_at": "2025-06-25T01:46:24.590521",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:46:24.590521",
           "action": "created",
           "comment": "Request created via Streamlit app."
         }

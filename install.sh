@@ -266,17 +266,71 @@ manage_gitignore() {
 setup_memory_bank() {
     local target_dir="$1"
     local memory_bank_dir="$target_dir/.cursor/memory-bank"
+    local workflow_dir="$memory_bank_dir/workflow"
+    local workflow_backup_dir="/tmp/cursor-memory-bank-workflow-backup-$$"
 
     log "Setting up Memory Bank directory..."
+    
+    # Check if workflow directory exists and contains user data
+    local workflow_exists=0
+    local has_user_data=0
+    
+    if [ -d "$workflow_dir" ]; then
+        workflow_exists=1
+        log "Existing workflow directory found at $workflow_dir"
+        
+        # Check if workflow directory contains user data (non-empty JSON files)
+        if [ -f "$workflow_dir/tasks.json" ] && [ -s "$workflow_dir/tasks.json" ] && [ "$(cat "$workflow_dir/tasks.json" 2>/dev/null)" != "[]" ]; then
+            has_user_data=1
+        elif [ -f "$workflow_dir/userbrief.json" ] && [ -s "$workflow_dir/userbrief.json" ] && [ "$(cat "$workflow_dir/userbrief.json" 2>/dev/null)" != '{"version": "1.0.0", "last_id": 0, "requests": []}' ]; then
+            has_user_data=1
+        elif [ -f "$workflow_dir/agent_memory.json" ] && [ -s "$workflow_dir/agent_memory.json" ] && [ "$(cat "$workflow_dir/agent_memory.json" 2>/dev/null)" != "[]" ]; then
+            has_user_data=1
+        elif [ -f "$workflow_dir/long_term_memory.json" ] && [ -s "$workflow_dir/long_term_memory.json" ] && [ "$(cat "$workflow_dir/long_term_memory.json" 2>/dev/null)" != "[]" ]; then
+            has_user_data=1
+        fi
+        
+        if [ $has_user_data -eq 1 ]; then
+            log "Workflow directory contains existing user data - preserving completely"
+            # Create backup of existing workflow data
+            mkdir -p "$workflow_backup_dir"
+            if ! cp -r "$workflow_dir/"* "$workflow_backup_dir/" 2>/dev/null; then
+                error "Failed to backup existing workflow data. Installation aborted to prevent data loss."
+            fi
+            log "Created backup of workflow data at $workflow_backup_dir"
+        else
+            log "Workflow directory exists but appears to contain only default/empty data"
+        fi
+    fi
+    
     if [ -d "$memory_bank_dir" ]; then
-        log "Existing .cursor/memory-bank directory found. Skipping."
-        # Optionally, verify and create missing sub-directories or files
+        log "Existing .cursor/memory-bank directory found."
+        # Always ensure required sub-directories exist
         mkdir -p "$memory_bank_dir/context"
-        mkdir -p "$memory_bank_dir/workflow"
         mkdir -p "$memory_bank_dir/models"
-        # We don't touch existing files to preserve user's data
+        
+        # Handle workflow directory preservation
+        if [ $workflow_exists -eq 1 ] && [ $has_user_data -eq 1 ]; then
+            # Restore the preserved workflow data if it was backed up
+            if [ -d "$workflow_backup_dir" ]; then
+                log "Restoring preserved workflow data..."
+                rm -rf "$workflow_dir" 2>/dev/null || true
+                mkdir -p "$workflow_dir"
+                if ! cp -r "$workflow_backup_dir/"* "$workflow_dir/" 2>/dev/null; then
+                    error "Failed to restore workflow data from backup. Please check $workflow_backup_dir manually."
+                fi
+                # Clean up backup
+                rm -rf "$workflow_backup_dir" 2>/dev/null || true
+                log "Successfully preserved existing workflow data - no files were overwritten"
+            fi
+        else
+            # Create workflow directory if it doesn't exist or has no user data
+            mkdir -p "$workflow_dir"
+        fi
+        
+        log "Memory Bank directory structure verified and user data preserved."
     else
-        log "Creating empty .cursor/memory-bank directory and structure."
+        log "Creating new .cursor/memory-bank directory and structure."
         mkdir -p "$memory_bank_dir/context"
         mkdir -p "$memory_bank_dir/workflow"
         mkdir -p "$memory_bank_dir/models"

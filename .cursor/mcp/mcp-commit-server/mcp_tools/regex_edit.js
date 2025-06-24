@@ -13,30 +13,42 @@ const handleRegexEdit = async ({ file_path, regex_pattern, replacement_text }) =
             return { success: false, error: `File not found at path: ${fullPath}` };
         }
 
-        const regex = new RegExp(regex_pattern);
+        // Validate regex pattern
+        let regex;
+        try {
+            regex = new RegExp(regex_pattern);
+        } catch (regexError) {
+            return { success: false, error: `Invalid regex pattern: ${regexError.message}` };
+        }
+
         const match = content.match(regex);
 
         if (!match) {
             return { success: false, error: `Pattern not found in file: ${regex_pattern}` };
         }
 
-        const updatedContent = content.replace(regex, replacement_text);
-        await fs.writeFile(fullPath, updatedContent, 'utf8');
-
-        const lines = updatedContent.split('\n');
-        const replacementIndex = updatedContent.indexOf(replacement_text);
-        let charCount = 0;
-        let lineIndex = 0;
-        for (let i = 0; i < lines.length; i++) {
-            charCount += lines[i].length + 1;
-            if (charCount >= replacementIndex) {
-                lineIndex = i;
-                break;
-            }
+        // Get the match index for more accurate line calculation
+        const matchIndex = content.search(regex);
+        if (matchIndex === -1) {
+            return { success: false, error: `Pattern not found in file: ${regex_pattern}` };
         }
 
-        const start = Math.max(0, lineIndex - 15);
-        const end = Math.min(lines.length, lineIndex + 16);
+        const updatedContent = content.replace(regex, replacement_text);
+
+        try {
+            await fs.writeFile(fullPath, updatedContent, 'utf8');
+        } catch (writeError) {
+            return { success: false, error: `Failed to write file: ${writeError.message}` };
+        }
+
+        // Find the line where the replacement occurred
+        const lines = updatedContent.split('\n');
+        const beforeReplacement = content.substring(0, matchIndex);
+        const linesBefore = beforeReplacement.split('\n');
+        const lineIndex = linesBefore.length - 1;
+
+        const start = Math.max(0, lineIndex - 5);
+        const end = Math.min(lines.length, lineIndex + 6);
 
         const contextLines = lines.slice(start, end);
 
@@ -44,10 +56,10 @@ const handleRegexEdit = async ({ file_path, regex_pattern, replacement_text }) =
             success: true,
             message: `File successfully updated at: ${fullPath}`,
             replacement_zone: {
-                before: lines.slice(start, lineIndex).join('\\n'),
+                before: lines.slice(start, lineIndex).join('\n'),
                 replacement: replacement_text,
-                after: lines.slice(lineIndex + 1, end).join('\\n'),
-                lines: contextLines.join('\\n'),
+                after: lines.slice(lineIndex + 1, end).join('\n'),
+                lines: contextLines.join('\n'),
             },
         };
     } catch (error) {

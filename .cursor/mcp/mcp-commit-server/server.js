@@ -174,7 +174,7 @@ const server = new McpServer({
             'stop_terminal_command': true,
             'consult_image': true,
             'take_webpage_screenshot': true,
-            'regex_edit': true
+            'mcp_ToolsMCP_regex_edit': true
         }
     }
 });

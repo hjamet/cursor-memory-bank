@@ -19,13 +19,16 @@ def display_sidebar():
         # In-progress task
         in_progress_tasks = [t for t in remaining_tasks if t.get('status') == 'IN_PROGRESS']
 
-        col1, col2 = st.columns(2)
-        col1.metric("Remaining Tasks", len(remaining_tasks))
-        
-        mean_time, std_dev = task_utils.calculate_task_completion_stats(all_tasks)
-        est_lower, est_upper = task_utils.estimate_remaining_time(len(remaining_tasks), mean_time, std_dev)
-        formatted_est = task_utils.format_time_estimate((est_lower, est_upper))
-        col2.metric("Est. Completion", formatted_est)
+        # Centered display of Remaining Tasks (includes both tasks and unprocessed requests)
+        st.markdown(
+            f"""
+            <div style="text-align: center; margin: 20px 0;">
+                <h3 style="color: #1f77b4; margin-bottom: 5px;">Remaining Tasks</h3>
+                <h2 style="color: #333; margin-top: 0;">{work_queue_count}</h2>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
         if in_progress_tasks:
             st.markdown("---")

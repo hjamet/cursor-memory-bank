@@ -4,7 +4,6 @@ import os
 import sys
 from pathlib import Path
 from datetime import datetime
-import requests
 from typing import List, Dict, Optional
 from PIL import Image, ImageGrab
 import uuid
@@ -466,30 +465,70 @@ def render_task_review_card(task: Dict):
 
         # Action buttons
         st.markdown("**Actions:**")
-        approve_col, reject_col, notes_col = st.columns([1,1,2])
         
-        with approve_col:
-            if st.button("👍 Approve", key=f"approve_{task_id}", help="Approve this task. The task status will be set to 'APPROVED'."):
-                if update_task_status(task_id, 'APPROVED'):
-                    st.success(f"Task #{task_id} approved!")
-                    # Clean up associated image if it exists
-                    delete_task_image(task)
-                    
-                    # Check for remaining tasks to decide which tab to show next
-                    remaining_review_tasks = [t for t in load_tasks() if t.get('status') == 'REVIEW']
-                    
-                    if not remaining_review_tasks:
-                        st.session_state.active_tab = 'add'
-                    else:
-                        st.session_state.active_tab = 'review'
+        if status == 'BLOCKED':
+            # Special action for blocked tasks - single unblock button with comment
+            unblock_col, notes_col = st.columns([2,3])
+            
+            with unblock_col:
+                if st.button("🔓 Débloquer avec commentaire", key=f"unblock_{task_id}", help="Débloquer cette tâche avec un commentaire explicatif qui sera ajouté au userbrief."):
+                    st.session_state[f'unblock_form_{task_id}'] = True
+        else:
+            # Standard actions for REVIEW tasks
+            approve_col, reject_col, notes_col = st.columns([1,1,2])
+            
+            with approve_col:
+                if st.button("👍 Approve", key=f"approve_{task_id}", help="Approve this task. The task status will be set to 'APPROVED'."):
+                    if update_task_status(task_id, 'APPROVED'):
+                        st.success(f"Task #{task_id} approved!")
+                        # Clean up associated image if it exists
+                        delete_task_image(task)
+                        
+                        # Check for remaining tasks to decide which tab to show next
+                        remaining_review_tasks = [t for t in load_tasks() if t.get('status') in ['REVIEW', 'BLOCKED']]
+                        
+                        if not remaining_review_tasks:
+                            st.session_state.active_tab = 'add'
+                        else:
+                            st.session_state.active_tab = 'review'
 
-                    st.rerun()
+                        st.rerun()
+            
+            with reject_col:
+                if st.button("👎 Reject", key=f"reject_{task_id}", help="Reject this task. A new userbrief request will be created automatically for correction."):
+                    st.session_state[f'reject_form_{task_id}'] = True
         
-        with reject_col:
-            if st.button("👎 Reject", key=f"reject_{task_id}", help="Reject this task. A new userbrief request will be created automatically for correction."):
-                st.session_state[f'reject_form_{task_id}'] = True
-        
-        # Rejection form (if reject button was clicked)
+        # Unblock form for blocked tasks (if unblock button was clicked)
+        if st.session_state.get(f'unblock_form_{task_id}', False):
+            with st.form(f"unblock_comment_form_{task_id}"):
+                st.info(f"Veuillez fournir un commentaire pour débloquer la Tâche #{task_id}:")
+                unblock_reason = st.text_area("Commentaire de déblocage:", key=f"unblock_reason_{task_id}", height=100, placeholder="Expliquez pourquoi cette tâche peut maintenant être débloquée...")
+                submitted = st.form_submit_button("Débloquer la tâche")
+                
+                if submitted:
+                    if unblock_reason:
+                        # Create userbrief request with unblock comment
+                        unblock_content = f"Déblocage de la Tâche #{task_id} ({title}):\n\n{unblock_reason}"
+                        
+                        if create_new_request(unblock_content) and update_task_status(task_id, 'TODO'):
+                            st.success(f"Tâche #{task_id} débloquée. Nouvelle requête créée dans le userbrief.")
+                            del st.session_state[f'unblock_form_{task_id}']
+                            
+                            # Check for remaining tasks to decide which tab to show next
+                            remaining_review_tasks = [t for t in load_tasks() if t.get('status') in ['REVIEW', 'BLOCKED']]
+                            
+                            if not remaining_review_tasks:
+                                st.session_state.active_tab = 'add'
+                            else:
+                                st.session_state.active_tab = 'review'
+                            
+                            st.rerun()
+                        else:
+                            st.error("Échec du déblocage de la tâche.")
+                    else:
+                        st.error("Veuillez fournir un commentaire pour le déblocage.")
+
+        # Rejection form for REVIEW tasks (if reject button was clicked)
         if st.session_state.get(f'reject_form_{task_id}', False):
             with st.form(f"rejection_form_{task_id}"):
                 st.warning(f"Please provide feedback for rejecting Task #{task_id}:")
@@ -499,6 +538,7 @@ def render_task_review_card(task: Dict):
                 if submitted:
                     if rejection_reason:
                         rejection_content = f"Correction for Task #{task_id} ({title}):\n\n{rejection_reason}"
+                        
                         if create_new_request(rejection_content) and update_task_status(task_id, 'TODO'):
                             st.success(f"Task #{task_id} rejected. New userbrief request created.")
                             del st.session_state[f'reject_form_{task_id}']
@@ -697,7 +737,7 @@ def main():
     messages = read_user_messages()
     
     # Calculate counts for badges
-    review_tasks_count = len([t for t in tasks if t.get('status') == 'REVIEW'])
+    review_tasks_count = len([t for t in tasks if t.get('status') in ['REVIEW', 'BLOCKED']])
     messages_count = len(messages)
     
     # Create dynamic tab labels
@@ -736,14 +776,28 @@ def main():
         render_add_request_tab()
     elif st.session_state.active_tab == "review":
         st.header("Tasks Awaiting Validation")
-        review_tasks = [t for t in tasks if t.get('status') == 'REVIEW']
+        review_tasks = [t for t in tasks if t.get('status') in ['REVIEW', 'BLOCKED']]
         
         if not review_tasks:
             st.info("No tasks are currently awaiting review.")
         else:
+            # Separate tasks by status for better organization
+            review_status_tasks = [t for t in review_tasks if t.get('status') == 'REVIEW']
+            blocked_status_tasks = [t for t in review_tasks if t.get('status') == 'BLOCKED']
+            
             st.markdown(f"**{len(review_tasks)}** task(s) to review:")
-            for task in sorted(review_tasks, key=lambda x: x.get('id', 0), reverse=True):
-                render_task_review_card(task)
+            
+            # Display REVIEW tasks first
+            if review_status_tasks:
+                st.markdown("### ✅ Tasks Ready for Review")
+                for task in sorted(review_status_tasks, key=lambda x: x.get('id', 0), reverse=True):
+                    render_task_review_card(task)
+            
+            # Display BLOCKED tasks with a clear distinction
+            if blocked_status_tasks:
+                st.markdown("### 🚫 Blocked Tasks Requiring Attention")
+                for task in sorted(blocked_status_tasks, key=lambda x: x.get('id', 0), reverse=True):
+                    render_task_review_card(task)
     elif st.session_state.active_tab == "messages":
         st.header("Messages from Agent")
 

@@ -1,5 +1,17 @@
 {
   "version": "1.0.0",
-  "messages": [],
-  "last_id": 73
+  "messages": [
+    {
+      "id": 76,
+      "content": "L'outil regex_edit a été corrigé ! Veuillez redémarrer Cursor pour que les changements prennent effet, puis l'outil devrait fonctionner correctement.",
+      "timestamp": "2025-06-24T23:20:06.077Z",
+      "context": {
+        "workflow_rule": "implementation",
+        "active_task": null,
+        "agent_state": "processing"
+      },
+      "status": "unread"
+    }
+  ],
+  "last_id": 83
 }
