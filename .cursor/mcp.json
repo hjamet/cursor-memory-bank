@@ -1,13 +1,22 @@
 {
     "mcpVersion": "0.1",
     "mcpServers": {
-        "MyMCP": {
+        "ToolsMCP": {
             "command": "node",
             "args": [
-                "C:\\Users\\hjamet\\Code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\server.js",
+                "C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\server.js",
                 "--cwd",
-                "C:\\Users\\hjamet\\Code\\cursor-memory-bank"
+                "C:\\Users\\Jamet\\code\\cursor-memory-bank"
             ]
+        },
+        "MemoryBankMCP": {
+            "command": "node",
+            "args": [
+                "C:\\\\Users\\\\Jamet\\\\code\\\\cursor-memory-bank\\\\.cursor\\\\mcp\\\\memory-bank-mcp\\\\server.js",
+                "--cwd",
+                "C:\\\\Users\\\\Jamet\\\\code\\\\cursor-memory-bank"
+            ],
+            "forceReload": "2025-06-24T15:16:00.000Z"
         },
         "Context7": {
             "command": "npx",

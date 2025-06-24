@@ -1,34 +1,27 @@
 # Project Brief
 
 ## Vision
-To create a robust and autonomous AI agent within Cursor that leverages a persistent memory system to manage complex tasks, learn from interactions, and maintain context across sessions.
+To create a robust and autonomous AI agent within the Cursor IDE. This agent will leverage a persistent memory system to manage complex software development tasks, learn from interactions, and maintain context across coding sessions.
 
-## Objectives
-1.  Define and implement a clear file structure for the agent's memory (Memory Bank).
-2.  Develop a set of extensible rules that govern the agent's behavior and workflow.
-3.  Enable the agent to autonomously manage tasks, track progress, and update its context.
-4.  Facilitate indirect communication between the user and the agent via the Memory Bank files.
-5.  Ensure the agent can understand and modify its own operational rules.
-6.  Maintain a high level of reliability and error recovery in the agent's operations.
+## Core Mandate
+The agent's primary function is to assist a user (`hjamet`) by autonomously breaking down user requests into actionable development tasks, implementing solutions, and maintaining the project's health.
 
-## Constraints
--   Operate within the Cursor extension environment.
--   Rely on available tools and APIs provided by Cursor.
--   Markdown files as the primary medium for memory and rule definitions.
-
-## Stakeholders
--   User (hjamet)
--   Cursor AI Agent
+## Key System Components
+- **Autonomous Workflow**: The agent operates on a continuous loop of `remember -> next_rule -> execute`, allowing it to move between states like task decomposition, implementation, and context updates without manual intervention.
+- **Memory Bank**: A persistent storage system (`tasks.json`, `userbrief.json`, context files) that acts as the agent's long-term memory.
+- **Streamlit UI**: A web-based interface for the user to submit requests, monitor the agent's progress, and review completed work.
+- **MCP Tooling**: A set of custom servers that provide the agent with the necessary capabilities (e.g., terminal access, file system manipulation, Git operations) to perform its tasks.
 
 ## Success Metrics
--   Agent successfully completes complex multi-step tasks autonomously.
--   Memory Bank accurately reflects the project state and agent's knowledge.
--   Users can effectively guide and interact with the agent through the defined mechanisms.
--   Reduction in manual intervention required for agent operations.
+- The agent successfully completes complex, multi-step user requests.
+- The Memory Bank accurately reflects the project's state and the agent's knowledge.
+- The user can effectively guide and interact with the agent through the Streamlit UI.
+- A reduction in the manual intervention required to manage the development workflow.
 
-## History and Context
-This project involves building and refining an autonomous agent system. Recent enhancements include:
-- Agent ability to provide feedback on its work by commenting on archived tasks in `userbrief.md` (Task 8).
-- Enhancement of the `fix.mdc` rule to include a `git log --grep` search capability for mysterious problems, improving diagnostic abilities (Task 9).
-- Optimization of the testing logic in the rule system to prioritize manual execution via `experience-execution` over systematic automated test creation, reducing complexity and execution time while maintaining code quality (Task 10).
-- Simplification of the workflow rules by merging `request-analysis` functionality into `task-decomposition` and streamlining `implementation.mdc` decision logic, reducing complexity while maintaining all essential functionality (Task 11). 
+## Recent Project History
+The project has undergone significant evolution, with a focus on improving the agent's autonomy and the user's experience. Key milestones include:
+- **Workflow Automation**: Implementation of a fully autonomous workflow, removing the need for manual step-by-step guidance.
+- **Structured Memory**: Migration from markdown-based memory files to a structured JSON format (`userbrief.json`, `tasks.json`) for more robust data handling and state management.
+- **Streamlit UI Overhaul**: A major refactoring of the user interface to improve usability. This included creating a centralized component-based architecture, adding a "Work Queue" to the sidebar for better progress tracking, and streamlining the user request and review process. Most recently, the UI was updated to use a radio button for navigation and to display a more meaningful task counter in the sidebar.
+- **Tooling Enhancements**: Continuous improvement of the underlying MCP servers to provide the agent with more reliable and powerful tools.
+- **Bug Fixes & Refinements**: Numerous fixes related to agent logic, UI behavior, and data consistency, including addressing a critical bug that caused animations to fail and another that led to incorrect task time calculations.

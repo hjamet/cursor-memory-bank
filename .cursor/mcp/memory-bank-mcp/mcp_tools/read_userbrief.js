@@ -1,105 +1,86 @@
 import { z } from 'zod';
-import { readUserbriefLines, parseUserbriefEntries } from '../lib/userbrief_manager.js';
-
-// Schema for the read-userbrief tool parameters
-export const readUserbriefSchema = z.object({
-    archived_count: z.number().min(0).max(10).default(3).optional()
-        .describe('Number of archived entries to include in response (default: 3)')
-});
+import { readUserbriefData } from '../lib/userbrief_manager.js';
 
 /**
- * Handles the read-userbrief tool call
- * Returns the first unprocessed request (🆕 or -) from userbrief.md
- * If a request is in progress (⏳), returns that instead
- * Also includes specified number of archived entries (🗄️) for context
+ * Handles the read-userbrief tool call.
+ * Returns the current request ('in_progress' or 'new'), plus a configurable number of archived entries.
  * 
  * @param {Object} params - Tool parameters
  * @param {number} [params.archived_count=3] - Number of archived entries to include
- * @returns {Object} Tool response with userbrief status and entries
+ * @returns {Object} Tool response with userbrief data
  */
 export async function handleReadUserbrief(params) {
     try {
-        const { archived_count = 3 } = params;
+        const { archived_count = 3 } = params || {};
 
-        console.log(`[ReadUserbrief] Reading userbrief with ${archived_count} archived entries`);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.log(`[ReadUserbrief] Reading userbrief with ${archived_count} archived entries`);
 
-        // Read userbrief file
-        const lines = readUserbriefLines();
-        if (lines.length === 0) {
+        const userbriefData = readUserbriefData();
+        const requests = userbriefData.requests || [];
+
+        if (requests.length === 0) {
             return {
                 content: [{
                     type: 'text',
                     text: JSON.stringify({
-                        status: 'empty',
-                        message: 'Userbrief file is empty or not found',
+                        status: 'success',
+                        message: 'Userbrief is empty',
                         current_request: null,
-                        archived_entries: []
+                        archived_entries: [],
+                        total_requests: 0
                     }, null, 2)
                 }]
             };
         }
 
-        // Parse entries from userbrief
-        const entries = parseUserbriefEntries(lines);
+        // Find current request (in_progress > new)
+        let currentRequest = requests.find(req => req.status === 'in_progress') ||
+            requests.find(req => req.status === 'new') ||
+            null;
 
-        // Find current request (in progress ⏳ takes priority, then first unprocessed 🆕 or -)
-        let currentRequest = null;
-
-        // First, look for in-progress request (⏳)
-        const inProgressRequest = entries.find(entry => entry.status === 'in_progress');
-        if (inProgressRequest) {
-            currentRequest = inProgressRequest;
-        } else {
-            // Look for first unprocessed request (🆕 or -)
-            const unprocessedRequest = entries.find(entry =>
-                entry.status === 'new' || entry.status === 'unprocessed'
-            );
-            if (unprocessedRequest) {
-                currentRequest = unprocessedRequest;
-            }
-        }
-
-        // Get archived entries for context
-        const archivedEntries = entries
-            .filter(entry => entry.status === 'archived')
+        // Get archived entries (most recent first)
+        const archivedEntries = requests
+            .filter(req => req.status === 'archived')
+            .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
             .slice(0, archived_count);
 
-        // Prepare response
+        // Get preferences
+        const preferences = requests
+            .filter(req => req.status === 'preference' || req.status === 'pinned')
+            .map(req => req.content);
+
         const response = {
-            status: currentRequest ? 'active' : 'no_pending',
-            message: currentRequest
-                ? `Found ${currentRequest.status === 'in_progress' ? 'in-progress' : 'unprocessed'} request`
-                : 'No pending requests found',
+            status: 'success',
+            message: `Retrieved userbrief data with ${archived_count} archived entries`,
+            workflow_reminder: "IMPORTANT: You are in the 'task-decomposition' step. Process ONLY ONE user request at a time. After creating the task(s) for this single request, you MUST call remember() to continue the workflow.",
             current_request: currentRequest,
             archived_entries: archivedEntries,
-            total_entries: entries.length,
-            summary: {
-                new: entries.filter(e => e.status === 'new').length,
-                unprocessed: entries.filter(e => e.status === 'unprocessed').length,
-                in_progress: entries.filter(e => e.status === 'in_progress').length,
-                archived: entries.filter(e => e.status === 'archived').length
+            preferences: preferences,
+            total_requests: requests.length,
+            statistics: {
+                by_status: requests.reduce((acc, req) => {
+                    acc[req.status] = (acc[req.status] || 0) + 1;
+                    return acc;
+                }, {})
             }
         };
 
-        console.log(`[ReadUserbrief] Found ${response.summary.new + response.summary.unprocessed} unprocessed, ${response.summary.in_progress} in progress, ${response.summary.archived} archived`);
+        // Debug logging removed to prevent JSON-RPC pollution  
+        // console.log(`[ReadUserbrief] Success: Found ${requests.length} total requests, current: ${currentRequest ? `#${currentRequest.id}` : 'none'}`);
 
-        return {
-            content: [{
-                type: 'text',
-                text: JSON.stringify(response, null, 2)
-            }]
-        };
+        return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
 
     } catch (error) {
-        console.error('[ReadUserbrief] Error:', error);
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.error('[ReadUserbrief] Error:', error);
+
         return {
             content: [{
                 type: 'text',
                 text: JSON.stringify({
                     status: 'error',
-                    message: `Error reading userbrief: ${error.message}`,
-                    current_request: null,
-                    archived_entries: []
+                    message: `Error reading userbrief: ${error.message}`
                 }, null, 2)
             }]
         };

@@ -1,19 +1,25 @@
 import { z } from 'zod';
-import { taskManager } from '../lib/task_manager.js';
+import fs from 'fs/promises';
+import path from 'path';
 
-// Schema for the update-task tool parameters
-export const updateTaskSchema = z.object({
-    task_id: z.number().int().positive().describe('ID of the task to update'),
-    title: z.string().min(1).max(200).optional().describe('Updated task title'),
-    short_description: z.string().min(1).max(500).optional().describe('Updated brief description'),
-    detailed_description: z.string().min(1).optional().describe('Updated detailed description'),
-    dependencies: z.array(z.number().int().positive()).optional().describe('Updated array of dependency task IDs'),
-    status: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'BLOCKED', 'REVIEW']).optional().describe('Updated task status'),
-    impacted_files: z.array(z.string()).optional().describe('Updated list of affected files'),
-    validation_criteria: z.string().optional().describe('Updated validation criteria'),
-    parent_id: z.number().int().positive().nullable().optional().describe('Updated parent task ID (null to remove parent)'),
-    priority: z.number().int().min(1).max(5).optional().describe('Updated priority level (1=highest, 5=lowest)')
-});
+// Use the absolute path that we know works
+const TASKS_FILE_PATH = 'C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\memory-bank\\streamlit_app\\tasks.json';
+
+async function readTasks() {
+    try {
+        const data = await fs.readFile(TASKS_FILE_PATH, 'utf-8');
+        return JSON.parse(data);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            return [];
+        }
+        throw error;
+    }
+}
+
+async function writeTasks(tasks) {
+    await fs.writeFile(TASKS_FILE_PATH, JSON.stringify(tasks, null, 2), 'utf-8');
+}
 
 /**
  * Handles the update-task tool call
@@ -30,16 +36,17 @@ export const updateTaskSchema = z.object({
  * @param {string} [params.validation_criteria] - Updated validation criteria
  * @param {number|null} [params.parent_id] - Updated parent task ID
  * @param {number} [params.priority] - Updated priority level
+ * @param {string} [params.image] - Updated image path for the task
  * @returns {Object} Tool response with updated task information
  */
 export async function handleUpdateTask(params) {
     try {
         const { task_id, ...updates } = params;
-        console.log(`[UpdateTask] Updating task ${task_id} with fields:`, Object.keys(updates));
 
-        // Check if task exists
-        const existingTask = taskManager.getTaskById(task_id);
-        if (!existingTask) {
+        const tasks = await readTasks();
+        const taskIndex = tasks.findIndex(task => task.id === task_id);
+
+        if (taskIndex === -1) {
             return {
                 content: [{
                     type: 'text',
@@ -52,9 +59,11 @@ export async function handleUpdateTask(params) {
             };
         }
 
+        const existingTask = { ...tasks[taskIndex] };
+
         // Validate parent task exists if parent_id is being updated
         if (updates.parent_id !== undefined && updates.parent_id !== null) {
-            const parentTask = taskManager.getTaskById(updates.parent_id);
+            const parentTask = tasks.find(task => task.id === updates.parent_id);
             if (!parentTask) {
                 return {
                     content: [{
@@ -83,22 +92,25 @@ export async function handleUpdateTask(params) {
             }
         }
 
-        // Remove undefined values to only update provided fields
-        const cleanUpdates = Object.fromEntries(
-            Object.entries(updates).filter(([_, value]) => value !== undefined)
-        );
+        // Create the updated task object
+        const updatedTask = {
+            ...existingTask,
+            ...Object.fromEntries(Object.entries(updates).filter(([_, v]) => v !== undefined)),
+            updated_date: new Date().toISOString()
+        };
 
-        // Update the task using TaskManager
-        const updatedTask = taskManager.updateTask(task_id, cleanUpdates);
+        tasks[taskIndex] = updatedTask;
+        await writeTasks(tasks);
 
         // Prepare success response
         const response = {
             status: 'success',
             message: `Task ${task_id} updated successfully`,
+            workflow_reminder: "IMPORTANT: You are in a workflow. After this update, you MUST call remember() to continue.",
             updated_task: updatedTask,
             changes_made: {
-                fields_updated: Object.keys(cleanUpdates),
-                update_count: Object.keys(cleanUpdates).length,
+                fields_updated: Object.keys(updates).filter(k => updates[k] !== undefined),
+                update_count: Object.keys(updates).filter(k => updates[k] !== undefined).length,
                 previous_status: existingTask.status,
                 new_status: updatedTask.status
             },
@@ -112,8 +124,6 @@ export async function handleUpdateTask(params) {
             }
         };
 
-        console.log(`[UpdateTask] Successfully updated task ${task_id}: ${updatedTask.title}`);
-
         return {
             content: [{
                 type: 'text',
@@ -122,8 +132,6 @@ export async function handleUpdateTask(params) {
         };
 
     } catch (error) {
-        console.error('[UpdateTask] Error:', error);
-
         return {
             content: [{
                 type: 'text',

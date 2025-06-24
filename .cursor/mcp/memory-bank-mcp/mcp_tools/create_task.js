@@ -1,18 +1,29 @@
 import { z } from 'zod';
-import { taskManager } from '../lib/task_manager.js';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Schema for the create_task tool parameters
-export const createTaskSchema = z.object({
-    title: z.string().min(1).max(200).describe('Short descriptive title of the task'),
-    short_description: z.string().min(1).max(500).describe('Brief one-sentence description of what needs to be done'),
-    detailed_description: z.string().min(1).describe('Comprehensive description with implementation details'),
-    dependencies: z.array(z.number().int().positive()).optional().default([]).describe('Array of task IDs that must be completed before this task'),
-    status: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'BLOCKED', 'REVIEW']).optional().default('TODO').describe('Initial status of the task'),
-    impacted_files: z.array(z.string()).optional().default([]).describe('List of files or rules affected by this task'),
-    validation_criteria: z.string().optional().default('').describe('Clear criteria to determine when the task is successfully completed'),
-    parent_id: z.number().int().positive().optional().describe('ID of parent task for sub-tasks'),
-    priority: z.number().int().min(1).max(5).optional().default(3).describe('Priority level (1=highest, 5=lowest)')
-});
+// Use the absolute path that we know works
+const TASKS_FILE_PATH = 'C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\memory-bank\\streamlit_app\\tasks.json';
+
+async function readTasks() {
+    try {
+        const data = await fs.readFile(TASKS_FILE_PATH, 'utf-8');
+        return JSON.parse(data);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            return []; // Return empty array if file doesn't exist
+        }
+        throw error;
+    }
+}
+
+async function writeTasks(tasks) {
+    // Ensure the directory exists
+    const dir = path.dirname(TASKS_FILE_PATH);
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(TASKS_FILE_PATH, JSON.stringify(tasks, null, 2), 'utf-8');
+}
 
 /**
  * Handles the create_task tool call
@@ -28,15 +39,16 @@ export const createTaskSchema = z.object({
  * @param {string} [params.validation_criteria=''] - Validation criteria
  * @param {number} [params.parent_id] - Parent task ID for sub-tasks
  * @param {number} [params.priority=3] - Priority level
+ * @param {string} [params.image] - Optional image path for the task
  * @returns {Object} Tool response with created task information
  */
 export async function handleCreateTask(params) {
     try {
-        console.log('[CreateTask] Creating new task:', params.title);
+        const tasks = await readTasks();
 
         // Validate parent task exists if parent_id is provided
         if (params.parent_id) {
-            const parentTask = taskManager.getTaskById(params.parent_id);
+            const parentTask = tasks.find(task => task.id === params.parent_id);
             if (!parentTask) {
                 return {
                     content: [{
@@ -51,8 +63,12 @@ export async function handleCreateTask(params) {
             }
         }
 
-        // Create the task using TaskManager
-        const createdTask = taskManager.createTask({
+        // Generate a new task ID
+        const newTaskId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+
+        // Create the new task object
+        const createdTask = {
+            id: newTaskId,
             title: params.title,
             short_description: params.short_description,
             detailed_description: params.detailed_description,
@@ -60,9 +76,16 @@ export async function handleCreateTask(params) {
             status: params.status || 'TODO',
             impacted_files: params.impacted_files || [],
             validation_criteria: params.validation_criteria || '',
+            created_date: new Date().toISOString(),
+            updated_date: new Date().toISOString(),
             parent_id: params.parent_id || null,
-            priority: params.priority || 3
-        });
+            priority: params.priority || 3,
+            image: params.image || null
+        };
+
+        // Add the new task and write to file
+        tasks.push(createdTask);
+        await writeTasks(tasks);
 
         // Prepare success response
         const response = {
@@ -80,7 +103,8 @@ export async function handleCreateTask(params) {
                 created_date: createdTask.created_date,
                 updated_date: createdTask.updated_date,
                 parent_id: createdTask.parent_id,
-                priority: createdTask.priority
+                priority: createdTask.priority,
+                image: createdTask.image
             },
             summary: {
                 task_id: createdTask.id,
@@ -91,8 +115,6 @@ export async function handleCreateTask(params) {
             }
         };
 
-        console.log(`[CreateTask] Successfully created task ${createdTask.id}: ${createdTask.title}`);
-
         return {
             content: [{
                 type: 'text',
@@ -101,8 +123,6 @@ export async function handleCreateTask(params) {
         };
 
     } catch (error) {
-        console.error('[CreateTask] Error:', error);
-
         return {
             content: [{
                 type: 'text',

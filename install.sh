@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Cursor Memory Bank Installation Script
-# This script installs the Cursor Memory Bank rules using git clone or curl as fallback.
+# This script installs the Cursor Memory Bank workflow system using git clone or curl as fallback.
 # Test comment to trigger pre-commit hook line count check.
 # Second test comment after fixing commit tool logic.
 
@@ -15,8 +15,8 @@ REPO_URL="https://github.com/hjamet/cursor-memory-bank.git"
 # ARCHIVE_URL="https://github.com/hjamet/cursor-memory-bank/archive/refs/heads/master.tar.gz"
 API_URL="https://api.github.com/repos/hjamet/cursor-memory-bank/commits/master"
 RAW_URL_BASE="https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master"
-DEFAULT_RULES_DIR=".cursor/rules"
-RULES_DIR="${TEST_RULES_DIR:-$DEFAULT_RULES_DIR}"
+DEFAULT_WORKFLOW_DIR=".cursor/workflow-steps"
+WORKFLOW_DIR="${TEST_WORKFLOW_DIR:-$DEFAULT_WORKFLOW_DIR}"
 TEMP_DIR="/tmp/cursor-memory-bank-$$"
 VERSION="1.0.0"
 
@@ -217,51 +217,69 @@ download_archive() {
     esac
 }
 
-backup_rules() {
+# Function to manage .gitignore file
+manage_gitignore() {
     local target_dir="$1"
-    local rules_path="$target_dir/.cursor/rules"
-    
-    # Skip if rules directory doesn't exist
-    if [[ ! -d "$rules_path" ]]; then
-        return 0
+    local gitignore_file="$target_dir/.gitignore"
+    local no_gitignore_flag="${NO_GITIGNORE:-}"
+
+    if [[ -n "$no_gitignore_flag" ]]; then
+        log "Skipping .gitignore management due to --no-gitignore flag"
+        return
     fi
-    
-    # Create backup only if DO_BACKUP is set
-    if [[ -n "${DO_BACKUP:-}" ]]; then
-        local backup_dir="$rules_path.bak-$(date +%Y%m%d-%H%M%S)"
-        log "Backing up existing rules to $backup_dir"
-        if ! cp -r "$rules_path" "$backup_dir"; then
-            error "Failed to backup existing rules. Please check disk space and permissions."
+
+    log "Managing .gitignore file..."
+
+    # Create .gitignore if it doesn't exist
+    if [[ ! -f "$gitignore_file" ]]; then
+        touch "$gitignore_file"
+        log "Created .gitignore file at: $gitignore_file"
+    fi
+
+    # Entries to be added
+    local entries=(
+        "# Cursor Memory Bank - Auto-generated entries"
+        ".cursor/mcp/*/node_modules/"
+        ".cursor/mcp/*/*.log"
+        ".cursor/memory-bank/workflow/temp/"
+        ".cursor/streamlit_app/__pycache__/"
+        ".cursor/memory-bank/models/"
+        "*.pyc"
+        "__pycache__/"
+        "# MCP Server State Files"
+        ".cursor/mcp/*/terminals_status.json"
+        ".cursor/mcp/*/temp_*"
+    )
+
+    # Add entries if they don't exist
+    for entry in "${entries[@]}"; do
+        if ! grep -qF -- "$entry" "$gitignore_file"; then
+            echo "$entry" >> "$gitignore_file"
+            log "Added to .gitignore: $entry"
+        else
+            log "Already in .gitignore: $entry"
         fi
-    else
-        warn "Skipping backup (use --backup if you want to create a backup)"
-    fi
+    done
 }
 
-create_dirs() {
-    local target_dir="$1"
-    log "Creating directory structure in $target_dir"
-    if ! mkdir -p "$target_dir/$RULES_DIR" "$target_dir/$RULES_DIR/custom/errors" "$target_dir/$RULES_DIR/custom/preferences" "$target_dir/$RULES_DIR/languages"; then
-        error "Failed to create directory structure. Please check permissions and disk space."
-    fi
-}
+# Backup and create_dirs functions removed - no longer needed for workflow system
 
-install_rules() {
+install_workflow_system() {
     local target_dir="$1"
     local temp_dir="$2"
-    local rules_path="$target_dir/$RULES_DIR"
+    local workflow_path="$target_dir/$WORKFLOW_DIR"
     local clone_dir="$temp_dir/repo"
     local api_dir="$temp_dir/api-files"
     local commit_date=""
     local template_mcp_json="$temp_dir/mcp.json" # Define path for template
     
     # Define the MCP server names to install
-    local mcp_servers=("mcp-commit-server" "memory-bank-mcp" "mcp-memory-server" "mcp-context7-server" "mcp-debug-server")
+    local mcp_servers=("mcp-commit-server" "memory-bank-mcp" "tools-mcp")
     local server_name # Loop variable
     local mcp_server_source_dir # Will be set inside the loop
     local mcp_server_target_dir # Will be set inside the loop
 
-    log "Installing rules to $rules_path"
+    log "Installing workflow system to $target_dir"
 
     # Use curl if specified or if git is not available
     if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
@@ -273,142 +291,71 @@ install_rules() {
         
         # Get commit date from API
         commit_date=$(get_last_commit_date "curl")
-        log "Installing rules from master branch (latest commit: $commit_date)"
+        log "Installing workflow system from master branch (latest commit: $commit_date)"
 
-        # Create API directory
-        mkdir -p "$api_dir/rules"
-        
-        # Get the list of files from rules/ and .cursor/rules/ directories using the GitHub API
-        local api_response
-        api_response=$(curl -s "https://api.github.com/repos/hjamet/cursor-memory-bank/contents/" 2>/dev/null)
-        
-        # Check for "rules" directory in repository root
-        if echo "$api_response" | grep -q '"name": "rules"'; then
-            # Download files from rules/ directory
-            log "Downloading files from rules/ directory"
-            local rules_api_response
-            rules_api_response=$(curl -s "https://api.github.com/repos/hjamet/cursor-memory-bank/contents/rules" 2>/dev/null)
-            
-            # Extract file paths and download each file
-            local files
-            files=$(echo "$rules_api_response" | grep -o '"path": "[^"]*"' | sed 's/"path": "\(.*\)"/\1/')
-            for file in $files; do
-                local file_url="$RAW_URL_BASE/$file"
-                local dest_file="$api_dir/$file"
-                log "Downloading $file"
-                # Create directory if it doesn't exist
-                mkdir -p "$(dirname "$dest_file")"
-                download_file "$file_url" "$dest_file"
-            done
-        fi
-        
-        # Check for ".cursor/rules" directory
-        local cursor_api_response
-        cursor_api_response=$(curl -s "https://api.github.com/repos/hjamet/cursor-memory-bank/contents/.cursor" 2>/dev/null)
-        if echo "$cursor_api_response" | grep -q '"name": "rules"'; then
-            # Download files from .cursor/rules/ directory
-            log "Downloading files from .cursor/rules/ directory"
-            local cursor_rules_api_response
-            cursor_rules_api_response=$(curl -s "https://api.github.com/repos/hjamet/cursor-memory-bank/contents/.cursor/rules" 2>/dev/null)
-            
-            # Use jq if available to reliably parse path and type
-            if command -v jq > /dev/null 2>&1; then
-                echo "$cursor_rules_api_response" | jq -c '.[] | {path: .path, type: .type}' | while IFS= read -r item; do
-                    local path=$(echo "$item" | jq -r '.path')
-                    local type=$(echo "$item" | jq -r '.type')
-                    
-                    if [[ "$type" == "file" ]]; then
-                        local file_url="$RAW_URL_BASE/$path"
-                        # Destination needs basename only, place inside api_dir/rules/
-                        local dest_file="$api_dir/rules/$(basename "$path")" 
-                        log "Downloading $path (type: $type)"
-                        mkdir -p "$(dirname "$dest_file")"
-                        download_file "$file_url" "$dest_file"
-                    else
-                        log "Skipping $path (type: $type)"
-                    fi
-                done
-            else
-                warn "jq not found. Using grep/sed to extract paths. May attempt to download non-files."
-                # Fallback to grep/sed (original behavior, may fail on directories)
-                local cursor_files=$(echo "$cursor_rules_api_response" | grep -o '"path": "[^"]*"' | sed 's/"path": "\(.*\)"/\1/')
-                for file in $cursor_files; do
-                    # Skip the known directory
-                    if [[ "$(basename "$file")" == "languages" ]]; then
-                        log "Skipping languages directory (jq not available)"
-                        continue
-                    fi
-                    
-                    local file_url="$RAW_URL_BASE/$file"
-                    local dest_file="$api_dir/rules/$(basename "$file")"
-                    log "Downloading $file (jq not available)"
-                    mkdir -p "$(dirname "$dest_file")"
-                    download_file "$file_url" "$dest_file"
-                done
-            fi
-        fi
-        
-        # Copy downloaded files to the target directory
-        if [[ -d "$api_dir/rules" ]]; then
-            # Check if the source directory is non-empty before copying
-            if [ -n "$(ls -A "$api_dir/rules")" ]; then
-                log "Copying rules from downloaded files"
-                # Use dot to copy contents, not the directory itself
-                if ! cp -r "$api_dir/rules/." "$rules_path/"; then 
-                    error "Failed to copy rules from downloaded files. Please check disk space and permissions."
-                fi
-            else
-                warn "Downloaded rules directory ($api_dir/rules) is empty. Skipping copy."
-            fi
-        else
-            # This case should ideally not happen if API calls succeeded, but good to handle
-            warn "Downloaded rules directory ($api_dir/rules) not found. No rules copied."
-            # Depending on requirements, this could be an error: error "No rules downloaded or found."
-        fi
-
-        # ADD MCP.JSON DOWNLOAD HERE
+        # Download mcp.json template
         log "Downloading mcp.json template"
         download_file "$RAW_URL_BASE/.cursor/mcp.json" "$template_mcp_json"
 
-        # ADD PRE-COMMIT HOOK DOWNLOAD HERE
+        # Download workflow-steps
+        log "Downloading workflow-steps..."
+        mkdir -p "$workflow_path"
+        local workflow_files=("start-workflow.md" "task-decomposition.md" "implementation.md" "experience-execution.md" "fix.md" "context-update.md")
+        for file in "${workflow_files[@]}"; do
+            download_file "$RAW_URL_BASE/.cursor/workflow-steps/$file" "$workflow_path/$file"
+        done
+        
+        # Download start.mdc rule
+        log "Downloading start.mdc rule..."
+        mkdir -p "$target_dir/.cursor/rules"
+        download_file "$RAW_URL_BASE/.cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"
+
+        # Download pre-commit hook
         log "Downloading .githooks/pre-commit"
         local hooks_api_dir="$api_dir/githooks"
         mkdir -p "$hooks_api_dir"
         download_file "$RAW_URL_BASE/.githooks/pre-commit" "$hooks_api_dir/pre-commit"
 
-        # ADD MCP-COMMIT-SERVER/SERVER.JS DOWNLOAD HERE
-        log "Downloading mcp-commit-server/server.js"
-        local commit_server_target_dir="$target_dir/.cursor/mcp/mcp-commit-server"
-        mkdir -p "$commit_server_target_dir" # Ensure directory exists
-        download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/server.js" "$commit_server_target_dir/server.js"
-
-        # ADD MEMORY-BANK-MCP SERVER FILES DOWNLOAD HERE
-        log "Downloading memory-bank-mcp server files"
-        local memory_bank_server_target_dir="$target_dir/.cursor/mcp/memory-bank-mcp"
-        mkdir -p "$memory_bank_server_target_dir" # Ensure directory exists
-        mkdir -p "$memory_bank_server_target_dir/lib"
-        mkdir -p "$memory_bank_server_target_dir/mcp_tools"
-        download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/server.js" "$memory_bank_server_target_dir/server.js"
-        download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/package.json" "$memory_bank_server_target_dir/package.json"
-        download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/lib/userbrief_manager.js" "$memory_bank_server_target_dir/lib/userbrief_manager.js"
-        download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/mcp_tools/read_userbrief.js" "$memory_bank_server_target_dir/mcp_tools/read_userbrief.js"
-        download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/mcp_tools/update_userbrief.js" "$memory_bank_server_target_dir/mcp_tools/update_userbrief.js"
-
-        # --- Clean existing MCP directory before installing/copying files ---
-        log "Cleaning existing MCP directory: $target_dir/.cursor/mcp"
+        # Clean and setup MCP directories
+        log "Setting up MCP server directories..."
         rm -rf "$target_dir/.cursor/mcp" || warn "Failed to remove existing MCP directory (may not exist)"
         mkdir -p "$target_dir/.cursor/mcp" || error "Failed to create MCP directory: $target_dir/.cursor/mcp"
 
-        # --- Loop through MCP servers for curl mode ---
+        # Download MCP server files
         for server_name in "${mcp_servers[@]}"; do
-            mcp_server_source_dir="$api_dir/.cursor/mcp/$server_name" # Assumed path for downloaded files
             mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
-            log "Creating MCP server directory structure for $server_name (curl mode - files must be manually added or downloaded if server requires local files)"
-            # Server definitions are handled by merging mcp.json; no specific file download needed here for npx/URL servers.
             mkdir -p "$mcp_server_target_dir"
-            # mkdir -p "$mcp_server_source_dir" # Source dir is only conceptual here
+            
+            if [[ "$server_name" == "mcp-commit-server" ]]; then
+                log "Downloading mcp-commit-server files..."
+                download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/server.js" "$mcp_server_target_dir/server.js"
+                download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/package.json" "$mcp_server_target_dir/package.json"
+            elif [[ "$server_name" == "memory-bank-mcp" ]]; then
+                log "Downloading memory-bank-mcp server files..."
+                mkdir -p "$mcp_server_target_dir/lib"
+                mkdir -p "$mcp_server_target_dir/mcp_tools"
+                download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/server.js" "$mcp_server_target_dir/server.js"
+                download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/package.json" "$mcp_server_target_dir/package.json"
+                download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/lib/userbrief_manager.js" "$mcp_server_target_dir/lib/userbrief_manager.js"
+                download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/lib/memory_context.js" "$mcp_server_target_dir/lib/memory_context.js"
+                download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/lib/semantic_search.js" "$mcp_server_target_dir/lib/semantic_search.js"
+                # Download all mcp_tools
+                local tools=("commit.js" "create_task.js" "get_all_tasks.js" "get_next_tasks.js" "next_rule.js" "read_userbrief.js" "remember.js" "update_task.js" "update_userbrief.js")
+                for tool in "${tools[@]}"; do
+                    download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/mcp_tools/$tool" "$mcp_server_target_dir/mcp_tools/$tool"
+                done
+            elif [[ "$server_name" == "tools-mcp" ]]; then
+                log "Downloading tools-mcp server files..."
+                mkdir -p "$mcp_server_target_dir/mcp_tools"
+                download_file "$RAW_URL_BASE/.cursor/mcp/tools-mcp/server.js" "$mcp_server_target_dir/server.js"
+                download_file "$RAW_URL_BASE/.cursor/mcp/tools-mcp/package.json" "$mcp_server_target_dir/package.json"
+                # Download all tools
+                local tools=("consult_image.js" "execute_command.js" "get_terminal_output.js" "get_terminal_status.js" "regex_edit.js" "stop_terminal_command.js" "take_webpage_screenshot.js")
+                for tool in "${tools[@]}"; do
+                    download_file "$RAW_URL_BASE/.cursor/mcp/tools-mcp/mcp_tools/$tool" "$mcp_server_target_dir/mcp_tools/$tool"
+                done
+            fi
         done
-        # --- End MCP Server loop (curl) ---
 
     else
         # Use git clone
@@ -417,125 +364,85 @@ install_rules() {
         
         # Get commit date
         commit_date=$(get_last_commit_date)
-        log "Installing rules from master branch (latest commit: $commit_date)"
+        log "Installing workflow system from master branch (latest commit: $commit_date)"
 
-        # Check for rules directory
-        if [[ ! -d "$clone_dir/rules" ]]; then
-            # If rules directory doesn't exist at root, check if rules are in .cursor/rules
-            if [[ -d "$clone_dir/.cursor/rules" ]]; then
-                # Create rules directory and copy files from .cursor/rules
-                if ! mkdir -p "$clone_dir/rules" || ! cp -r "$clone_dir/.cursor/rules/"* "$clone_dir/rules/"; then
-                    error "Failed to copy rules from .cursor/rules. Please check disk space and permissions."
-                fi
-            else
-                error "Invalid repository structure: neither rules/ nor .cursor/rules/ directory found"
+        # Copy workflow-steps
+        if [[ -d "$clone_dir/.cursor/workflow-steps" ]]; then
+            log "Copying workflow-steps..."
+            mkdir -p "$workflow_path"
+            if ! cp -r "$clone_dir/.cursor/workflow-steps/"* "$workflow_path/"; then
+                error "Failed to copy workflow-steps. Please check disk space and permissions."
             fi
-        fi
-
-        # Copy rules directory without removing files that don't exist in the source
-        if ! cp -r "$clone_dir/rules/"* "$rules_path/"; then
-            error "Failed to copy rules to installation directory. Please check disk space and permissions."
+        else
+            warn "workflow-steps directory not found in repository"
         fi
         
-        # ADD MCP.JSON COPY HERE
-        if [[ -f "$clone_dir/.cursor/mcp.json" ]]; then # Corrected path
+        # Copy start.mdc rule
+        if [[ -f "$clone_dir/.cursor/rules/start.mdc" ]]; then
+            log "Copying start.mdc rule..."
+            mkdir -p "$target_dir/.cursor/rules"
+            if ! cp "$clone_dir/.cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"; then
+                error "Failed to copy start.mdc rule. Please check disk space and permissions."
+            fi
+        else
+            warn "start.mdc rule not found in repository"
+        fi
+        
+        # Copy mcp.json template
+        if [[ -f "$clone_dir/.cursor/mcp.json" ]]; then
             log "Copying mcp.json template from clone"
             if ! cp "$clone_dir/.cursor/mcp.json" "$template_mcp_json"; then
                 error "Failed to copy mcp.json template. Please check permissions."
             fi
         else
             warn "mcp.json template not found in repository clone at .cursor/mcp.json."
-            # Create an empty file to avoid errors later if merge is attempted
             touch "$template_mcp_json"
         fi
 
-        # --- Clean existing MCP directory before installing/copying files ---
-        log "Cleaning existing MCP directory: $target_dir/.cursor/mcp"
+        # Clean and setup MCP directories
+        log "Setting up MCP server directories..."
         rm -rf "$target_dir/.cursor/mcp" || warn "Failed to remove existing MCP directory (may not exist)"
         mkdir -p "$target_dir/.cursor/mcp" || error "Failed to create MCP directory: $target_dir/.cursor/mcp"
 
-        # --- Loop through MCP servers for git mode ---
+        # Copy MCP server files
         for server_name in "${mcp_servers[@]}"; do
             mcp_server_source_dir="$clone_dir/.cursor/mcp/$server_name"
             mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
 
-            log "Preparing to copy MCP server files for $server_name to target directory..."
             if [[ -d "$mcp_server_source_dir" ]]; then
-                log "Source directory for $server_name files: $mcp_server_source_dir"
-                # Ensure target parent directory exists
-                if ! mkdir -p "$(dirname "$mcp_server_target_dir")"; then
-                    error "Failed to create parent directory for $server_name target: $(dirname "$mcp_server_target_dir")"
-                fi
-                # Ensure target directory exists
+                log "Copying $server_name files..."
                 mkdir -p "$mcp_server_target_dir"
-                # Copy files
-                log "Copying $server_name files from $mcp_server_source_dir to $mcp_server_target_dir"
                 if ! cp -r "$mcp_server_source_dir/"* "$mcp_server_target_dir/"; then
-                     # Check if source directory was empty
-                     if [ -z "$(ls -A "$mcp_server_source_dir")" ]; then
-                         warn "MCP server source directory ($mcp_server_source_dir) for $server_name is empty. Server files might be missing."
-                     else
-                         error "Failed to copy $server_name files. Please check disk space and permissions."
-                     fi
+                    if [ -z "$(ls -A "$mcp_server_source_dir")" ]; then
+                        warn "MCP server source directory for $server_name is empty."
+                    else
+                        error "Failed to copy $server_name files. Please check disk space and permissions."
+                    fi
                 else
-                     log "$server_name files copied successfully."
+                    log "$server_name files copied successfully."
                 fi
             else
-                warn "Source directory for $server_name files not found or not a directory: $mcp_server_source_dir. Skipping $server_name files copy."
+                warn "Source directory for $server_name not found: $mcp_server_source_dir"
             fi
         done
-        # --- End MCP Server loop (git) ---
     fi
 
-    # Preserve custom rules if they exist - ONLY use backup if DO_BACKUP is set
-    if [[ -n "${DO_BACKUP:-}" ]]; then
-        local backup_pattern="${rules_path}.bak-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]"
-        local backup_dir=$(ls -d $backup_pattern 2>/dev/null | head -n 1)
-        if [[ -n "$backup_dir" ]] && [[ -d "$backup_dir/custom" ]]; then
-            log "Restoring custom rules from backup"
-            if ! cp -r "$backup_dir/custom/"* "$rules_path/custom/"; then
-                error "Failed to restore custom rules. Please check disk space and permissions."
-            fi
-        fi
+    # Set permissions for workflow and MCP directories
+    if [[ -d "$workflow_path" ]]; then
+        chmod -R u+rw "$workflow_path" || true
     fi
     
-    # Always preserve existing custom rules directly, regardless of backup option
-    if [[ -d "$rules_path/custom" ]]; then
-        log "Preserving existing custom rules"
-        # We temporarily move custom rules to temp dir and move them back after installation
-        local temp_custom="$temp_dir/custom_temp"
-        if ! mkdir -p "$temp_custom" || ! cp -r "$rules_path/custom/"* "$temp_custom/"; then
-            error "Failed to temporarily preserve custom rules. Please check disk space and permissions."
-        fi
-        # After installation is complete, we restore the custom rules
-        if ! cp -r "$temp_custom/"* "$rules_path/custom/"; then
-            error "Failed to restore custom rules. Please check disk space and permissions."
-        fi
-    fi
-
-    # Set correct permissions for rules
-    if ! chmod -R u+rw "$rules_path" || ! find "$rules_path" -type d -exec chmod u+x {} \;; then
-        error "Failed to set permissions for rules. Please check file system permissions."
-    fi
-    
-    # Set permissions for all copied MCP server directories
-    log "Setting permissions for installed MCP server directories..."
     for server_name in "${mcp_servers[@]}"; do
-        local current_mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
-        if [[ -d "$current_mcp_server_target_dir" ]]; then
-             # REMOVED log call from inside the loop to test if it causes issues in curl|bash
-             # Execute chmod directly...
-             chmod -R u+rw "$current_mcp_server_target_dir" || true
+        local mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
+        if [[ -d "$mcp_server_target_dir" ]]; then
+            chmod -R u+rw "$mcp_server_target_dir" || true
         fi
     done
 
-    # Ensure system.mdc is present (for test compatibility)
-    if [[ ! -f "$rules_path/system.mdc" ]]; then
-        log "Creating system.mdc file for test compatibility"
-        echo "# System Rule - Created by install.sh for testing compatibility" > "$rules_path/system.mdc"
-    fi
+    # Manage .gitignore file
+    manage_gitignore "$target_dir"
 
-    log "Rules and MCP server base files installed successfully"
+    log "Workflow system and MCP servers installed successfully"
 }
 
 # Function to merge MCP JSON template with existing config
@@ -779,6 +686,170 @@ install_pre_commit_hook() {
     log "Pre-commit hook installed to $hook_file"
 }
 
+# Function to install the Streamlit app and dependencies
+install_streamlit_app() {
+    log "Installing Streamlit app and dependencies..."
+    local target_dir="$1"
+    local temp_dir="$2"
+    local streamlit_dir="$target_dir/.cursor/streamlit_app"
+    local requirements_file="$streamlit_dir/requirements.txt"
+    local startup_script="$target_dir/.cursor/run_streamlit.sh"
+    local clone_dir="$temp_dir/repo"
+    local api_dir="$temp_dir/api-files"
+
+    # Create streamlit directory
+    mkdir -p "$streamlit_dir" || {
+        warn "Failed to create Streamlit directory. Skipping Streamlit installation."
+        return
+    }
+
+    # Download or copy Streamlit app files
+    if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
+        log "Downloading Streamlit app files..."
+        
+        # Download main app file
+        download_file "$RAW_URL_BASE/.cursor/streamlit_app/app.py" "$streamlit_dir/app.py"
+        download_file "$RAW_URL_BASE/.cursor/streamlit_app/requirements.txt" "$streamlit_dir/requirements.txt"
+        download_file "$RAW_URL_BASE/.cursor/streamlit_app/tasks.json" "$streamlit_dir/tasks.json"
+        
+        # Download pages directory
+        mkdir -p "$streamlit_dir/pages"
+        local page_files=("add_request.py" "memory.py" "task_status.py")
+        for page in "${page_files[@]}"; do
+            download_file "$RAW_URL_BASE/.cursor/streamlit_app/pages/$page" "$streamlit_dir/pages/$page"
+        done
+        
+        # Download startup script
+        download_file "$RAW_URL_BASE/.cursor/run_streamlit.sh" "$startup_script"
+    else
+        log "Copying Streamlit app files from git clone..."
+        
+        if [[ -d "$clone_dir/.cursor/streamlit_app" ]]; then
+            if ! cp -r "$clone_dir/.cursor/streamlit_app/"* "$streamlit_dir/"; then
+                warn "Failed to copy Streamlit app files. Please check permissions."
+                return
+            fi
+        else
+            warn "Streamlit app directory not found in repository clone"
+            return
+        fi
+        
+        # Copy startup script
+        if [[ -f "$clone_dir/.cursor/run_streamlit.sh" ]]; then
+            cp "$clone_dir/.cursor/run_streamlit.sh" "$startup_script"
+        else
+            warn "Streamlit startup script not found in repository clone"
+        fi
+    fi
+
+    # Make startup script executable
+    if [[ -f "$startup_script" ]]; then
+        chmod +x "$startup_script" || warn "Failed to make startup script executable"
+        log "Streamlit startup script installed at: $startup_script"
+    fi
+
+    # Install dependencies if requirements file exists
+    if [[ ! -f "$requirements_file" ]]; then
+        warn "Streamlit requirements.txt not found at $requirements_file. Skipping dependency installation."
+        return
+    fi
+
+    log "Installing Streamlit dependencies..."
+    
+    # Determine Python and pip commands
+    local python_cmd=""
+    local pip_cmd=""
+    
+    if command -v python3 &>/dev/null && command -v pip3 &>/dev/null; then
+        python_cmd="python3"
+        pip_cmd="pip3"
+    elif command -v python &>/dev/null && command -v pip &>/dev/null; then
+        python_cmd="python"
+        pip_cmd="pip"
+    else
+        warn "python/pip not found. Cannot install Streamlit app dependencies. Please install Python and pip, then run 'pip install -r $requirements_file'."
+        return
+    fi
+
+    log "Found $python_cmd and $pip_cmd. Installing Streamlit dependencies..."
+    if $pip_cmd install -r "$requirements_file"; then
+        log "Streamlit dependencies installed successfully."
+        log "To start the Streamlit UI, run: $startup_script"
+    else
+        warn "Failed to install Streamlit dependencies with $pip_cmd. Please install them manually from $requirements_file."
+    fi
+}
+
+install_ml_model() {
+    log "Checking for ML model..."
+    local target_dir="$1"
+    
+    # Check if python/pip are available
+    local python_cmd=""
+    if command -v python3 &>/dev/null; then
+        python_cmd="python3"
+    elif command -v python &>/dev/null; then
+        python_cmd="python"
+    else
+        warn "Python not found. Cannot download ML model."
+        return
+    fi
+
+    local pip_cmd=""
+    if command -v pip3 &>/dev/null; then
+        pip_cmd="pip3"
+    elif command -v pip &>/dev/null; then
+        pip_cmd="pip"
+    else
+        warn "pip not found. Cannot download ML model."
+        return
+    fi
+
+    # Create models directory
+    local models_dir="$target_dir/.cursor/memory-bank/models"
+    mkdir -p "$models_dir" || {
+        warn "Failed to create models directory. Skipping model download."
+        return
+    }
+
+    log "Installing sentence-transformers for model download..."
+    if ! $pip_cmd install sentence-transformers &>/dev/null; then
+        warn "Failed to install 'sentence-transformers'. Model download might fail. Trying to proceed..."
+    fi
+
+    log "Downloading all-MiniLM-L6-v2 model. This may take a few minutes..."
+    
+    # Create temporary Python script for model download
+    local temp_download_script="$target_dir/temp_download_model.py"
+    cat > "$temp_download_script" << 'EOF'
+from sentence_transformers import SentenceTransformer
+import os
+import sys
+
+model_name = 'all-MiniLM-L6-v2'
+cache_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join('.cursor', 'memory-bank', 'models')
+
+print(f"Downloading {model_name} to {cache_dir}...")
+
+try:
+    # This will download the model to the specified cache directory
+    model = SentenceTransformer(model_name, cache_folder=cache_dir)
+    print("Model downloaded successfully.")
+except Exception as e:
+    print(f"Error downloading model: {e}")
+    sys.exit(1)
+EOF
+
+    if ! $python_cmd "$temp_download_script" "$models_dir"; then
+        warn "ML model download failed. The model will be downloaded on first use instead."
+    else
+        log "ML model downloaded successfully to $models_dir"
+    fi
+    
+    # Clean up temporary script
+    rm -f "$temp_download_script"
+}
+
 show_help() {
     cat << EOF
 Cursor Memory Bank Installation Script v${VERSION}
@@ -795,10 +866,12 @@ Options:
     --use-curl      Force using curl instead of git clone
 
 This script will:
-1. Install the Cursor Memory Bank rules using git clone or curl
-2. Preserve any existing custom rules
-3. Update the core rules
-4. Clean up temporary files
+1. Install the Cursor Memory Bank workflow system using git clone or curl
+2. Set up MCP servers (ToolsMCP, MemoryBankMCP, mcp-commit-server)
+3. Download the all-MiniLM-L6-v2 model for semantic search
+4. Install Streamlit UI for monitoring agent status
+5. Install start.mdc rule for autonomous workflow operation
+6. Clean up temporary files
 
 For more information, visit: ${REPO_URL}
 EOF
@@ -882,14 +955,8 @@ if ! touch "$INSTALL_DIR/.write_test" 2>/dev/null; then
 fi
 rm -f "$INSTALL_DIR/.write_test"
 
-# Backup existing rules if necessary
-backup_rules "$INSTALL_DIR"
-
-# Create directory structure without deleting existing files
-create_dirs "$INSTALL_DIR"
-
-# Install rules AND copy base MCP server files
-install_rules "$INSTALL_DIR" "$TEMP_DIR"
+# Install workflow system and MCP servers
+install_workflow_system "$INSTALL_DIR" "$TEMP_DIR"
 
 # Install pre-commit hook
 install_pre_commit_hook "$INSTALL_DIR" "$TEMP_DIR"
@@ -1034,6 +1101,12 @@ if command -v git >/dev/null 2>&1; then
 else
     warn "git command not found. Skipping automatic hook configuration."
 fi
+
+# Install Streamlit App
+install_streamlit_app "$INSTALL_DIR"
+
+# Install ML Model
+install_ml_model "$INSTALL_DIR"
 
 log "Installation completed successfully!"
 

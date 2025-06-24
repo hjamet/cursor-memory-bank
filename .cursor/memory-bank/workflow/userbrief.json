@@ -1,0 +1,523 @@
+{
+  "version": "1.0.0",
+  "last_id": 132,
+  "requests": [
+    {
+      "id": 105,
+      "content": "Alors je ne sais pas quelles actions j'ai fait qu'à déclencher ça, mais j'ai remarqué que il y avait les logs suivant côté serveur et donc bah il y a un problème qu'il faudrait résoudre probablement. Dis moi si t'arrives à trouver d'où ça vient et si tu peux le résoudre :\n\n\n────────────────────────── Traceback (most recent call last) ───────────────────────────\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r  \n  untime\\scriptrunner\\exec_code.py:128 in exec_func_with_error_handling\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\script_runner.py:667 in code_to_exec\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\script_runner.py:165 in _mpa_v1\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\n\n  avigation\\page.py:300 in run\n\n  C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py:10\n  70 in <module>\n\n    1067 │   │   st.caption(\"🔄 User requests waiting to be decomposed into tasks\")\n    1068 │   │   \n    1069 │   │   for request in userbrief_requests:\n  ❱ 1070 │   │   │   render_userbrief_request(request)\n    1071 else:\n    1072 │   with st.expander(\"📋 Stage 0: Unprocessed Requests (0)\", expanded=False):\n    1073 │   │   st.info(\"📭 No unprocessed requests - all user requests have been con\n\n  C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py:67\n  7 in render_userbrief_request\n\n     674 │   │   │   # Action buttons\n     675 │   │   │   col1, col2, col3 = st.columns([1, 1, 5])\n     676 │   │   │   with col1:\n  ❱  677 │   │   │   │   if st.button(\"✏️ Edit\", key=f\"start_edit_{req_id}\", help=\"Edit\n     678 │   │   │   │   │   st.session_state[edit_key] = True\n     679 │   │   │   │   │   st.rerun()\n     680 │   │   │   with col2:\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\metrics_util.py:443 in wrapped_func\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\widgets\\button.py:243 in button\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\widgets\\button.py:1013 in _button\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\lib\\utils.py:254 in compute_and_register_element_id\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\lib\\utils.py:143 in _register_element_id\n────────────────────────────────────────────────────────────────────────────────────────\nStreamlitDuplicateElementKey: There are multiple elements with the same\n`key='start_edit_99'`. To fix this, please make sure that the `key` argument is unique\nfor each element you create.\n────────────────────────── Traceback (most recent call last) ───────────────────────────\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\exec_code.py:128 in exec_func_with_error_handling\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\script_runner.py:667 in code_to_exec\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\script_runner.py:165 in _mpa_v1\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\n\n  avigation\\page.py:300 in run\n\n  C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py:10\n  70 in <module>\n\n    1067 │   │   st.caption(\"🔄 User requests waiting to be decomposed into tasks\")\n    1068 │   │   \n    1069 │   │   for request in userbrief_requests:\n  ❱ 1070 │   │   │   render_userbrief_request(request)\n    1071 else:\n    1072 │   with st.expander(\"📋 Stage 0: Unprocessed Requests (0)\", expanded=False):\n    1073 │   │   st.info(\"📭 No unprocessed requests - all user requests have been con\n\n  C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py:67\n  7 in render_userbrief_request\n\n     674 │   │   │   # Action buttons\n     675 │   │   │   col1, col2, col3 = st.columns([1, 1, 5])\n     676 │   │   │   with col1:\n  ❱  677 │   │   │   │   if st.button(\"✏️ Edit\", key=f\"start_edit_{req_id}\", help=\"Edit\n     678 │   │   │   │   │   st.session_state[edit_key] = True\n     679 │   │   │   │   │   st.rerun()\n     680 │   │   │   with col2:\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\metrics_util.py:443 in wrapped_func\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\widgets\\button.py:243 in button\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\widgets\\button.py:1013 in _button\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\lib\\utils.py:254 in compute_and_register_element_id\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\lib\\utils.py:143 in _register_element_id\n────────────────────────────────────────────────────────────────────────────────────────\nStreamlitDuplicateElementKey: There are multiple elements with the same\n`key='start_edit_99'`. To fix this, please make sure that the `key` argument is unique\nfor each element you create.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T19:22:17.659100",
+      "updated_at": "2025-06-24T17:34:58.244Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T19:22:17.659100",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T17:34:58.244Z",
+          "action": "mark_archived",
+          "comment": "This bug report about a `StreamlitDuplicateElementKey` error has been analyzed. The root cause is a redundant rendering loop in `task_status.py`. A high-priority task (#147) has been created to remove this loop. Archiving this request as it has been converted into an actionable task."
+        }
+      ]
+    },
+    {
+      "id": 106,
+      "content": "Correction for Task #129 (Standardize Auto-Refresh Sidebar Feature):\n\nDans les onglets APP et Memory, il y a toujours d'autres éléments en plus du bouton auto refresh, il faudrait supprimer ces éléments de la sidebar. Ils servent à rien",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T19:23:30.253133",
+      "updated_at": "2025-06-24T17:35:23.660Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T19:23:30.253133",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T17:35:23.660Z",
+          "action": "mark_archived",
+          "comment": "This correction request has been merged into the detailed description of task #142. The requirement to remove all hardcoded sidebar elements from `app.py` and `memory.py` is now part of the main sidebar refactoring task. Archiving this request as it has been integrated into an existing task."
+        }
+      ]
+    },
+    {
+      "id": 107,
+      "content": "J'ai l'impression que le système d'auto rafraîchissement ne fonctionne pas correctement. Est-ce que tu peux modifier son fonctionnement en utilisant la bibliothèque qui est décrite à ce repository ? Oublie pas de l'installer et de l'ajouter aux requirements. Elle est requirement, fais attention hein, ils doivent être dans le dossier. Point cursor le le fichier existe déjà, ne le recrée pas à la racine. Tu m'as fait ça une fois, il faut juste que tu modifies le le fichier equarement ça existant en ajoutant cette dépendance et en l'utilisant pour avoir un auto refresh qui fonctionne : https://github.com/kmcgrady/streamlit-autorefresh",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T19:27:09.524016",
+      "updated_at": "2025-06-24T17:36:04.385Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T19:27:09.524016",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T17:36:04.385Z",
+          "action": "mark_archived",
+          "comment": "The user request to implement `streamlit-autorefresh` has been analyzed. A parent task (#148) and two sub-tasks (#149, #150) have been created to handle the installation, requirements update, and integration of the new library. Archiving this request as it is now fully decomposed into actionable tasks."
+        }
+      ]
+    },
+    {
+      "id": 108,
+      "content": "Correction for Task #138 (Sub-task: Make Review Page the Main Page):\n\nAlors, c'est presque bon, ça a super bien fonctionné. Simplement problème. La page review existe toujours, ce qui fait qu'on a une page dupliquée. On a la page APP qui contient le contenu de la page review et la page review qui contient le contenu de la page review. Donc voilà, tu peux supprimer la page review et si c'est possible mais uniquement si c'est possible je sais pas si c'est possible renommer la page APP review c'est simplement en faire la page par défaut sur laquelle on arrive quand on se connecte.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T19:28:01.472148",
+      "updated_at": "2025-06-24T17:37:01.217Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T19:28:01.472148",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T17:37:01.217Z",
+          "action": "mark_archived",
+          "comment": "The file review.py appears to be already deleted according to the git status. No new task was created."
+        }
+      ]
+    },
+    {
+      "id": 109,
+      "content": "Dans l'interface streaming dans la page Memory. Agent working Memory Tu peux supprimer tout ce qu'il y a sous le titre en incluant bien sur ce titre : \"📋 Recent Requests Overview\", L'idée, c'est de garder simplement la liste des DI derniers souvenirs de la mémoire active de l'agent Le résumé des user-brise, on s'en fiche ça n'a rien à faire là !",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T19:29:23.826693",
+      "updated_at": "2025-06-24T17:37:39.702Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T19:29:23.826693",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T17:37:39.702Z",
+          "action": "mark_archived",
+          "comment": "Created task #151 to remove the 'Recent Requests Overview' section from the memory page."
+        }
+      ]
+    },
+    {
+      "id": 110,
+      "content": "Ça, c'est une toute petite tache toute simple, mais est-ce que tu peux m'envoyer un message, un aide agent message via remember ? C'est simplement pour vérifier que la la, la fonctionnalité marche bien.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T19:30:11.291240",
+      "updated_at": "2025-06-24T17:37:59.140Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T19:30:11.291240",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T17:37:59.140Z",
+          "action": "mark_archived",
+          "comment": "Sent a test message to the user as requested."
+        }
+      ]
+    },
+    {
+      "id": 111,
+      "content": "Un gros souci lors du chargement de la page Task Status :\n\nValueError: too many values to unpack (expected 2)\n\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py\", line 944, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py\", line 901, in main\n    search_query, filters = render_advanced_search_and_filters()\n    ^^^^^^^^^^^^^^^^^^^^^",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T19:33:39.036076",
+      "updated_at": "2025-06-24T17:38:34.109Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T19:33:39.036076",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T17:38:34.109Z",
+          "action": "mark_archived",
+          "comment": "Created task #152 to fix the ValueError on the Task Status Page."
+        }
+      ]
+    },
+    {
+      "id": 113,
+      "content": "Coucou dans l'application principale côté review et communication dans l'Onglet Task to review, tu peux supprimer le bouton. Euh Marc Asden et subreove Image. En fait, ça devrait être le cas par défaut si la tâche a une image, l'image devrait être supprimée par défaut. Euh. Valider le le changement, dire c'est bon, ça supprime automatiquement l'image si elle existe sans confirmation, sans rien, c'est automatique. Tu peux effectuer cette modification ? :D",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T19:42:34.389354",
+      "updated_at": "2025-06-24T17:43:35.639Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T19:42:34.389354",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T17:43:35.639Z",
+          "action": "mark_archived",
+          "comment": "Created task #153 to simplify image deletion on task approval."
+        }
+      ]
+    },
+    {
+      "id": 114,
+      "content": "Correction for Task #129 (Standardize Auto-Refresh Sidebar Feature):\n\nParu de malheureusement, depuis ta dernière modification, le bouton d'actualisation a simplement disparu. Euh. Donc de la side-barres y a y a on voit le titre contrôle mais en dessous y a rien donc du coup je je sais pas trop ce que t'as fait mais ça ne fonctionne malheureusement plus.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:05:04.520825",
+      "updated_at": "2025-06-24T18:06:21.454Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:05:04.520825",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:06:21.454Z",
+          "action": "mark_archived",
+          "comment": "The bug report about the missing auto-refresh button has been analyzed. The root cause was an incorrect usage of the `streamlit-autorefresh` library. A new high-priority task (#154) has been created to fix this by implementing a proper checkbox control in the sidebar. Archiving this request as it is now converted into a task."
+        }
+      ]
+    },
+    {
+      "id": 115,
+      "content": "Petite tache simplement pour t'aider à vérifier que la suppression des images se passe correctement, donc j'ai attaché une image. On s'en fiche un peu à cette tâche et du coup il faudrait vérifier que une fois que tu as résolu la tâche, que la tâche est archivée, Eh bien l'image est supprimée. Note que c'est quand la tâche est archivée, c'est à dire que je l'ai revu pas quand la tâche est simplement terminée par toi.",
+      "status": "archived",
+      "image": {
+        "path": ".cursor\\temp\\images\\req_115_20250624_200651_pasted.png",
+        "filename": "req_115_20250624_200651_pasted.png",
+        "size": 57689,
+        "width": 1338,
+        "height": 935,
+        "content_type": "image/png"
+      },
+      "created_at": "2025-06-24T20:06:51.458114",
+      "updated_at": "2025-06-24T18:08:54.235Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:06:51.458114",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:08:54.235Z",
+          "action": "mark_archived",
+          "comment": "The user's test request to verify image deletion has been analyzed. A new test task (#155) has been created, which is associated with the provided image. This task will be used to confirm that the image is deleted upon approval. Archiving the user request."
+        }
+      ]
+    },
+    {
+      "id": 116,
+      "content": "Dans la Sidebar de l'application est ce que tu peux ajouter la courte description de la tâche en dessous du titre pour la tâche sur laquelle est en train de travailler l'agent, s'il te plaît ?",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:08:08.436073",
+      "updated_at": "2025-06-24T18:09:26.671Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:08:08.436073",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:09:26.671Z",
+          "action": "mark_archived",
+          "comment": "The user request to add the short description to the sidebar has been analyzed and a new task (#156) has been created to implement this UI enhancement. Archiving the user request."
+        }
+      ]
+    },
+    {
+      "id": 117,
+      "content": "Il y a un bug qui apparaît lors de la soumission D'une nouvelle tâche Via l'interface AD New request de l'interface streamlit. Tu peux résoudre le problème ?\n\nstreamlit.errors.StreamlitAPIException: `st.session_state.request_content_area` cannot be modified after the widget with key `request_content_area` is instantiated.\n\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 709, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 684, in main\n    render_add_request_tab()\n    ~~~~~~~~~~~~~~~~~~~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 632, in render_add_request_tab\n    st.session_state.request_content_area = \"\" # Clear text area\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\session_state_proxy.py\", line 136, in __setattr__\n    self[key] = value\n    ~~~~^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\session_state_proxy.py\", line 114, in __setitem__\n    get_session_state()[key] = value\n    ~~~~~~~~~~~~~~~~~~~^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\safe_session_state.py\", line 101, in __setitem__\n    self._state[key] = value\n    ~~~~~~~~~~~^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\session_state.py\", line 527, in __setitem__\n    raise StreamlitAPIException(\n    ...<2 lines>...\n    )",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:09:04.664432",
+      "updated_at": "2025-06-24T18:17:14.934Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:09:04.664432",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:17:14.934Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 118,
+      "content": "Question regarding agent message #56: \"Je rencontre des difficultés techniques persistantes pour modifier un fichier, ce qui bloque la prog...\"\n\nMy question: Alors normalement est un outil pour ça, c'est l'outil. regex_edit ! J'ai pas trop eu le temps de le tester donc c'est possible qu'il ait des problèmes. Il faudrait que tu vérifies si. Si normalement c'est un outil, alors il faudrait en améliorer la description parce que si tu n'as pas pensé à l'utiliser c'est que la description des arguments n'est pas claire donc il faudrait que tu améliores. Euh la description des arguments, fais attention à ne pas ajouter de description à l'outil général parce que ça ça provoque un crash de l'outil, donc ne modifie que le texte, pas le code, mais le texte de description des arguments pour que ce soit très clair pour l'agent que s'il a des soucis avec l'outil d'édition standard qui est genre il a essayé 23 fois que ça marche toujours pas, il devrait se tourner vers cet outil qui permet de faire des modifications très ciblées de manière automatique en fait sans sans se baser sur un modèle donc voilà éventuellement ça devrait te permettre de résoudre ce problème et souviens toi que si cet outil a un souci que tu te rends compte qu'il fonctionne pas correctement, il faudra le réparer donc hésite pas à créer une tâche pour le réparer mais souviens toi que pour le tester il faut redémarrer cursor malheureusement ce que tu ne peux pas faire toi-même donc il faut me demander de redémarrer curseur alors quand tu me demandes de redémarc ressort utilise n'arrête pas le workflow pour ça envoie moi simplement un message puis passe à la tâche suivante et et moi dès que j'aurai redémarré curseur bah je t'informerai et du coup tu pourras reprendre cette tâche de manière automatique. Il y a pas de souci.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:14:06.856070",
+      "updated_at": "2025-06-24T18:17:49.638Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:14:06.856070",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:17:49.638Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 119,
+      "content": "Alors je suis désolé, je sais que je t'ai demandé de de de l'ajouter mais finalement le bouton hennable auto refresh dans le côté Ben sur le côté dans la Side bar tu peux le le supprimer et activer ce système d'auto rafraîchissement toutes les 10 secondes par défaut. Il doit être présent sur toutes les pages et et donc le l'auto rafraîchissement toutes les 10 secondes doit avoir lieu de manière automatique sur. Sur toutes les pages. Tu peux faire ça ?",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:15:34.346179",
+      "updated_at": "2025-06-24T18:18:19.459Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:15:34.346179",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:18:19.459Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 120,
+      "content": "Il y a toujours un étrange bug lors de la soumission de nouvelles requêtes via l'interface streamlit : streamlit.errors.StreamlitAPIException: `st.session_state.request_content_area` cannot be modified after the widget with key `request_content_area` is instantiated.\n\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 709, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 684, in main\n    render_add_request_tab()\n    ~~~~~~~~~~~~~~~~~~~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 632, in render_add_request_tab\n    st.session_state.request_content_area = \"\" # Clear text area\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\session_state_proxy.py\", line 136, in __setattr__\n    self[key] = value\n    ~~~~^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\session_state_proxy.py\", line 114, in __setitem__\n    get_session_state()[key] = value\n    ~~~~~~~~~~~~~~~~~~~^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\safe_session_state.py\", line 101, in __setitem__\n    self._state[key] = value\n    ~~~~~~~~~~~^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\state\\session_state.py\", line 527, in __setitem__\n    raise StreamlitAPIException(\n    ...<2 lines>...\n    )",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:16:14.832853",
+      "updated_at": "2025-06-24T18:18:35.798Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:16:14.832853",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:18:35.798Z",
+          "action": "mark_archived",
+          "comment": "This is a duplicate of request #117. Task #157 has already been created to address this bug."
+        }
+      ]
+    },
+    {
+      "id": 121,
+      "content": "Malheureusement, il y a un petit souci, c'est que t'as tendance à quitter le workflow. Enfin, l'agent a tendance à quitter le workflow régulièrement. En fait, quand il se lance dans des corrections trop longues, il oublie qu'il est à l'intérieur d'une règle et qu'il doit appeler remember à la fin de cette règle. Du coup, il faudrait s'il te plaît que tu ajoutes un petit Call out, un petit, un petit message, un argument supplémentaire, un rappel à la fin de de l'appel à la règle. Euh guette all Task ou Get next Task. Je je sais plus si c'est exactement les noms des outils, mais tu vas les trouver bien sûr, et aussi update user brief et gate user brief pour rappeler que l'agent ne doit gérer qu'une tâche ou qu'une requête user-brief à chaque fois. Si la requête user brief ça veut dire qu'il est dans tasque décomposition et donc il doit simplement la transformer en taches et ensuite il doit appeler remember. C'est hyper important à la fin. Une fois qu'il a effectué cette opération pour une seule tâche, il doit pas les faire tout ensemble et pareil pour la la résolution. Enfin l'implémentation s'il est en train de de d'implémenter une feature, il doit se l'appel à l'outil get next tax Get next Task doit rappeler à la fin un petit rappel. Euh tu dois absolument faire que cette tâche, aucune autre. Hum. Et puis quand t'as fini d'implémenter une tache, je te rappelle que t'es à l'intérieur d'une règle à l'intérieur d'un workflow que tu dois suivre à la lettre et tu dois appeler Remember à la fin pour suivre le workflow. C'est extrêmement important. Du coup, est ce que tu peux faire des petites notifications sur ces outils pour ajouter ces rappels afin de de de de pousser le l'agent à suivre davantage le workflow ?\n\nFais le aussi pour l'outil update_task :)",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:24:38.332547",
+      "updated_at": "2025-06-24T18:32:52.448Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:24:38.332547",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:32:52.448Z",
+          "action": "mark_archived",
+          "comment": "The user request has been analyzed and converted into task #160."
+        }
+      ]
+    },
+    {
+      "id": 122,
+      "content": "Rien de bien grave, mais je je me rends compte que t'as dû faire une modification récemment et ça a enlevé la chouette animation de ballon lorsqu'on ajoutait une nouvelle tâche. J'avoue que j'aimais bien cette animation. Est-ce que tu peux la remettre sur l'interface streaming dans l'application principale review et communication lorsqu'on soumet une nouvelle requête ?\n\nhttps://docs.streamlit.io/develop/api-reference/status/st.balloons",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:26:37.457913",
+      "updated_at": "2025-06-24T18:33:14.438Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:26:37.457913",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:33:14.438Z",
+          "action": "mark_archived",
+          "comment": "The user request has been analyzed and converted into task #161."
+        }
+      ]
+    },
+    {
+      "id": 123,
+      "content": "Il y a un petit souci avec l'affichage de la tâche actuelle dans la sidebar, c'est vraiment très très chouette, hein ? À la manière dont tu l'affiches, c'est parfait. Simplement les retours à la ligne, le double retour à la ligne avant la description courte est affichée en double antislash n. Ce qui est pas terrible, est ce que tu pourrais modifier pour que la la description courte soit vraiment séparée du titre qui est le titre et la description courte en dessous ?",
+      "status": "archived",
+      "image": {
+        "path": ".cursor\\temp\\images\\req_123_20250624_202823_pasted.png",
+        "filename": "req_123_20250624_202823_pasted.png",
+        "size": 29991,
+        "width": 492,
+        "height": 403,
+        "content_type": "image/png"
+      },
+      "created_at": "2025-06-24T20:28:23.392853",
+      "updated_at": "2025-06-24T18:33:39.951Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:28:23.392853",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:33:39.951Z",
+          "action": "mark_archived",
+          "comment": "The user request has been analyzed and converted into task #162."
+        }
+      ]
+    },
+    {
+      "id": 124,
+      "content": "Tu peux modifier légèrement la règle Task décomposition pour dire de d'identifier en fait pour éviter les sous tâches. C'est à dire que en fait, quand il analyse une requête utilisateur, l'agent doit identifier les différentes, les différentes demandes qui sont dans cette requête. Parfois, il y a plusieurs demandes en même temps, 2 ou 3. Parfois, il y en a qu'une seule et créer une tâche pour chaque demande, mais il doit pas déjà créer des sous tâches d'organisation qui va d'abord falloir que je fasse ça, puis que je fasse ça, ça, il peut l'indiquer dans la description de sa tâche, faire son plan, mais il doit pas créer plusieurs tâches pour une même grande tâche Comme je dis souvent dans les requêtes utilisateurs, il va y avoir plusieurs grandes tâches, donc là le but de l'Agence est d'identifier ces grandes tâches. Euh mais ensuite il doit pas les sous décomposer ces grandes tâches, il doit simplement éventuellement déjà planifier un peu ce qu'il doit faire dans la description de la tâche description complète de la tâche mais. À priori, il ne doit pas créer plusieurs sortes de sous tâches par grandes tâches. Ça, ça ne fait que ralentir inutilement le workflow et ça lui fait perdre de vue certains objectifs Et la vue d'ensemble Donc voilà, est ce que tu peux corriger un peu le fichier markdown qui décrit la règle Task Analysis pour inciter l'agent à avoir plus ce type de comportement ?",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:30:46.652628",
+      "updated_at": "2025-06-24T18:34:12.493Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:30:46.652628",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:34:12.493Z",
+          "action": "mark_archived",
+          "comment": "The user request has been analyzed and converted into task #163."
+        }
+      ]
+    },
+    {
+      "id": 126,
+      "content": "Correction for Task #161 (Restore `st.balloons` Animation on New Request Submission):\n\nLes ballons n'apparaissent toujours pas lors de la soumission d'une nouvelle tâche via l'interface streamlit",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:43:26.317053",
+      "updated_at": "2025-06-24T18:45:58.005Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:43:26.317053",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:45:58.005Z",
+          "action": "mark_archived",
+          "comment": "This request has been converted into task #164."
+        }
+      ]
+    },
+    {
+      "id": 127,
+      "content": "Dans l'interface streaming dans la page Review et communication, la page principale dans la l'onglet Task to review est ce que tu peux directement afficher les descriptions courtes des tâches sous leur titre sans avoir à ouvrir l'accordéon. L'accordéon, ça devrait être pour les détails supplémentaires, mais les descriptions courtes devraient être présentes juste sous le titre de chaque tâche pour facilement avoir un un aperçu. Voilà.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:44:25.807310",
+      "updated_at": "2025-06-24T18:46:15.090Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:44:25.807310",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:46:15.090Z",
+          "action": "mark_archived",
+          "comment": "This request has been converted into task #165."
+        }
+      ]
+    },
+    {
+      "id": 129,
+      "content": "T'as ajouté un raccourci très sympa lorsque on clique sur dans la sur la page dans l'interface streaming sur la page Review et communication onglet Task to retrrive. Quand je valide une tâche, ça retourne sur ad request. L'onglet ad request, c'est plutôt une bonne idée. C'est très sympa, mais il faudrait que ça n'ait lieu que lorsque il n'y a plus de tâches. Euh à revoir s'il reste des tâches à revoir, on devrait rester sur la table Task to review. Tu peux modifier ça s'il te plaît ?",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:51:52.945622",
+      "updated_at": "2025-06-24T18:52:35.850Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:51:52.945622",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:52:35.850Z",
+          "action": "mark_archived",
+          "comment": "Task #168 has been created to address this request."
+        }
+      ]
+    },
+    {
+      "id": 130,
+      "content": "Dans la Side bar sur l'interface Stream Lit est ce que tu peux enlever l'affichage du nombre total de tâches affiches seulement le nombre de tâches restantes en prenant en compte les requêtes non transformées du userbrief :)",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:52:44.554038",
+      "updated_at": "2025-06-24T18:53:04.865Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:52:44.554038",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:53:04.865Z",
+          "action": "mark_archived",
+          "comment": "Task #169 has been created to address this request."
+        }
+      ]
+    },
+    {
+      "id": 131,
+      "content": "Correction for Task #169 (Update Streamlit sidebar task counter):\n\nJe vois toujours le nombre total de tâches et pas seulement celles qui restent, non traitées !",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T21:03:46.434472",
+      "updated_at": "2025-06-24T19:05:07.782Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T21:03:46.434472",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T19:05:07.782Z",
+          "action": "mark_archived",
+          "comment": "User request has been converted to task #171 to fix the sidebar counter bug."
+        }
+      ]
+    },
+    {
+      "id": 132,
+      "content": "Encore une toute petite dernière tâche, c'est que dans la Side bar de l'application Stream Leitz, je t'ai demandé de supprimer l'affichage de du total des tâches parce que ce ce nombre va faire qu'augmenter, il apporte pas beaucoup d'informations à la place, j'aimerais avoir uniquement le nombre des tâches restantes qui est déjà présent, mais j'aimerais qu'il soit seul J'aimerais simplement que tu enlèves le nombre total de tâches. Par ailleurs, je suis assez surpris du fait que, en permanence sur l'estimation du temps pour la complétion, il y a écrit une note et news data. Il y a pas assez de données. Pourtant, on devrait avoir énormément de tâches archivées avec les timestamps de leur mise en forme done to do et cetera. Et du coup, on devrait savoir combien de temps il faut et faire le calcul. Je suis surpris de de cette information, elle me paraît incorrecte, tu peux vérifier et corriger",
+      "status": "archived",
+      "image": {
+        "path": ".cursor\\temp\\images\\req_132_20250624_213108_pasted.png",
+        "filename": "req_132_20250624_213108_pasted.png",
+        "size": 37248,
+        "width": 398,
+        "height": 777,
+        "content_type": "image/png"
+      },
+      "created_at": "2025-06-24T21:31:08.144507",
+      "updated_at": "2025-06-24T19:31:57.332Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T21:31:08.144507",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T19:31:57.332Z",
+          "action": "mark_archived"
+        }
+      ]
+    }
+  ]
+}
