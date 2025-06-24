@@ -3632,14 +3632,14 @@
     "short_description": "Update the Streamlit application's sidebar to remove the total task count and correct the logic for calculating the estimated project completion time.",
     "detailed_description": "This task addresses two issues raised in user request #132 related to the Streamlit UI sidebar:\n\n1.  **Remove Total Task Count:**\n    *   Modify the sidebar component (`.cursor/memory-bank/streamlit_app/components/sidebar.py`).\n    *   Remove the part of the display that shows the total number of tasks.\n    *   Ensure that only the count of remaining tasks is displayed.\n\n2.  **Fix Completion Time Estimation:**\n    *   Investigate the `calculate_estimated_completion` function in `.cursor/memory-bank/streamlit_app/components/task_utils.py`.\n    *   The current implementation seems to incorrectly report \"Not enough data\".\n    *   Analyze the `tasks.json` file to understand the structure of `status_history` for completed tasks.\n    *   Correct the logic to properly calculate the average task completion time based on archived tasks.\n    *   The estimation should provide a realistic timeframe based on historical data.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/memory-bank/streamlit_app/components/sidebar.py",
       ".cursor/memory-bank/streamlit_app/components/task_utils.py"
     ],
     "validation_criteria": "- The Streamlit sidebar no longer displays the total task count.\n- The estimated completion time in the sidebar displays a calculated time instead of \"Not enough data\", provided there are sufficient completed tasks with valid time tracking.",
     "created_date": "2025-06-24T19:31:54.274Z",
-    "updated_date": "2025-06-24T19:33:19.830Z",
+    "updated_date": "2025-06-24T21:38:18.630997",
     "parent_id": null,
     "priority": 3,
     "image": null
