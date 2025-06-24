@@ -1,10 +1,17 @@
 import streamlit as st
 import json
 import os
+import sys
 from pathlib import Path
 from datetime import datetime
 
+# Add the parent directory of the pages directory to the path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+from components.sidebar import display_sidebar
+
 st.set_page_config(page_title="Memory Management", page_icon="🧠")
+
+display_sidebar()
 
 st.markdown("# 🧠 Memory Management")
 
@@ -114,6 +121,66 @@ def fuzzy_search_memories(memories, query):
     # Simple search: check if query is a substring of content
     return [mem for mem in memories if query in mem.get('content', '').lower()]
 
+# --- Functions from former app.py ---
+def get_agent_memories(limit=10):
+    memory_locations = [
+        Path('.cursor/memory-bank/context/agent_memory.json'),
+        Path('.cursor/memory-bank/workflow/agent_memory.json'),
+        Path('.cursor/memory-bank/agent_memory.json')
+    ]
+    
+    for memory_file in memory_locations:
+        if memory_file.exists():
+            try:
+                with open(memory_file, 'r', encoding='utf-8') as f:
+                    memories = json.load(f)
+                    if isinstance(memories, list) and memories:
+                        # Return the last 'limit' memories
+                        return memories[-limit:] if len(memories) > limit else memories
+            except Exception as e:
+                st.error(f"Error reading memories from {memory_file}: {e}")
+    
+    return []
+
+def get_recent_requests(limit=5):
+    userbrief_file = Path('.cursor/memory-bank/workflow/userbrief.json')
+    if not userbrief_file.exists():
+        return {}
+    
+    try:
+        data = load_json_file(userbrief_file)
+        if not data:
+            return {}
+            
+        requests = data.get('requests', [])
+        if not requests:
+            return {}
+        
+        # Categorize requests
+        new_requests = [req for req in requests if req.get('status') == 'new']
+        in_progress_requests = [req for req in requests if req.get('status') == 'in_progress']
+        archived_requests = [req for req in requests if req.get('status') == 'archived']
+        
+        # Sort by updated_at (most recent first)
+        new_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+        in_progress_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+        archived_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+        
+        return {
+            'new': new_requests[:limit],
+            'in_progress': in_progress_requests[:limit],
+            'archived': archived_requests[:limit],
+            'total_counts': {
+                'new': len(new_requests),
+                'in_progress': len(in_progress_requests),
+                'archived': len(archived_requests)
+            }
+        }
+    except Exception as e:
+        st.error(f"Error reading userbrief: {e}")
+        return {}
+# --- End of functions from former app.py ---
+
 # File paths
 memory_paths = {
     'userbrief': Path('.cursor/memory-bank/workflow/userbrief.json'),
@@ -123,7 +190,104 @@ memory_paths = {
 }
 
 # Tabs for different memory types
-tab1, tab2, tab3, tab4 = st.tabs(["📝 Requêtes", "🧠 Long-term Memory", "📋 Project Brief", "⚙️ Tech Context"])
+tab5, tab1, tab2, tab3, tab4 = st.tabs(["🤖 Agent Timeline", "📝 Requêtes", "🧠 Long-term Memory", "📋 Project Brief", "⚙️ Tech Context"])
+
+# Tab 5: Agent Timeline (from former app.py)
+with tab5:
+    # Display Agent Memories
+    st.header("🧠 Agent Memory Timeline")
+    agent_memories = get_agent_memories(10)
+
+    if agent_memories:
+        st.subheader("📖 Last 10 Agent Memories")
+        st.write(f"Showing {len(agent_memories)} most recent memories (newest first)")
+        
+        # Use tabs for better organization (Present as default)
+        mem_tab1, mem_tab2, mem_tab3, mem_tab4 = st.tabs(["⏰ Present", "🕐 Past", "🔮 Future", "🧠 Long Term"])
+        
+        with mem_tab1:  # Present tab (default)
+            st.write("**Present Reality - Most Recent Memories**")
+            for i, memory in enumerate(reversed(agent_memories)):  # Most recent first
+                memory_id = len(agent_memories) - i
+                timestamp = memory.get('timestamp', 'Unknown')[:19].replace('T', ' ') if memory.get('timestamp') else 'Unknown'
+                
+                st.markdown(f"### 💭 Memory #{memory_id} - {timestamp}")
+                present_content = memory.get('present', 'N/A')
+                if present_content and present_content != 'N/A':
+                    st.write(present_content)
+                else:
+                    st.info("No present reality recorded")
+                
+                st.caption(f"📅 Recorded: {timestamp}")
+                st.markdown("---")
+        
+        with mem_tab2:  # Past tab
+            st.write("**Past Context - Historical Memories**")
+            for i, memory in enumerate(reversed(agent_memories)):  # Most recent first
+                memory_id = len(agent_memories) - i
+                timestamp = memory.get('timestamp', 'Unknown')[:19].replace('T', ' ') if memory.get('timestamp') else 'Unknown'
+                
+                st.markdown(f"### 💭 Memory #{memory_id} - {timestamp}")
+                past_content = memory.get('past', 'N/A')
+                if past_content and past_content != 'N/A':
+                    st.write(past_content)
+                else:
+                    st.info("No past context recorded")
+                
+                st.caption(f"📅 Recorded: {timestamp}")
+                st.markdown("---")
+        
+        with mem_tab3:  # Future tab
+            st.write("**Future Plans - Upcoming Actions**")
+            for i, memory in enumerate(reversed(agent_memories)):  # Most recent first
+                memory_id = len(agent_memories) - i
+                timestamp = memory.get('timestamp', 'Unknown')[:19].replace('T', ' ') if memory.get('timestamp') else 'Unknown'
+                
+                st.markdown(f"### 💭 Memory #{memory_id} - {timestamp}")
+                future_content = memory.get('future', 'N/A')
+                if future_content and future_content != 'N/A':
+                    st.write(future_content)
+                else:
+                    st.info("No future plans recorded")
+                
+                st.caption(f"📅 Recorded: {timestamp}")
+                st.markdown("---")
+        
+        with mem_tab4:  # Long Term tab
+            st.write("**Long Term Memory - Persistent Knowledge**")
+            for i, memory in enumerate(reversed(agent_memories)):  # Most recent first
+                memory_id = len(agent_memories) - i
+                timestamp = memory.get('timestamp', 'Unknown')[:19].replace('T', ' ') if memory.get('timestamp') else 'Unknown'
+                
+                long_term_content = memory.get('long_term_memory', '')
+                if long_term_content and long_term_content.strip():
+                    st.markdown(f"### 💭 Memory #{memory_id} - {timestamp}")
+                    st.write(long_term_content)
+                    st.caption(f"📅 Recorded: {timestamp}")
+                    st.markdown("---")
+            
+            # Show message if no long-term memories found
+            long_term_count = sum(1 for m in agent_memories if m.get('long_term_memory', '').strip())
+            if long_term_count == 0:
+                st.info("No long term memories recorded yet")
+        
+        # Summary section
+        st.markdown("---")
+        with st.expander("📊 Memory Summary", expanded=False):
+            st.write(f"**Total memories displayed:** {len(agent_memories)}")
+            
+            # Count memories with long-term content
+            long_term_count = sum(1 for m in agent_memories if m.get('long_term_memory', '').strip())
+            st.write(f"**Memories with long-term insights:** {long_term_count}")
+            
+            # Show date range
+            if len(agent_memories) > 1:
+                oldest = agent_memories[0].get('timestamp', '')[:19].replace('T', ' ')
+                newest = agent_memories[-1].get('timestamp', '')[:19].replace('T', ' ')
+                st.write(f"**Time range:** {oldest} to {newest}")
+
+    else:
+        st.info("No agent memories found. Memories will appear here as the agent works and learns.")
 
 # Tab 1: Requêtes (All userbrief entries from JSON)
 with tab1:
@@ -679,49 +843,4 @@ with tab4:
         
         with col3:
             line_count = len(tech_context_content.split('\n'))
-            st.metric("Lines", line_count)
-
-
-
-# Sidebar: Memory Overview
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 📊 Memory Overview")
-
-# Count items in each category
-userbrief_content = load_text_file(memory_paths['userbrief'])
-preferences_count = len(parse_userbrief(userbrief_content)) if userbrief_content else 0
-
-long_term_data = load_json_file(memory_paths['long_term_memory'])
-# Handle both list and dictionary formats for backward compatibility
-if long_term_data:
-    if isinstance(long_term_data, list):
-        memories_count = len(long_term_data)
-    elif isinstance(long_term_data, dict):
-        memories_count = len(long_term_data.get('memories', []))
-    else:
-        memories_count = 0
-else:
-    memories_count = 0
-
-project_brief_exists = memory_paths['project_brief'].exists() and len(load_text_file(memory_paths['project_brief'])) > 0
-tech_context_exists = memory_paths['tech_context'].exists() and len(load_text_file(memory_paths['tech_context'])) > 0
-
-st.sidebar.metric("📌 Preferences", preferences_count)
-st.sidebar.metric("🧠 Memories", memories_count)
-st.sidebar.metric("📋 Project Brief", "✅" if project_brief_exists else "❌")
-st.sidebar.metric("⚙️ Tech Context", "✅" if tech_context_exists else "❌")
-
-
-
-# Help section
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 💡 Help")
-st.sidebar.info("""
-**Memory Types:**
-- **Preferences**: Personal settings and approaches
-- **Long-term**: Important learnings and insights  
-- **Project Brief**: Main project description
-- **Tech Context**: Technical specifications
-
-All changes are saved immediately to the memory bank files.
-""") 
+            st.metric("Lines", line_count) 

@@ -2688,5 +2688,597 @@
     "parent_id": null,
     "priority": 5,
     "image": null
+  },
+  {
+    "id": 122,
+    "title": "Enhance User Request Management in UI",
+    "short_description": "Implement full CRUD (Create, Read, Update, Delete) functionality for user-submitted requests within the Streamlit interface to allow users to manage their requests before they are processed by the agent.",
+    "detailed_description": "This parent task covers all the work required to improve the management of user requests within the Streamlit UI, as requested in user brief #98. It includes adding edit and delete functionalities in key areas of the application.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:11:54.630Z",
+    "updated_date": "2025-06-24T17:50:17.997Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 123,
+    "title": "Sub-task: Implement Edit/Delete in 'Add Request' Tab",
+    "short_description": "In the 'Add Request' tab, display the last submitted request and provide buttons to edit or delete it before it's processed.",
+    "detailed_description": "Modify the `render_add_request_tab` function in `.cursor/streamlit_app/pages/review.py`. After a user submits a new request, it should be displayed on the same page. Add 'Edit' and 'Delete' buttons. Implement the underlying functions (`get_user_request`, `update_user_request`, `delete_user_request`) to manipulate the `userbrief.json` file directly. Use `st.session_state` to manage the UI state between displaying the request and editing it.",
+    "dependencies": [
+      122
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/review.py"
+    ],
+    "validation_criteria": "- After submitting a request, it appears below the submit button.\\n- The 'Edit' button populates the text area with the request content for modification.\\n- The 'Delete' button removes the request from `userbrief.json`.\\n- The UI correctly reflects all changes.",
+    "created_date": "2025-06-24T17:12:00.997Z",
+    "updated_date": "2025-06-24T17:50:09.825Z",
+    "parent_id": 122,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 124,
+    "title": "Sub-task: Implement Edit/Delete in 'Task Status' Page",
+    "short_description": "In the 'Task Status' page, add controls to allow editing and deleting of any user request that has not yet been processed by the agent.",
+    "detailed_description": "Modify the `render_userbrief_request` function in `.cursor/streamlit_app/pages/task_status.py`. For each unprocessed request displayed, add 'Edit' and 'Delete' buttons. Implement the logic to allow inline editing of the request content and deletion. This will require adding the helper functions `get_user_request`, `update_user_request`, and `delete_user_request` to this file as well.",
+    "dependencies": [
+      122
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "- Unprocessed user requests on the 'Task Status' page have 'Edit' and 'Delete' buttons.\\n- The 'Edit' button allows for inline editing of the request content.\\n- The 'Delete' button removes the request from `userbrief.json`.\\n- The page updates correctly after modification or deletion.",
+    "created_date": "2025-06-24T17:12:06.200Z",
+    "updated_date": "2025-06-24T17:50:13.612Z",
+    "parent_id": 122,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 125,
+    "title": "Sub-task: Complete Deletion of Test Request #97",
+    "short_description": "Confirm that the 'Test' request (#97) can be deleted with the newly implemented functionality, thus completing that part of the user's request.",
+    "detailed_description": "With the new functionality in place, the 'Test' request (#97) can be properly deleted. This task is to formally acknowledge that part of the user request. The request has already been archived, and with the new delete functionality, it can be fully removed by the user. This task is considered complete as the means to delete it have been provided.",
+    "dependencies": [
+      123,
+      124
+    ],
+    "status": "DONE",
+    "impacted_files": [],
+    "validation_criteria": "- The user is able to delete request #97 using the new UI features.",
+    "created_date": "2025-06-24T17:12:11.692Z",
+    "updated_date": "2025-06-24T17:12:11.692Z",
+    "parent_id": 122,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 126,
+    "title": "Improve \"Add Request\" UX",
+    "short_description": "Implement two UX improvements in the 'Add Request' tab: clearing the text area after submission and adding a keyboard shortcut for pasting images.",
+    "detailed_description": "This parent task covers two user experience improvements for the 'Add Request' tab in the Streamlit application, as requested in user brief #99. It focuses on making the request submission process smoother.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:12:45.769Z",
+    "updated_date": "2025-06-24T17:49:21.751Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 127,
+    "title": "Sub-task: Clear Text Area on Submission",
+    "short_description": "Modify the 'Add Request' tab logic to ensure the text input area is automatically cleared after a user successfully submits a new request.",
+    "detailed_description": "In `.cursor/streamlit_app/pages/review.py`, find the `render_add_request_tab` function. After a new request is successfully created and before `st.rerun()` is called, explicitly clear the content of the text area widget by setting its session state value to an empty string (e.g., `st.session_state.request_content_area = \\\"\\\"`).",
+    "dependencies": [
+      126
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/review.py"
+    ],
+    "validation_criteria": "- After submitting a new request, the text area becomes empty, ready for a new entry.",
+    "created_date": "2025-06-24T17:12:50.639Z",
+    "updated_date": "2025-06-24T17:50:33.478Z",
+    "parent_id": 126,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 128,
+    "title": "Sub-task: Add Ctrl+V Shortcut for Pasting Images",
+    "short_description": "Bind the 'Ctrl+V' keyboard shortcut to the 'Paste from clipboard' button in the 'Add Request' tab, allowing users to quickly attach images from their clipboard.",
+    "detailed_description": "In `.cursor/streamlit_app/pages/review.py`, locate the 'Paste from clipboard' button. Use the `streamlit-shortcuts` library to wrap this button's functionality with the 'Ctrl+V' keyboard shortcut. The user should be able to press Ctrl+V anywhere on the page to trigger the paste-from-clipboard action. Be careful to integrate this without breaking the existing button functionality.",
+    "dependencies": [
+      126
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/review.py"
+    ],
+    "validation_criteria": "- Pressing 'Ctrl+V' on the 'Add Request' tab triggers the same action as clicking the 'Paste from clipboard' button.\\n- An image from the clipboard is successfully captured and displayed in the preview.",
+    "created_date": "2025-06-24T17:12:56.173Z",
+    "updated_date": "2025-06-24T17:50:37.297Z",
+    "parent_id": 126,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 129,
+    "title": "Standardize Auto-Refresh Sidebar Feature",
+    "short_description": "Standardize and implement a 10-second auto-refresh feature in the sidebar across all Streamlit pages using a reusable component.",
+    "detailed_description": "Create a standardized auto-refresh feature located in the sidebar for all Streamlit pages. This involves creating a reusable sidebar component and integrating it into all existing pages. The refresh interval should be 10 seconds, and the sidebar should only contain this feature.\n\n**Acceptance Criteria:**\n- An auto-refresh checkbox is present in the sidebar of `app.py`, `memory.py`, `review.py`, and `task_status.py`.\n- When checked, the pages refresh every 10 seconds.\n- The sidebar contains no other elements.\n- The implementation is centralized in a reusable component.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py",
+      ".cursor/streamlit_app/components/__init__.py",
+      ".cursor/streamlit_app/app.py",
+      ".cursor/streamlit_app/pages/memory.py",
+      ".cursor/streamlit_app/pages/review.py",
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:14:47.922Z",
+    "updated_date": "2025-06-24T17:42:50.910Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null
+  },
+  {
+    "id": 130,
+    "title": "Create Shared Sidebar Component",
+    "short_description": "Create a reusable sidebar component for the auto-refresh feature.",
+    "detailed_description": "Create a new file `.cursor/streamlit_app/components/sidebar.py`. This file will contain a single function `setup_sidebar()` that implements the auto-refresh logic. The function will create a sidebar with a checkbox. When the checkbox is ticked, the app should rerun every 10 seconds. Also, create an empty `__init__.py` file in the `.cursor/streamlit_app/components/` directory.\n\n**`sidebar.py` content:**\n```python\nimport streamlit as st\nimport time\n\ndef setup_sidebar():\n    with st.sidebar:\n        st.header(\"⚙️ Controls\")\n        auto_refresh = st.checkbox(\"Auto-refresh\", value=False, help=\"Enable auto-refresh every 10 seconds\")\n    \n    if auto_refresh:\n        time.sleep(10)\n        st.rerun()\n```",
+    "dependencies": [
+      129
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py",
+      ".cursor/streamlit_app/components/__init__.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:14:53.631Z",
+    "updated_date": "2025-06-24T17:18:17.026Z",
+    "parent_id": 129,
+    "priority": 4,
+    "image": null
+  },
+  {
+    "id": 131,
+    "title": "Integrate Sidebar into app.py",
+    "short_description": "Integrate the shared sidebar component into the main dashboard page.",
+    "detailed_description": "Import the `setup_sidebar` function from the new component and call it at the beginning of the `app.py` file.\n\n**Changes:**\n1.  Add `from components.sidebar import setup_sidebar` to the imports.\n2.  Add `setup_sidebar()` right after the `st.set_page_config()` call.",
+    "dependencies": [
+      130
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/app.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:14:57.729Z",
+    "updated_date": "2025-06-24T17:18:33.940Z",
+    "parent_id": 129,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 132,
+    "title": "Integrate Sidebar into memory.py",
+    "short_description": "Integrate the shared sidebar component into the memory management page.",
+    "detailed_description": "Import the `setup_sidebar` function from the new component and call it at the beginning of the `memory.py` file.\n\n**Changes:**\n1.  Add `from components.sidebar import setup_sidebar` to the imports.\n2.  Add `setup_sidebar()` right after the `st.set_page_config()` call.",
+    "dependencies": [
+      130
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/memory.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:15:01.598Z",
+    "updated_date": "2025-06-24T17:18:51.094Z",
+    "parent_id": 129,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 133,
+    "title": "Integrate Sidebar into review.py",
+    "short_description": "Integrate the shared sidebar component into the review & communication page.",
+    "detailed_description": "Import the `setup_sidebar` function from the new component and call it at the beginning of the `review.py` file.\n\n**Changes:**\n1.  Add `from components.sidebar import setup_sidebar` to the imports.\n2.  Add `setup_sidebar()` right after the `st.set_page_config()` call.",
+    "dependencies": [
+      130
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/review.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:15:05.019Z",
+    "updated_date": "2025-06-24T17:19:12.260Z",
+    "parent_id": 129,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 134,
+    "title": "Integrate Sidebar into task_status.py",
+    "short_description": "Integrate the shared sidebar component into the task status page.",
+    "detailed_description": "Import the `setup_sidebar` function from the new component and call it at the beginning of the `task_status.py` file.\n\n**Changes:**\n1.  Add `from components.sidebar import setup_sidebar` to the imports.\n2.  Add `setup_sidebar()` right after the `st.set_page_config()` call.",
+    "dependencies": [
+      130
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:15:09.599Z",
+    "updated_date": "2025-06-24T17:20:13.275Z",
+    "parent_id": 129,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 135,
+    "title": "Fix Duplicate Key Error on Task Status Page",
+    "short_description": "Fix StreamlitDuplicateElementKey error in task_status.py by removing a redundant rendering loop.",
+    "detailed_description": "Fix a `StreamlitDuplicateElementKey` error on the `task_status.py` page. The error is caused by rendering the list of unprocessed userbrief requests twice.\n\n**Acceptance Criteria:**\n- The page must load without any `StreamlitDuplicateElementKey` error.\n- The list of unprocessed userbrief requests must still be visible on the page, rendered once within the accordion layout.\n- The redundant rendering block (lines 1016-1021) must be removed from `task_status.py`.\n\n**File to modify:** `.cursor/streamlit_app/pages/task_status.py`\n**Lines to remove:**\n```python\nst.subheader(\"📬 Unprocessed Userbrief Requests\")\nif userbrief_requests:\n    st.info(f\"💡 {len(userbrief_requests)} user request(s) waiting to be converted into tasks.\")\n    \n    for request in userbrief_requests:\n        render_userbrief_request(request)\nelse:\n    st.info(\"📭 No unprocessed requests - all user requests have been converted to tasks!\")\n```",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:15:57.409Z",
+    "updated_date": "2025-06-24T19:22:42.447969",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 136,
+    "title": "Add Notification Badges to Review Page Tabs",
+    "short_description": "Add notification badges to tabs on the Review page.",
+    "detailed_description": "Add notification badges to the tabs on the \"Review & Communication\" page to indicate new items requiring attention.\n\n**Acceptance Criteria:**\n- The \"Tasks to Review\" tab label should display a count in a red badge (e.g., \"✅ Tasks to Review (3 🔴)\") when there are tasks with the status `REVIEW`.\n- The \"Agent Messages\" tab label should display a count in a red badge (e.g., \"📨 Agent Messages (1 🔴)\") when there are unread messages for the user.\n- If there are no items to review or no messages, the labels should not show a count or badge.\n- The logic must be implemented by pre-calculating the counts and dynamically generating the tab labels in the `main` function of `review.py`.\n\n**File to modify:** `.cursor/streamlit_app/pages/review.py`",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/review.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:17:25.959Z",
+    "updated_date": "2025-06-24T17:48:50.301Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 137,
+    "title": "Refactor Pages: Make Review Page Default (Req #103)",
+    "short_description": "Refactor application pages to set 'Review' as the default page and merge the old 'App' page content into the 'Memory' page.",
+    "detailed_description": "This parent task tracks the work for user request #103.\nThe goal is to make the 'Review' page the default page of the Streamlit application and to merge the content of the current main page ('App') into the 'Memory' page.\n\nThis will be accomplished via the following sub-tasks:\n1.  Overwrite `app.py` with the content of `pages/review.py`.\n2.  Move the original content of `app.py` into a new tab within `pages/memory.py`.\n3.  Delete the now-redundant `pages/review.py`.\n4.  Verify and fix any broken imports across the application.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/app.py",
+      ".cursor/streamlit_app/pages/memory.py",
+      ".cursor/streamlit_app/pages/review.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:22:09.814Z",
+    "updated_date": "2025-06-24T17:51:27.947Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 138,
+    "title": "Sub-task: Make Review Page the Main Page",
+    "short_description": "Replace the content of `app.py` with the content of `pages/review.py` to make it the main application page.",
+    "detailed_description": "1. Read the entire content of `.cursor/streamlit_app/pages/review.py`.\n2. Read the entire content of `.cursor/streamlit_app/app.py`.\n3. Replace the content of `.cursor/streamlit_app/app.py` with the content of `review.py`.\n4. In the new `app.py`, locate the line `sys.path.append(str(Path(__file__).resolve().parent.parent))` and change it to `sys.path.append(str(Path(__file__).resolve().parent))`. This is necessary because `app.py` is one directory level higher than the original `review.py`.\n5. The page config in `review.py` is `st.set_page_config(page_title=\"Review & Communication\", page_icon=\"📨\")`. This should be kept as the main page's config. The title of the page will be `# 📨 Review & Communication`, which is also correct for the new main page.\n6. The old content of `app.py` should be saved for the next task.",
+    "dependencies": [
+      137
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/app.py",
+      ".cursor/streamlit_app/pages/review.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:22:16.240Z",
+    "updated_date": "2025-06-24T17:51:15.466Z",
+    "parent_id": 137,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 139,
+    "title": "Sub-task: Merge App Content into Memory Page",
+    "short_description": "Move the agent memory timeline and requests overview from the old `app.py` to a new tab in `pages/memory.py`.",
+    "detailed_description": "1. Take the original content of `.cursor/streamlit_app/app.py` (which was saved from the previous task).\n2. Edit `.cursor/streamlit_app/pages/memory.py`.\n3. The content to be moved consists of the helper functions `get_agent_memories` and `get_recent_requests`, and the UI sections \"🧠 Agent Memory Timeline\" and \"📋 Recent Requests Overview\".\n4. In `memory.py`, create a new tab titled \"🤖 Agent Timeline\".\n5. Paste the helper functions and the UI sections from the old `app.py` into this new tab.\n6. Ensure that imports from the old `app.py` (`json`, `os`, `sys`, `pathlib`, `datetime`) are present in `memory.py`.\n7. The `setup_sidebar()` call and page config are already in `memory.py`, so they should not be copied over.\n8. The original `app.py` had its own `read_json_file` helper. `memory.py` has `load_json_file`. I should consolidate these to use the existing `load_json_file` in `memory.py` to avoid duplication. The function `get_recent_requests` should be adapted to use `load_json_file`.",
+    "dependencies": [
+      138
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/memory.py",
+      ".cursor/streamlit_app/app.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:22:24.071Z",
+    "updated_date": "2025-06-24T17:51:24.473Z",
+    "parent_id": 137,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 140,
+    "title": "Sub-task: Delete Redundant review.py",
+    "short_description": "Delete the old `pages/review.py` file after its content has been moved to `app.py`.",
+    "detailed_description": "After its content has been successfully moved to `.cursor/streamlit_app/app.py`, the file `.cursor/streamlit_app/pages/review.py` is no longer needed and should be deleted to avoid confusion and redundant pages in the Streamlit app.",
+    "dependencies": [
+      138
+    ],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/review.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:22:28.877Z",
+    "updated_date": "2025-06-24T19:29:49.663294",
+    "parent_id": 137,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 141,
+    "title": "Enhance Sidebar with Advanced Info Panel",
+    "short_description": "Overhaul the Streamlit app sidebar to create a centralized, informative, and modern info panel.",
+    "detailed_description": "This parent task is for the complete overhaul of the Streamlit app's sidebar. The goal is to create a centralized, informative, and modern sidebar that provides key metrics and status at a glance across all pages. This involves removing old sidebar code, creating a new central component, and implementing several new features as sub-tasks.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:33:32.493Z",
+    "updated_date": "2025-06-24T17:48:23.336Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 142,
+    "title": "Sub-task: Refactor Sidebar into a Central Component",
+    "short_description": "Refactor all existing sidebar code into a single, clean, reusable component and remove old/hardcoded sidebar elements from all pages.",
+    "detailed_description": "Refactor the existing sidebar logic from all pages (`app.py`, `memory.py`, `task_status.py`) and the existing `sidebar.py` component. The goal is to create a single, clean, and reusable function `display_sidebar()` in `components/sidebar.py`. This function will be the single source of truth for the sidebar. **As per user request #106, all old hardcoded sidebar elements, especially the 'Memory Overview' section in `memory.py` and any other custom elements in `app.py`, must be explicitly removed.**",
+    "dependencies": [
+      141
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py",
+      ".cursor/streamlit_app/app.py",
+      ".cursor/streamlit_app/pages/memory.py",
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:33:37.417Z",
+    "updated_date": "2025-06-24T17:48:03.023Z",
+    "parent_id": 141,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 143,
+    "title": "Sub-task: Implement Task Counter in Sidebar",
+    "short_description": "Implement a prominent task counter in the sidebar that includes all pending tasks and unprocessed user requests.",
+    "detailed_description": "Implement a feature in the sidebar to display the total number of remaining tasks. This count must include all tasks with a status of 'TODO', 'IN_PROGRESS', or 'BLOCKED', PLUS the number of unprocessed user requests from the userbrief file. The number should be displayed prominently (large font size) as requested. This will require fetching data from both `tasks.json` and `userbrief.json`.",
+    "dependencies": [
+      142
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py",
+      ".cursor/streamlit_app/components/task_utils.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:33:41.415Z",
+    "updated_date": "2025-06-24T17:48:07.491Z",
+    "parent_id": 141,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 144,
+    "title": "Sub-task: Implement Time Estimation in Sidebar",
+    "short_description": "Implement a time estimation display in the sidebar, showing the mean and standard deviation for remaining tasks.",
+    "detailed_description": "Implement a time estimation feature in the sidebar. This should reuse the existing logic from `task_utils.py` (or wherever it is located) that calculates the mean and standard deviation for the completion time of all pending tasks. The display should be similar to the one on the 'Task Status' page.",
+    "dependencies": [
+      142
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py",
+      ".cursor/streamlit_app/components/task_utils.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:33:45.017Z",
+    "updated_date": "2025-06-24T17:48:13.651Z",
+    "parent_id": 141,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 145,
+    "title": "Sub-task: Implement Current Task Display in Sidebar",
+    "short_description": "Display the current 'IN_PROGRESS' task's title and description in the sidebar.",
+    "detailed_description": "Implement a section in the sidebar that displays the title and short description of the task currently being worked on by the agent (i.e., the task with the status 'IN_PROGRESS'). If no task is in progress, this section should indicate that the agent is idle or analyzing.",
+    "dependencies": [
+      142
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:33:50.931Z",
+    "updated_date": "2025-06-24T17:48:16.928Z",
+    "parent_id": 141,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 146,
+    "title": "Sub-task: Style the Sidebar and Add Auto-Refresh",
+    "short_description": "Apply final styling to the sidebar and add the auto-refresh checkbox.",
+    "detailed_description": "Apply the final modern, clean, and readable styling to the new sidebar component. This includes adjusting font sizes, spacing, colors, and layout to ensure the information is presented clearly and attractively, as per the user's request. Also, add the 10-second auto-refresh checkbox.",
+    "dependencies": [
+      143,
+      144,
+      145
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:33:56.365Z",
+    "updated_date": "2025-06-24T17:48:20.125Z",
+    "parent_id": 141,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 147,
+    "title": "Fix StreamlitDuplicateElementKey Error in Task Status Page",
+    "short_description": "Remove the redundant rendering loop for unprocessed user requests in `task_status.py` to fix a `StreamlitDuplicateElementKey` error.",
+    "detailed_description": "The `task_status.py` page is throwing a `StreamlitDuplicateElementKey` error because user requests are being rendered twice. One rendering pass happens within the main task display loop (especially after a search), and another happens in a separate, standalone section at the end of the script that iterates over and displays all unprocessed user requests. This second loop is redundant and causes key collisions. The fix is to remove this entire standalone rendering loop for unprocessed user requests from the end of the `task_status.py` file.",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:34:54.305Z",
+    "updated_date": "2025-06-24T19:41:42.261369",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 148,
+    "title": "Replace Auto-Refresh Implementation with `streamlit-autorefresh`",
+    "short_description": "Replace the current auto-refresh implementation with the `streamlit-autorefresh` library.",
+    "detailed_description": "The user wants to replace the current auto-refresh implementation with the `streamlit-autorefresh` library to fix issues with the current system. This parent task will orchestrate the installation and integration of the new library.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:35:51.525Z",
+    "updated_date": "2025-06-24T17:45:09.954Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 149,
+    "title": "Sub-task: Install `streamlit-autorefresh` and Update Requirements",
+    "short_description": "Install the `streamlit-autorefresh` library and add it to the project's `requirements.txt`.",
+    "detailed_description": "Use `pip install streamlit-autorefresh` to install the library. Then, add `streamlit-autorefresh` to the `./.cursor/streamlit_app/requirements.txt` file to ensure the dependency is tracked. Do not create a new requirements file.",
+    "dependencies": [
+      148
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/requirements.txt"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:35:56.060Z",
+    "updated_date": "2025-06-24T17:50:40.662Z",
+    "parent_id": 148,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 150,
+    "title": "Sub-task: Integrate `streamlit-autorefresh` into Sidebar",
+    "short_description": "Replace the current auto-refresh logic in the sidebar with the new `streamlit-autorefresh` component.",
+    "detailed_description": "Modify the `components/sidebar.py` file to use the `streamlit_autorefresh` component. This will involve importing the library and replacing the existing `st.checkbox` based auto-refresh logic with the new component, configured for a 10-second interval as previously requested.",
+    "dependencies": [
+      149
+    ],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:36:00.564Z",
+    "updated_date": "2025-06-24T17:50:43.672Z",
+    "parent_id": 148,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 151,
+    "title": "Clean up Memory page UI",
+    "short_description": "Remove the 'Recent Requests Overview' section from the Memory page.",
+    "detailed_description": "In the file `.cursor/streamlit_app/pages/memory.py`, locate the line `st.header(\"📋 Recent Requests Overview\")`. Delete this line and all subsequent lines of code until the line `with tab1:`. This will remove the entire \"Recent Requests Overview\" section from the \"Agent Timeline\" tab as requested by the user.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/memory.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:37:36.379Z",
+    "updated_date": "2025-06-24T17:45:44.591Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 152,
+    "title": "Fix ValueError on Task Status Page",
+    "short_description": "Fix ValueError in task_status.py by correcting how filters are handled.",
+    "detailed_description": "In `.cursor/streamlit_app/pages/task_status.py`, the `main` function has a bug causing a `ValueError`. The function `render_advanced_search_and_filters` returns a single dictionary, but the calling code expects two values.\n\nTo fix this, replace the following block:\n```python\n    # Advanced Search & Filtering\n    search_query, filters = render_advanced_search_and_filters()\n    \n    if search_query:\n        # Fuzzy search\n        tasks = fuzzy_search_tasks(tasks, userbrief_requests, search_query)\n    else:\n        # Advanced filters\n        tasks = apply_advanced_filters(tasks, filters)\n```\n\nwith this corrected block:\n```python\n    # Advanced Search & Filtering\n    filters = render_advanced_search_and_filters()\n    \n    # Apply all filters and search\n    tasks = apply_advanced_filters(tasks, filters)\n```\nThis change corrects the unpacking error and fixes a latent logic bug where search and filters were not applied together.",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:38:31.315Z",
+    "updated_date": "2025-06-24T19:41:22.777836",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 153,
+    "title": "Simplify Image Deletion on Task Approval",
+    "short_description": "Remove redundant 'Approve & Delete Image' button from the review page.",
+    "detailed_description": "In `.cursor/streamlit_app/app.py`, inside the `render_task_review_card` function, there is a redundant button labeled \"Approve & Delete Image\". The main \"Approve\" button already handles image deletion automatically. To fulfill the user's request, remove the following block of code entirely:\n\n```python\n        if st.button(\"🗑️ Approve & Delete Image\", key=f\"delete_image_{task_id}\"):\n            if delete_task_image(task) and update_task_status(task_id, 'DONE'):\n                st.success(f\"Task {task_id} approved and image deleted.\")\n                st.rerun()\n```",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/app.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T17:43:31.795Z",
+    "updated_date": "2025-06-24T17:46:19.898Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
   }
 ]

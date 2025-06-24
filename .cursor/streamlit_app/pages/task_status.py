@@ -1,13 +1,21 @@
 import streamlit as st
 import json
 import os
+import sys
 from pathlib import Path
 from datetime import datetime
 import requests
 import statistics
 from typing import Tuple, Optional
 
+# Add the parent directory of the pages directory to the path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+from components.sidebar import display_sidebar
+from components import task_utils
+
 st.set_page_config(page_title="Task Status", page_icon="✅")
+
+display_sidebar()
 
 st.markdown("# ✅ Task Status")
 
@@ -33,7 +41,7 @@ def delete_task_via_mcp(task_id):
 
 def update_task_local(task_id, **kwargs):
     """Update a task in the local tasks file"""
-    tasks_file = get_tasks_file()
+    tasks_file = task_utils.get_tasks_file()
     if not tasks_file:
         return False
     
@@ -93,7 +101,7 @@ def update_task_local(task_id, **kwargs):
 
 def delete_task_local(task_id):
     """Delete a task from the local tasks file"""
-    tasks_file = get_tasks_file()
+    tasks_file = task_utils.get_tasks_file()
     if not tasks_file:
         return False
     
@@ -134,29 +142,6 @@ def delete_task_local(task_id):
     
     return False
 
-def get_tasks_file():
-    """Get the path to the tasks file, prioritizing MCP-managed file"""
-    possible_paths = [
-        Path('.cursor/memory-bank/streamlit_app/tasks.json'),  # MCP-managed file (primary)
-        Path('.cursor/streamlit_app/tasks.json'),  # Local streamlit file
-        Path('.cursor/memory-bank/tasks.json'),  # Legacy location
-        Path('tasks.json')  # Fallback
-    ]
-    
-    # Debug: show which files exist and their sizes
-    found_files = []
-    for path in possible_paths:
-        if path.exists():
-            file_size = path.stat().st_size
-            found_files.append((str(path), file_size))
-    
-    # Display file source information
-    if found_files:
-        selected_file, selected_size = found_files[0]  # First found file (highest priority)
-        return Path(selected_file)
-    
-    return None
-
 def get_userbrief_requests():
     """Get unprocessed userbrief requests"""
     userbrief_file = Path('.cursor/memory-bank/workflow/userbrief.json')
@@ -175,73 +160,66 @@ def get_userbrief_requests():
         st.error(f"Error reading userbrief: {e}")
         return []
 
-def calculate_task_completion_stats(tasks) -> Tuple[Optional[float], Optional[float]]:
-    """Calculate average completion time and standard deviation for completed tasks based on status history."""
-    completed_tasks = [t for t in tasks if t.get('status') in ['DONE', 'APPROVED']]
-    completion_times = []
-    
-    for task in completed_tasks:
-        history = task.get('status_history', [])
-        if not history:
-            continue
+def get_user_request(request_id: int):
+    """Get a specific user request by its ID."""
+    userbrief_file = Path(".cursor/memory-bank/workflow/userbrief.json")
+    if not userbrief_file.exists():
+        return None
+    with open(userbrief_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    for req in data.get("requests", []):
+        if req.get("id") == request_id:
+            return req
+    return None
 
-        t_in_progress = None
-        t_done = None
+def delete_user_request(request_id: int) -> bool:
+    """Deletes a user request from userbrief.json."""
+    try:
+        userbrief_file = Path(".cursor/memory-bank/workflow/userbrief.json")
+        if not userbrief_file.exists():
+            return False
 
-        # Find the first 'IN_PROGRESS' and the last 'DONE'/'APPROVED' timestamp
-        for event in history:
-            status = event.get('status')
-            timestamp = event.get('timestamp')
-            
-            if timestamp:
-                if status == 'IN_PROGRESS' and t_in_progress is None:
-                    try:
-                        t_in_progress = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-                    except (ValueError, TypeError):
-                        continue
-                
-                if status in ['DONE', 'APPROVED']:
-                    try:
-                        # Always take the latest completion timestamp
-                        t_done = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-                    except (ValueError, TypeError):
-                        continue
+        with open(userbrief_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        original_count = len(data.get("requests", []))
+        data["requests"] = [req for req in data["requests"] if req.get("id") != request_id]
         
-        if t_in_progress and t_done and t_done > t_in_progress:
-            completion_time_hours = (t_done - t_in_progress).total_seconds() / 3600
-            
-            # Only consider reasonable completion times (e.g., > 1 minute)
-            if completion_time_hours > (1/60):
-                completion_times.append(completion_time_hours)
+        if len(data["requests"]) < original_count:
+            with open(userbrief_file, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            return True
+        return False # Request not found
+    except Exception as e:
+        st.error(f"Error deleting request: {e}")
+        return False
 
-    if len(completion_times) >= 1:
-        mean_time = statistics.mean(completion_times)
-        std_dev = statistics.stdev(completion_times) if len(completion_times) > 1 else 0.0
-        return mean_time, std_dev
-    
-    return None, None
+def update_user_request(request_id: int, new_content: str) -> bool:
+    """Updates the content of a user request."""
+    try:
+        userbrief_file = Path(".cursor/memory-bank/workflow/userbrief.json")
+        if not userbrief_file.exists():
+            return False
 
-def estimate_remaining_time(remaining_tasks_count: int, mean_time: Optional[float], std_dev: Optional[float]) -> Tuple[Optional[float], Optional[float]]:
-    """Estimate total time needed for remaining tasks with margin of error"""
-    if mean_time is not None and remaining_tasks_count > 0:
-        estimated_total = remaining_tasks_count * mean_time
-        margin_error = remaining_tasks_count * std_dev if std_dev else 0
-        return estimated_total, margin_error
-    return None, None
+        with open(userbrief_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
 
-def format_time_estimate(hours: Optional[float]) -> str:
-    """Format time estimate in a user-friendly way"""
-    if hours is None:
-        return "N/A"
-    
-    if hours < 1:
-        minutes = int(hours * 60)
-        return f"{minutes}min"
-    elif hours < 24:
-        return f"{hours:.1f}h"
-    else:
-        days = hours / 24
-        return f"{days:.1f}d"
+        request_found = False
+        for req in data.get("requests", []):
+            if req.get("id") == request_id:
+                req["content"] = new_content
+                req["updated_at"] = datetime.now().isoformat()
+                request_found = True
+                break
+        
+        if request_found:
+            with open(userbrief_file, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            return True
+        return False # Request not found
+    except Exception as e:
+        st.error(f"Error updating request: {e}")
+        return False
 
 def sort_tasks_by_dependencies_and_priority(tasks):
     """Sort tasks by dependencies first, then by priority"""
@@ -574,16 +552,55 @@ def render_userbrief_request(request):
     status = request.get('status', 'new')
     created_at = request.get('created_at', '')[:10] if request.get('created_at') else 'Unknown'
     
-    # Truncate content if too long
-    display_content = content[:200] + "..." if len(content) > 200 else content
-    
-    st.markdown(f"### 📋 Request #{req_id}")
-    st.write(f"📝 {display_content}")
-    st.caption(f"📅 **Created:** {created_at} | 🏷️ **Status:** {status}")
-    
-    if len(content) > 200:
-        with st.expander("📖 Full Content"):
-            st.write(content)
+    # Initialize session state for editing
+    edit_key = f"edit_request_{req_id}"
+    if edit_key not in st.session_state:
+        st.session_state[edit_key] = False
+
+    with st.container(border=True):
+        st.markdown(f"#### 📋 Request #{req_id}")
+        st.caption(f"📅 **Created:** {created_at} | 🏷️ **Status:** {status}")
+
+        if st.session_state[edit_key]:
+            # --- EDITING MODE ---
+            with st.form(key=f"edit_form_{req_id}"):
+                new_content = st.text_area("Edit request content:", value=content, height=150, key=f"text_{req_id}")
+                
+                submit_col, cancel_col = st.columns(2)
+                with submit_col:
+                    if st.form_submit_button("💾 Save Changes", use_container_width=True):
+                        if update_user_request(req_id, new_content):
+                            st.success(f"Request #{req_id} updated.")
+                            st.session_state[edit_key] = False
+                            st.rerun()
+                        else:
+                            st.error("Failed to update request.")
+                with cancel_col:
+                    if st.form_submit_button("❌ Cancel", use_container_width=True):
+                        st.session_state[edit_key] = False
+                        st.rerun()
+        else:
+            # --- DISPLAY MODE ---
+            display_content = content[:250] + "..." if len(content) > 250 else content
+            st.info(display_content)
+            
+            if len(content) > 250:
+                with st.expander("📖 Read Full Content"):
+                    st.markdown(content)
+
+            # Action buttons
+            col1, col2, col3 = st.columns([1, 1, 5])
+            with col1:
+                if st.button("✏️ Edit", key=f"start_edit_{req_id}", help="Edit this request"):
+                    st.session_state[edit_key] = True
+                    st.rerun()
+            with col2:
+                if st.button("🗑️ Delete", key=f"delete_{req_id}", help="Delete this request"):
+                    if delete_user_request(req_id):
+                        st.toast(f"Request #{req_id} deleted.")
+                        st.rerun()
+                    else:
+                        st.error("Failed to delete request.")
     
     st.markdown("---")
 
@@ -870,238 +887,38 @@ def apply_advanced_filters(tasks, filters):
     
     return filtered_tasks
 
-# Main interface
-st.markdown("## 🎯 Agent Workflow Overview")
-st.info("📊 Complete view of the agent's work pipeline from requests to completion")
-
-# Load tasks from file
-tasks_file = get_tasks_file()
-tasks = []
-if tasks_file:
-    with open(tasks_file, 'r', encoding='utf-8') as f:
-        # Handle both array format and object format
-        data = json.load(f)
-        if isinstance(data, list):
-            tasks = data
-        else:
-            tasks = data.get('tasks', [])
-else:
-    st.warning("Task file not found. Please ensure tasks.json is in the correct directory.")
-
-# Load unprocessed userbrief requests
-userbrief_requests = get_userbrief_requests()
-
-# Main page content
-if not tasks and not userbrief_requests:
-    st.markdown("---")
-    st.info("🚀 **Getting Started:** Tasks and requests will appear here once the agent begins processing your requests through the workflow system.")
-
-# Calculate task statistics
-active_tasks = [t for t in tasks if t.get('status') not in ['DONE', 'APPROVED']]
-completed_tasks = [t for t in tasks if t.get('status') in ['DONE', 'APPROVED']]
-
-# Main statistics display
-st.subheader("📊 Task Overview")
-col1, col2, col3, col4 = st.columns(4)
-with col1:
-    st.metric("Total Tasks", len(tasks))
-with col2:
-    st.metric("Active Tasks", len(active_tasks), delta=f"{len(completed_tasks)} Completed", delta_color="off")
-with col3:
-    # Completion stats
-    mean_time, std_dev = calculate_task_completion_stats(tasks)
-    st.metric("Avg. Completion", format_time_estimate(mean_time) if mean_time is not None else "N/A")
-with col4:
-    # Estimated time remaining
-    est_total, margin_error = estimate_remaining_time(len(active_tasks), mean_time, std_dev)
-    st.metric("Est. Remaining", format_time_estimate(est_total) if est_total is not None else "N/A")
-
-if est_total is not None and margin_error:
-    st.info(f"💡 Estimated remaining time for active tasks is **{format_time_estimate(est_total)} ± {format_time_estimate(margin_error)}** based on past performance.")
-
-# Display unprocessed userbrief requests
-st.markdown("---")
-st.subheader("📬 Unprocessed Userbrief Requests")
-if userbrief_requests:
-    st.info(f"💡 {len(userbrief_requests)} user request(s) waiting to be converted into tasks.")
+def main():
     
-    for request in userbrief_requests:
-        render_userbrief_request(request)
-else:
-    st.info("📭 No unprocessed requests - all user requests have been converted to tasks!")
+    tasks = task_utils.get_all_tasks()
+    userbrief_requests = get_userbrief_requests()
 
-# Advanced Search and Filters
-st.markdown("---")
-filters = render_advanced_search_and_filters()
-search_query = filters['search_query']
+    if not tasks and not userbrief_requests:
+        st.info("No tasks or user requests found.")
+        st.write("Checked locations:")
+        return
 
-# Apply basic search first
-if search_query:
-    tasks, userbrief_requests = fuzzy_search_tasks(tasks, userbrief_requests, search_query)
-
-# Apply advanced filters
-tasks = apply_advanced_filters(tasks, filters)
-
-# ========================================
-# ACCORDION LAYOUT IMPLEMENTATION
-# ========================================
-
-# SECTION 1: CURRENT TASK (IN_PROGRESS) - Always visible at top (no accordion)
-current_tasks = [t for t in tasks if t.get('status') == 'IN_PROGRESS']
-if current_tasks:
-    st.markdown("## 🔥 Current Task (In Progress)")
-    st.success("🎯 This is what the agent is currently working on")
+    # Advanced Search & Filtering
+    filters = render_advanced_search_and_filters()
     
-    # Sort current tasks by priority (highest first)
-    current_tasks.sort(key=lambda x: x.get('priority', 3), reverse=True)
+    # Apply all filters, including search query
+    tasks = apply_advanced_filters(tasks, filters)
     
-    for task in current_tasks:
-        render_task_card(task, show_inline_edit=True)
-else:
-    st.markdown("## 🔥 Current Task")
-    st.info("✨ No task currently in progress - agent is ready for new work!")
+    # Sort tasks
+    tasks = sort_tasks_by_dependencies_and_priority(tasks)
 
-# SECTION 2: UNPROCESSED USERBRIEF REQUESTS - Accordion (expanded by default)
-if userbrief_requests:
-    with st.expander(f"📋 Stage 0: Unprocessed Requests ({len(userbrief_requests)})", expanded=True):
-        st.caption("🔄 User requests waiting to be decomposed into tasks")
-        
+    # --- Display Tasks ---
+    st.header("Task Details")
+    if tasks:
+        for task in tasks:
+            render_task_card(task)
+    else:
+        st.info("No tasks match the current filters.")
+
+    # --- Display User Brief Requests ---
+    if userbrief_requests:
+        st.header("Unprocessed User Requests")
         for request in userbrief_requests:
             render_userbrief_request(request)
-else:
-    with st.expander("📋 Stage 0: Unprocessed Requests (0)", expanded=False):
-        st.info("📭 No unprocessed requests - all user requests have been converted to tasks!")
 
-# SECTION 3: BLOCKED/REVIEW TASKS - Accordion (now expanded by default if non-empty)
-blocked_tasks = [t for t in tasks if t.get('status') in ['BLOCKED', 'REVIEW']]
-if blocked_tasks:
-    # Sort by priority
-    blocked_tasks.sort(key=lambda x: x.get('priority', 3), reverse=True)
-    
-    with st.expander(f"🚫 Blocked/Review Tasks ({len(blocked_tasks)})", expanded=True):
-        st.caption("⚠️ Tasks that need attention before they can proceed")
-        
-        # Group by status
-        blocked_only = [t for t in blocked_tasks if t.get('status') == 'BLOCKED']
-        review_only = [t for t in blocked_tasks if t.get('status') == 'REVIEW']
-        
-        if blocked_only:
-            st.markdown(f"#### 🚫 Blocked Tasks ({len(blocked_only)})")
-            for task in blocked_only:
-                render_task_card(task, show_inline_edit=True)
-        
-        if review_only:
-            st.markdown(f"#### 👀 Review Tasks ({len(review_only)})")
-            for task in review_only:
-                render_task_card(task, show_inline_edit=True)
-else:
-    with st.expander("🚫 Blocked/Review Tasks (0)", expanded=False):
-        st.info("✅ No blocked or review tasks - workflow is running smoothly!")
-
-# SECTION 4: TODO TASKS - Accordion (expanded by default), sorted by priority
-todo_tasks = [t for t in tasks if t.get('status') == 'TODO']
-if todo_tasks:
-    # Sort by dependencies and priority
-    sorted_todo = sort_tasks_by_dependencies_and_priority(todo_tasks)
-    
-    with st.expander(f"⏳ Todo Tasks - Ready to Start ({len(todo_tasks)})", expanded=True):
-        st.caption("📋 Tasks ready for implementation, sorted by dependencies and priority")
-        
-        # Group by priority for better visual organization
-        priority_groups = {}
-        for task in sorted_todo:
-            priority = task.get('priority', 3)
-            if priority not in priority_groups:
-                priority_groups[priority] = []
-            priority_groups[priority].append(task)
-        
-        # Display tasks grouped by priority (highest first)
-        for priority in sorted([5, 4, 3, 2, 1]):
-            if priority in priority_groups:
-                priority_emojis = {5: "🔥", 4: "🔴", 3: "🟡", 2: "🟢", 1: "⚪"}
-                priority_emoji = priority_emojis.get(priority, "📝")
-                
-                st.markdown(f"### {priority_emoji} Priority {priority} Tasks ({len(priority_groups[priority])})")
-                
-                for task in priority_groups[priority]:
-                    render_task_card(task, show_inline_edit=True)
-else:
-    with st.expander("⏳ Todo Tasks - Ready to Start (0)", expanded=False):
-        st.info("🎉 No pending tasks - all work is either in progress or completed!")
-
-# SECTION 5: COMPLETED TASKS - Accordion (collapsed by default), limited to recent
-done_tasks = [t for t in tasks if t.get('status') in ['DONE', 'APPROVED']]
-if done_tasks:
-    # Sort by updated date (most recent first) and show only last 15
-    done_tasks.sort(key=lambda x: x.get('updated_date', ''), reverse=True)
-    recent_done = done_tasks[:15]
-    
-    with st.expander(f"✅ Recently Completed Tasks ({len(recent_done)}/{len(done_tasks)})", expanded=False):
-        st.caption("🎉 Recently completed tasks (showing last 15)")
-        
-        # Group by status for better organization
-        approved_tasks = [t for t in recent_done if t.get('status') == 'APPROVED']
-        done_only_tasks = [t for t in recent_done if t.get('status') == 'DONE']
-        
-        if approved_tasks:
-            st.markdown(f"#### 🎯 Approved Tasks ({len(approved_tasks)})")
-            for task in approved_tasks:
-                render_task_card(task, show_inline_edit=False)
-        
-        if done_only_tasks:
-            st.markdown(f"#### ✅ Done Tasks ({len(done_only_tasks)})")
-            for task in done_only_tasks:
-                render_task_card(task, show_inline_edit=False)
-        
-        if len(done_tasks) > 15:
-            st.info(f"📊 {len(done_tasks) - 15} more completed tasks not shown. Use search to find specific completed tasks.")
-else:
-    with st.expander("✅ Recently Completed Tasks (0)", expanded=False):
-        st.info("📝 No completed tasks yet - work in progress!")
-
-# Sidebar controls
-st.sidebar.title("⚙️ Controls")
-if st.sidebar.button("🔄 Refresh Data"):
-    st.rerun()
-
-# Quick stats in sidebar
-if tasks:
-    st.sidebar.markdown("### 📊 Quick Stats")
-    
-    # Calculate completion rate
-    completed = len([t for t in tasks if t.get('status') in ['DONE', 'APPROVED']])
-    total = len(tasks)
-    completion_rate = (completed / total * 100) if total > 0 else 0
-    
-    st.sidebar.metric("Completion Rate", f"{completion_rate:.1f}%")
-    
-    # Priority distribution of active tasks
-    active_tasks = [t for t in tasks if t.get('status') in ['TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW']]
-    if active_tasks:
-        priority_counts = {}
-        for task in active_tasks:
-            priority = task.get('priority', 3)
-            priority_counts[priority] = priority_counts.get(priority, 0) + 1
-        
-        st.sidebar.markdown("**Priority Distribution:**")
-        for priority in sorted(priority_counts.keys(), reverse=True):
-            count = priority_counts[priority]
-            emoji = {5: "🔥", 4: "🔴", 3: "🟡", 2: "🟢", 1: "⚪"}.get(priority, "📝")
-            st.sidebar.write(f"{emoji} P{priority}: {count}")
-
-# Help section
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 💡 Help")
-st.sidebar.info("""
-**Workflow Stages:**
-- 📋 Stage 0: User requests not yet decomposed
-- ⏳ Stage 1: Tasks ready to start
-- 🔄 Stage 2: Tasks in progress
-- ✅ Stage 3: Completed tasks
-
-**Inline Editing:**
-- Change priority and status directly
-- Click Details to see full description
-- Use Complete button for quick completion
-- Delete with confirmation
-""") 
+if __name__ == "__main__":
+    main() 

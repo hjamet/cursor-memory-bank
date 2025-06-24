@@ -29,13 +29,18 @@
 
 ## Streamlit Application
 - **UI Framework**: Streamlit
-- **Key Pages**:
-    - `review.py`: A consolidated page with multiple tabs for reviewing tasks, viewing agent messages, and adding new user requests. The 'Add Request' functionality was merged from a separate page to streamline the UI.
-    - `task_status.py`: Displays the status of all tasks with advanced filtering and sorting capabilities.
+- **Application Structure**: The application has been refactored into a modular, component-based structure to improve maintainability and code reuse.
+- **Core Components**:
+    - `app.py`: The main entry point for the Streamlit application. It handles the primary user request submission and review interface, structured with tabs for a streamlined user experience.
+    - `components/sidebar.py`: A centralized and reusable component that displays the sidebar on all pages. It includes features like an auto-refresh mechanism (`streamlit-autorefresh`), a task counter, a dynamic estimation of project completion time, and details about the currently active task.
+    - `components/task_utils.py`: A utility module containing helper functions for task manipulation, such as calculating completion times based on `status_history`.
+- **Pages**:
+    - `pages/task_status.py`: Displays a comprehensive board of all tasks, allowing users to track progress. It leverages the centralized sidebar.
+    - `pages/memory.py`: Shows the agent's recent memories and provides an overview of past activities. It also leverages the centralized sidebar.
 - **Data Model (`tasks.json`):**
     - Each task object now includes a `status_history` field.
     - `status_history` is an array of objects `{'status': str, 'timestamp': str}` that tracks all status changes for a task.
-    - This history is used for accurate calculation of task completion times (from `IN_PROGRESS` to `DONE`/`APPROVED`).
+    - This history is used for accurate calculation of task completion times (from `IN_PROGRESS` to `DONE`/`REVIEW`).
 
 ## Architecture Patterns
 

@@ -1,287 +1,709 @@
 import streamlit as st
 import json
 import os
+import sys
 from pathlib import Path
 from datetime import datetime
+import requests
+from typing import List, Dict, Optional
+from PIL import Image, ImageGrab
+import uuid
+from streamlit_shortcuts import shortcut_button
 
-st.set_page_config(
-    page_title="Agent Dashboard",
-    page_icon="🤖",
-)
+# Add the parent directory to the path to find the 'components' module
+sys.path.append(str(Path(__file__).resolve().parent))
+from components.sidebar import display_sidebar
 
-st.write("# 🤖 Agent Dashboard")
+st.set_page_config(page_title="Review & Communication", page_icon="📨")
 
-st.markdown("Monitor your AI agent's memory and learning progress.")
+display_sidebar()
 
-# Helper function to read JSON files safely
-def read_json_file(file_path):
-    try:
-        if Path(file_path).exists():
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return None
-    except Exception as e:
-        st.error(f"Error reading {file_path}: {e}")
-        return None
+st.markdown("# 📨 Review & Communication")
 
-# Helper function to get agent memories
-def get_agent_memories(limit=10):
-    memory_locations = [
-        Path('.cursor/memory-bank/context/agent_memory.json'),
-        Path('.cursor/memory-bank/workflow/agent_memory.json'),
-        Path('.cursor/memory-bank/agent_memory.json')
-    ]
-    
-    for memory_file in memory_locations:
-        if memory_file.exists():
-            try:
-                with open(memory_file, 'r', encoding='utf-8') as f:
-                    memories = json.load(f)
-                    if isinstance(memories, list) and memories:
-                        # Return the last 'limit' memories
-                        return memories[-limit:] if len(memories) > limit else memories
-            except Exception as e:
-                st.error(f"Error reading memories from {memory_file}: {e}")
-    
-    return []
+st.markdown("Review tasks awaiting validation and view messages from the agent.")
 
-# Helper function to get recent userbrief requests
-def get_recent_requests(limit=5):
-    userbrief_file = Path('.cursor/memory-bank/workflow/userbrief.json')
-    if not userbrief_file.exists():
-        return []
-    
-    try:
+# --- Start of functions from add_request.py ---
+
+def get_next_request_id():
+    """Get the next available request ID from userbrief.json"""
+    userbrief_file = Path(".cursor/memory-bank/workflow/userbrief.json")
+    if userbrief_file.exists():
         with open(userbrief_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        
-        requests = data.get('requests', [])
-        if not requests:
-            return []
-        
-        # Categorize requests
-        new_requests = [req for req in requests if req.get('status') == 'new']
-        in_progress_requests = [req for req in requests if req.get('status') == 'in_progress']
-        archived_requests = [req for req in requests if req.get('status') == 'archived']
-        
-        # Sort by updated_at (most recent first)
-        new_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
-        in_progress_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
-        archived_requests.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
-        
-        return {
-            'new': new_requests[:limit],
-            'in_progress': in_progress_requests[:limit],
-            'archived': archived_requests[:limit],
-            'total_counts': {
-                'new': len(new_requests),
-                'in_progress': len(in_progress_requests),
-                'archived': len(archived_requests)
+            return data.get("last_id", 0) + 1
+    return 1
+
+def save_uploaded_image(uploaded_file, request_id):
+    """Save uploaded image to a structured directory and return metadata."""
+    if uploaded_file is not None:
+        try:
+            # Create a unique filename to avoid collisions
+            ext = os.path.splitext(uploaded_file.name)[1]
+            unique_filename = f"req_{request_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}{ext}"
+            
+            # Define save path
+            save_dir = Path(".cursor/temp/images")
+            save_dir.mkdir(parents=True, exist_ok=True)
+            image_path = save_dir / unique_filename
+            
+            # Save the file
+            with open(image_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+
+            # Get image dimensions
+            with Image.open(image_path) as img:
+                width, height = img.size
+            
+            # Return image metadata
+            return {
+                "path": str(image_path),
+                "filename": unique_filename,
+                "size": uploaded_file.size,
+                "width": width,
+                "height": height,
+                "content_type": uploaded_file.type
             }
+        except Exception as e:
+            st.error(f"Error saving image: {e}")
+            return None
+    return None
+
+def get_image_from_clipboard():
+    """Attempt to get an image from the clipboard."""
+    try:
+        image = ImageGrab.grabclipboard()
+        if isinstance(image, Image.Image):
+            return image
+    except Exception:
+        # Silently ignore errors, as this can fail on some OS
+        # if the clipboard is empty or doesn't contain an image.
+        pass
+    return None
+
+def save_pasted_image(image: Image.Image, request_id: int):
+    """Save a pasted image from clipboard to a structured directory and return metadata."""
+    if image:
+        try:
+            # Create a unique filename
+            unique_filename = f"req_{request_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_pasted.png"
+            
+            # Define save path
+            save_dir = Path(".cursor/temp/images")
+            save_dir.mkdir(parents=True, exist_ok=True)
+            image_path = save_dir / unique_filename
+            
+            # Save the image as PNG
+            image.save(image_path, "PNG")
+
+            # Get image metadata
+            width, height = image.size
+            size = os.path.getsize(image_path)
+            
+            return {
+                "path": str(image_path),
+                "filename": unique_filename,
+                "size": size,
+                "width": width,
+                "height": height,
+                "content_type": "image/png"
+            }
+        except Exception as e:
+            st.error(f"Error saving pasted image: {e}")
+            return None
+    return None
+
+def create_new_request(content: str, image_metadata: Optional[Dict] = None):
+    """Create a new request in userbrief.json, with optional image attachment."""
+    try:
+        userbrief_file = Path(".cursor/memory-bank/workflow/userbrief.json")
+        
+        if userbrief_file.exists():
+            with open(userbrief_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        else:
+            data = {"version": "1.0.0", "last_id": 0, "requests": []}
+
+        new_id = data.get("last_id", 0) + 1
+        timestamp = datetime.now().isoformat()
+        
+        new_req = {
+            "id": new_id,
+            "content": content,
+            "status": "new",
+            "image": image_metadata, # Can be None
+            "created_at": timestamp,
+            "updated_at": timestamp,
+            "history": [{
+                "timestamp": timestamp,
+                "action": "created",
+                "comment": "Request created via Streamlit app."
+            }]
         }
+
+        data["requests"].append(new_req)
+        data["last_id"] = new_id
+
+        with open(userbrief_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        
+        return True
     except Exception as e:
-        st.error(f"Error reading userbrief: {e}")
+        st.error(f"Error creating request: {e}")
+        return False
+
+def get_user_request(request_id: int) -> Optional[Dict]:
+    """Get a specific user request by its ID."""
+    userbrief_file = Path(".cursor/memory-bank/workflow/userbrief.json")
+    if not userbrief_file.exists():
+        return None
+    with open(userbrief_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    for req in data.get("requests", []):
+        if req.get("id") == request_id:
+            return req
+    return None
+
+def delete_user_request(request_id: int) -> bool:
+    """Deletes a user request from userbrief.json."""
+    try:
+        userbrief_file = Path(".cursor/memory-bank/workflow/userbrief.json")
+        if not userbrief_file.exists():
+            return False
+
+        with open(userbrief_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        original_count = len(data.get("requests", []))
+        data["requests"] = [req for req in data["requests"] if req.get("id") != request_id]
+        
+        if len(data["requests"]) < original_count:
+            with open(userbrief_file, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            return True
+        return False # Request not found
+    except Exception as e:
+        st.error(f"Error deleting request: {e}")
+        return False
+
+def update_user_request(request_id: int, new_content: str) -> bool:
+    """Updates the content of a user request."""
+    try:
+        userbrief_file = Path(".cursor/memory-bank/workflow/userbrief.json")
+        if not userbrief_file.exists():
+            return False
+
+        with open(userbrief_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        request_found = False
+        for req in data.get("requests", []):
+            if req.get("id") == request_id:
+                req["content"] = new_content
+                req["updated_at"] = datetime.now().isoformat()
+                request_found = True
+                break
+        
+        if request_found:
+            with open(userbrief_file, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            return True
+        return False # Request not found
+    except Exception as e:
+        st.error(f"Error updating request: {e}")
+        return False
+
+# --- End of functions from add_request.py ---
+
+
+# --- Start of functions from communication.py ---
+
+def read_user_messages():
+    """Read messages from to_user.json file"""
+    try:
+        messages_file = Path(".cursor/memory-bank/workflow/to_user.json")
+        if messages_file.exists():
+            with open(messages_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get('messages', [])
+        return []
+    except Exception as e:
+        st.error(f"Error reading messages: {e}")
         return []
 
-# Display Agent Memories
-st.header("🧠 Agent Memory Timeline")
-agent_memories = get_agent_memories(10)
-
-if agent_memories:
-    st.subheader("📖 Last 10 Agent Memories")
-    st.write(f"Showing {len(agent_memories)} most recent memories (newest first)")
-    
-    # Use tabs for better organization (Present as default)
-    tab1, tab2, tab3, tab4 = st.tabs(["🕐 Past", "⏰ Present", "🔮 Future", "🧠 Long Term"])
-    
-    with tab2:  # Present tab (default)
-        st.write("**Present Reality - Most Recent Memories**")
-        for i, memory in enumerate(reversed(agent_memories)):  # Most recent first
-            memory_id = len(agent_memories) - i
-            timestamp = memory.get('timestamp', 'Unknown')[:19].replace('T', ' ') if memory.get('timestamp') else 'Unknown'
+def delete_message(message_id):
+    """Delete a message from the to_user.json file"""
+    try:
+        messages_file = Path(".cursor/memory-bank/workflow/to_user.json")
+        if messages_file.exists():
+            with open(messages_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
             
-            st.markdown(f"### 💭 Memory #{memory_id} - {timestamp}")
-            present_content = memory.get('present', 'N/A')
-            if present_content and present_content != 'N/A':
-                st.write(present_content)
+            original_count = len(data.get('messages', []))
+            data['messages'] = [msg for msg in data.get('messages', []) if msg.get('id') != message_id]
+            
+            if len(data['messages']) < original_count:
+                with open(messages_file, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                return True
             else:
-                st.info("No present reality recorded")
-            
-            st.caption(f"📅 Recorded: {timestamp}")
-            st.markdown("---")
+                return False
+    except Exception as e:
+        st.error(f"Error deleting message: {e}")
+        return False
+
+def format_timestamp(timestamp_str):
+    """Format timestamp for display"""
+    try:
+        timestamp = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+        return timestamp.strftime("%Y-%m-%d %H:%M:%S")
+    except:
+        return timestamp_str
+
+def get_rule_emoji(rule):
+    """Get emoji for workflow rule"""
+    rule_emojis = {
+        'start-workflow': '🚀',
+        'task-decomposition': '📋',
+        'implementation': '⚙️',
+        'context-update': '🔄',
+        'fix': '🔧',
+        'experience-execution': '🧪',
+        'system': '💻',
+        'test': '🧪'
+    }
+    return rule_emojis.get(rule, '📝')
+
+# --- End of functions from communication.py ---
+
+
+# Helper functions for task and userbrief management
+def get_tasks_file():
+    """Get the path to the tasks file, prioritizing MCP-managed file"""
+    possible_paths = [
+        Path('.cursor/memory-bank/streamlit_app/tasks.json'),  # MCP-managed file (primary)
+        Path('.cursor/streamlit_app/tasks.json'),  # Local streamlit file
+        Path('.cursor/memory-bank/tasks.json'),  # Legacy location
+        Path('tasks.json')  # Fallback
+    ]
     
-    with tab1:  # Past tab
-        st.write("**Past Context - Historical Memories**")
-        for i, memory in enumerate(reversed(agent_memories)):  # Most recent first
-            memory_id = len(agent_memories) - i
-            timestamp = memory.get('timestamp', 'Unknown')[:19].replace('T', ' ') if memory.get('timestamp') else 'Unknown'
-            
-            st.markdown(f"### 💭 Memory #{memory_id} - {timestamp}")
-            past_content = memory.get('past', 'N/A')
-            if past_content and past_content != 'N/A':
-                st.write(past_content)
+    for path in possible_paths:
+        if path.exists():
+            return path
+    return None
+
+def load_tasks() -> List[Dict]:
+    """Load tasks from the tasks file"""
+    tasks_file = get_tasks_file()
+    if not tasks_file:
+        return []
+    
+    try:
+        with open(tasks_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # Handle both array format and object format
+        if isinstance(data, list):
+            return data
+        else:
+            return data.get('tasks', [])
+    except Exception as e:
+        st.error(f"Error loading tasks: {e}")
+        return []
+
+def update_task_status(task_id: int, new_status: str, validation_data: Optional[Dict] = None) -> bool:
+    """Update task status and optionally add validation data"""
+    tasks_file = get_tasks_file()
+    if not tasks_file:
+        return False
+    
+    try:
+        with open(tasks_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # Handle both array format and object format
+        if isinstance(data, list):
+            tasks = data
+            data_format = 'array'
+        else:
+            tasks = data.get('tasks', [])
+            data_format = 'object'
+        
+        # Find and update the task
+        for task in tasks:
+            if str(task.get('id', task.get('task_id'))) == str(task_id):
+                task['status'] = new_status
+                task['updated_date'] = datetime.now().isoformat()
+                
+                # Add validation data if provided
+                if validation_data:
+                    task['validation'] = validation_data
+                
+                # Save back to file
+                if data_format == 'array':
+                    save_data = tasks
+                else:
+                    save_data = {'tasks': tasks}
+                
+                with open(tasks_file, 'w', encoding='utf-8') as f:
+                    json.dump(save_data, f, indent=2, ensure_ascii=False)
+                
+                return True
+                
+    except Exception as e:
+        st.error(f"Error updating task: {e}")
+        return False
+    
+    return False
+
+def has_associated_image(task: Dict) -> bool:
+    """Check if task has an associated image"""
+    return task.get('image') is not None and task.get('image') != ''
+
+def get_image_path(task: Dict) -> Optional[str]:
+    """Get the full path to the task's associated image"""
+    if has_associated_image(task):
+        image_data = task.get('image')
+        
+        # Handle different image data formats
+        if isinstance(image_data, dict):
+            # Image metadata format (from new implementation)
+            return image_data.get('path')
+        elif isinstance(image_data, str):
+            # Simple string path format
+            if image_data.startswith('.cursor/temp/images/'):
+                return image_data
             else:
-                st.info("No past context recorded")
+                return os.path.join('.cursor', 'temp', 'images', image_data)
+    return None
+
+def delete_task_image(task: Dict) -> bool:
+    """Delete the image file associated with a task"""
+    image_path = get_image_path(task)
+    if image_path and os.path.exists(image_path):
+        try:
+            # Security check: ensure path is within temp images directory
+            normalized_path = os.path.normpath(image_path)
+            temp_images_dir = os.path.normpath('.cursor/temp/images/')
             
-            st.caption(f"📅 Recorded: {timestamp}")
-            st.markdown("---")
+            if not normalized_path.startswith(temp_images_dir):
+                st.warning(f"Security warning: Image path {image_path} is outside temp directory")
+                return False
+            
+            os.remove(image_path)
+            return True
+        except Exception as e:
+            st.warning(f"Could not delete image {image_path}: {e}")
+            return False
+    return True  # No image to delete or already deleted
+
+def render_image_preview(task: Dict):
+    """Render image preview if task has an associated image"""
+    if not has_associated_image(task):
+        return
     
-    with tab3:  # Future tab
-        st.write("**Future Plans - Upcoming Actions**")
-        for i, memory in enumerate(reversed(agent_memories)):  # Most recent first
-            memory_id = len(agent_memories) - i
-            timestamp = memory.get('timestamp', 'Unknown')[:19].replace('T', ' ') if memory.get('timestamp') else 'Unknown'
+    image_path = get_image_path(task)
+    if image_path and os.path.exists(image_path):
+        try:
+            image = Image.open(image_path)
+            st.image(image, caption=f"Associated Image: {os.path.basename(image_path)}", use_column_width=True)
+        except Exception as e:
+            st.warning(f"Could not load image {image_path}: {e}")
+    elif image_path:
+        st.warning(f"Image not found at path: {image_path}")
+
+def render_task_review_card(task: Dict):
+    """Render a task card with review/validation options"""
+    task_id = task.get('id', task.get('task_id'))
+    title = task.get('title', 'Untitled Task')
+    status = task.get('status', 'UNKNOWN')
+    priority = task.get('priority', 3)
+    
+    # Priority color mapping
+    priority_colors = {
+        1: "🟢",  # Low
+        2: "🟡",  # Medium-Low
+        3: "🔵",  # Medium
+        4: "🟠",  # High
+        5: "🔴"   # Critical
+    }
+    
+    priority_icon = priority_colors.get(priority, "⚪")
+    
+    # Check if task has associated image
+    has_image = has_associated_image(task)
+    image_icon = " 📸" if has_image else ""
+    
+    with st.container():
+        col1, col2, col3 = st.columns([1, 6, 2])
+        
+        with col1:
+            st.markdown(f"**{priority_icon}**")
+        
+        with col2:
+            st.markdown(f"**Task #{task_id}**: {title}{image_icon}")
+        
+        with col3:
+            st.markdown(f"**Status: {status}**")
+        
+        # Render image preview if available
+        render_image_preview(task)
+        
+        # Task details expander
+        with st.expander("View Task Details", expanded=False):
+            st.markdown(f"**Short Description:**")
+            st.info(task.get('short_description', 'N/A'))
             
-            st.markdown(f"### 💭 Memory #{memory_id} - {timestamp}")
-            future_content = memory.get('future', 'N/A')
-            if future_content and future_content != 'N/A':
-                st.write(future_content)
+            st.markdown(f"**Detailed Description:**")
+            st.code(task.get('detailed_description', 'N/A'), language='markdown')
+            
+            st.markdown(f"**Validation Criteria:**")
+            st.code(task.get('validation_criteria', 'N/A'), language='markdown')
+            
+            col_created, col_updated = st.columns(2)
+            with col_created:
+                st.write(f"**Created:** {format_timestamp(task.get('created_date', ''))}")
+            with col_updated:
+                st.write(f"**Updated:** {format_timestamp(task.get('updated_date', ''))}")
+
+        # Action buttons
+        st.markdown("**Actions:**")
+        approve_col, reject_col, notes_col = st.columns([1,1,2])
+        
+        with approve_col:
+            if st.button("👍 Approve", key=f"approve_{task_id}", help="Approve this task. The task status will be set to 'APPROVED'."):
+                if update_task_status(task_id, 'APPROVED'):
+                    st.success(f"Task #{task_id} approved!")
+                    # Clean up associated image if it exists
+                    delete_task_image(task)
+                    st.rerun()
+        
+        with reject_col:
+            if st.button("👎 Reject", key=f"reject_{task_id}", help="Reject this task. A new userbrief request will be created automatically for correction."):
+                st.session_state[f'reject_form_{task_id}'] = True
+        
+        # Rejection form (if reject button was clicked)
+        if st.session_state.get(f'reject_form_{task_id}', False):
+            with st.form(f"rejection_form_{task_id}"):
+                st.warning(f"Please provide feedback for rejecting Task #{task_id}:")
+                rejection_reason = st.text_area("Reason for rejection:", key=f"rejection_reason_{task_id}", height=100)
+                submitted = st.form_submit_button("Submit Rejection")
+                
+                if submitted:
+                    if rejection_reason:
+                        rejection_content = f"Correction for Task #{task_id} ({title}):\n\n{rejection_reason}"
+                        if create_new_request(rejection_content) and update_task_status(task_id, 'TODO'):
+                            st.success(f"Task #{task_id} rejected. New userbrief request created.")
+                            del st.session_state[f'reject_form_{task_id}']
+                            st.rerun()
+                        else:
+                            st.error("Failed to process rejection.")
+                    else:
+                        st.error("Please provide a reason for rejection.")
+
+        st.markdown("---")
+
+def render_message_review_card(message: Dict):
+    """Render a card for reviewing an agent message."""
+    message_id = message.get('id')
+    content = message.get('content', 'No content')
+    timestamp = message.get('timestamp', '')
+    
+    with st.container(border=True):
+        st.caption(f"📨 Agent Message | {format_timestamp(timestamp)} | ID: {message_id}")
+        st.markdown(f"> {content}")
+
+        action_col1, action_col2 = st.columns([1, 5])
+        
+        with action_col1:
+            if st.button("✅ Acknowledge", key=f"validate_{message_id}", help="Acknowledge and delete this message."):
+                if delete_message(message_id):
+                    st.toast(f"Message {message_id} acknowledged.")
+                    if 'answering_message_id' in st.session_state and st.session_state.answering_message_id == message_id:
+                        del st.session_state.answering_message_id
+                    st.rerun()
+                else:
+                    st.error("Failed to delete message.")
+
+        with action_col2:
+            if st.button("❓ Ask a question", key=f"answer_{message_id}", help="Ask a follow-up question. This will create a new request."):
+                st.session_state.answering_message_id = message_id
+
+        # Answer form, now inside the container
+        if st.session_state.get('answering_message_id') == message_id:
+            with st.form(key=f"answer_form_{message_id}"):
+                user_question = st.text_area("Your question or comment:", key=f"question_{message_id}", height=100)
+                submitted = st.form_submit_button("Send Question")
+                
+                if submitted:
+                    if user_question:
+                        # Create new userbrief request
+                        request_content = f"Question regarding agent message #{message_id}: \"{content[:100]}...\"\n\nMy question: {user_question}"
+                        if create_new_request(request_content):
+                            st.success("Your question has been sent as a new request.")
+                            # Delete the original message after it has been answered
+                            delete_message(message_id)
+                            del st.session_state.answering_message_id
+                            st.rerun()
+                        else:
+                            st.error("Failed to create a new request.")
+                    else:
+                        st.warning("Please enter a question or comment.")
+        
+        st.markdown("---")
+
+def render_add_request_tab():
+    """Render the UI for adding a new user request."""
+    st.header("✨ Add New Request")
+
+    # Initialize session states
+    if 'pasted_image_obj' not in st.session_state:
+        st.session_state.pasted_image_obj = None
+    if 'last_submitted_request_id' not in st.session_state:
+        st.session_state.last_submitted_request_id = None
+    if 'editing_request_id' not in st.session_state:
+        st.session_state.editing_request_id = None
+
+    # If editing, load the content
+    request_content_default = ""
+    if st.session_state.editing_request_id:
+        request_to_edit = get_user_request(st.session_state.editing_request_id)
+        if request_to_edit:
+            request_content_default = request_to_edit.get("content", "")
+
+    request_content = st.text_area("Request Description", value=request_content_default, height=250, placeholder="Please provide a detailed description of your request...", label_visibility="collapsed", key="request_content_area")
+    
+    with st.expander("📎 Attach an Image (Optional)"):
+        col1, col2 = st.columns(2)
+        with col1:
+            uploaded_image = st.file_uploader(
+                "Upload an image",
+                type=['png', 'jpg', 'jpeg', 'gif'],
+                label_visibility="collapsed"
+            )
+
+        with col2:
+            if shortcut_button("📋 Paste from clipboard", "ctrl+v", help="Press Ctrl+V to paste an image from your clipboard."):
+                pasted_image = get_image_from_clipboard()
+                if pasted_image:
+                    st.session_state.pasted_image_obj = pasted_image
+                    st.toast("Image captured from clipboard! Preview below.")
+                    uploaded_image = None # Clear file uploader
+                else:
+                    st.warning("No image found on clipboard.")
+    
+        # Display preview for uploaded or pasted image
+        if uploaded_image:
+            st.image(uploaded_image, caption="Uploaded image preview", width=300)
+            st.session_state.pasted_image_obj = None  # Clear pasted image if user uploads
+        elif st.session_state.pasted_image_obj:
+            st.image(st.session_state.pasted_image_obj, caption="Pasted image preview", width=300)
+
+    # Determine button label and action
+    is_editing = st.session_state.editing_request_id is not None
+    submit_label = "Update Request" if is_editing else "Submit New Request"
+    
+    # Use shortcut_button with Ctrl+Enter shortcut
+    if shortcut_button(submit_label, "ctrl+enter", type="primary", use_container_width=True):
+        if request_content:
+            if is_editing:
+                # Update existing request
+                if update_user_request(st.session_state.editing_request_id, request_content):
+                    st.success(f"Request #{st.session_state.editing_request_id} updated successfully!")
+                    st.session_state.last_submitted_request_id = st.session_state.editing_request_id
+                    st.session_state.editing_request_id = None
+                    st.session_state.request_content_area = "" # Clear text area
+                    st.rerun()
+                else:
+                    st.error("Failed to update the request.")
             else:
-                st.info("No future plans recorded")
-            
-            st.caption(f"📅 Recorded: {timestamp}")
-            st.markdown("---")
-    
-    with tab4:  # Long Term tab
-        st.write("**Long Term Memory - Persistent Knowledge**")
-        for i, memory in enumerate(reversed(agent_memories)):  # Most recent first
-            memory_id = len(agent_memories) - i
-            timestamp = memory.get('timestamp', 'Unknown')[:19].replace('T', ' ') if memory.get('timestamp') else 'Unknown'
-            
-            long_term_content = memory.get('long_term_memory', '')
-            if long_term_content and long_term_content.strip():
-                st.markdown(f"### 💭 Memory #{memory_id} - {timestamp}")
-                st.write(long_term_content)
-                st.caption(f"📅 Recorded: {timestamp}")
-                st.markdown("---")
-        
-        # Show message if no long-term memories found
-        long_term_count = sum(1 for m in agent_memories if m.get('long_term_memory', '').strip())
-        if long_term_count == 0:
-            st.info("No long term memories recorded yet")
-    
-    # Summary section
-    st.markdown("---")
-    with st.expander("📊 Memory Summary", expanded=False):
-        st.write(f"**Total memories displayed:** {len(agent_memories)}")
-        
-        # Count memories with long-term content
-        long_term_count = sum(1 for m in agent_memories if m.get('long_term_memory', '').strip())
-        st.write(f"**Memories with long-term insights:** {long_term_count}")
-        
-        # Show date range
-        if len(agent_memories) > 1:
-            oldest = agent_memories[0].get('timestamp', '')[:19].replace('T', ' ')
-            newest = agent_memories[-1].get('timestamp', '')[:19].replace('T', ' ')
-            st.write(f"**Time range:** {oldest} to {newest}")
+                # Create new request
+                next_id = get_next_request_id()
+                image_meta = None
+                if uploaded_image:
+                    image_meta = save_uploaded_image(uploaded_image, next_id)
+                elif st.session_state.pasted_image_obj:
+                    image_meta = save_pasted_image(st.session_state.pasted_image_obj, next_id)
 
-else:
-    st.info("No agent memories found. Memories will appear here as the agent works and learns.")
+                if create_new_request(request_content, image_meta):
+                    st.success(f"Request #{next_id} submitted successfully!")
+                    st.balloons()
+                    st.session_state.pasted_image_obj = None
+                    st.session_state.last_submitted_request_id = next_id
+                    st.session_state.request_content_area = "" # Clear text area
+                    st.rerun() # Rerun to clear the text area and show the new request
+                else:
+                    st.error("Failed to submit the request.")
+        else:
+            st.warning("Please enter a description for your request.")
 
-# Recent Requests Overview
-st.header("📋 Recent Requests Overview")
+    # Display the last submitted request for editing/deleting
+    if st.session_state.last_submitted_request_id and st.session_state.editing_request_id is None:
+        st.markdown("---")
+        st.subheader("Last Submitted Request")
+        last_request = get_user_request(st.session_state.last_submitted_request_id)
 
-recent_requests = get_recent_requests(3)
+        if last_request:
+            if last_request.get("status") == "new":
+                with st.container(border=True):
+                    st.markdown(f"**Request #{last_request['id']}** (Status: {last_request['status']})")
+                    st.info(last_request['content'])
 
-if recent_requests:
-    # Display metrics
-    counts = recent_requests['total_counts']
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        total_requests = sum(counts.values())
-        st.metric("Total Requests", total_requests)
-    
-    with col2:
-        st.metric("🆕 New", counts['new'], help="Requests waiting to be processed")
-    
-    with col3:
-        st.metric("⚡ In Progress", counts['in_progress'], help="Requests currently being worked on")
-    
-    with col4:
-        st.metric("✅ Archived", counts['archived'], help="Completed requests")
-    
-    # Display active requests (in progress and new)
-    active_requests = recent_requests['in_progress'] + recent_requests['new']
-    
-    if active_requests:
-        st.subheader("🔄 Active Requests")
-        st.info("Current requests being processed by the agent")
-        
-        for req in active_requests:
-            req_id = req.get('id', 'N/A')
-            status = req.get('status', 'unknown')
-            content = req.get('content', 'No content')
-            
-            # Status styling
-            if status == 'in_progress':
-                status_emoji = "⚡"
-                status_color = "🔥"
+                    col1, col2, col3 = st.columns([1, 1, 4])
+                    with col1:
+                        if st.button("✏️ Edit", key=f"edit_{last_request['id']}"):
+                            st.session_state.editing_request_id = last_request['id']
+                            st.rerun()
+                    with col2:
+                        if st.button("❌ Delete", key=f"delete_{last_request['id']}"):
+                            if delete_user_request(last_request['id']):
+                                st.toast(f"Request #{last_request['id']} deleted.")
+                                st.session_state.last_submitted_request_id = None
+                                st.rerun()
+                            else:
+                                st.error("Failed to delete the request.")
             else:
-                status_emoji = "🆕"
-                status_color = "🆕"
-            
-            with st.container():
-                st.markdown(f"### {status_color} Request #{req_id} - {status.title()}")
-                
-                # Content preview (first 200 characters)
-                content_preview = content[:200] + "..." if len(content) > 200 else content
-                st.write(content_preview)
-                
-                if len(content) > 200:
-                    with st.expander("📖 View Full Content"):
-                        st.write(content)
-                
-                # Metadata
-                col1, col2 = st.columns(2)
-                with col1:
-                    created_time = req.get('created_at', '')[:19].replace('T', ' ') if req.get('created_at') else 'Unknown'
-                    st.caption(f"🕐 **Created:** {created_time}")
-                with col2:
-                    updated_time = req.get('updated_at', '')[:19].replace('T', ' ') if req.get('updated_at') else 'Unknown'
-                    st.caption(f"🔄 **Updated:** {updated_time}")
-                
-                st.markdown("---")
+                 st.info(f"Request #{last_request['id']} has already been processed by the agent and cannot be modified here.")
+
+def main():
+    """Main function to render the review page"""
+    # Load data upfront
+    tasks = load_tasks()
+    messages = read_user_messages()
     
-    # Show recent completed requests
-    if recent_requests['archived']:
-        with st.expander(f"✅ Recent Completed Requests ({len(recent_requests['archived'])})", expanded=False):
-            for req in recent_requests['archived']:
-                req_id = req.get('id', 'N/A')
-                content = req.get('content', 'No content')
-                
-                st.markdown(f"**✅ Request #{req_id}**")
-                
-                # Content preview
-                content_preview = content[:150] + "..." if len(content) > 150 else content
-                st.write(content_preview)
-                
-                # Completion time
-                completed_time = req.get('updated_at', '')[:19].replace('T', ' ') if req.get('updated_at') else 'Unknown'
-                st.caption(f"✅ **Completed:** {completed_time}")
-                
-                st.markdown("---")
+    # Calculate counts for badges
+    review_tasks_count = len([t for t in tasks if t.get('status') == 'REVIEW'])
+    messages_count = len(messages)
     
-    # Navigation hint
-    st.info("💡 **Want to manage requests?** Use the sidebar to navigate to 'Add Request' or 'Memory' pages for full request management.")
+    # Create dynamic tab labels
+    review_tab_label = f"✅ Tasks to Review ({review_tasks_count} 🔴)" if review_tasks_count > 0 else "✅ Tasks to Review"
+    messages_tab_label = f"📨 Agent Messages ({messages_count} 🔴)" if messages_count > 0 else "📨 Agent Messages"
+    
+    add_request_tab, review_tab, messages_tab = st.tabs(["✨ Add Request", review_tab_label, messages_tab_label])
 
-else:
-    st.info("No requests found. Add your first request using the 'Add Request' page in the sidebar.")
+    with add_request_tab:
+        render_add_request_tab()
 
-# Auto-refresh option
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 🔄 Auto-refresh")
-auto_refresh = st.sidebar.checkbox("Auto-refresh (30s)")
-if auto_refresh:
-    import time
-    time.sleep(30)
-    st.rerun()
+    with review_tab:
+        st.header("Tasks Awaiting Validation")
+        review_tasks = [t for t in tasks if t.get('status') == 'REVIEW']
+        
+        if not review_tasks:
+            st.info("No tasks are currently awaiting review.")
+        else:
+            st.markdown(f"**{len(review_tasks)}** task(s) to review:")
+            for task in sorted(review_tasks, key=lambda x: x.get('id', 0), reverse=True):
+                render_task_review_card(task)
 
-# Quick actions
-st.sidebar.markdown("---")
-st.sidebar.markdown("### ⚡ Quick Actions")
-if st.sidebar.button("🔄 Refresh Dashboard"):
-    st.rerun()
+    with messages_tab:
+        st.header("Messages from Agent")
 
-st.sidebar.markdown("---")
-st.sidebar.info("💡 Use the pages in the sidebar to add requests, manage tasks, or edit memory.") 
+        if not messages:
+            st.info("No new messages from the agent.")
+        else:
+            st.markdown(f"**{len(messages)}** message(s) to review:")
+            for message in sorted(messages, key=lambda x: x.get('id', 0), reverse=True):
+                render_message_review_card(message)
+
+
+if __name__ == "__main__":
+    main()
