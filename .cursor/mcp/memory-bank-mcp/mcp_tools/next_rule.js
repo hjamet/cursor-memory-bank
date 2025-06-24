@@ -34,6 +34,7 @@ function analyzeSystemState(context) {
     // Check for unprocessed requests
     const unprocessedRequests = context.unprocessed_requests || [];
     const hasUnprocessedRequests = unprocessedRequests.length > 0;
+    const hasActionableTasks = taskCounts.TODO > 0 || taskCounts.IN_PROGRESS > 0 || taskCounts.BLOCKED > 0 || taskCounts.REVIEW > 0;
 
     // Determine optimal next step
     let recommendedStep = 'context-update';
@@ -54,6 +55,9 @@ function analyzeSystemState(context) {
     } else if (taskCounts.REVIEW > 0) {
         recommendedStep = 'experience-execution';
         reasoning = `${taskCounts.REVIEW} tasks need review and testing`;
+    } else if (!hasActionableTasks && !hasUnprocessedRequests) {
+        recommendedStep = 'workflow-complete';
+        reasoning = 'All tasks are done and no new requests. The workflow can stop.';
     }
 
     return {

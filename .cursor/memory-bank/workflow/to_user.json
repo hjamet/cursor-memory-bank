@@ -44,7 +44,29 @@
         "agent_state": "processing"
       },
       "status": "unread"
+    },
+    {
+      "id": 26,
+      "content": "Le bug de la page \"add request\" est maintenant corrigé et validé. Je passe à la tâche suivante : la modification du workflow pour éviter les boucles infinies.",
+      "timestamp": "2025-06-24T15:08:30.383Z",
+      "context": {
+        "workflow_rule": "implementation",
+        "active_task": null,
+        "agent_state": "processing"
+      },
+      "status": "unread"
+    },
+    {
+      "id": 27,
+      "content": "J'ai terminé la modification du workflow pour qu'il s'arrête correctement lorsqu'il n'y a plus de travail. Cette modification est prête à être testée. Je vais maintenant lancer un cycle de test pour la valider.",
+      "timestamp": "2025-06-24T15:09:32.480Z",
+      "context": {
+        "workflow_rule": "implementation",
+        "active_task": null,
+        "agent_state": "processing"
+      },
+      "status": "unread"
     }
   ],
-  "last_id": 25
+  "last_id": 27
 }
