@@ -3,26 +3,6 @@
   "last_id": 156,
   "requests": [
     {
-      "id": 130,
-      "content": "Dans la Side bar sur l'interface Stream Lit est ce que tu peux enlever l'affichage du nombre total de tâches affiches seulement le nombre de tâches restantes en prenant en compte les requêtes non transformées du userbrief :)",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T20:52:44.554038",
-      "updated_at": "2025-06-24T18:53:04.865Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T20:52:44.554038",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T18:53:04.865Z",
-          "action": "mark_archived",
-          "comment": "Task #169 has been created to address this request."
-        }
-      ]
-    },
-    {
       "id": 131,
       "content": "Correction for Task #169 (Update Streamlit sidebar task counter):\n\nJe vois toujours le nombre total de tâches et pas seulement celles qui restent, non traitées !",
       "status": "archived",
@@ -505,15 +485,20 @@
     {
       "id": 156,
       "content": "Correction for Task #187 (Supprimer l'estimation de temps et améliorer l'affichage de la sidebar):\n\nC'est parfait, ça a super bien fonctionné. Par contre, le problème c'est que le nombre de reminding Task est passé en gris sur fond gris et du coup quasiment pas visible comme d'ailleurs le texte remaining Task qui est bleu sur fond gris c'est aussi assez peu visible. Tu peux corriger pour mettre ça je sais pas dans un enfin utiliser un élément de design moderne clair qui permet de mieux voir. ?",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-06-25T01:46:24.590521",
-      "updated_at": "2025-06-25T01:46:24.590521",
+      "updated_at": "2025-06-24T23:47:37.436Z",
       "history": [
         {
           "timestamp": "2025-06-25T01:46:24.590521",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T23:47:37.436Z",
+          "action": "mark_archived",
+          "comment": "Requête traitée avec succès : Problème de visibilité de l'indicateur \"Remaining Tasks\" identifié et décomposé en tâche #194. L'utilisateur rapporte des problèmes de contraste (gris sur fond gris, bleu sur fond gris) suite à l'implémentation de la tâche #187. Une tâche prioritaire (priorité 4) a été créée pour améliorer significativement le design et la visibilité de l'indicateur avec un style moderne et accessible."
         }
       ]
     }

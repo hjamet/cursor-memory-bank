@@ -3889,13 +3889,13 @@
     "short_description": "Supprimer l'affichage de l'estimation du temps de complétion (\"Est. Completion\") de la sidebar Streamlit car elle est peu fiable et prend de la place, puis centrer l'indicateur \"Remaining Tasks\" pour améliorer la lisibilité de l'interface.",
     "detailed_description": "Améliorer l'interface de la sidebar Streamlit en supprimant l'estimation de temps problématique et en optimisant l'affichage de l'indicateur de tâches restantes.\n\n**✅ IMPLÉMENTATION TERMINÉE :**\n\nJ'ai successfully implémenté toutes les modifications demandées dans le fichier `components/sidebar.py` :\n\n**1. Suppression de l'estimation de temps :**\n- ✅ Supprimé complètement l'affichage de \"Est. Completion\"\n- ✅ Retiré tout le code de calcul d'estimation de temps :\n  - `calculate_task_completion_stats(all_tasks)`\n  - `estimate_remaining_time(len(remaining_tasks), mean_time, std_dev)`\n  - `format_time_estimate((est_lower, est_upper))`\n- ✅ Supprimé l'affichage en colonnes qui prenait de l'espace inutile\n- ✅ Éliminé les valeurs problématiques comme \"1.9-2.8...\" qui nuisaient à l'UX\n\n**2. Amélioration de l'affichage \"Remaining Tasks\" :**\n- ✅ Centré l'indicateur \"Remaining Tasks\" avec un affichage HTML personnalisé\n- ✅ Amélioré la typographie avec des titres hiérarchisés (h3 pour le label, h2 pour la valeur)\n- ✅ Optimisé l'espacement avec des marges appropriées (20px verticalement, 5px entre label et valeur)\n- ✅ Utilisé des couleurs cohérentes avec l'interface Streamlit (#1f77b4 pour le titre, #333 pour la valeur)\n- ✅ Créé un affichage plus lisible et visuellement attrayant\n\n**3. Optimisations de l'interface :**\n- ✅ Interface de la sidebar plus épurée et moins encombrée\n- ✅ Meilleure utilisation de l'espace disponible\n- ✅ Maintenu toutes les fonctionnalités existantes (statut agent, navigation, auto-refresh)\n- ✅ Conservé la cohérence visuelle avec le reste de l'interface\n- ✅ Amélioration significative de l'expérience utilisateur\n\n**Fichiers modifiés :**\n- `components/sidebar.py` : Suppression estimation temps + centrage \"Remaining Tasks\"\n\n**Critères d'acceptation réalisés :**\n- ✅ L'estimation du temps de complétion n'apparaît plus dans la sidebar\n- ✅ L'indicateur \"Remaining Tasks\" est centré et bien visible\n- ✅ L'interface de la sidebar est plus épurée et lisible\n- ✅ Toutes les fonctionnalités existantes sont préservées\n- ✅ L'affichage sera cohérent sur toutes les pages\n- ✅ L'expérience utilisateur est améliorée par la simplification\n\n**Résultat :** Interface sidebar optimisée, plus claire, et centrée sur l'essentiel.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "REVIEW",
     "impacted_files": [
       "components/sidebar.py"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) L'estimation du temps de complétion est complètement supprimée de la sidebar, (2) L'indicateur \"Remaining Tasks\" est centré et clairement visible, (3) L'interface de la sidebar est plus épurée et lisible, (4) Toutes les fonctionnalités existantes de la sidebar fonctionnent normalement, (5) L'affichage est cohérent sur toutes les pages, (6) L'expérience utilisateur est améliorée par la simplification de l'interface.",
     "created_date": "2025-06-24T23:12:34.837Z",
-    "updated_date": "2025-06-25T01:46:24.595495",
+    "updated_date": "2025-06-24T23:50:02.856Z",
     "parent_id": null,
     "priority": 3,
     "image": null
@@ -3996,6 +3996,23 @@
     "updated_date": "2025-06-25T01:40:44.648796",
     "parent_id": null,
     "priority": 5,
+    "image": null
+  },
+  {
+    "id": 194,
+    "title": "Améliorer la visibilité et le design de l'indicateur \"Remaining Tasks\" dans la sidebar",
+    "short_description": "Corriger les problèmes de contraste et de visibilité de l'indicateur \"Remaining Tasks\" dans la sidebar Streamlit suite à l'implémentation de la tâche #187. Le nombre et le texte sont actuellement peu visibles (gris sur fond gris, bleu sur fond gris) et nécessitent un design moderne et clair.",
+    "detailed_description": "Améliorer significativement l'affichage de l'indicateur \"Remaining Tasks\" dans la sidebar Streamlit pour résoudre les problèmes de visibilité identifiés par l'utilisateur après l'implémentation de la tâche #187.\n\n**Problèmes identifiés :**\nL'utilisateur rapporte que suite aux modifications de la tâche #187 (suppression de l'estimation de temps et centrage de l'indicateur), l'affichage souffre de problèmes de contraste :\n- Le nombre de \"Remaining Tasks\" est devenu gris sur fond gris (quasiment invisible)\n- Le texte \"Remaining Tasks\" est bleu sur fond gris (peu visible)\n- L'ensemble manque de modernité et de clarté visuelle\n\n**Objectifs de l'amélioration :**\n- Améliorer drastiquement la lisibilité et le contraste\n- Implémenter un design moderne et attractif\n- Maintenir la fonctionnalité existante (centrage, auto-refresh)\n- Assurer une excellente visibilité sur tous les thèmes Streamlit\n\n**Spécifications techniques :**\n- Modifier le fichier `components/sidebar.py` (section HTML personnalisé)\n- Revoir complètement la palette de couleurs pour optimiser le contraste\n- Implémenter un design moderne avec :\n  - Couleurs contrastées et accessibles\n  - Typographie claire et lisible\n  - Éventuellement un fond ou bordure pour délimiter l'élément\n  - Design responsive et cohérent avec l'interface Streamlit\n- Conserver la logique fonctionnelle existante (work_queue_count, centrage)\n\n**Approches de design suggérées :**\n- Utiliser des couleurs à fort contraste (ex: texte foncé sur fond clair ou inversement)\n- Ajouter un arrière-plan coloré ou une bordure pour faire ressortir l'élément\n- Implémenter un style \"card\" ou \"badge\" moderne\n- Utiliser des couleurs cohérentes avec la charte graphique Streamlit\n- Tester différentes combinaisons pour optimiser la lisibilité\n\n**Critères d'acceptation :**\n- L'indicateur \"Remaining Tasks\" est parfaitement visible et lisible\n- Le contraste respecte les standards d'accessibilité\n- Le design est moderne et professionnel\n- L'élément s'intègre harmonieusement dans la sidebar\n- Aucune régression sur les fonctionnalités existantes\n- L'auto-refresh et le centrage sont préservés\n- La logique de calcul (tâches + requêtes non traitées) reste inchangée\n\n**Impact attendu :**\nCette amélioration résoudra les problèmes de visibilité rapportés par l'utilisateur et offrira une expérience utilisateur nettement améliorée avec un indicateur clair, moderne et parfaitement lisible.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      "components/sidebar.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'indicateur \"Remaining Tasks\" est parfaitement visible avec un contraste optimal, (2) Le design est moderne et professionnel, (3) L'élément s'intègre harmonieusement dans la sidebar, (4) Aucune fonctionnalité existante n'est cassée, (5) L'utilisateur confirme que les problèmes de visibilité sont résolus, (6) Le style respecte les standards d'accessibilité.",
+    "created_date": "2025-06-24T23:47:29.725Z",
+    "updated_date": "2025-06-24T23:48:39.248Z",
+    "parent_id": null,
+    "priority": 4,
     "image": null
   }
 ]
