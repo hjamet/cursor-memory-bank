@@ -1,27 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 130,
+  "last_id": 131,
   "requests": [
-    {
-      "id": 103,
-      "content": "Est ce que tu peux faire de la page review la page par défaut de l'application quand on arrive ? Euh. Et actuellement la page principale, la page APP où il y a les résumés de la conversation, je te propose de la supprimer et de déplacer son contenu sans le modifier. Le contenu où il y a tu sais tous les messages de l'agent Pardon, tous les la mémoire de l'agent, la mémoire à court terme, ajoute la haie à à l'onglet Memory dans short terme Memory ou working Memory plutôt mémoire de travail. Fais les choses consciencieusement n'appliquent pas de modifications quand on entre toi de simplement faire le déplacement, s'il te plaît.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T19:19:03.509178",
-      "updated_at": "2025-06-24T17:22:33.039Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T19:19:03.509178",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T17:22:33.038Z",
-          "action": "mark_archived",
-          "comment": "The user request to make the 'Review' page the default and merge the 'App' page has been analyzed and decomposed into a parent task (#137) and three sub-tasks (#138, #139, #140). Archiving this request to proceed with implementation."
-        }
-      ]
-    },
     {
       "id": 104,
       "content": "Aussi dans la Side bar fait en sorte que ce soit accessible sur toutes les pages. Donc je t'ai dit, on la vide et on ajoute juste le bouton la, la possibilité d'auto refresh la page toutes les 10 secondes et j'aimerais bien que tu ajoutes aussi un indicateur, un indicateur avec le nombre de tâches. Euh non encore faites par l'Agente, faites vraiment quelque chose de simple mais un gros nombre bien visible qui indique le nombre de tâches à faire Le nombre de tâches qui reste à faire et ça doit prendre en compte autant les tâches décomposées que les requêtes Du user bridge non encore traité, qui compte donc pour une tâche Donc vraiment fait simple, juste ce ce, ce nombre de tâches et mets à côté aussi l'estimation du temps, comme c'est dans Task Status. Tu mets, tu sais, l'estimation du temps avec l'écart type calculé, combien de temps il reste à faire à à à la. D'après, d'après le serveur MCV, pour que toutes les tâches soient résolues. Ah et ajoute aussi le titre et la courte description de la tâche sur lequel l'agent est actuellement en train de travailler. Si y en a une. Mais reste avec ces 3 informations, ne surcomplique pas, ça doit vraiment être simple, gros, facilement lisible et visible. Joli et propre, moderne.",
@@ -510,6 +490,26 @@
           "timestamp": "2025-06-24T18:53:04.865Z",
           "action": "mark_archived",
           "comment": "Task #169 has been created to address this request."
+        }
+      ]
+    },
+    {
+      "id": 131,
+      "content": "Correction for Task #169 (Update Streamlit sidebar task counter):\n\nJe vois toujours le nombre total de tâches et pas seulement celles qui restent, non traitées !",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T21:03:46.434472",
+      "updated_at": "2025-06-24T19:05:07.782Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T21:03:46.434472",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T19:05:07.782Z",
+          "action": "mark_archived",
+          "comment": "User request has been converted to task #171 to fix the sidebar counter bug."
         }
       ]
     }

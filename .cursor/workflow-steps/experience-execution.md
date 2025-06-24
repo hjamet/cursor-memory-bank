@@ -1,5 +1,5 @@
 ## TLDR
-Quickly test the recent changes manually. If the test is successful, commit the changes. If it fails, prepare to fix the issues.
+Quickly test the recent changes manually. If the test is successful, commit the changes. If it fails, prepare to fix the issues. If you are interrupted, handle it gracefully.
 
 ## Instructions
 
@@ -10,7 +10,7 @@ Quickly test the recent changes manually. If the test is successful, commit the 
         - What would a failure look like?
     `</think>`
     - Perform the manual test. This could involve running a command, interacting with a UI, or checking a file's content.
-    - Clearly state whether the test was a **SUCCESS** or a **FAILURE**.
+    - Clearly state whether the test was a **SUCCESS**, a **FAILURE**, or if you were **INTERRUPTED**.
 
 2.  **Report Outcome & Next Steps**:
 
@@ -41,16 +41,24 @@ Quickly test the recent changes manually. If the test is successful, commit the 
         `</think>`
         - Call `mcp_MemoryBankMCP_remember` to document the failure and set the future step to `fix`.
 
+    - **If you were INTERRUPTED**:
+        - `<think>`
+            - What was I trying to do when I was interrupted?
+            - If I was trying to update a task's status (e.g., to 'APPROVED'), I should handle this to avoid a loop.
+        `</think>`
+        - If the interruption occurred during a task status update, change the task's status to **BLOCKED** using `mcp_MemoryBankMCP_update_task`. Add a comment explaining that the approval was interrupted by the user.
+        - Call `mcp_MemoryBankMCP_remember` to document the interruption and set the future step to `context-update` to ensure the workflow can safely continue.
+
 ## Specifics
 - This rule is for quick, targeted manual validation, not exhaustive testing.
-- The outcome must be a clear binary choice: SUCCESS or FAILURE.
+- The outcome must be a clear choice: SUCCESS, FAILURE, or INTERRUPTED.
 - A commit is mandatory after a successful test.
-- The `remember` tool is used to transition to the next logical step (`implementation`, `context-update`, or `fix`).
+- The `remember` tool is used to transition to the next logical step.
 
 ## Next Steps
 - `fix` - If the manual test failed.
 - `implementation` - If the test was successful and the change was not drastic, and there are more tasks.
-- `context-update` - If the test was successful and the change was drastic, or if no tasks are left.
+- `context-update` - If the test was successful and the change was drastic, or if no tasks are left, or if the process was interrupted.
 
 ## Example (Successful Test, Minor Change)
 

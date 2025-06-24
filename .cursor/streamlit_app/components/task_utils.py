@@ -129,12 +129,14 @@ def get_unprocessed_requests_count() -> int:
         with open(userbrief_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
         
-        unprocessed_count = 0
-        if 'active_request' in data and data['active_request']:
-            unprocessed_count += 1
-        if 'new_requests' in data:
-            unprocessed_count += len(data['new_requests'])
+        if 'requests' not in data or not isinstance(data.get('requests'), list):
+            return 0
             
+        unprocessed_count = 0
+        for request in data['requests']:
+            if request.get('status') == 'new':
+                unprocessed_count += 1
+                
         return unprocessed_count
-    except (json.JSONDecodeError, FileNotFoundError, KeyError):
+    except (json.JSONDecodeError, FileNotFoundError):
         return 0 
