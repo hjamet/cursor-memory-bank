@@ -3566,13 +3566,13 @@
     "short_description": "Modify the sidebar to show only the count of remaining tasks and unprocessed requests, instead of the total task count.",
     "detailed_description": "The user wants to change the task counter in the Streamlit sidebar. The current implementation shows the total number of tasks. The new implementation should remove the total count. It should display a count of \"remaining\" work, which is defined as: All tasks that are NOT in 'DONE' or 'APPROVED' status, and all unprocessed user requests (e.g., status 'new' or 'in_progress' in userbrief.json).",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "DONE",
     "impacted_files": [
       ".cursor/streamlit_app/components/sidebar.py"
     ],
     "validation_criteria": "",
     "created_date": "2025-06-24T18:53:00.737Z",
-    "updated_date": "2025-06-24T19:06:57.472Z",
+    "updated_date": "2025-06-24T19:07:39.357Z",
     "parent_id": null,
     "priority": 3,
     "image": null
@@ -3598,11 +3598,48 @@
     "short_description": "Correct the logic for the 'Work Queue' counter in the Streamlit sidebar to accurately reflect the number of remaining tasks and unprocessed user requests.",
     "detailed_description": "The user reports that the 'Work Queue' counter in the Streamlit sidebar is displaying the total number of tasks instead of only the outstanding ones. This task is to fix that bug. The implementation should:\\n1. Investigate the functions in 'components/task_utils.py' and the display logic in 'components/sidebar.py'.\\n2. Correct the calculation to only count tasks with statuses other than 'DONE'.\\n3. Ensure the count also includes unprocessed user requests from 'userbrief.json'.\\n4. Validate that the sidebar UI correctly displays the new, accurate count.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "DONE",
     "impacted_files": [],
     "validation_criteria": "",
     "created_date": "2025-06-24T19:05:04.343Z",
-    "updated_date": "2025-06-24T19:06:37.833Z",
+    "updated_date": "2025-06-24T19:07:42.686Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 172,
+    "title": "Corriger la boucle infinie du workflow en permettant à l'outil `remember` de l'arrêter",
+    "short_description": "Le workflow autonome ne se termine pas et boucle indéfiniment, même en l'absence de tâches. L'outil `remember` doit être modifié pour permettre un arrêt graceful.",
+    "detailed_description": "Le workflow autonome est bloqué dans une boucle infinie. La règle `workflow-complete` est correctement appelée lorsque le système est inactif, mais l'outil `mcp_MemoryBankMCP_remember` qui est appelé ensuite force la continuation du workflow en retournant systématiquement `continuation_mandatory: true`.\n\nLe but est de corriger ce comportement.\n\n1.  **Analyser le code du serveur MemoryBankMCP**: Identifier la logique de l'outil `remember` qui force la continuation.\n2.  **Modifier l'outil `remember`**: L'outil doit pouvoir retourner une réponse qui n'oblige pas à la continuation (par exemple, `continuation_mandatory: false` ou un nouveau statut `workflow_status: \"PAUSED\"`). Cette décision devra être basée sur le contenu du message enregistré, spécifiquement le champ `future`. Si le champ `future` indique une pause, le workflow doit s'arrêter.\n3.  **Analyser les règles du workflow**: Vérifier que les règles `context-update.md` et `workflow-complete.md` sont correctement formulées pour déclencher et utiliser ce nouveau mécanisme d'arrêt.\n4.  **Valider la correction**: Après modification du serveur et redémarrage de Cursor par l'utilisateur, il faudra retenter le scénario final pour s'assurer que le workflow se termine bien comme prévu.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/memory-bank/mcp_servers/MemoryBankMCP/src/server.js",
+      ".cursor/memory-bank/workflow/context-update.md",
+      ".cursor/memory-bank/workflow/workflow-complete.md"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T19:11:47.949Z",
+    "updated_date": "2025-06-24T19:15:56.220Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 173,
+    "title": "Refactor Streamlit sidebar and fix completion time estimation",
+    "short_description": "Update the Streamlit application's sidebar to remove the total task count and correct the logic for calculating the estimated project completion time.",
+    "detailed_description": "This task addresses two issues raised in user request #132 related to the Streamlit UI sidebar:\n\n1.  **Remove Total Task Count:**\n    *   Modify the sidebar component (`.cursor/memory-bank/streamlit_app/components/sidebar.py`).\n    *   Remove the part of the display that shows the total number of tasks.\n    *   Ensure that only the count of remaining tasks is displayed.\n\n2.  **Fix Completion Time Estimation:**\n    *   Investigate the `calculate_estimated_completion` function in `.cursor/memory-bank/streamlit_app/components/task_utils.py`.\n    *   The current implementation seems to incorrectly report \"Not enough data\".\n    *   Analyze the `tasks.json` file to understand the structure of `status_history` for completed tasks.\n    *   Correct the logic to properly calculate the average task completion time based on archived tasks.\n    *   The estimation should provide a realistic timeframe based on historical data.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/memory-bank/streamlit_app/components/sidebar.py",
+      ".cursor/memory-bank/streamlit_app/components/task_utils.py"
+    ],
+    "validation_criteria": "- The Streamlit sidebar no longer displays the total task count.\n- The estimated completion time in the sidebar displays a calculated time instead of \"Not enough data\", provided there are sufficient completed tasks with valid time tracking.",
+    "created_date": "2025-06-24T19:31:54.274Z",
+    "updated_date": "2025-06-24T19:33:19.830Z",
     "parent_id": null,
     "priority": 3,
     "image": null

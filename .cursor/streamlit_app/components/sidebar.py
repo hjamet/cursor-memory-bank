@@ -20,7 +20,7 @@ def display_sidebar():
         in_progress_tasks = [t for t in remaining_tasks if t.get('status') == 'IN_PROGRESS']
 
         col1, col2 = st.columns(2)
-        col1.metric("Work Queue", work_queue_count)
+        col1.metric("Remaining Tasks", len(remaining_tasks))
         
         mean_time, std_dev = task_utils.calculate_task_completion_stats(all_tasks)
         est_lower, est_upper = task_utils.estimate_remaining_time(len(remaining_tasks), mean_time, std_dev)

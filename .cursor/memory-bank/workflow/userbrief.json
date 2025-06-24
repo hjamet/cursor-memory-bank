@@ -1,27 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 131,
+  "last_id": 132,
   "requests": [
-    {
-      "id": 104,
-      "content": "Aussi dans la Side bar fait en sorte que ce soit accessible sur toutes les pages. Donc je t'ai dit, on la vide et on ajoute juste le bouton la, la possibilité d'auto refresh la page toutes les 10 secondes et j'aimerais bien que tu ajoutes aussi un indicateur, un indicateur avec le nombre de tâches. Euh non encore faites par l'Agente, faites vraiment quelque chose de simple mais un gros nombre bien visible qui indique le nombre de tâches à faire Le nombre de tâches qui reste à faire et ça doit prendre en compte autant les tâches décomposées que les requêtes Du user bridge non encore traité, qui compte donc pour une tâche Donc vraiment fait simple, juste ce ce, ce nombre de tâches et mets à côté aussi l'estimation du temps, comme c'est dans Task Status. Tu mets, tu sais, l'estimation du temps avec l'écart type calculé, combien de temps il reste à faire à à à la. D'après, d'après le serveur MCV, pour que toutes les tâches soient résolues. Ah et ajoute aussi le titre et la courte description de la tâche sur lequel l'agent est actuellement en train de travailler. Si y en a une. Mais reste avec ces 3 informations, ne surcomplique pas, ça doit vraiment être simple, gros, facilement lisible et visible. Joli et propre, moderne.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T19:21:05.204031",
-      "updated_at": "2025-06-24T17:34:00.240Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T19:21:05.204031",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T17:34:00.240Z",
-          "action": "mark_archived",
-          "comment": "The user request to enhance the sidebar has been analyzed and decomposed into a parent task (#141) and several sub-tasks (#142 to #146). The implementation will cover refactoring, adding new information panels (task count, time estimation, current task), and styling. Archiving this request to proceed with implementation."
-        }
-      ]
-    },
     {
       "id": 105,
       "content": "Alors je ne sais pas quelles actions j'ai fait qu'à déclencher ça, mais j'ai remarqué que il y avait les logs suivant côté serveur et donc bah il y a un problème qu'il faudrait résoudre probablement. Dis moi si t'arrives à trouver d'où ça vient et si tu peux le résoudre :\n\n\n────────────────────────── Traceback (most recent call last) ───────────────────────────\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r  \n  untime\\scriptrunner\\exec_code.py:128 in exec_func_with_error_handling\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\script_runner.py:667 in code_to_exec\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\script_runner.py:165 in _mpa_v1\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\n\n  avigation\\page.py:300 in run\n\n  C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py:10\n  70 in <module>\n\n    1067 │   │   st.caption(\"🔄 User requests waiting to be decomposed into tasks\")\n    1068 │   │   \n    1069 │   │   for request in userbrief_requests:\n  ❱ 1070 │   │   │   render_userbrief_request(request)\n    1071 else:\n    1072 │   with st.expander(\"📋 Stage 0: Unprocessed Requests (0)\", expanded=False):\n    1073 │   │   st.info(\"📭 No unprocessed requests - all user requests have been con\n\n  C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py:67\n  7 in render_userbrief_request\n\n     674 │   │   │   # Action buttons\n     675 │   │   │   col1, col2, col3 = st.columns([1, 1, 5])\n     676 │   │   │   with col1:\n  ❱  677 │   │   │   │   if st.button(\"✏️ Edit\", key=f\"start_edit_{req_id}\", help=\"Edit\n     678 │   │   │   │   │   st.session_state[edit_key] = True\n     679 │   │   │   │   │   st.rerun()\n     680 │   │   │   with col2:\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\metrics_util.py:443 in wrapped_func\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\widgets\\button.py:243 in button\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\widgets\\button.py:1013 in _button\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\lib\\utils.py:254 in compute_and_register_element_id\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\lib\\utils.py:143 in _register_element_id\n────────────────────────────────────────────────────────────────────────────────────────\nStreamlitDuplicateElementKey: There are multiple elements with the same\n`key='start_edit_99'`. To fix this, please make sure that the `key` argument is unique\nfor each element you create.\n────────────────────────── Traceback (most recent call last) ───────────────────────────\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\exec_code.py:128 in exec_func_with_error_handling\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\script_runner.py:667 in code_to_exec\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\scriptrunner\\script_runner.py:165 in _mpa_v1\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\n\n  avigation\\page.py:300 in run\n\n  C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py:10\n  70 in <module>\n\n    1067 │   │   st.caption(\"🔄 User requests waiting to be decomposed into tasks\")\n    1068 │   │   \n    1069 │   │   for request in userbrief_requests:\n  ❱ 1070 │   │   │   render_userbrief_request(request)\n    1071 else:\n    1072 │   with st.expander(\"📋 Stage 0: Unprocessed Requests (0)\", expanded=False):\n    1073 │   │   st.info(\"📭 No unprocessed requests - all user requests have been con\n\n  C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py:67\n  7 in render_userbrief_request\n\n     674 │   │   │   # Action buttons\n     675 │   │   │   col1, col2, col3 = st.columns([1, 1, 5])\n     676 │   │   │   with col1:\n  ❱  677 │   │   │   │   if st.button(\"✏️ Edit\", key=f\"start_edit_{req_id}\", help=\"Edit\n     678 │   │   │   │   │   st.session_state[edit_key] = True\n     679 │   │   │   │   │   st.rerun()\n     680 │   │   │   with col2:\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\r\n  untime\\metrics_util.py:443 in wrapped_func\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\widgets\\button.py:243 in button\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\widgets\\button.py:1013 in _button\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\lib\\utils.py:254 in compute_and_register_element_id\n\n  C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\e\n  lements\\lib\\utils.py:143 in _register_element_id\n────────────────────────────────────────────────────────────────────────────────────────\nStreamlitDuplicateElementKey: There are multiple elements with the same\n`key='start_edit_99'`. To fix this, please make sure that the `key` argument is unique\nfor each element you create.",
@@ -510,6 +490,32 @@
           "timestamp": "2025-06-24T19:05:07.782Z",
           "action": "mark_archived",
           "comment": "User request has been converted to task #171 to fix the sidebar counter bug."
+        }
+      ]
+    },
+    {
+      "id": 132,
+      "content": "Encore une toute petite dernière tâche, c'est que dans la Side bar de l'application Stream Leitz, je t'ai demandé de supprimer l'affichage de du total des tâches parce que ce ce nombre va faire qu'augmenter, il apporte pas beaucoup d'informations à la place, j'aimerais avoir uniquement le nombre des tâches restantes qui est déjà présent, mais j'aimerais qu'il soit seul J'aimerais simplement que tu enlèves le nombre total de tâches. Par ailleurs, je suis assez surpris du fait que, en permanence sur l'estimation du temps pour la complétion, il y a écrit une note et news data. Il y a pas assez de données. Pourtant, on devrait avoir énormément de tâches archivées avec les timestamps de leur mise en forme done to do et cetera. Et du coup, on devrait savoir combien de temps il faut et faire le calcul. Je suis surpris de de cette information, elle me paraît incorrecte, tu peux vérifier et corriger",
+      "status": "archived",
+      "image": {
+        "path": ".cursor\\temp\\images\\req_132_20250624_213108_pasted.png",
+        "filename": "req_132_20250624_213108_pasted.png",
+        "size": 37248,
+        "width": 398,
+        "height": 777,
+        "content_type": "image/png"
+      },
+      "created_at": "2025-06-24T21:31:08.144507",
+      "updated_at": "2025-06-24T19:31:57.332Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T21:31:08.144507",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T19:31:57.332Z",
+          "action": "mark_archived"
         }
       ]
     }
