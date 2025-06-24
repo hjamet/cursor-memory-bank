@@ -252,39 +252,11 @@ def render_image_preview(task: Dict):
     if image_path and os.path.exists(image_path):
         try:
             image = Image.open(image_path)
-            
-            # Get image metadata
-            image_data = task.get('image', {})
-            if isinstance(image_data, dict):
-                original_name = image_data.get('original_name', 'Unknown')
-                file_size = image_data.get('size', 0)
-                source = image_data.get('source', 'upload')
-            else:
-                original_name = os.path.basename(image_path)
-                file_size = os.path.getsize(image_path) if os.path.exists(image_path) else 0
-                source = 'upload'
-            
-            with st.expander(f"📸 Associated Image: {original_name}"):
-                col_img, col_info = st.columns([2, 1])
-                
-                with col_img:
-                    st.image(image, caption=f"Image: {original_name}", use_column_width=True)
-                
-                with col_info:
-                    st.markdown("**Image Information:**")
-                    st.write(f"**Filename:** {original_name}")
-                    st.write(f"**Size:** {file_size:,} bytes")
-                    st.write(f"**Dimensions:** {image.width} x {image.height} px")
-                    st.write(f"**Format:** {image.format}")
-                    st.write(f"**Source:** {source.title()}")
-                    
-                    if source == 'clipboard':
-                        st.info("📋 Image was pasted with Ctrl+V")
-                    
+            st.image(image, caption=f"Associated Image: {os.path.basename(image_path)}", use_column_width=True)
         except Exception as e:
-            st.error(f"Error displaying image: {e}")
-    else:
-        st.warning("📸 Task has associated image but file not found")
+            st.warning(f"Could not load image {image_path}: {e}")
+    elif image_path:
+        st.warning(f"Image not found at path: {image_path}")
 
 def render_task_review_card(task: Dict):
     """Render a task card with review/validation options"""
@@ -375,68 +347,87 @@ def render_task_review_card(task: Dict):
                     else:
                         st.error("Please provide a reason for rejection.")
 
+        if st.button("🗑️ Approve & Delete Image", key=f"delete_image_{task_id}"):
+            if delete_task_image(task) and update_task_status(task_id, 'DONE'):
+                st.success(f"Task {task_id} approved and image deleted.")
+                st.rerun()
+
         st.markdown("---")
 
+def render_message_review_card(message: Dict):
+    """Render a card for reviewing an agent message."""
+    message_id = message.get('id')
+    content = message.get('content', 'No content')
+    timestamp = message.get('timestamp', '')
+    
+    with st.expander(f"**{format_timestamp(timestamp)}**: {content[:80]}..."):
+        st.markdown(f"> {content}")
+        st.caption(f"Message ID: {message_id}")
+
+        col1, col2 = st.columns([1, 5])
+        
+        with col1:
+            if st.button("✅ Validate", key=f"validate_{message_id}"):
+                if delete_message(message_id):
+                    st.toast(f"Message {message_id} validated.")
+                    if 'answering_message_id' in st.session_state and st.session_state.answering_message_id == message_id:
+                        del st.session_state.answering_message_id
+                    st.rerun()
+                else:
+                    st.error("Failed to delete message.")
+
+        with col2:
+            if st.button("❓ Answer", key=f"answer_{message_id}"):
+                st.session_state.answering_message_id = message_id
+
+        # Answer form
+        if st.session_state.get('answering_message_id') == message_id:
+            with st.form(key=f"answer_form_{message_id}"):
+                user_question = st.text_area("Your question or comment:", key=f"question_{message_id}")
+                submitted = st.form_submit_button("Send Answer")
+                
+                if submitted:
+                    if user_question:
+                        # Create new userbrief request
+                        request_content = f"Question about your comment: \"{content}\"\\n\\n{user_question}"
+                        if create_userbrief_request(request_content):
+                            st.success("Your question has been sent as a new request.")
+                            # Delete the original message
+                            delete_message(message_id)
+                            # Clean up session state
+                            del st.session_state.answering_message_id
+                            st.rerun()
+                        else:
+                            st.error("Failed to create a new request.")
+                    else:
+                        st.warning("Please enter a question or comment.")
+
 def main():
-    # Create tabs
-    tab1, tab2 = st.tabs(["🔍 Tasks to Review", "💬 Agent Messages"])
+    """Main function to render the review page"""
+    tab1, tab2 = st.tabs(["Tasks to Review", "Agent Messages"])
 
     with tab1:
-        st.header("Tasks Awaiting Your Review")
-        # Load tasks
+        st.header("Tasks Awaiting Validation")
         tasks = load_tasks()
         review_tasks = [t for t in tasks if t.get('status') == 'REVIEW']
 
         if not review_tasks:
             st.info("No tasks are currently awaiting review.")
         else:
-            st.metric("Tasks to Review", len(review_tasks))
-            
-            # Sort tasks by priority
-            sorted_tasks = sorted(review_tasks, key=lambda x: x.get('priority', 3), reverse=True)
-            
-            # Render task cards
-            for task in sorted_tasks:
+            st.markdown(f"**{len(review_tasks)}** task(s) to review:")
+            for task in sorted(review_tasks, key=lambda x: x.get('id', 0), reverse=True):
                 render_task_review_card(task)
 
     with tab2:
-        st.header("Messages from the Agent")
+        st.header("Messages from Agent")
         messages = read_user_messages()
 
         if not messages:
-            st.info("No messages from the agent yet.")
+            st.info("No new messages from the agent.")
         else:
-            sorted_messages = sorted(messages, key=lambda x: x['timestamp'], reverse=True)
-            st.metric("Unread Messages", len(sorted_messages))
-            
-            for message in sorted_messages:
-                message_id = message.get('id')
-                content = message.get('content', '')
-                timestamp = message.get('timestamp', '')
-                context = message.get('context', {})
-                
-                with st.container():
-                    col1, col2 = st.columns([8, 2])
-                    with col1:
-                        st.markdown(f"**Message #{message_id}** - {format_timestamp(timestamp)}")
-                    with col2:
-                        if st.button("✅ Mark Read", key=f"delete_{message_id}"):
-                            if delete_message(message_id):
-                                st.success("Message deleted!")
-                                st.rerun()
-                    
-                    st.info(content)
-
-                    if context:
-                        with st.expander("Context"):
-                            workflow_rule = context.get('workflow_rule', 'unknown')
-                            st.markdown(f"**Workflow Rule:** {get_rule_emoji(workflow_rule)} {workflow_rule}")
-                            agent_state = context.get('agent_state', 'unknown')
-                            st.markdown(f"**Agent State:** {agent_state}")
-                            active_task = context.get('active_task')
-                            st.markdown(f"**Active Task:** {active_task or 'None'}")
-                    
-                    st.markdown("---")
+            st.markdown(f"**{len(messages)}** message(s) to review:")
+            for message in sorted(messages, key=lambda x: x.get('id', 0), reverse=True):
+                render_message_review_card(message)
 
 if __name__ == "__main__":
     main() 

@@ -66,7 +66,40 @@
         "agent_state": "processing"
       },
       "status": "unread"
+    },
+    {
+      "id": 28,
+      "content": "J'ai commité la modification du workflow. Comme c'est un changement d'architecture, je vais lancer une mise à jour du contexte avant de passer à la dernière tâche.",
+      "timestamp": "2025-06-24T15:10:31.281Z",
+      "context": {
+        "workflow_rule": "implementation",
+        "active_task": null,
+        "agent_state": "processing"
+      },
+      "status": "unread"
+    },
+    {
+      "id": 29,
+      "content": "J'ai terminé la maintenance du contexte. J'avais marqué une tâche comme terminée par erreur pour un test, je l'ai corrigée. Je passe maintenant à l'implémentation de la dernière fonctionnalité demandée.",
+      "timestamp": "2025-06-24T15:10:56.273Z",
+      "context": {
+        "workflow_rule": "implementation",
+        "active_task": null,
+        "agent_state": "processing"
+      },
+      "status": "unread"
+    },
+    {
+      "id": 30,
+      "content": "La nouvelle fonctionnalité pour répondre à mes messages est prête à être testée dans l'interface Streamlit. Je vais maintenant lancer la validation manuelle.",
+      "timestamp": "2025-06-24T15:12:21.234Z",
+      "context": {
+        "workflow_rule": "implementation",
+        "active_task": null,
+        "agent_state": "processing"
+      },
+      "status": "unread"
     }
   ],
-  "last_id": 27
+  "last_id": 30
 }
