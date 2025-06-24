@@ -3673,5 +3673,20 @@
     "parent_id": null,
     "priority": 3,
     "image": null
+  },
+  {
+    "id": 176,
+    "title": "Clean up repository by removing node_modules and lock files",
+    "short_description": "Clean up the git repository by adding `node_modules` and `package-lock.json` to `.gitignore` and removing them from the git index to reduce repository size.",
+    "detailed_description": "The user wants to reduce the size of the git repository by removing dependency folders and lock files.\n\n**Acceptance Criteria:**\n1.  Confirm that removing `node_modules` and `package-lock.json` is standard practice and will not break the `install.sh` script.\n2.  The root `.gitignore` file must be updated to include patterns for `node_modules/` and `package-lock.json`.\n3.  All `node_modules` directories must be removed from git tracking.\n4.  All `package-lock.json` files must be removed from git tracking.\n5.  The changes must be committed to the repository.\n6.  A message must be sent to the user explaining that their request was valid and has been executed.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T20:02:38.994Z",
+    "updated_date": "2025-06-24T20:04:55.245Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
   }
 ]

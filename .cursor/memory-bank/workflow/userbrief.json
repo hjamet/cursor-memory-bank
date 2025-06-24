@@ -3,26 +3,6 @@
   "last_id": 135,
   "requests": [
     {
-      "id": 107,
-      "content": "J'ai l'impression que le système d'auto rafraîchissement ne fonctionne pas correctement. Est-ce que tu peux modifier son fonctionnement en utilisant la bibliothèque qui est décrite à ce repository ? Oublie pas de l'installer et de l'ajouter aux requirements. Elle est requirement, fais attention hein, ils doivent être dans le dossier. Point cursor le le fichier existe déjà, ne le recrée pas à la racine. Tu m'as fait ça une fois, il faut juste que tu modifies le le fichier equarement ça existant en ajoutant cette dépendance et en l'utilisant pour avoir un auto refresh qui fonctionne : https://github.com/kmcgrady/streamlit-autorefresh",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T19:27:09.524016",
-      "updated_at": "2025-06-24T17:36:04.385Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T19:27:09.524016",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T17:36:04.385Z",
-          "action": "mark_archived",
-          "comment": "The user request to implement `streamlit-autorefresh` has been analyzed. A parent task (#148) and two sub-tasks (#149, #150) have been created to handle the installation, requirements update, and integration of the new library. Archiving this request as it is now fully decomposed into actionable tasks."
-        }
-      ]
-    },
-    {
       "id": 108,
       "content": "Correction for Task #138 (Sub-task: Make Review Page the Main Page):\n\nAlors, c'est presque bon, ça a super bien fonctionné. Simplement problème. La page review existe toujours, ce qui fait qu'on a une page dupliquée. On a la page APP qui contient le contenu de la page review et la page review qui contient le contenu de la page review. Donc voilà, tu peux supprimer la page review et si c'est possible mais uniquement si c'est possible je sais pas si c'est possible renommer la page APP review c'est simplement en faire la page par défaut sur laquelle on arrive quand on se connecte.",
       "status": "archived",
@@ -520,15 +500,24 @@
     {
       "id": 135,
       "content": "C'est une question, et si ? Et si, si la réponse est positive, bah je veux bien que tu m'écrives un message pour me l'expliquer et ensuite que tu appliques ce truc. Mais en fait j'ai vu que il y avait des dossiers assez lourds je pense des dossiers d'installation, c'est des nodes modules pour chacun des 2 serveurs MCP qui se trouvent dans leur dossier et je me demandais si ce serait pas bien de les supprimer notamment sur le github pour regagner de l'espace. Est ce que le script d'installation va toujours fonctionner avec ces dossiers supprimés ? Parce que j'ai l'impression que ça l'accélérerait que comme de toute manière on lance MPM install ça ça, ça marcherait et puis pareil je crois que y a les loc . loc peut être qu'il faudrait les supprimer non je sais pas si c'est le cas je te laisse les supprimer sinon explique moi pourquoi dans un message :D",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-06-24T22:01:56.937573",
-      "updated_at": "2025-06-24T22:01:56.937573",
+      "updated_at": "2025-06-24T20:05:06.050Z",
       "history": [
         {
           "timestamp": "2025-06-24T22:01:56.937573",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T20:02:42.361Z",
+          "action": "mark_archived"
+        },
+        {
+          "timestamp": "2025-06-24T20:05:06.050Z",
+          "action": "add_comment",
+          "comment": "Votre suggestion d'ajouter `node_modules` et `package-lock.json` au fichier `.gitignore` et de les supprimer du dépôt était tout à fait pertinente. C'est une pratique standard pour alléger le dépôt et éviter les conflits. J'ai appliqué ces changements. Merci pour votre contribution !"
         }
       ]
     }
