@@ -39,38 +39,51 @@ def calculate_task_completion_stats(tasks: List[Dict[str, Any]]) -> Tuple[Option
 
     for task in completed_tasks:
         history = task.get('status_history', [])
-        if not history:
-            continue
-
+        
         start_time = None
         done_time = None
 
         # Find first IN_PROGRESS time
-        for record in history:
-            if record.get('status') == 'IN_PROGRESS':
-                try:
-                    start_time = datetime.fromisoformat(record['timestamp'].replace('Z', '+00:00'))
-                    break  # Found the first start time
-                except (ValueError, TypeError):
-                    pass
+        if history:
+            for record in history:
+                if record.get('status') == 'IN_PROGRESS':
+                    timestamp_str = record.get('timestamp')
+                    if timestamp_str:
+                        try:
+                            dt = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+                            if dt.tzinfo is None:
+                                dt = dt.replace(tzinfo=timezone.utc)
+                            start_time = dt
+                            break
+                        except (ValueError, TypeError):
+                            pass
         
-        # If no IN_PROGRESS, maybe use created_date
+        # If no IN_PROGRESS in history, use created_date
         if start_time is None:
             created_date_str = task.get('created_date')
             if created_date_str:
                 try:
-                    start_time = datetime.fromisoformat(created_date_str.replace('Z', '+00:00'))
+                    dt = datetime.fromisoformat(created_date_str.replace('Z', '+00:00'))
+                    if dt.tzinfo is None:
+                        dt = dt.replace(tzinfo=timezone.utc)
+                    start_time = dt
                 except (ValueError, TypeError):
                     pass
 
         # Find last DONE/APPROVED time
-        for record in reversed(history):
-            if record.get('status') in ['DONE', 'APPROVED']:
-                try:
-                    done_time = datetime.fromisoformat(record['timestamp'].replace('Z', '+00:00'))
-                    break  # Found the last done time
-                except (ValueError, TypeError):
-                    pass
+        if history:
+            for record in reversed(history):
+                if record.get('status') in ['DONE', 'APPROVED']:
+                    timestamp_str = record.get('timestamp')
+                    if timestamp_str:
+                        try:
+                            dt = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+                            if dt.tzinfo is None:
+                                dt = dt.replace(tzinfo=timezone.utc)
+                            done_time = dt
+                            break
+                        except (ValueError, TypeError):
+                            pass
         
         if start_time and done_time and done_time > start_time:
             completion_times.append((done_time - start_time).total_seconds() / 3600)  # in hours
