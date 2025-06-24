@@ -14,6 +14,7 @@ Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant 
    - Suivre les conventions établies dans le contexte technique
    - Marquer LA tâche comme IN_PROGRESS pendant l'implémentation avec `mcp_MemoryBankMCP_update_task`
    - **FOCUS ABSOLU** : Concentrez-vous uniquement sur cette tâche, ses sous-tâches éventuelles, mais JAMAIS sur d'autres tâches
+   - **EXCEPTION**: Si la tâche ne nécessite que l'exécution de commandes, une validation ou des expériences sans modification de code (par exemple, "vérifier que cette commande fonctionne"), vous pouvez appeler `mcp_MemoryBankMCP_next_rule` avec `step_name: 'experience-execution'` pour passer directement aux tests.
 
 3. **Task status update**: Mettre à jour le statut de LA tâche terminée.
    - Marquer LA tâche terminée comme REVIEW avec `mcp_MemoryBankMCP_update_task` pour que l'utilisateur la valide.

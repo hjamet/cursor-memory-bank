@@ -13,6 +13,37 @@ const memoryFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'wo
 const longTermMemoryFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'long_term_memory.json');
 const MAX_MEMORIES = 100;
 
+// Helper functions
+async function getRecentMemories(count = 5) {
+    try {
+        const data = await fs.readFile(memoryFilePath, 'utf8');
+        const memories = JSON.parse(data);
+        return memories.slice(-count);
+    } catch (error) {
+        return [];
+    }
+}
+
+async function getTotalMemoriesCount() {
+    try {
+        const data = await fs.readFile(memoryFilePath, 'utf8');
+        const memories = JSON.parse(data);
+        return memories.length;
+    } catch (error) {
+        return 0;
+    }
+}
+
+async function getTotalLongTermMemoriesCount() {
+    try {
+        const data = await fs.readFile(longTermMemoryFilePath, 'utf8');
+        const memories = JSON.parse(data);
+        return Array.isArray(memories) ? memories.length : 1;
+    } catch (error) {
+        return 0;
+    }
+}
+
 async function getPossibleNextSteps(lastStep = null) {
     let possibleSteps = new Set();
 
@@ -135,7 +166,7 @@ async function remember(args) {
         // Debug logging removed to prevent JSON-RPC pollution
         // console.warn(`[Remember] Could not read preferences from userbrief: ${error.message}`);
         // Do not throw; failing to read userbrief should not stop the remember tool.
-        return [];
+        preferences = [];
     }
 
     let memories = [];
@@ -175,43 +206,82 @@ async function remember(args) {
     // Extract the last rule from the 'past' field of the last memory
     let lastStep = null;
     if (lastMemory && lastMemory.past) {
+        // Try to find step name in backticks first
         const match = lastMemory.past.match(/`([^`]+)`/);
         if (match && match[1]) {
             lastStep = match[1];
+        } else {
+            // Fallback: look for common step names in the text
+            const stepNames = ['context-update', 'implementation', 'task-decomposition', 'start-workflow', 'experience-execution', 'fix'];
+            for (const stepName of stepNames) {
+                if (lastMemory.past.toLowerCase().includes(stepName)) {
+                    lastStep = stepName;
+                    break;
+                }
+            }
         }
     }
 
-    // New logic to handle workflow completion as per user instructions
+    // CRITICAL: Check for workflow completion when coming from context-update
     if (lastStep === 'context-update') {
-        const userbrief = await readUserbrief();
-        const tasks = await readTasks();
+        try {
+            const userbrief = await readUserbrief();
+            const tasks = await readTasks();
 
-        const hasUnprocessedRequests = userbrief.requests.some(r => r.status === 'new' || r.status === 'in_progress');
-        const hasActiveTasks = tasks.some(t => ['TODO', 'IN_PROGRESS', 'REVIEW'].includes(t.status));
+            // Check for unprocessed requests (status 'new' or 'in_progress')
+            const hasUnprocessedRequests = userbrief.requests && userbrief.requests.some(r =>
+                r.status === 'new' || r.status === 'in_progress'
+            );
 
-        if (!hasUnprocessedRequests && !hasActiveTasks) {
-            console.log("WORKFLOW COMPLETE condition met. Returning a final, structured response.");
-            // Return a complete, structured response that signals a stop.
-            return {
-                message: "Memory has been saved. The workflow is complete and can be stopped.",
-                workflow_status: "WORKFLOW_COMPLETE",
-                next_action_required: "The workflow is complete. Do not call next_rule. You can stop.",
-                workflow_instruction: "STOP: All tasks and user requests have been processed.",
-                recommended_next_step: null,
-                current_state: future,
-                possible_next_steps: [],
-                user_preferences: [],
-                long_term_memory: null,
-                recent_working_memories: await getRecentMemories(5), // Provide some context
-                semantic_long_term_memories: [],
-                total_memories_count: await getTotalMemoriesCount(),
-                total_long_term_memories_count: await getTotalLongTermMemoriesCount(),
-                user_message_result: null,
-                continuation_mandatory: false,
-                stopping_prohibited: "You are allowed to stop.",
-                immediate_next_action: "The workflow is complete. No further action is required.",
-                workflow_cycle_reminder: "The workflow cycle is now complete."
+            // Check for active tasks (not completed)
+            const hasActiveTasks = tasks && tasks.some(t =>
+                ['TODO', 'IN_PROGRESS', 'BLOCKED'].includes(t.status)
+            );
+
+            // DEBUG: Add debug information to understand the state
+            const debugInfo = {
+                lastStep,
+                hasUnprocessedRequests,
+                hasActiveTasks,
+                requestCount: userbrief.requests ? userbrief.requests.length : 0,
+                taskCount: tasks ? tasks.length : 0,
+                requestStatuses: userbrief.requests ? userbrief.requests.map(r => r.status) : [],
+                taskStatuses: tasks ? tasks.map(t => t.status) : []
             };
+
+            if (!hasUnprocessedRequests && !hasActiveTasks) {
+                // WORKFLOW COMPLETE - Return proper MCP response structure
+                const completionResponse = {
+                    message: "Memory has been saved. The workflow is complete and can be stopped.",
+                    workflow_status: "WORKFLOW_COMPLETE",
+                    next_action_required: "The workflow is complete. Do not call next_rule. You can stop.",
+                    workflow_instruction: "STOP: All tasks and user requests have been processed.",
+                    recommended_next_step: null,
+                    current_state: future,
+                    possible_next_steps: [],
+                    user_preferences: preferences,
+                    long_term_memory: currentLongTermMemory,
+                    recent_working_memories: await getRecentMemories(5),
+                    semantic_long_term_memories: [],
+                    total_memories_count: await getTotalMemoriesCount(),
+                    total_long_term_memories_count: await getTotalLongTermMemoriesCount(),
+                    user_message_result: userMessageResult,
+                    continuation_mandatory: false,
+                    stopping_prohibited: "You are allowed to stop. The workflow is complete.",
+                    immediate_next_action: "The workflow is complete. No further action is required.",
+                    workflow_cycle_reminder: "The workflow cycle is now complete. Await new user instructions.",
+                    debug_info: debugInfo
+                };
+
+                return {
+                    content: [{
+                        type: 'text',
+                        text: JSON.stringify(completionResponse, null, 2)
+                    }]
+                };
+            }
+        } catch (error) {
+            // If we can't check the state, fall through to normal workflow continuation
         }
     }
 
@@ -254,8 +324,7 @@ async function remember(args) {
             }
         } catch (error) {
             // Debug logging removed to prevent JSON-RPC pollution
-            // console.warn(`[Remember] Could not read userbrief for example request: ${error.message}`);
-            return null;
+            exampleRequestInfo = "";
         }
 
         workflowInstruction = `CONTINUE WORKFLOW: New user requests detected. You must now call mcp_MemoryBankMCP_next_rule with 'task-decomposition' to process pending requests. STOPPING IS PROHIBITED.${exampleRequestInfo}`;
@@ -271,7 +340,7 @@ async function remember(args) {
 
     // Workflow Completion Check: New logic to allow pausing the workflow
     if (lastMemory && lastMemory.future && lastMemory.future.toLowerCase().includes('paused')) {
-        return {
+        const pauseResponse = {
             message: "Memory recorded. Workflow has been instructed to pause.",
             // Keep the status as CONTINUE_REQUIRED to avoid client errors, but use other fields to signal a stop.
             workflow_status: "CONTINUE_REQUIRED",
@@ -280,8 +349,8 @@ async function remember(args) {
             recommended_next_step: null, // No recommendation
             current_state: lastMemory.future,
             possible_next_steps: [],
-            user_preferences: [],
-            long_term_memory: null,
+            user_preferences: preferences,
+            long_term_memory: currentLongTermMemory,
             recent_working_memories: recentMemories,
             semantic_long_term_memories: semanticLongTermMemories,
             total_memories_count: memories.length,
@@ -291,6 +360,13 @@ async function remember(args) {
             stopping_prohibited: "You may stop.",
             immediate_next_action: null,
             workflow_cycle_reminder: "The workflow is paused. Await new instructions."
+        };
+
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify(pauseResponse, null, 2)
+            }]
         };
     }
 

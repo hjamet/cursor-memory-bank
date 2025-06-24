@@ -5,8 +5,9 @@
 dist/
 tmp/
 
-# Node.js dependencies for internal MCP tools
-.cursor/mcp/mcp-commit-server/node_modules/
+# Node.js dependencies
+node_modules/
+**/package-lock.json
 
 # Logs
 *.log
@@ -24,10 +25,10 @@ Thumbs.db
 # MCP
 .cursor/mcp/mcp-commit-server/terminals_status.json
 
-# MCP Server State
-.cursor/mcp/mcp-commit-server/terminals_status.json
-
 # Memory Bank state
 .cursor/memory-bank/streamlit_app/tasks.json
 .cursor/memory-bank/workflow/agent_memory.json
 .cursor/memory-bank/workflow/to_user.json
+
+# Test
+test_installation
