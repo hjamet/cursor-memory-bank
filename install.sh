@@ -1103,7 +1103,7 @@ else
 fi
 
 # Install Streamlit App
-install_streamlit_app "$INSTALL_DIR"
+install_streamlit_app "$INSTALL_DIR" "$TEMP_DIR"
 
 # Install ML Model
 install_ml_model "$INSTALL_DIR"

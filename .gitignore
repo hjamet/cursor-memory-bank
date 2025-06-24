@@ -31,3 +31,6 @@ Thumbs.db
 .cursor/memory-bank/streamlit_app/tasks.json
 .cursor/memory-bank/workflow/agent_memory.json
 .cursor/memory-bank/workflow/to_user.json
+
+# Test
+test_installation
