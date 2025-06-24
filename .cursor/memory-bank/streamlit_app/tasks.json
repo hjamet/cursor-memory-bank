@@ -2819,7 +2819,7 @@
     "short_description": "Standardize and implement a 10-second auto-refresh feature in the sidebar across all Streamlit pages using a reusable component.",
     "detailed_description": "Create a standardized auto-refresh feature located in the sidebar for all Streamlit pages. This involves creating a reusable sidebar component and integrating it into all existing pages. The refresh interval should be 10 seconds, and the sidebar should only contain this feature.\n\n**Acceptance Criteria:**\n- An auto-refresh checkbox is present in the sidebar of `app.py`, `memory.py`, `review.py`, and `task_status.py`.\n- When checked, the pages refresh every 10 seconds.\n- The sidebar contains no other elements.\n- The implementation is centralized in a reusable component.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "DONE",
     "impacted_files": [
       ".cursor/streamlit_app/components/sidebar.py",
       ".cursor/streamlit_app/components/__init__.py",
@@ -2830,10 +2830,20 @@
     ],
     "validation_criteria": "",
     "created_date": "2025-06-24T17:14:47.922Z",
-    "updated_date": "2025-06-24T17:42:50.910Z",
+    "updated_date": "2025-06-24T20:14:53.431216",
     "parent_id": null,
     "priority": 4,
-    "image": null
+    "image": null,
+    "status_history": [
+      {
+        "status": "TODO",
+        "timestamp": "2025-06-24T17:14:47.922Z"
+      },
+      {
+        "status": "DONE",
+        "timestamp": "2025-06-24T20:14:53.431216"
+      }
+    ]
   },
   {
     "id": 130,
@@ -3277,6 +3287,118 @@
     "validation_criteria": "",
     "created_date": "2025-06-24T17:43:31.795Z",
     "updated_date": "2025-06-24T17:46:19.898Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 154,
+    "title": "[BUG] Restore Auto-Refresh Control in Streamlit Sidebar",
+    "short_description": "Fix the missing auto-refresh button in the Streamlit sidebar by adding a checkbox to control the `st_autorefresh` component.",
+    "detailed_description": "**Bug:** The auto-refresh control, implemented using `streamlit-autorefresh`, has disappeared from the sidebar UI after a recent refactoring. The current implementation calls `st_autorefresh` directly, which does not render any visible UI element.\n\n**Root Cause:** The `st_autorefresh` component from the `streamlit-autorefresh` library does not create a UI control (like a checkbox or button) by itself. It's a function that programmatically triggers a refresh. The user expects a visible control to enable or disable this feature.\n\n**Solution:**\n1.  **Add UI Control:** Introduce a `st.checkbox` in the `components/sidebar.py` file to provide a user-facing control for the auto-refresh feature. The checkbox should be labeled \"Enable Auto-Refresh (10s)\".\n2.  **Conditional Logic:** Wrap the call to `st_autorefresh` in a conditional block. The `st_autorefresh` function should only be called if the user has checked the new checkbox.\n3.  **Placement:** The checkbox should be placed under the \"⚙️ Controls\" header in the sidebar.\n\n**Acceptance Criteria:**\n- A checkbox labeled \"Enable Auto-Refresh (10s)\" is visible in the sidebar on all pages.\n- When the checkbox is checked, the page should automatically refresh every 10 seconds.\n- When the checkbox is unchecked, the auto-refresh functionality should be disabled.\n- The rest of the sidebar functionality (dashboard metrics, current task display) remains unchanged.",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py"
+    ],
+    "validation_criteria": "The task is complete when: (1) A checkbox to control auto-refresh is present in the sidebar. (2) Checking the box enables a 10-second auto-refresh. (3) Unchecking the box disables the auto-refresh. (4) The fix is verified manually by running the Streamlit application.",
+    "created_date": "2025-06-24T18:06:17.931Z",
+    "updated_date": "2025-06-24T20:14:33.579086",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "status_history": [
+      {
+        "status": "BLOCKED",
+        "timestamp": "2025-06-24T18:06:17.931Z"
+      },
+      {
+        "status": "DONE",
+        "timestamp": "2025-06-24T20:14:33.579086"
+      }
+    ]
+  },
+  {
+    "id": 155,
+    "title": "[TEST] Verify Automatic Image Deletion on Task Approval",
+    "short_description": "A test task to verify the automatic deletion of the associated image when the task is approved by the user.",
+    "detailed_description": "This is a test task created to verify the automatic deletion of task-associated images upon approval.\n\n**Objective:**\nVerify that the image attached to this task is automatically deleted from the `.cursor/temp/images/` directory after the user approves this task in the Streamlit \"To Review\" interface.\n\n**Instructions for the Agent:**\n1. This task requires no action from the agent other than to be marked as 'REVIEW'.\n2. After the user approves this task, the agent should, in a subsequent step, verify that the image file `req_115_20250624_200651_pasted.png` has been deleted from the filesystem.\n\n**Instructions for the User:**\n1. Please move this task to the \"REVIEW\" status.\n2. In the Streamlit UI, navigate to the \"Review & Communication\" page.\n3. Approve this task.\n4. The system should automatically delete the associated image upon approval.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/temp/images/req_115_20250624_200651_pasted.png"
+    ],
+    "validation_criteria": "The task is successfully validated if the associated image (`req_115_20250624_200651_pasted.png`) is confirmed to be deleted from the `.cursor/temp/images/` directory after the user approves the task.",
+    "created_date": "2025-06-24T18:08:50.443Z",
+    "updated_date": "2025-06-24T18:08:50.443Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": "req_115_20250624_200651_pasted.png"
+  },
+  {
+    "id": 156,
+    "title": "Enhance Sidebar to Display Current Task's Short Description",
+    "short_description": "Add the short description of the current in-progress task to the Streamlit sidebar, just below the task title.",
+    "detailed_description": "Currently, the sidebar's \"Current Task\" section only displays the title of the in-progress task. This request is to enhance the display by also showing the task's short description.\n\n**Requirements:**\n1.  Locate the code in `components/sidebar.py` that displays the current `in_progress` task.\n2.  Modify the display logic to include the `short_description` of the task.\n3.  The short description should be displayed directly below the task title, within the same `st.info` block or a similar styled component.\n4.  Ensure that if a task does not have a short description, the UI does not break.\n\n**Implementation Plan:**\n-   In `components/sidebar.py`, inside the `for task in in_progress_tasks:` loop.\n-   Retrieve `short_description` from the `task` dictionary.\n-   Update the `st.info` call to include both the title and the short description. A newline can be used to separate them.\n-   Example format: `f\"**{title}**\\n\\n{short_description}\"`\n\n**Acceptance Criteria:**\n-   When a task is in progress, the sidebar displays both its title and its short description.\n-   The formatting is clean and readable.\n-   If there is no active task, the \"Agent is idle\" message is displayed as before.\n-   The application runs without errors.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py"
+    ],
+    "validation_criteria": "The task is complete when the short description of the currently active task is visible in the sidebar below the task's title. This can be verified by setting a task to \"IN_PROGRESS\" and observing the Streamlit UI.",
+    "created_date": "2025-06-24T18:09:23.010Z",
+    "updated_date": "2025-06-24T18:09:23.010Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 157,
+    "title": "Fix Streamlit Bug on New Request Submission",
+    "short_description": "Resolve the `StreamlitAPIException` that occurs when submitting a new request in the Streamlit UI. The error is caused by an attempt to modify `st.session_state` for a widget after it has been instantiated.",
+    "detailed_description": "The user reported a crash when submitting a new request. The traceback points to `app.py`, where the code `st.session_state.request_content_area = \"\"` is executed after the text area widget has already been rendered. This is not allowed by Streamlit's state management rules. The fix is to remove this redundant line of code. The `st.rerun()` call combined with the existing logic for setting the default value of the text area should be sufficient to clear the input field after a successful submission.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/streamlit_app/app.py"
+    ],
+    "validation_criteria": "1. Submitting a new request no longer causes a `StreamlitAPIException`.\n2. After successfully submitting a new request, the text area for the request description is cleared.\n3. The success message and balloons still appear.\n4. Editing a request still works as expected.",
+    "created_date": "2025-06-24T18:17:10.688Z",
+    "updated_date": "2025-06-24T18:17:10.688Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 158,
+    "title": "Improve `mcp_ToolsMCP_regex_edit` Tool Documentation",
+    "short_description": "Update the description of the `mcp_ToolsMCP_regex_edit` tool and its arguments to clarify its use case as a robust alternative to `edit_file` for targeted, non-model-based file modifications.",
+    "detailed_description": "The user has pointed out that the agent (I) failed to use `mcp_ToolsMCP_regex_edit` when the `edit_file` tool was consistently failing. This suggests the documentation for `regex_edit` is not clear enough about its role as a primary tool for precise, regex-based edits. The goal is to update the descriptions of the tool's arguments (`file_path`, `regex_pattern`, `replacement_text`) in `.cursor/mcp/mcp-commit-server/mcp_tools/regex_edit.js` to be more explicit. The updated descriptions should emphasize that this tool is ideal for making exact, targeted changes and should be preferred when `edit_file` fails or when the modification can be expressed as a simple find-and-replace operation. Crucially, only the argument descriptions should be modified.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/mcp/mcp-commit-server/mcp_tools/regex_edit.js"
+    ],
+    "validation_criteria": "1. The descriptions for the arguments of the `mcp_ToolsMCP_regex_edit` tool are updated to be clearer and more helpful.\n2. The updated descriptions guide the agent to use this tool as a fallback when `edit_file` fails.\n3. The top-level description of the tool is not modified.\n4. The tool continues to function correctly after the description change.",
+    "created_date": "2025-06-24T18:17:46.788Z",
+    "updated_date": "2025-06-24T18:17:46.788Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null
+  },
+  {
+    "id": 159,
+    "title": "Enable Default Auto-Refresh in Sidebar",
+    "short_description": "Modify the Streamlit sidebar component to remove the manual \"Enable Auto-Refresh\" checkbox and enable a 10-second auto-refresh by default on all pages.",
+    "detailed_description": "The user has requested to change the behavior of the auto-refresh feature. Instead of a manual toggle, the refresh should be active by default with a 10-second interval across the entire Streamlit application. This involves editing the `display_sidebar` function in `.cursor/streamlit_app/components/sidebar.py`. The `if st.checkbox(...)` block will be removed and replaced with a direct, unconditional call to `st_autorefresh(interval=10000, limit=None, key=\"auto_refresh_widget\")`.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py"
+    ],
+    "validation_criteria": "1. The \"Enable Auto-Refresh (10s)\" checkbox is no longer visible in the sidebar.\n2. All pages that use the `display_sidebar` component automatically refresh every 10 seconds.\n3. The rest of the sidebar functionality remains unchanged.",
+    "created_date": "2025-06-24T18:18:14.846Z",
+    "updated_date": "2025-06-24T18:18:14.846Z",
     "parent_id": null,
     "priority": 3,
     "image": null

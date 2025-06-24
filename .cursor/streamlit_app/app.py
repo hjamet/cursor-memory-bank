@@ -562,6 +562,14 @@ def render_add_request_tab():
         st.session_state.last_submitted_request_id = None
     if 'editing_request_id' not in st.session_state:
         st.session_state.editing_request_id = None
+    if 'clear_request_form' not in st.session_state:
+        st.session_state.clear_request_form = False
+
+    # If a form was just submitted, clear the state before rendering widgets
+    if st.session_state.clear_request_form:
+        st.session_state.request_content_area = ""
+        st.session_state.pasted_image_obj = None
+        st.session_state.clear_request_form = False
 
     # If editing, load the content
     request_content_default = ""
@@ -611,7 +619,7 @@ def render_add_request_tab():
                     st.success(f"Request #{st.session_state.editing_request_id} updated successfully!")
                     st.session_state.last_submitted_request_id = st.session_state.editing_request_id
                     st.session_state.editing_request_id = None
-                    st.session_state.request_content_area = "" # Clear text area
+                    st.session_state.clear_request_form = True # Clear form on next run
                     st.rerun()
                 else:
                     st.error("Failed to update the request.")
@@ -629,10 +637,10 @@ def render_add_request_tab():
                     st.balloons()
                     st.session_state.pasted_image_obj = None
                     st.session_state.last_submitted_request_id = next_id
-                    st.session_state.request_content_area = "" # Clear text area
-                    st.rerun() # Rerun to clear the text area and show the new request
+                    st.session_state.clear_request_form = True # Clear form on next run
+                    st.rerun()
                 else:
-                    st.error("Failed to submit the request.")
+                    st.error("Failed to submit the request. Please check the logs.")
         else:
             st.warning("Please enter a description for your request.")
 
@@ -663,6 +671,12 @@ def render_add_request_tab():
                                 st.error("Failed to delete the request.")
             else:
                  st.info(f"Request #{last_request['id']} has already been processed by the agent and cannot be modified here.")
+
+    # This block was causing state modification errors and is no longer needed.
+    # The new 'clear_request_form' flag handles state reset safely.
+    if st.session_state.get('form_submitted'):
+        st.session_state.form_submitted = False
+        st.rerun()
 
 def main():
     """Main function to render the review page"""
