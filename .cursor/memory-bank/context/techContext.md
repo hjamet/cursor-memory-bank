@@ -27,6 +27,16 @@
 - **Package Manager**: npm
 - **API Documentation**: Swagger/OpenAPI
 
+## Streamlit Application
+- **UI Framework**: Streamlit
+- **Key Pages**:
+    - `review.py`: A consolidated page with multiple tabs for reviewing tasks, viewing agent messages, and adding new user requests. The 'Add Request' functionality was merged from a separate page to streamline the UI.
+    - `task_status.py`: Displays the status of all tasks with advanced filtering and sorting capabilities.
+- **Data Model (`tasks.json`):**
+    - Each task object now includes a `status_history` field.
+    - `status_history` is an array of objects `{'status': str, 'timestamp': str}` that tracks all status changes for a task.
+    - This history is used for accurate calculation of task completion times (from `IN_PROGRESS` to `DONE`/`APPROVED`).
+
 ## Architecture Patterns
 
 ### Backend Architecture

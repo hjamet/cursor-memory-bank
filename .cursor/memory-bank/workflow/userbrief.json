@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 93,
+  "last_id": 95,
   "requests": [
     {
       "id": 76,
@@ -371,6 +371,36 @@
         {
           "timestamp": "2025-06-24T15:58:37.342Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 94,
+      "content": "Alors impeccable, la nouvelle UI pour l'ajout de nouvelles requêtes est vraiment très propre et très jolie. Mais par contre tu as supprimé le bouton qu'il y avait pour la copie depuis le presse papier alors que on a passé pas mal de temps à le faire fonctionner celui ci je t'ai dit qu'il faudrait l'ajouter à l'encadré Dragon Drop file ou juste en dessous. Enfin dans le même truc grosso modo donc s'il te plaît rajoute le si tu te souviens plus exactement comment on a fait, regarde, regarde dans l'historique git. Peut-être que ça t'aidera mais en tout cas il faut que tu l'ajoutes sur l'interfacetreamlitz parce que c'est trop bête de l'avoir enlevé, il fonctionnait et tout !",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-06-24T18:04:16.782716",
+      "updated_at": "2025-06-24T18:04:16.782716",
+      "history": [
+        {
+          "timestamp": "2025-06-24T18:04:16.782716",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        }
+      ]
+    },
+    {
+      "id": 95,
+      "content": "Je réalise aussi que maintenant, dans l'ajout de nouvelles requêtes, le raccourci contrôle plus Entre n'a plus l'air de correctement fonctionner. J'ai l'impression. Tu peux corriger cette regression ? Encore une fois, regarde l'historique git au besoin !",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-06-24T18:04:55.028457",
+      "updated_at": "2025-06-24T18:04:55.028457",
+      "history": [
+        {
+          "timestamp": "2025-06-24T18:04:55.028457",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }
