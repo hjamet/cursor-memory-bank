@@ -119,6 +119,7 @@ export async function handleGetAllTasks(params) {
         const response = {
             status: 'success',
             message: `Retrieved ${enhancedTasks.length} non-completed tasks in priority order`,
+            workflow_reminder: "IMPORTANT: You are in a workflow. Process ONLY ONE task at a time. After completing this task, you MUST call remember() to continue the workflow.",
             tasks: enhancedTasks,
             statistics,
             query_info: {

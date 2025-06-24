@@ -374,6 +374,7 @@ export async function handleGetNextTasks(params) {
         const response = {
             status: 'success',
             message: message,
+            workflow_reminder: "IMPORTANT: You are in a workflow. Process ONLY ONE task at a time. After completing this task, you MUST call remember() to continue the workflow.",
             available_tasks: enhancedTasks.map(task => ({
                 id: task.id,
                 title: task.title,

@@ -3324,13 +3324,13 @@
     "short_description": "A test task to verify the automatic deletion of the associated image when the task is approved by the user.",
     "detailed_description": "This is a test task created to verify the automatic deletion of task-associated images upon approval.\n\n**Objective:**\nVerify that the image attached to this task is automatically deleted from the `.cursor/temp/images/` directory after the user approves this task in the Streamlit \"To Review\" interface.\n\n**Instructions for the Agent:**\n1. This task requires no action from the agent other than to be marked as 'REVIEW'.\n2. After the user approves this task, the agent should, in a subsequent step, verify that the image file `req_115_20250624_200651_pasted.png` has been deleted from the filesystem.\n\n**Instructions for the User:**\n1. Please move this task to the \"REVIEW\" status.\n2. In the Streamlit UI, navigate to the \"Review & Communication\" page.\n3. Approve this task.\n4. The system should automatically delete the associated image upon approval.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "REVIEW",
     "impacted_files": [
       ".cursor/temp/images/req_115_20250624_200651_pasted.png"
     ],
     "validation_criteria": "The task is successfully validated if the associated image (`req_115_20250624_200651_pasted.png`) is confirmed to be deleted from the `.cursor/temp/images/` directory after the user approves the task.",
     "created_date": "2025-06-24T18:08:50.443Z",
-    "updated_date": "2025-06-24T18:08:50.443Z",
+    "updated_date": "2025-06-24T18:38:58.709Z",
     "parent_id": null,
     "priority": 3,
     "image": "req_115_20250624_200651_pasted.png"
@@ -3341,13 +3341,13 @@
     "short_description": "Add the short description of the current in-progress task to the Streamlit sidebar, just below the task title.",
     "detailed_description": "Currently, the sidebar's \"Current Task\" section only displays the title of the in-progress task. This request is to enhance the display by also showing the task's short description.\n\n**Requirements:**\n1.  Locate the code in `components/sidebar.py` that displays the current `in_progress` task.\n2.  Modify the display logic to include the `short_description` of the task.\n3.  The short description should be displayed directly below the task title, within the same `st.info` block or a similar styled component.\n4.  Ensure that if a task does not have a short description, the UI does not break.\n\n**Implementation Plan:**\n-   In `components/sidebar.py`, inside the `for task in in_progress_tasks:` loop.\n-   Retrieve `short_description` from the `task` dictionary.\n-   Update the `st.info` call to include both the title and the short description. A newline can be used to separate them.\n-   Example format: `f\"**{title}**\\n\\n{short_description}\"`\n\n**Acceptance Criteria:**\n-   When a task is in progress, the sidebar displays both its title and its short description.\n-   The formatting is clean and readable.\n-   If there is no active task, the \"Agent is idle\" message is displayed as before.\n-   The application runs without errors.",
     "dependencies": [],
-    "status": "IN_PROGRESS",
+    "status": "DONE",
     "impacted_files": [
       ".cursor/streamlit_app/components/sidebar.py"
     ],
     "validation_criteria": "The task is complete when the short description of the currently active task is visible in the sidebar below the task's title. This can be verified by setting a task to \"IN_PROGRESS\" and observing the Streamlit UI.",
     "created_date": "2025-06-24T18:09:23.010Z",
-    "updated_date": "2025-06-24T18:22:51.703Z",
+    "updated_date": "2025-06-24T18:23:22.558Z",
     "parent_id": null,
     "priority": 3,
     "image": null
@@ -3401,6 +3401,78 @@
     "updated_date": "2025-06-24T18:22:10.572Z",
     "parent_id": null,
     "priority": 3,
+    "image": null
+  },
+  {
+    "id": 160,
+    "title": "Add Workflow Reminders to MCP Tools",
+    "short_description": "Add workflow adherence reminders to key MCP tools to ensure the agent consistently follows the mandatory `remember` step in the autonomous loop.",
+    "detailed_description": "The user has requested to add reminders to several MCP tools to ensure the agent follows the workflow correctly. The agent sometimes \"forgets\" to call `remember` at the end of a rule.\n\nThis task involves modifying the following MCP tools to add a reminder in their output or description:\n- `get_all_tasks`: Add a reminder to only handle one task at a time and to call `remember`.\n- `get_next_tasks`: Add a reminder to only handle one task at a time and to call `remember`.\n- `read_userbrief`: Add a reminder to only handle one user request at a time and to call `remember`.\n- `update_userbrief`: Add a reminder about the importance of calling `remember` after this action.\n- `update_task`: Add a reminder about the importance of calling `remember` after this action.\n\nThe reminder should be a clear and concise text added to the tool's response or description to be visible to the agent during its operation.\n\\n**Acceptance Criteria:**\\n- The specified tools' outputs or descriptions in the MCP server are updated to include the workflow reminders.\\n- The agent, when using these tools, is presented with the reminder message.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/get_all_tasks.js",
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/get_next_tasks.js",
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/read_userbrief.js",
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/update_userbrief.js",
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/update_task.js"
+    ],
+    "validation_criteria": "- Run the `get_all_tasks` tool and verify the reminder is present in the output.\\n- Run the `get_next_tasks` tool and verify the reminder is present in the output.\\n- Run the `read_userbrief` tool and verify the reminder is present in the output.\\n- Run the `update_userbrief` tool and verify the reminder is present in the output.\\n- Run the `update_task` tool and verify the reminder is present in the output.",
+    "created_date": "2025-06-24T18:32:48.405Z",
+    "updated_date": "2025-06-24T18:35:44.987Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null
+  },
+  {
+    "id": 161,
+    "title": "Restore `st.balloons` Animation on New Request Submission",
+    "short_description": "Re-implement the `st.balloons()` animation in the Streamlit app, which appears after a user successfully submits a new request.",
+    "detailed_description": "The user has requested to re-enable the `st.balloons` animation upon the successful submission of a new user request in the Streamlit application. This feature was previously present but seems to have been removed.\n\nThis task involves modifying the `.cursor/streamlit_app/app.py` file.\nThe `st.balloons()` function should be called right after the confirmation message that the request has been submitted successfully.\n\n**Acceptance Criteria:**\n- When a user submits a new request through the Streamlit interface, the balloon animation is displayed.\n- The animation does not interfere with the request submission process.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/streamlit_app/app.py"
+    ],
+    "validation_criteria": "- Navigate to the \"Review & Communicate\" page in the Streamlit app.\\n- Submit a new user request.\\n- Verify that the `st.balloons()` animation is triggered immediately after the success message is shown.",
+    "created_date": "2025-06-24T18:33:11.400Z",
+    "updated_date": "2025-06-24T18:39:17.379Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 162,
+    "title": "Fix Incorrect Newline Rendering in Streamlit Sidebar",
+    "short_description": "Fix a display bug in the Streamlit sidebar where newline characters in the current task's short description are rendered as literal '\\\\\\\\n' instead of creating a line break.",
+    "detailed_description": "The user has reported a display bug in the Streamlit sidebar where newlines are not rendered correctly. When displaying the currently active task, the short description is preceded by a literal '\\\\\\\\n' instead of an actual line break, as shown in the provided image.\n\nThis task requires modifying `.cursor/streamlit_app/components/sidebar.py`. The root cause is likely improper string formatting or escaping before the text is passed to a Streamlit rendering function like `st.markdown`.\n\nThe fix involves finding where the `short_description` is processed and ensuring that newline characters are correctly interpreted as line breaks. This might involve replacing '\\\\\\\\n' with '\\\\n' or ensuring the string is not double-escaped.\n\n**Acceptance Criteria:**\n- The currently active task's title and short description are displayed on separate, distinct lines in the sidebar.\n- There are no visible `\\\\n` or other escaped characters in the sidebar display.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py"
+    ],
+    "validation_criteria": "- Run the Streamlit application.\\n- Ensure there is an active task with a multi-line description or a short description.\\n- View the sidebar.\\n- Verify that the task's title and its short description appear on separate lines without any visible escaped characters.",
+    "created_date": "2025-06-24T18:33:36.929Z",
+    "updated_date": "2025-06-24T18:38:43.250Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null
+  },
+  {
+    "id": 163,
+    "title": "Refine Task Decomposition Rule to Avoid Sub-tasks",
+    "short_description": "Refine the `task-decomposition.mdc` rule to instruct the agent to create one high-level task per user request, avoiding sub-tasks, and detailing the plan in the description.",
+    "detailed_description": "The user wants to refine the `task-decomposition` process to prevent the agent from creating unnecessary sub-tasks.\n\nThe `task-decomposition.mdc` rule file must be modified to instruct the agent to:\n1.  Identify the high-level, distinct requests within a single user brief.\n2.  Create **one single task** for each high-level request.\n3.  **Avoid creating sub-tasks** or breaking down a high-level request into multiple smaller tasks during this phase.\n4.  Instead, the agent should formulate its implementation plan and outline the steps in the `detailed_description` of the single task.\n\nThis change aims to streamline the workflow, prevent the agent from getting bogged down in organizational sub-tasks, and help it maintain a better high-level overview.\n\n**Acceptance Criteria:**\n- The `task-decomposition.mdc` rule is updated with clear, explicit instructions to create one task per major user request and to avoid creating sub-tasks.\n- The new instructions emphasize putting implementation plans inside the task's detailed description.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/workflow-steps/task-decomposition.mdc"
+    ],
+    "validation_criteria": "- Review the `.cursor/workflow-steps/task-decomposition.mdc` file.\\n- Confirm that the instructions have been updated to reflect the new guidance on creating single, high-level tasks and avoiding sub-task creation during the decomposition phase.",
+    "created_date": "2025-06-24T18:34:08.889Z",
+    "updated_date": "2025-06-24T18:37:38.875Z",
+    "parent_id": null,
+    "priority": 5,
     "image": null
   }
 ]

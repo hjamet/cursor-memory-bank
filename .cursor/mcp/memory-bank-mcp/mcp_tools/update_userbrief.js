@@ -91,6 +91,7 @@ export async function handleUpdateUserbrief(params) {
         const response = {
             status: 'success',
             message: `Successfully updated request #${targetRequest.id}`,
+            workflow_reminder: "IMPORTANT: You are in a workflow. After this update, you MUST call remember() to continue.",
             action_performed: {
                 action: action,
                 description: actionDescription,

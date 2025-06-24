@@ -1,83 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 120,
+  "last_id": 124,
   "requests": [
-    {
-      "id": 95,
-      "content": "Je réalise aussi que maintenant, dans l'ajout de nouvelles requêtes, le raccourci contrôle plus Entre n'a plus l'air de correctement fonctionner. J'ai l'impression. Tu peux corriger cette regression ? Encore une fois, regarde l'historique git au besoin !",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T18:04:55.028457",
-      "updated_at": "2025-06-24T16:11:33.087Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T18:04:55.028457",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T16:11:33.087Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 96,
-      "content": "J'ai l'impression qu'il y a toujours un problème lors de l'appel de la règle Context update et le. Et que le workflow est terminé. Si le workflow est terminé, c'est très important, c'est à dire que il n'y a plus de tâches à faire et qu'il n'y a plus de user raif. La règle contexte update doit dire OK, tu fais ton commit, tu fais tes opérations habituelles et à la fin au lieu d'appeler. Hum hum, lorsque tu appelleras en fait c'est plutôt la la règle qu'il faut corriger, c'est la règle remember, la règle remember quand elle va, quand elle est appelée et qu'il n'y a plus aucune tâche ni aucun, aucune requête dans le user bref, elle doit indiquer très clairement à à l'agent que c'est terminé et que il ne doit plus arrêter de il ne doit plus appeler de règles et qu'il doit s'arrêter maintenant mais uniquement lorsqu'il n'y a plus de requête user brief, aucune et plus aucune tâche non plus. Il faut absolument corriger ça parce qu'actuellement, sinon le workflow continue à l'infini même quand il y a plus de tâches qui est vraiment un gros souci.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T18:06:38.155900",
-      "updated_at": "2025-06-24T16:12:51.847Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T18:06:38.155900",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T16:12:51.847Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 97,
-      "content": "Test",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T18:53:53.681446",
-      "updated_at": "2025-06-24T17:09:32.519Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T18:53:53.681446",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T17:09:32.519Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 98,
-      "content": "Tu peux ajouter une fonctionnalité qui est que lorsque j'ajoute une requête user brief et à l'interface streaming depuis Depuis la page Review. Add request. Eh bien, la dernière, le dernier, la dernière requête que j'ai fait s'affiche en dessous du bouton semi Or request avec un bouton d'édition et un bouton de suppression. Et comme ça, ça me permet de d'annuler ou de modifier une requête que je viens de faire au besoin également dans Task Status, ajoute la possibilité également de modifier ou supprimer des requêtes user brief. Que j'aurais soumis et qui n'aurait pas encore été pris en compte comme tâche. Par ailleurs, en fait, la raison pour laquelle je te dis ça, c'est que j'ai créé une une requête test et il faudrait que tu la supprimes parce que elle sert à rien et donc que tu implémentes tout ce que je t'ai demandé juste avant.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T19:07:14.718635",
-      "updated_at": "2025-06-24T17:12:16.229Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T19:07:14.718635",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T17:12:16.229Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 99,
       "content": "Une 2 petites améliorations que tu pourrais faire à la page review sur encore une fois le serveur Streamit lors de l'ajout de nouvelles requêtes. La première, c'est que j'ai l'impression que quand je soumets une requête, le texte ne disparaît pas de la zone d'entrée, alors. Euh alors que c'est ce que je souhaiterais. En fait, j'aimerais que lorsque j'appuie sur le bouton Summit New request ou que je fais le raccourci contrôle plus Center et Ben ça soumet la requête et ça risette la zone de texte comme ça je peux commencer avec une nouvelle requête et 2e chose j'ai vu que du coup tu avais pu assigner le raccourci contrôle plus enter au bouton SMit New request et je me demandais si tu pouvais. Lier le raccourci contrôle V au bouton pour attacher l'image depuis le presse papier. Voilà essaye de traiter cette tâche en modifiant au minimum le fonctionnement profond du code parce que actuellement ça marche vraiment bien et j'ai pas envie que tu casses tout pour des petites optimisations. Donc sois prudent s'il te plaît",
@@ -498,6 +422,93 @@
           "timestamp": "2025-06-24T18:18:35.798Z",
           "action": "mark_archived",
           "comment": "This is a duplicate of request #117. Task #157 has already been created to address this bug."
+        }
+      ]
+    },
+    {
+      "id": 121,
+      "content": "Malheureusement, il y a un petit souci, c'est que t'as tendance à quitter le workflow. Enfin, l'agent a tendance à quitter le workflow régulièrement. En fait, quand il se lance dans des corrections trop longues, il oublie qu'il est à l'intérieur d'une règle et qu'il doit appeler remember à la fin de cette règle. Du coup, il faudrait s'il te plaît que tu ajoutes un petit Call out, un petit, un petit message, un argument supplémentaire, un rappel à la fin de de l'appel à la règle. Euh guette all Task ou Get next Task. Je je sais plus si c'est exactement les noms des outils, mais tu vas les trouver bien sûr, et aussi update user brief et gate user brief pour rappeler que l'agent ne doit gérer qu'une tâche ou qu'une requête user-brief à chaque fois. Si la requête user brief ça veut dire qu'il est dans tasque décomposition et donc il doit simplement la transformer en taches et ensuite il doit appeler remember. C'est hyper important à la fin. Une fois qu'il a effectué cette opération pour une seule tâche, il doit pas les faire tout ensemble et pareil pour la la résolution. Enfin l'implémentation s'il est en train de de d'implémenter une feature, il doit se l'appel à l'outil get next tax Get next Task doit rappeler à la fin un petit rappel. Euh tu dois absolument faire que cette tâche, aucune autre. Hum. Et puis quand t'as fini d'implémenter une tache, je te rappelle que t'es à l'intérieur d'une règle à l'intérieur d'un workflow que tu dois suivre à la lettre et tu dois appeler Remember à la fin pour suivre le workflow. C'est extrêmement important. Du coup, est ce que tu peux faire des petites notifications sur ces outils pour ajouter ces rappels afin de de de de pousser le l'agent à suivre davantage le workflow ?\n\nFais le aussi pour l'outil update_task :)",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:24:38.332547",
+      "updated_at": "2025-06-24T18:32:52.448Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:24:38.332547",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:32:52.448Z",
+          "action": "mark_archived",
+          "comment": "The user request has been analyzed and converted into task #160."
+        }
+      ]
+    },
+    {
+      "id": 122,
+      "content": "Rien de bien grave, mais je je me rends compte que t'as dû faire une modification récemment et ça a enlevé la chouette animation de ballon lorsqu'on ajoutait une nouvelle tâche. J'avoue que j'aimais bien cette animation. Est-ce que tu peux la remettre sur l'interface streaming dans l'application principale review et communication lorsqu'on soumet une nouvelle requête ?\n\nhttps://docs.streamlit.io/develop/api-reference/status/st.balloons",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:26:37.457913",
+      "updated_at": "2025-06-24T18:33:14.438Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:26:37.457913",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:33:14.438Z",
+          "action": "mark_archived",
+          "comment": "The user request has been analyzed and converted into task #161."
+        }
+      ]
+    },
+    {
+      "id": 123,
+      "content": "Il y a un petit souci avec l'affichage de la tâche actuelle dans la sidebar, c'est vraiment très très chouette, hein ? À la manière dont tu l'affiches, c'est parfait. Simplement les retours à la ligne, le double retour à la ligne avant la description courte est affichée en double antislash n. Ce qui est pas terrible, est ce que tu pourrais modifier pour que la la description courte soit vraiment séparée du titre qui est le titre et la description courte en dessous ?",
+      "status": "archived",
+      "image": {
+        "path": ".cursor\\temp\\images\\req_123_20250624_202823_pasted.png",
+        "filename": "req_123_20250624_202823_pasted.png",
+        "size": 29991,
+        "width": 492,
+        "height": 403,
+        "content_type": "image/png"
+      },
+      "created_at": "2025-06-24T20:28:23.392853",
+      "updated_at": "2025-06-24T18:33:39.951Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:28:23.392853",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:33:39.951Z",
+          "action": "mark_archived",
+          "comment": "The user request has been analyzed and converted into task #162."
+        }
+      ]
+    },
+    {
+      "id": 124,
+      "content": "Tu peux modifier légèrement la règle Task décomposition pour dire de d'identifier en fait pour éviter les sous tâches. C'est à dire que en fait, quand il analyse une requête utilisateur, l'agent doit identifier les différentes, les différentes demandes qui sont dans cette requête. Parfois, il y a plusieurs demandes en même temps, 2 ou 3. Parfois, il y en a qu'une seule et créer une tâche pour chaque demande, mais il doit pas déjà créer des sous tâches d'organisation qui va d'abord falloir que je fasse ça, puis que je fasse ça, ça, il peut l'indiquer dans la description de sa tâche, faire son plan, mais il doit pas créer plusieurs tâches pour une même grande tâche Comme je dis souvent dans les requêtes utilisateurs, il va y avoir plusieurs grandes tâches, donc là le but de l'Agence est d'identifier ces grandes tâches. Euh mais ensuite il doit pas les sous décomposer ces grandes tâches, il doit simplement éventuellement déjà planifier un peu ce qu'il doit faire dans la description de la tâche description complète de la tâche mais. À priori, il ne doit pas créer plusieurs sortes de sous tâches par grandes tâches. Ça, ça ne fait que ralentir inutilement le workflow et ça lui fait perdre de vue certains objectifs Et la vue d'ensemble Donc voilà, est ce que tu peux corriger un peu le fichier markdown qui décrit la règle Task Analysis pour inciter l'agent à avoir plus ce type de comportement ?",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:30:46.652628",
+      "updated_at": "2025-06-24T18:34:12.493Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:30:46.652628",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:34:12.493Z",
+          "action": "mark_archived",
+          "comment": "The user request has been analyzed and converted into task #163."
         }
       ]
     }

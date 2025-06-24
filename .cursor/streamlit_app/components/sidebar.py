@@ -33,7 +33,7 @@ def display_sidebar():
                 description = task.get('short_description', '')
                 info_text = f"**{title}**"
                 if description:
-                    info_text += f"\\n\\n{description}"
+                    info_text += f"\n\n{description}"
                 st.info(info_text)
         else:
             st.markdown("---")

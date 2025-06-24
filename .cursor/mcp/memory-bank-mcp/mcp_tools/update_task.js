@@ -106,6 +106,7 @@ export async function handleUpdateTask(params) {
         const response = {
             status: 'success',
             message: `Task ${task_id} updated successfully`,
+            workflow_reminder: "IMPORTANT: You are in a workflow. After this update, you MUST call remember() to continue.",
             updated_task: updatedTask,
             changes_made: {
                 fields_updated: Object.keys(updates).filter(k => updates[k] !== undefined),

@@ -53,6 +53,7 @@ export async function handleReadUserbrief(params) {
         const response = {
             status: 'success',
             message: `Retrieved userbrief data with ${archived_count} archived entries`,
+            workflow_reminder: "IMPORTANT: You are in the 'task-decomposition' step. Process ONLY ONE user request at a time. After creating the task(s) for this single request, you MUST call remember() to continue the workflow.",
             current_request: currentRequest,
             archived_entries: archivedEntries,
             preferences: preferences,
