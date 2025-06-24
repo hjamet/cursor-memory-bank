@@ -1,5 +1,50 @@
 # Technical Context
 
+## Project Overview
+This project is an autonomous AI agent operating within the Cursor IDE. Its primary goal is to manage software development tasks, interact with the user via a Streamlit interface, and maintain a persistent memory of its operations.
+
+## Core Technologies
+- **AI Agent**: Custom-built agent running within Cursor.
+- **Workflow Engine**: A rule-based system (`.mdc` files) that dictates the agent's behavior.
+- **Memory System**: A custom "Memory Bank" to persist state, tasks, and knowledge.
+- **Tooling**: A suite of custom Model Context Protocol (MCP) servers for actions like file system operations, git commits, and task management.
+- **Frontend**: A Streamlit application for user interaction, task monitoring, and communication.
+- **Development**: Node.js (for MCP servers), Python (for Streamlit).
+
+## Streamlit Application
+The Streamlit application serves as the primary user interface for the agent.
+
+- **UI Framework**: Streamlit
+- **Application Structure**: A modular, component-based architecture.
+    - `app.py`: Main entry point. It handles user request submission and the task review process. It uses a session-state controlled `st.radio` to manage navigation between "Add Request" and "Review" views.
+    - `components/sidebar.py`: A centralized sidebar component displayed on all pages. It features an auto-refresh mechanism, a "Work Queue" counter (remaining tasks + unprocessed requests), and an estimated project completion time.
+    - `components/task_utils.py`: Helper functions for task and user brief manipulation.
+- **Pages**:
+    - `pages/task_status.py`: A dashboard to view and track the status of all tasks.
+    - `pages/memory.py`: An interface to inspect the agent's recent memories.
+- **Data Models**:
+    - `tasks.json`: Stores all development tasks. Each task includes a `status_history` array to accurately track time spent.
+    - `userbrief.json`: Stores all user requests, decoupled from the task management system until they are explicitly converted into tasks.
+
+## MemoryBankMCP Server (`mcp_MemoryBankMCP_*`)
+This is the core server for managing the agent's state and workflow.
+- **`read_userbrief` / `update_userbrief`**: Manages the lifecycle of user requests in `userbrief.json`.
+- **`create_task` / `update_task` / `get_all_tasks` / `get_next_tasks`**: Full CRUD and queuing operations for tasks in `tasks.json`.
+- **`commit`**: Performs standardized Git commits.
+- **`remember`**: Records the agent's state (past, present, future) to its memory.
+- **`next_rule`**: Fetches instructions for the next step in the workflow.
+
+## ToolsMCP Server (`mcp_ToolsMCP_*`)
+This server provides the agent with tools to interact with the system environment.
+- **`execute_command` / `get_terminal_status` / `get_terminal_output` / `stop_terminal_command`**: A complete suite for asynchronous terminal command execution.
+- **`consult_image` / `take_webpage_screenshot`**: Tools for processing and capturing visual information.
+
+## Known Issues & Workarounds
+- **`edit_file` Instability**: The `edit_file` tool can be unreliable. Prefer more specific tools like `mcp_ToolsMCP_regex_edit` or make very small, targeted edits.
+- **MCP Tool Discovery**: New tools added to a running MCP server may not be immediately available in Cursor. A full restart of the IDE is required to clear the tool cache.
+- **MCP Server Logging**: Any non-JSON output (like `console.log`) from an MCP server will break the communication with the Cursor client. All debug logs must be removed from production code.
+- **MDC File Editing**: To reliably edit `.mdc` rule files and have the changes tracked by Git, it's sometimes necessary to rename them to `.md`, make the edits, and then rename them back to `.mdc`.
+
 ## Technology Stack
 
 ### Backend
@@ -26,21 +71,6 @@
 - **Version Control**: Git
 - **Package Manager**: npm
 - **API Documentation**: Swagger/OpenAPI
-
-## Streamlit Application
-- **UI Framework**: Streamlit
-- **Application Structure**: The application has been refactored into a modular, component-based structure to improve maintainability and code reuse.
-- **Core Components**:
-    - `app.py`: The main entry point for the Streamlit application. It handles the primary user request submission and review interface, structured with tabs for a streamlined user experience.
-    - `components/sidebar.py`: A centralized and reusable component that displays the sidebar on all pages. It includes features like an auto-refresh mechanism (`streamlit-autorefresh`), a task counter, a dynamic estimation of project completion time, and details about the currently active task.
-    - `components/task_utils.py`: A utility module containing helper functions for task manipulation, such as calculating completion times based on `status_history`.
-- **Pages**:
-    - `pages/task_status.py`: Displays a comprehensive board of all tasks, allowing users to track progress. It leverages the centralized sidebar.
-    - `pages/memory.py`: Shows the agent's recent memories and provides an overview of past activities. It also leverages the centralized sidebar.
-- **Data Model (`tasks.json`):**
-    - Each task object now includes a `status_history` field.
-    - `status_history` is an array of objects `{'status': str, 'timestamp': str}` that tracks all status changes for a task.
-    - This history is used for accurate calculation of task completion times (from `IN_PROGRESS` to `DONE`/`REVIEW`).
 
 ## Architecture Patterns
 

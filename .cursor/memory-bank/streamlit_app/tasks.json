@@ -3447,13 +3447,13 @@
     "short_description": "Fix a display bug in the Streamlit sidebar where newline characters in the current task's short description are rendered as literal '\\\\\\\\n' instead of creating a line break.",
     "detailed_description": "The user has reported a display bug in the Streamlit sidebar where newlines are not rendered correctly. When displaying the currently active task, the short description is preceded by a literal '\\\\\\\\n' instead of an actual line break, as shown in the provided image.\n\nThis task requires modifying `.cursor/streamlit_app/components/sidebar.py`. The root cause is likely improper string formatting or escaping before the text is passed to a Streamlit rendering function like `st.markdown`.\n\nThe fix involves finding where the `short_description` is processed and ensuring that newline characters are correctly interpreted as line breaks. This might involve replacing '\\\\\\\\n' with '\\\\n' or ensuring the string is not double-escaped.\n\n**Acceptance Criteria:**\n- The currently active task's title and short description are displayed on separate, distinct lines in the sidebar.\n- There are no visible `\\\\n` or other escaped characters in the sidebar display.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/streamlit_app/components/sidebar.py"
     ],
     "validation_criteria": "- Run the Streamlit application.\\n- Ensure there is an active task with a multi-line description or a short description.\\n- View the sidebar.\\n- Verify that the task's title and its short description appear on separate lines without any visible escaped characters.",
     "created_date": "2025-06-24T18:33:36.929Z",
-    "updated_date": "2025-06-24T18:38:43.250Z",
+    "updated_date": "2025-06-24T20:55:36.448827",
     "parent_id": null,
     "priority": 4,
     "image": null
@@ -3481,13 +3481,13 @@
     "short_description": "The st.balloons() animation is not triggering after a user submits a new request in the Streamlit app. This task is to fix the bug and ensure the animation works as expected.",
     "detailed_description": "**Goal:** Restore the `st.balloons()` animation upon successful submission of a new user request in the Streamlit application.\n\n**Context:** This is a correction for Task #161, which was intended to fix the same issue but was unsuccessful.\n\n**Acceptance Criteria:**\n- When a user submits a new request on the \"Review & Communicate\" page, the `st.balloons()` animation is displayed.\n\n**Affected Files:**\n- Likely `.cursor/memory-bank/streamlit_app/app.py`",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/memory-bank/streamlit_app/app.py"
     ],
     "validation_criteria": "",
     "created_date": "2025-06-24T18:45:54.376Z",
-    "updated_date": "2025-06-24T18:47:53.288Z",
+    "updated_date": "2025-06-24T20:51:07.401087",
     "parent_id": null,
     "priority": 3,
     "image": null
@@ -3505,6 +3505,74 @@
     "validation_criteria": "",
     "created_date": "2025-06-24T18:46:11.843Z",
     "updated_date": "2025-06-24T20:50:36.681015",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 166,
+    "title": "Fix balloon animation in Streamlit app",
+    "short_description": "The st.balloons() animation is not appearing on new request submission because a st.rerun() call interrupts it.",
+    "detailed_description": "In the Streamlit app, when a new user request is submitted, a call to st.balloons() is made to celebrate. However, an immediately following st.rerun() call stops the animation from being visible. The fix is to comment out or remove the st.rerun() call to allow the animation to complete.",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/streamlit_app/app.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T18:51:56.042Z",
+    "updated_date": "2025-06-24T20:53:01.290200",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 167,
+    "title": "Improve UI to show short task descriptions by default",
+    "short_description": "Display the short description for each task by default under the task title, rather than being hidden inside an expander.",
+    "detailed_description": "In the \"Tasks to Review\" tab of the Streamlit app, the task's short description is currently hidden inside an st.expander. To improve the UI and provide a better at-a-glance overview, the short description should be displayed by default directly under the task title.",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/streamlit_app/app.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T18:52:00.267Z",
+    "updated_date": "2025-06-24T20:52:51.760326",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 168,
+    "title": "Modify redirection after task validation in Streamlit",
+    "short_description": "Change the redirection logic after approving a task. Stay on the review page if there are more tasks to review, otherwise redirect to the 'add request' page.",
+    "detailed_description": "Currently, after a user approves a task on the 'Tasks to review' page, the application automatically redirects to the 'Add request' page. This behavior should be changed. The new logic should be: After approving a task, check if there are any other tasks left in the 'REVIEW' status. If other tasks are still in 'REVIEW', the application should remain on the 'Tasks to review' page, likely by just re-running the page. If no other tasks are in 'REVIEW' status, then the application can redirect to the 'Add request' page as it currently does.",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/streamlit_app/app.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T18:52:32.136Z",
+    "updated_date": "2025-06-24T20:55:37.390727",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 169,
+    "title": "Update Streamlit sidebar task counter",
+    "short_description": "Modify the sidebar to show only the count of remaining tasks and unprocessed requests, instead of the total task count.",
+    "detailed_description": "The user wants to change the task counter in the Streamlit sidebar. The current implementation shows the total number of tasks. The new implementation should remove the total count. It should display a count of \"remaining\" work, which is defined as: All tasks that are NOT in 'DONE' or 'APPROVED' status, and all unprocessed user requests (e.g., status 'new' or 'in_progress' in userbrief.json).",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-24T18:53:00.737Z",
+    "updated_date": "2025-06-24T18:56:19.412Z",
     "parent_id": null,
     "priority": 3,
     "image": null

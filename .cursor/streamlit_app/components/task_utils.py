@@ -109,4 +109,32 @@ def format_time_estimate(hours_range: Tuple[Optional[float], Optional[float]]) -
     avg_days_lower = lower / 8
     avg_days_upper = upper / 8
     
-    return f"{lower:.1f}-{upper:.1f} hours ({avg_days_lower:.1f}-{avg_days_upper:.1f} days)" 
+    return f"{lower:.1f}-{upper:.1f} hours ({avg_days_lower:.1f}-{avg_days_upper:.1f} days)"
+
+def get_userbrief_file() -> Optional[Path]:
+    """Get the path to the userbrief.json file."""
+    # This path is based on the new structure.
+    # Adjust if your structure is different.
+    path = Path('.cursor/memory-bank/workflow/userbrief.json')
+    if path.exists():
+        return path
+    return None
+
+def get_unprocessed_requests_count() -> int:
+    """Loads user brief and counts unprocessed requests."""
+    userbrief_file = get_userbrief_file()
+    if not userbrief_file:
+        return 0
+    try:
+        with open(userbrief_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        unprocessed_count = 0
+        if 'active_request' in data and data['active_request']:
+            unprocessed_count += 1
+        if 'new_requests' in data:
+            unprocessed_count += len(data['new_requests'])
+            
+        return unprocessed_count
+    except (json.JSONDecodeError, FileNotFoundError, KeyError):
+        return 0 

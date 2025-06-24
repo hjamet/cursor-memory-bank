@@ -1,47 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 128,
+  "last_id": 130,
   "requests": [
-    {
-      "id": 101,
-      "content": "J'ai l'erreur suivante, quand je glisse dans quand je clique sur la table Task Status dans l'interface premlit, tu peux résoudre ?\n\nstreamlit.errors.StreamlitDuplicateElementKey: There are multiple elements with the same key='start_edit_99'. To fix this, please make sure that the key argument is unique for each element you create.\n\nTraceback:\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py\", line 1070, in <module>\n    render_userbrief_request(request)\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\pages\\task_status.py\", line 677, in render_userbrief_request\n    if st.button(\"✏️ Edit\", key=f\"start_edit_{req_id}\", help=\"Edit this request\"):\n       ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\widgets\\button.py\", line 243, in button\n    return self.dg._button(\n           ~~~~~~~~~~~~~~~^\n        label,\n        ^^^^^^\n    ...<10 lines>...\n        ctx=ctx,\n        ^^^^^^^^\n    )\n    ^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\widgets\\button.py\", line 1013, in _button\n    element_id = compute_and_register_element_id(\n        \"button\",\n    ...<9 lines>...\n        use_container_width=use_container_width,\n    )\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\utils.py\", line 254, in compute_and_register_element_id\n    _register_element_id(ctx, element_type, element_id)\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\utils.py\", line 143, in _register_element_id\n    raise StreamlitDuplicateElementKey(user_key)",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T19:12:51.946320",
-      "updated_at": "2025-06-24T17:16:00.979Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T19:12:51.946320",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T17:16:00.979Z",
-          "action": "mark_archived",
-          "comment": "The bug report regarding a `StreamlitDuplicateElementKey` error has been analyzed. The root cause was identified as a redundant rendering loop in `task_status.py`. A high-priority task (#135) has been created to fix this. Archiving the request."
-        }
-      ]
-    },
-    {
-      "id": 102,
-      "content": "Sur la page Review de l'interface streaming. Est-ce que tu peux ajouter un petit indicator, un petit indicateur ? Tu sais, un cercle rouge typique des notifications WhatsApp ou si c'est possible d'un truc comme ça sur les les tables Task to review et agent message dès que il y a quelque chose de nouveau. Idéalement si c'est possible de mettre dans le cercle nombre de tâches qu'il y a à revoir et et comme ça je sais qu'il y a ça à revoir. Humm. Ben l'idée, c'est d'avoir une petite notification comme ça. Je sais que je dois cliquer sur ces trucs si s'il y a des éléments qui sont arrivés.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-24T19:16:30.961055",
-      "updated_at": "2025-06-24T17:17:32.893Z",
-      "history": [
-        {
-          "timestamp": "2025-06-24T19:16:30.961055",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T17:17:32.892Z",
-          "action": "mark_archived",
-          "comment": "The user request for notification badges on the Review page has been analyzed. A task (#136) has been created to implement this feature by dynamically updating tab labels with counts of items needing review. Archiving the request."
-        }
-      ]
-    },
     {
       "id": 103,
       "content": "Est ce que tu peux faire de la page review la page par défaut de l'application quand on arrive ? Euh. Et actuellement la page principale, la page APP où il y a les résumés de la conversation, je te propose de la supprimer et de déplacer son contenu sans le modifier. Le contenu où il y a tu sais tous les messages de l'agent Pardon, tous les la mémoire de l'agent, la mémoire à court terme, ajoute la haie à à l'onglet Memory dans short terme Memory ou working Memory plutôt mémoire de travail. Fais les choses consciencieusement n'appliquent pas de modifications quand on entre toi de simplement faire le déplacement, s'il te plaît.",
@@ -514,17 +474,42 @@
       ]
     },
     {
-      "id": 128,
-      "content": "Cette tâche, c'est juste un test pour voir si ça fonctionne.",
-      "status": "new",
+      "id": 129,
+      "content": "T'as ajouté un raccourci très sympa lorsque on clique sur dans la sur la page dans l'interface streaming sur la page Review et communication onglet Task to retrrive. Quand je valide une tâche, ça retourne sur ad request. L'onglet ad request, c'est plutôt une bonne idée. C'est très sympa, mais il faudrait que ça n'ait lieu que lorsque il n'y a plus de tâches. Euh à revoir s'il reste des tâches à revoir, on devrait rester sur la table Task to review. Tu peux modifier ça s'il te plaît ?",
+      "status": "archived",
       "image": null,
-      "created_at": "2025-06-24T20:51:03.389035",
-      "updated_at": "2025-06-24T20:51:03.389035",
+      "created_at": "2025-06-24T20:51:52.945622",
+      "updated_at": "2025-06-24T18:52:35.850Z",
       "history": [
         {
-          "timestamp": "2025-06-24T20:51:03.389035",
+          "timestamp": "2025-06-24T20:51:52.945622",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:52:35.850Z",
+          "action": "mark_archived",
+          "comment": "Task #168 has been created to address this request."
+        }
+      ]
+    },
+    {
+      "id": 130,
+      "content": "Dans la Side bar sur l'interface Stream Lit est ce que tu peux enlever l'affichage du nombre total de tâches affiches seulement le nombre de tâches restantes en prenant en compte les requêtes non transformées du userbrief :)",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-24T20:52:44.554038",
+      "updated_at": "2025-06-24T18:53:04.865Z",
+      "history": [
+        {
+          "timestamp": "2025-06-24T20:52:44.554038",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-24T18:53:04.865Z",
+          "action": "mark_archived",
+          "comment": "Task #169 has been created to address this request."
         }
       ]
     }
