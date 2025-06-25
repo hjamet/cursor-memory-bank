@@ -36,7 +36,7 @@ def render_add_request_tab():
         current_time = time.time()
         # Check if enough time has passed since balloons animation (1.5 seconds - reduced delay)
         if (st.session_state.balloons_submitted_time is None or 
-            current_time - st.session_state.balloons_submitted_time > 1.5):
+            current_time - st.session_state.balloons_submitted_time >= 1):
             # Clear the form silently after reduced delay
             st.session_state.request_content_area = ""
             st.session_state.pasted_image_obj = None
@@ -132,7 +132,7 @@ def render_add_request_tab():
                     st.session_state.pasted_image_obj = None
                     st.session_state.last_submitted_request_id = next_id
                     st.session_state.clear_request_form = True # Clear form after animation delay
-                    # Note: Form will be cleared after 3 seconds to allow balloons animation
+                    # Note: Form will be cleared after 1.5 seconds to allow balloons animation
                 else:
                     st.error("Failed to submit the request. Please check the logs.")
         else:

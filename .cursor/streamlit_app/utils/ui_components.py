@@ -98,7 +98,8 @@ def render_task_review_card(task: Dict):
 
         with col2:
             if st.button("📝 Ask for modification", key=f"ask_modification_{task_id}"):
-                st.session_state[f'modification_form_{task_id}'] = True
+                st.session_state['active_modification_form'] = task_id
+                st.rerun()
 
         with col3:
             if has_associated_image(task):
@@ -110,7 +111,7 @@ def render_task_review_card(task: Dict):
                         st.error("Failed to delete image.")
 
         # Modification form (shown when "Ask for modification" button is clicked)
-        if st.session_state.get(f'modification_form_{task_id}', False):
+        if st.session_state.get('active_modification_form') == task_id:
             st.markdown("---")
             with st.form(f"modification_form_{task_id}"):
                 st.warning(f"Please provide feedback for Task #{task_id}:")
@@ -153,7 +154,7 @@ Please review the user's feedback above and make the necessary modifications to 
                         # Create new userbrief request and update task status
                         if create_new_request(modification_content) and update_task_status(task_id, 'TODO'):
                             st.success(f"Task #{task_id} modification request sent! The task has been reset to TODO status.")
-                            del st.session_state[f'modification_form_{task_id}']
+                            del st.session_state['active_modification_form']
                             st.rerun()
                         else:
                             st.error("Failed to process modification request.")
@@ -162,7 +163,7 @@ Please review the user's feedback above and make the necessary modifications to 
                 
                 if cancelled:
                     # Clean up session state
-                    del st.session_state[f'modification_form_{task_id}']
+                    del st.session_state['active_modification_form']
                     st.rerun()
 
 

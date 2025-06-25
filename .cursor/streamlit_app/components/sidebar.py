@@ -110,9 +110,9 @@ def display_sidebar():
                 task = in_progress_tasks[0]  # Show first task if multiple
                 title = task.get('title', 'No Title')
                 description = task.get('short_description', '')
-                info_text = f"**Current Task:** {title}"
+                info_text = f"**Current Task:** **{title}**"
                 if description:
-                    info_text += f"\n\n{description}"
+                    info_text += f"\n\n*{description}*"
                 st.info(info_text)
             else:
                 st.info(f"**Workflow Step:** {formatted_rule}\n\nAgent is processing workflow rules.")
@@ -133,4 +133,4 @@ def display_sidebar():
 
         st.markdown("---")
         # Auto-refresh is enabled by default every 5 seconds to keep the dashboard updated.
-        st_autorefresh(interval=5000, limit=None, key="auto_refresh_widget")
+        st_autorefresh(interval=1000, limit=None, key="auto_refresh_widget")

@@ -4271,17 +4271,27 @@
     "short_description": "Remettre l'animation de ballons (st.balloons()) qui s'affichait auparavant lors de la soumission d'une nouvelle requête dans l'interface Streamlit, tout en préservant exactement le fonctionnement actuel.",
     "detailed_description": "Réactiver l'animation de ballons qui était présente auparavant lors de la soumission de nouvelles requêtes dans l'interface Streamlit :\n\n**Objectif :**\n- Remettre l'animation de ballons (probablement `st.balloons()`) qui s'affichait lors de l'ajout d'une nouvelle requête\n- Améliorer l'expérience utilisateur avec un feedback visuel agréable\n- Conserver exactement le même fonctionnement que l'interface actuelle\n\n**Contexte technique :**\n- L'animation était présente dans une version antérieure du système\n- La fonction Streamlit concernée est probablement `st.balloons()`\n- L'animation doit se déclencher après la soumission réussie d'une nouvelle requête\n- L'interface actuelle fonctionne parfaitement et ne doit pas être altérée\n\n**Spécifications d'implémentation :**\n\n1. **Localisation du code de soumission** :\n   - Identifier le fichier responsable de l'ajout de nouvelles requêtes dans l'onglet \"Review & Communication\"\n   - Probablement dans `add_request.py` ou un composant similaire\n   - Trouver l'endroit exact où la requête est soumise avec succès\n\n2. **Ajout de l'animation** :\n   - Ajouter `st.balloons()` après la soumission réussie de la requête\n   - S'assurer que l'animation ne se déclenche que lors du succès\n   - Positionner l'appel au bon moment dans le flux d'exécution\n\n3. **Préservation du fonctionnement existant** :\n   - **CRITIQUE** : Maintenir exactement le comportement actuel\n   - Conserver la suppression du texte de la zone de texte après soumission\n   - Préserver tous les mécanismes de validation et de sauvegarde\n   - Maintenir les messages de confirmation existants\n   - Assurer que l'interface reste responsive\n\n4. **Tests et validation** :\n   - Vérifier que l'animation s'affiche correctement\n   - Confirmer que le formulaire se vide après soumission\n   - S'assurer que la requête est bien enregistrée dans userbrief.json\n   - Tester que l'interface reste fonctionnelle après l'animation\n\n**Contraintes importantes :**\n- **Fonctionnalité prioritaire** : Aucune régression du comportement actuel\n- **Compatibilité** : L'animation doit fonctionner avec la version actuelle de Streamlit\n- **Performance** : L'animation ne doit pas ralentir l'interface\n- **Robustesse** : Si l'animation échoue, cela ne doit pas affecter la soumission\n\n**Localisation probable :**\n- Fichier principal : `add_request.py` ou équivalent\n- Zone d'intérêt : Fonction de traitement du formulaire de soumission\n- Point d'insertion : Après confirmation de l'enregistrement réussi\n\n**Bénéfices attendus :**\n- Amélioration de l'expérience utilisateur avec feedback visuel positif\n- Retour d'une fonctionnalité appréciée par l'utilisateur\n- Interface plus engageante et satisfaisante à utiliser",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [
       "app.py",
       ".cursor/streamlit_app/pages/add_request.py"
     ],
     "validation_criteria": "La tâche est terminée quand :\n1. L'animation de ballons s'affiche après la soumission réussie d'une nouvelle requête\n2. Le fonctionnement actuel est parfaitement préservé (suppression du texte, sauvegarde, messages)\n3. L'animation ne provoque aucune régression ou dysfonctionnement\n4. L'interface reste responsive et fonctionnelle après l'animation\n5. Tests réussis : soumission de requête → animation → formulaire vidé → requête enregistrée\n6. Compatibilité confirmée avec la version actuelle de Streamlit",
     "created_date": "2025-06-25T16:14:02.728Z",
-    "updated_date": "2025-06-25T18:18:48.533523",
+    "updated_date": "2025-06-25T19:47:16.005382",
     "parent_id": null,
     "priority": 2,
-    "image": null
+    "image": null,
+    "status_history": [
+      {
+        "status": "TODO",
+        "timestamp": "2025-06-25T16:14:02.728Z"
+      },
+      {
+        "status": "DONE",
+        "timestamp": "2025-06-25T19:47:16.005382"
+      }
+    ]
   },
   {
     "id": 210,
@@ -4390,23 +4400,6 @@
     }
   },
   {
-    "id": 215,
-    "title": "Refactoriser test_large_file.py - Réduire la taille du fichier",
-    "short_description": "Décomposer le fichier Python test_large_file.py (591 lignes) en modules plus petits pour améliorer la maintenabilité.",
-    "detailed_description": "Le fichier test_large_file.py contient actuellement 591 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Taille actuelle : 591 lignes\n- Dépassement : 91 lignes au-dessus de la limite\n- Ratio : 1.18x la taille recommandée\n\n**Objectifs de refactoring :**\n- Réduire la taille à moins de 500 lignes par module\n- Améliorer la lisibilité et la maintenabilité\n- Faciliter les tests unitaires\n- Réduire la complexité cognitive\n\n**Approches recommandées :**\n- Extraire les fonctions logiquement liées en modules séparés\n- Identifier et isoler les responsabilités distinctes\n- Créer des interfaces claires entre les modules\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer\n- La documentation doit être mise à jour",
-    "dependencies": [],
-    "status": "IN_PROGRESS",
-    "impacted_files": [
-      "test_large_file.py"
-    ],
-    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier test_large_file.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies",
-    "created_date": "2025-06-25T16:25:58.230Z",
-    "updated_date": "2025-06-25T17:01:56.173Z",
-    "parent_id": null,
-    "priority": 3,
-    "image": null
-  },
-  {
     "id": 217,
     "title": "Corriger les bugs de l'interface de révision des tâches introduits par le refactoring",
     "short_description": "Résoudre les régressions dans l'interface \"Tasks to Review\" : supprimer le bouton \"bloquer tâche\" inutile, corriger l'erreur de validation des tâches, et restaurer l'interface simple avec seulement les boutons valider/éditer.",
@@ -4476,7 +4469,7 @@
     "short_description": "Résoudre le conflit entre l'animation de ballons et la suppression automatique du texte lors de la soumission de nouvelles requêtes dans l'interface Streamlit. Les deux fonctionnalités doivent coexister : ballons animés ET suppression du texte après soumission.",
     "detailed_description": "Corriger le problème d'incompatibilité entre l'animation de ballons et la suppression du texte dans l'interface de soumission de requêtes :\n\n**Problème identifié :**\n\nL'utilisateur signale un problème récurrent : quand l'animation de ballons (`st.balloons()`) est active lors de la soumission de nouvelles requêtes, le texte ne disparaît plus automatiquement de la zone de saisie. Cette incompatibilité crée un cycle frustrant où :\n- Soit l'animation de ballons fonctionne mais le texte reste dans le champ\n- Soit le texte disparaît mais l'animation de ballons ne s'affiche plus\n\n**Analyse du problème :**\n\nCette incompatibilité suggère un conflit dans la gestion des états de session Streamlit ou dans la séquence d'exécution des fonctions. Les deux fonctionnalités semblent s'interférer mutuellement :\n\n1. **Animation de ballons** : Utilise `st.balloons()` pour feedback visuel\n2. **Suppression du texte** : Nécessite la réinitialisation de `st.session_state` ou `st.rerun()`\n3. **Conflit potentiel** : L'ordre d'exécution ou la gestion des états peut causer l'incompatibilité\n\n**Objectifs de résolution :**\n\n1. **Fonctionnalité complète** : Les deux fonctionnalités doivent coexister parfaitement\n   - Animation de ballons visible lors de la soumission\n   - Texte automatiquement supprimé de la zone de saisie après soumission\n\n2. **Expérience utilisateur optimale** :\n   - Feedback visuel satisfaisant avec l'animation\n   - Interface propre avec suppression automatique du texte\n   - Comportement cohérent à chaque soumission\n\n3. **Solution durable** : Éviter les allers-retours entre les deux fonctionnalités\n\n**Approches techniques à investiguer :**\n\n1. **Gestion des états de session** :\n   - Analyser l'ordre de mise à jour des `st.session_state`\n   - Vérifier les conflits entre `st.rerun()` et `st.balloons()`\n   - Implémenter une séquence d'exécution optimisée\n\n2. **Timing et synchronisation** :\n   - Étudier si un délai est nécessaire entre l'animation et la suppression\n   - Utiliser des callbacks ou des états temporaires\n   - Implémenter une logique de nettoyage différée\n\n3. **Architecture de soumission** :\n   - Revoir la logique de traitement du formulaire\n   - Séparer les responsabilités (animation vs nettoyage)\n   - Créer une séquence de soumission robuste\n\n**Critères de succès :**\n\n- L'animation de ballons s'affiche à chaque soumission de requête\n- Le texte disparaît automatiquement de la zone de saisie après soumission\n- Aucune régression dans les autres fonctionnalités (sauvegarde, validation, gestion des images)\n- Comportement stable et reproductible\n- Interface utilisateur fluide et satisfaisante\n\n**Tests de validation :**\n\n1. Soumettre une nouvelle requête → vérifier animation de ballons\n2. Vérifier que la zone de texte est vide après soumission\n3. Répéter le processus plusieurs fois pour confirmer la stabilité\n4. Tester avec différents types de contenu (texte seul, avec images)\n5. Valider que la requête est correctement sauvegardée dans userbrief.json\n\n**Impact :**\n\nCette correction éliminera une source de frustration récurrente pour l'utilisateur et garantira une expérience de soumission de requêtes optimale avec feedback visuel et interface propre.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "APPROVED",
     "impacted_files": [
       "app.py",
       "utils/request_form.py",
@@ -4484,44 +4477,14 @@
     ],
     "validation_criteria": "La tâche est terminée quand :\n1. L'animation de ballons s'affiche à chaque soumission de nouvelle requête\n2. Le texte disparaît automatiquement de la zone de saisie immédiatement après soumission\n3. Les deux fonctionnalités coexistent sans conflit ni régression\n4. Le comportement est stable et reproductible sur plusieurs soumissions consécutives\n5. Toutes les autres fonctionnalités de soumission restent intactes (sauvegarde, validation, gestion des images)\n6. Tests manuels confirmant l'expérience utilisateur optimale : ballons + suppression du texte\n7. Aucun effet de bord ou comportement erratique dans l'interface",
     "created_date": "2025-06-25T17:22:27.715Z",
-    "updated_date": "2025-06-25T19:38:31.348218",
+    "updated_date": "2025-06-25T19:59:41.012626",
     "parent_id": null,
     "priority": 4,
-    "image": null
-  },
-  {
-    "id": 221,
-    "title": "Refactoriser .cursor\\streamlit_app\\app_old.py - Réduire la taille du fichier",
-    "short_description": "Décomposer le fichier Python .cursor\\streamlit_app\\app_old.py (839 lignes) en modules plus petits de moins de 500 lignes chacun pour améliorer la maintenabilité. Sois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.",
-    "detailed_description": "Le fichier .cursor\\streamlit_app\\app_old.py contient actuellement 839 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Taille actuelle : 839 lignes\n- Dépassement : 339 lignes au-dessus de la limite\n- Ratio : 1.68x la taille recommandée\n\nSois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.\n\nDans la mesure du possible, teste manuellement et sommairement ton code après le refactoring pour être certain que tu n'as rien cassé. Ne cherches pas à faire des tests unitaires, effectue simplement quelques tests manuels simples et rapides.\n\n**Approches recommandées :**\n- Extraire les fonctions logiquement liées en modules séparés\n- Identifier et isoler les responsabilités distinctes\n- Créer des interfaces claires entre les modules\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer\n- La documentation doit être mise à jour",
-    "dependencies": [],
-    "status": "TODO",
-    "impacted_files": [
-      ".cursor\\streamlit_app\\app_old.py"
-    ],
-    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier .cursor\\streamlit_app\\app_old.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies",
-    "created_date": "2025-06-25T17:25:32.433Z",
-    "updated_date": "2025-06-25T17:25:32.433Z",
-    "parent_id": null,
-    "priority": 3,
-    "image": null
-  },
-  {
-    "id": 222,
-    "title": "Refactoriser test_large_file.py - Réduire la taille du fichier",
-    "short_description": "Décomposer le fichier Python test_large_file.py (591 lignes) en modules plus petits de moins de 500 lignes chacun pour améliorer la maintenabilité. Sois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.",
-    "detailed_description": "Le fichier test_large_file.py contient actuellement 591 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Taille actuelle : 591 lignes\n- Dépassement : 91 lignes au-dessus de la limite\n- Ratio : 1.18x la taille recommandée\n\nSois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.\n\nDans la mesure du possible, teste manuellement et sommairement ton code après le refactoring pour être certain que tu n'as rien cassé. Ne cherches pas à faire des tests unitaires, effectue simplement quelques tests manuels simples et rapides.\n\n**Approches recommandées :**\n- Extraire les fonctions logiquement liées en modules séparés\n- Identifier et isoler les responsabilités distinctes\n- Créer des interfaces claires entre les modules\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer\n- La documentation doit être mise à jour",
-    "dependencies": [],
-    "status": "TODO",
-    "impacted_files": [
-      "test_large_file.py"
-    ],
-    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier test_large_file.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies",
-    "created_date": "2025-06-25T17:25:32.439Z",
-    "updated_date": "2025-06-25T17:25:32.439Z",
-    "parent_id": null,
-    "priority": 3,
-    "image": null
+    "image": null,
+    "validation": {
+      "approved_at": "2025-06-25T19:59:41.008167",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 223,
@@ -4529,7 +4492,7 @@
     "short_description": "Corriger le bouton \"Ask for modification\" dans l'onglet \"Tasks to Review\" qui ne fonctionne plus correctement après le refactoring. Le bouton doit ouvrir une zone de texte pour les commentaires utilisateur, puis créer une nouvelle requête userbrief avec le contexte complet de la tâche originale et les commentaires.",
     "detailed_description": "Restaurer la fonctionnalité complète du bouton \"Ask for modification\" dans l'interface de révision des tâches Streamlit qui a été cassée lors du refactoring récent.\n\n**Problème actuel :**\n- Le bouton \"Ask for modification\" remet simplement la tâche en statut TODO sans permettre d'ajouter des commentaires\n- La zone de texte pour les commentaires utilisateur n'apparaît plus\n- Le processus de création d'une nouvelle requête userbrief avec contexte n'est plus fonctionnel\n\n**Fonctionnalité attendue (comme avant le refactoring) :**\n1. **Zone de commentaires** : Quand l'utilisateur clique sur \"Ask for modification\", afficher une zone de texte en dessous de la tâche pour permettre à l'utilisateur d'ajouter ses commentaires\n2. **Validation des commentaires** : Bouton pour valider/soumettre les commentaires\n3. **Création de requête userbrief** : Après validation, créer automatiquement une nouvelle requête userbrief contenant :\n   - Le contexte complet de la tâche originale (titre, description, ce que l'agent a fait)\n   - Les commentaires de l'utilisateur expliquant pourquoi il n'est pas satisfait\n   - Un message structuré pour l'agent demandant de traiter les commentaires utilisateur\n\n**Approche technique :**\n- Examiner l'historique git du fichier concerné avant le refactoring pour comprendre l'implémentation précédente\n- Restaurer l'interface simple et propre qui fonctionnait parfaitement\n- Intégrer avec le système userbrief.json via les outils MCP\n- Préserver la logique métier : soit validation (archivage), soit demande de modification (commentaires + nouvelle requête)\n\n**Critères d'acceptation :**\n- Le bouton \"Ask for modification\" ouvre une zone de texte pour les commentaires\n- L'utilisateur peut saisir et valider ses commentaires\n- Une nouvelle requête userbrief est créée avec le contexte complet\n- L'interface est simple, propre et fonctionnelle comme avant le refactoring\n- La tâche originale est mise en attente pendant que l'agent traite les commentaires",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "DONE",
     "impacted_files": [
       "/.cursor/streamlit_app/utils/ui_components.py",
       "/.cursor/streamlit_app/utils/task_manager.py",
@@ -4537,56 +4500,52 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Le bouton \"Ask for modification\" affiche une zone de texte pour les commentaires utilisateur, (2) L'utilisateur peut saisir et valider ses commentaires via un bouton dédié, (3) Une nouvelle requête userbrief est automatiquement créée avec le contexte complet de la tâche originale et les commentaires utilisateur, (4) La fonctionnalité est simple, propre et identique à celle qui existait avant le refactoring, (5) L'interface permet clairement de choisir entre validation (archivage) et demande de modification (commentaires), (6) Tests manuels confirmant le flux complet : clic sur bouton → saisie commentaires → validation → création requête userbrief.",
     "created_date": "2025-06-25T17:32:54.678Z",
-    "updated_date": "2025-06-25T17:38:59.958Z",
+    "updated_date": "2025-06-25T19:43:09.071728",
     "parent_id": null,
     "priority": 4,
-    "image": null
+    "image": null,
+    "status_history": [
+      {
+        "status": "TODO",
+        "timestamp": "2025-06-25T17:32:54.678Z"
+      },
+      {
+        "status": "DONE",
+        "timestamp": "2025-06-25T19:43:09.071728"
+      }
+    ]
   },
   {
     "id": 224,
-    "title": "Traiter la requête de test de fonctionnalité de réponse aux messages d'agent",
-    "short_description": "Requête de test utilisateur pour vérifier le bon fonctionnement de la fonctionnalité de réponse aux messages d'agent récemment restaurée. L'utilisateur confirme que la fonctionnalité fonctionne et demande de supprimer cette tâche de test.",
-    "detailed_description": "Traiter la requête de test #180 de l'utilisateur concernant la vérification de la fonctionnalité de réponse aux messages d'agent.\n\n**Contexte :**\n- L'utilisateur a testé la fonctionnalité de réponse aux messages d'agent récemment restaurée via la tâche #218\n- Il a créé une réponse de test au message d'agent #129 pour vérifier que le mécanisme fonctionne correctement\n- L'utilisateur confirme explicitement que \"Tu peux directement le supprimer de tes tâches : il n'y a rien à faire ;)\"\n\n**Objectif :**\n- Valider que la fonctionnalité de réponse aux messages d'agent fonctionne comme attendu\n- Confirmer que le processus de création de nouvelles requêtes userbrief depuis les messages d'agent est opérationnel\n- Marquer cette tâche de test comme terminée puisqu'elle a rempli son objectif de validation\n\n**Actions à effectuer :**\n1. Confirmer que la requête de test a été correctement créée via le système de réponse aux messages\n2. Valider que le contexte du message original a été préservé (message #129, timestamp, règle workflow)\n3. Marquer la tâche comme DONE puisque l'objectif de test est atteint\n4. Documenter le succès de la fonctionnalité de réponse aux messages d'agent\n\n**Critères d'acceptation :**\n- La requête de test a été correctement générée avec le contexte du message original\n- Le processus de réponse aux messages d'agent est confirmé fonctionnel\n- La tâche peut être immédiatement marquée comme terminée (DONE) car c'est un test réussi",
+    "title": "Fix StreamlitValueAssignmentNotAllowedError in modification form",
+    "short_description": "Resolve the 'StreamlitValueAssignmentNotAllowedError' that occurs when a user clicks 'Ask for modification' on a task in the review interface. This bug prevents users from requesting changes to a task.",
+    "detailed_description": "The user has reported a critical bug that occurs when they click the \"Ask for modification\" button for a task (related to task #220).\nThe application crashes with a 'streamlit.errors.StreamlitValueAssignmentNotAllowedError: Values for the widget with key 'modification_form_220' cannot be set using st.session_state'.\nThe traceback indicates the error originates in '.cursor/streamlit_app/utils/ui_components.py' at line 115, within the 'st.form' context manager.\n\nThis error typically occurs when a widget's value is being set via 'st.session_state' within the same script run where the widget is declared, which is not allowed for form widgets.\n\n**Plan:**\n1.  Analyze the code in '.cursor/streamlit_app/utils/ui_components.py' around line 115.\n2.  Identify the incorrect state assignment that is causing the crash.\n3.  Refactor the state management for the modification form to avoid this error. This likely involves changing how the form visibility or its fields are handled, ensuring that state is not set in the same run as the form's instantiation.\n4.  Ensure the \"Ask for modification\" functionality is fully restored, allowing users to open a comment form, submit it, and have a new userbrief request created without any errors.",
     "dependencies": [],
     "status": "TODO",
-    "impacted_files": [],
-    "validation_criteria": "La tâche est terminée quand : (1) La requête de test #180 a été correctement créée via le système de réponse aux messages d'agent, (2) Le contexte du message original (ID #129, contenu, timestamp) a été préservé dans la requête, (3) La fonctionnalité de réponse aux messages d'agent est confirmée opérationnelle, (4) La tâche est marquée DONE car l'objectif de test est atteint - aucune implémentation supplémentaire requise.",
-    "created_date": "2025-06-25T17:33:48.011Z",
-    "updated_date": "2025-06-25T17:33:48.011Z",
+    "impacted_files": [
+      ".cursor/streamlit_app/utils/ui_components.py"
+    ],
+    "validation_criteria": "-   Clicking \"Ask for modification\" on any task opens the comment form without any errors.\n-   Submitting the modification request works correctly.\n-   The application remains stable.",
+    "created_date": "2025-06-25T18:00:07.767Z",
+    "updated_date": "2025-06-25T20:02:14.111886",
     "parent_id": null,
-    "priority": 1,
+    "priority": 5,
     "image": null
   },
   {
     "id": 225,
-    "title": "Refactoriser .cursor\\streamlit_app\\app_old.py - Réduire la taille du fichier",
-    "short_description": "Décomposer le fichier Python .cursor\\streamlit_app\\app_old.py (839 lignes) en modules plus petits de moins de 500 lignes chacun pour améliorer la maintenabilité. Sois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.",
-    "detailed_description": "Le fichier .cursor\\streamlit_app\\app_old.py contient actuellement 839 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Taille actuelle : 839 lignes\n- Dépassement : 339 lignes au-dessus de la limite\n- Ratio : 1.68x la taille recommandée\n\nSois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.\n\nDans la mesure du possible, teste manuellement et sommairement ton code après le refactoring pour être certain que tu n'as rien cassé. Ne cherches pas à faire des tests unitaires, effectue simplement quelques tests manuels simples et rapides.\n\n**Approches recommandées :**\n- Extraire les fonctions logiquement liées en modules séparés\n- Identifier et isoler les responsabilités distinctes\n- Créer des interfaces claires entre les modules\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer\n- La documentation doit être mise à jour",
+    "title": "Implement a size limit for archived tasks and user requests",
+    "short_description": "Enforce a limit of 50 on the number of archived tasks and user requests to manage the size of JSON data files. When a new item is archived, the oldest archived item should be deleted if the limit is exceeded.",
+    "detailed_description": "The user wants to ensure that the 'tasks.json' and 'userbrief.json' files do not grow indefinitely.\nTo achieve this, a rotation mechanism for archived items needs to be implemented.\n\n**Requirements:**\n1.  **Archived Tasks Limit:**\n    -   When a task's status is changed to a final archived state (e.g., 'DONE', 'APPROVED'), check the total number of archived tasks.\n    -   If the count of archived tasks exceeds 50, the oldest archived task must be removed from 'tasks.json'.\n2.  **Archived User Requests Limit:**\n    -   When a user request is marked as 'archived', check the total number of archived requests.\n    -   If the count of archived requests exceeds 50, the oldest archived request must be removed from 'userbrief.json'.\n\n**Plan:**\n1.  Modify the MCP server logic responsible for updating tasks (`update_task` function). After a task is archived, add logic to count all archived tasks and remove the oldest if the count is over 50.\n2.  Modify the MCP server logic responsible for updating user briefs (`update_userbrief` function). After a request is archived, add logic to count all archived requests and remove the oldest if the count is over 50.\n3.  The \"oldest\" item is the one with the earliest 'updated_at' or 'created_at' timestamp.\n4.  Ensure the logic is robust and handles edge cases correctly.",
     "dependencies": [],
     "status": "TODO",
     "impacted_files": [
-      ".cursor\\streamlit_app\\app_old.py"
+      ".cursor/mcp/memory-bank-mcp/src/controllers/taskController.js",
+      ".cursor/mcp/memory-bank-mcp/src/controllers/userbriefController.js"
     ],
-    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier .cursor\\streamlit_app\\app_old.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies",
-    "created_date": "2025-06-25T17:39:16.718Z",
-    "updated_date": "2025-06-25T17:39:16.718Z",
-    "parent_id": null,
-    "priority": 3,
-    "image": null
-  },
-  {
-    "id": 226,
-    "title": "Refactoriser test_large_file.py - Réduire la taille du fichier",
-    "short_description": "Décomposer le fichier Python test_large_file.py (591 lignes) en modules plus petits de moins de 500 lignes chacun pour améliorer la maintenabilité. Sois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.",
-    "detailed_description": "Le fichier test_large_file.py contient actuellement 591 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Taille actuelle : 591 lignes\n- Dépassement : 91 lignes au-dessus de la limite\n- Ratio : 1.18x la taille recommandée\n\nSois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.\n\nDans la mesure du possible, teste manuellement et sommairement ton code après le refactoring pour être certain que tu n'as rien cassé. Ne cherches pas à faire des tests unitaires, effectue simplement quelques tests manuels simples et rapides.\n\n**Approches recommandées :**\n- Extraire les fonctions logiquement liées en modules séparés\n- Identifier et isoler les responsabilités distinctes\n- Créer des interfaces claires entre les modules\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer\n- La documentation doit être mise à jour",
-    "dependencies": [],
-    "status": "TODO",
-    "impacted_files": [
-      "test_large_file.py"
-    ],
-    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier test_large_file.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies",
-    "created_date": "2025-06-25T17:39:16.726Z",
-    "updated_date": "2025-06-25T17:39:16.726Z",
+    "validation_criteria": "-   Archiving a 51st task correctly removes the oldest archived task.\n-   Archiving a 51st user request correctly removes the oldest archived user request.\n-   The total number of archived items for both tasks and requests does not exceed 50.",
+    "created_date": "2025-06-25T18:00:25.336Z",
+    "updated_date": "2025-06-25T18:00:25.336Z",
     "parent_id": null,
     "priority": 3,
     "image": null
