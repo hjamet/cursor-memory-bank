@@ -102,7 +102,7 @@ async function createRefactoringTasks(oversizedFiles) {
             // Create task parameters
             const taskParams = {
                 title: `Refactoriser ${fileInfo.file} - Réduire la taille du fichier`,
-                short_description: `Décomposer le fichier Python ${fileInfo.file} (${fileInfo.lines} lignes) en modules plus petits pour améliorer la maintenabilité.`,
+                short_description: `Décomposer le fichier Python ${fileInfo.file} (${fileInfo.lines} lignes) en modules plus petits de moins de 500 lignes chacun pour améliorer la maintenabilité. Sois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.`,
                 detailed_description: `Le fichier ${fileInfo.file} contient actuellement ${fileInfo.lines} lignes, ce qui dépasse largement la limite recommandée de 500 lignes.
 
 **Analyse du fichier :**
@@ -110,11 +110,9 @@ async function createRefactoringTasks(oversizedFiles) {
 - Dépassement : ${fileInfo.lines - 500} lignes au-dessus de la limite
 - Ratio : ${Math.round((fileInfo.lines / 500) * 100) / 100}x la taille recommandée
 
-**Objectifs de refactoring :**
-- Réduire la taille à moins de 500 lignes par module
-- Améliorer la lisibilité et la maintenabilité
-- Faciliter les tests unitaires
-- Réduire la complexité cognitive
+Sois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.
+
+Dans la mesure du possible, teste manuellement et sommairement ton code après le refactoring pour être certain que tu n'as rien cassé. Ne cherches pas à faire des tests unitaires, effectue simplement quelques tests manuels simples et rapides.
 
 **Approches recommandées :**
 ${fileInfo.lines > 1000 ?

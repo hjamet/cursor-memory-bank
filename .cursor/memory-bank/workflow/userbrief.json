@@ -1,83 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 174,
+  "last_id": 178,
   "requests": [
-    {
-      "id": 148,
-      "content": "Par contre, petite erreur dans l'interface streaming. L'indicateur remaining Task doit non seulement afficher les tâches qu'il reste à faire, qui sont en mode too doux, mais aussi les requêtes user brief non traitées. C'est la somme des 2 en fait",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T01:12:17.258937",
-      "updated_at": "2025-06-24T23:13:43.923Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T01:12:17.258937",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T23:13:43.923Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 149,
-      "content": "Correction for Task #184 (Ajouter l'affichage des tâches bloquées dans l'interface Streamlit):\n\nTu peux bloquer une, tu peux bloquer une tâche en fait actuellement par exemple cette tâche juste pour voir si la modification fonctionne correctement. C'est un moyen pour moi de vérifier en fait si ça se trouve ton code fonctionne parfaitement mais justement c'est c'est juste pour voir si ça fonctionne donc s'il te plaît bloc cette requête et comme ça on pourra voir. Enfin je pourrai vérifier si ça ça fonctionne correctement.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T01:23:02.095761",
-      "updated_at": "2025-06-24T23:23:33.818Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T01:23:02.095761",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T23:23:33.818Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 150,
-      "content": "Correction for Task #189 (Bloquer temporairement une tâche pour tester l'affichage des tâches bloquées):\n\nEn fait, il devrait pas être possible de laisser une tâche bloquée de manière permanente. Le seul bouton possible, c'est de la débloquer en ajoutant un commentaire. Et ça, ça l'ajoute, ça renvoie à une nouvelle requête dans le user brief exactement comme lorsqu'on rejette une tâche. Euh dans la même interface. Donc voilà simplement, il devrait y avoir un unique bouton qui est en gros débloquer la tâche avec un commentaire. Autrement, la tâche va rester bloquée, mais elle doit rester visiblement bloquée pour l'utilisateur !",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T01:25:39.650167",
-      "updated_at": "2025-06-24T23:26:44.005Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T01:25:39.650167",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T23:26:44.005Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 151,
-      "content": "Correction for Task #189 (Bloquer temporairement une tâche pour tester l'affichage des tâches bloquées):\n\nBah non, du coup j'ai pas vu de modification. La tâche bloquée est toujours apparue mais toujours avec le bouton un bloc et cancel alors que moi je veux juste un bouton un bloc qui débloque la tâche mais qui aussi m'oblige à écrire un message pour. Pour pour donner des conseils sur comment gérer le blocage qui a eu lieu à l'agent et ça. Et ça, ça renvoie dans une nouvelle request avec tous les détails de la tâche originale. En gros c'est vraiment encore une fois comme le fait d'appuyer sur reeject pour une tâche normale. Sauf que là voilà, elle est affichée de manière un peu particulière parce que c'est une tâche bloquée.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T01:31:06.666636",
-      "updated_at": "2025-06-24T23:32:21.771Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T01:31:06.666636",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T23:32:21.771Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 152,
       "content": "Question regarding agent message #79: \"Interface des tâches bloquées corrigée ! Le nouveau bouton \"Débloquer avec commentaire\" remplace les...\"\n\nMy question: Du coup, j'avais débloqué la tâche : tu peux en bloquer une autre, que je puisse tester ? :D",
@@ -514,6 +438,82 @@
         },
         {
           "timestamp": "2025-06-25T16:24:24.783Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 175,
+      "content": "Il y a plusieurs bugs qui ont été introduits par le refactoring, en particulier dans la page principale de l'application streaming dans. Euh dans Task to review. Tu as modifié les boutons avant, c'était très bien fait, y avait juste un bouton pour valider un bouton pour éditer. Maintenant tu as rajouté un bouton pour bloquer la tâche qui n'a aucun sens donc celui là il faut que tu le supprimes et puis en plus maintenant enfin j'essaie de valider une tâche, j'obtiens un message d'erreur. Voilà, il faudrait que tu corriges tout ça :\n\nError updating task status: 'list' object has no attribute 'get'\n\nFailed to approve task.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T19:03:25.830738",
+      "updated_at": "2025-06-25T17:18:44.273Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T19:03:25.830738",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-25T17:18:44.273Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 176,
+      "content": "Euh, toujours dans l'interface streamlit dans l'onglet agent message dans la page Review et communication principale de l'interface. Avant, il y avait un bouton, je te laisse regarder l'historique git pour voir de quoi je parle. Il y avait un bouton qui permettait de répondre à un message de l'agent. Ce bouton a disparu, donc quand on on répondait à un à un message de l'agent, en fait, ça faisait une requête, une nouvelle requête user brief avec la tâche qui était en lien avec avec ce que l'agent disait et les détails de cette tâche. Et puis bah le texte en. Euh en réponse ainsi que la ce que disait l'agent est comme ça, c'est, c'est une nouvelle requête qu'on fait à l'agent par ce biais au sein d'une espèce de conversation. Donc il faudrait re rajouter ce bouton question à côté du bouton marqué comme lu grosso modo",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T19:04:45.329510",
+      "updated_at": "2025-06-25T17:19:43.992Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T19:04:45.329510",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-25T17:19:43.992Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 177,
+      "content": "Depuis ton refactoring du code de l'interface streaming il y a un bug dans l'affichage du nombre de tâches restantes par exemple. Là il m'affiche qu'il reste 4 taches restantes Alors que quand je vais dans l'onglet Task Status, je dois avoir une dizaine de tâches restantes, plus genre 2 user brief non traitées. Donc je sais pas exactement ce qu'est la l'origine de cette erreur, mais il y a clairement un problème à ce niveau-là et il faudrait que tu le résolves.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T19:06:19.481567",
+      "updated_at": "2025-06-25T17:21:41.281Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T19:06:19.481567",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-25T17:21:41.281Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 178,
+      "content": "Tu sais, t'as récemment remis l'animation des ballons quand quand je soumets une nouvelle requête dans l'interface streamlit onglet enfin page review et communication ADD request alors la bonne nouvelle c'est que effectivement l'animation des ballons est revenue, elle est très chouette, très satisfaisante. La mauvaise nouvelle, c'est que depuis que t'as fait ça, il y a plus de suppression du texte dans. Dans le le truc d'entrée de texte, j'ai l'impression que c'est incompatible parce que c'est la, c'est pas la première fois qu'on a cette espèce de on fait des allers retours, j'ai l'impression ou t'ajoutes l'animation des ballons et du coup le texte arrête de disparaître une fois qu'il est soumis comme dans un chat normal et puis ensuite tu remets le fait que le chat disparaît mais du coup l'animation des ballons disparaît. Bref ça c'est assez embêtant je pense enquête là dessus et résout le problème pour que le texte disparaisse et les ballons apparaissent.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T19:07:28.563995",
+      "updated_at": "2025-06-25T17:22:31.476Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T19:07:28.563995",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-25T17:22:31.476Z",
           "action": "mark_archived"
         }
       ]
