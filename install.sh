@@ -796,7 +796,7 @@ install_streamlit_app() {
     
     local streamlit_dir="$target_dir/.cursor/streamlit_app"
     local requirements_file="$streamlit_dir/requirements.txt"
-    local startup_script="$target_dir/.cursor/run_streamlit.sh"
+    local startup_script="$target_dir/.cursor/run_ui.sh"
 
     # Create streamlit directory
     mkdir -p "$streamlit_dir" || {
@@ -827,7 +827,7 @@ install_streamlit_app() {
         done
         
         # Download startup scripts
-        download_file "$RAW_URL_BASE/.cursor/run_streamlit.sh" "$startup_script"
+        download_file "$RAW_URL_BASE/.cursor/run_ui.sh" "$startup_script"
 
     else
         log "Copying Streamlit app files from git clone..."
@@ -840,8 +840,8 @@ install_streamlit_app() {
         fi
         
         # Copy startup scripts
-        if [[ -f "$clone_dir/.cursor/run_streamlit.sh" ]]; then
-            cp "$clone_dir/.cursor/run_streamlit.sh" "$startup_script"
+        if [[ -f "$clone_dir/.cursor/run_ui.sh" ]]; then
+            cp "$clone_dir/.cursor/run_ui.sh" "$startup_script"
         else
             warn "Streamlit startup script not found in repository clone"
         fi
@@ -849,7 +849,7 @@ install_streamlit_app() {
     
     # Set permissions for startup scripts
     chmod u+x "$startup_script" || warn "Failed to set executable permission on startup scripts."
-    log "Streamlit startup script installed at: $startup_script"
+    log "UI startup script installed at: $startup_script"
 
     # Install Python dependencies
     if [[ ! -f "$requirements_file" ]]; then
@@ -979,16 +979,11 @@ show_version() {
     exit 0
 }
 
-# Function to install utility scripts
+# Function to install utility scripts - DEPRECATED
+# The run_ui.sh script is now installed by install_streamlit_app()
 install_utility_scripts() {
-    local target_dir="$1"
-    local run_ui_script_path="$target_dir/.cursor/run_ui.sh"
-    local run_ui_url="$RAW_URL_BASE/.cursor/run_ui.sh"
-
-    log "Installing utility scripts..."
-    download_file "$run_ui_url" "$run_ui_script_path"
-    chmod +x "$run_ui_script_path"
-    log "run_ui.sh installed and made executable at: $run_ui_script_path"
+    log "Utility scripts installation is now handled by install_streamlit_app()"
+    return 0
 }
 
 # Parse command line arguments
@@ -1203,7 +1198,7 @@ fi
 # Install Streamlit App
 install_streamlit_app "$INSTALL_DIR" "$TEMP_DIR"
 
-# Install utility scripts like run_ui.sh
+# Install utility scripts (run_ui.sh is now handled by install_streamlit_app)
 install_utility_scripts "$INSTALL_DIR"
 
 # Install ML Model
