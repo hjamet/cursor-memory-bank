@@ -26,29 +26,27 @@ def display_sidebar():
             
             notification_content = "\n\n".join(notification_text)
             
-            st.markdown(
-                f"""
-                <div style="
-                    padding: 15px; 
-                    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-                    border-radius: 10px;
-                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    margin-bottom: 15px;
-                ">
-                    <div style="
-                        color: #ffffff; 
-                        font-weight: 600;
-                        font-size: 14px;
-                        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-                        text-align: center;
-                    ">
-                        🔴 {total_notifications} item(s) need attention
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+            # Make the notification indicator clickable with intelligent redirection
+            if st.button(
+                f"🔴 {total_notifications} item(s) need attention",
+                key="notification_redirect_button",
+                help="Click to navigate to Review & Communication page",
+                use_container_width=True,
+                type="secondary"
+            ):
+                # Intelligent navigation logic
+                if messages_count > 0:
+                    # Priority to messages if they exist
+                    st.session_state.active_tab = "messages"
+                elif review_tasks_count > 0:
+                    # Otherwise go to review tasks
+                    st.session_state.active_tab = "review"
+                else:
+                    # Fallback to add request tab
+                    st.session_state.active_tab = "add"
+                
+                # Navigate to the main page (Review & Communication)
+                st.switch_page("app.py")
             
             with st.expander("📋 Details", expanded=False):
                 st.markdown(notification_content)
@@ -111,9 +109,6 @@ def display_sidebar():
                 if description:
                     info_text += f"\n\n{description}"
                 st.info(info_text)
-            # Show workflow rule below current task
-            st.markdown("**Current Workflow Step:**")
-            st.markdown(f"🔄 {formatted_rule}")
         else:
             # Show workflow rule in the agent status section
             st.markdown("---")

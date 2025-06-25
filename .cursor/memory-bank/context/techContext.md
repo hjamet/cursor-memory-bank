@@ -18,7 +18,7 @@ The primary user interface for the agent, located in `.cursor/streamlit_app/`:
 
 - **Main Entry Point**: `app.py` - Handles user request submission and task review with radio navigation
 - **Components**:
-  - `components/sidebar.py`: Centralized sidebar with auto-refresh, work queue counter, workflow step indicator, and notification alerts
+  - `components/sidebar.py`: Centralized sidebar with auto-refresh, work queue counter, workflow step indicator, and clickable notification alerts with intelligent navigation
   - `components/task_utils.py`: Helper functions for task/user brief manipulation, workflow state tracking, and notification counting
   - `components/style_utils.py`: UI styling utilities
 - **Pages**:
@@ -41,7 +41,7 @@ Core server for agent state and workflow management:
 System interaction server:
 - **Terminal Operations**: `execute_command`, `get_terminal_status`, `get_terminal_output`, `stop_terminal_command`
 - **Visual Processing**: `consult_image`, `take_webpage_screenshot`
-- **File Manipulation**: `regex_edit` for precise file modifications
+- **File Manipulation**: `regex_edit` for precise file modifications with enhanced MCP communication
 
 ### Workflow System
 Located in `.cursor/workflow-steps/`:
@@ -74,6 +74,18 @@ Comprehensive bash script supporting:
 ├── run_ui.sh              # Streamlit launcher
 └── mcp.json               # MCP server configuration
 ```
+
+## Recent Enhancements
+
+### User Interface Improvements
+- **Clickable Notification Indicator**: The red notification alert in the sidebar is now interactive, providing one-click navigation to the Review & Communication page with intelligent tab selection (Agent Messages prioritized over Tasks to Review)
+- **Form Field Management**: Fixed text area clearing issue in the Add Request tab - form fields now properly reset after successful submission, preventing accidental duplicate submissions
+- **Navigation Intelligence**: Implemented smart redirection logic that automatically opens the most relevant tab based on notification content
+
+### MCP Tool Enhancements
+- **Enhanced regex_edit Communication**: The regex_edit tool now returns properly structured MCP responses with detailed operation status, file information, change statistics, and error handling
+- **Improved Error Reporting**: Better structured error messages and success indicators for all MCP operations
+- **Streamlined User Experience**: Reduced friction in common workflows through intelligent defaults and automatic form management
 
 ## Known Issues & Workarounds
 
@@ -119,9 +131,9 @@ Comprehensive bash script supporting:
 ### Monitoring
 - **Work Queue**: Real-time task and request counting in UI
 - **Workflow Visibility**: Current workflow step/rule displayed in sidebar for transparency
-- **Notification System**: Red alert indicators for tasks requiring review and agent messages
+- **Interactive Notification System**: Clickable red alert indicators for tasks requiring review and agent messages with smart navigation
 - **Memory Usage**: Automatic semantic search and long-term memory management
-- **Error Handling**: Comprehensive error reporting through MCP tools
+- **Error Handling**: Comprehensive error reporting through enhanced MCP tools
 
 ## Security Considerations
 - **File Access**: MCP servers operate within workspace boundaries

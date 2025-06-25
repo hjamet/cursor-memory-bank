@@ -625,8 +625,16 @@ def render_add_request_tab():
         request_to_edit = get_user_request(st.session_state.editing_request_id)
         if request_to_edit:
             request_content_default = request_to_edit.get("content", "")
+    
+    # Use session state value if available, otherwise use default
+    if 'request_content_area' in st.session_state and not st.session_state.editing_request_id:
+        # When not editing, use session state value (which may be empty after clearing)
+        text_area_value = st.session_state.request_content_area
+    else:
+        # When editing or first load, use default value
+        text_area_value = request_content_default
 
-    request_content = st.text_area("Request Description", value=request_content_default, height=250, placeholder="Please provide a detailed description of your request...", label_visibility="collapsed", key="request_content_area")
+    request_content = st.text_area("Request Description", value=text_area_value, height=250, placeholder="Please provide a detailed description of your request...", label_visibility="collapsed", key="request_content_area")
     
     with st.expander("📎 Attach an Image (Optional)"):
         col1, col2 = st.columns(2)
@@ -668,7 +676,8 @@ def render_add_request_tab():
                     st.session_state.last_submitted_request_id = st.session_state.editing_request_id
                     st.session_state.editing_request_id = None
                     st.session_state.clear_request_form = True # Clear form on next run
-                    # st.rerun() # This is likely interrupting the balloons animation
+                    # Force a rerun to clear the form immediately after successful update
+                    st.rerun()
                 else:
                     st.error("Failed to update the request.")
             else:
@@ -686,7 +695,8 @@ def render_add_request_tab():
                     st.session_state.pasted_image_obj = None
                     st.session_state.last_submitted_request_id = next_id
                     st.session_state.clear_request_form = True # Clear form on next run
-                    # st.rerun() # This is likely interrupting the balloons animation
+                    # Force a rerun to clear the form immediately after successful submission
+                    st.rerun()
                 else:
                     st.error("Failed to submit the request. Please check the logs.")
         else:
