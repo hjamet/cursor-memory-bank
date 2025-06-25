@@ -508,12 +508,17 @@
       "status": "new",
       "image": null,
       "created_at": "2025-06-25T01:56:37.769551",
-      "updated_at": "2025-06-25T01:56:37.769551",
+      "updated_at": "2025-06-25T00:03:40.549Z",
       "history": [
         {
           "timestamp": "2025-06-25T01:56:37.769551",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-25T00:03:40.549Z",
+          "action": "add_comment",
+          "comment": "Requête traitée : La tâche #195 \"Tester et valider le fonctionnement de l'outil regex_edit après correction\" a déjà été implémentée et validée avec un rapport complet. RÉSULTAT : L'outil regex_edit fonctionne parfaitement au niveau du code JavaScript mais n'est pas accessible via l'interface MCP de Cursor (problème de double préfixation). L'outil search_replace peut être utilisé comme alternative. La tâche #195 est en REVIEW avec diagnostic détaillé et recommandations."
         }
       ]
     }
