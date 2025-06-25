@@ -1,5 +1,11 @@
 {
-    "current_rule": null,
-    "status": "idle",
-    "history": []
+  "current_rule": "experience-execution",
+  "status": "active",
+  "history": [
+    {
+      "rule": "experience-execution",
+      "timestamp": "2025-06-25T16:00:09.758Z"
+    }
+  ],
+  "last_updated": "2025-06-25T16:00:09.758Z"
 }
