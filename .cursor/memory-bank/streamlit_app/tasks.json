@@ -4053,7 +4053,7 @@
     "short_description": "Résoudre les problèmes de double préfixation qui empêchent l'outil regex_edit d'être accessible via l'interface MCP de Cursor, au-delà des corrections de code déjà effectuées.",
     "detailed_description": "Corriger les problèmes de communication MCP de l'outil regex_edit identifiés dans la tâche #195 :\n\n**Problème identifié et résolu :**\n- L'outil regex_edit fonctionne parfaitement au niveau du code JavaScript ✓\n- Problème de double préfixation identifié : nom 'mcp_ToolsMCP_regex_edit' + serveur 'ToolsMCP' = double préfixation ✓\n- L'outil n'était pas accessible via l'interface MCP de Cursor à cause de cette double préfixation ✓\n\n**Solutions implémentées :**\n- Changé le nom de l'outil de 'mcp_ToolsMCP_regex_edit' à 'regex_edit' dans regex_edit.js\n- Mis à jour les capacités du serveur MCP pour déclarer 'regex_edit': true au lieu de 'mcp_ToolsMCP_regex_edit': true\n- Mis à jour la documentation technique (techContext.md) pour référencer le bon nom d'outil\n- Testé le fonctionnement de l'outil au niveau du code JavaScript - fonctionne parfaitement\n\n**Tests effectués :**\n- Test de fonctionnement de l'outil : ✓ RÉUSSI\n- Validation de la logique de remplacement regex : ✓ RÉUSSI  \n- Vérification de la gestion d'erreurs : ✓ RÉUSSI\n\n**Prochaines étapes requises :**\n- REDÉMARRAGE COMPLET DE CURSOR OBLIGATOIRE pour que les changements MCP prennent effet\n- Après redémarrage, l'outil sera accessible comme 'regex_edit' via MCP\n- Plus de problème de double préfixation",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       "/.cursor/mcp/mcp-commit-server/mcp_tools/regex_edit.js",
       "/.cursor/mcp/mcp-commit-server/server.js",
@@ -4061,7 +4061,7 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) L'outil regex_edit est accessible via MCP dans Cursor, (2) Le problème de double préfixation est résolu, (3) L'outil fonctionne correctement après redémarrage, (4) Tests complets de validation effectués, (5) Documentation mise à jour avec les corrections MCP.",
     "created_date": "2025-06-25T10:55:41.111Z",
-    "updated_date": "2025-06-25T10:59:25.176Z",
+    "updated_date": "2025-06-25T13:17:37.507473",
     "parent_id": null,
     "priority": 4,
     "image": null
@@ -4082,6 +4082,78 @@
     "updated_date": "2025-06-25T13:11:39.521837",
     "parent_id": null,
     "priority": 4,
+    "image": null
+  },
+  {
+    "id": 199,
+    "title": "Vérifier la configuration pre-commit et sa compatibilité avec le système de règles",
+    "short_description": "Analyser le script install.sh pour confirmer que la configuration pre-commit installe correctement les hooks avec messages appropriés pour les fichiers >500 lignes, et vérifier que ces messages sont compatibles avec le nouveau système de règles autonome qui utilise la règle Create Task.",
+    "detailed_description": "Analyser et vérifier la configuration pre-commit dans le système cursor-memory-bank :\n\n**✅ ANALYSE TERMINÉE - RÉSULTATS :**\n\n**1. Configuration pre-commit dans install.sh :**\n- ✅ **Installation correcte** : Le script install.sh configure bien le hook pre-commit via la fonction `install_pre_commit_hook()`\n- ✅ **Téléchargement automatique** : Le hook est téléchargé depuis `$RAW_URL_BASE/.githooks/pre-commit` ou copié depuis le clone git\n- ✅ **Permissions correctes** : Le script rend le hook exécutable avec `chmod +x`\n- ✅ **Configuration git** : Le script configure automatiquement `git config core.hooksPath .githooks` si possible\n\n**2. Logique du hook pre-commit (.githooks/pre-commit) :**\n- ✅ **Détection fichiers >500 lignes** : Le hook vérifie correctement les fichiers avec extensions de code (py, js, ts, java, go, rb, php, sh)\n- ✅ **Comportement non-bloquant** : Le hook affiche un avertissement mais permet le commit (exit 0)\n- ✅ **Message d'avertissement clair** : Affiche la liste des fichiers dépassant 500 lignes avec message explicite\n\n**3. Intégration avec l'outil commit MCP :**\n- ✅ **Gestion des avertissements** : L'outil commit MCP (`.cursor/mcp/memory-bank-mcp/mcp_tools/commit.js`) capture et affiche correctement les avertissements du hook via stderr\n- ✅ **Exit code 0** : L'outil traite correctement les commits réussis avec avertissements (non-bloquants)\n- ✅ **Message de succès** : Inclut les avertissements du hook dans la réponse finale\n\n**4. Compatibilité avec le système de règles autonome :**\n- ❌ **PROBLÈME IDENTIFIÉ** : Le message d'avertissement du hook ne guide PAS vers l'utilisation d'une règle \"Create Task\"\n- ❌ **Manque d'intégration** : Aucune référence aux règles autonomes dans les messages d'avertissement\n- ❌ **Pas d'automatisation** : L'agent ne peut pas automatiquement créer des tâches pour split les fichiers détectés\n\n**5. Message actuel du hook :**\n```\nWARNING: Files exceed maximum line count (500).\nThe following files are too long and should ideally be refactored:\n  [liste des fichiers]\n```\n\n**🔧 RECOMMANDATIONS POUR AMÉLIORER LA COMPATIBILITÉ :**\n\n1. **Modifier le message du hook** pour inclure une instruction explicite vers le workflow autonome\n2. **Ajouter une référence** à la création automatique de tâches de refactoring\n3. **Intégrer avec l'outil commit MCP** pour détecter automatiquement ces avertissements et créer des tâches\n\n**📋 CONCLUSION :**\nLe hook pre-commit fonctionne parfaitement au niveau technique mais n'est PAS optimisé pour le système de règles autonome. Il manque l'intégration avec le workflow qui permettrait à l'agent de créer automatiquement des tâches de refactoring.",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      "install.sh",
+      ".githooks/pre-commit"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-25T11:17:26.487Z",
+    "updated_date": "2025-06-25T13:25:43.040236",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 200,
+    "title": "Améliorer la sortie et communication MCP de l'outil regex_edit",
+    "short_description": "Corriger l'outil regex_edit pour qu'il retourne des valeurs correctes et améliore sa communication avec l'agent MCP, en s'inspirant du comportement des autres outils MCP qui fonctionnent parfaitement.",
+    "detailed_description": "Amélioration de la communication MCP de l'outil regex_edit :\n\n**Problème identifié :**\n- L'outil regex_edit fonctionne au niveau du code mais ne retourne pas de valeurs correctes\n- La communication avec l'agent MCP n'est pas optimale\n- L'utilisateur signale que l'outil ne retourne pas quelque chose de significatif\n\n**✅ IMPLÉMENTATION TERMINÉE :**\n\n1. **Analyse des patterns MCP** : J'ai analysé les outils MCP fonctionnels (remember.js, userbrief_manager.js) pour comprendre la structure de réponse attendue\n2. **Identification du problème** : L'outil regex_edit retournait un objet JavaScript simple au lieu de la structure MCP complète\n3. **Correction appliquée** : Modification complète de la fonction handleRegexEdit pour retourner la structure MCP appropriée :\n   ```javascript\n   return {\n       content: [{\n           type: 'text',\n           text: JSON.stringify(responseObject, null, 2)\n       }]\n   };\n   ```\n\n**🔧 AMÉLIORATIONS IMPLÉMENTÉES :**\n\n- **Réponses structurées** : Toutes les réponses (succès et erreurs) utilisent maintenant la structure MCP complète\n- **Messages détaillés** : Ajout de messages informatifs avec statut, opération, et détails complets\n- **Gestion d'erreurs améliorée** : Chaque type d'erreur a sa propre structure de réponse avec contexte\n- **Statistiques de changement** : Ajout de métriques détaillées (lignes modifiées, caractères, position)\n- **Contexte de prévisualisation** : Affichage du contexte autour de la modification\n- **Informations de fichier** : Chemins absolus/relatifs, timestamp de modification\n- **Détails de correspondance** : Information sur le pattern trouvé et remplacé\n\n**🎯 RÉSULTAT :**\nL'outil regex_edit retourne maintenant des réponses MCP complètes et informatives, similaires aux autres outils fonctionnels du système. La communication avec l'agent sera considérablement améliorée.\n\n**⚠️ REDÉMARRAGE REQUIS :**\nSelon la mémoire long terme, les modifications MCP nécessitent un redémarrage du serveur MCP pour prendre effet. L'utilisateur devra redémarrer Cursor pour que les améliorations soient actives.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/mcp/tools-mcp/regex_edit.js",
+      ".cursor/mcp/tools-mcp/server.js"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-25T11:17:50.880Z",
+    "updated_date": "2025-06-25T11:22:54.905Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null
+  },
+  {
+    "id": 201,
+    "title": "Ajouter l'affichage de la règle actuelle de l'agent dans la sidebar Streamlit",
+    "short_description": "Modifier l'interface Streamlit pour afficher en permanence dans la sidebar la règle/étape actuelle où se trouve l'agent, en complément de l'indicateur de tâche existant, pour améliorer la visibilité de l'état du workflow autonome.",
+    "detailed_description": "Améliorer l'interface Streamlit pour afficher l'état complet de l'agent :\n\n**Objectif principal :**\nAjouter un indicateur de règle/étape actuelle dans la section \"Agent Status\" de la sidebar Streamlit, juste en dessous de l'indicateur de tâche existant.\n\n**Exigences fonctionnelles :**\n1. Afficher la règle/étape actuelle de l'agent (task-decomposition, implementation, fix, context-update, etc.)\n2. Récupérer cette information depuis les fichiers d'état du système MCP\n3. Mise à jour en temps réel avec l'auto-refresh existant\n4. Interface claire et informative pour l'utilisateur\n\n**Spécifications techniques :**\n- Modifier le fichier `components/sidebar.py` pour ajouter l'affichage de la règle\n- Utiliser les outils MCP pour récupérer l'état actuel du workflow\n- Intégrer harmonieusement avec l'interface existante (Agent Status)\n- Maintenir la cohérence avec le design actuel de la sidebar\n\n**Sources de données :**\n- Fichiers d'état du workflow dans `.cursor/memory-bank/workflow/`\n- Informations disponibles via les outils MCP (read_userbrief, get_all_tasks)\n- État récent du workflow stocké dans les mémoires\n\n**Critères d'acceptation :**\n- L'indicateur de règle s'affiche correctement dans la sidebar\n- L'information est récupérée automatiquement et mise à jour\n- L'affichage est clair et informatif (ex: \"Règle: task-decomposition\")\n- Aucune régression sur les fonctionnalités existantes\n- Compatible avec le système d'auto-refresh\n\n**Notes d'implémentation :**\n- Analyser la structure actuelle de sidebar.py\n- Identifier la source d'information la plus fiable pour l'état de l'agent\n- Prévoir un fallback si l'information n'est pas disponible\n- Tester avec différents états de workflow",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py",
+      ".cursor/streamlit_app/components/task_utils.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-25T11:18:37.522Z",
+    "updated_date": "2025-06-25T11:27:53.902Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 202,
+    "title": "Ajouter des indicateurs de notification dans la sidebar Streamlit",
+    "short_description": "Implémenter des cercles de notification rouges dans la sidebar Streamlit pour indiquer le nombre total de tâches à revoir et de messages d'agent en attente, similaires aux indicateurs existants dans la page APP, pour améliorer la visibilité des éléments nécessitant attention.",
+    "detailed_description": "Améliorer la navigation Streamlit avec des indicateurs de notification :\n\n**Objectif principal :**\nAjouter des cercles de notification rouges dans la sidebar (navigation gauche) pour indiquer le nombre total d'éléments nécessitant attention de l'utilisateur.\n\n**Exigences fonctionnelles :**\n1. Cercle de notification rouge sur la page \"APP\" dans la sidebar\n2. Affichage du nombre total combiné de :\n   - Tâches à revoir (statut REVIEW)\n   - Messages d'agent non lus/en attente\n3. Mise à jour automatique avec le système d'auto-refresh\n4. Design cohérent avec les indicateurs existants dans la page APP\n\n**Spécifications techniques :**\n- Modifier `components/sidebar.py` pour ajouter les indicateurs\n- Réutiliser la logique de comptage existante des tâches et messages\n- Implémenter le même style visuel que les cercles existants\n- Calculer la somme totale des éléments nécessitant attention\n\n**Comportement attendu :**\n- Si aucun élément à revoir : pas d'indicateur\n- Si éléments présents : cercle rouge avec nombre total\n- Exemple : \"5\" si 3 tâches REVIEW + 2 messages agent\n- Visible depuis toutes les pages de l'interface\n\n**Critères d'acceptation :**\n- L'indicateur s'affiche correctement dans la sidebar\n- Le nombre reflète précisément les éléments à traiter\n- Le style est cohérent avec l'interface existante\n- Aucune régression sur la navigation\n- Mise à jour en temps réel avec auto-refresh\n\n**Sources de données :**\n- Tâches avec statut REVIEW via les outils MCP\n- Messages d'agent via le système existant\n- Réutilisation des fonctions de comptage de task_utils.py\n\n**Notes d'implémentation :**\n- Analyser le code existant des indicateurs dans la page APP\n- Adapter la logique pour la sidebar\n- Prévoir la gestion des cas où les données ne sont pas disponibles\n- Tester avec différents nombres d'éléments",
+    "dependencies": [],
+    "status": "DONE",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py",
+      ".cursor/streamlit_app/components/task_utils.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-25T11:19:28.465Z",
+    "updated_date": "2025-06-25T11:29:47.052Z",
+    "parent_id": null,
+    "priority": 3,
     "image": null
   }
 ]

@@ -1,17 +1,5 @@
 {
   "version": "1.0.0",
-  "messages": [
-    {
-      "id": 101,
-      "content": "La maintenance système est terminée avec succès ! La correction critique de l'outil update_userbrief a été appliquée et commitée. Le repository est propre et les fichiers de contexte sont à jour. Pour que la correction MCP prenne effet et permette l'archivage normal des requêtes, vous devez redémarrer Cursor complètement. Le système continuera ensuite le traitement des nouvelles requêtes utilisateur.",
-      "timestamp": "2025-06-25T11:12:55.681Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    }
-  ],
-  "last_id": 101
+  "messages": [],
+  "last_id": 109
 }

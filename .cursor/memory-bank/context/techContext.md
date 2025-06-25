@@ -18,8 +18,8 @@ The primary user interface for the agent, located in `.cursor/streamlit_app/`:
 
 - **Main Entry Point**: `app.py` - Handles user request submission and task review with radio navigation
 - **Components**:
-  - `components/sidebar.py`: Centralized sidebar with auto-refresh and work queue counter
-  - `components/task_utils.py`: Helper functions for task and user brief manipulation
+  - `components/sidebar.py`: Centralized sidebar with auto-refresh, work queue counter, workflow step indicator, and notification alerts
+  - `components/task_utils.py`: Helper functions for task/user brief manipulation, workflow state tracking, and notification counting
   - `components/style_utils.py`: UI styling utilities
 - **Pages**:
   - `pages/task_status.py`: Dashboard for viewing and tracking all tasks
@@ -118,6 +118,8 @@ Comprehensive bash script supporting:
 
 ### Monitoring
 - **Work Queue**: Real-time task and request counting in UI
+- **Workflow Visibility**: Current workflow step/rule displayed in sidebar for transparency
+- **Notification System**: Red alert indicators for tasks requiring review and agent messages
 - **Memory Usage**: Automatic semantic search and long-term memory management
 - **Error Handling**: Comprehensive error reporting through MCP tools
 
