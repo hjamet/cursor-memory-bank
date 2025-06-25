@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 156,
+  "last_id": 157,
   "requests": [
     {
       "id": 131,
@@ -499,6 +499,21 @@
           "timestamp": "2025-06-24T23:47:37.436Z",
           "action": "mark_archived",
           "comment": "Requête traitée avec succès : Problème de visibilité de l'indicateur \"Remaining Tasks\" identifié et décomposé en tâche #194. L'utilisateur rapporte des problèmes de contraste (gris sur fond gris, bleu sur fond gris) suite à l'implémentation de la tâche #187. Une tâche prioritaire (priorité 4) a été créée pour améliorer significativement le design et la visibilité de l'indicateur avec un style moderne et accessible."
+        }
+      ]
+    },
+    {
+      "id": 157,
+      "content": "Question regarding agent message #76: \"L'outil regex_edit a été corrigé ! Veuillez redémarrer Cursor pour que les changements prennent effe...\"\n\nMy question: Je viens de redémarrer cursor, tu peux tester l'outil et vérifier s'il fonctionne correctement ?",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-06-25T01:56:37.769551",
+      "updated_at": "2025-06-25T01:56:37.769551",
+      "history": [
+        {
+          "timestamp": "2025-06-25T01:56:37.769551",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }
