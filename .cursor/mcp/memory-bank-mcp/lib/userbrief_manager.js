@@ -1,13 +1,14 @@
 import { promises as fs, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { z } from 'zod';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const userbriefFilePath = path.join(__dirname, '..', '..', '..', '..', '.cursor', 'memory-bank', 'workflow', 'userbrief.json');
 
 // Archive size limits
-const MAX_ARCHIVED_REQUESTS = 25;
+const MAX_ARCHIVED_REQUESTS = 50;
 
 /**
  * Clean up archived requests to maintain maximum limit

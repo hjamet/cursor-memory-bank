@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 const tasksFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'streamlit_app', 'tasks.json');
 
 // Archive size limits
-const MAX_ARCHIVED_TASKS = 25;
+const MAX_ARCHIVED_TASKS = 50;
 
 class TaskManager {
     constructor() {
@@ -47,7 +47,7 @@ class TaskManager {
      * Keeps only the most recent archived tasks based on updated_date
      */
     cleanupArchivedTasks() {
-        const archivedTasks = this.tasks.filter(task => task.status === 'DONE');
+        const archivedTasks = this.tasks.filter(task => task.status === 'DONE' || task.status === 'APPROVED');
 
         if (archivedTasks.length > MAX_ARCHIVED_TASKS) {
             // Sort archived tasks by updated_date (most recent first)
@@ -110,8 +110,9 @@ class TaskManager {
 
         this.tasks[taskIndex] = updatedTask;
 
-        // If task was just marked as DONE, cleanup archived tasks
-        if (originalStatus !== 'DONE' && updatedTask.status === 'DONE') {
+        // If task was just marked as DONE or APPROVED, cleanup archived tasks
+        const finalStates = ['DONE', 'APPROVED'];
+        if (!finalStates.includes(originalStatus) && finalStates.includes(updatedTask.status)) {
             this.cleanupArchivedTasks();
         }
 

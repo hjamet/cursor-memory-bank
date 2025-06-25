@@ -4521,16 +4521,26 @@
     "short_description": "Resolve the 'StreamlitValueAssignmentNotAllowedError' that occurs when a user clicks 'Ask for modification' on a task in the review interface. This bug prevents users from requesting changes to a task.",
     "detailed_description": "The user has reported a critical bug that occurs when they click the \"Ask for modification\" button for a task (related to task #220).\nThe application crashes with a 'streamlit.errors.StreamlitValueAssignmentNotAllowedError: Values for the widget with key 'modification_form_220' cannot be set using st.session_state'.\nThe traceback indicates the error originates in '.cursor/streamlit_app/utils/ui_components.py' at line 115, within the 'st.form' context manager.\n\nThis error typically occurs when a widget's value is being set via 'st.session_state' within the same script run where the widget is declared, which is not allowed for form widgets.\n\n**Plan:**\n1.  Analyze the code in '.cursor/streamlit_app/utils/ui_components.py' around line 115.\n2.  Identify the incorrect state assignment that is causing the crash.\n3.  Refactor the state management for the modification form to avoid this error. This likely involves changing how the form visibility or its fields are handled, ensuring that state is not set in the same run as the form's instantiation.\n4.  Ensure the \"Ask for modification\" functionality is fully restored, allowing users to open a comment form, submit it, and have a new userbrief request created without any errors.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [
       ".cursor/streamlit_app/utils/ui_components.py"
     ],
     "validation_criteria": "-   Clicking \"Ask for modification\" on any task opens the comment form without any errors.\n-   Submitting the modification request works correctly.\n-   The application remains stable.",
     "created_date": "2025-06-25T18:00:07.767Z",
-    "updated_date": "2025-06-25T20:02:14.111886",
+    "updated_date": "2025-06-25T20:02:44.413999",
     "parent_id": null,
     "priority": 5,
-    "image": null
+    "image": null,
+    "status_history": [
+      {
+        "status": "TODO",
+        "timestamp": "2025-06-25T18:00:07.767Z"
+      },
+      {
+        "status": "DONE",
+        "timestamp": "2025-06-25T20:02:44.413999"
+      }
+    ]
   },
   {
     "id": 225,
@@ -4538,14 +4548,14 @@
     "short_description": "Enforce a limit of 50 on the number of archived tasks and user requests to manage the size of JSON data files. When a new item is archived, the oldest archived item should be deleted if the limit is exceeded.",
     "detailed_description": "The user wants to ensure that the 'tasks.json' and 'userbrief.json' files do not grow indefinitely.\nTo achieve this, a rotation mechanism for archived items needs to be implemented.\n\n**Requirements:**\n1.  **Archived Tasks Limit:**\n    -   When a task's status is changed to a final archived state (e.g., 'DONE', 'APPROVED'), check the total number of archived tasks.\n    -   If the count of archived tasks exceeds 50, the oldest archived task must be removed from 'tasks.json'.\n2.  **Archived User Requests Limit:**\n    -   When a user request is marked as 'archived', check the total number of archived requests.\n    -   If the count of archived requests exceeds 50, the oldest archived request must be removed from 'userbrief.json'.\n\n**Plan:**\n1.  Modify the MCP server logic responsible for updating tasks (`update_task` function). After a task is archived, add logic to count all archived tasks and remove the oldest if the count is over 50.\n2.  Modify the MCP server logic responsible for updating user briefs (`update_userbrief` function). After a request is archived, add logic to count all archived requests and remove the oldest if the count is over 50.\n3.  The \"oldest\" item is the one with the earliest 'updated_at' or 'created_at' timestamp.\n4.  Ensure the logic is robust and handles edge cases correctly.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "DONE",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/src/controllers/taskController.js",
       ".cursor/mcp/memory-bank-mcp/src/controllers/userbriefController.js"
     ],
     "validation_criteria": "-   Archiving a 51st task correctly removes the oldest archived task.\n-   Archiving a 51st user request correctly removes the oldest archived user request.\n-   The total number of archived items for both tasks and requests does not exceed 50.",
     "created_date": "2025-06-25T18:00:25.336Z",
-    "updated_date": "2025-06-25T18:00:25.336Z",
+    "updated_date": "2025-06-25T18:05:17.172Z",
     "parent_id": null,
     "priority": 3,
     "image": null
