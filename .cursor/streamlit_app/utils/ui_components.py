@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import Dict
 from .task_manager import has_associated_image, get_image_path, delete_task_image, update_task_status
 from .message_manager import format_timestamp, get_rule_emoji, delete_message
+from .request_manager import create_new_request
 
 
 def render_image_preview(task: Dict):
@@ -25,11 +26,14 @@ def render_image_preview(task: Dict):
 
 def render_task_review_card(task: Dict):
     """Render a task review card with all necessary information and actions"""
+    task_id = task.get('id', task.get('task_id'))
+    title = task.get('title', 'No title')
+    
     with st.container(border=True):
         # Header with task ID and status
         col1, col2, col3 = st.columns([2, 1, 1])
         with col1:
-            st.markdown(f"**Task #{task['id']}** - {task.get('title', 'No title')}")
+            st.markdown(f"**Task #{task_id}** - {title}")
         with col2:
             status = task.get('status', 'UNKNOWN')
             if status == 'REVIEW':
@@ -76,38 +80,90 @@ def render_task_review_card(task: Dict):
         # Show image preview if available
         render_image_preview(task)
 
-        # Action buttons - Simple interface with Approve/Edit only
+        # Action buttons - Approve and Ask for modification
         st.markdown("---")
         col1, col2, col3 = st.columns([1, 1, 1])
         
         with col1:
-            if st.button("✅ Approve", key=f"approve_{task['id']}", type="primary"):
+            if st.button("✅ Approve", key=f"approve_{task_id}", type="primary"):
                 validation_data = {
                     "approved_at": datetime.now().isoformat(),
                     "approved_by": "user_review"
                 }
-                if update_task_status(task['id'], "APPROVED", validation_data):
-                    st.toast(f"Task #{task['id']} approved!")
+                if update_task_status(task_id, "APPROVED", validation_data):
+                    st.toast(f"Task #{task_id} approved!")
                     st.rerun()
                 else:
                     st.error("Failed to approve task.")
 
         with col2:
-            if st.button("✏️ Edit/Needs Work", key=f"needs_work_{task['id']}"):
-                if update_task_status(task['id'], "TODO"):
-                    st.toast(f"Task #{task['id']} sent back for editing.")
-                    st.rerun()
-                else:
-                    st.error("Failed to update task status.")
+            if st.button("📝 Ask for modification", key=f"ask_modification_{task_id}"):
+                st.session_state[f'modification_form_{task_id}'] = True
 
         with col3:
             if has_associated_image(task):
-                if st.button("🗑️ Delete Image", key=f"delete_img_{task['id']}"):
+                if st.button("🗑️ Delete Image", key=f"delete_img_{task_id}"):
                     if delete_task_image(task):
                         st.toast("Image deleted successfully!")
                         st.rerun()
                     else:
                         st.error("Failed to delete image.")
+
+        # Modification form (shown when "Ask for modification" button is clicked)
+        if st.session_state.get(f'modification_form_{task_id}', False):
+            st.markdown("---")
+            with st.form(f"modification_form_{task_id}"):
+                st.warning(f"Please provide feedback for Task #{task_id}:")
+                modification_reason = st.text_area(
+                    "What needs to be modified or improved?", 
+                    key=f"modification_reason_{task_id}", 
+                    height=100,
+                    placeholder="Explain what needs to be changed, what's missing, or what's not working as expected..."
+                )
+                
+                col_submit, col_cancel = st.columns([1, 1])
+                with col_submit:
+                    submitted = st.form_submit_button("📤 Submit Modification Request", type="primary")
+                with col_cancel:
+                    cancelled = st.form_submit_button("❌ Cancel")
+                
+                if submitted:
+                    if modification_reason.strip():
+                        # Create the modification request content with full context
+                        modification_content = f"""Modification request for Task #{task_id} ({title}):
+
+**Original Task Details:**
+- **Title:** {title}
+- **Description:** {short_desc}
+- **Status:** {status}
+- **Priority:** {priority}
+
+**Detailed Task Description:**
+{detailed_desc if detailed_desc else 'No detailed description available'}
+
+**Validation Criteria:**
+{validation_criteria if validation_criteria else 'No validation criteria specified'}
+
+**User Feedback:**
+{modification_reason.strip()}
+
+**Action Required:**
+Please review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements."""
+                        
+                        # Create new userbrief request and update task status
+                        if create_new_request(modification_content) and update_task_status(task_id, 'TODO'):
+                            st.success(f"Task #{task_id} modification request sent! The task has been reset to TODO status.")
+                            del st.session_state[f'modification_form_{task_id}']
+                            st.rerun()
+                        else:
+                            st.error("Failed to process modification request.")
+                    else:
+                        st.error("Please provide feedback explaining what needs to be modified.")
+                
+                if cancelled:
+                    # Clean up session state
+                    del st.session_state[f'modification_form_{task_id}']
+                    st.rerun()
 
 
 def render_message_review_card(message: Dict):
@@ -131,7 +187,7 @@ def render_message_review_card(message: Dict):
 
         # Action buttons
         st.markdown("---")
-        col1, col2 = st.columns([1, 3])
+        col1, col2 = st.columns([1, 1])
         
         with col1:
             if st.button("✅ Mark as Read", key=f"read_msg_{message['id']}", type="primary"):
@@ -142,4 +198,77 @@ def render_message_review_card(message: Dict):
                     st.error("Failed to mark message as read.")
 
         with col2:
-            st.markdown("") # Empty space for layout 
+            if st.button("💬 Reply", key=f"reply_msg_{message['id']}"):
+                st.session_state[f'replying_to_{message["id"]}'] = True
+
+        # Reply form (shown when Reply button is clicked)
+        if st.session_state.get(f'replying_to_{message["id"]}', False):
+            st.markdown("---")
+            with st.form(key=f"reply_form_{message['id']}"):
+                st.markdown("**Reply to this message:**")
+                
+                # Show original message context
+                with st.expander("📨 Original Message Context", expanded=False):
+                    st.markdown(f"**Message ID:** #{message['id']}")
+                    st.markdown(f"**Rule:** {message.get('rule', 'unknown')}")
+                    st.markdown(f"**Content:** {content}")
+                    
+                    # Show task context if available
+                    task_context = message.get('context', {})
+                    if task_context.get('active_task'):
+                        st.markdown(f"**Related Task:** #{task_context['active_task']}")
+                    if task_context.get('workflow_rule'):
+                        st.markdown(f"**Workflow Rule:** {task_context['workflow_rule']}")
+                
+                # User input for reply
+                user_reply = st.text_area(
+                    "Your reply or question:",
+                    key=f"reply_text_{message['id']}",
+                    height=100,
+                    placeholder="Ask a question, provide feedback, or give additional instructions..."
+                )
+                
+                # Form submission buttons
+                col_submit, col_cancel = st.columns([1, 1])
+                with col_submit:
+                    submitted = st.form_submit_button("📤 Send Reply", type="primary")
+                with col_cancel:
+                    cancelled = st.form_submit_button("❌ Cancel")
+                
+                if submitted and user_reply.strip():
+                    # Create the reply content with context
+                    reply_content = f"""Reply to Agent Message #{message['id']}:
+
+**Original Message:** "{content[:200]}{'...' if len(content) > 200 else ''}"
+
+**My Reply:** {user_reply.strip()}
+
+**Message Context:**
+- Rule: {message.get('rule', 'unknown')}
+- Timestamp: {timestamp}"""
+                    
+                    # Add task context if available
+                    task_context = message.get('context', {})
+                    if task_context.get('active_task'):
+                        reply_content += f"\n- Related Task: #{task_context['active_task']}"
+                    if task_context.get('workflow_rule'):
+                        reply_content += f"\n- Workflow Rule: {task_context['workflow_rule']}"
+                    
+                    # Create new request
+                    if create_new_request(reply_content):
+                        st.success("Your reply has been sent as a new request!")
+                        # Clean up session state
+                        del st.session_state[f'replying_to_{message["id"]}']
+                        # Mark original message as read since user replied to it
+                        delete_message(message['id'])
+                        st.rerun()
+                    else:
+                        st.error("Failed to send reply. Please try again.")
+                
+                elif submitted and not user_reply.strip():
+                    st.warning("Please enter a reply before submitting.")
+                
+                if cancelled:
+                    # Clean up session state
+                    del st.session_state[f'replying_to_{message["id"]}']
+                    st.rerun() 

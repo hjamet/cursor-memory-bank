@@ -31,23 +31,22 @@ def render_add_request_tab():
         st.session_state.pasted_image_obj = None
 
     # If a form was just submitted, clear the state before rendering widgets
-    # But only after allowing time for balloons animation to play
+    # Use a more elegant approach that allows balloons to play while clearing text
     if st.session_state.clear_request_form:
         current_time = time.time()
-        # Check if enough time has passed since balloons animation (3 seconds)
+        # Check if enough time has passed since balloons animation (1.5 seconds - reduced delay)
         if (st.session_state.balloons_submitted_time is None or 
-            current_time - st.session_state.balloons_submitted_time > 3):
+            current_time - st.session_state.balloons_submitted_time > 1.5):
+            # Clear the form silently after reduced delay
             st.session_state.request_content_area = ""
             st.session_state.pasted_image_obj = None
             st.session_state.clear_request_form = False
             st.session_state.balloons_submitted_time = None
         else:
-            # Show a countdown message while waiting for animation to complete
-            remaining_time = 3 - (current_time - st.session_state.balloons_submitted_time)
-            if remaining_time > 0:
-                st.info(f"🎈 Animation playing... Form will clear in {remaining_time:.1f}s")
-                # Schedule auto-refresh to update countdown and eventually clear form
-                st.rerun()
+            # Silent delay - no countdown message, just wait for balloons to finish
+            # The balloons animation plays while we silently wait for the optimal moment to clear
+            # This provides the best user experience: balloons visible + clean form clearing
+            st.rerun()
 
     # If editing, load the content
     request_content_default = ""

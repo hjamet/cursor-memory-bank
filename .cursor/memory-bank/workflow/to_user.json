@@ -1,17 +1,5 @@
 {
   "version": "1.0.0",
-  "messages": [
-    {
-      "id": 126,
-      "content": "Toutes les requêtes critiques traitées avec succès ! 4 nouvelles tâches créées pour corriger les bugs d'interface : #217 (bugs révision tâches), #218 (bouton réponse messages), #219 (compteur sidebar), #220 (ballons + suppression texte). Prêt pour l'implémentation des corrections prioritaires.",
-      "timestamp": "2025-06-25T17:22:51.266Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    }
-  ],
-  "last_id": 126
+  "messages": [],
+  "last_id": 129
 }
