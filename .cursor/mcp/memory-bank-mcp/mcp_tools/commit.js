@@ -33,6 +33,73 @@ function getDefaultCwd() {
     return serverDefaultCwd || process.env.CURSOR_WORKSPACE_ROOT || process.cwd();
 }
 
+/**
+ * Recursively scans directory for Python files and counts their lines
+ * @param {string} dirPath - Directory to scan
+ * @param {string} rootPath - Root path for relative file paths
+ * @returns {Array} Array of objects with file info: {file, lines, oversized}
+ */
+function scanPythonFiles(dirPath, rootPath = dirPath) {
+    const results = [];
+    const MAX_LINES = 500;
+
+    try {
+        const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+
+        for (const entry of entries) {
+            const fullPath = path.join(dirPath, entry.name);
+
+            if (entry.isDirectory()) {
+                // Skip common directories that shouldn't be scanned
+                const skipDirs = ['node_modules', '.git', '__pycache__', '.venv', 'venv', '.env'];
+                if (!skipDirs.includes(entry.name)) {
+                    results.push(...scanPythonFiles(fullPath, rootPath));
+                }
+            } else if (entry.isFile() && entry.name.endsWith('.py')) {
+                try {
+                    const content = fs.readFileSync(fullPath, 'utf8');
+                    const lineCount = content.split('\n').length;
+                    const relativePath = path.relative(rootPath, fullPath);
+
+                    results.push({
+                        file: relativePath,
+                        lines: lineCount,
+                        oversized: lineCount > MAX_LINES
+                    });
+                } catch (fileError) {
+                    // Skip files that can't be read
+                    console.error(`[scanPythonFiles] Error reading file ${fullPath}:`, fileError.message);
+                }
+            }
+        }
+    } catch (dirError) {
+        // Skip directories that can't be read
+        console.error(`[scanPythonFiles] Error reading directory ${dirPath}:`, dirError.message);
+    }
+
+    return results;
+}
+
+/**
+ * Generates task recommendations for oversized Python files
+ * @param {Array} oversizedFiles - Array of file objects that are oversized
+ * @returns {Array} Array of task recommendation objects
+ */
+function generateTaskRecommendations(oversizedFiles) {
+    return oversizedFiles.map(fileInfo => ({
+        type: 'refactor_task',
+        title: `Refactoriser le fichier Python ${fileInfo.file}`,
+        description: `Le fichier ${fileInfo.file} contient ${fileInfo.lines} lignes (limite: 500). Il devrait être décomposé en plusieurs modules plus petits pour améliorer la maintenabilité et la lisibilité du code.`,
+        file: fileInfo.file,
+        current_lines: fileInfo.lines,
+        target_lines: 500,
+        priority: fileInfo.lines > 1000 ? 'high' : 'medium',
+        suggested_approach: fileInfo.lines > 1000
+            ? `Décomposition critique requise - ce fichier est ${Math.round(fileInfo.lines / 500)} fois plus grand que la limite recommandée`
+            : `Décomposition recommandée - séparer en modules logiques distincts`
+    }));
+}
+
 // Helper function to escape shell arguments safely
 const escapeShellArg = (arg) => {
     if (arg === null || arg === undefined) {
@@ -56,8 +123,8 @@ export const commitSchema = {
 
 /**
  * MCP Tool handler for 'commit'.
- * Stages all changes and performs a git commit in the auto-detected working directory.
- * Handles non-blocking hook warnings correctly by checking exit code first.
+ * Stages all changes, performs a git commit, and scans Python files for size violations.
+ * Returns structured information about oversized files and task recommendations.
  */
 export async function handleCommit({ emoji, type, title, description }) {
     // --- Determine CWD and Repo Name --- 
@@ -78,6 +145,20 @@ export async function handleCommit({ emoji, type, title, description }) {
     // --- End CWD / Repo Name --- 
 
     const commitTitle = `${emoji} ${type}: ${title}`;
+
+    // --- Scan Python files before commit ---
+    let pythonScanResults = [];
+    let taskRecommendations = [];
+    try {
+        pythonScanResults = scanPythonFiles(cwd);
+        const oversizedFiles = pythonScanResults.filter(file => file.oversized);
+        if (oversizedFiles.length > 0) {
+            taskRecommendations = generateTaskRecommendations(oversizedFiles);
+        }
+    } catch (scanError) {
+        console.error('[handleCommit] Error scanning Python files:', scanError.message);
+        // Continue with commit even if scan fails
+    }
 
     try {
         // Stage all changes - Execute in auto-detected CWD
@@ -108,7 +189,21 @@ export async function handleCommit({ emoji, type, title, description }) {
 
         // Check stderr specifically for "nothing to commit"
         if (commitStderr && commitStderr.includes('nothing to commit, working tree clean')) {
-            return { content: [{ type: "text", text: `Nothing to commit in ${repoName}, working tree clean.` }] };
+            return {
+                content: [{
+                    type: "text",
+                    text: JSON.stringify({
+                        status: 'success',
+                        message: `Nothing to commit in ${repoName}, working tree clean.`,
+                        python_scan: {
+                            total_files: pythonScanResults.length,
+                            oversized_files: pythonScanResults.filter(f => f.oversized).length,
+                            files_scanned: pythonScanResults,
+                            task_recommendations: taskRecommendations
+                        }
+                    }, null, 2)
+                }]
+            };
         }
 
         // Success - Get committed files
@@ -160,7 +255,22 @@ export async function handleCommit({ emoji, type, title, description }) {
             successMessage += '\n\n(Failed to retrieve recent git log output)';
         }
 
-        return { content: [{ type: "text", text: successMessage }] };
+        // Return structured response with Python scan results
+        return {
+            content: [{
+                type: "text",
+                text: JSON.stringify({
+                    status: 'success',
+                    message: successMessage,
+                    python_scan: {
+                        total_files: pythonScanResults.length,
+                        oversized_files: pythonScanResults.filter(f => f.oversized).length,
+                        files_scanned: pythonScanResults,
+                        task_recommendations: taskRecommendations
+                    }
+                }, null, 2)
+            }]
+        };
 
     } catch (error) {
         // Debug logging removed to prevent JSON-RPC pollution
@@ -172,12 +282,35 @@ export async function handleCommit({ emoji, type, title, description }) {
         console.error('[handleCommit] Git operation failed:', error);
         // Check specifically for 'nothing to commit' within the error output as well, just in case
         if (errorMessage.includes('nothing to commit, working tree clean')) {
-            return { content: [{ type: "text", text: `Nothing to commit in ${repoName}, working tree clean.` }] };
+            return {
+                content: [{
+                    type: "text",
+                    text: JSON.stringify({
+                        status: 'success',
+                        message: `Nothing to commit in ${repoName}, working tree clean.`,
+                        python_scan: {
+                            total_files: pythonScanResults.length,
+                            oversized_files: pythonScanResults.filter(f => f.oversized).length,
+                            files_scanned: pythonScanResults,
+                            task_recommendations: taskRecommendations
+                        }
+                    }, null, 2)
+                }]
+            };
         }
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify({ status: 'error', message: `Git operation failed: ${error.message}` }, null, 2)
+                text: JSON.stringify({
+                    status: 'error',
+                    message: `Git operation failed: ${error.message}`,
+                    python_scan: {
+                        total_files: pythonScanResults.length,
+                        oversized_files: pythonScanResults.filter(f => f.oversized).length,
+                        files_scanned: pythonScanResults,
+                        task_recommendations: taskRecommendations
+                    }
+                }, null, 2)
             }]
         };
     } finally {

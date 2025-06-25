@@ -15,6 +15,58 @@ const workflowDirPath = path.join(__dirname, '..', '..', '..', 'workflow-steps')
 nunjucks.configure(workflowDirPath, { autoescape: false });
 
 /**
+ * Update workflow state file with the current rule
+ * @param {string} step_name - The workflow step name being executed
+ */
+async function updateWorkflowState(step_name) {
+    try {
+        const workflowStateFile = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'workflow_state.json');
+
+        // Read current workflow state
+        let workflowState = {
+            current_rule: null,
+            status: "idle",
+            history: []
+        };
+
+        try {
+            const existingData = await fs.readFile(workflowStateFile, 'utf8');
+            workflowState = JSON.parse(existingData);
+        } catch (error) {
+            // File doesn't exist or is corrupted, use default structure
+        }
+
+        // Update with new rule
+        const timestamp = new Date().toISOString();
+        workflowState.current_rule = step_name;
+        workflowState.status = "active";
+        workflowState.last_updated = timestamp;
+
+        // Add to history (keep last 10 entries)
+        if (!Array.isArray(workflowState.history)) {
+            workflowState.history = [];
+        }
+
+        workflowState.history.unshift({
+            rule: step_name,
+            timestamp: timestamp
+        });
+
+        // Keep only last 10 history entries
+        if (workflowState.history.length > 10) {
+            workflowState.history = workflowState.history.slice(0, 10);
+        }
+
+        // Write updated state back to file atomically
+        await fs.writeFile(workflowStateFile, JSON.stringify(workflowState, null, 2), 'utf8');
+
+    } catch (error) {
+        // Log error but don't fail the workflow
+        console.warn(`Could not update workflow state: ${error.message}`);
+    }
+}
+
+/**
  * Analyze system state to determine optimal next workflow step
  * @param {Object} context - System context including tasks and requests
  * @returns {Object} Analysis result with recommended step and reasoning
@@ -527,6 +579,9 @@ async function next_rule(args) {
     }
 
     const result = await getStep(step_name);
+
+    // Update workflow state
+    await updateWorkflowState(step_name);
 
     return {
         content: [{

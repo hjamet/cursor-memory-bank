@@ -476,11 +476,11 @@ install_workflow_system() {
         mkdir -p "$target_dir/.cursor/rules"
         download_file "$RAW_URL_BASE/.cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"
 
-        # Download pre-commit hook
-        log "Downloading .githooks/pre-commit"
-        local hooks_api_dir="$api_dir/githooks"
-        mkdir -p "$hooks_api_dir"
-        download_file "$RAW_URL_BASE/.githooks/pre-commit" "$hooks_api_dir/pre-commit"
+        # Download pre-commit hook - DISABLED: Now integrated directly in MCP commit tool
+        # log "Downloading .githooks/pre-commit"
+        # local hooks_api_dir="$api_dir/githooks"
+        # mkdir -p "$hooks_api_dir"
+        # download_file "$RAW_URL_BASE/.githooks/pre-commit" "$hooks_api_dir/pre-commit"
 
         # Clean and setup MCP directories
         log "Setting up MCP server directories..."
@@ -1123,8 +1123,8 @@ rm -f "$INSTALL_DIR/.write_test"
 # Install workflow system and MCP servers
 install_workflow_system "$INSTALL_DIR" "$TEMP_DIR"
 
-# Install pre-commit hook
-install_pre_commit_hook "$INSTALL_DIR" "$TEMP_DIR"
+# Install pre-commit hook - DISABLED: Now integrated directly in MCP commit tool
+# install_pre_commit_hook "$INSTALL_DIR" "$TEMP_DIR"
 
 # Set up the memory bank to preserve user data
 setup_memory_bank "$INSTALL_DIR" "$TEMP_DIR"
@@ -1253,25 +1253,26 @@ elif [[ -d "$INSTALL_DIR/.cursor/mcp" ]]; then # Check if mcp dir exists but ser
     log "Memory Bank MCP Server directory not found in $INSTALL_DIR/.cursor/mcp/. Skipping dependency installation."
 fi
 
-# Attempt to automatically configure Git hooks path
-auto_config_failed=1 # Assume failure initially
-if command -v git >/dev/null 2>&1; then
-    log "Checking if installation directory is a Git repository..."
-    if (cd "$INSTALL_DIR" && git rev-parse --git-dir > /dev/null 2>&1); then
-        log "Git repository detected. Attempting to configure core.hooksPath..."
-        if (cd "$INSTALL_DIR" && git config core.hooksPath .githooks); then
-            log "Successfully configured core.hooksPath to .githooks in $INSTALL_DIR"
-            auto_config_failed=0 # Mark as success
-        else
-            warn "Failed to automatically configure core.hooksPath in $INSTALL_DIR. You may need to run the command manually."
-        fi
-    else
-        log "Installation directory $INSTALL_DIR is not a Git repository. Skipping automatic hook configuration."
-        # In this case, user likely doesn't need hooks configured anyway, but we keep auto_config_failed=1 to show manual step if needed.
-    fi
-else
-    warn "git command not found. Skipping automatic hook configuration."
-fi
+# Git hooks configuration - DISABLED: Pre-commit functionality now integrated in MCP commit tool
+# auto_config_failed=1 # Assume failure initially
+# if command -v git >/dev/null 2>&1; then
+#     log "Checking if installation directory is a Git repository..."
+#     if (cd "$INSTALL_DIR" && git rev-parse --git-dir > /dev/null 2>&1); then
+#         log "Git repository detected. Attempting to configure core.hooksPath..."
+#         if (cd "$INSTALL_DIR" && git config core.hooksPath .githooks); then
+#             log "Successfully configured core.hooksPath to .githooks in $INSTALL_DIR"
+#             auto_config_failed=0 # Mark as success
+#         else
+#             warn "Failed to automatically configure core.hooksPath in $INSTALL_DIR. You may need to run the command manually."
+#         fi
+#     else
+#         log "Installation directory $INSTALL_DIR is not a Git repository. Skipping automatic hook configuration."
+#         # In this case, user likely doesn't need hooks configured anyway, but we keep auto_config_failed=1 to show manual step if needed.
+#     fi
+# else
+#     warn "git command not found. Skipping automatic hook configuration."
+# fi
+auto_config_failed=0 # Mark as success since we no longer need git hooks
 
 # Install Streamlit App
 install_streamlit_app "$INSTALL_DIR" "$TEMP_DIR"
@@ -1284,8 +1285,9 @@ install_ml_model "$INSTALL_DIR"
 
 log "Installation completed successfully!"
 
+# Git hooks configuration no longer needed - functionality integrated in MCP commit tool
 # Only show manual step if auto-config failed or was skipped
-if [[ "$auto_config_failed" -eq 1 ]]; then
-    log "${YELLOW}ACTION REQUIRED:${NC} To enable the installed git hooks (e.g., pre-commit), run the following command in your repository root:"
-    log "  git config core.hooksPath .githooks"
-fi 
+# if [[ "$auto_config_failed" -eq 1 ]]; then
+#     log "${YELLOW}ACTION REQUIRED:${NC} To enable the installed git hooks (e.g., pre-commit), run the following command in your repository root:"
+#     log "  git config core.hooksPath .githooks"
+# fi 

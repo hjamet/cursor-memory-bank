@@ -185,8 +185,17 @@ def get_current_workflow_rule() -> Optional[str]:
         if status == 'idle':
             return 'idle'
         
+        # Check history for most recent rule
+        history = data.get('history', [])
+        if history and isinstance(history, list) and len(history) > 0:
+            latest_entry = history[0]
+            if isinstance(latest_entry, dict) and 'rule' in latest_entry:
+                return latest_entry['rule']
+        
         return None
-    except (json.JSONDecodeError, FileNotFoundError):
+    except (json.JSONDecodeError, FileNotFoundError, KeyError) as e:
+        # Log error for debugging but don't crash the UI
+        print(f"Warning: Could not read workflow state: {e}")
         return None
 
 def format_workflow_rule(rule: Optional[str]) -> str:
@@ -235,4 +244,44 @@ def get_agent_messages_count() -> int:
 
 def get_total_notification_count() -> int:
     """Get the total count of items requiring user attention (tasks + messages)."""
-    return get_review_tasks_count() + get_agent_messages_count() 
+    return get_review_tasks_count() + get_agent_messages_count()
+
+def get_workflow_metadata() -> Dict[str, Any]:
+    """Get detailed workflow state metadata including timing and history."""
+    workflow_file = get_workflow_state_file()
+    if not workflow_file:
+        return {
+            'current_rule': None,
+            'status': 'unknown',
+            'last_updated': None,
+            'history_count': 0,
+            'is_active': False
+        }
+    
+    try:
+        with open(workflow_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        current_rule = data.get('current_rule')
+        status = data.get('status', 'idle')
+        last_updated = data.get('last_updated')
+        history = data.get('history', [])
+        
+        return {
+            'current_rule': current_rule,
+            'status': status,
+            'last_updated': last_updated,
+            'history_count': len(history) if isinstance(history, list) else 0,
+            'is_active': status == 'active' and current_rule is not None,
+            'formatted_rule': format_workflow_rule(current_rule) if current_rule else 'Unknown'
+        }
+    except (json.JSONDecodeError, FileNotFoundError, KeyError) as e:
+        print(f"Warning: Could not read workflow metadata: {e}")
+        return {
+            'current_rule': None,
+            'status': 'error',
+            'last_updated': None,
+            'history_count': 0,
+            'is_active': False,
+            'formatted_rule': 'Error'
+        } 

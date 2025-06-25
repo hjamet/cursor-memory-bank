@@ -111,10 +111,12 @@ def display_sidebar():
         else:
             # Show workflow rule in the agent status section
             st.markdown("---")
-            st.subheader("🤖 Agent Status")
+            # Display Agent Status with current workflow step
             if current_rule and current_rule != 'idle':
+                st.subheader(f"🤖 Agent Status ({formatted_rule})")
                 st.info(f"**Workflow Step:** {formatted_rule}\n\nAgent is processing workflow rules.")
             else:
+                st.subheader("🤖 Agent Status")
                 st.info("Agent is idle. Ready for next task.")
 
         st.markdown("---")

@@ -4190,5 +4190,43 @@
     "parent_id": null,
     "priority": 3,
     "image": null
+  },
+  {
+    "id": 205,
+    "title": "Refactoriser l'outil commit MCP avec scan automatique des fichiers Python",
+    "short_description": "Modifier l'outil commit du serveur MCP MemoryBankMCP pour supprimer l'utilisation du pre-commit hook externe et implémenter un système de scan automatique des fichiers Python intégré directement dans le code JavaScript de l'outil. L'outil doit détecter les fichiers Python >500 lignes et recommander leur décomposition en tâches automatiques.",
+    "detailed_description": "Refactorisation complète de l'outil commit MCP pour intégrer la vérification de taille des fichiers directement dans le code JavaScript :\n\n**✅ IMPLÉMENTATION TERMINÉE :**\n\n**1. Suppression du pre-commit hook externe :**\n- ✅ Désactivé l'appel à `install_pre_commit_hook` dans install.sh (ligne 1125)\n- ✅ Désactivé le téléchargement du hook pre-commit (lignes 478-482)\n- ✅ Désactivé la configuration automatique de core.hooksPath\n- ✅ Supprimé les messages d'instruction pour configurer les hooks git\n\n**2. Implémentation d'un scanner JavaScript intégré :**\n- ✅ Ajouté la fonction `scanPythonFiles(dirPath, rootPath)` qui parcourt récursivement les répertoires\n- ✅ Filtrage intelligent des répertoires à ignorer (node_modules, .git, __pycache__, .venv, etc.)\n- ✅ Scan uniquement des fichiers .py avec comptage de lignes précis\n- ✅ Utilisation du chemin dynamique fourni par getDefaultCwd() (pas de hardcoding)\n\n**3. Détection automatique des fichiers volumineux :**\n- ✅ Seuil de 500 lignes configuré comme constante MAX_LINES\n- ✅ Marquage automatique des fichiers dépassant la limite\n- ✅ Gestion robuste des erreurs de lecture de fichiers\n\n**4. Recommandations de décomposition :**\n- ✅ Fonction `generateTaskRecommendations(oversizedFiles)` qui génère des recommandations structurées\n- ✅ Recommandations en français avec détails techniques (fichier, lignes actuelles, priorité)\n- ✅ Priorité automatique : 'high' pour >1000 lignes, 'medium' pour 500-1000 lignes\n- ✅ Suggestions d'approche personnalisées selon la taille du fichier\n\n**5. Intégration dans l'outil commit :**\n- ✅ Scan automatique avant chaque commit\n- ✅ Maintien du comportement de commit normal (git add + git commit)\n- ✅ Retour de réponses JSON structurées avec toutes les informations\n- ✅ Gestion d'erreurs : le commit continue même si le scan échoue\n\n**6. Format de sortie MCP amélioré :**\n- ✅ Réponses JSON structurées avec status, message, et python_scan\n- ✅ Statistiques complètes : total_files, oversized_files, files_scanned, task_recommendations\n- ✅ Compatible avec tous les cas : succès, échec, rien à commiter\n\n**RÉSULTAT :** L'outil commit MCP intègre maintenant complètement la fonctionnalité de vérification des fichiers Python sans dépendance externe. Il scanne automatiquement tous les fichiers .py du repository à chaque commit et retourne des recommandations de tâches de refactoring pour les fichiers >500 lignes. Le système est prêt pour utilisation et nécessitera un redémarrage de Cursor pour activation.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      "install.sh",
+      ".cursor/mcp/memory-bank-mcp/commit.js",
+      ".cursor/mcp/memory-bank-mcp/package.json"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-25T15:47:59.382Z",
+    "updated_date": "2025-06-25T15:52:33.502Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null
+  },
+  {
+    "id": 206,
+    "title": "Améliorer le tracking de l'état workflow dans next_rule et l'interface Streamlit",
+    "short_description": "Modifier le serveur MCP MemoryBankMCP pour que l'appel à l'outil next_rule mette automatiquement à jour le fichier workflow_state avec la règle actuelle de l'agent, et mettre à jour l'interface Streamlit pour afficher l'étape workflow courante dans la sidebar après \"Agent Status\".",
+    "detailed_description": "Amélioration du système de tracking de l'état workflow pour une meilleure visibilité de l'activité de l'agent :\n\n**Objectifs principaux :**\n1. **Mise à jour automatique du workflow_state** : Modifier l'outil next_rule dans le serveur MCP MemoryBankMCP pour qu'il écrive automatiquement la règle appelée dans le fichier workflow_state\n2. **Tracking continu de l'état agent** : Permettre de savoir à tout moment dans quelle règle/étape se trouve l'agent (implementation, experience-execution, context-update, etc.)\n3. **Affichage dans l'interface Streamlit** : Mettre à jour la sidebar pour afficher l'étape courante entre parenthèses après \"Agent Status\"\n\n**Spécifications techniques côté MCP :**\n- Modifier l'outil next_rule dans le serveur MemoryBankMCP\n- Écrire automatiquement la règle appelée dans le fichier workflow_state.json\n- Maintenir la structure existante du fichier workflow_state\n- S'assurer que l'écriture se fait de manière atomique et sûre\n- Gérer les erreurs d'écriture de fichier\n\n**Spécifications techniques côté Streamlit :**\n- Modifier le fichier components/sidebar.py pour lire l'état workflow actuel\n- Afficher l'étape courante dans la section \"Agent Status\" sous la forme : \"Agent Status (implementation)\" ou \"Agent Status (context-update)\"\n- Intégrer harmonieusement avec le système d'auto-refresh existant\n- Gérer les cas où le fichier workflow_state n'existe pas ou est corrompu\n- Maintenir la compatibilité avec l'affichage existant\n\n**Critères d'acceptation :**\n- L'appel à next_rule met automatiquement à jour le fichier workflow_state\n- Le fichier workflow_state contient toujours la règle courante de l'agent\n- L'interface Streamlit affiche l'étape workflow courante dans la sidebar\n- L'affichage est cohérent et se met à jour automatiquement\n- Aucune régression dans les fonctionnalités existantes\n- Gestion robuste des erreurs et cas limites\n\n**Notes d'implémentation :**\n- Utiliser les APIs Node.js pour l'écriture de fichiers côté MCP (fs.writeFileSync ou fs.promises.writeFile)\n- Côté Streamlit, utiliser les fonctions existantes de lecture de fichiers JSON\n- Intégrer avec le système d'auto-refresh pour une mise à jour en temps réel\n- Prévoir un fallback si le fichier workflow_state n'est pas accessible\n\n**Contrainte importante :** Les modifications du serveur MCP nécessiteront un redémarrage de Cursor pour être testées.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/next_rule.js",
+      ".cursor/streamlit_app/components/sidebar.py",
+      ".cursor/streamlit_app/components/task_utils.py"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-06-25T15:48:26.434Z",
+    "updated_date": "2025-06-25T15:55:12.416Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
   }
 ]
