@@ -26,7 +26,7 @@ function cleanupArchivedRequests(userbriefData) {
             // console.log(`[UserBrief] Cleaned up ${requestsToRemove.length} old archived requests, keeping ${requestsToKeep.length} most recent`);
             const updatedRequests = userbriefData.requests.filter(req => !requestsToRemove.some(r => r.id === req.id));
             userbriefData.requests = updatedRequests;
-            this.writeUserbrief(userbriefData);
+            writeUserbriefData(userbriefData);
         }
     }
 }

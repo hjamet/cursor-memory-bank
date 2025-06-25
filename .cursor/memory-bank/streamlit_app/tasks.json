@@ -4036,13 +4036,13 @@
     "short_description": "Vérifier que le script install.sh configure correctement pre-commit pour les avertissements de fichiers de plus de 500 lignes et s'assurer de la compatibilité avec le système de règles actuel.",
     "detailed_description": "Analyse complète de la configuration pre-commit dans install.sh :\n\n**CONFIGURATION PRE-COMMIT ANALYSÉE :**\n\n**1. Installation automatique du hook (lignes 725-770) :**\n- Fonction `install_pre_commit_hook()` installant automatiquement le hook\n- Support des méthodes curl et git clone\n- Copie du script depuis `.githooks/pre-commit` vers `.git/hooks/pre-commit`\n- Attribution des permissions d'exécution automatique\n\n**2. Configuration Git automatique (lignes 1180-1220) :**\n- Configuration automatique de `core.hooksPath` vers `.githooks`\n- Détection automatique des dépôts Git\n- Gestion d'erreur avec instructions manuelles en fallback\n\n**3. Script pre-commit analysé (.githooks/pre-commit) :**\n- **Limite configurée :** MAX_LINES=500\n- **Extensions surveillées :** py, js, ts, java, go, rb, php, sh\n- **Comportement :** Avertissement mais AUTORISATION du commit (exit 0)\n- **Filtrage intelligent :** Seuls les fichiers stagés (ACM - Added, Copied, Modified)\n\n**ANALYSE DES FICHIERS DU PROJET :**\n\n**Fichiers dépassant 500 lignes (légitimement) :**\n- `install.sh` : 1217 lignes (script d'installation complexe)\n- `.cursor/streamlit_app/app.py` : 812 lignes (application Streamlit principale)\n- `.cursor/streamlit_app/pages/task_status.py` : 923 lignes (interface de gestion des tâches)\n- `.cursor/streamlit_app/pages/memory.py` : 845 lignes (interface de gestion mémoire)\n- `.cursor/mcp/memory-bank-mcp/mcp_tools/next_rule.js` : 542 lignes (logique de workflow)\n\n**VALIDATION DE LA CONFIGURATION :**\n\n✅ **Hook correctement configuré** : Limite de 500 lignes appliquée\n✅ **Comportement approprié** : Avertissement sans blocage des commits\n✅ **Installation automatique** : Script install.sh configure tout automatiquement\n✅ **Compatibilité système** : Fonctionne avec les fichiers légitimement volumineux\n✅ **Filtrage intelligent** : Seuls les fichiers de code modifiés sont vérifiés\n\n**CONCLUSION :**\nLa configuration pre-commit est parfaitement fonctionnelle et appropriée. Le hook avertit des fichiers volumineux sans bloquer le workflow de développement, ce qui est idéal pour ce projet contenant légitimement plusieurs fichiers complexes dépassant 500 lignes.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       "install.sh"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) L'analyse complète de install.sh concernant pre-commit est effectuée, (2) Le script .githooks/pre-commit est analysé et ses paramètres vérifiés, (3) Les fichiers du projet dépassant 500 lignes sont identifiés et justifiés, (4) La compatibilité entre la configuration et le système actuel est confirmée, (5) Un rapport détaillé avec recommandations est fourni.",
     "created_date": "2025-06-25T10:55:28.730Z",
-    "updated_date": "2025-06-25T11:04:33.016Z",
+    "updated_date": "2025-06-25T13:06:14.200279",
     "parent_id": null,
     "priority": 3,
     "image": null
@@ -4062,6 +4062,24 @@
     "validation_criteria": "La tâche est terminée quand : (1) L'outil regex_edit est accessible via MCP dans Cursor, (2) Le problème de double préfixation est résolu, (3) L'outil fonctionne correctement après redémarrage, (4) Tests complets de validation effectués, (5) Documentation mise à jour avec les corrections MCP.",
     "created_date": "2025-06-25T10:55:41.111Z",
     "updated_date": "2025-06-25T10:59:25.176Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null
+  },
+  {
+    "id": 198,
+    "title": "Diagnostiquer et corriger l'erreur de l'outil update_userbrief",
+    "short_description": "Résoudre l'erreur persistante \"Cannot read properties of undefined (reading 'writeUserbrief')\" qui empêche l'archivage des requêtes utilisateur et perturbe le cycle de workflow autonome.",
+    "detailed_description": "Diagnostiquer et corriger l'erreur critique de l'outil update_userbrief qui génère systématiquement l'erreur \"Cannot read properties of undefined (reading 'writeUserbrief')\".\n\n**PROBLÈME IDENTIFIÉ ET RÉSOLU :**\n- L'erreur provenait de la fonction `cleanupArchivedRequests` dans le fichier `userbrief_manager.js`\n- À la ligne 28, il y avait un appel incorrect à `this.writeUserbrief(userbriefData)` au lieu de `writeUserbriefData(userbriefData)`\n- Le contexte `this` n'était pas défini dans une fonction normale, causant l'erreur \"Cannot read properties of undefined\"\n\n**CORRECTION APPLIQUÉE :**\n- Remplacé `this.writeUserbrief(userbriefData)` par `writeUserbriefData(userbriefData)` dans le fichier `.cursor/mcp/memory-bank-mcp/lib/userbrief_manager.js` ligne 28\n- La correction utilise maintenant la fonction exportée correcte `writeUserbriefData`\n\n**VALIDATION PARTIELLE :**\n- Test avec `add_comment` : ✅ SUCCÈS - L'outil fonctionne pour ajouter des commentaires\n- Test avec `mark_archived` : ❌ ÉCHEC - Erreur persiste, indiquant que le serveur MCP utilise une version en cache\n\n**REDÉMARRAGE REQUIS :**\n- Selon la documentation (README.md), Cursor doit être redémarré complètement pour que les changements MCP prennent effet\n- \"Cursor caches MCP tool lists for performance. When tools are added to existing servers, the cache isn't automatically refreshed until the application restarts.\"\n\n**PROCHAINES ÉTAPES :**\n- L'utilisateur doit redémarrer Cursor complètement\n- Après redémarrage, l'outil update_userbrief devrait fonctionner correctement pour toutes les actions\n- Le workflow autonome pourra alors archiver les requêtes sans erreur",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      "memory-bank-mcp/mcp_tools/update_userbrief.js",
+      "memory-bank-mcp/server.js"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'outil update_userbrief fonctionne sans erreur \"writeUserbrief\", (2) Les requêtes utilisateur peuvent être archivées avec succès, (3) Le workflow autonome peut finaliser les étapes de décomposition, (4) Tests de validation confirment le bon fonctionnement, (5) Documentation technique mise à jour avec la correction appliquée.",
+    "created_date": "2025-06-25T11:08:35.274Z",
+    "updated_date": "2025-06-25T13:11:39.521837",
     "parent_id": null,
     "priority": 4,
     "image": null
