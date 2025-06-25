@@ -17,22 +17,17 @@ function cleanupArchivedRequests(userbriefData) {
     const archivedRequests = userbriefData.requests.filter(req => req.status === 'archived');
 
     if (archivedRequests.length > MAX_ARCHIVED_REQUESTS) {
-        // Sort archived requests by updated_at (most recent first)
-        archivedRequests.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+        const sortedArchived = archivedRequests.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 
-        // Keep only the most recent MAX_ARCHIVED_REQUESTS
-        const requestsToKeep = archivedRequests.slice(0, MAX_ARCHIVED_REQUESTS);
-        const requestsToRemove = archivedRequests.slice(MAX_ARCHIVED_REQUESTS);
+        const requestsToKeep = sortedArchived.slice(0, MAX_ARCHIVED_REQUESTS);
+        const requestsToRemove = sortedArchived.slice(MAX_ARCHIVED_REQUESTS);
 
-        // Remove old archived requests from the main requests array
-        requestsToRemove.forEach(requestToRemove => {
-            const index = userbriefData.requests.findIndex(req => req.id === requestToRemove.id);
-            if (index !== -1) {
-                userbriefData.requests.splice(index, 1);
-            }
-        });
-
-        console.log(`[UserBrief] Cleaned up ${requestsToRemove.length} old archived requests, keeping ${requestsToKeep.length} most recent`);
+        if (requestsToRemove.length > 0) {
+            // console.log(`[UserBrief] Cleaned up ${requestsToRemove.length} old archived requests, keeping ${requestsToKeep.length} most recent`);
+            const updatedRequests = userbriefData.requests.filter(req => !requestsToRemove.some(r => r.id === req.id));
+            userbriefData.requests = updatedRequests;
+            writeUserbriefData(userbriefData);
+        }
     }
 }
 
@@ -129,12 +124,12 @@ export function updateUserbriefRequest(id, updates) {
 // Legacy functions for backward compatibility (now using JSON)
 function parseUserbrief(content) {
     // This function is now deprecated but kept for compatibility
-    console.warn('[UserBrief] parseUserbrief is deprecated, system now uses JSON format');
+    // console.warn('[UserBrief] parseUserbrief is deprecated, system now uses JSON format');
     return { requests: [], hasChanges: false, newLines: [] };
 }
 
 function serializeUserbrief(requests) {
     // This function is now deprecated but kept for compatibility
-    console.warn('[UserBrief] serializeUserbrief is deprecated, system now uses JSON format');
+    // console.warn('[UserBrief] serializeUserbrief is deprecated, system now uses JSON format');
     return '';
 } 

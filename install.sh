@@ -262,6 +262,97 @@ manage_gitignore() {
     done
 }
 
+# Function to set up the memory bank directory
+setup_memory_bank() {
+    local target_dir="$1"
+    local memory_bank_dir="$target_dir/.cursor/memory-bank"
+    local workflow_dir="$memory_bank_dir/workflow"
+    local workflow_backup_dir="/tmp/cursor-memory-bank-workflow-backup-$$"
+
+    log "Setting up Memory Bank directory..."
+    
+    # Check if workflow directory exists and contains user data
+    local workflow_exists=0
+    local has_user_data=0
+    
+    if [ -d "$workflow_dir" ]; then
+        workflow_exists=1
+        log "Existing workflow directory found at $workflow_dir"
+        
+        # Check if workflow directory contains user data (non-empty JSON files)
+        if [ -f "$workflow_dir/tasks.json" ] && [ -s "$workflow_dir/tasks.json" ] && [ "$(cat "$workflow_dir/tasks.json" 2>/dev/null)" != "[]" ]; then
+            has_user_data=1
+        elif [ -f "$workflow_dir/userbrief.json" ] && [ -s "$workflow_dir/userbrief.json" ] && [ "$(cat "$workflow_dir/userbrief.json" 2>/dev/null)" != '{"version": "1.0.0", "last_id": 0, "requests": []}' ]; then
+            has_user_data=1
+        elif [ -f "$workflow_dir/agent_memory.json" ] && [ -s "$workflow_dir/agent_memory.json" ] && [ "$(cat "$workflow_dir/agent_memory.json" 2>/dev/null)" != "[]" ]; then
+            has_user_data=1
+        elif [ -f "$workflow_dir/long_term_memory.json" ] && [ -s "$workflow_dir/long_term_memory.json" ] && [ "$(cat "$workflow_dir/long_term_memory.json" 2>/dev/null)" != "[]" ]; then
+            has_user_data=1
+        fi
+        
+        if [ $has_user_data -eq 1 ]; then
+            log "Workflow directory contains existing user data - preserving completely"
+            # Create backup of existing workflow data
+            mkdir -p "$workflow_backup_dir"
+            if ! cp -r "$workflow_dir/"* "$workflow_backup_dir/" 2>/dev/null; then
+                error "Failed to backup existing workflow data. Installation aborted to prevent data loss."
+            fi
+            log "Created backup of workflow data at $workflow_backup_dir"
+        else
+            log "Workflow directory exists but appears to contain only default/empty data"
+        fi
+    fi
+    
+    if [ -d "$memory_bank_dir" ]; then
+        log "Existing .cursor/memory-bank directory found."
+        # Always ensure required sub-directories exist
+        mkdir -p "$memory_bank_dir/context"
+        mkdir -p "$memory_bank_dir/models"
+        
+        # Handle workflow directory preservation
+        if [ $workflow_exists -eq 1 ] && [ $has_user_data -eq 1 ]; then
+            # Restore the preserved workflow data if it was backed up
+            if [ -d "$workflow_backup_dir" ]; then
+                log "Restoring preserved workflow data..."
+                rm -rf "$workflow_dir" 2>/dev/null || true
+                mkdir -p "$workflow_dir"
+                if ! cp -r "$workflow_backup_dir/"* "$workflow_dir/" 2>/dev/null; then
+                    error "Failed to restore workflow data from backup. Please check $workflow_backup_dir manually."
+                fi
+                # Clean up backup
+                rm -rf "$workflow_backup_dir" 2>/dev/null || true
+                log "Successfully preserved existing workflow data - no files were overwritten"
+            fi
+        else
+            # Create workflow directory if it doesn't exist or has no user data
+            mkdir -p "$workflow_dir"
+        fi
+        
+        log "Memory Bank directory structure verified and user data preserved."
+    else
+        log "Creating new .cursor/memory-bank directory and structure."
+        mkdir -p "$memory_bank_dir/context"
+        mkdir -p "$memory_bank_dir/workflow"
+        mkdir -p "$memory_bank_dir/models"
+        
+        # Create empty placeholder files
+        touch "$memory_bank_dir/workflow/tasks.json"
+        touch "$memory_bank_dir/workflow/userbrief.json"
+        touch "$memory_bank_dir/workflow/agent_memory.json"
+        touch "$memory_bank_dir/workflow/long_term_memory.json"
+        touch "$memory_bank_dir/context/projectBrief.md"
+        touch "$memory_bank_dir/context/techContext.md"
+        
+        # Initialize JSON files with empty structures
+        echo "[]" > "$memory_bank_dir/workflow/tasks.json"
+        echo '{"version": "1.0.0", "last_id": 0, "requests": []}' > "$memory_bank_dir/workflow/userbrief.json"
+        echo "[]" > "$memory_bank_dir/workflow/agent_memory.json"
+        echo "[]" > "$memory_bank_dir/workflow/long_term_memory.json"
+
+        log "Memory Bank directory structure created successfully."
+    fi
+}
+
 # Backup and create_dirs functions removed - no longer needed for workflow system
 
 install_workflow_system() {
@@ -689,21 +780,23 @@ install_pre_commit_hook() {
 # Function to install the Streamlit app and dependencies
 install_streamlit_app() {
     log "Installing Streamlit app and dependencies..."
-    local target_dir="$1"
-    local temp_dir="${2:-}"
-
-    if [[ -z "$temp_dir" ]]; then
-        # Fallback to the global temporary directory if the second argument is not provided.
-        # This prevents an 'unbound variable' error if the function is called without all its arguments.
-        warn "install_streamlit_app was called without a temporary directory argument. Falling back to global TEMP_DIR."
-        temp_dir="$TEMP_DIR"
+    
+    # Check for target_dir argument
+    if [[ -z "${1:-}" ]]; then
+        error "install_streamlit_app requires the target directory as the first argument."
     fi
-
+    local target_dir="$1"
+    
+    # Check for temp_dir argument, but don't fail if it's not there, just warn.
+    if [[ -z "${2:-}" ]]; then
+        warn "install_streamlit_app was called without a temporary directory argument. Falling back to global TEMP_DIR."
+    fi
+    local temp_dir="${2:-$TEMP_DIR}"
+    local clone_dir="$temp_dir/repo" # Define clone_dir based on temp_dir
+    
     local streamlit_dir="$target_dir/.cursor/streamlit_app"
     local requirements_file="$streamlit_dir/requirements.txt"
     local startup_script="$target_dir/.cursor/run_streamlit.sh"
-    local clone_dir="$temp_dir/repo"
-    local api_dir="$temp_dir/api-files"
 
     # Create streamlit directory
     mkdir -p "$streamlit_dir" || {
@@ -715,77 +808,59 @@ install_streamlit_app() {
     if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
         log "Downloading Streamlit app files..."
         
-        # Download main app file
+        # Define files to download
+        local streamlit_app_files=("app.py" "requirements.txt")
+        local streamlit_pages=("task_status.py" "memory.py")
+        local streamlit_components=("sidebar.py" "task_utils.py")
+
         download_file "$RAW_URL_BASE/.cursor/streamlit_app/app.py" "$streamlit_dir/app.py"
         download_file "$RAW_URL_BASE/.cursor/streamlit_app/requirements.txt" "$streamlit_dir/requirements.txt"
-        download_file "$RAW_URL_BASE/.cursor/streamlit_app/tasks.json" "$streamlit_dir/tasks.json"
         
-        # Download pages directory
         mkdir -p "$streamlit_dir/pages"
-        local page_files=("add_request.py" "memory.py" "task_status.py")
-        for page in "${page_files[@]}"; do
+        for page in "${streamlit_pages[@]}"; do
             download_file "$RAW_URL_BASE/.cursor/streamlit_app/pages/$page" "$streamlit_dir/pages/$page"
         done
+
+        mkdir -p "$streamlit_dir/components"
+        for component in "${streamlit_components[@]}"; do
+            download_file "$RAW_URL_BASE/.cursor/streamlit_app/components/$component" "$streamlit_dir/components/$component"
+        done
         
-        # Download startup script
+        # Download startup scripts
         download_file "$RAW_URL_BASE/.cursor/run_streamlit.sh" "$startup_script"
+
     else
         log "Copying Streamlit app files from git clone..."
-        
         if [[ -d "$clone_dir/.cursor/streamlit_app" ]]; then
             if ! cp -r "$clone_dir/.cursor/streamlit_app/"* "$streamlit_dir/"; then
                 warn "Failed to copy Streamlit app files. Please check permissions."
-                return
             fi
         else
             warn "Streamlit app directory not found in repository clone"
-            return
         fi
         
-        # Copy startup script
+        # Copy startup scripts
         if [[ -f "$clone_dir/.cursor/run_streamlit.sh" ]]; then
             cp "$clone_dir/.cursor/run_streamlit.sh" "$startup_script"
         else
             warn "Streamlit startup script not found in repository clone"
         fi
     fi
+    
+    # Set permissions for startup scripts
+    chmod u+x "$startup_script" || warn "Failed to set executable permission on startup scripts."
+    log "Streamlit startup script installed at: $startup_script"
 
-    # Make startup script executable
-    if [[ -f "$startup_script" ]]; then
-        chmod +x "$startup_script" || warn "Failed to make startup script executable"
-        log "Streamlit startup script installed at: $startup_script"
-    fi
-
-    # Install dependencies if requirements file exists
+    # Install Python dependencies
     if [[ ! -f "$requirements_file" ]]; then
-        warn "Streamlit requirements.txt not found at $requirements_file. Skipping dependency installation."
+        error "requirements.txt file not found in Streamlit app directory. Cannot install Python dependencies."
         return
     fi
 
-    log "Installing Streamlit dependencies..."
-    
-    # Determine Python and pip commands
-    local python_cmd=""
-    local pip_cmd=""
-    
-    if command -v python3 &>/dev/null && command -v pip3 &>/dev/null; then
-        python_cmd="python3"
-        pip_cmd="pip3"
-    elif command -v python &>/dev/null && command -v pip &>/dev/null; then
-        python_cmd="python"
-        pip_cmd="pip"
-    else
-        warn "python/pip not found. Cannot install Streamlit app dependencies. Please install Python and pip, then run 'pip install -r $requirements_file'."
-        return
-    fi
+    # Manage .gitignore file
+    manage_gitignore "$target_dir"
 
-    log "Found $python_cmd and $pip_cmd. Installing Streamlit dependencies..."
-    if $pip_cmd install -r "$requirements_file"; then
-        log "Streamlit dependencies installed successfully."
-        log "To start the Streamlit UI, run: $startup_script"
-    else
-        warn "Failed to install Streamlit dependencies with $pip_cmd. Please install them manually from $requirements_file."
-    fi
+    log "Streamlit app installed successfully"
 }
 
 install_ml_model() {
@@ -904,6 +979,18 @@ show_version() {
     exit 0
 }
 
+# Function to install utility scripts
+install_utility_scripts() {
+    local target_dir="$1"
+    local run_ui_script_path="$target_dir/.cursor/run_ui.sh"
+    local run_ui_url="$RAW_URL_BASE/.cursor/run_ui.sh"
+
+    log "Installing utility scripts..."
+    download_file "$run_ui_url" "$run_ui_script_path"
+    chmod +x "$run_ui_script_path"
+    log "run_ui.sh installed and made executable at: $run_ui_script_path"
+}
+
 # Parse command line arguments
 INSTALL_DIR="."
 DO_BACKUP=""
@@ -968,6 +1055,9 @@ install_workflow_system "$INSTALL_DIR" "$TEMP_DIR"
 
 # Install pre-commit hook
 install_pre_commit_hook "$INSTALL_DIR" "$TEMP_DIR"
+
+# Set up the memory bank to preserve user data
+setup_memory_bank "$INSTALL_DIR"
 
 # Merge MCP JSON template with existing config (NOW uses absolute path logic)
 merge_mcp_json "$INSTALL_DIR"
@@ -1112,6 +1202,9 @@ fi
 
 # Install Streamlit App
 install_streamlit_app "$INSTALL_DIR" "$TEMP_DIR"
+
+# Install utility scripts like run_ui.sh
+install_utility_scripts "$INSTALL_DIR"
 
 # Install ML Model
 install_ml_model "$INSTALL_DIR"

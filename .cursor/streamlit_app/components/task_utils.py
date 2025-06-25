@@ -157,4 +157,82 @@ def get_unprocessed_requests_count() -> int:
                 
         return unprocessed_count
     except (json.JSONDecodeError, FileNotFoundError):
-        return 0 
+        return 0
+
+def get_workflow_state_file() -> Optional[Path]:
+    """Get the path to the workflow_state.json file."""
+    path = Path('.cursor/memory-bank/workflow/workflow_state.json')
+    if path.exists():
+        return path
+    return None
+
+def get_current_workflow_rule() -> Optional[str]:
+    """Get the current workflow rule/step from workflow_state.json."""
+    workflow_file = get_workflow_state_file()
+    if not workflow_file:
+        return None
+    
+    try:
+        with open(workflow_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        current_rule = data.get('current_rule')
+        if current_rule:
+            return current_rule
+        
+        # Fallback: try to determine rule from recent activity
+        status = data.get('status', 'idle')
+        if status == 'idle':
+            return 'idle'
+        
+        return None
+    except (json.JSONDecodeError, FileNotFoundError):
+        return None
+
+def format_workflow_rule(rule: Optional[str]) -> str:
+    """Format the workflow rule for display in the UI."""
+    if not rule:
+        return "Unknown"
+    
+    if rule == 'idle':
+        return "Idle"
+    
+    # Convert rule names to user-friendly format
+    rule_mapping = {
+        'start-workflow': 'Starting Workflow',
+        'task-decomposition': 'Task Decomposition',
+        'implementation': 'Implementation',
+        'fix': 'Bug Fixing',
+        'context-update': 'Context Update',
+        'experience-execution': 'Testing & Validation'
+    }
+    
+    return rule_mapping.get(rule, rule.replace('-', ' ').title())
+
+def get_review_tasks_count() -> int:
+    """Get the count of tasks that need review (REVIEW or BLOCKED status)."""
+    tasks = get_all_tasks()
+    return len([t for t in tasks if t.get('status') in ['REVIEW', 'BLOCKED']])
+
+def get_agent_messages_count() -> int:
+    """Get the count of agent messages that need attention."""
+    try:
+        messages_file = Path('.cursor/memory-bank/workflow/to_user.json')
+        if not messages_file.exists():
+            return 0
+        
+        with open(messages_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        if isinstance(data, list):
+            return len(data)
+        elif isinstance(data, dict) and 'messages' in data:
+            return len(data['messages'])
+        
+        return 0
+    except (json.JSONDecodeError, FileNotFoundError):
+        return 0
+
+def get_total_notification_count() -> int:
+    """Get the total count of items requiring user attention (tasks + messages)."""
+    return get_review_tasks_count() + get_agent_messages_count() 
