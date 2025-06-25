@@ -55,8 +55,7 @@ def display_sidebar():
 
         # --- Metrics ---
         all_tasks = task_utils.get_all_tasks()
-        # Remaining tasks now includes 'REVIEW' status as they are not fully completed yet.
-        remaining_tasks = [t for t in all_tasks if t.get('status') not in ['DONE', 'APPROVED']]
+        remaining_tasks = [t for t in all_tasks if t.get('status') not in ['DONE', 'APPROVED', 'REVIEW']]
         unprocessed_requests = task_utils.get_unprocessed_requests_count()
         work_queue_count = len(remaining_tasks) + unprocessed_requests
         
