@@ -265,91 +265,149 @@ manage_gitignore() {
 # Function to set up the memory bank directory
 setup_memory_bank() {
     local target_dir="$1"
+    local temp_dir="${2:-$TEMP_DIR}"
     local memory_bank_dir="$target_dir/.cursor/memory-bank"
     local workflow_dir="$memory_bank_dir/workflow"
-    local workflow_backup_dir="/tmp/cursor-memory-bank-workflow-backup-$$"
 
     log "Setting up Memory Bank directory..."
     
+    # Create directory structure
+    mkdir -p "$memory_bank_dir/context"
+    mkdir -p "$memory_bank_dir/workflow"
+    mkdir -p "$memory_bank_dir/models"
+    
     # Check if workflow directory exists and contains user data
-    local workflow_exists=0
-    local has_user_data=0
+    local has_existing_data=0
     
     if [ -d "$workflow_dir" ]; then
-        workflow_exists=1
         log "Existing workflow directory found at $workflow_dir"
         
         # Check if workflow directory contains user data (non-empty JSON files)
         if [ -f "$workflow_dir/tasks.json" ] && [ -s "$workflow_dir/tasks.json" ] && [ "$(cat "$workflow_dir/tasks.json" 2>/dev/null)" != "[]" ]; then
-            has_user_data=1
+            has_existing_data=1
         elif [ -f "$workflow_dir/userbrief.json" ] && [ -s "$workflow_dir/userbrief.json" ] && [ "$(cat "$workflow_dir/userbrief.json" 2>/dev/null)" != '{"version": "1.0.0", "last_id": 0, "requests": []}' ]; then
-            has_user_data=1
+            has_existing_data=1
         elif [ -f "$workflow_dir/agent_memory.json" ] && [ -s "$workflow_dir/agent_memory.json" ] && [ "$(cat "$workflow_dir/agent_memory.json" 2>/dev/null)" != "[]" ]; then
-            has_user_data=1
+            has_existing_data=1
         elif [ -f "$workflow_dir/long_term_memory.json" ] && [ -s "$workflow_dir/long_term_memory.json" ] && [ "$(cat "$workflow_dir/long_term_memory.json" 2>/dev/null)" != "[]" ]; then
-            has_user_data=1
+            has_existing_data=1
         fi
         
-        if [ $has_user_data -eq 1 ]; then
-            log "Workflow directory contains existing user data - preserving completely"
-            # Create backup of existing workflow data
-            mkdir -p "$workflow_backup_dir"
-            if ! cp -r "$workflow_dir/"* "$workflow_backup_dir/" 2>/dev/null; then
-                error "Failed to backup existing workflow data. Installation aborted to prevent data loss."
-            fi
-            log "Created backup of workflow data at $workflow_backup_dir"
+        if [ $has_existing_data -eq 1 ]; then
+            log "✓ Existing user data detected - preserving all workflow files"
         else
-            log "Workflow directory exists but appears to contain only default/empty data"
+            log "Workflow directory exists but contains only default/empty data"
         fi
     fi
     
-    if [ -d "$memory_bank_dir" ]; then
-        log "Existing .cursor/memory-bank directory found."
-        # Always ensure required sub-directories exist
-        mkdir -p "$memory_bank_dir/context"
-        mkdir -p "$memory_bank_dir/models"
-        
-        # Handle workflow directory preservation
-        if [ $workflow_exists -eq 1 ] && [ $has_user_data -eq 1 ]; then
-            # Restore the preserved workflow data if it was backed up
-            if [ -d "$workflow_backup_dir" ]; then
-                log "Restoring preserved workflow data..."
-                rm -rf "$workflow_dir" 2>/dev/null || true
-                mkdir -p "$workflow_dir"
-                if ! cp -r "$workflow_backup_dir/"* "$workflow_dir/" 2>/dev/null; then
-                    error "Failed to restore workflow data from backup. Please check $workflow_backup_dir manually."
-                fi
-                # Clean up backup
-                rm -rf "$workflow_backup_dir" 2>/dev/null || true
-                log "Successfully preserved existing workflow data - no files were overwritten"
-            fi
-        else
-            # Create workflow directory if it doesn't exist or has no user data
-            mkdir -p "$workflow_dir"
-        fi
-        
-        log "Memory Bank directory structure verified and user data preserved."
-    else
-        log "Creating new .cursor/memory-bank directory and structure."
-        mkdir -p "$memory_bank_dir/context"
-        mkdir -p "$memory_bank_dir/workflow"
-        mkdir -p "$memory_bank_dir/models"
-        
-        # Create empty placeholder files
-        touch "$memory_bank_dir/workflow/tasks.json"
-        touch "$memory_bank_dir/workflow/userbrief.json"
-        touch "$memory_bank_dir/workflow/agent_memory.json"
-        touch "$memory_bank_dir/workflow/long_term_memory.json"
+    # Install schema files (these are system files, not user data)
+    install_workflow_schema_files "$workflow_dir" "$temp_dir"
+    
+    # Create user data files ONLY if they don't exist
+    create_default_workflow_files "$workflow_dir" "$has_existing_data"
+    
+    # Create context files if they don't exist
+    if [[ ! -f "$memory_bank_dir/context/projectBrief.md" ]]; then
         touch "$memory_bank_dir/context/projectBrief.md"
+        log "Created empty projectBrief.md"
+    fi
+    
+    if [[ ! -f "$memory_bank_dir/context/techContext.md" ]]; then
         touch "$memory_bank_dir/context/techContext.md"
-        
-        # Initialize JSON files with empty structures
-        echo "[]" > "$memory_bank_dir/workflow/tasks.json"
-        echo '{"version": "1.0.0", "last_id": 0, "requests": []}' > "$memory_bank_dir/workflow/userbrief.json"
-        echo "[]" > "$memory_bank_dir/workflow/agent_memory.json"
-        echo "[]" > "$memory_bank_dir/workflow/long_term_memory.json"
+        log "Created empty techContext.md"
+    fi
 
-        log "Memory Bank directory structure created successfully."
+    if [ $has_existing_data -eq 1 ]; then
+        log "✅ Memory Bank setup completed - existing user data preserved"
+    else
+        log "✅ Memory Bank setup completed - clean workspace initialized"
+    fi
+}
+
+# Function to install schema files (system files that should be updated)
+install_workflow_schema_files() {
+    local workflow_dir="$1"
+    local temp_dir="$2"
+    
+    log "Installing/updating workflow schema files..."
+    
+    # Schema files that should always be updated from the repository
+    local schema_files=("userbrief_schema.json" "tasks_schema.json")
+    
+    if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
+        # Download schema files via curl
+        for schema_file in "${schema_files[@]}"; do
+            local schema_url="$RAW_URL_BASE/.cursor/memory-bank/workflow/$schema_file"
+            local schema_path="$workflow_dir/$schema_file"
+            
+            log "Downloading schema file: $schema_file"
+            if download_file "$schema_url" "$schema_path"; then
+                log "✓ Updated $schema_file"
+            else
+                warn "Failed to download $schema_file - continuing without it"
+            fi
+        done
+    else
+        # Copy schema files from git clone
+        local clone_dir="$temp_dir/repo"
+        if [[ -d "$clone_dir/.cursor/memory-bank/workflow" ]]; then
+            for schema_file in "${schema_files[@]}"; do
+                local source_schema="$clone_dir/.cursor/memory-bank/workflow/$schema_file"
+                local target_schema="$workflow_dir/$schema_file"
+                
+                if [[ -f "$source_schema" ]]; then
+                    cp "$source_schema" "$target_schema"
+                    log "✓ Updated $schema_file from git clone"
+                else
+                    warn "Schema file $schema_file not found in repository"
+                fi
+            done
+        fi
+    fi
+}
+
+# Function to create default workflow files (only if they don't exist)
+create_default_workflow_files() {
+    local workflow_dir="$1"
+    local has_existing_data="$2"
+    
+    if [ $has_existing_data -eq 1 ]; then
+        log "Skipping default file creation - preserving existing user data"
+        return
+    fi
+    
+    log "Creating default workflow files for clean workspace..."
+    
+    # Create data files only if they don't exist
+    if [[ ! -f "$workflow_dir/tasks.json" ]]; then
+        echo "[]" > "$workflow_dir/tasks.json"
+        log "Created empty tasks.json"
+    fi
+    
+    if [[ ! -f "$workflow_dir/userbrief.json" ]]; then
+        echo '{"version": "1.0.0", "last_id": 0, "requests": []}' > "$workflow_dir/userbrief.json"
+        log "Created empty userbrief.json"
+    fi
+    
+    if [[ ! -f "$workflow_dir/agent_memory.json" ]]; then
+        echo "[]" > "$workflow_dir/agent_memory.json"
+        log "Created empty agent_memory.json"
+    fi
+    
+    if [[ ! -f "$workflow_dir/long_term_memory.json" ]]; then
+        echo "[]" > "$workflow_dir/long_term_memory.json"
+        log "Created empty long_term_memory.json"
+    fi
+    
+    # Create additional system files if they don't exist
+    if [[ ! -f "$workflow_dir/workflow_state.json" ]]; then
+        echo '{"state": "idle", "current_step": null}' > "$workflow_dir/workflow_state.json"
+        log "Created empty workflow_state.json"
+    fi
+    
+    if [[ ! -f "$workflow_dir/to_user.json" ]]; then
+        echo '{"messages": []}' > "$workflow_dir/to_user.json"
+        log "Created empty to_user.json"
     fi
 }
 
@@ -1052,7 +1110,7 @@ install_workflow_system "$INSTALL_DIR" "$TEMP_DIR"
 install_pre_commit_hook "$INSTALL_DIR" "$TEMP_DIR"
 
 # Set up the memory bank to preserve user data
-setup_memory_bank "$INSTALL_DIR"
+setup_memory_bank "$INSTALL_DIR" "$TEMP_DIR"
 
 # Merge MCP JSON template with existing config (NOW uses absolute path logic)
 merge_mcp_json "$INSTALL_DIR"
