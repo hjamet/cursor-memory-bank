@@ -3,8 +3,10 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Use the absolute path that we know works
-const TASKS_FILE_PATH = 'C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\memory-bank\\streamlit_app\\tasks.json';
+// Calculate dynamic path relative to the MCP server location
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const TASKS_FILE_PATH = path.join(__dirname, '..', '..', '..', 'memory-bank', 'streamlit_app', 'tasks.json');
 
 async function readTasks() {
     try {

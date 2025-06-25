@@ -411,6 +411,23 @@ create_default_workflow_files() {
     fi
 }
 
+# Function to create MCP-compatible tasks.json in streamlit_app directory
+create_mcp_tasks_file() {
+    local target_dir="$1"
+    local streamlit_app_dir="$target_dir/.cursor/memory-bank/streamlit_app"
+    
+    # Create streamlit_app directory if it doesn't exist
+    mkdir -p "$streamlit_app_dir"
+    
+    # Create MCP-compatible tasks.json (simple array format)
+    if [[ ! -f "$streamlit_app_dir/tasks.json" ]]; then
+        echo "[]" > "$streamlit_app_dir/tasks.json"
+        log "Created MCP-compatible tasks.json in streamlit_app directory"
+    else
+        log "MCP tasks.json already exists in streamlit_app directory"
+    fi
+}
+
 # Backup and create_dirs functions removed - no longer needed for workflow system
 
 install_workflow_system() {
@@ -1111,6 +1128,9 @@ install_pre_commit_hook "$INSTALL_DIR" "$TEMP_DIR"
 
 # Set up the memory bank to preserve user data
 setup_memory_bank "$INSTALL_DIR" "$TEMP_DIR"
+
+# Create MCP-compatible tasks.json for streamlit_app
+create_mcp_tasks_file "$INSTALL_DIR"
 
 # Merge MCP JSON template with existing config (NOW uses absolute path logic)
 merge_mcp_json "$INSTALL_DIR"

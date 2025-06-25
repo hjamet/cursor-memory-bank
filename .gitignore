@@ -32,3 +32,13 @@ Thumbs.db
 
 # Test
 test_installation
+# Cursor Memory Bank - Auto-generated entries
+.cursor/mcp/*/node_modules/
+.cursor/mcp/*/*.log
+.cursor/memory-bank/workflow/temp/
+.cursor/streamlit_app/__pycache__/
+.cursor/memory-bank/models/
+*.pyc
+# MCP Server State Files
+.cursor/mcp/*/terminals_status.json
+.cursor/mcp/*/temp_*
