@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import process from 'process';
 import { z } from 'zod';
+import { handleCreateTask } from './create_task.js';
 
 // Promisify exec
 const execAsync = promisify(exec);
@@ -81,7 +82,103 @@ function scanPythonFiles(dirPath, rootPath = dirPath) {
 }
 
 /**
- * Generates task recommendations for oversized Python files
+ * Creates actual refactoring tasks for oversized Python files
+ * @param {Array} oversizedFiles - Array of file objects that are oversized
+ * @returns {Promise<Array>} Array of created task objects or error results
+ */
+async function createRefactoringTasks(oversizedFiles) {
+    const createdTasks = [];
+
+    for (const fileInfo of oversizedFiles) {
+        try {
+            // Determine priority based on file size
+            let priority = 3; // Default priority
+            if (fileInfo.lines > 1500) {
+                priority = 5; // Very high priority for extremely large files
+            } else if (fileInfo.lines > 1000) {
+                priority = 4; // High priority for very large files
+            }
+
+            // Create task parameters
+            const taskParams = {
+                title: `Refactoriser ${fileInfo.file} - Réduire la taille du fichier`,
+                short_description: `Décomposer le fichier Python ${fileInfo.file} (${fileInfo.lines} lignes) en modules plus petits pour améliorer la maintenabilité.`,
+                detailed_description: `Le fichier ${fileInfo.file} contient actuellement ${fileInfo.lines} lignes, ce qui dépasse largement la limite recommandée de 500 lignes.
+
+**Analyse du fichier :**
+- Taille actuelle : ${fileInfo.lines} lignes
+- Dépassement : ${fileInfo.lines - 500} lignes au-dessus de la limite
+- Ratio : ${Math.round((fileInfo.lines / 500) * 100) / 100}x la taille recommandée
+
+**Objectifs de refactoring :**
+- Réduire la taille à moins de 500 lignes par module
+- Améliorer la lisibilité et la maintenabilité
+- Faciliter les tests unitaires
+- Réduire la complexité cognitive
+
+**Approches recommandées :**
+${fileInfo.lines > 1000 ?
+                        `- **Décomposition critique requise** - Ce fichier nécessite une refactorisation majeure
+- Extraire les classes principales en modules séparés
+- Séparer les fonctions utilitaires en modules dédiés
+- Créer des sous-packages si nécessaire` :
+                        `- Extraire les fonctions logiquement liées en modules séparés
+- Identifier et isoler les responsabilités distinctes
+- Créer des interfaces claires entre les modules`}
+
+**Critères d'acceptation :**
+- Aucun module ne doit dépasser 500 lignes
+- Les fonctionnalités existantes doivent être préservées
+- Les tests doivent continuer à passer
+- La documentation doit être mise à jour`,
+                priority: priority,
+                dependencies: [], // No dependencies for refactoring tasks
+                status: 'TODO',
+                impacted_files: [fileInfo.file],
+                validation_criteria: `La tâche est terminée quand :
+1. Le fichier ${fileInfo.file} a été décomposé en modules de moins de 500 lignes chacun
+2. Toutes les fonctionnalités existantes sont préservées
+3. Les tests unitaires passent sans modification
+4. La documentation est mise à jour pour refléter la nouvelle structure
+5. Les imports et dépendances sont correctement ajustés
+6. Le code suit les conventions de style établies`
+            };
+
+            // Create the task using the existing MCP API
+            const result = await handleCreateTask(taskParams);
+
+            // Parse the result to get task info
+            const resultData = JSON.parse(result.content[0].text);
+
+            if (resultData.status === 'success') {
+                createdTasks.push({
+                    file: fileInfo.file,
+                    task_id: resultData.created_task.id,
+                    title: resultData.created_task.title,
+                    priority: priority,
+                    status: 'created'
+                });
+            } else {
+                createdTasks.push({
+                    file: fileInfo.file,
+                    error: resultData.message,
+                    status: 'failed'
+                });
+            }
+        } catch (error) {
+            createdTasks.push({
+                file: fileInfo.file,
+                error: error.message,
+                status: 'failed'
+            });
+        }
+    }
+
+    return createdTasks;
+}
+
+/**
+ * Generates task recommendations for oversized Python files (legacy function for backward compatibility)
  * @param {Array} oversizedFiles - Array of file objects that are oversized
  * @returns {Array} Array of task recommendation objects
  */
@@ -149,11 +246,16 @@ export async function handleCommit({ emoji, type, title, description }) {
     // --- Scan Python files before commit ---
     let pythonScanResults = [];
     let taskRecommendations = [];
+    let createdTasks = [];
     try {
         pythonScanResults = scanPythonFiles(cwd);
         const oversizedFiles = pythonScanResults.filter(file => file.oversized);
         if (oversizedFiles.length > 0) {
+            // Generate legacy recommendations for backward compatibility
             taskRecommendations = generateTaskRecommendations(oversizedFiles);
+
+            // Create actual refactoring tasks automatically
+            createdTasks = await createRefactoringTasks(oversizedFiles);
         }
     } catch (scanError) {
         console.error('[handleCommit] Error scanning Python files:', scanError.message);
@@ -199,7 +301,9 @@ export async function handleCommit({ emoji, type, title, description }) {
                             total_files: pythonScanResults.length,
                             oversized_files: pythonScanResults.filter(f => f.oversized).length,
                             files_scanned: pythonScanResults,
-                            task_recommendations: taskRecommendations
+                            task_recommendations: taskRecommendations,
+                            tasks_created: createdTasks,
+                            automatic_task_creation: createdTasks.length > 0
                         }
                     }, null, 2)
                 }]
@@ -224,6 +328,31 @@ export async function handleCommit({ emoji, type, title, description }) {
         let successMessage = `Commit successful in ${repoName}: ${commitTitle}${committedFilesList}`;
         if (commitStderr) {
             successMessage += `\nCommit Warnings/Info (stderr):\n${commitStderr.trim()}`;
+        }
+
+        // Add information about automatically created refactoring tasks
+        if (createdTasks.length > 0) {
+            const successfulTasks = createdTasks.filter(task => task.status === 'created');
+            const failedTasks = createdTasks.filter(task => task.status === 'failed');
+
+            successMessage += `\n\n--- Automatic Task Creation ---`;
+            successMessage += `\nDetected ${pythonScanResults.filter(f => f.oversized).length} oversized Python file(s) and automatically created refactoring tasks:`;
+
+            if (successfulTasks.length > 0) {
+                successMessage += `\n\n✅ Successfully created ${successfulTasks.length} refactoring task(s):`;
+                successfulTasks.forEach(task => {
+                    successMessage += `\n  • Task #${task.task_id}: ${task.title} (Priority: ${task.priority})`;
+                });
+            }
+
+            if (failedTasks.length > 0) {
+                successMessage += `\n\n❌ Failed to create ${failedTasks.length} task(s):`;
+                failedTasks.forEach(task => {
+                    successMessage += `\n  • ${task.file}: ${task.error}`;
+                });
+            }
+
+            successMessage += `\n\nThese tasks are now available in the Streamlit interface for implementation when convenient.`;
         }
 
         // Add recent git log output as requested by user
@@ -266,7 +395,9 @@ export async function handleCommit({ emoji, type, title, description }) {
                         total_files: pythonScanResults.length,
                         oversized_files: pythonScanResults.filter(f => f.oversized).length,
                         files_scanned: pythonScanResults,
-                        task_recommendations: taskRecommendations
+                        task_recommendations: taskRecommendations,
+                        tasks_created: createdTasks,
+                        automatic_task_creation: createdTasks.length > 0
                     }
                 }, null, 2)
             }]
@@ -292,7 +423,9 @@ export async function handleCommit({ emoji, type, title, description }) {
                             total_files: pythonScanResults.length,
                             oversized_files: pythonScanResults.filter(f => f.oversized).length,
                             files_scanned: pythonScanResults,
-                            task_recommendations: taskRecommendations
+                            task_recommendations: taskRecommendations,
+                            tasks_created: createdTasks,
+                            automatic_task_creation: createdTasks.length > 0
                         }
                     }, null, 2)
                 }]
@@ -308,7 +441,9 @@ export async function handleCommit({ emoji, type, title, description }) {
                         total_files: pythonScanResults.length,
                         oversized_files: pythonScanResults.filter(f => f.oversized).length,
                         files_scanned: pythonScanResults,
-                        task_recommendations: taskRecommendations
+                        task_recommendations: taskRecommendations,
+                        tasks_created: createdTasks,
+                        automatic_task_creation: createdTasks.length > 0
                     }
                 }, null, 2)
             }]

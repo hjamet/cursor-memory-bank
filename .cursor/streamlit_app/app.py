@@ -691,7 +691,7 @@ def render_add_request_tab():
 
                 if create_new_request(request_content, image_meta):
                     st.success(f"Request #{next_id} submitted successfully!")
-                    st.balloons()
+                    st.balloons()  # Celebration animation for successful submission
                     st.session_state.pasted_image_obj = None
                     st.session_state.last_submitted_request_id = next_id
                     st.session_state.clear_request_form = True # Clear form on next run

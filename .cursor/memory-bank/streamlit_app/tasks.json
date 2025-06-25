@@ -4197,7 +4197,7 @@
     "short_description": "Modifier l'outil commit du serveur MCP MemoryBankMCP pour supprimer l'utilisation du pre-commit hook externe et implémenter un système de scan automatique des fichiers Python intégré directement dans le code JavaScript de l'outil. L'outil doit détecter les fichiers Python >500 lignes et recommander leur décomposition en tâches automatiques.",
     "detailed_description": "Refactorisation complète de l'outil commit MCP pour intégrer la vérification de taille des fichiers directement dans le code JavaScript :\n\n**✅ IMPLÉMENTATION TERMINÉE :**\n\n**1. Suppression du pre-commit hook externe :**\n- ✅ Désactivé l'appel à `install_pre_commit_hook` dans install.sh (ligne 1125)\n- ✅ Désactivé le téléchargement du hook pre-commit (lignes 478-482)\n- ✅ Désactivé la configuration automatique de core.hooksPath\n- ✅ Supprimé les messages d'instruction pour configurer les hooks git\n\n**2. Implémentation d'un scanner JavaScript intégré :**\n- ✅ Ajouté la fonction `scanPythonFiles(dirPath, rootPath)` qui parcourt récursivement les répertoires\n- ✅ Filtrage intelligent des répertoires à ignorer (node_modules, .git, __pycache__, .venv, etc.)\n- ✅ Scan uniquement des fichiers .py avec comptage de lignes précis\n- ✅ Utilisation du chemin dynamique fourni par getDefaultCwd() (pas de hardcoding)\n\n**3. Détection automatique des fichiers volumineux :**\n- ✅ Seuil de 500 lignes configuré comme constante MAX_LINES\n- ✅ Marquage automatique des fichiers dépassant la limite\n- ✅ Gestion robuste des erreurs de lecture de fichiers\n\n**4. Recommandations de décomposition :**\n- ✅ Fonction `generateTaskRecommendations(oversizedFiles)` qui génère des recommandations structurées\n- ✅ Recommandations en français avec détails techniques (fichier, lignes actuelles, priorité)\n- ✅ Priorité automatique : 'high' pour >1000 lignes, 'medium' pour 500-1000 lignes\n- ✅ Suggestions d'approche personnalisées selon la taille du fichier\n\n**5. Intégration dans l'outil commit :**\n- ✅ Scan automatique avant chaque commit\n- ✅ Maintien du comportement de commit normal (git add + git commit)\n- ✅ Retour de réponses JSON structurées avec toutes les informations\n- ✅ Gestion d'erreurs : le commit continue même si le scan échoue\n\n**6. Format de sortie MCP amélioré :**\n- ✅ Réponses JSON structurées avec status, message, et python_scan\n- ✅ Statistiques complètes : total_files, oversized_files, files_scanned, task_recommendations\n- ✅ Compatible avec tous les cas : succès, échec, rien à commiter\n\n**RÉSULTAT :** L'outil commit MCP intègre maintenant complètement la fonctionnalité de vérification des fichiers Python sans dépendance externe. Il scanne automatiquement tous les fichiers .py du repository à chaque commit et retourne des recommandations de tâches de refactoring pour les fichiers >500 lignes. Le système est prêt pour utilisation et nécessitera un redémarrage de Cursor pour activation.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       "install.sh",
       ".cursor/mcp/memory-bank-mcp/commit.js",
@@ -4205,7 +4205,7 @@
     ],
     "validation_criteria": "",
     "created_date": "2025-06-25T15:47:59.382Z",
-    "updated_date": "2025-06-25T15:52:33.502Z",
+    "updated_date": "2025-06-25T18:05:15.924107",
     "parent_id": null,
     "priority": 4,
     "image": null
@@ -4216,7 +4216,7 @@
     "short_description": "Modifier le serveur MCP MemoryBankMCP pour que l'appel à l'outil next_rule mette automatiquement à jour le fichier workflow_state avec la règle actuelle de l'agent, et mettre à jour l'interface Streamlit pour afficher l'étape workflow courante dans la sidebar après \"Agent Status\".",
     "detailed_description": "Amélioration du système de tracking de l'état workflow pour une meilleure visibilité de l'activité de l'agent :\n\n**Objectifs principaux :**\n1. **Mise à jour automatique du workflow_state** : Modifier l'outil next_rule dans le serveur MCP MemoryBankMCP pour qu'il écrive automatiquement la règle appelée dans le fichier workflow_state\n2. **Tracking continu de l'état agent** : Permettre de savoir à tout moment dans quelle règle/étape se trouve l'agent (implementation, experience-execution, context-update, etc.)\n3. **Affichage dans l'interface Streamlit** : Mettre à jour la sidebar pour afficher l'étape courante entre parenthèses après \"Agent Status\"\n\n**Spécifications techniques côté MCP :**\n- Modifier l'outil next_rule dans le serveur MemoryBankMCP\n- Écrire automatiquement la règle appelée dans le fichier workflow_state.json\n- Maintenir la structure existante du fichier workflow_state\n- S'assurer que l'écriture se fait de manière atomique et sûre\n- Gérer les erreurs d'écriture de fichier\n\n**Spécifications techniques côté Streamlit :**\n- Modifier le fichier components/sidebar.py pour lire l'état workflow actuel\n- Afficher l'étape courante dans la section \"Agent Status\" sous la forme : \"Agent Status (implementation)\" ou \"Agent Status (context-update)\"\n- Intégrer harmonieusement avec le système d'auto-refresh existant\n- Gérer les cas où le fichier workflow_state n'existe pas ou est corrompu\n- Maintenir la compatibilité avec l'affichage existant\n\n**Critères d'acceptation :**\n- L'appel à next_rule met automatiquement à jour le fichier workflow_state\n- Le fichier workflow_state contient toujours la règle courante de l'agent\n- L'interface Streamlit affiche l'étape workflow courante dans la sidebar\n- L'affichage est cohérent et se met à jour automatiquement\n- Aucune régression dans les fonctionnalités existantes\n- Gestion robuste des erreurs et cas limites\n\n**Notes d'implémentation :**\n- Utiliser les APIs Node.js pour l'écriture de fichiers côté MCP (fs.writeFileSync ou fs.promises.writeFile)\n- Côté Streamlit, utiliser les fonctions existantes de lecture de fichiers JSON\n- Intégrer avec le système d'auto-refresh pour une mise à jour en temps réel\n- Prévoir un fallback si le fichier workflow_state n'est pas accessible\n\n**Contrainte importante :** Les modifications du serveur MCP nécessiteront un redémarrage de Cursor pour être testées.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/next_rule.js",
       ".cursor/streamlit_app/components/sidebar.py",
@@ -4224,7 +4224,164 @@
     ],
     "validation_criteria": "",
     "created_date": "2025-06-25T15:48:26.434Z",
-    "updated_date": "2025-06-25T15:55:12.416Z",
+    "updated_date": "2025-06-25T18:05:12.930205",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 207,
+    "title": "Améliorer l'outil commit MCP pour créer automatiquement des tâches de refactoring",
+    "short_description": "Modifier l'outil commit MCP pour qu'il crée directement des tâches de refactoring dans tasks.json lorsqu'il détecte des fichiers Python >500 lignes, au lieu de simplement générer des recommandations textuelles à l'agent.",
+    "detailed_description": "Amélioration de l'outil commit MCP existant pour automatiser complètement la création de tâches de refactoring - **IMPLÉMENTATION TERMINÉE** :\n\n**Fonctionnalité actuelle :**\n- L'outil commit détecte les fichiers Python >500 lignes\n- Il génère des recommandations textuelles pour l'agent\n- L'agent doit manuellement créer les tâches de refactoring\n\n**Fonctionnalité cible :**\n- L'outil commit détecte automatiquement les fichiers Python >500 lignes\n- Il crée directement des tâches de refactoring dans tasks.json via l'API MCP ✅\n- Les tâches sont créées avec les spécifications appropriées ✅\n\n**✅ RÉALISATIONS COMPLÈTES :**\n\n1. **✅ Intégration API MCP** :\n   - Importé la fonction `handleCreateTask` dans commit.js\n   - Intégré l'API de création de tâches dans l'outil commit\n   - Maintenu la compatibilité avec le système existant\n\n2. **✅ Logique de création automatique de tâches** :\n   - Créé la fonction `createRefactoringTasks()` qui crée réellement les tâches\n   - Détection automatique des fichiers Python >500 lignes (logique existante)\n   - Création automatique d'une tâche pour chaque fichier détecté\n   - Titre formaté : \"Refactoriser [nom_du_fichier] - Réduire la taille du fichier\"\n   - Description détaillée avec analyse complète et recommandations\n\n3. **✅ Paramètres des tâches conformes** :\n   - **Priorité** : 3 par défaut, 4 pour >1000 lignes, 5 pour >1500 lignes\n   - **Dépendances** : Aucune (tâches indépendantes)\n   - **Statut** : TODO\n   - **Fichiers impactés** : Le fichier Python concerné\n\n4. **✅ Critères de détection maintenus** :\n   - Seuil : 500 lignes (logique existante préservée)\n   - Types de fichiers : .py uniquement\n   - Exclusions : Répertoires système (node_modules, .git, etc.)\n\n5. **✅ Format des tâches créées** :\n   - Titre clair et actionnable\n   - Description avec contexte technique complet (nombre de lignes, ratio, dépassement)\n   - Suggestions de refactoring détaillées selon la taille\n   - Critères d'acceptation mesurables et spécifiques\n\n6. **✅ Intégration harmonieuse** :\n   - Fonctionnalité de commit existante maintenue intacte\n   - Création de tâches ajoutée comme étape supplémentaire\n   - Messages informatifs améliorés avec détails des tâches créées\n   - Compatibilité avec le système de workflow autonome assurée\n   - Rétrocompatibilité maintenue (task_recommendations toujours générées)\n\n**✅ AMÉLIORATIONS TECHNIQUES :**\n- Gestion d'erreurs robuste pour la création de tâches\n- Messages de succès enrichis avec informations détaillées des tâches créées\n- Réponses JSON structurées incluant `tasks_created` et `automatic_task_creation`\n- Support pour les cas d'échec de création de tâches individuelles\n\n**✅ AVANTAGES RÉALISÉS :**\n- Automatisation complète du processus de détection → tâche\n- Réduction de la charge cognitive de l'agent\n- Traitement asynchrone des tâches de refactoring\n- Amélioration de la maintenabilité du code",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/commit.js",
+      ".cursor/memory-bank/workflow/tasks.json"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. L'outil commit MCP crée automatiquement des tâches de refactoring lors de la détection de fichiers Python >500 lignes\n2. Les tâches créées ont les bonnes spécifications (priorité 3 par défaut, aucune dépendance, titre/description appropriés)\n3. L'intégration avec l'API MCP fonctionne correctement (création via create_task)\n4. Les tâches apparaissent automatiquement dans l'interface Streamlit\n5. La fonctionnalité de commit existante reste intacte\n6. Tests de validation : commit d'un fichier Python >500 lignes génère automatiquement une tâche de refactoring correspondante",
+    "created_date": "2025-06-25T16:05:49.254Z",
+    "updated_date": "2025-06-25T18:13:52.779971",
+    "parent_id": null,
+    "priority": 4,
+    "image": null
+  },
+  {
+    "id": 208,
+    "title": "Corriger l'affichage persistant de l'étape workflow dans l'interface Streamlit",
+    "short_description": "Modifier l'affichage de l'Agent Status dans l'interface Streamlit pour que l'étape workflow reste toujours visible entre parenthèses, même quand l'agent traite une tâche, avec indication du statut ou de la tâche en cours en dessous.",
+    "detailed_description": "Corriger un problème d'affichage dans l'interface Streamlit concernant la visibilité de l'étape workflow courante :\n\n**Problème identifié :**\n- L'affichage de l'étape workflow fonctionne bien quand l'agent est idle\n- Quand l'agent traite une tâche, l'étape workflow disparaît de l'affichage\n- L'utilisateur perd la visibilité sur l'étape courante pendant l'exécution\n\n**Comportement souhaité :**\n- L'étape workflow doit TOUJOURS être affichée entre parenthèses dans \"Agent Status\"\n- Format : \"Agent Status (étape_courante)\"\n- En dessous, afficher soit :\n  - \"L'agent est en train de travailler\" (cas général)\n  - \"Tâche en cours : [titre de la tâche]\" (si tâche spécifique identifiée)\n\n**Analyse technique :**\n- Le problème se situe probablement dans `sidebar.py` dans la logique d'affichage conditionnelle\n- La fonction qui gère l'affichage de l'étape workflow ne fonctionne que pour l'état idle\n- Il faut modifier la logique pour maintenir l'affichage de l'étape en permanence\n\n**Spécifications d'implémentation :**\n\n1. **Modification de sidebar.py** :\n   - Identifier la logique conditionnelle qui masque l'étape workflow\n   - Modifier pour afficher TOUJOURS l'étape entre parenthèses\n   - Séparer l'affichage de l'étape du statut de travail\n\n2. **Amélioration de l'affichage du statut** :\n   - Maintenir \"Agent Status (étape_courante)\" en permanence\n   - Ajouter en dessous l'information sur l'activité courante\n   - Préserver le design existant sans modifications drastiques\n\n3. **Gestion des états** :\n   - État idle : \"Agent Status (étape) - En attente\"\n   - État actif sans tâche : \"Agent Status (étape) - En train de travailler\"\n   - État actif avec tâche : \"Agent Status (étape) - Tâche: [titre]\"\n\n4. **Intégration avec task_utils.py** :\n   - Utiliser les fonctions existantes de récupération de l'étape workflow\n   - Maintenir la compatibilité avec le système de tracking workflow récemment implémenté\n   - Assurer l'auto-refresh fonctionne correctement\n\n**Contraintes de design :**\n- Conserver le design actuel sans modifications drastiques\n- Maintenir la lisibilité et la clarté de l'information\n- Préserver toutes les fonctionnalités existantes\n- Assurer la compatibilité avec l'auto-refresh\n\n**Bénéfices attendus :**\n- Visibilité permanente de l'étape workflow courante\n- Meilleure compréhension de l'activité de l'agent\n- Expérience utilisateur améliorée pour le suivi du workflow\n- Information contextuelle riche sur l'état du système",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/streamlit_app/components/sidebar.py",
+      ".cursor/streamlit_app/components/task_utils.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. L'étape workflow est affichée en permanence entre parenthèses dans \"Agent Status\", même pendant l'exécution de tâches\n2. Le format \"Agent Status (étape_courante)\" est maintenu en toutes circonstances\n3. L'information sur l'activité courante est affichée en dessous (en attente/en train de travailler/tâche en cours)\n4. Le design actuel est préservé sans modifications drastiques\n5. L'auto-refresh continue de fonctionner correctement\n6. Tests de validation : vérifier l'affichage en mode idle et pendant l'exécution d'une tâche\n7. La compatibilité avec le système de tracking workflow récent est maintenue",
+    "created_date": "2025-06-25T16:10:25.307Z",
+    "updated_date": "2025-06-25T18:14:52.553903",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 209,
+    "title": "Réactiver l'animation de ballons lors de la soumission de nouvelles requêtes",
+    "short_description": "Remettre l'animation de ballons (st.balloons()) qui s'affichait auparavant lors de la soumission d'une nouvelle requête dans l'interface Streamlit, tout en préservant exactement le fonctionnement actuel.",
+    "detailed_description": "Réactiver l'animation de ballons qui était présente auparavant lors de la soumission de nouvelles requêtes dans l'interface Streamlit :\n\n**Objectif :**\n- Remettre l'animation de ballons (probablement `st.balloons()`) qui s'affichait lors de l'ajout d'une nouvelle requête\n- Améliorer l'expérience utilisateur avec un feedback visuel agréable\n- Conserver exactement le même fonctionnement que l'interface actuelle\n\n**Contexte technique :**\n- L'animation était présente dans une version antérieure du système\n- La fonction Streamlit concernée est probablement `st.balloons()`\n- L'animation doit se déclencher après la soumission réussie d'une nouvelle requête\n- L'interface actuelle fonctionne parfaitement et ne doit pas être altérée\n\n**Spécifications d'implémentation :**\n\n1. **Localisation du code de soumission** :\n   - Identifier le fichier responsable de l'ajout de nouvelles requêtes dans l'onglet \"Review & Communication\"\n   - Probablement dans `add_request.py` ou un composant similaire\n   - Trouver l'endroit exact où la requête est soumise avec succès\n\n2. **Ajout de l'animation** :\n   - Ajouter `st.balloons()` après la soumission réussie de la requête\n   - S'assurer que l'animation ne se déclenche que lors du succès\n   - Positionner l'appel au bon moment dans le flux d'exécution\n\n3. **Préservation du fonctionnement existant** :\n   - **CRITIQUE** : Maintenir exactement le comportement actuel\n   - Conserver la suppression du texte de la zone de texte après soumission\n   - Préserver tous les mécanismes de validation et de sauvegarde\n   - Maintenir les messages de confirmation existants\n   - Assurer que l'interface reste responsive\n\n4. **Tests et validation** :\n   - Vérifier que l'animation s'affiche correctement\n   - Confirmer que le formulaire se vide après soumission\n   - S'assurer que la requête est bien enregistrée dans userbrief.json\n   - Tester que l'interface reste fonctionnelle après l'animation\n\n**Contraintes importantes :**\n- **Fonctionnalité prioritaire** : Aucune régression du comportement actuel\n- **Compatibilité** : L'animation doit fonctionner avec la version actuelle de Streamlit\n- **Performance** : L'animation ne doit pas ralentir l'interface\n- **Robustesse** : Si l'animation échoue, cela ne doit pas affecter la soumission\n\n**Localisation probable :**\n- Fichier principal : `add_request.py` ou équivalent\n- Zone d'intérêt : Fonction de traitement du formulaire de soumission\n- Point d'insertion : Après confirmation de l'enregistrement réussi\n\n**Bénéfices attendus :**\n- Amélioration de l'expérience utilisateur avec feedback visuel positif\n- Retour d'une fonctionnalité appréciée par l'utilisateur\n- Interface plus engageante et satisfaisante à utiliser",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "app.py",
+      ".cursor/streamlit_app/pages/add_request.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. L'animation de ballons s'affiche après la soumission réussie d'une nouvelle requête\n2. Le fonctionnement actuel est parfaitement préservé (suppression du texte, sauvegarde, messages)\n3. L'animation ne provoque aucune régression ou dysfonctionnement\n4. L'interface reste responsive et fonctionnelle après l'animation\n5. Tests réussis : soumission de requête → animation → formulaire vidé → requête enregistrée\n6. Compatibilité confirmée avec la version actuelle de Streamlit",
+    "created_date": "2025-06-25T16:14:02.728Z",
+    "updated_date": "2025-06-25T18:18:48.533523",
+    "parent_id": null,
+    "priority": 2,
+    "image": null
+  },
+  {
+    "id": 210,
+    "title": "Diagnostiquer et corriger le problème d'animation de ballons Streamlit",
+    "short_description": "Investiguer et résoudre le problème persistant où l'animation de ballons (st.balloons()) ne s'affiche pas lors de la soumission de nouvelles requêtes dans l'interface Streamlit, malgré sa présence confirmée dans le code.",
+    "detailed_description": "Corriger le problème d'animation de ballons Streamlit qui ne fonctionne pas malgré l'implémentation précédente.\n\n**Contexte du problème :**\n- La tâche #209 avait identifié que st.balloons() était déjà présent dans le code à la ligne 693 de app.py\n- L'utilisateur confirme que l'animation ne s'affiche toujours pas lors de la soumission de requêtes\n- Tout le reste de la fonctionnalité de soumission fonctionne parfaitement\n\n**Investigation requise :**\n- Vérifier la configuration et les conditions d'exécution de st.balloons() dans app.py\n- Analyser les logs Streamlit pour identifier d'éventuelles erreurs\n- Tester différentes positions et conditions pour l'appel à st.balloons()\n- Vérifier les paramètres de session Streamlit qui pourraient affecter l'affichage\n- Examiner la version de Streamlit et la compatibilité des animations\n\n**Critères de réussite :**\n- L'animation de ballons s'affiche visuellement lors de la soumission d'une nouvelle requête\n- Aucune régression sur les autres fonctionnalités de soumission\n- Tests de validation avec plusieurs soumissions successives\n- Documentation de la solution pour éviter les régressions futures\n\n**Approche technique :**\n- Analyse du code existant dans .cursor/streamlit_app/app.py\n- Tests avec différentes configurations de st.balloons()\n- Vérification des conditions d'affichage et de session\n- Implémentation de logging pour diagnostiquer le problème\n- Tests utilisateur pour confirmer la résolution",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/streamlit_app/app.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'animation de ballons s'affiche visuellement lors de la soumission de nouvelles requêtes, (2) La fonctionnalité a été testée avec plusieurs soumissions successives, (3) Aucune régression n'a été introduite dans le processus de soumission, (4) Le problème racine a été identifié et documenté, (5) La solution est robuste et ne causera pas de régressions futures.",
+    "created_date": "2025-06-25T16:23:55.145Z",
+    "updated_date": "2025-06-25T16:23:55.145Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 211,
+    "title": "Tester et valider l'outil commit automatique de tâches de refactoring",
+    "short_description": "Valider que l'outil commit modifié fonctionne correctement après le redémarrage du serveur MCP en testant la création automatique de tâches de refactoring pour les fichiers Python >500 lignes.",
+    "detailed_description": "Tester et valider les améliorations apportées à l'outil commit MCP qui crée automatiquement des tâches de refactoring.\n\n**Contexte :**\n- L'outil commit a été modifié dans la tâche #207 pour créer automatiquement des tâches de refactoring\n- Le serveur MCP a été redémarré par l'utilisateur, permettant la prise en compte des modifications\n- Besoin de validation que la fonctionnalité fonctionne comme prévu\n\n**Fonctionnalités à tester :**\n- Détection automatique des fichiers Python >500 lignes lors des commits\n- Création automatique de tâches avec priorité appropriée (3 par défaut, 4-5 pour très gros fichiers)\n- Génération de titres et descriptions pertinents pour les tâches de refactoring\n- Intégration correcte avec l'API MCP de création de tâches\n- Messages de succès avec informations sur les tâches créées\n\n**Tests à effectuer :**\n- Créer ou modifier un fichier Python pour qu'il dépasse 500 lignes\n- Effectuer un commit via l'outil MCP commit\n- Vérifier que les tâches de refactoring sont créées automatiquement dans tasks.json\n- Valider les métadonnées des tâches créées (priorité, description, fichiers impactés)\n- Confirmer les messages de retour de l'outil commit\n\n**Critères de validation :**\n- L'outil commit détecte correctement les fichiers >500 lignes\n- Les tâches de refactoring sont créées automatiquement avec les bonnes spécifications\n- Les messages de succès incluent les informations sur les tâches créées\n- Aucune régression sur la fonctionnalité commit existante\n- La fonctionnalité fonctionne de manière robuste et fiable\n\n**Livrable :**\n- Rapport de validation complet avec résultats des tests\n- Documentation de toute amélioration ou correction nécessaire\n- Confirmation que l'outil est prêt pour utilisation en production",
+    "dependencies": [],
+    "status": "IN_PROGRESS",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/commit.js",
+      ".cursor/memory-bank/workflow/tasks.json"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'outil commit a été testé avec succès sur un fichier Python >500 lignes, (2) Les tâches de refactoring sont créées automatiquement avec les bonnes spécifications, (3) Les messages de retour de l'outil incluent les informations sur les tâches créées, (4) Aucune régression n'a été détectée sur la fonctionnalité commit existante, (5) Un rapport de validation complet a été produit confirmant le bon fonctionnement.",
+    "created_date": "2025-06-25T16:24:21.277Z",
+    "updated_date": "2025-06-25T16:25:02.351Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null
+  },
+  {
+    "id": 212,
+    "title": "Refactoriser .cursor\\streamlit_app\\app.py - Réduire la taille du fichier",
+    "short_description": "Décomposer le fichier Python .cursor\\streamlit_app\\app.py (823 lignes) en modules plus petits pour améliorer la maintenabilité.",
+    "detailed_description": "Le fichier .cursor\\streamlit_app\\app.py contient actuellement 823 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Taille actuelle : 823 lignes\n- Dépassement : 323 lignes au-dessus de la limite\n- Ratio : 1.65x la taille recommandée\n\n**Objectifs de refactoring :**\n- Réduire la taille à moins de 500 lignes par module\n- Améliorer la lisibilité et la maintenabilité\n- Faciliter les tests unitaires\n- Réduire la complexité cognitive\n\n**Approches recommandées :**\n- Extraire les fonctions logiquement liées en modules séparés\n- Identifier et isoler les responsabilités distinctes\n- Créer des interfaces claires entre les modules\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer\n- La documentation doit être mise à jour",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor\\streamlit_app\\app.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier .cursor\\streamlit_app\\app.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies",
+    "created_date": "2025-06-25T16:25:58.211Z",
+    "updated_date": "2025-06-25T16:25:58.211Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 213,
+    "title": "Refactoriser .cursor\\streamlit_app\\pages\\memory.py - Réduire la taille du fichier",
+    "short_description": "Décomposer le fichier Python .cursor\\streamlit_app\\pages\\memory.py (846 lignes) en modules plus petits pour améliorer la maintenabilité.",
+    "detailed_description": "Le fichier .cursor\\streamlit_app\\pages\\memory.py contient actuellement 846 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Taille actuelle : 846 lignes\n- Dépassement : 346 lignes au-dessus de la limite\n- Ratio : 1.69x la taille recommandée\n\n**Objectifs de refactoring :**\n- Réduire la taille à moins de 500 lignes par module\n- Améliorer la lisibilité et la maintenabilité\n- Faciliter les tests unitaires\n- Réduire la complexité cognitive\n\n**Approches recommandées :**\n- Extraire les fonctions logiquement liées en modules séparés\n- Identifier et isoler les responsabilités distinctes\n- Créer des interfaces claires entre les modules\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer\n- La documentation doit être mise à jour",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor\\streamlit_app\\pages\\memory.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier .cursor\\streamlit_app\\pages\\memory.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies",
+    "created_date": "2025-06-25T16:25:58.216Z",
+    "updated_date": "2025-06-25T16:25:58.216Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 214,
+    "title": "Refactoriser .cursor\\streamlit_app\\pages\\task_status.py - Réduire la taille du fichier",
+    "short_description": "Décomposer le fichier Python .cursor\\streamlit_app\\pages\\task_status.py (924 lignes) en modules plus petits pour améliorer la maintenabilité.",
+    "detailed_description": "Le fichier .cursor\\streamlit_app\\pages\\task_status.py contient actuellement 924 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Taille actuelle : 924 lignes\n- Dépassement : 424 lignes au-dessus de la limite\n- Ratio : 1.85x la taille recommandée\n\n**Objectifs de refactoring :**\n- Réduire la taille à moins de 500 lignes par module\n- Améliorer la lisibilité et la maintenabilité\n- Faciliter les tests unitaires\n- Réduire la complexité cognitive\n\n**Approches recommandées :**\n- Extraire les fonctions logiquement liées en modules séparés\n- Identifier et isoler les responsabilités distinctes\n- Créer des interfaces claires entre les modules\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer\n- La documentation doit être mise à jour",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor\\streamlit_app\\pages\\task_status.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier .cursor\\streamlit_app\\pages\\task_status.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies",
+    "created_date": "2025-06-25T16:25:58.223Z",
+    "updated_date": "2025-06-25T16:25:58.223Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 215,
+    "title": "Refactoriser test_large_file.py - Réduire la taille du fichier",
+    "short_description": "Décomposer le fichier Python test_large_file.py (591 lignes) en modules plus petits pour améliorer la maintenabilité.",
+    "detailed_description": "Le fichier test_large_file.py contient actuellement 591 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Taille actuelle : 591 lignes\n- Dépassement : 91 lignes au-dessus de la limite\n- Ratio : 1.18x la taille recommandée\n\n**Objectifs de refactoring :**\n- Réduire la taille à moins de 500 lignes par module\n- Améliorer la lisibilité et la maintenabilité\n- Faciliter les tests unitaires\n- Réduire la complexité cognitive\n\n**Approches recommandées :**\n- Extraire les fonctions logiquement liées en modules séparés\n- Identifier et isoler les responsabilités distinctes\n- Créer des interfaces claires entre les modules\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer\n- La documentation doit être mise à jour",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "test_large_file.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier test_large_file.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies",
+    "created_date": "2025-06-25T16:25:58.230Z",
+    "updated_date": "2025-06-25T16:25:58.230Z",
     "parent_id": null,
     "priority": 3,
     "image": null

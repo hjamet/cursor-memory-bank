@@ -1,109 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 168,
+  "last_id": 174,
   "requests": [
-    {
-      "id": 143,
-      "content": "Question regarding agent message #66: \"Je suis désolé, mais je suis incapable de modifier l'interface Streamlit comme vous l'avez demandé. ...\"\n\nMy question: Réessaye, je te rappelle que t'as un outil regex Edit pour des modifications précises au besoin Essaie de réessayer plusieurs fois les modifications, de changer ton approche, de relire, lit toujours les fichiers avant de les modifier parce que si ça se trouve, tu penses que tu n'arrives pas à appliquer la modification, mais en fait peut être que le modèle a réussi à à l'appliquer et t'as juste pas compris que il avait réussi à l'appliquer.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T01:01:11.776234",
-      "updated_at": "2025-06-24T23:02:03.161Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T01:01:11.776234",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T23:02:03.161Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 144,
-      "content": "Est ce que tu peux modifier l'interface streamlit ? Euh pour que les taches Que l'agent marque comme bloqué soit affiché dans la table. La Tab Task to review à l'intérieur de la page review et communication. Comme ça, quand une tâche est bloquée, bah moi je peux regarder comment la débloquer, dire à l'agent comment faire, et cetera. Donc c'est de la la tâche bloquée doit être en mode tout review pour que je puisse l'éditer. Voilà, est-ce que est-ce que tu peux, est-ce que tu peux corriger ça s'il te plaît ?",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T01:06:23.281717",
-      "updated_at": "2025-06-24T23:11:03.915Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T01:06:23.281717",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T23:11:03.915Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 145,
-      "content": "Tu peux aussi t'assurer que le script d'installation garde complètement intact le dossier workflow du repository où il est installé. Si ce dossier existe déjà, il doit surtout pas écraser ce dossier avec les tâches et requêtes venant du du github de Memory Bank. Au contraire, il doit bah simplement installer tout le reste tout autour sans toucher au dossier où il y a des tâches et les requêtes user brief du projet où il est installé. Et avec lesquels il va devoir désormais travailler",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T01:08:21.319757",
-      "updated_at": "2025-06-24T23:11:25.833Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T01:08:21.319757",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T23:11:25.833Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 146,
-      "content": "J'ai l'impression que l'outil regex_edit ne fonctionne pas correctement. Tu peux identifier pourquoi et résoudre le problème note que tu ne pourras pas le tester, il faudra me demander de redémarrer curseur Pour ce faire, tu peux me le faire via un agent, un un message lors de l'utilisation de ton tee remember quand tu auras fini d'implémenter toutes les modifications, tu peux me dire s'il te plaît, redis mercursore et à ce moment là et ensuite continue sur une autre tâche et puis plus tard je redémarrerai curseur et je te dirai que je l'ai redémarré et donc que tu peux re-continuer sur cette tâche",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T01:10:12.538445",
-      "updated_at": "2025-06-24T23:11:49.691Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T01:10:12.538445",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T23:11:49.691Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 147,
-      "content": "En fait, supprime l'estimation du temps de complétion, ça fonctionne pas bien, ça prend de la place et en plus c'est pas lisible sur l'interface streaming dans la Side-bar en particulier, supprime la et à la place laisse uniquement. Euh L'indicateur remaining Task est centre le pour plus de lisibilité",
-      "status": "archived",
-      "image": {
-        "path": ".cursor\\temp\\images\\req_147_20250625_011111_pasted.png",
-        "filename": "req_147_20250625_011111_pasted.png",
-        "size": 26526,
-        "width": 530,
-        "height": 609,
-        "content_type": "image/png"
-      },
-      "created_at": "2025-06-25T01:11:11.462254",
-      "updated_at": "2025-06-24T23:12:42.918Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T01:11:11.462254",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-24T23:12:42.918Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 148,
       "content": "Par contre, petite erreur dans l'interface streaming. L'indicateur remaining Task doit non seulement afficher les tâches qu'il reste à faire, qui sont en mode too doux, mais aussi les requêtes user brief non traitées. C'est la somme des 2 en fait",
@@ -478,7 +376,7 @@
       "status": "archived",
       "image": null,
       "created_at": "2025-06-25T17:44:31.545129",
-      "updated_at": "2025-06-25T15:48:04.421Z",
+      "updated_at": "2025-06-25T16:03:51.157Z",
       "history": [
         {
           "timestamp": "2025-06-25T17:44:31.545129",
@@ -488,6 +386,11 @@
         {
           "timestamp": "2025-06-25T15:48:04.421Z",
           "action": "mark_archived"
+        },
+        {
+          "timestamp": "2025-06-25T16:03:51.157Z",
+          "action": "add_comment",
+          "comment": "Les deux nouvelles fonctionnalités ont été testées et sont parfaitement fonctionnelles ! Le système est maintenant plus robuste et transparent. Le workflow autonome est en pause, en attente de vos prochaines instructions."
         }
       ]
     },
@@ -497,7 +400,7 @@
       "status": "archived",
       "image": null,
       "created_at": "2025-06-25T17:46:30.468540",
-      "updated_at": "2025-06-25T15:48:32.803Z",
+      "updated_at": "2025-06-25T16:03:41.067Z",
       "history": [
         {
           "timestamp": "2025-06-25T17:46:30.468540",
@@ -506,6 +409,111 @@
         },
         {
           "timestamp": "2025-06-25T15:48:32.803Z",
+          "action": "mark_archived"
+        },
+        {
+          "timestamp": "2025-06-25T16:03:41.067Z",
+          "action": "add_comment",
+          "comment": "Les deux nouvelles fonctionnalités ont été testées et sont parfaitement fonctionnelles ! Le système est maintenant plus robuste et transparent. Le workflow autonome est en pause, en attente de vos prochaines instructions."
+        }
+      ]
+    },
+    {
+      "id": 169,
+      "content": "En fait, tant qu'à faire, je me dis qu'on pourrait encore améliorer l'outil commit pour lui faire tenter d'ajouter directement les tâches dans le fichier tâches. Il doit créer des tâches de split, des fichiers Python trop longs plutôt que de dire à l'agent d'appeler les règles de pour les décomposer, et cetera. Il peut directement ajouter les. Les tâches avec une priorité assez faible plus. Euh, plus élevée si le fichier est vraiment très long mais en général priorité 3. Euh 3 maximum 56. 56 noms est basée sur aucune dépendance, il les ajoute automatique automatiquement et comme ça, la jambe elle est très très quand il aura le temps et c'est juste plus rapide. Tu peux effectuer cette modification s'il te plaît",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T18:04:08.145173",
+      "updated_at": "2025-06-25T16:05:54.839Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T18:04:08.145173",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-25T16:05:54.839Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 170,
+      "content": "Dans l'interface streaming, c'est vraiment chouette. La modification que t'as fait, ça a l'air de très bien fonctionner. L'affichage de la la règle actuelle dans laquelle se trouve l'agent. Si tu peux le problème c'est que quand l'agent se met à traiter une tâche, la règle dans laquelle il est cesse d'être affiché en fait. En fait, elle devrait toujours être affichée entre parenthèses. Il y a écrit Agent status ensuite entre parenthèses l'étape dans laquelle il se trouve et en dessous, il y a écrit ou bien. L'agent est en train de travailler ou bien il y a écrit la tâche sur laquelle l'agent est en train de travailler, garde le design actuel, hein, fait pas de modifications drastiques du design mais voilà, si tu peux faire cette petite modification parce que je me suis rendu compte que quand il y avait une tâche en cours et Ben on sait plus dans quelle étape se trouve l'agent.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T18:08:03.472777",
+      "updated_at": "2025-06-25T16:13:13.596Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T18:08:03.472777",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-25T16:13:07.591Z",
+          "action": "add_comment",
+          "comment": "Cette requête concerne exactement le même problème que la tâche #208 que je viens de terminer. L'affichage persistant de l'étape workflow dans l'interface Streamlit a été implémenté avec succès. L'étape workflow est maintenant TOUJOURS affichée entre parenthèses dans \"Agent Status\" avec le format demandé. Les changements sont déjà appliqués et visibles grâce à l'auto-refresh de l'interface."
+        },
+        {
+          "timestamp": "2025-06-25T16:13:13.596Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 171,
+      "content": "Alors c'est une micro modification, mais c'était sympa avant quand je soumettais une nouvelle requête, il y avait une petite animation, tu sais de ballon qui s'envole sur l'écran. Je crois que c'est St ballons la fonction, un truc comme ça est ce que tu pourrais la remettre ? Fais attention à pas casser le fonctionnement vraiment, tout doit marcher exactement pareil qu'actuellement, notamment la suppression du texte de la zone de texte, et cetera. Mais si tu peux rajouter cette chouette petite animation qu'il y avait quand j'ajoute une tâche depuis l'interface streamlitz dans l'onglet review et communication, en ajoutant les ballons, ce serait assez sympa.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T18:08:52.447361",
+      "updated_at": "2025-06-25T16:14:06.986Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T18:08:52.447361",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-25T16:14:06.986Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 173,
+      "content": "Correction for Task #209 (Réactiver l'animation de ballons lors de la soumission de nouvelles requêtes):\n\nHélas non : l'animation des ballons ne fonctionne toujours pas ! Tout le reste marche parfaitement, mais les ballons ne s'affiche pas :/",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T18:18:48.528335",
+      "updated_at": "2025-06-25T16:23:59.591Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T18:18:48.528335",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-25T16:23:59.591Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 174,
+      "content": "J'ai redémarré du coup le serveur cursor Depuis tes dernières modifications, donc ça devrait te permettre de tester L'outil commit que tu as modifié pour voir si il ajoute bien directement les tâches de refactor des fichiers trop longs.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-25T18:21:18.851474",
+      "updated_at": "2025-06-25T16:24:24.783Z",
+      "history": [
+        {
+          "timestamp": "2025-06-25T18:21:18.851474",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-25T16:24:24.783Z",
           "action": "mark_archived"
         }
       ]

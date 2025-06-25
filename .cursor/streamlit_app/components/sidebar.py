@@ -98,25 +98,37 @@ def display_sidebar():
         current_rule = task_utils.get_current_workflow_rule()
         formatted_rule = task_utils.format_workflow_rule(current_rule)
         
-        if in_progress_tasks:
-            st.markdown("---")
-            st.subheader("⚡ Current Task")
-            for task in in_progress_tasks:
+        # Always show Agent Status with workflow step
+        st.markdown("---")
+        
+        # Display Agent Status with current workflow step (always visible)
+        if current_rule and current_rule != 'idle':
+            st.subheader(f"🤖 Agent Status ({formatted_rule})")
+            
+            if in_progress_tasks:
+                # Show current task details under Agent Status
+                task = in_progress_tasks[0]  # Show first task if multiple
                 title = task.get('title', 'No Title')
                 description = task.get('short_description', '')
-                info_text = f"**{title}**"
+                info_text = f"**Current Task:** {title}"
                 if description:
                     info_text += f"\n\n{description}"
                 st.info(info_text)
-        else:
-            # Show workflow rule in the agent status section
-            st.markdown("---")
-            # Display Agent Status with current workflow step
-            if current_rule and current_rule != 'idle':
-                st.subheader(f"🤖 Agent Status ({formatted_rule})")
-                st.info(f"**Workflow Step:** {formatted_rule}\n\nAgent is processing workflow rules.")
             else:
-                st.subheader("🤖 Agent Status")
+                st.info(f"**Workflow Step:** {formatted_rule}\n\nAgent is processing workflow rules.")
+        else:
+            st.subheader(f"🤖 Agent Status ({formatted_rule})")
+            
+            if in_progress_tasks:
+                # Show current task details under Agent Status
+                task = in_progress_tasks[0]  # Show first task if multiple  
+                title = task.get('title', 'No Title')
+                description = task.get('short_description', '')
+                info_text = f"**Current Task:** {title}"
+                if description:
+                    info_text += f"\n\n{description}"
+                st.info(info_text)
+            else:
                 st.info("Agent is idle. Ready for next task.")
 
         st.markdown("---")
