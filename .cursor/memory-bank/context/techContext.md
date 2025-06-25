@@ -75,10 +75,10 @@ Comprehensive bash script supporting:
 └── mcp.json               # MCP server configuration
 ```
 
-## Known Issues & Solutions
+## Known Issues & Workarounds
 
 ### Tool Reliability
-- **`edit_file` Instability**: Unreliable for large changes. Use `mcp_ToolsMCP_regex_edit` for precise modifications
+- **`edit_file` Instability**: Unreliable for large changes. Use `regex_edit` for precise modifications
 - **Binary File Handling**: Standard tools cannot delete binary files; use terminal commands instead
 
 ### MCP Server Management

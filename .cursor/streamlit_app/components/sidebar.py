@@ -67,5 +67,5 @@ def display_sidebar():
             st.info("Agent is idle. Ready for next task.")
 
         st.markdown("---")
-        # Auto-refresh is enabled by default every 10 seconds to keep the dashboard updated.
-        st_autorefresh(interval=10000, limit=None, key="auto_refresh_widget")
+        # Auto-refresh is enabled by default every 5 seconds to keep the dashboard updated.
+        st_autorefresh(interval=5000, limit=None, key="auto_refresh_widget")

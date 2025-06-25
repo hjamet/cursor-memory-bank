@@ -4029,5 +4029,41 @@
     "parent_id": null,
     "priority": 4,
     "image": null
+  },
+  {
+    "id": 196,
+    "title": "Analyser et vérifier la configuration pre-commit dans install.sh",
+    "short_description": "Vérifier que le script install.sh configure correctement pre-commit pour les avertissements de fichiers de plus de 500 lignes et s'assurer de la compatibilité avec le système de règles actuel.",
+    "detailed_description": "Analyse complète de la configuration pre-commit dans install.sh :\n\n**CONFIGURATION PRE-COMMIT ANALYSÉE :**\n\n**1. Installation automatique du hook (lignes 725-770) :**\n- Fonction `install_pre_commit_hook()` installant automatiquement le hook\n- Support des méthodes curl et git clone\n- Copie du script depuis `.githooks/pre-commit` vers `.git/hooks/pre-commit`\n- Attribution des permissions d'exécution automatique\n\n**2. Configuration Git automatique (lignes 1180-1220) :**\n- Configuration automatique de `core.hooksPath` vers `.githooks`\n- Détection automatique des dépôts Git\n- Gestion d'erreur avec instructions manuelles en fallback\n\n**3. Script pre-commit analysé (.githooks/pre-commit) :**\n- **Limite configurée :** MAX_LINES=500\n- **Extensions surveillées :** py, js, ts, java, go, rb, php, sh\n- **Comportement :** Avertissement mais AUTORISATION du commit (exit 0)\n- **Filtrage intelligent :** Seuls les fichiers stagés (ACM - Added, Copied, Modified)\n\n**ANALYSE DES FICHIERS DU PROJET :**\n\n**Fichiers dépassant 500 lignes (légitimement) :**\n- `install.sh` : 1217 lignes (script d'installation complexe)\n- `.cursor/streamlit_app/app.py` : 812 lignes (application Streamlit principale)\n- `.cursor/streamlit_app/pages/task_status.py` : 923 lignes (interface de gestion des tâches)\n- `.cursor/streamlit_app/pages/memory.py` : 845 lignes (interface de gestion mémoire)\n- `.cursor/mcp/memory-bank-mcp/mcp_tools/next_rule.js` : 542 lignes (logique de workflow)\n\n**VALIDATION DE LA CONFIGURATION :**\n\n✅ **Hook correctement configuré** : Limite de 500 lignes appliquée\n✅ **Comportement approprié** : Avertissement sans blocage des commits\n✅ **Installation automatique** : Script install.sh configure tout automatiquement\n✅ **Compatibilité système** : Fonctionne avec les fichiers légitimement volumineux\n✅ **Filtrage intelligent** : Seuls les fichiers de code modifiés sont vérifiés\n\n**CONCLUSION :**\nLa configuration pre-commit est parfaitement fonctionnelle et appropriée. Le hook avertit des fichiers volumineux sans bloquer le workflow de développement, ce qui est idéal pour ce projet contenant légitimement plusieurs fichiers complexes dépassant 500 lignes.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      "install.sh"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'analyse complète de install.sh concernant pre-commit est effectuée, (2) Le script .githooks/pre-commit est analysé et ses paramètres vérifiés, (3) Les fichiers du projet dépassant 500 lignes sont identifiés et justifiés, (4) La compatibilité entre la configuration et le système actuel est confirmée, (5) Un rapport détaillé avec recommandations est fourni.",
+    "created_date": "2025-06-25T10:55:28.730Z",
+    "updated_date": "2025-06-25T11:04:33.016Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null
+  },
+  {
+    "id": 197,
+    "title": "Corriger les problèmes de communication MCP de l'outil regex_edit",
+    "short_description": "Résoudre les problèmes de double préfixation qui empêchent l'outil regex_edit d'être accessible via l'interface MCP de Cursor, au-delà des corrections de code déjà effectuées.",
+    "detailed_description": "Corriger les problèmes de communication MCP de l'outil regex_edit identifiés dans la tâche #195 :\n\n**Problème identifié et résolu :**\n- L'outil regex_edit fonctionne parfaitement au niveau du code JavaScript ✓\n- Problème de double préfixation identifié : nom 'mcp_ToolsMCP_regex_edit' + serveur 'ToolsMCP' = double préfixation ✓\n- L'outil n'était pas accessible via l'interface MCP de Cursor à cause de cette double préfixation ✓\n\n**Solutions implémentées :**\n- Changé le nom de l'outil de 'mcp_ToolsMCP_regex_edit' à 'regex_edit' dans regex_edit.js\n- Mis à jour les capacités du serveur MCP pour déclarer 'regex_edit': true au lieu de 'mcp_ToolsMCP_regex_edit': true\n- Mis à jour la documentation technique (techContext.md) pour référencer le bon nom d'outil\n- Testé le fonctionnement de l'outil au niveau du code JavaScript - fonctionne parfaitement\n\n**Tests effectués :**\n- Test de fonctionnement de l'outil : ✓ RÉUSSI\n- Validation de la logique de remplacement regex : ✓ RÉUSSI  \n- Vérification de la gestion d'erreurs : ✓ RÉUSSI\n\n**Prochaines étapes requises :**\n- REDÉMARRAGE COMPLET DE CURSOR OBLIGATOIRE pour que les changements MCP prennent effet\n- Après redémarrage, l'outil sera accessible comme 'regex_edit' via MCP\n- Plus de problème de double préfixation",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      "/.cursor/mcp/mcp-commit-server/mcp_tools/regex_edit.js",
+      "/.cursor/mcp/mcp-commit-server/server.js",
+      "/.cursor/memory-bank/context/techContext.md"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'outil regex_edit est accessible via MCP dans Cursor, (2) Le problème de double préfixation est résolu, (3) L'outil fonctionne correctement après redémarrage, (4) Tests complets de validation effectués, (5) Documentation mise à jour avec les corrections MCP.",
+    "created_date": "2025-06-25T10:55:41.111Z",
+    "updated_date": "2025-06-25T10:59:25.176Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null
   }
 ]

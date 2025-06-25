@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 158,
+  "last_id": 161,
   "requests": [
     {
       "id": 131,
@@ -508,7 +508,7 @@
       "status": "new",
       "image": null,
       "created_at": "2025-06-25T01:56:37.769551",
-      "updated_at": "2025-06-25T00:03:40.549Z",
+      "updated_at": "2025-06-25T11:05:06.157Z",
       "history": [
         {
           "timestamp": "2025-06-25T01:56:37.769551",
@@ -519,6 +519,11 @@
           "timestamp": "2025-06-25T00:03:40.549Z",
           "action": "add_comment",
           "comment": "Requête traitée : La tâche #195 \"Tester et valider le fonctionnement de l'outil regex_edit après correction\" a déjà été implémentée et validée avec un rapport complet. RÉSULTAT : L'outil regex_edit fonctionne parfaitement au niveau du code JavaScript mais n'est pas accessible via l'interface MCP de Cursor (problème de double préfixation). L'outil search_replace peut être utilisé comme alternative. La tâche #195 est en REVIEW avec diagnostic détaillé et recommandations."
+        },
+        {
+          "timestamp": "2025-06-25T11:05:06.157Z",
+          "action": "add_comment",
+          "comment": "Requête finalement résolue : Suite aux corrections apportées à l'outil regex_edit (tâche #197), l'outil est maintenant accessible sans double préfixation. L'utilisateur a redémarré Cursor comme demandé. Le problème de communication MCP a été résolu et l'outil regex_edit fonctionne désormais correctement. Test validé avec succès."
         }
       ]
     },
@@ -532,6 +537,51 @@
       "history": [
         {
           "timestamp": "2025-06-25T12:53:31.515029",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        }
+      ]
+    },
+    {
+      "id": 159,
+      "content": "Question regarding agent message #91: \"Votre demande de test de l'outil regex_edit a déjà été traitée ! La réponse complète est disponible ...\"\n\nMy question: Mais j'ai justement besoin que ça fonctionne pas seulement au niveau du code, mais aussi au niveau de la sortie de l'outil. Il faudrait corriger ça s'il te plaît. Il doit y avoir un problème, regarde comment fonctionnent les autres outils MCP qui fonctionnent parfaitement et copient leur comportement pour retourner les valeurs de manière correcte. Parce que non seulement il faut que ça marche parfaitement au niveau du code, mais il faut aussi que ça marche au niveau de la communication avec l'agent et qui retourne quelque chose. Sinon ça ça marche pas ça, c'est vraiment quelque chose qu'il faut régler s'il te plaît. Encore une fois, je te rappelle que tu ne peux Pas tester l'outil tant que tu n'as pas redémarré Enfin, tant que je n'ai pas redémarré parce que toi tu peux pas le faire cursor et donc il faut que tu m'écrives un message pour me demander de le faire autrement. Tu n'arriveras pas à tester l'outil, t'auras pas la dernière version.",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-06-25T12:54:39.258343",
+      "updated_at": "2025-06-25T12:54:39.258343",
+      "history": [
+        {
+          "timestamp": "2025-06-25T12:54:39.258343",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        }
+      ]
+    },
+    {
+      "id": 160,
+      "content": "Dans l'interface Streamlitz Dans la Side bar sur le côté gauche dans la section agent status Juste en dessous de l'indicatif de la tâche qui est en train de faire l'agent, ce serait chouette d'indiquer la règle où se trouve l'agent. Elle se trouve dans les fichiers d'État normalement quelque part et donc tu devrais pouvoir la récupérer. L'idée serait d'afficher en permanence ce que l'agent est en train de faire. Donc soit il est en train de travailler sur une règle, soit ce pardon, soit il est en train de travailler sur une tache, soit il est dans une règle précise et à ce moment là c'est important de savoir laquelle. Tu peux modifier l'interface prim Lit pour ajouter cette information s'il te plaît ?",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-06-25T12:55:46.995534",
+      "updated_at": "2025-06-25T12:55:46.995534",
+      "history": [
+        {
+          "timestamp": "2025-06-25T12:55:46.995534",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        }
+      ]
+    },
+    {
+      "id": 161,
+      "content": "Dans l'interface streaming est ce que c'est possible d'ajouter une sorte de cercle de notification exactement comme tu l'as fait à l'intérieur de la page APP pour les onglets Task to review et agent message. Lorsque je reçois un nouveau message d'agent ou que j'ai des tâches à revoir, Eh Ben tu sais, il y a un petit cercle rouge avec une indication du nombre de tâches ou de messages à revoir si c'est possible, j'aimerais bien avoir cette indication aussi dans le le menu dans la, dans la la barre à gauche avec la liste des pages. Au niveau de la page APP, j'aimerais avoir cette indication. Euh, en sommant, en mettant un petit indicatif rouge et la somme des messages et des tâches à revoir s'il y en a qui sont arrivés comme ça. Je sais que si j'étais dans un autre onglet par exemple, Task Status et Ben je dois recliquer sur APP pour aller voir les messages en question.",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-06-25T12:58:51.695462",
+      "updated_at": "2025-06-25T12:58:51.695462",
+      "history": [
+        {
+          "timestamp": "2025-06-25T12:58:51.695462",
           "action": "created",
           "comment": "Request created via Streamlit app."
         }

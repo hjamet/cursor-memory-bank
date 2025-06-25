@@ -68,7 +68,7 @@ const handleRegexEdit = async ({ file_path, regex_pattern, replacement_text }) =
 };
 
 export const regexEditTool = {
-    name: 'mcp_ToolsMCP_regex_edit',
+    name: 'regex_edit',
     description: "Performs a targeted file modification using a regular expression. This tool is a robust, non-model-based alternative to 'edit_file', ideal for precise changes where the exact location can be identified by a regex pattern. It replaces the first occurrence of the pattern with the provided text.",
     args: {
         file_path: z.string().describe('The absolute or relative path to the file that needs to be modified.'),

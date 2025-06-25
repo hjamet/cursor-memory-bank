@@ -1,17 +1,5 @@
 {
   "version": "1.0.0",
-  "messages": [
-    {
-      "id": 91,
-      "content": "Votre demande de test de l'outil regex_edit a déjà été traitée ! La réponse complète est disponible dans la tâche #195 \"Tester et valider le fonctionnement de l'outil regex_edit après correction\". RÉSULTAT : L'outil fonctionne parfaitement au niveau du code JavaScript mais n'est pas accessible via l'interface MCP de Cursor (problème de double préfixation). L'outil search_replace peut être utilisé comme alternative temporaire.",
-      "timestamp": "2025-06-25T10:52:44.756Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    }
-  ],
-  "last_id": 91
+  "messages": [],
+  "last_id": 95
 }
