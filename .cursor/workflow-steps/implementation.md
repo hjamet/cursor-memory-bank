@@ -3,28 +3,40 @@ Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant 
 
 ## Instructions
 
-1. **Task analysis**: Analyser LA tâche à implémenter (UNE SEULE).
-   - Utiliser `mcp_MemoryBankMCP_get_next_tasks` pour obtenir LA tâche prioritaire
-   - **IMPORTANT** : L'outil retourne LA tâche la plus prioritaire - c'est CETTE tâche et UNIQUEMENT cette tâche que vous devez traiter
-   - Identifier LA tâche avec le statut TODO ou IN_PROGRESS retournée par l'outil
-   - **INTERDICTION FORMELLE** : Ne pas traiter plusieurs tâches en séquence dans un même cycle d'implémentation
+1.  **Task analysis**: Analyser LA tâche à implémenter (UNE SEULE).
+    *   Utiliser `mcp_MemoryBankMCP_get_next_tasks` pour obtenir LA tâche prioritaire
+    *   **IMPORTANT** : L'outil retourne LA tâche la plus prioritaire - c'est CETTE tâche et UNIQUEMENT cette tâche que vous devez traiter
+    *   Identifier LA tâche avec le statut TODO ou IN_PROGRESS retournée par l'outil
+    *   **INTERDICTION FORMELLE** : Ne pas traiter plusieurs tâches en séquence dans un même cycle d'implémentation
 
-2. **Implementation**: Implémenter les modifications nécessaires pour LA tâche unique.
-   - Utiliser les outils appropriés (`edit_file`, `codebase_search`, etc.)
-   - Suivre les conventions établies dans le contexte technique
-   - Marquer LA tâche comme IN_PROGRESS pendant l'implémentation avec `mcp_MemoryBankMCP_update_task`
-   - **FOCUS ABSOLU** : Concentrez-vous uniquement sur cette tâche, ses sous-tâches éventuelles, mais JAMAIS sur d'autres tâches
-   - **EXCEPTION**: Si la tâche ne nécessite que l'exécution de commandes, une validation ou des expériences sans modification de code (par exemple, "vérifier que cette commande fonctionne"), vous pouvez appeler `mcp_MemoryBankMCP_next_rule` avec `step_name: 'experience-execution'` pour passer directement aux tests.
+2.  **Analyse du contexte et Plan d'implémentation**: Analyser le code existant pour garantir la cohérence et la réutilisation.
+    *   **Recherche de contexte**: Effectuer jusqu'à 3 recherches sémantiques (`codebase_search`) pour identifier le code existant en rapport avec la tâche.
+    *   **Objectifs de la recherche**:
+        *   Identifier les composants, fonctions ou patterns réutilisables.
+        *   Comprendre les conventions de code, le style, les bibliothèques utilisées et les patterns architecturaux du projet.
+    *   **Synthèse et Planification**: Analyser les résultats des recherches et formuler un plan d'implémentation. Ce plan doit explicitement décrire :
+        *   Comment le code existant sera réutilisé. **Prioriser fortement la réutilisation des composants existants, même s'ils nécessitent des modifications mineures, plutôt que de réimplémenter une fonctionnalité similaire. La réécriture doit être une exception, pas la norme.**
+        *   Comment le nouveau code s'alignera sur les pratiques existantes (nommage, structure des fonctions, documentation, style, etc.).
+        *   Le même type de fonction, les mêmes types de déclarations, les mêmes types de docstring, le même type d'écriture, de commentaires, le même style graphique si l'application est visuelle, les mêmes bibliothèques autant que possible, de manière à minimiser les imports, etc.
+    *   **Principe directeur**: Partir du principe que le code actuel est fonctionnel et constitue la meilleure référence. L'objectif est de s'intégrer de manière transparente pour ne pas introduire d'erreurs, pas de réinventer la roue.
 
-3. **Task status update**: Mettre à jour le statut de LA tâche terminée.
-   - Marquer LA tâche terminée comme REVIEW avec `mcp_MemoryBankMCP_update_task` pour que l'utilisateur la valide.
-   - Documenter les modifications apportées dans les commentaires de tâche
-   - **RAPPEL** : Une seule tâche = un seul update de statut
+3.  **Implementation**: Implémenter les modifications nécessaires pour LA tâche unique, en suivant le plan établi.
+    *   Utiliser les outils appropriés (`edit_file`, `regex_edit`, `grep_search`, etc.)
+    *   Suivre les conventions établies dans le contexte technique et le plan d'implémentation.
+    *   Marquer LA tâche comme IN_PROGRESS pendant l'implémentation avec `mcp_MemoryBankMCP_update_task`
+    *   **FOCUS ABSOLU** : Concentrez-vous uniquement sur cette tâche, ses sous-tâches éventuelles, mais JAMAIS sur d'autres tâches.
+    *   **EXCEPTION**: Si la tâche ne nécessite que l'exécution de commandes, une validation ou des expériences sans modification de code (par exemple, "vérifier que cette commande fonctionne"), vous pouvez appeler `mcp_MemoryBankMCP_next_rule` avec `step_name: 'experience-execution'` pour passer directement aux tests.
 
-4. **Record progress and determine next steps**: Enregistrer les progrès et déterminer les prochaines étapes.
-   - **OBLIGATOIRE** : Utiliser `mcp_MemoryBankMCP_remember` pour enregistrer l'état actuel
-   - L'outil remember indiquera les prochaines étapes appropriées (potentiellement une nouvelle implémentation)
-   - **DISCIPLINE WORKFLOW** : Toujours terminer par remember → next_rule pour maintenir le cycle autonome
+4.  **Task status update**: Mettre à jour le statut de LA tâche terminée.
+    *   Marquer LA tâche terminée comme REVIEW avec `mcp_MemoryBankMCP_update_task` pour que l'utilisateur la valide.
+    *   Documenter les modifications apportées dans les commentaires de tâche
+    *   **RAPPEL** : Une seule tâche = un seul update de statut
+
+5.  **Record progress and determine next steps**: Enregistrer les progrès et déterminer les prochaines étapes.
+    *   **OBLIGATOIRE** : Utiliser `mcp_MemoryBankMCP_remember` pour enregistrer l'état actuel
+    *   L'outil remember indiquera les prochaines étapes appropriées (potentiellement une nouvelle implémentation)
+    *   **DISCIPLINE WORKFLOW** : Toujours terminer par remember → next_rule pour maintenir le cycle autonome
+    *   **Communication**: N'utiliser le paramètre `user_message` de `remember` que pour signaler un problème majeur ou une décision d'implémentation critique qui s'écarte du plan initial. En temps normal, la communication est superflue et ce paramètre doit être omis.
 
 ## Specifics - RÈGLES STRICTES
 - **RÈGLE #1** : Travailler sur UNE SEULE tâche à la fois - JAMAIS plusieurs tâches en séquence
@@ -52,7 +64,7 @@ Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant 
 - **MANTRA** : "Une tâche, un cycle, un focus"
 - **VÉRIFICATION** : Avant chaque action, demandez-vous "Est-ce que cela concerne MA tâche unique ?"
 - **LIMITE** : Si vous voyez d'autres problèmes, les noter dans remember mais NE PAS les traiter
-- **CYCLE COMPLET** : Task analysis → Implementation → Status update → Remember → STOP
+- **CYCLE COMPLET** : Task analysis → Context analysis & Plan → Implementation → Status update → Remember → STOP
 - **PROCHAINE TÂCHE** : Sera déterminée par le prochain appel à next_rule, pas par vous
 
 ## Next Steps
@@ -73,18 +85,27 @@ Je commence par analyser LA tâche à implémenter (UNE SEULE). **(Implementatio
 J'ai identifié LA tâche prioritaire : {{ current_tasks_summary }} 
 **FOCUS** : Je vais traiter UNIQUEMENT cette tâche et aucune autre. **(Implementation: 1 - Task analysis)**
 
-# Implementation: 2 - Implementation
-Je procède maintenant à l'implémentation des modifications pour LA tâche unique. **(Implementation: 2 - Implementation)**
+# Implementation: 2 - Analyse du contexte et Plan d'implémentation
+Je recherche dans la base de code pour comprendre les conventions et identifier le code à réutiliser. **(Implementation: 2 - Analyse du contexte et Plan d'implémentation)**
+[...appel de `codebase_search` (jusqu'à 3 fois)...]
+**Analyse et Plan**: Après avoir analysé les résultats, voici mon plan d'implémentation pour garantir la cohérence et la réutilisation :
+- [Point 1 du plan, ex: Réutiliser la fonction `existingFunction` pour...]
+- [Point 2 du plan, ex: Créer une nouvelle fonction `newFunction` en suivant le style de `similarFunction`...]
+- [Point 3 du plan, ex: Utiliser la bibliothèque `existing-lib` déjà présente dans le projet...]
+**COHÉRENCE** : Mon implémentation suivra rigoureusement ce plan pour s'intégrer au code existant. **(Implementation: 2 - Analyse du contexte et Plan d'implémentation)**
+
+# Implementation: 3 - Implementation
+Je procède maintenant à l'implémentation des modifications pour LA tâche unique, en suivant mon plan. **(Implementation: 3 - Implementation)**
 [...mise à jour du statut avec mcp_MemoryBankMCP_update_task...]
-[...implémentation des changements pour CETTE tâche uniquement...]
-**DISCIPLINE** : Je me concentre exclusivement sur cette tâche. **(Implementation: 2 - Implementation)**
+[...implémentation des changements pour CETTE tâche uniquement, en respectant le plan...]
+**DISCIPLINE** : Je me concentre exclusivement sur cette tâche. **(Implementation: 3 - Implementation)**
 
-# Implementation: 3 - Task status update
-Je mets à jour le statut de LA tâche terminée. **(Implementation: 3 - Task status update)**
+# Implementation: 4 - Task status update
+Je mets à jour le statut de LA tâche terminée. **(Implementation: 4 - Task status update)**
 [...appel de mcp_MemoryBankMCP_update_task pour marquer CETTE tâche comme REVIEW...]
-**TERMINÉ** : Cette tâche unique est maintenant complétée et en attente de revue. **(Implementation: 3 - Task status update)**
+**TERMINÉ** : Cette tâche unique est maintenant complétée et en attente de revue. **(Implementation: 4 - Task status update)**
 
-# Implementation: 4 - Record progress and determine next steps
-Je vais maintenant enregistrer les progrès et déterminer les prochaines étapes appropriées. **(Implementation: 4 - Record progress and determine next steps)**
+# Implementation: 5 - Record progress and determine next steps
+Je vais maintenant enregistrer les progrès et déterminer les prochaines étapes appropriées. **(Implementation: 5 - Record progress and determine next steps)**
 [...appel OBLIGATOIRE de mcp_MemoryBankMCP_remember...]
-**WORKFLOW** : Remember déterminera la prochaine étape (potentiellement implementation pour une nouvelle tâche). **(Implementation: 4 - Record progress and determine next steps)**
+**WORKFLOW** : Remember déterminera la prochaine étape (potentiellement implementation pour une nouvelle tâche). **(Implementation: 5 - Record progress and determine next steps)**

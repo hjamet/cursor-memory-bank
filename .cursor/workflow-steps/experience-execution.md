@@ -16,6 +16,10 @@ Quickly test the recent changes manually. If the test is successful, commit the 
 
     - **If the test was a SUCCESS**:
         - `<think>`
+            - The test succeeded. The associated task is now complete. I must mark it as 'DONE'.
+        `</think>`
+        - **Call `mcp_MemoryBankMCP_update_task` to set the status of the related task to `DONE`.**
+        - `<think>`
             - Formulate a clear and concise commit message that follows conventions. The message should summarize the changes that were just validated.
             - What is the correct emoji, type, title, and description for the commit?
         `</think>`
@@ -31,7 +35,7 @@ Quickly test the recent changes manually. If the test is successful, commit the 
             - If NO, and there are more tasks, the next step is `implementation`.
             - If NO, and there are no more tasks, `context-update` is still appropriate.
         `</think>`
-        - Call `mcp_MemoryBankMCP_remember` to record the successful test and set the future step based on the evaluation above.
+        - Call `mcp_MemoryBankMCP_remember` to record the successful test and set the future step based on the evaluation above. **Utiliser l'argument `user_message` pour communiquer un résumé clair du succès de l'expérience à l'utilisateur, en incluant les résultats clés ou les métriques pertinentes (ex: "Expérience réussie: le test `npm test` a retourné 10/10 tests passés.").**
 
     - **If the test was a FAILURE**:
         - `<think>`
@@ -39,7 +43,7 @@ Quickly test the recent changes manually. If the test is successful, commit the 
             - What are the likely causes?
             - What information is crucial for the `fix` step?
         `</think>`
-        - Call `mcp_MemoryBankMCP_remember` to document the failure and set the future step to `fix`.
+        - Call `mcp_MemoryBankMCP_remember` to document the failure and set the future step to `fix`. **Utiliser l'argument `user_message` pour communiquer un résumé clair de l'échec de l'expérience à l'utilisateur, en incluant les messages d'erreur ou observations pertinentes (ex: "Expérience échouée: la commande `npm start` a retourné une erreur `TimeoutError`.").**
 
     - **If you were INTERRUPTED**:
         - `<think>`
