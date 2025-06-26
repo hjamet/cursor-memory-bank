@@ -73,11 +73,16 @@ export async function appendLog(logPath, data) {
  */
 export async function readLogLines(logPath, lineCount) {
     try {
+        // If lineCount is 0 or negative, return empty string
+        if (lineCount <= 0) {
+            return '';
+        }
+
         const content = await fs.readFile(logPath, 'utf8');
         const lines = content.split(/\r?\n/).filter(line => line.length > 0);
 
-        // Correctly handle lineCount: if < 1, take all lines, otherwise take the last 'lineCount' lines.
-        const lastLines = (lineCount < 1) ? lines : lines.slice(-lineCount);
+        // Take the last 'lineCount' lines
+        const lastLines = lines.slice(-lineCount);
 
         const result = lastLines.join('\n');
         return result;

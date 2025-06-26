@@ -1,16 +1,13 @@
 import * as StateManager from '../lib/state_manager.js';
 // import * as ProcessManager from '../lib/process_manager.js'; // No longer using ProcessManager.killProcess
 import { killProcessTree } from '../lib/util/process_killer.js';
-import { readLogChars, deleteLogFiles } from '../lib/logger.js';
-
-// Define character limit for final output retrieval
-const MAX_CHARS_STOP = 20000;
+import { readLogLines, deleteLogFiles } from '../lib/logger.js';
 
 /**
  * MCP Tool handler for 'stop_terminal_command'.
- * Stops specified terminal processes and retrieves final NEW output (since last call) if requested.
+ * Stops specified terminal processes and retrieves final output if requested.
  */
-export async function handleStopTerminalCommand({ pids, lines = 0 /* If lines > 0, retrieve final chars */ }) {
+export async function handleStopTerminalCommand({ pids, lines = 0 /* If lines > 0, retrieve final lines */ }) {
     const results = [];
 
     for (const pid of pids) {
@@ -21,29 +18,15 @@ export async function handleStopTerminalCommand({ pids, lines = 0 /* If lines > 
 
         // Only attempt to read logs if lines > 0 AND state exists
         if (lines > 0 && state) {
-            const stdoutStartIndex = state.stdout_read_index ?? 0;
-            const stderrStartIndex = state.stderr_read_index ?? 0;
-            let newStdoutIndex = stdoutStartIndex;
-            let newStderrIndex = stderrStartIndex;
-
             try {
-                stdoutContent = await readLogChars(state.stdout_log, stdoutStartIndex, MAX_CHARS_STOP);
-                newStdoutIndex = stdoutStartIndex + Buffer.byteLength(stdoutContent, 'utf8');
+                stdoutContent = await readLogLines(state.stdout_log, lines);
             } catch (logReadErr) {
                 stdoutContent = `[Stdout Log Read Error: ${logReadErr.code || logReadErr.message}]`;
             }
             try {
-                stderrContent = await readLogChars(state.stderr_log, stderrStartIndex, MAX_CHARS_STOP);
-                newStderrIndex = stderrStartIndex + Buffer.byteLength(stderrContent, 'utf8');
+                stderrContent = await readLogLines(state.stderr_log, lines);
             } catch (logReadErr) {
                 stderrContent = `[Stderr Log Read Error: ${logReadErr.code || logReadErr.message}]`;
-            }
-
-            if (newStdoutIndex > stdoutStartIndex || newStderrIndex > stderrStartIndex) {
-                StateManager.updateState(pid, {
-                    stdout_read_index: newStdoutIndex,
-                    stderr_read_index: newStderrIndex
-                }).catch(err => console.error(`[StopCmd] Error updating final state indices for PID ${pid}:`, err));
             }
         } else if (lines > 0) {
             stdoutContent = "[State not found for log reading]";

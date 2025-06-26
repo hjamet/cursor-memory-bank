@@ -187,7 +187,8 @@ server.tool(
     {
         command: z.string().describe("The command line to execute."),
         reuse_terminal: z.boolean().optional().default(true).describe("If true (default), attempts to clean up one finished terminal state before spawning a new process. Otherwise, always spawns without cleanup."),
-        timeout: z.number().int().optional().default(10).describe("Maximum time in seconds to wait for the command to complete before returning. The command continues in the background if timeout is reached. Enforced maximum is 300 seconds (5 minutes). I recommend using a timeout of 10 seconds, then using the 'get_terminal_status' tool to monitor the process with longer timeouts.")
+        timeout: z.number().int().optional().default(10).describe("Maximum time in seconds to wait for the command to complete before returning. The command continues in the background if timeout is reached. Enforced maximum is 300 seconds (5 minutes). I recommend using a timeout of 10 seconds, then using the 'get_terminal_status' tool to monitor the process with longer timeouts."),
+        lines_to_read: z.number().int().optional().default(300).describe("The maximum number of lines to retrieve from the end of each log (stdout, stderr). Default is 300 lines.")
     },
     handleExecuteCommand // Use the imported handler
 );
@@ -201,13 +202,12 @@ server.tool(
     handleGetTerminalStatus // Use the imported handler
 );
 
-// Define get_terminal_output tool schema (enhanced with from_beginning option)
+// Define get_terminal_output tool schema (simplified with lines_to_read)
 server.tool(
     'get_terminal_output',
     {
         pid: z.number().int().describe("The PID of the terminal process to get output from."),
-        lines: z.number().int().optional().default(100).describe("The maximum number of lines to retrieve from the end of each log (stdout, stderr). DEPRECATED: Use from_beginning parameter instead."),
-        from_beginning: z.boolean().optional().default(false).describe("If true, reads all output from the beginning of the process. If false (default), reads only new output since the last call to this tool for the same PID.")
+        lines_to_read: z.number().int().optional().default(300).describe("The maximum number of lines to retrieve from the end of each log (stdout, stderr). Default is 300 lines.")
     },
     handleGetTerminalOutput // Use the imported handler
 );
