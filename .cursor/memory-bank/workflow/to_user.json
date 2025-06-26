@@ -1,5 +1,17 @@
 {
   "version": "1.0.0",
-  "messages": [],
-  "last_id": 134
+  "messages": [
+    {
+      "id": 135,
+      "content": "C'est fait ! J'ai modifié la configuration du serveur `MemoryBankMCP` pour empêcher l'agent de marquer les tâches directement comme `DONE`. Elles devront maintenant passer par le statut `REVIEW`. N'oubliez pas qu'il faudra peut-être redémarrer Cursor pour que ces changements soient pris en compte.",
+      "timestamp": "2025-06-26T14:54:11.302Z",
+      "context": {
+        "workflow_rule": "implementation",
+        "active_task": null,
+        "agent_state": "processing"
+      },
+      "status": "unread"
+    }
+  ],
+  "last_id": 135
 }
