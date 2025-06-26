@@ -201,12 +201,13 @@ server.tool(
     handleGetTerminalStatus // Use the imported handler
 );
 
-// Define get_terminal_output tool schema (as before)
+// Define get_terminal_output tool schema (enhanced with from_beginning option)
 server.tool(
     'get_terminal_output',
     {
         pid: z.number().int().describe("The PID of the terminal process to get output from."),
-        lines: z.number().int().optional().default(100).describe("The maximum number of lines to retrieve from the end of each log (stdout, stderr).")
+        lines: z.number().int().optional().default(100).describe("The maximum number of lines to retrieve from the end of each log (stdout, stderr). DEPRECATED: Use from_beginning parameter instead."),
+        from_beginning: z.boolean().optional().default(false).describe("If true, reads all output from the beginning of the process. If false (default), reads only new output since the last call to this tool for the same PID.")
     },
     handleGetTerminalOutput // Use the imported handler
 );

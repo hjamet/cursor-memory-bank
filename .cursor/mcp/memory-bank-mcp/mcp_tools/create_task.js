@@ -82,7 +82,8 @@ export async function handleCreateTask(params) {
             updated_date: new Date().toISOString(),
             parent_id: params.parent_id || null,
             priority: params.priority || 3,
-            image: params.image || null
+            image: params.image || null,
+            refactoring_target_file: params.refactoring_target_file || null
         };
 
         // Add the new task and write to file
@@ -106,7 +107,8 @@ export async function handleCreateTask(params) {
                 updated_date: createdTask.updated_date,
                 parent_id: createdTask.parent_id,
                 priority: createdTask.priority,
-                image: createdTask.image
+                image: createdTask.image,
+                refactoring_target_file: createdTask.refactoring_target_file
             },
             summary: {
                 task_id: createdTask.id,

@@ -82,6 +82,49 @@ function scanPythonFiles(dirPath, rootPath = dirPath) {
 }
 
 /**
+ * Finds and removes existing refactoring tasks for a specific file
+ * @param {string} filePath - Path of the file to check for existing refactoring tasks
+ * @returns {Promise<boolean>} True if an existing task was found and removed, false otherwise
+ */
+async function removeExistingRefactoringTask(filePath) {
+    try {
+        // Import the necessary functions to read and write tasks
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const { fileURLToPath } = await import('url');
+
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const TASKS_FILE_PATH = path.join(__dirname, '..', '..', '..', 'memory-bank', 'streamlit_app', 'tasks.json');
+
+        const data = await fs.readFile(TASKS_FILE_PATH, 'utf-8');
+        const tasks = JSON.parse(data);
+
+        // Find existing refactoring task for this file
+        const existingTaskIndex = tasks.findIndex(task =>
+            task.refactoring_target_file === filePath &&
+            task.status !== 'DONE' &&
+            task.status !== 'APPROVED'
+        );
+
+        if (existingTaskIndex !== -1) {
+            // Remove the existing task
+            tasks.splice(existingTaskIndex, 1);
+
+            // Write back to file
+            await fs.writeFile(TASKS_FILE_PATH, JSON.stringify(tasks, null, 2), 'utf-8');
+
+            return true;
+        }
+
+        return false;
+    } catch (error) {
+        console.error(`[removeExistingRefactoringTask] Error processing file ${filePath}:`, error.message);
+        return false;
+    }
+}
+
+/**
  * Creates actual refactoring tasks for oversized Python files
  * @param {Array} oversizedFiles - Array of file objects that are oversized
  * @returns {Promise<Array>} Array of created task objects or error results
@@ -91,6 +134,9 @@ async function createRefactoringTasks(oversizedFiles) {
 
     for (const fileInfo of oversizedFiles) {
         try {
+            // Check and remove existing refactoring task for this file
+            const removedExisting = await removeExistingRefactoringTask(fileInfo.file);
+
             // Determine priority based on file size
             let priority = 3; // Default priority
             if (fileInfo.lines > 1500) {
@@ -133,6 +179,7 @@ ${fileInfo.lines > 1000 ?
                 dependencies: [], // No dependencies for refactoring tasks
                 status: 'TODO',
                 impacted_files: [fileInfo.file],
+                refactoring_target_file: fileInfo.file, // Add the refactoring target file field
                 validation_criteria: `La tâche est terminée quand :
 1. Le fichier ${fileInfo.file} a été décomposé en modules de moins de 500 lignes chacun
 2. Toutes les fonctionnalités existantes sont préservées
@@ -154,7 +201,8 @@ ${fileInfo.lines > 1000 ?
                     task_id: resultData.created_task.id,
                     title: resultData.created_task.title,
                     priority: priority,
-                    status: 'created'
+                    status: 'created',
+                    replaced_existing: removedExisting
                 });
             } else {
                 createdTasks.push({
@@ -339,7 +387,8 @@ export async function handleCommit({ emoji, type, title, description }) {
             if (successfulTasks.length > 0) {
                 successMessage += `\n\n✅ Successfully created ${successfulTasks.length} refactoring task(s):`;
                 successfulTasks.forEach(task => {
-                    successMessage += `\n  • Task #${task.task_id}: ${task.title} (Priority: ${task.priority})`;
+                    const replacedText = task.replaced_existing ? ' [REPLACED EXISTING]' : ' [NEW]';
+                    successMessage += `\n  • Task #${task.task_id}: ${task.title} (Priority: ${task.priority})${replacedText}`;
                 });
             }
 

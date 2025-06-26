@@ -34,12 +34,12 @@ The primary user interface for the agent, located in `.cursor/streamlit_app/`:
 Core server for agent state and workflow management:
 - **User Request Management**: `read_userbrief`, `update_userbrief`
 - **Task Management**: `create_task`, `update_task`, `get_all_tasks`, `get_next_tasks`
-- **Version Control**: `commit` for standardized Git commits
+- **Version Control**: `commit` for standardized Git commits with refactoring task deduplication
 - **Memory System**: `remember` for state recording, `next_rule` for workflow navigation
 
 #### ToolsMCP Server (`mcp_ToolsMCP_*`)
 System interaction server:
-- **Terminal Operations**: `execute_command`, `get_terminal_status`, `get_terminal_output`, `stop_terminal_command`
+- **Terminal Operations**: `execute_command`, `get_terminal_status`, `get_terminal_output` (enhanced with `from_beginning` parameter), `stop_terminal_command`
 - **Visual Processing**: `consult_image`, `take_webpage_screenshot`
 - **File Manipulation**: `regex_edit` for precise file modifications with enhanced MCP communication
 
@@ -63,7 +63,7 @@ Comprehensive bash script supporting:
 .cursor/
 ├── mcp/                    # MCP servers
 │   ├── memory-bank-mcp/    # Core memory and workflow server
-│   ├── mcp-commit-server/  # Git commit server (legacy)
+│   ├── mcp-commit-server/  # Enhanced commit server with terminal tools
 │   └── tools-mcp/          # System tools server (planned)
 ├── memory-bank/            # Persistent agent memory
 │   ├── context/            # Project context files
@@ -76,6 +76,18 @@ Comprehensive bash script supporting:
 ```
 
 ## Recent Enhancements
+
+### Terminal Tools Improvements (Latest)
+- **Enhanced get_terminal_output**: Added `from_beginning` parameter for flexible output reading
+  - Default mode: Incremental reading (only new output since last call)
+  - `from_beginning: true`: Complete output from process start
+- **Comprehensive Documentation**: Created `TERMINAL_TOOLS_GUIDE.md` with usage patterns and troubleshooting
+- **Backward Compatibility**: All existing functionality preserved with new optional parameters
+
+### Commit Tool Enhancements
+- **Refactoring Task Deduplication**: Automatic prevention of duplicate refactoring tasks for the same file
+- **Smart Task Management**: Added `refactoring_target_file` field for precise task identification
+- **Cleanup Logic**: Automatically removes existing refactoring tasks before creating new ones
 
 ### User Interface Improvements
 - **Clickable Notification Indicator**: The red notification alert in the sidebar is now interactive, providing one-click navigation to the Review & Communication page with intelligent tab selection (Agent Messages prioritized over Tasks to Review)
@@ -97,10 +109,11 @@ Comprehensive bash script supporting:
 - **Tool Discovery**: New tools require full Cursor IDE restart to appear
 - **Debug Logging**: Any non-JSON output breaks MCP communication
 - **Server Restart**: Modify `mcp.json` temporarily to force server restart
+- **Terminal Tools**: Enhanced tools require MCP server restart to activate new features
 
 ### Development Practices
 - **MDC File Editing**: Rename to `.md`, edit, rename back to `.mdc` for Git tracking
-- **Memory Bank**: Automatic archive cleanup (25 max entries) prevents data bloat
+- **Memory Bank**: Automatic archive cleanup (50 max entries) prevents data bloat
 - **Pre-commit Hooks**: Warn on files >500 lines but don't block commits
 
 ## Dependencies & Requirements
@@ -126,7 +139,8 @@ Comprehensive bash script supporting:
 ### Automatic Cleanup
 - **Python Cache**: `__pycache__` directories cleaned during maintenance
 - **MCP Logs**: Terminal logs and status files cleaned regularly
-- **Archive Management**: Automatic limitation of stored memories and tasks
+- **Archive Management**: Automatic limitation of stored memories and tasks (50 max)
+- **Repository Maintenance**: Automated cleanup of temporary files during context updates
 
 ### Monitoring
 - **Work Queue**: Real-time task and request counting in UI
@@ -134,8 +148,10 @@ Comprehensive bash script supporting:
 - **Interactive Notification System**: Clickable red alert indicators for tasks requiring review and agent messages with smart navigation
 - **Memory Usage**: Automatic semantic search and long-term memory management
 - **Error Handling**: Comprehensive error reporting through enhanced MCP tools
+- **Terminal Tools**: Comprehensive guide available for optimal usage patterns
 
 ## Security Considerations
 - **File Access**: MCP servers operate within workspace boundaries
 - **Command Execution**: Terminal access limited to project directory
 - **Data Persistence**: User data preserved during updates and maintenance
+- **Tool Safety**: Enhanced validation and error handling in all MCP operations

@@ -4559,5 +4559,50 @@
     "parent_id": null,
     "priority": 3,
     "image": null
+  },
+  {
+    "id": 226,
+    "title": "Corriger la duplication des tâches de refactoring dans l'outil commit MCP",
+    "short_description": "Résoudre le problème critique où l'outil commit du serveur MCP Memory Bank crée en boucle des tâches de refactoring pour le même fichier à chaque commit, causant une multiplication incontrôlée des tâches (jusqu'à 15 tâches identiques pour un même fichier).",
+    "detailed_description": "Implémentation complétée avec succès de la solution de déduplication pour l'outil commit du serveur MCP Memory Bank.\n\n**Problème résolu :**\n- L'outil commit créait en boucle des tâches de refactoring identiques pour le même fichier à chaque commit\n- Multiplication incontrôlée des tâches (jusqu'à 15 tâches pour un même fichier)\n\n**Solution implémentée :**\n\n1. **✅ Champ 'refactoring_target_file' ajouté** aux tâches :\n   - Modifié `create_task.js` pour supporter le nouveau champ facultatif\n   - Champ utilisé uniquement pour les tâches de refactoring automatiques\n   - Contient le chemin du fichier ciblé pour le refactoring\n\n2. **✅ Logique de déduplication implémentée** dans `commit.js` :\n   - Nouvelle fonction `removeExistingRefactoringTask()` pour vérifier et supprimer les tâches existantes\n   - Vérification avant création de nouvelle tâche de refactoring\n   - Suppression automatique des tâches existantes (statut TODO/IN_PROGRESS uniquement)\n   - Préservation des tâches DONE/APPROVED\n   - Ajout du champ `refactoring_target_file` lors de la création\n\n3. **✅ Contraintes respectées** :\n   - Signature MCP inchangée - communication avec Cursor préservée\n   - Modification uniquement de la logique interne\n   - Fonctionnalités existantes préservées\n   - Messages d'information améliorés avec indicateurs [NEW]/[REPLACED EXISTING]\n\n4. **✅ Validation effectuée** :\n   - Script de test créé (`test_deduplication.js`) pour validation manuelle\n   - Test de logique de base validé avec succès\n   - Vérification que les tâches DONE ne sont pas supprimées\n   - Confirmation que la déduplication fonctionne correctement\n\n**Résultat :**\n- Un seul appel à l'outil commit ne peut désormais créer qu'une seule tâche de refactoring par fichier\n- Les tâches existantes sont automatiquement mises à jour (remplacement avec nouveau nombre de lignes)\n- Communication MCP parfaitement fonctionnelle\n- Aucune régression sur les autres fonctionnalités\n\n**Note importante :** Après déploiement, un redémarrage du serveur MCP sera nécessaire pour que les changements prennent effet (conformément à la mémoire long terme).",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/src/tools/commit.js",
+      ".cursor/mcp/memory-bank-mcp/src/managers/task_manager.js"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) Le champ 'refactoring_target_file' est ajouté au schéma des tâches, (2) La logique de déduplication est implémentée dans l'outil commit, (3) Les tests manuels confirment qu'un seul commit ne crée qu'une tâche de refactoring par fichier, (4) Les tâches existantes sont correctement mises à jour plutôt que dupliquées, (5) La communication MCP avec Cursor fonctionne parfaitement, (6) Un script de test valide le comportement attendu.",
+    "created_date": "2025-06-26T11:49:08.625Z",
+    "updated_date": "2025-06-26T13:57:02.751906",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "validation": {
+      "approved_at": "2025-06-26T13:57:02.747577",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 227,
+    "title": "Corriger les bugs des outils terminal MCP - execute_command et get_terminal_output",
+    "short_description": "Investiguer et corriger le problème où les outils execute_command et get_terminal_output du serveur MCP Tools retournent toujours une sortie vide, alors que get_terminal_status fonctionne correctement.",
+    "detailed_description": "Résoudre le problème critique des outils terminal MCP où get_terminal_output semblait retourner des données vides.\n\n**Problème analysé et résolu :**\n\nLe problème n'était pas un bug mais un comportement \"par design\" mal documenté :\n- `execute_command` fonctionne correctement et retourne toujours la sortie\n- `get_terminal_output` utilise un système d'index de lecture pour ne retourner que les NOUVELLES données depuis la dernière lecture\n- `get_terminal_status` utilise `readLastLogChars()` qui lit toujours les derniers caractères, d'où son apparence de \"fonctionnement correct\"\n\n**Solutions implémentées :**\n\n1. **Amélioration de get_terminal_output** :\n   - Ajout du paramètre `from_beginning` (boolean, défaut: false)\n   - Mode par défaut : comportement original (lecture incrémentale)\n   - Mode `from_beginning: true` : lecture complète depuis le début du processus\n   - Compatibilité maintenue avec l'API existante\n\n2. **Réutilisation du code existant** :\n   - Utilisation de `readLastLogChars()` pour la lecture complète\n   - Préservation de la logique d'index pour le mode incrémental\n   - Respect des conventions de code du projet\n\n3. **Documentation complète** :\n   - Création de `TERMINAL_TOOLS_GUIDE.md` avec guide utilisateur détaillé\n   - Explication claire des trois modes de fonctionnement\n   - Patterns d'usage courants et troubleshooting\n   - Clarification du comportement \"normal\" vs \"bug\"\n\n4. **Validation complète** :\n   - Tests manuels confirmant le bon fonctionnement\n   - Vérification de la compatibilité backwards\n   - Validation des deux modes de get_terminal_output\n\n**Résultat :**\n- `execute_command` : Fonctionne correctement (pas de changement nécessaire) ✅\n- `get_terminal_output` : Maintenant flexible avec option lecture complète ✅\n- `get_terminal_status` : Fonctionne correctement (pas de changement nécessaire) ✅\n- Documentation : Clarification complète du comportement attendu ✅\n\nLa \"perception de bug\" était due à une incompréhension du comportement incrémental. L'ajout de l'option `from_beginning` résout définitivement cette confusion.",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      "mcp_tools/execute_command.js",
+      "mcp_tools/get_terminal_output.js",
+      "mcp_tools/get_terminal_status.js"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) ✅ execute_command retourne correctement stdout/stderr - CONFIRMÉ fonctionnait déjà, (2) ✅ get_terminal_output récupère la sortie avec nouvelle option from_beginning - IMPLÉMENTÉ et testé, (3) ✅ Les tests de validation passent pour différents scénarios - VALIDÉ manuellement, (4) ✅ Le comportement est cohérent entre tous les outils terminal - HARMONISÉ, (5) ✅ La documentation est mise à jour - GUIDE COMPLET créé avec patterns d'usage et troubleshooting.",
+    "created_date": "2025-06-26T11:57:25.768Z",
+    "updated_date": "2025-06-26T14:07:00.411537",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "validation": {
+      "approved_at": "2025-06-26T14:07:00.406233",
+      "approved_by": "user_review"
+    }
   }
 ]
