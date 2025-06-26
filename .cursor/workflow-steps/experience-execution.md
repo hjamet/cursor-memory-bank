@@ -16,9 +16,9 @@ Quickly test the recent changes manually. If the test is successful, commit the 
 
     - **If the test was a SUCCESS**:
         - `<think>`
-            - The test succeeded. The associated task is now complete. I must mark it as 'DONE'.
+            - The test succeeded. The associated task is now complete. I must mark it as 'REVIEW'.
         `</think>`
-        - **Call `mcp_MemoryBankMCP_update_task` to set the status of the related task to `DONE`.**
+        - **Call `mcp_MemoryBankMCP_update_task` to set the status of the related task to `REVIEW`.**
         - `<think>`
             - Formulate a clear and concise commit message that follows conventions. The message should summarize the changes that were just validated.
             - What is the correct emoji, type, title, and description for the commit?
@@ -73,24 +73,28 @@ I will run the tests for the new authentication module.
 The test command finished successfully with all tests passing. The outcome is a **SUCCESS**.
 
 # Experience-Execution: 2 - Report Outcome & Next Steps
+<think>The test for task #42 succeeded. I will mark it as 'REVIEW'.</think>
+[...calling `mcp_MemoryBankMCP_update_task` with task_id: 42, status: 'REVIEW'...]
 <think> The change adds the JWT feature. A good commit message would be `feat(auth): Implement JWT generation`. I'll use the ✨ emoji. The description will detail the new endpoint. </think>
 [...calling `mcp_MemoryBankMCP_commit` with emoji: '✨', type: 'feat', title: 'feat(auth): Implement JWT generation', description: '- Added /login endpoint to generate JWT...']
 <think> The commit was successful. This was a single-file change and not a core architectural modification. The change was not drastic. I see other tasks are pending. The next step should be `implementation`. </think>
-[...calling `mcp_MemoryBankMCP_remember` with PAST: "Successfully tested JWT generation", PRESENT: "Changes committed", FUTURE: "Proceed to the next task in `implementation`."...]
+[...calling `mcp_MemoryBankMCP_remember` with PAST: "Successfully tested JWT generation", PRESENT: "Changes committed, task marked for review.", FUTURE: "Proceed to the next task in `implementation`.", user_message: "Expérience réussie : Les tests pour la génération JWT sont tous passés (12/12)." ...]
 
 ## Example (Successful Test, Drastic Change)
 
 # Experience-Execution: 1 - Execute Manual Test
-<think> I just refactored three workflow rules (`.mdc` files) to streamline the agent's decision-making. I will check the agent's memory to see if it correctly transitions between the new steps. </think>
+<think> I just refactored three workflow rules (`.md` files) to streamline the agent's decision-making. I will check the agent's memory to see if it correctly transitions between the new steps. </think>
 I will check the agent's memory logs.
 `cat .cursor/memory-bank/agent_memory.json`
 The logs show the agent correctly followed the new workflow path. The outcome is a **SUCCESS**.
 
 # Experience-Execution: 2 - Report Outcome & Next Steps
+<think>The test for the workflow refactoring (task #43) succeeded. I will mark it as 'REVIEW'.</think>
+[...calling `mcp_MemoryBankMCP_update_task` with task_id: 43, status: 'REVIEW'...]
 <think> The changes affected multiple core workflow files. This is a drastic architectural change. The commit message should reflect this. </think>
 [...calling `mcp_MemoryBankMCP_commit` with emoji: '♻️', type: 'refactor', title: 'refactor(workflow): Streamline agent decision logic', description: '- Refactored experience-execution.md and implementation.md...']
 <think> The commit was successful. Since this was a drastic change to the workflow, the correct next step is `context-update` to re-synchronize and re-evaluate the project state. </think>
-[...calling `mcp_MemoryBankMCP_remember` with PAST: "Successfully tested the refactored workflow", PRESENT: "Drastic changes committed", FUTURE: "Proceed to `context-update` for project re-synchronization."...]
+[...calling `mcp_MemoryBankMCP_remember` with PAST: "Successfully tested the refactored workflow", PRESENT: "Drastic changes committed, task marked for review", FUTURE: "Proceed to `context-update` for project re-synchronization.", user_message: "Expérience réussie : Le remaniement des règles de workflow a été validé. L'agent suit correctement le nouveau flux."...]
 
 ## Example (Failed Test)
 
@@ -102,4 +106,4 @@ The server failed to start, crashing with a `TimeoutError: could not connect to 
 
 # Experience-Execution: 2 - Report Outcome & Next Steps
 <think> The server can't connect to the database after my refactoring. It's likely an issue with the new connection string or pooling options. I need to investigate this in the `fix` step. </think>
-[...calling `mcp_MemoryBankMCP_remember` with PAST: "Tested the new DB connection logic by starting the server.", PRESENT: "The server failed to start with a connection timeout.", FUTURE: "Switch to the `fix` workflow to debug the database connection."...]
+[...calling `mcp_MemoryBankMCP_remember` with PAST: "Tested the new DB connection logic by starting the server.", PRESENT: "The server failed to start with a connection timeout.", FUTURE: "Switch to the `fix` workflow to debug the database connection.", user_message: "Expérience échouée : Le serveur n'a pas pu démarrer et a retourné une erreur `TimeoutError: could not connect to database`."...]
