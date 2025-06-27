@@ -4635,18 +4635,22 @@
     "short_description": "Modifier la méthode remember du serveur MemoryBankMCP pour recommander plus fréquemment l'étape 'experience-execution' après 'implementation', afin que l'agent teste davantage son code avant de passer à d'autres tâches. Inclut aussi l'amélioration de la règle 'experience-execution' pour clarifier son rôle de validation manuelle.",
     "detailed_description": "Améliorer le système de recommandation de workflow pour encourager l'agent à tester son code plus systématiquement :\n\n**Problème identifié :**\nL'agent a tendance à implémenter beaucoup de code mais teste peu ses implémentations par lui-même, ce qui peut entraîner des problèmes non détectés. La règle 'remember' semble recommander 'implementation' en boucle ou 'task-decomposition' pour les nouvelles requêtes, sans suffisamment proposer 'experience-execution'.\n\n**Partie 1 : Modification de la logique remember**\n- Analyser le fichier `remember.js` dans le serveur MemoryBankMCP pour comprendre la logique actuelle de recommandation\n- Modifier l'algorithme de recommandation pour que après une étape 'implementation', la prochaine étape recommandée soit généralement 'experience-execution'\n- Implémenter une logique qui privilégie les tests après implémentation :\n  * Si la dernière étape était 'implementation' → recommander 'experience-execution' en priorité\n  * Si des tâches viennent d'être marquées REVIEW → recommander 'experience-execution' pour validation\n  * Maintenir les autres logiques existantes pour les autres cas (task-decomposition pour nouvelles requêtes, etc.)\n- Éviter les boucles infinies implementation → experience-execution en gardant une logique équilibrée\n\n**Partie 2 : Amélioration de la règle experience-execution**\n- Modifier le fichier de règle 'experience-execution' dans `.cursor/workflow-steps/` pour clarifier son rôle\n- Préciser que cette étape est destinée à :\n  * Vérifier si le code fonctionne avec une exécution de base (pas des tests unitaires complexes)\n  * Exécuter le code pour voir si les résultats correspondent aux attentes\n  * Identifier des problèmes de base avant la validation utilisateur\n  * Éventuellement créer des tests temporaires simples puis les supprimer\n  * Gérer l'exécution de commandes complexes si nécessaire\n- Souligner que ce ne sont pas des tests unitaires mais des validations manuelles basiques\n\n**Exigences techniques :**\n- Analyser la logique actuelle dans `remember.js` pour comprendre le système de recommandation\n- Modifier l'algorithme de sélection de la prochaine étape\n- Tester que les modifications n'introduisent pas de boucles infinies\n- Mettre à jour la documentation de la règle 'experience-execution'\n- Préserver les autres logiques de workflow existantes (task-decomposition, fix, context-update)\n\n**Critères d'acceptation :**\n- Après une étape 'implementation', 'experience-execution' est recommandée en priorité\n- L'agent teste plus systématiquement ses implémentations avant de continuer\n- La règle 'experience-execution' guide clairement l'agent sur les types de tests à effectuer\n- Le workflow reste équilibré sans boucles infinites\n- Les autres transitions de workflow continuent de fonctionner correctement",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/remember.js",
       ".cursor/workflow-steps/experience-execution.mdc"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) La logique de remember recommande 'experience-execution' après 'implementation' dans la majorité des cas, (2) Un cycle de test confirme que l'agent teste ses implémentations plus systématiquement, (3) La règle 'experience-execution' guide clairement sur les types de validation manuelle à effectuer, (4) Aucune boucle infinie n'est introduite dans le workflow, (5) Les autres transitions de workflow (task-decomposition, fix, context-update) continuent de fonctionner normalement, (6) Un test manuel montre une amélioration visible du comportement de test de l'agent.",
     "created_date": "2025-06-27T14:15:14.312Z",
-    "updated_date": "2025-06-27T14:30:49.362Z",
+    "updated_date": "2025-06-27T16:41:20.397759",
     "parent_id": null,
     "priority": 4,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "validation": {
+      "approved_at": "2025-06-27T16:41:20.393296",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 230,
@@ -4654,18 +4658,22 @@
     "short_description": "Résoudre l'erreur critique qui empêche la validation des tâches en revue dans l'interface Streamlit et améliorer la robustesse globale du système pour gérer les tâches anciennes non conformes.",
     "detailed_description": "Corriger l'erreur critique dans l'interface Streamlit qui empêche la validation des tâches en revue et améliorer la robustesse du système.\n\n**Problème principal :**\n- Erreur `UnboundLocalError` dans `ui_components.py` ligne 107 : `datetime.now().isoformat()`\n- La variable `datetime` n'est pas importée dans le fichier\n- L'erreur se produit lors de la validation d'une tâche en revue via l'interface Streamlit\n\n**Exigences de correction :**\n\n1. **Correction immédiate de l'import**\n   - Ajouter l'import `from datetime import datetime` dans `ui_components.py`\n   - Vérifier que toutes les utilisations de datetime dans le fichier sont couvertes\n   - Tester la fonctionnalité de validation des tâches\n\n2. **Amélioration de la robustesse du système**\n   - Implémenter une gestion défensive pour les tâches anciennes non conformes\n   - Ajouter des vérifications de structure de données avant traitement\n   - Gérer gracieusement les champs manquants dans les anciennes tâches\n   - Ajouter des valeurs par défaut pour les champs requis mais absents\n\n3. **Validation et tests**\n   - Tester la validation des tâches existantes en statut REVIEW\n   - Vérifier la compatibilité avec les formats de tâches historiques\n   - S'assurer que l'interface fonctionne même avec des données incomplètes\n\n**Critères d'acceptation :**\n- L'erreur `UnboundLocalError` est complètement résolue\n- Les tâches en revue peuvent être validées sans erreur\n- Le système gère gracieusement les tâches anciennes avec des structures de données incomplètes\n- Aucune régression dans les fonctionnalités existantes\n- L'interface Streamlit reste stable même avec des données non conformes\n\n**Approche technique :**\n- Correction directe de l'import datetime manquant\n- Implémentation de vérifications défensives dans `render_task_review_card`\n- Ajout de gestion d'erreurs pour les champs optionnels\n- Tests avec les tâches existantes pour valider la robustesse",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       "utils/ui_components.py",
       "app.py"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) L'erreur UnboundLocalError est complètement résolue et l'import datetime est ajouté, (2) Les tâches en revue peuvent être validées sans erreur via l'interface Streamlit, (3) Le système gère gracieusement les tâches anciennes avec des structures de données incomplètes, (4) Aucune régression n'est introduite dans les fonctionnalités existantes, (5) L'interface reste stable même avec des données non conformes ou des champs manquants.",
     "created_date": "2025-06-27T14:32:35.175Z",
-    "updated_date": "2025-06-27T14:36:49.087Z",
+    "updated_date": "2025-06-27T16:41:19.130589",
     "parent_id": null,
     "priority": 5,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "validation": {
+      "approved_at": "2025-06-27T16:41:19.125906",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 231,
@@ -4673,14 +4681,18 @@
     "short_description": "Tâche de test pour valider la correction de l'erreur datetime",
     "detailed_description": "Cette tâche est créée uniquement pour tester que la validation fonctionne correctement après la correction de l'erreur UnboundLocalError datetime.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [],
     "validation_criteria": "",
     "created_date": "2025-06-27T14:35:25.669Z",
-    "updated_date": "2025-06-27T14:36:39.328Z",
+    "updated_date": "2025-06-27T16:41:16.685831",
     "parent_id": null,
     "priority": 1,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "validation": {
+      "approved_at": "2025-06-27T16:41:16.680581",
+      "approved_by": "user_review"
+    }
   }
 ]

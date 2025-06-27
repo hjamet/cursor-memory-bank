@@ -1,28 +1,5 @@
 {
   "version": "1.0.0",
-  "messages": [
-    {
-      "id": 139,
-      "content": "Workflow autonome démarré avec succès. Je traite immédiatement l'erreur critique d'interface Streamlit que vous avez signalée.",
-      "timestamp": "2025-06-27T14:32:10.454Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    },
-    {
-      "id": 140,
-      "content": "Système en état stable - aucune tâche active, 3 tâches en attente de votre validation. Passage à la mise à jour du contexte.",
-      "timestamp": "2025-06-27T14:37:47.487Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    }
-  ],
-  "last_id": 140
+  "messages": [],
+  "last_id": 141
 }
