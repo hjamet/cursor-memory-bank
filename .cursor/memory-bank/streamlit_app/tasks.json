@@ -4604,5 +4604,83 @@
       "approved_at": "2025-06-26T14:07:00.406233",
       "approved_by": "user_review"
     }
+  },
+  {
+    "id": 228,
+    "title": "Ajouter un système de commentaires obligatoires pour les changements d'état des tâches",
+    "short_description": "Implémenter un argument obligatoire 'comment' dans l'outil update_task MCP et modifier l'interface Streamlit pour afficher ces commentaires de façon visible dans l'onglet \"Tasks to review\". Cela permettra à l'utilisateur de comprendre les actions et décisions de l'agent lors des changements d'état des tâches.",
+    "detailed_description": "Implémenter un système complet de commentaires obligatoires pour améliorer la traçabilité des changements d'état des tâches :\n\n**Partie 1 : Modification de l'outil MCP update_task**\n- Ajouter un argument obligatoire `comment` (string) à l'outil `update_task` dans le serveur MemoryBankMCP\n- Modifier le schéma Zod pour rendre ce paramètre obligatoire\n- Mettre à jour la description de l'argument pour spécifier clairement les attentes :\n  * Si une tâche est marquée comme BLOCKED : expliquer en détail pourquoi elle est bloquée et ce que l'utilisateur peut faire pour la débloquer\n  * Si une tâche est marquée comme REVIEW : expliquer ce qui a été fait, ce que l'utilisateur peut vérifier, les fichiers contenant les résultats, et les tests manuels effectués pour vérifier le bon fonctionnement\n  * Le commentaire doit être rédigé en français\n  * Le commentaire doit être informatif et actionnable pour l'utilisateur\n- Stocker le commentaire dans la structure de données de la tâche avec timestamp\n- Préserver la compatibilité avec les tâches existantes (commentaires optionnels pour les anciennes tâches)\n\n**Partie 2 : Modification de l'interface Streamlit**\n- Modifier la page principale de l'application (onglet \"Review & Communication\" → \"Tasks to review\")\n- Ajouter l'affichage du commentaire de l'agent dans un encadré visible par défaut\n- Positionner le commentaire juste après la courte description et avant les éléments dépliants existants\n- Conserver l'organisation actuelle : titre → courte description → **NOUVEAU: commentaire agent (visible)** → éléments dépliants fermés par défaut (fichiers impactés, description complète, etc.)\n- Utiliser un style visuel cohérent avec la courte description (encadré similaire)\n- Gérer les cas où le commentaire n'existe pas (tâches anciennes) avec un message par défaut ou masquage\n\n**Exigences techniques :**\n- Modifier le fichier `server.js` du serveur MemoryBankMCP pour ajouter le paramètre obligatoire\n- Mettre à jour la structure JSON des tâches pour inclure le champ commentaire\n- Modifier les composants Streamlit concernés dans `.cursor/streamlit_app/`\n- Assurer la rétrocompatibilité avec les tâches existantes\n- Tester la validation du paramètre obligatoire\n- Vérifier l'affichage correct dans l'interface utilisateur\n\n**Critères d'acceptation :**\n- L'agent ne peut plus modifier le statut d'une tâche sans fournir un commentaire explicatif\n- Les commentaires sont stockés de façon persistante avec les tâches\n- L'interface Streamlit affiche clairement les commentaires de l'agent\n- Les commentaires aident l'utilisateur à comprendre les actions et décisions de l'agent\n- La solution est rétrocompatible avec les tâches existantes",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/server.js",
+      ".cursor/streamlit_app/app.py",
+      ".cursor/streamlit_app/components/task_utils.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'outil update_task exige un commentaire obligatoire et refuse les mises à jour sans commentaire, (2) Les commentaires sont correctement stockés avec les tâches et incluent un timestamp, (3) L'interface Streamlit affiche les commentaires de l'agent de façon visible dans l'onglet \"Tasks to review\", (4) L'affichage est positionné correctement (après la courte description, avant les éléments dépliants), (5) La rétrocompatibilité est assurée pour les tâches existantes, (6) Un test manuel confirme que l'agent peut expliquer ses décisions via les commentaires et que l'utilisateur peut facilement les consulter.",
+    "created_date": "2025-06-27T14:14:27.975Z",
+    "updated_date": "2025-06-27T14:23:25.562Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null,
+    "validation": {
+      "approved_at": "2025-06-27T16:21:23.322195",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 229,
+    "title": "Améliorer la logique de recommandation workflow pour privilégier les tests après implémentation",
+    "short_description": "Modifier la méthode remember du serveur MemoryBankMCP pour recommander plus fréquemment l'étape 'experience-execution' après 'implementation', afin que l'agent teste davantage son code avant de passer à d'autres tâches. Inclut aussi l'amélioration de la règle 'experience-execution' pour clarifier son rôle de validation manuelle.",
+    "detailed_description": "Améliorer le système de recommandation de workflow pour encourager l'agent à tester son code plus systématiquement :\n\n**Problème identifié :**\nL'agent a tendance à implémenter beaucoup de code mais teste peu ses implémentations par lui-même, ce qui peut entraîner des problèmes non détectés. La règle 'remember' semble recommander 'implementation' en boucle ou 'task-decomposition' pour les nouvelles requêtes, sans suffisamment proposer 'experience-execution'.\n\n**Partie 1 : Modification de la logique remember**\n- Analyser le fichier `remember.js` dans le serveur MemoryBankMCP pour comprendre la logique actuelle de recommandation\n- Modifier l'algorithme de recommandation pour que après une étape 'implementation', la prochaine étape recommandée soit généralement 'experience-execution'\n- Implémenter une logique qui privilégie les tests après implémentation :\n  * Si la dernière étape était 'implementation' → recommander 'experience-execution' en priorité\n  * Si des tâches viennent d'être marquées REVIEW → recommander 'experience-execution' pour validation\n  * Maintenir les autres logiques existantes pour les autres cas (task-decomposition pour nouvelles requêtes, etc.)\n- Éviter les boucles infinies implementation → experience-execution en gardant une logique équilibrée\n\n**Partie 2 : Amélioration de la règle experience-execution**\n- Modifier le fichier de règle 'experience-execution' dans `.cursor/workflow-steps/` pour clarifier son rôle\n- Préciser que cette étape est destinée à :\n  * Vérifier si le code fonctionne avec une exécution de base (pas des tests unitaires complexes)\n  * Exécuter le code pour voir si les résultats correspondent aux attentes\n  * Identifier des problèmes de base avant la validation utilisateur\n  * Éventuellement créer des tests temporaires simples puis les supprimer\n  * Gérer l'exécution de commandes complexes si nécessaire\n- Souligner que ce ne sont pas des tests unitaires mais des validations manuelles basiques\n\n**Exigences techniques :**\n- Analyser la logique actuelle dans `remember.js` pour comprendre le système de recommandation\n- Modifier l'algorithme de sélection de la prochaine étape\n- Tester que les modifications n'introduisent pas de boucles infinies\n- Mettre à jour la documentation de la règle 'experience-execution'\n- Préserver les autres logiques de workflow existantes (task-decomposition, fix, context-update)\n\n**Critères d'acceptation :**\n- Après une étape 'implementation', 'experience-execution' est recommandée en priorité\n- L'agent teste plus systématiquement ses implémentations avant de continuer\n- La règle 'experience-execution' guide clairement l'agent sur les types de tests à effectuer\n- Le workflow reste équilibré sans boucles infinites\n- Les autres transitions de workflow continuent de fonctionner correctement",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/remember.js",
+      ".cursor/workflow-steps/experience-execution.mdc"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) La logique de remember recommande 'experience-execution' après 'implementation' dans la majorité des cas, (2) Un cycle de test confirme que l'agent teste ses implémentations plus systématiquement, (3) La règle 'experience-execution' guide clairement sur les types de validation manuelle à effectuer, (4) Aucune boucle infinie n'est introduite dans le workflow, (5) Les autres transitions de workflow (task-decomposition, fix, context-update) continuent de fonctionner normalement, (6) Un test manuel montre une amélioration visible du comportement de test de l'agent.",
+    "created_date": "2025-06-27T14:15:14.312Z",
+    "updated_date": "2025-06-27T14:30:49.362Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 230,
+    "title": "Corriger l'erreur UnboundLocalError datetime dans l'interface Streamlit et améliorer la robustesse du système de validation",
+    "short_description": "Résoudre l'erreur critique qui empêche la validation des tâches en revue dans l'interface Streamlit et améliorer la robustesse globale du système pour gérer les tâches anciennes non conformes.",
+    "detailed_description": "Corriger l'erreur critique dans l'interface Streamlit qui empêche la validation des tâches en revue et améliorer la robustesse du système.\n\n**Problème principal :**\n- Erreur `UnboundLocalError` dans `ui_components.py` ligne 107 : `datetime.now().isoformat()`\n- La variable `datetime` n'est pas importée dans le fichier\n- L'erreur se produit lors de la validation d'une tâche en revue via l'interface Streamlit\n\n**Exigences de correction :**\n\n1. **Correction immédiate de l'import**\n   - Ajouter l'import `from datetime import datetime` dans `ui_components.py`\n   - Vérifier que toutes les utilisations de datetime dans le fichier sont couvertes\n   - Tester la fonctionnalité de validation des tâches\n\n2. **Amélioration de la robustesse du système**\n   - Implémenter une gestion défensive pour les tâches anciennes non conformes\n   - Ajouter des vérifications de structure de données avant traitement\n   - Gérer gracieusement les champs manquants dans les anciennes tâches\n   - Ajouter des valeurs par défaut pour les champs requis mais absents\n\n3. **Validation et tests**\n   - Tester la validation des tâches existantes en statut REVIEW\n   - Vérifier la compatibilité avec les formats de tâches historiques\n   - S'assurer que l'interface fonctionne même avec des données incomplètes\n\n**Critères d'acceptation :**\n- L'erreur `UnboundLocalError` est complètement résolue\n- Les tâches en revue peuvent être validées sans erreur\n- Le système gère gracieusement les tâches anciennes avec des structures de données incomplètes\n- Aucune régression dans les fonctionnalités existantes\n- L'interface Streamlit reste stable même avec des données non conformes\n\n**Approche technique :**\n- Correction directe de l'import datetime manquant\n- Implémentation de vérifications défensives dans `render_task_review_card`\n- Ajout de gestion d'erreurs pour les champs optionnels\n- Tests avec les tâches existantes pour valider la robustesse",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      "utils/ui_components.py",
+      "app.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'erreur UnboundLocalError est complètement résolue et l'import datetime est ajouté, (2) Les tâches en revue peuvent être validées sans erreur via l'interface Streamlit, (3) Le système gère gracieusement les tâches anciennes avec des structures de données incomplètes, (4) Aucune régression n'est introduite dans les fonctionnalités existantes, (5) L'interface reste stable même avec des données non conformes ou des champs manquants.",
+    "created_date": "2025-06-27T14:32:35.175Z",
+    "updated_date": "2025-06-27T14:36:49.087Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 231,
+    "title": "Test task for validation",
+    "short_description": "Tâche de test pour valider la correction de l'erreur datetime",
+    "detailed_description": "Cette tâche est créée uniquement pour tester que la validation fonctionne correctement après la correction de l'erreur UnboundLocalError datetime.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-06-27T14:35:25.669Z",
+    "updated_date": "2025-06-27T14:36:39.328Z",
+    "parent_id": null,
+    "priority": 1,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]

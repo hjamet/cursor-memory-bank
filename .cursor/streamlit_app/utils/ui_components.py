@@ -26,7 +26,16 @@ def render_image_preview(task: Dict):
 
 def render_task_review_card(task: Dict):
     """Render a task review card with all necessary information and actions"""
+    # Defensive handling for legacy tasks - ensure required fields exist
+    if not task or not isinstance(task, dict):
+        st.error("Invalid task data")
+        return
+    
     task_id = task.get('id', task.get('task_id'))
+    if not task_id:
+        st.error("Task missing ID")
+        return
+        
     title = task.get('title', 'No title')
     
     with st.container(border=True):
@@ -51,6 +60,22 @@ def render_task_review_card(task: Dict):
         short_desc = task.get('short_description', 'No description available')
         st.markdown(f"**Description:** {short_desc}")
         
+        # Show agent comment if available (visible by default)
+        last_comment = task.get('last_comment', '')
+        if last_comment:
+            st.markdown("**Agent Comment:**")
+            with st.container(border=True):
+                st.markdown(last_comment)
+                # Show timestamp if available
+                comment_timestamp = task.get('last_comment_timestamp', '')
+                if comment_timestamp:
+                    try:
+                        dt = datetime.fromisoformat(comment_timestamp.replace('Z', '+00:00'))
+                        formatted_time = dt.strftime('%Y-%m-%d %H:%M:%S')
+                        st.caption(f"🕒 {formatted_time}")
+                    except:
+                        st.caption(f"🕒 {comment_timestamp}")
+        
         # Show detailed description in expandable section
         detailed_desc = task.get('detailed_description', '')
         if detailed_desc and detailed_desc != short_desc:
@@ -63,19 +88,21 @@ def render_task_review_card(task: Dict):
             with st.expander("✅ Validation Criteria"):
                 st.markdown(validation_criteria)
 
-        # Show impacted files if available
+        # Show impacted files if available (defensive handling for legacy tasks)
         impacted_files = task.get('impacted_files', [])
-        if impacted_files:
+        if impacted_files and isinstance(impacted_files, list):
             with st.expander("📁 Impacted Files"):
                 for file in impacted_files:
-                    st.code(file)
+                    if file:  # Ensure file is not None or empty
+                        st.code(file)
 
-        # Show dependencies if any
+        # Show dependencies if any (defensive handling for legacy tasks)
         dependencies = task.get('dependencies', [])
-        if dependencies:
+        if dependencies and isinstance(dependencies, list):
             with st.expander("🔗 Dependencies"):
                 for dep in dependencies:
-                    st.markdown(f"- Task #{dep}")
+                    if dep:  # Ensure dependency is not None or empty
+                        st.markdown(f"- Task #{dep}")
 
         # Show image preview if available
         render_image_preview(task)
@@ -86,15 +113,23 @@ def render_task_review_card(task: Dict):
         
         with col1:
             if st.button("✅ Approve", key=f"approve_{task_id}", type="primary"):
-                validation_data = {
-                    "approved_at": datetime.now().isoformat(),
-                    "approved_by": "user_review"
-                }
-                if update_task_status(task_id, "APPROVED", validation_data):
-                    st.toast(f"Task #{task_id} approved!")
-                    st.rerun()
-                else:
-                    st.error("Failed to approve task.")
+                try:
+                    validation_data = {
+                        "approved_at": datetime.now().isoformat(),
+                        "approved_by": "user_review"
+                    }
+                    if update_task_status(task_id, "APPROVED", validation_data):
+                        st.toast(f"Task #{task_id} approved!")
+                        st.rerun()
+                    else:
+                        st.error("Failed to approve task.")
+                except Exception as e:
+                    st.error(f"Error approving task: {str(e)}")
+                    # Fallback approval without timestamp if datetime fails
+                    validation_data = {"approved_by": "user_review"}
+                    if update_task_status(task_id, "APPROVED", validation_data):
+                        st.toast(f"Task #{task_id} approved (fallback)!")
+                        st.rerun()
 
         with col2:
             if st.button("📝 Ask for modification", key=f"ask_modification_{task_id}"):
@@ -130,20 +165,27 @@ def render_task_review_card(task: Dict):
                 
                 if submitted:
                     if modification_reason.strip():
-                        # Create the modification request content with full context
-                        modification_content = f"""Modification request for Task #{task_id} ({title}):
+                        # Create the modification request content with full context (defensive handling)
+                        safe_title = str(title) if title else 'No title'
+                        safe_desc = str(short_desc) if short_desc else 'No description'
+                        safe_status = str(status) if status else 'Unknown'
+                        safe_priority = str(priority) if priority else 'Unknown'
+                        safe_detailed = str(detailed_desc) if detailed_desc else 'No detailed description available'
+                        safe_criteria = str(validation_criteria) if validation_criteria else 'No validation criteria specified'
+                        
+                        modification_content = f"""Modification request for Task #{task_id} ({safe_title}):
 
 **Original Task Details:**
-- **Title:** {title}
-- **Description:** {short_desc}
-- **Status:** {status}
-- **Priority:** {priority}
+- **Title:** {safe_title}
+- **Description:** {safe_desc}
+- **Status:** {safe_status}
+- **Priority:** {safe_priority}
 
 **Detailed Task Description:**
-{detailed_desc if detailed_desc else 'No detailed description available'}
+{safe_detailed}
 
 **Validation Criteria:**
-{validation_criteria if validation_criteria else 'No validation criteria specified'}
+{safe_criteria}
 
 **User Feedback:**
 {modification_reason.strip()}

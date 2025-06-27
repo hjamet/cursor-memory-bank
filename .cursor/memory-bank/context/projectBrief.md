@@ -38,6 +38,8 @@ The project has undergone significant evolution, with a focus on improving the a
 - **Smart Navigation**: Implemented intelligent redirection from notification alerts to appropriate UI sections, prioritizing Agent Messages over Task Reviews.
 - **Enhanced MCP Communication**: Improved the regex_edit tool to provide structured responses with detailed operation status and error handling.
 - **User Experience Refinements**: Fixed text area clearing behavior in the Add Request interface, ensuring forms reset properly after successful submissions.
+- **Mandatory Task Comments**: Implemented comprehensive comment system requiring explanations for all task status changes, with integrated UI display for enhanced transparency.
+- **Critical Stability Fixes**: Resolved UnboundLocalError in task validation system and enhanced robustness for handling legacy task data formats.
 
 ### Quality & Reliability
 - **Tool Sophistication**: Advanced terminal tool behavior with comprehensive documentation and usage patterns for optimal developer experience.

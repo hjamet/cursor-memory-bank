@@ -56,11 +56,21 @@ async function getPossibleNextSteps(lastStep = null) {
         const tasks = await readTasks();
         if (tasks && tasks.some(t => t.status === 'TODO' || t.status === 'IN_PROGRESS')) {
             possibleSteps.add('implementation');
-            // After implementation, testing is a very common next step.
+            // ENHANCED: After implementation, prioritize testing more strongly
             if (lastStep === 'implementation') {
                 possibleSteps.add('experience-execution');
+                // Also check if there are tasks in REVIEW status, which indicates recent implementation
+                if (tasks.some(t => t.status === 'REVIEW')) {
+                    possibleSteps.add('experience-execution');
+                }
             }
             possibleSteps.add('fix');
+        }
+
+        // ENHANCED: Also recommend experience-execution if there are tasks in REVIEW status
+        // This helps validate completed implementations
+        if (tasks && tasks.some(t => t.status === 'REVIEW')) {
+            possibleSteps.add('experience-execution');
         }
 
         // Default steps that are almost always possible
@@ -297,11 +307,26 @@ async function remember(args) {
     let recommendedNextStep = possible_next_steps[0];
     let workflowInstruction = "";
 
-    // Prioritize experience-execution after implementation, per user request
+    // ENHANCED: Prioritize experience-execution after implementation more strongly, per user request
     if (lastStep === 'implementation' && possible_next_steps.includes('experience-execution')) {
         recommendedNextStep = 'experience-execution';
-        workflowInstruction = "CONTINUE WORKFLOW: Implementation complete. You should now test the changes manually using 'experience-execution'.";
-    } else if (possible_next_steps.includes('task-decomposition')) {
+        workflowInstruction = "CONTINUE WORKFLOW: Implementation complete. You should now test the changes manually using 'experience-execution' to validate the implementation before proceeding.";
+    }
+    // ENHANCED: Also prioritize experience-execution if there are tasks in REVIEW status
+    else if (possible_next_steps.includes('experience-execution')) {
+        // Check if there are REVIEW tasks that might need validation
+        try {
+            const tasks = await readTasks();
+            if (tasks && tasks.some(t => t.status === 'REVIEW')) {
+                recommendedNextStep = 'experience-execution';
+                workflowInstruction = "CONTINUE WORKFLOW: Tasks in REVIEW status detected. You should validate these implementations using 'experience-execution' to ensure they work correctly.";
+            }
+        } catch (error) {
+            // If we can't check tasks, fall through to other logic
+        }
+    }
+    // Original logic for other cases
+    else if (possible_next_steps.includes('task-decomposition')) {
         recommendedNextStep = 'task-decomposition';
 
         // Get example request to provide context

@@ -30,6 +30,7 @@ async function writeTasks(tasks) {
  * 
  * @param {Object} params - Tool parameters
  * @param {number} params.task_id - ID of task to update
+ * @param {string} params.comment - Required comment explaining the update
  * @param {string} [params.title] - Updated title
  * @param {string} [params.short_description] - Updated brief description
  * @param {string} [params.detailed_description] - Updated detailed description
@@ -44,7 +45,7 @@ async function writeTasks(tasks) {
  */
 export async function handleUpdateTask(params) {
     try {
-        const { task_id, ...updates } = params;
+        const { task_id, comment, ...updates } = params;
 
         const tasks = await readTasks();
         const taskIndex = tasks.findIndex(task => task.id === task_id);
@@ -95,10 +96,24 @@ export async function handleUpdateTask(params) {
             }
         }
 
+        // Add the comment to the task's comment history
+        const commentEntry = {
+            timestamp: new Date().toISOString(),
+            comment: comment,
+            status_change: updates.status || existingTask.status
+        };
+
+        // Initialize comments array if it doesn't exist (for backward compatibility)
+        const existingComments = existingTask.comments || [];
+        const updatedComments = [...existingComments, commentEntry];
+
         // Create the updated task object
         const updatedTask = {
             ...existingTask,
             ...Object.fromEntries(Object.entries(updates).filter(([_, v]) => v !== undefined)),
+            comments: updatedComments,
+            last_comment: comment,
+            last_comment_timestamp: commentEntry.timestamp,
             updated_date: new Date().toISOString()
         };
 

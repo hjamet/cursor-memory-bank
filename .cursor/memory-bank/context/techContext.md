@@ -98,6 +98,8 @@ Comprehensive bash script supporting:
 - **Enhanced regex_edit Communication**: The regex_edit tool now returns properly structured MCP responses with detailed operation status, file information, change statistics, and error handling
 - **Improved Error Reporting**: Better structured error messages and success indicators for all MCP operations
 - **Streamlined User Experience**: Reduced friction in common workflows through intelligent defaults and automatic form management
+- **Task Comment System**: Implemented mandatory comment system for task status changes with structured storage and UI display integration
+- **Critical Bug Fixes**: Resolved UnboundLocalError in Streamlit UI validation system with improved robustness for legacy task data
 
 ## Known Issues & Workarounds
 

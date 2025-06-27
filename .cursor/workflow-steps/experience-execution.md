@@ -1,5 +1,27 @@
 ## TLDR
-Quickly test the recent changes manually. If the test is successful, commit the changes. If it fails, prepare to fix the issues. If you are interrupted, handle it gracefully.
+Quickly test the recent changes manually to validate implementations. This step focuses on basic functional validation, not exhaustive testing. If the test is successful, commit the changes. If it fails, prepare to fix the issues. If you are interrupted, handle it gracefully.
+
+## Purpose & Scope
+The `experience-execution` step is designed for **manual validation of implementations** to ensure they work correctly before user review. This step should be used to:
+
+- **Verify basic functionality**: Check if the implemented code runs without errors
+- **Execute simple tests**: Run commands, check outputs, validate basic behavior
+- **Identify obvious issues**: Catch problems that would be immediately apparent to a user
+- **Validate integration**: Ensure new code works with existing systems
+- **Test user-facing features**: Verify that interfaces, APIs, or tools behave as expected
+
+**This is NOT for**:
+- Comprehensive unit testing (that's for dedicated test suites)
+- Performance benchmarking (unless specifically required)
+- Edge case validation (focus on main use cases)
+- Complex integration testing across multiple systems
+
+## When to Use Experience-Execution
+This step is particularly valuable after:
+- **Implementation steps**: To validate that the code you just wrote actually works
+- **When tasks are in REVIEW**: To test implementations before user validation
+- **After significant changes**: To ensure nothing broke during development
+- **Before committing**: To avoid committing broken code
 
 ## Instructions
 
@@ -8,8 +30,14 @@ Quickly test the recent changes manually. If the test is successful, commit the 
         - Based on the last implemented task, what is the most direct way to validate the changes?
         - What is the expected outcome of a successful test?
         - What would a failure look like?
+        - What's the simplest test that would give me confidence the implementation works?
     `</think>`
-    - Perform the manual test. This could involve running a command, interacting with a UI, or checking a file's content.
+    - Perform the manual test. This could involve:
+        - Running a command to test functionality
+        - Interacting with a UI to verify behavior
+        - Checking file contents or outputs
+        - Testing API endpoints or interfaces
+        - Executing the main use case for the feature
     - Clearly state whether the test was a **SUCCESS**, a **FAILURE**, or if you were **INTERRUPTED**.
 
 2.  **Report Outcome & Next Steps**:
@@ -53,11 +81,40 @@ Quickly test the recent changes manually. If the test is successful, commit the 
         - If the interruption occurred during a task status update, change the task's status to **BLOCKED** using `mcp_MemoryBankMCP_update_task`. Add a comment explaining that the approval was interrupted by the user.
         - Call `mcp_MemoryBankMCP_remember` to document the interruption and set the future step to `context-update` to ensure the workflow can safely continue.
 
+## Validation Strategies
+
+### Code/Logic Changes
+- Run the main functionality to ensure it works
+- Test with typical inputs and check outputs
+- Verify error handling with invalid inputs
+
+### UI/Interface Changes  
+- Load the interface and check for visual issues
+- Test main user interactions
+- Verify responsive behavior if applicable
+
+### API/Service Changes
+- Make test requests to new endpoints
+- Verify response formats and status codes
+- Check integration with existing systems
+
+### Configuration/Setup Changes
+- Test the configuration loads correctly
+- Verify services start without errors
+- Check that settings are applied properly
+
+### File/Data Processing
+- Process sample data through the new logic
+- Verify output format and content
+- Check error handling for malformed inputs
+
 ## Specifics
 - This rule is for quick, targeted manual validation, not exhaustive testing.
+- Focus on the main use case and obvious failure modes.
 - The outcome must be a clear choice: SUCCESS, FAILURE, or INTERRUPTED.
 - A commit is mandatory after a successful test.
 - The `remember` tool is used to transition to the next logical step.
+- **Remember**: You're validating that your implementation works, not building a comprehensive test suite.
 
 ## Next Steps
 - `fix` - If the manual test failed.
