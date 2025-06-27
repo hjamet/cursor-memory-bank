@@ -4694,5 +4694,42 @@
       "approved_at": "2025-06-27T16:41:16.680581",
       "approved_by": "user_review"
     }
+  },
+  {
+    "id": 232,
+    "title": "Corriger les problèmes de l'outil update_task et améliorer la description du paramètre comment",
+    "short_description": "Investiguer et résoudre les dysfonctionnements de l'outil update_task MCP suite aux modifications récentes, et clarifier la documentation du paramètre 'comment' pour indiquer qu'il peut être vide lors du passage à IN_PROGRESS.",
+    "detailed_description": "Résoudre les problèmes identifiés avec l'outil update_task du serveur MCP MemoryBank suite aux modifications récentes qui ont rendu l'outil difficile à utiliser correctement.\n\n**Problèmes à investiguer et corriger :**\n\n• **Investigation des dysfonctionnements** : Analyser les modifications récentes apportées à l'outil update_task pour identifier les problèmes qui empêchent son utilisation correcte\n• **Test de fonctionnement** : Tenter d'utiliser l'outil update_task dans différents scénarios pour reproduire et documenter les problèmes\n• **Correction des bugs** : Implémenter les corrections nécessaires pour restaurer le fonctionnement normal de l'outil\n\n**Amélioration de la documentation :**\n\n• **Clarification du paramètre comment** : Modifier la description du paramètre 'comment' dans le schéma MCP pour spécifier clairement que :\n  - Lors du passage d'une tâche à IN_PROGRESS, le commentaire peut être laissé vide car aucune justification n'est nécessaire\n  - Le paramètre reste obligatoire pour les autres changements d'état (BLOCKED, REVIEW, etc.) qui nécessitent une explication\n• **Documentation des cas d'usage** : Enrichir la description avec des exemples concrets d'utilisation\n\n**Critères d'acceptation :**\n\n• L'outil update_task fonctionne correctement pour tous les changements d'état de tâches\n• La description du paramètre 'comment' clarifie explicitement quand il peut être vide (passage à IN_PROGRESS)\n• Les tests de fonctionnement confirment que l'outil est utilisable sans problème\n• La documentation est mise à jour et cohérente\n\n**Notes techniques :**\n\n• Vérifier les modifications récentes dans `.cursor/mcp/memory-bank-mcp/src/tools/update_task.js`\n• Contrôler le schéma MCP dans `.cursor/mcp/memory-bank-mcp/src/server.js`\n• Tester avec différents statuts de tâches (TODO → IN_PROGRESS, IN_PROGRESS → REVIEW, etc.)\n• S'assurer que la rétrocompatibilité est préservée",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/src/server.js",
+      ".cursor/mcp/memory-bank-mcp/src/tools/update_task.js"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'outil update_task fonctionne correctement pour tous les changements d'état, (2) La description du paramètre 'comment' indique clairement qu'il peut être vide pour IN_PROGRESS, (3) Les tests manuels confirment le bon fonctionnement, (4) Aucune régression n'est introduite dans les autres fonctionnalités MCP",
+    "created_date": "2025-06-27T14:55:29.468Z",
+    "updated_date": "2025-06-27T17:02:51.718761",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null,
+    "comments": [
+      {
+        "timestamp": "2025-06-27T14:57:49.211Z",
+        "comment": "Début de l'implémentation de la correction de l'outil update_task. Analyse du code terminée : le problème identifié est dans la description du paramètre 'comment' du schéma MCP qui ne précise pas qu'il peut être vide pour IN_PROGRESS. L'implémentation dans update_task.js semble correcte.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-06-27T14:58:51.133Z",
+        "comment": "Implémentation terminée avec succès. Modifications apportées : (1) Supprimé la contrainte .min(1) sur le paramètre 'comment' dans le schéma MCP server.js, (2) Mis à jour la description pour clarifier que les commentaires peuvent être vides pour IN_PROGRESS, (3) Amélioré la logique dans update_task.js pour gérer gracieusement les commentaires vides avec un fallback 'Task started' pour IN_PROGRESS. L'outil devrait maintenant fonctionner correctement une fois le serveur MCP redémarré. Tests de validation nécessaires après redémarrage pour confirmer le bon fonctionnement.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Implémentation terminée avec succès. Modifications apportées : (1) Supprimé la contrainte .min(1) sur le paramètre 'comment' dans le schéma MCP server.js, (2) Mis à jour la description pour clarifier que les commentaires peuvent être vides pour IN_PROGRESS, (3) Amélioré la logique dans update_task.js pour gérer gracieusement les commentaires vides avec un fallback 'Task started' pour IN_PROGRESS. L'outil devrait maintenant fonctionner correctement une fois le serveur MCP redémarré. Tests de validation nécessaires après redémarrage pour confirmer le bon fonctionnement.",
+    "last_comment_timestamp": "2025-06-27T14:58:51.133Z",
+    "validation": {
+      "approved_at": "2025-06-27T17:02:51.714052",
+      "approved_by": "user_review"
+    }
   }
 ]

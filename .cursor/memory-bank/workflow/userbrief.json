@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 195,
+  "last_id": 197,
   "requests": [
     {
       "id": 156,
@@ -612,6 +612,44 @@
         },
         {
           "timestamp": "2025-06-27T14:32:39.550Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 196,
+      "content": "Malheureusement, j'ai l'impression que notre mise à jour, notre correction récente de l'outil update Task A provoqué un problème qui fait que maintenant, c'est plus vraiment possible de l'utiliser correctement. Peut-être que c'est une erreur de ma part. Tu peux corriger enfin enquêter, tenter d'utiliser et corriger vos besoins s'il te plaît ? Ajoute aussi à la description de l'argument \"comment\" qu'on a ajouté Que lorsque il met la tâche Ils progressent, il a pas besoin de justifications, il peut laisser cet argument vide parce que il y a rien à justifier, à mettre une tâche en en En progrès.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-27T16:52:46.020711",
+      "updated_at": "2025-06-27T14:55:34.481Z",
+      "history": [
+        {
+          "timestamp": "2025-06-27T16:52:46.020711",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-27T14:55:34.481Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 197,
+      "content": "J'ai l'impression que l'outil regex Edit du serveur mcp Tools MCP. Euh a un problème, essaie de l'utiliser, identifie la source du problème et résous la je te prie. La plupart du temps, on n'arrive pas à l'utiliser correctement parce qu'apparemment il a un souci, il fonctionne pas, genre il y a un problème de chemin normalement tu dois utiliser le chemin qui est précisé lors de l'invocation du serveur. CC le serveur est invoqué avec un - - CWD et se. Et il sauvegarde le l'emplacement du L'emplacement actif du repository. En fait, il faudrait que tu puisses avoir une mécanique de conversion de chemin vraiment très puissante que le chemin soit relatif, qu'il soit absolu, qu'il soit écrit en format Windows au format bash, au format Unix, essaie de vraiment tenter toutes les combinaisons de chemins possibles pour pour trouver les solutions et et que ça fonctionne avec un maximum de possibilités.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-27T16:54:18.796565",
+      "updated_at": "2025-06-27T14:56:22.477Z",
+      "history": [
+        {
+          "timestamp": "2025-06-27T16:54:18.796565",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-27T14:56:22.477Z",
           "action": "mark_archived"
         }
       ]

@@ -162,6 +162,29 @@ const escapeShellArg = (arg) => {
         .replace(/`/g, '\\`');
 };
 
+// --- Parse command line arguments for --cwd --- START ---
+let serverDefaultCwd = null;
+
+// Parse command line arguments to extract --cwd value
+const args = process.argv.slice(2);
+for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--cwd' && i + 1 < args.length) {
+        serverDefaultCwd = args[i + 1];
+        console.log(`[MCP Server] Using CWD: ${serverDefaultCwd}`);
+        break;
+    }
+}
+
+// Helper function to get the correct working directory
+function getWorkingDirectory() {
+    // PRIORITIZE: Server --cwd Arg > Env Var > Server process.cwd()
+    return serverDefaultCwd || process.env.CURSOR_WORKSPACE_ROOT || process.cwd();
+}
+
+// Export the working directory to environment variable for tools to access
+process.env.MCP_SERVER_CWD = getWorkingDirectory();
+// --- Parse command line arguments for --cwd --- END ---
+
 // Create an MCP server instance
 const server = new McpServer({
     name: "ToolsMCP",

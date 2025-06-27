@@ -97,9 +97,11 @@ export async function handleUpdateTask(params) {
         }
 
         // Add the comment to the task's comment history
+        // For IN_PROGRESS status, allow empty comments as no justification is needed
+        const effectiveComment = comment || (updates.status === 'IN_PROGRESS' ? 'Task started' : comment);
         const commentEntry = {
             timestamp: new Date().toISOString(),
-            comment: comment,
+            comment: effectiveComment,
             status_change: updates.status || existingTask.status
         };
 
@@ -112,7 +114,7 @@ export async function handleUpdateTask(params) {
             ...existingTask,
             ...Object.fromEntries(Object.entries(updates).filter(([_, v]) => v !== undefined)),
             comments: updatedComments,
-            last_comment: comment,
+            last_comment: effectiveComment,
             last_comment_timestamp: commentEntry.timestamp,
             updated_date: new Date().toISOString()
         };
