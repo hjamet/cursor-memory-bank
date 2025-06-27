@@ -4731,5 +4731,76 @@
       "approved_at": "2025-06-27T17:02:51.714052",
       "approved_by": "user_review"
     }
+  },
+  {
+    "id": 233,
+    "title": "Corriger l'erreur StreamlitDuplicateElementKey dans l'interface Task Status du projet llm-as-recommender",
+    "short_description": "Résoudre l'erreur critique StreamlitDuplicateElementKey causée par des clés de boutons Delete en double dans l'interface Task Status du projet llm-as-recommender. L'erreur empêche l'affichage correct de la page et nécessite une correction de la génération des clés uniques.",
+    "detailed_description": "Investiguer et corriger l'erreur `StreamlitDuplicateElementKey` qui se produit dans le projet llm-as-recommender lors de l'affichage de la page Task Status.\n\n**Problème identifié :**\n- Erreur : `There are multiple elements with the same key='delete_30'`\n- Localisation : `C:\\Users\\Jamet\\code\\llm-as-recommender\\.cursor\\streamlit_app\\pages\\utils\\task_rendering.py`, ligne 357\n- Code problématique : `st.button(\"🗑️ Delete\", key=f\"delete_{req_id}\", help=\"Delete this request\")`\n\n**Analyse technique requise :**\n- Examiner la fonction `render_userbrief_request` dans `task_rendering.py`\n- Identifier pourquoi la variable `req_id` génère des valeurs dupliquées\n- Vérifier si plusieurs requêtes ont le même ID ou si la logique de génération des clés est défaillante\n- Analyser le contexte d'appel de cette fonction dans `task_status.py`\n\n**Corrections à implémenter :**\n- Assurer l'unicité des clés des boutons Delete en utilisant une combinaison d'identifiants uniques\n- Implémenter une stratégie de génération de clés robuste (ex: `f\"delete_{req_id}_{timestamp}\"` ou `f\"delete_{req_id}_{index}\"`)\n- Ajouter des vérifications défensives pour éviter les collisions de clés\n- Tester avec plusieurs requêtes pour valider l'unicité\n\n**Critères d'acceptation :**\n- L'erreur `StreamlitDuplicateElementKey` ne se produit plus\n- Chaque bouton Delete a une clé unique et fonctionnelle\n- La page Task Status s'affiche correctement avec plusieurs requêtes\n- Les boutons Delete fonctionnent individuellement sans interférence\n\n**Tests de validation :**\n- Créer plusieurs requêtes dans le projet llm-as-recommender\n- Vérifier l'affichage de la page Task Status sans erreur\n- Tester la fonctionnalité de suppression de chaque bouton\n- Valider que les clés générées sont uniques et prévisibles",
+    "dependencies": [],
+    "status": "BLOCKED",
+    "impacted_files": [
+      "C:/Users/Jamet/code/llm-as-recommender/.cursor/streamlit_app/pages/utils/task_rendering.py",
+      "C:/Users/Jamet/code/llm-as-recommender/.cursor/streamlit_app/pages/task_status.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'erreur StreamlitDuplicateElementKey ne se produit plus lors de l'affichage de la page Task Status, (2) Chaque bouton Delete possède une clé unique et fonctionnelle, (3) La page s'affiche correctement avec plusieurs requêtes simultanées, (4) Les boutons Delete fonctionnent individuellement sans interférence mutuelle, (5) Tests de validation effectués avec succès sur plusieurs scénarios de requêtes multiples.",
+    "created_date": "2025-06-27T16:32:07.421Z",
+    "updated_date": "2025-06-27T16:36:35.867Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null,
+    "comments": [
+      {
+        "timestamp": "2025-06-27T16:33:42.410Z",
+        "comment": "Task started",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-06-27T16:36:35.867Z",
+        "comment": "Impossible d'accéder au projet llm-as-recommender depuis le workspace actuel (cursor-memory-bank). Le projet llm-as-recommender se trouve dans un répertoire séparé à C:\\Users\\Jamet\\code\\llm-as-recommender\\, mais n'est pas accessible depuis le workspace actuel /c%3A/Users/Jamet/code/cursor-memory-bank. Pour résoudre cette tâche, il faudrait soit :\n\n1. Ouvrir le projet llm-as-recommender dans Cursor\n2. Ou copier les fichiers nécessaires dans le workspace actuel\n3. Ou créer un workspace multi-projets incluant les deux projets\n\nL'erreur StreamlitDuplicateElementKey est causée par des clés de boutons en double dans la fonction render_userbrief_request du fichier task_rendering.py ligne 357. La solution technique consiste à générer des clés uniques pour chaque bouton en ajoutant un timestamp ou un identifiant unique.",
+        "status_change": "BLOCKED"
+      }
+    ],
+    "last_comment": "Impossible d'accéder au projet llm-as-recommender depuis le workspace actuel (cursor-memory-bank). Le projet llm-as-recommender se trouve dans un répertoire séparé à C:\\Users\\Jamet\\code\\llm-as-recommender\\, mais n'est pas accessible depuis le workspace actuel /c%3A/Users/Jamet/code/cursor-memory-bank. Pour résoudre cette tâche, il faudrait soit :\n\n1. Ouvrir le projet llm-as-recommender dans Cursor\n2. Ou copier les fichiers nécessaires dans le workspace actuel\n3. Ou créer un workspace multi-projets incluant les deux projets\n\nL'erreur StreamlitDuplicateElementKey est causée par des clés de boutons en double dans la fonction render_userbrief_request du fichier task_rendering.py ligne 357. La solution technique consiste à générer des clés uniques pour chaque bouton en ajoutant un timestamp ou un identifiant unique.",
+    "last_comment_timestamp": "2025-06-27T16:36:35.867Z"
+  },
+  {
+    "id": 234,
+    "title": "Modifier la règle d'implémentation pour garantir le marquage systématique des tâches IN_PROGRESS à l'étape 1",
+    "short_description": "Refactoriser la règle d'implémentation pour déplacer le marquage des tâches comme \"IN_PROGRESS\" à l'étape 1, garantissant ainsi qu'aucune tâche ne soit oubliée lors du passage vers experience-execution. Cette modification résoudra les problèmes de confusion dans les instructions actuelles.",
+    "detailed_description": "Modifier la règle d'implémentation (fichier .mdc) pour résoudre le problème de marquage inconsistant des tâches comme \"IN_PROGRESS\".\n\n**Problème identifié :**\n- Actuellement, le marquage des tâches comme \"IN_PROGRESS\" se fait dans la partie 3 de la règle\n- Quand une exception est déclenchée et que l'agent passe vers \"experience-execution\", il arrive parfois qu'il oublie de marquer la tâche en cours\n- Les instructions prêtent à confusion et ne garantissent pas un marquage systématique\n\n**Modifications à apporter :**\n\n**1. Restructuration de la règle d'implémentation :**\n- Déplacer le marquage \"IN_PROGRESS\" de la partie 3 vers l'étape 1\n- Faire du marquage une action obligatoire et immédiate dès l'identification de la tâche à traiter\n- Clarifier les instructions pour éliminer toute ambiguïté\n\n**2. Adaptation des instructions :**\n- Réécrire la section concernée pour rendre le marquage automatique et non optionnel\n- Spécifier clairement que dès qu'une tâche est sélectionnée, elle DOIT être marquée IN_PROGRESS\n- Ajouter des vérifications pour s'assurer que le marquage a bien été effectué\n\n**3. Mise à jour de l'exemple :**\n- Adapter l'exemple fourni dans la règle pour refléter la nouvelle structure\n- Montrer clairement l'ordre des opérations : sélection → marquage IN_PROGRESS → implémentation\n- Illustrer le nouveau workflow avec un cas concret\n\n**Critères d'acceptation :**\n- Le marquage des tâches IN_PROGRESS se fait systématiquement à l'étape 1\n- Les instructions sont claires et non ambiguës\n- L'exemple reflète fidèlement la nouvelle structure\n- Aucune tâche ne peut être oubliée lors du passage vers experience-execution\n- Les transitions vers d'autres règles (experience-execution) n'interfèrent plus avec le marquage\n\n**Fichiers à modifier :**\n- Fichier de règle d'implémentation (.mdc) dans `.cursor/workflow-steps/` ou `.cursor/rules/`\n- Mise à jour de la documentation associée si nécessaire\n\n**Tests de validation :**\n- Vérifier que le nouveau workflow fonctionne correctement\n- Tester les transitions vers experience-execution\n- S'assurer que toutes les tâches sont marquées IN_PROGRESS sans exception",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/workflow-steps/implementation.mdc",
+      ".cursor/rules/implementation.mdc"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) La règle d'implémentation a été modifiée pour placer le marquage IN_PROGRESS à l'étape 1, (2) Les instructions sont claires et non ambiguës sur l'obligation de marquer systématiquement les tâches, (3) L'exemple fourni dans la règle reflète la nouvelle structure, (4) Tests effectués confirmant que le marquage se fait automatiquement sans oubli, (5) Les transitions vers experience-execution n'interfèrent plus avec le processus de marquage.",
+    "created_date": "2025-06-27T16:33:00.728Z",
+    "updated_date": "2025-06-27T16:39:32.596Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null,
+    "comments": [
+      {
+        "timestamp": "2025-06-27T16:36:51.579Z",
+        "comment": "Task started",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-06-27T16:38:42.500Z",
+        "comment": "Modification réussie de la règle d'implémentation dans le fichier `.cursor/workflow-steps/implementation.md`. Les changements apportés :\n\n**Modifications principales :**\n1. **Étape 1 renommée** : \"Task analysis\" → \"Task analysis and status update\"\n2. **Marquage obligatoire ajouté** : Instruction explicite de marquer immédiatement la tâche comme IN_PROGRESS dès l'identification\n3. **Étape 3 mise à jour** : Suppression de l'ancien marquage IN_PROGRESS, remplacé par un rappel que c'est déjà fait\n4. **Règles renforcées** : Ajout de la RÈGLE #3 spécifique au marquage obligatoire\n5. **Anti-drift warnings étendus** : Interdiction explicite d'oublier le marquage\n6. **Exemple mis à jour** : L'exemple reflète maintenant le nouveau workflow avec marquage à l'étape 1\n\n**Bénéfices :**\n- Garantit qu'aucune tâche ne soit oubliée lors du passage vers experience-execution\n- Élimine la confusion dans les instructions actuelles\n- Rend le marquage systématique et obligatoire dès l'étape 1\n- Maintient la cohérence du workflow autonome\n\nLa règle est maintenant plus claire et robuste, avec un marquage systématique qui ne peut plus être oublié.",
+        "status_change": "REVIEW"
+      },
+      {
+        "timestamp": "2025-06-27T16:39:32.596Z",
+        "comment": "Test de validation réussi. Toutes les modifications de la règle d'implémentation ont été correctement appliquées :\n\n✅ **Étape 1 restructurée** : Renommée \"Task analysis and status update\" avec marquage obligatoire IN_PROGRESS\n✅ **RÈGLE #3 ajoutée** : Marquage immédiat obligatoire sans exception  \n✅ **Étape 3 mise à jour** : Rappel que le marquage est déjà fait à l'étape 1\n✅ **Anti-drift warnings renforcés** : Interdictions explicites d'oublier le marquage\n✅ **Exemple actualisé** : Workflow reflétant le nouveau processus\n\nLa règle garantit maintenant qu'aucune tâche ne puisse être oubliée lors du passage vers experience-execution. La modification répond parfaitement aux exigences de la requête utilisateur #199.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Test de validation réussi. Toutes les modifications de la règle d'implémentation ont été correctement appliquées :\n\n✅ **Étape 1 restructurée** : Renommée \"Task analysis and status update\" avec marquage obligatoire IN_PROGRESS\n✅ **RÈGLE #3 ajoutée** : Marquage immédiat obligatoire sans exception  \n✅ **Étape 3 mise à jour** : Rappel que le marquage est déjà fait à l'étape 1\n✅ **Anti-drift warnings renforcés** : Interdictions explicites d'oublier le marquage\n✅ **Exemple actualisé** : Workflow reflétant le nouveau processus\n\nLa règle garantit maintenant qu'aucune tâche ne puisse être oubliée lors du passage vers experience-execution. La modification répond parfaitement aux exigences de la requête utilisateur #199.",
+    "last_comment_timestamp": "2025-06-27T16:39:32.596Z"
   }
 ]

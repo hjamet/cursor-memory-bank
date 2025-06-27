@@ -1,5 +1,17 @@
 {
   "version": "1.0.0",
-  "messages": [],
-  "last_id": 143
+  "messages": [
+    {
+      "id": 144,
+      "content": "Tâche #234 terminée avec succès. La règle d'implémentation a été modifiée pour garantir le marquage systématique des tâches IN_PROGRESS dès l'étape 1, résolvant le problème de tâches oubliées lors du passage vers experience-execution.",
+      "timestamp": "2025-06-27T16:39:01.655Z",
+      "context": {
+        "workflow_rule": "implementation",
+        "active_task": null,
+        "agent_state": "processing"
+      },
+      "status": "unread"
+    }
+  ],
+  "last_id": 144
 }

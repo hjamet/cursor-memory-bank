@@ -3,10 +3,11 @@ Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant 
 
 ## Instructions
 
-1.  **Task analysis**: Analyser LA tâche à implémenter (UNE SEULE).
+1.  **Task analysis and status update**: Analyser LA tâche à implémenter (UNE SEULE) et la marquer immédiatement comme IN_PROGRESS.
     *   Utiliser `mcp_MemoryBankMCP_get_next_tasks` pour obtenir LA tâche prioritaire
     *   **IMPORTANT** : L'outil retourne LA tâche la plus prioritaire - c'est CETTE tâche et UNIQUEMENT cette tâche que vous devez traiter
     *   Identifier LA tâche avec le statut TODO ou IN_PROGRESS retournée par l'outil
+    *   **MARQUAGE OBLIGATOIRE** : Dès qu'une tâche est identifiée, la marquer IMMÉDIATEMENT comme IN_PROGRESS avec `mcp_MemoryBankMCP_update_task`
     *   **INTERDICTION FORMELLE** : Ne pas traiter plusieurs tâches en séquence dans un même cycle d'implémentation
 
 2.  **Analyse du contexte et Plan d'implémentation**: Analyser le code existant pour garantir la cohérence et la réutilisation.
@@ -23,7 +24,7 @@ Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant 
 3.  **Implementation**: Implémenter les modifications nécessaires pour LA tâche unique, en suivant le plan établi.
     *   Utiliser les outils appropriés (`edit_file`, `regex_edit`, `grep_search`, etc.)
     *   Suivre les conventions établies dans le contexte technique et le plan d'implémentation.
-    *   Marquer LA tâche comme IN_PROGRESS pendant l'implémentation avec `mcp_MemoryBankMCP_update_task`
+    *   **RAPPEL** : La tâche a déjà été marquée comme IN_PROGRESS à l'étape 1
     *   **FOCUS ABSOLU** : Concentrez-vous uniquement sur cette tâche, ses sous-tâches éventuelles, mais JAMAIS sur d'autres tâches.
     *   **EXCEPTION**: Si la tâche ne nécessite que l'exécution de commandes, une validation ou des expériences sans modification de code (par exemple, "vérifier que cette commande fonctionne"), vous pouvez appeler `mcp_MemoryBankMCP_next_rule` avec `step_name: 'experience-execution'` pour passer directement aux tests.
 
@@ -41,10 +42,11 @@ Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant 
 ## Specifics - RÈGLES STRICTES
 - **RÈGLE #1** : Travailler sur UNE SEULE tâche à la fois - JAMAIS plusieurs tâches en séquence
 - **RÈGLE #2** : LA tâche à traiter est celle retournée par `mcp_MemoryBankMCP_get_next_tasks` - pas d'autres
-- **RÈGLE #3** : Terminer OBLIGATOIREMENT par `mcp_MemoryBankMCP_remember` pour maintenir le workflow
-- **RÈGLE #4** : Ne pas décider arbitrairement de traiter d'autres tâches "tant qu'on y est"
-- **RÈGLE #5** : Si une tâche semble liée à d'autres, traiter UNIQUEMENT la tâche prioritaire retournée par l'outil
-- **RÈGLE #6** : Les sous-tâches sont autorisées UNIQUEMENT si elles font partie intégrante de la tâche principale
+- **RÈGLE #3** : MARQUER IMMÉDIATEMENT la tâche comme IN_PROGRESS dès l'étape 1 - AUCUNE EXCEPTION
+- **RÈGLE #4** : Terminer OBLIGATOIREMENT par `mcp_MemoryBankMCP_remember` pour maintenir le workflow
+- **RÈGLE #5** : Ne pas décider arbitrairement de traiter d'autres tâches "tant qu'on y est"
+- **RÈGLE #6** : Si une tâche semble liée à d'autres, traiter UNIQUEMENT la tâche prioritaire retournée par l'outil
+- **RÈGLE #7** : Les sous-tâches sont autorisées UNIQUEMENT si elles font partie intégrante de la tâche principale
 - Utiliser les outils MCP pour toute gestion de tâches
 - Respecter les conventions de code établies
 - Tester les modifications localement si possible
@@ -52,6 +54,7 @@ Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant 
 
 ## ⚠️ ANTI-DRIFT WARNINGS ⚠️
 - **INTERDIT** : Traiter plusieurs tâches "pour être efficace" - c'est contre-productif
+- **INTERDIT** : Oublier de marquer la tâche comme IN_PROGRESS à l'étape 1 - c'est OBLIGATOIRE
 - **INTERDIT** : Ignorer l'appel à remember à la fin - cela casse le workflow autonome
 - **INTERDIT** : Décider soi-même quelle tâche traiter - utiliser next_rule/get_next_tasks
 - **INTERDIT** : Continuer sur d'autres tâches après avoir terminé la tâche principale
@@ -59,13 +62,15 @@ Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant 
 - **INTERDIT** : Traiter des tâches "évidentes" ou "rapides" en plus de la tâche principale
 - **INTERDIT** : Grouper des tâches similaires ensemble - chaque tâche doit être traitée individuellement
 - **INTERDIT** : Sauter l'étape remember sous prétexte de "continuer directement"
+- **INTERDIT** : Passer à experience-execution sans marquer la tâche IN_PROGRESS
 
 ## 🎯 SINGLE-TASK FOCUS ENFORCEMENT
 - **MANTRA** : "Une tâche, un cycle, un focus"
 - **VÉRIFICATION** : Avant chaque action, demandez-vous "Est-ce que cela concerne MA tâche unique ?"
 - **LIMITE** : Si vous voyez d'autres problèmes, les noter dans remember mais NE PAS les traiter
-- **CYCLE COMPLET** : Task analysis → Context analysis & Plan → Implementation → Status update → Remember → STOP
+- **CYCLE COMPLET** : Task analysis & status update → Context analysis & Plan → Implementation → Status update → Remember → STOP
 - **PROCHAINE TÂCHE** : Sera déterminée par le prochain appel à next_rule, pas par vous
+- **MARQUAGE SYSTÉMATIQUE** : Toute tâche identifiée DOIT être marquée IN_PROGRESS immédiatement, sans exception
 
 ## Next Steps
 - `context-update` - Pour finaliser et commiter les changements
@@ -79,11 +84,13 @@ Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant 
 
 ## Example - SINGLE TASK WORKFLOW
 
-# Implementation: 1 - Task analysis
-Je commence par analyser LA tâche à implémenter (UNE SEULE). **(Implementation: 1 - Task analysis)**
+# Implementation: 1 - Task analysis and status update
+Je commence par analyser LA tâche à implémenter (UNE SEULE) et la marquer immédiatement comme IN_PROGRESS. **(Implementation: 1 - Task analysis and status update)**
 [...appel de mcp_MemoryBankMCP_get_next_tasks...]
 J'ai identifié LA tâche prioritaire : {{ current_tasks_summary }} 
-**FOCUS** : Je vais traiter UNIQUEMENT cette tâche et aucune autre. **(Implementation: 1 - Task analysis)**
+**MARQUAGE OBLIGATOIRE** : Je marque immédiatement cette tâche comme IN_PROGRESS pour garantir qu'elle ne soit pas oubliée.
+[...appel OBLIGATOIRE de mcp_MemoryBankMCP_update_task pour marquer la tâche IN_PROGRESS...]
+**FOCUS** : Je vais traiter UNIQUEMENT cette tâche et aucune autre. **(Implementation: 1 - Task analysis and status update)**
 
 # Implementation: 2 - Analyse du contexte et Plan d'implémentation
 Je recherche dans la base de code pour comprendre les conventions et identifier le code à réutiliser. **(Implementation: 2 - Analyse du contexte et Plan d'implémentation)**
@@ -96,7 +103,7 @@ Je recherche dans la base de code pour comprendre les conventions et identifier 
 
 # Implementation: 3 - Implementation
 Je procède maintenant à l'implémentation des modifications pour LA tâche unique, en suivant mon plan. **(Implementation: 3 - Implementation)**
-[...mise à jour du statut avec mcp_MemoryBankMCP_update_task...]
+**RAPPEL** : La tâche a déjà été marquée comme IN_PROGRESS à l'étape 1, je peux donc me concentrer sur l'implémentation.
 [...implémentation des changements pour CETTE tâche uniquement, en respectant le plan...]
 **DISCIPLINE** : Je me concentre exclusivement sur cette tâche. **(Implementation: 3 - Implementation)**
 

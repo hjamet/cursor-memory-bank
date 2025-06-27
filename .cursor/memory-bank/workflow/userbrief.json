@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 197,
+  "last_id": 199,
   "requests": [
     {
       "id": 156,
@@ -650,6 +650,44 @@
         },
         {
           "timestamp": "2025-06-27T14:56:22.477Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 198,
+      "content": "Sur un autre projet dans la page Task Status, j'ai eu l'erreur suivante qui s'est affichée, donc s'il te plaît, Enquête sur l'origine du problème et résout le le souci :\n\nstreamlit.errors.StreamlitDuplicateElementKey: There are multiple elements with the same `key='delete_30'`. To fix this, please make sure that the `key` argument is unique for each element you create.\n\nFile \"C:\\Users\\Jamet\\code\\llm-as-recommender\\.cursor\\streamlit_app\\pages\\task_status.py\", line 71, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\llm-as-recommender\\.cursor\\streamlit_app\\pages\\task_status.py\", line 67, in main\n    render_userbrief_request(request)\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^\nFile \"C:\\Users\\Jamet\\code\\llm-as-recommender\\.cursor\\streamlit_app\\pages\\utils\\task_rendering.py\", line 357, in render_userbrief_request\n    if st.button(\"🗑️ Delete\", key=f\"delete_{req_id}\", help=\"Delete this request\"):\n       ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\widgets\\button.py\", line 243, in button\n    return self.dg._button(\n           ~~~~~~~~~~~~~~~^\n        label,\n        ^^^^^^\n    ...<10 lines>...\n        ctx=ctx,\n        ^^^^^^^^\n    )\n    ^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\widgets\\button.py\", line 1013, in _button\n    element_id = compute_and_register_element_id(\n        \"button\",\n    ...<9 lines>...\n        use_container_width=use_container_width,\n    )\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\utils.py\", line 254, in compute_and_register_element_id\n    _register_element_id(ctx, element_type, element_id)\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\utils.py\", line 143, in _register_element_id\n    raise StreamlitDuplicateElementKey(user_key)",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-27T18:28:12.155570",
+      "updated_at": "2025-06-27T16:32:11.839Z",
+      "history": [
+        {
+          "timestamp": "2025-06-27T18:28:12.155570",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-27T16:32:11.839Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 199,
+      "content": "Dans la règle implémentation, est ce que tu peux modifier l'emplacement de l'étape dans la partie 3 ou ? Où la la tâche considérée est marquée comme en cours, c'est vraiment un truc qui doit se faire quoi qu'il arrive. Une fois que l'agent est identifié, la tâche en cours. Enfin, la tâche sur laquelle il veut travailler, il doit la marquer comme en cours. Parce que le problème, c'est que actuellement, quand à l'exception qui est Trigger et que du coup l'agent se met à partir sur la règle expérience exécution, le souci c'est que il arrive des fois où il décide de pas la marquer comme en cours parce que les informations les instructions prêtent un peu à confusion et du coup il faudrait résoudre ce problème en en en déplaçant le fait de marquer la tâche comme in Progress à l'étape un je pense donc adapte les instructions de la règle dans le fichier Markdown et. Adapte aussi l'exemple.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-27T18:30:14.935171",
+      "updated_at": "2025-06-27T16:33:06.492Z",
+      "history": [
+        {
+          "timestamp": "2025-06-27T18:30:14.935171",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-27T16:33:06.492Z",
           "action": "mark_archived"
         }
       ]
