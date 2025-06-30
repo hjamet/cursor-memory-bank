@@ -4738,14 +4738,14 @@
     "short_description": "Résoudre l'erreur critique StreamlitDuplicateElementKey causée par des clés de boutons Delete en double dans l'interface Task Status du projet llm-as-recommender. L'erreur empêche l'affichage correct de la page et nécessite une correction de la génération des clés uniques.",
     "detailed_description": "Investiguer et corriger l'erreur `StreamlitDuplicateElementKey` qui se produit dans le projet llm-as-recommender lors de l'affichage de la page Task Status.\n\n**Problème identifié :**\n- Erreur : `There are multiple elements with the same key='delete_30'`\n- Localisation : `C:\\Users\\Jamet\\code\\llm-as-recommender\\.cursor\\streamlit_app\\pages\\utils\\task_rendering.py`, ligne 357\n- Code problématique : `st.button(\"🗑️ Delete\", key=f\"delete_{req_id}\", help=\"Delete this request\")`\n\n**Analyse technique requise :**\n- Examiner la fonction `render_userbrief_request` dans `task_rendering.py`\n- Identifier pourquoi la variable `req_id` génère des valeurs dupliquées\n- Vérifier si plusieurs requêtes ont le même ID ou si la logique de génération des clés est défaillante\n- Analyser le contexte d'appel de cette fonction dans `task_status.py`\n\n**Corrections à implémenter :**\n- Assurer l'unicité des clés des boutons Delete en utilisant une combinaison d'identifiants uniques\n- Implémenter une stratégie de génération de clés robuste (ex: `f\"delete_{req_id}_{timestamp}\"` ou `f\"delete_{req_id}_{index}\"`)\n- Ajouter des vérifications défensives pour éviter les collisions de clés\n- Tester avec plusieurs requêtes pour valider l'unicité\n\n**Critères d'acceptation :**\n- L'erreur `StreamlitDuplicateElementKey` ne se produit plus\n- Chaque bouton Delete a une clé unique et fonctionnelle\n- La page Task Status s'affiche correctement avec plusieurs requêtes\n- Les boutons Delete fonctionnent individuellement sans interférence\n\n**Tests de validation :**\n- Créer plusieurs requêtes dans le projet llm-as-recommender\n- Vérifier l'affichage de la page Task Status sans erreur\n- Tester la fonctionnalité de suppression de chaque bouton\n- Valider que les clés générées sont uniques et prévisibles",
     "dependencies": [],
-    "status": "BLOCKED",
+    "status": "TODO",
     "impacted_files": [
       "C:/Users/Jamet/code/llm-as-recommender/.cursor/streamlit_app/pages/utils/task_rendering.py",
       "C:/Users/Jamet/code/llm-as-recommender/.cursor/streamlit_app/pages/task_status.py"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) L'erreur StreamlitDuplicateElementKey ne se produit plus lors de l'affichage de la page Task Status, (2) Chaque bouton Delete possède une clé unique et fonctionnelle, (3) La page s'affiche correctement avec plusieurs requêtes simultanées, (4) Les boutons Delete fonctionnent individuellement sans interférence mutuelle, (5) Tests de validation effectués avec succès sur plusieurs scénarios de requêtes multiples.",
     "created_date": "2025-06-27T16:32:07.421Z",
-    "updated_date": "2025-06-27T16:36:35.867Z",
+    "updated_date": "2025-06-27T18:50:09.086242",
     "parent_id": null,
     "priority": 4,
     "image": null,
@@ -4771,14 +4771,14 @@
     "short_description": "Refactoriser la règle d'implémentation pour déplacer le marquage des tâches comme \"IN_PROGRESS\" à l'étape 1, garantissant ainsi qu'aucune tâche ne soit oubliée lors du passage vers experience-execution. Cette modification résoudra les problèmes de confusion dans les instructions actuelles.",
     "detailed_description": "Modifier la règle d'implémentation (fichier .mdc) pour résoudre le problème de marquage inconsistant des tâches comme \"IN_PROGRESS\".\n\n**Problème identifié :**\n- Actuellement, le marquage des tâches comme \"IN_PROGRESS\" se fait dans la partie 3 de la règle\n- Quand une exception est déclenchée et que l'agent passe vers \"experience-execution\", il arrive parfois qu'il oublie de marquer la tâche en cours\n- Les instructions prêtent à confusion et ne garantissent pas un marquage systématique\n\n**Modifications à apporter :**\n\n**1. Restructuration de la règle d'implémentation :**\n- Déplacer le marquage \"IN_PROGRESS\" de la partie 3 vers l'étape 1\n- Faire du marquage une action obligatoire et immédiate dès l'identification de la tâche à traiter\n- Clarifier les instructions pour éliminer toute ambiguïté\n\n**2. Adaptation des instructions :**\n- Réécrire la section concernée pour rendre le marquage automatique et non optionnel\n- Spécifier clairement que dès qu'une tâche est sélectionnée, elle DOIT être marquée IN_PROGRESS\n- Ajouter des vérifications pour s'assurer que le marquage a bien été effectué\n\n**3. Mise à jour de l'exemple :**\n- Adapter l'exemple fourni dans la règle pour refléter la nouvelle structure\n- Montrer clairement l'ordre des opérations : sélection → marquage IN_PROGRESS → implémentation\n- Illustrer le nouveau workflow avec un cas concret\n\n**Critères d'acceptation :**\n- Le marquage des tâches IN_PROGRESS se fait systématiquement à l'étape 1\n- Les instructions sont claires et non ambiguës\n- L'exemple reflète fidèlement la nouvelle structure\n- Aucune tâche ne peut être oubliée lors du passage vers experience-execution\n- Les transitions vers d'autres règles (experience-execution) n'interfèrent plus avec le marquage\n\n**Fichiers à modifier :**\n- Fichier de règle d'implémentation (.mdc) dans `.cursor/workflow-steps/` ou `.cursor/rules/`\n- Mise à jour de la documentation associée si nécessaire\n\n**Tests de validation :**\n- Vérifier que le nouveau workflow fonctionne correctement\n- Tester les transitions vers experience-execution\n- S'assurer que toutes les tâches sont marquées IN_PROGRESS sans exception",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/workflow-steps/implementation.mdc",
       ".cursor/rules/implementation.mdc"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) La règle d'implémentation a été modifiée pour placer le marquage IN_PROGRESS à l'étape 1, (2) Les instructions sont claires et non ambiguës sur l'obligation de marquer systématiquement les tâches, (3) L'exemple fourni dans la règle reflète la nouvelle structure, (4) Tests effectués confirmant que le marquage se fait automatiquement sans oubli, (5) Les transitions vers experience-execution n'interfèrent plus avec le processus de marquage.",
     "created_date": "2025-06-27T16:33:00.728Z",
-    "updated_date": "2025-06-27T16:39:32.596Z",
+    "updated_date": "2025-06-27T18:50:16.094402",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -4801,6 +4801,98 @@
       }
     ],
     "last_comment": "Test de validation réussi. Toutes les modifications de la règle d'implémentation ont été correctement appliquées :\n\n✅ **Étape 1 restructurée** : Renommée \"Task analysis and status update\" avec marquage obligatoire IN_PROGRESS\n✅ **RÈGLE #3 ajoutée** : Marquage immédiat obligatoire sans exception  \n✅ **Étape 3 mise à jour** : Rappel que le marquage est déjà fait à l'étape 1\n✅ **Anti-drift warnings renforcés** : Interdictions explicites d'oublier le marquage\n✅ **Exemple actualisé** : Workflow reflétant le nouveau processus\n\nLa règle garantit maintenant qu'aucune tâche ne puisse être oubliée lors du passage vers experience-execution. La modification répond parfaitement aux exigences de la requête utilisateur #199.",
-    "last_comment_timestamp": "2025-06-27T16:39:32.596Z"
+    "last_comment_timestamp": "2025-06-27T16:39:32.596Z",
+    "validation": {
+      "approved_at": "2025-06-27T18:50:16.086159",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 235,
+    "title": "Investiguer et corriger le problème de génération d'ID en double dans le système MCP Memory Bank",
+    "short_description": "Investiguer et résoudre le problème de génération d'identifiants en double dans le serveur MCP Memory Bank qui cause des erreurs StreamlitDuplicateElementKey dans les projets utilisant ce système. Le problème affecte la génération des ID de requêtes et de tâches, causant des collisions d'identifiants.",
+    "detailed_description": "Investiguer et corriger le problème de génération d'identifiants en double dans le système MCP Memory Bank qui cause des erreurs StreamlitDuplicateElementKey dans les projets utilisant ce système.\n\n**Contexte du problème :**\nL'utilisateur a signalé que le projet llm-as-recommender, qui utilise le même système MCP Memory Bank, génère des erreurs `StreamlitDuplicateElementKey` avec des clés comme `delete_30` en double. Comme les ID sont normalement générés par le serveur MCP, le problème provient probablement de notre code de génération d'identifiants.\n\n**Analyse technique requise :**\n\n1. **Investigation du système de génération d'ID :**\n   - Examiner le code de génération d'ID dans le serveur MCP Memory Bank\n   - Vérifier les mécanismes de génération d'ID pour les requêtes (`userbrief.json`)\n   - Analyser les mécanismes de génération d'ID pour les tâches (`tasks.json`)\n   - Identifier les sources potentielles de duplication d'identifiants\n\n2. **Audit des fichiers de données :**\n   - Vérifier l'intégrité des fichiers `userbrief.json` et `tasks.json`\n   - Détecter les ID en double existants dans les données\n   - Analyser les patterns de génération d'ID dans l'historique\n\n3. **Investigation des conditions de course :**\n   - Vérifier s'il y a des conditions de course lors de la génération d'ID\n   - Analyser les accès concurrents aux fichiers de données\n   - Identifier les problèmes de synchronisation potentiels\n\n4. **Examen des mécanismes de persistance :**\n   - Vérifier la cohérence des opérations de lecture/écriture\n   - Analyser la gestion des erreurs lors de la sauvegarde\n   - Identifier les problèmes de corruption de données\n\n**Corrections à implémenter :**\n\n1. **Amélioration de la génération d'ID :**\n   - Implémenter un mécanisme de génération d'ID plus robuste\n   - Ajouter des vérifications d'unicité avant l'attribution d'un nouvel ID\n   - Utiliser des mécanismes de génération d'ID thread-safe\n\n2. **Correction des données existantes :**\n   - Détecter et corriger les ID en double dans les fichiers existants\n   - Implémenter un script de migration pour nettoyer les données\n   - Sauvegarder les données avant les corrections\n\n3. **Renforcement de la robustesse :**\n   - Ajouter des validations d'intégrité lors des opérations CRUD\n   - Implémenter des mécanismes de récupération d'erreur\n   - Ajouter des logs détaillés pour le débogage\n\n4. **Tests et validation :**\n   - Créer des tests pour valider l'unicité des ID générés\n   - Tester les scénarios de charge et de concurrence\n   - Valider la cohérence des données après les corrections\n\n**Critères d'acceptation :**\n- Aucun ID en double n'est généré par le système MCP\n- Les données existantes sont nettoyées des ID dupliqués\n- Les projets utilisant le système MCP (comme llm-as-recommender) n'ont plus d'erreurs StreamlitDuplicateElementKey\n- Les mécanismes de génération d'ID sont thread-safe et robustes\n- Des tests automatisés valident l'unicité des ID\n\n**Impact sur les projets :**\nCette correction résoudra les problèmes dans tous les projets utilisant le système MCP Memory Bank, incluant le projet llm-as-recommender mentionné par l'utilisateur.\n\n**Tests de validation :**\n- Vérifier la génération d'ID uniques sur plusieurs opérations consécutives\n- Tester la robustesse sous charge avec des opérations concurrentes\n- Valider l'intégrité des données après les corrections\n- Confirmer que les erreurs StreamlitDuplicateElementKey sont résolues dans les projets clients",
+    "dependencies": [],
+    "status": "IN_PROGRESS",
+    "impacted_files": [
+      "mcp-servers/memory-bank/src/tools/create_task.js",
+      "mcp-servers/memory-bank/src/tools/update_userbrief.js",
+      "mcp-servers/memory-bank/src/data/tasks.json",
+      "mcp-servers/memory-bank/src/data/userbrief.json",
+      "mcp-servers/memory-bank/src/utils/",
+      "mcp-servers/memory-bank/tests/"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) Le mécanisme de génération d'ID du serveur MCP Memory Bank est corrigé et ne génère plus d'ID en double, (2) Les données existantes sont nettoyées des ID dupliqués avec sauvegarde de sécurité, (3) Des tests automatisés valident l'unicité des ID générés, (4) Les projets utilisant le système MCP (comme llm-as-recommender) n'ont plus d'erreurs StreamlitDuplicateElementKey, (5) La documentation est mise à jour avec les améliorations apportées au système de génération d'ID.",
+    "created_date": "2025-06-27T16:52:43.194Z",
+    "updated_date": "2025-06-27T16:53:26.632Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null,
+    "comments": [
+      {
+        "timestamp": "2025-06-27T16:53:26.632Z",
+        "comment": "Début de l'implémentation - Investigation du problème de génération d'ID en double dans le système MCP Memory Bank. Cette tâche résoudra l'erreur StreamlitDuplicateElementKey à la source pour tous les projets utilisant ce système.",
+        "status_change": "IN_PROGRESS"
+      }
+    ],
+    "last_comment": "Début de l'implémentation - Investigation du problème de génération d'ID en double dans le système MCP Memory Bank. Cette tâche résoudra l'erreur StreamlitDuplicateElementKey à la source pour tous les projets utilisant ce système.",
+    "last_comment_timestamp": "2025-06-27T16:53:26.632Z"
+  },
+  {
+    "id": 236,
+    "title": "Modify experience-execution rule to prevent infinite loops",
+    "short_description": "Update the 'experience-execution' workflow rule to ensure a task's status is changed to REVIEW *before* calling the 'remember' tool. This will prevent the system from getting stuck in an infinite loop by re-recommending the same step.",
+    "detailed_description": "The user has identified a potential infinite loop in the 'experience-execution' workflow step. The current rule does not strictly enforce that a task's status must be changed before calling the 'remember' tool. If the experience execution is successful but the task status is not updated to 'REVIEW', the 'remember' tool's logic might re-recommend the 'experience-execution' step, causing a loop.\n\nThis task is to modify the '.cursor/workflow-steps/experience-execution.md' rule to prevent this.\n\n**Plan:**\n1.  **Analyze the current `experience-execution.md` rule** to identify the point of failure.\n2.  **Restructure the rule's instructions** to make it mandatory to update the task status before the final 'remember' call.\n3.  The new logic should be:\n    a. Perform the validation/testing steps.\n    b. Based on the outcome, update the task status using `update_task` (e.g., to 'REVIEW' if successful, or leave as 'IN_PROGRESS' and add a comment if failed).\n    c. **Only then**, call `mcp_MemoryBankMCP_remember` to record the outcome and get the next step.\n4.  The instructions must be explicit and clear to prevent any ambiguity for the agent.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/workflow-steps/experience-execution.md"
+    ],
+    "validation_criteria": "The task is complete when: (1) The '.cursor/workflow-steps/experience-execution.md' file is modified to explicitly instruct the agent to update the task status to REVIEW *before* calling 'remember'. (2) The new rule structure logically prevents the possibility of an 'experience-execution' loop.",
+    "created_date": "2025-06-30T10:41:25.514Z",
+    "updated_date": "2025-06-30T10:41:25.514Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 237,
+    "title": "Correct remember tool logic to prevent experience-execution loops",
+    "short_description": "Investigate and correct the 'remember' tool's routing logic in the Memory Bank MCP server to prevent it from recommending 'experience-execution' immediately after the same step has run. The new logic must correctly transition to 'fix', 'context-update', or 'task-decomposition'.",
+    "detailed_description": "The user has reported a critical bug in the 'remember' tool's routing logic that causes an infinite loop. The tool can incorrectly recommend 'experience-execution' as the next step immediately following an 'experience-execution' step, which should be impossible.\n\nThe task is to investigate and fix this logic in the Memory Bank MCP server.\n\n**Investigation Plan:**\n1.  Locate the next-step recommendation logic within the `remember.js` file in the `.cursor/mcp/memory-bank-mcp/src/tools/` directory.\n2.  Analyze the conditions under which the next step is determined, paying close attention to the handling of the 'experience-execution' step as the 'previous_rule'.\n\n**Implementation Plan:**\n1.  Modify the routing logic to explicitly forbid a direct transition from 'experience-execution' to 'experience-execution'.\n2.  Implement the correct state transitions as specified by the user:\n    -   **IF** the previous step was 'experience-execution' AND the associated task is still 'IN_PROGRESS' (indicating failure) -> **THEN** the next recommended step must be 'fix'.\n    -   **IF** the previous step was 'experience-execution' AND the task is now 'REVIEW' (or any other non-IN_PROGRESS state) -> **THEN** the default next step should be 'context-update'.\n    -   This new logic must still be overridden by the highest-priority check for new user requests, which should always direct to 'task-decomposition'.\n3.  Since the server cannot be restarted by the agent, a notification must be prepared to inform the user that a manual restart is required for the fix to take effect. This can be added to the `user_message` field in the final 'remember' call of the implementation task.\n\n**Validation Plan:**\n1.  Create a new standalone test script (e.g., `validate_remember_logic.js`).\n2.  This script will not run a server but will import the modified 'remember' logic as a module.\n3.  It will simulate various input states (e.g., previous_rule='experience-execution', task_status='IN_PROGRESS') and assert that the function returns the correct recommended next step ('fix', 'context-update', etc.).\n4.  This allows for validation of the fix without needing to restart the live MCP server.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/src/tools/remember.js",
+      "validate_remember_logic.js"
+    ],
+    "validation_criteria": "The task is complete when: (1) The logic in 'remember.js' is updated to prevent 'experience-execution' loops. (2) The new logic correctly routes to 'fix', 'context-update', or 'task-decomposition' as appropriate. (3) A test script is created that validates the new routing logic without requiring a server restart. (4) The agent is prepared to notify the user about the required server restart upon completion.",
+    "created_date": "2025-06-30T10:41:52.077Z",
+    "updated_date": "2025-06-30T11:00:13.537Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null,
+    "comments": [
+      {
+        "timestamp": "2025-06-30T10:42:08.823Z",
+        "comment": "Starting implementation. This is a critical bug fix for the core workflow logic. I will begin by analyzing the 'remember.js' file.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-06-30T10:59:31.799Z",
+        "comment": "Implementation completed successfully. Fixed the remember tool logic to prevent experience-execution loops. Key changes: (1) Added getRecommendedNextStep function that explicitly forbids experience-execution -> experience-execution transitions, (2) Implemented correct routing logic: if task is IN_PROGRESS after experience-execution -> route to 'fix', otherwise -> route to 'context-update' or 'task-decomposition', (3) Created and ran validation script - all 6 tests passed, confirming the fix works correctly. The MCP server needs to be restarted for changes to take effect.",
+        "status_change": "REVIEW"
+      },
+      {
+        "timestamp": "2025-06-30T11:00:13.537Z",
+        "comment": "Experience-execution validation completed successfully. All 6 critical tests passed, confirming the remember logic fix prevents experience-execution loops and routes correctly: (1) experience-execution → experience-execution transitions are blocked, (2) correct routing to 'fix' when tasks remain IN_PROGRESS, (3) proper routing to 'context-update' or 'task-decomposition' otherwise. The implementation is ready for user validation and server restart.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Experience-execution validation completed successfully. All 6 critical tests passed, confirming the remember logic fix prevents experience-execution loops and routes correctly: (1) experience-execution → experience-execution transitions are blocked, (2) correct routing to 'fix' when tasks remain IN_PROGRESS, (3) proper routing to 'context-update' or 'task-decomposition' otherwise. The implementation is ready for user validation and server restart.",
+    "last_comment_timestamp": "2025-06-30T11:00:13.537Z"
   }
 ]

@@ -35,7 +35,7 @@ Core server for agent state and workflow management:
 - **User Request Management**: `read_userbrief`, `update_userbrief`
 - **Task Management**: `create_task`, `update_task`, `get_all_tasks`, `get_next_tasks`
 - **Version Control**: `commit` for standardized Git commits with refactoring task deduplication
-- **Memory System**: `remember` for state recording, `next_rule` for workflow navigation
+- **Memory System**: `remember` for state recording, `next_rule` for workflow navigation with **critical loop prevention logic**
 
 #### ToolsMCP Server (`mcp_ToolsMCP_*`)
 System interaction server:
@@ -48,6 +48,8 @@ Located in `.cursor/workflow-steps/`:
 - **Autonomous Loop**: `start-workflow` → `next_rule` → `execute` → `remember` → repeat
 - **Step Types**: `task-decomposition`, `implementation`, `fix`, `context-update`, `experience-execution`
 - **Rule Files**: `.mdc` files in `.cursor/rules/` (e.g., `start.mdc`)
+- **Implementation Rule Enhancement**: The implementation rule has been refactored to guarantee systematic task marking as IN_PROGRESS at step 1, preventing task loss during transitions to experience-execution
+- **Critical Loop Prevention**: The `remember` tool now includes sophisticated logic to prevent infinite loops, especially the critical experience-execution → experience-execution transition
 
 ## Installation & Configuration
 
@@ -77,7 +79,27 @@ Comprehensive bash script supporting:
 
 ## Recent Enhancements
 
-### Terminal Tools Improvements (Latest)
+### Critical Workflow Loop Prevention (Latest)
+- **Remember Tool Logic Fix**: Implemented comprehensive logic to prevent infinite loops in the autonomous workflow
+  - **Core Problem Resolved**: The `remember` tool could incorrectly recommend `experience-execution` immediately after an `experience-execution` step, creating forbidden infinite loops
+  - **New getRecommendedNextStep Function**: Added sophisticated routing logic that explicitly forbids experience-execution → experience-execution transitions
+  - **Smart State-Based Routing**: 
+    - If task remains IN_PROGRESS after experience-execution → routes to `fix` for issue resolution
+    - If task is completed (no IN_PROGRESS) → routes to `context-update` or `task-decomposition` (if new requests exist)
+    - Preserves all other valid workflow transitions
+  - **Comprehensive Validation**: Created and executed validation script with 6 critical tests, all passing
+  - **Impact**: Eliminates the possibility of workflow infinite loops, ensuring robust autonomous operation
+
+### Workflow Rule Improvements
+- **Implementation Rule Refactoring**: Major restructuring of the implementation workflow rule to guarantee systematic task marking
+  - Step 1 renamed: "Task analysis" → "Task analysis and status update"
+  - Mandatory IN_PROGRESS marking: Tasks must be marked immediately upon identification at step 1
+  - RULE #3 added: "MARQUER IMMÉDIATEMENT la tâche comme IN_PROGRESS dès l'étape 1 - AUCUNE EXCEPTION"
+  - Enhanced anti-drift warnings: Explicit prohibitions against forgetting task marking
+  - Updated example workflow: Reflects new process with systematic marking at step 1
+  - **Impact**: Eliminates task loss during transitions to experience-execution, ensures robust workflow consistency
+
+### Terminal Tools Improvements
 - **Enhanced get_terminal_output**: Added `from_beginning` parameter for flexible output reading
   - Default mode: Incremental reading (only new output since last call)
   - `from_beginning: true`: Complete output from process start

@@ -97,6 +97,83 @@ async function getPossibleNextSteps(lastStep = null) {
     }
 }
 
+async function getRecommendedNextStep(lastStep, possibleSteps, tasks = null) {
+    // CRITICAL FIX: Prevent experience-execution loops
+    // Rule: experience-execution can NEVER be followed by experience-execution
+    if (lastStep === 'experience-execution') {
+        // If coming from experience-execution, we need to determine the next step based on task status
+
+        // Load tasks if not provided
+        if (!tasks) {
+            try {
+                tasks = await readTasks();
+            } catch (error) {
+                // If we can't load tasks, default to context-update
+                return 'context-update';
+            }
+        }
+
+        // Find the current task (assuming it's the one that was being worked on)
+        // Look for tasks that are IN_PROGRESS or recently moved to REVIEW
+        const currentTask = tasks && tasks.find(t => t.status === 'IN_PROGRESS');
+
+        if (currentTask) {
+            // Task is still IN_PROGRESS, meaning experience-execution failed
+            // Next step should be 'fix' to address the issues
+            return 'fix';
+        } else {
+            // No IN_PROGRESS task found, meaning the task was likely completed
+            // Check for new user requests first (highest priority)
+            if (possibleSteps.includes('task-decomposition')) {
+                return 'task-decomposition';
+            }
+            // Otherwise, default to context-update
+            return 'context-update';
+        }
+    }
+
+    // For all other cases, use the existing logic
+    // Prioritize task-decomposition for new user requests (highest priority)
+    if (possibleSteps.includes('task-decomposition')) {
+        return 'task-decomposition';
+    }
+
+    // ENHANCED: Prioritize experience-execution after implementation
+    if (lastStep === 'implementation' && possibleSteps.includes('experience-execution')) {
+        return 'experience-execution';
+    }
+
+    // ENHANCED: Also prioritize experience-execution if there are tasks in REVIEW status
+    if (possibleSteps.includes('experience-execution')) {
+        try {
+            if (!tasks) {
+                tasks = await readTasks();
+            }
+            if (tasks && tasks.some(t => t.status === 'REVIEW')) {
+                return 'experience-execution';
+            }
+        } catch (error) {
+            // If we can't check tasks, fall through to other logic
+        }
+    }
+
+    // Other priority steps
+    if (possibleSteps.includes('implementation')) {
+        return 'implementation';
+    }
+
+    if (possibleSteps.includes('fix')) {
+        return 'fix';
+    }
+
+    if (possibleSteps.includes('context-update')) {
+        return 'context-update';
+    }
+
+    // Fallback to the first available step
+    return possibleSteps[0] || 'context-update';
+}
+
 async function remember(args) {
     const { past, present, future, long_term_memory, user_message } = args;
 
@@ -303,32 +380,28 @@ async function remember(args) {
         semanticLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 3);
     }
 
-    // Determine the most appropriate next step based on current state
-    let recommendedNextStep = possible_next_steps[0];
+    // Load tasks for the recommendation logic
+    let tasks = null;
+    try {
+        tasks = await readTasks();
+    } catch (error) {
+        // Tasks will remain null, handled in getRecommendedNextStep
+    }
+
+    // Use the new function to determine the recommended next step
+    const recommendedNextStep = await getRecommendedNextStep(lastStep, possible_next_steps, tasks);
     let workflowInstruction = "";
 
-    // ENHANCED: Prioritize experience-execution after implementation more strongly, per user request
-    if (lastStep === 'implementation' && possible_next_steps.includes('experience-execution')) {
-        recommendedNextStep = 'experience-execution';
-        workflowInstruction = "CONTINUE WORKFLOW: Implementation complete. You should now test the changes manually using 'experience-execution' to validate the implementation before proceeding.";
-    }
-    // ENHANCED: Also prioritize experience-execution if there are tasks in REVIEW status
-    else if (possible_next_steps.includes('experience-execution')) {
-        // Check if there are REVIEW tasks that might need validation
-        try {
-            const tasks = await readTasks();
-            if (tasks && tasks.some(t => t.status === 'REVIEW')) {
-                recommendedNextStep = 'experience-execution';
-                workflowInstruction = "CONTINUE WORKFLOW: Tasks in REVIEW status detected. You should validate these implementations using 'experience-execution' to ensure they work correctly.";
-            }
-        } catch (error) {
-            // If we can't check tasks, fall through to other logic
+    // Generate appropriate workflow instructions based on the recommended step
+    if (recommendedNextStep === 'experience-execution') {
+        if (lastStep === 'implementation') {
+            workflowInstruction = "CONTINUE WORKFLOW: Implementation complete. You should now test the changes manually using 'experience-execution' to validate the implementation before proceeding.";
+        } else if (tasks && tasks.some(t => t.status === 'REVIEW')) {
+            workflowInstruction = "CONTINUE WORKFLOW: Tasks in REVIEW status detected. You should validate these implementations using 'experience-execution' to ensure they work correctly.";
+        } else {
+            workflowInstruction = "CONTINUE WORKFLOW: Manual testing/validation required. You must now call mcp_MemoryBankMCP_next_rule with 'experience-execution'.";
         }
-    }
-    // Original logic for other cases
-    else if (possible_next_steps.includes('task-decomposition')) {
-        recommendedNextStep = 'task-decomposition';
-
+    } else if (recommendedNextStep === 'task-decomposition') {
         // Get example request to provide context
         let exampleRequestInfo = "";
         try {
@@ -348,16 +421,15 @@ async function remember(args) {
                 }
             }
         } catch (error) {
-            // Debug logging removed to prevent JSON-RPC pollution
             exampleRequestInfo = "";
         }
 
         workflowInstruction = `CONTINUE WORKFLOW: New user requests detected. You must now call mcp_MemoryBankMCP_next_rule with 'task-decomposition' to process pending requests. STOPPING IS PROHIBITED.${exampleRequestInfo}`;
-    } else if (possible_next_steps.includes('implementation')) {
-        recommendedNextStep = 'implementation';
+    } else if (recommendedNextStep === 'implementation') {
         workflowInstruction = "CONTINUE WORKFLOW: Tasks are available for implementation. You must now call mcp_MemoryBankMCP_next_rule with 'implementation' to continue working on tasks. STOPPING IS PROHIBITED.";
-    } else if (possible_next_steps.includes('context-update')) {
-        recommendedNextStep = 'context-update';
+    } else if (recommendedNextStep === 'fix') {
+        workflowInstruction = "CONTINUE WORKFLOW: Issues detected that need resolution. You must now call mcp_MemoryBankMCP_next_rule with 'fix' to address problems. STOPPING IS PROHIBITED.";
+    } else if (recommendedNextStep === 'context-update') {
         workflowInstruction = "CONTINUE WORKFLOW: Context refresh needed. You must now call mcp_MemoryBankMCP_next_rule with 'context-update' to refresh project context. STOPPING IS PROHIBITED.";
     } else {
         workflowInstruction = "CONTINUE WORKFLOW: You must now call mcp_MemoryBankMCP_next_rule to continue the autonomous workflow. STOPPING IS ABSOLUTELY PROHIBITED. Memory recording is a continuation point, not an end point.";

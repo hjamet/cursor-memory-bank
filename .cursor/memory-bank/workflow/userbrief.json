@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 199,
+  "last_id": 202,
   "requests": [
     {
       "id": 156,
@@ -688,6 +688,63 @@
         },
         {
           "timestamp": "2025-06-27T16:33:06.492Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 200,
+      "content": "Modification request for Task #233 (Corriger l'erreur StreamlitDuplicateElementKey dans l'interface Task Status du projet llm-as-recommender):\n\n**Original Task Details:**\n- **Title:** Corriger l'erreur StreamlitDuplicateElementKey dans l'interface Task Status du projet llm-as-recommender\n- **Description:** Résoudre l'erreur critique StreamlitDuplicateElementKey causée par des clés de boutons Delete en double dans l'interface Task Status du projet llm-as-recommender. L'erreur empêche l'affichage correct de la page et nécessite une correction de la génération des clés uniques.\n- **Status:** BLOCKED\n- **Priority:** 4\n\n**Detailed Task Description:**\nInvestiguer et corriger l'erreur `StreamlitDuplicateElementKey` qui se produit dans le projet llm-as-recommender lors de l'affichage de la page Task Status.\n\n**Problème identifié :**\n- Erreur : `There are multiple elements with the same key='delete_30'`\n- Localisation : `C:\\Users\\Jamet\\code\\llm-as-recommender\\.cursor\\streamlit_app\\pages\\utils\\task_rendering.py`, ligne 357\n- Code problématique : `st.button(\"🗑️ Delete\", key=f\"delete_{req_id}\", help=\"Delete this request\")`\n\n**Analyse technique requise :**\n- Examiner la fonction `render_userbrief_request` dans `task_rendering.py`\n- Identifier pourquoi la variable `req_id` génère des valeurs dupliquées\n- Vérifier si plusieurs requêtes ont le même ID ou si la logique de génération des clés est défaillante\n- Analyser le contexte d'appel de cette fonction dans `task_status.py`\n\n**Corrections à implémenter :**\n- Assurer l'unicité des clés des boutons Delete en utilisant une combinaison d'identifiants uniques\n- Implémenter une stratégie de génération de clés robuste (ex: `f\"delete_{req_id}_{timestamp}\"` ou `f\"delete_{req_id}_{index}\"`)\n- Ajouter des vérifications défensives pour éviter les collisions de clés\n- Tester avec plusieurs requêtes pour valider l'unicité\n\n**Critères d'acceptation :**\n- L'erreur `StreamlitDuplicateElementKey` ne se produit plus\n- Chaque bouton Delete a une clé unique et fonctionnelle\n- La page Task Status s'affiche correctement avec plusieurs requêtes\n- Les boutons Delete fonctionnent individuellement sans interférence\n\n**Tests de validation :**\n- Créer plusieurs requêtes dans le projet llm-as-recommender\n- Vérifier l'affichage de la page Task Status sans erreur\n- Tester la fonctionnalité de suppression de chaque bouton\n- Valider que les clés générées sont uniques et prévisibles\n\n**Validation Criteria:**\nLa tâche est terminée quand : (1) L'erreur StreamlitDuplicateElementKey ne se produit plus lors de l'affichage de la page Task Status, (2) Chaque bouton Delete possède une clé unique et fonctionnelle, (3) La page s'affiche correctement avec plusieurs requêtes simultanées, (4) Les boutons Delete fonctionnent individuellement sans interférence mutuelle, (5) Tests de validation effectués avec succès sur plusieurs scénarios de requêtes multiples.\n\n**User Feedback:**\nNon mais l'idée c'est que cet autre projet en fait se base exactement sur le même système et comme les numéros, les ID, des tâches sont normalement générés par le serveur MCP. Si y a un problème de duplicat de numéro, c'est probablement que ça vient de notre code, donc l'idée ce serait d'identifier ce qui a pu poser ce problème et de le résoudre.\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-27T18:50:09.072531",
+      "updated_at": "2025-06-27T16:52:47.225Z",
+      "history": [
+        {
+          "timestamp": "2025-06-27T18:50:09.072531",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-27T16:52:47.225Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 201,
+      "content": "Tu peux modifier @experience-execution.md pour que le fait de marquer la tâche comme REVIEW (si l'experience est bien un succès) ait toujours lieu avant d'appeler remember, autrement, le système peut rentrer dans une boucle infinie.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-30T12:35:11.999794",
+      "updated_at": "2025-06-30T10:41:28.955Z",
+      "history": [
+        {
+          "timestamp": "2025-06-30T12:35:11.999794",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-30T10:41:28.955Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 202,
+      "content": "Il y a un souci avec le serveur MCP Memory Bank MCP en particulier avec l'outil remember qui a tendance à faire les redirections entre les règles et à recommander quelle est la prochaine règle à appeler. Le problème se situe dans la règle expérience exécution. Qui a tendance à boucler Dans la règle expérience exécution si à la fin, la tâche n'a pas été marquée comme review et que l'appel remember l'outil remember est appelé et bien il va recommander de réexécuter la règle expérience exécution. Or ça c'est jamais possible. Dans tous les cas, la règle expérience exécution ne peut pas s'appeler elle même. On peut jamais avoir 2 règles, expérience exécution à la suite. Expérience exécution, il peut amener à fixe si après expérience exécution, la tâche est toujours en in Progress. Euh sinon ça va amener à contexte update des. Par défaut et autrement à la place de contexte update, il y a de nouvelles demandes qui ont été ajoutées au user brief, ça peut rediriger vers la règle Task décomposition. Est-ce que tu peux enquêter sur sur ce problème de l'outil remember et le corriger s'il te plaît ? Je te rappelle que tu ne pourras pas tester tes modifications parce qu'il faut que tu ressors redémarre ce que tu ne peux pas faire manuellement, mais tu peux faire un petit script pour valider le bon fonctionnement de tes modifications et ensuite bah je redémarrer cursor et on pourra tester ça manuellement.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-30T12:40:48.812082",
+      "updated_at": "2025-06-30T10:41:54.984Z",
+      "history": [
+        {
+          "timestamp": "2025-06-30T12:40:48.812082",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-30T10:41:54.984Z",
           "action": "mark_archived"
         }
       ]
