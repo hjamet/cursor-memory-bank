@@ -138,6 +138,7 @@ Comprehensive bash script supporting:
 - **Clickable Notification Indicator**: The red notification alert in the sidebar is now interactive, providing one-click navigation to the Review & Communication page with intelligent tab selection (Agent Messages prioritized over Tasks to Review)
 - **Form Field Management**: Fixed text area clearing issue in the Add Request tab - form fields now properly reset after successful submission, preventing accidental duplicate submissions
 - **Navigation Intelligence**: Implemented smart redirection logic that automatically opens the most relevant tab based on notification content
+- **Workflow Integrity**: Replaced the "Reactivate" button for archived requests with a feedback form. This prevents the old bug where reactivated requests would create duplicate tasks and cause workflow loops. The new system creates a new, distinct request for follow-up, preserving the integrity of the archive.
 
 ### MCP Tool Enhancements
 - **Enhanced regex_edit Communication**: The regex_edit tool now returns properly structured MCP responses with detailed operation status, file information, change statistics, and error handling

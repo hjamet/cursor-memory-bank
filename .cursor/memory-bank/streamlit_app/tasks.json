@@ -5368,11 +5368,11 @@
     "short_description": "Identifier et corriger le bug qui réinitialise le statut d'une tâche à TODO suite à un feedback de l'utilisateur, provoquant des retraitements inutiles.",
     "detailed_description": "La requête utilisateur #208 a signalé un bug fondamental dans le workflow : une tâche (initialement #246) qui avait été traitée et mise en statut REVIEW a été réinitialisée en statut TODO suite à un feedback utilisateur. Cela crée un risque de boucle infinie et de travail redondant. L'objectif de cette tâche est d'identifier la cause racine de ce comportement et de le corriger pour garantir qu'une tâche et les retours associés ne sont traités qu'une seule fois.\n\n**Étapes d'implémentation :**\n1.  **Phase d'investigation :** Analyser le flux de données lorsqu'un utilisateur soumet un feedback sur une tâche existante via l'interface Streamlit.\n2.  **Analyse de code :** Examiner en priorité le code qui gère la mise à jour des tâches suite à un retour utilisateur. Le point d'entrée est probablement dans l'application Streamlit, qui appelle ensuite un outil MCP comme `update_task`.\n3.  **Correction :** Implémenter la logique nécessaire pour que le feedback utilisateur ne se contente pas de réinitialiser le statut de la tâche, mais soit intégré de manière appropriée, par exemple en créant une nouvelle tâche liée ou en ajoutant le commentaire à la tâche existante sans altérer son état final (si elle est terminée). Le comportement attendu est qu'une tâche `REVIEW` avec un feedback devienne une nouvelle tâche `TODO` distincte, préservant ainsi l'historique de la tâche originale.\n4.  **Validation :** Créer un scénario de test pour reproduire le bug (créer une tâche, la passer en REVIEW, ajouter un commentaire utilisateur) et vérifier que la correction empêche la réinitialisation de la tâche originale.\n\n**Analyse Critique & Points de Vigilance :**\n*   **Cause probable :** Le mécanisme de feedback dans l'interface utilisateur semble être trop simpliste, se contentant de remettre la tâche à l'état `TODO` sans distinction. Le simple fait d'éditer ou de commenter une tâche ne devrait pas la faire régresser dans le workflow.\n*   **Impact du bug :** Ce bug est critique car il casse la logique de progression du workflow. Il peut mener à des boucles où une tâche est sans cesse ré-exécutée, et empêche le système de terminer son travail.\n*   **Périmètre de la correction :** La correction pourrait impacter `userbrief_manager.js` (si le feedback est géré comme une requête), `update_task.js` (si c'est une mise à jour de tâche) et les fichiers de l'interface Streamlit qui gèrent l'affichage et la soumission du feedback. Une analyse complète de la chaîne d'appel est nécessaire.\n*   **Intégrité des données :** Il faudra s'assurer que la solution ne corrompt pas les tâches existantes et préserve l'historique des actions. La solution idéale serait de créer une nouvelle tâche pour le feedback, en liant l'ancienne tâche en référence.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [],
     "validation_criteria": "- Le fait d'ajouter un commentaire à une tâche en statut REVIEW ou DONE ne doit plus la réinitialiser en statut TODO.\n- Un nouveau mécanisme doit être en place pour traiter le feedback utilisateur, par exemple en créant une nouvelle tâche distincte.\n- La tâche originale (#246) doit rester dans son état final (REVIEW ou DONE) après le feedback, et ne plus apparaître comme une tâche à faire.\n- Le flux complet (création -> REVIEW -> feedback -> nouvelle tâche) est testé et fonctionne comme attendu.",
     "created_date": "2025-06-30T16:15:24.282Z",
-    "updated_date": "2025-06-30T16:17:50.157Z",
+    "updated_date": "2025-06-30T18:21:42.070417",
     "parent_id": null,
     "priority": 5,
     "image": null,
@@ -5390,6 +5390,10 @@
       }
     ],
     "last_comment": "La correction est terminée. J'ai identifié la cause racine du bug de réinitialisation : le bouton \"Réactiver\" dans l'interface de gestion des mémoires (memory.py) qui remettait une vieille requête dans la file d'attente. J'ai remplacé ce bouton par un mécanisme de feedback qui crée une *nouvelle* requête, préservant l'intégrité de l'historique. La solution est robuste, mais elle a nécessité de modifier la logique de `request_display_manager.py` et d'ajouter une nouvelle fonction de création dans `userbrief_operations.py`. Il n'y a pas de tests automatisés pour l'interface Streamlit, donc une validation manuelle sera nécessaire pour confirmer que le nouveau formulaire de feedback fonctionne comme prévu et que le bug de duplication ne se produit plus.",
-    "last_comment_timestamp": "2025-06-30T16:17:50.157Z"
+    "last_comment_timestamp": "2025-06-30T16:17:50.157Z",
+    "validation": {
+      "approved_at": "2025-06-30T18:21:42.063061",
+      "approved_by": "user_review"
+    }
   }
 ]
