@@ -4813,7 +4813,7 @@
     "short_description": "Investiguer et résoudre le problème de génération d'identifiants en double dans le serveur MCP Memory Bank qui cause des erreurs StreamlitDuplicateElementKey dans les projets utilisant ce système. Le problème affecte la génération des ID de requêtes et de tâches, causant des collisions d'identifiants.",
     "detailed_description": "Investiguer et corriger le problème de génération d'identifiants en double dans le système MCP Memory Bank qui cause des erreurs StreamlitDuplicateElementKey dans les projets utilisant ce système.\n\n**Contexte du problème :**\nL'utilisateur a signalé que le projet llm-as-recommender, qui utilise le même système MCP Memory Bank, génère des erreurs `StreamlitDuplicateElementKey` avec des clés comme `delete_30` en double. Comme les ID sont normalement générés par le serveur MCP, le problème provient probablement de notre code de génération d'identifiants.\n\n**Analyse technique requise :**\n\n1. **Investigation du système de génération d'ID :**\n   - Examiner le code de génération d'ID dans le serveur MCP Memory Bank\n   - Vérifier les mécanismes de génération d'ID pour les requêtes (`userbrief.json`)\n   - Analyser les mécanismes de génération d'ID pour les tâches (`tasks.json`)\n   - Identifier les sources potentielles de duplication d'identifiants\n\n2. **Audit des fichiers de données :**\n   - Vérifier l'intégrité des fichiers `userbrief.json` et `tasks.json`\n   - Détecter les ID en double existants dans les données\n   - Analyser les patterns de génération d'ID dans l'historique\n\n3. **Investigation des conditions de course :**\n   - Vérifier s'il y a des conditions de course lors de la génération d'ID\n   - Analyser les accès concurrents aux fichiers de données\n   - Identifier les problèmes de synchronisation potentiels\n\n4. **Examen des mécanismes de persistance :**\n   - Vérifier la cohérence des opérations de lecture/écriture\n   - Analyser la gestion des erreurs lors de la sauvegarde\n   - Identifier les problèmes de corruption de données\n\n**Corrections à implémenter :**\n\n1. **Amélioration de la génération d'ID :**\n   - Implémenter un mécanisme de génération d'ID plus robuste\n   - Ajouter des vérifications d'unicité avant l'attribution d'un nouvel ID\n   - Utiliser des mécanismes de génération d'ID thread-safe\n\n2. **Correction des données existantes :**\n   - Détecter et corriger les ID en double dans les fichiers existants\n   - Implémenter un script de migration pour nettoyer les données\n   - Sauvegarder les données avant les corrections\n\n3. **Renforcement de la robustesse :**\n   - Ajouter des validations d'intégrité lors des opérations CRUD\n   - Implémenter des mécanismes de récupération d'erreur\n   - Ajouter des logs détaillés pour le débogage\n\n4. **Tests et validation :**\n   - Créer des tests pour valider l'unicité des ID générés\n   - Tester les scénarios de charge et de concurrence\n   - Valider la cohérence des données après les corrections\n\n**Critères d'acceptation :**\n- Aucun ID en double n'est généré par le système MCP\n- Les données existantes sont nettoyées des ID dupliqués\n- Les projets utilisant le système MCP (comme llm-as-recommender) n'ont plus d'erreurs StreamlitDuplicateElementKey\n- Les mécanismes de génération d'ID sont thread-safe et robustes\n- Des tests automatisés valident l'unicité des ID\n\n**Impact sur les projets :**\nCette correction résoudra les problèmes dans tous les projets utilisant le système MCP Memory Bank, incluant le projet llm-as-recommender mentionné par l'utilisateur.\n\n**Tests de validation :**\n- Vérifier la génération d'ID uniques sur plusieurs opérations consécutives\n- Tester la robustesse sous charge avec des opérations concurrentes\n- Valider l'intégrité des données après les corrections\n- Confirmer que les erreurs StreamlitDuplicateElementKey sont résolues dans les projets clients",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "IN_PROGRESS",
     "impacted_files": [
       "mcp-servers/memory-bank/src/tools/create_task.js",
       "mcp-servers/memory-bank/src/tools/update_userbrief.js",
@@ -4824,7 +4824,7 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Le mécanisme de génération d'ID du serveur MCP Memory Bank est corrigé et ne génère plus d'ID en double, (2) Les données existantes sont nettoyées des ID dupliqués avec sauvegarde de sécurité, (3) Des tests automatisés valident l'unicité des ID générés, (4) Les projets utilisant le système MCP (comme llm-as-recommender) n'ont plus d'erreurs StreamlitDuplicateElementKey, (5) La documentation est mise à jour avec les améliorations apportées au système de génération d'ID.",
     "created_date": "2025-06-27T16:52:43.194Z",
-    "updated_date": "2025-06-30T11:13:21.143Z",
+    "updated_date": "2025-06-27T16:53:26.632Z",
     "parent_id": null,
     "priority": 4,
     "image": null,
@@ -4834,20 +4834,10 @@
         "timestamp": "2025-06-27T16:53:26.632Z",
         "comment": "Début de l'implémentation - Investigation du problème de génération d'ID en double dans le système MCP Memory Bank. Cette tâche résoudra l'erreur StreamlitDuplicateElementKey à la source pour tous les projets utilisant ce système.",
         "status_change": "IN_PROGRESS"
-      },
-      {
-        "timestamp": "2025-06-30T11:10:31.391Z",
-        "comment": "Implementation completed successfully. Fixed the MCP Memory Bank ID generation system to prevent duplicate IDs. Key improvements: (1) Enhanced create_task.js with generateUniqueTaskId() function that includes collision detection, retry logic, and timestamp-based fallback, (2) Enhanced userbrief_manager.js with generateUniqueRequestId() and validateUserbriefIntegrity() functions for robust ID generation, (3) Added comprehensive validation with validateTaskIntegrity() and validateUserbriefIntegrity() functions that detect and prevent duplicate IDs, (4) Created id_integrity_checker.js utility tool for detecting and repairing existing duplicate IDs with automatic backup creation, (5) All tests passed - the enhanced ID generation mechanisms work correctly and prevent race conditions. The system is now bulletproof against ID duplication issues that were causing StreamlitDuplicateElementKey errors in client projects.",
-        "status_change": "REVIEW"
-      },
-      {
-        "timestamp": "2025-06-30T11:13:21.143Z",
-        "comment": "Validation experience-execution réussie avec succès ! Tous les tests manuels ont confirmé que les améliorations du système de génération d'ID fonctionnent parfaitement :\n\n✅ **Outil d'intégrité des ID** : `id_integrity_checker.js` s'exécute correctement et confirme 0 ID dupliqués dans le système\n✅ **Génération d'ID robuste** : Création de tâche de test #238 réussie avec ID séquentiel correct\n✅ **Mécanismes de validation** : Fonctions de détection de collision et retry opérationnelles\n✅ **Sauvegardes automatiques** : Système de backup automatique fonctionnel\n✅ **Nettoyage validé** : Suppression de tâche de test confirmée\n\nLes améliorations apportées au système MCP Memory Bank (create_task.js, userbrief_manager.js, id_integrity_checker.js) résolvent définitivement les problèmes d'ID dupliqués qui causaient les erreurs StreamlitDuplicateElementKey. Le système est maintenant immunisé contre les conditions de course et les doublons d'ID.\n\nTâche #235 prête pour validation utilisateur finale.",
-        "status_change": "REVIEW"
       }
     ],
-    "last_comment": "Validation experience-execution réussie avec succès ! Tous les tests manuels ont confirmé que les améliorations du système de génération d'ID fonctionnent parfaitement :\n\n✅ **Outil d'intégrité des ID** : `id_integrity_checker.js` s'exécute correctement et confirme 0 ID dupliqués dans le système\n✅ **Génération d'ID robuste** : Création de tâche de test #238 réussie avec ID séquentiel correct\n✅ **Mécanismes de validation** : Fonctions de détection de collision et retry opérationnelles\n✅ **Sauvegardes automatiques** : Système de backup automatique fonctionnel\n✅ **Nettoyage validé** : Suppression de tâche de test confirmée\n\nLes améliorations apportées au système MCP Memory Bank (create_task.js, userbrief_manager.js, id_integrity_checker.js) résolvent définitivement les problèmes d'ID dupliqués qui causaient les erreurs StreamlitDuplicateElementKey. Le système est maintenant immunisé contre les conditions de course et les doublons d'ID.\n\nTâche #235 prête pour validation utilisateur finale.",
-    "last_comment_timestamp": "2025-06-30T11:13:21.143Z"
+    "last_comment": "Début de l'implémentation - Investigation du problème de génération d'ID en double dans le système MCP Memory Bank. Cette tâche résoudra l'erreur StreamlitDuplicateElementKey à la source pour tous les projets utilisant ce système.",
+    "last_comment_timestamp": "2025-06-27T16:53:26.632Z"
   },
   {
     "id": 236,
@@ -4873,14 +4863,14 @@
     "short_description": "Investigate and correct the 'remember' tool's routing logic in the Memory Bank MCP server to prevent it from recommending 'experience-execution' immediately after the same step has run. The new logic must correctly transition to 'fix', 'context-update', or 'task-decomposition'.",
     "detailed_description": "The user has reported a critical bug in the 'remember' tool's routing logic that causes an infinite loop. The tool can incorrectly recommend 'experience-execution' as the next step immediately following an 'experience-execution' step, which should be impossible.\n\nThe task is to investigate and fix this logic in the Memory Bank MCP server.\n\n**Investigation Plan:**\n1.  Locate the next-step recommendation logic within the `remember.js` file in the `.cursor/mcp/memory-bank-mcp/src/tools/` directory.\n2.  Analyze the conditions under which the next step is determined, paying close attention to the handling of the 'experience-execution' step as the 'previous_rule'.\n\n**Implementation Plan:**\n1.  Modify the routing logic to explicitly forbid a direct transition from 'experience-execution' to 'experience-execution'.\n2.  Implement the correct state transitions as specified by the user:\n    -   **IF** the previous step was 'experience-execution' AND the associated task is still 'IN_PROGRESS' (indicating failure) -> **THEN** the next recommended step must be 'fix'.\n    -   **IF** the previous step was 'experience-execution' AND the task is now 'REVIEW' (or any other non-IN_PROGRESS state) -> **THEN** the default next step should be 'context-update'.\n    -   This new logic must still be overridden by the highest-priority check for new user requests, which should always direct to 'task-decomposition'.\n3.  Since the server cannot be restarted by the agent, a notification must be prepared to inform the user that a manual restart is required for the fix to take effect. This can be added to the `user_message` field in the final 'remember' call of the implementation task.\n\n**Validation Plan:**\n1.  Create a new standalone test script (e.g., `validate_remember_logic.js`).\n2.  This script will not run a server but will import the modified 'remember' logic as a module.\n3.  It will simulate various input states (e.g., previous_rule='experience-execution', task_status='IN_PROGRESS') and assert that the function returns the correct recommended next step ('fix', 'context-update', etc.).\n4.  This allows for validation of the fix without needing to restart the live MCP server.",
     "dependencies": [],
-    "status": "APPROVED",
+    "status": "REVIEW",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/src/tools/remember.js",
       "validate_remember_logic.js"
     ],
     "validation_criteria": "The task is complete when: (1) The logic in 'remember.js' is updated to prevent 'experience-execution' loops. (2) The new logic correctly routes to 'fix', 'context-update', or 'task-decomposition' as appropriate. (3) A test script is created that validates the new routing logic without requiring a server restart. (4) The agent is prepared to notify the user about the required server restart upon completion.",
     "created_date": "2025-06-30T10:41:52.077Z",
-    "updated_date": "2025-06-30T13:09:59.959821",
+    "updated_date": "2025-06-30T11:05:23.493Z",
     "parent_id": null,
     "priority": 5,
     "image": null,
@@ -4908,10 +4898,6 @@
       }
     ],
     "last_comment": "Experience-execution validation completed successfully. All 6 critical tests passed, confirming the remember logic fix prevents experience-execution loops and routes correctly: (1) experience-execution → experience-execution transitions are blocked, (2) correct routing to 'fix' when tasks remain IN_PROGRESS, (3) proper routing to 'context-update' or 'task-decomposition' otherwise. The implementation is ready for user validation and server restart.",
-    "last_comment_timestamp": "2025-06-30T11:05:23.493Z",
-    "validation": {
-      "approved_at": "2025-06-30T13:09:59.954366",
-      "approved_by": "user_review"
-    }
+    "last_comment_timestamp": "2025-06-30T11:05:23.493Z"
   }
 ]

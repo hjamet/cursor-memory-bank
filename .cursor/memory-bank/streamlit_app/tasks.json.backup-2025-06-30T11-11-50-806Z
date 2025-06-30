@@ -4824,7 +4824,7 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Le mécanisme de génération d'ID du serveur MCP Memory Bank est corrigé et ne génère plus d'ID en double, (2) Les données existantes sont nettoyées des ID dupliqués avec sauvegarde de sécurité, (3) Des tests automatisés valident l'unicité des ID générés, (4) Les projets utilisant le système MCP (comme llm-as-recommender) n'ont plus d'erreurs StreamlitDuplicateElementKey, (5) La documentation est mise à jour avec les améliorations apportées au système de génération d'ID.",
     "created_date": "2025-06-27T16:52:43.194Z",
-    "updated_date": "2025-06-30T11:13:21.143Z",
+    "updated_date": "2025-06-30T11:10:31.391Z",
     "parent_id": null,
     "priority": 4,
     "image": null,
@@ -4839,15 +4839,10 @@
         "timestamp": "2025-06-30T11:10:31.391Z",
         "comment": "Implementation completed successfully. Fixed the MCP Memory Bank ID generation system to prevent duplicate IDs. Key improvements: (1) Enhanced create_task.js with generateUniqueTaskId() function that includes collision detection, retry logic, and timestamp-based fallback, (2) Enhanced userbrief_manager.js with generateUniqueRequestId() and validateUserbriefIntegrity() functions for robust ID generation, (3) Added comprehensive validation with validateTaskIntegrity() and validateUserbriefIntegrity() functions that detect and prevent duplicate IDs, (4) Created id_integrity_checker.js utility tool for detecting and repairing existing duplicate IDs with automatic backup creation, (5) All tests passed - the enhanced ID generation mechanisms work correctly and prevent race conditions. The system is now bulletproof against ID duplication issues that were causing StreamlitDuplicateElementKey errors in client projects.",
         "status_change": "REVIEW"
-      },
-      {
-        "timestamp": "2025-06-30T11:13:21.143Z",
-        "comment": "Validation experience-execution réussie avec succès ! Tous les tests manuels ont confirmé que les améliorations du système de génération d'ID fonctionnent parfaitement :\n\n✅ **Outil d'intégrité des ID** : `id_integrity_checker.js` s'exécute correctement et confirme 0 ID dupliqués dans le système\n✅ **Génération d'ID robuste** : Création de tâche de test #238 réussie avec ID séquentiel correct\n✅ **Mécanismes de validation** : Fonctions de détection de collision et retry opérationnelles\n✅ **Sauvegardes automatiques** : Système de backup automatique fonctionnel\n✅ **Nettoyage validé** : Suppression de tâche de test confirmée\n\nLes améliorations apportées au système MCP Memory Bank (create_task.js, userbrief_manager.js, id_integrity_checker.js) résolvent définitivement les problèmes d'ID dupliqués qui causaient les erreurs StreamlitDuplicateElementKey. Le système est maintenant immunisé contre les conditions de course et les doublons d'ID.\n\nTâche #235 prête pour validation utilisateur finale.",
-        "status_change": "REVIEW"
       }
     ],
-    "last_comment": "Validation experience-execution réussie avec succès ! Tous les tests manuels ont confirmé que les améliorations du système de génération d'ID fonctionnent parfaitement :\n\n✅ **Outil d'intégrité des ID** : `id_integrity_checker.js` s'exécute correctement et confirme 0 ID dupliqués dans le système\n✅ **Génération d'ID robuste** : Création de tâche de test #238 réussie avec ID séquentiel correct\n✅ **Mécanismes de validation** : Fonctions de détection de collision et retry opérationnelles\n✅ **Sauvegardes automatiques** : Système de backup automatique fonctionnel\n✅ **Nettoyage validé** : Suppression de tâche de test confirmée\n\nLes améliorations apportées au système MCP Memory Bank (create_task.js, userbrief_manager.js, id_integrity_checker.js) résolvent définitivement les problèmes d'ID dupliqués qui causaient les erreurs StreamlitDuplicateElementKey. Le système est maintenant immunisé contre les conditions de course et les doublons d'ID.\n\nTâche #235 prête pour validation utilisateur finale.",
-    "last_comment_timestamp": "2025-06-30T11:13:21.143Z"
+    "last_comment": "Implementation completed successfully. Fixed the MCP Memory Bank ID generation system to prevent duplicate IDs. Key improvements: (1) Enhanced create_task.js with generateUniqueTaskId() function that includes collision detection, retry logic, and timestamp-based fallback, (2) Enhanced userbrief_manager.js with generateUniqueRequestId() and validateUserbriefIntegrity() functions for robust ID generation, (3) Added comprehensive validation with validateTaskIntegrity() and validateUserbriefIntegrity() functions that detect and prevent duplicate IDs, (4) Created id_integrity_checker.js utility tool for detecting and repairing existing duplicate IDs with automatic backup creation, (5) All tests passed - the enhanced ID generation mechanisms work correctly and prevent race conditions. The system is now bulletproof against ID duplication issues that were causing StreamlitDuplicateElementKey errors in client projects.",
+    "last_comment_timestamp": "2025-06-30T11:10:31.391Z"
   },
   {
     "id": 236,

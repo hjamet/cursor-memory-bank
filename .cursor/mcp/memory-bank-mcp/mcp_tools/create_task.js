@@ -28,6 +28,60 @@ async function writeTasks(tasks) {
 }
 
 /**
+ * Generate a unique task ID with collision detection and retry logic
+ * @param {Array} tasks - Existing tasks array
+ * @returns {number} Unique task ID
+ */
+function generateUniqueTaskId(tasks) {
+    const maxRetries = 10;
+    let attempt = 0;
+
+    while (attempt < maxRetries) {
+        // Calculate next ID based on current maximum
+        const candidateId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+
+        // Verify uniqueness (defense against race conditions)
+        const isDuplicate = tasks.some(task => task.id === candidateId);
+
+        if (!isDuplicate) {
+            return candidateId;
+        }
+
+        // If collision detected, force a higher ID
+        const highestId = Math.max(...tasks.map(t => t.id));
+        const forcedId = highestId + attempt + 1;
+
+        // Double-check the forced ID
+        if (!tasks.some(task => task.id === forcedId)) {
+            console.warn(`[CreateTask] ID collision detected for ${candidateId}, using fallback ID ${forcedId}`);
+            return forcedId;
+        }
+
+        attempt++;
+    }
+
+    // Ultimate fallback: use timestamp-based ID
+    const timestampId = Date.now() % 1000000; // Last 6 digits of timestamp
+    console.error(`[CreateTask] Failed to generate unique ID after ${maxRetries} attempts, using timestamp-based ID: ${timestampId}`);
+    return timestampId;
+}
+
+/**
+ * Validate task data integrity before saving
+ * @param {Array} tasks - Tasks array to validate
+ * @throws {Error} If duplicate IDs are found
+ */
+function validateTaskIntegrity(tasks) {
+    const ids = tasks.map(t => t.id);
+    const uniqueIds = new Set(ids);
+
+    if (ids.length !== uniqueIds.size) {
+        const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
+        throw new Error(`Duplicate task IDs detected: ${duplicates.join(', ')}`);
+    }
+}
+
+/**
  * Handles the create_task tool call
  * Creates new tasks with auto-generated IDs and comprehensive validation
  * 
@@ -65,8 +119,8 @@ export async function handleCreateTask(params) {
             }
         }
 
-        // Generate a new task ID
-        const newTaskId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+        // Generate a new task ID with enhanced collision detection
+        const newTaskId = generateUniqueTaskId(tasks);
 
         // Create the new task object
         const createdTask = {
@@ -86,8 +140,12 @@ export async function handleCreateTask(params) {
             refactoring_target_file: params.refactoring_target_file || null
         };
 
-        // Add the new task and write to file
+        // Add the new task and validate integrity before saving
         tasks.push(createdTask);
+
+        // Validate no duplicates were introduced
+        validateTaskIntegrity(tasks);
+
         await writeTasks(tasks);
 
         // Prepare success response

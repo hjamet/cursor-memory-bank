@@ -75,9 +75,67 @@ export function writeUserbriefData(userbriefData) {
     }
 }
 
+/**
+ * Generate a unique userbrief request ID with collision detection
+ * @param {Object} userbriefData - Current userbrief data
+ * @returns {number} Unique request ID
+ */
+function generateUniqueRequestId(userbriefData) {
+    // Method 1: Use last_id + 1 (standard approach)
+    let candidateId = userbriefData.last_id + 1;
+
+    // Method 2: Verify against existing IDs (defense against corruption)
+    const existingIds = userbriefData.requests.map(r => r.id);
+    if (existingIds.length > 0) {
+        const maxExistingId = Math.max(...existingIds);
+
+        // Ensure candidate ID is higher than any existing ID
+        if (candidateId <= maxExistingId) {
+            candidateId = maxExistingId + 1;
+            console.warn(`[UserBrief] ID collision detected, adjusting from ${userbriefData.last_id + 1} to ${candidateId}`);
+        }
+    }
+
+    // Method 3: Final collision check
+    while (existingIds.includes(candidateId)) {
+        candidateId++;
+        console.warn(`[UserBrief] ID ${candidateId - 1} already exists, trying ${candidateId}`);
+    }
+
+    return candidateId;
+}
+
+/**
+ * Validate userbrief data integrity
+ * @param {Object} userbriefData - Userbrief data to validate
+ * @throws {Error} If duplicate IDs are found
+ */
+function validateUserbriefIntegrity(userbriefData) {
+    const ids = userbriefData.requests.map(r => r.id);
+    const uniqueIds = new Set(ids);
+
+    if (ids.length !== uniqueIds.size) {
+        const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
+        throw new Error(`Duplicate userbrief request IDs detected: ${duplicates.join(', ')}`);
+    }
+
+    // Validate last_id consistency
+    if (ids.length > 0) {
+        const maxId = Math.max(...ids);
+        if (userbriefData.last_id < maxId) {
+            console.warn(`[UserBrief] last_id (${userbriefData.last_id}) is lower than max existing ID (${maxId}), correcting...`);
+            userbriefData.last_id = maxId;
+        }
+    }
+}
+
 export function addUserbriefRequest(content) {
     const userbriefData = readUserbriefData();
-    const nextId = userbriefData.last_id + 1;
+
+    // Validate existing data integrity before adding new request
+    validateUserbriefIntegrity(userbriefData);
+
+    const nextId = generateUniqueRequestId(userbriefData);
 
     const newRequest = {
         id: nextId,
@@ -96,6 +154,10 @@ export function addUserbriefRequest(content) {
 
     userbriefData.requests.push(newRequest);
     userbriefData.last_id = nextId;
+
+    // Final validation before saving
+    validateUserbriefIntegrity(userbriefData);
+
     writeUserbriefData(userbriefData);
     return newRequest;
 }
