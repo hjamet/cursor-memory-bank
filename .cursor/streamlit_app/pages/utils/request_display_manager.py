@@ -7,6 +7,7 @@ import streamlit as st
 from datetime import datetime
 import file_operations
 import memory_data_manager
+import userbrief_operations
 save_json_file = file_operations.save_json_file
 get_memory_file_paths = file_operations.get_memory_file_paths
 update_request_status = memory_data_manager.update_request_status
@@ -182,7 +183,7 @@ def display_new_requests(new_requests, userbrief_data, show_full_content):
 
 
 def display_archived_requests(archived_requests, userbrief_data, show_full_content):
-    """Display archived requests with reactivation option"""
+    """Display archived requests with a new feedback/clarification mechanism"""
     if not archived_requests:
         return
     
@@ -212,13 +213,41 @@ def display_archived_requests(archived_requests, userbrief_data, show_full_conte
                 st.caption(f"✅ **Archivé:** {req.get('updated_at', 'Inconnu')[:19].replace('T', ' ')}")
             with col3:
                 st.caption(f"🏷️ **Statut:** Archivée")
-            
-            # Reactivation action
-            if st.button(f"🔄 Réactiver", key=f"reactivate_{req_id}", help="Remettre en statut nouveau"):
-                if handle_request_status_change(userbrief_data, req_id, 'new', 'Reactivated from archived status via Memory Management interface'):
-                    st.success(f"✅ Requête #{req_id} réactivée!")
-                    st.toast(f"🔄 Request #{req_id} reactivated", icon="🔄")
-                    st.rerun()
+
+            # New Feedback/Clarification Section
+            feedback_key = f"feedback_for_{req_id}"
+            if st.button(f"❓ Poser une question ou donner un feedback", key=f"ask_feedback_{req_id}", help="Créer une nouvelle requête basée sur celle-ci"):
+                st.session_state[feedback_key] = True
+
+            if feedback_key in st.session_state and st.session_state[feedback_key]:
+                with st.form(key=f"feedback_form_{req_id}"):
+                    st.warning(f"Vous êtes sur le point de créer une NOUVELLE requête basée sur la requête archivée #{req_id}.")
+                    feedback_text = st.text_area("Votre question ou feedback:", key=f"feedback_text_{req_id}", height=100)
+                    
+                    submit_col, cancel_col = st.columns(2)
+                    with submit_col:
+                        if st.form_submit_button("➡️ Créer une nouvelle requête", use_container_width=True):
+                            if feedback_text:
+                                new_content = (
+                                    f"**Demande de suivi pour la requête archivée #{req_id}**\n\n"
+                                    f"**Feedback/Question de l'utilisateur:**\n---\n{feedback_text}\n\n"
+                                    f"**Contenu de la requête originale (#{req_id}):**\n---\n{req.get('content', 'Contenu original non disponible.')}"
+                                )
+                                
+                                # This function needs to be created in userbrief_operations
+                                if userbrief_operations.create_new_request(new_content):
+                                    st.success(f"✅ Nouvelle requête créée avec succès basée sur la requête #{req_id}!")
+                                    st.session_state[feedback_key] = False
+                                    st.rerun()
+                                else:
+                                    st.error("❌ Erreur lors de la création de la nouvelle requête.")
+                            else:
+                                st.error("Le champ de feedback ne peut pas être vide.")
+                    
+                    with cancel_col:
+                        if st.form_submit_button("Annuler", use_container_width=True):
+                            st.session_state[feedback_key] = False
+                            st.rerun()
             
             # Show completion history
             history = req.get('history', [])

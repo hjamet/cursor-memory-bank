@@ -89,4 +89,50 @@ def update_user_request(request_id: int, new_content: str) -> bool:
         return False # Request not found
     except Exception as e:
         st.error(f"Error updating request: {e}")
+        return False
+
+
+def create_new_request(content: str) -> bool:
+    """Creates a new user request in userbrief.json."""
+    try:
+        userbrief_file = Path(".cursor/memory-bank/workflow/userbrief.json")
+        
+        # Initialize a new file if it doesn't exist
+        if not userbrief_file.exists():
+            data = {"version": "1.0.0", "last_id": 0, "requests": []}
+        else:
+            with open(userbrief_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+
+        # Generate new ID and create the request object
+        new_id = data.get("last_id", 0) + 1
+        now_iso = datetime.now().isoformat()
+        
+        new_request = {
+            "id": new_id,
+            "content": content,
+            "status": "new",
+            "image": None,
+            "created_at": now_iso,
+            "updated_at": now_iso,
+            "history": [
+                {
+                    "timestamp": now_iso,
+                    "action": "created",
+                    "comment": "Request created via Memory Management interface (feedback on archived request)."
+                }
+            ]
+        }
+        
+        # Append new request and update last_id
+        data.get("requests", []).append(new_request)
+        data["last_id"] = new_id
+        
+        # Save the updated data
+        with open(userbrief_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+            
+        return True
+    except Exception as e:
+        st.error(f"Error creating new request: {e}")
         return False 
