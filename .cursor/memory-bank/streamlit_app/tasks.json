@@ -4859,13 +4859,13 @@
     "short_description": "Update the 'experience-execution' workflow rule to ensure a task's status is changed to REVIEW *before* calling the 'remember' tool. This will prevent the system from getting stuck in an infinite loop by re-recommending the same step.",
     "detailed_description": "The user has identified a potential infinite loop in the 'experience-execution' workflow step. The current rule does not strictly enforce that a task's status must be changed before calling the 'remember' tool. If the experience execution is successful but the task status is not updated to 'REVIEW', the 'remember' tool's logic might re-recommend the 'experience-execution' step, causing a loop.\n\nThis task is to modify the '.cursor/workflow-steps/experience-execution.md' rule to prevent this.\n\n**Plan:**\n1.  **Analyze the current `experience-execution.md` rule** to identify the point of failure.\n2.  **Restructure the rule's instructions** to make it mandatory to update the task status before the final 'remember' call.\n3.  The new logic should be:\n    a. Perform the validation/testing steps.\n    b. Based on the outcome, update the task status using `update_task` (e.g., to 'REVIEW' if successful, or leave as 'IN_PROGRESS' and add a comment if failed).\n    c. **Only then**, call `mcp_MemoryBankMCP_remember` to record the outcome and get the next step.\n4.  The instructions must be explicit and clear to prevent any ambiguity for the agent.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/workflow-steps/experience-execution.md"
     ],
     "validation_criteria": "The task is complete when: (1) The '.cursor/workflow-steps/experience-execution.md' file is modified to explicitly instruct the agent to update the task status to REVIEW *before* calling 'remember'. (2) The new rule structure logically prevents the possibility of an 'experience-execution' loop.",
     "created_date": "2025-06-30T10:41:25.514Z",
-    "updated_date": "2025-06-30T11:25:21.473Z",
+    "updated_date": "2025-06-30T13:32:30.465537",
     "parent_id": null,
     "priority": 4,
     "image": null,
@@ -4883,7 +4883,11 @@
       }
     ],
     "last_comment": "Implémentation terminée avec succès. J'ai modifié le fichier '.cursor/workflow-steps/experience-execution.md' pour prévenir les boucles infinies en rendant obligatoire la séquence : 1) Marquer la tâche comme REVIEW, 2) Créer le commit, 3) Appeler remember. Ajouté des avertissements explicites et mis à jour tous les exemples pour refléter cette nouvelle logique anti-boucle. La règle garantit maintenant qu'une tâche soit toujours marquée REVIEW avant l'appel à remember, empêchant les recommandations répétées d'experience-execution.",
-    "last_comment_timestamp": "2025-06-30T11:25:21.473Z"
+    "last_comment_timestamp": "2025-06-30T11:25:21.473Z",
+    "validation": {
+      "approved_at": "2025-06-30T13:32:30.459324",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 237,
