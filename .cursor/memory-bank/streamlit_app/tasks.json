@@ -5027,7 +5027,7 @@
     "short_description": "Refactoriser la documentation des outils MCP Memory Bank (update_task, remember) et des règles workflow pour que l'agent adopte un point de vue critique au lieu d'être constamment positif, en se concentrant sur les problèmes et améliorations nécessaires.",
     "detailed_description": "**Objectif de la modification :**\nL'utilisateur a identifié un problème comportemental critique : l'agent produit constamment des messages positifs (\"tout va bien\") alors qu'il devrait adopter une approche critique et signaler les problèmes, dysfonctionnements et améliorations nécessaires.\n\n**Éléments à modifier :**\n\n1. **Documentation de l'outil update_task** :\n   - Modifier le paramètre \"comment\" pour exiger une analyse critique\n   - Insister sur l'identification des problèmes rencontrés\n   - Demander de signaler les éléments qui ne fonctionnent pas correctement\n   - Encourager la mention des améliorations possibles\n\n2. **Documentation de l'outil remember** :\n   - Modifier le paramètre \"user_message\" pour privilégier les rapports critiques\n   - Exiger que l'agent se concentre sur les dysfonctionnements\n   - Demander de signaler les problèmes non résolus\n   - Insister sur l'identification des points d'amélioration\n\n3. **Règles workflow (fichiers .mdc)** :\n   - Mettre à jour les instructions pour adopter un état d'esprit critique\n   - Ajouter des directives explicites pour signaler les problèmes\n   - Modifier les exemples pour refléter cette approche critique\n   - Insister sur l'importance de la transparence sur les dysfonctionnements\n\n**Approche critique requise :**\n- **Focus sur les problèmes** : L'agent doit prioritairement signaler ce qui ne fonctionne pas\n- **Identification des dysfonctionnements** : Mettre en évidence les éléments défaillants\n- **Signalement des améliorations** : Proposer systématiquement des optimisations\n- **Transparence totale** : Ne jamais masquer les problèmes derrière une façade positive\n- **Analyse constructive** : Critiquer de manière constructive pour améliorer le système\n\n**Fichiers à modifier :**\n- `.cursor/mcp/memory-bank-mcp/tools/update_task.js` (documentation paramètre comment)\n- `.cursor/mcp/memory-bank-mcp/tools/remember.js` (documentation paramètre user_message)\n- Règles workflow dans `.cursor/rules/` et `.cursor/workflow-steps/`\n- Documentation des schémas MCP si nécessaire\n\n**Critères d'acceptation :**\n- La documentation encourage explicitement l'adoption d'un point de vue critique\n- Les paramètres des outils MCP exigent des rapports focalisés sur les problèmes\n- Les règles workflow intègrent cette approche critique\n- L'agent signale systématiquement les dysfonctionnements et améliorations possibles",
     "dependencies": [],
-    "status": "TODO",
+    "status": "REVIEW",
     "impacted_files": [
       "update_task.js",
       "remember.js",
@@ -5039,11 +5039,25 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) La documentation des outils update_task et remember encourage explicitement un point de vue critique, (2) Les règles workflow intègrent l'approche critique dans leurs instructions, (3) Les exemples reflètent cette nouvelle approche focalisée sur les problèmes, (4) L'agent produit des rapports critiques identifiant les dysfonctionnements et améliorations.",
     "created_date": "2025-06-30T14:43:56.708Z",
-    "updated_date": "2025-06-30T14:43:56.708Z",
+    "updated_date": "2025-06-30T15:15:59.137Z",
     "parent_id": null,
     "priority": 4,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "comments": [
+      {
+        "timestamp": "2025-06-30T15:06:49.885Z",
+        "comment": "Je commence à travailler sur la tâche #240 pour refactoriser la documentation MCP.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-06-30T15:15:59.137Z",
+        "comment": "La tâche est terminée. J'ai refactorisé la documentation des outils MCP (`update_task`, `remember`) et des principales règles de workflow (`implementation`, `fix`, `task-decomposition`, `experience-execution`, `context-update`) pour instiller une approche critique. L'agent est désormais instruit de se concentrer sur l'identification des problèmes, l'analyse des causes profondes, l'évaluation des risques et la communication transparente des faiblesses, plutôt que de simplement rapporter le succès. Les exemples et les instructions ont été mis à jour pour refléter cet état d'esprit. L'utilisateur peut valider en inspectant les modifications apportées aux fichiers concernés.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "La tâche est terminée. J'ai refactorisé la documentation des outils MCP (`update_task`, `remember`) et des principales règles de workflow (`implementation`, `fix`, `task-decomposition`, `experience-execution`, `context-update`) pour instiller une approche critique. L'agent est désormais instruit de se concentrer sur l'identification des problèmes, l'analyse des causes profondes, l'évaluation des risques et la communication transparente des faiblesses, plutôt que de simplement rapporter le succès. Les exemples et les instructions ont été mis à jour pour refléter cet état d'esprit. L'utilisateur peut valider en inspectant les modifications apportées aux fichiers concernés.",
+    "last_comment_timestamp": "2025-06-30T15:15:59.137Z"
   },
   {
     "id": 241,

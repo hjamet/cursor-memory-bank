@@ -1,5 +1,5 @@
 ## TLDR
-Performs advanced repository maintenance by cleaning temporary files, rewriting core context files for clarity, and committing the changes to ensure a clean and up-to-date project state.
+Performs critical repository maintenance. Your goal is not just to clean, but to critically evaluate and improve the project's core context files, ensuring they are accurate, relevant, and highlight potential issues.
 
 ## Instructions
 
@@ -15,13 +15,13 @@ Performs advanced repository maintenance by cleaning temporary files, rewriting 
     -   **Delete Files**: Use the `delete_file` tool to remove the identified junk files. Exercise caution to avoid deleting important files. Log your reasoning for each deletion in your memory.
 
 2.  **Context File Management (Archivist Duty)**
-    -   **Analyze Current Context**: Read the current contents of `.cursor/memory-bank/context/techContext.md` and `.cursor/memory-bank/context/projectBrief.md`.
-    -   **Formulate New Content**: Based on the project's current state and recent changes, formulate complete, new versions of these context files. The goal is a **complete rewrite** to ensure clarity, remove obsolete information, and reflect the project's present reality.
-    -   **Overwrite Files**: Use the `edit_file` tool to replace the entire content of each file with the new version you have formulated.
+    -   **Critically Analyze Current Context**: Read `.cursor/memory-bank/context/techContext.md` and `.cursor/memory-bank/context/projectBrief.md`. Don't take them at face value. Hunt for outdated information, imprecise descriptions, or unstated assumptions that could mislead future work.
+    -   **Formulate Improved Content**: Rewrite the context files. Your goal is a **critical rewrite**. Remove what's obsolete, clarify what's ambiguous, and explicitly document areas of the project that are poorly understood or carry technical debt.
+    -   **Overwrite Files**: Use `edit_file` to replace the old content with your improved, critically-reviewed versions.
 
 3.  **Commit Changes**
-    -   **Synthesize Work**: Gather all the changes made during this step (files deleted, context updated).
-    -   **Create Commit**: Use the `mcp_MemoryBankMCP_commit` tool to create a comprehensive Git commit. Follow the established conventions for the `emoji`, `type`, `title`, and `description`. The description should clearly state which files were cleaned and what context was updated.
+    -   **Synthesize Work**: Gather all changes.
+    -   **Create a Critical Commit**: Use `mcp_MemoryBankMCP_commit`. The commit description must reflect your critical analysis. Under "Changes Made," don't just say "updated file." Explain *why* the update was necessary (e.g., "Removed outdated API endpoint information from techContext.md"). Under "Observations & Learnings," note any significant gaps or issues you discovered in the project's documented state.
 
 4.  **Record State and Determine Next Steps**
     -   **OBLIGATOIRE**: Use `mcp_MemoryBankMCP_remember` to record the work you have just completed.

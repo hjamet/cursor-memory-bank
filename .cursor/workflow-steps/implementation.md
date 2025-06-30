@@ -1,5 +1,5 @@
 ## TLDR
-Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant le contexte, en exécutant les modifications nécessaires, et en respectant strictement le workflow autonome. **ATTENTION : Ne traiter qu'UNE SEULE tâche par cycle d'implémentation.**
+Implémente méthodiquement UNE SEULE tâche prioritaire, en te concentrant non seulement sur la solution, mais aussi sur l'identification et le rapport des problèmes ou des faiblesses potentielles du code. **ATTENTION : Ne traiter qu'UNE SEULE tâche par cycle.**
 
 ## Instructions
 
@@ -16,10 +16,10 @@ Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant 
         *   Identifier les composants, fonctions ou patterns réutilisables.
         *   Comprendre les conventions de code, le style, les bibliothèques utilisées et les patterns architecturaux du projet.
     *   **Synthèse et Planification**: Analyser les résultats des recherches et formuler un plan d'implémentation. Ce plan doit explicitement décrire :
-        *   Comment le code existant sera réutilisé. **Prioriser fortement la réutilisation des composants existants, même s'ils nécessitent des modifications mineures, plutôt que de réimplémenter une fonctionnalité similaire. La réécriture doit être une exception, pas la norme.**
-        *   Comment le nouveau code s'alignera sur les pratiques existantes (nommage, structure des fonctions, documentation, style, etc.).
-        *   Le même type de fonction, les mêmes types de déclarations, les mêmes types de docstring, le même type d'écriture, de commentaires, le même style graphique si l'application est visuelle, les mêmes bibliothèques autant que possible, de manière à minimiser les imports, etc.
-    *   **Principe directeur**: Partir du principe que le code actuel est fonctionnel et constitue la meilleure référence. L'objectif est de s'intégrer de manière transparente pour ne pas introduire d'erreurs, pas de réinventer la roue.
+        *   Comment le code existant sera réutilisé. **Prioriser fortement la réutilisation.**
+        *   Comment le nouveau code s'alignera sur les pratiques existantes.
+        *   **Analyse Critique**: Identifier les faiblesses potentielles, les dettes techniques ou les améliorations possibles dans le code que tu as analysé, même si cela dépasse le cadre de la tâche. Note ces observations pour les inclure dans ton rapport.
+    *   **Principe directeur**: Partir du principe que le code actuel est fonctionnel, mais pas parfait. Ton but est de t'intégrer de manière transparente tout en identifiant les opportunités d'amélioration.
 
 3.  **Implementation**: Implémenter les modifications nécessaires pour LA tâche unique, en suivant le plan établi.
     *   Utiliser les outils appropriés (`edit_file`, `regex_edit`, `grep_search`, etc.)
@@ -29,15 +29,15 @@ Implémente méthodiquement UNE SEULE tâche prioritaire du projet en analysant 
     *   **EXCEPTION**: Si la tâche ne nécessite que l'exécution de commandes, une validation ou des expériences sans modification de code (par exemple, "vérifier que cette commande fonctionne"), vous pouvez appeler `mcp_MemoryBankMCP_next_rule` avec `step_name: 'experience-execution'` pour passer directement aux tests.
 
 4.  **Task status update**: Mettre à jour le statut de LA tâche terminée.
-    *   Marquer LA tâche terminée comme REVIEW avec `mcp_MemoryBankMCP_update_task` pour que l'utilisateur la valide.
-    *   Documenter les modifications apportées dans les commentaires de tâche
-    *   **RAPPEL** : Une seule tâche = un seul update de statut
+    *   Marquer LA tâche terminée comme REVIEW avec `mcp_MemoryBankMCP_update_task`.
+    *   **Commentaire Critique OBLIGATOIRE**: Le commentaire de la tâche doit être une analyse critique. Ne te contente pas de dire "c'est fait". Explique les problèmes que tu as rencontrés, les compromis que tu as faits, et les faiblesses potentielles de ta solution. Suis les directives de l'outil `update_task`.
 
 5.  **Record progress and determine next steps**: Enregistrer les progrès et déterminer les prochaines étapes.
-    *   **OBLIGATOIRE** : Utiliser `mcp_MemoryBankMCP_remember` pour enregistrer l'état actuel
-    *   L'outil remember indiquera les prochaines étapes appropriées (potentiellement une nouvelle implémentation)
-    *   **DISCIPLINE WORKFLOW** : Toujours terminer par remember → next_rule pour maintenir le cycle autonome
-    *   **Communication**: N'utiliser le paramètre `user_message` de `remember` que pour signaler un problème majeur ou une décision d'implémentation critique qui s'écarte du plan initial. En temps normal, la communication est superflue et ce paramètre doit être omis.
+    *   **OBLIGATOIRE** : Utiliser `mcp_MemoryBankMCP_remember` pour enregistrer l'état actuel.
+        *   Dans le champ `present`, sois transparent sur les difficultés rencontrées, les erreurs commises et les solutions imparfaites.
+    *   L'outil remember indiquera les prochaines étapes appropriées.
+    *   **DISCIPLINE WORKFLOW** : Toujours terminer par remember → next_rule pour maintenir le cycle autonome.
+    *   **Communication Critique**: N'utiliser le paramètre `user_message` de `remember` que pour signaler un problème critique qui requiert l'attention de l'utilisateur (ex: faille de sécurité, blocage majeur). Ne l'utilise PAS pour des mises à jour de statut.
 
 ## Specifics - RÈGLES STRICTES
 - **RÈGLE #1** : Travailler sur UNE SEULE tâche à la fois - JAMAIS plusieurs tâches en séquence
@@ -109,10 +109,10 @@ Je procède maintenant à l'implémentation des modifications pour LA tâche uni
 
 # Implementation: 4 - Task status update
 Je mets à jour le statut de LA tâche terminée. **(Implementation: 4 - Task status update)**
-[...appel de mcp_MemoryBankMCP_update_task pour marquer CETTE tâche comme REVIEW...]
+[...appel de mcp_MemoryBankMCP_update_task pour marquer CETTE tâche comme REVIEW avec un **commentaire critique** sur les problèmes rencontrés et les faiblesses de l'implémentation...]
 **TERMINÉ** : Cette tâche unique est maintenant complétée et en attente de revue. **(Implementation: 4 - Task status update)**
 
 # Implementation: 5 - Record progress and determine next steps
-Je vais maintenant enregistrer les progrès et déterminer les prochaines étapes appropriées. **(Implementation: 5 - Record progress and determine next steps)**
-[...appel OBLIGATOIRE de mcp_MemoryBankMCP_remember...]
-**WORKFLOW** : Remember déterminera la prochaine étape (potentiellement implementation pour une nouvelle tâche). **(Implementation: 5 - Record progress and determine next steps)**
+Je vais maintenant enregistrer mes progrès de manière critique. **(Implementation: 5 - Record progress and determine next steps)**
+[...appel OBLIGATOIRE de mcp_MemoryBankMCP_remember, en détaillant dans `present` les difficultés et les compromis, et en utilisant `user_message` UNIQUEMENT si un problème critique a été découvert...]
+**WORKFLOW** : Remember déterminera la prochaine étape. **(Implementation: 5 - Record progress and determine next steps)**

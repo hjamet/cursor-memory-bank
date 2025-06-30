@@ -1,20 +1,16 @@
 ## TLDR
-Quickly test the recent changes manually to validate implementations. This step focuses on basic functional validation, not exhaustive testing. If the test is successful, commit the changes. If it fails, prepare to fix the issues. If you are interrupted, handle it gracefully.
+Adopte une posture de testeur critique. Ton but n'est pas de valider que ça fonctionne, mais de découvrir *comment ça casse*. Cherche activement les failles et les points de rupture de l'implémentation récente.
 
 ## Purpose & Scope
-The `experience-execution` step is designed for **manual validation of implementations** to ensure they work correctly before user review. This step should be used to:
+L'étape `experience-execution` est conçue pour une **validation critique et manuelle**. L'objectif est de stresser l'implémentation pour découvrir ses faiblesses avant qu'elles n'atteignent l'utilisateur.
 
-- **Verify basic functionality**: Check if the implemented code runs without errors
-- **Execute simple tests**: Run commands, check outputs, validate basic behavior
-- **Identify obvious issues**: Catch problems that would be immediately apparent to a user
-- **Validate integration**: Ensure new code works with existing systems
-- **Test user-facing features**: Verify that interfaces, APIs, or tools behave as expected
+- **Chercher les points de rupture**: N'exécute pas seulement le cas nominal. Essaie des entrées inattendues, des ordres d'exécution inhabituels.
+- **Valider la robustesse**: Que se passe-t-il en cas d'erreur ? Le système gère-t-il l'échec gracieusement ?
+- **Identifier les effets de bord**: Ta modification a-t-elle eu un impact inattendu sur une autre partie du système ?
 
-**This is NOT for**:
-- Comprehensive unit testing (that's for dedicated test suites)
-- Performance benchmarking (unless specifically required)
-- Edge case validation (focus on main use cases)
-- Complex integration testing across multiple systems
+**Ce n'est PAS pour**:
+- Des tests de complaisance (happy path testing).
+- Valider uniquement que le code tourne sans erreur.
 
 ## When to Use Experience-Execution
 This step is particularly valuable after:
@@ -34,12 +30,12 @@ This step is particularly valuable after:
 
 1.  **Execute Manual Test**:
     - `<think>`
-        - Based on the last implemented task, what is the most direct way to validate the changes?
-        - What is the expected outcome of a successful test?
-        - What would a failure look like?
-        - What's the simplest test that would give me confidence the implementation works?
+        - Comment puis-je mettre en échec cette implémentation ?
+        - Quel est le point le plus fragile de ce que je viens de coder ?
+        - Que se passe-t-il si je fournis une entrée vide, invalide, ou si j'exécute l'action deux fois ?
+        - Quel est le test simple qui a le plus de chances de révéler une faiblesse ?
     `</think>`
-    - Perform the manual test. This could involve:
+    - Mène un test critique. Exemples :
         - Running a command to test functionality
         - Interacting with a UI to verify behavior
         - Checking file contents or outputs
@@ -51,8 +47,8 @@ This step is particularly valuable after:
 
     - **If the test was a SUCCESS**:
         - `<think>`
-            - The test succeeded. The associated task is now complete. I MUST mark it as 'REVIEW' BEFORE doing anything else.
-            - ⚠️ CRITICAL: I must update the task status FIRST to prevent infinite loops.
+            - Le test principal a réussi, mais ai-je identifié des faiblesses ? Ma mission est de rapporter les problèmes.
+            - Je dois marquer la tâche comme 'REVIEW' AVANT tout.
         `</think>`
         - **🚨 MANDATORY FIRST STEP: Call `mcp_MemoryBankMCP_update_task` to set the status of the related task to `REVIEW`. This MUST be done before any other action.**
         - `<think>`
@@ -72,15 +68,15 @@ This step is particularly valuable after:
             - If NO, and there are more tasks, the next step is `implementation`.
             - If NO, and there are no more tasks, `context-update` is still appropriate.
         `</think>`
-        - **FINAL STEP: Call `mcp_MemoryBankMCP_remember` to record the successful test and set the future step based on the evaluation above. Utiliser l'argument `user_message` pour communiquer un résumé clair du succès de l'expérience à l'utilisateur, en incluant les résultats clés ou les métriques pertinentes (ex: "Expérience réussie: le test `npm test` a retourné 10/10 tests passés.").**
+        - **FINAL STEP: Call `mcp_MemoryBankMCP_remember`. N'utilise `user_message` que si tu as découvert un problème CRITIQUE qui nécessite l'attention immédiate de l'utilisateur.** La plupart du temps, ce champ doit être vide.
 
     - **If the test was a FAILURE**:
         - `<think>`
-            - What was the exact nature of the failure?
-            - What are the likely causes?
-            - What information is crucial for the `fix` step?
+            - Excellent, j'ai trouvé une faille. Quelle est sa nature exacte ?
+            - Quelle est la cause racine la plus probable ?
+            - Comment puis-je décrire ce problème de manière claire et actionnable pour l'étape `fix` ?
         `</think>`
-        - Call `mcp_MemoryBankMCP_remember` to document the failure and set the future step to `fix`. **Utiliser l'argument `user_message` pour communiquer un résumé clair de l'échec de l'expérience à l'utilisateur, en incluant les messages d'erreur ou observations pertinentes (ex: "Expérience échouée: la commande `npm start` a retourné une erreur `TimeoutError`.").**
+        - Call `mcp_MemoryBankMCP_remember` to document the failure and set the future step to `fix`. **Utilise l'argument `user_message` pour communiquer l'échec et son impact.** (ex: "Échec critique du test : La nouvelle API de paiement autorise des transactions négatives, ce qui pourrait entraîner des pertes financières.").
 
     - **If you were INTERRUPTED**:
         - `<think>`
@@ -89,6 +85,13 @@ This step is particularly valuable after:
         `</think>`
         - If the interruption occurred during a task status update, change the task's status to **BLOCKED** using `mcp_MemoryBankMCP_update_task`. Add a comment explaining that the approval was interrupted by the user.
         - Call `mcp_MemoryBankMCP_remember` to document the interruption and set the future step to `context-update` to ensure the workflow can safely continue.
+
+## Adversarial Mindset
+Pense comme un attaquant ou un utilisateur maladroit.
+- **Entrées invalides**: Que se passe-t-il avec `null`, `undefined`, des chaînes vides, des nombres négatifs ?
+- **Double exécution**: Si tu lances une commande deux fois de suite, est-ce que ça crée un état incohérent ?
+- **Conditions de course**: Y a-t-il un risque si deux processus accèdent à la même ressource ?
+- **Gestion d'erreur**: Si une dépendance (ex: une API externe) échoue, le système se comporte-t-il correctement ?
 
 ## Validation Strategies
 
@@ -177,3 +180,13 @@ The server failed to start, crashing with a `TimeoutError: could not connect to 
 # Experience-Execution: 2 - Report Outcome & Next Steps
 <think> The server can't connect to the database after my refactoring. It's likely an issue with the new connection string or pooling options. I need to investigate this in the `fix` step. </think>
 [...calling `mcp_MemoryBankMCP_remember` with PAST: "Tested the new DB connection logic by starting the server.", PRESENT: "The server failed to start with a connection timeout.", FUTURE: "Switch to the `fix` workflow to debug the database connection.", user_message: "Expérience échouée : Le serveur n'a pas pu démarrer et a retourné une erreur `TimeoutError: could not connect to database`."...]
+
+# Experience-Execution: 1 - Execute Manual Test
+<think> J'ai implémenté la génération de token JWT. Le cas nominal fonctionne. Essayons de casser quelque chose. Que se passe-t-il si je demande un token avec un payload vide ? </think>
+Je vais tenter de générer un token JWT avec un payload vide.
+`node -e "require('./src/auth').generateToken('')"`
+La commande a crashé avec une erreur `TypeError: payload must be a non-empty string`. C'est un **FAILURE**. Le système devrait gérer cette erreur gracieusement.
+
+# Experience-Execution: 2 - Report Outcome & Next Steps
+<think> Le test a échoué. J'ai trouvé une faille : le système ne gère pas les payloads vides. C'est une information cruciale pour l'étape `fix`. </think>
+[...appel de `mcp_MemoryBankMCP_remember` avec PAST: "Test critique de la génération JWT.", PRESENT: "Le système crash avec un payload vide (TypeError). Il manque une validation d'entrée.", FUTURE: "Passer à l'étape `fix` pour ajouter la validation.", user_message: "Échec du test de robustesse sur la génération JWT : le système ne gère pas les entrées invalides et expose une erreur brute."...]

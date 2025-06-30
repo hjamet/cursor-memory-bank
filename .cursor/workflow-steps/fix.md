@@ -1,26 +1,25 @@
 ## TLDR
-Analyzes and fixes identified issues through iterative debugging, using MCP tools for task management and terminal operations. This step is a focused debugging loop designed to resolve specific problems.
+Analyse en profondeur et corrige les problèmes identifiés en se concentrant sur la cause racine, pas seulement sur les symptômes. Le but est de résoudre le problème durablement, pas de le patcher temporairement.
 
 ## Instructions
 
-1. **Error Identification**: Analyze the current context to identify issues that need fixing.
-   - Use `mcp_MemoryBankMCP_get_all_tasks` to identify tasks with BLOCKED or failed status
-   - Review recent memories for error reports or issues
-   - Identify the specific problems that need to be addressed
+1. **Error Identification and Root Cause Analysis**: Identifie les problèmes et cherche à comprendre leur origine.
+   - Utilise `mcp_MemoryBankMCP_get_all_tasks` pour identifier les tâches `BLOCKED` ou échouées.
+   - Analyse les souvenirs récents pour les rapports d'erreur.
+   - **Analyse Critique**: Ne te contente pas de lister les erreurs. Pour chaque problème, émets une hypothèse sur la cause racine (ex: "L'erreur de connexion à la BDD est probablement due à un changement récent dans la configuration X").
 
-2. **Correction Loop**: For EACH identified issue, perform the following cycle:
-   - **2.1. Code Analysis**: Analyze the source code related to the issue. Use `read_file` and `codebase_search` to understand the context of the error.
-   - **2.2. Propose Correction**: Formulate a fix for the bug. This may involve logic changes, dependency updates, or configuration adjustments.
-   - **2.3. Apply Correction**: Use `edit_file` to apply the fix to the relevant file(s).
-   - **2.4. Test Execution**: Re-run relevant tests or validation. Use `mcp_ToolsMCP_execute_command` with appropriate test commands.
-   - **2.5. Verification**: Analyze the result of the test run.
-     - **If it passes**, move to the next issue in the list from Step 1.
-     - **If it still fails**, re-enter the loop at 2.1 for the *same* issue, but try a different correction. Limit attempts per issue to 3.
-     - **If after 3 attempts the issue still persists**, mark the associated task as BLOCKED using `mcp_MemoryBankMCP_update_task`, add a comment explaining why, and proceed to the next issue.
+2. **Correction Loop**: Pour CHAQUE problème identifié, suis ce cycle :
+   - **2.1. Deeper Code Analysis**: Analyse le code source pour valider ton hypothèse sur la cause racine. Demande-toi *pourquoi* cette erreur se produit maintenant. Est-ce une régression ? Un effet de bord ?
+   - **2.2. Propose Correction & Assess Risks**: Formule un correctif. Évalue les risques et les effets de bord potentiels de ta correction. (ex: "Je vais ajouter Y, mais cela pourrait impacter la performance de Z").
+   - **2.3. Apply Correction**: Applique le correctif avec `edit_file`.
+   - **2.4. Test Execution**: Relance les tests pertinents.
+   - **2.5. Verification & Critical Review**: Analyse le résultat.
+     - **Si ça passe**: Le problème est-il vraiment résolu, ou le symptôme a-t-il simplement disparu ? Confirme que la cause racine a été traitée.
+     - **Si ça échoue encore**: Revois ton hypothèse. La cause racine est ailleurs. Retourne à l'étape 2.1 avec une nouvelle approche.
+     - **Après 3 échecs**: Marque la tâche comme `BLOCKED`. Le commentaire doit inclure une analyse détaillée des tentatives, des hypothèses explorées et de la raison pour laquelle le problème persiste. Ce n'est pas un constat d'échec, mais un rapport d'investigation.
 
-3. **Record progress and determine next steps**: Use remember tool to record fixes and get next steps.
-   - Call `mcp_MemoryBankMCP_remember` to record the current state and fixes applied
-   - The remember tool will indicate the appropriate next steps
+3. **Record progress and determine next steps**: Utilise `remember` pour documenter ton analyse.
+   - Appelle `mcp_MemoryBankMCP_remember`. Dans le champ `present`, détaille ta compréhension de la cause racine, les raisons de l'échec ou du succès de tes correctifs, et les incertitudes qui demeurent.
 
 ## Specifics
 - The `<think></think>` token must be used for each complex correction requiring in-depth analysis
@@ -60,18 +59,18 @@ I will now start the correction loop for these issues. **(Fix: 1 - Error identif
 ## Fix - 2.1: Correcting Task #X compilation error
 
 ### Fix - 2.1.1: Code analysis
-I'll analyze the relevant source files to find the source of the compilation error. **(Fix: 2.1.1 - Code analysis)**
-[... `read_file` on relevant files ...]
-[... `codebase_search` for error patterns ...]
+<think>Mon hypothèse est que l'erreur de compilation vient d'une modification récente dans un fichier dépendant. Je vais analyser l'historique git et les fichiers liés pour confirmer.</think>
+J'analyse le code pour trouver la **cause racine** de l'erreur. **(Fix: 2.1.1 - Code analysis)**
+[... `read_file` et `codebase_search` pour valider l'hypothèse ...]
 **(Fix: 2.1.1 - Code analysis)**
 
 ### Fix - 2.1.2: Propose correction
-<think>The error suggests a missing import statement. I will add the required import to resolve the compilation issue.</think>
+<think>L'hypothèse est confirmée. Un renommage de fonction n'a pas été répercuté ici. Le correctif est de mettre à jour l'appel de fonction. Le risque est faible car c'est un simple renommage.</think>
 **(Fix: 2.1.2 - Propose correction)**
 
 ### Fix - 2.1.3: Apply correction
-I will now apply the fix to the source file. **(Fix: 2.1.3 - Apply correction)**
-[... `edit_file` to add missing import ...]
+J'applique le correctif. **(Fix: 2.1.3 - Apply correction)**
+[... `edit_file` pour corriger l'appel de fonction ...]
 **(Fix: 2.1.3 - Apply correction)**
 
 ### Fix - 2.1.4: Test execution
@@ -80,12 +79,12 @@ I'll test the fix by running the compilation. **(Fix: 2.1.4 - Test execution)**
 **(Fix: 2.1.4 - Test execution)**
 
 ### Fix - 2.1.5: Verification
-The compilation succeeded. I'll update the task status and move on to the next issue. **(Fix: 2.1.5 - Verification)**
-[... `mcp_MemoryBankMCP_update_task` to unblock the task ...]
+La compilation a réussi. La cause racine (renommage non répercuté) est corrigée. Je mets à jour le statut de la tâche. **(Fix: 2.1.5 - Verification)**
+[... `mcp_MemoryBankMCP_update_task` pour débloquer la tâche ...]
 
 # Fix: 3 - Record progress and determine next steps
-I will now record the fixes applied and determine the next appropriate steps. **(Fix: 3 - Record progress and determine next steps)**
-[...calling `mcp_MemoryBankMCP_remember` with details of fixes applied...]
+Je vais maintenant enregistrer une analyse détaillée de la correction et déterminer les prochaines étapes. **(Fix: 3 - Record progress and determine next steps)**
+[...appel de `mcp_MemoryBankMCP_remember` en détaillant dans `present` l'analyse de la cause racine et la validation de la solution...]
 **(Fix: 3 - Record progress and determine next steps)**
 
 
