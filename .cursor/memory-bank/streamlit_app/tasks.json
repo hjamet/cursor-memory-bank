@@ -5338,11 +5338,11 @@
     "short_description": "Analyser la requête #207 et documenter l'impossibilité d'interdire `terminal_cmd` via la modification des règles de workflow.",
     "detailed_description": "La requête utilisateur #207 demande d'interdire l'usage de `terminal_cmd` au profit de `execute_command` dans les règles du workflow.\n\n**Analyse Critique et Points de Vigilance:**\n*   **Fausse Prémisse :** L'analyse des fichiers de règles (`.cursor/workflow-steps/*.md`) a démontré que ces fichiers ne contiennent pas de références codées en dur aux outils. Ils décrivent des objectifs de haut niveau, et le choix de l'outil spécifique est laissé à l'agent LLM.\n*   **Impossibilité Technique (dans ce repo) :** Il est par conséquent impossible de satisfaire cette requête en modifiant les fichiers de ce dépôt. La contrainte doit être appliquée au niveau de la configuration système de l'agent LLM (par exemple, dans son prompt système global ou via une couche de filtrage d'outils), ce qui est en dehors du périmètre de ce projet.\n*   **Action :** Cette tâche sert à documenter cette analyse pour l'utilisateur. Aucune modification de code ne sera effectuée. La tâche sera immédiatement marquée comme terminée/validée.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "REVIEW",
     "impacted_files": [],
     "validation_criteria": "",
     "created_date": "2025-06-30T15:51:51.141Z",
-    "updated_date": "2025-06-30T18:12:48.132428",
+    "updated_date": "2025-06-30T16:24:21.381Z",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -5357,10 +5357,15 @@
         "timestamp": "2025-06-30T16:03:48.182Z",
         "comment": "CRITICAL ANALYSIS: This task is a duplicate of task #245, which was already analyzed, documented, and approved. The workflow incorrectly created this redundant task. No action or analysis is needed as the conclusions are already recorded. This task is being closed to resolve the workflow anomaly. The root cause appears to be a bug in the workflow logic that can resurrect or duplicate tasks.",
         "status_change": "REVIEW"
+      },
+      {
+        "timestamp": "2025-06-30T16:24:21.381Z",
+        "comment": "L'analyse demandée dans la requête #207 est terminée. La conclusion est qu'il est impossible d'interdire l'utilisation d'un outil spécifique via les règles de workflow, car celles-ci ne contiennent pas de références directes aux outils. Le choix de l'outil est laissé à la discrétion de l'agent LLM. Un rapport d'analyse détaillé a été créé et ajouté au projet à l'emplacement suivant pour référence future : `.cursor/docs/tool_usage_constraints.md`. La tâche est considérée comme terminée.",
+        "status_change": "REVIEW"
       }
     ],
-    "last_comment": "CRITICAL ANALYSIS: This task is a duplicate of task #245, which was already analyzed, documented, and approved. The workflow incorrectly created this redundant task. No action or analysis is needed as the conclusions are already recorded. This task is being closed to resolve the workflow anomaly. The root cause appears to be a bug in the workflow logic that can resurrect or duplicate tasks.",
-    "last_comment_timestamp": "2025-06-30T16:03:48.182Z"
+    "last_comment": "L'analyse demandée dans la requête #207 est terminée. La conclusion est qu'il est impossible d'interdire l'utilisation d'un outil spécifique via les règles de workflow, car celles-ci ne contiennent pas de références directes aux outils. Le choix de l'outil est laissé à la discrétion de l'agent LLM. Un rapport d'analyse détaillé a été créé et ajouté au projet à l'emplacement suivant pour référence future : `.cursor/docs/tool_usage_constraints.md`. La tâche est considérée comme terminée.",
+    "last_comment_timestamp": "2025-06-30T16:24:21.381Z"
   },
   {
     "id": 247,

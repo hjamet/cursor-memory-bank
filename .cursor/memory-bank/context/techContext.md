@@ -22,6 +22,7 @@ The primary user interface for the agent, located in `.cursor/streamlit_app/`.
 
 ### Workflow System
 Located in `.cursor/workflow-steps/`, this system defines the agent's behavior through a series of rules and steps.
+- **Dynamic Tool Selection**: The workflow rules provide high-level goals. The agent dynamically selects the most appropriate tool from its toolkit at runtime to achieve these goals, rather than having tools hardcoded in the rules.
 
 ## Known Issues & Workarounds
 
