@@ -164,7 +164,7 @@ function cleanupOrphanedDependencies(tasks) {
  * @param {string} [params.short_description] - New brief description.
  * @param {string} [params.detailed_description] - New detailed specification of the task.
  * @param {number[]} [params.dependencies] - New list of dependency task IDs. This will overwrite the existing list.
- * @param {string} [params.status] - New status. Must be one of: 'IN_PROGRESS', 'BLOCKED', 'REVIEW'.
+ * @param {string} [params.status] - New status. Must be one of: 'TODO', 'IN_PROGRESS', 'BLOCKED', 'REVIEW', 'DONE', 'APPROVED'.
  * @param {string[]} [params.impacted_files] - New list of affected files. This will overwrite the existing list.
  * @param {string} [params.validation_criteria] - New validation criteria for the task.
  * @param {number|null} [params.parent_id] - New parent task ID. Use `null` to remove the parent relationship.

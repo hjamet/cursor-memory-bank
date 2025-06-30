@@ -1,8 +1,53 @@
 {
-  "transition_history": [],
-  "experience_execution_attempts": 0,
-  "last_experience_execution": null,
+  "transition_history": [
+    {
+      "from": "fix",
+      "to": "experience-execution",
+      "timestamp": "2025-06-30T20:52:32.218Z"
+    },
+    {
+      "from": null,
+      "to": "fix",
+      "timestamp": "2025-06-30T20:45:02.673Z"
+    },
+    {
+      "to": "fix",
+      "timestamp": "2025-06-30T20:44:08.501Z"
+    },
+    {
+      "from": "start-workflow",
+      "to": "fix",
+      "timestamp": "2025-06-30T20:37:39.336Z"
+    },
+    {
+      "from": "fix",
+      "to": "fix",
+      "timestamp": "2025-06-30T20:36:43.137Z"
+    },
+    {
+      "from": "start-workflow",
+      "to": "fix",
+      "timestamp": "2025-06-30T20:33:38.884Z"
+    },
+    {
+      "from": "experience-execution",
+      "to": "context-update",
+      "timestamp": "2025-06-30T20:30:48.688Z"
+    },
+    {
+      "from": "fix",
+      "to": "fix",
+      "timestamp": "2025-06-30T20:24:16.913Z"
+    },
+    {
+      "from": null,
+      "to": "fix",
+      "timestamp": "2025-06-30T20:22:04.060Z"
+    }
+  ],
+  "experience_execution_attempts": 1,
+  "last_experience_execution": "2025-06-30T20:52:32.218Z",
   "last_implementation": null,
-  "consecutive_transitions": 0,
+  "consecutive_transitions": 9,
   "emergency_brake_active": false
 }

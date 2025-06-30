@@ -6,6 +6,7 @@ import nunjucks from 'nunjucks';
 import { readMemoryContext } from '../lib/memory_context.js';
 import { readUserbriefData } from '../lib/userbrief_manager.js';
 import { taskManager } from '../lib/task_manager.js';
+import { getPossibleNextSteps, getRecommendedNextStep, analyzeSystemState as centralizedAnalyzeSystemState } from '../lib/workflow_recommendation.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -68,60 +69,13 @@ async function updateWorkflowState(step_name) {
 
 /**
  * Analyze system state to determine optimal next workflow step
+ * UPDATED: Now uses centralized workflow recommendation logic
  * @param {Object} context - System context including tasks and requests
  * @returns {Object} Analysis result with recommended step and reasoning
  */
 async function analyzeSystemState(context) {
-    await taskManager.loadTasks(); // Force reload from disk
-    const tasks = taskManager.getAllTasks({ include_done: true });
-
-    // Count tasks by status
-    const taskCounts = {
-        TODO: tasks.filter(t => t.status === 'TODO').length,
-        IN_PROGRESS: tasks.filter(t => t.status === 'IN_PROGRESS').length,
-        BLOCKED: tasks.filter(t => t.status === 'BLOCKED').length,
-        REVIEW: tasks.filter(t => t.status === 'REVIEW').length,
-        DONE: tasks.filter(t => t.status === 'DONE').length
-    };
-
-    // Check for unprocessed requests
-    const unprocessedRequests = context.unprocessed_requests || [];
-    const hasUnprocessedRequests = unprocessedRequests.length > 0;
-    const hasActionableTasks = taskCounts.TODO > 0 || taskCounts.IN_PROGRESS > 0 || taskCounts.BLOCKED > 0 || taskCounts.REVIEW > 0;
-
-    // Determine optimal next step
-    let recommendedStep = 'context-update';
-    let reasoning = 'Default system analysis and planning';
-
-    if (hasUnprocessedRequests) {
-        recommendedStep = 'task-decomposition';
-        reasoning = `${unprocessedRequests.length} unprocessed user requests need to be converted to tasks`;
-    } else if (taskCounts.IN_PROGRESS > 0) {
-        recommendedStep = 'implementation';
-        reasoning = `${taskCounts.IN_PROGRESS} tasks currently in progress need completion`;
-    } else if (taskCounts.BLOCKED > 0) {
-        recommendedStep = 'fix';
-        reasoning = `${taskCounts.BLOCKED} blocked tasks need resolution`;
-    } else if (taskCounts.TODO > 0) {
-        recommendedStep = 'implementation';
-        reasoning = `${taskCounts.TODO} TODO tasks ready for execution`;
-    } else if (taskCounts.REVIEW > 0) {
-        recommendedStep = 'experience-execution';
-        reasoning = `${taskCounts.REVIEW} tasks need review and testing`;
-    } else if (!hasActionableTasks && !hasUnprocessedRequests) {
-        recommendedStep = 'workflow-complete';
-        reasoning = 'All tasks are done and no new requests. The workflow can stop.';
-    }
-
-    return {
-        recommendedStep,
-        reasoning,
-        systemState: {
-            taskCounts,
-            unprocessedRequestCount: unprocessedRequests.length,
-            totalTasks: tasks.length
-        }
-    };
+    // Use centralized analysis logic for consistency
+    return await centralizedAnalyzeSystemState(context);
 }
 
 /**
