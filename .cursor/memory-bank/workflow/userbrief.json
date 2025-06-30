@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 202,
+  "last_id": 203,
   "requests": [
     {
       "id": 156,
@@ -746,6 +746,21 @@
         {
           "timestamp": "2025-06-30T10:41:54.984Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 203,
+      "content": "Tu peux t'assurer que le workflow prend fin lorsque il n'y a plus de tâches restantes et de tâches à traiter dans le user brief. Actuellement, le s'il y a des tâches qui sont en mode review, le workflow ne s'arrête pas, ce qui est un gros problème, le workflow doit s'arrêter s'il reste uniquement des tâches en mode review puisque l'agent n'a plus rien à faire, c'est à l'utilisateur de les revoir et à ce moment là, le workflow doit s'arrêter. Est ce que tu peux corriger ça ? Je pense qu'il faut que tu regardes la méthode remember du serveur MCP Memory Bank pour corriger le problème parce que actuellement je pense qu'il ne s'arrête pas tant que il reste des. Euh des des tâches en review donc corrige ça s'il te plaît et je te rappelle que tu pourras pas tester immédiatement tes modifications parce qu'il faut redémarrer le serveur MCP ce que tu ne peux pas faire donc assure toi simplement que ça a l'air de fonctionner avec un petit script de vérification. Rien de bien compliqué et puis ensuite supprime le script de de de vérification une fois que tout est bon et et du coup là tu pourras arrêter le workflow toi parce que apparemment tu ne peux pas t'arrêter à cause de ce bug mais il faudrait que tu t'arrêtes une fois que tu l'auras résolu.",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-06-30T13:41:34.516837",
+      "updated_at": "2025-06-30T13:41:34.516837",
+      "history": [
+        {
+          "timestamp": "2025-06-30T13:41:34.516837",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }
