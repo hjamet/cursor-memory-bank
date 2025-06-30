@@ -1,17 +1,5 @@
 {
   "version": "1.0.0",
-  "messages": [
-    {
-      "id": 174,
-      "content": "La tâche #243 est bloquée en raison d'un problème persistant et non identifié avec le serveur MCP. Une investigation plus approfondie est nécessaire.",
-      "timestamp": "2025-06-30T15:33:07.391Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    }
-  ],
-  "last_id": 174
+  "messages": [],
+  "last_id": 178
 }

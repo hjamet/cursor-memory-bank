@@ -161,27 +161,9 @@ function cleanupOrphanedDependencies(tasks) {
  * @param {string} [params.image] - Updated image path for the task
  * @returns {Object} Tool response with updated task information
  */
-export async function handleUpdateTask_v2(params) {
+export async function handleUpdateTask(params) {
     try {
         const { task_id, comment, ...updates } = params;
-
-        // CRITICAL COMMENT VALIDATION for BLOCKED or REVIEW status
-        const isCriticalStatus = updates.status === 'BLOCKED' || updates.status === 'REVIEW';
-        if (isCriticalStatus) {
-            if (!comment || comment.trim().length < 50) {
-                throw new Error(`Critical analysis required. The comment for status '${updates.status}' must be at least 50 characters long.`);
-            }
-        }
-
-        // STANDARD COMMENT VALIDATION for all other updates
-        // A comment is always required, unless it's a programmatic status change to IN_PROGRESS (where no comment is passed).
-        const isProgrammaticInProgress = updates.status === 'IN_PROGRESS' && !comment;
-
-        if (!isCriticalStatus && !isProgrammaticInProgress) {
-            if (!comment || comment.trim().length < 10) {
-                throw new Error(`A meaningful comment of at least 10 characters is required for this update.`);
-            }
-        }
 
         const tasks = await readTasks();
         const taskIndex = tasks.findIndex(task => task.id === task_id);
@@ -200,6 +182,46 @@ export async function handleUpdateTask_v2(params) {
         }
 
         const existingTask = { ...tasks[taskIndex] };
+
+        // Determine the effective status for validation
+        const effectiveStatus = updates.status || existingTask.status;
+
+        // CRITICAL COMMENT VALIDATION for BLOCKED or REVIEW status
+        const isCriticalStatus = effectiveStatus === 'BLOCKED' || effectiveStatus === 'REVIEW';
+        if (isCriticalStatus) {
+            // This validation applies even if the status is not changing, but the existing status is critical
+            if (!comment || comment.trim().length < 50) {
+                return {
+                    content: [{
+                        type: 'text',
+                        text: JSON.stringify({
+                            status: 'error',
+                            message: `Critical analysis required. The comment for status '${effectiveStatus}' must be at least 50 characters long. Your comment was too short.`,
+                            updated_task: null
+                        }, null, 2)
+                    }]
+                };
+            }
+        }
+
+        // STANDARD COMMENT VALIDATION for all other updates
+        // A comment is always required, unless it's a programmatic status change to IN_PROGRESS (where no comment is passed).
+        const isProgrammaticInProgress = updates.status === 'IN_PROGRESS' && !comment;
+
+        if (!isCriticalStatus && !isProgrammaticInProgress) {
+            if (!comment || comment.trim().length < 10) {
+                return {
+                    content: [{
+                        type: 'text',
+                        text: JSON.stringify({
+                            status: 'error',
+                            message: `A meaningful comment of at least 10 characters is required for this update.`,
+                            updated_task: null
+                        }, null, 2)
+                    }]
+                };
+            }
+        }
 
         // Validate parent task exists if parent_id is being updated
         if (updates.parent_id !== undefined && updates.parent_id !== null) {
@@ -248,60 +270,51 @@ export async function handleUpdateTask_v2(params) {
         // Create the updated task object
         const updatedTask = {
             ...existingTask,
-            ...Object.fromEntries(Object.entries(updates).filter(([_, v]) => v !== undefined)),
+            ...updates,
+            updated_date: new Date().toISOString(),
             comments: updatedComments,
             last_comment: effectiveComment,
-            last_comment_timestamp: commentEntry.timestamp,
-            updated_date: new Date().toISOString()
+            last_comment_timestamp: commentEntry.timestamp
         };
 
         tasks[taskIndex] = updatedTask;
 
-        // Automatic dependency management when task status changes to REVIEW or DONE
-        let unblockedTasks = [];
-        let cleanedUpTasks = [];
+        // After updating the task, check for dependent tasks that can be unblocked
+        const unblockedTasks = checkAndUnblockDependentTasks(task_id, tasks);
 
-        if (updates.status && (updates.status === 'REVIEW' || updates.status === 'DONE')) {
-            // First, clean up orphaned dependencies across all tasks
-            cleanedUpTasks = cleanupOrphanedDependencies(tasks);
-
-            // Then, check and unblock tasks that were waiting for this task
-            unblockedTasks = checkAndUnblockDependentTasks(task_id, tasks);
-        }
+        // Also, perform a cleanup of orphaned dependencies for all tasks
+        const cleanedUpTasks = cleanupOrphanedDependencies(tasks);
 
         await writeTasks(tasks);
-
-        // Prepare success response
-        const response = {
-            status: 'success',
-            message: `Task ${task_id} updated successfully`,
-            workflow_reminder: "IMPORTANT: You are in a workflow. After this update, you MUST call remember() to continue.",
-            updated_task: updatedTask,
-            changes_made: {
-                fields_updated: Object.keys(updates).filter(k => updates[k] !== undefined),
-                update_count: Object.keys(updates).filter(k => updates[k] !== undefined).length,
-                previous_status: existingTask.status,
-                new_status: updatedTask.status
-            },
-            summary: {
-                task_id: updatedTask.id,
-                has_dependencies: updatedTask.dependencies.length > 0,
-                dependency_count: updatedTask.dependencies.length,
-                is_subtask: updatedTask.parent_id !== null,
-                priority_level: updatedTask.priority,
-                status_changed: existingTask.status !== updatedTask.status
-            },
-            automatic_actions: {
-                unblocked_tasks: unblockedTasks,
-                cleaned_up_tasks: cleanedUpTasks,
-                total_affected_tasks: unblockedTasks.length + cleanedUpTasks.length
-            }
-        };
 
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify(response, null, 2)
+                text: JSON.stringify({
+                    status: 'success',
+                    message: `Task ${task_id} updated successfully`,
+                    workflow_reminder: 'IMPORTANT: You are in a workflow. After this update, you MUST call remember() to continue.',
+                    updated_task: updatedTask,
+                    changes_made: {
+                        fields_updated: Object.keys(updates),
+                        update_count: Object.keys(updates).length,
+                        previous_status: existingTask.status,
+                        new_status: updatedTask.status,
+                    },
+                    summary: {
+                        task_id: updatedTask.id,
+                        has_dependencies: updatedTask.dependencies && updatedTask.dependencies.length > 0,
+                        dependency_count: updatedTask.dependencies ? updatedTask.dependencies.length : 0,
+                        is_subtask: updatedTask.parent_id !== null,
+                        priority_level: updatedTask.priority,
+                        status_changed: existingTask.status !== updatedTask.status,
+                    },
+                    automatic_actions: {
+                        unblocked_tasks: unblockedTasks,
+                        cleaned_up_tasks: cleanedUpTasks,
+                        total_affected_tasks: unblockedTasks.length + cleanedUpTasks.length,
+                    }
+                }, null, 2)
             }]
         };
 
@@ -311,15 +324,31 @@ export async function handleUpdateTask_v2(params) {
                 type: 'text',
                 text: JSON.stringify({
                     status: 'error',
-                    message: `Error updating task: ${error.message}`,
-                    updated_task: null,
-                    error_details: {
-                        error_type: error.constructor.name,
-                        error_message: error.message,
-                        task_id: params.task_id
-                    }
+                    message: `An unexpected error occurred: ${error.message}`,
+                    stack: error.stack
                 }, null, 2)
             }]
         };
     }
+}
+
+/**
+ * Main function to handle tool calls for this MCP
+ * @param {Object} tool_call - The tool call object
+ * @returns {Object} The result of the tool call
+ */
+export default async function handleToolCall(tool_call) {
+    if (tool_call.tool_name === 'mcp_MemoryBankMCP_update_task') {
+        return await handleUpdateTask(tool_call.tool_input);
+    }
+    // Add other tool handlers here if needed
+    return {
+        content: [{
+            type: 'text',
+            text: JSON.stringify({
+                status: 'error',
+                message: `Tool '${tool_call.tool_name}' not found in this MCP.`
+            }, null, 2)
+        }]
+    };
 } 
