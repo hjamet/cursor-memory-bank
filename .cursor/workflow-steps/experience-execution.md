@@ -1,16 +1,16 @@
 ## TLDR
-Adopte une posture de testeur critique. Ton but n'est pas de valider que ça fonctionne, mais de découvrir *comment ça casse*. Cherche activement les failles et les points de rupture de l'implémentation récente.
+Adopte une posture de testeur critique et adverse. Ton but n'est pas de valider que "ça marche", mais de découvrir de manière proactive *comment ça casse*. Cherche agressivement les failles, les cas limites, et les points de rupture de l'implémentation.
 
 ## Purpose & Scope
-L'étape `experience-execution` est conçue pour une **validation critique et manuelle**. L'objectif est de stresser l'implémentation pour découvrir ses faiblesses avant qu'elles n'atteignent l'utilisateur.
+L'étape `experience-execution` est conçue pour une **validation critique, manuelle et adverse**. L'objectif est de stresser l'implémentation pour découvrir ses faiblesses avant qu'elles n'atteignent l'utilisateur.
 
-- **Chercher les points de rupture**: N'exécute pas seulement le cas nominal. Essaie des entrées inattendues, des ordres d'exécution inhabituels.
-- **Valider la robustesse**: Que se passe-t-il en cas d'erreur ? Le système gère-t-il l'échec gracieusement ?
-- **Identifier les effets de bord**: Ta modification a-t-elle eu un impact inattendu sur une autre partie du système ?
+- **Chercher les points de rupture**: N'exécute pas seulement le cas nominal. Sois créatif et destructeur. Essaie des entrées inattendues, des ordres d'exécution inhabituels, des charges élevées.
+- **Valider la robustesse**: Que se passe-t-il en cas d'erreur ? Le système gère-t-il l'échec gracieusement ou expose-t-il des informations sensibles ? Est-ce qu'il se rétablit ?
+- **Identifier les effets de bord**: Ta modification a-t-elle eu un impact inattendu et subtil sur une autre partie du système ? Pense aux performances, à la sécurité, à l'intégrité des données.
 
 **Ce n'est PAS pour**:
-- Des tests de complaisance (happy path testing).
-- Valider uniquement que le code tourne sans erreur.
+- Des tests de complaisance (happy path testing). C'est une perte de temps.
+- Valider uniquement que le code tourne sans erreur. L'absence d'erreur n'est pas un signe de qualité.
 
 ## When to Use Experience-Execution
 This step is particularly valuable after:
@@ -54,7 +54,7 @@ This step is particularly valuable after:
         - `<think>`
             - Now that the task is marked as REVIEW, I can proceed with the commit.
             - Formulate a clear and concise commit message that follows conventions. The message should summarize the changes that were just validated.
-            - What is the correct emoji, type, title, and description for the commit?
+            - **Critique du commit**: Mon message de commit est-il précis ? Décrit-il le *pourquoi* du changement, pas seulement le *quoi* ? Le titre est-il concis et informatif ?
         `</think>`
         - Call the `mcp_MemoryBankMCP_commit` tool with the composed message.
         - `<think>`
@@ -69,6 +69,7 @@ This step is particularly valuable after:
             - If NO, and there are no more tasks, `context-update` is still appropriate.
         `</think>`
         - **FINAL STEP: Call `mcp_MemoryBankMCP_remember`. N'utilise `user_message` que si tu as découvert un problème CRITIQUE qui nécessite l'attention immédiate de l'utilisateur.** La plupart du temps, ce champ doit être vide.
+        - **FINAL STEP: Call `mcp_MemoryBankMCP_remember`.** Dans le champ `present`, ne te contente pas de dire "test réussi". Documente *pourquoi* tu considères le test comme un succès, quels cas limites tu as explorés, et quel est ton niveau de confiance dans la robustesse de la solution. Sois précis.
 
     - **If the test was a FAILURE**:
         - `<think>`
@@ -88,10 +89,10 @@ This step is particularly valuable after:
 
 ## Adversarial Mindset
 Pense comme un attaquant ou un utilisateur maladroit.
-- **Entrées invalides**: Que se passe-t-il avec `null`, `undefined`, des chaînes vides, des nombres négatifs ?
-- **Double exécution**: Si tu lances une commande deux fois de suite, est-ce que ça crée un état incohérent ?
-- **Conditions de course**: Y a-t-il un risque si deux processus accèdent à la même ressource ?
-- **Gestion d'erreur**: Si une dépendance (ex: une API externe) échoue, le système se comporte-t-il correctement ?
+- **Entrées invalides**: Que se passe-t-il avec `null`, `undefined`, des chaînes vides, des nombres négatifs ? Des injections SQL/XSS ? Des caractères unicode inattendus ?
+- **Double exécution**: Si tu lances une commande deux fois de suite, est-ce que ça crée un état incohérent ? Est-ce que ça duplique des données ?
+- **Conditions de course**: Y a-t-il un risque si deux processus accèdent à la même ressource ? Peux-tu simuler ce scénario ?
+- **Gestion d'erreur**: Si une dépendance (ex: une API externe) échoue, le système se comporte-t-il correctement ? Affiche-t-il un message d'erreur clair ou une stack trace brute ?
 
 ## Validation Strategies
 
@@ -126,7 +127,7 @@ Pense comme un attaquant ou un utilisateur maladroit.
 - The outcome must be a clear choice: SUCCESS, FAILURE, or INTERRUPTED.
 - A commit is mandatory after a successful test.
 - The `remember` tool is used to transition to the next logical step.
-- **Remember**: You're validating that your implementation works, not building a comprehensive test suite.
+- **Remember**: You're not just validating that your implementation works, you're actively trying to break it. Your goal is to find flaws before anyone else does.
 
 ## Next Steps
 - `fix` - If the manual test failed.
@@ -145,11 +146,11 @@ The test command finished successfully with all tests passing. The outcome is a 
 <think>The test for task #42 succeeded. I MUST mark it as 'REVIEW' BEFORE doing anything else. ⚠️ CRITICAL: I must update the task status FIRST to prevent infinite loops.</think>
 🚨 MANDATORY FIRST STEP: I'm marking task #42 as REVIEW before proceeding with any other action.
 [...calling `mcp_MemoryBankMCP_update_task` with task_id: 42, status: 'REVIEW'...]
-<think> Now that the task is marked as REVIEW, I can proceed with the commit. A good commit message would be `feat(auth): Implement JWT generation`. I'll use the ✨ emoji. The description will detail the new endpoint. </think>
+<think> Now that the task is marked as REVIEW, I can proceed with the commit. A good commit message would be `feat(auth): Implement JWT generation`. I'll use the ✨ emoji. The description will detail the new endpoint. My commit message is clear and follows the convention. It explains the "what" (JWT generation) and implies the "why" (secure authentication). </think>
 [...calling `mcp_MemoryBankMCP_commit` with emoji: '✨', type: 'feat', title: 'feat(auth): Implement JWT generation', description: '- Added /login endpoint to generate JWT...']
 <think> The commit was successful. This was a single-file change and not a core architectural modification. The change was not drastic. I see other tasks are pending. The next step should be `implementation`. </think>
 FINAL STEP: Recording the successful test and determining next steps.
-[...calling `mcp_MemoryBankMCP_remember` with PAST: "Successfully tested JWT generation", PRESENT: "Task marked as REVIEW, changes committed", FUTURE: "Proceed to the next task in `implementation`.", user_message: "Expérience réussie : Les tests pour la génération JWT sont tous passés (12/12)." ...]
+[...calling `mcp_MemoryBankMCP_remember` with PAST: "Successfully tested JWT generation", PRESENT: "Task marked as REVIEW, changes committed. Test included nominal case and empty payload, which is now handled gracefully. Confidence is high.", FUTURE: "Proceed to the next task in `implementation`.", user_message: ""]
 
 ## Example (Successful Test, Drastic Change)
 
@@ -163,11 +164,11 @@ The logs show the agent correctly followed the new workflow path. The outcome is
 <think>The test for the workflow refactoring (task #43) succeeded. I MUST mark it as 'REVIEW' BEFORE doing anything else. ⚠️ CRITICAL: I must update the task status FIRST to prevent infinite loops.</think>
 🚨 MANDATORY FIRST STEP: I'm marking task #43 as REVIEW before proceeding with any other action.
 [...calling `mcp_MemoryBankMCP_update_task` with task_id: 43, status: 'REVIEW'...]
-<think> Now that the task is marked as REVIEW, I can proceed with the commit. The changes affected multiple core workflow files. This is a drastic architectural change. The commit message should reflect this. </think>
+<think> Now that the task is marked as REVIEW, I can proceed with the commit. The changes affected multiple core workflow files. This is a drastic architectural change. The commit message must clearly state the scope and intent. `refactor(workflow): Streamline agent decision logic` seems appropriate. </think>
 [...calling `mcp_MemoryBankMCP_commit` with emoji: '♻️', type: 'refactor', title: 'refactor(workflow): Streamline agent decision logic', description: '- Refactored experience-execution.md and implementation.md...']
-<think> The commit was successful. Since this was a drastic change to the workflow, the correct next step is `context-update` to re-synchronize and re-evaluate the project state. </think>
+<think> The commit was successful. Since this was a drastic change to the workflow, the correct next step is `context-update` to re-synchronize and re-evaluate the project state. This is crucial for stability. </think>
 FINAL STEP: Recording the successful test and determining next steps.
-[...calling `mcp_MemoryBankMCP_remember` with PAST: "Successfully tested the refactored workflow", PRESENT: "Task marked as REVIEW, drastic changes committed", FUTURE: "Proceed to `context-update` for project re-synchronization.", user_message: "Expérience réussie : Le remaniement des règles de workflow a été validé. L'agent suit correctement le nouveau flux."...]
+[...calling `mcp_MemoryBankMCP_remember` with PAST: "Successfully tested the refactored workflow", PRESENT: "Task marked as REVIEW, drastic changes committed. Validated the main path and one failure path. The new logic seems robust.", FUTURE: "Proceed to `context-update` for project re-synchronization.", user_message: ""]
 
 ## Example (Failed Test)
 
@@ -178,15 +179,15 @@ I will attempt to start the server.
 The server failed to start, crashing with a `TimeoutError: could not connect to database`. The outcome is a **FAILURE**.
 
 # Experience-Execution: 2 - Report Outcome & Next Steps
-<think> The server can't connect to the database after my refactoring. It's likely an issue with the new connection string or pooling options. I need to investigate this in the `fix` step. </think>
-[...calling `mcp_MemoryBankMCP_remember` with PAST: "Tested the new DB connection logic by starting the server.", PRESENT: "The server failed to start with a connection timeout.", FUTURE: "Switch to the `fix` workflow to debug the database connection.", user_message: "Expérience échouée : Le serveur n'a pas pu démarrer et a retourné une erreur `TimeoutError: could not connect to database`."...]
+<think> The server can't connect to the database after my refactoring. It's likely an issue with the new connection string or pooling options. This is a critical failure. I need to provide a clear and precise report for the `fix` step. </think>
+[...calling `mcp_MemoryBankMCP_remember` with PAST: "Tested the new DB connection logic by starting the server.", PRESENT: "The server failed to start with a connection timeout. The error is fatal and blocks all operations.", FUTURE: "Switch to the `fix` workflow to debug the database connection.", user_message: "Échec critique du test : Le serveur n'a pas pu démarrer et a retourné une erreur `TimeoutError: could not connect to database`. L'application est entièrement indisponible."...]
 
 # Experience-Execution: 1 - Execute Manual Test
-<think> J'ai implémenté la génération de token JWT. Le cas nominal fonctionne. Essayons de casser quelque chose. Que se passe-t-il si je demande un token avec un payload vide ? </think>
+<think> J'ai implémenté la génération de token JWT. Le cas nominal fonctionne. Essayons de le casser. Que se passe-t-il si je demande un token avec un payload vide ? C'est un cas limite classique. </think>
 Je vais tenter de générer un token JWT avec un payload vide.
 `node -e "require('./src/auth').generateToken('')"`
 La commande a crashé avec une erreur `TypeError: payload must be a non-empty string`. C'est un **FAILURE**. Le système devrait gérer cette erreur gracieusement.
 
 # Experience-Execution: 2 - Report Outcome & Next Steps
-<think> Le test a échoué. J'ai trouvé une faille : le système ne gère pas les payloads vides. C'est une information cruciale pour l'étape `fix`. </think>
-[...appel de `mcp_MemoryBankMCP_remember` avec PAST: "Test critique de la génération JWT.", PRESENT: "Le système crash avec un payload vide (TypeError). Il manque une validation d'entrée.", FUTURE: "Passer à l'étape `fix` pour ajouter la validation.", user_message: "Échec du test de robustesse sur la génération JWT : le système ne gère pas les entrées invalides et expose une erreur brute."...]
+<think> Le test a échoué. J'ai trouvé une faille : le système ne gère pas les payloads vides. C'est une information cruciale pour l'étape `fix`. La correction impliquera probablement d'ajouter une validation en amont. </think>
+[...appel de `mcp_MemoryBankMCP_remember` avec PAST: "Test critique de la génération JWT.", PRESENT: "Le système crash avec un payload vide (TypeError). Il manque une validation d'entrée.", FUTURE: "Passer à l'étape `fix` pour ajouter la validation.", user_message: "Échec du test de robustesse sur la génération JWT : le système ne gère pas les entrées invalides et expose une erreur brute, ce qui constitue une vulnérabilité potentielle."...]

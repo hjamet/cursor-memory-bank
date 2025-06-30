@@ -187,6 +187,32 @@ async function getRecommendedNextStep(lastStep, possibleSteps, tasks = null) {
     return possibleSteps[0] || 'context-update';
 }
 
+/**
+ * Records the agent's state and determines the next step in the workflow.
+ * This tool is the central nervous system of the autonomous agent, responsible for memory, reflection, and planning.
+ *
+ * **CRITICAL SELF-REFLECTION IS MANDATORY.**
+ * The purpose of `remember` is not just to log what you did, but to perform a critical analysis of your own actions and their outcomes.
+ *
+ * - **`past`**: State what you *intended* to do.
+ * - **`present`**: This is for critical analysis. Do not just say "I completed the task." Analyze the outcome.
+ *   - **If successful**: What were the challenges? What trade-offs were made? Are there any weaknesses in the implementation that need to be monitored?
+ *   - **If it failed**: What was the root cause of the failure? What were your flawed assumptions? What did you learn from the error?
+ *   - **Be transparent about difficulties, mistakes, and imperfect solutions.** This is crucial for learning and improving.
+ * - **`future`**: State your plan for the next step, based on your analysis of the present.
+ * - **`long_term_memory`**: Use this to store critical, timeless information that will be useful in the future (e.g., architectural decisions, persistent bugs to avoid, core project principles). Do NOT use it for transient state.
+ * - **`user_message`**: Use this **only** to report a critical issue that requires immediate user attention (e.g., a security vulnerability, a major blocker, a catastrophic failure). Do NOT use it for routine status updates. Be direct and factual.
+ *
+ * This tool drives the agent's learning and decision-making loop. High-quality, critical inputs are essential for a high-functioning autonomous system.
+ *
+ * @param {Object} args - The arguments for the memory tool.
+ * @param {string} args.past - A description of what the agent was originally supposed to do.
+ * @param {string} args.present - A detailed and **critical** description of what the agent has actually accomplished, the problems encountered, and the decisions made.
+ * @param {string} args.future - A description of what the agent plans to do next.
+ * @param {string} [args.long_term_memory] - Critical information to be stored in the persistent long-term memory.
+ * @param {string} [args.user_message] - A critical message to be surfaced to the user, only for urgent issues.
+ * @returns {Object} A response object containing the recorded memory and recommendations for the next step in the workflow.
+ */
 async function remember(args) {
     const { past, present, future, long_term_memory, user_message } = args;
 

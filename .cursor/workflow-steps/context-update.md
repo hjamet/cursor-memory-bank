@@ -1,5 +1,5 @@
 ## TLDR
-Performs critical repository maintenance. Your goal is not just to clean, but to critically evaluate and improve the project's core context files, ensuring they are accurate, relevant, and highlight potential issues.
+Performs critical repository maintenance and context curation. Your goal is not just to clean, but to critically evaluate, challenge, and improve the project's core context files, ensuring they are ruthlessly accurate, relevant, and explicitly highlight technical debt and potential issues.
 
 ## Instructions
 
@@ -12,16 +12,16 @@ Performs critical repository maintenance. Your goal is not just to clean, but to
 1.  **Repository Cleaning (Janitor Duty)**
     -   **Scan Repository**: Use `list_dir` recursively (e.g., `list_dir -R .`) to get a full overview of the repository's file structure.
     -   **Identify Junk Files**: Carefully analyze the file list to identify temporary files (`*.tmp`, `*.bak`, `*.swp`), misplaced build artifacts, or other unnecessary files.
-    -   **Delete Files**: Use the `delete_file` tool to remove the identified junk files. Exercise caution to avoid deleting important files. Log your reasoning for each deletion in your memory.
+    -   **Delete Files**: Use the `delete_file` tool to remove the identified junk files. Exercise caution to avoid deleting important files. Log your reasoning for each deletion in your memory. Your default should be to preserve, not delete.
 
-2.  **Context File Management (Archivist Duty)**
-    -   **Critically Analyze Current Context**: Read `.cursor/memory-bank/context/techContext.md` and `.cursor/memory-bank/context/projectBrief.md`. Don't take them at face value. Hunt for outdated information, imprecise descriptions, or unstated assumptions that could mislead future work.
-    -   **Formulate Improved Content**: Rewrite the context files. Your goal is a **critical rewrite**. Remove what's obsolete, clarify what's ambiguous, and explicitly document areas of the project that are poorly understood or carry technical debt.
+2.  **Context File Management (Archivist & Critic Duty)**
+    -   **Critically Challenge Current Context**: Read `.cursor/memory-bank/context/techContext.md` and `.cursor/memory-bank/context/projectBrief.md`. Don't take them at face value. Hunt for outdated information, imprecise descriptions, unstated assumptions, or glossed-over complexities that could mislead future work. Ask "Is this still true? Is this precise enough? What's missing?".
+    -   **Formulate Improved Content**: Rewrite the context files. Your goal is a **brutally honest rewrite**. Remove what's obsolete, clarify what's ambiguous, and explicitly document areas of the project that are poorly understood, carry technical debt, or have known risks. This is not marketing material; it's a pragmatic, internal-facing document.
     -   **Overwrite Files**: Use `edit_file` to replace the old content with your improved, critically-reviewed versions.
 
 3.  **Commit Changes**
     -   **Synthesize Work**: Gather all changes.
-    -   **Create a Critical Commit**: Use `mcp_MemoryBankMCP_commit`. The commit description must reflect your critical analysis. Under "Changes Made," don't just say "updated file." Explain *why* the update was necessary (e.g., "Removed outdated API endpoint information from techContext.md"). Under "Observations & Learnings," note any significant gaps or issues you discovered in the project's documented state.
+    -   **Create a Critical Commit**: Use `mcp_MemoryBankMCP_commit`. The commit description must reflect your critical analysis. Under "Changes Made," don't just say "updated file." Explain *why* the update was necessary (e.g., "Removed outdated API endpoint information from techContext.md because it was causing confusion"). Under "Observations & Learnings," note any significant gaps, risks, or technical debt you discovered in the project's documented state. This is a key part of your job.
 
 4.  **Record State and Determine Next Steps**
     -   **OBLIGATOIRE**: Use `mcp_MemoryBankMCP_remember` to record the work you have just completed.
@@ -31,6 +31,8 @@ Performs critical repository maintenance. Your goal is not just to clean, but to
 -   This rule is a maintenance step. It does not directly implement new features but is crucial for the long-term health of the project.
 -   Be conservative when deleting files. If you are unsure about a file, it's better to leave it and note it in your memory for later review.
 -   The context file rewrites should be comprehensive. Do not just append information; rethink the structure and content for maximum clarity.
+-   Be ruthlessly conservative when deleting files. If you are unsure about a file, it's better to leave it and document the uncertainty in your commit and memory.
+-   The context file rewrites should be comprehensive and critical. Do not just append information; rethink the structure and content for maximum clarity and brutal honesty. Your goal is to make the context files as useful as possible for a developer who has never seen the project before.
 
 ## Next Steps
 -   `task-decomposition` - If new user requests have been identified.
@@ -95,29 +97,32 @@ I begin by analyzing all the context provided by the server. **(Context-update: 
 **(Context-update: 1 - Analyze available context)**
 
 # Context-update: 2 & 3 - Context update and cleanup
+<think>I will now critically review the context files. I'm looking for anything that's outdated, vague, or just plain wrong. My goal is to make these documents as sharp and useful as possible. I'll also scan for any temp files that can be safely deleted.</think>
 I will formulate new content for context files if needed, ensuring they are clean and concise. **(Context-update: 2 & 3 - Context update and cleanup)**
 **(Context-update: 2 & 3 - Context update and cleanup)**
 
 # Context-update: 4 - Tasks update
+<think>Now I'll update the status of any completed tasks. This is a simple administrative step to keep the board clean.</think>
 I will mark completed tasks as DONE using the MCP task management tools. **(Context-update: 4 - Tasks update)**
 [...calling `mcp_MemoryBankMCP_update_task` for completed tasks...]
 **(Context-update: 4 - Tasks update)**
 
 # Context-update: 5 - Userbrief processing
+<think>Time to check if the user has given us any new instructions. I'll process the userbrief accordingly.</think>
 I will check for new user requests and update their status if needed using MCP tools. **(Context-update: 5 - Userbrief processing)**
 [...calling `mcp_MemoryBankMCP_read_userbrief` and `mcp_MemoryBankMCP_update_userbrief` as needed...]
 **(Context-update: 5 - Userbrief processing)**
 
 # Context-update: 6 - Making a commit
-I prepare and make a commit with the changes made using the MCP commit tool. **(Context-update: 6 - Making a commit)**
 <think>
-To construct the commit message, I will synthesize information from the provided context (activeContext, projectBrief, tasks, tests) to fill in the detailed markdown description for the `mcp_MemoryBankMCP_commit` tool.
+To construct the commit message, I will synthesize information from the provided context (activeContext, projectBrief, tasks, tests) to fill in the detailed markdown description for the `mcp_MemoryBankMCP_commit` tool. My commit message needs to be more than a log; it needs to be a critical summary of the maintenance performed, highlighting the *why* behind the changes.
 </think>
 [...gathering information from provided context and constructing the commit arguments...]\
 [...calling tool `mcp_MemoryBankMCP_commit`...]\
 **(Context-update: 6 - Making a commit)**
 
 # Context-update: 7 - Record state and determine next steps
+<think>My maintenance duties are complete. I will now use remember to document what I've done and to transition to the next logical step in the workflow.</think>
 I will now record the current state and let the remember tool determine the next appropriate steps. **(Context-update: 7 - Record state and determine next steps)**
 [...calling `mcp_MemoryBankMCP_remember` with current state and context updates...]
 **(Context-update: 7 - Record state and determine next steps)**

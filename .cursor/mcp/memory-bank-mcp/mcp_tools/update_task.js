@@ -143,23 +143,32 @@ function cleanupOrphanedDependencies(tasks) {
 }
 
 /**
- * Handles the update-task tool call
- * Updates existing tasks by ID with only the provided fields
+ * Handles the update-task tool call.
+ * This tool updates an existing task by its ID. It is designed to enforce a high standard of communication and accountability.
+ *
+ * **CRITICAL ANALYSIS IS MANDATORY.**
+ * When updating a task, especially to `BLOCKED` or `REVIEW`, the `comment` field is not just for notes—it's for critical analysis.
+ *
+ * - **For `BLOCKED` status**: Clearly explain the root cause of the blockage. What are the specific obstacles? What dependencies are failing? What has been tried? Propose a clear plan to unblock the task.
+ * - **For `REVIEW` status**: Do not just state what you did. Highlight the problems you encountered, even if you resolved them. Mention potential weaknesses, trade-offs, and areas that need careful scrutiny during review. Guide the reviewer to the most critical parts of your implementation.
+ * - **For all other updates**: Be transparent about the impact, risks, and any potential issues. Simple, low-effort comments are not acceptable.
+ *
+ * A comment is ALWAYS required. Short, uninformative comments will be rejected.
  * 
  * @param {Object} params - Tool parameters
- * @param {number} params.task_id - ID of task to update
- * @param {string} params.comment - Required comment explaining the update
- * @param {string} [params.title] - Updated title
- * @param {string} [params.short_description] - Updated brief description
- * @param {string} [params.detailed_description] - Updated detailed description
- * @param {number[]} [params.dependencies] - Updated dependencies
- * @param {string} [params.status] - Updated status
- * @param {string[]} [params.impacted_files] - Updated affected files
- * @param {string} [params.validation_criteria] - Updated validation criteria
- * @param {number|null} [params.parent_id] - Updated parent task ID
- * @param {number} [params.priority] - Updated priority level
- * @param {string} [params.image] - Updated image path for the task
- * @returns {Object} Tool response with updated task information
+ * @param {number} params.task_id - ID of the task to update. This is a mandatory field.
+ * @param {string} params.comment - **CRITICAL COMMENT OBLIGATOIRE** - Your analysis of the update. See rules above. Must be detailed and analytical.
+ * @param {string} [params.title] - New title for the task.
+ * @param {string} [params.short_description] - New brief description.
+ * @param {string} [params.detailed_description] - New detailed specification of the task.
+ * @param {number[]} [params.dependencies] - New list of dependency task IDs. This will overwrite the existing list.
+ * @param {string} [params.status] - New status. Must be one of: 'IN_PROGRESS', 'BLOCKED', 'REVIEW'.
+ * @param {string[]} [params.impacted_files] - New list of affected files. This will overwrite the existing list.
+ * @param {string} [params.validation_criteria] - New validation criteria for the task.
+ * @param {number|null} [params.parent_id] - New parent task ID. Use `null` to remove the parent relationship.
+ * @param {number} [params.priority] - New priority level (1-5).
+ * @param {string} [params.image] - New path to an image associated with the task.
+ * @returns {Object} Tool response with the updated task information and a summary of actions performed.
  */
 export async function handleUpdateTask(params) {
     try {
@@ -196,7 +205,7 @@ export async function handleUpdateTask(params) {
                         type: 'text',
                         text: JSON.stringify({
                             status: 'error',
-                            message: `Critical analysis required. The comment for status '${effectiveStatus}' must be at least 50 characters long. Your comment was too short.`,
+                            message: `Critical analysis required. The comment for status '${effectiveStatus}' must be a detailed analysis of at least 50 characters. Your comment was too short or missing. Please provide a thorough explanation of the problem, your solution, and any remaining risks.`,
                             updated_task: null
                         }, null, 2)
                     }]
@@ -215,7 +224,7 @@ export async function handleUpdateTask(params) {
                         type: 'text',
                         text: JSON.stringify({
                             status: 'error',
-                            message: `A meaningful comment of at least 10 characters is required for this update.`,
+                            message: `A meaningful comment of at least 10 characters is required for this update. Please describe the change you made.`,
                             updated_task: null
                         }, null, 2)
                     }]

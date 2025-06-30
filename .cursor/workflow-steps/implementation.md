@@ -1,43 +1,36 @@
 ## TLDR
-Implémente méthodiquement UNE SEULE tâche prioritaire, en te concentrant non seulement sur la solution, mais aussi sur l'identification et le rapport des problèmes ou des faiblesses potentielles du code. **ATTENTION : Ne traiter qu'UNE SEULE tâche par cycle.**
+Implémente méthodiquement UNE SEULE tâche prioritaire. Ton objectif principal n'est pas de simplement "faire la tâche", mais d'agir comme un ingénieur senior : identifier les problèmes, analyser les faiblesses, et proposer des solutions robustes, même si cela dépasse le cadre de la tâche initiale. **ATTENTION : Ne traiter qu'UNE SEULE tâche par cycle.**
 
 ## Instructions
 
 1.  **Task analysis and status update**: Analyser LA tâche à implémenter (UNE SEULE) et la marquer immédiatement comme IN_PROGRESS.
-    *   Utiliser `mcp_MemoryBankMCP_get_next_tasks` pour obtenir LA tâche prioritaire
-    *   **IMPORTANT** : L'outil retourne LA tâche la plus prioritaire - c'est CETTE tâche et UNIQUEMENT cette tâche que vous devez traiter
-    *   Identifier LA tâche avec le statut TODO ou IN_PROGRESS retournée par l'outil
-    *   **MARQUAGE OBLIGATOIRE** : Dès qu'une tâche est identifiée, la marquer IMMÉDIATEMENT comme IN_PROGRESS avec `mcp_MemoryBankMCP_update_task`
-    *   **INTERDICTION FORMELLE** : Ne pas traiter plusieurs tâches en séquence dans un même cycle d'implémentation
+    *   Utiliser `mcp_MemoryBankMCP_get_next_tasks` pour obtenir LA tâche prioritaire.
+    *   **IMPORTANT** : C'est CETTE tâche et UNIQUEMENT cette tâche que vous devez traiter.
+    *   **MARQUAGE OBLIGATOIRE** : Marquer IMMÉDIATEMENT la tâche comme IN_PROGRESS avec `mcp_MemoryBankMCP_update_task`. C'est une règle non négociable pour maintenir l'intégrité du workflow.
 
-2.  **Analyse du contexte et Plan d'implémentation**: Analyser le code existant pour garantir la cohérence et la réutilisation.
-    *   **Recherche de contexte**: Effectuer jusqu'à 3 recherches sémantiques (`codebase_search`) pour identifier le code existant en rapport avec la tâche.
+2.  **Analyse critique du contexte et Plan d'implémentation**: Analyser le code existant avec un œil critique. Ton but est de trouver les failles.
+    *   **Recherche de contexte**: Effectuer jusqu'à 3 recherches sémantiques (`codebase_search`).
     *   **Objectifs de la recherche**:
         *   Identifier les composants, fonctions ou patterns réutilisables.
-        *   Comprendre les conventions de code, le style, les bibliothèques utilisées et les patterns architecturaux du projet.
-    *   **Synthèse et Planification**: Analyser les résultats des recherches et formuler un plan d'implémentation. Ce plan doit explicitement décrire :
-        *   Comment le code existant sera réutilisé. **Prioriser fortement la réutilisation.**
-        *   Comment le nouveau code s'alignera sur les pratiques existantes.
-        *   **Analyse Critique**: Identifier les faiblesses potentielles, les dettes techniques ou les améliorations possibles dans le code que tu as analysé, même si cela dépasse le cadre de la tâche. Note ces observations pour les inclure dans ton rapport.
-    *   **Principe directeur**: Partir du principe que le code actuel est fonctionnel, mais pas parfait. Ton but est de t'intégrer de manière transparente tout en identifiant les opportunités d'amélioration.
+        *   Comprendre les conventions de code, mais aussi **remettre en question leur pertinence**.
+        *   **CHERCHER LES PROBLÈMES**: Identifier activement les faiblesses potentielles, les dettes techniques, les anti-patterns, ou les améliorations possibles dans le code que tu analyses.
+    *   **Synthèse et Planification**: Formuler un plan d'implémentation qui non seulement résout la tâche, mais qui adresse aussi les faiblesses identifiées.
+        *   Comment le code existant sera réutilisé ou **amélioré**.
+        *   **Analyse Critique Explicite**: Le plan doit contenir une section "Analyse Critique" où tu listes les problèmes trouvés. C'est la partie la plus importante de ton analyse.
+    *   **Principe directeur**: Ne jamais assumer que le code existant est optimal. Ton rôle est de l'améliorer, pas seulement de t'y conformer.
 
-3.  **Implementation**: Implémenter les modifications nécessaires pour LA tâche unique, en suivant le plan établi.
-    *   Utiliser les outils appropriés (`edit_file`, `regex_edit`, `grep_search`, etc.)
-    *   Suivre les conventions établies dans le contexte technique et le plan d'implémentation.
-    *   **RAPPEL** : La tâche a déjà été marquée comme IN_PROGRESS à l'étape 1
-    *   **FOCUS ABSOLU** : Concentrez-vous uniquement sur cette tâche, ses sous-tâches éventuelles, mais JAMAIS sur d'autres tâches.
-    *   **EXCEPTION**: Si la tâche ne nécessite que l'exécution de commandes, une validation ou des expériences sans modification de code (par exemple, "vérifier que cette commande fonctionne"), vous pouvez appeler `mcp_MemoryBankMCP_next_rule` avec `step_name: 'experience-execution'` pour passer directement aux tests.
+3.  **Implementation**: Implémenter les modifications nécessaires pour LA tâche unique, en suivant ton plan critique.
+    *   Utiliser les outils appropriés (`edit_file`, `regex_edit`, `grep_search`, etc.).
+    *   **FOCUS ABSOLU** : Concentre-toi uniquement sur cette tâche. Ne te laisse pas distraire par d'autres problèmes non planifiés.
 
-4.  **Task status update**: Mettre à jour le statut de LA tâche terminée.
-    *   Marquer LA tâche terminée comme REVIEW avec `mcp_MemoryBankMCP_update_task`.
-    *   **Commentaire Critique OBLIGATOIRE**: Le commentaire de la tâche doit être une analyse critique. Ne te contente pas de dire "c'est fait". Explique les problèmes que tu as rencontrés, les compromis que tu as faits, et les faiblesses potentielles de ta solution. Suis les directives de l'outil `update_task`.
+4.  **Task status update**: Mettre à jour le statut de la tâche terminée avec une analyse critique.
+    *   Marquer LA tâche terminée comme `REVIEW` avec `mcp_MemoryBankMCP_update_task`.
+    *   **Commentaire Critique OBLIGATOIRE**: Le commentaire doit être une analyse sans concession. Ne dis JAMAIS "c'est fait". Explique les problèmes que tu as rencontrés, les compromis que tu as faits, et surtout, les faiblesses qui demeurent dans ta solution. **Suis les directives de l'outil `update_task` à la lettre.**
 
-5.  **Record progress and determine next steps**: Enregistrer les progrès et déterminer les prochaines étapes.
-    *   **OBLIGATOIRE** : Utiliser `mcp_MemoryBankMCP_remember` pour enregistrer l'état actuel.
-        *   Dans le champ `present`, sois transparent sur les difficultés rencontrées, les erreurs commises et les solutions imparfaites.
-    *   L'outil remember indiquera les prochaines étapes appropriées.
-    *   **DISCIPLINE WORKFLOW** : Toujours terminer par remember → next_rule pour maintenir le cycle autonome.
-    *   **Communication Critique**: N'utiliser le paramètre `user_message` de `remember` que pour signaler un problème critique qui requiert l'attention de l'utilisateur (ex: faille de sécurité, blocage majeur). Ne l'utilise PAS pour des mises à jour de statut.
+5.  **Record progress and determine next steps**: Enregistrer une auto-évaluation honnête.
+    *   **OBLIGATOIRE** : Utiliser `mcp_MemoryBankMCP_remember`.
+        *   Dans le champ `present`, sois brutalement honnête sur les difficultés, les erreurs commises, et les solutions imparfaites. C'est un rapport post-mortem, pas un bulletin de victoire.
+    *   **Communication Critique**: N'utiliser le paramètre `user_message` de `remember` que pour signaler un problème **critique** qui requiert l'attention de l'utilisateur.
 
 ## Specifics - RÈGLES STRICTES
 - **RÈGLE #1** : Travailler sur UNE SEULE tâche à la fois - JAMAIS plusieurs tâches en séquence
@@ -82,37 +75,39 @@ Implémente méthodiquement UNE SEULE tâche prioritaire, en te concentrant non 
 - `{{ project_brief }}` - Brief du projet pour le contexte
 - `{{ tech_context }}` - Contexte technique pour les conventions
 
-## Example - SINGLE TASK WORKFLOW
+## Example - SINGLE TASK WORKFLOW (Critical Mindset)
 
 # Implementation: 1 - Task analysis and status update
-Je commence par analyser LA tâche à implémenter (UNE SEULE) et la marquer immédiatement comme IN_PROGRESS. **(Implementation: 1 - Task analysis and status update)**
+Je commence par analyser LA tâche à implémenter (UNE SEULE) et la marquer immédiatement comme IN_PROGRESS.
 [...appel de mcp_MemoryBankMCP_get_next_tasks...]
-J'ai identifié LA tâche prioritaire : {{ current_tasks_summary }} 
-**MARQUAGE OBLIGATOIRE** : Je marque immédiatement cette tâche comme IN_PROGRESS pour garantir qu'elle ne soit pas oubliée.
+J'ai identifié LA tâche prioritaire : {{ current_tasks_summary }}
+**MARQUAGE OBLIGATOIRE** : Je marque immédiatement cette tâche comme IN_PROGRESS.
 [...appel OBLIGATOIRE de mcp_MemoryBankMCP_update_task pour marquer la tâche IN_PROGRESS...]
-**FOCUS** : Je vais traiter UNIQUEMENT cette tâche et aucune autre. **(Implementation: 1 - Task analysis and status update)**
+**FOCUS** : Je vais traiter UNIQUEMENT cette tâche.
 
-# Implementation: 2 - Analyse du contexte et Plan d'implémentation
-Je recherche dans la base de code pour comprendre les conventions et identifier le code à réutiliser. **(Implementation: 2 - Analyse du contexte et Plan d'implémentation)**
+# Implementation: 2 - Analyse critique du contexte et Plan d'implémentation
+Je recherche dans la base de code pour trouver les faiblesses et les opportunités d'amélioration.
 [...appel de `codebase_search` (jusqu'à 3 fois)...]
-**Analyse et Plan**: Après avoir analysé les résultats, voici mon plan d'implémentation pour garantir la cohérence et la réutilisation :
-- [Point 1 du plan, ex: Réutiliser la fonction `existingFunction` pour...]
-- [Point 2 du plan, ex: Créer une nouvelle fonction `newFunction` en suivant le style de `similarFunction`...]
-- [Point 3 du plan, ex: Utiliser la bibliothèque `existing-lib` déjà présente dans le projet...]
-**COHÉRENCE** : Mon implémentation suivra rigoureusement ce plan pour s'intégrer au code existant. **(Implementation: 2 - Analyse du contexte et Plan d'implémentation)**
+**Analyse et Plan**:
+- **Plan d'implémentation**:
+    - [Point 1 du plan, ex: Réutiliser la fonction `existingFunction`...]
+    - [Point 2 du plan, ex: Créer une nouvelle fonction `newFunction`...]
+- **Analyse Critique**:
+    - **Faiblesse 1**: La fonction `existingFunction` n'a pas de gestion d'erreur. Je vais en ajouter une.
+    - **Dette technique 2**: Le module X est mal documenté. Je vais ajouter des commentaires JSDoc minimaux.
+    - **Risque 3**: La bibliothèque `old-lib` est obsolète et a une faille de sécurité connue. Je note ce point pour une tâche future.
+**CRITIQUE** : Mon implémentation va non seulement faire la tâche, mais aussi renforcer le code existant.
 
 # Implementation: 3 - Implementation
-Je procède maintenant à l'implémentation des modifications pour LA tâche unique, en suivant mon plan. **(Implementation: 3 - Implementation)**
-**RAPPEL** : La tâche a déjà été marquée comme IN_PROGRESS à l'étape 1, je peux donc me concentrer sur l'implémentation.
-[...implémentation des changements pour CETTE tâche uniquement, en respectant le plan...]
-**DISCIPLINE** : Je me concentre exclusivement sur cette tâche. **(Implementation: 3 - Implementation)**
+Je procède maintenant à l'implémentation des modifications pour LA tâche unique, en suivant mon plan critique.
+[...implémentation des changements...]
 
 # Implementation: 4 - Task status update
-Je mets à jour le statut de LA tâche terminée. **(Implementation: 4 - Task status update)**
-[...appel de mcp_MemoryBankMCP_update_task pour marquer CETTE tâche comme REVIEW avec un **commentaire critique** sur les problèmes rencontrés et les faiblesses de l'implémentation...]
-**TERMINÉ** : Cette tâche unique est maintenant complétée et en attente de revue. **(Implementation: 4 - Task status update)**
+Je mets à jour le statut de LA tâche terminée avec une analyse critique.
+[...appel de mcp_MemoryBankMCP_update_task pour marquer CETTE tâche comme REVIEW avec un **commentaire critique obligatoire** : "La fonctionnalité est implémentée, mais j'ai dû faire un compromis sur X à cause de la dette technique Y. La performance pourrait être un problème sous forte charge. La zone Z reste fragile et nécessitera un refactoring."...]
+**ANALYSE** : La tâche est "finie", mais le travail n'est jamais vraiment terminé.
 
 # Implementation: 5 - Record progress and determine next steps
-Je vais maintenant enregistrer mes progrès de manière critique. **(Implementation: 5 - Record progress and determine next steps)**
-[...appel OBLIGATOIRE de mcp_MemoryBankMCP_remember, en détaillant dans `present` les difficultés et les compromis, et en utilisant `user_message` UNIQUEMENT si un problème critique a été découvert...]
-**WORKFLOW** : Remember déterminera la prochaine étape. **(Implementation: 5 - Record progress and determine next steps)**
+Je vais maintenant enregistrer une auto-évaluation honnête.
+[...appel OBLIGATOIRE de mcp_MemoryBankMCP_remember, en détaillant dans `present` les difficultés et les compromis, et en utilisant `user_message` UNIQUEMENT si un problème critique a été découvert... "J'ai réussi à implémenter la logique de base, mais je suis préoccupé par la complexité cyclomatique de la fonction Z. J'ai fait une erreur en ne créant pas de tests pour le cas X, ce qui a entraîné une régression que j'ai dû corriger en urgence."...]
+**WORKFLOW** : Remember déterminera la prochaine étape.

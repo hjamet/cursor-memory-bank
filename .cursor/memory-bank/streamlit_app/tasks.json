@@ -5048,7 +5048,7 @@
     "dependencies": [
       243
     ],
-    "status": "IN_PROGRESS",
+    "status": "REVIEW",
     "impacted_files": [
       "update_task.js",
       "remember.js",
@@ -5060,7 +5060,7 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) La documentation des outils update_task et remember encourage explicitement un point de vue critique, (2) Les règles workflow intègrent l'approche critique dans leurs instructions, (3) Les exemples reflètent cette nouvelle approche focalisée sur les problèmes, (4) L'agent produit des rapports critiques identifiant les dysfonctionnements et améliorations.",
     "created_date": "2025-06-30T14:43:56.708Z",
-    "updated_date": "2025-06-30T15:40:22.186Z",
+    "updated_date": "2025-06-30T15:57:20.171Z",
     "parent_id": null,
     "priority": 4,
     "image": null,
@@ -5115,10 +5115,15 @@
         "timestamp": "2025-06-30T15:40:22.186Z",
         "comment": "ok",
         "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-06-30T15:57:20.171Z",
+        "comment": "J'ai terminé la mise à jour de tous les fichiers de règles de workflow (`implementation.md`, `fix.md`, `task-decomposition.md`, `experience-execution.md`, `context-update.md`) ainsi que les JSDoc des outils `update_task.js` et `remember.js`. La documentation encourage maintenant un état d'esprit beaucoup plus critique, sceptique et analytique, en exigeant de l'agent qu'il ne se contente pas d'exécuter, mais qu'il remette en question, analyse les risques et documente ses raisonnements de manière approfondie. Le travail sur cette tâche est terminé et prêt pour la revue.",
+        "status_change": "REVIEW"
       }
     ],
-    "last_comment": "ok",
-    "last_comment_timestamp": "2025-06-30T15:40:22.186Z",
+    "last_comment": "J'ai terminé la mise à jour de tous les fichiers de règles de workflow (`implementation.md`, `fix.md`, `task-decomposition.md`, `experience-execution.md`, `context-update.md`) ainsi que les JSDoc des outils `update_task.js` et `remember.js`. La documentation encourage maintenant un état d'esprit beaucoup plus critique, sceptique et analytique, en exigeant de l'agent qu'il ne se contente pas d'exécuter, mais qu'il remette en question, analyse les risques et documente ses raisonnements de manière approfondie. Le travail sur cette tâche est terminé et prêt pour la revue.",
+    "last_comment_timestamp": "2025-06-30T15:57:20.171Z",
     "validation": {
       "approved_at": "2025-06-30T17:17:44.917138",
       "approved_by": "user_review"
@@ -5181,11 +5186,11 @@
     "short_description": "Le serveur MCP doit être redémarré pour que les modifications de l'outil `update_task.js` (validation de la longueur des commentaires) soient prises en compte et testées.",
     "detailed_description": "**Problème:** Les modifications apportées aux outils MCP (comme `update_task.js`) ne sont pas prises en compte sans un redémarrage du serveur MCP. Cela empêche la validation de nouvelles logiques, comme l'obligation d'avoir des commentaires de tâche critiques et détaillés.\\n\\n**Objectif:** Forcer une validation technique de la qualité des commentaires de tâche.\\n\\n**Étapes:**\\n1.  **Demander le redémarrage du serveur:** La première étape est de notifier l'utilisateur de la nécessité de redémarrer le serveur MCP pour que les modifications de l'outil `update_task.js` soient chargées.\\n2.  **Ré-appliquer la validation du commentaire:** Une fois le serveur redémarré, ré-appliquer le code de validation dans `update_task.js` qui impose une longueur minimale de 50 caractères pour les commentaires des tâches avec le statut `BLOCKED` ou `REVIEW`.\\n3.  **Tester la validation:** Exécuter un test pour confirmer que le serveur rejette bien les commentaires trop courts.\\n4.  **Finaliser:** Une fois la validation confirmée, cette tâche pourra être fermée.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [],
     "validation_criteria": "",
     "created_date": "2025-06-30T15:17:50.811Z",
-    "updated_date": "2025-06-30T15:52:32.448Z",
+    "updated_date": "2025-06-30T17:56:23.314163",
     "parent_id": null,
     "priority": 5,
     "image": null,
@@ -5245,7 +5250,7 @@
     "last_comment": "Le test de cette tâche obsolète est un succès formel. Il n'y avait rien à tester, car la tâche a été remplacée. Cette action est effectuée pour se conformer au protocole du workflow.",
     "last_comment_timestamp": "2025-06-30T15:52:32.448Z",
     "validation": {
-      "approved_at": "2025-06-30T17:45:37.140721",
+      "approved_at": "2025-06-30T17:56:23.306531",
       "approved_by": "user_review"
     }
   },
@@ -5271,11 +5276,11 @@
     "short_description": "Documenter l'analyse et la conclusion concernant la requête utilisateur #207 sur le remplacement de `terminal_cmd`.",
     "detailed_description": "La requête utilisateur #207 demandait le remplacement de l'outil `terminal_cmd` par `execute_command` dans tous les fichiers de règles du workflow. Une analyse approfondie des fichiers `.md` dans le répertoire `.cursor/workflow-steps/` a révélé que ces fichiers ne contiennent pas de références explicites et codées en dur aux noms des outils.\n\nLes règles sont écrites de manière générique (ex: \"Utiliser les outils appropriés (`edit_file`, `regex_edit`, etc.)\"), laissant l'interprétation et le choix de l'outil à l'agent LLM qui exécute le workflow.\n\nPar conséquent, il n'y a aucune modification de code à effectuer dans les fichiers de règles. La contrainte de ne pas utiliser `terminal_cmd` doit être appliquée au niveau de la configuration ou du prompt système de l'agent lui-même, ce qui est en dehors du périmètre de modification de ce repo.\n\nCette tâche a pour but de documenter cette analyse et de servir de justification pour la clôture de la requête utilisateur #207.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [],
     "validation_criteria": "",
     "created_date": "2025-06-30T15:51:30.910Z",
-    "updated_date": "2025-06-30T15:52:08.962Z",
+    "updated_date": "2025-06-30T17:56:12.090613",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -5293,7 +5298,11 @@
       }
     ],
     "last_comment": "Le test de cette tâche est un succès, car il s'agissait d'une tâche de documentation et d'analyse. L'analyse est terminée et documentée.",
-    "last_comment_timestamp": "2025-06-30T15:52:08.962Z"
+    "last_comment_timestamp": "2025-06-30T15:52:08.962Z",
+    "validation": {
+      "approved_at": "2025-06-30T17:56:11.981869",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 246,
