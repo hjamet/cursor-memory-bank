@@ -25,6 +25,13 @@ This step is particularly valuable after:
 
 ## Instructions
 
+⚠️ **CRITICAL ANTI-LOOP PROTECTION**: When a test is **SUCCESSFUL**, you MUST follow this exact sequence to prevent infinite loops:
+1. **FIRST**: Update task status to REVIEW using `mcp_MemoryBankMCP_update_task`
+2. **SECOND**: Create commit using `mcp_MemoryBankMCP_commit`  
+3. **THIRD**: Call remember using `mcp_MemoryBankMCP_remember`
+
+**NEVER** skip step 1 or change this order. The workflow depends on this sequence for proper loop prevention.
+
 1.  **Execute Manual Test**:
     - `<think>`
         - Based on the last implemented task, what is the most direct way to validate the changes?
@@ -44,10 +51,12 @@ This step is particularly valuable after:
 
     - **If the test was a SUCCESS**:
         - `<think>`
-            - The test succeeded. The associated task is now complete. I must mark it as 'REVIEW'.
+            - The test succeeded. The associated task is now complete. I MUST mark it as 'REVIEW' BEFORE doing anything else.
+            - ⚠️ CRITICAL: I must update the task status FIRST to prevent infinite loops.
         `</think>`
-        - **Call `mcp_MemoryBankMCP_update_task` to set the status of the related task to `REVIEW`.**
+        - **🚨 MANDATORY FIRST STEP: Call `mcp_MemoryBankMCP_update_task` to set the status of the related task to `REVIEW`. This MUST be done before any other action.**
         - `<think>`
+            - Now that the task is marked as REVIEW, I can proceed with the commit.
             - Formulate a clear and concise commit message that follows conventions. The message should summarize the changes that were just validated.
             - What is the correct emoji, type, title, and description for the commit?
         `</think>`
@@ -63,7 +72,7 @@ This step is particularly valuable after:
             - If NO, and there are more tasks, the next step is `implementation`.
             - If NO, and there are no more tasks, `context-update` is still appropriate.
         `</think>`
-        - Call `mcp_MemoryBankMCP_remember` to record the successful test and set the future step based on the evaluation above. **Utiliser l'argument `user_message` pour communiquer un résumé clair du succès de l'expérience à l'utilisateur, en incluant les résultats clés ou les métriques pertinentes (ex: "Expérience réussie: le test `npm test` a retourné 10/10 tests passés.").**
+        - **FINAL STEP: Call `mcp_MemoryBankMCP_remember` to record the successful test and set the future step based on the evaluation above. Utiliser l'argument `user_message` pour communiquer un résumé clair du succès de l'expérience à l'utilisateur, en incluant les résultats clés ou les métriques pertinentes (ex: "Expérience réussie: le test `npm test` a retourné 10/10 tests passés.").**
 
     - **If the test was a FAILURE**:
         - `<think>`
@@ -130,12 +139,14 @@ I will run the tests for the new authentication module.
 The test command finished successfully with all tests passing. The outcome is a **SUCCESS**.
 
 # Experience-Execution: 2 - Report Outcome & Next Steps
-<think>The test for task #42 succeeded. I will mark it as 'REVIEW'.</think>
+<think>The test for task #42 succeeded. I MUST mark it as 'REVIEW' BEFORE doing anything else. ⚠️ CRITICAL: I must update the task status FIRST to prevent infinite loops.</think>
+🚨 MANDATORY FIRST STEP: I'm marking task #42 as REVIEW before proceeding with any other action.
 [...calling `mcp_MemoryBankMCP_update_task` with task_id: 42, status: 'REVIEW'...]
-<think> The change adds the JWT feature. A good commit message would be `feat(auth): Implement JWT generation`. I'll use the ✨ emoji. The description will detail the new endpoint. </think>
+<think> Now that the task is marked as REVIEW, I can proceed with the commit. A good commit message would be `feat(auth): Implement JWT generation`. I'll use the ✨ emoji. The description will detail the new endpoint. </think>
 [...calling `mcp_MemoryBankMCP_commit` with emoji: '✨', type: 'feat', title: 'feat(auth): Implement JWT generation', description: '- Added /login endpoint to generate JWT...']
 <think> The commit was successful. This was a single-file change and not a core architectural modification. The change was not drastic. I see other tasks are pending. The next step should be `implementation`. </think>
-[...calling `mcp_MemoryBankMCP_remember` with PAST: "Successfully tested JWT generation", PRESENT: "Changes committed, task marked for review.", FUTURE: "Proceed to the next task in `implementation`.", user_message: "Expérience réussie : Les tests pour la génération JWT sont tous passés (12/12)." ...]
+FINAL STEP: Recording the successful test and determining next steps.
+[...calling `mcp_MemoryBankMCP_remember` with PAST: "Successfully tested JWT generation", PRESENT: "Task marked as REVIEW, changes committed", FUTURE: "Proceed to the next task in `implementation`.", user_message: "Expérience réussie : Les tests pour la génération JWT sont tous passés (12/12)." ...]
 
 ## Example (Successful Test, Drastic Change)
 
@@ -146,12 +157,14 @@ I will check the agent's memory logs.
 The logs show the agent correctly followed the new workflow path. The outcome is a **SUCCESS**.
 
 # Experience-Execution: 2 - Report Outcome & Next Steps
-<think>The test for the workflow refactoring (task #43) succeeded. I will mark it as 'REVIEW'.</think>
+<think>The test for the workflow refactoring (task #43) succeeded. I MUST mark it as 'REVIEW' BEFORE doing anything else. ⚠️ CRITICAL: I must update the task status FIRST to prevent infinite loops.</think>
+🚨 MANDATORY FIRST STEP: I'm marking task #43 as REVIEW before proceeding with any other action.
 [...calling `mcp_MemoryBankMCP_update_task` with task_id: 43, status: 'REVIEW'...]
-<think> The changes affected multiple core workflow files. This is a drastic architectural change. The commit message should reflect this. </think>
+<think> Now that the task is marked as REVIEW, I can proceed with the commit. The changes affected multiple core workflow files. This is a drastic architectural change. The commit message should reflect this. </think>
 [...calling `mcp_MemoryBankMCP_commit` with emoji: '♻️', type: 'refactor', title: 'refactor(workflow): Streamline agent decision logic', description: '- Refactored experience-execution.md and implementation.md...']
 <think> The commit was successful. Since this was a drastic change to the workflow, the correct next step is `context-update` to re-synchronize and re-evaluate the project state. </think>
-[...calling `mcp_MemoryBankMCP_remember` with PAST: "Successfully tested the refactored workflow", PRESENT: "Drastic changes committed, task marked for review", FUTURE: "Proceed to `context-update` for project re-synchronization.", user_message: "Expérience réussie : Le remaniement des règles de workflow a été validé. L'agent suit correctement le nouveau flux."...]
+FINAL STEP: Recording the successful test and determining next steps.
+[...calling `mcp_MemoryBankMCP_remember` with PAST: "Successfully tested the refactored workflow", PRESENT: "Task marked as REVIEW, drastic changes committed", FUTURE: "Proceed to `context-update` for project re-synchronization.", user_message: "Expérience réussie : Le remaniement des règles de workflow a été validé. L'agent suit correctement le nouveau flux."...]
 
 ## Example (Failed Test)
 
