@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 // Calculate dynamic path relative to the MCP server location
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const TASKS_FILE_PATH = path.join(__dirname, '..', '..', '..', 'memory-bank', 'streamlit_app', 'tasks.json');
+const TASKS_FILE_PATH = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'tasks.json');
 
 async function readTasks() {
     try {
@@ -22,6 +22,124 @@ async function readTasks() {
 
 async function writeTasks(tasks) {
     await fs.writeFile(TASKS_FILE_PATH, JSON.stringify(tasks, null, 2), 'utf-8');
+}
+
+/**
+ * Checks if all dependencies of a task are completed (DONE, REVIEW, or APPROVED)
+ * @param {Object} task - Task to check
+ * @param {Array} allTasks - All tasks in the system
+ * @returns {boolean} True if all dependencies are completed
+ */
+function areAllDependenciesCompleted(task, allTasks) {
+    if (!task.dependencies || task.dependencies.length === 0) {
+        return true;
+    }
+
+    const taskMap = new Map(allTasks.map(t => [t.id, t]));
+
+    return task.dependencies.every(depId => {
+        const depTask = taskMap.get(depId);
+        return depTask && (depTask.status === 'DONE' || depTask.status === 'REVIEW' || depTask.status === 'APPROVED');
+    });
+}
+
+/**
+ * Finds and unblocks tasks that were waiting for the updated task
+ * @param {number} updatedTaskId - ID of the task that was just updated
+ * @param {Array} tasks - All tasks in the system
+ * @returns {Array} Array of unblocked task IDs
+ */
+function checkAndUnblockDependentTasks(updatedTaskId, tasks) {
+    const unblockedTasks = [];
+
+    tasks.forEach(task => {
+        // Skip if task is already completed or doesn't have dependencies
+        if (task.status === 'DONE' || task.status === 'REVIEW' || task.status === 'APPROVED' ||
+            !task.dependencies || task.dependencies.length === 0) {
+            return;
+        }
+
+        // Check if this task depends on the updated task and is currently blocked
+        if (task.status === 'BLOCKED' && task.dependencies.includes(updatedTaskId)) {
+            // Check if all dependencies are now completed
+            if (areAllDependenciesCompleted(task, tasks)) {
+                task.status = 'TODO';
+                task.updated_date = new Date().toISOString();
+
+                // Add automatic unblocking comment
+                const unblockedComment = {
+                    timestamp: new Date().toISOString(),
+                    comment: `Task automatically unblocked: all dependencies are now completed (including task ${updatedTaskId})`,
+                    status_change: 'TODO'
+                };
+
+                task.comments = task.comments || [];
+                task.comments.push(unblockedComment);
+                task.last_comment = unblockedComment.comment;
+                task.last_comment_timestamp = unblockedComment.timestamp;
+
+                unblockedTasks.push(task.id);
+            }
+        }
+    });
+
+    return unblockedTasks;
+}
+
+/**
+ * Removes dependencies to non-existent tasks (orphaned dependencies)
+ * @param {Array} tasks - All tasks in the system
+ * @returns {Array} Array of task IDs that had orphaned dependencies cleaned up
+ */
+function cleanupOrphanedDependencies(tasks) {
+    const taskIds = new Set(tasks.map(t => t.id));
+    const cleanedUpTasks = [];
+
+    tasks.forEach(task => {
+        if (!task.dependencies || task.dependencies.length === 0) {
+            return;
+        }
+
+        const originalDependencies = [...task.dependencies];
+        const validDependencies = task.dependencies.filter(depId => taskIds.has(depId));
+
+        if (validDependencies.length !== originalDependencies.length) {
+            const removedDependencies = originalDependencies.filter(depId => !taskIds.has(depId));
+            task.dependencies = validDependencies;
+            task.updated_date = new Date().toISOString();
+
+            // Add cleanup comment
+            const cleanupComment = {
+                timestamp: new Date().toISOString(),
+                comment: `Orphaned dependencies automatically removed: tasks ${removedDependencies.join(', ')} no longer exist`,
+                status_change: task.status
+            };
+
+            task.comments = task.comments || [];
+            task.comments.push(cleanupComment);
+            task.last_comment = cleanupComment.comment;
+            task.last_comment_timestamp = cleanupComment.timestamp;
+
+            cleanedUpTasks.push(task.id);
+
+            // If task was blocked and now has no dependencies or all dependencies are completed, unblock it
+            if (task.status === 'BLOCKED' && areAllDependenciesCompleted(task, tasks)) {
+                task.status = 'TODO';
+
+                const unblockedComment = {
+                    timestamp: new Date().toISOString(),
+                    comment: 'Task automatically unblocked after orphaned dependency cleanup',
+                    status_change: 'TODO'
+                };
+
+                task.comments.push(unblockedComment);
+                task.last_comment = unblockedComment.comment;
+                task.last_comment_timestamp = unblockedComment.timestamp;
+            }
+        }
+    });
+
+    return cleanedUpTasks;
 }
 
 /**
@@ -120,6 +238,19 @@ export async function handleUpdateTask(params) {
         };
 
         tasks[taskIndex] = updatedTask;
+
+        // Automatic dependency management when task status changes to REVIEW or DONE
+        let unblockedTasks = [];
+        let cleanedUpTasks = [];
+
+        if (updates.status && (updates.status === 'REVIEW' || updates.status === 'DONE')) {
+            // First, clean up orphaned dependencies across all tasks
+            cleanedUpTasks = cleanupOrphanedDependencies(tasks);
+
+            // Then, check and unblock tasks that were waiting for this task
+            unblockedTasks = checkAndUnblockDependentTasks(task_id, tasks);
+        }
+
         await writeTasks(tasks);
 
         // Prepare success response
@@ -141,6 +272,11 @@ export async function handleUpdateTask(params) {
                 is_subtask: updatedTask.parent_id !== null,
                 priority_level: updatedTask.priority,
                 status_changed: existingTask.status !== updatedTask.status
+            },
+            automatic_actions: {
+                unblocked_tasks: unblockedTasks,
+                cleaned_up_tasks: cleanedUpTasks,
+                total_affected_tasks: unblockedTasks.length + cleanedUpTasks.length
             }
         };
 

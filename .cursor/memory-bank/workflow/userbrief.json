@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 203,
+  "last_id": 205,
   "requests": [
     {
       "id": 156,
@@ -764,6 +764,44 @@
         },
         {
           "timestamp": "2025-06-30T11:42:59.283Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 204,
+      "content": "Euh, il y a un bug Dans le serveur mcp, en particulier lorsque. Euh, dans le système de prioritarisation des tâches à faire, le système de dépendance a un souci Il apparaît que lorsque une tâche est dépendante d'une autre tâche, imaginons que la tâche a est dépendante de la tâche B même une fois que la tâche a été mise en review ou en donne et bien la tâche B n'est pas débloquée. Elle semble en tout cas dans l'interface streaming. Mais je j'ai l'impression que c'est aussi le cas dans le système MCP et ce qui est renvoyé à à OLLM pour implémentation la tâche B n'est pas débloquée et du coup bah le le LLM ne peut pas la traiter. Donc je pense que il y a un souci là-dessus. Qu'il faudrait que tu corriges, je sais pas exactement à quoi c'est dû. J'ai l'impression que c'est le fait que la tâche enfin en fait, c'est vraiment le fait que la tâche a soit en mise en review donne ça ne débloque pas la tâche B. Ce qui est assez anormal. Et puis en fait, de manière générale, il devrait jamais y avoir une situation où. Tâche dépend d'une autre tâche qui n'existe plus, sinon ça veut dire que bah elle est bloquée. Donc si ce système est repéré à n'importe quel moment, la dépendance doit automatiquement être enlevée pour éviter le blocage parce que c'est vraiment pas normal Je te laisse du coup étudier et corriger ça.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-30T16:38:54.031517",
+      "updated_at": "2025-06-30T14:43:29.921Z",
+      "history": [
+        {
+          "timestamp": "2025-06-30T16:38:54.031517",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-30T14:43:29.921Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 205,
+      "content": "Alors une modification des règles des fichiers markdown des règles à effectuer en priorité Et non seulement de de des fichiers markdown des règles, mais en fait, surtout pardon des De la documentation des arguments, des outils du serveur MCP Memory Bank, MCP En fait, les arguments comment Pour l'outil update Task. Et l'argument User message. De l'outil remember Il faudrait que l'agent soit beaucoup plus critique dans les messages qu'il fasse au lieu d'être tout le temps positif, de dire que tout va bien, il doit au contraire se concentrer sur les éléments qui ne vont pas. Donc tu dois vraiment lui expliquer que dans sa dans sa son rapport, il doit dire ce qu'il a fait et il doit uniquement se concentrer sur les éléments qui ont un problème sur les soucis qui n'ont pas été réglés sur les choses qui pourraient être améliorées. Il doit adopter un point de vue critique. Heu. C'est, c'est vraiment important. Voilà qu'il ait ce point de vue critique. Donc, insiste là dessus parce qu'actuellement il me fait que des messages super positifs en me disant tout va bien, tout va bien alors qu'en fait il y a des problèmes derrière et au contraire moi je veux savoir les problèmes, je veux savoir ce qui ne va pas. Je veux savoir les soucis, ce genre de choses.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-30T16:41:43.529724",
+      "updated_at": "2025-06-30T14:44:03.206Z",
+      "history": [
+        {
+          "timestamp": "2025-06-30T16:41:43.529724",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-30T14:44:03.206Z",
           "action": "mark_archived"
         }
       ]

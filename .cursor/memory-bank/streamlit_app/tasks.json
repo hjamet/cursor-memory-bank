@@ -4985,5 +4985,64 @@
       "approved_at": "2025-06-30T13:59:48.168495",
       "approved_by": "user_review"
     }
+  },
+  {
+    "id": 239,
+    "title": "Corriger le système de déblocage des dépendances de tâches",
+    "short_description": "Résoudre le bug critique où les tâches dépendantes ne se débloquent pas automatiquement lorsque leurs dépendances passent en statut REVIEW ou DONE, causant des blocages permanents dans le workflow.",
+    "detailed_description": "**Problème identifié :**\nLe système de gestion des dépendances de tâches présente un dysfonctionnement critique : lorsqu'une tâche A dépend d'une tâche B, la tâche A reste bloquée même après que la tâche B soit passée en statut REVIEW ou DONE. Ce problème affecte à la fois l'interface Streamlit et le système MCP Memory Bank, empêchant l'agent de traiter les tâches débloquées.\n\n**Analyse technique requise :**\n- Examiner la logique de déblocage des dépendances dans le serveur MCP Memory Bank\n- Identifier pourquoi les tâches avec dépendances résolues (REVIEW/DONE) ne passent pas automatiquement de BLOCKED à TODO\n- Vérifier la cohérence entre l'interface Streamlit et les données MCP\n- Analyser la fonction `get_next_tasks` pour s'assurer qu'elle filtre correctement les tâches disponibles\n\n**Corrections à implémenter :**\n1. **Logique de déblocage automatique** : Modifier le système pour que les tâches passent automatiquement de BLOCKED à TODO quand toutes leurs dépendances sont en statut REVIEW ou DONE\n2. **Nettoyage des dépendances orphelines** : Implémenter un mécanisme de détection et suppression automatique des dépendances vers des tâches inexistantes\n3. **Validation des dépendances** : Ajouter des contrôles pour prévenir la création de dépendances vers des tâches qui n'existent pas\n4. **Synchronisation interface** : S'assurer que l'interface Streamlit reflète correctement l'état des tâches débloquées\n\n**Critères d'acceptation :**\n- Les tâches se débloquent automatiquement dès que leurs dépendances atteignent REVIEW ou DONE\n- Aucune dépendance orpheline ne peut exister dans le système\n- L'interface Streamlit affiche correctement l'état des tâches débloquées\n- Le système `get_next_tasks` retourne les tâches nouvellement débloquées\n- Tests de validation confirmant le bon fonctionnement du système de dépendances\n\n**Impact :**\nCette correction est critique pour le bon fonctionnement du workflow autonome et la productivité de l'agent.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      "get_next_tasks.js",
+      "update_task.js",
+      "create_task.js",
+      "task_utils.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) Les tâches se débloquent automatiquement dès que leurs dépendances passent en REVIEW/DONE, (2) Le système détecte et supprime automatiquement les dépendances orphelines, (3) L'interface Streamlit reflète correctement l'état des tâches, (4) Tests de validation réussis confirmant le bon fonctionnement du système de dépendances.",
+    "created_date": "2025-06-30T14:43:25.036Z",
+    "updated_date": "2025-06-30T14:51:23.457Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null,
+    "comments": [
+      {
+        "timestamp": "2025-06-30T14:44:46.819Z",
+        "comment": "Début de l'implémentation : analyse du bug critique dans le système de déblocage des dépendances de tâches. Le problème identifié est que les tâches dépendantes ne se débloquent pas automatiquement quand leurs dépendances passent en REVIEW/DONE, causant des blocages permanents dans le workflow. Je vais examiner les fichiers MCP concernés (get_next_tasks.js, update_task.js, create_task.js) pour identifier et corriger la logique défaillante.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-06-30T14:51:23.457Z",
+        "comment": "✅ **Système de déblocage automatique implémenté avec succès**\n\n**Fonctionnalités ajoutées :**\n- `areAllDependenciesCompleted()` : vérifie si toutes les dépendances d'une tâche sont complétées (DONE/REVIEW/APPROVED)\n- `checkAndUnblockDependentTasks()` : trouve et débloque automatiquement les tâches en attente quand leurs dépendances sont résolues\n- `cleanupOrphanedDependencies()` : supprime automatiquement les dépendances vers des tâches inexistantes\n- Intégration dans `handleUpdateTask()` pour déclencher le déblocage automatique quand une tâche passe en REVIEW ou DONE\n\n**Tests de validation réussis :**\n- ✅ Déblocage automatique d'une tâche simple (A→B)\n- ✅ Déblocage automatique d'une tâche multiple (A,B→C) \n- ✅ Nettoyage automatique des dépendances orphelines\n- ✅ Ajout de commentaires automatiques pour traçabilité\n\n**Problème résolu :** Les tâches dépendantes se débloquent maintenant automatiquement dès que leurs dépendances passent en statut REVIEW ou DONE, éliminant les blocages permanents dans le workflow autonome.\n\n**Fichiers modifiés :** `.cursor/mcp/memory-bank-mcp/mcp_tools/update_task.js`",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "✅ **Système de déblocage automatique implémenté avec succès**\n\n**Fonctionnalités ajoutées :**\n- `areAllDependenciesCompleted()` : vérifie si toutes les dépendances d'une tâche sont complétées (DONE/REVIEW/APPROVED)\n- `checkAndUnblockDependentTasks()` : trouve et débloque automatiquement les tâches en attente quand leurs dépendances sont résolues\n- `cleanupOrphanedDependencies()` : supprime automatiquement les dépendances vers des tâches inexistantes\n- Intégration dans `handleUpdateTask()` pour déclencher le déblocage automatique quand une tâche passe en REVIEW ou DONE\n\n**Tests de validation réussis :**\n- ✅ Déblocage automatique d'une tâche simple (A→B)\n- ✅ Déblocage automatique d'une tâche multiple (A,B→C) \n- ✅ Nettoyage automatique des dépendances orphelines\n- ✅ Ajout de commentaires automatiques pour traçabilité\n\n**Problème résolu :** Les tâches dépendantes se débloquent maintenant automatiquement dès que leurs dépendances passent en statut REVIEW ou DONE, éliminant les blocages permanents dans le workflow autonome.\n\n**Fichiers modifiés :** `.cursor/mcp/memory-bank-mcp/mcp_tools/update_task.js`",
+    "last_comment_timestamp": "2025-06-30T14:51:23.457Z"
+  },
+  {
+    "id": 240,
+    "title": "Modifier la documentation MCP pour encourager un point de vue critique",
+    "short_description": "Refactoriser la documentation des outils MCP Memory Bank (update_task, remember) et des règles workflow pour que l'agent adopte un point de vue critique au lieu d'être constamment positif, en se concentrant sur les problèmes et améliorations nécessaires.",
+    "detailed_description": "**Objectif de la modification :**\nL'utilisateur a identifié un problème comportemental critique : l'agent produit constamment des messages positifs (\"tout va bien\") alors qu'il devrait adopter une approche critique et signaler les problèmes, dysfonctionnements et améliorations nécessaires.\n\n**Éléments à modifier :**\n\n1. **Documentation de l'outil update_task** :\n   - Modifier le paramètre \"comment\" pour exiger une analyse critique\n   - Insister sur l'identification des problèmes rencontrés\n   - Demander de signaler les éléments qui ne fonctionnent pas correctement\n   - Encourager la mention des améliorations possibles\n\n2. **Documentation de l'outil remember** :\n   - Modifier le paramètre \"user_message\" pour privilégier les rapports critiques\n   - Exiger que l'agent se concentre sur les dysfonctionnements\n   - Demander de signaler les problèmes non résolus\n   - Insister sur l'identification des points d'amélioration\n\n3. **Règles workflow (fichiers .mdc)** :\n   - Mettre à jour les instructions pour adopter un état d'esprit critique\n   - Ajouter des directives explicites pour signaler les problèmes\n   - Modifier les exemples pour refléter cette approche critique\n   - Insister sur l'importance de la transparence sur les dysfonctionnements\n\n**Approche critique requise :**\n- **Focus sur les problèmes** : L'agent doit prioritairement signaler ce qui ne fonctionne pas\n- **Identification des dysfonctionnements** : Mettre en évidence les éléments défaillants\n- **Signalement des améliorations** : Proposer systématiquement des optimisations\n- **Transparence totale** : Ne jamais masquer les problèmes derrière une façade positive\n- **Analyse constructive** : Critiquer de manière constructive pour améliorer le système\n\n**Fichiers à modifier :**\n- `.cursor/mcp/memory-bank-mcp/tools/update_task.js` (documentation paramètre comment)\n- `.cursor/mcp/memory-bank-mcp/tools/remember.js` (documentation paramètre user_message)\n- Règles workflow dans `.cursor/rules/` et `.cursor/workflow-steps/`\n- Documentation des schémas MCP si nécessaire\n\n**Critères d'acceptation :**\n- La documentation encourage explicitement l'adoption d'un point de vue critique\n- Les paramètres des outils MCP exigent des rapports focalisés sur les problèmes\n- Les règles workflow intègrent cette approche critique\n- L'agent signale systématiquement les dysfonctionnements et améliorations possibles",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "update_task.js",
+      "remember.js",
+      "implementation.md",
+      "experience-execution.md",
+      "context-update.md",
+      "task-decomposition.md",
+      "fix.md"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) La documentation des outils update_task et remember encourage explicitement un point de vue critique, (2) Les règles workflow intègrent l'approche critique dans leurs instructions, (3) Les exemples reflètent cette nouvelle approche focalisée sur les problèmes, (4) L'agent produit des rapports critiques identifiant les dysfonctionnements et améliorations.",
+    "created_date": "2025-06-30T14:43:56.708Z",
+    "updated_date": "2025-06-30T14:43:56.708Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]
