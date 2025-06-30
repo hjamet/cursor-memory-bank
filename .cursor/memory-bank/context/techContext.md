@@ -5,7 +5,7 @@ This project is an autonomous AI agent operating within the Cursor IDE. Its prim
 
 ## Core Technologies
 - **AI Agent**: Custom-built agent running within Cursor IDE
-- **Workflow Engine**: Rule-based system using `.mdc` files that dictate agent behavior
+- **Workflow Engine**: Rule-based system using `.md` files that dictate agent behavior
 - **Memory System**: Custom "Memory Bank" for persistent state, tasks, and knowledge storage
 - **MCP Tooling**: Custom Model Context Protocol servers for system interactions
 - **Frontend**: Streamlit application for user interaction and monitoring
@@ -14,43 +14,34 @@ This project is an autonomous AI agent operating within the Cursor IDE. Its prim
 ## Architecture Overview
 
 ### Streamlit Application
-The primary user interface for the agent, located in `.cursor/streamlit_app/`:
-
-- **Main Entry Point**: `app.py` - Handles user request submission and task review with radio navigation
-- **Components**:
-  - `components/sidebar.py`: Centralized sidebar with auto-refresh, work queue counter, workflow step indicator, and clickable notification alerts with intelligent navigation
-  - `components/task_utils.py`: Helper functions for task/user brief manipulation, workflow state tracking, and notification counting
-  - `components/style_utils.py`: UI styling utilities
-- **Pages**:
-  - `pages/task_status.py`: Dashboard for viewing and tracking all tasks
-  - `pages/memory.py`: Interface for inspecting agent's recent memories
-- **Data Models**:
-  - `tasks.json`: Development tasks with status history tracking
-  - `userbrief.json`: User requests, decoupled from task management until conversion
+The primary user interface for the agent, located in `.cursor/streamlit_app/`.
 
 ### MCP Server Architecture
-
-#### MemoryBankMCP Server (`mcp_MemoryBankMCP_*`)
-Core server for agent state and workflow management:
-- **User Request Management**: `read_userbrief`, `update_userbrief`
-- **Task Management**: `create_task`, `update_task`, `get_all_tasks`, `get_next_tasks`
-- **Version Control**: `commit` for standardized Git commits with refactoring task deduplication
-- **Memory System**: `remember` for state recording, `next_rule` for workflow navigation with **critical loop prevention logic**
-
-#### ToolsMCP Server (`mcp_ToolsMCP_*`)
-System interaction server:
-- **Terminal Operations**: `execute_command`, `get_terminal_status`, `get_terminal_output` (enhanced with `from_beginning` parameter), `stop_terminal_command`
-- **Visual Processing**: `consult_image`, `take_webpage_screenshot`
-- **File Manipulation**: `regex_edit` for precise file modifications with enhanced MCP communication
+- **MemoryBankMCP Server (`mcp_MemoryBankMCP_*`)**: Core server for agent state and workflow management.
+- **ToolsMCP Server (`mcp_ToolsMCP_*`)**: System interaction server.
 
 ### Workflow System
-Located in `.cursor/workflow-steps/`:
-- **Autonomous Loop**: `start-workflow` → `next_rule` → `execute` → `remember` → repeat
-- **Step Types**: `task-decomposition`, `implementation`, `fix`, `context-update`, `experience-execution`
-- **Rule Files**: `.mdc` files in `.cursor/rules/` (e.g., `start.mdc`)
-- **Implementation Rule Enhancement**: The implementation rule has been refactored to guarantee systematic task marking as IN_PROGRESS at step 1, preventing task loss during transitions to experience-execution
-- **Critical Loop Prevention**: The `remember` tool now includes sophisticated logic to prevent infinite loops, especially the critical experience-execution → experience-execution transition
-- **Experience-Execution Rule Hardening**: The experience-execution rule itself has been enhanced with mandatory anti-loop protections, ensuring tasks are marked REVIEW before any remember call
+Located in `.cursor/workflow-steps/`, this system defines the agent's behavior through a series of rules and steps.
+
+## Known Issues & Workarounds
+
+### Workflow & Dependency Management
+- **Instability**: The workflow is prone to deadlocks and infinite loops, especially concerning task dependencies and `experience-execution` edge cases. The `remember` tool's logic for recommending the next step is not yet fully robust and has been a source of significant instability.
+- **Task State Management**: The implementation rule was recently refactored to enforce immediate `IN_PROGRESS` status marking to prevent task loss, but the overall system for tracking task state across complex workflows remains fragile.
+
+### MCP Server Management
+- **Tool Loading Inconsistency**: There is a critical, unresolved issue where the MCP server does not reliably load the latest version of tool files (e.g., `update_task.js`) after modification, even with a server restart. This makes debugging and implementing new features extremely difficult and unpredictable. All development on MCP tools is currently unreliable due to this issue.
+- **Comment Validation Failure**: A key feature designed to enforce critical feedback from the agent (by validating comment length in `update_task.js`) is currently inoperative due to the server's inability to load the updated tool code.
+- **Debug Logging**: Any non-JSON output from an MCP tool (e.g., `console.log`) will break the JSON-RPC communication and cause the tool to fail silently or crash the server.
+
+### Tool Reliability
+- **`edit_file` Instability**: Unreliable for large or complex changes. `regex_edit` should be preferred for precise modifications.
+
+## Dependencies & Requirements
+- **Node.js**: v18+ for MCP servers
+- **Python**: 3.8+ for Streamlit application
+- **Cursor IDE**: Latest version for agent execution
+- **Core MCP Dependencies**: `@modelcontextprotocol/sdk`, `zod`
 
 ## Installation & Configuration
 
@@ -154,45 +145,6 @@ Comprehensive bash script supporting:
 - **Streamlined User Experience**: Reduced friction in common workflows through intelligent defaults and automatic form management
 - **Task Comment System**: Implemented mandatory comment system for task status changes with structured storage and UI display integration
 - **Critical Bug Fixes**: Resolved UnboundLocalError in Streamlit UI validation system with improved robustness for legacy task data
-
-## Known Issues & Workarounds
-
-### Tool Reliability
-- **`edit_file` Instability**: Unreliable for large changes. Use `regex_edit` for precise modifications
-- **Binary File Handling**: Standard tools cannot delete binary files; use terminal commands instead
-
-### MCP Server Management
-- **Tool Discovery**: New tools require full Cursor IDE restart to appear
-- **Debug Logging**: Any non-JSON output breaks MCP communication
-- **Server Restart**: Modify `mcp.json` temporarily to force server restart
-- **Terminal Tools**: Enhanced tools require MCP server restart to activate new features
-- **Tool Loading Inconsistency**: There is a suspected issue where the MCP server does not reliably load the latest version of tool files, even after a restart. This can lead to unpredictable behavior and make debugging extremely difficult.
-
-### Development Practices
-- **MDC File Editing**: Rename to `.md`, edit, rename back to `.mdc` for Git tracking
-- **Memory Bank**: Automatic archive cleanup (50 max entries) prevents data bloat
-- **Pre-commit Hooks**: Warn on files >500 lines but don't block commits
-
-### Workflow & Dependency Management
-- **Dependency Logic**: The logic for resolving task dependencies is not functioning correctly, leading to workflow deadlocks. Tasks can remain blocked even when their dependencies are completed.
-
-## Dependencies & Requirements
-
-### Runtime Requirements
-- **Cursor IDE**: Latest version for agent execution
-- **Node.js**: v18+ for MCP servers
-- **Python**: 3.8+ for Streamlit application
-- **Git**: For version control and installation (optional with curl fallback)
-
-### MCP Server Dependencies
-- **Core**: `@modelcontextprotocol/sdk`
-- **Validation**: `zod` for schema validation
-- **Visual Tools**: `puppeteer`, `sharp` for image processing
-- **Web Framework**: `express`, `cors`, `express-rate-limit`
-
-### Installation Tools
-- **Required**: `bash`, `curl` or `git`
-- **Optional**: `jq` for JSON processing, `npm` for dependency installation
 
 ## Performance & Maintenance
 
