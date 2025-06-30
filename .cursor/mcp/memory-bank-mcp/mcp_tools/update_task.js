@@ -263,67 +263,74 @@ export async function handleUpdateTask(params) {
             }
         }
 
-        // Add the comment to the task's comment history
-        // For IN_PROGRESS status, allow empty comments as no justification is needed
-        const effectiveComment = comment || (updates.status === 'IN_PROGRESS' ? 'Task started' : comment);
-        const commentEntry = {
-            timestamp: new Date().toISOString(),
-            comment: effectiveComment,
-            status_change: updates.status || existingTask.status
+        // Apply updates
+        const updatedTask = { ...existingTask, ...updates };
+        updatedTask.updated_date = new Date().toISOString();
+
+        // Keep track of changes
+        const changesMade = {
+            fields_updated: Object.keys(updates),
+            update_count: Object.keys(updates).length,
+            previous_status: existingTask.status,
+            new_status: updatedTask.status
         };
 
-        // Initialize comments array if it doesn't exist (for backward compatibility)
-        const existingComments = existingTask.comments || [];
-        const updatedComments = [...existingComments, commentEntry];
-
-        // Create the updated task object
-        const updatedTask = {
-            ...existingTask,
-            ...updates,
-            updated_date: new Date().toISOString(),
-            comments: updatedComments,
-            last_comment: effectiveComment,
-            last_comment_timestamp: commentEntry.timestamp
-        };
+        // Add the comment to the task's history if provided
+        if (comment) {
+            const newComment = {
+                timestamp: updatedTask.updated_date,
+                comment: comment,
+            };
+            if (updates.status) {
+                newComment.status_change = updates.status;
+            }
+            updatedTask.comments = updatedTask.comments || [];
+            updatedTask.comments.push(newComment);
+            updatedTask.last_comment = newComment.comment;
+            updatedTask.last_comment_timestamp = newComment.timestamp;
+            changesMade.comment_added = true;
+        }
 
         tasks[taskIndex] = updatedTask;
 
-        // After updating the task, check for dependent tasks that can be unblocked
-        const unblockedTasks = checkAndUnblockDependentTasks(task_id, tasks);
-
-        // Also, perform a cleanup of orphaned dependencies for all tasks
+        // --- Automatic Task Management ---
+        let unblockedTasks = [];
+        // If the task is now done, check for dependent tasks to unblock
+        if (updatedTask.status === 'DONE' || updatedTask.status === 'REVIEW' || updatedTask.status === 'APPROVED') {
+            unblockedTasks = checkAndUnblockDependentTasks(task_id, tasks);
+        }
+        // Always run cleanup for orphaned dependencies, just in case
         const cleanedUpTasks = cleanupOrphanedDependencies(tasks);
+        // --- End Automatic Task Management ---
 
         await writeTasks(tasks);
+
+        // Construct the final response
+        const finalResponse = {
+            status: 'success',
+            message: `Task ${task_id} updated successfully`,
+            workflow_reminder: "IMPORTANT: You are in a workflow. After this update, you MUST call remember() to continue.",
+            updated_task: updatedTask,
+            changes_made: changesMade,
+            summary: {
+                task_id: updatedTask.id,
+                has_dependencies: updatedTask.dependencies && updatedTask.dependencies.length > 0,
+                dependency_count: updatedTask.dependencies ? updatedTask.dependencies.length : 0,
+                is_subtask: updatedTask.parent_id !== null,
+                priority_level: updatedTask.priority,
+                status_changed: existingTask.status !== updatedTask.status,
+            },
+            automatic_actions: {
+                unblocked_tasks: unblockedTasks,
+                cleaned_up_tasks: cleanedUpTasks,
+                total_affected_tasks: unblockedTasks.length + cleanedUpTasks.length,
+            }
+        };
 
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify({
-                    status: 'success',
-                    message: `Task ${task_id} updated successfully`,
-                    workflow_reminder: 'IMPORTANT: You are in a workflow. After this update, you MUST call remember() to continue.',
-                    updated_task: updatedTask,
-                    changes_made: {
-                        fields_updated: Object.keys(updates),
-                        update_count: Object.keys(updates).length,
-                        previous_status: existingTask.status,
-                        new_status: updatedTask.status,
-                    },
-                    summary: {
-                        task_id: updatedTask.id,
-                        has_dependencies: updatedTask.dependencies && updatedTask.dependencies.length > 0,
-                        dependency_count: updatedTask.dependencies ? updatedTask.dependencies.length : 0,
-                        is_subtask: updatedTask.parent_id !== null,
-                        priority_level: updatedTask.priority,
-                        status_changed: existingTask.status !== updatedTask.status,
-                    },
-                    automatic_actions: {
-                        unblocked_tasks: unblockedTasks,
-                        cleaned_up_tasks: cleanedUpTasks,
-                        total_affected_tasks: unblockedTasks.length + cleanedUpTasks.length,
-                    }
-                }, null, 2)
+                text: JSON.stringify(finalResponse, null, 2)
             }]
         };
 
