@@ -25,19 +25,48 @@ Located in `.cursor/workflow-steps/`, this system defines the agent's behavior t
 - **Dynamic Tool Selection**: The workflow rules provide high-level goals. The agent dynamically selects the most appropriate tool from its toolkit at runtime to achieve these goals, rather than having tools hardcoded in the rules.
 - **Tool Usage Constraints**: To enforce specific tool usage patterns, explicit constraints (e.g., forbidding `run_terminal_cmd` in favor of `mcp_ToolsMCP_execute_command`) are added directly into the workflow rule files. This serves as a "soft" directive to the agent.
 
-## Known Issues & Workarounds
+## CRITICAL SYSTEM FAILURES & CONSTRAINTS
+
+### MCP Server Deployment Constraint (CRITICAL)
+**The most critical technical constraint affecting all development:**
+- **Manual Restart Required**: ALL modifications to MCP tool code (`.cursor/mcp/memory-bank-mcp/mcp_tools/*.js`) require manual Cursor restart to become effective
+- **Server Caching Issue**: MCP server caches tool code and does not reload changes automatically
+- **Development Impact**: Creates a gap between implementation success (direct Node.js testing) and deployment failure (MCP testing)
+- **Validation Pattern**: Code must be tested via: Implementation → Direct Testing → Manual Restart → MCP Testing → Final Validation
+
+### Validation System Breakdown (DISCOVERED VIA ADVERSARIAL AUDIT)
+**Complete absence of critical data validation systems:**
+
+#### 1. Duplicate Detection System
+- **Status**: Implemented but NOT ACTIVE due to MCP server caching
+- **Location**: `.cursor/mcp/memory-bank-mcp/mcp_tools/create_task.js`
+- **Algorithm**: Levenshtein distance with configurable thresholds (0.85/0.7/0.9)
+- **Problem**: Direct testing succeeds, MCP testing fails until server restart
+- **Impact**: System allows creation of tasks with identical titles
+
+#### 2. Circular Dependency Prevention
+- **Status**: Implemented but NOT ACTIVE due to MCP server caching
+- **Location**: `.cursor/mcp/memory-bank-mcp/mcp_tools/circular_dependency_validator.js`
+- **Algorithm**: DFS-based cycle detection with optimized performance
+- **Problem**: Direct testing succeeds, MCP testing fails until server restart
+- **Impact**: Tasks can be created with circular dependencies (A→B→A) that permanently block workflow
+
+#### 3. Data Integrity Issues
+- **Duplicate tasks.json files**: 
+  - Active: `.cursor/memory-bank/streamlit_app/tasks.json` (709KB, used by MCP)
+  - Vestige: `.cursor/memory-bank/workflow/tasks.json` (empty, unused)
+- **Statistical inconsistencies**: Task status counts don't match actual task states
+- **Corrupted test data**: System contains test tasks (#252, #253, #264, #265) with circular dependencies
 
 ### Workflow & Dependency Management
-- **Instability**: The workflow is prone to deadlocks and infinite loops, especially concerning task dependencies and `experience-execution` edge cases. The `remember` tool's logic for recommending the next step is not yet fully robust and has been a source of significant instability.
-- **Task State Management**: The implementation rule was recently refactored to enforce immediate `IN_PROGRESS` status marking to prevent task loss, but the overall system for tracking task state across complex workflows remains fragile.
+- **Infinite Loop Prevention**: Recent improvements have addressed some workflow infinite loops, but edge cases remain
+- **Task State Management**: Implementation rule enforces immediate `IN_PROGRESS` marking, but overall state tracking across complex workflows remains fragile
+- **Dependency Resolution**: Automatic unblocking system exists but may not handle all edge cases
 
-### MCP Server Management
-- **Tool Loading Inconsistency**: There is a critical, unresolved issue where the MCP server does not reliably load the latest version of tool files (e.g., `update_task.js`) after modification, even with a server restart. This makes debugging and implementing new features extremely difficult and unpredictable. All development on MCP tools is currently unreliable due to this issue.
-- **Comment Validation Failure**: A key feature designed to enforce critical feedback from the agent (by validating comment length in `update_task.js`) is currently inoperative due to the server's inability to load the updated tool code.
-- **Debug Logging**: Any non-JSON output from an MCP tool (e.g., `console.log`) will break the JSON-RPC communication and cause the tool to fail silently or crash the server.
-
-### Tool Reliability
-- **`edit_file` Instability**: Unreliable for large or complex changes. `regex_edit` should be preferred for precise modifications.
+### Tool Reliability Issues
+- **`edit_file` Instability**: Unreliable for large or complex changes. `regex_edit` should be preferred for precise modifications
+- **Debug Logging Constraint**: Any non-JSON output from MCP tools (e.g., `console.log`) breaks JSON-RPC communication and crashes the server
+- **Error Handling**: MCP tools fail silently in many cases, making debugging extremely difficult
 
 ## Dependencies & Requirements
 - **Node.js**: v18+ for MCP servers
@@ -63,7 +92,8 @@ Comprehensive bash script supporting:
 │   └── tools-mcp/          # System tools server (planned)
 ├── memory-bank/            # Persistent agent memory
 │   ├── context/            # Project context files
-│   └── workflow/           # Tasks and user requests
+│   └── workflow/           # Tasks and user requests (DEPRECATED)
+│   └── streamlit_app/      # ACTIVE data location
 ├── streamlit_app/          # User interface
 ├── workflow-steps/         # Workflow rule definitions
 ├── rules/                  # Cursor agent rules
@@ -71,102 +101,81 @@ Comprehensive bash script supporting:
 └── mcp.json               # MCP server configuration
 ```
 
-## Recent Enhancements
+## Recent Implementations (WITH CRITICAL CAVEATS)
 
-### Critical Workflow Loop Prevention (Latest)
-- **Remember Tool Logic Fix**: Implemented comprehensive logic to prevent infinite loops in the autonomous workflow
-  - **Core Problem Resolved**: The `remember` tool could incorrectly recommend `experience-execution` immediately after an `experience-execution` step, creating forbidden infinite loops
-  - **New getRecommendedNextStep Function**: Added sophisticated routing logic that explicitly forbids experience-execution → experience-execution transitions
-  - **Smart State-Based Routing**: 
-    - If task remains IN_PROGRESS after experience-execution → routes to `fix` for issue resolution
-    - If task is completed (no IN_PROGRESS) → routes to `context-update` or `task-decomposition` (if new requests exist)
-    - Preserves all other valid workflow transitions
-  - **Comprehensive Validation**: Created and executed validation script with 6 critical tests, all passing
-  - **Impact**: Eliminates the possibility of workflow infinite loops, ensuring robust autonomous operation
+### Duplicate Detection System (IMPLEMENTED BUT NOT ACTIVE)
+- **Implementation**: Complete Levenshtein-based duplicate detection in `create_task.js`
+- **Testing**: Direct Node.js tests pass perfectly
+- **MCP Status**: FAILS due to server caching - requires manual restart
+- **Performance**: O(k×n×m) complexity not tested under realistic load
+- **Limitations**: Server-side only, no Streamlit UI integration
 
-### Dependency System Enhancement (Latest)
-- **Automatic Task Unblocking**: Comprehensive implementation of automatic dependency resolution system to prevent permanent task blocking
-  - **Core Problem Resolved**: Tasks with dependencies were not automatically unblocked when their dependencies completed (REVIEW/DONE status), causing permanent workflow stalls
-  - **New Functions Implemented**:
-    - `areAllDependenciesCompleted()`: Validates completion status of all task dependencies
-    - `checkAndUnblockDependentTasks()`: Automatically finds and unblocks tasks waiting on completed dependencies
-    - `cleanupOrphanedDependencies()`: Removes dependencies to non-existent tasks to prevent permanent blocking
-  - **Integration**: Seamlessly integrated into `handleUpdateTask()` workflow for automatic triggering on task status changes
-  - **Validation**: Comprehensive testing with multiple scenarios (simple dependency, multiple dependencies, orphaned dependencies) - all tests passed
-  - **Impact**: Eliminates permanent task blocking in autonomous workflow, ensures smooth task progression without manual intervention
-  - **File Modified**: `.cursor/mcp/memory-bank-mcp/mcp_tools/update_task.js`
+### Circular Dependency Prevention (IMPLEMENTED BUT NOT ACTIVE)
+- **Implementation**: Complete DFS-based cycle detection with validator module
+- **Testing**: 12 tests pass, including performance validation on 1000 tasks
+- **MCP Status**: FAILS due to server caching - allows cycle creation (264↔265)
+- **Performance**: Sub-1000ms for large datasets in direct testing
+- **Integration**: Integrated into both create_task.js and update_task.js
 
-### Experience-Execution Rule Enhancement (In Review)
-- **Workflow Rule Hardening**: Comprehensive modifications to the experience-execution rule to prevent infinite loops at the rule level
-  - **Critical Anti-Loop Protection**: Added explicit "CRITICAL ANTI-LOOP PROTECTION" warning section at the top of instructions
-  - **Mandatory Sequence**: Made task status update to REVIEW mandatory BEFORE any other action (1. Update task → REVIEW, 2. Commit, 3. Remember)
-  - **Visual Warnings**: Added 🚨 MANDATORY FIRST STEP warnings throughout the rule to prevent oversight
-  - **Enhanced Examples**: Updated all examples to reflect the new mandatory sequence, ensuring consistent implementation
-  - **Think Block Improvements**: Enhanced `<think>` sections with critical reminders about loop prevention requirements
-  - **Architectural Impact**: This modification affects a core workflow file, providing double protection against infinite loops (remember tool + rule level)
-  - **Impact**: Guarantees that experience-execution steps always mark tasks as REVIEW before calling remember, preventing any possibility of rule-level infinite loops
+### Workflow Improvements (PARTIALLY EFFECTIVE)
+- **Remember Tool Logic**: Improved infinite loop prevention
+- **Implementation Rule**: Enhanced task marking requirements
+- **Experience-Execution Rule**: Added anti-loop protections
+- **Dependency System**: Automatic task unblocking on completion
 
-### ID Generation System Enhancement (In Review)
-- **Robust ID Generation**: Comprehensive improvements to prevent duplicate ID issues that cause StreamlitDuplicateElementKey errors
-  - **Enhanced create_task.js**: Added `generateUniqueTaskId()` function with collision detection, retry logic, and timestamp fallback
-  - **Enhanced userbrief_manager.js**: Added `generateUniqueRequestId()` and `validateUserbriefIntegrity()` functions for robust ID generation
-  - **Validation Functions**: Implemented `validateTaskIntegrity()` and `validateUserbriefIntegrity()` to detect and prevent duplicate IDs
-  - **Maintenance Tool**: Created `id_integrity_checker.js` utility for detecting and repairing duplicate IDs with automatic backup
-  - **Comprehensive Testing**: All validation tests passed, confirming protection against race conditions and ID collisions
-  - **Impact**: Resolves StreamlitDuplicateElementKey errors in client projects and ensures bulletproof ID generation system
-
-### Workflow Rule Improvements
-- **Implementation Rule Refactoring**: Major restructuring of the implementation workflow rule to guarantee systematic task marking
-  - Step 1 renamed: "Task analysis" → "Task analysis and status update"
-  - Mandatory IN_PROGRESS marking: Tasks must be marked immediately upon identification at step 1
-  - RULE #3 added: "MARQUER IMMÉDIATEMENT la tâche comme IN_PROGRESS dès l'étape 1 - AUCUNE EXCEPTION"
-  - Enhanced anti-drift warnings: Explicit prohibitions against forgetting task marking
-  - Updated example workflow: Reflects new process with systematic marking at step 1
-  - **Impact**: Eliminates task loss during transitions to experience-execution, ensures robust workflow consistency
-
-### Terminal Tools Improvements
-- **Enhanced get_terminal_output**: Added `from_beginning` parameter for flexible output reading
-  - Default mode: Incremental reading (only new output since last call)
-  - `from_beginning: true`: Complete output from process start
-- **Comprehensive Documentation**: Created `TERMINAL_TOOLS_GUIDE.md` with usage patterns and troubleshooting
-- **Backward Compatibility**: All existing functionality preserved with new optional parameters
-
-### Commit Tool Enhancements
-- **Refactoring Task Deduplication**: Automatic prevention of duplicate refactoring tasks for the same file
-- **Smart Task Management**: Added `refactoring_target_file` field for precise task identification
-- **Cleanup Logic**: Automatically removes existing refactoring tasks before creating new ones
-
-### User Interface Improvements
-- **Clickable Notification Indicator**: The red notification alert in the sidebar is now interactive, providing one-click navigation to the Review & Communication page with intelligent tab selection (Agent Messages prioritized over Tasks to Review)
-- **Form Field Management**: Fixed text area clearing issue in the Add Request tab - form fields now properly reset after successful submission, preventing accidental duplicate submissions
-- **Navigation Intelligence**: Implemented smart redirection logic that automatically opens the most relevant tab based on notification content
-- **Workflow Integrity**: Replaced the "Reactivate" button for archived requests with a feedback form. This prevents the old bug where reactivated requests would create duplicate tasks and cause workflow loops. The new system creates a new, distinct request for follow-up, preserving the integrity of the archive.
-
-### MCP Tool Enhancements
-- **Enhanced regex_edit Communication**: The regex_edit tool now returns properly structured MCP responses with detailed operation status, file information, change statistics, and error handling
-- **Improved Error Reporting**: Better structured error messages and success indicators for all MCP operations
-- **Streamlined User Experience**: Reduced friction in common workflows through intelligent defaults and automatic form management
-- **Task Comment System**: Implemented mandatory comment system for task status changes with structured storage and UI display integration
-- **Critical Bug Fixes**: Resolved UnboundLocalError in Streamlit UI validation system with improved robustness for legacy task data
+### User Interface Improvements (STABLE)
+- **Clickable Notifications**: Interactive alert system with smart navigation
+- **Form Management**: Fixed text area clearing issues
+- **Workflow Integrity**: Replaced problematic "Reactivate" button with feedback system
+- **Task Comment System**: Mandatory comments for status changes
 
 ## Performance & Maintenance
 
-### Automatic Cleanup
+### Automatic Cleanup (IMPLEMENTED)
 - **Python Cache**: `__pycache__` directories cleaned during maintenance
 - **MCP Logs**: Terminal logs and status files cleaned regularly
 - **Archive Management**: Automatic limitation of stored memories and tasks (50 max)
 - **Repository Maintenance**: Automated cleanup of temporary files during context updates
 
-### Monitoring
-- **Work Queue**: Real-time task and request counting in UI
-- **Workflow Visibility**: Current workflow step/rule displayed in sidebar for transparency
-- **Interactive Notification System**: Clickable red alert indicators for tasks requiring review and agent messages with smart navigation
+### Monitoring (UNRELIABLE)
+- **Work Queue**: Real-time task and request counting (may be inaccurate due to statistical inconsistencies)
+- **Workflow Visibility**: Current workflow step/rule displayed in sidebar
+- **Interactive Notification System**: Clickable red alert indicators
 - **Memory Usage**: Automatic semantic search and long-term memory management
-- **Error Handling**: Comprehensive error reporting through enhanced MCP tools
-- **Terminal Tools**: Comprehensive guide available for optimal usage patterns
+- **Error Handling**: Enhanced MCP tool error reporting (when tools don't fail silently)
 
-## Security Considerations
+## Security & Data Integrity Concerns
+
+### Data Integrity (COMPROMISED)
+- **Validation Gaps**: Critical validation systems not active in production
+- **Corrupted Data**: Test data with circular dependencies polluting production
+- **Statistical Unreliability**: Cannot trust system metrics for decision-making
+- **Duplicate Architecture**: Two conflicting data sources create confusion
+
+### Security Considerations (BASIC)
 - **File Access**: MCP servers operate within workspace boundaries
 - **Command Execution**: Terminal access limited to project directory
 - **Data Persistence**: User data preserved during updates and maintenance
-- **Tool Safety**: Enhanced validation and error handling in all MCP operations
+- **Tool Safety**: Enhanced validation exists but may not be active due to server caching
+
+## Development Workflow Constraints
+
+### Critical Development Pattern
+1. **Implementation**: Write code changes
+2. **Direct Testing**: Test via Node.js scripts (usually succeeds)
+3. **MCP Testing**: Test via MCP tools (often fails due to caching)
+4. **Manual Restart**: Restart Cursor to reload MCP server
+5. **Final Validation**: Re-test via MCP tools
+6. **Deployment**: Changes become effective only after restart
+
+### Known Failure Modes
+- **Silent MCP Failures**: Tools fail without clear error messages
+- **Caching Issues**: Server uses old code versions despite apparent restart
+- **Debug Logging Breaks**: Any console output crashes JSON-RPC communication
+- **Inconsistent State**: Direct tests pass while MCP tests fail
+
+## Realistic System Assessment
+
+The system demonstrates sophisticated autonomous capabilities but suffers from fundamental validation and deployment issues. The MCP server caching constraint creates a significant barrier to reliable development and testing. Critical validation systems exist but are not active in the production environment, creating a false sense of security.
+
+The architecture is sound, but the implementation requires significant work to address data integrity issues, deployment constraints, and validation gaps before it can be considered production-ready for autonomous operation.

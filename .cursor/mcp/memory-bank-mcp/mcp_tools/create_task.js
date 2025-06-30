@@ -2,6 +2,7 @@ import { z } from 'zod';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { validateNewTaskDependencies, formatCycleErrors } from './circular_dependency_validator.js';
 
 // Calculate dynamic path relative to the MCP server location
 const __filename = fileURLToPath(import.meta.url);
@@ -234,6 +235,32 @@ export async function handleCreateTask(params) {
                     }]
                 };
             }
+        }
+
+        // CRITICAL: Validate dependencies for circular references before creating
+        const circularValidation = validateNewTaskDependencies(tasks, params.dependencies);
+        if (!circularValidation.isValid) {
+            const taskMap = new Map(tasks.map(task => [task.id, task]));
+            const cycleErrors = formatCycleErrors(circularValidation.cycles, taskMap);
+
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        status: 'error',
+                        message: `Task creation blocked: ${circularValidation.error}`,
+                        circular_dependency_prevention: {
+                            reason: 'circular_dependency_detected',
+                            proposed_dependencies: circularValidation.proposedDependencies || params.dependencies,
+                            missing_dependencies: circularValidation.missingDependencies || [],
+                            detected_cycles: circularValidation.cycles,
+                            cycle_descriptions: cycleErrors,
+                            prevention_note: "This validation prevents the creation of tasks that would introduce circular dependencies, which could cause infinite loops in dependency resolution."
+                        },
+                        created_task: null
+                    }, null, 2)
+                }]
+            };
         }
 
         // Check for duplicate tasks before creating

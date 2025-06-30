@@ -982,15 +982,19 @@
     {
       "id": 215,
       "content": "Modification request for Task #261 (Test adversarial de duplication de tâches):\n\n**Original Task Details:**\n- **Title:** Test adversarial de duplication de tâches\n- **Description:** Deuxième tentative avec le même titre exact pour tester le blocage\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\nCette tâche a exactement le même titre que la tâche #260. Le système de détection de doublons devrait bloquer cette création avec un message d'erreur détaillé incluant les scores de similarité.\n\n**Validation Criteria:**\nNo validation criteria specified\n\n**User Feedback:**\nAttends, mais si t'as intégré cette modification au serveur mcp, c'est normal et que ça ne fonctionne pas puisque il faut un redémarrage de curseur et donc des des serveurs MCP chose que tu ne peux pas faire. Essaye plutôt de le faire avec un script, ça devrait suffire. Et puis sinon on verra ça au prochain redémarrage.\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-06-30T19:11:25.105670",
-      "updated_at": "2025-06-30T19:11:25.105670",
+      "updated_at": "2025-06-30T17:13:24.764Z",
       "history": [
         {
           "timestamp": "2025-06-30T19:11:25.105670",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-30T17:13:24.764Z",
+          "action": "mark_archived"
         }
       ]
     }

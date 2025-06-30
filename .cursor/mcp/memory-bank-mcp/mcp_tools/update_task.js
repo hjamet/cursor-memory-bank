@@ -2,6 +2,7 @@ import { z } from 'zod';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { validateReplacementDependencies, formatCycleErrors } from './circular_dependency_validator.js';
 
 // Calculate dynamic path relative to the MCP server location
 const __filename = fileURLToPath(import.meta.url);
@@ -225,6 +226,35 @@ export async function handleUpdateTask(params) {
                         text: JSON.stringify({
                             status: 'error',
                             message: `A meaningful comment of at least 10 characters is required for this update. Please describe the change you made.`,
+                            updated_task: null
+                        }, null, 2)
+                    }]
+                };
+            }
+        }
+
+        // CRITICAL: Validate dependencies for circular references if dependencies are being updated
+        if (updates.dependencies !== undefined) {
+            const circularValidation = validateReplacementDependencies(tasks, task_id, updates.dependencies);
+            if (!circularValidation.isValid) {
+                const taskMap = new Map(tasks.map(task => [task.id, task]));
+                const cycleErrors = formatCycleErrors(circularValidation.cycles, taskMap);
+
+                return {
+                    content: [{
+                        type: 'text',
+                        text: JSON.stringify({
+                            status: 'error',
+                            message: `Task update blocked: ${circularValidation.error}`,
+                            circular_dependency_prevention: {
+                                reason: 'circular_dependency_detected',
+                                task_id: task_id,
+                                current_dependencies: existingTask.dependencies || [],
+                                proposed_dependencies: updates.dependencies,
+                                detected_cycles: circularValidation.cycles,
+                                cycle_descriptions: cycleErrors,
+                                prevention_note: "This validation prevents updates that would introduce circular dependencies, which could cause infinite loops in dependency resolution."
+                            },
                             updated_task: null
                         }, null, 2)
                     }]
