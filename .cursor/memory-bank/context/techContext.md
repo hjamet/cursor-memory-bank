@@ -91,6 +91,18 @@ Comprehensive bash script supporting:
   - **Comprehensive Validation**: Created and executed validation script with 6 critical tests, all passing
   - **Impact**: Eliminates the possibility of workflow infinite loops, ensuring robust autonomous operation
 
+### Dependency System Enhancement (Latest)
+- **Automatic Task Unblocking**: Comprehensive implementation of automatic dependency resolution system to prevent permanent task blocking
+  - **Core Problem Resolved**: Tasks with dependencies were not automatically unblocked when their dependencies completed (REVIEW/DONE status), causing permanent workflow stalls
+  - **New Functions Implemented**:
+    - `areAllDependenciesCompleted()`: Validates completion status of all task dependencies
+    - `checkAndUnblockDependentTasks()`: Automatically finds and unblocks tasks waiting on completed dependencies
+    - `cleanupOrphanedDependencies()`: Removes dependencies to non-existent tasks to prevent permanent blocking
+  - **Integration**: Seamlessly integrated into `handleUpdateTask()` workflow for automatic triggering on task status changes
+  - **Validation**: Comprehensive testing with multiple scenarios (simple dependency, multiple dependencies, orphaned dependencies) - all tests passed
+  - **Impact**: Eliminates permanent task blocking in autonomous workflow, ensures smooth task progression without manual intervention
+  - **File Modified**: `.cursor/mcp/memory-bank-mcp/mcp_tools/update_task.js`
+
 ### Experience-Execution Rule Enhancement (In Review)
 - **Workflow Rule Hardening**: Comprehensive modifications to the experience-execution rule to prevent infinite loops at the rule level
   - **Critical Anti-Loop Protection**: Added explicit "CRITICAL ANTI-LOOP PROTECTION" warning section at the top of instructions

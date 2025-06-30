@@ -5044,5 +5044,48 @@
     "priority": 4,
     "image": null,
     "refactoring_target_file": null
+  },
+  {
+    "id": 241,
+    "title": "Tâche de test A - Dépendance principale",
+    "short_description": "Tâche de test pour valider le système de déblocage automatique des dépendances",
+    "detailed_description": "Cette tâche sert uniquement à tester le système de déblocage automatique des dépendances. Elle sera marquée comme terminée pour déclencher le déblocage de la tâche B qui en dépend.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-06-30T14:52:35.132Z",
+    "updated_date": "2025-06-30T14:52:50.286Z",
+    "parent_id": null,
+    "priority": 1,
+    "image": null,
+    "refactoring_target_file": null,
+    "comments": [
+      {
+        "timestamp": "2025-06-30T14:52:50.286Z",
+        "comment": "Tâche de test A terminée - doit déclencher le déblocage automatique de la tâche B",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Tâche de test A terminée - doit déclencher le déblocage automatique de la tâche B",
+    "last_comment_timestamp": "2025-06-30T14:52:50.286Z"
+  },
+  {
+    "id": 242,
+    "title": "Tâche de test B - Dépendante de A",
+    "short_description": "Tâche de test qui dépend de la tâche A pour valider le déblocage automatique",
+    "detailed_description": "Cette tâche dépend de la tâche A (ID 241) et doit être automatiquement débloquée quand A passe en REVIEW ou DONE. Elle sert à valider le bon fonctionnement du système de déblocage automatique des dépendances.",
+    "dependencies": [
+      241
+    ],
+    "status": "BLOCKED",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-06-30T14:52:43.203Z",
+    "updated_date": "2025-06-30T14:52:43.203Z",
+    "parent_id": null,
+    "priority": 1,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]
