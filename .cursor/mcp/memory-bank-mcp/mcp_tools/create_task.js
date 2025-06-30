@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { validateNewTaskDependencies, formatCycleErrors } from './circular_dependency_validator.js';
+import { validateCreateTask } from '../lib/task_crud_validator.js';
 
 // Calculate dynamic path relative to the MCP server location
 const __filename = fileURLToPath(import.meta.url);
@@ -220,114 +221,79 @@ export async function handleCreateTask(params) {
     try {
         const tasks = await readTasks();
 
-        // Validate parent task exists if parent_id is provided
-        if (params.parent_id) {
-            const parentTask = tasks.find(task => task.id === params.parent_id);
-            if (!parentTask) {
-                return {
-                    content: [{
-                        type: 'text',
-                        text: JSON.stringify({
-                            status: 'error',
-                            message: `Parent task with ID ${params.parent_id} not found`,
-                            created_task: null
-                        }, null, 2)
-                    }]
+        // CENTRALIZED CRUD VALIDATION - Replace all existing validations
+        const validationResult = validateCreateTask(params, tasks);
+
+        if (!validationResult.isValid) {
+            // Format errors for user-friendly response
+            const errorMessages = validationResult.errors.map(error => error.message).join('; ');
+            const errorDetails = {
+                validation_errors: validationResult.errors,
+                warnings: validationResult.warnings,
+                operation: validationResult.operation
+            };
+
+            // Check for specific error types to provide enhanced feedback
+            const hasCircularDependency = validationResult.errors.some(e => e.code === 'CIRCULAR_DEPENDENCY');
+            const hasDuplicateTitle = validationResult.errors.some(e => e.code === 'DUPLICATE_TITLE');
+            const hasSchemaError = validationResult.errors.some(e => e.type === 'SCHEMA_VALIDATION_ERROR');
+
+            if (hasCircularDependency) {
+                const circularError = validationResult.errors.find(e => e.code === 'CIRCULAR_DEPENDENCY');
+                errorDetails.circular_dependency_prevention = {
+                    reason: 'circular_dependency_detected',
+                    detected_cycles: circularError.details?.cycles || [],
+                    prevention_note: "This validation prevents the creation of tasks that would introduce circular dependencies."
                 };
             }
-        }
 
-        // CRITICAL: Validate dependencies for circular references before creating
-        const circularValidation = validateNewTaskDependencies(tasks, params.dependencies);
-        if (!circularValidation.isValid) {
-            const taskMap = new Map(tasks.map(task => [task.id, task]));
-            const cycleErrors = formatCycleErrors(circularValidation.cycles, taskMap);
+            if (hasDuplicateTitle) {
+                const duplicateError = validationResult.errors.find(e => e.code === 'DUPLICATE_TITLE');
+                errorDetails.duplicate_detection = {
+                    reason: 'identical_title',
+                    existing_task: duplicateError.details?.existingTask || null
+                };
+            }
 
             return {
                 content: [{
                     type: 'text',
                     text: JSON.stringify({
                         status: 'error',
-                        message: `Task creation blocked: ${circularValidation.error}`,
-                        circular_dependency_prevention: {
-                            reason: 'circular_dependency_detected',
-                            proposed_dependencies: circularValidation.proposedDependencies || params.dependencies,
-                            missing_dependencies: circularValidation.missingDependencies || [],
-                            detected_cycles: circularValidation.cycles,
-                            cycle_descriptions: cycleErrors,
-                            prevention_note: "This validation prevents the creation of tasks that would introduce circular dependencies, which could cause infinite loops in dependency resolution."
-                        },
+                        message: `Task creation blocked: ${errorMessages}`,
+                        ...errorDetails,
                         created_task: null
                     }, null, 2)
                 }]
             };
         }
 
-        // Check for duplicate tasks before creating
-        const duplicateCheck = checkForDuplicates(tasks, params.title, params.short_description);
-
-        if (duplicateCheck.hasDuplicates) {
-            // Critical duplicates (identical titles) are blocked
-            if (duplicateCheck.criticalDuplicates.length > 0) {
-                const criticalDupe = duplicateCheck.criticalDuplicates[0];
-                return {
-                    content: [{
-                        type: 'text',
-                        text: JSON.stringify({
-                            status: 'error',
-                            message: `Task creation blocked: A task with identical title already exists`,
-                            duplicate_detection: {
-                                reason: 'identical_title',
-                                existing_task: {
-                                    id: criticalDupe.task.id,
-                                    title: criticalDupe.task.title,
-                                    status: criticalDupe.task.status,
-                                    created_date: criticalDupe.task.created_date
-                                },
-                                similarity_scores: {
-                                    title: criticalDupe.titleSimilarity,
-                                    description: criticalDupe.descriptionSimilarity
-                                }
-                            },
-                            created_task: null
-                        }, null, 2)
-                    }]
-                };
-            }
-
-            // Warning duplicates are allowed but logged
-            if (duplicateCheck.warningDuplicates.length > 0) {
-                console.warn(`[CreateTask] Potential duplicate detected for task "${params.title}":`,
-                    duplicateCheck.warningDuplicates.map(d => ({
-                        existing_id: d.task.id,
-                        existing_title: d.task.title,
-                        title_similarity: d.titleSimilarity,
-                        description_similarity: d.descriptionSimilarity,
-                        reason: d.reason
-                    }))
-                );
-            }
+        // Log warnings if any (non-blocking issues)
+        if (validationResult.warnings.length > 0) {
+            console.warn(`[CreateTask] Validation warnings for task "${params.title}":`,
+                validationResult.warnings.map(w => w.message));
         }
 
         // Generate a new task ID with enhanced collision detection
         const newTaskId = generateUniqueTaskId(tasks);
 
-        // Create the new task object
+        // Create the new task object using normalized data from validation
+        const normalizedData = validationResult.normalizedData;
         const createdTask = {
             id: newTaskId,
-            title: params.title,
-            short_description: params.short_description,
-            detailed_description: params.detailed_description,
-            dependencies: params.dependencies || [],
-            status: params.status || 'TODO',
-            impacted_files: params.impacted_files || [],
-            validation_criteria: params.validation_criteria || '',
+            title: normalizedData.title,
+            short_description: normalizedData.short_description,
+            detailed_description: normalizedData.detailed_description,
+            dependencies: normalizedData.dependencies || [],
+            status: normalizedData.status || 'TODO',
+            impacted_files: normalizedData.impacted_files || [],
+            validation_criteria: normalizedData.validation_criteria || '',
             created_date: new Date().toISOString(),
             updated_date: new Date().toISOString(),
-            parent_id: params.parent_id || null,
-            priority: params.priority || 3,
-            image: params.image || null,
-            refactoring_target_file: params.refactoring_target_file || null
+            parent_id: normalizedData.parent_id || null,
+            priority: normalizedData.priority || 3,
+            image: normalizedData.image || null,
+            refactoring_target_file: normalizedData.refactoring_target_file || null
         };
 
         // Add the new task and validate integrity before saving

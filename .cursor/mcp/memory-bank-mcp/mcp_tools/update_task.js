@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { validateReplacementDependencies, formatCycleErrors } from './circular_dependency_validator.js';
+import { validateUpdateTask } from '../lib/task_crud_validator.js';
 
 // Calculate dynamic path relative to the MCP server location
 const __filename = fileURLToPath(import.meta.url);
@@ -233,68 +234,65 @@ export async function handleUpdateTask(params) {
             }
         }
 
-        // CRITICAL: Validate dependencies for circular references if dependencies are being updated
-        if (updates.dependencies !== undefined) {
-            const circularValidation = validateReplacementDependencies(tasks, task_id, updates.dependencies);
-            if (!circularValidation.isValid) {
-                const taskMap = new Map(tasks.map(task => [task.id, task]));
-                const cycleErrors = formatCycleErrors(circularValidation.cycles, taskMap);
+        // CENTRALIZED CRUD VALIDATION - Replace existing validations
+        const updateData = { task_id, ...updates };
+        const validationResult = validateUpdateTask(updateData, tasks);
 
-                return {
-                    content: [{
-                        type: 'text',
-                        text: JSON.stringify({
-                            status: 'error',
-                            message: `Task update blocked: ${circularValidation.error}`,
-                            circular_dependency_prevention: {
-                                reason: 'circular_dependency_detected',
-                                task_id: task_id,
-                                current_dependencies: existingTask.dependencies || [],
-                                proposed_dependencies: updates.dependencies,
-                                detected_cycles: circularValidation.cycles,
-                                cycle_descriptions: cycleErrors,
-                                prevention_note: "This validation prevents updates that would introduce circular dependencies, which could cause infinite loops in dependency resolution."
-                            },
-                            updated_task: null
-                        }, null, 2)
-                    }]
+        if (!validationResult.isValid) {
+            // Format errors for user-friendly response
+            const errorMessages = validationResult.errors.map(error => error.message).join('; ');
+            const errorDetails = {
+                validation_errors: validationResult.errors,
+                warnings: validationResult.warnings,
+                operation: validationResult.operation
+            };
+
+            // Check for specific error types to provide enhanced feedback
+            const hasCircularDependency = validationResult.errors.some(e => e.code === 'CIRCULAR_DEPENDENCY');
+            const hasParentError = validationResult.errors.some(e => e.code === 'INVALID_PARENT');
+
+            if (hasCircularDependency) {
+                const circularError = validationResult.errors.find(e => e.code === 'CIRCULAR_DEPENDENCY');
+                errorDetails.circular_dependency_prevention = {
+                    reason: 'circular_dependency_detected',
+                    task_id: task_id,
+                    current_dependencies: existingTask.dependencies || [],
+                    proposed_dependencies: updates.dependencies,
+                    detected_cycles: circularError.details?.cycles || [],
+                    prevention_note: "This validation prevents updates that would introduce circular dependencies."
                 };
             }
+
+            if (hasParentError) {
+                const parentError = validationResult.errors.find(e => e.code === 'INVALID_PARENT');
+                errorDetails.parent_validation = {
+                    reason: parentError.details?.reason || 'invalid_parent',
+                    proposed_parent_id: updates.parent_id
+                };
+            }
+
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        status: 'error',
+                        message: `Task update blocked: ${errorMessages}`,
+                        ...errorDetails,
+                        updated_task: null
+                    }, null, 2)
+                }]
+            };
         }
 
-        // Validate parent task exists if parent_id is being updated
-        if (updates.parent_id !== undefined && updates.parent_id !== null) {
-            const parentTask = tasks.find(task => task.id === updates.parent_id);
-            if (!parentTask) {
-                return {
-                    content: [{
-                        type: 'text',
-                        text: JSON.stringify({
-                            status: 'error',
-                            message: `Parent task with ID ${updates.parent_id} not found`,
-                            updated_task: null
-                        }, null, 2)
-                    }]
-                };
-            }
-
-            // Prevent setting self as parent
-            if (updates.parent_id === task_id) {
-                return {
-                    content: [{
-                        type: 'text',
-                        text: JSON.stringify({
-                            status: 'error',
-                            message: 'Task cannot be its own parent',
-                            updated_task: null
-                        }, null, 2)
-                    }]
-                };
-            }
+        // Log warnings if any (non-blocking issues)
+        if (validationResult.warnings.length > 0) {
+            console.warn(`[UpdateTask] Validation warnings for task ${task_id}:`,
+                validationResult.warnings.map(w => w.message));
         }
 
-        // Apply updates
-        const updatedTask = { ...existingTask, ...updates };
+        // Apply updates using normalized data from validation
+        const normalizedUpdates = validationResult.normalizedData || updates;
+        const updatedTask = { ...existingTask, ...normalizedUpdates };
         updatedTask.updated_date = new Date().toISOString();
 
         // Keep track of changes

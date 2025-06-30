@@ -408,16 +408,9 @@ async function loadUrgentTasks(context, limit = 3) {
             priority: task.priority
         }));
 
-        // Add task summary
-        const taskCounts = {
-            TODO: tasks.filter(t => t.status === 'TODO').length,
-            IN_PROGRESS: tasks.filter(t => t.status === 'IN_PROGRESS').length,
-            BLOCKED: tasks.filter(t => t.status === 'BLOCKED').length,
-            REVIEW: tasks.filter(t => t.status === 'REVIEW').length,
-            DONE: tasks.filter(t => t.status === 'DONE').length
-        };
-
-        context.current_tasks_summary = `Tasks: ${taskCounts.TODO} TODO, ${taskCounts.IN_PROGRESS} IN_PROGRESS, ${taskCounts.BLOCKED} BLOCKED, ${taskCounts.REVIEW} REVIEW, ${taskCounts.DONE} DONE`;
+        // Use centralized statistics calculation for consistency
+        const centralizedStats = await calculateTaskStatistics(tasks);
+        context.current_tasks_summary = centralizedStats.current_tasks_summary;
     } catch (error) {
         // Debug logging removed to prevent JSON-RPC pollution
         // console.warn(`Could not load urgent tasks: ${error.message}`);
@@ -443,16 +436,9 @@ async function loadCompleteTaskList(context) {
             priority: task.priority
         }));
 
-        // Add task summary
-        const taskCounts = {
-            TODO: tasks.filter(t => t.status === 'TODO').length,
-            IN_PROGRESS: tasks.filter(t => t.status === 'IN_PROGRESS').length,
-            BLOCKED: tasks.filter(t => t.status === 'BLOCKED').length,
-            REVIEW: tasks.filter(t => t.status === 'REVIEW').length,
-            DONE: tasks.filter(t => t.status === 'DONE').length
-        };
-
-        context.current_tasks_summary = `Tasks: ${taskCounts.TODO} TODO, ${taskCounts.IN_PROGRESS} IN_PROGRESS, ${taskCounts.BLOCKED} BLOCKED, ${taskCounts.REVIEW} REVIEW, ${taskCounts.DONE} DONE`;
+        // Use centralized statistics calculation for consistency
+        const centralizedStats = await calculateTaskStatistics(tasks);
+        context.current_tasks_summary = centralizedStats.current_tasks_summary;
     } catch (error) {
         // Debug logging removed to prevent JSON-RPC pollution
         // console.warn(`Could not load complete task list: ${error.message}`);
@@ -498,16 +484,9 @@ async function loadMostUrgentTask(context) {
             }
         }
 
-        // Add simplified task summary
-        const taskCounts = {
-            TODO: tasks.filter(t => t.status === 'TODO').length,
-            IN_PROGRESS: tasks.filter(t => t.status === 'IN_PROGRESS').length,
-            BLOCKED: tasks.filter(t => t.status === 'BLOCKED').length,
-            REVIEW: tasks.filter(t => t.status === 'REVIEW').length,
-            DONE: tasks.filter(t => t.status === 'DONE').length
-        };
-
-        context.current_tasks_summary = `Tasks: ${taskCounts.TODO} TODO, ${taskCounts.IN_PROGRESS} IN_PROGRESS, ${taskCounts.BLOCKED} BLOCKED, ${taskCounts.REVIEW} REVIEW, ${taskCounts.DONE} DONE`;
+        // Use centralized statistics calculation for consistency
+        const centralizedStats = await calculateTaskStatistics(tasks);
+        context.current_tasks_summary = centralizedStats.current_tasks_summary;
     } catch (error) {
         // Debug logging removed to prevent JSON-RPC pollution
         // console.warn(`Could not load most urgent task: ${error.message}`);

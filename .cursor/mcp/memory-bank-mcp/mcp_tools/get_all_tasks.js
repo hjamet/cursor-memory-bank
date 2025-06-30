@@ -2,6 +2,7 @@ import { z } from 'zod';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { calculateTaskStatistics, getTasksByCategory, STATUS_CATEGORIES } from '../lib/task_statistics.js';
 
 // Calculate dynamic path relative to the MCP server location
 const __filename = fileURLToPath(import.meta.url);
@@ -41,8 +42,10 @@ export async function handleGetAllTasks(params) {
 
         const tasksData = await readTasks();
 
-        // Filter out completed tasks
-        let filteredTasks = tasksData.filter(task => task.status !== 'DONE' && task.status !== 'APPROVED' && task.status !== 'REVIEW');
+        // Use centralized filtering logic - exclude completed tasks
+        const activeAndReviewTasks = await getTasksByCategory('ACTIVE', tasksData);
+        const pendingReviewTasks = await getTasksByCategory('PENDING_REVIEW', tasksData);
+        let filteredTasks = [...activeAndReviewTasks, ...pendingReviewTasks];
 
         // Sort tasks by status order, then priority
         filteredTasks.sort((a, b) => {
@@ -71,7 +74,7 @@ export async function handleGetAllTasks(params) {
                 });
                 baseTask.dependency_details = dependencyDetails;
                 baseTask.all_dependencies_completed = dependencyDetails.every(
-                    dep => dep.status === 'DONE' || dep.status === 'REVIEW' || dep.status === 'NOT_FOUND'
+                    dep => dep.status === 'DONE' || dep.status === 'APPROVED' || dep.status === 'REVIEW' || dep.status === 'NOT_FOUND'
                 );
             }
 
@@ -88,35 +91,36 @@ export async function handleGetAllTasks(params) {
             if (subtasks.length > 0) {
                 baseTask.subtasks = subtasks.map(sub => ({ id: sub.id, title: sub.title, status: sub.status }));
                 baseTask.subtask_count = subtasks.length;
-                baseTask.completed_subtasks = subtasks.filter(st => st.status === 'DONE' || st.status === 'REVIEW').length;
+                baseTask.completed_subtasks = subtasks.filter(st => st.status === 'DONE' || st.status === 'APPROVED' || st.status === 'REVIEW').length;
             }
 
             return baseTask;
         });
 
-        // Generate comprehensive statistics from the full unfiltered list
+        // Use centralized statistics calculation
+        const centralizedStats = await calculateTaskStatistics(tasksData);
+
+        // Generate comprehensive statistics with validation results
         const statistics = {
-            total_tasks: tasksData.length,
+            total_tasks: centralizedStats.total_tasks,
             tasks_returned: enhancedTasks.length,
-            status_breakdown: tasksData.reduce((acc, task) => {
-                acc[task.status] = (acc[task.status] || 0) + 1;
-                return acc;
-            }, {}),
-            priority_breakdown: tasksData.reduce((acc, task) => {
-                const priority = `Priority ${task.priority}`;
-                acc[priority] = (acc[priority] || 0) + 1;
-                return acc;
-            }, {}),
-            task_types: {
-                main_tasks: tasksData.filter(t => !t.parent_id).length,
-                subtasks: tasksData.filter(t => t.parent_id).length
-            },
+            status_breakdown: centralizedStats.status_breakdown,
+            category_totals: centralizedStats.category_totals,
+            priority_breakdown: centralizedStats.priority_breakdown,
+            task_types: centralizedStats.task_types,
+            dependency_analysis: centralizedStats.dependency_analysis,
             filters_applied: {
-                status_filter: "Excludes DONE, APPROVED, and REVIEW tasks",
+                status_filter: "Excludes DONE and APPROVED tasks (completed)",
                 priority_filter: null,
                 include_subtasks: true,
                 include_dependencies: true
-            }
+            },
+            data_validation: {
+                has_integrity_issues: centralizedStats.validation_results.hasErrors || centralizedStats.validation_results.hasWarnings,
+                validation_errors: centralizedStats.validation_results.errors,
+                validation_warnings: centralizedStats.validation_results.warnings
+            },
+            timestamp: centralizedStats.timestamp
         };
 
         const response = {
@@ -127,8 +131,9 @@ export async function handleGetAllTasks(params) {
             statistics,
             query_info: {
                 count_returned: enhancedTasks.length,
-                priority_order: 'IN_PROGRESS → TODO → BLOCKED (excludes REVIEW, DONE & APPROVED)',
-                filters_applied: "Excludes completed, approved, and review tasks"
+                priority_order: 'IN_PROGRESS → TODO → BLOCKED → REVIEW (excludes DONE & APPROVED)',
+                filters_applied: "Excludes completed tasks (DONE, APPROVED)",
+                data_integrity_status: statistics.data_validation.has_integrity_issues ? 'ISSUES_DETECTED' : 'VALIDATED'
             }
         };
 
@@ -149,7 +154,8 @@ export async function handleGetAllTasks(params) {
                     tasks: [],
                     error_details: {
                         error_type: error.constructor.name,
-                        error_message: error.message
+                        error_message: error.message,
+                        timestamp: new Date().toISOString()
                     }
                 }, null, 2)
             }]
