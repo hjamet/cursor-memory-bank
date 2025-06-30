@@ -82,6 +82,123 @@ function validateTaskIntegrity(tasks) {
 }
 
 /**
+ * Calculate similarity between two strings using Levenshtein distance
+ * @param {string} str1 - First string
+ * @param {string} str2 - Second string
+ * @returns {number} Similarity score between 0 and 1 (1 = identical)
+ */
+function calculateSimilarity(str1, str2) {
+    if (!str1 || !str2) return 0;
+
+    const s1 = str1.toLowerCase().trim();
+    const s2 = str2.toLowerCase().trim();
+
+    if (s1 === s2) return 1;
+
+    const longer = s1.length > s2.length ? s1 : s2;
+    const shorter = s1.length > s2.length ? s2 : s1;
+    const editDistance = levenshteinDistance(longer, shorter);
+
+    if (longer.length === 0) return 1;
+    return (longer.length - editDistance) / longer.length;
+}
+
+/**
+ * Calculate Levenshtein distance between two strings
+ * @param {string} str1 - First string
+ * @param {string} str2 - Second string
+ * @returns {number} Edit distance
+ */
+function levenshteinDistance(str1, str2) {
+    const matrix = [];
+
+    for (let i = 0; i <= str2.length; i++) {
+        matrix[i] = [i];
+    }
+
+    for (let j = 0; j <= str1.length; j++) {
+        matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= str2.length; i++) {
+        for (let j = 1; j <= str1.length; j++) {
+            if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1, // substitution
+                    matrix[i][j - 1] + 1,     // insertion
+                    matrix[i - 1][j] + 1      // deletion
+                );
+            }
+        }
+    }
+
+    return matrix[str2.length][str1.length];
+}
+
+/**
+ * Check for duplicate tasks based on title and description similarity
+ * @param {Array} tasks - Existing tasks array
+ * @param {string} newTitle - Title of the new task
+ * @param {string} newDescription - Description of the new task
+ * @param {number} titleThreshold - Similarity threshold for titles (default: 0.85)
+ * @param {number} descriptionThreshold - Similarity threshold for descriptions (default: 0.7)
+ * @returns {Object} Duplicate check result
+ */
+function checkForDuplicates(tasks, newTitle, newDescription, titleThreshold = 0.85, descriptionThreshold = 0.7) {
+    const duplicates = [];
+
+    for (const task of tasks) {
+        // Skip archived/done tasks for duplicate detection
+        if (task.status === 'DONE' || task.status === 'APPROVED') {
+            continue;
+        }
+
+        const titleSimilarity = calculateSimilarity(newTitle, task.title);
+        const descriptionSimilarity = calculateSimilarity(newDescription, task.short_description);
+
+        // Check for exact title match (critical)
+        if (titleSimilarity === 1) {
+            duplicates.push({
+                task: task,
+                reason: 'identical_title',
+                titleSimilarity: titleSimilarity,
+                descriptionSimilarity: descriptionSimilarity,
+                severity: 'critical'
+            });
+        }
+        // Check for high similarity in both title and description
+        else if (titleSimilarity >= titleThreshold && descriptionSimilarity >= descriptionThreshold) {
+            duplicates.push({
+                task: task,
+                reason: 'high_similarity',
+                titleSimilarity: titleSimilarity,
+                descriptionSimilarity: descriptionSimilarity,
+                severity: 'warning'
+            });
+        }
+        // Check for very high title similarity alone
+        else if (titleSimilarity >= 0.9) {
+            duplicates.push({
+                task: task,
+                reason: 'similar_title',
+                titleSimilarity: titleSimilarity,
+                descriptionSimilarity: descriptionSimilarity,
+                severity: 'warning'
+            });
+        }
+    }
+
+    return {
+        hasDuplicates: duplicates.length > 0,
+        duplicates: duplicates,
+        criticalDuplicates: duplicates.filter(d => d.severity === 'critical'),
+        warningDuplicates: duplicates.filter(d => d.severity === 'warning')
+    };
+}
+
+/**
  * Handles the create_task tool call
  * Creates new tasks with auto-generated IDs and comprehensive validation
  * 
@@ -116,6 +233,52 @@ export async function handleCreateTask(params) {
                         }, null, 2)
                     }]
                 };
+            }
+        }
+
+        // Check for duplicate tasks before creating
+        const duplicateCheck = checkForDuplicates(tasks, params.title, params.short_description);
+
+        if (duplicateCheck.hasDuplicates) {
+            // Critical duplicates (identical titles) are blocked
+            if (duplicateCheck.criticalDuplicates.length > 0) {
+                const criticalDupe = duplicateCheck.criticalDuplicates[0];
+                return {
+                    content: [{
+                        type: 'text',
+                        text: JSON.stringify({
+                            status: 'error',
+                            message: `Task creation blocked: A task with identical title already exists`,
+                            duplicate_detection: {
+                                reason: 'identical_title',
+                                existing_task: {
+                                    id: criticalDupe.task.id,
+                                    title: criticalDupe.task.title,
+                                    status: criticalDupe.task.status,
+                                    created_date: criticalDupe.task.created_date
+                                },
+                                similarity_scores: {
+                                    title: criticalDupe.titleSimilarity,
+                                    description: criticalDupe.descriptionSimilarity
+                                }
+                            },
+                            created_task: null
+                        }, null, 2)
+                    }]
+                };
+            }
+
+            // Warning duplicates are allowed but logged
+            if (duplicateCheck.warningDuplicates.length > 0) {
+                console.warn(`[CreateTask] Potential duplicate detected for task "${params.title}":`,
+                    duplicateCheck.warningDuplicates.map(d => ({
+                        existing_id: d.task.id,
+                        existing_title: d.task.title,
+                        title_similarity: d.titleSimilarity,
+                        description_similarity: d.descriptionSimilarity,
+                        reason: d.reason
+                    }))
+                );
             }
         }
 
