@@ -1,7 +1,11 @@
 {
-  "current_rule": "implementation",
+  "current_rule": "experience-execution",
   "status": "active",
   "history": [
+    {
+      "rule": "experience-execution",
+      "timestamp": "2025-06-30T15:57:44.974Z"
+    },
     {
       "rule": "implementation",
       "timestamp": "2025-06-30T15:53:09.613Z"
@@ -37,11 +41,7 @@
     {
       "rule": "task-decomposition",
       "timestamp": "2025-06-30T15:43:25.067Z"
-    },
-    {
-      "rule": "start-workflow",
-      "timestamp": "2025-06-30T15:43:07.252Z"
     }
   ],
-  "last_updated": "2025-06-30T15:53:09.613Z"
+  "last_updated": "2025-06-30T15:57:44.974Z"
 }
