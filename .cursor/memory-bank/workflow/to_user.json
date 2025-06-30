@@ -88,7 +88,18 @@
         "agent_state": "processing"
       },
       "status": "unread"
+    },
+    {
+      "id": 187,
+      "content": "WORKFLOW FAILURE: I am trapped in a pointless loop between `experience-execution` and `context-update`. I am blocked by an external server issue and cannot proceed with any real work. User intervention is required to fix the workflow or the server environment.",
+      "timestamp": "2025-06-30T16:09:49.811Z",
+      "context": {
+        "workflow_rule": "implementation",
+        "active_task": null,
+        "agent_state": "processing"
+      },
+      "status": "unread"
     }
   ],
-  "last_id": 186
+  "last_id": 187
 }
