@@ -4,6 +4,22 @@
   "history": [
     {
       "rule": "experience-execution",
+      "timestamp": "2025-06-30T15:52:03.594Z"
+    },
+    {
+      "rule": "task-decomposition",
+      "timestamp": "2025-06-30T15:51:41.766Z"
+    },
+    {
+      "rule": "task-decomposition",
+      "timestamp": "2025-06-30T15:45:55.979Z"
+    },
+    {
+      "rule": "fix",
+      "timestamp": "2025-06-30T15:45:19.478Z"
+    },
+    {
+      "rule": "experience-execution",
       "timestamp": "2025-06-30T15:44:38.939Z"
     },
     {
@@ -25,23 +41,7 @@
     {
       "rule": "experience-execution",
       "timestamp": "2025-06-30T15:40:16.222Z"
-    },
-    {
-      "rule": "experience-execution",
-      "timestamp": "2025-06-30T15:39:51.201Z"
-    },
-    {
-      "rule": "implementation",
-      "timestamp": "2025-06-30T15:35:48.777Z"
-    },
-    {
-      "rule": "context-update",
-      "timestamp": "2025-06-30T15:33:13.538Z"
-    },
-    {
-      "rule": "fix",
-      "timestamp": "2025-06-30T15:31:43.192Z"
     }
   ],
-  "last_updated": "2025-06-30T15:44:38.939Z"
+  "last_updated": "2025-06-30T15:52:03.594Z"
 }

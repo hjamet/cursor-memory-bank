@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 206,
+  "last_id": 207,
   "requests": [
     {
       "id": 156,
@@ -821,6 +821,25 @@
         },
         {
           "timestamp": "2025-06-30T15:43:52.278Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 207,
+      "content": "Tu peux indiquer dans toutes les règles du workflow qu'il est INTERDIT pour l'agent d'utiliser l'outil terminal_cmd : il DOIT ABSOLUMENT UNIQUEMENT utiliser l'outil execute_command pour executer une commande, JAMAIS l'outil terminal_cmd de base (ce dernier est buggué). ",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-06-30T17:45:21.399876",
+      "updated_at": "2025-06-30T15:51:55.226Z",
+      "history": [
+        {
+          "timestamp": "2025-06-30T17:45:21.399876",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-06-30T15:51:55.226Z",
           "action": "mark_archived"
         }
       ]
