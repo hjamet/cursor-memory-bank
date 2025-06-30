@@ -4,6 +4,14 @@
   "history": [
     {
       "rule": "context-update",
+      "timestamp": "2025-06-30T16:10:41.605Z"
+    },
+    {
+      "rule": "experience-execution",
+      "timestamp": "2025-06-30T16:10:28.135Z"
+    },
+    {
+      "rule": "context-update",
       "timestamp": "2025-06-30T16:09:54.438Z"
     },
     {
@@ -33,15 +41,7 @@
     {
       "rule": "fix",
       "timestamp": "2025-06-30T16:05:38.845Z"
-    },
-    {
-      "rule": "fix",
-      "timestamp": "2025-06-30T16:05:18.722Z"
-    },
-    {
-      "rule": "experience-execution",
-      "timestamp": "2025-06-30T16:05:04.016Z"
     }
   ],
-  "last_updated": "2025-06-30T16:09:54.438Z"
+  "last_updated": "2025-06-30T16:10:41.605Z"
 }
