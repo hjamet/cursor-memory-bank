@@ -5338,11 +5338,11 @@
     "short_description": "Analyser la requête #207 et documenter l'impossibilité d'interdire `terminal_cmd` via la modification des règles de workflow.",
     "detailed_description": "La requête utilisateur #207 demande d'interdire l'usage de `terminal_cmd` au profit de `execute_command` dans les règles du workflow.\n\n**Analyse Critique et Points de Vigilance:**\n*   **Fausse Prémisse :** L'analyse des fichiers de règles (`.cursor/workflow-steps/*.md`) a démontré que ces fichiers ne contiennent pas de références codées en dur aux outils. Ils décrivent des objectifs de haut niveau, et le choix de l'outil spécifique est laissé à l'agent LLM.\n*   **Impossibilité Technique (dans ce repo) :** Il est par conséquent impossible de satisfaire cette requête en modifiant les fichiers de ce dépôt. La contrainte doit être appliquée au niveau de la configuration système de l'agent LLM (par exemple, dans son prompt système global ou via une couche de filtrage d'outils), ce qui est en dehors du périmètre de ce projet.\n*   **Action :** Cette tâche sert à documenter cette analyse pour l'utilisateur. Aucune modification de code ne sera effectuée. La tâche sera immédiatement marquée comme terminée/validée.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "TODO",
     "impacted_files": [],
     "validation_criteria": "",
     "created_date": "2025-06-30T15:51:51.141Z",
-    "updated_date": "2025-06-30T16:24:21.381Z",
+    "updated_date": "2025-06-30T18:26:37.532867",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -5400,5 +5400,67 @@
       "approved_at": "2025-06-30T18:21:42.063061",
       "approved_by": "user_review"
     }
+  },
+  {
+    "id": 248,
+    "title": "Add explicit ban of `terminal_cmd` in all workflow rules",
+    "short_description": "Modifier toutes les règles de workflow pour y ajouter une interdiction formelle de l'outil `terminal_cmd` et imposer l'utilisation des outils MCP, comme demandé dans la requête #209.",
+    "detailed_description": "La requête utilisateur #209, issue d'un feedback sur la tâche #246, demande de modifier toutes les règles de workflow pour y inclure une interdiction explicite d'utiliser l'outil `terminal_cmd` au profit des outils MCP.\n\n**Objectif :**\nModifier l'ensemble des fichiers de règles du workflow (situés dans `.cursor/workflow-steps/`) pour y ajouter une instruction claire et visible interdisant l'usage de `terminal_cmd` et obligeant l'utilisation des outils `mcp_ToolsMCP_*` pour toute exécution de commande.\n\n**Analyse Critique & Points de Vigilance :**\n*   **Solution de Contournement :** Il est crucial de comprendre que cette action est un palliatif et non une solution définitive. Le problème de fond (l'impossibilité de désactiver un outil au niveau de la configuration de l'agent) n'est pas résolu.\n*   **Fiabilité Limitée :** L'ajout d'une instruction textuelle dans un prompt ne garantit pas à 100% que l'agent s'y conformera. Il s'agit d'une forte suggestion, mais l'agent pourrait potentiellement l'outrepasser.\n*   **Maintenance :** Cette approche crée une dette technique. Toute nouvelle règle de workflow devra impérativement inclure cette même interdiction manuellement pour maintenir la cohérence. Il faudra être vigilant lors de l'ajout de nouvelles règles.\n*   **Tâche #246 :** Cette nouvelle tâche remplace de fait l'objectif de la tâche #246 qui était en REVIEW. La gestion de cette ancienne tâche (archivage, suppression) devra être traitée ultérieurement.\n\n**Étapes d'implémentation :**\n1.  Lister tous les fichiers de règles dans le dossier `.cursor/workflow-steps/`.\n2.  Pour chaque fichier, ajouter une section d'avertissement claire et visible (par exemple, en haut du fichier ou dans une section de contraintes) spécifiant l'interdiction de `terminal_cmd`.\n3.  S'assurer que le message est formulé de manière non-ambiguë pour l'agent.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-06-30T16:30:04.010Z",
+    "updated_date": "2025-06-30T16:30:04.010Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 249,
+    "title": "Fix critical task duplication bug on \"REVIEW\" feedback",
+    "short_description": "Investiguer et corriger le bug critique de duplication de tâche qui se produit lors d'une demande de modification sur une tâche en statut REVIEW (requête #210).",
+    "detailed_description": "La requête utilisateur #210 signale un bug critique dans le workflow : lorsqu'une modification est demandée pour une tâche en statut `REVIEW`, le système remet la tâche originale en `TODO` et crée en parallèle une nouvelle requête utilisateur, ce qui aboutit à une duplication de la charge de travail.\n\n**Objectif :**\nInvestiguer et corriger ce bug de duplication pour s'assurer qu'un feedback sur une tâche en `REVIEW` ne génère qu'une seule nouvelle entité de travail cohérente, sans créer de doublons.\n\n**Analyse Critique & Points de Vigilance :**\n*   **Sévérité :** Ce bug est critique car il corrompt l'intégrité du workflow, crée de la confusion et du travail inutile. Il doit être traité en haute priorité.\n*   **Hypothèse sur la cause :** Le problème se situe très probablement dans la logique de l'interface Streamlit, spécifiquement dans la manière dont le feedback sur les tâches en `REVIEW` est traité. Les fichiers `request_display_manager.py` et/ou `userbrief_operations.py` sont les principaux suspects. La logique actuelle semble déclencher deux actions distinctes et incorrectes au lieu d'un seul processus atomique.\n*   **Comportement Attendu :** Le comportement correct serait de :\n    1. Créer une nouvelle requête utilisateur à partir du feedback.\n    2. Laisser la tâche originale en statut `REVIEW` ou, idéalement, la marquer comme `ARCHIVED` ou `SUPERSEDED` pour indiquer qu'elle a été remplacée, mais en aucun cas la remettre en `TODO`.\n\n**Étapes d'implémentation :**\n1.  Analyser en détail le code de `request_display_manager.py` et `userbrief_operations.py` pour identifier la logique qui gère le feedback sur les tâches en `REVIEW`.\n2.  Identifier la cause exacte de la double action (remise en `TODO` + création de requête).\n3.  Modifier le code pour implémenter le comportement attendu : la création d'une nouvelle requête sans altérer l'ancienne tâche de manière inappropriée.\n4.  Valider que le correctif couvre bien le scénario décrit par l'utilisateur.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-06-30T16:30:29.003Z",
+    "updated_date": "2025-06-30T16:32:09.856Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null,
+    "comments": [
+      {
+        "timestamp": "2025-06-30T16:31:18.613Z",
+        "comment": "Je commence l'investigation sur ce bug critique. Je vais d'abord analyser le code de l'interface Streamlit pour comprendre comment le feedback sur les tâches en REVIEW est géré.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-06-30T16:32:09.856Z",
+        "comment": "La correction est implémentée. J'ai modifié la logique dans `ui_components.py` pour que la soumission d'une modification sur une tâche en REVIEW archive l'ancienne tâche (en la passant à APPROVED) au lieu de la remettre en TODO. Cela corrige le bug de duplication signalé.\n**Point de vigilance :** La solution actuelle marque la tâche comme \"approuvée par user_feedback\". C'est sémantiquement un peu étrange mais techniquement correct pour la retirer de la file d'attente. Une amélioration future pourrait être d'introduire un statut \"SUPERSEDED\" (remplacé) pour plus de clarté. Cependant, pour une correction rapide et efficace, cette approche est la plus robuste avec le système de statuts actuel.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "La correction est implémentée. J'ai modifié la logique dans `ui_components.py` pour que la soumission d'une modification sur une tâche en REVIEW archive l'ancienne tâche (en la passant à APPROVED) au lieu de la remettre en TODO. Cela corrige le bug de duplication signalé.\n**Point de vigilance :** La solution actuelle marque la tâche comme \"approuvée par user_feedback\". C'est sémantiquement un peu étrange mais techniquement correct pour la retirer de la file d'attente. Une amélioration future pourrait être d'introduire un statut \"SUPERSEDED\" (remplacé) pour plus de clarté. Cependant, pour une correction rapide et efficace, cette approche est la plus robuste avec le système de statuts actuel.",
+    "last_comment_timestamp": "2025-06-30T16:32:09.856Z"
+  },
+  {
+    "id": 250,
+    "title": "Perform a comprehensive workflow audit",
+    "short_description": "Suite à la demande de l'utilisateur (#211), effectuer un audit et un test continus du workflow pour identifier de manière proactive les bugs, les inefficacités ou les optimisations possibles.",
+    "detailed_description": "La requête utilisateur #211 demande une validation proactive de l'ensemble du workflow après un redémarrage des serveurs. L'objectif est d'identifier les incohérences, les bugs, ou les optimisations potentielles et d'en faire part à l'utilisateur.\n\n**Objectif :**\nFormaliser cette demande de test en une tâche de fond. Durant l'exécution normale du workflow, une attention particulière sera portée à la détection de toute anomalie.\n\n**Analyse Critique & Points de Vigilance :**\n*   **Nature Méta :** Cette tâche n'est pas une tâche d'implémentation classique. Elle sert de \"conteneur\" ou de \"tracker\" pour les problèmes qui pourraient être découverts de manière organique en utilisant le système.\n*   **Processus de Reporting :** Les problèmes identifiés ne mèneront pas à une modification directe dans le cadre de cette tâche. Au lieu de cela, ils seront :\n    1.  Documentés.\n    2.  Signalés à l'utilisateur via la fonctionnalité de message de l'outil `remember`, comme explicitement demandé.\n    3.  Potentiellement transformés en nouvelles tâches de `fix` ou `implementation` après analyse.\n*   **Priorité :** Cette tâche est de faible priorité car elle ne doit pas bloquer les tâches critiques déjà identifiées (comme la correction du bug de duplication #249). Elle s'exécute en parallèle du travail normal.\n\n**Étapes d'implémentation :**\n1.  Cette tâche reste en statut `TODO` ou `IN_PROGRESS` en arrière-plan.\n2.  Pendant que je traite d'autres tâches (ex: #248, #249), je surveillerai le comportement du workflow.\n3.  Si un problème est identifié, je le documenterai et le signalerai à l'utilisateur à un moment opportun (par exemple, à la fin d'une étape `context-update` ou `fix`).",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-06-30T16:30:54.060Z",
+    "updated_date": "2025-06-30T16:30:54.060Z",
+    "parent_id": null,
+    "priority": 2,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]

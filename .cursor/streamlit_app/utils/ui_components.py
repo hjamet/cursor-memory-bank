@@ -193,9 +193,17 @@ def render_task_review_card(task: Dict):
 **Action Required:**
 Please review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements."""
                         
-                        # Create new userbrief request and update task status
-                        if create_new_request(modification_content) and update_task_status(task_id, 'TODO'):
-                            st.success(f"Task #{task_id} modification request sent! The task has been reset to TODO status.")
+                        # Create new userbrief request and APPROVE (archive) the current task
+                        # This prevents the task duplication bug.
+                        if create_new_request(modification_content):
+                            # Archive the current task by approving it
+                            validation_data = {
+                                "approved_at": datetime.now().isoformat(),
+                                "approved_by": "user_feedback",
+                                "review_notes": f"Superseded by new request due to user feedback:\n---\n{modification_reason.strip()}"
+                            }
+                            update_task_status(task_id, 'APPROVED', validation_data)
+                            st.success(f"New request sent! Task #{task_id} has been archived.")
                             del st.session_state['active_modification_form']
                             st.rerun()
                         else:
