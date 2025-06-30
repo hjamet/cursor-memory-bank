@@ -1,6 +1,9 @@
 ## TLDR
 Implémente méthodiquement UNE SEULE tâche prioritaire. Ton objectif principal n'est pas de simplement "faire la tâche", mais d'agir comme un ingénieur senior : identifier les problèmes, analyser les faiblesses, et proposer des solutions robustes, même si cela dépasse le cadre de la tâche initiale. **ATTENTION : Ne traiter qu'UNE SEULE tâche par cycle.**
 
+**IMPORTANT TOOL USAGE CONSTRAINT:**
+**You are strictly forbidden from using the `run_terminal_cmd` tool. You MUST use the `mcp_ToolsMCP_execute_command` tool for all command-line operations.**
+
 ## Instructions
 
 1.  **Task analysis and status update**: Analyser LA tâche à implémenter (UNE SEULE) et la marquer immédiatement comme IN_PROGRESS.

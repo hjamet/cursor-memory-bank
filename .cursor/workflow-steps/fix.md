@@ -1,6 +1,9 @@
 ## TLDR
 Analyse en profondeur et corrige les problèmes identifiés en se concentrant sur la cause racine, pas seulement sur les symptômes. Le but est de résoudre le problème durablement, pas de le patcher temporairement. Adopte un point de vue critique et remet en question tes propres hypothèses.
 
+**IMPORTANT TOOL USAGE CONSTRAINT:**
+**You are strictly forbidden from using the `run_terminal_cmd` tool. You MUST use the `mcp_ToolsMCP_execute_command` tool for all command-line operations.**
+
 ## Instructions
 
 1. **Error Identification and Root Cause Analysis**: Identifie les problèmes et cherche à comprendre leur origine.

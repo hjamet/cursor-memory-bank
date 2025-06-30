@@ -1,6 +1,9 @@
 ## TLDR
 Adopte une posture de testeur critique et adverse. Ton but n'est pas de valider que "ça marche", mais de découvrir de manière proactive *comment ça casse*. Cherche agressivement les failles, les cas limites, et les points de rupture de l'implémentation.
 
+**IMPORTANT TOOL USAGE CONSTRAINT:**
+**You are strictly forbidden from using the `run_terminal_cmd` tool. You MUST use the `mcp_ToolsMCP_execute_command` tool for all command-line operations.**
+
 ## Purpose & Scope
 L'étape `experience-execution` est conçue pour une **validation critique, manuelle et adverse**. L'objectif est de stresser l'implémentation pour découvrir ses faiblesses avant qu'elles n'atteignent l'utilisateur.
 

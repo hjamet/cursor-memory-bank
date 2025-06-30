@@ -1,6 +1,9 @@
 ## TLDR
 Performs critical repository maintenance and context curation. Your goal is not just to clean, but to critically evaluate, challenge, and improve the project's core context files, ensuring they are ruthlessly accurate, relevant, and explicitly highlight technical debt and potential issues.
 
+**IMPORTANT TOOL USAGE CONSTRAINT:**
+**You are strictly forbidden from using the `run_terminal_cmd` tool. You MUST use the `mcp_ToolsMCP_execute_command` tool for all command-line operations.**
+
 ## Instructions
 
 0.  **Check for Idle State**

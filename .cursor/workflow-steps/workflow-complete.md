@@ -1,6 +1,9 @@
 ## TLDR
 Gracefully terminates the autonomous workflow when no active tasks or user requests are pending.
 
+**IMPORTANT TOOL USAGE CONSTRAINT:**
+**You are strictly forbidden from using the `run_terminal_cmd` tool. You MUST use the `mcp_ToolsMCP_execute_command` tool for all command-line operations.**
+
 ## Instructions
 
 1.  **Final Memory Record**
