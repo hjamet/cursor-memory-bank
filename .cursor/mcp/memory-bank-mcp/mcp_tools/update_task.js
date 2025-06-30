@@ -165,6 +165,22 @@ export async function handleUpdateTask(params) {
     try {
         const { task_id, comment, ...updates } = params;
 
+        // CRITICAL COMMENT VALIDATION
+        if (updates.status === 'BLOCKED' || updates.status === 'REVIEW') {
+            if (!comment || comment.trim().length < 50) {
+                return {
+                    content: [{
+                        type: 'text',
+                        text: JSON.stringify({
+                            status: 'error',
+                            message: `Critical analysis required. The comment for status '${updates.status}' must be at least 50 characters long. Your comment was too short.`,
+                            updated_task: null
+                        }, null, 2)
+                    }]
+                };
+            }
+        }
+
         const tasks = await readTasks();
         const taskIndex = tasks.findIndex(task => task.id === task_id);
 

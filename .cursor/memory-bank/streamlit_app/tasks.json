@@ -4992,7 +4992,7 @@
     "short_description": "Résoudre le bug critique où les tâches dépendantes ne se débloquent pas automatiquement lorsque leurs dépendances passent en statut REVIEW ou DONE, causant des blocages permanents dans le workflow.",
     "detailed_description": "**Problème identifié :**\nLe système de gestion des dépendances de tâches présente un dysfonctionnement critique : lorsqu'une tâche A dépend d'une tâche B, la tâche A reste bloquée même après que la tâche B soit passée en statut REVIEW ou DONE. Ce problème affecte à la fois l'interface Streamlit et le système MCP Memory Bank, empêchant l'agent de traiter les tâches débloquées.\n\n**Analyse technique requise :**\n- Examiner la logique de déblocage des dépendances dans le serveur MCP Memory Bank\n- Identifier pourquoi les tâches avec dépendances résolues (REVIEW/DONE) ne passent pas automatiquement de BLOCKED à TODO\n- Vérifier la cohérence entre l'interface Streamlit et les données MCP\n- Analyser la fonction `get_next_tasks` pour s'assurer qu'elle filtre correctement les tâches disponibles\n\n**Corrections à implémenter :**\n1. **Logique de déblocage automatique** : Modifier le système pour que les tâches passent automatiquement de BLOCKED à TODO quand toutes leurs dépendances sont en statut REVIEW ou DONE\n2. **Nettoyage des dépendances orphelines** : Implémenter un mécanisme de détection et suppression automatique des dépendances vers des tâches inexistantes\n3. **Validation des dépendances** : Ajouter des contrôles pour prévenir la création de dépendances vers des tâches qui n'existent pas\n4. **Synchronisation interface** : S'assurer que l'interface Streamlit reflète correctement l'état des tâches débloquées\n\n**Critères d'acceptation :**\n- Les tâches se débloquent automatiquement dès que leurs dépendances atteignent REVIEW ou DONE\n- Aucune dépendance orpheline ne peut exister dans le système\n- L'interface Streamlit affiche correctement l'état des tâches débloquées\n- Le système `get_next_tasks` retourne les tâches nouvellement débloquées\n- Tests de validation confirmant le bon fonctionnement du système de dépendances\n\n**Impact :**\nCette correction est critique pour le bon fonctionnement du workflow autonome et la productivité de l'agent.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       "get_next_tasks.js",
       "update_task.js",
@@ -5001,7 +5001,7 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Les tâches se débloquent automatiquement dès que leurs dépendances passent en REVIEW/DONE, (2) Le système détecte et supprime automatiquement les dépendances orphelines, (3) L'interface Streamlit reflète correctement l'état des tâches, (4) Tests de validation réussis confirmant le bon fonctionnement du système de dépendances.",
     "created_date": "2025-06-30T14:43:25.036Z",
-    "updated_date": "2025-06-30T14:51:23.457Z",
+    "updated_date": "2025-06-30T17:17:33.218380",
     "parent_id": null,
     "priority": 5,
     "image": null,
@@ -5016,18 +5016,34 @@
         "timestamp": "2025-06-30T14:51:23.457Z",
         "comment": "✅ **Système de déblocage automatique implémenté avec succès**\n\n**Fonctionnalités ajoutées :**\n- `areAllDependenciesCompleted()` : vérifie si toutes les dépendances d'une tâche sont complétées (DONE/REVIEW/APPROVED)\n- `checkAndUnblockDependentTasks()` : trouve et débloque automatiquement les tâches en attente quand leurs dépendances sont résolues\n- `cleanupOrphanedDependencies()` : supprime automatiquement les dépendances vers des tâches inexistantes\n- Intégration dans `handleUpdateTask()` pour déclencher le déblocage automatique quand une tâche passe en REVIEW ou DONE\n\n**Tests de validation réussis :**\n- ✅ Déblocage automatique d'une tâche simple (A→B)\n- ✅ Déblocage automatique d'une tâche multiple (A,B→C) \n- ✅ Nettoyage automatique des dépendances orphelines\n- ✅ Ajout de commentaires automatiques pour traçabilité\n\n**Problème résolu :** Les tâches dépendantes se débloquent maintenant automatiquement dès que leurs dépendances passent en statut REVIEW ou DONE, éliminant les blocages permanents dans le workflow autonome.\n\n**Fichiers modifiés :** `.cursor/mcp/memory-bank-mcp/mcp_tools/update_task.js`",
         "status_change": "REVIEW"
+      },
+      {
+        "timestamp": "2025-06-30T15:16:23.827Z",
+        "comment": "Ça a l'air bien.",
+        "status_change": "REVIEW"
+      },
+      {
+        "timestamp": "2025-06-30T15:17:14.325Z",
+        "comment": "Ça a l'air bien.",
+        "status_change": "REVIEW"
       }
     ],
-    "last_comment": "✅ **Système de déblocage automatique implémenté avec succès**\n\n**Fonctionnalités ajoutées :**\n- `areAllDependenciesCompleted()` : vérifie si toutes les dépendances d'une tâche sont complétées (DONE/REVIEW/APPROVED)\n- `checkAndUnblockDependentTasks()` : trouve et débloque automatiquement les tâches en attente quand leurs dépendances sont résolues\n- `cleanupOrphanedDependencies()` : supprime automatiquement les dépendances vers des tâches inexistantes\n- Intégration dans `handleUpdateTask()` pour déclencher le déblocage automatique quand une tâche passe en REVIEW ou DONE\n\n**Tests de validation réussis :**\n- ✅ Déblocage automatique d'une tâche simple (A→B)\n- ✅ Déblocage automatique d'une tâche multiple (A,B→C) \n- ✅ Nettoyage automatique des dépendances orphelines\n- ✅ Ajout de commentaires automatiques pour traçabilité\n\n**Problème résolu :** Les tâches dépendantes se débloquent maintenant automatiquement dès que leurs dépendances passent en statut REVIEW ou DONE, éliminant les blocages permanents dans le workflow autonome.\n\n**Fichiers modifiés :** `.cursor/mcp/memory-bank-mcp/mcp_tools/update_task.js`",
-    "last_comment_timestamp": "2025-06-30T14:51:23.457Z"
+    "last_comment": "Ça a l'air bien.",
+    "last_comment_timestamp": "2025-06-30T15:17:14.325Z",
+    "validation": {
+      "approved_at": "2025-06-30T17:17:33.212520",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 240,
     "title": "Modifier la documentation MCP pour encourager un point de vue critique",
     "short_description": "Refactoriser la documentation des outils MCP Memory Bank (update_task, remember) et des règles workflow pour que l'agent adopte un point de vue critique au lieu d'être constamment positif, en se concentrant sur les problèmes et améliorations nécessaires.",
     "detailed_description": "**Objectif de la modification :**\nL'utilisateur a identifié un problème comportemental critique : l'agent produit constamment des messages positifs (\"tout va bien\") alors qu'il devrait adopter une approche critique et signaler les problèmes, dysfonctionnements et améliorations nécessaires.\n\n**Éléments à modifier :**\n\n1. **Documentation de l'outil update_task** :\n   - Modifier le paramètre \"comment\" pour exiger une analyse critique\n   - Insister sur l'identification des problèmes rencontrés\n   - Demander de signaler les éléments qui ne fonctionnent pas correctement\n   - Encourager la mention des améliorations possibles\n\n2. **Documentation de l'outil remember** :\n   - Modifier le paramètre \"user_message\" pour privilégier les rapports critiques\n   - Exiger que l'agent se concentre sur les dysfonctionnements\n   - Demander de signaler les problèmes non résolus\n   - Insister sur l'identification des points d'amélioration\n\n3. **Règles workflow (fichiers .mdc)** :\n   - Mettre à jour les instructions pour adopter un état d'esprit critique\n   - Ajouter des directives explicites pour signaler les problèmes\n   - Modifier les exemples pour refléter cette approche critique\n   - Insister sur l'importance de la transparence sur les dysfonctionnements\n\n**Approche critique requise :**\n- **Focus sur les problèmes** : L'agent doit prioritairement signaler ce qui ne fonctionne pas\n- **Identification des dysfonctionnements** : Mettre en évidence les éléments défaillants\n- **Signalement des améliorations** : Proposer systématiquement des optimisations\n- **Transparence totale** : Ne jamais masquer les problèmes derrière une façade positive\n- **Analyse constructive** : Critiquer de manière constructive pour améliorer le système\n\n**Fichiers à modifier :**\n- `.cursor/mcp/memory-bank-mcp/tools/update_task.js` (documentation paramètre comment)\n- `.cursor/mcp/memory-bank-mcp/tools/remember.js` (documentation paramètre user_message)\n- Règles workflow dans `.cursor/rules/` et `.cursor/workflow-steps/`\n- Documentation des schémas MCP si nécessaire\n\n**Critères d'acceptation :**\n- La documentation encourage explicitement l'adoption d'un point de vue critique\n- Les paramètres des outils MCP exigent des rapports focalisés sur les problèmes\n- Les règles workflow intègrent cette approche critique\n- L'agent signale systématiquement les dysfonctionnements et améliorations possibles",
-    "dependencies": [],
-    "status": "REVIEW",
+    "dependencies": [
+      243
+    ],
+    "status": "TODO",
     "impacted_files": [
       "update_task.js",
       "remember.js",
@@ -5039,7 +5055,7 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) La documentation des outils update_task et remember encourage explicitement un point de vue critique, (2) Les règles workflow intègrent l'approche critique dans leurs instructions, (3) Les exemples reflètent cette nouvelle approche focalisée sur les problèmes, (4) L'agent produit des rapports critiques identifiant les dysfonctionnements et améliorations.",
     "created_date": "2025-06-30T14:43:56.708Z",
-    "updated_date": "2025-06-30T15:15:59.137Z",
+    "updated_date": "2025-06-30T15:18:46.991Z",
     "parent_id": null,
     "priority": 4,
     "image": null,
@@ -5054,10 +5070,24 @@
         "timestamp": "2025-06-30T15:15:59.137Z",
         "comment": "La tâche est terminée. J'ai refactorisé la documentation des outils MCP (`update_task`, `remember`) et des principales règles de workflow (`implementation`, `fix`, `task-decomposition`, `experience-execution`, `context-update`) pour instiller une approche critique. L'agent est désormais instruit de se concentrer sur l'identification des problèmes, l'analyse des causes profondes, l'évaluation des risques et la communication transparente des faiblesses, plutôt que de simplement rapporter le succès. Les exemples et les instructions ont été mis à jour pour refléter cet état d'esprit. L'utilisateur peut valider en inspectant les modifications apportées aux fichiers concernés.",
         "status_change": "REVIEW"
+      },
+      {
+        "timestamp": "2025-06-30T15:17:59.789Z",
+        "comment": "La tâche #240 est bloquée. La validation de la refactorisation de la documentation a révélé que les instructions ne suffisent pas à forcer un comportement critique. Une solution technique est nécessaire (validation de la longueur des commentaires), mais elle requiert un redémarrage du serveur MCP. Cette tâche est donc bloquée en attendant la résolution de la tâche #243, qui gère le redémarrage et la ré-implémentation de la validation technique.",
+        "status_change": "BLOCKED"
+      },
+      {
+        "timestamp": "2025-06-30T15:18:46.991Z",
+        "comment": "Task automatically unblocked: all dependencies are now completed (including task 243)",
+        "status_change": "TODO"
       }
     ],
-    "last_comment": "La tâche est terminée. J'ai refactorisé la documentation des outils MCP (`update_task`, `remember`) et des principales règles de workflow (`implementation`, `fix`, `task-decomposition`, `experience-execution`, `context-update`) pour instiller une approche critique. L'agent est désormais instruit de se concentrer sur l'identification des problèmes, l'analyse des causes profondes, l'évaluation des risques et la communication transparente des faiblesses, plutôt que de simplement rapporter le succès. Les exemples et les instructions ont été mis à jour pour refléter cet état d'esprit. L'utilisateur peut valider en inspectant les modifications apportées aux fichiers concernés.",
-    "last_comment_timestamp": "2025-06-30T15:15:59.137Z"
+    "last_comment": "Task automatically unblocked: all dependencies are now completed (including task 243)",
+    "last_comment_timestamp": "2025-06-30T15:18:46.991Z",
+    "validation": {
+      "approved_at": "2025-06-30T17:17:44.917138",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 241,
@@ -5065,11 +5095,11 @@
     "short_description": "Tâche de test pour valider le système de déblocage automatique des dépendances",
     "detailed_description": "Cette tâche sert uniquement à tester le système de déblocage automatique des dépendances. Elle sera marquée comme terminée pour déclencher le déblocage de la tâche B qui en dépend.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [],
     "validation_criteria": "",
     "created_date": "2025-06-30T14:52:35.132Z",
-    "updated_date": "2025-06-30T14:52:50.286Z",
+    "updated_date": "2025-06-30T17:17:48.420885",
     "parent_id": null,
     "priority": 1,
     "image": null,
@@ -5082,7 +5112,11 @@
       }
     ],
     "last_comment": "Tâche de test A terminée - doit déclencher le déblocage automatique de la tâche B",
-    "last_comment_timestamp": "2025-06-30T14:52:50.286Z"
+    "last_comment_timestamp": "2025-06-30T14:52:50.286Z",
+    "validation": {
+      "approved_at": "2025-06-30T17:17:48.415375",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 242,
@@ -5092,14 +5126,48 @@
     "dependencies": [
       241
     ],
-    "status": "BLOCKED",
+    "status": "APPROVED",
     "impacted_files": [],
     "validation_criteria": "",
     "created_date": "2025-06-30T14:52:43.203Z",
-    "updated_date": "2025-06-30T14:52:43.203Z",
+    "updated_date": "2025-06-30T17:17:30.509725",
     "parent_id": null,
     "priority": 1,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "validation": {
+      "approved_at": "2025-06-30T17:17:30.504462",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 243,
+    "title": "Redémarrer le serveur MCP et appliquer la validation des commentaires de tâche",
+    "short_description": "Le serveur MCP doit être redémarré pour que les modifications de l'outil `update_task.js` (validation de la longueur des commentaires) soient prises en compte et testées.",
+    "detailed_description": "**Problème:** Les modifications apportées aux outils MCP (comme `update_task.js`) ne sont pas prises en compte sans un redémarrage du serveur MCP. Cela empêche la validation de nouvelles logiques, comme l'obligation d'avoir des commentaires de tâche critiques et détaillés.\\n\\n**Objectif:** Forcer une validation technique de la qualité des commentaires de tâche.\\n\\n**Étapes:**\\n1.  **Demander le redémarrage du serveur:** La première étape est de notifier l'utilisateur de la nécessité de redémarrer le serveur MCP pour que les modifications de l'outil `update_task.js` soient chargées.\\n2.  **Ré-appliquer la validation du commentaire:** Une fois le serveur redémarré, ré-appliquer le code de validation dans `update_task.js` qui impose une longueur minimale de 50 caractères pour les commentaires des tâches avec le statut `BLOCKED` ou `REVIEW`.\\n3.  **Tester la validation:** Exécuter un test pour confirmer que le serveur rejette bien les commentaires trop courts.\\n4.  **Finaliser:** Une fois la validation confirmée, cette tâche pourra être fermée.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-06-30T15:17:50.811Z",
+    "updated_date": "2025-06-30T15:18:46.991Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null,
+    "comments": [
+      {
+        "timestamp": "2025-06-30T15:18:22.088Z",
+        "comment": "Je commence le traitement de cette tâche. L'objectif est d'implémenter la validation de la longueur des commentaires dans `update_task.js`, en attendant que l'utilisateur redémarre le serveur pour pouvoir tester la modification.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-06-30T15:18:46.991Z",
+        "comment": "La logique de validation de la longueur des commentaires a été ré-implémentée dans `update_task.js`. Elle est prête à être testée. **ACTION REQUISE DE L'UTILISATEUR :** Pour que ce changement soit pris en compte, le serveur MCP doit être redémarré. Une fois le redémarrage effectué, la validation pourra être testée en tentant de mettre à jour une tâche `REVIEW` ou `BLOCKED` avec un commentaire de moins de 50 caractères. L'opération devrait échouer.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "La logique de validation de la longueur des commentaires a été ré-implémentée dans `update_task.js`. Elle est prête à être testée. **ACTION REQUISE DE L'UTILISATEUR :** Pour que ce changement soit pris en compte, le serveur MCP doit être redémarré. Une fois le redémarrage effectué, la validation pourra être testée en tentant de mettre à jour une tâche `REVIEW` ou `BLOCKED` avec un commentaire de moins de 50 caractères. L'opération devrait échouer.",
+    "last_comment_timestamp": "2025-06-30T15:18:46.991Z"
   }
 ]
