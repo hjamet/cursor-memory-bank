@@ -316,7 +316,7 @@ export async function handleGetNextTasks(params) {
         }
 
         // Create task lookup map for efficient dependency resolution
-        const taskMap = new Map(activeTasks.map(task => [task.id, task]));
+        const taskMap = new Map(allTasks.map(task => [task.id, task]));
 
         // Perform comprehensive dependency graph analysis
         const dependencyAnalysis = analyzeDependencyGraph(activeTasks, taskMap);

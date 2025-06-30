@@ -5001,7 +5001,7 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Les tâches se débloquent automatiquement dès que leurs dépendances passent en REVIEW/DONE, (2) Le système détecte et supprime automatiquement les dépendances orphelines, (3) L'interface Streamlit reflète correctement l'état des tâches, (4) Tests de validation réussis confirmant le bon fonctionnement du système de dépendances.",
     "created_date": "2025-06-30T14:43:25.036Z",
-    "updated_date": "2025-06-30T17:17:33.218380",
+    "updated_date": "2025-06-30T17:19:55.905272",
     "parent_id": null,
     "priority": 5,
     "image": null,
@@ -5026,12 +5026,17 @@
         "timestamp": "2025-06-30T15:17:14.325Z",
         "comment": "Ça a l'air bien.",
         "status_change": "REVIEW"
+      },
+      {
+        "timestamp": "2025-06-30T15:19:13.616Z",
+        "comment": "Test.",
+        "status_change": "REVIEW"
       }
     ],
-    "last_comment": "Ça a l'air bien.",
-    "last_comment_timestamp": "2025-06-30T15:17:14.325Z",
+    "last_comment": "Test.",
+    "last_comment_timestamp": "2025-06-30T15:19:13.616Z",
     "validation": {
-      "approved_at": "2025-06-30T17:17:33.212520",
+      "approved_at": "2025-06-30T17:19:55.899792",
       "approved_by": "user_review"
     }
   },
@@ -5043,7 +5048,7 @@
     "dependencies": [
       243
     ],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "impacted_files": [
       "update_task.js",
       "remember.js",
@@ -5055,7 +5060,7 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) La documentation des outils update_task et remember encourage explicitement un point de vue critique, (2) Les règles workflow intègrent l'approche critique dans leurs instructions, (3) Les exemples reflètent cette nouvelle approche focalisée sur les problèmes, (4) L'agent produit des rapports critiques identifiant les dysfonctionnements et améliorations.",
     "created_date": "2025-06-30T14:43:56.708Z",
-    "updated_date": "2025-06-30T15:18:46.991Z",
+    "updated_date": "2025-06-30T15:32:48.736Z",
     "parent_id": null,
     "priority": 4,
     "image": null,
@@ -5080,10 +5085,30 @@
         "timestamp": "2025-06-30T15:18:46.991Z",
         "comment": "Task automatically unblocked: all dependencies are now completed (including task 243)",
         "status_change": "TODO"
+      },
+      {
+        "timestamp": "2025-06-30T15:23:48.816Z",
+        "comment": "ok",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-06-30T15:31:30.635Z",
+        "comment": "ok",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-06-30T15:32:25.833Z",
+        "comment": "ok",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-06-30T15:32:48.736Z",
+        "comment": "ok",
+        "status_change": "IN_PROGRESS"
       }
     ],
-    "last_comment": "Task automatically unblocked: all dependencies are now completed (including task 243)",
-    "last_comment_timestamp": "2025-06-30T15:18:46.991Z",
+    "last_comment": "ok",
+    "last_comment_timestamp": "2025-06-30T15:32:48.736Z",
     "validation": {
       "approved_at": "2025-06-30T17:17:44.917138",
       "approved_by": "user_review"
@@ -5146,11 +5171,11 @@
     "short_description": "Le serveur MCP doit être redémarré pour que les modifications de l'outil `update_task.js` (validation de la longueur des commentaires) soient prises en compte et testées.",
     "detailed_description": "**Problème:** Les modifications apportées aux outils MCP (comme `update_task.js`) ne sont pas prises en compte sans un redémarrage du serveur MCP. Cela empêche la validation de nouvelles logiques, comme l'obligation d'avoir des commentaires de tâche critiques et détaillés.\\n\\n**Objectif:** Forcer une validation technique de la qualité des commentaires de tâche.\\n\\n**Étapes:**\\n1.  **Demander le redémarrage du serveur:** La première étape est de notifier l'utilisateur de la nécessité de redémarrer le serveur MCP pour que les modifications de l'outil `update_task.js` soient chargées.\\n2.  **Ré-appliquer la validation du commentaire:** Une fois le serveur redémarré, ré-appliquer le code de validation dans `update_task.js` qui impose une longueur minimale de 50 caractères pour les commentaires des tâches avec le statut `BLOCKED` ou `REVIEW`.\\n3.  **Tester la validation:** Exécuter un test pour confirmer que le serveur rejette bien les commentaires trop courts.\\n4.  **Finaliser:** Une fois la validation confirmée, cette tâche pourra être fermée.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "BLOCKED",
     "impacted_files": [],
     "validation_criteria": "",
     "created_date": "2025-06-30T15:17:50.811Z",
-    "updated_date": "2025-06-30T15:18:46.991Z",
+    "updated_date": "2025-06-30T15:32:58.825Z",
     "parent_id": null,
     "priority": 5,
     "image": null,
@@ -5165,9 +5190,23 @@
         "timestamp": "2025-06-30T15:18:46.991Z",
         "comment": "La logique de validation de la longueur des commentaires a été ré-implémentée dans `update_task.js`. Elle est prête à être testée. **ACTION REQUISE DE L'UTILISATEUR :** Pour que ce changement soit pris en compte, le serveur MCP doit être redémarré. Une fois le redémarrage effectué, la validation pourra être testée en tentant de mettre à jour une tâche `REVIEW` ou `BLOCKED` avec un commentaire de moins de 50 caractères. L'opération devrait échouer.",
         "status_change": "REVIEW"
+      },
+      {
+        "timestamp": "2025-06-30T15:27:33.186Z",
+        "comment": "I am blocking this task after multiple failed attempts to fix the comment validation logic.\n\n**Problem:** The `update_task` tool crashes the MCP server whenever input validation fails.\n\n**Analysis & Attempts:**\n1.  **Initial test failed:** The tool accepted an invalid, short comment ('ok').\n2.  **Attempt 1 (Return JSON):** I added validation logic to return a formatted JSON error. This crashed the server.\n3.  **Attempt 2 (Throw Error):** I replaced the `return` with `throw new Error()`, expecting the global `try...catch` to handle it. This also crashed the server.\n4.  **Attempt 3 (Simplify):** I reduced the logic to its simplest form. The server still crashed.\n\n**Conclusion:**\nThe validation code itself *seems* correct and handles edge cases like null/undefined comments. However, it consistently causes the Node.js process to die. I suspect an unknown environmental constraint or a very subtle bug that I am unable to identify after 4 attempts. Further attempts without more information would be inefficient. This task requires deeper investigation.",
+        "status_change": "BLOCKED"
+      },
+      {
+        "timestamp": "2025-06-30T15:32:58.825Z",
+        "comment": "La tâche #243 est bloquée. Après de multiples tentatives de correction, y compris la réécriture de la logique de validation et le renommage de la fonction pour forcer un rechargement, la validation des commentaires reste inopérante. Mon hypothèse est qu'il y a un problème fondamental dans la façon dont le serveur MCP charge et exécute les outils. Il est possible que le fichier `.cursor/mcp/memory-bank-mcp/mcp_tools/update_task.js` ne soit pas celui qui est réellement utilisé, ou qu'une autre logique le surcharge. Une investigation plus approfondie de l'architecture du serveur MCP est nécessaire pour résoudre ce problème.",
+        "status_change": "BLOCKED"
       }
     ],
-    "last_comment": "La logique de validation de la longueur des commentaires a été ré-implémentée dans `update_task.js`. Elle est prête à être testée. **ACTION REQUISE DE L'UTILISATEUR :** Pour que ce changement soit pris en compte, le serveur MCP doit être redémarré. Une fois le redémarrage effectué, la validation pourra être testée en tentant de mettre à jour une tâche `REVIEW` ou `BLOCKED` avec un commentaire de moins de 50 caractères. L'opération devrait échouer.",
-    "last_comment_timestamp": "2025-06-30T15:18:46.991Z"
+    "last_comment": "La tâche #243 est bloquée. Après de multiples tentatives de correction, y compris la réécriture de la logique de validation et le renommage de la fonction pour forcer un rechargement, la validation des commentaires reste inopérante. Mon hypothèse est qu'il y a un problème fondamental dans la façon dont le serveur MCP charge et exécute les outils. Il est possible que le fichier `.cursor/mcp/memory-bank-mcp/mcp_tools/update_task.js` ne soit pas celui qui est réellement utilisé, ou qu'une autre logique le surcharge. Une investigation plus approfondie de l'architecture du serveur MCP est nécessaire pour résoudre ce problème.",
+    "last_comment_timestamp": "2025-06-30T15:32:58.825Z",
+    "validation": {
+      "approved_at": "2025-06-30T17:32:24.267010",
+      "approved_by": "user_review"
+    }
   }
 ]

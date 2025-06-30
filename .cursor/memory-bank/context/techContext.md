@@ -166,11 +166,15 @@ Comprehensive bash script supporting:
 - **Debug Logging**: Any non-JSON output breaks MCP communication
 - **Server Restart**: Modify `mcp.json` temporarily to force server restart
 - **Terminal Tools**: Enhanced tools require MCP server restart to activate new features
+- **Tool Loading Inconsistency**: There is a suspected issue where the MCP server does not reliably load the latest version of tool files, even after a restart. This can lead to unpredictable behavior and make debugging extremely difficult.
 
 ### Development Practices
 - **MDC File Editing**: Rename to `.md`, edit, rename back to `.mdc` for Git tracking
 - **Memory Bank**: Automatic archive cleanup (50 max entries) prevents data bloat
 - **Pre-commit Hooks**: Warn on files >500 lines but don't block commits
+
+### Workflow & Dependency Management
+- **Dependency Logic**: The logic for resolving task dependencies is not functioning correctly, leading to workflow deadlocks. Tasks can remain blocked even when their dependencies are completed.
 
 ## Dependencies & Requirements
 

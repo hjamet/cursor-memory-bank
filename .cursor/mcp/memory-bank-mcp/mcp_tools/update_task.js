@@ -161,23 +161,25 @@ function cleanupOrphanedDependencies(tasks) {
  * @param {string} [params.image] - Updated image path for the task
  * @returns {Object} Tool response with updated task information
  */
-export async function handleUpdateTask(params) {
+export async function handleUpdateTask_v2(params) {
     try {
         const { task_id, comment, ...updates } = params;
 
-        // CRITICAL COMMENT VALIDATION
-        if (updates.status === 'BLOCKED' || updates.status === 'REVIEW') {
+        // CRITICAL COMMENT VALIDATION for BLOCKED or REVIEW status
+        const isCriticalStatus = updates.status === 'BLOCKED' || updates.status === 'REVIEW';
+        if (isCriticalStatus) {
             if (!comment || comment.trim().length < 50) {
-                return {
-                    content: [{
-                        type: 'text',
-                        text: JSON.stringify({
-                            status: 'error',
-                            message: `Critical analysis required. The comment for status '${updates.status}' must be at least 50 characters long. Your comment was too short.`,
-                            updated_task: null
-                        }, null, 2)
-                    }]
-                };
+                throw new Error(`Critical analysis required. The comment for status '${updates.status}' must be at least 50 characters long.`);
+            }
+        }
+
+        // STANDARD COMMENT VALIDATION for all other updates
+        // A comment is always required, unless it's a programmatic status change to IN_PROGRESS (where no comment is passed).
+        const isProgrammaticInProgress = updates.status === 'IN_PROGRESS' && !comment;
+
+        if (!isCriticalStatus && !isProgrammaticInProgress) {
+            if (!comment || comment.trim().length < 10) {
+                throw new Error(`A meaningful comment of at least 10 characters is required for this update.`);
             }
         }
 
