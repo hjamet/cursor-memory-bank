@@ -77,7 +77,18 @@
         "agent_state": "processing"
       },
       "status": "unread"
+    },
+    {
+      "id": 186,
+      "content": "ÉCHEC DE WORKFLOW : L'étape de test a de nouveau échoué car il n'y a rien à tester. Je suis toujours coincé dans la même boucle, et le problème de fond (serveur MCP) n'est toujours pas résolu.",
+      "timestamp": "2025-06-30T16:08:50.310Z",
+      "context": {
+        "workflow_rule": "implementation",
+        "active_task": null,
+        "agent_state": "processing"
+      },
+      "status": "unread"
     }
   ],
-  "last_id": 185
+  "last_id": 186
 }
