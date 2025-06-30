@@ -175,18 +175,53 @@ function validateSchema(taskData, operation) {
                 schema = TaskSchema;
         }
 
+        // Add defensive validation for input data
+        if (taskData === null || taskData === undefined) {
+            return {
+                isValid: false,
+                errors: [{
+                    type: 'SCHEMA_VALIDATION_ERROR',
+                    message: 'Task data cannot be null or undefined',
+                    code: 'NULL_INPUT',
+                    field: 'root',
+                    details: { inputType: typeof taskData }
+                }],
+                data: null
+            };
+        }
+
         const result = schema.safeParse(taskData);
 
         if (!result.success) {
             return {
                 isValid: false,
-                errors: result.error.errors.map(err => ({
-                    type: 'SCHEMA_VALIDATION_ERROR',
-                    message: `${err.path.join('.')}: ${err.message}`,
-                    code: 'INVALID_SCHEMA',
-                    field: err.path.join('.'),
-                    details: { zodError: err }
-                })),
+                errors: result.error.errors.map(err => {
+                    // Create serializable error details without Zod objects
+                    const serializableDetails = {
+                        path: err.path,
+                        received: err.received,
+                        expected: err.expected,
+                        code: err.code
+                    };
+
+                    // Safely handle potential circular references or complex objects
+                    try {
+                        JSON.stringify(serializableDetails);
+                    } catch (serializationError) {
+                        // Fallback to basic details if serialization fails
+                        serializableDetails.path = err.path || [];
+                        serializableDetails.code = err.code || 'UNKNOWN';
+                        serializableDetails.serialization_error = 'Complex object details removed for JSON compatibility';
+                    }
+
+                    return {
+                        type: 'SCHEMA_VALIDATION_ERROR',
+                        message: `${err.path.join('.')}: ${err.message}`,
+                        code: 'INVALID_SCHEMA',
+                        field: err.path.join('.') || 'unknown',
+                        details: serializableDetails
+                    };
+                }),
                 data: null
             };
         }
@@ -198,13 +233,25 @@ function validateSchema(taskData, operation) {
         };
 
     } catch (error) {
+        // Enhanced error logging for debugging
+        console.error('[CRUD Validator] Schema validation error:', {
+            error: error.message,
+            operation: operation,
+            taskDataType: typeof taskData,
+            taskDataKeys: taskData && typeof taskData === 'object' ? Object.keys(taskData) : 'N/A'
+        });
+
         return {
             isValid: false,
             errors: [{
                 type: 'SCHEMA_VALIDATION_ERROR',
                 message: `Schema validation failed: ${error.message}`,
                 code: 'SCHEMA_ERROR',
-                details: { originalError: error.message }
+                details: {
+                    originalError: error.message,
+                    operation: operation,
+                    timestamp: new Date().toISOString()
+                }
             }],
             data: null
         };

@@ -236,39 +236,118 @@ export async function handleUpdateTask(params) {
 
         // CENTRALIZED CRUD VALIDATION - Replace existing validations
         const updateData = { task_id, ...updates };
-        const validationResult = validateUpdateTask(updateData, tasks);
+        let validationResult;
+
+        try {
+            validationResult = validateUpdateTask(updateData, tasks);
+        } catch (validationError) {
+            // Enhanced error logging for validation failures
+            console.error('[UpdateTask] Validation system error:', {
+                error: validationError.message,
+                task_id: task_id,
+                updates: JSON.stringify(updates, null, 2),
+                tasksCount: tasks.length,
+                timestamp: new Date().toISOString()
+            });
+
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        status: 'error',
+                        message: `Validation system error: ${validationError.message}`,
+                        error_details: {
+                            error_type: 'VALIDATION_SYSTEM_ERROR',
+                            original_error: validationError.message,
+                            timestamp: new Date().toISOString()
+                        },
+                        updated_task: null
+                    }, null, 2)
+                }]
+            };
+        }
 
         if (!validationResult.isValid) {
-            // Format errors for user-friendly response
-            const errorMessages = validationResult.errors.map(error => error.message).join('; ');
-            const errorDetails = {
-                validation_errors: validationResult.errors,
-                warnings: validationResult.warnings,
-                operation: validationResult.operation
-            };
+            // Format errors for user-friendly response with enhanced safety
+            let errorMessages;
+            let errorDetails;
+
+            try {
+                errorMessages = validationResult.errors.map(error => error.message).join('; ');
+                errorDetails = {
+                    validation_errors: validationResult.errors,
+                    warnings: validationResult.warnings,
+                    operation: validationResult.operation
+                };
+
+                // Test serialization safety
+                JSON.stringify(errorDetails);
+            } catch (serializationError) {
+                console.error('[UpdateTask] Error serialization failed:', serializationError.message);
+
+                // Fallback to safe error reporting
+                errorMessages = validationResult.errors?.length > 0
+                    ? `${validationResult.errors.length} validation error(s) detected`
+                    : 'Validation failed';
+
+                errorDetails = {
+                    validation_errors: validationResult.errors?.map(e => ({
+                        type: e.type || 'UNKNOWN',
+                        message: e.message || 'Unknown error',
+                        code: e.code || 'UNKNOWN'
+                    })) || [],
+                    warnings: validationResult.warnings?.map(w => ({
+                        type: w.type || 'UNKNOWN',
+                        message: w.message || 'Unknown warning',
+                        code: w.code || 'UNKNOWN'
+                    })) || [],
+                    operation: validationResult.operation || 'update',
+                    serialization_note: 'Complex error details simplified for JSON compatibility'
+                };
+            }
 
             // Check for specific error types to provide enhanced feedback
-            const hasCircularDependency = validationResult.errors.some(e => e.code === 'CIRCULAR_DEPENDENCY');
-            const hasParentError = validationResult.errors.some(e => e.code === 'INVALID_PARENT');
+            const hasCircularDependency = validationResult.errors?.some(e => e.code === 'CIRCULAR_DEPENDENCY') || false;
+            const hasParentError = validationResult.errors?.some(e => e.code === 'INVALID_PARENT') || false;
+            const hasSchemaError = validationResult.errors?.some(e => e.type === 'SCHEMA_VALIDATION_ERROR') || false;
 
             if (hasCircularDependency) {
                 const circularError = validationResult.errors.find(e => e.code === 'CIRCULAR_DEPENDENCY');
-                errorDetails.circular_dependency_prevention = {
-                    reason: 'circular_dependency_detected',
-                    task_id: task_id,
-                    current_dependencies: existingTask.dependencies || [],
-                    proposed_dependencies: updates.dependencies,
-                    detected_cycles: circularError.details?.cycles || [],
-                    prevention_note: "This validation prevents updates that would introduce circular dependencies."
-                };
+                try {
+                    errorDetails.circular_dependency_prevention = {
+                        reason: 'circular_dependency_detected',
+                        task_id: task_id,
+                        current_dependencies: existingTask.dependencies || [],
+                        proposed_dependencies: updates.dependencies,
+                        detected_cycles: circularError.details?.cycles || [],
+                        prevention_note: "This validation prevents updates that would introduce circular dependencies."
+                    };
+                } catch (e) {
+                    errorDetails.circular_dependency_prevention = {
+                        reason: 'circular_dependency_detected',
+                        task_id: task_id,
+                        prevention_note: "Circular dependency detected (details simplified for compatibility)"
+                    };
+                }
             }
 
             if (hasParentError) {
                 const parentError = validationResult.errors.find(e => e.code === 'INVALID_PARENT');
-                errorDetails.parent_validation = {
-                    reason: parentError.details?.reason || 'invalid_parent',
-                    proposed_parent_id: updates.parent_id
-                };
+                try {
+                    errorDetails.parent_validation = {
+                        reason: parentError.details?.reason || 'invalid_parent',
+                        proposed_parent_id: updates.parent_id
+                    };
+                } catch (e) {
+                    errorDetails.parent_validation = {
+                        reason: 'invalid_parent',
+                        note: "Parent validation error (details simplified for compatibility)"
+                    };
+                }
+            }
+
+            if (hasSchemaError) {
+                errorDetails.schema_validation_note = "Schema validation errors detected. Please check data types and required fields.";
             }
 
             return {
@@ -285,7 +364,7 @@ export async function handleUpdateTask(params) {
         }
 
         // Log warnings if any (non-blocking issues)
-        if (validationResult.warnings.length > 0) {
+        if (validationResult.warnings && validationResult.warnings.length > 0) {
             console.warn(`[UpdateTask] Validation warnings for task ${task_id}:`,
                 validationResult.warnings.map(w => w.message));
         }

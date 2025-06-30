@@ -222,37 +222,113 @@ export async function handleCreateTask(params) {
         const tasks = await readTasks();
 
         // CENTRALIZED CRUD VALIDATION - Replace all existing validations
-        const validationResult = validateCreateTask(params, tasks);
+        let validationResult;
+
+        try {
+            validationResult = validateCreateTask(params, tasks);
+        } catch (validationError) {
+            // Enhanced error logging for validation failures
+            console.error('[CreateTask] Validation system error:', {
+                error: validationError.message,
+                params: JSON.stringify(params, null, 2),
+                tasksCount: tasks.length,
+                timestamp: new Date().toISOString()
+            });
+
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        status: 'error',
+                        message: `Validation system error: ${validationError.message}`,
+                        error_details: {
+                            error_type: 'VALIDATION_SYSTEM_ERROR',
+                            original_error: validationError.message,
+                            timestamp: new Date().toISOString()
+                        },
+                        created_task: null
+                    }, null, 2)
+                }]
+            };
+        }
 
         if (!validationResult.isValid) {
-            // Format errors for user-friendly response
-            const errorMessages = validationResult.errors.map(error => error.message).join('; ');
-            const errorDetails = {
-                validation_errors: validationResult.errors,
-                warnings: validationResult.warnings,
-                operation: validationResult.operation
-            };
+            // Format errors for user-friendly response with enhanced safety
+            let errorMessages;
+            let errorDetails;
+
+            try {
+                errorMessages = validationResult.errors.map(error => error.message).join('; ');
+                errorDetails = {
+                    validation_errors: validationResult.errors,
+                    warnings: validationResult.warnings,
+                    operation: validationResult.operation
+                };
+
+                // Test serialization safety
+                JSON.stringify(errorDetails);
+            } catch (serializationError) {
+                console.error('[CreateTask] Error serialization failed:', serializationError.message);
+
+                // Fallback to safe error reporting
+                errorMessages = validationResult.errors?.length > 0
+                    ? `${validationResult.errors.length} validation error(s) detected`
+                    : 'Validation failed';
+
+                errorDetails = {
+                    validation_errors: validationResult.errors?.map(e => ({
+                        type: e.type || 'UNKNOWN',
+                        message: e.message || 'Unknown error',
+                        code: e.code || 'UNKNOWN'
+                    })) || [],
+                    warnings: validationResult.warnings?.map(w => ({
+                        type: w.type || 'UNKNOWN',
+                        message: w.message || 'Unknown warning',
+                        code: w.code || 'UNKNOWN'
+                    })) || [],
+                    operation: validationResult.operation || 'create',
+                    serialization_note: 'Complex error details simplified for JSON compatibility'
+                };
+            }
 
             // Check for specific error types to provide enhanced feedback
-            const hasCircularDependency = validationResult.errors.some(e => e.code === 'CIRCULAR_DEPENDENCY');
-            const hasDuplicateTitle = validationResult.errors.some(e => e.code === 'DUPLICATE_TITLE');
-            const hasSchemaError = validationResult.errors.some(e => e.type === 'SCHEMA_VALIDATION_ERROR');
+            const hasCircularDependency = validationResult.errors?.some(e => e.code === 'CIRCULAR_DEPENDENCY') || false;
+            const hasDuplicateTitle = validationResult.errors?.some(e => e.code === 'DUPLICATE_TITLE') || false;
+            const hasSchemaError = validationResult.errors?.some(e => e.type === 'SCHEMA_VALIDATION_ERROR') || false;
 
             if (hasCircularDependency) {
                 const circularError = validationResult.errors.find(e => e.code === 'CIRCULAR_DEPENDENCY');
-                errorDetails.circular_dependency_prevention = {
-                    reason: 'circular_dependency_detected',
-                    detected_cycles: circularError.details?.cycles || [],
-                    prevention_note: "This validation prevents the creation of tasks that would introduce circular dependencies."
-                };
+                try {
+                    errorDetails.circular_dependency_prevention = {
+                        reason: 'circular_dependency_detected',
+                        detected_cycles: circularError.details?.cycles || [],
+                        prevention_note: "This validation prevents the creation of tasks that would introduce circular dependencies."
+                    };
+                } catch (e) {
+                    errorDetails.circular_dependency_prevention = {
+                        reason: 'circular_dependency_detected',
+                        prevention_note: "Circular dependency detected (details simplified for compatibility)"
+                    };
+                }
             }
 
             if (hasDuplicateTitle) {
                 const duplicateError = validationResult.errors.find(e => e.code === 'DUPLICATE_TITLE');
-                errorDetails.duplicate_detection = {
-                    reason: 'identical_title',
-                    existing_task: duplicateError.details?.existingTask || null
-                };
+                try {
+                    errorDetails.duplicate_detection = {
+                        reason: 'identical_title',
+                        existing_task: duplicateError.details?.existingTask || null
+                    };
+                } catch (e) {
+                    errorDetails.duplicate_detection = {
+                        reason: 'identical_title',
+                        note: "Duplicate title detected (details simplified for compatibility)"
+                    };
+                }
+            }
+
+            if (hasSchemaError) {
+                errorDetails.schema_validation_note = "Schema validation errors detected. Please check data types and required fields.";
             }
 
             return {
@@ -269,7 +345,7 @@ export async function handleCreateTask(params) {
         }
 
         // Log warnings if any (non-blocking issues)
-        if (validationResult.warnings.length > 0) {
+        if (validationResult.warnings && validationResult.warnings.length > 0) {
             console.warn(`[CreateTask] Validation warnings for task "${params.title}":`,
                 validationResult.warnings.map(w => w.message));
         }
@@ -302,45 +378,30 @@ export async function handleCreateTask(params) {
         // Validate no duplicates were introduced
         validateTaskIntegrity(tasks);
 
-        await writeTasks(tasks);
-
-        // Prepare success response
-        const response = {
-            status: 'success',
-            message: `Task created successfully with ID ${createdTask.id}`,
-            created_task: {
-                id: createdTask.id,
-                title: createdTask.title,
-                short_description: createdTask.short_description,
-                detailed_description: createdTask.detailed_description,
-                status: createdTask.status,
-                dependencies: createdTask.dependencies,
-                impacted_files: createdTask.impacted_files,
-                validation_criteria: createdTask.validation_criteria,
-                created_date: createdTask.created_date,
-                updated_date: createdTask.updated_date,
-                parent_id: createdTask.parent_id,
-                priority: createdTask.priority,
-                image: createdTask.image,
-                refactoring_target_file: createdTask.refactoring_target_file
-            },
-            summary: {
-                task_id: createdTask.id,
-                has_dependencies: createdTask.dependencies.length > 0,
-                dependency_count: createdTask.dependencies.length,
-                is_subtask: createdTask.parent_id !== null,
-                priority_level: createdTask.priority
-            }
-        };
+        // Save to file
+        await fs.writeFile(TASKS_FILE_PATH, JSON.stringify(tasks, null, 2));
 
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify(response, null, 2)
+                text: JSON.stringify({
+                    status: 'success',
+                    message: `Task created successfully with ID ${newTaskId}`,
+                    created_task: createdTask,
+                    validation_warnings: validationResult.warnings || []
+                }, null, 2)
             }]
         };
 
     } catch (error) {
+        // Enhanced error logging for debugging
+        console.error('[CreateTask] Unexpected error:', {
+            error: error.message,
+            stack: error.stack,
+            params: params ? JSON.stringify(params, null, 2) : 'undefined',
+            timestamp: new Date().toISOString()
+        });
+
         return {
             content: [{
                 type: 'text',
@@ -350,7 +411,8 @@ export async function handleCreateTask(params) {
                     created_task: null,
                     error_details: {
                         error_type: error.constructor.name,
-                        error_message: error.message
+                        error_message: error.message,
+                        timestamp: new Date().toISOString()
                     }
                 }, null, 2)
             }]
