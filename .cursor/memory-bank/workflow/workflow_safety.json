@@ -1,6 +1,11 @@
 {
   "transition_history": [
     {
+      "from": null,
+      "to": "experience-execution",
+      "timestamp": "2025-06-30T20:57:47.592Z"
+    },
+    {
       "from": "fix",
       "to": "experience-execution",
       "timestamp": "2025-06-30T20:52:32.218Z"
@@ -45,9 +50,9 @@
       "timestamp": "2025-06-30T20:22:04.060Z"
     }
   ],
-  "experience_execution_attempts": 1,
-  "last_experience_execution": "2025-06-30T20:52:32.218Z",
+  "experience_execution_attempts": 2,
+  "last_experience_execution": "2025-06-30T20:57:47.592Z",
   "last_implementation": null,
-  "consecutive_transitions": 9,
+  "consecutive_transitions": 10,
   "emergency_brake_active": false
 }
