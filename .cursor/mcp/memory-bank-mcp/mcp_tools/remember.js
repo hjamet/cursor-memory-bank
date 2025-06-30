@@ -6,6 +6,7 @@ import { readUserbrief } from '../lib/userbrief_manager.js';
 import { readTasks } from '../lib/task_manager.js';
 import { encodeText, findSimilarMemories } from '../lib/semantic_search.js';
 import { UserMessageManager } from '../lib/user_message_manager.js';
+import { validateTransition, recordTransition } from '../lib/workflow_safety.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -98,6 +99,36 @@ async function getPossibleNextSteps(lastStep = null) {
 }
 
 async function getRecommendedNextStep(lastStep, possibleSteps, tasks = null) {
+    // SAFETY FIRST: Determine the optimal next step based on workflow logic
+    let recommendedStep = await getRecommendedStepLogic(lastStep, possibleSteps, tasks);
+
+    // SAFETY VALIDATION: Check if the transition is safe
+    try {
+        const validation = await validateTransition(lastStep, recommendedStep);
+
+        if (!validation.allowed) {
+            // Transition blocked by safety system
+            console.warn(`Workflow transition blocked: ${validation.reason}`);
+
+            // Use the safety system's recommendation
+            recommendedStep = validation.recommendation;
+
+            // Record the blocked transition for monitoring
+            await recordTransition(lastStep, `BLOCKED_${recommendedStep}_TO_${validation.recommendation}`);
+        } else {
+            // Record successful transition
+            await recordTransition(lastStep, recommendedStep);
+        }
+    } catch (error) {
+        // If safety system fails, fall back to safe default
+        console.warn(`Workflow safety system error: ${error.message}`);
+        recommendedStep = 'context-update';
+    }
+
+    return recommendedStep;
+}
+
+async function getRecommendedStepLogic(lastStep, possibleSteps, tasks = null) {
     // CRITICAL FIX: Prevent experience-execution loops
     // Rule: experience-execution can NEVER be followed by experience-execution
     if (lastStep === 'experience-execution') {
@@ -132,58 +163,74 @@ async function getRecommendedNextStep(lastStep, possibleSteps, tasks = null) {
         }
     }
 
-    // For all other cases, use the existing logic
+    // ENHANCED WORKFLOW AUTOMATION: Mandatory implementation → experience-execution
+    // This implements the core requirement of Task #266
+    if (lastStep === 'implementation' && possibleSteps.includes('experience-execution')) {
+        // Load tasks if not provided to check for completed implementations
+        if (!tasks) {
+            try {
+                tasks = await readTasks();
+            } catch (error) {
+                // If we can't load tasks, fallback to standard logic
+                return getStandardRecommendation(possibleSteps);
+            }
+        }
+
+        // Check if there are recently completed tasks that need testing
+        const recentlyCompletedTasks = tasks && tasks.filter(t =>
+            t.status === 'REVIEW' &&
+            t.updated_date &&
+            new Date(t.updated_date) > new Date(Date.now() - 24 * 60 * 60 * 1000) // Last 24 hours
+        );
+
+        // MANDATORY TRANSITION: Always go to experience-execution after implementation
+        // Exception: Only skip if there are critical blocking issues
+        const hasBlockedTasks = tasks && tasks.some(t => t.status === 'BLOCKED');
+        const hasUserRequests = possibleSteps.includes('task-decomposition');
+
+        // Skip experience-execution only in exceptional cases
+        if (hasBlockedTasks && !recentlyCompletedTasks?.length) {
+            return 'fix'; // Address blocking issues first
+        } else if (hasUserRequests && !recentlyCompletedTasks?.length) {
+            return 'task-decomposition'; // Process urgent user requests
+        } else {
+            // MANDATORY: Go to experience-execution to test the implementation
+            return 'experience-execution';
+        }
+    }
+
+    // For all other cases, use the existing logic with enhanced prioritization
+    return getStandardRecommendation(possibleSteps);
+}
+
+// Helper function for standard recommendation logic
+function getStandardRecommendation(possibleSteps) {
     // Prioritize task-decomposition for new user requests (highest priority)
     if (possibleSteps.includes('task-decomposition')) {
         return 'task-decomposition';
     }
 
-    // ENHANCED: Prioritize experience-execution after implementation
-    if (lastStep === 'implementation' && possibleSteps.includes('experience-execution')) {
-        return 'experience-execution';
-    }
-
-    // ENHANCED: Also prioritize experience-execution if there are tasks in REVIEW status
-    // BUT: Allow workflow termination if ONLY REVIEW tasks exist (agent work complete)
-    if (possibleSteps.includes('experience-execution')) {
-        try {
-            if (!tasks) {
-                tasks = await readTasks();
-            }
-            if (tasks && tasks.some(t => t.status === 'REVIEW')) {
-                // Check if ALL remaining tasks are REVIEW (agent work complete)
-                const activeTasks = tasks.filter(t => ['TODO', 'IN_PROGRESS', 'BLOCKED'].includes(t.status));
-                const reviewTasks = tasks.filter(t => t.status === 'REVIEW');
-
-                // If no active tasks and only REVIEW tasks exist, prioritize context-update for potential termination
-                if (activeTasks.length === 0 && reviewTasks.length > 0) {
-                    if (possibleSteps.includes('context-update')) {
-                        return 'context-update';
-                    }
-                }
-
-                // Otherwise, proceed with experience-execution as normal
-                return 'experience-execution';
-            }
-        } catch (error) {
-            // If we can't check tasks, fall through to other logic
-        }
-    }
-
-    // Other priority steps
-    if (possibleSteps.includes('implementation')) {
-        return 'implementation';
-    }
-
+    // Prioritize fix for critical issues
     if (possibleSteps.includes('fix')) {
         return 'fix';
     }
 
+    // Then implementation for pending work
+    if (possibleSteps.includes('implementation')) {
+        return 'implementation';
+    }
+
+    // Experience-execution for testing/validation
+    if (possibleSteps.includes('experience-execution')) {
+        return 'experience-execution';
+    }
+
+    // Context-update as fallback
     if (possibleSteps.includes('context-update')) {
         return 'context-update';
     }
 
-    // Fallback to the first available step
+    // Ultimate fallback
     return possibleSteps[0] || 'context-update';
 }
 

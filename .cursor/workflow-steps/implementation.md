@@ -68,10 +68,24 @@ Implémente méthodiquement UNE SEULE tâche prioritaire. Ton objectif principal
 - **PROCHAINE TÂCHE** : Sera déterminée par le prochain appel à next_rule, pas par vous
 - **MARQUAGE SYSTÉMATIQUE** : Toute tâche identifiée DOIT être marquée IN_PROGRESS immédiatement, sans exception
 
-## Next Steps
+## Next Steps - WORKFLOW AUTOMATION ACTIVE
+
+**⚠️ TRANSITION AUTOMATIQUE ACTIVÉE ⚠️**
+
+**RÈGLE CRITIQUE** : Après chaque implémentation terminée, le workflow passe **AUTOMATIQUEMENT** à `experience-execution` pour validation. Cette transition est **OBLIGATOIRE** et fait partie de l'architecture de qualité du système.
+
+**Transitions automatiques** :
+- `implementation` → `experience-execution` (AUTOMATIQUE - validation obligatoire)
+- `experience-execution` → Déterminé par les résultats des tests
+
+**Exceptions rares** (gérées automatiquement par le système) :
+- Présence de tâches BLOCKED critiques
+- Demandes utilisateur urgentes sans tâches récemment complétées
+
+**Étapes manuelles possibles** :
 - `context-update` - Pour finaliser et commiter les changements
 - `fix` - Si des problèmes sont détectés pendant l'implémentation
-- `experience-execution` - Si des tests manuels sont nécessaires
+- `task-decomposition` - Si de nouvelles demandes utilisateur arrivent
 
 ## Template Variables
 - `{{ current_tasks_summary }}` - Résumé des tâches en cours
