@@ -144,12 +144,25 @@ async function getRecommendedNextStep(lastStep, possibleSteps, tasks = null) {
     }
 
     // ENHANCED: Also prioritize experience-execution if there are tasks in REVIEW status
+    // BUT: Allow workflow termination if ONLY REVIEW tasks exist (agent work complete)
     if (possibleSteps.includes('experience-execution')) {
         try {
             if (!tasks) {
                 tasks = await readTasks();
             }
             if (tasks && tasks.some(t => t.status === 'REVIEW')) {
+                // Check if ALL remaining tasks are REVIEW (agent work complete)
+                const activeTasks = tasks.filter(t => ['TODO', 'IN_PROGRESS', 'BLOCKED'].includes(t.status));
+                const reviewTasks = tasks.filter(t => t.status === 'REVIEW');
+
+                // If no active tasks and only REVIEW tasks exist, prioritize context-update for potential termination
+                if (activeTasks.length === 0 && reviewTasks.length > 0) {
+                    if (possibleSteps.includes('context-update')) {
+                        return 'context-update';
+                    }
+                }
+
+                // Otherwise, proceed with experience-execution as normal
                 return 'experience-execution';
             }
         } catch (error) {
@@ -325,24 +338,39 @@ async function remember(args) {
                 ['TODO', 'IN_PROGRESS', 'BLOCKED'].includes(t.status)
             );
 
+            // ENHANCED: Check for REVIEW-only state (agent work complete, user validation pending)
+            const hasReviewTasks = tasks && tasks.some(t => t.status === 'REVIEW');
+            const isReviewOnlyState = !hasActiveTasks && hasReviewTasks && !hasUnprocessedRequests;
+
             // DEBUG: Add debug information to understand the state
             const debugInfo = {
                 lastStep,
                 hasUnprocessedRequests,
                 hasActiveTasks,
+                hasReviewTasks,
+                isReviewOnlyState,
                 requestCount: userbrief.requests ? userbrief.requests.length : 0,
                 taskCount: tasks ? tasks.length : 0,
                 requestStatuses: userbrief.requests ? userbrief.requests.map(r => r.status) : [],
                 taskStatuses: tasks ? tasks.map(t => t.status) : []
             };
 
-            if (!hasUnprocessedRequests && !hasActiveTasks) {
+            // WORKFLOW TERMINATION: Allow termination when no active work remains for agent
+            // This includes both complete state (no tasks) and REVIEW-only state (agent work done)
+            if (!hasUnprocessedRequests && (!hasActiveTasks || isReviewOnlyState)) {
                 // WORKFLOW COMPLETE - Return proper MCP response structure
+                const completionMessage = isReviewOnlyState
+                    ? "Memory has been saved. Agent work is complete - only user validation remains. The workflow can be stopped."
+                    : "Memory has been saved. The workflow is complete and can be stopped.";
+                const workflowInstruction = isReviewOnlyState
+                    ? "STOP: Agent work complete. Only tasks in REVIEW status remain (user validation required)."
+                    : "STOP: All tasks and user requests have been processed.";
+
                 const completionResponse = {
-                    message: "Memory has been saved. The workflow is complete and can be stopped.",
+                    message: completionMessage,
                     workflow_status: "WORKFLOW_COMPLETE",
                     next_action_required: "The workflow is complete. Do not call next_rule. You can stop.",
-                    workflow_instruction: "STOP: All tasks and user requests have been processed.",
+                    workflow_instruction: workflowInstruction,
                     recommended_next_step: null,
                     current_state: future,
                     possible_next_steps: [],
