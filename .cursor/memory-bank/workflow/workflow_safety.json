@@ -1,58 +1,109 @@
 {
   "transition_history": [
     {
-      "from": null,
-      "to": "experience-execution",
-      "timestamp": "2025-06-30T20:57:47.592Z"
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:41:29.874Z"
     },
     {
-      "from": "fix",
-      "to": "experience-execution",
-      "timestamp": "2025-06-30T20:52:32.218Z"
-    },
-    {
-      "from": null,
-      "to": "fix",
-      "timestamp": "2025-06-30T20:45:02.673Z"
-    },
-    {
-      "to": "fix",
-      "timestamp": "2025-06-30T20:44:08.501Z"
-    },
-    {
-      "from": "start-workflow",
-      "to": "fix",
-      "timestamp": "2025-06-30T20:37:39.336Z"
-    },
-    {
-      "from": "fix",
-      "to": "fix",
-      "timestamp": "2025-06-30T20:36:43.137Z"
-    },
-    {
-      "from": "start-workflow",
-      "to": "fix",
-      "timestamp": "2025-06-30T20:33:38.884Z"
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:41:11.109Z"
     },
     {
       "from": "experience-execution",
-      "to": "context-update",
-      "timestamp": "2025-06-30T20:30:48.688Z"
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:41:04.623Z"
     },
     {
-      "from": "fix",
-      "to": "fix",
-      "timestamp": "2025-06-30T20:24:16.913Z"
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:39:36.553Z"
+    },
+    {
+      "from": "implementation",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:39:28.006Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:37:00.174Z"
+    },
+    {
+      "from": "context-update",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:36:53.571Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:33:45.554Z"
     },
     {
       "from": null,
-      "to": "fix",
-      "timestamp": "2025-06-30T20:22:04.060Z"
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:33:40.701Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:30:24.445Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:29:57.593Z"
+    },
+    {
+      "from": "context-update",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:29:51.094Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:26:49.389Z"
+    },
+    {
+      "from": null,
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:26:44.983Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:25:26.612Z"
+    },
+    {
+      "from": "fix",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:25:20.130Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:21:06.040Z"
+    },
+    {
+      "from": "experience-execution",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:20:54.905Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:19:05.970Z"
+    },
+    {
+      "from": "implementation",
+      "to": "experience-execution",
+      "timestamp": "2025-07-01T16:18:19.080Z"
     }
   ],
-  "experience_execution_attempts": 2,
-  "last_experience_execution": "2025-06-30T20:57:47.592Z",
-  "last_implementation": null,
-  "consecutive_transitions": 10,
-  "emergency_brake_active": false
+  "experience_execution_attempts": 0,
+  "last_experience_execution": "2025-07-01T16:18:19.080Z",
+  "last_implementation": "2025-07-01T16:16:46.130Z",
+  "consecutive_transitions": 69,
+  "emergency_brake_active": true
 }

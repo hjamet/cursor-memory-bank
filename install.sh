@@ -222,18 +222,43 @@ manage_gitignore() {
     local target_dir="$1"
     local gitignore_file="$target_dir/.gitignore"
     local no_gitignore_flag="${NO_GITIGNORE:-}"
+    local backup_file="$gitignore_file.backup-$(date +%Y%m%d-%H%M%S)"
 
     if [[ -n "$no_gitignore_flag" ]]; then
         log "Skipping .gitignore management due to --no-gitignore flag"
         return
     fi
 
-    log "Managing .gitignore file..."
+    log "Managing .gitignore file for selective .cursor synchronization..."
 
     # Create .gitignore if it doesn't exist
     if [[ ! -f "$gitignore_file" ]]; then
         touch "$gitignore_file"
         log "Created .gitignore file at: $gitignore_file"
+    else
+        # Create backup of existing .gitignore
+        if cp "$gitignore_file" "$backup_file"; then
+            log "Created backup of existing .gitignore: $backup_file"
+        else
+            warn "Failed to create backup of .gitignore. Continuing without backup."
+        fi
+    fi
+
+    # Remove old Cursor Memory Bank entries to avoid conflicts
+    log "Cleaning up old Cursor Memory Bank entries..."
+    if [[ -f "$gitignore_file" ]]; then
+        # Remove old auto-generated entries and related lines
+        sed -i.tmp \
+            -e '/# Cursor Memory Bank - Auto-generated entries/d' \
+            -e '/\.cursor\/mcp\/\*\/node_modules\//d' \
+            -e '/\.cursor\/mcp\/\*\/\*\.log/d' \
+            -e '/\.cursor\/memory-bank\/workflow\/temp\//d' \
+            -e '/\.cursor\/streamlit_app\/__pycache__\//d' \
+            -e '/\.cursor\/memory-bank\/models\//d' \
+            -e '/# MCP Server State Files/d' \
+            -e '/\.cursor\/mcp\/\*\/terminals_status\.json/d' \
+            -e '/\.cursor\/mcp\/\*\/temp_\*/d' \
+            "$gitignore_file" && rm -f "$gitignore_file.tmp"
     fi
 
     # Entries to be added
@@ -251,15 +276,120 @@ manage_gitignore() {
         "GEMINI.md"
     )
 
-    # Add entries if they don't exist
-    for entry in "${entries[@]}"; do
-        if ! grep -qF -- "$entry" "$gitignore_file"; then
-            echo "$entry" >> "$gitignore_file"
-            log "Added to .gitignore: $entry"
+    # Add selective .cursor rules
+    log "Adding selective .cursor synchronization rules..."
+    for rule in "${cursor_rules[@]}"; do
+        if [[ -n "$rule" ]]; then
+            # Check if rule already exists to avoid duplicates
+            if ! grep -qF -- "$rule" "$gitignore_file" 2>/dev/null; then
+                echo "$rule" >> "$gitignore_file"
+                log "Added rule: $rule"
+            else
+                log "Rule already exists: $rule"
+            fi
         else
-            log "Already in .gitignore: $entry"
+            # Add empty line for formatting
+            echo "" >> "$gitignore_file"
         fi
     done
+
+    # Validate .gitignore syntax and rules
+    log "Validating .gitignore rules..."
+    if validate_gitignore_rules "$target_dir"; then
+        log "✅ .gitignore rules validated successfully"
+    else
+        warn "⚠️ .gitignore validation failed - rules may not work as expected"
+    fi
+
+    # Handle already tracked files that should now be ignored
+    handle_tracked_files "$target_dir"
+
+    log "✅ Selective .cursor synchronization configured successfully"
+    log "📋 Summary: Only .cursor/memory-bank/context/ and .cursor/memory-bank/workflow/ will sync with Git"
+}
+
+# Function to validate .gitignore rules
+validate_gitignore_rules() {
+    local target_dir="$1"
+    local test_passed=true
+
+    # Check if we're in a git repository
+    if ! (cd "$target_dir" && git rev-parse --git-dir >/dev/null 2>&1); then
+        log "Not in a Git repository - skipping validation"
+        return 0
+    fi
+
+    log "Testing .gitignore rules..."
+
+    # Test that .cursor/ is ignored
+    if (cd "$target_dir" && echo ".cursor/test_file" | git check-ignore --stdin >/dev/null 2>&1); then
+        log "✓ .cursor/ exclusion rule working"
+    else
+        warn "✗ .cursor/ exclusion rule may not be working"
+        test_passed=false
+    fi
+
+    # Test that .cursor/memory-bank/context/ is NOT ignored
+    if ! (cd "$target_dir" && echo ".cursor/memory-bank/context/test_file" | git check-ignore --stdin >/dev/null 2>&1); then
+        log "✓ .cursor/memory-bank/context/ inclusion rule working"
+    else
+        warn "✗ .cursor/memory-bank/context/ inclusion rule may not be working"
+        test_passed=false
+    fi
+
+    # Test that .cursor/memory-bank/workflow/ is NOT ignored
+    if ! (cd "$target_dir" && echo ".cursor/memory-bank/workflow/test_file" | git check-ignore --stdin >/dev/null 2>&1); then
+        log "✓ .cursor/memory-bank/workflow/ inclusion rule working"
+    else
+        warn "✗ .cursor/memory-bank/workflow/ inclusion rule may not be working"
+        test_passed=false
+    fi
+
+    # Test that other .cursor subdirectories are ignored
+    if (cd "$target_dir" && echo ".cursor/other_dir/test_file" | git check-ignore --stdin >/dev/null 2>&1); then
+        log "✓ Other .cursor/ subdirectories exclusion working"
+    else
+        warn "✗ Other .cursor/ subdirectories may not be properly excluded"
+        test_passed=false
+    fi
+
+    $test_passed
+}
+
+# Function to handle files already tracked by Git that should now be ignored
+handle_tracked_files() {
+    local target_dir="$1"
+
+    # Check if we're in a git repository
+    if ! (cd "$target_dir" && git rev-parse --git-dir >/dev/null 2>&1); then
+        log "Not in a Git repository - skipping tracked files cleanup"
+        return 0
+    fi
+
+    log "Checking for .cursor files that are tracked but should now be ignored..."
+
+    # Get list of tracked files in .cursor that should be ignored
+    local tracked_files
+    tracked_files=$(cd "$target_dir" && git ls-files '.cursor/*' 2>/dev/null | grep -v -E '^\.cursor/memory-bank/(context|workflow)/' | head -20)
+
+    if [[ -n "$tracked_files" ]]; then
+        warn "Found tracked files in .cursor that should now be ignored:"
+        echo "$tracked_files" | while IFS= read -r file; do
+            warn "  - $file"
+        done
+        warn ""
+        warn "MANUAL ACTION REQUIRED:"
+        warn "To remove these files from Git tracking (but keep them locally), run:"
+        warn "  cd '$target_dir'"
+        echo "$tracked_files" | while IFS= read -r file; do
+            warn "  git rm --cached '$file'"
+        done
+        warn "  git commit -m '🔧 chore: Remove .cursor files from tracking (except memory-bank/context and memory-bank/workflow)'"
+        warn ""
+        warn "⚠️ CAUTION: Review the files before running git rm --cached to ensure no important data is lost"
+    else
+        log "✅ No problematic tracked files found in .cursor directory"
+    fi
 }
 
 # Function to set up the memory bank directory
@@ -823,6 +953,221 @@ EOF
     fi
 }
 
+# Function to configure MCP servers for Gemini CLI
+configure_gemini_cli_mcp() {
+    local target_dir="$1"
+    # CORRECTION: Use local .gemini/settings.json instead of global ~/.gemini/settings.json
+    local gemini_settings_file="$target_dir/.gemini/settings.json"
+    local server_script_rel_path=".cursor/mcp/mcp-commit-server/server.js"
+    local memory_bank_script_rel_path=".cursor/mcp/memory-bank-mcp/server.js"
+
+    log "Configuring MCP servers for Gemini CLI (local configuration)..."
+
+    # --- Calculate Absolute Paths ---
+    log "Calculating absolute paths for Gemini CLI configuration..."
+    local target_dir_abs=""
+    local server_script_abs_path=""
+    local memory_bank_script_abs_path=""
+    local server_script_win_path=""
+    local memory_bank_script_win_path=""
+
+    # Calculate absolute path for target_dir
+    if ! target_dir_abs="$(cd "$target_dir" && pwd -P)"; then
+        error "Failed to determine absolute path for target directory: $target_dir. Cannot configure Gemini CLI MCP servers."
+        return 1
+    fi
+    log "Calculated absolute target directory path: $target_dir_abs"
+
+    # Calculate absolute paths for server scripts
+    local clean_rel_path="${server_script_rel_path#./}"
+    server_script_abs_path="$target_dir_abs/$clean_rel_path"
+    local memory_clean_rel_path="${memory_bank_script_rel_path#./}"
+    memory_bank_script_abs_path="$target_dir_abs/$memory_clean_rel_path"
+
+    # Check if server scripts exist
+    if [[ ! -f "$target_dir/$server_script_rel_path" ]]; then
+        warn "MyMCP server script missing at $target_dir/$server_script_rel_path. Skipping Gemini CLI configuration."
+        return 1
+    fi
+    if [[ ! -f "$target_dir/$memory_bank_script_rel_path" ]]; then
+        warn "MemoryBankMCP server script missing at $target_dir/$memory_bank_script_rel_path. Skipping Gemini CLI configuration."
+        return 1
+    fi
+
+    # Set paths for JSON (no Windows conversion needed for Gemini CLI on Unix-like systems)
+    server_script_win_path="$server_script_abs_path"
+    memory_bank_script_win_path="$memory_bank_script_abs_path"
+
+    # --- Windows Path Conversion (if needed) ---
+    os_type=""
+    if command -v uname >/dev/null 2>&1; then os_type=$(uname -o); fi
+    if [[ "$os_type" == "Msys" ]]; then
+        if command -v cygpath >/dev/null 2>&1; then
+            if win_path=$(cygpath -w "$server_script_abs_path"); then
+                server_script_win_path="$win_path"
+            fi
+            if win_path=$(cygpath -w "$memory_bank_script_abs_path"); then
+                memory_bank_script_win_path="$win_path"
+            fi
+        else
+            server_script_win_path=$(echo "$server_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
+            memory_bank_script_win_path=$(echo "$memory_bank_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
+        fi
+    fi
+
+    # Escape paths for JSON embedding
+    local server_script_json_safe
+    server_script_json_safe=$(echo "$server_script_win_path" | sed 's/\\/\\\\/g')
+    local memory_bank_script_json_safe
+    memory_bank_script_json_safe=$(echo "$memory_bank_script_win_path" | sed 's/\\/\\\\/g')
+
+    # Create .gemini directory if it doesn't exist
+    if ! mkdir -p "$(dirname "$gemini_settings_file")"; then
+        error "Could not create directory for $gemini_settings_file. Aborting Gemini CLI MCP configuration."
+        return 1
+    fi
+
+    # Check if settings.json already exists and has MCP configuration
+    local existing_config=""
+    local has_existing_mcp=false
+    if [[ -f "$gemini_settings_file" ]]; then
+        log "Found existing Gemini CLI settings file: $gemini_settings_file"
+        if grep -q '"mcpServers"' "$gemini_settings_file" 2>/dev/null; then
+            has_existing_mcp=true
+            warn "Existing MCP server configuration found in $gemini_settings_file"
+            warn "The existing MCP configuration will be replaced, but other settings will be preserved."
+        fi
+        # Read existing config to preserve non-MCP settings
+        existing_config=$(cat "$gemini_settings_file" 2>/dev/null || echo "{}")
+    else
+        log "Creating new Gemini CLI settings file: $gemini_settings_file"
+        existing_config="{}"
+    fi
+
+    # Generate new MCP configuration JSON
+    log "Preparing to configure Gemini CLI MCP servers..."
+    
+    # --- DEBUG: Print values before writing ---
+    echo "DEBUG: Writing to Gemini settings file: [$gemini_settings_file]" >&2
+    echo "DEBUG: MyMCP server script path (escaped): [$server_script_json_safe]" >&2
+    echo "DEBUG: MemoryBankMCP server script path (escaped): [$memory_bank_script_json_safe]" >&2
+    # --- End DEBUG ---
+
+    # Create new MCP servers configuration
+    local new_mcp_config
+    new_mcp_config=$(cat << EOF
+{
+    "MyMCP": {
+        "command": "node",
+        "args": ["$server_script_json_safe"]
+    },
+    "MemoryBankMCP": {
+        "command": "node", 
+        "args": ["$memory_bank_script_json_safe"]
+    },
+    "Context7": {
+        "command": "npx",
+        "args": ["-y", "@upstash/context7-mcp@latest"]
+    }
+}
+EOF
+)
+
+    # CRITICAL FIX: Merge configurations intelligently to preserve existing settings
+    local final_config=""
+    if command -v jq >/dev/null 2>&1; then
+        # Use jq for robust JSON merging
+        log "Using jq for intelligent configuration merging..."
+        final_config=$(echo "$existing_config" | jq --argjson mcpServers "$new_mcp_config" '. + {mcpServers: $mcpServers}' 2>/dev/null)
+        if [[ $? -ne 0 ]] || [[ -z "$final_config" ]]; then
+            warn "jq merging failed, falling back to manual merge"
+            final_config=""
+        fi
+    fi
+
+    # Fallback: Manual merge if jq is not available or failed
+    if [[ -z "$final_config" ]]; then
+        log "Performing manual configuration merge..."
+        if [[ "$existing_config" == "{}" ]] || [[ -z "$existing_config" ]]; then
+            # No existing config, create new one
+            # FIXED: new_mcp_config is already a complete JSON object, just wrap it with mcpServers
+            final_config="{
+    \"mcpServers\": $new_mcp_config
+}"
+        else
+            # Try to preserve existing config by removing mcpServers and adding new one
+            local config_without_mcp
+            if command -v jq >/dev/null 2>&1; then
+                config_without_mcp=$(echo "$existing_config" | jq 'del(.mcpServers)' 2>/dev/null)
+            else
+                # Very basic fallback - warn user about potential data loss
+                warn "jq not available for safe merging. Existing non-MCP settings may be lost."
+                warn "Please manually backup your Gemini CLI settings before proceeding."
+                config_without_mcp="{}"
+            fi
+            
+            if [[ -n "$config_without_mcp" ]] && [[ "$config_without_mcp" != "null" ]]; then
+                # Merge manually (basic approach)
+                if [[ "$config_without_mcp" == "{}" ]]; then
+                    # FIXED: Same fix for empty config case
+                    final_config="{
+    \"mcpServers\": $new_mcp_config
+}"
+                else
+                    # FIXED: Safer manual JSON merging
+                    # Remove the closing brace, add comma and mcpServers, then close
+                    local config_base=$(echo "$config_without_mcp" | sed 's/}[[:space:]]*$//')
+                    final_config="${config_base},
+    \"mcpServers\": $new_mcp_config
+}"
+                fi
+            else
+                # Last resort: create new config with warning
+                warn "Could not safely merge existing configuration. Creating new config with MCP servers only."
+                # FIXED: Same fix for fallback case
+                final_config="{
+    \"mcpServers\": $new_mcp_config
+}"
+            fi
+        fi
+    fi
+
+    # Write the merged configuration
+    if ! echo "$final_config" > "$gemini_settings_file"; then
+        error "Failed to write Gemini CLI MCP configuration to $gemini_settings_file"
+        return 1
+    fi
+
+    local write_status=$?
+    if [[ $write_status -ne 0 ]]; then
+        error "Failed to write Gemini CLI MCP configuration to $gemini_settings_file (Exit status: $write_status)"
+        return 1
+    else
+        log "Successfully configured Gemini CLI MCP servers in $gemini_settings_file"
+        
+        # --- DEBUG: Check file state immediately after write ---
+        echo "DEBUG: Checking Gemini settings file state post-write: [$gemini_settings_file]" >&2
+        ls -l "$gemini_settings_file" >&2 2>/dev/null || echo "DEBUG: ls command failed" >&2
+        echo "DEBUG: First 10 lines of Gemini settings post-write:" >&2
+        head -n 10 "$gemini_settings_file" >&2 2>/dev/null || echo "DEBUG: head command failed" >&2
+        # --- End DEBUG ---
+        
+        # Basic existence check
+        if [[ -f "$gemini_settings_file" ]]; then
+            log "Successfully configured Gemini CLI MCP servers (File exists)."
+            log "Configuration is now local to this project at: $gemini_settings_file"
+            log "You can now use 'gemini chat' from this project directory to interact with the configured MCP servers."
+            if [[ "$has_existing_mcp" == true ]]; then
+                log "Previous MCP server configuration was replaced. Other settings were preserved."
+            fi
+        else
+            error "Gemini settings file $gemini_settings_file was NOT found after write attempt."
+            return 1
+        fi
+        return 0
+    fi
+}
+
 # Function to install pre-commit hook
 install_pre_commit_hook() {
     local target_dir="$1"
@@ -1161,6 +1506,9 @@ create_mcp_tasks_file "$INSTALL_DIR"
 
 # Merge MCP JSON template with existing config (NOW uses absolute path logic)
 merge_mcp_json "$INSTALL_DIR"
+
+# Configure MCP servers for Gemini CLI
+configure_gemini_cli_mcp "$INSTALL_DIR"
 
 # Install Internal MCP Commit Server dependencies if present in the TARGET directory
 INTERNAL_MCP_SERVER_DIR="$INSTALL_DIR/.cursor/mcp/mcp-commit-server"
