@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 219,
+  "last_id": 222,
   "requests": [
     {
       "id": 160,
@@ -979,6 +979,51 @@
         {
           "timestamp": "2025-06-30T20:15:12.194Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 220,
+      "content": "Est ce que tu peux supprimer tous les fichiers de tests qui ne sont plus utiles dans le repository je crois qu'il y en a plein qui sont cachés un peu partout regarde tous les fichiers qui ont un nom qui contient test ça te permettra de facilement les identifier je pense ils prennent de la place pour rien",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-01T13:36:36.177207",
+      "updated_at": "2025-07-01T13:36:36.177207",
+      "history": [
+        {
+          "timestamp": "2025-07-01T13:36:36.177207",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        }
+      ]
+    },
+    {
+      "id": 221,
+      "content": "Est ce que tu peux modifier les modifications qui sont ajoutées au gitignore par le script d'installation pour que le seul sous dossier qui soit sync avec git dans le dossier .cursor soit les sous dossiers .cursor\\memory-bank\\context et .cursor\\memory-bank\\workflow. Tous le reste du dossier .cursor devrait être ajouté au .gitignore.",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-01T13:39:19.071852",
+      "updated_at": "2025-07-01T13:39:19.071852",
+      "history": [
+        {
+          "timestamp": "2025-07-01T13:39:19.071852",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        }
+      ]
+    },
+    {
+      "id": 222,
+      "content": "Tu peux modifier le script d'installation pour également installer le repository dans le fichier de configuration de gemini cli ?\n1. Renseigne toi sur gemini cli en utilisan brave search (https://github.com/google-gemini/gemini-cli) et https://medium.com/@joe.njenga/gemini-cli-mcp-tutorial-setup-commands-practical-use-step-by-step-example-b57f55db5f4a\n2. Modifie le script d'installation pour également installer les serveurs MCP dans .gemini/settings.json, exactement comme on l'a fait avec .cursor\\mcp.json",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-01T13:42:17.881668",
+      "updated_at": "2025-07-01T13:42:17.881668",
+      "history": [
+        {
+          "timestamp": "2025-07-01T13:42:17.881668",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }
