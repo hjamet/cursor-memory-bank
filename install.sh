@@ -222,44 +222,184 @@ manage_gitignore() {
     local target_dir="$1"
     local gitignore_file="$target_dir/.gitignore"
     local no_gitignore_flag="${NO_GITIGNORE:-}"
+    local backup_file="$gitignore_file.backup-$(date +%Y%m%d-%H%M%S)"
 
     if [[ -n "$no_gitignore_flag" ]]; then
         log "Skipping .gitignore management due to --no-gitignore flag"
         return
     fi
 
-    log "Managing .gitignore file..."
+    log "Managing .gitignore file for selective .cursor synchronization..."
 
     # Create .gitignore if it doesn't exist
     if [[ ! -f "$gitignore_file" ]]; then
         touch "$gitignore_file"
         log "Created .gitignore file at: $gitignore_file"
+    else
+        # Create backup of existing .gitignore
+        if cp "$gitignore_file" "$backup_file"; then
+            log "Created backup of existing .gitignore: $backup_file"
+        else
+            warn "Failed to create backup of .gitignore. Continuing without backup."
+        fi
     fi
 
-    # Entries to be added
-    local entries=(
-        "# Cursor Memory Bank - Auto-generated entries"
-        ".cursor/mcp/*/node_modules/"
-        ".cursor/mcp/*/*.log"
+    # Remove old Cursor Memory Bank entries to avoid conflicts
+    log "Cleaning up old Cursor Memory Bank entries..."
+    if [[ -f "$gitignore_file" ]]; then
+        # Remove old auto-generated entries and related lines
+        sed -i.tmp \
+            -e '/# Cursor Memory Bank - Auto-generated entries/d' \
+            -e '/\.cursor\/mcp\/\*\/node_modules\//d' \
+            -e '/\.cursor\/mcp\/\*\/\*\.log/d' \
+            -e '/\.cursor\/memory-bank\/workflow\/temp\//d' \
+            -e '/\.cursor\/streamlit_app\/__pycache__\//d' \
+            -e '/\.cursor\/memory-bank\/models\//d' \
+            -e '/# MCP Server State Files/d' \
+            -e '/\.cursor\/mcp\/\*\/terminals_status\.json/d' \
+            -e '/\.cursor\/mcp\/\*\/temp_\*/d' \
+            "$gitignore_file" && rm -f "$gitignore_file.tmp"
+    fi
+
+    # Selective .cursor synchronization rules - ORDER IS CRITICAL
+    local cursor_rules=(
+        ""
+        "# Cursor Memory Bank - Selective .cursor synchronization"
+        "# CRITICAL: Rule order matters - exceptions must come after general exclusions"
+        ""
+        "# Exclude entire .cursor directory first"
+        ".cursor/*"
+        ""
+        "# Then include specific subdirectories we want to sync"
+        "!.cursor/memory-bank"
+        "!.cursor/memory-bank/"
+        "!.cursor/memory-bank/**"
+        ""
+        "# But exclude specific files/subdirs within memory-bank that shouldn't sync"
         ".cursor/memory-bank/workflow/temp/"
-        ".cursor/streamlit_app/__pycache__/"
         ".cursor/memory-bank/models/"
+        ".cursor/memory-bank/streamlit_app/"
+        ""
+        "# Additional exclusions for other files that shouldn't sync"
         "*.pyc"
         "__pycache__/"
-        "# MCP Server State Files"
-        ".cursor/mcp/*/terminals_status.json"
-        ".cursor/mcp/*/temp_*"
+        ""
     )
 
-    # Add entries if they don't exist
-    for entry in "${entries[@]}"; do
-        if ! grep -qF -- "$entry" "$gitignore_file"; then
-            echo "$entry" >> "$gitignore_file"
-            log "Added to .gitignore: $entry"
+    # Add selective .cursor rules
+    log "Adding selective .cursor synchronization rules..."
+    for rule in "${cursor_rules[@]}"; do
+        if [[ -n "$rule" ]]; then
+            # Check if rule already exists to avoid duplicates
+            if ! grep -qF -- "$rule" "$gitignore_file" 2>/dev/null; then
+                echo "$rule" >> "$gitignore_file"
+                log "Added rule: $rule"
+            else
+                log "Rule already exists: $rule"
+            fi
         else
-            log "Already in .gitignore: $entry"
+            # Add empty line for formatting
+            echo "" >> "$gitignore_file"
         fi
     done
+
+    # Validate .gitignore syntax and rules
+    log "Validating .gitignore rules..."
+    if validate_gitignore_rules "$target_dir"; then
+        log "✅ .gitignore rules validated successfully"
+    else
+        warn "⚠️ .gitignore validation failed - rules may not work as expected"
+    fi
+
+    # Handle already tracked files that should now be ignored
+    handle_tracked_files "$target_dir"
+
+    log "✅ Selective .cursor synchronization configured successfully"
+    log "📋 Summary: Only .cursor/memory-bank/context/ and .cursor/memory-bank/workflow/ will sync with Git"
+}
+
+# Function to validate .gitignore rules
+validate_gitignore_rules() {
+    local target_dir="$1"
+    local test_passed=true
+
+    # Check if we're in a git repository
+    if ! (cd "$target_dir" && git rev-parse --git-dir >/dev/null 2>&1); then
+        log "Not in a Git repository - skipping validation"
+        return 0
+    fi
+
+    log "Testing .gitignore rules..."
+
+    # Test that .cursor/ is ignored
+    if (cd "$target_dir" && echo ".cursor/test_file" | git check-ignore --stdin >/dev/null 2>&1); then
+        log "✓ .cursor/ exclusion rule working"
+    else
+        warn "✗ .cursor/ exclusion rule may not be working"
+        test_passed=false
+    fi
+
+    # Test that .cursor/memory-bank/context/ is NOT ignored
+    if ! (cd "$target_dir" && echo ".cursor/memory-bank/context/test_file" | git check-ignore --stdin >/dev/null 2>&1); then
+        log "✓ .cursor/memory-bank/context/ inclusion rule working"
+    else
+        warn "✗ .cursor/memory-bank/context/ inclusion rule may not be working"
+        test_passed=false
+    fi
+
+    # Test that .cursor/memory-bank/workflow/ is NOT ignored
+    if ! (cd "$target_dir" && echo ".cursor/memory-bank/workflow/test_file" | git check-ignore --stdin >/dev/null 2>&1); then
+        log "✓ .cursor/memory-bank/workflow/ inclusion rule working"
+    else
+        warn "✗ .cursor/memory-bank/workflow/ inclusion rule may not be working"
+        test_passed=false
+    fi
+
+    # Test that other .cursor subdirectories are ignored
+    if (cd "$target_dir" && echo ".cursor/other_dir/test_file" | git check-ignore --stdin >/dev/null 2>&1); then
+        log "✓ Other .cursor/ subdirectories exclusion working"
+    else
+        warn "✗ Other .cursor/ subdirectories may not be properly excluded"
+        test_passed=false
+    fi
+
+    $test_passed
+}
+
+# Function to handle files already tracked by Git that should now be ignored
+handle_tracked_files() {
+    local target_dir="$1"
+
+    # Check if we're in a git repository
+    if ! (cd "$target_dir" && git rev-parse --git-dir >/dev/null 2>&1); then
+        log "Not in a Git repository - skipping tracked files cleanup"
+        return 0
+    fi
+
+    log "Checking for .cursor files that are tracked but should now be ignored..."
+
+    # Get list of tracked files in .cursor that should be ignored
+    local tracked_files
+    tracked_files=$(cd "$target_dir" && git ls-files '.cursor/*' 2>/dev/null | grep -v -E '^\.cursor/memory-bank/(context|workflow)/' | head -20)
+
+    if [[ -n "$tracked_files" ]]; then
+        warn "Found tracked files in .cursor that should now be ignored:"
+        echo "$tracked_files" | while IFS= read -r file; do
+            warn "  - $file"
+        done
+        warn ""
+        warn "MANUAL ACTION REQUIRED:"
+        warn "To remove these files from Git tracking (but keep them locally), run:"
+        warn "  cd '$target_dir'"
+        echo "$tracked_files" | while IFS= read -r file; do
+            warn "  git rm --cached '$file'"
+        done
+        warn "  git commit -m '🔧 chore: Remove .cursor files from tracking (except memory-bank/context and memory-bank/workflow)'"
+        warn ""
+        warn "⚠️ CAUTION: Review the files before running git rm --cached to ensure no important data is lost"
+    else
+        log "✅ No problematic tracked files found in .cursor directory"
+    fi
 }
 
 # Function to set up the memory bank directory

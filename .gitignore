@@ -25,20 +25,22 @@ Thumbs.db
 # MCP
 .cursor/mcp/mcp-commit-server/terminals_status.json
 
-# Memory Bank state
-.cursor/memory-bank/streamlit_app/tasks.json
-.cursor/memory-bank/workflow/agent_memory.json
-.cursor/memory-bank/workflow/to_user.json
-
 # Test
 test_installation
-# Cursor Memory Bank - Auto-generated entries
-.cursor/mcp/*/node_modules/
-.cursor/mcp/*/*.log
-.cursor/memory-bank/workflow/temp/
-.cursor/streamlit_app/__pycache__/
-.cursor/memory-bank/models/
+
+# Cursor Memory Bank - Selective .cursor synchronization
+# CRITICAL: Rule order matters - exceptions must come after general exclusions
+
+# Exclude entire .cursor directory first
+.cursor/*
+
+# Then include ONLY the specific subdirectories we want to sync
+!.cursor/memory-bank/
+!.cursor/memory-bank/context/
+!.cursor/memory-bank/context/**
+!.cursor/memory-bank/workflow/
+!.cursor/memory-bank/workflow/**
+
+# Additional exclusions for other files that shouldn't sync
 *.pyc
-# MCP Server State Files
-.cursor/mcp/*/terminals_status.json
-.cursor/mcp/*/temp_*
+__pycache__/
