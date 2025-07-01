@@ -246,7 +246,8 @@ manage_gitignore() {
         "!.cursor/memory-bank/context/**"
         "!.cursor/memory-bank/workflow/"
         "!.cursor/memory-bank/workflow/**"
-        ".gemini/*"
+        ".gemini"
+        ".gemini/**"
         "GEMINI.md"
     )
 
