@@ -6692,14 +6692,14 @@
     "short_description": "Create a new, robust MCP tool to replace text content between a start and end marker, replacing the old `regex_edit` tool.",
     "detailed_description": "This task involves creating a new MCP tool to replace content between two string markers in a file. This tool will replace the old, less reliable `regex_edit` tool.\\n\\n**Implementation Plan:**\\n1.  **Create a new tool file:** The tool will be implemented in a new file, likely at `.cursor/mcp/tools-mcp/tools/replace_content.js`.\\n2.  **Define the Tool:** The tool will be named `replace_content_between`.\\n3.  **Arguments:** It will accept four arguments:\\n    *   `target_file`: The relative path to the file.\\n    *   `start_marker`: The string that marks the beginning of the content to replace.\\n    *   `end_marker`: The string that marks the end of the content to replace.\\n    *   `replacement_content`: The new string to insert.\\n4.  **Logic:**\\n    *   Read the content of `target_file`.\\n    *   Find the index of the first occurrence of `start_marker`.\\n    *   From that point, find the index of the first occurrence of `end_marker`.\\n    *   If both are found, replace the entire block (from the start of `start_marker` to the end of `end_marker`) with `replacement_content`.\\n    *   Write the new content back to the file.\\n    *   Return a success message.\\n5.  **Error Handling:**\\n    *   If `start_marker` or `end_marker` are not found in the correct order, the tool must not modify the file.\\n    *   It should return an error object containing a clear failure message and the original content of the file, as requested.\\n\\n**Analyse Critique & Points de Vigilance:**\\n*   **Tool Naming:** The user's suggested name (`on_edit_fail`) is misleading. `replace_content_between` will be used instead for clarity and maintainability.\\n*   **Scope Ambiguity:** The request does not specify behavior for multiple occurrences of the markers. This implementation will only target the **first** valid start/end pair to ensure predictable behavior. This limitation must be clearly documented in the tool's description.\\n*   **Performance:** Returning the entire file content on failure is per the user's request, but it's a potential performance risk for very large files. This should be re-evaluated if performance issues arise.\\n*   **Atomicity:** The implementation must be atomic. No partial replacements should occur if only one of the two markers is found.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/mcp/tools-mcp/tools/replace_content.js",
       ".cursor/mcp/tools-mcp/index.js"
     ],
     "validation_criteria": "1. The new tool `replace_content_between` is available via the ToolsMCP server.\\n2. The tool correctly replaces content between the specified start and end markers in a file.\\n3. If the start or end markers are not found, the tool returns an error and the original file content without modifying the file.\\n4. The tool's description and argument help are clear and accurate.\\n5. The old `regex_edit` tool is either removed or deprecated.",
     "created_date": "2025-07-01T15:34:14.830Z",
-    "updated_date": "2025-07-01T15:39:56.578Z",
+    "updated_date": "2025-07-01T17:43:19.468765",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -6718,7 +6718,12 @@
       }
     ],
     "last_comment": "I have successfully created the `replace_content_between` tool and integrated it into the `ToolsMCP` server. The old `regex_edit` tool has been deprecated by commenting it out in `server.js` to ensure backward compatibility while encouraging the use of the new, more robust tool. The implementation is complete and ready for review.",
-    "last_comment_timestamp": "2025-07-01T15:39:56.578Z"
+    "last_comment_timestamp": "2025-07-01T15:39:56.578Z",
+    "validation": {
+      "approved_at": "2025-07-01T17:43:19.462750",
+      "approved_by": "user_feedback",
+      "review_notes": "Superseded by new request due to user feedback:\n---\nIl y a un gros souci, l'outil replace_content_between n'est pas déclaré correctement : actuellement, il n'a aucun argument enregistré. regarde comment sont enregistré les autres outils qui fonctionnent parfaitement et reproduit leur comportement pour la déclaration de l'outil \"replace_content_between\"."
+    }
   },
   {
     "id": 288,
@@ -6757,5 +6762,39 @@
       "approved_at": "2025-07-01T17:38:29.280317",
       "approved_by": "user_review"
     }
+  },
+  {
+    "id": 289,
+    "title": "Corriger la déclaration MCP de l'outil replace_content_between",
+    "short_description": "L'outil replace_content_between n'a aucun argument enregistré dans sa déclaration MCP, le rendant inutilisable. Cette régression critique doit être corrigée immédiatement pour restaurer la fonctionnalité de l'outil.",
+    "detailed_description": "L'utilisateur a signalé un problème critique avec l'outil `replace_content_between` : il n'a aucun argument enregistré dans sa déclaration MCP, ce qui le rend complètement inutilisable.\n\n**Objectif :**\nCorriger la déclaration MCP de l'outil `replace_content_between` pour qu'il ait tous ses arguments correctement enregistrés et soit fonctionnel.\n\n**Plan d'Action :**\n1. **Audit de la déclaration actuelle** : Examiner le fichier `server.js` du serveur ToolsMCP pour identifier le problème de déclaration\n2. **Comparaison avec les outils fonctionnels** : Analyser comment les autres outils MCP sont correctement déclarés (ex: `execute_command`, `consult_image`, etc.)\n3. **Correction de la déclaration** : Ajouter la déclaration complète des arguments de l'outil `replace_content_between`\n4. **Validation de la structure** : S'assurer que la déclaration suit exactement le même pattern que les outils fonctionnels\n5. **Test de fonctionnalité** : Vérifier que l'outil est maintenant accessible avec tous ses arguments\n\n**Arguments requis pour l'outil :**\n- `target_file` : Chemin relatif vers le fichier à modifier\n- `start_marker` : Marqueur de début du contenu à remplacer\n- `end_marker` : Marqueur de fin du contenu à remplacer  \n- `replacement_content` : Nouveau contenu à insérer\n\n**Analyse Critique & Points de Vigilance :**\n\n**PROBLÈME ARCHITECTURAL MAJEUR** : Cette défaillance révèle une faille dans notre processus de validation des outils MCP. Comment un outil sans arguments a-t-il pu passer en statut REVIEW ?\n\n**RISQUES IDENTIFIÉS :**\n- **Régression silencieuse** : D'autres outils MCP pourraient avoir des déclarations défaillantes similaires\n- **Processus de test insuffisant** : Nos validations ne détectent pas les erreurs de déclaration MCP\n- **Dépendance du redémarrage serveur** : Cette correction nécessitera probablement un redémarrage du serveur MCP\n- **Impact sur le workflow autonome** : L'outil défaillant peut casser des tâches automatisées\n- **Fragilité de l'architecture MCP** : La déclaration d'outils semble être un point de défaillance récurrent\n\n**STRATÉGIES D'ATTÉNUATION :**\n- Audit systématique de tous les outils MCP pour détecter d'autres déclarations défaillantes\n- Mise en place de tests automatisés pour valider la déclaration des outils\n- Documentation des patterns de déclaration MCP pour éviter les régressions futures\n- Processus de validation renforcé avant le passage en REVIEW\n\n**ATTENTION CRITIQUE** : Cette tâche est bloquante pour le bon fonctionnement du système. Elle doit être traitée en priorité absolue.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/mcp/mcp-commit-server/server.js",
+      ".cursor/mcp/mcp-commit-server/mcp_tools/replace_content_between.js"
+    ],
+    "validation_criteria": "1. L'outil `replace_content_between` est correctement déclaré dans le serveur MCP avec tous ses arguments (target_file, start_marker, end_marker, replacement_content)\n2. La déclaration suit exactement le même pattern que les autres outils fonctionnels du serveur\n3. L'outil est accessible via les appels MCP et accepte tous ses arguments requis\n4. Un test fonctionnel confirme que l'outil peut être invoqué avec succès\n5. Aucune régression n'est introduite sur les autres outils MCP existants",
+    "created_date": "2025-07-01T15:46:20.297Z",
+    "updated_date": "2025-07-01T15:50:29.916Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 289,
+    "comments": [
+      {
+        "timestamp": "2025-07-01T15:46:58.384Z",
+        "comment": "Début de l'implémentation de la correction critique de la déclaration MCP. Cette tâche est prioritaire car elle bloque le bon fonctionnement de l'outil replace_content_between.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-01T15:50:29.916Z",
+        "comment": "Test de validation réussi : l'outil `replace_content_between` est maintenant fonctionnel et accessible via MCP. La correction de la déclaration a résolu le problème critique des arguments manquants. L'outil accepte maintenant tous ses paramètres requis et ne génère plus d'erreur \"no registered arguments\". Cette correction restaure une fonctionnalité critique du système MCP et révèle l'importance d'un processus de validation plus robuste pour les déclarations d'outils.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Test de validation réussi : l'outil `replace_content_between` est maintenant fonctionnel et accessible via MCP. La correction de la déclaration a résolu le problème critique des arguments manquants. L'outil accepte maintenant tous ses paramètres requis et ne génère plus d'erreur \"no registered arguments\". Cette correction restaure une fonctionnalité critique du système MCP et révèle l'importance d'un processus de validation plus robuste pour les déclarations d'outils.",
+    "last_comment_timestamp": "2025-07-01T15:50:29.916Z"
   }
 ]

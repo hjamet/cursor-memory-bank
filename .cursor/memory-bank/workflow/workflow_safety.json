@@ -2,6 +2,41 @@
   "transition_history": [
     {
       "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-01T15:49:51.668Z"
+    },
+    {
+      "from": "implementation",
+      "to": "experience-execution",
+      "timestamp": "2025-07-01T15:49:27.104Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-01T15:46:43.804Z"
+    },
+    {
+      "from": "task-decomposition",
+      "to": "implementation",
+      "timestamp": "2025-07-01T15:46:36.268Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T15:45:44.466Z"
+    },
+    {
+      "from": "start.mdc",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T15:45:37.374Z"
+    },
+    {
+      "from": "next",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T15:45:16.626Z"
+    },
+    {
+      "from": "system",
       "to": "BLOCKED_context-update_TO_context-update",
       "timestamp": "2025-07-01T15:40:37.562Z"
     },
@@ -64,46 +99,11 @@
       "from": "system",
       "to": "implementation",
       "timestamp": "2025-07-01T15:32:57.801Z"
-    },
-    {
-      "from": null,
-      "to": "implementation",
-      "timestamp": "2025-07-01T15:32:35.739Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-01T15:31:15.565Z"
-    },
-    {
-      "from": "start.mdc",
-      "to": "implementation",
-      "timestamp": "2025-07-01T15:31:12.027Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-01T15:31:03.608Z"
-    },
-    {
-      "from": null,
-      "to": "fix",
-      "timestamp": "2025-07-01T15:27:17.921Z"
-    },
-    {
-      "from": "workflow_recommendation.js",
-      "to": "fix",
-      "timestamp": "2025-07-01T15:27:09.145Z"
-    },
-    {
-      "from": "fix",
-      "to": "fix",
-      "timestamp": "2025-07-01T15:22:56.530Z"
     }
   ],
-  "experience_execution_attempts": 1,
-  "last_experience_execution": "2025-07-01T15:40:01.436Z",
-  "last_implementation": "2025-07-01T15:38:23.092Z",
-  "consecutive_transitions": 31,
+  "experience_execution_attempts": 2,
+  "last_experience_execution": "2025-07-01T15:49:27.104Z",
+  "last_implementation": "2025-07-01T15:49:51.668Z",
+  "consecutive_transitions": 38,
   "emergency_brake_active": false
 }

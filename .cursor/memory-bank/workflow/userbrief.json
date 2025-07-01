@@ -1,26 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 235,
+  "last_id": 236,
   "requests": [
-    {
-      "id": 177,
-      "content": "Depuis ton refactoring du code de l'interface streaming il y a un bug dans l'affichage du nombre de tâches restantes par exemple. Là il m'affiche qu'il reste 4 taches restantes Alors que quand je vais dans l'onglet Task Status, je dois avoir une dizaine de tâches restantes, plus genre 2 user brief non traitées. Donc je sais pas exactement ce qu'est la l'origine de cette erreur, mais il y a clairement un problème à ce niveau-là et il faudrait que tu le résolves.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T19:06:19.481567",
-      "updated_at": "2025-06-25T17:21:41.281Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T19:06:19.481567",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-25T17:21:41.281Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 178,
       "content": "Tu sais, t'as récemment remis l'animation des ballons quand quand je soumets une nouvelle requête dans l'interface streamlit onglet enfin page review et communication ADD request alors la bonne nouvelle c'est que effectivement l'animation des ballons est revenue, elle est très chouette, très satisfaisante. La mauvaise nouvelle, c'est que depuis que t'as fait ça, il y a plus de suppression du texte dans. Dans le le truc d'entrée de texte, j'ai l'impression que c'est incompatible parce que c'est la, c'est pas la première fois qu'on a cette espèce de on fait des allers retours, j'ai l'impression ou t'ajoutes l'animation des ballons et du coup le texte arrête de disparaître une fois qu'il est soumis comme dans un chat normal et puis ensuite tu remets le fait que le chat disparaît mais du coup l'animation des ballons disparaît. Bref ça c'est assez embêtant je pense enquête là dessus et résout le problème pour que le texte disparaisse et les ballons apparaissent.",
@@ -963,6 +944,25 @@
           "timestamp": "2025-07-01T15:36:10.372Z",
           "action": "mark_archived",
           "comment": "This request has been decomposed into task #288, which is a follow-up to task #286 to provide more rigorous validation."
+        }
+      ]
+    },
+    {
+      "id": 236,
+      "content": "Modification request for Task #287 (Create MCP Tool: replace_content_between):\n\n**Original Task Details:**\n- **Title:** Create MCP Tool: replace_content_between\n- **Description:** Create a new, robust MCP tool to replace text content between a start and end marker, replacing the old `regex_edit` tool.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\nThis task involves creating a new MCP tool to replace content between two string markers in a file. This tool will replace the old, less reliable `regex_edit` tool.\\n\\n**Implementation Plan:**\\n1.  **Create a new tool file:** The tool will be implemented in a new file, likely at `.cursor/mcp/tools-mcp/tools/replace_content.js`.\\n2.  **Define the Tool:** The tool will be named `replace_content_between`.\\n3.  **Arguments:** It will accept four arguments:\\n    *   `target_file`: The relative path to the file.\\n    *   `start_marker`: The string that marks the beginning of the content to replace.\\n    *   `end_marker`: The string that marks the end of the content to replace.\\n    *   `replacement_content`: The new string to insert.\\n4.  **Logic:**\\n    *   Read the content of `target_file`.\\n    *   Find the index of the first occurrence of `start_marker`.\\n    *   From that point, find the index of the first occurrence of `end_marker`.\\n    *   If both are found, replace the entire block (from the start of `start_marker` to the end of `end_marker`) with `replacement_content`.\\n    *   Write the new content back to the file.\\n    *   Return a success message.\\n5.  **Error Handling:**\\n    *   If `start_marker` or `end_marker` are not found in the correct order, the tool must not modify the file.\\n    *   It should return an error object containing a clear failure message and the original content of the file, as requested.\\n\\n**Analyse Critique & Points de Vigilance:**\\n*   **Tool Naming:** The user's suggested name (`on_edit_fail`) is misleading. `replace_content_between` will be used instead for clarity and maintainability.\\n*   **Scope Ambiguity:** The request does not specify behavior for multiple occurrences of the markers. This implementation will only target the **first** valid start/end pair to ensure predictable behavior. This limitation must be clearly documented in the tool's description.\\n*   **Performance:** Returning the entire file content on failure is per the user's request, but it's a potential performance risk for very large files. This should be re-evaluated if performance issues arise.\\n*   **Atomicity:** The implementation must be atomic. No partial replacements should occur if only one of the two markers is found.\n\n**Validation Criteria:**\n1. The new tool `replace_content_between` is available via the ToolsMCP server.\\n2. The tool correctly replaces content between the specified start and end markers in a file.\\n3. If the start or end markers are not found, the tool returns an error and the original file content without modifying the file.\\n4. The tool's description and argument help are clear and accurate.\\n5. The old `regex_edit` tool is either removed or deprecated.\n\n**User Feedback:**\nIl y a un gros souci, l'outil replace_content_between n'est pas déclaré correctement : actuellement, il n'a aucun argument enregistré. regarde comment sont enregistré les autres outils qui fonctionnent parfaitement et reproduit leur comportement pour la déclaration de l'outil \"replace_content_between\".\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-01T17:43:19.460778",
+      "updated_at": "2025-07-01T15:46:25.570Z",
+      "history": [
+        {
+          "timestamp": "2025-07-01T17:43:19.460778",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-01T15:46:25.570Z",
+          "action": "mark_archived"
         }
       ]
     }
