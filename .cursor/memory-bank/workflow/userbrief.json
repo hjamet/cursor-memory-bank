@@ -1,45 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 233,
+  "last_id": 235,
   "requests": [
-    {
-      "id": 175,
-      "content": "Il y a plusieurs bugs qui ont été introduits par le refactoring, en particulier dans la page principale de l'application streaming dans. Euh dans Task to review. Tu as modifié les boutons avant, c'était très bien fait, y avait juste un bouton pour valider un bouton pour éditer. Maintenant tu as rajouté un bouton pour bloquer la tâche qui n'a aucun sens donc celui là il faut que tu le supprimes et puis en plus maintenant enfin j'essaie de valider une tâche, j'obtiens un message d'erreur. Voilà, il faudrait que tu corriges tout ça :\n\nError updating task status: 'list' object has no attribute 'get'\n\nFailed to approve task.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T19:03:25.830738",
-      "updated_at": "2025-06-25T17:18:44.273Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T19:03:25.830738",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-25T17:18:44.273Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 176,
-      "content": "Euh, toujours dans l'interface streamlit dans l'onglet agent message dans la page Review et communication principale de l'interface. Avant, il y avait un bouton, je te laisse regarder l'historique git pour voir de quoi je parle. Il y avait un bouton qui permettait de répondre à un message de l'agent. Ce bouton a disparu, donc quand on on répondait à un à un message de l'agent, en fait, ça faisait une requête, une nouvelle requête user brief avec la tâche qui était en lien avec avec ce que l'agent disait et les détails de cette tâche. Et puis bah le texte en. Euh en réponse ainsi que la ce que disait l'agent est comme ça, c'est, c'est une nouvelle requête qu'on fait à l'agent par ce biais au sein d'une espèce de conversation. Donc il faudrait re rajouter ce bouton question à côté du bouton marqué comme lu grosso modo",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T19:04:45.329510",
-      "updated_at": "2025-06-25T17:19:43.992Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T19:04:45.329510",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-25T17:19:43.992Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 177,
       "content": "Depuis ton refactoring du code de l'interface streaming il y a un bug dans l'affichage du nombre de tâches restantes par exemple. Là il m'affiche qu'il reste 4 taches restantes Alors que quand je vais dans l'onglet Task Status, je dois avoir une dizaine de tâches restantes, plus genre 2 user brief non traitées. Donc je sais pas exactement ce qu'est la l'origine de cette erreur, mais il y a clairement un problème à ce niveau-là et il faudrait que tu le résolves.",
@@ -961,6 +923,46 @@
           "timestamp": "2025-07-01T15:21:38.073Z",
           "action": "mark_archived",
           "comment": "Request has been decomposed into task #286."
+        }
+      ]
+    },
+    {
+      "id": 234,
+      "content": "Je souhaite que tu améliores l'outil regex_edit.\n1. Renomme le on_edit_fail\n2. L'outil ne devrait plus utiliser de regex. Au cntraire, il devrait désormais prendre 4 arguments :\n- le chemin relatif vers le fichier (déjà implémneté)\n- La chaine de départ\n- La chaine de fin\n- la chaine de remplacement\n\nL'outil doit remplacer tout ce qu'il y a entre la chaine de départ et la chaine de fin (en les incluant) dans le fichier spécifié par la chaine de remplacement. Il doit retourner :\n- succès si le remplacement est un succès\n- echec et le contenu actuel du fichier actuel si le remplacement est un échec (en général car la chaine de début ou de fin n'a pas été trouvé dans le fichier).\n\nTu dois mettre à jour la description des arguments pour expliquer ce comprotement.\n\nExemple :\n\nContenu de test.md\n\nCoucou, ceci est un test d'exemple\n\non_edit_fail(\"test.md\", \"Coucou, \", \"un test\", \"machin\") -> \"machin d'exemple\"",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-01T17:33:22.602293",
+      "updated_at": "2025-07-01T15:34:27.362Z",
+      "history": [
+        {
+          "timestamp": "2025-07-01T17:33:22.602293",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-01T15:34:27.362Z",
+          "action": "mark_archived",
+          "comment": "This request has been decomposed into task #287."
+        }
+      ]
+    },
+    {
+      "id": 235,
+      "content": "Modification request for Task #286 (Audit, Document, and Align Core Workflow Logic):\n\n**Original Task Details:**\n- **Title:** Audit, Document, and Align Core Workflow Logic\n- **Description:** Audit, document, and align the agent's workflow logic. This involves analyzing the current implementation against a user-provided schema, documenting the final logic in the README, and refactoring the code to match.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\nThe user has requested a comprehensive audit, documentation, and alignment of the core workflow logic based on a provided schema. This task will ensure the workflow is predictable and well-documented.\n\n**Plan:**\n1.  **Audit Phase:** Analyze the user's proposed schema against the current implementation in `workflow_recommendation.js` and `remember.js`. The goal is to identify any discrepancies and to critically evaluate if the proposed schema is optimal.\n2.  **Documentation Phase:** Once the definitive workflow logic is established (a combination of the user's proposal and the existing reality), document it clearly in `README.md`. This documentation should include a Mermaid diagram for clarity.\n3.  **Alignment Phase:** If the audit reveals that the code does not match the finalized schema, refactor the implementation to ensure it aligns perfectly with the documentation.\n\n**Analyse Critique & Points de Vigilance:**\n*   The user's schema is a proposal and must be challenged. For example, the proposed `experience-execution` -> `context-update` on success might be inefficient. Returning to `implementation` to check for more tasks could be a better pattern.\n*   This is not just a documentation task; it's an architecture and refactoring task. The risk of uncovering deeper logical issues is high.\n*   The documentation in the README must reflect the *final, implemented* logic, not the initial proposal.\n\nThis task intentionally combines audit, documentation, and potential refactoring to ensure a coherent and consistent outcome.\n\n**Validation Criteria:**\n1. The `README.md` file is updated with a new section clearly documenting the workflow logic, including a Mermaid diagram.\n2. The code implementation in `workflow_recommendation.js` and related files perfectly matches the logic documented in the README.\n3. A dry run of the workflow confirms that the agent follows the documented logic steps.\n\n**User Feedback:**\nMais tu peux me confirmer que c'est bien le comprotement décrit dans le code du serveur MCP MemoryBankMCP ?\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-01T17:34:18.649704",
+      "updated_at": "2025-07-01T15:36:10.372Z",
+      "history": [
+        {
+          "timestamp": "2025-07-01T17:34:18.649704",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-01T15:36:10.372Z",
+          "action": "mark_archived",
+          "comment": "This request has been decomposed into task #288, which is a follow-up to task #286 to provide more rigorous validation."
         }
       ]
     }

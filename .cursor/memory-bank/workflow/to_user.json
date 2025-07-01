@@ -1,17 +1,5 @@
 {
   "version": "1.0.0",
-  "messages": [
-    {
-      "id": 219,
-      "content": "ACTION REQUISE : J'ai fait une erreur. Le correctif est bien en place, mais j'ai oublié de vous demander de redémarrer le serveur MCP pour qu'il le charge. Pouvez-vous s'il vous plaît le redémarrer maintenant ? C'est la dernière étape pour sortir de cette boucle.",
-      "timestamp": "2025-07-01T15:27:17.759Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    }
-  ],
+  "messages": [],
   "last_id": 219
 }
