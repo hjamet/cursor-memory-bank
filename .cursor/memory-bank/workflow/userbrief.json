@@ -3,26 +3,6 @@
   "last_id": 225,
   "requests": [
     {
-      "id": 165,
-      "content": "A aussi un micro souci qu'attend ça revenir, c'est pas la première fois que tu le corriges, je sais pas exactement ce que tu changes qui fait ça, mais dans la page review et communication onglet ad request sur l'interface streaming. Maintenant, lorsque je soumets une nouvelle requête, Eh bien, lorsque j'appuie sur le bouton soumettre nouvelle requête ou que je fais contrôle enter, j'ai l'impression que le texte ne disparaît pas de l'entrée alors que moi j'aimerais que ça se vide pour me permettre de d'ajouter une nouvelle requête. En fait, ce qui doit se passer, ce qui se passe actuellement, c'est que quand j'appuie sur meet no request et Ben la tâche est créée donc ça c'est le plus important. Il faut surtout que ça reste le cas hein. Il y a la jolie animation de ballon, ça c'est parfait mais par contre le texte ne disparaît pas de l'entrée de texte, ce qui fait que si je réappuyais sur contrôle enter Ben je resumiterai une nouvelle fois la tâche et elle partirait toujours pas. Donc il faudrait corriger ça pour que quand une requête est **** ça vide l'entrée de texte. Ça a la reset comme quand on envoie un message dans un chat tu vois ? :D",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T13:35:49.702419",
-      "updated_at": "2025-06-25T11:37:43.326Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T13:35:49.702419",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-25T11:37:43.326Z",
-          "action": "mark_archived",
-          "comment": "Requête convertie en tâche #204 : Correction du problème récurrent de vidage du champ de texte après soumission de requête dans l'interface Streamlit. Problème UX identifié et documenté pour résolution, avec priorité sur le maintien des fonctionnalités existantes."
-        }
-      ]
-    },
-    {
       "id": 167,
       "content": "Ok, grosse modification de l'outil commit de du serveur MCP my tour MCP. Il faut que tu supprimes l'installation du prêt commit. Et son application lors de lors de l'exécution de l'outil commit. En fait, l'outil commit Devrait désormais comité simplement, ce qui est un comité et ensuite lancer lui-même et pas à travers une commande, mais à travers le code javascript de l'outil commit, il devrait scanner tous les fichiers du Repo, notamment les fichiers . Py. Pour le moment, on va faire que les fichiers . Py. Il doit scanner tous les fichiers . Py et vérifier si ils font moins de 500 lignes, si ils font plus de 500 lignes, l'outil commit devrait retourner, devrait les retourner en indiquant à l'agent que il devrait ajouter des tâches de décomposition de ces fichiers de manière à ce que ils soient découpés en plusieurs sous fichiers faisant tous moins de 500 lignes en. L'idée, c'est donc d'annuler l'utilisation d'un prêt commit externe et de se reposer sur une une programmation manuelle directement dans l'outil javascript pour scanner tous les fichiers du repository. Enfin, tous les fichiers Python du repository et vérifier leur taille. Fais très attention à ne pas hardcoder le chemin et à utiliser le chemin qui est donné comme argument lors de l'invocation du serveur. Finalement, si tu souhaites tester le serveur, sache que tu pourras pas vraiment le faire, il faut, il faudra me demander de redémarrer cursor pour pouvoir tester tes modifications parce que malheureusement le serveur MCP ne redémarre pas automatiquement à chaque modification de son code.",
       "status": "archived",
@@ -979,15 +959,19 @@
     {
       "id": 225,
       "content": "Est-ce que tu peux modifier la fin de la règle implémentation et tape 4 pour que il ne soit pas possible à la règle implémentation de mettre à jour la tâche ça ça doit être le travail de la règle expérience exécution en fait à la fin de la règle implémentation la règle implémentation demande toujours d'appeler la règle expérience exécution et c'est cette règle expérience exécution qui en cas de validation va noter une tâche comme effectuée et sinon elle va la garder comme en cours et appeler la règle 6 c'est comme ça que ça se passe donc il faut que tu mettes à jour les fichiers markdown qui t'écrivent les règles expérience exécution et surtout implémentation pour supprimer cette cette cette étape 4 dans l'implémentation et s'assurer qu'elle a bien lieu dans la partie expérience exécution si et seulement si l'expérience est un succès. Je te laisse lire le Read me et regarder les tâches archivées et mais mes requêtes archivées du user brief pour pour comprendre ma vision des choses j'avais écrit tout un truc là-dessus",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-07-01T14:48:36.682712",
-      "updated_at": "2025-07-01T14:48:36.682712",
+      "updated_at": "2025-07-01T12:56:51.467Z",
       "history": [
         {
           "timestamp": "2025-07-01T14:48:36.682712",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-01T12:56:51.467Z",
+          "action": "mark_archived"
         }
       ]
     }
