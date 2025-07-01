@@ -261,26 +261,19 @@ manage_gitignore() {
             "$gitignore_file" && rm -f "$gitignore_file.tmp"
     fi
 
-    # Selective .cursor synchronization rules - ORDER IS CRITICAL
-    local cursor_rules=(
-        ""
-        "# Cursor Memory Bank - Selective .cursor synchronization"
-        "# CRITICAL: Rule order matters - exceptions must come after general exclusions"
-        ""
-        "# Exclude entire .cursor directory first"
+    # Entries to be added
+    local entries=(
         ".cursor/*"
-        ""
-        "# Then include ONLY the specific subdirectories we want to sync"
         "!.cursor/memory-bank/"
+        ".cursor/memory-bank/*"
+        ".cursor/memory-bank/**"
         "!.cursor/memory-bank/context/"
         "!.cursor/memory-bank/context/**"
         "!.cursor/memory-bank/workflow/"
         "!.cursor/memory-bank/workflow/**"
-        ""
-        "# Additional exclusions for other files that shouldn't sync"
-        "*.pyc"
-        "__pycache__/"
-        ""
+        ".gemini"
+        ".gemini/**"
+        "GEMINI.md"
     )
 
     # Add selective .cursor rules
@@ -691,6 +684,18 @@ install_workflow_system() {
             warn "start.mdc rule not found in repository"
         fi
         
+        # Copy start.mdc as GEMINI.md in .gemini directory
+        if [[ -f "$clone_dir/.cursor/rules/start.mdc" ]]; then
+            log "Copying start.mdc as GEMINI.md"
+            mkdir -p "$target_dir/.gemini"
+            if ! cp "$clone_dir/.cursor/rules/start.mdc" "$target_dir/GEMINI.md"; then
+                error "Failed to copy start.mdc as GEMINI.md. Please check permissions."
+            fi
+        else
+            warn "start.mdc rule not found in repository clone at .cursor/rules/start.mdc."
+            touch "$target_dir/GEMINI.md"
+        fi
+        
         # Copy mcp.json template
         if [[ -f "$clone_dir/.cursor/mcp.json" ]]; then
             log "Copying mcp.json template from clone"
@@ -701,6 +706,21 @@ install_workflow_system() {
             warn "mcp.json template not found in repository clone at .cursor/mcp.json."
             touch "$template_mcp_json"
         fi
+        
+        # Copy mcp.json as settings.json in .gemini directory
+        if [[ -f "$clone_dir/.cursor/mcp.json" ]]; then
+            log "Copying mcp.json as settings.json to .gemini directory"
+            mkdir -p "$target_dir/.gemini"
+            if ! cp "$clone_dir/.cursor/mcp.json" "$target_dir/.gemini/settings.json"; then
+                error "Failed to copy mcp.json as settings.json. Please check permissions."
+            fi
+        else
+            warn "mcp.json template not found in repository clone at .cursor/mcp.json."
+            mkdir -p "$target_dir/.gemini"
+            touch "$target_dir/.gemini/settings.json"
+        fi
+
+        
 
         # Clean and setup MCP directories
         log "Setting up MCP server directories..."
