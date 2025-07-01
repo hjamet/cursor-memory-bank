@@ -1,45 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 236,
+  "last_id": 238,
   "requests": [
-    {
-      "id": 178,
-      "content": "Tu sais, t'as récemment remis l'animation des ballons quand quand je soumets une nouvelle requête dans l'interface streamlit onglet enfin page review et communication ADD request alors la bonne nouvelle c'est que effectivement l'animation des ballons est revenue, elle est très chouette, très satisfaisante. La mauvaise nouvelle, c'est que depuis que t'as fait ça, il y a plus de suppression du texte dans. Dans le le truc d'entrée de texte, j'ai l'impression que c'est incompatible parce que c'est la, c'est pas la première fois qu'on a cette espèce de on fait des allers retours, j'ai l'impression ou t'ajoutes l'animation des ballons et du coup le texte arrête de disparaître une fois qu'il est soumis comme dans un chat normal et puis ensuite tu remets le fait que le chat disparaît mais du coup l'animation des ballons disparaît. Bref ça c'est assez embêtant je pense enquête là dessus et résout le problème pour que le texte disparaisse et les ballons apparaissent.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T19:07:28.563995",
-      "updated_at": "2025-06-25T17:22:31.476Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T19:07:28.563995",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-25T17:22:31.476Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 179,
-      "content": "Dans l'interface streamlitz dans la page principale review et communication onglet Task to review, le bouton ask for modification. En gros c'est soit tu valides, soit je valide la tâche, je dis que c'est bon et à ce moment là elle est juste archivée et tout va bien, soit je demande des modifications et à ce moment là actuellement j'ai l'impression que ça remet juste la tâche en tout doux hors non moi ce que ça doit faire c'est ça, ça prend le texte de la tâche déjà ça me ça vaut une zone de texte en dessous de la tâche où l'utilisateur doit ajouter des commentaires et ensuite il doit valider ses commentaires et à ce moment là ça ajoute une nouvelle requête user bridge avec tout le contenu de la tâche originale avec expliqué OK voici. Euh quelle était la tâche originale, voici ce que l'agent a fait dit qu'il avait fait et finalement voici le commentaire de l'utilisateur qui dit qu'il est pas satisfait donc s'il te plaît traite le commentaire de l'utilisateur actuellement ta modification fait que bah j'ai l'impression qu'on compte en clique sur Ask for edit et Ben ça ça relance juste la tâche, ça la remet en tout doux sans ouvrir la zone de texte sans permettre d'ajouter un commentaire. Donc voilà, il faudrait que tu remettes la zone de texte qui permet d'ajouter un commentaire. Tu peux regarder un peu dans l'historique git du fichier concerné avant le refactor Pour comprendre comment ça se faisait avant, c'était vraiment tout simple, très propre et ça marchait très bien. Donc s'il te plaît, refais la même chose.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T19:31:04.646049",
-      "updated_at": "2025-06-25T17:32:59.264Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T19:31:04.646049",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-25T17:32:59.264Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 180,
       "content": "Reply to Agent Message #129:\n\n**Original Message:** \"Tâche #218 terminée avec succès ! Le bouton de réponse aux messages d'agent a été restauré dans l'interface Streamlit. Vous pouvez maintenant répondre aux messages d'agent en cliquant sur \"💬 Reply\", c...\"\n\n**My Reply:** Ceci est un teste pour vérifier que la réponse aux messages fonctionne bien : Tu peux directement le supprimer de tes tâches : il n'y a rien à faire ;)\n\n**Message Context:**\n- Rule: unknown\n- Timestamp: 2025-06-25T17:30:58.608Z\n- Workflow Rule: implementation",
@@ -962,6 +924,44 @@
         },
         {
           "timestamp": "2025-07-01T15:46:25.570Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 237,
+      "content": "Modification request for Task #289 (Corriger la déclaration MCP de l'outil replace_content_between):\n\n**Original Task Details:**\n- **Title:** Corriger la déclaration MCP de l'outil replace_content_between\n- **Description:** L'outil replace_content_between n'a aucun argument enregistré dans sa déclaration MCP, le rendant inutilisable. Cette régression critique doit être corrigée immédiatement pour restaurer la fonctionnalité de l'outil.\n- **Status:** REVIEW\n- **Priority:** 5\n\n**Detailed Task Description:**\nL'utilisateur a signalé un problème critique avec l'outil `replace_content_between` : il n'a aucun argument enregistré dans sa déclaration MCP, ce qui le rend complètement inutilisable.\n\n**Objectif :**\nCorriger la déclaration MCP de l'outil `replace_content_between` pour qu'il ait tous ses arguments correctement enregistrés et soit fonctionnel.\n\n**Plan d'Action :**\n1. **Audit de la déclaration actuelle** : Examiner le fichier `server.js` du serveur ToolsMCP pour identifier le problème de déclaration\n2. **Comparaison avec les outils fonctionnels** : Analyser comment les autres outils MCP sont correctement déclarés (ex: `execute_command`, `consult_image`, etc.)\n3. **Correction de la déclaration** : Ajouter la déclaration complète des arguments de l'outil `replace_content_between`\n4. **Validation de la structure** : S'assurer que la déclaration suit exactement le même pattern que les outils fonctionnels\n5. **Test de fonctionnalité** : Vérifier que l'outil est maintenant accessible avec tous ses arguments\n\n**Arguments requis pour l'outil :**\n- `target_file` : Chemin relatif vers le fichier à modifier\n- `start_marker` : Marqueur de début du contenu à remplacer\n- `end_marker` : Marqueur de fin du contenu à remplacer  \n- `replacement_content` : Nouveau contenu à insérer\n\n**Analyse Critique & Points de Vigilance :**\n\n**PROBLÈME ARCHITECTURAL MAJEUR** : Cette défaillance révèle une faille dans notre processus de validation des outils MCP. Comment un outil sans arguments a-t-il pu passer en statut REVIEW ?\n\n**RISQUES IDENTIFIÉS :**\n- **Régression silencieuse** : D'autres outils MCP pourraient avoir des déclarations défaillantes similaires\n- **Processus de test insuffisant** : Nos validations ne détectent pas les erreurs de déclaration MCP\n- **Dépendance du redémarrage serveur** : Cette correction nécessitera probablement un redémarrage du serveur MCP\n- **Impact sur le workflow autonome** : L'outil défaillant peut casser des tâches automatisées\n- **Fragilité de l'architecture MCP** : La déclaration d'outils semble être un point de défaillance récurrent\n\n**STRATÉGIES D'ATTÉNUATION :**\n- Audit systématique de tous les outils MCP pour détecter d'autres déclarations défaillantes\n- Mise en place de tests automatisés pour valider la déclaration des outils\n- Documentation des patterns de déclaration MCP pour éviter les régressions futures\n- Processus de validation renforcé avant le passage en REVIEW\n\n**ATTENTION CRITIQUE** : Cette tâche est bloquante pour le bon fonctionnement du système. Elle doit être traitée en priorité absolue.\n\n**Validation Criteria:**\n1. L'outil `replace_content_between` est correctement déclaré dans le serveur MCP avec tous ses arguments (target_file, start_marker, end_marker, replacement_content)\n2. La déclaration suit exactement le même pattern que les autres outils fonctionnels du serveur\n3. L'outil est accessible via les appels MCP et accepte tous ses arguments requis\n4. Un test fonctionnel confirme que l'outil peut être invoqué avec succès\n5. Aucune régression n'est introduite sur les autres outils MCP existants\n\n**User Feedback:**\nJe viens de redémarrer le serveur MCP. Tu peux tester le bon fonctionnement de l'outil et le corriger si besoin ? :D\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-01T18:04:42.829910",
+      "updated_at": "2025-07-01T16:07:34.821Z",
+      "history": [
+        {
+          "timestamp": "2025-07-01T18:04:42.829910",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-01T16:07:34.821Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 238,
+      "content": "La règle Task décomposition contient énormément de d'instructions amenant l'agent à être très critique. Ça doit pas du tout spécialement être le cas. Il faudrait que tu modifie le fichier Markdown de cette règle pour qu'elle soit simplement efficace qu'elle décompose en tâche les requêtes user brief. Sans être particulièrement critique, alors ne précise pas à l'agent qui ne doit pas être critique mais supprime tous les trucs qui lui disent de spécifiquement être critiques. En gros, son travail c'est simplement de prendre une requête over brief et de la transformer en tâche. Il faudrait aussi que tu précises que si dans une requête user bref. Il y a plusieurs grandes tâches qui sont identifiées, qui sont clairement des travaux différents, la même s'ils sont présentés sous un seul texte, et Ben à ce moment-là, la règle Task décomposition devrait créer plusieurs tâches pour s'être qu'user Brice au lieu de une seule qui fait plusieurs choses qui n'ont rien à voir.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-01T18:08:20.353329",
+      "updated_at": "2025-07-01T16:16:22.738Z",
+      "history": [
+        {
+          "timestamp": "2025-07-01T18:08:20.353329",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-01T16:16:22.738Z",
           "action": "mark_archived"
         }
       ]

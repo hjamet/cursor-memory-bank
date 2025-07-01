@@ -2,108 +2,108 @@
   "transition_history": [
     {
       "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-01T15:49:51.668Z"
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:26:49.389Z"
+    },
+    {
+      "from": null,
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:26:44.983Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:25:26.612Z"
+    },
+    {
+      "from": "fix",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:25:20.130Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:21:06.040Z"
+    },
+    {
+      "from": "experience-execution",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:20:54.905Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T16:19:05.970Z"
     },
     {
       "from": "implementation",
       "to": "experience-execution",
-      "timestamp": "2025-07-01T15:49:27.104Z"
+      "timestamp": "2025-07-01T16:18:19.080Z"
     },
     {
       "from": "system",
       "to": "implementation",
-      "timestamp": "2025-07-01T15:46:43.804Z"
+      "timestamp": "2025-07-01T16:16:46.130Z"
     },
     {
       "from": "task-decomposition",
       "to": "implementation",
-      "timestamp": "2025-07-01T15:46:36.268Z"
+      "timestamp": "2025-07-01T16:16:36.154Z"
     },
     {
       "from": "system",
       "to": "task-decomposition",
-      "timestamp": "2025-07-01T15:45:44.466Z"
+      "timestamp": "2025-07-01T16:14:41.650Z"
+    },
+    {
+      "from": "implementation",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T16:14:34.275Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T16:11:00.477Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-01T16:07:52.832Z"
+    },
+    {
+      "from": "task-decomposition",
+      "to": "implementation",
+      "timestamp": "2025-07-01T16:07:46.114Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T16:06:09.305Z"
     },
     {
       "from": "start.mdc",
       "to": "task-decomposition",
-      "timestamp": "2025-07-01T15:45:37.374Z"
-    },
-    {
-      "from": "next",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-01T15:45:16.626Z"
-    },
-    {
-      "from": "system",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-01T15:40:37.562Z"
-    },
-    {
-      "from": "replace_content_between",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-01T15:40:33.231Z"
-    },
-    {
-      "from": "system",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-01T15:40:05.064Z"
-    },
-    {
-      "from": "regex_edit",
-      "to": "experience-execution",
-      "timestamp": "2025-07-01T15:40:01.436Z"
-    },
-    {
-      "from": "next",
-      "to": "implementation",
-      "timestamp": "2025-07-01T15:38:23.092Z"
-    },
-    {
-      "from": null,
-      "to": "implementation",
-      "timestamp": "2025-07-01T15:38:17.367Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-01T15:36:21.167Z"
-    },
-    {
-      "from": "task-decomposition",
-      "to": "implementation",
-      "timestamp": "2025-07-01T15:36:16.832Z"
+      "timestamp": "2025-07-01T16:06:03.142Z"
     },
     {
       "from": "system",
       "to": "task-decomposition",
-      "timestamp": "2025-07-01T15:35:00.920Z"
+      "timestamp": "2025-07-01T16:05:41.354Z"
     },
     {
-      "from": "task-decomposition",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-01T15:34:43.898Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-01T15:33:35.204Z"
-    },
-    {
-      "from": "README.md",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-01T15:33:26.413Z"
+      "from": "experience-execution",
+      "to": "context-update",
+      "timestamp": "2025-07-01T15:51:12.553Z"
     },
     {
       "from": "system",
       "to": "implementation",
-      "timestamp": "2025-07-01T15:32:57.801Z"
+      "timestamp": "2025-07-01T15:49:51.668Z"
     }
   ],
-  "experience_execution_attempts": 2,
-  "last_experience_execution": "2025-07-01T15:49:27.104Z",
-  "last_implementation": "2025-07-01T15:49:51.668Z",
-  "consecutive_transitions": 38,
-  "emergency_brake_active": false
+  "experience_execution_attempts": 0,
+  "last_experience_execution": "2025-07-01T16:18:19.080Z",
+  "last_implementation": "2025-07-01T16:16:46.130Z",
+  "consecutive_transitions": 57,
+  "emergency_brake_active": true
 }

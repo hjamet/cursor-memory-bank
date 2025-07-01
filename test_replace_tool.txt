@@ -1,7 +1,0 @@
-This is the beginning of the file.
-
-<!-- START_MARKER -->
-Old content that should be replaced
-<!-- END_MARKER -->
-
-This is the end of the file. 

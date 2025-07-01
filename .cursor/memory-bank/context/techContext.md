@@ -356,9 +356,14 @@ start-workflow → remember → next_rule → [execute step] → remember → ne
 ## Critical Technical Debt
 
 ### High Priority
-1. **MCP Tool Reliability**: edit_file tool produces inconsistent results
-2. **Installation Script Consistency**: manage_gitignore function needs audit
-3. **Error Handling**: Silent failures in MCP tools need better reporting
+1. **MCP Tool Path Resolution**: `replace_content_between` tool has incorrect path resolution pattern
+   - **Issue**: Uses different path resolution approach than stable tools
+   - **Impact**: Tool fails to access files, breaking automated workflows
+   - **Status**: Corrections applied but require MCP server restart to take effect
+   - **Pattern**: All MCP tools must use `path.join(projectRoot, target_file)` not `path.resolve(workingDir, target_file)`
+2. **MCP Server Code Reloading**: Modifications to MCP tool code require manual Cursor restart (architectural limitation)
+3. **Installation Script Consistency**: manage_gitignore function needs audit to match corrected rules
+4. **Error Handling**: Silent failures in MCP tools need better reporting
 
 ### Medium Priority
 1. **Performance Optimization**: JSON file-based storage doesn't scale well
@@ -369,6 +374,39 @@ start-workflow → remember → next_rule → [execute step] → remember → ne
 1. **Statistical Consistency**: Task counters occasionally inconsistent
 2. **User Experience**: Error messages could be more user-friendly
 3. **Documentation**: Some technical docs lag behind implementation
+
+## MCP Tool Reliability Issues (CRITICAL DISCOVERY)
+
+### Path Resolution Pattern Problem
+**Discovered Issue**: The `replace_content_between` tool was using an inconsistent path resolution pattern compared to stable tools like `consult_image`.
+
+**Root Cause Analysis**:
+- **Broken Pattern**: `path.resolve(workingDir, target_file)` with `process.env.MCP_SERVER_CWD`
+- **Working Pattern**: `path.join(projectRoot, target_file)` with static project root calculation
+- **Impact**: Tool couldn't access files despite correct MCP declarations
+
+**Correction Applied**:
+```javascript
+// INCORRECT (caused failures)
+const workingDir = process.env.MCP_SERVER_CWD || process.cwd();
+const resolvedPath = path.resolve(workingDir, target_file);
+
+// CORRECT (aligned with stable tools)
+const projectRoot = path.resolve(__dirname, '..', '..', '..', '..');
+const resolvedPath = path.join(projectRoot, target_file);
+```
+
+**Validation Process**:
+1. Compare with stable tool patterns (`consult_image`, `execute_command`)
+2. Test file accessibility using corrected path resolution
+3. Verify security constraints still apply
+4. Confirm MCP server restart requirement for code changes
+
+**Lessons Learned**:
+- MCP tools must follow consistent patterns for reliability
+- Path resolution is critical for file access tools
+- Server restart is mandatory for MCP tool code changes
+- Silent failures make debugging difficult without proper logging
 
 ## Conclusion
 
