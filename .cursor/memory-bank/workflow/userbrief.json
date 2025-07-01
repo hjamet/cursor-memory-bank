@@ -3,25 +3,6 @@
   "last_id": 222,
   "requests": [
     {
-      "id": 160,
-      "content": "Dans l'interface Streamlitz Dans la Side bar sur le côté gauche dans la section agent status Juste en dessous de l'indicatif de la tâche qui est en train de faire l'agent, ce serait chouette d'indiquer la règle où se trouve l'agent. Elle se trouve dans les fichiers d'État normalement quelque part et donc tu devrais pouvoir la récupérer. L'idée serait d'afficher en permanence ce que l'agent est en train de faire. Donc soit il est en train de travailler sur une règle, soit ce pardon, soit il est en train de travailler sur une tache, soit il est dans une règle précise et à ce moment là c'est important de savoir laquelle. Tu peux modifier l'interface prim Lit pour ajouter cette information s'il te plaît ?",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T12:55:46.995534",
-      "updated_at": "2025-06-25T11:18:41.687Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T12:55:46.995534",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-25T11:18:41.687Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
       "id": 161,
       "content": "Dans l'interface streaming est ce que c'est possible d'ajouter une sorte de cercle de notification exactement comme tu l'as fait à l'intérieur de la page APP pour les onglets Task to review et agent message. Lorsque je reçois un nouveau message d'agent ou que j'ai des tâches à revoir, Eh Ben tu sais, il y a un petit cercle rouge avec une indication du nombre de tâches ou de messages à revoir si c'est possible, j'aimerais bien avoir cette indication aussi dans le le menu dans la, dans la la barre à gauche avec la liste des pages. Au niveau de la page APP, j'aimerais avoir cette indication. Euh, en sommant, en mettant un petit indicatif rouge et la somme des messages et des tâches à revoir s'il y en a qui sont arrivés comme ça. Je sais que si j'étais dans un autre onglet par exemple, Task Status et Ben je dois recliquer sur APP pour aller voir les messages en question.",
       "status": "archived",
@@ -985,15 +966,20 @@
     {
       "id": 220,
       "content": "Est ce que tu peux supprimer tous les fichiers de tests qui ne sont plus utiles dans le repository je crois qu'il y en a plein qui sont cachés un peu partout regarde tous les fichiers qui ont un nom qui contient test ça te permettra de facilement les identifier je pense ils prennent de la place pour rien",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-07-01T13:36:36.177207",
-      "updated_at": "2025-07-01T13:36:36.177207",
+      "updated_at": "2025-07-01T11:51:54.265Z",
       "history": [
         {
           "timestamp": "2025-07-01T13:36:36.177207",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-01T11:51:54.265Z",
+          "action": "mark_archived",
+          "comment": "Requête décomposée en tâche #273 avec analyse critique des risques de suppression destructive et stratégie d'audit sécurisé. La tâche inclut une approche méthodologique pour éviter la suppression accidentelle de composants critiques."
         }
       ]
     },

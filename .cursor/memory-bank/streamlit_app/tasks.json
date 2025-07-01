@@ -6157,5 +6157,26 @@
       "approved_at": "2025-06-30T22:18:07.825654",
       "approved_by": "user_review"
     }
+  },
+  {
+    "id": 273,
+    "title": "Audit et nettoyage sécurisé des fichiers de test obsolètes",
+    "short_description": "Identifier et supprimer de manière sécurisée les fichiers de test réellement obsolètes dans le repository, en évitant la suppression destructive de tests critiques ou de fichiers système importants.",
+    "detailed_description": "Effectuer un audit complet et sécurisé des fichiers de test dans le repository pour identifier et supprimer uniquement ceux qui sont réellement obsolètes.\n\n**Objectifs :**\n- Identifier tous les fichiers contenant \"test\" dans leur nom ou chemin\n- Analyser leur utilité et leur statut (actif/obsolète)\n- Supprimer uniquement les fichiers confirmés comme obsolètes\n- Préserver l'intégrité du système de tests\n\n**Approche méthodologique :**\n1. Scan complet du repository pour identifier tous les fichiers liés aux tests\n2. Catégorisation par type (tests unitaires, tests d'intégration, fichiers de configuration, etc.)\n3. Analyse de l'historique Git pour déterminer la dernière utilisation\n4. Vérification des dépendances et références dans le code\n5. Création d'une sauvegarde avant toute suppression\n6. Suppression progressive avec validation à chaque étape\n\n**Analyse Critique & Points de Vigilance :**\n\n⚠️ **RISQUE MAJEUR - Définition ambiguë d'obsolescence :** La requête ne définit pas clairement ce qui constitue un \"test qui n'est plus utile\". Un test peut sembler inutile mais être critique pour détecter des régressions. Il faut établir des critères objectifs (dernière modification, références dans le code, couverture).\n\n⚠️ **RISQUE DE SUPPRESSION DESTRUCTIVE :** Supprimer aveuglément tous les fichiers contenant \"test\" pourrait détruire des composants critiques du système de tests, des fichiers de configuration, ou même des données de test nécessaires.\n\n⚠️ **PORTÉE TROP LARGE :** Le critère \"nom qui contient test\" est dangereusement inclusif. Il pourrait capturer des fichiers comme \"latest.json\", \"contest.js\", \"protest.md\" qui ne sont pas des tests.\n\n⚠️ **ABSENCE DE STRATÉGIE DE RÉCUPÉRATION :** Aucune mention de backup ou de possibilité de rollback. Une fois supprimés, ces fichiers pourraient être difficiles à récupérer si leur suppression cause des problèmes.\n\n⚠️ **IMPACT SUR L'INTÉGRATION CONTINUE :** La suppression de tests pourrait casser les pipelines CI/CD ou réduire la couverture de code en dessous des seuils acceptables.\n\n⚠️ **DÉPENDANCES CACHÉES :** Des fichiers de test peuvent être référencés par des scripts de build, de la documentation, ou d'autres tests. Leur suppression pourrait causer des erreurs en cascade.\n\n**Stratégie d'atténuation :**\n- Utiliser des patterns regex précis pour identifier uniquement les vrais fichiers de test\n- Analyser les imports et références avant toute suppression\n- Procéder par étapes avec validation intermédiaire\n- Maintenir un log détaillé de toutes les suppressions\n- Tester le système après chaque batch de suppressions",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "**/*test*",
+      "**/*Test*",
+      "**/test/**",
+      "**/tests/**"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) Un audit complet des fichiers de test a été effectué avec catégorisation claire, (2) Seuls les fichiers confirmés comme obsolètes ont été supprimés (avec documentation justificative), (3) Aucun test critique ou fichier système n'a été supprimé par erreur, (4) Le système de tests fonctionne toujours correctement après nettoyage, (5) Un rapport détaillé des suppressions effectuées est disponible, (6) L'espace disque libéré est quantifié et documenté.",
+    "created_date": "2025-07-01T11:51:46.445Z",
+    "updated_date": "2025-07-01T11:51:46.445Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]
