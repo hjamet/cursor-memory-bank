@@ -1,10 +1,13 @@
 #!/bin/bash
+echo "--- DEBUG: Script started ---"
 
 # Test script for validating the local Gemini CLI configuration fix in install.sh
 
 # --- Setup ---
 # Source the main install script to get access to its functions
+echo "--- DEBUG: Sourcing ./install.sh ---"
 source ./install.sh
+echo "--- DEBUG: Sourcing complete ---"
 
 # --- Test Environment ---
 TEST_DIR="test_gemini_local_config_env"

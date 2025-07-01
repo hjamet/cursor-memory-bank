@@ -2,6 +2,51 @@
   "transition_history": [
     {
       "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T14:32:35.236Z"
+    },
+    {
+      "from": "test_gemini_cli_local_config.sh",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T14:32:27.703Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-01T14:31:09.453Z"
+    },
+    {
+      "from": "test_gemini_cli_local_config.sh",
+      "to": "fix",
+      "timestamp": "2025-07-01T14:31:01.557Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
+      "timestamp": "2025-07-01T14:30:42.594Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
+      "timestamp": "2025-07-01T14:30:14.524Z"
+    },
+    {
+      "from": "task-decomposition",
+      "to": "fix",
+      "timestamp": "2025-07-01T14:30:07.993Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T14:29:28.660Z"
+    },
+    {
+      "from": "experience-execution",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T14:29:24.052Z"
+    },
+    {
+      "from": "system",
       "to": "fix",
       "timestamp": "2025-07-01T14:26:35.575Z"
     },
@@ -54,56 +99,11 @@
       "from": "system",
       "to": "fix",
       "timestamp": "2025-07-01T14:22:56.674Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T14:18:10.290Z"
-    },
-    {
-      "from": "implementation",
-      "to": "experience-execution",
-      "timestamp": "2025-07-01T14:17:58.113Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T14:16:56.267Z"
-    },
-    {
-      "from": "implementation",
-      "to": "experience-execution",
-      "timestamp": "2025-07-01T14:16:51.121Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T14:12:27.890Z"
-    },
-    {
-      "from": "context-update",
-      "to": "fix",
-      "timestamp": "2025-07-01T14:12:23.052Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T14:09:36.992Z"
-    },
-    {
-      "from": "experience-execution",
-      "to": "context-update",
-      "timestamp": "2025-07-01T14:08:30.982Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T14:06:59.734Z"
     }
   ],
-  "experience_execution_attempts": 3,
+  "experience_execution_attempts": 0,
   "last_experience_execution": "2025-07-01T14:23:05.163Z",
   "last_implementation": null,
-  "consecutive_transitions": 19,
-  "emergency_brake_active": false
+  "consecutive_transitions": 28,
+  "emergency_brake_active": true
 }
