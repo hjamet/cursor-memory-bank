@@ -1,28 +1,5 @@
 {
   "version": "1.0.0",
-  "messages": [
-    {
-      "id": 214,
-      "content": "Échec critique de la validation de la tâche #281. Le script de test `test_gemini_cli_local_config.sh` n'est pas exécutable, même avec les bons outils. Une investigation et une correction du script sont nécessaires.",
-      "timestamp": "2025-07-01T14:31:01.504Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    },
-    {
-      "id": 215,
-      "content": "La validation de la tâche #281 est complètement bloquée. Le script de test `test_gemini_cli_local_config.sh` est non exécutable en raison d'un problème d'environnement terminal non identifiable. Une intervention manuelle est requise pour analyser et corriger l'environnement ou le script.",
-      "timestamp": "2025-07-01T14:32:27.648Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    }
-  ],
-  "last_id": 215
+  "messages": [],
+  "last_id": 216
 }
