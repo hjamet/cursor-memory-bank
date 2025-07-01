@@ -3,6 +3,16 @@
     {
       "from": "system",
       "to": "fix",
+      "timestamp": "2025-07-01T12:34:36.649Z"
+    },
+    {
+      "from": "experience-execution",
+      "to": "context-update",
+      "timestamp": "2025-07-01T12:34:31.809Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
       "timestamp": "2025-07-01T12:28:11.748Z"
     },
     {
@@ -89,16 +99,6 @@
       "from": "fix",
       "to": "fix",
       "timestamp": "2025-07-01T12:06:27.542Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T12:05:54.736Z"
-    },
-    {
-      "from": "task-decomposition",
-      "to": "fix",
-      "timestamp": "2025-07-01T12:05:47.972Z"
     }
   ],
   "experience_execution_attempts": 0,
