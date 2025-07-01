@@ -44,23 +44,3 @@ test_installation
 # Additional exclusions for other files that shouldn't sync
 *.pyc
 __pycache__/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

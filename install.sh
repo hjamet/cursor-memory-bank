@@ -933,6 +933,221 @@ EOF
     fi
 }
 
+# Function to configure MCP servers for Gemini CLI
+configure_gemini_cli_mcp() {
+    local target_dir="$1"
+    # CORRECTION: Use local .gemini/settings.json instead of global ~/.gemini/settings.json
+    local gemini_settings_file="$target_dir/.gemini/settings.json"
+    local server_script_rel_path=".cursor/mcp/mcp-commit-server/server.js"
+    local memory_bank_script_rel_path=".cursor/mcp/memory-bank-mcp/server.js"
+
+    log "Configuring MCP servers for Gemini CLI (local configuration)..."
+
+    # --- Calculate Absolute Paths ---
+    log "Calculating absolute paths for Gemini CLI configuration..."
+    local target_dir_abs=""
+    local server_script_abs_path=""
+    local memory_bank_script_abs_path=""
+    local server_script_win_path=""
+    local memory_bank_script_win_path=""
+
+    # Calculate absolute path for target_dir
+    if ! target_dir_abs="$(cd "$target_dir" && pwd -P)"; then
+        error "Failed to determine absolute path for target directory: $target_dir. Cannot configure Gemini CLI MCP servers."
+        return 1
+    fi
+    log "Calculated absolute target directory path: $target_dir_abs"
+
+    # Calculate absolute paths for server scripts
+    local clean_rel_path="${server_script_rel_path#./}"
+    server_script_abs_path="$target_dir_abs/$clean_rel_path"
+    local memory_clean_rel_path="${memory_bank_script_rel_path#./}"
+    memory_bank_script_abs_path="$target_dir_abs/$memory_clean_rel_path"
+
+    # Check if server scripts exist
+    if [[ ! -f "$target_dir/$server_script_rel_path" ]]; then
+        warn "MyMCP server script missing at $target_dir/$server_script_rel_path. Skipping Gemini CLI configuration."
+        return 1
+    fi
+    if [[ ! -f "$target_dir/$memory_bank_script_rel_path" ]]; then
+        warn "MemoryBankMCP server script missing at $target_dir/$memory_bank_script_rel_path. Skipping Gemini CLI configuration."
+        return 1
+    fi
+
+    # Set paths for JSON (no Windows conversion needed for Gemini CLI on Unix-like systems)
+    server_script_win_path="$server_script_abs_path"
+    memory_bank_script_win_path="$memory_bank_script_abs_path"
+
+    # --- Windows Path Conversion (if needed) ---
+    os_type=""
+    if command -v uname >/dev/null 2>&1; then os_type=$(uname -o); fi
+    if [[ "$os_type" == "Msys" ]]; then
+        if command -v cygpath >/dev/null 2>&1; then
+            if win_path=$(cygpath -w "$server_script_abs_path"); then
+                server_script_win_path="$win_path"
+            fi
+            if win_path=$(cygpath -w "$memory_bank_script_abs_path"); then
+                memory_bank_script_win_path="$win_path"
+            fi
+        else
+            server_script_win_path=$(echo "$server_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
+            memory_bank_script_win_path=$(echo "$memory_bank_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
+        fi
+    fi
+
+    # Escape paths for JSON embedding
+    local server_script_json_safe
+    server_script_json_safe=$(echo "$server_script_win_path" | sed 's/\\/\\\\/g')
+    local memory_bank_script_json_safe
+    memory_bank_script_json_safe=$(echo "$memory_bank_script_win_path" | sed 's/\\/\\\\/g')
+
+    # Create .gemini directory if it doesn't exist
+    if ! mkdir -p "$(dirname "$gemini_settings_file")"; then
+        error "Could not create directory for $gemini_settings_file. Aborting Gemini CLI MCP configuration."
+        return 1
+    fi
+
+    # Check if settings.json already exists and has MCP configuration
+    local existing_config=""
+    local has_existing_mcp=false
+    if [[ -f "$gemini_settings_file" ]]; then
+        log "Found existing Gemini CLI settings file: $gemini_settings_file"
+        if grep -q '"mcpServers"' "$gemini_settings_file" 2>/dev/null; then
+            has_existing_mcp=true
+            warn "Existing MCP server configuration found in $gemini_settings_file"
+            warn "The existing MCP configuration will be replaced, but other settings will be preserved."
+        fi
+        # Read existing config to preserve non-MCP settings
+        existing_config=$(cat "$gemini_settings_file" 2>/dev/null || echo "{}")
+    else
+        log "Creating new Gemini CLI settings file: $gemini_settings_file"
+        existing_config="{}"
+    fi
+
+    # Generate new MCP configuration JSON
+    log "Preparing to configure Gemini CLI MCP servers..."
+    
+    # --- DEBUG: Print values before writing ---
+    echo "DEBUG: Writing to Gemini settings file: [$gemini_settings_file]" >&2
+    echo "DEBUG: MyMCP server script path (escaped): [$server_script_json_safe]" >&2
+    echo "DEBUG: MemoryBankMCP server script path (escaped): [$memory_bank_script_json_safe]" >&2
+    # --- End DEBUG ---
+
+    # Create new MCP servers configuration
+    local new_mcp_config
+    new_mcp_config=$(cat << EOF
+{
+    "MyMCP": {
+        "command": "node",
+        "args": ["$server_script_json_safe"]
+    },
+    "MemoryBankMCP": {
+        "command": "node", 
+        "args": ["$memory_bank_script_json_safe"]
+    },
+    "Context7": {
+        "command": "npx",
+        "args": ["-y", "@upstash/context7-mcp@latest"]
+    }
+}
+EOF
+)
+
+    # CRITICAL FIX: Merge configurations intelligently to preserve existing settings
+    local final_config=""
+    if command -v jq >/dev/null 2>&1; then
+        # Use jq for robust JSON merging
+        log "Using jq for intelligent configuration merging..."
+        final_config=$(echo "$existing_config" | jq --argjson mcpServers "$new_mcp_config" '. + {mcpServers: $mcpServers}' 2>/dev/null)
+        if [[ $? -ne 0 ]] || [[ -z "$final_config" ]]; then
+            warn "jq merging failed, falling back to manual merge"
+            final_config=""
+        fi
+    fi
+
+    # Fallback: Manual merge if jq is not available or failed
+    if [[ -z "$final_config" ]]; then
+        log "Performing manual configuration merge..."
+        if [[ "$existing_config" == "{}" ]] || [[ -z "$existing_config" ]]; then
+            # No existing config, create new one
+            # FIXED: new_mcp_config is already a complete JSON object, just wrap it with mcpServers
+            final_config="{
+    \"mcpServers\": $new_mcp_config
+}"
+        else
+            # Try to preserve existing config by removing mcpServers and adding new one
+            local config_without_mcp
+            if command -v jq >/dev/null 2>&1; then
+                config_without_mcp=$(echo "$existing_config" | jq 'del(.mcpServers)' 2>/dev/null)
+            else
+                # Very basic fallback - warn user about potential data loss
+                warn "jq not available for safe merging. Existing non-MCP settings may be lost."
+                warn "Please manually backup your Gemini CLI settings before proceeding."
+                config_without_mcp="{}"
+            fi
+            
+            if [[ -n "$config_without_mcp" ]] && [[ "$config_without_mcp" != "null" ]]; then
+                # Merge manually (basic approach)
+                if [[ "$config_without_mcp" == "{}" ]]; then
+                    # FIXED: Same fix for empty config case
+                    final_config="{
+    \"mcpServers\": $new_mcp_config
+}"
+                else
+                    # FIXED: Safer manual JSON merging
+                    # Remove the closing brace, add comma and mcpServers, then close
+                    local config_base=$(echo "$config_without_mcp" | sed 's/}[[:space:]]*$//')
+                    final_config="${config_base},
+    \"mcpServers\": $new_mcp_config
+}"
+                fi
+            else
+                # Last resort: create new config with warning
+                warn "Could not safely merge existing configuration. Creating new config with MCP servers only."
+                # FIXED: Same fix for fallback case
+                final_config="{
+    \"mcpServers\": $new_mcp_config
+}"
+            fi
+        fi
+    fi
+
+    # Write the merged configuration
+    if ! echo "$final_config" > "$gemini_settings_file"; then
+        error "Failed to write Gemini CLI MCP configuration to $gemini_settings_file"
+        return 1
+    fi
+
+    local write_status=$?
+    if [[ $write_status -ne 0 ]]; then
+        error "Failed to write Gemini CLI MCP configuration to $gemini_settings_file (Exit status: $write_status)"
+        return 1
+    else
+        log "Successfully configured Gemini CLI MCP servers in $gemini_settings_file"
+        
+        # --- DEBUG: Check file state immediately after write ---
+        echo "DEBUG: Checking Gemini settings file state post-write: [$gemini_settings_file]" >&2
+        ls -l "$gemini_settings_file" >&2 2>/dev/null || echo "DEBUG: ls command failed" >&2
+        echo "DEBUG: First 10 lines of Gemini settings post-write:" >&2
+        head -n 10 "$gemini_settings_file" >&2 2>/dev/null || echo "DEBUG: head command failed" >&2
+        # --- End DEBUG ---
+        
+        # Basic existence check
+        if [[ -f "$gemini_settings_file" ]]; then
+            log "Successfully configured Gemini CLI MCP servers (File exists)."
+            log "Configuration is now local to this project at: $gemini_settings_file"
+            log "You can now use 'gemini chat' from this project directory to interact with the configured MCP servers."
+            if [[ "$has_existing_mcp" == true ]]; then
+                log "Previous MCP server configuration was replaced. Other settings were preserved."
+            fi
+        else
+            error "Gemini settings file $gemini_settings_file was NOT found after write attempt."
+            return 1
+        fi
+        return 0
+    fi
+}
+
 # Function to install pre-commit hook
 install_pre_commit_hook() {
     local target_dir="$1"
@@ -1271,6 +1486,9 @@ create_mcp_tasks_file "$INSTALL_DIR"
 
 # Merge MCP JSON template with existing config (NOW uses absolute path logic)
 merge_mcp_json "$INSTALL_DIR"
+
+# Configure MCP servers for Gemini CLI
+configure_gemini_cli_mcp "$INSTALL_DIR"
 
 # Install Internal MCP Commit Server dependencies if present in the TARGET directory
 INTERNAL_MCP_SERVER_DIR="$INSTALL_DIR/.cursor/mcp/mcp-commit-server"

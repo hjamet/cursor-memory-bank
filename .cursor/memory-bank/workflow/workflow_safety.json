@@ -3,6 +3,86 @@
     {
       "from": "system",
       "to": "fix",
+      "timestamp": "2025-07-01T13:50:02.763Z"
+    },
+    {
+      "from": "fix",
+      "to": "fix",
+      "timestamp": "2025-07-01T13:48:55.282Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
+      "timestamp": "2025-07-01T13:36:01.274Z"
+    },
+    {
+      "from": "fix",
+      "to": "fix",
+      "timestamp": "2025-07-01T13:35:56.639Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
+      "timestamp": "2025-07-01T13:34:37.174Z"
+    },
+    {
+      "from": "task-decomposition",
+      "to": "fix",
+      "timestamp": "2025-07-01T13:34:30.401Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T13:33:28.793Z"
+    },
+    {
+      "from": "task-decomposition",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T13:33:24.972Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T13:32:14.722Z"
+    },
+    {
+      "from": null,
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T13:31:08.294Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T13:26:32.184Z"
+    },
+    {
+      "from": null,
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T13:26:20.364Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
+      "timestamp": "2025-07-01T13:17:45.544Z"
+    },
+    {
+      "from": "fix",
+      "to": "fix",
+      "timestamp": "2025-07-01T13:17:36.742Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
+      "timestamp": "2025-07-01T13:16:51.894Z"
+    },
+    {
+      "from": "context-update",
+      "to": "fix",
+      "timestamp": "2025-07-01T13:16:09.681Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
       "timestamp": "2025-07-01T13:13:42.651Z"
     },
     {
@@ -19,91 +99,11 @@
       "from": "system",
       "to": "fix",
       "timestamp": "2025-07-01T13:09:14.385Z"
-    },
-    {
-      "from": "context-update",
-      "to": "fix",
-      "timestamp": "2025-07-01T13:09:09.221Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T13:06:59.728Z"
-    },
-    {
-      "from": "implementation",
-      "to": "experience-execution",
-      "timestamp": "2025-07-01T13:06:52.341Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T13:03:24.306Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T12:57:19.940Z"
-    },
-    {
-      "from": "implementation",
-      "to": "experience-execution",
-      "timestamp": "2025-07-01T12:57:11.347Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-01T12:55:59.902Z"
-    },
-    {
-      "from": "experience-execution",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-01T12:55:48.310Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T12:45:27.692Z"
-    },
-    {
-      "from": "implementation",
-      "to": "experience-execution",
-      "timestamp": "2025-07-01T12:45:21.693Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T12:40:31.750Z"
-    },
-    {
-      "from": "fix",
-      "to": "fix",
-      "timestamp": "2025-07-01T12:39:22.180Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T12:37:56.239Z"
-    },
-    {
-      "from": "context-update",
-      "to": "fix",
-      "timestamp": "2025-07-01T12:37:52.230Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T12:34:36.649Z"
-    },
-    {
-      "from": "experience-execution",
-      "to": "context-update",
-      "timestamp": "2025-07-01T12:34:31.809Z"
     }
   ],
   "experience_execution_attempts": 0,
   "last_experience_execution": "2025-07-01T13:06:52.341Z",
   "last_implementation": null,
-  "consecutive_transitions": 2,
+  "consecutive_transitions": 18,
   "emergency_brake_active": false
 }

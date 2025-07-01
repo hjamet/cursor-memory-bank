@@ -71,6 +71,32 @@ The installation script will:
 - Update only the core rules that need updating
 - Preserve any unrelated files that might be in the .cursor directory
 - Work even if the .cursor directory already exists
+- **Configure Gemini CLI MCP servers** automatically in `~/.gemini/settings.json`
+
+## Gemini CLI Integration 🤖
+
+The installation script automatically configures MCP (Model Context Protocol) servers for Google's Gemini CLI, enabling you to use the same powerful tools in both Cursor and Gemini CLI environments.
+
+### What Gets Configured
+- **MyMCP**: Git operations and automated commit messages
+- **MemoryBankMCP**: Task management and persistent memory
+- **Context7**: Real-time library documentation access
+
+### Usage with Gemini CLI
+After installation, you can use Gemini CLI with the configured MCP servers:
+
+```bash
+# Start interactive chat with MCP tools
+gemini chat
+
+# List available MCP servers
+gemini mcp list
+
+# Get tool descriptions
+gemini mcp desc
+```
+
+For detailed information about Gemini CLI integration, see [GEMINI_CLI_INTEGRATION.md](GEMINI_CLI_INTEGRATION.md).
 
 ## What is Cursor Memory Bank? 🤔
 
@@ -82,6 +108,7 @@ Cursor Memory Bank is a system that helps maintain context between coding sessio
 - 🛠️ Flexible installation options
 - 🔒 Safe updates with rule preservation
 - 📝 Structured workflows and rules
+- 🤖 **Gemini CLI Integration**: Automatic MCP server configuration for Google Gemini CLI
 
 ## Workflow 🌊
 

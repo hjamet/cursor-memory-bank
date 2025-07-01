@@ -1,32 +1,3 @@
-# Règles maison
-.cursor/rules/custom/
-
-# Dist directory
-dist/
-tmp/
-
-# Node.js dependencies
-node_modules/
-**/package-lock.json
-
-# Logs
-*.log
-.cursor/mcp/mcp-commit-server/logs/
-
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# IDE / Editor specific
-.vscode/
-.idea/
-*.swp
-
-# MCP
-.cursor/mcp/mcp-commit-server/terminals_status.json
-
-# Test
-test_installation
 
 # Cursor Memory Bank - Selective .cursor synchronization
 # CRITICAL: Rule order matters - exceptions must come after general exclusions
@@ -44,20 +15,6 @@ test_installation
 # Additional exclusions for other files that shouldn't sync
 *.pyc
 __pycache__/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

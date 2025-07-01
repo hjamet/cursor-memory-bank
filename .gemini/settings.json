@@ -1,0 +1,41 @@
+{
+    "apiKey": "test-api-key-12345",
+    "theme": "dark",
+    "language": "fr",
+    "customSettings": {
+        "autoSave": true,
+        "timeout": 30000
+    },
+    "existingMcpServers": {
+        "myCustomServer": {
+            "command": "node",
+            "args": [
+                "custom-server.js"
+            ],
+            "env": {
+                "CUSTOM_VAR": "value"
+            }
+        }
+    },
+    "mcpServers": {
+        "MyMCP": {
+            "command": "node",
+            "args": [
+                "C:\\Users\\hjamet\\Code\\cursor-memory-bank\\.cursor\\mcp\\mcp-commit-server\\server.js"
+            ]
+        },
+        "MemoryBankMCP": {
+            "command": "node",
+            "args": [
+                "C:\\Users\\hjamet\\Code\\cursor-memory-bank\\.cursor\\mcp\\memory-bank-mcp\\server.js"
+            ]
+        },
+        "Context7": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@upstash/context7-mcp@latest"
+            ]
+        }
+    }
+}
