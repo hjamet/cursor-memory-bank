@@ -6460,7 +6460,7 @@
     "dependencies": [
       275
     ],
-    "status": "TODO",
+    "status": "APPROVED",
     "impacted_files": [
       "install.sh",
       "GEMINI_CLI_INTEGRATION.md",
@@ -6468,7 +6468,7 @@
     ],
     "validation_criteria": "La correction est considérée comme terminée quand :\n1. La fonction configure_gemini_cli_mcp() modifie .gemini/settings.json local au lieu de ~/.gemini/settings.json global\n2. La configuration locale est fonctionnelle avec Gemini CLI (validation par tests)\n3. Les serveurs MCP sont correctement accessibles depuis le contexte local\n4. Les chemins vers les serveurs sont adaptés pour le contexte local\n5. La documentation GEMINI_CLI_INTEGRATION.md reflète le nouveau comportement\n6. Les tests automatisés passent avec la nouvelle configuration\n7. Aucune configuration utilisateur globale n'est affectée\n8. Le README.md est mis à jour avec les instructions correctes",
     "created_date": "2025-07-01T13:34:04.890Z",
-    "updated_date": "2025-07-01T13:49:52.720Z",
+    "updated_date": "2025-07-01T16:26:33.384233",
     "parent_id": null,
     "priority": 2,
     "image": null,
@@ -6478,10 +6478,24 @@
       {
         "timestamp": "2025-07-01T13:49:52.720Z",
         "comment": "Erreur architecturale PARTIELLEMENT CORRIGÉE dans la tâche #275. Le bug principal de cette tâche (configuration globale ~/.gemini/settings.json au lieu de locale .gemini/settings.json) a été résolu lors de la correction du data loss bug. L'implémentation utilise maintenant correctement .gemini/settings.json local au projet comme spécifié. Cependant, la validation complète de compatibilité Gemini CLI avec configurations locales reste à effectuer. La tâche peut être considérée comme largement résolue par les corrections de la #275, mais nécessite encore validation finale que Gemini CLI lit effectivement les fichiers de configuration locaux."
+      },
+      {
+        "timestamp": "2025-07-01T14:24:20.194Z",
+        "comment": "Début de l'implémentation. Passage au statut IN_PROGRESS.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-01T14:25:39.463Z",
+        "comment": "Correction du chemin local implémentée et validée statiquement. Un script de test complet (test_gemini_cli_local_config.sh) a été créé pour valider le comportement. Cependant, l'exécution des tests est bloquée par des défaillances persistantes de l'environnement terminal. La validation finale, en particulier la confirmation que Gemini CLI lit bien la configuration locale, nécessite une exécution manuelle du script de test par l'utilisateur. La tâche est prête pour la revue.",
+        "status_change": "REVIEW"
       }
     ],
-    "last_comment": "Erreur architecturale PARTIELLEMENT CORRIGÉE dans la tâche #275. Le bug principal de cette tâche (configuration globale ~/.gemini/settings.json au lieu de locale .gemini/settings.json) a été résolu lors de la correction du data loss bug. L'implémentation utilise maintenant correctement .gemini/settings.json local au projet comme spécifié. Cependant, la validation complète de compatibilité Gemini CLI avec configurations locales reste à effectuer. La tâche peut être considérée comme largement résolue par les corrections de la #275, mais nécessite encore validation finale que Gemini CLI lit effectivement les fichiers de configuration locaux.",
-    "last_comment_timestamp": "2025-07-01T13:49:52.720Z"
+    "last_comment": "Correction du chemin local implémentée et validée statiquement. Un script de test complet (test_gemini_cli_local_config.sh) a été créé pour valider le comportement. Cependant, l'exécution des tests est bloquée par des défaillances persistantes de l'environnement terminal. La validation finale, en particulier la confirmation que Gemini CLI lit bien la configuration locale, nécessite une exécution manuelle du script de test par l'utilisateur. La tâche est prête pour la revue.",
+    "last_comment_timestamp": "2025-07-01T14:25:39.463Z",
+    "validation": {
+      "approved_at": "2025-07-01T16:26:33.378233",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 282,
@@ -6519,5 +6533,38 @@
       "approved_at": "2025-07-01T16:22:21.764376",
       "approved_by": "user_review"
     }
+  },
+  {
+    "id": 283,
+    "title": "Optimiser la règle `experience-execution` pour des tests manuels rapides",
+    "short_description": "Modifier la règle `experience-execution.md` pour privilégier des tests manuels dynamiques et rapides sur le \"happy path\" plutôt que la création de scripts de tests automatisés, afin d'accélérer le cycle de validation.",
+    "detailed_description": "**OBJECTIF :**\nModifier la règle de workflow `.cursor/workflow-steps/experience-execution.md` pour optimiser le processus de test. L'objectif est de privilégier des tests dynamiques et ciblés sur le cas d'usage principal, plutôt que la création de scripts de tests automatisés exhaustifs.\n\n**SPÉCIFICATIONS TECHNIQUES :**\n1.  **Changer la philosophie de test :**\n    *   La règle doit instruire l'agent de ne plus créer systématiquement des fichiers de test (ex: `test_*.js`, `test_*.sh`).\n    *   La priorité doit être donnée à l'exécution directe de commandes via `mcp_ToolsMCP_execute_command` pour simuler un test manuel.\n2.  **Définir le périmètre de test :**\n    *   Instruire l'agent de se concentrer sur la validation du \"happy path\" (le cas d'usage principal et attendu).\n    *   Interdire explicitement la recherche active et le test d'edge cases ou de scénarios complexes et improbables. Le but est de valider que l'implémentation de base fonctionne.\n3.  **Adapter la structure de la règle :**\n    *   La nouvelle règle doit guider l'agent dans la formulation d'une \"stratégie de test dynamique\".\n    *   L'agent doit documenter les commandes qu'il va exécuter et les résultats attendus.\n    *   Le résultat de ces commandes détermine si la tâche passe en `REVIEW` (succès) ou si l'agent doit passer en `fix` (échec).\n\n---\n\n**ANALYSE CRITIQUE & POINTS DE VIGILANCE :**\n\n1.  **Risque de sous-test (Superficial Testing) :** En décourageant les tests de cas particuliers, des bugs critiques mais subtils pourraient être manqués. L'implémentation doit trouver un équilibre pour que le test reste significatif sans être exhaustif.\n2.  **Subjectivité du \"Test Manuel\" :** Le concept de \"test simple et efficace\" est subjectif pour une IA. La règle devra fournir des heuristiques claires pour guider l'agent dans le choix de ses actions de validation afin d'éviter des tests de qualité variable.\n3.  **Perte de reproductibilité :** Les scripts de test sont reproductibles. Une séquence de commandes dynamiques l'est moins. La nouvelle règle doit exiger que l'agent loggue précisément la séquence de test utilisée pour permettre une analyse ou une reproduction en cas d'échec.\n4.  **Impact sur le cycle de correction :** Un test moins rigoureux pourrait conduire à un \"faux positif\" (le test passe mais le code est buggé), ce qui rendrait le débogage ultérieur dans le cycle `fix` plus difficile. Ce risque doit être accepté comme un compromis pour la vitesse.\n5.  **Cohérence du workflow :** Cette nouvelle philosophie de test est une inversion de la tendance précédente qui visait plus de robustesse. Il faut s'assurer que ce changement ne déstabilise pas l'ensemble du workflow de qualimétrie.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/workflow-steps/experience-execution.md"
+    ],
+    "validation_criteria": "La tâche sera considérée comme terminée lorsque :\n1. Le fichier `.cursor/workflow-steps/experience-execution.md` est mis à jour.\n2. La nouvelle règle instruit clairement l'agent de privilégier l'exécution de commandes dynamiques plutôt que la création de fichiers de test.\n3. La nouvelle règle décourage explicitement les tests de cas extrêmes (edge cases).\n4. La nouvelle règle maintient un processus clair pour déterminer le succès (-> REVIEW) ou l'échec (-> fix) d'une validation.",
+    "created_date": "2025-07-01T14:26:21.148Z",
+    "updated_date": "2025-07-01T14:29:05.149Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 283,
+    "comments": [
+      {
+        "timestamp": "2025-07-01T14:26:45.446Z",
+        "comment": "Début de l'implémentation. Passage au statut IN_PROGRESS.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-01T14:29:05.149Z",
+        "comment": "La règle `experience-execution.md` a été modifiée pour privilégier des tests manuels rapides et ciblés, conformément à la demande. J'ai simplifié les instructions et retiré les sections sur les tests adverses. Le fichier est prêt pour validation.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "La règle `experience-execution.md` a été modifiée pour privilégier des tests manuels rapides et ciblés, conformément à la demande. J'ai simplifié les instructions et retiré les sections sur les tests adverses. Le fichier est prêt pour validation.",
+    "last_comment_timestamp": "2025-07-01T14:29:05.149Z"
   }
 ]

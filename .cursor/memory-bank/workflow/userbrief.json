@@ -1,31 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 228,
+  "last_id": 230,
   "requests": [
-    {
-      "id": 170,
-      "content": "Dans l'interface streaming, c'est vraiment chouette. La modification que t'as fait, ça a l'air de très bien fonctionner. L'affichage de la la règle actuelle dans laquelle se trouve l'agent. Si tu peux le problème c'est que quand l'agent se met à traiter une tâche, la règle dans laquelle il est cesse d'être affiché en fait. En fait, elle devrait toujours être affichée entre parenthèses. Il y a écrit Agent status ensuite entre parenthèses l'étape dans laquelle il se trouve et en dessous, il y a écrit ou bien. L'agent est en train de travailler ou bien il y a écrit la tâche sur laquelle l'agent est en train de travailler, garde le design actuel, hein, fait pas de modifications drastiques du design mais voilà, si tu peux faire cette petite modification parce que je me suis rendu compte que quand il y avait une tâche en cours et Ben on sait plus dans quelle étape se trouve l'agent.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T18:08:03.472777",
-      "updated_at": "2025-06-25T16:13:13.596Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T18:08:03.472777",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-25T16:13:07.591Z",
-          "action": "add_comment",
-          "comment": "Cette requête concerne exactement le même problème que la tâche #208 que je viens de terminer. L'affichage persistant de l'étape workflow dans l'interface Streamlit a été implémenté avec succès. L'étape workflow est maintenant TOUJOURS affichée entre parenthèses dans \"Agent Status\" avec le format demandé. Les changements sont déjà appliqués et visibles grâce à l'auto-refresh de l'interface."
-        },
-        {
-          "timestamp": "2025-06-25T16:13:13.596Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 171,
       "content": "Alors c'est une micro modification, mais c'était sympa avant quand je soumettais une nouvelle requête, il y avait une petite animation, tu sais de ballon qui s'envole sur l'écran. Je crois que c'est St ballons la fonction, un truc comme ça est ce que tu pourrais la remettre ? Fais attention à pas casser le fonctionnement vraiment, tout doit marcher exactement pareil qu'actuellement, notamment la suppression du texte de la zone de texte, et cetera. Mais si tu peux rajouter cette chouette petite animation qu'il y avait quand j'ajoute une tâche depuis l'interface streamlitz dans l'onglet review et communication, en ajoutant les ballons, ce serait assez sympa.",
@@ -962,6 +938,41 @@
         {
           "timestamp": "2025-07-01T14:06:37.156Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 229,
+      "content": "Effectuer une petite modification de la règle expérience exécution pour rendre l'argent plus rapide. L'idée, c'est de privilégier des tests manuels au test automatique. Au lieu de créer plein de fichiers de tests complètement automatiques, ils devraient plutôt essayer autant que possible de faire des tests manuels, comme le ferait vraiment un développeur humain qui cherche à vérifier si son code fonctionne. C'est à dire que il va essayer de dynamiquement tester des choses, de voir si les résultats fonctionnent, et cetera. Il doit le faire de manière. Simple et efficace, il doit pas tester des Edge case, des trucs vraiment vraiment bizarres. Il doit plutôt tester l'implémentation de base, voire si ce qu'il a essayé de faire fonctionner à l'air de marcher et repérer les problèmes sans chercher activement des cas vraiment particuliers. En fait, il doit être un peu plus efficace dans cette règle, mais encore une fois, privilégiez au maximum. L'exécution de commandes et des tests dynamiques plutôt que la création de scripts de tests, même temporaires.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-01T16:25:19.247007",
+      "updated_at": "2025-07-01T14:26:25.799Z",
+      "history": [
+        {
+          "timestamp": "2025-07-01T16:25:19.247007",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-01T14:26:25.799Z",
+          "action": "mark_archived",
+          "comment": "Requête décomposée en tâche #283: Optimiser la règle `experience-execution` pour des tests manuels rapides."
+        }
+      ]
+    },
+    {
+      "id": 230,
+      "content": "Reply to Agent Message #213:\n\n**Original Message:** \"La tâche #281 est prête pour revue. Le code est corrigé, mais le test de validation final n'a pas pu être exécuté à cause de problèmes de terminal. Merci d'exécuter `test_gemini_cli_local_config.sh` m...\"\n\n**My Reply:** On est bien d'accord que tu as utilisé l'outil mcp exécute Command et par terminal. Cmd, je te rappelle que c'est interdit d'utiliser l'outil terminal. Cmd, tu dois uniquement utiliser l'outil mcp exécute Command et là normalement ça devrait fonctionner sans problème.\n\n**Message Context:**\n- Rule: unknown\n- Timestamp: 2025-07-01T14:25:46.907Z\n- Workflow Rule: implementation",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-01T16:27:11.484427",
+      "updated_at": "2025-07-01T16:27:11.484427",
+      "history": [
+        {
+          "timestamp": "2025-07-01T16:27:11.484427",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }

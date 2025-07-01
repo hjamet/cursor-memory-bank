@@ -3,6 +3,46 @@
     {
       "from": "system",
       "to": "fix",
+      "timestamp": "2025-07-01T14:26:35.575Z"
+    },
+    {
+      "from": "task-decomposition",
+      "to": "fix",
+      "timestamp": "2025-07-01T14:26:30.680Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T14:25:51.598Z"
+    },
+    {
+      "from": "install.sh",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T14:25:46.973Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
+      "timestamp": "2025-07-01T14:24:08.336Z"
+    },
+    {
+      "from": "fix",
+      "to": "fix",
+      "timestamp": "2025-07-01T14:24:02.484Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
+      "timestamp": "2025-07-01T14:23:53.553Z"
+    },
+    {
+      "from": "implementation.md",
+      "to": "fix",
+      "timestamp": "2025-07-01T14:23:48.863Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
       "timestamp": "2025-07-01T14:23:13.569Z"
     },
     {
@@ -59,51 +99,11 @@
       "from": "system",
       "to": "fix",
       "timestamp": "2025-07-01T14:06:59.734Z"
-    },
-    {
-      "from": "implementation",
-      "to": "experience-execution",
-      "timestamp": "2025-07-01T14:06:55.442Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-01T14:05:58.000Z"
-    },
-    {
-      "from": null,
-      "to": "task-decomposition",
-      "timestamp": "2025-07-01T14:05:53.370Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T14:01:11.321Z"
-    },
-    {
-      "from": "fix",
-      "to": "fix",
-      "timestamp": "2025-07-01T14:01:07.879Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T13:58:49.494Z"
-    },
-    {
-      "from": "context-update",
-      "to": "fix",
-      "timestamp": "2025-07-01T13:58:43.588Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T13:53:37.246Z"
     }
   ],
   "experience_execution_attempts": 3,
   "last_experience_execution": "2025-07-01T14:23:05.163Z",
   "last_implementation": null,
-  "consecutive_transitions": 11,
+  "consecutive_transitions": 19,
   "emergency_brake_active": false
 }
