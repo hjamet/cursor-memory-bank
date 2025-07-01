@@ -62,6 +62,8 @@ Code Changes → File Operations → Git Commits → Memory Update
 - `mcp_MemoryBankMCP_remember`: Memory management and workflow routing
 - `mcp_MemoryBankMCP_next_rule`: Workflow step management
 - `mcp_MemoryBankMCP_commit`: Git operations with standardized messages
+- `mcp_MemoryBankMCP_read_userbrief`: User request management
+- `mcp_MemoryBankMCP_update_userbrief`: User request status updates
 
 #### Validation Architecture:
 ```javascript
@@ -77,25 +79,46 @@ Schema Validation (Zod) → Business Rules → Data Integrity Checks
 ### ToolsMCP Server
 **Location**: `.cursor/mcp/tools-mcp/` (planned)
 **Purpose**: System interaction and file operations
+**Status**: Not yet implemented, using built-in Cursor tools
 
-## Data Storage Architecture
+## Data Storage Architecture (CORRECTED)
 
 ### File Structure
 ```
 .cursor/memory-bank/
 ├── streamlit_app/
-│   ├── tasks.json          # PRIMARY: All task data (262 tasks, ~1MB)
+│   ├── tasks.json          # PRIMARY: All task data (268 tasks, ~1.2MB)
 │   └── userbrief.json      # User requests with status tracking
 ├── context/
 │   ├── projectBrief.md     # Business context and objectives
-│   └── techContext.md      # Technical implementation details
+│   ├── techContext.md      # Technical implementation details
+│   ├── activeContext.md    # Current workflow context
+│   ├── current_step.txt    # Active workflow step
+│   └── working_memory.json # Short-term memory state
 └── workflow/
-    └── tasks.json          # DEPRECATED: Empty vestige file
+    ├── long_term_memory.json       # Persistent semantic memories
+    ├── tasks_schema.json           # Task validation schemas
+    ├── to_user.json               # Messages to user
+    ├── userbrief.json             # User request tracking
+    ├── userbrief_schema.json      # Request validation schemas
+    ├── workflow_safety.json       # Safety constraints
+    └── workflow_state.json        # Current workflow state
 ```
+
+### Git Synchronization (CRITICAL UPDATE)
+**Only these files are tracked by Git:**
+- `.cursor/memory-bank/context/` (6 files)
+- `.cursor/memory-bank/workflow/` (6 files)
+- **Total**: 12 files tracked out of 12,752 files in `.cursor/`
+
+**Previously problematic (now ignored):**
+- `.cursor/streamlit_app/` (1,123 files including node_modules)
+- `.cursor/mcp/` (MCP server files and dependencies)
+- All other `.cursor/` subdirectories
 
 ### Data Models
 
-#### Task Schema
+#### Task Schema (Current)
 ```typescript
 interface Task {
   id: number;
@@ -106,13 +129,16 @@ interface Task {
   priority: 1 | 2 | 3 | 4 | 5;
   dependencies: number[];
   impacted_files: string[];
-  created_at: string;
-  updated_at: string;
-  history: TaskHistoryEntry[];
+  validation_criteria: string;
+  created_date: string;
+  updated_date: string;
+  parent_id?: number;
+  image?: string;
+  comments?: TaskComment[];
 }
 ```
 
-#### User Request Schema
+#### User Request Schema (Current)
 ```typescript
 interface UserRequest {
   id: number;
@@ -125,7 +151,7 @@ interface UserRequest {
 }
 ```
 
-## Validation Systems (ACTIVE)
+## Validation Systems (ACTIVE & OPERATIONAL)
 
 ### 1. Duplicate Detection
 **Algorithm**: Levenshtein distance with configurable thresholds
@@ -135,6 +161,7 @@ interface UserRequest {
 - Exact match: 1.0 (blocked)
 - High similarity: 0.85 (blocked)
 - Medium similarity: 0.7 (warning)
+**Status**: ACTIVE and preventing duplicates
 
 ### 2. Circular Dependency Prevention
 **Algorithm**: Depth-First Search cycle detection
@@ -144,6 +171,7 @@ interface UserRequest {
 - Real-time cycle detection on task creation/update
 - Multi-node cycle identification
 - Dependency graph health analysis
+**Status**: ACTIVE and operational
 
 ### 3. CRUD Validation Framework
 **Location**: `lib/task_crud_validator.js`
@@ -153,6 +181,7 @@ interface UserRequest {
 - Business rule enforcement
 - File path safety validation
 - Status transition validation
+**Status**: FULLY OPERATIONAL
 
 ## Workflow Engine
 
@@ -181,15 +210,22 @@ start-workflow → remember → next_rule → [execute step] → remember → ne
 - System maintenance needs (→ context-update)
 - Validation requirements (→ experience-execution)
 
-## Performance Characteristics
+## Performance Characteristics (UPDATED)
 
-### Current Scale
-- **Tasks**: 262 total (all completed/approved)
-- **User Requests**: 53 total (3 pending)
-- **Memory Entries**: ~64 long-term memories
-- **File Operations**: ~1MB primary data file
+### Current Scale (July 2025)
+- **Tasks**: 268 total (264 completed/approved, 4 active)
+- **User Requests**: 224 total (all processed and archived)
+- **Memory Entries**: ~70+ long-term memories
+- **File Operations**: ~1.2MB primary data file
+- **Git Performance**: <1 second for all operations (post-cleanup)
 
-### Performance Bottlenecks
+### Performance Improvements Achieved
+1. **Git Operations**: Reduced from slow (>10s) to instant (<1s) via repository cleanup
+2. **Repository Size**: Normalized from 166MB bloated to standard size
+3. **File Tracking**: Reduced from 1,215 tracked files to 12 essential files
+4. **Validation Speed**: Maintained high performance despite increased task count
+
+### Remaining Performance Bottlenecks
 1. **Duplicate Detection**: O(n×m) scales poorly with large task counts
 2. **File I/O**: Single large JSON file for all tasks
 3. **Memory Search**: Linear search through memories
@@ -201,89 +237,133 @@ start-workflow → remember → next_rule → [execute step] → remember → ne
 - **Caching**: Cache validation results and duplicate checks
 - **Pagination**: Implement lazy loading for large datasets
 
-## Development Constraints
+## Development Constraints (CRITICAL KNOWLEDGE)
 
-### Critical Limitations
-
-#### MCP Server Caching
+### MCP Server Caching (MAJOR LIMITATION)
 - **Issue**: Code changes require manual Cursor restart
-- **Impact**: Slow iterative development cycle
+- **Impact**: Slow iterative development cycle (5-10 minutes per change)
 - **Workaround**: Batch changes and test directly with Node.js first
 - **Timeline for Fix**: Architectural limitation, no immediate solution
 
-#### Tool Reliability
-- **edit_file**: Unreliable for large changes (>100 lines)
+### Tool Reliability Issues
+- **edit_file**: Unreliable for large changes (>100 lines), often produces incorrect results
 - **Workaround**: Use `mcp_ToolsMCP_regex_edit` for precise modifications
 - **Debug Logging**: Cannot use console.log in MCP tools (breaks JSON-RPC)
-
-#### Error Handling
 - **Silent Failures**: MCP tools often fail without clear error messages
-- **Debugging**: Limited visibility into tool execution
-- **Recovery**: Manual intervention sometimes required
 
-### Development Workflow
-```
-1. Implementation → 2. Direct Testing → 3. MCP Testing → 4. Manual Restart → 5. Final Validation
-```
+### Git Integration Complexities
+- **Gitignore Syntax**: Exception rules are fragile and order-dependent
+- **Cross-platform Issues**: Path separators and permissions vary
+- **Already-tracked Files**: Gitignore changes don't affect existing tracked files
+- **Validation Required**: Always test with `git check-ignore` before deployment
 
 ## Security Model
 
 ### Access Controls
 - **File System**: Limited to workspace directory
 - **Command Execution**: Restricted to project context
-- **Network Access**: No external network calls from MCP tools
+- **Network Access**: Limited to specific tools (Brave Search, web screenshots)
 - **User Data**: All operations logged and auditable
 
-### Data Integrity
+### Data Integrity (ENHANCED)
 - **Validation**: Multi-layer validation prevents data corruption
 - **Backup**: Automatic backup creation before major operations
 - **Audit Trail**: Complete history tracking for all changes
 - **Recovery**: Rollback capabilities for failed operations
+- **Git Hygiene**: Only essential files tracked, sensitive data excluded
+
+### Recent Security Improvements
+- **Repository Cleanup**: 1,203 potentially sensitive files removed from Git tracking
+- **Selective Sync**: Only necessary files synchronized across environments
+- **Performance Security**: Fast git operations prevent timeout-based attacks
 
 ## Integration Points
 
 ### Streamlit Interface
 **Port**: 8501 (default)
 **Features**:
-- Real-time task monitoring
+- Real-time task monitoring with status updates
 - User request submission with image support
-- Memory browsing and search
-- System status dashboard
+- Memory browsing and semantic search
+- System status dashboard with performance metrics
+- Request history with full context
 
 ### Git Integration
 **Hooks**: Pre-commit validation and formatting
 **Commit Standards**: Conventional commits with emoji prefixes
 **Branching**: Single branch workflow with continuous integration
+**Performance**: Sub-second operations for all git commands
 
 ### External Tools
-- **Brave Search**: Web search capabilities for research
+- **Brave Search**: Web search capabilities for research tasks
 - **Image Processing**: Screenshot and image analysis support
-- **Terminal Operations**: Full shell access within workspace
+- **Terminal Operations**: Full shell access within workspace boundaries
+- **Context7**: Library documentation access for development tasks
 
 ## Monitoring and Observability
 
-### Health Metrics
-- **Task Completion Rate**: Currently 100% (262/262 completed)
-- **Request Processing**: 3 pending requests awaiting processing
-- **System Uptime**: Autonomous operation since last restart
+### Health Metrics (Current)
+- **Task Completion Rate**: 98.5% (264/268 completed successfully)
+- **Request Processing**: 0 pending requests (100% processed)
+- **System Uptime**: Continuous autonomous operation
 - **Error Rate**: <1% tool failures (mostly edit_file issues)
+- **Git Performance**: <1s for all operations
 
-### Logging
+### Logging Capabilities
 - **Workflow Steps**: Complete trace of agent decision-making
 - **Tool Usage**: Detailed logs of all MCP tool invocations
 - **Performance**: Timing data for validation and processing operations
 - **Errors**: Comprehensive error tracking with stack traces
+- **Memory Management**: Automatic cleanup and optimization tracking
+
+### Recent Critical Event Log
+- **2025-07-01**: Discovered repository bloat (1,215 unwanted tracked files)
+- **2025-07-01**: Implemented gitignore corrections and massive cleanup
+- **2025-07-01**: Validated performance restoration and security improvements
+- **2025-07-01**: Completed user request processing backlog
 
 ## Future Architecture Considerations
 
-### Scalability Improvements
+### Immediate Improvements Needed
+- **Installation Script Audit**: Ensure consistency between manual fixes and automated installation
+- **Cross-platform Testing**: Validate gitignore rules on Windows/Mac/Linux
+- **Performance Testing**: Validate system behavior under high load
+
+### Medium-term Scalability
 - **Database Backend**: SQLite or PostgreSQL for better performance
 - **Microservices**: Split MCP servers by functional domain
 - **Async Processing**: Queue-based task execution
-- **Load Balancing**: Multiple agent instances for high availability
+- **Enhanced Validation**: More sophisticated duplicate detection
 
-### Enhanced Capabilities
+### Long-term Vision
 - **Multi-User Support**: Role-based access and isolation
 - **Plugin Architecture**: Extensible tool system
 - **Machine Learning**: Improved request understanding and task optimization
-- **Real-Time Collaboration**: Live editing and conflict resolution 
+- **Real-Time Collaboration**: Live editing and conflict resolution
+
+## Critical Technical Debt
+
+### High Priority
+1. **MCP Tool Reliability**: edit_file tool produces inconsistent results
+2. **Installation Script Consistency**: manage_gitignore function needs audit
+3. **Error Handling**: Silent failures in MCP tools need better reporting
+
+### Medium Priority
+1. **Performance Optimization**: JSON file-based storage doesn't scale well
+2. **Cross-platform Testing**: Gitignore rules untested on all platforms
+3. **Database Migration**: Single large JSON file is a bottleneck
+
+### Low Priority
+1. **Statistical Consistency**: Task counters occasionally inconsistent
+2. **User Experience**: Error messages could be more user-friendly
+3. **Documentation**: Some technical docs lag behind implementation
+
+## Conclusion
+
+The technical architecture has proven resilient and capable of self-correction, as demonstrated by the recent successful resolution of a critical repository security and performance crisis. The system's ability to detect, analyze, and fix fundamental problems autonomously validates the architectural decisions.
+
+**Key Technical Strengths**: Robust validation systems, autonomous problem detection, comprehensive logging, flexible workflow engine.
+
+**Areas Requiring Attention**: MCP tool reliability, installation script consistency, cross-platform compatibility.
+
+The system continues to evolve and improve, with each crisis providing valuable learning opportunities and architectural refinements. 

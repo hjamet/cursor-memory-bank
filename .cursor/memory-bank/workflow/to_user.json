@@ -1,17 +1,5 @@
 {
   "version": "1.0.0",
-  "messages": [
-    {
-      "id": 206,
-      "content": "Le problème avec l'outil remember est maintenant résolu ! Le système de sécurité du workflow avait activé un frein d'urgence après trop de transitions consécutives. J'ai réinitialisé l'état de sécurité. Vous devez maintenant redémarrer Cursor pour que les modifications du serveur MCP prennent effet, puis le workflow fonctionnera normalement.",
-      "timestamp": "2025-07-01T12:00:08.193Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    }
-  ],
-  "last_id": 206
+  "messages": [],
+  "last_id": 208
 }
