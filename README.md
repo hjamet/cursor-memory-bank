@@ -110,34 +110,90 @@ Cursor Memory Bank is a system that helps maintain context between coding sessio
 - 📝 Structured workflows and rules
 - 🤖 **Gemini CLI Integration**: Automatic MCP server configuration for Google Gemini CLI
 
-## Workflow 🌊
+## Agent Workflow Logic 🧠⚙️
 
-Here is a diagram of the workflow used by the agent to process requests:
+The autonomous agent operates on a sophisticated, rule-based workflow designed for robustness and intelligent decision-making. The goal is to systematically process tasks, handle exceptions, and ensure quality through a mandatory testing cycle. The logic is primarily controlled by the script at `.cursor/mcp/memory-bank-mcp/lib/workflow_recommendation.js`.
+
+Here is a diagram representing the core decision-making flow:
 
 ```mermaid
 graph TD
-    A["start-workflow<br/>🚀 Initialize workflow<br/>Load context & memory"] --> B["task-decomposition<br/>📋 Break down requests<br/>Create tasks"]
-    
-    B --> C["implementation<br/>⚙️ Execute tasks<br/>Code & develop"]
-    
-    C --> D["experience-execution<br/>🧪 Manual testing<br/>Validate functionality"]
-    
-    D --> E["fix<br/>🔧 Debug & resolve<br/>Handle issues"]
-    D --> F["context-update<br/>📝 Update context<br/>Process userbrief<br/>Commit changes"]
-    
-    E --> C
-    E --> D
-    
-    F --> B
-    F --> A
-    
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C fill:#e8f5e8
-    style D fill:#fff3e0
-    style E fill:#ffebee
-    style F fill:#f1f8e9
+    subgraph Legend
+        direction LR
+        Dev[Dev Task]:::devStyle
+        Exec[Execution Task]:::execStyle
+        Fix[Fix Task]:::fixStyle
+        Decomp[Decomposition]:::decompStyle
+    end
+
+    subgraph "Main Loop"
+        direction TB
+        A(Start) --> B{Get Next Task};
+        B -- No Tasks --> Z[Context Update / Idle];
+        B -- Task Available --> C{Evaluate Task Type};
+        C -- Development Req. --> D[1. Implementation];
+        C -- Execution Only --> E[2. Experience Execution];
+        
+        D -- Code Complete --> F[Remember];
+        F --> E;
+
+        E -- Testing Complete --> G[Remember];
+        G --> H{Test Passed?};
+        H -- Yes --> I[3. Context Update / Commit];
+        H -- No --> D;
+        
+        I --> B;
+    end
+
+    subgraph "Interrupts"
+        direction TB
+        J[New User Request] --> K[4. Task Decomposition];
+        K --> D;
+        L[Blocked Task Detected] --> M[5. Fix];
+        M --> D;
+    end
+
+    classDef devStyle fill:#cde4ff,stroke:#333,stroke-width:2px;
+    classDef execStyle fill:#d5e8d4,stroke:#333,stroke-width:2px;
+    classDef fixStyle fill:#f8cecc,stroke:#333,stroke-width:2px;
+    classDef decompStyle fill:#dae8fc,stroke:#333,stroke-width:2px;
+
+    class Dev,D devStyle;
+    class Exec,E execStyle;
+    class Fix,M fixStyle;
+    class Decomp,K decompStyle;
 ```
+
+### Explanation of the Workflow Steps:
+
+The agent's workflow is not a simple linear process but a state machine that intelligently routes tasks based on their nature and the overall system status.
+
+1.  **Implementation (`implementation`)**:
+    *   **Trigger**: A task is available in the `TODO` queue.
+    *   **Action**: This is the core development step. The agent analyzes the task, writes or modifies code, and prepares the changes. The focus is on completing a single task thoroughly.
+    *   **Next Step**: Upon completion, it's **mandatory** for the agent to transition to `Experience Execution` to ensure all changes are tested.
+
+2.  **Experience Execution (`experience-execution`)**:
+    *   **Trigger**: Automatically follows `Implementation`. Can also be triggered directly for tasks that only require running commands or tests without code changes.
+    *   **Action**: The agent validates the changes made in the previous step. This can involve running automated tests, linters, or performing a dry-run of a feature.
+    *   **Next Step**:
+        *   If validation **fails** or reveals more work is needed, the agent transitions back to `Implementation`.
+        *   If validation **passes**, the agent moves to `Context Update`.
+
+3.  **Context Update (`context-update`)**:
+    *   **Trigger**: Follows a successful `Experience Execution`.
+    *   **Action**: The agent finalizes the work by committing the changes to version control with a descriptive message. It then updates its own context and prepares for the next cycle.
+    *   **Next Step**: The agent returns to the start of the loop to check for new tasks.
+
+4.  **Task Decomposition (`task-decomposition`)**:
+    *   **Trigger**: A new user request is detected. This step has high priority and can interrupt the main loop.
+    *   **Action**: The agent analyzes the user's request and breaks it down into one or more concrete, actionable tasks that are added to the `TODO` queue.
+    *   **Next Step**: The agent enters the `Implementation` step to begin working on the newly created tasks.
+
+5.  **Fix (`fix`)**:
+    *   **Trigger**: A task is found in the `BLOCKED` state. This is treated as a high-priority interrupt.
+    *   **Action**: The agent's sole focus is to resolve the issue that is blocking the task. This could involve fixing a dependency, correcting a faulty implementation, or other troubleshooting steps.
+    *   **Next Step**: Once the issue is resolved, the agent moves to `Implementation` to continue the task.
 
 ## Contributing 🤝
 

@@ -1,45 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 230,
+  "last_id": 233,
   "requests": [
-    {
-      "id": 173,
-      "content": "Correction for Task #209 (Réactiver l'animation de ballons lors de la soumission de nouvelles requêtes):\n\nHélas non : l'animation des ballons ne fonctionne toujours pas ! Tout le reste marche parfaitement, mais les ballons ne s'affiche pas :/",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T18:18:48.528335",
-      "updated_at": "2025-06-25T16:23:59.591Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T18:18:48.528335",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-25T16:23:59.591Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 174,
-      "content": "J'ai redémarré du coup le serveur cursor Depuis tes dernières modifications, donc ça devrait te permettre de tester L'outil commit que tu as modifié pour voir si il ajoute bien directement les tâches de refactor des fichiers trop longs.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T18:21:18.851474",
-      "updated_at": "2025-06-25T16:24:24.783Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T18:21:18.851474",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-25T16:24:24.783Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 175,
       "content": "Il y a plusieurs bugs qui ont été introduits par le refactoring, en particulier dans la page principale de l'application streaming dans. Euh dans Task to review. Tu as modifié les boutons avant, c'était très bien fait, y avait juste un bouton pour valider un bouton pour éditer. Maintenant tu as rajouté un bouton pour bloquer la tâche qui n'a aucun sens donc celui là il faut que tu le supprimes et puis en plus maintenant enfin j'essaie de valider une tâche, j'obtiens un message d'erreur. Voilà, il faudrait que tu corriges tout ça :\n\nError updating task status: 'list' object has no attribute 'get'\n\nFailed to approve task.",
@@ -959,6 +921,46 @@
           "timestamp": "2025-07-01T14:30:02.723Z",
           "action": "mark_archived",
           "comment": "Requête traitée. J'ai créé la tâche #284 pour relancer la validation de la tâche #281 en utilisant l'outil `mcp_ToolsMCP_execute_command` comme demandé."
+        }
+      ]
+    },
+    {
+      "id": 232,
+      "content": "Il y a un gros souci qui fait que l'outil remember et l'outil Next World ont tendance à appeler à faire appeler l'outil context update en boucle pour une raison extrêmement étrange, je crois que c'est lié à un mécanisme de frein d'urgence qui ne sert vraiment à rien, donc il faudrait que tu supprimes ce mécanisme de frein d'urgence s'il te plaît. Si c'est bien lui qui est responsable de ce truc de contexte update ce qui me semble vraiment être le cas.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-01T17:10:48.495312",
+      "updated_at": "2025-07-01T15:12:59.531Z",
+      "history": [
+        {
+          "timestamp": "2025-07-01T17:10:48.495312",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-01T15:12:59.531Z",
+          "action": "mark_archived",
+          "comment": "Request has been decomposed into task #285 to investigate and fix the workflow loop."
+        }
+      ]
+    },
+    {
+      "id": 233,
+      "content": "Tu peux vérifier das le détails que l'outil remember retourne bien les recommandations de règle suivante selon le schéma suivant :\n\nstart \n-> task-decomposition si il y a des requetes userbrief non traitées\n-> implementation si il y a des tâches non traitées\n\ntask-decomposition\n-> task-decomposition si il reste des userbrief non traités\n-> implementation\n\nimplementation\n-> experience-execution\n\nexperience-execution\n-> context-udpate si l'experience est une réussite\n-> fix si l'experience est un echec\n\nfix\n-> experience-execution\n\ncontext-update\n-> task-decomposition si il y a des requetes userbrief non traitées\n-> implementation si il y a des tâches non traitées\n\nSauvegarde bien ce schéma et documente le dans le RAEDME. Puis vérifie dans le détails si les outils remeber et next-rule le suivent bien !",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-01T17:20:15.323631",
+      "updated_at": "2025-07-01T15:21:38.073Z",
+      "history": [
+        {
+          "timestamp": "2025-07-01T17:20:15.323631",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-01T15:21:38.073Z",
+          "action": "mark_archived",
+          "comment": "Request has been decomposed into task #286."
         }
       ]
     }

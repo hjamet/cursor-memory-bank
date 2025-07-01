@@ -6607,5 +6607,78 @@
       "approved_at": "2025-07-01T16:51:39.379123",
       "approved_by": "user_review"
     }
+  },
+  {
+    "id": 285,
+    "title": "Investigate and Remove the 'Emergency Brake' Causing Workflow Loops",
+    "short_description": "The user reports an infinite loop where the workflow is forced into a 'context-update' step. This task is to identify the 'emergency brake' mechanism suspected of causing this behavior in the 'remember' or workflow logic and remove it.",
+    "detailed_description": "The user has reported and I have confirmed a critical workflow bug where the system gets stuck in a loop, repeatedly calling the 'context-update' step. This prevents any other progress, including processing new user requests.\n\nThe user suspects this is caused by a so-called \"emergency brake\" mechanism within the workflow logic, likely in the `remember` tool or the surrounding workflow state management.\n\n**Plan:**\n1.  Analyze the code for the `mcp_MemoryBankMCP_remember` tool and any related workflow management files (like `workflow_safety.json` or state management logic).\n2.  Identify the specific logic that forces the workflow to default to `context-update`, which corresponds to the user's \"emergency brake\".\n3.  Remove or refactor this logic to ensure that the workflow can proceed to the appropriate next step (e.g., `task-decomposition`) when there are pending user requests.\n\n**Analyse Critique & Points de Vigilance**\n- **Risk of Regression:** This \"emergency brake\" may have been implemented for a reason. Removing it could have unintended side effects. The investigation must include understanding its original purpose.\n- **Vague Location:** The user's description is based on observed behavior. The actual implementation could be named something completely different and might not be a single, simple \"brake\" mechanism.\n- **Systemic Issue:** The problem might not be in a single tool but in the interaction between `remember`, `next_rule`, and the state files. The entire state transition logic needs to be considered.",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/lib/remember.js",
+      ".cursor/mcp/memory-bank-mcp/lib/workflow_state_manager.js"
+    ],
+    "validation_criteria": "1. After the fix, the workflow no longer enters an infinite `context-update` loop.\n2. When a new user request is present and the agent calls `remember`, the recommended next step is correctly identified as `task-decomposition` (or another appropriate step), not `context-update`.\n3. A general workflow test (like the one that triggered this task) passes without getting stuck.",
+    "created_date": "2025-07-01T15:12:53.467Z",
+    "updated_date": "2025-07-01T17:23:55.024023",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 285,
+    "comments": [
+      {
+        "timestamp": "2025-07-01T15:13:48.568Z",
+        "comment": "Start implementation to fix the workflow loop bug.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-01T15:22:43.551Z",
+        "comment": "The core fix has been implemented and validated. The `context-update` and `fix` loops are resolved. The workflow now correctly prioritizes new user requests and is no longer stuck. The fix is considered complete and ready for final approval.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "The core fix has been implemented and validated. The `context-update` and `fix` loops are resolved. The workflow now correctly prioritizes new user requests and is no longer stuck. The fix is considered complete and ready for final approval.",
+    "last_comment_timestamp": "2025-07-01T15:22:43.551Z",
+    "validation": {
+      "approved_at": "2025-07-01T17:23:55.017002",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 286,
+    "title": "Audit, Document, and Align Core Workflow Logic",
+    "short_description": "Audit, document, and align the agent's workflow logic. This involves analyzing the current implementation against a user-provided schema, documenting the final logic in the README, and refactoring the code to match.",
+    "detailed_description": "The user has requested a comprehensive audit, documentation, and alignment of the core workflow logic based on a provided schema. This task will ensure the workflow is predictable and well-documented.\n\n**Plan:**\n1.  **Audit Phase:** Analyze the user's proposed schema against the current implementation in `workflow_recommendation.js` and `remember.js`. The goal is to identify any discrepancies and to critically evaluate if the proposed schema is optimal.\n2.  **Documentation Phase:** Once the definitive workflow logic is established (a combination of the user's proposal and the existing reality), document it clearly in `README.md`. This documentation should include a Mermaid diagram for clarity.\n3.  **Alignment Phase:** If the audit reveals that the code does not match the finalized schema, refactor the implementation to ensure it aligns perfectly with the documentation.\n\n**Analyse Critique & Points de Vigilance:**\n*   The user's schema is a proposal and must be challenged. For example, the proposed `experience-execution` -> `context-update` on success might be inefficient. Returning to `implementation` to check for more tasks could be a better pattern.\n*   This is not just a documentation task; it's an architecture and refactoring task. The risk of uncovering deeper logical issues is high.\n*   The documentation in the README must reflect the *final, implemented* logic, not the initial proposal.\n\nThis task intentionally combines audit, documentation, and potential refactoring to ensure a coherent and consistent outcome.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      "README.md",
+      ".cursor/mcp/memory-bank-mcp/lib/workflow_recommendation.js",
+      ".cursor/mcp/memory-bank-mcp/lib/remember.js"
+    ],
+    "validation_criteria": "1. The `README.md` file is updated with a new section clearly documenting the workflow logic, including a Mermaid diagram.\n2. The code implementation in `workflow_recommendation.js` and related files perfectly matches the logic documented in the README.\n3. A dry run of the workflow confirms that the agent follows the documented logic steps.",
+    "created_date": "2025-07-01T15:21:33.784Z",
+    "updated_date": "2025-07-01T15:33:11.806Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 286,
+    "comments": [
+      {
+        "timestamp": "2025-07-01T15:31:24.427Z",
+        "comment": "I am starting work on this task. Marking it as IN_PROGRESS.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-01T15:33:11.806Z",
+        "comment": "The documentation update has been manually verified by reading the README.md file. The changes are correct. The task is now ready for review.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "The documentation update has been manually verified by reading the README.md file. The changes are correct. The task is now ready for review.",
+    "last_comment_timestamp": "2025-07-01T15:33:11.806Z"
   }
 ]
