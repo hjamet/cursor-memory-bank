@@ -1,5 +1,0 @@
-This is a test file.
-START_MARKER
-This is the new content.
-END_MARKER
-This content should remain. 

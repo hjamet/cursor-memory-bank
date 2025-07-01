@@ -77,9 +77,21 @@ Schema Validation (Zod) → Business Rules → Data Integrity Checks
 ```
 
 ### ToolsMCP Server
-**Location**: `.cursor/mcp/tools-mcp/` (planned)
-**Purpose**: System interaction and file operations
-**Status**: Not yet implemented, using built-in Cursor tools
+**Location**: `.cursor/mcp/mcp-commit-server/`
+**Purpose**: System interaction, Git operations, and file/web utilities.
+**Status**: Implemented and active.
+
+#### Tools Provided:
+- `execute_command`: Executes terminal commands.
+- `get_terminal_status`: Checks the status of running processes.
+- `get_terminal_output`: Retrieves output from terminal processes.
+- `stop_terminal_command`: Stops running terminal commands.
+- `consult_image`: Reads and analyzes image files.
+- `take_webpage_screenshot`: Captures a screenshot of a URL.
+- `url_to_markdown`: Converts a webpage to Markdown.
+- `replace_content_between`: Replaces content between two markers in a file.
+- `commit`: Handles Git commits with conventional commit messages.
+- `regex_edit` (Deprecated): A legacy tool for regex-based file editing.
 
 ## Data Storage Architecture (CORRECTED)
 
@@ -247,7 +259,7 @@ start-workflow → remember → next_rule → [execute step] → remember → ne
 
 ### Tool Reliability Issues
 - **edit_file**: Unreliable for large changes (>100 lines), often produces incorrect results
-- **Workaround**: Use `mcp_ToolsMCP_regex_edit` for precise modifications
+- **Workaround**: Use `replace_content_between` for precise modifications.
 - **Debug Logging**: Cannot use console.log in MCP tools (breaks JSON-RPC)
 - **Silent Failures**: MCP tools often fail without clear error messages
 
