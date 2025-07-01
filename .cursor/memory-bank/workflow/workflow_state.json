@@ -1,7 +1,27 @@
 {
-  "current_rule": "context-update",
+  "current_rule": "experience-execution",
   "status": "active",
   "history": [
+    {
+      "rule": "experience-execution",
+      "timestamp": "2025-07-01T14:23:13.571Z"
+    },
+    {
+      "rule": "start-workflow",
+      "timestamp": "2025-07-01T14:22:56.683Z"
+    },
+    {
+      "rule": "fix",
+      "timestamp": "2025-07-01T14:18:10.292Z"
+    },
+    {
+      "rule": "experience-execution",
+      "timestamp": "2025-07-01T14:16:56.269Z"
+    },
+    {
+      "rule": "fix",
+      "timestamp": "2025-07-01T14:12:27.892Z"
+    },
     {
       "rule": "context-update",
       "timestamp": "2025-07-01T14:09:36.994Z"
@@ -21,27 +41,7 @@
     {
       "rule": "fix",
       "timestamp": "2025-07-01T13:58:49.496Z"
-    },
-    {
-      "rule": "context-update",
-      "timestamp": "2025-07-01T13:53:37.256Z"
-    },
-    {
-      "rule": "experience-execution",
-      "timestamp": "2025-07-01T13:50:02.765Z"
-    },
-    {
-      "rule": "fix",
-      "timestamp": "2025-07-01T13:36:01.278Z"
-    },
-    {
-      "rule": "fix",
-      "timestamp": "2025-07-01T13:34:37.177Z"
-    },
-    {
-      "rule": "task-decomposition",
-      "timestamp": "2025-07-01T13:33:28.795Z"
     }
   ],
-  "last_updated": "2025-07-01T14:09:36.994Z"
+  "last_updated": "2025-07-01T14:23:13.571Z"
 }
