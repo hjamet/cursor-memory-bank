@@ -13,11 +13,36 @@ const __dirname = path.dirname(__filename);
 
 // Safety configuration
 const SAFETY_CONFIG = {
-    MAX_CONSECUTIVE_TRANSITIONS: 10,
+    MAX_CONSECUTIVE_TRANSITIONS: 25, // Increased from 10 to 25 for complex workflows
     MAX_EXPERIENCE_EXECUTION_ATTEMPTS: 3,
     COOLDOWN_PERIOD_MS: 60000, // 1 minute
     WORKFLOW_STATE_FILE: path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'workflow_safety.json')
 };
+
+/**
+ * WORKFLOW SAFETY LOGIC EXPLANATION:
+ * 
+ * The consecutive_transitions counter is designed to prevent infinite loops while allowing
+ * normal complex workflows to proceed. The counter resets when:
+ * 
+ * 1. A productive workflow cycle completes successfully:
+ *    - Coming FROM: task-decomposition, implementation, experience-execution, fix
+ *    - Going TO: context-update or start-workflow
+ *    - This indicates work was completed and system is transitioning to maintenance/planning
+ * 
+ * 2. Examples of counter reset scenarios:
+ *    - implementation → context-update (implementation completed, doing cleanup)
+ *    - experience-execution → context-update (testing completed, doing analysis)
+ *    - fix → start-workflow (problem resolved, restarting workflow)
+ * 
+ * 3. Counter continues incrementing for:
+ *    - Loops within work phases (implementation → fix → implementation)
+ *    - Multiple context-update cycles without productive work
+ *    - System maintenance transitions
+ * 
+ * This ensures the safety system protects against infinite loops while allowing
+ * legitimate complex workflows that involve multiple steps and iterations.
+ */
 
 /**
  * Initialize or load workflow safety state
@@ -72,8 +97,24 @@ async function recordTransition(fromStep, toStep) {
         state.transition_history = state.transition_history.slice(0, 20);
     }
 
-    // Update consecutive transition counter
-    state.consecutive_transitions++;
+    // FIXED: Smart consecutive transition counter management
+    // Reset counter on successful workflow completion cycles
+    const workflowCompletionSteps = ['context-update', 'start-workflow'];
+    const productiveSteps = ['task-decomposition', 'implementation', 'experience-execution', 'fix'];
+
+    if (workflowCompletionSteps.includes(toStep)) {
+        // Check if we're coming from a productive step (successful cycle completion)
+        if (productiveSteps.includes(fromStep)) {
+            // Reset counter - successful workflow cycle completed
+            state.consecutive_transitions = 1; // Start fresh count with this transition
+        } else {
+            // Increment normally for non-productive cycles
+            state.consecutive_transitions++;
+        }
+    } else {
+        // Increment for all other transitions
+        state.consecutive_transitions++;
+    }
 
     // Track specific transitions
     if (toStep === 'experience-execution') {

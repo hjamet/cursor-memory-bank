@@ -1,8 +1,14 @@
 {
-  "transition_history": [],
+  "transition_history": [
+    {
+      "from": "context-update",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T12:00:08.321Z"
+    }
+  ],
   "experience_execution_attempts": 0,
   "last_experience_execution": null,
   "last_implementation": null,
-  "consecutive_transitions": 0,
+  "consecutive_transitions": 1,
   "emergency_brake_active": false
 }
