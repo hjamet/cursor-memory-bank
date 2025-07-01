@@ -3,6 +3,66 @@
     {
       "from": "system",
       "to": "fix",
+      "timestamp": "2025-07-01T14:09:36.992Z"
+    },
+    {
+      "from": "experience-execution",
+      "to": "context-update",
+      "timestamp": "2025-07-01T14:08:30.982Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
+      "timestamp": "2025-07-01T14:06:59.734Z"
+    },
+    {
+      "from": "implementation",
+      "to": "experience-execution",
+      "timestamp": "2025-07-01T14:06:55.442Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T14:05:58.000Z"
+    },
+    {
+      "from": null,
+      "to": "task-decomposition",
+      "timestamp": "2025-07-01T14:05:53.370Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
+      "timestamp": "2025-07-01T14:01:11.321Z"
+    },
+    {
+      "from": "fix",
+      "to": "fix",
+      "timestamp": "2025-07-01T14:01:07.879Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
+      "timestamp": "2025-07-01T13:58:49.494Z"
+    },
+    {
+      "from": "context-update",
+      "to": "fix",
+      "timestamp": "2025-07-01T13:58:43.588Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
+      "timestamp": "2025-07-01T13:53:37.246Z"
+    },
+    {
+      "from": "experience-execution",
+      "to": "context-update",
+      "timestamp": "2025-07-01T13:53:20.055Z"
+    },
+    {
+      "from": "system",
+      "to": "fix",
       "timestamp": "2025-07-01T13:50:02.763Z"
     },
     {
@@ -39,71 +99,11 @@
       "from": "task-decomposition",
       "to": "task-decomposition",
       "timestamp": "2025-07-01T13:33:24.972Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-01T13:32:14.722Z"
-    },
-    {
-      "from": null,
-      "to": "task-decomposition",
-      "timestamp": "2025-07-01T13:31:08.294Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-01T13:26:32.184Z"
-    },
-    {
-      "from": null,
-      "to": "task-decomposition",
-      "timestamp": "2025-07-01T13:26:20.364Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T13:17:45.544Z"
-    },
-    {
-      "from": "fix",
-      "to": "fix",
-      "timestamp": "2025-07-01T13:17:36.742Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T13:16:51.894Z"
-    },
-    {
-      "from": "context-update",
-      "to": "fix",
-      "timestamp": "2025-07-01T13:16:09.681Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T13:13:42.651Z"
-    },
-    {
-      "from": "experience-execution",
-      "to": "context-update",
-      "timestamp": "2025-07-01T13:13:38.077Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T13:11:36.400Z"
-    },
-    {
-      "from": "system",
-      "to": "fix",
-      "timestamp": "2025-07-01T13:09:14.385Z"
     }
   ],
   "experience_execution_attempts": 0,
-  "last_experience_execution": "2025-07-01T13:06:52.341Z",
+  "last_experience_execution": "2025-07-01T14:06:55.442Z",
   "last_implementation": null,
-  "consecutive_transitions": 18,
+  "consecutive_transitions": 2,
   "emergency_brake_active": false
 }
