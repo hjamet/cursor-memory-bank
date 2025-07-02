@@ -3,6 +3,16 @@
     {
       "from": "system",
       "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-02T08:49:18.616Z"
+    },
+    {
+      "from": "context-update",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-02T08:49:13.461Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
       "timestamp": "2025-07-02T08:43:01.020Z"
     },
     {
@@ -89,21 +99,11 @@
       "from": "implementation",
       "to": "BLOCKED_context-update_TO_context-update",
       "timestamp": "2025-07-01T16:39:28.006Z"
-    },
-    {
-      "from": "system",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-01T16:37:00.174Z"
-    },
-    {
-      "from": "context-update",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-01T16:36:53.571Z"
     }
   ],
   "experience_execution_attempts": 0,
   "last_experience_execution": "2025-07-01T16:18:19.080Z",
   "last_implementation": "2025-07-01T16:16:46.130Z",
-  "consecutive_transitions": 82,
+  "consecutive_transitions": 84,
   "emergency_brake_active": true
 }
