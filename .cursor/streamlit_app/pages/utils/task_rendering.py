@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 import task_crud_operations
 import userbrief_operations
-import uuid
+import hashlib
 
 # Import specific functions
 update_task_via_mcp = task_crud_operations.update_task_via_mcp
@@ -312,9 +312,10 @@ def render_userbrief_request(request):
     status = request.get('status', 'new')
     created_at = request.get('created_at', '')[:10] if request.get('created_at') else 'Unknown'
     
-    # Generate a unique identifier to prevent Streamlit key collisions
-    # This ensures that even if req_id is duplicated or 'N/A', each component has a unique key
-    unique_id = f"{req_id}_{uuid.uuid4().hex[:8]}"
+    # Generate a stable unique identifier to prevent Streamlit key collisions
+    # Use a hash of the content to ensure stability across reruns
+    content_hash = hashlib.md5(f"{req_id}_{content}_{created_at}".encode()).hexdigest()[:8]
+    unique_id = f"{req_id}_{content_hash}"
     
     # Initialize session state for editing
     edit_key = f"edit_request_{unique_id}"
