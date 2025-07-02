@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 239,
+  "last_id": 241,
   "requests": [
     {
       "id": 183,
@@ -968,6 +968,21 @@
         {
           "timestamp": "2025-07-02T07:55:59.864Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 240,
+      "content": "J'ai ce problème sur la page task status de l'interface streamlit d'un eautre repository. Tu peux identifier l'origine du problème dans notre code et la régler ? :)\n\nstreamlit.errors.StreamlitDuplicateElementKey: There are multiple elements with the same `key='delete_2'`. To fix this, please make sure that the `key` argument is unique for each element you create.\n\nFile \"C:\\Users\\Jamet\\code\\BCUL\\.cursor\\streamlit_app\\pages\\task_status.py\", line 71, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\BCUL\\.cursor\\streamlit_app\\pages\\task_status.py\", line 67, in main\n    render_userbrief_request(request)\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^\nFile \"C:\\Users\\Jamet\\code\\BCUL\\.cursor\\streamlit_app\\pages\\utils\\task_rendering.py\", line 357, in render_userbrief_request\n    if st.button(\"🗑️ Delete\", key=f\"delete_{req_id}\", help=\"Delete this request\"):\n       ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\widgets\\button.py\", line 243, in button\n    return self.dg._button(\n           ~~~~~~~~~~~~~~~^\n        label,\n        ^^^^^^\n    ...<10 lines>...\n        ctx=ctx,\n        ^^^^^^^^\n    )\n    ^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\widgets\\button.py\", line 1013, in _button\n    element_id = compute_and_register_element_id(\n        \"button\",\n    ...<9 lines>...\n        use_container_width=use_container_width,\n    )\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\utils.py\", line 254, in compute_and_register_element_id\n    _register_element_id(ctx, element_type, element_id)\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\utils.py\", line 143, in _register_element_id\n    raise StreamlitDuplicateElementKey(user_key)",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-02T10:37:44.385692",
+      "updated_at": "2025-07-02T10:37:44.385692",
+      "history": [
+        {
+          "timestamp": "2025-07-02T10:37:44.385692",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }
