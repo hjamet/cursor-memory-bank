@@ -235,13 +235,6 @@ manage_gitignore() {
     if [[ ! -f "$gitignore_file" ]]; then
         touch "$gitignore_file"
         log "Created .gitignore file at: $gitignore_file"
-    else
-        # Create backup of existing .gitignore
-        if cp "$gitignore_file" "$backup_file"; then
-            log "Created backup of existing .gitignore: $backup_file"
-        else
-            warn "Failed to create backup of .gitignore. Continuing without backup."
-        fi
     fi
 
     # Remove old Cursor Memory Bank entries to avoid conflicts
@@ -266,6 +259,7 @@ manage_gitignore() {
         "# Cursor Memory Bank - Selective Sync Rules"
         ".cursor/*"
         "!.cursor/memory-bank/"
+        ".cursor/memory-bank/**",
         "!.cursor/memory-bank/context/"
         "!.cursor/memory-bank/context/**"
         "!.cursor/memory-bank/workflow/"
