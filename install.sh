@@ -278,7 +278,7 @@ manage_gitignore() {
 
     # Add selective .cursor rules
     log "Adding selective .cursor synchronization rules..."
-    for rule in "${cursor_rules[@]}"; do
+    for rule in "${entries[@]}"; do
         if [[ -n "$rule" ]]; then
             # Check if rule already exists to avoid duplicates
             if ! grep -qF -- "$rule" "$gitignore_file" 2>/dev/null; then
