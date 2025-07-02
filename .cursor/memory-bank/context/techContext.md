@@ -99,7 +99,7 @@ Schema Validation (Zod) → Business Rules → Data Integrity Checks
 ```
 .cursor/memory-bank/
 ├── streamlit_app/
-│   ├── tasks.json          # PRIMARY: All task data (268 tasks, ~1.2MB)
+│   ├── tasks.json          # PRIMARY: All task data (281 tasks, ~1.2MB)
 │   └── userbrief.json      # User requests with status tracking
 ├── context/
 │   ├── projectBrief.md     # Business context and objectives
