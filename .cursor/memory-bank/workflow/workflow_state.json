@@ -1,7 +1,11 @@
 {
-  "current_rule": "experience-execution",
+  "current_rule": "context-update",
   "status": "active",
   "history": [
+    {
+      "rule": "context-update",
+      "timestamp": "2025-07-02T09:10:27.671Z"
+    },
     {
       "rule": "experience-execution",
       "timestamp": "2025-07-02T09:07:38.379Z"
@@ -37,11 +41,7 @@
     {
       "rule": "start-workflow",
       "timestamp": "2025-07-02T08:39:49.617Z"
-    },
-    {
-      "rule": "context-update",
-      "timestamp": "2025-07-02T07:54:33.414Z"
     }
   ],
-  "last_updated": "2025-07-02T09:07:38.379Z"
+  "last_updated": "2025-07-02T09:10:27.671Z"
 }
