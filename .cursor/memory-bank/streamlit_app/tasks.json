@@ -6892,5 +6892,24 @@
         "timestamp": "2025-07-01T18:40:16.634348"
       }
     ]
+  },
+  {
+    "id": 292,
+    "title": "Corriger les clés dupliquées Streamlit dans render_userbrief_request",
+    "short_description": "Résoudre l'erreur StreamlitDuplicateElementKey causée par des clés 'delete_2' dupliquées dans les boutons de suppression de l'interface utilisateur. Cette erreur empêche l'affichage correct de la page task status et compromet l'expérience utilisateur.",
+    "detailed_description": "Corriger le problème de génération de clés uniques dans l'interface Streamlit qui cause l'erreur `StreamlitDuplicateElementKey` avec la clé 'delete_2'.\n\n**Problème identifié :**\n- Erreur dans `task_rendering.py` ligne 357 : `key=f\"delete_{req_id}\"`\n- Plusieurs éléments utilisent la même clé, causant l'échec de l'interface\n- Se produit dans la fonction `render_userbrief_request` lors de l'affichage des boutons de suppression\n\n**Exigences :**\n- Identifier la cause racine de la duplication des IDs de requête\n- Corriger le système de génération de clés pour garantir l'unicité\n- Vérifier que tous les éléments Streamlit ont des clés uniques\n- Maintenir la fonctionnalité de suppression des requêtes\n\n**Critères d'acceptation :**\n- Plus d'erreur `StreamlitDuplicateElementKey` lors de l'affichage des requêtes\n- Chaque bouton de suppression a une clé unique et fonctionnelle\n- Interface task status fonctionne correctement sans erreurs\n- Les fonctionnalités de suppression restent opérationnelles\n\n**Analyse Technique & Points de Vigilance :**\n- **Cause potentielle** : La variable `req_id` pourrait ne pas être unique ou être mal extraite des données de requête\n- **Attention** : Vérifier si le problème vient de la logique d'extraction de l'ID ou de la structure des données\n- **Scope d'impact** : Le problème affecte toute la page task status et potentiellement d'autres pages utilisant render_userbrief_request\n- **Compatibilité** : S'assurer que la correction fonctionne avec l'intégration MCP existante (JSON userbrief)\n- **Pattern de clés** : Considérer l'ajout d'un timestamp ou d'un UUID pour garantir l'unicité absolue si nécessaire\n- **Tests** : Valider avec plusieurs requêtes affichées simultanément pour reproduire le problème\n\n**Approche d'implémentation :**\n1. Examiner le code de `render_userbrief_request` dans task_rendering.py\n2. Analyser comment `req_id` est extrait et utilisé\n3. Identifier pourquoi certains IDs se répètent\n4. Implémenter une solution robuste de génération de clés uniques\n5. Tester avec multiple requêtes pour valider la correction",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "pages/utils/task_rendering.py",
+      "pages/task_status.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) Plus d'erreur StreamlitDuplicateElementKey lors de l'exécution de la page task status, (2) Tous les boutons de suppression ont des clés uniques et fonctionnent correctement, (3) L'interface affiche correctement toutes les requêtes sans conflits de clés, (4) Les fonctionnalités de suppression des requêtes restent opérationnelles, (5) Tests validés avec multiple requêtes affichées simultanément",
+    "created_date": "2025-07-02T08:42:38.476Z",
+    "updated_date": "2025-07-02T08:42:38.476Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]

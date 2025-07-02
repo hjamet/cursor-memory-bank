@@ -3,25 +3,6 @@
   "last_id": 241,
   "requests": [
     {
-      "id": 183,
-      "content": "Pour la task #220, j'ai cette erreur lorsque je clique sur \"Ask for modification\" : streamlit.errors.StreamlitValueAssignmentNotAllowedError: Values for the widget with `key` 'modification_form_220' cannot be set using `st.session_state`.\n\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 110, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 91, in main\n    render_task_review_card(task)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor/streamlit_app\\utils\\ui_components.py\", line 115, in render_task_review_card\n    with st.form(f\"modification_form_{task_id}\"):\n         ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\form.py\", line 203, in form\n    check_session_state_rules(default_value=None, key=key, writes_allowed=False)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\policies.py\", line 83, in check_session_state_rules\n    raise StreamlitValueAssignmentNotAllowedError(key=key)",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T19:44:11.642776",
-      "updated_at": "2025-06-25T18:00:10.350Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T19:44:11.642776",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-25T18:00:10.350Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
       "id": 184,
       "content": "Tu peux me confirmer qu'il y a bien une limitation au nombre de tâches archivées et de requêtes utilisateurs archivées. La limitation pour les requêtes utilisateurs et pour les tâches doit être fixée à 50. Au delà de 50, quand une tâche est archivée, on supprime la tâche archivée la plus ancienne et pareil pour les requêtes utilisateurs. Au-delà de quand on ajoute une 51e requête archivée, ça supprime la requête archivée la plus ancienne comme ça, ça permet de garder toujours les Les fichiers json dans une taille raisonnable :)",
       "status": "archived",
@@ -974,15 +955,19 @@
     {
       "id": 240,
       "content": "J'ai ce problème sur la page task status de l'interface streamlit d'un eautre repository. Tu peux identifier l'origine du problème dans notre code et la régler ? :)\n\nstreamlit.errors.StreamlitDuplicateElementKey: There are multiple elements with the same `key='delete_2'`. To fix this, please make sure that the `key` argument is unique for each element you create.\n\nFile \"C:\\Users\\Jamet\\code\\BCUL\\.cursor\\streamlit_app\\pages\\task_status.py\", line 71, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\BCUL\\.cursor\\streamlit_app\\pages\\task_status.py\", line 67, in main\n    render_userbrief_request(request)\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^\nFile \"C:\\Users\\Jamet\\code\\BCUL\\.cursor\\streamlit_app\\pages\\utils\\task_rendering.py\", line 357, in render_userbrief_request\n    if st.button(\"🗑️ Delete\", key=f\"delete_{req_id}\", help=\"Delete this request\"):\n       ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\widgets\\button.py\", line 243, in button\n    return self.dg._button(\n           ~~~~~~~~~~~~~~~^\n        label,\n        ^^^^^^\n    ...<10 lines>...\n        ctx=ctx,\n        ^^^^^^^^\n    )\n    ^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\widgets\\button.py\", line 1013, in _button\n    element_id = compute_and_register_element_id(\n        \"button\",\n    ...<9 lines>...\n        use_container_width=use_container_width,\n    )\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\utils.py\", line 254, in compute_and_register_element_id\n    _register_element_id(ctx, element_type, element_id)\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\utils.py\", line 143, in _register_element_id\n    raise StreamlitDuplicateElementKey(user_key)",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-07-02T10:37:44.385692",
-      "updated_at": "2025-07-02T10:37:44.385692",
+      "updated_at": "2025-07-02T08:42:42.758Z",
       "history": [
         {
           "timestamp": "2025-07-02T10:37:44.385692",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-02T08:42:42.758Z",
+          "action": "mark_archived"
         }
       ]
     }
