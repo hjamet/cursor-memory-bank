@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 238,
+  "last_id": 239,
   "requests": [
     {
       "id": 180,
@@ -963,6 +963,21 @@
         {
           "timestamp": "2025-07-01T16:16:22.738Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 239,
+      "content": "J'ai eu cette erreur en tentant d'installer le système memorybank sur un autre repo. Tu peux identifier la source du soucis et la corriger dans le script d'installation ?\n\n$ curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash\n[INFO] Installing workflow system to .\n[INFO] Using git clone for installation\n[INFO] Cloning repository from https://github.com/hjamet/cursor-memory-bank.git\n[INFO] Installing workflow system from master branch (latest commit: 2025-07-02)\n[INFO] Copying workflow-steps...\n[INFO] Copying start.mdc rule...\n[INFO] Copying start.mdc as GEMINI.md\n[INFO] Copying mcp.json template from clone\n[INFO] Copying mcp.json as settings.json to .gemini directory\n[INFO] Setting up MCP server directories...\n[INFO] Copying mcp-commit-server files...\n[INFO] mcp-commit-server files copied successfully.\n[INFO] Copying memory-bank-mcp files...\n[INFO] memory-bank-mcp files copied successfully.\n[WARN] Source directory for tools-mcp not found: /tmp/cursor-memory-bank-1221/repo/.cursor/mcp/tools-mcp\n[INFO] Managing .gitignore file for selective .cursor synchronization...\n[INFO] Created backup of existing .gitignore: ./.gitignore.backup-20250702-094253\n[INFO] Cleaning up old Cursor Memory Bank entries...\n[INFO] Adding selective .cursor synchronization rules...\n[INFO] Validating .gitignore rules...\n[INFO] Testing .gitignore rules...\n[WARN] ✗ .cursor/ exclusion rule may not be working\n[INFO] ✓ .cursor/memory-bank/context/ inclusion rule working\n[INFO] ✓ .cursor/memory-bank/workflow/ inclusion rule working\n[WARN] ✗ Other .cursor/ subdirectories may not be properly excluded\n[WARN] ⚠️ .gitignore validation failed - rules may not work as expected\n[INFO] Checking for .cursor files that are tracked but should now be ignored...\n[ERROR] Installation failed with exit code 1",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-02T09:45:15.837305",
+      "updated_at": "2025-07-02T09:45:15.837305",
+      "history": [
+        {
+          "timestamp": "2025-07-02T09:45:15.837305",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }
