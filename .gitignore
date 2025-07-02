@@ -28,19 +28,6 @@ Thumbs.db
 # Test
 test_installation
 
-# Cursor Memory Bank - Selective .cursor synchronization
-# CRITICAL: Rule order matters - exceptions must come after general exclusions
-
-# Exclude entire .cursor directory first
-.cursor/*
-
-# Then include ONLY the specific subdirectories we want to sync
-!.cursor/memory-bank/
-!.cursor/memory-bank/context/
-!.cursor/memory-bank/context/**
-!.cursor/memory-bank/workflow/
-!.cursor/memory-bank/workflow/**
-
 # Additional exclusions for other files that shouldn't sync
 *.pyc
 __pycache__/
