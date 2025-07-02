@@ -8,6 +8,7 @@ import os
 from datetime import datetime
 import task_crud_operations
 import userbrief_operations
+import uuid
 
 # Import specific functions
 update_task_via_mcp = task_crud_operations.update_task_via_mcp
@@ -311,8 +312,12 @@ def render_userbrief_request(request):
     status = request.get('status', 'new')
     created_at = request.get('created_at', '')[:10] if request.get('created_at') else 'Unknown'
     
+    # Generate a unique identifier to prevent Streamlit key collisions
+    # This ensures that even if req_id is duplicated or 'N/A', each component has a unique key
+    unique_id = f"{req_id}_{uuid.uuid4().hex[:8]}"
+    
     # Initialize session state for editing
-    edit_key = f"edit_request_{req_id}"
+    edit_key = f"edit_request_{unique_id}"
     if edit_key not in st.session_state:
         st.session_state[edit_key] = False
 
@@ -322,8 +327,8 @@ def render_userbrief_request(request):
 
         if st.session_state[edit_key]:
             # --- EDITING MODE ---
-            with st.form(key=f"edit_form_{req_id}"):
-                new_content = st.text_area("Edit request content:", value=content, height=150, key=f"text_{req_id}")
+            with st.form(key=f"edit_form_{unique_id}"):
+                new_content = st.text_area("Edit request content:", value=content, height=150, key=f"text_{unique_id}")
                 
                 submit_col, cancel_col = st.columns(2)
                 with submit_col:
@@ -350,11 +355,11 @@ def render_userbrief_request(request):
             # Action buttons
             col1, col2, col3 = st.columns([1, 1, 5])
             with col1:
-                if st.button("✏️ Edit", key=f"start_edit_{req_id}", help="Edit this request"):
+                if st.button("✏️ Edit", key=f"start_edit_{unique_id}", help="Edit this request"):
                     st.session_state[edit_key] = True
                     st.rerun()
             with col2:
-                if st.button("🗑️ Delete", key=f"delete_{req_id}", help="Delete this request"):
+                if st.button("🗑️ Delete", key=f"delete_{unique_id}", help="Delete this request"):
                     if delete_user_request(req_id):
                         st.toast(f"Request #{req_id} deleted.")
                         st.rerun()
