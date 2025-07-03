@@ -3,25 +3,6 @@
   "last_id": 242,
   "requests": [
     {
-      "id": 184,
-      "content": "Tu peux me confirmer qu'il y a bien une limitation au nombre de tâches archivées et de requêtes utilisateurs archivées. La limitation pour les requêtes utilisateurs et pour les tâches doit être fixée à 50. Au delà de 50, quand une tâche est archivée, on supprime la tâche archivée la plus ancienne et pareil pour les requêtes utilisateurs. Au-delà de quand on ajoute une 51e requête archivée, ça supprime la requête archivée la plus ancienne comme ça, ça permet de garder toujours les Les fichiers json dans une taille raisonnable :)",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T19:49:36.157143",
-      "updated_at": "2025-06-25T18:00:28.423Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T19:49:36.157143",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-25T18:00:28.423Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
       "id": 191,
       "content": "Je me suis rendu compte d'un gros problème qu'on a introduit avec l'outil commit, la modification de l'outil commit dans le serveur MCP Memory Banque MCP récemment. C'est que maintenant, quand il découvre des fichiers qui font plus de 500 lignes, il ajoute la tâche et ça, ça a lieu à chaque commit. Mais du coup, le problème c'est que si la tâche a déjà été créée. Eh Ben l'agent va quand même la recréer et la recréer, et ce en boucle Ce qui fait qu'on se retrouve avec 15 taches de refactoring du même fichier qui. Euh, ce qui pose vraiment problème Donc je te propose de régler ce souci en ajoutant un argument facultatif non présent pour la plupart des tâches qui s'appelle refactoring et qui indique le fichier concerné. C'est ajouter uniquement quand il s'agit de tâches de refactoring ajouter automatiquement par l'outil commit. Et du coup, avant d'ajouter une tâche de refactoring pour un fichier, l'outil doit vérifier s'il y a pas déjà une tâche de refactoring qui cible ce fichier qui existe. Cas l'outil doit supprimer cette tâche et la remplacer par la nouvelle pour actualiser le nombre de lignes qui aura éventuellement changé Est ce que tu peux faire cette modification s'il te plaît Dans le code du serveur mcp note que tu ne pourras pas tester ton outil pour tester l'outil, il faut redémarrer le serveur MCP. Donc fais attention, je te propose par contre de d'essayer de le tester manuellement à l'aide d'un petit script qui permettra de vérifier si il fonctionne. Fais simplement attention parce que actuellement, le serveur MCFP fonctionne bien en terme de communication avec cursor et quand tu as tendance à le tester, j'ai l'impression que tu as l'habitude d'utiliser un autre format qui fait qu'après il ne marche plus avec curseur, donc ne modifie surtout pas le fonctionnement général du serveur MCP, la description des arguments que ce genre de choses parce que si tu peux introduire des erreurs dans la communication et ça c'est très chiant à résoudre vraiment. Donc vraiment on modifie juste la logique du code à l'intérieur de la fonction. Euh commit de l'outil commit.",
       "status": "archived",
@@ -969,15 +950,19 @@
     {
       "id": 241,
       "content": "Tu peux me confirmer le bon fonctionnement de l'outil url_to_markdown ? Renomme le en read_webpage et détaille beaucoup plus la documentation de l'argument url : profite de cette docuentation d'argument pour expliquer à l'agent que si il a besoin de lire le contenu d'un site précis, il devrait utiliser cet outil",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-07-03T15:46:25.526873",
-      "updated_at": "2025-07-03T15:46:25.526873",
+      "updated_at": "2025-07-03T13:59:49.341Z",
       "history": [
         {
           "timestamp": "2025-07-03T15:46:25.526873",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-03T13:59:49.341Z",
+          "action": "mark_archived"
         }
       ]
     },

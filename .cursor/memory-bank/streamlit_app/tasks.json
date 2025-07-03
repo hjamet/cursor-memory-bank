@@ -6929,5 +6929,25 @@
     "priority": 4,
     "image": null,
     "refactoring_target_file": null
+  },
+  {
+    "id": 294,
+    "title": "Valider, renommer et améliorer la documentation de l'outil url_to_markdown",
+    "short_description": "Confirmer le bon fonctionnement de l'outil url_to_markdown, le renommer en read_webpage et considérablement enrichir la documentation de l'argument url pour guider l'agent dans son utilisation appropriée pour la lecture de contenu web.",
+    "detailed_description": "Effectuer une validation complète et amélioration de l'outil MCP url_to_markdown selon les spécifications utilisateur.\n\n**Exigences fonctionnelles :**\n- Tester et valider le bon fonctionnement de l'outil `url_to_markdown` existant\n- Renommer l'outil de `url_to_markdown` vers `read_webpage` dans le code MCP\n- Enrichir considérablement la documentation de l'argument `url`\n- Intégrer dans la documentation des conseils explicites pour guider l'agent\n- Expliquer clairement quand et comment utiliser cet outil pour la lecture de contenu web\n\n**Critères d'acceptation :**\n- L'outil `url_to_markdown` fonctionne correctement (tests de validation réussis)\n- L'outil est renommé en `read_webpage` dans tous les fichiers MCP appropriés\n- La documentation de l'argument `url` est substantiellement enrichie\n- La documentation inclut des conseils clairs pour l'agent sur l'utilisation appropriée\n- L'outil renommé fonctionne correctement après redémarrage du serveur MCP\n- La nouvelle documentation guide efficacement l'agent vers l'utilisation de cet outil\n\n**Analyse Technique & Points de Vigilance :**\n- **Localisation de l'outil** : Identifier le fichier MCP contenant l'outil `url_to_markdown` dans `.cursor/mcp/mcp-commit-server/`\n- **Tests de fonctionnement** : Valider l'outil avec différents types d'URLs (articles, pages web, sites avec JavaScript)\n- **Renommage cohérent** : S'assurer que tous les références à l'outil sont mises à jour (nom de fonction, exports, documentation)\n- **Documentation enrichie** : Créer une documentation détaillée expliquant les cas d'usage, limitations et meilleures pratiques\n- **Guidance agent** : Intégrer des instructions spécifiques pour aider l'agent à identifier quand utiliser cet outil\n- **Redémarrage MCP** : Prévoir le redémarrage obligatoire du serveur MCP pour que les changements prennent effet\n- **Validation post-changement** : Tester l'outil renommé pour confirmer que toutes les fonctionnalités sont préservées\n- **Compatibilité** : S'assurer que le changement de nom n'affecte pas d'autres parties du système\n\n**Notes d'implémentation :**\n- Explorer la structure actuelle du serveur MCP ToolsMCP\n- Identifier tous les fichiers nécessitant modification pour le renommage\n- Créer une documentation exemplaire pour l'argument `url`\n- Inclure des exemples concrets d'utilisation dans la documentation\n- Prévoir des tests avec différents types de contenus web",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/mcp/mcp-commit-server/tools/url_to_markdown.js",
+      ".cursor/mcp/mcp-commit-server/index.js",
+      ".cursor/mcp/mcp-commit-server/package.json"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'outil url_to_markdown a été testé et fonctionne correctement, (2) L'outil est renommé en read_webpage dans tous les fichiers MCP appropriés, (3) La documentation de l'argument url est substantiellement enrichie avec des conseils pour l'agent, (4) L'outil renommé fonctionne correctement après redémarrage du serveur MCP, (5) La nouvelle documentation guide efficacement l'agent vers l'utilisation appropriée de l'outil, (6) Tous les tests de validation post-changement sont réussis, (7) La compatibilité système est préservée.",
+    "created_date": "2025-07-03T13:59:45.185Z",
+    "updated_date": "2025-07-03T13:59:45.185Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]
