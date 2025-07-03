@@ -238,6 +238,7 @@ start-workflow → remember → next_rule → [execute step] → remember → ne
 3. **File Tracking**: Reduced from 1,215 tracked files to 12 essential files
 4. **Validation Speed**: Maintained high performance despite increased task count
 5. **MCP Tool Reliability**: All tools operational with standardized path resolution patterns
+6. **Workflow Rule Optimization**: Task-decomposition rule simplified and multi-task capability added
 
 ### Remaining Performance Bottlenecks
 1. **Duplicate Detection**: O(n×m) scales poorly with large task counts
@@ -266,11 +267,12 @@ start-workflow → remember → next_rule → [execute step] → remember → ne
 - **Debug Logging**: Cannot use console.log in MCP tools (breaks JSON-RPC)
 - **Silent Failures**: MCP tools often fail without clear error messages
 
-### Git Integration Complexities
+### Git Integration Complexities (CRITICAL ISSUE)
 - **Gitignore Syntax**: Exception rules are fragile and order-dependent
 - **Cross-platform Issues**: Path separators and permissions vary
 - **Already-tracked Files**: Gitignore changes don't affect existing tracked files
 - **Validation Required**: Always test with `git check-ignore` before deployment
+- **NEW CRITICAL ISSUE**: Installation script gitignore validation failures (Request #239)
 
 ## Security Model
 
@@ -348,10 +350,11 @@ start-workflow → remember → next_rule → [execute step] → remember → ne
 
 ## Future Architecture Considerations
 
-### Immediate Improvements Needed
-- **Installation Script Audit**: Ensure consistency between manual fixes and automated installation
+### Immediate Improvements Needed (CRITICAL)
+- **Installation Script Audit**: URGENT - Ensure consistency between manual fixes and automated installation
 - **Cross-platform Testing**: Validate gitignore rules on Windows/Mac/Linux
 - **Performance Testing**: Validate system behavior under high load
+- **Installation Process Validation**: Add automated testing for installation scripts
 
 ### Medium-term Scalability
 - **Database Backend**: SQLite or PostgreSQL for better performance

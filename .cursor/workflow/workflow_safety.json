@@ -3,6 +3,26 @@
     {
       "from": "system",
       "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-03T14:07:07.421Z"
+    },
+    {
+      "from": "task-decomposition",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-03T14:07:01.734Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-03T14:05:50.552Z"
+    },
+    {
+      "from": "context-update",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-03T14:05:27.749Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
       "timestamp": "2025-07-03T14:01:48.370Z"
     },
     {
@@ -16,7 +36,6 @@
       "timestamp": "2025-07-03T13:59:15.670Z"
     },
     {
-      "from": "context-update",
       "from": "context-update",
       "to": "BLOCKED_context-update_TO_context-update",
       "timestamp": "2025-07-03T13:59:06.649Z"
@@ -67,7 +86,7 @@
       "timestamp": "2025-07-03T13:46:27.653Z"
     },
     {
-      "from": "task-decomposition",
+      "from": null,
       "to": "BLOCKED_context-update_TO_context-update",
       "timestamp": "2025-07-03T13:46:16.919Z"
     },
@@ -78,34 +97,13 @@
     },
     {
       "from": "system",
-      "from": "system",
       "to": "BLOCKED_context-update_TO_context-update",
       "timestamp": "2025-07-01T16:41:29.874Z"
-    },
-    {
-      "from": null,
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-01T16:41:11.109Z"
-    },
-    {
-      "from": "system",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-01T16:41:04.623Z"
-    },
-    {
-      "from": "system",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-01T16:39:36.553Z"
-    },
-    {
-      "from": "implementation",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-01T16:39:28.006Z"
     }
   ],
   "experience_execution_attempts": 0,
   "last_experience_execution": "2025-07-01T16:18:19.080Z",
   "last_implementation": "2025-07-01T16:16:46.130Z",
-  "consecutive_transitions": 84,
+  "consecutive_transitions": 88,
   "emergency_brake_active": true
 }

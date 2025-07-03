@@ -1,8 +1,15 @@
 {
   "current_rule": "context-update",
-  "current_rule": "context-update",
   "status": "active",
   "history": [
+    {
+      "rule": "context-update",
+      "timestamp": "2025-07-03T14:07:07.423Z"
+    },
+    {
+      "rule": "task-decomposition",
+      "timestamp": "2025-07-03T14:05:50.554Z"
+    },
     {
       "rule": "context-update",
       "timestamp": "2025-07-03T14:01:48.374Z"
@@ -34,15 +41,7 @@
     {
       "rule": "start-workflow",
       "timestamp": "2025-07-03T13:45:44.924Z"
-    },
-    {
-      "rule": "workflow-complete",
-      "timestamp": "2025-07-01T16:41:29.875Z"
-    },
-    {
-      "rule": "context-update",
-      "timestamp": "2025-07-01T16:41:11.112Z"
     }
   ],
-  "last_updated": "2025-07-03T14:01:48.374Z"
+  "last_updated": "2025-07-03T14:07:07.423Z"
 }

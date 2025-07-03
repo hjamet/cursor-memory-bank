@@ -24,9 +24,9 @@ The agent assists user `hjamet` by autonomously:
 - **Code Operations**: File manipulation, git operations, terminal command execution
 - **Memory Management**: Automatic cleanup, semantic search, context preservation
 
-## Current Status: PRODUCTION ACTIVE WITH RECENT CRITICAL FIXES
+## Current Status: PRODUCTION ACTIVE
 
-### ✅ Major Achievements (2025-07-01)
+### ✅ Major Achievements (2025-07-02)
 - **Critical Security Fix**: Repository cleaned from 1,203 unwanted tracked files (99.9% reduction)
 - **Git Performance Restored**: Repository size normalized, git operations now instantaneous
 - **Selective Synchronization**: Only `.cursor/memory-bank/context/` and `workflow/` are Git-tracked
@@ -36,9 +36,11 @@ The agent assists user `hjamet` by autonomously:
 - **Memory Systems**: Persistent storage with automatic cleanup and semantic search
 - **Validation Architecture**: 3-layer validation system (Schema → Business Rules → Data Integrity) fully operational
 - **MCP Tool Reliability**: `replace_content_between` tool successfully corrected and validated post-MCP restart
+- **Workflow Rule Optimization**: Task-decomposition rule simplified from "skeptical" to "methodical" approach with multi-task capability
+- **Installation Script Fixed**: Critical bug in install.sh resolved (Request #239) - new installations now work correctly
 
 ### 🔧 Active Maintenance Areas
-- **Installation Script Consistency**: Function `manage_gitignore` in install.sh needs audit to match corrected rules
+- **CURRENT: Streamlit Interface Bug**: Task #292 - Corriger les clés dupliquées Streamlit (TODO - HIGH PRIORITY)
 - **Cross-platform Testing**: New gitignore rules need validation on different operating systems
 - **Statistical Monitoring**: Task counters occasionally show inconsistencies (non-critical)
 - **Error Message Refinement**: Zod validation errors could provide cleaner user feedback
@@ -47,9 +49,9 @@ The agent assists user `hjamet` by autonomously:
 - **MCP Server Deployment**: Modifications to MCP tool code require manual Cursor restart (architectural limitation)
 - **Tool Reliability**: Some editing tools (`edit_file`) are unreliable for complex operations; workarounds exist
 - **Debug Limitations**: MCP tools cannot use console.log without breaking JSON-RPC communication
-- **Gitignore Fragility**: Exception rules are syntax-sensitive and order-dependent
+- **Streamlit Key Management**: Element key generation must ensure uniqueness across all UI components
 
-## Current Workload Status (UPDATED REAL-TIME DATA - JULY 2025)
+## Current Workload Status (REAL-TIME DATA - JULY 2025)
 
 ### Active Tasks (3 total - CRITICAL UPDATE)
 - **Task #292** (Priority 4): Ajouter une vue simplifiée du statut des tâches dans l'interface Streamlit (`TODO` - Ready for implementation)
@@ -70,8 +72,6 @@ The agent assists user `hjamet` by autonomously:
 - **Task #289** (Priority 5): Corriger la déclaration MCP de l'outil replace_content_between (RESOLVED - led to Task #290)
 - **Task #283** (Priority 3): Optimize `experience-execution` rule for rapid manual testing (APPROVED)
 - **Task #282** (Priority 4): Correct implementation rule architecture for intelligent routing to experience-execution (APPROVED)
-- **Task #280** (Priority 3): URL to Markdown conversion tool in MCP Tools server (APPROVED)
-- **Task #275** (Priority 3): Integrate Gemini CLI MCP configuration (APPROVED)
 
 ### Critical System Status (REAL-TIME DATA - CURRENT)
 - **Total Tasks**: 284 (confirmed accurate count - includes Task #292, #293, and #294)
@@ -113,13 +113,21 @@ The agent assists user `hjamet` by autonomously:
 - **Performance Degradation**: Resolved via gitignore corrections
 - **Security Exposure**: Eliminated by selective synchronization
 - **MCP Tool Failures**: `replace_content_between` tool corrected and validated
+- **Workflow Rule Conflicts**: Task-decomposition rule successfully simplified and optimized
+- **Installation Script Failure**: Fixed critical bug in manage_gitignore function (Request #239 RESOLVED)
+
+### CURRENT RISK (NEW)
+- **Streamlit Interface Stability**: Task #292 - Duplicate element key errors affecting user interface
+  - **Impact**: Interface crashes when multiple requests displayed simultaneously in other repositories
+  - **Urgency**: HIGH PRIORITY - affects user experience across multiple deployments
+  - **Mitigation**: Implement robust key generation logic in task_rendering.py
+  - **Status**: Task created and ready for implementation
 
 ### LOW RISK
 - **System crashes or data loss**: Robust error handling and backup systems in place
 - **Feature regression**: Comprehensive validation prevents breaking changes
 
 ### MEDIUM RISK
-- **Installation Inconsistency**: New installations may generate old problematic rules (mitigation: task #278 in progress)
 - **Cross-platform Compatibility**: Gitignore rules untested on all platforms (mitigation: testing planned)
 - **Development friction**: MCP restart requirement slows iterative development (mitigation: batch changes)
 
@@ -137,6 +145,9 @@ The agent assists user `hjamet` by autonomously:
 - **Workflow Rule Improvement**: Modify experience-execution rule to emphasize real testing (Task #293)
 
 ### Short Term (1-2 weeks)
+- Cross-platform testing of installation scripts
+- Enhanced error reporting in installation process
+- Performance testing of validation systems
 - Test infrastructure implementation (addressing critical gap identified in task #273)
 - Enhanced statistical monitoring consistency
 - Performance testing of validation systems
@@ -154,18 +165,25 @@ The agent assists user `hjamet` by autonomously:
 
 ## Critical Lessons Learned
 
-### Git Synchronization Complexity
+### Git Synchronization Complexity (ONGOING ISSUE)
 - **Problem**: Gitignore exception syntax is fragile and order-dependent
 - **Solution**: Explicit inclusion rules with thorough testing
 - **Prevention**: Always validate gitignore rules with proper testing
+- **NEW DISCOVERY**: Manual fixes may not be reflected in installation scripts
 
-### MCP Tool Development Best Practices
+### MCP Tool Development Best Practices (RESOLVED)
 - **Problem**: Inconsistent path resolution patterns across MCP tools
 - **Solution**: Standardized path resolution using `path.join(projectRoot, target_file)`
 - **Prevention**: Always align new tools with established patterns from stable tools
 - **Validation**: MCP server restart required for tool code changes to take effect
 
-### System Resilience Validation
+### System Resilience Validation (PROVEN)
 - **Achievement**: System successfully identified, analyzed, and resolved critical infrastructure issues autonomously
 - **Learning**: Robust validation systems and comprehensive logging enable effective self-correction
 - **Future**: Continue building on proven architectural patterns for reliability
+
+### Installation Consistency Challenge (NEW)
+- **Problem**: Discrepancy between manual system fixes and automated installation scripts
+- **Impact**: New deployments fail despite working systems
+- **Learning**: Installation scripts must be continuously synchronized with manual improvements
+- **Action Required**: Establish process for installation script validation after manual fixes
