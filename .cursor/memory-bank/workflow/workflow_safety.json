@@ -3,6 +3,16 @@
     {
       "from": "system",
       "to": "implementation",
+      "timestamp": "2025-07-03T14:32:42.838Z"
+    },
+    {
+      "from": "experience-execution",
+      "to": "context-update",
+      "timestamp": "2025-07-03T14:32:36.370Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
       "timestamp": "2025-07-03T14:31:41.741Z"
     },
     {
@@ -89,21 +99,11 @@
       "from": "system",
       "to": "BLOCKED_context-update_TO_context-update",
       "timestamp": "2025-07-03T14:18:53.947Z"
-    },
-    {
-      "from": "system",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-03T14:18:21.974Z"
-    },
-    {
-      "from": "context-update",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-03T14:17:54.975Z"
     }
   ],
   "experience_execution_attempts": 0,
   "last_experience_execution": "2025-07-01T16:18:19.080Z",
-  "last_implementation": "2025-07-03T14:31:41.741Z",
-  "consecutive_transitions": 6,
+  "last_implementation": "2025-07-03T14:32:42.838Z",
+  "consecutive_transitions": 2,
   "emergency_brake_active": false
 }

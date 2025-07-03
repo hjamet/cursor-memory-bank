@@ -99,7 +99,7 @@ Schema Validation (Zod) → Business Rules → Data Integrity Checks
 ```
 .cursor/memory-bank/
 ├── streamlit_app/
-│   ├── tasks.json          # PRIMARY: All task data (284 tasks, ~1.3MB)
+│   ├── tasks.json          # PRIMARY: All task data (286 tasks)
 │   └── userbrief.json      # User requests with status tracking
 ├── context/
 │   ├── projectBrief.md     # Business context and objectives
@@ -111,7 +111,7 @@ Schema Validation (Zod) → Business Rules → Data Integrity Checks
     ├── long_term_memory.json       # Persistent semantic memories
     ├── tasks_schema.json           # Task validation schemas
     ├── to_user.json               # Messages to user
-    ├── userbrief.json             # User request tracking (1 new request pending)
+    ├── userbrief.json             # User request tracking (0 new requests pending)
     ├── userbrief_schema.json      # Request validation schemas
     ├── workflow_safety.json       # Safety constraints
     └── workflow_state.json        # Current workflow state
@@ -122,11 +122,6 @@ Schema Validation (Zod) → Business Rules → Data Integrity Checks
 - `.cursor/memory-bank/context/` (6 files)
 - `.cursor/memory-bank/workflow/` (6 files)
 - **Total**: 12 files tracked out of 12,752 files in `.cursor/`
-
-**Previously problematic (now ignored):**
-- `.cursor/streamlit_app/` (1,123 files including node_modules)
-- `.cursor/mcp/` (MCP server files and dependencies)
-- All other `.cursor/` subdirectories
 
 ### Data Models
 
@@ -214,43 +209,26 @@ interface UserRequest {
 start-workflow → remember → next_rule → [execute step] → remember → next_rule → ...
 ```
 
-### Intelligent Routing
-**Logic**: Context-aware step selection based on:
-- Unprocessed user requests (→ task-decomposition)
-- Active tasks (→ implementation)
-- Blocked tasks (→ fix)
-- System maintenance needs (→ context-update)
-- Validation requirements (→ experience-execution)
+### Intelligent Routing and Safety (CRITICAL UPDATE)
+**Logic**: Context-aware step selection based on system state.
+**Safety Mechanism**: 
+- A `consecutive_transitions` counter in `workflow_safety.json` tracks non-productive steps.
+- If the counter exceeds `MAX_CONSECUTIVE_TRANSITIONS`, an emergency brake is applied, forcing a `context-update` to prevent infinite loops.
+- **Permanent Fix Implemented**: The counter is now reset by `remember.js` after any productive step (`task-decomposition`, `implementation`, `fix`, `experience-execution`), ensuring the safety brake only engages during genuine stalls.
 
 ## Performance Characteristics (UPDATED WITH CURRENT DATA)
 
 ### Current Scale (July 2025)
-- **Tasks**: 284 total (281 completed/approved, 3 TODO - CURRENT UPDATE)
-- **User Requests**: 242 total (50 archived, 1 new pending processing)
+- **Tasks**: 286 total (281 completed/approved, 4 `TODO`, 1 `REVIEW`)
+- **User Requests**: 243 total (All processed)
 - **Memory Entries**: ~100+ long-term memories
-- **File Operations**: ~1.3MB primary data file
-- **Git Performance**: <1 second for all operations (post-cleanup)
-- **System State**: Active with 3 TODO tasks (Task #292, #293, #294) and 1 pending user request
+- **System State**: Active with 5 active tasks.
 
 ### Performance Improvements Achieved
-1. **Git Operations**: Reduced from slow (>10s) to instant (<1s) via repository cleanup
-2. **Repository Size**: Normalized from 166MB bloated to standard size
-3. **File Tracking**: Reduced from 1,215 tracked files to 12 essential files
-4. **Validation Speed**: Maintained high performance despite increased task count
-5. **MCP Tool Reliability**: All tools operational with standardized path resolution patterns
-6. **Workflow Rule Optimization**: Task-decomposition rule simplified and multi-task capability added
-
-### Remaining Performance Bottlenecks
-1. **Duplicate Detection**: O(n×m) scales poorly with large task counts
-2. **File I/O**: Single large JSON file for all tasks
-3. **Memory Search**: Linear search through memories
-4. **Validation**: Multiple validation passes on each operation
-
-### Optimization Opportunities
-- **Database Migration**: Replace JSON files with SQLite
-- **Indexing**: Add search indices for common queries
-- **Caching**: Cache validation results and duplicate checks
-- **Pagination**: Implement lazy loading for large datasets
+1. **Workflow Stability**: Permanently fixed a critical bug causing infinite loops, making the workflow engine highly resilient.
+2. **Git Operations**: Reduced from slow (>10s) to instant (<1s) via repository cleanup.
+3. **Repository Size**: Normalized from 166MB bloated to standard size.
+4. **MCP Tool Reliability**: All tools operational with standardized path resolution patterns.
 
 ## Development Constraints (CRITICAL KNOWLEDGE)
 
@@ -258,21 +236,22 @@ start-workflow → remember → next_rule → [execute step] → remember → ne
 - **Issue**: Code changes require manual Cursor restart
 - **Impact**: Slow iterative development cycle (5-10 minutes per change)
 - **Workaround**: Batch changes and test directly with Node.js first
-- **Timeline for Fix**: Architectural limitation, no immediate solution
-- **Recent Experience**: Successfully validated with `replace_content_between` tool corrections
 
-### Tool Reliability Issues (RESOLVED)
-- **edit_file**: Unreliable for large changes (>100 lines), often produces incorrect results
-- **replace_content_between**: ✅ NOW FULLY OPERATIONAL with correct path resolution
-- **Debug Logging**: Cannot use console.log in MCP tools (breaks JSON-RPC)
-- **Silent Failures**: MCP tools often fail without clear error messages
+### Debug Logging
+- Cannot use `console.log` in MCP tools (breaks JSON-RPC).
 
-### Git Integration Complexities (CRITICAL ISSUE)
-- **Gitignore Syntax**: Exception rules are fragile and order-dependent
-- **Cross-platform Issues**: Path separators and permissions vary
-- **Already-tracked Files**: Gitignore changes don't affect existing tracked files
-- **Validation Required**: Always test with `git check-ignore` before deployment
-- **NEW CRITICAL ISSUE**: Installation script gitignore validation failures (Request #239)
+## Critical Technical Debt (RE-EVALUATED)
+
+### RESOLVED
+- **Workflow Loop Vulnerability**: This major, previously unidentified technical debt has been fully resolved by implementing the transition counter reset logic.
+
+### High Priority
+- **Installation Script Consistency**: `manage_gitignore` function needs audit to match corrected rules.
+- **Error Handling**: Silent failures in MCP tools need better reporting.
+
+### Medium Priority
+- **Performance Optimization**: JSON file-based storage doesn't scale well.
+- **Cross-platform Testing**: Gitignore rules untested on all platforms.
 
 ## Security Model
 
@@ -367,64 +346,6 @@ start-workflow → remember → next_rule → [execute step] → remember → ne
 - **Plugin Architecture**: Extensible tool system
 - **Machine Learning**: Improved request understanding and task optimization
 - **Real-Time Collaboration**: Live editing and conflict resolution
-
-## Critical Technical Debt
-
-### High Priority (UPDATED STATUS)
-1. **MCP Tool Path Resolution**: ✅ RESOLVED - `replace_content_between` tool corrected and validated
-   - **Status**: All MCP tools now use consistent `path.join(projectRoot, target_file)` pattern
-   - **Validation**: Tool tested and working correctly with proper path resolution and security
-   - **Pattern Established**: Standard pattern documented for future MCP tool development
-2. **MCP Server Code Reloading**: Modifications to MCP tool code require manual Cursor restart (architectural limitation)
-3. **Installation Script Consistency**: manage_gitignore function needs audit to match corrected rules
-4. **Error Handling**: Silent failures in MCP tools need better reporting
-
-### Medium Priority
-1. **Performance Optimization**: JSON file-based storage doesn't scale well
-2. **Cross-platform Testing**: Gitignore rules untested on all platforms
-3. **Database Migration**: Single large JSON file is a bottleneck
-
-### Low Priority
-1. **Statistical Consistency**: Task counters occasionally inconsistent
-2. **User Experience**: Error messages could be more user-friendly
-3. **Documentation**: Some technical docs lag behind implementation
-
-## MCP Tool Reliability Issues (RESOLVED - CRITICAL SUCCESS)
-
-### Path Resolution Pattern Problem (RESOLVED)
-**Issue Resolution**: The `replace_content_between` tool path resolution inconsistency has been successfully resolved.
-
-**Root Cause Analysis**:
-- **Broken Pattern**: `path.resolve(workingDir, target_file)` with `process.env.MCP_SERVER_CWD`
-- **Working Pattern**: `path.join(projectRoot, target_file)` with static project root calculation
-- **Impact**: Tool couldn't access files despite correct MCP declarations
-
-**Correction Applied and Validated**:
-```javascript
-// INCORRECT (caused failures)
-const workingDir = process.env.MCP_SERVER_CWD || process.cwd();
-const resolvedPath = path.resolve(workingDir, target_file);
-
-// CORRECT (aligned with stable tools) - NOW IMPLEMENTED
-const projectRoot = path.resolve(__dirname, '..', '..', '..', '..');
-const resolvedPath = path.join(projectRoot, target_file);
-```
-
-**Validation Process Completed**:
-1. ✅ Compared with stable tool patterns (`consult_image`, `execute_command`)
-2. ✅ Tested file accessibility using corrected path resolution
-3. ✅ Verified security constraints still apply (path traversal protection)
-4. ✅ Confirmed MCP server restart requirement for code changes
-5. ✅ Successfully tested content replacement between markers
-
-**Lessons Learned and Applied**:
-- ✅ MCP tools must follow consistent patterns for reliability
-- ✅ Path resolution is critical for file access tools
-- ✅ Server restart is mandatory for MCP tool code changes
-- ✅ Proper testing validates corrections persist after MCP restart
-- ✅ Security checks remain effective with correct path resolution
-
-**Current Status**: All MCP tools operational with standardized, validated patterns.
 
 ## Conclusion
 
