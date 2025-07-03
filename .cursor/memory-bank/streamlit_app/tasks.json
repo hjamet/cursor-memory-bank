@@ -6892,5 +6892,24 @@
         "timestamp": "2025-07-01T18:40:16.634348"
       }
     ]
+  },
+  {
+    "id": 292,
+    "title": "Ajouter une vue simplifiée du statut des tâches dans l'interface Streamlit",
+    "short_description": "Créer une vue simplifiée du statut des tâches dans la page Review & Communication, onglet Add request, sous le bouton submit. Afficher les requêtes non traitées en premier, puis les tâches actives, sans options de recherche ni filtres.",
+    "detailed_description": "Implémenter une vue simplifiée du statut des tâches dans l'interface Streamlit de la page \"📨 Review & Communication\", onglet \"Add request\".\n\n**Exigences fonctionnelles :**\n- Positionner la vue sous le bouton \"submit new request\"\n- Réutiliser la logique de \"task status\" mais avec paramètres par défaut uniquement\n- Supprimer toutes les options de recherche et filtres avancés\n- Afficher les requêtes userbrief non traitées en premier (ordre inverse de l'actuel)\n- Puis afficher les tâches actives triées par ordre de résolution prévue\n- Conserver l'affichage des informations essentielles (ID, titre, statut, priorité)\n\n**Crit¨res d'acceptation :**\n- La vue s'affiche correctement dans l'onglet \"Add request\"\n- Les requêtes non traitées apparaissent en premier\n- Les tâches actives sont triées par ordre de résolution prévue\n- Aucune option de recherche ou filtre n'est présente\n- L'interface reste cohérente avec le design existant\n- La vue se met à jour automatiquement lors des changements de statut\n\n**Analyse Technique & Points de Vigilance :**\n- **Localisation du fichier :** Identifier le fichier Streamlit gérant la page \"Review & Communication\" et l'onglet \"Add request\"\n- **Réutilisation de code :** Extraire la logique d'affichage des tâches depuis le module \"task status\" existant\n- **Gestion de l'ordre :** Implémenter la logique d'inversion pour les requêtes non traitées\n- **Performance :** S'assurer que l'affichage reste fluide même avec de nombreuses tâches\n- **Intégration UI :** Maintenir la cohérence visuelle avec l'interface existante\n- **Mise à jour automatique :** Vérifier que la vue se rafraîchit correctement lors des changements de statut\n- **Gestion des erreurs :** Prévoir la gestion des cas où aucune tâche ou requête n'est disponible\n- **Responsive design :** S'assurer que la vue fonctionne sur différentes tailles d'écran\n\n**Notes d'implémentation :**\n- Explorer l'architecture actuelle de l'interface Streamlit\n- Identifier les composants réutilisables du module \"task status\"\n- Créer une fonction simplifiée pour l'affichage des tâches\n- Intégrer la vue dans le bon emplacement de l'interface\n- Tester l'affichage avec différents volumes de données",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "streamlit_app/pages/add_request.py",
+      "streamlit_app/components/task_status.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) La vue simplifiée s'affiche correctement dans l'onglet \"Add request\", (2) Les requêtes non traitées apparaissent en premier dans l'ordre inverse, (3) Les tâches actives sont triées par ordre de résolution prévue, (4) Aucune option de recherche ou filtre n'est présente, (5) L'interface reste cohérente avec le design existant, (6) La vue se met à jour automatiquement lors des changements de statut, (7) Les tests d'affichage avec différents volumes de données sont réussis.",
+    "created_date": "2025-07-03T13:50:13.825Z",
+    "updated_date": "2025-07-03T13:50:13.825Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]

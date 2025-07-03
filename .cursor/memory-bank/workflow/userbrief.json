@@ -3,25 +3,6 @@
   "last_id": 241,
   "requests": [
     {
-      "id": 180,
-      "content": "Reply to Agent Message #129:\n\n**Original Message:** \"Tâche #218 terminée avec succès ! Le bouton de réponse aux messages d'agent a été restauré dans l'interface Streamlit. Vous pouvez maintenant répondre aux messages d'agent en cliquant sur \"💬 Reply\", c...\"\n\n**My Reply:** Ceci est un teste pour vérifier que la réponse aux messages fonctionne bien : Tu peux directement le supprimer de tes tâches : il n'y a rien à faire ;)\n\n**Message Context:**\n- Rule: unknown\n- Timestamp: 2025-06-25T17:30:58.608Z\n- Workflow Rule: implementation",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T19:32:07.500261",
-      "updated_at": "2025-06-25T17:33:53.653Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T19:32:07.500261",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-25T17:33:53.653Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
       "id": 183,
       "content": "Pour la task #220, j'ai cette erreur lorsque je clique sur \"Ask for modification\" : streamlit.errors.StreamlitValueAssignmentNotAllowedError: Values for the widget with `key` 'modification_form_220' cannot be set using `st.session_state`.\n\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 110, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 91, in main\n    render_task_review_card(task)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor/streamlit_app\\utils\\ui_components.py\", line 115, in render_task_review_card\n    with st.form(f\"modification_form_{task_id}\"):\n         ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\form.py\", line 203, in form\n    check_session_state_rules(default_value=None, key=key, writes_allowed=False)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\policies.py\", line 83, in check_session_state_rules\n    raise StreamlitValueAssignmentNotAllowedError(key=key)",
       "status": "archived",
@@ -969,15 +950,19 @@
     {
       "id": 239,
       "content": "Dans l'interface Streamlit, ajoute une vue similaire à celle de task status, mais sans toutes les options de recherche et de filtre, uniquement avec les paramètres par défaut, dans la page 📨 Review & Communication, onglet Add request, en dessous du bouton submit new request. Les requêtes userbrief non encore traitées doivent apparaitre en premier et non en dernier, puis vient la liste des tâches actives, triée par ordre de résolution prévue.",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-07-03T15:40:25.741887",
-      "updated_at": "2025-07-03T15:40:25.741887",
+      "updated_at": "2025-07-03T13:50:18.009Z",
       "history": [
         {
           "timestamp": "2025-07-03T15:40:25.741887",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-03T13:50:18.009Z",
+          "action": "mark_archived"
         }
       ]
     },

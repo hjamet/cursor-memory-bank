@@ -3,6 +3,26 @@
     {
       "from": "system",
       "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-03T13:50:38.383Z"
+    },
+    {
+      "from": "task-decomposition",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-03T13:50:33.633Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-03T13:49:37.273Z"
+    },
+    {
+      "from": "context-update",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-03T13:49:11.677Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
       "timestamp": "2025-07-03T13:46:27.653Z"
     },
     {
@@ -79,31 +99,11 @@
       "from": "system",
       "to": "BLOCKED_context-update_TO_context-update",
       "timestamp": "2025-07-01T16:26:49.389Z"
-    },
-    {
-      "from": null,
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-01T16:26:44.983Z"
-    },
-    {
-      "from": "system",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-01T16:25:26.612Z"
-    },
-    {
-      "from": "fix",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-01T16:25:20.130Z"
-    },
-    {
-      "from": "system",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-01T16:21:06.040Z"
     }
   ],
   "experience_execution_attempts": 0,
   "last_experience_execution": "2025-07-01T16:18:19.080Z",
   "last_implementation": "2025-07-01T16:16:46.130Z",
-  "consecutive_transitions": 72,
+  "consecutive_transitions": 76,
   "emergency_brake_active": true
 }
