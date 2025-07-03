@@ -7,6 +7,7 @@ import { readTasks } from '../lib/task_manager.js';
 import { encodeText, findSimilarMemories } from '../lib/semantic_search.js';
 import { UserMessageManager } from '../lib/user_message_manager.js';
 import { getPossibleNextSteps, getRecommendedNextStep } from '../lib/workflow_recommendation.js';
+import { resetTransitionCounter } from '../lib/workflow_safety.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -210,6 +211,11 @@ async function remember(args) {
                 }
             }
         }
+    }
+
+    // Reset transition counter after a productive cycle
+    if (lastStep && ['task-decomposition', 'implementation', 'fix', 'experience-execution'].includes(lastStep)) {
+        await resetTransitionCounter();
     }
 
     // CRITICAL: Check for workflow completion when coming from context-update

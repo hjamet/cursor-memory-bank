@@ -3,25 +3,6 @@
   "last_id": 243,
   "requests": [
     {
-      "id": 192,
-      "content": "J'ai l'impression que il y a un bug avec les outils de my tool. Mcp, seul l'outil get_terminal_status a l'air de bel et bien retourner la sortie des terminal. Les outils execute_command et get_terminal_output retournent toujours une sortie vide. Tu peux enquêter et corriger si problème il y a bel et bien (en particulier sur get_terminal_output)",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-26T13:56:30.088267",
-      "updated_at": "2025-06-26T11:57:34.691Z",
-      "history": [
-        {
-          "timestamp": "2025-06-26T13:56:30.088267",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-26T11:57:34.691Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
       "id": 193,
       "content": "Je souhaiterais que tu ajoutes une amélioration à l'outil update Task. Euh pour Ajouter un argument obligatoire qui est commentaire. Enfin commonte Cet argument, il oblige le LLM à ajouter une explication à. A son changement d'État, par exemple, s'il a marqué la tâche comme bloquée, il doit expliquer pourquoi elle est bloquée. Si il l'a marqué comme à revoir, il doit expliquer ce qu'il a fait, ce qu'il a avancé, et cetera. Et ensuite 2e tâche, celle-ci, elle concerne l'interface. Stream Lite en ligne, mais du coup, dans l'affichage des tâches à revoir dans la page principale de l'application page review et communication onglet Task to review. Il faudrait que tu rajoutes un élément dépliant qui est ouvert par défaut et qui est donc ce commentaire du LLM. En gros c'est on voit actuellement on voit le titre de la tâche, la courte description en dessous, il faudrait avoir l'explication du LLM dans un encadré en fait pas dans un truc dépliant dans un encadré exactement comme la courte description juste en dessous et. Et en dessous tu as les 3 trucs dépliants je crois, c'est les fichiers impactés, la description complète et ceux là ils sont fermés par défaut et c'est très bien comme ça donc je te demande juste d'ajouter le commentaire visible comme ça. Moi ça me permet de savoir ce que l'agent a fait, et cetera et. Et Ajoute bien à une description précise et claire de cet argument obligatoire, commentaire pour dire à à l'agent que voilà, si c'est une tâche bloquée, il doit expliquer en détail pourquoi il est bloqué et ce que peut faire l'utilisateur pour la débloquer Et si la tâche il l'a marquée comme review, il doit expliquer ce qu'il a fait. Euh. Ce que l'utilisateur pourrait faire pour vérifier, pour revoir la tâche. Les fichiers qui contiennent éventuellement les résultats, ce genre de choses Il doit aussi préciser les tests qu'il a pu faire pour vérifier le bon fonctionnement de son implémentation Et je parle pas des tests unitaires, mais encore une fois bien sûr des tests manuels. Précise bien dans la description de l'argument que le commentaire doit être en français.",
       "status": "archived",
@@ -969,15 +950,19 @@
     {
       "id": 243,
       "content": "Un bug anormal de l'outil remember du serveur mcp MemoryBankMCP force constamment l'agent à appeler la règle context-update, sans respecter le workflow décrit dans le README. Identifie l'origine de ce problème et résouds la en priorité absolue !!!! Je te rappelle que tu ne pourras pas tester par toi même ces modifications car elles demandent un redémarrage de cursor.",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-07-03T16:18:03.553598",
-      "updated_at": "2025-07-03T16:18:03.553598",
+      "updated_at": "2025-07-03T14:30:04.357Z",
       "history": [
         {
           "timestamp": "2025-07-03T16:18:03.553598",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-03T14:30:04.357Z",
+          "action": "mark_archived"
         }
       ]
     }

@@ -2,6 +2,36 @@
   "transition_history": [
     {
       "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-03T14:31:41.741Z"
+    },
+    {
+      "from": "workflow_safety.js",
+      "to": "implementation",
+      "timestamp": "2025-07-03T14:31:31.422Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-03T14:30:40.029Z"
+    },
+    {
+      "from": "task-decomposition",
+      "to": "implementation",
+      "timestamp": "2025-07-03T14:30:11.876Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-03T14:29:35.574Z"
+    },
+    {
+      "from": "context-update",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-03T14:29:27.586Z"
+    },
+    {
+      "from": "system",
       "to": "BLOCKED_context-update_TO_context-update",
       "timestamp": "2025-07-03T14:28:16.188Z"
     },
@@ -69,41 +99,11 @@
       "from": "context-update",
       "to": "BLOCKED_context-update_TO_context-update",
       "timestamp": "2025-07-03T14:17:54.975Z"
-    },
-    {
-      "from": "system",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-03T14:16:23.387Z"
-    },
-    {
-      "from": "context-update",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-03T14:16:17.332Z"
-    },
-    {
-      "from": "system",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-03T14:13:25.922Z"
-    },
-    {
-      "from": "start-workflow",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-03T14:13:21.453Z"
-    },
-    {
-      "from": "system",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-03T14:13:01.224Z"
-    },
-    {
-      "from": "system",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-03T14:01:48.370Z"
     }
   ],
   "experience_execution_attempts": 0,
   "last_experience_execution": "2025-07-01T16:18:19.080Z",
-  "last_implementation": "2025-07-01T16:16:46.130Z",
-  "consecutive_transitions": 0,
+  "last_implementation": "2025-07-03T14:31:41.741Z",
+  "consecutive_transitions": 6,
   "emergency_brake_active": false
 }

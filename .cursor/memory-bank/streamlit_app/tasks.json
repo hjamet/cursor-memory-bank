@@ -6967,5 +6967,39 @@
     "priority": 3,
     "image": null,
     "refactoring_target_file": null
+  },
+  {
+    "id": 296,
+    "title": "Corriger la logique du compteur de transitions pour éviter les boucles de workflow",
+    "short_description": "Implémenter une solution permanente pour la boucle de workflow en réinitialisant le compteur de transitions consécutives après chaque cycle de travail significatif.",
+    "detailed_description": "### Objectif\nL'objectif est d'implémenter une solution permanente au bug de la boucle de workflow causé par le compteur de transitions consécutives. Cela implique de réactiver le mécanisme de sécurité et de s'assurer que le compteur est réinitialisé au bon moment pour éviter les faux positifs.\n\n### Description des travaux\n1.  **Réactiver le frein d'urgence** :\n    *   Dans le fichier `.cursor/mcp/memory-bank-mcp/lib/workflow_safety.js`, supprimez les commentaires qui désactivent le bloc de vérification `MAX_CONSECUTIVE_TRANSITIONS`.\n\n2.  **Implémenter la réinitialisation du compteur** :\n    *   Dans le fichier `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js`, importez la fonction `resetTransitionCounter` depuis `../lib/workflow_safety.js`.\n    *   Identifiez le bon moment pour appeler `resetTransitionCounter()`. Un \"cycle de travail complet\" doit être défini. Une bonne heuristique serait de réinitialiser le compteur après une étape qui indique une progression substantielle et un retour à un état \"stable\".\n    *   Appelez `resetTransitionCounter()` à l'intérieur de la fonction `mcp_MemoryBankMCP_remember` lorsque la transition précédente (`fromStep`) est l'une des suivantes : `task-decomposition`, `implementation`, `fix`, `experience-execution`. Cela signifie que chaque fois qu'une de ces étapes productives se termine, le compteur de \"déplacements\" est remis à zéro.\n\n### Analyse Technique & Points de Vigilance\n*   **Point de vigilance 1** : La logique de réinitialisation doit être robuste pour ne pas être appelée trop souvent (ce qui rendrait le compteur inutile) ou trop rarement (ce qui recréerait le bug). Le choix des étapes déclenchant le reset est crucial.\n*   **Point de vigilance 2** : Assurez-vous que l'importation de `resetTransitionCounter` dans `remember.js` se fait correctement et ne crée pas de dépendances circulaires.\n*   **Point de vigilance 3** : Le test de cette fonctionnalité est complexe car il nécessite de nombreux cycles de workflow. Le test principal sera l'observation du système sur le long terme. Cependant, une attention particulière devra être portée au fichier `workflow_safety.json` après l'implémentation pour s'assurer que le compteur `consecutive_transitions` se réinitialise bien à 0.\n*   **Point de vigilance 4** : N'oubliez pas que toute modification des fichiers MCP (`.js`) nécessite un redémarrage manuel du serveur MCP par l'utilisateur pour être prise en compte.\n\n### Critères de validation\n1.  Le code de vérification de `MAX_CONSECUTIVE_TRANSITIONS` dans `workflow_safety.js` est décommenté et actif.\n2.  La fonction `resetTransitionCounter` est correctement importée et appelée dans `remember.js`.\n3.  Après avoir exécuté une étape comme `task-decomposition`, la valeur de `consecutive_transitions` dans `workflow_safety.json` est revenue à 0 (ou une petite valeur), prouvant que la réinitialisation a fonctionné.\n4.  Le système ne rentre plus dans une boucle `context-update` après de nombreuses transitions.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/lib/workflow_safety.js",
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/remember.js"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-07-03T14:29:58.556Z",
+    "updated_date": "2025-07-03T14:32:21.062Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 296,
+    "comments": [
+      {
+        "timestamp": "2025-07-03T14:30:51.081Z",
+        "comment": "Je commence le travail sur cette tâche pour implémenter une solution permanente au problème de la boucle de workflow.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-03T14:32:21.062Z",
+        "comment": "L'implémentation est terminée et la validation initiale a été un succès après le redémarrage du serveur. Le compteur de transitions est maintenant correctement réinitialisé, ce qui prévient la boucle de workflow. La tâche est prête pour la revue finale.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "L'implémentation est terminée et la validation initiale a été un succès après le redémarrage du serveur. Le compteur de transitions est maintenant correctement réinitialisé, ce qui prévient la boucle de workflow. La tâche est prête pour la revue finale.",
+    "last_comment_timestamp": "2025-07-03T14:32:21.062Z"
   }
 ]
