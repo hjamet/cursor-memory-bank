@@ -1,26 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 241,
+  "last_id": 242,
   "requests": [
-    {
-      "id": 183,
-      "content": "Pour la task #220, j'ai cette erreur lorsque je clique sur \"Ask for modification\" : streamlit.errors.StreamlitValueAssignmentNotAllowedError: Values for the widget with `key` 'modification_form_220' cannot be set using `st.session_state`.\n\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 110, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 91, in main\n    render_task_review_card(task)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor/streamlit_app\\utils\\ui_components.py\", line 115, in render_task_review_card\n    with st.form(f\"modification_form_{task_id}\"):\n         ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\form.py\", line 203, in form\n    check_session_state_rules(default_value=None, key=key, writes_allowed=False)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\policies.py\", line 83, in check_session_state_rules\n    raise StreamlitValueAssignmentNotAllowedError(key=key)",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-25T19:44:11.642776",
-      "updated_at": "2025-06-25T18:00:10.350Z",
-      "history": [
-        {
-          "timestamp": "2025-06-25T19:44:11.642776",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-25T18:00:10.350Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 184,
       "content": "Tu peux me confirmer qu'il y a bien une limitation au nombre de tâches archivées et de requêtes utilisateurs archivées. La limitation pour les requêtes utilisateurs et pour les tâches doit être fixée à 50. Au delà de 50, quand une tâche est archivée, on supprime la tâche archivée la plus ancienne et pareil pour les requêtes utilisateurs. Au-delà de quand on ajoute une 51e requête archivée, ça supprime la requête archivée la plus ancienne comme ça, ça permet de garder toujours les Les fichiers json dans une taille raisonnable :)",
@@ -969,15 +950,19 @@
     {
       "id": 240,
       "content": "Modifie légèrement la règle experience-execution. Le fichier markdown contenant le texte doit insister sur le fait que les experiences effectuées doivent être réelles !! L'agent doit adopter la personnalité d'un déveloper qui teste manuellement son travail. C'est un test manuel, par exempe consistant juste à ouvrir l'interface et à cliquer sur le bouton qu'il vient d'implémenter pour vérifier si le comportement attendu. Mais le point important, c'est qu'il ne doit SURTOUT PAS SIMULER DES RESULTATS, ou dire des phrases du style \"tou va bien, il ne reste plus qu'à tester plus tard...\" : le but même de cette règle EST de tester !!! Il ne doit surtout pas re,ettre à plus tard ou demander à l'utilisateur de le faire : il doit vérifier que son code fonctionne et est utilisable.",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-07-03T15:43:25.485292",
-      "updated_at": "2025-07-03T15:43:25.485292",
+      "updated_at": "2025-07-03T13:54:47.544Z",
       "history": [
         {
           "timestamp": "2025-07-03T15:43:25.485292",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-03T13:54:47.544Z",
+          "action": "mark_archived"
         }
       ]
     },
@@ -991,6 +976,21 @@
       "history": [
         {
           "timestamp": "2025-07-03T15:46:25.526873",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        }
+      ]
+    },
+    {
+      "id": 242,
+      "content": "Sur la page Review et communication de l'interface streamlit, tu peux ajouter des st.toast à chaque nouveau souvenir \"present\" enregistré dans la mémoire de travai de l'agent ?",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-03T15:53:36.280112",
+      "updated_at": "2025-07-03T15:53:36.280112",
+      "history": [
+        {
+          "timestamp": "2025-07-03T15:53:36.280112",
           "action": "created",
           "comment": "Request created via Streamlit app."
         }

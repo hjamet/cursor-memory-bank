@@ -6911,5 +6911,23 @@
     "priority": 4,
     "image": null,
     "refactoring_target_file": null
+  },
+  {
+    "id": 293,
+    "title": "Modifier la règle experience-execution pour insister sur les tests réels",
+    "short_description": "Modifier le fichier markdown de la règle experience-execution pour que l'agent adopte la personnalité d'un développeur testant manuellement son travail, interdisant la simulation de résultats et imposant des tests réels concrets.",
+    "detailed_description": "Modifier la règle `experience-execution` pour transformer fondamentalement l'approche de validation du travail implémenté.\n\n**Exigences fonctionnelles :**\n- Modifier le persona : L'agent doit adopter la personnalité d'un développeur qui teste manuellement son travail\n- Insister sur les tests réels : Les expériences effectuées doivent être réellement exécutées, jamais simulées\n- Interdire les phrases d'évitement : Éliminer toute possibilité de reporter les tests (\"tout va bien, il ne reste plus qu'à tester plus tard...\")\n- Définir des tests manuels concrets : Exemples comme ouvrir l'interface et cliquer sur les boutons implémentés\n- Responsabilité exclusive : L'agent ne doit jamais déléguer les tests à l'utilisateur ou les reporter\n- Validation fonctionnelle : Vérifier que le code fonctionne réellement et est utilisable\n\n**Critères d'acceptation :**\n- Le fichier markdown `.cursor/workflow-steps/experience-execution.md` est modifié\n- Le persona indique clairement le rôle de développeur testant manuellement\n- Les instructions interdisent explicitement la simulation de résultats\n- Des exemples concrets de tests manuels sont fournis\n- La responsabilité exclusive de l'agent pour les tests est établie\n- Le ton insiste sur l'obligation de tester réellement\n\n**Analyse Technique & Points de Vigilance :**\n- **Localisation du fichier** : Identifier et modifier `.cursor/workflow-steps/experience-execution.md`\n- **Impact workflow** : Modification d'une règle fondamentale qui affecte le comportement autonome\n- **Équilibre technique** : Maintenir la faisabilité technique tout en imposant des tests réels\n- **Cohérence architecturale** : Préserver la structure workflow existante et les outils MCP\n- **Contraintes système** : Respecter les limitations techniques (accès interface, commandes disponibles)\n- **Validation de changement** : Tester que la règle modifiée fonctionne correctement dans le workflow\n- **Documentation clara** : Instructions non ambiguës pour éviter les interprétations erronées\n- **Gestion d'erreurs** : Prévoir les cas où les tests échouent et les actions correctives\n\n**Notes d'implémentation :**\n- Analyser la règle experience-execution actuelle pour comprendre la structure\n- Identifier les sections à modifier (persona, instructions, exemples)\n- Rédiger des instructions claires et non ambiguës\n- Ajouter des exemples concrets de tests manuels\n- Éliminer toute formulation permettant d'éviter les tests\n- Valider que les modifications préservent la compatibilité workflow",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/workflow-steps/experience-execution.md"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) Le fichier `.cursor/workflow-steps/experience-execution.md` est modifié avec le nouveau persona de développeur, (2) Les instructions interdisent explicitement la simulation de résultats, (3) Des exemples concrets de tests manuels sont fournis, (4) La responsabilité exclusive de l'agent pour les tests est établie, (5) Le ton insiste sur l'obligation de tester réellement, (6) La règle modifiée préserve la compatibilité avec l'architecture workflow, (7) Les tests de validation de la règle modifiée sont réussis.",
+    "created_date": "2025-07-03T13:54:21.935Z",
+    "updated_date": "2025-07-03T13:54:21.935Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]
