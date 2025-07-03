@@ -4,6 +4,10 @@
   "history": [
     {
       "rule": "context-update",
+      "timestamp": "2025-07-03T14:28:16.196Z"
+    },
+    {
+      "rule": "context-update",
       "timestamp": "2025-07-03T14:23:44.056Z"
     },
     {
@@ -37,11 +41,7 @@
     {
       "rule": "start-workflow",
       "timestamp": "2025-07-03T14:13:01.233Z"
-    },
-    {
-      "rule": "context-update",
-      "timestamp": "2025-07-03T14:01:48.374Z"
     }
   ],
-  "last_updated": "2025-07-03T14:23:44.056Z"
+  "last_updated": "2025-07-03T14:28:16.196Z"
 }
