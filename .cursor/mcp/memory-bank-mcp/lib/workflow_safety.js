@@ -111,6 +111,7 @@ async function validateTransition(fromStep, toStep) {
     }
 
     // Check for too many consecutive transitions
+    /*
     if (state.consecutive_transitions >= SAFETY_CONFIG.MAX_CONSECUTIVE_TRANSITIONS) {
         // Activate emergency brake
         state.emergency_brake_active = true;
@@ -122,6 +123,7 @@ async function validateTransition(fromStep, toStep) {
             recommendation: 'context-update'
         };
     }
+    */
 
     // Prevent experience-execution loops
     if (toStep === 'experience-execution') {

@@ -4,6 +4,30 @@
   "history": [
     {
       "rule": "context-update",
+      "timestamp": "2025-07-03T14:23:44.056Z"
+    },
+    {
+      "rule": "start-workflow",
+      "timestamp": "2025-07-03T14:23:17.411Z"
+    },
+    {
+      "rule": "context-update",
+      "timestamp": "2025-07-03T14:21:55.691Z"
+    },
+    {
+      "rule": "context-update",
+      "timestamp": "2025-07-03T14:19:51.400Z"
+    },
+    {
+      "rule": "start-workflow",
+      "timestamp": "2025-07-03T14:18:53.951Z"
+    },
+    {
+      "rule": "context-update",
+      "timestamp": "2025-07-03T14:18:21.975Z"
+    },
+    {
+      "rule": "context-update",
       "timestamp": "2025-07-03T14:16:23.391Z"
     },
     {
@@ -17,31 +41,7 @@
     {
       "rule": "context-update",
       "timestamp": "2025-07-03T14:01:48.374Z"
-    },
-    {
-      "rule": "task-decomposition",
-      "timestamp": "2025-07-03T13:59:15.673Z"
-    },
-    {
-      "rule": "context-update",
-      "timestamp": "2025-07-03T13:55:46.077Z"
-    },
-    {
-      "rule": "task-decomposition",
-      "timestamp": "2025-07-03T13:53:53.210Z"
-    },
-    {
-      "rule": "context-update",
-      "timestamp": "2025-07-03T13:50:38.385Z"
-    },
-    {
-      "rule": "task-decomposition",
-      "timestamp": "2025-07-03T13:49:37.276Z"
-    },
-    {
-      "rule": "context-update",
-      "timestamp": "2025-07-03T13:46:27.657Z"
     }
   ],
-  "last_updated": "2025-07-03T14:16:23.391Z"
+  "last_updated": "2025-07-03T14:23:44.056Z"
 }

@@ -6949,5 +6949,23 @@
     "priority": 4,
     "image": null,
     "refactoring_target_file": null
+  },
+  {
+    "id": 295,
+    "title": "Ajouter des notifications toast pour les nouveaux souvenirs \"present\" dans l'interface Streamlit",
+    "short_description": "Implémenter des notifications st.toast dans la page Review et communication de l'interface Streamlit pour afficher une notification à chaque nouveau souvenir \"present\" enregistré dans la mémoire de travail de l'agent.",
+    "detailed_description": "Ajouter des notifications toast dans l'interface Streamlit pour améliorer l'expérience utilisateur lors de l'enregistrement de nouveaux souvenirs.\n\n**Exigences :**\n- Utiliser st.toast() de Streamlit pour afficher les notifications\n- Déclencher une notification à chaque nouveau souvenir \"present\" enregistré\n- Intégrer dans la page \"Review et communication\" de l'interface\n- Afficher un message informatif sur le contenu du souvenir enregistré\n\n**Critères d'acceptation :**\n- Les notifications toast apparaissent automatiquement lors de l'enregistrement de nouveaux souvenirs \"present\"\n- Le message de la toast est informatif et utile pour l'utilisateur\n- L'intégration ne perturbe pas le fonctionnement existant de l'interface\n- Les notifications sont bien positionnées et non intrusives\n\n**Notes techniques :**\n- Identifier le bon moment pour déclencher la notification (après l'enregistrement réussi)\n- Utiliser l'API st.toast avec les paramètres appropriés (message, icon, etc.)\n- S'assurer que la notification ne se déclenche que pour les nouveaux souvenirs \"present\"\n- Tester le comportement avec différents types de contenu de souvenirs",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "streamlit_app/pages/review_communication.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) Les notifications st.toast s'affichent automatiquement lors de l'enregistrement de nouveaux souvenirs \"present\", (2) Le message de notification est informatif et contextuel, (3) L'interface fonctionne normalement sans régression, (4) Les tests manuels confirment le bon fonctionnement des notifications dans différents scénarios d'usage.",
+    "created_date": "2025-07-03T14:21:32.707Z",
+    "updated_date": "2025-07-03T14:21:32.707Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]

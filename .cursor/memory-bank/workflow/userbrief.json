@@ -1,27 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 242,
-  "last_id": 242,
+  "last_id": 243,
   "requests": [
-    {
-      "id": 191,
-      "content": "Je me suis rendu compte d'un gros problème qu'on a introduit avec l'outil commit, la modification de l'outil commit dans le serveur MCP Memory Banque MCP récemment. C'est que maintenant, quand il découvre des fichiers qui font plus de 500 lignes, il ajoute la tâche et ça, ça a lieu à chaque commit. Mais du coup, le problème c'est que si la tâche a déjà été créée. Eh Ben l'agent va quand même la recréer et la recréer, et ce en boucle Ce qui fait qu'on se retrouve avec 15 taches de refactoring du même fichier qui. Euh, ce qui pose vraiment problème Donc je te propose de régler ce souci en ajoutant un argument facultatif non présent pour la plupart des tâches qui s'appelle refactoring et qui indique le fichier concerné. C'est ajouter uniquement quand il s'agit de tâches de refactoring ajouter automatiquement par l'outil commit. Et du coup, avant d'ajouter une tâche de refactoring pour un fichier, l'outil doit vérifier s'il y a pas déjà une tâche de refactoring qui cible ce fichier qui existe. Cas l'outil doit supprimer cette tâche et la remplacer par la nouvelle pour actualiser le nombre de lignes qui aura éventuellement changé Est ce que tu peux faire cette modification s'il te plaît Dans le code du serveur mcp note que tu ne pourras pas tester ton outil pour tester l'outil, il faut redémarrer le serveur MCP. Donc fais attention, je te propose par contre de d'essayer de le tester manuellement à l'aide d'un petit script qui permettra de vérifier si il fonctionne. Fais simplement attention parce que actuellement, le serveur MCFP fonctionne bien en terme de communication avec cursor et quand tu as tendance à le tester, j'ai l'impression que tu as l'habitude d'utiliser un autre format qui fait qu'après il ne marche plus avec curseur, donc ne modifie surtout pas le fonctionnement général du serveur MCP, la description des arguments que ce genre de choses parce que si tu peux introduire des erreurs dans la communication et ça c'est très chiant à résoudre vraiment. Donc vraiment on modifie juste la logique du code à l'intérieur de la fonction. Euh commit de l'outil commit.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-26T13:47:02.267655",
-      "updated_at": "2025-06-26T11:49:13.858Z",
-      "history": [
-        {
-          "timestamp": "2025-06-26T13:47:02.267655",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-26T11:49:13.858Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 192,
       "content": "J'ai l'impression que il y a un bug avec les outils de my tool. Mcp, seul l'outil get_terminal_status a l'air de bel et bien retourner la sortie des terminal. Les outils execute_command et get_terminal_output retournent toujours une sortie vide. Tu peux enquêter et corriger si problème il y a bel et bien (en particulier sur get_terminal_output)",
@@ -970,13 +950,32 @@
     {
       "id": 242,
       "content": "Sur la page Review et communication de l'interface streamlit, tu peux ajouter des st.toast à chaque nouveau souvenir \"present\" enregistré dans la mémoire de travai de l'agent ?",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-07-03T15:53:36.280112",
-      "updated_at": "2025-07-03T15:53:36.280112",
+      "updated_at": "2025-07-03T14:21:42.607Z",
       "history": [
         {
           "timestamp": "2025-07-03T15:53:36.280112",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-03T14:21:42.607Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 243,
+      "content": "Un bug anormal de l'outil remember du serveur mcp MemoryBankMCP force constamment l'agent à appeler la règle context-update, sans respecter le workflow décrit dans le README. Identifie l'origine de ce problème et résouds la en priorité absolue !!!! Je te rappelle que tu ne pourras pas tester par toi même ces modifications car elles demandent un redémarrage de cursor.",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-03T16:18:03.553598",
+      "updated_at": "2025-07-03T16:18:03.553598",
+      "history": [
+        {
+          "timestamp": "2025-07-03T16:18:03.553598",
           "action": "created",
           "comment": "Request created via Streamlit app."
         }
