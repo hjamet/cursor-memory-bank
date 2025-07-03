@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 238,
+  "last_id": 241,
   "requests": [
     {
       "id": 180,
@@ -963,6 +963,51 @@
         {
           "timestamp": "2025-07-01T16:16:22.738Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 239,
+      "content": "Dans l'interface Streamlit, ajoute une vue similaire à celle de task status, mais sans toutes les options de recherche et de filtre, uniquement avec les paramètres par défaut, dans la page 📨 Review & Communication, onglet Add request, en dessous du bouton submit new request. Les requêtes userbrief non encore traitées doivent apparaitre en premier et non en dernier, puis vient la liste des tâches actives, triée par ordre de résolution prévue.",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-03T15:40:25.741887",
+      "updated_at": "2025-07-03T15:40:25.741887",
+      "history": [
+        {
+          "timestamp": "2025-07-03T15:40:25.741887",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        }
+      ]
+    },
+    {
+      "id": 240,
+      "content": "Modifie légèrement la règle experience-execution. Le fichier markdown contenant le texte doit insister sur le fait que les experiences effectuées doivent être réelles !! L'agent doit adopter la personnalité d'un déveloper qui teste manuellement son travail. C'est un test manuel, par exempe consistant juste à ouvrir l'interface et à cliquer sur le bouton qu'il vient d'implémenter pour vérifier si le comportement attendu. Mais le point important, c'est qu'il ne doit SURTOUT PAS SIMULER DES RESULTATS, ou dire des phrases du style \"tou va bien, il ne reste plus qu'à tester plus tard...\" : le but même de cette règle EST de tester !!! Il ne doit surtout pas re,ettre à plus tard ou demander à l'utilisateur de le faire : il doit vérifier que son code fonctionne et est utilisable.",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-03T15:43:25.485292",
+      "updated_at": "2025-07-03T15:43:25.485292",
+      "history": [
+        {
+          "timestamp": "2025-07-03T15:43:25.485292",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        }
+      ]
+    },
+    {
+      "id": 241,
+      "content": "Tu peux me confirmer le bon fonctionnement de l'outil url_to_markdown ? Renomme le en read_webpage et détaille beaucoup plus la documentation de l'argument url : profite de cette docuentation d'argument pour expliquer à l'agent que si il a besoin de lire le contenu d'un site précis, il devrait utiliser cet outil",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-03T15:46:25.526873",
+      "updated_at": "2025-07-03T15:46:25.526873",
+      "history": [
+        {
+          "timestamp": "2025-07-03T15:46:25.526873",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }
