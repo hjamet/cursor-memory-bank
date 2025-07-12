@@ -3,6 +3,51 @@
     {
       "from": "system",
       "to": "implementation",
+      "timestamp": "2025-07-12T20:26:36.937Z"
+    },
+    {
+      "from": "implementation",
+      "to": "experience-execution",
+      "timestamp": "2025-07-12T20:26:32.511Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-12T20:23:31.066Z"
+    },
+    {
+      "from": "start-workflow",
+      "to": "implementation",
+      "timestamp": "2025-07-12T20:23:26.101Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-12T20:23:15.180Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-12T20:22:52.052Z"
+    },
+    {
+      "from": null,
+      "to": "implementation",
+      "timestamp": "2025-07-12T20:22:46.032Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-12T20:22:18.169Z"
+    },
+    {
+      "from": "experience-execution",
+      "to": "context-update",
+      "timestamp": "2025-07-12T17:10:48.054Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
       "timestamp": "2025-07-12T17:07:42.659Z"
     },
     {
@@ -54,56 +99,11 @@
       "from": "implementation",
       "to": "experience-execution",
       "timestamp": "2025-07-12T16:49:56.727Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-12T16:48:14.329Z"
-    },
-    {
-      "from": "experience-execution",
-      "to": "implementation",
-      "timestamp": "2025-07-12T16:48:05.769Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-12T16:47:09.657Z"
-    },
-    {
-      "from": "implementation",
-      "to": "experience-execution",
-      "timestamp": "2025-07-12T16:47:04.686Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-12T16:44:58.341Z"
-    },
-    {
-      "from": "task-decomposition",
-      "to": "implementation",
-      "timestamp": "2025-07-12T16:44:47.472Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-12T16:43:11.447Z"
-    },
-    {
-      "from": null,
-      "to": "task-decomposition",
-      "timestamp": "2025-07-12T16:43:01.988Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-12T16:42:36.161Z"
     }
   ],
   "experience_execution_attempts": 1,
-  "last_experience_execution": "2025-07-12T17:07:26.996Z",
-  "last_implementation": "2025-07-12T17:07:42.659Z",
+  "last_experience_execution": "2025-07-12T20:26:32.511Z",
+  "last_implementation": "2025-07-12T20:26:36.937Z",
   "consecutive_transitions": 2,
   "emergency_brake_active": false
 }

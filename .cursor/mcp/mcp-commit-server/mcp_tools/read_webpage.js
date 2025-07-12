@@ -9,12 +9,12 @@ const turndownService = new TurndownService({
 });
 
 /**
- * Converts a webpage URL to Markdown format
+ * Reads and converts a webpage URL to Markdown format for content analysis
  * @param {Object} args - Tool arguments
  * @param {string} args.url - URL of the webpage to convert
  * @returns {Promise<Object>} Response object with content array
  */
-export async function handleUrlToMarkdown(args) {
+export async function handleReadWebpage(args) {
     const { url } = args;
 
     let browser;

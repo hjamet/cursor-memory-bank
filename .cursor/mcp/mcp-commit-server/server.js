@@ -27,7 +27,7 @@ import { handleGetTerminalOutput } from './mcp_tools/terminal_output.js';
 import { handleStopTerminalCommand } from './mcp_tools/terminal_stop.js';
 import { handleConsultImage } from './mcp_tools/consult_image.js';
 import { handleWebpageScreenshot } from './mcp_tools/webpage_screenshot.js';
-import { handleUrlToMarkdown } from './mcp_tools/url_to_markdown.js';
+import { handleReadWebpage } from './mcp_tools/read_webpage.js';
 // import { handleRegexEdit } from './mcp_tools/regex_edit.js'; // Deprecated
 import { replaceContentBetweenTool } from './mcp_tools/replace_content_between.js';
 
@@ -200,7 +200,7 @@ const server = new McpServer({
             'consult_image': true,
             'take_webpage_screenshot': true,
             // 'regex_edit': true, // Deprecated
-            'url_to_markdown': true,
+            'read_webpage': true,
             'replace_content_between': true
         }
     }
@@ -267,13 +267,13 @@ server.tool(
     handleWebpageScreenshot // Use the imported handler
 );
 
-// Define url_to_markdown tool
+// Define read_webpage tool
 server.tool(
-    'url_to_markdown',
+    'read_webpage',
     {
-        url: z.string().url().describe("URL of the webpage to convert to Markdown format.")
+        url: z.string().url().describe("URL of the webpage to read and convert to Markdown format. This tool is designed for content analysis and information extraction from web pages. Use this tool when you need to: (1) Read and analyze the textual content of articles, blog posts, documentation, or other web pages, (2) Extract structured information from web content for processing, (3) Convert web content to a readable format for further analysis or summarization, (4) Research topics by reading content from authoritative sources, (5) Gather information from web pages that contain relevant data for your current task. The tool handles various content types including news articles, technical documentation, blog posts, and informational websites. It automatically removes scripts, styles, and other non-content elements to focus on the main textual content. Best practices: Use descriptive URLs, verify the source is accessible, and be aware that some sites may block automated access. The tool works best with content-rich pages rather than heavily interactive or JavaScript-dependent sites.")
     },
-    handleUrlToMarkdown // Use the imported handler
+    handleReadWebpage // Use the imported handler
 );
 
 // DEPRECATED: regex_edit tool is no longer recommended.
