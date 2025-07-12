@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "last_id": 2,
+  "messages": [
+    {
+      "id": 2,
+      "content": "Message test 2",
+      "created_at": "2025-07-12T21:22:20.424Z",
+      "status": "pending"
+    }
+  ]
+}

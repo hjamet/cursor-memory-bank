@@ -6974,7 +6974,7 @@
     "short_description": "Confirmer le bon fonctionnement de l'outil url_to_markdown, le renommer en read_webpage et considérablement enrichir la documentation de l'argument url pour guider l'agent dans son utilisation appropriée pour la lecture de contenu web.",
     "detailed_description": "Effectuer une validation complète et amélioration de l'outil MCP url_to_markdown selon les spécifications utilisateur.\n\n**Exigences fonctionnelles :**\n- Tester et valider le bon fonctionnement de l'outil `url_to_markdown` existant\n- Renommer l'outil de `url_to_markdown` vers `read_webpage` dans le code MCP\n- Enrichir considérablement la documentation de l'argument `url`\n- Intégrer dans la documentation des conseils explicites pour guider l'agent\n- Expliquer clairement quand et comment utiliser cet outil pour la lecture de contenu web\n\n**Critères d'acceptation :**\n- L'outil `url_to_markdown` fonctionne correctement (tests de validation réussis)\n- L'outil est renommé en `read_webpage` dans tous les fichiers MCP appropriés\n- La documentation de l'argument `url` est substantiellement enrichie\n- La documentation inclut des conseils clairs pour l'agent sur l'utilisation appropriée\n- L'outil renommé fonctionne correctement après redémarrage du serveur MCP\n- La nouvelle documentation guide efficacement l'agent vers l'utilisation de cet outil\n\n**Analyse Technique & Points de Vigilance :**\n- **Localisation de l'outil** : Identifier le fichier MCP contenant l'outil `url_to_markdown` dans `.cursor/mcp/mcp-commit-server/`\n- **Tests de fonctionnement** : Valider l'outil avec différents types d'URLs (articles, pages web, sites avec JavaScript)\n- **Renommage cohérent** : S'assurer que tous les références à l'outil sont mises à jour (nom de fonction, exports, documentation)\n- **Documentation enrichie** : Créer une documentation détaillée expliquant les cas d'usage, limitations et meilleures pratiques\n- **Guidance agent** : Intégrer des instructions spécifiques pour aider l'agent à identifier quand utiliser cet outil\n- **Redémarrage MCP** : Prévoir le redémarrage obligatoire du serveur MCP pour que les changements prennent effet\n- **Validation post-changement** : Tester l'outil renommé pour confirmer que toutes les fonctionnalités sont préservées\n- **Compatibilité** : S'assurer que le changement de nom n'affecte pas d'autres parties du système\n\n**Notes d'implémentation :**\n- Explorer la structure actuelle du serveur MCP ToolsMCP\n- Identifier tous les fichiers nécessitant modification pour le renommage\n- Créer une documentation exemplaire pour l'argument `url`\n- Inclure des exemples concrets d'utilisation dans la documentation\n- Prévoir des tests avec différents types de contenus web",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/mcp/mcp-commit-server/tools/url_to_markdown.js",
       ".cursor/mcp/mcp-commit-server/index.js",
@@ -6982,7 +6982,7 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) L'outil url_to_markdown a été testé et fonctionne correctement, (2) L'outil est renommé en read_webpage dans tous les fichiers MCP appropriés, (3) La documentation de l'argument url est substantiellement enrichie avec des conseils pour l'agent, (4) L'outil renommé fonctionne correctement après redémarrage du serveur MCP, (5) La nouvelle documentation guide efficacement l'agent vers l'utilisation appropriée de l'outil, (6) Tous les tests de validation post-changement sont réussis, (7) La compatibilité système est préservée.",
     "created_date": "2025-07-03T13:59:45.185Z",
-    "updated_date": "2025-07-12T20:27:47.477Z",
+    "updated_date": "2025-07-12T22:28:08.439312",
     "parent_id": null,
     "priority": 4,
     "image": null,
@@ -7001,7 +7001,11 @@
       }
     ],
     "last_comment": "Test de validation réussi : L'outil read_webpage renommé fonctionne parfaitement. Toutes les exigences ont été accomplies : (1) Validation du bon fonctionnement de l'outil, (2) Renommage complet vers read_webpage dans tous les fichiers, (3) Documentation substantiellement enrichie avec 5 cas d'usage spécifiques et meilleures pratiques, (4) Test automatisé créé et validé, (5) Compatibilité système préservée. L'outil guide maintenant efficacement l'agent sur son utilisation appropriée pour la lecture de contenu web.",
-    "last_comment_timestamp": "2025-07-12T20:27:47.477Z"
+    "last_comment_timestamp": "2025-07-12T20:27:47.477Z",
+    "validation": {
+      "approved_at": "2025-07-12T22:28:08.427311",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 295,
@@ -7065,17 +7069,32 @@
     "short_description": "Développer un fichier JSON pour stocker les messages temporaires envoyés par l'utilisateur à l'agent, avec une structure simple incluant ID, contenu, timestamp et statut (pending/consumed).",
     "detailed_description": "Implémenter un système de stockage persistant pour les messages courts que l'utilisateur envoie à l'agent via l'interface Streamlit. Ce système doit permettre de stocker les messages en attente d'être lus par l'agent lors de l'appel à remember.\n\n**Exigences :**\n- Créer un nouveau fichier JSON, par exemple 'user_messages.json' dans un répertoire approprié (.cursor/memory-bank/workflow/).\n- Structure des messages : {id: number, content: string, created_at: string, status: 'pending' | 'consumed'}.\n- Fonctions pour ajouter un message (générer ID unique, timestamp), marquer comme consumed, et supprimer après consommation.\n- Assurer l'atomicité des opérations pour éviter les corruptions de données.\n\n**Critères d'acceptation :**\n- Le fichier JSON est créé et initialisé correctement.\n- Les messages peuvent être ajoutés et marqués comme consommés.\n- Les opérations sont thread-safe si nécessaire.\n- Tests unitaires confirment le bon fonctionnement.\n\n**Analyse Technique & Points de Vigilance :**\n- Attention : Choisir un emplacement de fichier cohérent avec l'architecture existante pour éviter les problèmes de chemin lors des opérations MCP.\n- Risque : Gestion des ID uniques ; utiliser un compteur persistant pour éviter les collisions.\n- Challenge : Assurer la compatibilité avec les outils MCP existants ; tester l'intégration avec un script Node.js simple.\n- Edge cases : Gestion de multiples messages simultanés, suppression après consommation pour éviter l'accumulation, et comportement en cas de redémarrage du système.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "REVIEW",
     "impacted_files": [
       ".cursor/memory-bank/workflow/user_messages.json"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Le fichier JSON existe et est accessible, (2) Des messages peuvent être ajoutés et consommés via des fonctions testées, (3) Les edge cases sont gérés sans erreurs, (4) Un script de test confirme l'intégrité des opérations.",
     "created_date": "2025-07-12T16:44:07.083Z",
-    "updated_date": "2025-07-12T16:44:07.083Z",
+    "updated_date": "2025-07-12T21:22:53.484Z",
     "parent_id": null,
     "priority": 4,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 297,
+    "comments": [
+      {
+        "timestamp": "2025-07-12T21:18:35.917Z",
+        "comment": "Début de l'implémentation : marquage obligatoire de la tâche comme IN_PROGRESS selon la règle #3 du workflow implementation. Cette tâche consiste à créer un système de stockage JSON pour les messages utilisateur vers l'agent.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-12T21:22:53.484Z",
+        "comment": "Test de validation réussi : Tous les critères d'acceptation sont validés. (1) Le fichier JSON `.cursor/memory-bank/workflow/user_messages.json` existe et est accessible, (2) Les messages peuvent être ajoutés et consommés via les fonctions testées (addUserMessage, getPendingMessages, markMessageAsConsumed, cleanupConsumedMessages, getMessageStats), (3) Les edge cases sont gérés sans erreurs (génération d'IDs uniques, validation d'intégrité, gestion des collisions), (4) Script de test confirme l'intégrité des opérations avec résultats attendus. Le système est opérationnel et thread-safe.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Test de validation réussi : Tous les critères d'acceptation sont validés. (1) Le fichier JSON `.cursor/memory-bank/workflow/user_messages.json` existe et est accessible, (2) Les messages peuvent être ajoutés et consommés via les fonctions testées (addUserMessage, getPendingMessages, markMessageAsConsumed, cleanupConsumedMessages, getMessageStats), (3) Les edge cases sont gérés sans erreurs (génération d'IDs uniques, validation d'intégrité, gestion des collisions), (4) Script de test confirme l'intégrité des opérations avec résultats attendus. Le système est opérationnel et thread-safe.",
+    "last_comment_timestamp": "2025-07-12T21:22:53.484Z"
   },
   {
     "id": 298,
