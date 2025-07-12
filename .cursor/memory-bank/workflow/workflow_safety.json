@@ -3,6 +3,26 @@
     {
       "from": "system",
       "to": "implementation",
+      "timestamp": "2025-07-12T21:34:14.719Z"
+    },
+    {
+      "from": "implementation",
+      "to": "experience-execution",
+      "timestamp": "2025-07-12T21:34:10.240Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-12T21:29:39.341Z"
+    },
+    {
+      "from": "context-update",
+      "to": "implementation",
+      "timestamp": "2025-07-12T21:29:34.801Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
       "timestamp": "2025-07-12T21:24:28.742Z"
     },
     {
@@ -79,31 +99,11 @@
       "from": "system",
       "to": "implementation",
       "timestamp": "2025-07-12T20:22:52.052Z"
-    },
-    {
-      "from": null,
-      "to": "implementation",
-      "timestamp": "2025-07-12T20:22:46.032Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-12T20:22:18.169Z"
-    },
-    {
-      "from": "experience-execution",
-      "to": "context-update",
-      "timestamp": "2025-07-12T17:10:48.054Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-12T17:07:42.659Z"
     }
   ],
-  "experience_execution_attempts": 0,
-  "last_experience_execution": "2025-07-12T21:21:32.997Z",
-  "last_implementation": "2025-07-12T21:24:28.742Z",
-  "consecutive_transitions": 3,
+  "experience_execution_attempts": 1,
+  "last_experience_execution": "2025-07-12T21:34:10.240Z",
+  "last_implementation": "2025-07-12T21:34:14.719Z",
+  "consecutive_transitions": 2,
   "emergency_brake_active": false
 }
