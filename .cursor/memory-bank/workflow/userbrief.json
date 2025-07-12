@@ -1,50 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 243,
+  "last_id": 245,
   "requests": [
-    {
-      "id": 193,
-      "content": "Je souhaiterais que tu ajoutes une amélioration à l'outil update Task. Euh pour Ajouter un argument obligatoire qui est commentaire. Enfin commonte Cet argument, il oblige le LLM à ajouter une explication à. A son changement d'État, par exemple, s'il a marqué la tâche comme bloquée, il doit expliquer pourquoi elle est bloquée. Si il l'a marqué comme à revoir, il doit expliquer ce qu'il a fait, ce qu'il a avancé, et cetera. Et ensuite 2e tâche, celle-ci, elle concerne l'interface. Stream Lite en ligne, mais du coup, dans l'affichage des tâches à revoir dans la page principale de l'application page review et communication onglet Task to review. Il faudrait que tu rajoutes un élément dépliant qui est ouvert par défaut et qui est donc ce commentaire du LLM. En gros c'est on voit actuellement on voit le titre de la tâche, la courte description en dessous, il faudrait avoir l'explication du LLM dans un encadré en fait pas dans un truc dépliant dans un encadré exactement comme la courte description juste en dessous et. Et en dessous tu as les 3 trucs dépliants je crois, c'est les fichiers impactés, la description complète et ceux là ils sont fermés par défaut et c'est très bien comme ça donc je te demande juste d'ajouter le commentaire visible comme ça. Moi ça me permet de savoir ce que l'agent a fait, et cetera et. Et Ajoute bien à une description précise et claire de cet argument obligatoire, commentaire pour dire à à l'agent que voilà, si c'est une tâche bloquée, il doit expliquer en détail pourquoi il est bloqué et ce que peut faire l'utilisateur pour la débloquer Et si la tâche il l'a marquée comme review, il doit expliquer ce qu'il a fait. Euh. Ce que l'utilisateur pourrait faire pour vérifier, pour revoir la tâche. Les fichiers qui contiennent éventuellement les résultats, ce genre de choses Il doit aussi préciser les tests qu'il a pu faire pour vérifier le bon fonctionnement de son implémentation Et je parle pas des tests unitaires, mais encore une fois bien sûr des tests manuels. Précise bien dans la description de l'argument que le commentaire doit être en français.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-27T16:06:42.853993",
-      "updated_at": "2025-06-27T14:14:37.964Z",
-      "history": [
-        {
-          "timestamp": "2025-06-27T16:06:42.853993",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-27T16:08:12.732634",
-          "action": "updated",
-          "comment": "Request content updated via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-27T14:14:37.964Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 194,
-      "content": "Peut être que il faudra que tu modifies légèrement le code de la de la méthode remember. Euh du M Server MCP Parce que, en général, après avoir appelé la règle implémentation dans la plupart des cas La règle qui doit être recommandée, c'est la règle expérience exécution qui permet grosso modo à l'agent. De tester son code. Donc quand je dis tester, c'est encore une fois pas faire des tests unitaires, c'est simplement vérifier. Enfin tenter d'exécuter le code, vérifier s'il a l'air de fonctionner, identifier des problèmes de base, éventuellement l'agent peut implémenter un petit test temporaire et ensuite supprimer le fichier. Donc voilà, hésite pas aussi à préciser bien ça dans la règle expérience exécution. L'idée c'est vraiment de vérifier si le code fonctionne ou éventuellement ça peut être. Elle peut aussi être appelée pour l'exécution de commande complexe mais. Elle doit surtout souvent être appelée après implémentation pour vérifier si ce que l'agent vient d'implémenter ou de fixe fonctionne avec une une exécution de base, hein, ça, ça doit pas être un test compliqué, c'est juste genre exécuter le code, voir si les résultats sont bien, ceux qui ont l'air d'être attendus, ce genre de choses. J'ai l'impression que de manière générale, la règle remember et l'appel, la règle implémentation un peu en boucle. Tant que il y a des tâches à faire. Et sinon elle appelle Task décomposition. S'il y a des user brief à faire, mais en fait j'aimerais que l'agent teste un peu plus son code parce qu'actuellement il a tendance à beaucoup implémenter et à assez peu essayer ensuite de le faire fonctionner par lui-même, ce qui peut entraîner des problèmes. Donc voilà, il faudrait que tu corriges ça pour que les recommandations renvoyées par remember après implémentation ce soit généralement expérience exécution. Peut-être que c'est déjà le cas. Peut-être que c'est une impression ce que j'ai, mais je crois pas donc essaye de trouver s'il y a un problème et de le résoudre pour consolider ce truc.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-27T16:11:52.340829",
-      "updated_at": "2025-06-27T14:15:24.554Z",
-      "history": [
-        {
-          "timestamp": "2025-06-27T16:11:52.340829",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-27T14:15:24.554Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 195,
       "content": "UnboundLocalError: cannot access local variable 'datetime' where it is not associated with a value\n\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 110, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 91, in main\n    render_task_review_card(task)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor/streamlit_app\\utils\\ui_components.py\", line 107, in render_task_review_card\n    \"approved_at\": datetime.now().isoformat(),\n                   ^^^^^^^^\n\nJ'ai cette erreur lorsque j'essaie de valider une tâche en revue. DR tu peux aussi faire en sorte que ce soit assez solide. Les tâches en revue parce que si il manque des arguments à cause d'anciennes tâches qui sont pas compliantes, il faudrait que le système fonctionne quand même.",
@@ -962,6 +919,44 @@
         },
         {
           "timestamp": "2025-07-03T14:30:04.357Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 244,
+      "content": "J'aimerais que tu ajoutes une nouvelle fonctionnalité dans l'interface Streamlit : en dessous de l'indicateur Agent Status et de la règle et tâche en cours, je souhaiterais que tu ajoutes une zone de texte avec un bouton envoyer. Cette zone permet à l'utilisateur d'envoyer un unique message à l'agent pour son travail actuel. Ce message sera affiché une unique fois à l'agent avant d'être supprimé de son fichier de stockage (qu'il te faudra créer). Cette affichage aura lieu lors de l'appel à l'outil remember : si un ou plusieurs message de l'utilisateur sont en attente (et je parle bien ici du nouveau type de message que nous sommes en train d'implémenter, pas des requêtes userbrief !), l'outil remember doit retourner un champ supplémentaire, marqué comme très important : un commentaire de l'utilisateur que l'agent doit ABSOLUMENT prendre en comtpe. Il peut s'agir d'une question, d'une précision, d'une observation etc. Quoi qu'il arrive, l'agent devra prendre en compte ce commentaire et y répondre lors de son prochain appel à l'outil remember.\n\nIl te faudra donc mettre en place le système de gestion du fichier d'état des précisions utilisateurs, mettre à jour l'interface stteamlit pour permettre la soumission et modifier le code de l'outil remember pour prendre en compre ces changements :D (PS : je te rappelle que tu ne pourras malheuresement pas tester manuellement l'outil car il demande un redémarrage de cursor, mais tu peux vérifier son bon fonctionnement avec un petit script ! pas de logging : celà corrompt la communication MCP)",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-03T16:35:55.485846",
+      "updated_at": "2025-07-12T16:44:38.723Z",
+      "history": [
+        {
+          "timestamp": "2025-07-03T16:35:55.485846",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-12T16:44:38.723Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 245,
+      "content": "Il y a je crois un bug avec l'outil MCP execute_command : le stdout et stderr retourné semble toujours vide. Pourtant, il y a un timeout de 10s (ou jusqu'à ce que la commande soit terminé), ce qui m'amène à penser qu'il y a un soucis. L'outil get_terminal_output retourne bien les bonnes sorties. Essayes de t'en inspirer et d'identifier d'eventuelles différences !\n\nPS : tu ne pourras pas tester manuellement tes modifications car elles demandent un redémarrage de cursor que tu ne peux pas faire par toi même. mais tu peux tester à l'aide d'un petit script en démarrant toi même le serveur. Je redémarrerait plus tard cursor si tout a l'air de fonctionner dans tes tests ! :D",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-12T19:02:48.370126",
+      "updated_at": "2025-07-12T17:05:05.411Z",
+      "history": [
+        {
+          "timestamp": "2025-07-12T19:02:48.370126",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-12T17:05:05.411Z",
           "action": "mark_archived"
         }
       ]

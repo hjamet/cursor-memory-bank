@@ -6,8 +6,8 @@ Handles the display of task cards and userbrief request cards with interactive e
 import streamlit as st
 import os
 from datetime import datetime
-import task_crud_operations
-import userbrief_operations
+from pages.utils import task_crud_operations
+from pages.utils import userbrief_operations
 import hashlib
 
 # Import specific functions

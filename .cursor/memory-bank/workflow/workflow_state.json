@@ -1,47 +1,47 @@
 {
-  "current_rule": "context-update",
+  "current_rule": "experience-execution",
   "status": "active",
   "history": [
     {
-      "rule": "context-update",
-      "timestamp": "2025-07-03T14:32:42.846Z"
-    },
-    {
       "rule": "experience-execution",
-      "timestamp": "2025-07-03T14:31:41.747Z"
+      "timestamp": "2025-07-12T17:07:42.661Z"
     },
     {
       "rule": "implementation",
-      "timestamp": "2025-07-03T14:30:40.034Z"
+      "timestamp": "2025-07-12T17:05:19.238Z"
     },
     {
       "rule": "task-decomposition",
-      "timestamp": "2025-07-03T14:29:35.582Z"
+      "timestamp": "2025-07-12T17:04:39.775Z"
     },
     {
-      "rule": "context-update",
-      "timestamp": "2025-07-03T14:28:16.196Z"
+      "rule": "experience-execution",
+      "timestamp": "2025-07-12T16:57:08.060Z"
     },
     {
-      "rule": "context-update",
-      "timestamp": "2025-07-03T14:23:44.056Z"
+      "rule": "experience-execution",
+      "timestamp": "2025-07-12T16:50:18.093Z"
+    },
+    {
+      "rule": "implementation",
+      "timestamp": "2025-07-12T16:48:14.331Z"
+    },
+    {
+      "rule": "experience-execution",
+      "timestamp": "2025-07-12T16:47:09.659Z"
+    },
+    {
+      "rule": "implementation",
+      "timestamp": "2025-07-12T16:44:58.346Z"
+    },
+    {
+      "rule": "task-decomposition",
+      "timestamp": "2025-07-12T16:43:11.457Z"
     },
     {
       "rule": "start-workflow",
-      "timestamp": "2025-07-03T14:23:17.411Z"
-    },
-    {
-      "rule": "context-update",
-      "timestamp": "2025-07-03T14:21:55.691Z"
-    },
-    {
-      "rule": "context-update",
-      "timestamp": "2025-07-03T14:19:51.400Z"
-    },
-    {
-      "rule": "start-workflow",
-      "timestamp": "2025-07-03T14:18:53.951Z"
+      "timestamp": "2025-07-12T16:42:36.169Z"
     }
   ],
-  "last_updated": "2025-07-03T14:32:42.846Z"
+  "last_updated": "2025-07-12T17:07:42.661Z"
 }

@@ -14,6 +14,10 @@ from utils import (
     load_tasks, read_user_messages, render_task_review_card, 
     render_message_review_card, render_add_request_tab
 )
+from utils.ui_components import (
+    render_message_review_card,
+)
+from utils.simplified_task_view import render_simplified_task_view
 
 st.set_page_config(page_title="Review & Communication", page_icon="📨")
 
@@ -27,7 +31,7 @@ def main():
     """Main function to render the review page"""
     # Initialize session state for active tab if not present
     if "active_tab" not in st.session_state:
-        st.session_state.active_tab = "add"
+        st.session_state.active_tab = "main"
 
     # Load data upfront
     tasks = load_tasks()
@@ -43,7 +47,7 @@ def main():
     
     # Define tabs with static keys and dynamic labels
     tabs = {
-        "add": "✨ Add Request",
+        "main": "📨 Review & Communication",
         "review": review_tab_label,
         "messages": messages_tab_label,
     }
@@ -69,8 +73,9 @@ def main():
     st.session_state.active_tab = selected_key
 
     # Render content based on the selected tab key
-    if st.session_state.active_tab == "add":
+    if st.session_state.active_tab == "main":
         render_add_request_tab()
+        render_simplified_task_view()
     elif st.session_state.active_tab == "review":
         st.header("Tasks Awaiting Validation")
         review_tasks = [t for t in tasks if t.get('status') in ['REVIEW', 'BLOCKED']]

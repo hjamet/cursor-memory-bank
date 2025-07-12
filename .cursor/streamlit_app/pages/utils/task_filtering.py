@@ -5,7 +5,7 @@ Handles advanced search, filtering, and sorting operations for tasks.
 
 import streamlit as st
 from datetime import datetime, timedelta
-import task_sorting_utils
+from pages.utils import task_sorting_utils
 
 # Import specific functions
 sort_tasks_by_dependencies_and_priority = task_sorting_utils.sort_tasks_by_dependencies_and_priority

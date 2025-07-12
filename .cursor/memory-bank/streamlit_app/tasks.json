@@ -6899,18 +6899,37 @@
     "short_description": "Créer une vue simplifiée du statut des tâches dans la page Review & Communication, onglet Add request, sous le bouton submit. Afficher les requêtes non traitées en premier, puis les tâches actives, sans options de recherche ni filtres.",
     "detailed_description": "Implémenter une vue simplifiée du statut des tâches dans l'interface Streamlit de la page \"📨 Review & Communication\", onglet \"Add request\".\n\n**Exigences fonctionnelles :**\n- Positionner la vue sous le bouton \"submit new request\"\n- Réutiliser la logique de \"task status\" mais avec paramètres par défaut uniquement\n- Supprimer toutes les options de recherche et filtres avancés\n- Afficher les requêtes userbrief non traitées en premier (ordre inverse de l'actuel)\n- Puis afficher les tâches actives triées par ordre de résolution prévue\n- Conserver l'affichage des informations essentielles (ID, titre, statut, priorité)\n\n**Crit¨res d'acceptation :**\n- La vue s'affiche correctement dans l'onglet \"Add request\"\n- Les requêtes non traitées apparaissent en premier\n- Les tâches actives sont triées par ordre de résolution prévue\n- Aucune option de recherche ou filtre n'est présente\n- L'interface reste cohérente avec le design existant\n- La vue se met à jour automatiquement lors des changements de statut\n\n**Analyse Technique & Points de Vigilance :**\n- **Localisation du fichier :** Identifier le fichier Streamlit gérant la page \"Review & Communication\" et l'onglet \"Add request\"\n- **Réutilisation de code :** Extraire la logique d'affichage des tâches depuis le module \"task status\" existant\n- **Gestion de l'ordre :** Implémenter la logique d'inversion pour les requêtes non traitées\n- **Performance :** S'assurer que l'affichage reste fluide même avec de nombreuses tâches\n- **Intégration UI :** Maintenir la cohérence visuelle avec l'interface existante\n- **Mise à jour automatique :** Vérifier que la vue se rafraîchit correctement lors des changements de statut\n- **Gestion des erreurs :** Prévoir la gestion des cas où aucune tâche ou requête n'est disponible\n- **Responsive design :** S'assurer que la vue fonctionne sur différentes tailles d'écran\n\n**Notes d'implémentation :**\n- Explorer l'architecture actuelle de l'interface Streamlit\n- Identifier les composants réutilisables du module \"task status\"\n- Créer une fonction simplifiée pour l'affichage des tâches\n- Intégrer la vue dans le bon emplacement de l'interface\n- Tester l'affichage avec différents volumes de données",
     "dependencies": [],
-    "status": "TODO",
+    "status": "APPROVED",
     "impacted_files": [
       "streamlit_app/pages/add_request.py",
       "streamlit_app/components/task_status.py"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) La vue simplifiée s'affiche correctement dans l'onglet \"Add request\", (2) Les requêtes non traitées apparaissent en premier dans l'ordre inverse, (3) Les tâches actives sont triées par ordre de résolution prévue, (4) Aucune option de recherche ou filtre n'est présente, (5) L'interface reste cohérente avec le design existant, (6) La vue se met à jour automatiquement lors des changements de statut, (7) Les tests d'affichage avec différents volumes de données sont réussis.",
     "created_date": "2025-07-03T13:50:13.825Z",
-    "updated_date": "2025-07-03T13:50:13.825Z",
+    "updated_date": "2025-07-12T19:05:25.653119",
     "parent_id": null,
     "priority": 4,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 292,
+    "comments": [
+      {
+        "timestamp": "2025-07-03T14:34:40.481Z",
+        "comment": "Je commence le développement de cette tâche pour améliorer l'interface Streamlit.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-12T17:04:23.814Z",
+        "comment": "La tâche #292 a été implémentée avec succès après plusieurs itérations de corrections d'imports dans app.py et simplified_task_view.py. Des problèmes récurrents d'imports relatifs et absolus ont été rencontrés, résolus par ajustements manuels et validations itératives. La vue simplifiée s'affiche correctement sous le formulaire sans erreurs, mais une faiblesse potentielle est la fragilité des imports dans la structure modulaire de Streamlit - des changements futurs pourraient casser cela à nouveau. Tests manuels via lancement de l'app confirment le fonctionnement, mais des tests automatisés pour les imports seraient bénéfiques. Vérifiez l'intégration visuelle et la responsivité dans différents scénarios.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "La tâche #292 a été implémentée avec succès après plusieurs itérations de corrections d'imports dans app.py et simplified_task_view.py. Des problèmes récurrents d'imports relatifs et absolus ont été rencontrés, résolus par ajustements manuels et validations itératives. La vue simplifiée s'affiche correctement sous le formulaire sans erreurs, mais une faiblesse potentielle est la fragilité des imports dans la structure modulaire de Streamlit - des changements futurs pourraient casser cela à nouveau. Tests manuels via lancement de l'app confirment le fonctionnement, mais des tests automatisés pour les imports seraient bénéfiques. Vérifiez l'intégration visuelle et la responsivité dans différents scénarios.",
+    "last_comment_timestamp": "2025-07-12T17:04:23.814Z",
+    "validation": {
+      "approved_at": "2025-07-12T19:05:25.642082",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 293,
@@ -6918,17 +6937,36 @@
     "short_description": "Modifier le fichier markdown de la règle experience-execution pour que l'agent adopte la personnalité d'un développeur testant manuellement son travail, interdisant la simulation de résultats et imposant des tests réels concrets.",
     "detailed_description": "Modifier la règle `experience-execution` pour transformer fondamentalement l'approche de validation du travail implémenté.\n\n**Exigences fonctionnelles :**\n- Modifier le persona : L'agent doit adopter la personnalité d'un développeur qui teste manuellement son travail\n- Insister sur les tests réels : Les expériences effectuées doivent être réellement exécutées, jamais simulées\n- Interdire les phrases d'évitement : Éliminer toute possibilité de reporter les tests (\"tout va bien, il ne reste plus qu'à tester plus tard...\")\n- Définir des tests manuels concrets : Exemples comme ouvrir l'interface et cliquer sur les boutons implémentés\n- Responsabilité exclusive : L'agent ne doit jamais déléguer les tests à l'utilisateur ou les reporter\n- Validation fonctionnelle : Vérifier que le code fonctionne réellement et est utilisable\n\n**Critères d'acceptation :**\n- Le fichier markdown `.cursor/workflow-steps/experience-execution.md` est modifié\n- Le persona indique clairement le rôle de développeur testant manuellement\n- Les instructions interdisent explicitement la simulation de résultats\n- Des exemples concrets de tests manuels sont fournis\n- La responsabilité exclusive de l'agent pour les tests est établie\n- Le ton insiste sur l'obligation de tester réellement\n\n**Analyse Technique & Points de Vigilance :**\n- **Localisation du fichier** : Identifier et modifier `.cursor/workflow-steps/experience-execution.md`\n- **Impact workflow** : Modification d'une règle fondamentale qui affecte le comportement autonome\n- **Équilibre technique** : Maintenir la faisabilité technique tout en imposant des tests réels\n- **Cohérence architecturale** : Préserver la structure workflow existante et les outils MCP\n- **Contraintes système** : Respecter les limitations techniques (accès interface, commandes disponibles)\n- **Validation de changement** : Tester que la règle modifiée fonctionne correctement dans le workflow\n- **Documentation clara** : Instructions non ambiguës pour éviter les interprétations erronées\n- **Gestion d'erreurs** : Prévoir les cas où les tests échouent et les actions correctives\n\n**Notes d'implémentation :**\n- Analyser la règle experience-execution actuelle pour comprendre la structure\n- Identifier les sections à modifier (persona, instructions, exemples)\n- Rédiger des instructions claires et non ambiguës\n- Ajouter des exemples concrets de tests manuels\n- Éliminer toute formulation permettant d'éviter les tests\n- Valider que les modifications préservent la compatibilité workflow",
     "dependencies": [],
-    "status": "TODO",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/workflow-steps/experience-execution.md"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Le fichier `.cursor/workflow-steps/experience-execution.md` est modifié avec le nouveau persona de développeur, (2) Les instructions interdisent explicitement la simulation de résultats, (3) Des exemples concrets de tests manuels sont fournis, (4) La responsabilité exclusive de l'agent pour les tests est établie, (5) Le ton insiste sur l'obligation de tester réellement, (6) La règle modifiée préserve la compatibilité avec l'architecture workflow, (7) Les tests de validation de la règle modifiée sont réussis.",
     "created_date": "2025-07-03T13:54:21.935Z",
-    "updated_date": "2025-07-03T13:54:21.935Z",
+    "updated_date": "2025-07-12T19:09:33.670656",
     "parent_id": null,
     "priority": 4,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 293,
+    "comments": [
+      {
+        "timestamp": "2025-07-12T17:05:38.558Z",
+        "comment": "Je commence le travail sur la tâche #293 pour modifier la règle experience-execution afin d'insister sur les tests réels manuels, en adoptant une personnalité de développeur testeur.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-12T17:09:18.058Z",
+        "comment": "Le test manuel a réussi : le fichier modifié contient la nouvelle section Persona, les interdictions de simulation, et l'insistance sur des tests réels. Cependant, des tests plus complexes sur l'impact workflow seraient bénéfiques à long terme.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Le test manuel a réussi : le fichier modifié contient la nouvelle section Persona, les interdictions de simulation, et l'insistance sur des tests réels. Cependant, des tests plus complexes sur l'impact workflow seraient bénéfiques à long terme.",
+    "last_comment_timestamp": "2025-07-12T17:09:18.058Z",
+    "validation": {
+      "approved_at": "2025-07-12T19:09:33.659655",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 294,
@@ -6974,14 +7012,14 @@
     "short_description": "Implémenter une solution permanente pour la boucle de workflow en réinitialisant le compteur de transitions consécutives après chaque cycle de travail significatif.",
     "detailed_description": "### Objectif\nL'objectif est d'implémenter une solution permanente au bug de la boucle de workflow causé par le compteur de transitions consécutives. Cela implique de réactiver le mécanisme de sécurité et de s'assurer que le compteur est réinitialisé au bon moment pour éviter les faux positifs.\n\n### Description des travaux\n1.  **Réactiver le frein d'urgence** :\n    *   Dans le fichier `.cursor/mcp/memory-bank-mcp/lib/workflow_safety.js`, supprimez les commentaires qui désactivent le bloc de vérification `MAX_CONSECUTIVE_TRANSITIONS`.\n\n2.  **Implémenter la réinitialisation du compteur** :\n    *   Dans le fichier `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js`, importez la fonction `resetTransitionCounter` depuis `../lib/workflow_safety.js`.\n    *   Identifiez le bon moment pour appeler `resetTransitionCounter()`. Un \"cycle de travail complet\" doit être défini. Une bonne heuristique serait de réinitialiser le compteur après une étape qui indique une progression substantielle et un retour à un état \"stable\".\n    *   Appelez `resetTransitionCounter()` à l'intérieur de la fonction `mcp_MemoryBankMCP_remember` lorsque la transition précédente (`fromStep`) est l'une des suivantes : `task-decomposition`, `implementation`, `fix`, `experience-execution`. Cela signifie que chaque fois qu'une de ces étapes productives se termine, le compteur de \"déplacements\" est remis à zéro.\n\n### Analyse Technique & Points de Vigilance\n*   **Point de vigilance 1** : La logique de réinitialisation doit être robuste pour ne pas être appelée trop souvent (ce qui rendrait le compteur inutile) ou trop rarement (ce qui recréerait le bug). Le choix des étapes déclenchant le reset est crucial.\n*   **Point de vigilance 2** : Assurez-vous que l'importation de `resetTransitionCounter` dans `remember.js` se fait correctement et ne crée pas de dépendances circulaires.\n*   **Point de vigilance 3** : Le test de cette fonctionnalité est complexe car il nécessite de nombreux cycles de workflow. Le test principal sera l'observation du système sur le long terme. Cependant, une attention particulière devra être portée au fichier `workflow_safety.json` après l'implémentation pour s'assurer que le compteur `consecutive_transitions` se réinitialise bien à 0.\n*   **Point de vigilance 4** : N'oubliez pas que toute modification des fichiers MCP (`.js`) nécessite un redémarrage manuel du serveur MCP par l'utilisateur pour être prise en compte.\n\n### Critères de validation\n1.  Le code de vérification de `MAX_CONSECUTIVE_TRANSITIONS` dans `workflow_safety.js` est décommenté et actif.\n2.  La fonction `resetTransitionCounter` est correctement importée et appelée dans `remember.js`.\n3.  Après avoir exécuté une étape comme `task-decomposition`, la valeur de `consecutive_transitions` dans `workflow_safety.json` est revenue à 0 (ou une petite valeur), prouvant que la réinitialisation a fonctionné.\n4.  Le système ne rentre plus dans une boucle `context-update` après de nombreuses transitions.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/lib/workflow_safety.js",
       ".cursor/mcp/memory-bank-mcp/mcp_tools/remember.js"
     ],
     "validation_criteria": "",
     "created_date": "2025-07-03T14:29:58.556Z",
-    "updated_date": "2025-07-03T14:32:21.062Z",
+    "updated_date": "2025-07-12T19:02:15.033397",
     "parent_id": null,
     "priority": 5,
     "image": null,
@@ -7000,6 +7038,86 @@
       }
     ],
     "last_comment": "L'implémentation est terminée et la validation initiale a été un succès après le redémarrage du serveur. Le compteur de transitions est maintenant correctement réinitialisé, ce qui prévient la boucle de workflow. La tâche est prête pour la revue finale.",
-    "last_comment_timestamp": "2025-07-03T14:32:21.062Z"
+    "last_comment_timestamp": "2025-07-03T14:32:21.062Z",
+    "validation": {
+      "approved_at": "2025-07-12T19:02:15.022385",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 297,
+    "title": "Créer le système de stockage pour les messages utilisateur à l'agent",
+    "short_description": "Développer un fichier JSON pour stocker les messages temporaires envoyés par l'utilisateur à l'agent, avec une structure simple incluant ID, contenu, timestamp et statut (pending/consumed).",
+    "detailed_description": "Implémenter un système de stockage persistant pour les messages courts que l'utilisateur envoie à l'agent via l'interface Streamlit. Ce système doit permettre de stocker les messages en attente d'être lus par l'agent lors de l'appel à remember.\n\n**Exigences :**\n- Créer un nouveau fichier JSON, par exemple 'user_messages.json' dans un répertoire approprié (.cursor/memory-bank/workflow/).\n- Structure des messages : {id: number, content: string, created_at: string, status: 'pending' | 'consumed'}.\n- Fonctions pour ajouter un message (générer ID unique, timestamp), marquer comme consumed, et supprimer après consommation.\n- Assurer l'atomicité des opérations pour éviter les corruptions de données.\n\n**Critères d'acceptation :**\n- Le fichier JSON est créé et initialisé correctement.\n- Les messages peuvent être ajoutés et marqués comme consommés.\n- Les opérations sont thread-safe si nécessaire.\n- Tests unitaires confirment le bon fonctionnement.\n\n**Analyse Technique & Points de Vigilance :**\n- Attention : Choisir un emplacement de fichier cohérent avec l'architecture existante pour éviter les problèmes de chemin lors des opérations MCP.\n- Risque : Gestion des ID uniques ; utiliser un compteur persistant pour éviter les collisions.\n- Challenge : Assurer la compatibilité avec les outils MCP existants ; tester l'intégration avec un script Node.js simple.\n- Edge cases : Gestion de multiples messages simultanés, suppression après consommation pour éviter l'accumulation, et comportement en cas de redémarrage du système.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/memory-bank/workflow/user_messages.json"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) Le fichier JSON existe et est accessible, (2) Des messages peuvent être ajoutés et consommés via des fonctions testées, (3) Les edge cases sont gérés sans erreurs, (4) Un script de test confirme l'intégrité des opérations.",
+    "created_date": "2025-07-12T16:44:07.083Z",
+    "updated_date": "2025-07-12T16:44:07.083Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 298,
+    "title": "Mettre à jour l'interface Streamlit pour la soumission de messages à l'agent",
+    "short_description": "Ajouter une zone de texte et un bouton d'envoi sous l'indicateur Agent Status dans Streamlit, pour permettre à l'utilisateur d'envoyer des messages temporaires à l'agent.",
+    "detailed_description": "Modifier l'interface Streamlit pour inclure un formulaire simple de soumission de messages. Ces messages seront stockés dans le système créé précédemment et destinés à être lus par l'agent.\n\n**Exigences :**\n- Localiser la section appropriée dans le code Streamlit (sous Agent Status et current rule/task).\n- Ajouter un st.text_area pour le message et un st.button pour l'envoi.\n- À l'envoi, enregistrer le message dans le fichier JSON via une fonction d'ajout.\n- Afficher une confirmation à l'utilisateur après envoi.\n- S'assurer que le formulaire est responsive et intégré harmonieusement.\n\n**Critères d'acceptation :**\n- Le formulaire apparaît au bon endroit dans l'interface.\n- Les messages sont correctement stockés lors de l'envoi.\n- Confirmation s'affiche sans erreurs.\n- L'interface reste fluide et cohérente.\n\n**Analyse Technique & Points de Vigilance :**\n- Attention : Identifier le fichier Python exact gérant cette section de l'UI (probablement app.py ou similaire) pour éviter des modifications erronées.\n- Risque : Intégration avec le système de stockage ; assurer que les chemins et imports sont corrects.\n- Challenge : Gérer les états de session Streamlit pour éviter les re-soumissions accidentelles.\n- Edge cases : Messages vides (interdire ou gérer), messages très longs (limiter la taille), multiples envois rapides (gérer la concurrence).",
+    "dependencies": [
+      297
+    ],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/streamlit_app/app.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) Le formulaire est visible et fonctionnel dans Streamlit, (2) Les messages sont stockés correctement, (3) La confirmation fonctionne, (4) Les edge cases sont testés et gérés.",
+    "created_date": "2025-07-12T16:44:21.531Z",
+    "updated_date": "2025-07-12T16:44:21.531Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 299,
+    "title": "Modifier l'outil remember pour inclure les messages utilisateur en attente",
+    "short_description": "Mettre à jour le code de l'outil remember pour lire les messages pending du stockage, les ajouter comme champ supplémentaire dans la réponse, et les marquer comme consumed/supprimer après.",
+    "detailed_description": "Adapter l'outil MCP remember pour intégrer les messages utilisateur temporaires. Si des messages sont en attente, les inclure dans la réponse comme un champ important, puis les supprimer du stockage.\n\n**Exigences :**\n- Dans remember.js, ajouter une logique pour lire les messages 'pending' du JSON.\n- Ajouter un champ 'user_comments' dans la réponse JSON, contenant les messages (marqué comme critique).\n- Après inclusion, marquer les messages comme 'consumed' et les supprimer.\n- Gérer les cas de multiples messages (concaténer ou lister).\n\n**Critères d'acceptation :**\n- L'outil retourne les messages dans la réponse quand ils existent.\n- Les messages sont supprimés après inclusion.\n- Pas de corruption de la communication JSON-RPC.\n- Vérification via un script de test Node.js.\n\n**Analyse Technique & Points de Vigilance :**\n- Attention : Toute modification à remember.js nécessite un redémarrage de Cursor ; notifier l'utilisateur via user_message.\n- Risque : Éviter tout logging qui pourrait corrompre MCP ; utiliser des méthodes silencieuses pour le debug.\n- Challenge : Assurer que le nouveau champ n'interfère pas avec le schéma JSON existant ; valider la structure.\n- Edge cases : Aucun message (ne pas ajouter le champ), messages multiples (gérer l'ordre), erreurs de lecture/suppression (gérer gracieusement).",
+    "dependencies": [
+      297
+    ],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/tools/remember.js"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) Les messages sont inclus dans la réponse de remember, (2) Ils sont supprimés après, (3) Le script de test valide le fonctionnement sans erreurs, (4) Notification de redémarrage est envoyée à l'utilisateur.",
+    "created_date": "2025-07-12T16:44:34.919Z",
+    "updated_date": "2025-07-12T16:44:34.919Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 300,
+    "title": "Corriger le bug de retour vide de stdout/stderr dans l'outil execute_command",
+    "short_description": "Investiguer et corriger le problème où l'outil mcp_MyMCP_execute_command retourne toujours stdout et stderr vides malgré le timeout, en s'inspirant de get_terminal_output.",
+    "detailed_description": "Analyser et résoudre le bug signalé dans l'outil execute_command où les champs stdout et stderr sont systématiquement vides dans la réponse, même avec un timeout configuré. Comparer l'implémentation avec celle de get_terminal_output qui fonctionne correctement pour identifier les différences.\n\n**Exigences :**\n- Localiser le code source de l'outil execute_command (probablement dans les fichiers MCP comme remember.js ou un module dédié).\n- Examiner la logique de capture des sorties après l'exécution de la commande et pendant le timeout.\n- Identifier pourquoi les sorties ne sont pas capturées immédiatement (peut-être dues à un processus asynchrone ou une mauvaise gestion des logs).\n- Modifier le code pour inclure les dernières lignes de stdout/stderr dans la réponse initiale, similaire à get_terminal_output.\n- Tester les modifications via un script local démarrant le serveur MCP, en exécutant des commandes de test et vérifiant les retours.\n- Documenter les changements et noter que un redémarrage de Cursor sera nécessaire pour appliquer les modifications en production.\n\n**Analyse Technique & Points de Vigilance :**\n- Attention : les outils MCP sont sensibles aux modifications ; toute altération doit préserver la compatibilité avec les autres outils et le workflow global. Vérifier les dépendances potentielles.\n- Risque : le bug pourrait provenir d'une gestion asynchrone des processus ; prévoir une stratégie pour synchroniser la capture des logs sans bloquer le serveur.\n- Challenge : impossibilité de tester en live sans redémarrage ; implémenter un script de test isolé pour valider avant déploiement.\n- Edge cases : tester avec commandes courtes/longue durée, commandes avec erreurs, et cas où le timeout est atteint.\n- Performance : s'assurer que la capture des logs ne dégrade pas les performances du serveur.\n\n**Critères d'acceptation :**\n- L'outil execute_command retourne des valeurs non vides pour stdout/stderr quand applicable dans les tests locaux.\n- La comparaison avec get_terminal_output confirme une implémentation alignée.\n- Un script de test démontre le fonctionnement correct avant redémarrage.\n- Documentation des changements incluse pour faciliter la revue.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/memory-bank/mcp_tools/execute_command.js"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) Le code modifié capture correctement stdout/stderr dans la réponse de execute_command, (2) Les tests locaux via script confirment la résolution du bug dans divers scénarios, (3) Les changements sont documentés et prêts pour redémarrage, (4) Aucune régression n'est introduite dans les outils connexes.",
+    "created_date": "2025-07-12T17:04:59.799Z",
+    "updated_date": "2025-07-12T17:04:59.799Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]
