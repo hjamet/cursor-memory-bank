@@ -7069,13 +7069,13 @@
     "short_description": "Développer un fichier JSON pour stocker les messages temporaires envoyés par l'utilisateur à l'agent, avec une structure simple incluant ID, contenu, timestamp et statut (pending/consumed).",
     "detailed_description": "Implémenter un système de stockage persistant pour les messages courts que l'utilisateur envoie à l'agent via l'interface Streamlit. Ce système doit permettre de stocker les messages en attente d'être lus par l'agent lors de l'appel à remember.\n\n**Exigences :**\n- Créer un nouveau fichier JSON, par exemple 'user_messages.json' dans un répertoire approprié (.cursor/memory-bank/workflow/).\n- Structure des messages : {id: number, content: string, created_at: string, status: 'pending' | 'consumed'}.\n- Fonctions pour ajouter un message (générer ID unique, timestamp), marquer comme consumed, et supprimer après consommation.\n- Assurer l'atomicité des opérations pour éviter les corruptions de données.\n\n**Critères d'acceptation :**\n- Le fichier JSON est créé et initialisé correctement.\n- Les messages peuvent être ajoutés et marqués comme consommés.\n- Les opérations sont thread-safe si nécessaire.\n- Tests unitaires confirment le bon fonctionnement.\n\n**Analyse Technique & Points de Vigilance :**\n- Attention : Choisir un emplacement de fichier cohérent avec l'architecture existante pour éviter les problèmes de chemin lors des opérations MCP.\n- Risque : Gestion des ID uniques ; utiliser un compteur persistant pour éviter les collisions.\n- Challenge : Assurer la compatibilité avec les outils MCP existants ; tester l'intégration avec un script Node.js simple.\n- Edge cases : Gestion de multiples messages simultanés, suppression après consommation pour éviter l'accumulation, et comportement en cas de redémarrage du système.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/memory-bank/workflow/user_messages.json"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Le fichier JSON existe et est accessible, (2) Des messages peuvent être ajoutés et consommés via des fonctions testées, (3) Les edge cases sont gérés sans erreurs, (4) Un script de test confirme l'intégrité des opérations.",
     "created_date": "2025-07-12T16:44:07.083Z",
-    "updated_date": "2025-07-12T21:22:53.484Z",
+    "updated_date": "2025-07-12T23:23:25.181617",
     "parent_id": null,
     "priority": 4,
     "image": null,
@@ -7094,7 +7094,11 @@
       }
     ],
     "last_comment": "Test de validation réussi : Tous les critères d'acceptation sont validés. (1) Le fichier JSON `.cursor/memory-bank/workflow/user_messages.json` existe et est accessible, (2) Les messages peuvent être ajoutés et consommés via les fonctions testées (addUserMessage, getPendingMessages, markMessageAsConsumed, cleanupConsumedMessages, getMessageStats), (3) Les edge cases sont gérés sans erreurs (génération d'IDs uniques, validation d'intégrité, gestion des collisions), (4) Script de test confirme l'intégrité des opérations avec résultats attendus. Le système est opérationnel et thread-safe.",
-    "last_comment_timestamp": "2025-07-12T21:22:53.484Z"
+    "last_comment_timestamp": "2025-07-12T21:22:53.484Z",
+    "validation": {
+      "approved_at": "2025-07-12T23:23:25.164615",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 298,
