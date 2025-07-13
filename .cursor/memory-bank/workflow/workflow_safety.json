@@ -1,6 +1,36 @@
 {
   "transition_history": [
     {
+      "from": null,
+      "to": "implementation",
+      "timestamp": "2025-07-13T18:56:09.838Z"
+    },
+    {
+      "from": null,
+      "to": "implementation",
+      "timestamp": "2025-07-13T18:55:05.823Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T18:52:26.996Z"
+    },
+    {
+      "from": null,
+      "to": "implementation",
+      "timestamp": "2025-07-13T18:52:23.227Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T18:51:43.273Z"
+    },
+    {
+      "from": "experience-execution",
+      "to": "context-update",
+      "timestamp": "2025-07-13T18:51:37.867Z"
+    },
+    {
       "from": "system",
       "to": "implementation",
       "timestamp": "2025-07-13T18:49:40.455Z"
@@ -69,41 +99,11 @@
       "from": "system",
       "to": "implementation",
       "timestamp": "2025-07-13T18:07:57.072Z"
-    },
-    {
-      "from": "task-decomposition",
-      "to": "implementation",
-      "timestamp": "2025-07-13T18:07:51.768Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-13T18:06:43.895Z"
-    },
-    {
-      "from": "context-update",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-13T18:06:39.660Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T18:03:06.558Z"
-    },
-    {
-      "from": "experience-execution",
-      "to": "context-update",
-      "timestamp": "2025-07-13T18:02:38.717Z"
-    },
-    {
-      "from": "experience-execution",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:55:56.806Z"
     }
   ],
-  "experience_execution_attempts": 1,
+  "experience_execution_attempts": 0,
   "last_experience_execution": "2025-07-13T18:31:23.663Z",
-  "last_implementation": "2025-07-13T18:49:40.455Z",
+  "last_implementation": "2025-07-13T18:56:09.838Z",
   "consecutive_transitions": 6,
   "emergency_brake_active": false
 }

@@ -485,6 +485,11 @@ async function remember(args) {
             workflow_cycle_reminder: "The workflow is paused. Await new instructions."
         };
 
+        // Add long-term memory management hint if semantic long-term memories are present
+        if (semanticLongTermMemories && semanticLongTermMemories.length > 0) {
+            pauseResponse.long_term_memory_management_hint = "📝 **Gestion des Mémoires Long Terme :** Si certains des souvenirs ci-dessus ne semblent plus pertinents, sont devenus obsolètes, contiennent des informations incorrectes ou ne servent plus à rien, vous pouvez les supprimer en utilisant l'outil `delete_long_term_memory` avec l'ID du souvenir concerné. Cela permet de maintenir une base de mémoires propre et pertinente.";
+        }
+
         return {
             content: [{
                 type: 'text',
@@ -517,6 +522,11 @@ async function remember(args) {
     // Add user_comments if there are pending messages
     if (userComments) {
         response.user_comments = userComments;
+    }
+
+    // Add long-term memory management hint if semantic long-term memories are present
+    if (semanticLongTermMemories && semanticLongTermMemories.length > 0) {
+        response.long_term_memory_management_hint = "📝 **Gestion des Mémoires Long Terme :** Si certains des souvenirs ci-dessus ne semblent plus pertinents, sont devenus obsolètes, contiennent des informations incorrectes ou ne servent plus à rien, vous pouvez les supprimer en utilisant l'outil `delete_long_term_memory` avec l'ID du souvenir concerné. Cela permet de maintenir une base de mémoires propre et pertinente.";
     }
 
     return {
