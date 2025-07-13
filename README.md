@@ -80,7 +80,7 @@ The installation script will:
 The installation script automatically configures MCP (Model Context Protocol) servers for Google's Gemini CLI, enabling you to use the same powerful tools in both Cursor and Gemini CLI environments.
 
 ### What Gets Configured
-- **ToolsMCP**: System operations, terminal commands, and file manipulation
+- **MyMCP**: System operations, terminal commands, and file manipulation
 - **MemoryBankMCP**: Task management, persistent memory, and workflow automation
 - **Context7**: Real-time library documentation access
 
@@ -98,7 +98,7 @@ gemini mcp list
 gemini mcp desc
 ```
 
-For detailed information about Gemini CLI integration, see [GEMINI_CLI_INTEGRATION.md](GEMINI_CLI_INTEGRATION.md).
+For detailed information about Gemini CLI integration, consult the installation script documentation.
 
 ## What is Cursor Memory Bank? 🤔
 
@@ -119,7 +119,7 @@ Cursor Memory Bank is an advanced autonomous workflow system that revolutionizes
 - **Status Tracking**: Comprehensive task lifecycle management (TODO, IN_PROGRESS, BLOCKED, REVIEW, DONE)
 
 #### 🔧 **MCP Server Integration**
-- **ToolsMCP**: Terminal operations, file manipulation, web scraping, and system commands
+- **MyMCP**: Terminal operations, file manipulation, web scraping, and system commands
 - **MemoryBankMCP**: Task management, persistent memory, workflow automation, and commit operations
 - **Context7**: Real-time library documentation with semantic search capabilities
 
@@ -282,15 +282,15 @@ graph TD
 - `mcp_MemoryBankMCP_update_userbrief`: Update request status
 - `mcp_MemoryBankMCP_commit`: Standardized git commit operations
 
-### **ToolsMCP Server**
-- `mcp_ToolsMCP_execute_command`: Terminal command execution
-- `mcp_ToolsMCP_get_terminal_status`: Monitor running processes
-- `mcp_ToolsMCP_get_terminal_output`: Retrieve command output
-- `mcp_ToolsMCP_stop_terminal_command`: Stop running processes
-- `mcp_ToolsMCP_consult_image`: Image analysis and consultation
-- `mcp_ToolsMCP_take_webpage_screenshot`: Web page capture
-- `mcp_ToolsMCP_read_webpage`: Web content extraction to Markdown
-- `mcp_ToolsMCP_replace_content_between`: Advanced file editing
+### **MyMCP Server**
+- `mcp_MyMCP_execute_command`: Terminal command execution
+- `mcp_MyMCP_get_terminal_status`: Monitor running processes
+- `mcp_MyMCP_get_terminal_output`: Retrieve command output
+- `mcp_MyMCP_stop_terminal_command`: Stop running processes
+- `mcp_MyMCP_consult_image`: Image analysis and consultation
+- `mcp_MyMCP_take_webpage_screenshot`: Web page capture
+- `mcp_MyMCP_read_webpage`: Web content extraction to Markdown
+- `mcp_MyMCP_replace_content_between`: Advanced file editing
 
 ### **Context7 Server**
 - `mcp_Context7_resolve-library-id`: Find library documentation
@@ -349,7 +349,7 @@ While this is primarily a personal project, contributions are welcome! The syste
 
 ## License 📄
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License.
 
 ## Troubleshooting 🔧
 

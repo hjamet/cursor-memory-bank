@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 256,
+  "last_id": 257,
   "requests": [
     {
       "id": 206,
@@ -958,6 +958,21 @@
         {
           "timestamp": "2025-07-13T17:03:59.800Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 257,
+      "content": "Modifie encore la description de l'argument long-term de l'outil remember pour que le modèle ne stocke QUE les informations qui ne changeront JAMAIS. On en parle pas d'une implémentation ou d'une correction de bug qu'il vient d'effectuer : on parle de décisions architecturales cruciales, de précisions techniques, de préférences d'implémentation, de noms de bases de données etc. Ce n'est surtout pas un argument que l'agent doit utiliser à chaque fois ! Seulement lorsque c'est vraiment vraiment important de s'en souvenir !!!",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-13T20:05:34.814037",
+      "updated_at": "2025-07-13T20:05:34.814037",
+      "history": [
+        {
+          "timestamp": "2025-07-13T20:05:34.814037",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }
