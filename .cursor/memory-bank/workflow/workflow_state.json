@@ -4,9 +4,25 @@
   "last_readme_task_at": 10,
   "created_at": "2025-07-13T16:32:26.092Z",
   "updated_at": "2025-07-13T17:30:50.057Z",
-  "current_rule": "implementation",
+  "current_rule": "experience-execution",
   "status": "active",
   "history": [
+    {
+      "rule": "experience-execution",
+      "timestamp": "2025-07-13T17:37:36.409Z"
+    },
+    {
+      "rule": "implementation",
+      "timestamp": "2025-07-13T17:36:59.008Z"
+    },
+    {
+      "rule": "implementation",
+      "timestamp": "2025-07-13T17:34:41.841Z"
+    },
+    {
+      "rule": "implementation",
+      "timestamp": "2025-07-13T17:32:49.206Z"
+    },
     {
       "rule": "implementation",
       "timestamp": "2025-07-13T17:30:50.057Z"
@@ -30,23 +46,7 @@
     {
       "rule": "implementation",
       "timestamp": "2025-07-13T17:30:49.419Z"
-    },
-    {
-      "rule": "implementation",
-      "timestamp": "2025-07-13T17:30:49.294Z"
-    },
-    {
-      "rule": "implementation",
-      "timestamp": "2025-07-13T17:30:49.154Z"
-    },
-    {
-      "rule": "implementation",
-      "timestamp": "2025-07-13T17:30:42.325Z"
-    },
-    {
-      "rule": "implementation",
-      "timestamp": "2025-07-13T17:30:28.712Z"
     }
   ],
-  "last_updated": "2025-07-13T17:30:50.057Z"
+  "last_updated": "2025-07-13T17:37:36.409Z"
 }
