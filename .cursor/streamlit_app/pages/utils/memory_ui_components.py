@@ -11,9 +11,159 @@ save_long_term_memories = memory_data_manager.save_long_term_memories
 fuzzy_search_memories = memory_data_manager.fuzzy_search_memories
 
 
+def _apply_enhanced_toast_styles():
+    """
+    Apply enhanced CSS styles for toast notifications to make them more visible,
+    larger, and with better appearance.
+    """
+    enhanced_toast_css = """
+    <style>
+    /* Enhanced Toast Notification Styles */
+    .stToast {
+        background-color: #1f2937 !important;
+        border: 2px solid #3b82f6 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+        min-width: 350px !important;
+        max-width: 500px !important;
+        padding: 16px 20px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        color: #f9fafb !important;
+        backdrop-filter: blur(10px) !important;
+        z-index: 9999 !important;
+    }
+    
+    .stToast > div {
+        background: transparent !important;
+        color: #f9fafb !important;
+        line-height: 1.5 !important;
+        word-wrap: break-word !important;
+        white-space: pre-wrap !important;
+    }
+    
+    .stToast .stToast-content {
+        display: flex !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+    
+    .stToast .stToast-icon {
+        font-size: 20px !important;
+        flex-shrink: 0 !important;
+        margin-top: 2px !important;
+    }
+    
+    .stToast .stToast-message {
+        flex: 1 !important;
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+        color: #f9fafb !important;
+    }
+    
+    /* Animation enhancements */
+    .stToast {
+        animation: enhanced-slide-in 0.3s ease-out !important;
+    }
+    
+    @keyframes enhanced-slide-in {
+        from {
+            transform: translateX(100%) scale(0.9);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+        }
+    }
+    
+    /* Hover effects for better interaction */
+    .stToast:hover {
+        transform: scale(1.02) !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
+        border-color: #60a5fa !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    
+    /* Memory-specific toast styling */
+    .stToast.memory-toast {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%) !important;
+        border-color: #60a5fa !important;
+    }
+    
+    .stToast.memory-toast:hover {
+        border-color: #93c5fd !important;
+    }
+    </style>
+    """
+    st.markdown(enhanced_toast_css, unsafe_allow_html=True)
+
+
+def _show_enhanced_toast(message, icon="✨", toast_type="memory"):
+    """
+    Display an enhanced toast notification with improved styling and longer visibility.
+    
+    Args:
+        message (str): The message to display
+        icon (str): The icon to show with the message
+        toast_type (str): Type of toast for styling ('memory', 'success', 'info')
+    """
+    # Apply enhanced styles first
+    _apply_enhanced_toast_styles()
+    
+    # Create the toast with improved message formatting
+    formatted_message = f"{message}"
+    
+    # Show the toast notification
+    toast_obj = st.toast(formatted_message, icon=icon)
+    
+    return toast_obj
+
+
+def create_enhanced_notification(message, icon="ℹ️", notification_type="info", duration_hint="extended"):
+    """
+    Create an enhanced notification toast with improved styling and appearance.
+    
+    Args:
+        message (str): The notification message to display
+        icon (str): The icon to show (default: "ℹ️")
+        notification_type (str): Type of notification ('info', 'success', 'warning', 'error', 'memory')
+        duration_hint (str): Hint for duration ('standard', 'extended') - note: actual duration is still 4s
+    
+    Returns:
+        toast object: The Streamlit toast object for potential updates
+    """
+    # Apply enhanced styles
+    _apply_enhanced_toast_styles()
+    
+    # Format message based on type
+    if notification_type == "memory":
+        formatted_message = f"🧠 {message}"
+        icon = "🧠" if icon == "ℹ️" else icon
+    elif notification_type == "success":
+        formatted_message = f"✅ {message}"
+        icon = "✅" if icon == "ℹ️" else icon
+    elif notification_type == "warning":
+        formatted_message = f"⚠️ {message}"
+        icon = "⚠️" if icon == "ℹ️" else icon
+    elif notification_type == "error":
+        formatted_message = f"❌ {message}"
+        icon = "❌" if icon == "ℹ️" else icon
+    else:  # info
+        formatted_message = message
+    
+    # Add duration hint to message (visual cue since we can't change actual duration)
+    if duration_hint == "extended":
+        formatted_message += "\n\n💡 Notification importante - prenez le temps de la lire"
+    
+    # Create and return the toast
+    return st.toast(formatted_message, icon=icon)
+
+
 def _check_and_notify_new_present_memories(agent_memories):
     """
-    Checks for new present memories and shows a toast notification if they are new.
+    Checks for new present memories and shows enhanced toast notifications if they are new.
     Updates the session state to mark them as seen.
     """
     if not agent_memories:
@@ -33,27 +183,26 @@ def _check_and_notify_new_present_memories(agent_memories):
         if m['timestamp'] not in st.session_state.seen_present_memories
     ]
     
-    # Show toast notifications for new memories
+    # Show enhanced toast notifications for new memories
     for memory in new_present_memories:
         present_content = memory.get('present', '').strip()
         timestamp = memory.get('timestamp', '')
         
-        # Create a more informative notification message
-        if len(present_content) > 60:
-            preview = present_content[:60] + "..."
+        # Create a more informative notification message with better formatting
+        if len(present_content) > 150:
+            preview = present_content[:150] + "..."
         else:
             preview = present_content
         
-        # Format timestamp for display
-        try:
-            formatted_time = timestamp[:19].replace('T', ' ') if timestamp else 'Unknown'
-        except:
-            formatted_time = 'Unknown'
+        # Format the message with timestamp for better context
+        formatted_timestamp = timestamp[:19].replace('T', ' ') if timestamp else 'Unknown time'
+        notification_message = f"🧠 Nouveau souvenir ({formatted_timestamp}):\n\n{preview}"
         
-        # Show toast notification
-        st.toast(
-            f"🧠 New agent memory recorded at {formatted_time}: {preview}", 
-            icon="✨"
+        # Show enhanced toast notification
+        _show_enhanced_toast(
+            notification_message, 
+            icon="🧠",
+            toast_type="memory"
         )
         
         # Mark as seen

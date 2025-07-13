@@ -73,7 +73,7 @@ export async function readMemoryContext() {
         if (lastMemory.future) {
             try {
                 const longTermMemories = Array.isArray(longTermMemory) ? longTermMemory : [longTermMemory];
-                relevantLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 3);
+                relevantLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 10);
             } catch (error) {
                 console.warn(`Could not perform semantic search: ${error.message}`);
                 relevantLongTermMemories = Array.isArray(longTermMemory) ? longTermMemory.slice(0, 3) : [longTermMemory];

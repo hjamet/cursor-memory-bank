@@ -1,28 +1,5 @@
 {
   "version": "1.0.0",
-  "messages": [
-    {
-      "id": 16,
-      "content": "Le système de découpage automatique a été étendu avec succès mais nécessite un redémarrage du serveur MCP pour que les changements prennent effet. Le commit a été créé mais le système utilisait encore l'ancienne version cached.",
-      "timestamp": "2025-07-13T15:56:01.006Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    },
-    {
-      "id": 17,
-      "content": "Échec critique du test : Le système de découpage automatique étendu ne fonctionne pas car le serveur MCP utilise encore l'ancienne version. Un redémarrage du serveur MCP est requis pour que les changements prennent effet.",
-      "timestamp": "2025-07-13T15:57:01.130Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    }
-  ],
-  "last_id": 17
+  "messages": [],
+  "last_id": 21
 }

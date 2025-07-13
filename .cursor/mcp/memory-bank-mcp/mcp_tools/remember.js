@@ -219,7 +219,24 @@ async function remember(args) {
         throw new Error(`Failed to write memory file: ${error.message}`);
     }
 
-    const recentMemories = memories.slice(-10); // Get 10 most recent working memories
+    // Get 10 most recent working memories and optimize display
+    const allRecentMemories = memories.slice(-10);
+    const recentMemories = allRecentMemories.map((memory, index) => {
+        // For the last memory (most recent), show all fields
+        if (index === allRecentMemories.length - 1) {
+            return {
+                timestamp: memory.timestamp,
+                past: memory.past,
+                present: memory.present,
+                future: memory.future
+            };
+        }
+        // For other memories, show only present
+        return {
+            timestamp: memory.timestamp,
+            present: memory.present
+        };
+    });
     const lastMemory = memories[memories.length - 1];
 
     // Extract the last rule from the 'past' field of the last memory
@@ -334,7 +351,7 @@ async function remember(args) {
     // Find semantically similar long-term memories based on the last "future" 
     let semanticLongTermMemories = [];
     if (lastMemory && lastMemory.future && longTermMemories.length > 0) {
-        semanticLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 3);
+        semanticLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 10);
     }
 
     // Load tasks for the recommendation logic

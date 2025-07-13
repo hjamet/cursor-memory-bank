@@ -19,6 +19,13 @@ from utils.ui_components import (
 )
 from utils.simplified_task_view import render_simplified_task_view
 
+# Import memory utilities for toast notifications
+current_dir = Path(__file__).resolve().parent
+utils_dir = current_dir / "pages" / "utils"
+sys.path.insert(0, str(utils_dir))
+import memory_data_manager
+import memory_ui_components
+
 st.set_page_config(page_title="Review & Communication", page_icon="📨")
 
 display_sidebar()
@@ -32,6 +39,21 @@ def main():
     # Initialize session state for active tab if not present
     if "active_tab" not in st.session_state:
         st.session_state.active_tab = "main"
+
+    # Initialize session state for memory notifications
+    if 'seen_present_memories' not in st.session_state:
+        st.session_state.seen_present_memories = set()
+
+    # Apply enhanced toast styles for better notifications appearance
+    memory_ui_components._apply_enhanced_toast_styles()
+
+    # Check for new agent memories and show enhanced toast notifications
+    try:
+        agent_memories = memory_data_manager.get_agent_memories(10)
+        memory_ui_components._check_and_notify_new_present_memories(agent_memories)
+    except Exception as e:
+        # Silently handle errors to avoid disrupting the main page
+        pass
 
     # Load data upfront
     tasks = load_tasks()

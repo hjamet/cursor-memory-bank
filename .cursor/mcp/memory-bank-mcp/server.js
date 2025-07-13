@@ -10,6 +10,7 @@ import { handleGetAllTasks } from './mcp_tools/get_all_tasks.js';
 import { handleGetNextTasks } from './mcp_tools/get_next_tasks.js';
 import { handleReadUserbrief } from './mcp_tools/read_userbrief.js';
 import { handleUpdateUserbrief } from './mcp_tools/update_userbrief.js';
+import incrementImplementationTool from './mcp_tools/increment_implementation.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import process from 'process';
 
@@ -85,6 +86,8 @@ server.tool('update_userbrief', {
     id: z.number().optional().describe("ID DE REQUÊTE : L'identifiant unique de la requête utilisateur spécifique à mettre à jour. Si omis, l'action ciblera la requête actuellement active (in_progress ou new). Utilisez ceci quand vous devez mettre à jour une requête historique spécifique plutôt que la courante."),
     comment: z.string().optional().describe("COMMENTAIRE DE MISE À JOUR - Rédigez en français le texte à ajouter à l'historique de la requête lors de l'utilisation de l'action 'add_comment'. Doit fournir des mises à jour significatives sur les progrès, découvertes, décisions prises, ou prochaines étapes. Exemples : 'Système d'authentification implémenté avec succès, passage à la phase de test', 'Problème de schéma de base de données découvert, investigation d'alternatives en cours', 'Fonctionnalité terminée et déployée en environnement de staging'. Requis quand action est 'add_comment', ignoré pour les autres actions.")
 }, safeHandler(handleUpdateUserbrief));
+
+server.tool('increment_implementation', incrementImplementationTool.inputSchema, safeHandler(incrementImplementationTool.handler));
 
 
 // Start the server

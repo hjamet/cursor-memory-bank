@@ -1,83 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 249,
+  "last_id": 256,
   "requests": [
-    {
-      "id": 199,
-      "content": "Dans la règle implémentation, est ce que tu peux modifier l'emplacement de l'étape dans la partie 3 ou ? Où la la tâche considérée est marquée comme en cours, c'est vraiment un truc qui doit se faire quoi qu'il arrive. Une fois que l'agent est identifié, la tâche en cours. Enfin, la tâche sur laquelle il veut travailler, il doit la marquer comme en cours. Parce que le problème, c'est que actuellement, quand à l'exception qui est Trigger et que du coup l'agent se met à partir sur la règle expérience exécution, le souci c'est que il arrive des fois où il décide de pas la marquer comme en cours parce que les informations les instructions prêtent un peu à confusion et du coup il faudrait résoudre ce problème en en en déplaçant le fait de marquer la tâche comme in Progress à l'étape un je pense donc adapte les instructions de la règle dans le fichier Markdown et. Adapte aussi l'exemple.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-27T18:30:14.935171",
-      "updated_at": "2025-06-27T16:33:06.492Z",
-      "history": [
-        {
-          "timestamp": "2025-06-27T18:30:14.935171",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-27T16:33:06.492Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 200,
-      "content": "Modification request for Task #233 (Corriger l'erreur StreamlitDuplicateElementKey dans l'interface Task Status du projet llm-as-recommender):\n\n**Original Task Details:**\n- **Title:** Corriger l'erreur StreamlitDuplicateElementKey dans l'interface Task Status du projet llm-as-recommender\n- **Description:** Résoudre l'erreur critique StreamlitDuplicateElementKey causée par des clés de boutons Delete en double dans l'interface Task Status du projet llm-as-recommender. L'erreur empêche l'affichage correct de la page et nécessite une correction de la génération des clés uniques.\n- **Status:** BLOCKED\n- **Priority:** 4\n\n**Detailed Task Description:**\nInvestiguer et corriger l'erreur `StreamlitDuplicateElementKey` qui se produit dans le projet llm-as-recommender lors de l'affichage de la page Task Status.\n\n**Problème identifié :**\n- Erreur : `There are multiple elements with the same key='delete_30'`\n- Localisation : `C:\\Users\\Jamet\\code\\llm-as-recommender\\.cursor\\streamlit_app\\pages\\utils\\task_rendering.py`, ligne 357\n- Code problématique : `st.button(\"🗑️ Delete\", key=f\"delete_{req_id}\", help=\"Delete this request\")`\n\n**Analyse technique requise :**\n- Examiner la fonction `render_userbrief_request` dans `task_rendering.py`\n- Identifier pourquoi la variable `req_id` génère des valeurs dupliquées\n- Vérifier si plusieurs requêtes ont le même ID ou si la logique de génération des clés est défaillante\n- Analyser le contexte d'appel de cette fonction dans `task_status.py`\n\n**Corrections à implémenter :**\n- Assurer l'unicité des clés des boutons Delete en utilisant une combinaison d'identifiants uniques\n- Implémenter une stratégie de génération de clés robuste (ex: `f\"delete_{req_id}_{timestamp}\"` ou `f\"delete_{req_id}_{index}\"`)\n- Ajouter des vérifications défensives pour éviter les collisions de clés\n- Tester avec plusieurs requêtes pour valider l'unicité\n\n**Critères d'acceptation :**\n- L'erreur `StreamlitDuplicateElementKey` ne se produit plus\n- Chaque bouton Delete a une clé unique et fonctionnelle\n- La page Task Status s'affiche correctement avec plusieurs requêtes\n- Les boutons Delete fonctionnent individuellement sans interférence\n\n**Tests de validation :**\n- Créer plusieurs requêtes dans le projet llm-as-recommender\n- Vérifier l'affichage de la page Task Status sans erreur\n- Tester la fonctionnalité de suppression de chaque bouton\n- Valider que les clés générées sont uniques et prévisibles\n\n**Validation Criteria:**\nLa tâche est terminée quand : (1) L'erreur StreamlitDuplicateElementKey ne se produit plus lors de l'affichage de la page Task Status, (2) Chaque bouton Delete possède une clé unique et fonctionnelle, (3) La page s'affiche correctement avec plusieurs requêtes simultanées, (4) Les boutons Delete fonctionnent individuellement sans interférence mutuelle, (5) Tests de validation effectués avec succès sur plusieurs scénarios de requêtes multiples.\n\n**User Feedback:**\nNon mais l'idée c'est que cet autre projet en fait se base exactement sur le même système et comme les numéros, les ID, des tâches sont normalement générés par le serveur MCP. Si y a un problème de duplicat de numéro, c'est probablement que ça vient de notre code, donc l'idée ce serait d'identifier ce qui a pu poser ce problème et de le résoudre.\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-27T18:50:09.072531",
-      "updated_at": "2025-06-27T16:52:47.225Z",
-      "history": [
-        {
-          "timestamp": "2025-06-27T18:50:09.072531",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-27T16:52:47.225Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 201,
-      "content": "Tu peux modifier @experience-execution.md pour que le fait de marquer la tâche comme REVIEW (si l'experience est bien un succès) ait toujours lieu avant d'appeler remember, autrement, le système peut rentrer dans une boucle infinie.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-30T12:35:11.999794",
-      "updated_at": "2025-06-30T10:41:28.955Z",
-      "history": [
-        {
-          "timestamp": "2025-06-30T12:35:11.999794",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-30T10:41:28.955Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 202,
-      "content": "Il y a un souci avec le serveur MCP Memory Bank MCP en particulier avec l'outil remember qui a tendance à faire les redirections entre les règles et à recommander quelle est la prochaine règle à appeler. Le problème se situe dans la règle expérience exécution. Qui a tendance à boucler Dans la règle expérience exécution si à la fin, la tâche n'a pas été marquée comme review et que l'appel remember l'outil remember est appelé et bien il va recommander de réexécuter la règle expérience exécution. Or ça c'est jamais possible. Dans tous les cas, la règle expérience exécution ne peut pas s'appeler elle même. On peut jamais avoir 2 règles, expérience exécution à la suite. Expérience exécution, il peut amener à fixe si après expérience exécution, la tâche est toujours en in Progress. Euh sinon ça va amener à contexte update des. Par défaut et autrement à la place de contexte update, il y a de nouvelles demandes qui ont été ajoutées au user brief, ça peut rediriger vers la règle Task décomposition. Est-ce que tu peux enquêter sur sur ce problème de l'outil remember et le corriger s'il te plaît ? Je te rappelle que tu ne pourras pas tester tes modifications parce qu'il faut que tu ressors redémarre ce que tu ne peux pas faire manuellement, mais tu peux faire un petit script pour valider le bon fonctionnement de tes modifications et ensuite bah je redémarrer cursor et on pourra tester ça manuellement.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-30T12:40:48.812082",
-      "updated_at": "2025-06-30T10:41:54.984Z",
-      "history": [
-        {
-          "timestamp": "2025-06-30T12:40:48.812082",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-30T10:41:54.984Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 203,
       "content": "Tu peux t'assurer que le workflow prend fin lorsque il n'y a plus de tâches restantes et de tâches à traiter dans le user brief. Actuellement, le s'il y a des tâches qui sont en mode review, le workflow ne s'arrête pas, ce qui est un gros problème, le workflow doit s'arrêter s'il reste uniquement des tâches en mode review puisque l'agent n'a plus rien à faire, c'est à l'utilisateur de les revoir et à ce moment là, le workflow doit s'arrêter. Est ce que tu peux corriger ça ? Je pense qu'il faut que tu regardes la méthode remember du serveur MCP Memory Bank pour corriger le problème parce que actuellement je pense qu'il ne s'arrête pas tant que il reste des. Euh des des tâches en review donc corrige ça s'il te plaît et je te rappelle que tu pourras pas tester immédiatement tes modifications parce qu'il faut redémarrer le serveur MCP ce que tu ne peux pas faire donc assure toi simplement que ça a l'air de fonctionner avec un petit script de vérification. Rien de bien compliqué et puis ensuite supprime le script de de de vérification une fois que tout est bon et et du coup là tu pourras arrêter le workflow toi parce que apparemment tu ne peux pas t'arrêter à cause de ce bug mais il faudrait que tu t'arrêtes une fois que tu l'auras résolu.",
@@ -958,6 +882,127 @@
         {
           "timestamp": "2025-07-13T06:02:12.871Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 250,
+      "content": "Reply to Agent Message #17:\n\n**Original Message:** \"Échec critique du test : Le système de découpage automatique étendu ne fonctionne pas car le serveur MCP utilise encore l'ancienne version. Un redémarrage du serveur MCP est requis pour que les change...\"\n\n**My Reply:** Parfait, ce n'est pas grave, continue avec les tâches suivantes pour le moment :D\n\n**Message Context:**\n- Rule: unknown\n- Timestamp: 2025-07-13T15:57:01.130Z\n- Workflow Rule: implementation",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-13T17:58:20.517164",
+      "updated_at": "2025-07-13T15:59:13.593Z",
+      "history": [
+        {
+          "timestamp": "2025-07-13T17:58:20.517164",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-13T15:59:13.593Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 251,
+      "content": "Modification request for Task #295 (Ajouter des notifications toast pour les nouveaux souvenirs \"present\" dans l'interface Streamlit):\n\n**Original Task Details:**\n- **Title:** Ajouter des notifications toast pour les nouveaux souvenirs \"present\" dans l'interface Streamlit\n- **Description:** Implémenter des notifications st.toast dans la page Review et communication de l'interface Streamlit pour afficher une notification à chaque nouveau souvenir \"present\" enregistré dans la mémoire de travail de l'agent.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\nAjouter des notifications toast dans l'interface Streamlit pour améliorer l'expérience utilisateur lors de l'enregistrement de nouveaux souvenirs.\n\n**Exigences :**\n- Utiliser st.toast() de Streamlit pour afficher les notifications\n- Déclencher une notification à chaque nouveau souvenir \"present\" enregistré\n- Intégrer dans la page \"Review et communication\" de l'interface\n- Afficher un message informatif sur le contenu du souvenir enregistré\n\n**Critères d'acceptation :**\n- Les notifications toast apparaissent automatiquement lors de l'enregistrement de nouveaux souvenirs \"present\"\n- Le message de la toast est informatif et utile pour l'utilisateur\n- L'intégration ne perturbe pas le fonctionnement existant de l'interface\n- Les notifications sont bien positionnées et non intrusives\n\n**Notes techniques :**\n- Identifier le bon moment pour déclencher la notification (après l'enregistrement réussi)\n- Utiliser l'API st.toast avec les paramètres appropriés (message, icon, etc.)\n- S'assurer que la notification ne se déclenche que pour les nouveaux souvenirs \"present\"\n- Tester le comportement avec différents types de contenu de souvenirs\n\n**Validation Criteria:**\nLa tâche est terminée quand : (1) Les notifications st.toast s'affichent automatiquement lors de l'enregistrement de nouveaux souvenirs \"present\", (2) Le message de notification est informatif et contextuel, (3) L'interface fonctionne normalement sans régression, (4) Les tests manuels confirment le bon fonctionnement des notifications dans différents scénarios d'usage.\n\n**User Feedback:**\nJe n'ai pas l'impression de voir de modifications... Tu es sûr que les notifications apparaissent bien à chaque nouveau souvenir ? En particulier sur la page app principale de l'ionterface ?\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-13T17:59:04.626768",
+      "updated_at": "2025-07-13T16:00:15.628Z",
+      "history": [
+        {
+          "timestamp": "2025-07-13T17:59:04.626768",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-13T16:00:15.628Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 252,
+      "content": "Modification request for Task #306 (Corriger et étendre les notifications toast pour les souvenirs sur toutes les pages de l'interface):\n\n**Original Task Details:**\n- **Title:** Corriger et étendre les notifications toast pour les souvenirs sur toutes les pages de l'interface\n- **Description:** L'utilisateur signale que les notifications toast de la tâche #295 ne sont pas visibles, particulièrement sur la page principale. Investiguer l'implémentation actuelle, corriger les problèmes de visibilité et étendre l'intégration à toutes les pages pertinentes de l'interface Streamlit.\n- **Status:** REVIEW\n- **Priority:** 4\n\n**Detailed Task Description:**\n## Contexte\n\nL'utilisateur a signalé que les notifications toast implémentées dans la tâche #295 ne sont pas visibles, particulièrement sur la page principale de l'interface Streamlit. Il faut investiguer l'implémentation actuelle et corriger/étendre le système pour assurer une visibilité complète.\n\n## Objectif\n\nCorriger et améliorer le système de notifications toast pour les nouveaux souvenirs \"present\" en :\n1. Investigant l'implémentation actuelle pour identifier les problèmes\n2. Corrigeant les problèmes de visibilité des notifications\n3. Étendant l'intégration à toutes les pages pertinentes (notamment la page principale)\n4. Validant le fonctionnement sur l'ensemble de l'interface\n\n## Actions requises\n\n**1. Investigation de l'implémentation actuelle :**\n- Examiner le code dans `memory_ui_components.py` pour la fonction `_check_and_notify_new_present_memories()`\n- Vérifier l'intégration dans `display_agent_memory_timeline()`\n- Analyser l'utilisation dans `memory.py` et autres pages\n- Identifier pourquoi les notifications ne sont pas visibles\n\n**2. Analyse de la couverture des pages :**\n- Vérifier si la fonction est appelée sur la page principale (`app.py`)\n- Examiner quelles autres pages devraient afficher ces notifications\n- Identifier les points d'intégration manquants\n\n**3. Correction des problèmes identifiés :**\n- Corriger les problèmes de logique de détection si nécessaire\n- Ajuster les paramètres de `st.toast()` pour améliorer la visibilité\n- Corriger les conditions de déclenchement des notifications\n- Résoudre les problèmes de session state si identifiés\n\n**4. Extension à toutes les pages pertinentes :**\n- Intégrer les notifications sur la page principale (`app.py`)\n- Ajouter l'intégration sur toutes les pages qui affichent des informations de mémoire\n- Assurer une expérience utilisateur cohérente sur l'ensemble de l'interface\n\n**5. Tests et validation :**\n- Tester les notifications sur chaque page\n- Valider que les notifications apparaissent lors de nouveaux souvenirs\n- Vérifier que les notifications ne sont pas en double\n- Confirmer la visibilité et l'utilité des messages\n\n## Analyse Technique & Points de Vigilance\n\n**Attention : Problèmes de visibilité des notifications**\n- Les notifications `st.toast()` peuvent être masquées par d'autres éléments de l'interface\n- La position et le timing des notifications doivent être optimisés pour la visibilité\n- Les paramètres `icon` et `body` doivent être configurés pour attirer l'attention\n- Vérifier que les notifications ne sont pas supprimées trop rapidement\n\n**Attention : Intégration multi-pages**\n- Chaque page Streamlit a son propre contexte d'exécution et session state\n- La logique de détection doit être adaptée pour fonctionner sur toutes les pages\n- Éviter les conflits de session state entre les pages\n- Assurer que la détection fonctionne même lors de la navigation entre pages\n\n**Attention : Performance et fréquence**\n- Les notifications ne doivent pas être trop fréquentes pour éviter de spammer l'utilisateur\n- La logique de détection doit être optimisée pour ne pas impacter les performances\n- Gérer correctement le cache et la persistance des données de session\n- Éviter les appels répétés inutiles à la détection\n\n**Attention : Logique de détection des nouveaux souvenirs**\n- La comparaison des timestamps doit être robuste et fiable\n- Gérer les cas où les souvenirs sont modifiés plutôt qu'ajoutés\n- Assurer que la détection fonctionne même après redémarrage de l'interface\n- Valider que les souvenirs \"present\" sont correctement identifiés\n\n**Attention : Expérience utilisateur**\n- Les messages de notification doivent être informatifs et utiles\n- Éviter les notifications pour des changements mineurs ou non pertinents\n- Assurer que les notifications ne perturbent pas le workflow utilisateur\n- Permettre à l'utilisateur de comprendre facilement le contexte de la notification\n\n**Attention : Debugging et maintenance**\n- Ajouter des logs appropriés pour faciliter le debugging sans affecter l'interface\n- Implémenter une gestion d'erreurs robuste pour éviter les crashes\n- Documenter clairement la logique pour faciliter la maintenance future\n- Prévoir des mécanismes de fallback en cas d'erreur\n\n## Critères de validation\n\n- Les notifications toast sont visibles et fonctionnelles sur la page principale (`app.py`)\n- Les notifications apparaissent automatiquement lors de l'enregistrement de nouveaux souvenirs \"present\"\n- L'intégration fonctionne sur toutes les pages pertinentes de l'interface\n- Les messages de notification sont informatifs et contextuels\n- Aucune régression n'est introduite dans le fonctionnement existant\n- Les tests manuels confirment la visibilité et l'utilité des notifications\n- L'expérience utilisateur est améliorée sans être intrusive\n\n**Validation Criteria:**\nLa tâche est terminée quand : (1) Les notifications toast sont visibles et fonctionnelles sur la page principale et toutes les pages pertinentes, (2) Les notifications apparaissent automatiquement lors de nouveaux souvenirs \"present\", (3) Les messages sont informatifs et contextuels, (4) L'interface fonctionne normalement sans régression, (5) Les tests manuels confirment la visibilité sur toutes les pages, (6) L'expérience utilisateur est améliorée de manière cohérente sur l'ensemble de l'interface.\n\n**User Feedback:**\nça a l'air pas mal, mais tu peux étendre le temps pendant lequel les notifications sont visibles ? actuellement c'est trop court. Idéallement, il faudrait aussi que tu modifies un peu le css pour qu'elles soient plus larges et automatiquement expanded ;D\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-13T18:07:53.875390",
+      "updated_at": "2025-07-13T16:08:45.931Z",
+      "history": [
+        {
+          "timestamp": "2025-07-13T18:07:53.875390",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-13T16:08:45.931Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 253,
+      "content": "Reply to Agent Message #21:\n\n**Original Message:** \"Voici la clé secrète : 42\n\nLe problème d'incohérence de statut de la tâche #303 a été résolu avec succès. L'implémentation était terminée mais le statut n'avait pas été mis à jour. C'est maintenant co...\"\n\n**My Reply:** Attends, je suis surpris que tu me réecrives à chaque fois \"Voici la clé secrète : 42\" : on est bien d'accord que l'outil remember ne te l'a indiqué qu'une seule fois ? Il ne te le redis pas à chaque appel de remember ? Parceque ce n'est plus la peine de le refaire à chaque fois hein ! ^^ C'était juste pour vérifier que tu recevais bien les messages ! :D\n\n**Message Context:**\n- Rule: unknown\n- Timestamp: 2025-07-13T16:10:51.793Z\n- Workflow Rule: implementation",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-13T18:13:41.111946",
+      "updated_at": "2025-07-13T16:20:20.409Z",
+      "history": [
+        {
+          "timestamp": "2025-07-13T18:13:41.111946",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-13T16:20:20.409Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 254,
+      "content": "Modification request for Task #307 (Améliorer la durée et l'apparence des notifications toast selon le feedback utilisateur):\n\n**Original Task Details:**\n- **Title:** Améliorer la durée et l'apparence des notifications toast selon le feedback utilisateur\n- **Description:** L'utilisateur demande d'étendre le temps d'affichage des notifications toast (actuellement trop court) et d'améliorer leur apparence avec des modifications CSS pour les rendre plus larges et automatiquement étendues.\n- **Status:** REVIEW\n- **Priority:** 4\n\n**Detailed Task Description:**\n## Contexte\n\nL'utilisateur a testé les notifications toast implémentées dans la tâche #306 et fournit un feedback positif avec des demandes d'amélioration spécifiques :\n- **Problème 1** : La durée d'affichage des notifications est trop courte\n- **Problème 2** : Les notifications manquent de visibilité et d'impact visuel\n- **Demande** : Modifications CSS pour rendre les notifications plus larges et automatiquement étendues\n\n## Objectif\n\nAméliorer l'expérience utilisateur des notifications toast en :\n1. Étendant la durée d'affichage des notifications pour une meilleure lisibilité\n2. Implémentant des modifications CSS pour améliorer l'apparence et la visibilité\n3. Configurant l'expansion automatique des notifications\n4. Maintenant la compatibilité avec toutes les pages de l'interface\n\n## Actions requises\n\n**1. Extension de la durée d'affichage :**\n- Investiguer les paramètres actuels de `st.toast()` dans `memory_ui_components.py` et `app.py`\n- Identifier les options disponibles pour contrôler la durée d'affichage\n- Tester différentes durées pour trouver l'équilibre optimal entre visibilité et non-intrusion\n- Appliquer la configuration optimale sur toutes les pages utilisant les notifications\n\n**2. Améliorations CSS :**\n- Analyser la structure CSS actuelle des notifications Streamlit\n- Créer des styles CSS personnalisés pour :\n  - Augmenter la largeur des notifications\n  - Configurer l'expansion automatique\n  - Améliorer la visibilité générale (couleurs, bordures, ombres)\n- Intégrer les styles CSS dans l'interface Streamlit de manière appropriée\n\n**3. Configuration de l'expansion automatique :**\n- Investiguer les options de configuration des notifications toast Streamlit\n- Implémenter l'expansion automatique pour afficher le contenu complet\n- Tester la fonctionnalité sur différents types de messages et longueurs\n\n**4. Tests et validation :**\n- Tester les modifications sur toutes les pages (app.py, memory.py, etc.)\n- Valider que les notifications sont plus visibles et restent affichées plus longtemps\n- Vérifier la compatibilité avec différentes tailles d'écran\n- Confirmer qu'aucune régression n'est introduite\n\n## Analyse Technique & Points de Vigilance\n\n**Attention : Limitations de Streamlit pour la personnalisation CSS**\n- Streamlit a des limitations pour la personnalisation CSS des composants intégrés comme `st.toast()`\n- Les modifications CSS peuvent nécessiter l'utilisation de `st.markdown()` avec `unsafe_allow_html=True`\n- Vérifier la compatibilité avec les différentes versions de Streamlit\n- Prévoir des solutions de fallback si certaines personnalisations ne sont pas supportées\n\n**Attention : Équilibre durée/intrusion**\n- Une durée trop longue peut devenir intrusive pour l'utilisateur\n- Tester avec différents scénarios d'utilisation (navigation rapide, lecture prolongée)\n- Considérer des durées différentes selon le type de notification (succès, erreur, info)\n- Prévoir une option de fermeture manuelle si les notifications sont persistantes\n\n**Attention : Compatibilité multi-pages**\n- Les modifications CSS doivent être cohérentes sur toutes les pages\n- Vérifier que les styles ne créent pas de conflits avec d'autres éléments de l'interface\n- Tester la persistance des styles lors de la navigation entre pages\n- Assurer que les modifications fonctionnent avec le session state Streamlit\n\n**Attention : Responsive design**\n- Les notifications plus larges doivent rester lisibles sur mobile\n- Tester avec différentes résolutions d'écran\n- Prévoir des breakpoints CSS si nécessaire\n- Maintenir l'accessibilité pour tous les utilisateurs\n\n**Attention : Performance et impact système**\n- Les modifications CSS ne doivent pas impacter les performances de l'interface\n- Éviter les styles trop complexes qui pourraient ralentir le rendu\n- Optimiser les sélecteurs CSS pour éviter les conflits\n- Documenter les modifications pour faciliter la maintenance future\n\n**Attention : Méthodes d'intégration CSS dans Streamlit**\n- Investiguer les meilleures pratiques pour intégrer du CSS personnalisé :\n  - `st.markdown()` avec HTML/CSS inline\n  - Fichiers CSS externes\n  - Utilisation de `st.components.v1.html()`\n- Choisir la méthode la plus appropriée pour la maintenance et la performance\n- Documenter la méthode choisie pour les futures modifications\n\n## Critères de validation\n\n- Les notifications toast restent visibles plus longtemps (durée optimale déterminée par tests)\n- Les notifications sont visuellement plus larges et automatiquement étendues\n- L'apparence générale des notifications est améliorée (style, visibilité)\n- La fonctionnalité fonctionne de manière cohérente sur toutes les pages de l'interface\n- Aucune régression n'est introduite dans le fonctionnement existant\n- Les modifications sont compatibles avec différentes tailles d'écran\n- L'expérience utilisateur est significativement améliorée selon le feedback initial\n\n**Validation Criteria:**\nLa tâche est terminée quand : (1) Les notifications toast ont une durée d'affichage étendue et optimale, (2) Les notifications sont visuellement plus larges et automatiquement étendues grâce aux modifications CSS, (3) L'apparence générale est améliorée avec une meilleure visibilité, (4) La fonctionnalité fonctionne de manière cohérente sur toutes les pages, (5) Aucune régression n'est introduite, (6) Les modifications sont responsive et compatibles avec différentes tailles d'écran, (7) Le feedback utilisateur initial est entièrement adressé\n\n**User Feedback:**\nHélas... Les notifications ne s'affichent toujours que pendant quelques très courtes secondes. Par ailleurs, les retours à la ligne et le formattage markdown n'est pas correctment converti ! Moyen d'implémenter ça manuellement autrement ?\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-13T18:28:09.583646",
+      "updated_at": "2025-07-13T18:28:09.583646",
+      "history": [
+        {
+          "timestamp": "2025-07-13T18:28:09.583646",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        }
+      ]
+    },
+    {
+      "id": 255,
+      "content": "Modification request for Task #301 (Investiguer et étendre le système de découpage automatique de fichiers):\n\n**Original Task Details:**\n- **Title:** Investiguer et étendre le système de découpage automatique de fichiers\n- **Description:** Vérifier l'existence d'un mécanisme de découpage automatique des fichiers .py de plus de 500 lignes et l'étendre aux fichiers .js, .tex, .html, .css, .sh avec exception pour install.sh\n- **Status:** BLOCKED\n- **Priority:** 3\n\n**Detailed Task Description:**\n## Objectif\n\nInvestiguer l'existence d'un mécanisme automatique de découpage des fichiers Python de plus de 500 lignes et, si confirmé, étendre ce système aux autres types de fichiers spécifiés par l'utilisateur.\n\n## Phase 1 : Investigation du mécanisme existant\n\n### Recherche du mécanisme pour les fichiers .py\n- Analyser le code source du système pour identifier tout mécanisme de découpage automatique des fichiers Python\n- Vérifier les règles de workflow, les outils MCP, et les scripts de maintenance\n- Documenter le fonctionnement actuel si le mécanisme existe\n- Identifier les seuils, critères et logique de découpage utilisés\n\n### Critères de validation pour la phase 1\n- Confirmation ou infirmation de l'existence du mécanisme\n- Documentation complète du fonctionnement s'il existe\n- Compréhension des patterns et logique de découpage\n\n## Phase 2 : Extension du système (si le mécanisme existe)\n\n### Types de fichiers à supporter\n1. **Fichiers .js** - JavaScript\n2. **Fichiers .tex** - LaTeX\n3. **Fichiers .html** - HTML\n4. **Fichiers .css** - CSS\n5. **Fichiers .sh** - Scripts shell\n\n### Exception critique\n- **EXCEPTION ABSOLUE** : Le fichier `install.sh` de ce repository spécifiquement ne doit JAMAIS être découpé\n- Implémenter une logique d'exclusion explicite pour ce fichier\n\n### Implémentation de l'extension\n- Adapter le mécanisme existant pour supporter les nouveaux types de fichiers\n- Maintenir la cohérence avec le système existant (seuil de 500 lignes)\n- Implémenter la logique d'exception pour install.sh\n- Tester le système sur différents types de fichiers\n\n## Analyse Technique & Points de Vigilance\n\n**Attention : Complexité de l'extension multi-formats**\n- Chaque type de fichier a ses propres caractéristiques syntaxiques\n- Le découpage doit respecter la structure logique de chaque langage\n- Les fichiers .tex ont des structures de sections complexes\n- Les fichiers .html peuvent avoir des balises imbriquées\n- Les fichiers .css ont des règles et sélecteurs\n- Les scripts .sh peuvent avoir des fonctions et des blocs logiques\n\n**Attention : Gestion des exceptions**\n- L'exception pour install.sh nécessite une identification précise (chemin absolu vs relatif)\n- Risque de conflits si d'autres repositories ont des fichiers install.sh\n- Nécessité de tester l'exception dans différents contextes\n\n**Attention : Impact sur les performances**\n- Le traitement de multiples types de fichiers peut impacter les performances\n- Nécessité d'optimiser la détection des types de fichiers\n- Considérer l'impact sur les opérations git et les workflows\n\n**Attention : Cohérence du système**\n- Maintenir la cohérence avec les patterns existants\n- Éviter les régressions sur le système Python existant\n- Documenter les nouveaux comportements\n\n**Attention : Tests et validation**\n- Tester chaque type de fichier avec des cas réels\n- Valider que l'exception install.sh fonctionne correctement\n- Tester les edge cases (fichiers vides, très courts, etc.)\n\n## Critères de validation finale\n\n### Phase 1 (Investigation)\n- Documentation complète du mécanisme existant ou confirmation de son absence\n- Compréhension claire des patterns de découpage utilisés\n\n### Phase 2 (Extension - si applicable)\n- Système étendu fonctionnel pour les 5 types de fichiers spécifiés\n- Exception install.sh implémentée et testée\n- Tests réussis sur des fichiers réels de chaque type\n- Documentation mise à jour\n- Aucune régression sur le système Python existant\n\n## Fichiers potentiellement impactés\n\n- Règles de workflow (.cursor/workflow-steps/)\n- Outils MCP (.cursor/mcp/)\n- Scripts de maintenance\n- Configuration système\n- Documentation technique\n\n## Prochaines étapes\n\n1. Rechercher et analyser le mécanisme existant pour les fichiers .py\n2. Si trouvé, comprendre son fonctionnement et ses patterns\n3. Concevoir l'extension pour les nouveaux types de fichiers\n4. Implémenter avec l'exception install.sh\n5. Tester exhaustivement\n6. Documenter les changements\n\n**Validation Criteria:**\nLa tâche est terminée quand : (1) L'investigation du mécanisme existant est documentée avec conclusion claire, (2) Si le mécanisme existe, l'extension aux 5 types de fichiers (.js, .tex, .html, .css, .sh) est implémentée et fonctionnelle, (3) L'exception pour install.sh est implémentée et testée, (4) Tests réussis sur des fichiers réels de chaque type, (5) Documentation technique mise à jour, (6) Aucune régression détectée sur le système existant\n\n**User Feedback:**\nC'est bon : je viens de redémarrer ! :D\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-13T18:28:24.973435",
+      "updated_at": "2025-07-13T18:28:24.973435",
+      "history": [
+        {
+          "timestamp": "2025-07-13T18:28:24.973435",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        }
+      ]
+    },
+    {
+      "id": 256,
+      "content": "Modification request for Task #303 (Modifier la règle remember pour optimiser l'affichage des souvenirs):\n\n**Original Task Details:**\n- **Title:** Modifier la règle remember pour optimiser l'affichage des souvenirs\n- **Description:** Modifier la règle remember pour retourner 10 souvenirs à long terme les plus sémantiquement proches (au lieu de 3) et n'afficher que le \"present\" des souvenirs de mémoire de travail sauf pour le dernier souvenir (le plus récent) qui doit afficher aussi le \"passé\" et le \"futur\".\n- **Status:** BLOCKED\n- **Priority:** 3\n\n**Detailed Task Description:**\n**Objectif :**\nOptimiser l'affichage des souvenirs dans la règle `remember` pour améliorer la pertinence du contexte fourni à l'agent tout en réduisant la verbosité.\n\n**Modifications spécifiques requises :**\n\n**1. Augmenter les souvenirs à long terme sémantiquement proches :**\n- Dans `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js` ligne 302 : changer `findSimilarMemories(lastMemory.future, longTermMemories, 3)` vers `findSimilarMemories(lastMemory.future, longTermMemories, 10)`\n- Cette modification permet d'avoir plus de contexte pertinent des souvenirs à long terme\n\n**2. Optimiser l'affichage de la mémoire de travail :**\n- Actuellement, `recent_working_memories` retourne les 10 souvenirs les plus récents avec tous leurs champs (past, present, future)\n- Modifier pour n'afficher que le champ \"present\" pour les 9 premiers souvenirs\n- Pour le dernier souvenir (le plus récent), afficher les trois champs : \"past\", \"present\", \"future\"\n\n**Implémentation technique :**\n\n**Fichier : `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js`**\n\n**Changement 1 (ligne ~302) :**\n```javascript\n// Avant\nsemanticLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 3);\n\n// Après  \nsemanticLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 10);\n```\n\n**Changement 2 (ligne ~193) :**\n```javascript\n// Avant\nconst recentMemories = memories.slice(-10); // Get 10 most recent working memories\n\n// Après\nconst allRecentMemories = memories.slice(-10); // Get 10 most recent working memories\nconst recentMemories = allRecentMemories.map((memory, index) => {\n    // For the last memory (most recent), show all fields\n    if (index === allRecentMemories.length - 1) {\n        return {\n            timestamp: memory.timestamp,\n            past: memory.past,\n            present: memory.present,\n            future: memory.future\n        };\n    }\n    // For other memories, show only present\n    return {\n        timestamp: memory.timestamp,\n        present: memory.present\n    };\n});\n```\n\n**Validation requise :**\n- Créer un script de test pour valider le comportement de la règle remember modifiée\n- Vérifier que les 10 souvenirs à long terme sont bien retournés\n- Confirmer que seul le dernier souvenir de travail affiche tous les champs\n- Tester que les 9 premiers souvenirs n'affichent que le champ \"present\"\n\n**Contraintes :**\n- L'utilisateur ne peut pas redémarrer Cursor manuellement pour tester le serveur MCP\n- Un script de validation doit être créé pour simuler le comportement\n- Les tests doivent être effectués en démarrant manuellement le serveur MCP\n\n**Impact attendu :**\n- Contexte plus riche grâce à 10 souvenirs à long terme au lieu de 3\n- Réduction de la verbosité en n'affichant que le \"present\" des anciens souvenirs\n- Maintien de la visibilité complète du dernier souvenir pour le contexte immédiat\n- Amélioration de la pertinence du contexte fourni à l'agent\n\n**Validation Criteria:**\nLa tâche est terminée quand :\n1. La règle remember retourne 10 souvenirs à long terme sémantiquement proches (au lieu de 3)\n2. Les 9 premiers souvenirs de mémoire de travail n'affichent que le champ \"present\"\n3. Le dernier souvenir (le plus récent) de mémoire de travail affiche \"past\", \"present\" et \"future\"\n4. Un script de test valide le comportement modifié\n5. Les tests confirment que la fonctionnalité fonctionne correctement\n\n**User Feedback:**\nC'est bon : je viens de redémarrer ! :D\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-13T18:28:29.714416",
+      "updated_at": "2025-07-13T18:28:29.714416",
+      "history": [
+        {
+          "timestamp": "2025-07-13T18:28:29.714416",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }
