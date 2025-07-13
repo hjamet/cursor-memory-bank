@@ -1,6 +1,48 @@
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 from . import task_utils
+import json
+from pathlib import Path
+from datetime import datetime
+
+def add_user_message(content: str) -> bool:
+    """Add a user message to the user_messages.json file"""
+    try:
+        user_messages_file = Path(".cursor/memory-bank/workflow/user_messages.json")
+        
+        # Read existing data or create new structure
+        if user_messages_file.exists():
+            with open(user_messages_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        else:
+            data = {"version": "1.0.0", "last_id": 0, "messages": []}
+        
+        # Generate new ID and create message
+        new_id = data.get("last_id", 0) + 1
+        timestamp = datetime.now().isoformat()
+        
+        new_message = {
+            "id": new_id,
+            "content": content.strip(),
+            "created_at": timestamp,
+            "status": "pending"
+        }
+        
+        # Add message and update last_id
+        data["messages"].append(new_message)
+        data["last_id"] = new_id
+        
+        # Ensure directory exists
+        user_messages_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Save updated data
+        with open(user_messages_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        
+        return True
+    except Exception as e:
+        st.error(f"Error adding user message: {e}")
+        return False
 
 def display_sidebar():
     """
@@ -131,6 +173,32 @@ def display_sidebar():
             else:
                 st.info("Agent is idle. Ready for next task.")
 
+        st.markdown("---")
+        
+        # User Message Form
+        st.markdown("### 💬 Send Message to Agent")
+        
+        with st.form(key="user_message_form", clear_on_submit=True):
+            user_message = st.text_area(
+                "Message",
+                placeholder="Send a quick message to the agent...",
+                height=80,
+                max_chars=500,
+                help="Send a message to the agent (max 500 characters)"
+            )
+            
+            submitted = st.form_submit_button("📤 Send Message", type="primary")
+            
+            if submitted:
+                if user_message and user_message.strip():
+                    if add_user_message(user_message):
+                        st.success("✅ Message sent to agent!")
+                        st.toast("Message sent successfully!", icon="✅")
+                    else:
+                        st.error("❌ Failed to send message. Please try again.")
+                else:
+                    st.warning("⚠️ Please enter a message before sending.")
+        
         st.markdown("---")
         # Auto-refresh is enabled by default every 5 seconds to keep the dashboard updated.
         st_autorefresh(interval=2000, limit=None, key="auto_refresh_widget")

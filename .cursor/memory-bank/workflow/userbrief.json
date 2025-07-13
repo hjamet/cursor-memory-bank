@@ -1,83 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 245,
+  "last_id": 249,
   "requests": [
-    {
-      "id": 195,
-      "content": "UnboundLocalError: cannot access local variable 'datetime' where it is not associated with a value\n\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 110, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\streamlit_app\\app.py\", line 91, in main\n    render_task_review_card(task)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\nFile \"C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor/streamlit_app\\utils\\ui_components.py\", line 107, in render_task_review_card\n    \"approved_at\": datetime.now().isoformat(),\n                   ^^^^^^^^\n\nJ'ai cette erreur lorsque j'essaie de valider une tâche en revue. DR tu peux aussi faire en sorte que ce soit assez solide. Les tâches en revue parce que si il manque des arguments à cause d'anciennes tâches qui sont pas compliantes, il faudrait que le système fonctionne quand même.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-27T16:31:38.357538",
-      "updated_at": "2025-06-27T14:32:39.550Z",
-      "history": [
-        {
-          "timestamp": "2025-06-27T16:31:38.357538",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-27T14:32:39.550Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 196,
-      "content": "Malheureusement, j'ai l'impression que notre mise à jour, notre correction récente de l'outil update Task A provoqué un problème qui fait que maintenant, c'est plus vraiment possible de l'utiliser correctement. Peut-être que c'est une erreur de ma part. Tu peux corriger enfin enquêter, tenter d'utiliser et corriger vos besoins s'il te plaît ? Ajoute aussi à la description de l'argument \"comment\" qu'on a ajouté Que lorsque il met la tâche Ils progressent, il a pas besoin de justifications, il peut laisser cet argument vide parce que il y a rien à justifier, à mettre une tâche en en En progrès.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-27T16:52:46.020711",
-      "updated_at": "2025-06-27T14:55:34.481Z",
-      "history": [
-        {
-          "timestamp": "2025-06-27T16:52:46.020711",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-27T14:55:34.481Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 197,
-      "content": "J'ai l'impression que l'outil regex Edit du serveur mcp Tools MCP. Euh a un problème, essaie de l'utiliser, identifie la source du problème et résous la je te prie. La plupart du temps, on n'arrive pas à l'utiliser correctement parce qu'apparemment il a un souci, il fonctionne pas, genre il y a un problème de chemin normalement tu dois utiliser le chemin qui est précisé lors de l'invocation du serveur. CC le serveur est invoqué avec un - - CWD et se. Et il sauvegarde le l'emplacement du L'emplacement actif du repository. En fait, il faudrait que tu puisses avoir une mécanique de conversion de chemin vraiment très puissante que le chemin soit relatif, qu'il soit absolu, qu'il soit écrit en format Windows au format bash, au format Unix, essaie de vraiment tenter toutes les combinaisons de chemins possibles pour pour trouver les solutions et et que ça fonctionne avec un maximum de possibilités.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-27T16:54:18.796565",
-      "updated_at": "2025-06-27T14:56:22.477Z",
-      "history": [
-        {
-          "timestamp": "2025-06-27T16:54:18.796565",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-27T14:56:22.477Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 198,
-      "content": "Sur un autre projet dans la page Task Status, j'ai eu l'erreur suivante qui s'est affichée, donc s'il te plaît, Enquête sur l'origine du problème et résout le le souci :\n\nstreamlit.errors.StreamlitDuplicateElementKey: There are multiple elements with the same `key='delete_30'`. To fix this, please make sure that the `key` argument is unique for each element you create.\n\nFile \"C:\\Users\\Jamet\\code\\llm-as-recommender\\.cursor\\streamlit_app\\pages\\task_status.py\", line 71, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\Jamet\\code\\llm-as-recommender\\.cursor\\streamlit_app\\pages\\task_status.py\", line 67, in main\n    render_userbrief_request(request)\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^\nFile \"C:\\Users\\Jamet\\code\\llm-as-recommender\\.cursor\\streamlit_app\\pages\\utils\\task_rendering.py\", line 357, in render_userbrief_request\n    if st.button(\"🗑️ Delete\", key=f\"delete_{req_id}\", help=\"Delete this request\"):\n       ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\widgets\\button.py\", line 243, in button\n    return self.dg._button(\n           ~~~~~~~~~~~~~~~^\n        label,\n        ^^^^^^\n    ...<10 lines>...\n        ctx=ctx,\n        ^^^^^^^^\n    )\n    ^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\widgets\\button.py\", line 1013, in _button\n    element_id = compute_and_register_element_id(\n        \"button\",\n    ...<9 lines>...\n        use_container_width=use_container_width,\n    )\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\utils.py\", line 254, in compute_and_register_element_id\n    _register_element_id(ctx, element_type, element_id)\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\Jamet\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\streamlit\\elements\\lib\\utils.py\", line 143, in _register_element_id\n    raise StreamlitDuplicateElementKey(user_key)",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-27T18:28:12.155570",
-      "updated_at": "2025-06-27T16:32:11.839Z",
-      "history": [
-        {
-          "timestamp": "2025-06-27T18:28:12.155570",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-27T16:32:11.839Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 199,
       "content": "Dans la règle implémentation, est ce que tu peux modifier l'emplacement de l'étape dans la partie 3 ou ? Où la la tâche considérée est marquée comme en cours, c'est vraiment un truc qui doit se faire quoi qu'il arrive. Une fois que l'agent est identifié, la tâche en cours. Enfin, la tâche sur laquelle il veut travailler, il doit la marquer comme en cours. Parce que le problème, c'est que actuellement, quand à l'exception qui est Trigger et que du coup l'agent se met à partir sur la règle expérience exécution, le souci c'est que il arrive des fois où il décide de pas la marquer comme en cours parce que les informations les instructions prêtent un peu à confusion et du coup il faudrait résoudre ce problème en en en déplaçant le fait de marquer la tâche comme in Progress à l'étape un je pense donc adapte les instructions de la règle dans le fichier Markdown et. Adapte aussi l'exemple.",
@@ -957,6 +881,82 @@
         },
         {
           "timestamp": "2025-07-12T17:05:05.411Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 246,
+      "content": "Tu peux me confirmer qu'il y a bien un mécanisme qui pousse l'agent à découper les fichiers .py en sous fichiers de moins de 500 lignes ? Si c'est le cas, je souhaite que tu étendes ce système aux fichiers :\n1. .js\n2. .tex\n3. .html\n4. .css\n5. .sh -> Exception faite du fichier install.sh de ce repository spécifiquement !!!",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-12T23:35:38.151030",
+      "updated_at": "2025-07-13T05:52:04.381Z",
+      "history": [
+        {
+          "timestamp": "2025-07-12T23:35:38.151030",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-13T05:52:04.381Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 247,
+      "content": "Je souhaite que tu te débarrase des fichiers techcontext.md et projectbrief.md. Leur gestion est peu pratique et laborieuse. Tu devrais :\n1. Les supprimer\n2. Supprimer leur mention de toutes les règles, notamment start.md et context_update.md\n\nA la place, modifie la règle start appelée via l'outil next_rule de manière à ce que le contenu du README.md à la racine du repo soit automatiquement fourni à l'agent (sans qu'il est beosin de le lire activement). Si le README n'existe pas, le message README not yet created doit être retourné et une tâche de création du README doit automatiquement être ajoutée (exactement comme pour la découpe des fichiers en moins de 500 lignes).\n\nIl doit être précisé dans les instructions de création du README que ce dernier doit contenir une vue d'ensemble du projet, une précision des dépendances et informations techniques principales (nom et structure des bases de données etc.), instructions d'installation et d'utilisation etc.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-13T07:54:55.857071",
+      "updated_at": "2025-07-13T05:59:28.170Z",
+      "history": [
+        {
+          "timestamp": "2025-07-13T07:54:55.857071",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-13T05:59:28.170Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 248,
+      "content": "Modifie la règle remember pour qu'elle retourne :\n1. Les 10 souvenirs à long terme les plus sémantiquement proche (et non les 3)\n2. Seulement le \"present\" de chaque souvenir de la mémoire de travail, sauf pour le dernier souvenir (le plus récent) qui doit afficher aussi le \"passé\" et le \"futur\".\n\nJe te rappelle que tu ne pourras pas tester manuellement immédiatement le serveur car il nécessite un redémarrage de cursor, mais tu pourras créer un script pour valider le comportement et ensuite, je redémarrerai manuellement plus tard :D",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-13T07:57:39.456478",
+      "updated_at": "2025-07-13T06:01:14.313Z",
+      "history": [
+        {
+          "timestamp": "2025-07-13T07:57:39.456478",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-13T06:01:14.313Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 249,
+      "content": "Ajoute un système qui compte le nombre de fois où la règle \"implementation\" est appelée et stocke ce nombre dans les fichiers d'état de l'agent (.cursor\\memory-bank\\workflow\\workflow_state.json semble pas mal). Toutes les 10 étapes d'implémentation, une tâche de mise à jour du README devrait être automatiquement ajoutée avec une priorité assez élevée à la liste des tâches (.cursor\\memory-bank\\streamlit_app\\tasks.json)",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-13T08:01:05.781959",
+      "updated_at": "2025-07-13T06:02:12.871Z",
+      "history": [
+        {
+          "timestamp": "2025-07-13T08:01:05.781959",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-13T06:02:12.871Z",
           "action": "mark_archived"
         }
       ]

@@ -15,7 +15,7 @@ Performs critical repository maintenance and context curation. Your goal is not 
 1.  **Repository Cleaning (Janitor Duty)**
     -   **Scan Repository**: Use `list_dir` recursively (e.g., `list_dir -R .`) to get a full overview of the repository's file structure.
     -   **Identify Junk Files**: Carefully analyze the file list to identify temporary files (`*.tmp`, `*.bak`, `*.swp`), misplaced build artifacts, or other unnecessary files.
-    -   **Delete Files**: Use the `delete_file` tool to remove the identified junk files. Exercise caution to avoid deleting important files. Log your reasoning for each deletion in your memory. Your default should be to preserve, not delete.
+    -   **Delete Files**: Use the `execute_command` tool with the `rm` command to remove all the identified junk files at once. Exercise caution to avoid deleting important files. Your default should be to preserve, not delete : only remove temporary files, one-time-execution tests etc.
 
 2.  **Context File Management (Archivist & Critic Duty)**
     -   **Critically Challenge Current Context**: Read `.cursor/memory-bank/context/techContext.md` and `.cursor/memory-bank/context/projectBrief.md`. Don't take them at face value. Hunt for outdated information, imprecise descriptions, unstated assumptions, or glossed-over complexities that could mislead future work. Ask "Is this still true? Is this precise enough? What's missing?".
