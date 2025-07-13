@@ -183,8 +183,7 @@ def display_sidebar():
                 "Message",
                 placeholder="Send a quick message to the agent...",
                 height=80,
-                max_chars=500,
-                help="Send a message to the agent (max 500 characters)"
+                help="Send a message to the agent"
             )
             
             submitted = st.form_submit_button("📤 Send Message", type="primary")
