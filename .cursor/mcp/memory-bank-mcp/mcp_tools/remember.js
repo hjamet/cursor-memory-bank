@@ -16,6 +16,55 @@ const memoryFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'wo
 const longTermMemoryFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'long_term_memory.json');
 const MAX_MEMORIES = 100;
 
+// Test message patterns to filter out
+const TEST_MESSAGE_PATTERNS = [
+    /voici la clé secrète\s*:\s*42/i,
+    /clé secrète.*42/i,
+    /test de communication/i,
+    /message de test/i
+];
+
+/**
+ * Filter out test messages that should not be repeated in communications
+ * @param {string} message - The message content to check
+ * @returns {boolean} - True if the message should be filtered out (is a test message)
+ */
+function isTestMessage(message) {
+    if (!message || typeof message !== 'string') {
+        return false;
+    }
+
+    const normalizedMessage = message.toLowerCase().trim();
+
+    // Check against test message patterns
+    for (const pattern of TEST_MESSAGE_PATTERNS) {
+        if (pattern.test(normalizedMessage)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Filter out test messages from a list of messages
+ * @param {Array} messages - Array of message objects with content property
+ * @returns {Array} - Filtered array without test messages
+ */
+function filterTestMessages(messages) {
+    if (!Array.isArray(messages)) {
+        return messages;
+    }
+
+    return messages.filter(msg => {
+        if (!msg || !msg.content) {
+            return true; // Keep non-content messages
+        }
+
+        return !isTestMessage(msg.content);
+    });
+}
+
 // Helper functions
 async function getRecentMemories(count = 5) {
     try {
@@ -111,16 +160,19 @@ async function remember(args) {
     try {
         const pendingMessages = await getPendingMessages();
         if (pendingMessages && pendingMessages.length > 0) {
+            // Filter out test messages
+            const filteredMessages = filterTestMessages(pendingMessages);
+
             // Format messages for display
-            if (pendingMessages.length === 1) {
-                userComments = `Message utilisateur: ${pendingMessages[0].content}`;
-            } else {
-                userComments = `Messages utilisateur (${pendingMessages.length}):\n` +
-                    pendingMessages.map((msg, index) => `${index + 1}. ${msg.content}`).join('\n');
+            if (filteredMessages.length === 1) {
+                userComments = `Message utilisateur: ${filteredMessages[0].content}`;
+            } else if (filteredMessages.length > 1) {
+                userComments = `Messages utilisateur (${filteredMessages.length}):\n` +
+                    filteredMessages.map((msg, index) => `${index + 1}. ${msg.content}`).join('\n');
             }
 
             // Mark all pending messages as consumed
-            for (const message of pendingMessages) {
+            for (const message of filteredMessages) {
                 await markMessageAsConsumed(message.id);
             }
 

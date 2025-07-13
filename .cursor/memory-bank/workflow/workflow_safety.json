@@ -1,6 +1,46 @@
 {
   "transition_history": [
     {
+      "from": "experience-execution",
+      "to": "implementation",
+      "timestamp": "2025-07-13T17:52:30.379Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T17:52:15.499Z"
+    },
+    {
+      "from": "start-workflow",
+      "to": "implementation",
+      "timestamp": "2025-07-13T17:52:10.525Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T17:51:51.016Z"
+    },
+    {
+      "from": null,
+      "to": "implementation",
+      "timestamp": "2025-07-13T17:45:22.061Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T17:40:26.930Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T17:39:03.915Z"
+    },
+    {
+      "from": "experience-execution",
+      "to": "context-update",
+      "timestamp": "2025-07-13T17:38:59.388Z"
+    },
+    {
       "from": "system",
       "to": "implementation",
       "timestamp": "2025-07-13T17:37:36.407Z"
@@ -59,51 +99,11 @@
       "from": "system",
       "to": "implementation",
       "timestamp": "2025-07-13T17:30:49.543Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:30:49.416Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:30:49.292Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:30:49.149Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:30:42.309Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:30:28.707Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:30:05.498Z"
-    },
-    {
-      "from": "implementation",
-      "to": "experience-execution",
-      "timestamp": "2025-07-13T17:29:59.846Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:29:11.956Z"
     }
   ],
-  "experience_execution_attempts": 2,
+  "experience_execution_attempts": 0,
   "last_experience_execution": "2025-07-13T17:29:59.846Z",
-  "last_implementation": "2025-07-13T17:37:36.407Z",
-  "consecutive_transitions": 19,
+  "last_implementation": "2025-07-13T17:52:30.379Z",
+  "consecutive_transitions": 1,
   "emergency_brake_active": false
 }
