@@ -2,6 +2,56 @@
   "transition_history": [
     {
       "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T18:49:40.455Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T18:49:15.937Z"
+    },
+    {
+      "from": "start-workflow",
+      "to": "implementation",
+      "timestamp": "2025-07-13T18:49:10.552Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T18:48:52.069Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T18:31:27.915Z"
+    },
+    {
+      "from": "implementation",
+      "to": "experience-execution",
+      "timestamp": "2025-07-13T18:31:23.663Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T18:27:47.553Z"
+    },
+    {
+      "from": "task-decomposition",
+      "to": "implementation",
+      "timestamp": "2025-07-13T18:27:42.658Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-13T18:25:59.041Z"
+    },
+    {
+      "from": "context-update",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-13T18:25:47.888Z"
+    },
+    {
+      "from": "system",
       "to": "task-decomposition",
       "timestamp": "2025-07-13T18:21:54.840Z"
     },
@@ -49,61 +99,11 @@
       "from": "experience-execution",
       "to": "implementation",
       "timestamp": "2025-07-13T17:55:56.806Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:55:41.985Z"
-    },
-    {
-      "from": null,
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:55:37.473Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:54:12.744Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:53:38.809Z"
-    },
-    {
-      "from": "experience-execution",
-      "to": "context-update",
-      "timestamp": "2025-07-13T17:53:33.907Z"
-    },
-    {
-      "from": "experience-execution",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:52:30.379Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:52:15.499Z"
-    },
-    {
-      "from": "start-workflow",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:52:10.525Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:51:51.016Z"
-    },
-    {
-      "from": null,
-      "to": "implementation",
-      "timestamp": "2025-07-13T17:45:22.061Z"
     }
   ],
-  "experience_execution_attempts": 0,
-  "last_experience_execution": "2025-07-13T17:29:59.846Z",
-  "last_implementation": "2025-07-13T18:08:23.779Z",
-  "consecutive_transitions": 2,
+  "experience_execution_attempts": 1,
+  "last_experience_execution": "2025-07-13T18:31:23.663Z",
+  "last_implementation": "2025-07-13T18:49:40.455Z",
+  "consecutive_transitions": 6,
   "emergency_brake_active": false
 }
