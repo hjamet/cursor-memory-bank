@@ -3,6 +3,36 @@
     {
       "from": null,
       "to": "implementation",
+      "timestamp": "2025-07-13T19:01:36.769Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T19:01:04.331Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T19:00:46.134Z"
+    },
+    {
+      "from": null,
+      "to": "implementation",
+      "timestamp": "2025-07-13T19:00:40.407Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T18:58:40.035Z"
+    },
+    {
+      "from": null,
+      "to": "implementation",
+      "timestamp": "2025-07-13T18:58:35.858Z"
+    },
+    {
+      "from": null,
+      "to": "implementation",
       "timestamp": "2025-07-13T18:56:09.838Z"
     },
     {
@@ -69,41 +99,11 @@
       "from": "task-decomposition",
       "to": "implementation",
       "timestamp": "2025-07-13T18:27:42.658Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-13T18:25:59.041Z"
-    },
-    {
-      "from": "context-update",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-13T18:25:47.888Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-13T18:21:54.840Z"
-    },
-    {
-      "from": "experience-execution",
-      "to": "context-update",
-      "timestamp": "2025-07-13T18:10:32.066Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T18:08:23.779Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T18:07:57.072Z"
     }
   ],
   "experience_execution_attempts": 0,
   "last_experience_execution": "2025-07-13T18:31:23.663Z",
-  "last_implementation": "2025-07-13T18:56:09.838Z",
-  "consecutive_transitions": 6,
+  "last_implementation": "2025-07-13T19:01:36.769Z",
+  "consecutive_transitions": 12,
   "emergency_brake_active": false
 }
