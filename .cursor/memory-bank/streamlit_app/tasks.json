@@ -7013,17 +7013,32 @@
     "short_description": "Implémenter des notifications st.toast dans la page Review et communication de l'interface Streamlit pour afficher une notification à chaque nouveau souvenir \"present\" enregistré dans la mémoire de travail de l'agent.",
     "detailed_description": "Ajouter des notifications toast dans l'interface Streamlit pour améliorer l'expérience utilisateur lors de l'enregistrement de nouveaux souvenirs.\n\n**Exigences :**\n- Utiliser st.toast() de Streamlit pour afficher les notifications\n- Déclencher une notification à chaque nouveau souvenir \"present\" enregistré\n- Intégrer dans la page \"Review et communication\" de l'interface\n- Afficher un message informatif sur le contenu du souvenir enregistré\n\n**Critères d'acceptation :**\n- Les notifications toast apparaissent automatiquement lors de l'enregistrement de nouveaux souvenirs \"present\"\n- Le message de la toast est informatif et utile pour l'utilisateur\n- L'intégration ne perturbe pas le fonctionnement existant de l'interface\n- Les notifications sont bien positionnées et non intrusives\n\n**Notes techniques :**\n- Identifier le bon moment pour déclencher la notification (après l'enregistrement réussi)\n- Utiliser l'API st.toast avec les paramètres appropriés (message, icon, etc.)\n- S'assurer que la notification ne se déclenche que pour les nouveaux souvenirs \"present\"\n- Tester le comportement avec différents types de contenu de souvenirs",
     "dependencies": [],
-    "status": "TODO",
+    "status": "REVIEW",
     "impacted_files": [
       "streamlit_app/pages/review_communication.py"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Les notifications st.toast s'affichent automatiquement lors de l'enregistrement de nouveaux souvenirs \"present\", (2) Le message de notification est informatif et contextuel, (3) L'interface fonctionne normalement sans régression, (4) Les tests manuels confirment le bon fonctionnement des notifications dans différents scénarios d'usage.",
     "created_date": "2025-07-03T14:21:32.707Z",
-    "updated_date": "2025-07-03T14:21:32.707Z",
+    "updated_date": "2025-07-13T06:57:23.305Z",
     "parent_id": null,
     "priority": 3,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 295,
+    "comments": [
+      {
+        "timestamp": "2025-07-13T06:45:36.404Z",
+        "comment": "Début de l'implémentation selon le workflow autonome. Tâche sélectionnée comme prioritaire avec score de préparation 64.84, aucune dépendance bloquante.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-13T06:57:23.305Z",
+        "comment": "Implémentation terminée et validée avec succès. Tests réussis : (1) Code Python compile sans erreur, (2) Fonction _check_and_notify_new_present_memories correctement implémentée avec logique de filtrage robuste, (3) Intégration dans display_agent_memory_timeline fonctionnelle, (4) Utilisation dans memory.py confirmée, (5) Logique de notification testée avec différents scénarios. Tous les critères d'acceptation respectés : notifications st.toast() implémentées, détection automatique des nouveaux souvenirs \"present\", messages informatifs avec timestamp et preview, intégration non-intrusive dans l'interface Streamlit.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Implémentation terminée et validée avec succès. Tests réussis : (1) Code Python compile sans erreur, (2) Fonction _check_and_notify_new_present_memories correctement implémentée avec logique de filtrage robuste, (3) Intégration dans display_agent_memory_timeline fonctionnelle, (4) Utilisation dans memory.py confirmée, (5) Logique de notification testée avec différents scénarios. Tous les critères d'acceptation respectés : notifications st.toast() implémentées, détection automatique des nouveaux souvenirs \"present\", messages informatifs avec timestamp et preview, intégration non-intrusive dans l'interface Streamlit.",
+    "last_comment_timestamp": "2025-07-13T06:57:23.305Z"
   },
   {
     "id": 296,
@@ -7108,13 +7123,13 @@
     "dependencies": [
       297
     ],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/streamlit_app/app.py"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Le formulaire est visible et fonctionnel dans Streamlit, (2) Les messages sont stockés correctement, (3) La confirmation fonctionne, (4) Les edge cases sont testés et gérés.",
     "created_date": "2025-07-12T16:44:21.531Z",
-    "updated_date": "2025-07-13T06:06:50.718Z",
+    "updated_date": "2025-07-13T08:45:06.690037",
     "parent_id": null,
     "priority": 4,
     "image": null,
@@ -7133,7 +7148,11 @@
       }
     ],
     "last_comment": "Test de validation complété avec succès ! Tous les critères d'acceptation sont validés :\n\n✅ **Test 1 RÉUSSI** : user_messages.json existe et est un JSON valide (version=1.0.0, last_id=4, 3 messages)\n✅ **Test 2 RÉUSSI** : Structure des messages correcte (id, content, created_at, status)  \n✅ **Test 3 RÉUSSI** : 2 messages de test de l'interface Streamlit trouvés\n✅ **Test 4 RÉUSSI** : Tous les éléments d'implémentation dans sidebar.py trouvés :\n   - Fonction add_user_message()\n   - Formulaire st.form avec key=\"user_message_form\"\n   - st.text_area avec max_chars=500\n   - st.form_submit_button\n   - Messages de confirmation st.success() et st.toast()\n\n**Validation finale** : L'implémentation était déjà complète et fonctionnelle. Le formulaire de soumission de messages est correctement intégré dans la sidebar sous Agent Status, les messages sont stockés dans user_messages.json avec la structure appropriée, et toutes les validations (messages vides, limite caractères, gestion erreurs) sont en place.",
-    "last_comment_timestamp": "2025-07-13T06:06:50.718Z"
+    "last_comment_timestamp": "2025-07-13T06:06:50.718Z",
+    "validation": {
+      "approved_at": "2025-07-13T08:45:06.681626",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 299,

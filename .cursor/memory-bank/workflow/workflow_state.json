@@ -4,6 +4,18 @@
   "history": [
     {
       "rule": "experience-execution",
+      "timestamp": "2025-07-13T06:55:52.345Z"
+    },
+    {
+      "rule": "implementation",
+      "timestamp": "2025-07-13T06:45:23.174Z"
+    },
+    {
+      "rule": "start-workflow",
+      "timestamp": "2025-07-13T06:44:59.892Z"
+    },
+    {
+      "rule": "experience-execution",
       "timestamp": "2025-07-13T06:36:28.053Z"
     },
     {
@@ -29,19 +41,7 @@
     {
       "rule": "context-update",
       "timestamp": "2025-07-13T06:08:16.074Z"
-    },
-    {
-      "rule": "experience-execution",
-      "timestamp": "2025-07-13T06:03:44.320Z"
-    },
-    {
-      "rule": "implementation",
-      "timestamp": "2025-07-13T06:02:29.471Z"
-    },
-    {
-      "rule": "task-decomposition",
-      "timestamp": "2025-07-13T06:01:29.055Z"
     }
   ],
-  "last_updated": "2025-07-13T06:36:28.053Z"
+  "last_updated": "2025-07-13T06:55:52.345Z"
 }

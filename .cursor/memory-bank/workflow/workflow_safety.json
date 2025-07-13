@@ -1,6 +1,36 @@
 {
   "transition_history": [
     {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T06:55:52.342Z"
+    },
+    {
+      "from": null,
+      "to": "implementation",
+      "timestamp": "2025-07-13T06:55:43.615Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T06:45:23.170Z"
+    },
+    {
+      "from": "start-workflow",
+      "to": "implementation",
+      "timestamp": "2025-07-13T06:45:18.708Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-13T06:44:59.881Z"
+    },
+    {
+      "from": null,
+      "to": "implementation",
+      "timestamp": "2025-07-13T06:37:25.572Z"
+    },
+    {
       "from": null,
       "to": "implementation",
       "timestamp": "2025-07-13T06:36:34.647Z"
@@ -68,41 +98,11 @@
       "from": "experience-execution",
       "to": "context-update",
       "timestamp": "2025-07-13T06:08:12.293Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T06:03:44.318Z"
-    },
-    {
-      "from": "implementation",
-      "to": "experience-execution",
-      "timestamp": "2025-07-13T06:03:40.523Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-13T06:02:29.469Z"
-    },
-    {
-      "from": "task-decomposition",
-      "to": "implementation",
-      "timestamp": "2025-07-13T06:02:25.431Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-13T06:01:29.054Z"
-    },
-    {
-      "from": "task-decomposition",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-13T06:01:25.133Z"
     }
   ],
   "experience_execution_attempts": 0,
   "last_experience_execution": "2025-07-13T06:03:40.523Z",
-  "last_implementation": "2025-07-13T06:36:34.647Z",
-  "consecutive_transitions": 14,
+  "last_implementation": "2025-07-13T06:55:52.342Z",
+  "consecutive_transitions": 20,
   "emergency_brake_active": false
 }

@@ -6,15 +6,72 @@ Handles the rendering of memory timelines and memory management interfaces.
 import streamlit as st
 from datetime import datetime
 import memory_data_manager
+import file_operations
 save_long_term_memories = memory_data_manager.save_long_term_memories
 fuzzy_search_memories = memory_data_manager.fuzzy_search_memories
 
 
+def _check_and_notify_new_present_memories(agent_memories):
+    """
+    Checks for new present memories and shows a toast notification if they are new.
+    Updates the session state to mark them as seen.
+    """
+    if not agent_memories:
+        return
+    
+    # Filter memories with valid present content and timestamps
+    valid_present_memories = [
+        m for m in agent_memories 
+        if m.get('present') and m.get('present').strip() 
+        and m.get('present') != 'N/A' 
+        and m.get('timestamp')
+    ]
+    
+    # Check for new memories not yet seen
+    new_present_memories = [
+        m for m in valid_present_memories
+        if m['timestamp'] not in st.session_state.seen_present_memories
+    ]
+    
+    # Show toast notifications for new memories
+    for memory in new_present_memories:
+        present_content = memory.get('present', '').strip()
+        timestamp = memory.get('timestamp', '')
+        
+        # Create a more informative notification message
+        if len(present_content) > 60:
+            preview = present_content[:60] + "..."
+        else:
+            preview = present_content
+        
+        # Format timestamp for display
+        try:
+            formatted_time = timestamp[:19].replace('T', ' ') if timestamp else 'Unknown'
+        except:
+            formatted_time = 'Unknown'
+        
+        # Show toast notification
+        st.toast(
+            f"🧠 New agent memory recorded at {formatted_time}: {preview}", 
+            icon="✨"
+        )
+        
+        # Mark as seen
+        st.session_state.seen_present_memories.add(timestamp)
+
+
 def display_agent_memory_timeline(agent_memories):
-    """Display agent memory timeline with tabs for different time perspectives"""
+    """Display agent memory timeline with tabs for different time perspectives and toast notifications for new present memories"""
     if not agent_memories:
         st.info("No agent memories found. Memories will appear here as the agent works and learns.")
         return
+    
+    # Initialize session state for tracking seen memories
+    if 'seen_present_memories' not in st.session_state:
+        st.session_state.seen_present_memories = set()
+    
+    # Check for new present memories and show toast notifications
+    _check_and_notify_new_present_memories(agent_memories)
     
     st.subheader("📖 Last 10 Agent Memories")
     st.write(f"Showing {len(agent_memories)} most recent memories (newest first)")
