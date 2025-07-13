@@ -349,7 +349,7 @@ While this is primarily a personal project, contributions are welcome! The syste
 
 ## License 📄
 
-This project is licensed under the MIT License.
+This project is open source and available for personal and educational use. Please refer to the repository for the most current license information.
 
 ## Troubleshooting 🔧
 

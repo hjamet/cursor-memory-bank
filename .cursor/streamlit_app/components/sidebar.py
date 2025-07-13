@@ -199,5 +199,5 @@ def display_sidebar():
                     st.warning("⚠️ Please enter a message before sending.")
         
         st.markdown("---")
-        # Auto-refresh is enabled by default every 5 seconds to keep the dashboard updated.
-        st_autorefresh(interval=5000, limit=None, key="auto_refresh_widget")
+        # Auto-refresh is enabled by default every 2 seconds to keep the dashboard updated.
+        st_autorefresh(interval=2000, limit=None, key="auto_refresh_widget")
