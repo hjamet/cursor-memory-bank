@@ -7,6 +7,7 @@ import { readMemoryContext } from '../lib/memory_context.js';
 import { readUserbriefData } from '../lib/userbrief_manager.js';
 import { taskManager } from '../lib/task_manager.js';
 import { getPossibleNextSteps, getRecommendedNextStep, analyzeSystemState as centralizedAnalyzeSystemState } from '../lib/workflow_recommendation.js';
+import { incrementImplementationCount } from '../lib/workflow_state.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,8 +24,13 @@ async function updateWorkflowState(step_name) {
     try {
         const workflowStateFile = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'workflow_state.json');
 
-        // Read current workflow state
+        // Read current workflow state with default structure compatible with workflow_state.js
         let workflowState = {
+            version: "1.0.0",
+            implementation_count: 0,
+            last_readme_task_at: 0,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
             current_rule: null,
             status: "idle",
             history: []
@@ -32,7 +38,13 @@ async function updateWorkflowState(step_name) {
 
         try {
             const existingData = await fs.readFile(workflowStateFile, 'utf8');
-            workflowState = JSON.parse(existingData);
+            const existingState = JSON.parse(existingData);
+
+            // Preserve all existing fields, especially implementation_count and last_readme_task_at
+            workflowState = {
+                ...workflowState,
+                ...existingState
+            };
         } catch (error) {
             // File doesn't exist or is corrupted, use default structure
         }
@@ -42,6 +54,7 @@ async function updateWorkflowState(step_name) {
         workflowState.current_rule = step_name;
         workflowState.status = "active";
         workflowState.last_updated = timestamp;
+        workflowState.updated_at = timestamp;
 
         // Add to history (keep last 10 entries)
         if (!Array.isArray(workflowState.history)) {
@@ -529,6 +542,28 @@ async function next_rule(args) {
 
     if (!step_name) {
         throw new Error("'step_name' argument is required.");
+    }
+
+    // **AUTOMATIC IMPLEMENTATION COUNTER UPDATE**
+    // Increment implementation counter automatically when implementation step is called
+    if (step_name === 'implementation') {
+        try {
+            const incrementResult = await incrementImplementationCount();
+
+            // Log the increment for debugging
+            console.log(`[NextRule] Implementation counter incremented to ${incrementResult.count}`);
+
+            // If README task should be triggered, log it
+            if (incrementResult.shouldTriggerReadmeTask) {
+                console.log(`[NextRule] README task trigger condition met: ${incrementResult.triggerReason}`);
+            }
+
+            // The actual README task generation will be handled by the increment_implementation MCP tool
+            // This is just the automatic counter increment as specified in the task requirements
+        } catch (error) {
+            // Log error but don't fail the workflow - the counter increment is supplementary
+            console.warn(`[NextRule] Failed to increment implementation counter: ${error.message}`);
+        }
     }
 
     const result = await getStep(step_name);
