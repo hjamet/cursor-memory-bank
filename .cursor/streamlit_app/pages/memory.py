@@ -49,8 +49,11 @@ st.markdown("Manage your project's memory: preferences, long-term memories, proj
 if 'seen_present_memories' not in st.session_state:
     st.session_state.seen_present_memories = set()
 
-# Apply enhanced toast styles for better notifications appearance
+# Apply enhanced toast styles for better notifications appearance (legacy support)
 memory_ui_components._apply_enhanced_toast_styles()
+
+# Apply new custom notification styles for the alternative system
+memory_ui_components._apply_custom_notification_styles()
 
 # Get file paths
 memory_paths = get_memory_file_paths()

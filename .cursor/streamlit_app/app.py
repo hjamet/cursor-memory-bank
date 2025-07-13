@@ -44,13 +44,17 @@ def main():
     if 'seen_present_memories' not in st.session_state:
         st.session_state.seen_present_memories = set()
 
-    # Apply enhanced toast styles for better notifications appearance
+    # Apply enhanced toast styles for better notifications appearance (legacy support)
     memory_ui_components._apply_enhanced_toast_styles()
+    
+    # Apply new custom notification styles for the alternative system
+    memory_ui_components._apply_custom_notification_styles()
 
-    # Check for new agent memories and show enhanced toast notifications
+    # Check for new agent memories and show enhanced custom notifications
     try:
         agent_memories = memory_data_manager.get_agent_memories(10)
-        memory_ui_components._check_and_notify_new_present_memories(agent_memories)
+        # Use the new enhanced notification system with markdown support and longer duration
+        memory_ui_components._check_and_notify_new_present_memories_v2(agent_memories)
     except Exception as e:
         # Silently handle errors to avoid disrupting the main page
         pass

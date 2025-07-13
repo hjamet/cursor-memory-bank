@@ -7,6 +7,11 @@ import streamlit as st
 from datetime import datetime
 import memory_data_manager
 import file_operations
+import time
+import uuid
+import markdown
+import html
+import re
 save_long_term_memories = memory_data_manager.save_long_term_memories
 fuzzy_search_memories = memory_data_manager.fuzzy_search_memories
 
@@ -161,13 +166,404 @@ def create_enhanced_notification(message, icon="ℹ️", notification_type="info
     return st.toast(formatted_message, icon=icon)
 
 
-def _check_and_notify_new_present_memories(agent_memories):
+def _apply_custom_notification_styles():
     """
-    Checks for new present memories and shows enhanced toast notifications if they are new.
-    Updates the session state to mark them as seen.
+    Apply CSS styles for custom notification system that bypasses st.toast() limitations.
+    """
+    custom_notification_css = """
+    <style>
+    /* Custom Notification System - Alternative to st.toast() */
+    .custom-notification-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        pointer-events: none;
+        width: 400px;
+        max-width: 90vw;
+    }
+    
+    .custom-notification {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+        border: 2px solid #60a5fa;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        padding: 16px 20px;
+        margin-bottom: 10px;
+        color: #f9fafb;
+        font-size: 14px;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+        animation: slideInRight 0.3s ease-out;
+        pointer-events: auto;
+        position: relative;
+        word-wrap: break-word;
+        line-height: 1.5;
+    }
+    
+    .custom-notification.success {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        border-color: #10b981;
+    }
+    
+    .custom-notification.warning {
+        background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+        border-color: #f59e0b;
+    }
+    
+    .custom-notification.error {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        border-color: #ef4444;
+    }
+    
+    .custom-notification.info {
+        background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+        border-color: #0ea5e9;
+    }
+    
+    .custom-notification-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        width: 100%;
+    }
+    
+    .custom-notification-icon {
+        font-size: 20px;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+    
+    .custom-notification-message {
+        flex: 1;
+        font-size: 14px;
+        line-height: 1.4;
+        color: #f9fafb;
+    }
+    
+    .custom-notification-message p {
+        margin: 0 0 8px 0;
+    }
+    
+    .custom-notification-message p:last-child {
+        margin-bottom: 0;
+    }
+    
+    .custom-notification-message strong {
+        font-weight: 600;
+    }
+    
+    .custom-notification-message em {
+        font-style: italic;
+    }
+    
+    .custom-notification-message code {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+    }
+    
+    .custom-notification-close {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        background: none;
+        border: none;
+        color: #f9fafb;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+    
+    .custom-notification-close:hover {
+        opacity: 1;
+    }
+    
+    .custom-notification-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 0 0 10px 10px;
+        transition: width linear;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%) scale(0.9);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%) scale(0.9);
+            opacity: 0;
+        }
+    }
+    
+    .custom-notification.fade-out {
+        animation: slideOutRight 0.3s ease-in forwards;
+    }
+    
+    .custom-notification:hover {
+        transform: scale(1.02);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .custom-notification:hover .custom-notification-progress {
+        animation-play-state: paused;
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .custom-notification-container {
+            width: 350px;
+            right: 10px;
+            top: 10px;
+        }
+        
+        .custom-notification {
+            padding: 12px 16px;
+            font-size: 13px;
+        }
+        
+        .custom-notification-icon {
+            font-size: 18px;
+        }
+    }
+    </style>
+    """
+    st.markdown(custom_notification_css, unsafe_allow_html=True)
+
+
+def _create_notification_container():
+    """
+    Create the notification container element for custom notifications.
+    """
+    if 'notification_container_created' not in st.session_state:
+        st.session_state.notification_container_created = True
+        container_html = '<div id="custom-notification-container" class="custom-notification-container"></div>'
+        st.markdown(container_html, unsafe_allow_html=True)
+
+
+def _render_markdown_content(content):
+    """
+    Safely render markdown content to HTML with proper escaping.
+    
+    Args:
+        content (str): The markdown content to render
+        
+    Returns:
+        str: Safe HTML content
+    """
+    # First, escape any existing HTML tags in the content before markdown processing
+    
+    # Escape dangerous tags before markdown processing
+    dangerous_tags = ['script', 'iframe', 'object', 'embed', 'link', 'style', 'form', 'input']
+    
+    for tag in dangerous_tags:
+        # Use regex to match tags with any attributes
+        pattern = f'<{tag}\\b[^>]*>'
+        content = re.sub(pattern, lambda m: html.escape(m.group(0)), content, flags=re.IGNORECASE)
+        
+        # Also handle closing tags
+        pattern = f'</{tag}>'
+        content = re.sub(pattern, lambda m: html.escape(m.group(0)), content, flags=re.IGNORECASE)
+    
+    # Convert markdown to HTML
+    html_content = markdown.markdown(content, extensions=['nl2br'])
+    
+    return html_content
+
+
+def show_custom_notification(message, icon="🔔", notification_type="info", duration=10, enable_markdown=True):
+    """
+    Display a custom notification with configurable duration and markdown support.
+    This bypasses st.toast() limitations.
+    
+    Args:
+        message (str): The notification message (supports markdown if enabled)
+        icon (str): The icon to display (default: "🔔")
+        notification_type (str): Type of notification ('info', 'success', 'warning', 'error', 'memory')
+        duration (int): Duration in seconds (5-15 seconds, default: 10)
+        enable_markdown (bool): Whether to process markdown formatting (default: True)
+    
+    Returns:
+        str: Notification ID for potential removal
+    """
+    # Apply custom styles
+    _apply_custom_notification_styles()
+    _create_notification_container()
+    
+    # Initialize notifications in session state
+    if 'custom_notifications' not in st.session_state:
+        st.session_state.custom_notifications = []
+    
+    # Validate duration
+    duration = max(5, min(15, duration))
+    
+    # Generate unique notification ID
+    notification_id = str(uuid.uuid4())
+    
+    # Process message content
+    if enable_markdown:
+        processed_message = _render_markdown_content(message)
+    else:
+        processed_message = html.escape(message).replace('\n', '<br>')
+    
+    # Set notification type class
+    type_class = notification_type if notification_type in ['info', 'success', 'warning', 'error'] else 'info'
+    if notification_type == "memory":
+        type_class = "info"  # Use info styling for memory notifications
+    
+    # Create notification HTML
+    notification_html = f"""
+    <script>
+    (function() {{
+        const container = document.getElementById('custom-notification-container');
+        if (!container) {{
+            console.warn('Custom notification container not found');
+            return;
+        }}
+        
+        const notification = document.createElement('div');
+        notification.id = 'notification-{notification_id}';
+        notification.className = 'custom-notification {type_class}';
+        notification.innerHTML = `
+            <div class="custom-notification-content">
+                <div class="custom-notification-icon">{icon}</div>
+                <div class="custom-notification-message">{processed_message}</div>
+            </div>
+            <button class="custom-notification-close" onclick="removeNotification('{notification_id}')">&times;</button>
+            <div class="custom-notification-progress" id="progress-{notification_id}"></div>
+        `;
+        
+        container.appendChild(notification);
+        
+        // Progress bar animation
+        const progressBar = document.getElementById('progress-{notification_id}');
+        if (progressBar) {{
+            progressBar.style.width = '100%';
+            progressBar.style.transition = 'width {duration}s linear';
+            setTimeout(() => {{
+                progressBar.style.width = '0%';
+            }}, 100);
+        }}
+        
+        // Auto-remove after duration
+        setTimeout(() => {{
+            removeNotification('{notification_id}');
+        }}, {duration * 1000});
+        
+        // Global remove function
+        window.removeNotification = function(notificationId) {{
+            const notif = document.getElementById('notification-' + notificationId);
+            if (notif) {{
+                notif.classList.add('fade-out');
+                setTimeout(() => {{
+                    if (notif.parentNode) {{
+                        notif.parentNode.removeChild(notif);
+                    }}
+                }}, 300);
+            }}
+        }};
+    }})();
+    </script>
+    """
+    
+    # Display the notification
+    st.markdown(notification_html, unsafe_allow_html=True)
+    
+    # Store notification info in session state
+    st.session_state.custom_notifications.append({
+        'id': notification_id,
+        'message': message,
+        'type': notification_type,
+        'timestamp': time.time(),
+        'duration': duration
+    })
+    
+    # Clean up old notifications from session state
+    current_time = time.time()
+    st.session_state.custom_notifications = [
+        notif for notif in st.session_state.custom_notifications 
+        if current_time - notif['timestamp'] < notif['duration'] + 5
+    ]
+    
+    return notification_id
+
+
+def create_enhanced_notification_v2(message, icon="ℹ️", notification_type="info", duration=10, enable_markdown=True):
+    """
+    Enhanced notification system v2 with full markdown support and configurable duration.
+    This is the new alternative to st.toast() with better features.
+    
+    Args:
+        message (str): The notification message (supports markdown)
+        icon (str): The icon to show (default: "ℹ️")
+        notification_type (str): Type of notification ('info', 'success', 'warning', 'error', 'memory')
+        duration (int): Duration in seconds (5-15 seconds, default: 10)
+        enable_markdown (bool): Whether to process markdown formatting (default: True)
+    
+    Returns:
+        str: Notification ID for potential removal
+    """
+    # Set appropriate icons based on type
+    if notification_type == "memory" and icon == "ℹ️":
+        icon = "🧠"
+    elif notification_type == "success" and icon == "ℹ️":
+        icon = "✅"
+    elif notification_type == "warning" and icon == "ℹ️":
+        icon = "⚠️"
+    elif notification_type == "error" and icon == "ℹ️":
+        icon = "❌"
+    
+    # Add type prefix to message for better context
+    if notification_type == "memory":
+        formatted_message = f"**Nouveau souvenir:**\n\n{message}"
+    elif notification_type == "success":
+        formatted_message = f"**Succès:**\n\n{message}"
+    elif notification_type == "warning":
+        formatted_message = f"**Attention:**\n\n{message}"
+    elif notification_type == "error":
+        formatted_message = f"**Erreur:**\n\n{message}"
+    else:
+        formatted_message = message
+    
+    return show_custom_notification(
+        message=formatted_message,
+        icon=icon,
+        notification_type=notification_type,
+        duration=duration,
+        enable_markdown=enable_markdown
+    )
+
+
+def _check_and_notify_new_present_memories_v2(agent_memories):
+    """
+    Enhanced version of memory notification checker using the new custom notification system.
     """
     if not agent_memories:
         return
+    
+    # Initialize session state for tracking seen memories
+    if 'seen_present_memories' not in st.session_state:
+        st.session_state.seen_present_memories = set()
     
     # Filter memories with valid present content and timestamps
     valid_present_memories = [
@@ -183,30 +579,42 @@ def _check_and_notify_new_present_memories(agent_memories):
         if m['timestamp'] not in st.session_state.seen_present_memories
     ]
     
-    # Show enhanced toast notifications for new memories
+    # Show custom notifications for new memories
     for memory in new_present_memories:
         present_content = memory.get('present', '').strip()
         timestamp = memory.get('timestamp', '')
         
-        # Create a more informative notification message with better formatting
-        if len(present_content) > 150:
-            preview = present_content[:150] + "..."
+        # Create a more informative notification message with markdown formatting
+        if len(present_content) > 200:
+            preview = present_content[:200] + "..."
         else:
             preview = present_content
         
-        # Format the message with timestamp for better context
+        # Format the message with timestamp and markdown
         formatted_timestamp = timestamp[:19].replace('T', ' ') if timestamp else 'Unknown time'
-        notification_message = f"🧠 Nouveau souvenir ({formatted_timestamp}):\n\n{preview}"
+        notification_message = f"**Timestamp:** {formatted_timestamp}\n\n{preview}"
         
-        # Show enhanced toast notification
-        _show_enhanced_toast(
-            notification_message, 
+        # Show custom notification with longer duration and markdown support
+        create_enhanced_notification_v2(
+            message=notification_message,
             icon="🧠",
-            toast_type="memory"
+            notification_type="memory",
+            duration=12,  # 12 seconds duration
+            enable_markdown=True
         )
         
         # Mark as seen
         st.session_state.seen_present_memories.add(timestamp)
+
+
+def _check_and_notify_new_present_memories(agent_memories):
+    """
+    Original function for backward compatibility - now uses the new custom notification system.
+    Checks for new present memories and shows enhanced notifications if they are new.
+    Updates the session state to mark them as seen.
+    """
+    # Use the new enhanced version
+    _check_and_notify_new_present_memories_v2(agent_memories)
 
 
 def display_agent_memory_timeline(agent_memories):
