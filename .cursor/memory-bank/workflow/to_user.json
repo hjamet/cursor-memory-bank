@@ -11,7 +11,18 @@
         "agent_state": "processing"
       },
       "status": "unread"
+    },
+    {
+      "id": 17,
+      "content": "Échec critique du test : Le système de découpage automatique étendu ne fonctionne pas car le serveur MCP utilise encore l'ancienne version. Un redémarrage du serveur MCP est requis pour que les changements prennent effet.",
+      "timestamp": "2025-07-13T15:57:01.130Z",
+      "context": {
+        "workflow_rule": "implementation",
+        "active_task": null,
+        "agent_state": "processing"
+      },
+      "status": "unread"
     }
   ],
-  "last_id": 16
+  "last_id": 17
 }
