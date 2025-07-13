@@ -3,25 +3,6 @@
   "last_id": 257,
   "requests": [
     {
-      "id": 206,
-      "content": "Modification request for Task #243 (Redémarrer le serveur MCP et appliquer la validation des commentaires de tâche):\n\n**Original Task Details:**\n- **Title:** Redémarrer le serveur MCP et appliquer la validation des commentaires de tâche\n- **Description:** Le serveur MCP doit être redémarré pour que les modifications de l'outil `update_task.js` (validation de la longueur des commentaires) soient prises en compte et testées.\n- **Status:** REVIEW\n- **Priority:** 5\n\n**Detailed Task Description:**\n**Problème:** Les modifications apportées aux outils MCP (comme `update_task.js`) ne sont pas prises en compte sans un redémarrage du serveur MCP. Cela empêche la validation de nouvelles logiques, comme l'obligation d'avoir des commentaires de tâche critiques et détaillés.\\n\\n**Objectif:** Forcer une validation technique de la qualité des commentaires de tâche.\\n\\n**Étapes:**\\n1.  **Demander le redémarrage du serveur:** La première étape est de notifier l'utilisateur de la nécessité de redémarrer le serveur MCP pour que les modifications de l'outil `update_task.js` soient chargées.\\n2.  **Ré-appliquer la validation du commentaire:** Une fois le serveur redémarré, ré-appliquer le code de validation dans `update_task.js` qui impose une longueur minimale de 50 caractères pour les commentaires des tâches avec le statut `BLOCKED` ou `REVIEW`.\\n3.  **Tester la validation:** Exécuter un test pour confirmer que le serveur rejette bien les commentaires trop courts.\\n4.  **Finaliser:** Une fois la validation confirmée, cette tâche pourra être fermée.\n\n**Validation Criteria:**\nNo validation criteria specified\n\n**User Feedback:**\nJe viens de redémarrer Cursor (et donc tous les outils MCP) : Je te laisse tester et itérer ! N'oublie pas qu'il faut toujours un redémarrage pour tester les outils, à moins que tu n'utilises un script et que le logging interfère avec le protocole MCP et provoque des crashs !\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-30T17:42:42.179096",
-      "updated_at": "2025-06-30T15:43:52.278Z",
-      "history": [
-        {
-          "timestamp": "2025-06-30T17:42:42.179096",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-30T15:43:52.278Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
       "id": 207,
       "content": "Tu peux indiquer dans toutes les règles du workflow qu'il est INTERDIT pour l'agent d'utiliser l'outil terminal_cmd : il DOIT ABSOLUMENT UNIQUEMENT utiliser l'outil execute_command pour executer une commande, JAMAIS l'outil terminal_cmd de base (ce dernier est buggué). ",
       "status": "archived",
@@ -964,15 +945,19 @@
     {
       "id": 257,
       "content": "Modifie encore la description de l'argument long-term de l'outil remember pour que le modèle ne stocke QUE les informations qui ne changeront JAMAIS. On en parle pas d'une implémentation ou d'une correction de bug qu'il vient d'effectuer : on parle de décisions architecturales cruciales, de précisions techniques, de préférences d'implémentation, de noms de bases de données etc. Ce n'est surtout pas un argument que l'agent doit utiliser à chaque fois ! Seulement lorsque c'est vraiment vraiment important de s'en souvenir !!!",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-07-13T20:05:34.814037",
-      "updated_at": "2025-07-13T20:05:34.814037",
+      "updated_at": "2025-07-13T18:07:33.550Z",
       "history": [
         {
           "timestamp": "2025-07-13T20:05:34.814037",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-13T18:07:33.550Z",
+          "action": "mark_archived"
         }
       ]
     }
