@@ -35,14 +35,24 @@ function getDefaultCwd() {
 }
 
 /**
- * Recursively scans directory for Python files and counts their lines
+ * Recursively scans directory for code files and counts their lines
  * @param {string} dirPath - Directory to scan
  * @param {string} rootPath - Root path for relative file paths
- * @returns {Array} Array of objects with file info: {file, lines, oversized}
+ * @returns {Array} Array of objects with file info: {file, lines, oversized, fileType}
  */
-function scanPythonFiles(dirPath, rootPath = dirPath) {
+function scanCodeFiles(dirPath, rootPath = dirPath) {
     const results = [];
     const MAX_LINES = 500;
+
+    // Supported file extensions and their types
+    const supportedExtensions = {
+        '.py': 'Python',
+        '.js': 'JavaScript',
+        '.tex': 'LaTeX',
+        '.html': 'HTML',
+        '.css': 'CSS',
+        '.sh': 'Shell Script'
+    };
 
     try {
         const entries = fs.readdirSync(dirPath, { withFileTypes: true });
@@ -54,28 +64,41 @@ function scanPythonFiles(dirPath, rootPath = dirPath) {
                 // Skip common directories that shouldn't be scanned
                 const skipDirs = ['node_modules', '.git', '__pycache__', '.venv', 'venv', '.env'];
                 if (!skipDirs.includes(entry.name)) {
-                    results.push(...scanPythonFiles(fullPath, rootPath));
+                    results.push(...scanCodeFiles(fullPath, rootPath));
                 }
-            } else if (entry.isFile() && entry.name.endsWith('.py')) {
-                try {
-                    const content = fs.readFileSync(fullPath, 'utf8');
-                    const lineCount = content.split('\n').length;
-                    const relativePath = path.relative(rootPath, fullPath);
+            } else if (entry.isFile()) {
+                const relativePath = path.relative(rootPath, fullPath);
 
-                    results.push({
-                        file: relativePath,
-                        lines: lineCount,
-                        oversized: lineCount > MAX_LINES
-                    });
-                } catch (fileError) {
-                    // Skip files that can't be read
-                    console.error(`[scanPythonFiles] Error reading file ${fullPath}:`, fileError.message);
+                // CRITICAL EXCEPTION: Never process install.sh from this repository
+                if (relativePath === 'install.sh') {
+                    continue;
+                }
+
+                // Check if file has a supported extension
+                const fileExtension = path.extname(entry.name).toLowerCase();
+                const fileType = supportedExtensions[fileExtension];
+
+                if (fileType) {
+                    try {
+                        const content = fs.readFileSync(fullPath, 'utf8');
+                        const lineCount = content.split('\n').length;
+
+                        results.push({
+                            file: relativePath,
+                            lines: lineCount,
+                            oversized: lineCount > MAX_LINES,
+                            fileType: fileType
+                        });
+                    } catch (fileError) {
+                        // Skip files that can't be read
+                        console.error(`[scanCodeFiles] Error reading file ${fullPath}:`, fileError.message);
+                    }
                 }
             }
         }
     } catch (dirError) {
         // Skip directories that can't be read
-        console.error(`[scanPythonFiles] Error reading directory ${dirPath}:`, dirError.message);
+        console.error(`[scanCodeFiles] Error reading directory ${dirPath}:`, dirError.message);
     }
 
     return results;
@@ -125,7 +148,7 @@ async function removeExistingRefactoringTask(filePath) {
 }
 
 /**
- * Creates actual refactoring tasks for oversized Python files
+ * Creates actual refactoring tasks for oversized code files
  * @param {Array} oversizedFiles - Array of file objects that are oversized
  * @returns {Promise<Array>} Array of created task objects or error results
  */
@@ -145,13 +168,81 @@ async function createRefactoringTasks(oversizedFiles) {
                 priority = 4; // High priority for very large files
             }
 
+            // Get file type specific information
+            const fileType = fileInfo.fileType || 'Code';
+            const fileExtension = path.extname(fileInfo.file).toLowerCase();
+
+            // Generate type-specific refactoring approaches
+            const getRefactoringApproach = (fileType, lines) => {
+                const commonApproaches = {
+                    'Python': lines > 1000 ?
+                        `- **Décomposition critique requise** - Ce fichier nécessite une refactorisation majeure
+- Extraire les classes principales en modules séparés
+- Séparer les fonctions utilitaires en modules dédiés
+- Créer des sous-packages si nécessaire` :
+                        `- Extraire les fonctions logiquement liées en modules séparés
+- Identifier et isoler les responsabilités distinctes
+- Créer des interfaces claires entre les modules`,
+
+                    'JavaScript': lines > 1000 ?
+                        `- **Décomposition critique requise** - Ce fichier nécessite une refactorisation majeure
+- Extraire les classes et fonctions principales en modules séparés
+- Séparer les utilitaires en modules dédiés
+- Utiliser les imports/exports ES6 pour la modularité` :
+                        `- Extraire les fonctions logiquement liées en modules séparés
+- Séparer les composants et utilitaires
+- Créer des modules avec des responsabilités claires`,
+
+                    'LaTeX': lines > 1000 ?
+                        `- **Décomposition critique requise** - Ce document nécessite une restructuration majeure
+- Diviser en chapitres ou sections dans des fichiers séparés
+- Utiliser \\input{} ou \\include{} pour inclure les sous-fichiers
+- Séparer les définitions et macros en fichiers dédiés` :
+                        `- Diviser en sections logiques dans des fichiers séparés
+- Utiliser \\input{} pour inclure les sous-fichiers
+- Séparer le contenu principal des définitions`,
+
+                    'HTML': lines > 1000 ?
+                        `- **Décomposition critique requise** - Ce fichier HTML nécessite une restructuration majeure
+- Diviser en composants ou sections dans des fichiers séparés
+- Extraire les styles inline en fichiers CSS séparés
+- Séparer les scripts JavaScript en fichiers dédiés` :
+                        `- Diviser en sections logiques dans des fichiers séparés
+- Extraire les composants réutilisables
+- Séparer le contenu des styles et scripts`,
+
+                    'CSS': lines > 1000 ?
+                        `- **Décomposition critique requise** - Ce fichier CSS nécessite une restructuration majeure
+- Diviser par composants ou sections thématiques
+- Séparer les variables et mixins en fichiers dédiés
+- Organiser en modules par fonctionnalité` :
+                        `- Diviser par composants ou sections thématiques
+- Séparer les styles généraux des styles spécifiques
+- Organiser en modules logiques`,
+
+                    'Shell Script': lines > 1000 ?
+                        `- **Décomposition critique requise** - Ce script nécessite une refactorisation majeure
+- Extraire les fonctions en modules séparés
+- Séparer les utilitaires en scripts dédiés
+- Utiliser source pour inclure les modules` :
+                        `- Extraire les fonctions logiquement liées en modules séparés
+- Séparer les utilitaires en scripts dédiés
+- Créer des modules avec des responsabilités claires`
+                };
+
+                return commonApproaches[fileType] || `- Décomposer le fichier en modules plus petits
+- Séparer les fonctionnalités distinctes
+- Créer des interfaces claires entre les modules`;
+            };
+
             // Create task parameters
             const taskParams = {
                 title: `Refactoriser ${fileInfo.file} - Réduire la taille du fichier`,
-                short_description: `Décomposer le fichier Python ${fileInfo.file} (${fileInfo.lines} lignes) en modules plus petits de moins de 500 lignes chacun pour améliorer la maintenabilité. Sois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.`,
-                detailed_description: `Le fichier ${fileInfo.file} contient actuellement ${fileInfo.lines} lignes, ce qui dépasse largement la limite recommandée de 500 lignes.
+                short_description: `Décomposer le fichier ${fileType} ${fileInfo.file} (${fileInfo.lines} lignes) en modules plus petits de moins de 500 lignes chacun pour améliorer la maintenabilité. Sois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.`,
+                detailed_description: `Le fichier ${fileType} ${fileInfo.file} contient actuellement ${fileInfo.lines} lignes, ce qui dépasse largement la limite recommandée de 500 lignes.
 
 **Analyse du fichier :**
+- Type : ${fileType}
 - Taille actuelle : ${fileInfo.lines} lignes
 - Dépassement : ${fileInfo.lines - 500} lignes au-dessus de la limite
 - Ratio : ${Math.round((fileInfo.lines / 500) * 100) / 100}x la taille recommandée
@@ -160,20 +251,13 @@ Sois très prudent en effectuant cette modification : Agis étape par étape, un
 
 Dans la mesure du possible, teste manuellement et sommairement ton code après le refactoring pour être certain que tu n'as rien cassé. Ne cherches pas à faire des tests unitaires, effectue simplement quelques tests manuels simples et rapides.
 
-**Approches recommandées :**
-${fileInfo.lines > 1000 ?
-                        `- **Décomposition critique requise** - Ce fichier nécessite une refactorisation majeure
-- Extraire les classes principales en modules séparés
-- Séparer les fonctions utilitaires en modules dédiés
-- Créer des sous-packages si nécessaire` :
-                        `- Extraire les fonctions logiquement liées en modules séparés
-- Identifier et isoler les responsabilités distinctes
-- Créer des interfaces claires entre les modules`}
+**Approches recommandées pour ${fileType} :**
+${getRefactoringApproach(fileType, fileInfo.lines)}
 
 **Critères d'acceptation :**
 - Aucun module ne doit dépasser 500 lignes
 - Les fonctionnalités existantes doivent être préservées
-- Les tests doivent continuer à passer
+- Les tests doivent continuer à passer (si applicables)
 - La documentation doit être mise à jour`,
                 priority: priority,
                 dependencies: [], // No dependencies for refactoring tasks
@@ -183,10 +267,10 @@ ${fileInfo.lines > 1000 ?
                 validation_criteria: `La tâche est terminée quand :
 1. Le fichier ${fileInfo.file} a été décomposé en modules de moins de 500 lignes chacun
 2. Toutes les fonctionnalités existantes sont préservées
-3. Les tests unitaires passent sans modification
+3. Les tests unitaires passent sans modification (si applicables)
 4. La documentation est mise à jour pour refléter la nouvelle structure
 5. Les imports et dépendances sont correctement ajustés
-6. Le code suit les conventions de style établies`
+6. Le code suit les conventions de style établies pour ${fileType}`
             };
 
             // Create the task using the existing MCP API
@@ -198,8 +282,10 @@ ${fileInfo.lines > 1000 ?
             if (resultData.status === 'success') {
                 createdTasks.push({
                     file: fileInfo.file,
-                    task_id: resultData.created_task.id,
-                    title: resultData.created_task.title,
+                    fileType: fileType,
+                    lines: fileInfo.lines,
+                    task_id: resultData.task_id,
+                    title: taskParams.title,
                     priority: priority,
                     status: 'created',
                     replaced_existing: removedExisting
@@ -207,15 +293,19 @@ ${fileInfo.lines > 1000 ?
             } else {
                 createdTasks.push({
                     file: fileInfo.file,
-                    error: resultData.message,
-                    status: 'failed'
+                    fileType: fileType,
+                    lines: fileInfo.lines,
+                    status: 'failed',
+                    error: resultData.message || 'Unknown error creating task'
                 });
             }
         } catch (error) {
             createdTasks.push({
                 file: fileInfo.file,
-                error: error.message,
-                status: 'failed'
+                fileType: fileInfo.fileType || 'Unknown',
+                lines: fileInfo.lines,
+                status: 'failed',
+                error: error.message
             });
         }
     }
@@ -224,23 +314,34 @@ ${fileInfo.lines > 1000 ?
 }
 
 /**
- * Generates task recommendations for oversized Python files (legacy function for backward compatibility)
+ * Generates task recommendations for oversized code files (legacy function for backward compatibility)
  * @param {Array} oversizedFiles - Array of file objects that are oversized
  * @returns {Array} Array of task recommendation objects
  */
 function generateTaskRecommendations(oversizedFiles) {
-    return oversizedFiles.map(fileInfo => ({
-        type: 'refactor_task',
-        title: `Refactoriser le fichier Python ${fileInfo.file}`,
-        description: `Le fichier ${fileInfo.file} contient ${fileInfo.lines} lignes (limite: 500). Il devrait être décomposé en plusieurs modules plus petits pour améliorer la maintenabilité et la lisibilité du code.`,
-        file: fileInfo.file,
-        current_lines: fileInfo.lines,
-        target_lines: 500,
-        priority: fileInfo.lines > 1000 ? 'high' : 'medium',
-        suggested_approach: fileInfo.lines > 1000
-            ? `Décomposition critique requise - ce fichier est ${Math.round(fileInfo.lines / 500)} fois plus grand que la limite recommandée`
-            : `Décomposition recommandée - séparer en modules logiques distincts`
-    }));
+    return oversizedFiles.map(fileInfo => {
+        const fileType = fileInfo.fileType || 'Code';
+        const isInstallSh = fileInfo.file === 'install.sh';
+
+        // Skip install.sh in recommendations (should never happen due to scanning exception)
+        if (isInstallSh) {
+            return null;
+        }
+
+        return {
+            type: 'refactor_task',
+            title: `Refactoriser le fichier ${fileType} ${fileInfo.file}`,
+            description: `Le fichier ${fileType} ${fileInfo.file} contient ${fileInfo.lines} lignes (limite: 500). Il devrait être décomposé en plusieurs modules plus petits pour améliorer la maintenabilité et la lisibilité du code.`,
+            file: fileInfo.file,
+            fileType: fileType,
+            current_lines: fileInfo.lines,
+            target_lines: 500,
+            priority: fileInfo.lines > 1000 ? 'high' : 'medium',
+            suggested_approach: fileInfo.lines > 1000
+                ? `Décomposition critique requise - ce fichier ${fileType} est ${Math.round(fileInfo.lines / 500)} fois plus grand que la limite recommandée`
+                : `Décomposition recommandée - séparer en modules logiques distincts pour ${fileType}`
+        };
+    }).filter(Boolean); // Remove null entries (install.sh)
 }
 
 // Helper function to escape shell arguments safely
@@ -289,13 +390,13 @@ export async function handleCommit({ emoji, type, title, description }) {
 
     const commitTitle = `${emoji} ${type}: ${title}`;
 
-    // --- Scan Python files before commit ---
-    let pythonScanResults = [];
+    // --- Scan code files before commit ---
+    let codeScanResults = [];
     let taskRecommendations = [];
     let createdTasks = [];
     try {
-        pythonScanResults = scanPythonFiles(cwd);
-        const oversizedFiles = pythonScanResults.filter(file => file.oversized);
+        codeScanResults = scanCodeFiles(cwd);
+        const oversizedFiles = codeScanResults.filter(file => file.oversized);
         if (oversizedFiles.length > 0) {
             // Generate legacy recommendations for backward compatibility
             taskRecommendations = generateTaskRecommendations(oversizedFiles);
@@ -304,7 +405,7 @@ export async function handleCommit({ emoji, type, title, description }) {
             createdTasks = await createRefactoringTasks(oversizedFiles);
         }
     } catch (scanError) {
-        console.error('[handleCommit] Error scanning Python files:', scanError.message);
+        console.error('[handleCommit] Error scanning code files:', scanError.message);
         // Continue with commit even if scan fails
     }
 
@@ -343,10 +444,10 @@ export async function handleCommit({ emoji, type, title, description }) {
                     text: JSON.stringify({
                         status: 'success',
                         message: `Nothing to commit in ${repoName}, working tree clean.`,
-                        python_scan: {
-                            total_files: pythonScanResults.length,
-                            oversized_files: pythonScanResults.filter(f => f.oversized).length,
-                            files_scanned: pythonScanResults,
+                        code_scan: {
+                            total_files: codeScanResults.length,
+                            oversized_files: codeScanResults.filter(f => f.oversized).length,
+                            files_scanned: codeScanResults,
                             task_recommendations: taskRecommendations,
                             tasks_created: createdTasks,
                             automatic_task_creation: createdTasks.length > 0
@@ -382,7 +483,7 @@ export async function handleCommit({ emoji, type, title, description }) {
             const failedTasks = createdTasks.filter(task => task.status === 'failed');
 
             successMessage += `\n\n--- Automatic Task Creation ---`;
-            successMessage += `\nDetected ${pythonScanResults.filter(f => f.oversized).length} oversized Python file(s) and automatically created refactoring tasks:`;
+            successMessage += `\nDetected ${codeScanResults.filter(f => f.oversized).length} oversized code file(s) and automatically created refactoring tasks:`;
 
             if (successfulTasks.length > 0) {
                 successMessage += `\n\n✅ Successfully created ${successfulTasks.length} refactoring task(s):`;
@@ -438,10 +539,10 @@ export async function handleCommit({ emoji, type, title, description }) {
                 text: JSON.stringify({
                     status: 'success',
                     message: successMessage,
-                    python_scan: {
-                        total_files: pythonScanResults.length,
-                        oversized_files: pythonScanResults.filter(f => f.oversized).length,
-                        files_scanned: pythonScanResults,
+                    code_scan: {
+                        total_files: codeScanResults.length,
+                        oversized_files: codeScanResults.filter(f => f.oversized).length,
+                        files_scanned: codeScanResults,
                         task_recommendations: taskRecommendations,
                         tasks_created: createdTasks,
                         automatic_task_creation: createdTasks.length > 0
@@ -466,10 +567,10 @@ export async function handleCommit({ emoji, type, title, description }) {
                     text: JSON.stringify({
                         status: 'success',
                         message: `Nothing to commit in ${repoName}, working tree clean.`,
-                        python_scan: {
-                            total_files: pythonScanResults.length,
-                            oversized_files: pythonScanResults.filter(f => f.oversized).length,
-                            files_scanned: pythonScanResults,
+                        code_scan: {
+                            total_files: codeScanResults.length,
+                            oversized_files: codeScanResults.filter(f => f.oversized).length,
+                            files_scanned: codeScanResults,
                             task_recommendations: taskRecommendations,
                             tasks_created: createdTasks,
                             automatic_task_creation: createdTasks.length > 0
@@ -484,10 +585,10 @@ export async function handleCommit({ emoji, type, title, description }) {
                 text: JSON.stringify({
                     status: 'error',
                     message: `Git operation failed: ${error.message}`,
-                    python_scan: {
-                        total_files: pythonScanResults.length,
-                        oversized_files: pythonScanResults.filter(f => f.oversized).length,
-                        files_scanned: pythonScanResults,
+                    code_scan: {
+                        total_files: codeScanResults.length,
+                        oversized_files: codeScanResults.filter(f => f.oversized).length,
+                        files_scanned: codeScanResults,
                         task_recommendations: taskRecommendations,
                         tasks_created: createdTasks,
                         automatic_task_creation: createdTasks.length > 0

@@ -7232,15 +7232,25 @@
     "short_description": "Vérifier l'existence d'un mécanisme de découpage automatique des fichiers .py de plus de 500 lignes et l'étendre aux fichiers .js, .tex, .html, .css, .sh avec exception pour install.sh",
     "detailed_description": "## Objectif\n\nInvestiguer l'existence d'un mécanisme automatique de découpage des fichiers Python de plus de 500 lignes et, si confirmé, étendre ce système aux autres types de fichiers spécifiés par l'utilisateur.\n\n## Phase 1 : Investigation du mécanisme existant\n\n### Recherche du mécanisme pour les fichiers .py\n- Analyser le code source du système pour identifier tout mécanisme de découpage automatique des fichiers Python\n- Vérifier les règles de workflow, les outils MCP, et les scripts de maintenance\n- Documenter le fonctionnement actuel si le mécanisme existe\n- Identifier les seuils, critères et logique de découpage utilisés\n\n### Critères de validation pour la phase 1\n- Confirmation ou infirmation de l'existence du mécanisme\n- Documentation complète du fonctionnement s'il existe\n- Compréhension des patterns et logique de découpage\n\n## Phase 2 : Extension du système (si le mécanisme existe)\n\n### Types de fichiers à supporter\n1. **Fichiers .js** - JavaScript\n2. **Fichiers .tex** - LaTeX\n3. **Fichiers .html** - HTML\n4. **Fichiers .css** - CSS\n5. **Fichiers .sh** - Scripts shell\n\n### Exception critique\n- **EXCEPTION ABSOLUE** : Le fichier `install.sh` de ce repository spécifiquement ne doit JAMAIS être découpé\n- Implémenter une logique d'exclusion explicite pour ce fichier\n\n### Implémentation de l'extension\n- Adapter le mécanisme existant pour supporter les nouveaux types de fichiers\n- Maintenir la cohérence avec le système existant (seuil de 500 lignes)\n- Implémenter la logique d'exception pour install.sh\n- Tester le système sur différents types de fichiers\n\n## Analyse Technique & Points de Vigilance\n\n**Attention : Complexité de l'extension multi-formats**\n- Chaque type de fichier a ses propres caractéristiques syntaxiques\n- Le découpage doit respecter la structure logique de chaque langage\n- Les fichiers .tex ont des structures de sections complexes\n- Les fichiers .html peuvent avoir des balises imbriquées\n- Les fichiers .css ont des règles et sélecteurs\n- Les scripts .sh peuvent avoir des fonctions et des blocs logiques\n\n**Attention : Gestion des exceptions**\n- L'exception pour install.sh nécessite une identification précise (chemin absolu vs relatif)\n- Risque de conflits si d'autres repositories ont des fichiers install.sh\n- Nécessité de tester l'exception dans différents contextes\n\n**Attention : Impact sur les performances**\n- Le traitement de multiples types de fichiers peut impacter les performances\n- Nécessité d'optimiser la détection des types de fichiers\n- Considérer l'impact sur les opérations git et les workflows\n\n**Attention : Cohérence du système**\n- Maintenir la cohérence avec les patterns existants\n- Éviter les régressions sur le système Python existant\n- Documenter les nouveaux comportements\n\n**Attention : Tests et validation**\n- Tester chaque type de fichier avec des cas réels\n- Valider que l'exception install.sh fonctionne correctement\n- Tester les edge cases (fichiers vides, très courts, etc.)\n\n## Critères de validation finale\n\n### Phase 1 (Investigation)\n- Documentation complète du mécanisme existant ou confirmation de son absence\n- Compréhension claire des patterns de découpage utilisés\n\n### Phase 2 (Extension - si applicable)\n- Système étendu fonctionnel pour les 5 types de fichiers spécifiés\n- Exception install.sh implémentée et testée\n- Tests réussis sur des fichiers réels de chaque type\n- Documentation mise à jour\n- Aucune régression sur le système Python existant\n\n## Fichiers potentiellement impactés\n\n- Règles de workflow (.cursor/workflow-steps/)\n- Outils MCP (.cursor/mcp/)\n- Scripts de maintenance\n- Configuration système\n- Documentation technique\n\n## Prochaines étapes\n\n1. Rechercher et analyser le mécanisme existant pour les fichiers .py\n2. Si trouvé, comprendre son fonctionnement et ses patterns\n3. Concevoir l'extension pour les nouveaux types de fichiers\n4. Implémenter avec l'exception install.sh\n5. Tester exhaustivement\n6. Documenter les changements",
     "dependencies": [],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "impacted_files": [],
     "validation_criteria": "La tâche est terminée quand : (1) L'investigation du mécanisme existant est documentée avec conclusion claire, (2) Si le mécanisme existe, l'extension aux 5 types de fichiers (.js, .tex, .html, .css, .sh) est implémentée et fonctionnelle, (3) L'exception pour install.sh est implémentée et testée, (4) Tests réussis sur des fichiers réels de chaque type, (5) Documentation technique mise à jour, (6) Aucune régression détectée sur le système existant",
     "created_date": "2025-07-13T05:51:59.235Z",
-    "updated_date": "2025-07-13T05:51:59.235Z",
+    "updated_date": "2025-07-13T15:51:15.090Z",
     "parent_id": null,
     "priority": 3,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 301,
+    "comments": [
+      {
+        "timestamp": "2025-07-13T15:51:15.090Z",
+        "comment": "Début de l'implémentation de la tâche #301. Marquage obligatoire comme IN_PROGRESS selon la règle #3 du workflow d'implémentation.",
+        "status_change": "IN_PROGRESS"
+      }
+    ],
+    "last_comment": "Début de l'implémentation de la tâche #301. Marquage obligatoire comme IN_PROGRESS selon la règle #3 du workflow d'implémentation.",
+    "last_comment_timestamp": "2025-07-13T15:51:15.090Z"
   },
   {
     "id": 302,

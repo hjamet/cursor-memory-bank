@@ -1,7 +1,15 @@
 {
-  "current_rule": "experience-execution",
+  "current_rule": "implementation",
   "status": "active",
   "history": [
+    {
+      "rule": "implementation",
+      "timestamp": "2025-07-13T15:51:00.428Z"
+    },
+    {
+      "rule": "start-workflow",
+      "timestamp": "2025-07-13T15:50:43.712Z"
+    },
     {
       "rule": "experience-execution",
       "timestamp": "2025-07-13T06:55:52.345Z"
@@ -33,15 +41,7 @@
     {
       "rule": "start-workflow",
       "timestamp": "2025-07-13T06:26:45.523Z"
-    },
-    {
-      "rule": "implementation",
-      "timestamp": "2025-07-13T06:14:38.595Z"
-    },
-    {
-      "rule": "context-update",
-      "timestamp": "2025-07-13T06:08:16.074Z"
     }
   ],
-  "last_updated": "2025-07-13T06:55:52.345Z"
+  "last_updated": "2025-07-13T15:51:00.428Z"
 }
