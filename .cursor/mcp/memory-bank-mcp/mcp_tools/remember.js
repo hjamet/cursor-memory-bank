@@ -8,6 +8,7 @@ import { encodeText, findSimilarMemories } from '../lib/semantic_search.js';
 import { UserMessageManager } from '../lib/user_message_manager.js';
 import { getPossibleNextSteps, getRecommendedNextStep } from '../lib/workflow_recommendation.js';
 import { resetTransitionCounter } from '../lib/workflow_safety.js';
+import { readUserMessages, getPendingMessages, markMessageAsConsumed, cleanupConsumedMessages } from '../lib/user_message_storage.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -103,6 +104,33 @@ async function remember(args) {
                 message: `Failed to record user message: ${error.message}`
             };
         }
+    }
+
+    // Handle pending user messages (from user to agent)
+    let userComments = null;
+    try {
+        const pendingMessages = await getPendingMessages();
+        if (pendingMessages && pendingMessages.length > 0) {
+            // Format messages for display
+            if (pendingMessages.length === 1) {
+                userComments = `Message utilisateur: ${pendingMessages[0].content}`;
+            } else {
+                userComments = `Messages utilisateur (${pendingMessages.length}):\n` +
+                    pendingMessages.map((msg, index) => `${index + 1}. ${msg.content}`).join('\n');
+            }
+
+            // Mark all pending messages as consumed
+            for (const message of pendingMessages) {
+                await markMessageAsConsumed(message.id);
+            }
+
+            // Clean up consumed messages
+            await cleanupConsumedMessages();
+        }
+    } catch (error) {
+        // Handle errors gracefully to avoid breaking the remember tool
+        // No logging to prevent JSON-RPC pollution
+        userComments = null;
     }
 
     // Handle long-term memory with semantic encoding
@@ -284,6 +312,11 @@ async function remember(args) {
                     debug_info: debugInfo
                 };
 
+                // Add user_comments if there are pending messages
+                if (userComments) {
+                    completionResponse.user_comments = userComments;
+                }
+
                 return {
                     content: [{
                         type: 'text',
@@ -411,6 +444,11 @@ async function remember(args) {
         immediate_next_action: `Call mcp_MemoryBankMCP_next_rule with parameter: '${recommendedNextStep}'`,
         workflow_cycle_reminder: "Remember: record → next_rule → execute → remember → next_rule (infinite loop)"
     };
+
+    // Add user_comments if there are pending messages
+    if (userComments) {
+        response.user_comments = userComments;
+    }
 
     return {
         content: [{

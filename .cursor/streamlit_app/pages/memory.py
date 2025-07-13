@@ -49,7 +49,7 @@ st.markdown("Manage your project's memory: preferences, long-term memories, proj
 memory_paths = get_memory_file_paths()
 
 # Tabs for different memory types
-tab5, tab1, tab2, tab3, tab4 = st.tabs(["🤖 Agent Timeline", "📝 Requêtes", "🧠 Long-term Memory", "📋 Project Brief", "⚙️ Tech Context"])
+ tab5, tab1, tab2, tab3 = st.tabs(["🤖 Agent Timeline", "📝 Requêtes", "🧠 Long-term Memory", "📖 Project Context (README.md)"])
 
 # Tab 5: Agent Timeline
 with tab5:
@@ -122,25 +122,3 @@ with tab2:
     
     # Add new memory form
     display_add_memory_form(memories)
-
-# Tab 3: Project Brief
-with tab3:
-    project_brief_content = load_text_file(memory_paths['project_brief'])
-    display_text_editor_tab(
-        "📋 Project Brief", 
-        project_brief_content, 
-        memory_paths['project_brief'], 
-        save_text_file, 
-        "project_brief"
-    )
-
-# Tab 4: Tech Context
-with tab4:
-    tech_context_content = load_text_file(memory_paths['tech_context'])
-    display_text_editor_tab(
-        "⚙️ Technical Context", 
-        tech_context_content, 
-        memory_paths['tech_context'], 
-        save_text_file, 
-        "tech_context"
-    ) 

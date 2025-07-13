@@ -1,30 +1,5 @@
 {
   "version": "1.0.0",
-  "last_id": 5,
-  "messages": [
-    {
-      "id": 2,
-      "content": "Message test 2",
-      "created_at": "2025-07-12T21:22:20.424Z",
-      "status": "pending"
-    },
-    {
-      "id": 3,
-      "content": "Test message from Streamlit interface implementation",
-      "created_at": "2025-07-13T07:54:19.559515",
-      "status": "pending"
-    },
-    {
-      "id": 4,
-      "content": "Test message from Streamlit interface implementation",
-      "created_at": "2025-07-13T07:54:36.422412",
-      "status": "pending"
-    },
-    {
-      "id": 5,
-      "content": "Ceci est un test pour voir si tu reçois mes messages rapides ! Si c'est bien le cas, tu peux me répondre ? :D",
-      "created_at": "2025-07-13T08:13:35.741738",
-      "status": "pending"
-    }
-  ]
+  "last_id": 6,
+  "messages": []
 }

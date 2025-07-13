@@ -113,42 +113,22 @@ async function getOptimizedContext(step_name) {
 }
 
 /**
- * Function to create a README generation task when README.md is missing
- */
-async function createReadmeTask() {
-    try {
-        const readmeTask = {
-            title: "Créer le fichier README.md manquant",
-            short_description: "Générer automatiquement le fichier README.md du projet avec vue d'ensemble, dépendances, informations techniques et instructions d'installation.",
-            detailed_description: "Le fichier README.md est manquant dans le projet. Il doit être créé avec les sections suivantes :\n\n**Sections requises :**\n- Vue d'ensemble du projet et objectifs\n- Instructions d'installation et prérequis\n- Dépendances principales et leur rôle\n- Informations techniques sur l'architecture\n- Guide d'utilisation de base\n- Exemples de configuration\n- Liens vers la documentation détaillée\n\n**Critères d'acceptation :**\n- Le fichier README.md existe à la racine du projet\n- Toutes les sections obligatoires sont présentes\n- Les instructions d'installation sont testables\n- Les informations techniques sont à jour\n- Le format Markdown est correct et lisible\n\n**Notes techniques :**\n- S'inspirer de la structure des projets similaires\n- Utiliser un ton professionnel mais accessible\n- Inclure des badges de statut si approprié\n- Maintenir la cohérence avec le reste de la documentation",
-            priority: 4,
-            status: "TODO",
-            dependencies: [],
-            impacted_files: ["README.md"],
-            validation_criteria: "Le fichier README.md existe, contient toutes les sections requises, et les instructions d'installation sont fonctionnelles."
-        };
-
-        await taskManager.createTask(readmeTask);
-        console.log("Task created for missing README.md");
-    } catch (error) {
-        console.error("Failed to create README task:", error.message);
-    }
-}
-
-/**
  * Load context for start-workflow and context-update rules
  * Includes: projectbrief + techcontext + current task + 3 oldest unprocessed requests + 3 most urgent tasks
  */
 async function loadStartWorkflowContext(context) {
-    // Always include README.md as project context for these rules
+    // Always include project brief and tech context for these rules
     try {
-        const readmePath = path.join(__dirname, '..', '..', '..', '..', 'README.md');
-        const readmeContent = await fs.readFile(readmePath, 'utf8');
-        context.project_context = readmeContent;
+        const contextDir = path.join(__dirname, '..', '..', '..', 'memory-bank', 'context');
+        const projectBrief = await fs.readFile(path.join(contextDir, 'projectBrief.md'), 'utf8');
+        const techContext = await fs.readFile(path.join(contextDir, 'techContext.md'), 'utf8');
+
+        context.project_brief = projectBrief;
+        context.tech_context = techContext;
     } catch (error) {
-        // README.md doesn't exist, create a task to generate it
-        await createReadmeTask();
-        context.project_context = "README.md is missing and a task has been created to generate it.";
+        // Debug logging removed to prevent JSON-RPC pollution
+        // console.warn(`Could not load project context: ${error.message}`);
+        return null;
     }
 
     // Load recent memories (standard 10)

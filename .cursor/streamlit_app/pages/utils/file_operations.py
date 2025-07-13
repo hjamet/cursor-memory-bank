@@ -61,6 +61,5 @@ def get_memory_file_paths():
     return {
         'userbrief': Path('.cursor/memory-bank/workflow/userbrief.json'),
         'long_term_memory': Path('.cursor/memory-bank/workflow/long_term_memory.json'),
-        'project_brief': Path('.cursor/memory-bank/context/projectBrief.md'),
-        'tech_context': Path('.cursor/memory-bank/context/techContext.md')
+ 'project_context': Path('README.md')
     } 

@@ -24,9 +24,8 @@ async function readFileIfExists(filePath) {
 export async function readMemoryContext() {
     const context = {};
 
-    // Read context files
-    context.project_brief = await readFileIfExists(path.join(contextDir, 'projectBrief.md'));
-    context.tech_context = await readFileIfExists(path.join(contextDir, 'techContext.md'));
+    // Read README.md as project context
+    context.project_context = await readFileIfExists(path.join(__dirname, '..', '..', '..', 'README.md'));
 
     // Read agent memory
     const memoryFilePath = path.join(workflowDir, 'agent_memory.json');

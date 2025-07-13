@@ -15,12 +15,7 @@ You are operating within an autonomous AI agent system built on Cursor with MCP 
 START → start-workflow → next_rule → [step] → remember → next_rule → [step] → remember → ...
 ```
 
-### 2. **Project Context**
-**Project Brief:**
-{{ project_brief }}
-
-**Technical Context:**
-{{ tech_context }}
+ **Project Context (from README.md):** {{ project_context }}
 
 ### 3. **Current System State**
 

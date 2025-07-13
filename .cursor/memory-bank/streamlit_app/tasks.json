@@ -7143,17 +7143,32 @@
     "dependencies": [
       297
     ],
-    "status": "TODO",
+    "status": "REVIEW",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/tools/remember.js"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Les messages sont inclus dans la réponse de remember, (2) Ils sont supprimés après, (3) Le script de test valide le fonctionnement sans erreurs, (4) Notification de redémarrage est envoyée à l'utilisateur.",
     "created_date": "2025-07-12T16:44:34.919Z",
-    "updated_date": "2025-07-12T16:44:34.919Z",
+    "updated_date": "2025-07-13T06:36:54.139Z",
     "parent_id": null,
     "priority": 4,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 299,
+    "comments": [
+      {
+        "timestamp": "2025-07-13T06:28:04.446Z",
+        "comment": "Début de l'implémentation de la modification de l'outil remember pour inclure les messages utilisateur en attente. Tâche marquée IN_PROGRESS selon les règles du workflow.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-13T06:36:54.139Z",
+        "comment": "✅ **VALIDATION RÉUSSIE** : L'outil remember modifié fonctionne parfaitement après redémarrage de Cursor. Tests confirmés : (1) 5 messages pending correctement intégrés dans le champ `user_comments` de la réponse, (2) Messages automatiquement marqués comme consumed et nettoyés du stockage JSON, (3) Formatage correct des messages multiples avec numérotation, (4) Aucune corruption JSON-RPC, (5) Gestion d'erreurs robuste validée. L'implémentation respecte parfaitement toutes les spécifications et critères d'acceptation. Le système d'intégration des messages utilisateur est maintenant opérationnel.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "✅ **VALIDATION RÉUSSIE** : L'outil remember modifié fonctionne parfaitement après redémarrage de Cursor. Tests confirmés : (1) 5 messages pending correctement intégrés dans le champ `user_comments` de la réponse, (2) Messages automatiquement marqués comme consumed et nettoyés du stockage JSON, (3) Formatage correct des messages multiples avec numérotation, (4) Aucune corruption JSON-RPC, (5) Gestion d'erreurs robuste validée. L'implémentation respecte parfaitement toutes les spécifications et critères d'acceptation. Le système d'intégration des messages utilisateur est maintenant opérationnel.",
+    "last_comment_timestamp": "2025-07-13T06:36:54.139Z"
   },
   {
     "id": 300,
@@ -7214,7 +7229,7 @@
     "short_description": "Supprimer techcontext.md et projectbrief.md, modifier la règle start-workflow pour intégrer automatiquement le contenu du README.md, et implémenter la création automatique du README si absent",
     "detailed_description": "## Objectif\n\nRefactoriser complètement le système de contexte du projet en remplaçant les fichiers techcontext.md et projectbrief.md par un système automatique basé sur le README.md à la racine du repository.\n\n## Phase 1 : Suppression des fichiers existants\n\n### Suppression des fichiers de contexte\n- Supprimer `.cursor/memory-bank/context/techContext.md`\n- Supprimer `.cursor/memory-bank/context/projectBrief.md`\n- Vérifier qu'aucune référence Git ne subsiste\n\n### Nettoyage des références dans les règles\n- Analyser et modifier `.cursor/workflow-steps/start-workflow.md` pour supprimer les références aux fichiers supprimés\n- Analyser et modifier `.cursor/workflow-steps/context-update.md` pour supprimer les références aux fichiers supprimés\n- Identifier et nettoyer toute autre référence dans les autres règles de workflow\n\n## Phase 2 : Implémentation du système README automatique\n\n### Modification de la règle start-workflow\n- Modifier la règle `start-workflow.md` pour intégrer automatiquement le contenu du README.md\n- Le contenu du README doit être fourni automatiquement sans action de l'agent\n- Implémenter la logique conditionnelle : si README.md existe, l'inclure ; sinon afficher \"README not yet created\"\n\n### Logique de création automatique du README\n- Si le README.md n'existe pas, créer automatiquement une tâche de création\n- Suivre le même pattern que le système de découpage de fichiers (création automatique de tâche)\n- La tâche doit être ajoutée au système de tâches avec priorité appropriée\n\n### Spécifications pour la création du README\n- **Contenu requis du README :**\n  - Vue d'ensemble du projet et de sa mission\n  - Précision des dépendances techniques principales\n  - Informations techniques (bases de données, architecture, technologies)\n  - Instructions d'installation détaillées\n  - Instructions d'utilisation et de démarrage\n  - Structure du projet et organisation des fichiers\n  - Informations sur les systèmes MCP et Streamlit\n\n## Phase 3 : Intégration et validation\n\n### Modification des outils MCP\n- Modifier l'outil `next_rule` pour supporter la nouvelle logique README\n- Assurer que le contenu README est automatiquement inclus dans les réponses\n- Implémenter la détection d'absence de README et la création de tâche\n\n### Tests et validation\n- Tester le système avec README existant\n- Tester le système sans README (création automatique de tâche)\n- Valider que toutes les références aux anciens fichiers sont supprimées\n- Confirmer que le workflow fonctionne correctement avec le nouveau système\n\n## Analyse Technique & Points de Vigilance\n\n**Attention : Impact architectural majeur**\n- Cette modification change fondamentalement la façon dont le contexte projet est géré\n- Toutes les règles de workflow doivent être vérifiées pour les références aux anciens fichiers\n- Le système de git tracking peut être affecté (les fichiers supprimés sont actuellement trackés)\n\n**Attention : Compatibilité avec le système MCP**\n- L'outil `next_rule` doit être modifié pour supporter la lecture automatique du README\n- La logique de création automatique de tâche doit s'intégrer avec le système de tâches existant\n- Assurer que les performances ne sont pas dégradées par la lecture automatique du README\n\n**Attention : Gestion des états transitoires**\n- Pendant la transition, le système peut être temporairement sans contexte\n- Prévoir une stratégie de rollback si des problèmes surviennent\n- Tester minutieusement avant de supprimer définitivement les anciens fichiers\n\n**Attention : Contenu et structure du README**\n- Le README doit être suffisamment complet pour remplacer les deux fichiers supprimés\n- Maintenir l'équilibre entre complétude et lisibilité\n- Assurer que les informations critiques ne sont pas perdues dans la transition\n\n**Attention : Workflow de maintenance**\n- Le README devra être maintenu manuellement par l'utilisateur\n- Plus de mise à jour automatique comme avec les anciens fichiers de contexte\n- Documenter clairement les responsabilités de maintenance\n\n## Critères de validation finale\n\n### Phase 1 (Suppression)\n- Les fichiers techContext.md et projectBrief.md sont supprimés\n- Toutes les références dans les règles de workflow sont nettoyées\n- Aucune erreur dans le système après suppression\n\n### Phase 2 (Implémentation README)\n- La règle start-workflow intègre automatiquement le contenu du README.md\n- Le système détecte correctement l'absence de README et affiche le message approprié\n- La création automatique de tâche README fonctionne\n\n### Phase 3 (Validation)\n- Le workflow complet fonctionne avec le nouveau système\n- Les performances sont maintenues\n- Aucune régression dans les fonctionnalités existantes\n\n## Fichiers impactés\n\n### Fichiers à supprimer\n- `.cursor/memory-bank/context/techContext.md`\n- `.cursor/memory-bank/context/projectBrief.md`\n\n### Fichiers à modifier\n- `.cursor/workflow-steps/start-workflow.md`\n- `.cursor/workflow-steps/context-update.md`\n- Possiblement l'outil MCP `next_rule.js`\n- Autres règles de workflow (à identifier)\n\n### Fichiers à créer/valider\n- `README.md` (à la racine du repository)\n\n## Stratégie d'implémentation\n\n1. **Analyse préliminaire** : Identifier toutes les références aux fichiers à supprimer\n2. **Sauvegarde** : Conserver le contenu des fichiers pour référence lors de la création du README\n3. **Modification des règles** : Adapter le système de workflow au nouveau paradigme\n4. **Tests intermédiaires** : Valider chaque étape avant de passer à la suivante\n5. **Suppression finale** : Supprimer les anciens fichiers seulement après validation complète",
     "dependencies": [],
-    "status": "TODO",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/memory-bank/context/techContext.md",
       ".cursor/memory-bank/context/projectBrief.md",
@@ -7224,11 +7239,30 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Les fichiers techContext.md et projectBrief.md sont supprimés et toutes leurs références nettoyées, (2) La règle start-workflow intègre automatiquement le contenu du README.md, (3) Le système détecte l'absence de README et crée automatiquement une tâche de création, (4) Le README créé contient tous les éléments requis (vue d'ensemble, dépendances, informations techniques, instructions), (5) Le workflow complet fonctionne sans régression, (6) Tous les tests de validation passent avec succès",
     "created_date": "2025-07-13T05:59:22.292Z",
-    "updated_date": "2025-07-13T05:59:22.292Z",
+    "updated_date": "2025-07-13T08:33:05.464146",
     "parent_id": null,
     "priority": 4,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 302,
+    "comments": [
+      {
+        "timestamp": "2025-07-13T06:14:51.535Z",
+        "comment": "Début de l'implémentation du refactoring architectural majeur du système de contexte. Tâche marquée IN_PROGRESS selon les règles du workflow.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-13T06:27:30.800Z",
+        "comment": "Implémentation complète réussie du système automatique basé sur README.md. Toutes les modifications ont été appliquées avec succès :\n\n**Composants modifiés :**\n- `next_rule.js` : Ajout de createReadmeTask() et modification de loadStartWorkflowContext()\n- `memory_context.js` : Lecture de README.md comme project_context\n- `start-workflow.md` et `context-update.md` : Mise à jour des templates et instructions\n- Interface Streamlit : Modification des chemins et de l'interface utilisateur\n- Suppression des fichiers obsolètes projectBrief.md et techContext.md\n\n**Validation réussie :**\n- Syntaxe JavaScript correcte (vérifiée avec node -c)\n- Fonctionnement MCP confirmé (testé avec next_rule)\n- Interface Streamlit mise à jour (vérifiée avec get_memory_file_paths)\n- Suppression des fichiers confirmée\n\n**Système opérationnel :** Le nouveau système automatique basé sur README.md fonctionne correctement et crée automatiquement une tâche de génération si le README.md manque (comme demandé dans les spécifications).",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Implémentation complète réussie du système automatique basé sur README.md. Toutes les modifications ont été appliquées avec succès :\n\n**Composants modifiés :**\n- `next_rule.js` : Ajout de createReadmeTask() et modification de loadStartWorkflowContext()\n- `memory_context.js` : Lecture de README.md comme project_context\n- `start-workflow.md` et `context-update.md` : Mise à jour des templates et instructions\n- Interface Streamlit : Modification des chemins et de l'interface utilisateur\n- Suppression des fichiers obsolètes projectBrief.md et techContext.md\n\n**Validation réussie :**\n- Syntaxe JavaScript correcte (vérifiée avec node -c)\n- Fonctionnement MCP confirmé (testé avec next_rule)\n- Interface Streamlit mise à jour (vérifiée avec get_memory_file_paths)\n- Suppression des fichiers confirmée\n\n**Système opérationnel :** Le nouveau système automatique basé sur README.md fonctionne correctement et crée automatiquement une tâche de génération si le README.md manque (comme demandé dans les spécifications).",
+    "last_comment_timestamp": "2025-07-13T06:27:30.800Z",
+    "validation": {
+      "approved_at": "2025-07-13T08:33:05.456261",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 303,
