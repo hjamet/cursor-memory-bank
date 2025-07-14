@@ -1,26 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 258,
+  "last_id": 259,
   "requests": [
-    {
-      "id": 208,
-      "content": "Modification request for Task #246 (Analyser et documenter la contrainte d'outil (`terminal_cmd` vs `execute_command`)):\n\n**Original Task Details:**\n- **Title:** Analyser et documenter la contrainte d'outil (`terminal_cmd` vs `execute_command`)\n- **Description:** Analyser la requête #207 et documenter l'impossibilité d'interdire `terminal_cmd` via la modification des règles de workflow.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\nLa requête utilisateur #207 demande d'interdire l'usage de `terminal_cmd` au profit de `execute_command` dans les règles du workflow.\n\n**Analyse Critique et Points de Vigilance:**\n*   **Fausse Prémisse :** L'analyse des fichiers de règles (`.cursor/workflow-steps/*.md`) a démontré que ces fichiers ne contiennent pas de références codées en dur aux outils. Ils décrivent des objectifs de haut niveau, et le choix de l'outil spécifique est laissé à l'agent LLM.\n*   **Impossibilité Technique (dans ce repo) :** Il est par conséquent impossible de satisfaire cette requête en modifiant les fichiers de ce dépôt. La contrainte doit être appliquée au niveau de la configuration système de l'agent LLM (par exemple, dans son prompt système global ou via une couche de filtrage d'outils), ce qui est en dehors du périmètre de ce projet.\n*   **Action :** Cette tâche sert à documenter cette analyse pour l'utilisateur. Aucune modification de code ne sera effectuée. La tâche sera immédiatement marquée comme terminée/validée.\n\n**Validation Criteria:**\nNo validation criteria specified\n\n**User Feedback:**\nTu as raison, il faut que tu identifies à l'origine de ce bug qui a amené à la duplication de cette tâche et que tu le résolves pour que chaque tâche ne soit traitée qu'une seule fois.\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-30T18:12:48.123189",
-      "updated_at": "2025-06-30T16:15:29.373Z",
-      "history": [
-        {
-          "timestamp": "2025-06-30T18:12:48.123189",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-30T16:15:29.373Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 209,
       "content": "Modification request for Task #246 (Analyser et documenter la contrainte d'outil (`terminal_cmd` vs `execute_command`)):\n\n**Original Task Details:**\n- **Title:** Analyser et documenter la contrainte d'outil (`terminal_cmd` vs `execute_command`)\n- **Description:** Analyser la requête #207 et documenter l'impossibilité d'interdire `terminal_cmd` via la modification des règles de workflow.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\nLa requête utilisateur #207 demande d'interdire l'usage de `terminal_cmd` au profit de `execute_command` dans les règles du workflow.\n\n**Analyse Critique et Points de Vigilance:**\n*   **Fausse Prémisse :** L'analyse des fichiers de règles (`.cursor/workflow-steps/*.md`) a démontré que ces fichiers ne contiennent pas de références codées en dur aux outils. Ils décrivent des objectifs de haut niveau, et le choix de l'outil spécifique est laissé à l'agent LLM.\n*   **Impossibilité Technique (dans ce repo) :** Il est par conséquent impossible de satisfaire cette requête en modifiant les fichiers de ce dépôt. La contrainte doit être appliquée au niveau de la configuration système de l'agent LLM (par exemple, dans son prompt système global ou via une couche de filtrage d'outils), ce qui est en dehors du périmètre de ce projet.\n*   **Action :** Cette tâche sert à documenter cette analyse pour l'utilisateur. Aucune modification de code ne sera effectuée. La tâche sera immédiatement marquée comme terminée/validée.\n\n**Validation Criteria:**\nNo validation criteria specified\n\n**User Feedback:**\nOui, malheureusement, effectivement, il n'est pas possible de désactiver l'outil, mais par contre il devrait être précisé dans toutes les règles que l'agent à interdiction d'utiliser et qu'il doit uniquement utiliser les outils de my MCP pour l'exécution des commandes. Donc ça, ça doit être précisé dans toutes les règles de manière à rappeler en permanence à l'agent que il a pas le droit d'utiliser ses outils. C'est mal foutu mais malheureusement il y a pas d'autres moyens de faire ça. Du coup, je te laisse modifier les règles s'il y a besoin.\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
@@ -957,6 +938,25 @@
         },
         {
           "timestamp": "2025-07-13T18:27:22.335Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 259,
+      "content": "Il y a toujours ce bug bizarre et inexplicable qui arrive de temps en temps sur certains repositoy : l'outil remember  reste bloqué dans une boucle context-update -> context-update -> context-update -> ...\nIl faut absolument que tu resolves ça !!!! Supprime TOUS les mécanismes qui pourraient amener recall à appeler context-update depuis contexte-update : ils sont très certainement inutiles et peuvent poser des problèmes !!!\n\nModifie également l'outil remember pour qu'il ne retourne que les 5 derniers souvenirs présents de la mémoire de travail et les 5 souvenirs sémantiquement les plus proches de la mémoire long terme (au lieu des 10 à chaque fois). Insiste d'avantage sur le fait que tant que l'agent doit continuer, IL DOIT CONTINUER SANS JAMAIS S'ARRETER ET A TOUT PRIX !!! Ecris en majuscule, Ajoute !!! TRES IMPORTANT !!! etc.\n\nPs : Je te rappelle que tu ne pourras pas tester manuellement ces modifications : elles nécessitent un redémarage de Cursor. Mais tu peux faire un petit script temporaire éventuellement Et Si il a l'air de fonctionner, comme c'est ta seule tâche, on pourra la valider après que tu ais terminé le workflow !!",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-14T10:36:04.393561",
+      "updated_at": "2025-07-14T08:37:48.949Z",
+      "history": [
+        {
+          "timestamp": "2025-07-14T10:36:04.393561",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-14T08:37:48.949Z",
           "action": "mark_archived"
         }
       ]

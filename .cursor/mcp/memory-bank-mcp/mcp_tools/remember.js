@@ -185,61 +185,10 @@ async function remember(args) {
         userComments = null;
     }
 
-    // Handle long-term memory with semantic encoding
-    let longTermMemories = [];
-    let currentLongTermMemory = null;
+    // Load user preferences
+    const preferences = await loadUserPreferences() || [];
 
-    // Read existing long-term memories
-    try {
-        const data = await fs.readFile(longTermMemoryFilePath, 'utf8');
-        const parsed = JSON.parse(data);
-        longTermMemories = Array.isArray(parsed) ? parsed : [parsed];
-    } catch (error) {
-        if (error.code !== 'ENOENT') {
-            throw new Error(`Failed to read long-term memory file: ${error.message}`);
-        }
-        // File doesn't exist, start with empty array
-        longTermMemories = [];
-    }
-
-    // Add new long-term memory if provided
-    if (long_term_memory) {
-        try {
-            // Encode the new memory
-            const embedding = await encodeText(long_term_memory);
-            const newMemory = {
-                content: long_term_memory,
-                timestamp: new Date().toISOString(),
-                embedding: embedding
-            };
-
-            longTermMemories.push(newMemory);
-            currentLongTermMemory = long_term_memory;
-
-            // Save updated memories
-            await fs.mkdir(path.dirname(longTermMemoryFilePath), { recursive: true });
-            await fs.writeFile(longTermMemoryFilePath, JSON.stringify(longTermMemories, null, 2), 'utf8');
-        } catch (error) {
-            throw new Error(`Failed to write long-term memory file: ${error.message}`);
-        }
-    }
-
-    // Read preferences from userbrief (status === 'preference')
-    let preferences = [];
-    try {
-        const userbriefData = await readUserbrief();
-        if (userbriefData && userbriefData.requests) {
-            preferences = userbriefData.requests
-                .filter(req => req.status === 'preference')
-                .map(req => req.content);
-        }
-    } catch (error) {
-        // Debug logging removed to prevent JSON-RPC pollution
-        // console.warn(`[Remember] Could not read preferences from userbrief: ${error.message}`);
-        // Do not throw; failing to read userbrief should not stop the remember tool.
-        preferences = [];
-    }
-
+    // Handle working memory (main memories)
     let memories = [];
     try {
         const data = await fs.readFile(memoryFilePath, 'utf8');
@@ -271,7 +220,7 @@ async function remember(args) {
         throw new Error(`Failed to write memory file: ${error.message}`);
     }
 
-    // Get 10 most recent working memories and optimize display
+    // Get recent working memories with optimized display
     const allRecentMemories = memories.slice(-10);
     const recentMemories = allRecentMemories.map((memory, index) => {
         // For the last memory (most recent), show all fields
@@ -289,6 +238,7 @@ async function remember(args) {
             present: memory.present
         };
     });
+
     const lastMemory = memories[memories.length - 1];
 
     // Extract the last rule from the 'past' field of the last memory
@@ -315,87 +265,20 @@ async function remember(args) {
         await resetTransitionCounter();
     }
 
-    // CRITICAL: Check for workflow completion when coming from context-update
-    if (lastStep === 'context-update') {
-        try {
-            const userbrief = await readUserbrief();
-            const tasks = await readTasks();
+    // Get 10 semantically similar long-term memories
+    const longTermMemories = await loadLongTermMemories();
 
-            // Check for unprocessed requests (status 'new' or 'in_progress')
-            const hasUnprocessedRequests = userbrief.requests && userbrief.requests.some(r =>
-                r.status === 'new' || r.status === 'in_progress'
-            );
+    // Add to long-term memory if provided
+    let currentLongTermMemory = null;
+    if (long_term_memory) {
+        const longTermMemoryEntry = {
+            content: long_term_memory,
+            timestamp: new Date().toISOString()
+        };
 
-            // Check for active tasks (not completed)
-            const hasActiveTasks = tasks && tasks.some(t =>
-                ['TODO', 'IN_PROGRESS', 'BLOCKED'].includes(t.status)
-            );
-
-            // ENHANCED: Check for REVIEW-only state (agent work complete, user validation pending)
-            const hasReviewTasks = tasks && tasks.some(t => t.status === 'REVIEW');
-            const isReviewOnlyState = !hasActiveTasks && hasReviewTasks && !hasUnprocessedRequests;
-
-            // DEBUG: Add debug information to understand the state
-            const debugInfo = {
-                lastStep,
-                hasUnprocessedRequests,
-                hasActiveTasks,
-                hasReviewTasks,
-                isReviewOnlyState,
-                requestCount: userbrief.requests ? userbrief.requests.length : 0,
-                taskCount: tasks ? tasks.length : 0,
-                requestStatuses: userbrief.requests ? userbrief.requests.map(r => r.status) : [],
-                taskStatuses: tasks ? tasks.map(t => t.status) : []
-            };
-
-            // WORKFLOW TERMINATION: Allow termination when no active work remains for agent
-            // This includes both complete state (no tasks) and REVIEW-only state (agent work done)
-            if (!hasUnprocessedRequests && (!hasActiveTasks || isReviewOnlyState)) {
-                // WORKFLOW COMPLETE - Return proper MCP response structure
-                const completionMessage = isReviewOnlyState
-                    ? "Memory has been saved. Agent work is complete - only user validation remains. The workflow can be stopped."
-                    : "Memory has been saved. The workflow is complete and can be stopped.";
-                const workflowInstruction = isReviewOnlyState
-                    ? "STOP: Agent work complete. Only tasks in REVIEW status remain (user validation required)."
-                    : "STOP: All tasks and user requests have been processed.";
-
-                const completionResponse = {
-                    message: completionMessage,
-                    workflow_status: "WORKFLOW_COMPLETE",
-                    next_action_required: "The workflow is complete. Do not call next_rule. You can stop.",
-                    workflow_instruction: workflowInstruction,
-                    recommended_next_step: null,
-                    current_state: future,
-                    possible_next_steps: [],
-                    user_preferences: preferences,
-                    long_term_memory: currentLongTermMemory,
-                    recent_working_memories: await getRecentMemories(5),
-                    semantic_long_term_memories: [],
-                    total_memories_count: await getTotalMemoriesCount(),
-                    total_long_term_memories_count: await getTotalLongTermMemoriesCount(),
-                    user_message_result: userMessageResult,
-                    continuation_mandatory: false,
-                    stopping_prohibited: "You are allowed to stop. The workflow is complete.",
-                    immediate_next_action: "The workflow is complete. No further action is required.",
-                    workflow_cycle_reminder: "The workflow cycle is now complete. Await new user instructions.",
-                    debug_info: debugInfo
-                };
-
-                // Add user_comments if there are pending messages
-                if (userComments) {
-                    completionResponse.user_comments = userComments;
-                }
-
-                return {
-                    content: [{
-                        type: 'text',
-                        text: JSON.stringify(completionResponse, null, 2)
-                    }]
-                };
-            }
-        } catch (error) {
-            // If we can't check the state, fall through to normal workflow continuation
-        }
+        // Add semantic embedding for the long-term memory
+        await addToLongTermMemory(longTermMemoryEntry);
+        currentLongTermMemory = longTermMemoryEntry;
     }
 
     const possible_next_steps = await getPossibleNextSteps(lastStep);

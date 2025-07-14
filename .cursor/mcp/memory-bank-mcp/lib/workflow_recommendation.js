@@ -113,6 +113,53 @@ export async function getRecommendedNextStep(lastStep, possibleSteps, tasks = nu
  * @returns {Promise<string>} Recommended next step
  */
 async function getRecommendedStepLogic(lastStep, possibleSteps, tasks = null) {
+    // CRITICAL FIX: Prevent context-update loops
+    // Rule: context-update can NEVER be followed by context-update
+    if (lastStep === 'context-update') {
+        // Coming from context-update, we need to determine the next step based on system state
+
+        // Load tasks if not provided
+        if (!tasks) {
+            try {
+                tasks = await readTasks();
+            } catch (error) {
+                // If we can't load tasks, force implementation or task-decomposition
+                if (possibleSteps.includes('task-decomposition')) {
+                    return 'task-decomposition';
+                }
+                if (possibleSteps.includes('implementation')) {
+                    return 'implementation';
+                }
+                // Ultimate fallback - but avoid context-update
+                return possibleSteps.find(step => step !== 'context-update') || 'implementation';
+            }
+        }
+
+        // Check for unprocessed requests first (highest priority)
+        if (possibleSteps.includes('task-decomposition')) {
+            return 'task-decomposition';
+        }
+
+        // Check for active tasks (implementation or blocked)
+        if (possibleSteps.includes('implementation')) {
+            return 'implementation';
+        }
+
+        // Check for blocked tasks that need fixing
+        if (possibleSteps.includes('fix')) {
+            return 'fix';
+        }
+
+        // Check for tasks that need validation
+        if (possibleSteps.includes('experience-execution')) {
+            return 'experience-execution';
+        }
+
+        // If we reach here, either the system is idle or we have no valid transitions
+        // NEVER return context-update to prevent loops
+        return possibleSteps.find(step => step !== 'context-update') || 'implementation';
+    }
+
     // CRITICAL FIX: Prevent experience-execution loops
     // Rule: experience-execution can NEVER be followed by experience-execution
     if (lastStep === 'experience-execution') {
