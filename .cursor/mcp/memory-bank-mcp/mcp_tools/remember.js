@@ -220,8 +220,8 @@ async function remember(args) {
         throw new Error(`Failed to write memory file: ${error.message}`);
     }
 
-    // Get recent working memories with optimized display
-    const allRecentMemories = memories.slice(-10);
+    // Get recent working memories with optimized display (limited to 5 for performance)
+    const allRecentMemories = memories.slice(-5);
     const recentMemories = allRecentMemories.map((memory, index) => {
         // For the last memory (most recent), show all fields
         if (index === allRecentMemories.length - 1) {
@@ -283,10 +283,10 @@ async function remember(args) {
 
     const possible_next_steps = await getPossibleNextSteps(lastStep);
 
-    // Find semantically similar long-term memories based on the last "future" 
+    // Find semantically similar long-term memories based on the last "future" (limited to 5 for performance)
     let semanticLongTermMemories = [];
     if (lastMemory && lastMemory.future && longTermMemories.length > 0) {
-        semanticLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 10);
+        semanticLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 5);
     }
 
     // Load tasks for the recommendation logic
@@ -391,15 +391,15 @@ async function remember(args) {
         possible_next_steps: possible_next_steps,
         user_preferences: preferences, // Always show preferences
         long_term_memory: currentLongTermMemory, // Only the newly added one, if any
-        recent_working_memories: recentMemories, // 10 most recent working memories
-        semantic_long_term_memories: semanticLongTermMemories, // 3 most semantically relevant long-term memories
+        recent_working_memories: recentMemories, // 5 most recent working memories (optimized)
+        semantic_long_term_memories: semanticLongTermMemories, // 5 most semantically relevant long-term memories (optimized)
         total_memories_count: memories.length,
         total_long_term_memories_count: longTermMemories.length,
         user_message_result: userMessageResult, // Include the result of the user message operation
         continuation_mandatory: true,
-        stopping_prohibited: "CRITICAL: Memory recording is NOT a completion signal. You MUST continue the autonomous workflow.",
-        immediate_next_action: `Call mcp_MemoryBankMCP_next_rule with parameter: '${recommendedNextStep}'`,
-        workflow_cycle_reminder: "Remember: record → next_rule → execute → remember → next_rule (infinite loop)"
+        stopping_prohibited: "!!! TRÈS IMPORTANT !!! - CRITIQUE : L'enregistrement de mémoire N'EST PAS un signal de fin. Vous DEVEZ ABSOLUMENT continuer le workflow autonome SANS INTERRUPTION.",
+        immediate_next_action: `!!! OBLIGATOIRE !!! - Appelez mcp_MemoryBankMCP_next_rule avec le paramètre : '${recommendedNextStep}'`,
+        workflow_cycle_reminder: "!!! TRÈS IMPORTANT !!! - Rappelez-vous : enregistrer → next_rule → exécuter → remember → next_rule (BOUCLE INFINIE OBLIGATOIRE)"
     };
 
     // Add user_comments if there are pending messages

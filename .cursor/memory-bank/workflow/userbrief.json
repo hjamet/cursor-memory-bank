@@ -1,26 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 259,
+  "last_id": 260,
   "requests": [
-    {
-      "id": 209,
-      "content": "Modification request for Task #246 (Analyser et documenter la contrainte d'outil (`terminal_cmd` vs `execute_command`)):\n\n**Original Task Details:**\n- **Title:** Analyser et documenter la contrainte d'outil (`terminal_cmd` vs `execute_command`)\n- **Description:** Analyser la requête #207 et documenter l'impossibilité d'interdire `terminal_cmd` via la modification des règles de workflow.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\nLa requête utilisateur #207 demande d'interdire l'usage de `terminal_cmd` au profit de `execute_command` dans les règles du workflow.\n\n**Analyse Critique et Points de Vigilance:**\n*   **Fausse Prémisse :** L'analyse des fichiers de règles (`.cursor/workflow-steps/*.md`) a démontré que ces fichiers ne contiennent pas de références codées en dur aux outils. Ils décrivent des objectifs de haut niveau, et le choix de l'outil spécifique est laissé à l'agent LLM.\n*   **Impossibilité Technique (dans ce repo) :** Il est par conséquent impossible de satisfaire cette requête en modifiant les fichiers de ce dépôt. La contrainte doit être appliquée au niveau de la configuration système de l'agent LLM (par exemple, dans son prompt système global ou via une couche de filtrage d'outils), ce qui est en dehors du périmètre de ce projet.\n*   **Action :** Cette tâche sert à documenter cette analyse pour l'utilisateur. Aucune modification de code ne sera effectuée. La tâche sera immédiatement marquée comme terminée/validée.\n\n**Validation Criteria:**\nNo validation criteria specified\n\n**User Feedback:**\nOui, malheureusement, effectivement, il n'est pas possible de désactiver l'outil, mais par contre il devrait être précisé dans toutes les règles que l'agent à interdiction d'utiliser et qu'il doit uniquement utiliser les outils de my MCP pour l'exécution des commandes. Donc ça, ça doit être précisé dans toutes les règles de manière à rappeler en permanence à l'agent que il a pas le droit d'utiliser ses outils. C'est mal foutu mais malheureusement il y a pas d'autres moyens de faire ça. Du coup, je te laisse modifier les règles s'il y a besoin.\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-30T18:26:37.521555",
-      "updated_at": "2025-06-30T16:30:08.372Z",
-      "history": [
-        {
-          "timestamp": "2025-06-30T18:26:37.521555",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-30T16:30:08.372Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 210,
       "content": "Je viens de demander une modification à une tâche qui était en review et ça m'a à nouveau créé 2 tâches, c'est à dire que ça a remis la tâche qui était en review dans les tâches et en plus de ça, ça a créé une nouvelle requête utilisateur. Avec les détails de la tâche, donc il faut absolument faire en sorte que la tâche ne revienne. La tâche qui était en review ne revienne pas dans les tâches de base et que ce soit simplement la nouvelle requête utilisateur qui devienne une tâche, sinon ça amène à une duplication vraiment problématique.",
@@ -957,6 +938,25 @@
         },
         {
           "timestamp": "2025-07-14T08:37:48.949Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 260,
+      "content": "En fait, le système de toast ne fonctionne pas correctement dans l'interface streamlit, probablement à cause de l'auto actualisation toutes les 2s. A la place, est-ce que tu pourrais afficher les 5 derniers souvenirs présents dans le rideau dépliable à gauche de l'interface, dans la section Agent status, juste en dessous de Current Task :D Place les 5 derniers souvenirs dans un accordéon plié par défaut pour ne pas prendre trop de place :D",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-14T10:45:24.031016",
+      "updated_at": "2025-07-14T08:48:43.039Z",
+      "history": [
+        {
+          "timestamp": "2025-07-14T10:45:24.031016",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-14T08:48:43.039Z",
           "action": "mark_archived"
         }
       ]
