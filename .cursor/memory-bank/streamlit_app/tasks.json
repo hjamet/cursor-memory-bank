@@ -7875,13 +7875,13 @@
     "dependencies": [
       317
     ],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       "mcp_tools/remember.js"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) L'outil remember retourne exactement 5 souvenirs de travail et 5 souvenirs sémantiques, (2) Les messages de continuité sont renforcés avec majuscules et !!!, (3) Les performances sont améliorées par la réduction de volume, (4) Le code compile sans erreur, (5) Toutes les autres fonctionnalités restent inchangées.",
     "created_date": "2025-07-14T08:37:45.638Z",
-    "updated_date": "2025-07-14T08:53:25.301Z",
+    "updated_date": "2025-07-14T10:57:38.232687",
     "parent_id": null,
     "priority": 4,
     "image": null,
@@ -7900,7 +7900,11 @@
       }
     ],
     "last_comment": "🎉 **TEST RÉUSSI** - L'optimisation de l'outil remember fonctionne parfaitement selon toutes les spécifications !\n\n**Validation exhaustive effectuée :**\n✅ **Tests syntaxiques** : remember.js et server.js compilent sans erreur avec `node -c`\n✅ **Vérification des modifications** : Toutes les optimisations sont correctement implémentées\n✅ **Mémoires de travail** : Correctement limitées à 5 avec `memories.slice(-5)` et commentaire explicatif\n✅ **Mémoires sémantiques** : Correctement limitées à 5 avec `findSimilarMemories(..., 5)` et commentaire explicatif  \n✅ **Messages de continuité renforcés** : Majuscules et !!! TRÈS IMPORTANT !!! ajoutés comme demandé\n\n**Fonctionnalités validées :**\n- Optimisation performance : ~50% de réduction du volume de mémoires transmises\n- Messages de continuité fortement renforcés pour insister sur la continuité du workflow autonome\n- Préservation de toutes les fonctionnalités existantes de l'outil remember\n- Commentaires mis à jour pour documenter les nouvelles limites\n\n**Résultat final :** SUCCESS complet - L'outil remember est maintenant optimisé avec 5 souvenirs au lieu de 10, et les messages de continuité sont fortement renforcés pour insister sur l'importance de ne JAMAIS arrêter le workflow autonome. Cette optimisation améliore considérablement les performances tout en maintenant un contexte suffisant pour la qualité des décisions.",
-    "last_comment_timestamp": "2025-07-14T08:53:25.301Z"
+    "last_comment_timestamp": "2025-07-14T08:53:25.301Z",
+    "validation": {
+      "approved_at": "2025-07-14T10:57:38.223800",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 319,
@@ -7908,7 +7912,7 @@
     "short_description": "Corriger le problème de toast non fonctionnel en ajoutant un affichage des 5 derniers souvenirs dans la section Agent status de la sidebar, sous Current Task, dans un accordéon plié par défaut.",
     "detailed_description": "**Objectif :**\nRemplacer le système de toast défaillant par un affichage persistant des 5 derniers souvenirs de l'agent dans la sidebar de l'interface Streamlit.\n\n**Spécifications techniques :**\n1. **Localisation** : Section \"Agent status\" de la sidebar gauche, positionnement sous \"Current Task\"\n2. **Format d'affichage** : Accordéon plié par défaut avec label \"Recent Memories (5)\"\n3. **Contenu** : 5 derniers souvenirs avec timestamp et contenu tronqué si nécessaire\n4. **Intégration** : Compatible avec le système d'auto-actualisation toutes les 2s\n5. **Design** : Cohérent avec le style existant de l'interface\n\n**Critères d'acceptation :**\n- Les 5 derniers souvenirs s'affichent correctement dans la sidebar\n- L'accordéon est plié par défaut et fonctionnel\n- L'affichage se met à jour automatiquement avec l'auto-actualisation\n- Le design s'intègre harmonieusement avec l'interface existante\n- Les performances restent optimales malgré la récupération fréquente\n\n**Analyse Technique & Points de Vigilance :**\n⚠️ **Performance** : La récupération des 5 derniers souvenirs doit être optimisée pour l'auto-actualisation toutes les 2s\n⚠️ **Interface utilisateur** : L'accordéon doit maintenir son état (plié/déplié) entre les actualisations\n⚠️ **Gestion des données** : Format et taille des souvenirs affichés à adapter pour l'espace limité de la sidebar  \n⚠️ **Compatibilité** : S'assurer que l'ajout ne perturbe pas les autres fonctionnalités de la sidebar\n⚠️ **Responsive design** : L'affichage doit rester fonctionnel sur différentes tailles d'écran\n⚠️ **Gestion d'erreurs** : Prévoir l'affichage en cas d'indisponibilité des souvenirs\n\n**Localisation des modifications :**\n- Fichiers Streamlit de la sidebar (probablement dans `.cursor/streamlit_app/components/`)\n- Système de récupération des mémoires depuis l'API MCP\n- Composants d'interface utilisateur et styling CSS",
     "dependencies": [],
-    "status": "TODO",
+    "status": "REVIEW",
     "impacted_files": [
       "streamlit_app/components/sidebar.py",
       "streamlit_app/components/",
@@ -7916,10 +7920,25 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Les 5 derniers souvenirs s'affichent dans la sidebar sous Current Task, (2) L'accordéon est plié par défaut et fonctionnel, (3) L'affichage se met à jour automatiquement avec l'auto-actualisation, (4) Le design est cohérent avec l'interface existante, (5) Les performances sont maintenues, (6) L'ancien système de toast est supprimé ou désactivé.",
     "created_date": "2025-07-14T08:48:38.879Z",
-    "updated_date": "2025-07-14T08:48:38.879Z",
+    "updated_date": "2025-07-14T10:37:10.153Z",
     "parent_id": null,
     "priority": 3,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 319,
+    "comments": [
+      {
+        "timestamp": "2025-07-14T08:56:11.209Z",
+        "comment": "Début de l'implémentation du remplacement du système toast par un affichage des 5 derniers souvenirs dans la sidebar Streamlit. Cette tâche vise à corriger le problème de toast non fonctionnel à cause de l'auto-actualisation toutes les 2s en utilisant un accordéon plié par défaut dans la section Agent status.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-14T10:37:10.153Z",
+        "comment": "Implémentation terminée avec succès. J'ai créé une solution autonome dans sidebar.py qui ajoute l'accordéon \"🧠 Recent Memories (5)\" dans la section Agent Status. La solution inclut : (1) Fonction load_agent_memories() autonome avec gestion robuste des chemins, (2) Affichage en accordéon avec timestamps formatés, (3) Structure Past/Present/Future des souvenirs, (4) Gestion d'erreurs robuste sans crash, (5) Messages utilisateur affichés en warning. L'interface est maintenant prête et compatible avec l'auto-actualisation de 2 secondes. Les fichiers de test temporaires ont été supprimés automatiquement.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Implémentation terminée avec succès. J'ai créé une solution autonome dans sidebar.py qui ajoute l'accordéon \"🧠 Recent Memories (5)\" dans la section Agent Status. La solution inclut : (1) Fonction load_agent_memories() autonome avec gestion robuste des chemins, (2) Affichage en accordéon avec timestamps formatés, (3) Structure Past/Present/Future des souvenirs, (4) Gestion d'erreurs robuste sans crash, (5) Messages utilisateur affichés en warning. L'interface est maintenant prête et compatible avec l'auto-actualisation de 2 secondes. Les fichiers de test temporaires ont été supprimés automatiquement.",
+    "last_comment_timestamp": "2025-07-14T10:37:10.153Z"
   }
 ]

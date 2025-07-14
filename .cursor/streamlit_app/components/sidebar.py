@@ -5,6 +5,40 @@ import json
 from pathlib import Path
 from datetime import datetime
 
+def load_agent_memories(limit=5):
+    """Load recent agent memories from the memories.json file"""
+    try:
+        # Try multiple possible paths for the memories file
+        possible_paths = [
+            Path("../memory-bank/workflow/agent_memory.json"),
+            Path("../../memory-bank/workflow/agent_memory.json"),
+            Path(".cursor/memory-bank/workflow/agent_memory.json"),
+            Path("data/memories.json")
+        ]
+        
+        memories_file = None
+        for path in possible_paths:
+            if path.exists():
+                memories_file = path
+                break
+        
+        if not memories_file:
+            return []
+        
+        with open(memories_file, 'r', encoding='utf-8') as f:
+            memories = json.load(f)
+        
+        # The file contains directly an array of memories
+        if not memories:
+            return []
+            
+        # Sort by timestamp descending and take the limit
+        sorted_memories = sorted(memories, key=lambda x: x.get('timestamp', ''), reverse=True)
+        return sorted_memories[:limit]
+    except Exception as e:
+        # Return empty list instead of crashing
+        return []
+
 def add_user_message(content: str) -> bool:
     """Add a user message to the user_messages.json file"""
     try:
@@ -172,6 +206,45 @@ def display_sidebar():
                 st.info(info_text)
             else:
                 st.info("Agent is idle. Ready for next task.")
+
+        # Display Recent Memories
+        try:
+            recent_memories = load_agent_memories(5)
+            if recent_memories:
+                with st.expander("🧠 Recent Memories (5)", expanded=False):
+                    for i, memory in enumerate(recent_memories):
+                        # Format timestamp
+                        timestamp = memory.get('timestamp', 'Unknown')
+                        if 'T' in timestamp:
+                            timestamp = timestamp.replace('T', ' ')[:19]
+                        
+                        # Get memory content (past, present, future)
+                        past = memory.get('past', '')
+                        present = memory.get('present', '')
+                        future = memory.get('future', '')
+                        
+                        # Create memory title from timestamp
+                        memory_title = f"📝 {timestamp}"
+                        
+                        # Create expandable memory entry
+                        with st.expander(memory_title, expanded=False):
+                            if past:
+                                st.markdown(f"**Passé:** {past}")
+                            if present:
+                                st.markdown(f"**Présent:** {present}")
+                            if future:
+                                st.markdown(f"**Futur:** {future}")
+                            
+                            # Show user message if available
+                            user_msg = memory.get('user_message', '')
+                            if user_msg:
+                                st.warning(f"**Message utilisateur:** {user_msg}")
+            else:
+                with st.expander("🧠 Recent Memories (5)", expanded=False):
+                    st.info("Aucun souvenir disponible pour le moment.")
+        except Exception as e:
+            with st.expander("🧠 Recent Memories (5)", expanded=False):
+                st.error(f"Erreur lors du chargement des souvenirs: {str(e)}")
 
         st.markdown("---")
         
