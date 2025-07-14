@@ -7944,5 +7944,54 @@
       "approved_at": "2025-07-14T12:43:17.774152",
       "approved_by": "user_review"
     }
+  },
+  {
+    "id": 320,
+    "title": "Diagnostiquer problème persistant de boucle context-update sur repository trail-rag",
+    "short_description": "Investiguer pourquoi le bug de boucle infinie context-update persiste sur le repository trail-rag malgré les corrections massives des tâches #317 et #318. Identifier les causes spécifiques et les différences de configuration sans impacter le repository cible.",
+    "detailed_description": "**Objectif :** Diagnostiquer et comprendre pourquoi le problème de boucle infinie context-update persiste sur le repository `C:\\Users\\Jamet\\code\\trail-rag` malgré les corrections réussies sur le repository principal.\n\n**Investigation Non-Destructive :**\n- Analyser la configuration MCP du repository trail-rag en lecture seule\n- Comparer les versions des fichiers MCP entre les deux repositories\n- Identifier les différences de configuration ou de cache\n- Documenter les écarts qui expliquent la persistance du problème\n\n**Analyse Technique & Points de Vigilance :**\n- **Contrainte CRITIQUE** : Accès strictement en lecture seule au repository trail-rag - aucune modification autorisée\n- **Versions MCP** : Les corrections #317/#318 ne se sont peut-être pas propagées automatiquement\n- **Configuration spécifique** : Le repository trail-rag peut avoir des paramètres locaux différents\n- **Cache MCP** : Les serveurs MCP peuvent utiliser des versions cachées non actualisées\n- **Environnement** : Différences possibles d'environnement entre les repositories\n\n**Critères d'acceptation :**\n- Identification précise des causes de la persistance du problème\n- Comparaison documentée entre les configurations des deux repositories  \n- Plan d'action pour résoudre le problème sans casser le repository trail-rag\n- Documentation des différences techniques trouvées\n\n**Approche :**\n1. Accès en lecture au repository trail-rag via des commandes système non-destructives\n2. Comparaison des fichiers MCP (remember.js, workflow_recommendation.js, server.js)\n3. Analyse des logs et de la configuration locale\n4. Documentation exhaustive des écarts identifiés",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [],
+    "validation_criteria": "La tâche est terminée quand : (1) Les causes précises de la persistance du problème sont identifiées et documentées, (2) Une comparaison complète des configurations MCP entre les deux repositories est effectuée, (3) Un plan d'action spécifique pour résoudre le problème trail-rag est formulé, (4) Aucune modification n'a été apportée au repository trail-rag pendant l'investigation, (5) Les différences techniques sont clairement documentées avec recommandations de correction.",
+    "created_date": "2025-07-14T18:29:57.135Z",
+    "updated_date": "2025-07-14T18:47:44.072Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 320,
+    "comments": [
+      {
+        "timestamp": "2025-07-14T18:30:48.347Z",
+        "comment": "Début de l'implémentation - Investigation diagnostique du problème persistant de boucle context-update sur repository trail-rag. Approche non-destructive pour identifier les causes sans impact sur le repository cible.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-14T18:47:44.072Z",
+        "comment": "SUCCESS complet - Investigation diagnostique terminée avec identification définitive de la cause racine du problème persistant sur trail-rag.\n\n**VALIDATION DES CONCLUSIONS :**\n✅ **Fichiers MCP identiques** : MD5 hash confirmé pour remember.js et workflow_recommendation.js\n✅ **Protections anti-boucle présentes** : Code des corrections #317/#318 vérifié sur trail-rag\n✅ **Emergency Brake actif confirmé** : 64 transitions vs 5 sur repo principal, emergency_brake_active: true\n✅ **Historique problématique validé** : 20 transitions BLOCKED vs 1 sur repo principal\n\n**CAUSE RACINE DÉFINITIVE :**\nLe problème n'est PAS lié aux fichiers MCP qui sont corrects, mais à l'Emergency Brake du système de sécurité workflow qui s'est déclenché après 64 transitions consécutives (limite : 50) et bloque maintenant toutes les transitions en forçant un retour à context-update.\n\n**RECOMMANDATIONS POUR TÂCHE #321 :**\n- Réinitialisation contrôlée du workflow_safety.json sur trail-rag\n- Conservation des protections de sécurité\n- Test de validation post-correction\n- Documentation de la procédure de récupération Emergency Brake",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "SUCCESS complet - Investigation diagnostique terminée avec identification définitive de la cause racine du problème persistant sur trail-rag.\n\n**VALIDATION DES CONCLUSIONS :**\n✅ **Fichiers MCP identiques** : MD5 hash confirmé pour remember.js et workflow_recommendation.js\n✅ **Protections anti-boucle présentes** : Code des corrections #317/#318 vérifié sur trail-rag\n✅ **Emergency Brake actif confirmé** : 64 transitions vs 5 sur repo principal, emergency_brake_active: true\n✅ **Historique problématique validé** : 20 transitions BLOCKED vs 1 sur repo principal\n\n**CAUSE RACINE DÉFINITIVE :**\nLe problème n'est PAS lié aux fichiers MCP qui sont corrects, mais à l'Emergency Brake du système de sécurité workflow qui s'est déclenché après 64 transitions consécutives (limite : 50) et bloque maintenant toutes les transitions en forçant un retour à context-update.\n\n**RECOMMANDATIONS POUR TÂCHE #321 :**\n- Réinitialisation contrôlée du workflow_safety.json sur trail-rag\n- Conservation des protections de sécurité\n- Test de validation post-correction\n- Documentation de la procédure de récupération Emergency Brake",
+    "last_comment_timestamp": "2025-07-14T18:47:44.072Z"
+  },
+  {
+    "id": 321,
+    "title": "Corriger le problème de boucle context-update sur repository trail-rag",
+    "short_description": "Appliquer les corrections nécessaires pour éliminer définitivement le bug de boucle infinie context-update sur le repository trail-rag, en se basant sur l'analyse diagnostique effectuée et en utilisant une approche sécurisée pour préserver l'intégrité du repository.",
+    "detailed_description": "**Objectif :** Résoudre définitivement le problème de boucle infinie context-update sur le repository trail-rag en appliquant les corrections appropriées identifiées lors de l'investigation diagnostique.\n\n**Approche Sécurisée :**\n- Appliquer les corrections basées sur l'analyse diagnostique de la tâche #320\n- Utiliser une stratégie de mise à jour progressive et réversible\n- Créer des sauvegardes avant toute modification\n- Valider chaque étape de correction avec des tests non-destructifs\n\n**Analyse Technique & Points de Vigilance :**\n- **Sécurité repository** : Approche conservatrice avec sauvegardes systématiques avant modifications\n- **Propagation corrections** : S'assurer que les corrections #317/#318 sont correctement appliquées\n- **Configuration locale** : Respecter les spécificités du repository trail-rag\n- **Cache MCP** : Gérer la mise à jour des caches et de la configuration locale\n- **Validation** : Tests exhaustifs après chaque modification pour confirmer la résolution\n- **Rollback** : Plan de restauration en cas de problème pendant l'application des corrections\n\n**Stratégie de Correction :**\n1. Backup des fichiers MCP existants sur trail-rag\n2. Application progressive des corrections identifiées\n3. Mise à jour de la configuration MCP si nécessaire\n4. Refresh des caches et redémarrage des services MCP\n5. Tests fonctionnels pour confirmer la résolution du problème\n\n**Critères d'acceptation :**\n- Les boucles infinie context-update n'existent plus sur trail-rag\n- Le workflow autonome fonctionne normalement sur ce repository\n- L'intégrité du repository trail-rag est préservée\n- Une documentation de la procédure appliquée est créée\n- Des tests de non-régression confirment la stabilité",
+    "dependencies": [
+      320
+    ],
+    "status": "TODO",
+    "impacted_files": [],
+    "validation_criteria": "La tâche est terminée quand : (1) Le workflow autonome fonctionne sans boucle context-update sur trail-rag, (2) Tests complets de fonctionnement effectués avec succès sur le repository, (3) Toutes les corrections sont appliquées et validées, (4) L'intégrité du repository trail-rag est confirmée, (5) Documentation complète de la procédure de correction est créée, (6) Plan de rollback documenté et testé si nécessaire.",
+    "created_date": "2025-07-14T18:30:12.517Z",
+    "updated_date": "2025-07-14T18:30:12.517Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]
