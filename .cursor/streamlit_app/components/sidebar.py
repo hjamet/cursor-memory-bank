@@ -209,36 +209,23 @@ def display_sidebar():
 
         # Display Recent Memories
         try:
-            recent_memories = load_agent_memories(5)
+            recent_memories = load_agent_memories(1)
             if recent_memories:
-                with st.expander("🧠 Recent Memories (5)", expanded=False):
-                    for i, memory in enumerate(recent_memories):
-                        # Format timestamp
-                        timestamp = memory.get('timestamp', 'Unknown')
-                        if 'T' in timestamp:
-                            timestamp = timestamp.replace('T', ' ')[:19]
+                with st.expander("🧠 Recent Memory", expanded=False):
+                    for memory in recent_memories:
                         
                         # Get memory content (past, present, future)
                         past = memory.get('past', '')
                         present = memory.get('present', '')
                         future = memory.get('future', '')
                         
-                        # Create memory title from timestamp
-                        memory_title = f"📝 {timestamp}"
-                        
                         # Create expandable memory entry
-                        with st.expander(memory_title, expanded=False):
-                            if past:
-                                st.markdown(f"**Passé:** {past}")
-                            if present:
-                                st.markdown(f"**Présent:** {present}")
-                            if future:
-                                st.markdown(f"**Futur:** {future}")
-                            
-                            # Show user message if available
-                            user_msg = memory.get('user_message', '')
-                            if user_msg:
-                                st.warning(f"**Message utilisateur:** {user_msg}")
+                        if past:
+                            st.markdown(f"**Passé:** {past}")
+                        if present:
+                            st.markdown(f"**Présent:** {present}")
+                        if future:
+                            st.markdown(f"**Futur:** {future}")
             else:
                 with st.expander("🧠 Recent Memories (5)", expanded=False):
                     st.info("Aucun souvenir disponible pour le moment.")
