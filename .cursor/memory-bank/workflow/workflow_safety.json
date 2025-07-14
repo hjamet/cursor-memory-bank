@@ -1,6 +1,11 @@
 {
   "transition_history": [
     {
+      "from": "experience-execution",
+      "to": "context-update",
+      "timestamp": "2025-07-14T10:40:00.404Z"
+    },
+    {
       "from": "system",
       "to": "BLOCKED_context-update_TO_context-update",
       "timestamp": "2025-07-14T10:37:23.530Z"
@@ -94,16 +99,11 @@
       "from": "start-workflow",
       "to": "task-decomposition",
       "timestamp": "2025-07-14T08:36:59.997Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-14T08:36:46.141Z"
     }
   ],
-  "experience_execution_attempts": 1,
+  "experience_execution_attempts": 0,
   "last_experience_execution": "2025-07-14T10:37:19.120Z",
   "last_implementation": "2025-07-14T08:55:54.471Z",
-  "consecutive_transitions": 6,
+  "consecutive_transitions": 1,
   "emergency_brake_active": false
 }
