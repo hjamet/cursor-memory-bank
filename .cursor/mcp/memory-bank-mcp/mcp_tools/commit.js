@@ -447,7 +447,6 @@ export async function handleCommit({ emoji, type, title, description }) {
                         code_scan: {
                             total_files: codeScanResults.length,
                             oversized_files: codeScanResults.filter(f => f.oversized).length,
-                            files_scanned: codeScanResults,
                             task_recommendations: taskRecommendations,
                             tasks_created: createdTasks,
                             automatic_task_creation: createdTasks.length > 0
@@ -542,7 +541,6 @@ export async function handleCommit({ emoji, type, title, description }) {
                     code_scan: {
                         total_files: codeScanResults.length,
                         oversized_files: codeScanResults.filter(f => f.oversized).length,
-                        files_scanned: codeScanResults,
                         task_recommendations: taskRecommendations,
                         tasks_created: createdTasks,
                         automatic_task_creation: createdTasks.length > 0
@@ -570,7 +568,6 @@ export async function handleCommit({ emoji, type, title, description }) {
                         code_scan: {
                             total_files: codeScanResults.length,
                             oversized_files: codeScanResults.filter(f => f.oversized).length,
-                            files_scanned: codeScanResults,
                             task_recommendations: taskRecommendations,
                             tasks_created: createdTasks,
                             automatic_task_creation: createdTasks.length > 0
@@ -588,7 +585,6 @@ export async function handleCommit({ emoji, type, title, description }) {
                     code_scan: {
                         total_files: codeScanResults.length,
                         oversized_files: codeScanResults.filter(f => f.oversized).length,
-                        files_scanned: codeScanResults,
                         task_recommendations: taskRecommendations,
                         tasks_created: createdTasks,
                         automatic_task_creation: createdTasks.length > 0

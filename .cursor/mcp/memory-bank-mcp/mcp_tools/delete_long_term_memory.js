@@ -13,11 +13,9 @@ const longTermMemoryFilePath = path.join(__dirname, '..', '..', '..', 'memory-ba
  * MCP Tool Schema for delete_long_term_memory
  * Defines the input parameters and validation rules
  */
-export const deleteLongTermMemorySchema = z.object({
-    id: z.string()
-        .min(1, "ID cannot be empty")
-        .describe("The unique identifier (timestamp) of the long-term memory to delete")
-});
+export const deleteLongTermMemorySchema = {
+    id: z.string().describe("LONG TERM MEMORY ID: The unique identifier (timestamp) of the long-term memory to delete from the persistent storage. This tool allows the agent to remove obsolete, incorrect, or no longer relevant long-term memories to maintain a clean and pertinent memory base. The ID corresponds to the timestamp field of the memory entry in the long_term_memory.json file.")
+};
 
 /**
  * Delete a specific long-term memory by its ID

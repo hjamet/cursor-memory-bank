@@ -3,6 +3,41 @@
     {
       "from": null,
       "to": "implementation",
+      "timestamp": "2025-07-15T15:37:55.009Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-15T15:35:07.050Z"
+    },
+    {
+      "from": "task-decomposition",
+      "to": "implementation",
+      "timestamp": "2025-07-15T15:35:01.535Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-15T15:33:50.783Z"
+    },
+    {
+      "from": "start-workflow",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-15T15:33:42.506Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-15T15:33:20.275Z"
+    },
+    {
+      "from": null,
+      "to": "context-update",
+      "timestamp": "2025-07-15T15:28:06.150Z"
+    },
+    {
+      "from": null,
+      "to": "implementation",
       "timestamp": "2025-07-15T15:25:01.745Z"
     },
     {
@@ -64,46 +99,11 @@
       "from": "system",
       "to": "task-decomposition",
       "timestamp": "2025-07-15T13:17:41.169Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-15T13:14:41.776Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-15T13:14:11.369Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-15T13:05:58.643Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-15T12:49:01.142Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-15T12:47:02.004Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-15T12:46:39.549Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-14T18:54:11.053Z"
     }
   ],
   "experience_execution_attempts": 1,
   "last_experience_execution": "2025-07-15T14:07:18.599Z",
-  "last_implementation": "2025-07-15T15:25:01.745Z",
-  "consecutive_transitions": 4,
+  "last_implementation": "2025-07-15T15:37:55.009Z",
+  "consecutive_transitions": 3,
   "emergency_brake_active": false
 }

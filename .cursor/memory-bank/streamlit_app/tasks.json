@@ -8165,7 +8165,7 @@
     "short_description": "Corriger la déclaration de l'outil delete_long_term_memory pour qu'il ait un paramètre id approprié et résoudre les problèmes de l'outil remember (loadLongTermMemories is not defined). Ces corrections critiques sont nécessaires pour le bon fonctionnement du serveur MCP MemoryBankMCP.",
     "detailed_description": "Corriger deux problèmes critiques dans le serveur MCP MemoryBankMCP qui empêchent le bon fonctionnement des outils de gestion de la mémoire long terme.\n\n**Problème 1 : Outil delete_long_term_memory**\n- L'outil `delete_long_term_memory` est actuellement déclaré avec seulement un paramètre `random_string: Dummy parameter for no-parameter tools`\n- Cette déclaration est incorrecte et empêche l'outil de fonctionner correctement\n- L'outil devrait avoir un paramètre `id` pour spécifier quel souvenir long terme supprimer\n\n**Problème 2 : Outil remember** \n- L'outil `remember` génère l'erreur \"loadLongTermMemories is not defined\"\n- Cette erreur indique un problème dans le code JavaScript du serveur MCP\n- L'outil est critique pour le workflow autonome et doit fonctionner parfaitement\n\n**Objectifs :**\n1. **Analyser la déclaration des autres outils MCP** du serveur pour comprendre la structure correcte\n2. **Corriger delete_long_term_memory** pour qu'il ait un paramètre `id` approprié en suivant EXACTEMENT le même pattern que les autres outils\n3. **Investiguer et corriger les problèmes de remember** liés à `loadLongTermMemories`\n4. **Vérifier que les deux outils fonctionnent correctement** après correction\n5. **S'assurer que la déclaration est cohérente** avec les autres outils du serveur\n\n**Critères d'acceptation :**\n- L'outil `delete_long_term_memory` a un paramètre `id` correctement déclaré\n- La déclaration suit les mêmes conventions que les autres outils MCP\n- L'outil peut être appelé avec un paramètre `id` valide\n- L'outil `remember` fonctionne sans erreur `loadLongTermMemories is not defined`\n- Aucune régression dans les autres outils du serveur\n- Le serveur MCP fonctionne correctement avec les corrections\n\n**Analyse Technique & Points de Vigilance :**\n- **Attention** : Analyser la structure des autres outils MCP (create_task, update_task, get_all_tasks, etc.) pour comprendre le pattern de déclaration standard\n- **Attention** : Vérifier le schéma Zod utilisé pour la validation des paramètres dans les autres outils\n- **Attention** : S'assurer que la correction du paramètre n'affecte pas la logique interne de l'outil\n- **Attention** : Tester la déclaration avec le serveur MCP pour confirmer qu'elle est correctement reconnue\n- **Attention** : Vérifier que le paramètre `id` est correctement typé (probablement number ou string selon les autres outils)\n- **Attention** : Contrôler que la correction ne casse pas la compatibilité avec les appels existants\n- **Attention** : Valider que l'outil apparaît correctement dans la liste des outils disponibles après correction\n- **Attention** : Investiguer la cause de l'erreur `loadLongTermMemories is not defined` dans remember.js\n- **Attention** : Vérifier que toutes les fonctions nécessaires sont correctement importées et définies\n- **Attention** : Tester l'outil remember après correction pour confirmer qu'il fonctionne sans erreur\n- **Attention** : S'assurer que les optimisations précédentes (#318) n'ont pas causé de régression",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       "cursor-memory-bank/server.js",
       "cursor-memory-bank/remember.js",
@@ -8173,7 +8173,7 @@
     ],
     "validation_criteria": "La tâche est terminée quand : (1) L'outil delete_long_term_memory a un paramètre id correctement déclaré, (2) La déclaration suit les mêmes conventions que les autres outils MCP, (3) L'outil peut être appelé avec un paramètre id valide, (4) L'outil remember fonctionne sans erreur loadLongTermMemories, (5) Le serveur MCP fonctionne correctement avec les corrections, (6) Les tests confirment que les deux outils fonctionnent comme attendu.",
     "created_date": "2025-07-15T14:28:07.777Z",
-    "updated_date": "2025-07-15T15:25:19.826Z",
+    "updated_date": "2025-07-15T17:25:59.525420",
     "parent_id": null,
     "priority": 5,
     "image": null,
@@ -8192,6 +8192,53 @@
       }
     ],
     "last_comment": "Validation experience-execution RÉUSSIE pour la tâche #326. Tests manuels exhaustifs effectués avec succès :\n\n**Tests de validation réussis :**\n✅ **Syntaxe JavaScript** : remember.js et server.js compilent sans erreur avec `node -c`\n✅ **Test fonctionnel remember** : L'outil se charge et s'exécute correctement sans erreur \"loadLongTermMemories is not defined\"\n✅ **Test schéma delete_long_term_memory** : Le paramètre `id` est correctement accepté et `random_string` est rejeté\n✅ **Architecture préservée** : Toutes les fonctionnalités existantes maintenues intactes\n\n**Résultat final :** SUCCESS complet - Les deux problèmes critiques du serveur MCP MemoryBankMCP sont définitivement résolus. L'outil delete_long_term_memory utilise bien un paramètre `id` approprié et l'outil remember fonctionne parfaitement. Le workflow autonome peut maintenant fonctionner de manière fiable.",
-    "last_comment_timestamp": "2025-07-15T15:25:19.826Z"
+    "last_comment_timestamp": "2025-07-15T15:25:19.826Z",
+    "validation": {
+      "approved_at": "2025-07-15T17:25:59.509421",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 327,
+    "title": "Corriger définitivement la déclaration de l'outil delete_long_term_memory MCP",
+    "short_description": "Analyser EXACTEMENT la déclaration de l'outil next_rule et reproduire le pattern identique pour l'outil delete_long_term_memory afin de résoudre définitivement le problème de déclaration MCP récurrent.",
+    "detailed_description": "**Objectif :** Corriger définitivement la déclaration de l'outil `delete_long_term_memory` dans le serveur MCP MemoryBankMCP en reproduisant EXACTEMENT le pattern de déclaration de l'outil `next_rule`.\n\n**Contexte :** L'outil `delete_long_term_memory` continue de poser des problèmes de déclaration malgré les corrections précédentes (tâche #326). L'utilisateur insiste sur la nécessité de comparer EXACTEMENT avec l'outil `next_rule` qui fonctionne correctement.\n\n**Exigences spécifiques :**\n1. **Analyser EXACTEMENT la déclaration de l'outil `next_rule`** dans le serveur MCP\n2. **Identifier tous les éléments du pattern** : structure, schéma, paramètres, descriptions\n3. **Reproduire le pattern identique** pour l'outil `delete_long_term_memory`\n4. **Respecter l'instruction cruciale** : PAS de description générale de l'outil, seulement description précise des arguments\n5. **Valider la cohérence** avec les autres outils MCP du serveur\n\n**Critères d'acceptation :**\n- La déclaration de `delete_long_term_memory` suit EXACTEMENT le même pattern que `next_rule`\n- Aucune description générale de l'outil n'est incluse\n- Seules les descriptions précises des arguments sont présentes\n- L'outil est correctement enregistré dans le serveur MCP\n- Tests de validation réussis avec le paramètre `id`\n\n**Analyse Technique & Points de Vigilance :**\n- **Attention critique** : L'utilisateur insiste sur l'exactitude du pattern - \"La moindre différence semble occasionner une erreur !\"\n- **Risque de régression** : Les corrections précédentes n'ont pas résolu le problème, il faut une approche plus méthodique\n- **Contrainte architecturale** : Modifications du code MCP nécessitent redémarrage Cursor manuel\n- **Pattern de référence** : L'outil `next_rule` fonctionne correctement et doit servir de modèle exact\n- **Validation requise** : Tests exhaustifs pour confirmer que l'outil fonctionne après modification\n- **Impact système** : Outil essentiel pour la gestion de la mémoire long terme du workflow autonome\n\n**Approche d'implémentation :**\n1. Localiser et analyser la déclaration de l'outil `next_rule` dans le serveur MCP\n2. Documenter précisément tous les éléments du pattern (structure, schéma, descriptions)\n3. Comparer avec la déclaration actuelle de `delete_long_term_memory`\n4. Identifier les différences exactes qui causent le problème\n5. Modifier la déclaration de `delete_long_term_memory` pour reproduire le pattern identique\n6. Valider la cohérence avec les autres outils du serveur\n7. Tester le fonctionnement après redémarrage du serveur MCP",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/server.js",
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/delete_long_term_memory.js"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'outil delete_long_term_memory suit EXACTEMENT le même pattern de déclaration que next_rule, (2) Aucune description générale de l'outil n'est incluse, (3) Seules les descriptions précises des arguments sont présentes, (4) L'outil fonctionne correctement avec le paramètre id après redémarrage du serveur MCP, (5) Tests de validation réussis confirmant la résolution définitive du problème.",
+    "created_date": "2025-07-15T15:34:35.044Z",
+    "updated_date": "2025-07-15T17:39:01.852541",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 327,
+    "comments": [
+      {
+        "timestamp": "2025-07-15T15:35:28.897Z",
+        "comment": "Début de l'implémentation de la tâche critique #327. Approche méthodique : analyser EXACTEMENT la déclaration de l'outil next_rule et reproduire le pattern identique pour delete_long_term_memory selon les instructions précises de l'utilisateur.",
+        "status_change": "IN_PROGRESS"
+      }
+    ],
+    "last_comment": "Début de l'implémentation de la tâche critique #327. Approche méthodique : analyser EXACTEMENT la déclaration de l'outil next_rule et reproduire le pattern identique pour delete_long_term_memory selon les instructions précises de l'utilisateur.",
+    "last_comment_timestamp": "2025-07-15T15:35:28.897Z",
+    "status_history": [
+      {
+        "status": "IN_PROGRESS",
+        "timestamp": "2025-07-15T15:34:35.044Z"
+      },
+      {
+        "status": "REVIEW",
+        "timestamp": "2025-07-15T17:38:06.811639"
+      }
+    ],
+    "validation": {
+      "approved_at": "2025-07-15T17:39:01.843409",
+      "approved_by": "user_review"
+    }
   }
 ]
