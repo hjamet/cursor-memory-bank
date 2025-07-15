@@ -10,7 +10,6 @@ import { handleGetAllTasks } from './mcp_tools/get_all_tasks.js';
 import { handleGetNextTasks } from './mcp_tools/get_next_tasks.js';
 import { handleReadUserbrief } from './mcp_tools/read_userbrief.js';
 import { handleUpdateUserbrief } from './mcp_tools/update_userbrief.js';
-import incrementImplementationTool from './mcp_tools/increment_implementation.js';
 import { handleDeleteLongTermMemory, deleteLongTermMemorySchema } from './mcp_tools/delete_long_term_memory.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import process from 'process';
@@ -89,8 +88,6 @@ server.tool('update_userbrief', {
 }, safeHandler(handleUpdateUserbrief));
 
 server.tool('delete_long_term_memory', deleteLongTermMemorySchema, safeHandler(handleDeleteLongTermMemory));
-
-server.tool('increment_implementation', incrementImplementationTool.inputSchema, safeHandler(incrementImplementationTool.handler));
 
 
 // Start the server

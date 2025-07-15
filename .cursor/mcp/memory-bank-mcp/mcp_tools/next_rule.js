@@ -558,7 +558,6 @@ async function next_rule(args) {
                 console.log(`[NextRule] README task trigger condition met: ${incrementResult.triggerReason}`);
             }
 
-            // The actual README task generation will be handled by the increment_implementation MCP tool
             // This is just the automatic counter increment as specified in the task requirements
         } catch (error) {
             // Log error but don't fail the workflow - the counter increment is supplementary

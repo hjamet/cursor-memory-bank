@@ -2,6 +2,21 @@
   "transition_history": [
     {
       "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-15T13:17:41.169Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-15T13:14:41.776Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-15T13:14:11.369Z"
+    },
+    {
+      "from": "system",
       "to": "implementation",
       "timestamp": "2025-07-15T13:05:58.643Z"
     },
@@ -84,26 +99,11 @@
       "from": "experience-execution",
       "to": "context-update",
       "timestamp": "2025-07-14T08:54:01.388Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-14T08:52:39.905Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-14T08:52:21.400Z"
-    },
-    {
-      "from": null,
-      "to": "implementation",
-      "timestamp": "2025-07-14T08:52:14.275Z"
     }
   ],
   "experience_execution_attempts": 0,
   "last_experience_execution": "2025-07-14T10:37:19.120Z",
-  "last_implementation": "2025-07-15T13:05:58.643Z",
-  "consecutive_transitions": 11,
+  "last_implementation": "2025-07-15T13:14:41.776Z",
+  "consecutive_transitions": 14,
   "emergency_brake_active": false
 }

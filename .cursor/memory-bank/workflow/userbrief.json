@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 264,
+  "last_id": 266,
   "requests": [
     {
       "id": 214,
@@ -956,6 +956,43 @@
         {
           "timestamp": "2025-07-15T12:48:33.191Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 265,
+      "content": "L'outil delete_long_term_memory n'est toujours pas correctement déclaré : il n'y a aucun argument visible. Tu dois absolument regarder comment les autres outils du serveur ont été déclaré et faire exactement pareil pour cet outil car actuellement, il semble y avoir une différence étant donné que l'outil delete_long_term_memory  est le seul à ne pas fonctionner correctement !",
+      "status": "new",
+      "image": {
+        "path": ".cursor\\temp\\images\\req_265_20250715_151601_pasted.png",
+        "filename": "req_265_20250715_151601_pasted.png",
+        "size": 15888,
+        "width": 809,
+        "height": 138,
+        "content_type": "image/png"
+      },
+      "created_at": "2025-07-15T15:16:01.776428",
+      "updated_at": "2025-07-15T15:16:01.776428",
+      "history": [
+        {
+          "timestamp": "2025-07-15T15:16:01.776428",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        }
+      ]
+    },
+    {
+      "id": 266,
+      "content": "PROBLEME CRITIQUE de lo'outil remember : \n\n2025-07-15 15:14:11.328 [info] project-0-cursor-memory-bank-MemoryBankMCP: Calling tool 'next_rule' with toolCallId: toolu_01X5AeoMBRZMv98p34BkEE6e\n2025-07-15 15:14:11.382 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'next_rule'\n2025-07-15 15:14:35.658 [info] project-0-cursor-memory-bank-MemoryBankMCP: Handling CallTool action for tool 'remember'\n2025-07-15 15:14:35.658 [info] project-0-cursor-memory-bank-MemoryBankMCP: Calling tool 'remember' with toolCallId: toolu_01PBwKXvn6xAHpsFUQPCrcjJ\n2025-07-15 15:14:35.660 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'remember'\n2025-07-15 15:14:41.740 [info] project-0-cursor-memory-bank-MemoryBankMCP: Handling CallTool action for tool 'next_rule'\n2025-07-15 15:14:41.740 [info] project-0-cursor-memory-bank-MemoryBankMCP: Calling tool 'next_rule' with toolCallId: toolu_01E8y4q89svKpZEg3v2LGZn5\n2025-07-15 15:14:41.743 [error] project-0-cursor-memory-bank-MemoryBankMCP: Client error for command Unexpected token 'N', \"[NextRule] \"... is not valid JSON\n2025-07-15 15:14:41.781 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'next_rule'\n2025-07-15 15:14:54.157 [info] project-0-cursor-memory-bank-MemoryBankMCP: Handling CallTool action for tool 'get_next_tasks'\n2025-07-15 15:14:54.157 [info] project-0-cursor-memory-bank-MemoryBankMCP: Calling tool 'get_next_tasks' with toolCallId: toolu_01UUpRMpxvnLbtcKEKyRBixw\n2025-07-15 15:14:54.166 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'get_next_tasks'\n2025-07-15 15:15:02.074 [info] project-0-cursor-memory-bank-MemoryBankMCP: Handling CallTool action for tool 'update_task'\n2025-07-15 15:15:02.074 [info] project-0-cursor-memory-bank-MemoryBankMCP: Calling tool 'update_task' with toolCallId: toolu_01AFFSiDx6EpQUGaGvCbDrtE\n2025-07-15 15:15:02.095 [info] project-0-cursor-memory-bank-MemoryBankMCP: Successfully called tool 'update_task'\n2025-07-15 15:16:26.548 [info] project-0-cursor-memory-bank-MyMCP: Handling CallTool action for tool 'execute_command'\n2025-07-15 15:16:26.548 [info] project-0-cursor-memory-bank-MyMCP: Calling tool 'execute_command' with toolCallId: toolu_01CEX1xiUkqy3dgKCMRUpasb\n2025-07-15 15:16:26.685 [info] project-0-cursor-memory-bank-MyMCP: Successfully called tool 'execute_command'\n\n---\n\nloadUserPreferences is not defined Lors de l'appel à remember !!!! Celà casse complètement le workflow !!!",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-15T15:17:25.325373",
+      "updated_at": "2025-07-15T15:17:25.325373",
+      "history": [
+        {
+          "timestamp": "2025-07-15T15:17:25.325373",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }

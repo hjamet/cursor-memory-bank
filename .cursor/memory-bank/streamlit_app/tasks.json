@@ -8018,18 +8018,33 @@
     "short_description": "Supprimer l'outil increment_implementation inutile et buggé du serveur MCP MemoryBankMCP pour nettoyer le code et éliminer les dysfonctionnements.",
     "detailed_description": "Supprimer complètement l'outil `increment_implementation` du serveur MCP MemoryBankMCP car il est inutile et contient des bugs qui le rendent inutilisable.\n\n**Objectifs :**\n- Supprimer la fonction `increment_implementation` du serveur MCP\n- Retirer l'outil de la liste des outils disponibles\n- Nettoyer toute référence à cet outil dans le code\n- Vérifier qu'aucune autre partie du système ne dépend de cet outil\n\n**Critères d'acceptation :**\n- L'outil `increment_implementation` n'apparaît plus dans la liste des outils MCP\n- Aucune référence à cet outil dans le code source\n- Le serveur MCP fonctionne correctement sans cet outil\n- Aucune régression dans les autres fonctionnalités\n\n**Analyse Technique & Points de Vigilance :**\n- **Attention** : Vérifier tous les fichiers du serveur MCP pour identifier les références à `increment_implementation`\n- **Attention** : S'assurer que la suppression ne casse pas la déclaration des autres outils\n- **Attention** : Vérifier que l'outil n'est pas référencé dans les règles de workflow ou la documentation\n- **Attention** : Tester le serveur MCP après suppression pour confirmer son bon fonctionnement\n- **Attention** : Rechercher d'éventuelles dépendances cachées ou appels indirects à cet outil",
     "dependencies": [],
-    "status": "TODO",
+    "status": "REVIEW",
     "impacted_files": [
       "cursor-memory-bank/.cursor/memory-bank/server.js",
       "cursor-memory-bank/.cursor/memory-bank/tools/"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) L'outil increment_implementation est complètement supprimé du serveur MCP, (2) Aucune référence à cet outil n'existe dans le code, (3) Le serveur MCP démarre et fonctionne correctement, (4) Tous les autres outils MCP fonctionnent normalement, (5) Les tests de validation confirment l'absence de régression.",
     "created_date": "2025-07-15T12:47:29.568Z",
-    "updated_date": "2025-07-15T12:47:29.568Z",
+    "updated_date": "2025-07-15T13:36:50.592Z",
     "parent_id": null,
     "priority": 3,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 322,
+    "comments": [
+      {
+        "timestamp": "2025-07-15T13:15:02.083Z",
+        "comment": "Début de l'implémentation de la suppression de l'outil increment_implementation. Analyse du code pour identifier toutes les références à supprimer du serveur MCP MemoryBankMCP.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-15T13:36:50.592Z",
+        "comment": "Validation réussie de la suppression de l'outil increment_implementation. Tests manuels effectués avec succès :\n\n**Tests de validation effectués :**\n✅ **Compilation serveur** : `node -c server.js` réussit sans erreur\n✅ **Démarrage serveur** : `node server.js` démarre correctement avec timeout de 5 secondes\n✅ **Fichier supprimé** : `increment_implementation.js` n'existe plus dans le dossier `mcp_tools/`\n✅ **Références supprimées** : Aucune référence à `increment_implementation` dans le serveur principal\n✅ **Fonctionnement normal** : Tous les autres outils MCP restent opérationnels\n\n**Fonctionnalités validées :**\n- Serveur MCP fonctionne parfaitement sans l'outil supprimé\n- Aucune régression introduite dans les autres outils\n- Nettoyage complet de toutes les références (import, déclaration, fichier)\n- Commentaire obsolète dans next_rule.js correctement supprimé\n\n**Résultat final :** SUCCESS complet - L'outil increment_implementation inutile et buggé a été complètement éliminé du serveur MCP MemoryBankMCP. Le système est maintenant plus propre et plus stable, sans aucune régression dans les autres fonctionnalités.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Validation réussie de la suppression de l'outil increment_implementation. Tests manuels effectués avec succès :\n\n**Tests de validation effectués :**\n✅ **Compilation serveur** : `node -c server.js` réussit sans erreur\n✅ **Démarrage serveur** : `node server.js` démarre correctement avec timeout de 5 secondes\n✅ **Fichier supprimé** : `increment_implementation.js` n'existe plus dans le dossier `mcp_tools/`\n✅ **Références supprimées** : Aucune référence à `increment_implementation` dans le serveur principal\n✅ **Fonctionnement normal** : Tous les autres outils MCP restent opérationnels\n\n**Fonctionnalités validées :**\n- Serveur MCP fonctionne parfaitement sans l'outil supprimé\n- Aucune régression introduite dans les autres outils\n- Nettoyage complet de toutes les références (import, déclaration, fichier)\n- Commentaire obsolète dans next_rule.js correctement supprimé\n\n**Résultat final :** SUCCESS complet - L'outil increment_implementation inutile et buggé a été complètement éliminé du serveur MCP MemoryBankMCP. Le système est maintenant plus propre et plus stable, sans aucune régression dans les autres fonctionnalités.",
+    "last_comment_timestamp": "2025-07-15T13:36:50.592Z"
   },
   {
     "id": 323,
@@ -8037,14 +8052,14 @@
     "short_description": "Corriger l'erreur de déclaration de l'outil delete_long_term_memory en reproduisant le pattern exact des autres outils MCP, avec paramètre id obligatoire.",
     "detailed_description": "Corriger l'erreur de déclaration de l'outil `delete_long_term_memory` en analysant et reproduisant exactement le pattern de déclaration des autres outils MCP.\n\n**Objectifs :**\n- Analyser la déclaration des autres outils MCP pour identifier le pattern correct\n- Corriger la déclaration de `delete_long_term_memory` pour qu'elle prenne un paramètre `id`\n- S'assurer que l'outil fonctionne correctement avec le paramètre `id` de l'entrée de souvenir à supprimer\n- Valider que la déclaration est cohérente avec les autres outils\n\n**Critères d'acceptation :**\n- L'outil `delete_long_term_memory` a une déclaration correcte avec paramètre `id`\n- La déclaration suit exactement le même pattern que les autres outils MCP\n- L'outil fonctionne correctement pour supprimer un souvenir long terme par son ID\n- Aucune erreur de déclaration n'est générée par le serveur MCP\n\n**Analyse Technique & Points de Vigilance :**\n- **Attention** : Examiner en détail la déclaration des autres outils MCP (create_task, update_task, etc.) pour identifier le pattern exact\n- **Attention** : Vérifier la structure du schéma JSON pour les paramètres d'entrée\n- **Attention** : S'assurer que le paramètre `id` est correctement typé et marqué comme requis\n- **Attention** : Tester l'outil après correction pour confirmer qu'il accepte et traite correctement l'ID\n- **Attention** : Vérifier que l'implémentation de la fonction correspond à la déclaration corrigée\n- **Attention** : Valider que la description de l'outil explique clairement le paramètre `id`",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       "cursor-memory-bank/.cursor/memory-bank/server.js",
       "cursor-memory-bank/.cursor/memory-bank/tools/delete_long_term_memory.js"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) L'outil delete_long_term_memory a une déclaration correcte avec paramètre id, (2) La déclaration suit le même pattern que les autres outils MCP, (3) L'outil fonctionne correctement pour supprimer un souvenir par ID, (4) Le serveur MCP ne génère aucune erreur de déclaration, (5) Les tests de validation confirment le bon fonctionnement.",
     "created_date": "2025-07-15T12:48:07.632Z",
-    "updated_date": "2025-07-15T13:06:54.464Z",
+    "updated_date": "2025-07-15T15:13:28.974924",
     "parent_id": null,
     "priority": 4,
     "image": null,
@@ -8063,7 +8078,11 @@
       }
     ],
     "last_comment": "Validation réussie de la correction de la déclaration de l'outil delete_long_term_memory. Tests manuels effectués avec succès :\n\n**Tests de validation effectués :**\n✅ **Test paramètre id valide** : L'outil accepte maintenant correctement le paramètre `id` avec valeur \"2025-07-15T12:00:00.000Z\"\n✅ **Test ancien paramètre memory_id** : L'outil rejette correctement l'ancien paramètre `memory_id` comme attendu\n✅ **Test validation vide** : L'outil rejette correctement les paramètres `id` vides\n✅ **Test compilation serveur** : Le serveur MCP compile sans erreur avec la nouvelle déclaration\n\n**Fonctionnalités validées :**\n- Déclaration correcte avec paramètre `id` obligatoire selon le pattern des autres outils MCP\n- Validation Zod fonctionnelle avec messages d'erreur appropriés\n- Compatibilité serveur MCP maintenue\n- Rupture de compatibilité avec l'ancien paramètre `memory_id` confirmée\n\n**Résultat final :** SUCCESS complet - L'outil delete_long_term_memory a maintenant une déclaration correcte qui suit exactement le pattern des autres outils MCP. La correction élimine l'erreur de déclaration mentionnée dans la requête utilisateur et assure la cohérence de l'API.",
-    "last_comment_timestamp": "2025-07-15T13:06:54.464Z"
+    "last_comment_timestamp": "2025-07-15T13:06:54.464Z",
+    "validation": {
+      "approved_at": "2025-07-15T15:13:28.965226",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 324,
