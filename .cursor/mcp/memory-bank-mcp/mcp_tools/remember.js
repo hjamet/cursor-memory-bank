@@ -347,6 +347,7 @@ async function remember(args) {
     // Workflow Completion Check: New logic to allow pausing the workflow
     if (lastMemory && lastMemory.future && lastMemory.future.toLowerCase().includes('paused')) {
         const pauseResponse = {
+            // === WORKFLOW STATUS & INSTRUCTIONS ===
             message: "Memory recorded. Workflow has been instructed to pause.",
             // Keep the status as CONTINUE_REQUIRED to avoid client errors, but use other fields to signal a stop.
             workflow_status: "CONTINUE_REQUIRED",
@@ -355,17 +356,56 @@ async function remember(args) {
             recommended_next_step: null, // No recommendation
             current_state: lastMemory.future,
             possible_next_steps: [],
+
+            // === WORKFLOW CONTINUATION REQUIREMENTS ===
+            continuation_mandatory: false, // The key change to allow stopping
+            stopping_prohibited: "You may stop.",
+            immediate_next_action: null,
+            workflow_cycle_reminder: "The workflow is paused. Await new instructions.",
+
+            // === USER PREFERENCES & SETTINGS ===
             user_preferences: preferences,
+
+            // === MEMORY SECTIONS ===
+            memory_sections: {
+                // --- RECENT WORKING MEMORIES (5 most recent) ---
+                recent_working_memories: {
+                    description: "📋 **Souvenirs de Travail Récents (5 derniers)** - Contexte immédiat des actions récentes",
+                    count: recentMemories.length,
+                    memories: recentMemories
+                },
+
+                // --- SEMANTIC LONG-TERM MEMORIES (5 most relevant) ---
+                semantic_long_term_memories: {
+                    description: "🧠 **Mémoires Long Terme Sémantiques (5 plus pertinentes)** - Connaissances persistantes liées au contexte actuel",
+                    count: semanticLongTermMemories.length,
+                    memories: semanticLongTermMemories
+                },
+
+                // --- NEWLY ADDED LONG-TERM MEMORY ---
+                newly_added_long_term_memory: {
+                    description: "✨ **Nouvelle Mémoire Long Terme** - Information critique ajoutée lors de cet enregistrement",
+                    memory: currentLongTermMemory
+                }
+            },
+
+            // === MEMORY STATISTICS ===
+            memory_statistics: {
+                total_memories_count: memories.length,
+                total_long_term_memories_count: longTermMemories.length,
+                recent_memories_displayed: recentMemories.length,
+                semantic_memories_displayed: semanticLongTermMemories.length
+            },
+
+            // === USER COMMUNICATION ===
+            user_message_result: userMessageResult,
+
+            // === LEGACY FIELDS (for backward compatibility) ===
             long_term_memory: currentLongTermMemory,
             recent_working_memories: recentMemories,
             semantic_long_term_memories: semanticLongTermMemories,
             total_memories_count: memories.length,
-            total_long_term_memories_count: longTermMemories.length,
-            user_message_result: userMessageResult,
-            continuation_mandatory: false, // The key change to allow stopping
-            stopping_prohibited: "You may stop.",
-            immediate_next_action: null,
-            workflow_cycle_reminder: "The workflow is paused. Await new instructions."
+            total_long_term_memories_count: longTermMemories.length
         };
 
         // Add long-term memory management hint if semantic long-term memories are present
@@ -382,6 +422,7 @@ async function remember(args) {
     }
 
     const response = {
+        // === WORKFLOW STATUS & INSTRUCTIONS ===
         message: "Memory successfully recorded.",
         workflow_status: "CONTINUE_REQUIRED",
         next_action_required: `You MUST continue the workflow by calling mcp_MemoryBankMCP_next_rule with '${recommendedNextStep}'. Do not stop here.`,
@@ -389,17 +430,56 @@ async function remember(args) {
         recommended_next_step: recommendedNextStep,
         current_state: lastMemory ? lastMemory.future : "No current state.",
         possible_next_steps: possible_next_steps,
+
+        // === WORKFLOW CONTINUATION REQUIREMENTS ===
+        continuation_mandatory: true,
+        stopping_prohibited: "!!! TRÈS IMPORTANT !!! - CRITIQUE : L'enregistrement de mémoire N'EST PAS un signal de fin. Vous DEVEZ ABSOLUMENT continuer le workflow autonome SANS INTERRUPTION.",
+        immediate_next_action: `!!! OBLIGATOIRE !!! - Appelez mcp_MemoryBankMCP_next_rule avec le paramètre : '${recommendedNextStep}'`,
+        workflow_cycle_reminder: "!!! TRÈS IMPORTANT !!! - Rappelez-vous : enregistrer → next_rule → exécuter → remember → next_rule (BOUCLE INFINIE OBLIGATOIRE)",
+
+        // === USER PREFERENCES & SETTINGS ===
         user_preferences: preferences, // Always show preferences
+
+        // === MEMORY SECTIONS ===
+        memory_sections: {
+            // --- RECENT WORKING MEMORIES (5 most recent) ---
+            recent_working_memories: {
+                description: "📋 **Souvenirs de Travail Récents (5 derniers)** - Contexte immédiat des actions récentes",
+                count: recentMemories.length,
+                memories: recentMemories
+            },
+
+            // --- SEMANTIC LONG-TERM MEMORIES (5 most relevant) ---
+            semantic_long_term_memories: {
+                description: "🧠 **Mémoires Long Terme Sémantiques (5 plus pertinentes)** - Connaissances persistantes liées au contexte actuel",
+                count: semanticLongTermMemories.length,
+                memories: semanticLongTermMemories
+            },
+
+            // --- NEWLY ADDED LONG-TERM MEMORY ---
+            newly_added_long_term_memory: {
+                description: "✨ **Nouvelle Mémoire Long Terme** - Information critique ajoutée lors de cet enregistrement",
+                memory: currentLongTermMemory
+            }
+        },
+
+        // === MEMORY STATISTICS ===
+        memory_statistics: {
+            total_memories_count: memories.length,
+            total_long_term_memories_count: longTermMemories.length,
+            recent_memories_displayed: recentMemories.length,
+            semantic_memories_displayed: semanticLongTermMemories.length
+        },
+
+        // === USER COMMUNICATION ===
+        user_message_result: userMessageResult, // Include the result of the user message operation
+
+        // === LEGACY FIELDS (for backward compatibility) ===
         long_term_memory: currentLongTermMemory, // Only the newly added one, if any
         recent_working_memories: recentMemories, // 5 most recent working memories (optimized)
         semantic_long_term_memories: semanticLongTermMemories, // 5 most semantically relevant long-term memories (optimized)
         total_memories_count: memories.length,
-        total_long_term_memories_count: longTermMemories.length,
-        user_message_result: userMessageResult, // Include the result of the user message operation
-        continuation_mandatory: true,
-        stopping_prohibited: "!!! TRÈS IMPORTANT !!! - CRITIQUE : L'enregistrement de mémoire N'EST PAS un signal de fin. Vous DEVEZ ABSOLUMENT continuer le workflow autonome SANS INTERRUPTION.",
-        immediate_next_action: `!!! OBLIGATOIRE !!! - Appelez mcp_MemoryBankMCP_next_rule avec le paramètre : '${recommendedNextStep}'`,
-        workflow_cycle_reminder: "!!! TRÈS IMPORTANT !!! - Rappelez-vous : enregistrer → next_rule → exécuter → remember → next_rule (BOUCLE INFINIE OBLIGATOIRE)"
+        total_long_term_memories_count: longTermMemories.length
     };
 
     // Add user_comments if there are pending messages
