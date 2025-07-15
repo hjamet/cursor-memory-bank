@@ -7951,11 +7951,11 @@
     "short_description": "Investiguer pourquoi le bug de boucle infinie context-update persiste sur le repository trail-rag malgré les corrections massives des tâches #317 et #318. Identifier les causes spécifiques et les différences de configuration sans impacter le repository cible.",
     "detailed_description": "**Objectif :** Diagnostiquer et comprendre pourquoi le problème de boucle infinie context-update persiste sur le repository `C:\\Users\\Jamet\\code\\trail-rag` malgré les corrections réussies sur le repository principal.\n\n**Investigation Non-Destructive :**\n- Analyser la configuration MCP du repository trail-rag en lecture seule\n- Comparer les versions des fichiers MCP entre les deux repositories\n- Identifier les différences de configuration ou de cache\n- Documenter les écarts qui expliquent la persistance du problème\n\n**Analyse Technique & Points de Vigilance :**\n- **Contrainte CRITIQUE** : Accès strictement en lecture seule au repository trail-rag - aucune modification autorisée\n- **Versions MCP** : Les corrections #317/#318 ne se sont peut-être pas propagées automatiquement\n- **Configuration spécifique** : Le repository trail-rag peut avoir des paramètres locaux différents\n- **Cache MCP** : Les serveurs MCP peuvent utiliser des versions cachées non actualisées\n- **Environnement** : Différences possibles d'environnement entre les repositories\n\n**Critères d'acceptation :**\n- Identification précise des causes de la persistance du problème\n- Comparaison documentée entre les configurations des deux repositories  \n- Plan d'action pour résoudre le problème sans casser le repository trail-rag\n- Documentation des différences techniques trouvées\n\n**Approche :**\n1. Accès en lecture au repository trail-rag via des commandes système non-destructives\n2. Comparaison des fichiers MCP (remember.js, workflow_recommendation.js, server.js)\n3. Analyse des logs et de la configuration locale\n4. Documentation exhaustive des écarts identifiés",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [],
     "validation_criteria": "La tâche est terminée quand : (1) Les causes précises de la persistance du problème sont identifiées et documentées, (2) Une comparaison complète des configurations MCP entre les deux repositories est effectuée, (3) Un plan d'action spécifique pour résoudre le problème trail-rag est formulé, (4) Aucune modification n'a été apportée au repository trail-rag pendant l'investigation, (5) Les différences techniques sont clairement documentées avec recommandations de correction.",
     "created_date": "2025-07-14T18:29:57.135Z",
-    "updated_date": "2025-07-14T18:47:44.072Z",
+    "updated_date": "2025-07-14T22:18:49.821557",
     "parent_id": null,
     "priority": 5,
     "image": null,
@@ -7974,7 +7974,11 @@
       }
     ],
     "last_comment": "SUCCESS complet - Investigation diagnostique terminée avec identification définitive de la cause racine du problème persistant sur trail-rag.\n\n**VALIDATION DES CONCLUSIONS :**\n✅ **Fichiers MCP identiques** : MD5 hash confirmé pour remember.js et workflow_recommendation.js\n✅ **Protections anti-boucle présentes** : Code des corrections #317/#318 vérifié sur trail-rag\n✅ **Emergency Brake actif confirmé** : 64 transitions vs 5 sur repo principal, emergency_brake_active: true\n✅ **Historique problématique validé** : 20 transitions BLOCKED vs 1 sur repo principal\n\n**CAUSE RACINE DÉFINITIVE :**\nLe problème n'est PAS lié aux fichiers MCP qui sont corrects, mais à l'Emergency Brake du système de sécurité workflow qui s'est déclenché après 64 transitions consécutives (limite : 50) et bloque maintenant toutes les transitions en forçant un retour à context-update.\n\n**RECOMMANDATIONS POUR TÂCHE #321 :**\n- Réinitialisation contrôlée du workflow_safety.json sur trail-rag\n- Conservation des protections de sécurité\n- Test de validation post-correction\n- Documentation de la procédure de récupération Emergency Brake",
-    "last_comment_timestamp": "2025-07-14T18:47:44.072Z"
+    "last_comment_timestamp": "2025-07-14T18:47:44.072Z",
+    "validation": {
+      "approved_at": "2025-07-14T22:18:49.812569",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 321,
@@ -7984,11 +7988,11 @@
     "dependencies": [
       320
     ],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [],
     "validation_criteria": "La tâche est terminée quand : (1) Le workflow autonome fonctionne sans boucle context-update sur trail-rag, (2) Tests complets de fonctionnement effectués avec succès sur le repository, (3) Toutes les corrections sont appliquées et validées, (4) L'intégrité du repository trail-rag est confirmée, (5) Documentation complète de la procédure de correction est créée, (6) Plan de rollback documenté et testé si nécessaire.",
     "created_date": "2025-07-14T18:30:12.517Z",
-    "updated_date": "2025-07-14T18:54:45.617Z",
+    "updated_date": "2025-07-14T22:18:48.675575",
     "parent_id": null,
     "priority": 4,
     "image": null,
@@ -8002,6 +8006,81 @@
       }
     ],
     "last_comment": "🎉 **TEST RÉUSSI** - La correction du problème de boucle context-update sur trail-rag fonctionne parfaitement !\n\n**Validation exhaustive effectuée :**\n✅ **Emergency Brake désactivé** : consecutive_transitions: 1 (< 50) et emergency_brake_active: false\n✅ **Sauvegarde créée** : workflow_safety.json.backup de l'état original problématique préservé\n✅ **Protections anti-boucle préservées** : MD5 hash identiques confirmant que les corrections #317/#318 sont intactes sur trail-rag\n✅ **Réinitialisation contrôlée** : Historique réinitialisé proprement avec entrée de reset documentée\n\n**Résultat confirmé :**\n- Trail-rag peut maintenant opérer normalement sans boucles context-update\n- Toutes les protections de sécurité des tâches #317/#318 restent actives \n- L'Emergency Brake a été réinitialisé de manière sécurisée\n- Documentation complète créée pour futures occurrences (EMERGENCY_BRAKE_RECOVERY_PROCEDURE.md)\n\n**Impact critique résolu :** Le problème persistant de boucle infinie context-update sur trail-rag est **DÉFINITIVEMENT ÉLIMINÉ**. Le repository peut maintenant utiliser le workflow autonome sans aucun blocage.",
-    "last_comment_timestamp": "2025-07-14T18:54:45.617Z"
+    "last_comment_timestamp": "2025-07-14T18:54:45.617Z",
+    "validation": {
+      "approved_at": "2025-07-14T22:18:48.666876",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 322,
+    "title": "Supprimer complètement l'outil increment_implementation",
+    "short_description": "Supprimer l'outil increment_implementation inutile et buggé du serveur MCP MemoryBankMCP pour nettoyer le code et éliminer les dysfonctionnements.",
+    "detailed_description": "Supprimer complètement l'outil `increment_implementation` du serveur MCP MemoryBankMCP car il est inutile et contient des bugs qui le rendent inutilisable.\n\n**Objectifs :**\n- Supprimer la fonction `increment_implementation` du serveur MCP\n- Retirer l'outil de la liste des outils disponibles\n- Nettoyer toute référence à cet outil dans le code\n- Vérifier qu'aucune autre partie du système ne dépend de cet outil\n\n**Critères d'acceptation :**\n- L'outil `increment_implementation` n'apparaît plus dans la liste des outils MCP\n- Aucune référence à cet outil dans le code source\n- Le serveur MCP fonctionne correctement sans cet outil\n- Aucune régression dans les autres fonctionnalités\n\n**Analyse Technique & Points de Vigilance :**\n- **Attention** : Vérifier tous les fichiers du serveur MCP pour identifier les références à `increment_implementation`\n- **Attention** : S'assurer que la suppression ne casse pas la déclaration des autres outils\n- **Attention** : Vérifier que l'outil n'est pas référencé dans les règles de workflow ou la documentation\n- **Attention** : Tester le serveur MCP après suppression pour confirmer son bon fonctionnement\n- **Attention** : Rechercher d'éventuelles dépendances cachées ou appels indirects à cet outil",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "cursor-memory-bank/.cursor/memory-bank/server.js",
+      "cursor-memory-bank/.cursor/memory-bank/tools/"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'outil increment_implementation est complètement supprimé du serveur MCP, (2) Aucune référence à cet outil n'existe dans le code, (3) Le serveur MCP démarre et fonctionne correctement, (4) Tous les autres outils MCP fonctionnent normalement, (5) Les tests de validation confirment l'absence de régression.",
+    "created_date": "2025-07-15T12:47:29.568Z",
+    "updated_date": "2025-07-15T12:47:29.568Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 323,
+    "title": "Corriger la déclaration de l'outil delete_long_term_memory",
+    "short_description": "Corriger l'erreur de déclaration de l'outil delete_long_term_memory en reproduisant le pattern exact des autres outils MCP, avec paramètre id obligatoire.",
+    "detailed_description": "Corriger l'erreur de déclaration de l'outil `delete_long_term_memory` en analysant et reproduisant exactement le pattern de déclaration des autres outils MCP.\n\n**Objectifs :**\n- Analyser la déclaration des autres outils MCP pour identifier le pattern correct\n- Corriger la déclaration de `delete_long_term_memory` pour qu'elle prenne un paramètre `id`\n- S'assurer que l'outil fonctionne correctement avec le paramètre `id` de l'entrée de souvenir à supprimer\n- Valider que la déclaration est cohérente avec les autres outils\n\n**Critères d'acceptation :**\n- L'outil `delete_long_term_memory` a une déclaration correcte avec paramètre `id`\n- La déclaration suit exactement le même pattern que les autres outils MCP\n- L'outil fonctionne correctement pour supprimer un souvenir long terme par son ID\n- Aucune erreur de déclaration n'est générée par le serveur MCP\n\n**Analyse Technique & Points de Vigilance :**\n- **Attention** : Examiner en détail la déclaration des autres outils MCP (create_task, update_task, etc.) pour identifier le pattern exact\n- **Attention** : Vérifier la structure du schéma JSON pour les paramètres d'entrée\n- **Attention** : S'assurer que le paramètre `id` est correctement typé et marqué comme requis\n- **Attention** : Tester l'outil après correction pour confirmer qu'il accepte et traite correctement l'ID\n- **Attention** : Vérifier que l'implémentation de la fonction correspond à la déclaration corrigée\n- **Attention** : Valider que la description de l'outil explique clairement le paramètre `id`",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      "cursor-memory-bank/.cursor/memory-bank/server.js",
+      "cursor-memory-bank/.cursor/memory-bank/tools/delete_long_term_memory.js"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'outil delete_long_term_memory a une déclaration correcte avec paramètre id, (2) La déclaration suit le même pattern que les autres outils MCP, (3) L'outil fonctionne correctement pour supprimer un souvenir par ID, (4) Le serveur MCP ne génère aucune erreur de déclaration, (5) Les tests de validation confirment le bon fonctionnement.",
+    "created_date": "2025-07-15T12:48:07.632Z",
+    "updated_date": "2025-07-15T13:06:54.464Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 323,
+    "comments": [
+      {
+        "timestamp": "2025-07-15T12:49:14.991Z",
+        "comment": "Début de l'implémentation de la correction de la déclaration de l'outil delete_long_term_memory. Analyse des patterns des autres outils MCP pour reproduire la structure correcte avec paramètre id obligatoire.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-15T13:06:54.464Z",
+        "comment": "Validation réussie de la correction de la déclaration de l'outil delete_long_term_memory. Tests manuels effectués avec succès :\n\n**Tests de validation effectués :**\n✅ **Test paramètre id valide** : L'outil accepte maintenant correctement le paramètre `id` avec valeur \"2025-07-15T12:00:00.000Z\"\n✅ **Test ancien paramètre memory_id** : L'outil rejette correctement l'ancien paramètre `memory_id` comme attendu\n✅ **Test validation vide** : L'outil rejette correctement les paramètres `id` vides\n✅ **Test compilation serveur** : Le serveur MCP compile sans erreur avec la nouvelle déclaration\n\n**Fonctionnalités validées :**\n- Déclaration correcte avec paramètre `id` obligatoire selon le pattern des autres outils MCP\n- Validation Zod fonctionnelle avec messages d'erreur appropriés\n- Compatibilité serveur MCP maintenue\n- Rupture de compatibilité avec l'ancien paramètre `memory_id` confirmée\n\n**Résultat final :** SUCCESS complet - L'outil delete_long_term_memory a maintenant une déclaration correcte qui suit exactement le pattern des autres outils MCP. La correction élimine l'erreur de déclaration mentionnée dans la requête utilisateur et assure la cohérence de l'API.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Validation réussie de la correction de la déclaration de l'outil delete_long_term_memory. Tests manuels effectués avec succès :\n\n**Tests de validation effectués :**\n✅ **Test paramètre id valide** : L'outil accepte maintenant correctement le paramètre `id` avec valeur \"2025-07-15T12:00:00.000Z\"\n✅ **Test ancien paramètre memory_id** : L'outil rejette correctement l'ancien paramètre `memory_id` comme attendu\n✅ **Test validation vide** : L'outil rejette correctement les paramètres `id` vides\n✅ **Test compilation serveur** : Le serveur MCP compile sans erreur avec la nouvelle déclaration\n\n**Fonctionnalités validées :**\n- Déclaration correcte avec paramètre `id` obligatoire selon le pattern des autres outils MCP\n- Validation Zod fonctionnelle avec messages d'erreur appropriés\n- Compatibilité serveur MCP maintenue\n- Rupture de compatibilité avec l'ancien paramètre `memory_id` confirmée\n\n**Résultat final :** SUCCESS complet - L'outil delete_long_term_memory a maintenant une déclaration correcte qui suit exactement le pattern des autres outils MCP. La correction élimine l'erreur de déclaration mentionnée dans la requête utilisateur et assure la cohérence de l'API.",
+    "last_comment_timestamp": "2025-07-15T13:06:54.464Z"
+  },
+  {
+    "id": 324,
+    "title": "Améliorer la clarté de la sortie de l'outil remember",
+    "short_description": "Restructurer la sortie de l'outil remember pour mieux différencier les souvenirs de travail, de mémoire long terme et les instructions de continuation.",
+    "detailed_description": "Améliorer la clarté et la lisibilité de la sortie de l'outil `remember` en restructurant l'affichage pour mieux différencier les différents types de contenu.\n\n**Objectifs :**\n- Restructurer la sortie pour séparer clairement les souvenirs de travail, mémoire long terme et instructions\n- Ajouter des sections distinctes avec des titres explicites\n- Améliorer la lisibilité avec une mise en forme plus claire\n- Conserver toute la fonctionnalité existante tout en améliorant l'UX\n\n**Critères d'acceptation :**\n- La sortie de l'outil `remember` a des sections clairement identifiées\n- Les souvenirs de travail sont distingués des souvenirs long terme\n- Les instructions de continuation sont clairement séparées du contenu de mémoire\n- La lisibilité est améliorée sans perte de fonctionnalité\n- L'agent peut facilement identifier chaque type d'information\n\n**Analyse Technique & Points de Vigilance :**\n- **Attention** : Préserver exactement la même structure de données en sortie pour maintenir la compatibilité\n- **Attention** : Ajouter des séparateurs visuels et des titres de section sans casser la logique existante\n- **Attention** : Vérifier que les modifications n'impactent pas la logique de routage du workflow\n- **Attention** : Tester que l'agent peut toujours interpréter correctement les instructions de continuation\n- **Attention** : S'assurer que la restructuration n'affecte pas les performances de l'outil\n- **Attention** : Maintenir la cohérence avec les 5 souvenirs optimisés (travail + sémantique)",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "cursor-memory-bank/.cursor/memory-bank/tools/remember.js"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) La sortie de remember a des sections clairement identifiées, (2) Les souvenirs de travail et long terme sont distingués, (3) Les instructions de continuation sont séparées, (4) La lisibilité est améliorée sans perte de fonctionnalité, (5) Les tests confirment que l'agent interprète correctement la nouvelle structure.",
+    "created_date": "2025-07-15T12:48:30.310Z",
+    "updated_date": "2025-07-15T12:48:30.310Z",
+    "parent_id": null,
+    "priority": 2,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]

@@ -1,66 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 261,
+  "last_id": 264,
   "requests": [
-    {
-      "id": 211,
-      "content": "J'ai récemment redémarré cursor et tous les outils UCPS qui devraient te permettre de en fait utiliser le workflow et vérifier si tout fonctionne est cohérent. Si t'identifies le moindre problème, hésite pas à me faire un message pour m'en faire part et à ce moment là éventuellement je te demanderai de de d'y remédier. L'idée c'est d'identifier les moindres soucis dans le workflow par exemple c'est pas normal que tu traites plusieurs fois des taches que tu traites des tâches de manière inutile, que tu d'un outil ne fonctionne pas correctement ou t'indiques pas la bonne direction si t'identifier un quelconque problème ou un truc qui pourrait être optimisé, hésite pas à me le dire via un message utilisateur et. Et on pourra y remédier donc profite de tes étapes là pour tester un peu le workflow, c'est à dire voir si tu découvres des soucis.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-30T18:28:39.001605",
-      "updated_at": "2025-06-30T16:30:57.185Z",
-      "history": [
-        {
-          "timestamp": "2025-06-30T18:28:39.001605",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-30T16:30:57.185Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 212,
-      "content": "Reply to Agent Message #199:\n\n**Original Message:** \"CRITICAL DATA LOSS: The `tasks.json` file is still empty. All task data is gone. The workflow is in a critical error state and cannot proceed. Immediate investigation is required to determine the caus...\"\n\n**My Reply:** Etrange en effet : Tu peux identifier l'origine du soucis ?\n\n**Message Context:**\n- Rule: unknown\n- Timestamp: 2025-06-30T16:46:20.149Z\n- Workflow Rule: implementation",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-30T18:47:27.870324",
-      "updated_at": "2025-06-30T16:50:21.470Z",
-      "history": [
-        {
-          "timestamp": "2025-06-30T18:47:27.870324",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-30T16:50:21.470Z",
-          "action": "mark_archived",
-          "comment": "Request has been converted into task #251 for a full investigation into the data loss."
-        }
-      ]
-    },
-    {
-      "id": 213,
-      "content": "Modification request for Task #246 (Analyser et documenter la contrainte d'outil (`terminal_cmd` vs `execute_command`)):\n\n**Original Task Details:**\n- **Title:** Analyser et documenter la contrainte d'outil (`terminal_cmd` vs `execute_command`)\n- **Description:** Analyser la requête #207 et documenter l'impossibilité d'interdire `terminal_cmd` via la modification des règles de workflow.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\nLa requête utilisateur #207 demande d'interdire l'usage de `terminal_cmd` au profit de `execute_command` dans les règles du workflow.\n\n**Analyse Critique et Points de Vigilance:**\n*   **Fausse Prémisse :** L'analyse des fichiers de règles (`.cursor/workflow-steps/*.md`) a démontré que ces fichiers ne contiennent pas de références codées en dur aux outils. Ils décrivent des objectifs de haut niveau, et le choix de l'outil spécifique est laissé à l'agent LLM.\n*   **Impossibilité Technique (dans ce repo) :** Il est par conséquent impossible de satisfaire cette requête en modifiant les fichiers de ce dépôt. La contrainte doit être appliquée au niveau de la configuration système de l'agent LLM (par exemple, dans son prompt système global ou via une couche de filtrage d'outils), ce qui est en dehors du périmètre de ce projet.\n*   **Action :** Cette tâche sert à documenter cette analyse pour l'utilisateur. Aucune modification de code ne sera effectuée. La tâche sera immédiatement marquée comme terminée/validée.\n\n**Validation Criteria:**\nNo validation criteria specified\n\n**User Feedback:**\nIl faudrait que tu identifies pourquoi du coup on a ces duplicatas de de tâches qui sont créées et c'est d'identifier d'où ça peut venir et résoudre le problème s'il te plaît\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-30T18:57:03.851116",
-      "updated_at": "2025-06-30T17:02:00.679Z",
-      "history": [
-        {
-          "timestamp": "2025-06-30T18:57:03.851116",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-30T17:02:00.679Z",
-          "action": "mark_archived",
-          "comment": "Requête traitée avec succès. Une tâche critique de priorité 5 (#254) a été créée pour diagnostiquer et corriger le système de création de doublons de tâches. L'analyse révèle que le problème est plus complexe qu'il n'y paraît et nécessite une approche défensive complète."
-        }
-      ]
-    },
     {
       "id": 214,
       "content": "Modification request for Task #250 (Perform a comprehensive workflow audit):\n\n**Original Task Details:**\n- **Title:** Perform a comprehensive workflow audit\n- **Description:** Suite à la demande de l'utilisateur (#211), effectuer un audit et un test continus du workflow pour identifier de manière proactive les bugs, les inefficacités ou les optimisations possibles.\n- **Status:** REVIEW\n- **Priority:** 2\n\n**Detailed Task Description:**\nLa requête utilisateur #211 demande une validation proactive de l'ensemble du workflow après un redémarrage des serveurs. L'objectif est d'identifier les incohérences, les bugs, ou les optimisations potentielles et d'en faire part à l'utilisateur.\n\n**Objectif :**\nFormaliser cette demande de test en une tâche de fond. Durant l'exécution normale du workflow, une attention particulière sera portée à la détection de toute anomalie.\n\n**Analyse Critique & Points de Vigilance :**\n*   **Nature Méta :** Cette tâche n'est pas une tâche d'implémentation classique. Elle sert de \"conteneur\" ou de \"tracker\" pour les problèmes qui pourraient être découverts de manière organique en utilisant le système.\n*   **Processus de Reporting :** Les problèmes identifiés ne mèneront pas à une modification directe dans le cadre de cette tâche. Au lieu de cela, ils seront :\n    1.  Documentés.\n    2.  Signalés à l'utilisateur via la fonctionnalité de message de l'outil `remember`, comme explicitement demandé.\n    3.  Potentiellement transformés en nouvelles tâches de `fix` ou `implementation` après analyse.\n*   **Priorité :** Cette tâche est de faible priorité car elle ne doit pas bloquer les tâches critiques déjà identifiées (comme la correction du bug de duplication #249). Elle s'exécute en parallèle du travail normal.\n\n**Étapes d'implémentation :**\n1.  Cette tâche reste en statut `TODO` ou `IN_PROGRESS` en arrière-plan.\n2.  Pendant que je traite d'autres tâches (ex: #248, #249), je surveillerai le comportement du workflow.\n3.  Si un problème est identifié, je le documenterai et le signalerai à l'utilisateur à un moment opportun (par exemple, à la fin d'une étape `context-update` ou `fix`).\n\n**Validation Criteria:**\nNo validation criteria specified\n\n**User Feedback:**\nTu peux créer 5 tâches pour résoudre chacun des 5 problèmes identifiés\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
@@ -957,6 +898,63 @@
         },
         {
           "timestamp": "2025-07-14T18:30:15.983Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 262,
+      "content": "Supprime l'outil increment_implementation : j'ignore à quoi il était sencé servir, mais non seuelement, il n'est pas utile mais en plus, il a des bugs qui le rendent inutilisables. Supprime le complètement.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-15T14:44:31.388710",
+      "updated_at": "2025-07-15T12:47:34.684Z",
+      "history": [
+        {
+          "timestamp": "2025-07-15T14:44:31.388710",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-15T12:47:34.684Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 263,
+      "content": "L'outil delete_long_term_memory a une erreur de déclaration. Regarde en détail comment on a implémenté et déclaré les autres outils comme on a expliqué leurs arguments, et cetera, et reproduit exactement la même chose pour  delete_long_term_memory afin de résoudre le soucis : l'outil doit prendre un id en entrée, id de l'entrée du souvenir long terme à supprimer.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-15T14:45:35.619872",
+      "updated_at": "2025-07-15T12:48:11.547Z",
+      "history": [
+        {
+          "timestamp": "2025-07-15T14:45:35.619872",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-15T12:48:11.547Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 264,
+      "content": "Tu peux rendre la sortie de l'outil remember plus clair pour bien différencier les souvenirs de la mémoire de travail, de la mémoire long terme et les instructions de continuation ?",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-15T14:46:19.639283",
+      "updated_at": "2025-07-15T12:48:33.191Z",
+      "history": [
+        {
+          "timestamp": "2025-07-15T14:46:19.639283",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-15T12:48:33.191Z",
           "action": "mark_archived"
         }
       ]

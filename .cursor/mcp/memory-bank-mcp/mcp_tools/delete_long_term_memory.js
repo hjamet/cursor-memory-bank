@@ -14,8 +14,8 @@ const longTermMemoryFilePath = path.join(__dirname, '..', '..', '..', 'memory-ba
  * Defines the input parameters and validation rules
  */
 export const deleteLongTermMemorySchema = z.object({
-    memory_id: z.string()
-        .min(1, "Memory ID cannot be empty")
+    id: z.string()
+        .min(1, "ID cannot be empty")
         .describe("The unique identifier (timestamp) of the long-term memory to delete")
 });
 
@@ -27,14 +27,14 @@ export const deleteLongTermMemorySchema = z.object({
  * removes it, and provides detailed feedback about the operation.
  * 
  * @param {Object} args - The arguments for the delete operation
- * @param {string} args.memory_id - The unique identifier of the memory to delete
+ * @param {string} args.id - The unique identifier of the memory to delete
  * @returns {Object} Tool response with operation status and details
  */
 async function deleteLongTermMemory(args) {
     try {
         // Validate input parameters
         const validatedArgs = deleteLongTermMemorySchema.parse(args);
-        const { memory_id } = validatedArgs;
+        const { id } = validatedArgs;
 
         // Read existing long-term memories
         let longTermMemories = [];
@@ -51,7 +51,7 @@ async function deleteLongTermMemory(args) {
                     status: 'error',
                     error_type: 'file_not_found',
                     message: 'No long-term memory file found. No memories exist to delete.',
-                    memory_id: memory_id,
+                    memory_id: id,
                     total_memories_remaining: 0
                 };
             } else {
@@ -61,18 +61,18 @@ async function deleteLongTermMemory(args) {
 
         // Validate memory ID format (should be ISO timestamp with optional microseconds)
         const timestampRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3,6})?Z?$/;
-        if (!timestampRegex.test(memory_id)) {
+        if (!timestampRegex.test(id)) {
             return {
                 status: 'error',
                 error_type: 'invalid_format',
-                message: `Invalid memory ID format. Expected ISO timestamp format (e.g., "2025-07-13T18:26:37.454Z" or "2025-06-25T01:15:10.224858"), got: "${memory_id}"`,
-                memory_id: memory_id,
+                message: `Invalid memory ID format. Expected ISO timestamp format (e.g., "2025-07-13T18:26:37.454Z" or "2025-06-25T01:15:10.224858"), got: "${id}"`,
+                memory_id: id,
                 total_memories_remaining: longTermMemories.length
             };
         }
 
         // Find the memory to delete
-        const memoryIndex = longTermMemories.findIndex(memory => memory.timestamp === memory_id);
+        const memoryIndex = longTermMemories.findIndex(memory => memory.timestamp === id);
 
         if (memoryIndex === -1) {
             // Memory not found
@@ -80,8 +80,8 @@ async function deleteLongTermMemory(args) {
             return {
                 status: 'error',
                 error_type: 'memory_not_found',
-                message: `No long-term memory found with ID: "${memory_id}"`,
-                memory_id: memory_id,
+                message: `No long-term memory found with ID: "${id}"`,
+                memory_id: id,
                 total_memories_remaining: longTermMemories.length,
                 available_memory_ids_sample: availableIds,
                 suggestion: availableIds.length > 0 ?
@@ -116,8 +116,8 @@ async function deleteLongTermMemory(args) {
         // Return success response with detailed information
         return {
             status: 'success',
-            message: `Successfully deleted long-term memory with ID: "${memory_id}"`,
-            memory_id: memory_id,
+            message: `Successfully deleted long-term memory with ID: "${id}"`,
+            memory_id: id,
             deleted_memory: deletedMemoryPreview,
             total_memories_remaining: longTermMemories.length,
             operation_timestamp: new Date().toISOString(),
@@ -132,7 +132,7 @@ async function deleteLongTermMemory(args) {
                 error_type: 'validation_error',
                 message: 'Invalid input parameters',
                 details: error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '),
-                memory_id: args.memory_id || 'undefined'
+                memory_id: args.id || 'undefined'
             };
         }
 
@@ -141,7 +141,7 @@ async function deleteLongTermMemory(args) {
             status: 'error',
             error_type: 'internal_error',
             message: `Failed to delete long-term memory: ${error.message}`,
-            memory_id: args.memory_id || 'undefined'
+            memory_id: args.id || 'undefined'
         };
     }
 }
@@ -160,7 +160,7 @@ export async function handleDeleteLongTermMemory(args) {
  */
 export default {
     name: 'delete_long_term_memory',
-    description: 'Delete a specific long-term memory by its ID (timestamp)',
+    description: 'Delete a specific long-term memory by its ID (timestamp). Takes an id parameter with the unique identifier of the memory to delete.',
     schema: deleteLongTermMemorySchema,
     handler: handleDeleteLongTermMemory
 }; 
