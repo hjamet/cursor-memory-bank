@@ -8,6 +8,7 @@ import { encodeText, findSimilarMemories } from '../lib/semantic_search.js';
 import { UserMessageManager } from '../lib/user_message_manager.js';
 import { getPossibleNextSteps, getRecommendedNextStep } from '../lib/workflow_recommendation.js';
 import { resetTransitionCounter } from '../lib/workflow_safety.js';
+import { loadUserPreferencesForRemember } from './utils.js';
 import { readUserMessages, getPendingMessages, markMessageAsConsumed, cleanupConsumedMessages } from '../lib/user_message_storage.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -186,7 +187,7 @@ async function remember(args) {
     }
 
     // Load user preferences
-    const preferences = await loadUserPreferences() || [];
+    const preferences = await loadUserPreferencesForRemember() || [];
 
     // Handle working memory (main memories)
     let memories = [];

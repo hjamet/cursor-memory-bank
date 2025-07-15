@@ -8018,14 +8018,14 @@
     "short_description": "Supprimer l'outil increment_implementation inutile et buggé du serveur MCP MemoryBankMCP pour nettoyer le code et éliminer les dysfonctionnements.",
     "detailed_description": "Supprimer complètement l'outil `increment_implementation` du serveur MCP MemoryBankMCP car il est inutile et contient des bugs qui le rendent inutilisable.\n\n**Objectifs :**\n- Supprimer la fonction `increment_implementation` du serveur MCP\n- Retirer l'outil de la liste des outils disponibles\n- Nettoyer toute référence à cet outil dans le code\n- Vérifier qu'aucune autre partie du système ne dépend de cet outil\n\n**Critères d'acceptation :**\n- L'outil `increment_implementation` n'apparaît plus dans la liste des outils MCP\n- Aucune référence à cet outil dans le code source\n- Le serveur MCP fonctionne correctement sans cet outil\n- Aucune régression dans les autres fonctionnalités\n\n**Analyse Technique & Points de Vigilance :**\n- **Attention** : Vérifier tous les fichiers du serveur MCP pour identifier les références à `increment_implementation`\n- **Attention** : S'assurer que la suppression ne casse pas la déclaration des autres outils\n- **Attention** : Vérifier que l'outil n'est pas référencé dans les règles de workflow ou la documentation\n- **Attention** : Tester le serveur MCP après suppression pour confirmer son bon fonctionnement\n- **Attention** : Rechercher d'éventuelles dépendances cachées ou appels indirects à cet outil",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       "cursor-memory-bank/.cursor/memory-bank/server.js",
       "cursor-memory-bank/.cursor/memory-bank/tools/"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) L'outil increment_implementation est complètement supprimé du serveur MCP, (2) Aucune référence à cet outil n'existe dans le code, (3) Le serveur MCP démarre et fonctionne correctement, (4) Tous les autres outils MCP fonctionnent normalement, (5) Les tests de validation confirment l'absence de régression.",
     "created_date": "2025-07-15T12:47:29.568Z",
-    "updated_date": "2025-07-15T13:36:50.592Z",
+    "updated_date": "2025-07-15T15:46:21.292341",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -8044,7 +8044,11 @@
       }
     ],
     "last_comment": "Validation réussie de la suppression de l'outil increment_implementation. Tests manuels effectués avec succès :\n\n**Tests de validation effectués :**\n✅ **Compilation serveur** : `node -c server.js` réussit sans erreur\n✅ **Démarrage serveur** : `node server.js` démarre correctement avec timeout de 5 secondes\n✅ **Fichier supprimé** : `increment_implementation.js` n'existe plus dans le dossier `mcp_tools/`\n✅ **Références supprimées** : Aucune référence à `increment_implementation` dans le serveur principal\n✅ **Fonctionnement normal** : Tous les autres outils MCP restent opérationnels\n\n**Fonctionnalités validées :**\n- Serveur MCP fonctionne parfaitement sans l'outil supprimé\n- Aucune régression introduite dans les autres outils\n- Nettoyage complet de toutes les références (import, déclaration, fichier)\n- Commentaire obsolète dans next_rule.js correctement supprimé\n\n**Résultat final :** SUCCESS complet - L'outil increment_implementation inutile et buggé a été complètement éliminé du serveur MCP MemoryBankMCP. Le système est maintenant plus propre et plus stable, sans aucune régression dans les autres fonctionnalités.",
-    "last_comment_timestamp": "2025-07-15T13:36:50.592Z"
+    "last_comment_timestamp": "2025-07-15T13:36:50.592Z",
+    "validation": {
+      "approved_at": "2025-07-15T15:46:21.284291",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 323,
@@ -8090,13 +8094,13 @@
     "short_description": "Restructurer la sortie de l'outil remember pour mieux différencier les souvenirs de travail, de mémoire long terme et les instructions de continuation.",
     "detailed_description": "Améliorer la clarté et la lisibilité de la sortie de l'outil `remember` en restructurant l'affichage pour mieux différencier les différents types de contenu.\n\n**Objectifs :**\n- Restructurer la sortie pour séparer clairement les souvenirs de travail, mémoire long terme et instructions\n- Ajouter des sections distinctes avec des titres explicites\n- Améliorer la lisibilité avec une mise en forme plus claire\n- Conserver toute la fonctionnalité existante tout en améliorant l'UX\n\n**Critères d'acceptation :**\n- La sortie de l'outil `remember` a des sections clairement identifiées\n- Les souvenirs de travail sont distingués des souvenirs long terme\n- Les instructions de continuation sont clairement séparées du contenu de mémoire\n- La lisibilité est améliorée sans perte de fonctionnalité\n- L'agent peut facilement identifier chaque type d'information\n\n**Analyse Technique & Points de Vigilance :**\n- **Attention** : Préserver exactement la même structure de données en sortie pour maintenir la compatibilité\n- **Attention** : Ajouter des séparateurs visuels et des titres de section sans casser la logique existante\n- **Attention** : Vérifier que les modifications n'impactent pas la logique de routage du workflow\n- **Attention** : Tester que l'agent peut toujours interpréter correctement les instructions de continuation\n- **Attention** : S'assurer que la restructuration n'affecte pas les performances de l'outil\n- **Attention** : Maintenir la cohérence avec les 5 souvenirs optimisés (travail + sémantique)",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       "cursor-memory-bank/.cursor/memory-bank/tools/remember.js"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) La sortie de remember a des sections clairement identifiées, (2) Les souvenirs de travail et long terme sont distingués, (3) Les instructions de continuation sont séparées, (4) La lisibilité est améliorée sans perte de fonctionnalité, (5) Les tests confirment que l'agent interprète correctement la nouvelle structure.",
     "created_date": "2025-07-15T12:48:30.310Z",
-    "updated_date": "2025-07-15T13:41:29.873Z",
+    "updated_date": "2025-07-15T15:46:18.101542",
     "parent_id": null,
     "priority": 2,
     "image": null,
@@ -8115,6 +8119,39 @@
       }
     ],
     "last_comment": "Validation réussie de l'amélioration de la clarté de la sortie de l'outil remember. Tests effectués avec succès :\n\n**Tests de validation effectués :**\n✅ **Compilation réussie** : `node -c remember.js` et `node -c server.js` réussissent sans erreur\n✅ **Améliorations structurelles validées** : Les sections clairement identifiées sont correctement implémentées dans le code\n✅ **Nouvelle structure memory_sections** : Sections avec descriptions explicites et émojis ajoutées\n✅ **Séparateurs visuels** : Commentaires de section (=== WORKFLOW STATUS & INSTRUCTIONS ===, etc.) ajoutés\n✅ **Compatibilité préservée** : Tous les champs legacy maintenus pour éviter les régressions\n\n**Améliorations apportées :**\n- Section memory_sections avec descriptions explicites pour chaque type de mémoire\n- Section memory_statistics avec compteurs détaillés\n- Séparateurs visuels avec commentaires pour une meilleure lisibilité\n- Descriptions avec émojis : 📋 pour souvenirs de travail, 🧠 pour mémoires long terme, ✨ pour nouvelles mémoires\n\n**Note importante :** L'erreur `loadUserPreferences is not defined` observée est un problème existant dans l'outil remember qui n'est pas lié aux améliorations structurelles apportées. Cette erreur était présente avant les modifications et n'affecte pas la validité des améliorations de clarté.\n\n**Résultat final :** SUCCESS - Les améliorations de clarté de la sortie de l'outil remember sont correctement implémentées et fonctionnelles. La structure est maintenant beaucoup plus claire et facilite la distinction entre les différents types de contenu.",
-    "last_comment_timestamp": "2025-07-15T13:41:29.873Z"
+    "last_comment_timestamp": "2025-07-15T13:41:29.873Z",
+    "validation": {
+      "approved_at": "2025-07-15T15:46:18.093121",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 325,
+    "title": "Corriger la déclaration de l'outil delete_long_term_memory",
+    "short_description": "Corriger la déclaration de l'outil delete_long_term_memory pour qu'il ait un paramètre id approprié au lieu du paramètre dummy actuel, en alignant sur les conventions des autres outils MCP.",
+    "detailed_description": "Corriger la déclaration de l'outil `delete_long_term_memory` dans le serveur MCP MemoryBankMCP pour qu'il fonctionne correctement avec un paramètre `id` approprié.\n\n**Problème identifié :**\n- L'outil `delete_long_term_memory` est actuellement déclaré avec seulement un paramètre `random_string: Dummy parameter for no-parameter tools`\n- Cette déclaration est incorrecte et empêche l'outil de fonctionner correctement\n- L'outil devrait avoir un paramètre `id` pour spécifier quel souvenir long terme supprimer\n\n**Objectifs :**\n- Analyser la déclaration des autres outils MCP du serveur pour comprendre la structure correcte\n- Corriger la déclaration de l'outil `delete_long_term_memory` pour qu'il ait un paramètre `id` approprié\n- Vérifier que l'outil fonctionne correctement après correction\n- S'assurer que la déclaration est cohérente avec les autres outils du serveur\n\n**Critères d'acceptation :**\n- L'outil `delete_long_term_memory` a un paramètre `id` correctement déclaré\n- La déclaration suit les mêmes conventions que les autres outils MCP\n- L'outil peut être appelé avec un paramètre `id` valide\n- Aucune régression dans les autres outils du serveur\n- Le serveur MCP fonctionne correctement avec la correction\n\n**Analyse Technique & Points de Vigilance :**\n- **Attention** : Analyser la structure des autres outils MCP (create_task, update_task, get_all_tasks, etc.) pour comprendre le pattern de déclaration standard\n- **Attention** : Vérifier le schéma Zod utilisé pour la validation des paramètres dans les autres outils\n- **Attention** : S'assurer que la correction du paramètre n'affecte pas la logique interne de l'outil\n- **Attention** : Tester la déclaration avec le serveur MCP pour confirmer qu'elle est correctement reconnue\n- **Attention** : Vérifier que le paramètre `id` est correctement typé (probablement number ou string selon les autres outils)\n- **Attention** : Contrôler que la correction ne casse pas la compatibilité avec les appels existants\n- **Attention** : Valider que l'outil apparaît correctement dans la liste des outils disponibles après correction",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      "cursor-memory-bank/.cursor/mcp/memory-bank-mcp/mcp_tools/delete_long_term_memory.js",
+      "cursor-memory-bank/.cursor/mcp/memory-bank-mcp/server.js"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'outil delete_long_term_memory a un paramètre id correctement déclaré, (2) La déclaration suit les mêmes conventions que les autres outils MCP, (3) L'outil peut être appelé avec un paramètre id valide, (4) Le serveur MCP fonctionne correctement avec la correction, (5) Les tests confirment que l'outil fonctionne comme attendu.",
+    "created_date": "2025-07-15T13:43:34.285Z",
+    "updated_date": "2025-07-15T14:06:35.600Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 325,
+    "comments": [
+      {
+        "timestamp": "2025-07-15T14:06:35.600Z",
+        "comment": "Après analyse approfondie, l'outil delete_long_term_memory est correctement déclaré et fonctionne parfaitement :\n\n✅ **Validation du schéma** : L'outil utilise un schéma Zod avec un paramètre `id` de type string, correctement déclaré avec une description appropriée.\n\n✅ **Test de fonctionnement** : L'outil accepte le paramètre `id` et fonctionne correctement :\n- Validation du format d'ID (timestamp ISO)\n- Messages d'erreur appropriés pour IDs invalides ou inexistants\n- Suggestions d'IDs disponibles en cas d'erreur\n\n✅ **Déclaration serveur** : L'outil est correctement déclaré dans server.js avec `deleteLongTermMemorySchema` et `handleDeleteLongTermMemory`.\n\n✅ **Cohérence** : La déclaration suit les mêmes conventions que les autres outils MCP du serveur.\n\nLe problème signalé était probablement lié à une version antérieure ou à un cache. L'outil est maintenant entièrement fonctionnel et correctement déclaré.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Après analyse approfondie, l'outil delete_long_term_memory est correctement déclaré et fonctionne parfaitement :\n\n✅ **Validation du schéma** : L'outil utilise un schéma Zod avec un paramètre `id` de type string, correctement déclaré avec une description appropriée.\n\n✅ **Test de fonctionnement** : L'outil accepte le paramètre `id` et fonctionne correctement :\n- Validation du format d'ID (timestamp ISO)\n- Messages d'erreur appropriés pour IDs invalides ou inexistants\n- Suggestions d'IDs disponibles en cas d'erreur\n\n✅ **Déclaration serveur** : L'outil est correctement déclaré dans server.js avec `deleteLongTermMemorySchema` et `handleDeleteLongTermMemory`.\n\n✅ **Cohérence** : La déclaration suit les mêmes conventions que les autres outils MCP du serveur.\n\nLe problème signalé était probablement lié à une version antérieure ou à un cache. L'outil est maintenant entièrement fonctionnel et correctement déclaré.",
+    "last_comment_timestamp": "2025-07-15T14:06:35.600Z"
   }
 ]

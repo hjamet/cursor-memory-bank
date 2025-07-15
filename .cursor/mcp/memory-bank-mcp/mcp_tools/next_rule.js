@@ -4,10 +4,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import nunjucks from 'nunjucks';
 import { readMemoryContext } from '../lib/memory_context.js';
-import { readUserbriefData } from '../lib/userbrief_manager.js';
 import { taskManager } from '../lib/task_manager.js';
 import { getPossibleNextSteps, getRecommendedNextStep, analyzeSystemState as centralizedAnalyzeSystemState } from '../lib/workflow_recommendation.js';
 import { incrementImplementationCount } from '../lib/workflow_state.js';
+import { loadUserPreferences, readUserbriefData } from './utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -482,23 +482,7 @@ async function loadMostUrgentTask(context) {
     }
 }
 
-/**
- * Helper function to load user preferences (limited)
- */
-async function loadUserPreferences(context, limit = 3) {
-    try {
-        const userbriefData = readUserbriefData();
-        context.user_preferences = userbriefData.requests ?
-            userbriefData.requests
-                .filter(req => req.status === 'preference' || req.status === 'pinned')
-                .slice(0, limit)
-                .map(req => req.content) : [];
-    } catch (error) {
-        // Debug logging removed to prevent JSON-RPC pollution
-        // console.warn(`Could not load user preferences: ${error.message}`);
-        context.user_preferences = [];
-    }
-}
+
 
 async function getStep(step_name) {
     const stepFilePath = path.join(workflowDirPath, `${step_name}.md`);
