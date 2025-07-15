@@ -1,6 +1,46 @@
 {
   "transition_history": [
     {
+      "from": null,
+      "to": "implementation",
+      "timestamp": "2025-07-15T15:25:01.745Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-15T15:24:26.711Z"
+    },
+    {
+      "from": null,
+      "to": "implementation",
+      "timestamp": "2025-07-15T15:22:51.113Z"
+    },
+    {
+      "from": "system",
+      "to": "implementation",
+      "timestamp": "2025-07-15T14:28:37.942Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-15T14:27:42.684Z"
+    },
+    {
+      "from": "system",
+      "to": "task-decomposition",
+      "timestamp": "2025-07-15T14:27:18.552Z"
+    },
+    {
+      "from": "system",
+      "to": "BLOCKED_context-update_TO_context-update",
+      "timestamp": "2025-07-15T14:07:53.109Z"
+    },
+    {
+      "from": "system",
+      "to": "experience-execution",
+      "timestamp": "2025-07-15T14:07:18.599Z"
+    },
+    {
       "from": "system",
       "to": "task-decomposition",
       "timestamp": "2025-07-15T13:43:05.455Z"
@@ -59,51 +99,11 @@
       "from": "system",
       "to": "implementation",
       "timestamp": "2025-07-14T18:54:11.053Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-14T18:48:22.748Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-14T18:47:03.174Z"
-    },
-    {
-      "from": "system",
-      "to": "implementation",
-      "timestamp": "2025-07-14T18:30:36.891Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-14T18:29:34.517Z"
-    },
-    {
-      "from": "system",
-      "to": "task-decomposition",
-      "timestamp": "2025-07-14T18:29:10.974Z"
-    },
-    {
-      "from": "experience-execution",
-      "to": "context-update",
-      "timestamp": "2025-07-14T10:40:00.404Z"
-    },
-    {
-      "from": "system",
-      "to": "BLOCKED_context-update_TO_context-update",
-      "timestamp": "2025-07-14T10:37:23.530Z"
-    },
-    {
-      "from": null,
-      "to": "experience-execution",
-      "timestamp": "2025-07-14T10:37:19.120Z"
     }
   ],
-  "experience_execution_attempts": 0,
-  "last_experience_execution": "2025-07-14T10:37:19.120Z",
-  "last_implementation": "2025-07-15T13:14:41.776Z",
-  "consecutive_transitions": 18,
+  "experience_execution_attempts": 1,
+  "last_experience_execution": "2025-07-15T14:07:18.599Z",
+  "last_implementation": "2025-07-15T15:25:01.745Z",
+  "consecutive_transitions": 4,
   "emergency_brake_active": false
 }

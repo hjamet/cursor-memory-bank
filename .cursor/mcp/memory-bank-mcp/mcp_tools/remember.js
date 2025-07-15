@@ -104,6 +104,50 @@ async function getTotalLongTermMemoriesCount() {
 // Functions moved to ../lib/workflow_recommendation.js for centralized logic
 
 /**
+ * Load long-term memories from the file
+ * @returns {Array} Array of long-term memories
+ */
+async function loadLongTermMemories() {
+    try {
+        const data = await fs.readFile(longTermMemoryFilePath, 'utf8');
+        const memories = JSON.parse(data);
+        return Array.isArray(memories) ? memories : [memories];
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            return [];
+        }
+        throw new Error(`Failed to read long-term memory file: ${error.message}`);
+    }
+}
+
+/**
+ * Add a new entry to long-term memory
+ * @param {Object} memoryEntry - The memory entry to add
+ */
+async function addToLongTermMemory(memoryEntry) {
+    try {
+        // Load existing memories
+        let longTermMemories = await loadLongTermMemories();
+
+        // Add semantic embedding for the new memory
+        const embedding = await encodeText(memoryEntry.content);
+        const memoryWithEmbedding = {
+            ...memoryEntry,
+            embedding: embedding
+        };
+
+        // Add the new memory
+        longTermMemories.push(memoryWithEmbedding);
+
+        // Save to file
+        await fs.mkdir(path.dirname(longTermMemoryFilePath), { recursive: true });
+        await fs.writeFile(longTermMemoryFilePath, JSON.stringify(longTermMemories, null, 2), 'utf8');
+    } catch (error) {
+        throw new Error(`Failed to add to long-term memory: ${error.message}`);
+    }
+}
+
+/**
  * Records the agent's state and determines the next step in the workflow.
  * This tool is the central nervous system of the autonomous agent, responsible for memory, reflection, and planning.
  *
