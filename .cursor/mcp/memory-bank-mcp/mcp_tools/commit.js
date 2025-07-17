@@ -430,15 +430,8 @@ export async function handleCommit({ emoji, type, title, description }) {
                     type: "text",
                     text: JSON.stringify({
                         status: 'success',
-                        message: `Nothing to commit in ${repoName}, working tree clean.`,
-                        code_scan: {
-                            total_files: codeScanResults.length,
-                            oversized_files: codeScanResults.filter(f => f.oversized).length,
-                            files_scanned: codeScanResults,
-                            task_recommendations: taskRecommendations,
-                            tasks_created: createdTasks,
-                            automatic_task_creation: createdTasks.length > 0
-                        }
+                        message: `Nothing to commit in ${repoName}, working tree clean.`
+                        // files_scanned and automatic_task_creation intentionally removed from output
                     }, null, 2)
                 }]
             };
@@ -525,15 +518,8 @@ export async function handleCommit({ emoji, type, title, description }) {
                 type: "text",
                 text: JSON.stringify({
                     status: 'success',
-                    message: successMessage,
-                    code_scan: {
-                        total_files: codeScanResults.length,
-                        oversized_files: codeScanResults.filter(f => f.oversized).length,
-                        files_scanned: codeScanResults,
-                        task_recommendations: taskRecommendations,
-                        tasks_created: createdTasks,
-                        automatic_task_creation: createdTasks.length > 0
-                    }
+                    message: successMessage
+                    // files_scanned and automatic_task_creation intentionally removed from output
                 }, null, 2)
             }]
         };
@@ -553,15 +539,8 @@ export async function handleCommit({ emoji, type, title, description }) {
                     type: "text",
                     text: JSON.stringify({
                         status: 'success',
-                        message: `Nothing to commit in ${repoName}, working tree clean.`,
-                        code_scan: {
-                            total_files: codeScanResults.length,
-                            oversized_files: codeScanResults.filter(f => f.oversized).length,
-                            files_scanned: codeScanResults,
-                            task_recommendations: taskRecommendations,
-                            tasks_created: createdTasks,
-                            automatic_task_creation: createdTasks.length > 0
-                        }
+                        message: `Nothing to commit in ${repoName}, working tree clean.`
+                        // files_scanned and automatic_task_creation intentionally removed from output
                     }, null, 2)
                 }]
             };
@@ -571,15 +550,8 @@ export async function handleCommit({ emoji, type, title, description }) {
                 type: 'text',
                 text: JSON.stringify({
                     status: 'error',
-                    message: `Git operation failed: ${error.message}`,
-                    code_scan: {
-                        total_files: codeScanResults.length,
-                        oversized_files: codeScanResults.filter(f => f.oversized).length,
-                        files_scanned: codeScanResults,
-                        task_recommendations: taskRecommendations,
-                        tasks_created: createdTasks,
-                        automatic_task_creation: createdTasks.length > 0
-                    }
+                    message: `Git operation failed: ${error.message}`
+                    // files_scanned and automatic_task_creation intentionally removed from output
                 }, null, 2)
             }]
         };

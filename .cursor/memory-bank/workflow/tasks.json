@@ -8246,14 +8246,14 @@
     "short_description": "Le fichier tasks.json doit être déplacé de .cursor/memory-bank/streamlit_app/ vers .cursor/memory-bank/workflow/. Tous les chemins d'accès dans le code et l'interface doivent être mis à jour pour refléter ce changement, sans casser la logique de gestion des tâches.",
     "detailed_description": "**Objectif :**\nDéplacer le fichier tasks.json qui contient la liste des tâches de .cursor/memory-bank/streamlit_app/ vers .cursor/memory-bank/workflow/ afin de respecter une organisation logique du projet.\n\n**Travail à réaliser :**\n- Déplacer physiquement le fichier tasks.json à l'emplacement .cursor/memory-bank/workflow/tasks.json\n- Rechercher et corriger tous les chemins d'accès à tasks.json dans le code Python, JavaScript, scripts, et configuration (Streamlit, MCP, etc.)\n- Vérifier que l'interface Streamlit et tous les outils MCP continuent de fonctionner sans erreur après le déplacement\n- S'assurer qu'aucune référence obsolète à l'ancien chemin ne subsiste (tests, scripts, documentation)\n- Prévoir une phase de test pour valider la gestion des tâches après déplacement\n\n**Analyse Technique & Points de Vigilance :**\n- Risque de références multiples et cachées à l'ancien chemin dans différents modules (backend, frontend, scripts)\n- Attention à la synchronisation des accès concurrents au fichier (lecture/écriture simultanée)\n- Risque de casse de l'interface Streamlit si le chemin n'est pas mis à jour partout\n- Prévoir une recherche exhaustive (grep/MCP) pour identifier tous les usages\n- Prévoir un rollback simple en cas d'échec (sauvegarde du fichier avant déplacement)\n- Tester la création, la modification et la suppression de tâches après déplacement\n\n**Critères de validation :**\n- Le fichier tasks.json est présent uniquement dans .cursor/memory-bank/workflow/\n- Toutes les fonctionnalités de gestion de tâches fonctionnent sans erreur\n- Aucun chemin obsolète n'est présent dans le code ou la configuration\n- L'interface Streamlit affiche et modifie correctement les tâches\n- Les tests automatisés (si existants) passent sans erreur\n- Documentation et scripts mis à jour si nécessaire\n\n**Dépendances :**\nAucune dépendance directe identifiée, mais nécessite une validation fonctionnelle globale après modification.\n\n**Priorité :** 4 (haute, car impacte la structure du projet)\n\n**Fichiers impactés :**\n- .cursor/memory-bank/streamlit_app/tasks.json (ancien emplacement)\n- .cursor/memory-bank/workflow/tasks.json (nouvel emplacement)\n- Tous les fichiers accédant à tasks.json (Python, JS, scripts, config, tests)\n\n**Validation :**\n- La tâche est terminée quand :\n  - Le déplacement est effectif\n  - Tous les chemins sont corrigés\n  - Les fonctionnalités de gestion de tâches sont opérationnelles\n  - Aucun bug de chemin ou d'accès n'est détecté\n  - Les tests passent et l'interface fonctionne normalement\n",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/memory-bank/streamlit_app/tasks.json",
       ".cursor/memory-bank/workflow/tasks.json"
     ],
     "validation_criteria": "La tâche est terminée quand :\n- Le fichier tasks.json est déplacé et accessible uniquement à son nouvel emplacement\n- Tous les chemins d'accès sont corrigés dans le code et l'interface\n- Les fonctionnalités de gestion de tâches sont opérationnelles sans bug\n- Les tests automatisés passent\n- L'interface Streamlit fonctionne normalement\n- Aucun chemin obsolète ne subsiste",
     "created_date": "2025-07-17T10:22:21.756Z",
-    "updated_date": "2025-07-17T11:51:34.808Z",
+    "updated_date": "2025-07-17T13:53:07.212709",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -8267,7 +8267,11 @@
       }
     ],
     "last_comment": "Test manuel réussi : la commande MCP get_all_tasks.js fonctionne avec le nouveau chemin tasks.json, le fichier est lisible et la gestion des tâches est opérationnelle après migration. Tous les critères de validation sont remplis. Je marque la tâche comme REVIEW avant de committer.",
-    "last_comment_timestamp": "2025-07-17T11:51:34.808Z"
+    "last_comment_timestamp": "2025-07-17T11:51:34.808Z",
+    "validation": {
+      "approved_at": "2025-07-17T13:53:07.200707",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 329,
@@ -8275,7 +8279,7 @@
     "short_description": "La sortie de l'outil commit doit être simplifiée : supprimer le champ files_scanned et l'indication automatic_task_creation, jugés inutiles et trop verbeux.",
     "detailed_description": "**Objectif :**\nSimplifier la sortie de l'outil commit en supprimant le champ files_scanned (liste des fichiers scannés) et l'indication automatic_task_creation, car ces informations sont jugées inutiles et rendent la sortie trop verbeuse. Les tâches créées automatiquement suffisent à documenter l'action.\n\n**Travail à réaliser :**\n- Identifier tous les endroits dans le code où la sortie de l'outil commit inclut files_scanned et automatic_task_creation\n- Supprimer l'ajout de ces champs dans la réponse de l'outil commit\n- Vérifier que la suppression n'impacte pas la logique de création de tâches ou la traçabilité des commits\n- Mettre à jour la documentation et les tests si nécessaire\n- S'assurer que la sortie de l'outil commit reste claire, concise et conforme aux attentes utilisateur\n\n**Analyse Technique & Points de Vigilance :**\n- Attention à ne pas supprimer d'autres informations utiles de la sortie\n- Vérifier que la suppression de files_scanned n'affecte pas d'autres outils ou scripts qui pourraient s'appuyer sur ce champ\n- S'assurer que la suppression de automatic_task_creation ne casse pas la logique de création automatique de tâches (seulement la sortie, pas la fonctionnalité)\n- Prévoir des tests pour valider la sortie de l'outil commit après modification\n- Documenter le changement dans le changelog ou la documentation utilisateur si besoin\n\n**Critères de validation :**\n- Le champ files_scanned n'apparaît plus dans la sortie de l'outil commit\n- L'indication automatic_task_creation n'apparaît plus dans la sortie\n- La sortie de l'outil commit reste fonctionnelle, claire et concise\n- Les tests automatisés passent sans erreur\n- Aucun bug ou régression n'est introduit\n\n**Dépendances :**\nAucune dépendance directe identifiée, mais nécessite une validation fonctionnelle globale après modification.\n\n**Priorité :** 3 (normale)\n\n**Fichiers impactés :**\n- Code source de l'outil commit (Python, JS, scripts MCP)\n- Tests associés\n- Documentation utilisateur (si mention de ces champs)\n\n**Validation :**\n- La tâche est terminée quand :\n  - Les champs files_scanned et automatic_task_creation sont absents de la sortie de l'outil commit\n  - La sortie reste claire et fonctionnelle\n  - Les tests passent\n  - Aucun bug ou régression n'est détecté\n",
     "dependencies": [],
-    "status": "TODO",
+    "status": "REVIEW",
     "impacted_files": [
       "Code source de l'outil commit (Python, JS, scripts MCP)",
       "Tests associés",
@@ -8283,10 +8287,20 @@
     ],
     "validation_criteria": "La tâche est terminée quand :\n- Les champs files_scanned et automatic_task_creation sont absents de la sortie de l'outil commit\n- La sortie reste claire et fonctionnelle\n- Les tests passent\n- Aucun bug ou régression n'est détecté",
     "created_date": "2025-07-17T10:22:58.320Z",
-    "updated_date": "2025-07-17T10:22:58.320Z",
+    "updated_date": "2025-07-17T11:56:27.903Z",
     "parent_id": null,
     "priority": 3,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 329,
+    "comments": [
+      {
+        "timestamp": "2025-07-17T11:56:27.903Z",
+        "comment": "Test manuel réussi : la sortie de l'outil commit ne contient plus les champs files_scanned ni automatic_task_creation. La modification est effective, la sortie reste claire et fonctionnelle. Je marque la tâche comme REVIEW avant de committer.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Test manuel réussi : la sortie de l'outil commit ne contient plus les champs files_scanned ni automatic_task_creation. La modification est effective, la sortie reste claire et fonctionnelle. Je marque la tâche comme REVIEW avant de committer.",
+    "last_comment_timestamp": "2025-07-17T11:56:27.903Z"
   }
 ]

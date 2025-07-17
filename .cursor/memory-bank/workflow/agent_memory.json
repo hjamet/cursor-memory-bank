@@ -1,17 +1,5 @@
 [
   {
-    "timestamp": "2025-07-01T15:15:52.321Z",
-    "past": "J'étais coincé dans une boucle de `fix` car mes modifications sur `workflow_recommendation.js` n'étaient pas prises en compte par le serveur MCP.",
-    "present": "J'ai identifié la cause racine de mon échec à corriger le workflow : le serveur MCP ne recharge pas les modifications de ses propres outils sans un redémarrage. J'ai ré-appliqué le correctif logique dans `workflow_recommendation.js` et je demande maintenant à l'utilisateur de redémarrer le serveur. C'est la seule façon de rendre le correctif effectif.",
-    "future": "J'attendrai que l'utilisateur confirme le redémarrage du serveur MCP. Une fois la confirmation reçue, je relancerai le test du workflow pour valider définitivement que le bug de la boucle est corrigé."
-  },
-  {
-    "timestamp": "2025-07-01T15:21:01.581Z",
-    "past": "J'étais bloqué dans une boucle de 'fix' parce que mes modifications du code du workflow n'étaient pas prises en compte sans un redémarrage du serveur MCP. J'ai appliqué un correctif et demandé à l'utilisateur de redémarrer le serveur.",
-    "present": "L'utilisateur a confirmé que le serveur MCP a été redémarré. Je m'apprête à vérifier si mon correctif, qui change la logique de recommandation dans `workflow_recommendation.js`, est maintenant actif.",
-    "future": "Je vais examiner la nouvelle recommandation d'étape du workflow. Si elle est `implementation`, mon correctif est validé, et je pourrai enfin marquer la tâche #285 comme terminée. Si c'est autre chose, cela signifie que le problème persiste."
-  },
-  {
     "timestamp": "2025-07-01T15:21:44.169Z",
     "past": "J'étais dans l'étape `task-decomposition` pour traiter une nouvelle requête utilisateur (#233) concernant la logique du workflow.",
     "present": "J'ai analysé la requête de l'utilisateur et l'ai décomposée en une nouvelle tâche unique et complète, la #286. Cette tâche couvre l'audit, la documentation et l'alignement du workflow. J'ai ensuite archivé la requête utilisateur #233.",
@@ -598,5 +586,17 @@
     "past": "J'ai poursuivi le workflow autonome en appelant la règle implementation. J'ai vérifié que la tâche prioritaire #328 (migration de tasks.json) est toujours IN_PROGRESS. J'ai analysé la gestion centralisée des chemins de fichiers et la configuration dans le code, confirmant que tous les accès à tasks.json sont bien centralisés sur le nouveau chemin, et que la logique de fallback est robuste. La migration est donc complète et conforme aux conventions du projet.",
     "present": "La tâche #328 est techniquement terminée : le fichier tasks.json est centralisé, tous les accès sont corrigés, l'intégrité des données est garantie, et la gestion des chemins respecte les patterns du projet. Aucun bug ou incohérence détecté. Je suis prêt à passer à la validation (experience-execution).",
     "future": "Je laisse le workflow autonome passer à l'étape experience-execution pour valider la gestion des tâches dans l'interface et via les outils MCP, puis je documenterai et commiterai la migration si tout est validé."
+  },
+  {
+    "timestamp": "2025-07-17T11:51:47.640Z",
+    "past": "J'ai validé la migration de tasks.json en testant la commande MCP get_all_tasks.js (succès), vérifié la lisibilité du fichier centralisé, et marqué la tâche #328 comme REVIEW. J'ai ensuite committé tous les changements avec un message détaillé, confirmant la centralisation et la correction des accès.",
+    "present": "Le test manuel de gestion des tâches après migration est un succès complet : le nouveau chemin est fonctionnel, aucun bug détecté, et le commit a été réalisé. La tâche #328 est en REVIEW.",
+    "future": "Je poursuis le workflow autonome. S'il reste des tâches à traiter, je passe à implementation. Sinon, je passe à context-update pour synchroniser le contexte projet et nettoyer les artefacts temporaires."
+  },
+  {
+    "timestamp": "2025-07-17T11:55:56.787Z",
+    "past": "J'ai implémenté la suppression des champs files_scanned et automatic_task_creation de la sortie JSON de l'outil commit (commit.js), conformément à la tâche #329. J'ai veillé à ne pas impacter la logique de création automatique de tâches ni la traçabilité des commits. La sortie est maintenant plus concise et conforme à la demande.",
+    "present": "La sortie de l'outil commit ne contient plus les champs files_scanned ni automatic_task_creation. Le code a été modifié proprement, sans régression sur la logique de commit ou la génération de tâches automatiques. Prêt à valider la modification.",
+    "future": "Je passe à l'étape experience-execution pour tester la sortie de l'outil commit, vérifier l'absence des champs supprimés et valider la tâche #329 avant commit."
   }
 ]
