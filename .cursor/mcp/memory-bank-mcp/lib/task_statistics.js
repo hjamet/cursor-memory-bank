@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 // Calculate dynamic path relative to the MCP server location
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const TASKS_FILE_PATH = path.join(__dirname, '..', '..', '..', 'memory-bank', 'streamlit_app', 'tasks.json');
+const TASKS_FILE_PATH = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'tasks.json');
 
 /**
  * Centralized task statistics calculator

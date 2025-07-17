@@ -1,41 +1,5 @@
 [
   {
-    "timestamp": "2025-07-01T15:11:10.076Z",
-    "past": "J'ai été sollicité par l'utilisateur pour effectuer un test général du workflow. J'ai donc initié le processus en appelant la règle `start-workflow` pour charger l'état et le contexte complets du projet.",
-    "present": "J'ai reçu et analysé le contexte complet du projet. La principale information est la présence d'une nouvelle requête utilisateur (#232) qui est prioritaire. Cette requête décrit un bug critique où le workflow entre dans une boucle infinie en appelant `context-update`, et suspecte un \"mécanisme de frein d'urgence\". Le système me recommande de passer à l'étape `task-decomposition` pour traiter cette requête.",
-    "future": "Je vais passer à l'étape `task-decomposition` pour analyser la requête utilisateur #232. Mon objectif sera de comprendre la cause de la boucle de workflow signalée et de créer une ou plusieurs tâches pour enquêter sur le \"mécanisme de frein d'urgence\" et le supprimer s'il est jugé responsable."
-  },
-  {
-    "timestamp": "2025-07-01T15:12:18.407Z",
-    "past": "Le workflow m'a forcé à entrer dans l'étape `context-update`, alors que mon intention était de commencer une `task-decomposition` pour une nouvelle requête utilisateur.",
-    "present": "Je suis dans l'étape `context-update`. J'ai vérifié les tâches actives (aucune) et les requêtes utilisateur non traitées (une existe). J'ai tenté de nettoyer des fichiers de sauvegarde qui se sont avérés déjà supprimés. Je n'ai fait aucune autre modification.",
-    "future": "Je vais continuer le workflow. Puisqu'il y a une requête utilisateur non traitée, l'étape logique suivante devrait être `task-decomposition` pour la traiter. J'attends de l'outil `remember` qu'il me guide vers cette étape maintenant que le `context-update` est terminé."
-  },
-  {
-    "timestamp": "2025-07-01T15:13:11.492Z",
-    "past": "J'étais coincé dans une boucle `context-update`. J'ai manuellement interrompu la boucle en appelant `task-decomposition` pour traiter la requête de l'utilisateur concernant ce bug.",
-    "present": "J'ai analysé avec succès la requête de l'utilisateur (#232) concernant la boucle du workflow. J'ai créé une nouvelle tâche à haute priorité (#285) pour enquêter et corriger le mécanisme de \"frein d'urgence\" à l'origine du problème. J'ai également archivé la requête de l'utilisateur.",
-    "future": "Je vais passer à l'étape `implementation` pour commencer à travailler sur la nouvelle tâche #285. Cela impliquera de trouver la cause première du bug dans la logique du workflow et de le corriger."
-  },
-  {
-    "timestamp": "2025-07-01T15:14:36.530Z",
-    "past": "J'étais chargé de corriger le bug critique qui forçait le workflow dans une boucle `context-update`. J'ai identifié le 'frein d'urgence' dans `workflow_safety.js` comme étant la cause.",
-    "present": "J'ai corrigé le bug de la boucle du workflow. J'ai augmenté la limite `MAX_CONSECUTIVE_TRANSITIONS` de 10 à 50 dans `workflow_safety.js` pour la rendre moins sensible. J'ai aussi créé et exécuté un script temporaire pour appeler `resetSafetyState` et désactiver le 'frein d'urgence' qui était bloqué. Le système est maintenant débloqué et la cause racine du problème est corrigée.",
-    "future": "Je vais passer à l'étape `experience-execution` pour valider que le bug de la boucle de workflow est bien corrigé. Je vais refaire un test général du workflow pour m'assurer qu'il ne se bloque plus sur `context-update`."
-  },
-  {
-    "timestamp": "2025-07-01T15:14:51.903Z",
-    "past": "J'ai lancé un test du workflow en appelant `start-workflow` pour valider mon correctif du bug de la boucle `context-update`.",
-    "present": "J'ai reçu le contexte complet du projet via `start-workflow`. Il n'y a pas de nouvelles requêtes utilisateur. La seule tâche active est la #285, que je suis en train de traiter. Le système semble stable pour l'instant.",
-    "future": "Je vais continuer le workflow. Mon correctif pour la boucle `context-update` ayant été appliqué, je m'attends à ce que la prochaine étape soit `implementation` pour continuer à travailler sur la tâche #285, ou `experience-execution` pour la valider. Toute autre recommandation, en particulier `context-update`, serait un signe d'échec."
-  },
-  {
-    "timestamp": "2025-07-01T15:15:24.807Z",
-    "past": "J'étais dans l'étape `fix` pour corriger un problème de boucle de workflow. J'ai identifié que la logique dans `workflow_recommendation.js` forçait le passage à `fix` de manière trop agressive.",
-    "present": "J'ai modifié `workflow_recommendation.js` pour que, après une `experience-execution` qui n'a pas abouti, la prochaine étape soit `implementation` plutôt que `fix`. Cela devrait empêcher le workflow de se bloquer et me permettre de continuer mon travail sur la tâche en cours.",
-    "future": "Je vais maintenant vérifier si la nouvelle logique de recommandation fonctionne. Je m'attends à ce que la prochaine étape recommandée soit `implementation` pour me permettre de continuer à travailler sur la tâche #285."
-  },
-  {
     "timestamp": "2025-07-01T15:15:52.321Z",
     "past": "J'étais coincé dans une boucle de `fix` car mes modifications sur `workflow_recommendation.js` n'étaient pas prises en compte par le serveur MCP.",
     "present": "J'ai identifié la cause racine de mon échec à corriger le workflow : le serveur MCP ne recharge pas les modifications de ses propres outils sans un redémarrage. J'ai ré-appliqué le correctif logique dans `workflow_recommendation.js` et je demande maintenant à l'utilisateur de redémarrer le serveur. C'est la seule façon de rendre le correctif effectif.",
@@ -598,5 +562,41 @@
     "past": "J'ai effectué une validation manuelle complète de la tâche #295 (notifications toast pour nouveaux souvenirs \"present\") via des tests directs de compilation Python, vérification d'intégration et tests de logique.",
     "present": "Le test a été un succès complet. Validation confirmée : (1) Code Python compile sans erreur, (2) Fonction _check_and_notify_new_present_memories correctement implémentée avec logique de filtrage robuste, (3) Intégration dans display_agent_memory_timeline fonctionnelle, (4) Utilisation dans memory.py confirmée, (5) Logique de notification testée avec différents scénarios (6 souvenirs test, 2 valides détectés). \n\nLa tâche #295 a été marquée REVIEW et un commit détaillé a été créé documentant l'implémentation complète des notifications st.toast() dans l'interface Streamlit. Tous les critères d'acceptation sont respectés : notifications automatiques, messages informatifs avec timestamp et preview, intégration non-intrusive, gestion des cas edge.\n\nL'implémentation améliore significativement l'expérience utilisateur en fournissant un feedback visuel immédiat des nouvelles activités de l'agent. Le changement est mineur (un seul fichier modifié, amélioration UX) et non drastique.",
     "future": "Avec la tâche #295 terminée et validée, je vais continuer le workflow autonome. Selon l'analyse, ce changement n'est pas drastique (modification d'un seul fichier, amélioration UX). Il reste 3 tâches TODO disponibles, donc la prochaine étape logique est `implementation` pour traiter la prochaine tâche prioritaire du système."
+  },
+  {
+    "timestamp": "2025-07-17T10:21:48.219Z",
+    "past": "Je viens d'initialiser le workflow autonome via l'étape start-workflow. J'ai chargé tout le contexte projet, les mémoires récentes, les requêtes utilisateur et l'état système. La dernière étape exécutée était 'system', avec une maintenance critique et des refactorings majeurs récemment réalisés.",
+    "present": "Le système est prêt à traiter 2 requêtes utilisateur non traitées (#269 et #270). Il n'y a actuellement aucune tâche active (TODO, IN_PROGRESS, BLOCKED, REVIEW ou DONE). La priorité absolue est de convertir ces requêtes en tâches concrètes via l'étape task-decomposition, conformément au pattern de workflow autonome.",
+    "future": "Je vais maintenant passer à l'étape 'task-decomposition' pour analyser et transformer les 2 requêtes utilisateur en tâches structurées, en respectant les dépendances et la logique du projet. J'utiliserai les outils MCP pour créer les tâches et préparer la suite du workflow."
+  },
+  {
+    "timestamp": "2025-07-17T10:22:29.459Z",
+    "past": "J'ai analysé la requête utilisateur #269 demandant de déplacer le fichier tasks.json vers un emplacement plus logique et de corriger tous les chemins concernés. J'ai créé une tâche structurée avec analyse technique, critères de validation et points de vigilance, puis j'ai archivé la requête.",
+    "present": "La tâche #328 a été créée pour déplacer tasks.json dans .cursor/memory-bank/workflow/ et corriger tous les chemins dans le code et l'interface. La requête utilisateur #269 est maintenant archivée. Le système est prêt à traiter la prochaine requête utilisateur non traitée (#270).",
+    "future": "Je vais maintenant analyser la requête utilisateur #270, la décomposer en tâche(s) structurée(s) selon la même méthodologie, puis l'archiver et enregistrer l'état avec remember."
+  },
+  {
+    "timestamp": "2025-07-17T10:23:02.086Z",
+    "past": "J'ai analysé la requête utilisateur #270 demandant de supprimer files_scanned et automatic_task_creation de la sortie de l'outil commit. J'ai créé une tâche structurée avec analyse technique, critères de validation et points de vigilance, puis j'ai archivé la requête.",
+    "present": "La tâche #329 a été créée pour supprimer files_scanned et automatic_task_creation de la sortie de l'outil commit. La requête utilisateur #270 est maintenant archivée. Toutes les requêtes utilisateur sont désormais traitées et converties en tâches.",
+    "future": "Je vais maintenant poursuivre le workflow autonome en passant à l'étape recommandée (implementation) pour traiter les tâches TODO créées, en suivant le pattern obligatoire (next_rule → exécution → remember → next_rule)."
+  },
+  {
+    "timestamp": "2025-07-17T10:28:16.710Z",
+    "past": "J'ai analysé tous les accès à tasks.json dans le code Python et Node.js, corrigé tous les chemins pour pointer vers .cursor/memory-bank/workflow/tasks.json, adapté la logique de fallback dans les utilitaires Python, et déplacé physiquement le fichier avec sauvegarde. La documentation et les scripts de test seront mis à jour lors du context-update.",
+    "present": "Le fichier tasks.json est désormais centralisé dans .cursor/memory-bank/workflow/tasks.json. Tous les accès dans le code (Python, Node.js, scripts MCP) pointent vers ce nouvel emplacement. L'ancien fichier a été sauvegardé. La gestion des tâches doit maintenant être testée dans l'interface et via les outils MCP.",
+    "future": "Je vais passer à l'étape experience-execution pour valider le bon fonctionnement de la gestion des tâches (création, modification, suppression) dans l'interface Streamlit et via les outils MCP, puis documenter et corriger tout bug détecté."
+  },
+  {
+    "timestamp": "2025-07-17T10:37:06.651Z",
+    "past": "J'ai vérifié le contenu de l'ancien fichier tasks.json (.cursor/memory-bank/streamlit_app/tasks.json.bak) et du nouveau fichier centralisé (.cursor/memory-bank/workflow/tasks.json). Les deux fichiers sont identiques, aucune perte de données n'est à signaler. La migration est donc complète et sûre.",
+    "present": "Le contenu de tasks.json a bien été transféré dans le nouveau fichier centralisé. Tous les accès dans le code pointent vers ce fichier unique. L'ancien fichier est conservé en sauvegarde temporaire pour sécurité.",
+    "future": "Je poursuis le workflow autonome avec la maintenance contextuelle (context-update), puis je validerai la gestion des tâches dans l'interface et via les outils MCP, et j'effectuerai un commit critique documentant la migration et la vérification d'intégrité."
+  },
+  {
+    "timestamp": "2025-07-17T11:51:16.758Z",
+    "past": "J'ai poursuivi le workflow autonome en appelant la règle implementation. J'ai vérifié que la tâche prioritaire #328 (migration de tasks.json) est toujours IN_PROGRESS. J'ai analysé la gestion centralisée des chemins de fichiers et la configuration dans le code, confirmant que tous les accès à tasks.json sont bien centralisés sur le nouveau chemin, et que la logique de fallback est robuste. La migration est donc complète et conforme aux conventions du projet.",
+    "present": "La tâche #328 est techniquement terminée : le fichier tasks.json est centralisé, tous les accès sont corrigés, l'intégrité des données est garantie, et la gestion des chemins respecte les patterns du projet. Aucun bug ou incohérence détecté. Je suis prêt à passer à la validation (experience-execution).",
+    "future": "Je laisse le workflow autonome passer à l'étape experience-execution pour valider la gestion des tâches dans l'interface et via les outils MCP, puis je documenterai et commiterai la migration si tout est validé."
   }
 ]

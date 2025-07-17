@@ -1,45 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 268,
+  "last_id": 270,
   "requests": [
-    {
-      "id": 218,
-      "content": "Tu peux modifier légèrement, enfin pas modifier mais améliorer Comment la règle expérience exécution pour pousser le modèle à avoir une analyse vraiment critique demande lui de prendre une position vraiment de de reviewer, c'est à dire quelqu'un qui va essayer de trouver les problèmes dans ce qui a été fait. En gros, quand il analyse les résultats, son objectif c'est pas de vérifier que tout est bon, c'est de trouver des erreurs. Il va chercher dans les endroits où il y a où il est le plus susceptible d'y avoir des erreurs ou des choses incorrectes. Et il va essayer d'en trouver. Alors il doit pas inventer des choses qui sont pas correctes. Si tout est parfait, il doit le reconnaître, mais. Mais il doit autant que possible essayer de d'identifier des problèmes, des choses qui sont pas conformes, qui étaient pas les résultats attendus, qui sont louches, sur lesquels on devrait regarder et donc il doit les bien sûr, les si il découvre vraiment des trucs qui sont vraiment problématiques, il doit les faire remonter via les messages à l'utilisateur et. Et mais dans tous les cas, quand il valide si l'expérience s'est bien passée, Eh Ben c'est lui qui dit si l'expérience s'est bien passée ou non avec ce point de vue critique. Alors encore une fois, si tout est absolument parfait comme prévu. Sans chipotage, Eh Ben à ce moment-là, il valide, mais lui, son but, c'est vraiment d'essayer de trouver des erreurs, ne jamais laisser passer une une expérience en disant, OK, ça va s'il y avait encore des problèmes.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-30T21:53:34.468586",
-      "updated_at": "2025-06-30T19:56:23.489Z",
-      "history": [
-        {
-          "timestamp": "2025-06-30T21:53:34.468586",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-30T19:56:23.489Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 219,
-      "content": "Tu m'as récemment fait part du problème suivant : peux tu le résoudre ? :D\n\n\"\"\"\nANALYSE CRITIQUE : Je viens de découvrir un problème architectural majeur que j'avais identifié dans mon implémentation :\nMON INTENTION : Aller à context-update pour synchroniser après un changement majeur\nSYSTÈME RECOMMEND : implementation car il y a 12 tâches TODO disponibles\nPROBLÈME IDENTIFIÉ : Le système remember.js (que j'ai modifié) et le système next_rule.js utilisent des logiques différentes :\nremember.js : Logique contextuelle (changement majeur → context-update)\nnext_rule.js : Logique basée sur l'état des tâches (tâches disponibles → implementation)\n\"\"\"",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-06-30T22:09:15.816766",
-      "updated_at": "2025-06-30T20:15:12.194Z",
-      "history": [
-        {
-          "timestamp": "2025-06-30T22:09:15.816766",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-06-30T20:15:12.194Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 220,
       "content": "Est ce que tu peux supprimer tous les fichiers de tests qui ne sont plus utiles dans le repository je crois qu'il y en a plein qui sont cachés un peu partout regarde tous les fichiers qui ont un nom qui contient test ça te permettra de facilement les identifier je pense ils prennent de la place pour rien",
@@ -966,6 +928,44 @@
           "timestamp": "2025-07-15T15:34:42.868Z",
           "action": "mark_archived",
           "comment": "Décomposition terminée avec succès. Requête analysée et convertie en tâche technique #327 (priorité CRITIQUE) pour corriger définitivement la déclaration de l'outil delete_long_term_memory MCP en reproduisant EXACTEMENT le pattern de l'outil next_rule selon les instructions précises de l'utilisateur."
+        }
+      ]
+    },
+    {
+      "id": 269,
+      "content": "Le fichier tasks.json qui contient la liste des tâches n'est pas placé à un endroit logique : il se trouve dans .cursor/memory-bank/streamlit_app/tasks.json alors qu'il devrait se trouver dans .cursor\\memory-bank\\workflow logiquement. Déplace le à cet endroit et fais TRES attention de bien corriger tous les endroits concernés dans le code !",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-17T12:16:00.549512",
+      "updated_at": "2025-07-17T10:22:25.709Z",
+      "history": [
+        {
+          "timestamp": "2025-07-17T12:16:00.549512",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-17T10:22:25.709Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 270,
+      "content": "Supprime \"files_scanned\" de la sortie de l'outil commit : c'est inutilement verbeux. Les tâches crées automatiquement devrait suffire.  Supprime également de la sortie l'indication \"automatic_task_creation\".",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-17T12:17:22.539550",
+      "updated_at": "2025-07-17T10:22:59.528Z",
+      "history": [
+        {
+          "timestamp": "2025-07-17T12:17:22.539550",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-17T10:22:59.528Z",
+          "action": "mark_archived"
         }
       ]
     }

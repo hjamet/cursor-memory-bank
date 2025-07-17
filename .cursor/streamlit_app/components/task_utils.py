@@ -8,6 +8,7 @@ import statistics
 def get_tasks_file() -> Optional[Path]:
     """Get the path to the tasks file, prioritizing MCP-managed file."""
     possible_paths = [
+        Path('.cursor/memory-bank/workflow/tasks.json'),
         Path('.cursor/memory-bank/streamlit_app/tasks.json'),
         Path('.cursor/streamlit_app/tasks.json'),
         Path('.cursor/memory-bank/tasks.json'),

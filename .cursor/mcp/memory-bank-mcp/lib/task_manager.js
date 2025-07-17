@@ -5,7 +5,7 @@ import { markReadmeTaskGenerated } from './workflow_state.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const tasksFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'streamlit_app', 'tasks.json');
+const tasksFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'tasks.json');
 
 // Archive size limits
 const MAX_ARCHIVED_TASKS = 50;
