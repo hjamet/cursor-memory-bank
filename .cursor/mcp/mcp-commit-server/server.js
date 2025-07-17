@@ -29,7 +29,7 @@ import { handleConsultImage } from './mcp_tools/consult_image.js';
 import { handleWebpageScreenshot } from './mcp_tools/webpage_screenshot.js';
 import { handleReadWebpage } from './mcp_tools/read_webpage.js';
 // import { handleRegexEdit } from './mcp_tools/regex_edit.js'; // Deprecated
-import { replaceContentBetweenTool } from './mcp_tools/replace_content_between.js';
+import { handleReplaceContentBetween } from './mcp_tools/replace_content_between.js';
 
 // --- State Persistence and Logging Setup --- START ---
 const LOGS_DIR = path.join(__dirname, 'logs');
@@ -300,7 +300,7 @@ server.tool(
         end_marker: z.string().describe("The string that marks the end of the content to replace."),
         replacement_content: z.string().describe("The new content to insert between the markers.")
     },
-    replaceContentBetweenTool.func // Use the function directly
+    handleReplaceContentBetween // Use the imported handler directly like other tools
 );
 
 // --- Server Startup --- 

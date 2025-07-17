@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { markReadmeTaskGenerated } from './workflow_state.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -173,6 +174,89 @@ class TaskManager {
         }
 
         return availableTasks;
+    }
+
+    /**
+     * Generate automatic README update task
+     * @param {number} implementationCount - Current implementation count
+     * @returns {Object} Created README task
+     */
+    async generateReadmeTask(implementationCount) {
+        const timestamp = new Date().toISOString();
+        const readmeTaskData = {
+            title: `Mettre à jour le README.md - Cycle d'implémentation #${implementationCount}`,
+            short_description: `Mise à jour automatique du README.md après ${implementationCount} étapes d'implémentation pour maintenir la documentation à jour avec les derniers développements du projet.`,
+            detailed_description: `## Contexte
+
+Cette tâche est générée automatiquement toutes les 10 étapes d'implémentation pour maintenir la documentation du projet à jour.
+
+**Cycle d'implémentation :** #${implementationCount}
+**Date de génération :** ${timestamp}
+
+## Objectif
+
+Mettre à jour le README.md pour refléter les derniers développements, fonctionnalités implémentées, et changements architecturaux depuis la dernière mise à jour de documentation.
+
+## Actions requises
+
+**1. Analyse des changements récents :**
+- Examiner les 10 dernières tâches implémentées
+- Identifier les nouvelles fonctionnalités ajoutées
+- Noter les changements architecturaux significatifs
+- Détecter les modifications des dépendances ou de configuration
+
+**2. Mise à jour du README.md :**
+- Mettre à jour la section "Features" avec les nouvelles fonctionnalités
+- Réviser les instructions d'installation si nécessaire
+- Actualiser les exemples d'utilisation
+- Corriger toute information obsolète
+- Ajouter des notes sur les breaking changes si applicable
+
+**3. Validation :**
+- Vérifier que toutes les instructions sont encore valides
+- Tester les exemples de code mentionnés
+- S'assurer que la documentation est cohérente avec l'état actuel du projet
+
+## Analyse Technique & Points de Vigilance
+
+**Attention : Cohérence documentaire**
+- Vérifier que la documentation reflète fidèlement l'état actuel du code
+- Éviter les descriptions trop techniques qui deviendraient rapidement obsolètes
+- Maintenir un équilibre entre détail et lisibilité
+
+**Attention : Exemples fonctionnels**
+- Tous les exemples de code doivent être testés et fonctionnels
+- Les chemins de fichiers et noms de variables doivent être à jour
+- Les versions des dépendances mentionnées doivent être correctes
+
+**Attention : Structure et navigation**
+- Maintenir une structure logique et une navigation claire
+- Utiliser des liens internes pour faciliter la navigation
+- Organiser l'information par ordre de priorité pour les nouveaux utilisateurs
+
+## Critères de validation
+
+- Le README.md reflète fidèlement l'état actuel du projet
+- Toutes les nouvelles fonctionnalités importantes sont documentées
+- Les instructions d'installation et d'utilisation sont à jour et testées
+- La documentation est claire et accessible aux nouveaux contributeurs
+- Aucune information obsolète ne subsiste`,
+            status: 'TODO',
+            priority: 4, // High priority for documentation maintenance
+            dependencies: [],
+            impacted_files: ['README.md'],
+            validation_criteria: `La tâche est terminée quand : (1) Le README.md a été mis à jour avec les derniers développements, (2) Toutes les nouvelles fonctionnalités sont documentées, (3) Les instructions d'installation et d'utilisation sont validées, (4) La documentation est cohérente avec l'état actuel du projet, (5) Aucune information obsolète ne subsiste dans le document.`
+        };
+
+        // Create the task
+        const createdTask = this.createTask(readmeTaskData);
+
+        // Mark that we generated a README task at this count
+        await markReadmeTaskGenerated();
+
+        console.log(`[TaskManager] Generated automatic README update task #${createdTask.id} for implementation cycle #${implementationCount}`);
+
+        return createdTask;
     }
 }
 

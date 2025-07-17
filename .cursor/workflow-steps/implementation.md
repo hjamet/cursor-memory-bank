@@ -6,6 +6,11 @@ Implémente méthodiquement UNE SEULE tâche prioritaire avec routage intelligen
 
 ## Instructions
 
+0.  **Implementation Counter Update**: AUTOMATIQUEMENT incrémenter le compteur d'étapes d'implémentation et vérifier le déclenchement de tâches README.
+    *   **APPEL AUTOMATIQUE** : Cette étape est gérée automatiquement par le système de workflow. Le compteur `implementation_count` est incrémenté à chaque appel de cette règle.
+    *   **GÉNÉRATION DE TÂCHE README** : Si le compteur atteint un multiple de 10, une tâche de mise à jour du README sera automatiquement générée avec priorité 4.
+    *   **TRANSPARENCE** : Cette opération est transparente et n'interrompt pas le workflow normal.
+
 1.  **Task analysis and status update**: Analyser LA tâche à implémenter (UNE SEULE) et la marquer immédiatement comme IN_PROGRESS.
     *   Utiliser `mcp_MemoryBankMCP_get_next_tasks` pour obtenir LA tâche prioritaire.
     *   **IMPORTANT** : C'est CETTE tâche et UNIQUEMENT cette tâche que vous devez traiter.

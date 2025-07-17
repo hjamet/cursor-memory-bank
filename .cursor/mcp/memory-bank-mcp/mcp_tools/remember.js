@@ -8,6 +8,7 @@ import { encodeText, findSimilarMemories } from '../lib/semantic_search.js';
 import { UserMessageManager } from '../lib/user_message_manager.js';
 import { getPossibleNextSteps, getRecommendedNextStep } from '../lib/workflow_recommendation.js';
 import { resetTransitionCounter } from '../lib/workflow_safety.js';
+import { loadUserPreferencesForRemember } from './utils.js';
 import { readUserMessages, getPendingMessages, markMessageAsConsumed, cleanupConsumedMessages } from '../lib/user_message_storage.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -15,6 +16,55 @@ const __dirname = path.dirname(__filename);
 const memoryFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'agent_memory.json');
 const longTermMemoryFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'long_term_memory.json');
 const MAX_MEMORIES = 100;
+
+// Test message patterns to filter out
+const TEST_MESSAGE_PATTERNS = [
+    /voici la clé secrète\s*:\s*42/i,
+    /clé secrète.*42/i,
+    /test de communication/i,
+    /message de test/i
+];
+
+/**
+ * Filter out test messages that should not be repeated in communications
+ * @param {string} message - The message content to check
+ * @returns {boolean} - True if the message should be filtered out (is a test message)
+ */
+function isTestMessage(message) {
+    if (!message || typeof message !== 'string') {
+        return false;
+    }
+
+    const normalizedMessage = message.toLowerCase().trim();
+
+    // Check against test message patterns
+    for (const pattern of TEST_MESSAGE_PATTERNS) {
+        if (pattern.test(normalizedMessage)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Filter out test messages from a list of messages
+ * @param {Array} messages - Array of message objects with content property
+ * @returns {Array} - Filtered array without test messages
+ */
+function filterTestMessages(messages) {
+    if (!Array.isArray(messages)) {
+        return messages;
+    }
+
+    return messages.filter(msg => {
+        if (!msg || !msg.content) {
+            return true; // Keep non-content messages
+        }
+
+        return !isTestMessage(msg.content);
+    });
+}
 
 // Helper functions
 async function getRecentMemories(count = 5) {
@@ -52,6 +102,50 @@ async function getTotalLongTermMemoriesCount() {
 // Function moved to ../lib/workflow_recommendation.js for centralized logic
 
 // Functions moved to ../lib/workflow_recommendation.js for centralized logic
+
+/**
+ * Load long-term memories from the file
+ * @returns {Array} Array of long-term memories
+ */
+async function loadLongTermMemories() {
+    try {
+        const data = await fs.readFile(longTermMemoryFilePath, 'utf8');
+        const memories = JSON.parse(data);
+        return Array.isArray(memories) ? memories : [memories];
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            return [];
+        }
+        throw new Error(`Failed to read long-term memory file: ${error.message}`);
+    }
+}
+
+/**
+ * Add a new entry to long-term memory
+ * @param {Object} memoryEntry - The memory entry to add
+ */
+async function addToLongTermMemory(memoryEntry) {
+    try {
+        // Load existing memories
+        let longTermMemories = await loadLongTermMemories();
+
+        // Add semantic embedding for the new memory
+        const embedding = await encodeText(memoryEntry.content);
+        const memoryWithEmbedding = {
+            ...memoryEntry,
+            embedding: embedding
+        };
+
+        // Add the new memory
+        longTermMemories.push(memoryWithEmbedding);
+
+        // Save to file
+        await fs.mkdir(path.dirname(longTermMemoryFilePath), { recursive: true });
+        await fs.writeFile(longTermMemoryFilePath, JSON.stringify(longTermMemories, null, 2), 'utf8');
+    } catch (error) {
+        throw new Error(`Failed to add to long-term memory: ${error.message}`);
+    }
+}
 
 /**
  * Records the agent's state and determines the next step in the workflow.
@@ -111,16 +205,19 @@ async function remember(args) {
     try {
         const pendingMessages = await getPendingMessages();
         if (pendingMessages && pendingMessages.length > 0) {
+            // Filter out test messages
+            const filteredMessages = filterTestMessages(pendingMessages);
+
             // Format messages for display
-            if (pendingMessages.length === 1) {
-                userComments = `Message utilisateur: ${pendingMessages[0].content}`;
-            } else {
-                userComments = `Messages utilisateur (${pendingMessages.length}):\n` +
-                    pendingMessages.map((msg, index) => `${index + 1}. ${msg.content}`).join('\n');
+            if (filteredMessages.length === 1) {
+                userComments = `Message utilisateur: ${filteredMessages[0].content}`;
+            } else if (filteredMessages.length > 1) {
+                userComments = `Messages utilisateur (${filteredMessages.length}):\n` +
+                    filteredMessages.map((msg, index) => `${index + 1}. ${msg.content}`).join('\n');
             }
 
             // Mark all pending messages as consumed
-            for (const message of pendingMessages) {
+            for (const message of filteredMessages) {
                 await markMessageAsConsumed(message.id);
             }
 
@@ -133,61 +230,10 @@ async function remember(args) {
         userComments = null;
     }
 
-    // Handle long-term memory with semantic encoding
-    let longTermMemories = [];
-    let currentLongTermMemory = null;
+    // Load user preferences
+    const preferences = await loadUserPreferencesForRemember() || [];
 
-    // Read existing long-term memories
-    try {
-        const data = await fs.readFile(longTermMemoryFilePath, 'utf8');
-        const parsed = JSON.parse(data);
-        longTermMemories = Array.isArray(parsed) ? parsed : [parsed];
-    } catch (error) {
-        if (error.code !== 'ENOENT') {
-            throw new Error(`Failed to read long-term memory file: ${error.message}`);
-        }
-        // File doesn't exist, start with empty array
-        longTermMemories = [];
-    }
-
-    // Add new long-term memory if provided
-    if (long_term_memory) {
-        try {
-            // Encode the new memory
-            const embedding = await encodeText(long_term_memory);
-            const newMemory = {
-                content: long_term_memory,
-                timestamp: new Date().toISOString(),
-                embedding: embedding
-            };
-
-            longTermMemories.push(newMemory);
-            currentLongTermMemory = long_term_memory;
-
-            // Save updated memories
-            await fs.mkdir(path.dirname(longTermMemoryFilePath), { recursive: true });
-            await fs.writeFile(longTermMemoryFilePath, JSON.stringify(longTermMemories, null, 2), 'utf8');
-        } catch (error) {
-            throw new Error(`Failed to write long-term memory file: ${error.message}`);
-        }
-    }
-
-    // Read preferences from userbrief (status === 'preference')
-    let preferences = [];
-    try {
-        const userbriefData = await readUserbrief();
-        if (userbriefData && userbriefData.requests) {
-            preferences = userbriefData.requests
-                .filter(req => req.status === 'preference')
-                .map(req => req.content);
-        }
-    } catch (error) {
-        // Debug logging removed to prevent JSON-RPC pollution
-        // console.warn(`[Remember] Could not read preferences from userbrief: ${error.message}`);
-        // Do not throw; failing to read userbrief should not stop the remember tool.
-        preferences = [];
-    }
-
+    // Handle working memory (main memories)
     let memories = [];
     try {
         const data = await fs.readFile(memoryFilePath, 'utf8');
@@ -219,7 +265,25 @@ async function remember(args) {
         throw new Error(`Failed to write memory file: ${error.message}`);
     }
 
-    const recentMemories = memories.slice(-10); // Get 10 most recent working memories
+    // Get recent working memories with optimized display (limited to 5 for performance)
+    const allRecentMemories = memories.slice(-5);
+    const recentMemories = allRecentMemories.map((memory, index) => {
+        // For the last memory (most recent), show all fields
+        if (index === allRecentMemories.length - 1) {
+            return {
+                timestamp: memory.timestamp,
+                past: memory.past,
+                present: memory.present,
+                future: memory.future
+            };
+        }
+        // For other memories, show only present
+        return {
+            timestamp: memory.timestamp,
+            present: memory.present
+        };
+    });
+
     const lastMemory = memories[memories.length - 1];
 
     // Extract the last rule from the 'past' field of the last memory
@@ -246,95 +310,28 @@ async function remember(args) {
         await resetTransitionCounter();
     }
 
-    // CRITICAL: Check for workflow completion when coming from context-update
-    if (lastStep === 'context-update') {
-        try {
-            const userbrief = await readUserbrief();
-            const tasks = await readTasks();
+    // Get 10 semantically similar long-term memories
+    const longTermMemories = await loadLongTermMemories();
 
-            // Check for unprocessed requests (status 'new' or 'in_progress')
-            const hasUnprocessedRequests = userbrief.requests && userbrief.requests.some(r =>
-                r.status === 'new' || r.status === 'in_progress'
-            );
+    // Add to long-term memory if provided
+    let currentLongTermMemory = null;
+    if (long_term_memory) {
+        const longTermMemoryEntry = {
+            content: long_term_memory,
+            timestamp: new Date().toISOString()
+        };
 
-            // Check for active tasks (not completed)
-            const hasActiveTasks = tasks && tasks.some(t =>
-                ['TODO', 'IN_PROGRESS', 'BLOCKED'].includes(t.status)
-            );
-
-            // ENHANCED: Check for REVIEW-only state (agent work complete, user validation pending)
-            const hasReviewTasks = tasks && tasks.some(t => t.status === 'REVIEW');
-            const isReviewOnlyState = !hasActiveTasks && hasReviewTasks && !hasUnprocessedRequests;
-
-            // DEBUG: Add debug information to understand the state
-            const debugInfo = {
-                lastStep,
-                hasUnprocessedRequests,
-                hasActiveTasks,
-                hasReviewTasks,
-                isReviewOnlyState,
-                requestCount: userbrief.requests ? userbrief.requests.length : 0,
-                taskCount: tasks ? tasks.length : 0,
-                requestStatuses: userbrief.requests ? userbrief.requests.map(r => r.status) : [],
-                taskStatuses: tasks ? tasks.map(t => t.status) : []
-            };
-
-            // WORKFLOW TERMINATION: Allow termination when no active work remains for agent
-            // This includes both complete state (no tasks) and REVIEW-only state (agent work done)
-            if (!hasUnprocessedRequests && (!hasActiveTasks || isReviewOnlyState)) {
-                // WORKFLOW COMPLETE - Return proper MCP response structure
-                const completionMessage = isReviewOnlyState
-                    ? "Memory has been saved. Agent work is complete - only user validation remains. The workflow can be stopped."
-                    : "Memory has been saved. The workflow is complete and can be stopped.";
-                const workflowInstruction = isReviewOnlyState
-                    ? "STOP: Agent work complete. Only tasks in REVIEW status remain (user validation required)."
-                    : "STOP: All tasks and user requests have been processed.";
-
-                const completionResponse = {
-                    message: completionMessage,
-                    workflow_status: "WORKFLOW_COMPLETE",
-                    next_action_required: "The workflow is complete. Do not call next_rule. You can stop.",
-                    workflow_instruction: workflowInstruction,
-                    recommended_next_step: null,
-                    current_state: future,
-                    possible_next_steps: [],
-                    user_preferences: preferences,
-                    long_term_memory: currentLongTermMemory,
-                    recent_working_memories: await getRecentMemories(5),
-                    semantic_long_term_memories: [],
-                    total_memories_count: await getTotalMemoriesCount(),
-                    total_long_term_memories_count: await getTotalLongTermMemoriesCount(),
-                    user_message_result: userMessageResult,
-                    continuation_mandatory: false,
-                    stopping_prohibited: "You are allowed to stop. The workflow is complete.",
-                    immediate_next_action: "The workflow is complete. No further action is required.",
-                    workflow_cycle_reminder: "The workflow cycle is now complete. Await new user instructions.",
-                    debug_info: debugInfo
-                };
-
-                // Add user_comments if there are pending messages
-                if (userComments) {
-                    completionResponse.user_comments = userComments;
-                }
-
-                return {
-                    content: [{
-                        type: 'text',
-                        text: JSON.stringify(completionResponse, null, 2)
-                    }]
-                };
-            }
-        } catch (error) {
-            // If we can't check the state, fall through to normal workflow continuation
-        }
+        // Add semantic embedding for the long-term memory
+        await addToLongTermMemory(longTermMemoryEntry);
+        currentLongTermMemory = longTermMemoryEntry;
     }
 
     const possible_next_steps = await getPossibleNextSteps(lastStep);
 
-    // Find semantically similar long-term memories based on the last "future" 
+    // Find semantically similar long-term memories based on the last "future" (limited to 5 for performance)
     let semanticLongTermMemories = [];
     if (lastMemory && lastMemory.future && longTermMemories.length > 0) {
-        semanticLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 3);
+        semanticLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 5);
     }
 
     // Load tasks for the recommendation logic
@@ -395,6 +392,7 @@ async function remember(args) {
     // Workflow Completion Check: New logic to allow pausing the workflow
     if (lastMemory && lastMemory.future && lastMemory.future.toLowerCase().includes('paused')) {
         const pauseResponse = {
+            // === WORKFLOW STATUS & INSTRUCTIONS ===
             message: "Memory recorded. Workflow has been instructed to pause.",
             // Keep the status as CONTINUE_REQUIRED to avoid client errors, but use other fields to signal a stop.
             workflow_status: "CONTINUE_REQUIRED",
@@ -403,18 +401,62 @@ async function remember(args) {
             recommended_next_step: null, // No recommendation
             current_state: lastMemory.future,
             possible_next_steps: [],
+
+            // === WORKFLOW CONTINUATION REQUIREMENTS ===
+            continuation_mandatory: false, // The key change to allow stopping
+            stopping_prohibited: "You may stop.",
+            immediate_next_action: null,
+            workflow_cycle_reminder: "The workflow is paused. Await new instructions.",
+
+            // === USER PREFERENCES & SETTINGS ===
             user_preferences: preferences,
+
+            // === MEMORY SECTIONS ===
+            memory_sections: {
+                // --- RECENT WORKING MEMORIES (5 most recent) ---
+                recent_working_memories: {
+                    description: "📋 **Souvenirs de Travail Récents (5 derniers)** - Contexte immédiat des actions récentes",
+                    count: recentMemories.length,
+                    memories: recentMemories
+                },
+
+                // --- SEMANTIC LONG-TERM MEMORIES (5 most relevant) ---
+                semantic_long_term_memories: {
+                    description: "🧠 **Mémoires Long Terme Sémantiques (5 plus pertinentes)** - Connaissances persistantes liées au contexte actuel",
+                    count: semanticLongTermMemories.length,
+                    memories: semanticLongTermMemories
+                },
+
+                // --- NEWLY ADDED LONG-TERM MEMORY ---
+                newly_added_long_term_memory: {
+                    description: "✨ **Nouvelle Mémoire Long Terme** - Information critique ajoutée lors de cet enregistrement",
+                    memory: currentLongTermMemory
+                }
+            },
+
+            // === MEMORY STATISTICS ===
+            memory_statistics: {
+                total_memories_count: memories.length,
+                total_long_term_memories_count: longTermMemories.length,
+                recent_memories_displayed: recentMemories.length,
+                semantic_memories_displayed: semanticLongTermMemories.length
+            },
+
+            // === USER COMMUNICATION ===
+            user_message_result: userMessageResult,
+
+            // === LEGACY FIELDS (for backward compatibility) ===
             long_term_memory: currentLongTermMemory,
             recent_working_memories: recentMemories,
             semantic_long_term_memories: semanticLongTermMemories,
             total_memories_count: memories.length,
-            total_long_term_memories_count: longTermMemories.length,
-            user_message_result: userMessageResult,
-            continuation_mandatory: false, // The key change to allow stopping
-            stopping_prohibited: "You may stop.",
-            immediate_next_action: null,
-            workflow_cycle_reminder: "The workflow is paused. Await new instructions."
+            total_long_term_memories_count: longTermMemories.length
         };
+
+        // Add long-term memory management hint if semantic long-term memories are present
+        if (semanticLongTermMemories && semanticLongTermMemories.length > 0) {
+            pauseResponse.long_term_memory_management_hint = "📝 **Gestion des Mémoires Long Terme :** Si certains des souvenirs ci-dessus ne semblent plus pertinents, sont devenus obsolètes, contiennent des informations incorrectes ou ne servent plus à rien, vous pouvez les supprimer en utilisant l'outil `delete_long_term_memory` avec l'ID du souvenir concerné. Cela permet de maintenir une base de mémoires propre et pertinente.";
+        }
 
         return {
             content: [{
@@ -425,6 +467,7 @@ async function remember(args) {
     }
 
     const response = {
+        // === WORKFLOW STATUS & INSTRUCTIONS ===
         message: "Memory successfully recorded.",
         workflow_status: "CONTINUE_REQUIRED",
         next_action_required: `You MUST continue the workflow by calling mcp_MemoryBankMCP_next_rule with '${recommendedNextStep}'. Do not stop here.`,
@@ -432,22 +475,66 @@ async function remember(args) {
         recommended_next_step: recommendedNextStep,
         current_state: lastMemory ? lastMemory.future : "No current state.",
         possible_next_steps: possible_next_steps,
-        user_preferences: preferences, // Always show preferences
-        long_term_memory: currentLongTermMemory, // Only the newly added one, if any
-        recent_working_memories: recentMemories, // 10 most recent working memories
-        semantic_long_term_memories: semanticLongTermMemories, // 3 most semantically relevant long-term memories
-        total_memories_count: memories.length,
-        total_long_term_memories_count: longTermMemories.length,
-        user_message_result: userMessageResult, // Include the result of the user message operation
+
+        // === WORKFLOW CONTINUATION REQUIREMENTS ===
         continuation_mandatory: true,
-        stopping_prohibited: "CRITICAL: Memory recording is NOT a completion signal. You MUST continue the autonomous workflow.",
-        immediate_next_action: `Call mcp_MemoryBankMCP_next_rule with parameter: '${recommendedNextStep}'`,
-        workflow_cycle_reminder: "Remember: record → next_rule → execute → remember → next_rule (infinite loop)"
+        stopping_prohibited: "!!! TRÈS IMPORTANT !!! - CRITIQUE : L'enregistrement de mémoire N'EST PAS un signal de fin. Vous DEVEZ ABSOLUMENT continuer le workflow autonome SANS INTERRUPTION.",
+        immediate_next_action: `!!! OBLIGATOIRE !!! - Appelez mcp_MemoryBankMCP_next_rule avec le paramètre : '${recommendedNextStep}'`,
+        workflow_cycle_reminder: "!!! TRÈS IMPORTANT !!! - Rappelez-vous : enregistrer → next_rule → exécuter → remember → next_rule (BOUCLE INFINIE OBLIGATOIRE)",
+
+        // === USER PREFERENCES & SETTINGS ===
+        user_preferences: preferences, // Always show preferences
+
+        // === MEMORY SECTIONS ===
+        memory_sections: {
+            // --- RECENT WORKING MEMORIES (5 most recent) ---
+            recent_working_memories: {
+                description: "📋 **Souvenirs de Travail Récents (5 derniers)** - Contexte immédiat des actions récentes",
+                count: recentMemories.length,
+                memories: recentMemories
+            },
+
+            // --- SEMANTIC LONG-TERM MEMORIES (5 most relevant) ---
+            semantic_long_term_memories: {
+                description: "🧠 **Mémoires Long Terme Sémantiques (5 plus pertinentes)** - Connaissances persistantes liées au contexte actuel",
+                count: semanticLongTermMemories.length,
+                memories: semanticLongTermMemories
+            },
+
+            // --- NEWLY ADDED LONG-TERM MEMORY ---
+            newly_added_long_term_memory: {
+                description: "✨ **Nouvelle Mémoire Long Terme** - Information critique ajoutée lors de cet enregistrement",
+                memory: currentLongTermMemory
+            }
+        },
+
+        // === MEMORY STATISTICS ===
+        memory_statistics: {
+            total_memories_count: memories.length,
+            total_long_term_memories_count: longTermMemories.length,
+            recent_memories_displayed: recentMemories.length,
+            semantic_memories_displayed: semanticLongTermMemories.length
+        },
+
+        // === USER COMMUNICATION ===
+        user_message_result: userMessageResult, // Include the result of the user message operation
+
+        // === LEGACY FIELDS (for backward compatibility) ===
+        long_term_memory: currentLongTermMemory, // Only the newly added one, if any
+        recent_working_memories: recentMemories, // 5 most recent working memories (optimized)
+        semantic_long_term_memories: semanticLongTermMemories, // 5 most semantically relevant long-term memories (optimized)
+        total_memories_count: memories.length,
+        total_long_term_memories_count: longTermMemories.length
     };
 
     // Add user_comments if there are pending messages
     if (userComments) {
         response.user_comments = userComments;
+    }
+
+    // Add long-term memory management hint if semantic long-term memories are present
+    if (semanticLongTermMemories && semanticLongTermMemories.length > 0) {
+        response.long_term_memory_management_hint = "📝 **Gestion des Mémoires Long Terme :** Si certains des souvenirs ci-dessus ne semblent plus pertinents, sont devenus obsolètes, contiennent des informations incorrectes ou ne servent plus à rien, vous pouvez les supprimer en utilisant l'outil `delete_long_term_memory` avec l'ID du souvenir concerné. Cela permet de maintenir une base de mémoires propre et pertinente.";
     }
 
     return {
@@ -462,7 +549,7 @@ export const rememberSchema = {
     past: z.string().describe("PASSÉ - Rédigez en français une description de ce que l'agent avait initialement prévu de faire. Exemple : 'J'ai été appelé pour implémenter la fonctionnalité d'authentification JWT selon les spécifications de la tâche #15.'"),
     present: z.string().describe("PRÉSENT - Rédigez en français une description détaillée de ce que l'agent a réellement accompli, les problèmes rencontrés et les décisions prises. Exemple : 'J'ai implémenté avec succès le système d'authentification JWT en créant les middlewares de validation, les routes de connexion et les tests unitaires. Quelques ajustements ont été nécessaires pour la gestion des tokens expirés.'"),
     future: z.string().describe("FUTUR - Rédigez en français une description de ce que l'agent prévoit de faire ensuite. Exemple : 'Je vais maintenant passer à l'implémentation des permissions utilisateur selon la tâche #16, en me concentrant sur le système de rôles.'"),
-    long_term_memory: z.string().optional().describe("MÉMOIRE LONG TERME - Rédigez en français uniquement les informations critiques du projet à conserver de façon persistante (ex: schémas de base de données, décisions architecturales, conventions de code, bugs récurrents à éviter). N'utilisez cet argument QUE pour des informations qui resteront toujours vraies et utiles. Exemples: 'La BDD utilise PostgreSQL avec une table users (id, email, password_hash)', 'L'authentification utilise des tokens JWT avec une expiration de 24h stockés dans des cookies httpOnly', 'Pattern de bug: le schéma MCP requiert des objets simples, pas des appels z.object().'"),
+    long_term_memory: z.string().optional().describe("MÉMOIRE LONG TERME - Rédigez en français uniquement les informations critiques du projet à conserver de façon persistante (ex: décisions architecturales cruciales, précisions techniques permanentes, préférences d'implémentation définitives, noms de bases de données, conventions de code établies, patterns de bugs récurrents à éviter). N'utilisez cet argument QUE pour des informations qui resteront TOUJOURS vraies et utiles. Ne documentez JAMAIS des implémentations temporaires, des corrections de bugs ponctuelles ou des actions spécifiques. Exemples valides: 'La BDD utilise PostgreSQL avec une table users (id, email, password_hash)', 'L'authentification utilise des tokens JWT avec une expiration de 24h stockés dans des cookies httpOnly', 'Pattern de bug récurrent: le schéma MCP requiert des objets simples, pas des appels z.object().'"),
     user_message: z.string().optional().describe("MESSAGE CRITIQUE POUR L'UTILISATEUR - Message facultatif (1-3 phrases). N'utilisez PAS ce champ pour des mises à jour positives ou banales. Utilisez-le pour signaler un problème, un risque, ou une découverte qui nécessite l'attention de l'utilisateur. Soyez direct et factuel. Exemples : 'L'implémentation actuelle de l'API présente une faille de sécurité potentielle, une revue est nécessaire.', 'Le bug #142 est plus complexe que prévu, l'estimation de temps est revue à la hausse.', 'Je suis bloqué sur la tâche #152 en raison d'une dépendance externe non disponible.'"),
 };
 

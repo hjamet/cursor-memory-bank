@@ -133,6 +133,10 @@ async function replace_content_between({ target_file, start_marker, end_marker, 
     }
 }
 
+// Export the function directly to match the pattern of other MCP tools
+export { replace_content_between as handleReplaceContentBetween };
+
+// Keep the tool object for backward compatibility if needed
 export const replaceContentBetweenTool = {
     name: "replace_content_between",
     description: "Replaces the content between the first occurrence of a start marker and the subsequent end marker in a file. This provides a more predictable way to edit files than regex-based replacements.",

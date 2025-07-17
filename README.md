@@ -1,5 +1,7 @@
 # Cursor Memory Bank 🧠
 
+Un système de workflow autonome avancé pour Cursor avec intégration MCP (Model Context Protocol), gestion de tâches intelligente et interface utilisateur Streamlit.
+
 ## Installation 🚀
 
 ### Method 1: Using curl (Recommended)
@@ -78,8 +80,8 @@ The installation script will:
 The installation script automatically configures MCP (Model Context Protocol) servers for Google's Gemini CLI, enabling you to use the same powerful tools in both Cursor and Gemini CLI environments.
 
 ### What Gets Configured
-- **MyMCP**: Git operations and automated commit messages
-- **MemoryBankMCP**: Task management and persistent memory
+- **MyMCP**: System operations, terminal commands, and file manipulation
+- **MemoryBankMCP**: Task management, persistent memory, and workflow automation
 - **Context7**: Real-time library documentation access
 
 ### Usage with Gemini CLI
@@ -96,25 +98,69 @@ gemini mcp list
 gemini mcp desc
 ```
 
-For detailed information about Gemini CLI integration, see [GEMINI_CLI_INTEGRATION.md](GEMINI_CLI_INTEGRATION.md).
+For detailed information about Gemini CLI integration, consult the installation script documentation.
 
 ## What is Cursor Memory Bank? 🤔
 
-Cursor Memory Bank is a system that helps maintain context between coding sessions by storing and organizing information in a coherent file structure. It's designed to work with Cursor, enhancing its capabilities with structured rules and workflows.
+Cursor Memory Bank is an advanced autonomous workflow system that revolutionizes how you work with Cursor. It provides intelligent task management, persistent memory, and automated quality assurance through a sophisticated rule-based architecture.
 
-### Features
-- 📁 Organized file structure for storing context
-- 🔄 Automatic backup of custom rules
-- 🛠️ Flexible installation options
-- 🔒 Safe updates with rule preservation
-- 📝 Structured workflows and rules
-- 🤖 **Gemini CLI Integration**: Automatic MCP server configuration for Google Gemini CLI
+### Core Features ✨
+
+#### 🧠 **Autonomous Workflow System**
+- **Self-Managing**: Operates in continuous autonomous loops with intelligent decision-making
+- **Quality Assurance**: Mandatory testing cycle with automatic `implementation → experience-execution` transitions
+- **Safety Mechanisms**: Anti-infinite-loop protection, emergency brakes, and transition monitoring
+- **Intelligent Routing**: Context-aware task routing based on complexity and requirements
+
+#### 📋 **Advanced Task Management**
+- **Hierarchical Tasks**: Support for parent-child task relationships and dependencies
+- **Multi-Task Decomposition**: Intelligent breaking down of complex requests into manageable subtasks
+- **Priority System**: 5-level priority system (1=lowest, 5=critical) with automatic prioritization
+- **Status Tracking**: Comprehensive task lifecycle management (TODO, IN_PROGRESS, BLOCKED, REVIEW, DONE)
+
+#### 🔧 **MCP Server Integration**
+- **MyMCP**: Terminal operations, file manipulation, web scraping, and system commands
+- **MemoryBankMCP**: Task management, persistent memory, workflow automation, and commit operations
+- **Context7**: Real-time library documentation with semantic search capabilities
+
+#### 🎨 **Modern Streamlit Interface**
+- **Enhanced Notifications**: Custom toast notification system with configurable duration (5-15s)
+- **Markdown Support**: Full markdown rendering with line breaks, bold, italic, code blocks
+- **Visual Improvements**: Modern CSS styling with gradients, animations, and responsive design
+- **Multi-Page Integration**: Consistent notification experience across all interface pages
+
+#### 🚀 **Workflow Automation**
+- **Automatic Testing**: Mandatory validation after every implementation
+- **Smart Transitions**: Context-aware workflow step recommendations
+- **Memory Persistence**: Long-term and working memory with automatic cleanup
+- **Git Integration**: Automated commit messages with standardized formatting
+
+### Recent Major Improvements 🆕
+
+#### **Enhanced Notification System (v2.0)**
+- **Custom Duration**: Configurable 5-15 second display time (vs 4s fixed in st.toast())
+- **Markdown Support**: Full markdown rendering with safe HTML sanitization
+- **Visual Progress**: Animated progress bars showing remaining time
+- **Manual Control**: User-controlled dismissal and hover-pause functionality
+- **Type System**: Distinct styling for info, success, warning, error, and memory notifications
+
+#### **Workflow Architecture Overhaul**
+- **Automatic Experience-Execution**: Mandatory testing after every implementation
+- **Safety Systems**: Comprehensive anti-loop protection with cooldown mechanisms
+- **Performance Monitoring**: Real-time workflow performance tracking
+- **Simplified Task Decomposition**: Streamlined approach balancing efficiency and simplicity
+
+#### **Interface Modernization**
+- **Responsive Design**: Mobile-friendly interface with breakpoint optimization
+- **Enhanced Styling**: Modern gradients, shadows, and animations
+- **Improved UX**: Better contrast, larger notification areas, and intuitive navigation
+- **Cross-Page Consistency**: Unified notification experience across all Streamlit pages
 
 ## Agent Workflow Logic 🧠⚙️
 
-The autonomous agent operates on a sophisticated, rule-based workflow designed for robustness and intelligent decision-making. The goal is to systematically process tasks, handle exceptions, and ensure quality through a mandatory testing cycle. The logic is primarily controlled by the script at `.cursor/mcp/memory-bank-mcp/lib/workflow_recommendation.js`.
+The autonomous agent operates on a sophisticated, rule-based workflow designed for robustness and intelligent decision-making. The system features **automatic testing integration** with mandatory `implementation → experience-execution` transitions to ensure code quality.
 
-Here is a diagram representing the core decision-making flow:
+### Workflow Architecture
 
 ```mermaid
 graph TD
@@ -128,80 +174,222 @@ graph TD
 
     subgraph "Main Loop"
         direction TB
-        A(Start) --> B{Get Next Task};
-        B -- No Tasks --> Z[Context Update / Idle];
-        B -- Task Available --> C{Evaluate Task Type};
-        C -- Development Req. --> D[1. Implementation];
-        C -- Execution Only --> E[2. Experience Execution];
+        A(Start) --> B{Get Next Task}
+        B -- No Tasks --> Z[Context Update / Idle]
+        B -- Task Available --> C{Evaluate Task Type}
+        C -- Development Req. --> D[1. Implementation]
+        C -- Execution Only --> E[2. Experience Execution]
         
-        D -- Code Complete --> F[Remember];
-        F --> E;
-
-        E -- Testing Complete --> G[Remember];
-        G --> H{Test Passed?};
-        H -- Yes --> I[3. Context Update / Commit];
-        H -- No --> D;
+        D -- Code Complete --> F[Remember]
+        F --> E
         
-        I --> B;
+        E -- Testing Complete --> G[Remember]
+        G --> H{Test Passed?}
+        H -- Yes --> I[3. Context Update / Commit]
+        H -- No --> D
+        
+        I --> B
     end
 
     subgraph "Interrupts"
         direction TB
-        J[New User Request] --> K[4. Task Decomposition];
-        K --> D;
-        L[Blocked Task Detected] --> M[5. Fix];
-        M --> D;
+        J[New User Request] --> K[4. Task Decomposition]
+        K --> D
+        L[Blocked Task Detected] --> M[5. Fix]
+        M --> D
     end
 
-    classDef devStyle fill:#cde4ff,stroke:#333,stroke-width:2px;
-    classDef execStyle fill:#d5e8d4,stroke:#333,stroke-width:2px;
-    classDef fixStyle fill:#f8cecc,stroke:#333,stroke-width:2px;
-    classDef decompStyle fill:#dae8fc,stroke:#333,stroke-width:2px;
+    subgraph "Safety Systems"
+        direction TB
+        N[Transition Monitor] --> O{Excessive Loops?}
+        O -- Yes --> P[Emergency Brake]
+        O -- No --> Q[Continue]
+    end
 
-    class Dev,D devStyle;
-    class Exec,E execStyle;
-    class Fix,M fixStyle;
-    class Decomp,K decompStyle;
+    classDef devStyle fill:#cde4ff,stroke:#333,stroke-width:2px
+    classDef execStyle fill:#d5e8d4,stroke:#333,stroke-width:2px
+    classDef fixStyle fill:#f8cecc,stroke:#333,stroke-width:2px
+    classDef decompStyle fill:#dae8fc,stroke:#333,stroke-width:2px
+
+    class Dev,D devStyle
+    class Exec,E execStyle
+    class Fix,M fixStyle
+    class Decomp,K decompStyle
 ```
 
-### Explanation of the Workflow Steps:
+### Key Workflow Features
 
-The agent's workflow is not a simple linear process but a state machine that intelligently routes tasks based on their nature and the overall system status.
+#### **Mandatory Testing Cycle**
+- **CRITICAL RULE**: `implementation → experience-execution` (AUTOMATIC)
+- Every code change is automatically tested before completion
+- Prevents regressions and ensures quality
+- Built-in safety mechanisms prevent infinite loops
 
-1.  **Implementation (`implementation`)**:
-    *   **Trigger**: A task is available in the `TODO` queue.
-    *   **Action**: This is the core development step. The agent analyzes the task, writes or modifies code, and prepares the changes. The focus is on completing a single task thoroughly.
-    *   **Next Step**: Upon completion, it's **mandatory** for the agent to transition to `Experience Execution` to ensure all changes are tested.
+#### **Intelligent Task Routing**
+- **Development Tasks**: Full implementation → testing → commit cycle
+- **Execution Tasks**: Direct routing to experience-execution for commands/scripts
+- **Fix Tasks**: High-priority interrupt handling for blocked tasks
+- **Decomposition**: Multi-request analysis and task creation
 
-2.  **Experience Execution (`experience-execution`)**:
-    *   **Trigger**: Automatically follows `Implementation`. Can also be triggered directly for tasks that only require running commands or tests without code changes.
-    *   **Action**: The agent validates the changes made in the previous step. This can involve running automated tests, linters, or performing a dry-run of a feature.
-    *   **Next Step**:
-        *   If validation **fails** or reveals more work is needed, the agent transitions back to `Implementation`.
-        *   If validation **passes**, the agent moves to `Context Update`.
+#### **Safety Systems**
+- **Transition Limits**: Maximum 10 consecutive transitions before emergency brake
+- **Cooldown Periods**: 1-minute minimum between experience-execution cycles
+- **Cycle Detection**: Automatic identification of implementation → fix loops
+- **Emergency Brakes**: Automatic activation on excessive transitions
 
-3.  **Context Update (`context-update`)**:
-    *   **Trigger**: Follows a successful `Experience Execution`.
-    *   **Action**: The agent finalizes the work by committing the changes to version control with a descriptive message. It then updates its own context and prepares for the next cycle.
-    *   **Next Step**: The agent returns to the start of the loop to check for new tasks.
+### Workflow Steps Explained
 
-4.  **Task Decomposition (`task-decomposition`)**:
-    *   **Trigger**: A new user request is detected. This step has high priority and can interrupt the main loop.
-    *   **Action**: The agent analyzes the user's request and breaks it down into one or more concrete, actionable tasks that are added to the `TODO` queue.
-    *   **Next Step**: The agent enters the `Implementation` step to begin working on the newly created tasks.
+1. **Implementation (`implementation`)**
+   - Core development step for code changes
+   - Automatic marking of tasks as IN_PROGRESS
+   - Intelligent routing based on task complexity
+   - **Mandatory transition** to Experience Execution
 
-5.  **Fix (`fix`)**:
-    *   **Trigger**: A task is found in the `BLOCKED` state. This is treated as a high-priority interrupt.
-    *   **Action**: The agent's sole focus is to resolve the issue that is blocking the task. This could involve fixing a dependency, correcting a faulty implementation, or other troubleshooting steps.
-    *   **Next Step**: Once the issue is resolved, the agent moves to `Implementation` to continue the task.
+2. **Experience Execution (`experience-execution`)**
+   - Automatic testing and validation
+   - Manual testing for complex features
+   - Quality assurance checks
+   - **Exclusive responsibility** for task completion
+
+3. **Task Decomposition (`task-decomposition`)**
+   - Multi-request analysis capability
+   - Intelligent task creation with dependencies
+   - Priority assignment and scheduling
+   - **Simplified approach** balancing efficiency and thoroughness
+
+4. **Fix (`fix`)**
+   - High-priority interrupt handling
+   - Blocked task resolution
+   - Error diagnosis and correction
+   - **Immediate routing** to implementation
+
+5. **Context Update (`context-update`)**
+   - System state analysis
+   - Automated git commits
+   - Memory cleanup and optimization
+   - **Preparation** for next workflow cycle
+
+## Available MCP Tools 🛠️
+
+### **MemoryBankMCP Server**
+- `mcp_MemoryBankMCP_next_rule`: Get workflow step instructions
+- `mcp_MemoryBankMCP_remember`: Store memories and get next steps
+- `mcp_MemoryBankMCP_create_task`: Create new tasks with dependencies
+- `mcp_MemoryBankMCP_update_task`: Update task status and details
+- `mcp_MemoryBankMCP_get_all_tasks`: List all tasks with filtering
+- `mcp_MemoryBankMCP_get_next_tasks`: Get available priority tasks
+- `mcp_MemoryBankMCP_read_userbrief`: Read user requests
+- `mcp_MemoryBankMCP_update_userbrief`: Update request status
+- `mcp_MemoryBankMCP_commit`: Standardized git commit operations
+
+### **MyMCP Server**
+- `mcp_MyMCP_execute_command`: Terminal command execution
+- `mcp_MyMCP_get_terminal_status`: Monitor running processes
+- `mcp_MyMCP_get_terminal_output`: Retrieve command output
+- `mcp_MyMCP_stop_terminal_command`: Stop running processes
+- `mcp_MyMCP_consult_image`: Image analysis and consultation
+- `mcp_MyMCP_take_webpage_screenshot`: Web page capture
+- `mcp_MyMCP_read_webpage`: Web content extraction to Markdown
+- `mcp_MyMCP_replace_content_between`: Advanced file editing
+
+### **Context7 Server**
+- `mcp_Context7_resolve-library-id`: Find library documentation
+- `mcp_Context7_get-library-docs`: Access real-time library docs
+
+## Streamlit Interface Features 🎨
+
+### **Enhanced Notification System**
+- **Custom Duration**: 5-15 second configurable display time
+- **Markdown Support**: Full formatting with line breaks, bold, italic
+- **Visual Progress**: Animated countdown bars
+- **Manual Control**: User dismissal and hover-pause
+- **Type System**: Distinct styling for different notification types
+- **Security**: HTML sanitization against XSS attacks
+
+### **Modern UI Design**
+- **Responsive Layout**: Mobile-friendly with breakpoint optimization
+- **Modern Styling**: Gradients, shadows, and smooth animations
+- **Enhanced Contrast**: Improved readability and accessibility
+- **Intuitive Navigation**: Streamlined interface with clear visual hierarchy
+
+### **Cross-Page Integration**
+- **Consistent Experience**: Unified notifications across all pages
+- **Session Management**: Persistent state across page navigation
+- **Performance Optimized**: Efficient memory usage and cleanup
+
+## Technical Architecture 🏗️
+
+### **Workflow Safety Systems**
+- **Transition Monitoring**: Real-time tracking of workflow steps
+- **Loop Detection**: Automatic identification of problematic patterns
+- **Emergency Brakes**: Fail-safe mechanisms for system stability
+- **Performance Metrics**: Comprehensive monitoring and reporting
+
+### **Memory Management**
+- **Working Memory**: Short-term context for active tasks
+- **Long-term Memory**: Persistent storage of important decisions
+- **Automatic Cleanup**: Intelligent memory optimization
+- **Context Preservation**: Seamless session continuity
+
+### **Quality Assurance**
+- **Mandatory Testing**: Automatic validation after every implementation
+- **Code Quality Checks**: Integrated linting and validation
+- **Regression Prevention**: Systematic testing of changes
+- **Performance Monitoring**: Real-time system health tracking
 
 ## Contributing 🤝
 
-While this is primarily a personal project, contributions are welcome! Just note that most of the documentation and rules are in French. If you'd like to help translate the project to English or improve its general-purpose usage, that would be especially appreciated!
+While this is primarily a personal project, contributions are welcome! The system is designed to be extensible and maintainable. Most documentation and rules are in French, but English translations and general-purpose improvements are especially appreciated.
+
+### **Development Guidelines**
+- Follow the established workflow patterns
+- Use the MCP tools for consistency
+- Test all changes through the experience-execution cycle
+- Document architectural decisions in long-term memory
 
 ## License 📄
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is open source and available for personal and educational use. Please refer to the repository for the most current license information.
+
+## Troubleshooting 🔧
+
+### **MCP Server Issues**
+
+If you encounter errors with MCP servers not being found:
+
+1. **Verify Installation**: Ensure all MCP server files are properly installed
+2. **Check Permissions**: Verify file permissions for MCP server directories
+3. **Restart Cursor**: Complete application restart to refresh MCP cache
+4. **Validate Configuration**: Check `.cursor/mcp.json` for correct server paths
+
+### **Workflow Issues**
+
+If the autonomous workflow seems stuck or behaving unexpectedly:
+
+1. **Check Safety Systems**: Look for emergency brake activation
+2. **Monitor Transitions**: Verify workflow step transitions are completing
+3. **Review Memory**: Check working memory for error patterns
+4. **Restart Workflow**: Use `start-workflow` to reset system state
+
+### **Notification Issues**
+
+If toast notifications are not appearing or functioning correctly:
+
+1. **Check Session State**: Verify Streamlit session state initialization
+2. **Clear Cache**: Use Streamlit's cache clearing functionality
+3. **Verify Integration**: Ensure notification functions are called on all pages
+4. **Test Manually**: Use the enhanced notification system directly
+
+### **Performance Issues**
+
+If the system is running slowly or consuming excessive resources:
+
+1. **Memory Cleanup**: Use context-update to optimize memory usage
+2. **Task Optimization**: Review task dependencies and priorities
+3. **Transition Monitoring**: Check for excessive workflow transitions
+4. **System Resources**: Monitor CPU and memory usage
+
+For more detailed troubleshooting, consult the system's working memory and long-term memory for specific error patterns and solutions.
 
 ## Pre-commit Hook Verification (Manual)
 
@@ -213,92 +401,7 @@ The installation script installs a pre-commit hook in `.githooks/pre-commit` to 
 4. Create a file longer than 500 lines: `seq 510 > long_file.txt`
 5. Stage the file: `git add long_file.txt`
 6. Attempt to commit:
-   - Using the MCP tool: Call `mcp_MyMCP_commit` via Cursor with appropriate arguments (e.g., title, type).
+   - Using the MCP tool: Call `mcp_MemoryBankMCP_commit` via Cursor with appropriate arguments
    - OR Using standard git: `git commit -m "Test long file"`
-7. Observe the output. The commit should fail, and you should see the error message from the hook script: `COMMIT FAILED: Files exceed maximum line count (500). ... The following files are too long...: long_file.txt`.
+7. Observe the output. The commit should fail with an error message about file length limits.
 8. Clean up: `cd .. && rm -rf temp_repo`
-
-## Troubleshooting 🔧
-
-### MCP Commit Server Issues
-
-If you encounter an error like `Error: Cannot find module '.cursor/mcp/mcp-commit-server/server.js'` when using Cursor, it means the MCP commit server files were not properly installed in your Cursor installation directory. To fix this issue:
-
-1. Make sure the MCP commit server files exist in your project:
-```bash
-ls -la .cursor/mcp/mcp-commit-server/
-```
-
-2. Copy the MCP commit server files to your Cursor installation directory:
-```bash
-# For Windows (adjust the path as needed):
-mkdir -p "C:/Users/<YourUsername>/AppData/Local/Programs/cursor/.cursor/mcp/mcp-commit-server"
-cp -r .cursor/mcp/mcp-commit-server/* "C:/Users/<YourUsername>/AppData/Local/Programs/cursor/.cursor/mcp/mcp-commit-server/"
-
-# For macOS (adjust the path as needed):
-mkdir -p ~/Library/Application\ Support/cursor/.cursor/mcp/mcp-commit-server
-cp -r .cursor/mcp/mcp-commit-server/* ~/Library/Application\ Support/cursor/.cursor/mcp/mcp-commit-server/
-
-# For Linux (adjust the path as needed):
-mkdir -p ~/.config/cursor/.cursor/mcp/mcp-commit-server
-cp -r .cursor/mcp/mcp-commit-server/* ~/.config/cursor/.cursor/mcp/mcp-commit-server/
-```
-
-3. Install the dependencies:
-```bash
-# Navigate to the MCP commit server directory in your Cursor installation:
-cd "C:/Users/<YourUsername>/AppData/Local/Programs/cursor/.cursor/mcp/mcp-commit-server/" # Windows
-cd ~/Library/Application\ Support/cursor/.cursor/mcp/mcp-commit-server/ # macOS
-cd ~/.config/cursor/.cursor/mcp/mcp-commit-server/ # Linux
-
-# Install dependencies:
-npm install
-```
-
-4. Create or update the mcp.json file in your Cursor installation directory:
-```json
-// For Windows - Save this to C:/Users/<YourUsername>/AppData/Local/Programs/cursor/.cursor/mcp.json
-{
-    "mcpServers": {
-        "Git Commit (Internal)": {
-            "command": "cmd",
-            "args": [
-                "/c",
-                "node",
-                ".cursor/mcp/mcp-commit-server/server.js"
-            ],
-            "cwd": "."
-        }
-    }
-}
-
-// For macOS/Linux - Save this to ~/Library/Application Support/cursor/.cursor/mcp.json (macOS) or ~/.config/cursor/.cursor/mcp.json (Linux)
-{
-    "mcpServers": {
-        "Git Commit (Internal)": {
-            "command": "node",
-            "args": [
-                ".cursor/mcp/mcp-commit-server/server.js"
-            ],
-            "cwd": "."
-        }
-    }
-}
-```
-
-5. Restart Cursor and the MCP commit server should now be available as a tool.
-
-### MCP Tool Discovery Issues
-
-If you've successfully installed MCP servers but new tools aren't appearing in Cursor's available tools list:
-
-**Quick Solution: Restart Cursor completely**
-
-1. **Close Cursor**: Exit the application entirely
-2. **Restart Cursor**: Launch the application again  
-3. **Open Workspace**: Navigate back to your project
-4. **Verify**: Check if the tool now appears in the available tools list
-
-**Why This Happens:** Cursor caches MCP tool lists for performance. When tools are added to existing servers, the cache isn't automatically refreshed until the application restarts.
-
-**Note:** As of the latest updates, the commit tool has been migrated from MyMCP to MemoryBank MCP server. After updating, you'll need to restart Cursor to see the new `mcp_MemoryBank_commit` tool replace the old `mcp_MyMCP_commit` tool.

@@ -10,6 +10,7 @@ import { handleGetAllTasks } from './mcp_tools/get_all_tasks.js';
 import { handleGetNextTasks } from './mcp_tools/get_next_tasks.js';
 import { handleReadUserbrief } from './mcp_tools/read_userbrief.js';
 import { handleUpdateUserbrief } from './mcp_tools/update_userbrief.js';
+import { handleDeleteLongTermMemory, deleteLongTermMemorySchema } from './mcp_tools/delete_long_term_memory.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import process from 'process';
 
@@ -59,7 +60,7 @@ server.tool('create_task', {
 
 server.tool('update_task', {
     task_id: z.number().int().positive().describe("IDENTIFIANT DE TÂCHE : Le numéro d'ID unique de la tâche à mettre à jour. Cet ID est assigné lors de la création de la tâche et peut être trouvé dans les listes de tâches. Champ requis - vous devez spécifier quelle tâche modifier."),
-    comment: z.string().describe("COMMENTAIRE CRITIQUE OBLIGATOIRE - Rédigez une analyse critique et détaillée. Ne vous contentez pas de décrire le changement de statut. Instructions par statut : (1) BLOCKED : Analysez la cause racine du blocage. Quels sont les obstacles précis ? Quelles sont les dépendances externes ou les problèmes techniques qui empêchent la progression ? Proposez un plan d'action pour débloquer la situation. (2) REVIEW : Ne dites pas seulement ce que vous avez fait. Mettez en évidence les problèmes que vous avez rencontrés, même si vous les avez résolus. Mentionnez les faiblesses potentielles de votre implémentation et les points à surveiller. Quels tests manuels ont été effectués et quels sont leurs limites ? Guidez l'utilisateur sur les points de friction à vérifier. (3) Pour tout autre changement : Soyez transparent sur l'impact, les risques et les problèmes potentiels. Un commentaire vide n'est accepté que pour le passage à IN_PROGRESS."),
+    comment: z.string().describe("COMMENTAIRE CRITIQUE OBLIGATOIRE - Rédigez une analyse critique et détaillée. Ne vous contentez pas de décrire le changement de statut. Instructions par statut : (1) BLOCKED : Analysez la cause racine du blocage. Quels sont les obstacles précis ? Quelles sont les dépendances externes ou les problèmes techniques qui empêchent la progression ? Proposez un plan d'action pour débloquer la situation. (2) REVIEW : Ne dites pas seulement ce que vous avez fait. Mettez en évidence les problèmes que vous avez rencontrés, même si vous les avez résolus. Mentionnez les faiblesses potentielles de votre implémentation et les points à surveiller. Quels tests manuels ont été effectués et quels sont leurs limites ? Guidez l'utilisateur sur les points de friction à vérifier. Si il s'agissait d'un bug, expliquez son origine et comment vous l'avez résolu. (3) Pour tout autre changement : Soyez transparent sur l'impact, les risques et les problèmes potentiels. Un commentaire vide n'est accepté que pour le passage à IN_PROGRESS."),
     title: z.string().min(1).max(200).optional().describe("NOUVEAU TITRE DE TÂCHE - Rédigez en français un titre clair et actionnable mis à jour (1-200 caractères). Utilisez l'impératif et soyez précis. Ne fournissez que si vous voulez changer le titre existant. Exemples : 'Implémenter le système d'authentification utilisateur', 'Corriger les problèmes de timeout de base de données'."),
     short_description: z.string().min(1).max(500).optional().describe("NOUVEAU RÉSUMÉ BREF - Rédigez en français un aperçu concis mis à jour (1-500 caractères). Ne fournissez que si vous voulez changer la description existante. Doit répondre brièvement au 'quoi' et 'pourquoi' et inclure l'objectif principal et le bénéfice clé."),
     detailed_description: z.string().min(1).optional().describe("NOUVELLES SPÉCIFICATIONS DÉTAILLÉES - Rédigez en français une description complète mise à jour avec exigences, critères d'acceptation, détails techniques et approche d'implémentation. Ne fournissez que si vous voulez remplacer complètement la description détaillée existante."),
@@ -85,6 +86,8 @@ server.tool('update_userbrief', {
     id: z.number().optional().describe("ID DE REQUÊTE : L'identifiant unique de la requête utilisateur spécifique à mettre à jour. Si omis, l'action ciblera la requête actuellement active (in_progress ou new). Utilisez ceci quand vous devez mettre à jour une requête historique spécifique plutôt que la courante."),
     comment: z.string().optional().describe("COMMENTAIRE DE MISE À JOUR - Rédigez en français le texte à ajouter à l'historique de la requête lors de l'utilisation de l'action 'add_comment'. Doit fournir des mises à jour significatives sur les progrès, découvertes, décisions prises, ou prochaines étapes. Exemples : 'Système d'authentification implémenté avec succès, passage à la phase de test', 'Problème de schéma de base de données découvert, investigation d'alternatives en cours', 'Fonctionnalité terminée et déployée en environnement de staging'. Requis quand action est 'add_comment', ignoré pour les autres actions.")
 }, safeHandler(handleUpdateUserbrief));
+
+server.tool('delete_long_term_memory', deleteLongTermMemorySchema, safeHandler(handleDeleteLongTermMemory));
 
 
 // Start the server

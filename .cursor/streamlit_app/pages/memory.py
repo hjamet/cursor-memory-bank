@@ -45,11 +45,21 @@ display_sidebar()
 st.markdown("# 🧠 Memory Management")
 st.markdown("Manage your project's memory: preferences, long-term memories, project brief, and technical context.")
 
+# Initialize session state for memory notifications
+if 'seen_present_memories' not in st.session_state:
+    st.session_state.seen_present_memories = set()
+
+# Apply enhanced toast styles for better notifications appearance (legacy support)
+memory_ui_components._apply_enhanced_toast_styles()
+
+# Apply new custom notification styles for the alternative system
+memory_ui_components._apply_custom_notification_styles()
+
 # Get file paths
 memory_paths = get_memory_file_paths()
 
 # Tabs for different memory types
- tab5, tab1, tab2, tab3 = st.tabs(["🤖 Agent Timeline", "📝 Requêtes", "🧠 Long-term Memory", "📖 Project Context (README.md)"])
+tab5, tab1, tab2, tab3 = st.tabs(["🤖 Agent Timeline", "📝 Requêtes", "🧠 Long-term Memory", "📖 Project Context (README.md)"])
 
 # Tab 5: Agent Timeline
 with tab5:
