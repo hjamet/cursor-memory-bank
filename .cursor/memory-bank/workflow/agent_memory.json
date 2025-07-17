@@ -1,11 +1,5 @@
 [
   {
-    "timestamp": "2025-07-01T15:21:44.169Z",
-    "past": "J'étais dans l'étape `task-decomposition` pour traiter une nouvelle requête utilisateur (#233) concernant la logique du workflow.",
-    "present": "J'ai analysé la requête de l'utilisateur et l'ai décomposée en une nouvelle tâche unique et complète, la #286. Cette tâche couvre l'audit, la documentation et l'alignement du workflow. J'ai ensuite archivé la requête utilisateur #233.",
-    "future": "L'étape de décomposition de tâche est terminée. Je vais maintenant suivre les instructions du workflow, qui devrait me faire passer à l'étape d'implémentation pour commencer à travailler sur les tâches en attente."
-  },
-  {
     "timestamp": "2025-07-01T15:22:56.468Z",
     "past": "J'étais dans l'étape `fix` pour finaliser la tâche #285 qui corrigeait les boucles du workflow.",
     "present": "J'ai validé que mes correctifs pour le workflow sont efficaces. Le système n'est plus bloqué dans des boucles. J'ai donc mis à jour le statut de la tâche #285 à `REVIEW`, concluant ainsi mon intervention sur ce bug.",
@@ -598,5 +592,11 @@
     "past": "J'ai implémenté la suppression des champs files_scanned et automatic_task_creation de la sortie JSON de l'outil commit (commit.js), conformément à la tâche #329. J'ai veillé à ne pas impacter la logique de création automatique de tâches ni la traçabilité des commits. La sortie est maintenant plus concise et conforme à la demande.",
     "present": "La sortie de l'outil commit ne contient plus les champs files_scanned ni automatic_task_creation. Le code a été modifié proprement, sans régression sur la logique de commit ou la génération de tâches automatiques. Prêt à valider la modification.",
     "future": "Je passe à l'étape experience-execution pour tester la sortie de l'outil commit, vérifier l'absence des champs supprimés et valider la tâche #329 avant commit."
+  },
+  {
+    "timestamp": "2025-07-17T11:57:02.000Z",
+    "past": "J'ai validé la suppression des champs files_scanned et automatic_task_creation de la sortie de l'outil commit par un test manuel, puis j'ai marqué la tâche #329 comme REVIEW et committé la modification avec un message détaillé. La sortie est désormais conforme à la demande, sans perte de fonctionnalité.",
+    "present": "La tâche #329 est terminée : la sortie de l'outil commit est simplifiée, les champs inutiles ont disparu, la fonctionnalité reste intacte. Le commit a été réalisé et la traçabilité est assurée.",
+    "future": "Je poursuis le workflow autonome. S'il reste des tâches à traiter, je passe à implementation. Sinon, je passe à context-update pour synchroniser le contexte projet et nettoyer les artefacts temporaires."
   }
 ]

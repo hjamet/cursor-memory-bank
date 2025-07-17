@@ -8279,7 +8279,7 @@
     "short_description": "La sortie de l'outil commit doit être simplifiée : supprimer le champ files_scanned et l'indication automatic_task_creation, jugés inutiles et trop verbeux.",
     "detailed_description": "**Objectif :**\nSimplifier la sortie de l'outil commit en supprimant le champ files_scanned (liste des fichiers scannés) et l'indication automatic_task_creation, car ces informations sont jugées inutiles et rendent la sortie trop verbeuse. Les tâches créées automatiquement suffisent à documenter l'action.\n\n**Travail à réaliser :**\n- Identifier tous les endroits dans le code où la sortie de l'outil commit inclut files_scanned et automatic_task_creation\n- Supprimer l'ajout de ces champs dans la réponse de l'outil commit\n- Vérifier que la suppression n'impacte pas la logique de création de tâches ou la traçabilité des commits\n- Mettre à jour la documentation et les tests si nécessaire\n- S'assurer que la sortie de l'outil commit reste claire, concise et conforme aux attentes utilisateur\n\n**Analyse Technique & Points de Vigilance :**\n- Attention à ne pas supprimer d'autres informations utiles de la sortie\n- Vérifier que la suppression de files_scanned n'affecte pas d'autres outils ou scripts qui pourraient s'appuyer sur ce champ\n- S'assurer que la suppression de automatic_task_creation ne casse pas la logique de création automatique de tâches (seulement la sortie, pas la fonctionnalité)\n- Prévoir des tests pour valider la sortie de l'outil commit après modification\n- Documenter le changement dans le changelog ou la documentation utilisateur si besoin\n\n**Critères de validation :**\n- Le champ files_scanned n'apparaît plus dans la sortie de l'outil commit\n- L'indication automatic_task_creation n'apparaît plus dans la sortie\n- La sortie de l'outil commit reste fonctionnelle, claire et concise\n- Les tests automatisés passent sans erreur\n- Aucun bug ou régression n'est introduit\n\n**Dépendances :**\nAucune dépendance directe identifiée, mais nécessite une validation fonctionnelle globale après modification.\n\n**Priorité :** 3 (normale)\n\n**Fichiers impactés :**\n- Code source de l'outil commit (Python, JS, scripts MCP)\n- Tests associés\n- Documentation utilisateur (si mention de ces champs)\n\n**Validation :**\n- La tâche est terminée quand :\n  - Les champs files_scanned et automatic_task_creation sont absents de la sortie de l'outil commit\n  - La sortie reste claire et fonctionnelle\n  - Les tests passent\n  - Aucun bug ou régression n'est détecté\n",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       "Code source de l'outil commit (Python, JS, scripts MCP)",
       "Tests associés",
@@ -8287,7 +8287,7 @@
     ],
     "validation_criteria": "La tâche est terminée quand :\n- Les champs files_scanned et automatic_task_creation sont absents de la sortie de l'outil commit\n- La sortie reste claire et fonctionnelle\n- Les tests passent\n- Aucun bug ou régression n'est détecté",
     "created_date": "2025-07-17T10:22:58.320Z",
-    "updated_date": "2025-07-17T11:56:27.903Z",
+    "updated_date": "2025-07-17T14:00:59.914638",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -8301,6 +8301,10 @@
       }
     ],
     "last_comment": "Test manuel réussi : la sortie de l'outil commit ne contient plus les champs files_scanned ni automatic_task_creation. La modification est effective, la sortie reste claire et fonctionnelle. Je marque la tâche comme REVIEW avant de committer.",
-    "last_comment_timestamp": "2025-07-17T11:56:27.903Z"
+    "last_comment_timestamp": "2025-07-17T11:56:27.903Z",
+    "validation": {
+      "approved_at": "2025-07-17T14:00:59.907640",
+      "approved_by": "user_review"
+    }
   }
 ]

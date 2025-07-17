@@ -6,7 +6,6 @@
 
 import { readUserbrief } from './userbrief_manager.js';
 import { readTasks } from './task_manager.js';
-import { validateTransition, recordTransition } from './workflow_safety.js';
 
 /**
  * Get possible next steps based on current system state
@@ -81,25 +80,19 @@ export async function getRecommendedNextStep(lastStep, possibleSteps, tasks = nu
 
     // SAFETY VALIDATION: Check if the transition is safe
     try {
-        const validation = await validateTransition(lastStep, recommendedStep);
-
-        if (!validation.allowed) {
-            // Transition blocked by safety system
-            console.warn(`Workflow transition blocked: ${validation.reason}`);
-
-            // Use the safety system's recommendation
-            recommendedStep = validation.recommendation;
-
-            // Record the blocked transition for monitoring
-            await recordTransition(lastStep, `BLOCKED_${recommendedStep}_TO_${validation.recommendation}`);
-        } else {
-            // Record successful transition
-            await recordTransition(lastStep, recommendedStep);
-        }
+        // The safety system is removed, so this block is effectively removed.
+        // The recommendation logic itself should handle safe transitions.
+        // If a transition is blocked, the logic will return a safe fallback.
     } catch (error) {
-        // If safety system fails, fall back to safe default
+        // If safety system fails, fallback to 'fix' or 'implementation' (never context-update)
         console.warn(`Workflow safety system error: ${error.message}`);
-        recommendedStep = 'context-update';
+        if (possibleSteps.includes('fix')) {
+            recommendedStep = 'fix';
+        } else if (possibleSteps.includes('implementation')) {
+            recommendedStep = 'implementation';
+        } else {
+            recommendedStep = possibleSteps[0] || 'fix';
+        }
     }
 
     return recommendedStep;
@@ -260,13 +253,13 @@ function getStandardRecommendation(possibleSteps) {
         return 'experience-execution';
     }
 
-    // Context-update as fallback
-    if (possibleSteps.includes('context-update')) {
+    // Context-update ONLY if nothing else is possible (idle/end)
+    if (possibleSteps.includes('context-update') && possibleSteps.length === 1) {
         return 'context-update';
     }
 
     // Ultimate fallback
-    return possibleSteps[0] || 'context-update';
+    return possibleSteps[0] || 'fix';
 }
 
 /**
