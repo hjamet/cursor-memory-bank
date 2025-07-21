@@ -161,51 +161,59 @@ async function getRecommendedStepLogic(lastStep, possibleSteps, tasks = null) {
         }
     }
 
-    // CRITICAL FIX: Prevent context-update loops
-    // Rule: context-update can NEVER be followed by context-update (except in task-by-task stopping case)
+    // USER-SPECIFIED CONTEXT-UPDATE DECISION TREE
+    // Implements the exact decision tree specified by the user for context-update step
     if (lastStep === 'context-update') {
-        // Coming from context-update, we need to determine the next step based on system state
+        // STEP 1: Vérification du mode workflow EN PREMIER (selon spécifications utilisateur)
+        const workflowModeForContextUpdate = await loadWorkflowMode();
+        if (workflowModeForContextUpdate === 'task_by_task') {
+            // Si workflow-infini est désactivé → dire à l'agent de s'arrêter
+            return 'context-update'; // This will trigger the stopping logic in remember.js
+        }
 
+        // STEP 2: Vérifier userbrief à traiter (si workflow-infini activé)
+        let userbrief;
+        try {
+            userbrief = await readUserbrief();
+        } catch (error) {
+            userbrief = { requests: [] };
+        }
+
+        const hasUnprocessedRequests = userbrief && userbrief.requests &&
+            userbrief.requests.some(r => r.status === 'new' || r.status === 'in_progress');
+
+        if (hasUnprocessedRequests && possibleSteps.includes('task-decomposition')) {
+            // Si il y a des userbrief à traiter → appeler task-decomposition
+            return 'task-decomposition';
+        }
+
+        // STEP 3: Vérifier tâches restantes à faire
         // Load tasks if not provided
         if (!tasks) {
             try {
                 tasks = await readTasks();
             } catch (error) {
-                // If we can't load tasks, force implementation or task-decomposition
-                if (possibleSteps.includes('task-decomposition')) {
-                    return 'task-decomposition';
-                }
-                if (possibleSteps.includes('implementation')) {
-                    return 'implementation';
-                }
-                // Ultimate fallback - but avoid context-update
-                return possibleSteps.find(step => step !== 'context-update') || 'implementation';
+                // If we can't load tasks, apply default stop behavior
+                return 'context-update'; // Trigger stopping in remember.js
             }
         }
 
-        // Check for unprocessed requests first (highest priority)
-        if (possibleSteps.includes('task-decomposition')) {
-            return 'task-decomposition';
-        }
+        const hasActiveTasks = tasks && tasks.some(t =>
+            t.status === 'TODO' || t.status === 'IN_PROGRESS' || t.status === 'BLOCKED');
 
-        // Check for active tasks (implementation or blocked)
-        if (possibleSteps.includes('implementation')) {
+        if (hasActiveTasks && possibleSteps.includes('implementation')) {
+            // Si il y a des tâches restantes à faire → appeler implementation
             return 'implementation';
         }
 
-        // Check for blocked tasks that need fixing
-        if (possibleSteps.includes('fix')) {
+        // Handle blocked tasks specifically
+        if (tasks && tasks.some(t => t.status === 'BLOCKED') && possibleSteps.includes('fix')) {
             return 'fix';
         }
 
-        // Check for tasks that need validation
-        if (possibleSteps.includes('experience-execution')) {
-            return 'experience-execution';
-        }
-
-        // If we reach here, either the system is idle or we have no valid transitions
-        // NEVER return context-update to prevent loops
-        return possibleSteps.find(step => step !== 'context-update') || 'implementation';
+        // STEP 4: Arrêt par défaut (selon spécifications utilisateur)
+        // Sinon → dire à l'agent de s'arrêter
+        return 'context-update'; // This will trigger the stopping logic in remember.js
     }
 
     // CRITICAL FIX: Prevent experience-execution loops
