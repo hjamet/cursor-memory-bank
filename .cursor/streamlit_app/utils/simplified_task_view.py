@@ -6,7 +6,7 @@ from components import task_utils
 
 def render_simplified_task_view():
     """Renders a simplified view of tasks and user requests."""
-    st.markdown("---")
+    # Removed excessive spacing - eliminated st.markdown("---") separator
     st.subheader("Current Workload")
 
     tasks = task_utils.get_all_tasks()

@@ -31,8 +31,9 @@ st.set_page_config(page_title="Review & Communication", page_icon="📨")
 
 display_sidebar()
 
+# Optimized header with reduced spacing
 st.markdown("# 📨 Review & Communication")
-st.markdown("Review tasks awaiting validation and view messages from the agent.")
+st.caption("Review tasks awaiting validation and view messages from the agent.")
 
 def main():
     """Main function to render the review page"""
@@ -75,8 +76,8 @@ def main():
     review_tasks_count = len([t for t in tasks if t.get('status') in ['REVIEW', 'BLOCKED']])
     messages_count = len(messages)
     
-    st.markdown("---")
-
+    # Remove excessive spacing - eliminated st.markdown("---") separator
+    
     # Create dynamic tab labels
     review_tab_label = f"✅ Tasks to Review ({review_tasks_count} 🔴)" if review_tasks_count > 0 else "✅ Tasks to Review"
     messages_tab_label = f"📨 Agent Messages ({messages_count} 🔴)" if messages_count > 0 else "📨 Agent Messages"
