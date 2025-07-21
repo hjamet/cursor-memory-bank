@@ -3,10 +3,18 @@
   "implementation_count": 12,
   "last_readme_task_at": 0,
   "created_at": "2025-07-17T10:21:39.686Z",
-  "updated_at": "2025-07-21T13:07:13.464Z",
-  "current_rule": "experience-execution",
+  "updated_at": "2025-07-21T15:10:53.621156",
+  "current_rule": "context-update",
   "status": "active",
   "history": [
+    {
+      "rule": "context-update",
+      "timestamp": "2025-07-21T13:10:17.811Z"
+    },
+    {
+      "rule": "experience-execution",
+      "timestamp": "2025-07-21T13:09:19.662Z"
+    },
     {
       "rule": "experience-execution",
       "timestamp": "2025-07-21T13:07:13.464Z"
@@ -38,16 +46,8 @@
     {
       "rule": "implementation",
       "timestamp": "2025-07-21T12:54:10.497Z"
-    },
-    {
-      "rule": "implementation",
-      "timestamp": "2025-07-21T12:51:51.124Z"
-    },
-    {
-      "rule": "task-decomposition",
-      "timestamp": "2025-07-21T12:50:49.398Z"
     }
   ],
-  "mode": "infinite",
-  "last_updated": "2025-07-21T13:07:13.464Z"
+  "mode": "task_by_task",
+  "last_updated": "2025-07-21T13:10:17.811Z"
 }
