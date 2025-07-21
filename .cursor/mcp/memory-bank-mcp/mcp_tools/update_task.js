@@ -241,16 +241,12 @@ export async function handleUpdateTask(params) {
         try {
             validationResult = validateUpdateTask(updateData, tasks);
         } catch (validationError) {
-            // Enhanced error logging for validation failures (commented to prevent MCP JSON corruption)
-            /*
-            console.error('[UpdateTask] Validation system error:', {
-                error: validationError.message,
-                task_id: task_id,
-                updates: JSON.stringify(updates, null, 2),
-                tasksCount: tasks.length,
-                timestamp: new Date().toISOString()
-            });
-            */
+            // Enhanced error logging for validation failures - COMMENTED TO PREVENT JSON-RPC POLLUTION
+            // console.error('[UpdateTask] Validation system error:', {
+            //     error: validationError.message,
+            //     task_id: task_id,
+            //     timestamp: new Date().toISOString()
+            // });
 
             return {
                 content: [{
@@ -285,7 +281,7 @@ export async function handleUpdateTask(params) {
                 // Test serialization safety
                 JSON.stringify(errorDetails);
             } catch (serializationError) {
-                console.error('[UpdateTask] Error serialization failed:', serializationError.message);
+                // console.error('[UpdateTask] Error serialization failed:', serializationError.message); // Commented to prevent JSON-RPC pollution
 
                 // Fallback to safe error reporting
                 errorMessages = validationResult.errors?.length > 0
@@ -367,8 +363,8 @@ export async function handleUpdateTask(params) {
 
         // Log warnings if any (non-blocking issues)
         if (validationResult.warnings && validationResult.warnings.length > 0) {
-            console.warn(`[UpdateTask] Validation warnings for task ${task_id}:`,
-                validationResult.warnings.map(w => w.message));
+            // console.warn(`[UpdateTask] Validation warnings for task ${task_id}:`, // Commented to prevent JSON-RPC pollution
+            //     validationResult.warnings.map(w => `- ${w}`).join('\n')); // Commented to prevent JSON-RPC pollution
         }
 
         // Apply updates using normalized data from validation

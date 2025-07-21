@@ -39,7 +39,7 @@ async function loadWorkflowState() {
             return { ...DEFAULT_WORKFLOW_STATE };
         }
         // File exists but is corrupted, log warning and return default
-        console.warn(`Workflow state file corrupted, using defaults: ${error.message}`);
+        // console.warn(`Workflow state file corrupted, using defaults: ${error.message}`); // Commented to prevent JSON-RPC pollution
         return { ...DEFAULT_WORKFLOW_STATE };
     }
 }

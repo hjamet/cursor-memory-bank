@@ -25,12 +25,8 @@ class TaskManager {
                 this.nextId = Math.max(...this.tasks.map(t => t.id)) + 1;
             }
         } catch (error) {
-            if (error.code === 'ENOENT') {
-                this.tasks = [];
-                this.nextId = 1;
-            } else {
-                throw error;
-            }
+            // console.error('Failed to load tasks:', error); // Commented to prevent JSON-RPC pollution
+            return [];
         }
     }
 
@@ -66,7 +62,7 @@ class TaskManager {
                 }
             });
 
-            console.log(`[TaskManager] Cleaned up ${tasksToRemove.length} old archived tasks, keeping ${tasksToKeep.length} most recent`);
+            // console.log(`[TaskManager] Cleaned up ${tasksToRemove.length} old archived tasks, keeping ${tasksToKeep.length} most recent`); // Commented to prevent JSON-RPC pollution
         }
     }
 
@@ -254,7 +250,7 @@ Mettre à jour le README.md pour refléter les derniers développements, fonctio
         // Mark that we generated a README task at this count
         await markReadmeTaskGenerated();
 
-        console.log(`[TaskManager] Generated automatic README update task #${createdTask.id} for implementation cycle #${implementationCount}`);
+        // console.log(`[TaskManager] Generated automatic README update task #${createdTask.id} for implementation cycle #${implementationCount}`); // Commented to prevent JSON-RPC pollution
 
         return createdTask;
     }
@@ -265,7 +261,7 @@ const taskManager = new TaskManager();
 
 // Initialize tasks on module load
 taskManager.loadTasks().catch(error => {
-    console.error('Failed to load tasks:', error);
+    // console.error('Failed to load tasks:', error); // Commented to prevent JSON-RPC pollution
 });
 
 export { taskManager };

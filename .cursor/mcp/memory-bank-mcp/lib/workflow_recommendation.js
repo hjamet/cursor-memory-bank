@@ -107,7 +107,7 @@ export async function getRecommendedNextStep(lastStep, possibleSteps, tasks = nu
         // If a transition is blocked, the logic will return a safe fallback.
     } catch (error) {
         // If safety system fails, fallback to 'fix' or 'implementation' (never context-update)
-        console.warn(`Workflow safety system error: ${error.message}`);
+        // console.warn(`Workflow safety system error: ${error.message}`); // Commented to prevent JSON-RPC pollution
         if (possibleSteps.includes('fix')) {
             recommendedStep = 'fix';
         } else if (possibleSteps.includes('implementation')) {

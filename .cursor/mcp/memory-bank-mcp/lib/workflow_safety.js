@@ -50,7 +50,7 @@ async function saveWorkflowSafetyState(state) {
         const safetyPath = getWorkflowSafetyPath();
         await fs.writeFile(safetyPath, JSON.stringify(state, null, 2));
     } catch (error) {
-        console.error('Error saving workflow safety state:', error);
+        // console.error('Error saving workflow safety state:', error); // Commented to prevent JSON-RPC pollution
     }
 }
 
@@ -65,9 +65,9 @@ export async function resetTransitionCounter() {
         state.consecutive_transitions = 0;
         state.emergency_brake_active = false;
         await saveWorkflowSafetyState(state);
-        console.log('Workflow safety: Transition counter reset to 0');
+        // console.log('Workflow safety: Transition counter reset to 0'); // Commented to prevent JSON-RPC pollution
     } catch (error) {
-        console.error('Error resetting transition counter:', error);
+        // console.error('Error resetting transition counter:', error); // Commented to prevent JSON-RPC pollution
     }
 }
 
@@ -110,13 +110,8 @@ export async function incrementTransitionCounter(fromStep, toStep) {
             maxTransitions: MAX_CONSECUTIVE_TRANSITIONS
         };
     } catch (error) {
-        console.error('Error incrementing transition counter:', error);
-        return {
-            safetyState: null,
-            emergencyBrakeTriggered: false,
-            consecutiveTransitions: 0,
-            maxTransitions: MAX_CONSECUTIVE_TRANSITIONS
-        };
+        // console.error('Error incrementing transition counter:', error); // Commented to prevent JSON-RPC pollution
+        return { count: 0, emergency_brake_active: false };
     }
 }
 
@@ -137,8 +132,8 @@ export async function isExperienceExecutionInCooldown() {
 
         return timeSinceLastExecution < EXPERIENCE_EXECUTION_COOLDOWN;
     } catch (error) {
-        console.error('Error checking experience-execution cooldown:', error);
-        return false;
+        // console.error('Error checking experience-execution cooldown:', error); // Commented to prevent JSON-RPC pollution
+        return false; // Assume no cooldown if we can't read state
     }
 }
 
@@ -159,7 +154,7 @@ export async function recordExperienceExecutionAttempt() {
             limitReached: state.experience_execution_attempts >= MAX_EXPERIENCE_EXECUTION_ATTEMPTS
         };
     } catch (error) {
-        console.error('Error recording experience-execution attempt:', error);
+        // console.error('Error recording experience-execution attempt:', error); // Commented to prevent JSON-RPC pollution
         return {
             attempts: 0,
             maxAttempts: MAX_EXPERIENCE_EXECUTION_ATTEMPTS,
@@ -184,9 +179,9 @@ export async function resetSafetyState() {
         };
 
         await saveWorkflowSafetyState(defaultState);
-        console.log('Workflow safety: Complete safety state reset');
+        // console.log('Workflow safety: Complete safety state reset'); // Commented to prevent JSON-RPC pollution
     } catch (error) {
-        console.error('Error resetting safety state:', error);
+        // console.error('Error resetting safety state:', error); // Commented to prevent JSON-RPC pollution
     }
 }
 
@@ -210,7 +205,7 @@ export async function getSafetyStatus() {
             lastImplementation: state.last_implementation
         };
     } catch (error) {
-        console.error('Error getting safety status:', error);
+        // console.error('Error getting safety status:', error); // Commented to prevent JSON-RPC pollution
         return null;
     }
 } 

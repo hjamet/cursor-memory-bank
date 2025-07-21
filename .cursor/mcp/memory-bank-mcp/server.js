@@ -100,7 +100,7 @@ async function startServer() {
         await server.connect(transport);
 
     } catch (error) {
-        console.error('[MemoryBankMCP] Failed to start server:', error);
+        // console.error('[MemoryBankMCP] Failed to start server:', error); // Commented to prevent JSON-RPC pollution
         process.exit(1);
     }
 }
@@ -116,5 +116,6 @@ process.on('SIGTERM', () => {
 
 // Start the server
 startServer().catch(error => {
-    console.error('[MemoryBankMCP] Server startup error:', error);
+    // console.error('[MemoryBankMCP] Server startup error:', error); // Commented to prevent JSON-RPC pollution
+    process.exit(1);
 }); 

@@ -55,7 +55,7 @@ function generateUniqueTaskId(tasks) {
 
         // Double-check the forced ID
         if (!tasks.some(task => task.id === forcedId)) {
-            console.warn(`[CreateTask] ID collision detected for ${candidateId}, using fallback ID ${forcedId}`);
+            // console.warn(`[CreateTask] ID collision detected for ${candidateId}, using fallback ID ${forcedId}`); // Commented to prevent JSON-RPC pollution
             return forcedId;
         }
 
@@ -64,7 +64,7 @@ function generateUniqueTaskId(tasks) {
 
     // Ultimate fallback: use timestamp-based ID
     const timestampId = Date.now() % 1000000; // Last 6 digits of timestamp
-    console.error(`[CreateTask] Failed to generate unique ID after ${maxRetries} attempts, using timestamp-based ID: ${timestampId}`);
+    // console.error(`[CreateTask] Failed to generate unique ID after ${maxRetries} attempts, using timestamp-based ID: ${timestampId}`); // Commented to prevent JSON-RPC pollution
     return timestampId;
 }
 
@@ -227,13 +227,13 @@ export async function handleCreateTask(params) {
         try {
             validationResult = validateCreateTask(params, tasks);
         } catch (validationError) {
-            // Enhanced error logging for validation failures
-            console.error('[CreateTask] Validation system error:', {
-                error: validationError.message,
-                params: JSON.stringify(params, null, 2),
-                tasksCount: tasks.length,
-                timestamp: new Date().toISOString()
-            });
+            // Enhanced error logging for validation failures - COMMENTED TO PREVENT JSON-RPC POLLUTION
+            // console.error('[CreateTask] Validation system error:', {
+            //     error: validationError.message,
+            //     params: JSON.stringify(params, null, 2),
+            //     tasksCount: tasks.length,
+            //     timestamp: new Date().toISOString()
+            // });
 
             return {
                 content: [{
@@ -268,26 +268,18 @@ export async function handleCreateTask(params) {
                 // Test serialization safety
                 JSON.stringify(errorDetails);
             } catch (serializationError) {
-                console.error('[CreateTask] Error serialization failed:', serializationError.message);
+                // console.error('[CreateTask] Error serialization failed:', serializationError.message); // Commented to prevent JSON-RPC pollution
 
-                // Fallback to safe error reporting
-                errorMessages = validationResult.errors?.length > 0
-                    ? `${validationResult.errors.length} validation error(s) detected`
-                    : 'Validation failed';
-
-                errorDetails = {
-                    validation_errors: validationResult.errors?.map(e => ({
-                        type: e.type || 'UNKNOWN',
-                        message: e.message || 'Unknown error',
-                        code: e.code || 'UNKNOWN'
-                    })) || [],
-                    warnings: validationResult.warnings?.map(w => ({
-                        type: w.type || 'UNKNOWN',
-                        message: w.message || 'Unknown warning',
-                        code: w.code || 'UNKNOWN'
-                    })) || [],
-                    operation: validationResult.operation || 'create',
-                    serialization_note: 'Complex error details simplified for JSON compatibility'
+                return {
+                    content: [{
+                        type: 'text',
+                        text: JSON.stringify({
+                            status: 'error',
+                            message: `Task creation blocked: ${errorMessages}`,
+                            ...errorDetails,
+                            created_task: null
+                        }, null, 2)
+                    }]
                 };
             }
 
@@ -346,8 +338,8 @@ export async function handleCreateTask(params) {
 
         // Log warnings if any (non-blocking issues)
         if (validationResult.warnings && validationResult.warnings.length > 0) {
-            console.warn(`[CreateTask] Validation warnings for task "${params.title}":`,
-                validationResult.warnings.map(w => w.message));
+            // console.warn(`[CreateTask] Validation warnings for task "${params.title}":`, // Commented to prevent JSON-RPC pollution
+            //     validationResult.warnings.map(w => `- ${w}`).join('\n')); // Commented to prevent JSON-RPC pollution
         }
 
         // Generate a new task ID with enhanced collision detection
@@ -394,13 +386,13 @@ export async function handleCreateTask(params) {
         };
 
     } catch (error) {
-        // Enhanced error logging for debugging
-        console.error('[CreateTask] Unexpected error:', {
-            error: error.message,
-            stack: error.stack,
-            params: params ? JSON.stringify(params, null, 2) : 'undefined',
-            timestamp: new Date().toISOString()
-        });
+        // Enhanced error logging for debugging - COMMENTED TO PREVENT JSON-RPC POLLUTION
+        // console.error('[CreateTask] Unexpected error:', {
+        //     error: error.message,
+        //     stack: error.stack,
+        //     params: params ? JSON.stringify(params, null, 2) : 'undefined',
+        //     timestamp: new Date().toISOString()
+        // });
 
         return {
             content: [{

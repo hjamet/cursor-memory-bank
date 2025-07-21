@@ -14,10 +14,10 @@ import { resetTransitionCounter } from '../lib/workflow_safety.js';
 // Verify critical imports are loaded correctly
 try {
     if (typeof resetTransitionCounter !== 'function') {
-        console.error('Critical import error: resetTransitionCounter is not properly loaded');
+        // console.error('Critical import error: resetTransitionCounter is not properly loaded'); // Commented to prevent JSON-RPC pollution
     }
 } catch (error) {
-    console.error('Import verification failed for resetTransitionCounter:', error);
+    // console.error('Import verification failed for resetTransitionCounter:', error); // Commented to prevent JSON-RPC pollution
 }
 
 /**
@@ -337,10 +337,10 @@ async function remember(args) {
             if (typeof resetTransitionCounter === 'function') {
                 await resetTransitionCounter();
             } else {
-                console.warn('resetTransitionCounter function is not available, skipping transition counter reset');
+                // console.warn('resetTransitionCounter function is not available, skipping transition counter reset'); // Commented to prevent JSON-RPC pollution
             }
         } catch (error) {
-            console.error('Error calling resetTransitionCounter:', error);
+            // console.error('Error calling resetTransitionCounter:', error); // Commented to prevent JSON-RPC pollution
             // Continue workflow execution even if transition counter reset fails
         }
     }
@@ -512,8 +512,9 @@ async function remember(args) {
     // SECURITY CHECK: Detect inappropriate stopping attempts
     // This prevents architectural violations and logs violations for debugging
     if (workflowMode === 'task_by_task' && recommendedNextStep === 'context-update' && lastStep !== 'context-update') {
-        console.warn(`⚠️ WORKFLOW VIOLATION PREVENTED: Attempted stop from step '${lastStep}' instead of 'context-update'. This violates architectural constraints.`);
-        console.warn(`🔒 SECURITY: Forcing continuation to maintain workflow integrity. Current step: ${lastStep}, Recommended: ${recommendedNextStep}`);
+        // Security warnings (commented to prevent JSON-RPC pollution but logic preserved)
+        // console.warn(`⚠️ WORKFLOW VIOLATION PREVENTED: Attempted stop from step '${lastStep}' instead of 'context-update'. This violates architectural constraints.`);
+        // console.warn(`🔒 SECURITY: Forcing continuation to maintain workflow integrity. Current step: ${lastStep}, Recommended: ${recommendedNextStep}`);
 
         // Force continuation by overriding the recommendation
         const forcedNextStep = lastStep === 'experience-execution' ? 'context-update' : recommendedNextStep;

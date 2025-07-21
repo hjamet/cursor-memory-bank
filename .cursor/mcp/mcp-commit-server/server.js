@@ -6,6 +6,7 @@ import { promisify } from 'util';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import fsPromises from 'fs/promises';
 import process from 'process';
 
 // Get the directory name of the current module
@@ -39,14 +40,12 @@ let terminalStates = []; // In-memory store for terminal statuses
 /**
  * Function to ensure logs directory exists
  */
-function ensureLogsDirExists() {
+async function ensureLogsDirExists() {
     if (!fs.existsSync(LOGS_DIR)) {
         try {
-            fs.mkdirSync(LOGS_DIR, { recursive: true });
+            await fsPromises.mkdir(LOGS_DIR, { recursive: true });
         } catch (err) {
-            console.error(`[MyMCP Setup] Error creating logs directory ${LOGS_DIR}:`, err);
-            // Decide if this is fatal - for now, log and continue, 
-            // subsequent log writes will likely fail.
+            // console.error(`[MyMCP Setup] Error creating logs directory ${LOGS_DIR}:`, err); // Commented to prevent JSON-RPC pollution
         }
     }
 }
@@ -64,11 +63,13 @@ function loadTerminalState() {
     try {
         if (fs.existsSync(STATE_FILE)) {
             const fileContent = fs.readFileSync(STATE_FILE, 'utf8');
-            terminalStates = JSON.parse(fileContent);
+            const data = JSON.parse(fileContent);
             // Basic validation (check if it's an array)
-            if (!Array.isArray(terminalStates)) {
-                console.error(`Invalid state file format in ${STATE_FILE}. Expected an array. Resetting state.`);
+            if (!Array.isArray(data)) {
+                // console.error(`Invalid state file format in ${STATE_FILE}. Expected an array. Resetting state.`); // Commented to prevent JSON-RPC pollution
                 terminalStates = [];
+            } else {
+                terminalStates = data;
             }
             // console.log(`Loaded terminal state from ${STATE_FILE}`); // Optional: for debugging
         } else {
@@ -76,7 +77,7 @@ function loadTerminalState() {
             // console.log(`State file ${STATE_FILE} not found. Initializing empty state.`); // Optional
         }
     } catch (error) {
-        console.error(`Error reading or parsing state file ${STATE_FILE}:`, error);
+        // console.error(`Error reading or parsing state file ${STATE_FILE}:`, error); // Commented to prevent JSON-RPC pollution
         terminalStates = []; // Reset state on error
     }
 }
@@ -91,7 +92,7 @@ function writeTerminalState(state) {
         fs.writeFileSync(STATE_FILE, fileContent, 'utf8');
         // console.log(`Wrote terminal state to ${STATE_FILE}`); // Optional: for debugging
     } catch (error) {
-        console.error(`Error writing state file ${STATE_FILE}:`, error);
+        // console.error(`Error writing state file ${STATE_FILE}:`, error); // Commented to prevent JSON-RPC pollution
     }
 }
 
@@ -117,21 +118,13 @@ async function updateRunningProcessStatuses() {
                 const isRunning = process.kill(state.pid, 0);
                 // If kill returns true, the process exists. We don't know if it *just* exited.
                 // Polling isn't perfect for immediate exit detection.
-            } catch (error) {
-                // If error is ESRCH, the process doesn't exist anymore
-                if (error.code === 'ESRCH') {
-                    // console.log(`Process ${state.pid} (${state.command}) no longer running.`); // Optional
-                    state.status = 'Stopped'; // Or potentially 'Failure', but we don't know exit code here
-                    state.exit_code = state.exit_code ?? null; // Keep existing exit code if set by 'exit' event, else null
-                    state.endTime = state.endTime ?? new Date().toISOString();
-                    stateChanged = true;
-                } else if (error.code === 'EPERM') {
-                    // Process exists, but we lack permissions to send signals.
-                    // Should not happen for child processes spawned by us, but log it.
-                    console.warn(`Permission error checking status for PID ${state.pid}. Assuming it's still running.`);
+            } catch (psError) {
+                if (psError.code === 'EPERM') {
+                    // console.warn(`Permission error checking status for PID ${state.pid}. Assuming it's still running.`); // Commented to prevent JSON-RPC pollution
+                    state.status = 'Running'; // Assume running if we can't check
                 } else {
-                    // Other unexpected error
-                    console.error(`Error checking status for PID ${state.pid}:`, error);
+                    // console.error(`Error checking status for PID ${state.pid}:`, psError); // Commented to prevent JSON-RPC pollution
+                    state.status = 'Error';
                 }
             }
         }
@@ -172,7 +165,7 @@ const args = process.argv.slice(2);
 for (let i = 0; i < args.length; i++) {
     if (args[i] === '--cwd' && i + 1 < args.length) {
         serverDefaultCwd = args[i + 1];
-        console.log(`[MCP Server] Using CWD: ${serverDefaultCwd}`);
+        // console.log(`[MCP Server] Using CWD: ${serverDefaultCwd}`); // Commented to prevent JSON-RPC pollution
         break;
     }
 }
@@ -306,9 +299,12 @@ server.tool(
 // --- Server Startup --- 
 
 async function startServer() {
-    console.log('[MCP Server] Initializing MyMCP server...');
+    // console.log('[MCP Server] Initializing MyMCP server...'); // Commented to prevent JSON-RPC pollution
     // Load initial state from file using StateManager
     await StateManager.loadState();
+
+    // Ensure logs directory exists
+    await ensureLogsDirExists();
 
     // Remove background status monitor? Decided against reimplementing polling for now.
     // Relying on process exit events handled in process_manager.js
@@ -322,9 +318,9 @@ async function startServer() {
     try {
         const transport = new StdioServerTransport();
         await server.connect(transport);
-        // console.log("[MCP Server] InternalAsyncTerminal Server v0.3.0 connected.");
+        // console.log("[MCP Server] InternalAsyncTerminal Server v0.3.0 connected."); // Already commented
     } catch (error) {
-        console.error("[MCP Server] Failed to start MCP Commit Server:", error);
+        // console.error("[MCP Server] Failed to start MCP Commit Server:", error); // Commented to prevent JSON-RPC pollution
         process.exit(1);
     }
 }
@@ -333,15 +329,14 @@ async function startServer() {
 startServer();
 
 process.on('uncaughtException', (error) => {
-    console.error('[MCP Server] Uncaught Exception:', error);
+    // console.error('[MCP Server] Uncaught Exception:', error); // Commented to prevent JSON-RPC pollution
     // Decide if the server should exit. For robustness, maybe not.
     // process.exit(1); // Optional: exit on uncaught exceptions
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('[MCP Server] Unhandled Rejection at:', promise, 'reason:', reason);
-    // Decide if the server should exit. For robustness, maybe not.
-    // process.exit(1); // Optional: exit on unhandled rejections
+    // console.error('[MCP Server] Unhandled Rejection at:', promise, 'reason:', reason); // Commented to prevent JSON-RPC pollution
+    // You could log this to a file instead of console if needed
 });
 
 // Initial message to stdout indicates server is ready (removed to avoid JSON parse error)
