@@ -151,6 +151,9 @@ def display_sidebar():
                 use_container_width=True,
                 type="secondary"
             ):
+                # Set navigation debounce timestamp to prevent auto-refresh interference
+                st.session_state.last_navigation_interaction = datetime.now()
+                
                 # Intelligent navigation logic
                 if messages_count > 0:
                     # Priority to messages if they exist
@@ -159,8 +162,12 @@ def display_sidebar():
                     # Otherwise go to review tasks
                     st.session_state.active_tab = "review"
                 else:
-                    # Fallback to add request tab
-                    st.session_state.active_tab = "add"
+                    # Fallback to main tab
+                    st.session_state.active_tab = "main"
+                
+                # Add a brief delay to ensure state is processed
+                import time
+                time.sleep(0.1)
                 
                 # Navigate to the main page (Review & Communication)
                 st.switch_page("app.py")
@@ -310,30 +317,39 @@ def display_sidebar():
                                 help="Actualise automatiquement les données toutes les 2 secondes")
         
         if enable_auto:
-            st.success("✅ Actualisation automatique activée (2 secondes)")
+            # Check if navigation debouncing is active
+            navigation_debounce_active = False
+            if 'last_navigation_interaction' in st.session_state and st.session_state.last_navigation_interaction is not None:
+                time_since_interaction = (datetime.now() - st.session_state.last_navigation_interaction).total_seconds()
+                navigation_debounce_active = time_since_interaction < 3
             
-            # Auto-refresh configuré pour 2 secondes comme demandé
-            try:
-                refresh_count = st_autorefresh(interval=2000, limit=None, key="auto_refresh_2s")
+            if navigation_debounce_active:
+                st.info("🔄 Auto-refresh pausé pendant interaction navigation")
+            else:
+                st.success("✅ Actualisation automatique activée (2 secondes)")
                 
-                if refresh_count > 0:
-                    st.caption(f"🔄 Auto-refresh: {refresh_count} cycles")
-                    # Update manual refresh timestamp when auto-refresh works
-                    st.session_state.last_manual_refresh = datetime.now()
+                # Auto-refresh configuré pour 2 secondes comme demandé
+                try:
+                    refresh_count = st_autorefresh(interval=2000, limit=None, key="auto_refresh_2s")
                     
-                    # Force session state update
-                    if 'last_auto_refresh_count' not in st.session_state:
-                        st.session_state.last_auto_refresh_count = 0
+                    if refresh_count > 0:
+                        st.caption(f"🔄 Auto-refresh: {refresh_count} cycles")
+                        # Update manual refresh timestamp when auto-refresh works
+                        st.session_state.last_manual_refresh = datetime.now()
                         
-                    if refresh_count != st.session_state.last_auto_refresh_count:
-                        st.session_state.last_auto_refresh_count = refresh_count
-                        # Clear any cached data
-                        if hasattr(st, 'cache_data'):
-                            st.cache_data.clear()
+                        # Force session state update
+                        if 'last_auto_refresh_count' not in st.session_state:
+                            st.session_state.last_auto_refresh_count = 0
                             
-            except Exception as e:
-                st.error(f"❌ Auto-refresh échoué: {str(e)}")
-                st.info("💡 Utilisez le bouton de refresh manuel ci-dessus")
+                        if refresh_count != st.session_state.last_auto_refresh_count:
+                            st.session_state.last_auto_refresh_count = refresh_count
+                            # Clear any cached data
+                            if hasattr(st, 'cache_data'):
+                                st.cache_data.clear()
+                            
+                except Exception as e:
+                    st.error(f"❌ Auto-refresh échoué: {str(e)}")
+                    st.info("💡 Utilisez le bouton de refresh manuel ci-dessus")
         else:
             st.info("⏸️ Actualisation automatique désactivée - utilisez le bouton manuel ci-dessus")
         

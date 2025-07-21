@@ -45,6 +45,17 @@ def main():
     if 'seen_present_memories' not in st.session_state:
         st.session_state.seen_present_memories = set()
 
+    # Initialize debouncing for navigation interactions
+    if 'last_navigation_interaction' not in st.session_state:
+        st.session_state.last_navigation_interaction = None
+    
+    # Check if we're in a navigation debounce period (3 seconds after last interaction)
+    current_time = datetime.now()
+    navigation_debounce_active = (
+        st.session_state.last_navigation_interaction is not None and 
+        (current_time - st.session_state.last_navigation_interaction).total_seconds() < 3
+    )
+
     # Apply enhanced toast styles for better notifications appearance (legacy support)
     memory_ui_components._apply_enhanced_toast_styles()
     
@@ -97,6 +108,9 @@ def main():
     except (ValueError, KeyError):
         default_index = 0 # Default to first tab if key is invalid
 
+    # Store the previous tab to detect changes
+    previous_tab = st.session_state.active_tab
+
     selected_label = st.radio(
         "Navigation", 
         options=tab_labels, 
@@ -107,6 +121,14 @@ def main():
     
     # Update session state with the key of the selected tab
     selected_key = tab_keys[tab_labels.index(selected_label)]
+    
+    # Detect navigation interaction and update debounce timestamp
+    if selected_key != previous_tab:
+        st.session_state.last_navigation_interaction = current_time
+        # Add a slight delay to ensure the interaction is processed
+        import time
+        time.sleep(0.1)
+    
     st.session_state.active_tab = selected_key
 
     # Reduce spacing after radio buttons and between sections with enhanced CSS
@@ -127,6 +149,28 @@ def main():
     div[data-testid="stRadio"] + div h3 {
         margin-top: -15px !important;
         padding-top: 5px !important;
+    }
+    /* Enhanced radio button responsiveness */
+    div[data-testid="stRadio"] label {
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+        padding: 8px 12px !important;
+        border-radius: 6px !important;
+    }
+    div[data-testid="stRadio"] label:hover {
+        background-color: rgba(0, 0, 0, 0.05) !important;
+        transform: scale(1.02) !important;
+    }
+    div[data-testid="stRadio"] label:active {
+        transform: scale(0.98) !important;
+        background-color: rgba(0, 0, 0, 0.1) !important;
+    }
+    /* Prevent double-click text selection */
+    div[data-testid="stRadio"] label {
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
     }
     </style>
     """, unsafe_allow_html=True)
