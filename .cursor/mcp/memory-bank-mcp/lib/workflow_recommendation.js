@@ -6,6 +6,28 @@
 
 import { readUserbrief } from './userbrief_manager.js';
 import { readTasks } from './task_manager.js';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/**
+ * Load workflow mode from workflow_state.json
+ * @returns {string} - The current workflow mode ('infinite' or 'task_by_task')
+ */
+async function loadWorkflowMode() {
+    try {
+        const workflowStateFile = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'workflow_state.json');
+        const workflowStateData = await fs.readFile(workflowStateFile, 'utf8');
+        const workflowState = JSON.parse(workflowStateData);
+        return workflowState.mode || 'infinite'; // Default to infinite if mode is not specified
+    } catch (error) {
+        // If file doesn't exist or is corrupted, default to infinite mode
+        return 'infinite';
+    }
+}
 
 /**
  * Get possible next steps based on current system state
@@ -106,8 +128,41 @@ export async function getRecommendedNextStep(lastStep, possibleSteps, tasks = nu
  * @returns {Promise<string>} Recommended next step
  */
 async function getRecommendedStepLogic(lastStep, possibleSteps, tasks = null) {
+    // CRITICAL: Check workflow mode for task-by-task stopping logic
+    const workflowMode = await loadWorkflowMode();
+
+    // In task-by-task mode, check if we should stop at context-update
+    if (workflowMode === 'task_by_task') {
+        // Load userbrief and tasks to determine if we should continue or stop
+        let userbrief, tasksData;
+        try {
+            userbrief = await readUserbrief();
+            tasksData = tasks || await readTasks();
+        } catch (error) {
+            // If we can't load data, default to continuing with available steps
+            userbrief = { requests: [] };
+            tasksData = [];
+        }
+
+        // Check the specific conditions for stopping in task-by-task mode:
+        // 1. No unprocessed user requests (all should be archived)
+        // 2. No active tasks (TODO, IN_PROGRESS, BLOCKED)
+        // 3. We are at a natural stopping point
+
+        const hasUnprocessedRequests = userbrief && userbrief.requests &&
+            userbrief.requests.some(r => r.status === 'new' || r.status === 'in_progress');
+
+        const hasActiveTasks = tasksData && tasksData.some(t =>
+            t.status === 'TODO' || t.status === 'IN_PROGRESS' || t.status === 'BLOCKED');
+
+        // If we have no pending work and we're being asked for context-update, allow stopping
+        if (!hasUnprocessedRequests && !hasActiveTasks && possibleSteps.includes('context-update')) {
+            return 'context-update'; // This will trigger the stopping logic in remember.js
+        }
+    }
+
     // CRITICAL FIX: Prevent context-update loops
-    // Rule: context-update can NEVER be followed by context-update
+    // Rule: context-update can NEVER be followed by context-update (except in task-by-task stopping case)
     if (lastStep === 'context-update') {
         // Coming from context-update, we need to determine the next step based on system state
 

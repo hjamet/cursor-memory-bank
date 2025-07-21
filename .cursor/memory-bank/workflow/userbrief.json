@@ -1,27 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 282,
+  "last_id": 283,
   "requests": [
-    {
-      "id": 233,
-      "content": "Tu peux vérifier das le détails que l'outil remember retourne bien les recommandations de règle suivante selon le schéma suivant :\n\nstart \n-> task-decomposition si il y a des requetes userbrief non traitées\n-> implementation si il y a des tâches non traitées\n\ntask-decomposition\n-> task-decomposition si il reste des userbrief non traités\n-> implementation\n\nimplementation\n-> experience-execution\n\nexperience-execution\n-> context-udpate si l'experience est une réussite\n-> fix si l'experience est un echec\n\nfix\n-> experience-execution\n\ncontext-update\n-> task-decomposition si il y a des requetes userbrief non traitées\n-> implementation si il y a des tâches non traitées\n\nSauvegarde bien ce schéma et documente le dans le RAEDME. Puis vérifie dans le détails si les outils remeber et next-rule le suivent bien !",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-01T17:20:15.323631",
-      "updated_at": "2025-07-01T15:21:38.073Z",
-      "history": [
-        {
-          "timestamp": "2025-07-01T17:20:15.323631",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-01T15:21:38.073Z",
-          "action": "mark_archived",
-          "comment": "Request has been decomposed into task #286."
-        }
-      ]
-    },
     {
       "id": 234,
       "content": "Je souhaite que tu améliores l'outil regex_edit.\n1. Renomme le on_edit_fail\n2. L'outil ne devrait plus utiliser de regex. Au cntraire, il devrait désormais prendre 4 arguments :\n- le chemin relatif vers le fichier (déjà implémneté)\n- La chaine de départ\n- La chaine de fin\n- la chaine de remplacement\n\nL'outil doit remplacer tout ce qu'il y a entre la chaine de départ et la chaine de fin (en les incluant) dans le fichier spécifié par la chaine de remplacement. Il doit retourner :\n- succès si le remplacement est un succès\n- echec et le contenu actuel du fichier actuel si le remplacement est un échec (en général car la chaine de début ou de fin n'a pas été trouvé dans le fichier).\n\nTu dois mettre à jour la description des arguments pour expliquer ce comprotement.\n\nExemple :\n\nContenu de test.md\n\nCoucou, ceci est un test d'exemple\n\non_edit_fail(\"test.md\", \"Coucou, \", \"un test\", \"machin\") -> \"machin d'exemple\"",
@@ -975,6 +955,25 @@
         },
         {
           "timestamp": "2025-07-21T13:23:50.748Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 283,
+      "content": "Modification request for Task #333 (Ré-investigation et correction alternative de l'auto-refresh Streamlit défaillant):\n\n**Original Task Details:**\n- **Title:** Ré-investigation et correction alternative de l'auto-refresh Streamlit défaillant\n- **Description:** Résoudre définitivement le problème d'auto-refresh Streamlit par une approche alternative après échec des corrections précédentes. L'utilisateur confirme que malgré les implémentations techniques (streamlit-autorefresh, diagnostics, force rerun), l'auto-refresh ne fonctionne toujours pas en conditions réelles d'usage.\n- **Status:** REVIEW\n- **Priority:** 5\n\n**Detailed Task Description:**\n**Contexte Critique :**\nL'utilisateur a signalé que malgré les améliorations récentes de la tâche #331 (implémentation streamlit-autorefresh, diagnostics avancés, force rerun), l'auto-refresh de l'interface Streamlit ne fonctionne toujours pas en pratique. Il y a un écart critique entre les tests techniques (qui passent) et l'expérience utilisateur réelle.\n\n**Problème à Résoudre :**\n- L'auto-refresh toutes les 2 secondes ne fonctionne pas visuellement pour l'utilisateur\n- Les changements de tâches, requêtes et état système ne s'affichent pas en temps réel\n- L'utilisateur doit rafraîchir manuellement pour voir les mises à jour\n- Les solutions précédentes (streamlit-autorefresh, session state, cache clearing) sont techniquement correctes mais inefficaces\n\n**Objectifs de cette Nouvelle Approche :**\n\n1. **Investigation Alternative Approfondie :**\n   - Tester l'auto-refresh en conditions réelles d'usage (pas seulement technique)\n   - Identifier pourquoi streamlit-autorefresh ne fonctionne pas visuellement pour l'utilisateur\n   - Analyser les différences entre environnement de test et environnement utilisateur\n   - Examiner les logs Streamlit en cours d'exécution réelle\n\n2. **Approches Alternatives à Explorer :**\n   - **Méthode 1** : Remplacer streamlit-autorefresh par un système de rechargement manuel plus visible\n   - **Méthode 2** : Implémenter un auto-refresh natif avec `st.rerun()` et timer JavaScript custom\n   - **Méthode 3** : Système de polling avec bouton de refresh manuel et indicateur de statut\n   - **Méthode 4** : WebSocket ou Server-Sent Events pour push temps réel\n   - **Méthode 5** : Mécanisme de détection de changements avec notification push\n\n3. **Validation Utilisateur Réelle :**\n   - Tests en environnement utilisateur réel (pas seulement démarrage technique)\n   - Validation que l'utilisateur voit effectivement les changements sans refresh manuel\n   - Interface de feedback pour confirmation du fonctionnement\n\n4. **Solution de Fallback :**\n   - Si auto-refresh impossible, créer un système de refresh manuel optimisé\n   - Bouton de refresh visible avec indication des dernières mises à jour\n   - Notifications visuelles quand de nouvelles données sont disponibles\n\n**Analyse Technique & Points de Vigilance :**\n\n⚠️ **Root Cause Analysis Critique :**\n- **Environment Gap** : L'auto-refresh peut fonctionner en développement mais pas en production\n- **Browser Specific Issues** : Problèmes avec certains navigateurs ou configurations\n- **Network/Firewall Issues** : Blocage des WebSockets ou polling par infrastructure réseau\n- **Streamlit Version Conflicts** : Incompatibilités entre versions Streamlit et streamlit-autorefresh\n- **Session Timeout** : Auto-refresh qui s'arrête après timeout de session\n\n⚠️ **Investigation Technique Required :**\n- **Real User Environment Testing** : Tests dans l'environnement exact de l'utilisateur\n- **Browser Console Analysis** : Vérification des erreurs JavaScript côté client\n- **Network Traffic Analysis** : Monitoring des requêtes auto-refresh réelles\n- **Streamlit Logs Deep Dive** : Analyse des logs pendant l'usage réel (pas juste le démarrage)\n- **Alternative Library Testing** : Test d'autres solutions d'auto-refresh (st.experimental_rerun, custom JS)\n\n⚠️ **Stratégies de Contournement :**\n- **Manual Refresh with UX** : Si auto-refresh impossible, améliorer l'expérience de refresh manuel\n- **Status Indicators** : Indicateurs visuels de dernière mise à jour et disponibilité nouvelles données\n- **Notification System** : Alertes utilisateur quand refresh nécessaire\n- **Partial Auto-refresh** : Auto-refresh seulement sur les sections critiques\n- **Progressive Enhancement** : Fonctionnement sans auto-refresh + amélioration progressive\n\n⚠️ **Zones d'Investigation Prioritaires :**\n- **User Environment** : Configuration exacte navigateur/OS utilisateur\n- **Network Environment** : Firewall, proxy, restrictions réseau\n- **Streamlit Configuration** : Paramètres serveur, timeout, configuration session\n- **Browser Compatibility** : Test sur navigateur utilisateur spécifique\n- **Real Usage Patterns** : Comment l'utilisateur utilise réellement l'interface\n\n**Validation Criteria:**\nLa tâche est réellement terminée quand :\n1. L'utilisateur confirme explicitement que l'auto-refresh fonctionne dans son environnement réel\n2. Tests de validation en conditions d'usage réel (pas seulement technique) passent\n3. L'interface se met à jour visuellement toutes les 2 secondes sans intervention manuelle\n4. Solution de fallback fonctionnelle si auto-refresh technique impossible\n5. Documentation des vraies causes du problème et solution implémentée\n6. Feedback utilisateur positif confirmant la résolution effective du problème\n\n**Validation Criteria:**\n1. L'utilisateur confirme explicitement que l'auto-refresh fonctionne dans son environnement réel\n2. Tests de validation en conditions d'usage réel (pas seulement technique) réussis\n3. L'interface se met à jour visuellement toutes les 2 secondes sans intervention utilisateur\n4. Solution de fallback opérationnelle si auto-refresh technique impossible\n5. Documentation des vraies causes racines et solution finale implémentée\n6. Feedback utilisateur positif confirmant résolution effective\n\n**User Feedback:**\nSupprime tous ces indicateurs de rafraîchissement et par contre corrigent le problème sous jacent qui est toujours présent, qui est que l'interface ne s'actualise pas automatiquement alors qu'il est censé s'actualiser automatiquement toutes les 2 secondes.\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T15:30:42.042144",
+      "updated_at": "2025-07-21T13:33:45.391Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T15:30:42.042144",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T13:33:45.391Z",
           "action": "mark_archived"
         }
       ]
