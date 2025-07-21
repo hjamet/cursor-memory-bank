@@ -9,6 +9,7 @@ import { UserMessageManager } from '../lib/user_message_manager.js';
 import { getPossibleNextSteps, getRecommendedNextStep } from '../lib/workflow_recommendation.js';
 import { loadUserPreferencesForRemember } from './utils.js';
 import { readUserMessages, getPendingMessages, markMessageAsConsumed, cleanupConsumedMessages } from '../lib/user_message_storage.js';
+import { resetTransitionCounter } from '../lib/workflow_safety.js';
 
 /**
  * Load workflow mode from workflow_state.json

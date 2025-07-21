@@ -1,45 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 286,
+  "last_id": 288,
   "requests": [
-    {
-      "id": 236,
-      "content": "Modification request for Task #287 (Create MCP Tool: replace_content_between):\n\n**Original Task Details:**\n- **Title:** Create MCP Tool: replace_content_between\n- **Description:** Create a new, robust MCP tool to replace text content between a start and end marker, replacing the old `regex_edit` tool.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\nThis task involves creating a new MCP tool to replace content between two string markers in a file. This tool will replace the old, less reliable `regex_edit` tool.\\n\\n**Implementation Plan:**\\n1.  **Create a new tool file:** The tool will be implemented in a new file, likely at `.cursor/mcp/tools-mcp/tools/replace_content.js`.\\n2.  **Define the Tool:** The tool will be named `replace_content_between`.\\n3.  **Arguments:** It will accept four arguments:\\n    *   `target_file`: The relative path to the file.\\n    *   `start_marker`: The string that marks the beginning of the content to replace.\\n    *   `end_marker`: The string that marks the end of the content to replace.\\n    *   `replacement_content`: The new string to insert.\\n4.  **Logic:**\\n    *   Read the content of `target_file`.\\n    *   Find the index of the first occurrence of `start_marker`.\\n    *   From that point, find the index of the first occurrence of `end_marker`.\\n    *   If both are found, replace the entire block (from the start of `start_marker` to the end of `end_marker`) with `replacement_content`.\\n    *   Write the new content back to the file.\\n    *   Return a success message.\\n5.  **Error Handling:**\\n    *   If `start_marker` or `end_marker` are not found in the correct order, the tool must not modify the file.\\n    *   It should return an error object containing a clear failure message and the original content of the file, as requested.\\n\\n**Analyse Critique & Points de Vigilance:**\\n*   **Tool Naming:** The user's suggested name (`on_edit_fail`) is misleading. `replace_content_between` will be used instead for clarity and maintainability.\\n*   **Scope Ambiguity:** The request does not specify behavior for multiple occurrences of the markers. This implementation will only target the **first** valid start/end pair to ensure predictable behavior. This limitation must be clearly documented in the tool's description.\\n*   **Performance:** Returning the entire file content on failure is per the user's request, but it's a potential performance risk for very large files. This should be re-evaluated if performance issues arise.\\n*   **Atomicity:** The implementation must be atomic. No partial replacements should occur if only one of the two markers is found.\n\n**Validation Criteria:**\n1. The new tool `replace_content_between` is available via the ToolsMCP server.\\n2. The tool correctly replaces content between the specified start and end markers in a file.\\n3. If the start or end markers are not found, the tool returns an error and the original file content without modifying the file.\\n4. The tool's description and argument help are clear and accurate.\\n5. The old `regex_edit` tool is either removed or deprecated.\n\n**User Feedback:**\nIl y a un gros souci, l'outil replace_content_between n'est pas déclaré correctement : actuellement, il n'a aucun argument enregistré. regarde comment sont enregistré les autres outils qui fonctionnent parfaitement et reproduit leur comportement pour la déclaration de l'outil \"replace_content_between\".\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-01T17:43:19.460778",
-      "updated_at": "2025-07-01T15:46:25.570Z",
-      "history": [
-        {
-          "timestamp": "2025-07-01T17:43:19.460778",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-01T15:46:25.570Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 237,
-      "content": "Modification request for Task #289 (Corriger la déclaration MCP de l'outil replace_content_between):\n\n**Original Task Details:**\n- **Title:** Corriger la déclaration MCP de l'outil replace_content_between\n- **Description:** L'outil replace_content_between n'a aucun argument enregistré dans sa déclaration MCP, le rendant inutilisable. Cette régression critique doit être corrigée immédiatement pour restaurer la fonctionnalité de l'outil.\n- **Status:** REVIEW\n- **Priority:** 5\n\n**Detailed Task Description:**\nL'utilisateur a signalé un problème critique avec l'outil `replace_content_between` : il n'a aucun argument enregistré dans sa déclaration MCP, ce qui le rend complètement inutilisable.\n\n**Objectif :**\nCorriger la déclaration MCP de l'outil `replace_content_between` pour qu'il ait tous ses arguments correctement enregistrés et soit fonctionnel.\n\n**Plan d'Action :**\n1. **Audit de la déclaration actuelle** : Examiner le fichier `server.js` du serveur ToolsMCP pour identifier le problème de déclaration\n2. **Comparaison avec les outils fonctionnels** : Analyser comment les autres outils MCP sont correctement déclarés (ex: `execute_command`, `consult_image`, etc.)\n3. **Correction de la déclaration** : Ajouter la déclaration complète des arguments de l'outil `replace_content_between`\n4. **Validation de la structure** : S'assurer que la déclaration suit exactement le même pattern que les outils fonctionnels\n5. **Test de fonctionnalité** : Vérifier que l'outil est maintenant accessible avec tous ses arguments\n\n**Arguments requis pour l'outil :**\n- `target_file` : Chemin relatif vers le fichier à modifier\n- `start_marker` : Marqueur de début du contenu à remplacer\n- `end_marker` : Marqueur de fin du contenu à remplacer  \n- `replacement_content` : Nouveau contenu à insérer\n\n**Analyse Critique & Points de Vigilance :**\n\n**PROBLÈME ARCHITECTURAL MAJEUR** : Cette défaillance révèle une faille dans notre processus de validation des outils MCP. Comment un outil sans arguments a-t-il pu passer en statut REVIEW ?\n\n**RISQUES IDENTIFIÉS :**\n- **Régression silencieuse** : D'autres outils MCP pourraient avoir des déclarations défaillantes similaires\n- **Processus de test insuffisant** : Nos validations ne détectent pas les erreurs de déclaration MCP\n- **Dépendance du redémarrage serveur** : Cette correction nécessitera probablement un redémarrage du serveur MCP\n- **Impact sur le workflow autonome** : L'outil défaillant peut casser des tâches automatisées\n- **Fragilité de l'architecture MCP** : La déclaration d'outils semble être un point de défaillance récurrent\n\n**STRATÉGIES D'ATTÉNUATION :**\n- Audit systématique de tous les outils MCP pour détecter d'autres déclarations défaillantes\n- Mise en place de tests automatisés pour valider la déclaration des outils\n- Documentation des patterns de déclaration MCP pour éviter les régressions futures\n- Processus de validation renforcé avant le passage en REVIEW\n\n**ATTENTION CRITIQUE** : Cette tâche est bloquante pour le bon fonctionnement du système. Elle doit être traitée en priorité absolue.\n\n**Validation Criteria:**\n1. L'outil `replace_content_between` est correctement déclaré dans le serveur MCP avec tous ses arguments (target_file, start_marker, end_marker, replacement_content)\n2. La déclaration suit exactement le même pattern que les autres outils fonctionnels du serveur\n3. L'outil est accessible via les appels MCP et accepte tous ses arguments requis\n4. Un test fonctionnel confirme que l'outil peut être invoqué avec succès\n5. Aucune régression n'est introduite sur les autres outils MCP existants\n\n**User Feedback:**\nJe viens de redémarrer le serveur MCP. Tu peux tester le bon fonctionnement de l'outil et le corriger si besoin ? :D\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-01T18:04:42.829910",
-      "updated_at": "2025-07-01T16:07:34.821Z",
-      "history": [
-        {
-          "timestamp": "2025-07-01T18:04:42.829910",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-01T16:07:34.821Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 238,
       "content": "La règle Task décomposition contient énormément de d'instructions amenant l'agent à être très critique. Ça doit pas du tout spécialement être le cas. Il faudrait que tu modifie le fichier Markdown de cette règle pour qu'elle soit simplement efficace qu'elle décompose en tâche les requêtes user brief. Sans être particulièrement critique, alors ne précise pas à l'agent qui ne doit pas être critique mais supprime tous les trucs qui lui disent de spécifiquement être critiques. En gros, son travail c'est simplement de prendre une requête over brief et de la transformer en tâche. Il faudrait aussi que tu précises que si dans une requête user bref. Il y a plusieurs grandes tâches qui sont identifiées, qui sont clairement des travaux différents, la même s'ils sont présentés sous un seul texte, et Ben à ce moment-là, la règle Task décomposition devrait créer plusieurs tâches pour s'être qu'user Brice au lieu de une seule qui fait plusieurs choses qui n'ont rien à voir.",
@@ -972,6 +934,44 @@
         },
         {
           "timestamp": "2025-07-21T14:15:31.161Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 287,
+      "content": "Tu peux corriger cette erreur qui a parfois  lieu lors de l'appel à l'outil remember : resetTransitionCounter is not defined",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T16:19:06.160786",
+      "updated_at": "2025-07-21T14:22:58.991Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T16:19:06.160786",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T14:22:58.991Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 288,
+      "content": "Modification request for Task #337 (Diagnostiquer et corriger l'actualisation automatique Streamlit (2 secondes)):\n\n**Original Task Details:**\n- **Title:** Diagnostiquer et corriger l'actualisation automatique Streamlit (2 secondes)\n- **Description:** Analyser et résoudre le problème d'actualisation automatique toutes les 2 secondes de l'interface Streamlit qui ne fonctionne plus selon l'utilisateur.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\n**Objectif :**\nDiagnostiquer et corriger le dysfonctionnement de l'actualisation automatique toutes les 2 secondes dans l'interface Streamlit.\n\n**Analyse de la requête utilisateur :**\nL'utilisateur rapporte que l'actualisation automatique toutes les 2 secondes ne fonctionne toujours pas. Ceci suggère qu'il y a eu des tentatives précédentes pour implémenter cette fonctionnalité.\n\n**Tâches techniques à effectuer :**\n\n1. **Investigation de l'état actuel :**\n   - Examiner le code Streamlit actuel dans `.cursor/streamlit_app/`\n   - Identifier si une implémentation d'auto-refresh existe déjà\n   - Analyser les imports et dépendances liées à l'auto-refresh\n\n2. **Diagnostic du problème :**\n   - Vérifier la présence de la bibliothèque `streamlit-autorefresh`\n   - Analyser la configuration actuelle de l'auto-refresh\n   - Identifier les points de défaillance potentiels\n\n3. **Correction et implémentation :**\n   - Implémenter ou corriger le mécanisme d'auto-refresh\n   - Configurer l'intervalle de 2 secondes comme demandé\n   - S'assurer de la compatibilité avec l'architecture existante\n\n**Analyse Technique & Points de Vigilance :**\n\n**Attention - Contexte récent :** Les mémoires récentes indiquent qu'un nettoyage majeur de l'interface Streamlit a été effectué (tâche #336) avec suppression d'éléments informationnels. Il est possible que l'auto-refresh ait été affecté lors de ce nettoyage.\n\n**Attention - Documentation README :** Le README mentionne que l'auto-refresh était un problème connu qui a été \"résolu\" avec une solution hybride incluant un système manuel + auto-refresh expérimental. Il faut vérifier si cette implémentation est effective.\n\n**Attention - Dépendances :** L'auto-refresh nécessite la bibliothèque `streamlit-autorefresh` qui peut ne pas être installée ou configurée correctement.\n\n**Attention - Performance :** Un refresh toutes les 2 secondes peut impacter les performances. Prévoir une logique pour éviter les refreshs excessifs si l'utilisateur interagit avec l'interface.\n\n**Attention - Compatibilité :** S'assurer que l'auto-refresh n'interfère pas avec l'état des composants Streamlit ou les sessions utilisateur.\n\n**Critères de validation :**\n- L'interface Streamlit se rafraîchit automatiquement toutes les 2 secondes\n- L'auto-refresh fonctionne sur toutes les pages de l'application\n- Aucune régression sur la fonctionnalité existante\n- Test de performance acceptable (pas de lag excessif)\n- Interface utilisateur claire sur l'état de l'auto-refresh\n\n**Validation Criteria:**\nLa tâche est terminée quand : (1) L'auto-refresh fonctionne effectivement toutes les 2 secondes, (2) Tests manuels confirmés sur toutes les pages Streamlit, (3) Aucune régression détectée sur les fonctionnalités existantes, (4) Performance acceptable sans lag excessif, (5) Interface utilisateur claire sur le statut auto-refresh.\n\n**User Feedback:**\nNon... Le rafraichissement automatique ne fonctionne toujours pas... Tu peux t'en assurer en utilisant l'outil MCP Playwright : Ajoute un timer sur la page principale et consulte la page. Heu Pour vérifier si le timer s'incrémente automatiquement et tu verras que ce n'est pas le cas. Continue d'essayer de résoudre ce soucis jusqu'à ce ce test manuel de consultation manuel via le MCP playwright fonctionne !\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T16:21:30.955566",
+      "updated_at": "2025-07-21T14:26:30.753Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T16:21:30.955566",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T14:26:30.753Z",
           "action": "mark_archived"
         }
       ]

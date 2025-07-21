@@ -34,6 +34,17 @@ display_sidebar()
 st.markdown("# 📨 Review & Communication")
 st.markdown("Review tasks awaiting validation and view messages from the agent.")
 
+# Add timer for auto-refresh testing
+if 'page_timer_start' not in st.session_state:
+    st.session_state.page_timer_start = datetime.now()
+
+# Calculate elapsed time since page load
+elapsed_time = (datetime.now() - st.session_state.page_timer_start).total_seconds()
+timer_container = st.container()
+with timer_container:
+    st.info(f"⏱️ **Auto-refresh Test Timer**: {elapsed_time:.1f} seconds elapsed since page load")
+    st.caption("This timer validates that auto-refresh is working - it should increment automatically every 2 seconds")
+
 
 def main():
     """Main function to render the review page"""
