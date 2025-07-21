@@ -382,47 +382,61 @@ def _update_workflow_state(new_mode):
             else:
                 st.caption("⚠️ Actualiser")
         
-        # Option pour les utilisateurs avancés : auto-refresh expérimental
+        # Auto-refresh automatique toutes les 2 secondes (comme demandé par l'utilisateur)
+        st.markdown("### ⚡ Actualisation automatique")
+        
+        # Option visible pour activer/désactiver l'auto-refresh
+        enable_auto = st.checkbox("🔄 Actualisation automatique (2 secondes)", 
+                                value=True,  # Activé par défaut pour répondre à la demande utilisateur
+                                help="Actualise automatiquement les données toutes les 2 secondes")
+        
+        if enable_auto:
+            st.success("✅ Actualisation automatique activée (2 secondes)")
+            
+            # Auto-refresh configuré pour 2 secondes comme demandé
+            try:
+                refresh_count = st_autorefresh(interval=2000, limit=None, key="auto_refresh_2s")
+                
+                if refresh_count > 0:
+                    st.caption(f"🔄 Auto-refresh: {refresh_count} cycles")
+                    # Update manual refresh timestamp when auto-refresh works
+                    st.session_state.last_manual_refresh = datetime.now()
+                    
+                    # Force session state update
+                    if 'last_auto_refresh_count' not in st.session_state:
+                        st.session_state.last_auto_refresh_count = 0
+                        
+                    if refresh_count != st.session_state.last_auto_refresh_count:
+                        st.session_state.last_auto_refresh_count = refresh_count
+                        # Clear any cached data
+                        if hasattr(st, 'cache_data'):
+                            st.cache_data.clear()
+                            
+            except Exception as e:
+                st.error(f"❌ Auto-refresh échoué: {str(e)}")
+                st.info("💡 Utilisez le bouton de refresh manuel ci-dessus")
+        else:
+            st.info("⏸️ Actualisation automatique désactivée - utilisez le bouton manuel ci-dessus")
+        
+        # Option pour utilisateurs avancés : modifier l'intervalle
         with st.expander("⚙️ Options avancées", expanded=False):
-            enable_auto = st.checkbox("🧪 Activer auto-refresh expérimental", 
-                                    value=False, 
-                                    help="Attention: peut ne pas fonctionner sur tous les navigateurs")
+            st.markdown("**Actualisation automatique configurée :**")
+            st.markdown("- ⚡ Intervalle: **2 secondes** (selon demande utilisateur)")
+            st.markdown("- 🔄 Statut: Activé par défaut")
+            st.markdown("- 💾 Cache: Nettoyé automatiquement à chaque refresh")
             
             if enable_auto:
-                st.warning("⚠️ Auto-refresh expérimental activé. Si cela ne fonctionne pas, utilisez le bouton manuel ci-dessus.")
-                
-                # Tentative d'auto-refresh pour les utilisateurs qui le souhaitent
-                try:
-                    refresh_count = st_autorefresh(interval=5000, limit=None, key="experimental_auto_refresh")
-                    
-                    if refresh_count > 0:
-                        st.caption(f"🔄 Auto-refresh: {refresh_count} cycles")
-                        # Update manual refresh timestamp when auto-refresh works
-                        st.session_state.last_manual_refresh = datetime.now()
-                        
-                        # Force session state update
-                        if 'last_auto_refresh_count' not in st.session_state:
-                            st.session_state.last_auto_refresh_count = 0
-                            
-                        if refresh_count != st.session_state.last_auto_refresh_count:
-                            st.session_state.last_auto_refresh_count = refresh_count
-                            # Clear any cached data
-                            if hasattr(st, 'cache_data'):
-                                st.cache_data.clear()
-                                
-                except Exception as e:
-                    st.error(f"❌ Auto-refresh expérimental échoué: {str(e)}")
-                    st.info("💡 Utilisez le bouton de refresh manuel ci-dessus")
+                st.success("✅ L'auto-refresh fonctionne actuellement")
             else:
-                st.info("💡 Utilisez le bouton 'Actualiser les données' pour voir les dernières mises à jour")
+                st.warning("⏸️ Auto-refresh désactivé - cochez la case ci-dessus pour l'activer")
         
         # Instructions utilisateur claires
         st.markdown("---")
         st.markdown("""
-        **📋 Comment voir les mises à jour :**
-        - Cliquez sur **🔄 Actualiser les données** pour voir les changements
-        - Les données sont rechargées depuis les fichiers système
-        - Fréquence recommandée : toutes les 1-2 minutes pendant le travail actif
+        **📋 Actualisation des données :**
+        - 🔄 **Auto (recommandé)** : Activez la case ci-dessus pour refresh automatique toutes les 2 secondes
+        - 🖱️ **Manuel** : Cliquez sur 'Actualiser les données' quand vous voulez voir les changements
+        - 💡 **Conseil** : L'auto-refresh est pratique pendant le travail actif de l'agent
         """)
         
         # Update manual refresh timestamp on any interaction

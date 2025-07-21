@@ -1,47 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 283,
+  "last_id": 286,
   "requests": [
-    {
-      "id": 234,
-      "content": "Je souhaite que tu améliores l'outil regex_edit.\n1. Renomme le on_edit_fail\n2. L'outil ne devrait plus utiliser de regex. Au cntraire, il devrait désormais prendre 4 arguments :\n- le chemin relatif vers le fichier (déjà implémneté)\n- La chaine de départ\n- La chaine de fin\n- la chaine de remplacement\n\nL'outil doit remplacer tout ce qu'il y a entre la chaine de départ et la chaine de fin (en les incluant) dans le fichier spécifié par la chaine de remplacement. Il doit retourner :\n- succès si le remplacement est un succès\n- echec et le contenu actuel du fichier actuel si le remplacement est un échec (en général car la chaine de début ou de fin n'a pas été trouvé dans le fichier).\n\nTu dois mettre à jour la description des arguments pour expliquer ce comprotement.\n\nExemple :\n\nContenu de test.md\n\nCoucou, ceci est un test d'exemple\n\non_edit_fail(\"test.md\", \"Coucou, \", \"un test\", \"machin\") -> \"machin d'exemple\"",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-01T17:33:22.602293",
-      "updated_at": "2025-07-01T15:34:27.362Z",
-      "history": [
-        {
-          "timestamp": "2025-07-01T17:33:22.602293",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-01T15:34:27.362Z",
-          "action": "mark_archived",
-          "comment": "This request has been decomposed into task #287."
-        }
-      ]
-    },
-    {
-      "id": 235,
-      "content": "Modification request for Task #286 (Audit, Document, and Align Core Workflow Logic):\n\n**Original Task Details:**\n- **Title:** Audit, Document, and Align Core Workflow Logic\n- **Description:** Audit, document, and align the agent's workflow logic. This involves analyzing the current implementation against a user-provided schema, documenting the final logic in the README, and refactoring the code to match.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\nThe user has requested a comprehensive audit, documentation, and alignment of the core workflow logic based on a provided schema. This task will ensure the workflow is predictable and well-documented.\n\n**Plan:**\n1.  **Audit Phase:** Analyze the user's proposed schema against the current implementation in `workflow_recommendation.js` and `remember.js`. The goal is to identify any discrepancies and to critically evaluate if the proposed schema is optimal.\n2.  **Documentation Phase:** Once the definitive workflow logic is established (a combination of the user's proposal and the existing reality), document it clearly in `README.md`. This documentation should include a Mermaid diagram for clarity.\n3.  **Alignment Phase:** If the audit reveals that the code does not match the finalized schema, refactor the implementation to ensure it aligns perfectly with the documentation.\n\n**Analyse Critique & Points de Vigilance:**\n*   The user's schema is a proposal and must be challenged. For example, the proposed `experience-execution` -> `context-update` on success might be inefficient. Returning to `implementation` to check for more tasks could be a better pattern.\n*   This is not just a documentation task; it's an architecture and refactoring task. The risk of uncovering deeper logical issues is high.\n*   The documentation in the README must reflect the *final, implemented* logic, not the initial proposal.\n\nThis task intentionally combines audit, documentation, and potential refactoring to ensure a coherent and consistent outcome.\n\n**Validation Criteria:**\n1. The `README.md` file is updated with a new section clearly documenting the workflow logic, including a Mermaid diagram.\n2. The code implementation in `workflow_recommendation.js` and related files perfectly matches the logic documented in the README.\n3. A dry run of the workflow confirms that the agent follows the documented logic steps.\n\n**User Feedback:**\nMais tu peux me confirmer que c'est bien le comprotement décrit dans le code du serveur MCP MemoryBankMCP ?\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-01T17:34:18.649704",
-      "updated_at": "2025-07-01T15:36:10.372Z",
-      "history": [
-        {
-          "timestamp": "2025-07-01T17:34:18.649704",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-01T15:36:10.372Z",
-          "action": "mark_archived",
-          "comment": "This request has been decomposed into task #288, which is a follow-up to task #286 to provide more rigorous validation."
-        }
-      ]
-    },
     {
       "id": 236,
       "content": "Modification request for Task #287 (Create MCP Tool: replace_content_between):\n\n**Original Task Details:**\n- **Title:** Create MCP Tool: replace_content_between\n- **Description:** Create a new, robust MCP tool to replace text content between a start and end marker, replacing the old `regex_edit` tool.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\nThis task involves creating a new MCP tool to replace content between two string markers in a file. This tool will replace the old, less reliable `regex_edit` tool.\\n\\n**Implementation Plan:**\\n1.  **Create a new tool file:** The tool will be implemented in a new file, likely at `.cursor/mcp/tools-mcp/tools/replace_content.js`.\\n2.  **Define the Tool:** The tool will be named `replace_content_between`.\\n3.  **Arguments:** It will accept four arguments:\\n    *   `target_file`: The relative path to the file.\\n    *   `start_marker`: The string that marks the beginning of the content to replace.\\n    *   `end_marker`: The string that marks the end of the content to replace.\\n    *   `replacement_content`: The new string to insert.\\n4.  **Logic:**\\n    *   Read the content of `target_file`.\\n    *   Find the index of the first occurrence of `start_marker`.\\n    *   From that point, find the index of the first occurrence of `end_marker`.\\n    *   If both are found, replace the entire block (from the start of `start_marker` to the end of `end_marker`) with `replacement_content`.\\n    *   Write the new content back to the file.\\n    *   Return a success message.\\n5.  **Error Handling:**\\n    *   If `start_marker` or `end_marker` are not found in the correct order, the tool must not modify the file.\\n    *   It should return an error object containing a clear failure message and the original content of the file, as requested.\\n\\n**Analyse Critique & Points de Vigilance:**\\n*   **Tool Naming:** The user's suggested name (`on_edit_fail`) is misleading. `replace_content_between` will be used instead for clarity and maintainability.\\n*   **Scope Ambiguity:** The request does not specify behavior for multiple occurrences of the markers. This implementation will only target the **first** valid start/end pair to ensure predictable behavior. This limitation must be clearly documented in the tool's description.\\n*   **Performance:** Returning the entire file content on failure is per the user's request, but it's a potential performance risk for very large files. This should be re-evaluated if performance issues arise.\\n*   **Atomicity:** The implementation must be atomic. No partial replacements should occur if only one of the two markers is found.\n\n**Validation Criteria:**\n1. The new tool `replace_content_between` is available via the ToolsMCP server.\\n2. The tool correctly replaces content between the specified start and end markers in a file.\\n3. If the start or end markers are not found, the tool returns an error and the original file content without modifying the file.\\n4. The tool's description and argument help are clear and accurate.\\n5. The old `regex_edit` tool is either removed or deprecated.\n\n**User Feedback:**\nIl y a un gros souci, l'outil replace_content_between n'est pas déclaré correctement : actuellement, il n'a aucun argument enregistré. regarde comment sont enregistré les autres outils qui fonctionnent parfaitement et reproduit leur comportement pour la déclaration de l'outil \"replace_content_between\".\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
@@ -974,6 +934,44 @@
         },
         {
           "timestamp": "2025-07-21T13:33:45.391Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 284,
+      "content": "Je n'arrive pas à comprendre pourquoi, mais l'actualisation automatique toutes les 2 secondes de l'interface Stream Lite ne fonctionne toujours pas.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T16:09:37.938731",
+      "updated_at": "2025-07-21T14:12:28.109Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T16:09:37.938731",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T14:12:28.109Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 286,
+      "content": "Mais ceci est juste une tâche de test pour vérifier Euh, le fonctionnement de du bouton switch de workflow affini fonctionne correctement. Tu tu peux la traiter et dire immédiatement qu'elle est faite sans avoir rien à faire. C'est juste un test.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T16:11:00.952937",
+      "updated_at": "2025-07-21T14:15:31.161Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T16:11:00.952937",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T14:15:31.161Z",
           "action": "mark_archived"
         }
       ]

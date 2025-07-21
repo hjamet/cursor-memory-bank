@@ -8552,13 +8552,13 @@
     "short_description": "Nettoyer complètement la page Review & Communication de l'interface Streamlit en supprimant tous les éléments informationnels actuellement affichés (compteurs, timestamps, statistiques, options techniques) pour obtenir une interface épurée.",
     "detailed_description": "**Objectif :**\nSupprimer tous les éléments informationnels actuellement présents dans la page \"Review & Communication\" de l'interface Streamlit selon la capture d'écran fournie par l'utilisateur.\n\n**Éléments à Supprimer (selon image fournie) :**\n\n1. **Section des données chargées :**\n   - \"📊 Données chargées à 15:19:19\"\n   - \"📋 323 tâches • 💬 0 messages • 👁️ 0 en review\"\n\n2. **Case à cocher technique :**\n   - \"☑️ Afficher détails techniques\" (case à cocher avec état)\n\n3. **Détails techniques affichés :**\n   - \"📅 Last data load: 2025-07-21 15:19:19.855036\"\n   - \"🕒 Current time: 15:19:19\"\n   - \"📋 Total tasks loaded: 323\"\n   - \"👁️ Review tasks: 0\" \n   - \"💬 Unread messages: 0\"\n\n**Approche d'Implémentation :**\n\n1. **Identifier le fichier cible :**\n   - Localiser le fichier Python responsable de la page \"Review & Communication\"\n   - Probablement dans `.cursor/streamlit_app/` ou sous-dossier `pages/`\n\n2. **Localiser les sections de code :**\n   - Identifier les appels `st.write()`, `st.metric()`, `st.info()` qui génèrent ces éléments\n   - Localiser les variables qui calculent les statistiques affichées\n   - Identifier la logique de la case à cocher \"Afficher détails techniques\"\n\n3. **Suppression propre :**\n   - Commenter ou supprimer les lignes de code responsables de l'affichage\n   - Conserver la logique métier sous-jacente (chargement des données)\n   - Maintenir la fonctionnalité core de la page (si elle existe au-delà de l'affichage)\n\n4. **Validation post-suppression :**\n   - Vérifier que la page se charge sans erreurs\n   - Confirmer que tous les éléments visuels sont supprimés\n   - S'assurer qu'aucune fonctionnalité critique n'est cassée\n\n**Analyse Technique & Points de Vigilance :**\n\n⚠️ **Risques d'Implémentation :**\n- **Dépendances cachées** : Ces éléments peuvent être liés à d'autres fonctionnalités\n- **Navigation Streamlit** : La suppression pourrait affecter la structure de navigation\n- **Session State** : Variables de session utilisées par d'autres pages\n- **Fonctions partagées** : Code potentiellement réutilisé dans d'autres pages\n\n⚠️ **Points d'Attention Critiques :**\n- **Préservation de la logique métier** : Ne supprimer que l'affichage, pas les calculs\n- **Structure de la page** : Maintenir le layout et la structure générale\n- **Cohérence interface** : Vérifier l'impact sur les autres pages Streamlit\n- **Performance** : S'assurer que la suppression n'introduit pas d'erreurs\n\n⚠️ **Stratégie de Validation :**\n- Tests de chargement de la page Review & Communication\n- Vérification visuelle complète (aucun élément de l'image présent)\n- Tests de navigation entre pages pour détecter les régressions\n- Validation que les autres pages ne sont pas affectées\n\n**Fichiers Probablement Impactés :**\n- `.cursor/streamlit_app/pages/` ou similaire (page Review & Communication)\n- Possibles fichiers utilitaires partagés pour les statistiques\n- Configuration Streamlit si les éléments sont dans des composants globaux",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       "recherche nécessaire pour identifier le fichier exact de la page Review & Communication"
     ],
     "validation_criteria": "La tâche est terminée quand :\n1. La page \"Review & Communication\" se charge sans afficher aucun des éléments visibles dans l'image fournie\n2. Aucun compteur, timestamp, ou statistique n'est affiché dans cette page\n3. La case à cocher \"Afficher détails techniques\" et sa section associée sont supprimées\n4. La page reste fonctionnelle (pas d'erreurs Streamlit)\n5. Les autres pages de l'interface ne sont pas affectées négativement\n6. Test visuel confirmé : interface complètement épurée selon les attentes utilisateur",
     "created_date": "2025-07-21T13:23:45.534Z",
-    "updated_date": "2025-07-21T13:43:07.106Z",
+    "updated_date": "2025-07-21T16:09:02.846242",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -8577,6 +8577,62 @@
       }
     ],
     "last_comment": "✅ **VALIDATION COMPLÈTE RÉUSSIE** : Test exhaustif du nettoyage de l'interface Streamlit confirme le succès total de l'implémentation :\n\n**TESTS VALIDÉS :**\n- Application Streamlit démarre sans erreurs sur port 8510\n- Interface Review & Communication complètement épurée selon spécifications\n- Tous les éléments informationnels cibles supprimés avec succès :\n  ✅ Section \"📊 Données chargées à 15:19:19\" - SUPPRIMÉE\n  ✅ Compteurs \"📋 323 tâches • 💬 0 messages • 👁️ 0 en review\" - SUPPRIMÉS\n  ✅ Bouton refresh rapide \"🔄\" dans interface principale - SUPPRIMÉ\n  ✅ Case à cocher \"☑️ Afficher détails techniques\" - SUPPRIMÉE\n  ✅ Section complète des détails techniques - SUPPRIMÉE\n\n**FONCTIONNALITÉ PRÉSERVÉE :**\n- Structure de navigation intacte avec onglets fonctionnels\n- Logique de chargement des données maintenue\n- Calculs de compteurs préservés pour les badges des onglets\n- Aucune régression détectée dans l'application\n\n**CRITÈRES DE VALIDATION REMPLIS :**\n- Interface épurée sans éléments informationnels visibles\n- Application fonctionnelle sans erreurs Streamlit\n- Conformité exacte aux spécifications utilisateur de nettoyage\n\nCette implémentation répond parfaitement aux exigences de nettoyage de l'interface selon la demande utilisateur.",
-    "last_comment_timestamp": "2025-07-21T13:43:07.106Z"
+    "last_comment_timestamp": "2025-07-21T13:43:07.106Z",
+    "validation": {
+      "approved_at": "2025-07-21T16:09:02.837289",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 337,
+    "title": "Diagnostiquer et corriger l'actualisation automatique Streamlit (2 secondes)",
+    "short_description": "Analyser et résoudre le problème d'actualisation automatique toutes les 2 secondes de l'interface Streamlit qui ne fonctionne plus selon l'utilisateur.",
+    "detailed_description": "**Objectif :**\nDiagnostiquer et corriger le dysfonctionnement de l'actualisation automatique toutes les 2 secondes dans l'interface Streamlit.\n\n**Analyse de la requête utilisateur :**\nL'utilisateur rapporte que l'actualisation automatique toutes les 2 secondes ne fonctionne toujours pas. Ceci suggère qu'il y a eu des tentatives précédentes pour implémenter cette fonctionnalité.\n\n**Tâches techniques à effectuer :**\n\n1. **Investigation de l'état actuel :**\n   - Examiner le code Streamlit actuel dans `.cursor/streamlit_app/`\n   - Identifier si une implémentation d'auto-refresh existe déjà\n   - Analyser les imports et dépendances liées à l'auto-refresh\n\n2. **Diagnostic du problème :**\n   - Vérifier la présence de la bibliothèque `streamlit-autorefresh`\n   - Analyser la configuration actuelle de l'auto-refresh\n   - Identifier les points de défaillance potentiels\n\n3. **Correction et implémentation :**\n   - Implémenter ou corriger le mécanisme d'auto-refresh\n   - Configurer l'intervalle de 2 secondes comme demandé\n   - S'assurer de la compatibilité avec l'architecture existante\n\n**Analyse Technique & Points de Vigilance :**\n\n**Attention - Contexte récent :** Les mémoires récentes indiquent qu'un nettoyage majeur de l'interface Streamlit a été effectué (tâche #336) avec suppression d'éléments informationnels. Il est possible que l'auto-refresh ait été affecté lors de ce nettoyage.\n\n**Attention - Documentation README :** Le README mentionne que l'auto-refresh était un problème connu qui a été \"résolu\" avec une solution hybride incluant un système manuel + auto-refresh expérimental. Il faut vérifier si cette implémentation est effective.\n\n**Attention - Dépendances :** L'auto-refresh nécessite la bibliothèque `streamlit-autorefresh` qui peut ne pas être installée ou configurée correctement.\n\n**Attention - Performance :** Un refresh toutes les 2 secondes peut impacter les performances. Prévoir une logique pour éviter les refreshs excessifs si l'utilisateur interagit avec l'interface.\n\n**Attention - Compatibilité :** S'assurer que l'auto-refresh n'interfère pas avec l'état des composants Streamlit ou les sessions utilisateur.\n\n**Critères de validation :**\n- L'interface Streamlit se rafraîchit automatiquement toutes les 2 secondes\n- L'auto-refresh fonctionne sur toutes les pages de l'application\n- Aucune régression sur la fonctionnalité existante\n- Test de performance acceptable (pas de lag excessif)\n- Interface utilisateur claire sur l'état de l'auto-refresh",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/streamlit_app/app.py",
+      ".cursor/streamlit_app/add_request.py",
+      ".cursor/streamlit_app/memory.py",
+      "package.json"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'auto-refresh fonctionne effectivement toutes les 2 secondes, (2) Tests manuels confirmés sur toutes les pages Streamlit, (3) Aucune régression détectée sur les fonctionnalités existantes, (4) Performance acceptable sans lag excessif, (5) Interface utilisateur claire sur le statut auto-refresh.",
+    "created_date": "2025-07-21T14:12:10.415Z",
+    "updated_date": "2025-07-21T14:16:48.108Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 337,
+    "comments": [
+      {
+        "timestamp": "2025-07-21T14:12:58.950Z",
+        "comment": "Marquage automatique IN_PROGRESS selon RÈGLE #3 de l'étape implementation. Début de l'implémentation pour diagnostiquer et corriger l'auto-refresh Streamlit toutes les 2 secondes.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-21T14:16:48.108Z",
+        "comment": "Validation réussie via experience-execution : Auto-refresh configuré correctement à 2 secondes, activé par défaut, et application Streamlit fonctionne sans erreur. Tests techniques confirmés : imports réussis, dépendances fonctionnelles, configuration selon spécifications utilisateur.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Validation réussie via experience-execution : Auto-refresh configuré correctement à 2 secondes, activé par défaut, et application Streamlit fonctionne sans erreur. Tests techniques confirmés : imports réussis, dépendances fonctionnelles, configuration selon spécifications utilisateur.",
+    "last_comment_timestamp": "2025-07-21T14:16:48.108Z"
+  },
+  {
+    "id": 338,
+    "title": "Tâche de test pour validation du switch workflow task-by-task",
+    "short_description": "Tâche de test simple pour vérifier le bon fonctionnement du bouton switch de workflow infini selon la demande utilisateur. Aucune implémentation technique requise.",
+    "detailed_description": "**Objectif :**\nCréer une tâche de test pour valider le fonctionnement du système de contrôle workflow task-by-task selon la demande explicite de l'utilisateur.\n\n**Contexte de la requête :**\nL'utilisateur a explicitement demandé une tâche de test simple pour vérifier le fonctionnement du bouton switch de workflow infini. Il a précisé qu'aucun travail technique réel n'est nécessaire et que la tâche peut être marquée comme terminée immédiatement.\n\n**Actions à effectuer :**\n\n1. **Validation du processus de création** : Confirmer que la tâche est créée correctement dans le système\n2. **Test du workflow** : Vérifier que le système task-by-task fonctionne comme attendu\n3. **Marquage de completion** : Marquer la tâche comme terminée selon les instructions utilisateur\n4. **Documentation du résultat** : Confirmer que le switch workflow fonctionne correctement\n\n**Analyse Technique & Points de Vigilance :**\n\n**Attention - Nature de test** : Cette tâche est explicitement conçue comme un test du système de workflow et ne nécessite aucune modification de code ou implémentation technique.\n\n**Attention - Mode workflow** : Le système est actuellement en mode \"task_by_task\" qui devrait s'arrêter à context-update après le traitement de cette tâche.\n\n**Attention - Validation attendue** : L'utilisateur attend confirmation que le bouton switch fonctionne correctement pour contrôler l'arrêt du workflow autonome.\n\n**Attention - Simplicité intentionnelle** : Cette tâche doit rester simple selon la demande utilisateur - pas de sur-engineering nécessaire.\n\n**Critères de validation :**\n- La tâche est créée et traitée dans le système de workflow\n- Le mode task-by-task est respecté (arrêt à context-update)\n- L'utilisateur reçoit confirmation que le test fonctionne\n- Le workflow s'arrête correctement après cette tâche selon le mode configuré",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [],
+    "validation_criteria": "La tâche est terminée quand : (1) La tâche est marquée comme complétée dans le système, (2) Confirmation que le mode task-by-task fonctionne, (3) Le workflow s'arrête correctement après traitement, (4) L'utilisateur reçoit confirmation du bon fonctionnement du switch.",
+    "created_date": "2025-07-21T14:15:26.505Z",
+    "updated_date": "2025-07-21T14:15:26.505Z",
+    "parent_id": null,
+    "priority": 1,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]
