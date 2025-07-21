@@ -156,6 +156,22 @@ Cursor Memory Bank is an advanced autonomous workflow system that revolutionizes
 - **Improved UX**: Better contrast, larger notification areas, and intuitive navigation
 - **Cross-Page Consistency**: Unified notification experience across all Streamlit pages
 
+### Known Issues & Active Development 🚧
+
+#### **Auto-Refresh System Status**
+⚠️ **CRITICAL ISSUE**: Despite recent implementation efforts, the Streamlit auto-refresh mechanism is currently **NOT fully functional** according to user feedback (as of 2025-07-21). The system has been implemented with enhanced diagnostics and forced rerun mechanisms, but real-world testing shows the refresh cycle is not working as expected.
+
+**Technical Details:**
+- `streamlit-autorefresh` library is properly installed and configured (v1.0.1)
+- Enhanced auto-refresh code is implemented in `sidebar.py` with 2-second intervals
+- Diagnostic systems and session state tracking are active
+- **User Impact**: Manual page refresh required to see updated task status and changes
+
+**Priority**: **HIGH** - Active investigation and resolution in progress
+**Tracking**: Task #331 and Request #279 - Additional debugging and alternative solutions required
+
+This documentation will be updated once the auto-refresh functionality is fully validated and operational.
+
 ## Agent Workflow Logic 🧠⚙️
 
 The autonomous agent operates on a sophisticated, rule-based workflow designed for robustness and intelligent decision-making. The system features **automatic testing integration** with mandatory `implementation → experience-execution` transitions to ensure code quality.

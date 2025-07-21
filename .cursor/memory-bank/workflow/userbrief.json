@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 278,
+  "last_id": 279,
   "requests": [
     {
       "id": 228,
@@ -972,6 +972,21 @@
         {
           "timestamp": "2025-07-21T12:51:28.546Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 279,
+      "content": "Modification request for Task #331 (Corriger le dysfonctionnement de l'auto-refresh de l'interface Streamlit):\n\n**Original Task Details:**\n- **Title:** Corriger le dysfonctionnement de l'auto-refresh de l'interface Streamlit\n- **Description:** Diagnostiquer et réparer le mécanisme de mise à jour automatique de l'interface Streamlit qui ne fonctionne plus, affectant l'expérience utilisateur et la visibilité en temps réel des changements.\n- **Status:** REVIEW\n- **Priority:** 4\n\n**Detailed Task Description:**\n**Problème Identifié :**\nLa mise à jour automatique de l'interface Streamlit ne fonctionne plus, empêchant l'affichage en temps réel des modifications de tâches, requêtes utilisateur et état du système.\n\n**Objectifs de Correction :**\n\n1. **Diagnostic Complet :**\n   - Identifier la cause racine du dysfonctionnement de l'auto-refresh\n   - Analyser les logs Streamlit pour détecter les erreurs\n   - Vérifier l'état des mécanismes de rechargement automatique\n\n2. **Zones d'Investigation :**\n   - **Page Review & Communication** : Auto-refresh toutes les 2 secondes\n   - **Page principale (app.py)** : Mécanismes de mise à jour\n   - **Pages de gestion** : Synchronisation des données\n   - **Session State** : Gestion des états de session\n\n3. **Actions de Réparation :**\n   - Corriger les mécanismes d'auto-refresh défaillants\n   - Restaurer la synchronisation en temps réel\n   - Optimiser les performances de mise à jour\n   - Tester la stabilité du système après correction\n\n4. **Validation Post-Correction :**\n   - Vérifier le fonctionnement de l'auto-refresh sur toutes les pages\n   - Tester la performance et la stabilité\n   - Valider l'expérience utilisateur améliorée\n\n**Critères d'Acceptation :**\n- L'auto-refresh fonctionne correctement sur toutes les pages Streamlit\n- Les mises à jour s'affichent en temps réel (2 secondes maximum)\n- Aucune dégradation de performance détectée\n- L'interface est stable et responsive\n\n**Analyse Technique & Points de Vigilance :**\n\n⚠️ **Points d'Attention Critiques :**\n- **Mécanismes Streamlit** : Les mécanismes `st.rerun()`, `st.experimental_rerun()` ou timers peuvent être défaillants\n- **Session State Conflicts** : Problèmes de concurrence dans la gestion des états de session\n- **Performance Impact** : L'auto-refresh excessif peut surcharger l'interface\n- **Cache Invalidation** : Les caches Streamlit peuvent empêcher la mise à jour\n- **JavaScript/HTML** : Problèmes avec les composants custom ou auto-refresh JavaScript\n\n⚠️ **Risques Techniques :**\n- **Loops Infinis** : Mauvaise implémentation de l'auto-refresh peut créer des boucles\n- **Memory Leaks** : Accumulation d'états de session non nettoyés\n- **Race Conditions** : Conflits entre multiple refreshes simultanés\n- **Browser Compatibility** : Problèmes spécifiques à certains navigateurs\n- **Network Issues** : Problèmes de connectivité affectant les mises à jour\n\n⚠️ **Zones à Investiguer :**\n- **Fichiers Streamlit** : Tous les fichiers .py dans .cursor/memory-bank/streamlit_app/\n- **Configuration** : Paramètres Streamlit et configuration auto-refresh\n- **Logs Application** : Messages d'erreur et warnings dans les logs Streamlit\n- **JavaScript Custom** : Composants personnalisés avec auto-refresh\n- **API Calls** : Appels vers les serveurs MCP qui peuvent bloquer\n\n⚠️ **Stratégie de Debug :**\n- Tests isolés sur chaque page Streamlit\n- Monitoring des performances pendant l'auto-refresh\n- Validation des mécanismes de timer et callback\n- Tests de stress pour identifier les points de rupture\n\n**Validation Criteria:**\nLa tâche est terminée quand :\n1. L'auto-refresh fonctionne correctement sur toutes les pages Streamlit (Review & Communication, Dashboard, etc.)\n2. Les mises à jour s'affichent en temps réel avec un délai maximum de 2 secondes\n3. Aucune erreur dans les logs Streamlit liée au mécanisme de refresh\n4. Les performances de l'interface restent optimales (pas de lag ou freeze)\n5. Tests de stress validés : l'auto-refresh reste stable sous charge\n6. Documentation des corrections apportées et mécanismes implémentés\n\n**User Feedback:**\nHélas, loe système d'auto refresh ne fonctionne toujours pas :/\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-21T15:12:55.121915",
+      "updated_at": "2025-07-21T15:12:55.121915",
+      "history": [
+        {
+          "timestamp": "2025-07-21T15:12:55.121915",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }
