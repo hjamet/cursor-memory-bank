@@ -1,45 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 290,
+  "last_id": 292,
   "requests": [
-    {
-      "id": 240,
-      "content": "Modifie légèrement la règle experience-execution. Le fichier markdown contenant le texte doit insister sur le fait que les experiences effectuées doivent être réelles !! L'agent doit adopter la personnalité d'un déveloper qui teste manuellement son travail. C'est un test manuel, par exempe consistant juste à ouvrir l'interface et à cliquer sur le bouton qu'il vient d'implémenter pour vérifier si le comportement attendu. Mais le point important, c'est qu'il ne doit SURTOUT PAS SIMULER DES RESULTATS, ou dire des phrases du style \"tou va bien, il ne reste plus qu'à tester plus tard...\" : le but même de cette règle EST de tester !!! Il ne doit surtout pas re,ettre à plus tard ou demander à l'utilisateur de le faire : il doit vérifier que son code fonctionne et est utilisable.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-03T15:43:25.485292",
-      "updated_at": "2025-07-03T13:54:47.544Z",
-      "history": [
-        {
-          "timestamp": "2025-07-03T15:43:25.485292",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-03T13:54:47.544Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 241,
-      "content": "Tu peux me confirmer le bon fonctionnement de l'outil url_to_markdown ? Renomme le en read_webpage et détaille beaucoup plus la documentation de l'argument url : profite de cette docuentation d'argument pour expliquer à l'agent que si il a besoin de lire le contenu d'un site précis, il devrait utiliser cet outil",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-03T15:46:25.526873",
-      "updated_at": "2025-07-03T13:59:49.341Z",
-      "history": [
-        {
-          "timestamp": "2025-07-03T15:46:25.526873",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-03T13:59:49.341Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 242,
       "content": "Sur la page Review et communication de l'interface streamlit, tu peux ajouter des st.toast à chaque nouveau souvenir \"present\" enregistré dans la mémoire de travai de l'agent ?",
@@ -972,6 +934,44 @@
         },
         {
           "timestamp": "2025-07-21T16:08:19.121Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 291,
+      "content": "Tu peux ajouter un indicateur à côté du bouton switch workflow infini dans l'interface streamlit qui affiche si l'agent est actif ou non ? (Vert pour actif, rouge pour inactif). Précise aussi la règle \"workflow-complete\" pour bien indiquer à l'agent qu'il doit s'arréter là. Note que cette règle doit églament être appelée si l'agent se trouve dans context-update et que workflow_infini est désactivé dans l'interface streamlit",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T18:57:16.871150",
+      "updated_at": "2025-07-21T17:00:45.336Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T18:57:16.871150",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T17:00:45.336Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 292,
+      "content": "L'actualisation automatique de l'interface streamlit ne fonctione toujours pas. Cherche sur internet ce qui peut en être la cause, ce n'est pas normal.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T18:59:23.700195",
+      "updated_at": "2025-07-21T17:01:41.904Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T18:59:23.700195",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T17:01:41.903Z",
           "action": "mark_archived"
         }
       ]

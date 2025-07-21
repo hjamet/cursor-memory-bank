@@ -8779,5 +8779,59 @@
       "approved_by": "user_feedback",
       "review_notes": "Superseded by new request due to user feedback:\n---\nSupprime le timer. Mais par ailleurs, l'actualisation automatique toutes les 2s ne fonctionne toujours pas :/"
     }
+  },
+  {
+    "id": 342,
+    "title": "Ajouter indicateur d'état agent et améliorer la règle workflow-complete",
+    "short_description": "Implémenter un indicateur visuel d'état de l'agent (vert=actif, rouge=inactif) à côté du bouton switch workflow infini dans l'interface Streamlit, et préciser la règle workflow-complete pour gérer l'arrêt automatique en mode task-by-task.",
+    "detailed_description": "**Objectif :**\nAméliorer l'interface utilisateur Streamlit en ajoutant un indicateur visuel de l'état de l'agent autonome et en précisant les règles d'arrêt du workflow.\n\n**Fonctionnalités à implémenter :**\n\n1. **Indicateur visuel d'état agent :**\n   - Ajouter un indicateur à côté du bouton switch workflow infini\n   - Couleur verte quand l'agent est actif (en cours d'exécution)\n   - Couleur rouge quand l'agent est inactif (arrêté ou en attente)\n   - Design cohérent avec l'interface Streamlit existante\n\n2. **Amélioration de la règle workflow-complete :**\n   - Documenter clairement que l'agent doit s'arrêter à cette étape\n   - Spécifier que cette règle doit être appelée depuis context-update quand workflow_infini est désactivé\n   - Assurer la cohérence avec le mode task-by-task existant\n\n**Analyse Technique & Points de Vigilance :**\n\n- **État agent dynamique :** L'indicateur doit refléter l'état réel de l'agent en temps réel. Attention à la synchronisation entre l'état du workflow et l'affichage interface.\n- **Intégration workflow existant :** La logique d'arrêt automatique doit s'intégrer sans perturber le système workflow-complete actuel. Prévoir tests pour vérifier que les transitions context-update → workflow-complete fonctionnent correctement.\n- **Persistence d'état :** L'état agent doit persister à travers les actualizations de page Streamlit. Utiliser le session state ou les fichiers JSON existants.\n- **Détection d'activité :** Définir clairement ce qui constitue un \"agent actif\" vs \"inactif\". Considérer les différents états du workflow (start-workflow, implementation, experience-execution, etc.).\n- **Compatibilité mode infini :** Assurer que l'indicateur fonctionne correctement en mode workflow infini et task-by-task.\n- **Interface responsive :** L'indicateur doit être visible et lisible sur différentes tailles d'écran.\n\n**Critères d'acceptation :**\n- L'indicateur visuel s'affiche correctement à côté du bouton switch\n- La couleur change dynamiquement selon l'état de l'agent\n- La règle workflow-complete est mise à jour avec documentation claire\n- Le passage automatique context-update → workflow-complete fonctionne en mode task-by-task\n- L'interface reste cohérente avec le design existant\n- Tests manuels confirment le bon fonctionnement des transitions workflow",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "cursor/streamlit_app/app.py",
+      ".cursor/workflow-steps/workflow-complete.md",
+      ".cursor/memory-bank/workflow/workflow_state.json"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) L'indicateur visuel d'état agent est visible et fonctionnel dans l'interface Streamlit, (2) La couleur change correctement selon l'activité de l'agent, (3) La règle workflow-complete contient la documentation mise à jour, (4) La transition automatique context-update → workflow-complete fonctionne en mode task-by-task, (5) L'interface reste cohérente et responsive, (6) Tests manuels confirment le bon fonctionnement de toutes les transitions workflow.",
+    "created_date": "2025-07-21T17:00:35.139Z",
+    "updated_date": "2025-07-21T17:00:35.140Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 343,
+    "title": "Rechercher les causes de l'échec persistant de l'auto-refresh Streamlit et proposer solutions externes",
+    "short_description": "Effectuer une recherche internet approfondie pour identifier les causes techniques de l'échec persistant de l'actualisation automatique Streamlit malgré de multiples tentatives d'implémentation, et proposer des solutions alternatives basées sur les meilleures pratiques et problèmes connus.",
+    "detailed_description": "**Objectif :**\nIdentifier les causes racines de l'échec persistant de l'auto-refresh Streamlit et proposer des solutions basées sur la recherche internet et les problèmes connus de la communauté.\n\n**Contexte critique :**\nMalgré de multiples implémentations (tâches #337, #340, #341), l'actualisation automatique toutes les 2 secondes ne fonctionne toujours pas. L'utilisateur confirme que ce problème persiste et demande spécifiquement une investigation via recherche internet.\n\n**Recherches à effectuer :**\n\n1. **Problèmes connus streamlit-autorefresh :**\n   - Rechercher les issues GitHub de streamlit-autorefresh\n   - Identifier les problèmes de compatibilité avec certaines versions\n   - Analyser les solutions proposées par la communauté\n\n2. **Environnements et configurations problématiques :**\n   - Problèmes spécifiques aux environnements Windows/MINGW64\n   - Incompatibilités avec certains navigateurs \n   - Problèmes de proxy ou configuration réseau\n   - Issues liées aux environnements de développement local\n\n3. **Alternatives à streamlit-autorefresh :**\n   - Solutions JavaScript natives pour auto-refresh\n   - Meta refresh HTML\n   - WebSocket-based solutions\n   - Polling mechanisms alternatifs\n\n4. **Meilleures pratiques et workarounds :**\n   - Configurations spécifiques recommandées\n   - Paramètres de session Streamlit\n   - Solutions hybrides documentées\n\n**Analyse Technique & Points de Vigilance :**\n\n- **Historique d'échecs :** Toutes les tentatives précédentes ont échoué selon l'utilisateur, suggérant un problème fondamental ou environnemental plutôt qu'une erreur d'implémentation.\n- **Environnement spécifique :** L'utilisateur utilise Windows avec MINGW64/Git Bash, ce qui peut causer des incompatibilités spécifiques.\n- **Version dependencies :** Vérifier les problèmes de versions entre Streamlit, streamlit-autorefresh, et les navigateurs.\n- **Alternative solutions :** Préparer des solutions de fallback si streamlit-autorefresh s'avère incompatible avec l'environnement.\n- **Browser-specific issues :** Certains navigateurs peuvent bloquer les auto-refresh ou les limiter pour des raisons de sécurité.\n- **Development vs production :** Le comportement peut différer entre environnement de développement et production.\n\n**Plan d'investigation :**\n\nPhase 1 : Recherche problèmes connus streamlit-autorefresh\n- Issues GitHub actives et fermées\n- StackOverflow et forums Streamlit\n- Documentation officielle et limitations\n\nPhase 2 : Analyse environnement Windows/MINGW64  \n- Problèmes spécifiques à cet environnement\n- Solutions de contournement documentées\n- Configurations requises\n\nPhase 3 : Alternatives techniques\n- Solutions JavaScript pures\n- Meta refresh HTML\n- Autres bibliothèques compatibles\n\nPhase 4 : Proposition solution finale\n- Recommandation basée sur la recherche\n- Plan d'implémentation alternatif si nécessaire\n- Documentation des limitations identifiées\n\n**Critères d'acceptation :**\n- Recherche internet complète effectuée avec sources documentées\n- Causes probables du problème identifiées et expliquées\n- Solutions alternatives proposées avec avantages/inconvénients\n- Plan d'action claire pour résolution ou contournement\n- Documentation des limitations environnementales si applicables",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      "documentation/auto_refresh_research.md",
+      ".cursor/streamlit_app/app.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) Une recherche internet approfondie a été effectuée avec sources documentées, (2) Les causes probables de l'échec sont identifiées et expliquées, (3) Au moins 3 solutions alternatives sont proposées avec leurs avantages et limitations, (4) Un plan d'action concret est fourni pour la résolution, (5) La documentation de recherche est créée et accessible, (6) Une recommandation finale claire est formulée.",
+    "created_date": "2025-07-21T17:01:36.932Z",
+    "updated_date": "2025-07-21T17:03:49.623Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 343,
+    "comments": [
+      {
+        "timestamp": "2025-07-21T17:02:22.374Z",
+        "comment": "Début de l'implémentation : marquage obligatoire IN_PROGRESS selon règle #3 du workflow. Cette tâche de recherche internet high-priority nécessite une investigation approfondie des causes de l'échec persistant de l'auto-refresh Streamlit.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-21T17:03:49.623Z",
+        "comment": "Recherche internet complète terminée avec succès. Documentation détaillée créée avec causes identifiées, solutions alternatives proposées et plan d'action concret. Toutes les phases de recherche exécutées : GitHub issues, problèmes Windows/MINGW64, alternatives techniques, et limitations navigateurs. Conclusions : le problème vient de limitations fondamentales du composant streamlit-autorefresh, avec recommandations d'implémentation de solutions alternatives (HTML meta refresh, JavaScript natif, contrôles manuels).",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Recherche internet complète terminée avec succès. Documentation détaillée créée avec causes identifiées, solutions alternatives proposées et plan d'action concret. Toutes les phases de recherche exécutées : GitHub issues, problèmes Windows/MINGW64, alternatives techniques, et limitations navigateurs. Conclusions : le problème vient de limitations fondamentales du composant streamlit-autorefresh, avec recommandations d'implémentation de solutions alternatives (HTML meta refresh, JavaScript natif, contrôles manuels).",
+    "last_comment_timestamp": "2025-07-21T17:03:49.623Z"
   }
 ]
