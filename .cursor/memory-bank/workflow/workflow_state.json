@@ -3,10 +3,14 @@
   "implementation_count": 41,
   "last_readme_task_at": 0,
   "created_at": "2025-07-17T10:21:39.686Z",
-  "updated_at": "2025-07-21T19:51:42.213Z",
-  "current_rule": "experience-execution",
+  "updated_at": "2025-07-21T19:53:57.834Z",
+  "current_rule": "context-update",
   "status": "active",
   "history": [
+    {
+      "rule": "context-update",
+      "timestamp": "2025-07-21T19:53:57.834Z"
+    },
     {
       "rule": "experience-execution",
       "timestamp": "2025-07-21T19:51:42.213Z"
@@ -42,12 +46,8 @@
     {
       "rule": "task-decomposition",
       "timestamp": "2025-07-21T19:31:49.046Z"
-    },
-    {
-      "rule": "start-workflow",
-      "timestamp": "2025-07-21T19:31:25.206Z"
     }
   ],
   "mode": "task_by_task",
-  "last_updated": "2025-07-21T19:51:42.213Z"
+  "last_updated": "2025-07-21T19:53:57.834Z"
 }
