@@ -90,12 +90,26 @@ def display_sidebar():
         workflow_state = _load_workflow_state()
         current_mode = workflow_state.get("mode", "infinite")
         
-        # Create toggle button
-        workflow_toggle = st.toggle(
-            "Workflow Infini",
-            value=(current_mode == "infinite"),
-            help="Actif: L'agent continue indéfiniment • Inactif: L'agent s'arrête à context-update"
-        )
+        # Determine agent activity status
+        agent_status = _get_agent_status(workflow_state)
+        
+        # Create two columns for toggle and status indicator
+        col1, col2 = st.columns([3, 1])
+        
+        with col1:
+            # Create toggle button
+            workflow_toggle = st.toggle(
+                "Workflow Infini",
+                value=(current_mode == "infinite"),
+                help="Actif: L'agent continue indéfiniment • Inactif: L'agent s'arrête à context-update"
+            )
+        
+        with col2:
+            # Agent status indicator
+            if agent_status["is_active"]:
+                st.markdown(f"🟢 **Actif**", help=f"Agent en cours d'exécution: {agent_status['current_step']}")
+            else:
+                st.markdown(f"🔴 **Inactif**", help=f"Agent arrêté depuis: {agent_status['last_activity']}")
         
         # Update workflow state if changed
         new_mode = "infinite" if workflow_toggle else "task_by_task"
@@ -283,6 +297,61 @@ def _load_workflow_state():
     except Exception:
         # Return default state if file is corrupted
         return {"mode": "infinite"}
+
+
+def _get_agent_status(workflow_state):
+    """Determine if agent is currently active based on workflow state and timing"""
+    from datetime import datetime, timedelta
+    
+    # Agent is considered active if:
+    # 1. Status is "active" in workflow state
+    # 2. Last update was within the last 5 minutes
+    # 3. Current rule is not "workflow-complete"
+    
+    status = workflow_state.get("status", "inactive")
+    current_rule = workflow_state.get("current_rule", "unknown")
+    updated_at = workflow_state.get("updated_at")
+    
+    # Check if agent is explicitly marked as active and not in complete state
+    is_explicitly_active = (status == "active" and current_rule != "workflow-complete")
+    
+    # Check if recent activity (within last 5 minutes)
+    is_recently_active = False
+    if updated_at:
+        try:
+            last_update = datetime.fromisoformat(updated_at.replace('Z', '+00:00'))
+            now = datetime.now(last_update.tzinfo) if last_update.tzinfo else datetime.now()
+            time_diff = now - last_update
+            is_recently_active = time_diff < timedelta(minutes=5)
+        except Exception:
+            is_recently_active = False
+    
+    # Agent is active if both conditions are met
+    is_active = is_explicitly_active and is_recently_active
+    
+    # Format activity information
+    if is_active:
+        current_step = current_rule.replace("-", " ").title() if current_rule else "Unknown"
+        return {
+            "is_active": True,
+            "current_step": current_step,
+            "last_activity": None
+        }
+    else:
+        # Format last activity time
+        last_activity = "Inconnu"
+        if updated_at:
+            try:
+                last_update = datetime.fromisoformat(updated_at.replace('Z', '+00:00'))
+                last_activity = last_update.strftime("%H:%M:%S")
+            except Exception:
+                pass
+        
+        return {
+            "is_active": False,
+            "current_step": None,
+            "last_activity": last_activity
+        }
 
 
 def _update_workflow_state(new_mode):

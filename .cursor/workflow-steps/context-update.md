@@ -6,11 +6,14 @@ Performs critical repository maintenance and context curation. Your goal is not 
 
 ## Instructions
 
-0.  **Check for Idle State**
+0.  **Check for Idle State and Workflow Mode**
     -   **Analyze Workflow State**: Before performing maintenance, check if the system is idle. Use `mcp_MemoryBankMCP_get_all_tasks` and `mcp_MemoryBankMCP_read_userbrief` to assess the current workload.
-    -   **Condition**: If there are no active tasks (i.e., all tasks are 'DONE' or the task list is empty) AND there are no unprocessed user requests.
-    -   **Action**: If the condition is met, the system is idle. Call `mcp_MemoryBankMCP_next_rule` with `step_name: "workflow-complete"` to terminate the workflow gracefully.
-    -   **Else**: If there is work to be done, proceed with the maintenance steps below.
+    -   **Load Workflow Mode**: Check the current workflow mode by reading `.cursor/memory-bank/workflow/workflow_state.json` to determine if the system is in `infinite` or `task_by_task` mode.
+    -   **Idle Condition**: If there are no active tasks (i.e., all tasks are 'DONE' or the task list is empty) AND there are no unprocessed user requests.
+    -   **Mode-Based Actions**:
+        - **Task-by-Task Mode**: If the condition is met AND `workflow_state.mode === "task_by_task"`, call `mcp_MemoryBankMCP_next_rule` with `step_name: "workflow-complete"` to terminate the workflow gracefully.
+        - **Infinite Mode**: If the condition is met AND `workflow_state.mode === "infinite"`, continue with normal maintenance workflow instead of stopping.
+        - **Active Work**: If there is work to be done (regardless of mode), proceed with the maintenance steps below.
 
 1.  **Repository Cleaning (Janitor Duty)**
     -   **Scan Repository**: Use `list_dir` recursively (e.g., `list_dir -R .`) to get a full overview of the repository's file structure.
