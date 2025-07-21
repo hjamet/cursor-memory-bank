@@ -89,17 +89,31 @@ def display_sidebar():
         navigation_debounce_active = False
         
         # Check if navigation interaction is active (within 3 seconds)
+        # ROBUSTNESS FIX: Add safeguards for edge cases and inactivity
         if (hasattr(st.session_state, 'last_navigation_interaction') and 
             st.session_state.last_navigation_interaction is not None):
-            time_since_interaction = (current_time - st.session_state.last_navigation_interaction).total_seconds()
-            navigation_debounce_active = time_since_interaction < 3
+            try:
+                time_since_interaction = (current_time - st.session_state.last_navigation_interaction).total_seconds()
+                navigation_debounce_active = time_since_interaction < 3
+                
+                # SAFEGUARD: If interaction is too old (>10 minutes), reset it to allow fresh start
+                if time_since_interaction > 600:  # 10 minutes
+                    st.session_state.last_navigation_interaction = None
+                    navigation_debounce_active = False
+                    
+            except (TypeError, AttributeError):
+                # FALLBACK: If timestamp is corrupted, reset and continue
+                st.session_state.last_navigation_interaction = None
+                navigation_debounce_active = False
         
         # Auto-refresh logic with conditional pause during navigation
+        # CRITICAL: This MUST run during inactivity periods to ensure permanent auto-refresh
         if navigation_debounce_active:
             # Pause auto-refresh during navigation interactions
-            st.info("🔄 Auto-refresh paused during navigation interaction")
+            st.info("🔄 Auto-refresh pausé pendant interaction navigation")
         else:
             # Normal auto-refresh every 2 seconds when no navigation interaction
+            # PERMANENT AUTO-REFRESH: This ensures continuous operation as required by user
             st_autorefresh(interval=2000, key="sidebar_autorefresh")
         
         # --- Workflow Control Toggle ---
@@ -327,50 +341,23 @@ def display_sidebar():
         
         st.markdown("---")
         
-        # Auto-refresh automatique toutes les 2 secondes (comme demandé par l'utilisateur)
+        # Auto-refresh info section (simplified - actual auto-refresh handled at top of sidebar)
         st.markdown("### ⚡ Actualisation automatique")
         
-        # Option visible pour activer/désactiver l'auto-refresh
-        enable_auto = st.checkbox("🔄 Actualisation automatique (2 secondes)", 
-                                value=True,  # Activé par défaut pour répondre à la demande utilisateur
-                                help="Actualise automatiquement les données toutes les 2 secondes")
-        
-        if enable_auto:
-            # Check if navigation debouncing is active
-            navigation_debounce_active = False
-            if 'last_navigation_interaction' in st.session_state and st.session_state.last_navigation_interaction is not None:
-                time_since_interaction = (datetime.now() - st.session_state.last_navigation_interaction).total_seconds()
-                navigation_debounce_active = time_since_interaction < 3
-            
-            if navigation_debounce_active:
-                st.info("🔄 Auto-refresh pausé pendant interaction navigation")
+        # Show current auto-refresh status with real-time feedback
+        if navigation_debounce_active:
+            # Recompute time since interaction for display purposes
+            if (hasattr(st.session_state, 'last_navigation_interaction') and 
+                st.session_state.last_navigation_interaction is not None):
+                time_since = (current_time - st.session_state.last_navigation_interaction).total_seconds()
+                time_remaining = max(0, 3 - time_since)
+                st.info(f"🔄 Auto-refresh pausé pendant navigation (reprise dans {time_remaining:.1f}s)")
             else:
-                st.success("✅ Actualisation automatique activée (2 secondes)")
-                
-                # Auto-refresh configuré pour 2 secondes comme demandé
-                try:
-                    refresh_count = st_autorefresh(interval=2000, limit=None, key="auto_refresh_2s")
-                    
-                    if refresh_count > 0:
-                        st.caption(f"🔄 Auto-refresh: {refresh_count} cycles")
-                        # Update manual refresh timestamp when auto-refresh works
-                        st.session_state.last_manual_refresh = datetime.now()
-                        
-                        # Force session state update
-                        if 'last_auto_refresh_count' not in st.session_state:
-                            st.session_state.last_auto_refresh_count = 0
-                            
-                        if refresh_count != st.session_state.last_auto_refresh_count:
-                            st.session_state.last_auto_refresh_count = refresh_count
-                            # Clear any cached data
-                            if hasattr(st, 'cache_data'):
-                                st.cache_data.clear()
-                            
-                except Exception as e:
-                    st.error(f"❌ Auto-refresh échoué: {str(e)}")
-                    st.info("💡 Utilisez le bouton de refresh manuel ci-dessus")
+                st.info("🔄 Auto-refresh pausé pendant navigation")
         else:
-            st.info("⏸️ Actualisation automatique désactivée - utilisez le bouton manuel ci-dessus")
+            st.success("✅ Actualisation automatique activée (2 secondes)")
+            
+        st.caption("💡 L'actualisation se fait automatiquement en permanence, avec pause intelligente pendant la navigation")
         
         # Bouton de refresh manuel comme alternative
         st.markdown("### 🔄 Mise à jour manuelle")
