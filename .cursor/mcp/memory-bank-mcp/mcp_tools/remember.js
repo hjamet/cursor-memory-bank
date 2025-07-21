@@ -11,6 +11,15 @@ import { loadUserPreferencesForRemember } from './utils.js';
 import { readUserMessages, getPendingMessages, markMessageAsConsumed, cleanupConsumedMessages } from '../lib/user_message_storage.js';
 import { resetTransitionCounter } from '../lib/workflow_safety.js';
 
+// Verify critical imports are loaded correctly
+try {
+    if (typeof resetTransitionCounter !== 'function') {
+        console.error('Critical import error: resetTransitionCounter is not properly loaded');
+    }
+} catch (error) {
+    console.error('Import verification failed for resetTransitionCounter:', error);
+}
+
 /**
  * Load workflow mode from workflow_state.json
  * @returns {string} - The current workflow mode ('infinite' or 'task_by_task')
@@ -323,7 +332,17 @@ async function remember(args) {
 
     // Reset transition counter after a productive cycle
     if (lastStep && ['task-decomposition', 'implementation', 'fix', 'experience-execution'].includes(lastStep)) {
-        await resetTransitionCounter();
+        try {
+            // Defensive check to ensure the function is available
+            if (typeof resetTransitionCounter === 'function') {
+                await resetTransitionCounter();
+            } else {
+                console.warn('resetTransitionCounter function is not available, skipping transition counter reset');
+            }
+        } catch (error) {
+            console.error('Error calling resetTransitionCounter:', error);
+            // Continue workflow execution even if transition counter reset fails
+        }
     }
 
     // Get 10 semantically similar long-term memories
@@ -490,8 +509,88 @@ async function remember(args) {
         };
     }
 
+    // SECURITY CHECK: Detect inappropriate stopping attempts
+    // This prevents architectural violations and logs violations for debugging
+    if (workflowMode === 'task_by_task' && recommendedNextStep === 'context-update' && lastStep !== 'context-update') {
+        console.warn(`⚠️ WORKFLOW VIOLATION PREVENTED: Attempted stop from step '${lastStep}' instead of 'context-update'. This violates architectural constraints.`);
+        console.warn(`🔒 SECURITY: Forcing continuation to maintain workflow integrity. Current step: ${lastStep}, Recommended: ${recommendedNextStep}`);
+
+        // Force continuation by overriding the recommendation
+        const forcedNextStep = lastStep === 'experience-execution' ? 'context-update' : recommendedNextStep;
+
+        const violationResponse = {
+            // === WORKFLOW STATUS & INSTRUCTIONS ===
+            message: "Memory successfully recorded.",
+            workflow_status: "CONTINUE_REQUIRED",
+            next_action_required: `⚠️ ARCHITECTURAL VIOLATION PREVENTED: You attempted to stop from '${lastStep}' but stops can ONLY happen from 'context-update'. You MUST continue the workflow by calling mcp_MemoryBankMCP_next_rule with '${forcedNextStep}'.`,
+            workflow_instruction: `CRITICAL: Architectural constraint violation detected. Stops are ONLY allowed from context-update step. Current step: ${lastStep}. You must transition to ${forcedNextStep} first.`,
+            recommended_next_step: forcedNextStep,
+            current_state: lastMemory ? lastMemory.future : "Architectural violation detected and prevented.",
+            possible_next_steps: possible_next_steps,
+
+            // === WORKFLOW CONTINUATION REQUIREMENTS ===
+            continuation_mandatory: true,
+            stopping_prohibited: `!!! ARCHITECTURAL VIOLATION PREVENTED !!! - You attempted to stop from '${lastStep}' which violates the fundamental constraint: STOPS CAN ONLY HAPPEN FROM 'context-update'. You MUST continue.`,
+            immediate_next_action: `!!! REQUIRED !!! - Call mcp_MemoryBankMCP_next_rule with '${forcedNextStep}' to maintain architectural integrity.`,
+            workflow_cycle_reminder: "!!! CRITICAL !!! - Remember: Only 'context-update' can initiate stops in task-by-task mode. All other steps must continue the workflow.",
+
+            // === USER PREFERENCES & SETTINGS ===
+            user_preferences: preferences,
+
+            // === MEMORY SECTIONS ===
+            memory_sections: {
+                recent_working_memories: {
+                    description: "📋 **Souvenirs de Travail Récents (5 derniers)** - Contexte immédiat des actions récentes",
+                    count: recentMemories.length,
+                    memories: recentMemories
+                },
+                semantic_long_term_memories: {
+                    description: "🧠 **Mémoires Long Terme Sémantiques (5 plus pertinentes)** - Connaissances persistantes liées au contexte actuel",
+                    count: semanticLongTermMemories.length,
+                    memories: semanticLongTermMemories
+                },
+                newly_added_long_term_memory: {
+                    description: "✨ **Nouvelle Mémoire Long Terme** - Information critique ajoutée lors de cet enregistrement",
+                    memory: currentLongTermMemory
+                }
+            },
+
+            // === MEMORY STATISTICS ===
+            memory_statistics: {
+                total_memories_count: memories.length,
+                total_long_term_memories_count: longTermMemories.length,
+                recent_memories_displayed: recentMemories.length,
+                semantic_memories_displayed: semanticLongTermMemories.length
+            },
+
+            // === USER COMMUNICATION ===
+            user_message_result: "ARCHITECTURAL VIOLATION DETECTED AND PREVENTED: Attempted inappropriate stop from non-context-update step. System forcing continuation to maintain workflow integrity.",
+
+            // === LEGACY FIELDS (for backward compatibility) ===
+            long_term_memory: currentLongTermMemory,
+            recent_working_memories: recentMemories,
+            semantic_long_term_memories: semanticLongTermMemories,
+            total_memories_count: memories.length,
+            total_long_term_memories_count: longTermMemories.length
+        };
+
+        // Add long-term memory management hint if semantic long-term memories are present
+        if (semanticLongTermMemories && semanticLongTermMemories.length > 0) {
+            violationResponse.long_term_memory_management_hint = "📝 **Gestion des Mémoires Long Terme :** Si certains des souvenirs ci-dessus ne semblent plus pertinents, sont devenus obsolètes, contiennent des informations incorrectes ou ne servent plus à rien, vous pouvez les supprimer en utilisant l'outil `delete_long_term_memory` avec l'ID du souvenir concerné. Cela permet de maintenir une base de mémoires propre et pertinente.";
+        }
+
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify(violationResponse, null, 2)
+            }]
+        };
+    }
+
     // Task-by-task mode stopping logic
-    if (workflowMode === 'task_by_task' && recommendedNextStep === 'context-update') {
+    // CRITICAL FIX: Only allow stopping when CURRENTLY in context-update step
+    // This prevents inappropriate stops from experience-execution or other steps
+    if (workflowMode === 'task_by_task' && lastStep === 'context-update' && recommendedNextStep === 'context-update') {
         const stopResponse = {
             // === WORKFLOW STATUS & INSTRUCTIONS ===
             message: "Memory successfully recorded. Task-by-task mode: Session completed.",
