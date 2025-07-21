@@ -7,7 +7,6 @@ import { readTasks } from '../lib/task_manager.js';
 import { encodeText, findSimilarMemories } from '../lib/semantic_search.js';
 import { UserMessageManager } from '../lib/user_message_manager.js';
 import { getPossibleNextSteps, getRecommendedNextStep } from '../lib/workflow_recommendation.js';
-import { resetTransitionCounter } from '../lib/workflow_safety.js';
 import { loadUserPreferencesForRemember } from './utils.js';
 import { readUserMessages, getPendingMessages, markMessageAsConsumed, cleanupConsumedMessages } from '../lib/user_message_storage.js';
 
