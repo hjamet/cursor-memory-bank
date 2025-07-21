@@ -104,6 +104,6 @@
   "experience_execution_attempts": 0,
   "last_experience_execution": null,
   "last_implementation": "2025-07-21T12:38:53.313Z",
-  "consecutive_transitions": 10,
+  "consecutive_transitions": 0,
   "emergency_brake_active": false
 }

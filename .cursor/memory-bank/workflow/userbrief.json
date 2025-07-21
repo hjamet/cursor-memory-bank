@@ -1,45 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 288,
+  "last_id": 290,
   "requests": [
-    {
-      "id": 238,
-      "content": "La règle Task décomposition contient énormément de d'instructions amenant l'agent à être très critique. Ça doit pas du tout spécialement être le cas. Il faudrait que tu modifie le fichier Markdown de cette règle pour qu'elle soit simplement efficace qu'elle décompose en tâche les requêtes user brief. Sans être particulièrement critique, alors ne précise pas à l'agent qui ne doit pas être critique mais supprime tous les trucs qui lui disent de spécifiquement être critiques. En gros, son travail c'est simplement de prendre une requête over brief et de la transformer en tâche. Il faudrait aussi que tu précises que si dans une requête user bref. Il y a plusieurs grandes tâches qui sont identifiées, qui sont clairement des travaux différents, la même s'ils sont présentés sous un seul texte, et Ben à ce moment-là, la règle Task décomposition devrait créer plusieurs tâches pour s'être qu'user Brice au lieu de une seule qui fait plusieurs choses qui n'ont rien à voir.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-01T18:08:20.353329",
-      "updated_at": "2025-07-01T16:16:22.738Z",
-      "history": [
-        {
-          "timestamp": "2025-07-01T18:08:20.353329",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-01T16:16:22.738Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 239,
-      "content": "Dans l'interface Streamlit, ajoute une vue similaire à celle de task status, mais sans toutes les options de recherche et de filtre, uniquement avec les paramètres par défaut, dans la page 📨 Review & Communication, onglet Add request, en dessous du bouton submit new request. Les requêtes userbrief non encore traitées doivent apparaitre en premier et non en dernier, puis vient la liste des tâches actives, triée par ordre de résolution prévue.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-03T15:40:25.741887",
-      "updated_at": "2025-07-03T13:50:18.009Z",
-      "history": [
-        {
-          "timestamp": "2025-07-03T15:40:25.741887",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-03T13:50:18.009Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 240,
       "content": "Modifie légèrement la règle experience-execution. Le fichier markdown contenant le texte doit insister sur le fait que les experiences effectuées doivent être réelles !! L'agent doit adopter la personnalité d'un déveloper qui teste manuellement son travail. C'est un test manuel, par exempe consistant juste à ouvrir l'interface et à cliquer sur le bouton qu'il vient d'implémenter pour vérifier si le comportement attendu. Mais le point important, c'est qu'il ne doit SURTOUT PAS SIMULER DES RESULTATS, ou dire des phrases du style \"tou va bien, il ne reste plus qu'à tester plus tard...\" : le but même de cette règle EST de tester !!! Il ne doit surtout pas re,ettre à plus tard ou demander à l'utilisateur de le faire : il doit vérifier que son code fonctionne et est utilisable.",
@@ -972,6 +934,44 @@
         },
         {
           "timestamp": "2025-07-21T14:26:30.753Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 289,
+      "content": "Malheureusement, j'ai validé le fait que l'actualisation automatique de la page toutes les 2 secondes ne fonctionne toujours pas. Je ne sais pas pourquoi je ne sais pas d'où ça vient, mais il n'y a toujours pas d'actualisation. En l'occurrence, le timer que tu as mis pour tester autorisé test Timer, il faudra déjà le supprimer et puis en plus il ne t'aide pas parce que comme la page ne s'actualise pas bah il pourrait tout le temps afficher 0 donc c'est c'est pas clair, il faudrait plutôt que tu utilises un simple timer qui affiche le temps qui passe et du coup l'idée c'est que tu consultes la page via le MCP playwright et que 2s après tu la reconsultes et il faudrait en thérotie que le timer ait incrémenté. Ce qui n'est pas le cas actuellement.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T16:49:57.597619",
+      "updated_at": "2025-07-21T14:51:20.003Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T16:49:57.597619",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T14:51:20.003Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 290,
+      "content": "Modification request for Task #341 (Refondre complètement la validation auto-refresh avec timer continu et tests MCP Playwright réels):\n\n**Original Task Details:**\n- **Title:** Refondre complètement la validation auto-refresh avec timer continu et tests MCP Playwright réels\n- **Description:** Remplacer le système de test timer défaillant par un timer temps réel continu et implémenter une validation définitive via MCP Playwright avec observations temporelles pour prouver ou infirmer le fonctionnement de l'auto-refresh Streamlit selon feedback utilisateur critique.\n- **Status:** REVIEW\n- **Priority:** 4\n\n**Detailed Task Description:**\nRefonte complète du système de validation auto-refresh suite au feedback utilisateur confirmant l'échec de toutes les approches précédentes.\n\n**Objectifs Spécifiques :**\n\n1. **Suppression timer test défaillant** :\n   - Retirer le timer test actuel qui ne fonctionne pas car basé sur l'hypothèse d'auto-refresh fonctionnel\n   - Nettoyer l'interface des éléments de test problématiques\n\n2. **Implémentation timer continu indépendant** :\n   - Créer un timer simple qui affiche le temps écoulé en continu\n   - Timer doit fonctionner indépendamment de l'auto-refresh (JavaScript natif ou Python avec mise à jour manuelle)\n   - Affichage clair : \"Timer: X.X secondes écoulées depuis chargement\"\n   - Timer doit être observable et s'incrémenter visuellement\n\n3. **Tests MCP Playwright définitifs** :\n   - Utiliser les outils MCP Playwright pour consultation page temps réel\n   - Protocole : snapshot initial → attente 2 secondes → nouveau snapshot → comparaison timer\n   - Si timer s'incrémente : auto-refresh fonctionne\n   - Si timer reste identique : auto-refresh ne fonctionne pas\n   - Documentation complète des résultats observés\n\n**Analyse Technique & Points de Vigilance :**\n\n**Vigilance Critique - Échecs Précédents :**\n- Toutes les implémentations précédentes (tâches #337, #340) ont échoué selon l'utilisateur\n- Le problème n'est PAS dans la configuration streamlit-autorefresh mais possiblement dans l'environnement ou la compréhension du fonctionnement\n- Nécessité d'une approche diagnostique plutôt que corrective\n\n**Vigilance Technique - Timer Indépendant :**\n- Le timer ne doit PAS dépendre du système d'auto-refresh pour fonctionner\n- Utiliser JavaScript `setInterval()` ou Python avec timestamp pour continuité\n- Timer doit être visible et observable par MCP Playwright via text content\n- Éviter les implémentations liées au session state qui pourraient masquer les problèmes\n\n**Vigilance Validation - MCP Playwright :**\n- Les outils MCP Playwright doivent capturer le contenu timer précis\n- Prévoir extraction via regex ou sélecteur spécifique pour valeurs timer\n- Documenter chaque observation avec timestamps pour preuve\n- Si auto-refresh ne fonctionne pas : analyser pourquoi (environnement, configuration, compatibilité)\n\n**Vigilance Environnement :**\n- Vérifier si le problème vient de l'environnement de développement\n- Tester sur différents navigateurs/ports si nécessaire\n- Documenter les conditions exactes de test pour reproductibilité\n\n**Critères d'Acceptation :**\n1. Timer continu fonctionnel et observable affiché sur l'interface Streamlit\n2. Tests MCP Playwright exécutés avec observations temporelles documentées\n3. Résultat définitif : auto-refresh fonctionne ou ne fonctionne pas (avec preuves)\n4. Si ne fonctionne pas : diagnostic des causes et recommandations alternatives\n5. Documentation complète du processus de validation et des résultats\n\n**Approche de Résolution :**\nPhase 1 : Suppression éléments défaillants + timer continu indépendant\nPhase 2 : Tests MCP Playwright avec protocole observation rigoureux\nPhase 3 : Analyse résultats et diagnostic si auto-refresh défaillant\nPhase 4 : Documentation conclusions et recommandations\n\n**Validation Criteria:**\nLa tâche est terminée quand : (1) Le timer test défaillant est supprimé de l'interface Streamlit, (2) Un timer continu indépendant fonctionne et s'affiche en temps réel, (3) Les tests MCP Playwright ont été exécutés avec observations temporelles documentées, (4) Un diagnostic définitif établit si l'auto-refresh fonctionne ou non avec preuves, (5) Si échec : les causes sont identifiées et documentées, (6) Les résultats de validation sont clairement documentés pour l'utilisateur.\n\n**User Feedback:**\nSupprime le timer. Mais par ailleurs, l'actualisation automatique toutes les 2s ne fonctionne toujours pas :/\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T18:04:25.650337",
+      "updated_at": "2025-07-21T16:08:19.121Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T18:04:25.650337",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T16:08:19.121Z",
           "action": "mark_archived"
         }
       ]

@@ -2,7 +2,6 @@
 Main Streamlit app for Review & Communication.
 Refactored version with modular components.
 """
-
 import streamlit as st
 import sys
 from pathlib import Path
@@ -10,6 +9,7 @@ from datetime import datetime
 
 # Add the parent directory to the path to find the 'components' module
 sys.path.append(str(Path(__file__).resolve().parent))
+
 from components.sidebar import display_sidebar
 from utils import (
     load_tasks, read_user_messages, render_task_review_card, 
@@ -33,18 +33,6 @@ display_sidebar()
 
 st.markdown("# 📨 Review & Communication")
 st.markdown("Review tasks awaiting validation and view messages from the agent.")
-
-# Add timer for auto-refresh testing
-if 'page_timer_start' not in st.session_state:
-    st.session_state.page_timer_start = datetime.now()
-
-# Calculate elapsed time since page load
-elapsed_time = (datetime.now() - st.session_state.page_timer_start).total_seconds()
-timer_container = st.container()
-with timer_container:
-    st.info(f"⏱️ **Auto-refresh Test Timer**: {elapsed_time:.1f} seconds elapsed since page load")
-    st.caption("This timer validates that auto-refresh is working - it should increment automatically every 2 seconds")
-
 
 def main():
     """Main function to render the review page"""
@@ -157,7 +145,6 @@ def main():
             st.markdown(f"**{len(messages)}** message(s) to review:")
             for message in sorted(messages, key=lambda x: x.get('id', 0), reverse=True):
                 render_message_review_card(message)
-
 
 if __name__ == "__main__":
     main() 
