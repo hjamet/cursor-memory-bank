@@ -109,11 +109,24 @@ def main():
     selected_key = tab_keys[tab_labels.index(selected_label)]
     st.session_state.active_tab = selected_key
 
-    # Reduce spacing after radio buttons with custom CSS
+    # Reduce spacing after radio buttons and between sections with enhanced CSS
     st.markdown("""
     <style>
     div[data-testid="stRadio"] {
-        margin-bottom: -10px;
+        margin-bottom: -20px !important;
+    }
+    .main .block-container {
+        padding-top: 2rem !important;
+    }
+    /* Reduce spacing for subheaders that follow radio buttons */
+    h3[data-testid="stMarkdown"] {
+        margin-top: -10px !important;
+        padding-top: 0px !important;
+    }
+    /* Target the specific elements after radio buttons */
+    div[data-testid="stRadio"] + div h3 {
+        margin-top: -15px !important;
+        padding-top: 5px !important;
     }
     </style>
     """, unsafe_allow_html=True)

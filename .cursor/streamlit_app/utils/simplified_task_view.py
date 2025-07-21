@@ -6,8 +6,8 @@ from components import task_utils
 
 def render_simplified_task_view():
     """Renders a simplified view of tasks and user requests."""
-    # Removed excessive spacing - eliminated st.markdown("---") separator
-    st.subheader("Current Workload")
+    # Removed excessive spacing - use compact header without default spacing
+    st.markdown("### Current Workload")
 
     tasks = task_utils.get_all_tasks()
     userbrief_requests = userbrief_operations.get_userbrief_requests()

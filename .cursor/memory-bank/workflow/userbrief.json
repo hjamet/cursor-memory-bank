@@ -1,45 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 299,
+  "last_id": 301,
   "requests": [
-    {
-      "id": 249,
-      "content": "Ajoute un système qui compte le nombre de fois où la règle \"implementation\" est appelée et stocke ce nombre dans les fichiers d'état de l'agent (.cursor\\memory-bank\\workflow\\workflow_state.json semble pas mal). Toutes les 10 étapes d'implémentation, une tâche de mise à jour du README devrait être automatiquement ajoutée avec une priorité assez élevée à la liste des tâches (.cursor\\memory-bank\\streamlit_app\\tasks.json)",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-13T08:01:05.781959",
-      "updated_at": "2025-07-13T06:02:12.871Z",
-      "history": [
-        {
-          "timestamp": "2025-07-13T08:01:05.781959",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-13T06:02:12.871Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 250,
-      "content": "Reply to Agent Message #17:\n\n**Original Message:** \"Échec critique du test : Le système de découpage automatique étendu ne fonctionne pas car le serveur MCP utilise encore l'ancienne version. Un redémarrage du serveur MCP est requis pour que les change...\"\n\n**My Reply:** Parfait, ce n'est pas grave, continue avec les tâches suivantes pour le moment :D\n\n**Message Context:**\n- Rule: unknown\n- Timestamp: 2025-07-13T15:57:01.130Z\n- Workflow Rule: implementation",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-13T17:58:20.517164",
-      "updated_at": "2025-07-13T15:59:13.593Z",
-      "history": [
-        {
-          "timestamp": "2025-07-13T17:58:20.517164",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-13T15:59:13.593Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 251,
       "content": "Modification request for Task #295 (Ajouter des notifications toast pour les nouveaux souvenirs \"present\" dans l'interface Streamlit):\n\n**Original Task Details:**\n- **Title:** Ajouter des notifications toast pour les nouveaux souvenirs \"present\" dans l'interface Streamlit\n- **Description:** Implémenter des notifications st.toast dans la page Review et communication de l'interface Streamlit pour afficher une notification à chaque nouveau souvenir \"present\" enregistré dans la mémoire de travail de l'agent.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\nAjouter des notifications toast dans l'interface Streamlit pour améliorer l'expérience utilisateur lors de l'enregistrement de nouveaux souvenirs.\n\n**Exigences :**\n- Utiliser st.toast() de Streamlit pour afficher les notifications\n- Déclencher une notification à chaque nouveau souvenir \"present\" enregistré\n- Intégrer dans la page \"Review et communication\" de l'interface\n- Afficher un message informatif sur le contenu du souvenir enregistré\n\n**Critères d'acceptation :**\n- Les notifications toast apparaissent automatiquement lors de l'enregistrement de nouveaux souvenirs \"present\"\n- Le message de la toast est informatif et utile pour l'utilisateur\n- L'intégration ne perturbe pas le fonctionnement existant de l'interface\n- Les notifications sont bien positionnées et non intrusives\n\n**Notes techniques :**\n- Identifier le bon moment pour déclencher la notification (après l'enregistrement réussi)\n- Utiliser l'API st.toast avec les paramètres appropriés (message, icon, etc.)\n- S'assurer que la notification ne se déclenche que pour les nouveaux souvenirs \"present\"\n- Tester le comportement avec différents types de contenu de souvenirs\n\n**Validation Criteria:**\nLa tâche est terminée quand : (1) Les notifications st.toast s'affichent automatiquement lors de l'enregistrement de nouveaux souvenirs \"present\", (2) Le message de notification est informatif et contextuel, (3) L'interface fonctionne normalement sans régression, (4) Les tests manuels confirment le bon fonctionnement des notifications dans différents scénarios d'usage.\n\n**User Feedback:**\nJe n'ai pas l'impression de voir de modifications... Tu es sûr que les notifications apparaissent bien à chaque nouveau souvenir ? En particulier sur la page app principale de l'ionterface ?\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
@@ -979,6 +941,44 @@
         },
         {
           "timestamp": "2025-07-21T18:00:33.961Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 300,
+      "content": "Modification request for Task #348 (Réviser et corriger définitivement l'espacement anormal Streamlit avec approche de debugging avancée):\n\n**Original Task Details:**\n- **Title:** Réviser et corriger définitivement l'espacement anormal Streamlit avec approche de debugging avancée\n- **Description:** Investigation approfondie et correction renforcée de l'espacement anormal persistant sur la page Review et Communication de l'interface Streamlit après échec de la première tentative de correction.\n- **Status:** REVIEW\n- **Priority:** 4\n\n**Detailed Task Description:**\n**Objectif :**\nEffectuer une investigation approfondie et une correction définitive de l'espacement anormal qui persiste sur la page Review et Communication de l'interface Streamlit malgré les corrections précédentes.\n\n**Contexte critique :**\nLa tâche #347 avait été marquée en REVIEW avec des corrections d'espacement implémentées (suppression de séparateurs `st.markdown(\"---\")` et optimisation des headers), mais l'utilisateur confirme que \"l'espace anormal est malheureusement toujours présent\". Ceci indique que la cause racine n'a pas été identifiée lors de la première investigation.\n\n**Analyse Technique & Points de Vigilance :**\n\n1. **Investigation manquée lors de la première correction** : Les corrections précédentes se sont concentrées sur les séparateurs markdown visibles, mais d'autres éléments peuvent causer cet espacement :\n   - CSS injecté dynamiquement par Streamlit\n   - Composants cachés ou containers vides\n   - Marges/paddings héritées de classes CSS parentes\n   - Interactions between st.columns() et autres layouts\n   - Espacement causé par des components non-visibles (CSS display:none)\n\n2. **Nécessité d'investigation browser DevTools** : L'analyse précédente était basée sur le code source uniquement. Une inspection browser détaillée est requise :\n   - Inspecter l'élément problématique via DevTools\n   - Identifier les règles CSS appliquées\n   - Mesurer précisément les marges et paddings effectifs\n   - Traquer les elements fantômes ou espacements non-intentionnels\n\n3. **Investigation différentielle** : Comparer avec des pages Streamlit fonctionnelles pour identifier les différences structurelles\n\n4. **Testing sur environnements multiples** : Le problème peut être spécifique à certains navigateurs ou configurations d'écran\n\n5. **Impact des modifications CSS globales** : Vérifier si des modifications CSS globales de l'interface affectent spécifiquement cette page\n\n**Investigation requise (approche renforcée) :**\n\n1. **Re-analyse détaillée de l'image référence** :\n   - Mesure précise de l'espacement anormal visible\n   - Identification des éléments exacts impliqués\n   - Comparaison avec le layout attendu\n\n2. **Inspection browser approfondie** :\n   - Lancement de l'interface Streamlit en local\n   - Navigation vers la page Review et Communication\n   - Inspection DevTools pour identifier CSS et DOM causant l'espacement\n   - Capture des propriétés CSS effectives\n\n3. **Investigation code source exhaustive** :\n   - Examen de tous les fichiers Streamlit impliqués (pas seulement app.py)\n   - Recherche de containers, colonnes, ou layouts non-évidents\n   - Vérification des imports et dépendances CSS\n   - Analyse des fonctions de layout custom\n\n4. **Testing comparatif** :\n   - Comparaison avec autres pages de l'interface fonctionnelles\n   - Tests dans différents navigateurs (Chrome, Firefox, Safari)\n   - Tests responsive sur différentes tailles d'écran\n\n5. **Solutions alternatives** :\n   - Si les corrections simples échouent, considérer restructuration du layout\n   - Utilisation de st.container() ou st.columns() pour contrôle strict\n   - Application de CSS custom ciblé si nécessaire\n\n**Stratégie de correction :**\n\n1. **Debug-first approach** : Identifier précisément la cause avant d'appliquer des corrections\n2. **Corrections mesurées** : Valider chaque modification avec tests visuels\n3. **Documentation des changements** : Commenter le code pour expliquer les corrections\n4. **Validation multi-environnement** : Tester sur plusieurs navigateurs et tailles d'écran\n\n**Validation Criteria:**\n- L'espacement anormal est définitivement éliminé et confirmé visuellement\n- La page Review et Communication présente un layout professionnel et cohérent\n- Aucune régression sur d'autres pages de l'interface\n- Compatibilité validée sur Chrome, Firefox, et Safari\n- Tests responsive confirmant un affichage correct\n- Solution documentée pour référence future\n\n**Validation Criteria:**\n- Espacement anormal définitivement éliminé avec confirmation visuelle via capture d'écran comparative\n- Page Review et Communication avec layout professionnel sans espace excessif\n- Tests multi-navigateurs (Chrome, Firefox, Safari) validant la correction\n- Tests responsive sur mobile/tablet/desktop confirmant un affichage cohérent\n- Aucune régression d'interface sur les autres pages Streamlit\n- Documentation technique expliquant la cause racine et la solution appliquée\n- Solution validée par l'utilisateur confirmant que le problème est résolu\n\n**User Feedback:**\nNon... Le problème n'a toujours pas été résolu. Essaye encore ! Peut-être devrais-tu utiliser l'outil take_webpage_screenshot pour voir si tes corrections fonctionnent ?\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T20:17:43.928386",
+      "updated_at": "2025-07-21T18:22:02.725Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T20:17:43.928386",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T18:22:02.725Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 301,
+      "content": "Il y a un petit bug sur la page 📨 Review & Communication de l'interface streamlit : Il faut cliquer deux fois sur les boutons Review & Communicationm Tasks to review ou Agent message pour accéder à leurs tabs. Je pense que ce comportement pourrait être lié au mécanisme de redirection automatique en cas de notifications, mais je n'en suis pas sûr. Tu peux tout de même tenter de régler la chose ? :D",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T20:20:03.354875",
+      "updated_at": "2025-07-21T18:23:05.756Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T20:20:03.354875",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T18:23:05.756Z",
           "action": "mark_archived"
         }
       ]
