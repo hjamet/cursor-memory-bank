@@ -1,45 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 297,
+  "last_id": 299,
   "requests": [
-    {
-      "id": 247,
-      "content": "Je souhaite que tu te débarrase des fichiers techcontext.md et projectbrief.md. Leur gestion est peu pratique et laborieuse. Tu devrais :\n1. Les supprimer\n2. Supprimer leur mention de toutes les règles, notamment start.md et context_update.md\n\nA la place, modifie la règle start appelée via l'outil next_rule de manière à ce que le contenu du README.md à la racine du repo soit automatiquement fourni à l'agent (sans qu'il est beosin de le lire activement). Si le README n'existe pas, le message README not yet created doit être retourné et une tâche de création du README doit automatiquement être ajoutée (exactement comme pour la découpe des fichiers en moins de 500 lignes).\n\nIl doit être précisé dans les instructions de création du README que ce dernier doit contenir une vue d'ensemble du projet, une précision des dépendances et informations techniques principales (nom et structure des bases de données etc.), instructions d'installation et d'utilisation etc.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-13T07:54:55.857071",
-      "updated_at": "2025-07-13T05:59:28.170Z",
-      "history": [
-        {
-          "timestamp": "2025-07-13T07:54:55.857071",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-13T05:59:28.170Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 248,
-      "content": "Modifie la règle remember pour qu'elle retourne :\n1. Les 10 souvenirs à long terme les plus sémantiquement proche (et non les 3)\n2. Seulement le \"present\" de chaque souvenir de la mémoire de travail, sauf pour le dernier souvenir (le plus récent) qui doit afficher aussi le \"passé\" et le \"futur\".\n\nJe te rappelle que tu ne pourras pas tester manuellement immédiatement le serveur car il nécessite un redémarrage de cursor, mais tu pourras créer un script pour valider le comportement et ensuite, je redémarrerai manuellement plus tard :D",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-13T07:57:39.456478",
-      "updated_at": "2025-07-13T06:01:14.313Z",
-      "history": [
-        {
-          "timestamp": "2025-07-13T07:57:39.456478",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-13T06:01:14.313Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 249,
       "content": "Ajoute un système qui compte le nombre de fois où la règle \"implementation\" est appelée et stocke ce nombre dans les fichiers d'état de l'agent (.cursor\\memory-bank\\workflow\\workflow_state.json semble pas mal). Toutes les 10 étapes d'implémentation, une tâche de mise à jour du README devrait être automatiquement ajoutée avec une priorité assez élevée à la liste des tâches (.cursor\\memory-bank\\streamlit_app\\tasks.json)",
@@ -979,6 +941,44 @@
         },
         {
           "timestamp": "2025-07-21T17:16:17.543Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 298,
+      "content": "Modification request for Task #347 (Corriger l'espacement anormal sur la page Review et Communication de l'interface Streamlit):\n\n**Original Task Details:**\n- **Title:** Corriger l'espacement anormal sur la page Review et Communication de l'interface Streamlit\n- **Description:** Investigation et correction de l'espacement anormal détecté sur la page Review et Communication de l'interface Streamlit, basée sur l'image fournie par l'utilisateur montrant le problème de layout.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\n**Objectif :**\nIdentifier et corriger l'espacement anormal présent sur la page Review et Communication de l'interface Streamlit pour assurer un affichage cohérent et professionnel.\n\n**Contexte critique :**\nL'utilisateur a signalé un problème d'espacement anormal sur la page Review et Communication et a fourni une capture d'écran illustrant le problème (req_297_20250721_191113_pasted.png). Ce type de problème affecte l'expérience utilisateur et la présentation professionnelle de l'interface.\n\n**Analyse technique & Points de vigilance :**\n\n1. **Investigation visuelle requise** : L'image fournie par l'utilisateur doit être analysée pour identifier précisément la nature de l'espacement anormal\n2. **Problème de layout Streamlit** : Les problèmes d'espacement dans Streamlit peuvent provenir de plusieurs sources :\n   - CSS personnalisé mal configuré\n   - Colonnes ou containers mal dimensionnés\n   - Composants avec des marges/padding incorrects\n   - Interactions entre différents éléments de layout\n3. **Impact responsive** : Les corrections doivent maintenir la compatibilité avec différentes tailles d'écran\n4. **Cohérence design** : La solution doit respecter la charte graphique générale de l'interface\n5. **Non-régression** : S'assurer que la correction ne casse pas d'autres éléments de la page\n\n**Investigation requise :**\n\n1. **Analyse de l'image** :\n   - Examiner la capture d'écran fournie pour identifier l'espace problématique\n   - Localiser les éléments affectés et mesurer l'espacement anormal\n   - Déterminer si le problème est horizontal, vertical ou les deux\n\n2. **Inspection du code source** :\n   - Examiner le code de la page Review et Communication\n   - Identifier les composants Streamlit utilisés dans la zone problématique\n   - Vérifier les paramètres de layout, colonnes, et spacing\n\n3. **Reproduction locale** :\n   - Reproduire le problème en local pour validation\n   - Tester différents navigateurs et tailles d'écran\n   - Confirmer que le problème persiste de manière consistante\n\n4. **Correction ciblée** :\n   - Appliquer les corrections CSS ou de layout appropriées\n   - Tester la solution sur différents environnements\n   - Valider que l'espacement est maintenant correct et cohérent\n\n**Critères de validation :**\n- L'espacement anormal identifié dans l'image est corrigé\n- La page Review et Communication affiche un layout cohérent\n- Aucune régression introduite sur d'autres éléments de l'interface\n- Compatibilité maintenue avec différents navigateurs et tailles d'écran\n- Tests visuels confirmant la correction\n\n**Fichiers impactés potentiels :**\n- Pages Streamlit liées à Review et Communication\n- Fichiers CSS ou de styling personnalisés\n- Configuration de layout Streamlit\n\n**Validation Criteria:**\n- L'espacement anormal visible dans l'image fournie est corrigé\n- La page Review et Communication présente un layout visuellement cohérent\n- Aucune régression d'affichage sur les autres pages de l'interface\n- Compatibilité visuelle maintenue sur différents navigateurs (Chrome, Firefox, Safari)\n- Tests responsive confirmant un affichage correct sur différentes tailles d'écran\n\n**User Feedback:**\nNon : l'espace anornmal est malheuresement toujours présent.\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T19:54:41.999334",
+      "updated_at": "2025-07-21T17:59:50.166Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T19:54:41.999334",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T17:59:50.166Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 299,
+      "content": "L'interface streamlitz continue de ne pas se mettre à jour. Automatiquement toutes les 2 secondes Il faut vraiment que tu règles ce problème, c'est vraiment problématique Note que il y a 30 commits. Ça fonctionnait parfaitement, peut être que tu devrais regarder L'historique git pour identifier pourquoi ça marchait avant et maintenant ça ne fonctionne plus parce que c'est vraiment très embêtant.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T19:55:38.990891",
+      "updated_at": "2025-07-21T18:00:33.961Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T19:55:38.990891",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T18:00:33.961Z",
           "action": "mark_archived"
         }
       ]

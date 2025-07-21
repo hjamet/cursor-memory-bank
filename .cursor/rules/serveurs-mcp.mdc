@@ -1,0 +1,7 @@
+---
+description: La modification des fichiers js des serveurs MCP
+alwaysApply: false
+---
+
+- Le logging ne doit surtout pas être utilisé car il interfère avec le protocole MCP.
+- Les modifications ne peuvent pas être testées immédiatement par l'agent car elles nécessitent un redémarrage de Cursor. L'agent devrait effectuer des tests via l'outil execute_command si il se trouve dans la phase experience-execution.

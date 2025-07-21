@@ -276,6 +276,111 @@ def display_sidebar():
 
         st.markdown("---")
 
+        # User Message Form
+        st.markdown("### 💬 Send Message to Agent")
+        
+        with st.form(key="user_message_form", clear_on_submit=True):
+            user_message = st.text_area(
+                "Message",
+                placeholder="Send a quick message to the agent...",
+                height=80,
+                help="Send a message to the agent"
+            )
+            
+            submitted = st.form_submit_button("📤 Send Message", type="primary")
+            
+            if submitted:
+                if user_message and user_message.strip():
+                    if add_user_message(user_message):
+                        st.success("✅ Message sent to agent!")
+                        st.toast("Message sent successfully!", icon="✅")
+                    else:
+                        st.error("❌ Failed to send message. Please try again.")
+                else:
+                    st.warning("⚠️ Please enter a message before sending.")
+        
+        st.markdown("---")
+        
+        # Auto-refresh automatique toutes les 2 secondes (comme demandé par l'utilisateur)
+        st.markdown("### ⚡ Actualisation automatique")
+        
+        # Option visible pour activer/désactiver l'auto-refresh
+        enable_auto = st.checkbox("🔄 Actualisation automatique (2 secondes)", 
+                                value=True,  # Activé par défaut pour répondre à la demande utilisateur
+                                help="Actualise automatiquement les données toutes les 2 secondes")
+        
+        if enable_auto:
+            st.success("✅ Actualisation automatique activée (2 secondes)")
+            
+            # Auto-refresh configuré pour 2 secondes comme demandé
+            try:
+                refresh_count = st_autorefresh(interval=2000, limit=None, key="auto_refresh_2s")
+                
+                if refresh_count > 0:
+                    st.caption(f"🔄 Auto-refresh: {refresh_count} cycles")
+                    # Update manual refresh timestamp when auto-refresh works
+                    st.session_state.last_manual_refresh = datetime.now()
+                    
+                    # Force session state update
+                    if 'last_auto_refresh_count' not in st.session_state:
+                        st.session_state.last_auto_refresh_count = 0
+                        
+                    if refresh_count != st.session_state.last_auto_refresh_count:
+                        st.session_state.last_auto_refresh_count = refresh_count
+                        # Clear any cached data
+                        if hasattr(st, 'cache_data'):
+                            st.cache_data.clear()
+                            
+            except Exception as e:
+                st.error(f"❌ Auto-refresh échoué: {str(e)}")
+                st.info("💡 Utilisez le bouton de refresh manuel ci-dessus")
+        else:
+            st.info("⏸️ Actualisation automatique désactivée - utilisez le bouton manuel ci-dessus")
+        
+        # Bouton de refresh manuel comme alternative
+        st.markdown("### 🔄 Mise à jour manuelle")
+        
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            # Bouton de refresh manuel très visible
+            if st.button("🔄 Actualiser les données", 
+                        type="secondary", 
+                        help="Cliquer pour voir les dernières mises à jour",
+                        use_container_width=True):
+                # Force le rechargement de toutes les données
+                if hasattr(st, 'cache_data'):
+                    st.cache_data.clear()
+                st.success("✅ Données actualisées !")
+                st.rerun()
+        
+        with col2:
+            # Indicateur de dernière mise à jour
+            if 'last_manual_refresh' not in st.session_state:
+                st.session_state.last_manual_refresh = datetime.now()
+            
+            time_diff = datetime.now() - st.session_state.last_manual_refresh
+            minutes_ago = int(time_diff.total_seconds() / 60)
+            
+            if minutes_ago == 0:
+                st.caption("📍 À jour")
+            elif minutes_ago < 5:
+                st.caption(f"📍 {minutes_ago}min ago")
+            else:
+                st.caption("⚠️ Actualiser")
+        
+        # Instructions utilisateur claires
+        st.markdown("---")
+        st.markdown("""
+        **📋 Actualisation des données :**
+        - 🔄 **Auto (recommandé)** : Activez la case ci-dessus pour refresh automatique toutes les 2 secondes
+        - 🖱️ **Manuel** : Cliquez sur 'Actualiser les données' quand vous voulez voir les changements
+        - 💡 **Conseil** : L'auto-refresh est pratique pendant le travail actif de l'agent
+        """)
+        
+        # Update manual refresh timestamp on any interaction
+        st.session_state.last_manual_refresh = datetime.now()
+
 
 def _load_workflow_state():
     """Load workflow state from JSON file"""
@@ -390,123 +495,3 @@ def _update_workflow_state(new_mode):
     except Exception as e:
         import streamlit as st
         st.error(f"Erreur lors de la mise à jour du mode workflow: {e}")
-        
-        # User Message Form
-        st.markdown("### 💬 Send Message to Agent")
-        
-        with st.form(key="user_message_form", clear_on_submit=True):
-            user_message = st.text_area(
-                "Message",
-                placeholder="Send a quick message to the agent...",
-                height=80,
-                help="Send a message to the agent"
-            )
-            
-            submitted = st.form_submit_button("📤 Send Message", type="primary")
-            
-            if submitted:
-                if user_message and user_message.strip():
-                    if add_user_message(user_message):
-                        st.success("✅ Message sent to agent!")
-                        st.toast("Message sent successfully!", icon="✅")
-                    else:
-                        st.error("❌ Failed to send message. Please try again.")
-                else:
-                    st.warning("⚠️ Please enter a message before sending.")
-        
-        st.markdown("---")
-        
-        # ====== SOLUTION ALTERNATIVE AUTO-REFRESH ======
-        # Après feedback utilisateur : streamlit-autorefresh ne fonctionne pas en conditions réelles
-        # Implémentation d'un système de refresh manuel optimisé avec indicateurs visuels
-        
-        st.markdown("### 🔄 Mise à jour des données")
-        
-        col1, col2 = st.columns([2, 1])
-        
-        with col1:
-            # Bouton de refresh manuel très visible
-            if st.button("🔄 Actualiser les données", 
-                        type="primary", 
-                        help="Cliquer pour voir les dernières mises à jour",
-                        use_container_width=True):
-                # Force le rechargement de toutes les données
-                if hasattr(st, 'cache_data'):
-                    st.cache_data.clear()
-                st.success("✅ Données actualisées !")
-                st.rerun()
-        
-        with col2:
-            # Indicateur de dernière mise à jour
-            if 'last_manual_refresh' not in st.session_state:
-                st.session_state.last_manual_refresh = datetime.now()
-            
-            time_diff = datetime.now() - st.session_state.last_manual_refresh
-            minutes_ago = int(time_diff.total_seconds() / 60)
-            
-            if minutes_ago == 0:
-                st.caption("📍 À jour")
-            elif minutes_ago < 5:
-                st.caption(f"📍 {minutes_ago}min ago")
-            else:
-                st.caption("⚠️ Actualiser")
-        
-        # Auto-refresh automatique toutes les 2 secondes (comme demandé par l'utilisateur)
-        st.markdown("### ⚡ Actualisation automatique")
-        
-        # Option visible pour activer/désactiver l'auto-refresh
-        enable_auto = st.checkbox("🔄 Actualisation automatique (2 secondes)", 
-                                value=True,  # Activé par défaut pour répondre à la demande utilisateur
-                                help="Actualise automatiquement les données toutes les 2 secondes")
-        
-        if enable_auto:
-            st.success("✅ Actualisation automatique activée (2 secondes)")
-            
-            # Auto-refresh configuré pour 2 secondes comme demandé
-            try:
-                refresh_count = st_autorefresh(interval=2000, limit=None, key="auto_refresh_2s")
-                
-                if refresh_count > 0:
-                    st.caption(f"🔄 Auto-refresh: {refresh_count} cycles")
-                    # Update manual refresh timestamp when auto-refresh works
-                    st.session_state.last_manual_refresh = datetime.now()
-                    
-                    # Force session state update
-                    if 'last_auto_refresh_count' not in st.session_state:
-                        st.session_state.last_auto_refresh_count = 0
-                        
-                    if refresh_count != st.session_state.last_auto_refresh_count:
-                        st.session_state.last_auto_refresh_count = refresh_count
-                        # Clear any cached data
-                        if hasattr(st, 'cache_data'):
-                            st.cache_data.clear()
-                            
-            except Exception as e:
-                st.error(f"❌ Auto-refresh échoué: {str(e)}")
-                st.info("💡 Utilisez le bouton de refresh manuel ci-dessus")
-        else:
-            st.info("⏸️ Actualisation automatique désactivée - utilisez le bouton manuel ci-dessus")
-        
-        # Option pour utilisateurs avancés : modifier l'intervalle
-        with st.expander("⚙️ Options avancées", expanded=False):
-            st.markdown("**Actualisation automatique configurée :**")
-            st.markdown("- ⚡ Intervalle: **2 secondes** (selon demande utilisateur)")
-            st.markdown("- 🔄 Statut: Activé par défaut")
-            st.markdown("- 💾 Cache: Nettoyé automatiquement à chaque refresh")
-            
-            if enable_auto:
-                st.success("✅ L'auto-refresh fonctionne actuellement")
-            else:
-                st.warning("⏸️ Auto-refresh désactivé - cochez la case ci-dessus pour l'activer")
-        
-        # Instructions utilisateur claires
-        st.markdown("---")
-        st.markdown("""
-        **📋 Actualisation des données :**
-        - 🔄 **Auto (recommandé)** : Activez la case ci-dessus pour refresh automatique toutes les 2 secondes
-        - 🖱️ **Manuel** : Cliquez sur 'Actualiser les données' quand vous voulez voir les changements
-        - 💡 **Conseil** : L'auto-refresh est pratique pendant le travail actif de l'agent
-        """)
-        
-        # Update manual refresh timestamp on any interaction
-        st.session_state.last_manual_refresh = datetime.now()
