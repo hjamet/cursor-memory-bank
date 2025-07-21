@@ -1,86 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 279,
+  "last_id": 282,
   "requests": [
-    {
-      "id": 228,
-      "content": "Je vois que la règle implémentation n'est toujours pas correcte malgré le fait que je t'ai demandé plusieurs fois de la corriger je sais pas exactement ce que tu ce qui est pas clair pour toi mais il faudrait vraiment effectuer cette correction l'idée est la suivante étape un de la règle implémentation il faut marquer la tâche comme la tâche en cours identifier la tâche en cours et la marquer comme in progress donc ça c'est le cas actuellement ça tu changes rien l'étape 2 par contre enfin ce serait l'étape 1.1 mais on va la noter étape 2 c'est d'identifier si il s'agit d'une d'une tâche qui nécessite une implémentation ou seulement l'exécution de code s'il s'agit seulement d'exécution de codes grosso modo d'une expérience d'une commande ou d'une série de commandes exécutées ou que sais-je à ce moment-là l'étape 2 doit directement appeler la règle expérience exécution et en fait la la règle implémentation c'est c'est fini on appelle directement avec next cual la règle expérience exécution si la tâche actuelle nécessite une implémentation nécessite d'écrire du code en continu dans la règle implémentation à ce moment-là on a l'étape 3 et 4 qui sont les équivalents des étapes 2 et 3 actuelles ça y a aucun souci et par contre l'étape 4 de la règle actuelle est fausse on doit pas mettre à jour le statut de la tâche comme review ça c'est la tâche expérience exécution qui doit s'en charger donc y a pas d'étape 4 dans la règle implémentation il faudra supprimer cette étape 4 et on passe du coup à l'étape finale qui est enregistrée les progrès et cetera et ça c'est tout à fait correct et ensuite la règle implémentation doit automatiquement appeler la règle expérience exécution donc là le l'outil remember va le rappeler mais tu peux déjà le préciser dans le fichier markdown de la règle et c'est en fait la la règle expérience exécution qui va marquer plus tard la la tâche comme étant fait ou pas faite donc ça ça arrive plus tard et et c'est pas un souci donc voilà j'aimerais que tu fasses ces modifications à la règle implémentation un fichier markdown de la règle implémentation",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-01T16:03:22.534733",
-      "updated_at": "2025-07-01T14:06:37.156Z",
-      "history": [
-        {
-          "timestamp": "2025-07-01T16:03:22.534733",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-01T14:06:37.156Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 229,
-      "content": "Effectuer une petite modification de la règle expérience exécution pour rendre l'argent plus rapide. L'idée, c'est de privilégier des tests manuels au test automatique. Au lieu de créer plein de fichiers de tests complètement automatiques, ils devraient plutôt essayer autant que possible de faire des tests manuels, comme le ferait vraiment un développeur humain qui cherche à vérifier si son code fonctionne. C'est à dire que il va essayer de dynamiquement tester des choses, de voir si les résultats fonctionnent, et cetera. Il doit le faire de manière. Simple et efficace, il doit pas tester des Edge case, des trucs vraiment vraiment bizarres. Il doit plutôt tester l'implémentation de base, voire si ce qu'il a essayé de faire fonctionner à l'air de marcher et repérer les problèmes sans chercher activement des cas vraiment particuliers. En fait, il doit être un peu plus efficace dans cette règle, mais encore une fois, privilégiez au maximum. L'exécution de commandes et des tests dynamiques plutôt que la création de scripts de tests, même temporaires.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-01T16:25:19.247007",
-      "updated_at": "2025-07-01T14:26:25.799Z",
-      "history": [
-        {
-          "timestamp": "2025-07-01T16:25:19.247007",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-01T14:26:25.799Z",
-          "action": "mark_archived",
-          "comment": "Requête décomposée en tâche #283: Optimiser la règle `experience-execution` pour des tests manuels rapides."
-        }
-      ]
-    },
-    {
-      "id": 230,
-      "content": "Reply to Agent Message #213:\n\n**Original Message:** \"La tâche #281 est prête pour revue. Le code est corrigé, mais le test de validation final n'a pas pu être exécuté à cause de problèmes de terminal. Merci d'exécuter `test_gemini_cli_local_config.sh` m...\"\n\n**My Reply:** On est bien d'accord que tu as utilisé l'outil mcp exécute Command et par terminal. Cmd, je te rappelle que c'est interdit d'utiliser l'outil terminal. Cmd, tu dois uniquement utiliser l'outil mcp exécute Command et là normalement ça devrait fonctionner sans problème.\n\n**Message Context:**\n- Rule: unknown\n- Timestamp: 2025-07-01T14:25:46.907Z\n- Workflow Rule: implementation",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-01T16:27:11.484427",
-      "updated_at": "2025-07-01T14:30:02.723Z",
-      "history": [
-        {
-          "timestamp": "2025-07-01T16:27:11.484427",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-01T14:30:02.723Z",
-          "action": "mark_archived",
-          "comment": "Requête traitée. J'ai créé la tâche #284 pour relancer la validation de la tâche #281 en utilisant l'outil `mcp_ToolsMCP_execute_command` comme demandé."
-        }
-      ]
-    },
-    {
-      "id": 232,
-      "content": "Il y a un gros souci qui fait que l'outil remember et l'outil Next World ont tendance à appeler à faire appeler l'outil context update en boucle pour une raison extrêmement étrange, je crois que c'est lié à un mécanisme de frein d'urgence qui ne sert vraiment à rien, donc il faudrait que tu supprimes ce mécanisme de frein d'urgence s'il te plaît. Si c'est bien lui qui est responsable de ce truc de contexte update ce qui me semble vraiment être le cas.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-01T17:10:48.495312",
-      "updated_at": "2025-07-01T15:12:59.531Z",
-      "history": [
-        {
-          "timestamp": "2025-07-01T17:10:48.495312",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-01T15:12:59.531Z",
-          "action": "mark_archived",
-          "comment": "Request has been decomposed into task #285 to investigate and fix the workflow loop."
-        }
-      ]
-    },
     {
       "id": 233,
       "content": "Tu peux vérifier das le détails que l'outil remember retourne bien les recommandations de règle suivante selon le schéma suivant :\n\nstart \n-> task-decomposition si il y a des requetes userbrief non traitées\n-> implementation si il y a des tâches non traitées\n\ntask-decomposition\n-> task-decomposition si il reste des userbrief non traités\n-> implementation\n\nimplementation\n-> experience-execution\n\nexperience-execution\n-> context-udpate si l'experience est une réussite\n-> fix si l'experience est un echec\n\nfix\n-> experience-execution\n\ncontext-update\n-> task-decomposition si il y a des requetes userbrief non traitées\n-> implementation si il y a des tâches non traitées\n\nSauvegarde bien ce schéma et documente le dans le RAEDME. Puis vérifie dans le détails si les outils remeber et next-rule le suivent bien !",
@@ -978,15 +899,83 @@
     {
       "id": 279,
       "content": "Modification request for Task #331 (Corriger le dysfonctionnement de l'auto-refresh de l'interface Streamlit):\n\n**Original Task Details:**\n- **Title:** Corriger le dysfonctionnement de l'auto-refresh de l'interface Streamlit\n- **Description:** Diagnostiquer et réparer le mécanisme de mise à jour automatique de l'interface Streamlit qui ne fonctionne plus, affectant l'expérience utilisateur et la visibilité en temps réel des changements.\n- **Status:** REVIEW\n- **Priority:** 4\n\n**Detailed Task Description:**\n**Problème Identifié :**\nLa mise à jour automatique de l'interface Streamlit ne fonctionne plus, empêchant l'affichage en temps réel des modifications de tâches, requêtes utilisateur et état du système.\n\n**Objectifs de Correction :**\n\n1. **Diagnostic Complet :**\n   - Identifier la cause racine du dysfonctionnement de l'auto-refresh\n   - Analyser les logs Streamlit pour détecter les erreurs\n   - Vérifier l'état des mécanismes de rechargement automatique\n\n2. **Zones d'Investigation :**\n   - **Page Review & Communication** : Auto-refresh toutes les 2 secondes\n   - **Page principale (app.py)** : Mécanismes de mise à jour\n   - **Pages de gestion** : Synchronisation des données\n   - **Session State** : Gestion des états de session\n\n3. **Actions de Réparation :**\n   - Corriger les mécanismes d'auto-refresh défaillants\n   - Restaurer la synchronisation en temps réel\n   - Optimiser les performances de mise à jour\n   - Tester la stabilité du système après correction\n\n4. **Validation Post-Correction :**\n   - Vérifier le fonctionnement de l'auto-refresh sur toutes les pages\n   - Tester la performance et la stabilité\n   - Valider l'expérience utilisateur améliorée\n\n**Critères d'Acceptation :**\n- L'auto-refresh fonctionne correctement sur toutes les pages Streamlit\n- Les mises à jour s'affichent en temps réel (2 secondes maximum)\n- Aucune dégradation de performance détectée\n- L'interface est stable et responsive\n\n**Analyse Technique & Points de Vigilance :**\n\n⚠️ **Points d'Attention Critiques :**\n- **Mécanismes Streamlit** : Les mécanismes `st.rerun()`, `st.experimental_rerun()` ou timers peuvent être défaillants\n- **Session State Conflicts** : Problèmes de concurrence dans la gestion des états de session\n- **Performance Impact** : L'auto-refresh excessif peut surcharger l'interface\n- **Cache Invalidation** : Les caches Streamlit peuvent empêcher la mise à jour\n- **JavaScript/HTML** : Problèmes avec les composants custom ou auto-refresh JavaScript\n\n⚠️ **Risques Techniques :**\n- **Loops Infinis** : Mauvaise implémentation de l'auto-refresh peut créer des boucles\n- **Memory Leaks** : Accumulation d'états de session non nettoyés\n- **Race Conditions** : Conflits entre multiple refreshes simultanés\n- **Browser Compatibility** : Problèmes spécifiques à certains navigateurs\n- **Network Issues** : Problèmes de connectivité affectant les mises à jour\n\n⚠️ **Zones à Investiguer :**\n- **Fichiers Streamlit** : Tous les fichiers .py dans .cursor/memory-bank/streamlit_app/\n- **Configuration** : Paramètres Streamlit et configuration auto-refresh\n- **Logs Application** : Messages d'erreur et warnings dans les logs Streamlit\n- **JavaScript Custom** : Composants personnalisés avec auto-refresh\n- **API Calls** : Appels vers les serveurs MCP qui peuvent bloquer\n\n⚠️ **Stratégie de Debug :**\n- Tests isolés sur chaque page Streamlit\n- Monitoring des performances pendant l'auto-refresh\n- Validation des mécanismes de timer et callback\n- Tests de stress pour identifier les points de rupture\n\n**Validation Criteria:**\nLa tâche est terminée quand :\n1. L'auto-refresh fonctionne correctement sur toutes les pages Streamlit (Review & Communication, Dashboard, etc.)\n2. Les mises à jour s'affichent en temps réel avec un délai maximum de 2 secondes\n3. Aucune erreur dans les logs Streamlit liée au mécanisme de refresh\n4. Les performances de l'interface restent optimales (pas de lag ou freeze)\n5. Tests de stress validés : l'auto-refresh reste stable sous charge\n6. Documentation des corrections apportées et mécanismes implémentés\n\n**User Feedback:**\nHélas, loe système d'auto refresh ne fonctionne toujours pas :/\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-07-21T15:12:55.121915",
-      "updated_at": "2025-07-21T15:12:55.121915",
+      "updated_at": "2025-07-21T13:15:39.417Z",
       "history": [
         {
           "timestamp": "2025-07-21T15:12:55.121915",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T13:15:39.417Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 280,
+      "content": "Gros soucis sur le système workflow infini ou workflow non infini. Tu sais, il y en a mis un bouton switch sur l'interface streamlit Qui permet d'indiquer si. On veut que l'agent ne s'arrête jamais ou que ils s'arrêtent lors du prochain contexte update et j'ai l'impression que l'outil remember ne prends pas correctement en compe la position du switch : il affiche toujours\n\n\"workflow_status\": \"CONTINUE_REQUIRED\",\n  \"next_action_required\": \"You MUST continue the workflow by calling mcp_MemoryBankMCP_next_rule with 'experience-execution'. Do not stop here.\",\n  \"workflow_instruction\": \"CONTINUE WORKFLOW: Tasks in REVIEW status detected. You should validate these implementations using 'experience-execution' to ensure they work correctly.\",\n  \"recommended_next_step\": \"experience-execution\",\n\nMême lorsque l'on se trouve à context-update et que que le switch est en position workflow-infini désactivé. Si le switch est désactivé et qu'on est à context-update, l'outil remember devrait indiquer à l'agent qu'il doit s'arréter.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T15:15:59.477245",
+      "updated_at": "2025-07-21T13:19:43.639Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T15:15:59.477245",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T13:19:43.639Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 281,
+      "content": "J'ai réalisé que si on était à context-update et qu'il y avait des tâches en mode REVIEW, l'outil remember recommendait experience-execution. Celà ne doit pas du tout être le cas ! L'arbre de décision de context-update doit être le suivant :\n\n1. Si Workflow-infini est désactivé, dire à l'agent de s'arréter,\n2. Sinon, si il y des userbrief à traiter, appeler task-decomposition,\n3. Sinon, si il y a des tâches restants à faire, appeler implementation,\n4. Sinon, dire à l'agent de s'arréter",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T15:18:53.812466",
+      "updated_at": "2025-07-21T13:22:46.329Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T15:18:53.812466",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T13:22:46.329Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 282,
+      "content": "Supprime tous les éléments de l'image de la page Review & communication de l'interface streamlit",
+      "status": "archived",
+      "image": {
+        "path": ".cursor\\temp\\images\\req_282_20250721_151956_pasted.png",
+        "filename": "req_282_20250721_151956_pasted.png",
+        "size": 28826,
+        "width": 777,
+        "height": 282,
+        "content_type": "image/png"
+      },
+      "created_at": "2025-07-21T15:19:56.958483",
+      "updated_at": "2025-07-21T13:23:50.748Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T15:19:56.958483",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T13:23:50.748Z",
+          "action": "mark_archived"
         }
       ]
     }

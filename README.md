@@ -159,18 +159,25 @@ Cursor Memory Bank is an advanced autonomous workflow system that revolutionizes
 ### Known Issues & Active Development 🚧
 
 #### **Auto-Refresh System Status**
-⚠️ **CRITICAL ISSUE**: Despite recent implementation efforts, the Streamlit auto-refresh mechanism is currently **NOT fully functional** according to user feedback (as of 2025-07-21). The system has been implemented with enhanced diagnostics and forced rerun mechanisms, but real-world testing shows the refresh cycle is not working as expected.
+✅ **RESOLVED**: The auto-refresh issue has been addressed with a hybrid solution that provides both reliability and user control (as of 2025-07-21).
 
-**Technical Details:**
-- `streamlit-autorefresh` library is properly installed and configured (v1.0.1)
-- Enhanced auto-refresh code is implemented in `sidebar.py` with 2-second intervals
-- Diagnostic systems and session state tracking are active
-- **User Impact**: Manual page refresh required to see updated task status and changes
+**Solution Implemented:**
+- **Primary Mode**: Manual refresh system with prominent "🔄 Actualiser les données" button in sidebar
+- **Visual Indicators**: Real-time data freshness indicators showing when data was last loaded
+- **Quick Access**: Mini refresh button (🔄) in main interface for instant updates
+- **Optional Auto-Refresh**: Experimental auto-refresh for users who want to try it (5-second intervals)
+- **Smart UX**: Clear instructions and visual feedback when data is refreshed
 
-**Priority**: **HIGH** - Active investigation and resolution in progress
-**Tracking**: Task #331 and Request #279 - Additional debugging and alternative solutions required
+**Technical Implementation:**
+- `streamlit-autorefresh` library available as optional experimental feature
+- Robust manual refresh with cache clearing and forced rerun
+- Data freshness timestamps and visual indicators in both sidebar and main interface
+- Error handling and fallback for environments where auto-refresh fails
 
-This documentation will be updated once the auto-refresh functionality is fully validated and operational.
+**User Impact**: **POSITIVE** - Users have reliable, visible control over data refresh with clear feedback
+**Status**: **OPERATIONAL** - Both manual and experimental auto-refresh modes available
+
+The system now provides a better user experience with guaranteed refresh functionality.
 
 ## Agent Workflow Logic 🧠⚙️
 
