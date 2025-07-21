@@ -13,13 +13,8 @@ import streamlit as st
 
 def get_tasks_file():
     """Get the path to the tasks file"""
-    # Check for local override first
-    local_tasks_file = Path(".cursor/memory-bank/workflow/tasks.json")
-    if local_tasks_file.exists():
-        return local_tasks_file
-    
-    # Default to main tasks file
-    return Path(".cursor/memory-bank/streamlit_app/tasks.json")
+    # Use only the canonical workflow tasks file
+    return Path(".cursor/memory-bank/workflow/tasks.json")
 
 
 def load_tasks() -> List[Dict]:

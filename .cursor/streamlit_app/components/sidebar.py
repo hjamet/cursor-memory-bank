@@ -346,5 +346,28 @@ def _update_workflow_state(new_mode):
                     st.warning("⚠️ Please enter a message before sending.")
         
         st.markdown("---")
-        # Auto-refresh is enabled by default every 2 seconds to keep the dashboard updated.
-        st_autorefresh(interval=2000, limit=None, key="auto_refresh_widget")
+        # Enhanced Auto-refresh System with Diagnostics
+        # This ensures the dashboard updates every 2 seconds to reflect changes in real-time
+        refresh_count = st_autorefresh(interval=2000, limit=None, key="auto_refresh_widget")
+        
+        # Debug information in sidebar (with toggle option)
+        show_debug = st.checkbox("🔍 Show Auto-Refresh Debug", value=False, key="show_auto_refresh_debug")
+        if refresh_count > 0 and show_debug:
+            with st.expander("🔄 Auto-Refresh Status", expanded=True):
+                st.caption(f"Refresh count: {refresh_count}")
+                st.caption(f"Last refresh: {datetime.now().strftime('%H:%M:%S')}")
+                st.caption(f"Interval: 2000ms (2 seconds)")
+                st.caption(f"Status: {'🟢 Active' if refresh_count > 0 else '🔴 Inactive'}")
+                
+        # Force session state update to ensure data refreshes
+        if 'last_refresh_count' not in st.session_state:
+            st.session_state.last_refresh_count = 0
+            
+        if refresh_count != st.session_state.last_refresh_count:
+            st.session_state.last_refresh_count = refresh_count
+            # Clear any cached data that might prevent updates
+            if hasattr(st, 'cache_data'):
+                st.cache_data.clear()
+            # Force rerun to ensure UI updates
+            if refresh_count > 1:  # Avoid infinite loop on first load
+                st.rerun()

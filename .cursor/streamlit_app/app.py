@@ -6,6 +6,7 @@ Refactored version with modular components.
 import streamlit as st
 import sys
 from pathlib import Path
+from datetime import datetime
 
 # Add the parent directory to the path to find the 'components' module
 sys.path.append(str(Path(__file__).resolve().parent))
@@ -59,13 +60,32 @@ def main():
         # Silently handle errors to avoid disrupting the main page
         pass
 
-    # Load data upfront
+    # Load data upfront - Force reload every time to ensure fresh data
+    # This ensures auto-refresh actually shows updated information
     tasks = load_tasks()
     messages = read_user_messages()
+    
+    # Force session state update to track data changes
+    current_timestamp = datetime.now().isoformat()
+    if 'last_data_load' not in st.session_state:
+        st.session_state.last_data_load = current_timestamp
+    else:
+        st.session_state.last_data_load = current_timestamp
     
     # Calculate counts for badges
     review_tasks_count = len([t for t in tasks if t.get('status') in ['REVIEW', 'BLOCKED']])
     messages_count = len(messages)
+    
+    # Auto-refresh status indicator (for debugging)
+    if st.checkbox("Show Auto-Refresh Status", value=False, key="show_refresh_status_main"):
+        col1, col2 = st.columns(2)
+        with col1:
+            st.caption(f"🔄 Last data load: {st.session_state.get('last_data_load', 'Not loaded')}")
+        with col2:
+            refresh_time = datetime.now().strftime('%H:%M:%S')
+            st.caption(f"⏰ Current time: {refresh_time}")
+            st.caption(f"📊 Tasks loaded: {len(tasks)} | Messages: {len(messages)}")
+            st.caption(f"🔍 Review tasks: {review_tasks_count}")
     
     # Create dynamic tab labels
     review_tab_label = f"✅ Tasks to Review ({review_tasks_count} 🔴)" if review_tasks_count > 0 else "✅ Tasks to Review"

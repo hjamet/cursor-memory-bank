@@ -6,17 +6,10 @@ from typing import List, Dict, Any, Tuple, Optional
 import statistics
 
 def get_tasks_file() -> Optional[Path]:
-    """Get the path to the tasks file, prioritizing MCP-managed file."""
-    possible_paths = [
-        Path('.cursor/memory-bank/workflow/tasks.json'),
-        Path('.cursor/memory-bank/streamlit_app/tasks.json'),
-        Path('.cursor/streamlit_app/tasks.json'),
-        Path('.cursor/memory-bank/tasks.json'),
-        Path('tasks.json')
-    ]
-    for path in possible_paths:
-        if path.exists():
-            return path
+    """Get the path to the tasks file - using MCP-managed file only."""
+    path = Path('.cursor/memory-bank/workflow/tasks.json')
+    if path.exists():
+        return path
     return None
 
 def get_all_tasks() -> List[Dict[str, Any]]:
