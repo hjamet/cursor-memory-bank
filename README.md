@@ -163,19 +163,18 @@ Cursor Memory Bank is an advanced autonomous workflow system that revolutionizes
 
 **Solution Implemented:**
 - **Primary Mode**: Manual refresh system with prominent "🔄 Actualiser les données" button in sidebar
-- **Visual Indicators**: Real-time data freshness indicators showing when data was last loaded
-- **Quick Access**: Mini refresh button (🔄) in main interface for instant updates
 - **Optional Auto-Refresh**: Experimental auto-refresh for users who want to try it (5-second intervals)
+- **Clean Interface**: All informational refresh indicators removed from main interface for streamlined UX
 - **Smart UX**: Clear instructions and visual feedback when data is refreshed
 
 **Technical Implementation:**
 - `streamlit-autorefresh` library available as optional experimental feature
 - Robust manual refresh with cache clearing and forced rerun
-- Data freshness timestamps and visual indicators in both sidebar and main interface
 - Error handling and fallback for environments where auto-refresh fails
+- **Interface Streamlined (July 2025)**: Removed data freshness timestamps, counters, and mini refresh buttons from main interface per user feedback
 
-**User Impact**: **POSITIVE** - Users have reliable, visible control over data refresh with clear feedback
-**Status**: **OPERATIONAL** - Both manual and experimental auto-refresh modes available
+**User Impact**: **POSITIVE** - Users have reliable control over data refresh with clean, distraction-free interface
+**Status**: **OPERATIONAL** - Manual refresh system with experimental auto-refresh option
 
 The system now provides a better user experience with guaranteed refresh functionality.
 
