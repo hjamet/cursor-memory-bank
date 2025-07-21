@@ -92,12 +92,12 @@ def main():
     # Remove excessive spacing - eliminated st.markdown("---") separator
     
     # Create dynamic tab labels
-    review_tab_label = f"✅ Tasks to Review ({review_tasks_count} 🔴)" if review_tasks_count > 0 else "✅ Tasks to Review"
-    messages_tab_label = f"📨 Agent Messages ({messages_count} 🔴)" if messages_count > 0 else "📨 Agent Messages"
+    review_tab_label = f"✅ To Review ({review_tasks_count} 🔴)" if review_tasks_count > 0 else "✅ Tasks to Review"
+    messages_tab_label = f"📨 Messages ({messages_count} 🔴)" if messages_count > 0 else "📨 Agent Messages"
     
     # Define tabs with static keys and dynamic labels
     tabs = {
-        "main": "📨 Review & Communication",
+        "main": "📨 Communication",
         "review": review_tab_label,
         "messages": messages_tab_label,
     }

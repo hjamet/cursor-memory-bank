@@ -149,12 +149,6 @@ def display_sidebar():
         if new_mode != current_mode:
             _update_workflow_state(new_mode)
         
-        # Display current mode status
-        if new_mode == "infinite":
-            st.success("🔄 Mode: **Workflow Infini** - L'agent continue automatiquement")
-        else:
-            st.info("⏸️ Mode: **Tâche par Tâche** - L'agent s'arrêtera à context-update")
-        
         st.divider()
         
         st.header("📊 Project Dashboard")
@@ -224,8 +218,8 @@ def display_sidebar():
             f"""
             <div style="
                 text-align: center; 
-                margin: 20px 0; 
-                padding: 20px; 
+                margin: 12px 0; 
+                padding: 12px; 
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 border-radius: 12px;
                 box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -339,69 +333,8 @@ def display_sidebar():
                 else:
                     st.warning("⚠️ Please enter a message before sending.")
         
-        st.markdown("---")
-        
-        # Auto-refresh info section (simplified - actual auto-refresh handled at top of sidebar)
-        st.markdown("### ⚡ Actualisation automatique")
-        
-        # Show current auto-refresh status with real-time feedback
-        if navigation_debounce_active:
-            # Recompute time since interaction for display purposes
-            if (hasattr(st.session_state, 'last_navigation_interaction') and 
-                st.session_state.last_navigation_interaction is not None):
-                time_since = (current_time - st.session_state.last_navigation_interaction).total_seconds()
-                time_remaining = max(0, 3 - time_since)
-                st.info(f"🔄 Auto-refresh pausé pendant navigation (reprise dans {time_remaining:.1f}s)")
-            else:
-                st.info("🔄 Auto-refresh pausé pendant navigation")
-        else:
-            st.success("✅ Actualisation automatique activée (2 secondes)")
-            
-        st.caption("💡 L'actualisation se fait automatiquement en permanence, avec pause intelligente pendant la navigation")
-        
-        # Bouton de refresh manuel comme alternative
-        st.markdown("### 🔄 Mise à jour manuelle")
-        
-        col1, col2 = st.columns([2, 1])
-        
-        with col1:
-            # Bouton de refresh manuel très visible
-            if st.button("🔄 Actualiser les données", 
-                        type="secondary", 
-                        help="Cliquer pour voir les dernières mises à jour",
-                        use_container_width=True):
-                # Force le rechargement de toutes les données
-                if hasattr(st, 'cache_data'):
-                    st.cache_data.clear()
-                st.success("✅ Données actualisées !")
-                st.rerun()
-        
-        with col2:
-            # Indicateur de dernière mise à jour
-            if 'last_manual_refresh' not in st.session_state:
-                st.session_state.last_manual_refresh = datetime.now()
-            
-            time_diff = datetime.now() - st.session_state.last_manual_refresh
-            minutes_ago = int(time_diff.total_seconds() / 60)
-            
-            if minutes_ago == 0:
-                st.caption("📍 À jour")
-            elif minutes_ago < 5:
-                st.caption(f"📍 {minutes_ago}min ago")
-            else:
-                st.caption("⚠️ Actualiser")
-        
-        # Instructions utilisateur claires
-        st.markdown("---")
-        st.markdown("""
-        **📋 Actualisation des données :**
-        - 🔄 **Auto (recommandé)** : Activez la case ci-dessus pour refresh automatique toutes les 2 secondes
-        - 🖱️ **Manuel** : Cliquez sur 'Actualiser les données' quand vous voulez voir les changements
-        - 💡 **Conseil** : L'auto-refresh est pratique pendant le travail actif de l'agent
-        """)
-        
-        # Update manual refresh timestamp on any interaction
-        st.session_state.last_manual_refresh = datetime.now()
+        # End of sidebar content - auto-refresh sections removed for cleaner interface
+        # Note: Auto-refresh functionality is preserved and runs automatically at the top of sidebar
 
 
 def _load_workflow_state():
