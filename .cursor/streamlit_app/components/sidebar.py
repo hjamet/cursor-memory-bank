@@ -81,8 +81,27 @@ def add_user_message(content: str) -> bool:
 def display_sidebar():
     """
     Sets up the sidebar with project metrics, current task, and controls.
+    Enhanced with auto-refresh coordination for navigation debouncing.
     """
     with st.sidebar:
+        # Intelligent auto-refresh with navigation debouncing coordination
+        current_time = datetime.now()
+        navigation_debounce_active = False
+        
+        # Check if navigation interaction is active (within 3 seconds)
+        if (hasattr(st.session_state, 'last_navigation_interaction') and 
+            st.session_state.last_navigation_interaction is not None):
+            time_since_interaction = (current_time - st.session_state.last_navigation_interaction).total_seconds()
+            navigation_debounce_active = time_since_interaction < 3
+        
+        # Auto-refresh logic with conditional pause during navigation
+        if navigation_debounce_active:
+            # Pause auto-refresh during navigation interactions
+            st.info("🔄 Auto-refresh paused during navigation interaction")
+        else:
+            # Normal auto-refresh every 2 seconds when no navigation interaction
+            st_autorefresh(interval=2000, key="sidebar_autorefresh")
+        
         # --- Workflow Control Toggle ---
         st.markdown("### ⚙️ Workflow Control")
         
@@ -165,7 +184,7 @@ def display_sidebar():
                     # Fallback to main tab
                     st.session_state.active_tab = "main"
                 
-                # Add a brief delay to ensure state is processed
+                # Enhanced coordination: brief delay + force rerun for state consistency
                 import time
                 time.sleep(0.1)
                 

@@ -1,64 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 301,
+  "last_id": 304,
   "requests": [
-    {
-      "id": 251,
-      "content": "Modification request for Task #295 (Ajouter des notifications toast pour les nouveaux souvenirs \"present\" dans l'interface Streamlit):\n\n**Original Task Details:**\n- **Title:** Ajouter des notifications toast pour les nouveaux souvenirs \"present\" dans l'interface Streamlit\n- **Description:** Implémenter des notifications st.toast dans la page Review et communication de l'interface Streamlit pour afficher une notification à chaque nouveau souvenir \"present\" enregistré dans la mémoire de travail de l'agent.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\nAjouter des notifications toast dans l'interface Streamlit pour améliorer l'expérience utilisateur lors de l'enregistrement de nouveaux souvenirs.\n\n**Exigences :**\n- Utiliser st.toast() de Streamlit pour afficher les notifications\n- Déclencher une notification à chaque nouveau souvenir \"present\" enregistré\n- Intégrer dans la page \"Review et communication\" de l'interface\n- Afficher un message informatif sur le contenu du souvenir enregistré\n\n**Critères d'acceptation :**\n- Les notifications toast apparaissent automatiquement lors de l'enregistrement de nouveaux souvenirs \"present\"\n- Le message de la toast est informatif et utile pour l'utilisateur\n- L'intégration ne perturbe pas le fonctionnement existant de l'interface\n- Les notifications sont bien positionnées et non intrusives\n\n**Notes techniques :**\n- Identifier le bon moment pour déclencher la notification (après l'enregistrement réussi)\n- Utiliser l'API st.toast avec les paramètres appropriés (message, icon, etc.)\n- S'assurer que la notification ne se déclenche que pour les nouveaux souvenirs \"present\"\n- Tester le comportement avec différents types de contenu de souvenirs\n\n**Validation Criteria:**\nLa tâche est terminée quand : (1) Les notifications st.toast s'affichent automatiquement lors de l'enregistrement de nouveaux souvenirs \"present\", (2) Le message de notification est informatif et contextuel, (3) L'interface fonctionne normalement sans régression, (4) Les tests manuels confirment le bon fonctionnement des notifications dans différents scénarios d'usage.\n\n**User Feedback:**\nJe n'ai pas l'impression de voir de modifications... Tu es sûr que les notifications apparaissent bien à chaque nouveau souvenir ? En particulier sur la page app principale de l'ionterface ?\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-13T17:59:04.626768",
-      "updated_at": "2025-07-13T16:00:15.628Z",
-      "history": [
-        {
-          "timestamp": "2025-07-13T17:59:04.626768",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-13T16:00:15.628Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 252,
-      "content": "Modification request for Task #306 (Corriger et étendre les notifications toast pour les souvenirs sur toutes les pages de l'interface):\n\n**Original Task Details:**\n- **Title:** Corriger et étendre les notifications toast pour les souvenirs sur toutes les pages de l'interface\n- **Description:** L'utilisateur signale que les notifications toast de la tâche #295 ne sont pas visibles, particulièrement sur la page principale. Investiguer l'implémentation actuelle, corriger les problèmes de visibilité et étendre l'intégration à toutes les pages pertinentes de l'interface Streamlit.\n- **Status:** REVIEW\n- **Priority:** 4\n\n**Detailed Task Description:**\n## Contexte\n\nL'utilisateur a signalé que les notifications toast implémentées dans la tâche #295 ne sont pas visibles, particulièrement sur la page principale de l'interface Streamlit. Il faut investiguer l'implémentation actuelle et corriger/étendre le système pour assurer une visibilité complète.\n\n## Objectif\n\nCorriger et améliorer le système de notifications toast pour les nouveaux souvenirs \"present\" en :\n1. Investigant l'implémentation actuelle pour identifier les problèmes\n2. Corrigeant les problèmes de visibilité des notifications\n3. Étendant l'intégration à toutes les pages pertinentes (notamment la page principale)\n4. Validant le fonctionnement sur l'ensemble de l'interface\n\n## Actions requises\n\n**1. Investigation de l'implémentation actuelle :**\n- Examiner le code dans `memory_ui_components.py` pour la fonction `_check_and_notify_new_present_memories()`\n- Vérifier l'intégration dans `display_agent_memory_timeline()`\n- Analyser l'utilisation dans `memory.py` et autres pages\n- Identifier pourquoi les notifications ne sont pas visibles\n\n**2. Analyse de la couverture des pages :**\n- Vérifier si la fonction est appelée sur la page principale (`app.py`)\n- Examiner quelles autres pages devraient afficher ces notifications\n- Identifier les points d'intégration manquants\n\n**3. Correction des problèmes identifiés :**\n- Corriger les problèmes de logique de détection si nécessaire\n- Ajuster les paramètres de `st.toast()` pour améliorer la visibilité\n- Corriger les conditions de déclenchement des notifications\n- Résoudre les problèmes de session state si identifiés\n\n**4. Extension à toutes les pages pertinentes :**\n- Intégrer les notifications sur la page principale (`app.py`)\n- Ajouter l'intégration sur toutes les pages qui affichent des informations de mémoire\n- Assurer une expérience utilisateur cohérente sur l'ensemble de l'interface\n\n**5. Tests et validation :**\n- Tester les notifications sur chaque page\n- Valider que les notifications apparaissent lors de nouveaux souvenirs\n- Vérifier que les notifications ne sont pas en double\n- Confirmer la visibilité et l'utilité des messages\n\n## Analyse Technique & Points de Vigilance\n\n**Attention : Problèmes de visibilité des notifications**\n- Les notifications `st.toast()` peuvent être masquées par d'autres éléments de l'interface\n- La position et le timing des notifications doivent être optimisés pour la visibilité\n- Les paramètres `icon` et `body` doivent être configurés pour attirer l'attention\n- Vérifier que les notifications ne sont pas supprimées trop rapidement\n\n**Attention : Intégration multi-pages**\n- Chaque page Streamlit a son propre contexte d'exécution et session state\n- La logique de détection doit être adaptée pour fonctionner sur toutes les pages\n- Éviter les conflits de session state entre les pages\n- Assurer que la détection fonctionne même lors de la navigation entre pages\n\n**Attention : Performance et fréquence**\n- Les notifications ne doivent pas être trop fréquentes pour éviter de spammer l'utilisateur\n- La logique de détection doit être optimisée pour ne pas impacter les performances\n- Gérer correctement le cache et la persistance des données de session\n- Éviter les appels répétés inutiles à la détection\n\n**Attention : Logique de détection des nouveaux souvenirs**\n- La comparaison des timestamps doit être robuste et fiable\n- Gérer les cas où les souvenirs sont modifiés plutôt qu'ajoutés\n- Assurer que la détection fonctionne même après redémarrage de l'interface\n- Valider que les souvenirs \"present\" sont correctement identifiés\n\n**Attention : Expérience utilisateur**\n- Les messages de notification doivent être informatifs et utiles\n- Éviter les notifications pour des changements mineurs ou non pertinents\n- Assurer que les notifications ne perturbent pas le workflow utilisateur\n- Permettre à l'utilisateur de comprendre facilement le contexte de la notification\n\n**Attention : Debugging et maintenance**\n- Ajouter des logs appropriés pour faciliter le debugging sans affecter l'interface\n- Implémenter une gestion d'erreurs robuste pour éviter les crashes\n- Documenter clairement la logique pour faciliter la maintenance future\n- Prévoir des mécanismes de fallback en cas d'erreur\n\n## Critères de validation\n\n- Les notifications toast sont visibles et fonctionnelles sur la page principale (`app.py`)\n- Les notifications apparaissent automatiquement lors de l'enregistrement de nouveaux souvenirs \"present\"\n- L'intégration fonctionne sur toutes les pages pertinentes de l'interface\n- Les messages de notification sont informatifs et contextuels\n- Aucune régression n'est introduite dans le fonctionnement existant\n- Les tests manuels confirment la visibilité et l'utilité des notifications\n- L'expérience utilisateur est améliorée sans être intrusive\n\n**Validation Criteria:**\nLa tâche est terminée quand : (1) Les notifications toast sont visibles et fonctionnelles sur la page principale et toutes les pages pertinentes, (2) Les notifications apparaissent automatiquement lors de nouveaux souvenirs \"present\", (3) Les messages sont informatifs et contextuels, (4) L'interface fonctionne normalement sans régression, (5) Les tests manuels confirment la visibilité sur toutes les pages, (6) L'expérience utilisateur est améliorée de manière cohérente sur l'ensemble de l'interface.\n\n**User Feedback:**\nça a l'air pas mal, mais tu peux étendre le temps pendant lequel les notifications sont visibles ? actuellement c'est trop court. Idéallement, il faudrait aussi que tu modifies un peu le css pour qu'elles soient plus larges et automatiquement expanded ;D\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-13T18:07:53.875390",
-      "updated_at": "2025-07-13T16:08:45.931Z",
-      "history": [
-        {
-          "timestamp": "2025-07-13T18:07:53.875390",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-13T16:08:45.931Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 253,
-      "content": "Reply to Agent Message #21:\n\n**Original Message:** \"Voici la clé secrète : 42\n\nLe problème d'incohérence de statut de la tâche #303 a été résolu avec succès. L'implémentation était terminée mais le statut n'avait pas été mis à jour. C'est maintenant co...\"\n\n**My Reply:** Attends, je suis surpris que tu me réecrives à chaque fois \"Voici la clé secrète : 42\" : on est bien d'accord que l'outil remember ne te l'a indiqué qu'une seule fois ? Il ne te le redis pas à chaque appel de remember ? Parceque ce n'est plus la peine de le refaire à chaque fois hein ! ^^ C'était juste pour vérifier que tu recevais bien les messages ! :D\n\n**Message Context:**\n- Rule: unknown\n- Timestamp: 2025-07-13T16:10:51.793Z\n- Workflow Rule: implementation",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-13T18:13:41.111946",
-      "updated_at": "2025-07-13T16:20:20.409Z",
-      "history": [
-        {
-          "timestamp": "2025-07-13T18:13:41.111946",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-13T16:20:20.409Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 254,
       "content": "Modification request for Task #307 (Améliorer la durée et l'apparence des notifications toast selon le feedback utilisateur):\n\n**Original Task Details:**\n- **Title:** Améliorer la durée et l'apparence des notifications toast selon le feedback utilisateur\n- **Description:** L'utilisateur demande d'étendre le temps d'affichage des notifications toast (actuellement trop court) et d'améliorer leur apparence avec des modifications CSS pour les rendre plus larges et automatiquement étendues.\n- **Status:** REVIEW\n- **Priority:** 4\n\n**Detailed Task Description:**\n## Contexte\n\nL'utilisateur a testé les notifications toast implémentées dans la tâche #306 et fournit un feedback positif avec des demandes d'amélioration spécifiques :\n- **Problème 1** : La durée d'affichage des notifications est trop courte\n- **Problème 2** : Les notifications manquent de visibilité et d'impact visuel\n- **Demande** : Modifications CSS pour rendre les notifications plus larges et automatiquement étendues\n\n## Objectif\n\nAméliorer l'expérience utilisateur des notifications toast en :\n1. Étendant la durée d'affichage des notifications pour une meilleure lisibilité\n2. Implémentant des modifications CSS pour améliorer l'apparence et la visibilité\n3. Configurant l'expansion automatique des notifications\n4. Maintenant la compatibilité avec toutes les pages de l'interface\n\n## Actions requises\n\n**1. Extension de la durée d'affichage :**\n- Investiguer les paramètres actuels de `st.toast()` dans `memory_ui_components.py` et `app.py`\n- Identifier les options disponibles pour contrôler la durée d'affichage\n- Tester différentes durées pour trouver l'équilibre optimal entre visibilité et non-intrusion\n- Appliquer la configuration optimale sur toutes les pages utilisant les notifications\n\n**2. Améliorations CSS :**\n- Analyser la structure CSS actuelle des notifications Streamlit\n- Créer des styles CSS personnalisés pour :\n  - Augmenter la largeur des notifications\n  - Configurer l'expansion automatique\n  - Améliorer la visibilité générale (couleurs, bordures, ombres)\n- Intégrer les styles CSS dans l'interface Streamlit de manière appropriée\n\n**3. Configuration de l'expansion automatique :**\n- Investiguer les options de configuration des notifications toast Streamlit\n- Implémenter l'expansion automatique pour afficher le contenu complet\n- Tester la fonctionnalité sur différents types de messages et longueurs\n\n**4. Tests et validation :**\n- Tester les modifications sur toutes les pages (app.py, memory.py, etc.)\n- Valider que les notifications sont plus visibles et restent affichées plus longtemps\n- Vérifier la compatibilité avec différentes tailles d'écran\n- Confirmer qu'aucune régression n'est introduite\n\n## Analyse Technique & Points de Vigilance\n\n**Attention : Limitations de Streamlit pour la personnalisation CSS**\n- Streamlit a des limitations pour la personnalisation CSS des composants intégrés comme `st.toast()`\n- Les modifications CSS peuvent nécessiter l'utilisation de `st.markdown()` avec `unsafe_allow_html=True`\n- Vérifier la compatibilité avec les différentes versions de Streamlit\n- Prévoir des solutions de fallback si certaines personnalisations ne sont pas supportées\n\n**Attention : Équilibre durée/intrusion**\n- Une durée trop longue peut devenir intrusive pour l'utilisateur\n- Tester avec différents scénarios d'utilisation (navigation rapide, lecture prolongée)\n- Considérer des durées différentes selon le type de notification (succès, erreur, info)\n- Prévoir une option de fermeture manuelle si les notifications sont persistantes\n\n**Attention : Compatibilité multi-pages**\n- Les modifications CSS doivent être cohérentes sur toutes les pages\n- Vérifier que les styles ne créent pas de conflits avec d'autres éléments de l'interface\n- Tester la persistance des styles lors de la navigation entre pages\n- Assurer que les modifications fonctionnent avec le session state Streamlit\n\n**Attention : Responsive design**\n- Les notifications plus larges doivent rester lisibles sur mobile\n- Tester avec différentes résolutions d'écran\n- Prévoir des breakpoints CSS si nécessaire\n- Maintenir l'accessibilité pour tous les utilisateurs\n\n**Attention : Performance et impact système**\n- Les modifications CSS ne doivent pas impacter les performances de l'interface\n- Éviter les styles trop complexes qui pourraient ralentir le rendu\n- Optimiser les sélecteurs CSS pour éviter les conflits\n- Documenter les modifications pour faciliter la maintenance future\n\n**Attention : Méthodes d'intégration CSS dans Streamlit**\n- Investiguer les meilleures pratiques pour intégrer du CSS personnalisé :\n  - `st.markdown()` avec HTML/CSS inline\n  - Fichiers CSS externes\n  - Utilisation de `st.components.v1.html()`\n- Choisir la méthode la plus appropriée pour la maintenance et la performance\n- Documenter la méthode choisie pour les futures modifications\n\n## Critères de validation\n\n- Les notifications toast restent visibles plus longtemps (durée optimale déterminée par tests)\n- Les notifications sont visuellement plus larges et automatiquement étendues\n- L'apparence générale des notifications est améliorée (style, visibilité)\n- La fonctionnalité fonctionne de manière cohérente sur toutes les pages de l'interface\n- Aucune régression n'est introduite dans le fonctionnement existant\n- Les modifications sont compatibles avec différentes tailles d'écran\n- L'expérience utilisateur est significativement améliorée selon le feedback initial\n\n**Validation Criteria:**\nLa tâche est terminée quand : (1) Les notifications toast ont une durée d'affichage étendue et optimale, (2) Les notifications sont visuellement plus larges et automatiquement étendues grâce aux modifications CSS, (3) L'apparence générale est améliorée avec une meilleure visibilité, (4) La fonctionnalité fonctionne de manière cohérente sur toutes les pages, (5) Aucune régression n'est introduite, (6) Les modifications sont responsive et compatibles avec différentes tailles d'écran, (7) Le feedback utilisateur initial est entièrement adressé\n\n**User Feedback:**\nHélas... Les notifications ne s'affichent toujours que pendant quelques très courtes secondes. Par ailleurs, les retours à la ligne et le formattage markdown n'est pas correctment converti ! Moyen d'implémenter ça manuellement autrement ?\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
@@ -979,6 +922,63 @@
         },
         {
           "timestamp": "2025-07-21T18:23:05.756Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 302,
+      "content": "Tu peux modifier le workflow (en particulier workflow_recommendation il me semble), en faisant en sorte que si le résultat de experience_execution est un échec, on passe TOUJOURS à la règle fix (aucune autre règle ne devrait être possible, même pas task-decomposition si il y des userbrief non traités)",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T21:30:57.070453",
+      "updated_at": "2025-07-21T19:32:24.213Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T21:30:57.070453",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T19:32:24.213Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 303,
+      "content": "Il y a toujours un bug dans l'interface streamlit, page Review et Communication, qui obglie à cliquer deux fois sur chaque bouton de tab pour accéder à la tab concernée. Tu peux identifier et corriger ? Je pense que c'est lié à un bug de redirection.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T21:33:48.973052",
+      "updated_at": "2025-07-21T19:38:55.097Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T21:33:48.973052",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T19:38:55.097Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 304,
+      "content": "Plusieurs modifications de la sidebar de l'interface streamlit stp :\n1. Supprime complètement la section Actualisation automatique : cette dernière devrait toujours être activée par défaut et inutile de donner toutes ces infos. Supprime complètement cette section ainsi que la section Actulisation des données\n2. Dans la section workflow control, supprime le callout qui donne des précisions sur le mode actuel : il prends de la place pour rien.\n3. Réduis la div \"Remaining Tasks\" : elle est très belle (garde ce design violet), mais trop large en hauteur : rends la plus petite.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-21T21:39:15.027653",
+      "updated_at": "2025-07-21T19:40:02.313Z",
+      "history": [
+        {
+          "timestamp": "2025-07-21T21:39:15.027653",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-21T19:40:02.313Z",
           "action": "mark_archived"
         }
       ]

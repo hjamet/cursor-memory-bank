@@ -82,7 +82,7 @@ You must NEVER simulate test results or assume success without actually executin
             - Quelle est la cause racine la plus probable ?
             - Comment puis-je décrire ce problème de manière claire et actionnable pour l'étape `fix` ?
         `</think>`
-        - Call `mcp_MemoryBankMCP_remember` to document the failure and set the future step to `fix`. **Utilise l'argument `user_message` pour communiquer l'échec et son impact.** (ex: "Échec du test : La commande principale a échoué avec l'erreur X, bloquant la fonctionnalité clé.").
+        - Call `mcp_MemoryBankMCP_remember` to document the failure and set the future step to `fix`. **CRITICAL: Utilise OBLIGATOIREMENT l'argument `user_message` pour communiquer l'échec.** Le système de routing detecte automatiquement les échecs via ce paramètre et redirige TOUJOURS vers fix. (ex: "Échec du test : La commande principale a échoué avec l'erreur X, bloquant la fonctionnalité clé.").
 
     - **If you were INTERRUPTED**:
         - `<think>`

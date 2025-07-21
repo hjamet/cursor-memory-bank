@@ -1,9 +1,11 @@
 """
 Main Streamlit app for Review & Communication.
 Refactored version with modular components.
+Enhanced with robust navigation debouncing mechanism.
 """
 import streamlit as st
 import sys
+import time
 from pathlib import Path
 from datetime import datetime
 
@@ -124,12 +126,20 @@ def main():
     
     # Detect navigation interaction and update debounce timestamp
     if selected_key != previous_tab:
+        # Update debounce timestamp BEFORE any other operations
         st.session_state.last_navigation_interaction = current_time
-        # Add a slight delay to ensure the interaction is processed
-        import time
+        
+        # Update the active tab immediately
+        st.session_state.active_tab = selected_key
+        
+        # Add a brief delay to ensure state consistency
         time.sleep(0.1)
-    
-    st.session_state.active_tab = selected_key
+        
+        # Force immediate rerun to ensure navigation takes effect
+        st.rerun()
+    else:
+        # Ensure tab state is always synchronized even when no change detected
+        st.session_state.active_tab = selected_key
 
     # Reduce spacing after radio buttons and between sections with enhanced CSS
     st.markdown("""
@@ -150,27 +160,34 @@ def main():
         margin-top: -15px !important;
         padding-top: 5px !important;
     }
-    /* Enhanced radio button responsiveness */
+    /* Enhanced radio button responsiveness with anti-double-click optimization */
     div[data-testid="stRadio"] label {
         cursor: pointer !important;
-        transition: all 0.2s ease !important;
-        padding: 8px 12px !important;
-        border-radius: 6px !important;
+        transition: all 0.1s ease !important;
+        padding: 10px 15px !important;
+        border-radius: 8px !important;
+        pointer-events: auto !important;
     }
     div[data-testid="stRadio"] label:hover {
-        background-color: rgba(0, 0, 0, 0.05) !important;
-        transform: scale(1.02) !important;
+        background-color: rgba(0, 0, 0, 0.08) !important;
+        transform: scale(1.03) !important;
     }
     div[data-testid="stRadio"] label:active {
-        transform: scale(0.98) !important;
-        background-color: rgba(0, 0, 0, 0.1) !important;
+        transform: scale(0.97) !important;
+        background-color: rgba(0, 0, 0, 0.15) !important;
     }
-    /* Prevent double-click text selection */
+    /* Prevent double-click text selection and optimize click handling */
     div[data-testid="stRadio"] label {
         user-select: none !important;
         -webkit-user-select: none !important;
         -moz-user-select: none !important;
         -ms-user-select: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+    /* Optimize input radio for better responsiveness */
+    div[data-testid="stRadio"] input[type="radio"] {
+        pointer-events: auto !important;
+        cursor: pointer !important;
     }
     </style>
     """, unsafe_allow_html=True)

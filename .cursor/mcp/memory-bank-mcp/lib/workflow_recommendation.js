@@ -2,6 +2,12 @@
  * Centralized Workflow Recommendation System
  * Harmonizes recommendation logic between remember.js and next_rule.js
  * Provides consistent workflow decisions across the autonomous system
+ * 
+ * CRITICAL FEATURE: Mandatory Fix Routing After Experience-Execution Failure
+ * - Detects failures in experience-execution via user_message or present field analysis
+ * - Forces routing to 'fix' step with ABSOLUTE PRIORITY (no exceptions)
+ * - Overrides ALL other routing logic including unprocessed user requests
+ * - Ensures system robustness by preventing ignored failures
  */
 
 import { readUserbrief } from './userbrief_manager.js';
@@ -12,6 +18,81 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Memory file path for detecting experience-execution failures
+const memoryFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'memory.json');
+
+/**
+ * Detect if the last experience-execution step resulted in a failure
+ * @returns {Promise<boolean>} True if failure detected, false otherwise
+ */
+async function detectExperienceExecutionFailure() {
+    try {
+        const data = await fs.readFile(memoryFilePath, 'utf8');
+        const memories = JSON.parse(data);
+
+        if (!memories || memories.length === 0) {
+            return false;
+        }
+
+        // Get the most recent memory
+        const lastMemory = memories[memories.length - 1];
+
+        // Check if the last step was experience-execution
+        const lastStepInMemory = extractLastStepFromMemory(lastMemory);
+        if (lastStepInMemory !== 'experience-execution') {
+            return false;
+        }
+
+        // Check for failure indicators in the memory
+        // 1. Check if there's a user_message indicating failure
+        // 2. Check if the present field contains failure indicators
+        const hasFailureMessage = lastMemory.user_message &&
+            (lastMemory.user_message.toLowerCase().includes('échec') ||
+                lastMemory.user_message.toLowerCase().includes('failure') ||
+                lastMemory.user_message.toLowerCase().includes('failed') ||
+                lastMemory.user_message.toLowerCase().includes('error'));
+
+        const hasPresentFailure = lastMemory.present &&
+            (lastMemory.present.toLowerCase().includes('test failed') ||
+                lastMemory.present.toLowerCase().includes('échec du test') ||
+                lastMemory.present.toLowerCase().includes('failure') ||
+                lastMemory.present.toLowerCase().includes('error'));
+
+        return hasFailureMessage || hasPresentFailure;
+
+    } catch (error) {
+        // If we can't read memory, assume no failure
+        return false;
+    }
+}
+
+/**
+ * Extract the last step from a memory entry
+ * @param {Object} memory - Memory entry object
+ * @returns {string|null} Last step name or null if not found
+ */
+function extractLastStepFromMemory(memory) {
+    if (!memory || !memory.past) {
+        return null;
+    }
+
+    // Try to find step name in backticks first
+    const match = memory.past.match(/`([^`]+)`/);
+    if (match && match[1]) {
+        return match[1];
+    }
+
+    // Fallback: look for common step names in the text
+    const stepNames = ['context-update', 'implementation', 'task-decomposition', 'start-workflow', 'experience-execution', 'fix'];
+    for (const stepName of stepNames) {
+        if (memory.past.toLowerCase().includes(stepName)) {
+            return stepName;
+        }
+    }
+
+    return null;
+}
 
 /**
  * Load workflow mode from workflow_state.json
@@ -128,6 +209,18 @@ export async function getRecommendedNextStep(lastStep, possibleSteps, tasks = nu
  * @returns {Promise<string>} Recommended next step
  */
 async function getRecommendedStepLogic(lastStep, possibleSteps, tasks = null) {
+    // 🚨 CRITICAL EXCEPTION: MANDATORY FIX AFTER EXPERIENCE-EXECUTION FAILURE
+    // This logic has ABSOLUTE PRIORITY and overrides ALL other routing considerations
+    if (lastStep === 'experience-execution') {
+        const hasFailure = await detectExperienceExecutionFailure();
+        if (hasFailure && possibleSteps.includes('fix')) {
+            // MANDATORY: Force routing to fix regardless of other considerations
+            // This ensures that detected problems are immediately addressed
+            // NO EXCEPTIONS - not even for unprocessed user requests
+            return 'fix';
+        }
+    }
+
     // CRITICAL: Check workflow mode for task-by-task stopping logic
     const workflowMode = await loadWorkflowMode();
 
