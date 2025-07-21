@@ -109,6 +109,15 @@ def main():
     selected_key = tab_keys[tab_labels.index(selected_label)]
     st.session_state.active_tab = selected_key
 
+    # Reduce spacing after radio buttons with custom CSS
+    st.markdown("""
+    <style>
+    div[data-testid="stRadio"] {
+        margin-bottom: -10px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
     # Render content based on the selected tab key
     if st.session_state.active_tab == "main":
         render_add_request_tab()

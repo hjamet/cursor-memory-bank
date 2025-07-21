@@ -15,7 +15,8 @@ from .request_manager import (
 
 def render_add_request_tab():
     """Render the add request tab with form and submission logic"""
-    st.header("Add New Request")
+    # Use subheader instead of header to reduce spacing
+    st.subheader("Add New Request")
     st.markdown("Submit a new request for the agent to process.")
 
     # Initialize session state
