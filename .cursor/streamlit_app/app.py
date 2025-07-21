@@ -72,39 +72,9 @@ def main():
     else:
         st.session_state.last_data_load = current_timestamp
     
-    # Calculate counts for badges
+    # Calculate counts for badges (keep for tabs functionality)
     review_tasks_count = len([t for t in tasks if t.get('status') in ['REVIEW', 'BLOCKED']])
     messages_count = len(messages)
-    
-    # ====== DATA FRESHNESS INDICATOR ======
-    # Replacement for auto-refresh: clear visual indicator of data age
-    col_indicator1, col_indicator2, col_indicator3 = st.columns([2, 2, 1])
-    
-    with col_indicator1:
-        # Show when data was last loaded
-        load_time = st.session_state.last_data_load.strftime('%H:%M:%S')
-        st.caption(f"📊 Données chargées à {load_time}")
-    
-    with col_indicator2:
-        # Show data counts for verification
-        st.caption(f"📋 {len(tasks)} tâches • 📨 {messages_count} messages • 🔍 {review_tasks_count} en review")
-    
-    with col_indicator3:
-        # Quick refresh button in main interface
-        if st.button("🔄", help="Actualiser les données", key="main_refresh_btn"):
-            st.rerun()
-    
-    # Optional detailed debugging (hidden by default)
-    if st.checkbox("Afficher détails techniques", value=False, key="show_refresh_status_main"):
-        col1, col2 = st.columns(2)
-        with col1:
-            st.caption(f"🔄 Last data load: {st.session_state.get('last_data_load', 'Not loaded')}")
-            st.caption(f"📊 Total tasks loaded: {len(tasks)}")
-        with col2:
-            refresh_time = datetime.now().strftime('%H:%M:%S')
-            st.caption(f"⏰ Current time: {refresh_time}")
-            st.caption(f"🔍 Review tasks: {review_tasks_count}")
-            st.caption(f"📨 Unread messages: {messages_count}")
     
     st.markdown("---")
 
