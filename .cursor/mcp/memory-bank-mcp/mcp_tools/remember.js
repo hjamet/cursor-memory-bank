@@ -10,6 +10,22 @@ import { getPossibleNextSteps, getRecommendedNextStep } from '../lib/workflow_re
 import { loadUserPreferencesForRemember } from './utils.js';
 import { readUserMessages, getPendingMessages, markMessageAsConsumed, cleanupConsumedMessages } from '../lib/user_message_storage.js';
 
+/**
+ * Load workflow mode from workflow_state.json
+ * @returns {string} - The current workflow mode ('infinite' or 'task_by_task')
+ */
+async function loadWorkflowMode() {
+    try {
+        const workflowStateFile = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'workflow_state.json');
+        const workflowStateData = await fs.readFile(workflowStateFile, 'utf8');
+        const workflowState = JSON.parse(workflowStateData);
+        return workflowState.mode || 'infinite'; // Default to infinite if mode is not specified
+    } catch (error) {
+        // If file doesn't exist or is corrupted, default to infinite mode
+        return 'infinite';
+    }
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const memoryFilePath = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'agent_memory.json');
@@ -388,6 +404,14 @@ async function remember(args) {
         workflowInstruction = "CONTINUE WORKFLOW: You must now call mcp_MemoryBankMCP_next_rule to continue the autonomous workflow. STOPPING IS ABSOLUTELY PROHIBITED. Memory recording is a continuation point, not an end point.";
     }
 
+    // Check workflow mode for task-by-task control
+    const workflowMode = await loadWorkflowMode();
+
+    // If in task-by-task mode and we're at context-update, provide stopping instructions
+    if (workflowMode === 'task_by_task' && recommendedNextStep === 'context-update') {
+        workflowInstruction = "WORKFLOW STOPPING: Mode 'Tâche par Tâche' activé. Session terminée à context-update. Parfait ! Le travail est terminé pour cette session. Voici un résumé de ce qui a été accompli. Vous pouvez maintenant vous arrêter proprement.";
+    }
+
     // Workflow Completion Check: New logic to allow pausing the workflow
     if (lastMemory && lastMemory.future && lastMemory.future.toLowerCase().includes('paused')) {
         const pauseResponse = {
@@ -461,6 +485,77 @@ async function remember(args) {
             content: [{
                 type: 'text',
                 text: JSON.stringify(pauseResponse, null, 2)
+            }]
+        };
+    }
+
+    // Task-by-task mode stopping logic
+    if (workflowMode === 'task_by_task' && recommendedNextStep === 'context-update') {
+        const stopResponse = {
+            // === WORKFLOW STATUS & INSTRUCTIONS ===
+            message: "Memory successfully recorded. Task-by-task mode: Session completed.",
+            workflow_status: "STOPPING_ALLOWED",
+            next_action_required: "SESSION TERMINÉE - Mode 'Tâche par Tâche' activé. Vous pouvez maintenant vous arrêter proprement.",
+            workflow_instruction: workflowInstruction,
+            recommended_next_step: null, // No next step in task-by-task mode
+            current_state: lastMemory ? lastMemory.future : "Session completed.",
+            possible_next_steps: [],
+
+            // === WORKFLOW CONTINUATION REQUIREMENTS ===
+            continuation_mandatory: false,
+            stopping_prohibited: "Mode 'Tâche par Tâche' activé - Vous POUVEZ vous arrêter proprement maintenant. La session est terminée avec succès.",
+            immediate_next_action: "Aucune action requise. Session terminée. Fournissez un résumé des accomplissements si souhaité.",
+            workflow_cycle_reminder: "Mode 'Tâche par Tâche' : Session terminée à context-update. Nouveau cycle possible dans une prochaine session.",
+
+            // === USER PREFERENCES & SETTINGS ===
+            user_preferences: preferences,
+
+            // === MEMORY SECTIONS ===
+            memory_sections: {
+                recent_working_memories: {
+                    description: "📋 **Souvenirs de Travail Récents (5 derniers)** - Contexte immédiat des actions récentes",
+                    count: recentMemories.length,
+                    memories: recentMemories
+                },
+                semantic_long_term_memories: {
+                    description: "🧠 **Mémoires Long Terme Sémantiques (5 plus pertinentes)** - Connaissances persistantes liées au contexte actuel",
+                    count: semanticLongTermMemories.length,
+                    memories: semanticLongTermMemories
+                },
+                newly_added_long_term_memory: {
+                    description: "✨ **Nouvelle Mémoire Long Terme** - Information critique ajoutée lors de cet enregistrement",
+                    memory: currentLongTermMemory
+                }
+            },
+
+            // === MEMORY STATISTICS ===
+            memory_statistics: {
+                total_memories_count: memories.length,
+                total_long_term_memories_count: longTermMemories.length,
+                recent_memories_displayed: recentMemories.length,
+                semantic_memories_displayed: semanticLongTermMemories.length
+            },
+
+            // === USER COMMUNICATION ===
+            user_message_result: userMessageResult,
+
+            // === LEGACY FIELDS (for backward compatibility) ===
+            long_term_memory: currentLongTermMemory,
+            recent_working_memories: recentMemories,
+            semantic_long_term_memories: semanticLongTermMemories,
+            total_memories_count: memories.length,
+            total_long_term_memories_count: longTermMemories.length
+        };
+
+        // Add long-term memory management hint if semantic long-term memories are present
+        if (semanticLongTermMemories && semanticLongTermMemories.length > 0) {
+            stopResponse.long_term_memory_management_hint = "📝 **Gestion des Mémoires Long Terme :** Si certains des souvenirs ci-dessus ne semblent plus pertinents, sont devenus obsolètes, contiennent des informations incorrectes ou ne servent plus à rien, vous pouvez les supprimer en utilisant l'outil `delete_long_term_memory` avec l'ID du souvenir concerné. Cela permet de maintenir une base de mémoires propre et pertinente.";
+        }
+
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify(stopResponse, null, 2)
             }]
         };
     }
@@ -549,7 +644,7 @@ export const rememberSchema = {
     present: z.string().describe("PRÉSENT - Rédigez en français une description détaillée de ce que l'agent a réellement accompli, les problèmes rencontrés et les décisions prises. Exemple : 'J'ai implémenté avec succès le système d'authentification JWT en créant les middlewares de validation, les routes de connexion et les tests unitaires. Quelques ajustements ont été nécessaires pour la gestion des tokens expirés.'"),
     future: z.string().describe("FUTUR - Rédigez en français une description de ce que l'agent prévoit de faire ensuite. Exemple : 'Je vais maintenant passer à l'implémentation des permissions utilisateur selon la tâche #16, en me concentrant sur le système de rôles.'"),
     long_term_memory: z.string().optional().describe("MÉMOIRE LONG TERME - Rédigez en français uniquement les informations critiques du projet à conserver de façon persistante (ex: décisions architecturales cruciales, précisions techniques permanentes, préférences d'implémentation définitives, noms de bases de données, conventions de code établies, patterns de bugs récurrents à éviter). N'utilisez cet argument QUE pour des informations qui resteront TOUJOURS vraies et utiles. Ne documentez JAMAIS des implémentations temporaires, des corrections de bugs ponctuelles ou des actions spécifiques. Exemples valides: 'La BDD utilise PostgreSQL avec une table users (id, email, password_hash)', 'L'authentification utilise des tokens JWT avec une expiration de 24h stockés dans des cookies httpOnly', 'Pattern de bug récurrent: le schéma MCP requiert des objets simples, pas des appels z.object().'"),
-    user_message: z.string().optional().describe("MESSAGE CRITIQUE POUR L'UTILISATEUR - Message facultatif (1-3 phrases). N'utilisez PAS ce champ pour des mises à jour positives ou banales. Utilisez-le pour signaler un problème, un risque, ou une découverte qui nécessite l'attention de l'utilisateur. Soyez direct et factuel. Exemples : 'L'implémentation actuelle de l'API présente une faille de sécurité potentielle, une revue est nécessaire.', 'Le bug #142 est plus complexe que prévu, l'estimation de temps est revue à la hausse.', 'Je suis bloqué sur la tâche #152 en raison d'une dépendance externe non disponible.'"),
+    user_message: z.string().optional().describe("MESSAGE POUR L'UTILISATEUR - Message facultatif (1-3 phrases). N'utilisez PAS ce champ pour des mises à jour positives ou banales. Utilisez-le pour signaler un problème, un risque, ou une découverte qui nécessite l'attention de l'utilisateur. Utilisez aussi ce champs pour répondre à une question de l'utilisateur. Soyez direct et factuel. Exemples : 'L'implémentation actuelle de l'API présente une faille de sécurité potentielle, une revue est nécessaire.', 'Le bug #142 est plus complexe que prévu, l'estimation de temps est revue à la hausse.', 'Je suis bloqué sur la tâche #152 en raison d'une dépendance externe non disponible.'"),
 };
 
 export { remember as handleRemember }; 

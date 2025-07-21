@@ -83,6 +83,33 @@ def display_sidebar():
     Sets up the sidebar with project metrics, current task, and controls.
     """
     with st.sidebar:
+        # --- Workflow Control Toggle ---
+        st.markdown("### ⚙️ Workflow Control")
+        
+        # Read current workflow mode from JSON file
+        workflow_state = _load_workflow_state()
+        current_mode = workflow_state.get("mode", "infinite")
+        
+        # Create toggle button
+        workflow_toggle = st.toggle(
+            "Workflow Infini",
+            value=(current_mode == "infinite"),
+            help="Actif: L'agent continue indéfiniment • Inactif: L'agent s'arrête à context-update"
+        )
+        
+        # Update workflow state if changed
+        new_mode = "infinite" if workflow_toggle else "task_by_task"
+        if new_mode != current_mode:
+            _update_workflow_state(new_mode)
+        
+        # Display current mode status
+        if new_mode == "infinite":
+            st.success("🔄 Mode: **Workflow Infini** - L'agent continue automatiquement")
+        else:
+            st.info("⏸️ Mode: **Tâche par Tâche** - L'agent s'arrêtera à context-update")
+        
+        st.divider()
+        
         st.header("📊 Project Dashboard")
 
         # --- Notification Indicators ---
@@ -234,6 +261,66 @@ def display_sidebar():
                 st.error(f"Erreur lors du chargement des souvenirs: {str(e)}")
 
         st.markdown("---")
+
+
+def _load_workflow_state():
+    """Load workflow state from JSON file"""
+    import json
+    import os
+    from pathlib import Path
+    
+    # Path to workflow state file
+    current_dir = Path(__file__).resolve().parent
+    workflow_state_file = current_dir.parent.parent / 'memory-bank' / 'workflow' / 'workflow_state.json'
+    
+    try:
+        if workflow_state_file.exists():
+            with open(workflow_state_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        else:
+            # Return default state
+            return {"mode": "infinite"}
+    except Exception:
+        # Return default state if file is corrupted
+        return {"mode": "infinite"}
+
+
+def _update_workflow_state(new_mode):
+    """Update workflow state with new mode"""
+    import json
+    import os
+    from pathlib import Path
+    from datetime import datetime
+    
+    # Path to workflow state file
+    current_dir = Path(__file__).resolve().parent
+    workflow_state_file = current_dir.parent.parent / 'memory-bank' / 'workflow' / 'workflow_state.json'
+    
+    try:
+        # Load existing state
+        workflow_state = _load_workflow_state()
+        
+        # Update mode and timestamp
+        workflow_state["mode"] = new_mode
+        workflow_state["updated_at"] = datetime.now().isoformat()
+        
+        # Ensure directory exists
+        workflow_state_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write updated state
+        with open(workflow_state_file, 'w', encoding='utf-8') as f:
+            json.dump(workflow_state, f, indent=2, ensure_ascii=False)
+            
+        # Show success message
+        import streamlit as st
+        if new_mode == "infinite":
+            st.toast("🔄 Mode Workflow Infini activé", icon="✅")
+        else:
+            st.toast("⏸️ Mode Tâche par Tâche activé", icon="✅")
+            
+    except Exception as e:
+        import streamlit as st
+        st.error(f"Erreur lors de la mise à jour du mode workflow: {e}")
         
         # User Message Form
         st.markdown("### 💬 Send Message to Agent")

@@ -9,6 +9,22 @@ import { getPossibleNextSteps, getRecommendedNextStep, analyzeSystemState as cen
 import { incrementImplementationCount } from '../lib/workflow_state.js';
 import { loadUserPreferences, readUserbriefData } from './utils.js';
 
+/**
+ * Load workflow mode from workflow_state.json
+ * @returns {string} - The current workflow mode ('infinite' or 'task_by_task')
+ */
+async function loadWorkflowMode() {
+    try {
+        const workflowStateFile = path.join(__dirname, '..', '..', '..', 'memory-bank', 'workflow', 'workflow_state.json');
+        const workflowStateData = await fs.readFile(workflowStateFile, 'utf8');
+        const workflowState = JSON.parse(workflowStateData);
+        return workflowState.mode || 'infinite'; // Default to infinite if mode is not specified
+    } catch (error) {
+        // If file doesn't exist or is corrupted, default to infinite mode
+        return 'infinite';
+    }
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const workflowDirPath = path.join(__dirname, '..', '..', '..', 'workflow-steps');
@@ -75,8 +91,8 @@ async function updateWorkflowState(step_name) {
         await fs.writeFile(workflowStateFile, JSON.stringify(workflowState, null, 2), 'utf8');
 
     } catch (error) {
-        // Log error but don't fail the workflow
-        console.warn(`Could not update workflow state: ${error.message}`);
+        // Log error but don't fail the workflow (commented to prevent MCP JSON corruption)
+        // console.warn(`Could not update workflow state: ${error.message}`);
     }
 }
 
@@ -142,9 +158,9 @@ async function createReadmeTask() {
         };
 
         await taskManager.createTask(readmeTask);
-        console.log("Task created for missing README.md");
+        // console.log("Task created for missing README.md"); // Commented to prevent MCP JSON corruption
     } catch (error) {
-        console.error("Failed to create README task:", error.message);
+        // console.error("Failed to create README task:", error.message); // Commented to prevent MCP JSON corruption
     }
 }
 
@@ -496,6 +512,18 @@ async function getStep(step_name) {
         const systemAnalysis = await analyzeSystemState(context);
         context.system_analysis = systemAnalysis;
 
+        // Add workflow mode information to context
+        const workflowMode = await loadWorkflowMode();
+        context.workflow_mode = {
+            current_mode: workflowMode,
+            description: workflowMode === 'infinite'
+                ? 'Mode Workflow Infini: L\'agent continue automatiquement le workflow'
+                : 'Mode Tâche par Tâche: L\'agent s\'arrêtera à context-update',
+            stopping_behavior: workflowMode === 'task_by_task'
+                ? 'L\'agent s\'arrêtera à context-update pour permettre un nouveau cycle propre'
+                : 'L\'agent continue indéfiniment selon le pattern normal du workflow'
+        };
+
         // Add routing decision logging
         if (step_name === 'start-workflow') {
             context.routing_decision = {
@@ -534,18 +562,18 @@ async function next_rule(args) {
         try {
             const incrementResult = await incrementImplementationCount();
 
-            // Log the increment for debugging
-            console.log(`[NextRule] Implementation counter incremented to ${incrementResult.count}`);
+            // Log the increment for debugging (commented out to prevent MCP JSON corruption)
+            // console.log(`[NextRule] Implementation counter incremented to ${incrementResult.count}`);
 
-            // If README task should be triggered, log it
+            // If README task should be triggered, log it (commented out to prevent MCP JSON corruption)
             if (incrementResult.shouldTriggerReadmeTask) {
-                console.log(`[NextRule] README task trigger condition met: ${incrementResult.triggerReason}`);
+                // console.log(`[NextRule] README task trigger condition met: ${incrementResult.triggerReason}`);
             }
 
             // This is just the automatic counter increment as specified in the task requirements
         } catch (error) {
-            // Log error but don't fail the workflow - the counter increment is supplementary
-            console.warn(`[NextRule] Failed to increment implementation counter: ${error.message}`);
+            // Log error but don't fail the workflow - the counter increment is supplementary (commented out to prevent MCP JSON corruption)
+            // console.warn(`[NextRule] Failed to increment implementation counter: ${error.message}`);
         }
     }
 

@@ -80,12 +80,42 @@ From `start-workflow`, you enter an infinite loop:
 - **Objective**: Test functionalities, validate implementations
 - **Next steps**: fix, implementation, context-update
 
+## WORKFLOW CONTROL SYSTEM
+
+### 🎛️ MODE DE WORKFLOW
+Le système dispose maintenant d'un contrôle utilisateur pour le mode de fonctionnement via l'interface Streamlit :
+
+#### **Mode Workflow Infini** (par défaut)
+- **Comportement** : L'agent continue automatiquement le workflow selon le pattern standard
+- **Transitions** : `context-update` → `task-decomposition` | `implementation` | `fix` (selon l'état)
+- **Arrêt** : Uniquement sur instruction explicite de l'utilisateur
+- **Usage** : Développement continu, sessions longues, automation complète
+
+#### **Mode Tâche par Tâche**
+- **Comportement** : L'agent s'arrête automatiquement à `context-update`
+- **Transitions** : `context-update` → **ARRÊT PROPRE** avec résumé
+- **Arrêt** : Automatique à la fin de chaque cycle de tâches
+- **Usage** : Sessions contrôlées, points d'arrêt naturels, workflow par étapes
+
+### 🔧 CONFIGURATION TECHNIQUE
+- **Fichier de contrôle** : `.cursor/memory-bank/workflow/workflow_state.json`
+- **Structure** : `{"mode": "infinite"|"task_by_task", "updated_at": "timestamp"}`
+- **Interface** : Bouton toggle dans la sidebar Streamlit au-dessus du Project Dashboard
+- **Intégration MCP** : Les outils `remember` et `next_rule` vérifient automatiquement le mode
+
+### ⚙️ IMPACT SUR LES OUTILS MCP
+- **`remember`** : En mode `task_by_task` + étape `context-update` → retourne instructions d'arrêt
+- **`next_rule`** : Inclut information du mode dans le contexte fourni à chaque règle
+- **Compatibilité** : Mode par défaut `infinite` assure compatibilité backward complète
+
 ## CRITICAL RULES FOR YOU
 
-### 🔄 MANDATORY INFINITE LOOP
-- **You must NEVER stop** except with explicit user instruction
-- After each `remember`, you MUST call `next_rule` with the next step
+### 🔄 WORKFLOW CONTINUATION RULES
+- **Mode Workflow Infini** : You must NEVER stop except with explicit user instruction
+- **Mode Tâche par Tâche** : You MUST stop at `context-update` when `remember` indicates stopping
+- After each `remember`, you MUST call `next_rule` with the next step (except in task-by-task mode stop condition)
 - If no task is in progress, you must call `context-update` to analyze the situation
+- **IMPORTANT** : The workflow mode is automatically detected by MCP tools - follow `remember` instructions
 
 ### 📝 MANDATORY PATTERN FOR EACH STEP
 1. Read the step instructions via `next_rule`

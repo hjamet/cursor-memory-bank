@@ -241,7 +241,8 @@ export async function handleUpdateTask(params) {
         try {
             validationResult = validateUpdateTask(updateData, tasks);
         } catch (validationError) {
-            // Enhanced error logging for validation failures
+            // Enhanced error logging for validation failures (commented to prevent MCP JSON corruption)
+            /*
             console.error('[UpdateTask] Validation system error:', {
                 error: validationError.message,
                 task_id: task_id,
@@ -249,6 +250,7 @@ export async function handleUpdateTask(params) {
                 tasksCount: tasks.length,
                 timestamp: new Date().toISOString()
             });
+            */
 
             return {
                 content: [{
