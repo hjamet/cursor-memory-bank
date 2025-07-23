@@ -9673,13 +9673,13 @@
     "short_description": "Modification de la règle implementation.md pour éliminer le besoin d'appel manuel à get_next_tasks en intégrant automatiquement la prochaine tâche à effectuer dans le contexte fourni par next_rule.",
     "detailed_description": "**Objectif Technique :**\n\nModifier la règle implementation.md pour éliminer la dépendance à l'outil MCP `get_next_tasks` en s'assurant que la prochaine tâche à effectuer soit automatiquement fournie dans le contexte lors de l'appel à next_rule.\n\n**Exigences Spécifiques :**\n1. **Révision texte règle** : Supprimer toutes références aux appels manuels `get_next_tasks` dans implementation.md\n2. **Documentation contexte** : Clarifier que la prochaine tâche est automatiquement disponible\n3. **Instructions agent** : Adapter les instructions pour utiliser le contexte fourni au lieu d'appeler l'outil\n4. **Workflow logic** : Maintenir la logique de priorisation et sélection de tâches\n\n**Modifications Attendues :**\n- Suppression instructions d'appel manuel `mcp_MemoryBankMCP_get_next_tasks`\n- Ajout documentation sur disponibilité automatique prochaine tâche dans contexte\n- Adaptation logique pour référencer `context.current_task` ou équivalent\n- Maintien capacité gestion priorités et workflow intelligent\n- Préservation logique routage et sélection de tâches\n\n**Analyse Technique & Points de Vigilance :**\n\n**Attention :** La modification de la règle implementation est cruciale pour le workflow autonome. Points critiques :\n- **Task selection logic** : S'assurer que la logique de sélection de tâche reste cohérente et prévisible\n- **Priority handling** : Vérifier que les priorités sont respectées dans la sélection automatique\n- **Status management** : Maintenir la gestion correcte des statuts TODO → IN_PROGRESS\n- **Dependency management** : S'assurer que les dépendances de tâches sont respectées dans la sélection\n- **Edge cases** : Gérer les cas où aucune tâche n'est disponible ou toutes sont bloquées\n- **Performance impact** : L'intégration automatique ne doit pas ralentir le workflow\n- **Context consistency** : S'assurer que la tâche fournie correspond aux critères de sélection attendus\n\n**Workflow Integration Points :**\n- Integration avec système de priorités (1-5)\n- Respect des dépendances inter-tâches\n- Gestion statuts et transitions d'états\n- Routage intelligent selon type de tâche\n- Fallback si aucune tâche disponible\n\n**Validation Criteria :**\n✅ Règle implementation.md modifiée sans références get_next_tasks\n✅ Documentation claire sur disponibilité automatique prochaine tâche\n✅ Instructions agent adaptées pour utiliser contexte fourni\n✅ Logique priorisation et sélection préservée\n✅ Gestion edge cases (aucune tâche, toutes bloquées) documentée",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/workflow-steps/implementation.md"
     ],
     "validation_criteria": "La tâche est terminée quand :\n1. Le fichier implementation.md ne contient plus aucune référence à get_next_tasks\n2. Les instructions documentent clairement que la prochaine tâche est automatiquement fournie\n3. La logique de priorisation et sélection utilise le contexte fourni\n4. La règle reste fonctionnelle pour l'exécution de tâches avec workflow intelligent",
     "created_date": "2025-07-23T20:44:20.379Z",
-    "updated_date": "2025-07-23T20:57:06.125Z",
+    "updated_date": "2025-07-23T23:01:11.448474",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -9698,7 +9698,11 @@
       }
     ],
     "last_comment": "Task #366 corrigée avec succès après découverte et correction bug critique documentation. Le problème était que la règle implementation.md référençait incorrectement `context.most_urgent_task` alors que la tâche est fournie dans `context.current_task`. Toutes les références ont été corrigées : 9 instances de most_urgent_task remplacées par current_task. La documentation est maintenant cohérente avec le contexte réellement fourni par next_rule. Test validation confirmé - la règle peut maintenant être utilisée correctly par les agents. Prête pour validation experience-execution.",
-    "last_comment_timestamp": "2025-07-23T20:57:06.125Z"
+    "last_comment_timestamp": "2025-07-23T20:57:06.125Z",
+    "validation": {
+      "approved_at": "2025-07-23T23:01:11.437481",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 367,

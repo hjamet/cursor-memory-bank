@@ -1,17 +1,5 @@
 {
   "version": "1.0.0",
-  "messages": [
-    {
-      "id": 33,
-      "content": "Correction critique appliquée : Bug de documentation dans implementation.md résolu. La règle référençait incorrectement `context.most_urgent_task` (null) au lieu de `context.current_task` (tâche réelle). 9 corrections appliquées, workflow maintenant sécurisé pour futurs agents.",
-      "timestamp": "2025-07-23T20:57:26.616Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    }
-  ],
+  "messages": [],
   "last_id": 33
 }
