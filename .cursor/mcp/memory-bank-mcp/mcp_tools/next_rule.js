@@ -184,9 +184,6 @@ async function loadStartWorkflowContext(context) {
     // Load recent memories (standard 10)
     await loadRecentMemories(context, 10);
 
-    // Load long-term memories (standard 3)
-    await loadLongTermMemories(context, 3);
-
     // Load current task if exists
     await loadCurrentTask(context);
 
