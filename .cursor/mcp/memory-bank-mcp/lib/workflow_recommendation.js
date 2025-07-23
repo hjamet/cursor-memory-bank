@@ -313,7 +313,9 @@ async function getRecommendedStepLogic(lastStep, possibleSteps, tasks = null) {
 
         // STEP 4: Arrêt par défaut (selon spécifications utilisateur)
         // Sinon → dire à l'agent de s'arrêter
-        return 'context-update'; // This will trigger the stopping logic in remember.js
+        // FIX: Prevent infinite loop by returning 'system' instead of 'context-update'
+        // This will effectively pause the agent until a new task or request arrives.
+        return 'system';
     }
 
     // 🚨 ARCHITECTURAL FIX: experience-execution routing compliance

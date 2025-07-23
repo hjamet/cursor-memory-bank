@@ -9939,5 +9939,36 @@
       "approved_at": "2025-07-23T23:34:31.057261",
       "approved_by": "user_review"
     }
+  },
+  {
+    "id": 372,
+    "title": "Fix `context-update` loop when idle",
+    "short_description": "Fix `context-update` loop when idle",
+    "detailed_description": "The agent is currently stuck in a loop where it repeatedly performs a `context-update` when the system is idle. This is because the `remember` tool recommends a `context-update` when there are no active tasks or user requests.\n\nThis task is to modify the workflow logic to prevent this from happening. The agent should enter a waiting state instead of repeatedly performing maintenance checks.\n\n**Acceptance Criteria:**\n- The agent should not repeatedly perform `context-update` when idle.\n- The agent should enter a waiting state when there are no active tasks or user requests.\n- The agent should be able to exit the waiting state when a new task or user request is received.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-07-23T21:35:38.682Z",
+    "updated_date": "2025-07-23T21:36:30.280Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 372,
+    "comments": [
+      {
+        "timestamp": "2025-07-23T21:35:50.486Z",
+        "comment": "Starting work on fixing the `context-update` loop.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-23T21:36:30.280Z",
+        "comment": "The fix for the idle loop has been implemented. Marking this task as REVIEW to proceed with validation.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "The fix for the idle loop has been implemented. Marking this task as REVIEW to proceed with validation.",
+    "last_comment_timestamp": "2025-07-23T21:36:30.280Z"
   }
 ]
