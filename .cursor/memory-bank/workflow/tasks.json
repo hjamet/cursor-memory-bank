@@ -10335,17 +10335,36 @@
     "short_description": "Update the next_rule tool for the 'implementation' step to return 5 long-term memories and 5 working memories, as requested by the user.",
     "detailed_description": "**Objective:** Modify the `next_rule.js` file to change the number of memories returned for the `implementation` workflow step.\n\n**Requirements:**\n1. When `next_rule` is called with `step_name: 'implementation'`, it should fetch and return 5 relevant long-term memories.\n2. When `next_rule` is called with `step_name: 'implementation'`, it should fetch and return the last 5 working memories (down from 10).\n\n**Technical Analysis & Points to Watch:**\n- The change will be located in the `mcp/tools/next_rule.js` file, within the logic that handles the `implementation` step.\n- Carefully locate the parameters controlling the number of memories (`longTermMemoryCount` and `workingMemoryCount` or similar).\n- Ensure the changes only affect the `implementation` step and do not have unintended side effects on other workflow steps.\n- The modification is straightforward and should not require complex logic changes.\n\n**Validation Criteria:**\n1. After the change, calling `next_rule` with `step_name: 'implementation'` returns a context object containing exactly 5 `recent_memories`.\n2. The same call returns a context object containing exactly 5 `relevant_long_term_memories`.",
     "dependencies": [],
-    "status": "TODO",
+    "status": "APPROVED",
     "impacted_files": [
       "mcp/tools/next_rule.js"
     ],
     "validation_criteria": "",
     "created_date": "2025-07-23T22:54:32.953Z",
-    "updated_date": "2025-07-23T22:54:32.953Z",
+    "updated_date": "2025-07-24T01:03:39.096419",
     "parent_id": null,
     "priority": 3,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 382,
+    "comments": [
+      {
+        "timestamp": "2025-07-23T22:58:12.142Z",
+        "comment": "This task is being marked as IN_PROGRESS. The required code changes were already implemented in the previous cycle. Moving to validation.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-23T23:02:48.136Z",
+        "comment": "I have analyzed the current task (#382) and the target file (`.cursor/mcp/memory-bank-mcp/mcp_tools/next_rule.js`). A `git log` on the file reveals that the requested changes were already implemented in commit `daadeda266ff483343ef5374d3dea580dbfdeffe`. The code already reflects the requirement of loading 5 recent and 5 long-term memories for the 'implementation' step. The task is therefore complete and I am moving it to the 'REVIEW' status for validation.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "I have analyzed the current task (#382) and the target file (`.cursor/mcp/memory-bank-mcp/mcp_tools/next_rule.js`). A `git log` on the file reveals that the requested changes were already implemented in commit `daadeda266ff483343ef5374d3dea580dbfdeffe`. The code already reflects the requirement of loading 5 recent and 5 long-term memories for the 'implementation' step. The task is therefore complete and I am moving it to the 'REVIEW' status for validation.",
+    "last_comment_timestamp": "2025-07-23T23:02:48.136Z",
+    "validation": {
+      "approved_at": "2025-07-24T01:03:39.085248",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 383,
