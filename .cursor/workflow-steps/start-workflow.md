@@ -447,3 +447,41 @@ The installation script installs a pre-commit hook in `.githooks/pre-commit` to 
    - OR Using standard git: `git commit -m "Test long file"`
 7. Observe the output. The commit should fail with an error message about file length limits.
 8. Clean up: `cd .. && rm -rf temp_repo` 
+
+### 2. **Current System State**
+
+**Workflow State:** {{ workflow_state }}
+
+**Active Tasks:** {{ active_tasks_count }}
+
+**User Requests:** {{ user_requests_status }}
+
+### 3. **Context and Memory**
+
+**Recent Working Memory (Last 5 memories):**
+{% for memory in recent_memories %}
+- **{{ memory.timestamp }}**: {{ memory.present }}
+{% endfor %}
+
+**Available Tasks (Next Actions):**
+{{ next_tasks_summary }}
+
+**User Brief Status:**
+{{ user_brief_summary }}
+
+### 4. **Workflow Instructions**
+
+Based on the current system state:
+
+{% if has_user_requests %}
+- **PRIORITY ACTION**: Process user requests via task-decomposition
+- Call `mcp_MemoryBankMCP_next_rule` with `step_name: "task-decomposition"`
+{% elif has_active_tasks %}
+- **ACTION**: Continue with pending tasks via implementation  
+- Call `mcp_MemoryBankMCP_next_rule` with `step_name: "implementation"`
+{% else %}
+- **ACTION**: System maintenance and context update
+- Call `mcp_MemoryBankMCP_next_rule` with `step_name: "context-update"`
+{% endif %}
+
+**Remember**: You MUST call `mcp_MemoryBankMCP_next_rule` to continue the autonomous workflow. This step only provides context - the actual work happens in subsequent workflow steps. 
