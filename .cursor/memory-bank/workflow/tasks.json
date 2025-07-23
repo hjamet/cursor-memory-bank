@@ -9637,11 +9637,11 @@
     "dependencies": [
       363
     ],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [],
     "validation_criteria": "La tâche est terminée quand :\n1. L'appel next_rule(\"task-decomposition\") fournit automatiquement la liste complète des tâches\n2. Les données sont équivalentes en qualité et completude à get_all_tasks\n3. Les performances sont acceptables (< 2x temps baseline)\n4. Les edge cases sont testés et documentés\n5. Le rapport de validation confirme l'équivalence fonctionnelle",
     "created_date": "2025-07-23T20:43:39.293Z",
-    "updated_date": "2025-07-23T21:03:59.009Z",
+    "updated_date": "2025-07-23T23:14:36.884710",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -9660,7 +9660,11 @@
       }
     ],
     "last_comment": "Validation successful. The `next_rule` tool correctly provides the complete task list in the context of the `task-decomposition` step.",
-    "last_comment_timestamp": "2025-07-23T21:03:59.009Z"
+    "last_comment_timestamp": "2025-07-23T21:03:59.009Z",
+    "validation": {
+      "approved_at": "2025-07-23T23:14:36.870439",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 365,
@@ -9670,13 +9674,13 @@
     "dependencies": [
       364
     ],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/"
     ],
     "validation_criteria": "La tâche est terminée quand :\n1. L'outil get_all_tasks est complètement supprimé du serveur MCP\n2. Le schema MCP ne contient plus de référence à cet outil\n3. La documentation est mise à jour sans mentions de get_all_tasks\n4. Les tests workflow complets réussissent sans erreurs\n5. Aucun appel orphelin ou erreur n'est détecté post-suppression",
     "created_date": "2025-07-23T20:44:00.740Z",
-    "updated_date": "2025-07-23T21:07:20.547Z",
+    "updated_date": "2025-07-23T23:14:34.763439",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -9695,7 +9699,11 @@
       }
     ],
     "last_comment": "The `get_all_tasks` tool has been successfully removed from the MemoryBankMCP server. The tool's file has been deleted and the server has been updated to remove its registration. The task is now ready for review.",
-    "last_comment_timestamp": "2025-07-23T21:07:20.547Z"
+    "last_comment_timestamp": "2025-07-23T21:07:20.547Z",
+    "validation": {
+      "approved_at": "2025-07-23T23:14:34.745157",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 366,
@@ -9742,11 +9750,11 @@
     "dependencies": [
       366
     ],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [],
     "validation_criteria": "La tâche est terminée quand :\n1. L'appel next_rule(\"implementation\") fournit automatiquement la prochaine tâche prioritaire\n2. La tâche sélectionnée est équivalente au résultat get_next_tasks\n3. Les priorités et dépendances sont respectées dans la sélection\n4. Les edge cases sont testés et gérés correctement\n5. Le rapport de validation confirme l'équivalence fonctionnelle",
     "created_date": "2025-07-23T20:44:45.209Z",
-    "updated_date": "2025-07-23T21:11:18.157Z",
+    "updated_date": "2025-07-23T23:14:33.341614",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -9765,7 +9773,11 @@
       }
     ],
     "last_comment": "The fix to `next_rule.js` was successful. The tool now correctly provides the next available task in the `implementation` step. The validation test for this task is now a success.",
-    "last_comment_timestamp": "2025-07-23T21:11:18.157Z"
+    "last_comment_timestamp": "2025-07-23T21:11:18.157Z",
+    "validation": {
+      "approved_at": "2025-07-23T23:14:33.324324",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 368,
