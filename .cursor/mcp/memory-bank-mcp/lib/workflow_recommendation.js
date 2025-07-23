@@ -163,12 +163,22 @@ export async function getPossibleNextSteps(lastStep = null) {
         // CRITICAL FIX: Do NOT add default steps for implementation - it must only go to experience-execution
         if (lastStep !== 'implementation') {
             possibleSteps.add('context-update');
-            possibleSteps.add('system');
+            
+            // Add workflow-complete if we're idle (no tasks and no requests)
+            const userbrief = await readUserbrief();
+            const hasUnprocessedRequests = userbrief && userbrief.requests && 
+                userbrief.requests.some(r => r.status === 'new' || r.status === 'in_progress');
+            const hasActiveTasks = tasks && tasks.some(t => 
+                t.status === 'TODO' || t.status === 'IN_PROGRESS' || t.status === 'BLOCKED' || t.status === 'REVIEW');
+            
+            if (!hasUnprocessedRequests && !hasActiveTasks) {
+                possibleSteps.add('workflow-complete');
+            }
         }
 
         if (possibleSteps.size === 0) {
             // Fallback to a safe default if no other steps are identified
-            return ['context-update', 'system'];
+            return ['context-update'];
         }
 
         return Array.from(possibleSteps);
@@ -180,7 +190,7 @@ export async function getPossibleNextSteps(lastStep = null) {
             return ['START'];
         }
         // Fallback to a safe default
-        return ['system'];
+        return ['context-update'];
     }
 }
 
@@ -263,8 +273,12 @@ async function getRecommendedStepLogic(lastStep, possibleSteps, tasks = null) {
             t.status === 'TODO' || t.status === 'IN_PROGRESS' || t.status === 'BLOCKED');
 
         // If we have no pending work and we're being asked for context-update, allow stopping
-        if (!hasUnprocessedRequests && !hasActiveTasks && possibleSteps.includes('context-update')) {
-            return 'context-update'; // This will trigger the stopping logic in remember.js
+        if (!hasUnprocessedRequests && !hasActiveTasks) {
+            if (possibleSteps.includes('workflow-complete')) {
+                return 'workflow-complete'; // Proper termination
+            } else if (possibleSteps.includes('context-update')) {
+                return 'context-update'; // Fallback for backward compatibility
+            }
         }
     }
 
@@ -320,9 +334,8 @@ async function getRecommendedStepLogic(lastStep, possibleSteps, tasks = null) {
 
         // STEP 4: Arrêt par défaut (selon spécifications utilisateur)
         // Sinon → dire à l'agent de s'arrêter
-        // FIX: Prevent infinite loop by returning 'system' instead of 'context-update'
-        // This will effectively pause the agent until a new task or request arrives.
-        return 'system';
+        // FIX: Use workflow-complete to properly terminate the workflow when idle
+        return 'workflow-complete';
     }
 
     // 🚨 ARCHITECTURAL FIX: experience-execution routing compliance

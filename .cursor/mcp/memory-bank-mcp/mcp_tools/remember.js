@@ -382,7 +382,9 @@ async function remember(args) {
     let workflowInstruction = "";
 
     // Generate appropriate workflow instructions based on the recommended step
-    if (recommendedNextStep === 'experience-execution') {
+    if (recommendedNextStep === 'workflow-complete') {
+        workflowInstruction = "WORKFLOW COMPLETE: No more tasks or user requests. You should call mcp_MemoryBankMCP_next_rule with 'workflow-complete' to gracefully terminate the workflow.";
+    } else if (recommendedNextStep === 'experience-execution') {
         if (lastStep === 'implementation') {
             workflowInstruction = "CONTINUE WORKFLOW: Implementation complete. You should now test the changes manually using 'experience-execution' to validate the implementation before proceeding.";
         } else if (tasks && tasks.some(t => t.status === 'REVIEW')) {

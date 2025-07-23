@@ -288,15 +288,15 @@ async function loadRecentMemories(context, limit = 10) {
             const lastMemory = agentMemory[agentMemory.length - 1];
             const futureText = lastMemory.future || '';
             const ruleMatch = futureText.match(/(\w+-\w+|\w+)\s+(rule|step)/i);
-            context.previous_rule = ruleMatch ? ruleMatch[1] : 'system';
+            context.previous_rule = ruleMatch ? ruleMatch[1] : 'start-workflow';
         } else {
-            context.previous_rule = 'system';
+            context.previous_rule = 'start-workflow';
         }
     } catch (error) {
         // Debug logging removed to prevent JSON-RPC pollution
         // console.warn(`Could not load memory context: ${error.message}`);
         context.recent_memories = [];
-        context.previous_rule = 'system';
+        context.previous_rule = 'start-workflow';
     }
 }
 

@@ -61,9 +61,9 @@ export async function readMemoryContext() {
         // Try to extract rule name from the future field
         const futureText = lastMemory.future || '';
         const ruleMatch = futureText.match(/(\w+-\w+|\w+)\s+(rule|step)/i);
-        context.previous_rule = ruleMatch ? ruleMatch[1] : 'system';
+        context.previous_rule = ruleMatch ? ruleMatch[1] : 'start-workflow';
     } else {
-        context.previous_rule = 'system';
+        context.previous_rule = 'start-workflow';
     }
 
     // Get relevant long-term memories using semantic search
