@@ -1,17 +1,5 @@
 {
   "version": "1.0.0",
-  "messages": [
-    {
-      "id": 42,
-      "content": "Critical test failure: The main command failed with error X, blocking the key functionality.",
-      "timestamp": "2025-07-23T22:10:20.856Z",
-      "context": {
-        "workflow_rule": "implementation",
-        "active_task": null,
-        "agent_state": "processing"
-      },
-      "status": "unread"
-    }
-  ],
+  "messages": [],
   "last_id": 42
 }

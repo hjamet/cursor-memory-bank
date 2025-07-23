@@ -9982,11 +9982,11 @@
     "short_description": "Execute a comprehensive test of the updated autonomous workflow to validate key state transitions (`task-decomposition`, `implementation`, `experience-execution`, `fix`, `context-update`) and ensure system stability after recent major changes.",
     "detailed_description": "This task is to test the full sequence of the autonomous workflow, as requested by the user.\n\n**Acceptance Criteria:**\n1.  **Implementation:** The agent must correctly pick up this task and enter the `implementation` step.\n2.  **Experience Execution (Failure Simulation):** In the first `experience-execution` step, the agent must simulate a failure. It should report a fictitious problem and verify that the workflow correctly recommends the `fix` step.\n3.  **Fix:** The agent must enter the `fix` step, simulate a correction, and verify that the workflow recommends a return to `experience-execution`.\n4.  **Experience Execution (Success):** In the second `experience-execution` step, the agent must report that the test was successful. It must verify that the workflow then transitions to `context-update`.\n5.  **Context Update & Stop:** The agent must enter the `context-update` step and confirm that the workflow stops as expected, given the `task_by_task` mode.\n\n**Technical Analysis & Points to Watch:**\n*   This is a critical test of the core workflow logic. Pay close attention to the transition recommendations provided by the `remember` tool at each stage.\n*   Ensure that the state (e.g., simulated failure/success) is correctly passed between steps.\n*   The final stop at `context-update` is a key validation point for the `task_by_task` mode.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "DONE",
     "impacted_files": [],
     "validation_criteria": "",
     "created_date": "2025-07-23T21:43:21.765Z",
-    "updated_date": "2025-07-23T22:10:42.012Z",
+    "updated_date": "2025-07-24T00:11:12.717619",
     "parent_id": null,
     "priority": 5,
     "image": null,
@@ -10005,7 +10005,17 @@
       }
     ],
     "last_comment": "The simulated test has passed successfully after a simulated fix. The workflow correctly transitioned from `fix` back to `experience-execution`, and the final validation was successful.",
-    "last_comment_timestamp": "2025-07-23T22:10:42.012Z"
+    "last_comment_timestamp": "2025-07-23T22:10:42.012Z",
+    "status_history": [
+      {
+        "status": "REVIEW",
+        "timestamp": "2025-07-23T21:43:21.765Z"
+      },
+      {
+        "status": "DONE",
+        "timestamp": "2025-07-24T00:11:12.717619"
+      }
+    ]
   },
   {
     "id": 374,
