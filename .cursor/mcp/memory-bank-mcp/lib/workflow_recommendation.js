@@ -119,9 +119,13 @@ export async function getPossibleNextSteps(lastStep = null) {
     let possibleSteps = new Set();
 
     try {
-        const userbrief = await readUserbrief();
-        if (userbrief && userbrief.requests && userbrief.requests.some(r => r.status === 'new' || r.status === 'in_progress')) {
-            possibleSteps.add('task-decomposition');
+        // Only allow task-decomposition if NOT coming from implementation
+        // Implementation step must ONLY transition to experience-execution
+        if (lastStep !== 'implementation') {
+            const userbrief = await readUserbrief();
+            if (userbrief && userbrief.requests && userbrief.requests.some(r => r.status === 'new' || r.status === 'in_progress')) {
+                possibleSteps.add('task-decomposition');
+            }
         }
 
         const tasks = await readTasks();
@@ -156,8 +160,11 @@ export async function getPossibleNextSteps(lastStep = null) {
         }
 
         // Default steps that are almost always possible
-        possibleSteps.add('context-update');
-        possibleSteps.add('system');
+        // CRITICAL FIX: Do NOT add default steps for implementation - it must only go to experience-execution
+        if (lastStep !== 'implementation') {
+            possibleSteps.add('context-update');
+            possibleSteps.add('system');
+        }
 
         if (possibleSteps.size === 0) {
             // Fallback to a safe default if no other steps are identified

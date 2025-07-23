@@ -8,6 +8,7 @@ import { taskManager } from '../lib/task_manager.js';
 import { getPossibleNextSteps, getRecommendedNextStep, analyzeSystemState as centralizedAnalyzeSystemState } from '../lib/workflow_recommendation.js';
 import { incrementImplementationCount } from '../lib/workflow_state.js';
 import { loadUserPreferences, readUserbriefData } from './utils.js';
+import { calculateTaskStatistics } from '../lib/task_statistics.js';
 
 /**
  * Load workflow mode from workflow_state.json
@@ -334,6 +335,7 @@ async function loadLongTermMemories(context, limit = 3) {
  */
 async function loadCurrentTask(context) {
     try {
+        await taskManager.loadTasks(); // FIX: Load tasks from file first
         const tasks = taskManager.getAllTasks();
         const inProgressTasks = tasks.filter(t => t.status === 'IN_PROGRESS');
 
@@ -393,6 +395,7 @@ async function loadUnprocessedRequests(context, limit = 3) {
  */
 async function loadUrgentTasks(context, limit = 3) {
     try {
+        await taskManager.loadTasks(); // FIX: Load tasks from file first
         const tasks = taskManager.getAllTasks();
         const activeTasks = tasks.filter(t => t.status === 'TODO' || t.status === 'IN_PROGRESS' || t.status === 'BLOCKED');
 
@@ -427,6 +430,7 @@ async function loadUrgentTasks(context, limit = 3) {
  */
 async function loadCompleteTaskList(context) {
     try {
+        await taskManager.loadTasks(); // FIX: Load tasks from file first
         const tasks = taskManager.getAllTasks();
         const activeTasks = tasks.filter(t => t.status === 'TODO' || t.status === 'IN_PROGRESS');
 
@@ -455,6 +459,7 @@ async function loadCompleteTaskList(context) {
  */
 async function loadMostUrgentTask(context) {
     try {
+        await taskManager.loadTasks(); // FIX: Load tasks from file first
         const tasks = taskManager.getAllTasks();
         const activeTasks = tasks.filter(t => t.status === 'TODO' || t.status === 'IN_PROGRESS' || t.status === 'BLOCKED');
 

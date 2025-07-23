@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_id": 319,
+  "last_id": 320,
   "requests": [
     {
       "id": 268,
@@ -972,6 +972,21 @@
         {
           "timestamp": "2025-07-23T21:52:56.138Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 320,
+      "content": "Au cours de la règle task-decomposition, l'agent vient de créer de nouvelles tâches pour 4 requêtes userbrief simultanément. Celà ne devrait jamais arriver : l'agent ne doit transformer en tâche qu'une requête à la fois en commencant par les plus anciennes.\n1. Vérifies et corrige éventuellement le fichier markdown de la règle pour vérifier que le fait de se concentrer sur une seule tâche est bien précisée\n2. Corrige l'outil next_rule lors de l'appel à task-decomposition pour qu'il n'affiche le contenu d'une seule requêtre userbrief (la plus ancienne) et  non pas la liste de toutes les requêtes !",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-23T23:55:29.648227",
+      "updated_at": "2025-07-23T23:55:29.648227",
+      "history": [
+        {
+          "timestamp": "2025-07-23T23:55:29.648227",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }
