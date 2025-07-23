@@ -6,7 +6,6 @@ import handleNextRule, { nextRuleSchema } from './mcp_tools/next_rule.js';
 import { handleCommit } from './mcp_tools/commit.js';
 import { handleCreateTask } from './mcp_tools/create_task.js';
 import { handleUpdateTask } from './mcp_tools/update_task.js';
-import { handleReadUserbrief } from './mcp_tools/read_userbrief.js';
 import { handleUpdateUserbrief } from './mcp_tools/update_userbrief.js';
 import { handleDeleteLongTermMemory, deleteLongTermMemorySchema } from './mcp_tools/delete_long_term_memory.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
@@ -70,10 +69,6 @@ server.tool('update_task', {
     priority: z.number().int().min(1).max(5).optional().describe("NEW TASK PRIORITY: Updated urgency level (1=lowest, 5=highest). Use 5 for critical/blocking issues, 4 for high-priority features, 3 for normal work, 2 for nice-to-have improvements, 1 for low-priority tasks. Only provide if priority is changing."),
     image: z.string().optional().describe("NOUVELLE IMAGE FACULTATIVE : Chemin relatif mis à jour vers une image associée à cette tâche (optionnel). Utilisez le chemin relatif depuis la racine du projet vers un fichier image qui illustre, documente ou est nécessaire pour cette tâche. Ne fournissez que si vous voulez changer l'image existante ou en ajouter une nouvelle. Exemple : '.cursor/temp/images/mockup_updated.png'. L'image sera accessible via l'outil mcp_ToolsMCP_consult_image pour analyse et référence durant l'implémentation.")
 }, safeHandler(handleUpdateTask));
-
-server.tool('read_userbrief', {
-    archived_count: z.number().optional().describe("ARCHIVED COUNT: Number of archived entries to include in the response (optional, default: 3). Use this to control how many completed/archived requests are returned along with the current active request.")
-}, safeHandler(handleReadUserbrief));
 
 server.tool('update_userbrief', {
     action: z.enum(['mark_archived', 'add_comment', 'mark_pinned']).describe("ACTION USERBRIEF : L'opération à effectuer sur une entrée de requête utilisateur. 'mark_archived' = déplacer la requête vers le statut terminé/archivé (utiliser quand le travail est fini), 'add_comment' = ajouter une mise à jour de progression ou note à l'historique de la requête (utiliser pour mises à jour de statut, découvertes, ou communication), 'mark_pinned' = marquer la requête comme importante/prioritaire (utiliser pour éléments haute priorité qui doivent rester visibles)."),
