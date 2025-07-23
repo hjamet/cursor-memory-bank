@@ -27,7 +27,7 @@ Analyze the user's request with a systematic and thorough approach. Your goal is
 
 **Process:**
 
-1.  **Analyze the Request:** Carefully examine the user's request to understand the requirements.
+1.  **Analyze the Request:** Carefully examine the user's request, automatically provided in the `unprocessed_requests` context, to understand the requirements.
     *   What are the core objectives?
     *   What are the technical requirements and constraints?
     *   What are the potential impacts on other parts of the system?
@@ -66,7 +66,7 @@ Analyze the user's request with a systematic and thorough approach. Your goal is
 
 *   **Create one or more tasks per user request as appropriate.** Use your analytical judgment to determine the optimal task structure.
 *   **Focus on one request at a time.** Complete the full analysis and task creation for a single request before moving on.
-*   **Use automatically provided context.** Leverage the `complete_task_list` and other context data provided automatically - **no manual tool calls to `get_all_tasks` are needed**.
+*   **Use automatically provided context.** Leverage the `complete_task_list`, `unprocessed_requests` and other context data provided automatically - **no manual tool calls to `get_all_tasks` or `read_userbrief` are needed**.
 *   **N'utilisez que les outils MCP** (`mcp_MemoryBankMCP_*`, `mcp_Context7_*`, `mcp_brave-search_brave_web_search`).
 *   **You are strictly forbidden from using the `run_terminal_cmd` tool. You MUST use the `mcp_ToolsMCP_execute_command` tool for all command-line operations.**
 *   **Ne créez, ne modifiez, ne lisez, ne listez, ne supprimez aucun fichier ou dossier directement.**

@@ -9775,13 +9775,13 @@
     "dependencies": [
       367
     ],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/"
     ],
     "validation_criteria": "La tâche est terminée quand :\n1. L'outil get_next_tasks est complètement supprimé du serveur MCP\n2. Le schema MCP ne contient plus de référence à cet outil\n3. La documentation est mise à jour sans mentions de get_next_tasks\n4. Les tests workflow autonome complets réussissent sans erreurs\n5. Aucune dégradation de performance ou fonctionnalité n'est détectée",
     "created_date": "2025-07-23T20:45:08.368Z",
-    "updated_date": "2025-07-23T21:12:29.935Z",
+    "updated_date": "2025-07-23T23:14:23.686334",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -9800,7 +9800,11 @@
       }
     ],
     "last_comment": "The `get_next_tasks` tool has been successfully removed from the MemoryBankMCP server. The tool's file has been deleted and the server has been updated to remove its registration. The task is now ready for review.",
-    "last_comment_timestamp": "2025-07-23T21:12:29.935Z"
+    "last_comment_timestamp": "2025-07-23T21:12:29.935Z",
+    "validation": {
+      "approved_at": "2025-07-23T23:14:23.675275",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 369,
@@ -9808,17 +9812,36 @@
     "short_description": "Modification de la règle task-decomposition.md pour éliminer le besoin d'appel manuel à read_userbrief en intégrant automatiquement le contenu de la requête utilisateur dans le contexte fourni par next_rule.",
     "detailed_description": "**Objectif Technique :**\n\nModifier la règle task-decomposition.md pour éliminer la dépendance à l'outil MCP `read_userbrief` en s'assurant qu'une requête utilisateur soit automatiquement fournie dans le contexte lors de l'appel à next_rule.\n\n**Exigences Spécifiques :**\n1. **Révision texte règle** : Supprimer toutes références aux appels manuels `read_userbrief` dans task-decomposition.md\n2. **Documentation contexte** : Clarifier qu'une requête utilisateur est automatiquement disponible\n3. **Instructions agent** : Adapter les instructions pour utiliser le contexte fourni au lieu d'appeler l'outil\n4. **Workflow logic** : Maintenir la logique de traitement une requête à la fois\n5. **Queue management** : Préserver la gestion séquentielle des requêtes utilisateur\n\n**Modifications Attendues :**\n- Suppression instructions d'appel manuel `mcp_MemoryBankMCP_read_userbrief`\n- Ajout documentation sur disponibilité automatique requête utilisateur dans contexte\n- Adaptation logique pour référencer `context.current_user_request` ou équivalent\n- Maintien principe traitement requête par requête (une seule à la fois)\n- Préservation logique d'archivage après traitement complet\n\n**Analyse Technique & Points de Vigilance :**\n\n**Attention :** La modification de la règle task-decomposition pour read_userbrief impacte le point d'entrée des requêtes utilisateur. Points critiques :\n- **Request selection logic** : S'assurer que la requête fournie suit la logique appropriée (plus ancienne, priorité, etc.)\n- **Queue management** : Vérifier que le système continue de traiter les requêtes une par une de manière séquentielle\n- **Status consistency** : Maintenir la cohérence des statuts (new → in_progress → archived)\n- **Context completeness** : S'assurer que tous métadonnées nécessaires sont fournies (id, content, created_at, etc.)\n- **Edge cases** : Gérer les cas où aucune requête n'est en attente (système idle)\n- **Concurrency handling** : Éviter traitement simultané de plusieurs requêtes par accident\n- **Archive workflow** : Maintenir la logique d'archivage après création de toutes les tâches associées\n\n**Integration Points :**\n- Coordination avec système de priorités des requêtes\n- Gestion statuts new/in_progress/archived\n- Interface avec update_userbrief pour archivage\n- Logique de sélection requête suivante\n- Fallback si queue vide\n\n**Validation Criteria :**\n✅ Règle task-decomposition.md modifiée sans références read_userbrief\n✅ Documentation claire sur disponibilité automatique requête utilisateur\n✅ Instructions agent adaptées pour utiliser contexte fourni\n✅ Logique traitement séquentiel une requête à la fois préservée\n✅ Gestion edge cases (aucune requête) documentée",
     "dependencies": [],
-    "status": "TODO",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/workflow-steps/task-decomposition.md"
     ],
     "validation_criteria": "La tâche est terminée quand :\n1. Le fichier task-decomposition.md ne contient plus aucune référence à read_userbrief\n2. Les instructions documentent clairement qu'une requête utilisateur est automatiquement fournie\n3. La logique de traitement séquentiel utilise le contexte fourni\n4. La règle reste fonctionnelle pour la décomposition de requêtes avec gestion appropriée des statuts",
     "created_date": "2025-07-23T20:45:30.065Z",
-    "updated_date": "2025-07-23T20:45:30.065Z",
+    "updated_date": "2025-07-23T23:14:29.697830",
     "parent_id": null,
     "priority": 3,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 369,
+    "comments": [
+      {
+        "timestamp": "2025-07-23T21:14:01.654Z",
+        "comment": "Beginning implementation of task #369.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-23T21:14:23.949Z",
+        "comment": "The `task-decomposition.md` file has been updated to reflect the automatic integration of the user brief. The task is now ready for review.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "The `task-decomposition.md` file has been updated to reflect the automatic integration of the user brief. The task is now ready for review.",
+    "last_comment_timestamp": "2025-07-23T21:14:23.949Z",
+    "validation": {
+      "approved_at": "2025-07-23T23:14:29.676451",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 370,
