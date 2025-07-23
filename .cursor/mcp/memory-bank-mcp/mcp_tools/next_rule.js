@@ -467,17 +467,17 @@ async function loadMostUrgentTask(context) {
 
             // Return the most urgent task with full details
             const mostUrgentTask = sortedTasks.slice(0, 1);
-            context.most_urgent_task = mostUrgentTask[0];
+            context.current_task = mostUrgentTask[0];
         } else {
-            context.most_urgent_task = null;
+            context.current_task = null;
         }
 
         // Enhance task with image data if available
-        if (context.most_urgent_task && context.most_urgent_task.image) {
-            const imagePath = path.join('C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\temp\\images', context.most_urgent_task.image);
+        if (context.current_task && context.current_task.image) {
+            const imagePath = path.join('C:\\Users\\Jamet\\code\\cursor-memory-bank\\.cursor\\temp\\images', context.current_task.image);
             try {
                 const imageBuffer = await fs.readFile(imagePath);
-                context.most_urgent_task.image_data = {
+                context.current_task.image_data = {
                     type: 'image',
                     data: imageBuffer.toString('base64'),
                     mimeType: 'image/jpeg' // Assuming jpeg for now
@@ -493,7 +493,7 @@ async function loadMostUrgentTask(context) {
     } catch (error) {
         // Debug logging removed to prevent JSON-RPC pollution
         // console.warn(`Could not load most urgent task: ${error.message}`);
-        context.most_urgent_task = null;
+        context.current_task = null;
         context.current_tasks_summary = 'Task summary unavailable';
     }
 }
