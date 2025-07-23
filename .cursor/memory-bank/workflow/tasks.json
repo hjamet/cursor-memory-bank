@@ -9742,15 +9742,25 @@
     "dependencies": [
       366
     ],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "impacted_files": [],
     "validation_criteria": "La tâche est terminée quand :\n1. L'appel next_rule(\"implementation\") fournit automatiquement la prochaine tâche prioritaire\n2. La tâche sélectionnée est équivalente au résultat get_next_tasks\n3. Les priorités et dépendances sont respectées dans la sélection\n4. Les edge cases sont testés et gérés correctement\n5. Le rapport de validation confirme l'équivalence fonctionnelle",
     "created_date": "2025-07-23T20:44:45.209Z",
-    "updated_date": "2025-07-23T20:44:45.209Z",
+    "updated_date": "2025-07-23T21:08:41.720Z",
     "parent_id": null,
     "priority": 3,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 367,
+    "comments": [
+      {
+        "timestamp": "2025-07-23T21:08:41.720Z",
+        "comment": "Bypassing workflow inconsistency by manually selecting this task. Marking as IN_PROGRESS to begin validation. Routing to experience-execution.",
+        "status_change": "IN_PROGRESS"
+      }
+    ],
+    "last_comment": "Bypassing workflow inconsistency by manually selecting this task. Marking as IN_PROGRESS to begin validation. Routing to experience-execution.",
+    "last_comment_timestamp": "2025-07-23T21:08:41.720Z"
   },
   {
     "id": 368,
