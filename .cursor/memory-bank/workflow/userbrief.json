@@ -1,64 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 308,
+  "last_id": 311,
   "requests": [
-    {
-      "id": 257,
-      "content": "Modifie encore la description de l'argument long-term de l'outil remember pour que le modèle ne stocke QUE les informations qui ne changeront JAMAIS. On en parle pas d'une implémentation ou d'une correction de bug qu'il vient d'effectuer : on parle de décisions architecturales cruciales, de précisions techniques, de préférences d'implémentation, de noms de bases de données etc. Ce n'est surtout pas un argument que l'agent doit utiliser à chaque fois ! Seulement lorsque c'est vraiment vraiment important de s'en souvenir !!!",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-13T20:05:34.814037",
-      "updated_at": "2025-07-13T18:07:33.550Z",
-      "history": [
-        {
-          "timestamp": "2025-07-13T20:05:34.814037",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-13T18:07:33.550Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 258,
-      "content": "Je souhaite que tu crées un nouvel outil delete_long_term_memory qui permet à l'agent de supprimer un souvenir long terme à partir de son id. Modifie également légèrement l'outil remember afin qu'il ajoute une précision après avoir donné la liste des souvenirs long terme sémantiquement proche : Il doit indiquer que si un souvenir ne semple par pertinent de manière général, qu'il n'est plus vrai, qu'il ne sert à rien etc. l'outil remember doit encourager l'agent à le supprimer via l'outil delete_long_term_memory",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-13T20:21:42.177256",
-      "updated_at": "2025-07-13T18:27:22.335Z",
-      "history": [
-        {
-          "timestamp": "2025-07-13T20:21:42.177256",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-13T18:27:22.335Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 259,
-      "content": "Il y a toujours ce bug bizarre et inexplicable qui arrive de temps en temps sur certains repositoy : l'outil remember  reste bloqué dans une boucle context-update -> context-update -> context-update -> ...\nIl faut absolument que tu resolves ça !!!! Supprime TOUS les mécanismes qui pourraient amener recall à appeler context-update depuis contexte-update : ils sont très certainement inutiles et peuvent poser des problèmes !!!\n\nModifie également l'outil remember pour qu'il ne retourne que les 5 derniers souvenirs présents de la mémoire de travail et les 5 souvenirs sémantiquement les plus proches de la mémoire long terme (au lieu des 10 à chaque fois). Insiste d'avantage sur le fait que tant que l'agent doit continuer, IL DOIT CONTINUER SANS JAMAIS S'ARRETER ET A TOUT PRIX !!! Ecris en majuscule, Ajoute !!! TRES IMPORTANT !!! etc.\n\nPs : Je te rappelle que tu ne pourras pas tester manuellement ces modifications : elles nécessitent un redémarage de Cursor. Mais tu peux faire un petit script temporaire éventuellement Et Si il a l'air de fonctionner, comme c'est ta seule tâche, on pourra la valider après que tu ais terminé le workflow !!",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-14T10:36:04.393561",
-      "updated_at": "2025-07-14T08:37:48.949Z",
-      "history": [
-        {
-          "timestamp": "2025-07-14T10:36:04.393561",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-14T08:37:48.949Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 260,
       "content": "En fait, le système de toast ne fonctionne pas correctement dans l'interface streamlit, probablement à cause de l'auto actualisation toutes les 2s. A la place, est-ce que tu pourrais afficher les 5 derniers souvenirs présents dans le rideau dépliable à gauche de l'interface, dans la section Agent status, juste en dessous de Current Task :D Place les 5 derniers souvenirs dans un accordéon plié par défaut pour ne pas prendre trop de place :D",
@@ -979,6 +922,63 @@
         },
         {
           "timestamp": "2025-07-23T10:17:27.110Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 309,
+      "content": "Je souhaite que tu ajoutes un nouvel outil au serveur MCP MyMCP : take_pdf_screenshot. Cet outil prends en argument le chemin vers un fichier et un nombre (le numéro de page) pouvant aller de 1 à inf. L'outil retourne une capture d'écran de la page. inspires toi ENORMEMENT de l'outil consult_image. Adopte EXACTEMENT les mêmes approches pour :\n1. La declaration de l'outil et des arguments\n2. La résolution du chemin de fichier\n3. Le format de retour de l'image\nTu dois simplement adapter le système de capture.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-23T18:21:25.417207",
+      "updated_at": "2025-07-23T16:23:40.575Z",
+      "history": [
+        {
+          "timestamp": "2025-07-23T18:21:25.417207",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-23T16:23:40.575Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 310,
+      "content": "Modifie la règle start-workflow pour :\n1. Ne pas retourner de long-term memory\n2. Réduire à 5 les derniers souvenirs de la mémoire de travail\n3. Inclure le contenu du README à la racine du repository si il existe et créer une tâche pour le créer sinon.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-23T18:27:10.405889",
+      "updated_at": "2025-07-23T16:34:24.192Z",
+      "history": [
+        {
+          "timestamp": "2025-07-23T18:27:10.405889",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-23T16:34:24.192Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 311,
+      "content": "Modification request for Task #358 (Implémenter l'outil MCP take_pdf_screenshot au serveur MyMCP):\n\n**Original Task Details:**\n- **Title:** Implémenter l'outil MCP take_pdf_screenshot au serveur MyMCP\n- **Description:** Créer un nouvel outil MCP take_pdf_screenshot qui capture des pages spécifiques de fichiers PDF en utilisant EXACTEMENT les mêmes patterns que l'outil consult_image existant. L'outil prend un chemin de fichier et un numéro de page en paramètres et retourne une capture d'écran au format image base64.\n- **Status:** REVIEW\n- **Priority:** 3\n\n**Detailed Task Description:**\n**Objectif :**\nImplémenter un nouvel outil MCP `take_pdf_screenshot` dans le serveur MyMCP qui permet de capturer des pages spécifiques de fichiers PDF et de les retourner sous forme d'images base64, en suivant exactement les patterns architecturaux de l'outil `consult_image` existant.\n\n**Spécifications fonctionnelles :**\n\n1. **Arguments de l'outil :**\n   - `path` (string) : Chemin relatif vers le fichier PDF depuis la racine du projet\n   - `page` (number) : Numéro de page à capturer (commençant à 1, jusqu'à infini)\n\n2. **Reproduction EXACTE des patterns de consult_image :**\n   - **Déclaration outil** : Utiliser la même structure avec `server.tool()` et validation Zod\n   - **Résolution chemin** : Appliquer la même logique de sécurité avec `projectRoot` et validation anti-path-traversal\n   - **Format retour** : Retourner exactement le même format `{ content: [{ type: \"image\", data: base64Data, mimeType: \"image/jpeg\" }] }`\n   - **Gestion erreurs** : Implémenter la même structure de gestion d'erreurs avec messages clairs\n\n**Architecture technique :**\n\n**Fichiers à créer/modifier :**\n1. **`.cursor/mcp/mcp-commit-server/mcp_tools/take_pdf_screenshot.js`** : Nouveau handler de l'outil\n2. **`.cursor/mcp/mcp-commit-server/server.js`** : Ajout déclaration outil + import handler\n\n**Implémentation détaillée :**\n\n1. **Handler take_pdf_screenshot.js** :\n   ```javascript\n   // Structure identique à consult_image.js\n   - Import identique : fs/promises, path, fileURLToPath, sharp\n   - Calcul projectRoot identique\n   - Validation paramètres identique\n   - Sécurité path traversal identique\n   - BUT : Conversion PDF → Image avec bibliothèque PDF (pdf-poppler, pdf2pic, ou pdf-to-img)\n   - Processing image identique : resize 1024px + JPEG 80% avec sharp\n   - Format retour identique\n   ```\n\n2. **Déclaration server.js** :\n   ```javascript\n   // Import : import { handleTakePdfScreenshot } from './mcp_tools/take_pdf_screenshot.js';\n   // Tool declaration identique à consult_image mais avec 2 paramètres\n   server.tool('take_pdf_screenshot', {\n       path: z.string().describe(\"Relative path to the PDF file from the project root.\"),\n       page: z.number().int().min(1).describe(\"Page number to capture (starting from 1).\")\n   }, handleTakePdfScreenshot);\n   ```\n\n**Analyse Technique & Points de Vigilance :**\n\n1. **Choix bibliothèque PDF** : Investiguer les options Node.js pour conversion PDF→Image :\n   - `pdf-poppler` : Wrapper Node.js pour poppler-utils (nécessite binaires système)\n   - `pdf2pic` : Pure Node.js, conversion avec graphicsmagick/imagemagick\n   - `pdf-to-img` : Alternative légère\n   - **Vigilance** : Compatibilité plateforme Windows/Linux/macOS + gestion dépendances système\n\n2. **Validation pages PDF** : \n   - Vérifier que le numéro de page existe dans le PDF\n   - Gestion erreur page hors limites avec message explicite\n   - **Attention** : Performance sur gros PDFs (éviter chargement complet pour validation)\n\n3. **Sécurité & Performance** :\n   - Même validation anti-path-traversal que consult_image\n   - Limitation taille fichier PDF pour éviter OOM\n   - **Vigilance** : Timeout sur conversion longue + nettoyage fichiers temporaires\n\n4. **Format retour cohérent** :\n   - Conversion finale obligatoire en JPEG via sharp (comme consult_image)\n   - Base64 encoding identique\n   - **Attention** : Qualité image finale + DPI approprié pour lisibilité\n\n5. **Integration MCP** :\n   - **Redémarrage Cursor obligatoire** après modification serveur MCP\n   - Tests validation via console MCP ou script Node.js\n   - **Vigilance** : Cohérence naming convention avec autres outils MCP\n\n**Critères d'acceptation :**\n✅ L'outil `take_pdf_screenshot` fonctionne avec chemin relatif + numéro page\n✅ Retour format identique à consult_image (base64 JPEG)\n✅ Gestion d'erreurs robuste (fichier introuvable, page inexistante, PDF corrompu)\n✅ Validation sécurité identique (anti-path-traversal)\n✅ Performance acceptable (< 5s pour page standard)\n✅ Tests fonctionnels : PDF simple, PDF multi-pages, cas d'erreur\n✅ Documentation inline identique aux patterns existants\n\n**Dépendances externes :**\n- Bibliothèque conversion PDF → Node.js (à sélectionner)\n- Sharp (déjà disponible via consult_image)\n- Validation système : dépendances binaires selon bibliothèque choisie\n\n**Validation Criteria:**\nL'outil take_pdf_screenshot fonctionne correctement quand :\n1. Il peut capturer une page spécifique d'un fichier PDF valide\n2. Il retourne une image au format base64 JPEG identique à consult_image  \n3. Il gère les erreurs appropriées (fichier PDF introuvable, page inexistante, PDF corrompu)\n4. Il applique les mêmes validations de sécurité que consult_image (anti-path-traversal)\n5. Il respecte exactement les mêmes patterns de déclaration, résolution chemin et format retour\n6. L'outil est accessible via mcp_MyMCP_take_pdf_screenshot après redémarrage Cursor\n7. Tests manuels réussis sur PDF simple + PDF multi-pages + cas d'erreur\n\n**User Feedback:**\nJe viens de redémarrer cursor : tu devrais avoir accès à l'outil : tu peux le tester manuellement ?\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-23T18:46:52.320430",
+      "updated_at": "2025-07-23T16:48:19.349Z",
+      "history": [
+        {
+          "timestamp": "2025-07-23T18:46:52.320430",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-23T16:48:19.349Z",
           "action": "mark_archived"
         }
       ]

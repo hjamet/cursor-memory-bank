@@ -27,6 +27,7 @@ import { handleGetTerminalStatus } from './mcp_tools/terminal_status.js';
 import { handleGetTerminalOutput } from './mcp_tools/terminal_output.js';
 import { handleStopTerminalCommand } from './mcp_tools/terminal_stop.js';
 import { handleConsultImage } from './mcp_tools/consult_image.js';
+import { handleTakePdfScreenshot } from './mcp_tools/take_pdf_screenshot.js';
 import { handleWebpageScreenshot } from './mcp_tools/webpage_screenshot.js';
 import { handleReadWebpage } from './mcp_tools/read_webpage.js';
 // import { handleRegexEdit } from './mcp_tools/regex_edit.js'; // Deprecated
@@ -249,6 +250,16 @@ server.tool(
         path: z.string().describe("Relative path to the image file from the project root.")
     },
     handleConsultImage // Use the imported handler
+);
+
+// Define take_pdf_screenshot tool
+server.tool(
+    'take_pdf_screenshot',
+    {
+        path: z.string().describe("Relative path to the PDF file from the project root."),
+        page: z.number().int().min(1).describe("Page number to capture (starting from 1).")
+    },
+    handleTakePdfScreenshot // Use the imported handler
 );
 
 // Define webpage_screenshot tool
