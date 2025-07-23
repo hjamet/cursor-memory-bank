@@ -9670,17 +9670,32 @@
     "dependencies": [
       364
     ],
-    "status": "TODO",
+    "status": "REVIEW",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/"
     ],
     "validation_criteria": "La tâche est terminée quand :\n1. L'outil get_all_tasks est complètement supprimé du serveur MCP\n2. Le schema MCP ne contient plus de référence à cet outil\n3. La documentation est mise à jour sans mentions de get_all_tasks\n4. Les tests workflow complets réussissent sans erreurs\n5. Aucun appel orphelin ou erreur n'est détecté post-suppression",
     "created_date": "2025-07-23T20:44:00.740Z",
-    "updated_date": "2025-07-23T20:44:00.740Z",
+    "updated_date": "2025-07-23T21:07:20.547Z",
     "parent_id": null,
     "priority": 3,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 365,
+    "comments": [
+      {
+        "timestamp": "2025-07-23T21:06:44.160Z",
+        "comment": "Bypassing workflow inconsistency by manually selecting this task. Marking as IN_PROGRESS to begin implementation.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-23T21:07:20.547Z",
+        "comment": "The `get_all_tasks` tool has been successfully removed from the MemoryBankMCP server. The tool's file has been deleted and the server has been updated to remove its registration. The task is now ready for review.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "The `get_all_tasks` tool has been successfully removed from the MemoryBankMCP server. The tool's file has been deleted and the server has been updated to remove its registration. The task is now ready for review.",
+    "last_comment_timestamp": "2025-07-23T21:07:20.547Z"
   },
   {
     "id": 366,

@@ -6,7 +6,6 @@ import handleNextRule, { nextRuleSchema } from './mcp_tools/next_rule.js';
 import { handleCommit } from './mcp_tools/commit.js';
 import { handleCreateTask } from './mcp_tools/create_task.js';
 import { handleUpdateTask } from './mcp_tools/update_task.js';
-import { handleGetAllTasks } from './mcp_tools/get_all_tasks.js';
 import { handleGetNextTasks } from './mcp_tools/get_next_tasks.js';
 import { handleReadUserbrief } from './mcp_tools/read_userbrief.js';
 import { handleUpdateUserbrief } from './mcp_tools/update_userbrief.js';
@@ -72,8 +71,6 @@ server.tool('update_task', {
     priority: z.number().int().min(1).max(5).optional().describe("NEW TASK PRIORITY: Updated urgency level (1=lowest, 5=highest). Use 5 for critical/blocking issues, 4 for high-priority features, 3 for normal work, 2 for nice-to-have improvements, 1 for low-priority tasks. Only provide if priority is changing."),
     image: z.string().optional().describe("NOUVELLE IMAGE FACULTATIVE : Chemin relatif mis à jour vers une image associée à cette tâche (optionnel). Utilisez le chemin relatif depuis la racine du projet vers un fichier image qui illustre, documente ou est nécessaire pour cette tâche. Ne fournissez que si vous voulez changer l'image existante ou en ajouter une nouvelle. Exemple : '.cursor/temp/images/mockup_updated.png'. L'image sera accessible via l'outil mcp_ToolsMCP_consult_image pour analyse et référence durant l'implémentation.")
 }, safeHandler(handleUpdateTask));
-
-server.tool('get_all_tasks', {}, safeHandler(handleGetAllTasks));
 
 server.tool('get_next_tasks', {}, safeHandler(handleGetNextTasks));
 
