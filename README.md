@@ -299,11 +299,13 @@ graph TD
 - `mcp_MemoryBankMCP_remember`: Store memories and get next steps
 - `mcp_MemoryBankMCP_create_task`: Create new tasks with dependencies
 - `mcp_MemoryBankMCP_update_task`: Update task status and details
-- `mcp_MemoryBankMCP_get_all_tasks`: List all tasks with filtering
-- `mcp_MemoryBankMCP_get_next_tasks`: Get available priority tasks
-- `mcp_MemoryBankMCP_read_userbrief`: Read user requests
 - `mcp_MemoryBankMCP_update_userbrief`: Update request status
 - `mcp_MemoryBankMCP_commit`: Standardized git commit operations
+
+**Note:** The following tools have been deprecated and integrated into automatic workflow context:
+- ~~`get_all_tasks`~~ → Automatically provided in `task-decomposition` context
+- ~~`get_next_tasks`~~ → Automatically provided in `implementation` context  
+- ~~`read_userbrief`~~ → Automatically provided in `task-decomposition` context
 
 ### **MyMCP Server**
 - `mcp_MyMCP_execute_command`: Terminal command execution
