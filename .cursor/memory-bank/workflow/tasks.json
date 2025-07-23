@@ -9909,13 +9909,13 @@
     "dependencies": [
       370
     ],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/"
     ],
     "validation_criteria": "La tâche est terminée quand :\n1. L'outil read_userbrief est complètement supprimé du serveur MCP\n2. Le schema MCP ne contient plus de référence à cet outil\n3. La documentation est mise à jour sans mentions de read_userbrief\n4. Les tests de flux requête utilisateur complets réussissent sans erreurs\n5. L'interface Streamlit et systèmes externes fonctionnent sans dépendance à cet outil",
     "created_date": "2025-07-23T20:46:14.869Z",
-    "updated_date": "2025-07-23T21:17:51.350Z",
+    "updated_date": "2025-07-23T23:34:31.081645",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -9934,6 +9934,10 @@
       }
     ],
     "last_comment": "The `read_userbrief` tool has been successfully removed from the MemoryBankMCP server. The tool's file has been deleted and the server has been updated to remove its registration. The task is now ready for review.",
-    "last_comment_timestamp": "2025-07-23T21:17:51.350Z"
+    "last_comment_timestamp": "2025-07-23T21:17:51.350Z",
+    "validation": {
+      "approved_at": "2025-07-23T23:34:31.057261",
+      "approved_by": "user_review"
+    }
   }
 ]
