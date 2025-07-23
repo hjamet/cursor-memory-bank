@@ -163,14 +163,14 @@ export async function getPossibleNextSteps(lastStep = null) {
         // CRITICAL FIX: Do NOT add default steps for implementation - it must only go to experience-execution
         if (lastStep !== 'implementation') {
             possibleSteps.add('context-update');
-            
+
             // Add workflow-complete if we're idle (no tasks and no requests)
             const userbrief = await readUserbrief();
-            const hasUnprocessedRequests = userbrief && userbrief.requests && 
+            const hasUnprocessedRequests = userbrief && userbrief.requests &&
                 userbrief.requests.some(r => r.status === 'new' || r.status === 'in_progress');
-            const hasActiveTasks = tasks && tasks.some(t => 
+            const hasActiveTasks = tasks && tasks.some(t =>
                 t.status === 'TODO' || t.status === 'IN_PROGRESS' || t.status === 'BLOCKED' || t.status === 'REVIEW');
-            
+
             if (!hasUnprocessedRequests && !hasActiveTasks) {
                 possibleSteps.add('workflow-complete');
             }

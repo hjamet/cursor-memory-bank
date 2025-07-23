@@ -10293,5 +10293,36 @@
     ],
     "last_comment": "The change to prevent long-term memories from being loaded for the `start-workflow` step has been validated. The test confirms that the context is now clean. The task is approved.",
     "last_comment_timestamp": "2025-07-23T22:20:08.013Z"
+  },
+  {
+    "id": 381,
+    "title": "Verify full workflow functionality",
+    "short_description": "Create a task to verify the end-to-end functionality of the autonomous workflow system, including task decomposition, implementation, experience execution, context updates, and commit operations.",
+    "detailed_description": "This task aims to verify the end-to-end functionality of the autonomous workflow system. This includes ensuring proper task decomposition, implementation, experience execution (testing), context updates, and commit operations.\\n\\n**Analyse Technique & Points de Vigilance:**\\n- The task itself is a functional test of the system.\\n- Need to ensure that the task will trigger all the necessary workflow steps.\\n- Consider how to simulate a 'successful' test to allow the workflow to proceed. This might involve creating a dummy file or running a simple command that always passes.\\n- Validation will involve checking the task status transitions in the system and verifying that a commit is made at the end of the cycle.\\n- No specific code changes are expected for this task directly, but it will drive the workflow.",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [],
+    "validation_criteria": "The task is considered complete when: (1) The task transitions through IN_PROGRESS, REVIEW, and DONE statuses. (2) A commit is generated with a description indicating the successful verification of the workflow.",
+    "created_date": "2025-07-23T22:44:09.314Z",
+    "updated_date": "2025-07-23T22:44:26.700Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 381,
+    "comments": [
+      {
+        "timestamp": "2025-07-23T22:44:17.116Z",
+        "comment": "Marking task as IN_PROGRESS as per implementation workflow rule.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-23T22:44:26.700Z",
+        "comment": "The workflow test implementation is complete. A dummy file 'dummy_test_file.txt' was created to simulate a successful implementation.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "The workflow test implementation is complete. A dummy file 'dummy_test_file.txt' was created to simulate a successful implementation.",
+    "last_comment_timestamp": "2025-07-23T22:44:26.700Z"
   }
 ]

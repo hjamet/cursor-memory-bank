@@ -516,11 +516,11 @@ async function remember(args) {
     // FIXED: Only trigger violation if we're actually trying to stop inappropriately
     // The key insight: context-update recommendation is normal workflow, not a violation
     // Only prevent stops when explicitly attempting to stop from non-context-update steps
-    
+
     // REMOVED OVERLY BROAD CHECK: The previous logic incorrectly flagged normal workflow transitions
     // as violations. Transitions like experience-execution → context-update are valid and should not
     // be blocked. The proper stopping logic is already handled above in lines 433-437.
-    
+
     // Task-by-task mode stopping logic
     // CRITICAL FIX: Only allow stopping when CURRENTLY in context-update step
     // This prevents inappropriate stops from experience-execution or other steps
@@ -593,7 +593,7 @@ async function remember(args) {
             }]
         };
     }
-    
+
     // If we reach this point, the workflow should continue normally with the recommended step
 
     const response = {
