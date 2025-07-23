@@ -279,3 +279,61 @@ def get_workflow_metadata() -> Dict[str, Any]:
             'is_active': False,
             'formatted_rule': 'Error'
         } 
+
+def is_workflow_completed() -> bool:
+    """
+    Detect if the workflow is truly completed (vs normal context-update).
+    
+    Returns True when:
+    - Current rule is 'context-update' 
+    - System is in task_by_task mode
+    - No active tasks (TODO/IN_PROGRESS)
+    - No unprocessed user requests
+    
+    This helps distinguish between normal context-update operations
+    and actual workflow completion in task_by_task mode.
+    """
+    try:
+        # Check current workflow rule
+        current_rule = get_current_workflow_rule()
+        if current_rule != 'context-update':
+            return False
+        
+        # Check workflow mode
+        workflow_state_file = get_workflow_state_file()
+        if not workflow_state_file:
+            return False
+            
+        with open(workflow_state_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        workflow_mode = data.get('mode', 'infinite')
+        if workflow_mode != 'task_by_task':
+            return False
+        
+        # Check for active tasks
+        tasks = get_all_tasks()
+        active_tasks = [t for t in tasks if t.get('status') in ['TODO', 'IN_PROGRESS']]
+        if len(active_tasks) > 0:
+            return False
+        
+        # Check for unprocessed user requests
+        try:
+            userbrief_file = Path('.cursor/memory-bank/userbrief.json')
+            if userbrief_file.exists():
+                with open(userbrief_file, 'r', encoding='utf-8') as f:
+                    userbrief_data = json.load(f)
+                
+                requests = userbrief_data.get('requests', [])
+                unprocessed_requests = [r for r in requests if r.get('status') == 'new']
+                if len(unprocessed_requests) > 0:
+                    return False
+        except (json.JSONDecodeError, FileNotFoundError):
+            pass
+        
+        # If all conditions met, workflow is completed
+        return True
+        
+    except (json.JSONDecodeError, FileNotFoundError, KeyError) as e:
+        print(f"Warning: Could not determine workflow completion status: {e}")
+        return False 

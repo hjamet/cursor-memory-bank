@@ -1,26 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 307,
+  "last_id": 308,
   "requests": [
-    {
-      "id": 256,
-      "content": "Modification request for Task #303 (Modifier la règle remember pour optimiser l'affichage des souvenirs):\n\n**Original Task Details:**\n- **Title:** Modifier la règle remember pour optimiser l'affichage des souvenirs\n- **Description:** Modifier la règle remember pour retourner 10 souvenirs à long terme les plus sémantiquement proches (au lieu de 3) et n'afficher que le \"present\" des souvenirs de mémoire de travail sauf pour le dernier souvenir (le plus récent) qui doit afficher aussi le \"passé\" et le \"futur\".\n- **Status:** BLOCKED\n- **Priority:** 3\n\n**Detailed Task Description:**\n**Objectif :**\nOptimiser l'affichage des souvenirs dans la règle `remember` pour améliorer la pertinence du contexte fourni à l'agent tout en réduisant la verbosité.\n\n**Modifications spécifiques requises :**\n\n**1. Augmenter les souvenirs à long terme sémantiquement proches :**\n- Dans `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js` ligne 302 : changer `findSimilarMemories(lastMemory.future, longTermMemories, 3)` vers `findSimilarMemories(lastMemory.future, longTermMemories, 10)`\n- Cette modification permet d'avoir plus de contexte pertinent des souvenirs à long terme\n\n**2. Optimiser l'affichage de la mémoire de travail :**\n- Actuellement, `recent_working_memories` retourne les 10 souvenirs les plus récents avec tous leurs champs (past, present, future)\n- Modifier pour n'afficher que le champ \"present\" pour les 9 premiers souvenirs\n- Pour le dernier souvenir (le plus récent), afficher les trois champs : \"past\", \"present\", \"future\"\n\n**Implémentation technique :**\n\n**Fichier : `.cursor/mcp/memory-bank-mcp/mcp_tools/remember.js`**\n\n**Changement 1 (ligne ~302) :**\n```javascript\n// Avant\nsemanticLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 3);\n\n// Après  \nsemanticLongTermMemories = await findSimilarMemories(lastMemory.future, longTermMemories, 10);\n```\n\n**Changement 2 (ligne ~193) :**\n```javascript\n// Avant\nconst recentMemories = memories.slice(-10); // Get 10 most recent working memories\n\n// Après\nconst allRecentMemories = memories.slice(-10); // Get 10 most recent working memories\nconst recentMemories = allRecentMemories.map((memory, index) => {\n    // For the last memory (most recent), show all fields\n    if (index === allRecentMemories.length - 1) {\n        return {\n            timestamp: memory.timestamp,\n            past: memory.past,\n            present: memory.present,\n            future: memory.future\n        };\n    }\n    // For other memories, show only present\n    return {\n        timestamp: memory.timestamp,\n        present: memory.present\n    };\n});\n```\n\n**Validation requise :**\n- Créer un script de test pour valider le comportement de la règle remember modifiée\n- Vérifier que les 10 souvenirs à long terme sont bien retournés\n- Confirmer que seul le dernier souvenir de travail affiche tous les champs\n- Tester que les 9 premiers souvenirs n'affichent que le champ \"present\"\n\n**Contraintes :**\n- L'utilisateur ne peut pas redémarrer Cursor manuellement pour tester le serveur MCP\n- Un script de validation doit être créé pour simuler le comportement\n- Les tests doivent être effectués en démarrant manuellement le serveur MCP\n\n**Impact attendu :**\n- Contexte plus riche grâce à 10 souvenirs à long terme au lieu de 3\n- Réduction de la verbosité en n'affichant que le \"present\" des anciens souvenirs\n- Maintien de la visibilité complète du dernier souvenir pour le contexte immédiat\n- Amélioration de la pertinence du contexte fourni à l'agent\n\n**Validation Criteria:**\nLa tâche est terminée quand :\n1. La règle remember retourne 10 souvenirs à long terme sémantiquement proches (au lieu de 3)\n2. Les 9 premiers souvenirs de mémoire de travail n'affichent que le champ \"present\"\n3. Le dernier souvenir (le plus récent) de mémoire de travail affiche \"past\", \"present\" et \"future\"\n4. Un script de test valide le comportement modifié\n5. Les tests confirment que la fonctionnalité fonctionne correctement\n\n**User Feedback:**\nC'est bon : je viens de redémarrer ! :D\n\n**Action Required:**\nPlease review the user's feedback above and make the necessary modifications to address their concerns. The task has been reset to TODO status pending your improvements.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-13T18:28:29.714416",
-      "updated_at": "2025-07-13T17:03:59.800Z",
-      "history": [
-        {
-          "timestamp": "2025-07-13T18:28:29.714416",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-13T17:03:59.800Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 257,
       "content": "Modifie encore la description de l'argument long-term de l'outil remember pour que le modèle ne stocke QUE les informations qui ne changeront JAMAIS. On en parle pas d'une implémentation ou d'une correction de bug qu'il vient d'effectuer : on parle de décisions architecturales cruciales, de précisions techniques, de préférences d'implémentation, de noms de bases de données etc. Ce n'est surtout pas un argument que l'agent doit utiliser à chaque fois ! Seulement lorsque c'est vraiment vraiment important de s'en souvenir !!!",
@@ -979,6 +960,25 @@
         },
         {
           "timestamp": "2025-07-23T10:06:57.289Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 308,
+      "content": "Tu peux faire une petite correction dans l'Agent Status sur l'interface Streamlit : si l'agent a appelé l'outil remember et que ce dernier a recommendé l'arrêt du workflow, alors la workflow step ne devrait pas être \n\nWorkflow Step: Context Update\n\nAgent is processing workflow rules.\n\nMais\n\nWorkflow completed\nAgent stopped",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-23T12:16:10.541270",
+      "updated_at": "2025-07-23T10:17:27.110Z",
+      "history": [
+        {
+          "timestamp": "2025-07-23T12:16:10.541270",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-23T10:17:27.110Z",
           "action": "mark_archived"
         }
       ]

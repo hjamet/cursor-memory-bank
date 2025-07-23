@@ -252,8 +252,15 @@ def display_sidebar():
         # Always show Agent Status with workflow step
         st.markdown("---")
         
+        # Check if workflow is truly completed (vs normal context-update)
+        workflow_completed = task_utils.is_workflow_completed()
+        
         # Display Agent Status with current workflow step (always visible)
-        if current_rule and current_rule != 'idle':
+        if workflow_completed:
+            # Special case: workflow is completed - show clear completion message
+            st.subheader("🤖 Agent Status")
+            st.success("**Workflow completed**\n\nAgent stopped")
+        elif current_rule and current_rule != 'idle':
             st.subheader(f"🤖 Agent Status ({formatted_rule})")
             
             if in_progress_tasks:
