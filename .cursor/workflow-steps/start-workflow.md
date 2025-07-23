@@ -471,17 +471,18 @@ The installation script installs a pre-commit hook in `.githooks/pre-commit` to 
 
 ### 4. **Workflow Instructions**
 
-Based on the current system state:
+Based on the current system state, follow this priority order:
 
-{% if has_user_requests %}
-- **PRIORITY ACTION**: Process user requests via task-decomposition
-- Call `mcp_MemoryBankMCP_next_rule` with `step_name: "task-decomposition"`
-{% elif has_active_tasks %}
-- **ACTION**: Continue with pending tasks via implementation  
-- Call `mcp_MemoryBankMCP_next_rule` with `step_name: "implementation"`
-{% else %}
-- **ACTION**: System maintenance and context update
-- Call `mcp_MemoryBankMCP_next_rule` with `step_name: "context-update"`
-{% endif %}
+1.  **If there are unprocessed user requests** (`has_unprocessed_requests: true`):
+    - **Action**: The highest priority is to process new user input.
+    - **Next Step**: Call `mcp_MemoryBankMCP_next_rule` with `step_name: "task-decomposition"`.
 
-**Remember**: You MUST call `mcp_MemoryBankMCP_next_rule` to continue the autonomous workflow. This step only provides context - the actual work happens in subsequent workflow steps. 
+2.  **Else, if there are active tasks** (`has_active_tasks: true`):
+    - **Action**: Continue working on the existing task list.
+    - **Next Step**: Call `mcp_MemoryBankMCP_next_rule` with `step_name: "implementation"`.
+
+3.  **Otherwise (the system is idle)**:
+    - **Action**: No pending work. Perform routine maintenance and wait for new instructions.
+    - **Next Step**: Call `mcp_MemoryBankMCP_next_rule` with `step_name: "context-update"`.
+
+**Remember**: You MUST call `mcp_MemoryBankMCP_next_rule` to continue the autonomous workflow. This step only provides context - the actual work happens in subsequent workflow steps.
