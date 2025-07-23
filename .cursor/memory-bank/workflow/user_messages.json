@@ -1,5 +1,12 @@
 {
   "version": "1.0.0",
-  "last_id": 12,
-  "messages": []
+  "last_id": 13,
+  "messages": [
+    {
+      "id": 13,
+      "content": "Si jamais, c'est normal que next_rule ne se comporte pas comme tu l'imagines : il faut un redémarrage de cursor pour relancer le serveur MCP et tester les modifications. Tu ne peux pas tesxter manuellement pour le moment.",
+      "created_at": "2025-07-23T23:13:34.656654",
+      "status": "pending"
+    }
+  ]
 }
