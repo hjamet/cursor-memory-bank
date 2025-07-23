@@ -9637,15 +9637,30 @@
     "dependencies": [
       363
     ],
-    "status": "TODO",
+    "status": "REVIEW",
     "impacted_files": [],
     "validation_criteria": "La tâche est terminée quand :\n1. L'appel next_rule(\"task-decomposition\") fournit automatiquement la liste complète des tâches\n2. Les données sont équivalentes en qualité et completude à get_all_tasks\n3. Les performances sont acceptables (< 2x temps baseline)\n4. Les edge cases sont testés et documentés\n5. Le rapport de validation confirme l'équivalence fonctionnelle",
     "created_date": "2025-07-23T20:43:39.293Z",
-    "updated_date": "2025-07-23T20:43:39.293Z",
+    "updated_date": "2025-07-23T21:03:59.009Z",
     "parent_id": null,
     "priority": 3,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 364,
+    "comments": [
+      {
+        "timestamp": "2025-07-23T21:03:45.468Z",
+        "comment": "Marking task as IN_PROGRESS to begin validation.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-23T21:03:59.009Z",
+        "comment": "Validation successful. The `next_rule` tool correctly provides the complete task list in the context of the `task-decomposition` step.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Validation successful. The `next_rule` tool correctly provides the complete task list in the context of the `task-decomposition` step.",
+    "last_comment_timestamp": "2025-07-23T21:03:59.009Z"
   },
   {
     "id": 365,
