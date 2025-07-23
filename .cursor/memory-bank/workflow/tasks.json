@@ -10001,5 +10001,53 @@
     ],
     "last_comment": "Marking task as IN_PROGRESS to start the workflow test.",
     "last_comment_timestamp": "2025-07-23T21:43:38.545Z"
+  },
+  {
+    "id": 374,
+    "title": "Fix incorrect transition blocking from experience-execution",
+    "short_description": "The `remember` tool incorrectly blocks the transition to `fix` from `experience-execution`, misinterpreting memory recording as a stop command. This must be fixed to allow the standard failure workflow.",
+    "detailed_description": "The `remember` tool incorrectly blocks the transition to `fix` from `experience-execution`. This needs to be corrected to allow the agent to proceed to the `fix` step when a test fails. The check for \"stopping\" seems to be misinterpreting the agent's intent.\n\n**Technical Analysis & Points to Watch:**\n- The logic in the `remember` tool that checks for stop conditions needs to be reviewed.\n- The conditions for transitioning from `experience-execution` to `fix` must be validated and enforced correctly.\n- Ensure that only a deliberate attempt to stop the workflow is caught, not a standard memory recording.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-07-23T21:52:51.651Z",
+    "updated_date": "2025-07-23T21:52:51.651Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 375,
+    "title": "Ensure `next_rule(implementation)` provides `current_task`",
+    "short_description": "The `next_rule(implementation)` call must be updated to always return a non-null `current_task`. It should prioritize tasks already in progress or select the next available high-priority task.",
+    "detailed_description": "The `next_rule` tool for the `implementation` step must always provide a non-null `current_task` object. The logic to select the current `IN_PROGRESS` task or the next available priority task needs to be implemented or fixed within the `next_rule` tool's backend.\n\n**Technical Analysis & Points to Watch:**\n- The `next_rule` function for `implementation` needs to be updated.\n- It should query for tasks with `IN_PROGRESS` status first.\n- If no task is `IN_PROGRESS`, it should fetch the highest priority task that is ready to be worked on (e.g., `TODO` status with no blocking dependencies).\n- This logic is critical for the agent to be able to work autonomously.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-07-23T21:52:54.111Z",
+    "updated_date": "2025-07-23T21:52:54.111Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 376,
+    "title": "Correct next steps suggested after `implementation`",
+    "short_description": "The next steps recommended by `remember` after `implementation` are incorrect. It should strictly enforce transitioning to `experience-execution` and remove other invalid options.",
+    "detailed_description": "The `remember` tool, when called after the `implementation` step, must only recommend `experience-execution` as the next step. The `possible_next_steps` should be `[\"experience-execution\"]`, and the `recommended_next_step` must be `experience-execution`. The invalid `system` and premature `context-update` options must be removed to enforce the correct workflow.\n\n**Technical Analysis & Points to Watch:**\n- The `workflow_recommendation.js` or equivalent logic for the `remember` tool needs to be modified.\n- The `getPossibleNextSteps` and `getRecommendedNextStep` functions for the `implementation` step must be hardcoded to return only `experience-execution`.\n- This enforces the critical quality assurance cycle of `implement -> test`.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [],
+    "validation_criteria": "",
+    "created_date": "2025-07-23T21:52:54.311Z",
+    "updated_date": "2025-07-23T21:52:54.311Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]
