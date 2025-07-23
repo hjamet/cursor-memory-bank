@@ -9982,11 +9982,11 @@
     "short_description": "Execute a comprehensive test of the updated autonomous workflow to validate key state transitions (`task-decomposition`, `implementation`, `experience-execution`, `fix`, `context-update`) and ensure system stability after recent major changes.",
     "detailed_description": "This task is to test the full sequence of the autonomous workflow, as requested by the user.\n\n**Acceptance Criteria:**\n1.  **Implementation:** The agent must correctly pick up this task and enter the `implementation` step.\n2.  **Experience Execution (Failure Simulation):** In the first `experience-execution` step, the agent must simulate a failure. It should report a fictitious problem and verify that the workflow correctly recommends the `fix` step.\n3.  **Fix:** The agent must enter the `fix` step, simulate a correction, and verify that the workflow recommends a return to `experience-execution`.\n4.  **Experience Execution (Success):** In the second `experience-execution` step, the agent must report that the test was successful. It must verify that the workflow then transitions to `context-update`.\n5.  **Context Update & Stop:** The agent must enter the `context-update` step and confirm that the workflow stops as expected, given the `task_by_task` mode.\n\n**Technical Analysis & Points to Watch:**\n*   This is a critical test of the core workflow logic. Pay close attention to the transition recommendations provided by the `remember` tool at each stage.\n*   Ensure that the state (e.g., simulated failure/success) is correctly passed between steps.\n*   The final stop at `context-update` is a key validation point for the `task_by_task` mode.",
     "dependencies": [],
-    "status": "IN_PROGRESS",
+    "status": "REVIEW",
     "impacted_files": [],
     "validation_criteria": "",
     "created_date": "2025-07-23T21:43:21.765Z",
-    "updated_date": "2025-07-23T21:43:38.545Z",
+    "updated_date": "2025-07-23T22:10:42.012Z",
     "parent_id": null,
     "priority": 5,
     "image": null,
@@ -9997,10 +9997,15 @@
         "timestamp": "2025-07-23T21:43:38.545Z",
         "comment": "Marking task as IN_PROGRESS to start the workflow test.",
         "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-23T22:10:42.012Z",
+        "comment": "The simulated test has passed successfully after a simulated fix. The workflow correctly transitioned from `fix` back to `experience-execution`, and the final validation was successful.",
+        "status_change": "REVIEW"
       }
     ],
-    "last_comment": "Marking task as IN_PROGRESS to start the workflow test.",
-    "last_comment_timestamp": "2025-07-23T21:43:38.545Z"
+    "last_comment": "The simulated test has passed successfully after a simulated fix. The workflow correctly transitioned from `fix` back to `experience-execution`, and the final validation was successful.",
+    "last_comment_timestamp": "2025-07-23T22:10:42.012Z"
   },
   {
     "id": 374,
@@ -10106,5 +10111,43 @@
       "approved_at": "2025-07-24T00:06:34.737247",
       "approved_by": "user_review"
     }
+  },
+  {
+    "id": 377,
+    "title": "Enforce single-request processing in `task-decomposition` rule",
+    "short_description": "The agent is incorrectly processing multiple user requests at once during task decomposition. This task is to update the `task-decomposition.md` rule to explicitly enforce that only the single oldest request is processed.",
+    "detailed_description": "The user has reported that the agent processes multiple user requests simultaneously during the `task-decomposition` step. This is incorrect behavior.\n\nThis task is to modify the rule definition file for `task-decomposition` to make it explicitly clear that only the single, oldest, unprocessed user request should be handled at a time.\n\n**Acceptance Criteria:**\n1.  Locate the `task-decomposition.md` rule file.\n2.  Review its contents.\n3.  Add or modify the instructions to strictly enforce that the agent must focus *only* on the single oldest request provided in the context.\n4.  Ensure the language is unambiguous and directive.\n\n**Technical Analysis & Points to Watch:**\n*   This is a change to the instructional text that guides the agent's behavior. The clarity of the instruction is paramount.\n*   This task is a prerequisite for the logical change in the `next_rule` tool itself. The documentation must align with the intended final behavior.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/rules/workflow-steps/task-decomposition.md"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-07-23T22:09:57.304Z",
+    "updated_date": "2025-07-23T22:09:57.304Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 378,
+    "title": "Modify `next_rule` to provide only the oldest request to `task-decomposition`",
+    "short_description": "The `next_rule` tool currently provides all unprocessed user requests to the `task-decomposition` step. This task is to modify the tool to provide *only* the single oldest request to prevent the agent from processing them in parallel.",
+    "detailed_description": "This task is to modify the `next_rule` tool to ensure that when the `task-decomposition` step is invoked, its context contains *only* the single oldest unprocessed user request, rather than the entire list.\n\n**Acceptance Criteria:**\n1.  Locate the implementation of the `mcp_MemoryBankMCP_next_rule` tool.\n2.  Identify the logic that prepares the context for the `task-decomposition` step.\n3.  Modify the code to filter the `unprocessed_requests` array, ensuring only the first element (the oldest request) is passed into the rule's context.\n4.  The rest of the requests should be excluded from the context provided to the agent for this specific step.\n\n**Technical Analysis & Points to Watch:**\n*   This is a critical logic change within the core of the workflow system.\n*   The change must be specific to the `task-decomposition` step; other steps should continue to receive context as designed.\n*   Careful testing will be required to ensure no unintended side effects on other workflow rules.\n*   This change is dependent on the documentation change in the parent task being completed first.",
+    "dependencies": [
+      377
+    ],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/mcp_servers/mcp_memory_bank/mcp_server.js"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-07-23T22:10:03.415Z",
+    "updated_date": "2025-07-23T22:10:03.415Z",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]

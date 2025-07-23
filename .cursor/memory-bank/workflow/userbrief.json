@@ -3,26 +3,6 @@
   "last_id": 320,
   "requests": [
     {
-      "id": 268,
-      "content": "L'outil delete_long_term_memory n'est toujours pas correctement déclaré. Regarde comment on a déclaré l'outil next_rule par exemple et fais EXACTEMENT pareil ! La moindre différence semble occasionner une erreur ! Par exemple, je sais que tu ne DOIS surtout PAS inclure de cescription générale de l'outil. Seuelement une description précise de ses arguments.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-15T17:32:32.220412",
-      "updated_at": "2025-07-15T15:34:42.868Z",
-      "history": [
-        {
-          "timestamp": "2025-07-15T17:32:32.220412",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-15T15:34:42.868Z",
-          "action": "mark_archived",
-          "comment": "Décomposition terminée avec succès. Requête analysée et convertie en tâche technique #327 (priorité CRITIQUE) pour corriger définitivement la déclaration de l'outil delete_long_term_memory MCP en reproduisant EXACTEMENT le pattern de l'outil next_rule selon les instructions précises de l'utilisateur."
-        }
-      ]
-    },
-    {
       "id": 269,
       "content": "Le fichier tasks.json qui contient la liste des tâches n'est pas placé à un endroit logique : il se trouve dans .cursor/memory-bank/streamlit_app/tasks.json alors qu'il devrait se trouver dans .cursor\\memory-bank\\workflow logiquement. Déplace le à cet endroit et fais TRES attention de bien corriger tous les endroits concernés dans le code !",
       "status": "archived",
@@ -978,15 +958,19 @@
     {
       "id": 320,
       "content": "Au cours de la règle task-decomposition, l'agent vient de créer de nouvelles tâches pour 4 requêtes userbrief simultanément. Celà ne devrait jamais arriver : l'agent ne doit transformer en tâche qu'une requête à la fois en commencant par les plus anciennes.\n1. Vérifies et corrige éventuellement le fichier markdown de la règle pour vérifier que le fait de se concentrer sur une seule tâche est bien précisée\n2. Corrige l'outil next_rule lors de l'appel à task-decomposition pour qu'il n'affiche le contenu d'une seule requêtre userbrief (la plus ancienne) et  non pas la liste de toutes les requêtes !",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-07-23T23:55:29.648227",
-      "updated_at": "2025-07-23T23:55:29.648227",
+      "updated_at": "2025-07-23T22:10:05.956Z",
       "history": [
         {
           "timestamp": "2025-07-23T23:55:29.648227",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-23T22:10:05.956Z",
+          "action": "mark_archived"
         }
       ]
     }
