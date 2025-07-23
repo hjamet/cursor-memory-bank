@@ -27,7 +27,7 @@ Analyze the user's request with a systematic and thorough approach. Your goal is
 
 **Process:**
 
-1.  **Analyze the Request:** Carefully examine the user's request, automatically provided in the `unprocessed_requests` context, to understand the requirements.
+1.  **Analyze the Request:** Carefully examine the user's request, automatically provided in the `unprocessed_requests` context, to understand the requirements. **You must process only the single, oldest request from this context.**
     *   What are the core objectives?
     *   What are the technical requirements and constraints?
     *   What are the potential impacts on other parts of the system?
@@ -64,6 +64,7 @@ Analyze the user's request with a systematic and thorough approach. Your goal is
 
 **Constraint:**
 
+*   **STRICT RULE: You must process only the single, oldest user request provided in the `unprocessed_requests` context. Do not process multiple requests in one cycle.**
 *   **Create one or more tasks per user request as appropriate.** Use your analytical judgment to determine the optimal task structure.
 *   **Focus on one request at a time.** Complete the full analysis and task creation for a single request before moving on.
 *   **Use automatically provided context.** Leverage the `complete_task_list`, `unprocessed_requests` and other context data provided automatically - **no manual tool calls to `get_all_tasks` or `read_userbrief` are needed**.
@@ -72,7 +73,6 @@ Analyze the user's request with a systematic and thorough approach. Your goal is
 *   **Ne créez, ne modifiez, ne lisez, ne listez, ne supprimez aucun fichier ou dossier directement.**
 *   **Toutes les opérations doivent passer par les outils MCP.**
 *   **Concentrez-vous sur la décomposition de la requête utilisateur en tâches, sans l'implémenter.**
-*   **Traitez une seule requête utilisateur à la fois**, la plus ancienne non traitée.
 *   Archivez la requête utilisateur avec `update_userbrief` uniquement après avoir créé toutes les tâches associées.
 *   Terminez toujours par un appel à `mcp_MemoryBankMCP_remember` pour conclure l'étape de décomposition de tâches.
 *   **Ne passez à l'étape `implementation` que lorsque `remember` vous l'indique.**
