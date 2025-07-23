@@ -9526,13 +9526,13 @@
     "short_description": "Corriger les tests invalides précédents en effectuant une validation authentique de l'outil take_pdf_screenshot avec le fichier PDF \"Idée jeu anniversaire 25 ans.pdf\" maintenant disponible dans le projet. Cette correction est critique pour restaurer la crédibilité technique après l'erreur de tests sans PDF réel.",
     "detailed_description": "**Objectif :**\nEffectuer des tests manuels authentiques et complets de l'outil MCP `take_pdf_screenshot` avec le fichier PDF réel \"Idée jeu anniversaire 25 ans.pdf\" fourni par l'utilisateur pour corriger l'erreur critique des tests précédents invalides.\n\n**Contexte Critique :**\n- **Erreur reconnue** : Tests précédents effectués sans fichier PDF réel dans le projet\n- **Correction utilisateur** : Ajout du fichier \"Idée jeu anniversaire 25 ans.pdf\" à la racine du projet\n- **Impact crédibilité** : Restauration de la confiance technique après erreur majeure\n- **Outil implémenté** : take_pdf_screenshot disponible via Task #358 avec patterns consult_image\n- **Redémarrage confirmé** : Cursor redémarré pour chargement MCP\n\n**Tests Manuels Authentiques à Effectuer :**\n\n1. **Test Fonctionnel avec PDF Réel :**\n   - Utiliser l'outil `mcp_MyMCP_take_pdf_screenshot` avec \"Idée jeu anniversaire 25 ans.pdf\"\n   - Tester capture page 1 pour validation fonctionnement de base\n   - Vérifier format retour base64 JPEG selon spécifications Task #358\n   - Confirmer que l'image générée est valide et correspond au contenu PDF\n\n2. **Tests Gestion Erreurs avec PDF Réel :**\n   - Tester page inexistante (ex: page 999) sur le PDF fourni\n   - Vérifier messages d'erreur explicites pour pages hors limites\n   - Valider gestion appropriée des erreurs avec fichier PDF authentique\n\n3. **Tests Performance avec PDF Réel :**\n   - Mesurer temps de conversion page PDF réelle\n   - Confirmer performance < 5s selon spécifications\n   - Vérifier gestion mémoire avec fichier PDF de taille réelle\n\n4. **Validation Sécurité Maintenue :**\n   - Confirmer que la sécurité anti-path-traversal fonctionne toujours\n   - Vérifier patterns consult_image respectés avec PDF réel\n   - Valider aucune régression de sécurité\n\n**Analyse Technique & Points de Vigilance :**\n\n1. **Correction d'Erreur Critique :**\n   - Attention : La crédibilité technique est en jeu après l'erreur des tests invalides\n   - Vigilance : Tous les tests doivent être documentés de manière authentique et vérifiable\n   - Obligation : Admettre l'erreur précédente et démontrer la correction avec tests réels\n\n2. **Validation avec PDF Réel :**\n   - Attention : Le fichier \"Idée jeu anniversaire 25 ans.pdf\" est maintenant disponible à la racine\n   - Vigilance : Vérifier que l'outil fonctionne avec un PDF multi-pages réel\n   - Points critiques : Conversion réelle PDF→Image, taille fichier, performance authentique\n\n3. **Reproduction Patterns Consult_Image :**\n   - Attention : L'outil doit toujours reproduire exactement les patterns de consult_image\n   - Vigilance : Format retour MCP identique `{ content: [{ type: \"image\", data: base64Data, mimeType: \"image/jpeg\" }] }`\n   - Validation : Même sécurité, même gestion erreurs, même performance que consult_image\n\n4. **Infrastructure MCP Post-Redémarrage :**\n   - Attention : Vérifier que le serveur MCP a bien chargé l'outil après redémarrage\n   - Vigilance : Confirmer accessibilité `mcp_MyMCP_take_pdf_screenshot` sans erreur\n   - Validation : Paramètres (path: string, page: number) fonctionnels\n\n5. **Documentation Authentique :**\n   - Attention critique : Documenter chaque test avec résultats réels et vérifiables\n   - Vigilance : Inclure détails techniques précis (tailles images, temps conversion, etc.)\n   - Obligation : Transparence totale sur résultats pour restaurer confiance technique\n\n**Critères d'Acceptation Corrigés :**\n✅ Reconnaissance explicite de l'erreur des tests précédents sans PDF réel\n✅ Test fonctionnel réussi avec \"Idée jeu anniversaire 25 ans.pdf\" page 1\n✅ Format retour conforme aux spécifications (base64 JPEG via Sharp) avec PDF réel\n✅ Gestion erreurs validée avec pages inexistantes du PDF fourni\n✅ Performance mesurée et acceptable avec fichier PDF de taille réelle\n✅ Aucune régression de sécurité ou fonctionnalité détectée\n✅ Documentation authentique et vérifiable de tous les tests effectués\n✅ Restauration de la crédibilité technique avec validation réelle complète\n\n**Validation avec PDF Multi-Pages :**\n- Test page 1 : Capture première page du PDF fourni\n- Test page dernière : Identifier nombre pages et tester dernière page\n- Test page inexistante : Tester page > nombre total pages pour erreur appropriée\n- Performance : Mesurer temps conversion avec PDF réel vs simulations précédentes",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [
       "Idée jeu anniversaire 25 ans.pdf"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) L'erreur des tests précédents sans PDF réel est reconnue explicitement, (2) Tests fonctionnels authentiques réussis avec \"Idée jeu anniversaire 25 ans.pdf\", (3) Format retour base64 JPEG validé avec PDF réel, (4) Gestion erreurs confirmée avec pages inexistantes du PDF fourni, (5) Performance mesurée et acceptable avec fichier PDF réel, (6) Documentation transparente et vérifiable de tous tests effectués, (7) Crédibilité technique restaurée avec validation authentique complète.",
     "created_date": "2025-07-23T16:56:59.336Z",
-    "updated_date": "2025-07-23T16:58:51.110Z",
+    "updated_date": "2025-07-23T22:30:06.868443",
     "parent_id": null,
     "priority": 5,
     "image": null,
@@ -9551,6 +9551,247 @@
       }
     ],
     "last_comment": "✅ **TESTS AUTHENTIQUES COMPLÉTÉS AVEC SUCCÈS** : Validation exhaustive de l'outil take_pdf_screenshot avec PDF réel \"Idée jeu anniversaire 25 ans.pdf\" confirmant parfait fonctionnement. Erreur critique des tests précédents sans PDF reconnue et corrigée. Tests fonctionnels, gestion erreurs, sécurité et performance validés avec résultats réels et vérifiables. Crédibilité technique restaurée.",
-    "last_comment_timestamp": "2025-07-23T16:58:51.110Z"
+    "last_comment_timestamp": "2025-07-23T16:58:51.110Z",
+    "validation": {
+      "approved_at": "2025-07-23T22:30:06.850485",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 362,
+    "title": "Diagnostiquer et corriger bug architectural MCP workflow violations forcées",
+    "short_description": "Investigation et correction d'un bug critique dans le système workflow MCP qui force incorrectement des violations architecturales dans le repository ~/code/trail-rag, empêchant le fonctionnement normal du système autonome.",
+    "detailed_description": "**Problème Critique Identifié :**\n\nL'utilisateur a rencontré un bug majeur dans le repository ~/code/trail-rag où le système workflow MCP génère des violations architecturales inappropriées. Le problème se manifeste ainsi :\n\n1. **Démarrage normal** : Agent appelé avec @start → next_rule(\"start-workflow\") ✅\n2. **Comportement anormal** : L'outil `remember` retourne des messages de violation architecturale :\n   - \"ARCHITECTURAL VIOLATION PREVENTED: You attempted to stop from 'start-workflow'\"\n   - \"CRITICAL: Architectural constraint violation detected\"\n   - \"stopping_prohibited\" avec messages forcés de continuation\n\n**Symptômes Détectés :**\n- Messages d'erreur inappropriés : \"STOPS CAN ONLY HAPPEN FROM 'context-update'\"\n- Force continuation vers context-update sans justification\n- Violation architecturale signalée alors qu'aucun arrêt n'était demandé\n- Comportement différent entre repositories (fonctionne ici, pas dans ~/code/trail-rag)\n\n**Investigation Requise :**\n\n**1. Analyse Architecture MCP Multi-Repository :**\n- Vérifier différences configuration MCP entre cursor-memory-bank et trail-rag\n- Analyser fichiers `.cursor/mcp.json` et serveurs MCP utilisés\n- Identifier variations dans les règles workflow ou implémentation remember\n\n**2. Diagnostic Logique Remember :**\n- Examiner la logique de détection d'arrêt dans l'outil remember\n- Identifier pourquoi le système détecte incorrectement une tentative d'arrêt\n- Analyser conditions qui déclenchent les violations architecturales\n\n**3. Analyse Pattern Workflow :**\n- Vérifier cohérence du cycle start-workflow → next_rule → remember\n- Identifier différences d'implémentation between repositories\n- Analyser si le problème vient du serveur MCP ou des règles\n\n**Analyse Technique & Points de Vigilance :**\n\n**ATTENTION** : Ce bug révèle une incohérence fondamentale dans l'architecture MCP workflow :\n- **Multi-repository compatibility** : Le même système produit des résultats différents selon le repository\n- **Logic false positive** : Le système détecte des violations qui n'existent pas\n- **Workflow interruption** : Le bug empêche le fonctionnement normal du workflow autonome\n- **Diagnostic complexe** : Nécessite investigation sur repository externe non accessible directement\n\n**Points Critiques à Vérifier :**\n1. **Configuration MCP** : Différences entre `.cursor/mcp.json` des deux repositories\n2. **Version serveur** : Compatibilité versions entre cursor-memory-bank et trail-rag\n3. **Règles workflow** : Cohérence implémentation remember logic\n4. **State detection** : Logique détection tentative d'arrêt erronée\n5. **Context management** : Gestion état workflow entre différents projects\n\n**Stratégie Correction :**\n1. **Investigation configuration** : Analyser setup MCP trail-rag vs cursor-memory-bank\n2. **Diagnostic remember logic** : Identifier source false positive violations\n3. **Patch targeted** : Corriger logique détection sans impacter fonctionnement normal\n4. **Testing cross-repository** : Valider correction sur multiple repositories\n5. **Documentation pattern** : Documenter solution pour éviter régression\n\n**Critères d'Acceptation :**\n✅ Identification précise source du bug architectural\n✅ Correction empêchant false positive violations\n✅ Validation fonctionnement normal sur trail-rag\n✅ Préservation fonctionnement cursor-memory-bank\n✅ Documentation pattern pour éviter récurrence\n\n**Impact Critique :** Ce bug compromet la fiabilité du système workflow MCP sur multiple repositories et nécessite une correction urgente pour maintenir l'intégrité architecturale.",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [],
+    "validation_criteria": "Le bug est résolu quand :\n1. **Diagnostic complet** : Source exacte du problème identifiée avec analyse des différences entre repositories\n2. **Correction validée** : Le workflow fonctionne normalement dans ~/code/trail-rag sans violations architecturales forcées\n3. **Aucun false positive** : L'outil remember ne génère plus de messages de violation inappropriés\n4. **Compatibilité préservée** : Le système continue de fonctionner parfaitement dans cursor-memory-bank\n5. **Testing multi-repository** : Validation du correctif sur au moins 2 repositories différents\n6. **Documentation solution** : Pattern de bug documenté en long-term memory pour éviter récurrence",
+    "created_date": "2025-07-23T20:37:38.342Z",
+    "updated_date": "2025-07-23T22:56:03.582594",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 362,
+    "comments": [
+      {
+        "timestamp": "2025-07-23T20:38:22.814Z",
+        "comment": "Début investigation bug architectural critique MCP workflow violations forcées. Task marquée IN_PROGRESS selon règle workflow mandatory.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-23T20:47:13.107Z",
+        "comment": "Task déjà complétée avec succès selon la mémoire de travail du 2025-07-23T20:42:14.724Z. Correction architecturale implémentée dans remember.js avec tests de validation réussis. Passage en REVIEW pour validation finale par experience-execution.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Task déjà complétée avec succès selon la mémoire de travail du 2025-07-23T20:42:14.724Z. Correction architecturale implémentée dans remember.js avec tests de validation réussis. Passage en REVIEW pour validation finale par experience-execution.",
+    "last_comment_timestamp": "2025-07-23T20:47:13.107Z",
+    "validation": {
+      "approved_at": "2025-07-23T22:56:03.570685",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 363,
+    "title": "Adapter règle task-decomposition pour intégration automatique get_all_tasks",
+    "short_description": "Modification de la règle task-decomposition.md pour éliminer le besoin d'appel manuel à get_all_tasks en intégrant automatiquement la liste complète des tâches dans le contexte fourni par next_rule.",
+    "detailed_description": "**Objectif Technique :**\n\nModifier la règle task-decomposition.md pour éliminer la dépendance à l'outil MCP `get_all_tasks` en s'assurant que la liste complète des tâches soit automatiquement fournie dans le contexte lors de l'appel à next_rule.\n\n**Exigences Spécifiques :**\n1. **Révision texte règle** : Supprimer toutes références aux appels manuels `get_all_tasks` dans task-decomposition.md\n2. **Documentation contexte** : Clarifier que la liste des tâches est automatiquement disponible\n3. **Instructions agent** : Adapter les instructions pour utiliser le contexte fourni au lieu d'appeler l'outil\n4. **Preservation fonctionnalité** : Maintenir la capacité d'analyse des priorités et dépendances\n\n**Modifications Attendues :**\n- Suppression instructions d'appel manuel `mcp_MemoryBankMCP_get_all_tasks`\n- Ajout documentation sur disponibilité automatique liste tâches dans contexte\n- Adaptation logique pour référencer `context.complete_task_list` ou équivalent\n- Maintien capacité analyse priorités/dépendances pour nouvelles tâches\n\n**Analyse Technique & Points de Vigilance :**\n\n**Attention :** La modification de la règle task-decomposition nécessite une coordination précise avec l'architecture MCP next_rule. Points critiques :\n- **Cohérence contexte** : S'assurer que la structure de données fournie par next_rule correspond aux attentes de la règle modifiée\n- **Backward compatibility** : Vérifier que les modifications n'impactent pas les fonctionnalités existantes de décomposition\n- **Performance impact** : L'intégration automatique peut augmenter la taille du contexte, surveiller les implications performance\n- **Format données** : S'assurer que le format de liste tâches fourni permette analyse priorités/dépendances efficace\n- **Documentation précise** : Les instructions agent doivent être claires sur l'utilisation du nouveau contexte automatique\n\n**Validation Criteria :**\n✅ Règle task-decomposition.md modifiée sans références get_all_tasks\n✅ Documentation claire sur disponibilité automatique liste tâches\n✅ Instructions agent adaptées pour utiliser contexte fourni\n✅ Fonctionnalité analyse priorités/dépendances préservée\n✅ Tests texte règle cohérent avec architecture MCP",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      ".cursor/workflow-steps/task-decomposition.md"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier task-decomposition.md ne contient plus aucune référence à get_all_tasks\n2. Les instructions documentent clairement que la liste des tâches est automatiquement fournie\n3. La logique d'analyse des priorités et dépendances utilise le contexte fourni\n4. La règle reste fonctionnelle pour la décomposition de requêtes utilisateur",
+    "created_date": "2025-07-23T20:43:19.472Z",
+    "updated_date": "2025-07-23T22:55:57.638399",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 363,
+    "comments": [
+      {
+        "timestamp": "2025-07-23T20:47:25.408Z",
+        "comment": "Début adaptation règle task-decomposition pour intégration automatique get_all_tasks. Task marquée IN_PROGRESS selon règle workflow mandatory.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-23T20:49:53.234Z",
+        "comment": "Task complétée selon mémoire de travail précédente du 2025-07-23T20:49:32.143Z. Les modifications de la règle task-decomposition.md pour intégration automatique get_all_tasks ont été implémentées avec succès : ajout section \\\"Available Context\\\", documentation complete_task_list, élimination appels manuels, instructions context-based. Passage en REVIEW pour validation par experience-execution.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Task complétée selon mémoire de travail précédente du 2025-07-23T20:49:32.143Z. Les modifications de la règle task-decomposition.md pour intégration automatique get_all_tasks ont été implémentées avec succès : ajout section \\\"Available Context\\\", documentation complete_task_list, élimination appels manuels, instructions context-based. Passage en REVIEW pour validation par experience-execution.",
+    "last_comment_timestamp": "2025-07-23T20:49:53.234Z",
+    "validation": {
+      "approved_at": "2025-07-23T22:55:57.627363",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 364,
+    "title": "Vérifier intégration automatique get_all_tasks dans next_rule task-decomposition",
+    "short_description": "Validation que l'appel à next_rule avec task-decomposition retourne automatiquement le contenu équivalent à get_all_tasks pour éliminer le besoin d'appel manuel à cet outil.",
+    "detailed_description": "**Objectif Technique :**\n\nVérifier et valider que l'architecture MCP next_rule fournit automatiquement la liste complète des tâches lors de l'appel à la règle task-decomposition, rendant obsolète l'outil `get_all_tasks`.\n\n**Exigences de Validation :**\n1. **Test next_rule** : Appeler `mcp_MemoryBankMCP_next_rule` avec parameter `task-decomposition`\n2. **Analyse response** : Vérifier présence champ `complete_task_list` ou équivalent dans contexte\n3. **Comparaison données** : Confirmer que les données fournies sont équivalentes à `get_all_tasks`\n4. **Format validation** : S'assurer que le format permet analyse priorités/dépendances\n5. **Documentation gaps** : Identifier manques éventuels ou améliorations nécessaires\n\n**Tests Spécifiques :**\n- Appel direct `next_rule(\"task-decomposition\")` et analyse response structure\n- Comparaison avec appel manuel `get_all_tasks` pour validation équivalence\n- Vérification présence champs essentiels : id, title, priority, dependencies, status\n- Test avec différents états système (0 tâches, multiple tâches, tâches bloquées)\n- Validation performance et taille contexte acceptable\n\n**Analyse Technique & Points de Vigilance :**\n\n**Attention :** Cette validation est critique pour la réussite du refactoring architectural. Points de vigilance :\n- **Intégrité données** : Les données fournies automatiquement doivent être 100% équivalentes à get_all_tasks\n- **Performance impact** : L'ajout automatique peut impacter les temps de réponse, mesurer et documenter\n- **État consistency** : Vérifier que les données sont toujours à jour et cohérentes avec l'état réel\n- **Edge cases** : Tester comportement avec 0 tâches, nombreuses tâches, tâches corrompues\n- **Backward compatibility** : S'assurer que l'intégration n'impacte pas les autres règles existantes\n- **Error handling** : Vérifier gestion d'erreurs si récupération liste tâches échoue\n- **Memory usage** : Surveiller l'impact mémoire de l'inclusion automatique large dataset\n\n**Stratégie Validation :**\n1. **Test baseline** : Documenter comportement actuel get_all_tasks\n2. **Test integration** : Valider next_rule task-decomposition fournit équivalent\n3. **Comparative analysis** : Identifier différences et gaps éventuels\n4. **Performance measurement** : Mesurer impact temps réponse et mémoire\n5. **Edge case testing** : Tester scénarios limites et gestion erreurs\n\n**Validation Criteria :**\n✅ next_rule task-decomposition fournit automatiquement liste complète tâches\n✅ Données équivalentes à get_all_tasks (format, completude, précision)\n✅ Performance acceptable (temps réponse < 2x baseline)\n✅ Edge cases gérés correctement (0 tâches, erreurs, large datasets)\n✅ Documentation impact et comportement attendu",
+    "dependencies": [
+      363
+    ],
+    "status": "TODO",
+    "impacted_files": [],
+    "validation_criteria": "La tâche est terminée quand :\n1. L'appel next_rule(\"task-decomposition\") fournit automatiquement la liste complète des tâches\n2. Les données sont équivalentes en qualité et completude à get_all_tasks\n3. Les performances sont acceptables (< 2x temps baseline)\n4. Les edge cases sont testés et documentés\n5. Le rapport de validation confirme l'équivalence fonctionnelle",
+    "created_date": "2025-07-23T20:43:39.293Z",
+    "updated_date": "2025-07-23T20:43:39.293Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 365,
+    "title": "Supprimer outil MCP get_all_tasks du serveur MemoryBankMCP",
+    "short_description": "Suppression définitive de l'outil get_all_tasks du serveur MCP MemoryBankMCP après validation de l'intégration automatique dans les règles workflow.",
+    "detailed_description": "**Objectif Technique :**\n\nSupprimer définitivement l'outil `get_all_tasks` du serveur MCP MemoryBankMCP après confirmation que son fonctionnalité est complètement intégrée dans l'architecture next_rule.\n\n**Exigences de Suppression :**\n1. **Code cleanup** : Supprimer fonction `get_all_tasks` du serveur MCP\n2. **Schema update** : Mettre à jour les schemas MCP pour retirer la définition de l'outil\n3. **Documentation update** : Supprimer références dans documentation\n4. **Testing post-suppression** : Valider que système fonctionne sans l'outil\n5. **Error handling** : S'assurer qu'aucun appel résiduel ne cause d'erreurs\n\n**Modifications Techniques :**\n- Suppression fonction dans `.cursor/mcp/memory-bank-mcp/mcp_tools/`\n- Mise à jour `tools_registry` ou équivalent pour retirer l'outil\n- Suppression schema definition dans configuration MCP\n- Nettoyage imports et références dans le code serveur\n- Update documentation API et guides d'utilisation\n\n**Analyse Technique & Points de Vigilance :**\n\n**Attention :** La suppression d'un outil MCP est une modification architecturale majeure qui nécessite des précautions particulières :\n- **Dépendances cachées** : Scanner tout le codebase pour identifier appels résiduels à get_all_tasks\n- **Backward compatibility** : Vérifier qu'aucun système externe ou règle n'utilise encore cet outil\n- **Graceful degradation** : Implémenter gestion d'erreur appropriée si appels orphelins persistent\n- **Documentation consistency** : Mettre à jour toute documentation, examples, ou tutoriels référençant l'outil\n- **Testing exhaustif** : Valider que toutes les fonctionnalités workflow continuent de fonctionner normalement\n- **Rollback strategy** : Préparer stratégie de rollback en cas de problèmes post-suppression\n- **Version management** : Considérer impact sur versioning API et compatibilité clients\n\n**Stratégie de Suppression :**\n1. **Pre-suppression audit** : Scanner codebase pour toutes références get_all_tasks\n2. **Incremental removal** : Supprimer fonction puis schema puis documentation\n3. **Post-suppression testing** : Tests complets workflow sans l'outil\n4. **Error monitoring** : Surveiller logs pour appels orphelins ou erreurs\n5. **Performance validation** : Confirmer que suppression n'impacte pas performance\n\n**Rollback Plan :**\n- Backup fonction originale avant suppression\n- Documentation procédure restauration si nécessaire\n- Monitoring post-déploiement pour détection problèmes rapide\n\n**Validation Criteria :**\n✅ Fonction get_all_tasks supprimée du serveur MCP\n✅ Schema MCP mis à jour sans référence à l'outil\n✅ Documentation mise à jour sans mentions get_all_tasks\n✅ Tests workflow complets réussis sans l'outil\n✅ Aucune erreur ou appel orphelin détecté en monitoring",
+    "dependencies": [
+      364
+    ],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. L'outil get_all_tasks est complètement supprimé du serveur MCP\n2. Le schema MCP ne contient plus de référence à cet outil\n3. La documentation est mise à jour sans mentions de get_all_tasks\n4. Les tests workflow complets réussissent sans erreurs\n5. Aucun appel orphelin ou erreur n'est détecté post-suppression",
+    "created_date": "2025-07-23T20:44:00.740Z",
+    "updated_date": "2025-07-23T20:44:00.740Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 366,
+    "title": "Adapter règle implementation pour intégration automatique get_next_tasks",
+    "short_description": "Modification de la règle implementation.md pour éliminer le besoin d'appel manuel à get_next_tasks en intégrant automatiquement la prochaine tâche à effectuer dans le contexte fourni par next_rule.",
+    "detailed_description": "**Objectif Technique :**\n\nModifier la règle implementation.md pour éliminer la dépendance à l'outil MCP `get_next_tasks` en s'assurant que la prochaine tâche à effectuer soit automatiquement fournie dans le contexte lors de l'appel à next_rule.\n\n**Exigences Spécifiques :**\n1. **Révision texte règle** : Supprimer toutes références aux appels manuels `get_next_tasks` dans implementation.md\n2. **Documentation contexte** : Clarifier que la prochaine tâche est automatiquement disponible\n3. **Instructions agent** : Adapter les instructions pour utiliser le contexte fourni au lieu d'appeler l'outil\n4. **Workflow logic** : Maintenir la logique de priorisation et sélection de tâches\n\n**Modifications Attendues :**\n- Suppression instructions d'appel manuel `mcp_MemoryBankMCP_get_next_tasks`\n- Ajout documentation sur disponibilité automatique prochaine tâche dans contexte\n- Adaptation logique pour référencer `context.current_task` ou équivalent\n- Maintien capacité gestion priorités et workflow intelligent\n- Préservation logique routage et sélection de tâches\n\n**Analyse Technique & Points de Vigilance :**\n\n**Attention :** La modification de la règle implementation est cruciale pour le workflow autonome. Points critiques :\n- **Task selection logic** : S'assurer que la logique de sélection de tâche reste cohérente et prévisible\n- **Priority handling** : Vérifier que les priorités sont respectées dans la sélection automatique\n- **Status management** : Maintenir la gestion correcte des statuts TODO → IN_PROGRESS\n- **Dependency management** : S'assurer que les dépendances de tâches sont respectées dans la sélection\n- **Edge cases** : Gérer les cas où aucune tâche n'est disponible ou toutes sont bloquées\n- **Performance impact** : L'intégration automatique ne doit pas ralentir le workflow\n- **Context consistency** : S'assurer que la tâche fournie correspond aux critères de sélection attendus\n\n**Workflow Integration Points :**\n- Integration avec système de priorités (1-5)\n- Respect des dépendances inter-tâches\n- Gestion statuts et transitions d'états\n- Routage intelligent selon type de tâche\n- Fallback si aucune tâche disponible\n\n**Validation Criteria :**\n✅ Règle implementation.md modifiée sans références get_next_tasks\n✅ Documentation claire sur disponibilité automatique prochaine tâche\n✅ Instructions agent adaptées pour utiliser contexte fourni\n✅ Logique priorisation et sélection préservée\n✅ Gestion edge cases (aucune tâche, toutes bloquées) documentée",
+    "dependencies": [],
+    "status": "REVIEW",
+    "impacted_files": [
+      ".cursor/workflow-steps/implementation.md"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier implementation.md ne contient plus aucune référence à get_next_tasks\n2. Les instructions documentent clairement que la prochaine tâche est automatiquement fournie\n3. La logique de priorisation et sélection utilise le contexte fourni\n4. La règle reste fonctionnelle pour l'exécution de tâches avec workflow intelligent",
+    "created_date": "2025-07-23T20:44:20.379Z",
+    "updated_date": "2025-07-23T20:57:06.125Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 366,
+    "comments": [
+      {
+        "timestamp": "2025-07-23T20:50:02.618Z",
+        "comment": "Début adaptation règle implementation pour intégration automatique get_next_tasks. Task marquée IN_PROGRESS selon règle workflow mandatory.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-23T20:57:06.125Z",
+        "comment": "Task #366 corrigée avec succès après découverte et correction bug critique documentation. Le problème était que la règle implementation.md référençait incorrectement `context.most_urgent_task` alors que la tâche est fournie dans `context.current_task`. Toutes les références ont été corrigées : 9 instances de most_urgent_task remplacées par current_task. La documentation est maintenant cohérente avec le contexte réellement fourni par next_rule. Test validation confirmé - la règle peut maintenant être utilisée correctly par les agents. Prête pour validation experience-execution.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "Task #366 corrigée avec succès après découverte et correction bug critique documentation. Le problème était que la règle implementation.md référençait incorrectement `context.most_urgent_task` alors que la tâche est fournie dans `context.current_task`. Toutes les références ont été corrigées : 9 instances de most_urgent_task remplacées par current_task. La documentation est maintenant cohérente avec le contexte réellement fourni par next_rule. Test validation confirmé - la règle peut maintenant être utilisée correctly par les agents. Prête pour validation experience-execution.",
+    "last_comment_timestamp": "2025-07-23T20:57:06.125Z"
+  },
+  {
+    "id": 367,
+    "title": "Vérifier intégration automatique get_next_tasks dans next_rule implementation",
+    "short_description": "Validation que l'appel à next_rule avec implementation retourne automatiquement le contenu équivalent à get_next_tasks pour éliminer le besoin d'appel manuel à cet outil.",
+    "detailed_description": "**Objectif Technique :**\n\nVérifier et valider que l'architecture MCP next_rule fournit automatiquement la prochaine tâche à effectuer lors de l'appel à la règle implementation, rendant obsolète l'outil `get_next_tasks`.\n\n**Exigences de Validation :**\n1. **Test next_rule** : Appeler `mcp_MemoryBankMCP_next_rule` avec parameter `implementation`\n2. **Analyse response** : Vérifier présence champ `current_task` ou équivalent dans contexte\n3. **Comparaison données** : Confirmer que la tâche fournie est équivalente au résultat `get_next_tasks`\n4. **Priority validation** : S'assurer que la tâche sélectionnée respecte la logique de priorité\n5. **Dependency check** : Vérifier que les dépendances sont respectées dans la sélection\n\n**Tests Spécifiques :**\n- Appel direct `next_rule(\"implementation\")` et analyse response structure\n- Comparaison avec appel manuel `get_next_tasks` pour validation équivalence\n- Vérification présence champs essentiels : id, title, priority, status, dependencies\n- Test avec différents scenarios : tâche haute priorité, dépendances bloquées, aucune tâche\n- Validation que statut IN_PROGRESS est géré automatiquement\n- Test performance et impact sur temps réponse\n\n**Analyse Technique & Points de Vigilance :**\n\n**Attention :** Cette validation est cruciale car elle impacte directement le cœur du workflow autonome. Points critiques :\n- **Task selection accuracy** : La tâche fournie doit correspondre exactement à la logique get_next_tasks\n- **Priority consistency** : Vérifier que la tâche sélectionnée est bien la plus prioritaire disponible\n- **Dependency respect** : Aucune tâche bloquée par des dépendances ne doit être sélectionnée\n- **Status management** : Vérifier gestion automatique du statut TODO → IN_PROGRESS\n- **Edge case handling** : Comportement quand aucune tâche disponible (système idle)\n- **Performance impact** : L'intégration ne doit pas dégrader les temps de réponse\n- **State consistency** : La tâche fournie doit refléter l'état temps réel du système\n- **Concurrent access** : Gérer les cas de modification simultanée de l'état des tâches\n\n**Scenarios de Test :**\n1. **Normal case** : Tâches disponibles avec priorités différentes\n2. **Dependency blocked** : Tâches bloquées par dépendances non satisfaites\n3. **High priority** : Tâche priorité 5 doit être sélectionnée en premier\n4. **Empty queue** : Aucune tâche TODO disponible\n5. **All blocked** : Toutes tâches en statut BLOCKED ou dépendances non satisfaites\n\n**Validation Criteria :**\n✅ next_rule implementation fournit automatiquement prochaine tâche prioritaire\n✅ Tâche sélectionnée équivalente à résultat get_next_tasks\n✅ Priorités et dépendances respectées dans sélection automatique\n✅ Edge cases gérés correctement (aucune tâche, toutes bloquées)\n✅ Performance acceptable et statut management approprié",
+    "dependencies": [
+      366
+    ],
+    "status": "TODO",
+    "impacted_files": [],
+    "validation_criteria": "La tâche est terminée quand :\n1. L'appel next_rule(\"implementation\") fournit automatiquement la prochaine tâche prioritaire\n2. La tâche sélectionnée est équivalente au résultat get_next_tasks\n3. Les priorités et dépendances sont respectées dans la sélection\n4. Les edge cases sont testés et gérés correctement\n5. Le rapport de validation confirme l'équivalence fonctionnelle",
+    "created_date": "2025-07-23T20:44:45.209Z",
+    "updated_date": "2025-07-23T20:44:45.209Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 368,
+    "title": "Supprimer outil MCP get_next_tasks du serveur MemoryBankMCP",
+    "short_description": "Suppression définitive de l'outil get_next_tasks du serveur MCP MemoryBankMCP après validation de l'intégration automatique dans les règles workflow.",
+    "detailed_description": "**Objectif Technique :**\n\nSupprimer définitivement l'outil `get_next_tasks` du serveur MCP MemoryBankMCP après confirmation que son fonctionnalité est complètement intégrée dans l'architecture next_rule.\n\n**Exigences de Suppression :**\n1. **Code cleanup** : Supprimer fonction `get_next_tasks` du serveur MCP\n2. **Schema update** : Mettre à jour les schemas MCP pour retirer la définition de l'outil\n3. **Documentation update** : Supprimer références dans documentation\n4. **Testing post-suppression** : Valider que système fonctionne sans l'outil\n5. **Error handling** : S'assurer qu'aucun appel résiduel ne cause d'erreurs\n\n**Modifications Techniques :**\n- Suppression fonction dans `.cursor/mcp/memory-bank-mcp/mcp_tools/`\n- Mise à jour `tools_registry` ou équivalent pour retirer l'outil\n- Suppression schema definition dans configuration MCP\n- Nettoyage imports et références dans le code serveur\n- Update documentation API et guides d'utilisation\n\n**Analyse Technique & Points de Vigilance :**\n\n**Attention :** La suppression de get_next_tasks est particulièrement critique car cet outil est au cœur du workflow autonome. Précautions spéciales :\n- **Core workflow impact** : Cet outil est central au fonctionnement autonome, vérifier exhaustivement les impacts\n- **Legacy calls audit** : Scanner minutieusement pour tous appels résiduels dans règles, scripts, documentation\n- **Graceful degradation** : Implémenter message d'erreur clair si appels orphelins tentent d'utiliser l'outil\n- **Workflow continuity** : S'assurer que suppression ne casse pas les cycles autonomes existants\n- **Emergency rollback** : Préparer rollback rapide en cas de dysfonctionnement critique\n- **Monitoring intensive** : Surveillance accrue post-suppression pour détecter problèmes workflow\n- **Documentation exhaustive** : Mettre à jour tous guides, tutorials, exemples utilisant cet outil\n\n**Points Critiques de Vérification :**\n- Scanner toutes les règles workflow (.cursor/workflow-steps/*.md)\n- Vérifier documentation utilisateur et guides d'utilisation\n- Analyser logs récents pour patterns d'utilisation\n- Tester tous scenarios workflow sans l'outil\n- Valider que logic de sélection de tâches fonctionne via next_rule\n\n**Stratégie de Suppression Prudente :**\n1. **Final audit** : Scan complet codebase pour toutes références get_next_tasks\n2. **Backup complet** : Sauvegarde fonction et configuration avant suppression\n3. **Incremental removal** : Supprimer progressivement (fonction → schema → doc)\n4. **Intensive testing** : Tests exhaustifs workflow autonome sans l'outil\n5. **Monitoring period** : Surveillance étendue post-suppression\n\n**Validation Criteria :**\n✅ Fonction get_next_tasks supprimée du serveur MCP\n✅ Schema MCP mis à jour sans référence à l'outil\n✅ Documentation mise à jour sans mentions get_next_tasks\n✅ Tests workflow autonome complets réussis sans l'outil\n✅ Aucune dégradation performance ou fonctionnalité détectée",
+    "dependencies": [
+      367
+    ],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. L'outil get_next_tasks est complètement supprimé du serveur MCP\n2. Le schema MCP ne contient plus de référence à cet outil\n3. La documentation est mise à jour sans mentions de get_next_tasks\n4. Les tests workflow autonome complets réussissent sans erreurs\n5. Aucune dégradation de performance ou fonctionnalité n'est détectée",
+    "created_date": "2025-07-23T20:45:08.368Z",
+    "updated_date": "2025-07-23T20:45:08.368Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 369,
+    "title": "Adapter règle task-decomposition pour intégration automatique read_userbrief",
+    "short_description": "Modification de la règle task-decomposition.md pour éliminer le besoin d'appel manuel à read_userbrief en intégrant automatiquement le contenu de la requête utilisateur dans le contexte fourni par next_rule.",
+    "detailed_description": "**Objectif Technique :**\n\nModifier la règle task-decomposition.md pour éliminer la dépendance à l'outil MCP `read_userbrief` en s'assurant qu'une requête utilisateur soit automatiquement fournie dans le contexte lors de l'appel à next_rule.\n\n**Exigences Spécifiques :**\n1. **Révision texte règle** : Supprimer toutes références aux appels manuels `read_userbrief` dans task-decomposition.md\n2. **Documentation contexte** : Clarifier qu'une requête utilisateur est automatiquement disponible\n3. **Instructions agent** : Adapter les instructions pour utiliser le contexte fourni au lieu d'appeler l'outil\n4. **Workflow logic** : Maintenir la logique de traitement une requête à la fois\n5. **Queue management** : Préserver la gestion séquentielle des requêtes utilisateur\n\n**Modifications Attendues :**\n- Suppression instructions d'appel manuel `mcp_MemoryBankMCP_read_userbrief`\n- Ajout documentation sur disponibilité automatique requête utilisateur dans contexte\n- Adaptation logique pour référencer `context.current_user_request` ou équivalent\n- Maintien principe traitement requête par requête (une seule à la fois)\n- Préservation logique d'archivage après traitement complet\n\n**Analyse Technique & Points de Vigilance :**\n\n**Attention :** La modification de la règle task-decomposition pour read_userbrief impacte le point d'entrée des requêtes utilisateur. Points critiques :\n- **Request selection logic** : S'assurer que la requête fournie suit la logique appropriée (plus ancienne, priorité, etc.)\n- **Queue management** : Vérifier que le système continue de traiter les requêtes une par une de manière séquentielle\n- **Status consistency** : Maintenir la cohérence des statuts (new → in_progress → archived)\n- **Context completeness** : S'assurer que tous métadonnées nécessaires sont fournies (id, content, created_at, etc.)\n- **Edge cases** : Gérer les cas où aucune requête n'est en attente (système idle)\n- **Concurrency handling** : Éviter traitement simultané de plusieurs requêtes par accident\n- **Archive workflow** : Maintenir la logique d'archivage après création de toutes les tâches associées\n\n**Integration Points :**\n- Coordination avec système de priorités des requêtes\n- Gestion statuts new/in_progress/archived\n- Interface avec update_userbrief pour archivage\n- Logique de sélection requête suivante\n- Fallback si queue vide\n\n**Validation Criteria :**\n✅ Règle task-decomposition.md modifiée sans références read_userbrief\n✅ Documentation claire sur disponibilité automatique requête utilisateur\n✅ Instructions agent adaptées pour utiliser contexte fourni\n✅ Logique traitement séquentiel une requête à la fois préservée\n✅ Gestion edge cases (aucune requête) documentée",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/workflow-steps/task-decomposition.md"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier task-decomposition.md ne contient plus aucune référence à read_userbrief\n2. Les instructions documentent clairement qu'une requête utilisateur est automatiquement fournie\n3. La logique de traitement séquentiel utilise le contexte fourni\n4. La règle reste fonctionnelle pour la décomposition de requêtes avec gestion appropriée des statuts",
+    "created_date": "2025-07-23T20:45:30.065Z",
+    "updated_date": "2025-07-23T20:45:30.065Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 370,
+    "title": "Vérifier intégration automatique read_userbrief dans next_rule task-decomposition",
+    "short_description": "Validation que l'appel à next_rule avec task-decomposition retourne automatiquement le contenu équivalent à read_userbrief pour éliminer le besoin d'appel manuel à cet outil.",
+    "detailed_description": "**Objectif Technique :**\n\nVérifier et valider que l'architecture MCP next_rule fournit automatiquement une requête utilisateur lors de l'appel à la règle task-decomposition, rendant obsolète l'outil `read_userbrief`.\n\n**Exigences de Validation :**\n1. **Test next_rule** : Appeler `mcp_MemoryBankMCP_next_rule` avec parameter `task-decomposition`\n2. **Analyse response** : Vérifier présence champ `unprocessed_requests` ou équivalent dans contexte\n3. **Comparaison données** : Confirmer que les données fournies sont équivalentes à `read_userbrief`\n4. **Request selection** : S'assurer que la requête sélectionnée suit la logique appropriée\n5. **Metadata validation** : Vérifier que tous métadonnées nécessaires sont présentes\n\n**Tests Spécifiques :**\n- Appel direct `next_rule(\"task-decomposition\")` et analyse response structure\n- Comparaison avec appel manuel `read_userbrief` pour validation équivalence\n- Vérification présence champs essentiels : id, content, status, created_at, history\n- Test avec différents scenarios : requête unique, multiple requêtes, aucune requête\n- Validation logique sélection (plus ancienne en premier, priorités si applicable)\n- Test intégrité données et completude métadonnées\n\n**Analyse Technique & Points de Vigilance :**\n\n**Attention :** Cette validation est cruciale car elle contrôle l'entrée des demandes utilisateur dans le système. Points critiques :\n- **Data completeness** : Les données fournies doivent être 100% équivalentes à read_userbrief\n- **Request selection accuracy** : Vérifier que la requête sélectionnée suit la logique métier appropriée\n- **Metadata integrity** : S'assurer que tous champs nécessaires sont présents et corrects\n- **Queue state consistency** : Vérifier que l'état de la queue est cohérent et à jour\n- **Edge case handling** : Comportement quand aucune requête en attente (système idle)\n- **Performance impact** : L'intégration ne doit pas dégrader les temps de réponse\n- **Concurrency safety** : Éviter sélection simultanée de la même requête\n- **Status management** : Vérifier gestion appropriée des statuts new/in_progress\n\n**Scenarios de Test :**\n1. **Single request** : Une seule requête en attente de traitement\n2. **Multiple requests** : Plusieurs requêtes, vérifier sélection de la plus ancienne\n3. **Empty queue** : Aucune requête en attente\n4. **Status variety** : Requêtes avec différents statuts (new, in_progress, archived)\n5. **Data integrity** : Vérifier intégrité des métadonnées et historique\n\n**Validation Criteria :**\n✅ next_rule task-decomposition fournit automatiquement requête utilisateur\n✅ Données équivalentes à read_userbrief (format, completude, précision)\n✅ Logique sélection appropriée (chronologique, priorités)\n✅ Edge cases gérés correctement (aucune requête, statuts variés)\n✅ Performance et intégrité données acceptables",
+    "dependencies": [
+      369
+    ],
+    "status": "TODO",
+    "impacted_files": [],
+    "validation_criteria": "La tâche est terminée quand :\n1. L'appel next_rule(\"task-decomposition\") fournit automatiquement une requête utilisateur\n2. Les données sont équivalentes en qualité et completude à read_userbrief\n3. La logique de sélection des requêtes fonctionne correctement\n4. Les edge cases sont testés et gérés appropriément\n5. Le rapport de validation confirme l'équivalence fonctionnelle",
+    "created_date": "2025-07-23T20:45:51.125Z",
+    "updated_date": "2025-07-23T20:45:51.125Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 371,
+    "title": "Supprimer outil MCP read_userbrief du serveur MemoryBankMCP",
+    "short_description": "Suppression définitive de l'outil read_userbrief du serveur MCP MemoryBankMCP après validation de l'intégration automatique dans les règles workflow.",
+    "detailed_description": "**Objectif Technique :**\n\nSupprimer définitivement l'outil `read_userbrief` du serveur MCP MemoryBankMCP après confirmation que son fonctionnalité est complètement intégrée dans l'architecture next_rule.\n\n**Exigences de Suppression :**\n1. **Code cleanup** : Supprimer fonction `read_userbrief` du serveur MCP\n2. **Schema update** : Mettre à jour les schemas MCP pour retirer la définition de l'outil\n3. **Documentation update** : Supprimer références dans documentation\n4. **Testing post-suppression** : Valider que système fonctionne sans l'outil\n5. **Error handling** : S'assurer qu'aucun appel résiduel ne cause d'erreurs\n\n**Modifications Techniques :**\n- Suppression fonction dans `.cursor/mcp/memory-bank-mcp/mcp_tools/`\n- Mise à jour `tools_registry` ou équivalent pour retirer l'outil\n- Suppression schema definition dans configuration MCP\n- Nettoyage imports et références dans le code serveur\n- Update documentation API et guides d'utilisation\n\n**Analyse Technique & Points de Vigilance :**\n\n**Attention :** La suppression de read_userbrief impacte l'interface d'entrée des requêtes utilisateur dans le système. Précautions critiques :\n- **Entry point impact** : Cet outil est le point d'entrée des requêtes utilisateur, vérifier tous impacts workflow\n- **Legacy usage audit** : Scanner exhaustivement pour tous appels dans règles, documentation, guides\n- **User experience continuity** : S'assurer que suppression n'impacte pas l'expérience utilisateur globale\n- **Interface coherence** : Vérifier que interface Streamlit et autres systèmes n'utilisent plus cet outil\n- **Request processing flow** : Confirmer que flux de traitement des requêtes reste intact\n- **Error handling graceful** : Implémenter messages d'erreur appropriés pour appels orphelins\n- **Documentation alignment** : Mettre à jour tous guides utilisateur référençant cet outil\n\n**Points Critiques de Vérification :**\n- Scanner règles workflow pour appels read_userbrief\n- Vérifier interface Streamlit et dépendances externes\n- Analyser documentation utilisateur et tutorials\n- Tester flux complet requête utilisateur → tâches → exécution\n- Valider intégrité du système de queue des requêtes\n\n**Stratégie de Suppression Sécurisée :**\n1. **Comprehensive audit** : Scan complet pour toutes références read_userbrief\n2. **Interface verification** : Vérifier que interface Streamlit fonctionne sans l'outil\n3. **Workflow testing** : Tests complets flux requête utilisateur\n4. **Progressive removal** : Suppression graduelle avec tests intermédiaires\n5. **Extended monitoring** : Surveillance prolongée post-suppression\n\n**Validation Criteria :**\n✅ Fonction read_userbrief supprimée du serveur MCP\n✅ Schema MCP mis à jour sans référence à l'outil\n✅ Documentation mise à jour sans mentions read_userbrief\n✅ Tests flux requête utilisateur complets réussis\n✅ Interface Streamlit et systèmes externes fonctionnels sans l'outil",
+    "dependencies": [
+      370
+    ],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. L'outil read_userbrief est complètement supprimé du serveur MCP\n2. Le schema MCP ne contient plus de référence à cet outil\n3. La documentation est mise à jour sans mentions de read_userbrief\n4. Les tests de flux requête utilisateur complets réussissent sans erreurs\n5. L'interface Streamlit et systèmes externes fonctionnent sans dépendance à cet outil",
+    "created_date": "2025-07-23T20:46:14.869Z",
+    "updated_date": "2025-07-23T20:46:14.869Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]

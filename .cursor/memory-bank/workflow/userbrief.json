@@ -1,45 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 312,
+  "last_id": 315,
   "requests": [
-    {
-      "id": 261,
-      "content": "GROS SOUCIS : Le problème de l'outil remember qui fait qu'on reste bloqué dans une boucle context-update infinie est toujours là !!!! Si tu veux identifier le problème, c'est sur le repo cloné ici qu'a lieu le problème si tu veux enquéter : C:\\Users\\Jamet\\code\\trail-rag ! (mais n'y casse rien surtout !)",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-14T20:28:57.696233",
-      "updated_at": "2025-07-14T18:30:15.983Z",
-      "history": [
-        {
-          "timestamp": "2025-07-14T20:28:57.696233",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-14T18:30:15.983Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 262,
-      "content": "Supprime l'outil increment_implementation : j'ignore à quoi il était sencé servir, mais non seuelement, il n'est pas utile mais en plus, il a des bugs qui le rendent inutilisables. Supprime le complètement.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-15T14:44:31.388710",
-      "updated_at": "2025-07-15T12:47:34.684Z",
-      "history": [
-        {
-          "timestamp": "2025-07-15T14:44:31.388710",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-15T12:47:34.684Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 263,
       "content": "L'outil delete_long_term_memory a une erreur de déclaration. Regarde en détail comment on a implémenté et déclaré les autres outils comme on a expliqué leurs arguments, et cetera, et reproduit exactement la même chose pour  delete_long_term_memory afin de résoudre le soucis : l'outil doit prendre un id en entrée, id de l'entrée du souvenir long terme à supprimer.",
@@ -980,6 +942,59 @@
         {
           "timestamp": "2025-07-23T16:57:03.165Z",
           "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 313,
+      "content": "J'ai rencontré un gros et inexplicable bug : Dans ce repository : ~/code/trail-rag, j'ai une requête userbrief qui doit être traitée. Pourtant, lorsque je démarre l'agent avec @start, ce dernier appelle next_rule :\n{\n  \"step_name\": \"start-workflow\"\n}\n\npuis, lors de l'appel à remember, le début de la réponse est la suivante : \n\n{\n  \"message\": \"Memory successfully recorded.\",\n  \"workflow_status\": \"CONTINUE_REQUIRED\",\n  \"next_action_required\": \"⚠️ ARCHITECTURAL VIOLATION PREVENTED: You attempted to stop from 'start-workflow' but stops can ONLY happen from 'context-update'. You MUST continue the workflow by calling mcp_MemoryBankMCP_next_rule with 'context-update'.\",\n  \"workflow_instruction\": \"CRITICAL: Architectural constraint violation detected. Stops are ONLY allowed from context-update step. Current step: start-workflow. You must transition to context-update first.\",\n  \"recommended_next_step\": \"context-update\",\n  \"current_state\": \"Je vais maintenant procéder selon le mode workflow task_by_task vers context-update pour analyser s'il y a des tâches en attente ou si une nouvelle approche est nécessaire pour compléter la génération des 9 datasets selon l'exigence utilisateur stricte.\",\n  \"possible_next_steps\": [\n    \"experience-execution\",\n    \"context-update\",\n    \"system\"\n  ],\n  \"continuation_mandatory\": true,\n  \"stopping_prohibited\": \"!!! ARCHITECTURAL VIOLATION PREVENTED !!! - You attempted to stop from 'start-workflow' which violates the fundamental constraint: STOPS CAN ONLY HAPPEN FROM 'context-update'. You MUST continue.\",\n  \"immediate_next_action\": \"!!! REQUIRED !!! - Call mcp_MemoryBankMCP_next_rule with 'context-update' to maintain architectural integrity.\",\n  \"workflow_cycle_reminder\": \"!!! CRITICAL !!! - Remember: Only 'context-update' can initiate stops in task-by-task mode. All other steps must continue the workflow.\",\n  \"user_preferences\": [],\n\nComme tu peux t'en douter, c'est absolument anormal et tu dois identifier l'origine du problème et la règler.\n",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-23T22:34:00.022737",
+      "updated_at": "2025-07-23T20:37:41.825Z",
+      "history": [
+        {
+          "timestamp": "2025-07-23T22:34:00.022737",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-23T20:37:41.825Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 314,
+      "content": "Bon. Je souhaite que tu fasse quelquechose d'assez complexe : je veux que tu supprimes les outils get_all_tasks, get_next_tasks et read_userbrief du serveur memorybank. En effet, l'agent ne devrait pas avoir à appeler manuellement ces outils : leur contenu devrait lui être automatiquement donné au bon moment. Ainsi, \n1. La liste complète des tâches doit être fournie lors de l'appel à la règle task-decomposition (pour permettre à l'agent d'insérer avec la bonne priorité et les bonnes dépendances la tâche)\n2. La prochaine tâche à effectuer doit être donnée lors de l'appel à la règle implementation\n3. Le contenu du userbrief (uniquement une requête à la fois) doit être donné lors de l'appel à la règle task-decomposition\n\nJe souhaite donc que tu crées 9 tâches (3 par outil) : pour chacun des 3 outils à supprimer, je souhaite que :\n1. Tu adaptes le texte de la ou les règles concernées afin que l'agent n'ait pas besoin de faire appel à ces outils que tu t'apprêtes à supprimer\n2. Vérifier que l'appel à next_rule avec la ou les règles concernée renvoie bien entre autre le contenu des outils que tu t'apprètes à supprimer\n3. Supprimer les outils",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-23T22:42:13.076971",
+      "updated_at": "2025-07-23T20:46:18.866Z",
+      "history": [
+        {
+          "timestamp": "2025-07-23T22:42:13.076971",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-23T20:46:18.866Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 315,
+      "content": "Reply to Agent Message #32:\n\n**Original Message:** \"Critical test failure: The implementation rule documentation is incorrect. It references `context.most_urgent_task` but the actual task is in `context.current_task`. This mismatch would cause workflow...\"\n\n**My Reply:** Il faut que tu resolves ce problème !\n\n**Message Context:**\n- Rule: unknown\n- Timestamp: 2025-07-23T20:52:32.559Z\n- Workflow Rule: implementation",
+      "status": "new",
+      "image": null,
+      "created_at": "2025-07-23T22:55:38.098677",
+      "updated_at": "2025-07-23T22:55:38.098677",
+      "history": [
+        {
+          "timestamp": "2025-07-23T22:55:38.098677",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
         }
       ]
     }

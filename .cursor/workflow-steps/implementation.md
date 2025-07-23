@@ -1,117 +1,153 @@
 ## TLDR
-Implémente méthodiquement UNE SEULE tâche prioritaire avec routage intelligent. **ATTENTION : Ne traiter qu'UNE SEULE tâche par cycle.** 
+
+Methodically implement ONE SINGLE priority task with intelligent routing. **WARNING: Process only ONE SINGLE task per cycle.**
 
 **IMPORTANT TOOL USAGE CONSTRAINT:**
 **You are strictly forbidden from using the `run_terminal_cmd` tool. You MUST use the `mcp_ToolsMCP_execute_command` tool for all command-line operations.**
 
 ## Instructions
 
-0.  **Implementation Counter Update**: AUTOMATIQUEMENT incrémenter le compteur d'étapes d'implémentation et vérifier le déclenchement de tâches README.
-    *   **APPEL AUTOMATIQUE** : Cette étape est gérée automatiquement par le système de workflow. Le compteur `implementation_count` est incrémenté à chaque appel de cette règle.
-    *   **GÉNÉRATION DE TÂCHE README** : Si le compteur atteint un multiple de 10, une tâche de mise à jour du README sera automatiquement générée avec priorité 4.
-    *   **TRANSPARENCE** : Cette opération est transparente et n'interrompt pas le workflow normal.
+0.  **Implementation Counter Update**: AUTOMATICALLY increment the implementation step counter and check for README task triggers.
 
-1.  **Task analysis and status update**: Analyser LA tâche à implémenter (UNE SEULE) et la marquer immédiatement comme IN_PROGRESS.
-    *   Utiliser `mcp_MemoryBankMCP_get_next_tasks` pour obtenir LA tâche prioritaire.
-    *   **IMPORTANT** : C'est CETTE tâche et UNIQUEMENT cette tâche que vous devez traiter.
-    *   **MARQUAGE OBLIGATOIRE** : Marquer IMMÉDIATEMENT la tâche comme IN_PROGRESS avec `mcp_MemoryBankMCP_update_task`. C'est une règle non négociable pour maintenir l'intégrité du workflow.
-    *   **EXEPTION** : Si une tâche est déjà marquée comme IN_PROGRESS, sauter cette étape et continuer de travailler avec cette tâche.
+      * **AUTOMATIC CALL**: This step is handled automatically by the workflow system. The `implementation_count` counter is incremented with each call to this rule.
+      * **README TASK GENERATION**: If the counter reaches a multiple of 10, a README update task will be automatically generated with priority 4.
+      * **TRANSPARENCY**: This operation is transparent and does not interrupt the normal workflow.
 
-2.  **Évaluation et Routage Intelligent**: Évaluer la nature de la tâche pour décider de la marche à suivre.
-    *   **ANALYSE DE LA TÂCHE**: En tant qu'ingénieur senior, analyse en profondeur le titre, la description et les objectifs de la tâche.
-    *   **DÉCISION DE ROUTAGE**:
-        *   **CAS 1 : Exécution Pure**: Si tu détermines que la tâche ne nécessite **aucune modification de code** et consiste uniquement à exécuter des commandes, lancer des tests, effectuer des validations, ou générer des rapports, alors la phase d'implémentation n'est pas nécessaire.
-            *   **ACTION** : Appelle immédiatement `mcp_MemoryBankMCP_next_rule` avec `step_name: "experience-execution"`.
-            *   **RÈGLE TERMINÉE** : La règle `implementation` s'arrête ici pour ce type de tâche.
-        *   **CAS 2 : Développement Requis**: Si la tâche implique la moindre modification de code (création de fichier, correction, refactoring, ajout de fonctionnalité), continue avec les étapes de développement ci-dessous (3-5).
-    *   **Principe directeur**: Fais confiance à ton jugement d'expert pour distinguer une tâche de "développement" d'une tâche d'"exécution". Documente ta décision dans ta pensée.
+## Available Context
 
-3.  **Analyse du contexte et Plan d'implémentation**: Analyser le code existant pour en comprendre les principes, pratiques et conventions.
-    *   **Recherche de contexte**: Effectuer jusqu'à 3 recherches sémantiques (`codebase_search`).
-    *   **Objectifs de la recherche**:
-        *   Identifier les composants, fonctions ou patterns réutilisables.
-        *   Comprendre les conventions de code actuelles et s'y conformer autant que possible.
-        *   Identifier comment le genre de tâche que tu as à implémenter a été géré dans le passé : reproduis les mêmes approches.
-        *   **Principe directeur**: Tu ne dois pas réinventer la roue ! Va au plus simple. Modifie aussi peu que possible le code existant : il est certainement correct. Réutilise autant que possible le code existant.
-    *   **Synthèse**: Tu dois finir cette étape en faisant une synthèse des principes, composants réutilisables et conventions de code identifiés. En prenant en compte tous ces éléments, tu dois établir un plan d'implémentation.
+**Automatic Next Task Integration**: The next priority task to work on is automatically provided in the workflow context as `current_task`. This eliminates the need for manual calls to `get_next_tasks`.
 
-4.  **Implementation** (ancienne étape 3): Implémenter les modifications nécessaires pour LA tâche unique, en suivant les principes identifiés.
-    *   Utiliser les outils appropriés (`edit_file`, `replace_content_between`, `grep_search`, etc.).
-    *   **FOCUS ABSOLU** : Concentre-toi uniquement sur cette tâche. Ne te laisse pas distraire par d'autres problèmes non planifiés.
+**Context Structure Available:**
+- `current_task`: The highest priority available task with full details (id, title, description, status, priority, dependencies, etc.)
+- `current_tasks_summary`: Summary of current task counts by status (TODO, IN_PROGRESS, BLOCKED, REVIEW, DONE)
+- `system_analysis`: Analysis with recommended workflow step and system state evaluation
+- `recent_memories`: Context from previous workflow steps to maintain continuity
 
-5.  **Record progress and determine next steps**: Enregistrer une auto-évaluation honnête et transition automatique.
-    *   **OBLIGATOIRE** : Utiliser `mcp_MemoryBankMCP_remember`.
-    *   **Communication Critique**: N'utiliser le paramètre `user_message` de `remember` que pour signaler un problème **critique** qui requiert l'attention de l'utilisateur.
-    *   **TRANSITION AUTOMATIQUE** : Le workflow passe automatiquement à `experience-execution` pour validation après remember.
+**How to Use the Automatic Context:**
+- **Task Selection**: Use `context.current_task` for the single task to process
+- **Status Management**: The task may already be IN_PROGRESS if resumed from previous workflow cycle
+- **Priority Validation**: The task selection algorithm automatically handles priority, dependencies, and availability
+- **Workflow Continuity**: If `current_task` is null, no tasks are available and agent should route appropriately
 
-## Specifics - RÈGLES STRICTES
-- **RÈGLE #1** : Travailler sur UNE SEULE tâche à la fois - JAMAIS plusieurs tâches en séquence
-- **RÈGLE #2** : LA tâche à traiter est celle retournée par `mcp_MemoryBankMCP_get_next_tasks` - pas d'autres
-- **RÈGLE #3** : MARQUER IMMÉDIATEMENT la tâche comme IN_PROGRESS dès l'étape 1 - AUCUNE EXCEPTION
-- **RÈGLE #4** : APPLIQUER LE ROUTAGE INTELLIGENT à l'étape 2 - analyser le type de tâche et router si nécessaire
-- **RÈGLE #5** : Terminer OBLIGATOIREMENT par `mcp_MemoryBankMCP_remember` pour maintenir le workflow
-- **RÈGLE #6** : Ne pas décider arbitrairement de traiter d'autres tâches "tant qu'on y est"
-- **RÈGLE #7** : Si une tâche semble liée à d'autres, traiter UNIQUEMENT la tâche prioritaire retournée par l'outil
-- **RÈGLE #8** : Les sous-tâches sont autorisées UNIQUEMENT si elles font partie intégrante de la tâche principale
-- **RÈGLE #9** : NE JAMAIS marquer une tâche comme REVIEW - c'est la responsabilité d'experience-execution
-- Utiliser les outils MCP pour toute gestion de tâches
-- Respecter les conventions de code établies
-- Tester les modifications localement si possible
-- Documenter les décisions importantes dans les souvenirs
+1.  **Task analysis and status update**: Analyze THE task to implement (ONLY ONE) and immediately mark it as IN\_PROGRESS.
+
+      * **Use Automatic Context**: The priority task is automatically provided in `context.current_task` - no manual tool calls needed.
+      * **IMPORTANT**: It is THIS task and ONLY this task that you must process.
+      * **MANDATORY TAGGING**: IMMEDIATELY mark the task as IN\_PROGRESS with `mcp_MemoryBankMCP_update_task`. This is a non-negotiable rule to maintain workflow integrity.
+      * **EXCEPTION**: If a task is already marked as IN\_PROGRESS, skip this step and continue working with that task.
+      * **No Available Tasks**: If `context.current_task` is null, no tasks are available and you should handle appropriately (e.g., route to context-update).
+
+2.  **Evaluation and Intelligent Routing**: Evaluate the nature of the task to decide on the course of action.
+
+      * **TASK ANALYSIS**: As a senior engineer, deeply analyze the title, description, and objectives of the task.
+      * **ROUTING DECISION**:
+          * **CASE 1: Pure Execution**: If you determine that the task requires **no code modification** and only consists of executing commands, running tests, performing validations, or generating reports, then the implementation phase is not necessary.
+              * **ACTION**: Immediately call `mcp_MemoryBankMCP_next_rule` with `step_name: "experience-execution"`.
+              * **RULE FINISHED**: The `implementation` rule stops here for this type of task.
+          * **CASE 2: Development Required**: If the task involves any code modification (file creation, correction, refactoring, feature addition), continue with the development steps below (3-5).
+      * **Guiding principle**: Trust your expert judgment to distinguish a "development" task from an "execution" task. Document your decision in your thoughts.
+
+3.  **Context Analysis and Implementation Plan**: Analyze the existing code to understand its principles, practices, and conventions.
+
+      * **Context research**: Perform up to 3 semantic searches (`codebase_search`).
+      * **Research objectives**:
+          * Identify reusable components, functions, or patterns.
+          * Understand the current code conventions and adhere to them as much as possible.
+          * Identify how the kind of task you have to implement has been handled in the past: reproduce the same approaches.
+          * **Guiding principle**: You must not reinvent the wheel\! Go for the simplest solution. Modify the existing code as little as possible: it is certainly correct. Reuse existing code as much as possible.
+      * **Synthesis**: You must finish this step by summarizing the identified principles, reusable components, and code conventions. Taking all these elements into account, you must establish an implementation plan.
+
+4.  **Implementation** (former step 3): Implement the necessary modifications for THE single task, following the identified principles.
+
+      * Use the appropriate tools (`edit_file`, `replace_content_between`, `grep_search`, etc.).
+      * **ABSOLUTE FOCUS**: Concentrate solely on this task. Do not get distracted by other unplanned issues.
+
+5.  **Record progress and determine next steps**: Record an honest self-assessment and transition automatically.
+
+      * **MANDATORY**: Use `mcp_MemoryBankMCP_remember`.
+      * **Critical Communication**: Use the `user_message` parameter of `remember` only to report a **critical** issue that requires the user's attention.
+      * **AUTOMATIC TRANSITION**: The workflow automatically transitions to `experience-execution` for validation after remember.
+
+## Specifics - STRICT RULES
+
+  - **RULE \#1**: Work on ONE SINGLE task at a time - NEVER multiple tasks in sequence
+  - **RULE \#2**: THE task to be processed is the one provided in `context.current_task` - no others
+  - **RULE \#3**: IMMEDIATELY MARK the task as IN\_PROGRESS in step 1 - NO EXCEPTIONS
+  - **RULE \#4**: APPLY INTELLIGENT ROUTING in step 2 - analyze the task type and route if necessary
+  - **RULE \#5**: MANDATORILY end with `mcp_MemoryBankMCP_remember` to maintain the workflow
+  - **RULE \#6**: Do not arbitrarily decide to process other tasks "while you're at it"
+  - **RULE \#7**: If a task seems related to others, process ONLY the priority task returned by the tool
+  - **RULE \#8**: Sub-tasks are allowed ONLY if they are an integral part of the main task
+  - **RULE \#9**: NEVER mark a task as REVIEW - this is the responsibility of experience-execution
+  - Use MCP tools for all task management
+  - Respect established code conventions
+  - Test modifications locally if possible
+  - Document important decisions in memories
 
 ## Next Steps - WORKFLOW AUTOMATION ACTIVE
 
-⚠️ **TRANSITION AUTOMATIQUE ACTIVÉE** ⚠️
+⚠️ **AUTOMATIC TRANSITION ACTIVATED** ⚠️
 
-**RÈGLE CRITIQUE** : Après chaque implémentation terminée, le workflow passe **AUTOMATIQUEMENT** à `experience-execution` pour validation. Cette transition est **OBLIGATOIRE** et fait partie de l'architecture de qualité du système.
+**CRITICAL RULE**: After each completed implementation, the workflow **AUTOMATICALLY** transitions to `experience-execution` for validation. This transition is **MANDATORY** and is part of the system's quality architecture.
 
-**Transitions automatiques** :
-- `implementation` → `experience-execution` (AUTOMATIQUE - après une implémentation de code)
-- `implementation` → `experience-execution` (DIRECT - pour les tâches d'exécution pure routées à l'étape 2)
-- `experience-execution` → Déterminé par les résultats des tests
+**Automatic transitions**:
 
-**Exceptions rares** (gérées automatiquement par le système) :
-- Présence de tâches BLOCKED critiques
-- Demandes utilisateur urgentes sans tâches récemment complétées
+  - `implementation` → `experience-execution` (AUTOMATIC - after a code implementation)
+  - `implementation` → `experience-execution` (DIRECT - for pure execution tasks routed in step 2)
+  - `experience-execution` → Determined by test results
 
-**Étapes manuelles possibles** :
-- `context-update` - Pour finaliser et commiter les changements
-- `fix` - Si des problèmes sont détectés pendant l'implémentation
-- `task-decomposition` - Si de nouvelles demandes utilisateur arrivent
+**Rare exceptions** (handled automatically by the system):
+
+  - Presence of critical BLOCKED tasks
+  - Urgent user requests without recently completed tasks
+
+**Possible manual steps**:
+
+  - `context-update` - To finalize and commit changes
+  - `fix` - If problems are detected during implementation
+  - `task-decomposition` - If new user requests arrive
 
 ## Example - SINGLE TASK WORKFLOW (Careful and efficient Mindset)
 
 # Implementation: 1 - Task analysis and status update
-Je commence par analyser LA tâche à implémenter (UNE SEULE) et la marquer immédiatement comme IN_PROGRESS.
-[...appel de mcp_MemoryBankMCP_get_next_tasks...]
-J'ai identifié LA tâche prioritaire : {{ current_tasks_summary }}; Comme je n'ai pas d'autre tâche en cours, je vais la marquer comme IN_PROGRESS.
-**MARQUAGE OBLIGATOIRE** : Je marque immédiatement cette tâche comme IN_PROGRESS.
-[...appel OBLIGATOIRE de mcp_MemoryBankMCP_update_task pour marquer la tâche IN_PROGRESS...]
-**FOCUS** : Je vais traiter UNIQUEMENT cette tâche.
 
-# Implementation: 2 - Évaluation et Routage Intelligent
-J'évalue la nature de la tâche pour décider de la marche à suivre.
-<think>La tâche "{{ current_task_title }}" demande de "{{ current_task_description }}". Après analyse, je détermine si une modification de code est nécessaire.
-- **CAS 1 - Exécution Pure**: La tâche demande de lancer des tests et de générer un rapport. Aucune ligne de code ne sera changée. Je vais donc router vers experience-execution.
-- **CAS 2 - Développement Requis**: La tâche demande de corriger un bug dans la fonction X. Cela nécessite de modifier le code. Je vais donc continuer avec l'implémentation.
-Ma décision est : [CAS 1 ou CAS 2]
-</think>
-- **DÉCISION DE ROUTAGE - CAS 1** : Cette tâche ne nécessite que de l'exécution. Je la route vers `experience-execution`.
-  [...appel de mcp_MemoryBankMCP_next_rule avec step_name: "experience-execution"...]
-  **WORKFLOW TERMINÉ**
-- **DÉCISION DE ROUTAGE - CAS 2** : Cette tâche nécessite du développement. Je continue avec les étapes 3-5.
+I start by analyzing THE task to implement (ONLY ONE) and immediately mark it as IN\_PROGRESS.
+**Use Automatic Context**: The priority task is automatically provided in `context.current_task`.
+I have identified THE priority task: {{ current\_tasks\_summary }}; Since I have no other task in progress, I will mark it as IN\_PROGRESS.
+**MANDATORY TAGGING**: I immediately mark this task as IN\_PROGRESS.
+[...MANDATORY call to mcp\_MemoryBankMCP\_update\_task to mark the task IN\_PROGRESS...]
+**FOCUS**: I will process ONLY this task.
 
-# Implementation: 3 - Analyse du contexte et Plan d'implémentation
-Je recherche dans la base de code pour trouver des composants réutilisables et des conventions de code.
-[...appel de `codebase_search` (jusqu'à 3 fois)...]
-**Analyse et Plan**:
-[...synthèse des principes, composants réutilisables et conventions de code identifiés...]
+# Implementation: 2 - Evaluation and Intelligent Routing
+
+I evaluate the nature of the task to decide on the course of action.
+\<think\>The task "{{ context.current\_task.title }}" asks to "{{ context.current\_task.short\_description }}". After analysis, I will determine if a code modification is necessary.
+
+  - **CASE 1 - Pure Execution**: The task asks to run tests and generate a report. No line of code will be changed. I will therefore route to experience-execution.
+  - **CASE 2 - Development Required**: The task asks to fix a bug in function X. This requires modifying the code. I will therefore continue with the implementation.
+    My decision is: [CASE 1 or CASE 2]
+
+\</think\>
+
+  - **ROUTING DECISION - CASE 1**: This task only requires execution. I am routing it to `experience-execution`.
+    [...call to mcp\_MemoryBankMCP\_next\_rule with step\_name: "experience-execution"...]
+    **WORKFLOW FINISHED**
+  - **ROUTING DECISION - CASE 2**: This task requires development. I am continuing with steps 3-5.
+
+# Implementation: 3 - Context Analysis and Implementation Plan
+
+I search the codebase to find reusable components and code conventions.
+[...call to `codebase_search` (up to 3 times)...]
+**Analysis and Plan**:
+[...synthesis of identified principles, reusable components, and code conventions...]
 
 # Implementation: 4 - Implementation
-Je procède maintenant à l'implémentation des modifications pour LA tâche unique, en suivant mon plan.
-[...implémentation des changements...]
+
+I now proceed with the implementation of the modifications for THE single task, following my plan.
+[...implementation of changes...]
 
 # Implementation: 5 - Record progress and determine next steps
-Je vais maintenant enregistrer une auto-évaluation honnête.
-[...appel OBLIGATOIRE de mcp_MemoryBankMCP_remember, en utilisant `user_message` UNIQUEMENT si un problème critique a été découvert...]
-**WORKFLOW** : Remember déterminera la prochaine étape (automatiquement experience-execution).
+
+I will now record an honest self-assessment.
+[...MANDATORY call to mcp\_MemoryBankMCP\_remember, using `user_message` ONLY if a critical problem has been discovered...]
+**WORKFLOW**: Remember will determine the next step (automatically experience-execution).
