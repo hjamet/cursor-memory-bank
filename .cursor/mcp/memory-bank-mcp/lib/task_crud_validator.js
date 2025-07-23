@@ -35,7 +35,7 @@ const TaskSchema = z.object({
         .max(500, "Short description cannot exceed 500 characters"),
     detailed_description: z.string()
         .min(1, "Detailed description cannot be empty"),
-    status: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'BLOCKED', 'REVIEW'])
+    status: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'BLOCKED', 'REVIEW', 'APPROVED'])
         .describe("Task status"),
     dependencies: z.array(z.number().int().positive())
         .default([])
@@ -451,8 +451,9 @@ function validateStatusTransition(currentStatus, newStatus, taskContext) {
         'TODO': ['IN_PROGRESS', 'BLOCKED'],
         'IN_PROGRESS': ['REVIEW', 'BLOCKED', 'TODO'],
         'BLOCKED': ['TODO', 'IN_PROGRESS'],
-        'REVIEW': ['DONE', 'IN_PROGRESS', 'TODO'],
-        'DONE': ['REVIEW', 'TODO'] // Allow reopening completed tasks
+        'REVIEW': ['DONE', 'IN_PROGRESS', 'TODO', 'APPROVED'],
+        'DONE': ['REVIEW', 'TODO'],
+        'APPROVED': ['REVIEW', 'TODO'] // Allow reopening approved tasks
     };
 
     if (!validTransitions[currentStatus]?.includes(newStatus)) {

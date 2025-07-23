@@ -2088,14 +2088,23 @@
     ],
     "validation_criteria": "La tâche est terminée avec succès quand :\n\n✅ **Suppression automatique d'images implémentée :**\n- Fonction `delete_task_image()` créée dans to_review.py avec vérifications de sécurité\n- Suppression automatique lors de l'approbation des tâches\n- Conservation des images lors du rejet pour révision\n- Messages de confirmation de suppression\n\n✅ **Indicateurs d'images ajoutés :**\n- Icône 📸 ajoutée aux cartes de tâches dans to_review.py\n- Icône 📸 ajoutée aux titres de tâches dans task_status.py\n- Aperçu d'images dans les détails des tâches (task_status.py)\n- Métadonnées d'images affichées (nom, taille)\n\n✅ **Gestion robuste des erreurs :**\n- Vérifications d'existence des fichiers\n- Gestion des erreurs de lecture/suppression\n- Chemins sécurisés (uniquement dans .cursor/temp/)\n- Messages d'erreur informatifs\n\n✅ **Interface utilisateur améliorée :**\n- Messages informatifs sur le comportement de gestion d'images\n- Aperçus visuels des images associées aux tâches\n- Indicateurs visuels clairs pour les tâches avec images\n\nLa fonctionnalité est complètement opérationnelle et intégrée dans l'interface Streamlit.",
     "created_date": "2025-06-23T17:56:02.774Z",
-    "updated_date": "2025-06-24T14:56:18.063550",
+    "updated_date": "2025-07-23T21:33:40.190Z",
     "parent_id": null,
     "priority": 4,
     "validation": {
       "approved_at": "2025-06-24T14:56:18.060880",
       "approved_by": "streamlit_reviewer",
       "review_notes": "Task approved via Streamlit To Review page"
-    }
+    },
+    "comments": [
+      {
+        "timestamp": "2025-07-23T21:33:40.190Z",
+        "comment": "Approving task after implementing the update_task_status workaround. This task was previously in REVIEW and blocked due to the original update_task tool failing.",
+        "status_change": "APPROVED"
+      }
+    ],
+    "last_comment": "Approving task after implementing the update_task_status workaround. This task was previously in REVIEW and blocked due to the original update_task tool failing.",
+    "last_comment_timestamp": "2025-07-23T21:33:40.190Z"
   },
   {
     "id": 89,

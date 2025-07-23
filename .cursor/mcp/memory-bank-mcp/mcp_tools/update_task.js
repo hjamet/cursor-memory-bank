@@ -440,6 +440,7 @@ export async function handleUpdateTask(params) {
         };
 
     } catch (error) {
+        console.error(`[update_task] An unexpected error occurred: ${error.message}`, error.stack);
         return {
             content: [{
                 type: 'text',
