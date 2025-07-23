@@ -125,15 +125,22 @@ export async function getPossibleNextSteps(lastStep = null) {
         }
 
         const tasks = await readTasks();
-        if (tasks && tasks.some(t => t.status === 'TODO' || t.status === 'IN_PROGRESS')) {
-            possibleSteps.add('implementation');
-            // Enhanced: After implementation, prioritize testing more strongly
-            if (lastStep === 'implementation') {
-                possibleSteps.add('experience-execution');
-                // Also check if there are tasks in REVIEW status, which indicates recent implementation
-                if (tasks.some(t => t.status === 'REVIEW')) {
-                    possibleSteps.add('experience-execution');
-                }
+
+        // 🚨 CRITICAL ARCHITECTURAL FIX: ENFORCE MANDATORY implementation → experience-execution
+        // RULE: implementation can NEVER recommend implementation (0% of cases)
+        // RULE: implementation MUST ALWAYS recommend experience-execution (100% of cases)
+        if (lastStep === 'implementation') {
+            // MANDATORY TRANSITION: implementation → experience-execution
+            // This enforces the architectural requirement with NO EXCEPTIONS
+            possibleSteps.add('experience-execution');
+
+            // DO NOT add 'implementation' - this would violate the architectural rule
+            // The only valid transitions from implementation are to experience-execution
+
+        } else {
+            // For all OTHER steps (not implementation), allow implementation if there are tasks
+            if (tasks && tasks.some(t => t.status === 'TODO' || t.status === 'IN_PROGRESS')) {
+                possibleSteps.add('implementation');
             }
         }
 
@@ -309,10 +316,11 @@ async function getRecommendedStepLogic(lastStep, possibleSteps, tasks = null) {
         return 'context-update'; // This will trigger the stopping logic in remember.js
     }
 
-    // CRITICAL FIX: Prevent experience-execution loops
-    // Rule: experience-execution can NEVER be followed by experience-execution
+    // 🚨 ARCHITECTURAL FIX: experience-execution routing compliance
+    // RULE: experience-execution can ONLY route to fix or context-update
+    // RULE: experience-execution can NEVER route to implementation
     if (lastStep === 'experience-execution') {
-        // If coming from experience-execution, we need to determine the next step based on task status
+        // If coming from experience-execution, we need to determine the next step based on testing results
 
         // Load tasks if not provided
         if (!tasks) {
@@ -329,11 +337,16 @@ async function getRecommendedStepLogic(lastStep, possibleSteps, tasks = null) {
         const currentTask = tasks && tasks.find(t => t.status === 'IN_PROGRESS');
 
         if (currentTask) {
-            // Task is still IN_PROGRESS, meaning experience-execution failed or was interrupted.
-            // Give priority to implementation to allow the agent to continue its work.
-            return 'implementation';
+            // Task is still IN_PROGRESS, meaning experience-execution detected issues.
+            // Route to 'fix' to address the problems (NEVER back to implementation)
+            if (possibleSteps.includes('fix')) {
+                return 'fix';
+            } else {
+                // If fix is not available, route to context-update for planning
+                return 'context-update';
+            }
         } else {
-            // No IN_PROGRESS task found, meaning the task was likely completed
+            // No IN_PROGRESS task found, meaning the task validation was successful
             // Check for new user requests first (highest priority)
             if (possibleSteps.includes('task-decomposition')) {
                 return 'task-decomposition';
@@ -343,38 +356,19 @@ async function getRecommendedStepLogic(lastStep, possibleSteps, tasks = null) {
         }
     }
 
-    // ENHANCED WORKFLOW AUTOMATION: Mandatory implementation → experience-execution
-    // This implements the core requirement of automated workflow
-    if (lastStep === 'implementation' && possibleSteps.includes('experience-execution')) {
-        // Load tasks if not provided to check for completed implementations
-        if (!tasks) {
-            try {
-                tasks = await readTasks();
-            } catch (error) {
-                // If we can't load tasks, fallback to standard logic
-                return getStandardRecommendation(possibleSteps);
-            }
-        }
-
-        // Check if there are recently completed tasks that need testing
-        const recentlyCompletedTasks = tasks && tasks.filter(t =>
-            t.status === 'REVIEW' &&
-            t.updated_date &&
-            new Date(t.updated_date) > new Date(Date.now() - 24 * 60 * 60 * 1000) // Last 24 hours
-        );
-
+    // 🚨 CRITICAL ARCHITECTURAL FIX: MANDATORY implementation → experience-execution
+    // RULE ABSOLUE: implementation MUST ALWAYS transition to experience-execution (100% of cases)
+    // RULE ABSOLUE: implementation can NEVER transition to implementation (0% of cases)
+    if (lastStep === 'implementation') {
         // MANDATORY TRANSITION: Always go to experience-execution after implementation
-        // Exception: Only skip if there are critical blocking issues
-        const hasBlockedTasks = tasks && tasks.some(t => t.status === 'BLOCKED');
-        const hasUserRequests = possibleSteps.includes('task-decomposition');
+        // NO EXCEPTIONS ALLOWED - this is a fundamental architectural requirement
 
-        // Skip experience-execution only in exceptional cases
-        if (hasBlockedTasks && !recentlyCompletedTasks?.length) {
-            return 'fix'; // Address blocking issues first
-        } else if (hasUserRequests && !recentlyCompletedTasks?.length) {
-            return 'task-decomposition'; // Process urgent user requests
+        if (possibleSteps.includes('experience-execution')) {
+            // ABSOLUTE PRIORITY: experience-execution is the ONLY valid next step
+            return 'experience-execution';
         } else {
-            // MANDATORY: Go to experience-execution to test the implementation
+            // FALLBACK: If experience-execution is not available for some reason, add it anyway
+            // This should never happen given our getPossibleNextSteps logic, but it's a safety net
             return 'experience-execution';
         }
     }
