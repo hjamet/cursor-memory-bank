@@ -1,64 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 322,
+  "last_id": 325,
   "requests": [
-    {
-      "id": 271,
-      "content": "Ok, j'ai une idée, c'est que je souhaiterais ajouter Un gros bouton sider à l'interface streamitz dans la barre des tâches juste au dessus de Project Dashboard et en fait ce bouton permet de d'indiquer à l'Agence s'il doit rentrer dans une boucle vraiment infinie. Euh ou si dès qu'il arrive à contexte update il s'arrête pour cette section cette session donc. Euh donc actuellement en fait le le tu sais les appels à remember à l'outil remember indique en permanence. Hum hum Tu dois continuer à travailler, tu ne dois jamais t'arrêter, continue à à faire tes tâches, et cetera. Ne t'arrête jamais, recommence et contexte update redirige vers task décomposition ou implémentation, et cetera. Et en fait là, ce que j'aimerais, c'est apporter une une petite modification, c'est que on est dans cette boucle infinie que quand cette boucle infinie est activée dans l'interface streaming et à ce moment là effectivement context bate renvoie vers implémentation vers. Ça, c'était composition, et cetera. Suivant ce qu'il y a à faire. Mais si le cyber est désactivé, Eh bien la règle lors de la règle contexte update et bien le l'agent doit s'arrêter et en fait le l'outil remember doit simplement lui retourner parfait. On on continuera plus tard mais mais pour le moment tu peux t'arrêter pour cette section, faire un petit résumé de tout ce que on a effectué. Euh. Et enfin dans le chat, hein, bien sûr. Et puis c'est tout bien bien joué, on s'arrête là, ce qui permet de recommencer une section propre, un autre chat propre, sachant que on a terminé un peu une partie du travail qu'il y avait à faire puisqu'on en est à contexte update et contexte update. Ça veut dire que grosso modo, on vient d'avoir un code stable, on vient de finir une tâche ou un truc dans ce style. Donc pour faire ça il faut que tu implémentes le bouton de type Sider dans l'interface et il faut que tu modifies du coup l'outil remember que tu modifies aussi la règle START Que tu modifies le. Le Je crois aussi l'outil Next True éventuellement pour que en fait il regarde lorsque ils sont appelés si le le bouton sider est en mode workflow infini ou en mode tâche par tâche. Grosso modo, et que ils adaptent leur prochaine étape recommandée en fonction de ça. Pour permettre ce comportement, je pense qu'il faudrait que le bouton cyder mette à jour un élément dans le fichier .cursor\\memory-bank\\workflow\\workflow_state.json Et que lorsque les outils sont appelés, ils vérifient ce fichier et ils retournent la prochaine étape et aussi ils ils indiquent si le le workflow ne doit jamais s'arrêter ou pas en fonction de ça.",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-21T14:22:08.379651",
-      "updated_at": "2025-07-21T12:23:18.480Z",
-      "history": [
-        {
-          "timestamp": "2025-07-21T14:22:08.379651",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-21T12:23:18.480Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 272,
-      "content": "Modifie l'outil next_rule pour qu'il ne renvoie que les 5 derniers souvenirs de la mémoire de travail et les 5 souvenirs de la mémoire long terme sémantiquement les plus proches (au lieu des 10/3 actuels)",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-21T14:24:59.361935",
-      "updated_at": "2025-07-21T12:28:48.540Z",
-      "history": [
-        {
-          "timestamp": "2025-07-21T14:24:59.361935",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-21T12:28:48.540Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
-      "id": 273,
-      "content": "J'ai l'impression qu'il y a un petit bug qui fait que lorsque une tâche est enfin est créée en tâche, elle ne s'affiche pas dans l'interface streamlit. Ce bug semble Être apparu depuis qu'on a déplacé le fichier qui contenait les tâches tasks.json Donc vérifie si les chemins de fichiers vers ce fichier sont tous cohérents entre l'interface streamlit et les serveurs MCP. Il est possible que ce soit une fausse alerte si ce n'en était pas une, dis le moi bien ça et corrige le problème ! :D",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-21T14:27:01.569859",
-      "updated_at": "2025-07-21T12:29:37.289Z",
-      "history": [
-        {
-          "timestamp": "2025-07-21T14:27:01.569859",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-21T12:29:37.289Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 274,
       "content": "J'ai eu cette erreur dans les logs MCP : 2025-07-21 14:30:45.258 [error] project-0-trail-rag-MemoryBankMCP: Client error for command Unexpected token 'N', \"[NextRule] \"... is not valid JSON\n2025-07-21 14:30:45.259 [error] project-0-trail-rag-MemoryBankMCP: Client error for command Unexpected token 'N', \"[NextRule] \"... is not valid JSON\n\nJe pense que c'est lié à du logging qui vient perturber le protocole de communication MCP. TU peux corriger ? :D",
@@ -970,6 +913,63 @@
         },
         {
           "timestamp": "2025-07-23T22:44:10.741Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 323,
+      "content": "Dans l'appel à next_rule avec implementation, tu peux augmenter le nombre de relevannt long terme memory à 5 et diminuer le nombre de souvenirs de la mémoire de travail retourné de 10 à 5 ?",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-24T00:47:02.397498",
+      "updated_at": "2025-07-23T22:54:35.760Z",
+      "history": [
+        {
+          "timestamp": "2025-07-24T00:47:02.397498",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-23T22:54:35.760Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 324,
+      "content": "Il y a un problème lors de lo'appel à next_rule(context-update) :\n1. L'outil recommande parfois experience-execution sous pretexte qu'il y a des tâches en \"REVIEW\". Or ce n'est pas à l'agent de revoir les tâches en review, mais à l'utilisateur !!!!! Context-udpdate ne peut mener que à :\n- workflow-complete : ssi \"workflow-infini\" est désactivé\n- elif  -> task-decomposition\n- elif tâches non traitées ou en cours de traitement -> implementation\n- else : workflow-complete\n2. Réduis le nombre de souvenirs de la mémoire de travail de 10 à 5.",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-24T00:50:56.519493",
+      "updated_at": "2025-07-23T22:54:59.457Z",
+      "history": [
+        {
+          "timestamp": "2025-07-24T00:50:56.519493",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-23T22:54:59.456Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 325,
+      "content": "Dans l'appel à next-rule(task-decomposition) :\n1. Dimimnue le nombre de souvenirs de la mémoire de travail de 10 à 5\n2. Supprime les souvenirs de la mémoire long terme : L'outil ne devrait pas en retourner\n3. Confirme (ou corrige si besoin) que la règle ne donne que la requête userbrief la plus ancienne comme requête à transformer en tâche (et ne donne pas la liste complète des requêtes userbrief)",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-24T00:53:49.377212",
+      "updated_at": "2025-07-23T22:55:24.603Z",
+      "history": [
+        {
+          "timestamp": "2025-07-24T00:53:49.377212",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-23T22:55:24.603Z",
           "action": "mark_archived"
         }
       ]

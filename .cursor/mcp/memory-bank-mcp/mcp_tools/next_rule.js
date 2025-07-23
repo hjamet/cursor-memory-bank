@@ -181,8 +181,8 @@ async function loadStartWorkflowContext(context) {
         context.project_context = "README.md is missing and a task has been created to generate it.";
     }
 
-    // Load recent memories (standard 10)
-    await loadRecentMemories(context, 10);
+    // Load recent memories (user request: 5)
+    await loadRecentMemories(context, 5);
 
     // Load current task if exists
     await loadCurrentTask(context);
@@ -202,11 +202,11 @@ async function loadStartWorkflowContext(context) {
  * Includes: 1 oldest unprocessed request + complete task list (titles/IDs/descriptions only)
  */
 async function loadTaskDecompositionContext(context) {
-    // Load recent memories (standard 10)
-    await loadRecentMemories(context, 10);
+    // Load recent memories (user request: 5)
+    await loadRecentMemories(context, 5);
 
-    // Load long-term memories (standard 3)
-    await loadLongTermMemories(context, 3);
+    // Load long-term memories (user request: 0)
+    await loadLongTermMemories(context, 0);
 
     // Load only 1 oldest unprocessed request
     await loadUnprocessedRequests(context, 1);
@@ -223,11 +223,11 @@ async function loadTaskDecompositionContext(context) {
  * Includes: only the most urgent task with full details
  */
 async function loadImplementationContext(context) {
-    // Load recent memories (standard 10)
-    await loadRecentMemories(context, 10);
+    // Load recent memories (user request: 5)
+    await loadRecentMemories(context, 5);
 
-    // Load long-term memories (standard 3)
-    await loadLongTermMemories(context, 3);
+    // Load long-term memories (user request: 5)
+    await loadLongTermMemories(context, 5);
 
     // Load only the most urgent task with full details
     await loadMostUrgentTask(context);
@@ -363,11 +363,12 @@ async function loadUnprocessedRequests(context, limit = 3) {
                 new Date(a.created_at) - new Date(b.created_at)
             );
 
-            context.unprocessed_requests = sortedRequests.slice(0, limit);
+            const requestsToProcess = sortedRequests.slice(0, limit);
+            context.unprocessed_requests = requestsToProcess;
             context.userbrief = {
                 version: userbriefData.version,
                 last_id: userbriefData.last_id,
-                requests: sortedRequests.slice(0, limit),
+                requests: requestsToProcess,
                 total_unprocessed_count: allUnprocessedRequests.length
             };
         } else {

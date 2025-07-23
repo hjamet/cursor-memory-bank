@@ -155,9 +155,10 @@ export async function getPossibleNextSteps(lastStep = null) {
 
         // Enhanced: Also recommend experience-execution if there are tasks in REVIEW status
         // This helps validate completed implementations
-        if (tasks && tasks.some(t => t.status === 'REVIEW')) {
-            possibleSteps.add('experience-execution');
-        }
+        // REMOVED as per user request: The agent should not review its own work.
+        // if (tasks && tasks.some(t => t.status === 'REVIEW')) {
+        //     possibleSteps.add('experience-execution');
+        // }
 
         // Default steps that are almost always possible
         // CRITICAL FIX: Do NOT add default steps for implementation - it must only go to experience-execution
@@ -288,11 +289,26 @@ async function getRecommendedStepLogic(lastStep, possibleSteps, tasks = null) {
         // STEP 1: Vérification du mode workflow EN PREMIER (selon spécifications utilisateur)
         const workflowModeForContextUpdate = await loadWorkflowMode();
         if (workflowModeForContextUpdate === 'task_by_task') {
-            // Si workflow-infini est désactivé → dire à l'agent de s'arrêter
-            return 'context-update'; // This will trigger the stopping logic in remember.js
+            // If in task-by-task mode, check if we're idle
+            let userbrief, tasksData;
+            try {
+                userbrief = await readUserbrief();
+                tasksData = tasks || await readTasks();
+            } catch (error) {
+                userbrief = { requests: [] };
+                tasksData = [];
+            }
+            const hasUnprocessedRequests = userbrief && userbrief.requests &&
+                userbrief.requests.some(r => r.status === 'new' || r.status === 'in_progress');
+            const hasActiveTasks = tasksData && tasksData.some(t =>
+                t.status === 'TODO' || t.status === 'IN_PROGRESS' || t.status === 'BLOCKED');
+            
+            if (!hasUnprocessedRequests && !hasActiveTasks) {
+                return 'workflow-complete'; // Stop if idle in task_by_task mode
+            }
         }
 
-        // STEP 2: Vérifier userbrief à traiter (si workflow-infini activé)
+        // STEP 2: Vérifier userbrief à traiter (si workflow-infini activé ou si non-idle en task_by_task)
         let userbrief;
         try {
             userbrief = await readUserbrief();
@@ -314,27 +330,27 @@ async function getRecommendedStepLogic(lastStep, possibleSteps, tasks = null) {
             try {
                 tasks = await readTasks();
             } catch (error) {
-                // If we can't load tasks, apply default stop behavior
-                return 'context-update'; // Trigger stopping in remember.js
+                // If we can't load tasks, default to stopping
+                return 'workflow-complete';
             }
         }
 
         const hasActiveTasks = tasks && tasks.some(t =>
-            t.status === 'TODO' || t.status === 'IN_PROGRESS' || t.status === 'BLOCKED');
+            t.status === 'TODO' || t.status === 'IN_PROGRESS');
 
         if (hasActiveTasks && possibleSteps.includes('implementation')) {
-            // Si il y a des tâches restantes à faire → appeler implementation
             return 'implementation';
         }
-
+        
         // Handle blocked tasks specifically
         if (tasks && tasks.some(t => t.status === 'BLOCKED') && possibleSteps.includes('fix')) {
             return 'fix';
         }
+        
+        // DO NOT check for REVIEW tasks here as per user request.
 
         // STEP 4: Arrêt par défaut (selon spécifications utilisateur)
         // Sinon → dire à l'agent de s'arrêter
-        // FIX: Use workflow-complete to properly terminate the workflow when idle
         return 'workflow-complete';
     }
 

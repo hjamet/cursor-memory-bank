@@ -10300,11 +10300,11 @@
     "short_description": "Create a task to verify the end-to-end functionality of the autonomous workflow system, including task decomposition, implementation, experience execution, context updates, and commit operations.",
     "detailed_description": "This task aims to verify the end-to-end functionality of the autonomous workflow system. This includes ensuring proper task decomposition, implementation, experience execution (testing), context updates, and commit operations.\\n\\n**Analyse Technique & Points de Vigilance:**\\n- The task itself is a functional test of the system.\\n- Need to ensure that the task will trigger all the necessary workflow steps.\\n- Consider how to simulate a 'successful' test to allow the workflow to proceed. This might involve creating a dummy file or running a simple command that always passes.\\n- Validation will involve checking the task status transitions in the system and verifying that a commit is made at the end of the cycle.\\n- No specific code changes are expected for this task directly, but it will drive the workflow.",
     "dependencies": [],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [],
     "validation_criteria": "The task is considered complete when: (1) The task transitions through IN_PROGRESS, REVIEW, and DONE statuses. (2) A commit is generated with a description indicating the successful verification of the workflow.",
     "created_date": "2025-07-23T22:44:09.314Z",
-    "updated_date": "2025-07-23T22:44:26.700Z",
+    "updated_date": "2025-07-24T00:46:14.450852",
     "parent_id": null,
     "priority": 4,
     "image": null,
@@ -10323,6 +10323,180 @@
       }
     ],
     "last_comment": "The workflow test implementation is complete. A dummy file 'dummy_test_file.txt' was created to simulate a successful implementation.",
-    "last_comment_timestamp": "2025-07-23T22:44:26.700Z"
+    "last_comment_timestamp": "2025-07-23T22:44:26.700Z",
+    "validation": {
+      "approved_at": "2025-07-24T00:46:14.429734",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 382,
+    "title": "Modify 'implementation' step in next_rule to adjust memory context",
+    "short_description": "Update the next_rule tool for the 'implementation' step to return 5 long-term memories and 5 working memories, as requested by the user.",
+    "detailed_description": "**Objective:** Modify the `next_rule.js` file to change the number of memories returned for the `implementation` workflow step.\n\n**Requirements:**\n1. When `next_rule` is called with `step_name: 'implementation'`, it should fetch and return 5 relevant long-term memories.\n2. When `next_rule` is called with `step_name: 'implementation'`, it should fetch and return the last 5 working memories (down from 10).\n\n**Technical Analysis & Points to Watch:**\n- The change will be located in the `mcp/tools/next_rule.js` file, within the logic that handles the `implementation` step.\n- Carefully locate the parameters controlling the number of memories (`longTermMemoryCount` and `workingMemoryCount` or similar).\n- Ensure the changes only affect the `implementation` step and do not have unintended side effects on other workflow steps.\n- The modification is straightforward and should not require complex logic changes.\n\n**Validation Criteria:**\n1. After the change, calling `next_rule` with `step_name: 'implementation'` returns a context object containing exactly 5 `recent_memories`.\n2. The same call returns a context object containing exactly 5 `relevant_long_term_memories`.",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "mcp/tools/next_rule.js"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-07-23T22:54:32.953Z",
+    "updated_date": "2025-07-23T22:54:32.953Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 383,
+    "title": "Fix incorrect workflow transitions in context-update step",
+    "short_description": "Correct the workflow transition logic for the 'context-update' step in `next_rule.js` to prevent incorrect recommendations and follow a strict priority order.",
+    "detailed_description": "**Objective:** Correct the workflow logic in `next_rule.js` for the `context-update` step.\n\n**Problem:** The `context-update` step incorrectly recommends `experience-execution` when tasks are in \"REVIEW\" status. This is wrong because the agent should not review its own work; that is the user's role.\n\n**Requirements:**\n1.  The logic for `context-update` in `next_rule.js` must be modified to follow this strict transition order:\n    *   First, check the workflow mode. If `task_by_task`, the workflow should prepare to stop.\n    *   Second, check for unprocessed user requests. If any exist, the next step must be `task-decomposition`.\n    *   Third, check for active tasks (TODO or IN_PROGRESS). If any exist, the next step must be `implementation`.\n    *   Otherwise, the workflow can complete or idle.\n2.  The tool should **never** suggest `experience-execution` from `context-update`.\n\n**Technical Analysis & Points to Watch:**\n- The file to modify is `mcp/tools/next_rule.js`.\n- The logic to change is within the `context-update` case of the main switch statement or function.\n- A long-term memory entry (timestamp: 2025-07-21T13:22:59.408Z) already identified this exact bug, which can be used as a reference.\n- The implementation must strictly adhere to the user-defined transition logic.\n\n**Validation Criteria:**\n1.  When `next_rule` is called with `step_name: 'context-update'`, the returned `recommended_next_step` is never `experience-execution`.\n2.  The transition logic correctly prioritizes `task-decomposition` over `implementation` when unprocessed requests exist.\n3.  The workflow mode is correctly checked before other conditions.",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      "mcp/tools/next_rule.js"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-07-23T22:54:51.959Z",
+    "updated_date": "2025-07-24T00:57:53.534648",
+    "parent_id": null,
+    "priority": 5,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 383,
+    "comments": [
+      {
+        "timestamp": "2025-07-23T22:55:36.839Z",
+        "comment": "I am starting work on this task. It requires code modification to fix workflow logic.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-23T22:56:39.476Z",
+        "comment": "All coding changes for this task and its dependencies are complete. The workflow logic and memory context settings have been updated as requested. Ready for validation.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "All coding changes for this task and its dependencies are complete. The workflow logic and memory context settings have been updated as requested. Ready for validation.",
+    "last_comment_timestamp": "2025-07-23T22:56:39.476Z",
+    "validation": {
+      "approved_at": "2025-07-24T00:57:53.524550",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 384,
+    "title": "Reduce working memories in context-update step",
+    "short_description": "Update the next_rule tool for the 'context-update' step to return 5 working memories instead of 10.",
+    "detailed_description": "**Objective:** Modify the `next_rule.js` file to reduce the number of working memories returned for the `context-update` workflow step.\n\n**Requirements:**\n1. When `next_rule` is called with `step_name: 'context-update'`, it should fetch and return the last 5 working memories (down from 10).\n\n**Technical Analysis & Points to Watch:**\n- The change will be located in the `mcp/tools/next_rule.js` file, within the logic that handles the `context-update` step.\n- Carefully locate the parameter controlling the number of working memories (`workingMemoryCount` or similar).\n- Ensure this change only affects the `context-update` step.\n\n**Validation Criteria:**\n1. After the change, calling `next_rule` with `step_name: 'context-update'` returns a context object containing exactly 5 `recent_memories`.",
+    "dependencies": [
+      383
+    ],
+    "status": "APPROVED",
+    "impacted_files": [
+      "mcp/tools/next_rule.js"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-07-23T22:54:56.886Z",
+    "updated_date": "2025-07-24T00:57:48.649708",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 384,
+    "comments": [
+      {
+        "timestamp": "2025-07-23T22:56:47.549Z",
+        "comment": "Marking task as in progress before moving to review.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-23T22:56:51.628Z",
+        "comment": "This task's changes have been implemented as part of the work on task #383. Ready for validation.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "This task's changes have been implemented as part of the work on task #383. Ready for validation.",
+    "last_comment_timestamp": "2025-07-23T22:56:51.628Z",
+    "validation": {
+      "approved_at": "2025-07-24T00:57:48.639013",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 385,
+    "title": "Adjust memory context for task-decomposition step",
+    "short_description": "Update the next_rule tool for the 'task-decomposition' step to return 5 working memories and 0 long-term memories.",
+    "detailed_description": "**Objective:** Modify the `next_rule.js` file to change the memory context for the `task-decomposition` workflow step.\n\n**Requirements:**\n1. When `next_rule` is called with `step_name: 'task-decomposition'`, it should fetch and return the last 5 working memories (down from 10).\n2. When `next_rule` is called with `step_name: 'task-decomposition'`, it should **not** return any long-term memories. The `relevant_long_term_memories` array in the context should be empty.\n\n**Technical Analysis & Points to Watch:**\n- The changes will be located in the `mcp/tools/next_rule.js` file, within the logic that handles the `task-decomposition` step.\n- The number of working memories needs to be set to 5.\n- The number of long-term memories needs to be set to 0.\n- Ensure these changes only affect the `task-decomposition` step.\n\n**Validation Criteria:**\n1. After the change, calling `next_rule` with `step_name: 'task-decomposition'` returns a context object containing exactly 5 `recent_memories`.\n2. The same call returns a context object where `relevant_long_term_memories` is an empty array.",
+    "dependencies": [],
+    "status": "APPROVED",
+    "impacted_files": [
+      "mcp/tools/next_rule.js"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-07-23T22:55:14.259Z",
+    "updated_date": "2025-07-24T00:57:43.018241",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 385,
+    "comments": [
+      {
+        "timestamp": "2025-07-23T22:56:54.785Z",
+        "comment": "Marking task as in progress before moving to review.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-23T22:56:58.068Z",
+        "comment": "This task's changes have been implemented as part of the work on task #383. Ready for validation.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "This task's changes have been implemented as part of the work on task #383. Ready for validation.",
+    "last_comment_timestamp": "2025-07-23T22:56:58.068Z",
+    "validation": {
+      "approved_at": "2025-07-24T00:57:43.004714",
+      "approved_by": "user_review"
+    }
+  },
+  {
+    "id": 386,
+    "title": "Ensure task-decomposition handles only one user request",
+    "short_description": "Verify that the `task-decomposition` step in `next_rule` only processes the single oldest user request.",
+    "detailed_description": "**Objective:** Verify and, if necessary, correct the logic in `next_rule.js` to ensure that the `task-decomposition` step only receives the single, oldest unprocessed user request.\n\n**Requirements:**\n1.  The logic in `mcp/tools/next_rule.js` for the `task-decomposition` step must be inspected.\n2.  Confirm that the `unprocessed_requests` array passed to the context for this step contains only one element: the oldest request with the status \"new\".\n3.  If the logic currently passes the full list of unprocessed requests, it must be corrected to pass only the oldest one.\n\n**Technical Analysis & Points to Watch:**\n- The relevant file is `mcp/tools/next_rule.js`.\n- The logic to inspect is where the `unprocessed_requests` are retrieved and passed into the context for the `task-decomposition` step.\n- The `userbrief.requests` array should be filtered to find the first request with `status: 'new'` and this single request should be returned in the `unprocessed_requests` context field as an array with one element.\n- The `task-decomposition.md` rule already contains instructions for the agent to only process the oldest request, so this change ensures the tool enforces the rule.\n\n**Validation Criteria:**\n1.  When calling `next_rule` with `step_name: 'task-decomposition'`, the `context.unprocessed_requests` array contains exactly one request.\n2.  The single request in the array is the oldest one with the status \"new\" from the `userbrief.json` file.",
+    "dependencies": [
+      385
+    ],
+    "status": "APPROVED",
+    "impacted_files": [
+      "mcp/tools/next_rule.js"
+    ],
+    "validation_criteria": "",
+    "created_date": "2025-07-23T22:55:21.819Z",
+    "updated_date": "2025-07-24T00:57:39.762865",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 386,
+    "comments": [
+      {
+        "timestamp": "2025-07-23T22:57:01.892Z",
+        "comment": "Marking task as in progress before moving to review.",
+        "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-23T22:57:04.906Z",
+        "comment": "This task's changes have been implemented as part of the work on task #383. Ready for validation.",
+        "status_change": "REVIEW"
+      }
+    ],
+    "last_comment": "This task's changes have been implemented as part of the work on task #383. Ready for validation.",
+    "last_comment_timestamp": "2025-07-23T22:57:04.906Z",
+    "validation": {
+      "approved_at": "2025-07-24T00:57:39.752147",
+      "approved_by": "user_review"
+    }
   }
 ]
