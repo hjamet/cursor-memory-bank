@@ -9863,11 +9863,11 @@
     "dependencies": [
       369
     ],
-    "status": "REVIEW",
+    "status": "APPROVED",
     "impacted_files": [],
     "validation_criteria": "La tâche est terminée quand :\n1. L'appel next_rule(\"task-decomposition\") fournit automatiquement une requête utilisateur\n2. Les données sont équivalentes en qualité et completude à read_userbrief\n3. La logique de sélection des requêtes fonctionne correctement\n4. Les edge cases sont testés et gérés appropriément\n5. Le rapport de validation confirme l'équivalence fonctionnelle",
     "created_date": "2025-07-23T20:45:51.125Z",
-    "updated_date": "2025-07-23T21:16:16.247Z",
+    "updated_date": "2025-07-23T23:16:30.980351",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -9886,7 +9886,11 @@
       }
     ],
     "last_comment": "The automatic integration of `read_userbrief` into the `task-decomposition` step has been validated. The test was a success. The task is now ready for review.",
-    "last_comment_timestamp": "2025-07-23T21:16:16.247Z"
+    "last_comment_timestamp": "2025-07-23T21:16:16.247Z",
+    "validation": {
+      "approved_at": "2025-07-23T23:16:30.970183",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 371,
