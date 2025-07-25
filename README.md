@@ -373,6 +373,17 @@ This project is open source and available for personal and educational use. Plea
 
 ## Troubleshooting 🔧
 
+### **CRITICAL: MCP Server Restart Requirement** ⚠️
+
+**IMPORTANT:** After modifying any MCP server JavaScript files (`.cursor/mcp/memory-bank-mcp/mcp_tools/*.js`), you **MUST restart Cursor completely** for changes to take effect. The MCP server cache does not automatically reload modified code.
+
+**Symptoms of stale MCP cache:**
+- Code changes not reflected in tool behavior
+- Unexpected tool responses or errors
+- Modified logic appears to be ignored
+
+**Solution:** Close Cursor entirely and restart the application.
+
 ### **MCP Server Issues**
 
 If you encounter errors with MCP servers not being found:

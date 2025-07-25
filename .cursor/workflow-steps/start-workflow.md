@@ -430,20 +430,17 @@ If the system is running slowly or consuming excessive resources:
 
 For more detailed troubleshooting, consult the system's working memory and long-term memory for specific error patterns and solutions.
 
-## Pre-commit Hook Verification (Manual)
+## Automatic Task Creation Validation
 
-The installation script installs a pre-commit hook in `.githooks/pre-commit` to check for code files exceeding 500 lines. To manually verify this hook blocks commits correctly:
+The system now uses an **MCP-integrated approach** instead of pre-commit hooks. To verify automatic task creation works correctly:
 
-1. Ensure the rules have been installed using `bash install.sh`.
-2. Initialize a temporary git repository: `mkdir temp_repo && cd temp_repo && git init`
-3. Configure git to use the installed hooks: `git config core.hooksPath ../.githooks`
-4. Create a file longer than 500 lines: `seq 510 > long_file.txt`
-5. Stage the file: `git add long_file.txt`
-6. Attempt to commit:
-   - Using the MCP tool: Call `mcp_MemoryBankMCP_commit` via Cursor with appropriate arguments
-   - OR Using standard git: `git commit -m "Test long file"`
-7. Observe the output. The commit should fail with an error message about file length limits.
-8. Clean up: `cd .. && rm -rf temp_repo` 
+1. Create a test file exceeding 500 lines: `seq 600 > test_large_file.py`
+2. Use the MCP commit tool: `mcp_MemoryBankMCP_commit` with appropriate arguments
+3. Check the commit output for "Automatic Task Creation" section showing detected files
+4. Verify that refactoring tasks are created with correct priorities (500+ lines = Priority 4)
+5. Clean up the test file: `rm test_large_file.py`
+
+**Note:** The old pre-commit hook approach has been completely replaced by this MCP-integrated system, which is more robust and provides better integration with the workflow. 
 
 ### 2. **Current System State**
 
