@@ -10562,15 +10562,25 @@
     "dependencies": [
       387
     ],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "impacted_files": [],
     "validation_criteria": "La modification est complète quand : (1) Le système scanne uniquement les fichiers modifiés via git, (2) Les tâches de refactoring sont créées pour les fichiers modifiés > 500 lignes, (3) Les performances sont mesurablemente améliorées, (4) Des tests valident le bon fonctionnement avec différents états de fichiers git, (5) Le système inclut une gestion d'erreur robuste pour les cas où git n'est pas disponible.",
     "created_date": "2025-07-25T15:15:27.410Z",
-    "updated_date": "2025-07-25T15:15:27.410Z",
+    "updated_date": "2025-07-25T15:21:58.495Z",
     "parent_id": null,
     "priority": 3,
     "image": null,
-    "refactoring_target_file": null
+    "refactoring_target_file": null,
+    "task_id": 388,
+    "comments": [
+      {
+        "timestamp": "2025-07-25T15:21:58.495Z",
+        "comment": "Démarrage de l'implémentation pour modifier le système de scan afin qu'il ne cible que les fichiers modifiés au lieu de scanner tout le projet.",
+        "status_change": "IN_PROGRESS"
+      }
+    ],
+    "last_comment": "Démarrage de l'implémentation pour modifier le système de scan afin qu'il ne cible que les fichiers modifiés au lieu de scanner tout le projet.",
+    "last_comment_timestamp": "2025-07-25T15:21:58.495Z"
   },
   {
     "id": 389,
@@ -10603,6 +10613,58 @@
     "validation_criteria": "La tâche est terminée quand :\n1. Le fichier test_large_file.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification (si applicables)\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies pour Python",
     "created_date": "2025-07-25T15:18:44.093Z",
     "updated_date": "2025-07-25T15:18:44.093Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 391,
+    "title": "Nettoyer les tâches de refactoring obsolètes du test de validation",
+    "short_description": "Supprimer les tâches #389 et #390 qui ont été créées automatiquement pour refactoriser test_large_file.py pendant les tests de validation du système, mais qui sont devenues obsolètes après suppression du fichier de test.",
+    "detailed_description": "Nettoyer les tâches automatiquement créées pendant la phase de test de validation du système de création automatique de tâches.\n\n**Contexte :**\nPendant l'investigation du système de création automatique de tâches (tâche #387), des tâches de refactoring ont été créées automatiquement pour un fichier de test `test_large_file.py`. Ce fichier a été supprimé après validation, rendant ces tâches obsolètes.\n\n**Tâches à nettoyer :**\n- Tâche #389 : \"Refactoriser test_large_file.py - Réduire la taille du fichier\"\n- Tâche #390 : \"Refactoriser test_large_file.py - Réduire la taille du fichier\" (doublon)\n\n**Actions à effectuer :**\n1. Marquer les tâches #389 et #390 comme DONE avec commentaire expliquant l'obsolescence\n2. Ajouter une note que la \"refactorisation\" a été accomplie par suppression du fichier de test\n3. Vérifier qu'aucune autre tâche orpheline n'existe\n\n**Analyse Technique & Points de Vigilance :**\n- **Validation des dépendances** : S'assurer qu'aucune autre tâche ne dépend de ces tâches obsolètes\n- **Nettoyage propre** : Marquer comme DONE plutôt que supprimer pour maintenir l'historique\n- **Documentation** : Expliquer clairement pourquoi ces tâches deviennent obsolètes\n- **Prévention future** : Cette situation illustre le besoin de mieux filtrer les fichiers temporaires\n\n**Critères de validation :**\n- Les tâches #389 et #390 sont marquées comme DONE\n- Des commentaires expliquent leur obsolescence\n- Aucune dépendance cassée détectée\n- Interface Streamlit reflète le nettoyage",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [],
+    "validation_criteria": "La tâche est terminée quand : (1) Les tâches #389 et #390 sont marquées comme DONE, (2) Des commentaires détaillés expliquent leur obsolescence, (3) L'interface Streamlit ne montre plus ces tâches comme actives, (4) Aucune dépendance cassée n'est détectée.",
+    "created_date": "2025-07-25T15:21:10.555Z",
+    "updated_date": "2025-07-25T15:21:10.555Z",
+    "parent_id": null,
+    "priority": 2,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 392,
+    "title": "Augmenter la priorité des tâches de refactoring automatiquement créées",
+    "short_description": "Modifier le système de création automatique de tâches pour assigner des priorités plus élevées aux tâches de refactoring générées pour les fichiers volumineux, afin de mieux refléter l'importance de maintenir la qualité du code.",
+    "detailed_description": "Améliorer le système de priorités dans le module de création automatique de tâches pour refléter l'importance du refactoring des fichiers volumineux.\n\n**Système actuel (à modifier) :**\n- 1500+ lignes : Priorité 5 (Critique)  \n- 1000+ lignes : Priorité 4 (Haute)\n- 500+ lignes : Priorité 3 (Normale)\n\n**Nouveau système proposé :**\n- 1500+ lignes : Priorité 5 (Critique) - inchangé\n- 1000+ lignes : Priorité 5 (Critique) - augmenté de 4 à 5\n- 500+ lignes : Priorité 4 (Haute) - augmenté de 3 à 4\n\n**Justification technique :**\nLes fichiers de plus de 500 lignes représentent un risque significatif pour la maintenabilité et doivent être traités avec une priorité plus élevée pour encourager le refactoring proactif.\n\n**Localisation du code :**\n- Fichier : `.cursor/mcp/memory-bank-mcp/mcp_tools/commit.js`\n- Zone à modifier : Fonction de détermination de priorité (lignes ~205-210)\n\n**Actions à effectuer :**\n1. Modifier la logique de priorité dans commit.js\n2. Tester la nouvelle assignation de priorité\n3. Vérifier que les nouvelles tâches reçoivent les bonnes priorités\n4. Mettre à jour la documentation associée\n\n**Analyse Technique & Points de Vigilance :**\n- **Impact sur l'existant** : Les tâches déjà créées conservent leur priorité actuelle\n- **Cohérence système** : Vérifier que les nouvelles priorités s'alignent avec l'écosystème général\n- **Tests de régression** : Valider que la modification n'impacte pas d'autres fonctionnalités\n- **Documentation** : Mettre à jour le README.md avec les nouvelles priorités\n\n**Critères de validation :**\n- Le code de priorité est modifié dans commit.js\n- Les tests montrent les nouvelles priorités assignées correctement\n- La documentation est mise à jour\n- Les nouvelles tâches automatiques utilisent les priorités améliorées",
+    "dependencies": [
+      388
+    ],
+    "status": "TODO",
+    "impacted_files": [],
+    "validation_criteria": "La tâche est terminée quand : (1) La logique de priorité est modifiée dans commit.js avec les nouveaux seuils, (2) Un test valide que les nouvelles priorités sont correctement assignées, (3) Le README.md reflète les nouvelles priorités, (4) Les tâches automatiquement créées utilisent le nouveau système de priorités.",
+    "created_date": "2025-07-25T15:21:26.801Z",
+    "updated_date": "2025-07-25T15:21:26.801Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 393,
+    "title": "Refactoriser test_modified_scan.py - Réduire la taille du fichier",
+    "short_description": "Décomposer le fichier Python test_modified_scan.py (512 lignes) en modules plus petits de moins de 500 lignes chacun pour améliorer la maintenabilité. Sois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.",
+    "detailed_description": "Le fichier test_modified_scan.py contient actuellement 512 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Type : Python\n- Taille actuelle : 512 lignes\n- Dépassement : 12 lignes au-dessus de la limite\n- Ratio : 1.02x la taille recommandée\n\nSois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.\n\nDans la mesure du possible, teste manuellement et sommairement ton code après le refactoring pour être certain que tu n'as rien cassé. Ne cherches pas à faire des tests unitaires, effectue simplement quelques tests manuels simples et rapides.\n\n**Approches recommandées pour Python :**\n- Séparer les classes en modules distincts\n- Extraire les fonctions utilitaires dans des modules helpers\n- Créer des sous-packages pour les fonctionnalités liées\n- Utiliser des imports relatifs appropriés\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer (si applicables)\n- La documentation doit être mise à jour",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "test_modified_scan.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier test_modified_scan.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification (si applicables)\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies pour Python",
+    "created_date": "2025-07-25T15:24:12.746Z",
+    "updated_date": "2025-07-25T15:24:12.746Z",
     "parent_id": null,
     "priority": 3,
     "image": null,

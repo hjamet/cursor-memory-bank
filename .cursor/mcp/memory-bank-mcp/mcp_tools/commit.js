@@ -43,7 +43,92 @@ function getDefaultCwd() {
 }
 
 /**
- * Recursively scans directory for code files and counts their lines
+ * Gets modified files from git (staged and unstaged changes)
+ * @param {string} cwd - Working directory to run git commands in
+ * @returns {Promise<Array>} Array of modified file paths
+ */
+async function getModifiedFiles(cwd) {
+    try {
+        // Get staged files
+        const stagedResult = await execAsync('git diff --cached --name-only', { cwd });
+        const stagedFiles = stagedResult.stdout.trim() ? stagedResult.stdout.trim().split('\n') : [];
+        
+        // Get unstaged modified files
+        const unstagedResult = await execAsync('git diff --name-only', { cwd });
+        const unstagedFiles = unstagedResult.stdout.trim() ? unstagedResult.stdout.trim().split('\n') : [];
+        
+        // Get untracked files
+        const untrackedResult = await execAsync('git ls-files --others --exclude-standard', { cwd });
+        const untrackedFiles = untrackedResult.stdout.trim() ? untrackedResult.stdout.trim().split('\n') : [];
+        
+        // Combine and deduplicate
+        const allFiles = [...new Set([...stagedFiles, ...unstagedFiles, ...untrackedFiles])];
+        
+        return allFiles.filter(file => file && file.trim() !== '');
+    } catch (error) {
+        console.error('[getModifiedFiles] Error getting modified files:', error.message);
+        return [];
+    }
+}
+
+/**
+ * Scans only modified files to identify oversized code files (>500 lines)
+ * @param {string} cwd - Working directory 
+ * @returns {Promise<Array>} Array of file analysis objects with properties: file, lines, oversized, extension
+ */
+async function scanModifiedCodeFiles(cwd) {
+    const results = [];
+    const MAX_LINES = 500;
+
+    // Supported file extensions (matching the requirements)
+    const SUPPORTED_EXTENSIONS = ['.py', '.js', '.tex', '.html', '.css', '.sh'];
+
+    try {
+        // Get only modified files instead of scanning all files
+        const modifiedFiles = await getModifiedFiles(cwd);
+        
+        for (const relativePath of modifiedFiles) {
+            // Check if file has a supported extension
+            const hasValidExtension = SUPPORTED_EXTENSIONS.some(ext => relativePath.endsWith(ext));
+
+            if (hasValidExtension) {
+                // CRITICAL EXCEPTION: Never scan install.sh from this repository
+                if (relativePath === 'install.sh' || relativePath.endsWith('/install.sh')) {
+                    // Skip install.sh entirely - it's exempt from size limits
+                    continue;
+                }
+
+                const fullPath = path.join(cwd, relativePath);
+                
+                try {
+                    // Check if file exists (might be deleted)
+                    if (fs.existsSync(fullPath)) {
+                        const content = fs.readFileSync(fullPath, 'utf8');
+                        const lineCount = content.split('\n').length;
+
+                        results.push({
+                            file: relativePath,
+                            lines: lineCount,
+                            oversized: lineCount > MAX_LINES,
+                            extension: path.extname(relativePath).toLowerCase()
+                        });
+                    }
+                } catch (fileError) {
+                    // Skip files that can't be read
+                    console.error(`[scanModifiedCodeFiles] Error reading file ${fullPath}:`, fileError.message);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('[scanModifiedCodeFiles] Error scanning modified files:', error.message);
+    }
+
+    return results;
+}
+
+/**
+ * LEGACY: Recursively scans directory for code files and counts their lines
+ * @deprecated Use scanModifiedCodeFiles instead for better performance
  * @param {string} dirPath - Directory to scan
  * @param {string} rootPath - Root path for relative file paths
  * @returns {Array} Array of objects with file info: {file, lines, oversized, fileType}
@@ -377,12 +462,12 @@ export async function handleCommit({ emoji, type, title, description }) {
 
     const commitTitle = `${emoji} ${type}: ${title}`;
 
-    // --- Scan code files before commit ---
+    // --- Scan modified code files before commit ---
     let codeScanResults = [];
     let taskRecommendations = [];
     let createdTasks = [];
     try {
-        codeScanResults = scanCodeFiles(cwd);
+        codeScanResults = await scanModifiedCodeFiles(cwd);
         const oversizedFiles = codeScanResults.filter(file => file.oversized);
         if (oversizedFiles.length > 0) {
             // Generate legacy recommendations for backward compatibility
@@ -392,7 +477,7 @@ export async function handleCommit({ emoji, type, title, description }) {
             createdTasks = await createRefactoringTasks(oversizedFiles);
         }
     } catch (scanError) {
-        console.error('[handleCommit] Error scanning code files:', scanError.message);
+        console.error('[handleCommit] Error scanning modified code files:', scanError.message);
         // Continue with commit even if scan fails
     }
 
