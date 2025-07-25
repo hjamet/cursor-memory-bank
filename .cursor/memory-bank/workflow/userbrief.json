@@ -3,25 +3,6 @@
   "last_id": 328,
   "requests": [
     {
-      "id": 276,
-      "content": "Ok, ceci est une tâche de test pour vérifier si les corrections qu'on a fait ont l'air de fonctionner. Je vais voir si cette tâche est bien visible dans l'interface streaming et que les problèmes entre les différents fichiers Task . json ont été réglés",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-21T14:44:43.549714",
-      "updated_at": "2025-07-21T12:49:27.986Z",
-      "history": [
-        {
-          "timestamp": "2025-07-21T14:44:43.549714",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-21T12:49:27.986Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
-    {
       "id": 277,
       "content": "Ok ça par contre c'est une vraie tâche, j'ai l'impression que la mise à jour automatique de l'interface streamlit N'a plus l'air de fonctionner. C'est un soucis à régler absolument !",
       "status": "archived",
@@ -970,15 +951,19 @@
     {
       "id": 328,
       "content": "Améliore aussi le système de génération automatique de tâche pour le refactoring et splitting de fichier pour que si une tâche existe déjà demandant le refactoring d'un fichier, la tâche devrait être supprimée, puis recréée avec les nouvelles valeurs (car actuellement, j'ai l'impression que ça fait plein de doublons à chaque commit :/)",
-      "status": "new",
+      "status": "archived",
       "image": null,
       "created_at": "2025-07-25T17:23:03.275507",
-      "updated_at": "2025-07-25T17:23:03.275507",
+      "updated_at": "2025-07-25T15:39:41.000Z",
       "history": [
         {
           "timestamp": "2025-07-25T17:23:03.275507",
           "action": "created",
           "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-25T15:39:41.000Z",
+          "action": "mark_archived"
         }
       ]
     }

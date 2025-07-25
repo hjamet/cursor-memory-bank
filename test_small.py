@@ -1,1 +1,1 @@
-print('small file')
+# Petit fichier

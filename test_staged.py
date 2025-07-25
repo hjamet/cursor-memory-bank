@@ -1,4 +1,4 @@
-# Test staged file
+# Fichier staged > 500 lignes
 1
 2
 3

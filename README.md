@@ -433,8 +433,8 @@ The system automatically creates refactoring tasks for oversized files (>500 lin
 
 ### Priority Assignment
 - **1500+ lines**: Priority 5 (Critical)
-- **1000+ lines**: Priority 4 (High) 
-- **500+ lines**: Priority 3 (Normal)
+- **1000+ lines**: Priority 5 (Critical)
+- **500+ lines**: Priority 4 (High)
 
 ### Testing the System
 

@@ -52,18 +52,18 @@ async function getModifiedFiles(cwd) {
         // Get staged files
         const stagedResult = await execAsync('git diff --cached --name-only', { cwd });
         const stagedFiles = stagedResult.stdout.trim() ? stagedResult.stdout.trim().split('\n') : [];
-        
+
         // Get unstaged modified files
         const unstagedResult = await execAsync('git diff --name-only', { cwd });
         const unstagedFiles = unstagedResult.stdout.trim() ? unstagedResult.stdout.trim().split('\n') : [];
-        
+
         // Get untracked files
         const untrackedResult = await execAsync('git ls-files --others --exclude-standard', { cwd });
         const untrackedFiles = untrackedResult.stdout.trim() ? untrackedResult.stdout.trim().split('\n') : [];
-        
+
         // Combine and deduplicate
         const allFiles = [...new Set([...stagedFiles, ...unstagedFiles, ...untrackedFiles])];
-        
+
         return allFiles.filter(file => file && file.trim() !== '');
     } catch (error) {
         console.error('[getModifiedFiles] Error getting modified files:', error.message);
@@ -86,7 +86,7 @@ async function scanModifiedCodeFiles(cwd) {
     try {
         // Get only modified files instead of scanning all files
         const modifiedFiles = await getModifiedFiles(cwd);
-        
+
         for (const relativePath of modifiedFiles) {
             // Check if file has a supported extension
             const hasValidExtension = SUPPORTED_EXTENSIONS.some(ext => relativePath.endsWith(ext));
@@ -99,7 +99,7 @@ async function scanModifiedCodeFiles(cwd) {
                 }
 
                 const fullPath = path.join(cwd, relativePath);
-                
+
                 try {
                     // Check if file exists (might be deleted)
                     if (fs.existsSync(fullPath)) {
@@ -287,11 +287,11 @@ async function createRefactoringTasks(oversizedFiles) {
             const removedExisting = await removeExistingRefactoringTask(fileInfo.file);
 
             // Determine priority based on file size
-            let priority = 3; // Default priority
+            let priority = 4; // Default priority for files >500 lines (increased from 3)
             if (fileInfo.lines > 1500) {
                 priority = 5; // Very high priority for extremely large files
             } else if (fileInfo.lines > 1000) {
-                priority = 4; // High priority for very large files
+                priority = 5; // Very high priority for very large files (increased from 4)
             }
 
             // Get file type description based on extension
@@ -416,10 +416,10 @@ function generateTaskRecommendations(oversizedFiles) {
             file: fileInfo.file,
             current_lines: fileInfo.lines,
             target_lines: 500,
-            priority: fileInfo.lines > 1000 ? 'high' : 'medium',
+            priority: fileInfo.lines > 1000 ? 'critical' : 'high',
             suggested_approach: fileInfo.lines > 1000
                 ? `Décomposition critique requise - ce fichier est ${Math.round(fileInfo.lines / 500)} fois plus grand que la limite recommandée`
-                : `Décomposition recommandée - séparer en modules logiques distincts`
+                : `Décomposition hautement recommandée - séparer en modules logiques distincts`
         };
     });
 }
