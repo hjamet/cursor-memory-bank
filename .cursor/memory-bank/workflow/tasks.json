@@ -10562,11 +10562,11 @@
     "dependencies": [
       387
     ],
-    "status": "IN_PROGRESS",
+    "status": "APPROVED",
     "impacted_files": [],
     "validation_criteria": "La modification est complète quand : (1) Le système scanne uniquement les fichiers modifiés via git, (2) Les tâches de refactoring sont créées pour les fichiers modifiés > 500 lignes, (3) Les performances sont mesurablemente améliorées, (4) Des tests valident le bon fonctionnement avec différents états de fichiers git, (5) Le système inclut une gestion d'erreur robuste pour les cas où git n'est pas disponible.",
     "created_date": "2025-07-25T15:15:27.410Z",
-    "updated_date": "2025-07-25T15:21:58.495Z",
+    "updated_date": "2025-07-25T17:24:44.546966",
     "parent_id": null,
     "priority": 3,
     "image": null,
@@ -10577,10 +10577,19 @@
         "timestamp": "2025-07-25T15:21:58.495Z",
         "comment": "Démarrage de l'implémentation pour modifier le système de scan afin qu'il ne cible que les fichiers modifiés au lieu de scanner tout le projet.",
         "status_change": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2025-07-25T15:24:25.576Z",
+        "comment": "Implémentation complétée avec succès ! Le système de scan a été modifié pour ne cibler que les fichiers modifiés au lieu de scanner tout le projet. Test validé : fichier de 511 lignes détecté automatiquement et tâche de refactoring créée. Performance drastiquement améliorée en évitant le scan complet du projet. Nouvelles fonctions : getModifiedFiles() et scanModifiedCodeFiles(). Rétrocompatibilité préservée avec l'ancienne fonction marquée comme LEGACY.",
+        "status_change": "REVIEW"
       }
     ],
-    "last_comment": "Démarrage de l'implémentation pour modifier le système de scan afin qu'il ne cible que les fichiers modifiés au lieu de scanner tout le projet.",
-    "last_comment_timestamp": "2025-07-25T15:21:58.495Z"
+    "last_comment": "Implémentation complétée avec succès ! Le système de scan a été modifié pour ne cibler que les fichiers modifiés au lieu de scanner tout le projet. Test validé : fichier de 511 lignes détecté automatiquement et tâche de refactoring créée. Performance drastiquement améliorée en évitant le scan complet du projet. Nouvelles fonctions : getModifiedFiles() et scanModifiedCodeFiles(). Rétrocompatibilité préservée avec l'ancienne fonction marquée comme LEGACY.",
+    "last_comment_timestamp": "2025-07-25T15:24:25.576Z",
+    "validation": {
+      "approved_at": "2025-07-25T17:24:44.533508",
+      "approved_by": "user_review"
+    }
   },
   {
     "id": 389,
@@ -10665,6 +10674,42 @@
     "validation_criteria": "La tâche est terminée quand :\n1. Le fichier test_modified_scan.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification (si applicables)\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies pour Python",
     "created_date": "2025-07-25T15:24:12.746Z",
     "updated_date": "2025-07-25T15:24:12.746Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 394,
+    "title": "Refactoriser test_staged.py - Réduire la taille du fichier",
+    "short_description": "Décomposer le fichier Python test_staged.py (522 lignes) en modules plus petits de moins de 500 lignes chacun pour améliorer la maintenabilité. Sois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.",
+    "detailed_description": "Le fichier test_staged.py contient actuellement 522 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Type : Python\n- Taille actuelle : 522 lignes\n- Dépassement : 22 lignes au-dessus de la limite\n- Ratio : 1.04x la taille recommandée\n\nSois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.\n\nDans la mesure du possible, teste manuellement et sommairement ton code après le refactoring pour être certain que tu n'as rien cassé. Ne cherches pas à faire des tests unitaires, effectue simplement quelques tests manuels simples et rapides.\n\n**Approches recommandées pour Python :**\n- Séparer les classes en modules distincts\n- Extraire les fonctions utilitaires dans des modules helpers\n- Créer des sous-packages pour les fonctionnalités liées\n- Utiliser des imports relatifs appropriés\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer (si applicables)\n- La documentation doit être mise à jour",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "test_staged.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier test_staged.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification (si applicables)\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies pour Python",
+    "created_date": "2025-07-25T15:25:12.466Z",
+    "updated_date": "2025-07-25T15:25:12.466Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 395,
+    "title": "Refactoriser test_unstaged.py - Réduire la taille du fichier",
+    "short_description": "Décomposer le fichier Python test_unstaged.py (532 lignes) en modules plus petits de moins de 500 lignes chacun pour améliorer la maintenabilité. Sois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.",
+    "detailed_description": "Le fichier test_unstaged.py contient actuellement 532 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Type : Python\n- Taille actuelle : 532 lignes\n- Dépassement : 32 lignes au-dessus de la limite\n- Ratio : 1.06x la taille recommandée\n\nSois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.\n\nDans la mesure du possible, teste manuellement et sommairement ton code après le refactoring pour être certain que tu n'as rien cassé. Ne cherches pas à faire des tests unitaires, effectue simplement quelques tests manuels simples et rapides.\n\n**Approches recommandées pour Python :**\n- Séparer les classes en modules distincts\n- Extraire les fonctions utilitaires dans des modules helpers\n- Créer des sous-packages pour les fonctionnalités liées\n- Utiliser des imports relatifs appropriés\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer (si applicables)\n- La documentation doit être mise à jour",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "test_unstaged.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier test_unstaged.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification (si applicables)\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies pour Python",
+    "created_date": "2025-07-25T15:25:12.486Z",
+    "updated_date": "2025-07-25T15:25:12.486Z",
     "parent_id": null,
     "priority": 3,
     "image": null,
