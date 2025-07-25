@@ -191,9 +191,10 @@ function scanCodeFiles(dirPath, rootPath = dirPath) {
 }
 
 /**
- * Finds and removes existing refactoring tasks for a specific file
+ * Enhanced function to find and remove existing refactoring tasks for a given file path to prevent duplicates
+ * Includes comprehensive detection logic for both new and legacy refactoring tasks
  * @param {string} filePath - Path of the file to check for existing refactoring tasks
- * @returns {Promise<boolean>} True if an existing task was found and removed, false otherwise
+ * @returns {Promise<{removed: boolean, count: number, details: Array}>} Detailed result of the deduplication process
  */
 async function removeExistingRefactoringTask(filePath) {
     try {
@@ -208,28 +209,113 @@ async function removeExistingRefactoringTask(filePath) {
 
         const data = await fs.readFile(TASKS_FILE_PATH, 'utf-8');
         const tasks = JSON.parse(data);
+        const originalLength = tasks.length;
 
-        // Find existing refactoring task for this file
-        const existingTaskIndex = tasks.findIndex(task =>
-            task.refactoring_target_file === filePath &&
-            task.status !== 'DONE' &&
-            task.status !== 'APPROVED'
-        );
+        // Enhanced detection logic for comprehensive refactoring task identification
+        const removedTasks = [];
+        
+        // Normalize file path for comparison (handle different path separators)
+        const normalizedFilePath = filePath.replace(/\\/g, '/');
+        const fileName = path.basename(filePath);
 
-        if (existingTaskIndex !== -1) {
-            // Remove the existing task
-            tasks.splice(existingTaskIndex, 1);
+        // Filter out existing refactoring tasks using multiple detection methods
+        const filteredTasks = tasks.filter(task => {
+            // Skip tasks that are already completed
+            if (task.status === 'DONE' || task.status === 'APPROVED') {
+                return true; // Keep completed tasks
+            }
 
-            // Write back to file
-            await fs.writeFile(TASKS_FILE_PATH, JSON.stringify(tasks, null, 2), 'utf-8');
+            // Method 1: Check refactoring_target_file field (current method)
+            if (task.refactoring_target_file) {
+                const normalizedTargetFile = task.refactoring_target_file.replace(/\\/g, '/');
+                if (normalizedTargetFile === normalizedFilePath) {
+                    removedTasks.push({
+                        id: task.id,
+                        title: task.title,
+                        method: 'refactoring_target_file',
+                        status: task.status
+                    });
+                    return false; // Remove this task
+                }
+            }
 
-            return true;
+            // Method 2: Check title patterns for refactoring tasks (legacy and new formats)
+            if (task.title) {
+                const titlePatterns = [
+                    new RegExp(`Refactoriser\\s+${fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i'),
+                    new RegExp(`Refactoriser\\s+.*\\s+${fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i'),
+                    new RegExp(`${fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}.*Réduire la taille`, 'i')
+                ];
+
+                for (const pattern of titlePatterns) {
+                    if (pattern.test(task.title)) {
+                        removedTasks.push({
+                            id: task.id,
+                            title: task.title,
+                            method: 'title_pattern',
+                            status: task.status
+                        });
+                        return false; // Remove this task
+                    }
+                }
+            }
+
+            // Method 3: Check impacted_files array for the target file
+            if (task.impacted_files && Array.isArray(task.impacted_files)) {
+                const hasMatchingFile = task.impacted_files.some(impactedFile => {
+                    const normalizedImpactedFile = impactedFile.replace(/\\/g, '/');
+                    return normalizedImpactedFile === normalizedFilePath;
+                });
+
+                if (hasMatchingFile && task.title && task.title.toLowerCase().includes('refactor')) {
+                    removedTasks.push({
+                        id: task.id,
+                        title: task.title,
+                        method: 'impacted_files',
+                        status: task.status
+                    });
+                    return false; // Remove this task
+                }
+            }
+
+            // Method 4: Check detailed_description for file mentions in refactoring context
+            if (task.detailed_description && task.title && task.title.toLowerCase().includes('refactor')) {
+                const normalizedDescription = task.detailed_description.replace(/\\/g, '/');
+                if (normalizedDescription.includes(normalizedFilePath) || normalizedDescription.includes(fileName)) {
+                    removedTasks.push({
+                        id: task.id,
+                        title: task.title,
+                        method: 'description_content',
+                        status: task.status
+                    });
+                    return false; // Remove this task
+                }
+            }
+
+            return true; // Keep this task
+        });
+
+        const removedCount = originalLength - filteredTasks.length;
+
+        // Write back to file only if changes were made
+        if (removedCount > 0) {
+            await fs.writeFile(TASKS_FILE_PATH, JSON.stringify(filteredTasks, null, 2), 'utf-8');
         }
 
-        return false;
+        return {
+            removed: removedCount > 0,
+            count: removedCount,
+            details: removedTasks
+        };
+
     } catch (error) {
         console.error(`[removeExistingRefactoringTask] Error processing file ${filePath}:`, error.message);
-        return false;
+        return {
+            removed: false,
+            count: 0,
+            details: [],
+            error: error.message
+        };
     }
 }
 
@@ -283,8 +369,8 @@ async function createRefactoringTasks(oversizedFiles) {
 
     for (const fileInfo of oversizedFiles) {
         try {
-            // Check and remove existing refactoring task for this file
-            const removedExisting = await removeExistingRefactoringTask(fileInfo.file);
+            // Check and remove existing refactoring task for this file using enhanced deduplication
+            const deduplicationResult = await removeExistingRefactoringTask(fileInfo.file);
 
             // Determine priority based on file size
             let priority = 4; // Default priority for files >500 lines (increased from 3)
@@ -362,7 +448,7 @@ ${getRefactoringApproach(fileType, fileInfo.lines)}
                     title: taskParams.title,
                     priority: priority,
                     status: 'created',
-                    replaced_existing: removedExisting
+                    deduplication: deduplicationResult
                 });
             } else {
                 createdTasks.push({
@@ -552,9 +638,30 @@ export async function handleCommit({ emoji, type, title, description }) {
 
             if (successfulTasks.length > 0) {
                 successMessage += `\n\n✅ Successfully created ${successfulTasks.length} refactoring task(s):`;
+                
+                // Count total deduplicated tasks across all files
+                const totalDeduplicated = successfulTasks.reduce((sum, task) => 
+                    sum + (task.deduplication?.count || 0), 0);
+                
+                if (totalDeduplicated > 0) {
+                    successMessage += `\n   📋 Deduplication: Removed ${totalDeduplicated} existing duplicate task(s)`;
+                }
+                
                 successfulTasks.forEach(task => {
-                    const replacedText = task.replaced_existing ? ' [REPLACED EXISTING]' : ' [NEW]';
-                    successMessage += `\n  • Task #${task.task_id}: ${task.title} (Priority: ${task.priority})${replacedText}`;
+                    const deduplicationInfo = task.deduplication;
+                    let statusText = ' [NEW]';
+                    
+                    if (deduplicationInfo?.removed && deduplicationInfo.count > 0) {
+                        statusText = ` [REPLACED ${deduplicationInfo.count} DUPLICATE(S)]`;
+                        
+                        // Add details about what was replaced
+                        if (deduplicationInfo.details && deduplicationInfo.details.length > 0) {
+                            const methods = [...new Set(deduplicationInfo.details.map(d => d.method))];
+                            statusText += ` (detected via: ${methods.join(', ')})`;
+                        }
+                    }
+                    
+                    successMessage += `\n  • Task #${task.task_id}: ${task.title} (Priority: ${task.priority})${statusText}`;
                 });
             }
 

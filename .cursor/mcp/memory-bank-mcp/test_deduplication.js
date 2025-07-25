@@ -122,8 +122,8 @@ async function runTests() {
 
         // Test 2: Attempt to remove existing task
         console.log('\n🔄 Test 2: Testing deduplication (removing existing task)...');
-        const removed = await removeExistingRefactoringTask(testFile);
-        console.log(`✅ Existing task removed: ${removed}`);
+        const deduplicationResult = await removeExistingRefactoringTask(testFile);
+        console.log(`✅ Deduplication result:`, JSON.stringify(deduplicationResult, null, 2));
 
         const tasksAfterRemove = await readTasks();
         const refactoringTasksAfterRemove = tasksAfterRemove.filter(t => t.refactoring_target_file === testFile);
@@ -131,8 +131,8 @@ async function runTests() {
 
         // Test 3: Try to remove non-existent task
         console.log('\n❌ Test 3: Testing removal of non-existent task...');
-        const removedNonExistent = await removeExistingRefactoringTask('non_existent_file.py');
-        console.log(`✅ Non-existent task removal result: ${removedNonExistent}`);
+        const nonExistentResult = await removeExistingRefactoringTask('non_existent_file.py');
+        console.log(`✅ Non-existent task removal result:`, JSON.stringify(nonExistentResult, null, 2));
 
         // Test 4: Create DONE task and verify it's not removed
         console.log('\n🏁 Test 4: Testing that DONE tasks are not removed...');
@@ -140,8 +140,8 @@ async function runTests() {
         const tasksWithDone = [...tasksAfterRemove, doneTask];
         await writeTasks(tasksWithDone);
 
-        const removedDone = await removeExistingRefactoringTask(testFile);
-        console.log(`✅ DONE task removal result (should be false): ${removedDone}`);
+        const doneTaskResult = await removeExistingRefactoringTask(testFile);
+        console.log(`✅ DONE task removal result (should not remove):`, JSON.stringify(doneTaskResult, null, 2));
 
         const finalTasks = await readTasks();
         const doneTasksRemaining = finalTasks.filter(t => t.refactoring_target_file === testFile && t.status === 'DONE');

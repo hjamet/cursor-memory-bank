@@ -10637,15 +10637,61 @@
     "dependencies": [
       388
     ],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "impacted_files": [
       ".cursor/mcp/memory-bank-mcp/mcp_tools/commit.js"
     ],
     "validation_criteria": "La tâche est terminée quand : (1) Aucune tâche de refactoring en double n'est créée lors des commits successifs, (2) Les nouvelles tâches remplacent correctement les anciennes pour le même fichier, (3) Les tests manuels avec fichiers de différentes tailles confirment le bon fonctionnement, (4) Les logs de commit documentent clairement les actions de déduplication, (5) Le système fonctionne avec les trois types de fichiers modifiés (staged, unstaged, untracked), (6) Aucune régression dans la création de tâches pour les nouveaux fichiers volumineux.",
     "created_date": "2025-07-25T15:39:37.009Z",
-    "updated_date": "2025-07-25T15:39:37.009Z",
+    "updated_date": "2025-07-25T15:50:40.576Z",
     "parent_id": null,
     "priority": 3,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 393,
+    "comments": [
+      {
+        "timestamp": "2025-07-25T15:50:40.576Z",
+        "comment": "Début de l'implémentation de la déduplication des tâches de refactoring automatiques. Analyse de la tâche : modifier le système de création automatique de tâches dans commit.js pour éviter les doublons en détectant les tâches existantes pour un fichier donné et les remplacer intelligemment. Approche technique : ajouter une fonction findExistingRefactoringTasks() et une logique de suppression sélective.",
+        "status_change": "IN_PROGRESS"
+      }
+    ],
+    "last_comment": "Début de l'implémentation de la déduplication des tâches de refactoring automatiques. Analyse de la tâche : modifier le système de création automatique de tâches dans commit.js pour éviter les doublons en détectant les tâches existantes pour un fichier donné et les remplacer intelligemment. Approche technique : ajouter une fonction findExistingRefactoringTasks() et une logique de suppression sélective.",
+    "last_comment_timestamp": "2025-07-25T15:50:40.576Z"
+  },
+  {
+    "id": 394,
+    "title": "Refactoriser .cursor/mcp/memory-bank-mcp/mcp_tools/commit.js - Réduire la taille du fichier",
+    "short_description": "Décomposer le fichier JavaScript .cursor/mcp/memory-bank-mcp/mcp_tools/commit.js (751 lignes) en modules plus petits de moins de 500 lignes chacun pour améliorer la maintenabilité. Sois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.",
+    "detailed_description": "Le fichier .cursor/mcp/memory-bank-mcp/mcp_tools/commit.js contient actuellement 751 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Type : JavaScript\n- Taille actuelle : 751 lignes\n- Dépassement : 251 lignes au-dessus de la limite\n- Ratio : 1.5x la taille recommandée\n\nSois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.\n\nDans la mesure du possible, teste manuellement et sommairement ton code après le refactoring pour être certain que tu n'as rien cassé. Ne cherches pas à faire des tests unitaires, effectue simplement quelques tests manuels simples et rapides.\n\n**Approches recommandées pour JavaScript :**\n- Séparer les composants/fonctions en modules distincts\n- Créer des fichiers utilitaires séparés\n- Utiliser des imports/exports ES6\n- Regrouper les fonctionnalités similaires\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer (si applicables)\n- La documentation doit être mise à jour",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/mcp/memory-bank-mcp/mcp_tools/commit.js"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier .cursor/mcp/memory-bank-mcp/mcp_tools/commit.js a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification (si applicables)\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies pour JavaScript",
+    "created_date": "2025-07-25T15:55:56.088Z",
+    "updated_date": "2025-07-25T15:55:56.088Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 395,
+    "title": "Refactoriser test_deduplication_validation.py - Réduire la taille du fichier",
+    "short_description": "Décomposer le fichier Python test_deduplication_validation.py (580 lignes) en modules plus petits de moins de 500 lignes chacun pour améliorer la maintenabilité. Sois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.",
+    "detailed_description": "Le fichier test_deduplication_validation.py contient actuellement 580 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Type : Python\n- Taille actuelle : 580 lignes\n- Dépassement : 80 lignes au-dessus de la limite\n- Ratio : 1.16x la taille recommandée\n\nSois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.\n\nDans la mesure du possible, teste manuellement et sommairement ton code après le refactoring pour être certain que tu n'as rien cassé. Ne cherches pas à faire des tests unitaires, effectue simplement quelques tests manuels simples et rapides.\n\n**Approches recommandées pour Python :**\n- Séparer les classes en modules distincts\n- Extraire les fonctions utilitaires dans des modules helpers\n- Créer des sous-packages pour les fonctionnalités liées\n- Utiliser des imports relatifs appropriés\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer (si applicables)\n- La documentation doit être mise à jour",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "test_deduplication_validation.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier test_deduplication_validation.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification (si applicables)\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies pour Python",
+    "created_date": "2025-07-25T15:55:56.112Z",
+    "updated_date": "2025-07-25T15:55:56.112Z",
+    "parent_id": null,
+    "priority": 4,
     "image": null,
     "refactoring_target_file": null
   }
