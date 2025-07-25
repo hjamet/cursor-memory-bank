@@ -1,9 +1,6 @@
 ## TLDR
 Performs critical repository maintenance and context curation. Your goal is not just to clean, but to critically evaluate, challenge, and improve the project's core context files, ensuring they are ruthlessly accurate, relevant, and explicitly highlight technical debt and potential issues.
 
-**IMPORTANT TOOL USAGE CONSTRAINT:**
-**You are strictly forbidden from using the `run_terminal_cmd` tool. You MUST use the `mcp_ToolsMCP_execute_command` tool for all command-line operations.**
-
 ## Instructions
 
 0.  **Check for Idle State and Workflow Mode**
@@ -18,7 +15,7 @@ Performs critical repository maintenance and context curation. Your goal is not 
 1.  **Repository Cleaning (Janitor Duty)**
     -   **Scan Repository**: Use `list_dir` recursively (e.g., `list_dir -R .`) to get a full overview of the repository's file structure.
     -   **Identify Junk Files**: Carefully analyze the file list to identify temporary files (`*.tmp`, `*.bak`, `*.swp`), misplaced build artifacts, or other unnecessary files.
-    -   **Delete Files**: Use the `execute_command` tool with the `rm` command to remove all the identified junk files at once. Exercise caution to avoid deleting important files. Your default should be to preserve, not delete : only remove temporary files, one-time-execution tests etc.
+    -   **Delete Files**: Use the terminal tool with the `rm` command to remove all the identified junk files at once. Exercise caution to avoid deleting important files. Your default should be to preserve, not delete : only remove temporary files, one-time-execution tests etc.
 
 2.  **Context File Management (Archivist & Critic Duty)**
  - **Critically Challenge Current Context**: Read the README.md file. Don't take it at face value. Hunt for outdated information, imprecise descriptions, unstated assumptions, or glossed-over complexities that could mislead future work. Ask "Is this still true? Is this precise enough? What's missing?". - **Formulate Improved Content**: If needed, update the README.md file. Your goal is a **brutally honest rewrite**. Remove what's obsolete, clarify what's ambiguous, and explicitly document areas of the project that are poorly understood, carry technical debt, or have known risks. This is not marketing material; it's a pragmatic, internal-facing document. - **Update README if Necessary**: Use `edit_file` to replace outdated content with your improved, critically-reviewed version.

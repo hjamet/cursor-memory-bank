@@ -1,9 +1,6 @@
 ## TLDR
 Analyse en profondeur et corrige les problèmes identifiés en se concentrant sur la cause racine, pas seulement sur les symptômes. Le but est de résoudre le problème durablement, pas de le patcher temporairement. Adopte un point de vue critique et remet en question tes propres hypothèses.
 
-**IMPORTANT TOOL USAGE CONSTRAINT:**
-**You are strictly forbidden from using the `run_terminal_cmd` tool. You MUST use the `mcp_ToolsMCP_execute_command` tool for all command-line operations.**
-
 ## Instructions
 
 1. **Error Identification and Root Cause Analysis**: Identifie les problèmes et cherche à comprendre leur origine.
@@ -29,14 +26,6 @@ Analyse en profondeur et corrige les problèmes identifiés en se concentrant su
 - You should examine the files you know related to the problem but you should also use the codebase search tool in case you are missing something.
 - Use MCP tools for all task management and terminal operations
 - Document all fixes and decisions in the remember tool
-
-## Using the Advanced MCP Terminal Tools
-
-For executing shell commands (including tests), use the MCP terminal tools for better control and monitoring:
-1. **Launch:** Call the `mcp_ToolsMCP_execute_command` MCP tool with the `command` to run and an optional `timeout` in seconds.
-2. **Check Status:** Call the `mcp_ToolsMCP_get_terminal_status` MCP tool with an optional `timeout` in seconds to get the status of running/completed commands.
-3. **Get Output:** Call the `mcp_ToolsMCP_get_terminal_output` MCP tool with the target `pid` and an optional `lines` count to retrieve output.
-4. **Stop & Cleanup:** Call the `mcp_ToolsMCP_stop_terminal_command` MCP tool with the target `pid` to terminate a running command.
 
 ## Next Steps
 - `context-update` - If fixes are complete and context needs updating
@@ -79,7 +68,7 @@ J'applique le correctif. **(Fix: 2.1.3 - Apply correction)**
 
 ### Fix - 2.1.4: Test execution
 I'll test the fix by running the compilation. **(Fix: 2.1.4 - Test execution)**
-[... `mcp_ToolsMCP_execute_command` with compilation command ...]
+[... terminal tool with compilation command ...]
 **(Fix: 2.1.4 - Test execution)**
 
 ### Fix - 2.1.5: Verification

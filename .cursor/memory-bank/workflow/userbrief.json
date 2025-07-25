@@ -1,26 +1,7 @@
 {
   "version": "1.0.0",
-  "last_id": 325,
+  "last_id": 326,
   "requests": [
-    {
-      "id": 274,
-      "content": "J'ai eu cette erreur dans les logs MCP : 2025-07-21 14:30:45.258 [error] project-0-trail-rag-MemoryBankMCP: Client error for command Unexpected token 'N', \"[NextRule] \"... is not valid JSON\n2025-07-21 14:30:45.259 [error] project-0-trail-rag-MemoryBankMCP: Client error for command Unexpected token 'N', \"[NextRule] \"... is not valid JSON\n\nJe pense que c'est lié à du logging qui vient perturber le protocole de communication MCP. TU peux corriger ? :D",
-      "status": "archived",
-      "image": null,
-      "created_at": "2025-07-21T14:32:18.082793",
-      "updated_at": "2025-07-21T12:34:03.071Z",
-      "history": [
-        {
-          "timestamp": "2025-07-21T14:32:18.082793",
-          "action": "created",
-          "comment": "Request created via Streamlit app."
-        },
-        {
-          "timestamp": "2025-07-21T12:34:03.070Z",
-          "action": "mark_archived"
-        }
-      ]
-    },
     {
       "id": 275,
       "content": "J'ai ce grand espace blanc qui appraît parfois dans dans la page Review & Communication de l'interface streamlit : Tu peux fix ?\n\nPar ailleurs, j'ai l'impression que l'auto refresh toutes les 2s ne fonctionne plus :/",
@@ -970,6 +951,25 @@
         },
         {
           "timestamp": "2025-07-23T22:55:24.603Z",
+          "action": "mark_archived"
+        }
+      ]
+    },
+    {
+      "id": 326,
+      "content": "Tu peux modifier le système de création automatique de tâche pour split les fichiers trop gros ? Je souahite que le système ne scanne que les fichiers modifiés (et donc qui vont être commités). Si il identifie des fichiers de plus de 500 lignes, il devrait automatiquement créer une tâche pour les refactoriser. Par ailleurs, vérifie si cette dernière partie fonctionne bien : j'ai l'impression que la tâche n'est poas créée (ou peut-être pas créée dans le bon fichier ?) -> Vérifie en profondeur stp :D",
+      "status": "archived",
+      "image": null,
+      "created_at": "2025-07-25T17:13:21.160878",
+      "updated_at": "2025-07-25T15:15:31.894Z",
+      "history": [
+        {
+          "timestamp": "2025-07-25T17:13:21.160878",
+          "action": "created",
+          "comment": "Request created via Streamlit app."
+        },
+        {
+          "timestamp": "2025-07-25T15:15:31.894Z",
           "action": "mark_archived"
         }
       ]

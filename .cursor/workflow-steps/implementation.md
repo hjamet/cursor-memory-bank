@@ -2,9 +2,6 @@
 
 Methodically implement ONE SINGLE priority task with intelligent routing. **WARNING: Process only ONE SINGLE task per cycle.**
 
-**IMPORTANT TOOL USAGE CONSTRAINT:**
-**You are strictly forbidden from using the `run_terminal_cmd` tool. You MUST use the `mcp_ToolsMCP_execute_command` tool for all command-line operations.**
-
 ## Instructions
 
 0.  **Implementation Counter Update**: AUTOMATICALLY increment the implementation step counter and check for README task triggers.

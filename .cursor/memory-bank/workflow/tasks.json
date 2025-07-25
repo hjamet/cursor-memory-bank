@@ -10517,5 +10517,67 @@
       "approved_at": "2025-07-24T00:57:39.752147",
       "approved_by": "user_review"
     }
+  },
+  {
+    "id": 387,
+    "title": "Investiguer le système de création automatique de tâches pour fichiers volumineux",
+    "short_description": "Analyser en profondeur le système actuel de création automatique de tâches pour les fichiers de plus de 500 lignes. Identifier pourquoi les tâches ne semblent pas être créées correctement ou dans le bon endroit.",
+    "detailed_description": "Effectuer une investigation complète du système de création automatique de tâches pour les fichiers volumineux afin d'identifier les problèmes actuels.\n\n**Objectifs spécifiques :**\n- Localiser le code responsable de la création automatique de tâches pour les fichiers > 500 lignes\n- Analyser le processus actuel de scan des fichiers et de détection des fichiers volumineux\n- Identifier où les tâches devraient être créées et vérifier si elles le sont effectivement\n- Diagnostiquer pourquoi l'utilisateur ne voit pas les tâches créées\n- Documenter le fonctionnement actuel et les problèmes identifiés\n\n**Analyse Technique & Points de Vigilance :**\n- **Localisation du code** : Le système peut être intégré dans plusieurs endroits (pre-commit hooks, workflow steps, MCP servers)\n- **Système de persistance** : Vérifier si les tâches sont créées dans le bon fichier de stockage (.cursor/memory-bank/tasks.json)\n- **Conditions de déclenchement** : Analyser quand et comment le scan des fichiers est déclenché\n- **Critères de détection** : Vérifier la logique de comptage des lignes et le seuil de 500 lignes\n- **Permissions et accès** : S'assurer que le système a les permissions nécessaires pour créer des tâches\n- **Logs et debugging** : Rechercher des traces d'exécution ou d'erreurs qui pourraient expliquer les dysfonctionnements\n\n**Livrables attendus :**\n- Rapport complet sur l'état actuel du système\n- Identification précise des problèmes et de leurs causes\n- Documentation du processus de création automatique de tâches\n- Recommandations pour les corrections nécessaires",
+    "dependencies": [],
+    "status": "IN_PROGRESS",
+    "impacted_files": [],
+    "validation_criteria": "L'investigation est complète quand : (1) Le code de création automatique de tâches a été localisé et analysé, (2) Les problèmes empêchant la création de tâches ont été identifiés, (3) Un rapport détaillé a été rédigé avec les dysfonctionnements et leurs causes, (4) Des recommandations concrètes pour les corrections ont été formulées, (5) Le fonctionnement attendu vs réel est clairement documenté.",
+    "created_date": "2025-07-25T15:15:10.933Z",
+    "updated_date": "2025-07-25T15:15:51.852Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null,
+    "task_id": 387,
+    "comments": [
+      {
+        "timestamp": "2025-07-25T15:15:51.852Z",
+        "comment": "Démarrage de l'investigation du système de création automatique de tâches pour les fichiers volumineux selon la procédure d'implémentation.",
+        "status_change": "IN_PROGRESS"
+      }
+    ],
+    "last_comment": "Démarrage de l'investigation du système de création automatique de tâches pour les fichiers volumineux selon la procédure d'implémentation.",
+    "last_comment_timestamp": "2025-07-25T15:15:51.852Z"
+  },
+  {
+    "id": 388,
+    "title": "Modifier le système de scan pour ne cibler que les fichiers modifiés",
+    "short_description": "Adapter le système de création automatique de tâches pour qu'il scanne uniquement les fichiers modifiés (ceux en cours de commit) au lieu de scanner tous les fichiers du projet. Optimiser les performances et la pertinence des tâches créées.",
+    "detailed_description": "Modifier le système de création automatique de tâches pour les fichiers volumineux afin qu'il ne scanne que les fichiers modifiés qui vont être commités.\n\n**Objectifs spécifiques :**\n- Identifier les fichiers modifiés via git (staged files, working directory changes)\n- Remplacer le scan complet du projet par un scan ciblé des fichiers modifiés\n- Maintenir la logique de détection des fichiers > 500 lignes\n- Assurer que la création automatique de tâches fonctionne pendant les commits\n- Optimiser les performances en évitant le scan inutile de fichiers non modifiés\n\n**Exigences techniques :**\n- Utiliser les commandes git appropriées pour détecter les fichiers modifiés (git diff, git status)\n- Intégrer cette logique dans le processus de pre-commit ou les workflow steps\n- Maintenir la compatibilité avec le système existant de création de tâches\n- Assurer que le système fonctionne même avec des modifications partielles de fichiers\n\n**Analyse Technique & Points de Vigilance :**\n- **Intégration Git** : S'assurer que les commandes git fonctionnent dans tous les environnements (Windows, Linux, macOS)\n- **Performance** : Le scan des fichiers modifiés doit être rapide pour ne pas ralentir les commits\n- **Détection fiable** : Gérer les cas où git n'est pas disponible ou le repo n'est pas initialisé\n- **État des fichiers** : Différencier les fichiers staged, unstaged, et non trackés selon les besoins\n- **Robustesse** : Prévoir les cas d'erreur et les fallbacks appropriés\n- **Compatibilité** : Assurer que le changement n'affecte pas d'autres fonctionnalités du système\n\n**Critères d'acceptation :**\n- Le système scanne uniquement les fichiers modifiés détectés par git\n- Les tâches de refactoring sont créées pour les fichiers modifiés > 500 lignes\n- Les performances sont améliorées par rapport au scan complet\n- Le système reste fonctionnel même si git n'est pas disponible\n- La fonctionnalité existante de création de tâches n'est pas altérée",
+    "dependencies": [
+      387
+    ],
+    "status": "TODO",
+    "impacted_files": [],
+    "validation_criteria": "La modification est complète quand : (1) Le système scanne uniquement les fichiers modifiés via git, (2) Les tâches de refactoring sont créées pour les fichiers modifiés > 500 lignes, (3) Les performances sont mesurablemente améliorées, (4) Des tests valident le bon fonctionnement avec différents états de fichiers git, (5) Le système inclut une gestion d'erreur robuste pour les cas où git n'est pas disponible.",
+    "created_date": "2025-07-25T15:15:27.410Z",
+    "updated_date": "2025-07-25T15:15:27.410Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
+  },
+  {
+    "id": 389,
+    "title": "Refactoriser test_large_file.py - Réduire la taille du fichier",
+    "short_description": "Décomposer le fichier Python test_large_file.py (601 lignes) en modules plus petits de moins de 500 lignes chacun pour améliorer la maintenabilité. Sois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.",
+    "detailed_description": "Le fichier test_large_file.py contient actuellement 601 lignes, ce qui dépasse largement la limite recommandée de 500 lignes.\n\n**Analyse du fichier :**\n- Type : Python\n- Taille actuelle : 601 lignes\n- Dépassement : 101 lignes au-dessus de la limite\n- Ratio : 1.2x la taille recommandée\n\nSois très prudent en effectuant cette modification : Agis étape par étape, une modification après l'autre pour être certain de ne pas casser le code. Tu ne dois absolument pas modifier le comportement du code actuel en quoi que ce soit, simplement décomposer le code en modules plus petits.\n\nDans la mesure du possible, teste manuellement et sommairement ton code après le refactoring pour être certain que tu n'as rien cassé. Ne cherches pas à faire des tests unitaires, effectue simplement quelques tests manuels simples et rapides.\n\n**Approches recommandées pour Python :**\n- Séparer les classes en modules distincts\n- Extraire les fonctions utilitaires dans des modules helpers\n- Créer des sous-packages pour les fonctionnalités liées\n- Utiliser des imports relatifs appropriés\n\n**Critères d'acceptation :**\n- Aucun module ne doit dépasser 500 lignes\n- Les fonctionnalités existantes doivent être préservées\n- Les tests doivent continuer à passer (si applicables)\n- La documentation doit être mise à jour",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      "test_large_file.py"
+    ],
+    "validation_criteria": "La tâche est terminée quand :\n1. Le fichier test_large_file.py a été décomposé en modules de moins de 500 lignes chacun\n2. Toutes les fonctionnalités existantes sont préservées\n3. Les tests unitaires passent sans modification (si applicables)\n4. La documentation est mise à jour pour refléter la nouvelle structure\n5. Les imports et dépendances sont correctement ajustés\n6. Le code suit les conventions de style établies pour Python",
+    "created_date": "2025-07-25T15:18:12.649Z",
+    "updated_date": "2025-07-25T15:18:12.649Z",
+    "parent_id": null,
+    "priority": 3,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]

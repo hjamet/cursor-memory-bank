@@ -1,9 +1,6 @@
 ## TLDR
 Initialize the agent by automatically providing comprehensive project context, system state, and working memory. This step streamlines workflow initialization by eliminating manual context loading and providing all necessary information in a single call.
 
-**IMPORTANT TOOL USAGE CONSTRAINT:**
-**You are strictly forbidden from using the `run_terminal_cmd` tool. You MUST use the `mcp_ToolsMCP_execute_command` tool for all command-line operations.**
-
 ## Instructions
 
 You are now starting the autonomous workflow system. This step automatically provides you with all the context you need to understand the current project state and determine your next actions.
