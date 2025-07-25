@@ -411,17 +411,46 @@ If the system is running slowly or consuming excessive resources:
 
 For more detailed troubleshooting, consult the system's working memory and long-term memory for specific error patterns and solutions.
 
-## Pre-commit Hook Verification (Manual)
+## Automatic Task Creation System 🔧
 
-The installation script installs a pre-commit hook in `.githooks/pre-commit` to check for code files exceeding 500 lines. To manually verify this hook blocks commits correctly:
+The system automatically creates refactoring tasks for oversized files (>500 lines) **integrated directly into the MCP commit tool**. This replaces the traditional pre-commit hook approach.
 
-1. Ensure the rules have been installed using `bash install.sh`.
-2. Initialize a temporary git repository: `mkdir temp_repo && cd temp_repo && git init`
-3. Configure git to use the installed hooks: `git config core.hooksPath ../.githooks`
-4. Create a file longer than 500 lines: `seq 510 > long_file.txt`
-5. Stage the file: `git add long_file.txt`
-6. Attempt to commit:
-   - Using the MCP tool: Call `mcp_MemoryBankMCP_commit` via Cursor with appropriate arguments
-   - OR Using standard git: `git commit -m "Test long file"`
-7. Observe the output. The commit should fail with an error message about file length limits.
-8. Clean up: `cd .. && rm -rf temp_repo`
+### How It Works
+
+**Automatic Detection**: Every time you use `mcp_MemoryBankMCP_commit`, the system:
+1. **Scans all files** in the project with supported extensions (`.py`, `.js`, `.tex`, `.html`, `.css`, `.sh`)
+2. **Detects files** exceeding 500 lines
+3. **Creates refactoring tasks** automatically with appropriate priorities
+4. **Stores tasks** in `.cursor/memory-bank/workflow/tasks.json`
+
+### Supported File Types
+- Python (`.py`)
+- JavaScript (`.js`) 
+- LaTeX (`.tex`)
+- HTML (`.html`)
+- CSS (`.css`)
+- Shell scripts (`.sh`)
+
+### Priority Assignment
+- **1500+ lines**: Priority 5 (Critical)
+- **1000+ lines**: Priority 4 (High) 
+- **500+ lines**: Priority 3 (Normal)
+
+### Testing the System
+
+To verify automatic task creation works:
+
+1. Create a test file with >500 lines: `seq 600 > test_file.py`
+2. Commit using the MCP tool: `mcp_MemoryBankMCP_commit` 
+3. Check the commit output for "Automatic Task Creation" section
+4. Verify the task appears in Streamlit interface
+5. Clean up: `rm test_file.py`
+
+### Configuration Notes
+
+**Important**: If you see git hook configuration pointing to `.githooks`, this is obsolete and can be removed:
+```bash
+git config --unset core.hooksPath
+```
+
+The functionality is now **100% integrated** into the MCP workflow - no separate hooks needed.
