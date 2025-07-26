@@ -16,14 +16,14 @@ const MAX_RUNNING_PROCESSES = 10; // Limit concurrent processes
  * Returns the last N lines of output based on lines_to_read parameter.
  */
 export async function handleExecuteCommand({ command, working_directory, reuse_terminal, timeout, lines_to_read = 300 }) {
-    if (timeout > 300) {
+    if (timeout > 60) {
         const errorResult = {
             pid: null,
             cwd: working_directory || null,
             status: 'Failure',
             exit_code: null,
             stdout: '',
-            stderr: 'Error: Timeout cannot exceed 300 seconds (5 minutes).'
+            stderr: 'Error: Timeout cannot exceed 60 seconds (1 minute).'
         };
         return { content: [{ type: "text", text: JSON.stringify(errorResult) }] };
     }

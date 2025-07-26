@@ -19,8 +19,8 @@ const MAX_CHARS_STATUS = 1500;
  * Retrieves status of tracked terminals, optionally waiting for changes.
  */
 export async function handleGetTerminalStatus({ timeout = 0 }) {
-    if (timeout > 300) {
-        return { content: [{ type: "text", text: JSON.stringify({ error: "Timeout cannot exceed 300 seconds (5 minutes).", status_changed: false, terminals: [] }) }] };
+    if (timeout > 60) {
+        return { content: [{ type: "text", text: JSON.stringify({ error: "Timeout cannot exceed 60 seconds (1 minute).", status_changed: false, terminals: [] }) }] };
     }
 
     let status_changed = false;

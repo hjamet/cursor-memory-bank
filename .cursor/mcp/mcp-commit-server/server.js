@@ -218,7 +218,7 @@ server.tool(
 server.tool(
     'get_terminal_status',
     {
-        timeout: z.number().int().optional().default(0).describe("Maximum time in seconds to wait for any running process status to change before returning. 0 means return immediately. Enforced maximum is 300 seconds (5 minutes). I recommend starting with lower timeouts and increasing if necessary while monitoring the process to be able to interrupt it if needed.")
+        timeout: z.number().int().optional().default(0).describe("Maximum time in seconds to wait for any running process status to change before returning. 0 means return immediately. Enforced maximum is 60 seconds (1 minute). I recommend starting with lower timeouts and increasing if necessary while monitoring the process to be able to interrupt it if needed.")
     },
     handleGetTerminalStatus // Use the imported handler
 );
