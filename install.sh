@@ -575,7 +575,7 @@ install_workflow_system() {
     local mcp_servers=("mcp-commit-server")
     if [[ -n "${FULL_INSTALL:-}" ]]; then
         mcp_servers=("mcp-commit-server" "memory-bank-mcp" "tools-mcp")
-        log "Full installation mode: installing all MCP servers"
+        log "Full installation mode: installing all MCP servers and workflow system"
     else
         log "Basic installation mode: installing MyMCP server only"
     fi
@@ -584,7 +584,7 @@ install_workflow_system() {
     local mcp_server_source_dir # Will be set inside the loop
     local mcp_server_target_dir # Will be set inside the loop
 
-    log "Installing workflow system to $target_dir"
+    log "Installing to $target_dir"
 
     # Use curl if specified or if git is not available
     if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
@@ -596,30 +596,42 @@ install_workflow_system() {
         
         # Get commit date from API
         commit_date=$(get_last_commit_date "curl")
-        log "Installing workflow system from master branch (latest commit: $commit_date)"
+        log "Installing from master branch (latest commit: $commit_date)"
 
         # Download mcp.json template
         log "Downloading mcp.json template"
         download_file "$RAW_URL_BASE/.cursor/mcp.json" "$template_mcp_json"
 
-        # Download workflow-steps
-        log "Downloading workflow-steps..."
-        mkdir -p "$workflow_path"
-        local workflow_files=("start-workflow.md" "task-decomposition.md" "implementation.md" "experience-execution.md" "fix.md" "context-update.md")
-        for file in "${workflow_files[@]}"; do
-            download_file "$RAW_URL_BASE/.cursor/workflow-steps/$file" "$workflow_path/$file"
-        done
-        
-        # Download start.mdc rule
-        log "Downloading start.mdc rule..."
-        mkdir -p "$target_dir/.cursor/rules"
-        download_file "$RAW_URL_BASE/.cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"
-
-        # Download pre-commit hook - DISABLED: Now integrated directly in MCP commit tool
-        # log "Downloading .githooks/pre-commit"
-        # local hooks_api_dir="$api_dir/githooks"
-        # mkdir -p "$hooks_api_dir"
-        # download_file "$RAW_URL_BASE/.githooks/pre-commit" "$hooks_api_dir/pre-commit"
+        # Only install workflow components in full mode
+        if [[ -n "${FULL_INSTALL:-}" ]]; then
+            # Download workflow-steps
+            log "Downloading workflow-steps..."
+            mkdir -p "$workflow_path"
+            local workflow_files=("start-workflow.md" "task-decomposition.md" "implementation.md" "experience-execution.md" "fix.md" "context-update.md")
+            for file in "${workflow_files[@]}"; do
+                download_file "$RAW_URL_BASE/.cursor/workflow-steps/$file" "$workflow_path/$file"
+            done
+            
+            # Download start.mdc rule
+            log "Downloading start.mdc rule..."
+            mkdir -p "$target_dir/.cursor/rules"
+            download_file "$RAW_URL_BASE/.cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"
+            
+            # Copy start.mdc as GEMINI.md in .gemini directory
+            log "Downloading start.mdc as GEMINI.md"
+            mkdir -p "$target_dir/.gemini"
+            download_file "$RAW_URL_BASE/.cursor/rules/start.mdc" "$target_dir/GEMINI.md"
+            
+            # Copy mcp.json as settings.json in .gemini directory
+            log "Downloading mcp.json as settings.json to .gemini directory"
+            mkdir -p "$target_dir/.gemini"
+            download_file "$RAW_URL_BASE/.cursor/mcp.json" "$target_dir/.gemini/settings.json"
+        else
+            # Basic mode: only install agent.mdc rule
+            log "Downloading agent.mdc rule..."
+            mkdir -p "$target_dir/.cursor/rules"
+            download_file "$RAW_URL_BASE/.cursor/rules/agent.mdc" "$target_dir/.cursor/rules/agent.mdc"
+        fi
 
         # Clean and setup MCP directories
         log "Setting up MCP server directories..."
@@ -635,6 +647,17 @@ install_workflow_system() {
                 log "Downloading mcp-commit-server files..."
                 download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/server.js" "$mcp_server_target_dir/server.js"
                 download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/package.json" "$mcp_server_target_dir/package.json"
+                # Download lib files
+                mkdir -p "$mcp_server_target_dir/lib"
+                download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/lib/state_manager.js" "$mcp_server_target_dir/lib/state_manager.js"
+                download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/lib/process_manager.js" "$mcp_server_target_dir/lib/process_manager.js"
+                download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/lib/logger.js" "$mcp_server_target_dir/lib/logger.js"
+                # Download mcp_tools files
+                mkdir -p "$mcp_server_target_dir/mcp_tools"
+                local tools=("terminal_execution.js" "terminal_status.js" "terminal_output.js" "terminal_stop.js" "consult_image.js" "take_pdf_screenshot.js" "webpage_screenshot.js" "read_webpage.js" "replace_content_between.js")
+                for tool in "${tools[@]}"; do
+                    download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/mcp_tools/$tool" "$mcp_server_target_dir/mcp_tools/$tool"
+                done
             elif [[ "$server_name" == "memory-bank-mcp" ]]; then
                 log "Downloading memory-bank-mcp server files..."
                 mkdir -p "$mcp_server_target_dir/lib"
@@ -669,40 +692,67 @@ install_workflow_system() {
         
         # Get commit date
         commit_date=$(get_last_commit_date)
-        log "Installing workflow system from master branch (latest commit: $commit_date)"
+        log "Installing from master branch (latest commit: $commit_date)"
 
-        # Copy workflow-steps
-        if [[ -d "$clone_dir/.cursor/workflow-steps" ]]; then
-            log "Copying workflow-steps..."
-            mkdir -p "$workflow_path"
-            if ! cp -r "$clone_dir/.cursor/workflow-steps/"* "$workflow_path/"; then
-                error "Failed to copy workflow-steps. Please check disk space and permissions."
+        # Only install workflow components in full mode
+        if [[ -n "${FULL_INSTALL:-}" ]]; then
+            # Copy workflow-steps
+            if [[ -d "$clone_dir/.cursor/workflow-steps" ]]; then
+                log "Copying workflow-steps..."
+                mkdir -p "$workflow_path"
+                if ! cp -r "$clone_dir/.cursor/workflow-steps/"* "$workflow_path/"; then
+                    error "Failed to copy workflow-steps. Please check disk space and permissions."
+                fi
+            else
+                warn "workflow-steps directory not found in repository"
+            fi
+            
+            # Copy start.mdc rule
+            if [[ -f "$clone_dir/.cursor/rules/start.mdc" ]]; then
+                log "Copying start.mdc rule..."
+                mkdir -p "$target_dir/.cursor/rules"
+                if ! cp "$clone_dir/.cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"; then
+                    error "Failed to copy start.mdc rule. Please check disk space and permissions."
+                fi
+            else
+                warn "start.mdc rule not found in repository"
+            fi
+            
+            # Copy start.mdc as GEMINI.md in .gemini directory
+            if [[ -f "$clone_dir/.cursor/rules/start.mdc" ]]; then
+                log "Copying start.mdc as GEMINI.md"
+                mkdir -p "$target_dir/.gemini"
+                if ! cp "$clone_dir/.cursor/rules/start.mdc" "$target_dir/GEMINI.md"; then
+                    error "Failed to copy start.mdc as GEMINI.md. Please check permissions."
+                fi
+            else
+                warn "start.mdc rule not found in repository clone at .cursor/rules/start.mdc."
+                touch "$target_dir/GEMINI.md"
+            fi
+            
+            # Copy mcp.json as settings.json in .gemini directory
+            if [[ -f "$clone_dir/.cursor/mcp.json" ]]; then
+                log "Copying mcp.json as settings.json to .gemini directory"
+                mkdir -p "$target_dir/.gemini"
+                if ! cp "$clone_dir/.cursor/mcp.json" "$target_dir/.gemini/settings.json"; then
+                    error "Failed to copy mcp.json as settings.json. Please check permissions."
+                fi
+            else
+                warn "mcp.json template not found in repository clone at .cursor/mcp.json."
+                mkdir -p "$target_dir/.gemini"
+                touch "$target_dir/.gemini/settings.json"
             fi
         else
-            warn "workflow-steps directory not found in repository"
-        fi
-        
-        # Copy start.mdc rule
-        if [[ -f "$clone_dir/.cursor/rules/start.mdc" ]]; then
-            log "Copying start.mdc rule..."
-            mkdir -p "$target_dir/.cursor/rules"
-            if ! cp "$clone_dir/.cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"; then
-                error "Failed to copy start.mdc rule. Please check disk space and permissions."
+            # Basic mode: only install agent.mdc rule
+            if [[ -f "$clone_dir/.cursor/rules/agent.mdc" ]]; then
+                log "Copying agent.mdc rule..."
+                mkdir -p "$target_dir/.cursor/rules"
+                if ! cp "$clone_dir/.cursor/rules/agent.mdc" "$target_dir/.cursor/rules/agent.mdc"; then
+                    error "Failed to copy agent.mdc rule. Please check disk space and permissions."
+                fi
+            else
+                warn "agent.mdc rule not found in repository"
             fi
-        else
-            warn "start.mdc rule not found in repository"
-        fi
-        
-        # Copy start.mdc as GEMINI.md in .gemini directory
-        if [[ -f "$clone_dir/.cursor/rules/start.mdc" ]]; then
-            log "Copying start.mdc as GEMINI.md"
-            mkdir -p "$target_dir/.gemini"
-            if ! cp "$clone_dir/.cursor/rules/start.mdc" "$target_dir/GEMINI.md"; then
-                error "Failed to copy start.mdc as GEMINI.md. Please check permissions."
-            fi
-        else
-            warn "start.mdc rule not found in repository clone at .cursor/rules/start.mdc."
-            touch "$target_dir/GEMINI.md"
         fi
         
         # Copy mcp.json template
@@ -715,21 +765,6 @@ install_workflow_system() {
             warn "mcp.json template not found in repository clone at .cursor/mcp.json."
             touch "$template_mcp_json"
         fi
-        
-        # Copy mcp.json as settings.json in .gemini directory
-        if [[ -f "$clone_dir/.cursor/mcp.json" ]]; then
-            log "Copying mcp.json as settings.json to .gemini directory"
-            mkdir -p "$target_dir/.gemini"
-            if ! cp "$clone_dir/.cursor/mcp.json" "$target_dir/.gemini/settings.json"; then
-                error "Failed to copy mcp.json as settings.json. Please check permissions."
-            fi
-        else
-            warn "mcp.json template not found in repository clone at .cursor/mcp.json."
-            mkdir -p "$target_dir/.gemini"
-            touch "$target_dir/.gemini/settings.json"
-        fi
-
-        
 
         # Clean and setup MCP directories
         log "Setting up MCP server directories..."
@@ -759,11 +794,7 @@ install_workflow_system() {
         done
     fi
 
-    # Set permissions for workflow and MCP directories
-    if [[ -d "$workflow_path" ]]; then
-        chmod -R u+rw "$workflow_path" || true
-    fi
-    
+    # Set permissions for MCP directories
     for server_name in "${mcp_servers[@]}"; do
         local mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
         if [[ -d "$mcp_server_target_dir" ]]; then
@@ -771,10 +802,20 @@ install_workflow_system() {
         fi
     done
 
-    # Manage .gitignore file
-    manage_gitignore "$target_dir"
-
-    log "Workflow system and MCP servers installed successfully"
+    # Only manage .gitignore in full install mode
+    if [[ -n "${FULL_INSTALL:-}" ]]; then
+        # Set permissions for workflow directories
+        if [[ -d "$workflow_path" ]]; then
+            chmod -R u+rw "$workflow_path" || true
+        fi
+        
+        # Manage .gitignore file
+        manage_gitignore "$target_dir"
+        
+        log "Full workflow system and MCP servers installed successfully"
+    else
+        log "MyMCP server installed successfully"
+    fi
 }
 
 # Function to merge MCP JSON template with existing config
@@ -883,30 +924,30 @@ merge_mcp_json() {
     echo "DEBUG: Target directory path (escaped): [$target_dir_json_safe]" >&2
     # --- End DEBUG ---
     
-    # Calculate memory-bank-mcp server script path
-    local memory_bank_script_rel_path=".cursor/mcp/memory-bank-mcp/server.js"
-    local memory_bank_script_path="$target_dir/$memory_bank_script_rel_path"
-    local memory_bank_script_abs_path="$target_dir_abs/${memory_bank_script_rel_path#./}"
-    local memory_bank_script_win_path="$memory_bank_script_abs_path"
-    
-    # Convert memory-bank-mcp script path for Windows if needed
-    if [[ "$os_type" == "Msys" ]]; then
-        if command -v cygpath >/dev/null 2>&1; then
-            if win_path=$(cygpath -w "$memory_bank_script_abs_path"); then
-                memory_bank_script_win_path="$win_path"
+    # Different configuration based on installation mode
+    if [[ -n "${FULL_INSTALL:-}" ]]; then
+        # Calculate memory-bank-mcp server script path for full installation
+        local memory_bank_script_rel_path=".cursor/mcp/memory-bank-mcp/server.js"
+        local memory_bank_script_path="$target_dir/$memory_bank_script_rel_path"
+        local memory_bank_script_abs_path="$target_dir_abs/${memory_bank_script_rel_path#./}"
+        local memory_bank_script_win_path="$memory_bank_script_abs_path"
+        
+        # Convert memory-bank-mcp script path for Windows if needed
+        if [[ "$os_type" == "Msys" ]]; then
+            if command -v cygpath >/dev/null 2>&1; then
+                if win_path=$(cygpath -w "$memory_bank_script_abs_path"); then
+                    memory_bank_script_win_path="$win_path"
+                fi
+            else
+                memory_bank_script_win_path=$(echo "$memory_bank_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
             fi
-        else
-            memory_bank_script_win_path=$(echo "$memory_bank_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
         fi
-    fi
-    
-    # Escape memory-bank-mcp script path for JSON
-    local memory_bank_script_json_safe
-    memory_bank_script_json_safe=$(echo "$memory_bank_script_win_path" | sed 's/\\/\\\\/g')
+        
+        # Escape memory-bank-mcp script path for JSON
+        local memory_bank_script_json_safe
+        memory_bank_script_json_safe=$(echo "$memory_bank_script_win_path" | sed 's/\\/\\\\/g')
 
-    # Overwrite the target file directly using here-document
-    # Using cat > ensures the file is overwritten or created.
-    # Use absolute paths calculated dynamically to work from any execution directory
+        # Full installation: include all servers
 cat > "$target_mcp_json" << EOF
 {
     "mcpVersion": "0.1",
@@ -937,6 +978,24 @@ cat > "$target_mcp_json" << EOF
     }
 }
 EOF
+    else
+        # Basic installation: only MyMCP
+cat > "$target_mcp_json" << EOF
+{
+    "mcpVersion": "0.1",
+    "mcpServers": {
+        "MyMCP": {
+            "command": "node",
+            "args": [
+                "$server_script_json_safe",
+                "--cwd",
+                "$target_dir_json_safe"
+            ]
+        }
+    }
+}
+EOF
+    fi
 
     local write_status=$?
     if [[ $write_status -ne 0 ]]; then
@@ -990,22 +1049,15 @@ configure_gemini_cli_mcp() {
     # Calculate absolute paths for server scripts
     local clean_rel_path="${server_script_rel_path#./}"
     server_script_abs_path="$target_dir_abs/$clean_rel_path"
-    local memory_clean_rel_path="${memory_bank_script_rel_path#./}"
-    memory_bank_script_abs_path="$target_dir_abs/$memory_clean_rel_path"
-
+    
     # Check if server scripts exist
     if [[ ! -f "$target_dir/$server_script_rel_path" ]]; then
         warn "MyMCP server script missing at $target_dir/$server_script_rel_path. Skipping Gemini CLI configuration."
         return 1
     fi
-    if [[ ! -f "$target_dir/$memory_bank_script_rel_path" ]]; then
-        warn "MemoryBankMCP server script missing at $target_dir/$memory_bank_script_rel_path. Skipping Gemini CLI configuration."
-        return 1
-    fi
 
     # Set paths for JSON (no Windows conversion needed for Gemini CLI on Unix-like systems)
     server_script_win_path="$server_script_abs_path"
-    memory_bank_script_win_path="$memory_bank_script_abs_path"
 
     # --- Windows Path Conversion (if needed) ---
     os_type=""
@@ -1015,20 +1067,14 @@ configure_gemini_cli_mcp() {
             if win_path=$(cygpath -w "$server_script_abs_path"); then
                 server_script_win_path="$win_path"
             fi
-            if win_path=$(cygpath -w "$memory_bank_script_abs_path"); then
-                memory_bank_script_win_path="$win_path"
-            fi
         else
             server_script_win_path=$(echo "$server_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
-            memory_bank_script_win_path=$(echo "$memory_bank_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
         fi
     fi
 
     # Escape paths for JSON embedding
     local server_script_json_safe
     server_script_json_safe=$(echo "$server_script_win_path" | sed 's/\\/\\\\/g')
-    local memory_bank_script_json_safe
-    memory_bank_script_json_safe=$(echo "$memory_bank_script_win_path" | sed 's/\\/\\\\/g')
 
     # Create .gemini directory if it doesn't exist
     if ! mkdir -p "$(dirname "$gemini_settings_file")"; then
@@ -1053,18 +1099,43 @@ configure_gemini_cli_mcp() {
         existing_config="{}"
     fi
 
-    # Generate new MCP configuration JSON
+    # Generate new MCP configuration JSON based on installation mode
     log "Preparing to configure Gemini CLI MCP servers..."
     
     # --- DEBUG: Print values before writing ---
     echo "DEBUG: Writing to Gemini settings file: [$gemini_settings_file]" >&2
     echo "DEBUG: MyMCP server script path (escaped): [$server_script_json_safe]" >&2
-    echo "DEBUG: MemoryBankMCP server script path (escaped): [$memory_bank_script_json_safe]" >&2
     # --- End DEBUG ---
 
     # Create new MCP servers configuration
     local new_mcp_config
-    new_mcp_config=$(cat << EOF
+    if [[ -n "${FULL_INSTALL:-}" ]]; then
+        # Full installation: include memory-bank-mcp if it exists
+        local memory_clean_rel_path="${memory_bank_script_rel_path#./}"
+        memory_bank_script_abs_path="$target_dir_abs/$memory_clean_rel_path"
+        
+        # Check if memory-bank-mcp exists
+        if [[ -f "$target_dir/$memory_bank_script_rel_path" ]]; then
+            memory_bank_script_win_path="$memory_bank_script_abs_path"
+            
+            # Convert memory-bank-mcp script path for Windows if needed
+            if [[ "$os_type" == "Msys" ]]; then
+                if command -v cygpath >/dev/null 2>&1; then
+                    if win_path=$(cygpath -w "$memory_bank_script_abs_path"); then
+                        memory_bank_script_win_path="$win_path"
+                    fi
+                else
+                    memory_bank_script_win_path=$(echo "$memory_bank_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
+                fi
+            fi
+            
+            # Escape memory-bank-mcp script path for JSON
+            local memory_bank_script_json_safe
+            memory_bank_script_json_safe=$(echo "$memory_bank_script_win_path" | sed 's/\\/\\\\/g')
+            
+            echo "DEBUG: MemoryBankMCP server script path (escaped): [$memory_bank_script_json_safe]" >&2
+            
+            new_mcp_config=$(cat << EOF
 {
     "MyMCP": {
         "command": "node",
@@ -1081,6 +1152,34 @@ configure_gemini_cli_mcp() {
 }
 EOF
 )
+        else
+            warn "MemoryBankMCP server script missing at $target_dir/$memory_bank_script_rel_path. Configuring with MyMCP only."
+            new_mcp_config=$(cat << EOF
+{
+    "MyMCP": {
+        "command": "node",
+        "args": ["$server_script_json_safe"]
+    },
+    "Context7": {
+        "command": "npx",
+        "args": ["-y", "@upstash/context7-mcp@latest"]
+    }
+}
+EOF
+)
+        fi
+    else
+        # Basic installation: only MyMCP
+        new_mcp_config=$(cat << EOF
+{
+    "MyMCP": {
+        "command": "node",
+        "args": ["$server_script_json_safe"]
+    }
+}
+EOF
+)
+    fi
 
     # CRITICAL FIX: Merge configurations intelligently to preserve existing settings
     local final_config=""
