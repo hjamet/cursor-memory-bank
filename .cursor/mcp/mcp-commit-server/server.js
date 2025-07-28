@@ -32,6 +32,7 @@ import { handleWebpageScreenshot } from './mcp_tools/webpage_screenshot.js';
 import { handleReadWebpage } from './mcp_tools/read_webpage.js';
 // import { handleRegexEdit } from './mcp_tools/regex_edit.js'; // Deprecated
 import { handleReplaceContentBetween } from './mcp_tools/replace_content_between.js';
+import { handleCommit, commitSchema } from './mcp_tools/commit.js';
 
 // --- State Persistence and Logging Setup --- START ---
 const LOGS_DIR = path.join(__dirname, 'logs');
@@ -195,7 +196,8 @@ const server = new McpServer({
             'take_webpage_screenshot': true,
             // 'regex_edit': true, // Deprecated
             'read_webpage': true,
-            'replace_content_between': true
+            'replace_content_between': true,
+            'commit': true
         }
     }
 });
@@ -295,16 +297,29 @@ server.tool(
 );
 */
 
-// Define replace_content_between tool
+// Define replace_content_between tool schema
 server.tool(
     'replace_content_between',
     {
-        target_file: z.string().describe("The relative path to the file to be modified."),
-        start_marker: z.string().describe("The string that marks the beginning of the content to replace."),
-        end_marker: z.string().describe("The string that marks the end of the content to replace."),
-        replacement_content: z.string().describe("The new content to insert between the markers.")
+        file_path: z.string().describe("Path to the file to modify"),
+        start_marker: z.string().describe("Start marker text (will be included in replacement)"),
+        end_marker: z.string().describe("End marker text (will be included in replacement)"),
+        new_content: z.string().describe("New content to replace everything between and including the markers"),
+        backup: z.boolean().optional().default(false).describe("Whether to create a backup file before modification")
     },
-    handleReplaceContentBetween // Use the imported handler directly like other tools
+    handleReplaceContentBetween // Use the imported handler
+);
+
+// Define commit tool schema
+server.tool(
+    'commit',
+    {
+        emoji: z.string().describe("Emoji to use in the commit message (e.g. :sparkles:)"),
+        type: z.string().describe("Type of change (e.g. feat, fix, docs, style, refactor, test, chore)"),
+        title: z.string().describe("Brief commit title"),
+        description: z.string().describe("Detailed description of changes")
+    },
+    handleCommit // Use the imported handler
 );
 
 // --- Server Startup --- 

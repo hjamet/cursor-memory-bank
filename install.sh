@@ -654,7 +654,7 @@ install_workflow_system() {
                 download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/lib/logger.js" "$mcp_server_target_dir/lib/logger.js"
                 # Download mcp_tools files
                 mkdir -p "$mcp_server_target_dir/mcp_tools"
-                local tools=("terminal_execution.js" "terminal_status.js" "terminal_output.js" "terminal_stop.js" "consult_image.js" "take_pdf_screenshot.js" "webpage_screenshot.js" "read_webpage.js" "replace_content_between.js")
+                local tools=("terminal_execution.js" "terminal_status.js" "terminal_output.js" "terminal_stop.js" "consult_image.js" "take_pdf_screenshot.js" "webpage_screenshot.js" "read_webpage.js" "replace_content_between.js" "commit.js")
                 for tool in "${tools[@]}"; do
                     download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/mcp_tools/$tool" "$mcp_server_target_dir/mcp_tools/$tool"
                 done

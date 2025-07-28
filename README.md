@@ -335,7 +335,6 @@ graph TD
 - `mcp_MemoryBankMCP_create_task`: Create new tasks with dependencies
 - `mcp_MemoryBankMCP_update_task`: Update task status and details
 - `mcp_MemoryBankMCP_update_userbrief`: Update request status
-- `mcp_MemoryBankMCP_commit`: Standardized git commit operations
 
 ### **MyMCP Server**
 - `mcp_MyMCP_execute_command`: Terminal command execution
@@ -346,6 +345,7 @@ graph TD
 - `mcp_MyMCP_take_webpage_screenshot`: Web page capture
 - `mcp_MyMCP_read_webpage`: Web content extraction to Markdown
 - `mcp_MyMCP_replace_content_between`: Advanced file editing
+- `mcp_MyMCP_commit`: Git commit operations with oversized file detection
 
 ### **Context7 Server**
 - `mcp_Context7_resolve-library-id`: Find library documentation

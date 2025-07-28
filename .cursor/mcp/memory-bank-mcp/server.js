@@ -3,7 +3,6 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
 import { handleRemember, rememberSchema } from './mcp_tools/remember.js';
 import handleNextRule, { nextRuleSchema } from './mcp_tools/next_rule.js';
-import { handleCommit } from './mcp_tools/commit.js';
 import { handleCreateTask } from './mcp_tools/create_task.js';
 import { handleUpdateTask } from './mcp_tools/update_task.js';
 import { handleUpdateTaskStatus } from './mcp_tools/update_task_status.js';
@@ -35,13 +34,6 @@ function safeHandler(handler) {
 server.tool('remember', rememberSchema, safeHandler(handleRemember));
 
 server.tool('next_rule', nextRuleSchema, safeHandler(handleNextRule));
-
-server.tool('commit', {
-    emoji: z.string().describe("EMOJI DE COMMIT : Emoji unique qui représente le type de changement effectué. Utilisez les emojis conventionnels : ✨ pour nouvelles fonctionnalités, 🐛 pour corrections de bugs, 📝 pour documentation, ♻️ pour refactoring, ✅ pour tests, 🔧 pour configuration, 🚀 pour améliorations de performance, 🔒 pour corrections de sécurité, 💄 pour UI/styling, 🗃️ pour changements de base de données, 🔥 pour suppression de code/fichiers."),
-    type: z.string().describe("TYPE DE COMMIT : Type de commit conventionnel qui catégorise le changement. Utilisez les types standards : 'feat' (nouvelle fonctionnalité), 'fix' (correction de bug), 'docs' (documentation), 'style' (formatage, pas de changement de code), 'refactor' (restructuration de code), 'test' (ajout de tests), 'chore' (maintenance), 'perf' (performance), 'ci' (intégration continue), 'build' (système de build), 'revert' (annulation de changements)."),
-    title: z.string().describe("TITRE DE COMMIT - Rédigez en français un résumé concis à l'impératif du changement (50 caractères ou moins). Commencez par un verbe au présent. Exemples : 'Ajouter le système d'authentification utilisateur', 'Corriger le timeout de connexion base de données', 'Mettre à jour la documentation API', 'Refactoriser la logique de traitement des paiements'. Ne terminez pas par un point."),
-    description: z.string().describe("DESCRIPTION DE COMMIT - Rédigez en français une explication de ce qui a été changé, pourquoi cela a été changé, et tous les détails d'implémentation importants. Utilisez des puces pour plusieurs changements. Exemple : 'Implémentation du système d'authentification basé sur JWT :\\n\\n- Ajout des endpoints de connexion/déconnexion avec hachage des mots de passe\\n- Création du middleware pour les routes protégées\\n- Mise à jour du modèle utilisateur avec les champs d'authentification\\n- Ajout de la gestion de session avec expiration de token 24h\\n\\nCeci résout les exigences de sécurité et permet les fonctionnalités spécifiques à l'utilisateur.'")
-}, safeHandler(handleCommit));
 
 server.tool('create_task', {
     title: z.string().min(1).max(200).describe("TITRE DE TÂCHE - Rédigez en français un titre clair et actionnable qui décrit ce qui doit être accompli (1-200 caractères). Utilisez l'impératif et soyez précis. Exemples : 'Implémenter le système d'authentification utilisateur', 'Corriger les problèmes de timeout de base de données', 'Créer la documentation API pour les endpoints de paiement', 'Refactoriser les composants de l'interface utilisateur'. Évitez les titres vagues comme 'Corriger un bug' ou 'Mettre à jour le code'."),
