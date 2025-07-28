@@ -8,8 +8,14 @@ Un système de workflow autonome avancé pour Cursor avec intégration MCP (Mode
 
 You can install using this one-liner:
 
+**Basic Installation (MyMCP server only):**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash
+```
+
+**Full Installation (all components):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --full-install
 ```
 
 **Note for MINGW64/Git Bash users on Windows:** If you encounter `: command not found` errors during installation, it's likely due to line ending issues when piping directly. Use this modified command instead:
@@ -38,19 +44,23 @@ Available options:
 - `--dir <path>` : Install to a specific directory (default: current directory)
 - `--backup` : Create a backup of existing rules
 - `--force` : Overwrite existing files
+- `--full-install` : Install all components (MyMCP, MemoryBankMCP, Streamlit UI)
 - `--help` : Show help information
 - `--version` : Show version information
 
 Examples:
 ```bash
-# Install to current directory
+# Basic installation (MyMCP only)
 bash install.sh
 
-# Install to a specific directory
-bash install.sh --dir /path/to/install
+# Full installation with all components
+bash install.sh --full-install
+
+# Install to a specific directory with all components
+bash install.sh --dir /path/to/install --full-install
 
 # Create a backup of existing rules
-bash install.sh --backup
+bash install.sh --backup --full-install
 
 # Show help information
 bash install.sh --help
@@ -66,6 +76,29 @@ cd cursor-memory-bank
 bash install.sh [options]
 ```
 
+## Installation Modes 🎯
+
+Cursor Memory Bank offers two installation modes to suit different needs:
+
+### Basic Mode (Default)
+- **What's included:** MyMCP server only
+- **Best for:** Users who want essential terminal operations and file manipulation
+- **Features:** Command execution, file editing, image consultation, web scraping
+- **Size:** Minimal installation footprint
+- **Command:** `bash install.sh` (default)
+
+### Full Mode (`--full-install`)
+- **What's included:** All MCP servers, Streamlit UI, ML model, complete workflow system
+- **Best for:** Users who want the complete autonomous workflow experience
+- **Features:** Task management, persistent memory, autonomous workflow, visual interface, semantic search
+- **Size:** Larger installation with ML dependencies
+- **Command:** `bash install.sh --full-install`
+
+### Choosing Your Mode
+- **Start with Basic:** If you're new to the system or want to try it out
+- **Upgrade to Full:** You can always re-run with `--full-install` to add components later
+- **Development Work:** Full mode recommended for complex projects requiring autonomous workflow
+
 The installation script will:
 - Install the rules to your `.cursor/rules` directory
 - Always preserve any existing custom rules
@@ -74,6 +107,8 @@ The installation script will:
 - Preserve any unrelated files that might be in the .cursor directory
 - Work even if the .cursor directory already exists
 - **Configure Gemini CLI MCP servers** automatically in `~/.gemini/settings.json`
+- With `--full-install`: Set up complete workflow system with all MCP servers, Streamlit UI, and ML model
+- Basic mode (default): Install only MyMCP server for essential terminal operations
 
 ## Gemini CLI Integration 🤖
 

@@ -10673,5 +10673,25 @@
         "timestamp": "2025-07-25T18:00:11.618668"
       }
     ]
+  },
+  {
+    "id": 394,
+    "title": "Corriger les problèmes d'encodage Unicode dans les outils d'exécution de commande",
+    "short_description": "Résoudre les problèmes d'affichage des emojis et caractères Unicode dans les outils terminal_execution.js et process_manager.js. Les flux de sortie Windows ne gèrent pas correctement l'encodage UTF-8.",
+    "detailed_description": "Résoudre les problèmes d'encodage Unicode Windows dans les outils d'exécution de commande :\n\n**Problème identifié :**\n- Les emojis et caractères Unicode ne s'affichent pas correctement dans les sorties de commande sur Windows\n- Les flux stdout/stderr n'utilisent pas l'encodage UTF-8 explicitement\n- Buffer.toString() utilise l'encodage par défaut qui peut poser problème\n\n**Solutions à implémenter :**\n1. **process_manager.js** : Ajouter encoding: 'utf8' aux options de spawn pour Windows\n2. **logger.js** : Forcer l'encodage UTF-8 lors de la lecture des fichiers logs\n3. **terminal_execution.js** : S'assurer que les résultats JSON utilisent UTF-8\n4. **Tester** : Créer un test avec des emojis pour valider la correction\n\n**Approche technique :**\n- Utiliser { encoding: 'utf8' } dans les options de spawn\n- Ajouter 'utf8' explicitement dans les WriteStream et ReadStream\n- Valider avec une commande test contenant des emojis (echo \"Test 🧠 emoji ✅\")\n\n**Critères de validation :**\n- Les emojis s'affichent correctement dans les logs\n- Les commandes echo avec Unicode fonctionnent\n- Pas de régression sur les autres fonctionnalités",
+    "dependencies": [],
+    "status": "TODO",
+    "impacted_files": [
+      ".cursor/mcp/mcp-commit-server/lib/process_manager.js",
+      ".cursor/mcp/mcp-commit-server/lib/logger.js",
+      ".cursor/mcp/mcp-commit-server/mcp_tools/terminal_execution.js"
+    ],
+    "validation_criteria": "La tâche est terminée quand : (1) La commande 'echo \"Test 🧠 emoji ✅\"' affiche correctement les emojis dans les logs, (2) Les flux stdout/stderr utilisent l'encodage UTF-8 explicitement, (3) Aucune régression sur les fonctionnalités existantes",
+    "created_date": "2025-07-28T08:51:56.894Z",
+    "updated_date": "2025-07-28T08:51:56.894Z",
+    "parent_id": null,
+    "priority": 4,
+    "image": null,
+    "refactoring_target_file": null
   }
 ]

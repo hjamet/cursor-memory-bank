@@ -44,8 +44,8 @@ export function createLogStreams(pid) {
     const stdoutLogPath = path.join(LOGS_DIR, `${pid}.stdout.log`);
     const stderrLogPath = path.join(LOGS_DIR, `${pid}.stderr.log`);
     // Using sync version as it's part of the synchronous setup before spawn returns
-    const stdoutStream = fsSync.createWriteStream(stdoutLogPath, { flags: 'a' });
-    const stderrStream = fsSync.createWriteStream(stderrLogPath, { flags: 'a' });
+    const stdoutStream = fsSync.createWriteStream(stdoutLogPath, { flags: 'a', encoding: 'utf8' });
+    const stderrStream = fsSync.createWriteStream(stderrLogPath, { flags: 'a', encoding: 'utf8' });
     return { stdoutLogPath, stderrLogPath, stdoutStream, stderrStream };
 }
 

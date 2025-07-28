@@ -208,7 +208,7 @@ server.tool(
     {
         command: z.string().describe("The command line to execute."),
         reuse_terminal: z.boolean().optional().default(true).describe("If true (default), attempts to clean up one finished terminal state before spawning a new process. Otherwise, always spawns without cleanup."),
-        timeout: z.number().int().optional().default(10).describe("Maximum time in seconds to wait for the command to complete before returning. The command continues in the background if timeout is reached. Enforced maximum is 300 seconds (5 minutes). I recommend using a timeout of 10 seconds, then using the 'get_terminal_status' tool to monitor the process with longer timeouts."),
+        timeout: z.number().int().optional().default(10).describe("Maximum time in seconds to wait for the command to complete before returning. The command continues in the background if timeout is reached. I recommend using a timeout of 10 seconds, then using the 'get_terminal_status' tool to monitor the process with longer timeouts."),
         lines_to_read: z.number().int().optional().default(300).describe("The maximum number of lines to retrieve from the end of each log (stdout, stderr). Default is 300 lines.")
     },
     handleExecuteCommand // Use the imported handler
@@ -218,7 +218,7 @@ server.tool(
 server.tool(
     'get_terminal_status',
     {
-        timeout: z.number().int().optional().default(0).describe("Maximum time in seconds to wait for any running process status to change before returning. 0 means return immediately. Enforced maximum is 60 seconds (1 minute). I recommend starting with lower timeouts and increasing if necessary while monitoring the process to be able to interrupt it if needed.")
+        timeout: z.number().int().optional().default(0).describe("Maximum time in seconds to wait for any running process status to change before returning. 0 means return immediately. I recommend starting with lower timeouts and increasing if necessary while monitoring the process to be able to interrupt it if needed.")
     },
     handleGetTerminalStatus // Use the imported handler
 );

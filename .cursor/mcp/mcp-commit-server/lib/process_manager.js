@@ -112,6 +112,7 @@ export async function spawnProcess(command, explicitWorkingDirectory) {
             detached: true, // Ensure this is true for Windows
             shell: false,   // Crucial for direct bash.exe invocation
             windowsHide: true,
+            encoding: 'utf8' // Add explicit UTF-8 encoding for Windows
         };
     } else { // macOS, Linux, etc.
         shell = '/bin/bash';
@@ -120,7 +121,8 @@ export async function spawnProcess(command, explicitWorkingDirectory) {
             stdio: ['ignore', 'pipe', 'pipe'],
             detached: false, // Keep false for non-Windows, or true if desired for all
             shell: false,    // Using /bin/bash -c implies a shell layer already
-            cwd: executionCwd
+            cwd: executionCwd,
+            encoding: 'utf8' // Add explicit UTF-8 encoding for Unix systems
         };
     }
 
@@ -142,8 +144,8 @@ export async function spawnProcess(command, explicitWorkingDirectory) {
     // --- Setup Logging and State using the obtained PID ---
     const stdout_log = path.join(logsDir, `${pid}_stdout.log`);
     const stderr_log = path.join(logsDir, `${pid}_stderr.log`);
-    const stdout_stream = fs.createWriteStream(stdout_log, { flags: 'a' });
-    const stderr_stream = fs.createWriteStream(stderr_log, { flags: 'a' });
+    const stdout_stream = fs.createWriteStream(stdout_log, { flags: 'a', encoding: 'utf8' });
+    const stderr_stream = fs.createWriteStream(stderr_log, { flags: 'a', encoding: 'utf8' });
 
     // Add initial state entry NOW that we have the PID
     await StateManager.addState({
@@ -159,6 +161,8 @@ export async function spawnProcess(command, explicitWorkingDirectory) {
     });
 
     // Log streams immediately
+    child.stdout.setEncoding('utf8');
+    child.stderr.setEncoding('utf8');
     child.stdout.pipe(stdout_stream);
     child.stderr.pipe(stderr_stream);
 

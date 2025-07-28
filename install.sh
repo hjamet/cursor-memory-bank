@@ -571,8 +571,15 @@ install_workflow_system() {
     local commit_date=""
     local template_mcp_json="$temp_dir/mcp.json" # Define path for template
     
-    # Define the MCP server names to install
-    local mcp_servers=("mcp-commit-server" "memory-bank-mcp" "tools-mcp")
+    # Define the MCP server names to install based on FULL_INSTALL flag
+    local mcp_servers=("mcp-commit-server")
+    if [[ -n "${FULL_INSTALL:-}" ]]; then
+        mcp_servers=("mcp-commit-server" "memory-bank-mcp" "tools-mcp")
+        log "Full installation mode: installing all MCP servers"
+    else
+        log "Basic installation mode: installing MyMCP server only"
+    fi
+    
     local server_name # Loop variable
     local mcp_server_source_dir # Will be set inside the loop
     local mcp_server_target_dir # Will be set inside the loop
@@ -1389,19 +1396,20 @@ Cursor Memory Bank Installation Script v${VERSION}
 Usage: $0 [options]
 
 Options:
-    -h, --help      Show this help message
-    -v, --version   Show version information
-    -d, --dir DIR   Install to a specific directory (default: current directory)
-    --backup        Create a backup of existing rules (disabled by default)
-    --no-backup     Same as default (no backup, kept for backward compatibility)
-    --force         Force installation even if directory is not empty
-    --use-curl      Force using curl instead of git clone
+    -h, --help         Show this help message
+    -v, --version      Show version information
+    -d, --dir DIR      Install to a specific directory (default: current directory)
+    --backup           Create a backup of existing rules (disabled by default)
+    --no-backup        Same as default (no backup, kept for backward compatibility)
+    --force            Force installation even if directory is not empty
+    --use-curl         Force using curl instead of git clone
+    --full-install     Install all components: MyMCP, MemoryBankMCP, and Streamlit UI (default: MyMCP only)
 
 This script will:
 1. Install the Cursor Memory Bank workflow system using git clone or curl
-2. Set up MCP servers (ToolsMCP, MemoryBankMCP, mcp-commit-server)
-3. Download the all-MiniLM-L6-v2 model for semantic search
-4. Install Streamlit UI for monitoring agent status
+2. Set up MCP servers (by default: MyMCP only, with --full-install: ToolsMCP, MemoryBankMCP, mcp-commit-server)
+3. With --full-install: Download the all-MiniLM-L6-v2 model for semantic search
+4. With --full-install: Install Streamlit UI for monitoring agent status
 5. Install start.mdc rule for autonomous workflow operation
 6. Clean up temporary files
 
@@ -1440,6 +1448,7 @@ INSTALL_DIR="."
 DO_BACKUP=""
 FORCE=""
 USE_CURL=""
+FULL_INSTALL=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -1467,6 +1476,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         --use-curl)
             USE_CURL=1
+            ;;
+        --full-install)
+            FULL_INSTALL=1
             ;;
         *)
             error "Unknown option: $1\nUse --help to see available options"
@@ -1500,11 +1512,13 @@ install_workflow_system "$INSTALL_DIR" "$TEMP_DIR"
 # Install pre-commit hook - DISABLED: Now integrated directly in MCP commit tool
 # install_pre_commit_hook "$INSTALL_DIR" "$TEMP_DIR"
 
-# Set up the memory bank to preserve user data
-setup_memory_bank "$INSTALL_DIR" "$TEMP_DIR"
-
-# Create MCP-compatible tasks.json for streamlit_app
-create_mcp_tasks_file "$INSTALL_DIR"
+# Set up the memory bank to preserve user data - only in full install mode
+if [[ -n "${FULL_INSTALL:-}" ]]; then
+    setup_memory_bank "$INSTALL_DIR" "$TEMP_DIR"
+    
+    # Create MCP-compatible tasks.json for streamlit_app
+    create_mcp_tasks_file "$INSTALL_DIR"
+fi
 
 # Merge MCP JSON template with existing config (NOW uses absolute path logic)
 merge_mcp_json "$INSTALL_DIR"
@@ -1651,16 +1665,21 @@ fi
 # fi
 auto_config_failed=0 # Mark as success since we no longer need git hooks
 
-# Install Streamlit App
-install_streamlit_app "$INSTALL_DIR" "$TEMP_DIR"
-
-# Install utility scripts (run_ui.sh is now handled by install_streamlit_app)
-install_utility_scripts "$INSTALL_DIR"
-
-# Install ML Model
-install_ml_model "$INSTALL_DIR"
-
-log "Installation completed successfully!"
+# Install Streamlit App and ML Model - only in full install mode
+if [[ -n "${FULL_INSTALL:-}" ]]; then
+    # Install Streamlit App
+    install_streamlit_app "$INSTALL_DIR" "$TEMP_DIR"
+    
+    # Install utility scripts (run_ui.sh is now handled by install_streamlit_app)
+    install_utility_scripts "$INSTALL_DIR"
+    
+    # Install ML Model
+    install_ml_model "$INSTALL_DIR"
+    
+    log "Full installation completed successfully!"
+else
+    log "Basic installation completed successfully!"
+fi
 
 # Git hooks configuration no longer needed - functionality integrated in MCP commit tool
 # Only show manual step if auto-config failed or was skipped

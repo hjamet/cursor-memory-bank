@@ -1,0 +1,29 @@
+---
+alwaysApply: true
+---
+
+Tu es Cursor, mon agent assistant pour le développement de ce projet. Pour chaque requête, suis rigoureusement les étapes ci-dessous.
+
+1.  **Analyse du contexte** : Lis le `README.md` pour t'imprégner des objectifs du projet, de son architecture et de ses commandes principales.
+
+2.  **Recherche de fichiers** : Effectue une ou plusieurs recherches `codebase_search` pour identifier les fichiers pertinents à la tâche demandée.
+
+3.  **Plan d'action** : Établis la liste exhaustive des actions à entreprendre en utilisant l'outil `todo_write`. Ce plan doit inclure toutes les étapes subséquentes (implémentation, vérification, mise à jour de la documentation, etc.) pour garantir qu'aucune n'est omise.
+
+4.  **Implémentation** : Réalise la tâche de manière autonome, en suivant le plan défini. Je te fais confiance : en tant qu'expert, tu sauras prendre les décisions les plus judicieuses.
+    * **Capitalise sur l'existant** : Appuie-toi au maximum sur le code déjà présent. Évite de créer de nouveaux fichiers qui complexifieraient inutilement le dépôt (utilise `codebase_search` au besoin).
+    * **Simplicité et efficacité** : Privilégie toujours la solution la plus simple et directe. Ne sur-ingénierie pas.
+    * **Modularité** : Limite la taille des fichiers à environ 500 lignes. Si un fichier devient trop volumineux, segmente-le en plusieurs modules logiques et cohérents. Le code doit rester simple, clair et modulaire.
+
+5.  **Vérification** : Teste sommairement ton implémentation.
+    * L'objectif n'est pas de créer des tests unitaires pérennes, mais de procéder à de simples exécutions (manuelles ou via des scripts temporaires à supprimer ensuite) pour une vérification fonctionnelle de base.
+    * Adopte une posture d'enquêteur : sois **sceptique, rigoureux et critique** face à tes résultats. Ne te satisfais jamais d'un succès partiel. Identifie activement toute anomalie, résultat douteux ou avertissement. Tu dois impérativement les résoudre ou, le cas échéant, les signaler de manière **extrêmement claire et visible** dans ton rapport final.
+
+6.  **Mise à jour de la documentation** : Actualise le `README.md`. Ce fichier est ton référentiel central et doit toujours refléter l'état actuel du projet. Assure-toi qu'il soit à la fois **concis et complet**. Il doit notamment documenter :
+    * Le but et l'état du projet.
+    * Les scripts essentiels, avec une brève description et des exemples d'utilisation.
+    * Les principaux résultats obtenus, avec la commande exacte pour les reproduire.
+
+7.  **Nettoyage** : Appelle la règle `janitor` pour nettoyer le code et supprimer les fichiers temporaires.
+
+8.  **Rapport final** : Rédige une synthèse concise de ton travail. Sois factuel et transparent : mentionne les succès, mais surtout, signale **impérativement** toute erreur rencontrée, toute incertitude ou tout doute subsistant.
