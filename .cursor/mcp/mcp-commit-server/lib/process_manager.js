@@ -112,7 +112,15 @@ export async function spawnProcess(command, explicitWorkingDirectory) {
             detached: true, // Ensure this is true for Windows
             shell: false,   // Crucial for direct bash.exe invocation
             windowsHide: true,
-            encoding: 'utf8' // Add explicit UTF-8 encoding for Windows
+            encoding: 'utf8', // Add explicit UTF-8 encoding for Windows
+            env: {
+                ...process.env,
+                // Force UTF-8 encoding for Python and other tools on Windows
+                PYTHONIOENCODING: 'utf-8',
+                PYTHONLEGACYWINDOWSSTDIO: '0', // Enable UTF-8 mode for Windows
+                LC_ALL: 'C.UTF-8',
+                LANG: 'C.UTF-8'
+            }
         };
     } else { // macOS, Linux, etc.
         shell = '/bin/bash';
@@ -122,7 +130,14 @@ export async function spawnProcess(command, explicitWorkingDirectory) {
             detached: false, // Keep false for non-Windows, or true if desired for all
             shell: false,    // Using /bin/bash -c implies a shell layer already
             cwd: executionCwd,
-            encoding: 'utf8' // Add explicit UTF-8 encoding for Unix systems
+            encoding: 'utf8', // Add explicit UTF-8 encoding for Unix systems
+            env: {
+                ...process.env,
+                // Ensure UTF-8 encoding for all platforms
+                PYTHONIOENCODING: 'utf-8',
+                LC_ALL: 'C.UTF-8',
+                LANG: 'C.UTF-8'
+            }
         };
     }
 

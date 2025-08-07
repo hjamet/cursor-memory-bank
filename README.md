@@ -428,6 +428,19 @@ If you encounter errors with MCP servers not being found:
 3. **Restart Cursor**: Complete application restart to refresh MCP cache
 4. **Validate Configuration**: Check `.cursor/mcp.json` for correct server paths
 
+### **Windows Emoji Encoding Issues** 🐛
+
+If you encounter `UnicodeEncodeError` when running commands with emojis on Windows:
+
+**Problem**: Windows uses `cp1252` encoding by default, causing errors with Unicode characters and emojis.
+
+**Solution**: The MyMCP server automatically sets the following environment variables for all processes:
+- `PYTHONIOENCODING=utf-8`: Forces Python to use UTF-8 for I/O operations
+- `PYTHONLEGACYWINDOWSSTDIO=0`: Enables UTF-8 mode on Windows
+- `LC_ALL=C.UTF-8` and `LANG=C.UTF-8`: Sets locale to UTF-8
+
+**Note**: After modifying the MCP server code, you must restart Cursor completely for changes to take effect.
+
 ### **Workflow Issues**
 
 If the autonomous workflow seems stuck or behaving unexpectedly:
