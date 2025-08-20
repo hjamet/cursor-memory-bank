@@ -725,6 +725,17 @@ install_workflow_system() {
             else
                 warn "start.mdc rule not found in repository"
             fi
+
+            # Also copy README.mdc rule when available
+            if [[ -f "$clone_dir/.cursor/rules/README.mdc" ]]; then
+                log "Copying README.mdc rule..."
+                mkdir -p "$target_dir/.cursor/rules"
+                if ! cp "$clone_dir/.cursor/rules/README.mdc" "$target_dir/.cursor/rules/README.mdc"; then
+                    error "Failed to copy README.mdc rule. Please check disk space and permissions."
+                fi
+            else
+                warn "README.mdc rule not found in repository"
+            fi
             
             # Copy start.mdc as GEMINI.md in .gemini directory
             if [[ -f "$clone_dir/.cursor/rules/start.mdc" ]]; then
@@ -751,7 +762,7 @@ install_workflow_system() {
                 touch "$target_dir/.gemini/settings.json"
             fi
         else
-            # Basic mode: only install agent.mdc rule
+            # Basic mode: install agent.mdc rule and README.mdc rule
             if [[ -f "$clone_dir/.cursor/rules/agent.mdc" ]]; then
                 log "Copying agent.mdc rule..."
                 mkdir -p "$target_dir/.cursor/rules"
@@ -760,6 +771,17 @@ install_workflow_system() {
                 fi
             else
                 warn "agent.mdc rule not found in repository"
+            fi
+
+            # Also copy README.mdc rule for basic installs when available
+            if [[ -f "$clone_dir/.cursor/rules/README.mdc" ]]; then
+                log "Copying README.mdc rule..."
+                mkdir -p "$target_dir/.cursor/rules"
+                if ! cp "$clone_dir/.cursor/rules/README.mdc" "$target_dir/.cursor/rules/README.mdc"; then
+                    error "Failed to copy README.mdc rule. Please check disk space and permissions."
+                fi
+            else
+                warn "README.mdc rule not found in repository"
             fi
         fi
         
