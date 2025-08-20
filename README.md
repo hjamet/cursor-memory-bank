@@ -8,7 +8,7 @@ Un système de workflow autonome avancé pour Cursor avec intégration MCP (Mode
 
 You can install using this one-liner:
 
-**Basic Installation (MyMCP server only):**
+**Basic Installation (ToolsMCP server only):**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash
 ```
@@ -44,7 +44,7 @@ Available options:
 - `--dir <path>` : Install to a specific directory (default: current directory)
 - `--backup` : Create a backup of existing rules
 - `--force` : Overwrite existing files
-- `--full-install` : Install all components (MyMCP, MemoryBankMCP, Streamlit UI)
+- `--full-install` : Install all components (ToolsMCP, MemoryBankMCP, Streamlit UI)
 - `--help` : Show help information
 - `--version` : Show version information
 
@@ -52,7 +52,7 @@ Note importante : Le script d'installation `install.sh` met désormais à jour (
 
 Examples:
 ```bash
-# Basic installation (MyMCP only)
+# Basic installation (ToolsMCP only)
 bash install.sh
 
 # Full installation with all components
@@ -83,7 +83,7 @@ bash install.sh [options]
 Cursor Memory Bank offers two installation modes to suit different needs:
 
 ### Basic Mode (Default)
-- **What's included:** MyMCP server only
+- **What's included:** ToolsMCP server only
 - **Best for:** Users who want essential terminal operations and file manipulation
 - **Features:** Command execution, file editing, image consultation, web scraping
 - **Size:** Minimal installation footprint
@@ -110,14 +110,14 @@ Cursor Memory Bank offers two installation modes to suit different needs:
 - Work even if the .cursor directory already exists
 - **Configure Gemini CLI MCP servers** automatically in `~/.gemini/settings.json`
 - With `--full-install`: Set up complete workflow system with all MCP servers, Streamlit UI, and ML model
-- Basic mode (default): Install only MyMCP server for essential terminal operations
+- Basic mode (default): Install only ToolsMCP server for essential terminal operations
 
 ## Gemini CLI Integration 🤖
 
 The installation script automatically configures MCP (Model Context Protocol) servers for Google's Gemini CLI, enabling you to use the same powerful tools in both Cursor and Gemini CLI environments.
 
 ### What Gets Configured
-- **MyMCP**: System operations, terminal commands, and file manipulation
+- **ToolsMCP**: System operations, terminal commands, and file manipulation
 - **MemoryBankMCP**: Task management, persistent memory, and workflow automation
 - **Context7**: Real-time library documentation access
 
@@ -156,7 +156,7 @@ Cursor Memory Bank is an advanced autonomous workflow system that revolutionizes
 - **Status Tracking**: Comprehensive task lifecycle management (TODO, IN_PROGRESS, BLOCKED, REVIEW, DONE)
 
 #### 🔧 **MCP Server Integration**
-- **MyMCP**: Terminal operations, file manipulation, web scraping, and system commands
+- **ToolsMCP**: Terminal operations, file manipulation, web scraping, and system commands
 - **MemoryBankMCP**: Task management, persistent memory, workflow automation, and commit operations
 - **Context7**: Real-time library documentation with semantic search capabilities
 
@@ -338,20 +338,27 @@ graph TD
 - `mcp_MemoryBankMCP_update_task`: Update task status and details
 - `mcp_MemoryBankMCP_update_userbrief`: Update request status
 
-### **MyMCP Server**
-- `mcp_MyMCP_execute_command`: Terminal command execution
-- `mcp_MyMCP_get_terminal_status`: Monitor running processes
-- `mcp_MyMCP_get_terminal_output`: Retrieve command output
-- `mcp_MyMCP_stop_terminal_command`: Stop running processes
-- `mcp_MyMCP_consult_image`: Image analysis and consultation
-- `mcp_MyMCP_take_webpage_screenshot`: Web page capture
-- `mcp_MyMCP_read_webpage`: Web content extraction to Markdown
-- `mcp_MyMCP_replace_content_between`: Advanced file editing
-- `mcp_MyMCP_commit`: Git commit operations with oversized file detection
+### **ToolsMCP Server**
+- `mcp_ToolsMCP_execute_command`: Terminal command execution
+- `mcp_ToolsMCP_get_terminal_status`: Monitor running processes
+- `mcp_ToolsMCP_get_terminal_output`: Retrieve command output
+- `mcp_ToolsMCP_stop_terminal_command`: Stop running processes
+- `mcp_ToolsMCP_consult_image`: Image analysis and consultation
+- `mcp_ToolsMCP_take_webpage_screenshot`: Web page capture
+- `mcp_ToolsMCP_read_webpage`: Web content extraction to Markdown
+- `mcp_ToolsMCP_replace_content_between`: Advanced file editing
+- `mcp_ToolsMCP_commit`: Git commit operations with oversized file detection
 
 ### **Context7 Server**
 - `mcp_Context7_resolve-library-id`: Find library documentation
 - `mcp_Context7_get-library-docs`: Access real-time library docs
+
+## MCP Rule: `mcp`
+
+La règle `mcp` impose deux directives critiques :
+
+- **Toujours** utilise `mcp_ToolsMCP_execute_command` pour exécuter des commandes terminal — ne jamais utiliser l'outil de base `terminal cmd`. Commence par un timeout court (10s) pour vérifier que la commande démarre correctement; si nécessaire, surveille la commande avec `mcp_ToolsMCP_get_terminal_status` en augmentant le timeout (par ex. 30s puis 60s).
+- **Ne commite jamais manuellement.** N'effectue un commit que si l'utilisateur l'a explicitement demandé et a validé les changements, et utilise toujours `mcp_MemoryBankMCP_commit` pour les commits.
 
 ## Streamlit Interface Features 🎨
 
@@ -436,7 +443,7 @@ If you encounter `UnicodeEncodeError` when running commands with emojis on Windo
 
 **Problem**: Windows uses `cp1252` encoding by default, causing errors with Unicode characters and emojis.
 
-**Solution**: The MyMCP server automatically sets the following environment variables for all processes:
+**Solution**: The ToolsMCP server automatically sets the following environment variables for all processes:
 - `PYTHONIOENCODING=utf-8`: Forces Python to use UTF-8 for I/O operations
 - `PYTHONLEGACYWINDOWSSTDIO=0`: Enables UTF-8 mode on Windows
 - `LC_ALL=C.UTF-8` and `LANG=C.UTF-8`: Sets locale to UTF-8

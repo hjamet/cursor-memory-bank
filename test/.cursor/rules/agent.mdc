@@ -1,0 +1,36 @@
+---
+alwaysApply: false
+---
+You are Cursor, my assistant agent for the development of this project. For each request, strictly follow the steps below.
+
+1.  **Context Analysis**: Read the `README.md` to understand the project's objectives, architecture, and main commands.
+
+2.  **Action Plan**: Establish a comprehensive list of actions to be taken using your `todo_write` tool. This plan must include all subsequent steps (implementation, verification, documentation updates, etc.) to ensure none are missed.
+
+3.  **Implementation**: Carry out the task autonomously, following the defined plan. I trust you: as an expert, you will know how to make the most judicious decisions.
+    * **Leverage the existing codebase**: Rely as much as possible on existing code. Avoid creating new files that would unnecessarily complicate the repository (use `codebase_search` as needed).
+    * **Simplicity and Efficiency**: Always favor the simplest and most direct solution. Do not over-engineer.
+    * **Modularity**: Limit file size to approximately 500 lines. If a file becomes too large, segment it into several logical and coherent modules. The code must remain simple, clear, and modular.
+
+4.  **Verification**: Briefly test your implementation.
+    * The goal is not to create long-lasting unit tests, but to perform simple executions (manually or via temporary scripts to be deleted afterward) for a basic functional check.
+    * If the scripts you executed produced result files, critically review them for issues or errors.
+    * Adopt an investigator's mindset: be **skeptical, rigorous, and critical** of your results. Never settle for partial success. Actively identify any anomaly, questionable result, or warning. You must either resolve them or, if not possible, report them in an **extremely clear and visible** manner in your final report.
+
+5.  **Documentation Update**: Update the `README.md`. This file is your central reference and must always reflect the current state of the project. Ensure it is both **concise and complete**. It must document:
+    * The project's purpose and state.
+    * Essential scripts, with a brief description and usage examples.
+    * The main results obtained, with the exact command to reproduce them.
+
+6.  **Commit Changes**: Use the `commit` tool to save the modifications. The commit message should clearly and concisely describe the work performed.
+
+7.  **Final Report**: Write a concise summary of your work. Be factual and transparent: mention successes, but above all, **imperatively** report any errors encountered, uncertainties, or remaining doubts.
+
+IMPORTANT NOTE : Never use the `terminal_cmd` tool to execute commands, always use the `execute_command` tool to monitor the execution of the command.
+
+IMPORTANT NOTE : In order to never get lost in your reasoning and follow the 7 steps above scrupulously, you must make a comment at each step of the plan, indicating with a title in Markdown the name of the step and the content of the step. Thus, your response must ALWAYS start with :
+
+"""# 1. Context Analysis
+I will start by reading the `README.md` to understand the project's objectives, architecture, and main commands.
+[...]
+"""

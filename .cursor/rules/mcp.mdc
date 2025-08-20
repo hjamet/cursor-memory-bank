@@ -1,0 +1,10 @@
+---
+alwaysApply: true
+---
+Ne utilise jamais l'outil de base `terminal cmd`. Utilise systématiquement `mcp_ToolsMCP_execute_command` pour exécuter des commandes.
+
+Commence toujours par un timeout court (10 secondes) pour vérifier que la commande a l'air de fonctionner. Si nécessaire, surveille la commande avec `mcp_ToolsMCP_get_terminal_status` en augmentant le timeout (ex. 30s, puis 60s) selon les besoins de monitoring. Cette procédure est impérative pour la fiabilité et la supervision des commandes longues.
+
+Ne commite jamais manuellement. N'effectue un commit que si l'utilisateur l'a explicitement demandé et a validé les changements.
+
+Pour tous les commits, utilise uniquement `mcp_ToolsMCP_commit` et jamais une commande git manuelle.

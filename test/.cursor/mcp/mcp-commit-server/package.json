@@ -1,0 +1,24 @@
+{
+    "name": "mcp-commit-server",
+    "version": "1.0.0",
+    "description": "MCP Commit Server",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node index.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.10.2",
+        "execa": "^9.5.2",
+        "pdf-to-img": "^4.2.5",
+        "puppeteer": "^22.10.0",
+        "sharp": "^0.33.4",
+        "tree-kill": "^1.2.2",
+        "turndown": "^7.2.0",
+        "zod": "^3.23.8"
+    }
+}

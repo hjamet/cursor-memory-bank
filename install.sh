@@ -597,7 +597,7 @@ install_workflow_system() {
         mcp_servers=("mcp-commit-server" "memory-bank-mcp" "tools-mcp")
         log "Full installation mode: installing all MCP servers and workflow system"
     else
-        log "Basic installation mode: installing MyMCP server only"
+        log "Basic installation mode: installing ToolsMCP server only"
     fi
     
     local server_name # Loop variable
@@ -637,9 +637,11 @@ install_workflow_system() {
             mkdir -p "$target_dir/.cursor/rules"
             download_file "$RAW_URL_BASE/.cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"
 
-            # Download README.mdc rule (keep README rule present in full installs)
+            # Download README.mdc and mcp.mdc rules (keep README and MCP rules present in full installs)
             log "Downloading README.mdc rule..."
             download_file "$RAW_URL_BASE/.cursor/rules/README.mdc" "$target_dir/.cursor/rules/README.mdc"
+            log "Downloading mcp.mdc rule..."
+            download_file "$RAW_URL_BASE/.cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
             
             # Copy start.mdc as GEMINI.md in .gemini directory
             log "Downloading start.mdc as GEMINI.md"
@@ -656,9 +658,11 @@ install_workflow_system() {
             mkdir -p "$target_dir/.cursor/rules"
             download_file "$RAW_URL_BASE/.cursor/rules/agent.mdc" "$target_dir/.cursor/rules/agent.mdc"
 
-            # Also download README.mdc rule for minimal installs
+            # Also download README.mdc and mcp.mdc rules for minimal installs
             log "Downloading README.mdc rule..."
             download_file "$RAW_URL_BASE/.cursor/rules/README.mdc" "$target_dir/.cursor/rules/README.mdc"
+            log "Downloading mcp.mdc rule..."
+            download_file "$RAW_URL_BASE/.cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
         fi
 
         # Clean and setup MCP directories
@@ -864,7 +868,7 @@ install_workflow_system() {
         
         log "Full workflow system and MCP servers installed successfully"
     else
-        log "MyMCP server installed successfully"
+        log "ToolsMCP server installed successfully"
     fi
 }
 
@@ -1002,7 +1006,7 @@ cat > "$target_mcp_json" << EOF
 {
     "mcpVersion": "0.1",
     "mcpServers": {
-        "MyMCP": {
+        "ToolsMCP": {
             "command": "node",
             "args": [
                 "$server_script_json_safe",
@@ -1029,12 +1033,12 @@ cat > "$target_mcp_json" << EOF
 }
 EOF
     else
-        # Basic installation: only MyMCP
+        # Basic installation: only ToolsMCP
 cat > "$target_mcp_json" << EOF
 {
     "mcpVersion": "0.1",
     "mcpServers": {
-        "MyMCP": {
+        "ToolsMCP": {
             "command": "node",
             "args": [
                 "$server_script_json_safe",
@@ -1102,7 +1106,7 @@ configure_gemini_cli_mcp() {
     
     # Check if server scripts exist
     if [[ ! -f "$target_dir/$server_script_rel_path" ]]; then
-        warn "MyMCP server script missing at $target_dir/$server_script_rel_path. Skipping Gemini CLI configuration."
+        warn "ToolsMCP server script missing at $target_dir/$server_script_rel_path. Skipping Gemini CLI configuration."
         return 1
     fi
 
@@ -1154,7 +1158,7 @@ configure_gemini_cli_mcp() {
     
     # --- DEBUG: Print values before writing ---
     echo "DEBUG: Writing to Gemini settings file: [$gemini_settings_file]" >&2
-    echo "DEBUG: MyMCP server script path (escaped): [$server_script_json_safe]" >&2
+    echo "DEBUG: ToolsMCP server script path (escaped): [$server_script_json_safe]" >&2
     # --- End DEBUG ---
 
     # Create new MCP servers configuration
@@ -1187,7 +1191,7 @@ configure_gemini_cli_mcp() {
             
             new_mcp_config=$(cat << EOF
 {
-    "MyMCP": {
+    "ToolsMCP": {
         "command": "node",
         "args": ["$server_script_json_safe"]
     },
@@ -1203,10 +1207,10 @@ configure_gemini_cli_mcp() {
 EOF
 )
         else
-            warn "MemoryBankMCP server script missing at $target_dir/$memory_bank_script_rel_path. Configuring with MyMCP only."
+            warn "MemoryBankMCP server script missing at $target_dir/$memory_bank_script_rel_path. Configuring with ToolsMCP only."
             new_mcp_config=$(cat << EOF
 {
-    "MyMCP": {
+    "ToolsMCP": {
         "command": "node",
         "args": ["$server_script_json_safe"]
     },
@@ -1219,10 +1223,10 @@ EOF
 )
         fi
     else
-        # Basic installation: only MyMCP
+        # Basic installation: only ToolsMCP
         new_mcp_config=$(cat << EOF
 {
-    "MyMCP": {
+    "ToolsMCP": {
         "command": "node",
         "args": ["$server_script_json_safe"]
     }
@@ -1552,11 +1556,11 @@ Options:
     --no-backup        Same as default (no backup, kept for backward compatibility)
     --force            Force installation even if directory is not empty
     --use-curl         Force using curl instead of git clone
-    --full-install     Install all components: MyMCP, MemoryBankMCP, and Streamlit UI (default: MyMCP only)
+    --full-install     Install all components: ToolsMCP, MemoryBankMCP, and Streamlit UI (default: ToolsMCP only)
 
 This script will:
 1. Install the Cursor Memory Bank workflow system using git clone or curl
-2. Set up MCP servers (by default: MyMCP only, with --full-install: ToolsMCP, MemoryBankMCP, mcp-commit-server)
+2. Set up MCP servers (by default: ToolsMCP only, with --full-install: ToolsMCP, MemoryBankMCP, mcp-commit-server)
 3. With --full-install: Download the all-MiniLM-L6-v2 model for semantic search
 4. With --full-install: Install Streamlit UI for monitoring agent status
 5. Install start.mdc rule for autonomous workflow operation

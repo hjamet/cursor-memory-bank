@@ -1,0 +1,13 @@
+{
+    "mcpVersion": "0.1",
+    "mcpServers": {
+        "ToolsMCP": {
+            "command": "node",
+            "args": [
+                "C:\\Users\\Jamet\\code\\cursor-memory-bank\\test\\.cursor\\mcp\\mcp-commit-server\\server.js",
+                "--cwd",
+                "C:\\Users\\Jamet\\code\\cursor-memory-bank\\test"
+            ]
+        }
+    }
+}

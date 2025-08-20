@@ -52260,7 +52260,7 @@
     ]
   },
   {
-    "content": "Architecture MCP Memory Bank avec outil take_pdf_screenshot parfaitement fonctionnel : L'outil mcp_MyMCP_take_pdf_screenshot utilise les patterns exacts de consult_image avec conversion PDF via pdf-to-img + Sharp pour format base64 JPEG. Tests authentiques validés avec fichier PDF réel 'Idée jeu anniversaire 25 ans.pdf' confirmant fonctionnement parfait, gestion erreurs appropriée, sécurité anti-path-traversal maintenue et performance < 2s conforme spécifications.",
+    "content": "Architecture MCP Memory Bank avec outil take_pdf_screenshot parfaitement fonctionnel : L'outil mcp_ToolsMCP_take_pdf_screenshot utilise les patterns exacts de consult_image avec conversion PDF via pdf-to-img + Sharp pour format base64 JPEG. Tests authentiques validés avec fichier PDF réel 'Idée jeu anniversaire 25 ans.pdf' confirmant fonctionnement parfait, gestion erreurs appropriée, sécurité anti-path-traversal maintenue et performance < 2s conforme spécifications.",
     "timestamp": "2025-07-23T17:00:16.095Z",
     "embedding": [
       -0.048796094954013824,
