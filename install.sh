@@ -616,6 +616,10 @@ install_workflow_system() {
             log "Downloading start.mdc rule..."
             mkdir -p "$target_dir/.cursor/rules"
             download_file "$RAW_URL_BASE/.cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"
+
+            # Download README.mdc rule (keep README rule present in full installs)
+            log "Downloading README.mdc rule..."
+            download_file "$RAW_URL_BASE/.cursor/rules/README.mdc" "$target_dir/.cursor/rules/README.mdc"
             
             # Copy start.mdc as GEMINI.md in .gemini directory
             log "Downloading start.mdc as GEMINI.md"
@@ -631,6 +635,10 @@ install_workflow_system() {
             log "Downloading agent.mdc rule..."
             mkdir -p "$target_dir/.cursor/rules"
             download_file "$RAW_URL_BASE/.cursor/rules/agent.mdc" "$target_dir/.cursor/rules/agent.mdc"
+
+            # Also download README.mdc rule for minimal installs
+            log "Downloading README.mdc rule..."
+            download_file "$RAW_URL_BASE/.cursor/rules/README.mdc" "$target_dir/.cursor/rules/README.mdc"
         fi
 
         # Clean and setup MCP directories
@@ -1622,8 +1630,12 @@ fi
 # Merge MCP JSON template with existing config (NOW uses absolute path logic)
 merge_mcp_json "$INSTALL_DIR"
 
-# Configure MCP servers for Gemini CLI
-configure_gemini_cli_mcp "$INSTALL_DIR"
+# Configure MCP servers for Gemini CLI only in full install mode
+if [[ -n "${FULL_INSTALL:-}" ]]; then
+    configure_gemini_cli_mcp "$INSTALL_DIR"
+else
+    log "Skipping Gemini CLI local configuration (.gemini) for basic install"
+fi
 
 # Install Internal MCP Commit Server dependencies if present in the TARGET directory
 INTERNAL_MCP_SERVER_DIR="$INSTALL_DIR/.cursor/mcp/mcp-commit-server"
