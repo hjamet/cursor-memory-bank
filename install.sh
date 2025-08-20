@@ -232,9 +232,29 @@ manage_gitignore() {
     log "Managing .gitignore file for selective .cursor synchronization..."
 
     # Create .gitignore if it doesn't exist
+    local created_new_gitignore=0
     if [[ ! -f "$gitignore_file" ]]; then
         touch "$gitignore_file"
+        created_new_gitignore=1
         log "Created .gitignore file at: $gitignore_file"
+    fi
+
+    # Ensure minimal MCP-related ignore rules are present.
+    # If the file was just created, add the two required entries.
+    if [[ $created_new_gitignore -eq 1 ]]; then
+        echo ".cursor/mcp" >> "$gitignore_file"
+        echo ".cursor/mcp.json" >> "$gitignore_file"
+        log "Added default MCP ignore rules to new .gitignore: .cursor/mcp, .cursor/mcp.json"
+    else
+        # If the file already exists, ensure the two rules are present and add them if missing
+        if ! grep -qF -- ".cursor/mcp" "$gitignore_file" 2>/dev/null; then
+            echo ".cursor/mcp" >> "$gitignore_file"
+            log "Added missing rule to .gitignore: .cursor/mcp"
+        fi
+        if ! grep -qF -- ".cursor/mcp.json" "$gitignore_file" 2>/dev/null; then
+            echo ".cursor/mcp.json" >> "$gitignore_file"
+            log "Added missing rule to .gitignore: .cursor/mcp.json"
+        fi
     fi
 
     # Remove old Cursor Memory Bank entries to avoid conflicts

@@ -48,6 +48,8 @@ Available options:
 - `--help` : Show help information
 - `--version` : Show version information
 
+Note importante : Le script d'installation `install.sh` met désormais à jour (ou crée) le fichier `.gitignore` lors de l'installation pour s'assurer que les entrées suivantes sont présentes : `.cursor/mcp` et `.cursor/mcp.json`. Cela évite de committer par erreur les fichiers d'état MCP.
+
 Examples:
 ```bash
 # Basic installation (MyMCP only)
