@@ -856,16 +856,14 @@ install_workflow_system() {
         fi
     done
 
-    # Only manage .gitignore in full install mode
+    # Ensure .gitignore is managed for selective .cursor synchronization in all install modes
+    manage_gitignore "$target_dir"
     if [[ -n "${FULL_INSTALL:-}" ]]; then
         # Set permissions for workflow directories
         if [[ -d "$workflow_path" ]]; then
             chmod -R u+rw "$workflow_path" || true
         fi
-        
-        # Manage .gitignore file
-        manage_gitignore "$target_dir"
-        
+
         log "Full workflow system and MCP servers installed successfully"
     else
         log "ToolsMCP server installed successfully"
