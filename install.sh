@@ -281,7 +281,6 @@ manage_gitignore() {
         "!.cursor/memory-bank/"
         ".cursor/memory-bank/**"
         "!.cursor/rules/"
-        ".cursor/rules/**"
         "!.cursor/memory-bank/context/"
         "!.cursor/memory-bank/context/**"
         "!.cursor/memory-bank/workflow/"
