@@ -30,6 +30,12 @@ Place un breakpoint ici (clic) :
 [...]
 ````
 
+Voici la ligne de code précise où tu dois placer le breakpoint :
+
+```python
+[...]
+```
+
 Quand l'exécution s'arrête, colle exactement ce dictionnaire dans la console de débogage et renvoie-moi la sortie :
 
 ```python
