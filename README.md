@@ -102,7 +102,7 @@ Cursor Memory Bank offers two installation modes to suit different needs:
 - **Development Work:** Full mode recommended for complex projects requiring autonomous workflow
 
 - The installation script will:
-- Install the rules to your `.cursor/rules` directory (including `README.mdc` in both basic and full installs)
+- Install the rules to your `.cursor/rules` directory (including `README.mdc`, `debug.mdc` and `commit.mdc` in all install modes)
 - Always preserve any existing custom rules
 - Create a backup of existing rules (only if --backup is used)
 - Update only the core rules that need updating

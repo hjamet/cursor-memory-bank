@@ -636,9 +636,13 @@ install_workflow_system() {
             mkdir -p "$target_dir/.cursor/rules"
             download_file "$RAW_URL_BASE/.cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"
 
-            # Download README.mdc and mcp.mdc rules (keep README and MCP rules present in full installs)
+            # Download README.mdc, debug.mdc, commit.mdc and mcp.mdc rules (keep these rules present in full installs)
             log "Downloading README.mdc rule..."
             download_file "$RAW_URL_BASE/.cursor/rules/README.mdc" "$target_dir/.cursor/rules/README.mdc"
+            log "Downloading debug.mdc rule..."
+            download_file "$RAW_URL_BASE/.cursor/rules/debug.mdc" "$target_dir/.cursor/rules/debug.mdc"
+            log "Downloading commit.mdc rule..."
+            download_file "$RAW_URL_BASE/.cursor/rules/commit.mdc" "$target_dir/.cursor/rules/commit.mdc"
             log "Downloading mcp.mdc rule..."
             download_file "$RAW_URL_BASE/.cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
             
@@ -657,9 +661,13 @@ install_workflow_system() {
             mkdir -p "$target_dir/.cursor/rules"
             download_file "$RAW_URL_BASE/.cursor/rules/agent.mdc" "$target_dir/.cursor/rules/agent.mdc"
 
-            # Also download README.mdc and mcp.mdc rules for minimal installs
+            # Also download README.mdc, debug.mdc, commit.mdc and mcp.mdc rules for minimal installs
             log "Downloading README.mdc rule..."
             download_file "$RAW_URL_BASE/.cursor/rules/README.mdc" "$target_dir/.cursor/rules/README.mdc"
+            log "Downloading debug.mdc rule..."
+            download_file "$RAW_URL_BASE/.cursor/rules/debug.mdc" "$target_dir/.cursor/rules/debug.mdc"
+            log "Downloading commit.mdc rule..."
+            download_file "$RAW_URL_BASE/.cursor/rules/commit.mdc" "$target_dir/.cursor/rules/commit.mdc"
             log "Downloading mcp.mdc rule..."
             download_file "$RAW_URL_BASE/.cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
         fi
@@ -749,7 +757,7 @@ install_workflow_system() {
                 warn "start.mdc rule not found in repository"
             fi
 
-            # Also copy README.mdc rule when available
+            # Also copy README.mdc, debug.mdc and commit.mdc rules when available
             if [[ -f "$clone_dir/.cursor/rules/README.mdc" ]]; then
                 log "Copying README.mdc rule..."
                 mkdir -p "$target_dir/.cursor/rules"
@@ -758,6 +766,25 @@ install_workflow_system() {
                 fi
             else
                 warn "README.mdc rule not found in repository"
+            fi
+            if [[ -f "$clone_dir/.cursor/rules/debug.mdc" ]]; then
+                log "Copying debug.mdc rule..."
+                mkdir -p "$target_dir/.cursor/rules"
+                if ! cp "$clone_dir/.cursor/rules/debug.mdc" "$target_dir/.cursor/rules/debug.mdc"; then
+                    error "Failed to copy debug.mdc rule. Please check disk space and permissions."
+                fi
+            else
+                warn "debug.mdc rule not found in repository"
+            fi
+            
+            if [[ -f "$clone_dir/.cursor/rules/commit.mdc" ]]; then
+                log "Copying commit.mdc rule..."
+                mkdir -p "$target_dir/.cursor/rules"
+                if ! cp "$clone_dir/.cursor/rules/commit.mdc" "$target_dir/.cursor/rules/commit.mdc"; then
+                    error "Failed to copy commit.mdc rule. Please check disk space and permissions."
+                fi
+            else
+                warn "commit.mdc rule not found in repository"
             fi
             
             # Copy start.mdc as GEMINI.md in .gemini directory
@@ -785,7 +812,7 @@ install_workflow_system() {
                 touch "$target_dir/.gemini/settings.json"
             fi
         else
-            # Basic mode: install agent.mdc rule and README.mdc rule
+            # Basic mode: install agent.mdc rule, README.mdc and debug.mdc rules
             if [[ -f "$clone_dir/.cursor/rules/agent.mdc" ]]; then
                 log "Copying agent.mdc rule..."
                 mkdir -p "$target_dir/.cursor/rules"
@@ -796,7 +823,7 @@ install_workflow_system() {
                 warn "agent.mdc rule not found in repository"
             fi
 
-            # Also copy README.mdc rule for basic installs when available
+            # Also copy README.mdc and debug.mdc rules for basic installs when available
             if [[ -f "$clone_dir/.cursor/rules/README.mdc" ]]; then
                 log "Copying README.mdc rule..."
                 mkdir -p "$target_dir/.cursor/rules"
@@ -805,6 +832,15 @@ install_workflow_system() {
                 fi
             else
                 warn "README.mdc rule not found in repository"
+            fi
+            if [[ -f "$clone_dir/.cursor/rules/debug.mdc" ]]; then
+                log "Copying debug.mdc rule..."
+                mkdir -p "$target_dir/.cursor/rules"
+                if ! cp "$clone_dir/.cursor/rules/debug.mdc" "$target_dir/.cursor/rules/debug.mdc"; then
+                    error "Failed to copy debug.mdc rule. Please check disk space and permissions."
+                fi
+            else
+                warn "debug.mdc rule not found in repository"
             fi
         fi
         
