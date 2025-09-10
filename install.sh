@@ -222,93 +222,39 @@ manage_gitignore() {
     local target_dir="$1"
     local gitignore_file="$target_dir/.gitignore"
     local no_gitignore_flag="${NO_GITIGNORE:-}"
-    local backup_file="$gitignore_file.backup-$(date +%Y%m%d-%H%M%S)"
 
     if [[ -n "$no_gitignore_flag" ]]; then
         log "Skipping .gitignore management due to --no-gitignore flag"
         return
     fi
 
-    log "Managing .gitignore file for selective .cursor synchronization..."
+    log "Ensuring minimal MCP-related .gitignore entries..."
 
-    # Create .gitignore if it doesn't exist
-    local created_new_gitignore=0
+    # Create parent dir if needed
+    if [[ ! -d "$(dirname "$gitignore_file")" ]]; then
+        mkdir -p "$(dirname "$gitignore_file")"
+    fi
+
+    # If file doesn't exist, create it with the minimal required content
     if [[ ! -f "$gitignore_file" ]]; then
-        touch "$gitignore_file"
-        created_new_gitignore=1
-        log "Created .gitignore file at: $gitignore_file"
-    fi
-
-    # Ensure minimal MCP-related ignore rules are present.
-    # If the file was just created, add the two required entries.
-    if [[ $created_new_gitignore -eq 1 ]]; then
-        echo ".cursor/mcp" >> "$gitignore_file"
-        echo ".cursor/mcp.json" >> "$gitignore_file"
-        log "Added default MCP ignore rules to new .gitignore: .cursor/mcp, .cursor/mcp.json"
+        cat > "$gitignore_file" <<EOF
+# Cursor
+.cursor/mcp
+.cursor/mcp.json
+EOF
+        log "Created .gitignore with minimal MCP rules at: $gitignore_file"
     else
-        # If the file already exists, ensure the two rules are present and add them if missing
-        if ! grep -qF -- ".cursor/mcp" "$gitignore_file" 2>/dev/null; then
-            echo ".cursor/mcp" >> "$gitignore_file"
-            log "Added missing rule to .gitignore: .cursor/mcp"
-        fi
-        if ! grep -qF -- ".cursor/mcp.json" "$gitignore_file" 2>/dev/null; then
-            echo ".cursor/mcp.json" >> "$gitignore_file"
-            log "Added missing rule to .gitignore: .cursor/mcp.json"
-        fi
-    fi
-
-    # Remove old Cursor Memory Bank entries to avoid conflicts
-    log "Cleaning up old Cursor Memory Bank entries..."
-    if [[ -f "$gitignore_file" ]]; then
-        # Remove old auto-generated entries and related lines
-        sed -i.tmp \
-            -e '/# Cursor Memory Bank - Auto-generated entries/d' \
-            -e '/\.cursor\/mcp\/\*\/node_modules\//d' \
-            -e '/\.cursor\/mcp\/\*\/\*\.log/d' \
-            -e '/\.cursor\/memory-bank\/workflow\/temp\//d' \
-            -e '/\.cursor\/streamlit_app\/__pycache__\//d' \
-            -e '/\.cursor\/memory-bank\/models\//d' \
-            -e '/# MCP Server State Files/d' \
-            -e '/\.cursor\/mcp\/\*\/terminals_status\.json/d' \
-            -e '/\.cursor\/mcp\/\*\/temp_\*/d' \
-            "$gitignore_file" && rm -f "$gitignore_file.tmp"
-    fi
-
-    # Entries to be added - Fixed logic for proper gitignore behavior
-    local entries=(
-        "# Cursor Memory Bank - Selective Sync Rules"
-        ".cursor/*"
-        "!.cursor/memory-bank/"
-        ".cursor/memory-bank/**"
-        "!.cursor/rules/"
-        "!.cursor/memory-bank/context/"
-        "!.cursor/memory-bank/context/**"
-        "!.cursor/memory-bank/workflow/"
-        "!.cursor/memory-bank/workflow/**"
-        ".gemini"
-        ".gemini/**"
-        "GEMINI.md"
-    )
-
-    # Add selective .cursor rules
-    log "Adding selective .cursor synchronization rules..."
-    for rule in "${entries[@]}"; do
-        if [[ -n "$rule" ]]; then
-            # Check if rule already exists to avoid duplicates
-            if ! grep -qF -- "$rule" "$gitignore_file" 2>/dev/null; then
-                echo "$rule" >> "$gitignore_file"
-                log "Added rule: $rule"
-            else
-                log "Rule already exists: $rule"
+        # Ensure each required line exists (append if missing)
+        local entries=("# Cursor" ".cursor/mcp" ".cursor/mcp.json")
+        for entry in "${entries[@]}"; do
+            if ! grep -Fxq "$entry" "$gitignore_file" 2>/dev/null; then
+                echo "$entry" >> "$gitignore_file"
+                log "Added rule to .gitignore: $entry"
             fi
-        else
-            # Add empty line for formatting
-            echo "" >> "$gitignore_file"
-        fi
-    done
+        done
+    fi
 
-    # Validate .gitignore syntax and rules
-    log "Validating .gitignore rules..."
+    # Preserve existing validation and tracked-file handling for compatibility
     if validate_gitignore_rules "$target_dir"; then
         log "✅ .gitignore rules validated successfully"
     else
@@ -316,11 +262,9 @@ manage_gitignore() {
         warn "This is not a critical error and installation will continue"
     fi
 
-    # Handle already tracked files that should now be ignored
     handle_tracked_files "$target_dir" || true
 
-    log "✅ Selective .cursor synchronization configured successfully"
-    log "📋 Summary: Only .cursor/memory-bank/context/ and .cursor/memory-bank/workflow/ will sync with Git"
+    log "✅ .gitignore configured"
 }
 
 # Function to validate .gitignore rules
