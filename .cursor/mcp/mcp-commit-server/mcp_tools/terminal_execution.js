@@ -49,6 +49,8 @@ export async function handleExecuteCommand({ command, working_directory, reuse_t
     let completionPromise;
     let cleanupPromise;
     let result = null;
+    // Additional content messages to append to the tool response (e.g., LLM advisory)
+    let additionalContent = [];
 
     const timeoutMs = (timeout && Number.isInteger(timeout) && timeout > 0) ? timeout * 1000 : DEFAULT_TIMEOUT_MS;
 
@@ -120,6 +122,12 @@ export async function handleExecuteCommand({ command, working_directory, reuse_t
                     stdout: typeof stdoutContent === 'string' ? stdoutContent : '',
                     stderr: typeof stderrContent === 'string' ? stderrContent : ''
                 };
+
+                // Add advisory message for LLM: command is still running but a timeout was reached
+                additionalContent.push({
+                    type: "text",
+                    text: "NB : The command is still running but a timeout was reached. Please use `mcp_ToolsMCP_get_terminal_status` with progressively longer timeouts: 30 seconds, then 170 seconds (2m50s), then 300 seconds (5 minutes) to monitor the execution. If the command seems stuck or in an infinite loop, use `mcp_ToolsMCP_stop_terminal_command` to stop it."
+                });
             } else {
                 // --- Another Error Occurred --- 
                 const cleanupResult = await cleanupPromise;
@@ -147,7 +155,7 @@ export async function handleExecuteCommand({ command, working_directory, reuse_t
             }
         }
 
-        return { content: [{ type: "text", text: JSON.stringify(result) }] };
+        return { content: [{ type: "text", text: JSON.stringify(result) }, ...additionalContent] };
 
     } catch (error) {
         console.error('[ExecuteCommand] Top-level Error:', error);

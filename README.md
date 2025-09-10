@@ -430,6 +430,8 @@ This project is open source and available for personal and educational use. Plea
 
 **Solution:** Close Cursor entirely and restart the application.
 
+**Note:** The `execute_command` tool (implemented in `/.cursor/mcp/mcp-commit-server/mcp_tools/terminal_execution.js`) now appends an additional advisory message when a timeout occurs. This advisory tells the LLM that the command is still running (only the timeout was reached) and recommends using `mcp_ToolsMCP_get_terminal_status` with progressively longer timeouts (30 seconds → 170 seconds (2m50s) → 300 seconds (5 minutes)) to monitor the process, or `mcp_ToolsMCP_stop_terminal_command` to stop it if it appears stuck or in an infinite loop.
+
 ### **MCP Server Issues**
 
 If you encounter errors with MCP servers not being found:
