@@ -16,6 +16,21 @@ const MAX_RUNNING_PROCESSES = 10; // Limit concurrent processes
  * Returns the last N lines of output based on lines_to_read parameter.
  */
 export async function handleExecuteCommand({ command, working_directory, reuse_terminal, timeout, lines_to_read = 300 }) {
+    // Enforce maximum allowed timeout (in seconds)
+    const MAX_TIMEOUT_SECONDS = 300; // 5 minutes
+    if (timeout && typeof timeout === 'number' && timeout > MAX_TIMEOUT_SECONDS) {
+        const message = `Timeouts longer than ${MAX_TIMEOUT_SECONDS} seconds are not allowed. Long-running commands must be launched with a short timeout (e.g. 10s) using execute_command to verify the command started, then monitored with get_terminal_status using progressively longer timeouts (e.g. 30s → 150s → ${MAX_TIMEOUT_SECONDS}s). Using long timeouts blocks the execution chain and is not permitted. Please retry with a shorter timeout and use get_terminal_status to monitor the process.`;
+        const errorResult = {
+            pid: null,
+            cwd: null,
+            status: 'Failure',
+            exit_code: null,
+            stdout: '',
+            stderr: message
+        };
+        return { content: [{ type: "text", text: JSON.stringify(errorResult) }] };
+    }
+
     // Handle terminal reuse: Find a finished terminal state index
     if (reuse_terminal) {
         const reusableIndex = StateManager.findReusableTerminalIndex();

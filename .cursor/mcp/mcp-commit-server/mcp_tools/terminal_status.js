@@ -19,6 +19,14 @@ const MAX_CHARS_STATUS = 1500;
  * Retrieves status of tracked terminals, optionally waiting for changes.
  */
 export async function handleGetTerminalStatus({ timeout = 0 }) {
+    // Enforce maximum allowed timeout for status checks (in seconds)
+    const MAX_TIMEOUT_SECONDS = 300; // 5 minutes
+    if (timeout && typeof timeout === 'number' && timeout > MAX_TIMEOUT_SECONDS) {
+        const message = `Timeouts longer than ${MAX_TIMEOUT_SECONDS} seconds are not allowed for terminal status polling. Use progressive shorter timeouts (e.g. 30s → 150s → ${MAX_TIMEOUT_SECONDS}s) when monitoring long-running processes and start by launching the command with a short execute_command timeout (e.g. 10s) to verify the command started.`;
+        const errorResponse = { status_changed: false, terminals: [], error: message };
+        return { content: [{ type: "text", text: JSON.stringify(errorResponse) }] };
+    }
+
     let status_changed = false;
     const startTime = Date.now();
     let currentStates = StateManager.getState(); // Get initial state

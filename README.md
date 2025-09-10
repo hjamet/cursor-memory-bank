@@ -360,6 +360,8 @@ La règle `mcp` impose deux directives critiques :
 - **Toujours** utilise `mcp_ToolsMCP_execute_command` pour exécuter des commandes terminal — ne jamais utiliser l'outil de base `terminal cmd`. Commence par un timeout court (10s) pour vérifier que la commande démarre correctement; si nécessaire, surveille la commande avec `mcp_ToolsMCP_get_terminal_status` en augmentant le timeout (par ex. 30s puis 60s).
 - **Ne commite jamais manuellement.** N'effectue un commit que si l'utilisateur l'a explicitement demandé et a validé les changements, et utilise toujours `mcp_MemoryBankMCP_commit` pour les commits.
 
+**Important (limite de timeout)** : Les timeouts supérieurs à 5 minutes (300 secondes) ne sont pas autorisés. Si vous avez une commande longue, lancez d'abord `mcp_ToolsMCP_execute_command` avec un timeout très court (ex. 10s) pour vérifier que la commande s'est lancée, puis surveillez-la avec `mcp_ToolsMCP_get_terminal_status` en augmentant progressivement les timeouts (par ex. 30s → 150s → 300s). Les timeouts trop longs bloquent la chaîne d'exécution et empêchent une supervision réactive.
+
 ## Streamlit Interface Features 🎨
 
 ### **Enhanced Notification System**
