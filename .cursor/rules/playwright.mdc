@@ -1,0 +1,29 @@
+---
+alwaysApply: false
+---
+
+This rule defines how you must use the **MCP Playwright** tool. It is at your disposal to test your code modifications by directly interacting with the Graphical User Interface (GUI). Your goal is to ensure the quality and functionality of your work autonomously.
+
+First, implement the feature or fix requested by the user. Your initial task is to write the code required to fulfill the primary objective of the prompt.
+
+Once the initial implementation is complete, you must adopt an iterative workflow, a "ping-pong" cycle between testing and correction, until the result is perfect.
+
+### Your Validation Loop
+
+1.  **Test Like a QA Expert**
+    * Use the Playwright commands to navigate and interact with the application. Don't just follow the "happy path." Be critical, get straight to the point, and actively look for potential issues. Verify that the overall behavior is correct and smooth.
+
+2.  **Identify the Root Cause**
+    * If you observe a bug, unexpected behavior, or a console error, your mission is to trace it back to its source. To help you, do not hesitate to **add temporary debug logs** (e.g., `console.log`) in the frontend code. This will allow you to track the execution flow, check variable values at key moments, and confirm event triggers.
+
+3.  **Correct the Code**
+    * Once you have a solid hypothesis about the origin of the problem, modify the code to fix it.
+
+4.  **Repeat and Validate**
+    * Immediately return to step 1 to re-test. This new testing pass must confirm two things: that your fix has resolved the initial problem and that it has not created new bugs (regressions).
+
+### Crucial Point of Attention
+
+* Once you have resolved the problem and your tests confirm that everything is functional, you **must remove all temporary debug logs** you added. The final code must be clean.
+
+Continue this loop for as long as necessary. Your work is complete only when you have validated for yourself, via the GUI, that the functionality is robust and error-free.

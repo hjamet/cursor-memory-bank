@@ -589,6 +589,8 @@ install_workflow_system() {
             download_file "$RAW_URL_BASE/.cursor/rules/commit.mdc" "$target_dir/.cursor/rules/commit.mdc"
             log "Downloading mcp.mdc rule..."
             download_file "$RAW_URL_BASE/.cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
+            log "Downloading playwright.mdc rule..."
+            download_file "$RAW_URL_BASE/.cursor/rules/playwright.mdc" "$target_dir/.cursor/rules/playwright.mdc"
             
             # Copy start.mdc as GEMINI.md in .gemini directory
             log "Downloading start.mdc as GEMINI.md"
@@ -614,6 +616,8 @@ install_workflow_system() {
             download_file "$RAW_URL_BASE/.cursor/rules/commit.mdc" "$target_dir/.cursor/rules/commit.mdc"
             log "Downloading mcp.mdc rule..."
             download_file "$RAW_URL_BASE/.cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
+            log "Downloading playwright.mdc rule..."
+            download_file "$RAW_URL_BASE/.cursor/rules/playwright.mdc" "$target_dir/.cursor/rules/playwright.mdc"
         fi
 
         # Clean and setup MCP directories
