@@ -264,17 +264,19 @@ def write_sections(out, filtered_paths: List[str]) -> None:
 
 
 def write_git_diff(diff_path: str = "diff") -> None:
-    # Use os.popen for simplicity; fail-fast if git is missing or errors
+    # Run git diff and write raw bytes to the output file to avoid
+    # platform-specific text-decoding errors (Windows cp1252 issues).
     import subprocess
 
     proc = subprocess.run(["git", "diff"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    diff_content = proc.stdout.decode("utf-8", "surrogateescape")
     if proc.returncode != 0:
         stderr = proc.stderr.decode("utf-8", "surrogateescape")
         raise RuntimeError(f"'git diff' failed (exit {proc.returncode}): {stderr}")
 
-    with open(diff_path, "w", encoding="utf-8", errors="surrogateescape") as out:
-        out.write(diff_content)
+    # Write raw bytes to preserve any non-UTF8 sequences; callers that need
+    # text can decode with 'utf-8', errors='surrogateescape'.
+    with open(diff_path, "wb") as out:
+        out.write(proc.stdout)
 
 
 def main() -> None:
