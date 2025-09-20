@@ -122,51 +122,87 @@ def should_keep_file(filepath: str) -> bool:
     return False
 
 
-def collect_all_files(root: str = ".") -> List[str]:
-    """Walk repository and return all file paths (relative), pruning hidden dirs and node_modules."""
-    results: List[str] = []
+def scan_and_collect(root: str = ".") -> List[Tuple[str, str]]:
+    """Single-pass walk: filter files and read their content into memory.
+
+    Returns a list of (relative_path, content) tuples sorted by path.
+    """
+    entries: List[Tuple[str, str]] = []
+
     for dirpath, dirnames, filenames in os.walk(root):
         # Normalize relative path
         rel_dir = os.path.relpath(dirpath, root)
         if rel_dir == ".":
             rel_dir = ""
 
-        # Prune hidden directories and node_modules at any depth
-        pruned: List[str] = []
+        # Prune hidden directories and node_modules at any depth (in-place)
         for name in list(dirnames):
             if is_hidden_name(name) or name in PRUNE_DIR_NAMES:
-                pruned.append(name)
-        for name in pruned:
-            dirnames.remove(name)
+                dirnames.remove(name)
 
         for filename in filenames:
+            # Skip hidden files quickly
             if is_hidden_name(filename):
                 continue
-            path = os.path.join(rel_dir, filename) if rel_dir else filename
-            # Full filesystem path for checks
-            full_path = os.path.join(root, path)
-            # Keep only regular files and skip files exceeding MAX_FILE_SIZE
+
+            # Quick exclude by filename
+            if filename in EXCLUDE_FILENAMES:
+                continue
+
+            rel_path = os.path.join(rel_dir, filename) if rel_dir else filename
+            full_path = os.path.join(root, rel_path)
+
+            # Ensure regular file
             if not os.path.isfile(full_path):
                 continue
+
             try:
                 size = os.path.getsize(full_path)
             except OSError:
-                # If we cannot stat the file, skip it (avoid crashing on special files)
+                # Cannot stat: skip special files
                 continue
+
+            # Enforce size limit to control memory usage
             if size > MAX_FILE_SIZE:
-                # Skip very large files to avoid OOM; they will not be included
                 continue
-            results.append(path)
 
-    # Sort paths for deterministic output
-    results.sort()
-    return results
+            # Apply the keep-file logic (name/extension based)
+            if not should_keep_file(rel_path):
+                continue
 
+            # Read content according to file type (full vs truncated)
+            try:
+                _, ext = split_extension_lower(filename)
+                include_full = (filename in INCLUDE_FILENAMES) or (ext in INCLUDE_EXTENSIONS)
+                is_truncate = ext in TRUNCATE_EXTENSIONS
 
-def filter_paths(paths: Iterable[str]) -> List[str]:
-    kept = [p for p in paths if should_keep_file(p)]
-    kept.sort()
-    return kept
+                if include_full:
+                    # Read entire file as bytes then decode to preserve raw bytes via surrogateescape
+                    with open(full_path, "rb") as fh:
+                        raw = fh.read()
+                    content = raw.decode("utf-8", "surrogateescape")
+
+                elif is_truncate:
+                    head_buf: List[str] = []
+                    tail_buf: deque[str] = deque(maxlen=TAIL_LINES)
+                    with open(full_path, "r", encoding="utf-8", errors="surrogateescape") as fh:
+                        for line_index, line in enumerate(fh, start=1):
+                            if line_index <= HEAD_LINES:
+                                head_buf.append(line)
+                            tail_buf.append(line)
+
+                    content = "".join(head_buf) + "\n\n... (omitted middle lines) ...\n\n" + "".join(tail_buf)
+
+                else:
+                    content = "[Skipped: not in include lists]\n"
+
+            except Exception as exc:  # Fail-fast: record readable error marker in output
+                content = f"[Error reading file {rel_path}: {exc}]\n"
+
+            entries.append((rel_path, content))
+
+    entries.sort(key=lambda t: t[0])
+    return entries
 
 
 def build_tree(paths: Iterable[str]) -> OrderedDict:
@@ -209,51 +245,14 @@ def language_tag_for_file(filename: str) -> str:
     return ext
 
 
-def write_file_section(out, filepath: str) -> None:
-    filename = os.path.basename(filepath)
-    lang = language_tag_for_file(filename)
-    include_full = (filename in INCLUDE_FILENAMES) or (lang in INCLUDE_EXTENSIONS)
-    is_truncate = lang in TRUNCATE_EXTENSIONS
-
+def write_section_from_entry(out, filepath: str, content: str) -> None:
+    """Write a section for a file using content already loaded in memory."""
+    lang = language_tag_for_file(filepath)
     out.write(f"### {filepath}\n")
     out.write("```" + lang + "\n")
-
-    if include_full:
-        # Stream file in blocks to avoid loading entire file into memory
-        try:
-            with open(filepath, "rb") as fh:
-                while True:
-                    block = fh.read(READ_BLOCK_SIZE)
-                    if not block:
-                        break
-                    # Decode using surrogateescape to preserve bytes
-                    try:
-                        out.write(block.decode("utf-8", "surrogateescape"))
-                    except UnicodeDecodeError:
-                        # Fallback: replace undecodable bytes
-                        out.write(block.decode("utf-8", "replace"))
-        except (IOError, UnicodeDecodeError) as exc:
-            # Write an inline error message into repo.md instead of crashing
-            out.write(f"[Error reading file {filepath}: {exc}]\n")
-    elif is_truncate:
-        head_buf: List[str] = []
-        tail_buf: deque[str] = deque(maxlen=TAIL_LINES)
-        line_index = 0
-        with open(filepath, "r", encoding="utf-8", errors="surrogateescape") as fh:
-            for line in fh:
-                line_index += 1
-                if line_index <= HEAD_LINES:
-                    head_buf.append(line)
-                tail_buf.append(line)
-
-        for line in head_buf:
-            out.write(line)
-        out.write("\n\n... (omitted middle lines) ...\n\n")
-        for line in tail_buf:
-            out.write(line)
-    else:
-        out.write("[Skipped: not in include lists]\n")
-
+    out.write(content)
+    if not content.endswith("\n"):
+        out.write("\n")
     out.write("```\n\n")
 
 
@@ -266,45 +265,43 @@ def write_sections(out, filtered_paths: List[str]) -> None:
 
 def write_git_diff(diff_path: str = "diff") -> None:
     # Use os.popen for simplicity; fail-fast if git is missing or errors
-    stream = os.popen("git diff")
-    diff_content = stream.read()
-    exit_code = stream.close()
-    if exit_code is None:
-        # Command succeeded (returns None when exit status is zero)
-        pass
-    # Write regardless; empty diff is valid
+    import subprocess
+
+    proc = subprocess.run(["git", "diff"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    diff_content = proc.stdout.decode("utf-8", "surrogateescape")
+    if proc.returncode != 0:
+        stderr = proc.stderr.decode("utf-8", "surrogateescape")
+        raise RuntimeError(f"'git diff' failed (exit {proc.returncode}): {stderr}")
+
     with open(diff_path, "w", encoding="utf-8", errors="surrogateescape") as out:
         out.write(diff_content)
 
 
 def main() -> None:
-    # Phase 1: Collect all files
+    # Phase 1: Single-pass scan + read
     print_progress("Scanning repository files", 0, 1)
-    all_paths = collect_all_files(".")
+    entries = scan_and_collect(".")
     print_progress("Scanning repository files", 1, 1)
 
-    # Phase 2: Filter paths
-    print_progress("Filtering file list", 0, 1)
-    filtered_paths = filter_paths(all_paths)
-    print_progress("Filtering file list", 1, 1)
-
-    # Phase 3: Build and render tree
+    # Phase 2: Build and render tree from collected paths
+    paths = [p for p, _ in entries]
     print_progress("Building directory tree", 0, 1)
-    tree = build_tree(filtered_paths)
+    tree = build_tree(paths)
     tree_lines = render_tree(tree)
     print_progress("Building directory tree", 1, 1)
 
-    # Phase 4: Write header + tree
+    # Phase 3: Write header + tree, then sections using in-memory content
     print_progress("Writing header and tree to repo.md", 0, 1)
-    # Open repo.md once for the whole operation
     with open("repo.md", "w", encoding="utf-8", errors="surrogateescape") as out:
         write_header_and_tree(out, tree_lines)
         print_progress("Writing header and tree to repo.md", 1, 1)
 
-        # Phase 5: Write file sections with progress per-file
-        write_sections(out, filtered_paths)
+        total = len(entries)
+        for index, (path, content) in enumerate(entries, start=1):
+            print_progress("Embedding files into repo.md", index, total)
+            write_section_from_entry(out, path, content)
 
-    # Phase 6: Write git diff
+    # Phase 4: Write git diff
     print_progress("Writing git diff to diff", 0, 1)
     write_git_diff("diff")
     print_progress("Writing git diff to diff", 1, 1)
