@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import os
 import sys
+import subprocess
 from collections import OrderedDict, deque
 from typing import Dict, Iterable, List, Tuple
 
@@ -122,87 +123,51 @@ def should_keep_file(filepath: str) -> bool:
     return False
 
 
-def scan_and_collect(root: str = ".") -> List[Tuple[str, str]]:
-    """Single-pass walk: filter files and read their content into memory.
-
-    Returns a list of (relative_path, content) tuples sorted by path.
-    """
-    entries: List[Tuple[str, str]] = []
-
+def collect_all_files(root: str = ".") -> List[str]:
+    """Walk repository and return all file paths (relative), pruning hidden dirs and node_modules."""
+    results: List[str] = []
     for dirpath, dirnames, filenames in os.walk(root):
         # Normalize relative path
         rel_dir = os.path.relpath(dirpath, root)
         if rel_dir == ".":
             rel_dir = ""
 
-        # Prune hidden directories and node_modules at any depth (in-place)
+        # Prune hidden directories and node_modules at any depth
+        pruned: List[str] = []
         for name in list(dirnames):
             if is_hidden_name(name) or name in PRUNE_DIR_NAMES:
-                dirnames.remove(name)
+                pruned.append(name)
+        for name in pruned:
+            dirnames.remove(name)
 
         for filename in filenames:
-            # Skip hidden files quickly
             if is_hidden_name(filename):
                 continue
-
-            # Quick exclude by filename
-            if filename in EXCLUDE_FILENAMES:
-                continue
-
-            rel_path = os.path.join(rel_dir, filename) if rel_dir else filename
-            full_path = os.path.join(root, rel_path)
-
-            # Ensure regular file
+            path = os.path.join(rel_dir, filename) if rel_dir else filename
+            # Full filesystem path for checks
+            full_path = os.path.join(root, path)
+            # Keep only regular files and skip files exceeding MAX_FILE_SIZE
             if not os.path.isfile(full_path):
                 continue
-
             try:
                 size = os.path.getsize(full_path)
             except OSError:
-                # Cannot stat: skip special files
+                # If we cannot stat the file, skip it (avoid crashing on special files)
                 continue
-
-            # Enforce size limit to control memory usage
             if size > MAX_FILE_SIZE:
+                # Skip very large files to avoid OOM; they will not be included
                 continue
+            results.append(path)
 
-            # Apply the keep-file logic (name/extension based)
-            if not should_keep_file(rel_path):
-                continue
+    # Sort paths for deterministic output
+    results.sort()
+    return results
 
-            # Read content according to file type (full vs truncated)
-            try:
-                _, ext = split_extension_lower(filename)
-                include_full = (filename in INCLUDE_FILENAMES) or (ext in INCLUDE_EXTENSIONS)
-                is_truncate = ext in TRUNCATE_EXTENSIONS
 
-                if include_full:
-                    # Read entire file as bytes then decode to preserve raw bytes via surrogateescape
-                    with open(full_path, "rb") as fh:
-                        raw = fh.read()
-                    content = raw.decode("utf-8", "surrogateescape")
-
-                elif is_truncate:
-                    head_buf: List[str] = []
-                    tail_buf: deque[str] = deque(maxlen=TAIL_LINES)
-                    with open(full_path, "r", encoding="utf-8", errors="surrogateescape") as fh:
-                        for line_index, line in enumerate(fh, start=1):
-                            if line_index <= HEAD_LINES:
-                                head_buf.append(line)
-                            tail_buf.append(line)
-
-                    content = "".join(head_buf) + "\n\n... (omitted middle lines) ...\n\n" + "".join(tail_buf)
-
-                else:
-                    content = "[Skipped: not in include lists]\n"
-
-            except Exception as exc:  # Fail-fast: record readable error marker in output
-                content = f"[Error reading file {rel_path}: {exc}]\n"
-
-            entries.append((rel_path, content))
-
-    entries.sort(key=lambda t: t[0])
-    return entries
+def filter_paths(paths: Iterable[str]) -> List[str]:
+    kept = [p for p in paths if should_keep_file(p)]
+    kept.sort()
+    return kept
 
 
 def build_tree(paths: Iterable[str]) -> OrderedDict:
@@ -245,14 +210,51 @@ def language_tag_for_file(filename: str) -> str:
     return ext
 
 
-def write_section_from_entry(out, filepath: str, content: str) -> None:
-    """Write a section for a file using content already loaded in memory."""
-    lang = language_tag_for_file(filepath)
+def write_file_section(out, filepath: str) -> None:
+    filename = os.path.basename(filepath)
+    lang = language_tag_for_file(filename)
+    include_full = (filename in INCLUDE_FILENAMES) or (lang in INCLUDE_EXTENSIONS)
+    is_truncate = lang in TRUNCATE_EXTENSIONS
+
     out.write(f"### {filepath}\n")
     out.write("```" + lang + "\n")
-    out.write(content)
-    if not content.endswith("\n"):
-        out.write("\n")
+
+    if include_full:
+        # Stream file in blocks to avoid loading entire file into memory
+        try:
+            with open(filepath, "rb") as fh:
+                while True:
+                    block = fh.read(READ_BLOCK_SIZE)
+                    if not block:
+                        break
+                    # Decode using surrogateescape to preserve bytes
+                    try:
+                        out.write(block.decode("utf-8", "surrogateescape"))
+                    except UnicodeDecodeError:
+                        # Fallback: replace undecodable bytes
+                        out.write(block.decode("utf-8", "replace"))
+        except (IOError, UnicodeDecodeError) as exc:
+            # Write an inline error message into repo.md instead of crashing
+            out.write(f"[Error reading file {filepath}: {exc}]\n")
+    elif is_truncate:
+        head_buf: List[str] = []
+        tail_buf: deque[str] = deque(maxlen=TAIL_LINES)
+        line_index = 0
+        with open(filepath, "r", encoding="utf-8", errors="surrogateescape") as fh:
+            for line in fh:
+                line_index += 1
+                if line_index <= HEAD_LINES:
+                    head_buf.append(line)
+                tail_buf.append(line)
+
+        for line in head_buf:
+            out.write(line)
+        out.write("\n\n... (omitted middle lines) ...\n\n")
+        for line in tail_buf:
+            out.write(line)
+    else:
+        out.write("[Skipped: not in include lists]\n")
+
     out.write("```\n\n")
 
 
@@ -264,46 +266,49 @@ def write_sections(out, filtered_paths: List[str]) -> None:
 
 
 def write_git_diff(diff_path: str = "diff") -> None:
-    # Run git diff and write raw bytes to the output file to avoid
-    # platform-specific text-decoding errors (Windows cp1252 issues).
-    import subprocess
+    # Capture git diff output as raw bytes and decode with surrogateescape
+    # to avoid platform-specific decoding errors (e.g. cp1252 on Windows).
+    try:
+        diff_bytes = subprocess.check_output(["git", "diff"], stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as exc:
+        # Even if git exits with non-zero status, capture whatever output it produced
+        diff_bytes = exc.output or b""
 
-    proc = subprocess.run(["git", "diff"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if proc.returncode != 0:
-        stderr = proc.stderr.decode("utf-8", "surrogateescape")
-        raise RuntimeError(f"'git diff' failed (exit {proc.returncode}): {stderr}")
+    diff_content = diff_bytes.decode("utf-8", "surrogateescape")
 
-    # Write raw bytes to preserve any non-UTF8 sequences; callers that need
-    # text can decode with 'utf-8', errors='surrogateescape'.
-    with open(diff_path, "wb") as out:
-        out.write(proc.stdout)
+    # Write regardless; empty diff is valid
+    with open(diff_path, "w", encoding="utf-8", errors="surrogateescape") as out:
+        out.write(diff_content)
 
 
 def main() -> None:
-    # Phase 1: Single-pass scan + read
+    # Phase 1: Collect all files
     print_progress("Scanning repository files", 0, 1)
-    entries = scan_and_collect(".")
+    all_paths = collect_all_files(".")
     print_progress("Scanning repository files", 1, 1)
 
-    # Phase 2: Build and render tree from collected paths
-    paths = [p for p, _ in entries]
+    # Phase 2: Filter paths
+    print_progress("Filtering file list", 0, 1)
+    filtered_paths = filter_paths(all_paths)
+    print_progress("Filtering file list", 1, 1)
+
+    # Phase 3: Build and render tree
     print_progress("Building directory tree", 0, 1)
-    tree = build_tree(paths)
+    tree = build_tree(filtered_paths)
     tree_lines = render_tree(tree)
     print_progress("Building directory tree", 1, 1)
 
-    # Phase 3: Write header + tree, then sections using in-memory content
+    # Phase 4: Write header + tree
     print_progress("Writing header and tree to repo.md", 0, 1)
+    # Open repo.md once for the whole operation
     with open("repo.md", "w", encoding="utf-8", errors="surrogateescape") as out:
         write_header_and_tree(out, tree_lines)
         print_progress("Writing header and tree to repo.md", 1, 1)
 
-        total = len(entries)
-        for index, (path, content) in enumerate(entries, start=1):
-            print_progress("Embedding files into repo.md", index, total)
-            write_section_from_entry(out, path, content)
+        # Phase 5: Write file sections with progress per-file
+        write_sections(out, filtered_paths)
 
-    # Phase 4: Write git diff
+    # Phase 6: Write git diff
     print_progress("Writing git diff to diff", 0, 1)
     write_git_diff("diff")
     print_progress("Writing git diff to diff", 1, 1)
