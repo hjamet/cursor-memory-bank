@@ -48,6 +48,7 @@ EXCLUDE_FILENAMES = {
     "agent.md",
     "repo.md",
     "diff",
+    "tomd.py",
 }
 
 HEAD_LINES = 50

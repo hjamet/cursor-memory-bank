@@ -526,3 +526,7 @@ git config --unset core.hooksPath
 ```
 
 The functionality is now **100% integrated** into the MCP workflow - no separate hooks needed.
+
+### **Windows: git diff encoding fix**
+
+If `python tomd.py` raises a `UnicodeDecodeError` when writing the git diff (Windows CP1252 decoding issue), update `tomd.py` to write the raw `git diff` bytes to the `diff` file. The script now writes the diff as binary to preserve arbitrary bytes and avoid platform-specific decoding errors. No user action is required for the fix bundled in the repository.
