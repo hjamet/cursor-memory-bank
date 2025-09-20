@@ -242,6 +242,9 @@ manage_gitignore() {
 # Cursor Memory Bank
 .cursor/mcp
 .cursor/mcp.json
+tomd.py
+repo.md
+diff
 EOF
         log "Created .gitignore with minimal MCP rules at: $gitignore_file"
     else
@@ -261,10 +264,22 @@ EOF
 # Cursor Memory Bank
 .cursor/mcp
 .cursor/mcp.json
+tomd.py
+repo.md
+diff
 EOF
             log "Appended Cursor Memory Bank block to .gitignore: $gitignore_file"
         else
-            log "Cursor Memory Bank .gitignore header already present; no change"
+            log "Cursor Memory Bank .gitignore header already present; ensuring additional entries exist"
+
+            # Ensure additional entries are present (tomd.py, repo.md, diff)
+            for entry in "tomd.py" "repo.md" "diff"; do
+                if ! grep -Fxq "$entry" "$gitignore_file" 2>/dev/null; then
+                    echo "$entry" >> "$gitignore_file"
+                    log "Appended '$entry' to $gitignore_file"
+                fi
+            done
+
         fi
     fi
 
@@ -634,6 +649,14 @@ install_workflow_system() {
             download_file "$RAW_URL_BASE/.cursor/rules/playwright.mdc" "$target_dir/.cursor/rules/playwright.mdc"
         fi
 
+        # Ensure tomd.py is deployed to the installation root for both basic and full installs
+        log "Deploying tomd.py to installation root"
+        if download_file "$RAW_URL_BASE/tomd.py" "$target_dir/tomd.py"; then
+            log "✓ tomd.py downloaded to $target_dir/tomd.py"
+        else
+            warn "Failed to download tomd.py to $target_dir/tomd.py"
+        fi
+
         # Clean and setup MCP directories
         log "Setting up MCP server directories..."
         rm -rf "$target_dir/.cursor/mcp" || warn "Failed to remove existing MCP directory (may not exist)"
@@ -815,6 +838,22 @@ install_workflow_system() {
         else
             warn "mcp.json template not found in repository clone at .cursor/mcp.json."
             touch "$template_mcp_json"
+        fi
+
+        # Ensure tomd.py is deployed to the installation root for both clone and curl methods
+        if [[ -f "$clone_dir/tomd.py" ]]; then
+            if cp "$clone_dir/tomd.py" "$target_dir/tomd.py"; then
+                log "✓ tomd.py copied to $target_dir/tomd.py"
+            else
+                warn "Failed to copy tomd.py from clone to $target_dir/tomd.py"
+            fi
+        else
+            warn "tomd.py not found in repository clone; attempting to download from raw URL"
+            if download_file "$RAW_URL_BASE/tomd.py" "$target_dir/tomd.py"; then
+                log "✓ tomd.py downloaded to $target_dir/tomd.py"
+            else
+                warn "Failed to obtain tomd.py via download; continuing without it"
+            fi
         fi
 
         # Clean and setup MCP directories

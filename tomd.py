@@ -45,6 +45,8 @@ INCLUDE_FILENAMES = {
 
 EXCLUDE_FILENAMES = {
     "agent.md",
+    "repo.md",
+    "diff",
 }
 
 HEAD_LINES = 50
