@@ -188,9 +188,9 @@ def render_tree(node: OrderedDict, prefix: str = "") -> List[str]:
     keys = list(node.keys())
     for index, key in enumerate(keys):
         is_last = index == len(keys) - 1
-        connector = "-- " if is_last else "|-- "
+        connector = "└── " if is_last else "├── "
         lines.append(prefix + connector + key)
-        new_prefix = prefix + ("    " if is_last else "|   ")
+        new_prefix = prefix + ("    " if is_last else "│   ")
         lines.extend(render_tree(node[key], new_prefix))
     return lines
 
