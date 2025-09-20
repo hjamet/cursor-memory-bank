@@ -198,9 +198,10 @@ def render_tree(node: OrderedDict, prefix: str = "") -> List[str]:
 def write_header_and_tree(out, tree_lines: List[str]) -> None:
     out.write("# Repository snapshot\n\n")
     out.write("## Tree\n")
+    out.write("```tree\n")
     for line in tree_lines:
         out.write(line + "\n")
-    out.write("\n")
+    out.write("```\n\n")
 
 
 def language_tag_for_file(filename: str) -> str:
