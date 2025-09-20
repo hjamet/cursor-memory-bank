@@ -237,21 +237,35 @@ manage_gitignore() {
 
     # If file doesn't exist, create it with the minimal required content
     if [[ ! -f "$gitignore_file" ]]; then
+        # Create new .gitignore with the proper header and rules
         cat > "$gitignore_file" <<EOF
-# Cursor
+# Cursor Memory Bank
 .cursor/mcp
 .cursor/mcp.json
 EOF
         log "Created .gitignore with minimal MCP rules at: $gitignore_file"
     else
-        # Ensure each required line exists (append if missing)
-        local entries=("# Cursor" ".cursor/mcp" ".cursor/mcp.json")
-        for entry in "${entries[@]}"; do
-            if ! grep -Fxq "$entry" "$gitignore_file" 2>/dev/null; then
-                echo "$entry" >> "$gitignore_file"
-                log "Added rule to .gitignore: $entry"
+        # Robustly append a single block if the header is missing.
+        # 1) Ensure file ends with a newline to avoid corrupting last line
+        if [[ -s "$gitignore_file" ]]; then
+            # Read last byte; if it's not a newline, append one
+            last_char=$(tail -c 1 "$gitignore_file" 2>/dev/null || printf '')
+            if [[ "$last_char" != $'\n' ]]; then
+                echo "" >> "$gitignore_file"
             fi
-        done
+        fi
+
+        # 2) If header not present, append an atomic block with header + rules
+        if ! grep -Fxq "# Cursor Memory Bank" "$gitignore_file" 2>/dev/null; then
+            cat >> "$gitignore_file" <<EOF
+# Cursor Memory Bank
+.cursor/mcp
+.cursor/mcp.json
+EOF
+            log "Appended Cursor Memory Bank block to .gitignore: $gitignore_file"
+        else
+            log "Cursor Memory Bank .gitignore header already present; no change"
+        fi
     fi
 
     # Preserve existing validation and tracked-file handling for compatibility
