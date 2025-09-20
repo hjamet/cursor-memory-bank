@@ -60,7 +60,7 @@ MAX_FILE_SIZE = 512 * 1024
 READ_BLOCK_SIZE = 64 * 1024
 
 # Directories to prune entirely during walk (any depth)
-PRUNE_DIR_NAMES = {"node_modules"}
+PRUNE_DIR_NAMES = {"node_modules","venv", ".venv", "env", ".env"}
 
 
 # ---------------------------- Progress Bar ----------------------------- #
