@@ -620,6 +620,10 @@ install_workflow_system() {
             download_file "$RAW_URL_BASE/.cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
             log "Downloading playwright.mdc rule..."
             download_file "$RAW_URL_BASE/.cursor/rules/playwright.mdc" "$target_dir/.cursor/rules/playwright.mdc"
+            # Download architecte command into .cursor/commands (command, not a rule)
+            log "Downloading architecte command..."
+            mkdir -p "$target_dir/.cursor/commands"
+            download_file "$RAW_URL_BASE/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"
             
             # Copy start.mdc as GEMINI.md in .gemini directory
             log "Downloading start.mdc as GEMINI.md"
@@ -647,6 +651,10 @@ install_workflow_system() {
             download_file "$RAW_URL_BASE/.cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
             log "Downloading playwright.mdc rule..."
             download_file "$RAW_URL_BASE/.cursor/rules/playwright.mdc" "$target_dir/.cursor/rules/playwright.mdc"
+            # Download architecte command into .cursor/commands (command, not a rule)
+            log "Downloading architecte command..."
+            mkdir -p "$target_dir/.cursor/commands"
+            download_file "$RAW_URL_BASE/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"
         fi
 
         # Ensure tomd.py is deployed to the installation root for both basic and full installs
