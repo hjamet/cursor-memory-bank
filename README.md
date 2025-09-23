@@ -73,7 +73,8 @@ bash install.sh --help
 Certain files are considered required by the installer and a missing download will stop the installation immediately (fail-fast). This ensures the installer does not continue in a partially-installed state.
 
 - **Required files (examples)**:
-  - `.cursor/commands/architecte.md`
+  - `.cursor/rules/architecte.mdc` (preferred)
+  - `.cursor/commands/architecte.md` (deprecated, kept for compatibility)
   - `.cursor/mcp/mcp-commit-server/*` (critical MCP server scripts and `mcp_tools`)
   - `.cursor/mcp.json` (MCP template)
 
@@ -132,6 +133,8 @@ Cursor Memory Bank offers two installation modes to suit different needs:
 
 - The installation script will:
 - Install the rules to your `.cursor/rules` directory (including `README.mdc`, `debug.mdc` and `commit.mdc` in all install modes) and install project commands to `.cursor/commands` (for example: `architecte.md`).
+ - The installation script will:
+ - Install the rules to your `.cursor/rules` directory (including `README.mdc`, `debug.mdc`, `architecte.mdc` and `commit.mdc` in all install modes) and keep legacy commands in `.cursor/commands` for compatibility.
 - Always preserve any existing custom rules
 - Create a backup of existing rules (only if --backup is used)
 - Update only the core rules that need updating

@@ -668,14 +668,19 @@ install_workflow_system() {
             download_file "$RAW_URL_BASE/.cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
             log "Downloading playwright.mdc rule..."
             download_file "$RAW_URL_BASE/.cursor/rules/playwright.mdc" "$target_dir/.cursor/rules/playwright.mdc"
-            # Download architecte command into .cursor/commands (command, not a rule)
-            log "Downloading architecte command..."
-            mkdir -p "$target_dir/.cursor/commands"
-            download_file "$RAW_URL_BASE/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md" "required"
-            # Defensive check: ensure the command file is present and non-empty
-            if [[ ! -f "$target_dir/.cursor/commands/architecte.md" || ! -s "$target_dir/.cursor/commands/architecte.md" ]]; then
-                error "Required command file missing or empty after download: $target_dir/.cursor/commands/architecte.md"
+            # Download architecte rule into .cursor/rules (preferred)
+            log "Downloading architecte rule..."
+            mkdir -p "$target_dir/.cursor/rules"
+            download_file "$RAW_URL_BASE/.cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc" "required"
+            # Defensive check: ensure the rule file is present and non-empty
+            if [[ ! -f "$target_dir/.cursor/rules/architecte.mdc" || ! -s "$target_dir/.cursor/rules/architecte.mdc" ]]; then
+                error "Required rule file missing or empty after download: $target_dir/.cursor/rules/architecte.mdc"
             fi
+
+            # Backwards-compatibility: download old commands/architecte.md if available (optional)
+            log "Downloading architecte command for compatibility (optional)..."
+            mkdir -p "$target_dir/.cursor/commands"
+            download_file "$RAW_URL_BASE/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"
             
             # Copy start.mdc as GEMINI.md in .gemini directory
             log "Downloading start.mdc as GEMINI.md"
@@ -703,14 +708,18 @@ install_workflow_system() {
             download_file "$RAW_URL_BASE/.cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
             log "Downloading playwright.mdc rule..."
             download_file "$RAW_URL_BASE/.cursor/rules/playwright.mdc" "$target_dir/.cursor/rules/playwright.mdc"
-            # Download architecte command into .cursor/commands (command, not a rule)
-            log "Downloading architecte command..."
-            mkdir -p "$target_dir/.cursor/commands"
-            download_file "$RAW_URL_BASE/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md" "required"
-            # Defensive check: ensure the command file is present and non-empty
-            if [[ ! -f "$target_dir/.cursor/commands/architecte.md" || ! -s "$target_dir/.cursor/commands/architecte.md" ]]; then
-                error "Required command file missing or empty after download: $target_dir/.cursor/commands/architecte.md"
+            # Download architecte rule into .cursor/rules (preferred)
+            log "Downloading architecte rule..."
+            mkdir -p "$target_dir/.cursor/rules"
+            download_file "$RAW_URL_BASE/.cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc" "required"
+            if [[ ! -f "$target_dir/.cursor/rules/architecte.mdc" || ! -s "$target_dir/.cursor/rules/architecte.mdc" ]]; then
+                error "Required rule file missing or empty after download: $target_dir/.cursor/rules/architecte.mdc"
             fi
+
+            # Backwards-compatibility: download old commands/architecte.md if available (optional)
+            log "Downloading architecte command for compatibility (optional)..."
+            mkdir -p "$target_dir/.cursor/commands"
+            download_file "$RAW_URL_BASE/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"
         fi
 
         # Ensure tomd.py is deployed to the installation root for both basic and full installs
@@ -825,6 +834,30 @@ install_workflow_system() {
             else
                 warn "debug.mdc rule not found in repository"
             fi
+            # Copy architecte rule into .cursor/rules (preferred)
+            if [[ -f "$clone_dir/.cursor/rules/architecte.mdc" ]]; then
+                log "Copying architecte rule..."
+                mkdir -p "$target_dir/.cursor/rules"
+                if ! cp "$clone_dir/.cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc"; then
+                    error "Failed to copy architecte rule. Please check disk space and permissions."
+                fi
+                if [[ ! -f "$target_dir/.cursor/rules/architecte.mdc" || ! -s "$target_dir/.cursor/rules/architecte.mdc" ]]; then
+                    error "Required rule file missing or empty after copy: $target_dir/.cursor/rules/architecte.mdc"
+                fi
+            else
+                error "architecte rule not found in repository clone at .cursor/rules/architecte.mdc. This rule is required."
+            fi
+
+            # Backwards-compatibility: copy commands/architecte.md if present, but do not treat as required
+            if [[ -f "$clone_dir/.cursor/commands/architecte.md" ]]; then
+                log "Copying architecte command for compatibility..."
+                mkdir -p "$target_dir/.cursor/commands"
+                if ! cp "$clone_dir/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"; then
+                    warn "Failed to copy architecte command for compatibility. Continuing without it."
+                fi
+            else
+                log "architecte compatibility command not found in clone (optional)"
+            fi
             
             if [[ -f "$clone_dir/.cursor/rules/commit.mdc" ]]; then
                 log "Copying commit.mdc rule..."
@@ -834,6 +867,30 @@ install_workflow_system() {
                 fi
             else
                 warn "commit.mdc rule not found in repository"
+            fi
+            # Copy architecte rule into .cursor/rules (preferred)
+            if [[ -f "$clone_dir/.cursor/rules/architecte.mdc" ]]; then
+                log "Copying architecte rule..."
+                mkdir -p "$target_dir/.cursor/rules"
+                if ! cp "$clone_dir/.cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc"; then
+                    error "Failed to copy architecte rule. Please check disk space and permissions."
+                fi
+                if [[ ! -f "$target_dir/.cursor/rules/architecte.mdc" || ! -s "$target_dir/.cursor/rules/architecte.mdc" ]]; then
+                    error "Required rule file missing or empty after copy: $target_dir/.cursor/rules/architecte.mdc"
+                fi
+            else
+                error "architecte rule not found in repository clone at .cursor/rules/architecte.mdc. This rule is required."
+            fi
+
+            # Backwards-compatibility: copy commands/architecte.md if present, but do not treat as required
+            if [[ -f "$clone_dir/.cursor/commands/architecte.md" ]]; then
+                log "Copying architecte command for compatibility..."
+                mkdir -p "$target_dir/.cursor/commands"
+                if ! cp "$clone_dir/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"; then
+                    warn "Failed to copy architecte command for compatibility. Continuing without it."
+                fi
+            else
+                log "architecte compatibility command not found in clone (optional)"
             fi
             
             # Copy start.mdc as GEMINI.md in .gemini directory
