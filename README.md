@@ -68,6 +68,18 @@ bash install.sh --backup --full-install
 bash install.sh --help
 ```
 
+### Required files and fail-fast policy
+
+Certain files are considered required by the installer and a missing download will stop the installation immediately (fail-fast). This ensures the installer does not continue in a partially-installed state.
+
+- **Required files (examples)**:
+  - `.cursor/commands/architecte.md`
+  - `.cursor/mcp/mcp-commit-server/*` (critical MCP server scripts and `mcp_tools`)
+  - `.cursor/mcp.json` (MCP template)
+
+- **Diagnosis**: On failure the installer will print diagnostic info including HTTP status codes and curl exit codes (e.g. `http_code=404 curl_exit_code=22`). Re-run the installer after fixing network or URL issues.
+
+
 ### Method 2: Using git clone
 
 If you prefer, you can also install Cursor Memory Bank by cloning the repository:

@@ -110,13 +110,17 @@ clone_repository() {
 
 # Curl download function for individual files
 download_file() {
+    # download_file(url, dest, [required])
+    # If third argument == "required" then a 404 or any failure is fatal (fail-fast).
+    # Otherwise the function will warn and return non-zero to allow the caller to decide.
     local url="$1"
     local dest="$2"
+    local required_flag="${3:-}"
 
     log "Downloading file from $url"
     local http_code
     local curl_exit_code
-    
+
     # Handle file:// protocol differently
     if [[ "$url" =~ ^file:// ]]; then
         local file_path="${url#file://}"
@@ -127,42 +131,67 @@ download_file() {
             error "Failed to download file: Local file not found: $file_path"
         fi
     fi
-    
+
     # Execute curl and capture http_code directly, ignore command exit status here
     # We capture the real exit code separately
     set +e # Temporarily disable exit on error
     http_code=$(curl -w "%{http_code}" -fsSL "$url" -o "$dest" 2>/dev/null)
     curl_exit_code=$?
     set -e # Re-enable exit on error
-    
+
+    # Diagnostic info on failure paths
+    debug_info="http_code=$http_code curl_exit_code=$curl_exit_code"
+
     # Check curl exit code first for general errors (like network, invalid URL format etc.)
     # Curl error codes: https://curl.se/libcurl/c/libcurl-errors.html
-    if [[ $curl_exit_code -ne 0 ]] && [[ $curl_exit_code -ne 22 ]]; then # Exit code 22 is handled by HTTP 404 check
-       error "curl command failed with exit code $curl_exit_code for URL: $url. Check network or URL."
+    if [[ $curl_exit_code -ne 0 ]] && [[ $curl_exit_code -ne 22 ]]; then # Exit code 22 may be HTTP errors
+       error "curl command failed with exit code $curl_exit_code for URL: $url. Debug: $debug_info"
     fi
-    
+
     case "$http_code" in
         200)
+            # Verify the downloaded file exists and is non-empty
+            if [[ ! -s "$dest" ]]; then
+                if [[ "$required_flag" == "required" ]]; then
+                    error "Downloaded file is empty or missing after HTTP 200: $dest. Debug: $debug_info"
+                else
+                    warn "Downloaded file is empty or missing after HTTP 200: $dest. Debug: $debug_info"
+                    return 1
+                fi
+            fi
             return 0
             ;;
         404)
-            # Reverted AGAIN: Warn on 404 for curl test compatibility
-            warn "URL not found (HTTP 404). Skipping download for: $url"
-            return 0 # Allow script to continue
+            if [[ "$required_flag" == "required" ]]; then
+                error "Failed to download file: URL not found (HTTP 404): $url. Debug: $debug_info"
+            else
+                warn "URL not found (HTTP 404). Skipping download for: $url. Debug: $debug_info"
+                return 1
+            fi
             ;;
         403)
-            error "Failed to download file: Access denied (HTTP 403). Please check your access permissions to: $url"
+            error "Failed to download file: Access denied (HTTP 403). Please check your access permissions to: $url. Debug: $debug_info"
             ;;
         50[0-9])
-            error "Failed to download file: Server error (HTTP $http_code). Please try again later or contact support."
+            error "Failed to download file: Server error (HTTP $http_code). Please try again later or contact support. Debug: $debug_info"
             ;;
         *)
             # Handle cases where curl exit code was 0 or 22 but http_code is unexpected
-            if [[ "$http_code" =~ ^[0-9]+$ ]]; then # Check if it looks like a valid HTTP code
-                error "Failed to download file (Unexpected HTTP status: $http_code) for URL: $url"
+            if [[ "$http_code" =~ ^[0-9]+$ ]]; then
+                if [[ "$required_flag" == "required" ]]; then
+                    error "Failed to download file (Unexpected HTTP status: $http_code) for URL: $url. Debug: $debug_info"
+                else
+                    warn "Failed to download file (Unexpected HTTP status: $http_code) for URL: $url. Debug: $debug_info"
+                    return 1
+                fi
             else
                 # This case might happen if -w output was empty or strange
-                error "Failed to download file: Unknown error (curl exit: $curl_exit_code, http code: '$http_code'). Check URL: $url"
+                if [[ "$required_flag" == "required" ]]; then
+                    error "Failed to download file: Unknown error (curl exit: $curl_exit_code, http code: '$http_code'). Check URL: $url. Debug: $debug_info"
+                else
+                    warn "Failed to download file: Unknown error (curl exit: $curl_exit_code, http code: '$http_code'). Check URL: $url. Debug: $debug_info"
+                    return 1
+                fi
             fi
             ;;
     esac
@@ -623,7 +652,11 @@ install_workflow_system() {
             # Download architecte command into .cursor/commands (command, not a rule)
             log "Downloading architecte command..."
             mkdir -p "$target_dir/.cursor/commands"
-            download_file "$RAW_URL_BASE/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"
+            download_file "$RAW_URL_BASE/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md" "required"
+            # Defensive check: ensure the command file is present and non-empty
+            if [[ ! -f "$target_dir/.cursor/commands/architecte.md" || ! -s "$target_dir/.cursor/commands/architecte.md" ]]; then
+                error "Required command file missing or empty after download: $target_dir/.cursor/commands/architecte.md"
+            fi
             
             # Copy start.mdc as GEMINI.md in .gemini directory
             log "Downloading start.mdc as GEMINI.md"
@@ -654,7 +687,11 @@ install_workflow_system() {
             # Download architecte command into .cursor/commands (command, not a rule)
             log "Downloading architecte command..."
             mkdir -p "$target_dir/.cursor/commands"
-            download_file "$RAW_URL_BASE/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"
+            download_file "$RAW_URL_BASE/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md" "required"
+            # Defensive check: ensure the command file is present and non-empty
+            if [[ ! -f "$target_dir/.cursor/commands/architecte.md" || ! -s "$target_dir/.cursor/commands/architecte.md" ]]; then
+                error "Required command file missing or empty after download: $target_dir/.cursor/commands/architecte.md"
+            fi
         fi
 
         # Ensure tomd.py is deployed to the installation root for both basic and full installs
