@@ -111,8 +111,9 @@ clone_repository() {
 # Curl download function for individual files
 download_file() {
     # download_file(url, dest, [required])
-    # If third argument == "required" then a 404 or any failure is fatal (fail-fast).
-    # Otherwise the function will warn and return non-zero to allow the caller to decide.
+    # If third argument == "required" then missing files or HTTP errors are fatal (fail-fast).
+    # Otherwise the function will warn and return success (0) so that global `set -e` does not
+    # abort the whole installation for optional resources. Diagnostic info is printed on warnings/errors.
     local url="$1"
     local dest="$2"
     local required_flag="${3:-}"
@@ -128,24 +129,33 @@ download_file() {
             cp "$file_path" "$dest"
             return 0
         else
-            error "Failed to download file: Local file not found: $file_path"
+            if [[ "$required_flag" == "required" ]]; then
+                error "Failed to download file: Local file not found: $file_path"
+            else
+                warn "Local file not found (optional): $file_path"
+                return 0
+            fi
         fi
     fi
 
-    # Execute curl and capture http_code directly, ignore command exit status here
-    # We capture the real exit code separately
-    set +e # Temporarily disable exit on error
+    # Execute curl and capture http_code directly. We intentionally ignore curl exit status here
+    # and handle it with curl_exit_code/http_code to provide granular diagnostics.
+    set +e
     http_code=$(curl -w "%{http_code}" -fsSL "$url" -o "$dest" 2>/dev/null)
     curl_exit_code=$?
-    set -e # Re-enable exit on error
+    set -e
 
-    # Diagnostic info on failure paths
+    # Diagnostic info for logs
     debug_info="http_code=$http_code curl_exit_code=$curl_exit_code"
 
-    # Check curl exit code first for general errors (like network, invalid URL format etc.)
-    # Curl error codes: https://curl.se/libcurl/c/libcurl-errors.html
-    if [[ $curl_exit_code -ne 0 ]] && [[ $curl_exit_code -ne 22 ]]; then # Exit code 22 may be HTTP errors
-       error "curl command failed with exit code $curl_exit_code for URL: $url. Debug: $debug_info"
+    # If curl failed with a network/URL error (not an HTTP error), treat as fatal only if required
+    if [[ $curl_exit_code -ne 0 ]] && [[ $curl_exit_code -ne 22 ]]; then
+        if [[ "$required_flag" == "required" ]]; then
+            error "curl command failed (exit $curl_exit_code) for URL: $url. Debug: $debug_info"
+        else
+            warn "curl command failed (exit $curl_exit_code) for optional URL: $url. Debug: $debug_info"
+            return 0
+        fi
     fi
 
     case "$http_code" in
@@ -155,8 +165,8 @@ download_file() {
                 if [[ "$required_flag" == "required" ]]; then
                     error "Downloaded file is empty or missing after HTTP 200: $dest. Debug: $debug_info"
                 else
-                    warn "Downloaded file is empty or missing after HTTP 200: $dest. Debug: $debug_info"
-                    return 1
+                    warn "Downloaded file is empty or missing after HTTP 200 (optional): $dest. Debug: $debug_info"
+                    return 0
                 fi
             fi
             return 0
@@ -165,32 +175,41 @@ download_file() {
             if [[ "$required_flag" == "required" ]]; then
                 error "Failed to download file: URL not found (HTTP 404): $url. Debug: $debug_info"
             else
-                warn "URL not found (HTTP 404). Skipping download for: $url. Debug: $debug_info"
-                return 1
+                warn "URL not found (HTTP 404) for optional file: $url. Skipping. Debug: $debug_info"
+                return 0
             fi
             ;;
         403)
-            error "Failed to download file: Access denied (HTTP 403). Please check your access permissions to: $url. Debug: $debug_info"
+            if [[ "$required_flag" == "required" ]]; then
+                error "Failed to download file: Access denied (HTTP 403). Please check your access permissions to: $url. Debug: $debug_info"
+            else
+                warn "Access denied (HTTP 403) for optional file: $url. Skipping. Debug: $debug_info"
+                return 0
+            fi
             ;;
         50[0-9])
-            error "Failed to download file: Server error (HTTP $http_code). Please try again later or contact support. Debug: $debug_info"
+            if [[ "$required_flag" == "required" ]]; then
+                error "Failed to download file: Server error (HTTP $http_code). Please try again later or contact support. Debug: $debug_info"
+            else
+                warn "Server error (HTTP $http_code) for optional file: $url. Skipping. Debug: $debug_info"
+                return 0
+            fi
             ;;
         *)
-            # Handle cases where curl exit code was 0 or 22 but http_code is unexpected
+            # Handle unexpected or empty http_code
             if [[ "$http_code" =~ ^[0-9]+$ ]]; then
                 if [[ "$required_flag" == "required" ]]; then
                     error "Failed to download file (Unexpected HTTP status: $http_code) for URL: $url. Debug: $debug_info"
                 else
-                    warn "Failed to download file (Unexpected HTTP status: $http_code) for URL: $url. Debug: $debug_info"
-                    return 1
+                    warn "Unexpected HTTP status ($http_code) for optional file: $url. Skipping. Debug: $debug_info"
+                    return 0
                 fi
             else
-                # This case might happen if -w output was empty or strange
                 if [[ "$required_flag" == "required" ]]; then
                     error "Failed to download file: Unknown error (curl exit: $curl_exit_code, http code: '$http_code'). Check URL: $url. Debug: $debug_info"
                 else
-                    warn "Failed to download file: Unknown error (curl exit: $curl_exit_code, http code: '$http_code'). Check URL: $url. Debug: $debug_info"
-                    return 1
+                    warn "Unknown download error for optional file: $url. Debug: $debug_info"
+                    return 0
                 fi
             fi
             ;;

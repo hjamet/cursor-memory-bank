@@ -79,6 +79,23 @@ Certain files are considered required by the installer and a missing download wi
 
 - **Diagnosis**: On failure the installer will print diagnostic info including HTTP status codes and curl exit codes (e.g. `http_code=404 curl_exit_code=22`). Re-run the installer after fixing network or URL issues.
 
+### Comportement des téléchargements
+
+Le script utilise une fonction interne `download_file(url, dest, [required])` pour récupérer des fichiers via `curl`.
+- **Paramètre `required`**: si la 3ᵉ valeur passée est `required`, le fichier est **considéré critique**; toute erreur HTTP (404, 403, 5xx) ou un fichier vide provoquera une erreur fatale et interrompra l'installation (fail‑fast).
+- **Fichiers optionnels**: si le paramètre n'est pas fourni, les erreurs réseau/HTTP **ne feront pas échouer** l'installation. Le script affichera un **warning** et continuera (retourne 0) pour préserver la compatibilité avec `set -e` et éviter des régressions quand des ressources facultatives manquent.
+- **Diagnostics**: sur erreurs ou comportements inattendus, le script affiche `http_code` et `curl_exit_code` (ex. `http_code=404 curl_exit_code=22`) pour faciliter le diagnostic réseau/URL.
+
+Exemples d'utilisation dans le script:
+
+```bash
+# Fichier critique — installation échoue si absent
+download_file "$RAW_URL_BASE/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md" "required"
+
+# Fichier optionnel — log warning si absent mais installation continue
+download_file "$RAW_URL_BASE/.cursor/streamlit_app/app.py" "$streamlit_dir/app.py"
+```
+
 
 ### Method 2: Using git clone
 
