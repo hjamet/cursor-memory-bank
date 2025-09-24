@@ -4,7 +4,7 @@ alwaysApply: true
 
 # README upkeep rule
 
-Tu dois maintenir le fichier [README.md](mdc:README.md) **constamment à jour** : à chaque modification du code (nouveau fichier, suppression, changement de logique, ajout/suppression de dépendances, services, bases de données, ou modification des scripts d'installation / variables d'environnement), tu mets à jour le `README.md` et tu l'inclus dans la même PR/commit.
+Tu dois maintenir le fichier [README.md](mdc:README.md) **constamment à jour** : à chaque modification du code (nouveau fichier, suppression, changement de logique, ajout/suppression de dépendances, services, bases de données, ou modification des scripts d'installation / variables d'environnement), tu mets à jour le `README.md`.
 
 Directives générales :
 - **Sois clair et concis** : garde le README lisible et proportionné ; fournis l'information essentielle sans digresser.
@@ -109,7 +109,6 @@ DB_URL=postgres://user:pass@localhost:5432/dbname
 - **Changelog sommaire** : mentionne les changements majeurs ou renvoie vers `CHANGELOG.md` si présent.
 
 Bonnes pratiques obligatoires :
-- Mets à jour le `README.md` et committe-le dans la même PR que les changements de code concernés.
 - Quand tu ajoutes une nouvelle commande, dépendance ou service, ajoute un exemple d'utilisation dans `Commandes principales` et mets à jour `Prérequis & installation`.
 - Si tu changes les étapes d'installation ou de build, mets à jour immédiatement la section correspondante.
 - Fournis des exemples d'utilisation courts, testables et reproductibles.
