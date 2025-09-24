@@ -701,13 +701,25 @@ install_workflow_system() {
             done
             
             # Ensure standard rules are present (centralized)
+            # Note: `.cursor/rules/mcp.mdc` is repository-local and MUST NOT be distributed by the installer.
             mkdir -p "$target_dir/.cursor/rules"
-            ensure_rule_file ".cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"
-            ensure_rule_file ".cursor/rules/README.mdc" "$target_dir/.cursor/rules/README.mdc"
-            ensure_rule_file ".cursor/rules/debug.mdc" "$target_dir/.cursor/rules/debug.mdc"
-            ensure_rule_file ".cursor/rules/commit.mdc" "$target_dir/.cursor/rules/commit.mdc"
-            ensure_rule_file ".cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
-            ensure_rule_file ".cursor/rules/playwright.mdc" "$target_dir/.cursor/rules/playwright.mdc"
+            # Reuse arrays to avoid duplication between curl and clone branches
+            common_rules=(
+                ".cursor/rules/README.mdc"
+                ".cursor/rules/debug.mdc"
+                ".cursor/rules/commit.mdc"
+                ".cursor/rules/playwright.mdc"
+            )
+            full_only_rules=(
+                ".cursor/rules/start.mdc"
+            )
+
+            for r in "${common_rules[@]}"; do
+                ensure_rule_file "$r" "$target_dir/$r"
+            done
+            for r in "${full_only_rules[@]}"; do
+                ensure_rule_file "$r" "$target_dir/$r"
+            done
             ensure_rule_file ".cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc" "required"
 
             # Backwards-compatibility: commands
@@ -716,17 +728,28 @@ install_workflow_system() {
 
             # GEMINI and .gemini settings
             mkdir -p "$target_dir/.gemini"
-            ensure_rule_file ".cursor/rules/start.mdc" "$target_dir/GEMINI.md"
+            # Only create GEMINI.md from start.mdc if start.mdc exists and we're in full install
+            if [[ -f "$target_dir/.cursor/rules/start.mdc" ]]; then
+                ensure_rule_file ".cursor/rules/start.mdc" "$target_dir/GEMINI.md"
+            else
+                # If start.mdc is not available, create an empty GEMINI.md for compatibility
+                touch "$target_dir/GEMINI.md"
+            fi
             ensure_rule_file ".cursor/mcp.json" "$target_dir/.gemini/settings.json"
         else
             # Ensure same essential rules for basic mode (centralized)
+            # Note: Do NOT install `.cursor/rules/start.mdc` in basic mode. Also do not distribute `mcp.mdc`.
             mkdir -p "$target_dir/.cursor/rules"
-            ensure_rule_file ".cursor/rules/agent.mdc" "$target_dir/.cursor/rules/agent.mdc"
-            ensure_rule_file ".cursor/rules/README.mdc" "$target_dir/.cursor/rules/README.mdc"
-            ensure_rule_file ".cursor/rules/debug.mdc" "$target_dir/.cursor/rules/debug.mdc"
-            ensure_rule_file ".cursor/rules/commit.mdc" "$target_dir/.cursor/rules/commit.mdc"
-            ensure_rule_file ".cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
-            ensure_rule_file ".cursor/rules/playwright.mdc" "$target_dir/.cursor/rules/playwright.mdc"
+            basic_rules=(
+                ".cursor/rules/agent.mdc"
+                ".cursor/rules/README.mdc"
+                ".cursor/rules/debug.mdc"
+                ".cursor/rules/commit.mdc"
+                ".cursor/rules/playwright.mdc"
+            )
+            for r in "${basic_rules[@]}"; do
+                ensure_rule_file "$r" "$target_dir/$r"
+            done
             ensure_rule_file ".cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc" "required"
 
             mkdir -p "$target_dir/.cursor/commands"
@@ -803,11 +826,9 @@ install_workflow_system() {
         mkdir -p "$INSTALL_DIR/.cursor/rules" "$INSTALL_DIR/.cursor/commands" "$INSTALL_DIR/.cursor/mcp" "$INSTALL_DIR/.gemini"
 
         required_rules=(
-            ".cursor/rules/start.mdc"
             ".cursor/rules/README.mdc"
             ".cursor/rules/debug.mdc"
             ".cursor/rules/commit.mdc"
-            ".cursor/rules/mcp.mdc"
             ".cursor/rules/playwright.mdc"
             ".cursor/rules/architecte.mdc"
             "tomd.py"
@@ -817,7 +838,12 @@ install_workflow_system() {
 
         for rel in "${required_rules[@]}"; do
             dest="$INSTALL_DIR/$rel"
-            ensure_rule_file "$rel" "$dest" $( [[ "$rel" == ".cursor/rules/architecte.mdc" ]] && echo "required" || echo "" )
+            # Mark architecte.mdc as required, keep others optional
+            if [[ "$rel" == ".cursor/rules/architecte.mdc" ]]; then
+                ensure_rule_file "$rel" "$dest" "required"
+            else
+                ensure_rule_file "$rel" "$dest"
+            fi
         done
         
         # Get commit date

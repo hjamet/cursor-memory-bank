@@ -36,12 +36,13 @@ Available options (summary):
 
 Important: the installer now ensures the presence of the critical rule files during installation by copying them from a local clone when available and otherwise downloading them from `raw.githubusercontent.com`. The required rules are:
 
-- `.cursor/rules/architecte.mdc` (required)
-- `.cursor/rules/README.mdc`
-- `.cursor/rules/commit.mdc`
-- `.cursor/rules/mcp.mdc`
-- `.cursor/rules/debug.mdc`
-- `.cursor/rules/playwright.mdc`
+-- `.cursor/rules/architecte.mdc` (required)
+-- `.cursor/rules/README.mdc`
+-- `.cursor/rules/commit.mdc`
+-- `.cursor/rules/debug.mdc`
+-- `.cursor/rules/playwright.mdc`
+
+Note: `.cursor/rules/mcp.mdc` is repository-local and is NOT distributed by the installer. It must remain in the repository and will not be copied to target installations.
 
 Examples:
 ```bash
@@ -124,10 +125,10 @@ Cursor Memory Bank offers two installation modes to suit different needs:
 - **Upgrade to Full:** You can always re-run with `--full-install` to add components later
 - **Development Work:** Full mode recommended for complex projects requiring autonomous workflow
 
-- The installation script will:
-- Install the rules to your `.cursor/rules` directory (including `README.mdc`, `debug.mdc` and `commit.mdc` in all install modes) and install project commands to `.cursor/commands` (for example: `architecte.md`).
  - The installation script will:
- - Install the rules to your `.cursor/rules` directory (including `README.mdc`, `debug.mdc`, `architecte.mdc` and `commit.mdc` in all install modes) and keep legacy commands in `.cursor/commands` for compatibility.
+ - Install the rules to your `.cursor/rules` directory (including `README.mdc`, `debug.mdc` and `commit.mdc` in all install modes) and install project commands to `.cursor/commands` (for example: `architecte.md`).
+ - `start.mdc` is installed only when running the installer with `--full-install` (it is not deployed for basic installs).
+ - `.cursor/rules/mcp.mdc` is repository-local and will not be installed or distributed by the installer.
 - Always preserve any existing custom rules
 - Create a backup of existing rules (only if --backup is used)
 - Update only the core rules that need updating
