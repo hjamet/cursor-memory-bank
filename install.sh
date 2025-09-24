@@ -793,6 +793,32 @@ install_workflow_system() {
         # Use git clone
         log "Using git clone for installation"
         clone_repository "$REPO_URL" "$clone_dir"
+
+        # After cloning, verify and install required rule files using the
+        # unified ensure_rule_file() helper. This will copy from the clone
+        # when present, and fall back to downloading from RAW_URL_BASE when
+        # missing or empty. This implements the "clone if possible + verify
+        # and fallback by raw download" strategy.
+        log "Verifying required rule files via ensure_rule_file (clone + fallback)"
+        mkdir -p "$INSTALL_DIR/.cursor/rules" "$INSTALL_DIR/.cursor/commands" "$INSTALL_DIR/.cursor/mcp" "$INSTALL_DIR/.gemini"
+
+        required_rules=(
+            ".cursor/rules/start.mdc"
+            ".cursor/rules/README.mdc"
+            ".cursor/rules/debug.mdc"
+            ".cursor/rules/commit.mdc"
+            ".cursor/rules/mcp.mdc"
+            ".cursor/rules/playwright.mdc"
+            ".cursor/rules/architecte.mdc"
+            "tomd.py"
+            ".cursor/mcp.json"
+            ".cursor/commands/architecte.md"
+        )
+
+        for rel in "${required_rules[@]}"; do
+            dest="$INSTALL_DIR/$rel"
+            ensure_rule_file "$rel" "$dest" $( [[ "$rel" == ".cursor/rules/architecte.mdc" ]] && echo "required" || echo "" )
+        done
         
         # Get commit date
         commit_date=$(get_last_commit_date)

@@ -4,57 +4,44 @@ Un système de workflow autonome avancé pour Cursor avec intégration MCP (Mode
 
 ## Installation 🚀
 
-You can install using a single, reliable script. The installer now **automatically detects the repository's default branch** before downloading missing files, so piping the script is safe across branches.
+A single, robust installer is provided: `install.sh`. It now uses a unified strategy: **prefer `git clone` when available, then verify all required rule files and automatically fall back to raw downloads** when files are missing in the clone. The installer also detects the repository default branch via the GitHub API (fallback: `master`) to avoid raw URL 404s.
 
-**Recommended (download then run — most robust):**
+Recommended (download then run — reviewable):
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh -o install.sh
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/$(curl -s https://api.github.com/repos/hjamet/cursor-memory-bank | grep -o '"default_branch": *"[^"]*"' | sed 's/.*: *"\(.*\)"/\1/' || echo master)/install.sh -o install.sh
 less install.sh    # review if desired
 bash install.sh [options]
 ```
 
-**Quick one-liners** (the script auto-detects the default branch; use `--use-curl` to force curl mode):
+Quick one-liners (the script auto-detects the default branch; use `--use-curl` to force curl-only mode):
 
 ```bash
-# Basic installation (ToolsMCP only, force curl)
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | tr -d '\r' | bash -s -- --use-curl
+# Basic installation (ToolsMCP only)
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/$(curl -s https://api.github.com/repos/hjamet/cursor-memory-bank | grep -o '"default_branch": *"[^"]*"' | sed 's/.*: *"\(.*\)"/\1/' || echo master)/install.sh | tr -d '\r' | bash -s --
 
 # Full installation (all components)
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | tr -d '\r' | bash -s -- --full-install
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/$(curl -s https://api.github.com/repos/hjamet/cursor-memory-bank | grep -o '"default_branch": *"[^"]*"' | sed 's/.*: *"\(.*\)"/\1/' || echo master)/install.sh | tr -d '\r' | bash -s -- --full-install
 ```
 
-**Note for MINGW64/Git Bash users on Windows:** If you encounter `: command not found` errors during installation, it's likely due to line ending issues when piping directly. Use this modified command instead:
+Note for MINGW64/Git Bash users on Windows: If you encounter `: command not found` errors during piping, strip CR characters with `tr -d '\r'` as shown above.
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | tr -d '\r' | bash
-```
-
-For better security, you can also:
-1. Download the script first:
-```bash
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh -o install.sh
-```
-
-2. Review it:
-```bash
-less install.sh
-```
-
-3. Then run it with any desired options:
-```bash
-bash install.sh [options]
-```
-
-Available options:
+Available options (summary):
 - `--dir <path>` : Install to a specific directory (default: current directory)
 - `--backup` : Create a backup of existing rules
-- `--force` : Overwrite existing files
-- `--use-curl` : Force using curl-based downloads instead of `git clone` (useful when git is unavailable or when piping the script)
+- `--force` : Force overwrite existing files
+- `--use-curl` : Force curl-only downloads instead of `git clone` (useful when git is unavailable)
 - `--full-install` : Install all components (ToolsMCP, MemoryBankMCP, Streamlit UI)
 - `--help` : Show help information
 - `--version` : Show version information
 
-Note importante : Le script d'installation `install.sh` met désormais à jour (ou crée) le fichier `.gitignore` lors de l'installation pour s'assurer que les entrées suivantes sont présentes : `.cursor/mcp` et `.cursor/mcp.json`. Cela évite de committer par erreur les fichiers d'état MCP.
+Important: the installer now ensures the presence of the critical rule files during installation by copying them from a local clone when available and otherwise downloading them from `raw.githubusercontent.com`. The required rules are:
+
+- `.cursor/rules/architecte.mdc` (required)
+- `.cursor/rules/README.mdc`
+- `.cursor/rules/commit.mdc`
+- `.cursor/rules/mcp.mdc`
+- `.cursor/rules/debug.mdc`
+- `.cursor/rules/playwright.mdc`
 
 Examples:
 ```bash
@@ -67,8 +54,8 @@ bash install.sh --full-install
 # Install to a specific directory with all components
 bash install.sh --dir /path/to/install --full-install
 
-# Create a backup of existing rules
-bash install.sh --backup --full-install
+# Force curl-only (no git)
+bash install.sh --use-curl
 
 # Show help information
 bash install.sh --help
