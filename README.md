@@ -41,6 +41,8 @@ Important: the installer now ensures the presence of the critical rule files dur
 -- `.cursor/rules/commit.mdc`
 -- `.cursor/rules/debug.mdc`
 -- `.cursor/rules/playwright.mdc`
+-- `.cursor/rules/maitre-d-oeuvre.mdc` (required)
+-- `.cursor/rules/ouvrier.mdc` (required)
 
 Note: `.cursor/rules/mcp.mdc` is repository-local and is NOT distributed by the installer. It must remain in the repository and will not be copied to target installations.
 

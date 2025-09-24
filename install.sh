@@ -709,6 +709,8 @@ install_workflow_system() {
                 ".cursor/rules/debug.mdc"
                 ".cursor/rules/commit.mdc"
                 ".cursor/rules/playwright.mdc"
+                ".cursor/rules/maitre-d-oeuvre.mdc"
+                ".cursor/rules/ouvrier.mdc"
             )
             full_only_rules=(
                 ".cursor/rules/start.mdc"
@@ -717,6 +719,11 @@ install_workflow_system() {
             for r in "${common_rules[@]}"; do
                 ensure_rule_file "$r" "$target_dir/$r"
             done
+            # Ensure the new critical rules are treated as required in curl/download path
+            log "Ensuring rule: .cursor/rules/maitre-d-oeuvre.mdc"
+            ensure_rule_file ".cursor/rules/maitre-d-oeuvre.mdc" "$target_dir/.cursor/rules/maitre-d-oeuvre.mdc" "required"
+            log "Ensuring rule: .cursor/rules/ouvrier.mdc"
+            ensure_rule_file ".cursor/rules/ouvrier.mdc" "$target_dir/.cursor/rules/ouvrier.mdc" "required"
             for r in "${full_only_rules[@]}"; do
                 ensure_rule_file "$r" "$target_dir/$r"
             done
@@ -746,10 +753,17 @@ install_workflow_system() {
                 ".cursor/rules/debug.mdc"
                 ".cursor/rules/commit.mdc"
                 ".cursor/rules/playwright.mdc"
+                ".cursor/rules/maitre-d-oeuvre.mdc"
+                ".cursor/rules/ouvrier.mdc"
             )
             for r in "${basic_rules[@]}"; do
                 ensure_rule_file "$r" "$target_dir/$r"
             done
+            # Ensure the new critical rules are treated as required in curl/download path
+            log "Ensuring rule: .cursor/rules/maitre-d-oeuvre.mdc"
+            ensure_rule_file ".cursor/rules/maitre-d-oeuvre.mdc" "$target_dir/.cursor/rules/maitre-d-oeuvre.mdc" "required"
+            log "Ensuring rule: .cursor/rules/ouvrier.mdc"
+            ensure_rule_file ".cursor/rules/ouvrier.mdc" "$target_dir/.cursor/rules/ouvrier.mdc" "required"
             ensure_rule_file ".cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc" "required"
 
             mkdir -p "$target_dir/.cursor/commands"
@@ -831,6 +845,8 @@ install_workflow_system() {
             ".cursor/rules/commit.mdc"
             ".cursor/rules/playwright.mdc"
             ".cursor/rules/architecte.mdc"
+            ".cursor/rules/maitre-d-oeuvre.mdc"
+            ".cursor/rules/ouvrier.mdc"
             "tomd.py"
             ".cursor/mcp.json"
             ".cursor/commands/architecte.md"
@@ -838,8 +854,9 @@ install_workflow_system() {
 
         for rel in "${required_rules[@]}"; do
             dest="$INSTALL_DIR/$rel"
-            # Mark architecte.mdc as required, keep others optional
-            if [[ "$rel" == ".cursor/rules/architecte.mdc" ]]; then
+            # Mark architecte.mdc, maitre-d-oeuvre.mdc and ouvrier.mdc as required
+            if [[ "$rel" == ".cursor/rules/architecte.mdc" || "$rel" == ".cursor/rules/maitre-d-oeuvre.mdc" || "$rel" == ".cursor/rules/ouvrier.mdc" ]]; then
+                log "Ensuring required rule: $rel (clone path)"
                 ensure_rule_file "$rel" "$dest" "required"
             else
                 ensure_rule_file "$rel" "$dest"
