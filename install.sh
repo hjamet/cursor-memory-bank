@@ -707,8 +707,6 @@ install_workflow_system() {
             common_rules=(
                 ".cursor/rules/README.mdc"
                 ".cursor/rules/debug.mdc"
-                ".cursor/rules/commit.mdc"
-                ".cursor/rules/playwright.mdc"
                 ".cursor/rules/maitre-d-oeuvre.mdc"
                 ".cursor/rules/ouvrier.mdc"
             )
@@ -727,11 +725,9 @@ install_workflow_system() {
             for r in "${full_only_rules[@]}"; do
                 ensure_rule_file "$r" "$target_dir/$r"
             done
-            ensure_rule_file ".cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc" "required"
 
             # Backwards-compatibility: commands
             mkdir -p "$target_dir/.cursor/commands"
-            ensure_rule_file ".cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"
 
             # GEMINI and .gemini settings
             mkdir -p "$target_dir/.gemini"
@@ -751,8 +747,6 @@ install_workflow_system() {
                 ".cursor/rules/agent.mdc"
                 ".cursor/rules/README.mdc"
                 ".cursor/rules/debug.mdc"
-                ".cursor/rules/commit.mdc"
-                ".cursor/rules/playwright.mdc"
                 ".cursor/rules/maitre-d-oeuvre.mdc"
                 ".cursor/rules/ouvrier.mdc"
             )
@@ -764,10 +758,8 @@ install_workflow_system() {
             ensure_rule_file ".cursor/rules/maitre-d-oeuvre.mdc" "$target_dir/.cursor/rules/maitre-d-oeuvre.mdc" "required"
             log "Ensuring rule: .cursor/rules/ouvrier.mdc"
             ensure_rule_file ".cursor/rules/ouvrier.mdc" "$target_dir/.cursor/rules/ouvrier.mdc" "required"
-            ensure_rule_file ".cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc" "required"
 
             mkdir -p "$target_dir/.cursor/commands"
-            ensure_rule_file ".cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"
         fi
 
         # Ensure tomd.py is deployed to the installation root for both basic and full installs
@@ -842,20 +834,16 @@ install_workflow_system() {
         required_rules=(
             ".cursor/rules/README.mdc"
             ".cursor/rules/debug.mdc"
-            ".cursor/rules/commit.mdc"
-            ".cursor/rules/playwright.mdc"
-            ".cursor/rules/architecte.mdc"
             ".cursor/rules/maitre-d-oeuvre.mdc"
             ".cursor/rules/ouvrier.mdc"
             "tomd.py"
             ".cursor/mcp.json"
-            ".cursor/commands/architecte.md"
         )
 
         for rel in "${required_rules[@]}"; do
             dest="$INSTALL_DIR/$rel"
-            # Mark architecte.mdc, maitre-d-oeuvre.mdc and ouvrier.mdc as required
-            if [[ "$rel" == ".cursor/rules/architecte.mdc" || "$rel" == ".cursor/rules/maitre-d-oeuvre.mdc" || "$rel" == ".cursor/rules/ouvrier.mdc" ]]; then
+            # Mark maitre-d-oeuvre.mdc and ouvrier.mdc as required
+            if [[ "$rel" == ".cursor/rules/maitre-d-oeuvre.mdc" || "$rel" == ".cursor/rules/ouvrier.mdc" ]]; then
                 log "Ensuring required rule: $rel (clone path)"
                 ensure_rule_file "$rel" "$dest" "required"
             else
@@ -891,7 +879,7 @@ install_workflow_system() {
                 warn "start.mdc rule not found in repository"
             fi
 
-            # Also copy README.mdc, debug.mdc and commit.mdc rules when available
+            # Also copy README.mdc and debug.mdc rules when available
             if [[ -f "$clone_dir/.cursor/rules/README.mdc" ]]; then
                 log "Copying README.mdc rule..."
                 mkdir -p "$target_dir/.cursor/rules"
@@ -909,64 +897,6 @@ install_workflow_system() {
                 fi
             else
                 warn "debug.mdc rule not found in repository"
-            fi
-            # Copy architecte rule into .cursor/rules (preferred)
-            if [[ -f "$clone_dir/.cursor/rules/architecte.mdc" ]]; then
-                log "Copying architecte rule..."
-                mkdir -p "$target_dir/.cursor/rules"
-                if ! cp "$clone_dir/.cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc"; then
-                    error "Failed to copy architecte rule. Please check disk space and permissions."
-                fi
-                if [[ ! -f "$target_dir/.cursor/rules/architecte.mdc" || ! -s "$target_dir/.cursor/rules/architecte.mdc" ]]; then
-                    error "Required rule file missing or empty after copy: $target_dir/.cursor/rules/architecte.mdc"
-                fi
-            else
-                error "architecte rule not found in repository clone at .cursor/rules/architecte.mdc. This rule is required."
-            fi
-
-            # Backwards-compatibility: copy commands/architecte.md if present, but do not treat as required
-            if [[ -f "$clone_dir/.cursor/commands/architecte.md" ]]; then
-                log "Copying architecte command for compatibility..."
-                mkdir -p "$target_dir/.cursor/commands"
-                if ! cp "$clone_dir/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"; then
-                    warn "Failed to copy architecte command for compatibility. Continuing without it."
-                fi
-            else
-                log "architecte compatibility command not found in clone (optional)"
-            fi
-            
-            if [[ -f "$clone_dir/.cursor/rules/commit.mdc" ]]; then
-                log "Copying commit.mdc rule..."
-                mkdir -p "$target_dir/.cursor/rules"
-                if ! cp "$clone_dir/.cursor/rules/commit.mdc" "$target_dir/.cursor/rules/commit.mdc"; then
-                    error "Failed to copy commit.mdc rule. Please check disk space and permissions."
-                fi
-            else
-                warn "commit.mdc rule not found in repository"
-            fi
-            # Copy architecte rule into .cursor/rules (preferred)
-            if [[ -f "$clone_dir/.cursor/rules/architecte.mdc" ]]; then
-                log "Copying architecte rule..."
-                mkdir -p "$target_dir/.cursor/rules"
-                if ! cp "$clone_dir/.cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc"; then
-                    error "Failed to copy architecte rule. Please check disk space and permissions."
-                fi
-                if [[ ! -f "$target_dir/.cursor/rules/architecte.mdc" || ! -s "$target_dir/.cursor/rules/architecte.mdc" ]]; then
-                    error "Required rule file missing or empty after copy: $target_dir/.cursor/rules/architecte.mdc"
-                fi
-            else
-                error "architecte rule not found in repository clone at .cursor/rules/architecte.mdc. This rule is required."
-            fi
-
-            # Backwards-compatibility: copy commands/architecte.md if present, but do not treat as required
-            if [[ -f "$clone_dir/.cursor/commands/architecte.md" ]]; then
-                log "Copying architecte command for compatibility..."
-                mkdir -p "$target_dir/.cursor/commands"
-                if ! cp "$clone_dir/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"; then
-                    warn "Failed to copy architecte command for compatibility. Continuing without it."
-                fi
-            else
-                log "architecte compatibility command not found in clone (optional)"
             fi
             
             # Copy start.mdc as GEMINI.md in .gemini directory
