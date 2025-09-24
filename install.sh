@@ -13,8 +13,19 @@ set -o pipefail  # Exit on pipe failure
 REPO_URL="https://github.com/hjamet/cursor-memory-bank.git"
 # ARCHIVE_URL was used to download a tarball of the repository. We now use git or the GitHub API directly.
 # ARCHIVE_URL="https://github.com/hjamet/cursor-memory-bank/archive/refs/heads/master.tar.gz"
-API_URL="https://api.github.com/repos/hjamet/cursor-memory-bank/commits/master"
-RAW_URL_BASE="https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master"
+GITHUB_REPO="hjamet/cursor-memory-bank"
+GITHUB_API="https://api.github.com/repos/$GITHUB_REPO"
+
+# Detect default branch on GitHub (fallback to master)
+# We try to detect early so functions using API_URL / RAW_URL_BASE use the correct branch.
+DEFAULT_BRANCH=$(curl -s "$GITHUB_API" \
+  | grep -o '"default_branch"[[:space:]]*:[[:space:]]*"[^"]*"' \
+  | sed 's/.*: *"//; s/"$//' || true)
+if [[ -z "$DEFAULT_BRANCH" ]]; then
+    DEFAULT_BRANCH="master"
+fi
+API_URL="$GITHUB_API/commits/$DEFAULT_BRANCH"
+RAW_URL_BASE="https://raw.githubusercontent.com/$GITHUB_REPO/$DEFAULT_BRANCH"
 DEFAULT_WORKFLOW_DIR=".cursor/workflow-steps"
 WORKFLOW_DIR="${TEST_WORKFLOW_DIR:-$DEFAULT_WORKFLOW_DIR}"
 TEMP_DIR="/tmp/cursor-memory-bank-$$"
@@ -214,6 +225,43 @@ download_file() {
             fi
             ;;
     esac
+}
+
+# Ensure a rule file exists: copy from clone if available, otherwise download from RAW_URL_BASE
+# ensure_rule_file(path_in_repo, dest_path, required_flag)
+ensure_rule_file() {
+    local path_in_repo="$1"
+    local dest_path="$2"
+    local required_flag="${3:-}"
+    local clone_source="$TEMP_DIR/repo/$path_in_repo"
+    local raw_url="$RAW_URL_BASE/$path_in_repo"
+
+    # Ensure parent dir
+    mkdir -p "$(dirname "$dest_path")"
+
+    # If cloned repo exists and file present, copy
+    if [[ -f "$clone_source" ]]; then
+        log "Copying $path_in_repo from git clone to $dest_path"
+        if cp "$clone_source" "$dest_path"; then
+            # Quick sanity check
+            if [[ ! -s "$dest_path" ]]; then
+                warn "Copied file is empty: $dest_path"
+                if [[ "$required_flag" == "required" ]]; then
+                    # Try downloading as fallback
+                    log "Attempting to download missing/empty file from $raw_url"
+                    download_file "$raw_url" "$dest_path" "$required_flag"
+                fi
+            fi
+            return 0
+        else
+            warn "Failed to copy $clone_source to $dest_path"
+            # Fall through to download
+        fi
+    fi
+
+    # If not copied from clone, try download
+    log "Downloading $path_in_repo to $dest_path (fallback)"
+    download_file "$raw_url" "$dest_path" "$required_flag"
 }
 
 # Curl download function - No longer used in main code, kept for testing compatibility
@@ -506,7 +554,7 @@ install_workflow_schema_files() {
     # Schema files that should always be updated from the repository
     local schema_files=("userbrief_schema.json" "tasks_schema.json")
     
-    if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
+        if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
         # Download schema files via curl
         for schema_file in "${schema_files[@]}"; do
             local schema_url="$RAW_URL_BASE/.cursor/memory-bank/workflow/$schema_file"
@@ -652,83 +700,42 @@ install_workflow_system() {
                 download_file "$RAW_URL_BASE/.cursor/workflow-steps/$file" "$workflow_path/$file"
             done
             
-            # Download start.mdc rule
-            log "Downloading start.mdc rule..."
+            # Ensure standard rules are present (centralized)
             mkdir -p "$target_dir/.cursor/rules"
-            download_file "$RAW_URL_BASE/.cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"
+            ensure_rule_file ".cursor/rules/start.mdc" "$target_dir/.cursor/rules/start.mdc"
+            ensure_rule_file ".cursor/rules/README.mdc" "$target_dir/.cursor/rules/README.mdc"
+            ensure_rule_file ".cursor/rules/debug.mdc" "$target_dir/.cursor/rules/debug.mdc"
+            ensure_rule_file ".cursor/rules/commit.mdc" "$target_dir/.cursor/rules/commit.mdc"
+            ensure_rule_file ".cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
+            ensure_rule_file ".cursor/rules/playwright.mdc" "$target_dir/.cursor/rules/playwright.mdc"
+            ensure_rule_file ".cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc" "required"
 
-            # Download README.mdc, debug.mdc, commit.mdc and mcp.mdc rules (keep these rules present in full installs)
-            log "Downloading README.mdc rule..."
-            download_file "$RAW_URL_BASE/.cursor/rules/README.mdc" "$target_dir/.cursor/rules/README.mdc"
-            log "Downloading debug.mdc rule..."
-            download_file "$RAW_URL_BASE/.cursor/rules/debug.mdc" "$target_dir/.cursor/rules/debug.mdc"
-            log "Downloading commit.mdc rule..."
-            download_file "$RAW_URL_BASE/.cursor/rules/commit.mdc" "$target_dir/.cursor/rules/commit.mdc"
-            log "Downloading mcp.mdc rule..."
-            download_file "$RAW_URL_BASE/.cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
-            log "Downloading playwright.mdc rule..."
-            download_file "$RAW_URL_BASE/.cursor/rules/playwright.mdc" "$target_dir/.cursor/rules/playwright.mdc"
-            # Download architecte rule into .cursor/rules (preferred)
-            log "Downloading architecte rule..."
-            mkdir -p "$target_dir/.cursor/rules"
-            download_file "$RAW_URL_BASE/.cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc" "required"
-            # Defensive check: ensure the rule file is present and non-empty
-            if [[ ! -f "$target_dir/.cursor/rules/architecte.mdc" || ! -s "$target_dir/.cursor/rules/architecte.mdc" ]]; then
-                error "Required rule file missing or empty after download: $target_dir/.cursor/rules/architecte.mdc"
-            fi
-
-            # Backwards-compatibility: download old commands/architecte.md if available (optional)
-            log "Downloading architecte command for compatibility (optional)..."
+            # Backwards-compatibility: commands
             mkdir -p "$target_dir/.cursor/commands"
-            download_file "$RAW_URL_BASE/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"
-            
-            # Copy start.mdc as GEMINI.md in .gemini directory
-            log "Downloading start.mdc as GEMINI.md"
+            ensure_rule_file ".cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"
+
+            # GEMINI and .gemini settings
             mkdir -p "$target_dir/.gemini"
-            download_file "$RAW_URL_BASE/.cursor/rules/start.mdc" "$target_dir/GEMINI.md"
-            
-            # Copy mcp.json as settings.json in .gemini directory
-            log "Downloading mcp.json as settings.json to .gemini directory"
-            mkdir -p "$target_dir/.gemini"
-            download_file "$RAW_URL_BASE/.cursor/mcp.json" "$target_dir/.gemini/settings.json"
+            ensure_rule_file ".cursor/rules/start.mdc" "$target_dir/GEMINI.md"
+            ensure_rule_file ".cursor/mcp.json" "$target_dir/.gemini/settings.json"
         else
-            # Basic mode: only install agent.mdc rule
-            log "Downloading agent.mdc rule..."
+            # Ensure same essential rules for basic mode (centralized)
             mkdir -p "$target_dir/.cursor/rules"
-            download_file "$RAW_URL_BASE/.cursor/rules/agent.mdc" "$target_dir/.cursor/rules/agent.mdc"
+            ensure_rule_file ".cursor/rules/agent.mdc" "$target_dir/.cursor/rules/agent.mdc"
+            ensure_rule_file ".cursor/rules/README.mdc" "$target_dir/.cursor/rules/README.mdc"
+            ensure_rule_file ".cursor/rules/debug.mdc" "$target_dir/.cursor/rules/debug.mdc"
+            ensure_rule_file ".cursor/rules/commit.mdc" "$target_dir/.cursor/rules/commit.mdc"
+            ensure_rule_file ".cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
+            ensure_rule_file ".cursor/rules/playwright.mdc" "$target_dir/.cursor/rules/playwright.mdc"
+            ensure_rule_file ".cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc" "required"
 
-            # Also download README.mdc, debug.mdc, commit.mdc and mcp.mdc rules for minimal installs
-            log "Downloading README.mdc rule..."
-            download_file "$RAW_URL_BASE/.cursor/rules/README.mdc" "$target_dir/.cursor/rules/README.mdc"
-            log "Downloading debug.mdc rule..."
-            download_file "$RAW_URL_BASE/.cursor/rules/debug.mdc" "$target_dir/.cursor/rules/debug.mdc"
-            log "Downloading commit.mdc rule..."
-            download_file "$RAW_URL_BASE/.cursor/rules/commit.mdc" "$target_dir/.cursor/rules/commit.mdc"
-            log "Downloading mcp.mdc rule..."
-            download_file "$RAW_URL_BASE/.cursor/rules/mcp.mdc" "$target_dir/.cursor/rules/mcp.mdc"
-            log "Downloading playwright.mdc rule..."
-            download_file "$RAW_URL_BASE/.cursor/rules/playwright.mdc" "$target_dir/.cursor/rules/playwright.mdc"
-            # Download architecte rule into .cursor/rules (preferred)
-            log "Downloading architecte rule..."
-            mkdir -p "$target_dir/.cursor/rules"
-            download_file "$RAW_URL_BASE/.cursor/rules/architecte.mdc" "$target_dir/.cursor/rules/architecte.mdc" "required"
-            if [[ ! -f "$target_dir/.cursor/rules/architecte.mdc" || ! -s "$target_dir/.cursor/rules/architecte.mdc" ]]; then
-                error "Required rule file missing or empty after download: $target_dir/.cursor/rules/architecte.mdc"
-            fi
-
-            # Backwards-compatibility: download old commands/architecte.md if available (optional)
-            log "Downloading architecte command for compatibility (optional)..."
             mkdir -p "$target_dir/.cursor/commands"
-            download_file "$RAW_URL_BASE/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"
+            ensure_rule_file ".cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md"
         fi
 
         # Ensure tomd.py is deployed to the installation root for both basic and full installs
         log "Deploying tomd.py to installation root"
-        if download_file "$RAW_URL_BASE/tomd.py" "$target_dir/tomd.py"; then
-            log "✓ tomd.py downloaded to $target_dir/tomd.py"
-        else
-            warn "Failed to download tomd.py to $target_dir/tomd.py"
-        fi
+        ensure_rule_file "tomd.py" "$target_dir/tomd.py"
 
         # Clean and setup MCP directories
         log "Setting up MCP server directories..."

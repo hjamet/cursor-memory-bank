@@ -4,18 +4,23 @@ Un système de workflow autonome avancé pour Cursor avec intégration MCP (Mode
 
 ## Installation 🚀
 
-### Method 1: Using curl (Recommended)
+You can install using a single, reliable script. The installer now **automatically detects the repository's default branch** before downloading missing files, so piping the script is safe across branches.
 
-You can install using this one-liner:
-
-**Basic Installation (ToolsMCP server only):**
+**Recommended (download then run — most robust):**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh -o install.sh
+less install.sh    # review if desired
+bash install.sh [options]
 ```
 
-**Full Installation (all components):**
+**Quick one-liners** (the script auto-detects the default branch; use `--use-curl` to force curl mode):
+
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --full-install
+# Basic installation (ToolsMCP only, force curl)
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | tr -d '\r' | bash -s -- --use-curl
+
+# Full installation (all components)
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | tr -d '\r' | bash -s -- --full-install
 ```
 
 **Note for MINGW64/Git Bash users on Windows:** If you encounter `: command not found` errors during installation, it's likely due to line ending issues when piping directly. Use this modified command instead:
@@ -44,6 +49,7 @@ Available options:
 - `--dir <path>` : Install to a specific directory (default: current directory)
 - `--backup` : Create a backup of existing rules
 - `--force` : Overwrite existing files
+- `--use-curl` : Force using curl-based downloads instead of `git clone` (useful when git is unavailable or when piping the script)
 - `--full-install` : Install all components (ToolsMCP, MemoryBankMCP, Streamlit UI)
 - `--help` : Show help information
 - `--version` : Show version information
