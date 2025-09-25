@@ -8,9 +8,7 @@ A single, robust installer is provided: `install.sh`. It now uses a unified stra
 
 Recommended (download then run — reviewable):
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/$(curl -s https://api.github.com/repos/hjamet/cursor-memory-bank | grep -o '"default_branch": *"[^"]*"' | sed 's/.*: *"\(.*\)"/\1/' || echo master)/install.sh -o install.sh
-less install.sh    # review if desired
-bash install.sh [options]
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash
 ```
 
 Quick one-liners (the script auto-detects the default branch; use `--use-curl` to force curl-only mode):
