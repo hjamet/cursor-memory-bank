@@ -749,7 +749,7 @@ install_workflow_system() {
             rules_list=$(fetch_remote_rules_list || true)
             if [[ -z "$rules_list" ]]; then
                 warn "Could not fetch remote rules list; using conservative fallback set"
-                rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/maitre-d-oeuvre.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc"
+                rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc"
             fi
 
             # Iterate rules and install unless they are full-only and we're NOT in full install
@@ -764,13 +764,7 @@ install_workflow_system() {
                     continue
                 fi
                 dest="$target_dir/$r"
-                # Mark certain critical rules as required (fail-fast)
-                if [[ "$r" == ".cursor/rules/maitre-d-oeuvre.mdc" || "$r" == ".cursor/rules/ouvrier.mdc" ]]; then
-                    log "Ensuring required rule: $r"
-                    ensure_rule_file "$r" "$dest" "required"
-                else
-                    ensure_rule_file "$r" "$dest"
-                fi
+                ensure_rule_file "$r" "$dest"
             done
 
             # Backwards-compatibility: commands
@@ -896,22 +890,38 @@ install_workflow_system() {
         log "Verifying required rule files via ensure_rule_file (clone + fallback)"
         mkdir -p "$INSTALL_DIR/.cursor/rules" "$INSTALL_DIR/.cursor/commands" "$INSTALL_DIR/.cursor/mcp" "$INSTALL_DIR/.gemini"
 
-        required_rules=(
-            ".cursor/rules/README.mdc"
-            ".cursor/rules/debug.mdc"
-            ".cursor/rules/maitre-d-oeuvre.mdc"
-            ".cursor/rules/ouvrier.mdc"
-            "tomd.py"
-            ".cursor/mcp.json"
-        )
+        # Determine rules list from the cloned repository when possible, otherwise
+        # fall back to the GitHub API helper. This prevents attempts to download
+        # files that are not present in the repository (avoids 404 errors).
+        mkdir -p "$INSTALL_DIR/.cursor/rules"
+        rules_list=""
+        if [[ -d "$clone_dir/.cursor/rules" ]]; then
+            # Build list from cloned files (prefer what actually exists in repo)
+            rules_list=$(cd "$clone_dir/.cursor/rules" && ls -1 2>/dev/null | sed 's|^|.cursor/rules/|')
+        else
+            rules_list=$(fetch_remote_rules_list || true)
+        fi
 
-        for rel in "${required_rules[@]}"; do
+        if [[ -z "$rules_list" ]]; then
+            # Conservative fallback
+            rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc"
+        fi
+
+        # Install rules discovered above. Prefer copying from clone; otherwise fall
+        # back to downloading. Do NOT treat repository-missing rules as required by default.
+        for rel in $rules_list; do
             dest="$INSTALL_DIR/$rel"
-            # Mark maitre-d-oeuvre.mdc and ouvrier.mdc as required
-            if [[ "$rel" == ".cursor/rules/maitre-d-oeuvre.mdc" || "$rel" == ".cursor/rules/ouvrier.mdc" ]]; then
-                log "Ensuring required rule: $rel (clone path)"
-                ensure_rule_file "$rel" "$dest" "required"
+            mkdir -p "$(dirname "$dest")"
+            src="$clone_dir/$rel"
+            if [[ -f "$src" ]]; then
+                log "Copying $rel from clone to $dest"
+                if ! cp "$src" "$dest"; then
+                    warn "Failed to copy $src to $dest"
+                    # Try download as fallback
+                    ensure_rule_file "$rel" "$dest"
+                fi
             else
+                # Try to download; mark only truly critical files as required elsewhere
                 ensure_rule_file "$rel" "$dest"
             fi
         done
