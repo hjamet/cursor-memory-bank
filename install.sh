@@ -264,6 +264,40 @@ ensure_rule_file() {
     download_file "$raw_url" "$dest_path" "$required_flag"
 }
 
+# Fetch list of rule file paths from GitHub API (one per line). Fallback to a small
+# builtin list if the API call fails.
+fetch_remote_rules_list() {
+    local api_url="$GITHUB_API/contents/.cursor/rules?ref=$DEFAULT_BRANCH"
+    local resp
+    resp=$(curl -s "$api_url" 2>/dev/null || true)
+    if [[ -n "$resp" ]]; then
+        echo "$resp" | grep -o '"path": *"[^"]*"' | sed 's/.*: *"//' | sed 's/"$//'
+        return 0
+    fi
+
+    # Fallback list if API not available
+    echo ".cursor/rules/agent.mdc"
+    echo ".cursor/rules/debug.mdc"
+    echo ".cursor/rules/maitre-d-oeuvre.mdc"
+    echo ".cursor/rules/ouvrier.mdc"
+    echo ".cursor/rules/README.mdc"
+    echo ".cursor/rules/start.mdc"
+    return 0
+}
+
+# Check membership helper: is_in_array "needle" "${array[@]}"
+is_in_array() {
+    local needle="$1"
+    shift
+    local item
+    for item in "$@"; do
+        if [[ "$item" == "$needle" ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 # Curl download function - No longer used in main code, kept for testing compatibility
 # Use download_file instead for individual files
 download_archive() {
@@ -700,30 +734,43 @@ install_workflow_system() {
                 download_file "$RAW_URL_BASE/.cursor/workflow-steps/$file" "$workflow_path/$file"
             done
             
-            # Ensure standard rules are present (centralized)
+        # Ensure standard rules are present (centralized)
             # Note: `.cursor/rules/mcp.mdc` is repository-local and MUST NOT be distributed by the installer.
             mkdir -p "$target_dir/.cursor/rules"
-            # Reuse arrays to avoid duplication between curl and clone branches
-            common_rules=(
-                ".cursor/rules/README.mdc"
-                ".cursor/rules/debug.mdc"
-                ".cursor/rules/maitre-d-oeuvre.mdc"
-                ".cursor/rules/ouvrier.mdc"
-            )
+
+            # By default we download all rules from the repository rules directory, except
+            # those that are marked as 'full-only'. This lets the repo author add/remove
+            # rules without changing the installer each time.
             full_only_rules=(
-                ".cursor/rules/start.mdc"
+                ".cursor/rules/README.mdc"
             )
 
-            for r in "${common_rules[@]}"; do
-                ensure_rule_file "$r" "$target_dir/$r"
-            done
-            # Ensure the new critical rules are treated as required in curl/download path
-            log "Ensuring rule: .cursor/rules/maitre-d-oeuvre.mdc"
-            ensure_rule_file ".cursor/rules/maitre-d-oeuvre.mdc" "$target_dir/.cursor/rules/maitre-d-oeuvre.mdc" "required"
-            log "Ensuring rule: .cursor/rules/ouvrier.mdc"
-            ensure_rule_file ".cursor/rules/ouvrier.mdc" "$target_dir/.cursor/rules/ouvrier.mdc" "required"
-            for r in "${full_only_rules[@]}"; do
-                ensure_rule_file "$r" "$target_dir/$r"
+            # Fetch remote list of rules (best-effort). If that fails, fallback to a small list.
+            rules_list=$(fetch_remote_rules_list || true)
+            if [[ -z "$rules_list" ]]; then
+                warn "Could not fetch remote rules list; using conservative fallback set"
+                rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/maitre-d-oeuvre.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc"
+            fi
+
+            # Iterate rules and install unless they are full-only and we're NOT in full install
+            for r in $rules_list; do
+                # Only handle files under .cursor/rules/
+                if [[ "$r" != .cursor/rules/* ]]; then
+                    continue
+                fi
+                # If rule is in full_only and we are not doing full install, skip it
+                if is_in_array "$r" "${full_only_rules[@]}" && [[ -z "${FULL_INSTALL:-}" ]]; then
+                    log "Skipping full-only rule for basic install: $r"
+                    continue
+                fi
+                dest="$target_dir/$r"
+                # Mark certain critical rules as required (fail-fast)
+                if [[ "$r" == ".cursor/rules/maitre-d-oeuvre.mdc" || "$r" == ".cursor/rules/ouvrier.mdc" ]]; then
+                    log "Ensuring required rule: $r"
+                    ensure_rule_file "$r" "$dest" "required"
+                else
+                    ensure_rule_file "$r" "$dest"
+                fi
             done
 
             # Backwards-compatibility: commands
@@ -740,24 +787,42 @@ install_workflow_system() {
             fi
             ensure_rule_file ".cursor/mcp.json" "$target_dir/.gemini/settings.json"
         else
-            # Ensure same essential rules for basic mode (centralized)
-            # Note: Do NOT install `.cursor/rules/start.mdc` in basic mode. Also do not distribute `mcp.mdc`.
+            # Ensure rules directory exists
             mkdir -p "$target_dir/.cursor/rules"
-            basic_rules=(
-                ".cursor/rules/agent.mdc"
+
+            # For clone path we prefer copying the same set previously fetched from
+            # the repository. Use the same fetch_remote_rules_list helper and apply
+            # the full-only filtering logic as above.
+            full_only_rules=(
                 ".cursor/rules/README.mdc"
-                ".cursor/rules/debug.mdc"
-                ".cursor/rules/maitre-d-oeuvre.mdc"
-                ".cursor/rules/ouvrier.mdc"
             )
-            for r in "${basic_rules[@]}"; do
-                ensure_rule_file "$r" "$target_dir/$r"
+
+            rules_list=$(fetch_remote_rules_list || true)
+            if [[ -z "$rules_list" ]]; then
+                rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/maitre-d-oeuvre.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc"
+            fi
+
+            for r in $rules_list; do
+                if [[ "$r" != .cursor/rules/* ]]; then
+                    continue
+                fi
+                if is_in_array "$r" "${full_only_rules[@]}" && [[ -z "${FULL_INSTALL:-}" ]]; then
+                    log "Skipping full-only rule for basic install: $r"
+                    continue
+                fi
+                src="$clone_dir/$r"
+                dest="$target_dir/$r"
+                mkdir -p "$(dirname "$dest")"
+                if [[ -f "$src" ]]; then
+                    log "Copying rule from clone: $r"
+                    if ! cp "$src" "$dest"; then
+                        warn "Failed to copy $src to $dest"
+                    fi
+                else
+                    # Fallback to download when rule missing in clone
+                    ensure_rule_file "$r" "$dest"
+                fi
             done
-            # Ensure the new critical rules are treated as required in curl/download path
-            log "Ensuring rule: .cursor/rules/maitre-d-oeuvre.mdc"
-            ensure_rule_file ".cursor/rules/maitre-d-oeuvre.mdc" "$target_dir/.cursor/rules/maitre-d-oeuvre.mdc" "required"
-            log "Ensuring rule: .cursor/rules/ouvrier.mdc"
-            ensure_rule_file ".cursor/rules/ouvrier.mdc" "$target_dir/.cursor/rules/ouvrier.mdc" "required"
 
             mkdir -p "$target_dir/.cursor/commands"
         fi

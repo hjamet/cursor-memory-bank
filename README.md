@@ -32,17 +32,13 @@ Available options (summary):
 - `--help` : Show help information
 - `--version` : Show version information
 
-Important: the installer now ensures the presence of the critical rule files during installation by copying them from a local clone when available and otherwise downloading them from `raw.githubusercontent.com`. The required rules are:
+Important: the installer now installs rule files more flexibly. By default it will attempt to download and install **all files** under `.cursor/rules/` from the repository into the target, except for files marked as "full-only" which are only deployed when using `--full-install`.
 
--- `.cursor/rules/architecte.mdc` (required)
--- `.cursor/rules/README.mdc`
--- `.cursor/rules/commit.mdc`
--- `.cursor/rules/debug.mdc`
--- `.cursor/rules/playwright.mdc`
--- `.cursor/rules/maitre-d-oeuvre.mdc` (required)
--- `.cursor/rules/ouvrier.mdc` (required)
+- Example: `.cursor/rules/agent.mdc` is provided in this repository and will be installed by default.
+- Full-only example: `.cursor/rules/README.mdc` (installed only with `--full-install`).
+- Critical rules that cause installation to fail if missing: `.cursor/rules/maitre-d-oeuvre.mdc`, `.cursor/rules/ouvrier.mdc`.
 
-Note: `.cursor/rules/mcp.mdc` is repository-local and is NOT distributed by the installer. It must remain in the repository and will not be copied to target installations.
+Note: repository-local files such as `.cursor/rules/mcp.mdc` remain in-repo and are NOT distributed by the installer.
 
 Examples:
 ```bash
