@@ -684,6 +684,43 @@ create_mcp_tasks_file() {
 
 # Backup and create_dirs functions removed - no longer needed for workflow system
 
+# Function for basic installation (rules only, no MCP servers)
+install_basic_rules() {
+    local target_dir="$1"
+    local temp_dir="$2"
+    
+    log "Installing basic rules and utilities (fast mode)..."
+    
+    # Create necessary directories
+    mkdir -p "$target_dir/.cursor/rules"
+    
+    # Define basic rules to install (excluding full-only rules)
+    local basic_rules=(
+        ".cursor/rules/agent.mdc"
+        ".cursor/rules/debug.mdc"
+        ".cursor/rules/start.mdc"
+    )
+    
+    # Install basic rules using curl (fastest method)
+    for rule in "${basic_rules[@]}"; do
+        local rule_url="$RAW_URL_BASE/$rule"
+        local rule_dest="$target_dir/$rule"
+        
+        log "Downloading $rule"
+        download_file "$rule_url" "$rule_dest" "required"
+    done
+    
+    # Install tomd.py script
+    log "Installing tomd.py utility script"
+    ensure_rule_file "tomd.py" "$target_dir/tomd.py" "required"
+    
+    # Update .gitignore
+    log "Updating .gitignore"
+    manage_gitignore "$target_dir"
+    
+    log "✅ Basic installation completed successfully!"
+}
+
 install_workflow_system() {
     local target_dir="$1"
     local temp_dir="$2"
@@ -694,12 +731,13 @@ install_workflow_system() {
     local template_mcp_json="$temp_dir/mcp.json" # Define path for template
     
     # Define the MCP server names to install based on FULL_INSTALL flag
-    local mcp_servers=("mcp-commit-server")
+    local mcp_servers=()
     if [[ -n "${FULL_INSTALL:-}" ]]; then
         mcp_servers=("mcp-commit-server" "memory-bank-mcp" "tools-mcp")
         log "Full installation mode: installing all MCP servers and workflow system"
     else
-        log "Basic installation mode: installing ToolsMCP server only"
+        log "Full installation mode: installing MCP servers (moved from basic install)"
+        mcp_servers=("mcp-commit-server" "memory-bank-mcp" "tools-mcp")
     fi
     
     local server_name # Loop variable
@@ -1792,14 +1830,14 @@ Options:
     --no-backup        Same as default (no backup, kept for backward compatibility)
     --force            Force installation even if directory is not empty
     --use-curl         Force using curl instead of git clone
-    --full-install     Install all components: ToolsMCP, MemoryBankMCP, and Streamlit UI (default: ToolsMCP only)
+    --full-install     Install all components: MCP servers, Streamlit UI, and workflow system (default: rules only)
 
 This script will:
-1. Install the Cursor Memory Bank workflow system using git clone or curl
-2. Set up MCP servers (by default: ToolsMCP only, with --full-install: ToolsMCP, MemoryBankMCP, mcp-commit-server)
+1. By default: Install basic rules, tomd.py utility and update .gitignore (fast mode)
+2. With --full-install: Install complete workflow system with MCP servers (ToolsMCP, MemoryBankMCP, mcp-commit-server)
 3. With --full-install: Download the all-MiniLM-L6-v2 model for semantic search
 4. With --full-install: Install Streamlit UI for monitoring agent status
-5. Install start.mdc rule for autonomous workflow operation
+5. With --full-install: Install start.mdc rule for autonomous workflow operation
 6. Clean up temporary files
 
 For more information, visit: ${REPO_URL}
@@ -1895,8 +1933,14 @@ if ! touch "$INSTALL_DIR/.write_test" 2>/dev/null; then
 fi
 rm -f "$INSTALL_DIR/.write_test"
 
-# Install workflow system and MCP servers
-install_workflow_system "$INSTALL_DIR" "$TEMP_DIR"
+# Install based on mode
+if [[ -n "${FULL_INSTALL:-}" ]]; then
+    # Full installation: install workflow system and MCP servers
+    install_workflow_system "$INSTALL_DIR" "$TEMP_DIR"
+else
+    # Basic installation: install only rules, tomd.py and update gitignore
+    install_basic_rules "$INSTALL_DIR" "$TEMP_DIR"
+fi
 
 # Install pre-commit hook - DISABLED: Now integrated directly in MCP commit tool
 # install_pre_commit_hook "$INSTALL_DIR" "$TEMP_DIR"
@@ -1907,19 +1951,18 @@ if [[ -n "${FULL_INSTALL:-}" ]]; then
     
     # Create MCP-compatible tasks.json for streamlit_app
     create_mcp_tasks_file "$INSTALL_DIR"
-fi
-
-# Merge MCP JSON template with existing config (NOW uses absolute path logic)
-merge_mcp_json "$INSTALL_DIR"
-
-# Configure MCP servers for Gemini CLI only in full install mode
-if [[ -n "${FULL_INSTALL:-}" ]]; then
+    
+    # Merge MCP JSON template with existing config (NOW uses absolute path logic)
+    merge_mcp_json "$INSTALL_DIR"
+    
+    # Configure MCP servers for Gemini CLI only in full install mode
     configure_gemini_cli_mcp "$INSTALL_DIR"
 else
-    log "Skipping Gemini CLI local configuration (.gemini) for basic install"
+    log "Skipping MCP configuration for basic install (rules only)"
 fi
 
-# Install Internal MCP Commit Server dependencies if present in the TARGET directory
+# Install Internal MCP Commit Server dependencies if present in the TARGET directory (full install only)
+if [[ -n "${FULL_INSTALL:-}" ]]; then
 INTERNAL_MCP_SERVER_DIR="$INSTALL_DIR/.cursor/mcp/mcp-commit-server"
 if [[ -d "$INTERNAL_MCP_SERVER_DIR" ]] && [[ -f "$INTERNAL_MCP_SERVER_DIR/package.json" ]]; then
 
@@ -2035,6 +2078,9 @@ if [[ -d "$MEMORY_BANK_MCP_SERVER_DIR" ]] && [[ -f "$MEMORY_BANK_MCP_SERVER_DIR/
     
 elif [[ -d "$INSTALL_DIR/.cursor/mcp" ]]; then # Check if mcp dir exists but server subdir doesn't
     log "Memory Bank MCP Server directory not found in $INSTALL_DIR/.cursor/mcp/. Skipping dependency installation."
+fi
+else
+    log "Skipping MCP server dependency installation for basic install (rules only)"
 fi
 
 # Git hooks configuration - DISABLED: Pre-commit functionality now integrated in MCP commit tool

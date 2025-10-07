@@ -14,10 +14,10 @@ curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/in
 Quick one-liners (the script auto-detects the default branch; use `--use-curl` to force curl-only mode):
 
 ```bash
-# Basic installation (ToolsMCP only)
+# Basic installation (rules only - fast)
 curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/$(curl -s https://api.github.com/repos/hjamet/cursor-memory-bank | grep -o '"default_branch": *"[^"]*"' | sed 's/.*: *"\(.*\)"/\1/' || echo master)/install.sh | tr -d '\r' | bash -s --
 
-# Full installation (all components)
+# Full installation (all components - MCP servers, Streamlit UI, ML model)
 curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/$(curl -s https://api.github.com/repos/hjamet/cursor-memory-bank | grep -o '"default_branch": *"[^"]*"' | sed 's/.*: *"\(.*\)"/\1/' || echo master)/install.sh | tr -d '\r' | bash -s -- --full-install
 ```
 
@@ -28,7 +28,7 @@ Available options (summary):
 - `--backup` : Create a backup of existing rules
 - `--force` : Force overwrite existing files
 - `--use-curl` : Force curl-only downloads instead of `git clone` (useful when git is unavailable)
-- `--full-install` : Install all components (ToolsMCP, MemoryBankMCP, Streamlit UI)
+- `--full-install` : Install all components (MCP servers, Streamlit UI, ML model, workflow system)
 - `--help` : Show help information
 - `--version` : Show version information
 
@@ -42,10 +42,10 @@ Note: repository-local files such as `.cursor/rules/mcp.mdc` remain in-repo and 
 
 Examples:
 ```bash
-# Basic installation (ToolsMCP only)
+# Basic installation (rules only - fast)
 bash install.sh
 
-# Full installation with all components
+# Full installation with all components (MCP servers, Streamlit UI, ML model)
 bash install.sh --full-install
 
 # Install to a specific directory with all components
@@ -102,37 +102,37 @@ bash install.sh [options]
 
 Cursor Memory Bank offers two installation modes to suit different needs:
 
-### Basic Mode (Default)
-- **What's included:** ToolsMCP server only
-- **Best for:** Users who want essential terminal operations and file manipulation
-- **Features:** Command execution, file editing, image consultation, web scraping
-- **Size:** Minimal installation footprint
+### Basic Mode (Default) - Fast Installation ⚡
+- **What's included:** Essential rules, tomd.py utility, and .gitignore configuration
+- **Best for:** Users who want to quickly set up Cursor with basic rules and utilities
+- **Features:** Core agent rules, debug tools, start workflow, Python utility script
+- **Size:** Minimal installation footprint (no MCP servers, no npm install)
+- **Speed:** Very fast (downloads only essential files via curl)
 - **Command:** `bash install.sh` (default)
 
-### Full Mode (`--full-install`)
+### Full Mode (`--full-install`) - Complete System 🚀
 - **What's included:** All MCP servers, Streamlit UI, ML model, complete workflow system
 - **Best for:** Users who want the complete autonomous workflow experience
 - **Features:** Task management, persistent memory, autonomous workflow, visual interface, semantic search
-- **Size:** Larger installation with ML dependencies
+- **Size:** Larger installation with ML dependencies and npm packages
+- **Speed:** Slower (clones repository, installs npm dependencies)
 - **Command:** `bash install.sh --full-install`
 
 ### Choosing Your Mode
-- **Start with Basic:** If you're new to the system or want to try it out
-- **Upgrade to Full:** You can always re-run with `--full-install` to add components later
-- **Development Work:** Full mode recommended for complex projects requiring autonomous workflow
+- **Start with Basic:** If you're new to the system or want to quickly set up Cursor with essential rules
+- **Upgrade to Full:** You can always re-run with `--full-install` to add MCP servers and workflow system later
+- **Development Work:** Full mode recommended for complex projects requiring autonomous workflow and MCP integration
 
- - The installation script will:
- - Install the rules to your `.cursor/rules` directory (including `README.mdc`, `debug.mdc` and `commit.mdc` in all install modes) and install project commands to `.cursor/commands` (for example: `architecte.md`).
- - `start.mdc` is installed only when running the installer with `--full-install` (it is not deployed for basic installs).
- - `.cursor/rules/mcp.mdc` is repository-local and will not be installed or distributed by the installer.
+The installation script will:
+- **Basic mode (default)**: Install essential rules (`agent.mdc`, `debug.mdc`, `start.mdc`), `tomd.py` utility, and update `.gitignore`
+- **Full mode (`--full-install`)**: Install complete workflow system with all MCP servers, Streamlit UI, and ML model
 - Always preserve any existing custom rules
 - Create a backup of existing rules (only if --backup is used)
 - Update only the core rules that need updating
 - Preserve any unrelated files that might be in the .cursor directory
 - Work even if the .cursor directory already exists
-- **Configure Gemini CLI MCP servers** automatically in `~/.gemini/settings.json`
-- With `--full-install`: Set up complete workflow system with all MCP servers, Streamlit UI, and ML model
-- Basic mode (default): Install only ToolsMCP server for essential terminal operations
+- **Configure Gemini CLI MCP servers** automatically in `~/.gemini/settings.json` (full mode only)
+- `.cursor/rules/mcp.mdc` is repository-local and will not be installed or distributed by the installer
 
 ## Gemini CLI Integration 🤖
 
