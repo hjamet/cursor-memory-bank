@@ -25,7 +25,6 @@ Note for MINGW64/Git Bash users on Windows: If you encounter `: command not foun
 
 Available options (summary):
 - `--dir <path>` : Install to a specific directory (default: current directory)
-- `--backup` : Create a backup of existing rules
 - `--force` : Force overwrite existing files
 - `--use-curl` : Force curl-only downloads instead of `git clone` (useful when git is unavailable)
 - `--full-install` : Install all components (MCP servers, Streamlit UI, ML model, workflow system)
@@ -124,14 +123,14 @@ Cursor Memory Bank offers two installation modes to suit different needs:
 - **Development Work:** Full mode recommended for complex projects requiring autonomous workflow and MCP integration
 
 The installation script will:
-- **Basic mode (default)**: Install essential rules (`agent.mdc`, `debug.mdc`, `start.mdc`), `tomd.py` utility, and update `.gitignore`
-- **Full mode (`--full-install`)**: Install complete workflow system with all MCP servers, Streamlit UI, and ML model
+- **Basic mode (default)**: Install essential rules (`agent.mdc`, `debug.mdc`), `tomd.py` utility, and update `.gitignore`
+- **Full mode (`--full-install`)**: Install complete workflow system with all MCP servers (`start.mdc` rule included), Streamlit UI, and ML model
 - Always preserve any existing custom rules
-- Create a backup of existing rules (only if --backup is used)
 - Update only the core rules that need updating
 - Preserve any unrelated files that might be in the .cursor directory
 - Work even if the .cursor directory already exists
-- **Configure Gemini CLI MCP servers** automatically in `~/.gemini/settings.json` (full mode only)
+- **Configure Gemini CLI MCP servers** automatically in `.gemini/settings.json` (full mode only - local to project)
+- Validate Node.js requirements and generated JSON configurations
 - `.cursor/rules/mcp.mdc` is repository-local and will not be installed or distributed by the installer
 
 ## Gemini CLI Integration 🤖

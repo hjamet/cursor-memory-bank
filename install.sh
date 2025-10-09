@@ -51,6 +51,174 @@ error() {
     exit 1
 }
 
+# ============================================================================
+# UTILITY FUNCTIONS
+# ============================================================================
+
+# Check Node.js and npm availability and versions
+# Usage: check_nodejs_requirements
+check_nodejs_requirements() {
+    log "Checking Node.js and npm requirements..."
+    
+    # Check if Node.js is installed
+    if ! command -v node >/dev/null 2>&1; then
+        error "Node.js is not installed. Please install Node.js 14.0.0 or higher from https://nodejs.org/"
+    fi
+    
+    # Check Node.js version
+    local node_version
+    node_version=$(node --version 2>/dev/null | sed 's/v//')
+    local node_major
+    node_major=$(echo "$node_version" | cut -d. -f1)
+    
+    if [[ "$node_major" -lt 14 ]]; then
+        error "Node.js version $node_version is too old. Please install Node.js 14.0.0 or higher."
+    fi
+    
+    log "✓ Node.js version $node_version detected"
+    
+    # Check if npm is installed
+    if ! command -v npm >/dev/null 2>&1; then
+        error "npm is not installed. Please install npm (usually comes with Node.js)."
+    fi
+    
+    local npm_version
+    npm_version=$(npm --version 2>/dev/null)
+    log "✓ npm version $npm_version detected"
+}
+
+# Validate JSON file syntax
+# Usage: validate_json_file "/path/to/file.json"
+validate_json_file() {
+    local json_file="$1"
+    
+    if [[ ! -f "$json_file" ]]; then
+        error "JSON file not found: $json_file"
+    fi
+    
+    # Try with jq if available (best option)
+    if command -v jq >/dev/null 2>&1; then
+        if ! jq empty "$json_file" 2>/dev/null; then
+            error "Invalid JSON in file: $json_file"
+        fi
+        return 0
+    fi
+    
+    # Fallback to python if available
+    if command -v python3 >/dev/null 2>&1; then
+        if ! python3 -c "import json; json.load(open('$json_file'))" 2>/dev/null; then
+            error "Invalid JSON in file: $json_file"
+        fi
+        return 0
+    fi
+    
+    if command -v python >/dev/null 2>&1; then
+        if ! python -c "import json; json.load(open('$json_file'))" 2>/dev/null; then
+            error "Invalid JSON in file: $json_file"
+        fi
+        return 0
+    fi
+    
+    # If no validator available, just check basic syntax
+    if ! grep -q '{' "$json_file" || ! grep -q '}' "$json_file"; then
+        error "JSON file appears malformed: $json_file"
+    fi
+    
+    log "⚠️ Could not fully validate JSON (jq/python not available), basic checks passed"
+}
+
+# Convert Unix path to Windows path if running on Windows (Git Bash/MSYS)
+# Usage: windows_path=$(convert_to_windows_path "/c/Users/...")
+convert_to_windows_path() {
+    local unix_path="$1"
+    local os_type=""
+    
+    # Detect OS type
+    if command -v uname >/dev/null 2>&1; then
+        os_type=$(uname -o)
+    fi
+    
+    # If not on Windows, return path as-is
+    if [[ "$os_type" != "Msys" ]]; then
+        echo "$unix_path"
+        return 0
+    fi
+    
+    # Try using cygpath if available (preferred method)
+    if command -v cygpath >/dev/null 2>&1; then
+        if win_path=$(cygpath -w "$unix_path" 2>/dev/null); then
+            echo "$win_path"
+            return 0
+        fi
+    fi
+    
+    # Fallback: manual conversion for Git Bash/MSYS
+    # Convert /c/ to C:\\ and all / to \\
+    local win_path
+    win_path=$(echo "$unix_path" | sed -e 's|^/c/|C:\\|' -e 's|/|\\|g')
+    echo "$win_path"
+}
+
+# Install npm dependencies for an MCP server with cleanup and timeout
+# Usage: install_mcp_server_dependencies "/path/to/server" "ServerName"
+install_mcp_server_dependencies() {
+    local server_dir="$1"
+    local server_name="$2"
+    
+    if [[ ! -d "$server_dir" ]] || [[ ! -f "$server_dir/package.json" ]]; then
+        log "Skipping npm install for $server_name - directory or package.json not found"
+        return 0
+    fi
+    
+    log "Installing $server_name dependencies in $server_dir..."
+    
+    # Clean up previous installs
+    if [[ -d "$server_dir/node_modules" ]]; then
+        rm -rf "$server_dir/node_modules" || error "Failed to remove existing node_modules in $server_dir"
+    fi
+    rm -f "$server_dir"/*.log
+    
+    # Verify server.js exists
+    if [[ ! -f "$server_dir/server.js" ]]; then
+        error "server.js file not found in $server_dir. Cannot proceed with npm install."
+    fi
+    
+    # Check if npm is available
+    if ! command -v npm >/dev/null 2>&1; then
+        error "npm not found. Please install Node.js and npm, then run 'npm install' in $server_dir manually."
+    fi
+    
+    # Determine timeout command
+    local timeout_cmd=""
+    if command -v timeout >/dev/null 2>&1; then
+        timeout_cmd="timeout 60s"
+    elif command -v gtimeout >/dev/null 2>&1; then
+        timeout_cmd="gtimeout 60s"
+    fi
+    
+    # Run npm install with timeout
+    log "Running npm install in $server_dir..."
+    (cd "$server_dir" && $timeout_cmd npm install)
+    local npm_status=$?
+    
+    if [[ $npm_status -eq 124 ]]; then
+        error "'npm install' in $server_dir timed out after 60 seconds. Check network connection."
+    elif [[ $npm_status -ne 0 ]]; then
+        error "Failed to install $server_name dependencies (Exit code: $npm_status). Run 'npm install' manually in $server_dir."
+    fi
+    
+    # Verify node_modules directory exists
+    if [[ ! -d "$server_dir/node_modules" ]]; then
+        error "node_modules directory not found in $server_dir after npm install. MCP server will not function."
+    fi
+    
+    log "$server_name dependencies installed successfully."
+}
+
+# ============================================================================
+# REPOSITORY & VERSION FUNCTIONS
+# ============================================================================
+
 # Get the date of the latest commit
 get_last_commit_date() {
     local use_curl="${1:-}"
@@ -107,6 +275,10 @@ cleanup() {
         error "Installation failed with exit code $exit_code"
     fi
 }
+
+# ============================================================================
+# FILE DOWNLOAD & REPOSITORY FUNCTIONS
+# ============================================================================
 
 # Git clone function
 clone_repository() {
@@ -277,54 +449,10 @@ is_in_array() {
     return 1
 }
 
-# Curl download function - No longer used in main code, kept for testing compatibility
-# Use download_file instead for individual files
-download_archive() {
-    local url="$1"
-    local dest="$2"
 
-    log "Downloading archive from $url"
-    local http_code
-    
-    # Handle file:// protocol differently
-    if [[ "$url" =~ ^file:// ]]; then
-        local file_path="${url#file://}"
-        if [ -f "$file_path" ]; then
-            cp "$file_path" "$dest"
-            return 0
-        else
-            error "Failed to download archive: Local file not found: $file_path"
-        fi
-    fi
-    
-    http_code=$(curl -w "%{http_code}" -fsSL "$url" -o "$dest" 2>/dev/null || echo "$?")
-    
-    case "$http_code" in
-        200)
-            return 0
-            ;;
-        404)
-            error "Failed to download archive: URL not found (HTTP 404). Please check that the URL is correct: $url"
-            ;;
-        403)
-            error "Failed to download archive: Access denied (HTTP 403). Please check your access permissions to: $url"
-            ;;
-        50[0-9])
-            error "Failed to download archive: Server error (HTTP $http_code). Please try again later or contact support."
-            ;;
-        22)
-            error "Failed to download archive: Invalid URL or network error. Please check your internet connection and the URL: $url"
-            ;;
-        *)
-            # Check if it's a non-standard number (like "00023") which can happen with some protocols
-            if [[ "$http_code" =~ ^[0-9]+$ ]]; then
-                error "Failed to download archive (HTTP $http_code). Please check your internet connection and try again."
-            else
-                error "Failed to download archive: Unknown error. Please check your internet connection and the URL: $url"
-            fi
-            ;;
-    esac
-}
+# ============================================================================
+# GITIGNORE MANAGEMENT
+# ============================================================================
 
 # Function to manage .gitignore file
 manage_gitignore() {
@@ -497,6 +625,10 @@ handle_tracked_files() {
     fi
 }
 
+# ============================================================================
+# MEMORY BANK & WORKFLOW SETUP
+# ============================================================================
+
 # Function to set up the memory bank directory
 setup_memory_bank() {
     local target_dir="$1"
@@ -664,6 +796,10 @@ create_mcp_tasks_file() {
 }
 
 # Backup and create_dirs functions removed - no longer needed for workflow system
+
+# ============================================================================
+# MAIN INSTALLATION FUNCTIONS
+# ============================================================================
 
 # Function for basic installation (rules only, no MCP servers)
 install_basic_rules() {
@@ -846,7 +982,9 @@ install_workflow_system() {
 
         # Clean and setup MCP directories
         log "Setting up MCP server directories..."
-        rm -rf "$target_dir/.cursor/mcp" || warn "Failed to remove existing MCP directory (may not exist)"
+        if [[ -d "$target_dir/.cursor/mcp" ]]; then
+            rm -rf "$target_dir/.cursor/mcp" || error "Failed to remove existing MCP directory: $target_dir/.cursor/mcp"
+        fi
         mkdir -p "$target_dir/.cursor/mcp" || error "Failed to create MCP directory: $target_dir/.cursor/mcp"
 
         # Download MCP server files
@@ -1098,7 +1236,9 @@ install_workflow_system() {
 
         # Clean and setup MCP directories
         log "Setting up MCP server directories..."
-        rm -rf "$target_dir/.cursor/mcp" || warn "Failed to remove existing MCP directory (may not exist)"
+        if [[ -d "$target_dir/.cursor/mcp" ]]; then
+            rm -rf "$target_dir/.cursor/mcp" || error "Failed to remove existing MCP directory: $target_dir/.cursor/mcp"
+        fi
         mkdir -p "$target_dir/.cursor/mcp" || error "Failed to create MCP directory: $target_dir/.cursor/mcp"
 
         # Copy MCP server files
@@ -1128,7 +1268,7 @@ install_workflow_system() {
     for server_name in "${mcp_servers[@]}"; do
         local mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
         if [[ -d "$mcp_server_target_dir" ]]; then
-            chmod -R u+rw "$mcp_server_target_dir" || true
+            chmod -R u+rw "$mcp_server_target_dir" || error "Failed to set permissions on $mcp_server_target_dir"
         fi
     done
 
@@ -1137,7 +1277,7 @@ install_workflow_system() {
     if [[ -n "${FULL_INSTALL:-}" ]]; then
         # Set permissions for workflow directories
         if [[ -d "$workflow_path" ]]; then
-            chmod -R u+rw "$workflow_path" || true
+            chmod -R u+rw "$workflow_path" || error "Failed to set permissions on $workflow_path"
         fi
 
         log "Full workflow system and MCP servers installed successfully"
@@ -1145,6 +1285,10 @@ install_workflow_system() {
         log "ToolsMCP server installed successfully"
     fi
 }
+
+# ============================================================================
+# MCP CONFIGURATION
+# ============================================================================
 
 # Function to merge MCP JSON template with existing config
 merge_mcp_json() {
@@ -1164,73 +1308,33 @@ merge_mcp_json() {
     # Calculate absolute path for target_dir first
     if ! target_dir_abs="$(cd "$target_dir" && pwd -P)"; then
         error "Failed to determine absolute path for target directory: $target_dir. Cannot configure server args."
-        return 1
     fi
     log "Calculated absolute target directory path: $target_dir_abs"
-    target_dir_win_path="$target_dir_abs" # Assign default
-    # --- START Windows Path Conversion for Target Dir ---
-    os_type=""
-    if command -v uname >/dev/null 2>&1; then os_type=$(uname -o); fi
-    if [[ "$os_type" == "Msys" ]]; then
-        if command -v cygpath >/dev/null 2>&1; then
-            if win_path=$(cygpath -w "$target_dir_abs"); then
-                log "Converted target directory Windows path: $win_path"
-                target_dir_win_path="$win_path"
-            else
-                warn "cygpath failed for target directory. Using MINGW64 path: $target_dir_abs"
-                # target_dir_win_path remains the default $target_dir_abs
-            fi
-        else # Manual conversion
-            target_dir_win_path=$(echo "$target_dir_abs" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
-            log "Manually converted target directory path: $target_dir_win_path"
-        fi # End cygpath/manual conversion check
-    fi # End Msys check for target dir
-    # --- END Windows Path Conversion for Target Dir ---
-
-    # Check target dir path after potential conversion
+    
+    # Convert to Windows path if needed
+    target_dir_win_path=$(convert_to_windows_path "$target_dir_abs")
     if [[ -z "$target_dir_win_path" ]]; then
-        error "Target directory absolute path is empty after calculation/conversion."
-        return 1
+        error "Target directory path conversion failed."
     fi
 
     # Now calculate absolute path for server script
     if [[ ! -f "$server_script_path" ]]; then
         error "Aborting MCP config generation: server script missing at $server_script_path."
-        return 1
     fi
+    
     # Construct absolute path for script
     local clean_rel_path="${server_script_rel_path#./}"
     server_script_abs_path="$target_dir_abs/$clean_rel_path"
-    if [[ "$server_script_abs_path" =~ ^(/|[A-Za-z]:) ]]; then
-        log "Calculated initial absolute script path: $server_script_abs_path"
-        server_script_win_path="$server_script_abs_path" # Assign default
-        # --- START Windows Path Conversion for Script ---
-        if [[ "$os_type" == "Msys" ]]; then
-            if command -v cygpath >/dev/null 2>&1; then
-                if win_path=$(cygpath -w "$server_script_abs_path"); then
-                    log "Converted script Windows path: $win_path"
-                    server_script_win_path="$win_path"
-                else
-                    warn "cygpath failed for script. Using MINGW64 path: $server_script_abs_path"
-                    # server_script_win_path remains the default $server_script_abs_path
-                fi
-            else # Manual conversion
-                server_script_win_path=$(echo "$server_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
-                log "Manually converted script path: $server_script_win_path"
-            fi # End cygpath/manual conversion check
-        fi # End Msys check for script
-        # --- END Windows Path Conversion for Script ---
-    else
-        error "Aborting MCP config generation: Calculated script path '$server_script_abs_path' does not appear absolute."
-        return 1
-    fi # End script path format check
-
-    # Check script path after potential conversion
-    if [[ -z "$server_script_win_path" ]]; then
-        error "Server script absolute path is empty after calculation/conversion."
-        return 1
+    if [[ ! "$server_script_abs_path" =~ ^(/|[A-Za-z]:) ]]; then
+        error "Calculated script path '$server_script_abs_path' does not appear absolute."
     fi
-    # --- End Calculate Absolute Paths ---
+    log "Calculated absolute script path: $server_script_abs_path"
+    
+    # Convert to Windows path if needed
+    server_script_win_path=$(convert_to_windows_path "$server_script_abs_path")
+    if [[ -z "$server_script_win_path" ]]; then
+        error "Server script path conversion failed."
+    fi
 
     # Ensure target directory exists before writing
     if ! mkdir -p "$(dirname "$target_mcp_json")"; then
@@ -1256,20 +1360,11 @@ merge_mcp_json() {
     if [[ -n "${FULL_INSTALL:-}" ]]; then
         # Calculate memory-bank-mcp server script path for full installation
         local memory_bank_script_rel_path=".cursor/mcp/memory-bank-mcp/server.js"
-        local memory_bank_script_path="$target_dir/$memory_bank_script_rel_path"
         local memory_bank_script_abs_path="$target_dir_abs/${memory_bank_script_rel_path#./}"
-        local memory_bank_script_win_path="$memory_bank_script_abs_path"
         
-        # Convert memory-bank-mcp script path for Windows if needed
-        if [[ "$os_type" == "Msys" ]]; then
-            if command -v cygpath >/dev/null 2>&1; then
-                if win_path=$(cygpath -w "$memory_bank_script_abs_path"); then
-                    memory_bank_script_win_path="$win_path"
-                fi
-            else
-                memory_bank_script_win_path=$(echo "$memory_bank_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
-            fi
-        fi
+        # Convert to Windows path if needed
+        local memory_bank_script_win_path
+        memory_bank_script_win_path=$(convert_to_windows_path "$memory_bank_script_abs_path")
         
         # Escape memory-bank-mcp script path for JSON
         local memory_bank_script_json_safe
@@ -1343,8 +1438,12 @@ EOF
              log "Successfully generated $target_mcp_json (File exists)."
         else
              error "File $target_mcp_json was NOT found after write attempt."
-             return 1 # Indicate failure
         fi
+        
+        # Validate JSON syntax
+        validate_json_file "$target_mcp_json"
+        log "✓ MCP JSON configuration validated"
+        
         return 0 # Indicate success
     fi
 }
@@ -1380,25 +1479,11 @@ configure_gemini_cli_mcp() {
     
     # Check if server scripts exist
     if [[ ! -f "$target_dir/$server_script_rel_path" ]]; then
-        warn "ToolsMCP server script missing at $target_dir/$server_script_rel_path. Skipping Gemini CLI configuration."
-        return 1
+        error "ToolsMCP server script missing at $target_dir/$server_script_rel_path. Cannot configure Gemini CLI."
     fi
 
-    # Set paths for JSON (no Windows conversion needed for Gemini CLI on Unix-like systems)
-    server_script_win_path="$server_script_abs_path"
-
-    # --- Windows Path Conversion (if needed) ---
-    os_type=""
-    if command -v uname >/dev/null 2>&1; then os_type=$(uname -o); fi
-    if [[ "$os_type" == "Msys" ]]; then
-        if command -v cygpath >/dev/null 2>&1; then
-            if win_path=$(cygpath -w "$server_script_abs_path"); then
-                server_script_win_path="$win_path"
-            fi
-        else
-            server_script_win_path=$(echo "$server_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
-        fi
-    fi
+    # Convert to Windows path if needed
+    server_script_win_path=$(convert_to_windows_path "$server_script_abs_path")
 
     # Escape paths for JSON embedding
     local server_script_json_safe
@@ -1444,18 +1529,8 @@ configure_gemini_cli_mcp() {
         
         # Check if memory-bank-mcp exists
         if [[ -f "$target_dir/$memory_bank_script_rel_path" ]]; then
-            memory_bank_script_win_path="$memory_bank_script_abs_path"
-            
-            # Convert memory-bank-mcp script path for Windows if needed
-            if [[ "$os_type" == "Msys" ]]; then
-                if command -v cygpath >/dev/null 2>&1; then
-                    if win_path=$(cygpath -w "$memory_bank_script_abs_path"); then
-                        memory_bank_script_win_path="$win_path"
-                    fi
-                else
-                    memory_bank_script_win_path=$(echo "$memory_bank_script_abs_path" | sed -e 's|^/c/|C:\\\\|' -e 's|/|\\\\|g')
-                fi
-            fi
+            # Convert to Windows path if needed
+            memory_bank_script_win_path=$(convert_to_windows_path "$memory_bank_script_abs_path")
             
             # Escape memory-bank-mcp script path for JSON
             local memory_bank_script_json_safe
@@ -1591,74 +1666,24 @@ EOF
         # Basic existence check
         if [[ -f "$gemini_settings_file" ]]; then
             log "Successfully configured Gemini CLI MCP servers (File exists)."
-            log "Configuration is now local to this project at: $gemini_settings_file"
-            log "You can now use 'gemini chat' from this project directory to interact with the configured MCP servers."
-            if [[ "$has_existing_mcp" == true ]]; then
-                log "Previous MCP server configuration was replaced. Other settings were preserved."
-            fi
         else
             error "Gemini settings file $gemini_settings_file was NOT found after write attempt."
-            return 1
         fi
+        
+        # Validate JSON syntax
+        validate_json_file "$gemini_settings_file"
+        log "✓ Gemini CLI settings validated"
+        
+        log "Configuration is now local to this project at: $gemini_settings_file"
+        log "You can now use 'gemini chat' from this project directory to interact with the configured MCP servers."
+        if [[ "$has_existing_mcp" == true ]]; then
+            log "Previous MCP server configuration was replaced. Other settings were preserved."
+        fi
+        
         return 0
     fi
 }
 
-# Function to install pre-commit hook
-install_pre_commit_hook() {
-    local target_dir="$1"
-    local temp_dir="$2"
-    local hooks_dir="$target_dir/.githooks"
-    local hook_file="$hooks_dir/pre-commit"
-    local source_hook_file=""
-
-    log "Installing pre-commit hook..."
-
-    # Determine source hook file path based on install method
-    if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1;
-    then
-        # Curl method: Download hook file directly
-        local api_dir="$temp_dir/api-files"
-        local temp_hook_file="$api_dir/githooks/pre-commit"
-        local hook_url="$RAW_URL_BASE/.githooks/pre-commit"
-
-        log "Downloading pre-commit hook script via curl from $hook_url"
-        mkdir -p "$(dirname "$temp_hook_file")"
-        if download_file "$hook_url" "$temp_hook_file"; then
-            source_hook_file="$temp_hook_file"
-        else
-            warn "Failed to download pre-commit hook script. Skipping hook installation."
-            return
-        fi
-    else
-        # Git method: Use hook file from cloned repo
-        local clone_dir="$temp_dir/repo"
-        if [[ -f "$clone_dir/.githooks/pre-commit" ]]; then
-            source_hook_file="$clone_dir/.githooks/pre-commit"
-            log "Using pre-commit hook script from git clone."
-        else
-            warn "Pre-commit hook script not found in cloned repository. Skipping hook installation."
-            return
-        fi
-    fi
-
-    # Create hooks directory in target
-    if ! mkdir -p "$hooks_dir"; then
-        error "Failed to create hooks directory: $hooks_dir. Please check permissions."
-    fi
-
-    # Copy hook file
-    if ! cp "$source_hook_file" "$hook_file"; then
-        error "Failed to copy pre-commit hook to $hook_file. Please check permissions."
-    fi
-
-    # Make hook executable
-    if ! chmod +x "$hook_file"; then
-        error "Failed to make pre-commit hook executable: $hook_file"
-    fi
-
-    log "Pre-commit hook installed to $hook_file"
-}
 
 # Function to install the Streamlit app and dependencies
 install_streamlit_app() {
@@ -1731,7 +1756,7 @@ install_streamlit_app() {
     fi
     
     # Set permissions for startup scripts
-    chmod u+x "$startup_script" || warn "Failed to set executable permission on startup scripts."
+    chmod u+x "$startup_script" || error "Failed to set executable permission on $startup_script"
     log "UI startup script installed at: $startup_script"
 
     # Install Python dependencies
@@ -1816,6 +1841,10 @@ EOF
     rm -f "$temp_download_script"
 }
 
+# ============================================================================
+# COMMAND LINE & HELP FUNCTIONS
+# ============================================================================
+
 show_help() {
     cat << EOF
 Cursor Memory Bank Installation Script v${VERSION}
@@ -1826,8 +1855,6 @@ Options:
     -h, --help         Show this help message
     -v, --version      Show version information
     -d, --dir DIR      Install to a specific directory (default: current directory)
-    --backup           Create a backup of existing rules (disabled by default)
-    --no-backup        Same as default (no backup, kept for backward compatibility)
     --force            Force installation even if directory is not empty
     --use-curl         Force using curl instead of git clone
     --full-install     Install all components: MCP servers, Streamlit UI, and workflow system (default: rules only)
@@ -1863,16 +1890,9 @@ show_version() {
     exit 0
 }
 
-# Function to install utility scripts - DEPRECATED
-# The run_ui.sh script is now installed by install_streamlit_app()
-install_utility_scripts() {
-    log "Utility scripts installation is now handled by install_streamlit_app()"
-    return 0
-}
 
 # Parse command line arguments
 INSTALL_DIR="."
-DO_BACKUP=""
 FORCE=""
 USE_CURL=""
 FULL_INSTALL=""
@@ -1891,12 +1911,6 @@ while [[ $# -gt 0 ]]; do
             fi
             INSTALL_DIR="$2"
             shift
-            ;;
-        --backup)
-            DO_BACKUP=1
-            ;;
-        --no-backup)
-            # No-op for backward compatibility
             ;;
         --force)
             FORCE=1
@@ -1935,15 +1949,15 @@ rm -f "$INSTALL_DIR/.write_test"
 
 # Install based on mode
 if [[ -n "${FULL_INSTALL:-}" ]]; then
-    # Full installation: install workflow system and MCP servers
+    # Full installation: check Node.js requirements first
+    check_nodejs_requirements
+    
+    # Install workflow system and MCP servers
     install_workflow_system "$INSTALL_DIR" "$TEMP_DIR"
 else
     # Basic installation: install only rules, tomd.py and update gitignore
     install_basic_rules "$INSTALL_DIR" "$TEMP_DIR"
 fi
-
-# Install pre-commit hook - DISABLED: Now integrated directly in MCP commit tool
-# install_pre_commit_hook "$INSTALL_DIR" "$TEMP_DIR"
 
 # Set up the memory bank to preserve user data - only in full install mode
 if [[ -n "${FULL_INSTALL:-}" ]]; then
@@ -1961,156 +1975,19 @@ else
     log "Skipping MCP configuration for basic install (rules only)"
 fi
 
-# Install Internal MCP Commit Server dependencies if present in the TARGET directory (full install only)
+# Install MCP Server dependencies (full install only)
 if [[ -n "${FULL_INSTALL:-}" ]]; then
-INTERNAL_MCP_SERVER_DIR="$INSTALL_DIR/.cursor/mcp/mcp-commit-server"
-if [[ -d "$INTERNAL_MCP_SERVER_DIR" ]] && [[ -f "$INTERNAL_MCP_SERVER_DIR/package.json" ]]; then
-
-    # Clean up previous installs within the specific server directory before npm install
-    log "Cleaning up previous build artifacts in $INTERNAL_MCP_SERVER_DIR..."
-    if [[ -d "$INTERNAL_MCP_SERVER_DIR/node_modules" ]]; then
-        rm -rf "$INTERNAL_MCP_SERVER_DIR/node_modules" || warn "Could not remove existing node_modules directory."
-    fi
-    # Remove old log files if any
-    rm -f "$INTERNAL_MCP_SERVER_DIR"/*.log
-
-    log "Installing Internal MCP Commit Server dependencies in $INTERNAL_MCP_SERVER_DIR..."
-    
-    # Ensure the server.js file exists (already copied by install_rules ideally)
-    if [[ ! -f "$INTERNAL_MCP_SERVER_DIR/server.js" ]]; then
-        warn "server.js file not found in $INTERNAL_MCP_SERVER_DIR. Dependency installation might fail or server won't run."
-    fi
-    
-    if command -v npm >/dev/null 2>&1; then
-        # Check if timeout command is available
-        timeout_cmd=""
-        if command -v timeout >/dev/null 2>&1; then
-            timeout_cmd="timeout 60s"
-        elif command -v gtimeout >/dev/null 2>&1; then # Handle macOS case (gtimeout via coreutils)
-            timeout_cmd="gtimeout 60s"
-        else
-            warn "'timeout' command not found. Proceeding without timeout for npm install."
-        fi
-
-        # Change directory, install (with timeout if available), and change back
-        log "Running npm install in $INTERNAL_MCP_SERVER_DIR..."
-        (cd "$INTERNAL_MCP_SERVER_DIR" && $timeout_cmd npm install)
-        npm_status=$?
-        
-        if [[ $npm_status -eq 124 ]]; then # 124 is the exit code for timeout command
-             warn "'npm install' in $INTERNAL_MCP_SERVER_DIR timed out after 60 seconds. Please check network or run manually."
-        elif [[ $npm_status -ne 0 ]]; then
-            warn "Failed to install Internal MCP Commit Server dependencies (Exit code: $npm_status). Please check logs or run 'npm install' in $INTERNAL_MCP_SERVER_DIR manually."
-        else
-            log "Internal MCP Commit Server dependencies installed."
-            
-            # Verify node_modules directory exists and has content
-            if [[ ! -d "$INTERNAL_MCP_SERVER_DIR/node_modules" ]]; then
-                warn "node_modules directory not found in $INTERNAL_MCP_SERVER_DIR after npm install. MCP commit server may not function properly."
-            else
-                log "node_modules directory verified. MCP commit server should have all required dependencies."
-            fi
-        fi
-    else
-        warn "npm not found. Skipping Internal MCP Commit Server dependency installation. Please install Node.js and npm, then run 'npm install' in $INTERNAL_MCP_SERVER_DIR manually."
-    fi
-    
-    # Remove redundant note about manual copy to AppData - now handled locally
-    # log "NOTE: If you encounter 'MODULE_NOT_FOUND' errors..."
-elif [[ -d "$INSTALL_DIR/.cursor/mcp" ]]; then # Check if mcp dir exists but server subdir doesn't
-    log "MCP commit server directory not found in $INSTALL_DIR/.cursor/mcp/. Skipping dependency installation."
-else
-    log "MCP directory structure not found in $INSTALL_DIR/.cursor/. Skipping MCP server setup."
-fi
-
-# Install Memory Bank MCP Server dependencies if present in the TARGET directory
-MEMORY_BANK_MCP_SERVER_DIR="$INSTALL_DIR/.cursor/mcp/memory-bank-mcp"
-if [[ -d "$MEMORY_BANK_MCP_SERVER_DIR" ]] && [[ -f "$MEMORY_BANK_MCP_SERVER_DIR/package.json" ]]; then
-
-    # Clean up previous installs within the specific server directory before npm install
-    log "Cleaning up previous build artifacts in $MEMORY_BANK_MCP_SERVER_DIR..."
-    if [[ -d "$MEMORY_BANK_MCP_SERVER_DIR/node_modules" ]]; then
-        rm -rf "$MEMORY_BANK_MCP_SERVER_DIR/node_modules" || warn "Could not remove existing node_modules directory."
-    fi
-    # Remove old log files if any
-    rm -f "$MEMORY_BANK_MCP_SERVER_DIR"/*.log
-
-    log "Installing Memory Bank MCP Server dependencies in $MEMORY_BANK_MCP_SERVER_DIR..."
-    
-    # Ensure the server.js file exists (already copied by install_rules ideally)
-    if [[ ! -f "$MEMORY_BANK_MCP_SERVER_DIR/server.js" ]]; then
-        warn "server.js file not found in $MEMORY_BANK_MCP_SERVER_DIR. Dependency installation might fail or server won't run."
-    fi
-    
-    if command -v npm >/dev/null 2>&1; then
-        # Check if timeout command is available
-        timeout_cmd=""
-        if command -v timeout >/dev/null 2>&1; then
-            timeout_cmd="timeout 60s"
-        elif command -v gtimeout >/dev/null 2>&1; then # Handle macOS case (gtimeout via coreutils)
-            timeout_cmd="gtimeout 60s"
-        else
-            warn "'timeout' command not found. Proceeding without timeout for npm install."
-        fi
-
-        # Change directory, install (with timeout if available), and change back
-        log "Running npm install in $MEMORY_BANK_MCP_SERVER_DIR..."
-        (cd "$MEMORY_BANK_MCP_SERVER_DIR" && $timeout_cmd npm install)
-        npm_status=$?
-        
-        if [[ $npm_status -eq 124 ]]; then # 124 is the exit code for timeout command
-             warn "'npm install' in $MEMORY_BANK_MCP_SERVER_DIR timed out after 60 seconds. Please check network or run manually."
-        elif [[ $npm_status -ne 0 ]]; then
-            warn "Failed to install Memory Bank MCP Server dependencies (Exit code: $npm_status). Please check logs or run 'npm install' in $MEMORY_BANK_MCP_SERVER_DIR manually."
-        else
-            log "Memory Bank MCP Server dependencies installed."
-            
-            # Verify node_modules directory exists and has content
-            if [[ ! -d "$MEMORY_BANK_MCP_SERVER_DIR/node_modules" ]]; then
-                warn "node_modules directory not found in $MEMORY_BANK_MCP_SERVER_DIR after npm install. MCP server may not function properly."
-            else
-                log "node_modules directory verified. Memory Bank MCP Server should have all required dependencies."
-            fi
-        fi
-    else
-        warn "npm not found. Skipping Memory Bank MCP Server dependency installation. Please install Node.js and npm, then run 'npm install' in $MEMORY_BANK_MCP_SERVER_DIR manually."
-    fi
-    
-elif [[ -d "$INSTALL_DIR/.cursor/mcp" ]]; then # Check if mcp dir exists but server subdir doesn't
-    log "Memory Bank MCP Server directory not found in $INSTALL_DIR/.cursor/mcp/. Skipping dependency installation."
-fi
+    install_mcp_server_dependencies "$INSTALL_DIR/.cursor/mcp/mcp-commit-server" "ToolsMCP"
+    install_mcp_server_dependencies "$INSTALL_DIR/.cursor/mcp/memory-bank-mcp" "MemoryBankMCP"
 else
     log "Skipping MCP server dependency installation for basic install (rules only)"
 fi
 
-# Git hooks configuration - DISABLED: Pre-commit functionality now integrated in MCP commit tool
-# auto_config_failed=1 # Assume failure initially
-# if command -v git >/dev/null 2>&1; then
-#     log "Checking if installation directory is a Git repository..."
-#     if (cd "$INSTALL_DIR" && git rev-parse --git-dir > /dev/null 2>&1); then
-#         log "Git repository detected. Attempting to configure core.hooksPath..."
-#         if (cd "$INSTALL_DIR" && git config core.hooksPath .githooks); then
-#             log "Successfully configured core.hooksPath to .githooks in $INSTALL_DIR"
-#             auto_config_failed=0 # Mark as success
-#         else
-#             warn "Failed to automatically configure core.hooksPath in $INSTALL_DIR. You may need to run the command manually."
-#         fi
-#     else
-#         log "Installation directory $INSTALL_DIR is not a Git repository. Skipping automatic hook configuration."
-#         # In this case, user likely doesn't need hooks configured anyway, but we keep auto_config_failed=1 to show manual step if needed.
-#     fi
-# else
-#     warn "git command not found. Skipping automatic hook configuration."
-# fi
-auto_config_failed=0 # Mark as success since we no longer need git hooks
 
 # Install Streamlit App and ML Model - only in full install mode
 if [[ -n "${FULL_INSTALL:-}" ]]; then
     # Install Streamlit App
     install_streamlit_app "$INSTALL_DIR" "$TEMP_DIR"
-    
-    # Install utility scripts (run_ui.sh is now handled by install_streamlit_app)
-    install_utility_scripts "$INSTALL_DIR"
     
     # Install ML Model
     install_ml_model "$INSTALL_DIR"
@@ -2119,10 +1996,3 @@ if [[ -n "${FULL_INSTALL:-}" ]]; then
 else
     log "Basic installation completed successfully!"
 fi
-
-# Git hooks configuration no longer needed - functionality integrated in MCP commit tool
-# Only show manual step if auto-config failed or was skipped
-# if [[ "$auto_config_failed" -eq 1 ]]; then
-#     log "${YELLOW}ACTION REQUIRED:${NC} To enable the installed git hooks (e.g., pre-commit), run the following command in your repository root:"
-#     log "  git config core.hooksPath .githooks"
-# fi 
