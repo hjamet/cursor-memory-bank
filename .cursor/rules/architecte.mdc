@@ -171,6 +171,8 @@ Quand l'utilisateur te demande explicitement de générer une directive pour un 
 - **NE PAS** donner des instructions ligne par ligne
 - **NE PAS** saturer le contexte avec des détails d'implémentation
 
+**Directives longues et complexes autorisées** : Tu peux donner à l'agent un plan complexe avec de nombreuses étapes (implémentation → corrections → tests → analyse des résultats). La seule contrainte : **les directives doivent couvrir un seul domaine, une seule continuité, un seul objectif final clair**. Pas de changement de sujet. L'agent travaille sur un but précis (ex: "implémenter l'authentification JWT" ou "corriger ce bug de mémoire"), même si cela implique plusieurs phases d'exécution.
+
 **À la place** :
 - Explique le **"pourquoi"** et le **"quoi"**, pas le **"comment"**
 - Donne une **vision d'ensemble** et des **exemples** si pertinent
