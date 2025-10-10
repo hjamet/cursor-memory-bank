@@ -811,20 +811,43 @@ install_basic_rules() {
     # Create necessary directories
     mkdir -p "$target_dir/.cursor/rules"
     
-    # Define basic rules to install (excluding full-only rules)
-    local basic_rules=(
-        ".cursor/rules/agent.mdc"
-        ".cursor/rules/debug.mdc"
-        ".cursor/rules/start.mdc"
-    )
+    # Rules that should only be installed in full-install mode
+    local full_install_only_rules=("start.mdc")
     
-    # Install basic rules using curl (fastest method)
-    for rule in "${basic_rules[@]}"; do
-        local rule_url="$RAW_URL_BASE/$rule"
-        local rule_dest="$target_dir/$rule"
+    # Fetch remote list of rules dynamically from GitHub API
+    local api_url="$GITHUB_API/contents/.cursor/rules?ref=$DEFAULT_BRANCH"
+    local rules_list=""
+    local api_response
+    api_response=$(curl -s "$api_url" 2>/dev/null || true)
+    if [[ -n "$api_response" ]]; then
+        rules_list=$(echo "$api_response" | grep -o '"path": *"[^"]*"' | sed 's/.*: *"//' | sed 's/"$//')
+    fi
+    
+    # Fallback to conservative list if API call fails (excluding start.mdc)
+    if [[ -z "$rules_list" ]]; then
+        warn "Could not fetch remote rules list; using conservative fallback set"
+        rules_list=".cursor/rules/agent.mdc .cursor/rules/architecte.mdc .cursor/rules/debug.mdc .cursor/rules/README.mdc"
+    fi
+    
+    # Install all rules except those marked as full_install_only
+    for r in $rules_list; do
+        # Only handle files under .cursor/rules/
+        if [[ "$r" != .cursor/rules/* ]]; then
+            continue
+        fi
         
-        log "Downloading $rule"
-        download_file "$rule_url" "$rule_dest" "required"
+        # Extract just the filename for comparison
+        local rule_filename=$(basename "$r")
+        
+        # Skip full_install_only rules in basic install mode
+        if is_in_array "$rule_filename" "${full_install_only_rules[@]}"; then
+            log "Skipping full-install-only rule for basic install: $r"
+            continue
+        fi
+        
+        local dest="$target_dir/$r"
+        log "Installing rule: $r"
+        ensure_rule_file "$r" "$dest"
     done
     
     # Install tomd.py script
@@ -847,14 +870,14 @@ install_workflow_system() {
     local commit_date=""
     local template_mcp_json="$temp_dir/mcp.json" # Define path for template
     
-    # Define the MCP server names to install based on FULL_INSTALL flag
+    # Define the MCP server names to install (only in FULL_INSTALL mode)
     local mcp_servers=()
     if [[ -n "${FULL_INSTALL:-}" ]]; then
         mcp_servers=("mcp-commit-server" "memory-bank-mcp" "tools-mcp")
         log "Full installation mode: installing all MCP servers and workflow system"
     else
-        log "Full installation mode: installing MCP servers (moved from basic install)"
-        mcp_servers=("mcp-commit-server" "memory-bank-mcp" "tools-mcp")
+        log "ERROR: install_workflow_system should only be called in FULL_INSTALL mode"
+        error "install_workflow_system called without FULL_INSTALL flag. This is a bug in the installation script."
     fi
     
     local server_name # Loop variable
