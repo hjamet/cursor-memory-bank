@@ -287,22 +287,10 @@ Décider si l'origine du bug est suffisamment claire pour passer au rapport fina
 
 ---
 
-## Étape 5 : Nettoyage et Rapport Final 🧹
+## Étape 5 : Rapport Final 📋
 
 ### Objectif
-Supprimer tous les ajouts temporaires et fournir un résumé détaillé de l'origine du bug.
-
-### Nettoyage obligatoire
-1. **Supprimer tous les logs** ajoutés lors de l'étape 2
-2. **Supprimer tous les scripts** `debug_*.py` créés
-3. **Supprimer tous les exit()** temporaires
-4. **Vérifier la propreté** : `git status` doit être clean
-
-### Vérification de propreté
-```bash
-git status
-# Doit afficher : "nothing to commit, working tree clean"
-```
+Fournir un résumé détaillé de l'origine du bug identifié.
 
 ### Rapport final obligatoire
 Le rapport doit contenir :
@@ -505,7 +493,6 @@ Les logs montrent que `discount_rate` est 0 alors qu'il devrait être 0.1.
 - **Ne jamais passer à l'étape 5 sans répondre à "POURQUOI"** : Question obligatoire avant le rapport final
 
 ### ✅ Obligations
-- **Nettoyage complet** : Le repo doit être identique à l'état initial
 - **Logs clairs** : Format dictionnaire avec limitation de caractères obligatoire
 - **Exit stratégiques** : Protection contre les boucles infinies et contrôle de l'exécution
 - **Question "POURQUOI" obligatoire** : Répondre avec certitude avant l'étape 5
