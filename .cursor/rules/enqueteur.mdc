@@ -16,7 +16,8 @@ Cette règle implémente le principe "Fail-Fast" dans le contexte du débogage :
 ### ⚠️ RÈGLE CRITIQUE : Indication Obligatoire de l'Étape
 
 L'agent DOIT **toujours** indiquer son étape actuelle avec des titres markdown explicites :
-- `## Étape 1 : Formulation d'hypothèses`
+- `## Étape 1.a : Exploration des fichiers de code`
+- `## Étape 1.b : Formulation d'hypothèses`
 - `## Étape 2 : Placement de logs de débogage`
 - `## Étape 3 : Exécution et récupération des logs`
 - `## Étape 4 : Analyse des résultats`
@@ -24,25 +25,70 @@ L'agent DOIT **toujours** indiquer son étape actuelle avec des titres markdown 
 
 ---
 
-## Étape 1 : Formulation d'Hypothèses 🎯
+## Étape 1.a : Exploration des Fichiers de Code 🔍
 
 ### Objectif
-Formuler 3-5 hypothèses sur l'origine probable du bug, testées en parallèle pour maximiser l'efficacité.
+Analyser en profondeur le code pour comprendre le contexte, les flux d'exécution et identifier tous les points de défaillance potentiels.
+
+### Méthodologie d'exploration
+1. **Cartographie du code** : Identifier tous les fichiers impliqués dans le bug
+2. **Analyse des flux** : Comprendre le parcours d'exécution complet
+3. **Identification des dépendances** : Variables, fonctions, services externes
+4. **Points critiques** : Conditions, validations, transformations de données
+5. **Contexte d'exécution** : Environnement, configuration, état initial
+
+### Outils d'exploration
+- **Recherche sémantique** : `codebase_search` pour comprendre les fonctionnalités
+- **Analyse de fichiers** : `read_file` pour examiner le code source
+- **Recherche de patterns** : `grep` pour trouver des motifs spécifiques
+- **Navigation** : `list_dir` pour comprendre la structure
+
+### Exemple d'exploration
+```markdown
+**Fichiers identifiés** :
+- `src/auth/middleware.py` : Middleware d'authentification
+- `src/auth/token_validator.py` : Validation des tokens JWT
+- `src/database/connection.py` : Gestion des connexions DB
+- `src/api/users.py` : Endpoint utilisateur
+
+**Flux d'exécution** :
+1. Requête HTTP → Middleware auth → Validation token → DB query → Response
+2. Points critiques : validation token, extraction user_id, requête DB
+
+**Dépendances identifiées** :
+- Variable `user_id` extraite du token
+- Fonction `verify_signature()` pour validation
+- Connexion DB pour requête utilisateur
+```
+
+---
+
+## Étape 1.b : Formulation d'Hypothèses 🎯
+
+### Objectif
+Formuler 3-5 hypothèses précises sur l'origine probable du bug, basées sur l'exploration approfondie du code.
 
 ### Méthodologie
-1. **Analyse du contexte** : Comprendre le comportement attendu vs observé
+1. **Synthèse de l'exploration** : Utiliser les informations collectées à l'étape 1.a
 2. **Identification des points de défaillance** : Variables, fonctions, conditions, flux d'exécution
 3. **Priorisation** : Classer les hypothèses par probabilité et impact
 4. **Formulation claire** : Chaque hypothèse doit être testable et spécifique
+5. **Approfondissement** : Ne pas se satisfaire d'hypothèses superficielles
 
 ### Exemple de formulation
 ```markdown
-**Hypothèse 1** : La variable `user_id` est `None` lors de l'appel à `get_user_profile()`
-**Hypothèse 2** : La connexion à la base de données échoue silencieusement
-**Hypothèse 3** : Le middleware d'authentification ne valide pas correctement le token
-**Hypothèse 4** : La fonction `validate_input()` retourne `True` pour des données invalides
-**Hypothèse 5** : Race condition entre deux processus accédant à la même ressource
+**Hypothèse 1** : La variable `user_id` est `None` lors de l'appel à `get_user_profile()` car `extract_user_id_from_token()` échoue silencieusement
+**Hypothèse 2** : La connexion à la base de données échoue silencieusement dans `db.get_user(user_id)`
+**Hypothèse 3** : Le middleware d'authentification ne valide pas correctement le token dans `verify_signature()`
+**Hypothèse 4** : La fonction `validate_input()` retourne `True` pour des données invalides dans `sanitize_user_data()`
+**Hypothèse 5** : Race condition entre deux processus accédant à la même ressource dans `update_user_cache()`
 ```
+
+### ⚠️ RÈGLE CRITIQUE : Ne Pas Se Satisfaire de Solutions Simples
+- **Creuser en profondeur** : Ne pas accepter la première explication qui semble logique
+- **Itérer si nécessaire** : Revenir aux étapes 1.a ou 1.b si le moindre doute subsiste
+- **Preuve absolue** : Identifier la CAUSE, pas la conséquence
+- **Localisation précise** : Savoir exactement quelle ligne cause le problème
 
 ---
 
@@ -137,9 +183,17 @@ Décider si les logs permettent d'identifier CLAIREMENT l'origine du bug.
 ❌ **Hypothèses incorrectes** : Aucune des hypothèses n'est validée
 
 ### Décisions possibles
-- **Passage à l'étape 5** : Origine clairement identifiée
-- **Retour à l'étape 1** : Toutes les hypothèses étaient incorrectes
-- **Retour à l'étape 2** : Hypothèses prometteuses mais logs insuffisants
+- **Passage à l'étape 5** : Origine clairement identifiée avec preuve absolue
+- **Retour à l'étape 1.a** : Exploration insuffisante, besoin d'analyser plus de code
+- **Retour à l'étape 1.b** : Hypothèses incorrectes ou trop superficielles
+- **Retour à l'étape 2** : Hypothèses prometteuses mais logs insuffisants pour localiser précisément
+
+### ⚠️ RÈGLE CRITIQUE : Ne Pas Accepter de Solutions Approximatives
+- **Preuve absolue requise** : Les logs doivent montrer EXACTEMENT quelle ligne cause le bug
+- **Cause vs Conséquence** : Identifier la CAUSE racine, pas juste les symptômes
+- **Localisation précise** : Savoir le fichier, la fonction ET la ligne exacte
+- **Itération obligatoire** : Si le moindre doute subsiste, revenir aux étapes précédentes
+- **Creuser jusqu'au bout** : Ne pas se satisfaire d'une explication qui "semble logique"
 
 ### Exemple d'analyse
 ```markdown
@@ -233,11 +287,20 @@ Le rapport doit contenir :
 
 **Contexte** : L'API retourne 500 au lieu de 401 pour les tokens invalides
 
-#### Étape 1 : Hypothèses
-- Le middleware d'auth ne catch pas les exceptions
-- La validation du token échoue silencieusement
-- Le format du token est incorrect
-- La clé de signature est mauvaise
+#### Étape 1.a : Exploration des fichiers
+**Fichiers analysés** :
+- `src/auth/middleware.py` : Middleware d'authentification (lignes 15-45)
+- `src/auth/token_validator.py` : Validation JWT (lignes 20-80)
+- `src/api/users.py` : Endpoint utilisateur (lignes 10-30)
+
+**Flux identifié** :
+Requête → middleware.auth() → token_validator.verify() → db.get_user() → response
+
+#### Étape 1.b : Hypothèses formulées
+- Le middleware d'auth ne catch pas les exceptions dans `verify_signature()`
+- La validation du token échoue silencieusement dans `extract_user_id()`
+- Le format du token est incorrect mais accepté par `is_jwt_format()`
+- La clé de signature est mauvaise dans `verify_signature()` ligne 47
 
 #### Étape 2 : Logs placés
 ```python
@@ -266,20 +329,29 @@ python debug_api_test.py
 ```
 
 #### Étape 4 : Analyse
-Les logs montrent que la signature est invalide mais l'exception n'est pas catchée.
+Les logs montrent que la signature est invalide mais l'exception n'est pas catchée. **Preuve absolue** : Le bug se situe exactement ligne 23 de `src/auth/token_validator.py` dans la fonction `verify_signature()` où l'exception `InvalidSignatureError` n'est pas gérée.
 
 #### Étape 5 : Rapport
-Origine identifiée : Exception non gérée dans `verify_signature()` ligne 23.
+**Origine précise identifiée** : Exception non gérée dans `verify_signature()` ligne 23 de `src/auth/token_validator.py`. **Cause racine** : Absence de try/catch autour de `jwt.decode()`.
 
 ### Exemple 2 : Bug de Logique Métier 💼
 
 **Contexte** : Calcul de prix incorrect pour les commandes groupées
 
-#### Étape 1 : Hypothèses
-- La réduction n'est pas appliquée
-- Le calcul de quantité est erroné
-- Les prix unitaires sont incorrects
-- La logique de groupement échoue
+#### Étape 1.a : Exploration des fichiers
+**Fichiers analysés** :
+- `src/orders/calculator.py` : Calcul des prix (lignes 10-60)
+- `src/orders/discount.py` : Logique de réduction (lignes 5-40)
+- `src/orders/models.py` : Modèles de commande (lignes 20-80)
+
+**Flux identifié** :
+Commande → calculate_order_total() → get_discount_rate() → calculate_final_total() → prix final
+
+#### Étape 1.b : Hypothèses formulées
+- La réduction n'est pas appliquée dans `calculate_final_total()` ligne 45
+- Le calcul de quantité est erroné dans `get_discount_rate()` ligne 12
+- Les prix unitaires sont incorrects dans `extract_unit_prices()` ligne 28
+- La logique de groupement échoue dans `group_items_by_category()` ligne 15
 
 #### Étape 2 : Logs placés
 ```python
@@ -306,10 +378,10 @@ exit(1)
 Script de test avec commande de 5 articles.
 
 #### Étape 4 : Analyse
-Les logs montrent que `discount_rate` est 0 alors qu'il devrait être 0.1.
+Les logs montrent que `discount_rate` est 0 alors qu'il devrait être 0.1. **Preuve absolue** : Le bug se situe exactement ligne 12 de `src/orders/discount.py` dans la fonction `get_discount_rate()` où la condition `if len(items) >= 5` est incorrecte.
 
 #### Étape 5 : Rapport
-Origine identifiée : `get_discount_rate()` ne compte pas correctement les articles éligibles.
+**Origine précise identifiée** : Condition incorrecte dans `get_discount_rate()` ligne 12 de `src/orders/discount.py`. **Cause racine** : La condition vérifie `len(items) >= 5` au lieu de `sum(item.quantity for item in items) >= 5`.
 
 ---
 
@@ -328,10 +400,12 @@ Origine identifiée : `get_discount_rate()` ne compte pas correctement les artic
 - **Exit stratégiques** : Protection contre les boucles infinies et contrôle de l'exécution
 - **Rapport détaillé** : Suffisamment précis pour permettre la correction
 
-### 🔄 Itérations
-- **Maximum 3 cycles** : Si après 3 itérations l'origine n'est pas claire, documenter les tentatives
-- **Progression logique** : Chaque itération doit affiner la localisation
-- **Traçabilité** : Garder une trace des hypothèses testées
+### 🔄 Itérations et Approfondissement
+- **Itération obligatoire** : Si le moindre doute subsiste, revenir aux étapes précédentes
+- **Creuser en profondeur** : Ne pas accepter la première explication qui semble logique
+- **Preuve absolue requise** : Identifier la CAUSE racine, pas les symptômes
+- **Localisation précise** : Savoir le fichier, la fonction ET la ligne exacte
+- **Traçabilité** : Garder une trace de toutes les hypothèses testées et des résultats
 
 ---
 
