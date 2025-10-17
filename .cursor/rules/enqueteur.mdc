@@ -21,6 +21,8 @@ L'agent DOIT **toujours** indiquer son étape actuelle avec des titres markdown 
 - `## Étape 2 : Placement de logs de débogage`
 - `## Étape 3 : Exécution et récupération des logs`
 - `## Étape 4 : Analyse des résultats`
+- `## Étape 4.a : Questionnement "POURQUOI" obligatoire`
+- `## Étape 4.b : Décision de poursuite ou d'itération`
 - `## Étape 5 : Nettoyage et rapport final`
 
 ---
@@ -175,37 +177,87 @@ print(f"Response: {response.text}")
 ## Étape 4 : Analyse des Résultats 🔍
 
 ### Objectif
-Décider si les logs permettent d'identifier CLAIREMENT l'origine du bug.
+Analyser les logs récupérés pour identifier les patterns et symptômes du bug.
 
-### Critères de validation
-✅ **Origine clairement identifiée** : Les logs montrent exactement où et pourquoi le bug se produit
-❌ **Origine floue** : Les logs indiquent un problème mais pas sa cause précise
-❌ **Hypothèses incorrectes** : Aucune des hypothèses n'est validée
+### Critères d'analyse
+✅ **Symptômes clairs** : Les logs montrent des valeurs inattendues ou des erreurs
+❌ **Logs insuffisants** : Pas assez d'informations pour comprendre le problème
+❌ **Hypothèses invalidées** : Aucune des hypothèses n'est confirmée par les logs
 
-### ⚠️ QUESTION OBLIGATOIRE AVANT L'ÉTAPE 5 : "POURQUOI ?"
+### Méthodologie d'analyse
+1. **Examen des logs** : Identifier les valeurs inattendues ou les erreurs
+2. **Corrélation avec les hypothèses** : Vérifier quelles hypothèses sont validées
+3. **Identification des symptômes** : Comprendre ce qui ne fonctionne pas
+4. **Préparation du questionnement** : Préparer les questions "POURQUOI" pour l'étape 4.a
 
-**RÈGLE CRITIQUE** : Avant de passer à l'étape 5, l'agent DOIT obligatoirement se poser la question "POURQUOI" et y répondre avec certitude absolue.
-
-#### Exemple de questionnement "POURQUOI"
+### Exemple d'analyse
 ```markdown
-**Problème identifié** : La liste `actions` est toujours vide
-**Question POURQUOI** : POURQUOI la liste `actions` est-elle toujours vide ?
+**Résultats des logs** :
+{
+    "user_id": "None",
+    "db_connected": "True", 
+    "token_valid": "False",
+    "validation_error": "silent_failure"
+}
 
-**Réponses possibles** :
-✅ **Cause claire** : "Parce que la fonction `load_actions()` ligne 23 retourne toujours `[]` car la condition `if user.is_active` ligne 25 est toujours `False`"
-❌ **Cause floue** : "Parce que la fonction `load_actions()` ne fonctionne pas correctement"
+**Symptômes identifiés** :
+- `user_id` est `None` alors qu'il devrait contenir un ID utilisateur
+- `token_valid` est `False` mais aucune erreur n'est levée
+- La validation échoue silencieusement
 
-**Décision** :
-- ✅ Si la cause est claire et logique → Passer à l'étape 5
-- ❌ Si la cause est floue ou inconnue → Continuer à creuser (étape 2)
+**Hypothèses validées** :
+- ✅ Hypothèse 1 : `user_id` est `None` (confirmée)
+- ✅ Hypothèse 3 : Validation token échoue (confirmée)
 ```
 
-#### Processus de validation "POURQUOI"
+---
+
+## Étape 4.a : Questionnement "POURQUOI" Obligatoire ❓
+
+### Objectif
+Se poser la question "POURQUOI" pour chaque symptôme identifié et répondre avec certitude absolue.
+
+### ⚠️ RÈGLE CRITIQUE
+**Avant de passer à l'étape 4.b, l'agent DOIT obligatoirement se poser la question "POURQUOI" pour chaque symptôme et y répondre avec certitude absolue.**
+
+### Processus de questionnement "POURQUOI"
 1. **Identifier le symptôme** : "La variable X a la valeur Y"
 2. **Poser la question** : "POURQUOI X a-t-elle la valeur Y ?"
 3. **Répondre avec précision** : "Parce que la fonction Z ligne N fait W"
 4. **Valider la logique** : Cette explication s'inscrit-elle dans la logique du code ?
-5. **Décider** : Cause claire → Étape 5, Cause floue → Continuer étape 2
+5. **Évaluer la certitude** : Suis-je sûr à 100% de cette explication ?
+
+### Exemple de questionnement "POURQUOI"
+```markdown
+**Symptôme identifié** : La liste `actions` est toujours vide
+**Question POURQUOI** : POURQUOI la liste `actions` est-elle toujours vide ?
+
+**Réponses possibles** :
+✅ **Cause claire et certaine** : "Parce que la fonction `load_actions()` ligne 23 retourne toujours `[]` car la condition `if user.is_active` ligne 25 est toujours `False`"
+❌ **Cause floue ou incertaine** : "Parce que la fonction `load_actions()` ne fonctionne pas correctement"
+
+**Évaluation** :
+- ✅ Cause claire + logique du code + certitude absolue → Prêt pour étape 4.b
+- ❌ Cause floue OU incertitude → Besoin de plus de logs (retour étape 2)
+```
+
+### Questions "POURQUOI" typiques
+- **POURQUOI** cette variable a-t-elle cette valeur inattendue ?
+- **POURQUOI** cette fonction retourne-t-elle ce résultat incorrect ?
+- **POURQUOI** cette condition est-elle toujours vraie/fausse ?
+- **POURQUOI** cette exception n'est-elle pas catchée ?
+
+---
+
+## Étape 4.b : Décision de Poursuite ou d'Itération 🎯
+
+### Objectif
+Décider si l'origine du bug est suffisamment claire pour passer au rapport final ou s'il faut continuer à creuser.
+
+### Critères de décision
+✅ **Origine clairement identifiée** : Question "POURQUOI" résolue avec certitude absolue
+❌ **Origine floue** : Question "POURQUOI" sans réponse claire ou avec incertitude
+❌ **Cause superficielle** : Symptôme identifié mais cause racine inconnue
 
 ### Décisions possibles
 - **Passage à l'étape 5** : Origine clairement identifiée avec preuve absolue ET question "POURQUOI" résolue avec certitude
@@ -220,19 +272,17 @@ Décider si les logs permettent d'identifier CLAIREMENT l'origine du bug.
 - **Itération obligatoire** : Si le moindre doute subsiste, revenir aux étapes précédentes
 - **Creuser jusqu'au bout** : Ne pas se satisfaire d'une explication qui "semble logique"
 
-### Exemple d'analyse
+### Exemple de décision
 ```markdown
-**Résultats des logs** :
-{
-    "user_id": "None",
-    "db_connected": "True", 
-    "token_valid": "False",
-    "validation_error": "silent_failure"
-}
+**Question POURQUOI résolue** : "POURQUOI `user_id` est-il `None` ?"
+**Réponse certaine** : "Parce que `extract_user_id_from_token()` ligne 15 retourne `None` car `token.payload['user_id']` n'existe pas"
 
-**Conclusion** : L'origine est clairement identifiée : `user_id` est `None` 
-car le token est invalide, mais la validation échoue silencieusement.
-Le bug se situe dans la fonction `extract_user_id_from_token()`.
+**Évaluation** :
+- ✅ Cause claire : fonction spécifique + ligne précise
+- ✅ Logique du code : payload manquant = user_id None
+- ✅ Certitude absolue : 100% sûr de cette explication
+
+**Décision** : ✅ Passer à l'étape 5 - origine clairement identifiée
 ```
 
 ---
@@ -354,12 +404,24 @@ python debug_api_test.py
 ```
 
 #### Étape 4 : Analyse
-Les logs montrent que la signature est invalide mais l'exception n'est pas catchée. 
+Les logs montrent que la signature est invalide mais l'exception n'est pas catchée.
 
+**Symptômes identifiés** :
+- `token_signature_valid` est `False`
+- Aucune exception n'est catchée
+- Le programme continue et retourne 500
+
+#### Étape 4.a : Questionnement "POURQUOI"
 **Question POURQUOI obligatoire** : POURQUOI l'exception n'est-elle pas catchée ?
 **Réponse** : Parce que la fonction `verify_signature()` ligne 23 n'a pas de bloc try/catch autour de `jwt.decode()`, donc l'exception `InvalidSignatureError` remonte et cause le 500.
 
-**Preuve absolue** : Le bug se situe exactement ligne 23 de `src/auth/token_validator.py` dans la fonction `verify_signature()` où l'exception `InvalidSignatureError` n'est pas gérée.
+**Évaluation** :
+- ✅ Cause claire : fonction spécifique + ligne précise
+- ✅ Logique du code : pas de try/catch = exception non gérée
+- ✅ Certitude absolue : 100% sûr de cette explication
+
+#### Étape 4.b : Décision
+**Décision** : ✅ Passer à l'étape 5 - origine clairement identifiée
 
 #### Étape 5 : Rapport
 **Origine précise identifiée** : Exception non gérée dans `verify_signature()` ligne 23 de `src/auth/token_validator.py`. **Cause racine** : Absence de try/catch autour de `jwt.decode()`.
@@ -410,10 +472,22 @@ Script de test avec commande de 5 articles.
 #### Étape 4 : Analyse
 Les logs montrent que `discount_rate` est 0 alors qu'il devrait être 0.1.
 
+**Symptômes identifiés** :
+- `discount_rate` est `0` au lieu de `0.1`
+- `items_count` est `5` (correct)
+- Le calcul de réduction échoue
+
+#### Étape 4.a : Questionnement "POURQUOI"
 **Question POURQUOI obligatoire** : POURQUOI `discount_rate` est-il 0 au lieu de 0.1 ?
 **Réponse** : Parce que la fonction `get_discount_rate()` ligne 12 vérifie `if len(items) >= 5` au lieu de `if sum(item.quantity for item in items) >= 5`, donc elle compte le nombre d'articles différents au lieu du nombre total d'articles.
 
-**Preuve absolue** : Le bug se situe exactement ligne 12 de `src/orders/discount.py` dans la fonction `get_discount_rate()` où la condition `if len(items) >= 5` est incorrecte.
+**Évaluation** :
+- ✅ Cause claire : fonction spécifique + ligne précise + logique incorrecte
+- ✅ Logique du code : len(items) vs sum(quantities) = bug évident
+- ✅ Certitude absolue : 100% sûr de cette explication
+
+#### Étape 4.b : Décision
+**Décision** : ✅ Passer à l'étape 5 - origine clairement identifiée
 
 #### Étape 5 : Rapport
 **Origine précise identifiée** : Condition incorrecte dans `get_discount_rate()` ligne 12 de `src/orders/discount.py`. **Cause racine** : La condition vérifie `len(items) >= 5` au lieu de `sum(item.quantity for item in items) >= 5`.
