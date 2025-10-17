@@ -2,6 +2,48 @@
 
 Un système de workflow autonome avancé pour Cursor avec intégration MCP (Model Context Protocol), gestion de tâches intelligente et interface utilisateur Streamlit.
 
+## Architecture du dépôt & emplacement des fichiers
+
+Le projet Cursor Memory Bank est organisé selon une architecture modulaire permettant une installation flexible et une maintenance aisée :
+
+```
+root/
+├─ .cursor/              # Configuration Cursor et règles d'agent
+│  ├─ rules/            # Règles d'agent (.mdc) - comportement de l'IA
+│  ├─ mcp/              # Serveurs MCP (Model Context Protocol)
+│  └─ commands/          # Commandes personnalisées (déprécié)
+├─ documentation/        # Guides détaillés et documentation longue
+├─ install.sh           # Script d'installation automatisé
+├─ tomd.py              # Utilitaire Python pour conversion markdown
+└─ package.json         # Métadonnées du projet et scripts npm
+```
+
+### Structure détaillée des dossiers
+
+- **`.cursor/rules/`** : Règles d'agent définissant le comportement de l'IA
+  - *Contient* : `agent.mdc`, `debug.mdc`, `enqueteur.mdc`, `start.mdc`
+  - *Structure* : Fichiers `.mdc` avec métadonnées YAML et instructions markdown
+  - *Usage* : Définissent comment l'agent doit réagir dans différents contextes
+
+- **`.cursor/mcp/`** : Serveurs MCP pour l'intégration avec les outils externes
+  - *Contient* : Scripts JavaScript pour ToolsMCP, MemoryBankMCP, Context7
+  - *Structure* : Serveurs Node.js avec outils spécialisés (terminal, mémoire, docs)
+  - *Usage* : Permet à l'agent d'exécuter des commandes, gérer des tâches, consulter la documentation
+
+- **`documentation/`** : Guides approfondis et procédures détaillées
+  - *Contient* : Documentation technique, guides d'utilisation, architecture détaillée
+  - *Structure* : Fichiers markdown organisés par domaine fonctionnel
+  - *Usage* : Référence pour les utilisateurs avancés et la maintenance
+
+- **`install.sh`** : Script d'installation unifié avec stratégie de téléchargement intelligente
+  - *Rôle* : Installation automatisée avec détection de branche et fallback curl
+  - *Fonctionnalités* : Installation basique vs complète, configuration MCP automatique
+  - *Usage* : `bash install.sh` ou `bash install.sh --full-install`
+
+- **`tomd.py`** : Utilitaire Python pour la conversion et le traitement markdown
+  - *Rôle* : Conversion de formats, traitement de fichiers markdown
+  - *Usage* : Outil de ligne de commande pour les tâches de formatage
+
 ## Installation 🚀
 
 A single, robust installer is provided: `install.sh`. It now uses a unified strategy: **prefer `git clone` when available, then verify all required rule files and automatically fall back to raw downloads** when files are missing in the clone. The installer also detects the repository default branch via the GitHub API (fallback: `master`) to avoid raw URL 404s.

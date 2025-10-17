@@ -1,0 +1,347 @@
+---
+alwaysApply: false
+description: Guide méthodologique pour identifier systématiquement l'origine précise d'un bug via hypothèses, logs de débogage et analyse
+---
+
+# Règle Enquêteur : Identification Systématique des Bugs 🕵️
+
+## Principe Fondamental : Fail-Fast Appliqué au Débogage
+
+Cette règle implémente le principe "Fail-Fast" dans le contexte du débogage : **identifier rapidement et précisément l'origine du bug sans le masquer**. L'objectif n'est PAS de résoudre le bug, mais de le localiser avec une précision chirurgicale pour permettre une correction ciblée.
+
+**Philosophie** : Un bug mal localisé est un bug qui reviendra. Mieux vaut échouer rapidement avec une origine claire qu'un contournement qui masque la cause racine.
+
+## Processus Méthodologique en 5 Étapes
+
+### ⚠️ RÈGLE CRITIQUE : Indication Obligatoire de l'Étape
+
+L'agent DOIT **toujours** indiquer son étape actuelle avec des titres markdown explicites :
+- `## Étape 1 : Formulation d'hypothèses`
+- `## Étape 2 : Placement de logs de débogage`
+- `## Étape 3 : Exécution et récupération des logs`
+- `## Étape 4 : Analyse des résultats`
+- `## Étape 5 : Nettoyage et rapport final`
+
+---
+
+## Étape 1 : Formulation d'Hypothèses 🎯
+
+### Objectif
+Formuler 3-5 hypothèses sur l'origine probable du bug, testées en parallèle pour maximiser l'efficacité.
+
+### Méthodologie
+1. **Analyse du contexte** : Comprendre le comportement attendu vs observé
+2. **Identification des points de défaillance** : Variables, fonctions, conditions, flux d'exécution
+3. **Priorisation** : Classer les hypothèses par probabilité et impact
+4. **Formulation claire** : Chaque hypothèse doit être testable et spécifique
+
+### Exemple de formulation
+```markdown
+**Hypothèse 1** : La variable `user_id` est `None` lors de l'appel à `get_user_profile()`
+**Hypothèse 2** : La connexion à la base de données échoue silencieusement
+**Hypothèse 3** : Le middleware d'authentification ne valide pas correctement le token
+**Hypothèse 4** : La fonction `validate_input()` retourne `True` pour des données invalides
+**Hypothèse 5** : Race condition entre deux processus accédant à la même ressource
+```
+
+---
+
+## Étape 2 : Placement de Logs de Débogage 📝
+
+### Objectif
+Insérer des logs standards (sans marqueur spécial) et des `exit()` stratégiques pour valider chaque hypothèse.
+
+### Règles de placement
+- **Logs informatifs** : Dictionnaires de variables avec formatage contrôlé et limitation de caractères
+- **Exit stratégiques** : Arrêt du programme juste après les points de validation clés - **CRITIQUE pour éviter les boucles infinies**
+- **Pas de marqueurs** : Utiliser des logs standards pour faciliter le nettoyage
+- **Granularité progressive** : Commencer large, puis affiner selon les résultats
+- **Protection contre les boucles** : Exit obligatoire après logs dans des boucles fréquentes
+
+### Format standard des logs
+```python
+# Format recommandé : dictionnaire avec limitation de caractères
+print({
+    "user_id": str(user_id)[:100],
+    "db_connected": str(db.is_connected())[:50],
+    "token_valid": str(validate_token(token))[:50],
+    "request_headers": str(request.headers)[:200]
+})
+
+# Exit stratégique après validation - OBLIGATOIRE pour éviter les boucles
+if user_id is None:
+    print({"error": "user_id is None", "location": "auth_middleware"})
+    exit(1)
+```
+
+### ⚠️ RÈGLES CRITIQUES POUR LES LOGS
+
+1. **Format dictionnaire obligatoire** : Toujours utiliser `{"clé": str(valeur)[:limite]}`
+2. **Limitation de caractères** : Maximum 100-500 caractères par valeur selon l'importance
+3. **Exit après boucles** : Si log dans une boucle, exit immédiatement après pour éviter le spam
+4. **Clés descriptives** : Utiliser des noms explicites (`user_id`, `db_status`, `validation_result`)
+
+### Placement des exit()
+- **Après validation d'hypothèse** : Confirmer que l'hypothèse est correcte
+- **Avant action critique** : Éviter les effets de bord
+- **Points de décision** : Branches conditionnelles importantes
+- **🚨 PROTECTION CONTRE LES BOUCLES** : Exit immédiat après logs dans des boucles fréquentes
+- **Arrêt contrôlé** : Permettre à l'utilisateur d'effectuer des actions (ex: requête web) puis récupérer les logs
+
+---
+
+## Étape 3 : Exécution et Récupération des Logs 🚀
+
+### Objectif
+Lancer le programme dans les conditions propices au bug et récupérer tous les logs.
+
+### Méthodes d'exécution
+1. **Exécution directe** : `python main.py` ou `npm start`
+2. **Script de debug temporaire** : Créer `debug_test_scenario.py` à la racine
+3. **Conditions spécifiques** : Reproduire l'environnement exact du bug
+
+### Règles pour les scripts temporaires
+- **Nommage** : Préfixe `debug_` + description (ex: `debug_api_call.py`)
+- **Localisation** : À la racine du projet
+- **Contenu** : Code minimal pour reproduire le bug
+- **Authenticité** : Tester le véritable code, pas une simulation
+
+### Exemple de script temporaire
+```python
+# debug_api_call.py
+import requests
+import json
+
+# Reproduire exactement les conditions du bug
+headers = {"Authorization": "Bearer invalid_token"}
+response = requests.get("http://localhost:3000/api/users", headers=headers)
+print(f"Status: {response.status_code}")
+print(f"Response: {response.text}")
+```
+
+### Récupération des logs
+- **Capturer TOUS les outputs** : stdout, stderr, fichiers de log
+- **Préserver l'ordre** : Maintenir la chronologie des événements
+- **Contextualiser** : Noter les conditions d'exécution
+
+---
+
+## Étape 4 : Analyse des Résultats 🔍
+
+### Objectif
+Décider si les logs permettent d'identifier CLAIREMENT l'origine du bug.
+
+### Critères de validation
+✅ **Origine clairement identifiée** : Les logs montrent exactement où et pourquoi le bug se produit
+❌ **Origine floue** : Les logs indiquent un problème mais pas sa cause précise
+❌ **Hypothèses incorrectes** : Aucune des hypothèses n'est validée
+
+### Décisions possibles
+- **Passage à l'étape 5** : Origine clairement identifiée
+- **Retour à l'étape 1** : Toutes les hypothèses étaient incorrectes
+- **Retour à l'étape 2** : Hypothèses prometteuses mais logs insuffisants
+
+### Exemple d'analyse
+```markdown
+**Résultats des logs** :
+{
+    "user_id": "None",
+    "db_connected": "True", 
+    "token_valid": "False",
+    "validation_error": "silent_failure"
+}
+
+**Conclusion** : L'origine est clairement identifiée : `user_id` est `None` 
+car le token est invalide, mais la validation échoue silencieusement.
+Le bug se situe dans la fonction `extract_user_id_from_token()`.
+```
+
+---
+
+## Étape 5 : Nettoyage et Rapport Final 🧹
+
+### Objectif
+Supprimer tous les ajouts temporaires et fournir un résumé détaillé de l'origine du bug.
+
+### Nettoyage obligatoire
+1. **Supprimer tous les logs** ajoutés lors de l'étape 2
+2. **Supprimer tous les scripts** `debug_*.py` créés
+3. **Supprimer tous les exit()** temporaires
+4. **Vérifier la propreté** : `git status` doit être clean
+
+### Vérification de propreté
+```bash
+git status
+# Doit afficher : "nothing to commit, working tree clean"
+```
+
+### Rapport final obligatoire
+Le rapport doit contenir :
+
+#### Résumé Exécutif
+- **Bug identifié** : Description claire du comportement problématique
+- **Origine précise** : Fichier, fonction, ligne exacte (si possible)
+- **Cause racine** : Pourquoi le bug se produit
+
+#### Détails Techniques
+- **Hypothèses testées** : Liste des hypothèses validées/invalidées
+- **Logs décisifs** : Les logs qui ont permis l'identification
+- **Conditions de reproduction** : Environnement exact nécessaire
+
+#### Recommandations
+- **Priorité de correction** : Critique/Haute/Moyenne/Basse
+- **Impact estimé** : Utilisateurs affectés, fonctionnalités impactées
+- **Complexité de correction** : Estimation du temps nécessaire
+
+### Exemple de rapport final
+```markdown
+## Rapport d'Enquête : Bug d'Authentification API
+
+### Résumé Exécutif
+**Bug** : L'API retourne 200 OK même avec des tokens invalides
+**Origine** : `src/auth/token_validator.py:47` - fonction `validate_token()` retourne `True` par défaut
+**Cause racine** : Logique de validation inversée dans la condition `if not token.is_valid()`
+
+### Détails Techniques
+**Hypothèses testées** :
+- ✅ Hypothèse 1 : Token invalide accepté (validée)
+- ❌ Hypothèse 2 : Problème de connexion DB (invalidée)
+- ❌ Hypothèse 3 : Middleware défaillant (invalidée)
+
+**Logs décisifs** :
+```json
+{
+    "token_validation_result": "True",
+    "token_is_valid": "False", 
+    "validation_logic_error": "inverted_condition"
+}
+```
+
+**Conditions de reproduction** : Token JWT expiré ou malformé
+
+### Recommandations
+**Priorité** : Critique (sécurité)
+**Impact** : Tous les utilisateurs avec tokens invalides
+**Complexité** : Faible (1 ligne à corriger)
+```
+
+---
+
+## Exemples Détaillés
+
+### Exemple 1 : Bug dans une API Web 🌐
+
+**Contexte** : L'API retourne 500 au lieu de 401 pour les tokens invalides
+
+#### Étape 1 : Hypothèses
+- Le middleware d'auth ne catch pas les exceptions
+- La validation du token échoue silencieusement
+- Le format du token est incorrect
+- La clé de signature est mauvaise
+
+#### Étape 2 : Logs placés
+```python
+# Dans le middleware d'auth - format dictionnaire avec limitation
+print({
+    "received_token": str(token[:20]) + "..." if len(token) > 20 else str(token),
+    "token_format_valid": str(is_jwt_format(token))[:50],
+    "token_signature_valid": str(verify_signature(token))[:50],
+    "middleware_step": "token_validation"
+})
+
+# Exit stratégique après validation - CRITIQUE pour éviter les boucles
+if not verify_signature(token):
+    print({
+        "error": "Invalid signature detected",
+        "location": "auth_middleware",
+        "action": "stopping_execution"
+    })
+    exit(1)
+```
+
+#### Étape 3 : Exécution
+```bash
+python debug_api_test.py
+# Logs récupérés montrent le problème
+```
+
+#### Étape 4 : Analyse
+Les logs montrent que la signature est invalide mais l'exception n'est pas catchée.
+
+#### Étape 5 : Rapport
+Origine identifiée : Exception non gérée dans `verify_signature()` ligne 23.
+
+### Exemple 2 : Bug de Logique Métier 💼
+
+**Contexte** : Calcul de prix incorrect pour les commandes groupées
+
+#### Étape 1 : Hypothèses
+- La réduction n'est pas appliquée
+- Le calcul de quantité est erroné
+- Les prix unitaires sont incorrects
+- La logique de groupement échoue
+
+#### Étape 2 : Logs placés
+```python
+# Dans calculate_order_total() - format dictionnaire avec limitation
+print({
+    "items_count": str(len(items))[:50],
+    "unit_prices": str([item.price for item in items])[:200],
+    "discount_rate": str(get_discount_rate(items))[:50],
+    "subtotal": str(sum(item.price for item in items))[:100],
+    "calculation_step": "before_final_total"
+})
+
+# Exit avant calcul final - CRITIQUE pour éviter les boucles
+total = calculate_final_total(subtotal, discount_rate)
+print({
+    "final_total": str(total)[:100],
+    "calculation_complete": "true",
+    "action": "stopping_for_analysis"
+})
+exit(1)
+```
+
+#### Étape 3 : Exécution
+Script de test avec commande de 5 articles.
+
+#### Étape 4 : Analyse
+Les logs montrent que `discount_rate` est 0 alors qu'il devrait être 0.1.
+
+#### Étape 5 : Rapport
+Origine identifiée : `get_discount_rate()` ne compte pas correctement les articles éligibles.
+
+---
+
+## Règles de Sécurité et Bonnes Pratiques
+
+### ⚠️ Interdictions Absolues
+- **Ne jamais simuler** : Tester le véritable code, pas une approximation
+- **Ne jamais masquer** : Les logs doivent révéler, pas cacher
+- **Ne jamais contourner** : Identifier la cause, pas les symptômes
+- **Ne jamais saturer la console** : Limiter les logs à des dictionnaires avec caractères limités
+- **Ne jamais laisser des boucles sans exit** : Protection obligatoire contre les logs en boucle
+
+### ✅ Obligations
+- **Nettoyage complet** : Le repo doit être identique à l'état initial
+- **Logs clairs** : Format dictionnaire avec limitation de caractères obligatoire
+- **Exit stratégiques** : Protection contre les boucles infinies et contrôle de l'exécution
+- **Rapport détaillé** : Suffisamment précis pour permettre la correction
+
+### 🔄 Itérations
+- **Maximum 3 cycles** : Si après 3 itérations l'origine n'est pas claire, documenter les tentatives
+- **Progression logique** : Chaque itération doit affiner la localisation
+- **Traçabilité** : Garder une trace des hypothèses testées
+
+---
+
+## Activation de la Règle
+
+Cette règle est activée manuellement par l'utilisateur lors de sessions de débogage. Pour l'utiliser :
+
+1. **Déclencher** : "Utilise la règle enquêteur pour identifier l'origine de ce bug"
+2. **Contextualiser** : Fournir la description du bug et les conditions de reproduction
+3. **Suivre** : L'agent suivra automatiquement le processus en 5 étapes
+4. **Valider** : Vérifier que le repo est propre après l'enquête
+
+**Rappel** : Cette règle identifie, ne corrige pas. Une fois l'origine claire, c'est à l'utilisateur ou à une autre règle de procéder à la correction.
