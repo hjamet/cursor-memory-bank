@@ -182,11 +182,36 @@ Décider si les logs permettent d'identifier CLAIREMENT l'origine du bug.
 ❌ **Origine floue** : Les logs indiquent un problème mais pas sa cause précise
 ❌ **Hypothèses incorrectes** : Aucune des hypothèses n'est validée
 
+### ⚠️ QUESTION OBLIGATOIRE AVANT L'ÉTAPE 5 : "POURQUOI ?"
+
+**RÈGLE CRITIQUE** : Avant de passer à l'étape 5, l'agent DOIT obligatoirement se poser la question "POURQUOI" et y répondre avec certitude absolue.
+
+#### Exemple de questionnement "POURQUOI"
+```markdown
+**Problème identifié** : La liste `actions` est toujours vide
+**Question POURQUOI** : POURQUOI la liste `actions` est-elle toujours vide ?
+
+**Réponses possibles** :
+✅ **Cause claire** : "Parce que la fonction `load_actions()` ligne 23 retourne toujours `[]` car la condition `if user.is_active` ligne 25 est toujours `False`"
+❌ **Cause floue** : "Parce que la fonction `load_actions()` ne fonctionne pas correctement"
+
+**Décision** :
+- ✅ Si la cause est claire et logique → Passer à l'étape 5
+- ❌ Si la cause est floue ou inconnue → Continuer à creuser (étape 2)
+```
+
+#### Processus de validation "POURQUOI"
+1. **Identifier le symptôme** : "La variable X a la valeur Y"
+2. **Poser la question** : "POURQUOI X a-t-elle la valeur Y ?"
+3. **Répondre avec précision** : "Parce que la fonction Z ligne N fait W"
+4. **Valider la logique** : Cette explication s'inscrit-elle dans la logique du code ?
+5. **Décider** : Cause claire → Étape 5, Cause floue → Continuer étape 2
+
 ### Décisions possibles
-- **Passage à l'étape 5** : Origine clairement identifiée avec preuve absolue
+- **Passage à l'étape 5** : Origine clairement identifiée avec preuve absolue ET question "POURQUOI" résolue avec certitude
 - **Retour à l'étape 1.a** : Exploration insuffisante, besoin d'analyser plus de code
 - **Retour à l'étape 1.b** : Hypothèses incorrectes ou trop superficielles
-- **Retour à l'étape 2** : Hypothèses prometteuses mais logs insuffisants pour localiser précisément
+- **Retour à l'étape 2** : Hypothèses prometteuses mais logs insuffisants pour localiser précisément OU question "POURQUOI" sans réponse claire
 
 ### ⚠️ RÈGLE CRITIQUE : Ne Pas Accepter de Solutions Approximatives
 - **Preuve absolue requise** : Les logs doivent montrer EXACTEMENT quelle ligne cause le bug
@@ -329,7 +354,12 @@ python debug_api_test.py
 ```
 
 #### Étape 4 : Analyse
-Les logs montrent que la signature est invalide mais l'exception n'est pas catchée. **Preuve absolue** : Le bug se situe exactement ligne 23 de `src/auth/token_validator.py` dans la fonction `verify_signature()` où l'exception `InvalidSignatureError` n'est pas gérée.
+Les logs montrent que la signature est invalide mais l'exception n'est pas catchée. 
+
+**Question POURQUOI obligatoire** : POURQUOI l'exception n'est-elle pas catchée ?
+**Réponse** : Parce que la fonction `verify_signature()` ligne 23 n'a pas de bloc try/catch autour de `jwt.decode()`, donc l'exception `InvalidSignatureError` remonte et cause le 500.
+
+**Preuve absolue** : Le bug se situe exactement ligne 23 de `src/auth/token_validator.py` dans la fonction `verify_signature()` où l'exception `InvalidSignatureError` n'est pas gérée.
 
 #### Étape 5 : Rapport
 **Origine précise identifiée** : Exception non gérée dans `verify_signature()` ligne 23 de `src/auth/token_validator.py`. **Cause racine** : Absence de try/catch autour de `jwt.decode()`.
@@ -378,7 +408,12 @@ exit(1)
 Script de test avec commande de 5 articles.
 
 #### Étape 4 : Analyse
-Les logs montrent que `discount_rate` est 0 alors qu'il devrait être 0.1. **Preuve absolue** : Le bug se situe exactement ligne 12 de `src/orders/discount.py` dans la fonction `get_discount_rate()` où la condition `if len(items) >= 5` est incorrecte.
+Les logs montrent que `discount_rate` est 0 alors qu'il devrait être 0.1.
+
+**Question POURQUOI obligatoire** : POURQUOI `discount_rate` est-il 0 au lieu de 0.1 ?
+**Réponse** : Parce que la fonction `get_discount_rate()` ligne 12 vérifie `if len(items) >= 5` au lieu de `if sum(item.quantity for item in items) >= 5`, donc elle compte le nombre d'articles différents au lieu du nombre total d'articles.
+
+**Preuve absolue** : Le bug se situe exactement ligne 12 de `src/orders/discount.py` dans la fonction `get_discount_rate()` où la condition `if len(items) >= 5` est incorrecte.
 
 #### Étape 5 : Rapport
 **Origine précise identifiée** : Condition incorrecte dans `get_discount_rate()` ligne 12 de `src/orders/discount.py`. **Cause racine** : La condition vérifie `len(items) >= 5` au lieu de `sum(item.quantity for item in items) >= 5`.
@@ -393,11 +428,13 @@ Les logs montrent que `discount_rate` est 0 alors qu'il devrait être 0.1. **Pre
 - **Ne jamais contourner** : Identifier la cause, pas les symptômes
 - **Ne jamais saturer la console** : Limiter les logs à des dictionnaires avec caractères limités
 - **Ne jamais laisser des boucles sans exit** : Protection obligatoire contre les logs en boucle
+- **Ne jamais passer à l'étape 5 sans répondre à "POURQUOI"** : Question obligatoire avant le rapport final
 
 ### ✅ Obligations
 - **Nettoyage complet** : Le repo doit être identique à l'état initial
 - **Logs clairs** : Format dictionnaire avec limitation de caractères obligatoire
 - **Exit stratégiques** : Protection contre les boucles infinies et contrôle de l'exécution
+- **Question "POURQUOI" obligatoire** : Répondre avec certitude avant l'étape 5
 - **Rapport détaillé** : Suffisamment précis pour permettre la correction
 
 ### 🔄 Itérations et Approfondissement
