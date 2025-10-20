@@ -11,6 +11,20 @@ Cette règle implémente le principe "Fail-Fast" dans le contexte du débogage :
 
 **Philosophie** : Un bug mal localisé est un bug qui reviendra. Mieux vaut échouer rapidement avec une origine claire qu'un contournement qui masque la cause racine.
 
+---
+
+## ⛔🚫❌ INTERDICTION ABSOLUE DE CORRECTION ❌🚫⛔
+
+**RÈGLE CRITIQUE** : L'enquêteur doit UNIQUEMENT identifier l'origine du bug. **TOUTE tentative de correction interrompt immédiatement le cycle d'enquête.**
+
+### Interdictions strictes :
+- 🚫 **Ne jamais modifier le code** pour "tester une correction"
+- 🚫 **Ne jamais proposer de solutions** dans le rapport final
+- 🚫 **Ne jamais implémenter de fix** ou workaround
+- ❌ **Arrêt immédiat** si l'agent commence à corriger au lieu d'enquêter
+
+**Rappel constant** : Cette règle **IDENTIFIE**, ne corrige pas. Une fois l'origine claire, c'est à l'utilisateur ou à une autre règle de procéder à la correction.
+
 ## Processus Méthodologique en 5 Étapes
 
 ### ⚠️ RÈGLE CRITIQUE : Indication Obligatoire de l'Étape
@@ -29,718 +43,211 @@ L'agent DOIT **toujours** indiquer son étape actuelle avec des titres markdown 
 
 ## Étape 1.a : Exploration des Fichiers de Code 🔍
 
-### Objectif
-Analyser en profondeur le code pour comprendre le contexte, les flux d'exécution et identifier tous les points de défaillance potentiels.
+**Objectif** : Identifier tous les fichiers impliqués et comprendre le flux d'exécution complet.
 
-### Méthodologie d'exploration
-1. **Cartographie du code** : Identifier tous les fichiers impliqués dans le bug
-2. **Analyse des flux** : Comprendre le parcours d'exécution complet
-3. **Identification des dépendances** : Variables, fonctions, services externes
-4. **Points critiques** : Conditions, validations, transformations de données
-5. **Contexte d'exécution** : Environnement, configuration, état initial
+**Actions** :
+- Cartographier les fichiers (via `codebase_search`, `read_file`, `grep`)
+- Analyser le parcours d'exécution 
+- Identifier les dépendances (variables, fonctions, services)
+- Localiser les points critiques (conditions, validations, transformations)
 
-### Outils d'exploration
-- **Recherche sémantique** : `codebase_search` pour comprendre les fonctionnalités
-- **Analyse de fichiers** : `read_file` pour examiner le code source
-- **Recherche de patterns** : `grep` pour trouver des motifs spécifiques
-- **Navigation** : `list_dir` pour comprendre la structure
-
-### Exemple d'exploration
-```markdown
-**Fichiers identifiés** :
-- `src/auth/middleware.py` : Middleware d'authentification
-- `src/auth/token_validator.py` : Validation des tokens JWT
-- `src/database/connection.py` : Gestion des connexions DB
-- `src/api/users.py` : Endpoint utilisateur
-
-**Flux d'exécution** :
-1. Requête HTTP → Middleware auth → Validation token → DB query → Response
-2. Points critiques : validation token, extraction user_id, requête DB
-
-**Dépendances identifiées** :
-- Variable `user_id` extraite du token
-- Fonction `verify_signature()` pour validation
-- Connexion DB pour requête utilisateur
-```
+**Sortie** : Liste des fichiers, flux d'exécution, et points de défaillance potentiels.
 
 ---
 
 ## Étape 1.b : Formulation d'Hypothèses 🎯
 
-### Objectif
-Formuler 3-5 hypothèses précises sur l'origine probable du bug, basées sur l'exploration approfondie du code.
+**Objectif** : Formuler 3-5 hypothèses précises et testables sur l'origine du bug.
 
-### Méthodologie
-1. **Synthèse de l'exploration** : Utiliser les informations collectées à l'étape 1.a
-2. **Identification des points de défaillance** : Variables, fonctions, conditions, flux d'exécution
-3. **Priorisation** : Classer les hypothèses par probabilité et impact
-4. **Formulation claire** : Chaque hypothèse doit être testable et spécifique
-5. **Approfondissement** : Ne pas se satisfaire d'hypothèses superficielles
+**Approche** :
+- Synthétiser les informations de l'étape 1.a
+- Identifier les points de défaillance probables (variables, fonctions, conditions)
+- Prioriser par probabilité et impact
+- Chaque hypothèse doit pointer vers une ligne/instruction spécifique
 
-### Exemple de formulation
-```markdown
-**Hypothèse 1** : La variable `user_id` est `None` lors de l'appel à `get_user_profile()` car `extract_user_id_from_token()` échoue silencieusement
-**Hypothèse 2** : La connexion à la base de données échoue silencieusement dans `db.get_user(user_id)`
-**Hypothèse 3** : Le middleware d'authentification ne valide pas correctement le token dans `verify_signature()`
-**Hypothèse 4** : La fonction `validate_input()` retourne `True` pour des données invalides dans `sanitize_user_data()`
-**Hypothèse 5** : Race condition entre deux processus accédant à la même ressource dans `update_user_cache()`
-```
+**Exemple** :
+- Hypothèse 1 : `user_id` est `None` car `extract_user_id_from_token()` ligne 23 échoue
+- Hypothèse 2 : Exception non catchée dans `db.get_user()` ligne 45
+- Hypothèse 3 : Logique inversée dans `verify_signature()` ligne 12
 
-### ⚠️ RÈGLE CRITIQUE : Ne Pas Se Satisfaire de Solutions Simples
-- **Creuser en profondeur** : Ne pas accepter la première explication qui semble logique
-- **Itérer si nécessaire** : Revenir aux étapes 1.a ou 1.b si le moindre doute subsiste
-- **Preuve absolue** : Identifier la CAUSE, pas la conséquence
-- **Localisation précise** : Savoir exactement quelle ligne cause le problème
+### ⚠️ RÈGLE CRITIQUE 
+**Ne jamais se satisfaire de solutions simples** : creuser jusqu'à la ligne exacte, identifier la CAUSE racine, pas les symptômes.
 
 ---
 
 ## Étape 2 : Placement de Logs de Débogage 📝
 
-### Objectif
-Insérer des logs standards (sans marqueur spécial) et des `exit()` stratégiques pour valider chaque hypothèse.
-
-### Règles de placement
-- **Logs informatifs** : Dictionnaires de variables avec formatage contrôlé et limitation de caractères
-- **Exit stratégiques** : Arrêt du programme juste après les points de validation clés - **CRITIQUE pour éviter les boucles infinies**
-- **Pas de marqueurs** : Utiliser des logs standards pour faciliter le nettoyage
-- **Granularité progressive** : Commencer large, puis affiner selon les résultats
-- **Protection contre les boucles** : Exit obligatoire après logs dans des boucles fréquentes
-
-### Format standard des logs
-```python
-# Format recommandé : dictionnaire avec limitation de caractères
-print({
-    "user_id": str(user_id)[:100],
-    "db_connected": str(db.is_connected())[:50],
-    "token_valid": str(validate_token(token))[:50],
-    "request_headers": str(request.headers)[:200]
-})
-
-# Exit stratégique après validation - OBLIGATOIRE pour éviter les boucles
-if user_id is None:
-    print({"error": "user_id is None", "location": "auth_middleware"})
-    exit(1)
-```
+**Objectif** : Insérer des logs "avant/après" pour identifier la ligne exacte du bug.
 
 ### ⚠️ RÈGLES CRITIQUES POUR LES LOGS
 
-1. **Format dictionnaire obligatoire** : Toujours utiliser `{"clé": str(valeur)[:limite]}`
-2. **Limitation de caractères** : Maximum 100-500 caractères par valeur selon l'importance
-3. **Exit après boucles** : Si log dans une boucle, exit immédiatement après pour éviter le spam
-4. **Clés descriptives** : Utiliser des noms explicites (`user_id`, `db_status`, `validation_result`)
+1. **Format dictionnaire obligatoire** : `{"clé": str(valeur)[:limite]}`
+2. **Limitation de caractères** : Maximum 100-500 caractères selon l'importance
+3. **Exit après boucles** : Protection obligatoire contre les boucles infinies
+4. **Logs "sandwich"** : Log AVANT et APRÈS la ligne suspecte
 
-### Placement des exit()
-- **Après validation d'hypothèse** : Confirmer que l'hypothèse est correcte
-- **Avant action critique** : Éviter les effets de bord
-- **Points de décision** : Branches conditionnelles importantes
-- **🚨 PROTECTION CONTRE LES BOUCLES** : Exit immédiat après logs dans des boucles fréquentes
-- **Arrêt contrôlé** : Permettre à l'utilisateur d'effectuer des actions (ex: requête web) puis récupérer les logs
-
-### Stratégie de Logs "Avant/Après" Obligatoire
-
-Pour identifier la ligne exacte du bug, tu DOIS placer des logs en "sandwich" :
-
-**Log AVANT** : Juste avant la ligne suspecte
-- Vérifie que toutes les variables d'entrée sont correctes
-- Confirme que l'état du système est attendu
-- Valide que les conditions sont normales
-
-**Log APRÈS** : Juste après la ligne suspecte
-- Capture le résultat de l'opération
-- Compare avec le résultat attendu
-- Identifie l'incohérence ou l'erreur
-
-**Exemple concret** :
+### Format standard des logs
 ```python
-# Log AVANT - tout doit être normal ici
+# Log AVANT - tout doit être normal
 print({
     "BEFORE_line_47": "true",
     "a": str(a)[:50],
     "b": str(b)[:50],
-    "operation_expected": "addition",
     "state": "NORMAL"
 })
 
 # Ligne suspecte 47
 result = a - b  # BUG ICI : devrait être a + b
 
-# Log APRÈS - le problème doit apparaître ici
+# Log APRÈS - problème visible ici
 print({
-    "AFTER_line_47": "true",
+    "AFTER_line_47": "true", 
     "result": str(result)[:50],
     "expected": str(a + b)[:50],
     "state": "ANOMALIE_DETECTED" if result != (a + b) else "NORMAL"
 })
-exit(1)  # Arrêt pour analyse
+exit(1)  # Arrêt obligatoire pour analyse
 ```
 
 ---
 
 ## Étape 3 : Exécution et Récupération des Logs 🚀
 
-### Objectif
-Lancer le programme dans les conditions propices au bug et récupérer tous les logs.
+**Objectif** : Lancer le programme et récupérer tous les logs dans les conditions du bug.
 
-### Méthodes d'exécution
-1. **Exécution directe** : `python main.py` ou `npm start`
-2. **Script de debug temporaire** : Créer `debug_test_scenario.py` à la racine
-3. **Conditions spécifiques** : Reproduire l'environnement exact du bug
+**Méthodes** :
+- Exécution directe : `python main.py` ou `npm start`
+- Script temporaire : Créer `debug_scenario.py` à la racine avec code minimal
+- Conditions exactes : Reproduire l'environnement du bug
 
-### Règles pour les scripts temporaires
-- **Nommage** : Préfixe `debug_` + description (ex: `debug_api_call.py`)
-- **Localisation** : À la racine du projet
-- **Contenu** : Code minimal pour reproduire le bug
-- **Authenticité** : Tester le véritable code, pas une simulation
-
-### Exemple de script temporaire
-```python
-# debug_api_call.py
-import requests
-import json
-
-# Reproduire exactement les conditions du bug
-headers = {"Authorization": "Bearer invalid_token"}
-response = requests.get("http://localhost:3000/api/users", headers=headers)
-print(f"Status: {response.status_code}")
-print(f"Response: {response.text}")
-```
-
-### Récupération des logs
-- **Capturer TOUS les outputs** : stdout, stderr, fichiers de log
-- **Préserver l'ordre** : Maintenir la chronologie des événements
-- **Contextualiser** : Noter les conditions d'exécution
+**Récupération** : Capturer stdout/stderr, préserver l'ordre chronologique.
 
 ---
 
 ## Étape 4 : Analyse des Résultats 🔍
 
-### Objectif
-Analyser les logs récupérés pour identifier les patterns et symptômes du bug.
+**Objectif** : Analyser les logs pour identifier les patterns et symptômes du bug.
 
-### Critères d'analyse
-✅ **Symptômes clairs** : Les logs montrent des valeurs inattendues ou des erreurs
-❌ **Logs insuffisants** : Pas assez d'informations pour comprendre le problème
-❌ **Hypothèses invalidées** : Aucune des hypothèses n'est confirmée par les logs
+**Méthodologie** :
+1. Examiner les logs pour valeurs inattendues
+2. Corréler avec les hypothèses formulées
+3. Identifier les symptômes précis
+4. Préparer le questionnement "POURQUOI"
 
-### Méthodologie d'analyse
-1. **Examen des logs** : Identifier les valeurs inattendues ou les erreurs
-2. **Corrélation avec les hypothèses** : Vérifier quelles hypothèses sont validées
-3. **Identification des symptômes** : Comprendre ce qui ne fonctionne pas
-4. **Préparation du questionnement** : Préparer les questions "POURQUOI" pour l'étape 4.a
-
-### Exemple d'analyse
-```markdown
-**Résultats des logs** :
-{
-    "user_id": "None",
-    "db_connected": "True", 
-    "token_valid": "False",
-    "validation_error": "silent_failure"
-}
-
-**Symptômes identifiés** :
-- `user_id` est `None` alors qu'il devrait contenir un ID utilisateur
-- `token_valid` est `False` mais aucune erreur n'est levée
-- La validation échoue silencieusement
-
-**Hypothèses validées** :
-- ✅ Hypothèse 1 : `user_id` est `None` (confirmée)
-- ✅ Hypothèse 3 : Validation token échoue (confirmée)
-```
+**Résultat attendu** : Liste des symptômes clairs avec hypothèses validées/invalidées.
 
 ---
 
 ## Étape 4.a : Questionnement "POURQUOI" Obligatoire ❓
 
-### Objectif
-Se poser la question "POURQUOI" pour chaque symptôme identifié et répondre avec certitude absolue.
+**Objectif** : Se poser "POURQUOI" pour chaque symptôme et répondre avec certitude absolue.
 
-### ⚠️ RÈGLE CRITIQUE
-**Avant de passer à l'étape 4.b, l'agent DOIT obligatoirement se poser la question "POURQUOI" pour chaque symptôme et y répondre avec certitude absolue.**
+### ⚠️ RÈGLE CRITIQUE - VALIDATION OBLIGATOIRE
 
-### Processus de questionnement "POURQUOI"
-1. **Identifier le symptôme** : "La variable X a la valeur Y"
-2. **Poser la question** : "POURQUOI X a-t-elle la valeur Y ?"
-3. **Répondre avec précision** : "Parce que la fonction Z ligne N fait W"
-4. **Validation critique OBLIGATOIRE** : Vérifier que tout est normal AVANT le passage problématique
-5. **Validation de la localisation** : Confirmer que le problème apparaît BIEN juste après le passage identifié
-6. **Évaluer la certitude** : Suis-je sûr à 100% d'avoir identifié l'UNIQUE passage problématique ?
+**Avant l'étape 4.b, l'agent DOIT avoir :**
 
-### Exemple de questionnement "POURQUOI"
-```markdown
-**Symptôme identifié** : La liste `actions` est toujours vide
-**Question POURQUOI** : POURQUOI la liste `actions` est-elle toujours vide ?
+1. **Question "POURQUOI" posée et répondue** pour chaque symptôme
+2. **Preuves par logs** que tout est normal AVANT la ligne identifiée
+3. **Preuves par logs** que le problème apparaît APRÈS cette ligne
 
-**Réponse initiale** : "Parce que la fonction `load_actions()` ligne 23 retourne toujours `[]`"
+### Processus de validation
+- **Identifier le symptôme** → **Poser "POURQUOI"** → **Répondre avec précision ligne/instruction**
+- **Vérifier** : État normal AVANT + Problème visible APRÈS + UNIQUE passage problématique
 
-**Validation critique OBLIGATOIRE** :
-- ✅ Tout est normal AVANT ligne 23 : `user` existe, `user.is_active` est `True`
-- ✅ Le problème apparaît BIEN juste après ligne 23 : `actions` devient `[]`
-- ✅ C'est l'UNIQUE passage problématique : aucune autre fonction ne modifie `actions`
+**Si validation échoue** → Retour étape 2 pour logs supplémentaires
 
-**Réponse finale** : "Parce que la fonction `load_actions()` ligne 23 retourne toujours `[]` car la condition `if user.is_active` ligne 25 est toujours `False`"
-
-**Évaluation** :
-- ✅ Cause claire + logique du code + certitude absolue → Prêt pour étape 4.b
-- ❌ Cause floue OU incertitude OU validation critique échouée → Besoin de plus de logs (retour étape 2)
-```
-
-### Questions "POURQUOI" typiques
-- **POURQUOI** cette variable a-t-elle cette valeur inattendue ?
-- **POURQUOI** cette fonction retourne-t-elle ce résultat incorrect ?
-- **POURQUOI** cette condition est-elle toujours vraie/fausse ?
-- **POURQUOI** cette exception n'est-elle pas catchée ?
-
-### ⚠️ VALIDATION CRITIQUE OBLIGATOIRE
-
-**L'agent DOIT être extrêmement prudent et vérifier** :
-
-1. **État normal AVANT le passage problématique** :
-   - Toutes les variables ont les valeurs attendues
-   - Toutes les conditions sont dans l'état normal
-   - Aucun problème n'existe avant la ligne identifiée
-
-2. **Problème apparaît BIEN juste après** :
-   - Le symptôme se manifeste immédiatement après le passage identifié
-   - Pas de délai ou d'autres étapes intermédiaires
-   - Lien direct et immédiat entre cause et effet
-
-3. **UNIQUE passage problématique** :
-   - Aucune autre partie du code ne peut causer le même problème
-   - Le passage identifié est la seule source possible du bug
-   - Pas de causes multiples ou alternatives
-
-**Si une seule de ces validations échoue** → Retour à l'étape 2 pour plus de logs
-
-### ⚠️ VALIDATION CRITIQUE OBLIGATOIRE
-
-**Avant de passer à l'étape 4.b, l'agent DOIT OBLIGATOIREMENT ajouter des logs stratégiques pour prouver chaque hypothèse avec des preuves concrètes.**
-
-**Instructions explicites** :
-- "Si tu n'as pas de logs prouvant que tout est normal AVANT la ligne identifiée, retourne à l'étape 2 pour ajouter ces logs"
-- "Si tu n'as pas de logs prouvant que le problème apparaît APRÈS cette ligne, retourne à l'étape 2 pour ajouter ces logs"
-- "Tu ne peux PAS affirmer avoir trouvé la ligne exacte sans ces deux preuves par logs"
-
-**Format des preuves obligatoires** :
-
-1. **Preuve AVANT** : Logs juste avant la ligne suspecte montrant que tout est normal
-2. **Preuve APRÈS** : Logs juste après la ligne suspecte montrant l'anomalie
-
-**Exemple concret** :
-```markdown
-**Mauvaise identification** :
-"Le bug vient de la fonction `calculate_total()` car elle retourne un mauvais résultat"
-❌ Pas de ligne précise, pas de preuve avant/après
-
-**Bonne identification** :
-"Le bug vient de la ligne 47 dans `calculate_total()` : `result = a - b` au lieu de `result = a + b`"
-**Preuve AVANT** (logs ligne 46) : `{"a": 100, "b": 50, "operation": "addition_expected"}`
-**Preuve APRÈS** (logs ligne 48) : `{"result": 50, "expected": 150, "problem": "VALEUR_INCORRECTE"}`
-✅ Ligne exacte + preuve que tout est normal avant + preuve du problème après
-```
+### Questions typiques
+- POURQUOI cette variable a cette valeur inattendue ?
+- POURQUOI cette fonction retourne ce résultat incorrect ?
+- POURQUOI cette condition est toujours vraie/fausse ?
 
 ---
 
 ## Étape 4.b : Décision de Poursuite ou d'Itération 🎯
 
-### Objectif
-Décider si l'origine du bug est suffisamment claire pour passer au rapport final ou s'il faut continuer à creuser.
+**Objectif** : Décider si l'origine du bug est suffisamment claire pour le rapport final.
 
 ### Checkpoint de Validation : 3 Questions Obligatoires
 
-Avant de passer à l'étape 5, l'agent DOIT répondre OUI aux 3 questions suivantes avec des PREUVES par logs :
+**Avant l'étape 5, répondre OUI avec preuves :**
 
-**Question 1 : Ai-je la ligne EXACTE du bug ?**
-- ✅ OUI : "Ligne 47 de `src/calculator.py` : `result = a - b`"
-- ❌ NON : "Le problème vient de la fonction `calculate_total()`" (trop vague)
-- ❌ NON : "Quelque part dans le module de calcul" (aucune précision)
+1. **Ai-je la ligne EXACTE du bug ?** (pas "dans la fonction X")
+2. **Ai-je des logs AVANT cette ligne** prouvant que tout est normal ?
+3. **Ai-je des logs APRÈS cette ligne** prouvant l'anomalie ?
 
-**Question 2 : Ai-je des logs prouvant que tout est NORMAL AVANT cette ligne ?**
-- ✅ OUI : Logs ligne 46 montrant `{"a": 100, "b": 50}` avec valeurs attendues
-- ❌ NON : Pas de logs avant la ligne identifiée
-- ❌ NON : Logs présents mais pas assez proches de la ligne suspecte
-
-**Question 3 : Ai-je des logs prouvant que le PROBLÈME apparaît APRÈS cette ligne ?**
-- ✅ OUI : Logs ligne 48 montrant `{"result": 50, "expected": 150}`
-- ❌ NON : Pas de logs après la ligne identifiée
-- ❌ NON : Logs présents mais ne montrent pas clairement l'incohérence
-
-**DÉCISION FINALE** :
-- Si les 3 réponses sont OUI avec preuves → ✅ Passage à l'étape 5
-- Si UNE SEULE réponse est NON → ❌ RETOUR à l'étape 2 pour ajouter des logs stratégiques
+**Décision** :
+- 3 OUI → ✅ Passage à l'étape 5
+- 1 NON → ❌ Retour étape 2
 
 ### ⚠️ RÈGLE DE PROFONDEUR : Fonctions Locales
 
-Avant de valider que tu as trouvé la ligne exacte du bug, vérifie :
-
-**La ligne identifiée est-elle un appel à une FONCTION LOCALE ?**
-
-**Fonction locale** = fonction définie dans le projet (pas une bibliothèque externe comme `len()`, `print()`, `requests.get()`)
+**Si la ligne identifiée est un APPEL de fonction locale** (pas bibliothèque externe) :
+- ❌ Tu ne peux PAS t'arrêter
+- ❌ Tu dois RENTRER dans cette fonction
+- ❌ Continue jusqu'à trouver l'instruction primitive (assignation, condition, opération, retour)
 
 **Exemples** :
-- `result = calculate_total(items)` → Fonction locale ✅ RENTRER DEDANS
-- `data = process_user_data(user)` → Fonction locale ✅ RENTRER DEDANS
-- `items = json.loads(raw_data)` → Bibliothèque externe ❌ Ne pas rentrer
-- `total = sum(prices)` → Built-in Python ❌ Ne pas rentrer
+- `result = calculate_total(items)` → RENTRER DEDANS
+- `data = json.loads(raw_data)` → Ne pas rentrer (bibliothèque externe)
 
-**SI la ligne est un appel de fonction locale** :
-1. ❌ Tu ne peux PAS affirmer avoir trouvé le bug
-2. ❌ Tu dois RENTRER dans cette fonction
-3. ❌ Tu dois placer des logs DANS cette fonction pour identifier la ligne exacte du problème
-4. ❌ Tu dois continuer à creuser jusqu'à trouver l'instruction primitive (assignation, opération, condition, retour)
-
-**Critère d'arrêt** : Tu ne peux t'arrêter QUE quand la ligne identifiée est une instruction primitive :
-- Assignation : `x = y + z`
-- Opération : `result = a - b`
-- Condition : `if user.is_active`
-- Retour : `return None`
-- Accès : `data['key']`
-- etc.
-
-**Exemple d'approfondissement obligatoire** :
-```markdown
-**Itération 1 - INSUFFISANT** :
-"Ligne 47 : `total = calculate_order_total(items)` retourne une mauvaise valeur"
-→ ❌ C'est un appel de fonction locale, il faut rentrer dedans
-
-**Itération 2 - INSUFFISANT** :
-"Dans `calculate_order_total()` ligne 12 : `discount = get_discount(items)` retourne 0 au lieu de 0.1"
-→ ❌ C'est encore un appel de fonction locale, il faut continuer
-
-**Itération 3 - ACCEPTABLE** :
-"Dans `get_discount()` ligne 5 : `if len(items) >= 5` au lieu de `if sum(item.qty for item in items) >= 5`"
-→ ✅ C'est une instruction primitive (condition), on peut s'arrêter
-→ ✅ Avec logs prouvant que `len(items) = 3` et `sum(item.qty) = 8`
-```
-
-### Exemples de Décisions INACCEPTABLES
-
-❌ **Arrêt prématuré sur symptôme** :
-"J'ai trouvé que `user_id` est None, donc le bug vient de l'authentification"
-→ C'est un SYMPTÔME, pas la ligne exacte du bug
-
-❌ **Localisation vague** :
-"Le problème est dans la fonction `process_user_data()`"
-→ Quelle ligne ? Quelle instruction exactement ?
-
-❌ **Pas de preuves avant/après** :
-"Ligne 42 cause le bug car la logique est incorrecte"
-→ Où sont les logs prouvant l'état normal avant et le problème après ?
-
-❌ **Justification logique sans preuve** :
-"Ça doit être ligne 15 car c'est la seule qui modifie cette variable"
-→ "Ça doit être" n'est pas une preuve. Où sont les logs ?
-
-### Décisions possibles
-- **Passage à l'étape 5** : Les 3 questions sont OUI avec preuves ET pas d'appel de fonction locale
-- **Retour à l'étape 1.a** : Exploration insuffisante, besoin d'analyser plus de code
-- **Retour à l'étape 1.b** : Hypothèses incorrectes ou trop superficielles
-- **Retour à l'étape 2** : Logs insuffisants pour répondre aux 3 questions OU fonction locale à explorer
+### Décisions INACCEPTABLES
+- Arrêt sur symptôme ("`user_id` est None")
+- Localisation vague ("dans la fonction X")
+- Justification sans preuves ("ça doit être ligne 15")
 
 ---
 
 ## Étape 5 : Rapport Final 📋
 
-### Objectif
-Fournir un résumé détaillé de l'origine du bug identifié.
+**Objectif** : Fournir un résumé précis de l'origine du bug identifié.
 
-### Rapport final obligatoire
-Le rapport doit contenir :
-
-#### Résumé Exécutif
-- **Bug identifié** : Description claire du comportement problématique
-- **Origine précise** : Fichier, fonction, ligne exacte (si possible)
+### Rapport obligatoire
+- **Bug identifié** : Description du comportement problématique
+- **Origine précise** : Fichier, fonction, ligne exacte
 - **Cause racine** : Pourquoi le bug se produit
-
-#### Détails Techniques
-- **Hypothèses testées** : Liste des hypothèses validées/invalidées
-- **Logs décisifs** : Les logs qui ont permis l'identification
+- **Hypothèses validées/invalidées** : Liste avec logs décisifs
 - **Conditions de reproduction** : Environnement exact nécessaire
 
-#### Recommandations
-- **Priorité de correction** : Critique/Haute/Moyenne/Basse
-- **Impact estimé** : Utilisateurs affectés, fonctionnalités impactées
-- **Complexité de correction** : Estimation du temps nécessaire
-
-### Exemple de rapport final
-```markdown
-## Rapport d'Enquête : Bug d'Authentification API
-
-### Résumé Exécutif
-**Bug** : L'API retourne 200 OK même avec des tokens invalides
-**Origine** : `src/auth/token_validator.py:47` - fonction `validate_token()` retourne `True` par défaut
-**Cause racine** : Logique de validation inversée dans la condition `if not token.is_valid()`
-
-### Détails Techniques
-**Hypothèses testées** :
-- ✅ Hypothèse 1 : Token invalide accepté (validée)
-- ❌ Hypothèse 2 : Problème de connexion DB (invalidée)
-- ❌ Hypothèse 3 : Middleware défaillant (invalidée)
-
-**Logs décisifs** :
-```json
-{
-    "token_validation_result": "True",
-    "token_is_valid": "False", 
-    "validation_logic_error": "inverted_condition"
-}
-```
-
-**Conditions de reproduction** : Token JWT expiré ou malformé
-
-### Recommandations
-**Priorité** : Critique (sécurité)
-**Impact** : Tous les utilisateurs avec tokens invalides
-**Complexité** : Faible (1 ligne à corriger)
-```
+**Rappel** : Ce rapport identifie l'origine, ne propose AUCUNE correction.
 
 ---
 
-## Exemples Détaillés
+## Mini-Cas Pratiques
 
-### Exemple 1 : Bug dans une API Web 🌐
+### Cas 1 : Fonction Locale À Explorer
+**Problème** : `result = calculate_total(items)` retourne 0 au lieu de 150.
+**Action** : RENTRER dans `calculate_total()` pour trouver l'instruction primitive problématique.
 
-**Contexte** : L'API retourne 500 au lieu de 401 pour les tokens invalides
-
-#### Étape 1.a : Exploration des fichiers
-**Fichiers analysés** :
-- `src/auth/middleware.py` : Middleware d'authentification (lignes 15-45)
-- `src/auth/token_validator.py` : Validation JWT (lignes 20-80)
-- `src/api/users.py` : Endpoint utilisateur (lignes 10-30)
-
-**Flux identifié** :
-Requête → middleware.auth() → token_validator.verify() → db.get_user() → response
-
-#### Étape 1.b : Hypothèses formulées
-- Le middleware d'auth ne catch pas les exceptions dans `verify_signature()`
-- La validation du token échoue silencieusement dans `extract_user_id()`
-- Le format du token est incorrect mais accepté par `is_jwt_format()`
-- La clé de signature est mauvaise dans `verify_signature()` ligne 47
-
-#### Étape 2 : Logs placés
+### Cas 2 : Logs Avant/Après
 ```python
-# Dans token_validator.py - Logs AVANT ligne 23 (appel jwt.decode())
-print({
-    "BEFORE_line_23": "true",
-    "token_exists": str(token is not None)[:50],
-    "token_length": str(len(token))[:20],
-    "jwt_decode_call": "about_to_call",
-    "state": "NORMAL"
-})
-
-# Ligne 23 suspecte - ici le problème commence
-payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])  # Exception non catchée
-
-# Log APRÈS ligne 23 - ne sera jamais atteint à cause de l'exception
-print({
-    "AFTER_line_23": "true", 
-    "payload": str(payload)[:200],
-    "state": "NORMAL"
-})
-
-# Dans le middleware d'auth - format dictionnaire avec limitation
-print({
-    "received_token": str(token[:20]) + "..." if len(token) > 20 else str(token),
-    "token_format_valid": str(is_jwt_format(token))[:50],
-    "middleware_step": "before_verify_signature"
-})
-
-token_signature_valid = verify_signature(token)  # Appel qui cause l'exception
-
-print({
-    "token_signature_valid": str(token_signature_valid)[:50],
-    "middleware_step": "after_verify_signature"
-})
-
-exit(1)  # Arrêt pour analyse
+# AVANT - tout normal
+print({"BEFORE_line_47": "true", "a": str(a)[:50], "b": str(b)[:50]})
+result = a - b  # BUG ICI : devrait être a + b  
+# APRÈS - anomalie détectée
+print({"AFTER_line_47": "true", "result": str(result)[:50], "expected": str(a + b)[:50]})
 ```
 
-#### Étape 3 : Exécution
-```bash
-python debug_api_test.py
-# Logs récupérés montrent le problème
-```
-
-#### Étape 4 : Analyse
-Les logs montrent que la signature est invalide mais l'exception n'est pas catchée.
-
-**Symptômes identifiés** :
-- `token_signature_valid` est `False`
-- Aucune exception n'est catchée
-- Le programme continue et retourne 500
-
-#### Étape 4.a : Questionnement "POURQUOI"
-**Question POURQUOI obligatoire** : POURQUOI l'exception n'est-elle pas catchée ?
-**Réponse** : Parce que la fonction `verify_signature()` ligne 23 n'a pas de bloc try/catch autour de `jwt.decode()`, donc l'exception `InvalidSignatureError` remonte et cause le 500.
-
-#### Étape 4.b : Validation des 3 Questions + Règle de Profondeur
-
-**Question 1 : Ai-je la ligne EXACTE du bug ?**
-✅ OUI : "Ligne 23 de `src/auth/token_validator.py` : `payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])`"
-
-**Question 2 : Ai-je des logs prouvant que tout est NORMAL AVANT cette ligne ?**
-✅ OUI : Logs ligne 22 montrent `{"token_exists": "True", "token_length": "145", "state": "NORMAL"}`
-
-**Question 3 : Ai-je des logs prouvant que le PROBLÈME apparaît APRÈS cette ligne ?**
-✅ OUI : L'exception `InvalidSignatureError` se produit à la ligne 23, empêchant l'exécution des logs ligne 24
-
-**Validation de la règle de profondeur** : 
-✅ La ligne 23 n'est PAS un appel de fonction locale (`jwt.decode()` est une bibliothèque externe)
-
-**DÉCISION FINALE** : ✅ Passage à l'étape 5 - Toutes les conditions sont remplies
-
-#### Étape 5 : Rapport
-**Origine précise identifiée** : Exception non gérée dans `verify_signature()` ligne 23 de `src/auth/token_validator.py`. **Cause racine** : Absence de try/catch autour de `jwt.decode()`.
-
-### Exemple 2 : Bug de Logique Métier 💼
-
-**Contexte** : Calcul de prix incorrect pour les commandes groupées
-
-#### Étape 1.a : Exploration des fichiers
-**Fichiers analysés** :
-- `src/orders/calculator.py` : Calcul des prix (lignes 10-60)
-- `src/orders/discount.py` : Logique de réduction (lignes 5-40)
-- `src/orders/models.py` : Modèles de commande (lignes 20-80)
-
-**Flux identifié** :
-Commande → calculate_order_total() → get_discount_rate() → calculate_final_total() → prix final
-
-#### Étape 1.b : Hypothèses formulées
-- La réduction n'est pas appliquée dans `calculate_final_total()` ligne 45
-- Le calcul de quantité est erroné dans `get_discount_rate()` ligne 12
-- Les prix unitaires sont incorrects dans `extract_unit_prices()` ligne 28
-- La logique de groupement échoue dans `group_items_by_category()` ligne 15
-
-#### Étape 2 : Logs placés
-```python
-# Dans discount.py - Logs AVANT ligne 12 de get_discount_rate()
-print({
-    "BEFORE_line_12": "true",
-    "items_count": str(len(items))[:20],
-    "items_quantities": str([item.quantity for item in items])[:100],
-    "total_quantities": str(sum(item.quantity for item in items))[:20],
-    "condition_check": "about_to_check",
-    "state": "NORMAL"
-})
-
-# Ligne 12 suspecte - ici le bug se produit
-if len(items) >= 5:  # BUG : devrait être sum(item.quantity for item in items) >= 5
-    return 0.1
-else:
-    return 0
-
-# Log APRÈS ligne 12 - dans le cas où la condition est vraie
-print({
-    "AFTER_line_12": "true",
-    "condition_result": "len(items) >= 5",
-    "returned_discount": "0.1",
-    "state": "BUG_DETECTED" if len(items) >= 5 and sum(item.quantity for item in items) < 5 else "NORMAL"
-})
-
-# Dans calculate_order_total() - pour montrer l'impact
-discount_rate = get_discount_rate(items)
-print({
-    "discount_rate_result": str(discount_rate)[:50],
-    "expected_discount": "0.1" if sum(item.quantity for item in items) >= 5 else "0",
-    "state": "ANOMALIE_DETECTED" if discount_rate != (0.1 if sum(item.quantity for item in items) >= 5 else 0) else "NORMAL"
-})
-
-exit(1)  # Arrêt pour analyse
-```
-
-#### Étape 3 : Exécution
-Script de test avec commande de 5 articles.
-
-#### Étape 4 : Analyse
-Les logs montrent que `discount_rate` est 0 alors qu'il devrait être 0.1.
-
-**Symptômes identifiés** :
-- `discount_rate` est `0` au lieu de `0.1`
-- `items_count` est `5` (correct)
-- Le calcul de réduction échoue
-
-#### Étape 4.a : Questionnement "POURQUOI"
-**Question POURQUOI obligatoire** : POURQUOI `discount_rate` est-il 0 au lieu de 0.1 ?
-**Réponse** : Parce que la fonction `get_discount_rate()` ligne 12 vérifie `if len(items) >= 5` au lieu de `if sum(item.quantity for item in items) >= 5`.
-
-#### Étape 4.b : Validation des 3 Questions + Règle de Profondeur
-
-**Question 1 : Ai-je la ligne EXACTE du bug ?**
-✅ OUI : "Ligne 12 de `src/orders/discount.py` : `if len(items) >= 5:` au lieu de `if sum(item.quantity for item in items) >= 5:`"
-
-**Question 2 : Ai-je des logs prouvant que tout est NORMAL AVANT cette ligne ?**
-✅ OUI : Logs ligne 11 montrent `{"items_count": 5, "total_quantities": 8, "state": "NORMAL"}` avec données correctes
-
-**Question 3 : Ai-je des logs prouvant que le PROBLÈME apparaît APRÈS cette ligne ?**
-✅ OUI : Logs ligne 14 montrent `{"returned_discount": 0, "expected": 0.1, "state": "BUG_DETECTED"}`
-
-**Validation de la règle de profondeur** : 
-✅ La ligne 12 est une instruction primitive (condition if), pas un appel de fonction locale
-
-**DÉCISION FINALE** : ✅ Passage à l'étape 5 - Toutes les conditions sont remplies
-
-#### Étape 5 : Rapport
-**Origine précise identifiée** : Condition incorrecte dans `get_discount_rate()` ligne 12 de `src/orders/discount.py`. **Cause racine** : La condition vérifie `len(items) >= 5` au lieu de `sum(item.quantity for item in items) >= 5`.
+### Cas 3 : Arrêt Prématuré Évité
+**Mauvais** : "Le bug vient de l'authentification car `user_id` est None"
+**Bon** : "Ligne 23 dans `extract_user_id()` : `return None` au lieu de `return payload['user_id']`"
 
 ---
 
-## Règles de Sécurité et Bonnes Pratiques
+## Règles de Sécurité et Erreurs à Éviter
 
 ### ⚠️ Interdictions Absolues
-- **Ne jamais simuler** : Tester le véritable code, pas une approximation
-- **Ne jamais masquer** : Les logs doivent révéler, pas cacher
+- **Ne jamais simuler** : Tester le véritable code uniquement
+- **Ne jamais masquer** : Logs doivent révéler, pas cacher
 - **Ne jamais contourner** : Identifier la cause, pas les symptômes
-- **Ne jamais saturer la console** : Limiter les logs à des dictionnaires avec caractères limités
-- **Ne jamais laisser des boucles sans exit** : Protection obligatoire contre les logs en boucle
-- **Ne jamais passer à l'étape 5 sans répondre à "POURQUOI"** : Question obligatoire avant le rapport final
+- **Ne jamais proposer de corrections** : UNIQUEMENT identifier l'origine
 
-### ✅ Obligations
-- **Logs clairs** : Format dictionnaire avec limitation de caractères obligatoire
-- **Exit stratégiques** : Protection contre les boucles infinies et contrôle de l'exécution
-- **Question "POURQUOI" obligatoire** : Répondre avec certitude avant l'étape 5
-- **Rapport détaillé** : Suffisamment précis pour permettre la correction
-
-### 🔄 Itérations et Approfondissement
-- **Itération obligatoire** : Si le moindre doute subsiste, revenir aux étapes précédentes
-- **Creuser en profondeur** : Ne pas accepter la première explication qui semble logique
-- **Preuve absolue requise** : Identifier la CAUSE racine, pas les symptômes
-- **Localisation précise** : Savoir le fichier, la fonction ET la ligne exacte
-- **Traçabilité** : Garder une trace de toutes les hypothèses testées et des résultats
-
----
-
-## Erreurs Fréquentes à Éviter
-
-### ❌ Erreur 1 : S'arrêter sur un symptôme
-**Symptôme** : "La variable X est None"
-**Cause racine** : "Ligne 23 de fonction Y retourne None car condition Z est fausse"
-→ Ne t'arrête JAMAIS au symptôme, creuse jusqu'à la ligne exacte
-
-### ❌ Erreur 2 : Accepter une localisation vague
-**Vague** : "Le problème est dans le module d'authentification"
-**Précis** : "Ligne 47 de `src/auth/validator.py` : `if token.valid` au lieu de `if token.is_valid()`"
-→ File + Function + Ligne + Instruction exacte requises
-
-### ❌ Erreur 3 : Se fier à la logique sans preuves
-**Sans preuve** : "Ça doit être ligne 15 car c'est logique"
-**Avec preuve** : "Logs montrent qu'avant ligne 15 tout est normal, après ligne 15 la variable devient incorrecte"
-→ Toujours prouver par des logs, jamais par déduction pure
-
-### ❌ Erreur 4 : Manquer la validation avant/après
-**Incomplet** : "J'ai trouvé que ligne 42 cause le bug"
-**Complet** : "Logs ligne 41 : tout normal. Logs ligne 43 : valeur incorrecte. Donc ligne 42 est le bug"
-→ Obligatoire : preuve que tout est normal avant ET problème après
-
-### ❌ Erreur 5 : Confondre cause et conséquence
-**Conséquence** : "L'API retourne 500 à cause d'une exception"
-**Cause** : "Ligne 34 lève une exception car la clé 'user_id' n'existe pas dans le dictionnaire"
-→ Remonter jusqu'à la PREMIÈRE instruction qui produit un résultat incorrect
-
-### ❌ Erreur 6 : S'arrêter à un appel de fonction locale
-**Arrêt prématuré** : "Le bug est ligne 47 : `result = calculate_total(items)` retourne une mauvaise valeur"
-**Bon approfondissement** : "Le bug est dans `calculate_total()` ligne 15 : `sum += item.price` au lieu de `sum += item.price * item.quantity`"
-→ Si la ligne problématique est un APPEL à une fonction locale (pas une lib externe), RENTRER dans cette fonction et continuer l'enquête
-→ Ne s'arrêter QUE quand on a trouvé l'instruction primitive qui cause le problème (assignation, opération, condition, etc.)
+### Erreurs Fréquentes (2-3 lignes chacune)
+- **Arrêt sur symptôme** : "`user_id` est None" → Creuse jusqu'à la ligne exacte
+- **Localisation vague** : "Dans le module auth" → Fichier + fonction + ligne + instruction précise  
+- **Justification sans preuves** : "Ça doit être ligne 15" → Logs avant/après obligatoires
+- **Manquer validation avant/après** : Preuve que tout est normal avant ET problème après
+- **Confondre cause/conséquence** : Remonter à la PREMIÈRE instruction incorrecte
+- **Arrêt sur fonction locale** : Si appel de fonction locale → RENTRER dedans jusqu'à instruction primitive
 
 ---
 
