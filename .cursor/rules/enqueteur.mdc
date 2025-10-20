@@ -27,7 +27,14 @@ Cette règle implémente le principe "Fail-Fast" dans le contexte du débogage :
 
 ## Processus Méthodologique en 5 Étapes
 
-### ⚠️ RÈGLE CRITIQUE : Indication Obligatoire de l'Étape
+### ⚠️ RÈGLE CRITIQUE : Machine à État Stricte
+
+L'enquêteur fonctionne comme une **machine à état stricte** :
+- **INTERDICTION ABSOLUE** de mélanger ou sauter des étapes
+- **OBLIGATION** de marquer explicitement le titre de l'étape actuelle
+- **Chaque étape** a un objectif précis et ne peut pas être contournée
+
+### ⚠️ Indication Obligatoire de l'Étape
 
 L'agent DOIT **toujours** indiquer son étape actuelle avec des titres markdown explicites :
 - `## Étape 1.a : Exploration des fichiers de code`
@@ -38,6 +45,8 @@ L'agent DOIT **toujours** indiquer son étape actuelle avec des titres markdown 
 - `## Étape 4.a : Questionnement "POURQUOI" obligatoire`
 - `## Étape 4.b : Décision de poursuite ou d'itération`
 - `## Étape 5 : Nettoyage et rapport final`
+
+**Règle de Machine à État** : Lors des retours/redirections, l'agent DOIT marquer le titre correspondant pour indiquer clairement qu'il change d'état.
 
 ---
 
@@ -165,35 +174,58 @@ exit(1)  # Arrêt obligatoire pour analyse
 
 ## Étape 4.b : Décision de Poursuite ou d'Itération 🎯
 
-**Objectif** : Décider si l'origine du bug est suffisamment claire pour le rapport final.
+**Objectif** : UNIQUEMENT router vers la prochaine étape. **AUCUNE investigation dans cette étape.**
+
+### ⚠️ RÈGLE CRITIQUE : Router Machine à État
+
+**L'étape 4.b est UNIQUEMENT un point de décision (router).**
+- ❌ **INTERDICTION** de placer des logs dans 4.b
+- ❌ **INTERDICTION** d'analyser du code dans 4.b  
+- ❌ **INTERDICTION** de formuler de nouvelles hypothèses dans 4.b
+- ✅ **SEULE ACTION** : Décider où aller ensuite et marquer le titre correspondant
 
 ### Checkpoint de Validation : 3 Questions Obligatoires
 
-**Avant l'étape 5, répondre OUI avec preuves :**
+**Répondre OUI avec preuves aux 3 questions :**
 
 1. **Ai-je la ligne EXACTE du bug ?** (pas "dans la fonction X")
 2. **Ai-je des logs AVANT cette ligne** prouvant que tout est normal ?
 3. **Ai-je des logs APRÈS cette ligne** prouvant l'anomalie ?
 
-**Décision** :
-- 3 OUI → ✅ Passage à l'étape 5
-- 1 NON → ❌ Retour étape 2
-
 ### ⚠️ RÈGLE DE PROFONDEUR : Fonctions Locales
 
 **Si la ligne identifiée est un APPEL de fonction locale** (pas bibliothèque externe) :
-- ❌ Tu ne peux PAS t'arrêter
-- ❌ Tu dois RENTRER dans cette fonction
-- ❌ Continue jusqu'à trouver l'instruction primitive (assignation, condition, opération, retour)
+- ❌ Tu ne peux PAS t'arrêter → **RETOUR OBLIGATOIRE à l'étape 2**
 
-**Exemples** :
-- `result = calculate_total(items)` → RENTRER DEDANS
-- `data = json.loads(raw_data)` → Ne pas rentrer (bibliothèque externe)
+### Router - Décisions de Routing
+
+**Décision 1** : Si les 3 réponses = OUI avec preuves → ✅ **Marquer `## Étape 5 : Rapport Final`**
+
+**Décision 2** : Si exploration insuffisante → ❌ **Marquer `## Étape 1.a : Exploration des fichiers de code`**
+
+**Décision 3** : Si hypothèses incorrectes → ❌ **Marquer `## Étape 1.b : Formulation d'hypothèses`**
+
+**Décision 4** : Si logs insuffisants OU fonction locale à explorer → ❌ **Marquer `## Étape 2 : Placement de logs de débogage`**
+
+### ⚠️ OBLIGATION DE MACHINE À ÉTAT
+
+**L'agent DOIT marquer explicitement le titre de l'étape cible** pour indiquer le changement d'état. Exemple :
+
+```markdown
+## Étape 4.b : Décision de Poursuite ou d'Itération
+**Question 1** : Non, je n'ai pas la ligne exacte
+**Question 2** : Pas assez de logs AVANT
+**Décision** : Retour à l'étape 2 pour logs plus précis
+
+## Étape 2 : Placement de Logs de Débogage
+[L'agent place maintenant ses logs supplémentaires...]
+```
 
 ### Décisions INACCEPTABLES
 - Arrêt sur symptôme ("`user_id` est None")
-- Localisation vague ("dans la fonction X")
+- Localisation vague ("dans la fonction X") 
 - Justification sans preuves ("ça doit être ligne 15")
+- **Investigation dans 4.b** → Violation de la machine à état
 
 ---
 
