@@ -136,6 +136,44 @@ if user_id is None:
 - **🚨 PROTECTION CONTRE LES BOUCLES** : Exit immédiat après logs dans des boucles fréquentes
 - **Arrêt contrôlé** : Permettre à l'utilisateur d'effectuer des actions (ex: requête web) puis récupérer les logs
 
+### Stratégie de Logs "Avant/Après" Obligatoire
+
+Pour identifier la ligne exacte du bug, tu DOIS placer des logs en "sandwich" :
+
+**Log AVANT** : Juste avant la ligne suspecte
+- Vérifie que toutes les variables d'entrée sont correctes
+- Confirme que l'état du système est attendu
+- Valide que les conditions sont normales
+
+**Log APRÈS** : Juste après la ligne suspecte
+- Capture le résultat de l'opération
+- Compare avec le résultat attendu
+- Identifie l'incohérence ou l'erreur
+
+**Exemple concret** :
+```python
+# Log AVANT - tout doit être normal ici
+print({
+    "BEFORE_line_47": "true",
+    "a": str(a)[:50],
+    "b": str(b)[:50],
+    "operation_expected": "addition",
+    "state": "NORMAL"
+})
+
+# Ligne suspecte 47
+result = a - b  # BUG ICI : devrait être a + b
+
+# Log APRÈS - le problème doit apparaître ici
+print({
+    "AFTER_line_47": "true",
+    "result": str(result)[:50],
+    "expected": str(a + b)[:50],
+    "state": "ANOMALIE_DETECTED" if result != (a + b) else "NORMAL"
+})
+exit(1)  # Arrêt pour analyse
+```
+
 ---
 
 ## Étape 3 : Exécution et Récupération des Logs 🚀
@@ -274,6 +312,33 @@ Se poser la question "POURQUOI" pour chaque symptôme identifié et répondre av
 
 **Si une seule de ces validations échoue** → Retour à l'étape 2 pour plus de logs
 
+### ⚠️ VALIDATION CRITIQUE OBLIGATOIRE
+
+**Avant de passer à l'étape 4.b, l'agent DOIT OBLIGATOIREMENT ajouter des logs stratégiques pour prouver chaque hypothèse avec des preuves concrètes.**
+
+**Instructions explicites** :
+- "Si tu n'as pas de logs prouvant que tout est normal AVANT la ligne identifiée, retourne à l'étape 2 pour ajouter ces logs"
+- "Si tu n'as pas de logs prouvant que le problème apparaît APRÈS cette ligne, retourne à l'étape 2 pour ajouter ces logs"
+- "Tu ne peux PAS affirmer avoir trouvé la ligne exacte sans ces deux preuves par logs"
+
+**Format des preuves obligatoires** :
+
+1. **Preuve AVANT** : Logs juste avant la ligne suspecte montrant que tout est normal
+2. **Preuve APRÈS** : Logs juste après la ligne suspecte montrant l'anomalie
+
+**Exemple concret** :
+```markdown
+**Mauvaise identification** :
+"Le bug vient de la fonction `calculate_total()` car elle retourne un mauvais résultat"
+❌ Pas de ligne précise, pas de preuve avant/après
+
+**Bonne identification** :
+"Le bug vient de la ligne 47 dans `calculate_total()` : `result = a - b` au lieu de `result = a + b`"
+**Preuve AVANT** (logs ligne 46) : `{"a": 100, "b": 50, "operation": "addition_expected"}`
+**Preuve APRÈS** (logs ligne 48) : `{"result": 50, "expected": 150, "problem": "VALEUR_INCORRECTE"}`
+✅ Ligne exacte + preuve que tout est normal avant + preuve du problème après
+```
+
 ---
 
 ## Étape 4.b : Décision de Poursuite ou d'Itération 🎯
@@ -281,43 +346,96 @@ Se poser la question "POURQUOI" pour chaque symptôme identifié et répondre av
 ### Objectif
 Décider si l'origine du bug est suffisamment claire pour passer au rapport final ou s'il faut continuer à creuser.
 
-### Critères de décision
-✅ **Origine clairement identifiée** : Question "POURQUOI" résolue avec certitude absolue ET validation critique réussie
-❌ **Origine floue** : Question "POURQUOI" sans réponse claire ou avec incertitude
-❌ **Cause superficielle** : Symptôme identifié mais cause racine inconnue
-❌ **Validation critique échouée** : État normal non confirmé OU problème non localisé précisément
+### Checkpoint de Validation : 3 Questions Obligatoires
+
+Avant de passer à l'étape 5, l'agent DOIT répondre OUI aux 3 questions suivantes avec des PREUVES par logs :
+
+**Question 1 : Ai-je la ligne EXACTE du bug ?**
+- ✅ OUI : "Ligne 47 de `src/calculator.py` : `result = a - b`"
+- ❌ NON : "Le problème vient de la fonction `calculate_total()`" (trop vague)
+- ❌ NON : "Quelque part dans le module de calcul" (aucune précision)
+
+**Question 2 : Ai-je des logs prouvant que tout est NORMAL AVANT cette ligne ?**
+- ✅ OUI : Logs ligne 46 montrant `{"a": 100, "b": 50}` avec valeurs attendues
+- ❌ NON : Pas de logs avant la ligne identifiée
+- ❌ NON : Logs présents mais pas assez proches de la ligne suspecte
+
+**Question 3 : Ai-je des logs prouvant que le PROBLÈME apparaît APRÈS cette ligne ?**
+- ✅ OUI : Logs ligne 48 montrant `{"result": 50, "expected": 150}`
+- ❌ NON : Pas de logs après la ligne identifiée
+- ❌ NON : Logs présents mais ne montrent pas clairement l'incohérence
+
+**DÉCISION FINALE** :
+- Si les 3 réponses sont OUI avec preuves → ✅ Passage à l'étape 5
+- Si UNE SEULE réponse est NON → ❌ RETOUR à l'étape 2 pour ajouter des logs stratégiques
+
+### ⚠️ RÈGLE DE PROFONDEUR : Fonctions Locales
+
+Avant de valider que tu as trouvé la ligne exacte du bug, vérifie :
+
+**La ligne identifiée est-elle un appel à une FONCTION LOCALE ?**
+
+**Fonction locale** = fonction définie dans le projet (pas une bibliothèque externe comme `len()`, `print()`, `requests.get()`)
+
+**Exemples** :
+- `result = calculate_total(items)` → Fonction locale ✅ RENTRER DEDANS
+- `data = process_user_data(user)` → Fonction locale ✅ RENTRER DEDANS
+- `items = json.loads(raw_data)` → Bibliothèque externe ❌ Ne pas rentrer
+- `total = sum(prices)` → Built-in Python ❌ Ne pas rentrer
+
+**SI la ligne est un appel de fonction locale** :
+1. ❌ Tu ne peux PAS affirmer avoir trouvé le bug
+2. ❌ Tu dois RENTRER dans cette fonction
+3. ❌ Tu dois placer des logs DANS cette fonction pour identifier la ligne exacte du problème
+4. ❌ Tu dois continuer à creuser jusqu'à trouver l'instruction primitive (assignation, opération, condition, retour)
+
+**Critère d'arrêt** : Tu ne peux t'arrêter QUE quand la ligne identifiée est une instruction primitive :
+- Assignation : `x = y + z`
+- Opération : `result = a - b`
+- Condition : `if user.is_active`
+- Retour : `return None`
+- Accès : `data['key']`
+- etc.
+
+**Exemple d'approfondissement obligatoire** :
+```markdown
+**Itération 1 - INSUFFISANT** :
+"Ligne 47 : `total = calculate_order_total(items)` retourne une mauvaise valeur"
+→ ❌ C'est un appel de fonction locale, il faut rentrer dedans
+
+**Itération 2 - INSUFFISANT** :
+"Dans `calculate_order_total()` ligne 12 : `discount = get_discount(items)` retourne 0 au lieu de 0.1"
+→ ❌ C'est encore un appel de fonction locale, il faut continuer
+
+**Itération 3 - ACCEPTABLE** :
+"Dans `get_discount()` ligne 5 : `if len(items) >= 5` au lieu de `if sum(item.qty for item in items) >= 5`"
+→ ✅ C'est une instruction primitive (condition), on peut s'arrêter
+→ ✅ Avec logs prouvant que `len(items) = 3` et `sum(item.qty) = 8`
+```
+
+### Exemples de Décisions INACCEPTABLES
+
+❌ **Arrêt prématuré sur symptôme** :
+"J'ai trouvé que `user_id` est None, donc le bug vient de l'authentification"
+→ C'est un SYMPTÔME, pas la ligne exacte du bug
+
+❌ **Localisation vague** :
+"Le problème est dans la fonction `process_user_data()`"
+→ Quelle ligne ? Quelle instruction exactement ?
+
+❌ **Pas de preuves avant/après** :
+"Ligne 42 cause le bug car la logique est incorrecte"
+→ Où sont les logs prouvant l'état normal avant et le problème après ?
+
+❌ **Justification logique sans preuve** :
+"Ça doit être ligne 15 car c'est la seule qui modifie cette variable"
+→ "Ça doit être" n'est pas une preuve. Où sont les logs ?
 
 ### Décisions possibles
-- **Passage à l'étape 5** : Origine clairement identifiée avec preuve absolue ET question "POURQUOI" résolue avec certitude ET validation critique réussie
+- **Passage à l'étape 5** : Les 3 questions sont OUI avec preuves ET pas d'appel de fonction locale
 - **Retour à l'étape 1.a** : Exploration insuffisante, besoin d'analyser plus de code
 - **Retour à l'étape 1.b** : Hypothèses incorrectes ou trop superficielles
-- **Retour à l'étape 2** : Hypothèses prometteuses mais logs insuffisants pour localiser précisément OU question "POURQUOI" sans réponse claire OU validation critique échouée
-
-### ⚠️ RÈGLE CRITIQUE : Ne Pas Accepter de Solutions Approximatives
-- **Preuve absolue requise** : Les logs doivent montrer EXACTEMENT quelle ligne cause le bug
-- **Cause vs Conséquence** : Identifier la CAUSE racine, pas juste les symptômes
-- **Localisation précise** : Savoir le fichier, la fonction ET la ligne exacte
-- **Itération obligatoire** : Si le moindre doute subsiste, revenir aux étapes précédentes
-- **Creuser jusqu'au bout** : Ne pas se satisfaire d'une explication qui "semble logique"
-
-### Exemple de décision
-```markdown
-**Question POURQUOI résolue** : "POURQUOI `user_id` est-il `None` ?"
-**Réponse certaine** : "Parce que `extract_user_id_from_token()` ligne 15 retourne `None` car `token.payload['user_id']` n'existe pas"
-
-**Validation critique OBLIGATOIRE** :
-- ✅ État normal AVANT ligne 15 : `token` existe, `token.payload` existe
-- ✅ Problème apparaît BIEN juste après ligne 15 : `user_id` devient `None`
-- ✅ UNIQUE passage problématique : seule fonction qui extrait user_id du token
-
-**Évaluation finale** :
-- ✅ Cause claire : fonction spécifique + ligne précise
-- ✅ Logique du code : payload manquant = user_id None
-- ✅ Certitude absolue : 100% sûr de cette explication
-- ✅ Validation critique : toutes les vérifications réussies
-
-**Décision** : ✅ Passer à l'étape 5 - origine clairement identifiée avec validation complète
-```
+- **Retour à l'étape 2** : Logs insuffisants pour répondre aux 3 questions OU fonction locale à explorer
 
 ---
 
@@ -401,22 +519,40 @@ Requête → middleware.auth() → token_validator.verify() → db.get_user() �
 
 #### Étape 2 : Logs placés
 ```python
+# Dans token_validator.py - Logs AVANT ligne 23 (appel jwt.decode())
+print({
+    "BEFORE_line_23": "true",
+    "token_exists": str(token is not None)[:50],
+    "token_length": str(len(token))[:20],
+    "jwt_decode_call": "about_to_call",
+    "state": "NORMAL"
+})
+
+# Ligne 23 suspecte - ici le problème commence
+payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])  # Exception non catchée
+
+# Log APRÈS ligne 23 - ne sera jamais atteint à cause de l'exception
+print({
+    "AFTER_line_23": "true", 
+    "payload": str(payload)[:200],
+    "state": "NORMAL"
+})
+
 # Dans le middleware d'auth - format dictionnaire avec limitation
 print({
     "received_token": str(token[:20]) + "..." if len(token) > 20 else str(token),
     "token_format_valid": str(is_jwt_format(token))[:50],
-    "token_signature_valid": str(verify_signature(token))[:50],
-    "middleware_step": "token_validation"
+    "middleware_step": "before_verify_signature"
 })
 
-# Exit stratégique après validation - CRITIQUE pour éviter les boucles
-if not verify_signature(token):
-    print({
-        "error": "Invalid signature detected",
-        "location": "auth_middleware",
-        "action": "stopping_execution"
-    })
-    exit(1)
+token_signature_valid = verify_signature(token)  # Appel qui cause l'exception
+
+print({
+    "token_signature_valid": str(token_signature_valid)[:50],
+    "middleware_step": "after_verify_signature"
+})
+
+exit(1)  # Arrêt pour analyse
 ```
 
 #### Étape 3 : Exécution
@@ -437,19 +573,21 @@ Les logs montrent que la signature est invalide mais l'exception n'est pas catch
 **Question POURQUOI obligatoire** : POURQUOI l'exception n'est-elle pas catchée ?
 **Réponse** : Parce que la fonction `verify_signature()` ligne 23 n'a pas de bloc try/catch autour de `jwt.decode()`, donc l'exception `InvalidSignatureError` remonte et cause le 500.
 
-**Validation critique OBLIGATOIRE** :
-- ✅ État normal AVANT ligne 23 : `token` existe, `jwt.decode()` est appelé normalement
-- ✅ Problème apparaît BIEN juste après ligne 23 : exception non catchée remonte
-- ✅ UNIQUE passage problématique : seule fonction qui valide la signature
+#### Étape 4.b : Validation des 3 Questions + Règle de Profondeur
 
-**Évaluation** :
-- ✅ Cause claire : fonction spécifique + ligne précise
-- ✅ Logique du code : pas de try/catch = exception non gérée
-- ✅ Certitude absolue : 100% sûr de cette explication
-- ✅ Validation critique : toutes les vérifications réussies
+**Question 1 : Ai-je la ligne EXACTE du bug ?**
+✅ OUI : "Ligne 23 de `src/auth/token_validator.py` : `payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])`"
 
-#### Étape 4.b : Décision
-**Décision** : ✅ Passer à l'étape 5 - origine clairement identifiée
+**Question 2 : Ai-je des logs prouvant que tout est NORMAL AVANT cette ligne ?**
+✅ OUI : Logs ligne 22 montrent `{"token_exists": "True", "token_length": "145", "state": "NORMAL"}`
+
+**Question 3 : Ai-je des logs prouvant que le PROBLÈME apparaît APRÈS cette ligne ?**
+✅ OUI : L'exception `InvalidSignatureError` se produit à la ligne 23, empêchant l'exécution des logs ligne 24
+
+**Validation de la règle de profondeur** : 
+✅ La ligne 23 n'est PAS un appel de fonction locale (`jwt.decode()` est une bibliothèque externe)
+
+**DÉCISION FINALE** : ✅ Passage à l'étape 5 - Toutes les conditions sont remplies
 
 #### Étape 5 : Rapport
 **Origine précise identifiée** : Exception non gérée dans `verify_signature()` ligne 23 de `src/auth/token_validator.py`. **Cause racine** : Absence de try/catch autour de `jwt.decode()`.
@@ -475,23 +613,39 @@ Commande → calculate_order_total() → get_discount_rate() → calculate_final
 
 #### Étape 2 : Logs placés
 ```python
-# Dans calculate_order_total() - format dictionnaire avec limitation
+# Dans discount.py - Logs AVANT ligne 12 de get_discount_rate()
 print({
-    "items_count": str(len(items))[:50],
-    "unit_prices": str([item.price for item in items])[:200],
-    "discount_rate": str(get_discount_rate(items))[:50],
-    "subtotal": str(sum(item.price for item in items))[:100],
-    "calculation_step": "before_final_total"
+    "BEFORE_line_12": "true",
+    "items_count": str(len(items))[:20],
+    "items_quantities": str([item.quantity for item in items])[:100],
+    "total_quantities": str(sum(item.quantity for item in items))[:20],
+    "condition_check": "about_to_check",
+    "state": "NORMAL"
 })
 
-# Exit avant calcul final - CRITIQUE pour éviter les boucles
-total = calculate_final_total(subtotal, discount_rate)
+# Ligne 12 suspecte - ici le bug se produit
+if len(items) >= 5:  # BUG : devrait être sum(item.quantity for item in items) >= 5
+    return 0.1
+else:
+    return 0
+
+# Log APRÈS ligne 12 - dans le cas où la condition est vraie
 print({
-    "final_total": str(total)[:100],
-    "calculation_complete": "true",
-    "action": "stopping_for_analysis"
+    "AFTER_line_12": "true",
+    "condition_result": "len(items) >= 5",
+    "returned_discount": "0.1",
+    "state": "BUG_DETECTED" if len(items) >= 5 and sum(item.quantity for item in items) < 5 else "NORMAL"
 })
-exit(1)
+
+# Dans calculate_order_total() - pour montrer l'impact
+discount_rate = get_discount_rate(items)
+print({
+    "discount_rate_result": str(discount_rate)[:50],
+    "expected_discount": "0.1" if sum(item.quantity for item in items) >= 5 else "0",
+    "state": "ANOMALIE_DETECTED" if discount_rate != (0.1 if sum(item.quantity for item in items) >= 5 else 0) else "NORMAL"
+})
+
+exit(1)  # Arrêt pour analyse
 ```
 
 #### Étape 3 : Exécution
@@ -507,21 +661,23 @@ Les logs montrent que `discount_rate` est 0 alors qu'il devrait être 0.1.
 
 #### Étape 4.a : Questionnement "POURQUOI"
 **Question POURQUOI obligatoire** : POURQUOI `discount_rate` est-il 0 au lieu de 0.1 ?
-**Réponse** : Parce que la fonction `get_discount_rate()` ligne 12 vérifie `if len(items) >= 5` au lieu de `if sum(item.quantity for item in items) >= 5`, donc elle compte le nombre d'articles différents au lieu du nombre total d'articles.
+**Réponse** : Parce que la fonction `get_discount_rate()` ligne 12 vérifie `if len(items) >= 5` au lieu de `if sum(item.quantity for item in items) >= 5`.
 
-**Validation critique OBLIGATOIRE** :
-- ✅ État normal AVANT ligne 12 : `items` existe, contient 5 articles avec quantités
-- ✅ Problème apparaît BIEN juste après ligne 12 : `discount_rate` devient 0 au lieu de 0.1
-- ✅ UNIQUE passage problématique : seule fonction qui calcule le taux de réduction
+#### Étape 4.b : Validation des 3 Questions + Règle de Profondeur
 
-**Évaluation** :
-- ✅ Cause claire : fonction spécifique + ligne précise + logique incorrecte
-- ✅ Logique du code : len(items) vs sum(quantities) = bug évident
-- ✅ Certitude absolue : 100% sûr de cette explication
-- ✅ Validation critique : toutes les vérifications réussies
+**Question 1 : Ai-je la ligne EXACTE du bug ?**
+✅ OUI : "Ligne 12 de `src/orders/discount.py` : `if len(items) >= 5:` au lieu de `if sum(item.quantity for item in items) >= 5:`"
 
-#### Étape 4.b : Décision
-**Décision** : ✅ Passer à l'étape 5 - origine clairement identifiée
+**Question 2 : Ai-je des logs prouvant que tout est NORMAL AVANT cette ligne ?**
+✅ OUI : Logs ligne 11 montrent `{"items_count": 5, "total_quantities": 8, "state": "NORMAL"}` avec données correctes
+
+**Question 3 : Ai-je des logs prouvant que le PROBLÈME apparaît APRÈS cette ligne ?**
+✅ OUI : Logs ligne 14 montrent `{"returned_discount": 0, "expected": 0.1, "state": "BUG_DETECTED"}`
+
+**Validation de la règle de profondeur** : 
+✅ La ligne 12 est une instruction primitive (condition if), pas un appel de fonction locale
+
+**DÉCISION FINALE** : ✅ Passage à l'étape 5 - Toutes les conditions sont remplies
 
 #### Étape 5 : Rapport
 **Origine précise identifiée** : Condition incorrecte dans `get_discount_rate()` ligne 12 de `src/orders/discount.py`. **Cause racine** : La condition vérifie `len(items) >= 5` au lieu de `sum(item.quantity for item in items) >= 5`.
@@ -550,6 +706,41 @@ Les logs montrent que `discount_rate` est 0 alors qu'il devrait être 0.1.
 - **Preuve absolue requise** : Identifier la CAUSE racine, pas les symptômes
 - **Localisation précise** : Savoir le fichier, la fonction ET la ligne exacte
 - **Traçabilité** : Garder une trace de toutes les hypothèses testées et des résultats
+
+---
+
+## Erreurs Fréquentes à Éviter
+
+### ❌ Erreur 1 : S'arrêter sur un symptôme
+**Symptôme** : "La variable X est None"
+**Cause racine** : "Ligne 23 de fonction Y retourne None car condition Z est fausse"
+→ Ne t'arrête JAMAIS au symptôme, creuse jusqu'à la ligne exacte
+
+### ❌ Erreur 2 : Accepter une localisation vague
+**Vague** : "Le problème est dans le module d'authentification"
+**Précis** : "Ligne 47 de `src/auth/validator.py` : `if token.valid` au lieu de `if token.is_valid()`"
+→ File + Function + Ligne + Instruction exacte requises
+
+### ❌ Erreur 3 : Se fier à la logique sans preuves
+**Sans preuve** : "Ça doit être ligne 15 car c'est logique"
+**Avec preuve** : "Logs montrent qu'avant ligne 15 tout est normal, après ligne 15 la variable devient incorrecte"
+→ Toujours prouver par des logs, jamais par déduction pure
+
+### ❌ Erreur 4 : Manquer la validation avant/après
+**Incomplet** : "J'ai trouvé que ligne 42 cause le bug"
+**Complet** : "Logs ligne 41 : tout normal. Logs ligne 43 : valeur incorrecte. Donc ligne 42 est le bug"
+→ Obligatoire : preuve que tout est normal avant ET problème après
+
+### ❌ Erreur 5 : Confondre cause et conséquence
+**Conséquence** : "L'API retourne 500 à cause d'une exception"
+**Cause** : "Ligne 34 lève une exception car la clé 'user_id' n'existe pas dans le dictionnaire"
+→ Remonter jusqu'à la PREMIÈRE instruction qui produit un résultat incorrect
+
+### ❌ Erreur 6 : S'arrêter à un appel de fonction locale
+**Arrêt prématuré** : "Le bug est ligne 47 : `result = calculate_total(items)` retourne une mauvaise valeur"
+**Bon approfondissement** : "Le bug est dans `calculate_total()` ligne 15 : `sum += item.price` au lieu de `sum += item.price * item.quantity`"
+→ Si la ligne problématique est un APPEL à une fonction locale (pas une lib externe), RENTRER dans cette fonction et continuer l'enquête
+→ Ne s'arrêter QUE quand on a trouvé l'instruction primitive qui cause le problème (assignation, opération, condition, etc.)
 
 ---
 
