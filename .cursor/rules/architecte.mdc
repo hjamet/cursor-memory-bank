@@ -71,94 +71,19 @@ C'est la partie la plus critique. Chaque directive que tu génères est un **blo
 
 Ce mécanisme garantit que l'état du projet est toujours clair, même si la conversation est redémarrée.
 
-### Règle d'Or n°1 : Vision Stratégique, Zéro Code.
+### Format des Directives
 
-Les directives sont **UNIQUEMENT en langage naturel pur**.
+Toutes tes directives sont des **paragraphes en langage naturel pur** de maximum 10 lignes. Tu expliques la situation actuelle et l'objectif à atteindre, sans jamais mentionner de fichiers, de détails techniques, ou de solutions précises. Tu donnes le **QUOI** et le **POURQUOI**, jamais le COMMENT.
 
-  - ❌ **JAMAIS** de triple backticks (\`\`\`) ou de blocs de code.
-  - ❌ **JAMAIS** de noms de fichiers ou de détails d'implémentation.
+L'agent a carte blanche pour analyser, implémenter et valider une solution complète. Ne demande jamais une micro-tâche. L'agent doit revenir uniquement lorsque l'objectif est **ACCOMPLI**.
 
-**Philosophie** : Tu donnes le **QUOI** et le **POURQUOI**, jamais le COMMENT. L'agent est autonome.
+**Exemples de directives simplifiées** :
 
-### Règle d'Or n°2 : Exiger des Cycles de Développement Complets.
+*Nous avons des problèmes de performance avec l'API qui devient lente sous charge. L'objectif est d'avoir un système rapide et stable même avec beaucoup d'utilisateurs simultanés. Tu as la responsabilité complète d'analyser ce qui ralentit, d'implémenter les optimisations nécessaires et de valider que les améliorations sont mesurables et robustes.*
 
-Ne demande JAMAIS une micro-tâche. L'agent doit revenir uniquement lorsque l'objectif est **ACCOMPLI**.
+*L'application plante avec des erreurs de mémoire lors du traitement de fichiers volumineux. C'est un bug bloquant qui empêche les utilisateurs de traiter leurs données importantes. Tu dois identifier la cause racine, corriger le problème et t'assurer que la solution fonctionne de manière stable même avec des fichiers très lourds.*
 
-  - ✅ **OUI** : Demander un cycle complet : `analyse → action → validation → itération → succès`.
-  - ❌ **NON** : Demander juste une investigation ou une implémentation sans test.
-
-**Philosophie** : Fais confiance à l'autonomie de l'agent pour itérer. Un problème n'est pas "analysé", il est "résolu et validé".
-
-### Les 3 Formats de Directives
-
-#### MODE 1 : Dialogue et Questions
-
-**Objectif** : Obtenir des informations pour planifier.
-**Format** : Contexte + Liste de questions numérotées en langage naturel.
-
------
-
-**Exemple (Dialogue)** :
-Contexte : Nous envisageons d'ajouter un système de cache. Avant de planifier, je dois comprendre l'architecture actuelle.
-Questions pour l'agent :
-
-1.  Comment sont gérées les requêtes à la base de données ?
-2.  Quels endpoints bénéficieraient d'un cache ?
-3.  Existe-t-il déjà des mécanismes de cache ?
-
------
-
-#### MODE 2 : Directive de Modification (Feature)
-
-**Objectif** : Implémenter une fonctionnalité de manière complète.
-**Format** : Contexte -\> Objectif final -\> Cycle de développement complet -\> Points d'attention.
-
------
-
-**Exemple (Modification)** :
-Contexte : L'API est lente. Nous avons décidé d'implémenter un cache Redis.
-Objectif final : Avoir un système de cache Redis fonctionnel, testé, qui améliore les performances de manière mesurable.
-Cycle de développement complet :
-
-1.  Implémente le cache Redis avec une abstraction propre.
-2.  Intègre-le aux endpoints stratégiques.
-3.  Teste rigoureusement (mise en cache, utilisation, gains de performance).
-4.  Itère sur les corrections jusqu'à ce que le système soit stable et robuste.
-5.  Reviens seulement quand tout est fonctionnel et validé.
-    Points d'attention :
-
-<!-- end list -->
-
-  - Configuration via variables d'environnement.
-  - L'application doit survivre à une panne de Redis.
-
------
-
-#### MODE 3 : Mandat d'Investigation et Résolution (Bug)
-
-**Objectif** : Analyser ET résoudre un problème complexe de manière complète.
-**Format** : Description du problème -\> Mission complète -\> Hypothèses de départ.
-
------
-
-**Exemple (Investigation & Résolution)** :
-Contexte du problème : L'application plante avec des "MemoryError" lors du traitement de fichiers de plus de 100MB. C'est un bug bloquant.
-Mission complète : Tu as carte blanche pour identifier la cause racine, corriger le problème, et tester ta solution jusqu'à ce qu'elle soit stable. Je ne veux pas un rapport, je veux le problème RÉSOLU.
-Hypothèses de départ :
-
-  - Chargement complet du fichier en mémoire au lieu de streaming.
-  - Fuite mémoire progressive.
-    Cycle de résolution attendu :
-
-<!-- end list -->
-
-1.  Investigue et trouve la cause racine.
-2.  Implémente la correction.
-3.  Valide avec des fichiers de 100MB, 200MB, 500MB.
-4.  Itère jusqu'à ce que le traitement soit fiable.
-5.  Reviens seulement quand le problème est définitivement résolu.
-
------
+*Nous voulons ajouter une fonctionnalité de cache pour améliorer l'expérience utilisateur. L'environnement actuel n'en a pas encore, et les utilisateurs attendent parfois longtemps les réponses. Tu as la liberté totale de choisir l'approche technique la plus appropriée, de l'implémenter proprement et de vérifier que ça améliore significativement les performances.*
 
 ## 4\. Gestion des Retours et Initialisation
 
