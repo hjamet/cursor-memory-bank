@@ -1,0 +1,131 @@
+---
+alwaysApply: false
+description: Analyse des logs pour identifier les patterns et symptômes du bug
+---
+
+# Étape 4 : Analyse des Résultats 🔍
+
+## ⚠️ SYSTÈME À ÉTATS - RAPPEL OBLIGATOIRE
+
+Vous êtes actuellement dans une **machine à états stricte** pour l'identification de bugs :
+
+### Règles de fonctionnement
+- ✅ **UNIQUEMENT** effectuer les actions décrites dans cette règle
+- ❌ **INTERDICTION ABSOLUE** de faire autre chose (même si ça semble utile)
+- ❌ **INTERDICTION ABSOLUE** de modifier le code pour corriger (uniquement identifier)
+- ✅ **OBLIGATION** d'invoquer la règle suivante en fin d'étape avec l'outil `fetch_rules`
+
+### Machine à états
+Cette étape fait partie d'un processus en 8 étapes :
+`start → 01a-explore → 01b-hypotheses → 02-logs → 03-execute → 04-analyze → 04b-routing → 05-report`
+
+**Votre étape actuelle** : 04-analyze - Analyse des résultats
+
+---
+
+## Objectif de l'Étape 4
+
+**Analyser les logs récupérés** pour identifier les patterns, symptômes précis du bug et corréler les observations avec les hypothèses formulées en étape 1b.
+
+### Méthodologie d'Analyse
+
+### 1. Examiner les Logs pour Valeurs Inattendues
+
+**Pour chaque log récupéré** :
+- Comparer l'état **AVANT** et **APRÈS** chaque ligne suspecte
+- Identifier les valeurs inattendues, anomalies, ou comportements non conformes
+- Noter les transitions d'état significatives
+
+**Exemple d'analyse** :
+```
+Log BEFORE : {"BEFORE_line_23": "true", "token": "valid_token_abc123", "payload_exists": "True"}
+Log AFTER  : {"AFTER_line_23": "true", "user_id": "None", "user_id_is_none": "True"}
+
+ANOMALIE DÉTECTÉE : token valide mais user_id devient None
+```
+
+### 2. Corréler avec les Hypothèses Formulées
+
+**Pour chaque hypothèse de l'étape 1b** :
+- ✅ **VALIDÉE** : si les logs confirment l'hypothèse
+- ❌ **INVALIDÉE** : si les logs contredisent l'hypothèse  
+- ⚠️ **PARTIELLEMENT** : si les logs donnent des indices mais pas de confirmation complète
+
+### 3. Identifier les Symptômes Précis
+
+Extraire des logs les **symptômes concrets** :
+- Variables avec valeurs inattendues (None, 0, "", liste vide, etc.)
+- États qui changent de manière anormale
+- Conditions qui deviennent vraies/fausses de façon inattendue
+- Erreurs ou exceptions capturées
+
+### Actions Obligatoires
+
+1. **Analyser chaque log BEFORE/AFTER** :
+   - Documenter l'état normal attendu
+   - Documenter l'état anormal observé
+   - Identifier la transition problématique
+
+2. **Matcher avec les hypothèses** :
+   - Liste chaque hypothèse avec son statut de validation
+   - Fournir les preuves logiques (citations des logs)
+
+3. **Synthétiser pour la validation** :
+   - Identifier les symptômes qui nécessitent une explication
+   - Préparer la critique objective pour l'étape de routing
+
+### Format de Sortie Obligatoire
+
+```
+=== ANALYSE DES LOGS DE DÉBOGAGE ===
+
+Hypothèse 1 : [description]
+Status : ✅ VALIDÉE / ❌ INVALIDÉE / ⚠️ PARTIELLEMENT
+Preuve : Log BEFORE = {...}, Log AFTER = {...}
+Symptôme identifié : [description précise]
+
+Hypothèse 2 : [description]
+Status : ✅ VALIDÉE / ❌ INVALIDÉE / ⚠️ PARTIELLEMENT
+Preuve : Log BEFORE = {...}, Log AFTER = {...}
+Symptôme identifié : [description précise]
+
+[... etc pour chaque hypothèse]
+
+=== SYMPTÔMES IDENTIFIÉS ===
+1. [symptôme 1 avec localisation précise]
+2. [symptôme 2 avec localisation précise]
+3. [symptôme 3 avec localisation précise]
+
+=== SYNTHÈSE POUR VALIDATION ===
+Symptômes nécessitant validation critique :
+1. [symptôme 1] - À valider en profondeur
+2. [symptôme 2] - À valider en profondeur  
+3. [symptôme 3] - À valider en profondeur
+```
+
+### Exemples d'Analyse Correcte
+
+#### Bon exemple :
+```
+Hypothèse 1 : user_id est None car extract_user_id_from_token() ligne 23 retourne None
+Status : ✅ VALIDÉE
+Preuve : 
+  BEFORE = {"token": "valid_token", "payload_exists": "True"}
+  AFTER = {"user_id": "None", "user_id_is_none": "True"}
+Symptôme identifié : token valide en entrée, user_id None en sortie ligne 23
+```
+
+#### Mauvais exemple (trop vague) :
+```
+Hypothèse 1 : problème d'authentification
+Status : ⚠️ PARTIELLEMENT
+Symptôme identifié : il y a un problème
+```
+
+---
+
+## Transitions Possibles
+
+**Toujours vers** : `04b-routing` - Validation critique externe du travail effectué
+
+**Action requise** : Une fois l'analyse complète et les symptômes identifiés, invoquer `fetch_rules` avec le nom `04b-routing` pour passer à la validation critique externe.

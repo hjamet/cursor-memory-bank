@@ -1,0 +1,81 @@
+---
+alwaysApply: false
+description: Exploration systématique des fichiers de code impliqués dans le bug
+---
+
+# Étape 1a : Exploration des Fichiers de Code 🔍
+
+## ⚠️ SYSTÈME À ÉTATS - RAPPEL OBLIGATOIRE
+
+Vous êtes actuellement dans une **machine à états stricte** pour l'identification de bugs :
+
+### Règles de fonctionnement
+- ✅ **UNIQUEMENT** effectuer les actions décrites dans cette règle
+- ❌ **INTERDICTION ABSOLUE** de faire autre chose (même si ça semble utile)
+- ❌ **INTERDICTION ABSOLUE** de modifier le code pour corriger (uniquement identifier)
+- ✅ **OBLIGATION** d'invoquer la règle suivante en fin d'étape avec l'outil `fetch_rules`
+
+### Machine à états
+Cette étape fait partie d'un processus en 8 étapes :
+`start → 01a-explore → 01b-hypotheses → 02-logs → 03-execute → 04-analyze → 04b-routing → 05-report`
+
+**Votre étape actuelle** : 01a-explore - Exploration des fichiers de code
+
+---
+
+## Objectif de l'Étape 1a
+
+**Identifier tous les fichiers impliqués et comprendre le flux d'exécution complet** du bug à investiguer.
+
+### Actions Obligatoires à Effectuer
+
+1. **Cartographier les fichiers** via les outils appropriés :
+   - Utiliser `codebase_search` pour identifier les zones liées au bug
+   - Utiliser `read_file` pour examiner les fichiers critiques identifiés
+   - Utiliser `grep` pour rechercher des patterns spécifiques
+
+2. **Analyser le parcours d'exécution** :
+   - Tracer le flux depuis le point d'entrée jusqu'au point de défaillance
+   - Identifier les fonctions appelées et leur ordre
+   - Comprendre les conditions et branches prises
+
+3. **Identifier les dépendances** :
+   - Variables utilisées et leur source
+   - Fonctions appelées et leur définition
+   - Services externes ou bases de données impliquées
+
+4. **Localiser les points critiques** :
+   - Conditions de validation
+   - Transformations de données
+   - Points de branchement logique
+
+### Sortie Attendue
+
+À la fin de cette étape, vous devez fournir :
+- **Liste des fichiers** impliqués dans le bug (avec chemins)
+- **Flux d'exécution** : séquence des appels de fonctions
+- **Points de défaillance potentiels** : localisation des zones suspectes
+
+### Exemple de Sortie
+
+```
+Fichiers identifiés :
+- src/main.py (ligne 25-45)
+- src/utils/auth.py (fonction validate_token)
+- src/models/user.py (fonction get_user)
+
+Flux d'exécution :
+main.py:25 → auth.py:validate_token → models.py:get_user → main.py:40
+
+Points critiques identifiés :
+- Ligne 32 : vérification token (condition suspecte)
+- Ligne 35 : extraction user_id (transformation de données)
+```
+
+---
+
+## Transitions Possibles
+
+**Toujours vers** : `01b-hypotheses` - Formulation d'hypothèses précises sur l'origine du bug
+
+**Action requise** : Une fois l'exploration terminée et documentée, invoquer `fetch_rules` avec le nom `01b-hypotheses` pour passer à la formulation d'hypothèses.

@@ -1,0 +1,124 @@
+---
+alwaysApply: false
+description: Exécution du programme et récupération de tous les logs dans les conditions du bug
+---
+
+# Étape 3 : Exécution et Récupération des Logs 🚀
+
+## ⚠️ SYSTÈME À ÉTATS - RAPPEL OBLIGATOIRE
+
+Vous êtes actuellement dans une **machine à états stricte** pour l'identification de bugs :
+
+### Règles de fonctionnement
+- ✅ **UNIQUEMENT** effectuer les actions décrites dans cette règle
+- ❌ **INTERDICTION ABSOLUE** de faire autre chose (même si ça semble utile)
+- ❌ **INTERDICTION ABSOLUE** de modifier le code pour corriger (uniquement identifier)
+- ✅ **OBLIGATION** d'invoquer la règle suivante en fin d'étape avec l'outil `fetch_rules`
+
+### Machine à états
+Cette étape fait partie d'un processus en 8 étapes :
+`start → 01a-explore → 01b-hypotheses → 02-logs → 03-execute → 04-analyze → 04b-routing → 05-report`
+
+**Votre étape actuelle** : 03-execute - Exécution et récupération des logs
+
+---
+
+## Objectif de l'Étape 3
+
+**Lancer le programme et récupérer tous les logs** dans les conditions exactes du bug pour analyser les données de débogage placées en étape 2.
+
+### Méthodes d'Exécution
+
+### 1. Exécution Directe
+Lancer le programme principal directement :
+```bash
+python main.py
+# ou
+npm start
+# ou
+./run.sh
+```
+
+### 2. Script Temporaire (Recommandé)
+Si nécessaire, créer un script temporaire à la racine pour isoler le problème :
+```python
+# debug_scenario.py
+# Code minimal pour reproduire le bug avec les logs placés
+[code du scénario problématique]
+```
+
+### Actions Obligatoires
+
+1. **Reproduire les conditions exactes du bug** :
+   - Utiliser les mêmes paramètres d'entrée
+   - Reproduire le même environnement (variables d'env, etc.)
+   - Suivre la même séquence d'actions
+
+2. **Capturer TOUT l'output** :
+   - **stdout** : tous les logs de débogage placés
+   - **stderr** : erreurs et exceptions
+   - **Code de sortie** : vérifier si le programme s'est arrêté avec `exit(1)`
+
+3. **Préserver l'ordre chronologique** :
+   - Les logs doivent apparaître dans l'ordre d'exécution
+   - Ne pas mélanger stdout et stderr
+   - Documenter le timestamp si possible
+
+### Format de Récupération
+
+Récupérer et présenter les logs dans ce format :
+
+```
+=== EXÉCUTION ET LOGS DE DÉBOGAGE ===
+
+Commande exécutée : [commande exacte]
+
+STDOUT :
+{BEFORE_line_23: "true", token: "...", payload_exists: "True", state: "CHECKING_TOKEN"}
+{AFTER_line_23: "true", user_id: "None", user_id_is_none: "True", state: "ANOMALIE_NONE_USER_ID"}
+
+STDERR :
+[any error messages]
+
+Code de sortie : 1 (attendu à cause d'exit(1))
+
+Conditions reproduites :
+- Variables d'environnement : [list]
+- Arguments : [list]
+- État initial : [description]
+```
+
+### Cas Spéciaux à Gérer
+
+### 1. Programme qui ne s'arrête pas
+Si le programme ne s'arrête pas automatiquement avec `exit(1)`, vous devez :
+- L'arrêter manuellement après avoir récupéré les logs nécessaires
+- Documenter cette situation
+
+### 2. Logs manquants
+Si certains logs attendus n'apparaissent pas :
+- Vérifier que le code n'a pas été modifié
+- Vérifier que la séquence d'exécution mène bien aux lignes avec logs
+- Documenter les logs manquants
+
+### 3. Erreurs d'exécution
+Si le programme plante avant d'atteindre les logs :
+- Capturer l'erreur dans stderr
+- Documenter où l'exécution s'est arrêtée
+- Conserver cette information pour l'analyse
+
+### Sortie Attendue
+
+À la fin de cette étape, vous devez avoir :
+- **Commande exacte** utilisée pour reproduire le bug
+- **Logs complets** de débogage (stdout et stderr)
+- **Code de sortie** et conditions d'arrêt
+- **Documentation** des conditions de reproduction exactes
+
+---
+
+## Transitions Possibles
+
+**Toujours vers** : `04-analyze` - Analyse des logs pour identifier les patterns et symptômes
+
+**Action requise** : Une fois tous les logs récupérés et documentés, invoquer `fetch_rules` avec le nom `04-analyze` pour passer à l'analyse des résultats.

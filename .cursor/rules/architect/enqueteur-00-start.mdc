@@ -1,0 +1,76 @@
+---
+alwaysApply: false
+description: Point d'entrée de la machine à états d'enquête pour identifier l'origine des bugs
+---
+
+# Machine à États Enquêteur - Point d'Entrée 🕵️
+
+## Principe Fondamental : Fail-Fast Appliqué au Débogage
+
+Cette règle initie un **système à états strict** pour l'identification systématique de bugs : **identifier rapidement et précisément l'origine du bug sans le masquer**. L'objectif n'est PAS de résoudre le bug, mais de le localiser avec une précision chirurgicale pour permettre une correction ciblée.
+
+**Philosophie** : Un bug mal localisé est un bug qui reviendra. Mieux vaut échouer rapidement avec une origine claire qu'un contournement qui masque la cause racine.
+
+## ⛔🚫❌ INTERDICTION ABSOLUE DE CORRECTION ❌🚫⛔
+
+**RÈGLE CRITIQUE** : Cette machine à états doit UNIQUEMENT identifier l'origine du bug. **TOUTE tentative de correction interrompt immédiatement le cycle d'enquête.**
+
+### Interdictions strictes :
+- 🚫 **Ne jamais modifier le code** pour "tester une correction"
+- 🚫 **Ne jamais proposer de solutions** dans le rapport final
+- 🚫 **Ne jamais implémenter de fix** ou workaround
+- ❌ **Arrêt immédiat** si l'agent commence à corriger au lieu d'enquêter
+
+**Rappel constant** : Cette machine à états **IDENTIFIE**, ne corrige pas. Une fois l'origine claire, c'est à l'utilisateur ou à une autre règle de procéder à la correction.
+
+## Vue d'Ensemble du Processus en 8 Étapes
+
+Cette machine à états fonctionne selon un processus méthodologique en 8 étapes interconnectées :
+
+```
+00-start (cette règle)
+  ↓
+01a-explore       # Exploration des fichiers de code
+  ↓
+01b-hypotheses    # Formulation d'hypothèses
+  ↓
+02-logs           # Placement de logs de débogage
+  ↓
+03-execute        # Exécution et récupération des logs
+  ↓
+04-analyze        # Analyse des résultats
+  ↓
+04b-routing       # Validation critique externe - Agent neutre et critique
+  ↓ (conditions multiples)
+  ├→ 01a-explore (si exploration insuffisante)
+  ├→ 01b-hypotheses (si hypothèses incorrectes)
+  ├→ 02-logs (si logs insuffisants ou fonction locale)
+  └→ 05-report (si validation complète)
+```
+
+## ⚠️ Règles de la Machine à États
+
+### Règles de fonctionnement obligatoires :
+- ✅ **UNIQUEMENT** effectuer les actions décrites dans la règle actuelle
+- ❌ **INTERDICTION ABSOLUE** de faire autre chose (même si ça semble utile)
+- ❌ **INTERDICTION ABSOLUE** de modifier le code pour corriger (uniquement identifier)
+- ✅ **OBLIGATION** d'invoquer la règle suivante en fin d'étape avec l'outil `fetch_rules`
+
+### Comment utiliser cette machine à états :
+
+1. **Déclencher** : L'utilisateur demande d'utiliser cette règle pour identifier l'origine d'un bug
+2. **Contextualiser** : L'utilisateur fournit la description du bug et les conditions de reproduction
+3. **Suivre** : L'agent suit automatiquement le processus en suivant les règles dans l'ordre
+4. **Valider** : Vérifier que le repo est propre après l'enquête
+
+## Activation Immédiate
+
+Pour commencer l'enquête, invoquez immédiatement la première règle :
+
+**Prochaine étape** : Invoquer la règle `01a-explore` avec l'outil `fetch_rules` pour commencer l'exploration des fichiers de code.
+
+---
+
+## Transitions Possibles
+
+**Toujours vers** : `01a-explore` - Exploration des fichiers de code impliqués dans le bug

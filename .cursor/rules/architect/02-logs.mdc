@@ -1,0 +1,149 @@
+---
+alwaysApply: false
+description: Placement de logs de débogage avant/après pour identifier la ligne exacte du bug
+---
+
+# Étape 2 : Placement de Logs de Débogage 📝
+
+## ⚠️ SYSTÈME À ÉTATS - RAPPEL OBLIGATOIRE
+
+Vous êtes actuellement dans une **machine à états stricte** pour l'identification de bugs :
+
+### Règles de fonctionnement
+- ✅ **UNIQUEMENT** effectuer les actions décrites dans cette règle
+- ❌ **INTERDICTION ABSOLUE** de faire autre chose (même si ça semble utile)
+- ❌ **INTERDICTION ABSOLUE** de modifier le code pour corriger (uniquement identifier)
+- ✅ **OBLIGATION** d'invoquer la règle suivante en fin d'étape avec l'outil `fetch_rules`
+
+### Machine à états
+Cette étape fait partie d'un processus en 8 étapes :
+`start → 01a-explore → 01b-hypotheses → 02-logs → 03-execute → 04-analyze → 04b-routing → 05-report`
+
+**Votre étape actuelle** : 02-logs - Placement de logs de débogage
+
+---
+
+## Objectif de l'Étape 2
+
+**Insérer des logs "avant/après"** pour identifier la ligne exacte du bug selon les hypothèses formulées en étape 1b.
+
+### ⚠️ RÈGLES CRITIQUES POUR LES LOGS
+
+### 1. Format Dictionnaire Obligatoire
+Tous les logs doivent utiliser le format : `{"clé": str(valeur)[:limite]}`
+
+### 2. Limitation de Caractères
+- Maximum 50-100 caractères pour les valeurs simples
+- Maximum 100-500 caractères selon l'importance de la variable
+- Toujours tronquer avec `[:limit]` pour éviter les logs trop longs
+
+### 3. Exit Après Boucles
+Protection obligatoire contre les boucles infinies en ajoutant `exit(1)` après chaque série de logs dans une boucle.
+
+### 4. Logs "Sandwich"
+Log AVANT et APRÈS la ligne suspecte pour capturer l'état exact.
+
+### Format Standard des Logs
+
+```python
+# Log AVANT - tout doit être normal
+print({
+    "BEFORE_line_47": "true",
+    "a": str(a)[:50],
+    "b": str(b)[:50],
+    "state": "NORMAL"
+})
+
+# Ligne suspecte 47
+result = a - b  # BUG ICI : devrait être a + b
+
+# Log APRÈS - problème visible ici
+print({
+    "AFTER_line_47": "true", 
+    "result": str(result)[:50],
+    "expected": str(a + b)[:50],
+    "state": "ANOMALIE_DETECTED" if result != (a + b) else "NORMAL"
+})
+exit(1)  # Arrêt obligatoire pour analyse
+```
+
+### Actions Obligatoires
+
+1. **Pour chaque hypothèse de l'étape 1b** :
+   - Identifier la ligne exacte mentionnée dans l'hypothèse
+   - Placer un log AVANT cette ligne (état normal attendu)
+   - Placer un log APRÈS cette ligne (état après exécution suspecte)
+
+2. **Utiliser des identifiants clairs** :
+   - `"BEFORE_line_X": "true"` pour le log avant
+   - `"AFTER_line_X": "true"` pour le log après
+   - Inclure les variables pertinentes avec leurs valeurs
+
+3. **Ajouter l'arrêt obligatoire** :
+   - `exit(1)` après chaque série de logs pour forcer l'analyse
+   - Cela évite que l'exécution continue et masque le problème
+
+### Exemples de Logs Spécifiques
+
+#### Pour une hypothèse sur une variable None :
+```python
+# Log AVANT ligne 23
+print({
+    "BEFORE_line_23": "true",
+    "token": str(token)[:100],
+    "payload_exists": str(payload is not None),
+    "state": "CHECKING_TOKEN"
+})
+
+user_id = extract_user_id_from_token(token)  # ligne 23 suspecte
+
+# Log APRÈS ligne 23
+print({
+    "AFTER_line_23": "true",
+    "user_id": str(user_id)[:50],
+    "user_id_is_none": str(user_id is None),
+    "state": "ANOMALIE_NONE_USER_ID" if user_id is None else "NORMAL"
+})
+exit(1)
+```
+
+#### Pour une hypothèse sur une exception :
+```python
+# Log AVANT ligne 45
+print({
+    "BEFORE_line_45": "true",
+    "user_id": str(user_id)[:50],
+    "db_connected": str(db.is_connected()),
+    "state": "ATTEMPTING_USER_FETCH"
+})
+
+user = db.get_user(user_id)  # ligne 45 suspecte
+
+# Log APRÈS ligne 45
+print({
+    "AFTER_line_45": "true",
+    "user": str(user)[:100],
+    "user_exists": str(user is not None),
+    "state": "USER_FETCH_COMPLETE"
+})
+exit(1)
+```
+
+### Sortie Attendue
+
+Documenter les modifications apportées :
+```
+Logs placés pour tester les hypothèses :
+
+Hypothèse 1 : Logs ajoutés dans src/auth.py lignes 22-24 et 26-28
+Hypothèse 2 : Logs ajoutés dans src/db.py lignes 44-46 et 48-50
+Hypothèse 3 : Logs ajoutés dans src/utils.py lignes 11-13 et 15-17
+```
+
+---
+
+## Transitions Possibles
+
+**Toujours vers** : `03-execute` - Exécution du programme et récupération des logs
+
+**Action requise** : Une fois tous les logs placés selon les hypothèses, invoquer `fetch_rules` avec le nom `03-execute` pour passer à l'exécution et récupération des logs.

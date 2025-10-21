@@ -1,0 +1,93 @@
+---
+alwaysApply: false
+description: Formulation de 3-5 hypothèses précises et testables sur l'origine du bug
+---
+
+# Étape 1b : Formulation d'Hypothèses 🎯
+
+## ⚠️ SYSTÈME À ÉTATS - RAPPEL OBLIGATOIRE
+
+Vous êtes actuellement dans une **machine à états stricte** pour l'identification de bugs :
+
+### Règles de fonctionnement
+- ✅ **UNIQUEMENT** effectuer les actions décrites dans cette règle
+- ❌ **INTERDICTION ABSOLUE** de faire autre chose (même si ça semble utile)
+- ❌ **INTERDICTION ABSOLUE** de modifier le code pour corriger (uniquement identifier)
+- ✅ **OBLIGATION** d'invoquer la règle suivante en fin d'étape avec l'outil `fetch_rules`
+
+### Machine à états
+Cette étape fait partie d'un processus en 8 étapes :
+`start → 01a-explore → 01b-hypotheses → 02-logs → 03-execute → 04-analyze → 04b-routing → 05-report`
+
+**Votre étape actuelle** : 01b-hypotheses - Formulation d'hypothèses
+
+---
+
+## Objectif de l'Étape 1b
+
+**Formuler 3-5 hypothèses précises et testables** sur l'origine du bug en se basant sur l'exploration de l'étape 1a.
+
+### Approche Méthodologique
+
+1. **Synthétiser les informations** de l'étape 1a :
+   - Revoir les fichiers identifiés et le flux d'exécution
+   - Examiner les points critiques localisés
+   - Analyser les dépendances et transformations
+
+2. **Identifier les points de défaillance probables** :
+   - Variables qui pourraient être None/undefined
+   - Fonctions qui pourraient échouer silencieusement
+   - Conditions logiques qui pourraient être incorrectes
+   - Transformer de données qui pourraient être défaillantes
+
+3. **Prioriser par probabilité et impact** :
+   - Commencer par les hypothèses les plus probables
+   - Considérer l'impact de chaque défaillance potentielle
+
+### Format Obligatoire des Hypothèses
+
+Chaque hypothèse doit pointer vers une **ligne/instruction spécifique** avec le format suivant :
+
+```
+Hypothèse X : [variable/fonction] [comportement attendu vs observé] car [cause supposée] ligne [numéro] dans [fichier]
+```
+
+### Exemples d'Hypothèses Correctes
+
+- **Hypothèse 1** : `user_id` est `None` au lieu d'un ID valide car `extract_user_id_from_token()` ligne 23 retourne `None` quand le payload est vide
+- **Hypothèse 2** : Exception non catchée dans `db.get_user()` ligne 45 quand la connexion DB est fermée
+- **Hypothèse 3** : Logique inversée dans `verify_signature()` ligne 12 : condition `if valid` au lieu de `if not valid`
+
+### Exemples d'Hypothèses Incorrectes (À Éviter)
+
+- ❌ **Vague** : "Le problème vient de l'authentification"
+- ❌ **Sans localisation** : "La fonction validate_user échoue"
+- ❌ **Symptôme** : "user_id est None" (sans cause)
+
+### ⚠️ RÈGLE CRITIQUE - Profondeur d'Investigation
+
+**Ne jamais se satisfaire de solutions simples** : creuser jusqu'à la ligne exacte, identifier la CAUSE racine, pas les symptômes.
+
+Si vous identifiez une fonction qui semble problématique, vous devez aller jusqu'à identifier la ligne exacte et l'instruction primitive qui pose problème.
+
+### Sortie Attendue
+
+Fournir **exactement 3-5 hypothèses** sous le format suivant :
+
+```
+Hypothèses formulées basées sur l'exploration :
+
+Hypothèse 1 : [description précise avec fichier/ligne]
+Hypothèse 2 : [description précise avec fichier/ligne]
+Hypothèse 3 : [description précise avec fichier/ligne]
+Hypothèse 4 : [description précise avec fichier/ligne]
+Hypothèse 5 : [description précise avec fichier/ligne]
+```
+
+---
+
+## Transitions Possibles
+
+**Toujours vers** : `02-logs` - Placement de logs de débogage pour tester les hypothèses
+
+**Action requise** : Une fois les 3-5 hypothèses formulées et documentées, invoquer `fetch_rules` avec le nom `02-logs` pour passer au placement de logs de débogage.

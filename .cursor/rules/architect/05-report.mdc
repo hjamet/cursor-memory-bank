@@ -1,0 +1,154 @@
+---
+alwaysApply: false
+description: Rapport final d'identification du bug (pas de correction proposée)
+---
+
+# Étape 5 : Rapport Final 📋
+
+## ⚠️ SYSTÈME À ÉTATS - RAPPEL OBLIGATOIRE
+
+Vous êtes actuellement dans une **machine à états stricte** pour l'identification de bugs :
+
+### Règles de fonctionnement
+- ✅ **UNIQUEMENT** effectuer les actions décrites dans cette règle
+- ❌ **INTERDICTION ABSOLUE** de faire autre chose (même si ça semble utile)
+- ❌ **INTERDICTION ABSOLUE** de modifier le code pour corriger (uniquement identifier)
+- ✅ **OBLIGATION** d'invoquer la règle suivante en fin d'étape avec l'outil `fetch_rules`
+
+### Machine à états
+Cette étape fait partie d'un processus en 8 étapes :
+`start → 01a-explore → 01b-hypotheses → 02-logs → 03-execute → 04-analyze → 04b-routing → 05-report`
+
+**Votre étape actuelle** : 05-report - Rapport final
+
+---
+
+## Objectif de l'Étape 5
+
+**Fournir un résumé précis de l'origine du bug identifié** selon les résultats de toute l'investigation menée à travers les étapes précédentes.
+
+### ⚠️ RÈGLE CRITIQUE - AUCUNE CORRECTION
+
+**Ce rapport IDENTIFIE l'origine, ne propose AUCUNE correction.**
+
+### Format de Rapport Obligatoire
+
+```
+=== RAPPORT FINAL D'IDENTIFICATION DE BUG ===
+
+## Bug Identifié
+Description : [comportement problématique observé]
+Impact : [conséquence du bug]
+Comportement attendu : [ce qui devrait se passer]
+
+## Origine Précise
+Fichier : [chemin exact du fichier]
+Fonction : [nom de la fonction]
+Ligne : [numéro exact de la ligne]
+Instruction : [code exact de la ligne problématique]
+
+## Cause Racine
+Explication : [pourquoi le bug se produit - mécanisme exact]
+Condition déclenchante : [quand/comment le bug se manifeste]
+Étape de l'échec : [moment précis dans l'exécution]
+
+## Hypothèses Validées/Invalidées
+✅ VALIDÉES :
+- [hypothèse 1] : [preuve par logs]
+- [hypothèse 2] : [preuve par logs]
+
+❌ INVALIDÉES :
+- [hypothèse 3] : [contre-preuve par logs]
+- [hypothèse 4] : [contre-preuve par logs]
+
+## Preuves Décisives
+Log AVANT : [log qui montre l'état normal]
+Log APRÈS : [log qui montre l'anomalie]
+Transition problématique : [analyse de la différence]
+
+## Conditions de Reproduction
+Environnement : [variables d'env, configuration]
+Données d'entrée : [paramètres qui déclenchent le bug]
+Séquence : [étapes précises pour reproduire]
+
+## Conclusion
+[Synthèse en 1-2 phrases de l'origine exacte identifiée]
+```
+
+### Actions Obligatoires
+
+1. **Synthétiser toutes les informations** des étapes précédentes :
+   - Résumer les fichiers explorés (étape 1a)
+   - Lister les hypothèses testées (étape 1b)
+   - Citer les logs décisifs (étapes 2-3)
+   - Résumer l'analyse et les conclusions (étapes 4-4a-4b)
+
+2. **Localiser avec précision chirurgicale** :
+   - Fichier exact + fonction + ligne + instruction précise
+   - Pas de localisation vague ("dans le module auth")
+
+3. **Expliquer la cause racine** :
+   - Mécanisme exact du dysfonctionnement
+   - Pourquoi cette instruction produit ce résultat
+   - Condition déclenchante précise
+
+4. **Documenter les preuves** :
+   - Citer les logs AVANT/APRÈS qui prouvent le diagnostic
+   - Valider/invalider chaque hypothèse avec preuves
+
+### Exemple de Rapport Correct
+
+```
+=== RAPPORT FINAL D'IDENTIFICATION DE BUG ===
+
+## Bug Identifié
+Description : user_id devient None au lieu d'un ID valide
+Impact : Authentification échoue systématiquement
+Comportement attendu : user_id devrait contenir l'ID utilisateur extrait du token
+
+## Origine Précise
+Fichier : src/utils/auth.py
+Fonction : extract_user_id_from_token()
+Ligne : 23
+Instruction : return payload.get('user_id')
+
+## Cause Racine
+Explication : payload.get('user_id') retourne None car la clé 'user_id' n'existe pas dans le payload. Le token est valide mais malformé.
+Condition déclenchante : Token avec payload sans clé 'user_id'
+Étape de l'échec : Après extraction du payload, avant retour de la valeur
+
+## Hypothèses Validées/Invalidées
+✅ VALIDÉES :
+- user_id est None car extract_user_id_from_token() ligne 23 retourne None : Log BEFORE = {"token": "valid_token"}, Log AFTER = {"user_id": "None"}
+
+❌ INVALIDÉES :
+- Exception DB : aucun log d'erreur, connexion DB normale
+- Token invalide : token est valide selon les logs
+
+## Preuves Décisives
+Log AVANT : {"BEFORE_line_23": "true", "token": "valid_token_abc123", "payload_exists": "True"}
+Log APRÈS : {"AFTER_line_23": "true", "user_id": "None", "user_id_is_none": "True"}
+Transition problématique : token valide → payload extrait → clé 'user_id' manquante → None retourné
+
+## Conditions de Reproduction
+Environnement : Token JWT valide mais payload sans clé 'user_id'
+Données d'entrée : token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.{payload_sans_user_id}.signature"
+Séquence : 1) Authentification avec token malformé 2) Extraction payload 3) Recherche clé 'user_id' 4) Retour None
+
+## Conclusion
+Le bug se produit à la ligne 23 de extract_user_id_from_token() qui retourne None quand le payload JWT ne contient pas la clé 'user_id', même si le token est structurellement valide.
+```
+
+### ⚠️ Nettoyage Final Recommandé
+
+Après le rapport, mentionner le nettoyage nécessaire :
+- Supprimer les logs de débogage ajoutés en étape 2
+- Restaurer l'état original du code si nécessaire
+
+---
+
+## Fin du Processus
+
+**Cette règle termine le processus d'enquête.** 
+
+Aucune règle suivante à invoquer. Le processus d'identification du bug est complet.

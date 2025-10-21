@@ -22,8 +22,14 @@ root/
 
 - **`.cursor/rules/`** : Règles d'agent définissant le comportement de l'IA
   - *Contient* : `agent.mdc`, `debug.mdc`, `enqueteur.mdc`, `start.mdc`
+  - *Contient aussi* : `architect/` - Architecture de machine à états pour l'enquêteur modulaire
   - *Structure* : Fichiers `.mdc` avec métadonnées YAML et instructions markdown
   - *Usage* : Définissent comment l'agent doit réagir dans différents contextes
+
+- **`.cursor/rules/architect/`** : Architecture de machine à états pour l'enquêteur de bugs
+  - *Contient* : 8 fichiers de règles interconnectées (`00-start.mdc` à `05-report.mdc`)
+  - *Structure* : Chaque règle correspond à une étape du processus d'enquête, avec transitions explicites
+  - *Usage* : Remplace la règle monolithique `enqueteur.mdc` par un système modulaire et fiable avec validation critique externe (étape 04b-routing)
 
 - **`.cursor/mcp/`** : Serveurs MCP pour l'intégration avec les outils externes
   - *Contient* : Scripts JavaScript pour ToolsMCP, MemoryBankMCP, Context7
