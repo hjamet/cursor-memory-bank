@@ -25,271 +25,142 @@ Cette règle implémente le principe "Fail-Fast" dans le contexte du débogage :
 
 **Rappel constant** : Cette règle **IDENTIFIE**, ne corrige pas. Une fois l'origine claire, c'est à l'utilisateur ou à une autre règle de procéder à la correction.
 
-## Processus Méthodologique en 5 Étapes
+## 🏗️ Architecture de Machine à États Modulaire
 
-### ⚠️ RÈGLE CRITIQUE : Machine à État Stricte
+### Nouveau Système : Architecture Architect/
 
-L'enquêteur fonctionne comme une **machine à état stricte** :
+Cette règle a été **transformée en une architecture de machine à états modulaire** pour garantir un processus de débogage rigoureux et fiable. Le système monolithique précédent a été décomposé en **8 étapes interconnectées** dans le dossier `.cursor/rules/architect/`.
+
+### Pourquoi cette Architecture ?
+
+**Problèmes du système précédent** :
+- L'agent avait tendance à oublier où il en était
+- Risque d'abandon prématuré du processus
+- Tentatives de modification de code pendant l'enquête
+- Manque de rigueur dans la validation des résultats
+
+**Solutions apportées** :
+- ✅ **Machine à états stricte** : chaque étape est autonome et obligatoire
+- ✅ **Transitions explicites** : l'agent doit invoquer la règle suivante avec `fetch_rules`
+- ✅ **Validation critique externe** : étape 04b-routing avec agent externe et critique
+- ✅ **Reminder standardisé** : rappel constant des règles dans chaque étape
+
+## 🔄 Processus Méthodologique en 8 Étapes
+
+### Vue d'Ensemble du Système à États
+
+```
+00-start (point d'entrée)
+  ↓
+01a-explore       # Exploration des fichiers de code
+  ↓
+01b-hypotheses    # Formulation d'hypothèses précises
+  ↓
+02-logs           # Placement de logs de débogage
+  ↓
+03-execute        # Exécution et récupération des logs
+  ↓
+04-analyze        # Analyse des résultats
+  ↓
+04b-routing       # Validation critique externe - Agent neutre et critique
+  ↓ (conditions multiples)
+  ├→ 01a-explore (si exploration insuffisante)
+  ├→ 01b-hypotheses (si hypothèses incorrectes)
+  ├→ 02-logs (si logs insuffisants ou fonction locale)
+  └→ 05-report (si validation complète)
+```
+
+### Caractéristiques Clés de l'Architecture
+
+#### 1. **Machine à États Stricte**
 - **INTERDICTION ABSOLUE** de mélanger ou sauter des étapes
 - **OBLIGATION** de marquer explicitement le titre de l'étape actuelle
 - **Chaque étape** a un objectif précis et ne peut pas être contournée
 
-### ⚠️ Indication Obligatoire de l'Étape
+#### 2. **Transitions Explicites**
+- L'agent DOIT invoquer la règle suivante avec `fetch_rules`
+- Chaque règle indique clairement quelle règle invoquer ensuite
+- La règle 04b-routing offre 4 chemins possibles selon les résultats
+
+#### 3. **Validation Critique Externe (04b-routing)**
+- **Agent externe et critique** qui analyse le travail de l'agent précédent
+- **Méfiance systématique** face aux tentatives d'arrêt prématuré
+- **Résistance à la pression** pour éviter les généralisations vagues
+- **Score de profondeur** (0-10) pour évaluer la qualité du diagnostic
+
+#### 4. **Reminder Standardisé**
+- Chaque règle (01a à 05) commence par un rappel identique
+- Interdictions absolues répétées dans chaque étape
+- Machine à états clairement affichée
+
+## 🎯 Comment Utiliser cette Architecture
+
+### Activation du Système
+
+**Pour démarrer une enquête de bug** :
+
+1. **Invoquer cette règle** : `fetch_rules` avec `enqueteur`
+2. **Contextualiser** : Fournir la description du bug et les conditions de reproduction
+3. **Démarrer la machine à états** : Invoquer `fetch_rules` avec `00-start`
+4. **Suivre le processus** : L'agent suivra automatiquement les 8 étapes dans l'ordre
+
+### Exemple d'Activation
+
+```
+Utilisateur : "Utilise la règle enquêteur pour identifier l'origine de ce bug : 
+le système retourne une erreur 500 quand j'essaie de me connecter"
+
+Agent : [Invoque cette règle, puis] 
+→ Invoque `fetch_rules` avec `00-start`
+→ Suit automatiquement : 01a-explore → 01b-hypotheses → 02-logs → 03-execute → 04-analyze → 04b-routing
+→ [Selon la décision critique] → 05-report OU retour vers une étape précédente
+```
+
+## 📁 Structure des Fichiers Architect/
+
+```
+.cursor/rules/architect/
+├── 00-start.mdc          # Point d'entrée : explique le système à états
+├── 01a-explore.mdc       # Exploration des fichiers de code
+├── 01b-hypotheses.mdc    # Formulation d'hypothèses précises
+├── 02-logs.mdc           # Placement de logs de débogage
+├── 03-execute.mdc        # Exécution et récupération des logs
+├── 04-analyze.mdc        # Analyse des résultats
+├── 04b-routing.mdc       # Validation critique externe
+└── 05-report.mdc         # Rapport final
+```
+
+## ⚠️ Règles de la Machine à États
+
+### Règles de fonctionnement obligatoires :
+- ✅ **UNIQUEMENT** effectuer les actions décrites dans la règle actuelle
+- ❌ **INTERDICTION ABSOLUE** de faire autre chose (même si ça semble utile)
+- ❌ **INTERDICTION ABSOLUE** de modifier le code pour corriger (uniquement identifier)
+- ✅ **OBLIGATION** d'invoquer la règle suivante en fin d'étape avec l'outil `fetch_rules`
+
+### Indication Obligatoire de l'Étape
 
 L'agent DOIT **toujours** indiquer son étape actuelle avec des titres markdown explicites :
-- `## Étape 1.a : Exploration des fichiers de code`
-- `## Étape 1.b : Formulation d'hypothèses`
-- `## Étape 2 : Placement de logs de débogage`
-- `## Étape 3 : Exécution et récupération des logs`
-- `## Étape 4 : Analyse des résultats`
-- `## Étape 4.a : Questionnement "POURQUOI" obligatoire`
-- `## Étape 4.b : Décision de poursuite ou d'itération`
-- `## Étape 5 : Nettoyage et rapport final`
+- `## Étape 01a : Exploration des fichiers de code`
+- `## Étape 01b : Formulation d'hypothèses`
+- `## Étape 02 : Placement de logs de débogage`
+- `## Étape 03 : Exécution et récupération des logs`
+- `## Étape 04 : Analyse des résultats`
+- `## Étape 04b : Validation critique externe`
+- `## Étape 05 : Rapport final`
 
 **Règle de Machine à État** : Lors des retours/redirections, l'agent DOIT marquer le titre correspondant pour indiquer clairement qu'il change d'état.
 
----
+## 🚀 Activation Immédiate
 
-## Étape 1.a : Exploration des Fichiers de Code 🔍
+**Pour commencer l'enquête, invoquez immédiatement la première règle de la machine à états :**
 
-**Objectif** : Identifier tous les fichiers impliqués et comprendre le flux d'exécution complet.
-
-**Actions** :
-- Cartographier les fichiers (via `codebase_search`, `read_file`, `grep`)
-- Analyser le parcours d'exécution 
-- Identifier les dépendances (variables, fonctions, services)
-- Localiser les points critiques (conditions, validations, transformations)
-
-**Sortie** : Liste des fichiers, flux d'exécution, et points de défaillance potentiels.
+**Prochaine étape** : Invoquer la règle `00-start` avec l'outil `fetch_rules` pour démarrer le processus d'enquête en 8 étapes.
 
 ---
 
-## Étape 1.b : Formulation d'Hypothèses 🎯
+## Transitions Possibles
 
-**Objectif** : Formuler 3-5 hypothèses précises et testables sur l'origine du bug.
+**Toujours vers** : `00-start` - Point d'entrée de la machine à états d'enquête
 
-**Approche** :
-- Synthétiser les informations de l'étape 1.a
-- Identifier les points de défaillance probables (variables, fonctions, conditions)
-- Prioriser par probabilité et impact
-- Chaque hypothèse doit pointer vers une ligne/instruction spécifique
-
-**Exemple** :
-- Hypothèse 1 : `user_id` est `None` car `extract_user_id_from_token()` ligne 23 échoue
-- Hypothèse 2 : Exception non catchée dans `db.get_user()` ligne 45
-- Hypothèse 3 : Logique inversée dans `verify_signature()` ligne 12
-
-### ⚠️ RÈGLE CRITIQUE 
-**Ne jamais se satisfaire de solutions simples** : creuser jusqu'à la ligne exacte, identifier la CAUSE racine, pas les symptômes.
-
----
-
-## Étape 2 : Placement de Logs de Débogage 📝
-
-**Objectif** : Insérer des logs "avant/après" pour identifier la ligne exacte du bug.
-
-### ⚠️ RÈGLES CRITIQUES POUR LES LOGS
-
-1. **Format dictionnaire obligatoire** : `{"clé": str(valeur)[:limite]}`
-2. **Limitation de caractères** : Maximum 100-500 caractères selon l'importance
-3. **Exit après boucles** : Protection obligatoire contre les boucles infinies
-4. **Logs "sandwich"** : Log AVANT et APRÈS la ligne suspecte
-
-### Format standard des logs
-```python
-# Log AVANT - tout doit être normal
-print({
-    "BEFORE_line_47": "true",
-    "a": str(a)[:50],
-    "b": str(b)[:50],
-    "state": "NORMAL"
-})
-
-# Ligne suspecte 47
-result = a - b  # BUG ICI : devrait être a + b
-
-# Log APRÈS - problème visible ici
-print({
-    "AFTER_line_47": "true", 
-    "result": str(result)[:50],
-    "expected": str(a + b)[:50],
-    "state": "ANOMALIE_DETECTED" if result != (a + b) else "NORMAL"
-})
-exit(1)  # Arrêt obligatoire pour analyse
-```
-
----
-
-## Étape 3 : Exécution et Récupération des Logs 🚀
-
-**Objectif** : Lancer le programme et récupérer tous les logs dans les conditions du bug.
-
-**Méthodes** :
-- Exécution directe : `python main.py` ou `npm start`
-- Script temporaire : Créer `debug_scenario.py` à la racine avec code minimal
-- Conditions exactes : Reproduire l'environnement du bug
-
-**Récupération** : Capturer stdout/stderr, préserver l'ordre chronologique.
-
----
-
-## Étape 4 : Analyse des Résultats 🔍
-
-**Objectif** : Analyser les logs pour identifier les patterns et symptômes du bug.
-
-**Méthodologie** :
-1. Examiner les logs pour valeurs inattendues
-2. Corréler avec les hypothèses formulées
-3. Identifier les symptômes précis
-4. Préparer le questionnement "POURQUOI"
-
-**Résultat attendu** : Liste des symptômes clairs avec hypothèses validées/invalidées.
-
----
-
-## Étape 4.a : Questionnement "POURQUOI" Obligatoire ❓
-
-**Objectif** : Se poser "POURQUOI" pour chaque symptôme et répondre avec certitude absolue.
-
-### ⚠️ RÈGLE CRITIQUE - VALIDATION OBLIGATOIRE
-
-**Avant l'étape 4.b, l'agent DOIT avoir :**
-
-1. **Question "POURQUOI" posée et répondue** pour chaque symptôme
-2. **Preuves par logs** que tout est normal AVANT la ligne identifiée
-3. **Preuves par logs** que le problème apparaît APRÈS cette ligne
-
-### Processus de validation
-- **Identifier le symptôme** → **Poser "POURQUOI"** → **Répondre avec précision ligne/instruction**
-- **Vérifier** : État normal AVANT + Problème visible APRÈS + UNIQUE passage problématique
-
-**Si validation échoue** → Retour étape 2 pour logs supplémentaires
-
-### Questions typiques
-- POURQUOI cette variable a cette valeur inattendue ?
-- POURQUOI cette fonction retourne ce résultat incorrect ?
-- POURQUOI cette condition est toujours vraie/fausse ?
-
----
-
-## Étape 4.b : Décision de Poursuite ou d'Itération 🎯
-
-**Objectif** : UNIQUEMENT router vers la prochaine étape. **AUCUNE investigation dans cette étape.**
-
-### ⚠️ RÈGLE CRITIQUE : Router Machine à État
-
-**L'étape 4.b est UNIQUEMENT un point de décision (router).**
-- ❌ **INTERDICTION** de placer des logs dans 4.b
-- ❌ **INTERDICTION** d'analyser du code dans 4.b  
-- ❌ **INTERDICTION** de formuler de nouvelles hypothèses dans 4.b
-- ✅ **SEULE ACTION** : Décider où aller ensuite et marquer le titre correspondant
-
-### Checkpoint de Validation : 3 Questions Obligatoires
-
-**Répondre OUI avec preuves aux 3 questions :**
-
-1. **Ai-je la ligne EXACTE du bug ?** (pas "dans la fonction X")
-2. **Ai-je des logs AVANT cette ligne** prouvant que tout est normal ?
-3. **Ai-je des logs APRÈS cette ligne** prouvant l'anomalie ?
-
-### ⚠️ RÈGLE DE PROFONDEUR : Fonctions Locales
-
-**Si la ligne identifiée est un APPEL de fonction locale** (pas bibliothèque externe) :
-- ❌ Tu ne peux PAS t'arrêter → **RETOUR OBLIGATOIRE à l'étape 2**
-
-### Router - Décisions de Routing
-
-**Décision 1** : Si les 3 réponses = OUI avec preuves → ✅ **Marquer `## Étape 5 : Rapport Final`**
-
-**Décision 2** : Si exploration insuffisante → ❌ **Marquer `## Étape 1.a : Exploration des fichiers de code`**
-
-**Décision 3** : Si hypothèses incorrectes → ❌ **Marquer `## Étape 1.b : Formulation d'hypothèses`**
-
-**Décision 4** : Si logs insuffisants OU fonction locale à explorer → ❌ **Marquer `## Étape 2 : Placement de logs de débogage`**
-
-### ⚠️ OBLIGATION DE MACHINE À ÉTAT
-
-**L'agent DOIT marquer explicitement le titre de l'étape cible** pour indiquer le changement d'état. Exemple :
-
-```markdown
-## Étape 4.b : Décision de Poursuite ou d'Itération
-**Question 1** : Non, je n'ai pas la ligne exacte
-**Question 2** : Pas assez de logs AVANT
-**Décision** : Retour à l'étape 2 pour logs plus précis
-
-## Étape 2 : Placement de Logs de Débogage
-[L'agent place maintenant ses logs supplémentaires...]
-```
-
-### Décisions INACCEPTABLES
-- Arrêt sur symptôme ("`user_id` est None")
-- Localisation vague ("dans la fonction X") 
-- Justification sans preuves ("ça doit être ligne 15")
-- **Investigation dans 4.b** → Violation de la machine à état
-
----
-
-## Étape 5 : Rapport Final 📋
-
-**Objectif** : Fournir un résumé précis de l'origine du bug identifié.
-
-### Rapport obligatoire
-- **Bug identifié** : Description du comportement problématique
-- **Origine précise** : Fichier, fonction, ligne exacte
-- **Cause racine** : Pourquoi le bug se produit
-- **Hypothèses validées/invalidées** : Liste avec logs décisifs
-- **Conditions de reproduction** : Environnement exact nécessaire
-
-**Rappel** : Ce rapport identifie l'origine, ne propose AUCUNE correction.
-
----
-
-## Mini-Cas Pratiques
-
-### Cas 1 : Fonction Locale À Explorer
-**Problème** : `result = calculate_total(items)` retourne 0 au lieu de 150.
-**Action** : RENTRER dans `calculate_total()` pour trouver l'instruction primitive problématique.
-
-### Cas 2 : Logs Avant/Après
-```python
-# AVANT - tout normal
-print({"BEFORE_line_47": "true", "a": str(a)[:50], "b": str(b)[:50]})
-result = a - b  # BUG ICI : devrait être a + b  
-# APRÈS - anomalie détectée
-print({"AFTER_line_47": "true", "result": str(result)[:50], "expected": str(a + b)[:50]})
-```
-
-### Cas 3 : Arrêt Prématuré Évité
-**Mauvais** : "Le bug vient de l'authentification car `user_id` est None"
-**Bon** : "Ligne 23 dans `extract_user_id()` : `return None` au lieu de `return payload['user_id']`"
-
----
-
-## Règles de Sécurité et Erreurs à Éviter
-
-### ⚠️ Interdictions Absolues
-- **Ne jamais simuler** : Tester le véritable code uniquement
-- **Ne jamais masquer** : Logs doivent révéler, pas cacher
-- **Ne jamais contourner** : Identifier la cause, pas les symptômes
-- **Ne jamais proposer de corrections** : UNIQUEMENT identifier l'origine
-
-### Erreurs Fréquentes (2-3 lignes chacune)
-- **Arrêt sur symptôme** : "`user_id` est None" → Creuse jusqu'à la ligne exacte
-- **Localisation vague** : "Dans le module auth" → Fichier + fonction + ligne + instruction précise  
-- **Justification sans preuves** : "Ça doit être ligne 15" → Logs avant/après obligatoires
-- **Manquer validation avant/après** : Preuve que tout est normal avant ET problème après
-- **Confondre cause/conséquence** : Remonter à la PREMIÈRE instruction incorrecte
-- **Arrêt sur fonction locale** : Si appel de fonction locale → RENTRER dedans jusqu'à instruction primitive
-
----
-
-## Activation de la Règle
-
-Cette règle est activée manuellement par l'utilisateur lors de sessions de débogage. Pour l'utiliser :
-
-1. **Déclencher** : "Utilise la règle enquêteur pour identifier l'origine de ce bug"
-2. **Contextualiser** : Fournir la description du bug et les conditions de reproduction
-3. **Suivre** : L'agent suivra automatiquement le processus en 5 étapes
-4. **Valider** : Vérifier que le repo est propre après l'enquête
-
-**Rappel** : Cette règle identifie, ne corrige pas. Une fois l'origine claire, c'est à l'utilisateur ou à une autre règle de procéder à la correction.
+**Action requise** : Une fois cette règle invoquée et le contexte du bug fourni, invoquer `fetch_rules` avec le nom `00-start` pour commencer le processus d'enquête systématique.
