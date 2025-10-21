@@ -856,14 +856,28 @@ install_basic_rules() {
     # Rules that should only be installed in full-install mode
     local full_install_only_rules=("start.mdc")
     
-    # Fetch remote list of rules recursively from GitHub API
+    # Fetch remote list of rules recursively
     local rules_list=""
-    rules_list=$(fetch_rules_recursive ".cursor/rules")
     
-    # Fallback to conservative list if API call fails (excluding start.mdc)
+    if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
+        # Use recursive API call for curl mode
+        rules_list=$(fetch_rules_recursive ".cursor/rules")
+    else
+        # Use git clone method for recursive detection
+        local clone_dir="$temp_dir/repo"
+        if [[ -d "$clone_dir/.cursor/rules" ]]; then
+            # Build list from cloned files recursively (prefer what actually exists in repo)
+            rules_list=$(cd "$clone_dir/.cursor/rules" && find . -type f -name "*.mdc" | sed 's|^\./|.cursor/rules/|')
+        else
+            # Fallback to recursive API call
+            rules_list=$(fetch_rules_recursive ".cursor/rules")
+        fi
+    fi
+    
+    # Fallback to conservative list if all methods fail (excluding start.mdc)
     if [[ -z "$rules_list" ]]; then
         warn "Could not fetch remote rules list; using conservative fallback set"
-        rules_list=".cursor/rules/agent.mdc .cursor/rules/architecte.mdc .cursor/rules/debug.mdc .cursor/rules/README.mdc"
+        rules_list=".cursor/rules/agent.mdc .cursor/rules/architecte.mdc .cursor/rules/debug.mdc .cursor/rules/README.mdc .cursor/rules/architect/00-start.mdc .cursor/rules/architect/01a-explore.mdc .cursor/rules/architect/01b-hypotheses.mdc .cursor/rules/architect/02-logs.mdc .cursor/rules/architect/03-execute.mdc .cursor/rules/architect/04-analyze.mdc .cursor/rules/architect/04b-routing.mdc .cursor/rules/architect/05-report.mdc"
     fi
     
     # Install all rules except those marked as full_install_only
@@ -1002,7 +1016,7 @@ install_workflow_system() {
             
             # Fallback to conservative list if API call fails
             if [[ -z "$rules_list" ]]; then
-                rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc"
+                rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc .cursor/rules/architect/00-start.mdc .cursor/rules/architect/01a-explore.mdc .cursor/rules/architect/01b-hypotheses.mdc .cursor/rules/architect/02-logs.mdc .cursor/rules/architect/03-execute.mdc .cursor/rules/architect/04-analyze.mdc .cursor/rules/architect/04b-routing.mdc .cursor/rules/architect/05-report.mdc"
             fi
 
             for r in $rules_list; do
@@ -1116,7 +1130,7 @@ install_workflow_system() {
 
         if [[ -z "$rules_list" ]]; then
             # Conservative fallback
-            rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc"
+            rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc .cursor/rules/architect/00-start.mdc .cursor/rules/architect/01a-explore.mdc .cursor/rules/architect/01b-hypotheses.mdc .cursor/rules/architect/02-logs.mdc .cursor/rules/architect/03-execute.mdc .cursor/rules/architect/04-analyze.mdc .cursor/rules/architect/04b-routing.mdc .cursor/rules/architect/05-report.mdc"
         fi
 
         # Install rules discovered above. Prefer copying from clone; otherwise fall
