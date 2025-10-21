@@ -449,6 +449,48 @@ is_in_array() {
     return 1
 }
 
+# Recursively fetch all rule files from GitHub API
+# Usage: fetch_rules_recursive "path_in_repo" -> returns space-separated list of file paths
+fetch_rules_recursive() {
+    local path_in_repo="$1"
+    local api_url="$GITHUB_API/contents/$path_in_repo?ref=$DEFAULT_BRANCH"
+    local api_response
+    local rules_list=""
+    
+    log "Fetching rules recursively from $path_in_repo"
+    
+    # Get directory contents from GitHub API
+    api_response=$(curl -s "$api_url" 2>/dev/null || true)
+    if [[ -z "$api_response" ]]; then
+        warn "Failed to fetch directory contents for $path_in_repo"
+        return 1
+    fi
+    
+    # Parse each item in the directory using a temporary file to avoid subshell issues
+    local temp_file=$(mktemp)
+    echo "$api_response" | grep -o '"name": *"[^"]*", *"type": *"[^"]*"' > "$temp_file"
+    
+    while IFS= read -r line; do
+        local name=$(echo "$line" | grep -o '"name": *"[^"]*"' | sed 's/"name": *"//; s/"$//')
+        local type=$(echo "$line" | grep -o '"type": *"[^"]*"' | sed 's/"type": *"//; s/"$//')
+        
+        if [[ "$type" == "file" ]] && [[ "$name" == *.mdc ]]; then
+            # It's a rule file, add to list
+            rules_list="$rules_list $path_in_repo/$name"
+        elif [[ "$type" == "dir" ]]; then
+            # It's a directory, recurse into it
+            local subdir_rules=$(fetch_rules_recursive "$path_in_repo/$name")
+            rules_list="$rules_list $subdir_rules"
+        fi
+    done < "$temp_file"
+    
+    # Clean up temp file
+    rm -f "$temp_file"
+    
+    # Return the rules list (trim leading space)
+    echo "${rules_list# }"
+}
+
 
 # ============================================================================
 # GITIGNORE MANAGEMENT
@@ -814,14 +856,9 @@ install_basic_rules() {
     # Rules that should only be installed in full-install mode
     local full_install_only_rules=("start.mdc")
     
-    # Fetch remote list of rules dynamically from GitHub API
-    local api_url="$GITHUB_API/contents/.cursor/rules?ref=$DEFAULT_BRANCH"
+    # Fetch remote list of rules recursively from GitHub API
     local rules_list=""
-    local api_response
-    api_response=$(curl -s "$api_url" 2>/dev/null || true)
-    if [[ -n "$api_response" ]]; then
-        rules_list=$(echo "$api_response" | grep -o '"path": *"[^"]*"' | sed 's/.*: *"//' | sed 's/"$//')
-    fi
+    rules_list=$(fetch_rules_recursive ".cursor/rules")
     
     # Fallback to conservative list if API call fails (excluding start.mdc)
     if [[ -z "$rules_list" ]]; then
@@ -919,14 +956,9 @@ install_workflow_system() {
             # Rules that should only be installed in full-install mode
             local full_install_only_rules=("start.mdc")
 
-            # Fetch remote list of rules dynamically from GitHub API
-            local api_url="$GITHUB_API/contents/.cursor/rules?ref=$DEFAULT_BRANCH"
+            # Fetch remote list of rules recursively from GitHub API
             local rules_list=""
-            local api_response
-            api_response=$(curl -s "$api_url" 2>/dev/null || true)
-            if [[ -n "$api_response" ]]; then
-                rules_list=$(echo "$api_response" | grep -o '"path": *"[^"]*"' | sed 's/.*: *"//' | sed 's/"$//')
-            fi
+            rules_list=$(fetch_rules_recursive ".cursor/rules")
             
             # Fallback to conservative list if API call fails
             if [[ -z "$rules_list" ]]; then
@@ -964,14 +996,9 @@ install_workflow_system() {
             # Rules that should only be installed in full-install mode
             local full_install_only_rules=("start.mdc")
 
-            # Fetch remote list of rules dynamically from GitHub API
-            local api_url="$GITHUB_API/contents/.cursor/rules?ref=$DEFAULT_BRANCH"
+            # Fetch remote list of rules recursively from GitHub API
             local rules_list=""
-            local api_response
-            api_response=$(curl -s "$api_url" 2>/dev/null || true)
-            if [[ -n "$api_response" ]]; then
-                rules_list=$(echo "$api_response" | grep -o '"path": *"[^"]*"' | sed 's/.*: *"//' | sed 's/"$//')
-            fi
+            rules_list=$(fetch_rules_recursive ".cursor/rules")
             
             # Fallback to conservative list if API call fails
             if [[ -z "$rules_list" ]]; then
@@ -1080,16 +1107,11 @@ install_workflow_system() {
         
         local rules_list=""
         if [[ -d "$clone_dir/.cursor/rules" ]]; then
-            # Build list from cloned files (prefer what actually exists in repo)
-            rules_list=$(cd "$clone_dir/.cursor/rules" && ls -1 2>/dev/null | sed 's|^|.cursor/rules/|')
+            # Build list from cloned files recursively (prefer what actually exists in repo)
+            rules_list=$(cd "$clone_dir/.cursor/rules" && find . -type f -name "*.mdc" | sed 's|^\./|.cursor/rules/|')
         else
-            # Fallback to API call
-            local api_url="$GITHUB_API/contents/.cursor/rules?ref=$DEFAULT_BRANCH"
-            local api_response
-            api_response=$(curl -s "$api_url" 2>/dev/null || true)
-            if [[ -n "$api_response" ]]; then
-                rules_list=$(echo "$api_response" | grep -o '"path": *"[^"]*"' | sed 's/.*: *"//' | sed 's/"$//')
-            fi
+            # Fallback to recursive API call
+            rules_list=$(fetch_rules_recursive ".cursor/rules")
         fi
 
         if [[ -z "$rules_list" ]]; then
