@@ -466,26 +466,26 @@ fetch_rules_recursive() {
         return 1
     fi
     
-    # Parse each item in the directory using a temporary file to avoid subshell issues
-    local temp_file=$(mktemp)
-    echo "$api_response" | grep -o '"name": *"[^"]*", *"type": *"[^"]*"' > "$temp_file"
+    # Parse each item in the directory using a simpler approach
+    # Extract all name/type pairs and process them
+    local names_and_types
+    names_and_types=$(echo "$api_response" | grep -o '"name": *"[^"]*", *"type": *"[^"]*"' | sed 's/"name": *"\([^"]*\)", *"type": *"\([^"]*\)"/\1:\2/')
     
-    while IFS= read -r line; do
-        local name=$(echo "$line" | grep -o '"name": *"[^"]*"' | sed 's/"name": *"//; s/"$//')
-        local type=$(echo "$line" | grep -o '"type": *"[^"]*"' | sed 's/"type": *"//; s/"$//')
-        
-        if [[ "$type" == "file" ]] && [[ "$name" == *.mdc ]]; then
-            # It's a rule file, add to list
-            rules_list="$rules_list $path_in_repo/$name"
-        elif [[ "$type" == "dir" ]]; then
-            # It's a directory, recurse into it
-            local subdir_rules=$(fetch_rules_recursive "$path_in_repo/$name")
-            rules_list="$rules_list $subdir_rules"
+    while IFS= read -r name_type; do
+        if [[ -n "$name_type" ]]; then
+            local name="${name_type%%:*}"
+            local type="${name_type##*:}"
+            
+            if [[ "$type" == "file" ]] && [[ "$name" == *.mdc ]]; then
+                # It's a rule file, add to list
+                rules_list="$rules_list $path_in_repo/$name"
+            elif [[ "$type" == "dir" ]]; then
+                # It's a directory, recurse into it
+                local subdir_rules=$(fetch_rules_recursive "$path_in_repo/$name")
+                rules_list="$rules_list $subdir_rules"
+            fi
         fi
-    done < "$temp_file"
-    
-    # Clean up temp file
-    rm -f "$temp_file"
+    done <<< "$names_and_types"
     
     # Return the rules list (trim leading space)
     echo "${rules_list# }"
@@ -860,24 +860,28 @@ install_basic_rules() {
     local rules_list=""
     
     if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
-        # Use recursive API call for curl mode
-        rules_list=$(fetch_rules_recursive ".cursor/rules")
+        # For curl mode, use conservative fallback (API doesn't work reliably)
+        warn "Using curl mode - installing only basic rules (subdirectories not supported with curl)"
+        rules_list=".cursor/rules/agent.mdc .cursor/rules/architecte.mdc .cursor/rules/debug.mdc .cursor/rules/README.mdc"
     else
-        # Use git clone method for recursive detection
+        # Use git clone method for recursive detection (works perfectly)
         local clone_dir="$temp_dir/repo"
+        
+        # Clone repository if not already done
+        if [[ ! -d "$clone_dir" ]]; then
+            log "Cloning repository for rule discovery..."
+            clone_repository "$REPO_URL" "$clone_dir"
+        fi
+        
         if [[ -d "$clone_dir/.cursor/rules" ]]; then
             # Build list from cloned files recursively (prefer what actually exists in repo)
             rules_list=$(cd "$clone_dir/.cursor/rules" && find . -type f -name "*.mdc" | sed 's|^\./|.cursor/rules/|')
+            log "Discovered rules recursively: $(echo "$rules_list" | wc -w) files"
         else
-            # Fallback to recursive API call
-            rules_list=$(fetch_rules_recursive ".cursor/rules")
+            # Fallback to conservative list if clone fails
+            warn "Git clone failed - using conservative fallback set"
+            rules_list=".cursor/rules/agent.mdc .cursor/rules/architecte.mdc .cursor/rules/debug.mdc .cursor/rules/README.mdc"
         fi
-    fi
-    
-    # Fallback to conservative list if all methods fail (excluding start.mdc)
-    if [[ -z "$rules_list" ]]; then
-        warn "Could not fetch remote rules list; using conservative fallback set"
-        rules_list=".cursor/rules/agent.mdc .cursor/rules/architecte.mdc .cursor/rules/debug.mdc .cursor/rules/README.mdc .cursor/rules/architect/00-start.mdc .cursor/rules/architect/01a-explore.mdc .cursor/rules/architect/01b-hypotheses.mdc .cursor/rules/architect/02-logs.mdc .cursor/rules/architect/03-execute.mdc .cursor/rules/architect/04-analyze.mdc .cursor/rules/architect/04b-routing.mdc .cursor/rules/architect/05-report.mdc"
     fi
     
     # Install all rules except those marked as full_install_only
@@ -1016,7 +1020,9 @@ install_workflow_system() {
             
             # Fallback to conservative list if API call fails
             if [[ -z "$rules_list" ]]; then
-                rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc .cursor/rules/architect/00-start.mdc .cursor/rules/architect/01a-explore.mdc .cursor/rules/architect/01b-hypotheses.mdc .cursor/rules/architect/02-logs.mdc .cursor/rules/architect/03-execute.mdc .cursor/rules/architect/04-analyze.mdc .cursor/rules/architect/04b-routing.mdc .cursor/rules/architect/05-report.mdc"
+                # Conservative fallback - only basic files, no subdirectories
+                # Subdirectories will be discovered dynamically when API/clone works
+                rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc"
             fi
 
             for r in $rules_list; do
@@ -1130,7 +1136,9 @@ install_workflow_system() {
 
         if [[ -z "$rules_list" ]]; then
             # Conservative fallback
-            rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc .cursor/rules/architect/00-start.mdc .cursor/rules/architect/01a-explore.mdc .cursor/rules/architect/01b-hypotheses.mdc .cursor/rules/architect/02-logs.mdc .cursor/rules/architect/03-execute.mdc .cursor/rules/architect/04-analyze.mdc .cursor/rules/architect/04b-routing.mdc .cursor/rules/architect/05-report.mdc"
+            # Conservative fallback - only basic files, no subdirectories
+            # Subdirectories will be discovered dynamically when API/clone works
+            rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc"
         fi
 
         # Install rules discovered above. Prefer copying from clone; otherwise fall
