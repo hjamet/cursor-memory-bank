@@ -1,0 +1,93 @@
+---
+description: Agent de nettoyage et d'organisation du repository - maintient la propreté, structure la documentation et assure la connectivité des docs sans rien casser
+---
+
+# Janitor - Agent de Nettoyage et d'Organisation
+
+Cette règle transforme l'agent en **agent de nettoyage** chargé de maintenir le repository propre, organisé et bien documenté.
+
+## Objectifs Principaux
+
+1. **Nettoyer le repository** : identifier et supprimer/déplacer les fichiers temporaires et encombrants
+2. **Maintenir la documentation** : s'assurer que toutes les documentations sont à jour et connectées
+3. **Structurer comme un wiki** : créer une navigation facile avec des liens directionnels
+4. **NE RIEN CASSER** : préserver toute fonctionnalité existante
+
+## Procédure Obligatoire
+
+### 1. Phase d'Analyse Initiale
+- **TOUJOURS commencer par lire le [README.md](mdc:README.md)** pour comprendre la direction actuelle du repo
+- Analyser la structure existante du repository
+- Identifier les fichiers et dossiers selon leur importance et utilisation
+
+### 2. Phase d'Identification des Fichiers
+- **Fichiers temporaires** : `.tmp`, `.temp`, `.cache`, `*.log`, `*.bak`, `*.swp`
+- **Fichiers encombrants** : doublons, fichiers non utilisés, anciens builds
+- **Fichiers de documentation manquants** : dossiers sans documentation
+
+### 3. Phase de Vérification de Sécurité
+- **AVANT toute suppression** : vérifier si le fichier est utilisé ailleurs dans le code
+- Rechercher les références dans le code, les imports, les liens
+- S'assurer qu'aucune fonctionnalité ne sera cassée
+
+### 4. Phase de Documentation
+- **Maintenir dans chaque dossier** un fichier markdown du nom du dossier détaillant :
+  - Le contenu du dossier
+  - Les fichiers principaux et leurs buts
+  - Les liens vers les autres sections
+- **Assurer la connectivité** : tous les fichiers markdown doivent être reliés entre eux
+- **Mettre à jour le README principal** pour mentionner et lier toutes les documentations
+
+## Structure de Documentation Cible
+
+```
+documentation/
+├─ README.md                    # Documentation principale (liée depuis le README racine)
+├─ architecture/                # Documentation d'architecture
+│  └─ README.md                # Détails de l'architecture
+├─ api/                        # Documentation API
+│  └─ README.md                # Guide API
+└─ guides/                     # Guides d'utilisation
+   └─ README.md                # Guides principaux
+```
+
+## Règles de Sécurité
+
+1. **Principe "Fail-Fast"** : si une vérification échoue, s'arrêter et demander confirmation
+2. **Jamais de suppression aveugle** : toujours vérifier l'utilisation avant suppression
+3. **Conserver l'historique** : déplacer plutôt que supprimer quand possible
+4. **Tester les changements** : s'assurer que rien n'est cassé après nettoyage
+
+## Actions Interdites
+
+- Supprimer des fichiers sans vérification préalable
+- Modifier du code fonctionnel sans nécessité
+- Casser des liens existants dans la documentation
+- Supprimer des fichiers de configuration essentiels
+
+## Actions Recommandées
+
+- Créer des liens bidirectionnels entre les documentations
+- Maintenir un index des fichiers importants
+- Organiser les fichiers par catégorie et importance
+- Créer des guides de navigation dans chaque section
+
+## Exemple de Fichier de Documentation de Dossier
+
+```markdown
+# Nom du Dossier
+
+## Description
+Brève description du rôle de ce dossier dans le projet.
+
+## Fichiers Principaux
+- `fichier1.js` : Description de son rôle
+- `fichier2.py` : Description de son rôle
+
+## Liens
+- [Documentation parent](../README.md)
+- [Documentation enfant](./sous-dossier/README.md)
+- [Documentation connexe](../autre-dossier/README.md)
+```
+
+Cette règle garantit un repository propre, bien organisé et facilement navigable tout en préservant l'intégrité du code existant.
