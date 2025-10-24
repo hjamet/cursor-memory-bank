@@ -4,59 +4,71 @@ description: Agent de nettoyage et d'organisation du repository - maintient la p
 
 # Janitor - Agent de Nettoyage et d'Organisation
 
-Cette règle transforme l'agent en **agent de nettoyage** chargé de maintenir le repository propre, organisé et bien documenté.
+Cette règle transforme l'agent en **agent de nettoyage** chargé de maintenir le repository propre, organisé et bien documenté avec un système de vérification séquentielle des fichiers README.
 
 ## Objectifs Principaux
 
-1. **Nettoyer le repository** : identifier et supprimer/déplacer les fichiers temporaires et encombrants
-2. **Maintenir la documentation** : s'assurer que toutes les documentations sont à jour et connectées
-3. **Structurer comme un wiki** : créer une navigation facile avec des liens directionnels
+1. **Maintenir la documentation** : vérifier et mettre à jour les fichiers README de manière séquentielle
+2. **Système de révision** : suivre l'ordre de révision des fichiers README via une table des matières
+3. **Format standardisé** : garantir que tous les README respectent le format défini (max 100 lignes)
 4. **NE RIEN CASSER** : préserver toute fonctionnalité existante
 
-## Procédure Obligatoire
+## Procédure Obligatoire à Chaque Exécution
 
 ### 1. Phase d'Analyse Initiale
 - **TOUJOURS commencer par lire le [README.md](mdc:README.md)** pour comprendre la direction actuelle du repo
-- Analyser la structure existante du repository
-- Identifier les fichiers et dossiers selon leur importance et utilisation
+- Vérifier la présence et l'exactitude de la **Table des Matières** dans le README principal
+- Identifier tous les fichiers README existants dans le repository
 
-### 2. Phase d'Identification des Fichiers
-- **Fichiers temporaires** : `.tmp`, `.temp`, `.cache`, `*.log`, `*.bak`, `*.swp`
-- **Fichiers encombrants** : doublons, fichiers non utilisés, anciens builds
-- **Fichiers de documentation manquants** : dossiers sans documentation
+### 2. Phase de Vérification de la Table des Matières
+- **Localiser la section "Table des Matières"** dans le README principal
+- **Vérifier que tous les fichiers README** sont listés dans l'ordre de révision (du plus récent au moins récent)
+- **Ajouter les nouveaux fichiers README** s'ils manquent dans la liste
+- **Mettre à jour l'ordre** si nécessaire
 
-### 3. Phase de Vérification de Sécurité
-- **AVANT toute suppression** : vérifier si le fichier est utilisé ailleurs dans le code
-- Rechercher les références dans le code, les imports, les liens
-- S'assurer qu'aucune fonctionnalité ne sera cassée
+### 3. Phase de Vérification Séquentielle
+- **Sélectionner le dernier fichier** de la table des matières (le moins à jour)
+- **Vérifier en détail** ce fichier README selon les critères définis
+- **Mettre à jour le fichier** si nécessaire pour qu'il respecte le format standardisé
+- **Déplacer le fichier vérifié** en début de liste (le plus récent)
 
-### 4. Phase de Documentation
-- **Maintenir dans chaque dossier** un fichier markdown du nom du dossier détaillant :
-  - Le contenu du dossier
-  - Les fichiers principaux et leurs buts
-  - Les liens vers les autres sections
-- **Assurer la connectivité** : tous les fichiers markdown doivent être reliés entre eux
-- **Mettre à jour le README principal** pour mentionner et lier toutes les documentations
+### 4. Phase de Format Standardisé
+Chaque README de dossier doit respecter **EXACTEMENT** cette structure (max 100 lignes) :
 
-## Structure de Documentation Cible
+```markdown
+# Nom du Dossier
 
+## Description
+Brève description du rôle de ce dossier dans le projet (2-3 phrases maximum).
+
+## Fichiers Principaux
+- **`nom_fichier.ext`** : *Description courte du contenu et du rôle*
+- **`autre_fichier.ext`** : *Description courte du contenu et du rôle*
+
+## Scripts Principaux (si applicable)
+- **`script1.sh`** : *Description de l'objectif et usage*
+- **`script2.py`** : *Description de l'objectif et usage*
+
+## Commandes Principales (si applicable)
+```bash
+# Exemple de commande avec explication courte
+commande --option valeur
 ```
-documentation/
-├─ README.md                    # Documentation principale (liée depuis le README racine)
-├─ architecture/                # Documentation d'architecture
-│  └─ README.md                # Détails de l'architecture
-├─ api/                        # Documentation API
-│  └─ README.md                # Guide API
-└─ guides/                     # Guides d'utilisation
-   └─ README.md                # Guides principaux
+*Description de ce que fait cette commande*
+
+## Résultats Principaux (si applicable)
+| Résultat | Description | Fichier |
+|----------|-------------|---------|
+| Résultat 1 | Description courte | `fichier.ext` |
+| Résultat 2 | Description courte | `autre.ext` |
 ```
 
 ## Règles de Sécurité
 
 1. **Principe "Fail-Fast"** : si une vérification échoue, s'arrêter et demander confirmation
 2. **Jamais de suppression aveugle** : toujours vérifier l'utilisation avant suppression
-3. **Conserver l'historique** : déplacer plutôt que supprimer quand possible
-4. **Tester les changements** : s'assurer que rien n'est cassé après nettoyage
+3. **Conserver l'intégrité** : préserver le contenu fonctionnel existant
+4. **Respecter la limite** : JAMAIS plus de 100 lignes par README de dossier
 
 ## Actions Interdites
 
@@ -64,30 +76,46 @@ documentation/
 - Modifier du code fonctionnel sans nécessité
 - Casser des liens existants dans la documentation
 - Supprimer des fichiers de configuration essentiels
+- Dépasser 100 lignes dans un README de dossier
 
-## Actions Recommandées
+## Actions Obligatoires
 
-- Créer des liens bidirectionnels entre les documentations
-- Maintenir un index des fichiers importants
-- Organiser les fichiers par catégorie et importance
-- Créer des guides de navigation dans chaque section
+- **Vérifier UN SEUL fichier** à chaque exécution (le dernier de la liste)
+- **Mettre à jour la table des matières** après chaque vérification
+- **Respecter le format standardisé** pour tous les README
+- **Maintenir la cohérence** entre tous les fichiers de documentation
 
-## Exemple de Fichier de Documentation de Dossier
+## Structure de la Table des Matières
+
+La table des matières dans le README principal doit être formatée ainsi :
 
 ```markdown
-# Nom du Dossier
+## Table des Matières - Ordre de Révision
 
-## Description
-Brève description du rôle de ce dossier dans le projet.
+*Les fichiers sont listés du plus récent au moins récent. Le dernier fichier sera vérifié à la prochaine exécution.*
 
-## Fichiers Principaux
-- `fichier1.js` : Description de son rôle
-- `fichier2.py` : Description de son rôle
-
-## Liens
-- [Documentation parent](../README.md)
-- [Documentation enfant](./sous-dossier/README.md)
-- [Documentation connexe](../autre-dossier/README.md)
+1. [Plus Récent](./chemin/vers/README.md) - *Dernière vérification : [date]*
+2. [Moyennement Récent](./autre/chemin/README.md) - *Dernière vérification : [date]*
+3. [Moins Récent](./dernier/README.md) - *Dernière vérification : [date]*
 ```
 
-Cette règle garantit un repository propre, bien organisé et facilement navigable tout en préservant l'intégrité du code existant.
+## Exemple de Fichier README de Dossier Conforme
+
+```markdown
+# Documentation
+
+## Description
+Ce dossier contient tous les guides détaillés et la documentation technique du projet. Il sert de référence pour les utilisateurs avancés et la maintenance.
+
+## Fichiers Principaux
+- **`auto_refresh_research.md`** : *Recherche et analyse du système d'auto-refresh de l'interface Streamlit*
+- **`architecture.md`** : *Documentation détaillée de l'architecture du système*
+- **`api_guide.md`** : *Guide complet de l'API et des endpoints*
+
+## Guides Disponibles
+- **Architecture** : Documentation technique complète
+- **API** : Guide d'utilisation des endpoints
+- **Déploiement** : Procédures de mise en production
+```
+
+Cette règle garantit un repository propre, bien organisé et facilement navigable avec un système de maintenance automatique des documentations.

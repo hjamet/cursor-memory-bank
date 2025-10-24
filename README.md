@@ -2,6 +2,12 @@
 
 Un système de workflow autonome avancé pour Cursor avec intégration MCP (Model Context Protocol), gestion de tâches intelligente et interface utilisateur Streamlit.
 
+## Table des Matières - Ordre de Révision
+
+*Les fichiers sont listés du plus récent au moins récent. Le dernier fichier sera vérifié à la prochaine exécution.*
+
+1. [Documentation](./documentation/README.md) - *Dernière vérification : Jamais vérifié*
+
 ## Architecture du dépôt & emplacement des fichiers
 
 Le projet Cursor Memory Bank est organisé selon une architecture modulaire permettant une installation flexible et une maintenance aisée :
