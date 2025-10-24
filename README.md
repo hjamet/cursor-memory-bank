@@ -6,7 +6,7 @@ Un système de workflow autonome avancé pour Cursor avec intégration MCP (Mode
 
 *Les fichiers sont listés du plus récent au moins récent. Le dernier fichier sera vérifié à la prochaine exécution.*
 
-1. [Documentation](./documentation/README.md) - *Dernière vérification : Jamais vérifié*
+1. [Scripts](./scripts/scripts.md) - *Dernière vérification : 2025-01-20*
 
 ## Architecture du dépôt & emplacement des fichiers
 
@@ -27,15 +27,20 @@ root/
 ### Structure détaillée des dossiers
 
 - **`.cursor/rules/`** : Règles d'agent définissant le comportement de l'IA
-  - *Contient* : `agent.mdc`, `debug.mdc`, `enqueteur.mdc`, `start.mdc`
-  - *Contient aussi* : `architect/` - Architecture de machine à états pour l'enquêteur modulaire
+  - *Contient* : `agent.mdc`, `debug.mdc`, `enqueteur.mdc`, `janitor.mdc`, `start.mdc`
+  - *Contient aussi* : `enqueteur/` et `janitor/` - Architectures de machine à états modulaires
   - *Structure* : Fichiers `.mdc` avec métadonnées YAML et instructions markdown
   - *Usage* : Définissent comment l'agent doit réagir dans différents contextes
 
-- **`.cursor/rules/architect/`** : Architecture de machine à états pour l'enquêteur de bugs
+- **`.cursor/rules/enqueteur/`** : Architecture de machine à états pour l'enquêteur de bugs
   - *Contient* : 8 fichiers de règles interconnectées (`00-start.mdc` à `05-report.mdc`)
   - *Structure* : Chaque règle correspond à une étape du processus d'enquête, avec transitions explicites
   - *Usage* : Remplace la règle monolithique `enqueteur.mdc` par un système modulaire et fiable avec validation critique externe (étape 04b-routing)
+
+- **`.cursor/rules/janitor/`** : Architecture de machine à états pour le nettoyage du repository
+  - *Contient* : 6 fichiers de règles interconnectées (`00-start.mdc` à `05-update-docs.mdc`)
+  - *Structure* : Chaque règle correspond à une étape du processus de nettoyage, avec boucle interne pour les sous-dossiers
+  - *Usage* : Remplace la règle monolithique `janitor.mdc` par un système modulaire pour nettoyer et organiser systématiquement le repository
 
 - **`.cursor/mcp/`** : Serveurs MCP pour l'intégration avec les outils externes
   - *Contient* : Scripts JavaScript pour ToolsMCP, MemoryBankMCP, Context7

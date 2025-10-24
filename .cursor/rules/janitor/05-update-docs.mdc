@@ -1,0 +1,170 @@
+---
+alwaysApply: false
+description: Mise à jour finale de la documentation du dossier traité et finalisation du cycle
+---
+
+# Étape 05 : Mise à Jour de la Documentation 📝
+
+## ⚠️ SYSTÈME À ÉTATS - RAPPEL OBLIGATOIRE
+
+Vous êtes actuellement dans une **machine à états stricte** pour le nettoyage du repository :
+
+### Règles de fonctionnement
+- ✅ **UNIQUEMENT** effectuer les actions décrites dans cette règle
+- ❌ **INTERDICTION ABSOLUE** de faire autre chose (même si ça semble utile)
+- ❌ **NE RIEN CASSER** : préserver fonctionnalité existante
+- ✅ **FIN DU CYCLE** : cette étape termine l'exécution du janitor
+
+### Machine à états
+Cette étape fait partie d'un processus en 6 étapes :
+`00-start → 01-root-check → 02-select-folder → 03-explore-folder → 04-clean-files ⟲ → 05-update-docs`
+
+**Votre étape actuelle** : 05-update-docs - Mise à jour finale de la documentation
+
+---
+
+## Objectif de l'Étape 05
+
+**Finaliser le nettoyage en mettant à jour la documentation principale** du dossier traité et en assurant la connectivité avec le README principal.
+
+### Actions Obligatoires à Effectuer
+
+1. **Mettre à jour le fichier Markdown principal du dossier** :
+   - Analyser la structure finale du dossier après nettoyage
+   - Créer/mettre à jour le fichier README.md du dossier
+   - Respecter le format standardisé (max 100 lignes)
+
+2. **Vérifier le format standardisé** :
+   - Structure obligatoire : Description, Fichiers Principaux, Scripts, Commandes, Résultats
+   - Contenu concis et informatif
+   - Liens internes fonctionnels
+
+3. **Assurer la connectivité avec le README principal** :
+   - Vérifier que le fichier est bien référencé dans la table des matières
+   - S'assurer que les liens fonctionnent correctement
+   - Maintenir la cohérence de la documentation globale
+
+4. **Mettre à jour la date de vérification** :
+   - Actualiser la date dans la table des matières du README principal
+   - Confirmer que le dossier est maintenant "le plus récent"
+
+5. **Finaliser le rapport de nettoyage** :
+   - Documenter toutes les actions effectuées
+   - Lister les améliorations apportées
+   - Confirmer que le dossier est maintenant propre et organisé
+
+### Format Standardisé Obligatoire
+
+Le fichier Markdown du dossier doit respecter **EXACTEMENT** cette structure (max 100 lignes) :
+
+```markdown
+# Nom du Dossier
+
+## Description
+Brève description du rôle de ce dossier dans le projet (2-3 phrases maximum).
+
+## Fichiers Principaux
+- **`nom_fichier.ext`** : *Description courte du contenu et du rôle*
+- **`autre_fichier.ext`** : *Description courte du contenu et du rôle*
+
+## Scripts Principaux (si applicable)
+- **`script1.sh`** : *Description de l'objectif et usage*
+- **`script2.py`** : *Description de l'objectif et usage*
+
+## Commandes Principales (si applicable)
+```bash
+# Exemple de commande avec explication courte
+commande --option valeur
+```
+*Description de ce que fait cette commande*
+
+## Résultats Principaux (si applicable)
+| Résultat | Description | Fichier |
+|----------|-------------|---------|
+| Résultat 1 | Description courte | `fichier.ext` |
+| Résultat 2 | Description courte | `autre.ext` |
+```
+
+### Exemple de Mise à Jour
+
+```
+Dossier traité : tests/
+Structure finale après nettoyage :
+tests/
+├── unit/
+│   ├── test_auth.py
+│   ├── test_user.py
+│   └── README.md
+├── integration/
+│   ├── test_api.py
+│   └── README.md
+├── fixtures/
+│   ├── user_data.json
+│   └── README.md
+└── README.md
+
+Actions de finalisation :
+- Mis à jour tests/README.md avec la nouvelle structure
+- Vérifié les liens dans la table des matières
+- Actualisé la date de vérification : 2024-01-20
+```
+
+### Sortie Attendue
+
+À la fin de cette étape, vous devez fournir :
+- **Fichier Markdown mis à jour** : contenu du fichier principal du dossier
+- **Vérifications effectuées** : liens, format, connectivité
+- **Date mise à jour** : confirmation dans la table des matières
+- **Rapport final** : résumé des améliorations apportées
+
+### Exemple de Sortie
+
+```
+Fichier tests/README.md mis à jour :
+# Tests
+
+## Description
+Ce dossier contient tous les tests unitaires et d'intégration du projet. Il est organisé en sous-dossiers par type de test pour faciliter la maintenance.
+
+## Fichiers Principaux
+- **`unit/`** : *Tests unitaires par module*
+- **`integration/`** : *Tests d'intégration API*
+- **`fixtures/`** : *Données de test et mocks*
+
+## Commandes Principales
+```bash
+# Exécuter tous les tests
+python -m pytest tests/
+```
+*Lance la suite complète de tests avec rapport détaillé*
+
+Vérifications effectuées :
+- ✅ Format standardisé respecté (87 lignes)
+- ✅ Liens internes fonctionnels
+- ✅ Date mise à jour dans README principal
+- ✅ Connectivité assurée
+
+Rapport final :
+- Dossier tests/ nettoyé et réorganisé
+- 3 sous-dossiers créés pour une meilleure organisation
+- 6 fichiers temporaires supprimés
+- Documentation mise à jour et standardisée
+- Cycle de nettoyage terminé avec succès
+```
+
+### Règles de Sécurité
+
+1. **Respecter la limite** : JAMAIS plus de 100 lignes par fichier Markdown
+2. **Maintenir la cohérence** : assurer la connectivité avec le README principal
+3. **Vérifier les liens** : s'assurer que tous les liens internes fonctionnent
+4. **Documenter les changements** : noter toutes les modifications effectuées
+
+---
+
+## Fin du Cycle
+
+**Cette étape termine l'exécution du janitor pour cette session.**
+
+Le dossier sélectionné a été complètement nettoyé, réorganisé et documenté. La prochaine invocation du janitor traitera le prochain dossier de la table des matières.
+
+**Action requise** : Aucune transition nécessaire - le cycle est terminé. Attendre une nouvelle invocation du janitor pour traiter le prochain dossier.

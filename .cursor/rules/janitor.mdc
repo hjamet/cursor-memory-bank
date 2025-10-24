@@ -1,121 +1,156 @@
 ---
-description: Agent de nettoyage et d'organisation du repository - maintient la propreté, structure la documentation et assure la connectivité des docs sans rien casser
+alwaysApply: false
+description: Guide méthodologique pour nettoyer et organiser systématiquement le repository via une machine à états modulaire
 ---
 
-# Janitor - Agent de Nettoyage et d'Organisation
+# Règle Janitor : Nettoyage Systématique du Repository 🧹
 
-Cette règle transforme l'agent en **agent de nettoyage** chargé de maintenir le repository propre, organisé et bien documenté avec un système de vérification séquentielle des fichiers README.
+## Principe Fondamental : Nettoyage Complet et Organisation
 
-## Objectifs Principaux
+Cette règle implémente un système de nettoyage systématique du repository : **maintenir la propreté, structurer la documentation et assurer la connectivité des docs sans rien casser**. L'objectif est de traiter UN SEUL dossier par exécution avec un processus méthodologique rigoureux.
 
-1. **Maintenir la documentation** : vérifier et mettre à jour les fichiers README de manière séquentielle
-2. **Système de révision** : suivre l'ordre de révision des fichiers README via une table des matières
-3. **Format standardisé** : garantir que tous les README respectent le format défini (max 100 lignes)
-4. **NE RIEN CASSER** : préserver toute fonctionnalité existante
+**Philosophie** : Un repository propre est un repository maintenable. Mieux vaut traiter un dossier complètement que plusieurs superficiellement.
 
-## Procédure Obligatoire à Chaque Exécution
+---
 
-### 1. Phase d'Analyse Initiale
-- **TOUJOURS commencer par lire le [README.md](mdc:README.md)** pour comprendre la direction actuelle du repo
-- Vérifier la présence et l'exactitude de la **Table des Matières** dans le README principal
-- Identifier tous les fichiers README existants dans le repository
+## ⛔🚫❌ INTERDICTION ABSOLUE DE CASSER ❌🚫⛔
 
-### 2. Phase de Vérification de la Table des Matières
-- **Localiser la section "Table des Matières"** dans le README principal
-- **Vérifier que tous les fichiers README** sont listés dans l'ordre de révision (du plus récent au moins récent)
-- **Ajouter les nouveaux fichiers README** s'ils manquent dans la liste
-- **Mettre à jour l'ordre** si nécessaire
+**RÈGLE CRITIQUE** : Le janitor doit UNIQUEMENT nettoyer et organiser. **TOUTE tentative de modification qui pourrait casser le fonctionnement interrompt immédiatement le cycle.**
 
-### 3. Phase de Vérification Séquentielle
-- **Sélectionner le dernier fichier** de la table des matières (le moins à jour)
-- **Vérifier en détail** ce fichier README selon les critères définis
-- **Mettre à jour le fichier** si nécessaire pour qu'il respecte le format standardisé
-- **Déplacer le fichier vérifié** en début de liste (le plus récent)
+### Interdictions strictes :
+- 🚫 **Ne jamais supprimer** sans vérification préalable
+- 🚫 **Ne jamais modifier** du code fonctionnel sans nécessité
+- 🚫 **Ne jamais casser** des liens existants dans la documentation
+- ❌ **Arrêt immédiat** si l'agent risque de compromettre la fonctionnalité
 
-### 4. Phase de Format Standardisé
-Chaque README de dossier doit respecter **EXACTEMENT** cette structure (max 100 lignes) :
+**Rappel constant** : Cette règle **NETTOIE**, ne casse pas. Préserver l'intégrité fonctionnelle est primordial.
 
-```markdown
-# Nom du Dossier
+## 🏗️ Architecture de Machine à États Modulaire
 
-## Description
-Brève description du rôle de ce dossier dans le projet (2-3 phrases maximum).
+### Nouveau Système : Architecture Janitor/
 
-## Fichiers Principaux
-- **`nom_fichier.ext`** : *Description courte du contenu et du rôle*
-- **`autre_fichier.ext`** : *Description courte du contenu et du rôle*
+Cette règle a été **transformée en une architecture de machine à états modulaire** pour garantir un processus de nettoyage rigoureux et fiable. Le système monolithique précédent a été décomposé en **6 étapes interconnectées** dans le dossier `.cursor/rules/janitor/`.
 
-## Scripts Principaux (si applicable)
-- **`script1.sh`** : *Description de l'objectif et usage*
-- **`script2.py`** : *Description de l'objectif et usage*
+### Pourquoi cette Architecture ?
 
-## Commandes Principales (si applicable)
-```bash
-# Exemple de commande avec explication courte
-commande --option valeur
+**Problèmes du système précédent** :
+- L'agent avait tendance à oublier où il en était
+- Risque d'abandon prématuré du processus
+- Tentatives de modification excessive pendant le nettoyage
+- Manque de rigueur dans la validation des résultats
+
+**Solutions apportées** :
+- ✅ **Machine à états stricte** : chaque étape est autonome et obligatoire
+- ✅ **Transitions explicites** : l'agent doit invoquer la règle suivante avec `fetch_rules`
+- ✅ **Boucle interne contrôlée** : étape 04-clean-files avec gestion des sous-dossiers
+- ✅ **Reminder standardisé** : rappel constant des règles dans chaque étape
+
+## 🔄 Processus Méthodologique en 6 Étapes
+
+### Vue d'Ensemble du Système à États
+
 ```
-*Description de ce que fait cette commande*
-
-## Résultats Principaux (si applicable)
-| Résultat | Description | Fichier |
-|----------|-------------|---------|
-| Résultat 1 | Description courte | `fichier.ext` |
-| Résultat 2 | Description courte | `autre.ext` |
-```
-
-## Règles de Sécurité
-
-1. **Principe "Fail-Fast"** : si une vérification échoue, s'arrêter et demander confirmation
-2. **Jamais de suppression aveugle** : toujours vérifier l'utilisation avant suppression
-3. **Conserver l'intégrité** : préserver le contenu fonctionnel existant
-4. **Respecter la limite** : JAMAIS plus de 100 lignes par README de dossier
-
-## Actions Interdites
-
-- Supprimer des fichiers sans vérification préalable
-- Modifier du code fonctionnel sans nécessité
-- Casser des liens existants dans la documentation
-- Supprimer des fichiers de configuration essentiels
-- Dépasser 100 lignes dans un README de dossier
-
-## Actions Obligatoires
-
-- **Vérifier UN SEUL fichier** à chaque exécution (le dernier de la liste)
-- **Mettre à jour la table des matières** après chaque vérification
-- **Respecter le format standardisé** pour tous les README
-- **Maintenir la cohérence** entre tous les fichiers de documentation
-
-## Structure de la Table des Matières
-
-La table des matières dans le README principal doit être formatée ainsi :
-
-```markdown
-## Table des Matières - Ordre de Révision
-
-*Les fichiers sont listés du plus récent au moins récent. Le dernier fichier sera vérifié à la prochaine exécution.*
-
-1. [Plus Récent](./chemin/vers/README.md) - *Dernière vérification : [date]*
-2. [Moyennement Récent](./autre/chemin/README.md) - *Dernière vérification : [date]*
-3. [Moins Récent](./dernier/README.md) - *Dernière vérification : [date]*
+00-start (point d'entrée)
+  ↓
+01-root-check       # Vérification racine du repository
+  ↓
+02-select-folder    # Sélection du dossier à traiter
+  ↓
+03-explore-folder   # Exploration structure du dossier
+  ↓
+04-clean-files      # Nettoyage fichiers (boucle sous-dossiers)
+  ↓ (loop interne)
+  ├→ 04-clean-files (si sous-dossiers restants)
+  └→ 05-update-docs (si tous sous-dossiers traités)
+  ↓
+05-update-docs      # Mise à jour documentation
 ```
 
-## Exemple de Fichier README de Dossier Conforme
+### Caractéristiques Clés de l'Architecture
 
-```markdown
-# Documentation
+#### 1. **Machine à États Stricte**
+- **INTERDICTION ABSOLUE** de mélanger ou sauter des étapes
+- **OBLIGATION** de marquer explicitement le titre de l'étape actuelle
+- **Chaque étape** a un objectif précis et ne peut pas être contournée
 
-## Description
-Ce dossier contient tous les guides détaillés et la documentation technique du projet. Il sert de référence pour les utilisateurs avancés et la maintenance.
+#### 2. **Transitions Explicites**
+- L'agent DOIT invoquer la règle suivante avec `fetch_rules`
+- Chaque règle indique clairement quelle règle invoquer ensuite
+- La règle 04-clean-files offre une boucle interne pour les sous-dossiers
 
-## Fichiers Principaux
-- **`auto_refresh_research.md`** : *Recherche et analyse du système d'auto-refresh de l'interface Streamlit*
-- **`architecture.md`** : *Documentation détaillée de l'architecture du système*
-- **`api_guide.md`** : *Guide complet de l'API et des endpoints*
+#### 3. **Traitement Complet par Dossier**
+- **UN SEUL dossier** traité par exécution complète
+- **TOUS les sous-dossiers** du dossier sélectionné sont traités
+- **Boucle interne** dans 04-clean-files pour traiter chaque sous-dossier
 
-## Guides Disponibles
-- **Architecture** : Documentation technique complète
-- **API** : Guide d'utilisation des endpoints
-- **Déploiement** : Procédures de mise en production
+#### 4. **Reminder Standardisé**
+- Chaque règle (01 à 05) commence par un rappel identique
+- Interdictions absolues répétées dans chaque étape
+- Machine à états clairement affichée
+
+## 🎯 Comment Utiliser cette Architecture
+
+### Activation du Système
+
+**Pour démarrer un nettoyage du repository** :
+
+1. **Invoquer cette règle** : `fetch_rules` avec `janitor`
+2. **Démarrer la machine à états** : Invoquer `fetch_rules` avec `00-start`
+3. **Suivre le processus** : L'agent suivra automatiquement les 6 étapes dans l'ordre
+4. **Valider** : Vérifier que le repo est plus propre après le nettoyage
+
+### Exemple d'Activation
+
+```
+Utilisateur : "Utilise la règle janitor pour nettoyer le repository"
+
+Agent : [Invoque cette règle, puis] 
+→ Invoque `fetch_rules` avec `00-start`
+→ Suit automatiquement : 01-root-check → 02-select-folder → 03-explore-folder → 04-clean-files ⟲ → 05-update-docs
+→ [Termine] : Dossier nettoyé et documenté
 ```
 
-Cette règle garantit un repository propre, bien organisé et facilement navigable avec un système de maintenance automatique des documentations.
+## 📁 Structure des Fichiers Janitor/
+
+```
+.cursor/rules/janitor/
+├── 00-start.mdc          # Point d'entrée : explique le système à états
+├── 01-root-check.mdc     # Vérification racine du repository
+├── 02-select-folder.mdc  # Sélection du dossier à traiter
+├── 03-explore-folder.mdc # Exploration structure du dossier
+├── 04-clean-files.mdc    # Nettoyage fichiers (boucle sous-dossiers)
+└── 05-update-docs.mdc    # Mise à jour documentation finale
+```
+
+## ⚠️ Règles de la Machine à États
+
+### Règles de fonctionnement obligatoires :
+- ✅ **UNIQUEMENT** effectuer les actions décrites dans la règle actuelle
+- ❌ **INTERDICTION ABSOLUE** de faire autre chose (même si ça semble utile)
+- ❌ **NE RIEN CASSER** : préserver fonctionnalité existante
+- ✅ **OBLIGATION** d'invoquer la règle suivante en fin d'étape avec l'outil `fetch_rules`
+
+### Indication Obligatoire de l'Étape
+
+L'agent DOIT **toujours** indiquer son étape actuelle avec des titres markdown explicites :
+- `## Étape 01 : Vérification racine du repository`
+- `## Étape 02 : Sélection du dossier à traiter`
+- `## Étape 03 : Exploration de la structure du dossier`
+- `## Étape 04 : Nettoyage systématique des fichiers`
+- `## Étape 05 : Mise à jour de la documentation`
+
+**Règle de Machine à État** : Lors des retours/redirections, l'agent DOIT marquer le titre correspondant pour indiquer clairement qu'il change d'état.
+
+## 🚀 Activation Immédiate
+
+**Pour commencer le nettoyage, invoquez immédiatement la première règle de la machine à états :**
+
+**Prochaine étape** : Invoquer la règle `00-start` avec l'outil `fetch_rules` pour démarrer le processus de nettoyage en 6 étapes.
+
+---
+
+## Transitions Possibles
+
+**Toujours vers** : `00-start` - Point d'entrée de la machine à états de nettoyage
+
+**Action requise** : Une fois cette règle invoquée, invoquer `fetch_rules` avec le nom `00-start` pour commencer le processus de nettoyage systématique.

@@ -1,0 +1,119 @@
+---
+alwaysApply: false
+description: Sélection du dossier à traiter via la table des matières du README principal
+---
+
+# Étape 02 : Sélection du Dossier à Traiter 📋
+
+## ⚠️ SYSTÈME À ÉTATS - RAPPEL OBLIGATOIRE
+
+Vous êtes actuellement dans une **machine à états stricte** pour le nettoyage du repository :
+
+### Règles de fonctionnement
+- ✅ **UNIQUEMENT** effectuer les actions décrites dans cette règle
+- ❌ **INTERDICTION ABSOLUE** de faire autre chose (même si ça semble utile)
+- ❌ **NE RIEN CASSER** : préserver fonctionnalité existante
+- ✅ **OBLIGATION** d'invoquer la règle suivante en fin d'étape avec l'outil `fetch_rules`
+
+### Machine à états
+Cette étape fait partie d'un processus en 6 étapes :
+`00-start → 01-root-check → 02-select-folder → 03-explore-folder → 04-clean-files ⟲ → 05-update-docs`
+
+**Votre étape actuelle** : 02-select-folder - Sélection du dossier à traiter
+
+---
+
+## Objectif de l'Étape 02
+
+**Sélectionner le dossier le moins à jour selon la table des matières** et le marquer comme étant en cours de traitement pour cette exécution.
+
+### Actions Obligatoires à Effectuer
+
+1. **Lire le README.md principal** :
+   - Utiliser `read_file` pour lire le README.md complet
+   - Localiser la section "Table des Matières - Ordre de Révision"
+
+2. **Analyser la table des matières** :
+   - Identifier tous les fichiers Markdown listés
+   - Comprendre l'ordre de révision (du plus récent au moins récent)
+   - Vérifier que tous les fichiers Markdown existants sont listés
+
+3. **Sélectionner le dossier à traiter** :
+   - Prendre le **dernier fichier** de la liste (le moins à jour)
+   - Identifier le dossier correspondant à ce fichier Markdown
+   - Vérifier que le dossier existe bien
+
+4. **Mettre à jour la table des matières** :
+   - Déplacer le fichier sélectionné en **première position** (le plus récent)
+   - Mettre à jour la date de vérification avec la date actuelle
+   - Sauvegarder les modifications dans le README.md
+
+5. **Ajouter les fichiers manquants** :
+   - Si des fichiers Markdown existent mais ne sont pas dans la table, les ajouter
+   - Les placer en fin de liste (moins récents)
+
+### Format de la Table des Matières
+
+La table doit respecter ce format exact :
+
+```markdown
+## Table des Matières - Ordre de Révision
+
+*Les fichiers sont listés du plus récent au moins récent. Le dernier fichier sera vérifié à la prochaine exécution.*
+
+1. [Plus Récent](./chemin/vers/README.md) - *Dernière vérification : [date]*
+2. [Moyennement Récent](./autre/chemin/README.md) - *Dernière vérification : [date]*
+3. [Moins Récent](./dernier/README.md) - *Dernière vérification : [date]*
+```
+
+### Exemple de Sélection
+
+```
+Table des matières trouvée :
+1. [Documentation](./documentation/documentation.md) - *Dernière vérification : 2024-01-15*
+2. [Scripts](./scripts/scripts.md) - *Dernière vérification : 2024-01-10*
+3. [Tests](./tests/tests.md) - *Dernière vérification : Jamais vérifié*
+
+Dossier sélectionné : tests/ (le moins à jour)
+Action : Déplacer tests.md en première position avec date actuelle
+```
+
+### Sortie Attendue
+
+À la fin de cette étape, vous devez fournir :
+- **Table des matières** actuelle (avant modification)
+- **Fichier sélectionné** : nom et chemin du fichier Markdown
+- **Dossier correspondant** : chemin du dossier à traiter
+- **Modifications effectuées** : nouvelle table des matières mise à jour
+
+### Exemple de Sortie
+
+```
+Table des matières initiale :
+1. [Documentation](./documentation/documentation.md) - *Dernière vérification : 2024-01-15*
+2. [Scripts](./scripts/scripts.md) - *Dernière vérification : 2024-01-10*
+3. [Tests](./tests/tests.md) - *Dernière vérification : Jamais vérifié*
+
+Fichier sélectionné : tests/tests.md
+Dossier à traiter : tests/
+
+Modifications effectuées :
+- Déplacé tests.md en première position
+- Mis à jour la date : 2024-01-20
+- Table des matières sauvegardée dans README.md
+```
+
+### Règles de Sécurité
+
+1. **Vérifier l'existence** : s'assurer que le dossier sélectionné existe
+2. **Préserver le format** : respecter exactement le format de la table des matières
+3. **Sauvegarder les modifications** : mettre à jour le README.md avec les changements
+4. **Gérer les cas d'erreur** : si pas de table des matières, la créer
+
+---
+
+## Transitions Possibles
+
+**Toujours vers** : `03-explore-folder` - Exploration de la structure du dossier sélectionné
+
+**Action requise** : Une fois le dossier sélectionné et la table des matières mise à jour, invoquer `fetch_rules` avec le nom `03-explore-folder` pour commencer l'exploration du dossier.
