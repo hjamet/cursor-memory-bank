@@ -104,7 +104,7 @@ Améliorer significativement les performances de l'API pour qu'elle reste stable
 - `package.json` : Dépendances qui pourraient être optimisées ou mises à jour
 
 **Instructions de Collaboration**
-Tu ne dois pas commencer à travailler immédiatement. Discute d'abord avec l'utilisateur pour comprendre précisément ses attentes, poser tes questions sur les contraintes techniques, clarifier les priorités, et établir ensemble un plan d'action détaillé avant de procéder à l'implémentation.
+Tu ne dois pas commencer à travailler immédiatement. Commence par explorer le code et la documentation pour comprendre le contexte : lis le README, examine les fichiers mentionnés, fais des recherches sémantiques pour identifier les solutions existantes et avoir une vision générale du projet. Une fois cette exploration terminée, discute avec l'utilisateur pour comprendre précisément ses attentes, poser tes questions sur les contraintes techniques, clarifier les priorités, et établir ensemble un plan d'action détaillé avant de procéder à l'implémentation.
 
 ## 4\. Gestion des Retours et Initialisation
 
