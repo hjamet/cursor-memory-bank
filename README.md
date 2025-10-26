@@ -16,8 +16,8 @@ Le projet Cursor Memory Bank est organisé selon une architecture modulaire perm
 root/
 ├─ .cursor/              # Configuration Cursor et règles d'agent
 │  ├─ rules/            # Règles d'agent (.mdc) - comportement de l'IA
-│  ├─ mcp/              # Serveurs MCP (Model Context Protocol)
-│  └─ commands/          # Commandes personnalisées (déprécié)
+│  ├─ commands/         # Commandes personnalisées (.md)
+│  └─ mcp/              # Serveurs MCP (Model Context Protocol)
 ├─ documentation/        # Guides détaillés et documentation longue
 ├─ install.sh           # Script d'installation automatisé
 ├─ tomd.py              # Utilitaire Python pour conversion markdown
@@ -26,6 +26,11 @@ root/
 
 ### Structure détaillée des dossiers
 
+- **`.cursor/commands/`** : Commandes personnalisées pour l'agent
+  - *Contient* : `prompt.md` - Commande de transition entre agents
+  - *Structure* : Fichiers `.md` définissant des commandes slash personnalisées
+  - *Usage* : Permet aux agents de générer des prompts de transition avec `/prompt`
+  
 - **`.cursor/rules/`** : Règles d'agent définissant le comportement de l'IA
   - *Contient* : `agent.mdc`, `debug.mdc`, `enqueteur.mdc`, `janitor.mdc`, `start.mdc`
   - *Contient aussi* : `enqueteur/` et `janitor/` - Architectures de machine à états modulaires
@@ -121,8 +126,8 @@ bash install.sh --help
 Certain files are considered required by the installer and a missing download will stop the installation immediately (fail-fast). This ensures the installer does not continue in a partially-installed state.
 
 - **Required files (examples)**:
-  - `.cursor/rules/architecte.mdc` (preferred)
-  - `.cursor/commands/architecte.md` (deprecated, kept for compatibility)
+  - `.cursor/rules/agent.mdc` (agent behavior rules)
+  - `.cursor/commands/prompt.md` (agent handoff command)
   - `.cursor/mcp/mcp-commit-server/*` (critical MCP server scripts and `mcp_tools`)
   - `.cursor/mcp.json` (MCP template)
 
@@ -139,7 +144,7 @@ Exemples d'utilisation dans le script:
 
 ```bash
 # Fichier critique — installation échoue si absent
-download_file "$RAW_URL_BASE/.cursor/commands/architecte.md" "$target_dir/.cursor/commands/architecte.md" "required"
+download_file "$RAW_URL_BASE/.cursor/commands/prompt.md" "$target_dir/.cursor/commands/prompt.md" "required"
 
 # Fichier optionnel — log warning si absent mais installation continue
 download_file "$RAW_URL_BASE/.cursor/streamlit_app/app.py" "$streamlit_dir/app.py"
@@ -432,6 +437,39 @@ graph TD
 ### **Context7 Server**
 - `mcp_Context7_resolve-library-id`: Find library documentation
 - `mcp_Context7_get-library-docs`: Access real-time library docs
+
+## Custom Command: `/prompt`
+
+La commande `/prompt` permet aux agents de générer des prompts de transition structurés pour passer le contexte à un nouvel agent.
+
+### Usage
+
+**Mode 1 - Avec instructions** :
+```
+/prompt il faudrait maintenant optimiser les performances
+```
+
+**Mode 2 - Sans instructions** :
+```
+/prompt
+```
+
+### Format de Sortie
+
+La commande génère automatiquement une prompt structurée en 4 sections obligatoires :
+
+1. **Contexte** : Situation actuelle du projet
+2. **Objectif** : Ce qui doit être accompli
+3. **Fichiers Concernés** : Fichiers pertinents avec explications
+4. **Instructions de Collaboration** : Directive pour que le nouvel agent explore d'abord, puis discute avec l'utilisateur avant d'agir
+
+### Workflow avec `/prompt`
+
+Le workflow typique consiste à :
+1. Un agent termine son travail
+2. L'utilisateur tape `/prompt` (optionnellement avec de nouvelles instructions)
+3. L'agent génère une prompt structurée expliquant son travail et le contexte
+4. L'utilisateur peut maintenant passer cette prompt à un nouvel agent pour continuer le travail
 
 ## MCP Rule: `mcp`
 

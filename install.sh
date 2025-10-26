@@ -843,6 +843,59 @@ create_mcp_tasks_file() {
 # MAIN INSTALLATION FUNCTIONS
 # ============================================================================
 
+# Function to install custom commands
+install_commands() {
+    local target_dir="$1"
+    local temp_dir="$2"
+    
+    log "Installing custom commands..."
+    
+    # Create necessary directories
+    mkdir -p "$target_dir/.cursor/commands"
+    
+    # Fetch remote list of commands
+    local commands_list=""
+    
+    if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
+        # For curl mode, use conservative fallback
+        warn "Using curl mode - installing only basic commands (subdirectories not supported with curl)"
+        commands_list=".cursor/commands/prompt.md"
+    else
+        # Use git clone method for recursive detection
+        local clone_dir="$temp_dir/repo"
+        
+        # Clone repository if not already done
+        if [[ ! -d "$clone_dir" ]]; then
+            log "Cloning repository for command discovery..."
+            clone_repository "$REPO_URL" "$clone_dir"
+        fi
+        
+        if [[ -d "$clone_dir/.cursor/commands" ]]; then
+            # Build list from cloned files recursively
+            commands_list=$(cd "$clone_dir/.cursor/commands" && find . -type f -name "*.md" | sed 's|^\./|.cursor/commands/|')
+            log "Discovered commands recursively: $(echo "$commands_list" | wc -w) files"
+        else
+            # Fallback to conservative list if clone fails
+            warn "Git clone failed - using conservative fallback set"
+            commands_list=".cursor/commands/prompt.md"
+        fi
+    fi
+    
+    # Install all commands
+    for c in $commands_list; do
+        # Only handle files under .cursor/commands/
+        if [[ "$c" != .cursor/commands/* ]]; then
+            continue
+        fi
+        
+        local dest="$target_dir/$c"
+        log "Installing command: $c"
+        ensure_rule_file "$c" "$dest"
+    done
+    
+    log "✓ Commands installed successfully"
+}
+
 # Function for basic installation (rules only, no MCP servers)
 install_basic_rules() {
     local target_dir="$1"
@@ -862,7 +915,7 @@ install_basic_rules() {
     if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
         # For curl mode, use conservative fallback (API doesn't work reliably)
         warn "Using curl mode - installing only basic rules (subdirectories not supported with curl)"
-        rules_list=".cursor/rules/agent.mdc .cursor/rules/architecte.mdc .cursor/rules/debug.mdc .cursor/rules/README.mdc"
+        rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/README.mdc"
     else
         # Use git clone method for recursive detection (works perfectly)
         local clone_dir="$temp_dir/repo"
@@ -880,7 +933,7 @@ install_basic_rules() {
         else
             # Fallback to conservative list if clone fails
             warn "Git clone failed - using conservative fallback set"
-            rules_list=".cursor/rules/agent.mdc .cursor/rules/architecte.mdc .cursor/rules/debug.mdc .cursor/rules/README.mdc"
+            rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/README.mdc"
         fi
     fi
     
@@ -904,6 +957,10 @@ install_basic_rules() {
         log "Installing rule: $r"
         ensure_rule_file "$r" "$dest"
     done
+    
+    # Install commands
+    log "Installing custom commands..."
+    install_commands "$target_dir" "$temp_dir"
     
     # Install tomd.py script
     log "Installing tomd.py utility script"
@@ -994,8 +1051,8 @@ install_workflow_system() {
                 ensure_rule_file "$r" "$dest"
             done
 
-            # Backwards-compatibility: commands
-            mkdir -p "$target_dir/.cursor/commands"
+            # Install commands
+            install_commands "$target_dir" "$temp_dir"
 
             # GEMINI and .gemini settings
             mkdir -p "$target_dir/.gemini"
@@ -1043,7 +1100,8 @@ install_workflow_system() {
                 ensure_rule_file "$r" "$dest"
             done
 
-            mkdir -p "$target_dir/.cursor/commands"
+            # Install commands
+            install_commands "$target_dir" "$temp_dir"
         fi
 
         # Ensure tomd.py is deployed to the installation root for both basic and full installs
