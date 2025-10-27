@@ -32,20 +32,15 @@ root/
   - *Usage* : Permet aux agents de générer des prompts de transition avec `/prompt`
   
 - **`.cursor/rules/`** : Règles d'agent définissant le comportement de l'IA
-  - *Contient* : `agent.mdc`, `debug.mdc`, `enqueteur.mdc`, `janitor.mdc`, `start.mdc`
-  - *Contient aussi* : `enqueteur/` et `janitor/` - Architectures de machine à états modulaires
+  - *Contient* : `agent.mdc`, `debug.mdc`, `enqueteur.mdc`, `start.mdc`, `README.mdc`
+  - *Contient aussi* : `enqueteur/` - Architecture de machine à états pour l'enquête de bugs
   - *Structure* : Fichiers `.mdc` avec métadonnées YAML et instructions markdown
   - *Usage* : Définissent comment l'agent doit réagir dans différents contextes
 
 - **`.cursor/rules/enqueteur/`** : Architecture de machine à états pour l'enquêteur de bugs
   - *Contient* : 8 fichiers de règles interconnectées (`00-start.mdc` à `05-report.mdc`)
   - *Structure* : Chaque règle correspond à une étape du processus d'enquête, avec transitions explicites
-  - *Usage* : Remplace la règle monolithique `enqueteur.mdc` par un système modulaire et fiable avec validation critique externe (étape 04b-routing)
-
-- **`.cursor/rules/janitor/`** : Architecture de machine à états pour le nettoyage du repository
-  - *Contient* : 6 fichiers de règles interconnectées (`00-start.mdc` à `05-update-docs.mdc`)
-  - *Structure* : Chaque règle correspond à une étape du processus de nettoyage, avec boucle interne pour les sous-dossiers
-  - *Usage* : Remplace la règle monolithique `janitor.mdc` par un système modulaire pour nettoyer et organiser systématiquement le repository
+  - *Usage* : Système modulaire pour identifier systématiquement l'origine précise des bugs avec validation critique externe (étape 04b-routing)
 
 - **`.cursor/mcp/`** : Serveurs MCP pour l'intégration avec les outils externes
   - *Contient* : Scripts JavaScript pour ToolsMCP, MemoryBankMCP, Context7
@@ -438,38 +433,34 @@ graph TD
 - `mcp_Context7_resolve-library-id`: Find library documentation
 - `mcp_Context7_get-library-docs`: Access real-time library docs
 
-## Custom Command: `/prompt`
+## Custom Commands
+
+### `/prompt` - Transition entre agents
 
 La commande `/prompt` permet aux agents de générer des prompts de transition structurés pour passer le contexte à un nouvel agent.
 
-### Usage
+**Usage:**
+- `/prompt il faudrait maintenant optimiser les performances` : Avec instructions
+- `/prompt` : Sans instructions
 
-**Mode 1 - Avec instructions** :
-```
-/prompt il faudrait maintenant optimiser les performances
-```
+**Format de sortie:** Prompt structurée en 4 sections (Contexte, Objectif, Fichiers Concernés, Instructions de Collaboration)
 
-**Mode 2 - Sans instructions** :
-```
-/prompt
-```
+### `/janitor` - Nettoyage intelligent du repository
 
-### Format de Sortie
+La commande `/janitor` permet de nettoyer et organiser le repository avec analyse de sécurité pour éviter de casser les dépendances.
 
-La commande génère automatiquement une prompt structurée en 4 sections obligatoires :
+**Usage:**
+- `/janitor` : Exploration générale du repository
+- `/janitor scripts/` : Analyse ciblée d'un dossier spécifique
 
-1. **Contexte** : Situation actuelle du projet
-2. **Objectif** : Ce qui doit être accompli
-3. **Fichiers Concernés** : Fichiers pertinents avec explications
-4. **Instructions de Collaboration** : Directive pour que le nouvel agent explore d'abord, puis discute avec l'utilisateur avant d'agir
+**Fonctionnalités:**
+- Détection de fichiers temporaires (`.log`, `.tmp`, `.cache`, `__pycache__/`)
+- Identification de documentation et scripts mal placés
+- Analyse de sécurité pré-déplacement (imports, chemins relatifs, dépendances inverses)
+- Validation de la cohérence du README (intégration de la règle README.mdc)
+- Tableau de recommandations avec analyse d'impact détaillée
 
-### Workflow avec `/prompt`
-
-Le workflow typique consiste à :
-1. Un agent termine son travail
-2. L'utilisateur tape `/prompt` (optionnellement avec de nouvelles instructions)
-3. L'agent génère une prompt structurée expliquant son travail et le contexte
-4. L'utilisateur peut maintenant passer cette prompt à un nouvel agent pour continuer le travail
+**Sécurité:** Jamais d'exécution automatique - présentation des recommandations uniquement avec analyse complète des risques (🟢 Low, 🟡 Medium, 🔴 High)
 
 ## MCP Rule: `mcp`
 
