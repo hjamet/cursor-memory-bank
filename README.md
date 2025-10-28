@@ -27,20 +27,16 @@ root/
 ### Structure détaillée des dossiers
 
 - **`.cursor/commands/`** : Commandes personnalisées pour l'agent
-  - *Contient* : `prompt.md` - Commande de transition entre agents
+  - *Contient* : `prompt.md`, `enqueteur.md` - Commandes de transition et d'enquête
   - *Structure* : Fichiers `.md` définissant des commandes slash personnalisées
-  - *Usage* : Permet aux agents de générer des prompts de transition avec `/prompt`
+  - *Usage* : Permet aux agents de générer des prompts de transition avec `/prompt` et de lancer une enquête de diagnostic avec `/enqueteur`
   
 - **`.cursor/rules/`** : Règles d'agent définissant le comportement de l'IA
-  - *Contient* : `agent.mdc`, `debug.mdc`, `enqueteur.mdc`, `start.mdc`, `README.mdc`
-  - *Contient aussi* : `enqueteur/` - Architecture de machine à états pour l'enquête de bugs
+  - *Contient* : `agent.mdc`, `debug.mdc`, `start.mdc`, `README.mdc` (exemples)
   - *Structure* : Fichiers `.mdc` avec métadonnées YAML et instructions markdown
-  - *Usage* : Définissent comment l'agent doit réagir dans différents contextes
+  - *Usage* : Définissent comment l'agent doit réagir dans différents contextes. Note : la procédure d'enquête auparavant répartie dans `.cursor/rules/enqueteur/` a été consolidée en une commande unique `.cursor/commands/enqueteur.md`.
 
-- **`.cursor/rules/enqueteur/`** : Architecture de machine à états pour l'enquêteur de bugs
-  - *Contient* : 8 fichiers de règles interconnectées (`00-start.mdc` à `05-report.mdc`)
-  - *Structure* : Chaque règle correspond à une étape du processus d'enquête, avec transitions explicites
-  - *Usage* : Système modulaire pour identifier systématiquement l'origine précise des bugs avec validation critique externe (étape 04b-routing)
+
 
 - **`.cursor/mcp/`** : Serveurs MCP pour l'intégration avec les outils externes
   - *Contient* : Scripts JavaScript pour ToolsMCP, MemoryBankMCP, Context7
@@ -450,6 +446,15 @@ La commande `/prompt` permet aux agents de créer un plan de transition pour pas
 - Si l'agent courant a des todos non terminés, ils sont inclus dans le plan de transition
 - Le premier todo du plan est toujours de supprimer le fichier de plan de transition
 - Le nouveau plan permet au successeur de reprendre là où le prédécesseur s'est arrêté ou de démarrer une nouvelle direction
+
+### `/enqueteur` - Enquête méthodologique des bugs
+
+La commande `/enqueteur` exécute la procédure d'enquête pas à pas (exploration, hypothèses, logs, exécution, analyse, validation critique, rapport) définie dans `.cursor/commands/enqueteur.md`.
+
+**Usage:**
+- `/enqueteur` : Démarre l'enquête étape par étape. L'agent doit suivre les instructions du fichier et produire le rapport final d'identification (aucune correction proposée).
+
+**Format de sortie:** Rapport d'identification du bug avec fichier/fonction/ligne/instruction et preuves BEFORE/AFTER.
 
 ### `/janitor` - Reviewer exhaustif du repository
 
