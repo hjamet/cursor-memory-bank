@@ -437,13 +437,19 @@ graph TD
 
 ### `/prompt` - Transition entre agents
 
-La commande `/prompt` permet aux agents de générer des prompts de transition structurés pour passer le contexte à un nouvel agent.
+La commande `/prompt` permet aux agents de créer un plan de transition pour passer le contexte à un nouvel agent. Le plan est automatiquement enregistré dans le repository et supprimé par le successeur.
 
 **Usage:**
 - `/prompt il faudrait maintenant optimiser les performances` : Avec instructions
 - `/prompt` : Sans instructions
 
-**Format de sortie:** Prompt structurée en 4 sections (Contexte, Objectif, Fichiers Concernés, Instructions de Collaboration)
+**Format de sortie:** Plan de transition avec 4 sections (Contexte, Objectif, Fichiers Concernés, Instructions de Collaboration) + todos incomplets + todo de nettoyage
+
+**Mécanique:**
+- Le plan de transition est créé via l'outil `create_plan` et sauvegardé automatiquement dans le repository
+- Si l'agent courant a des todos non terminés, ils sont inclus dans le plan de transition
+- Le premier todo du plan est toujours de supprimer le fichier de plan de transition
+- Le nouveau plan permet au successeur de reprendre là où le prédécesseur s'est arrêté ou de démarrer une nouvelle direction
 
 ### `/janitor` - Reviewer exhaustif du repository
 
