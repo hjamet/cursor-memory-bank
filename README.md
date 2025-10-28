@@ -445,22 +445,32 @@ La commande `/prompt` permet aux agents de générer des prompts de transition s
 
 **Format de sortie:** Prompt structurée en 4 sections (Contexte, Objectif, Fichiers Concernés, Instructions de Collaboration)
 
-### `/janitor` - Nettoyage intelligent du repository
+### `/janitor` - Reviewer exhaustif du repository
 
-La commande `/janitor` permet de nettoyer et organiser le repository avec analyse de sécurité pour éviter de casser les dépendances.
+La commande `/janitor` conduit une analyse critique exhaustive du repository pour identifier TOUS les problèmes de maintenance, incohérences, et lacunes organisationnelles.
 
 **Usage:**
-- `/janitor` : Exploration générale du repository
+- `/janitor` : Exploration exhaustive générale du repository (trouve au moins 1 problème)
 - `/janitor scripts/` : Analyse ciblée d'un dossier spécifique
 
 **Fonctionnalités:**
-- Détection de fichiers temporaires (`.log`, `.tmp`, `.cache`, `__pycache__/`)
-- Identification de documentation et scripts mal placés
-- Analyse de sécurité pré-déplacement (imports, chemins relatifs, dépendances inverses)
-- Validation de la cohérence du README (intégration de la règle README.mdc)
-- Tableau de recommandations avec analyse d'impact détaillée
+- **Cohérence structurelle** : Vérifie que la documentation (README) correspond à la structure réelle
+- **Qualité de documentation** : Valide toutes les sections obligatoires du README contre réalité
+- **Code legacy** : Identifie fichiers obsolètes, checkpoints anciens, logs non nettoyés
+- **Organisation** : Détecte fichiers mal placés, duplications, structure incohérente
+- **Qualité du code** : Imports cassés, chemins relatifs incorrects, dépendances manquantes
+- **Complétude** : Variables d'environnement non documentées, commandes obsolètes
 
-**Sécurité:** Jamais d'exécution automatique - présentation des recommandations uniquement avec analyse complète des risques (🟢 Low, 🟡 Medium, 🔴 High)
+**Système de sévérité:**
+- 🔴 **Critique** : Problèmes bloquants (architecture cassée, imports broken)
+- 🟠 **Majeur** : Problèmes significatifs (documentation obsolète, incohérences majeures)
+- 🟡 **Mineur** : Améliorations (clarté, organisation, conventions)
+
+**Output:** Tableau complet avec 5 colonnes (Sévérité, Catégorie, Fichier/Section, Description du Problème, Action Suggérée) + Résumé + Évaluation de santé du repository
+
+**Focus README:** Validation MANDATOIRE de toutes les sections du README contre l'état réel du repository à chaque exécution.
+
+**Sécurité:** Jamais d'exécution automatique - identification exhaustive des problèmes uniquement
 
 ## MCP Rule: `mcp`
 
