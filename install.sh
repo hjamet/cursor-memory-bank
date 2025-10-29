@@ -1038,7 +1038,7 @@ install_workflow_system() {
             # Fallback to conservative list if API call fails
             if [[ -z "$rules_list" ]]; then
                 warn "Could not fetch remote rules list; using conservative fallback set"
-                rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc .cursor/rules/start.mdc"
+                rules_list=".cursor/rules/agent.mdc .cursor/rules/Communication.mdc .cursor/rules/debug.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc .cursor/rules/start.mdc"
             fi
 
             # Install all rules (full install mode)
@@ -1079,7 +1079,7 @@ install_workflow_system() {
             if [[ -z "$rules_list" ]]; then
                 # Conservative fallback - only basic files, no subdirectories
                 # Subdirectories will be discovered dynamically when API/clone works
-                rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc"
+                rules_list=".cursor/rules/agent.mdc .cursor/rules/Communication.mdc .cursor/rules/debug.mdc .cursor/rules/ouvrier.mdc .cursor/rules/README.mdc"
             fi
 
             for r in $rules_list; do
