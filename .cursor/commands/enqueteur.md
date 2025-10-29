@@ -17,19 +17,19 @@ Respectez le principe "Fail-Fast" : si une condition attendue est manquante, éc
 
 Suivre la séquence suivante dans l'ordre, sans appeler d'autres règles :
 
-- Étape 01a — Exploration des fichiers de code
-- Étape 01b — Formulation d'hypothèses (3–5)
-- Étape 02  — Placement de logs avant/après pour chaque hypothèse
-- Étape 03  — Exécution & collecte des logs
-- Étape 04  — Analyse des logs
-- Étape 04b — Validation critique (rôle de relecture approfondie)
-- Étape 05  — Rapport final d'identification
+- Étape 1 — Exploration des fichiers de code
+- Étape 2 — Formulation d'hypothèses (3–5)
+- Étape 3 — Placement de logs avant/après pour chaque hypothèse
+- Étape 4 — Exécution & collecte des logs
+- Étape 5 — Analyse des logs
+- Étape 6 — Validation critique (rôle de relecture approfondie)
+- Étape 7 — Rapport final d'identification
 
 À la fin de chaque étape, documenter la sortie attendue indiquée ci‑dessous, puis passer à l'étape suivante.
 
 ---
 
-## ÉTAPE 01a — Exploration des fichiers de code 🔍
+## ÉTAPE 1 — Exploration des fichiers de code 🔍
 
 Objectif : cartographier les fichiers impliqués, tracer le flux d'exécution et repérer les points critiques.
 
@@ -56,7 +56,7 @@ Exemple : `main.py:25 -> auth.py:validate_token -> models.py:get_user`
 
 ---
 
-## ÉTAPE 01b — Formulation d'hypothèses 🎯
+## ÉTAPE 2 — Formulation d'hypothèses 🎯
 
 Objectif : produire 3–5 hypothèses précises et testables, localisées jusqu'à la ligne.
 
@@ -66,7 +66,7 @@ Règles : chaque hypothèse doit suivre ce format :
 
 Actions obligatoires :
 
-1. Synthétiser l'exploration (01a).  
+1. Synthétiser l'exploration (étape 1).  
 2. Rédiger 3–5 hypothèses localisées.  
 3. Prioriser par probabilité et impact.
 
@@ -76,7 +76,7 @@ Exemple : `Hypothèse 1 : user_id est None car extract_user_id_from_token() reto
 
 ---
 
-## ÉTAPE 02 — Placement de logs de débogage 📝
+## ÉTAPE 3 — Placement de logs de débogage 📝
 
 Objectif : insérer logs AVANT/APRÈS chaque instruction ciblée pour vérifier les hypothèses.
 
@@ -98,7 +98,7 @@ Exemple de sortie : `Logs ajoutés : src/auth.py lignes 22-24 (BEFORE) et 26-28 
 
 ---
 
-## ÉTAPE 03 — Exécution et collecte des logs 🚀
+## ÉTAPE 4 — Exécution et collecte des logs 🚀
 
 Objectif : exécuter le scénario reproduisant le bug et collecter stdout/stderr et code de sortie.
 
@@ -125,7 +125,7 @@ Conditions reproduites : [env, args]
 
 ---
 
-## ÉTAPE 04 — Analyse des logs 🔎
+## ÉTAPE 5 — Analyse des logs 🔎
 
 Objectif : comparer logs BEFORE/AFTER, valider/invalider les hypothèses et extraire symptômes précis.
 
@@ -133,7 +133,7 @@ Actions obligatoires :
 
 1. Pour chaque hypothèse, indiquer : VALIDÉE / INVALIDÉE / PARTIELLEMENT avec preuves (citations des logs).  
 2. Extraire symptômes concrets (valeurs inattendues, transitions d'état).  
-3. Préparer la synthèse pour validation critique.
+3. Préparer la synthèse pour l'étape de validation critique (étape 6).
 
 Format d'analyse attendu (obligatoire) :
 
@@ -146,29 +146,29 @@ Symptôme : description précise
 
 ---
 
-## ÉTAPE 04b — Validation critique (relecture approfondie) 🕵️‍♂️
+## ÉTAPE 6 — Validation critique (relecture approfondie) 🕵️‍♂️
 
-Objectif : jouer un rôle critique et neutre pour vérifier que l'investigation a atteint la cause racine (pas seulement les symptômes).
+Objectif : produire une analyse critique qui questionne la précision de l'investigation et vérifie que l'on a atteint la cause racine (pas seulement les symptômes).
 
 Principes :
 
 - Questionner la précision (ligne exacte, instruction primitive).  
 - Vérifier présence de preuves BEFORE & AFTER irréfutables.  
-- Si une fonction locale est pointée, exiger qu'on ait exploré ses instructions (retour vers 02 si nécessaire).
+- Évaluer si une fonction locale pointée nécessiterait une exploration plus approfondie de ses instructions.
 
-Critères d'acceptation pour avancer au rapport final :
+Actions obligatoires :
 
-1. Ligne EXACTE identifiée et instruction citée.  
-2. Preuves BEFORE & AFTER irréfutables.  
-3. Explication du mécanisme (pourquoi l'instruction provoque le bug).
+1. Produire une analyse critique de l'investigation menée aux étapes précédentes.  
+2. Documenter les points de vigilance identifiés (précision de la ligne, qualité des preuves, mécanisme identifié).  
+3. Préparer cette analyse pour inclusion dans le rapport final de l'étape 7.
 
-Si ces critères ne sont pas remplis → retourner à l'étape pertinente (01a / 01b / 02) et documenter pourquoi.
+Sortie attendue (obligatoire) : analyse critique structurée identifiant les points de vérification et l'évaluation de la cause racine identifiée.
 
 ---
 
-## ÉTAPE 05 — Rapport final 📋
+## ÉTAPE 7 — Rapport final 📋
 
-Objectif : fournir un rapport concis et chirurgical identifiant l'origine exacte du bug.
+Objectif : fournir un rapport concis et chirurgical identifiant l'origine exacte du bug, en intégrant l'analyse critique de l'étape 6.
 
 Format obligatoire du rapport final :
 
@@ -193,7 +193,11 @@ Hypothèses invalidées : [liste avec preuves]
 
 Preuves décisives : Log BEFORE, Log AFTER
 
+Analyse critique (étape 6) : [synthèse de l'analyse critique avec points de vigilance identifiés]
+
 Conclusion (1-2 phrases) : origine identifiée, aucune correction proposée
+
+Note : Si cette conclusion n'est pas suffisante ou nécessite une investigation plus approfondie, relancer la commande `/enqueteur` avec une question plus précise pour un nouveau cycle d'enquête.
 ```
 
 Après rapport, l'agent doit noter explicitement que tous les logs ajoutés doivent être retirés par l'auteur de la correction (ne pas retirer les logs ici).
@@ -205,15 +209,16 @@ Après rapport, l'agent doit noter explicitement que tous les logs ajoutés doiv
 - Toujours documenter commandes, environnements et étapes précises.  
 - Ne pas utiliser try/except pour masquer erreurs (principe Fail-Fast).  
 - Éviter modifications de code sauf pour placer/supprimer logs; toute modification doit être explicite et justifiée dans le rapport.  
-- Le rôle de validation critique exige scepticisme et preuve.
+- L'étape de validation critique (étape 6) produit une analyse pour enrichir le rapport final, elle n'est pas une étape de décision de routing.
 
 ---
 
 ## Utilisation
 
 1. Lancer la commande `/enqueteur` (ou lire intégralement ce fichier) avant toute action.  
-2. Suivre les étapes dans l'ordre et produire les sorties demandées pour chaque étape.  
+2. Suivre les étapes dans l'ordre (1 à 7) et produire les sorties demandées pour chaque étape.  
 3. Mettre à jour le reporting à chaque étape et ne jamais avancer sans la sortie attendue.
+4. Si la conclusion du rapport final (étape 7) n'est pas suffisante, relancer la commande `/enqueteur` avec une question plus précise pour un nouveau cycle d'enquête itératif.
 
 ---
 
