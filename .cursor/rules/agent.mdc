@@ -185,13 +185,10 @@ Lire le fichier `.cursor/agents/roadmap.yaml` et ajouter une nouvelle entrée da
 ```yaml
 - id: "task-{unique-id}"  # Générer un ID unique (ex: task-1, task-2, etc.)
   title: "Titre descriptif de la tâche"
-  status: "TODO"
   priority: 3  # 1-5
   dependencies: []  # Liste d'IDs de tâches ou []
   task_file: "{nom-fichier-tache}.md"
   output_file: "rapport-{nom-fichier-tache}.md"
-  created_at: "2025-01-20T10:00:00Z"  # ISO 8601 timestamp actuel
-  started_at: null
   deadline: null  # Optionnel
 ```
 
@@ -230,13 +227,10 @@ Supposons que tu travailles sur l'authentification et découvres des problèmes 
 ```yaml
 - id: "task-1"
   title: "Optimiser les performances d'authentification"
-  status: "TODO"
   priority: 4
   dependencies: []
   task_file: "optimiser-performances-auth.md"
   output_file: "rapport-optimiser-performances-auth.md"
-  created_at: "2025-01-20T14:30:00Z"
-  started_at: null
   deadline: null
 ```
 

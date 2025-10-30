@@ -23,35 +23,21 @@ Lorsque l'utilisateur tape `/agent` (avec ou sans instructions supplémentaires)
 
 Appliquer cette logique de sélection dans l'ordre :
 
-1. **Filtrer les tâches disponibles** :
-   - Statut = `TODO` OU
-   - Statut = `IN_PROGRESS` ET (`started_at` est `null` OU plus de 24h écoulées depuis `started_at`)
+1. **Vérifier les dépendances** :
+   - Pour chaque tâche, vérifier que toutes ses dépendances (task IDs dans `dependencies`) existent dans la roadmap
+   - Une dépendance est considérée comme "résolue" si le task ID existe dans la roadmap (c'est-à-dire que la tâche dépendante n'a pas encore été traitée)
+   - Exclure les tâches avec dépendances non résolues (si un task ID dans `dependencies` n'existe pas dans la roadmap)
 
-2. **Vérifier les dépendances** :
-   - Pour chaque tâche, vérifier que toutes ses dépendances (task IDs dans `dependencies`) ont le statut `DONE`
-   - Exclure les tâches avec dépendances non résolues
-
-3. **Vérifier le timeout** :
-   - Si une tâche est `IN_PROGRESS` avec `started_at`, vérifier si plus de 24h se sont écoulées
-   - Si timeout dépassé ET toutes les autres tâches sont `DONE`, alors la tâche peut être reprise
-
-4. **Trier les tâches disponibles** :
+2. **Trier les tâches disponibles** :
    - Par priorité décroissante (5 = plus haute priorité)
-   - En cas d'égalité, par ancienneté croissante (`created_at` le plus ancien en premier)
+   - En cas d'égalité, prendre la première tâche rencontrée
 
-5. **Sélectionner** :
+3. **Sélectionner** :
    - La première tâche de la liste triée
 
-Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les tâches sont soit terminées, soit en cours, soit bloquées par des dépendances.
+Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les tâches sont soit bloquées par des dépendances non résolues, soit la roadmap est vide.
 
-### Étape 3 : Marquer la Tâche comme IN_PROGRESS
-
-1. **Mettre à jour la roadmap** :
-   - Changer le `status` de la tâche sélectionnée à `IN_PROGRESS`
-   - Définir `started_at` à l'heure actuelle (format ISO 8601 : `YYYY-MM-DDTHH:mm:ssZ`)
-   - Sauvegarder le fichier `roadmap.yaml`
-
-### Étape 4 : Charger le Contexte de la Tâche
+### Étape 3 : Charger le Contexte de la Tâche
 
 1. **Lire le fichier de tâche** :
    - Chemin : `.cursor/agents/{task_file}` (où `task_file` est défini dans la roadmap)
@@ -73,6 +59,21 @@ Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les 
    - Recherches sémantiques dans le codebase si mentionnées
    - Recherches web si mentionnées dans "Fichiers Concernés"
    - Lire le README et la documentation pertinente
+
+### Étape 4 : Supprimer la Tâche de la Roadmap et Nettoyer les Dépendances
+
+1. **Supprimer la tâche sélectionnée** :
+   - Retirer la tâche sélectionnée de la liste `tasks` dans `roadmap.yaml`
+   - Sauvegarder le fichier `roadmap.yaml`
+
+2. **Nettoyer les dépendances** :
+   - Parcourir toutes les tâches restantes dans la roadmap
+   - Pour chaque tâche, retirer l'ID de la tâche supprimée de sa liste `dependencies` (si présent)
+   - Sauvegarder le fichier `roadmap.yaml`
+
+3. **Supprimer le fichier de tâche** :
+   - Supprimer le fichier `.cursor/agents/{task_file}` (où `task_file` est défini dans la tâche sélectionnée)
+   - Si le fichier n'existe pas → **ÉCHOUER EXPLICITEMENT** avec un message clair
 
 ### Étape 5 : Présenter la Tâche à l'Utilisateur
 
@@ -142,11 +143,12 @@ Si une étape échoue, tu **DOIS** :
 ```
 1. Lecture roadmap.yaml ✓
 2. Sélection tâche "Optimiser authentification" (priorité 4, dépendances résolues) ✓
-3. Marquage IN_PROGRESS avec started_at ✓
-4. Lecture fichier tâche ✓
-5. Lecture de 8 fichiers mentionnés ✓
-6. Recherches sémantiques effectuées ✓
-7. Présentation à l'utilisateur avec contexte complet ✓
-8. Attente discussion collaborative...
+3. Lecture fichier tâche ✓
+4. Lecture de 8 fichiers mentionnés ✓
+5. Recherches sémantiques effectuées ✓
+6. Suppression de la tâche de la roadmap et nettoyage des dépendances ✓
+7. Suppression du fichier de tâche ✓
+8. Présentation à l'utilisateur avec contexte complet ✓
+9. Attente discussion collaborative...
 ```
 

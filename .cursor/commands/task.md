@@ -86,14 +86,11 @@ Instructions impératives pour l'agent qui traitera cette tâche (via `/agent`) 
 ```yaml
 - id: "task-{unique-id}"
   title: "Titre descriptif de la tâche"
-  status: "TODO"
   priority: 3  # 1-5, ajuster selon l'importance
   dependencies: []  # Liste d'IDs de tâches ou []
   task_file: "{nom-fichier-tache}.md"
   output_file: "rapport-{nom-fichier-tache}.md"
-  created_at: "2025-01-20T14:30:00Z"  # ISO 8601 timestamp actuel
-  started_at: null
-  deadline: null
+  deadline: null  # Optionnel
 ```
 
 4. **Valider** :
