@@ -17,6 +17,9 @@ root/
 ├─ .cursor/              # Configuration Cursor et règles d'agent
 │  ├─ rules/            # Règles d'agent (.mdc) - comportement de l'IA
 │  ├─ commands/         # Commandes personnalisées (.md)
+│  ├─ agents/           # Système de roadmap centralisée
+│  │  ├─ roadmap.yaml   # Roadmap centralisée avec toutes les tâches
+│  │  └─ *.md            # Fichiers de tâches et rapports
 │  └─ mcp/              # Serveurs MCP (Model Context Protocol)
 ├─ documentation/        # Guides détaillés et documentation longue
 ├─ install.sh           # Script d'installation automatisé
@@ -27,9 +30,14 @@ root/
 ### Structure détaillée des dossiers
 
 - **`.cursor/commands/`** : Commandes personnalisées pour l'agent
-  - *Contient* : `prompt.md`, `enqueteur.md` - Commandes de transition et d'enquête
+  - *Contient* : `prompt.md`, `enqueteur.md`, `agent.md`, `task.md`, `janitor.md` - Commandes de transition, enquête, roadmap et maintenance
   - *Structure* : Fichiers `.md` définissant des commandes slash personnalisées
-  - *Usage* : Permet aux agents de générer des prompts de transition avec `/prompt` et de lancer une enquête de diagnostic avec `/enqueteur`
+  - *Usage* : Permet aux agents de générer des prompts de transition avec `/prompt`, lancer une enquête avec `/enqueteur`, sélectionner une tâche avec `/agent`, ajouter une tâche avec `/task`, et analyser le repository avec `/janitor`
+
+- **`.cursor/agents/`** : Système de roadmap centralisée pour coordination multi-agents
+  - *Contient* : `roadmap.yaml` (roadmap centralisée), fichiers de tâches (`{titre}_{DD-MM-YYYY}.md`), fichiers de résultats (`rapport-{titre}_{DD-MM-YYYY}.md`)
+  - *Structure* : Fichier YAML pour la roadmap, fichiers markdown pour les tâches et rapports
+  - *Usage* : Permet à plusieurs agents Cursor de travailler en parallèle, chaque agent peut consulter la roadmap, sélectionner une tâche, et consulter les résultats des autres agents
   
 - **`.cursor/rules/`** : Règles d'agent définissant le comportement de l'IA
   - *Contient* : `agent.mdc`, `debug.mdc`, `start.mdc`, `README.mdc` (exemples)
@@ -482,6 +490,71 @@ La commande `/janitor` conduit une analyse critique exhaustive du repository pou
 **Focus README:** Validation MANDATOIRE de toutes les sections du README contre l'état réel du repository à chaque exécution.
 
 **Sécurité:** Jamais d'exécution automatique - identification exhaustive des problèmes uniquement
+
+### `/agent` - Sélection et traitement de tâche depuis la roadmap centralisée 🚀
+
+La commande `/agent` permet de lancer un agent qui consulte la roadmap centralisée, sélectionne automatiquement la tâche la plus intéressante disponible, charge tout son contexte, puis présente la tâche à l'utilisateur pour discussion collaborative avant implémentation.
+
+**Usage:**
+- `/agent` : Lance un agent qui sélectionne et traite une tâche de la roadmap
+
+**Fonctionnalités:**
+- **Sélection intelligente** : Choisit automatiquement la tâche la plus pertinente selon les dépendances, la priorité et l'ancienneté
+- **Chargement de contexte** : Lit exhaustivement tous les fichiers mentionnés dans la tâche
+- **Recherches** : Effectue les recherches sémantiques et web mentionnées
+- **Présentation** : Présente la tâche sélectionnée avec contexte complet en français
+- **Discussion collaborative** : Attend la planification avec l'utilisateur avant toute implémentation
+
+**Système de roadmap:**
+- Fichier centralisé : `.cursor/agents/roadmap.yaml`
+- Fichiers de tâches : `.cursor/agents/{titre}_{DD-MM-YYYY}.md`
+- Fichiers de résultats : `.cursor/agents/rapport-{titre}_{DD-MM-YYYY}.md`
+
+**Critères de sélection:**
+- Dépendances résolues (toutes les tâches dépendantes sont DONE)
+- Priorité (5 = plus haute priorité)
+- Ancienneté (tâches plus anciennes en priorité)
+- Timeout (tâches IN_PROGRESS > 24h peuvent être reprises)
+
+**Workflow:**
+1. Lecture de la roadmap
+2. Sélection de la tâche la plus intéressante
+3. Marquage de la tâche comme IN_PROGRESS
+4. Chargement du fichier de tâche et de tous les fichiers mentionnés
+5. Recherches sémantiques et web
+6. Présentation à l'utilisateur avec contexte complet
+7. Discussion collaborative pour planification
+8. Implémentation après validation
+
+**Règle associée:** `.cursor/rules/agent.mdc` explique quand et comment créer des tâches dans la roadmap lorsque des travaux futurs sont identifiés.
+
+### `/task` - Ajout non-bloquant de tâche à la roadmap 📝
+
+La commande `/task` permet d'ajouter une nouvelle tâche à la roadmap centralisée **SANS INTERROMPRE** le travail en cours de l'agent. L'agent crée la tâche avec tout le contexte nécessaire, puis reprend immédiatement son travail précédent.
+
+**Usage:**
+- `/task il faudrait optimiser les performances plus tard` : Ajoute une tâche future à la roadmap
+
+**Fonctionnalités:**
+- **Création complète** : Génère le fichier de tâche avec les 4 sections obligatoires (Contexte, Objectif, Fichiers Concernés, Instructions)
+- **Ajout à la roadmap** : Enregistre la tâche dans `roadmap.yaml` avec ID unique
+- **Contexte préservé** : Mentionne les fichiers du travail actuel dans "Fichiers Concernés"
+- **Non-bloquant** : Ne change pas le focus de l'agent, reprend le travail immédiatement après
+
+**Principe fondamental:**
+- **Interruption non-bloquante** : L'agent continue exactement là où il s'était arrêté
+- **Délégation** : La tâche est créée pour être traitée par un autre agent (via `/agent`)
+- **Format cohérent** : Suit exactement le même format que les autres fichiers de tâches
+
+**Workflow:**
+1. Analyser la demande de l'utilisateur
+2. Générer les noms de fichiers (tâche + rapport)
+3. Créer le fichier de tâche avec les 4 sections
+4. Ajouter l'entrée dans `roadmap.yaml`
+5. Confirmer la création (message court)
+6. Reprendre immédiatement le travail précédent
+
+**Exemple:** Pendant l'implémentation de l'authentification, l'utilisateur tape `/task optimiser les performances`. L'agent crée la tâche avec contexte, confirme, puis continue l'implémentation de l'authentification.
 
 ## MCP Rule: `mcp`
 

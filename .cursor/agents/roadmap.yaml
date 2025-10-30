@@ -1,0 +1,23 @@
+version: "1.0"
+tasks:
+  - id: "task-1"
+    title: "Supprimer les outils MCP ToolsMCP et MemoryBankMCP obsolètes"
+    status: "TODO"
+    priority: 3
+    dependencies: []
+    task_file: "supprimer-outils-mcp-obsoletes_30-10-2025.md"
+    output_file: "rapport-supprimer-outils-mcp-obsoletes_30-10-2025.md"
+    created_at: "2025-10-30T15:07:53Z"
+    started_at: null
+    deadline: null
+  - id: "task-2"
+    title: "Simplifier le format de nommage des fichiers de tâches en supprimant les timestamps"
+    status: "TODO"
+    priority: 3
+    dependencies: []
+    task_file: "simplifier-nommage-taches.md"
+    output_file: "rapport-simplifier-nommage-taches.md"
+    created_at: "2025-10-30T15:07:53Z"
+    started_at: null
+    deadline: null
+
