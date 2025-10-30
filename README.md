@@ -122,13 +122,13 @@ bash install.sh [options]
 
 ## Installation Mode 🎯
 
-The installer now provides a single mode: it installs essential rules (`agent.mdc`, `debug.mdc`), custom commands, and updates `.gitignore`. Existing custom rules are preserved.
+The installer now provides a single mode: it installs essential rules (`agent.mdc`, `debug.mdc`), custom commands, and updates `.gitignore`. Existing custom rules are preserved. No Streamlit UI or ML artifacts are installed.
 
 ## Système de Roadmap Centralisée 📋
 
 Le système utilise maintenant une roadmap centralisée (`.cursor/agents/roadmap.yaml`) pour coordonner plusieurs agents Cursor en parallèle. Ce système simple et léger remplace les anciens serveurs MCP qui sont désormais obsolètes.
 
-**Note historique** : L'historique git contient les anciens systèmes basés sur les serveurs MCP (ToolsMCP, MemoryBankMCP). Ces systèmes ont été remplacés par le système de roadmap centralisée qui est plus simple, plus léger et plus flexible.
+**Note historique** : L'historique git contient les anciens systèmes basés sur les serveurs MCP (ToolsMCP, MemoryBankMCP) ainsi qu'une ancienne UI Streamlit. Ces éléments ont été retirés au profit d'un système de roadmap centralisée plus simple et léger. Voir `documentation/legacy-ui-ml.md` pour un court récapitulatif.
 
 ### Comment ça fonctionne
 

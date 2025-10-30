@@ -1,13 +1,5 @@
 version: "1.0"
 tasks:
-  - id: "task-10"
-    title: "Remplacer IN_PROGRESS par suppression de la tâche et du fichier lors de la sélection"
-    priority: 3
-    dependencies: []
-    task_file: "remplacer-in-progress-par-suppression-tache-et-fichier.md"
-    output_file: "rapport-remplacer-in-progress-par-suppression-tache-et-fichier.md"
-    deadline: null
-
   - id: "task-11"
     title: "Présenter les questions de fin de /agent en liste numérotée"
     priority: 3
