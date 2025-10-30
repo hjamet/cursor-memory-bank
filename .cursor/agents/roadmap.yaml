@@ -30,16 +30,6 @@ tasks:
     created_at: "2025-10-30T15:30:00Z"
     started_at: null
     deadline: null
-  - id: "task-4"
-    title: "Simplifier le script d'installation : plus besoin de deux modes d'installation différents"
-    status: "TODO"
-    priority: 3
-    dependencies: []
-    task_file: "simplifier-script-installation.md"
-    output_file: "rapport-simplifier-script-installation.md"
-    created_at: "2025-10-30T15:16:12Z"
-    started_at: null
-    deadline: null
   - id: "task-5"
     title: "Corriger le comportement de /agent en mode plan pour planifier la tâche sélectionnée plutôt que sa sélection"
     status: "IN_PROGRESS"
@@ -70,6 +60,40 @@ tasks:
     task_file: "afficher-compteurs-priorites-dans-titre-agent.md"
     output_file: "rapport-afficher-compteurs-priorites-dans-titre-agent.md"
     created_at: "2025-10-30T16:00:00Z"
+    started_at: null
+    deadline: null
+
+  - id: "task-8"
+    title: "Prioriser et rendre temporaire la commande /task (interruption non-bloquante)"
+    status: "TODO"
+    priority: 3
+    dependencies: []
+    task_file: "prioriser-et-rendre-temporaire-la-commande-task.md"
+    output_file: "rapport-prioriser-et-rendre-temporaire-la-commande-task.md"
+    created_at: "2025-10-30T16:12:00Z"
+    started_at: null
+    deadline: null
+
+  - id: "task-9"
+    title: "Supprimer l'UI et les restes liés aux serveurs MCP, et mettre à jour l'installation"
+    status: "TODO"
+    priority: 3
+    dependencies: []
+    task_file: "supprimer-ui-et-restes-serveurs-mcp-mettre-a-jour-installation.md"
+    output_file: "rapport-supprimer-ui-et-restes-serveurs-mcp-mettre-a-jour-installation.md"
+    created_at: "2025-10-30T16:20:00Z"
+    started_at: null
+    deadline: null
+
+
+  - id: "task-10"
+    title: "Remplacer IN_PROGRESS par suppression de la tâche et du fichier lors de la sélection"
+    status: "TODO"
+    priority: 3
+    dependencies: []
+    task_file: "remplacer-in-progress-par-suppression-tache-et-fichier.md"
+    output_file: "rapport-remplacer-in-progress-par-suppression-tache-et-fichier.md"
+    created_at: "2025-10-30T16:30:00Z"
     started_at: null
     deadline: null
 

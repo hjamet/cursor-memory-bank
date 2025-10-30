@@ -14,7 +14,7 @@ Explorer la possibilité de simplifier le script d'installation en supprimant la
 
 ### Du travail effectué précédemment :
 - `install.sh` : Script d'installation actuel avec deux modes (basique et `--full-install`)
-- `.cursor/agents/supprimer-outils-mcp-obsoletes_30-10-2025.md` : Tâche actuelle de suppression des serveurs MCP qui révèle la complexité du script
+- `.cursor/agents/supprimer-outils-mcp-obsoletes.md` : Tâche actuelle de suppression des serveurs MCP qui révèle la complexité du script
 
 ### Fichiers potentiellement pertinents pour l'exploration :
 - `install.sh` : Analyser toute la logique conditionnelle basée sur `FULL_INSTALL`
@@ -27,10 +27,10 @@ Explorer la possibilité de simplifier le script d'installation en supprimant la
 - Documentation : Lire `README.md` pour comprendre les différences documentées entre les modes
 
 ### Fichiers de résultats d'autres agents (si pertinents) :
-- `.cursor/agents/rapport-supprimer-outils-mcp-obsoletes_30-10-2025.md` : Rapport de la tâche actuelle de suppression MCP (quand disponible)
+- `.cursor/agents/rapport-supprimer-outils-mcp-obsoletes.md` : Rapport de la tâche actuelle de suppression MCP (quand disponible)
 
 **Fichier output pour le rapport final :**
-- `.cursor/agents/rapport-simplifier-script-installation_30-10-2025.md`
+- `.cursor/agents/rapport-simplifier-script-installation.md`
 
 ## Instructions de Collaboration
 

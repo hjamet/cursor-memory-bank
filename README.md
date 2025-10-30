@@ -1,6 +1,6 @@
 # Cursor Memory Bank 🧠
 
-Un système de workflow autonome avancé pour Cursor avec gestion de tâches intelligente, système de roadmap centralisée et interface utilisateur Streamlit.
+Un système de workflow autonome avancé pour Cursor avec gestion de tâches intelligente et système de roadmap centralisée.
 
 ## Table des Matières - Ordre de Révision
 
@@ -49,10 +49,10 @@ root/
   - *Structure* : Fichiers markdown organisés par domaine fonctionnel
   - *Usage* : Référence pour les utilisateurs avancés et la maintenance
 
-- **`install.sh`** : Script d'installation unifié avec stratégie de téléchargement intelligente
+- **`install.sh`** : Script d'installation unifié (mode unique)
   - *Rôle* : Installation automatisée avec détection de branche et fallback curl
-  - *Fonctionnalités* : Installation basique vs complète
-  - *Usage* : `bash install.sh` ou `bash install.sh --full-install`
+  - *Fonctionnalités* : Mode unique — règles, commandes et configuration `.gitignore`
+  - *Usage* : `bash install.sh`
 
 - **`tomd.py`** : Utilitaire Python pour la conversion et le traitement markdown
   - *Rôle* : Conversion de formats, traitement de fichiers markdown
@@ -60,7 +60,7 @@ root/
 
 ## Installation 🚀
 
-A single installer is provided: `install.sh`. It installs agent rules, custom commands, `tomd.py`, and configures `.gitignore`. Clone is preferred; a curl fallback may be used when necessary.
+A single installer is provided: `install.sh`. It installs agent rules, custom commands, and configures `.gitignore`. Clone is preferred; a curl fallback may be used when necessary.
 
 Recommended (download then run — reviewable):
 ```bash
@@ -125,7 +125,7 @@ bash install.sh [options]
 
 ## Installation Mode 🎯
 
-The installer now provides a single mode: it installs essential rules (`agent.mdc`, `debug.mdc`), custom commands, the `tomd.py` utility, and updates `.gitignore`. Existing custom rules are preserved.
+The installer now provides a single mode: it installs essential rules (`agent.mdc`, `debug.mdc`), custom commands, and updates `.gitignore`. Existing custom rules are preserved.
 
 ## Système de Roadmap Centralisée 📋
 
@@ -187,7 +187,6 @@ Cursor Memory Bank is an advanced autonomous workflow system that revolutionizes
 - **Responsive Design**: Mobile-friendly interface with breakpoint optimization
 - **Enhanced Styling**: Modern gradients, shadows, and animations
 - **Improved UX**: Better contrast, larger notification areas, and intuitive navigation
-- **Cross-Page Consistency**: Unified notification experience across all Streamlit pages
 
 ### Known Issues & Active Development 🚧
 
