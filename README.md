@@ -155,7 +155,7 @@ Cursor Memory Bank is an advanced autonomous workflow system that revolutionizes
 - **Hierarchical Tasks**: Support for parent-child task relationships and dependencies
 - **Multi-Task Decomposition**: Intelligent breaking down of complex requests into manageable subtasks
 - **Priority System**: 5-level priority system (1=lowest, 5=critical) with automatic prioritization
-- **Status Tracking**: Comprehensive task lifecycle management (TODO, IN_PROGRESS, BLOCKED, REVIEW, DONE)
+- **Roadmap-Only State**: No runtime status like `IN_PROGRESS` is used by `/agent`. On selection, the task is immediately removed from the roadmap and its task file is deleted (irreversible by design).
 
 <!-- Streamlit UI removed from installer scope -->
 
@@ -292,7 +292,7 @@ graph TD
 
 1. **Implementation (`implementation`)**
    - Core development step for code changes
-   - Automatic marking of tasks as IN_PROGRESS
+   - No roadmap status change to `IN_PROGRESS`; selection via `/agent` removes the task instantly (irreversible)
    - Intelligent routing based on task complexity
    - **Mandatory transition** to Experience Execution
 

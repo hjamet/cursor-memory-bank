@@ -133,6 +133,7 @@ Si une étape échoue, tu **DOIS** :
 - **Pas d'implémentation immédiate** : L'objectif est la discussion et la planification collaborative
 - **Important** : Ne jamais créer de plan pour la sélection/consultation de la roadmap. Le plan ne concerne que l'implémentation de la tâche sélectionnée.
 - **Validation stricte** : Échouer explicitement si quelque chose est invalide ou manquant
+ - **Suppression irréversible** : La suppression de la tâche et de son fichier lors des étapes 4–5–6 est immédiate et irréversible par design. Aucune journalisation additionnelle n'est requise.
 
 ## Exemple de Séquence Complète
 
