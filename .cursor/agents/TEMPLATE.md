@@ -48,10 +48,10 @@ L'objectif doit être **assez précis pour être actionnable** mais **assez vagu
 - Documentation : Lire `README.md` et `documentation/architecture.md`
 
 ### Fichiers de résultats d'autres agents (si pertinents) :
-- `.cursor/agents/rapport-tache-precedente_19-01-2025.md` : [Expliquer pourquoi ce rapport est utile]
+- `.cursor/agents/rapport-tache-precedente.md` : [Expliquer pourquoi ce rapport est utile]
 
 **Fichier output pour le rapport final :**
-- `.cursor/agents/rapport-{titre-kebab-case}_{DD-MM-YYYY}.md`
+- `.cursor/agents/rapport-{titre-kebab-case}.md`
 
 **IMPORTANT** : L'agent qui traitera cette tâche devra lire TOUS ces fichiers avant de commencer. Assure-toi que la liste est exhaustive.
 
@@ -78,11 +78,12 @@ Tu DOIS spécifier que l'agent :
 
 ## Notes pour la Création de Tâches
 
-- **Nom de fichier** : `{titre-kebab-case}_{DD-MM-YYYY}.md`
-- **Fichier output** : `rapport-{titre-kebab-case}_{DD-MM-YYYY}.md`
+- **Nom de fichier** : `{titre-kebab-case}.md`
+- **Fichier output** : `rapport-{titre-kebab-case}.md`
 - **Langue** : Tout le contenu doit être en français
 - **Format** : Respecter exactement les 4 sections ci-dessus
 - **Références** : Mentionner les fichiers de résultats d'autres agents si pertinents
+- **IMPORTANT** : Le titre doit être unique pour éviter les collisions de noms de fichiers
 
 ## Exemple Complet
 

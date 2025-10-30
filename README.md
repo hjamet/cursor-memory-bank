@@ -1,6 +1,6 @@
 # Cursor Memory Bank 🧠
 
-Un système de workflow autonome avancé pour Cursor avec intégration MCP (Model Context Protocol), gestion de tâches intelligente et interface utilisateur Streamlit.
+Un système de workflow autonome avancé pour Cursor avec gestion de tâches intelligente, système de roadmap centralisée et interface utilisateur Streamlit.
 
 ## Table des Matières - Ordre de Révision
 
@@ -17,10 +17,9 @@ root/
 ├─ .cursor/              # Configuration Cursor et règles d'agent
 │  ├─ rules/            # Règles d'agent (.mdc) - comportement de l'IA
 │  ├─ commands/         # Commandes personnalisées (.md)
-│  ├─ agents/           # Système de roadmap centralisée
-│  │  ├─ roadmap.yaml   # Roadmap centralisée avec toutes les tâches
-│  │  └─ *.md            # Fichiers de tâches et rapports
-│  └─ mcp/              # Serveurs MCP (Model Context Protocol)
+│  └─ agents/           # Système de roadmap centralisée
+│     ├─ roadmap.yaml   # Roadmap centralisée avec toutes les tâches
+│     └─ *.md            # Fichiers de tâches et rapports
 ├─ documentation/        # Guides détaillés et documentation longue
 ├─ install.sh           # Script d'installation automatisé
 ├─ tomd.py              # Utilitaire Python pour conversion markdown
@@ -35,7 +34,7 @@ root/
   - *Usage* : Permet aux agents de générer des prompts de transition avec `/prompt`, lancer une enquête avec `/enqueteur`, sélectionner une tâche avec `/agent`, ajouter une tâche avec `/task`, et analyser le repository avec `/janitor`
 
 - **`.cursor/agents/`** : Système de roadmap centralisée pour coordination multi-agents
-  - *Contient* : `roadmap.yaml` (roadmap centralisée), fichiers de tâches (`{titre}_{DD-MM-YYYY}.md`), fichiers de résultats (`rapport-{titre}_{DD-MM-YYYY}.md`)
+  - *Contient* : `roadmap.yaml` (roadmap centralisée), fichiers de tâches (`{titre-kebab-case}.md`), fichiers de résultats (`rapport-{titre-kebab-case}.md`)
   - *Structure* : Fichier YAML pour la roadmap, fichiers markdown pour les tâches et rapports
   - *Usage* : Permet à plusieurs agents Cursor de travailler en parallèle, chaque agent peut consulter la roadmap, sélectionner une tâche, et consulter les résultats des autres agents
   
@@ -44,13 +43,6 @@ root/
   - *Structure* : Fichiers `.mdc` avec métadonnées YAML et instructions markdown
   - *Usage* : Définissent comment l'agent doit réagir dans différents contextes. Note : la procédure d'enquête auparavant répartie dans `.cursor/rules/enqueteur/` a été consolidée en une commande unique `.cursor/commands/enqueteur.md`.
 
-
-
-- **`.cursor/mcp/`** : Serveurs MCP pour l'intégration avec les outils externes
-  - *Contient* : Scripts JavaScript pour ToolsMCP, MemoryBankMCP, Context7
-  - *Structure* : Serveurs Node.js avec outils spécialisés (terminal, mémoire, docs)
-  - *Usage* : Permet à l'agent d'exécuter des commandes, gérer des tâches, consulter la documentation
-
 - **`documentation/`** : Guides approfondis et procédures détaillées
   - *Contient* : Documentation technique, guides d'utilisation, architecture détaillée
   - *Structure* : Fichiers markdown organisés par domaine fonctionnel
@@ -58,7 +50,7 @@ root/
 
 - **`install.sh`** : Script d'installation unifié avec stratégie de téléchargement intelligente
   - *Rôle* : Installation automatisée avec détection de branche et fallback curl
-  - *Fonctionnalités* : Installation basique vs complète, configuration MCP automatique
+  - *Fonctionnalités* : Installation basique vs complète
   - *Usage* : `bash install.sh` ou `bash install.sh --full-install`
 
 - **`tomd.py`** : Utilitaire Python pour la conversion et le traitement markdown
@@ -80,7 +72,7 @@ Quick one-liners (the script auto-detects the default branch; use `--use-curl` t
 # Basic installation (rules only - fast)
 curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/$(curl -s https://api.github.com/repos/hjamet/cursor-memory-bank | grep -o '"default_branch": *"[^"]*"' | sed 's/.*: *"\(.*\)"/\1/' || echo master)/install.sh | tr -d '\r' | bash -s --
 
-# Full installation (all components - MCP servers, Streamlit UI, ML model)
+# Full installation (all components - Streamlit UI, ML model)
 curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/$(curl -s https://api.github.com/repos/hjamet/cursor-memory-bank | grep -o '"default_branch": *"[^"]*"' | sed 's/.*: *"\(.*\)"/\1/' || echo master)/install.sh | tr -d '\r' | bash -s -- --full-install
 ```
 
@@ -90,7 +82,7 @@ Available options (summary):
 - `--dir <path>` : Install to a specific directory (default: current directory)
 - `--force` : Force overwrite existing files
 - `--use-curl` : Force curl-only downloads instead of `git clone` (useful when git is unavailable)
-- `--full-install` : Install all components (MCP servers, Streamlit UI, ML model, workflow system)
+- `--full-install` : Install all components (Streamlit UI, ML model, workflow system)
 - `--help` : Show help information
 - `--version` : Show version information
 
@@ -107,7 +99,7 @@ Examples:
 # Basic installation (rules only - fast)
 bash install.sh
 
-# Full installation with all components (MCP servers, Streamlit UI, ML model)
+# Full installation with all components (Streamlit UI, ML model)
 bash install.sh --full-install
 
 # Install to a specific directory with all components
@@ -127,8 +119,6 @@ Certain files are considered required by the installer and a missing download wi
 - **Required files (examples)**:
   - `.cursor/rules/agent.mdc` (agent behavior rules)
   - `.cursor/commands/prompt.md` (agent handoff command)
-  - `.cursor/mcp/mcp-commit-server/*` (critical MCP server scripts and `mcp_tools`)
-  - `.cursor/mcp.json` (MCP template)
 
 - **Diagnosis**: On failure the installer will print diagnostic info including HTTP status codes and curl exit codes (e.g. `http_code=404 curl_exit_code=22`). Re-run the installer after fixing network or URL issues.
 
@@ -168,12 +158,12 @@ Cursor Memory Bank offers two installation modes to suit different needs:
 - **What's included:** Essential rules, tomd.py utility, and .gitignore configuration
 - **Best for:** Users who want to quickly set up Cursor with basic rules and utilities
 - **Features:** Core agent rules, debug tools, start workflow, Python utility script
-- **Size:** Minimal installation footprint (no MCP servers, no npm install)
+- **Size:** Minimal installation footprint (no npm install)
 - **Speed:** Very fast (downloads only essential files via curl)
 - **Command:** `bash install.sh` (default)
 
 ### Full Mode (`--full-install`) - Complete System 🚀
-- **What's included:** All MCP servers, Streamlit UI, ML model, complete workflow system
+- **What's included:** Streamlit UI, ML model, complete workflow system
 - **Best for:** Users who want the complete autonomous workflow experience
 - **Features:** Task management, persistent memory, autonomous workflow, visual interface, semantic search
 - **Size:** Larger installation with ML dependencies and npm packages
@@ -182,44 +172,33 @@ Cursor Memory Bank offers two installation modes to suit different needs:
 
 ### Choosing Your Mode
 - **Start with Basic:** If you're new to the system or want to quickly set up Cursor with essential rules
-- **Upgrade to Full:** You can always re-run with `--full-install` to add MCP servers and workflow system later
-- **Development Work:** Full mode recommended for complex projects requiring autonomous workflow and MCP integration
+- **Upgrade to Full:** You can always re-run with `--full-install` to add workflow system later
+- **Development Work:** Full mode recommended for complex projects requiring autonomous workflow
 
 The installation script will:
 - **Basic mode (default)**: Install essential rules (`agent.mdc`, `debug.mdc`), `tomd.py` utility, and update `.gitignore`
-- **Full mode (`--full-install`)**: Install complete workflow system with all MCP servers (`start.mdc` rule included), Streamlit UI, and ML model
+- **Full mode (`--full-install`)**: Install complete workflow system (`start.mdc` rule included), Streamlit UI, and ML model
 - Always preserve any existing custom rules
 - Update only the core rules that need updating
 - Preserve any unrelated files that might be in the .cursor directory
 - Work even if the .cursor directory already exists
-- **Configure Gemini CLI MCP servers** automatically in `.gemini/settings.json` (full mode only - local to project)
 - Validate Node.js requirements and generated JSON configurations
 - `.cursor/rules/mcp.mdc` is repository-local and will not be installed or distributed by the installer
 
-## Gemini CLI Integration 🤖
+## Système de Roadmap Centralisée 📋
 
-The installation script automatically configures MCP (Model Context Protocol) servers for Google's Gemini CLI, enabling you to use the same powerful tools in both Cursor and Gemini CLI environments.
+Le système utilise maintenant une roadmap centralisée (`.cursor/agents/roadmap.yaml`) pour coordonner plusieurs agents Cursor en parallèle. Ce système simple et léger remplace les anciens serveurs MCP qui sont désormais obsolètes.
 
-### What Gets Configured
-- **ToolsMCP**: System operations, terminal commands, and file manipulation
-- **MemoryBankMCP**: Task management, persistent memory, and workflow automation
-- **Context7**: Real-time library documentation access
+**Note historique** : L'historique git contient les anciens systèmes basés sur les serveurs MCP (ToolsMCP, MemoryBankMCP). Ces systèmes ont été remplacés par le système de roadmap centralisée qui est plus simple, plus léger et plus flexible.
 
-### Usage with Gemini CLI
-After installation, you can use Gemini CLI with the configured MCP servers:
+### Comment ça fonctionne
 
-```bash
-# Start interactive chat with MCP tools
-gemini chat
+- **Roadmap centralisée** : `.cursor/agents/roadmap.yaml` contient toutes les tâches à faire
+- **Fichiers de tâches** : `.cursor/agents/{titre}.md` décrivent chaque tâche avec contexte, objectif et instructions
+- **Commandes** : `/agent` pour sélectionner une tâche, `/task` pour en ajouter une nouvelle
+- **Coordination** : Plusieurs agents peuvent travailler en parallèle en consultant la roadmap
 
-# List available MCP servers
-gemini mcp list
-
-# Get tool descriptions
-gemini mcp desc
-```
-
-For detailed information about Gemini CLI integration, consult the installation script documentation.
+Pour plus d'informations, consultez les commandes `/agent` et `/task` dans la section "Custom Commands" ci-dessous.
 
 ## What is Cursor Memory Bank? 🤔
 
@@ -238,11 +217,6 @@ Cursor Memory Bank is an advanced autonomous workflow system that revolutionizes
 - **Multi-Task Decomposition**: Intelligent breaking down of complex requests into manageable subtasks
 - **Priority System**: 5-level priority system (1=lowest, 5=critical) with automatic prioritization
 - **Status Tracking**: Comprehensive task lifecycle management (TODO, IN_PROGRESS, BLOCKED, REVIEW, DONE)
-
-#### 🔧 **MCP Server Integration**
-- **ToolsMCP**: Terminal operations, file manipulation, web scraping, and system commands
-- **MemoryBankMCP**: Task management, persistent memory, workflow automation, and commit operations
-- **Context7**: Real-time library documentation with semantic search capabilities
 
 #### 🎨 **Modern Streamlit Interface**
 - **Enhanced Notifications**: Custom toast notification system with configurable duration (5-15s)
@@ -407,36 +381,6 @@ graph TD
    - Error diagnosis and correction
    - **Immediate routing** to implementation
 
-5. **Context Update (`context-update`)**
-   - System state analysis
-   - Automated git commits
-   - Memory cleanup and optimization
-   - **Preparation** for next workflow cycle
-
-## Available MCP Tools 🛠️
-
-### **MemoryBankMCP Server**
-- `mcp_MemoryBankMCP_next_rule`: Get workflow step instructions
-- `mcp_MemoryBankMCP_remember`: Store memories and get next steps
-- `mcp_MemoryBankMCP_create_task`: Create new tasks with dependencies
-- `mcp_MemoryBankMCP_update_task`: Update task status and details
-- `mcp_MemoryBankMCP_update_userbrief`: Update request status
-
-### **ToolsMCP Server**
-- `mcp_ToolsMCP_execute_command`: Terminal command execution
-- `mcp_ToolsMCP_get_terminal_status`: Monitor running processes
-- `mcp_ToolsMCP_get_terminal_output`: Retrieve command output
-- `mcp_ToolsMCP_stop_terminal_command`: Stop running processes
-- `mcp_ToolsMCP_consult_image`: Image analysis and consultation
-- `mcp_ToolsMCP_take_webpage_screenshot`: Web page capture
-- `mcp_ToolsMCP_read_webpage`: Web content extraction to Markdown
-- `mcp_ToolsMCP_replace_content_between`: Advanced file editing
-- `mcp_ToolsMCP_commit`: Git commit operations with oversized file detection
-
-### **Context7 Server**
-- `mcp_Context7_resolve-library-id`: Find library documentation
-- `mcp_Context7_get-library-docs`: Access real-time library docs
-
 ## Custom Commands
 
 ### `/prompt` - Transition entre agents
@@ -507,8 +451,8 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 
 **Système de roadmap:**
 - Fichier centralisé : `.cursor/agents/roadmap.yaml`
-- Fichiers de tâches : `.cursor/agents/{titre}_{DD-MM-YYYY}.md`
-- Fichiers de résultats : `.cursor/agents/rapport-{titre}_{DD-MM-YYYY}.md`
+- Fichiers de tâches : `.cursor/agents/{titre-kebab-case}.md`
+- Fichiers de résultats : `.cursor/agents/rapport-{titre-kebab-case}.md`
 
 **Critères de sélection:**
 - Dépendances résolues (toutes les tâches dépendantes sont DONE)
@@ -555,15 +499,6 @@ La commande `/task` permet d'ajouter une nouvelle tâche à la roadmap centralis
 6. Reprendre immédiatement le travail précédent
 
 **Exemple:** Pendant l'implémentation de l'authentification, l'utilisateur tape `/task optimiser les performances`. L'agent crée la tâche avec contexte, confirme, puis continue l'implémentation de l'authentification.
-
-## MCP Rule: `mcp`
-
-La règle `mcp` impose deux directives critiques :
-
-- **Toujours** utilise `mcp_ToolsMCP_execute_command` pour exécuter des commandes terminal — ne jamais utiliser l'outil de base `terminal cmd`. Commence par un timeout court (10s) pour vérifier que la commande démarre correctement; si nécessaire, surveille la commande avec `mcp_ToolsMCP_get_terminal_status` en augmentant le timeout (par ex. 30s puis 60s).
-- **Ne commite jamais manuellement.** N'effectue un commit que si l'utilisateur l'a explicitement demandé et a validé les changements, et utilise toujours `mcp_MemoryBankMCP_commit` pour les commits.
-
-**Important (limite de timeout)** : Les timeouts supérieurs à 5 minutes (300 secondes) ne sont pas autorisés. Si vous avez une commande longue, lancez d'abord `mcp_ToolsMCP_execute_command` avec un timeout très court (ex. 10s) pour vérifier que la commande s'est lancée, puis surveillez-la avec `mcp_ToolsMCP_get_terminal_status` en augmentant progressivement les timeouts (par ex. 30s → 150s → 300s). Les timeouts trop longs bloquent la chaîne d'exécution et empêchent une supervision réactive.
 
 ## Streamlit Interface Features 🎨
 
@@ -612,7 +547,6 @@ While this is primarily a personal project, contributions are welcome! The syste
 
 ### **Development Guidelines**
 - Follow the established workflow patterns
-- Use the MCP tools for consistency
 - Test all changes through the experience-execution cycle
 - Document architectural decisions in long-term memory
 
@@ -622,40 +556,16 @@ This project is open source and available for personal and educational use. Plea
 
 ## Troubleshooting 🔧
 
-### **CRITICAL: MCP Server Restart Requirement** ⚠️
-
-**IMPORTANT:** After modifying any MCP server JavaScript files (`.cursor/mcp/memory-bank-mcp/mcp_tools/*.js`), you **MUST restart Cursor completely** for changes to take effect. The MCP server cache does not automatically reload modified code.
-
-**Symptoms of stale MCP cache:**
-- Code changes not reflected in tool behavior
-- Unexpected tool responses or errors
-- Modified logic appears to be ignored
-
-**Solution:** Close Cursor entirely and restart the application.
-
-**Note:** The `execute_command` tool (implemented in `/.cursor/mcp/mcp-commit-server/mcp_tools/terminal_execution.js`) now appends an additional advisory message when a timeout occurs. This advisory tells the LLM that the command is still running (only the timeout was reached) and recommends using `mcp_ToolsMCP_get_terminal_status` with progressively longer timeouts (30 seconds → 170 seconds (2m50s) → 300 seconds (5 minutes)) to monitor the process, or `mcp_ToolsMCP_stop_terminal_command` to stop it if it appears stuck or in an infinite loop.
-
-### **MCP Server Issues**
-
-If you encounter errors with MCP servers not being found:
-
-1. **Verify Installation**: Ensure all MCP server files are properly installed
-2. **Check Permissions**: Verify file permissions for MCP server directories
-3. **Restart Cursor**: Complete application restart to refresh MCP cache
-4. **Validate Configuration**: Check `.cursor/mcp.json` for correct server paths
-
 ### **Windows Emoji Encoding Issues** 🐛
 
 If you encounter `UnicodeEncodeError` when running commands with emojis on Windows:
 
 **Problem**: Windows uses `cp1252` encoding by default, causing errors with Unicode characters and emojis.
 
-**Solution**: The ToolsMCP server automatically sets the following environment variables for all processes:
+**Solution**: Set the following environment variables for all processes:
 - `PYTHONIOENCODING=utf-8`: Forces Python to use UTF-8 for I/O operations
 - `PYTHONLEGACYWINDOWSSTDIO=0`: Enables UTF-8 mode on Windows
 - `LC_ALL=C.UTF-8` and `LANG=C.UTF-8`: Sets locale to UTF-8
-
-**Note**: After modifying the MCP server code, you must restart Cursor completely for changes to take effect.
 
 ### **Workflow Issues**
 
@@ -688,11 +598,11 @@ For more detailed troubleshooting, consult the system's working memory and long-
 
 ## Automatic Task Creation System 🔧
 
-The system automatically creates refactoring tasks for oversized files (>500 lines) **integrated directly into the MCP commit tool**. This replaces the traditional pre-commit hook approach.
+The system automatically creates refactoring tasks for oversized files (>500 lines) integrated directly into the commit workflow.
 
 ### How It Works
 
-**Automatic Detection**: Every time you use `mcp_MemoryBankMCP_commit`, the system:
+**Automatic Detection**: Every time you commit, the system:
 1. **Scans all files** in the project with supported extensions (`.py`, `.js`, `.tex`, `.html`, `.css`, `.sh`)
 2. **Detects files** exceeding 500 lines
 3. **Creates refactoring tasks** automatically with appropriate priorities
@@ -716,7 +626,7 @@ The system automatically creates refactoring tasks for oversized files (>500 lin
 To verify automatic task creation works:
 
 1. Create a test file with >500 lines: `seq 600 > test_file.py`
-2. Commit using the MCP tool: `mcp_MemoryBankMCP_commit` 
+2. Commit the changes
 3. Check the commit output for "Automatic Task Creation" section
 4. Verify the task appears in Streamlit interface
 5. Clean up: `rm test_file.py`
@@ -728,7 +638,7 @@ To verify automatic task creation works:
 git config --unset core.hooksPath
 ```
 
-The functionality is now **100% integrated** into the MCP workflow - no separate hooks needed.
+The functionality is now **100% integrated** into the commit workflow - no separate hooks needed.
 
 ### **Windows: git diff encoding fix**
 

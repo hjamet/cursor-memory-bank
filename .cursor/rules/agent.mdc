@@ -37,6 +37,7 @@ Tu **NE DOIS PAS** créer de tâche si :
 Avant de créer la tâche, identifier :
 
 - **Titre descriptif** : Un titre clair et actionnable (ex: "Optimiser les performances d'authentification")
+  - **IMPORTANT** : Le titre doit être unique pour éviter les collisions de noms de fichiers
 - **Priorité** : De 1 à 5 (5 = plus haute priorité)
   - 5 = Critique/Blocant
   - 4 = Haute priorité
@@ -49,15 +50,14 @@ Avant de créer la tâche, identifier :
 ### Étape 2 : Générer le Nom de Fichier
 
 1. Convertir le titre en format kebab-case (ex: "Optimiser les performances" → "optimiser-performances")
-2. Obtenir la date du jour au format `DD-MM-YYYY`
-3. Nom du fichier de tâche : `{titre-kebab-case}_{DD-MM-YYYY}.md`
-4. Nom du fichier de résultat : `rapport-{titre-kebab-case}_{DD-MM-YYYY}.md`
+2. **IMPORTANT** : Vérifier que le titre est unique dans la roadmap pour éviter les collisions de noms de fichiers
+3. Nom du fichier de tâche : `{titre-kebab-case}.md`
+4. Nom du fichier de résultat : `rapport-{titre-kebab-case}.md`
 
 Exemple :
-- Titre : "Optimiser les performances d'authentification"
-- Date : 20 janvier 2025
-- Fichier tâche : `optimiser-performances-auth_20-01-2025.md`
-- Fichier résultat : `rapport-optimiser-performances-auth_20-01-2025.md`
+- Titre : "Supprimer tous les serveurs MCP obsolètes"
+- Fichier tâche : `supprimer-tous-les-serveurs-mcp-obsoletes.md`
+- Fichier résultat : `rapport-supprimer-tous-les-serveurs-mcp-obsoletes.md`
 
 ### Étape 3 : Créer le Fichier de Tâche
 
@@ -95,7 +95,7 @@ Exemple : "Explorer la possibilité d'optimiser le système d'authentification p
 - `.cursor/agents/rapport-tache-precedente_19-01-2025.md` : [Expliquer pourquoi ce rapport est utile]
 
 **Fichier output pour le rapport final :**
-- `.cursor/agents/rapport-{titre-kebab-case}_{DD-MM-YYYY}.md`
+- `.cursor/agents/rapport-{titre-kebab-case}.md`
 
 ## Instructions de Collaboration
 
@@ -157,12 +157,11 @@ Supposons que tu travailles sur l'authentification et découvres des problèmes 
 - Contexte : Problèmes de performance découverts lors des tests
 
 **Étape 2 - Noms de fichiers** :
-- Date : 20-01-2025
-- Fichier tâche : `optimiser-performances-auth_20-01-2025.md`
-- Fichier résultat : `rapport-optimiser-performances-auth_20-01-2025.md`
+- Fichier tâche : `optimiser-performances-auth.md`
+- Fichier résultat : `rapport-optimiser-performances-auth.md`
 
 **Étape 3 - Créer le fichier de tâche** :
-- Créer `.cursor/agents/optimiser-performances-auth_20-01-2025.md` avec les 4 sections
+- Créer `.cursor/agents/optimiser-performances-auth.md` avec les 4 sections (vérifier l'unicité du titre)
 
 **Étape 4 - Ajouter dans roadmap.yaml** :
 ```yaml
@@ -171,8 +170,8 @@ Supposons que tu travailles sur l'authentification et découvres des problèmes 
   status: "TODO"
   priority: 4
   dependencies: []
-  task_file: "optimiser-performances-auth_20-01-2025.md"
-  output_file: "rapport-optimiser-performances-auth_20-01-2025.md"
+  task_file: "optimiser-performances-auth.md"
+  output_file: "rapport-optimiser-performances-auth.md"
   created_at: "2025-01-20T14:30:00Z"
   started_at: null
   deadline: null

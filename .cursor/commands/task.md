@@ -24,15 +24,16 @@ Lorsque l'utilisateur tape `/task [description de la tâche]`, tu dois :
 2. **Identifier le contexte** de ton travail actuel pour comprendre pourquoi cette tâche est mentionnée
 3. **Déterminer les métadonnées** :
    - Titre descriptif et actionnable
+   - **IMPORTANT** : Vérifier que le titre est unique dans la roadmap pour éviter les collisions de noms de fichiers
    - Priorité (1-5, 3 par défaut)
    - Dépendances éventuelles (si le travail actuel doit être terminé d'abord)
 
 ### Étape 2 : Générer le Nom de Fichier
 
 1. Convertir le titre en format kebab-case
-2. Obtenir la date du jour au format `DD-MM-YYYY`
-3. Nom du fichier de tâche : `{titre-kebab-case}_{DD-MM-YYYY}.md`
-4. Nom du fichier de résultat : `rapport-{titre-kebab-case}_{DD-MM-YYYY}.md`
+2. **IMPORTANT** : Vérifier que le titre est unique dans la roadmap pour éviter les collisions
+3. Nom du fichier de tâche : `{titre-kebab-case}.md`
+4. Nom du fichier de résultat : `rapport-{titre-kebab-case}.md`
 
 ### Étape 3 : Créer le Fichier de Tâche
 
@@ -58,7 +59,7 @@ Lister exhaustivement :
 - **Fichiers potentiellement pertinents** : Fichiers qui pourraient être importants pour la tâche
 - **Recherches à effectuer** : Recherches sémantiques, web, documentation à consulter
 - **Fichiers de résultats d'autres agents** : Si pertinents
-- **Fichier output** : `.cursor/agents/rapport-{titre-kebab-case}_{DD-MM-YYYY}.md`
+- **Fichier output** : `.cursor/agents/rapport-{titre-kebab-case}.md`
 
 #### Section 4 : Instructions de Collaboration
 
@@ -134,7 +135,7 @@ Si une étape échoue :
 
 **Actions** :
 1. ✅ Analyser : "Optimiser les performances d'authentification" est une tâche future
-2. ✅ Créer le fichier `optimiser-performances-auth_20-01-2025.md` avec les 4 sections
+2. ✅ Créer le fichier `optimiser-performances-auth.md` avec les 4 sections (vérifier l'unicité du titre)
 3. ✅ Ajouter l'entrée dans `roadmap.yaml` avec ID `task-1`
 4. ✅ Confirmer : "✅ Tâche 'Optimiser les performances d'authentification' ajoutée à la roadmap (ID: task-1)"
 5. ✅ Reprendre immédiatement l'implémentation de l'authentification

@@ -159,62 +159,6 @@ convert_to_windows_path() {
     echo "$win_path"
 }
 
-# Install npm dependencies for an MCP server with cleanup and timeout
-# Usage: install_mcp_server_dependencies "/path/to/server" "ServerName"
-install_mcp_server_dependencies() {
-    local server_dir="$1"
-    local server_name="$2"
-    
-    if [[ ! -d "$server_dir" ]] || [[ ! -f "$server_dir/package.json" ]]; then
-        log "Skipping npm install for $server_name - directory or package.json not found"
-        return 0
-    fi
-    
-    log "Installing $server_name dependencies in $server_dir..."
-    
-    # Clean up previous installs
-    if [[ -d "$server_dir/node_modules" ]]; then
-        rm -rf "$server_dir/node_modules" || error "Failed to remove existing node_modules in $server_dir"
-    fi
-    rm -f "$server_dir"/*.log
-    
-    # Verify server.js exists
-    if [[ ! -f "$server_dir/server.js" ]]; then
-        error "server.js file not found in $server_dir. Cannot proceed with npm install."
-    fi
-    
-    # Check if npm is available
-    if ! command -v npm >/dev/null 2>&1; then
-        error "npm not found. Please install Node.js and npm, then run 'npm install' in $server_dir manually."
-    fi
-    
-    # Determine timeout command
-    local timeout_cmd=""
-    if command -v timeout >/dev/null 2>&1; then
-        timeout_cmd="timeout 60s"
-    elif command -v gtimeout >/dev/null 2>&1; then
-        timeout_cmd="gtimeout 60s"
-    fi
-    
-    # Run npm install with timeout
-    log "Running npm install in $server_dir..."
-    (cd "$server_dir" && $timeout_cmd npm install)
-    local npm_status=$?
-    
-    if [[ $npm_status -eq 124 ]]; then
-        error "'npm install' in $server_dir timed out after 60 seconds. Check network connection."
-    elif [[ $npm_status -ne 0 ]]; then
-        error "Failed to install $server_name dependencies (Exit code: $npm_status). Run 'npm install' manually in $server_dir."
-    fi
-    
-    # Verify node_modules directory exists
-    if [[ ! -d "$server_dir/node_modules" ]]; then
-        error "node_modules directory not found in $server_dir after npm install. MCP server will not function."
-    fi
-    
-    log "$server_name dependencies installed successfully."
-}
-
 # ============================================================================
 # REPOSITORY & VERSION FUNCTIONS
 # ============================================================================
@@ -507,7 +451,7 @@ manage_gitignore() {
         return
     fi
 
-    log "Ensuring minimal MCP-related .gitignore entries..."
+    log "Ensuring minimal .gitignore entries..."
 
     # Create parent dir if needed
     if [[ ! -d "$(dirname "$gitignore_file")" ]]; then
@@ -526,7 +470,7 @@ tomd.py
 repo.md
 diff
 EOF
-        log "Created .gitignore with minimal MCP rules at: $gitignore_file"
+        log "Created .gitignore with minimal rules at: $gitignore_file"
     else
         # Robustly append a single block if the header is missing.
         # 1) Ensure file ends with a newline to avoid corrupting last line
@@ -820,7 +764,7 @@ create_default_workflow_files() {
     fi
 }
 
-# Function to create MCP-compatible tasks.json in streamlit_app directory
+# Function to create tasks.json in streamlit_app directory
 create_mcp_tasks_file() {
     local target_dir="$1"
     local streamlit_app_dir="$target_dir/.cursor/memory-bank/streamlit_app"
@@ -828,12 +772,12 @@ create_mcp_tasks_file() {
     # Create streamlit_app directory if it doesn't exist
     mkdir -p "$streamlit_app_dir"
     
-    # Create MCP-compatible tasks.json (simple array format)
+    # Create tasks.json (simple array format)
     if [[ ! -f "$streamlit_app_dir/tasks.json" ]]; then
         echo "[]" > "$streamlit_app_dir/tasks.json"
-        log "Created MCP-compatible tasks.json in streamlit_app directory"
+        log "Created tasks.json in streamlit_app directory"
     else
-        log "MCP tasks.json already exists in streamlit_app directory"
+        log "tasks.json already exists in streamlit_app directory"
     fi
 }
 
@@ -896,7 +840,7 @@ install_commands() {
     log "✓ Commands installed successfully"
 }
 
-# Function for basic installation (rules only, no MCP servers)
+# Function for basic installation (rules only, no servers)
 install_basic_rules() {
     local target_dir="$1"
     local temp_dir="$2"
@@ -980,21 +924,13 @@ install_workflow_system() {
     local clone_dir="$temp_dir/repo"
     local api_dir="$temp_dir/api-files"
     local commit_date=""
-    local template_mcp_json="$temp_dir/mcp.json" # Define path for template
     
-    # Define the MCP server names to install (only in FULL_INSTALL mode)
-    local mcp_servers=()
-    if [[ -n "${FULL_INSTALL:-}" ]]; then
-        mcp_servers=("mcp-commit-server" "memory-bank-mcp" "tools-mcp")
-        log "Full installation mode: installing all MCP servers and workflow system"
-    else
+    if [[ -z "${FULL_INSTALL:-}" ]]; then
         log "ERROR: install_workflow_system should only be called in FULL_INSTALL mode"
         error "install_workflow_system called without FULL_INSTALL flag. This is a bug in the installation script."
     fi
     
-    local server_name # Loop variable
-    local mcp_server_source_dir # Will be set inside the loop
-    local mcp_server_target_dir # Will be set inside the loop
+    log "Full installation mode: installing workflow system"
 
     log "Installing to $target_dir"
 
@@ -1009,10 +945,6 @@ install_workflow_system() {
         # Get commit date from API
         commit_date=$(get_last_commit_date "curl")
         log "Installing from master branch (latest commit: $commit_date)"
-
-        # Download mcp.json template
-        log "Downloading mcp.json template"
-        download_file "$RAW_URL_BASE/.cursor/mcp.json" "$template_mcp_json"
 
         # Only install workflow components in full mode
         if [[ -n "${FULL_INSTALL:-}" ]]; then
@@ -1063,7 +995,6 @@ install_workflow_system() {
                 # If start.mdc is not available, create an empty GEMINI.md for compatibility
                 touch "$target_dir/GEMINI.md"
             fi
-            ensure_rule_file ".cursor/mcp.json" "$target_dir/.gemini/settings.json"
         else
             # Basic install mode - install all rules except those marked as full_install_only
             mkdir -p "$target_dir/.cursor/rules"
@@ -1108,60 +1039,6 @@ install_workflow_system() {
         log "Deploying tomd.py to installation root"
         ensure_rule_file "tomd.py" "$target_dir/tomd.py"
 
-        # Clean and setup MCP directories
-        log "Setting up MCP server directories..."
-        if [[ -d "$target_dir/.cursor/mcp" ]]; then
-            rm -rf "$target_dir/.cursor/mcp" || error "Failed to remove existing MCP directory: $target_dir/.cursor/mcp"
-        fi
-        mkdir -p "$target_dir/.cursor/mcp" || error "Failed to create MCP directory: $target_dir/.cursor/mcp"
-
-        # Download MCP server files
-        for server_name in "${mcp_servers[@]}"; do
-            mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
-            mkdir -p "$mcp_server_target_dir"
-            
-            if [[ "$server_name" == "mcp-commit-server" ]]; then
-                log "Downloading mcp-commit-server files..."
-                download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/server.js" "$mcp_server_target_dir/server.js"
-                download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/package.json" "$mcp_server_target_dir/package.json"
-                # Download lib files
-                mkdir -p "$mcp_server_target_dir/lib"
-                download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/lib/state_manager.js" "$mcp_server_target_dir/lib/state_manager.js"
-                download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/lib/process_manager.js" "$mcp_server_target_dir/lib/process_manager.js"
-                download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/lib/logger.js" "$mcp_server_target_dir/lib/logger.js"
-                # Download mcp_tools files
-                mkdir -p "$mcp_server_target_dir/mcp_tools"
-                local tools=("terminal_execution.js" "terminal_status.js" "terminal_output.js" "terminal_stop.js" "consult_image.js" "take_pdf_screenshot.js" "webpage_screenshot.js" "read_webpage.js" "replace_content_between.js" "commit.js")
-                for tool in "${tools[@]}"; do
-                    download_file "$RAW_URL_BASE/.cursor/mcp/mcp-commit-server/mcp_tools/$tool" "$mcp_server_target_dir/mcp_tools/$tool"
-                done
-            elif [[ "$server_name" == "memory-bank-mcp" ]]; then
-                log "Downloading memory-bank-mcp server files..."
-                mkdir -p "$mcp_server_target_dir/lib"
-                mkdir -p "$mcp_server_target_dir/mcp_tools"
-                download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/server.js" "$mcp_server_target_dir/server.js"
-                download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/package.json" "$mcp_server_target_dir/package.json"
-                download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/lib/userbrief_manager.js" "$mcp_server_target_dir/lib/userbrief_manager.js"
-                download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/lib/memory_context.js" "$mcp_server_target_dir/lib/memory_context.js"
-                download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/lib/semantic_search.js" "$mcp_server_target_dir/lib/semantic_search.js"
-                # Download all mcp_tools
-                local tools=("commit.js" "create_task.js" "get_all_tasks.js" "get_next_tasks.js" "next_rule.js" "read_userbrief.js" "remember.js" "update_task.js" "update_userbrief.js")
-                for tool in "${tools[@]}"; do
-                    download_file "$RAW_URL_BASE/.cursor/mcp/memory-bank-mcp/mcp_tools/$tool" "$mcp_server_target_dir/mcp_tools/$tool"
-                done
-            elif [[ "$server_name" == "tools-mcp" ]]; then
-                log "Downloading tools-mcp server files..."
-                mkdir -p "$mcp_server_target_dir/mcp_tools"
-                download_file "$RAW_URL_BASE/.cursor/mcp/tools-mcp/server.js" "$mcp_server_target_dir/server.js"
-                download_file "$RAW_URL_BASE/.cursor/mcp/tools-mcp/package.json" "$mcp_server_target_dir/package.json"
-                # Download all tools
-                local tools=("consult_image.js" "execute_command.js" "get_terminal_output.js" "get_terminal_status.js" "regex_edit.js" "stop_terminal_command.js" "take_webpage_screenshot.js")
-                for tool in "${tools[@]}"; do
-                    download_file "$RAW_URL_BASE/.cursor/mcp/tools-mcp/mcp_tools/$tool" "$mcp_server_target_dir/mcp_tools/$tool"
-                done
-            fi
-        done
-
     else
         # Use git clone
         log "Using git clone for installation"
@@ -1173,7 +1050,7 @@ install_workflow_system() {
         # missing or empty. This implements the "clone if possible + verify
         # and fallback by raw download" strategy.
         log "Verifying required rule files via ensure_rule_file (clone + fallback)"
-        mkdir -p "$INSTALL_DIR/.cursor/rules" "$INSTALL_DIR/.cursor/commands" "$INSTALL_DIR/.cursor/mcp" "$INSTALL_DIR/.gemini"
+        mkdir -p "$INSTALL_DIR/.cursor/rules" "$INSTALL_DIR/.cursor/commands" "$INSTALL_DIR/.gemini"
 
         # Determine rules list from the cloned repository when possible, otherwise
         # fall back to the GitHub API helper. This prevents attempts to download
@@ -1286,19 +1163,6 @@ install_workflow_system() {
                 warn "start.mdc rule not found in repository clone at .cursor/rules/start.mdc."
                 touch "$target_dir/GEMINI.md"
             fi
-            
-            # Copy mcp.json as settings.json in .gemini directory
-            if [[ -f "$clone_dir/.cursor/mcp.json" ]]; then
-                log "Copying mcp.json as settings.json to .gemini directory"
-                mkdir -p "$target_dir/.gemini"
-                if ! cp "$clone_dir/.cursor/mcp.json" "$target_dir/.gemini/settings.json"; then
-                    error "Failed to copy mcp.json as settings.json. Please check permissions."
-                fi
-            else
-                warn "mcp.json template not found in repository clone at .cursor/mcp.json."
-                mkdir -p "$target_dir/.gemini"
-                touch "$target_dir/.gemini/settings.json"
-            fi
         else
             # Basic mode: install agent.mdc rule, README.mdc and debug.mdc rules
             if [[ -f "$clone_dir/.cursor/rules/agent.mdc" ]]; then
@@ -1331,17 +1195,7 @@ install_workflow_system() {
                 warn "debug.mdc rule not found in repository"
             fi
         fi
-        
-        # Copy mcp.json template
-        if [[ -f "$clone_dir/.cursor/mcp.json" ]]; then
-            log "Copying mcp.json template from clone"
-            if ! cp "$clone_dir/.cursor/mcp.json" "$template_mcp_json"; then
-                error "Failed to copy mcp.json template. Please check permissions."
-            fi
-        else
-            warn "mcp.json template not found in repository clone at .cursor/mcp.json."
-            touch "$template_mcp_json"
-        fi
+    fi
 
         # Ensure tomd.py is deployed to the installation root for both clone and curl methods
         if [[ -f "$clone_dir/tomd.py" ]]; then
@@ -1358,44 +1212,7 @@ install_workflow_system() {
                 warn "Failed to obtain tomd.py via download; continuing without it"
             fi
         fi
-
-        # Clean and setup MCP directories
-        log "Setting up MCP server directories..."
-        if [[ -d "$target_dir/.cursor/mcp" ]]; then
-            rm -rf "$target_dir/.cursor/mcp" || error "Failed to remove existing MCP directory: $target_dir/.cursor/mcp"
-        fi
-        mkdir -p "$target_dir/.cursor/mcp" || error "Failed to create MCP directory: $target_dir/.cursor/mcp"
-
-        # Copy MCP server files
-        for server_name in "${mcp_servers[@]}"; do
-            mcp_server_source_dir="$clone_dir/.cursor/mcp/$server_name"
-            mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
-
-            if [[ -d "$mcp_server_source_dir" ]]; then
-                log "Copying $server_name files..."
-                mkdir -p "$mcp_server_target_dir"
-                if ! cp -r "$mcp_server_source_dir/"* "$mcp_server_target_dir/"; then
-                    if [ -z "$(ls -A "$mcp_server_source_dir")" ]; then
-                        warn "MCP server source directory for $server_name is empty."
-                    else
-                        error "Failed to copy $server_name files. Please check disk space and permissions."
-                    fi
-                else
-                    log "$server_name files copied successfully."
-                fi
-            else
-                warn "Source directory for $server_name not found: $mcp_server_source_dir"
-            fi
-        done
     fi
-
-    # Set permissions for MCP directories
-    for server_name in "${mcp_servers[@]}"; do
-        local mcp_server_target_dir="$target_dir/.cursor/mcp/$server_name"
-        if [[ -d "$mcp_server_target_dir" ]]; then
-            chmod -R u+rw "$mcp_server_target_dir" || error "Failed to set permissions on $mcp_server_target_dir"
-        fi
-    done
 
     # Ensure .gitignore is managed for selective .cursor synchronization in all install modes
     manage_gitignore "$target_dir"
@@ -1405,410 +1222,13 @@ install_workflow_system() {
             chmod -R u+rw "$workflow_path" || error "Failed to set permissions on $workflow_path"
         fi
 
-        log "Full workflow system and MCP servers installed successfully"
-    else
-        log "ToolsMCP server installed successfully"
+        log "Full workflow system installed successfully"
     fi
 }
 
 # ============================================================================
-# MCP CONFIGURATION
+# STREAMLIT APP & ML MODEL
 # ============================================================================
-
-# Function to merge MCP JSON template with existing config
-merge_mcp_json() {
-    local target_dir="$1"
-    # temp_dir is not needed for this approach
-    local target_mcp_json="$target_dir/.cursor/mcp.json"
-    local server_script_rel_path=".cursor/mcp/mcp-commit-server/server.js"
-    local server_script_path="$target_dir/$server_script_rel_path"
-
-    # --- Calculate Absolute Paths --- (Keep this logic as is)
-    log "Calculating absolute paths relative to $target_dir..."
-    local target_dir_abs=""
-    local server_script_abs_path=""
-    local server_script_win_path="" # For Windows compatibility
-    local target_dir_win_path="" # For Windows compatibility
-
-    # Calculate absolute path for target_dir first
-    if ! target_dir_abs="$(cd "$target_dir" && pwd -P)"; then
-        error "Failed to determine absolute path for target directory: $target_dir. Cannot configure server args."
-    fi
-    log "Calculated absolute target directory path: $target_dir_abs"
-    
-    # Convert to Windows path if needed
-    target_dir_win_path=$(convert_to_windows_path "$target_dir_abs")
-    if [[ -z "$target_dir_win_path" ]]; then
-        error "Target directory path conversion failed."
-    fi
-
-    # Now calculate absolute path for server script
-    if [[ ! -f "$server_script_path" ]]; then
-        error "Aborting MCP config generation: server script missing at $server_script_path."
-    fi
-    
-    # Construct absolute path for script
-    local clean_rel_path="${server_script_rel_path#./}"
-    server_script_abs_path="$target_dir_abs/$clean_rel_path"
-    if [[ ! "$server_script_abs_path" =~ ^(/|[A-Za-z]:) ]]; then
-        error "Calculated script path '$server_script_abs_path' does not appear absolute."
-    fi
-    log "Calculated absolute script path: $server_script_abs_path"
-    
-    # Convert to Windows path if needed
-    server_script_win_path=$(convert_to_windows_path "$server_script_abs_path")
-    if [[ -z "$server_script_win_path" ]]; then
-        error "Server script path conversion failed."
-    fi
-
-    # Ensure target directory exists before writing
-    if ! mkdir -p "$(dirname "$target_mcp_json")"; then
-        error "Could not create directory for $target_mcp_json. Aborting MCP config generation."
-        return 1
-    fi
-
-    # Escape paths for JSON embedding (double backslashes)
-    local server_script_json_safe
-    server_script_json_safe=$(echo "$server_script_win_path" | sed 's/\\/\\\\/g')
-    local target_dir_json_safe
-    target_dir_json_safe=$(echo "$target_dir_win_path" | sed 's/\\/\\\\/g')
-
-    log "Preparing to generate $target_mcp_json with hardcoded structure..."
-    
-    # --- DEBUG: Print values before writing ---
-    echo "DEBUG: Writing to target file: [$target_mcp_json]" >&2
-    echo "DEBUG: Server script path (escaped): [$server_script_json_safe]" >&2
-    echo "DEBUG: Target directory path (escaped): [$target_dir_json_safe]" >&2
-    # --- End DEBUG ---
-    
-    # Different configuration based on installation mode
-    if [[ -n "${FULL_INSTALL:-}" ]]; then
-        # Calculate memory-bank-mcp server script path for full installation
-        local memory_bank_script_rel_path=".cursor/mcp/memory-bank-mcp/server.js"
-        local memory_bank_script_abs_path="$target_dir_abs/${memory_bank_script_rel_path#./}"
-        
-        # Convert to Windows path if needed
-        local memory_bank_script_win_path
-        memory_bank_script_win_path=$(convert_to_windows_path "$memory_bank_script_abs_path")
-        
-        # Escape memory-bank-mcp script path for JSON
-        local memory_bank_script_json_safe
-        memory_bank_script_json_safe=$(echo "$memory_bank_script_win_path" | sed 's/\\/\\\\/g')
-
-        # Full installation: include all servers
-cat > "$target_mcp_json" << EOF
-{
-    "mcpVersion": "0.1",
-    "mcpServers": {
-        "ToolsMCP": {
-            "command": "node",
-            "args": [
-                "$server_script_json_safe",
-                "--cwd",
-                "$target_dir_json_safe"
-            ]
-        },
-        "MemoryBankMCP": {
-            "command": "node",
-            "args": [
-                "$memory_bank_script_json_safe",
-                "--cwd",
-                "$target_dir_json_safe"
-            ]
-        },
-        "Context7": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@upstash/context7-mcp@latest"
-            ]
-        }
-    }
-}
-EOF
-    else
-        # Basic installation: only ToolsMCP
-cat > "$target_mcp_json" << EOF
-{
-    "mcpVersion": "0.1",
-    "mcpServers": {
-        "ToolsMCP": {
-            "command": "node",
-            "args": [
-                "$server_script_json_safe",
-                "--cwd",
-                "$target_dir_json_safe"
-            ]
-        }
-    }
-}
-EOF
-    fi
-
-    local write_status=$?
-    if [[ $write_status -ne 0 ]]; then
-        error "Failed to write generated MCP JSON to $target_mcp_json (Exit status: $write_status)"
-        return 1 # Indicate failure
-    else
-        log "cat > EOF command finished with status $write_status."
-        # --- DEBUG: Check file state immediately after write ---
-        echo "DEBUG: Checking file state post-write for: [$target_mcp_json]" >&2
-        ls -l "$target_mcp_json" >&2
-        echo "DEBUG: First 5 lines post-write:" >&2
-        head -n 5 "$target_mcp_json" >&2
-        # --- End DEBUG ---
-        
-        # Basic existence check (redundant with ls but good practice)
-        if [[ -f "$target_mcp_json" ]]; then
-             log "Successfully generated $target_mcp_json (File exists)."
-        else
-             error "File $target_mcp_json was NOT found after write attempt."
-        fi
-        
-        # Validate JSON syntax
-        validate_json_file "$target_mcp_json"
-        log "✓ MCP JSON configuration validated"
-        
-        return 0 # Indicate success
-    fi
-}
-
-# Function to configure MCP servers for Gemini CLI
-configure_gemini_cli_mcp() {
-    local target_dir="$1"
-    # CORRECTION: Use local .gemini/settings.json instead of global ~/.gemini/settings.json
-    local gemini_settings_file="$target_dir/.gemini/settings.json"
-    local server_script_rel_path=".cursor/mcp/mcp-commit-server/server.js"
-    local memory_bank_script_rel_path=".cursor/mcp/memory-bank-mcp/server.js"
-
-    log "Configuring MCP servers for Gemini CLI (local configuration)..."
-
-    # --- Calculate Absolute Paths ---
-    log "Calculating absolute paths for Gemini CLI configuration..."
-    local target_dir_abs=""
-    local server_script_abs_path=""
-    local memory_bank_script_abs_path=""
-    local server_script_win_path=""
-    local memory_bank_script_win_path=""
-
-    # Calculate absolute path for target_dir
-    if ! target_dir_abs="$(cd "$target_dir" && pwd -P)"; then
-        error "Failed to determine absolute path for target directory: $target_dir. Cannot configure Gemini CLI MCP servers."
-        return 1
-    fi
-    log "Calculated absolute target directory path: $target_dir_abs"
-
-    # Calculate absolute paths for server scripts
-    local clean_rel_path="${server_script_rel_path#./}"
-    server_script_abs_path="$target_dir_abs/$clean_rel_path"
-    
-    # Check if server scripts exist
-    if [[ ! -f "$target_dir/$server_script_rel_path" ]]; then
-        error "ToolsMCP server script missing at $target_dir/$server_script_rel_path. Cannot configure Gemini CLI."
-    fi
-
-    # Convert to Windows path if needed
-    server_script_win_path=$(convert_to_windows_path "$server_script_abs_path")
-
-    # Escape paths for JSON embedding
-    local server_script_json_safe
-    server_script_json_safe=$(echo "$server_script_win_path" | sed 's/\\/\\\\/g')
-
-    # Create .gemini directory if it doesn't exist
-    if ! mkdir -p "$(dirname "$gemini_settings_file")"; then
-        error "Could not create directory for $gemini_settings_file. Aborting Gemini CLI MCP configuration."
-        return 1
-    fi
-
-    # Check if settings.json already exists and has MCP configuration
-    local existing_config=""
-    local has_existing_mcp=false
-    if [[ -f "$gemini_settings_file" ]]; then
-        log "Found existing Gemini CLI settings file: $gemini_settings_file"
-        if grep -q '"mcpServers"' "$gemini_settings_file" 2>/dev/null; then
-            has_existing_mcp=true
-            warn "Existing MCP server configuration found in $gemini_settings_file"
-            warn "The existing MCP configuration will be replaced, but other settings will be preserved."
-        fi
-        # Read existing config to preserve non-MCP settings
-        existing_config=$(cat "$gemini_settings_file" 2>/dev/null || echo "{}")
-    else
-        log "Creating new Gemini CLI settings file: $gemini_settings_file"
-        existing_config="{}"
-    fi
-
-    # Generate new MCP configuration JSON based on installation mode
-    log "Preparing to configure Gemini CLI MCP servers..."
-    
-    # --- DEBUG: Print values before writing ---
-    echo "DEBUG: Writing to Gemini settings file: [$gemini_settings_file]" >&2
-    echo "DEBUG: ToolsMCP server script path (escaped): [$server_script_json_safe]" >&2
-    # --- End DEBUG ---
-
-    # Create new MCP servers configuration
-    local new_mcp_config
-    if [[ -n "${FULL_INSTALL:-}" ]]; then
-        # Full installation: include memory-bank-mcp if it exists
-        local memory_clean_rel_path="${memory_bank_script_rel_path#./}"
-        memory_bank_script_abs_path="$target_dir_abs/$memory_clean_rel_path"
-        
-        # Check if memory-bank-mcp exists
-        if [[ -f "$target_dir/$memory_bank_script_rel_path" ]]; then
-            # Convert to Windows path if needed
-            memory_bank_script_win_path=$(convert_to_windows_path "$memory_bank_script_abs_path")
-            
-            # Escape memory-bank-mcp script path for JSON
-            local memory_bank_script_json_safe
-            memory_bank_script_json_safe=$(echo "$memory_bank_script_win_path" | sed 's/\\/\\\\/g')
-            
-            echo "DEBUG: MemoryBankMCP server script path (escaped): [$memory_bank_script_json_safe]" >&2
-            
-            new_mcp_config=$(cat << EOF
-{
-    "ToolsMCP": {
-        "command": "node",
-        "args": ["$server_script_json_safe"]
-    },
-    "MemoryBankMCP": {
-        "command": "node", 
-        "args": ["$memory_bank_script_json_safe"]
-    },
-    "Context7": {
-        "command": "npx",
-        "args": ["-y", "@upstash/context7-mcp@latest"]
-    }
-}
-EOF
-)
-        else
-            warn "MemoryBankMCP server script missing at $target_dir/$memory_bank_script_rel_path. Configuring with ToolsMCP only."
-            new_mcp_config=$(cat << EOF
-{
-    "ToolsMCP": {
-        "command": "node",
-        "args": ["$server_script_json_safe"]
-    },
-    "Context7": {
-        "command": "npx",
-        "args": ["-y", "@upstash/context7-mcp@latest"]
-    }
-}
-EOF
-)
-        fi
-    else
-        # Basic installation: only ToolsMCP
-        new_mcp_config=$(cat << EOF
-{
-    "ToolsMCP": {
-        "command": "node",
-        "args": ["$server_script_json_safe"]
-    }
-}
-EOF
-)
-    fi
-
-    # CRITICAL FIX: Merge configurations intelligently to preserve existing settings
-    local final_config=""
-    if command -v jq >/dev/null 2>&1; then
-        # Use jq for robust JSON merging
-        log "Using jq for intelligent configuration merging..."
-        final_config=$(echo "$existing_config" | jq --argjson mcpServers "$new_mcp_config" '. + {mcpServers: $mcpServers}' 2>/dev/null)
-        if [[ $? -ne 0 ]] || [[ -z "$final_config" ]]; then
-            warn "jq merging failed, falling back to manual merge"
-            final_config=""
-        fi
-    fi
-
-    # Fallback: Manual merge if jq is not available or failed
-    if [[ -z "$final_config" ]]; then
-        log "Performing manual configuration merge..."
-        if [[ "$existing_config" == "{}" ]] || [[ -z "$existing_config" ]]; then
-            # No existing config, create new one
-            # FIXED: new_mcp_config is already a complete JSON object, just wrap it with mcpServers
-            final_config="{
-    \"mcpServers\": $new_mcp_config
-}"
-        else
-            # Try to preserve existing config by removing mcpServers and adding new one
-            local config_without_mcp
-            if command -v jq >/dev/null 2>&1; then
-                config_without_mcp=$(echo "$existing_config" | jq 'del(.mcpServers)' 2>/dev/null)
-            else
-                # Very basic fallback - warn user about potential data loss
-                warn "jq not available for safe merging. Existing non-MCP settings may be lost."
-                warn "Please manually backup your Gemini CLI settings before proceeding."
-                config_without_mcp="{}"
-            fi
-            
-            if [[ -n "$config_without_mcp" ]] && [[ "$config_without_mcp" != "null" ]]; then
-                # Merge manually (basic approach)
-                if [[ "$config_without_mcp" == "{}" ]]; then
-                    # FIXED: Same fix for empty config case
-                    final_config="{
-    \"mcpServers\": $new_mcp_config
-}"
-                else
-                    # FIXED: Safer manual JSON merging
-                    # Remove the closing brace, add comma and mcpServers, then close
-                    local config_base=$(echo "$config_without_mcp" | sed 's/}[[:space:]]*$//')
-                    final_config="${config_base},
-    \"mcpServers\": $new_mcp_config
-}"
-                fi
-            else
-                # Last resort: create new config with warning
-                warn "Could not safely merge existing configuration. Creating new config with MCP servers only."
-                # FIXED: Same fix for fallback case
-                final_config="{
-    \"mcpServers\": $new_mcp_config
-}"
-            fi
-        fi
-    fi
-
-    # Write the merged configuration
-    if ! echo "$final_config" > "$gemini_settings_file"; then
-        error "Failed to write Gemini CLI MCP configuration to $gemini_settings_file"
-        return 1
-    fi
-
-    local write_status=$?
-    if [[ $write_status -ne 0 ]]; then
-        error "Failed to write Gemini CLI MCP configuration to $gemini_settings_file (Exit status: $write_status)"
-        return 1
-    else
-        log "Successfully configured Gemini CLI MCP servers in $gemini_settings_file"
-        
-        # --- DEBUG: Check file state immediately after write ---
-        echo "DEBUG: Checking Gemini settings file state post-write: [$gemini_settings_file]" >&2
-        ls -l "$gemini_settings_file" >&2 2>/dev/null || echo "DEBUG: ls command failed" >&2
-        echo "DEBUG: First 10 lines of Gemini settings post-write:" >&2
-        head -n 10 "$gemini_settings_file" >&2 2>/dev/null || echo "DEBUG: head command failed" >&2
-        # --- End DEBUG ---
-        
-        # Basic existence check
-        if [[ -f "$gemini_settings_file" ]]; then
-            log "Successfully configured Gemini CLI MCP servers (File exists)."
-        else
-            error "Gemini settings file $gemini_settings_file was NOT found after write attempt."
-        fi
-        
-        # Validate JSON syntax
-        validate_json_file "$gemini_settings_file"
-        log "✓ Gemini CLI settings validated"
-        
-        log "Configuration is now local to this project at: $gemini_settings_file"
-        log "You can now use 'gemini chat' from this project directory to interact with the configured MCP servers."
-        if [[ "$has_existing_mcp" == true ]]; then
-            log "Previous MCP server configuration was replaced. Other settings were preserved."
-        fi
-        
-        return 0
-    fi
-}
-
 
 # Function to install the Streamlit app and dependencies
 install_streamlit_app() {
@@ -1982,11 +1402,11 @@ Options:
     -d, --dir DIR      Install to a specific directory (default: current directory)
     --force            Force installation even if directory is not empty
     --use-curl         Force using curl instead of git clone
-    --full-install     Install all components: MCP servers, Streamlit UI, and workflow system (default: rules only)
+    --full-install     Install all components: Streamlit UI, ML model, and workflow system (default: rules only)
 
 This script will:
 1. By default: Install basic rules, tomd.py utility and update .gitignore (fast mode)
-2. With --full-install: Install complete workflow system with MCP servers (ToolsMCP, MemoryBankMCP, mcp-commit-server)
+2. With --full-install: Install complete workflow system with Streamlit UI and ML model
 3. With --full-install: Download the all-MiniLM-L6-v2 model for semantic search
 4. With --full-install: Install Streamlit UI for monitoring agent status
 5. With --full-install: Install start.mdc rule for autonomous workflow operation
@@ -2077,7 +1497,7 @@ if [[ -n "${FULL_INSTALL:-}" ]]; then
     # Full installation: check Node.js requirements first
     check_nodejs_requirements
     
-    # Install workflow system and MCP servers
+    # Install workflow system
     install_workflow_system "$INSTALL_DIR" "$TEMP_DIR"
 else
     # Basic installation: install only rules, tomd.py and update gitignore
@@ -2088,24 +1508,8 @@ fi
 if [[ -n "${FULL_INSTALL:-}" ]]; then
     setup_memory_bank "$INSTALL_DIR" "$TEMP_DIR"
     
-    # Create MCP-compatible tasks.json for streamlit_app
+    # Create tasks.json for streamlit_app
     create_mcp_tasks_file "$INSTALL_DIR"
-    
-    # Merge MCP JSON template with existing config (NOW uses absolute path logic)
-    merge_mcp_json "$INSTALL_DIR"
-    
-    # Configure MCP servers for Gemini CLI only in full install mode
-    configure_gemini_cli_mcp "$INSTALL_DIR"
-else
-    log "Skipping MCP configuration for basic install (rules only)"
-fi
-
-# Install MCP Server dependencies (full install only)
-if [[ -n "${FULL_INSTALL:-}" ]]; then
-    install_mcp_server_dependencies "$INSTALL_DIR/.cursor/mcp/mcp-commit-server" "ToolsMCP"
-    install_mcp_server_dependencies "$INSTALL_DIR/.cursor/mcp/memory-bank-mcp" "MemoryBankMCP"
-else
-    log "Skipping MCP server dependency installation for basic install (rules only)"
 fi
 
 
