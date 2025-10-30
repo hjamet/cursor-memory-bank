@@ -80,32 +80,13 @@ Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les 
 
 Présenter dans cet ordre :
 
-1. **Titre de la tâche** avec emoji 🎯
-   ```
-   🎯 Tâche sélectionnée : [Titre de la tâche]
-   ```
+Présenter dans cet ordre normalisé (sections fixes) :
 
-2. **Résumé du contexte** :
-   - Expliquer brièvement pourquoi cette tâche existe (section Contexte)
-   - Mentionner les découvertes ou problèmes qui ont mené à cette tâche
-
-3. **Objectif** :
-   - Reprendre l'objectif de la tâche en expliquant clairement ce qui doit être accompli
-   - Garder un ton exploratoire, pas trop précis (la précision viendra avec la discussion)
-
-4. **Ce que je compte faire** :
-   - Expliquer ta compréhension initiale de ce qui doit être fait
-   - Mentionner les fichiers que tu as lus et ce que tu as compris
-   - Expliquer pourquoi cette approche semble logique
-
-5. **Questions de clarification** (si nécessaire) :
-   - Poser des questions sur les contraintes techniques
-   - Clarifier les ambiguïtés identifiées
-   - Demander confirmation sur l'approche prévue
-
-6. **Appel à la discussion** :
-   - Inviter l'utilisateur à discuter et planifier ensemble avant toute implémentation
-   - Rappeler que l'exploration est terminée, maintenant on planifie
+1. 🎯 **Tâche sélectionnée** — titre de la tâche
+2. 📋 **Contexte** — pourquoi la tâche existe, découvertes, problèmes
+3. 🎯 **Objectif** — ce qui doit être accompli (ton exploratoire)
+4. 🧠 **Idées** — premières pistes/approches envisagées
+5. ❓ **Questions** — clarifications à valider avec l'utilisateur
 
 ### Étape 6 : Attendre la Discussion Collaborative
 
@@ -122,22 +103,21 @@ L'objectif est une **planification collaborative** avant l'implémentation.
 Utiliser ce format exact pour la présentation :
 
 ```
-🎯 **Tâche Sélectionnée :** [Titre]
+🎯 **Tâche sélectionnée :** [Titre]
 
 📋 **Contexte :**
-[Expliquer pourquoi cette tâche existe, ce qui a été découvert, etc.]
+[Pourquoi cette tâche existe, découvertes, problèmes]
 
 🎯 **Objectif :**
-[Reprendre l'objectif de manière claire mais exploratoire]
+[But à atteindre, ton exploratoire]
 
-💡 **Ce que je compte faire :**
-[Expliquer ta compréhension et ton approche prévue]
+🧠 **Idées :**
+- [Piste 1]
+- [Piste 2]
 
-❓ **Questions de clarification :**
-[Si nécessaire, poser des questions]
-
-🤝 **Discussion :**
-Discutons ensemble pour préciser l'approche et établir un plan détaillé avant de commencer l'implémentation.
+❓ **Questions :**
+- [Question 1]
+- [Question 2]
 ```
 
 ## Gestion des Erreurs (Fail-Fast)
@@ -154,6 +134,7 @@ Si une étape échoue, tu **DOIS** :
 - **Emojis** : Utiliser des emojis appropriés pour rendre la présentation claire et engageante
 - **Exploration exhaustive** : Ne présenter la tâche qu'après avoir lu TOUS les fichiers et fait TOUTES les recherches
 - **Pas d'implémentation immédiate** : L'objectif est la discussion et la planification collaborative
+- **Important** : Ne jamais créer de plan pour la sélection/consultation de la roadmap. Le plan ne concerne que l'implémentation de la tâche sélectionnée, après discussion avec l'utilisateur.
 - **Validation stricte** : Échouer explicitement si quelque chose est invalide ou manquant
 
 ## Exemple de Séquence Complète

@@ -42,6 +42,7 @@ root/
   - *Contient* : `agent.mdc`, `debug.mdc`, `start.mdc`, `README.mdc` (exemples)
   - *Structure* : Fichiers `.mdc` avec métadonnées YAML et instructions markdown
   - *Usage* : Définissent comment l'agent doit réagir dans différents contextes. Note : la procédure d'enquête auparavant répartie dans `.cursor/rules/enqueteur/` a été consolidée en une commande unique `.cursor/commands/enqueteur.md`.
+  - *Nouveau* : `communication.mdc` — règle de communication imposant clarté, emojis pertinents, sections structurées et usage de tableaux lorsque utile.
 
 - **`documentation/`** : Guides approfondis et procédures détaillées
   - *Contient* : Documentation technique, guides d'utilisation, architecture détaillée
@@ -471,6 +472,28 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 8. Implémentation après validation
 
 **Règle associée:** `.cursor/rules/agent.mdc` explique quand et comment créer des tâches dans la roadmap lorsque des travaux futurs sont identifiés.
+
+**Format de présentation standard (sortie de `/agent`)**:
+
+```
+🎯 **Tâche sélectionnée :** [Titre]
+
+📋 **Contexte :**
+[Pourquoi cette tâche existe, découvertes, problèmes]
+
+🎯 **Objectif :**
+[But à atteindre, ton exploratoire]
+
+🧠 **Idées :**
+- [Piste 1]
+- [Piste 2]
+
+❓ **Questions :**
+- [Question 1]
+- [Question 2]
+```
+
+Note: `/agent` ne crée jamais de plan pour la sélection/consultation de la roadmap. Le plan est créé uniquement pour l’implémentation de la tâche sélectionnée, après discussion avec l’utilisateur.
 
 ### `/task` - Ajout non-bloquant de tâche à la roadmap 📝
 

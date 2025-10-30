@@ -42,12 +42,12 @@ tasks:
     deadline: null
   - id: "task-5"
     title: "Corriger le comportement de /agent en mode plan pour planifier la tâche sélectionnée plutôt que sa sélection"
-    status: "TODO"
+    status: "IN_PROGRESS"
     priority: 4
     dependencies: []
     task_file: "corriger-comportement-agent-mode-plan-planifier-tache-selectionnee-plutot-que-selection.md"
     output_file: "rapport-corriger-comportement-agent-mode-plan-planifier-tache-selectionnee-plutot-que-selection.md"
     created_at: "2025-10-30T15:17:59Z"
-    started_at: null
+    started_at: "2025-10-30T15:24:03Z"
     deadline: null
 
