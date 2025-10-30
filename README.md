@@ -443,6 +443,11 @@ La commande `/task` permet d'ajouter une nouvelle tâche à la roadmap centralis
 - **Non-bloquant** : Ne change pas le focus de l'agent, reprend le travail immédiatement après
  - **Aucune implémentation immédiate** : La tâche créée ne doit jamais être implémentée ni planifiée tout de suite; elle sera traitée plus tard via `/agent` après discussion
 
+**Comportement:**
+- **Interruption obligatoire et immédiate** : `/task` suspend TOUT travail en cours pour être traitée immédiatement
+- **Traitement strictement séquentiel** : Si plusieurs `/task` sont invoquées, elles sont traitées l'une après l'autre
+- **Confirmation minimale** : `✅ Tâche ajoutée (task-{id})` - la plus courte possible pour reprendre rapidement le flux initial
+
 **Principe fondamental:**
 - **Interruption non-bloquante** : L'agent continue exactement là où il s'était arrêté
 - **Délégation** : La tâche est créée pour être traitée par un autre agent (via `/agent`)
@@ -454,10 +459,10 @@ La commande `/task` permet d'ajouter une nouvelle tâche à la roadmap centralis
 2. Générer les noms de fichiers (tâche + rapport)
 3. Créer le fichier de tâche avec les 4 sections
 4. Ajouter l'entrée dans `roadmap.yaml`
-5. Confirmer la création (message court)
+5. Confirmer la création : `✅ Tâche ajoutée (task-{id})`
 6. Reprendre immédiatement le travail précédent
 
-**Exemple:** Pendant l'implémentation de l'authentification, l'utilisateur tape `/task optimiser les performances`. L'agent crée la tâche avec contexte, confirme, puis continue l'implémentation de l'authentification.
+**Exemple:** Pendant l'implémentation de l'authentification, l'utilisateur tape `/task optimiser les performances`. L'agent crée la tâche avec contexte, confirme `✅ Tâche ajoutée (task-1)`, puis continue l'implémentation de l'authentification.
 
 <!-- Streamlit Interface Features section removed (UI no longer installed) -->
 

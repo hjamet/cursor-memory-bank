@@ -21,6 +21,19 @@ Tu dois simplement **enregistrer la tâche** pour qu'un autre agent (via `/agent
 - Ne pas modifier, refactorer ou amorcer un correctif relatif à la nouvelle tâche
 - Ne pas changer de contexte, d'onglet ou de fichier hors de ton travail en cours
 
+## Priorité et Temporalité
+
+**CRITIQUE** : `/task` est une **interruption obligatoire et immédiate** :
+
+- **Priorité absolue** : La commande `/task` suspend **TOUT** travail en cours pour être traitée immédiatement
+- **Traitement strictement séquentiel** : Si plusieurs `/task` sont invoquées, elles sont traitées l'une après l'autre
+- **Réponse minimale** : La confirmation doit être la plus courte possible pour reprendre rapidement le flux initial
+
+### Cas d'enchaînement
+
+- **Multiples `/task`** : Si l'utilisateur tape `/task A /task B`, tu crées task-1, confirmes brièvement, puis crées task-2, confirmes, puis reprends le travail précédent
+- **Pendant une autre commande** : Si l'utilisateur tape `/agent /task ...`, tu suspend l'exécution de `/agent`, crées la tâche, confirmes, puis reprends `/agent` là où tu l'avais laissé
+
 ## Comportement Requis
 
 Lorsque l'utilisateur tape `/task [description de la tâche]`, tu dois :
@@ -104,11 +117,9 @@ Instructions impératives pour l'agent qui traitera cette tâche (via `/agent`) 
 
 **CRITIQUE** : Après avoir créé la tâche, tu dois :
 
-1. **Confirmer à l'utilisateur** (message court en français) :
+1. **Confirmer à l'utilisateur** (message minimal en français) :
    ```
-   ✅ Tâche "{titre}" ajoutée à la roadmap avec succès !
-   📋 ID: task-{id}
-   📁 Fichier: {nom-fichier-tache}.md
+   ✅ Tâche ajoutée (task-{id})
    ```
 
 2. **Reprendre immédiatement** ton travail précédent comme si rien ne s'était passé :
@@ -121,7 +132,7 @@ Instructions impératives pour l'agent qui traitera cette tâche (via `/agent`) 
 Après avoir créé la tâche, répondre uniquement :
 
 ```
-✅ Tâche "{titre}" ajoutée à la roadmap (ID: task-{id})
+✅ Tâche ajoutée (task-{id})
 
 [Reprendre immédiatement le travail précédent sans mentionner la tâche]
 ```
@@ -141,10 +152,33 @@ Si une étape échoue :
 1. ✅ Analyser : "Optimiser les performances d'authentification" est une tâche future
 2. ✅ Créer le fichier `optimiser-performances-auth.md` avec les 4 sections (vérifier l'unicité du titre)
 3. ✅ Ajouter l'entrée dans `roadmap.yaml` avec ID `task-1`
-4. ✅ Confirmer : "✅ Tâche 'Optimiser les performances d'authentification' ajoutée à la roadmap (ID: task-1)"
+4. ✅ Confirmer : "✅ Tâche ajoutée (task-1)"
 5. ✅ Reprendre immédiatement l'implémentation de l'authentification
 
 **Résultat** : La tâche est créée, un autre agent peut la traiter via `/agent`, et tu continues ton travail actuel sans interruption.
+
+## Cas d'Usage et Enchaînements
+
+### `/task` seul
+L'utilisateur tape `/task il faudrait optimiser les performances` :
+- Création immédiate de la tâche (task-1)
+- Confirmation minimale : `✅ Tâche ajoutée (task-1)`
+- Reprise immédiate du travail précédent
+
+### Multiples `/task`
+L'utilisateur tape `/task optimiser les performances /task améliorer le cache` :
+- Création de task-1 (optimiser les performances)
+- Confirmation : `✅ Tâche ajoutée (task-1)`
+- Création de task-2 (améliorer le cache)
+- Confirmation : `✅ Tâche ajoutée (task-2)`
+- Reprise du travail précédent
+
+### Pendant une autre commande
+L'utilisateur tape `/agent /task optimiser les performances` :
+- L'agent suspend l'exécution de `/agent`
+- Création de la tâche (task-1)
+- Confirmation : `✅ Tâche ajoutée (task-1)`
+- Reprise de `/agent` là où l'agent s'était arrêté
 
 ## Notes Importantes
 

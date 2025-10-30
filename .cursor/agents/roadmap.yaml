@@ -1,22 +1,5 @@
 version: "1.0"
 tasks:
-  - id: "task-8"
-    title: "Prioriser et rendre temporaire la commande /task (interruption non-bloquante)"
-    priority: 3
-    dependencies: []
-    task_file: "prioriser-et-rendre-temporaire-la-commande-task.md"
-    output_file: "rapport-prioriser-et-rendre-temporaire-la-commande-task.md"
-    deadline: null
-
-  - id: "task-9"
-    title: "Supprimer l'UI et les restes liés aux serveurs MCP, et mettre à jour l'installation"
-    priority: 3
-    dependencies: []
-    task_file: "supprimer-ui-et-restes-serveurs-mcp-mettre-a-jour-installation.md"
-    output_file: "rapport-supprimer-ui-et-restes-serveurs-mcp-mettre-a-jour-installation.md"
-    deadline: null
-
-
   - id: "task-10"
     title: "Remplacer IN_PROGRESS par suppression de la tâche et du fichier lors de la sélection"
     priority: 3
