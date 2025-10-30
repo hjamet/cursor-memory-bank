@@ -107,9 +107,6 @@ Exemples d'utilisation dans le script:
 ```bash
 # Fichier critique — installation échoue si absent
 download_file "$RAW_URL_BASE/.cursor/commands/prompt.md" "$target_dir/.cursor/commands/prompt.md" "required"
-
-# Fichier optionnel — log warning si absent mais installation continue
-download_file "$RAW_URL_BASE/.cursor/streamlit_app/app.py" "$streamlit_dir/app.py"
 ```
 
 
@@ -200,8 +197,7 @@ Cursor Memory Bank is an advanced autonomous workflow system that revolutionizes
 - **Smart UX**: Clear instructions and visual feedback when data is refreshed
 
 **Technical Implementation:**
-- `streamlit-autorefresh` library available as optional experimental feature
-- Robust manual refresh with cache clearing and forced rerun
+ - Robust manual refresh with cache clearing and forced rerun
 - Error handling and fallback for environments where auto-refresh fails
 - **Interface Streamlined (July 2025)**: Removed data freshness timestamps, counters, and mini refresh buttons from main interface per user feedback
 
@@ -547,7 +543,7 @@ The system automatically creates refactoring tasks for oversized files (>500 lin
 1. **Scans all files** in the project with supported extensions (`.py`, `.js`, `.tex`, `.html`, `.css`, `.sh`)
 2. **Detects files** exceeding 500 lines
 3. **Creates refactoring tasks** automatically with appropriate priorities
-4. **Stores tasks** in `.cursor/memory-bank/workflow/tasks.json`
+ 
 
 ### Supported File Types
 - Python (`.py`)
@@ -569,7 +565,7 @@ To verify automatic task creation works:
 1. Create a test file with >500 lines: `seq 600 > test_file.py`
 2. Commit the changes
 3. Check the commit output for "Automatic Task Creation" section
-4. Verify the task appears in Streamlit interface
+ 
 5. Clean up: `rm test_file.py`
 
 ### Configuration Notes
