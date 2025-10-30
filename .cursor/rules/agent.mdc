@@ -92,7 +92,7 @@ Exemple : "Explorer la possibilité d'optimiser le système d'authentification p
 - Documentation : Lire `README.md` et `documentation/architecture.md`
 
 ### Fichiers de résultats d'autres agents (si pertinents) :
-- `.cursor/agents/rapport-tache-precedente_19-01-2025.md` : [Expliquer pourquoi ce rapport est utile]
+- `.cursor/agents/rapport-tache-precedente.md` : [Expliquer pourquoi ce rapport est utile]
 
 **Fichier output pour le rapport final :**
 - `.cursor/agents/rapport-{titre-kebab-case}.md`
