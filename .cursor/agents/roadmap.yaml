@@ -1,21 +1,5 @@
 version: "1.0"
 tasks:
-  - id: "task-12"
-    title: "Améliorer règle de communication pour éviter au maximum les listes à puces et préférer les tableaux"
-    priority: 3
-    dependencies: []
-    task_file: "ameliorer-regle-communication-preferer-tableaux.md"
-    output_file: "rapport-ameliorer-regle-communication-preferer-tableaux.md"
-    deadline: null
-
-  - id: "task-6"
-    title: "Modifier /agent pour utiliser des lectures de contexte en parallèle"
-    priority: 3
-    dependencies: []
-    task_file: "modifier-agent-lectures-paralleles.md"
-    output_file: "rapport-modifier-agent-lectures-paralleles.md"
-    deadline: null
-
   - id: "task-7"
     title: "Afficher les compteurs de priorités dans le titre de la tâche sélectionnée (/agent)"
     priority: 3
@@ -47,5 +31,13 @@ tasks:
     dependencies: []
     task_file: "remplacer-in-progress-par-suppression-tache-et-fichier.md"
     output_file: "rapport-remplacer-in-progress-par-suppression-tache-et-fichier.md"
+    deadline: null
+
+  - id: "task-11"
+    title: "Présenter les questions de fin de /agent en liste numérotée"
+    priority: 3
+    dependencies: []
+    task_file: "presenter-questions-liste-numerotee-agent.md"
+    output_file: "rapport-presenter-questions-liste-numerotee-agent.md"
     deadline: null
 

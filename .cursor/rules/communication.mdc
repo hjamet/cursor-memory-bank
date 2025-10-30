@@ -20,6 +20,47 @@ Cette règle impose un style de communication cohérent et lisible pour toutes l
 - **Code**: utilisez les backticks pour `fichiers`, `fonctions`, et blocs de code courts bien formattés.
 - **Titres**: utilisez `##/###`, jamais `#` (trop massif).
 
+#### Exemples avant/après — listes → tableaux
+
+Quand remplacer une liste par un tableau ?
+- **Comparaison d’options**: plusieurs éléments comparés par attributs.
+- **Attributs multiples**: informations multi‑colonnes (nom, statut, exemple, remarque).
+- **Lecture croisée**: besoin d’aligner visuellement des valeurs par colonne.
+
+Exemple 1 — comparer des options
+
+Avant (liste à puces):
+
+```
+- Option A: latence faible, support élevé
+- Option B: latence moyenne, support moyen
+- Option C: latence élevée, support faible
+```
+
+Après (tableau):
+
+| Option | Latence | Support | Remarques |
+|---|---|---|---|
+| A | Faible | Élevé | — |
+| B | Moyenne | Moyen | — |
+| C | Élevée | Faible | — |
+
+Exemple 2 — variables d’environnement
+
+Avant (liste clé: description):
+
+```
+- PORT: port d’écoute du serveur
+- DB_URL: URL de connexion à la base de données
+```
+
+Après (tableau):
+
+| Variable | Obligatoire | Exemple | Description |
+|---|---|---|---|
+| PORT | Oui | 3000 | Port d’écoute du serveur |
+| DB_URL | Oui | postgres://... | Chaîne de connexion base de données |
+
 ### Contenu
 - **Réponses focalisées**: commencez par l'information la plus importante.
 - **Sections canon** (quand pertinent):
@@ -47,4 +88,5 @@ Cette règle impose un style de communication cohérent et lisible pour toutes l
 - Paraphrases verbeuses, slogans, excuses répétées.
 - Émojis en excès ou hors propos.
 - Blocs de texte sans titres ni listes.
+- **Listes comparatives longues** non tabulées: si vous comparez plusieurs items selon plusieurs attributs, utilisez un tableau.
 

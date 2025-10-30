@@ -378,6 +378,7 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 **Fonctionnalités:**
 - **Sélection intelligente** : Choisit automatiquement la tâche la plus pertinente selon les dépendances, la priorité et l'ancienneté
 - **Chargement de contexte** : Lit exhaustivement tous les fichiers mentionnés dans la tâche
+- **Lectures en parallèle** : Effectue en parallèle la lecture de tous les fichiers mentionnés pour réduire la latence
 - **Recherches** : Effectue les recherches sémantiques et web mentionnées
 - **Présentation** : Présente la tâche sélectionnée avec contexte complet en français
 - **Discussion collaborative** : Attend la planification avec l'utilisateur avant toute implémentation

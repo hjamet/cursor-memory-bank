@@ -51,6 +51,7 @@ Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les 
      - **Instructions de Collaboration**
 
 3. **Lire tous les fichiers mentionnés dans "Fichiers Concernés"** :
+   - Utiliser des lectures en parallèle pour gagner du temps et inclure tous les fichiers mentionnés
    - Lire exhaustivement chaque fichier listé
    - Si un fichier n'existe pas → **ÉCHOUER EXPLICITEMENT** avec le chemin du fichier manquant
    - Lire aussi les fichiers de résultats d'autres agents mentionnés (s'ils existent dans `.cursor/agents/`)
