@@ -1,13 +1,5 @@
 version: "1.0"
 tasks:
-  - id: "task-7"
-    title: "Afficher les compteurs de priorités dans le titre de la tâche sélectionnée (/agent)"
-    priority: 3
-    dependencies: []
-    task_file: "afficher-compteurs-priorites-dans-titre-agent.md"
-    output_file: "rapport-afficher-compteurs-priorites-dans-titre-agent.md"
-    deadline: null
-
   - id: "task-8"
     title: "Prioriser et rendre temporaire la commande /task (interruption non-bloquante)"
     priority: 3

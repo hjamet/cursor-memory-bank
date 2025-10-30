@@ -76,6 +76,11 @@ Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les 
    - Supprimer le fichier `.cursor/agents/{task_file}` (où `task_file` est défini dans la tâche sélectionnée)
    - Si le fichier n'existe pas → **ÉCHOUER EXPLICITEMENT** avec un message clair
 
+4. **Calculer les compteurs de priorités restants** :
+   - À partir des `tasks` RESTANTES dans `roadmap.yaml` (après suppression), calculer le nombre de tâches par priorité
+   - Mappage emojis: 5=🔴, 4=🟠, 3=🔵, 2–1=🟢
+   - Toujours afficher les quatre compteurs, même si 0
+
 ### Étape 5 : Présenter la Tâche à l'Utilisateur (Résumé)
 
 Cette étape **EST le résumé** de la tâche sélectionnée. Elle se fait après la suppression (étape 4) et le chargement du contexte (étape 3).
@@ -84,7 +89,7 @@ Cette étape **EST le résumé** de la tâche sélectionnée. Elle se fait aprè
 
 Présenter dans cet ordre normalisé (sections fixes) :
 
-1. 🎯 **Tâche sélectionnée** — titre de la tâche
+1. 🎯 **Tâche sélectionnée** — titre de la tâche, suffixé par les compteurs `(🔴X, 🟠Y, 🔵Z, 🟢W)` calculés sur TOUTES les tâches restantes
 2. 📋 **Contexte** — pourquoi la tâche existe, découvertes, problèmes
 3. 🎯 **Objectif** — ce qui doit être accompli (ton exploratoire)
 4. 🧠 **Idées** — premières pistes/approches envisagées
@@ -95,7 +100,7 @@ Présenter dans cet ordre normalisé (sections fixes) :
 Utiliser ce format exact pour la présentation :
 
 ```
-🎯 **Tâche sélectionnée :** [Titre]
+🎯 **Tâche sélectionnée :** [Titre] (🔴X, 🟠Y, 🔵Z, 🟢W)
 
 📋 **Contexte :**
 [Pourquoi cette tâche existe, découvertes, problèmes]

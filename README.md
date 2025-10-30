@@ -408,7 +408,7 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 **Format de présentation standard (sortie de `/agent`)**:
 
 ```
-🎯 **Tâche sélectionnée :** [Titre]
+🎯 **Tâche sélectionnée :** [Titre] (🔴X, 🟠Y, 🔵Z, 🟢W)
 
 📋 **Contexte :**
 [Pourquoi cette tâche existe, découvertes, problèmes]
@@ -426,6 +426,8 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 ```
 
 Note: `/agent` ne crée jamais de plan pour la sélection/consultation de la roadmap. Le plan est créé uniquement pour l’implémentation de la tâche sélectionnée, après discussion avec l’utilisateur.
+
+> Compteurs de priorités: les valeurs X/Y/Z/W correspondent au nombre de tâches restantes dans la roadmap après suppression de la tâche sélectionnée, agrégées par priorité (5=🔴, 4=🟠, 3=🔵, 2–1=🟢). Les quatre compteurs sont toujours affichés, même à 0.
 
 ### `/task` - Ajout non-bloquant de tâche à la roadmap 📝
 
