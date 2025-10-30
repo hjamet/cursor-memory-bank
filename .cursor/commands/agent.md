@@ -78,7 +78,7 @@ Présenter dans cet ordre normalisé (sections fixes) :
 
 1. **Discussion avec l'utilisateur** :
    - Discuter avec l'utilisateur pour clarifier les attentes précises
-   - Poser des questions sur les rebords techniques si nécessaire
+   - Poser des questions sur les contraintes techniques si nécessaire
    - Établir ensemble la compréhension de ce qui doit être implémenté
 
 2. **Création du plan d'implémentation** :
@@ -134,40 +134,22 @@ Si une étape échoue, tu **DOIS** :
 - **Emojis** : Utiliser des emojis appropriés pour rendre la présentation claire et engageante
 - **Exploration exhaustive** : Ne présenter la tâche qu'après avoir lu TOUS les fichiers et fait TOUTES les recherches
 - **Pas d'implémentation immédiate** : L'objectif est la discussion et la planification collaborative
-- **Important** : Ne jamais créer de plan pour la sélection/consultation de la roadmap. Le plan ne concerne que l'implémentation de la tâche sélectionnée, après discussion avec l'utilisateur.
+- **Important** : Ne jamais créer de plan pour la sélection/consultation de la roadmap. Le plan ne concerne que l'implémentation de la tâche sélectionnée.
 - **Validation stricte** : Échouer explicitement si quelque chose est invalide ou manquant
-- **CRITIQUE - Gestion du mode plan** :
-  - Les étapes 1-3 (lecture, sélection, chargement contexte) s'exécutent **TOUJOURS directement**, jamais planifiées
-  - L'étape 4 (suppression) est **sautée en mode plan** et devient le **premier todo OBLIGATOIRE** du plan d'implémentation créé à l'étape 5.5
-  - Le plan d'implémentation (étape 5.5) est créé **après présentation** de la tâche, incluant la suppression en premier
+- **Séquence de workflow** : Les étapes 1-3 (lecture, sélection, chargement contexte) s'exécutent **TOUJOURS directement**, jamais planifiées. Ensuite : présentation (étape 4) → discussion puis création du plan (étape 5) → implémentation après validation du plan
+- **Premier todo du plan** : La suppression de la tâche de la roadmap, le nettoyage des dépendances, et la suppression du fichier de tâche sont **TOUJOURS le premier todo OBLIGATOIRE** du plan d'implémentation créé à l'étape 5
 
 ## Exemple de Séquence Complète
 
-### Séquence normale (hors mode plan)
-
 ```
 1. Lecture roadmap.yaml ✓
 2. Sélection tâche "Optimiser authentification" (priorité 4, dépendances résolues) ✓
 3. Lecture fichier tâche ✓
 4. Lecture de 8 fichiers mentionnés ✓
 5. Recherches sémantiques effectuées ✓
-6. Suppression de la tâche de la roadmap et nettoyage des dépendances ✓
-7. Suppression du fichier de tâche ✓
-8. Présentation à l'utilisateur avec contexte complet ✓
-9. Attente discussion collaborative...
-```
-
-### Séquence en mode plan
-
-```
-1. Lecture roadmap.yaml ✓
-2. Sélection tâche "Optimiser authentification" (priorité 4, dépendances résolues) ✓
-3. Lecture fichier tâche ✓
-4. Lecture de 8 fichiers mentionnés ✓
-5. Recherches sémantiques effectuées ✓
-6. [Étape 4 Sautée - mode plan détecté] ✓
-7. Présentation à l'utilisateur avec contexte complet ✓
+6. Présentation à l'utilisateur avec contexte complet (résumé avec émojis) ✓
+7. Discussion collaborative avec l'utilisateur ✓
 8. Création du plan d'implémentation avec suppression comme premier todo ✓
-9. Attente discussion collaborative...
+9. Implémentation après validation du plan...
 ```
 
