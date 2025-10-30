@@ -1401,16 +1401,12 @@ Options:
     -v, --version      Show version information
     -d, --dir DIR      Install to a specific directory (default: current directory)
     --force            Force installation even if directory is not empty
-    --use-curl         Force using curl instead of git clone
-    --full-install     Install all components: Streamlit UI, ML model, and workflow system (default: rules only)
 
 This script will:
-1. By default: Install basic rules, tomd.py utility and update .gitignore (fast mode)
-2. With --full-install: Install complete workflow system with Streamlit UI and ML model
-3. With --full-install: Download the all-MiniLM-L6-v2 model for semantic search
-4. With --full-install: Install Streamlit UI for monitoring agent status
-5. With --full-install: Install start.mdc rule for autonomous workflow operation
-6. Clean up temporary files
+1. Install agent rules and custom commands
+2. Install tomd.py utility
+3. Update .gitignore
+4. Clean up temporary files
 
 For more information, visit: ${REPO_URL}
 EOF
@@ -1439,8 +1435,6 @@ show_version() {
 # Parse command line arguments
 INSTALL_DIR="."
 FORCE=""
-USE_CURL=""
-FULL_INSTALL=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -1459,12 +1453,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --force)
             FORCE=1
-            ;;
-        --use-curl)
-            USE_CURL=1
-            ;;
-        --full-install)
-            FULL_INSTALL=1
             ;;
         *)
             error "Unknown option: $1\nUse --help to see available options"
@@ -1492,36 +1480,6 @@ if ! touch "$INSTALL_DIR/.write_test" 2>/dev/null; then
 fi
 rm -f "$INSTALL_DIR/.write_test"
 
-# Install based on mode
-if [[ -n "${FULL_INSTALL:-}" ]]; then
-    # Full installation: check Node.js requirements first
-    check_nodejs_requirements
-    
-    # Install workflow system
-    install_workflow_system "$INSTALL_DIR" "$TEMP_DIR"
-else
-    # Basic installation: install only rules, tomd.py and update gitignore
-    install_basic_rules "$INSTALL_DIR" "$TEMP_DIR"
-fi
-
-# Set up the memory bank to preserve user data - only in full install mode
-if [[ -n "${FULL_INSTALL:-}" ]]; then
-    setup_memory_bank "$INSTALL_DIR" "$TEMP_DIR"
-    
-    # Create tasks.json for streamlit_app
-    create_mcp_tasks_file "$INSTALL_DIR"
-fi
-
-
-# Install Streamlit App and ML Model - only in full install mode
-if [[ -n "${FULL_INSTALL:-}" ]]; then
-    # Install Streamlit App
-    install_streamlit_app "$INSTALL_DIR" "$TEMP_DIR"
-    
-    # Install ML Model
-    install_ml_model "$INSTALL_DIR"
-    
-    log "Full installation completed successfully!"
-else
-    log "Basic installation completed successfully!"
-fi
+# Single-mode installation: install rules, commands, tomd.py and update gitignore
+install_basic_rules "$INSTALL_DIR" "$TEMP_DIR"
+log "Installation completed successfully!"

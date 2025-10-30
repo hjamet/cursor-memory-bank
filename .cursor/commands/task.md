@@ -2,7 +2,9 @@
 
 ## Objectif
 
-Quand l'utilisateur tape `/task` avec une description de tâche, tu dois créer une nouvelle tâche dans la roadmap centralisée avec tout le contexte nécessaire, **SANS INTERROMPRE** le travail que tu étais en train d'effectuer. Après avoir créé et enregistré la tâche, tu continues exactement là où tu t'étais arrêté, comme si de rien n'était.
+Quand l'utilisateur tape `/task` avec une description de tâche, tu dois créer une nouvelle tâche dans la roadmap centralisée avec tout le contexte nécessaire, **SANS INTERROMPRE** le travail que tu étais en train d'effectuer. Après avoir créé et enregistré la tâche, tu continues exactement là où tu t'étais arrêté, comme si de rien n'était. 
+
+**INTERDICTION ABSOLUE**: Tu ne dois JAMAIS commencer à implémenter ou planifier l'implémentation de la tâche nouvellement créée. La planification/implémentation appartiennent exclusivement à `/agent` après discussion avec l'utilisateur.
 
 ## Principe Fondamental
 
@@ -13,6 +15,11 @@ Quand l'utilisateur tape `/task` avec une description de tâche, tu dois créer 
 - Abandonner tes todos en cours
 
 Tu dois simplement **enregistrer la tâche** pour qu'un autre agent (via `/agent`) puisse la traiter plus tard, puis **reprendre immédiatement** ton travail précédent.
+
+### Interdictions absolues (rappel)
+- Ne pas créer de plan de transition pour cette nouvelle tâche
+- Ne pas modifier, refactorer ou amorcer un correctif relatif à la nouvelle tâche
+- Ne pas changer de contexte, d'onglet ou de fichier hors de ton travail en cours
 
 ## Comportement Requis
 
@@ -146,6 +153,7 @@ Si une étape échoue :
 
 - **Pas d'interruption** : Cette commande ne doit jamais interrompre le flux de travail
 - **Délégation** : La tâche est créée pour être traitée par un autre agent (via `/agent`)
+- **Jamais d'implémentation immédiate** : Aucune action d'implémentation ni de planification ne doit suivre la création de la tâche
 - **Contexte préservé** : Les fichiers de ton travail actuel sont mentionnés dans la section "Fichiers Concernés"
 - **Format cohérent** : Suivre exactement le même format que les autres fichiers de tâches
 - **Français** : Tout le contenu doit être en français

@@ -51,3 +51,25 @@ tasks:
     started_at: "2025-10-30T15:24:03Z"
     deadline: null
 
+  - id: "task-6"
+    title: "Modifier /agent pour utiliser des lectures de contexte en parallèle"
+    status: "TODO"
+    priority: 3
+    dependencies: []
+    task_file: "modifier-agent-lectures-paralleles.md"
+    output_file: "rapport-modifier-agent-lectures-paralleles.md"
+    created_at: "2025-10-30T16:00:00Z"
+    started_at: null
+    deadline: null
+
+  - id: "task-7"
+    title: "Afficher les compteurs de priorités dans le titre de la tâche sélectionnée (/agent)"
+    status: "TODO"
+    priority: 3
+    dependencies: []
+    task_file: "afficher-compteurs-priorites-dans-titre-agent.md"
+    output_file: "rapport-afficher-compteurs-priorites-dans-titre-agent.md"
+    created_at: "2025-10-30T16:00:00Z"
+    started_at: null
+    deadline: null
+

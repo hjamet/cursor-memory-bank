@@ -60,58 +60,30 @@ root/
 
 ## Installation 🚀
 
-A single, robust installer is provided: `install.sh`. It now uses a unified strategy: **prefer `git clone` when available, then verify all required rule files and automatically fall back to raw downloads** when files are missing in the clone. The installer also detects the repository default branch via the GitHub API (fallback: `master`) to avoid raw URL 404s.
+A single installer is provided: `install.sh`. It installs agent rules, custom commands, `tomd.py`, and configures `.gitignore`. Clone is preferred; a curl fallback may be used when necessary.
 
 Recommended (download then run — reviewable):
 ```bash
 curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash
 ```
 
-Quick one-liners (the script auto-detects the default branch; use `--use-curl` to force curl-only mode):
-
-```bash
-# Basic installation (rules only - fast)
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/$(curl -s https://api.github.com/repos/hjamet/cursor-memory-bank | grep -o '"default_branch": *"[^"]*"' | sed 's/.*: *"\(.*\)"/\1/' || echo master)/install.sh | tr -d '\r' | bash -s --
-
-# Full installation (all components - Streamlit UI, ML model)
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/$(curl -s https://api.github.com/repos/hjamet/cursor-memory-bank | grep -o '"default_branch": *"[^"]*"' | sed 's/.*: *"\(.*\)"/\1/' || echo master)/install.sh | tr -d '\r' | bash -s -- --full-install
-```
-
-Note for MINGW64/Git Bash users on Windows: If you encounter `: command not found` errors during piping, strip CR characters with `tr -d '\r'` as shown above.
-
-Available options (summary):
-- `--dir <path>` : Install to a specific directory (default: current directory)
-- `--force` : Force overwrite existing files
-- `--use-curl` : Force curl-only downloads instead of `git clone` (useful when git is unavailable)
-- `--full-install` : Install all components (Streamlit UI, ML model, workflow system)
-- `--help` : Show help information
-- `--version` : Show version information
-
-Important: the installer now installs rule files more flexibly. By default it will attempt to download and install **all files** under `.cursor/rules/` from the repository into the target, except for files marked as "full-only" which are only deployed when using `--full-install`.
-
-- Example: `.cursor/rules/agent.mdc` is provided in this repository and will be installed by default.
-- Full-only example: `.cursor/rules/README.mdc` (installed only with `--full-install`).
-- Critical rules that cause installation to fail if missing: `.cursor/rules/maitre-d-oeuvre.mdc`, `.cursor/rules/ouvrier.mdc`.
-
-Note: repository-local files such as `.cursor/rules/mcp.mdc` remain in-repo and are NOT distributed by the installer.
-
 Examples:
 ```bash
-# Basic installation (rules only - fast)
+# Default installation (rules + commands)
 bash install.sh
 
-# Full installation with all components (Streamlit UI, ML model)
-bash install.sh --full-install
-
-# Install to a specific directory with all components
-bash install.sh --dir /path/to/install --full-install
-
-# Force curl-only (no git)
-bash install.sh --use-curl
+# Install to a specific directory
+bash install.sh --dir /path/to/install
 
 # Show help information
 bash install.sh --help
 ```
+
+Available options (summary):
+- `--dir <path>` : Install to a specific directory (default: current directory)
+- `--force` : Force overwrite existing files
+- `--help` : Show help information
+- `--version` : Show version information
 
 ### Required files and fail-fast policy
 
@@ -151,40 +123,9 @@ cd cursor-memory-bank
 bash install.sh [options]
 ```
 
-## Installation Modes 🎯
+## Installation Mode 🎯
 
-Cursor Memory Bank offers two installation modes to suit different needs:
-
-### Basic Mode (Default) - Fast Installation ⚡
-- **What's included:** Essential rules, tomd.py utility, and .gitignore configuration
-- **Best for:** Users who want to quickly set up Cursor with basic rules and utilities
-- **Features:** Core agent rules, debug tools, start workflow, Python utility script
-- **Size:** Minimal installation footprint (no npm install)
-- **Speed:** Very fast (downloads only essential files via curl)
-- **Command:** `bash install.sh` (default)
-
-### Full Mode (`--full-install`) - Complete System 🚀
-- **What's included:** Streamlit UI, ML model, complete workflow system
-- **Best for:** Users who want the complete autonomous workflow experience
-- **Features:** Task management, persistent memory, autonomous workflow, visual interface, semantic search
-- **Size:** Larger installation with ML dependencies and npm packages
-- **Speed:** Slower (clones repository, installs npm dependencies)
-- **Command:** `bash install.sh --full-install`
-
-### Choosing Your Mode
-- **Start with Basic:** If you're new to the system or want to quickly set up Cursor with essential rules
-- **Upgrade to Full:** You can always re-run with `--full-install` to add workflow system later
-- **Development Work:** Full mode recommended for complex projects requiring autonomous workflow
-
-The installation script will:
-- **Basic mode (default)**: Install essential rules (`agent.mdc`, `debug.mdc`), `tomd.py` utility, and update `.gitignore`
-- **Full mode (`--full-install`)**: Install complete workflow system (`start.mdc` rule included), Streamlit UI, and ML model
-- Always preserve any existing custom rules
-- Update only the core rules that need updating
-- Preserve any unrelated files that might be in the .cursor directory
-- Work even if the .cursor directory already exists
-- Validate Node.js requirements and generated JSON configurations
-- `.cursor/rules/mcp.mdc` is repository-local and will not be installed or distributed by the installer
+The installer now provides a single mode: it installs essential rules (`agent.mdc`, `debug.mdc`), custom commands, the `tomd.py` utility, and updates `.gitignore`. Existing custom rules are preserved.
 
 ## Système de Roadmap Centralisée 📋
 
@@ -219,11 +160,7 @@ Cursor Memory Bank is an advanced autonomous workflow system that revolutionizes
 - **Priority System**: 5-level priority system (1=lowest, 5=critical) with automatic prioritization
 - **Status Tracking**: Comprehensive task lifecycle management (TODO, IN_PROGRESS, BLOCKED, REVIEW, DONE)
 
-#### 🎨 **Modern Streamlit Interface**
-- **Enhanced Notifications**: Custom toast notification system with configurable duration (5-15s)
-- **Markdown Support**: Full markdown rendering with line breaks, bold, italic, code blocks
-- **Visual Improvements**: Modern CSS styling with gradients, animations, and responsive design
-- **Multi-Page Integration**: Consistent notification experience across all interface pages
+<!-- Streamlit UI removed from installer scope -->
 
 #### 🚀 **Workflow Automation**
 - **Automatic Testing**: Mandatory validation after every implementation
@@ -507,10 +444,12 @@ La commande `/task` permet d'ajouter une nouvelle tâche à la roadmap centralis
 - **Ajout à la roadmap** : Enregistre la tâche dans `roadmap.yaml` avec ID unique
 - **Contexte préservé** : Mentionne les fichiers du travail actuel dans "Fichiers Concernés"
 - **Non-bloquant** : Ne change pas le focus de l'agent, reprend le travail immédiatement après
+ - **Aucune implémentation immédiate** : La tâche créée ne doit jamais être implémentée ni planifiée tout de suite; elle sera traitée plus tard via `/agent` après discussion
 
 **Principe fondamental:**
 - **Interruption non-bloquante** : L'agent continue exactement là où il s'était arrêté
 - **Délégation** : La tâche est créée pour être traitée par un autre agent (via `/agent`)
+ - **Interdiction d'implémenter** : Après création, l'agent ne doit ni implémenter ni planifier cette nouvelle tâche
 - **Format cohérent** : Suit exactement le même format que les autres fichiers de tâches
 
 **Workflow:**
@@ -523,26 +462,7 @@ La commande `/task` permet d'ajouter une nouvelle tâche à la roadmap centralis
 
 **Exemple:** Pendant l'implémentation de l'authentification, l'utilisateur tape `/task optimiser les performances`. L'agent crée la tâche avec contexte, confirme, puis continue l'implémentation de l'authentification.
 
-## Streamlit Interface Features 🎨
-
-### **Enhanced Notification System**
-- **Custom Duration**: 5-15 second configurable display time
-- **Markdown Support**: Full formatting with line breaks, bold, italic
-- **Visual Progress**: Animated countdown bars
-- **Manual Control**: User dismissal and hover-pause
-- **Type System**: Distinct styling for different notification types
-- **Security**: HTML sanitization against XSS attacks
-
-### **Modern UI Design**
-- **Responsive Layout**: Mobile-friendly with breakpoint optimization
-- **Modern Styling**: Gradients, shadows, and smooth animations
-- **Enhanced Contrast**: Improved readability and accessibility
-- **Intuitive Navigation**: Streamlined interface with clear visual hierarchy
-
-### **Cross-Page Integration**
-- **Consistent Experience**: Unified notifications across all pages
-- **Session Management**: Persistent state across page navigation
-- **Performance Optimized**: Efficient memory usage and cleanup
+<!-- Streamlit Interface Features section removed (UI no longer installed) -->
 
 ## Technical Architecture 🏗️
 
