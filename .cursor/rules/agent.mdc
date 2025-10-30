@@ -30,6 +30,69 @@ Tu **NE DOIS PAS** créer de tâche si :
 - La tâche est déjà dans la roadmap
 - La tâche est trop vague pour être utile (il faut un minimum de contexte)
 
+## Création Autonome de Tâches
+
+### Principe Fondamental
+
+Tu **DOIS** créer des tâches de manière **autonome et automatique** lorsqu'au cours de ton travail (planification, discussion avec l'utilisateur, exploration du code, implémentation), tu identifies une tâche qui correspond aux critères de la section "Quand Créer une Tâche dans la Roadmap".
+
+Ce comportement est **identique** à celui de la commande `/task`, mais déclenché de manière autonome sans intervention de l'utilisateur. La différence critique est que cette création est **non-bloquante** : tu crées la tâche puis reprends immédiatement ton travail comme si de rien n'était.
+
+### Comportement Requis
+
+Lorsque tu identifies une tâche future pendant ton travail, tu **DOIS** :
+
+1. **Détecter automatiquement** :
+   - Pendant l'élaboration d'un plan, tu identifies une dépendance ou un travail futur nécessaire
+   - Pendant une discussion avec l'utilisateur, une tâche future est mentionnée ou suggérée
+   - Pendant l'exploration du code, tu découvres un problème ou une opportunité qui nécessite un travail futur
+   - Pendant l'implémentation, tu réalises qu'une amélioration ou un refactoring devrait être fait plus tard
+
+2. **Créer la tâche silencieusement** :
+   - Suivre **exactement** le processus décrit dans la section "Comment Créer une Tâche — Processus Complet" (Étapes 1 à 5)
+   - Exécuter toutes les étapes sans pause ni interruption
+   - Ne pas mentionner la création de la tâche à l'utilisateur sauf si :
+     - La création échoue (fail-fast avec message d'erreur clair)
+     - Le contexte nécessite explicitement de mentionner cette tâche pour la compréhension
+
+3. **Reprendre immédiatement** :
+   - Après avoir créé et sauvegardé la tâche dans la roadmap
+   - Continuer exactement là où tu t'étais arrêté dans ton travail précédent
+   - Reprendre tes todos en cours comme si rien ne s'était passé
+   - La tâche créée sera traitée par un autre agent (via `/agent`) plus tard
+
+### Exemples Concrets
+
+**Exemple 1 — Pendant un plan** :
+Tu es en train de planifier l'implémentation d'un système d'authentification. Pendant l'analyse, tu découvres que les performances pourraient être optimisées, mais cela nécessite une exploration approfondie qui sort du scope actuel.
+→ **Action** : Créer automatiquement la tâche "Optimiser les performances d'authentification" avec priorité 3, puis continuer la planification de l'authentification comme si de rien n'était.
+
+**Exemple 2 — Pendant une discussion** :
+L'utilisateur mentionne "on pourrait aussi améliorer le système de cache plus tard" pendant que tu travailles sur une autre fonctionnalité.
+→ **Action** : Créer automatiquement la tâche "Améliorer le système de cache" en capturant le contexte de la discussion, puis reprendre le travail sur la fonctionnalité en cours.
+
+**Exemple 3 — Pendant l'exploration** :
+Tu explores le codebase pour comprendre comment fonctionne un module. Tu découvres du code dupliqué qui devrait être refactorisé, mais ce n'est pas l'objectif actuel.
+→ **Action** : Créer automatiquement la tâche "Refactoriser le code dupliqué dans [module]" avec les fichiers pertinents listés, puis continuer ton exploration initiale.
+
+**Exemple 4 — Pendant l'implémentation** :
+Tu implémentes une nouvelle fonctionnalité et tu réalises qu'un test d'intégration complet serait nécessaire, mais cela dépasse le scope de l'implémentation actuelle.
+→ **Action** : Créer automatiquement la tâche "Créer des tests d'intégration pour [fonctionnalité]" en référençant les fichiers modifiés, puis continuer l'implémentation.
+
+### Différence avec `/task`
+
+La commande `/task` est utilisée par l'utilisateur pour créer explicitement une tâche. Le comportement autonome décrit ici est identique techniquement (même processus de création), mais :
+- **Déclenché automatiquement** par l'agent sans intervention utilisateur
+- **Silencieux** : pas de message de confirmation sauf en cas d'erreur
+- **Non-bloquant** : aucun changement de focus ou d'interruption du travail
+
+### Gestion des Erreurs
+
+Si la création de la tâche échoue (fichier roadmap.yaml invalide, dépendance manquante, etc.) :
+- **Échouer explicitement** avec un message d'erreur clair à l'utilisateur
+- Après avoir informé de l'erreur, **reprendre néanmoins** ton travail précédent
+- Ne pas bloquer indéfiniment sur l'erreur de création de tâche
+
 ## Comment Créer une Tâche — Processus Complet
 
 ### Étape 1 : Identifier les Métadonnées
