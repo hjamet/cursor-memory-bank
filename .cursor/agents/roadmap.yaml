@@ -1,12 +1,5 @@
 version: "1.0"
 tasks:
-  - id: "task-2"
-    title: "Simplifier le format de nommage des fichiers de tâches en supprimant les timestamps"
-    priority: 3
-    dependencies: []
-    task_file: "simplifier-nommage-taches.md"
-    output_file: "rapport-simplifier-nommage-taches.md"
-    deadline: null
   - id: "task-12"
     title: "Améliorer règle de communication pour éviter au maximum les listes à puces et préférer les tableaux"
     priority: 3
