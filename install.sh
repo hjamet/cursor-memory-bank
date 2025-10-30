@@ -26,8 +26,6 @@ if [[ -z "$DEFAULT_BRANCH" ]]; then
 fi
 API_URL="$GITHUB_API/commits/$DEFAULT_BRANCH"
 RAW_URL_BASE="https://raw.githubusercontent.com/$GITHUB_REPO/$DEFAULT_BRANCH"
-DEFAULT_WORKFLOW_DIR=".cursor/workflow-steps"
-WORKFLOW_DIR="${TEST_WORKFLOW_DIR:-$DEFAULT_WORKFLOW_DIR}"
 TEMP_DIR="/tmp/cursor-memory-bank-$$"
 VERSION="1.0.0"
 
@@ -500,19 +498,7 @@ validate_gitignore_rules() {
         test_passed=false
     fi
 
-    if ! (cd "$target_dir" && echo ".cursor/memory-bank/context/test_file" | git check-ignore --stdin >/dev/null 2>&1); then
-        log "✓ .cursor/memory-bank/context/ inclusion rule working"
-    else
-        warn "✗ .cursor/memory-bank/context/ inclusion rule may not be working"
-        test_passed=false
-    fi
-
-    if ! (cd "$target_dir" && echo ".cursor/memory-bank/workflow/test_file" | git check-ignore --stdin >/dev/null 2>&1); then
-        log "✓ .cursor/memory-bank/workflow/ inclusion rule working"
-    else
-        warn "✗ .cursor/memory-bank/workflow/ inclusion rule may not be working"
-        test_passed=false
-    fi
+    # Removed legacy memory-bank include checks (directories no longer used)
 
     if (cd "$target_dir" && echo ".cursor/other_dir/test_file" | git check-ignore --stdin >/dev/null 2>&1); then
         log "✓ Other .cursor/ subdirectories exclusion working"
@@ -540,7 +526,7 @@ handle_tracked_files() {
     log "Checking for .cursor files that are tracked but should now be ignored..."
 
     local tracked_files
-    tracked_files=$(cd "$target_dir" && git ls-files '.cursor/*' 2>/dev/null | grep -v -E '^\.cursor/memory-bank/(context|workflow)/' | head -20)
+    tracked_files=$(cd "$target_dir" && git ls-files '.cursor/*' 2>/dev/null | head -20)
 
     if [[ -n "$tracked_files" ]]; then
         warn "Found tracked files in .cursor that should now be ignored:"
@@ -554,7 +540,7 @@ handle_tracked_files() {
         echo "$tracked_files" | while IFS= read -r file; do
             warn "  git rm --cached '$file'"
         done
-        warn "  git commit -m '🔧 chore: Remove .cursor files from tracking (except memory-bank/context and memory-bank/workflow)'"
+        warn "  git commit -m '🔧 chore: Remove .cursor files from tracking'"
         warn ""
         warn "⚠️ CAUTION: Review the files before running git rm --cached to ensure no important data is lost"
     else

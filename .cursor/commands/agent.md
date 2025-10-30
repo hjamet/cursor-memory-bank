@@ -60,9 +60,24 @@ Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les 
    - Recherches web si mentionnées dans "Fichiers Concernés"
    - Lire le README et la documentation pertinente
 
-### Étape 4 : Présenter la Tâche à l'Utilisateur (Résumé)
+### Étape 4 : Supprimer la Tâche de la Roadmap et Nettoyer les Dépendances
 
-Cette étape **EST le résumé** de la tâche sélectionnée. Elle se fait après le chargement du contexte (étape 3).
+1. **Supprimer la tâche sélectionnée** :
+   - Retirer la tâche sélectionnée de la liste `tasks` dans `roadmap.yaml`
+   - Sauvegarder le fichier `roadmap.yaml`
+
+2. **Nettoyer les dépendances** :
+   - Parcourir toutes les tâches restantes dans la roadmap
+   - Pour chaque tâche, retirer l'ID de la tâche supprimée de sa liste `dependencies` (si présent)
+   - Sauvegarder le fichier `roadmap.yaml`
+
+3. **Supprimer le fichier de tâche** :
+   - Supprimer le fichier `.cursor/agents/{task_file}` (où `task_file` est défini dans la tâche sélectionnée)
+   - Si le fichier n'existe pas → **ÉCHOUER EXPLICITEMENT** avec un message clair
+
+### Étape 5 : Présenter la Tâche à l'Utilisateur (Résumé)
+
+Cette étape **EST le résumé** de la tâche sélectionnée. Elle se fait après la suppression (étape 4) et le chargement du contexte (étape 3).
 
 **CRITIQUE** : Tout doit être écrit **EN FRANÇAIS** avec des emojis appropriés.
 
@@ -73,30 +88,6 @@ Présenter dans cet ordre normalisé (sections fixes) :
 3. 🎯 **Objectif** — ce qui doit être accompli (ton exploratoire)
 4. 🧠 **Idées** — premières pistes/approches envisagées
 5. ❓ **Questions** — clarifications à valider avec l'utilisateur
-
-### Étape 5 : Discussion Collaborative puis Création du Plan
-
-1. **Discussion avec l'utilisateur** :
-   - Discuter avec l'utilisateur pour clarifier les attentes précises
-   - Poser des questions sur les contraintes techniques si nécessaire
-   - Établir ensemble la compréhension de ce qui doit être implémenté
-
-2. **Création du plan d'implémentation** :
-   - Une fois la discussion terminée, créer un plan d'implémentation avec l'outil `create_plan`
-   - Utiliser `create_plan` avec `merge=false`
-   - Le plan doit inclure tout le contexte chargé dans les étapes précédentes
-   - Structure du plan : `overview`, `plan` (contenant les sections pertinentes), `todos`
-
-3. **Premier todo OBLIGATOIRE** :
-   - **Le premier todo du plan DOIT être** : "Supprimer la tâche sélectionnée de la roadmap, nettoyer les dépendances, et supprimer le fichier de tâche"
-   - C'est la **première action** que l'agent effectuera lors de l'exécution du plan
-   - Cette suppression remplace ce qui était autrefois fait immédiatement avant la présentation
-
-4. **Todos suivants** :
-   - Ajouter les todos d'implémentation de la tâche basés sur la discussion
-   - Ces todos couvrent l'implémentation proprement dite de la tâche sélectionnée
-
-**IMPORTANT** : Ne jamais créer de plan pour la sélection/consultation de la roadmap. Le plan ne concerne que l'implémentation de la tâche sélectionnée. La suppression de la tâche est TOUJOURS le premier todo du plan.
 
 ## Format de Présentation Requis
 
@@ -136,20 +127,16 @@ Si une étape échoue, tu **DOIS** :
 - **Pas d'implémentation immédiate** : L'objectif est la discussion et la planification collaborative
 - **Important** : Ne jamais créer de plan pour la sélection/consultation de la roadmap. Le plan ne concerne que l'implémentation de la tâche sélectionnée.
 - **Validation stricte** : Échouer explicitement si quelque chose est invalide ou manquant
-- **Séquence de workflow** : Les étapes 1-3 (lecture, sélection, chargement contexte) s'exécutent **TOUJOURS directement**, jamais planifiées. Ensuite : présentation (étape 4) → discussion puis création du plan (étape 5) → implémentation après validation du plan
-- **Premier todo du plan** : La suppression de la tâche de la roadmap, le nettoyage des dépendances, et la suppression du fichier de tâche sont **TOUJOURS le premier todo OBLIGATOIRE** du plan d'implémentation créé à l'étape 5
 
 ## Exemple de Séquence Complète
 
 ```
 1. Lecture roadmap.yaml ✓
-2. Sélection tâche "Optimiser authentification" (priorité 4, dépendances résolues) ✓
-3. Lecture fichier tâche ✓
-4. Lecture de 8 fichiers mentionnés ✓
-5. Recherches sémantiques effectuées ✓
-6. Présentation à l'utilisateur avec contexte complet (résumé avec émojis) ✓
-7. Discussion collaborative avec l'utilisateur ✓
-8. Création du plan d'implémentation avec suppression comme premier todo ✓
-9. Implémentation après validation du plan...
+2. Sélection de la tâche la plus prioritaire ✓
+3. Chargement du fichier de tâche et du contexte ✓
+4. Suppression immédiate de la tâche de la roadmap + nettoyage des dépendances + suppression du fichier de tâche ✓
+5. Présentation à l'utilisateur (résumé avec émojis) ✓
+6. Discussion collaborative → éventuel passage en mode plan pour créer le plan d'implémentation ✓
+7. Implémentation après validation du plan ✓
 ```
 
