@@ -421,8 +421,8 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 - [Piste 2]
 
 ❓ **Questions :**
-- [Question 1]
-- [Question 2]
+1. [Question 1] ?
+2. [Question 2] ?
 ```
 
 Note: `/agent` ne crée jamais de plan pour la sélection/consultation de la roadmap. Le plan est créé uniquement pour l’implémentation de la tâche sélectionnée, après discussion avec l’utilisateur.

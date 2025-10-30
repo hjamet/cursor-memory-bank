@@ -1,10 +1,2 @@
 version: "1.0"
-tasks:
-  - id: "task-11"
-    title: "Présenter les questions de fin de /agent en liste numérotée"
-    priority: 3
-    dependencies: []
-    task_file: "presenter-questions-liste-numerotee-agent.md"
-    output_file: "rapport-presenter-questions-liste-numerotee-agent.md"
-    deadline: null
-
+tasks: []

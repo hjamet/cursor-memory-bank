@@ -113,8 +113,8 @@ Utiliser ce format exact pour la présentation :
 - [Piste 2]
 
 ❓ **Questions :**
-- [Question 1]
-- [Question 2]
+1. [Question 1] ?
+2. [Question 2] ?
 ```
 
 ## Gestion des Erreurs (Fail-Fast)
