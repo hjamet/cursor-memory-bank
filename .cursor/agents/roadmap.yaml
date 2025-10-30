@@ -1,12 +1,5 @@
 version: "1.0"
 tasks:
-  - id: "task-1"
-    title: "Supprimer les outils MCP ToolsMCP et MemoryBankMCP obsolètes"
-    priority: 3
-    dependencies: []
-    task_file: "supprimer-outils-mcp-obsoletes.md"
-    output_file: "rapport-supprimer-outils-mcp-obsoletes.md"
-    deadline: null
   - id: "task-2"
     title: "Simplifier le format de nommage des fichiers de tâches en supprimant les timestamps"
     priority: 3
@@ -14,12 +7,12 @@ tasks:
     task_file: "simplifier-nommage-taches.md"
     output_file: "rapport-simplifier-nommage-taches.md"
     deadline: null
-  - id: "task-5"
-    title: "Corriger le comportement de /agent en mode plan pour planifier la tâche sélectionnée plutôt que sa sélection"
-    priority: 4
+  - id: "task-12"
+    title: "Améliorer règle de communication pour éviter au maximum les listes à puces et préférer les tableaux"
+    priority: 3
     dependencies: []
-    task_file: "corriger-comportement-agent-mode-plan-planifier-tache-selectionnee-plutot-que-selection.md"
-    output_file: "rapport-corriger-comportement-agent-mode-plan-planifier-tache-selectionnee-plutot-que-selection.md"
+    task_file: "ameliorer-regle-communication-preferer-tableaux.md"
+    output_file: "rapport-ameliorer-regle-communication-preferer-tableaux.md"
     deadline: null
 
   - id: "task-6"
@@ -61,13 +54,5 @@ tasks:
     dependencies: []
     task_file: "remplacer-in-progress-par-suppression-tache-et-fichier.md"
     output_file: "rapport-remplacer-in-progress-par-suppression-tache-et-fichier.md"
-    deadline: null
-
-  - id: "task-11"
-    title: "Ajouter la suppression de tâche dans le plan lorsqu'on est en mode plan"
-    priority: 4
-    dependencies: []
-    task_file: "ajouter-suppression-tache-dans-plan-mode-plan.md"
-    output_file: "rapport-ajouter-suppression-tache-dans-plan-mode-plan.md"
     deadline: null
 
