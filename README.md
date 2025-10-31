@@ -381,6 +381,7 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 - **Lectures en parallèle** : Effectue en parallèle la lecture de tous les fichiers mentionnés pour réduire la latence
 - **Recherches** : Effectue les recherches sémantiques et web mentionnées
 - **Présentation** : Présente la tâche sélectionnée avec contexte complet en français
+- **Tolérance aux manques** : Poursuit l'exploration même si certains fichiers sont introuvables et les signale explicitement dans la sortie
 - **Discussion collaborative** : Attend la planification avec l'utilisateur avant toute implémentation
 
 **Système de roadmap:**
@@ -420,10 +421,15 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 - [Piste 1]
 - [Piste 2]
 
+⚠️ **Fichiers introuvables :**
+- [Chemin ou recherche] — [Raison]
+
 ❓ **Questions :**
 1. [Question 1] ?
 2. [Question 2] ?
 ```
+
+Si rien n’est manquant, afficher `⚠️ **Fichiers introuvables :** Aucun`.
 
 Note: `/agent` ne crée jamais de plan pour la sélection/consultation de la roadmap. Le plan est créé uniquement pour l’implémentation de la tâche sélectionnée, après discussion avec l’utilisateur.
 

@@ -52,9 +52,18 @@ Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les 
 
 3. **Lire tous les fichiers mentionnés dans "Fichiers Concernés"** :
    - Utiliser des lectures en parallèle pour gagner du temps et inclure tous les fichiers mentionnés
-   - Lire exhaustivement chaque fichier listé
-   - Si un fichier n'existe pas → **ÉCHOUER EXPLICITEMENT** avec le chemin du fichier manquant
+   - Lire exhaustivement chaque fichier disponible
+   - Si un fichier est introuvable, invalide ou inaccessible → **NE PAS interrompre**; consigner l'élément exact dans la liste "Fichiers introuvables" avec la raison (ex: `absent`, `lecture refusée`, `parse YAML`)
    - Lire aussi les fichiers de résultats d'autres agents mentionnés (s'ils existent dans `.cursor/agents/`)
+
+### Étape 3.5 : Consolider les éléments introuvables
+
+1. **Maintenir une liste dédiée** :
+   - Chaque entrée décrit le type d'élément (`fichier`, `rapport`, `recherche`) et le chemin ou la requête concernée
+   - Ajouter un court message explicatif (ex: "fichier supprimé", "rapport jamais généré")
+2. **Aucun masquage** :
+   - Ces informations doivent être restituées telles quelles à l'utilisateur lors de la présentation finale
+   - Ne jamais ignorer ou reformuler vaguement un manque : la traçabilité est obligatoire
 
 4. **Effectuer les recherches mentionnées** :
    - Recherches sémantiques dans le codebase si mentionnées
@@ -110,7 +119,12 @@ Utiliser ce format exact pour la présentation :
 🧠 **Idées :**
 - [Piste 1]
 - [Piste 2]
+
+⚠️ **Fichiers introuvables :**
+- [Chemin ou recherche] — [Raison]
 ```
+
+Si aucun élément n'est manquant, afficher `⚠️ **Fichiers introuvables :** Aucun`.
 
 ## Gestion des Erreurs (Fail-Fast)
 
@@ -119,6 +133,8 @@ Si une étape échoue, tu **DOIS** :
 - Informer l'utilisateur de l'erreur avec un message clair
 - Expliquer ce qui a échoué et pourquoi
 - Ne pas continuer avec des données partielles ou invalides
+
+⚠️ **Exception** : la liste "Fichiers introuvables" n'est pas considérée comme une erreur bloquante tant que la roadmap et le fichier de tâche ont été chargés correctement.
 
 ## Notes Importantes
 
@@ -129,6 +145,7 @@ Si une étape échoue, tu **DOIS** :
 - **Important** : Ne jamais créer de plan pour la sélection/consultation de la roadmap. Le plan ne concerne que l'implémentation de la tâche sélectionnée.
 - **Validation stricte** : Échouer explicitement si quelque chose est invalide ou manquant
  - **Suppression irréversible** : La suppression de la tâche et de son fichier lors des étapes 4–5–6 est immédiate et irréversible par design. Aucune journalisation additionnelle n'est requise.
+ - **Signalement obligatoire** : Toute donnée manquante doit apparaître telle quelle dans la section `⚠️ Fichiers introuvables`, même si la liste est vide (utiliser "Aucun").
 
 ## Exemple de Séquence Complète
 
