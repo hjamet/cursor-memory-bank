@@ -17,7 +17,8 @@ Cette règle impose un style de communication cohérent et lisible pour toutes l
 - **Émojis**: utilisez-les avec parcimonie pour guider la lecture (ex: 🎯 objectif, 📋 contexte, ❓ questions, ✅ succès, ⚠️ attention, 💡 idée).
 - **Listes**: privilégiez les puces `- ` avec éléments courts; mettez le mot-clé en **gras** en tête d’item.
 - **Tableaux**: quand la comparaison aide, préférez un tableau à 2–4 colonnes maximum.
-- **Code**: utilisez les backticks pour `fichiers`, `fonctions`, et blocs de code courts bien formattés.
+- **Synthèses**: rédigez-les exclusivement en texte. **Interdiction absolue** d’y afficher du code, des backticks ou des exemples techniques détaillés.
+- **Code**: en dehors des synthèses, les backticks servent à nommer `fichiers`, `fonctions`, ou brèves références techniques.
 - **Titres**: utilisez `##/###`, jamais `#` (trop massif).
 
 #### Exemples avant/après — listes → tableaux
@@ -30,12 +31,9 @@ Quand remplacer une liste par un tableau ?
 Exemple 1 — comparer des options
 
 Avant (liste à puces):
-
-```
 - Option A: latence faible, support élevé
 - Option B: latence moyenne, support moyen
 - Option C: latence élevée, support faible
-```
 
 Après (tableau):
 
@@ -48,11 +46,8 @@ Après (tableau):
 Exemple 2 — variables d’environnement
 
 Avant (liste clé: description):
-
-```
 - PORT: port d’écoute du serveur
 - DB_URL: URL de connexion à la base de données
-```
 
 Après (tableau):
 

@@ -42,7 +42,7 @@ root/
   - *Contient* : `agent.mdc`, `debug.mdc`, `start.mdc`, `README.mdc` (exemples)
   - *Structure* : Fichiers `.mdc` avec métadonnées YAML et instructions markdown
   - *Usage* : Définissent comment l'agent doit réagir dans différents contextes. Note : la procédure d'enquête auparavant répartie dans `.cursor/rules/enqueteur/` a été consolidée en une commande unique `.cursor/commands/enqueteur.md`.
-  - *Nouveau* : `communication.mdc` — règle de communication imposant clarté, emojis pertinents, sections structurées et usage de tableaux lorsque utile.
+- *Nouveau* : `communication.mdc` — règle de communication imposant clarté, emojis pertinents, sections structurées, usage réfléchi des tableaux et des synthèses 100 % textuelles (sans code).
 
 - **`documentation/`** : Guides approfondis et procédures détaillées
   - *Contient* : Documentation technique, guides d'utilisation, architecture détaillée
