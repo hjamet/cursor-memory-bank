@@ -93,7 +93,6 @@ Présenter dans cet ordre normalisé (sections fixes) :
 2. 📋 **Contexte** — pourquoi la tâche existe, découvertes, problèmes
 3. 🎯 **Objectif** — ce qui doit être accompli (ton exploratoire)
 4. 🧠 **Idées** — premières pistes/approches envisagées
-5. ❓ **Questions** — clarifications à valider avec l'utilisateur
 
 ## Format de Présentation Requis
 
@@ -111,10 +110,6 @@ Utiliser ce format exact pour la présentation :
 🧠 **Idées :**
 - [Piste 1]
 - [Piste 2]
-
-❓ **Questions :**
-1. [Question 1] ?
-2. [Question 2] ?
 ```
 
 ## Gestion des Erreurs (Fail-Fast)
