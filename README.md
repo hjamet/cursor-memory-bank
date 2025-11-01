@@ -434,7 +434,7 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
    - b) [Proposition B]
    - c) [Proposition C]
 
-Si rien n’est manquant, afficher `⚠️ **Fichiers introuvables :** Aucun`.
+Si rien n’est manquant, afficher la phrase « ⚠️ **Fichiers introuvables :** Aucun ».
 
 Note: `/agent` ne crée jamais de plan pour la sélection/consultation de la roadmap. Le plan est créé uniquement pour l’implémentation de la tâche sélectionnée, après discussion avec l’utilisateur.
 
