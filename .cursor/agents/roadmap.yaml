@@ -1,2 +1,9 @@
 version: "1.0"
 tasks:
+- id: "task-1"
+  title: "Empêcher l'affichage de blocs de code dans les résumés d'agent"
+  priority: 3
+  dependencies: []
+  task_file: "empecher-affichage-blocs-code-resumes-agent.md"
+  output_file: "rapport-empecher-affichage-blocs-code-resumes-agent.md"
+  deadline: null
