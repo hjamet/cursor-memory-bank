@@ -105,9 +105,10 @@ Présenter dans cet ordre normalisé (sections fixes) :
 
 ## Format de Présentation Requis
 
-Utiliser ce format exact pour la présentation :
+🚫 **Interdiction absolue** d'utiliser des blocs de code ou des backticks : la sortie doit être en texte brut, sans encadrement par `\`` ou `\`\`\``.
 
-```
+Reproduire exactement les lignes suivantes (en texte brut, avec des lignes vides comme indiqué) :
+
 🎯 **Tâche sélectionnée :** [Titre] (🔴X, 🟠Y, 🔵Z, 🟢W)
 
 📋 **Contexte :**
@@ -122,7 +123,6 @@ Utiliser ce format exact pour la présentation :
 
 ⚠️ **Fichiers introuvables :**
 - [Chemin ou recherche] — [Raison]
-```
 
 Si aucun élément n'est manquant, afficher `⚠️ **Fichiers introuvables :** Aucun`.
 

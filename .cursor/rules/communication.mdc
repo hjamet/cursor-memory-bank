@@ -74,6 +74,7 @@ Après (tableau):
 - **Ne pas noyer d’informations**: évitez les blocs trop longs; segmentez.
 - **Emphase utile**: le gras sert à signaler la décision, l’alerte ou la conclusion.
 - **Respect des formats requis** des commandes (`/agent`, `/task`, etc.).
+- **Résumés `/agent`**: sortie 100 % textuelle, sans aucun backtick ni bloc de code; reproduire les sections demandées ligne par ligne.
 
 ### Exemples rapides
 - Point clé: « **Réponse**: la cause est X; **Action**: corriger Y; **Impact**: Z. »

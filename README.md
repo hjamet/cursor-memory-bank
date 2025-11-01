@@ -383,6 +383,7 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 - **Présentation** : Présente la tâche sélectionnée avec contexte complet en français
 - **Tolérance aux manques** : Poursuit l'exploration même si certains fichiers sont introuvables et les signale explicitement dans la sortie
 - **Discussion collaborative** : Attend la planification avec l'utilisateur avant toute implémentation
+- **Sortie textuelle** : Produit un résumé final sans aucun bloc de code ni backticks, en respectant strictement le format attendu.
 
 **Système de roadmap:**
 - Fichier centralisé : `.cursor/agents/roadmap.yaml`
@@ -406,9 +407,8 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 
 **Règle associée:** `.cursor/rules/agent.mdc` explique quand et comment créer des tâches dans la roadmap lorsque des travaux futurs sont identifiés.
 
-**Format de présentation standard (sortie de `/agent`)**:
+**Format de présentation standard (sortie de `/agent`)** — la réponse doit être envoyée en texte brut, sans aucun bloc de code ni backticks. Reproduire les lignes suivantes (la section « ❓ Questions » reste optionnelle selon le contexte) :
 
-```
 🎯 **Tâche sélectionnée :** [Titre] (🔴X, 🟠Y, 🔵Z, 🟢W)
 
 📋 **Contexte :**
@@ -424,10 +424,9 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 ⚠️ **Fichiers introuvables :**
 - [Chemin ou recherche] — [Raison]
 
-❓ **Questions :**
+❓ **Questions :** *(optionnel)*
 1. [Question 1] ?
 2. [Question 2] ?
-```
 
 Si rien n’est manquant, afficher `⚠️ **Fichiers introuvables :** Aucun`.
 
