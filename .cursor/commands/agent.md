@@ -124,7 +124,17 @@ Reproduire exactement les lignes suivantes (en texte brut, avec des lignes vides
 ⚠️ **Fichiers introuvables :**
 - [Chemin ou recherche] — [Raison]
 
-Si aucun élément n'est manquant, afficher `⚠️ **Fichiers introuvables :** Aucun`.
+❓ **Questions :** *(optionnel — chaque question numérotée avec des options a/b/c pour permettre des réponses compactes comme 1A)*
+1. [Question 1] ?
+   - a) [Proposition A]
+   - b) [Proposition B]
+   - c) [Proposition C]
+2. [Question 2] ?
+   - a) [Proposition A]
+   - b) [Proposition B]
+   - c) [Proposition C]
+
+Si aucun élément n'est manquant, afficher la phrase « ⚠️ **Fichiers introuvables :** Aucun ».
 
 ## Gestion des Erreurs (Fail-Fast)
 

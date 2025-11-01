@@ -18,6 +18,7 @@ Cette règle impose un style de communication cohérent et lisible pour toutes l
 - **Listes**: privilégiez les puces `- ` avec éléments courts; mettez le mot-clé en **gras** en tête d’item.
 - **Tableaux**: quand la comparaison aide, préférez un tableau à 2–4 colonnes maximum.
 - **Synthèses**: rédigez-les exclusivement en texte. **Interdiction absolue** d’y afficher du code, des backticks ou des exemples techniques détaillés.
+- **Conclusions**: rédigez-les uniquement en langage naturel, avec un niveau de synthèse élevé; autorisez émojis et tableaux si cela aide la lecture, mais interdisez strictement tout bloc de code ou détail technique d’implémentation.
 - **Code**: en dehors des synthèses, les backticks servent à nommer `fichiers`, `fonctions`, ou brèves références techniques.
 - **Titres**: utilisez `##/###`, jamais `#` (trop massif).
 
@@ -75,6 +76,7 @@ Après (tableau):
 - **Emphase utile**: le gras sert à signaler la décision, l’alerte ou la conclusion.
 - **Respect des formats requis** des commandes (`/agent`, `/task`, etc.).
 - **Résumés `/agent`**: sortie 100 % textuelle, sans aucun backtick ni bloc de code; reproduire les sections demandées ligne par ligne.
+- **Questions `/agent`**: formater chaque question en liste numérotée avec sous-options `a)`, `b)`, `c)` pour permettre des réponses de type 1A, 2B, 3C.
 
 ### Exemples rapides
 - Point clé: « **Réponse**: la cause est X; **Action**: corriger Y; **Impact**: Z. »

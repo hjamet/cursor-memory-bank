@@ -424,9 +424,15 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 ⚠️ **Fichiers introuvables :**
 - [Chemin ou recherche] — [Raison]
 
-❓ **Questions :** *(optionnel)*
+❓ **Questions :** *(optionnel — chaque question numérotée avec options a/b/c pour des réponses comme 1A)*
 1. [Question 1] ?
+   - a) [Proposition A]
+   - b) [Proposition B]
+   - c) [Proposition C]
 2. [Question 2] ?
+   - a) [Proposition A]
+   - b) [Proposition B]
+   - c) [Proposition C]
 
 Si rien n’est manquant, afficher `⚠️ **Fichiers introuvables :** Aucun`.
 
