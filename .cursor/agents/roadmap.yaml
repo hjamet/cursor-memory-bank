@@ -18,3 +18,21 @@ tasks:
   task_file: creer-commande-clean-nettoyer-taches-in-progress.md
   output_file: rapport-creer-commande-clean-nettoyer-taches-in-progress.md
   deadline: null
+- id: task-3
+  title: Améliorer la commande /clean pour que les informations importantes des fichiers résultats supprimés soient ajoutés au README conformément à la règle README.mdc
+  priority: 3
+  state: todo
+  dependencies: []
+  dependencies-results: []
+  task_file: ameliorer-commande-clean-informations-resultats-readme.md
+  output_file: rapport-ameliorer-commande-clean-informations-resultats-readme.md
+  deadline: null
+- id: task-4
+  title: Améliorer la règle agent.mdc pour la mettre à jour avec la nouvelle commande /agent, la réduire et insister sur la création obligatoire du rapport final
+  priority: 4
+  state: todo
+  dependencies: []
+  dependencies-results: []
+  task_file: ameliorer-regle-agent-mdc.md
+  output_file: rapport-ameliorer-regle-agent-mdc.md
+  deadline: null
