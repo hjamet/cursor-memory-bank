@@ -6,6 +6,19 @@ Quand l'utilisateur tape `/task` avec une description de tâche, tu dois créer 
 
 **INTERDICTION ABSOLUE**: Tu ne dois JAMAIS commencer à implémenter ou planifier l'implémentation de la tâche nouvellement créée. La planification/implémentation appartiennent exclusivement à `/agent` après discussion avec l'utilisateur.
 
+**CRITIQUE - CE QUE TU NE DOIS ABSOLUMENT PAS FAIRE** :
+- ❌ Implémenter la modification demandée par l'utilisateur
+- ❌ Planifier l'implémentation de cette modification
+- ❌ Réfléchir à la solution technique pour cette modification
+- ❌ Commencer quoi que ce soit lié à la modification demandée
+- ❌ Modifier le code en rapport avec la tâche créée
+- ❌ Proposer des solutions ou des approches d'implémentation
+- ❌ Examiner les fichiers qui seraient modifiés pour cette tâche
+
+**CE QUE TU DOIS UNIQUEMENT FAIRE** :
+- ✅ Créer la tâche dans la roadmap avec le contexte nécessaire
+- ✅ Reprendre immédiatement ton travail précédent comme si rien ne s'était passé
+
 ## Principe Fondamental
 
 **CRITIQUE** : Cette commande est une **interruption non-bloquante**. Tu ne dois **JAMAIS** :
@@ -13,13 +26,39 @@ Quand l'utilisateur tape `/task` avec une description de tâche, tu dois créer 
 - Démarrer l'implémentation de la nouvelle tâche
 - Changer de contexte ou de focus
 - Abandonner tes todos en cours
+- **Effectuer la modification demandée par l'utilisateur** (l'utilisateur demande une modification, mais tu ne dois QUE créer une tâche, PAS l'implémenter)
+- **Réfléchir à comment implémenter la modification** (cela appartient à l'agent qui traitera la tâche via `/agent`)
+- **Modifier le code en rapport avec la modification demandée** (même si tu as des idées, tu ne dois rien changer)
 
 Tu dois simplement **enregistrer la tâche** pour qu'un autre agent (via `/agent`) puisse la traiter plus tard, puis **reprendre immédiatement** ton travail précédent.
 
+**IMPORTANT** : Quand l'utilisateur dit `/task optimiser les performances`, il demande que cette optimisation soit faite, mais toi tu ne dois QUE créer une tâche dans la roadmap. L'implémentation de l'optimisation sera faite plus tard par un autre agent (via `/agent`).
+
 ### Interdictions absolues (rappel)
-- Ne pas créer de plan de transition pour cette nouvelle tâche
-- Ne pas modifier, refactorer ou amorcer un correctif relatif à la nouvelle tâche
-- Ne pas changer de contexte, d'onglet ou de fichier hors de ton travail en cours
+
+**CRITIQUE - Rappel explicite de ce qui est INTERDIT** :
+
+- ❌ Ne PAS créer de plan de transition pour cette nouvelle tâche
+- ❌ Ne PAS modifier, refactorer ou amorcer un correctif relatif à la nouvelle tâche
+- ❌ Ne PAS changer de contexte, d'onglet ou de fichier hors de ton travail en cours
+- ❌ Ne PAS implémenter la modification demandée par l'utilisateur (même si elle semble simple)
+- ❌ Ne PAS planifier comment implémenter cette modification
+- ❌ Ne PAS réfléchir à la solution technique
+- ❌ Ne PAS examiner les fichiers qui seraient modifiés pour cette tâche
+- ❌ Ne PAS proposer des solutions ou des approches
+- ❌ Ne PAS modifier le code en rapport avec la modification demandée
+
+**EXEMPLE CONCRET** : Si l'utilisateur tape `/task améliorer la validation des emails`, tu dois :
+- ✅ Créer la tâche "Améliorer la validation des emails" dans la roadmap
+- ✅ Mentionner les fichiers de ton travail actuel dans "Fichiers Concernés"
+- ✅ Confirmer : "✅ Tâche ajoutée (task-X)"
+- ✅ Reprendre ton travail précédent
+
+Tu ne dois PAS :
+- ❌ Aller voir le code de validation des emails
+- ❌ Réfléchir à comment améliorer la validation
+- ❌ Commencer à modifier le code de validation
+- ❌ Proposer une solution technique
 
 ## Priorité et Temporalité
 
@@ -158,6 +197,12 @@ Instructions impératives pour l'agent qui traitera cette tâche (via `/agent`) 
    - Continuer tes todos en cours
    - Reprendre exactement là où tu t'étais arrêté
    - Ne pas mentionner la nouvelle tâche (elle est déléguée à un autre agent)
+   - **NE PAS** commencer à implémenter la modification demandée
+   - **NE PAS** réfléchir à la solution technique
+   - **NE PAS** examiner les fichiers concernés par la modification
+   - **NE PAS** proposer d'approches ou de solutions
+
+**RAPPEL FORT** : L'utilisateur a demandé une modification via `/task`, mais cette modification sera implémentée PLUS TARD par un autre agent (via `/agent`). Toi, tu as UNIQUEMENT créé la tâche dans la roadmap. Tu ne dois rien faire d'autre concernant cette modification.
 
 ## Format de Réponse Minimal
 
@@ -192,6 +237,13 @@ Si une étape échoue :
 7. ✅ Confirmer : "✅ Tâche ajoutée (task-1)"
 8. ✅ Reprendre immédiatement l'implémentation de l'authentification
 
+**Ce que tu NE dois PAS faire** :
+- ❌ Commencer à optimiser les performances maintenant
+- ❌ Réfléchir à comment implémenter le cache
+- ❌ Examiner le code d'authentification pour voir où optimiser
+- ❌ Proposer des solutions d'optimisation
+- ❌ Modifier quoi que ce soit lié aux performances
+
 **Résultat** : La tâche est créée, un autre agent peut la traiter via `/agent`, et tu continues ton travail actuel sans interruption.
 
 ## Cas d'Usage et Enchaînements
@@ -222,6 +274,9 @@ L'utilisateur tape `/agent /task optimiser les performances` :
 - **Pas d'interruption** : Cette commande ne doit jamais interrompre le flux de travail
 - **Délégation** : La tâche est créée pour être traitée par un autre agent (via `/agent`)
 - **Jamais d'implémentation immédiate** : Aucune action d'implémentation ni de planification ne doit suivre la création de la tâche
+- **Ne jamais effectuer la modification demandée** : L'utilisateur demande une modification, mais tu ne dois QUE créer une tâche, PAS l'implémenter. L'implémentation sera faite plus tard par un autre agent.
+- **Ne jamais planifier l'implémentation** : Même si tu sais comment faire, tu ne dois pas planifier. La planification appartient à l'agent qui traitera la tâche via `/agent`.
+- **Ne jamais modifier le code** : Même si la modification semble simple, tu ne dois rien changer. Crée juste la tâche.
 - **Contexte préservé** : Les fichiers de ton travail actuel sont mentionnés dans la section "Fichiers Concernés"
 - **Format cohérent** : Suivre exactement le même format que les autres fichiers de tâches
 - **Français** : Tout le contenu doit être en français
