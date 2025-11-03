@@ -387,21 +387,22 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 
 **Système de roadmap:**
 - Fichier centralisé : `.cursor/agents/roadmap.yaml`
-- Structure : `tasks` (tâches disponibles), `in_progress` (tâches en cours d'exécution)
+- Structure : Liste `tasks` avec champ `state: "todo"` ou `"in-progress"` pour chaque tâche
 - Fichiers de tâches : `.cursor/agents/{titre-kebab-case}.md`
 - Fichiers de résultats : `.cursor/agents/rapport-{titre-kebab-case}.md`
 
 **Critères de sélection:**
-- Dépendances résolues (le task ID n'existe ni dans `tasks` ni dans `in_progress`)
+- Dépendances résolues (le task ID n'existe pas dans `tasks` ou est avec `state: "todo"` et non bloquante)
 - Priorité (5 = plus haute priorité)
+- Seulement les tâches avec `state: "todo"` sont sélectionnables
 
 **Workflow:**
 1. Lecture de la roadmap
-2.0. Vérification et nettoyage des tâches `in_progress` terminées (détection via fichiers output)
-2.1. Sélection de la tâche la plus intéressante
+2.0. Vérification et nettoyage des tâches avec `state: "in-progress"` terminées (détection via fichiers output)
+2.1. Sélection de la tâche la plus intéressante parmi celles avec `state: "todo"`
 3. Chargement du fichier de tâche et de tous les fichiers mentionnés
 4. Recherches sémantiques et web
-5. Déplacement de la tâche vers `in_progress` (au lieu de suppression)
+5. Changement de `state: "todo"` → `state: "in-progress"`
 6. Présentation à l'utilisateur avec contexte complet
 7. Discussion collaborative pour planification
 8. Implémentation après validation

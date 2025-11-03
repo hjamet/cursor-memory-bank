@@ -17,32 +17,33 @@ Lorsque l'utilisateur tape `/agent` (avec ou sans instructions supplémentaires)
 2. **Valider la structure de la roadmap**
    - Vérifier que `version` existe
    - Vérifier que `tasks` est un tableau
-   - Si `in_progress` n'existe pas, l'initialiser comme un tableau vide
+   - Pour chaque tâche, vérifier ou initialiser le champ `state` (doit être `"todo"` ou `"in-progress"`)
    - Si validation échoue → **ÉCHOUER EXPLICITEMENT**
 
-### Étape 2.0 : Vérifier et Nettoyer les Tâches in_progress
+### Étape 2.0 : Vérifier et Nettoyer les Tâches in-progress
 
-**Avant** de sélectionner une nouvelle tâche, vérifier toutes les tâches dans `in_progress` :
+**Avant** de sélectionner une nouvelle tâche, vérifier toutes les tâches avec `state: "in-progress"` :
 
-1. **Pour chaque tâche in_progress** :
-   - Vérifier si le fichier `.cursor/agents/{output_file}` existe (où `output_file` est défini dans la tâche in_progress)
+1. **Pour chaque tâche avec `state: "in-progress"`** :
+   - Vérifier si le fichier `.cursor/agents/{output_file}` existe (où `output_file` est défini dans la tâche)
    - **Si le fichier existe** :
-     - La tâche est terminée → supprimer l'entrée de `in_progress`
-     - Parcourir toutes les tâches dans `tasks` et retirer l'ID de cette tâche de leurs `dependencies` (si présent)
+     - La tâche est terminée → retirer la tâche de `tasks` (supprimer complètement l'entrée)
+     - Parcourir toutes les tâches restantes dans `tasks` et retirer l'ID de cette tâche de leurs `dependencies` (si présent)
      - Supprimer le fichier de tâche `.cursor/agents/{task_file}` s'il existe encore
      - Sauvegarder `roadmap.yaml`
    - **Si le fichier n'existe pas** :
-     - La tâche est toujours en cours → la garder dans `in_progress`
+     - La tâche est toujours en cours → la garder avec `state: "in-progress"`
 
 ### Étape 2.1 : Sélectionner la Tâche la Plus Intéressante
 
 Appliquer cette logique de sélection dans l'ordre :
 
 1. **Vérifier les dépendances** :
-   - Pour chaque tâche, vérifier que toutes ses dépendances (task IDs dans `dependencies`) existent dans la roadmap
-   - Une dépendance est considérée comme "résolue" si le task ID n'existe **ni** dans `tasks` **ni** dans `in_progress` (tâche terminée)
-   - Une dépendance est bloquante si le task ID existe dans `tasks` (tâche pas encore commencée) **OU** dans `in_progress` (tâche en cours)
+   - Pour chaque tâche, vérifier que toutes ses dépendances (task IDs dans `dependencies`) existent dans `tasks`
+   - Une dépendance est considérée comme "résolue" si le task ID n'existe pas dans `tasks` (tâche terminée et supprimée)
+   - Une dépendance est bloquante si le task ID existe dans `tasks` avec `state: "todo"` (tâche pas encore commencée) **OU** `state: "in-progress"` (tâche en cours)
    - Exclure les tâches avec dépendances bloquantes
+   - **Ne considérer que les tâches avec `state: "todo"`** pour la sélection
 
 2. **Trier les tâches disponibles** :
    - Par priorité décroissante (5 = plus haute priorité)
@@ -86,15 +87,11 @@ Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les 
    - Recherches web si mentionnées dans "Fichiers Concernés"
    - Lire le README et la documentation pertinente
 
-### Étape 4 : Déplacer la Tâche vers in_progress
+### Étape 4 : Marquer la Tâche comme in-progress
 
-1. **Déplacer la tâche sélectionnée vers in_progress** :
-   - Retirer la tâche sélectionnée de la liste `tasks` dans `roadmap.yaml`
-   - Ajouter une entrée dans `in_progress` avec :
-     - `id` : ID de la tâche
-     - `title` : titre de la tâche
-     - `output_file` : fichier de sortie attendu (défini dans la tâche)
-     - `task_file` : fichier de tâche (pour référence)
+1. **Mettre à jour le state de la tâche** :
+   - Trouver la tâche sélectionnée dans `tasks` dans `roadmap.yaml`
+   - Modifier son champ `state: "todo"` → `state: "in-progress"`
    - Sauvegarder le fichier `roadmap.yaml`
 
 2. **Conserver le fichier de tâche** :
@@ -102,13 +99,13 @@ Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les 
    - Le fichier sera supprimé lorsqu'un agent détectera que la tâche est terminée (étape 2.0)
 
 3. **Calculer les compteurs de priorités restants** :
-   - À partir des `tasks` RESTANTES dans `roadmap.yaml` (après déplacement), calculer le nombre de tâches par priorité
+   - À partir des tâches avec `state: "todo"` dans `roadmap.yaml`, calculer le nombre de tâches par priorité
    - Mappage emojis: 5=🔴, 4=🟠, 3=🔵, 2–1=🟢
    - Toujours afficher les quatre compteurs, même si 0
 
 ### Étape 5 : Présenter la Tâche à l'Utilisateur (Résumé)
 
-Cette étape **EST le résumé** de la tâche sélectionnée. Elle se fait après le déplacement vers in_progress (étape 4) et le chargement du contexte (étape 3).
+Cette étape **EST le résumé** de la tâche sélectionnée. Elle se fait après le changement de state vers in-progress (étape 4) et le chargement du contexte (étape 3).
 
 **CRITIQUE** : Tout doit être écrit **EN FRANÇAIS** avec des emojis appropriés.
 
@@ -170,17 +167,17 @@ Si une étape échoue, tu **DOIS** :
 - **Pas d'implémentation immédiate** : L'objectif est la discussion et la planification collaborative
 - **Important** : Ne jamais créer de plan pour la sélection/consultation de la roadmap. Le plan ne concerne que l'implémentation de la tâche sélectionnée.
 - **Validation stricte** : Échouer explicitement si quelque chose est invalide ou manquant
-- **Déplacement vers in_progress** : La tâche est déplacée vers `in_progress` et le fichier de tâche est conservé jusqu'à ce qu'un agent détecte que la tâche est terminée (via le fichier output).
+- **Changement de state** : Le `state` de la tâche passe de `"todo"` à `"in-progress"` et le fichier de tâche est conservé jusqu'à ce qu'un agent détecte que la tâche est terminée (via le fichier output).
 - **Signalement obligatoire** : Toute donnée manquante doit apparaître telle quelle dans la section `⚠️ Fichiers introuvables`, même si la liste est vide (utiliser "Aucun").
 
 ## Exemple de Séquence Complète
 
 ```
 1. Lecture roadmap.yaml ✓
-2.0. Vérification et nettoyage des tâches in_progress terminées ✓
-2.1. Sélection de la tâche la plus prioritaire ✓
+2.0. Vérification et nettoyage des tâches in-progress terminées ✓
+2.1. Sélection de la tâche la plus prioritaire (state: todo) ✓
 3. Chargement du fichier de tâche et du contexte ✓
-4. Déplacement de la tâche vers in_progress ✓
+4. Changement de state: todo → in-progress ✓
 5. Présentation à l'utilisateur (résumé avec émojis) ✓
 6. Discussion collaborative → éventuel passage en mode plan pour créer le plan d'implémentation ✓
 7. Implémentation après validation du plan ✓

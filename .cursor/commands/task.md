@@ -100,6 +100,7 @@ Instructions impératives pour l'agent qui traitera cette tâche (via `/agent`) 
 - id: "task-{unique-id}"
   title: "Titre descriptif de la tâche"
   priority: 3  # 1-5, ajuster selon l'importance
+  state: "todo"  # "todo" ou "in-progress" (toujours "todo" pour les nouvelles tâches)
   dependencies: []  # Liste d'IDs de tâches ou []
   task_file: "{nom-fichier-tache}.md"
   output_file: "rapport-{nom-fichier-tache}.md"
