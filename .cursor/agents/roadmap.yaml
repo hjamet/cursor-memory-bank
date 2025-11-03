@@ -1,2 +1,11 @@
 version: "1.0"
-tasks: []
+tasks:
+  - id: "task-1"
+    title: "Ajouter dependencies-results dans la roadmap"
+    priority: 4
+    state: "todo"
+    dependencies: []
+    dependencies-results: []
+    task_file: "ajouter-dependencies-results-roadmap.md"
+    output_file: "rapport-ajouter-dependencies-results-roadmap.md"
+    deadline: null
