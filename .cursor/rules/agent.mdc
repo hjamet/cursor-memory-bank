@@ -177,9 +177,8 @@ Exemple : "Explorer la possibilité d'optimiser le système d'authentification p
 - **DOIT** lire le README et toute documentation pertinente
 - **DOIT** atteindre une compréhension approfondie du contexte et du projet avant toute discussion
 - **DOIT** discuter avec l'utilisateur pour clarifier les attentes précises, poser des questions sur les contraintes techniques, et établir un plan d'action détaillé ensemble
-- **DOIT** écrire le rapport final dans le fichier output mentionné après avoir terminé
+- **DOIT TOUJOURS** créer le fichier de rapport final dans le fichier output mentionné après avoir terminé (voir section "Instructions pour les Rapports Finaux")
 - Seulement APRÈS avoir complété cette exploration exhaustive et cette planification collaborative, peut commencer toute implémentation
-- **DOIT TOUJOURS** créer le fichier de rapport à la fin du chat, que la tâche soit réussie ou non (voir section "Instructions pour les Rapports Finaux")
 
 Emphasizer que l'exploration est OBLIGATOIRE, pas optionnelle.
 ```
@@ -212,6 +211,11 @@ Lire le fichier `.cursor/agents/roadmap.yaml` et ajouter une nouvelle entrée da
 - Vérifier que les dépendances mentionnées existent dans la roadmap (si des dépendances sont spécifiées)
 - Si validation échoue → **ÉCHOUER EXPLICITEMENT** avec un message clair
 
+**dependencies-results** :
+- Ce champ contient une liste de noms de fichiers (sans chemin, ex: `["rapport-tache-1.md"]`) référençant les rapports de tâches dépendantes déjà terminées
+- Lorsqu'une tâche dépendante est terminée, `/agent` (étape 2.0) et `/clean` ajoutent automatiquement son `output_file` dans les `dependencies-results` des tâches qui en dépendent
+- Ces fichiers sont lus automatiquement lors du chargement du contexte d'une tâche via `/agent` pour donner accès aux résultats des dépendances
+
 ### Étape 5 : Sauvegarder
 
 Sauvegarder le fichier `roadmap.yaml` avec la nouvelle entrée ajoutée.
@@ -240,21 +244,35 @@ Supposons que tu travailles sur l'authentification et découvres des problèmes 
   priority: 4
   state: "todo"
   dependencies: []
+  dependencies-results: []
   task_file: "optimiser-performances-auth.md"
   output_file: "rapport-optimiser-performances-auth.md"
   deadline: null
 ```
 
-## Instructions pour les Rapports Finaux
+## Instructions pour les Rapports Finaux — CRITIQUE ⚠️
 
-**CRITIQUE** : Quand tu travailles sur une tâche sélectionnée via `/agent`, tu **DOIS TOUJOURS** créer le fichier de rapport final à la fin de ton chat, même si la tâche n'a pas été complétée avec succès. C'est ce fichier qui permet aux autres agents de détecter que la tâche est terminée.
+**CRITIQUE ABSOLUE** : Quand tu travailles sur une tâche sélectionnée via `/agent`, tu **DOIS TOUJOURS** créer le fichier de rapport final à la fin de ton chat, même si la tâche n'a pas été complétée avec succès. C'est ce fichier qui permet aux autres agents de détecter que la tâche est terminée.
+
+### Pourquoi le Rapport est Critique
+
+Le système de détection des tâches terminées fonctionne **uniquement** via l'existence du fichier `output_file` :
+
+1. **Détection automatique** : Lorsqu'un agent exécute `/agent`, l'étape 2.0 vérifie toutes les tâches avec `state: "in-progress"` et détecte qu'elles sont terminées si leur fichier `output_file` existe dans `.cursor/agents/`
+2. **Nettoyage automatique** : Une fois détectée comme terminée, la tâche est automatiquement retirée de la roadmap, ses dépendances sont mises à jour, et les fichiers orphelins sont nettoyés
+3. **Commandes concernées** : Ce mécanisme est utilisé par `/agent` (étape 2.0) et `/clean` pour maintenir l'hygiène de la roadmap
+
+**Conséquence grave si le rapport n'est pas créé** :
+- La tâche restera bloquée en `state: "in-progress"` indéfiniment
+- Les tâches qui en dépendent ne pourront jamais être sélectionnées
+- La roadmap se bloquera progressivement avec des tâches "fantômes" jamais terminées
 
 ### Création Obligatoire du Rapport
 
 À la fin d'un chat, quand tu as terminé ton travail sur une tâche sélectionnée via `/agent`, tu **DOIS TOUJOURS** créer le fichier de rapport final :
 
 - **Fichier** : `.cursor/agents/{output_file}` (où `output_file` est défini dans la tâche avec `state: "in-progress"`)
-- **Cette étape est OBLIGATOIRE** car c'est ce qui permet à d'autres agents de détecter que la tâche est terminée (étape 2.0 de `/agent`)
+- **Cette étape est OBLIGATOIRE** car c'est ce qui permet à d'autres agents de détecter que la tâche est terminée (étape 2.0 de `/agent` ou `/clean`)
 - Le rapport marque que la tâche est terminée, qu'elle soit réussie ou non
 
 ### Contenu du Rapport selon le Résultat
@@ -282,10 +300,11 @@ Si la tâche a rencontré un problème et nécessite un travail supplémentaire 
 
 ### Intégration dans les Plans d'Implémentation
 
-Quand tu crées un plan d'implémentation pour une tâche sélectionnée via `/agent`, tu **DOIS** inclure comme **dernière étape** :
+Quand tu crées un plan d'implémentation pour une tâche sélectionnée via `/agent`, tu **DOIS** inclure comme **dernière étape OBLIGATOIRE** :
 
 - Créer le fichier de rapport final : `.cursor/agents/{output_file}`
 - Cette étape est **OBLIGATOIRE** et doit être exécutée à la fin du chat, que la tâche soit réussie ou non
+- **Rappel** : Sans ce fichier, la tâche ne sera jamais détectée comme terminée et bloquera la roadmap
 
 ## Points d'Attention
 
@@ -295,12 +314,13 @@ Quand tu crées un plan d'implémentation pour une tâche sélectionnée via `/a
 - **Validation** : Valider que les dépendances existent avant d'ajouter la tâche
 - **Français** : Tout le contenu des fichiers de tâches doit être en français
 - **Unicité** : Garantir que les IDs de tâches sont uniques
-- **Rapport obligatoire** : Le fichier de rapport doit TOUJOURS être créé à la fin d'un chat pour marquer la fin de la tâche
+- **Rapport obligatoire** : Le fichier de rapport doit TOUJOURS être créé à la fin d'un chat pour marquer la fin de la tâche. C'est le seul mécanisme de détection des tâches terminées utilisé par `/agent` et `/clean`
 
 ## Intégration avec le Workflow
 
 Cette règle fonctionne en complément de :
-- La commande `/agent` qui permet de sélectionner et traiter une tâche
+- La commande `/agent` qui permet de sélectionner et traiter une tâche (notamment l'étape 2.0 de nettoyage des tâches terminées via détection des fichiers output)
+- La commande `/clean` qui nettoie les tâches in-progress via la même logique de détection
 - Les autres règles existantes (peut être combinée avec `agent.mdc`, `debug.mdc`, etc.)
 
 Quand tu identifies une tâche future, crée-la immédiatement dans la roadmap plutôt que de la noter mentalement ou de l'oublier.
