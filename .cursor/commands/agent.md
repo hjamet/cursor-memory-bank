@@ -24,17 +24,32 @@ Lorsque l'utilisateur tape `/agent` (avec ou sans instructions supplémentaires)
 
 **Avant** de sélectionner une nouvelle tâche, vérifier toutes les tâches avec `state: "in-progress"` :
 
-1. **Pour chaque tâche avec `state: "in-progress"`** :
-   - Vérifier si le fichier `.cursor/agents/{output_file}` existe (où `output_file` est défini dans la tâche)
-   - **Si le fichier existe** :
-     - La tâche est terminée → retirer la tâche de `tasks` (supprimer complètement l'entrée)
+1. **Phase de collecte** : Identifier toutes les tâches terminées
+   - Parcourir toutes les tâches avec `state: "in-progress"`
+   - Pour chaque tâche, vérifier si le fichier `.cursor/agents/{output_file}` existe (où `output_file` est défini dans la tâche)
+   - **Si le fichier existe** : Collecter la tâche comme terminée avec son `{output_file}` et son `{task_file}`
+   - **Si le fichier n'existe pas** : La tâche est toujours en cours → la garder avec `state: "in-progress"`
+
+2. **Phase de mise à jour des dépendances** : Traiter toutes les tâches terminées collectées
+   - Pour chaque tâche terminée :
+     - Retirer la tâche de `tasks` (supprimer complètement l'entrée)
      - Parcourir toutes les tâches restantes dans `tasks` :
        - Retirer l'ID de cette tâche de leurs `dependencies` (si présent)
        - Pour chaque tâche qui avait cette dépendance, ajouter `{output_file}` dans leur liste `dependencies-results` (initialiser à liste vide si le champ n'existe pas)
-     - Supprimer le fichier de tâche `.cursor/agents/{task_file}` s'il existe encore
-     - Sauvegarder `roadmap.yaml`
-   - **Si le fichier n'existe pas** :
-     - La tâche est toujours en cours → la garder avec `state: "in-progress"`
+
+3. **Phase de suppression des fichiers de tâches** :
+   - Pour chaque tâche terminée, supprimer le fichier de tâche `.cursor/agents/{task_file}` s'il existe encore
+
+4. **Phase de nettoyage global des output_file** :
+   - Pour chaque `output_file` des tâches terminées :
+     - Parcourir toutes les tâches restantes dans `tasks` pour vérifier si `{output_file}` est présent dans leur liste `dependencies-results` (tenir compte des cas où `dependencies-results` est absent ou vide)
+     - Vérifier si le fichier physique `.cursor/agents/{output_file}` existe
+     - Selon les résultats :
+       - **Si le fichier est référencé dans au moins un `dependencies-results` ET le fichier existe physiquement** : conserver le fichier (comportement actuel, fichier utilisé)
+       - **Si le fichier est référencé dans au moins un `dependencies-results` MAIS le fichier n'existe pas physiquement** : retirer `{output_file}` de tous les `dependencies-results` concernés (référence invalide/historique, nettoyer la référence)
+       - **Si le fichier n'est référencé nulle part dans aucun `dependencies-results`** : supprimer le fichier `.cursor/agents/{output_file}` (fichier orphelin, non utilisé)
+
+5. **Sauvegarder** `roadmap.yaml` après toutes les modifications
 
 ### Étape 2.1 : Sélectionner la Tâche la Plus Intéressante
 
