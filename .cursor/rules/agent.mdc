@@ -108,6 +108,7 @@ Avant de créer la tâche, identifier :
 
 - **Titre descriptif** : Un titre clair et actionnable (ex: "Optimiser les performances d'authentification")
   - **IMPORTANT** : Le titre doit être unique pour éviter les collisions de noms de fichiers
+- **Description courte** : Générer une description de 3 phrases maximum qui résume l'objectif de la tâche. Cette description sera utilisée pour l'analyse automatique des dépendances avec les autres tâches
 - **Priorité** : De 1 à 5 (5 = plus haute priorité)
   - 5 = Critique/Blocant
   - 4 = Haute priorité
@@ -192,6 +193,7 @@ Lire le fichier `.cursor/agents/roadmap.yaml` et ajouter une nouvelle entrée da
 ```yaml
 - id: "task-{unique-id}"  # Générer un ID unique (ex: task-1, task-2, etc.)
   title: "Titre descriptif de la tâche"
+  description: "Description courte de l'objectif de la tâche (3 phrases max)"  # Utilisé pour l'analyse de dépendances
   priority: 3  # 1-5
   state: "todo"  # "todo" ou "in-progress"
   dependencies: []  # Liste d'IDs de tâches ou []
@@ -226,6 +228,7 @@ Supposons que tu travailles sur l'authentification et découvres des problèmes 
 
 **Étape 1 - Métadonnées** :
 - Titre : "Optimiser les performances d'authentification"
+- Description : "Améliorer le temps de réponse du système d'authentification en optimisant les requêtes de base de données et en implémentant un cache pour les tokens JWT"
 - Priorité : 4
 - Dépendances : []
 - Contexte : Problèmes de performance découverts lors des tests
@@ -241,6 +244,7 @@ Supposons que tu travailles sur l'authentification et découvres des problèmes 
 ```yaml
 - id: "task-1"
   title: "Optimiser les performances d'authentification"
+  description: "Améliorer le temps de réponse du système d'authentification en optimisant les requêtes de base de données et en implémentant un cache pour les tokens JWT"
   priority: 4
   state: "todo"
   dependencies: []

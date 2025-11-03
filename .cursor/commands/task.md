@@ -38,24 +38,51 @@ Tu dois simplement **enregistrer la tâche** pour qu'un autre agent (via `/agent
 
 Lorsque l'utilisateur tape `/task [description de la tâche]`, tu dois :
 
-### Étape 1 : Analyser la Demande
+### Étape 1 : Analyser la Demande et Préparer les Métadonnées
 
 1. **Extraire la description** de la tâche fournie par l'utilisateur
 2. **Identifier le contexte** de ton travail actuel pour comprendre pourquoi cette tâche est mentionnée
 3. **Déterminer les métadonnées** :
    - Titre descriptif et actionnable
    - **IMPORTANT** : Vérifier que le titre est unique dans la roadmap pour éviter les collisions de noms de fichiers
-   - Priorité (1-5, 3 par défaut)
-   - Dépendances éventuelles (si le travail actuel doit être terminé d'abord)
+  - **Description courte** : Générer une description de 3 phrases maximum qui résume l'objectif de la tâche. Cette description sera utilisée pour l'analyse automatique des dépendances avec les autres tâches
+  - Priorité (1-5, 3 par défaut)
+  - Dépendances éventuelles (si le travail actuel doit être terminé d'abord)
 
-### Étape 2 : Générer le Nom de Fichier
+### Étape 2 : Lire la Roadmap et Générer l'ID
+
+1. **Lire** `.cursor/agents/roadmap.yaml` pour obtenir toutes les tâches existantes
+2. **Générer un ID unique** : Identifier le plus grand ID existant et incrémenter (ex: `task-1`, `task-2`, etc.)
+
+### Étape 3 : Analyser les Dépendances Bidirectionnelles
+
+**CRITIQUE** : Cette étape utilise les données lues à l'Étape 2.
+
+1. **Pour chaque tâche existante** :
+   - Lire son champ `description` (court résumé de 3 phrases max)
+   - Comparer avec la description de la nouvelle tâche
+   - Analyser les relations logiques :
+     - **Tâches dont la nouvelle tâche dépend** : Tâches qui fournissent une infrastructure/base nécessaire, qui résolvent un problème bloquant, qui créent des fichiers/modules requis, ou qui établissent des conventions/patterns à suivre
+     - **Tâches qui dépendent de la nouvelle tâche** : Tâches qui nécessitent ce que la nouvelle tâche va produire, qui sont bloquées par un problème que la nouvelle tâche résout, ou qui étendent/utilisent ce que la nouvelle tâche va créer
+2. **Construire deux listes** :
+   - `dependencies_new_task` : IDs des tâches dont la nouvelle tâche dépend
+   - `dependencies_existing_tasks` : Liste des IDs des tâches existantes qui doivent dépendre de la nouvelle tâche
+
+**Points importants** :
+- Ne PAS lire les fichiers de tâches complets, utiliser uniquement le champ `description` de roadmap.yaml
+- L'analyse doit être contextuelle et intelligente, pas exhaustive
+- Si aucune dépendance n'est détectée, les listes restent vides (c'est normal)
+- Ne PAS encore modifier roadmap.yaml à cette étape (ce sera fait à l'Étape 6)
+- En cas d'erreur lors de l'analyse, **ÉCHOUER EXPLICITEMENT** avec message clair, mais reprendre le travail après avoir informé l'utilisateur
+
+### Étape 4 : Générer le Nom de Fichier
 
 1. Convertir le titre en format kebab-case
 2. **IMPORTANT** : Vérifier que le titre est unique dans la roadmap pour éviter les collisions
 3. Nom du fichier de tâche : `{titre-kebab-case}.md`
 4. Nom du fichier de résultat : `rapport-{titre-kebab-case}.md`
 
-### Étape 3 : Créer le Fichier de Tâche
+### Étape 5 : Créer le Fichier de Tâche
 
 Créer le fichier `.cursor/agents/{nom-fichier-tache}.md` avec les 4 sections obligatoires :
 
@@ -90,32 +117,35 @@ Instructions impératives pour l'agent qui traitera cette tâche (via `/agent`) 
 - DOIT discuter avec l'utilisateur avant implémentation
 - DOIT écrire le rapport final dans le fichier output
 
-### Étape 4 : Ajouter à la Roadmap
+### Étape 6 : Ajouter à la Roadmap
 
-1. **Lire** `.cursor/agents/roadmap.yaml`
-2. **Générer un ID unique** : Identifier le plus grand ID existant et incrémenter (ex: `task-1`, `task-2`, etc.)
-3. **Ajouter l'entrée** dans la liste `tasks` :
+1. **Ajouter l'entrée** dans la liste `tasks` en utilisant les dépendances détectées lors de l'Étape 3 :
 
 ```yaml
 - id: "task-{unique-id}"
   title: "Titre descriptif de la tâche"
+  description: "Description courte de l'objectif de la tâche (3 phrases max)"  # Utilisé pour l'analyse de dépendances
   priority: 3  # 1-5, ajuster selon l'importance
   state: "todo"  # "todo" ou "in-progress" (toujours "todo" pour les nouvelles tâches)
-  dependencies: []  # Liste d'IDs de tâches ou []
+  dependencies: []  # Liste d'IDs de tâches détectées lors de l'Étape 3
   dependencies-results: []  # Liste de noms de fichiers de rapports de dépendances terminées (format: liste de strings avec noms de fichiers uniquement, ex: ["rapport-tache-1.md"])
   task_file: "{nom-fichier-tache}.md"
   output_file: "rapport-{nom-fichier-tache}.md"
   deadline: null  # Optionnel
 ```
 
-4. **Valider** :
+2. **Mettre à jour les dépendances bidirectionnelles** :
+   - Remplir le champ `dependencies` de la nouvelle tâche avec `dependencies_new_task` de l'Étape 3
+   - Pour chaque tâche existante dans `dependencies_existing_tasks` de l'Étape 3, ajouter l'ID de la nouvelle tâche à son champ `dependencies`
+
+3. **Valider** :
    - Le fichier `task_file` existe (que tu viens de créer)
-   - Les dépendances mentionnées existent dans la roadmap (si spécifiées)
+   - Les dépendances mentionnées existent dans la roadmap
    - Si validation échoue → **ÉCHOUER EXPLICITEMENT** avec message clair
 
-5. **Sauvegarder** le fichier `roadmap.yaml`
+4. **Sauvegarder** le fichier `roadmap.yaml`
 
-### Étape 5 : Confirmation et Reprise
+### Étape 7 : Confirmation et Reprise
 
 **CRITIQUE** : Après avoir créé la tâche, tu dois :
 
@@ -152,10 +182,15 @@ Si une étape échoue :
 
 **Actions** :
 1. ✅ Analyser : "Optimiser les performances d'authentification" est une tâche future
-2. ✅ Créer le fichier `optimiser-performances-auth.md` avec les 4 sections (vérifier l'unicité du titre)
-3. ✅ Ajouter l'entrée dans `roadmap.yaml` avec ID `task-1`
-4. ✅ Confirmer : "✅ Tâche ajoutée (task-1)"
-5. ✅ Reprendre immédiatement l'implémentation de l'authentification
+   - Titre : "Optimiser les performances d'authentification"
+   - Description : "Améliorer le temps de réponse du système d'authentification en optimisant les requêtes de base de données et en implémentant un cache pour les tokens JWT"
+2. ✅ Lire roadmap.yaml et générer l'ID unique (task-1)
+3. ✅ Analyser les dépendances bidirectionnelles avec les tâches existantes
+4. ✅ Générer les noms de fichiers : `optimiser-performances-auth.md` et `rapport-optimiser-performances-auth.md`
+5. ✅ Créer le fichier `optimiser-performances-auth.md` avec les 4 sections
+6. ✅ Ajouter l'entrée dans `roadmap.yaml` avec les dépendances détectées
+7. ✅ Confirmer : "✅ Tâche ajoutée (task-1)"
+8. ✅ Reprendre immédiatement l'implémentation de l'authentification
 
 **Résultat** : La tâche est créée, un autre agent peut la traiter via `/agent`, et tu continues ton travail actuel sans interruption.
 
