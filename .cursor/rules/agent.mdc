@@ -196,6 +196,7 @@ Lire le fichier `.cursor/agents/roadmap.yaml` et ajouter une nouvelle entrée da
   priority: 3  # 1-5
   state: "todo"  # "todo" ou "in-progress"
   dependencies: []  # Liste d'IDs de tâches ou []
+  dependencies-results: []  # Liste de noms de fichiers de rapports de dépendances terminées
   task_file: "{nom-fichier-tache}.md"
   output_file: "rapport-{nom-fichier-tache}.md"
   deadline: null  # Optionnel
