@@ -81,10 +81,17 @@ Tu implémentes une nouvelle fonctionnalité et tu réalises qu'un test d'intég
 
 ### Différence avec `/task`
 
-La commande `/task` est utilisée par l'utilisateur pour créer explicitement une tâche. Le comportement autonome décrit ici est identique techniquement (même processus de création), mais :
+La commande `/task` est utilisée par l'utilisateur pour créer explicitement une tâche. Les comportements sont techniquement identiques (même processus de création), mais diffèrent sur les points suivants :
+
+**Création autonome (agent.mdc)** :
 - **Déclenché automatiquement** par l'agent sans intervention utilisateur
 - **Silencieux** : pas de message de confirmation sauf en cas d'erreur
 - **Non-bloquant** : aucun changement de focus ou d'interruption du travail
+
+**Commande `/task`** :
+- **Interruption obligatoire et immédiate** : suspend TOUT travail en cours pour être traitée
+- **Avec confirmation** : `✅ Tâche ajoutée (task-{id})` pour informer l'utilisateur
+- **Reprise immédiate** : l'agent reprend le travail précédent après confirmation
 
 ### Gestion des Erreurs
 

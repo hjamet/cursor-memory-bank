@@ -42,7 +42,7 @@ root/
   - *Contient* : `agent.mdc`, `debug.mdc`, `start.mdc`, `README.mdc` (exemples)
   - *Structure* : Fichiers `.mdc` avec métadonnées YAML et instructions markdown
   - *Usage* : Définissent comment l'agent doit réagir dans différents contextes. Note : la procédure d'enquête auparavant répartie dans `.cursor/rules/enqueteur/` a été consolidée en une commande unique `.cursor/commands/enqueteur.md`.
-  - *Nouveau* : `communication.mdc` — règle de communication imposant clarté, emojis pertinents, sections structurées et usage de tableaux lorsque utile.
+- *Nouveau* : `communication.mdc` — règle de communication imposant clarté, emojis pertinents, sections structurées, usage réfléchi des tableaux et des synthèses 100 % textuelles (sans code).
 
 - **`documentation/`** : Guides approfondis et procédures détaillées
   - *Contient* : Documentation technique, guides d'utilisation, architecture détaillée
@@ -122,13 +122,13 @@ bash install.sh [options]
 
 ## Installation Mode 🎯
 
-The installer now provides a single mode: it installs essential rules (`agent.mdc`, `debug.mdc`), custom commands, and updates `.gitignore`. Existing custom rules are preserved.
+The installer now provides a single mode: it installs essential rules (`agent.mdc`, `debug.mdc`), custom commands, and updates `.gitignore`. Existing custom rules are preserved. No Streamlit UI or ML artifacts are installed.
 
 ## Système de Roadmap Centralisée 📋
 
 Le système utilise maintenant une roadmap centralisée (`.cursor/agents/roadmap.yaml`) pour coordonner plusieurs agents Cursor en parallèle. Ce système simple et léger remplace les anciens serveurs MCP qui sont désormais obsolètes.
 
-**Note historique** : L'historique git contient les anciens systèmes basés sur les serveurs MCP (ToolsMCP, MemoryBankMCP). Ces systèmes ont été remplacés par le système de roadmap centralisée qui est plus simple, plus léger et plus flexible.
+**Note historique** : L'historique git contient les anciens systèmes basés sur les serveurs MCP (ToolsMCP, MemoryBankMCP) ainsi qu'une ancienne UI Streamlit. Ces éléments ont été retirés au profit d'un système de roadmap centralisée plus simple et léger. Voir `documentation/legacy-ui-ml.md` pour un court récapitulatif.
 
 ### Comment ça fonctionne
 
@@ -155,7 +155,7 @@ Cursor Memory Bank is an advanced autonomous workflow system that revolutionizes
 - **Hierarchical Tasks**: Support for parent-child task relationships and dependencies
 - **Multi-Task Decomposition**: Intelligent breaking down of complex requests into manageable subtasks
 - **Priority System**: 5-level priority system (1=lowest, 5=critical) with automatic prioritization
-- **Status Tracking**: Comprehensive task lifecycle management (TODO, IN_PROGRESS, BLOCKED, REVIEW, DONE)
+- **Roadmap-Only State**: No runtime status like `IN_PROGRESS` is used by `/agent`. On selection, the task is immediately removed from the roadmap and its task file is deleted (irreversible by design).
 
 <!-- Streamlit UI removed from installer scope -->
 
@@ -292,7 +292,7 @@ graph TD
 
 1. **Implementation (`implementation`)**
    - Core development step for code changes
-   - Automatic marking of tasks as IN_PROGRESS
+   - No roadmap status change to `IN_PROGRESS`; selection via `/agent` removes the task instantly (irreversible)
    - Intelligent routing based on task complexity
    - **Mandatory transition** to Experience Execution
 
@@ -378,9 +378,12 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 **Fonctionnalités:**
 - **Sélection intelligente** : Choisit automatiquement la tâche la plus pertinente selon les dépendances, la priorité et l'ancienneté
 - **Chargement de contexte** : Lit exhaustivement tous les fichiers mentionnés dans la tâche
+- **Lectures en parallèle** : Effectue en parallèle la lecture de tous les fichiers mentionnés pour réduire la latence
 - **Recherches** : Effectue les recherches sémantiques et web mentionnées
 - **Présentation** : Présente la tâche sélectionnée avec contexte complet en français
+- **Tolérance aux manques** : Poursuit l'exploration même si certains fichiers sont introuvables et les signale explicitement dans la sortie
 - **Discussion collaborative** : Attend la planification avec l'utilisateur avant toute implémentation
+- **Sortie textuelle** : Produit un résumé final sans aucun bloc de code ni backticks, en respectant strictement le format attendu.
 
 **Système de roadmap:**
 - Fichier centralisé : `.cursor/agents/roadmap.yaml`
@@ -404,10 +407,9 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 
 **Règle associée:** `.cursor/rules/agent.mdc` explique quand et comment créer des tâches dans la roadmap lorsque des travaux futurs sont identifiés.
 
-**Format de présentation standard (sortie de `/agent`)**:
+**Format de présentation standard (sortie de `/agent`)** — la réponse doit être envoyée en texte brut, sans aucun bloc de code ni backticks. Reproduire les lignes suivantes (la section « ❓ Questions » reste optionnelle selon le contexte) :
 
-```
-🎯 **Tâche sélectionnée :** [Titre]
+🎯 **Tâche sélectionnée :** [Titre] (🔴X, 🟠Y, 🔵Z, 🟢W)
 
 📋 **Contexte :**
 [Pourquoi cette tâche existe, découvertes, problèmes]
@@ -419,12 +421,24 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 - [Piste 1]
 - [Piste 2]
 
-❓ **Questions :**
-- [Question 1]
-- [Question 2]
-```
+⚠️ **Fichiers introuvables :**
+- [Chemin ou recherche] — [Raison]
+
+❓ **Questions :** *(optionnel — chaque question numérotée avec options a/b/c pour des réponses comme 1A)*
+1. [Question 1] ?
+   - a) [Proposition A]
+   - b) [Proposition B]
+   - c) [Proposition C]
+2. [Question 2] ?
+   - a) [Proposition A]
+   - b) [Proposition B]
+   - c) [Proposition C]
+
+Si rien n’est manquant, afficher la phrase « ⚠️ **Fichiers introuvables :** Aucun ».
 
 Note: `/agent` ne crée jamais de plan pour la sélection/consultation de la roadmap. Le plan est créé uniquement pour l’implémentation de la tâche sélectionnée, après discussion avec l’utilisateur.
+
+> Compteurs de priorités: les valeurs X/Y/Z/W correspondent au nombre de tâches restantes dans la roadmap après suppression de la tâche sélectionnée, agrégées par priorité (5=🔴, 4=🟠, 3=🔵, 2–1=🟢). Les quatre compteurs sont toujours affichés, même à 0.
 
 ### `/task` - Ajout non-bloquant de tâche à la roadmap 📝
 
@@ -440,6 +454,11 @@ La commande `/task` permet d'ajouter une nouvelle tâche à la roadmap centralis
 - **Non-bloquant** : Ne change pas le focus de l'agent, reprend le travail immédiatement après
  - **Aucune implémentation immédiate** : La tâche créée ne doit jamais être implémentée ni planifiée tout de suite; elle sera traitée plus tard via `/agent` après discussion
 
+**Comportement:**
+- **Interruption obligatoire et immédiate** : `/task` suspend TOUT travail en cours pour être traitée immédiatement
+- **Traitement strictement séquentiel** : Si plusieurs `/task` sont invoquées, elles sont traitées l'une après l'autre
+- **Confirmation minimale** : `✅ Tâche ajoutée (task-{id})` - la plus courte possible pour reprendre rapidement le flux initial
+
 **Principe fondamental:**
 - **Interruption non-bloquante** : L'agent continue exactement là où il s'était arrêté
 - **Délégation** : La tâche est créée pour être traitée par un autre agent (via `/agent`)
@@ -451,10 +470,10 @@ La commande `/task` permet d'ajouter une nouvelle tâche à la roadmap centralis
 2. Générer les noms de fichiers (tâche + rapport)
 3. Créer le fichier de tâche avec les 4 sections
 4. Ajouter l'entrée dans `roadmap.yaml`
-5. Confirmer la création (message court)
+5. Confirmer la création : `✅ Tâche ajoutée (task-{id})`
 6. Reprendre immédiatement le travail précédent
 
-**Exemple:** Pendant l'implémentation de l'authentification, l'utilisateur tape `/task optimiser les performances`. L'agent crée la tâche avec contexte, confirme, puis continue l'implémentation de l'authentification.
+**Exemple:** Pendant l'implémentation de l'authentification, l'utilisateur tape `/task optimiser les performances`. L'agent crée la tâche avec contexte, confirme `✅ Tâche ajoutée (task-1)`, puis continue l'implémentation de l'authentification.
 
 <!-- Streamlit Interface Features section removed (UI no longer installed) -->
 

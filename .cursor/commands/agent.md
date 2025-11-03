@@ -51,9 +51,19 @@ Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les 
      - **Instructions de Collaboration**
 
 3. **Lire tous les fichiers mentionnés dans "Fichiers Concernés"** :
-   - Lire exhaustivement chaque fichier listé
-   - Si un fichier n'existe pas → **ÉCHOUER EXPLICITEMENT** avec le chemin du fichier manquant
+   - Utiliser des lectures en parallèle pour gagner du temps et inclure tous les fichiers mentionnés
+   - Lire exhaustivement chaque fichier disponible
+   - Si un fichier est introuvable, invalide ou inaccessible → **NE PAS interrompre**; consigner l'élément exact dans la liste "Fichiers introuvables" avec la raison (ex: `absent`, `lecture refusée`, `parse YAML`)
    - Lire aussi les fichiers de résultats d'autres agents mentionnés (s'ils existent dans `.cursor/agents/`)
+
+### Étape 3.5 : Consolider les éléments introuvables
+
+1. **Maintenir une liste dédiée** :
+   - Chaque entrée décrit le type d'élément (`fichier`, `rapport`, `recherche`) et le chemin ou la requête concernée
+   - Ajouter un court message explicatif (ex: "fichier supprimé", "rapport jamais généré")
+2. **Aucun masquage** :
+   - Ces informations doivent être restituées telles quelles à l'utilisateur lors de la présentation finale
+   - Ne jamais ignorer ou reformuler vaguement un manque : la traçabilité est obligatoire
 
 4. **Effectuer les recherches mentionnées** :
    - Recherches sémantiques dans le codebase si mentionnées
@@ -75,6 +85,11 @@ Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les 
    - Supprimer le fichier `.cursor/agents/{task_file}` (où `task_file` est défini dans la tâche sélectionnée)
    - Si le fichier n'existe pas → **ÉCHOUER EXPLICITEMENT** avec un message clair
 
+4. **Calculer les compteurs de priorités restants** :
+   - À partir des `tasks` RESTANTES dans `roadmap.yaml` (après suppression), calculer le nombre de tâches par priorité
+   - Mappage emojis: 5=🔴, 4=🟠, 3=🔵, 2–1=🟢
+   - Toujours afficher les quatre compteurs, même si 0
+
 ### Étape 5 : Présenter la Tâche à l'Utilisateur (Résumé)
 
 Cette étape **EST le résumé** de la tâche sélectionnée. Elle se fait après la suppression (étape 4) et le chargement du contexte (étape 3).
@@ -83,18 +98,18 @@ Cette étape **EST le résumé** de la tâche sélectionnée. Elle se fait aprè
 
 Présenter dans cet ordre normalisé (sections fixes) :
 
-1. 🎯 **Tâche sélectionnée** — titre de la tâche
+1. 🎯 **Tâche sélectionnée** — titre de la tâche, suffixé par les compteurs `(🔴X, 🟠Y, 🔵Z, 🟢W)` calculés sur TOUTES les tâches restantes
 2. 📋 **Contexte** — pourquoi la tâche existe, découvertes, problèmes
 3. 🎯 **Objectif** — ce qui doit être accompli (ton exploratoire)
 4. 🧠 **Idées** — premières pistes/approches envisagées
-5. ❓ **Questions** — clarifications à valider avec l'utilisateur
 
 ## Format de Présentation Requis
 
-Utiliser ce format exact pour la présentation :
+🚫 **Interdiction absolue** d'utiliser des blocs de code ou des backticks : la sortie doit être en texte brut, sans encadrement par `\`` ou `\`\`\``.
 
-```
-🎯 **Tâche sélectionnée :** [Titre]
+Reproduire exactement les lignes suivantes (en texte brut, avec des lignes vides comme indiqué) :
+
+🎯 **Tâche sélectionnée :** [Titre] (🔴X, 🟠Y, 🔵Z, 🟢W)
 
 📋 **Contexte :**
 [Pourquoi cette tâche existe, découvertes, problèmes]
@@ -106,10 +121,20 @@ Utiliser ce format exact pour la présentation :
 - [Piste 1]
 - [Piste 2]
 
-❓ **Questions :**
-- [Question 1]
-- [Question 2]
-```
+⚠️ **Fichiers introuvables :**
+- [Chemin ou recherche] — [Raison]
+
+❓ **Questions :** *(optionnel — chaque question numérotée avec des options a/b/c pour permettre des réponses compactes comme 1A)*
+1. [Question 1] ?
+   - a) [Proposition A]
+   - b) [Proposition B]
+   - c) [Proposition C]
+2. [Question 2] ?
+   - a) [Proposition A]
+   - b) [Proposition B]
+   - c) [Proposition C]
+
+Si aucun élément n'est manquant, afficher la phrase « ⚠️ **Fichiers introuvables :** Aucun ».
 
 ## Gestion des Erreurs (Fail-Fast)
 
@@ -119,6 +144,8 @@ Si une étape échoue, tu **DOIS** :
 - Expliquer ce qui a échoué et pourquoi
 - Ne pas continuer avec des données partielles ou invalides
 
+⚠️ **Exception** : la liste "Fichiers introuvables" n'est pas considérée comme une erreur bloquante tant que la roadmap et le fichier de tâche ont été chargés correctement.
+
 ## Notes Importantes
 
 - **Tout en français** : Tous les messages à l'utilisateur doivent être en français
@@ -127,6 +154,8 @@ Si une étape échoue, tu **DOIS** :
 - **Pas d'implémentation immédiate** : L'objectif est la discussion et la planification collaborative
 - **Important** : Ne jamais créer de plan pour la sélection/consultation de la roadmap. Le plan ne concerne que l'implémentation de la tâche sélectionnée.
 - **Validation stricte** : Échouer explicitement si quelque chose est invalide ou manquant
+ - **Suppression irréversible** : La suppression de la tâche et de son fichier lors des étapes 4–5–6 est immédiate et irréversible par design. Aucune journalisation additionnelle n'est requise.
+ - **Signalement obligatoire** : Toute donnée manquante doit apparaître telle quelle dans la section `⚠️ Fichiers introuvables`, même si la liste est vide (utiliser "Aucun").
 
 ## Exemple de Séquence Complète
 
