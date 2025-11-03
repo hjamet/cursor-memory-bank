@@ -56,6 +56,49 @@ Initialiser une liste pour collecter les `output_file` des tâches archivées :
    - Incrémenter `reset_count`
    - Sauvegarder `roadmap.yaml` immédiatement après le changement
 
+### Étape 2.1 : Créer les Descriptions Manquantes et Analyser les Dépendances
+
+**CRITIQUE** : Cette étape doit être effectuée **APRÈS** le nettoyage des tâches in-progress et **AVANT** l'extraction du README.
+
+Initialiser deux compteurs :
+- `descriptions_created` = 0 (descriptions créées)
+- `dependencies_updated` = 0 (paires de dépendances mises à jour)
+
+**Pour chaque tâche dans `tasks`** :
+
+1. **Vérifier et créer la description si absente** :
+   - Si le champ `description` est absent, vide, ou null :
+     - Lire le fichier de tâche `.cursor/agents/{task_file}` s'il existe
+     - Extraire l'objectif depuis la section "Objectif" du fichier de tâche
+     - Générer une description courte de 3 phrases maximum qui résume l'objectif de la tâche
+     - Si le fichier de tâche n'existe pas, utiliser le titre de la tâche pour générer une description courte
+     - Ajouter le champ `description` à la tâche dans roadmap.yaml
+     - Incrémenter `descriptions_created`
+
+2. **Analyser les dépendances avec toutes les autres tâches** :
+   - **Pour chaque autre tâche dans `tasks`** (comparaison bidirectionnelle) :
+     - Lire le champ `description` de la tâche courante (tâche A)
+     - Lire le champ `description` de l'autre tâche (tâche B)
+     - Comparer les deux descriptions et analyser les relations logiques :
+       - **Si A devrait dépendre de B** : B fournit une infrastructure/base nécessaire, résout un problème bloquant, crée des fichiers/modules requis, ou établit des conventions/patterns à suivre
+       - **Si B devrait dépendre de A** : B nécessite ce que A va produire, est bloquée par un problème que A résout, ou étend/utilise ce que A va créer
+     - **Si une dépendance est détectée** :
+       - Vérifier si la dépendance n'existe pas déjà dans le champ `dependencies` de la tâche concernée
+       - Vérifier qu'ajouter cette dépendance ne créerait pas une dépendance circulaire (si A dépend de B, vérifier que B ne dépend pas déjà de A, directement ou transitivement via d'autres tâches)
+       - Si la dépendance n'existe pas ET ne crée pas de cycle, l'ajouter au champ `dependencies`
+       - Incrémenter `dependencies_updated` seulement si une dépendance a été ajoutée
+
+3. **Sauvegarder roadmap.yaml** après avoir traité toutes les tâches
+
+**Points importants** :
+- Ne PAS lire les fichiers de tâches complets pour l'analyse de dépendances, utiliser uniquement le champ `description` de roadmap.yaml
+- L'analyse doit être contextuelle et intelligente, pas exhaustive
+- Pour créer une description manquante, il est autorisé de lire le fichier de tâche pour extraire l'objectif
+- Ne pas créer de dépendances circulaires : si A dépend de B et B dépend déjà de A (directement ou transitivement), ne pas ajouter la dépendance
+- En cas d'erreur lors de l'analyse ou de la création de description, **afficher un avertissement** mais **continuer** avec les autres tâches (ne pas bloquer le nettoyage)
+
+**Note** : Cette analyse globale peut identifier des dépendances qui n'étaient pas détectées lors de la création initiale des tâches, et permet de maintenir la cohérence des dépendances dans la roadmap.
+
 ### Étape 2.4 : Extraction et Mise à Jour du README
 
 **Avant** de supprimer chaque fichier `output_file` orphelin (non référencé), extraire les informations importantes et mettre à jour le README conformément à la règle `README.mdc`.
@@ -160,25 +203,36 @@ Initialiser une liste pour collecter les `output_file` des tâches archivées :
 
 Afficher la sortie minimale selon les résultats :
 
-- Si `archived_count` > 0 ou `reset_count` > 0 :
-  ```
-  Nettoyage terminé : X tâches archivées, Y tâches remises en todo
-  ```
-  (Remplacer X par `archived_count` et Y par `reset_count`)
+Construire un message de sortie qui inclut toutes les actions effectuées :
 
-- Si `archived_count` = 0 et `reset_count` = 0 :
-  ```
-  Aucune tâche in-progress à nettoyer
-  ```
+1. **Actions de nettoyage** :
+   - Si `archived_count` > 0 ou `reset_count` > 0 : inclure ces informations
+   - Si `archived_count` = 0 et `reset_count` = 0 : ne rien mentionner sur le nettoyage
+
+2. **Actions d'amélioration** (Étape 2.1) :
+   - Si `descriptions_created` > 0 : inclure le nombre de descriptions créées
+   - Si `dependencies_updated` > 0 : inclure le nombre de dépendances mises à jour
+
+3. **Format de sortie** :
+   - Si aucune action n'a été effectuée (tous les compteurs = 0) :
+     ```
+     Aucune tâche in-progress à nettoyer
+     ```
+   - Sinon, construire un message concis en français listant les actions effectuées :
+     ```
+     Nettoyage terminé : X tâches archivées, Y tâches remises en todo, Z descriptions créées, W dépendances mises à jour
+     ```
+     (Remplacer X, Y, Z, W par les valeurs correspondantes, omettre les parties avec valeur 0)
 
 ## Format de Sortie
 
 La sortie doit être minimale et en français :
 
 **Exemples de sortie :**
-- "Nettoyage terminé : 2 tâches archivées, 1 tâche remise en todo"
-- "Nettoyage terminé : 3 tâches archivées, 0 tâche remise en todo"
+- "Nettoyage terminé : 2 tâches archivées, 1 tâche remise en todo, 3 descriptions créées, 5 dépendances mises à jour"
+- "Nettoyage terminé : 3 tâches archivées, 0 tâche remise en todo, 2 descriptions créées, 4 dépendances mises à jour"
 - "Nettoyage terminé : 0 tâche archivée, 2 tâches remises en todo"
+- "Nettoyage terminé : 4 descriptions créées, 8 dépendances mises à jour"
 - "Aucune tâche in-progress à nettoyer"
 - "Aucune roadmap trouvée, roadmap vide créée"
 
@@ -197,31 +251,39 @@ Si une étape échoue :
 - **Tout en français** : Tous les messages à l'utilisateur doivent être en français
 - **Comportement autonome** : La commande peut être exécutée indépendamment de `/agent`
 - **Logique identique** : L'archivage et le nettoyage des output_file suivent exactement la même logique que l'étape 2.0 de `/agent` (phases 1-4)
-- **Sauvegarde immédiate** : Sauvegarder `roadmap.yaml` après chaque modification (archivage ou remise en todo)
+- **Sauvegarde immédiate** : Sauvegarder `roadmap.yaml` après chaque modification (archivage, remise en todo, création de description, ou mise à jour de dépendances)
 - **Validation stricte** : Échouer explicitement si quelque chose est invalide ou manquant
 - **Fail-Fast** : Si roadmap.yaml existe mais est invalide → échouer explicitement avec détails
+- **Analyse des dépendances** : L'étape 2.1 analyse toutes les paires de tâches pour identifier et mettre à jour les dépendances manquantes, similaire à l'analyse bidirectionnelle de `/task`
+- **Création de descriptions** : L'étape 2.1 crée automatiquement les descriptions manquantes en lisant les fichiers de tâches ou en utilisant le titre de la tâche
 
 ## Exemple de Séquence Complète
 
 ```
 1. Lecture ou création de roadmap.yaml ✓
 2. Validation de la structure ✓
-3. Parcours des tâches in-progress ✓
+3. Parcours des tâches in-progress (étape 2) ✓
    - Pour chaque tâche in-progress :
      - Si output_file existe → Archivage (retirer de tasks, mettre à jour dependencies et dependencies-results, supprimer task_file, collecter output_file) ✓
      - Si output_file n'existe pas → Remettre en todo ✓
    - Sauvegarder roadmap.yaml après chaque modification ✓
-4. Extraction et mise à jour du README (étape 2.4) ✓
+4. Création des descriptions manquantes et analyse des dépendances (étape 2.1) ✓
+   - Pour chaque tâche :
+     - Vérifier si description existe, sinon la créer depuis le fichier de tâche ou le titre ✓
+     - Analyser les dépendances avec toutes les autres tâches (comparaison bidirectionnelle) ✓
+     - Mettre à jour les dépendances détectées dans roadmap.yaml ✓
+   - Sauvegarder roadmap.yaml ✓
+5. Extraction et mise à jour du README (étape 2.4) ✓
    - Pour chaque output_file qui sera supprimé (non référencé) :
      - Lire le fichier de rapport ✓
      - Extraire les informations pertinentes (fichiers modifiés, commandes, services, variables, scripts, architecture) ✓
      - Mettre à jour le README selon les sections concernées ✓
      - Sauvegarder le README ✓
-5. Nettoyage global des output_file (étape 2.5) ✓
+6. Nettoyage global des output_file (étape 2.5) ✓
    - Pour chaque output_file archivé :
      - Vérifier références dans dependencies-results ✓
      - Vérifier existence physique ✓
      - Conserver / Nettoyer référence / Supprimer (après extraction README si non référencé) selon le cas ✓
-6. Affichage de la sortie minimale avec compteurs ✓
+7. Affichage de la sortie minimale avec compteurs ✓
 ```
 

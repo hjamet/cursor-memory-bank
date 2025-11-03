@@ -1,2 +1,12 @@
 version: '1.0'
-tasks: []
+tasks:
+  - id: "task-1"
+    title: "Améliorer /clean pour qu'il mette aussi à jour les dépendances en analysant chaque tâche par rapport à chaque autre"
+    description: "Ajouter à /clean une analyse globale des dépendances bidirectionnelles entre toutes les tâches et créer automatiquement les descriptions manquantes pour maintenir la cohérence de la roadmap"
+    priority: 4
+    state: "todo"
+    dependencies: []
+    dependencies-results: []
+    task_file: "ameliorer-clean-pour-mettre-a-jour-les-dependances.md"
+    output_file: "rapport-ameliorer-clean-pour-mettre-a-jour-les-dependances.md"
+    deadline: null
