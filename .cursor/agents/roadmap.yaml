@@ -12,7 +12,7 @@ tasks:
 - id: task-3
   title: Améliorer la commande /clean pour que les informations importantes des fichiers résultats supprimés soient ajoutés au README conformément à la règle README.mdc
   priority: 3
-  state: todo
+  state: in-progress
   dependencies: []
   dependencies-results: []
   task_file: ameliorer-commande-clean-informations-resultats-readme.md
