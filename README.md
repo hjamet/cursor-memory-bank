@@ -386,21 +386,24 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 - Fichier centralisé : `.cursor/agents/roadmap.yaml`
 - Fichiers de tâches : `.cursor/agents/{titre-kebab-case}.md`
 - Fichiers de résultats : `.cursor/agents/rapport-{titre-kebab-case}.md`
+- Section `in_progress` : Suivi des tâches en cours d'exécution par les agents
 
 **Critères de sélection:**
-- Dépendances résolues (toutes les tâches dépendantes existent dans la roadmap)
+- Dépendances résolues (toutes les tâches dépendantes sont terminées ou n'existent plus dans `tasks` ni `in_progress`)
 - Priorité (5 = plus haute priorité)
+- Les tâches en cours dans `in_progress` bloquent les dépendances jusqu'à création du rapport final
 
 **Workflow:**
-1. Lecture de la roadmap
-2. Sélection de la tâche la plus intéressante
-3. Chargement du fichier de tâche et de tous les fichiers mentionnés
-4. Recherches sémantiques et web
-5. Suppression de la tâche de la roadmap et nettoyage des dépendances
-6. Suppression du fichier de tâche
+1. Lecture de la roadmap et validation de la structure (incluant `in_progress`)
+2. Vérification et nettoyage des tâches `in_progress` terminées (détection via fichier de rapport)
+3. Sélection de la tâche la plus intéressante (en tenant compte des dépendances et des tâches `in_progress`)
+4. Chargement du fichier de tâche et de tous les fichiers mentionnés
+5. Recherches sémantiques et web
+6. Déplacement de la tâche vers `in_progress` (conservation du fichier de tâche)
 7. Présentation à l'utilisateur avec contexte complet
 8. Discussion collaborative pour planification
 9. Implémentation après validation
+10. Création du rapport final (`.cursor/agents/{output_file}`) pour marquer la tâche comme terminée
 
 **Règle associée:** `.cursor/rules/agent.mdc` explique quand et comment créer des tâches dans la roadmap lorsque des travaux futurs sont identifiés.
 

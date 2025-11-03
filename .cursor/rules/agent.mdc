@@ -170,7 +170,9 @@ Exemple : "Explorer la possibilité d'optimiser le système d'authentification p
 - **DOIT** lire le README et toute documentation pertinente
 - **DOIT** atteindre une compréhension approfondie du contexte et du projet avant toute discussion
 - **DOIT** discuter avec l'utilisateur pour clarifier les attentes précises, poser des questions sur les contraintes techniques, et établir un plan d'action détaillé ensemble
-- **DOIT** écrire le rapport final dans le fichier output mentionné après avoir terminé
+- **DOIT** inclure dans le plan final la création du fichier de rapport `.cursor/agents/{output_file}` comme dernière étape
+- **DOIT** créer le fichier de rapport à la fin du chat, que la tâche soit complétée avec succès ou non (c'est ce qui marque la tâche comme terminée)
+- **DOIT** créer une nouvelle tâche via `/task` si la tâche a rencontré des problèmes nécessitant un travail supplémentaire, en gérant correctement les dépendances (tâches débloquées vs bloquées)
 - Seulement APRÈS avoir complété cette exploration exhaustive et cette planification collaborative, peut commencer toute implémentation
 
 Emphasizer que l'exploration est OBLIGATOIRE, pas optionnelle.
@@ -241,6 +243,47 @@ Supposons que tu travailles sur l'authentification et découvres des problèmes 
 - **Validation** : Valider que les dépendances existent avant d'ajouter la tâche
 - **Français** : Tout le contenu des fichiers de tâches doit être en français
 - **Unicité** : Garantir que les IDs de tâches sont uniques
+
+## Instructions pour les Rapports Finaux
+
+### Création Obligatoire du Rapport
+
+À la fin d'un chat, quand tu as terminé ton travail sur une tâche sélectionnée via `/agent`, tu **DOIS TOUJOURS** créer le fichier de rapport final :
+
+- **Fichier** : `.cursor/agents/{output_file}` (où `output_file` est défini dans la tâche in_progress de la roadmap)
+- **Cette étape est OBLIGATOIRE** car c'est ce qui permet à d'autres agents de détecter que la tâche est terminée
+- Le rapport marque que la tâche est terminée, qu'elle soit réussie ou non
+
+### Contenu du Rapport selon le Résultat
+
+- **Si succès** : Résumé du travail effectué, décisions prises, fichiers modifiés, résultats obtenus
+- **Si échec/problème** : Explication du problème rencontré, raisons de l'échec, travaux partiels effectués, contexte utile
+
+### Gestion des Échecs
+
+Si la tâche a rencontré un problème et nécessite un travail supplémentaire :
+
+1. **Créer le rapport** (pour marquer la fin de la tâche actuelle) :
+   - Créer le fichier `.cursor/agents/{output_file}` avec les détails de l'échec et du travail partiel
+
+2. **Créer une nouvelle tâche** dans la roadmap (comme si tu invoquais `/task`) pour documenter :
+   - Le problème rencontré
+   - Les travaux partiels effectués
+   - Les prochaines étapes nécessaires
+   - Référencer la tâche originale dans le contexte pour expliquer le lien
+
+3. **Gestion des dépendances** : Lors de la création de la nouvelle tâche :
+   - Identifier les tâches qui peuvent être débloquées (celles dont la dépendance sur la tâche originale peut être supprimée car le travail partiel les débloque)
+   - Identifier les tâches qui restent bloquées (celles qui dépendent toujours de la nouvelle tâche créée)
+   - Mettre à jour les dépendances en conséquence dans `roadmap.yaml`
+
+### Instructions dans les Fichiers de Tâches
+
+Lors de la création d'un fichier de tâche (section "Instructions de Collaboration"), tu **DOIS** spécifier que l'agent :
+
+- **DOIT** inclure dans le plan final la création du fichier de rapport `.cursor/agents/{output_file}` comme dernière étape
+- **DOIT** créer ce fichier à la fin du chat, que la tâche soit complétée avec succès ou non
+- **DOIT** créer une nouvelle tâche via `/task` si la tâche a rencontré des problèmes nécessitant un travail supplémentaire
 
 ## Intégration avec le Workflow
 
