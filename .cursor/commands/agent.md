@@ -35,7 +35,7 @@ Lorsque l'utilisateur tape `/agent` (avec ou sans instructions supplémentaires)
      - Retirer la tâche de `tasks` (supprimer complètement l'entrée)
      - Parcourir toutes les tâches restantes dans `tasks` :
        - Retirer l'ID de cette tâche de leurs `dependencies` (si présent)
-       - Pour chaque tâche qui avait cette dépendance, ajouter `{output_file}` dans leur liste `dependencies-results` (initialiser à liste vide si le champ n'existe pas)
+       - Pour chaque tâche qui avait cette dépendance, ajouter `{output_file}` (nom de fichier seul, ex: `"rapport-tache-1.md"`) dans leur liste `dependencies-results` (initialiser à liste vide si le champ n'existe pas). Le format de `dependencies-results` est une liste de strings contenant uniquement les noms de fichiers (sans chemin, ex: `["rapport-tache-1.md", "rapport-tache-2.md"]`)
 
 3. **Phase de suppression des fichiers de tâches** :
    - Pour chaque tâche terminée, supprimer le fichier de tâche `.cursor/agents/{task_file}` s'il existe encore
@@ -89,7 +89,7 @@ Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les 
    - Lire exhaustivement chaque fichier disponible
    - Si un fichier est introuvable, invalide ou inaccessible → **NE PAS interrompre**; consigner l'élément exact dans la liste "Fichiers introuvables" avec la raison (ex: `absent`, `lecture refusée`, `parse YAML`)
    - Lire aussi les fichiers de résultats d'autres agents mentionnés (s'ils existent dans `.cursor/agents/`)
-   - Lire automatiquement tous les fichiers listés dans `dependencies-results` de la tâche sélectionnée (si le champ existe). Ces fichiers doivent être lus depuis `.cursor/agents/` et traités comme les autres fichiers de résultats d'agents (tolérance aux fichiers introuvables, consignation dans la liste des fichiers introuvables si absent)
+   - Lire automatiquement tous les fichiers listés dans `dependencies-results` de la tâche sélectionnée (si le champ existe). `dependencies-results` contient une liste de noms de fichiers (ex: `["rapport-tache-1.md"]`) qui doivent être lus depuis `.cursor/agents/` et traités comme les autres fichiers de résultats d'agents (tolérance aux fichiers introuvables, consignation dans la liste des fichiers introuvables si absent)
 
 ### Étape 3.5 : Consolider les éléments introuvables
 

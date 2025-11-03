@@ -42,7 +42,7 @@ Initialiser deux compteurs :
      - Retirer la tâche de `tasks` (supprimer complètement l'entrée)
      - Parcourir toutes les tâches restantes dans `tasks` :
        - Retirer l'ID de cette tâche de leurs `dependencies` (si présent)
-       - Pour chaque tâche qui avait cette dépendance, ajouter `{output_file}` dans leur liste `dependencies-results` (initialiser à liste vide si le champ n'existe pas)
+       - Pour chaque tâche qui avait cette dépendance, ajouter `{output_file}` (nom de fichier seul, ex: `"rapport-tache-1.md"`) dans leur liste `dependencies-results` (initialiser à liste vide si le champ n'existe pas). Le format de `dependencies-results` est une liste de strings contenant uniquement les noms de fichiers (sans chemin, ex: `["rapport-tache-1.md", "rapport-tache-2.md"]`)
      - Supprimer le fichier de tâche `.cursor/agents/{task_file}` s'il existe encore
    - Incrémenter `archived_count`
    - Sauvegarder `roadmap.yaml` immédiatement après l'archivage

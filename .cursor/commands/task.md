@@ -102,7 +102,7 @@ Instructions impératives pour l'agent qui traitera cette tâche (via `/agent`) 
   priority: 3  # 1-5, ajuster selon l'importance
   state: "todo"  # "todo" ou "in-progress" (toujours "todo" pour les nouvelles tâches)
   dependencies: []  # Liste d'IDs de tâches ou []
-  dependencies-results: []  # Liste de noms de fichiers de rapports de dépendances terminées
+  dependencies-results: []  # Liste de noms de fichiers de rapports de dépendances terminées (format: liste de strings avec noms de fichiers uniquement, ex: ["rapport-tache-1.md"])
   task_file: "{nom-fichier-tache}.md"
   output_file: "rapport-{nom-fichier-tache}.md"
   deadline: null  # Optionnel
