@@ -1,20 +1,2 @@
 version: '1.0'
-tasks:
-- id: task-2
-  title: Créer la commande /clean pour nettoyer les tâches in-progress
-  priority: 3
-  state: in-progress
-  dependencies: []
-  dependencies-results: []
-  task_file: creer-commande-clean-nettoyer-taches-in-progress.md
-  output_file: rapport-creer-commande-clean-nettoyer-taches-in-progress.md
-  deadline: null
-- id: task-3
-  title: Améliorer la commande /clean pour que les informations importantes des fichiers résultats supprimés soient ajoutés au README conformément à la règle README.mdc
-  priority: 3
-  state: in-progress
-  dependencies: []
-  dependencies-results: []
-  task_file: ameliorer-commande-clean-informations-resultats-readme.md
-  output_file: rapport-ameliorer-commande-clean-informations-resultats-readme.md
-  deadline: null
+tasks: []
