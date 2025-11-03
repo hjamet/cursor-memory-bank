@@ -17,34 +17,16 @@ Lorsque l'utilisateur tape `/agent` (avec ou sans instructions supplémentaires)
 2. **Valider la structure de la roadmap**
    - Vérifier que `version` existe
    - Vérifier que `tasks` est un tableau
-   - Vérifier que `in_progress` existe (créer la section avec `[]` si elle n'existe pas)
    - Si validation échoue → **ÉCHOUER EXPLICITEMENT**
 
-### Étape 2.0 : Vérification et Nettoyage des Tâches in_progress
-
-**Avant** de sélectionner une nouvelle tâche, vérifier toutes les tâches dans `in_progress` :
-
-1. **Pour chaque tâche in_progress** :
-   - Vérifier si le fichier `.cursor/agents/{output_file}` existe
-   - **Si le fichier existe** (tâche terminée) :
-     - Supprimer la tâche de `in_progress`
-     - Parcourir toutes les tâches dans `tasks` et retirer l'ID de cette tâche de leurs `dependencies` (si présent)
-     - Supprimer le fichier de tâche `.cursor/agents/{task_file}` s'il existe encore
-     - Sauvegarder `roadmap.yaml`
-   - **Si le fichier n'existe pas** (tâche toujours en cours) :
-     - La garder dans `in_progress` (ne rien faire)
-
-### Étape 2.1 : Sélectionner la Tâche la Plus Intéressante
+### Étape 2 : Sélectionner la Tâche la Plus Intéressante
 
 Appliquer cette logique de sélection dans l'ordre :
 
 1. **Vérifier les dépendances** :
-   - Pour chaque tâche, vérifier que toutes ses dépendances (task IDs dans `dependencies`) sont résolues
-   - Une dépendance est **résolue** si :
-     - Le task ID n'existe **ni** dans `tasks` **ni** dans `in_progress` (tâche terminée)
-   - Une dépendance est **bloquante** si :
-     - Le task ID existe dans `tasks` (tâche pas encore commencée) **OU** dans `in_progress` (tâche en cours)
-   - Exclure les tâches avec dépendances bloquantes
+   - Pour chaque tâche, vérifier que toutes ses dépendances (task IDs dans `dependencies`) existent dans la roadmap
+   - Une dépendance est considérée comme "résolue" si le task ID existe dans la roadmap (c'est-à-dire que la tâche dépendante n'a pas encore été traitée)
+   - Exclure les tâches avec dépendances non résolues (si un task ID dans `dependencies` n'existe pas dans la roadmap)
 
 2. **Trier les tâches disponibles** :
    - Par priorité décroissante (5 = plus haute priorité)
@@ -78,24 +60,24 @@ Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les 
    - Recherches web si mentionnées dans "Fichiers Concernés"
    - Lire le README et la documentation pertinente
 
-### Étape 4 : Déplacer la Tâche vers in_progress
+### Étape 4 : Supprimer la Tâche de la Roadmap et Nettoyer les Dépendances
 
-1. **Déplacer la tâche vers in_progress** :
+1. **Supprimer la tâche sélectionnée** :
    - Retirer la tâche sélectionnée de la liste `tasks` dans `roadmap.yaml`
-   - Ajouter une entrée dans `in_progress` avec :
-     - `id` : ID de la tâche
-     - `title` : titre de la tâche
-     - `output_file` : fichier de sortie attendu (défini dans la tâche)
-     - `task_file` : fichier de tâche (défini dans la tâche, pour référence)
    - Sauvegarder le fichier `roadmap.yaml`
 
-2. **Ne PAS supprimer le fichier de tâche** :
-   - Conserver le fichier `.cursor/agents/{task_file}` pendant l'exécution
-   - Il sera supprimé lorsqu'un agent détectera que la tâche est terminée (étape 2.0)
+2. **Nettoyer les dépendances** :
+   - Parcourir toutes les tâches restantes dans la roadmap
+   - Pour chaque tâche, retirer l'ID de la tâche supprimée de sa liste `dependencies` (si présent)
+   - Sauvegarder le fichier `roadmap.yaml`
+
+3. **Supprimer le fichier de tâche** :
+   - Supprimer le fichier `.cursor/agents/{task_file}` (où `task_file` est défini dans la tâche sélectionnée)
+   - Si le fichier n'existe pas → **ÉCHOUER EXPLICITEMENT** avec un message clair
 
 ### Étape 5 : Présenter la Tâche à l'Utilisateur (Résumé)
 
-Cette étape **EST le résumé** de la tâche sélectionnée. Elle se fait après le déplacement vers in_progress (étape 4) et le chargement du contexte (étape 3).
+Cette étape **EST le résumé** de la tâche sélectionnée. Elle se fait après la suppression (étape 4) et le chargement du contexte (étape 3).
 
 **CRITIQUE** : Tout doit être écrit **EN FRANÇAIS** avec des emojis appropriés.
 
@@ -150,13 +132,11 @@ Si une étape échoue, tu **DOIS** :
 
 ```
 1. Lecture roadmap.yaml ✓
-2.0. Vérification et nettoyage des tâches in_progress terminées ✓
-2.1. Sélection de la tâche la plus prioritaire ✓
+2. Sélection de la tâche la plus prioritaire ✓
 3. Chargement du fichier de tâche et du contexte ✓
-4. Déplacement de la tâche vers in_progress ✓
+4. Suppression immédiate de la tâche de la roadmap + nettoyage des dépendances + suppression du fichier de tâche ✓
 5. Présentation à l'utilisateur (résumé avec émojis) ✓
 6. Discussion collaborative → éventuel passage en mode plan pour créer le plan d'implémentation ✓
 7. Implémentation après validation du plan ✓
-8. Création du rapport final (.cursor/agents/{output_file}) pour marquer la tâche comme terminée ✓
 ```
 
