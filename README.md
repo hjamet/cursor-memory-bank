@@ -387,23 +387,25 @@ La commande `/agent` permet de lancer un agent qui consulte la roadmap centralis
 
 **Système de roadmap:**
 - Fichier centralisé : `.cursor/agents/roadmap.yaml`
+- Structure : `tasks` (tâches disponibles), `in_progress` (tâches en cours d'exécution)
 - Fichiers de tâches : `.cursor/agents/{titre-kebab-case}.md`
 - Fichiers de résultats : `.cursor/agents/rapport-{titre-kebab-case}.md`
 
 **Critères de sélection:**
-- Dépendances résolues (toutes les tâches dépendantes existent dans la roadmap)
+- Dépendances résolues (le task ID n'existe ni dans `tasks` ni dans `in_progress`)
 - Priorité (5 = plus haute priorité)
 
 **Workflow:**
 1. Lecture de la roadmap
-2. Sélection de la tâche la plus intéressante
+2.0. Vérification et nettoyage des tâches `in_progress` terminées (détection via fichiers output)
+2.1. Sélection de la tâche la plus intéressante
 3. Chargement du fichier de tâche et de tous les fichiers mentionnés
 4. Recherches sémantiques et web
-5. Suppression de la tâche de la roadmap et nettoyage des dépendances
-6. Suppression du fichier de tâche
-7. Présentation à l'utilisateur avec contexte complet
-8. Discussion collaborative pour planification
-9. Implémentation après validation
+5. Déplacement de la tâche vers `in_progress` (au lieu de suppression)
+6. Présentation à l'utilisateur avec contexte complet
+7. Discussion collaborative pour planification
+8. Implémentation après validation
+9. Création du rapport final dans le fichier output pour marquer la tâche comme terminée
 
 **Règle associée:** `.cursor/rules/agent.mdc` explique quand et comment créer des tâches dans la roadmap lorsque des travaux futurs sont identifiés.
 
