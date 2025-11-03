@@ -1,29 +1,20 @@
-version: "1.0"
+version: '1.0'
 tasks:
-  - id: "task-1"
-    title: "Ajouter dependencies-results dans la roadmap"
-    priority: 4
-    state: "in-progress"
-    dependencies: []
-    dependencies-results: []
-    task_file: "ajouter-dependencies-results-roadmap.md"
-    output_file: "rapport-ajouter-dependencies-results-roadmap.md"
-    deadline: null
-  - id: "task-2"
-    title: "Créer la commande /clean pour nettoyer les tâches in-progress"
-    priority: 3
-    state: "in-progress"
-    dependencies: []
-    dependencies-results: []
-    task_file: "creer-commande-clean-nettoyer-taches-in-progress.md"
-    output_file: "rapport-creer-commande-clean-nettoyer-taches-in-progress.md"
-    deadline: null
-  - id: "task-3"
-    title: "Améliorer la suppression de output_file non utilisés dans /agent"
-    priority: 3
-    state: "in-progress"
-    dependencies: []
-    dependencies-results: []
-    task_file: "ameliorer-suppression-output-file-non-utilises-dans-agent.md"
-    output_file: "rapport-ameliorer-suppression-output-file-non-utilises-dans-agent.md"
-    deadline: null
+- id: task-1
+  title: Ajouter dependencies-results dans la roadmap
+  priority: 4
+  state: todo
+  dependencies: []
+  dependencies-results: []
+  task_file: ajouter-dependencies-results-roadmap.md
+  output_file: rapport-ajouter-dependencies-results-roadmap.md
+  deadline: null
+- id: task-2
+  title: Créer la commande /clean pour nettoyer les tâches in-progress
+  priority: 3
+  state: todo
+  dependencies: []
+  dependencies-results: []
+  task_file: creer-commande-clean-nettoyer-taches-in-progress.md
+  output_file: rapport-creer-commande-clean-nettoyer-taches-in-progress.md
+  deadline: null
