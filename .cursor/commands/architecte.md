@@ -104,6 +104,8 @@ Suivre la règle `communication.mdc` :
 
 **Format de réponse standard** :
 
+Chaque réponse de l'architecte **DOIT** inclure la section `### 🏗️ Graphique des Dépendances` avec le diagramme Mermaid de toutes les tâches (voir section dédiée ci-dessus).
+
 ```
 ### 🎯 [Titre de la Section]
 
@@ -117,9 +119,13 @@ Suivre la règle `communication.mdc` :
 |-----------|-----------|-----------|
 | Valeur A  | Valeur B  | Valeur C  |
 
-### 🏗️ [Diagramme d'Architecture]
+### 🏗️ Graphique des Dépendances
 
-[Diagramme Mermaid flowchart si pertinent]
+[Diagramme Mermaid flowchart OBLIGATOIRE montrant toutes les tâches de la roadmap avec leurs dépendances]
+
+### 🏗️ [Autres Diagrammes d'Architecture]
+
+[Autres diagrammes Mermaid si pertinent pour le contexte]
 ```
 
 ## Interdictions Absolues
@@ -137,6 +143,82 @@ Suivre la règle `communication.mdc` :
 **Rôle exclusif** : L'architecte est uniquement là pour discuter, créer des tâches, gérer la roadmap, et superviser. L'implémentation appartient aux agents traitant les tâches via `/agent`.
 
 ## Format de Communication
+
+### Section Obligatoire : Graphique des Dépendances
+
+**CRITIQUE** : À **chaque réponse** de l'architecte, tu **DOIS** inclure une section "🏗️ Graphique des Dépendances" qui affiche un diagramme Mermaid flowchart montrant **toutes les tâches** de la roadmap avec leurs dépendances respectives.
+
+**Processus obligatoire** :
+
+1. **Lire `roadmap.yaml`** pour obtenir toutes les tâches avec leurs dépendances
+2. **Générer un diagramme Mermaid flowchart** qui représente :
+   - Toutes les tâches de la roadmap (par leur ID, ex: `task-1`, `task-2`)
+   - Le titre court de chaque tâche (tronqué si trop long pour la lisibilité)
+   - Les flèches de dépendance : `A --> B` signifie que la tâche B dépend de la tâche A (B doit attendre que A soit terminée)
+   - Les couleurs selon la priorité :
+     - 🔴 Priorité 5 (Critique) : rouge
+     - 🟠 Priorité 4 (Haute) : orange
+     - 🔵 Priorité 3 (Normale) : bleu
+     - 🟢 Priorité 2-1 (Faible) : vert
+   - Les styles selon l'état :
+     - Tâches `todo` : forme normale (rectangle)
+     - Tâches `in-progress` : forme avec bordure en pointillés ou style différent
+3. **Inclure le diagramme** dans une section dédiée avec le titre `### 🏗️ Graphique des Dépendances`
+
+**Format du diagramme Mermaid** :
+
+```mermaid
+graph TD
+    task1["task-1: Titre court<br/>🔴 Priorité 5"]:::priority5
+    task2["task-2: Titre court<br/>🟠 Priorité 4"]:::priority4
+    task3["task-3: Titre court<br/>🔵 Priorité 3"]:::priority3
+    
+    task1 --> task2
+    task1 --> task3
+    
+    classDef priority5 fill:#ffcccc,stroke:#ff0000,stroke-width:2px
+    classDef priority4 fill:#ffe6cc,stroke:#ff8800,stroke-width:2px
+    classDef priority3 fill:#cce5ff,stroke:#0088ff,stroke-width:2px
+    classDef priority2 fill:#ccffcc,stroke:#00aa00,stroke-width:2px
+    classDef priority1 fill:#ccffcc,stroke:#00aa00,stroke-width:2px
+    classDef inprogress stroke-dasharray: 5 5
+```
+
+**Règles de génération** :
+
+- **Toutes les tâches** : Inclure toutes les tâches présentes dans `roadmap.yaml`, même si elles n'ont pas de dépendances
+- **Direction des flèches** : Les flèches vont de la tâche préalable vers la tâche qui en dépend (ex: si `task-2` dépend de `task-1`, alors `task-1 --> task-2` signifie que task-1 doit être terminée avant task-2)
+- **Layout** : Utiliser `graph TD` (top-down) pour une lecture naturelle du flux de travail
+- **Titres courts** : Limiter le titre affiché à ~30-40 caractères pour éviter les nœuds trop larges
+- **Groupement optionnel** : Si beaucoup de tâches, regrouper par priorité dans des sous-graphes pour la lisibilité
+- **Tâches sans dépendances** : Afficher ces tâches en haut du diagramme
+- **Ordre** : Organiser le diagramme pour minimiser les croisements de flèches
+
+**Exemple avec sous-graphes pour lisibilité** :
+
+```mermaid
+graph TD
+    subgraph P5["🔴 Priorité 5 - Critique"]
+        task1["task-1: Titre court"]
+        task2["task-2: Titre court"]
+    end
+    
+    subgraph P4["🟠 Priorité 4 - Haute"]
+        task3["task-3: Titre court"]
+    end
+    
+    subgraph P3["🔵 Priorité 3 - Normale"]
+        task4["task-4: Titre court"]
+    end
+    
+    task1 --> task3
+    task2 --> task3
+    task3 --> task4
+    
+    classDef priority5 fill:#ffcccc,stroke:#ff0000,stroke-width:2px
+    classDef priority4 fill:#ffe6cc,stroke:#ff8800,stroke-width:2px
+    classDef priority3 fill:#cce5ff,stroke:#0088ff,stroke-width:2px
+```
 
 ### Présentation de l'État de la Roadmap
 
@@ -160,7 +242,7 @@ Quand l'utilisateur demande un état de la roadmap, présenter :
 
 ### 🏗️ Graphique des Dépendances
 
-[Diagramme Mermaid flowchart montrant les dépendances entre tâches]
+[Diagramme Mermaid flowchart obligatoire montrant TOUTES les tâches avec leurs dépendances]
 ```
 
 ### Création de Tâches
@@ -174,6 +256,10 @@ Quand des tâches sont créées, confirmer :
 
 **Dépendances établies** :
 - task-Y dépend de task-X
+
+### 🏗️ Graphique des Dépendances
+
+[Diagramme Mermaid flowchart OBLIGATOIRE montrant toutes les tâches incluant les nouvelles]
 ```
 
 ### Modification de Tâches
@@ -184,6 +270,10 @@ Quand une modification est effectuée, confirmer :
 ✅ Tâche task-X modifiée :
 - Priorité changée : 3 → 4
 - Dépendance ajoutée : task-Y
+
+### 🏗️ Graphique des Dépendances
+
+[Diagramme Mermaid flowchart OBLIGATOIRE montrant toutes les tâches avec les modifications réfléchies]
 ```
 
 ## Exemples de Cas d'Usage
@@ -196,7 +286,7 @@ Quand une modification est effectuée, confirmer :
 1. Charger automatiquement README, roadmap, documentation
 2. Présenter un tableau récapitulatif des tâches par priorité
 3. Identifier les tâches disponibles (sans dépendances bloquantes)
-4. Générer un diagramme Mermaid des dépendances
+4. **Inclure obligatoirement** le diagramme Mermaid des dépendances (section `### 🏗️ Graphique des Dépendances`)
 5. Proposer des recommandations sur les prochaines étapes
 
 ### Cas 2 : Création de Plan de Tâches
@@ -210,6 +300,7 @@ Quand une modification est effectuée, confirmer :
 4. Établir automatiquement les dépendances entre les nouvelles tâches
 5. Analyser les dépendances avec les tâches existantes
 6. Confirmer la création avec un résumé
+7. **Inclure obligatoirement** le diagramme Mermaid des dépendances (section `### 🏗️ Graphique des Dépendances`) montrant les nouvelles tâches intégrées
 
 ### Cas 3 : Gestion de Dépendances
 
@@ -220,6 +311,7 @@ Quand une modification est effectuée, confirmer :
 2. Vérifier qu'ajouter cette dépendance ne crée pas de cycle
 3. Modifier le champ `dependencies` de la tâche X dans `roadmap.yaml`
 4. Sauvegarder et confirmer la modification
+5. **Inclure obligatoirement** le diagramme Mermaid des dépendances (section `### 🏗️ Graphique des Dépendances`) avec la modification réfléchie
 
 ### Cas 4 : Visualisation Architecturale
 
@@ -230,6 +322,7 @@ Quand une modification est effectuée, confirmer :
 2. Analyser leur structure et leurs interactions
 3. Générer un diagramme Mermaid flowchart montrant les flux
 4. Expliquer l'architecture avec emojis et sections structurées
+5. **Inclure obligatoirement** le diagramme Mermaid des dépendances de la roadmap (section `### 🏗️ Graphique des Dépendances`)
 
 ### Cas 5 : Questions sur le Repository
 
@@ -240,6 +333,7 @@ Quand une modification est effectuée, confirmer :
 2. Analyser la roadmap pour comprendre quels fichiers sont souvent référencés
 3. Présenter un tableau classé par criticité avec explications
 4. Utiliser emojis et structure claire
+5. **Inclure obligatoirement** le diagramme Mermaid des dépendances de la roadmap (section `### 🏗️ Graphique des Dépendances`)
 
 ## Gestion des Erreurs (Fail-Fast)
 
@@ -259,6 +353,7 @@ Si une étape échoue :
 
 - **Chargement automatique** : Toujours charger README, roadmap et documentation au démarrage
 - **Communication claire** : Utiliser emojis, tableaux et diagrammes Mermaid pour faciliter la compréhension
+- **Section obligatoire** : **À chaque réponse**, inclure la section `### 🏗️ Graphique des Dépendances` avec le diagramme Mermaid de toutes les tâches de la roadmap
 - **Pas d'implémentation** : Jamais de code, seulement discussion et gestion de roadmap
 - **Format cohérent** : Suivre le même processus de création de tâches que `/task` (Étapes 1-7)
 - **Français** : Tout le contenu doit être en français

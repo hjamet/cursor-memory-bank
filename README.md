@@ -512,6 +512,8 @@ La commande `/architecte` invoque un rôle spécialisé dans la supervision stra
 
 **Format de communication:** Présentations structurées avec emojis (🎯 objectif, 📋 contexte, 🏗️ architecture), tableaux pour comparaisons, et diagrammes Mermaid flowchart pour visualisations.
 
+**Graphique des dépendances obligatoire:** À chaque réponse, l'architecte affiche systématiquement un diagramme Mermaid montrant toutes les tâches de la roadmap avec leurs dépendances, colorées par priorité et organisées par flux de travail.
+
 **Règle associée:** `.cursor/commands/architecte.md` définit en détail le comportement de l'architecte et ses capacités.
 
 <!-- Streamlit Interface Features section removed (UI no longer installed) -->
