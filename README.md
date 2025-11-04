@@ -29,9 +29,9 @@ root/
 ### Structure détaillée des dossiers
 
 - **`.cursor/commands/`** : Commandes personnalisées pour l'agent
-  - *Contient* : `prompt.md`, `enqueteur.md`, `agent.md`, `task.md`, `janitor.md` - Commandes de transition, enquête, roadmap et maintenance
+  - *Contient* : `prompt.md`, `enqueteur.md`, `agent.md`, `task.md`, `architecte.md`, `janitor.md` - Commandes de transition, enquête, roadmap, supervision et maintenance
   - *Structure* : Fichiers `.md` définissant des commandes slash personnalisées
-  - *Usage* : Permet aux agents de générer des prompts de transition avec `/prompt`, lancer une enquête avec `/enqueteur`, sélectionner une tâche avec `/agent`, ajouter une tâche avec `/task`, et analyser le repository avec `/janitor`
+  - *Usage* : Permet aux agents de générer des prompts de transition avec `/prompt`, lancer une enquête avec `/enqueteur`, sélectionner une tâche avec `/agent`, ajouter une tâche avec `/task`, superviser avec `/architecte`, et analyser le repository avec `/janitor`
 
 - **`.cursor/agents/`** : Système de roadmap centralisée pour coordination multi-agents
   - *Contient* : `roadmap.yaml` (roadmap centralisée), fichiers de tâches (`{titre-kebab-case}.md`), fichiers de résultats (`rapport-{titre-kebab-case}.md`)
@@ -134,10 +134,10 @@ Le système utilise maintenant une roadmap centralisée (`.cursor/agents/roadmap
 
 - **Roadmap centralisée** : `.cursor/agents/roadmap.yaml` contient toutes les tâches à faire
 - **Fichiers de tâches** : `.cursor/agents/{titre}.md` décrivent chaque tâche avec contexte, objectif et instructions
-- **Commandes** : `/agent` pour sélectionner une tâche, `/task` pour en ajouter une nouvelle
+- **Commandes** : `/agent` pour sélectionner une tâche, `/task` pour en ajouter une nouvelle, `/architecte` pour superviser et gérer la roadmap
 - **Coordination** : Plusieurs agents peuvent travailler en parallèle en consultant la roadmap
 
-Pour plus d'informations, consultez les commandes `/agent` et `/task` dans la section "Custom Commands" ci-dessous.
+Pour plus d'informations, consultez les commandes `/agent`, `/task` et `/architecte` dans la section "Custom Commands" ci-dessous.
 
 ## What is Cursor Memory Bank? 🤔
 
@@ -477,6 +477,42 @@ La commande `/task` permet d'ajouter une nouvelle tâche à la roadmap centralis
 6. Reprendre immédiatement le travail précédent
 
 **Exemple:** Pendant l'implémentation de l'authentification, l'utilisateur tape `/task optimiser les performances`. L'agent crée la tâche avec contexte, confirme `✅ Tâche ajoutée (task-1)`, puis continue l'implémentation de l'authentification.
+
+### `/architecte` - Supervision stratégique et gestion de roadmap 🏗️
+
+La commande `/architecte` invoque un rôle spécialisé dans la supervision stratégique, la discussion architecturale, et la gestion de la roadmap. L'architecte consulte la roadmap, crée des tâches, gère les dépendances et priorités, répond aux questions sur le repository, et fournit une vision globale du projet.
+
+**Usage:**
+- `/architecte` : Active le mode architecte avec chargement automatique du contexte (README, roadmap, documentation)
+
+**Fonctionnalités:**
+- **Chargement automatique du contexte** : Lit automatiquement README.md, roadmap.yaml et documentation au démarrage
+- **Consultation de la roadmap** : Analyse l'état global, identifie les blocages, propose des réorganisations
+- **Création de tâches** : Crée des tâches en suivant le processus complet de `/task` (Étapes 1-7)
+- **Gestion des dépendances** : Établit automatiquement les dépendances entre tâches créées dans la même session
+- **Modification de tâches existantes** : Peut modifier les dépendances et priorités des tâches (jamais le `state`)
+- **Visualisation architecturale** : Génère des diagrammes Mermaid flowchart pour représenter l'architecture
+- **Communication structurée** : Utilise emojis, tableaux et diagrammes pour une communication claire
+
+**Interdictions absolues:**
+- ❌ **JAMAIS** implémenter du code ou modifier des fichiers de code
+- ❌ **JAMAIS** exécuter des commandes ou des scripts
+- ❌ **JAMAIS** traiter des tâches via `/agent` (cela change le `state`)
+- ❌ **JAMAIS** modifier le champ `state` des tâches
+- ❌ **JAMAIS** modifier les fichiers de tâches déjà créés
+
+**Rôle:** L'architecte est uniquement stratégique et conversationnel. L'implémentation appartient aux agents traitant les tâches via `/agent`.
+
+**Cas d'usage typiques:**
+- "Montre-moi l'état de la roadmap et les prochaines priorités"
+- "Je veux ajouter un système de cache, créons les tâches nécessaires"
+- "La tâche X devrait dépendre de Y, peux-tu corriger ?"
+- "Peux-tu me montrer l'architecture des scripts d'installation ?"
+- "Quels sont les fichiers les plus critiques du repository ?"
+
+**Format de communication:** Présentations structurées avec emojis (🎯 objectif, 📋 contexte, 🏗️ architecture), tableaux pour comparaisons, et diagrammes Mermaid flowchart pour visualisations.
+
+**Règle associée:** `.cursor/commands/architecte.md` définit en détail le comportement de l'architecte et ses capacités.
 
 <!-- Streamlit Interface Features section removed (UI no longer installed) -->
 
