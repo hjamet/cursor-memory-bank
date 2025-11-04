@@ -65,7 +65,7 @@ Lorsque tu identifies une tâche future pendant ton travail, tu **DOIS** :
 
 **Exemple 1 — Pendant un plan** :
 Tu es en train de planifier l'implémentation d'un système d'authentification. Pendant l'analyse, tu découvres que les performances pourraient être optimisées, mais cela nécessite une exploration approfondie qui sort du scope actuel.
-→ **Action** : Créer automatiquement la tâche "Optimiser les performances d'authentification" avec priorité 3, puis continuer la planification de l'authentification comme si de rien n'était.
+→ **Action** : Créer automatiquement la tâche "Optimiser les performances d'authentification" et l'insérer au bon endroit dans le tableau selon ses dépendances, puis continuer la planification de l'authentification comme si de rien n'était.
 
 **Exemple 2 — Pendant une discussion** :
 L'utilisateur mentionne "on pourrait aussi améliorer le système de cache plus tard" pendant que tu travailles sur une autre fonctionnalité.
@@ -109,13 +109,8 @@ Avant de créer la tâche, identifier :
 - **Titre descriptif** : Un titre clair et actionnable (ex: "Optimiser les performances d'authentification")
   - **IMPORTANT** : Le titre doit être unique pour éviter les collisions de noms de fichiers
 - **Description courte** : Générer une description de 3 phrases maximum qui résume l'objectif de la tâche. Cette description sera utilisée pour l'analyse automatique des dépendances avec les autres tâches
-- **Priorité** : De 1 à 5 (5 = plus haute priorité)
-  - 5 = Critique/Blocant
-  - 4 = Haute priorité
-  - 3 = Priorité normale (défaut)
-  - 2 = Nice-to-have
-  - 1 = Faible priorité
 - **Dépendances** : Liste des IDs de tâches qui doivent être terminées avant (peut être vide)
+- **Position dans le tableau** : La position dans le tableau `tasks` du fichier `roadmap.yaml` définit l'ordre de traitement. La première tâche du tableau est la plus urgente, la dernière est la moins urgente. Lors de l'insertion, placer la nouvelle tâche selon ses dépendances (après toutes les tâches dont elle dépend) ou au début si elle n'a pas de dépendances.
 - **Contexte** : Pourquoi cette tâche existe, ce qui a été découvert, etc.
 
 ### Étape 2 : Générer le Nom de Fichier
@@ -194,7 +189,6 @@ Lire le fichier `.cursor/agents/roadmap.yaml` et ajouter une nouvelle entrée da
 - id: "task-{unique-id}"  # Générer un ID unique (ex: task-1, task-2, etc.)
   title: "Titre descriptif de la tâche"
   description: "Description courte de l'objectif de la tâche (3 phrases max)"  # Utilisé pour l'analyse de dépendances
-  priority: 3  # 1-5
   state: "todo"  # "todo" ou "in-progress"
   dependencies: []  # Liste d'IDs de tâches ou []
   dependencies-results: []  # Liste de noms de fichiers de rapports de dépendances terminées (format: liste de strings avec noms de fichiers uniquement, ex: ["rapport-tache-1.md"])
@@ -202,6 +196,11 @@ Lire le fichier `.cursor/agents/roadmap.yaml` et ajouter une nouvelle entrée da
   output_file: "rapport-{nom-fichier-tache}.md"
   deadline: null  # Optionnel
 ```
+
+**Ordre d'insertion** :
+- La position dans le tableau `tasks` définit l'ordre de traitement : la première tâche est la plus urgente, la dernière est la moins urgente
+- Si la nouvelle tâche a des dépendances : insérer après toutes les tâches dont elle dépend (identifier la position la plus basse de ses dépendances et insérer juste après)
+- Si la nouvelle tâche n'a pas de dépendances : insérer au début du tableau (première position)
 
 **Génération d'ID unique** :
 - Si le fichier roadmap.yaml existe déjà, lire toutes les tâches existantes
@@ -229,8 +228,8 @@ Supposons que tu travailles sur l'authentification et découvres des problèmes 
 **Étape 1 - Métadonnées** :
 - Titre : "Optimiser les performances d'authentification"
 - Description : "Améliorer le temps de réponse du système d'authentification en optimisant les requêtes de base de données et en implémentant un cache pour les tokens JWT"
-- Priorité : 4
 - Dépendances : []
+- Position : Au début du tableau (pas de dépendances)
 - Contexte : Problèmes de performance découverts lors des tests
 
 **Étape 2 - Noms de fichiers** :
@@ -245,7 +244,6 @@ Supposons que tu travailles sur l'authentification et découvres des problèmes 
 - id: "task-1"
   title: "Optimiser les performances d'authentification"
   description: "Améliorer le temps de réponse du système d'authentification en optimisant les requêtes de base de données et en implémentant un cache pour les tokens JWT"
-  priority: 4
   state: "todo"
   dependencies: []
   dependencies-results: []

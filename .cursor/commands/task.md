@@ -85,7 +85,6 @@ Lorsque l'utilisateur tape `/task [description de la tâche]`, tu dois :
    - Titre descriptif et actionnable
    - **IMPORTANT** : Vérifier que le titre est unique dans la roadmap pour éviter les collisions de noms de fichiers
   - **Description courte** : Générer une description de 3 phrases maximum qui résume l'objectif de la tâche. Cette description sera utilisée pour l'analyse automatique des dépendances avec les autres tâches
-  - Priorité (1-5, 3 par défaut)
   - Dépendances éventuelles (si le travail actuel doit être terminé d'abord)
 
 ### Étape 2 : Lire la Roadmap et Générer l'ID
@@ -158,13 +157,22 @@ Instructions impératives pour l'agent qui traitera cette tâche (via `/agent`) 
 
 ### Étape 6 : Ajouter à la Roadmap
 
-1. **Ajouter l'entrée** dans la liste `tasks` en utilisant les dépendances détectées lors de l'Étape 3 :
+1. **Déterminer la position d'insertion** :
+   - Analyser les dépendances de la nouvelle tâche (liste `dependencies_new_task` de l'Étape 3)
+   - Si la nouvelle tâche a des dépendances :
+     - Parcourir le tableau `tasks` existant
+     - Identifier la position la plus basse (plus loin dans le tableau) de toutes les tâches dont elle dépend
+     - Insérer la nouvelle tâche juste après cette position (respectant ainsi l'ordre : les dépendances sont toujours avant la tâche qui en dépend)
+   - Si la nouvelle tâche n'a pas de dépendances :
+     - Insérer la nouvelle tâche au début du tableau `tasks` (première position)
+   - **Principe** : La position dans le tableau définit l'ordre de traitement. La première tâche est la plus urgente, la dernière est la moins urgente.
+
+2. **Ajouter l'entrée** dans la liste `tasks` à la position déterminée :
 
 ```yaml
 - id: "task-{unique-id}"
   title: "Titre descriptif de la tâche"
   description: "Description courte de l'objectif de la tâche (3 phrases max)"  # Utilisé pour l'analyse de dépendances
-  priority: 3  # 1-5, ajuster selon l'importance
   state: "todo"  # "todo" ou "in-progress" (toujours "todo" pour les nouvelles tâches)
   dependencies: []  # Liste d'IDs de tâches détectées lors de l'Étape 3
   dependencies-results: []  # Liste de noms de fichiers de rapports de dépendances terminées (format: liste de strings avec noms de fichiers uniquement, ex: ["rapport-tache-1.md"])
@@ -173,16 +181,16 @@ Instructions impératives pour l'agent qui traitera cette tâche (via `/agent`) 
   deadline: null  # Optionnel
 ```
 
-2. **Mettre à jour les dépendances bidirectionnelles** :
+3. **Mettre à jour les dépendances bidirectionnelles** :
    - Remplir le champ `dependencies` de la nouvelle tâche avec `dependencies_new_task` de l'Étape 3
    - Pour chaque tâche existante dans `dependencies_existing_tasks` de l'Étape 3, ajouter l'ID de la nouvelle tâche à son champ `dependencies`
 
-3. **Valider** :
+4. **Valider** :
    - Le fichier `task_file` existe (que tu viens de créer)
    - Les dépendances mentionnées existent dans la roadmap
    - Si validation échoue → **ÉCHOUER EXPLICITEMENT** avec message clair
 
-4. **Sauvegarder** le fichier `roadmap.yaml`
+5. **Sauvegarder** le fichier `roadmap.yaml`
 
 ### Étape 7 : Confirmation et Reprise
 
@@ -233,7 +241,7 @@ Si une étape échoue :
 3. ✅ Analyser les dépendances bidirectionnelles avec les tâches existantes
 4. ✅ Générer les noms de fichiers : `optimiser-performances-auth.md` et `rapport-optimiser-performances-auth.md`
 5. ✅ Créer le fichier `optimiser-performances-auth.md` avec les 4 sections
-6. ✅ Ajouter l'entrée dans `roadmap.yaml` avec les dépendances détectées
+6. ✅ Déterminer la position d'insertion et ajouter l'entrée dans `roadmap.yaml` avec les dépendances détectées
 7. ✅ Confirmer : "✅ Tâche ajoutée (task-1)"
 8. ✅ Reprendre immédiatement l'implémentation de l'authentification
 

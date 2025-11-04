@@ -62,12 +62,10 @@ Appliquer cette logique de sélection dans l'ordre :
    - Exclure les tâches avec dépendances bloquantes
    - **Ne considérer que les tâches avec `state: "todo"`** pour la sélection
 
-2. **Trier les tâches disponibles** :
-   - Par priorité décroissante (5 = plus haute priorité)
-   - En cas d'égalité, prendre la première tâche rencontrée
-
-3. **Sélectionner** :
-   - La première tâche de la liste triée
+2. **Sélectionner la première tâche disponible** :
+   - Parcourir le tableau `tasks` dans l'ordre (du début à la fin)
+   - Sélectionner la première tâche avec `state: "todo"` qui n'a pas de dépendances bloquantes
+   - L'ordre dans le tableau YAML définit l'ordre de traitement : la première tâche du tableau est la plus urgente, la dernière est la moins urgente
 
 Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les tâches sont soit bloquées par des dépendances non résolues, soit la roadmap est vide.
 
@@ -116,10 +114,8 @@ Si aucune tâche n'est disponible → **INFORMER L'UTILISATEUR** que toutes les 
    - **Ne PAS supprimer** le fichier `.cursor/agents/{task_file}`
    - Le fichier sera supprimé lorsqu'un agent détectera que la tâche est terminée (étape 2.0)
 
-3. **Calculer les compteurs de priorités restants** :
-   - À partir des tâches avec `state: "todo"` dans `roadmap.yaml`, calculer le nombre de tâches par priorité
-   - Mappage emojis: 5=🔴, 4=🟠, 3=🔵, 2–1=🟢
-   - Toujours afficher les quatre compteurs, même si 0
+3. **Compter les tâches restantes** :
+   - À partir des tâches avec `state: "todo"` dans `roadmap.yaml`, calculer le nombre total de tâches restantes
 
 ### Étape 5 : Présenter la Tâche à l'Utilisateur (Résumé)
 
@@ -129,7 +125,7 @@ Cette étape **EST le résumé** de la tâche sélectionnée. Elle se fait aprè
 
 Présenter dans cet ordre normalisé (sections fixes) :
 
-1. 🎯 **Tâche sélectionnée** — titre de la tâche, suffixé par les compteurs `(🔴X, 🟠Y, 🔵Z, 🟢W)` calculés sur TOUTES les tâches restantes
+1. 🎯 **Tâche sélectionnée** — titre de la tâche, suffixé par le nombre total de tâches restantes, par exemple `(X tâches restantes)`
 2. 📋 **Contexte** — pourquoi la tâche existe, découvertes, problèmes
 3. 🎯 **Objectif** — ce qui doit être accompli (ton exploratoire)
 4. 🧠 **Idées** — premières pistes/approches envisagées
@@ -140,7 +136,7 @@ Présenter dans cet ordre normalisé (sections fixes) :
 
 Reproduire exactement les lignes suivantes (en texte brut, avec des lignes vides comme indiqué) :
 
-🎯 **Tâche sélectionnée :** [Titre] (🔴X, 🟠Y, 🔵Z, 🟢W)
+🎯 **Tâche sélectionnée :** [Titre] (X tâches restantes)
 
 📋 **Contexte :**
 [Pourquoi cette tâche existe, découvertes, problèmes]
@@ -193,7 +189,7 @@ Si une étape échoue, tu **DOIS** :
 ```
 1. Lecture roadmap.yaml ✓
 2.0. Vérification et nettoyage des tâches in-progress terminées ✓
-2.1. Sélection de la tâche la plus prioritaire (state: todo) ✓
+2.1. Sélection de la première tâche disponible sans dépendances bloquantes (state: todo) ✓
 3. Chargement du fichier de tâche et du contexte ✓
 4. Changement de state: todo → in-progress ✓
 5. Présentation à l'utilisateur (résumé avec émojis) ✓
