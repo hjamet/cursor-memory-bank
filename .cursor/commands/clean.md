@@ -97,6 +97,13 @@ Initialiser deux compteurs :
 - Ne pas créer de dépendances circulaires : si A dépend de B et B dépend déjà de A (directement ou transitivement), ne pas ajouter la dépendance
 - En cas d'erreur lors de l'analyse ou de la création de description, **afficher un avertissement** mais **continuer** avec les autres tâches (ne pas bloquer le nettoyage)
 
+**Règle de graphe connecté** :
+- **CRITIQUE** : Aucune tâche ne devrait être isolée dans le graphe de dépendances
+- Il peut y avoir plusieurs points d'entrée possibles (tâches sans dépendances), mais toutes les tâches devraient avoir au moins un lien de dépendance dans le graphe
+- Chaque tâche doit soit avoir des dépendances, soit être une dépendance d'une autre tâche (ou les deux)
+- Si une tâche est isolée (ni dépendances, ni dépendue par d'autres), l'analyse doit identifier au moins une relation logique pour créer un lien dans le graphe
+- Si aucune relation logique ne peut être établie, créer une dépendance artificielle vers une tâche existante appropriée ou faire en sorte qu'une autre tâche dépende de la tâche isolée
+
 **Note** : Cette analyse globale peut identifier des dépendances qui n'étaient pas détectées lors de la création initiale des tâches, et permet de maintenir la cohérence des dépendances dans la roadmap.
 
 ### Étape 2.4 : Extraction et Mise à Jour du README
@@ -256,6 +263,7 @@ Si une étape échoue :
 - **Fail-Fast** : Si roadmap.yaml existe mais est invalide → échouer explicitement avec détails
 - **Analyse des dépendances** : L'étape 2.1 analyse toutes les paires de tâches pour identifier et mettre à jour les dépendances manquantes, similaire à l'analyse bidirectionnelle de `/task`
 - **Création de descriptions** : L'étape 2.1 crée automatiquement les descriptions manquantes en lisant les fichiers de tâches ou en utilisant le titre de la tâche
+- **Graphe connecté** : Aucune tâche ne doit être isolée dans le graphe de dépendances. Toutes les tâches doivent avoir au moins un lien (dépendance entrante ou sortante) avec le reste du graphe
 
 ## Exemple de Séquence Complète
 

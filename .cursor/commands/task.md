@@ -113,6 +113,13 @@ Lorsque l'utilisateur tape `/task [description de la tâche]`, tu dois :
 - Ne PAS encore modifier roadmap.yaml à cette étape (ce sera fait à l'Étape 6)
 - En cas d'erreur lors de l'analyse, **ÉCHOUER EXPLICITEMENT** avec message clair, mais reprendre le travail après avoir informé l'utilisateur
 
+**Règle de graphe connecté** :
+- **CRITIQUE** : Aucune tâche ne devrait être isolée dans le graphe de dépendances
+- Il peut y avoir plusieurs points d'entrée possibles (tâches sans dépendances), mais toutes les tâches devraient avoir au moins un lien de dépendance dans le graphe
+- Chaque tâche doit soit avoir des dépendances, soit être une dépendance d'une autre tâche (ou les deux)
+- Si une nouvelle tâche est créée sans aucune dépendance et qu'aucune autre tâche ne dépend d'elle, l'analyse doit identifier au moins une relation logique pour créer un lien dans le graphe
+- Si aucune relation logique ne peut être établie, créer une dépendance artificielle vers une tâche existante appropriée ou faire en sorte qu'une autre tâche dépende de la nouvelle tâche
+
 ### Étape 4 : Générer le Nom de Fichier
 
 1. Convertir le titre en format kebab-case
@@ -289,6 +296,7 @@ L'utilisateur tape `/agent /task optimiser les performances` :
 - **Format cohérent** : Suivre exactement le même format que les autres fichiers de tâches
 - **Français** : Tout le contenu doit être en français
 - **Fail-Fast** : Échouer explicitement si quelque chose est invalide, mais reprendre le travail après
+- **Graphe connecté** : Aucune tâche ne doit être isolée dans le graphe de dépendances. Toutes les tâches doivent avoir au moins un lien (dépendance entrante ou sortante) avec le reste du graphe
 
 ## Intégration avec agent.mdc
 

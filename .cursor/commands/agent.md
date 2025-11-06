@@ -183,6 +183,7 @@ Si une étape échoue, tu **DOIS** :
 - **Validation stricte** : Échouer explicitement si quelque chose est invalide ou manquant
 - **Changement de state** : Le `state` de la tâche passe de `"todo"` à `"in-progress"` et le fichier de tâche est conservé jusqu'à ce qu'un agent détecte que la tâche est terminée (via le fichier output).
 - **Signalement obligatoire** : Toute donnée manquante doit apparaître telle quelle dans la section `⚠️ Fichiers introuvables`, même si la liste est vide (utiliser "Aucun").
+- **Graphe connecté** : Aucune tâche ne doit être isolée dans le graphe de dépendances. Toutes les tâches doivent avoir au moins un lien (dépendance entrante ou sortante) avec le reste du graphe. Il peut y avoir plusieurs points d'entrée (tâches sans dépendances), mais toutes les tâches doivent être connectées au graphe global
 
 ## Exemple de Séquence Complète
 

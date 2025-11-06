@@ -64,6 +64,13 @@ Quand l'utilisateur demande de créer des tâches, suivre le **processus complet
 - Analyser les relations logiques (ex: "Configuration du cache" doit précéder "Implémentation du cache")
 - Mettre à jour les champs `dependencies` en conséquence
 
+**Règle de graphe connecté** :
+- **CRITIQUE** : Aucune tâche ne devrait être isolée dans le graphe de dépendances
+- Il peut y avoir plusieurs points d'entrée possibles (tâches sans dépendances), mais toutes les tâches devraient avoir au moins un lien de dépendance dans le graphe
+- Chaque tâche doit soit avoir des dépendances, soit être une dépendance d'une autre tâche (ou les deux)
+- Lors de la création de nouvelles tâches, s'assurer qu'elles sont connectées au graphe existant
+- Si une nouvelle tâche est créée sans aucune dépendance et qu'aucune autre tâche ne dépend d'elle, l'analyse doit identifier au moins une relation logique pour créer un lien dans le graphe
+
 ### Modification des Tâches Existantes
 
 L'architecte peut modifier les tâches existantes dans `roadmap.yaml` :
@@ -79,8 +86,9 @@ L'architecte peut modifier les tâches existantes dans `roadmap.yaml` :
 2. Identifier la tâche à modifier par son ID
 3. Effectuer la modification demandée (dépendances ou réordonnancement)
 4. Valider que la modification ne crée pas de dépendances circulaires et respecte l'ordre logique (les dépendances doivent être avant les tâches qui en dépendent)
-5. Sauvegarder `roadmap.yaml`
-6. Confirmer la modification à l'utilisateur
+5. **Vérifier le graphe connecté** : S'assurer qu'aucune tâche n'est isolée après la modification (chaque tâche doit avoir au moins un lien avec le reste du graphe)
+6. Sauvegarder `roadmap.yaml`
+7. Confirmer la modification à l'utilisateur
 
 ### Génération de Diagrammes Mermaid
 
@@ -324,6 +332,7 @@ Si une étape échoue :
 - Vérifier que les IDs de tâches existent
 - Vérifier qu'aucune dépendance circulaire n'est créée
 - Vérifier que l'ordre respecte la logique des dépendances (les dépendances doivent être avant les tâches qui en dépendent)
+- Vérifier qu'aucune tâche n'est isolée dans le graphe (chaque tâche doit avoir au moins un lien de dépendance avec le reste du graphe)
 
 ## Notes Importantes
 
@@ -334,6 +343,7 @@ Si une étape échoue :
 - **Format cohérent** : Suivre le même processus de création de tâches que `/task` (Étapes 1-7)
 - **Français** : Tout le contenu doit être en français
 - **Fail-Fast** : Échouer explicitement si quelque chose est invalide
+- **Graphe connecté** : Aucune tâche ne doit être isolée dans le graphe de dépendances. Toutes les tâches doivent avoir au moins un lien (dépendance entrante ou sortante) avec le reste du graphe. Il peut y avoir plusieurs points d'entrée (tâches sans dépendances), mais toutes les tâches doivent être connectées au graphe global
 
 ## Intégration avec le Système Existant
 
