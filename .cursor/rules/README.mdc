@@ -34,15 +34,19 @@ Le fichier [README.md](mdc:README.md) doit rester parfaitement synchronisé avec
    - Tableau équivalent pour les utilitaires autonomes ou appelés par les scripts principaux.  
    - Préciser s'ils peuvent être lancés directement et dans quelles situations.
 7. **# Roadmap**  
-   - Tableau ou liste structurée des actions **strictement futures** (titre, objectif, état, dépendances).  
-   - Dès qu'une action est terminée, la retirer immédiatement et intégrer ses résultats dans les sections pertinentes du README.  
-   - Ajouter toute nouvelle action identifiée au fil de la conversation.
+   - **Format obligatoire** : Tableau trié par ordre de priorité calculé sur les dépendances.
+   - **Contenu** : UNIQUEMENT les actions futures. Les actions terminées sont supprimées du tableau.
+   - **Colonnes** :
+     | Tâche | Objectif | État | Dépendances |
+     |-------|----------|------|-------------|
+     | **Titre** | Description très détaillée (~200 mots) expliquant le contexte, le but et les critères de succès. Doit être auto-suffisant pour l'agent. | 🏗️ En cours / 📅 À faire | Liste des tâches bloquantes (ou "-") |
 
 ## Bonnes pratiques forcées
 - **Toujours finir par le README** : avant de conclure, rouvrir le README, vérifier chaque section et consigner les mises à jour effectuées (ou confirmer explicitement qu'il reflète déjà l'état réel).  
 - **Documentation proportionnée** : déplacer les détails verbeux vers `documentation/` et lier depuis la section concernée.  
+- **Fail-fast documentaire** : si une donnée manque pour documenter correctement, s'arrêter et la récupérer avant de poursuivre l'implémentation.  
 - **Exemples systématiques** : toute commande présentée dans Installation ou Scripts doit inclure un exemple reproductible avec explication *en italique*.  
-- **Synchronisation Roadmap** : cette section ne contient jamais d'historique. Les réalisations passées sont décrites dans les sections Présentation, Résultats, Scripts, etc., pas dans la Roadmap.  
+- **Synchronisation Roadmap** : dès qu'une tâche passe de « à faire » à « fait », retirer l'entrée de la roadmap et intégrer les résultats au corps du README (sections Présentation, Résultats, Scripts, etc.).  
 - **Tableaux privilégiés** : utiliser des tableaux homogènes pour les sections Résultats, Scripts et Roadmap afin de maximiser la lisibilité.
 
 ## Rappel critique

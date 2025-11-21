@@ -17,9 +17,6 @@ root/
 ├─ .cursor/              # Configuration Cursor et règles d'agent
 │  ├─ rules/            # Règles d'agent (.mdc) - comportement de l'IA
 │  ├─ commands/         # Commandes personnalisées (.md)
-│  └─ agents/           # Système de roadmap centralisée
-│     ├─ roadmap.yaml   # Roadmap centralisée avec toutes les tâches
-│     └─ *.md            # Fichiers de tâches et rapports
 ├─ documentation/        # Guides détaillés et documentation longue
 ├─ install.sh           # Script d'installation automatisé
 ├─ tomd.py              # Utilitaire Python pour conversion markdown
@@ -29,15 +26,10 @@ root/
 ### Structure détaillée des dossiers
 
 - **`.cursor/commands/`** : Commandes personnalisées pour l'agent
-  - *Contient* : `prompt.md`, `enqueteur.md`, `agent.md`, `task.md`, `architecte.md`, `janitor.md` - Commandes de transition, enquête, roadmap, supervision et maintenance
+  - *Contient* : `prompt.md`, `enqueteur.md`, `agent.md`, `architecte.md`, `janitor.md` - Commandes de transition, enquête, roadmap, supervision et maintenance
   - *Structure* : Fichiers `.md` définissant des commandes slash personnalisées
-  - *Usage* : Permet aux agents de générer des prompts de transition avec `/prompt`, lancer une enquête avec `/enqueteur`, sélectionner une tâche avec `/agent`, ajouter une tâche avec `/task`, superviser avec `/architecte`, et analyser le repository avec `/janitor`
+  - *Usage* : Permet aux agents de générer des prompts de transition avec `/prompt`, lancer une enquête avec `/enqueteur`, sélectionner une tâche avec `/agent`, superviser avec `/architecte`, et analyser le repository avec `/janitor`
 
-- **`.cursor/agents/`** : Système de roadmap centralisée pour coordination multi-agents
-  - *Contient* : `roadmap.yaml` (roadmap centralisée), fichiers de tâches (`{titre-kebab-case}.md`), fichiers de résultats (`rapport-{titre-kebab-case}.md`)
-  - *Structure* : Fichier YAML pour la roadmap, fichiers markdown pour les tâches et rapports
-  - *Usage* : Permet à plusieurs agents Cursor de travailler en parallèle, chaque agent peut consulter la roadmap, sélectionner une tâche, et consulter les résultats des autres agents
-  
 - **`.cursor/rules/`** : Règles d'agent définissant le comportement de l'IA
   - *Contient* : `agent.mdc`, `debug.mdc`, `start.mdc`, `README.mdc` (exemples)
   - *Structure* : Fichiers `.mdc` avec métadonnées YAML et instructions markdown
@@ -125,21 +117,6 @@ bash install.sh [options]
 
 The installer now provides a single mode: it installs essential rules (`agent.mdc`, `debug.mdc`), custom commands, and updates `.gitignore`. Existing custom rules are preserved. No Streamlit UI or ML artifacts are installed.
 
-## Système de Roadmap Centralisée 📋
-
-Le système utilise maintenant une roadmap centralisée (`.cursor/agents/roadmap.yaml`) pour coordonner plusieurs agents Cursor en parallèle. Ce système simple et léger remplace les anciens serveurs MCP qui sont désormais obsolètes.
-
-**Note historique** : L'historique git contient les anciens systèmes basés sur les serveurs MCP (ToolsMCP, MemoryBankMCP) ainsi qu'une ancienne UI Streamlit. Ces éléments ont été retirés au profit d'un système de roadmap centralisée plus simple et léger. Voir `documentation/legacy-ui-ml.md` pour un court récapitulatif.
-
-### Comment ça fonctionne
-
-- **Roadmap centralisée** : `.cursor/agents/roadmap.yaml` contient toutes les tâches à faire
-- **Fichiers de tâches** : `.cursor/agents/{titre}.md` décrivent chaque tâche avec contexte, objectif et instructions
-- **Commandes** : `/agent` pour sélectionner une tâche, `/task` pour en ajouter une nouvelle, `/architecte` pour superviser et gérer la roadmap
-- **Coordination** : Plusieurs agents peuvent travailler en parallèle en consultant la roadmap
-
-Pour plus d'informations, consultez les commandes `/agent`, `/task` et `/architecte` dans la section "Custom Commands" ci-dessous.
-
 ## What is Cursor Memory Bank? 🤔
 
 Cursor Memory Bank is an advanced autonomous workflow system that revolutionizes how you work with Cursor. It provides intelligent task management, persistent memory, and automated quality assurance through a sophisticated rule-based architecture.
@@ -152,168 +129,11 @@ Cursor Memory Bank is an advanced autonomous workflow system that revolutionizes
 - **Safety Mechanisms**: Anti-infinite-loop protection, emergency brakes, and transition monitoring
 - **Intelligent Routing**: Context-aware task routing based on complexity and requirements
 
-#### 📋 **Advanced Task Management**
-- **Hierarchical Tasks**: Support for parent-child task relationships and dependencies
-- **Multi-Task Decomposition**: Intelligent breaking down of complex requests into manageable subtasks
-- **Priority System**: 5-level priority system (1=lowest, 5=critical) with automatic prioritization
-- **Roadmap-Only State**: No runtime status like `IN_PROGRESS` is used by `/agent`. On selection, the task is immediately removed from the roadmap and its task file is deleted (irreversible by design).
-
-<!-- Streamlit UI removed from installer scope -->
-
 #### 🚀 **Workflow Automation**
 - **Automatic Testing**: Mandatory validation after every implementation
 - **Smart Transitions**: Context-aware workflow step recommendations
 - **Memory Persistence**: Long-term and working memory with automatic cleanup
 - **Git Integration**: Automated commit messages with standardized formatting
-
-### Recent Major Improvements 🆕
-
-#### **Enhanced Notification System (v2.0)**
-- **Custom Duration**: Configurable 5-15 second display time (vs 4s fixed in st.toast())
-- **Markdown Support**: Full markdown rendering with safe HTML sanitization
-- **Visual Progress**: Animated progress bars showing remaining time
-- **Manual Control**: User-controlled dismissal and hover-pause functionality
-- **Type System**: Distinct styling for info, success, warning, error, and memory notifications
-
-#### **Workflow Architecture Overhaul**
-- **Automatic Experience-Execution**: Mandatory testing after every implementation
-- **Safety Systems**: Comprehensive anti-loop protection with cooldown mechanisms
-- **Performance Monitoring**: Real-time workflow performance tracking
-- **Simplified Task Decomposition**: Streamlined approach balancing efficiency and simplicity
-
-#### **Interface Modernization**
-- **Responsive Design**: Mobile-friendly interface with breakpoint optimization
-- **Enhanced Styling**: Modern gradients, shadows, and animations
-- **Improved UX**: Better contrast, larger notification areas, and intuitive navigation
-
-### Known Issues & Active Development 🚧
-
-#### **Auto-Refresh System Status**
-✅ **RESOLVED**: The auto-refresh issue has been addressed with a hybrid solution that provides both reliability and user control (as of 2025-07-21).
-
-**Solution Implemented:**
-- **Primary Mode**: Manual refresh system with prominent "🔄 Actualiser les données" button in sidebar
-- **Optional Auto-Refresh**: Experimental auto-refresh for users who want to try it (5-second intervals)
-- **Clean Interface**: All informational refresh indicators removed from main interface for streamlined UX
-- **Smart UX**: Clear instructions and visual feedback when data is refreshed
-
-**Technical Implementation:**
- - Robust manual refresh with cache clearing and forced rerun
-- Error handling and fallback for environments where auto-refresh fails
-- **Interface Streamlined (July 2025)**: Removed data freshness timestamps, counters, and mini refresh buttons from main interface per user feedback
-
-**User Impact**: **POSITIVE** - Users have reliable control over data refresh with clean, distraction-free interface
-**Status**: **OPERATIONAL** - Manual refresh system with experimental auto-refresh option
-
-The system now provides a better user experience with guaranteed refresh functionality.
-
-## Agent Workflow Logic 🧠⚙️
-
-The autonomous agent operates on a sophisticated, rule-based workflow designed for robustness and intelligent decision-making. The system features **automatic testing integration** with mandatory `implementation → experience-execution` transitions to ensure code quality.
-
-### Workflow Architecture
-
-```mermaid
-graph TD
-    subgraph Legend
-        direction LR
-        Dev[Dev Task]:::devStyle
-        Exec[Execution Task]:::execStyle
-        Fix[Fix Task]:::fixStyle
-        Decomp[Decomposition]:::decompStyle
-    end
-
-    subgraph "Main Loop"
-        direction TB
-        A(Start) --> B{Get Next Task}
-        B -- No Tasks --> Z[Context Update / Idle]
-        B -- Task Available --> C{Evaluate Task Type}
-        C -- Development Req. --> D[1. Implementation]
-        C -- Execution Only --> E[2. Experience Execution]
-        
-        D -- Code Complete --> F[Remember]
-        F --> E
-        
-        E -- Testing Complete --> G[Remember]
-        G --> H{Test Passed?}
-        H -- Yes --> I[3. Context Update / Commit]
-        H -- No --> D
-        
-        I --> B
-    end
-
-    subgraph "Interrupts"
-        direction TB
-        J[New User Request] --> K[4. Task Decomposition]
-        K --> D
-        L[Blocked Task Detected] --> M[5. Fix]
-        M --> D
-    end
-
-    subgraph "Safety Systems"
-        direction TB
-        N[Transition Monitor] --> O{Excessive Loops?}
-        O -- Yes --> P[Emergency Brake]
-        O -- No --> Q[Continue]
-    end
-
-    classDef devStyle fill:#cde4ff,stroke:#333,stroke-width:2px
-    classDef execStyle fill:#d5e8d4,stroke:#333,stroke-width:2px
-    classDef fixStyle fill:#f8cecc,stroke:#333,stroke-width:2px
-    classDef decompStyle fill:#dae8fc,stroke:#333,stroke-width:2px
-
-    class Dev,D devStyle
-    class Exec,E execStyle
-    class Fix,M fixStyle
-    class Decomp,K decompStyle
-```
-
-### Key Workflow Features
-
-#### **Mandatory Testing Cycle**
-- **CRITICAL RULE**: `implementation → experience-execution` (AUTOMATIC)
-- **ARCHITECTURAL INTEGRITY GUARANTEED**: Complete elimination of `implementation → implementation` violations (2025-07-23)
-- Every code change is automatically tested before completion
-- Prevents regressions and ensures quality
-- Built-in safety mechanisms prevent infinite loops
-
-#### **Intelligent Task Routing**
-- **Development Tasks**: Full implementation → testing → commit cycle
-- **Execution Tasks**: Direct routing to experience-execution for commands/scripts
-- **Fix Tasks**: High-priority interrupt handling for blocked tasks
-- **Decomposition**: Multi-request analysis and task creation
-
-#### **Safety Systems**
-- **Transition Limits**: Maximum 10 consecutive transitions before emergency brake
-- **Cooldown Periods**: 1-minute minimum between experience-execution cycles
-- **Cycle Detection**: Automatic identification of implementation → fix loops
-- **Emergency Brakes**: Automatic activation on excessive transitions
-
-### Workflow Steps Explained
-
-1. **Implementation (`implementation`)**
-   - Core development step for code changes
-   - No roadmap status change to `IN_PROGRESS`; selection via `/agent` removes the task instantly (irreversible)
-   - Intelligent routing based on task complexity
-   - **Mandatory transition** to Experience Execution
-
-2. **Experience Execution (`experience-execution`)**
-   - Automatic testing and validation
-   - Manual testing for complex features
-   - Quality assurance checks
-   - **Exclusive responsibility** for task completion
-
-3. **Task Decomposition (`task-decomposition`)**
-   - Multi-request analysis capability
-   - Intelligent task creation with dependencies
-   - Priority assignment and scheduling
-   - **Simplified approach** balancing efficiency and thoroughness
-
-4. **Fix (`fix`)**
-   - High-priority interrupt handling
-   - Blocked task resolution
-   - Error diagnosis and correction
-   - **Immediate routing** to implementation
 
 ## Custom Commands
 
@@ -321,203 +141,21 @@ graph TD
 
 La commande `/prompt` permet aux agents de créer un plan de transition pour passer le contexte à un nouvel agent. Le plan est automatiquement enregistré dans le repository et supprimé par le successeur.
 
-**Usage:**
-- `/prompt il faudrait maintenant optimiser les performances` : Avec instructions
-- `/prompt` : Sans instructions
-
-**Format de sortie:** Plan de transition avec 4 sections (Contexte, Objectif, Fichiers Concernés, Instructions de Collaboration) + todos incomplets + todo de nettoyage
-
-**Mécanique:**
-- Le plan de transition est créé via l'outil `create_plan` et sauvegardé automatiquement dans le repository
-- Si l'agent courant a des todos non terminés, ils sont inclus dans le plan de transition
-- Le premier todo du plan est toujours de supprimer le fichier de plan de transition
-- Le nouveau plan permet au successeur de reprendre là où le prédécesseur s'est arrêté ou de démarrer une nouvelle direction
-
 ### `/enqueteur` - Enquête méthodologique des bugs
 
 La commande `/enqueteur` exécute la procédure d'enquête pas à pas (exploration, hypothèses, logs, exécution, analyse, validation critique, rapport) définie dans `.cursor/commands/enqueteur.md`.
-
-**Usage:**
-- `/enqueteur` : Démarre l'enquête étape par étape. L'agent doit suivre les instructions du fichier et produire le rapport final d'identification (aucune correction proposée).
-
-**Format de sortie:** Rapport d'identification du bug avec fichier/fonction/ligne/instruction et preuves BEFORE/AFTER.
 
 ### `/janitor` - Reviewer exhaustif du repository
 
 La commande `/janitor` conduit une analyse critique exhaustive du repository pour identifier TOUS les problèmes de maintenance, incohérences, et lacunes organisationnelles.
 
-**Usage:**
-- `/janitor` : Exploration exhaustive générale du repository (trouve au moins 1 problème)
-- `/janitor scripts/` : Analyse ciblée d'un dossier spécifique
+### `/agent` - Sélection et traitement de tâche 🚀
 
-**Fonctionnalités:**
-- **Cohérence structurelle** : Vérifie que la documentation (README) correspond à la structure réelle
-- **Qualité de documentation** : Valide toutes les sections obligatoires du README contre réalité
-- **Code legacy** : Identifie fichiers obsolètes, checkpoints anciens, logs non nettoyés
-- **Organisation** : Détecte fichiers mal placés, duplications, structure incohérente
-- **Qualité du code** : Imports cassés, chemins relatifs incorrects, dépendances manquantes
-- **Complétude** : Variables d'environnement non documentées, commandes obsolètes
+La commande `/agent` consulte la roadmap directement dans le README, sélectionne la tâche la plus prioritaire, et engage sa réalisation en collaboration avec l'utilisateur.
 
-**Système de sévérité:**
-- 🔴 **Critique** : Problèmes bloquants (architecture cassée, imports broken)
-- 🟠 **Majeur** : Problèmes significatifs (documentation obsolète, incohérences majeures)
-- 🟡 **Mineur** : Améliorations (clarté, organisation, conventions)
+### `/architecte` - Supervision stratégique 🏗️
 
-**Output:** Tableau complet avec 5 colonnes (Sévérité, Catégorie, Fichier/Section, Description du Problème, Action Suggérée) + Résumé + Évaluation de santé du repository
-
-**Focus README:** Validation MANDATOIRE de toutes les sections du README contre l'état réel du repository à chaque exécution.
-
-**Sécurité:** Jamais d'exécution automatique - identification exhaustive des problèmes uniquement
-
-### `/agent` - Sélection et traitement de tâche depuis la roadmap centralisée 🚀
-
-La commande `/agent` permet de lancer un agent qui consulte la roadmap centralisée, sélectionne automatiquement la tâche la plus intéressante disponible, charge tout son contexte, puis présente la tâche à l'utilisateur pour discussion collaborative avant implémentation.
-
-**Usage:**
-- `/agent` : Lance un agent qui sélectionne et traite une tâche de la roadmap
-
-**Fonctionnalités:**
-- **Sélection intelligente** : Choisit automatiquement la tâche la plus pertinente selon les dépendances, la priorité et l'ancienneté
-- **Chargement de contexte** : Lit exhaustivement tous les fichiers mentionnés dans la tâche
-- **Lectures en parallèle** : Effectue en parallèle la lecture de tous les fichiers mentionnés pour réduire la latence
-- **Recherches** : Effectue les recherches sémantiques et web mentionnées
-- **Présentation** : Présente la tâche sélectionnée avec contexte complet en français
-- **Tolérance aux manques** : Poursuit l'exploration même si certains fichiers sont introuvables et les signale explicitement dans la sortie
-- **Discussion collaborative** : Attend la planification avec l'utilisateur avant toute implémentation
-- **Sortie textuelle** : Produit un résumé final sans aucun bloc de code ni backticks, en respectant strictement le format attendu.
-
-**Système de roadmap:**
-- Fichier centralisé : `.cursor/agents/roadmap.yaml`
-- Structure : Liste `tasks` avec champ `state: "todo"` ou `"in-progress"` pour chaque tâche
-- Fichiers de tâches : `.cursor/agents/{titre-kebab-case}.md`
-- Fichiers de résultats : `.cursor/agents/rapport-{titre-kebab-case}.md`
-
-**Critères de sélection:**
-- Dépendances résolues (le task ID n'existe pas dans `tasks` ou est avec `state: "todo"` et non bloquante)
-- Priorité (5 = plus haute priorité)
-- Seulement les tâches avec `state: "todo"` sont sélectionnables
-
-**Workflow:**
-1. Lecture de la roadmap
-2.0. Vérification et nettoyage des tâches avec `state: "in-progress"` terminées (détection via fichiers output)
-2.1. Sélection de la tâche la plus intéressante parmi celles avec `state: "todo"`
-3. Chargement du fichier de tâche et de tous les fichiers mentionnés
-4. Recherches sémantiques et web
-5. Changement de `state: "todo"` → `state: "in-progress"`
-6. Présentation à l'utilisateur avec contexte complet
-7. Discussion collaborative pour planification
-8. Implémentation après validation
-9. Création du rapport final dans le fichier output pour marquer la tâche comme terminée
-
-**Règle associée:** `.cursor/rules/agent.mdc` explique quand et comment créer des tâches dans la roadmap lorsque des travaux futurs sont identifiés.
-
-**Format de présentation standard (sortie de `/agent`)** — la réponse doit être envoyée en texte brut, sans aucun bloc de code ni backticks. Reproduire les lignes suivantes (la section « ❓ Questions » reste optionnelle selon le contexte) :
-
-🎯 **Tâche sélectionnée :** [Titre] (🔴X, 🟠Y, 🔵Z, 🟢W)
-
-📋 **Contexte :**
-[Pourquoi cette tâche existe, découvertes, problèmes]
-
-🎯 **Objectif :**
-[But à atteindre, ton exploratoire]
-
-🧠 **Idées :**
-- [Piste 1]
-- [Piste 2]
-
-⚠️ **Fichiers introuvables :**
-- [Chemin ou recherche] — [Raison]
-
-❓ **Questions :** *(optionnel — chaque question numérotée avec options a/b/c pour des réponses comme 1A)*
-1. [Question 1] ?
-   - a) [Proposition A]
-   - b) [Proposition B]
-   - c) [Proposition C]
-2. [Question 2] ?
-   - a) [Proposition A]
-   - b) [Proposition B]
-   - c) [Proposition C]
-
-Si rien n’est manquant, afficher la phrase « ⚠️ **Fichiers introuvables :** Aucun ».
-
-Note: `/agent` ne crée jamais de plan pour la sélection/consultation de la roadmap. Le plan est créé uniquement pour l’implémentation de la tâche sélectionnée, après discussion avec l’utilisateur.
-
-> Compteurs de priorités: les valeurs X/Y/Z/W correspondent au nombre de tâches restantes dans la roadmap après suppression de la tâche sélectionnée, agrégées par priorité (5=🔴, 4=🟠, 3=🔵, 2–1=🟢). Les quatre compteurs sont toujours affichés, même à 0.
-
-### `/task` - Ajout non-bloquant de tâche à la roadmap 📝
-
-La commande `/task` permet d'ajouter une nouvelle tâche à la roadmap centralisée **SANS INTERROMPRE** le travail en cours de l'agent. L'agent crée la tâche avec tout le contexte nécessaire, puis reprend immédiatement son travail précédent.
-
-**Usage:**
-- `/task il faudrait optimiser les performances plus tard` : Ajoute une tâche future à la roadmap
-
-**Fonctionnalités:**
-- **Création complète** : Génère le fichier de tâche avec les 4 sections obligatoires (Contexte, Objectif, Fichiers Concernés, Instructions)
-- **Ajout à la roadmap** : Enregistre la tâche dans `roadmap.yaml` avec ID unique
-- **Contexte préservé** : Mentionne les fichiers du travail actuel dans "Fichiers Concernés"
-- **Non-bloquant** : Ne change pas le focus de l'agent, reprend le travail immédiatement après
- - **Aucune implémentation immédiate** : La tâche créée ne doit jamais être implémentée ni planifiée tout de suite; elle sera traitée plus tard via `/agent` après discussion
-
-**Comportement:**
-- **Interruption obligatoire et immédiate** : `/task` suspend TOUT travail en cours pour être traitée immédiatement
-- **Traitement strictement séquentiel** : Si plusieurs `/task` sont invoquées, elles sont traitées l'une après l'autre
-- **Confirmation minimale** : `✅ Tâche ajoutée (task-{id})` - la plus courte possible pour reprendre rapidement le flux initial
-
-**Principe fondamental:**
-- **Interruption non-bloquante** : L'agent continue exactement là où il s'était arrêté
-- **Délégation** : La tâche est créée pour être traitée par un autre agent (via `/agent`)
- - **Interdiction d'implémenter** : Après création, l'agent ne doit ni implémenter ni planifier cette nouvelle tâche
-- **Format cohérent** : Suit exactement le même format que les autres fichiers de tâches
-
-**Workflow:**
-1. Analyser la demande de l'utilisateur
-2. Générer les noms de fichiers (tâche + rapport)
-3. Créer le fichier de tâche avec les 4 sections
-4. Ajouter l'entrée dans `roadmap.yaml`
-5. Confirmer la création : `✅ Tâche ajoutée (task-{id})`
-6. Reprendre immédiatement le travail précédent
-
-**Exemple:** Pendant l'implémentation de l'authentification, l'utilisateur tape `/task optimiser les performances`. L'agent crée la tâche avec contexte, confirme `✅ Tâche ajoutée (task-1)`, puis continue l'implémentation de l'authentification.
-
-### `/architecte` - Supervision stratégique et gestion de roadmap 🏗️
-
-La commande `/architecte` invoque un rôle spécialisé dans la supervision stratégique, la discussion architecturale, et la gestion de la roadmap. L'architecte consulte la roadmap, crée des tâches, gère les dépendances et priorités, répond aux questions sur le repository, et fournit une vision globale du projet.
-
-**Usage:**
-- `/architecte` : Active le mode architecte avec chargement automatique du contexte (README, roadmap, documentation)
-
-**Fonctionnalités:**
-- **Chargement automatique du contexte** : Lit automatiquement README.md, roadmap.yaml et documentation au démarrage
-- **Consultation de la roadmap** : Analyse l'état global, identifie les blocages, propose des réorganisations
-- **Création de tâches** : Crée des tâches en suivant le processus complet de `/task` (Étapes 1-7)
-- **Gestion des dépendances** : Établit automatiquement les dépendances entre tâches créées dans la même session
-- **Modification de tâches existantes** : Peut modifier les dépendances et priorités des tâches (jamais le `state`)
-- **Visualisation architecturale** : Génère des diagrammes Mermaid flowchart pour représenter l'architecture
-- **Communication structurée** : Utilise emojis, tableaux et diagrammes pour une communication claire
-
-**Interdictions absolues:**
-- ❌ **JAMAIS** implémenter du code ou modifier des fichiers de code
-- ❌ **JAMAIS** exécuter des commandes ou des scripts
-- ❌ **JAMAIS** traiter des tâches via `/agent` (cela change le `state`)
-- ❌ **JAMAIS** modifier le champ `state` des tâches
-- ❌ **JAMAIS** modifier les fichiers de tâches déjà créés
-
-**Rôle:** L'architecte est uniquement stratégique et conversationnel. L'implémentation appartient aux agents traitant les tâches via `/agent`.
-
-**Cas d'usage typiques:**
-- "Montre-moi l'état de la roadmap et les prochaines priorités"
-- "Je veux ajouter un système de cache, créons les tâches nécessaires"
-- "La tâche X devrait dépendre de Y, peux-tu corriger ?"
-- "Peux-tu me montrer l'architecture des scripts d'installation ?"
-- "Quels sont les fichiers les plus critiques du repository ?"
-
-**Format de communication:** Présentations structurées avec emojis (🎯 objectif, 📋 contexte, 🏗️ architecture), tableaux pour comparaisons, et diagrammes Mermaid flowchart pour visualisations.
-
-**Graphique des dépendances obligatoire:** À chaque réponse, l'architecte affiche systématiquement un diagramme Mermaid montrant toutes les tâches de la roadmap avec leurs dépendances, colorées par priorité et organisées par flux de travail.
-
-**Règle associée:** `.cursor/commands/architecte.md` définit en détail le comportement de l'architecte et ses capacités.
-
-<!-- Streamlit Interface Features section removed (UI no longer installed) -->
+La commande `/architecte` permet de gérer la roadmap dans le README (ajout, réorganisation, visualisation) sans modifier le code source.
 
 ## Technical Architecture 🏗️
 
@@ -574,26 +212,6 @@ If the autonomous workflow seems stuck or behaving unexpectedly:
 3. **Review Memory**: Check working memory for error patterns
 4. **Restart Workflow**: Use `start-workflow` to reset system state
 
-### **Notification Issues**
-
-If toast notifications are not appearing or functioning correctly:
-
-1. **Check Session State**: Verify Streamlit session state initialization
-2. **Clear Cache**: Use Streamlit's cache clearing functionality
-3. **Verify Integration**: Ensure notification functions are called on all pages
-4. **Test Manually**: Use the enhanced notification system directly
-
-### **Performance Issues**
-
-If the system is running slowly or consuming excessive resources:
-
-1. **Memory Cleanup**: Use context-update to optimize memory usage
-2. **Task Optimization**: Review task dependencies and priorities
-3. **Transition Monitoring**: Check for excessive workflow transitions
-4. **System Resources**: Monitor CPU and memory usage
-
-For more detailed troubleshooting, consult the system's working memory and long-term memory for specific error patterns and solutions.
-
 ## Automatic Task Creation System 🔧
 
 The system automatically creates refactoring tasks for oversized files (>500 lines) integrated directly into the commit workflow.
@@ -604,7 +222,6 @@ The system automatically creates refactoring tasks for oversized files (>500 lin
 1. **Scans all files** in the project with supported extensions (`.py`, `.js`, `.tex`, `.html`, `.css`, `.sh`)
 2. **Detects files** exceeding 500 lines
 3. **Creates refactoring tasks** automatically with appropriate priorities
- 
 
 ### Supported File Types
 - Python (`.py`)
@@ -641,3 +258,9 @@ The functionality is now **100% integrated** into the commit workflow - no separ
 ### **Windows: git diff encoding fix**
 
 If `python tomd.py` raises a `UnicodeDecodeError` when writing the git diff (Windows CP1252 decoding issue), update `tomd.py` to write the raw `git diff` bytes to the `diff` file. The script now writes the diff as binary to preserve arbitrary bytes and avoid platform-specific decoding errors. No user action is required for the fix bundled in the repository.
+
+# Roadmap
+
+| Tâche | Objectif | État | Dépendances |
+|-------|----------|------|-------------|
+| **Nettoyer dossier agents** | Supprimer le dossier obsolète `.cursor/agents/` et son contenu (roadmap.yaml, fichiers tâches) maintenant que le système est migré vers le README. Vérifier qu'aucun fichier important n'y est resté avant suppression. | 📅 À faire | - |
