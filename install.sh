@@ -378,14 +378,15 @@ is_in_array() {
 }
 
 # Recursively fetch all rule files from GitHub API
-# Usage: fetch_rules_recursive "path_in_repo" -> returns space-separated list of file paths
+# Usage: fetch_rules_recursive "path_in_repo" "extension" -> returns space-separated list of file paths
 fetch_rules_recursive() {
     local path_in_repo="$1"
+    local extension="${2:-.mdc}"
     local api_url="$GITHUB_API/contents/$path_in_repo?ref=$DEFAULT_BRANCH"
     local api_response
     local rules_list=""
     
-    log "Fetching rules recursively from $path_in_repo"
+    log "Fetching rules recursively from $path_in_repo (extension: $extension)"
     
     api_response=$(curl -s "$api_url" 2>/dev/null || true)
     if [[ -z "$api_response" ]]; then
@@ -401,10 +402,10 @@ fetch_rules_recursive() {
             local name="${name_type%%:*}"
             local type="${name_type##*:}"
             
-            if [[ "$type" == "file" ]] && [[ "$name" == *.mdc ]]; then
+            if [[ "$type" == "file" ]] && [[ "$name" == *"$extension" ]]; then
                 rules_list="$rules_list $path_in_repo/$name"
             elif [[ "$type" == "dir" ]]; then
-                local subdir_rules=$(fetch_rules_recursive "$path_in_repo/$name")
+                local subdir_rules=$(fetch_rules_recursive "$path_in_repo/$name" "$extension")
                 rules_list="$rules_list $subdir_rules"
             fi
         fi
@@ -591,6 +592,129 @@ install_commands() {
     log "✓ Commands installed successfully"
 }
 
+# Transform frontmatter for agent rules/workflows
+# transform_frontmatter "input_file" "output_file" "type"
+transform_frontmatter() {
+    local input_file="$1"
+    local output_file="$2"
+    local type="$3" # "rule" or "workflow"
+    
+    # Read the content
+    local content
+    content=$(cat "$input_file")
+    
+    # Check if there is existing frontmatter
+    local has_frontmatter=false
+    if head -n 1 "$input_file" | grep -q "^---$"; then
+        has_frontmatter=true
+    fi
+
+    # Extract description if possible, or use filename
+    local description=""
+    if $has_frontmatter; then
+        description=$(grep "^description:" "$input_file" | sed 's/^description: *//' || true)
+    fi
+    if [[ -z "$description" ]]; then
+         description=$(basename "$input_file" | sed 's/\.[^.]*$//')
+    fi
+
+    # Create new frontmatter
+    local new_frontmatter="---"
+    if [[ "$type" == "rule" ]]; then
+        new_frontmatter="${new_frontmatter}\ntrigger: always_on\nglob: \"**/*\""
+    fi
+    new_frontmatter="${new_frontmatter}\ndescription: \"$description\"\n---"
+    
+    # Write output
+    echo -e "$new_frontmatter" > "$output_file"
+    
+    # Append content (skipping old frontmatter if present)
+    if $has_frontmatter; then
+        # Skip first block of --- ... ---
+        awk '
+            BEGIN { p=1; c=0 }
+            /^---$/ {
+                if (c==0) { c=1; p=0; next }
+                if (c==1) { c=2; p=1; next }
+            }
+            { if (p==1) print $0 }
+        ' "$input_file" >> "$output_file"
+    else
+        cat "$input_file" >> "$output_file"
+    fi
+}
+
+install_agent_config() {
+    local target_dir="$1"
+    local temp_dir="$2"
+    
+    log "Installing agent configuration (.agent)..."
+    mkdir -p "$target_dir/.agent/rules"
+    mkdir -p "$target_dir/.agent/workflows"
+
+    local rules_list=""
+    local workflows_list=""
+
+    if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
+        warn "Using curl mode - installing basic agent config"
+        # In curl mode, we map specific files manually if needed, or skip complex fetching
+        # For now, let's try to map the basic ones we know
+         rules_list=".cursor/rules/README.mdc"
+         workflows_list=".cursor/commands/prompt.md"
+    else
+        local clone_dir="$temp_dir/repo"
+        if [[ ! -d "$clone_dir" ]]; then
+             clone_repository "$REPO_URL" "$clone_dir"
+        fi
+        
+        # Fetching rules (.mdc) to install as .agent rules (.md)
+        if [[ -d "$clone_dir/.cursor/rules" ]]; then
+            rules_list=$(cd "$clone_dir/.cursor/rules" && find . -type f -name "*.mdc" | sed 's|^\./|.cursor/rules/|')
+        fi
+        
+        # Fetching commands (.md) to install as .agent workflows (.md)
+        if [[ -d "$clone_dir/.cursor/commands" ]]; then
+            workflows_list=$(cd "$clone_dir/.cursor/commands" && find . -type f -name "*.md" | sed 's|^\./|.cursor/commands/|')
+        fi
+    fi
+    
+    # Install Rules -> .agent/rules/*.md
+    for r in $rules_list; do
+        local src_path="$target_dir/$r"
+        # Note: We rely on install_basic_rules having already installed these to $target_dir
+        # If they aren't there (e.g. partial install), we might need to fetch them.
+        # However, install_basic_rules runs before this.
+        
+        # We need to construct the destination path name
+        local filename=$(basename "$r" .mdc)
+        local dest_path="$target_dir/.agent/rules/$filename.md"
+        local source_file="$target_dir/$r"
+        
+        # If the file hasn't been installed locally yet (e.g. not in the basic set), we might skip it or fetch it.
+        # But install_basic_rules iterates over ALL discovered rules now (except skipped ones).
+        # Let's verify source exists.
+        if [[ -f "$source_file" ]]; then
+            log "Transforming rule $r -> .agent/rules/$filename.md"
+            transform_frontmatter "$source_file" "$dest_path" "rule"
+        fi
+    done
+
+    # Install Commands -> .agent/workflows/*.md
+    for w in $workflows_list; do
+        local src_path="$target_dir/$w"
+        local filename=$(basename "$w" .md)
+        local dest_path="$target_dir/.agent/workflows/$filename.md"
+        local source_file="$target_dir/$w"
+
+        if [[ -f "$source_file" ]]; then
+            log "Transforming workflow $w -> .agent/workflows/$filename.md"
+            transform_frontmatter "$source_file" "$dest_path" "workflow"
+        fi
+    done
+    
+    log "✓ Agent configuration installed"
+}
+
 install_basic_rules() {
     local target_dir="$1"
     local temp_dir="$2"
@@ -603,7 +727,7 @@ install_basic_rules() {
 
     if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
         warn "Using curl mode - installing only basic rules (subdirectories not supported with curl)"
-        rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/README.mdc"
+        rules_list=".cursor/rules/README.mdc"
     else
         local clone_dir="$temp_dir/repo"
         if [[ ! -d "$clone_dir" ]]; then
@@ -615,7 +739,7 @@ install_basic_rules() {
             log "Discovered rules recursively: $(echo "$rules_list" | wc -w) files"
         else
             warn "Git clone failed - using conservative fallback set"
-            rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/README.mdc"
+            rules_list=".cursor/rules/README.mdc"
         fi
     fi
 
@@ -635,6 +759,9 @@ install_basic_rules() {
 
     log "Installing custom commands..."
     install_commands "$target_dir" "$temp_dir"
+
+    log "Installing agent configuration..."
+    install_agent_config "$target_dir" "$temp_dir"
 
     log "Updating .gitignore"
     manage_gitignore "$target_dir"
