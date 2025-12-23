@@ -1,7 +1,0 @@
-{
-  "type": "module",
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.10.2",
-    "uuid": "^11.1.0"
-  }
-}

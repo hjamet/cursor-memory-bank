@@ -33,12 +33,11 @@ bash install.sh --dir /chemin/vers/installation
 
 ```
 root/
-├─ .cursor/              # Configuration Cursor et agents
-│  ├─ rules/            # Règles d'agent (.mdc) - comportement de l'IA
+├─ .cursor/              # Configuration Cursor (Règles MDC installées)
+│  ├─ rules/            # Comportement de l'IA
 ├─ documentation/        # Guides approfondis et procédures détaillées
-├─ src/                  # Code source des règles et scripts
+├─ src/                  # Code source des règles
 │  ├─ rules/            # Fichiers sources des règles MDC
-│  ├─ commands/         # (Obsolète) Anciennes commandes agents
 ├─ install.sh           # Script d'installation automatisé
 └─ README.md            # Source unique de vérité
 ```
@@ -61,6 +60,4 @@ root/
 
 | Tâche | Objectif | État | Dépendances |
 |-------|----------|------|-------------|
-| **Nettoyage final** | Supprimer physiquement les fichiers restants du dossier `.cursor/agents/` qui contenaient l'ancien système de gestion des tâches (fichiers YAML et MD de tâches individuelles). S'assurer qu'aucune référence n'existe plus dans le code. | 🏗️ En cours | - |
-| **Mise à jour install.sh** | Retirer la logique de téléchargement des commandes Slash (`agent.md`, `architecte.md`, `prompt.md`, `task.md`) pour alléger l'installation et éviter les erreurs de fichiers manquants. | 📅 À faire | Nettoyage final |
 | **Optimisation des règles** | Affiner les règles de communication et de démarrage pour mieux intégrer le flux centré sur le README uniquement. | 📅 À faire | - |

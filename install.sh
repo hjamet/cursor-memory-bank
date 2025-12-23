@@ -228,7 +228,7 @@ clone_repository() {
     local dest="$2"
 
     log "Cloning repository from $url"
-    if ! git clone --quiet "$url" "$dest" 2>/dev/null; then
+    if ! git clone --depth 1 --quiet "$url" "$dest" 2>/dev/null; then
         error "Failed to clone repository from $url. Please check your internet connection and repository access."
     fi
 }
@@ -553,45 +553,6 @@ handle_tracked_files() {
 # MAIN INSTALLATION FUNCTIONS
 # ============================================================================
 
-install_commands() {
-    local target_dir="$1"
-    local temp_dir="$2"
-    
-    log "Installing custom commands..."
-    mkdir -p "$target_dir/.cursor/commands"
-
-    local commands_list=""
-    
-    if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
-        warn "Using curl mode - installing only basic commands (subdirectories not supported with curl)"
-        commands_list=""
-    else
-        local clone_dir="$temp_dir/repo"
-        if [[ ! -d "$clone_dir" ]]; then
-            log "Cloning repository for command discovery..."
-            clone_repository "$REPO_URL" "$clone_dir"
-        fi
-        if [[ -d "$clone_dir/src/commands" ]]; then
-            commands_list=$(cd "$clone_dir/src/commands" && find . -type f -name "*.md" | sed 's|^\./|src/commands/|')
-            log "Discovered commands recursively: $(echo "$commands_list" | wc -w) files"
-        else
-            warn "Git clone failed - using conservative fallback set"
-            commands_list=""
-        fi
-    fi
-
-    for c in $commands_list; do
-        if [[ "$c" != src/commands/* ]]; then
-            continue
-        fi
-        local dest_rel_path=${c#src/commands/}
-        local dest="$target_dir/.cursor/commands/$dest_rel_path"
-        log "Installing command: $c -> $dest"
-        ensure_rule_file "$c" "$dest"
-    done
-
-    log "✓ Commands installed successfully"
-}
 
 # Transform frontmatter for agent rules/workflows
 # transform_frontmatter "input_file" "output_file" "type"
@@ -651,17 +612,14 @@ install_agent_config() {
     
     log "Installing agent configuration (.agent)..."
     mkdir -p "$target_dir/.agent/rules"
-    mkdir -p "$target_dir/.agent/workflows"
 
     local rules_list=""
-    local workflows_list=""
 
     if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
         warn "Using curl mode - installing basic agent config"
         # In curl mode, we map specific files manually if needed, or skip complex fetching
         # For now, let's try to map the basic ones we know
          rules_list="src/rules/README.mdc"
-          workflows_list=""
     else
         local clone_dir="$temp_dir/repo"
         if [[ ! -d "$clone_dir" ]]; then
@@ -671,11 +629,6 @@ install_agent_config() {
         # Fetching rules (.mdc) to install as .agent rules (.md)
         if [[ -d "$clone_dir/src/rules" ]]; then
             rules_list=$(cd "$clone_dir/src/rules" && find . -type f -name "*.mdc" | sed 's|^\./|src/rules/|')
-        fi
-        
-        # Fetching commands (.md) to install as .agent workflows (.md)
-        if [[ -d "$clone_dir/src/commands" ]]; then
-            workflows_list=$(cd "$clone_dir/src/commands" && find . -type f -name "*.md" | sed 's|^\./|src/commands/|')
         fi
     fi
     
@@ -690,22 +643,11 @@ install_agent_config() {
         # But install_basic_rules iterates over ALL discovered rules now (except skipped ones).
         # Let's verify source exists.
         if [[ -f "$source_file" ]]; then
-            log "Transforming rule $r -> .agent/rules/$filename.md"
+            log "Transforming rule $r -> .agent/rules/$rule_filename.md"
             transform_frontmatter "$source_file" "$dest_path" "rule"
         fi
     done
 
-    # Install Commands -> .agent/workflows/*.md
-    for w in $workflows_list; do
-        local filename=$(basename "$w" .md)
-        local source_file="$target_dir/.cursor/commands/$filename.md"
-        local dest_path="$target_dir/.agent/workflows/$filename.md"
-
-        if [[ -f "$source_file" ]]; then
-            log "Transforming workflow $w -> .agent/workflows/$filename.md"
-            transform_frontmatter "$source_file" "$dest_path" "workflow"
-        fi
-    done
     
     log "✓ Agent configuration installed"
 }
@@ -752,8 +694,6 @@ install_basic_rules() {
         ensure_rule_file "$r" "$dest"
     done
 
-    log "Installing custom commands..."
-    install_commands "$target_dir" "$temp_dir"
 
     log "Installing agent configuration..."
     install_agent_config "$target_dir" "$temp_dir"
@@ -781,7 +721,7 @@ Options:
     --force            Force installation even if directory is not empty
 
 This script will:
-1. Install agent rules and custom commands
+1. Install agent rules
 2. Update .gitignore
 3. Clean up temporary files
 
