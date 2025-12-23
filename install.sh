@@ -564,7 +564,7 @@ install_commands() {
     
     if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
         warn "Using curl mode - installing only basic commands (subdirectories not supported with curl)"
-        commands_list="src/commands/prompt.md"
+        commands_list=""
     else
         local clone_dir="$temp_dir/repo"
         if [[ ! -d "$clone_dir" ]]; then
@@ -576,7 +576,7 @@ install_commands() {
             log "Discovered commands recursively: $(echo "$commands_list" | wc -w) files"
         else
             warn "Git clone failed - using conservative fallback set"
-            commands_list="src/commands/prompt.md"
+            commands_list=""
         fi
     fi
 
@@ -661,7 +661,7 @@ install_agent_config() {
         # In curl mode, we map specific files manually if needed, or skip complex fetching
         # For now, let's try to map the basic ones we know
          rules_list="src/rules/README.mdc"
-         workflows_list="src/commands/prompt.md"
+          workflows_list=""
     else
         local clone_dir="$temp_dir/repo"
         if [[ ! -d "$clone_dir" ]]; then
