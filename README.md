@@ -36,14 +36,16 @@ root/
 ├─ .cursor/              # Configuration Cursor (Règles MDC installées)
 │  ├─ rules/            # Comportement de l'IA
 ├─ documentation/        # Guides approfondis et procédures détaillées
-├─ src/                  # Code source des règles
+├─ src/                  # Code source des règles et commandes
 │  ├─ rules/            # Fichiers sources des règles MDC
+│  ├─ commands/         # Commandes utilitaires (enqueteur, janitor)
 ├─ install.sh           # Script d'installation automatisé
 └─ README.md            # Source unique de vérité
 ```
 
 - **`.cursor/rules/`** : *comportement de l'IA via des fichiers `.mdc` définissant les priorités et protocoles.*
 - **`src/rules/`** : *fichiers sources originaux des règles pour faciliter la maintenance et les versions.*
+- **`src/commands/`** : *fichiers sources des commandes utilitaires pour l'agent Cursor.*
 - **`install.sh`** : *utilitaire central pour déployer proprement les règles et configurer `.gitignore`.*
 
 # Scripts d'entrée principaux (scripts/)
@@ -51,6 +53,13 @@ root/
 | Chemin | Description | Exemple de commande |
 |--------|-------------|---------------------|
 | `install.sh` | Installateur universel du système Cursor Memory Bank. | `bash install.sh` *Installe les règles et configure le repo.* |
+
+# Commandes d'Agent (via .cursor/commands/)
+
+| Commande | Description | Usage |
+|----------|-------------|-------|
+| `/enqueteur` | Procédure d'enquête pas à pas pour le déverminage de bugs complexes. | `/enqueteur` *Lance l'analyse méthodique d'un problème.* |
+| `/janitor` | Analyse critique du repository pour identifier les dettes techniques. | `/janitor` *Génère un rapport de maintenance.* |
 
 # Scripts exécutables secondaires (scripts/utils/)
 
