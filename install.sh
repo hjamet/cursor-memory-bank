@@ -564,28 +564,29 @@ install_commands() {
     
     if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
         warn "Using curl mode - installing only basic commands (subdirectories not supported with curl)"
-        commands_list=".cursor/commands/prompt.md"
+        commands_list="src/commands/prompt.md"
     else
         local clone_dir="$temp_dir/repo"
         if [[ ! -d "$clone_dir" ]]; then
             log "Cloning repository for command discovery..."
             clone_repository "$REPO_URL" "$clone_dir"
         fi
-        if [[ -d "$clone_dir/.cursor/commands" ]]; then
-            commands_list=$(cd "$clone_dir/.cursor/commands" && find . -type f -name "*.md" | sed 's|^\./|.cursor/commands/|')
+        if [[ -d "$clone_dir/src/commands" ]]; then
+            commands_list=$(cd "$clone_dir/src/commands" && find . -type f -name "*.md" | sed 's|^\./|src/commands/|')
             log "Discovered commands recursively: $(echo "$commands_list" | wc -w) files"
         else
             warn "Git clone failed - using conservative fallback set"
-            commands_list=".cursor/commands/prompt.md"
+            commands_list="src/commands/prompt.md"
         fi
     fi
 
     for c in $commands_list; do
-        if [[ "$c" != .cursor/commands/* ]]; then
+        if [[ "$c" != src/commands/* ]]; then
             continue
         fi
-        local dest="$target_dir/$c"
-        log "Installing command: $c"
+        local dest_rel_path=${c#src/commands/}
+        local dest="$target_dir/.cursor/commands/$dest_rel_path"
+        log "Installing command: $c -> $dest"
         ensure_rule_file "$c" "$dest"
     done
 
@@ -659,8 +660,8 @@ install_agent_config() {
         warn "Using curl mode - installing basic agent config"
         # In curl mode, we map specific files manually if needed, or skip complex fetching
         # For now, let's try to map the basic ones we know
-         rules_list=".cursor/rules/README.mdc"
-         workflows_list=".cursor/commands/prompt.md"
+         rules_list="src/rules/README.mdc"
+         workflows_list="src/commands/prompt.md"
     else
         local clone_dir="$temp_dir/repo"
         if [[ ! -d "$clone_dir" ]]; then
@@ -668,27 +669,22 @@ install_agent_config() {
         fi
         
         # Fetching rules (.mdc) to install as .agent rules (.md)
-        if [[ -d "$clone_dir/.cursor/rules" ]]; then
-            rules_list=$(cd "$clone_dir/.cursor/rules" && find . -type f -name "*.mdc" | sed 's|^\./|.cursor/rules/|')
+        if [[ -d "$clone_dir/src/rules" ]]; then
+            rules_list=$(cd "$clone_dir/src/rules" && find . -type f -name "*.mdc" | sed 's|^\./|src/rules/|')
         fi
         
         # Fetching commands (.md) to install as .agent workflows (.md)
-        if [[ -d "$clone_dir/.cursor/commands" ]]; then
-            workflows_list=$(cd "$clone_dir/.cursor/commands" && find . -type f -name "*.md" | sed 's|^\./|.cursor/commands/|')
+        if [[ -d "$clone_dir/src/commands" ]]; then
+            workflows_list=$(cd "$clone_dir/src/commands" && find . -type f -name "*.md" | sed 's|^\./|src/commands/|')
         fi
     fi
     
     # Install Rules -> .agent/rules/*.md
     for r in $rules_list; do
-        local src_path="$target_dir/$r"
-        # Note: We rely on install_basic_rules having already installed these to $target_dir
-        # If they aren't there (e.g. partial install), we might need to fetch them.
-        # However, install_basic_rules runs before this.
-        
-        # We need to construct the destination path name
-        local filename=$(basename "$r" .mdc)
-        local dest_path="$target_dir/.agent/rules/$filename.md"
-        local source_file="$target_dir/$r"
+        # construct source file path in the target_dir (it will be installed in .cursor/rules first)
+        local rule_filename=$(basename "$r" .mdc)
+        local source_file="$target_dir/.cursor/rules/$rule_filename.mdc"
+        local dest_path="$target_dir/.agent/rules/$rule_filename.md"
         
         # If the file hasn't been installed locally yet (e.g. not in the basic set), we might skip it or fetch it.
         # But install_basic_rules iterates over ALL discovered rules now (except skipped ones).
@@ -701,10 +697,9 @@ install_agent_config() {
 
     # Install Commands -> .agent/workflows/*.md
     for w in $workflows_list; do
-        local src_path="$target_dir/$w"
         local filename=$(basename "$w" .md)
+        local source_file="$target_dir/.cursor/commands/$filename.md"
         local dest_path="$target_dir/.agent/workflows/$filename.md"
-        local source_file="$target_dir/$w"
 
         if [[ -f "$source_file" ]]; then
             log "Transforming workflow $w -> .agent/workflows/$filename.md"
@@ -727,24 +722,24 @@ install_basic_rules() {
 
     if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
         warn "Using curl mode - installing only basic rules (subdirectories not supported with curl)"
-        rules_list=".cursor/rules/README.mdc"
+        rules_list="src/rules/README.mdc"
     else
         local clone_dir="$temp_dir/repo"
         if [[ ! -d "$clone_dir" ]]; then
             log "Cloning repository for rule discovery..."
             clone_repository "$REPO_URL" "$clone_dir"
         fi
-        if [[ -d "$clone_dir/.cursor/rules" ]]; then
-            rules_list=$(cd "$clone_dir/.cursor/rules" && find . -type f -name "*.mdc" | sed 's|^\./|.cursor/rules/|')
+        if [[ -d "$clone_dir/src/rules" ]]; then
+            rules_list=$(cd "$clone_dir/src/rules" && find . -type f -name "*.mdc" | sed 's|^\./|src/rules/|')
             log "Discovered rules recursively: $(echo "$rules_list" | wc -w) files"
         else
             warn "Git clone failed - using conservative fallback set"
-            rules_list=".cursor/rules/README.mdc"
+            rules_list="src/rules/README.mdc"
         fi
     fi
 
     for r in $rules_list; do
-        if [[ "$r" != .cursor/rules/* ]]; then
+        if [[ "$r" != src/rules/* ]]; then
             continue
         fi
         local rule_filename=$(basename "$r")
@@ -752,8 +747,8 @@ install_basic_rules() {
             log "Skipping full-install-only rule (not used in single mode): $r"
             continue
         fi
-        local dest="$target_dir/$r"
-        log "Installing rule: $r"
+        local dest="$target_dir/.cursor/rules/$rule_filename"
+        log "Installing rule: $r -> $dest"
         ensure_rule_file "$r" "$dest"
     done
 

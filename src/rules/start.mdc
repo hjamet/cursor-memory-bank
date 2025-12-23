@@ -1,0 +1,153 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# START - Autonomous MCP Memory Bank Workflow
+
+## OBJECTIVE
+This rule explains the complete functioning of the autonomous MCP Memory Bank workflow system. You must understand that you will enter an infinite loop of task processing and must never stop without explicit instruction from the user.
+
+## AUTONOMOUS WORKFLOW OPERATION
+
+### Overview
+The system operates according to an infinite loop pattern that allows you to autonomously handle all user requests and project tasks:
+
+```
+START → start-workflow → next_rule → [step] → remember → next_rule → [step] → remember → ...
+```
+
+### Detailed workflow steps
+
+#### 1. INITIALIZATION (first time only)
+- You read this START rule to understand the operation
+- You call `mcp_MemoryBankMCP_next_rule` with parameter `step_name: "start-workflow"`
+- **IMPORTANT**: This initialization step only happens once at the beginning
+
+#### 2. START-WORKFLOW (cycle entry point)
+- Load your previous state from memory
+- Display the complete project context
+- Retrieve relevant memories
+- Indicate where you were in the previous workflow
+- **ALWAYS ends with a call to `remember`** which indicates the next possible steps
+
+#### 3. INFINITE WORKFLOW LOOP
+From `start-workflow`, you enter an infinite loop:
+
+**3a. NEXT_RULE CALL**
+- You call `mcp_MemoryBankMCP_next_rule` with one of the steps suggested by `remember`
+- This tool returns detailed instructions for the step to execute
+
+**3b. STEP EXECUTION**
+- You scrupulously follow all instructions from the returned step
+- You use all necessary MCP tools (task management, file reading, etc.)
+- **CRITICAL**: The last action of each step is ALWAYS a call to `remember`
+
+**3c. STORAGE AND TRANSITION**
+- The `remember` tool stores memories of what was just accomplished
+- `remember` returns the next possible steps in the workflow
+- You choose the most appropriate step and return to 3a
+
+### Available workflow steps
+
+#### `start-workflow`
+- **When**: At the beginning of each session or after an interruption
+- **Objective**: Load context and previous state
+- **Next steps**: task-decomposition, implementation, context-update, fix, experience-execution
+
+#### `task-decomposition`
+- **When**: New user requests to process
+- **Objective**: Analyze and decompose requests into concrete tasks
+- **Next steps**: implementation, context-update
+
+#### `implementation`
+- **When**: Technical tasks to realize
+- **Objective**: Implement code, create files, modify the system
+- **Next steps**: fix, experience-execution, context-update
+
+#### `fix`
+- **When**: Bugs or problems to solve
+- **Objective**: Diagnose and correct problems
+- **Next steps**: implementation, experience-execution, context-update
+
+#### `context-update`
+- **When**: Need to take stock of the project state
+- **Objective**: Analyze complete state, update tasks, make commits
+- **Next steps**: task-decomposition, implementation, fix, experience-execution
+
+#### `experience-execution`
+- **When**: Manual tests or validation required
+- **Objective**: Test functionalities, validate implementations
+- **Next steps**: fix, implementation, context-update
+
+## WORKFLOW CONTROL SYSTEM
+
+### 🎛️ MODE DE WORKFLOW
+Le système dispose maintenant d'un contrôle utilisateur pour le mode de fonctionnement via l'interface Streamlit :
+
+#### **Mode Workflow Infini** (par défaut)
+- **Comportement** : L'agent continue automatiquement le workflow selon le pattern standard
+- **Transitions** : `context-update` → `task-decomposition` | `implementation` | `fix` (selon l'état)
+- **Arrêt** : Uniquement sur instruction explicite de l'utilisateur
+- **Usage** : Développement continu, sessions longues, automation complète
+
+#### **Mode Tâche par Tâche**
+- **Comportement** : L'agent s'arrête automatiquement à `context-update`
+- **Transitions** : `context-update` → **ARRÊT PROPRE** avec résumé
+- **Arrêt** : Automatique à la fin de chaque cycle de tâches
+- **Usage** : Sessions contrôlées, points d'arrêt naturels, workflow par étapes
+
+### 🔧 CONFIGURATION TECHNIQUE
+- **Fichier de contrôle** : `.cursor/memory-bank/workflow/workflow_state.json`
+- **Structure** : `{"mode": "infinite"|"task_by_task", "updated_at": "timestamp"}`
+- **Interface** : Bouton toggle dans la sidebar Streamlit au-dessus du Project Dashboard
+- **Intégration MCP** : Les outils `remember` et `next_rule` vérifient automatiquement le mode
+
+### ⚙️ IMPACT SUR LES OUTILS MCP
+- **`remember`** : En mode `task_by_task` + étape `context-update` → retourne instructions d'arrêt
+- **`next_rule`** : Inclut information du mode dans le contexte fourni à chaque règle
+- **Compatibilité** : Mode par défaut `infinite` assure compatibilité backward complète
+
+## CRITICAL RULES FOR YOU
+
+### 🔄 WORKFLOW CONTINUATION RULES
+- **Mode Workflow Infini** : You must NEVER stop except with explicit user instruction
+- **Mode Tâche par Tâche** : You MUST stop at `context-update` when `remember` indicates stopping
+- After each `remember`, you MUST call `next_rule` with the next step (except in task-by-task mode stop condition)
+- If no task is in progress, you must call `context-update` to analyze the situation
+- **IMPORTANT** : The workflow mode is automatically detected by MCP tools - follow `remember` instructions
+
+### 📝 MANDATORY PATTERN FOR EACH STEP
+1. Read the step instructions via `next_rule`
+2. Execute all requested actions
+3. **MANDATORY END** with a call to `remember`
+4. Choose the next step among those suggested by `remember`
+5. Return to step 1 with the new step
+
+### 🛠️ AVAILABLE MCP TOOLS
+- `mcp_MemoryBankMCP_next_rule`: Get instructions for a step
+- `mcp_MemoryBankMCP_remember`: Store memories and get next steps
+- `mcp_MemoryBankMCP_create_task`: Create new tasks
+- `mcp_MemoryBankMCP_update_task`: Update existing tasks
+- `mcp_MemoryBankMCP_get_all_tasks`: List all tasks
+- `mcp_MemoryBankMCP_get_next_tasks`: Get next tasks to process
+- `mcp_MemoryBankMCP_read_userbrief`: Read user requests
+- `mcp_MemoryBankMCP_update_userbrief`: Update user requests
+- `mcp_MemoryBankMCP_commit`: Make git commits with description
+- `mcp_ToolsMCP_*`: Tools for command execution, file reading, etc.
+
+### 🎯 YOUR PRIORITIES
+1. **Process user requests** (task-decomposition → implementation)
+2. **Solve problems** (fix → implementation)
+3. **Test and validate** (experience-execution → fix if necessary)
+4. **Keep context updated** (context-update regularly)
+
+## IMMEDIATE START
+
+**You must now:**
+1. Call `mcp_MemoryBankMCP_next_rule` with `step_name: "start-workflow"`
+2. Enter the infinite workflow loop
+3. Never stop without explicit instruction
+
+**START THE AUTONOMOUS WORKFLOW NOW!**
+
