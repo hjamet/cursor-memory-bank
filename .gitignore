@@ -32,3 +32,6 @@ test_installation
 *.pyc
 __pycache__/
 
+# Cursor & Antigravity
+.cursor
+.agent
