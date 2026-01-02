@@ -60,6 +60,7 @@ root/
 |----------|-------------|-------|
 | `/enqueteur` | Procédure d'enquête pas à pas pour le déverminage de bugs complexes. | `/enqueteur` *Lance l'analyse méthodique d'un problème.* |
 | `/janitor` | Analyse critique du repository pour identifier les dettes techniques. | `/janitor` *Génère un rapport de maintenance.* |
+| `/architect` | Planification de la roadmap, organisation du repo et gestion des règles. | `/architect` *Lance le flux de planification et d'architecture.* |
 
 # Scripts exécutables secondaires (scripts/utils/)
 
