@@ -40,6 +40,11 @@ Une liste numérotée d'actions concrètes à haute valeur ajoutée.
 *   Préciser *pourquoi* (ex: "C'est là que se trouve le bug").
 *   Inclure la DB ou les fichiers de logs si pertinent.
 
+### F. Consigne Critique : Plan d'abord !
+*   **OBLIGATOIRE** : Ajoute une instruction explicite demandant au prochain agent de NE PAS coder immédiatement.
+*   Il DOIT d'abord établir un `Implementation Plan` pour valider la stratégie avec l'utilisateur.
+*   Phrase type à inclure : "⛔ **STOP !** Ne te lance pas tout de suite. Analyse ma demande, et propose un **Implementation Plan** détaillé avant de modifier quoi que ce soit."
+
 ## 3. Exemple de Sortie
 ```markdown
 # 👋 Relai : Fix Logs & Monitor
@@ -59,4 +64,7 @@ Le code contient des `print` de debug un peu partout.
 ### Fichiers
 *   `script.py` (Le code sale)
 *   `results.db` (La vérité)
+
+### Consigne
+⛔ **STOP !** Avant de toucher au code, propose un **Implementation Plan** pour valider la stratégie de nettoyage.
 ```
