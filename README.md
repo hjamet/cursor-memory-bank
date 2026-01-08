@@ -4,21 +4,31 @@ Cursor Memory Bank est un système de gestion de projet autonome et structuré p
 
 # Installation
 
-### Pré-requis
-- **Bash** : *requis pour exécuter le script d'installation sur Linux/macOS.*
-- **Git** : *nécessaire pour le clonage et la gestion des versions.*
-- **Node.js (>=14.0.0)** : *requis pour certaines fonctionnalités avancées d'agent.*
-
-### Étapes d'installation
 ```bash
+# Installation et mise à jour
 curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash
 ```
-*Téléchargement et exécution automatique du script d'installation unifié.*
+*Script universel pour Linux/macOS. Installe les règles `.mdc` dans `.cursor/rules`.*
 
-```bash
-bash install.sh --dir /chemin/vers/installation
-```
-*Installation dans un répertoire spécifique via les options du script.*
+# Description détaillée
+
+### Cœur du Système : La Memory Bank
+Ce dépôt implémente le pattern "Memory Bank", une approche où la mémoire du projet n'est plus dispersée dans des contextes éphémères mais cristallisée dans des fichiers markdown structurés. Le **README.md** agit comme le "Master Record", la source de vérité absolue.
+
+### Flux de Travail Agentique
+L'agent (Cursor/Antigravity) ne se contente pas de répondre aux questions ; il **gère** le projet.
+1. **Lecture** : À chaque début de session, l'agent lit les règles (`src/rules/*.md`) pour comprendre son rôle.
+2. **Action** : Il exécute les tâches définies dans la Roadmap du README.
+3. **Mise à jour** : Il met à jour le README en temps réel pour refléter les progrès, garantissant qu'aucun contexte n'est perdu entre les sessions.
+
+### Le Rôle de l'Architecte
+Une commande spécifique (`/architect`) active un mode de réflexion stratégique. L'Architecte ne code pas immédiatement ; il planifie, remet en question les besoins, et conçoit des solutions robustes avant de passer à l'exécution. C'est un partenaire de "Pair Programming" de haut niveau.
+
+### Direction Actuelle
+Le projet se concentre actuellement sur :
+- **Refonte de la documentation** : Migration vers des formats plus simples (`.md`) pour faciliter la maintenance.
+- **Rigueur linguistique** : Imposition stricte du Français pour toutes les interactions et artefacts.
+- **Standardisation** : Amélioration des scripts d'installation pour supporter ces nouveaux standards.
 
 # Principaux résultats
 
@@ -34,40 +44,41 @@ bash install.sh --dir /chemin/vers/installation
 ```
 root/
 ├─ .cursor/              # Configuration Cursor (Règles MDC installées)
-│  ├─ rules/            # Comportement de l'IA
-├─ documentation/        # Guides approfondis et procédures détaillées
-├─ src/                  # Code source des règles et commandes
-│  ├─ rules/            # Fichiers sources des règles MDC
-│  ├─ commands/         # Commandes utilitaires (enqueteur, janitor)
-├─ install.sh           # Script d'installation automatisé
+├─ src/                  # Code source
+│  ├─ rules/            # Définitions des règles (Sources .md)
+│  └─ commands/         # Commandes utilitaires (.md)
+├─ install.sh           # Script d'installation
 └─ README.md            # Source unique de vérité
 ```
 
-- **`.cursor/rules/`** : *comportement de l'IA via des fichiers `.mdc` définissant les priorités et protocoles.*
-- **`src/rules/`** : *fichiers sources originaux des règles pour faciliter la maintenance et les versions.*
-- **`src/commands/`** : *fichiers sources des commandes utilitaires pour l'agent Cursor.*
-- **`install.sh`** : *utilitaire central pour déployer proprement les règles et configurer `.gitignore`.*
+### Rôles des dossiers
+- **`src/rules/`** : Contient les règles sources en format Markdown standard (`.md`).
+- **`.cursor/rules/`** : Destination des règles installées (converties en `.mdc` pour Cursor).
+- **`src/commands/`** : Définit les workflows spécifiques (Architecte, Enquêteur...).
 
-# Scripts d'entrée principaux (scripts/)
+# Scripts d'entrée principaux
 
-| Chemin | Description | Exemple de commande |
-|--------|-------------|---------------------|
-| `install.sh` | Installateur universel du système Cursor Memory Bank. | `bash install.sh` *Installe les règles et configure le repo.* |
+| Script / Commande | Description détaillée | Usage / Exemple |
+|-------------------|-----------------------|-----------------|
+| `install.sh` | **Installateur Universel**. Clone le repo (si nécessaire), convertit les règles `.md` en `.mdc`, et configure l'environnement `.cursor`. | `bash install.sh` |
 
-# Commandes d'Agent (via .cursor/commands/)
+### Commandes Agent (Virtuelles)
+Ces commandes sont définies par les règles installées :
 
-| Commande | Description | Usage |
-|----------|-------------|-------|
-| `/enqueteur` | Procédure d'enquête pas à pas pour le déverminage de bugs complexes. | `/enqueteur` *Lance l'analyse méthodique d'un problème.* |
-| `/janitor` | Analyse critique du repository pour identifier les dettes techniques. | `/janitor` *Génère un rapport de maintenance.* |
-| `/architect` | Planification de la roadmap, organisation du repo et gestion des règles. | `/architect` *Lance le flux de planification et d'architecture.* |
+| Commande | Description détaillée | Usage |
+|----------|-----------------------|-------|
+| `/architect` | **Stratège du projet**. Analyse la demande, vérifie le `task.md`, et propose un plan d'action structuré. À utiliser pour les nouvelles fonctionnalités complexes. | Taper `/architect` dans le chat. |
+| `/janitor` | **Maintenance et Nettoyage**. Scanne le code pour trouver du code mort, des TODOs oubliés ou des incohérences. Génère un rapport de maintenance. | Taper `/janitor` en fin de sprint. |
+| `/enqueteur` | **Débuggage Profond**. Suit une procédure rigoureuse pour isoler la cause racine d'un bug avant de proposer un fix. | Taper `/enqueteur` face à un bug tenace. |
 
-# Scripts exécutables secondaires (scripts/utils/)
+# Scripts exécutables secondaires & Utilitaires
 
-*Aucun script utilitaire secondaire pour le moment.*
+| Script | Rôle technique | Contexte d'exécution |
+|--------|----------------|----------------------|
+| *Aucun* | *Pas d'utilitaires autonomes actuellement.* | - |
 
 # Roadmap
 
 | Tâche | Objectif | État | Dépendances |
 |-------|----------|------|-------------|
-| **Optimisation des règles** | Affiner les règles de communication et de démarrage pour mieux intégrer le flux centré sur le README uniquement. | 📅 À faire | - |
+| **Validation du flux** | Vérifier que le nouveau `install.sh` déploie correctement les règles `.mdc` et que le README suit la nouvelle structure. | 📅 À faire | - |

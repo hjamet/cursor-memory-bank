@@ -381,7 +381,7 @@ is_in_array() {
 # Usage: fetch_rules_recursive "path_in_repo" "extension" -> returns space-separated list of file paths
 fetch_rules_recursive() {
     local path_in_repo="$1"
-    local extension="${2:-.mdc}"
+    local extension="${2:-.md}"
     local api_url="$GITHUB_API/contents/$path_in_repo?ref=$DEFAULT_BRANCH"
     local api_response
     local rules_list=""
@@ -661,7 +661,7 @@ install_agent_config() {
         warn "Using curl mode - installing basic agent config"
         # In curl mode, we map specific files manually if needed, or skip complex fetching
         # For now, let's try to map the basic ones we know
-         rules_list="src/rules/README.mdc"
+         rules_list="src/rules/README.md"
          workflows_list=""
     else
         local clone_dir="$temp_dir/repo"
@@ -669,9 +669,9 @@ install_agent_config() {
              clone_repository "$REPO_URL" "$clone_dir"
         fi
         
-        # Fetching rules (.mdc) to install as .agent rules (.md)
+        # Fetching rules (.md) to install as .agent rules (.md)
         if [[ -d "$clone_dir/src/rules" ]]; then
-            rules_list=$(cd "$clone_dir/src/rules" && find . -type f -name "*.mdc" | sed 's|^\./|src/rules/|')
+            rules_list=$(cd "$clone_dir/src/rules" && find . -type f -name "*.md" | sed 's|^\./|src/rules/|')
         fi
         
         # Fetching commands (.md) to install as .agent workflows (.md)
@@ -683,7 +683,7 @@ install_agent_config() {
     # Install Rules -> .agent/rules/*.md
     for r in $rules_list; do
         # construct source file path in the target_dir (it will be installed in .cursor/rules first)
-        local rule_filename=$(basename "$r" .mdc)
+        local rule_filename=$(basename "$r" .md)
         local source_file="$target_dir/.cursor/rules/$rule_filename.mdc"
         local dest_path="$target_dir/.agent/rules/$rule_filename.md"
         
@@ -724,7 +724,7 @@ install_basic_rules() {
 
     if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
         warn "Using curl mode - installing only basic rules (subdirectories not supported with curl)"
-        rules_list="src/rules/README.mdc"
+        rules_list="src/rules/README.md"
     else
         local clone_dir="$temp_dir/repo"
         if [[ ! -d "$clone_dir" ]]; then
@@ -732,11 +732,11 @@ install_basic_rules() {
             clone_repository "$REPO_URL" "$clone_dir"
         fi
         if [[ -d "$clone_dir/src/rules" ]]; then
-            rules_list=$(cd "$clone_dir/src/rules" && find . -type f -name "*.mdc" | sed 's|^\./|src/rules/|')
+            rules_list=$(cd "$clone_dir/src/rules" && find . -type f -name "*.md" | sed 's|^\./|src/rules/|')
             log "Discovered rules recursively: $(echo "$rules_list" | wc -w) files"
         else
             warn "Git clone failed - using conservative fallback set"
-            rules_list="src/rules/README.mdc"
+            rules_list="src/rules/README.md"
         fi
     fi
 
@@ -749,6 +749,7 @@ install_basic_rules() {
             log "Skipping full-install-only rule (not used in single mode): $r"
             continue
         fi
+        local rule_filename=$(basename "$r" .md).mdc
         local dest="$target_dir/.cursor/rules/$rule_filename"
         log "Installing rule: $r -> $dest"
         ensure_rule_file "$r" "$dest"
