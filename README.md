@@ -64,7 +64,7 @@ A single installer is provided: `install.sh`. It installs agent rules, custom co
 
 Recommended (download then run — reviewable):
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/multi-agent/install.sh | bash
 ```
 
 Examples:
@@ -118,7 +118,7 @@ download_file "$RAW_URL_BASE/.cursor/streamlit_app/app.py" "$streamlit_dir/app.p
 If you prefer, you can also install Cursor Memory Bank by cloning the repository:
 
 ```bash
-git clone https://github.com/hjamet/cursor-memory-bank.git
+git clone -b multi-agent https://github.com/hjamet/cursor-memory-bank.git
 cd cursor-memory-bank
 bash install.sh [options]
 ```
@@ -131,7 +131,7 @@ The installer now provides a single mode: it installs essential rules (`agent.md
 
 Le système utilise maintenant une roadmap centralisée (`.cursor/agents/roadmap.yaml`) pour coordonner plusieurs agents Cursor en parallèle. Ce système simple et léger remplace les anciens serveurs MCP qui sont désormais obsolètes.
 
-**Note historique** : L'historique git contient les anciens systèmes basés sur les serveurs MCP (ToolsMCP, MemoryBankMCP). Ces systèmes ont été remplacés par le système de roadmap centralisée qui est plus simple, plus léger et plus flexible.
+**Note historique** : Cette branche `multi-agent` restaure l'interface Streamlit et les serveurs MCP (ToolsMCP, MemoryBankMCP) qui étaient présents dans les versions antérieures. Bien que le système de roadmap centralisée soit désormais privilégié pour sa simplicité, cette branche permet d'utiliser l'interface graphique originale.
 
 ### Comment ça fonctionne
 

@@ -16,14 +16,8 @@ REPO_URL="https://github.com/hjamet/cursor-memory-bank.git"
 GITHUB_REPO="hjamet/cursor-memory-bank"
 GITHUB_API="https://api.github.com/repos/$GITHUB_REPO"
 
-# Detect default branch on GitHub (fallback to master)
-# We try to detect early so functions using API_URL / RAW_URL_BASE use the correct branch.
-DEFAULT_BRANCH=$(curl -s "$GITHUB_API" \
-  | grep -o '"default_branch"[[:space:]]*:[[:space:]]*"[^"]*"' \
-  | sed 's/.*: *"//; s/"$//' || true)
-if [[ -z "$DEFAULT_BRANCH" ]]; then
-    DEFAULT_BRANCH="master"
-fi
+# Force use of multi-agent branch
+DEFAULT_BRANCH="multi-agent"
 API_URL="$GITHUB_API/commits/$DEFAULT_BRANCH"
 RAW_URL_BASE="https://raw.githubusercontent.com/$GITHUB_REPO/$DEFAULT_BRANCH"
 DEFAULT_WORKFLOW_DIR=".cursor/workflow-steps"
@@ -229,8 +223,8 @@ clone_repository() {
     local url="$1"
     local dest="$2"
 
-    log "Cloning repository from $url"
-    if ! git clone --quiet "$url" "$dest" 2>/dev/null; then
+    log "Cloning repository (branch $DEFAULT_BRANCH) from $url"
+    if ! git clone --quiet -b "$DEFAULT_BRANCH" "$url" "$dest" 2>/dev/null; then
         error "Failed to clone repository from $url. Please check your internet connection and repository access."
     fi
 }
