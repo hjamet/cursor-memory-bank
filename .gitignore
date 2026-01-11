@@ -32,3 +32,8 @@ test_installation
 *.pyc
 __pycache__/
 
+
+# Cursor Memory Bank
+.cursor/mcp
+.cursor/mcp.json
+.cursor/screenshots
