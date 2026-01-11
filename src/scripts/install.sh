@@ -810,5 +810,63 @@ fi
 rm -f "$INSTALL_DIR/.write_test"
 
 # Single-mode installation
+# Setup Universal MCP Config
+setup_mcp_config() {
+    local target_dir="$1"
+    local mcp_config_dir="$HOME/.gemini/antigravity"
+    local mcp_config_file="$mcp_config_dir/mcp_config.json"
+    
+    # We only set up this universal config if the directory structure implies Antigravity context 
+    # OR if we want to force it. The instructions imply we should generate it.
+    
+    if [[ ! -d "$mcp_config_dir" ]]; then
+        mkdir -p "$mcp_config_dir"
+    fi
+    
+    local server_path="$target_dir/src/server/memory-bank/server.js"
+    
+    log "Configuring Universal MCP for Memory Bank..."
+    
+    if command -v jq >/dev/null 2>&1 && [[ -f "$mcp_config_file" ]]; then
+        log "Updating existing mcp_config.json..."
+        local tmp_config=$(mktemp)
+        cat > "$tmp_config" <<EOF
+{
+  "memory-bank": {
+    "command": "node",
+    "args": [
+      "$server_path"
+    ],
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }
+}
+EOF
+        jq --argfile new "$tmp_config" '.mcpServers = (.mcpServers // {}) + $new' "$mcp_config_file" > "${mcp_config_file}.tmp" && mv "${mcp_config_file}.tmp" "$mcp_config_file"
+        rm "$tmp_config"
+    else
+        log "Creating new mcp_config.json..."
+        cat > "$mcp_config_file" <<EOF
+{
+  "mcpServers": {
+    "memory-bank": {
+      "command": "node",
+      "args": [
+        "$server_path"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}
+EOF
+    fi
+    log "✓ Universal MCP config updated at $mcp_config_file"
+}
+
+# Single-mode installation
 install_basic_rules "$INSTALL_DIR" "$TEMP_DIR"
+setup_mcp_config "$INSTALL_DIR"
 log "Installation completed successfully!"

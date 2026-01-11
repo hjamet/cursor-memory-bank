@@ -107,11 +107,11 @@ Cette section détaille les chantiers techniques pour transformer ce dépôt d'u
 *Objectif : Faciliter le test et le déploiement du système, pour les utilisateurs ET les développeurs du repo.*
 
 - **Scripts d'Installation**
-  - [ ] **`install_dev.sh`** : Nouveau script pour "monter" le repository courant en tant qu'agent actif (via symlinks) sans devoir push/pull. Permet d'itérer rapidement.
-  - [ ] **`install.sh`** (Update) : Mettre à jour le script de production pour cloner `src/`, builder si nécessaire, et installer dans le dossier cible `.agent`.
+  - [x] **`install_dev.sh`** : Nouveau script pour "monter" le repository courant en tant qu'agent actif (via symlinks) sans devoir push/pull. Permet d'itérer rapidement.
+  - [x] **`install.sh`** (Update) : Mettre à jour le script de production pour cloner `src/`, builder si nécessaire, et installer dans le dossier cible `.agent`.
   
 - **Configuration MCP Universelle**
-  - [ ] **`mcp_config.json`** : Générer une configuration MCP standard compatible avec Antigravity et Claude Desktop (plus seulement `.cursor/mcp.json`).
+  - [x] **`mcp_config.json`** : Générer une configuration MCP standard compatible avec Antigravity et Claude Desktop (plus seulement `.cursor/mcp.json`).
 
 ### 🔮 Phase 3 : Interface de Configuration (Agent Editor)
 *Objectif : Permettre la modification des agents sans toucher aux fichiers Markdown/YAML à la main.*

@@ -88,11 +88,65 @@ cat > "$TARGET_DIR/.cursor/mcp.json" <<EOF
       "command": "node",
       "args": [
         "$SOURCE_DIR/src/server/memory-bank/server.js"
-      ]
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      }
     }
   }
 }
 EOF
+
+# 4. Generate Universal MCP Config (~/.gemini/antigravity/mcp_config.json)
+MCP_CONFIG_DIR="$HOME/.gemini/antigravity"
+MCP_CONFIG_FILE="$MCP_CONFIG_DIR/mcp_config.json"
+
+if [[ ! -d "$MCP_CONFIG_DIR" ]]; then
+    log "Creating MCP config directory: $MCP_CONFIG_DIR"
+    mkdir -p "$MCP_CONFIG_DIR"
+fi
+
+log "Generating Universal MCP Config at $MCP_CONFIG_FILE..."
+# We use jq if available to merge or safely create, otherwise we overwrite/create basic
+if command -v jq >/dev/null 2>&1 && [[ -f "$MCP_CONFIG_FILE" ]]; then
+    log "Updating existing mcp_config.json with memory-bank server..."
+    # Create a temporary file for the new server config
+    TMP_CONFIG=$(mktemp)
+    cat > "$TMP_CONFIG" <<EOF
+{
+  "memory-bank": {
+    "command": "node",
+    "args": [
+      "$SOURCE_DIR/src/server/memory-bank/server.js"
+    ],
+    "env": {
+      "NODE_ENV": "development"
+    }
+  }
+}
+EOF
+    # Merge using jq: .mcpServers + new_config
+    # Check if mcpServers exists, if not create it
+    jq --argfile new "$TMP_CONFIG" '.mcpServers = (.mcpServers // {}) + $new' "$MCP_CONFIG_FILE" > "${MCP_CONFIG_FILE}.tmp" && mv "${MCP_CONFIG_FILE}.tmp" "$MCP_CONFIG_FILE"
+    rm "$TMP_CONFIG"
+else
+    log "Creating new mcp_config.json..."
+    cat > "$MCP_CONFIG_FILE" <<EOF
+{
+  "mcpServers": {
+    "memory-bank": {
+      "command": "node",
+      "args": [
+        "$SOURCE_DIR/src/server/memory-bank/server.js"
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}
+EOF
+fi
 
 log "✅ Dev Installation Complete."
 log "Memory Bank code is linked from: $SOURCE_DIR"
