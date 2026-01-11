@@ -5,4 +5,4 @@
 echo "Launching Streamlit UI..."
 echo "You can view the app in your browser."
 echo ""
-python -m streamlit run .cursor/streamlit_app/app.py 
+python -m streamlit run src/ui/app.py 

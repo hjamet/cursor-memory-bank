@@ -57,13 +57,11 @@ root/
 ├─ .agent/               # [NOUVEAU] Configuration Runtime (Workflows, Rules)
 │  ├─ rules/             # Règles système (.md)
 │  └─ workflows/         # Définitions des workflows (.md)
-├─ .cursor/              # [LEGACY] Configuration spécifique IDE & Backwards compat
 ├─ src/                  # [NOUVEAU] Code Source du projet
 │  ├─ server/            # Serveur MCP (Mémoire)
 │  ├─ ui/                # Interface Streamlit
 │  └─ scripts/           # Scripts d'installation et maintenance
 ├─ documentation/        # Documentation technique et troubleshooting
-├─ install.sh            # Script d'installation principal
 └─ implementation_plan.md # Plan de travail courant (Architecte)
 ```
 
@@ -96,14 +94,14 @@ Cette section détaille les chantiers techniques pour transformer ce dépôt d'u
 *Objectif : Séparer proprement le code source (build) de la configuration runtime (run).*
 
 - **Refactoring Structurel**
-  - [ ] **Création de `src/`** : Centraliser tout le code exécutable (`src/server`, `src/ui`, `src/scripts`, `src/core`).
-  - [ ] **Standard `.agent/`** : Adopter `.agent/rules` et `.agent/workflows` comme source de vérité unique (remplace `.cursor/rules` et `.cursor/commands` progressivement).
-  - [ ] **Nettoyage Legacy** : Supprimer `mcp-commit-server` (déprécié) et archiver les anciennes commandes non portées.
+  - [x] **Création de `src/`** : Centraliser tout le code exécutable (`src/server`, `src/ui`, `src/scripts`, `src/core`).
+  - [x] **Standard `.agent/`** : Adopter `.agent/rules` et `.agent/workflows` comme source de vérité unique.
+  - [x] **Nettoyage Legacy** : Suppression complète de `.cursor`.
 
 - **Migration des Composants**
-  - [ ] **Memory Bank MCP** : Déménager `memory-bank-mcp` (Node.js) vers `src/server/memory-bank`.
-  - [ ] **Streamlit UI** : Déménager l'application `.cursor/streamlit_app` vers `src/ui`.
-  - [ ] **Scripts** : Déplacer `install.sh` et utilitaires dans `src/scripts`.
+  - [x] **Memory Bank MCP** : Migré vers `src/server/memory-bank`.
+  - [x] **Streamlit UI** : Migré vers `src/ui`.
+  - [x] **Scripts** : Migrés vers `src/scripts`.
 
 ### ⏳ Phase 2 : Déploiement & Expérience Développeur
 *Objectif : Faciliter le test et le déploiement du système, pour les utilisateurs ET les développeurs du repo.*
