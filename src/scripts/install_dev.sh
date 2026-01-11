@@ -31,28 +31,50 @@ mkdir -p "$TARGET_DIR/.cursor/rules"
 mkdir -p "$TARGET_DIR/.cursor/commands"
 mkdir -p "$TARGET_DIR/.cursor/mcp"
 
-# 1. Symlink Source Code
-# specialized "src" folder in target .cursor isn't standard, but we might need it for MCP
-# Actually, for MCP, valid config needs to point to the absolute path of the SOURCE
-# So we don't necessarily need to symlink 'src' into the target if we configure MCP correctly.
-# BUT, if we want to simulate a "production install" where code is inside .agent (or .cursor), 
-# we should symlink `src` to `$TARGET_DIR/.agent/src` (or similar).
-# Let's match the production structure:
-# Prod: .agent/src, .agent/rules
-# Cursor Adapter: .cursor/rules (copies), .cursor/mcp.json (points to .agent/src)
+# Helper for safe symlinking
+safe_ln_s() {
+    local src="$1"
+    local dst="$2"
+    
+    # Get absolute paths to compare
+    local abs_src
+    abs_src=$(realpath "$src" 2>/dev/null || readlink -f "$src" 2>/dev/null || echo "$src")
+    
+    # Ensure parent of dst exists so we can resolve it
+    mkdir -p "$(dirname "$dst")"
+    local abs_dst
+    abs_dst=$(realpath "$dst" 2>/dev/null || readlink -f "$dst" 2>/dev/null || echo "$dst")
 
+    if [[ "$abs_src" == "$abs_dst" ]]; then
+        log "  -> Skipping $dst (same as source)"
+        return 0
+    fi
+    
+    # If dst exists and is NOT a symlink but a directory, 
+    # and we are trying to link something into it with the same name,
+    # ln -sfn will usually create a loop.
+    if [[ -d "$dst" && ! -L "$dst" ]]; then
+        # If it's a directory, we might want to link content inside 
+        # OR we might want to error/skip.
+        # In our case, .agent/src, .agent/workflows etc should be symlinks, not real dirs in target.
+        # If they are real dirs, we skip to avoid creating dst/name -> src
+        warn "  -> Skipping $dst (already exists as a directory)"
+        return 0
+    fi
+
+    ln -sfn "$abs_src" "$abs_dst"
+}
+
+# 1. Symlink Source Code
 mkdir -p "$TARGET_DIR/.agent"
 log "Symlinking src/ to $TARGET_DIR/.agent/src..."
-ln -sfn "$SOURCE_DIR/src" "$TARGET_DIR/.agent/src"
+safe_ln_s "$SOURCE_DIR/src" "$TARGET_DIR/.agent/src"
 
-mkdir -p "$TARGET_DIR/.agent/workflows"
 log "Symlinking workflows to $TARGET_DIR/.agent/workflows..."
-# We symlink the directory content or the directory itself?
-# Directory itself is better for adding new files.
-ln -sfn "$SOURCE_DIR/.agent/workflows" "$TARGET_DIR/.agent/workflows"
+safe_ln_s "$SOURCE_DIR/.agent/workflows" "$TARGET_DIR/.agent/workflows"
 
 log "Symlinking rules to $TARGET_DIR/.agent/rules..."
-ln -sfn "$SOURCE_DIR/.agent/rules" "$TARGET_DIR/.agent/rules"
+safe_ln_s "$SOURCE_DIR/.agent/rules" "$TARGET_DIR/.agent/rules"
 
 
 # 2. Cursor Adaptation (Symlinking into .cursor)
@@ -97,6 +119,15 @@ cat > "$TARGET_DIR/.cursor/mcp.json" <<EOF
 }
 EOF
 
+
+# 3.5 Install Dependencies for MCP Server
+log "Installing dependencies for Memory Bank MCP Server..."
+if [[ -d "$SOURCE_DIR/src/server/memory-bank" ]]; then
+    (cd "$SOURCE_DIR/src/server/memory-bank" && npm install)
+else
+    warn "MCP Server directory not found at $SOURCE_DIR/src/server/memory-bank. Skipping npm install."
+fi
+
 # 4. Generate Universal MCP Config (~/.gemini/antigravity/mcp_config.json)
 MCP_CONFIG_DIR="$HOME/.gemini/antigravity"
 MCP_CONFIG_FILE="$MCP_CONFIG_DIR/mcp_config.json"
@@ -106,13 +137,11 @@ if [[ ! -d "$MCP_CONFIG_DIR" ]]; then
     mkdir -p "$MCP_CONFIG_DIR"
 fi
 
+
 log "Generating Universal MCP Config at $MCP_CONFIG_FILE..."
-# We use jq if available to merge or safely create, otherwise we overwrite/create basic
-if command -v jq >/dev/null 2>&1 && [[ -f "$MCP_CONFIG_FILE" ]]; then
-    log "Updating existing mcp_config.json with memory-bank server..."
-    # Create a temporary file for the new server config
-    TMP_CONFIG=$(mktemp)
-    cat > "$TMP_CONFIG" <<EOF
+
+# Define the new server config as a JSON string
+SERVER_CONFIG_JSON=$(cat <<EOF
 {
   "memory-bank": {
     "command": "node",
@@ -125,28 +154,35 @@ if command -v jq >/dev/null 2>&1 && [[ -f "$MCP_CONFIG_FILE" ]]; then
   }
 }
 EOF
-    # Merge using jq: .mcpServers + new_config
-    # Check if mcpServers exists, if not create it
-    jq --argfile new "$TMP_CONFIG" '.mcpServers = (.mcpServers // {}) + $new' "$MCP_CONFIG_FILE" > "${MCP_CONFIG_FILE}.tmp" && mv "${MCP_CONFIG_FILE}.tmp" "$MCP_CONFIG_FILE"
-    rm "$TMP_CONFIG"
-else
-    log "Creating new mcp_config.json..."
-    cat > "$MCP_CONFIG_FILE" <<EOF
-{
-  "mcpServers": {
-    "memory-bank": {
-      "command": "node",
-      "args": [
-        "$SOURCE_DIR/src/server/memory-bank/server.js"
-      ],
-      "env": {
-        "NODE_ENV": "development"
-      }
+)
+
+
+# Use Node.js to safely merge config
+SERVER_CONFIG_JSON="$SERVER_CONFIG_JSON" node -e "
+const fs = require('fs');
+const targetFile = '$MCP_CONFIG_FILE';
+const newServerConfig = JSON.parse(process.env.SERVER_CONFIG_JSON);
+
+let config = { mcpServers: {} };
+
+if (fs.existsSync(targetFile)) {
+    try {
+        const content = fs.readFileSync(targetFile, 'utf8');
+        config = JSON.parse(content);
+        if (!config.mcpServers) config.mcpServers = {};
+    } catch (e) {
+        console.error('Warning: Could not parse existing config, creating new one.');
     }
-  }
 }
-EOF
-fi
+
+// Merge new server config
+Object.assign(config.mcpServers, newServerConfig);
+
+fs.writeFileSync(targetFile, JSON.stringify(config, null, 2));
+console.log('Updated config successfully.');
+"
+
+
 
 log "✅ Dev Installation Complete."
 log "Memory Bank code is linked from: $SOURCE_DIR"

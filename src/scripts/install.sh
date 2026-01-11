@@ -719,6 +719,39 @@ install_basic_rules() {
     log "✅ Installation completed (single mode)"
 }
 
+install_server_code() {
+    local target_dir="$1"
+    local temp_dir="$2"
+
+    log "Installing Memory Bank Server..."
+    
+    local clone_dir="$temp_dir/repo"
+    if [[ ! -d "$clone_dir" ]]; then
+        log "Cloning repository for server installation..."
+        clone_repository "$REPO_URL" "$clone_dir"
+    fi
+
+    local src_dest="$target_dir/src"
+    mkdir -p "$src_dest"
+
+    if [[ -d "$clone_dir/src" ]]; then
+        log "Copying source code to $src_dest..."
+        cp -R "$clone_dir/src/"* "$src_dest/"
+        
+        # Install dependencies
+        local server_dir="$src_dest/server/memory-bank"
+        if [[ -d "$server_dir" ]]; then
+            log "Installing server dependencies in $server_dir..."
+            check_nodejs_requirements
+            (cd "$server_dir" && npm install --production)
+        else
+            warn "Server directory not found at $server_dir"
+        fi
+    else
+        error "Source directory not found in cloned repository"
+    fi
+}
+
 # ============================================================================
 # COMMAND LINE & HELP FUNCTIONS
 # ============================================================================
@@ -825,12 +858,11 @@ setup_mcp_config() {
     
     local server_path="$target_dir/src/server/memory-bank/server.js"
     
+
     log "Configuring Universal MCP for Memory Bank..."
     
-    if command -v jq >/dev/null 2>&1 && [[ -f "$mcp_config_file" ]]; then
-        log "Updating existing mcp_config.json..."
-        local tmp_config=$(mktemp)
-        cat > "$tmp_config" <<EOF
+# Define the new server config as a JSON string
+SERVER_CONFIG_JSON=$(cat <<EOF
 {
   "memory-bank": {
     "command": "node",
@@ -843,30 +875,39 @@ setup_mcp_config() {
   }
 }
 EOF
-        jq --argfile new "$tmp_config" '.mcpServers = (.mcpServers // {}) + $new' "$mcp_config_file" > "${mcp_config_file}.tmp" && mv "${mcp_config_file}.tmp" "$mcp_config_file"
-        rm "$tmp_config"
-    else
-        log "Creating new mcp_config.json..."
-        cat > "$mcp_config_file" <<EOF
-{
-  "mcpServers": {
-    "memory-bank": {
-      "command": "node",
-      "args": [
-        "$server_path"
-      ],
-      "env": {
-        "NODE_ENV": "production"
-      }
+)
+
+
+# Use Node.js to safely merge config
+SERVER_CONFIG_JSON="$SERVER_CONFIG_JSON" node -e "
+const fs = require('fs');
+const targetFile = '$mcp_config_file';
+const newServerConfig = JSON.parse(process.env.SERVER_CONFIG_JSON);
+
+let config = { mcpServers: {} };
+
+if (fs.existsSync(targetFile)) {
+    try {
+        const content = fs.readFileSync(targetFile, 'utf8');
+        config = JSON.parse(content);
+        if (!config.mcpServers) config.mcpServers = {};
+    } catch (e) {
+        console.error('Warning: Could not parse existing config, creating new one.');
     }
-  }
 }
-EOF
-    fi
+
+// Merge new server config
+Object.assign(config.mcpServers, newServerConfig);
+
+fs.writeFileSync(targetFile, JSON.stringify(config, null, 2));
+console.log('Updated config successfully.');
+"
+
     log "✓ Universal MCP config updated at $mcp_config_file"
 }
 
 # Single-mode installation
 install_basic_rules "$INSTALL_DIR" "$TEMP_DIR"
+install_server_code "$INSTALL_DIR" "$TEMP_DIR"
 setup_mcp_config "$INSTALL_DIR"
 log "Installation completed successfully!"

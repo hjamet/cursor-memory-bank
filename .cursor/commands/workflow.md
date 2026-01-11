@@ -1,0 +1,1 @@
+/home/lopilo/code/cursor-memory-bank/.agent/workflows/workflow.md

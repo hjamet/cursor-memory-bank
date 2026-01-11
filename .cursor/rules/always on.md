@@ -1,0 +1,1 @@
+/home/lopilo/code/cursor-memory-bank/.agent/rules/always on.md

@@ -10,7 +10,7 @@ curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/multi-age
 ```
 
 *Pré-requis : `git`, `curl`.*  
-*Pour une installation locale (développement), voir `documentation/dev_install.md` (à venir).*
+*Pour une installation locale (développement), utilisez le script `src/scripts/install_dev.sh`.*
 
 ## Description détaillée
 
@@ -84,7 +84,7 @@ Outils internes utilisés par le système.
 | Script | Rôle technique | Contexte d'exécution |
 |--------|----------------|----------------------|
 | `tomd.py` | Utilitaire de conversion et formatage Markdown. | Utilisé par les hooks et scripts internes. |
-| `src/scripts/install_dev.sh` | (Prévu) Installation en mode lien symbolique pour le développement du repo. | Dev only. |
+| `src/scripts/install_dev.sh` | Installation en mode lien symbolique pour le développement (itération rapide). | Dev only. |
 
 ## Roadmap 2026 🛣️
 
