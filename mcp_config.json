@@ -1,0 +1,14 @@
+{
+    "mcpServers": {
+        "memory-bank": {
+            "command": "node",
+            "args": [
+                "src/server/memory-bank/server.js"
+            ],
+            "env": {
+                "NODE_ENV": "production"
+            },
+            "description": "Cursor Memory Bank: Persistent memory and roadmap management for AI agents."
+        }
+    }
+}

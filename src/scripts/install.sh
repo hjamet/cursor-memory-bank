@@ -20,10 +20,12 @@ GITHUB_API="https://api.github.com/repos/$GITHUB_REPO"
 DEFAULT_BRANCH="multi-agent"
 API_URL="$GITHUB_API/commits/$DEFAULT_BRANCH"
 RAW_URL_BASE="https://raw.githubusercontent.com/$GITHUB_REPO/$DEFAULT_BRANCH"
-DEFAULT_WORKFLOW_DIR=".cursor/workflow-steps"
+DEFAULT_WORKFLOW_DIR=".agent/workflows"
 WORKFLOW_DIR="${TEST_WORKFLOW_DIR:-$DEFAULT_WORKFLOW_DIR}"
+TARGET_RULES_DIR=".cursor/rules"
+DEFAULT_RULES_DIR=".agent/rules"
 TEMP_DIR="/tmp/cursor-memory-bank-$$"
-VERSION="1.0.0"
+VERSION="2.0.0"
 
 # Colors for output
 RED='\033[0;31m'
@@ -331,10 +333,13 @@ download_file() {
 
 # Ensure a rule file exists: copy from clone if available, otherwise download from RAW_URL_BASE
 # ensure_rule_file(path_in_repo, dest_path, required_flag)
+# Ensure a rule file exists: copy from clone if available, otherwise download from RAW_URL_BASE
+# ensure_rule_file(path_in_repo, dest_path, required_flag, [convert_to_cursor_format])
 ensure_rule_file() {
     local path_in_repo="$1"
     local dest_path="$2"
     local required_flag="${3:-}"
+    local convert_format="${4:-false}"
     local clone_source="$TEMP_DIR/repo/$path_in_repo"
     local raw_url="$RAW_URL_BASE/$path_in_repo"
 
@@ -350,14 +355,69 @@ ensure_rule_file() {
                     download_file "$raw_url" "$dest_path" "$required_flag"
                 fi
             fi
-            return 0
         else
             warn "Failed to copy $clone_source to $dest_path"
         fi
+    else
+        log "Downloading $path_in_repo to $dest_path (fallback)"
+        download_file "$raw_url" "$dest_path" "$required_flag"
+    fi
+    
+    # Post-processing: Conversion logic
+    if [[ "$convert_format" == "true" ]] && [[ -f "$dest_path" ]]; then
+        adapt_rule_for_cursor "$dest_path"
+    fi
+    
+    return 0
+}
+
+# Adaptation Logic: Convert Antigravity (trigger/glob) -> Cursor (globs)
+adapt_rule_for_cursor() {
+    local file="$1"
+    local tmp_file="${file}.tmp"
+    
+    # Check if file has frontmatter
+    if ! grep -q "^---" "$file"; then
+        return
+    fi
+    
+    # Read frontmatter (very basic parser)
+    # We want to map:
+    # trigger: always_on -> globs: "**/*" (if globs not present)
+    # trigger: glob + glob: "pattern" -> globs: "pattern"
+    
+    cp "$file" "$tmp_file"
+    
+    # 1. If trigger: always_on is present, AND no globs/glob field, ADD globs: "**/*"
+    if grep -q "trigger: *always_on" "$tmp_file"; then
+        if ! grep -q "^globs:" "$tmp_file" && ! grep -q "^glob:" "$tmp_file"; then
+             sed -i 's/trigger: *always_on/trigger: always_on\nglobs: "**\/*"/' "$tmp_file"
+             log "  -> Adapted 'always_on' rule to include globs: '**/*'"
+        fi
+    fi
+    
+    # 2. If 'glob:' is present (Antigravity), ensure 'globs:' (Cursor) is also present
+    # We replace 'glob:' with 'globs:' ? No, keep both for compatibility or just add 'globs:'
+    # Cursor ONLY reads 'globs:'. Antigravity reads 'glob:' or 'trigger: glob'.
+    if grep -q "^glob:" "$tmp_file"; then
+        if ! grep -q "^globs:" "$tmp_file"; then
+            # Duplicate the line, changing key to globs
+            sed -i 's/^\(glob:.*\)$/\1\n\1/' "$tmp_file"
+            # Now replace the SECOND occurrence (which is hard with sed one-liner blindly)
+            # Simpler: Read value, append globs line.
+            # Using awk or just sed substitution that replaces 'glob:' with 'glob: ... \nglobs:'.
+            sed -i 's/^\(glob: *.*\)$/\0\n\1/' "$tmp_file"
+            sed -i '0,/^glob:/{s//globs:/2}' "$tmp_file" # This sed syntax is tricky across versions
+            
+            # Alternative: simpler sed.
+            # Replace 'glob: value' with 'glob: value\nglobs: value'
+            # Note: avoiding infinite loops if run multiple times? We checked ! grep globs.
+            sed -i 's/^glob: \(.*\)$/glob: \1\nglobs: \1/' "$tmp_file"
+            log "  -> Adapted 'glob' rule to include 'globs'"
+        fi
     fi
 
-    log "Downloading $path_in_repo to $dest_path (fallback)"
-    download_file "$raw_url" "$dest_path" "$required_flag"
+    mv "$tmp_file" "$file"
 }
 
 # Check membership helper: is_in_array "needle" "${array[@]}"
@@ -435,6 +495,7 @@ manage_gitignore() {
 .cursor/mcp
 .cursor/mcp.json
 .cursor/screenshots
+.agent/
 EOF
         log "Created .gitignore with minimal rules at: $gitignore_file"
     else
@@ -451,11 +512,12 @@ EOF
 .cursor/mcp
 .cursor/mcp.json
 .cursor/screenshots
+.agent/
 EOF
             log "Appended Cursor Memory Bank block to .gitignore: $gitignore_file"
         else
             log "Cursor Memory Bank .gitignore header already present; ensuring additional entries exist"
-            for entry in ".cursor/screenshots"; do
+            for entry in ".cursor/screenshots" ".agent/"; do
                 if ! grep -Fxq "$entry" "$gitignore_file" 2>/dev/null; then
                     echo "$entry" >> "$gitignore_file"
                     log "Appended '$entry' to $gitignore_file"
@@ -578,21 +640,27 @@ install_commands() {
             log "Cloning repository for command discovery..."
             clone_repository "$REPO_URL" "$clone_dir"
         fi
-        if [[ -d "$clone_dir/.cursor/commands" ]]; then
-            commands_list=$(cd "$clone_dir/.cursor/commands" && find . -type f -name "*.md" | sed 's|^\./|.cursor/commands/|')
+        # Search in .agent/workflows (new structure)
+        if [[ -d "$clone_dir/.agent/workflows" ]]; then
+            # sed to prepend .cursor/commands/ but source is .agent/workflows/
+            commands_list=$(cd "$clone_dir/.agent/workflows" && find . -type f -name "*.md" | sed 's|^\./|.agent/workflows/|')
             log "Discovered commands recursively: $(echo "$commands_list" | wc -w) files"
         else
-            warn "Git clone failed - using conservative fallback set"
-            commands_list=".cursor/commands/prompt.md"
+            warn "Git clone failed or .agent/workflows not found - using conservative fallback set"
+            commands_list=".agent/workflows/architect.md .agent/workflows/janitor.md"
         fi
     fi
 
     for c in $commands_list; do
-        if [[ "$c" != .cursor/commands/* ]]; then
+        if [[ "$c" != .agent/workflows/* ]]; then
             continue
         fi
-        local dest="$target_dir/$c"
-        log "Installing command: $c"
+        
+        # Map .agent/workflows/XYZ.md -> .cursor/commands/XYZ.md
+        local basename=$(basename "$c")
+        local dest="$target_dir/.cursor/commands/$basename"
+        
+        log "Installing command: $c -> $dest"
         ensure_rule_file "$c" "$dest"
     done
 
@@ -618,27 +686,28 @@ install_basic_rules() {
             log "Cloning repository for rule discovery..."
             clone_repository "$REPO_URL" "$clone_dir"
         fi
-        if [[ -d "$clone_dir/.cursor/rules" ]]; then
-            rules_list=$(cd "$clone_dir/.cursor/rules" && find . -type f -name "*.mdc" | sed 's|^\./|.cursor/rules/|')
+        if [[ -d "$clone_dir/.agent/rules" ]]; then
+            rules_list=$(cd "$clone_dir/.agent/rules" && find . -type f -name "*.md" | sed 's|^\./|.agent/rules/|')
             log "Discovered rules recursively: $(echo "$rules_list" | wc -w) files"
         else
-            warn "Git clone failed - using conservative fallback set"
-            rules_list=".cursor/rules/agent.mdc .cursor/rules/debug.mdc .cursor/rules/README.mdc"
+            warn "Git clone failed or .agent/rules not found - using conservative fallback set"
+            rules_list=".agent/rules/documentation.md"
         fi
     fi
 
     for r in $rules_list; do
-        if [[ "$r" != .cursor/rules/* ]]; then
+        if [[ "$r" != .agent/rules/* ]]; then
             continue
         fi
         local rule_filename=$(basename "$r")
-        if is_in_array "$rule_filename" "${full_install_only_rules[@]}"; then
-            log "Skipping full-install-only rule (not used in single mode): $r"
-            continue
-        fi
-        local dest="$target_dir/$r"
-        log "Installing rule: $r"
-        ensure_rule_file "$r" "$dest"
+        # .mdc extension is legacy, new uses .md
+        # If user wants strict compliance we might rename to .mdc? No, Cursor supports .md rules now.
+        
+        local dest="$target_dir/.cursor/rules/$rule_filename"
+        log "Installing rule: $r -> $dest"
+        
+        # Pass convert_format=true
+        ensure_rule_file "$r" "$dest" "" "true"
     done
 
     log "Installing custom commands..."
