@@ -70,7 +70,7 @@ Ces commandes sont définies par les règles installées :
 | `/architect` | **Stratège du projet**. Analyse la demande, vérifie le `task.md`, et propose un plan d'action structuré. À utiliser pour les nouvelles fonctionnalités complexes. | Taper `/architect` dans le chat. |
 | `/janitor` | **Maintenance et Nettoyage**. Scanne le code pour trouver du code mort, des TODOs oubliés ou des incohérences. Génère un rapport de maintenance. | Taper `/janitor` en fin de sprint. |
 | `/enqueteur` | **Débuggage Profond**. Suit une procédure rigoureuse pour isoler la cause racine d'un bug avant de proposer un fix. | Taper `/enqueteur` face à un bug tenace. |
-| `/context` | **Agent de Contexte**. Prépare le terrain en analysant code et web pour enrichir la prompt. **N'implémente rien**. | Taper `/context` pour préparer une tâche. |
+| `/context` | **Agent de Contexte**. Prépare le terrain en analysant code et web. **Préserve la prompt originale**. | Taper `/context` pour préparer une tâche. |
 
 # Scripts exécutables secondaires & Utilitaires
 
@@ -83,3 +83,4 @@ Ces commandes sont définies par les règles installées :
 | Tâche | Objectif | État | Dépendances |
 |-------|----------|------|-------------|
 | **Validation du flux** | Vérifier que le nouveau `install.sh` déploie correctement les règles `.mdc` et que le README suit la nouvelle structure. | 📅 À faire | - |
+| **Optimisation Context** | Interdire la reformulation des prompts par l'agent de contexte. | ✅ Fait | - |
