@@ -1,52 +1,68 @@
-# README upkeep rule
+# Documentation & README Rule
 
-Le fichier [README.md](mdc:README.md) doit rester parfaitement synchronisé avec l'état actuel du dépôt. **Chaque conversation doit se conclure par une mise à jour explicite du README**, même si les changements sont purement documentaires. L'agent corrige immédiatement toute information obsolète ou erronée dès qu'elle est détectée.
+Cette règle définit la gouvernance de la documentation et du README du projet. L'agent doit maintenir une documentation structurée, vivante et parfaitement indexée.
 
-## Principes directeurs
-- **Actualisation continue** : à chaque ajout, suppression ou modification (code, dépendance, script, service, variable d'environnement), mettre le README à jour.
-- **Structure immuable** : la hiérarchie de sections ci-dessous est obligatoire.
-- **Précision factuelle** : aucune information obsolète tolérée.
+## 1. README.md : Source de Vérité
 
-## Structure imposée du README
+Le fichier [README.md](mdc:README.md) doit rester parfaitement synchronisé avec l'état actuel du dépôt. **Chaque conversation doit se conclure par une mise à jour explicite du README**, même si les changements sont purement documentaires.
 
-1. **Paragraphe de présentation**
-   - Objectif du projet, état courant, grandes fonctionnalités (4-5 phrases).
+### Principes directeurs
+- **Actualisation continue** : Mettre à jour au moindre changement (code, dépendance, feature).
+- **Structure immuable** : La structure des sections (1 à 9) est obligatoire.
+- **Précision factuelle** : Aucune information obsolète tolérée.
 
-2. **# Installation**
-   - Bloc ultra-concis.
-   - Commande unique d'installation si possible (`install.sh`).
-   - Pré-requis minimaux.
+### Structure imposée du README
 
-3. **# Description détaillée**
-   - **Cœur du système** : Explication approfondie de ce que fait le repo (Memory Bank pour Cursor).
-   - **Flux de travail** : Comment l'agent interagit avec les règles, la mémoire et le système de fichiers.
-   - **Rôle de l'Architecte** : Description du mode "Architecte" et de la collaboration homme-machine.
-   - **Direction actuelle** : Où on va, quels sont les chantiers en cours (ex: amélioration des règles, tests, etc.).
-   - *Cette section doit être vivante et mise à jour par l'agent pour refléter la compréhension profonde du système.*
+1. **Paragraphe de présentation** (Objectif, état, features)
+2. **# Installation** (Commande unique, pré-requis)
+3. **# Description détaillée** (Cœur, Flux, Rôles, Direction)
+4. **# Principaux résultats** (Tableaux/Graphes)
+5. **# Documentation Index** (NOUVEAU)
+   - Doit lister tous les fichiers d'index de documentation.
+   - Format : Tableau à 2 colonnes.
+     | Titre (Lien) | Description |
+     |--------------|-------------|
+     | [Index Sujet A](docs/index_sujeta.md) | Description du sujet A |
+6. **# Plan du repo** (Arborescence)
+7. **# Scripts d'entrée principaux** (Tableau des commandes)
+8. **# Scripts exécutables secondaires & Utilitaires**
+9. **# Roadmap**
 
-4. **# Principaux résultats**
-   - Tableaux/Graphes synthétiques des performances ou métriques clés.
+## 2. Documentation Détaillée (`docs/`)
 
-5. **# Plan du repo**
-   - Arborescence `root/` commentée.
+L'agent doit proactivement créer de la documentation dans le dossier `docs/` pour tout sujet nécessitant des détails (architecture, algorithmes, guides, décisions techniques).
 
-6. **# Scripts d'entrée principaux**
-   - Tableau détaillé des commandes accessibles à l'utilisateur (via `src/commands`).
-   | Script/Commande | Description détaillée | Usage / Exemple |
-   |-----------------|-----------------------|-----------------|
-   | ... | ... | ... |
+### Structure des dossiers
+La structure doit suivre ce modèle rigoureux :
+```
+docs/
+    subject1/           # Dossier contenant les notes atomiques
+        file1.md
+        file2.md
+    subject2/
+        ...
+    index_subject1.md   # Index racine pour le sujet 1
+    index_subject2.md   # Index racine pour le sujet 2
+```
 
-7. **# Scripts exécutables secondaires & Utilitaires**
-   - Tableau des outils internes ou scripts de maintenance.
-   | Script | Rôle technique | Contexte d'exécution |
-   |--------|----------------|----------------------|
-   | ... | ... | ... |
+### Règles de Gestion
+1. **Création proactive** : Ne pas surcharger le README. Créer des fichiers spécifiques dans `docs/sujet/` et les lier.
+2. **Maintien des Index** :
+   - À chaque création/édition de fichier dans `docs/sujet/`, l'agent **DOIT** mettre à jour le fichier `docs/index_sujet.md` correspondant.
+   - Si un nouveau sujet est créé, créer son `index_unique.md` et l'ajouter au "Documentation Index" du README.
 
-8. **# Roadmap**
-   - Tableau trié par priorité.
-   - Uniquement futur (pas de "fait").
+### Format des Fichiers Index (`docs/index_*.md`)
+Les fichiers index listent le contenu de leur sujet sous forme de tableau à 4 colonnes strictes :
+
+| Titre de la note | Courte Description | Dernière modif | Tag |
+|------------------|-------------------|----------------|-----|
+| [Nom du Fichier](sujet/fichier.md) | Résumé concis | YYYY-MM-DD | `Up to date` / `Legacy` |
+
+- **Titre** : Lien relatif vers le fichier.
+- **Date** : À mettre à jour à chaque modification du fichier cible.
+- **Tag** : Indiquer si l'information est toujours d'actualité (`Up to date` ou `Legacy`).
 
 ## Bonnes pratiques forcées
 - **Toujours finir par le README**.
-- **Documentation proportionnée** : détails techniques dans `documentation/`.
-- **Fail-fast documentaire**.
+- **Vérification croisée** : Vérifier les liens morts dans les index après suppression ou renommage.
+- **Fail-fast documentaire** : Corriger immédiatement une doc fausse vue en passant.

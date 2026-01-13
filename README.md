@@ -39,6 +39,12 @@ Le projet se concentre actuellement sur :
 | Commandes Slash | Supprimées (Transition README) | 🗑️ fait |
 | Support Multi-OS | Linux / macOS / Windows (via WSL) | ✅ supporté |
 
+# Documentation Index
+
+| Titre (Lien) | Description |
+|--------------|-------------|
+| [Template Index](docs/index_template.md) | Modèle pour les index de documentation |
+
 # Plan du repo
 
 ```
