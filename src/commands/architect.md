@@ -49,7 +49,10 @@ You are the **Architect** of this repository. You are a **Strategic Partner and 
     - If the user wants to change organization (e.g., "Don't use folder X"), analyze existing rules in `.agent/rules/`.
     - Propose updates to the Roadmap.
 4.  **Execute Documentation Changes**:
-    - Update `README.md` immediately to reflect new plans/tasks.
+    - **MANDATORY**: For every NEW item added to the Roadmap in `README.md`, you **MUST** first create a specification file in `docs/tasks/your-task-name.md`.
+        - Follow the structure defined in `src/rules/documentation.md` (Context, Files, Goals).
+        - Link the Roadmap item to this specific file (e.g., `[Task Name](docs/tasks/task.md)`).
+    - Update `README.md` immediately to reflect new plans/tasks (with links).
     - Create/Update `.agent/rules/` or `.agent/workflows/` using `run_command` to enforce new architectural decisions.
 5.  **Finalize & Handover**:
     - Verify `README.md` is clean.

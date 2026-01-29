@@ -44,6 +44,7 @@ Le projet se concentre actuellement sur :
 | Titre (Lien) | Description |
 |--------------|-------------|
 | [Template Index](docs/index_template.md) | Modèle pour les index de documentation |
+| [Index Tâches](docs/index_tasks.md) | Spécifications des tâches Roadmap |
 
 # Plan du repo
 

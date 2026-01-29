@@ -58,9 +58,39 @@ Les fichiers index listent le contenu de leur sujet sous forme de tableau à 4 c
 |------------------|-------------------|----------------|-----|
 | [Nom du Fichier](sujet/fichier.md) | Résumé concis | YYYY-MM-DD | `Up to date` / `Legacy` |
 
-- **Titre** : Lien relatif vers le fichier.
 - **Date** : À mettre à jour à chaque modification du fichier cible.
 - **Tag** : Indiquer si l'information est toujours d'actualité (`Up to date` ou `Legacy`).
+
+## 3. Tâches de la Roadmap (`docs/tasks/`)
+
+Toute tâche ajoutée à la **Roadmap** dans le README doit **OBLIGATOIREMENT** être liée à un fichier de spécification unique dans `docs/tasks/`.
+
+### Règle d'Or
+> **"Pas de fichier de tâche = Pas de ligne dans la Roadmap"**
+
+### Structure du Fichier de Tâche (`docs/tasks/xxx.md`)
+Ce fichier doit servir de point d'entrée pour l'agent qui réalisera la tâche.
+
+#### Modèle Obligatoire :
+```markdown
+# [Titre de la Tâche]
+
+## 1. Contexte & Discussion (Narratif)
+> *Inspire-toi du style "Handover" : Raconte pourquoi on fait ça.*
+- Résumé de la discussion avec l'utilisateur.
+- Historique des décisions (pourquoi on a choisi cette approche ?).
+- Liens vers les anciennes conversations ou KIs si pertinent.
+
+## 2. Fichiers Concernés
+- `src/chemin/vers/fichier_A.py`
+- `docs/chemin/vers/doc_B.md`
+
+## 3. Objectifs (Definition of Done)
+*Décris ce que l'on veut obtenir À LA FIN (High Level).*
+* **NE PAS** écrire de plan d'implémentation détaillé (pas de "créer fonction x").
+* **NE PAS** écrire de pseudo-code.
+* **FOCUS** sur le résultat attendu et la valeur ajoutée.
+```
 
 ## Bonnes pratiques forcées
 - **Toujours finir par le README**.
