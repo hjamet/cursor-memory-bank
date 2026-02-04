@@ -23,7 +23,11 @@ When no path is specified:
 - Look for patterns that indicate problems (temp files, legacy code, inconsistencies, etc.)
 
 **Exploration strategy:**
-- Use `list_dir` to scan directory structure and compare with documented architecture
+- **Use `tree`** (if available) to get a complete visual hierarchy. Prefer this over `list_dir`.
+- **RUN SEMSEARCH (x5 Minimum - MOST IMPORTANT)**: Use `semsearch` to map the codebase.
+    - Query **functional topics** (e.g., "database connection", "user validation").
+    - **Inspect results for redundancy**: If `old_db.py` and `new_db.py` both show up, you found a problem.
+    - **Verify structure**: Do the returned files match where you expect that logic to be?
 - Use `glob_file_search` to find file patterns (`.tmp`, `.log`, `.bak`, `checkpoint_*`, `old_*`, etc.)
 - Read `README.md` completely and validate against actual repository structure
 - Use `read_file` for suspicious files to understand their content and identify issues
@@ -370,7 +374,13 @@ The scripts directory has minor code quality issues that should be addressed. On
 ## Important Notes
 
 - **Exhaustive exploration is mandatory** - Always thoroughly explore until you find at least 1 problem
-- **Use appropriate tools** - `list_dir` for structure, `glob_file_search` for patterns, `read_file` for content analysis, `grep` for search
+- **Use appropriate tools** - `tree` is your PRIMARY tool for structure (use `list_dir` only if `tree` fails).
+- **MANDATORY SEMANTIC SEARCH (CRITICAL)**: `semsearch` is your **MOST POWERFUL TOOL**. You MUST use it.
+    *   **Minimum 5 queries**: Do NOT search for "duplicate files". Search for **concepts** (e.g. "auth pipeline", "data loading", "api configuration").
+    *   **Analyze the overlap**: Look at the *results*. If two different files appear for the same concept, compare them. Are they redundant? Is the logic split weirdly?
+    *   **Targets**: Identify conflicting implementations, deprecated logic hiding in old files, or feature fragmentation.
+- **Use `glob_file_search`** for strict patterns.
+- **Use `read_file`** for deep content verification.
 - **Table format is required** - All findings must be in the 5-column table format
 - **Severity levels are mandatory** - Use 🔴, 🟠, 🟡 consistently for visual clarity
 - **Justifications must be specific** - Include line numbers, specific phrases, exact contradictions with evidence
