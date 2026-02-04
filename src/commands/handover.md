@@ -4,14 +4,13 @@ description: Générer un prompt de passation (Handover) narratif pour maintenir
 
 # Workflow: Context Handover
 
-Ce workflow sert à générer un **"Prompt de Passation"** à la fin d'une conversation. L'objectif est de transmettre l'histoire de la session de manière naturelle, comme si tu expliquais la situation à un collègue oralement.
+Ce workflow sert à générer un **"Prompt de Passation"** à la fin d'une conversation. L'objectif est de transmettre l'histoire de la session de manière naturelle mais **extrêmement précise**, comme si tu faisais une passation de dossier critique à un collègue.
 
 ## Philosophie
-*   **PAS DE LISTES À PUCES**.
-*   **PAS DE PLANS DÉTAILLÉS MICRO-MANAGÉS**.
-*   **PAS D'INJONCTIONS**.
-
-On veut du **contexte**, de la **narrative**, et un résumé de la **discussion**. Le prochain agent doit comprendre *l'esprit* de ce qui se passe, pas juste recevoir une check-list aveugle.
+*   **Narratif ET Structuré** : On veut l'histoire, mais aussi les faits durs.
+*   **Contenu Inclus** : ⚠️ **INTERDICTION DE CITER DES ARTEFACTS**. Le prochain agent n'y a PAS accès. Tu dois RÉ-EXPLIQUER ici tout ce qui était dans tes plans ou notes. N'aie pas peur de faire long.
+*   **User-Centric** : Ce sur quoi l'utilisateur a *insisté* est sacré.
+*   **Pas de Plan d'Implémentation** : ⚠️ Tu donnes le but, le brainstorming et les contraintes, mais **JAMAIS le plan d'exécution**. C'est au prochain agent de construire son plan.
 
 ## Structure du Prompt
 Le prompt doit être généré dans un bloc de code Markdown.
@@ -19,25 +18,38 @@ Le prompt doit être généré dans un bloc de code Markdown.
 ### 1. 👋 Relai : [Titre de l'Action]
 Un titre accrocheur résumant la mission immédiate.
 
-### 2. Le Contexte & La Discussion (Narratif)
-Rédige un **grand paragraphe (ou deux)** en langage naturel.
-*   **Raconte l'histoire** : "On a commencé par regarder ça, puis on se rend compte que..."
-*   **Intègre les fichiers** : Cite les noms des fichiers concernés (juste le nom, pas le chemin complet) directement dans tes phrases. Ex: "J'ai modifié `server.py` pour régler le bug, mais ça a cassé `utils.py`."
-*   **Résume la discussion** : "L'utilisateur voulait absolument éviter telle méthode, on s'est donc mis d'accord pour partir sur..."
-*   **État des lieux** : Dis clairement ce qui marche et ce qui ne marche pas.
+### 2. Le Contexte & La Discussion (Narratif Détaillé)
+Raconte l'histoire de la session.
+*   **Le "Pourquoi"** : Quel était le problème initial ?
+*   **Le "Comment"** : Quelles pistes avons-nous explorées ? (Explique les idées, ne dis pas "voir plan").
+*   **Les Fichiers** : Cite les fichiers clés modifiés (ex: `server.py`).
 
-### 3. La Mission (Synthétique)
-Une phrase ou deux pour donner le cap.
-**IMPORTANT** : Invite explicitement le nouvel agent à **lancer une discussion** avec l'utilisateur pour valider ses intentions et lever les doutes avant de foncer.
-Ex: "L'objectif est de stabiliser le fix. Demande à l'utilisateur s'il préfère l'option A ou B avant de commencer."
+### 3. Décisions Actées & Brainstorming
+Liste clairement (tu as le droit aux listes ici pour la clarté) :
+*   **Décisions Techniques** : "On a décidé d'utiliser X plutôt que Y car..."
+*   **Insistance de l'Utilisateur** : "L'utilisateur a REFUSÉ qu'on touche à..." ou "Il veut ABSOLUMENT que..." (C'est crucial).
+*   **Points identifiés** : Détails techniques importants trouvés pendant l'analyse (IDs, noms de variables, conflits...).
+
+### 4. La Mission & L'Ordre de Marche
+**CRITIQUE : INSTRUCTION OBLIGATOIRE POUR LE PROCHAIN AGENT**
+Tu DOIS inclure cette phrase (ou équivalent) en gras :
+> **⚠️ ATTENTION : Ne pars PAS directement dans le code. Commence par établir un PLAN d'implémentation clair et soumets-le à l'utilisateur. Discute des détails ambigus AVANT de toucher à quoi que ce soit.**
+
+Donne ensuite le cap général de la mission (le "Quoi", pas le "Comment faire").
 
 ## Exemple de Sortie
 ```markdown
-# 👋 Relai : Stabilisation des Logs
+# 👋 Relai : Stabilisation des Logs & Refonte Config
 
 ### Contexte & Discussion
-On est en train de bosser sur le système de logging. Au début, on pensait que le problème venait de la config dans `logging_config.py`, mais après analyse avec l'utilisateur, on a vu que `main.py` écrasait les handlers au démarrage. J'ai commencé à nettoyer ça, mais attention, l'utilisateur a insisté pour qu'on ne touche pas à la lib standard `custom_logger.py` pour l'instant. Là, le backend tourne mais n'écrit plus rien dans la console, surement un souci de niveau de verbosité que j'ai pas eu le temps de check.
+On est partis d'un problème de logs muets. On a découvert que `logging_config.py` était ignoré par `main.py`. J'ai commencé le fix, mais on est tombés sur un conflit de versions des libs. J'avais noté dans mon plan que le module `urllib3` posait problème, il faudra vérifier ça spécifiquement car la version installée est la 1.26 et on a besoin de la 2.0.
+
+### Décisions & Points d'Attention
+*   **INSISTANCE USER** : Ne JAMAIS modifier `custom_logger.py` (c'est une lib partagée).
+*   **Décision** : On passe toutes les configs par variables d'env plutôt que par fichier .ini.
+*   **A Discuter** : L'utilisateur n'est pas sûr de vouloir garder `Loguru`, il faut lui en reparler avant de l'intégrer partout.
 
 ### Mission
-Il faut finir de rétablir l'affichage console sans casser le fichier de log, en respectant la contrainte sur `custom_logger.py`.
+Finaliser la migration vers les variables d'env pour les logs.
+**⚠️ STOP ! Ne code pas tout de suite. Fais un plan pour valider la structure des variables d'env avec l'utilisateur et confirme pour Loguru.**
 ```

@@ -78,6 +78,7 @@ Ces commandes sont définies par les règles installées :
 | `/janitor` | **Maintenance et Nettoyage**. Scanne le code pour trouver du code mort, des TODOs oubliés ou des incohérences. Génère un rapport de maintenance. | Taper `/janitor` en fin de sprint. |
 | `/enqueteur` | **Débuggage Profond**. Suit une procédure rigoureuse pour isoler la cause racine d'un bug avant de proposer un fix. | Taper `/enqueteur` face à un bug tenace. |
 | `/context` | **Agent de Contexte**. Prépare le terrain. **Préserve la prompt** et **force la lecture des sources**. | Taper `/context` pour préparer une tâche. |
+| `/handover` | **Passation de Service**. Génère un résumé structuré et narratif pour le prochain agent, avec décisions clés et plan d'action. | Taper `/handover` en fin de session. |
 
 # Scripts exécutables secondaires & Utilitaires
 
@@ -91,3 +92,4 @@ Ces commandes sont définies par les règles installées :
 |-------|----------|------|-------------|
 | **Validation du flux** | Vérifier que le nouveau `install.sh` déploie correctement les règles `.mdc` et que le README suit la nouvelle structure. | 📅 À faire | - |
 | **Optimisation Context** | Interdire la reformulation des prompts par l'agent de contexte. | ✅ Fait | - |
+| **Refonte Handover** | Rendre le protocole de passation plus rigoureux (planning obligatoire, décisions explicites). | ✅ Fait | - |
