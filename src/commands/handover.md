@@ -12,19 +12,6 @@ Ce workflow sert à générer un **"Prompt de Passation"** à la fin d'une conve
 *   **User-Centric** : Ce sur quoi l'utilisateur a *insisté* est sacré.
 *   **Pas de Plan d'Implémentation** : ⚠️ Tu donnes le but, le brainstorming et les contraintes, mais **JAMAIS le plan d'exécution**. C'est au prochain agent de construire son plan.
 
-## Étape 0 : Compréhension du Scope (OBLIGATOIRE)
-
-**AVANT** de rédiger le handover, tu **DOIS** effectuer au minimum **3 recherches sémantiques** (`semsearch`) pour comprendre le périmètre du travail en cours.
-
-**Pourquoi ?** Un handover sans compréhension du code réel est un handover inutile. Tu ne peux pas transmettre un contexte riche si tu n'as pas exploré le codebase.
-
-**Méthode** :
-1.  Recherche les fichiers modifiés ou concernés par la session.
-2.  Recherche l'architecture autour des composants touchés.
-3.  Recherche les tests ou docs liés pour vérifier la couverture.
-
-**But** : Enrichir ton handover avec des détails concrets (noms de fonctions, patterns utilisés, dépendances) plutôt que des descriptions vagues.
-
 ## Structure du Prompt
 Le prompt doit être généré dans un bloc de code Markdown.
 
@@ -46,7 +33,7 @@ Liste clairement (tu as le droit aux listes ici pour la clarté) :
 ### 4. La Mission & L'Ordre de Marche
 **CRITIQUE : INSTRUCTIONS OBLIGATOIRES POUR LE PROCHAIN AGENT**
 Tu DOIS inclure ces instructions en gras :
-> **⚠️ ATTENTION : Ne pars PAS directement dans le code. Commence par établir un PLAN d'implémentation clair et soumets-le à l'utilisateur. Discute des détails ambigus AVANT de toucher à quoi que ce soit.**
+> **⚠️ ATTENTION : Ne pars PAS directement dans le code. AVANT TOUTE CHOSE, effectue au minimum 3 recherches sémantiques (`semsearch`) pour explorer le codebase et comprendre le périmètre. Ensuite, établis un PLAN d'implémentation clair et soumets-le à l'utilisateur. Discute des détails ambigus AVANT de toucher à quoi que ce soit.**
 
 **Référence au fichier de tâche** : Si un fichier de spécification de tâche existe (dans `docs/tasks/`), tu **DOIS** le mentionner explicitement :
 > **📋 Un fichier de spécification existe pour cette tâche : `docs/tasks/[nom-du-fichier].md`. Lis-le en priorité avant de commencer ton plan.**
@@ -67,5 +54,5 @@ On est partis d'un problème de logs muets. On a découvert que `logging_config.
 
 ### Mission
 Finaliser la migration vers les variables d'env pour les logs.
-**⚠️ STOP ! Ne code pas tout de suite. Fais un plan pour valider la structure des variables d'env avec l'utilisateur et confirme pour Loguru.**
+**⚠️ STOP ! Ne code pas tout de suite. Fais d'abord 3 recherches sémantiques pour explorer le code concerné, puis fais un plan pour valider la structure des variables d'env avec l'utilisateur et confirme pour Loguru.**
 ```
