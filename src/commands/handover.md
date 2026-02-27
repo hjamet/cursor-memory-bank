@@ -54,5 +54,5 @@ On est partis d'un problème de logs muets. On a découvert que `logging_config.
 
 ### Mission
 Finaliser la migration vers les variables d'env pour les logs.
-**⚠️ STOP ! Ne code pas tout de suite. Fais d'abord 3 recherches sémantiques pour explorer le code concerné, puis fais un plan pour valider la structure des variables d'env avec l'utilisateur et confirme pour Loguru.**
+**⚠️ STOP ! Ne code pas tout de suite. Explore d'abord le code avec `semsearch`, puis fais un plan et valide-le avec l'utilisateur. Point bloquant : confirmer avec l'utilisateur s'il veut garder Loguru avant d'aller plus loin.**
 ```
