@@ -11,6 +11,7 @@ Ce workflow sert à générer un **"Prompt de Passation"** à la fin d'une conve
 *   **Contenu Inclus** : ⚠️ **INTERDICTION DE CITER DES ARTEFACTS**. Le prochain agent n'y a PAS accès. Tu dois RÉ-EXPLIQUER ici tout ce qui était dans tes plans ou notes. N'aie pas peur de faire long.
 *   **User-Centric** : Ce sur quoi l'utilisateur a *insisté* est sacré.
 *   **Pas de Plan d'Implémentation** : ⚠️ Tu donnes le but, le brainstorming et les contraintes, mais **JAMAIS le plan d'exécution**. C'est au prochain agent de construire son plan.
+*   **Pas de Blocs de Code** : ⚠️ **INTERDICTION d'inclure des blocs de code** (``` ou extraits de code). Raisons : (1) le handover est lui-même dans un bloc Markdown, donc imbriquer des blocs casse le rendu, et (2) l'implémentation n'est PAS ton rôle — c'est au prochain agent de décider du code à écrire.
 
 ## Structure du Prompt
 Le prompt doit être généré dans un bloc de code Markdown.
