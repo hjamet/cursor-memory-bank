@@ -592,6 +592,16 @@ install_commands() {
         ensure_rule_file "$c" "$dest"
     done
 
+    # Prune stale commands: remove files that no longer exist in src/commands
+    while IFS= read -r -d '' installed_file; do
+        local rel="${installed_file#$target_dir/.cursor/commands/}"
+        local src_path="src/commands/$rel"
+        if ! echo "$commands_list" | grep -qF "$src_path"; then
+            log "Pruning stale command: $installed_file"
+            rm -f "$installed_file"
+        fi
+    done < <(find "$target_dir/.cursor/commands" -type f -name "*.md" -print0 2>/dev/null)
+
     log "✓ Commands installed successfully"
 }
 
@@ -709,7 +719,26 @@ install_agent_config() {
         fi
     done
 
-    
+    # Prune stale agent workflows: remove files that no longer exist in src/commands
+    while IFS= read -r -d '' installed_file; do
+        local fname=$(basename "$installed_file")
+        local src_name=$(basename "$fname" .md)
+        if ! echo "$workflows_list" | grep -qF "src/commands/$src_name.md"; then
+            log "Pruning stale agent workflow: $installed_file"
+            rm -f "$installed_file"
+        fi
+    done < <(find "$target_dir/.agent/workflows" -type f -name "*.md" -print0 2>/dev/null)
+
+    # Prune stale agent rules: remove files that no longer exist in src/rules
+    while IFS= read -r -d '' installed_file; do
+        local fname=$(basename "$installed_file")
+        local src_name=$(basename "$fname" .md)
+        if ! echo "$rules_list" | grep -qF "src/rules/$src_name.md"; then
+            log "Pruning stale agent rule: $installed_file"
+            rm -f "$installed_file"
+        fi
+    done < <(find "$target_dir/.agent/rules" -type f -name "*.md" -print0 2>/dev/null)
+
     log "✓ Agent configuration installed"
 }
 
@@ -765,6 +794,16 @@ install_global_workflows() {
             log "Copying workflow to global: $w -> $dest"
             cp "$clone_dir/src/commands/$w" "$dest"
         done
+
+        # Prune stale global workflows: remove files that no longer exist in src/commands
+        while IFS= read -r -d '' installed_file; do
+            local fname=$(basename "$installed_file")
+            if ! echo "$workflows_list" | grep -qF "./$fname"; then
+                log "Pruning stale global workflow: $installed_file"
+                rm -f "$installed_file"
+            fi
+        done < <(find "$global_dir" -maxdepth 1 -type f -name "*.md" -print0 2>/dev/null)
+
         log "✓ Global workflows installed successfully"
     else
         warn "Workflows source directory not found in clone. Skipping global installation."
