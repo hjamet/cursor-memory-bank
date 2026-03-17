@@ -79,6 +79,7 @@ Ces commandes sont définies par les règles installées :
 | `/enqueteur` | **Débuggage Profond**. Suit une procédure rigoureuse pour isoler la cause racine d'un bug avant de proposer un fix. | Taper `/enqueteur` face à un bug tenace. |
 | `/context` | **Agent de Contexte**. Prépare le terrain. **Préserve la prompt** et **force la lecture des sources**. | Taper `/context` pour préparer une tâche. |
 | `/handover` | **Passation de Service**. Génère un résumé structuré et narratif pour le prochain agent, avec décisions clés et plan d'action. | Taper `/handover` en fin de session. |
+| `/research` | **Recherche Approfondie (Deep Research)**. Conduit une recherche structurée multi-axes avec vagues de recherches parallèles, suivi des sources, et produit un rapport détaillé avec citations footnote. | Taper `/research [sujet]` pour lancer une investigation. |
 
 # Scripts exécutables secondaires & Utilitaires
 
