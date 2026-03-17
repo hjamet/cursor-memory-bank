@@ -27,7 +27,8 @@ fi
 API_URL="$GITHUB_API/commits/$DEFAULT_BRANCH"
 RAW_URL_BASE="https://raw.githubusercontent.com/$GITHUB_REPO/$DEFAULT_BRANCH"
 TEMP_DIR="/tmp/cursor-memory-bank-$$"
-VERSION="1.0.0"
+VERSION="1.0.1"
+GLOBAL_WORKFLOWS_DIR=""
 
 # Colors for output
 RED='\033[0;31m'
@@ -712,6 +713,64 @@ install_agent_config() {
     log "✓ Agent configuration installed"
 }
 
+install_global_workflows() {
+    local target_dir="$1"
+    local temp_dir="$2"
+    local global_dir="$3"
+
+    # If global_dir is not provided, try to detect it
+    if [[ -z "$global_dir" ]]; then
+        local user_name=""
+        if command -v cmd.exe >/dev/null 2>&1; then
+            user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
+        fi
+        
+        if [[ -z "$user_name" ]]; then
+            user_name=$(whoami)
+        fi
+
+        # Try to find the path in WSL or MSYS
+        local win_home=""
+        if command -v wslpath >/dev/null 2>&1; then
+            win_home="/mnt/c/Users/$user_name"
+            if [[ ! -d "$win_home" ]]; then
+                # Try to get it from cmd.exe if wslpath is available but path is different
+                win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
+            fi
+        elif [[ "$(uname -o 2>/dev/null)" == "Msys" ]]; then
+            win_home="/c/Users/$user_name"
+        fi
+
+        if [[ -n "$win_home" ]]; then
+            global_dir="$win_home/.gemini/antigravity/global_workflows"
+        fi
+    fi
+
+    if [[ -z "$global_dir" ]]; then
+        warn "Could not detect Windows global workflows directory. Skipping global installation."
+        return 0
+    fi
+
+    log "Installing workflows to global directory: $global_dir"
+    mkdir -p "$global_dir"
+
+    local workflows_list=""
+    local clone_dir="$temp_dir/repo"
+    
+    if [[ -d "$clone_dir/src/commands" ]]; then
+        workflows_list=$(cd "$clone_dir/src/commands" && find . -type f -name "*.md")
+        
+        for w in $workflows_list; do
+            local dest="$global_dir/$(basename "$w")"
+            log "Copying workflow to global: $w -> $dest"
+            cp "$clone_dir/src/commands/$w" "$dest"
+        done
+        log "✓ Global workflows installed successfully"
+    else
+        warn "Workflows source directory not found in clone. Skipping global installation."
+    fi
+}
+
 install_basic_rules() {
     local target_dir="$1"
     local temp_dir="$2"
@@ -765,6 +824,9 @@ install_basic_rules() {
     log "Updating .gitignore"
     manage_gitignore "$target_dir"
 
+    log "Installing global workflows..."
+    install_global_workflows "$target_dir" "$temp_dir" "$GLOBAL_WORKFLOWS_DIR"
+
     log "✅ Installation completed (single mode)"
 }
 
@@ -782,6 +844,7 @@ Options:
     -h, --help         Show this help message
     -v, --version      Show version information
     -d, --dir DIR      Install to a specific directory (default: current directory)
+    --global-dir DIR   Specify the global workflows directory manually
     --force            Force installation even if directory is not empty
 
 This script will:
@@ -824,6 +887,13 @@ while [[ $# -gt 0 ]]; do
                 error "Missing directory argument for --dir option"
             fi
             INSTALL_DIR="$2"
+            shift
+            ;;
+        --global-dir)
+            if [[ -z "${2:-}" ]]; then
+                error "Missing directory argument for --global-dir option"
+            fi
+            GLOBAL_WORKFLOWS_DIR="$2"
             shift
             ;;
         --force)

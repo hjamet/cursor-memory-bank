@@ -34,7 +34,7 @@ Le projet se concentre actuellement sur :
 
 | Métrique | Valeur | État |
 |----------|--------|------|
-| Statut du projet | Opérationnel (v1.0.0) | ✅ stable |
+| Statut du projet | Opérationnel (v1.0.1) | ✅ stable |
 | Automatisation Roadmap | 100% via README.md | ✅ actif |
 | Commandes Slash | Supprimées (Transition README) | 🗑️ fait |
 | Support Multi-OS | Linux / macOS / Windows (via WSL) | ✅ supporté |
@@ -67,7 +67,7 @@ root/
 
 | Script / Commande | Description détaillée | Usage / Exemple |
 |-------------------|-----------------------|-----------------|
-| `install.sh` | **Installateur Universel**. Clone le repo (si nécessaire), convertit les règles `.md` en `.mdc`, et configure l'environnement `.cursor`. | `bash install.sh` |
+| `install.sh` | **Installateur Universel**. Clone le repo (si nécessaire), convertit les règles `.md` en `.mdc`, configure l'environnement `.cursor`, et déploie les workflows globaux Windows. | `bash install.sh` |
 
 ### Commandes Agent (Virtuelles)
 Ces commandes sont définies par les règles installées :
@@ -90,6 +90,6 @@ Ces commandes sont définies par les règles installées :
 
 | Tâche | Objectif | État | Dépendances |
 |-------|----------|------|-------------|
-| **Validation du flux** | Vérifier que le nouveau `install.sh` déploie correctement les règles `.mdc` et que le README suit la nouvelle structure. | 📅 À faire | - |
+| **Validation du flux** | Vérifier que le nouveau `install.sh` déploie correctement les règles `.mdc` et les workflows globaux. | ✅ Fait | - |
 | **Optimisation Context** | Interdire la reformulation des prompts par l'agent de contexte. | ✅ Fait | - |
 | **Refonte Handover** | Rendre le protocole de passation plus rigoureux (planning obligatoire, décisions explicites). | ✅ Fait | - |
