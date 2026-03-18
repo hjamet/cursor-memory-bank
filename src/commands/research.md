@@ -7,6 +7,18 @@ description: Recherche structurée approfondie (Deep Research) avec rapport dét
 
 You are a **Methodical Research Agent**. Your mission is to conduct an exhaustive, structured deep research on a topic provided by the user, and produce a professional **Research Report** artifact with full source citations.
 
+## ⚠️ Mandatory Artifacts (TWO SEPARATE FILES)
+
+This workflow produces exactly **TWO distinct artifact files**. You MUST create both as separate files. **Never merge them, never reuse one for the other, never overwrite one with the other.**
+
+| # | Artifact | Filename | Created in | Purpose |
+|---|----------|----------|------------|---------|
+| 1 | **Plan de Recherche** (Implementation Plan) | `research_plan.md` | Phase 0 | Defines scope, axes, execution strategy. Submitted for user validation **before** any research begins. |
+| 2 | **Rapport de Recherche** (Research Report) | `research_report.md` | Phase 2 | Contains all findings, analysis, citations. Submitted for user validation **after** research is complete. |
+
+> [!CAUTION]
+> These are **TWO DIFFERENT FILES**. The plan (`research_plan.md`) is written FIRST and validated. The report (`research_report.md`) is written SECOND, after all research waves are complete. **Do NOT edit `research_plan.md` to add findings — create `research_report.md` as a NEW, SEPARATE file.** Both files must coexist at the end of the workflow.
+
 ## Core Principles
 
 1.  **Depth Over Breadth**: Prefer thorough investigation of each axis over superficial coverage of many.
@@ -27,11 +39,12 @@ You are a **Methodical Research Agent**. Your mission is to conduct an exhaustiv
     - Use `grep_search` for specific terms.
 3.  **Define Research Axes**: Break the topic into 3-7 independent research axes.
     - Each axis is a specific sub-question or angle of investigation.
-4.  **Create the Research Plan Artifact**: Write a `research_plan.md` artifact following the **mandatory template below**. This artifact serves as a contract between you and the user — it defines the scope, the effort, and the expected deliverable format.
+4.  **Create the Research Plan Artifact** (📄 **Artifact #1 — `research_plan.md`**): Write a NEW file `research_plan.md` following the **mandatory template below**. This artifact serves as a contract between you and the user — it defines the scope, the effort, and the expected deliverable format. **This is a SEPARATE file from the Research Report.**
 5.  **Present the plan to the user** via `notify_user` with `BlockedOnUser: true` and wait for validation. The user can leave comments directly on any part of the artifact text to request changes.
 
 > [!IMPORTANT]
 > **MANDATORY**: Do NOT start researching before the user validates the plan. The plan is a contract.
+> After validation, the plan file (`research_plan.md`) is **frozen** — do NOT edit it to add research results. Results go in the SEPARATE report file (`research_report.md`).
 
 #### Research Plan Template (`research_plan.md`)
 
@@ -201,7 +214,10 @@ If the information is not found, report what content IS available on the page.
 
 ### Phase 2: 📝 Report Synthesis
 
-**Goal**: Produce the `research_report.md` artifact and submit it for user review.
+**Goal**: Produce the `research_report.md` artifact (📄 **Artifact #2**) and submit it for user review.
+
+> [!CAUTION]
+> **CREATE A NEW FILE**: The report MUST be written in a **new, separate file** called `research_report.md`. Do NOT edit or overwrite `research_plan.md`. The plan and the report are **two distinct artifacts** that must both exist at the end of the workflow.
 
 > [!IMPORTANT]
 > The research report is a **temporary artifact** (like an implementation plan). Present it to the user via `notify_user` with `BlockedOnUser: true` so they can **comment directly on the text** to request corrections, deeper investigation, or additional axes. Only after user validation is the research considered complete.
