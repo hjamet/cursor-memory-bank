@@ -6,6 +6,10 @@ description: Générer un prompt de passation (Handover) narratif pour maintenir
 
 Ce workflow sert à générer un **"Prompt de Passation"** à la fin d'une conversation. L'objectif est de transmettre l'histoire de la session de manière naturelle mais **extrêmement précise**, comme si tu faisais une passation de dossier critique à un collègue.
 
+## Pré-requis : Recherche de Contexte
+
+**OBLIGATOIRE** : Avant de rédiger le handover, tu DOIS effectuer au minimum **1 recherche dans ta mémoire long-terme** (recall, get_recent_memories, ou équivalent) pour récupérer le contexte pertinent de la session et des sessions précédentes. Cela garantit que le handover est complet et précis.
+
 ## Philosophie
 *   **Narratif ET Structuré** : On veut l'histoire, mais aussi les faits durs.
 *   **Contenu Inclus** : ⚠️ **INTERDICTION DE CITER DES ARTEFACTS**. Le prochain agent n'y a PAS accès. Tu dois RÉ-EXPLIQUER ici tout ce qui était dans tes plans ou notes. N'aie pas peur de faire long.
@@ -34,7 +38,7 @@ Liste clairement (tu as le droit aux listes ici pour la clarté) :
 ### 4. La Mission & L'Ordre de Marche
 **CRITIQUE : INSTRUCTIONS OBLIGATOIRES POUR LE PROCHAIN AGENT**
 Tu DOIS inclure ces instructions en gras :
-> **⚠️ ATTENTION : Ne pars PAS directement dans le code. AVANT TOUTE CHOSE, effectue au minimum 3 recherches sémantiques (`semsearch`) pour explorer le codebase et comprendre le périmètre. Ensuite, établis un PLAN d'implémentation clair et soumets-le à l'utilisateur. Discute des détails ambigus AVANT de toucher à quoi que ce soit.**
+> **⚠️ ATTENTION : Ne pars PAS directement dans le code. AVANT TOUTE CHOSE, effectue au minimum 3 recherches (dans ta mémoire long-terme et/ou dans le codebase) pour explorer le projet et comprendre le périmètre. Ensuite, établis un PLAN d'implémentation clair et soumets-le à l'utilisateur. Discute des détails ambigus AVANT de toucher à quoi que ce soit.**
 
 **Référence au fichier de tâche** : Si un fichier de spécification de tâche existe (dans `docs/tasks/`), tu **DOIS** le mentionner explicitement :
 > **📋 Un fichier de spécification existe pour cette tâche : `docs/tasks/[nom-du-fichier].md`. Lis-le en priorité avant de commencer ton plan.**
@@ -55,5 +59,5 @@ On est partis d'un problème de logs muets. On a découvert que `logging_config.
 
 ### Mission
 Finaliser la migration vers les variables d'env pour les logs.
-**⚠️ STOP ! Ne code pas tout de suite. Explore d'abord le code avec `semsearch`, puis fais un plan et valide-le avec l'utilisateur. Point bloquant : confirmer avec l'utilisateur s'il veut garder Loguru avant d'aller plus loin.**
+**⚠️ STOP ! Ne code pas tout de suite. Explore d'abord le projet (mémoire long-terme + codebase), puis fais un plan et valide-le avec l'utilisateur. Point bloquant : confirmer avec l'utilisateur s'il veut garder Loguru avant d'aller plus loin.**
 ```
