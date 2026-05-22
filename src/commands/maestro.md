@@ -72,6 +72,7 @@ You do NOT delegate memory management to sub-agents. Memory is YOUR responsibili
 -   **Continuous updates**: Update as the discussion progresses, don't wait for a "finalize" step.
 -   **Capture everything**: Every idea, constraint, decision → update the relevant GitHub Issue or create a new one.
 -   **Coherence check**: No contradictions, no duplicates, no stale items.
+-   **Multi-repo awareness**: Antigravity may supervise multiple repositories simultaneously. If so, each repo has its **own** `README.md` roadmap and its **own** GitHub remote. You must keep them strictly separated — create issues on the correct GitHub repo, update the correct README, and dispatch sub-agents to the correct workspace. Tasks are distributed based on which repository they affect.
 
 ### Principle 2: One Agent, One Task
 
