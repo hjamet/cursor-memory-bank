@@ -737,13 +737,15 @@ install_global_workflows() {
         # Try to find the path in WSL or MSYS
         local win_home=""
         if command -v wslpath >/dev/null 2>&1; then
+            # WSL environment: translate Windows USERPROFILE to WSL path
             win_home="/mnt/c/Users/$user_name"
             if [[ ! -d "$win_home" ]]; then
                 # Try to get it from cmd.exe if wslpath is available but path is different
                 win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
             fi
         elif [[ "$(uname -o 2>/dev/null)" == "Msys" ]]; then
-            win_home="/c/Users/$user_name"
+            # Git Bash / MSYS on Windows: $HOME is already set correctly
+            win_home="$HOME"
         fi
 
         if [[ -n "$win_home" ]]; then
@@ -751,8 +753,16 @@ install_global_workflows() {
         fi
     fi
 
+    # Universal fallback: use $HOME on any platform (Linux, macOS, or any
+    # environment where $HOME is set but none of the Windows-specific checks
+    # matched above).
+    if [[ -z "$global_dir" ]] && [[ -n "${HOME:-}" ]]; then
+        global_dir="$HOME/.gemini/antigravity/global_workflows"
+        log "Using universal fallback directory: $global_dir"
+    fi
+
     if [[ -z "$global_dir" ]]; then
-        warn "Could not detect Windows global workflows directory. Skipping global installation."
+        warn "Could not detect global workflows directory (\$HOME is not set). Skipping global installation."
         return 0
     fi
 
