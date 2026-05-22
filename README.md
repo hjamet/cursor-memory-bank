@@ -4,11 +4,17 @@ Cursor Memory Bank est un système de gestion de projet autonome et structuré p
 
 # Installation
 
+**Linux / macOS :**
 ```bash
-# Installation et mise à jour
 curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash
 ```
-*Script universel pour Linux/macOS. Installe les règles `.mdc` dans `.cursor/rules`.*
+
+**Windows (PowerShell) :**
+```powershell
+# Nécessite Git Bash (inclus avec Git for Windows)
+& 'C:\Program Files\Git\bin\bash.exe' -c "curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash"
+```
+
 
 # Description détaillée
 
