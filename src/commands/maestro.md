@@ -181,9 +181,30 @@ You proactively advance the roadmap by applying this **decision loop continuousl
 
 ### 📊 Ongoing: Monitor & Report
 
--   **When a sub-agent reports back**: Analyze the report critically (see Principle 4). Update the Walkthrough Artifact. Inform the user of the results.
--   **Set timers** (`schedule`) to check on sub-agent progress if appropriate.
--   **If a sub-agent seems stuck**: Send it a check-in message via `send_message`.
+**⚠️ NEVER rely solely on sub-agent callbacks.** Sub-agents may get stuck, crash silently, or loop without reporting. You MUST always have a way to wake yourself up.
+
+#### Mandatory Supervision Cron
+
+**As soon as you launch your first sub-agent**, set up a recurring cron to wake yourself up periodically:
+
+```
+schedule(CronExpression="*/10 * * * *", Prompt="Sub-agent supervision check: list active agents, check their status, send check-in messages to any that haven't reported recently, update the Walkthrough Artifact.")
+```
+
+This cron runs **every 10 minutes** for the entire session. When it fires:
+1.  **List active sub-agents** (`manage_subagents` → `list`).
+2.  **Check each agent**: Has it reported since the last check? If not, send it a `send_message` asking for a status update.
+3.  **Detect stalling**: If an agent hasn't reported after 2 consecutive checks (~20 min), flag it to the user.
+4.  **Update the Walkthrough Artifact** with current statuses.
+5.  **Re-apply the decision loop**: Are there free slots? Are there tasks waiting? Launch new agents if appropriate.
+
+#### Additional Timers
+
+For tasks you want to follow more closely (critical path, risky implementation, tight deadlines), you can set **additional one-shot timers** with shorter intervals using `schedule(DurationSeconds=...)`. These are complementary to the main cron — the main cron must always be running.
+
+#### When Sub-Agents Report Back
+
+-   Analyze the report critically (see Principle 4). Update the Walkthrough Artifact. Inform the user of the results.
 -   **If a sub-agent produces poor results**: Send corrective instructions, or kill it and relaunch with better context.
 -   **Close completed tasks**: When work is validated, close the GitHub Issue with a **closure comment** (see below) and update the Roadmap.
 
