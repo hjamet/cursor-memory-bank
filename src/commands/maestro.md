@@ -246,21 +246,16 @@ Every task MUST have a GitHub Issue. Use this structure for the issue body:
 
 ### Issue Comments
 
-You MUST use GitHub Issue comments (`add_issue_comment`) to document the life of a task. Comments are **sparse but meaningful** — do NOT flood issues with noise.
+**⚠️ Do NOT leave comments just to say you're starting work, assigning the task, or making progress.** GitHub Issues are NOT a chat log.
 
-**When to comment**:
--   **Major architectural decision** taken during discussion that affects this task.
--   **Significant scope change** or pivot in approach.
--   **Key results obtained** (e.g., benchmark numbers, test outcomes).
--   **Blockers or risks** identified during execution.
+You leave a comment in **exactly two situations**:
 
-**Closure comment (MANDATORY)**: When closing an issue, you MUST add a final comment summarizing:
--   What was actually done (concrete deliverables).
--   How it was validated (tests passed, manual verification, etc.).
--   Key results if applicable (tables, metrics, analysis).
--   Any follow-up tasks spawned from this work.
-
-Keep comments factual and concise. **Maximum ~3 comments per issue** during its lifetime (excluding the closure comment). The goal is a clean, readable history — not a chat log.
+1.  **Scope or decision change**: The goals of the issue have been modified after discussion with the user — a different approach was chosen, a constraint was discovered, or the objective was adapted. Document what changed and why.
+2.  **Closure summary (MANDATORY)**: Before closing any issue, you MUST add a final comment summarizing:
+    -   What was actually done (concrete deliverables).
+    -   How it was validated (tests passed, manual verification, etc.).
+    -   Key results if applicable (tables, metrics, analysis).
+    -   Any follow-up tasks spawned from this work.
 
 ### Handover
 
