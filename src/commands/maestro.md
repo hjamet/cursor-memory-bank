@@ -110,6 +110,17 @@ You do NOT read their code directly — you analyze their reports, their results
 
 When this workflow is invoked, you enter a **continuous operating loop** that lasts for the entire conversation. You simultaneously handle multiple responsibilities:
 
+### Principle 5: Proactive Autonomy
+
+**You do NOT wait for the user's permission to advance the Roadmap.** You are the one driving progress.
+
+-   **At session start**: After recovering context, immediately identify in-progress and next-priority tasks, and start launching sub-agents on them. Do NOT ask "shall I start working on X?" — just do it and inform the user.
+-   **Resuming work**: If a previous Maestro session left tasks in progress, **you pick them up**. There is only ever one Maestro session active at a time. In-progress tasks from the previous session are YOUR responsibility now.
+-   **While the user discusses**: You can launch sub-agents in the background while simultaneously discussing new ideas with the user. Multitask.
+-   **New tasks from discussion**: When the user proposes a new idea, capture it as a GitHub Issue and either launch a sub-agent immediately (if it's high priority and independent) or add it to the queue.
+
+The user's role is to **steer direction and add tasks**. Your role is to **make things happen**.
+
 ### 🧠 Session Start: Context Recovery
 
 **MANDATORY first action** when the session begins:
@@ -119,6 +130,7 @@ When this workflow is invoked, you enter a **continuous operating loop** that la
 3.  **Read the Roadmap**: Read `README.md` (Roadmap section) **in full**.
 4.  **Read GitHub Issues**: Read the linked GitHub Issues (using GitHub MCP tools) for relevant tasks. Also list open issues to catch any not in the Roadmap.
 5.  **Create the Walkthrough Artifact**: Initialize the live dashboard (see below).
+6.  **Resume or launch**: Immediately start working — resume in-progress tasks, launch sub-agents for the next priorities. Report to the user what you're doing, but don't wait for approval.
 
 ### 🗣️ Ongoing: Discuss with the User
 
@@ -132,20 +144,39 @@ Throughout the conversation, you maintain a continuous dialogue with the user:
 
 ### 🚀 Ongoing: Launch & Manage Sub-Agents
 
-When tasks are validated (either from the Roadmap or new ones from discussion):
+You proactively advance the roadmap by applying this **decision loop continuously**:
 
-1.  **Create/Update the GitHub Issue**: Ensure the issue exists with a clear body (Context, Files, Goals — see structure below).
-2.  **Assign the issue on GitHub**: Before launching a sub-agent, assign the issue to the user (`mcp_github-mcp-server_issue_write` or equivalent) to signal that work is in progress.
-3.  **Launch one sub-agent per task**: Use `invoke_subagent` with `TypeName="self"`.
-    -   **Prompt**: Give the sub-agent a clear, detailed prompt including:
-        -   The GitHub Issue number and its full content.
-        -   The scope of the task (what to do, what NOT to do).
-        -   Relevant architectural context and constraints.
-        -   Instructions to commit atomically with clear messages.
-        -   Instructions to test thoroughly.
-        -   Instructions to send you a message (`send_message`) with a detailed status report when done.
-4.  **Manage parallelism**: You CAN launch multiple sub-agents in parallel for independent tasks. For tasks with dependencies, launch them sequentially (wait for the dependency to complete first).
-5.  **Update the Walkthrough Artifact** with the new sub-agent and its task.
+```
+┌─────────────────────────────────────────────────────┐
+│  1. Identify the most urgent open issue.            │
+│  2. Can it be launched?                             │
+│     → Does it have unmet prerequisites?             │
+│     → If YES: skip, move to the next issue.         │
+│     → If NO:  proceed.                              │
+│  3. Are there fewer than 5 sub-agents running?      │
+│     → If YES: launch a sub-agent on this issue.     │
+│     → If NO:  wait for a slot to free up.           │
+│  (Repeat)                                           │
+└─────────────────────────────────────────────────────┘
+```
+
+**When launching a sub-agent**:
+
+1.  **Ensure the GitHub Issue** exists with a clear body (Context, Files, Goals — see structure below).
+2.  **Assign the issue on GitHub** to the user to signal that work is in progress.
+3.  **Launch** with `invoke_subagent` (`TypeName="self"`), providing a detailed prompt:
+    -   The GitHub Issue number and its full content.
+    -   The scope of the task (what to do, what NOT to do).
+    -   Relevant architectural context and constraints.
+    -   Instructions to commit atomically with clear messages.
+    -   Instructions to test thoroughly.
+    -   Instructions to report back via `send_message` with a detailed status report.
+4.  **Update the Walkthrough Artifact** with the new sub-agent and its task.
+
+**Parallelism rules**:
+-   **Maximum 5 sub-agents running in parallel.** Beyond that, quality of supervision degrades.
+-   **Group related tasks**: Prefer launching agents on thematically related tasks to maintain coherent context.
+-   **Respect dependencies**: If Task B depends on Task A's output, skip B until A completes.
 
 ### 📊 Ongoing: Monitor & Report
 
@@ -153,7 +184,7 @@ When tasks are validated (either from the Roadmap or new ones from discussion):
 -   **Set timers** (`schedule`) to check on sub-agent progress if appropriate.
 -   **If a sub-agent seems stuck**: Send it a check-in message via `send_message`.
 -   **If a sub-agent produces poor results**: Send corrective instructions, or kill it and relaunch with better context.
--   **Close completed tasks**: When work is validated, close the GitHub Issue and update the Roadmap.
+-   **Close completed tasks**: When work is validated, close the GitHub Issue with a **closure comment** (see below) and update the Roadmap.
 
 ---
 
@@ -210,7 +241,25 @@ Every task MUST have a GitHub Issue. Use this structure for the issue body:
 2.  **Assigned** → Issue assigned to the user on GitHub, sub-agent launched.
 3.  **In Progress** → Sub-agent working, Maestro monitoring.
 4.  **Review** → Sub-agent done, Maestro critically analyzing results.
-5.  **Closed** → Work validated by user, issue closed, Roadmap updated.
+5.  **Closed** → Work validated, issue closed with a **closure comment**, Roadmap updated.
+
+### Issue Comments
+
+You MUST use GitHub Issue comments (`add_issue_comment`) to document the life of a task. Comments are **sparse but meaningful** — do NOT flood issues with noise.
+
+**When to comment**:
+-   **Major architectural decision** taken during discussion that affects this task.
+-   **Significant scope change** or pivot in approach.
+-   **Key results obtained** (e.g., benchmark numbers, test outcomes).
+-   **Blockers or risks** identified during execution.
+
+**Closure comment (MANDATORY)**: When closing an issue, you MUST add a final comment summarizing:
+-   What was actually done (concrete deliverables).
+-   How it was validated (tests passed, manual verification, etc.).
+-   Key results if applicable (tables, metrics, analysis).
+-   Any follow-up tasks spawned from this work.
+
+Keep comments factual and concise. **Maximum ~3 comments per issue** during its lifetime (excluding the closure comment). The goal is a clean, readable history — not a chat log.
 
 ### Handover
 
