@@ -111,25 +111,36 @@ Use additional `schedule(DurationSeconds=...)` for critical tasks needing closer
 
 ## 📋 Walkthrough Artifact
 
-**MANDATORY.** Create and maintain a walkthrough artifact for the entire session. This is **the reference document** — everything the user needs to know must be in here.
+**MANDATORY.** Create and maintain a walkthrough artifact for the entire session. This is **the reference document** — everything the user needs to know must be in here. **Nothing said verbally should be absent from this document.**
 
-### Content (in order of importance)
+### Structure
 
-1. **Roadmap Mermaid Graph**: A `mermaid` flowchart showing all tasks: what's done, what's in progress, what's next, and dependencies between them. This is the **primary visual** — the user must see the plan at a glance.
+**1. Mermaid Roadmap** (top of file): Flowchart of all tasks with status colors (🟢 done, 🟡 in progress, ⚫ waiting) and dependencies. The user must see the plan at a glance.
 
-2. **Results & Findings**: Every result obtained during the session — tables, metrics, benchmarks, analysis. If a sub-agent produced numbers, they go here. **Nothing the Maestro tells the user verbally should be absent from this document.** All figures, all data, all conclusions.
+**2. One section per discussion topic** — numbered, titled with the issue number if applicable. Each section contains:
+- **Context**: Why are we doing this?
+- **Callouts** for key elements (see below).
+- **Results**: Tables, metrics, data. Everything concrete.
+- **Synthèse**: One-line status (done, in progress, blocked).
 
-3. **Decisions Log**: Key architectural and strategic decisions made during discussion, with rationale.
+**3. Questions & Points ouverts** (bottom of file): All pending questions and risks, each in a callout.
 
-4. **Current Activity**: Brief status of active sub-agents (what task, how long running). This is secondary to results.
+### Callouts
 
-5. **Open Questions & Risks**: Red flags, blockers, things to discuss.
+Use GitHub alerts to highlight key elements — this makes it easy for the user to scan and leave comments:
+
+| Callout | Usage |
+|---------|-------|
+| `[!IMPORTANT]` | **Decisions** taken + **Questions** to the user |
+| `[!CAUTION]` | Strong user requirements ("NEVER do X") |
+| `[!WARNING]` | Risks, problems, blockers |
+| `[!NOTE]` | Additional context, remarks |
+| `[!TIP]` | Positive observations, encouraging trends |
 
 ### Rules
 - Update after every significant event (agent report, decision, new task).
 - Include **all data** — tables, numbers, findings. The walkthrough is the paper trail.
 - Use mermaid diagrams liberally (roadmap, architecture, data flow).
-- Keep it factual and scannable.
 
 ---
 
