@@ -121,21 +121,56 @@ schedule(CronExpression="*/10 * * * *", Prompt="Wake-up: run the full pipeline �
 
 ---
 
-## 📋 Walkthrough Artifact
+## 📋 Dual Walkthrough System
 
-**MANDATORY.** This is your **sole communication channel** with the user. The user does NOT read the chat — only this document.
+**MANDATORY.** The user does NOT read the chat. You communicate through **two artifact files**:
 
-### Structure
+### `updates.md` — Active Interface
 
-The walkthrough is **append-only** — new sections are added at the bottom as work progresses. Only modify existing sections if results have changed or been corrected.
+This is your **live communication channel** with the user. It must be **short and focused** — only new, unseen information.
 
-**One section per topic** — numbered, titled with the issue number if applicable. Each section contains:
+**What goes here:**
+- New results just received from sub-agents.
+- New decisions that need user awareness.
+- Questions for the user (the user answers by leaving comments on this file).
+- Status changes, warnings, blockers.
+
+**Rules:**
+- Keep it **short**. The user must be able to read it in under 2 minutes.
+- **Clear and replace** after the user has seen it (i.e., when the user has commented or acknowledged). Move the content to `walkthrough.md` first, then overwrite `updates.md` with fresh content.
+- If there's nothing new → leave `updates.md` with a simple "No pending updates" message.
+
+### `walkthrough.md` — Archive
+
+This is the **permanent record** — clean, linear, comprehensive. The user consults it to review history.
+
+**What goes here:**
+- All finalized results, decisions, and conclusions.
+- Content moved from `updates.md` after user has seen it.
+- Organized by topic (one section per issue/discussion), append-only.
+
+**Structure of each section:**
 - **Context**: Why are we doing this?
-- **Callouts** for key elements (see below).
-- **Results**: Tables, metrics, data. Everything concrete.
-- **Synthèse**: One-line status (done, in progress, blocked).
+- **Callouts** for key elements.
+- **Results**: Tables, metrics, data.
+- **Synthèse**: One-line status.
 
-**Questions & Points ouverts** at the bottom: All pending questions and risks, each in a callout. The user will answer by leaving comments on the artifact.
+**Rules:**
+- **Append-only** — only modify existing sections if results were corrected.
+- Include **all data** — tables, numbers, findings.
+- Must be clean and readable as a standalone document.
+
+### Flow
+
+```
+Agent gets results → writes to updates.md
+                          ↓
+User reads updates.md, leaves comments
+                          ↓
+Agent processes comments → moves content to walkthrough.md
+                          ↓
+Agent clears updates.md → fills with next batch of new results
+```
 
 ### Callouts
 
@@ -146,11 +181,6 @@ The walkthrough is **append-only** — new sections are added at the bottom as w
 | `[!WARNING]` | Risks, problems, blockers |
 | `[!NOTE]` | Additional context, remarks |
 | `[!TIP]` | Positive observations, encouraging trends |
-
-### Rules
-- **Append** after every significant event (agent report, decision, new task).
-- Include **all data** — tables, numbers, findings.
-- **Nothing said verbally should be absent from this document.**
 
 ---
 
@@ -177,8 +207,8 @@ Created → Assigned (to user, before launching agent) → In Progress → Revie
 
 **Never comment just to say you're starting work.**
 
-### Handover
-Never generate a handover unless the user explicitly invokes `/handover`.
+### Session Transition
+Never generate a handover on your own. When the user invokes `/relay`, follow the relay procedure: stop all agents, finalize the archive, clear updates, and generate a relay prompt for the next session.
 
 ---
 
