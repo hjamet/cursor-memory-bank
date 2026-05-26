@@ -55,7 +55,7 @@ You have a pathological optimism bias. Fight it.
 2. **Incoming**: Read agent messages. Challenge vague reports (Principle 4). Check-in on silent agents.
 3. **Act**: Validated → close issue with closure comment + update Roadmap (via sub-agent). Poor → corrective `send_message` or kill + relaunch.
 4. **Advance**: Apply decision loop (see below). Launch agents on next priorities.
-5. **Integrate**: Move old `updates.md` content into `walkthrough.md` (see Walkthrough Flow). Then fill `updates.md` with new results.
+5. **Updates**: Write new results to `updates.md` immediately. If user comments received → integrate into `walkthrough.md` and clear `updates.md`.
 6. **Wake-up**: If agents active and no cron → `schedule(CronExpression="*/10 * * * *", Prompt="Pipeline: check agents, process, advance, update walkthrough.")`. **Never be unwakeable.**
 
 ### Decision Loop (Step 4)
@@ -116,31 +116,17 @@ Two files. The user only reads these — never the chat.
 
 ### `updates.md` — Live Interface
 
-**Short, focused.** Only new/unseen information: results, decisions, questions, warnings. User leaves comments here. Must be readable in under 2 minutes.
+**Short, focused.** New/unseen information only: results, decisions, questions, warnings. User leaves comments here.
 
-### `walkthrough.md` — Archive
+- **Write:** Immediately, as soon as new information arrives (sub-agent results, decisions, findings).
+- **Clear:** ONLY when at least one user comment is received in the file. At that point → integrate into `walkthrough.md`, then overwrite `updates.md` clean.
 
-**Permanent record.** Clean, linear, by topic. Contains: final decisions, results (tables, metrics, images), conclusions. No raw conversation — only synthesized outcomes. Readable as a standalone document.
+### `walkthrough.md` — Permanent Archive
 
-### Walkthrough Flow (execute at every wake-up, Step 5)
+**Organized by topic.** Final decisions, results (tables, metrics, images), conclusions. Readable as a standalone document.
 
-```
-1. INTEGRATE: Take everything from updates.md → intelligently merge into
-   walkthrough.md. Don't copy-paste — synthesize. Keep tables, metrics,
-   images. Discard ephemeral discussion. Update existing sections if
-   results changed, or create new sections for new topics.
-
-2. CLEAR: Overwrite updates.md (it must be empty/clean).
-
-3. FILL: Write new results, decisions, questions into updates.md
-   as they arrive from sub-agents.
-```
-
-**Integration rules for walkthrough.md:**
-- Organized by topic (one section per issue), each with: Context, Callouts, Results, Synthèse.
-- Keep ALL tables, metrics, graphs, images from updates.
-- Discard: status pings, intermediate questions already answered, ephemeral notes.
-- If a topic already exists → update it with new data. If new → append a section.
+- **Write:** When `updates.md` is cleared (user commented → integrate). Synthesize — don't copy-paste. Keep tables, metrics, images. Discard ephemeral discussion. Update existing sections or create new ones.
+- **Clear:** Never. Only correct if incorrect results were recorded. Keep only final decisions and results, organized by topic.
 
 ### Callouts
 
