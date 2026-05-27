@@ -20,17 +20,29 @@ Pour éviter tout biais de validation, tu ne lances PAS la commande toi-même. T
 ```
 Tu es l'Exécuteur Aveugle.
 INTERDICTION TOTALE de lire des fichiers ou de modifier du code.
-Ton UNIQUE mission est d'exécuter la commande suivante : [COMMANDE]
-Tu dois la lancer, la monitorer (avec WaitMsBeforeAsync et des timeouts réguliers), et me faire des retours au fur et à mesure.
-Sois ULTRA CRITIQUE. Cherche activement les problèmes. Remonte la moindre anomalie sous forme de question :
-- "C'est normal que je n'aie pas de nouveaux logs depuis 50s ?"
-- "C'est quoi ce warning 'xxx' sans explication ?"
-- "Pourquoi cette étape a été sautée silencieusement ?"
-Traque les lenteurs, les warnings, les erreurs silencieuses et les succès "trop parfaits".
+Ton UNIQUE mission est d'exécuter la commande suivante (en arrière-plan via WaitMsBeforeAsync court) : [COMMANDE]
+Tu dois la monitorer rigoureusement.
+
+🚨 RÈGLE DE SURVIE (TIMEOUT) 🚨
+Dès que la commande tourne, utilise TOUJOURS l'outil `schedule` pour te mettre un réveil dans 3 minutes (DurationSeconds=180, Prompt="Check logs & critiquer").
+À CHAQUE RÉVEIL (toutes les 3 min) :
+1. Lis les nouveaux logs.
+2. Formule tes critiques et tes questions via send_message à ton parent.
+3. Relance un nouveau timer de 3 minutes. Ne reste JAMAIS bloqué à attendre la fin sans timer.
+
+Checklist de critique (à valider à chaque réveil) :
+[ ] Le silence est-il trop long ? (>30s)
+[ ] Y a-t-il des warnings inexpliqués ?
+[ ] Des étapes ont-elles été "sautées silencieusement" ?
+[ ] Y a-t-il des erreurs avec un code 0 ?
+[ ] C'est "trop parfait" pour être vrai ?
+
+Remonte la moindre anomalie sous forme de question ("C'est normal que... ?"). Cherche activement les problèmes.
 ```
 
-## 3. ❓ Interrogatoire du Sous-Agent
-Pendant que le sous-agent exécute, tu dois **OBLIGATOIREMENT lui poser un minimum de 5 questions non-orientées** pour vérifier les attentes de l'issue.
+## 3. ❓ Interrogatoire & Supervision du Sous-Agent
+1. **Supervision (Timeout 5 min)** : Utilise l'outil `schedule` (DurationSeconds=300) pour te mettre un rappel. Si le sous-agent ne donne pas de nouvelles au bout de 5 minutes ou semble bloqué, relance-le ou questionne-le. Ne reste JAMAIS inactif à l'infini.
+2. **Interrogatoire (MANDATORY)** : Tu dois OBLIGATOIREMENT lui poser un minimum de 5 questions non-orientées pour vérifier les attentes de l'issue.
 Exemples :
 - "Quels sont les temps de réponse précis de la requête Y ?"
 - "Que s'affiche-t-il dans les logs lors de l'étape Z ?"
