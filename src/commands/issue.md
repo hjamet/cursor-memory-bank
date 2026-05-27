@@ -7,8 +7,8 @@ description: Artisan implémenteur. Prend la première issue, l'implémente, pro
 
 **Objectif** : Implémenter l'issue la plus urgente de A à Z.
 
-> **📦 TU ES UN ARTISAN.** Ton livrable doit être propre et testé basiquement.
-> **🚫 AUCUNE EXÉCUTION LONGUE.** Tu ne DOIS JAMAIS exécuter de commandes longues (pipelines, runs complexes). Si ta tâche consiste essentiellement à cela, vérifie statiquement le code, prépare la commande, et délègue l'exécution via le walkthrough.
+> **📦 TU ES UN ARTISAN.** Ton livrable doit être propre et vérifié basiquement.
+> **🚫 AUCUNE EXÉCUTION LONGUE.** Tu ne DOIS JAMAIS exécuter de commandes longues (pipelines, entraînements, runs complexes, benchmarks, etc.). L'exécution en conditions réelles est le job EXCLUSIF des Reviewers. Toi, tu ne fais que t'assurer que ton code ne leur fera pas perdre leur temps : compilation OK, syntaxe OK, imports OK. Prépare la commande d'exécution et consigne-la dans le walkthrough pour les Reviewers.
 > **🚫 PAS DE SOUS-AGENTS.** Tu fais le travail et tu t'arrêtes. Le Reviewer prendra le relais ensuite.
 
 ## 1. 🔍 Démarrage
@@ -23,8 +23,14 @@ description: Artisan implémenteur. Prend la première issue, l'implémente, pro
 
 ## 3. 🛠️ Implémentation
 - Respecte les conventions. Commits atomiques.
-- **Vérifie ton code** : Pas d'erreurs de syntaxe, imports corrects. Exécute les tests unitaires *très basiques* si possible rapidement.
-- **PAS de run long** : Laisse l'exécution critique au Reviewer.
+- **Vérifications rapides UNIQUEMENT** (tout doit prendre <30 secondes) :
+  - ✅ Compilation / syntaxe (`python -c "import mon_module"`, `tsc --noEmit`, etc.)
+  - ✅ Imports corrects, pas d'erreurs évidentes
+  - ✅ Tests unitaires ultra-rapides s'ils existent déjà
+  - ✅ Linting basique
+  - ❌ Pipelines, entraînements, benchmarks, exécutions complètes
+  - ❌ Toute commande qui prend plus de 30 secondes
+- **Ton objectif** : t'assurer que le code ne fera PAS perdre leur temps aux Reviewers avec des erreurs triviales. Tu ne fais PAS le travail des Reviewers. Tu prépares un livrable propre qu'ils pourront tester en conditions réelles.
 
 ## 4. 📝 Livrable (Walkthrough)
 Crée un **artefact** `walkthrough.md` (via le système d'artefacts, PAS un fichier physique dans le repo) contenant :
