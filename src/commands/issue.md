@@ -166,72 +166,60 @@ Once implementation is complete and **verified by real execution**, create or up
 
 ### 🤼 Step 5b. Adversarial Review (MANDATORY)
 
-> **⚠️ TU NE MARQUES JAMAIS L'ISSUE COMME IN-REVIEW TANT QUE TON SOUS-AGENT REVIEW N'A PAS DONNÉ SON AVAL.**
+> **⚠️ TU NE MARQUES JAMAIS L'ISSUE COMME IN-REVIEW TANT QUE TON SOUS-AGENT REVIEW N'A PAS DONNÉ SON AVAL ET SIGNÉ TON WALKTHROUGH.**
 >
 > C'est un système **adversarial** (comme un GAN) : tu produis, le reviewer détruit. Ping-pong jusqu'à ce que le reviewer n'ait plus rien à dire.
 
 #### Lancer le sous-agent Review
 
-Une fois ton walkthrough prêt, lance un sous-agent (`invoke_subagent(TypeName="self")`) avec ce prompt :
+Une fois ton walkthrough prêt, lance un sous-agent avec ce prompt :
 
 ```
-Tu es un REVIEWER ULTRA-CRITIQUE. Ton unique objectif : trouver TOUT ce qui
-ne va pas dans le travail qui vient d'être fait. Tu es l'adversaire de l'agent
-qui a implémenté. Tu cherches la petite bête.
+Ta consigne ABSOLUE : lis et suis À LA LETTRE le fichier `reviewer.md`
+(dans `.cursor/commands/` ou `.agent/workflows/`). C'est ton workflow complet.
 
-Contexte :
+Contexte de ta mission :
 - Issue #XX : [TITRE]
-- Definition of Done : [COLLER LA DEFINITION OF DONE DE L'ISSUE]
-- Walkthrough : [RÉFÉRENCE AU FICHIER]
+- Definition of Done : [COLLER LA DEFINITION OF DONE]
+- Walkthrough à reviewer : [CHEMIN DU FICHIER walkthrough.md]
+- Repo : [owner/repo]
 
-Ta mission :
-1. Lis le walkthrough et la Definition of Done.
-2. VÉRIFIE que chaque point du Definition of Done est REELLEMENT satisfait :
-   - Les fichiers existent-ils ? Sont-ils non-vides ?
-   - Les résultats sont-ils cohérents et réalistes ?
-3. EXÉCUTE les commandes de vérification :
-   - Lance les tests en conditions réelles (PAS de mock).
-   - Exécute la pipeline / le script / la commande principale.
-   - Analyse les logs LIGNE PAR LIGNE.
-4. CHERCHE LES PROBLÈMES :
-   - Erreurs de syntaxe, imports manquants, typos.
-   - Warnings ignorés.
-   - Résultats anormaux ou suspicieusement parfaits.
-   - Lenteurs (>30s sans output = PROBLÈME).
-   - Fichiers promis mais absents.
-   - Tests qui passent mais ne testent rien.
-   - Code dupliqué, logique absurde, boucles inutiles.
-5. VÉRIFIE que le repo est propre :
-   - Pas de fichiers temporaires oubliés.
-   - Commits atomiques avec messages clairs.
-   - Documentation à jour.
-
-RÈGLE D'OR : Si tu ne trouves AUCUN problème, c'est que tu n'as pas assez
-cherché. Regarde plus attentivement.
-
-Envoie-moi via send_message un rapport structuré :
-- ❌ BLOQUANT : [problèmes qui empêchent la livraison]
-- ⚠️ MINEUR : [problèmes à corriger mais non bloquants]
-- ✅ VALIDÉ : [ce qui est conforme]
-- 📝 VERDICT : APPROUVÉ / REJETÉ
+Tu dois :
+1. Relire l'issue originale AVANT de regarder le walkthrough.
+2. Vérifier, exécuter, critiquer selon reviewer.md.
+3. SIGNER le walkthrough si approuvé (ajouter ta section Review Interne).
+4. Les problèmes HORS SCOPE ne bloquent PAS — remonte-les dans ta signature.
 ```
+
+#### Le Reviewer va :
+
+1. **Relire l'issue** pour comprendre le travail attendu (pas juste le walkthrough).
+2. **Vérifier les fichiers** : existence, contenu, cohérence.
+3. **Exécuter les tests/pipeline AU PREMIER PLAN** : surveiller les logs, les temps d'exécution.
+4. **Classifier les problèmes** :
+   - 🔴 **Bloquants** (liés à ton travail) → tu dois corriger.
+   - 🟡 **Mineurs** (liés à ton travail) → tu dois corriger.
+   - 🟠 **Hors scope** (préexistants, pas liés à l'issue) → ne te bloque PAS, remontés à l'Architect dans la signature.
+5. **Signer ton walkthrough** avec des callouts spéciaux pour l'Architect (observations d'exécution, problèmes hors scope, comportements louches).
 
 #### Ping-Pong Adversarial
 
 ```
-┌────────────────────────────────────────────────┐
-│  Toi (Issue agent) : implémente + walkthrough    │
-│                         ↓                        │
-│  Reviewer sub-agent : analyse + rapport          │
-│                         ↓                        │
-│  REJETÉ ? → Corrige les problèmes, relance review │
-│  APPROUVÉ ? → Marque in-review                   │
-└────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│  Toi (Issue agent) : implémente + walkthrough          │
+│                         ↓                              │
+│  Reviewer : lit l'issue, vérifie, exécute, critique    │
+│                         ↓                              │
+│  REJETÉ ? → Corrige les 🔴 et 🟡, relance review      │
+│  APPROUVÉ ? → Reviewer signe le walkthrough            │
+│                         ↓                              │
+│  Marque in-review                                      │
+└────────────────────────────────────────────────────────┘
 ```
 
-1. **Reviewer REJETÉ** → Fix TOUS les problèmes bloquants + les mineurs. Mets à jour le walkthrough. Relance le reviewer (ou envoie un message au même sub-agent).
-2. **Reviewer APPROUVÉ** → Procède au marquage in-review.
-3. **Maximum 3 itérations**. Si après 3 rounds le reviewer trouve encore des bloquants, marque quand même in-review mais documente clairement les problèmes restants dans le walkthrough.
+1. **Reviewer REJETÉ** → Fix TOUS les problèmes 🔴 bloquants + 🟡 mineurs. Mets à jour le walkthrough. Relance le reviewer (ou envoie un message au même sub-agent).
+2. **Reviewer APPROUVÉ** → Le reviewer **signe le walkthrough** (ajoute sa section Review Interne avec callouts). Procède au marquage in-review.
+3. **Maximum 3 itérations**. Si après 3 rounds le reviewer trouve encore des bloquants, marque quand même in-review mais documente clairement les problèmes restants.
 
 ---
 
