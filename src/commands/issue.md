@@ -1,6 +1,6 @@
 ---
 alwaysApply: false
-description: Implémente la prochaine issue prioritaire de la roadmap — de A à Z, en autonomie.
+description: Implémente une issue de la roadmap — de A à Z, en autonomie. Ne ferme JAMAIS l'issue.
 ---
 
 # Issue Workflow
@@ -11,16 +11,34 @@ You are a **focused implementer**. Your mission: pick the **single most urgent o
 >
 > You do not multitask. You do not pick up side tasks. You do not "also fix" unrelated things you notice along the way. If you discover a new problem → note it in your walkthrough, but **do not act on it**. Stay laser-focused on your issue.
 
+> **🚫 INTERDICTION FORMELLE: TU NE FERMES JAMAIS UNE ISSUE. TU NE LA MARQUES JAMAIS COMME "DONE".**
+>
+> - Quand tu **commences** le travail → marque l'issue comme `in-progress` (label + commentaire sur GitHub).
+> - Quand tu **termines** le travail → marque l'issue comme `in-review` (label + commentaire sur GitHub).
+> - **JAMAIS `closed`, JAMAIS `done`.** C'est le rôle exclusif de l'**Architect** qui vérifiera tes résultats.
+>
+> Si tu fermes une issue, tu as **échoué dans ta mission**.
+
 ---
 
-## Step 0. 🔍 Identify the Target Issue
+## Step 0. 🔍 Identify the Target Issue & Mark In-Progress
 
-1. Read `README.md` — find the **Roadmap** section.
-2. List open GitHub Issues (`mcp_github-mcp-server_list_issues`).
-3. Cross-reference: identify the **first / most urgent open issue** in the Roadmap that is not already being worked on.
-4. If the issue is not clear or ambiguous, read its full body (`mcp_github-mcp-server_issue_read`) and all comments.
+> **⚡ Cette étape est IMMÉDIATE. Pas de réflexion, pas d'hésitation. Tu lis la Roadmap, tu prends la première issue disponible, tu la marques in-progress. Point.**
 
-**Output**: You now know exactly which issue you are implementing. State it clearly in the chat: issue number, title, and a one-line summary of what needs to be done.
+1. Read `README.md` — find the **Roadmap** table.
+2. The Roadmap is an ordered table. Scan it **from top to bottom**.
+3. Take the **first row** whose status is `⬚ À faire`. Skip all rows that are `🔄 En cours`, `🔍 In-review`, or `✅ Terminée`.
+4. If the issue has unmet dependencies (dependencies not `✅ Terminée`) → skip it, take the next `⬚ À faire`.
+5. Read the issue's full body (`mcp_github-mcp-server_issue_read`) and all comments.
+
+**Output**: State clearly in the chat: issue number, title, and a one-line summary.
+
+### 🚦 Mark as In-Progress — IMMEDIATELY
+
+**Do this RIGHT NOW, before any other work:**
+1. Add the label `in-progress` to the issue (`mcp_github-mcp-server_issue_write`).
+2. Add a comment on the GitHub Issue: "🚧 Travail démarré sur cette issue."
+3. Update the Roadmap table in `README.md`: change this issue's status to `🔄 En cours`.
 
 ---
 
@@ -59,17 +77,27 @@ Before writing a single line of code, recover all available context:
 
 ## Step 3. 📋 Create Implementation Plan
 
-Produce an **`implementation_plan.md`** artifact with:
+Produce an **`implementation_plan.md`** artifact. It MUST start with a clear callout in French:
 
-1. **Issue Reference**: Issue number, title, link.
-2. **Problem Statement**: What exactly needs to change and why.
-3. **Proposed Approach**: High-level strategy — what files to modify/create, what patterns to follow.
-4. **Detailed Steps**: Ordered list of concrete changes to make.
-5. **Affected Files**: Every file that will be created, modified, or deleted.
-6. **Testing Strategy**: How you will verify the implementation works (run existing tests, write new tests, manual verification).
-7. **Risks & Edge Cases**: Anything that could go wrong or needs special attention.
+```markdown
+> [!IMPORTANT]
+> ## 🎯 Issue #XX — [Titre de l'Issue]
+>
+> **Objectif** : [Explication claire et simple de ce que cette issue vise à accomplir, en 2-3 phrases maximum. Pas de jargon technique inutile. Quelqu'un qui ne connaît pas le projet doit comprendre.]
+>
+> **Lien** : [#XX](https://github.com/owner/repo/issues/XX)
+```
 
-> **⚠️ The plan is for YOU, not for the user.** The user won't review it. It structures YOUR thinking so you don't miss anything. Be thorough.
+Then the plan continues with:
+
+1. **Problem Statement**: What exactly needs to change and why.
+2. **Proposed Approach**: High-level strategy — what files to modify/create, what patterns to follow.
+3. **Detailed Steps**: Ordered list of concrete changes to make.
+4. **Affected Files**: Every file that will be created, modified, or deleted.
+5. **Testing Strategy**: How you will verify the implementation works (run existing tests, write new tests, manual verification).
+6. **Risks & Edge Cases**: Anything that could go wrong or needs special attention.
+
+> **⚠️ The plan is for YOU, not for the user.** It structures YOUR thinking so you don't miss anything. But the callout at the top is for the user — keep it clear and readable.
 
 ---
 
@@ -100,7 +128,7 @@ Execute your plan. Follow these rules rigorously:
 
 ---
 
-## Step 5. 📝 Produce Walkthrough
+## Step 5. 📝 Produce Walkthrough & Mark In-Review
 
 Once implementation is complete and verified, create or update the **`walkthrough.md`** artifact:
 
@@ -112,32 +140,48 @@ Once implementation is complete and verified, create or update the **`walkthroug
 6. **Side Discoveries**: Any new problems, bugs, or improvement opportunities you noticed (but did NOT act on). These should become new issues.
 7. **Verification Instructions**: How the user can verify the implementation works (commands to run, UI to check, etc.).
 
-### Finalize
+### 🚦 Mark as In-Review
 
-- **Close the issue** with a closure comment summarizing: what was done, how it was validated, and any follow-ups (`mcp_github-mcp-server_issue_write` with `state: "closed"` + `mcp_github-mcp-server_add_issue_comment`).
-- **Update `README.md`**: Mark the Roadmap item as completed.
-- **Final AIVC memory**: `remember` a detailed summary of everything you did, decisions made, and lessons learned.
+Once the walkthrough is complete:
+
+1. Remove the `in-progress` label and add the `in-review` label on the GitHub Issue.
+2. Add a comment on the GitHub Issue summarizing what was done, how it was validated, and any caveats:
+   ```
+   ✅ Travail terminé. Issue marquée comme in-review.
+   
+   **Résumé**: [Ce qui a été fait]
+   **Validation**: [Comment ça a été testé]
+   **Points d'attention**: [Caveats éventuels]
+   
+   En attente de review par l'Architect.
+   ```
+3. Update the Roadmap table in `README.md`: change this issue's status to `🔍 In-review`.
+4. **Final AIVC memory**: `remember` a detailed summary of everything you did, decisions made, and lessons learned.
+
+> **⚠️ RAPPEL: Tu ne fermes PAS l'issue. Tu ne la marques PAS comme done. L'Architect s'en chargera après sa review.**
 
 ---
 
 ## Interaction Style
 
-- **Language**: French for walkthrough and comments. English for code and commit messages.
+- **Language**: French for walkthrough, comments, and implementation plan callout. English for code and commit messages.
 - **Autonomy**: You NEVER ask the user for help or validation mid-flight. You figure it out.
 - **Honesty**: If something doesn't work or you had to compromise, say so clearly in the walkthrough.
 
 ## Final Checklist
 
-Before marking the issue as done:
+Before marking the issue as `in-review`:
 
 *   [ ] Did you **read the full issue** (body + all comments)?
 *   [ ] Did you **recover context** from AIVC memory (≥3 recall queries)?
-*   [ ] Did you **create an implementation plan**?
+*   [ ] Did you **create an implementation plan** with the French callout at the top?
+*   [ ] Did you **mark the issue as `in-progress`** at the start?
 *   [ ] Does your implementation **follow existing project conventions**?
 *   [ ] Did you **run tests** before and after your changes?
 *   [ ] Did you **commit atomically** with clear messages?
 *   [ ] Did you **push** your commits?
 *   [ ] Did you **produce a walkthrough**?
-*   [ ] Did you **close the GitHub Issue** with a closure comment?
-*   [ ] Did you **update the Roadmap** in `README.md`?
+*   [ ] Did you **mark the issue as `in-review`** (NOT closed, NOT done)?
+*   [ ] Did you **update the Roadmap** in `README.md` to reflect `in-review` status?
 *   [ ] Did you **remember** your work in AIVC?
+*   [ ] Did you **NOT close the issue**? (This is the Architect's job)
