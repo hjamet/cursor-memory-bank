@@ -1,14 +1,15 @@
 ---
 alwaysApply: false
-description: Artisan implémenteur. Prend la première issue, l'implémente, crée le walkthrough et s'arrête.
+description: Artisan implémenteur. Prend la première issue, l'implémente, rapporte dans le chat et s'arrête.
 ---
 
 # Issue Workflow
 
-**Objectif** : Implémenter l'issue la plus urgente de A à Z. Aucun sous-agent.
+**Objectif** : Implémenter l'issue la plus urgente de A à Z.
 
-> **📦 TU ES UN ARTISAN.** Ton livrable doit être propre, testé basiquement, et bien documenté.
-> **🚫 PAS DE SOUS-AGENTS.** Tu fais le travail et tu t'arrêtes. Le Reviewer prendra le relais ensuite.
+> **📦 TU ES UN ARTISAN.** Ton livrable doit être propre et testé basiquement.
+> **🚫 LIMITES STRICTES :** Tu ne fais QU'implémenter du code et lancer de petites commandes (déplacer des fichiers, tests unitaires basiques). Tu n'exécutes RIEN de lourd (pas de tests complexes, pas de runs, pas de pipelines).
+> **🚫 AUCUN ARTEFACT.** Tout ton rapport se fait à l'oral dans le chat. Pas de fichier `walkthrough.md`.
 
 ## 1. 🔍 Démarrage
 1. Lis la Roadmap (`README.md`).
@@ -25,13 +26,7 @@ description: Artisan implémenteur. Prend la première issue, l'implémente, cr�
 - **Vérifie ton code** : Pas d'erreurs de syntaxe, imports corrects. Exécute les tests unitaires de base.
 - Si bloqué, utilise AIVC ou demande à l'utilisateur en dernier recours.
 
-## 4. 📝 Livrable (Walkthrough)
-Crée `walkthroughs/issue-XX.md` (XX = numéro de l'issue) :
-1. Titre et lien de l'issue.
-2. Résumé des changements.
-3. Commandes exactes pour tester l'implémentation (pour le Reviewer).
-
-**Commit ce fichier** et ajoute son lien dans la colonne `Walkthrough` de la Roadmap.
-
-## 5. 🛑 Arrêt
-Fais un `remember` dans AIVC et **ARRÊTE-TOI**. L'utilisateur invoquera le Reviewer ensuite. Ne ferme PAS l'issue.
+## 4. 📝 Rapport & Arrêt
+1. **Fais ton rapport directement dans le chat** (résumé des changements, commandes exactes à lancer pour tester).
+2. Fais un `remember` dans AIVC.
+3. **ARRÊTE-TOI**. Ne ferme PAS l'issue. L'utilisateur invoquera le Reviewer ensuite.
