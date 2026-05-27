@@ -1,6 +1,6 @@
 ---
 alwaysApply: false
-description: Artisan implémenteur. Prend la première issue, l'implémente, crée un walkthrough et s'arrête.
+description: Artisan implémenteur. Prend la première issue, l'implémente, produit un artefact walkthrough et s'arrête.
 ---
 
 # Issue Workflow
@@ -27,12 +27,12 @@ description: Artisan implémenteur. Prend la première issue, l'implémente, cr�
 - **PAS de run long** : Laisse l'exécution critique au Reviewer.
 
 ## 4. 📝 Livrable (Walkthrough)
-Crée le fichier `walkthroughs/issue-XX.md` (XX = numéro de l'issue) :
+Crée un **artefact** `walkthrough.md` (via le système d'artefacts, PAS un fichier physique dans le repo) contenant :
 1. Titre et lien de l'issue.
 2. Résumé des changements.
 3. Commandes exactes pour tester l'implémentation (pour le prochain agent Reviewer).
 
-**Commit ce fichier** et mets à jour la Roadmap pour ajouter le lien vers ce walkthrough.
+Cet artefact sera partagé automatiquement avec le Reviewer qui prendra le relais.
 
 ## 5. 🛑 Arrêt
 1. Rapporte tes actions dans le chat.
