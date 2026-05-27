@@ -148,7 +148,7 @@ Execute your plan. Follow these rules rigorously:
 
 ---
 
-## Step 5. 📝 Produce Walkthrough & Mark In-Review
+## Step 5. 📝 Produce Walkthrough & Adversarial Review
 
 Once implementation is complete and **verified by real execution**, create or update the **`walkthrough.md`** artifact.
 
@@ -160,19 +160,93 @@ Once implementation is complete and **verified by real execution**, create or up
 4. **Testing Results**: What tests were run, what passed, any caveats. **Include actual command outputs, not just "tests pass".**
 5. **Decisions Made**: Any non-obvious choices you made during implementation, with reasoning.
 6. **Side Discoveries**: Any new problems, bugs, or improvement opportunities you noticed (but did NOT act on). These should become new issues.
-7. **Verification Instructions**: Exact commands the Architect's sub-agent should run to verify the work. Be specific — not "run the tests" but the exact command with expected output.
+7. **Verification Instructions**: Exact commands to run to verify the work, with expected output.
 
-### 🚦 Mark as In-Review
+---
 
-Once the walkthrough is complete:
+### 🤼 Step 5b. Adversarial Review (MANDATORY)
+
+> **⚠️ TU NE MARQUES JAMAIS L'ISSUE COMME IN-REVIEW TANT QUE TON SOUS-AGENT REVIEW N'A PAS DONNÉ SON AVAL.**
+>
+> C'est un système **adversarial** (comme un GAN) : tu produis, le reviewer détruit. Ping-pong jusqu'à ce que le reviewer n'ait plus rien à dire.
+
+#### Lancer le sous-agent Review
+
+Une fois ton walkthrough prêt, lance un sous-agent (`invoke_subagent(TypeName="self")`) avec ce prompt :
+
+```
+Tu es un REVIEWER ULTRA-CRITIQUE. Ton unique objectif : trouver TOUT ce qui
+ne va pas dans le travail qui vient d'être fait. Tu es l'adversaire de l'agent
+qui a implémenté. Tu cherches la petite bête.
+
+Contexte :
+- Issue #XX : [TITRE]
+- Definition of Done : [COLLER LA DEFINITION OF DONE DE L'ISSUE]
+- Walkthrough : [RÉFÉRENCE AU FICHIER]
+
+Ta mission :
+1. Lis le walkthrough et la Definition of Done.
+2. VÉRIFIE que chaque point du Definition of Done est REELLEMENT satisfait :
+   - Les fichiers existent-ils ? Sont-ils non-vides ?
+   - Les résultats sont-ils cohérents et réalistes ?
+3. EXÉCUTE les commandes de vérification :
+   - Lance les tests en conditions réelles (PAS de mock).
+   - Exécute la pipeline / le script / la commande principale.
+   - Analyse les logs LIGNE PAR LIGNE.
+4. CHERCHE LES PROBLÈMES :
+   - Erreurs de syntaxe, imports manquants, typos.
+   - Warnings ignorés.
+   - Résultats anormaux ou suspicieusement parfaits.
+   - Lenteurs (>30s sans output = PROBLÈME).
+   - Fichiers promis mais absents.
+   - Tests qui passent mais ne testent rien.
+   - Code dupliqué, logique absurde, boucles inutiles.
+5. VÉRIFIE que le repo est propre :
+   - Pas de fichiers temporaires oubliés.
+   - Commits atomiques avec messages clairs.
+   - Documentation à jour.
+
+RÈGLE D'OR : Si tu ne trouves AUCUN problème, c'est que tu n'as pas assez
+cherché. Regarde plus attentivement.
+
+Envoie-moi via send_message un rapport structuré :
+- ❌ BLOQUANT : [problèmes qui empêchent la livraison]
+- ⚠️ MINEUR : [problèmes à corriger mais non bloquants]
+- ✅ VALIDÉ : [ce qui est conforme]
+- 📝 VERDICT : APPROUVÉ / REJETÉ
+```
+
+#### Ping-Pong Adversarial
+
+```
+┌────────────────────────────────────────────────┐
+│  Toi (Issue agent) : implémente + walkthrough    │
+│                         ↓                        │
+│  Reviewer sub-agent : analyse + rapport          │
+│                         ↓                        │
+│  REJETÉ ? → Corrige les problèmes, relance review │
+│  APPROUVÉ ? → Marque in-review                   │
+└────────────────────────────────────────────────┘
+```
+
+1. **Reviewer REJETÉ** → Fix TOUS les problèmes bloquants + les mineurs. Mets à jour le walkthrough. Relance le reviewer (ou envoie un message au même sub-agent).
+2. **Reviewer APPROUVÉ** → Procède au marquage in-review.
+3. **Maximum 3 itérations**. Si après 3 rounds le reviewer trouve encore des bloquants, marque quand même in-review mais documente clairement les problèmes restants dans le walkthrough.
+
+---
+
+### 🚦 Mark as In-Review — ONLY AFTER REVIEWER APPROVAL
+
+**Prérequis** : Le sous-agent review a envoyé un verdict `APPROUVÉ`.
 
 1. Remove the `in-progress` label and add the `in-review` label on the GitHub Issue.
-2. Add a comment on the GitHub Issue summarizing what was done, how it was validated, and any caveats:
+2. Add a comment on the GitHub Issue summarizing what was done, how it was validated, and the reviewer's verdict:
    ```
    ✅ Travail terminé. Issue marquée comme in-review.
    
    **Résumé**: [Ce qui a été fait]
    **Validation**: [Comment ça a été testé]
+   **Review interne**: Approuvé après [N] itération(s)
    **Points d'attention**: [Caveats éventuels]
    
    En attente de review par l'Architect.
@@ -187,7 +261,7 @@ Once the walkthrough is complete:
 ## Interaction Style
 
 - **Language**: French for walkthrough, comments, and implementation plan callout. English for code and commit messages.
-- **Autonomy**: You NEVER ask the user for help or validation mid-flight. You figure it out.
+- **Result-oriented**: Every action must produce a tangible, verifiable result. No vague claims.
 - **Honesty**: If something doesn't work or you had to compromise, say so clearly in the walkthrough.
 
 ## Final Checklist
@@ -199,10 +273,12 @@ Before marking the issue as `in-review`:
 *   [ ] Did you **create an implementation plan** with the French callout at the top?
 *   [ ] Did you **mark the issue as `in-progress`** at the start?
 *   [ ] Does your implementation **follow existing project conventions**?
-*   [ ] Did you **run tests** before and after your changes?
+*   [ ] Did you **execute the code in real conditions** and verify it works?
+*   [ ] Did you **check for stupid errors** (syntax, imports, logic)?
 *   [ ] Did you **commit atomically** with clear messages?
 *   [ ] Did you **push** your commits?
-*   [ ] Did you **produce a walkthrough**?
+*   [ ] Did you **produce a walkthrough** with actual test outputs?
+*   [ ] Did your **review sub-agent approve** the work (verdict APPROUVÉ)?
 *   [ ] Did you **mark the issue as `in-review`** (NOT closed, NOT done)?
 *   [ ] Did you **update the Roadmap** in `README.md` to reflect `in-review` status?
 *   [ ] Did you **remember** your work in AIVC?
