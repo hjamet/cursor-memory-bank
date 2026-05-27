@@ -22,7 +22,7 @@ description: Implémente une issue de la roadmap — de A à Z. Ne ferme JAMAIS 
 3. Read full issue body + comments.
 
 **Immediately**:
-1. Label `in-progress` + comment "🚧 Travail démarré."
+1. Label `in-progress` on the GitHub issue.
 2. Update Roadmap → `🔄 En cours`.
 
 ---
@@ -114,22 +114,19 @@ Contexte :
 
 1. Relis l'issue AVANT le walkthrough.
 2. Vérifie, exécute, critique selon reviewer.md.
-3. SIGNE le walkthrough si approuvé.
-4. Problèmes HORS SCOPE → ne bloquent pas, remontés dans la signature.
+3. Si APPROUVÉ → poste ton rapport final sur le fil GitHub de l'issue.
+4. Problèmes HORS SCOPE → ne bloquent pas, remontés dans le commentaire GitHub.
 ```
 
-**Ping-pong**: REJETÉ → fix 🔴🟡 problems, relance. APPROUVÉ → reviewer signe le walkthrough. **Max 3 itérations**.
+**Ping-pong**: REJETÉ → fix 🔴🟡 problems, relance. APPROUVÉ → reviewer poste son rapport sur GitHub. **Max 3 itérations**.
 
 ### 5c. 🚦 Mark In-Review (AFTER reviewer approval)
 
-1. Label `in-review` (remove `in-progress`) + comment:
-   ```
-   ✅ Issue marquée in-review.
-   Résumé: [fait] | Validation: [tests] | Review interne: Approuvé ([N] itérations)
-   En attente de review par l'Architect.
-   ```
+1. Label `in-review` (remove `in-progress`).
 2. Update Roadmap → `🔍 In-review`.
 3. AIVC `remember` summary.
+
+> **Pas de commentaire boilerplate sur GitHub.** Le rapport du reviewer suffit. Ne poster un commentaire que s'il y a des informations utiles supplémentaires (changements de direction, caveats importants).
 
 > **Tu ne fermes PAS l'issue. L'Architect s'en charge.**
 
@@ -147,7 +144,7 @@ French (walkthrough/comments/plan callout). English (code/commits). Result-orien
 - [ ] Stupid errors checked?
 - [ ] Atomic commits, pushed?
 - [ ] Walkthrough with actual outputs?
-- [ ] Review sub-agent approved + signed?
+- [ ] Review sub-agent approved + posted on GitHub?
 - [ ] Marked `in-review` (NOT closed)?
 - [ ] Roadmap updated?
 - [ ] AIVC memory saved?

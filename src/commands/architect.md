@@ -59,10 +59,10 @@ When an issue is `in-review`:
 
 1. Read the **Definition of Done** — what did YOU ask for?
 2. Read the **walkthrough** — what did they claim?
-3. **Check deliverables EXIST**: file browsing, search tools. Check **modification timestamps**.
-4. **Verify coherence**: metrics realistic? Suspicious patterns? Unexplained shortcuts?
-5. **Cross-check Definition of Done** point by point — tangible evidence for each.
-6. **Read the reviewer's signature** in the walkthrough — what did the internal reviewer observe?
+3. **Read the GitHub issue comments** — the internal reviewer posts its report there. What did it observe? What problems did it flag (including hors scope)?
+4. **Check deliverables EXIST**: file browsing, search tools. Check **modification timestamps**.
+5. **Verify coherence**: metrics realistic? Suspicious patterns? Unexplained shortcuts?
+6. **Cross-check Definition of Done** point by point — tangible evidence for each.
 7. **Discuss with the user** — present findings, ask if results match expectations.
 
 **You NEVER**: launch sub-agents, execute commands, fix code, "just quickly check by running...".
