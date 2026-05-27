@@ -9,7 +9,9 @@ description: Implémente une issue de la roadmap — de A à Z. Ne ferme JAMAIS 
 
 > **📦 TU ES UN ARTISAN. Ton livrable doit être propre, testé, clair, complet. Si tu livres du travail bâclé, c'est un échec.**
 
-> **🚫 TU NE FERMES JAMAIS UNE ISSUE.** `in-progress` au démarrage → `in-review` à la fin. JAMAIS `closed`/`done`. Seul l'Architect ferme les issues.
+> **🚫 TU NE FERMES JAMAIS UNE ISSUE.** Label `in-progress` au démarrage. Seul l'Architect ferme les issues.
+
+> **🚫 JAMAIS de commentaires GitHub.** Tu ne fais JAMAIS `add_issue_comment`. Ton livrable est le fichier `walkthroughs/issue-XX.md`.
 
 ---
 
@@ -18,8 +20,8 @@ description: Implémente une issue de la roadmap — de A à Z. Ne ferme JAMAIS 
 > **⚡ IMMÉDIAT. Lis la Roadmap, prends la première issue disponible, marque-la in-progress.**
 
 1. Read README Roadmap table **top to bottom**.
-2. Take first row `⬚ À faire` with dependencies `✅ Terminée`. Skip `🔄 En cours`/`🔍 In-review`/`✅ Terminée`.
-3. Read full issue body + comments.
+2. Take first row `⬚ À faire` with dependencies `✅ Terminée`. Skip `🔄 En cours`/`✅ Terminée`.
+3. Read full issue body.
 
 **Immediately**:
 1. Label `in-progress` on the GitHub issue.
@@ -30,10 +32,9 @@ description: Implémente une issue de la roadmap — de A à Z. Ne ferme JAMAIS 
 ## Step 1. 📦 Load Details
 
 1. Full issue body: Context, Affected Files, Definition of Done.
-2. All comments (scope changes, constraints).
-3. Explore referenced files.
-4. Trace dependencies (linked issues/PRs).
-5. Check existing PRs for this issue.
+2. Explore referenced files.
+3. Trace dependencies (linked issues/PRs).
+4. Check existing PRs for this issue.
 
 ---
 
@@ -47,7 +48,7 @@ description: Implémente une issue de la roadmap — de A à Z. Ne ferme JAMAIS 
 
 ## Step 3. 📋 Implementation Plan
 
-Produce `implementation_plan.md`. Start with:
+Produce `implementation_plan.md` artifact. Start with:
 
 ```markdown
 > [!IMPORTANT]
@@ -85,9 +86,9 @@ Then: Problem Statement, Approach, Detailed Steps, Affected Files, Testing Strat
 
 ### 5a. Produce Walkthrough
 
-> **Le walkthrough est ton LIVRABLE pour l'Architect. Il doit être impeccable.**
+> **Le walkthrough est ton LIVRABLE. C'est un fichier dans le repo, pas un artifact.**
 
-Create `walkthrough.md` with:
+Create the file `walkthroughs/issue-XX.md` (where XX = issue number) with:
 1. Issue reference (number, title, link)
 2. Summary (2-3 sentences)
 3. Changes made (per file)
@@ -96,9 +97,11 @@ Create `walkthrough.md` with:
 6. Side discoveries (noted but NOT acted on)
 7. Verification instructions (exact commands + expected output)
 
+**Commit this file.** Update the Roadmap table: add the walkthrough link in the Walkthrough column.
+
 ### 5b. 🤼 Adversarial Review (MANDATORY)
 
-> **⚠️ JAMAIS in-review sans l'aval du reviewer. Système adversarial : tu produis, le reviewer détruit.**
+> **⚠️ JAMAIS fini sans l'aval du reviewer. Système adversarial : tu produis, le reviewer détruit.**
 
 Launch a sub-agent with this prompt:
 
@@ -109,42 +112,42 @@ CONSIGNE ABSOLUE : lis et suis À LA LETTRE `reviewer.md`
 Contexte :
 - Issue #XX : [TITRE]
 - Definition of Done : [COLLER]
-- Walkthrough : [CHEMIN]
+- Walkthrough : walkthroughs/issue-XX.md
 - Repo : [owner/repo]
 
 1. Relis l'issue AVANT le walkthrough.
 2. Vérifie, exécute, critique selon reviewer.md.
-3. Si APPROUVÉ → poste ton rapport final sur le fil GitHub de l'issue.
-4. Problèmes HORS SCOPE → ne bloquent pas, remontés dans le commentaire GitHub.
+3. SIGNE le walkthrough (modifie directement walkthroughs/issue-XX.md).
+4. Problèmes HORS SCOPE → ne bloquent pas, remontés dans la signature.
 ```
 
-**Ping-pong**: REJETÉ → fix 🔴🟡 problems, relance. APPROUVÉ → reviewer poste son rapport sur GitHub. **Max 3 itérations**.
+**Ping-pong**: REJETÉ → fix 🔴🟡 problems, relance. APPROUVÉ → reviewer signe le walkthrough (modifie le fichier directement). **Max 3 itérations**.
 
-### 5c. 🚦 Mark In-Review (AFTER reviewer approval)
+### 5c. 🏁 Finalize
 
-1. Label `in-review` (remove `in-progress`).
-2. Update Roadmap → `🔍 In-review`.
+Once reviewer has signed `walkthroughs/issue-XX.md`:
+1. Commit the signed walkthrough.
+2. Verify the Roadmap has the walkthrough link.
 3. AIVC `remember` summary.
+4. Push.
 
-> **Pas de commentaire boilerplate sur GitHub.** Le rapport du reviewer suffit. Ne poster un commentaire que s'il y a des informations utiles supplémentaires (changements de direction, caveats importants).
-
-> **Tu ne fermes PAS l'issue. L'Architect s'en charge.**
+> **Tu ne fermes PAS l'issue. Tu ne retires PAS le label `in-progress`. L'Architect s'en charge.**
 
 ---
 
 ## Style
-French (walkthrough/comments/plan callout). English (code/commits). Result-oriented. Honest.
+French (walkthrough/plan callout). English (code/commits). Result-oriented. Honest. **Never write GitHub comments.**
 
 ## Checklist
-- [ ] Issue read (body + comments)?
+- [ ] Issue read (body)?
 - [ ] AIVC context recovered (≥3 recalls)?
 - [ ] Implementation plan with French callout?
 - [ ] Marked `in-progress` at start?
 - [ ] Code executed in real conditions?
 - [ ] Stupid errors checked?
 - [ ] Atomic commits, pushed?
-- [ ] Walkthrough with actual outputs?
-- [ ] Review sub-agent approved + posted on GitHub?
-- [ ] Marked `in-review` (NOT closed)?
-- [ ] Roadmap updated?
+- [ ] `walkthroughs/issue-XX.md` created with actual outputs?
+- [ ] Review sub-agent approved + signed the walkthrough file?
+- [ ] Walkthrough link in Roadmap?
 - [ ] AIVC memory saved?
+- [ ] Zero GitHub comments?
