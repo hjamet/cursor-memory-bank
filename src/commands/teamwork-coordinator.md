@@ -17,7 +17,7 @@ description: Orchestrateur de la boucle issue→reviewer→investigator→archit
 > **⚙️ CONTRAINTES OPÉRATIONNELLES**
 > - **Max 2 sous-agents actifs** simultanément. Si 2 sont en cours, ATTENDS qu'un termine.
 > - **1 cycle = 1 séquence complète** : issue → reviewer → investigator → architect.
-> - **Timer 5 min OBLIGATOIRE** : vérifie tes sous-agents toutes les 5 minutes.
+> - **Cron 5 min OBLIGATOIRE** : vérifie tes sous-agents toutes les 5 minutes via un cron job automatique.
 > - **Chaque agent reçoit UN prompt** : "Lis le fichier de workflow et applique-le" + l'artefact de l'agent précédent.
 
 ---
@@ -36,7 +36,8 @@ description: Orchestrateur de la boucle issue→reviewer→investigator→archit
    *(Aucun cycle complété)*
    ```
 3. Envoie un message au Monitor (ton parent) : `"Coordinator initialisé. Artefact progression_summary.md créé. Je lance le premier cycle."`
-4. Lance le timer de 5 min : `schedule` (DurationSeconds=300).
+4. Lance le cron de supervision : `schedule` (CronExpression=`"*/5 * * * *"`, Prompt=`"Check supervision : vérifier l'état des sous-agents"`).
+   Le cron se déclenche automatiquement toutes les 5 minutes — **tu n'as RIEN à relancer manuellement**.
 5. Démarre le **Cycle 1** (§2).
 
 ---
@@ -114,19 +115,18 @@ Lis le fichier src/commands/architect.md et applique-le à la lettre.
 
 ---
 
-## 3. ⏰ Timer de Supervision (5 min)
+## 3. ⏰ Cron de Supervision (5 min)
 
-Le timer de 5 min est ton **battement de cœur**.
+Le cron de 5 min est ton **battement de cœur**. Il tourne automatiquement — tu n'as PAS besoin de le relancer.
 
 À chaque réveil :
 1. **Vérifie tes sous-agents actifs** : Envoie un `send_message` pour demander leur statut.
 2. **Si un agent est bloqué** (pas de réponse depuis 2+ checks) : relance-le ou tue-le et relance-en un nouveau.
 3. **Si un agent a terminé** : traite son artefact et passe à l'étape suivante du cycle.
-4. **Relance le timer de 5 min.** TOUJOURS. SYSTÉMATIQUEMENT.
 
 > [!CAUTION]
-> **🚨 SANS TIMER, TU ES MORT.**
-> Si tu oublies de relancer le timer, tu ne recevras plus de notifications et la boucle s'arrêtera.
+> **🚨 LE CRON EST TON BATTEMENT DE CŒUR.**
+> Il tourne automatiquement — pas besoin de le relancer. Pour l'arrêter : `manage_task` avec son task ID.
 
 ---
 

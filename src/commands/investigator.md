@@ -34,7 +34,7 @@ description: Gardien de l'intention du code. Vérifie si les problèmes du Revie
 Délègue l'investigation à des sous-agents. Tu es le COORDINATEUR.
 
 1. **Lancement** : Lance un sous-agent (`invoke_subagent TypeName="self"`) pour CHAQUE problème identifié.
-2. **Supervision (Timer 3 min, OBLIGATOIRE)** : `schedule` (DurationSeconds=180). À chaque réveil, vérifie que tes agents avancent. Relance-les si besoin, puis relance un timer de 3 min.
+2. **Supervision (Cron 3 min, OBLIGATOIRE)** : `schedule` (CronExpression=`"*/3 * * * *"`, Prompt=`"Check supervision : vérifier l'état des enquêteurs"`). Le cron se déclenche automatiquement — pas besoin de le relancer. À chaque réveil, vérifie que tes agents avancent et relance-les si besoin.
 3. **Agrégation** : Rassemble les retours via `send_message`.
 
 **Prompt OBLIGATOIRE du Sous-Agent :**

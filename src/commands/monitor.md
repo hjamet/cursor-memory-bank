@@ -57,19 +57,19 @@ Après le lancement : **ARRÊTE-TOI.** Ne fais rien d'autre. Attends que le Coor
 
 Une fois le Coordinator lancé, ta seule activité est un **check horaire**.
 
-1. Lance un timer : `schedule` (DurationSeconds=3600, Prompt="Check horaire : vérifier que le Teamwork Coordinator avance").
+1. Lance un cron job : `schedule` (CronExpression=`"0 * * * *"`, Prompt=`"Check horaire : vérifier que le Teamwork Coordinator avance"`).
+   Le cron se déclenche automatiquement toutes les heures — **tu n'as RIEN à relancer manuellement**.
 2. **À chaque réveil** :
    - Envoie UN message au Coordinator : `"Rapport de situation. Où en es-tu dans le goal ?"`
    - Lis sa réponse.
    - **Si le Coordinator est bloqué** (pas de réponse, ou bloqué sur un problème) : relance-le avec des instructions claires.
    - **Si le Coordinator progresse normalement** : ne fais RIEN d'autre.
-   - Relance le timer de 1h. **TOUJOURS.**
-3. **Entre les timers** : tu es **inactif**. Tu ne communiques PAS avec le Coordinator de ta propre initiative.
+3. **Entre les réveils** : tu es **inactif**. Tu ne communiques PAS avec le Coordinator de ta propre initiative.
 
 > [!CAUTION]
-> **🚨 LE TIMER EST TON BATTEMENT DE CŒUR.**
-> Sans timer, tu es MORT. Tu ne recevras plus de notifications.
-> À CHAQUE réveil : check + relance timer. SANS EXCEPTION.
+> **🚨 LE CRON EST TON BATTEMENT DE CŒUR.**
+> Le cron tourne automatiquement — tu n'as PAS besoin de le relancer.
+> Si tu veux l'arrêter, utilise `manage_task` avec son task ID.
 
 ---
 
