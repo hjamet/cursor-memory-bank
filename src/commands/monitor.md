@@ -45,11 +45,9 @@ Lis le fichier src/commands/teamwork-coordinator.md et applique-le à la lettre.
 [GOAL DE L'UTILISATEUR]
 
 Tu es le Teamwork Coordinator. Tu gères la boucle issue → reviewer → investigator → architect en continu jusqu'à ce que le goal soit atteint.
-
-Dès ton initialisation, crée un artefact `progression_summary.md` et mentionne-le moi immédiatement via send_message pour que je puisse le consulter.
 ```
 
-Après le lancement : **ARRÊTE-TOI.** Ne fais rien d'autre. Attends que le Coordinator te mentionne le `progression_summary.md`, puis passe à l'étape 3.
+Après le lancement, passe directement à l'étape 3.
 
 ---
 
@@ -87,8 +85,14 @@ Si l'utilisateur te pose une question pendant que le Coordinator travaille :
 
 Tu ne t'arrêtes que dans **ces cas précis** :
 
-1. **Le Coordinator t'informe que le goal est atteint** → Fais un `remember` (AIVC) et arrête-toi.
-2. **L'utilisateur te dit d'arrêter** → Fais un `remember` (AIVC) et arrête-toi.
-3. **Le Coordinator est mort et ne répond plus après 2 checks horaires consécutifs** → Relance-le une dernière fois. S'il ne répond toujours pas → informe l'utilisateur et arrête-toi.
+1. **L'utilisateur te dit d'arrêter** → Fais un `remember` (AIVC) et arrête-toi.
+2. **Le Coordinator est mort et ne répond plus après 2 checks horaires consécutifs** → Lance un **nouveau** Coordinator (conversation propre). S'il ne répond toujours pas après 2 checks → informe l'utilisateur et arrête-toi.
 
-Dans tous les autres cas : **tu attends passivement avec ton timer horaire actif.**
+> [!IMPORTANT]
+> **🔄 QUAND LE COORDINATOR ANNONCE QU'IL A TERMINÉ :**
+> Le Coordinator peut s'arrêter parce qu'il pense que le goal est atteint.
+> **C'est à TOI de juger.** Consulte le `progression_summary.md` et évalue froidement :
+> - **Le goal est VRAIMENT atteint** → Fais un `remember` (AIVC) et arrête-toi.
+> - **Le goal N'EST PAS atteint** → **Tue l'ancien Coordinator** (`manage_subagents` action `kill`) et **lance un NOUVEAU Coordinator** avec le même goal. Un nouveau sous-agent = une conversation propre, sans pollution de contexte. Ne réutilise JAMAIS un Coordinator terminé.
+
+Dans tous les autres cas : **tu attends passivement avec ton cron horaire actif.**
