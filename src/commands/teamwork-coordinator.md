@@ -31,6 +31,13 @@ description: Orchestrateur de la boucle issue→reviewer→investigator→archit
    **Goal** : [goal reçu du Monitor]
    **Cycles complétés** : 0
    **Statut** : 🔄 En cours
+
+   ## Issues résolues ✅
+   *(Aucune pour l'instant)*
+
+   ## Issues ajoutées 📋
+   *(Aucune pour l'instant)*
+
    ---
    ## Cycles
    *(Aucun cycle complété)*
@@ -101,16 +108,32 @@ Lis le fichier src/commands/architect.md et applique-le à la lettre.
 
 ### Fin de cycle
 
-1. Mets à jour l'artefact `progression_summary.md` avec le résumé du cycle :
+1. Mets à jour l'artefact `progression_summary.md` :
+
+   **a) Ajoute le résumé du cycle** dans la section `## Cycles` :
    ```markdown
    ### Cycle N — [timestamp]
-   - **Issue traitée** : [numéro et titre]
-   - **Verdict reviewer** : ✅ APPROUVÉ / ❌ REJETÉ
-   - **Problèmes remontés** : N
-   - **Confirmés par investigator** : N (bugs réels)
-   - **Annulés par investigator** : N (comportement intentionnel)
-   - **Issues créées par architect** : [liste des issues créées]
+   **Issue traitée** : [#XX Titre](lien GitHub)
+
+   **Reviewer** — Verdict : ✅ APPROUVÉ / ❌ REJETÉ
+   Bugs remontés : N
+   - Bug A (titre court)
+   - Bug B (titre court)
+
+   **Investigator** — Bugs confirmés : N / Rejetés : N
+   ✅ Retenus :
+   - Bug A (titre court)
+   ❌ Rejetés :
+   - Bug B — [raison courte, ex: "comportement intentionnel, le code gère volontairement ce cas"]
+
+   **Architect** — Issues créées : N / Résolues : N
+   📋 Créées : [#YY Titre](lien GitHub), [#ZZ Titre](lien GitHub)
+   ✅ Résolues : [#XX Titre](lien GitHub)
    ```
+
+   **b) Mets à jour les tableaux de suivi** en haut du document :
+   - `## Issues résolues ✅` : ajoute les issues fermées ce cycle (lien + titre)
+   - `## Issues ajoutées 📋` : ajoute les nouvelles issues créées ce cycle (lien + titre)
 2. **Recommence un nouveau cycle** (retour à l'Étape A).
 
 ---
