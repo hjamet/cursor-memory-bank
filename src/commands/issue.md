@@ -28,13 +28,16 @@ description: Artisan implémenteur. Prend la première issue prioritaire, l'impl
 
 ## 3. 🛠️ Implémentation
 - Respecte les conventions. Commits atomiques.
-- **Vérifie que ça fonctionne** : tu peux exécuter les commandes nécessaires (y compris longues) pour tester ton implémentation :
+- **Vérifications de base UNIQUEMENT** :
   - ✅ Compilation / syntaxe
   - ✅ Imports corrects, linting
-  - ✅ Tests unitaires
-  - ✅ Exécution de la commande principale pour vérifier le bon fonctionnement
+  - ✅ Tests unitaires rapides
   - ✅ Corrections rapides si tu constates des problèmes évidents
-- **Ton objectif** : livrer un code qui FONCTIONNE. Ne fais pas perdre leur temps aux Reviewers avec des erreurs triviales. Teste, constate, corrige les gros problèmes, et consigne la commande de test dans le walkthrough.
+
+> [!CAUTION]
+> **🚫 INTERDICTION ABSOLUE d'exécuter des commandes lourdes** (pipelines, serveurs, builds longs, exécutions de bout en bout).
+> Même si l'issue porte sur l'exécution d'une pipeline ou la détection d'un bug runtime : tu implémentes, tu prépares tout, tu vérifies la compilation — mais c'est le **Reviewer** qui exécutera la commande principale.
+> Consigne la commande de test dans le walkthrough pour que le Reviewer sache quoi lancer.
 
 ## 4. 📝 Livrable (Walkthrough)
 Crée un **artefact** `walkthrough.md` (via le système d'artefacts, PAS un fichier physique dans le repo) contenant :
