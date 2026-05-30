@@ -22,8 +22,10 @@ description: Gardien de l'intention du code. Vérifie si les problèmes du Revie
 
 1. Lis le `review_report.md` (artefact du Reviewer) et le `walkthrough.md` (artefact de l'Issue).
 2. Identifie CHAQUE problème remonté par le Reviewer.
-3. **Vérifie si l'utilisateur a annoté le review report avec `fix`** (en commentaire global ou sur des problèmes spécifiques). Si oui, les problèmes annotés `fix` vont directement en catégorie A.
-4. **Trie chaque problème en deux catégories** :
+3. **Vérifie si l'utilisateur a annoté le review report** (en commentaire global ou sur des problèmes spécifiques) :
+   - **`fix`** → les problèmes annotés vont directement en catégorie A (fix immédiat).
+   - **`skip`** → les problèmes annotés sont **ignorés** (verdict automatique ✅ COMPORTEMENT INTENTIONNEL, sans investigation).
+4. **Trie chaque problème restant en deux catégories** :
 
    | Catégorie | Description | Action |
    |-----------|-------------|--------|
@@ -134,6 +136,16 @@ Crée un **artefact** `investigation_report.md` avec ce format **OBLIGATOIRE** :
 | 2 | ... | ... | ... |
 
 *(Si aucune correction immédiate : "Aucun problème éligible au fix immédiat.")*
+
+---
+
+## ⏭️ Problèmes ignorés (skip utilisateur)
+
+| # | Problème | Raison |
+|---|----------|--------|
+| 1 | [Titre court] | Ignoré par l'utilisateur (annotation `skip`) |
+
+*(Si aucun problème ignoré : "Aucun.")*
 
 ---
 
