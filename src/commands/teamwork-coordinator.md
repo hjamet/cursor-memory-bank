@@ -68,7 +68,7 @@ Lis le fichier src/commands/issue.md et applique-le à la lettre.
 ```
 
 **Attends** qu'il termine. Récupère son artefact `walkthrough.md`.
-- ⚠️ S'il n'y a **plus d'issue à traiter** (toutes les issues sont `✅ Terminée`), le cycle s'arrête ici → va au §4 (Goal atteint).
+- ⚠️ S'il n'y a **plus d'issue à traiter** (aucune issue `OPEN` sans label `needs-review`), le cycle s'arrête ici → va au §4 (Goal atteint).
 
 ### Étape B — Agent Reviewer
 
@@ -161,7 +161,7 @@ Le cron de 5 min est ton **battement de cœur**. Il tourne automatiquement — t
 
 ## 4. 🛑 Conditions d'Arrêt
 
-1. **Plus d'issues à traiter** (toutes les issues sont `✅ Terminée` dans la roadmap) :
+1. **Plus d'issues à traiter** (aucune issue `OPEN` sans label `needs-review` sur GitHub) :
    - Mets à jour `progression_summary.md` avec le statut `✅ Goal atteint`.
    - **ARRÊTE-TOI.** (Le Monitor le découvrira à son prochain check horaire via l'artefact.)
 
