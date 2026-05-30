@@ -11,12 +11,11 @@ description: Artisan implémenteur. Prend la première issue prioritaire, l'impl
 > **🚫 PAS DE SOUS-AGENTS.** Tu fais le travail et tu t'arrêtes. Le Reviewer prendra le relais ensuite.
 
 ## 1. 🔍 Démarrage
-1. Récupère la première issue à traiter via GitHub :
-   - Cherche les issues `OPEN` **sans** le label `needs-review`, par priorité décroissante :
-     1. `list_issues(state=OPEN, labels=["P1"])` → prends la première sans label `needs-review`
-     2. Si aucune, essaie `P2`, puis `P3`, `P4`, `P5`
-     3. Si aucune issue à aucun niveau → **ARRÊTE-TOI**, il n'y a rien à faire.
-   - Alternative (un seul appel) : `search_issues(query="is:open -label:needs-review label:P1")`, puis P2, etc.
+1. Récupère la première issue à traiter via GitHub, par priorité décroissante :
+   1. `list_issues(state=OPEN, labels=["P1"])` → prends la première
+   2. Si aucune, essaie `P2`, puis `P3`, `P4`, `P5`
+   3. Si aucune issue à aucun niveau → **ARRÊTE-TOI**, il n'y a rien à faire.
+   - Alternative (un seul appel) : `search_issues(query="is:open label:P1")`, puis P2, etc.
 2. Lis l'issue GitHub complète (Context, Goals).
 3. **Ferme immédiatement l'issue GitHub** (close). Ajoute le label `in-progress`.
 

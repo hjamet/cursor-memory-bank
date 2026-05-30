@@ -69,11 +69,6 @@ L'agent Issue doit découvrir la cause et la solution par lui-même.
 
 3. **Utilise l'investigation** : Le `investigation_report.md` contient l'intention du code original et les hypothèses de cause — utilise ces infos pour rédiger des issues contextualisées (sans donner la solution directement).
 
-> [!IMPORTANT]
-> **🏷️ LABEL `needs-review` — MODE AUTONOME**
-> Si tu détectes un bloc `<subagent_reminder>` dans ton contexte (= tu es un sous-agent dans un pipeline autonome), ajoute **systématiquement** le label `needs-review` à toutes les issues que tu crées.
-> Ce label signale que l'issue n'a pas encore été validée par l'utilisateur humain. L'agent Issue ne traitera pas ces issues tant que l'utilisateur n'aura pas retiré le label.
-> Si tu communiques directement avec l'utilisateur (pas de `<subagent_reminder>`), ne mets PAS ce label.
 
 ## 4. 🛑 Arrêt
 1. **Fais un résumé oral de tes actions dans le chat** : combien de problèmes confirmés, combien ignorés, issues créées.

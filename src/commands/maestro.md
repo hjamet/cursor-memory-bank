@@ -149,7 +149,7 @@ Toi seul exécutes UNE commande longue à la fois (build, pipeline, eval). Jamai
 | `P4` | Mineur — quand on a le temps |
 | `P5` | Nice-to-have |
 
-L'agent Issue traite toujours la première issue OPEN de plus haute priorité (P1 → P5), en excluant les issues avec le label `needs-review` (non validées par l'utilisateur).
+L'agent Issue traite toujours la première issue OPEN de plus haute priorité (P1 → P5).
 
 ---
 
