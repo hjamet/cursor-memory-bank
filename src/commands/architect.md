@@ -30,12 +30,16 @@ description: Gestionnaire de roadmap stratégique. Analyse le review_report ET l
 5. **Construis ta liste de travail** : UNIQUEMENT les problèmes marqués `🐛 BUG CONFIRMÉ` par l'Investigator. Tous les autres sont **ignorés**.
 
 ## 2. 🗺️ Mise à jour Roadmap & Issues
+
+> [!IMPORTANT]
+> **L'issue est déjà fermée** par l'agent Issue au début de son travail. Tu dois décider si elle reste fermée ou si tu la rouvres.
+
 - **Si le Reviewer a APPROUVÉ** (et que l'Investigator n'a trouvé aucun bug supplémentaire) :
-  1. Ferme l'issue GitHub.
+  1. L'issue reste fermée. ✅
   2. Passe le statut à `✅ Terminée` dans la Roadmap.
   3. Si l'Investigator a confirmé des problèmes hors scope → crée des issues pour ceux-ci.
 - **Si le Reviewer a REJETÉ** :
-  1. Ne ferme pas l'issue. Remets son statut à `⬜ À faire` dans la Roadmap.
+  1. **Rouvre l'issue GitHub** (reopen). Remets son statut à `⬜ À faire` dans la Roadmap.
   2. Mets à jour le corps de l'issue GitHub en listant UNIQUEMENT les défauts **confirmés par l'Investigator**.
   3. Les problèmes annulés par l'Investigator (✅ COMPORTEMENT INTENTIONNEL) ne figurent PAS dans l'issue.
 

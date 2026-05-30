@@ -14,7 +14,10 @@ description: Artisan implémenteur. Prend la première issue, l'implémente, pro
 1. Lis la Roadmap (`README.md`).
 2. Prends la 1ère issue `⬚ À faire` dont les dépendances sont `✅ Terminée`.
 3. Lis l'issue GitHub complète (Context, Goals).
-4. Ajoute le label `in-progress` sur GitHub. Mets la Roadmap à `🔄 En cours`.
+4. **Ferme immédiatement l'issue GitHub** (close). Ajoute le label `in-progress`. Mets la Roadmap à `🔄 En cours`.
+
+> [!IMPORTANT]
+> L'issue est fermée dès le début, **quel que soit le résultat**. L'Architecte la rouvrira si nécessaire après review.
 
 ## 2. 🧠 Contexte & Plan
 1. **AIVC** : `get_recent_memories`, `recall` (≥3 queries), `consult_file`.
@@ -41,4 +44,4 @@ Cet artefact sera partagé automatiquement avec le Reviewer qui prendra le relai
 ## 5. 🛑 Arrêt
 1. Rapporte tes actions dans le chat.
 2. Fais un `remember` dans AIVC.
-3. **ARRÊTE-TOI**. Ne ferme PAS l'issue. Demande à l'utilisateur d'invoquer le Reviewer.
+3. **ARRÊTE-TOI**. L'issue est déjà fermée. Demande à l'utilisateur d'invoquer le Reviewer.
