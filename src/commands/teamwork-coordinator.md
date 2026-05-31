@@ -20,7 +20,7 @@ description: Orchestrateur de la boucle issue→reviewer→investigator→archit
 > Si ton parent te pose une question → tu réponds. Sinon → tu te tais.
 > Toute ta progression est consignée dans l'artefact `progression_summary.md` — c'est le SEUL canal d'information vers le parent.
 >
-> **UNIQUE EXCEPTION** : En fin de cycle, tu envoies UN `send_message` à ton parent avec l'artefact `architect_walkthrough.md` de l'Architect. C'est un envoi automatique, pas un rapport.
+> **UNIQUE EXCEPTION** : Après chaque Étape D (Architect), tu envoies UN `send_message` à ton parent avec l'artefact `architect_walkthrough.md` de l'Architect. C'est un envoi automatique, pas un rapport. Cela se fait **TOUJOURS**, que le cycle aboutisse à un succès ou un échec.
 
 > [!CAUTION]
 > **⚙️ CONTRAINTES OPÉRATIONNELLES**
@@ -114,6 +114,50 @@ Lis le fichier src/commands/architect.md et applique-le à la lettre.
 
 **Attends** qu'il termine. Récupère son artefact `architect_walkthrough.md`.
 
+### Étape D-bis — Transmission du Walkthrough (OBLIGATOIRE ET INCONDITIONNELLE)
+
+> [!CAUTION]
+> **🛑 CETTE ÉTAPE EST INCONDITIONNELLE.**
+> Tu DOIS transmettre le walkthrough de l'Architect au Monitor **immédiatement après l'Étape D**, AVANT de passer au Reviewer Final.
+> Cela se fait **que le cycle aboutisse ensuite à un succès ou un échec**.
+
+1. **Transmets le walkthrough au Monitor** :
+   Envoie UN `send_message` à ton parent (Monitor) avec le contenu suivant :
+   ```
+   📋 CYCLE N — WALKTHROUGH DE L'ARCHITECT :
+   [Copie intégrale du contenu de architect_walkthrough.md]
+   ```
+   C'est une transmission d'artefact, PAS un rapport de statut.
+
+2. **Mets à jour l'artefact `progression_summary.md`** :
+
+   **a) Ajoute le résumé du cycle** dans la section `## Cycles` :
+   ```markdown
+   ### Cycle N — [timestamp]
+   **Issue traitée** : [#XX Titre](lien GitHub)
+
+   **Reviewer** — Verdict : ✅ APPROUVÉ / ❌ REJETÉ
+   Bugs remontés : N
+   - Bug A (titre court)
+   - Bug B (titre court)
+
+   **Investigator** — Bugs confirmés : N / Rejetés : N
+   ✅ Retenus :
+   - Bug A (titre court)
+   ❌ Rejetés :
+   - Bug B — [raison courte, ex: "comportement intentionnel, le code gère volontairement ce cas"]
+
+   **Architect** — Issues créées : N / Résolues : N
+   📋 Créées : [#YY Titre](lien GitHub), [#ZZ Titre](lien GitHub)
+   ✅ Résolues : [#XX Titre](lien GitHub)
+
+   **Reviewer Final** — ⏳ En attente
+   ```
+
+   **b) Mets à jour les tableaux de suivi** en haut du document :
+   - `## Issues résolues ✅` : ajoute les issues fermées ce cycle (lien + titre)
+   - `## Issues ajoutées 📋` : ajoute les nouvelles issues créées ce cycle (lien + titre)
+
 ### Étape E — Reviewer Final (Validation Live OBLIGATOIRE)
 
 > [!CAUTION]
@@ -158,48 +202,18 @@ Tu es invoqué en MODE B (supervision live). Ta mission est d'exécuter la COMMA
 ### Fin de cycle
 
 > [!IMPORTANT]
-> **Tu n'arrives ici QUE si le Reviewer Final a rendu un verdict ✅ APPROUVÉ.**
+> **Tu arrives ici après que le Reviewer Final a rendu son verdict (✅ ou ❌).**
+> La transmission du walkthrough et la mise à jour de progression_summary.md ont déjà été faites à l'Étape D-bis.
 
-1. Mets à jour l'artefact `progression_summary.md` :
-
-   **a) Ajoute le résumé du cycle** dans la section `## Cycles` :
+1. **Mets à jour `progression_summary.md`** avec le verdict du Reviewer Final :
+   - Complète la section `**Reviewer Final**` du cycle en cours :
    ```markdown
-   ### Cycle N — [timestamp]
-   **Issue traitée** : [#XX Titre](lien GitHub)
-
-   **Reviewer** — Verdict : ✅ APPROUVÉ / ❌ REJETÉ
-   Bugs remontés : N
-   - Bug A (titre court)
-   - Bug B (titre court)
-
-   **Investigator** — Bugs confirmés : N / Rejetés : N
-   ✅ Retenus :
-   - Bug A (titre court)
-   ❌ Rejetés :
-   - Bug B — [raison courte, ex: "comportement intentionnel, le code gère volontairement ce cas"]
-
-   **Architect** — Issues créées : N / Résolues : N
-   📋 Créées : [#YY Titre](lien GitHub), [#ZZ Titre](lien GitHub)
-   ✅ Résolues : [#XX Titre](lien GitHub)
-
-   **Reviewer Final** — Verdict : ✅ APPROUVÉ
+   **Reviewer Final** — Verdict : ✅ APPROUVÉ / ❌ REJETÉ
    Commande testée : [commande principale]
    Tentatives de validation : N
    ```
 
-   **b) Mets à jour les tableaux de suivi** en haut du document :
-   - `## Issues résolues ✅` : ajoute les issues fermées ce cycle (lien + titre)
-   - `## Issues ajoutées 📋` : ajoute les nouvelles issues créées ce cycle (lien + titre)
-
-2. **Transmets le walkthrough au Monitor** :
-   Envoie UN `send_message` à ton parent (Monitor) avec le contenu suivant :
-   ```
-   📋 CYCLE N TERMINÉ — WALKTHROUGH DE L'ARCHITECT :
-   [Copie intégrale du contenu de architect_walkthrough.md]
-   ```
-   C'est la **seule communication proactive** que tu envoies à ton parent. Ce n'est PAS un rapport de statut — c'est une transmission d'artefact.
-
-3. **Recommence un nouveau cycle** (retour à l'Étape A).
+2. **Recommence un nouveau cycle** (retour à l'Étape A).
 
 ---
 
