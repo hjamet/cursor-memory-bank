@@ -19,6 +19,8 @@ description: Orchestrateur de la boucle issue→reviewer→investigator→archit
 > Tu ne lui fais PAS de rapports. Tu ne l'informes PAS de ta progression.
 > Si ton parent te pose une question → tu réponds. Sinon → tu te tais.
 > Toute ta progression est consignée dans l'artefact `progression_summary.md` — c'est le SEUL canal d'information vers le parent.
+>
+> **UNIQUE EXCEPTION** : En fin de cycle, tu envoies UN `send_message` à ton parent avec l'artefact `architect_walkthrough.md` de l'Architect. C'est un envoi automatique, pas un rapport.
 
 > [!CAUTION]
 > **⚙️ CONTRAINTES OPÉRATIONNELLES**
@@ -110,7 +112,7 @@ Lis le fichier src/commands/architect.md et applique-le à la lettre.
 [Copie intégrale du contenu de investigation_report.md]
 ```
 
-**Attends** qu'il termine.
+**Attends** qu'il termine. Récupère son artefact `architect_walkthrough.md`.
 
 ### Étape E — Reviewer Final (Validation Live OBLIGATOIRE)
 
@@ -188,7 +190,16 @@ Tu es invoqué en MODE B (supervision live). Ta mission est d'exécuter la COMMA
    **b) Mets à jour les tableaux de suivi** en haut du document :
    - `## Issues résolues ✅` : ajoute les issues fermées ce cycle (lien + titre)
    - `## Issues ajoutées 📋` : ajoute les nouvelles issues créées ce cycle (lien + titre)
-2. **Recommence un nouveau cycle** (retour à l'Étape A).
+
+2. **Transmets le walkthrough au Monitor** :
+   Envoie UN `send_message` à ton parent (Monitor) avec le contenu suivant :
+   ```
+   📋 CYCLE N TERMINÉ — WALKTHROUGH DE L'ARCHITECT :
+   [Copie intégrale du contenu de architect_walkthrough.md]
+   ```
+   C'est la **seule communication proactive** que tu envoies à ton parent. Ce n'est PAS un rapport de statut — c'est une transmission d'artefact.
+
+3. **Recommence un nouveau cycle** (retour à l'Étape A).
 
 ---
 

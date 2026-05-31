@@ -70,7 +70,148 @@ L'agent Issue doit découvrir la cause et la solution par lui-même.
 3. **Utilise l'investigation** : Le `investigation_report.md` contient l'intention du code original et les hypothèses de cause — utilise ces infos pour rédiger des issues contextualisées (sans donner la solution directement).
 
 
-## 4. 🛑 Arrêt
-1. **Fais un résumé oral de tes actions dans le chat** : combien de problèmes confirmés, combien ignorés, issues créées.
+## 4. 📝 Walkthrough Obligatoire
+
+> [!CAUTION]
+> **🛑 OBLIGATION ABSOLUE : Tu DOIS produire un artefact `architect_walkthrough.md` AVANT de t'arrêter.**
+> Ce walkthrough est le livrable principal de ton travail. Sans lui, le cycle est incomplet.
+> Le format ci-dessous est **FIXE et NON NÉGOCIABLE**. Chaque section doit être présente, même si vide.
+
+Crée un **artefact** `architect_walkthrough.md` avec ce format **OBLIGATOIRE** :
+
+```markdown
+# 🏗️ Architect Walkthrough — Cycle N
+
+> **Repo** : owner/repo • **Date** : [timestamp ISO 8601]
+> **Issue traitée** : [#XX Titre de l'issue](lien GitHub)
+
+---
+
+## 📊 Vue d'ensemble
+
+| Étape | Agent | Résultat |
+|-------|-------|----------|
+| Implémentation | Issue | [résumé court] |
+| Review live | Reviewer | [verdict + nombre de problèmes] |
+| Investigation | Investigator | [bugs confirmés / faux positifs / fixés] |
+| Gestion issues | Architect | [issues créées / fermées] |
+
+---
+
+## ✅ Issue traitée ce cycle
+
+**[#XX — Titre](lien GitHub)** — `CLOSED` / `REOPENED`
+- **Travail effectué** : [Résumé concis du walkthrough de l'agent Issue]
+- **Fichiers modifiés** : `fichier1.py`, `fichier2.yaml`
+- **Commits** : `abc1234` "feat: ...", `def5678` "fix: ..."
+
+---
+
+## 🔍 Problèmes identifiés
+
+### 🔴 Bloquants (P1-P2)
+
+#### 🐛 [Titre court du problème]
+- **Gravité** : `P1` / `P2`
+- **Symptôme** : [Description factuelle du comportement observé]
+- **Logs** :
+  ```
+  [Extraits de logs pertinents]
+  ```
+- **Verdict Investigator** : 🐛 Bug confirmé
+- **Action** : 🆕 Issue créée → [#YY Titre](lien GitHub)
+
+*(Répéter pour chaque problème bloquant. Si aucun : "Aucun problème bloquant identifié.")*
+
+---
+
+### 🟡 Importants (P3-P4)
+
+#### 🐛 [Titre court du problème]
+- **Gravité** : `P3` / `P4`
+- **Symptôme** : [Description factuelle]
+- **Verdict Investigator** : 🐛 Bug confirmé
+- **Action** : 🆕 Issue créée → [#ZZ Titre](lien GitHub) / 📦 Regroupé dans [#YY](lien)
+
+*(Répéter. Si aucun : "Aucun problème important identifié.")*
+
+---
+
+### 🔵 Nice-to-have (P5)
+
+- [Titre court] → 🆕 [#AA](lien GitHub)
+
+*(Si aucun : "Aucun.")*
+
+---
+
+## 🔧 Corrections immédiates (Investigator)
+
+Problèmes corrigés directement par l'Investigator sans passer par une issue :
+
+| # | Problème | Correction | Fichier(s) | Commit |
+|---|----------|------------|------------|--------|
+| 1 | [Titre court] | [Ce qui a été fait] | `fichier.py` | `aaa1111` |
+
+*(Si aucune correction immédiate : "Aucune correction immédiate effectuée.")*
+
+---
+
+## ❌ Faux positifs rejetés
+
+| Problème remonté | Verdict | Justification |
+|-------------------|---------|---------------|
+| [Titre court] | ✅ Intentionnel | [Raison courte] |
+
+*(Si aucun faux positif : "Aucun.")*
+
+---
+
+## 📋 Récapitulatif des actions
+
+| Action | Détail |
+|--------|--------|
+| ✅ Fermée | [#XX Titre](lien GitHub) |
+| 🆕 Créée | [#YY Titre](lien GitHub) — `P1` bloquant |
+| 🔧 Fix immédiat | N corrections par l'Investigator |
+
+---
+
+## 🗺️ Roadmap Post-Cycle
+
+```mermaid
+graph TD
+    classDef done fill:#2ecc71,stroke:#27ae60,color:#fff
+    classDef critical fill:#e74c3c,stroke:#c0392b,color:#fff
+    classDef important fill:#f39c12,stroke:#e67e22,color:#fff
+    classDef nice fill:#3498db,stroke:#2980b9,color:#fff
+
+    subgraph "✅ Implémenté"
+        IXX["#XX — Titre issue fermée"]:::done
+    end
+
+    subgraph "🔴 P1-P2 — Bloquant"
+        IYY["#YY — Titre bug critique"]:::critical
+    end
+
+    subgraph "🟡 P3-P4 — Important"
+        IZZ["#ZZ — Titre problème important"]:::important
+    end
+
+    subgraph "🔵 P5 — Nice-to-have"
+        IAA["#AA — Titre nice-to-have"]:::nice
+    end
+
+    IXX --> IYY
+    IYY --> IZZ
+    IZZ --> IAA
+```
+
+> **Légende** : 🟢 Implémenté ce cycle • 🔴 P1-P2 Bloquant • 🟡 P3-P4 Important • 🔵 P5 Nice-to-have
+> Le diagramme montre TOUTES les issues connues du repo (OPEN + CLOSED ce cycle), pas uniquement celles du cycle en cours.
+```
+
+## 5. 🛑 Arrêt
+1. Vérifie que l'artefact `architect_walkthrough.md` est complet et respecte le format ci-dessus.
 2. Fais un `remember` dans AIVC.
-3. **ARRÊTE-TOI**. Le Teamwork Coordinator lancera le cycle suivant.
+3. **ARRÊTE-TOI**. Le Teamwork Coordinator récupérera ton walkthrough et le transmettra au Monitor.
