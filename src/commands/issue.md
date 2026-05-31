@@ -40,12 +40,12 @@ description: Artisan implémenteur. Prend la première issue prioritaire, l'impl
 > Consigne la commande de test dans le walkthrough pour que le Reviewer sache quoi lancer.
 
 ## 4. 📝 Livrable (Walkthrough)
-Crée un **artefact** `walkthrough.md` (via le système d'artefacts, PAS un fichier physique dans le repo) contenant :
+Crée un fichier `walkthrough.md` dans ton dossier de travail (`write_to_file`, `IsArtifact=false`) contenant :
 1. Titre et lien de l'issue.
 2. Résumé des changements.
 3. Commandes exactes pour tester l'implémentation (pour le prochain agent Reviewer).
 
-Cet artefact sera partagé automatiquement avec le Reviewer qui prendra le relais.
+Le Coordinator transmettra le chemin de ce fichier au Reviewer.
 
 ## 5. 🛑 Arrêt
 1. Rapporte tes actions dans le chat.

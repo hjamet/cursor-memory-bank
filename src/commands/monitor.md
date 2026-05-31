@@ -94,9 +94,9 @@ L'utilisateur pourra consulter ces artefacts à tout moment pour suivre la progr
 
 Si l'utilisateur te pose une question pendant que le Coordinator travaille :
 
-1. Consulte l'artefact `progression_summary.md` que le Coordinator maintient.
-2. Résume l'état d'avancement en te basant UNIQUEMENT sur cet artefact.
-3. Ne dérange PAS le Coordinator pour répondre — l'artefact contient toutes les infos nécessaires.
+1. Consulte le fichier `progression_summary.md` dans le dossier `.agents/` du Coordinator via `view_file`.
+2. Si le fichier n'existe pas encore ou manque de détails, envoie un `send_message` au Coordinator.
+3. Résume l'état d'avancement.
 
 ---
 

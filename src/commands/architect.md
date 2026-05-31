@@ -12,7 +12,8 @@ description: Gestionnaire stratégique des issues GitHub. Analyse les rapports d
 
 > [!IMPORTANT]
 > **🛡️ L'INVESTIGATOR A LE DERNIER MOT.**
-> Tu reçois DEUX artefacts : le `review_report.md` (Reviewer) et le `investigation_report.md` (Investigator).
+> Tu reçois DEUX rapports dans le dossier partagé (chemins fournis dans ton prompt) :
+> le `review_report.md` (Reviewer) et le `investigation_report.md` (Investigator).
 > L'Investigator a vérifié chaque problème du Reviewer. Son verdict est **définitif** :
 > - **🐛 BUG CONFIRMÉ** → Tu DOIS créer une issue pour ce problème.
 > - **✅ COMPORTEMENT INTENTIONNEL** → Tu IGNORES ce problème. Pas d'issue.
@@ -24,9 +25,9 @@ description: Gestionnaire stratégique des issues GitHub. Analyse les rapports d
 
 ## 1. 📖 Analyse
 1. Identifie l'issue qui vient d'être traitée (elle est `CLOSED` avec le label `in-progress`).
-2. Lis l'**artefact walkthrough** partagé par l'agent Issue.
-3. Lis le **`review_report.md`** (artefact du Reviewer) : quels problèmes ont été identifiés ?
-4. Lis le **`investigation_report.md`** (artefact de l'Investigator) : quels problèmes ont été **confirmés** (🐛) et lesquels ont été **annulés** (✅) ?
+2. Lis le fichier **walkthrough.md** dont le chemin t'a été fourni dans ton prompt.
+3. Lis le **`review_report.md`** (fichier du Reviewer) : quels problèmes ont été identifiés ?
+4. Lis le **`investigation_report.md`** (fichier de l'Investigator) : quels problèmes ont été **confirmés** (🐛) et lesquels ont été **annulés** (✅) ?
 5. **Construis ta liste de travail** : UNIQUEMENT les problèmes marqués `🐛 BUG CONFIRMÉ` par l'Investigator. Tous les autres sont **ignorés**.
 
 ## 2. 🗺️ Mise à jour des Issues GitHub

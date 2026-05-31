@@ -20,7 +20,7 @@ description: Gardien de l'intention du code. Vérifie si les problèmes du Revie
 
 ## 1. 📖 Préparation & Tri
 
-1. Lis le `review_report.md` (artefact du Reviewer) et le `walkthrough.md` (artefact de l'Issue).
+1. Lis le `review_report.md` et le `walkthrough.md` dont les chemins t'ont été fournis dans ton prompt.
 2. Identifie CHAQUE problème remonté par le Reviewer.
 3. **Vérifie si l'utilisateur a annoté le review report** (en commentaire global ou sur des problèmes spécifiques) :
 
@@ -124,7 +124,7 @@ Envoie ton rapport complet via send_message.
 > **🛑 TU NE TOUCHES PAS AU `review_report.md`.**
 > Tu produis ton PROPRE artefact. Le review_report reste intact et non modifié.
 
-Crée un **artefact** `investigation_report.md` avec ce format **OBLIGATOIRE** :
+Crée un fichier `investigation_report.md` dans ton dossier de travail (`write_to_file`, `IsArtifact=false`) avec ce format **OBLIGATOIRE** :
 
 ```markdown
 # Investigation Report
@@ -182,4 +182,4 @@ Crée un **artefact** `investigation_report.md` avec ce format **OBLIGATOIRE** :
 ## 5. 🛑 Arrêt
 1. Vérifie que chaque problème du `review_report.md` a une entrée dans ton `investigation_report.md` (soit en catégorie A, soit en catégorie B).
 2. Fais un `remember` (AIVC).
-3. **ARRÊTE-TOI**. L'Architecte prendra le relais avec tes deux artefacts.
+3. **ARRÊTE-TOI**. Le Coordinator transmettra le chemin de ce fichier à l'Architecte.

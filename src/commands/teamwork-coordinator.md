@@ -1,6 +1,6 @@
 ---
 alwaysApply: false
-description: Orchestrateur de la boucle issue→reviewer→investigator→architect. Gère le passage d'artefacts entre agents et consigne la progression.
+description: Orchestrateur de la boucle issue→reviewer→investigator→architect. Gère le passage de fichiers entre agents via le dossier .agents/ et consigne la progression.
 ---
 
 # Teamwork Coordinator Workflow
@@ -9,32 +9,37 @@ description: Orchestrateur de la boucle issue→reviewer→investigator→archit
 
 > [!IMPORTANT]
 > **🎯 TU ES UN CHEF D'ORCHESTRE, PAS UN MUSICIEN.**
-> Tu lances des sous-agents, tu leur passes des artefacts, tu consignes les résultats.
+> Tu lances des sous-agents, tu leur passes des chemins de fichiers, tu consignes les résultats.
 > Tu ne lis PAS de code. Tu n'exécutes PAS de commandes. Tu ne modifies PAS de fichiers du projet.
-> Tes SEULES actions : `invoke_subagent`, `send_message` (vers tes sous-agents uniquement), `schedule`, et la gestion d'artefacts.
+> Tes SEULES actions : `invoke_subagent`, `send_message` (vers tes sous-agents uniquement), `schedule`, et la gestion de fichiers dans le dossier `.agents/`.
 
 > [!CAUTION]
 > **🤫 SILENCE RADIO VERS TON PARENT (MONITOR)**
 > Tu n'envoies **JAMAIS** de message à ton parent de ta propre initiative.
 > Tu ne lui fais PAS de rapports. Tu ne l'informes PAS de ta progression.
 > Si ton parent te pose une question → tu réponds. Sinon → tu te tais.
-> Toute ta progression est consignée dans l'artefact `progression_summary.md` — c'est le SEUL canal d'information vers le parent.
+> Toute ta progression est consignée dans le fichier `progression_summary.md` — c'est le SEUL canal d'information vers le parent.
 >
-> **UNIQUE EXCEPTION** : Après chaque Étape D (Architect), tu envoies UN `send_message` à ton parent avec l'artefact `architect_walkthrough.md` de l'Architect. C'est un envoi automatique, pas un rapport. Cela se fait **TOUJOURS**, que le cycle aboutisse à un succès ou un échec.
+> **UNIQUE EXCEPTION** : Après chaque Étape D (Architect), tu envoies UN `send_message` à ton parent avec le contenu du fichier `architect_walkthrough.md` de l'Architect. C'est un envoi automatique, pas un rapport. Cela se fait **TOUJOURS**, que le cycle aboutisse à un succès ou un échec.
 
 > [!CAUTION]
 > **⚙️ CONTRAINTES OPÉRATIONNELLES**
 > - **Max 2 sous-agents actifs** simultanément. Si 2 sont en cours, ATTENDS qu'un termine.
 > - **1 cycle = 1 séquence complète** : issue → reviewer → investigator → architect.
 > - **Cron 5 min OBLIGATOIRE** : vérifie tes sous-agents toutes les 5 minutes via un cron job automatique.
-> - **Chaque agent reçoit UN prompt** : "Lis le fichier de workflow et applique-le" + l'artefact de l'agent précédent.
+> - **Chaque agent reçoit UN prompt** : "Lis le fichier de workflow et applique-le" + les chemins des fichiers de l'agent précédent.
 
 ---
 
 ## 1. 🚀 Initialisation
 
 1. Note le **goal** transmis par le Monitor.
-2. Crée immédiatement un artefact `progression_summary.md` avec :
+2. **Crée ton dossier de travail** à la racine du projet :
+   ```
+   .agents/coordinator_<objectif_court>_<YYYYMMDD_HHMMSS>/
+   ```
+   Exemple : `.agents/coordinator_pipeline_monitoring_20260601_003046/`
+3. Crée le fichier `progression_summary.md` dans ce dossier (`write_to_file`, `IsArtifact=false`) :
    ```markdown
    # Progression Summary
    **Goal** : [goal reçu du Monitor]
@@ -59,7 +64,15 @@ description: Orchestrateur de la boucle issue→reviewer→investigator→archit
 
 ## 2. 🔄 Boucle Principale — Un Cycle
 
-Chaque cycle suit cette séquence **strictement ordonnée**. Tu ne passes à l'étape suivante QUE quand l'agent en cours a terminé et rendu son artefact.
+Chaque cycle suit cette séquence **strictement ordonnée**. Tu ne passes à l'étape suivante QUE quand l'agent en cours a terminé et produit son fichier.
+
+> [!IMPORTANT]
+> **📂 CONVENTION DE NOMMAGE**
+> Pour chaque cycle, crée un sous-dossier nommé d'après l'issue traitée :
+> ```
+> .agents/coordinator_xxx/cycle_<titre_court_issue>/
+> ```
+> Chaque agent du cycle crée son propre sous-dossier dans ce dossier de cycle.
 
 ### Étape A — Agent Issue
 
@@ -67,9 +80,12 @@ Lance un sous-agent (`invoke_subagent TypeName="self"`) :
 
 ```
 Lis le fichier src/commands/issue.md et applique-le à la lettre.
+
+📂 DOSSIER DE TRAVAIL : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/issue/
+Crée ce dossier et écris ton walkthrough.md dedans (write_to_file, IsArtifact=false).
 ```
 
-**Attends** qu'il termine. Récupère son artefact `walkthrough.md`.
+**Attends** qu'il termine. Vérifie que le fichier `walkthrough.md` existe dans son dossier.
 - ⚠️ S'il n'y a **plus d'issue à traiter** (aucune issue `OPEN`), le cycle s'arrête ici → va au §4 (Goal atteint).
 
 ### Étape B — Agent Reviewer
@@ -79,11 +95,13 @@ Lance un sous-agent (`invoke_subagent TypeName="self"`) :
 ```
 Lis le fichier src/commands/reviewer.md et applique-le à la lettre.
 
-📋 CONTEXTE — WALKTHROUGH DE L'AGENT ISSUE :
-[Copie intégrale du contenu de walkthrough.md]
+📂 DOSSIER DE TRAVAIL : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/reviewer/
+Crée ce dossier et écris ton review_report.md dedans (write_to_file, IsArtifact=false).
+
+📖 WALKTHROUGH À LIRE : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/issue/walkthrough.md
 ```
 
-**Attends** qu'il termine. Récupère son artefact `review_report.md`.
+**Attends** qu'il termine. Vérifie que le fichier `review_report.md` existe dans son dossier.
 
 ### Étape C — Agent Investigator
 
@@ -92,11 +110,14 @@ Lance un sous-agent (`invoke_subagent TypeName="self"`) :
 ```
 Lis le fichier src/commands/investigator.md et applique-le à la lettre.
 
-📋 CONTEXTE — REVIEW REPORT DU REVIEWER :
-[Copie intégrale du contenu de review_report.md]
+📂 DOSSIER DE TRAVAIL : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/investigator/
+Crée ce dossier et écris ton investigation_report.md dedans (write_to_file, IsArtifact=false).
+
+📖 REVIEW REPORT À LIRE : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/reviewer/review_report.md
+📖 WALKTHROUGH À LIRE : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/issue/walkthrough.md
 ```
 
-**Attends** qu'il termine. Récupère son artefact `investigation_report.md`.
+**Attends** qu'il termine. Vérifie que le fichier `investigation_report.md` existe dans son dossier.
 
 ### Étape D — Agent Architect
 
@@ -105,14 +126,13 @@ Lance un sous-agent (`invoke_subagent TypeName="self"`) :
 ```
 Lis le fichier src/commands/architect.md et applique-le à la lettre.
 
-📋 CONTEXTE — REVIEW REPORT DU REVIEWER :
-[Copie intégrale du contenu de review_report.md]
+📂 DOSSIER DE TRAVAIL : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/architect/
 
-📋 CONTEXTE — INVESTIGATION REPORT DE L'INVESTIGATOR :
-[Copie intégrale du contenu de investigation_report.md]
+📖 REVIEW REPORT À LIRE : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/reviewer/review_report.md
+📖 INVESTIGATION REPORT À LIRE : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/investigator/investigation_report.md
 ```
 
-**Attends** qu'il termine. Récupère son artefact `architect_walkthrough.md`.
+**Attends** qu'il termine. Récupère son fichier `architect_walkthrough.md`.
 
 ### Étape D-bis — Transmission du Walkthrough (OBLIGATOIRE ET INCONDITIONNELLE)
 
@@ -127,9 +147,9 @@ Lis le fichier src/commands/architect.md et applique-le à la lettre.
    📋 CYCLE N — WALKTHROUGH DE L'ARCHITECT :
    [Copie intégrale du contenu de architect_walkthrough.md]
    ```
-   C'est une transmission d'artefact, PAS un rapport de statut.
+   C'est une transmission de fichier, PAS un rapport de statut.
 
-2. **Mets à jour l'artefact `progression_summary.md`** :
+2. **Mets à jour le fichier `progression_summary.md`** dans ton dossier de travail :
 
    **a) Ajoute le résumé du cycle** dans la section `## Cycles` :
    ```markdown
@@ -171,6 +191,9 @@ Lance un sous-agent (`invoke_subagent TypeName="self"`) :
 ```
 Lis le fichier src/commands/reviewer.md et applique-le à la lettre.
 
+📂 DOSSIER DE TRAVAIL : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/reviewer_final/
+Crée ce dossier et écris ton review_report.md dedans (write_to_file, IsArtifact=false).
+
 📋 CONTEXTE — VALIDATION FINALE DU CYCLE :
 Tu es invoqué en MODE B (supervision live). Ta mission est d'exécuter la COMMANDE PRINCIPALE du repo en conditions réelles.
 
@@ -179,17 +202,12 @@ Tu es invoqué en MODE B (supervision live). Ta mission est d'exécuter la COMMA
 2. Identifie la commande d'exécution principale (pipeline de recherche, démarrage d'application, etc.).
 3. Exécute-la telle quelle, SANS modification, SANS simplification.
 
-📋 RÉSUMÉ DU TRAVAIL EFFECTUÉ CE CYCLE :
-[Copie intégrale du contenu de walkthrough.md de l'agent Issue]
-
-📋 REVIEW REPORT INTERMÉDIAIRE :
-[Copie intégrale du contenu de review_report.md]
-
-📋 INVESTIGATION REPORT :
-[Copie intégrale du contenu de investigation_report.md]
+📖 WALKTHROUGH À LIRE : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/issue/walkthrough.md
+📖 REVIEW REPORT INTERMÉDIAIRE À LIRE : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/reviewer/review_report.md
+📖 INVESTIGATION REPORT À LIRE : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/investigator/investigation_report.md
 ```
 
-**Attends** qu'il termine. Récupère son artefact `review_report.md` (rapport final).
+**Attends** qu'il termine. Lis son fichier `review_report.md` (rapport final).
 
 **Analyse le verdict du Reviewer Final :**
 - **✅ APPROUVÉ** → Le cycle est validé. Passe à la section "Fin de cycle" ci-dessous.
@@ -224,7 +242,7 @@ Le cron de 5 min est ton **battement de cœur**. Il tourne automatiquement — t
 À chaque réveil :
 1. **Vérifie tes sous-agents actifs** : Envoie un `send_message` pour demander leur statut.
 2. **Si un agent est bloqué** (pas de réponse depuis 2+ checks) : relance-le ou tue-le et relance-en un nouveau.
-3. **Si un agent a terminé** : traite son artefact et passe à l'étape suivante du cycle.
+3. **Si un agent a terminé** : vérifie que son fichier de livrable existe dans son dossier de travail, puis passe à l'étape suivante du cycle.
 
 > [!CAUTION]
 > **🚨 LE CRON EST TON BATTEMENT DE CŒUR.**
@@ -246,7 +264,7 @@ Le cron de 5 min est ton **battement de cœur**. Il tourne automatiquement — t
    - Toutes les issues sont fermées.
    - Le dernier Reviewer Final a rendu un verdict ✅ APPROUVÉ sur la commande principale.
    - Mets à jour `progression_summary.md` avec le statut `✅ Goal atteint — Validé en conditions réelles`.
-   - **ARRÊTE-TOI.** (Le Monitor le découvrira à son prochain check horaire via l'artefact.)
+   - **ARRÊTE-TOI.** (Le Monitor le découvrira à son prochain check horaire via le fichier.)
 
 2. **Plus d'issues à traiter MAIS Reviewer Final ❌ REJETÉ** :
    - Le Reviewer Final a trouvé des problèmes → ce sont de NOUVELLES issues.
