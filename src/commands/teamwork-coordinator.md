@@ -112,7 +112,51 @@ Lis le fichier src/commands/architect.md et applique-le à la lettre.
 
 **Attends** qu'il termine.
 
+### Étape E — Reviewer Final (Validation Live OBLIGATOIRE)
+
+> [!CAUTION]
+> **🎯 CETTE ÉTAPE EST LA CLÉ DE VOÛTE DU CYCLE.**
+> Le coordinator ne peut JAMAIS considérer un cycle comme terminé sans une validation live par le Reviewer.
+> Pas de tests unitaires. Pas de simulations. Pas de "ça devrait marcher".
+> **UNIQUEMENT l'exécution réelle de la commande principale du repo en conditions live.**
+
+Lance un sous-agent (`invoke_subagent TypeName="self"`) :
+
+```
+Lis le fichier src/commands/reviewer.md et applique-le à la lettre.
+
+📋 CONTEXTE — VALIDATION FINALE DU CYCLE :
+Tu es invoqué en MODE B (supervision live). Ta mission est d'exécuter la COMMANDE PRINCIPALE du repo en conditions réelles.
+
+🔍 COMMENT TROUVER LA COMMANDE PRINCIPALE :
+1. Lis le README.md du repo.
+2. Identifie la commande d'exécution principale (pipeline de recherche, démarrage d'application, etc.).
+3. Exécute-la telle quelle, SANS modification, SANS simplification.
+
+📋 RÉSUMÉ DU TRAVAIL EFFECTUÉ CE CYCLE :
+[Copie intégrale du contenu de walkthrough.md de l'agent Issue]
+
+📋 REVIEW REPORT INTERMÉDIAIRE :
+[Copie intégrale du contenu de review_report.md]
+
+📋 INVESTIGATION REPORT :
+[Copie intégrale du contenu de investigation_report.md]
+```
+
+**Attends** qu'il termine. Récupère son artefact `review_report.md` (rapport final).
+
+**Analyse le verdict du Reviewer Final :**
+- **✅ APPROUVÉ** → Le cycle est validé. Passe à la section "Fin de cycle" ci-dessous.
+- **❌ REJETÉ** → Les problèmes trouvés doivent être corrigés. Crée de nouvelles issues à partir des bugs remontés, puis relance un mini-cycle :
+  1. Lance l'**Agent Issue** pour traiter les bugs du Reviewer Final.
+  2. Lance l'**Agent Investigator** pour vérifier les corrections.
+  3. **Relance l'Étape E** (nouveau Reviewer Final) pour re-valider.
+  4. Répète jusqu'à obtenir ✅ APPROUVÉ.
+
 ### Fin de cycle
+
+> [!IMPORTANT]
+> **Tu n'arrives ici QUE si le Reviewer Final a rendu un verdict ✅ APPROUVÉ.**
 
 1. Mets à jour l'artefact `progression_summary.md` :
 
@@ -135,6 +179,10 @@ Lis le fichier src/commands/architect.md et applique-le à la lettre.
    **Architect** — Issues créées : N / Résolues : N
    📋 Créées : [#YY Titre](lien GitHub), [#ZZ Titre](lien GitHub)
    ✅ Résolues : [#XX Titre](lien GitHub)
+
+   **Reviewer Final** — Verdict : ✅ APPROUVÉ
+   Commande testée : [commande principale]
+   Tentatives de validation : N
    ```
 
    **b) Mets à jour les tableaux de suivi** en haut du document :
@@ -161,15 +209,30 @@ Le cron de 5 min est ton **battement de cœur**. Il tourne automatiquement — t
 
 ## 4. 🛑 Conditions d'Arrêt
 
-1. **Plus d'issues à traiter** (aucune issue `OPEN` sur GitHub) :
-   - Mets à jour `progression_summary.md` avec le statut `✅ Goal atteint`.
+> [!CAUTION]
+> **🎯 CONDITION D'ARRÊT UNIQUE ET NON NÉGOCIABLE :**
+> Le Teamwork Coordinator ne peut s'arrêter **QUE** lorsque :
+> 1. Il n'y a plus d'issues `OPEN` sur GitHub, **ET**
+> 2. Le **Reviewer Final** a validé (✅ APPROUVÉ) l'exécution de la commande principale du repo en conditions réelles.
+>
+> **Sans validation live du Reviewer Final = PAS D'ARRÊT.** Même s'il n'y a plus d'issues, tu DOIS lancer un Reviewer Final pour confirmer que tout fonctionne.
+
+1. **Plus d'issues à traiter + Reviewer Final ✅ APPROUVÉ** :
+   - Toutes les issues sont fermées.
+   - Le dernier Reviewer Final a rendu un verdict ✅ APPROUVÉ sur la commande principale.
+   - Mets à jour `progression_summary.md` avec le statut `✅ Goal atteint — Validé en conditions réelles`.
    - **ARRÊTE-TOI.** (Le Monitor le découvrira à son prochain check horaire via l'artefact.)
 
-2. **Le Monitor te demande d'arrêter** :
-   - Finalise le `progression_summary.md`.
-   - **ARRÊTE-TOI.**
+2. **Plus d'issues à traiter MAIS Reviewer Final ❌ REJETÉ** :
+   - Le Reviewer Final a trouvé des problèmes → ce sont de NOUVELLES issues.
+   - Lance l'**Agent Architect** pour créer les issues correspondantes.
+   - **Recommence un cycle** (retour à l'Étape A). Tu ne peux PAS t'arrêter.
 
-3. **Blocage irrésoluble** (3 cycles consécutifs sans progression) :
+3. **Le Monitor te demande d'arrêter** :
+   - Finalise le `progression_summary.md`.
+   - **ARRÊTE-TOI.** (Seule exception à la règle du Reviewer Final.)
+
+4. **Blocage irrésoluble** (3 cycles consécutifs sans progression ET 3 échecs consécutifs du Reviewer Final) :
    - Mets à jour `progression_summary.md` avec le statut `🛑 Bloqué` et les détails.
    - **ARRÊTE-TOI.** (Le Monitor le découvrira à son prochain check.)
 
