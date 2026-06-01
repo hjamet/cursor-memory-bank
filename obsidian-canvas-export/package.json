@@ -1,0 +1,24 @@
+{
+  "name": "obsidian-canvas-export",
+  "version": "1.0.0",
+  "description": "Export an Obsidian canvas to a clean PDF and copy it to the clipboard.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "node esbuild.config.mjs production"
+  },
+  "keywords": [],
+  "author": "Antigravity",
+  "license": "MIT",
+  "dependencies": {
+    "jspdf": "^2.5.1",
+    "pdf-lib": "^1.17.1",
+    "tslib": "^2.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.6",
+    "esbuild": "^0.17.19",
+    "obsidian": "^1.1.1",
+    "typescript": "^4.7.4"
+  }
+}

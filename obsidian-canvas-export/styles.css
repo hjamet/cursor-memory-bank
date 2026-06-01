@@ -1,0 +1,4 @@
+/* Styles pour le plugin d'export de canvas en PDF */
+.canvas-export-ribbon-class {
+    color: var(--text-accent);
+}
