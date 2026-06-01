@@ -20,7 +20,7 @@ description: Orchestrateur de la boucle issue→reviewer→investigator→archit
 > Si ton parent te pose une question → tu réponds. Sinon → tu te tais.
 > Toute ta progression est consignée dans le fichier `progression_summary.md` — c'est le SEUL canal d'information vers le parent.
 >
-> **UNIQUE EXCEPTION** : Après chaque Étape D (Architect), tu envoies UN `send_message` à ton parent avec le contenu du fichier `architect_walkthrough.md` de l'Architect. C'est un envoi automatique, pas un rapport. Cela se fait **TOUJOURS**, que le cycle aboutisse à un succès ou un échec.
+> **UNIQUE EXCEPTION** : Après chaque Étape D (Architect), tu envoies UN `send_message` à ton parent avec un **rapport de cycle structuré** (résumé, bilan chiffré, fichiers produits). C'est un envoi automatique, pas un rapport de statut. Cela se fait **TOUJOURS**, que le cycle aboutisse à un succès ou un échec.
 
 > [!CAUTION]
 > **⚙️ CONTRAINTES OPÉRATIONNELLES**
@@ -134,20 +134,34 @@ Lis le fichier src/commands/architect.md et applique-le à la lettre.
 
 **Attends** qu'il termine. Récupère son fichier `architect_walkthrough.md`.
 
-### Étape D-bis — Transmission du Walkthrough (OBLIGATOIRE ET INCONDITIONNELLE)
+### Étape D-bis — Rapport de Cycle au Monitor (OBLIGATOIRE ET INCONDITIONNELLE)
 
 > [!CAUTION]
 > **🛑 CETTE ÉTAPE EST INCONDITIONNELLE.**
-> Tu DOIS transmettre le walkthrough de l'Architect au Monitor **immédiatement après l'Étape D**, AVANT de passer au Reviewer Final.
+> Tu DOIS envoyer un rapport de cycle structuré au Monitor **immédiatement après l'Étape D**, AVANT de passer au Reviewer Final.
 > Cela se fait **que le cycle aboutisse ensuite à un succès ou un échec**.
 
-1. **Transmets le walkthrough au Monitor** :
-   Envoie UN `send_message` à ton parent (Monitor) avec le contenu suivant :
+1. **Envoie le rapport de cycle au Monitor** :
+   Envoie UN `send_message` à ton parent (Monitor) avec le contenu suivant **exactement dans ce format** :
    ```
-   📋 CYCLE N — WALKTHROUGH DE L'ARCHITECT :
-   [Copie intégrale du contenu de architect_walkthrough.md]
+   📋 RAPPORT CYCLE N :
+
+   ## Résumé
+   **Issue traitée** : [#XX Titre](lien GitHub)
+   [2-3 phrases décrivant concrètement ce qui a été fait dans ce cycle]
+
+   ## Bilan chiffré
+   - 🔧 Problèmes résolus : N
+   - 🐛 Problèmes détectés (nouveaux) : N
+   - 📈 Progrès mesurables : [résultats concrets obtenus — ex: "latence réduite de 200ms à 50ms", "couverture GPU passée de 0% à 85%", "3 endpoints corrigés sur 5", etc.]
+
+   ## Fichiers produits
+   - 📄 Issue walkthrough : [chemin absolu]/.agents/coordinator_xxx/cycle_yyy/issue/walkthrough.md
+   - 📄 Review report : [chemin absolu]/.agents/coordinator_xxx/cycle_yyy/reviewer/review_report.md
+   - 📄 Investigation report : [chemin absolu]/.agents/coordinator_xxx/cycle_yyy/investigator/investigation_report.md
+   - 📄 Architect walkthrough : [chemin absolu]/.agents/coordinator_xxx/cycle_yyy/architect/architect_walkthrough.md
    ```
-   C'est une transmission de fichier, PAS un rapport de statut.
+   C'est un rapport structuré, PAS une copie intégrale du walkthrough. Le Monitor utilisera ces informations pour créer un artefact consultable par l'utilisateur.
 
 2. **Mets à jour le fichier `progression_summary.md`** dans ton dossier de travail :
 

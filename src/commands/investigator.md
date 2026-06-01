@@ -118,6 +118,38 @@ Envoie ton rapport complet via send_message.
 
 ---
 
+## 3.5 🧹 Nettoyage des Logs de Debug (SI SIGNALÉS PAR LE REVIEWER)
+
+> [!IMPORTANT]
+> **Le Reviewer peut signaler des logs de debug `[DEBUG]` obsolètes dans son `review_report.md`.**
+> Ces logs avaient été ajoutés par l'agent Issue pour faciliter la review. Une fois la review terminée et les problèmes identifiés, les logs validés (qui ne révèlent aucun problème) doivent être supprimés.
+
+**Vérifie si le `review_report.md` contient une section `🧹 Logs de debug à nettoyer`.**
+
+- **Si OUI** : Lance **un seul** sous-agent dédié (`invoke_subagent TypeName="self"`) pour le nettoyage :
+
+```text
+Tu es un Nettoyeur de Logs de Debug. Ta mission est de supprimer les logs de debug temporaires qui ont été validés par le Reviewer et ne sont plus utiles.
+
+📋 LOGS À SUPPRIMER :
+[Copie du tableau de la section "🧹 Logs de debug à nettoyer" du review_report]
+
+🎯 RÈGLES STRICTES :
+- Supprime UNIQUEMENT les lignes de log listées dans le tableau ci-dessus.
+- Ne touche à RIEN d'autre. Pas de refactoring. Pas d'optimisation. Pas de "tant qu'on y est".
+- Vérifie que la suppression ne casse pas la compilation (syntaxe, imports inutilisés, etc.).
+- Si une ligne de log est imbriquée dans une condition ou un bloc qui ne contient QUE ce log, supprime aussi le bloc vide résiduel.
+- Commits atomiques avec message : "🧹 cleanup: remove validated debug logs"
+
+⚠️ EN CAS DE DOUTE : ne supprime PAS le log. Mieux vaut un log de trop qu'un log manquant au prochain cycle.
+
+Envoie un rapport de ce que tu as supprimé via send_message.
+```
+
+- **Si NON** : Passe directement à l'étape suivante. Aucun nettoyage nécessaire.
+
+---
+
 ## 4. 📝 Rédaction du Investigation Report
 
 > [!CAUTION]
@@ -175,6 +207,17 @@ Crée un fichier `investigation_report.md` dans ton dossier de travail (`write_t
 ---
 
 *(Répéter pour chaque problème de catégorie B)*
+
+---
+
+## 🧹 Logs de debug nettoyés
+
+| Fichier | Pattern supprimé | Statut |
+|---------|-----------------|--------|
+| `fichier.py` | `[DEBUG] Training: ...` | ✅ Supprimé |
+| `autre.py` | `[DEBUG] Processing: ...` | ⏭️ Conservé (anomalie détectée) |
+
+*(Si aucun log de debug signalé par le Reviewer : "Aucun log de debug à nettoyer.")*
 ```
 
 ---

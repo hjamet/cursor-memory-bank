@@ -164,6 +164,39 @@ Traque le moindre défaut de clarté, la moindre anomalie, la moindre lenteur. F
 
 Le sous-agent va remonter une liste de défauts. Tu DOIS être d'accord avec son agressivité si les logs le prouvent. **Ne minimise JAMAIS un problème légitime.**
 
+### 3.1 🧹 Gestion des Logs de Debug
+
+> [!IMPORTANT]
+> **L'agent Issue ajoute des logs `[DEBUG]` stratégiques dans son implémentation.**
+> Ces logs sont là pour T'AIDER à comprendre ce qui se passe. **Tu dois les TOLÉRER et les EXPLOITER** pendant ta review.
+
+**Pendant la review :**
+- Les lignes `[DEBUG]` dans les logs de sortie sont **normales et attendues**. Ne les signale PAS comme des problèmes.
+- Utilise-les comme source d'information pour vérifier les calculs, les résultats, les performances.
+- Les logs de debug PERTINENTS pour l'issue en cours sont des **alliés** — ils te montrent ce que le code fait réellement.
+
+**Après la review — Signalement des logs obsolètes :**
+Une fois que tu as terminé ta review et que les problèmes ont été identifiés, ajoute une section dédiée dans ton `review_report.md` :
+
+```markdown
+## 🧹 Logs de debug à nettoyer
+
+Les logs de debug suivants ne sont plus utiles (soit ils ne sont pas liés à l'issue en cours, soit ils ne révèlent aucun problème) et doivent être supprimés :
+
+| Fichier | Ligne/Pattern | Raison de suppression |
+|---------|---------------|----------------------|
+| `fichier.py` | `[DEBUG] Training: GPU device = ...` | Validé, aucun problème GPU détecté |
+| `autre.py` | `[DEBUG] Processing: batch ...` | Non lié à l'issue en cours |
+```
+
+> [!WARNING]
+> **Ne signale pour suppression QUE les logs qui remplissent TOUTES ces conditions :**
+> 1. Ils ne révèlent **aucun problème** (les valeurs loggées sont normales)
+> 2. Ils ne sont **pas liés à un bug ouvert** ou à l'issue en cours
+> 3. Ils ont été **vérifiés et validés** par ta review
+>
+> Un log de debug qui montre une anomalie doit être CONSERVÉ jusqu'à résolution du problème sous-jacent.
+
 ## 4. 📊 Classification
 
 Chaque problème doit être un **rapport de bug pur** : symptomè observé + logs exacts + contexte. **PAS de diagnostic** ("c'est parce que..."). **PAS de solution** ("il faudrait...").

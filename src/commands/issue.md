@@ -39,6 +39,33 @@ description: Artisan implémenteur. Prend la première issue prioritaire, l'impl
 > Même si l'issue porte sur l'exécution d'une pipeline ou la détection d'un bug runtime : tu implémentes, tu prépares tout, tu vérifies la compilation — mais c'est le **Reviewer** qui exécutera la commande principale.
 > Consigne la commande de test dans le walkthrough pour que le Reviewer sache quoi lancer.
 
+### 3.1 📊 Logs de Debug Stratégiques (OBLIGATOIRE)
+
+> [!IMPORTANT]
+> **Tu DOIS ajouter des logs de debug aux moments clés de ton implémentation.**
+> Ces logs sont essentiels pour que le **Reviewer** et l'**Investigator** puissent vérifier que tout fonctionne correctement sans avoir à deviner ce qui se passe dans le code.
+
+**Règles des logs de debug :**
+1. **Informations clés à logger** (exemples) :
+   - 🖥️ Utilisation GPU/CPU (device utilisé, mémoire allouée)
+   - 👥 Nombre d'éléments traités (utilisateurs, items, batches, etc.)
+   - 📊 Résultats intermédiaires (corrélations, scores, métriques calculées)
+   - 🎯 Résultats obtenus (précision, recall, recommandations générées, etc.)
+   - 🔘 Actions utilisateur (boutons cliqués, paramètres sélectionnés)
+   - ⏱️ Temps d'exécution des étapes critiques
+
+2. **Format recommandé** : `[DEBUG] <contexte> : <information clé> = <valeur>`
+   - Exemple : `[DEBUG] Training: GPU device = cuda:0, batch_size = 64`
+   - Exemple : `[DEBUG] Collaborative filtering: processed 1250/5000 users, avg correlation = 0.73`
+   - Exemple : `[DEBUG] Recommendation: top-10 precision = 0.42, recall = 0.31`
+
+3. **⚠️ INTERDICTION dans les boucles serrées** :
+   - ❌ Ne JAMAIS mettre un log dans une boucle qui itère des milliers de fois (saturation console)
+   - ✅ Logger AVANT et APRÈS une boucle (nombre total d'itérations, résultat agrégé)
+   - ✅ Logger à intervalles réguliers dans les longues boucles (ex: tous les 10%, tous les 100 items)
+
+4. **Ces logs sont TEMPORAIRES** : ils seront supprimés après validation par le Reviewer. Ne les confonds pas avec du logging permanent de l'application.
+
 ## 4. 📝 Livrable (Walkthrough)
 Crée un fichier `walkthrough.md` dans ton dossier de travail (`write_to_file`, `IsArtifact=false`) contenant :
 1. Titre et lien de l'issue.

@@ -72,21 +72,40 @@ Une fois le Coordinator lancé, ta seule activité est un **check horaire**.
 
 ---
 
-## 4. 📋 Réception des Walkthroughs (AUTOMATIQUE)
+## 4. 📋 Réception des Rapports de Cycle (AUTOMATIQUE)
 
-À chaque fin de cycle, le Coordinator t'envoie un `send_message` contenant le walkthrough de l'Architect.
+À chaque fin de cycle, le Coordinator t'envoie un `send_message` contenant un **rapport de cycle structuré** (résumé, bilan chiffré et liens vers les fichiers produits).
 
 > [!CAUTION]
-> **🚫 NE LIS PAS LE CONTENU DU WALKTHROUGH.**
-> Tu ne dois PAS lire, analyser ou résumer le walkthrough. Cela saturerait ton contexte inutilement.
-> Ton SEUL travail est de le **copier tel quel** dans un artefact pour l'utilisateur.
+> **🚫 NE CREUSE PAS LES DÉTAILS.**
+> Tu ne dois PAS lire les fichiers référencés ni analyser le contenu technique. Cela saturerait ton contexte inutilement.
+> Ton SEUL travail est de **créer un artefact structuré** à partir du rapport reçu.
 
 **Action à effectuer** :
 1. Crée un artefact nommé `Cycle_N.md` (où N = numéro du cycle, ex: `Cycle_1.md`, `Cycle_2.md`, etc.).
-2. Copie le contenu du walkthrough **intégralement et sans modification** dans cet artefact.
-3. C'est tout. Ne commente pas. Ne résume pas. Ne réagis pas.
+2. Utilise le format suivant **systématiquement** pour chaque artefact de cycle :
+   ```markdown
+   # Cycle N — [Titre de l'issue traitée]
 
-L'utilisateur pourra consulter ces artefacts à tout moment pour suivre la progression détaillée de chaque cycle.
+   ## Ce qui a été fait
+   [Résumé reçu du Coordinator — copié tel quel]
+
+   ## Bilan
+   | Métrique | Valeur |
+   |----------|--------|
+   | 🔧 Problèmes résolus | N |
+   | 🐛 Problèmes détectés (nouveaux) | N |
+   | 📈 Progrès mesurables | [résultats concrets] |
+
+   ## Fichiers du cycle
+   - [Issue walkthrough](file:///chemin/vers/issue/walkthrough.md)
+   - [Review report](file:///chemin/vers/reviewer/review_report.md)
+   - [Investigation report](file:///chemin/vers/investigator/investigation_report.md)
+   - [Architect walkthrough](file:///chemin/vers/architect/architect_walkthrough.md)
+   ```
+3. C'est tout. Ne commente pas. Ne résume pas davantage. Ne réagis pas.
+
+L'utilisateur pourra consulter ces artefacts à tout moment pour suivre la progression détaillée de chaque cycle, et cliquer sur les liens pour inspecter les fichiers individuels si besoin.
 
 ---
 
