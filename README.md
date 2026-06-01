@@ -87,7 +87,7 @@ Ces commandes sont définies par les règles installées :
 | `/handover` | **Passation de Service**. Génère un résumé structuré et narratif pour le prochain agent, avec décisions clés et plan d'action. | Taper `/handover` en fin de session. |
 | `/research` | **Recherche Approfondie (Deep Research)**. Conduit une recherche structurée multi-axes avec vagues de recherches parallèles, suivi des sources, et produit un rapport détaillé avec citations footnote. | Taper `/research [sujet]` pour lancer une investigation. |
 | `/pull` | **Merge des PRs & Validation**. Inventorie toutes les PRs ouvertes, les merge séquentiellement en résolvant les conflits, met à jour les issues liées, installe l'environnement de validation, et génère un walkthrough détaillé. | Taper `/pull` pour merger les PRs ouvertes. |
-| `/un_bug` | **Reprise Après Crash**. Rétablit l'infrastructure de supervision temporelle (crons Monitor/Coordinator), analyse l'état du dépôt, et reprend le cycle interrompu avec arbitrage intelligent pour la phase de review. | Taper `/un_bug` pour reprendre le travail après un arrêt inattendu de l'IDE. |
+| `/continue` | **Reprise du Travail**. Rétablit l'ensemble de la supervision agentique et temporelle (crons, agents, sous-agents, timers) après une interruption, avec arbitrage intelligent pour la phase de validation. | Taper `/continue` pour reprendre et restaurer le travail suite à une interruption inattendue. |
 
 # Scripts exécutables secondaires & Utilitaires
 
