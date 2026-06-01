@@ -1,22 +1,22 @@
 ###############################################################################
-# Antigravity Auto-Recovery Script
+# Antigravity Auto-Recovery Script v2.1
 # Monitors the Language Server for crashes and automatically sends the
-# /continue workflow instructions to all recently-active top-level
-# conversations, so agents resume their work without manual intervention.
+# /continue workflow to conversations that were active during monitoring.
+#
+# Uses `agy --conversation <ID> -p <msg>` to wake up agents (not just
+# deposit a message like agentapi send-message).
 #
 # Usage (run in a terminal EXTERNAL to the IDE):
 #   powershell -NoExit -ExecutionPolicy Bypass -File utils\auto_recovery.ps1
 #
 # Parameters:
-#   -PollIntervalSec     : How often to check for crashes (default: 5s)
-#   -WaitAfterCrashSec   : Time to wait for LS restart before recovery (default: 20s)
-#   -ActiveWindowMinutes : Only notify conversations active within this window (default: 30)
+#   -PollIntervalSec   : How often to check for crashes (default: 5s)
+#   -WaitAfterCrashSec : Time to wait for LS restart (default: 20s)
 ###############################################################################
 
 param(
-    [int]$PollIntervalSec     = 5,
-    [int]$WaitAfterCrashSec   = 20,
-    [int]$ActiveWindowMinutes = 30
+    [int]$PollIntervalSec   = 5,
+    [int]$WaitAfterCrashSec = 20
 )
 
 $ErrorActionPreference = "Continue"
@@ -24,50 +24,32 @@ $ErrorActionPreference = "Continue"
 $mainLog     = "$env:APPDATA\Antigravity\logs\main.log"
 $convosDir   = "$env:USERPROFILE\.gemini\antigravity\conversations"
 $agentApi    = "$env:USERPROFILE\.gemini\antigravity\bin\agentapi.bat"
+$agyCli      = "agy"
 $crashMarker = "Language server crashed"
 
 # ── Inline /continue workflow ────────────────────────────────────────────────
-# Injected directly so agents get the full instructions without needing to
-# read any file.
 
 $continueMsg = @"
 # Workflow de Reprise du Travail (Continue)
 
-**Objectif** : Restaurer l'environnement et relancer toutes les taches, agents, superviseurs et programmations temporelles suite a une interruption inattendue (crash d'IDE, redemarrage du serveur, etc.).
+L'IDE a crashe (Language Server). Tous tes sous-agents, timers et cron jobs ont ete annules.
 
-> **EFFET DE L'INTERRUPTION :**
-> 1. Les agents et sous-agents en cours d'execution ont pu etre annules.
-> 2. Les taches d'arriere-plan, les timers et les taches planifiees (schedule / cron jobs) ont ete supprimes.
-> 3. Ce workflow permet de tout retablir de maniere coherente pour reprendre le travail.
+## 1. Diagnostic
+- Consulte .agents/ pour identifier le dossier de coordination le plus recent.
+- Lis le dernier fichier de progression pour determiner les taches interrompues.
 
-## 1. Diagnostic de l'Etat du Projet
+## 2. Retablissement
+- Relance les agents superviseurs et coordinateurs annules.
+- Retablis les taches planifiees (cron jobs, timers) effaces lors de l'arret.
+- Chaque superviseur relance ses sous-agents et commandes en cours.
 
-1. **Recherche de l'etat** :
-   Consulte le dossier .agents/ a la racine pour identifier le dossier de coordination ou de travail le plus recent.
-2. **Identifier les taches interrompues** :
-   Lis le dernier fichier de progression (progression_summary.md ou similaire) et inspecte les sous-dossiers actifs pour determiner exactement quel agent et quelle tache etaient en cours d'execution avant l'interruption.
+## 3. Arbitrage de Reprise
+- Si deja suffisamment de bugs identifies : enchaine sur l'Investigateur.
+- Sinon : relance l'etape de validation.
 
-## 2. Retablissement et Relance
-
-Puisque toute l'infrastructure agentique et temporelle a ete arretee, retablis le flux de travail de maniere ordonnee :
-
-1. **Relancer les agents superviseurs et coordinateurs** :
-   Instancie a nouveau le ou les agents principaux annules (comme le Coordinator ou le Monitor) avec leur prompt initial et l'etat de reprise.
-2. **Retablir les taches de supervision (Schedules)** :
-   Demande a chaque niveau de supervision de reenregistrer ses taches planifiees (cron jobs de check, timers) qui ont ete effaces lors de l'arret.
-3. **Restaurer les sous-agents et les commandes en cours** :
-   Chaque superviseur doit a son tour relancer ses propres sous-agents et reactiver les taches ou commandes en cours qui ont ete annulees.
-
-## 3. Arbitrage Intelligent de Reprise (Validation / Review)
-
-Si le travail a ete interrompu en pleine phase de validation ou de review (Reviewer, Reviewer Final) :
-
-- **Arbitrage** : S'il y a deja suffisamment d'anomalies averees et de bugs importants identifies a corriger, ne perds pas de temps a faire tourner a nouveau l'etape de validation. Enchaine immediatement sur l'Investigateur pour analyser et corriger directement les bugs et iterer plus rapidement.
-- **Sinon** (ex: processus de validation live critique ou benchmark en cours avec logs interessants), relance l'etape de validation pour finaliser l'analyse.
-
-## 4. Nettoyage Rapide
-- Supprime les verrous orphelins (ex: .git/index.lock ou .dvc/tmp/lock) qui pourraient bloquer la reprise des commandes.
-- Enregistre une note memoire AIVC (remember) pour marquer le point de relance et la reprise effective de l'activite.
+## 4. Nettoyage
+- Supprime les verrous orphelins (.git/index.lock, .dvc/tmp/lock).
+- Enregistre une note AIVC (remember) pour marquer la reprise.
 "@
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -75,33 +57,6 @@ Si le travail a ete interrompu en pleine phase de validation ou de review (Revie
 function Write-Log($msg) {
     $ts = Get-Date -Format "HH:mm:ss"
     Write-Host "[$ts] $msg"
-}
-
-function Get-ActiveTopLevelConversations {
-    $cutoff = (Get-Date).AddMinutes(-$ActiveWindowMinutes)
-    $dbs = Get-ChildItem -Path $convosDir -Filter "*.db" -ErrorAction SilentlyContinue |
-        Where-Object {
-            $_.LastWriteTime -gt $cutoff -and
-            $_.Length -gt 200KB -and
-            $_.BaseName -match '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-        } |
-        Sort-Object LastWriteTime -Descending
-
-    $topLevel = @()
-    foreach ($db in $dbs) {
-        $id = $db.BaseName
-        try {
-            $result = & $agentApi get-conversation-metadata $id 2>$null
-            $json = $result | ConvertFrom-Json
-            $depth = [int]$json.response.conversationMetadata.metadata.nestingDepth
-            if ($depth -eq 0) {
-                $topLevel += $id
-            }
-        } catch {
-            # Skip conversations that can't be queried
-        }
-    }
-    return $topLevel
 }
 
 function Get-LastCrashLineNumber {
@@ -127,17 +82,81 @@ function Wait-ForLanguageServer {
     return $false
 }
 
+function Is-TopLevelConversation($convId) {
+    try {
+        $result = & $agentApi get-conversation-metadata $convId 2>$null
+        $json = $result | ConvertFrom-Json
+        $depth = [int]$json.response.conversationMetadata.metadata.nestingDepth
+        return ($depth -eq 0)
+    } catch {
+        return $false
+    }
+}
+
+function Take-DbSnapshot {
+    $snapshot = @{}
+    Get-ChildItem -Path $convosDir -Filter "*.db" -ErrorAction SilentlyContinue |
+        Where-Object {
+            $_.BaseName -match '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+        } |
+        ForEach-Object {
+            $snapshot[$_.BaseName] = $_.Length
+        }
+    return $snapshot
+}
+
+function Get-ChangedConversations($oldSnapshot, $newSnapshot) {
+    $changed = @()
+    foreach ($id in $newSnapshot.Keys) {
+        if (-not $oldSnapshot.ContainsKey($id)) {
+            $changed += $id
+        } elseif (($newSnapshot[$id] - $oldSnapshot[$id]) -ge 10KB) {
+            $changed += $id
+        }
+    }
+    return $changed
+}
+
+function Send-Recovery($convId) {
+    <#
+      Tries agy first (true wake-up), falls back to agentapi (message deposit).
+    #>
+    # Try agy -p (forces agent execution)
+    try {
+        $process = Start-Process -FilePath $agyCli `
+            -ArgumentList "--conversation", $convId, "-p", $continueMsg, "--print-timeout", "30s" `
+            -NoNewWindow -PassThru -RedirectStandardOutput "NUL" -RedirectStandardError "NUL"
+
+        # Don't wait for completion — fire and forget
+        # agy will run in background and handle the conversation
+        return "agy"
+    } catch {
+        # agy not available or failed, fall back to agentapi
+        try {
+            & $agentApi send-message $convId $continueMsg 2>$null | Out-Null
+            return "agentapi"
+        } catch {
+            return $null
+        }
+    }
+}
+
 # ── Main Loop ────────────────────────────────────────────────────────────────
 
 Write-Host ""
 Write-Host "=========================================="
-Write-Host "  Antigravity Auto-Recovery v1.1"
+Write-Host "  Antigravity Auto-Recovery v2.1"
 Write-Host "  Poll: ${PollIntervalSec}s | Wait: ${WaitAfterCrashSec}s"
-Write-Host "  Active window: ${ActiveWindowMinutes}min"
+Write-Host "  Mode: Track conversations during runtime"
+Write-Host "  Wake: agy -p (fallback: agentapi)"
 Write-Host "=========================================="
 Write-Host ""
 
 $lastCrashLine = Get-LastCrashLineNumber
+$baselineSnapshot = Take-DbSnapshot
+$trackedConversations = @{}
+
+Write-Log "Baseline: $($baselineSnapshot.Count) conversations snapshotted"
 Write-Log "Monitoring $mainLog (last crash at line $lastCrashLine)"
 Write-Log "Press Ctrl+C to stop."
 Write-Host ""
@@ -145,6 +164,18 @@ Write-Host ""
 while ($true) {
     Start-Sleep -Seconds $PollIntervalSec
 
+    # ── Track new/growing conversations ──
+    $currentSnapshot = Take-DbSnapshot
+    $changed = Get-ChangedConversations $baselineSnapshot $currentSnapshot
+    foreach ($id in $changed) {
+        if (-not $trackedConversations.ContainsKey($id)) {
+            $trackedConversations[$id] = $true
+            Write-Log "Tracking: $id"
+        }
+    }
+    $baselineSnapshot = $currentSnapshot
+
+    # ── Check for crash ──
     $currentCrashLine = Get-LastCrashLineNumber
     if ($currentCrashLine -le $lastCrashLine) { continue }
 
@@ -152,6 +183,7 @@ while ($true) {
     $lastCrashLine = $currentCrashLine
     Write-Host ""
     Write-Log "!!! CRASH DETECTED !!! (line $currentCrashLine)"
+    Write-Log "Tracked conversations: $($trackedConversations.Count)"
     Write-Log "Waiting ${WaitAfterCrashSec}s for LS restart..."
     Start-Sleep -Seconds $WaitAfterCrashSec
 
@@ -160,27 +192,36 @@ while ($true) {
         continue
     }
 
-    Write-Log "LS is back. Finding active top-level conversations..."
-    $topLevel = Get-ActiveTopLevelConversations
+    Write-Log "LS is back. Filtering top-level conversations..."
 
-    if ($topLevel.Count -eq 0) {
-        Write-Log "No active top-level conversations found."
-        continue
-    }
-
-    Write-Log "Sending /continue to $($topLevel.Count) conversation(s):"
-    $sent = 0
-    foreach ($id in $topLevel) {
-        try {
-            & $agentApi send-message $id $continueMsg 2>$null | Out-Null
-            Write-Log "  OK  -> $id"
-            $sent++
-        } catch {
-            Write-Log "  FAIL -> $id"
+    $topLevel = @()
+    foreach ($id in $trackedConversations.Keys) {
+        if (Is-TopLevelConversation $id) {
+            $topLevel += $id
         }
     }
 
-    Write-Log "Recovery complete: $sent/$($topLevel.Count) notified."
+    Write-Log "Sending /continue to $($topLevel.Count) top-level conversation(s):"
+
+    if ($topLevel.Count -eq 0) {
+        Write-Log "  (none to notify)"
+    } else {
+        $sent = 0
+        foreach ($id in $topLevel) {
+            $method = Send-Recovery $id
+            if ($method) {
+                Write-Log "  OK  ($method) -> $id"
+                $sent++
+            } else {
+                Write-Log "  FAIL -> $id"
+            }
+        }
+        Write-Log "Recovery complete: $sent/$($topLevel.Count) notified."
+    }
+
+    # Reset tracking for next cycle
+    $trackedConversations = @{}
+    $baselineSnapshot = Take-DbSnapshot
     Write-Host ""
-    Write-Log "Resuming monitoring..."
+    Write-Log "Tracking reset. Resuming monitoring..."
 }
