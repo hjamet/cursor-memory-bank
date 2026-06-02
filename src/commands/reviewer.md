@@ -37,7 +37,8 @@ Tu peux être invoqué dans **deux contextes**. Identifie lequel s'applique :
 
 ### Mode A — Suite d'un agent Issue (review de travail effectué)
 1. Lis l'issue GitHub.
-2. Lis le fichier **walkthrough.md** dont le chemin t'a été fourni dans ton prompt pour trouver la commande principale à lancer.
+2. Lis le fichier **walkthrough.md** dont le chemin t'a été fourni dans ton prompt pour comprendre les changements effectués.
+3. **Identifie et exécute la commande principale du repo** pour tester le code en conditions réelles (voir encart ci-dessous).
 
 ### Mode B — Invocation directe (supervision live)
 1. L'utilisateur te fournit directement **une commande à exécuter** ou **une instruction de lancement**.
@@ -45,6 +46,13 @@ Tu peux être invoqué dans **deux contextes**. Identifie lequel s'applique :
 3. Pas d'issue GitHub, pas de walkthrough préalable — tu lances, tu observes, tu critiques.
 
 > Dans les **DEUX modes**, la suite du workflow est **IDENTIQUE**. Une fois la commande identifiée, passe directement à l'étape 2.
+
+> [!IMPORTANT]
+> **🎯 COMMANDE PRINCIPALE DU REPO (OBLIGATOIRE)**
+> Tu DOIS toujours exécuter la **commande principale du repo** pour tester le code en conditions réelles.
+> Il s'agit généralement de la commande `cluster-run` **sans argument**.
+> Si `cluster-run` n'existe pas ou n'est pas applicable, lis le `README.md` pour identifier la commande d'exécution principale.
+> **Tu ne dois JAMAIS te fier à l'agent Issue pour te dire quelle commande lancer.** C'est TOI qui identifies et exécutes la commande principale.
 
 ## 2. 🖥️ Exécution Anti-Biais (OBLIGATOIRE)
 
@@ -230,3 +238,9 @@ Le Coordinator transmettra le chemin de ce fichier au prochain agent.
 
 **Si la commande a terminé → ARRÊTE-TOI.** L'Architecte gérera tes plaintes.
 **Si la commande tourne encore → CONTINUE d'enrichir le rapport.** Tu ne t'arrêtes que quand la commande s'arrête ou que l'utilisateur te le dit.
+
+---
+
+> [!NOTE]
+> **🔗 AGENT SUIVANT : Investigator** (`src/commands/investigator.md`)
+> L'Investigator prend le relais pour vérifier si les problèmes remontés sont de vrais bugs ou du comportement intentionnel, et corrige les problèmes évidents.

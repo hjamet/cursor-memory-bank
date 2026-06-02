@@ -232,3 +232,9 @@ graph TD
 1. Vérifie que l'artefact `architect_walkthrough.md` est complet et respecte le format ci-dessus.
 2. Fais un `remember` dans AIVC.
 3. **ARRÊTE-TOI**. Le Teamwork Coordinator récupérera ton walkthrough et le transmettra au Monitor.
+
+---
+
+> [!NOTE]
+> **🔗 AGENT SUIVANT : Reviewer Final** (validation live) puis **Issue** (nouveau cycle)
+> Le Teamwork Coordinator lance d'abord un Reviewer Final pour valider l'exécution en conditions réelles, puis démarre un nouveau cycle avec l'agent Issue sur la prochaine issue prioritaire.

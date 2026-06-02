@@ -37,7 +37,7 @@ description: Artisan implémenteur. Prend la première issue prioritaire, l'impl
 > [!CAUTION]
 > **🚫 INTERDICTION ABSOLUE d'exécuter des commandes lourdes** (pipelines, serveurs, builds longs, exécutions de bout en bout).
 > Même si l'issue porte sur l'exécution d'une pipeline ou la détection d'un bug runtime : tu implémentes, tu prépares tout, tu vérifies la compilation — mais c'est le **Reviewer** qui exécutera la commande principale.
-> Consigne la commande de test dans le walkthrough pour que le Reviewer sache quoi lancer.
+> **Tu ne dois PAS indiquer au Reviewer quelle commande exécuter.** Le Reviewer identifie et exécute lui-même la commande principale du repo.
 
 ### 3.1 📊 Logs de Debug Stratégiques (OBLIGATOIRE)
 
@@ -70,7 +70,7 @@ description: Artisan implémenteur. Prend la première issue prioritaire, l'impl
 Crée un fichier `walkthrough.md` dans ton dossier de travail (`write_to_file`, `IsArtifact=false`) contenant :
 1. Titre et lien de l'issue.
 2. Résumé des changements.
-3. Commandes exactes pour tester l'implémentation (pour le prochain agent Reviewer).
+3. Fichiers modifiés et vérifications effectuées.
 
 Le Coordinator transmettra le chemin de ce fichier au Reviewer.
 
@@ -78,3 +78,9 @@ Le Coordinator transmettra le chemin de ce fichier au Reviewer.
 1. Rapporte tes actions dans le chat.
 2. Fais un `remember` dans AIVC.
 3. **ARRÊTE-TOI**. L'issue est déjà fermée. Demande à l'utilisateur d'invoquer le Reviewer.
+
+---
+
+> [!NOTE]
+> **🔗 AGENT SUIVANT : Reviewer** (`src/commands/reviewer.md`)
+> Le Reviewer prend le relais pour exécuter la commande principale du repo en conditions réelles et valider l'implémentation.

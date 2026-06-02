@@ -226,3 +226,9 @@ Crée un fichier `investigation_report.md` dans ton dossier de travail (`write_t
 1. Vérifie que chaque problème du `review_report.md` a une entrée dans ton `investigation_report.md` (soit en catégorie A, soit en catégorie B).
 2. Fais un `remember` (AIVC).
 3. **ARRÊTE-TOI**. Le Coordinator transmettra le chemin de ce fichier à l'Architecte.
+
+---
+
+> [!NOTE]
+> **🔗 AGENT SUIVANT : Architect** (`src/commands/architect.md`)
+> L'Architecte prend le relais pour gérer les issues GitHub : créer de nouvelles issues pour les bugs confirmés, fermer celles résolues, et maintenir la roadmap.
