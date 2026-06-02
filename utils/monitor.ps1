@@ -5,8 +5,15 @@ param(
 $ErrorActionPreference = "Stop"
 
 # Déterminer les chemins
-$monitorPath = Join-Path $PSScriptRoot "..\src\commands\monitor.md"
-$continuePath = Join-Path $PSScriptRoot "..\src\commands\continue.md"
+if (Test-Path (Join-Path $PSScriptRoot "workflows\monitor.md")) {
+    # Exécution depuis le dossier caché .agent/
+    $monitorPath = Join-Path $PSScriptRoot "workflows\monitor.md"
+    $continuePath = Join-Path $PSScriptRoot "workflows\continue.md"
+} else {
+    # Exécution depuis utils/ dans le dépôt de développement
+    $monitorPath = Join-Path $PSScriptRoot "..\src\commands\monitor.md"
+    $continuePath = Join-Path $PSScriptRoot "..\src\commands\continue.md"
+}
 $convsDir = "$env:USERPROFILE\.gemini\antigravity\conversations"
 
 # Charger les instructions
@@ -22,10 +29,30 @@ if (-not (Test-Path $continuePath)) {
 $monitorInstruction = Get-Content -Path $monitorPath -Raw
 $continueInstruction = Get-Content -Path $continuePath -Raw
 
-# Saisir le but si non fourni en paramètre
+# Saisir le but si non fourni en paramètre (support multi-ligne)
 if ([string]::IsNullOrWhiteSpace($Goal)) {
     Write-Host "=== Antigravity Monitor Loop ===" -ForegroundColor Cyan
-    $Goal = Read-Host "Saisissez le but (Goal) de la supervision"
+    Write-Host "Saisissez le but (Goal) de la supervision." -ForegroundColor Cyan
+    Write-Host "Collez votre texte et entrez 'EOF' sur une nouvelle ligne (ou double entrée sur ligne vide) pour valider :" -ForegroundColor Gray
+    
+    $GoalLines = @()
+    while ($true) {
+        $line = Read-Host
+        if ($line.Trim() -eq 'EOF') {
+            break
+        }
+        if ([string]::IsNullOrEmpty($line) -and $GoalLines.Count -gt 0 -and $GoalLines[-1] -eq "") {
+            # Double entrée sur ligne vide pour terminer (on retire le premier vide)
+            $GoalLines = $GoalLines[0..($GoalLines.Count-2)]
+            break
+        }
+        if ([string]::IsNullOrEmpty($line) -and $GoalLines.Count -eq 0) {
+            break
+        }
+        $GoalLines += $line
+    }
+    
+    $Goal = $GoalLines -join "`n"
     if ([string]::IsNullOrWhiteSpace($Goal)) {
         Write-Error "Le but ne peut pas être vide."
         exit 1
@@ -54,8 +81,8 @@ while ($true) {
         Write-Host " Lancement initial de la supervision" -ForegroundColor Green
         Write-Host "==========================================" -ForegroundColor Green
         
-        # Exécution interactive initiale
-        & agy --prompt-interactive $initialPrompt
+        # Exécution interactive initiale avec --dangerously-skip-permissions
+        & agy --dangerously-skip-permissions --prompt-interactive $initialPrompt
         $isFirstRun = $false
     } else {
         Write-Host "==========================================" -ForegroundColor Yellow
@@ -63,8 +90,8 @@ while ($true) {
         Write-Host " Conversation ID : $convId" -ForegroundColor Yellow
         Write-Host "==========================================" -ForegroundColor Yellow
         
-        # Relance avec l'instruction continue.md
-        & agy --conversation $convId --prompt-interactive $continueInstruction
+        # Relance avec l'instruction continue.md et --dangerously-skip-permissions
+        & agy --dangerously-skip-permissions --conversation $convId --prompt-interactive $continueInstruction
     }
 
     # Récupérer le code de retour d'agy
