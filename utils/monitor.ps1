@@ -59,11 +59,25 @@ if ([string]::IsNullOrWhiteSpace($Goal)) {
     }
 }
 
+# Prompt d'initialisation avec directive explicite
 $initialPrompt = @"
 $monitorInstruction
 
+---
+
 🎯 GOAL À ATTEINDRE :
 $Goal
+
+---
+IMPORTANT DIRECTIVE : L'objectif ci-dessus est le but fourni par l'utilisateur. Applique le workflow ci-dessus avec cet objectif. Formule ce goal en une phrase précise, note-le et passe immédiatement à l'étape 2 (Lancement du Teamwork Coordinator). Ne me demande pas de clarifier le but, il est entièrement décrit ci-dessus. Démarre dès maintenant.
+"@
+
+# Prompt de relance avec directive explicite
+$continuePrompt = @"
+$continueInstruction
+
+---
+IMPORTANT DIRECTIVE : L'IDE a planté. Applique immédiatement ce workflow de reprise pour restaurer l'état et relancer les tâches/sous-agents en cours.
 "@
 
 $isFirstRun = $true
@@ -91,7 +105,7 @@ while ($true) {
         Write-Host "==========================================" -ForegroundColor Yellow
         
         # Relance avec l'instruction continue.md et --dangerously-skip-permissions
-        & agy --dangerously-skip-permissions --conversation $convId --prompt-interactive $continueInstruction
+        & agy --dangerously-skip-permissions --conversation $convId --prompt-interactive $continuePrompt
     }
 
     # Récupérer le code de retour d'agy
