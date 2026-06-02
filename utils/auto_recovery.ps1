@@ -29,7 +29,11 @@ $crashMarker = "Language server crashed"
 
 # ── Inline /continue workflow ────────────────────────────────────────────────
 
-$continueMsg = @"
+$continueMdPath = Join-Path $PSScriptRoot "..\src\commands\continue.md"
+if (Test-Path $continueMdPath) {
+    $continueMsg = Get-Content -Path $continueMdPath -Raw
+} else {
+    $continueMsg = @"
 # Workflow de Reprise du Travail (Continue)
 
 L'IDE a crashe (Language Server). Tous tes sous-agents, timers et cron jobs ont ete annules.
@@ -51,6 +55,8 @@ L'IDE a crashe (Language Server). Tous tes sous-agents, timers et cron jobs ont 
 - Supprime les verrous orphelins (.git/index.lock, .dvc/tmp/lock).
 - Enregistre une note AIVC (remember) pour marquer la reprise.
 "@
+}
+
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
