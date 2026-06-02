@@ -96,7 +96,7 @@ while ($true) {
         Write-Host "==========================================" -ForegroundColor Green
         
         # Exécution interactive initiale avec --dangerously-skip-permissions
-        & agy --dangerously-skip-permissions --prompt-interactive $initialPrompt
+        & agy --dangerously-skip-permissions --prompt-interactive "$initialPrompt"
         $isFirstRun = $false
     } else {
         Write-Host "==========================================" -ForegroundColor Yellow
@@ -105,7 +105,7 @@ while ($true) {
         Write-Host "==========================================" -ForegroundColor Yellow
         
         # Relance avec l'instruction continue.md et --dangerously-skip-permissions
-        & agy --dangerously-skip-permissions --conversation $convId --prompt-interactive $continuePrompt
+        & agy --dangerously-skip-permissions --conversation $convId --prompt-interactive "$continuePrompt"
     }
 
     # Récupérer le code de retour d'agy
