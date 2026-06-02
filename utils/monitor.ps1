@@ -23,41 +23,12 @@ if (Test-Path (Join-Path $PSScriptRoot "workflows\monitor.md")) {
 }
 $convsDir = "$env:USERPROFILE\.gemini\antigravity\conversations"
 
-# Charger les instructions
-if (-not (Test-Path $monitorPath)) {
-    Write-Error "Fichier d'instruction Monitor introuvable : $monitorPath"
-    exit 1
-}
-if (-not (Test-Path $continuePath)) {
-    Write-Error "Fichier d'instruction Continue introuvable : $continuePath"
-    exit 1
-}
-
-$monitorInstructionRaw = Get-Content -Path $monitorPath -Raw
-$continueInstructionRaw = Get-Content -Path $continuePath -Raw
-
-# Fonction pour retirer le frontmatter YAML
-function Remove-Frontmatter([string]$text) {
-    $trimmed = $text.Trim()
-    if ($trimmed.StartsWith("---")) {
-        # Trouver la seconde occurrence de "---" après le premier index
-        $firstIndex = $trimmed.IndexOf("---")
-        $secondIndex = $trimmed.IndexOf("---", $firstIndex + 3)
-        if ($secondIndex -ne -1) {
-            return $trimmed.Substring($secondIndex + 3).Trim()
-        }
-    }
-    return $trimmed
-}
-
-$monitorInstruction = Remove-Frontmatter $monitorInstructionRaw
-$continueInstruction = Remove-Frontmatter $continueInstructionRaw
 
 # Saisir le but si non fourni en paramètre (support multi-ligne)
 if ([string]::IsNullOrWhiteSpace($Goal)) {
     Write-Host "=== Antigravity Monitor Loop ===" -ForegroundColor Cyan
     Write-Host "Saisissez le but (Goal) de la supervision." -ForegroundColor Cyan
-    Write-Host "Collez votre texte et entrez 'EOF' sur une nouvelle ligne (ou double entrée sur ligne vide) pour valider :" -ForegroundColor Gray
+    Write-Host "Collez votre texte et entrez 'EOF' sur une nouvelle ligne (ou double entree sur ligne vide) pour valider :" -ForegroundColor Gray
     
     $GoalLines = @()
     while ($true) {
@@ -66,7 +37,7 @@ if ([string]::IsNullOrWhiteSpace($Goal)) {
             break
         }
         if ([string]::IsNullOrEmpty($line) -and $GoalLines.Count -gt 0 -and $GoalLines[-1] -eq "") {
-            # Double entrée sur ligne vide pour terminer (on retire le premier vide)
+            # Double entree sur ligne vide pour terminer (on retire le premier vide)
             $GoalLines = $GoalLines[0..($GoalLines.Count-2)]
             break
         }
@@ -78,38 +49,34 @@ if ([string]::IsNullOrWhiteSpace($Goal)) {
     
     $Goal = $GoalLines -join "`n"
     if ([string]::IsNullOrWhiteSpace($Goal)) {
-        Write-Error "Le but ne peut pas être vide."
+        Write-Error "Le but ne peut pas etre vide."
         exit 1
     }
 }
 
-# Prompt d'initialisation propre avec instructions brutes (sans frontmatter) et directives
+# Prompt d'initialisation propre sans accent (ASCII pur) faisant reference au workflow
 $initialPrompt = @"
-$monitorInstruction
+Applique le workflow de supervision defini dans le fichier de workflow de ton espace de travail :
+.agent/workflows/monitor.md
 
----
-
-🎯 GOAL À ATTEINDRE :
+GOAL A ATTEINDRE :
 $Goal
 
----
-IMPORTANT DIRECTIVE : L'objectif ci-dessus est le but fourni par l'utilisateur. Tu es le Superviseur (Monitor). Formule ce goal en une phrase précise, note-le et passe immédiatement à l'étape 2 (Lancement du Teamwork Coordinator) en invoquant le sous-agent comme décrit dans le workflow. Ne me demande pas de clarifier le but, il est entièrement décrit ci-dessus. Démarre dès maintenant.
+Note ce goal, lis le fichier de workflow, et lance le Teamwork Coordinator comme indique a l'etape 2 du workflow.
 "@
 
-# Prompt de relance propre avec instructions brutes (sans frontmatter) et directives
+# Prompt de relance propre sans accent (ASCII pur) faisant reference au workflow de reprise
 $continuePrompt = @"
-$continueInstruction
-
----
-IMPORTANT DIRECTIVE : L'IDE a planté. Applique immédiatement ce workflow de reprise pour restaurer l'état et relancer les tâches/sous-agents en cours.
+L'IDE a rencontre un arret anormal (crash). Applique immediatement le workflow de reprise (continue) defini dans le fichier :
+.agent/workflows/continue.md
 "@
 
 $isFirstRun = $true
 $convId = $null
 
 Write-Host ""
-Write-Host "Démarrage de la boucle de monitoring..." -ForegroundColor Cyan
-Write-Host "Le script surveillera l'exécution et relancera la conversation en cas de plantage." -ForegroundColor Gray
+Write-Host "Demarrage de la boucle de monitoring..." -ForegroundColor Cyan
+Write-Host "Le script surveillera l'execution et relancera la conversation en cas de plantage." -ForegroundColor Gray
 Write-Host "Appuyez sur Ctrl+C dans ce terminal externe pour interrompre la surveillance." -ForegroundColor Gray
 Write-Host ""
 
@@ -119,7 +86,7 @@ while ($true) {
         Write-Host " Lancement initial de la supervision" -ForegroundColor Green
         Write-Host "==========================================" -ForegroundColor Green
         
-        # Exécution interactive initiale avec --dangerously-skip-permissions
+        # Execution interactive initiale avec --dangerously-skip-permissions
         & agy --dangerously-skip-permissions --prompt-interactive "$initialPrompt"
         $isFirstRun = $false
     } else {
@@ -132,48 +99,49 @@ while ($true) {
         & agy --dangerously-skip-permissions --conversation $convId --prompt-interactive "$continuePrompt"
     }
 
-    # Récupérer le code de retour d'agy
+    # Recuperer le code de retour d'agy
     $exitCode = $LASTEXITCODE
-    Write-Host "Processus agy arrêté avec le code de sortie : $exitCode" -ForegroundColor Gray
+    Write-Host "Processus agy arrete avec le code de sortie : $exitCode" -ForegroundColor Gray
 
-    # Si le code est 0, c'est un arrêt volontaire/propre
+    # Si le code est 0, c'est un arret volontaire/propre
     if ($exitCode -eq 0) {
         Write-Host ""
-        $choice = Read-Host "L'agent s'est arrêté proprement. [R]elancer la conversation, ou [Q]uitter le script ? (R/Q)"
+        $choice = Read-Host "L'agent s'est arrete proprement. [R]elancer la conversation, ou [Q]uitter le script ? (R/Q)"
         if ($choice -match '^[qQ]') {
             Write-Host "Fin de la supervision." -ForegroundColor Green
             break
         } elseif ($choice -match '^[rR]') {
-            # Identifier la dernière conversation
+            # Identifier la derniere conversation
             $latestDb = Get-ChildItem -Path $convsDir -Filter "*.db" -ErrorAction SilentlyContinue |
                 Sort-Object LastWriteTime -Descending |
                 Select-Object -First 1
             if ($latestDb) {
                 $convId = $latestDb.BaseName
-                Write-Host "Relance de la dernière conversation : $convId" -ForegroundColor Cyan
+                Write-Host "Relance de la derniere conversation : $convId" -ForegroundColor Cyan
             } else {
-                Write-Warning "Aucune conversation existante trouvée. Relancement complet."
+                Write-Warning "Aucune conversation existante trouvee. Relancement complet."
                 $isFirstRun = $true
             }
         }
     } else {
-        # Arrêt anormal/crash (code non nul)
-        Write-Host "Arrêt anormal de agy détecté (possible crash d'IDE/Language Server)." -ForegroundColor Red
+        # Arret anormal/crash (code non nul)
+        Write-Host "Arret anormal de agy detecte (possible crash d'IDE/Language Server)." -ForegroundColor Red
         
-        # Attendre un peu que le LS redémarre
-        Write-Host "Attente de 15 secondes pour laisser le Language Server se réinitialiser..." -ForegroundColor Yellow
+        # Attendre un peu que le LS redemarre
+        Write-Host "Attente de 15 secondes pour laisser le Language Server se reinitialiser..." -ForegroundColor Yellow
         Start-Sleep -Seconds 15
 
-        # Identifier la dernière conversation active
+        # Identifier la derniere conversation active
         $latestDb = Get-ChildItem -Path $convsDir -Filter "*.db" -ErrorAction SilentlyContinue |
             Sort-Object LastWriteTime -Descending |
             Select-Object -First 1
         if ($latestDb) {
             $convId = $latestDb.BaseName
-            Write-Host "Dernière conversation identifiée pour la reprise : $convId" -ForegroundColor Cyan
+            Write-Host "Derniere conversation identifiee pour la reprise : $convId" -ForegroundColor Cyan
         } else {
-            Write-Warning "Aucune conversation trouvée pour la relance. Reprise impossible."
+            Write-Warning "Aucune conversation trouvee pour la relance. Reprise impossible."
             break
         }
     }
 }
+
