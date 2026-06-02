@@ -137,19 +137,28 @@ convert_to_windows_path() {
         os_type=$(uname -o)
     fi
     
-    # If not on Windows, return path as-is
-    if [[ "$os_type" != "Msys" ]]; then
-        echo "$unix_path"
-        return 0
+    # Try using wslpath if available (WSL environment)
+    if command -v wslpath >/dev/null 2>&1; then
+        if win_path=$(wslpath -w "$unix_path" 2>/dev/null); then
+            echo "$win_path"
+            return 0
+        fi
     fi
     
-    # Try using cygpath if available (preferred method)
+    # Try using cygpath if available (MSYS/Cygwin environment)
     if command -v cygpath >/dev/null 2>&1; then
         if win_path=$(cygpath -w "$unix_path" 2>/dev/null); then
             echo "$win_path"
             return 0
         fi
     fi
+    
+    # If not on Windows, return path as-is
+    if [[ "$os_type" != "Msys" ]]; then
+        echo "$unix_path"
+        return 0
+    fi
+
     
     # Fallback: manual conversion for Git Bash/MSYS
     # Convert /c/ to C:\\ and all / to \\
@@ -789,6 +798,78 @@ install_global_workflows() {
     fi
 }
 
+install_monitor_command() {
+    local target_dir="$1"
+    local bin_dir=""
+    
+    # Detect the user's .gemini/antigravity/bin path
+    local user_name=""
+    if command -v cmd.exe >/dev/null 2>&1; then
+        user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
+    fi
+    if [[ -z "$user_name" ]]; then
+        user_name=$(whoami)
+    fi
+
+    local win_home=""
+    if command -v wslpath >/dev/null 2>&1; then
+        win_home="/mnt/c/Users/$user_name"
+        if [[ ! -d "$win_home" ]]; then
+            win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
+        fi
+    elif [[ "$(uname -o 2>/dev/null)" == "Msys" ]]; then
+        win_home="$HOME"
+    fi
+
+    if [[ -z "$win_home" ]] && [[ -n "${HOME:-}" ]]; then
+        win_home="$HOME"
+    fi
+
+    if [[ -n "$win_home" ]]; then
+        bin_dir="$win_home/.gemini/antigravity/bin"
+    fi
+
+    if [[ -z "$bin_dir" ]]; then
+        warn "Could not detect antigravity bin directory. Skipping monitor command installation."
+        return 0
+    fi
+
+    # 1. Installer monitor.ps1 dans .agent/
+    log "Copying monitor.ps1 to $target_dir/.agent/monitor.ps1..."
+    mkdir -p "$target_dir/.agent"
+    if [[ -f "$target_dir/utils/monitor.ps1" ]]; then
+        cp "$target_dir/utils/monitor.ps1" "$target_dir/.agent/monitor.ps1"
+    else
+        warn "utils/monitor.ps1 not found in target dir"
+    fi
+
+    log "Installing monitor command to $bin_dir..."
+    mkdir -p "$bin_dir"
+
+    # Get absolute path of the target_dir for the ps1 file
+    local abs_target_dir
+    abs_target_dir=$(cd "$target_dir" && pwd)
+    local win_target_dir
+    win_target_dir=$(convert_to_windows_path "$abs_target_dir")
+    
+    local ps1_path="$win_target_dir\\\\.agent\\\\monitor.ps1"
+
+    # Create monitor.bat for CMD/PowerShell
+    cat > "$bin_dir/monitor.bat" <<EOF
+@echo off
+powershell -NoProfile -ExecutionPolicy Bypass -File "$ps1_path" %*
+EOF
+    log "✓ Created global command wrapper: $bin_dir/monitor.bat"
+
+    # Create monitor shell script for Git Bash / WSL
+    cat > "$bin_dir/monitor" <<EOF
+#!/bin/bash
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$ps1_path" "\$@"
+EOF
+    chmod +x "$bin_dir/monitor"
+    log "✓ Created global command wrapper: $bin_dir/monitor"
+}
+
 install_basic_rules() {
     local target_dir="$1"
     local temp_dir="$2"
@@ -844,6 +925,9 @@ install_basic_rules() {
 
     log "Installing global workflows..."
     install_global_workflows "$target_dir" "$temp_dir" "$GLOBAL_WORKFLOWS_DIR"
+
+    log "Installing monitor command..."
+    install_monitor_command "$target_dir"
 
     log "✅ Installation completed (single mode)"
 }
