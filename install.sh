@@ -802,31 +802,53 @@ install_monitor_command() {
     local target_dir="$1"
     local bin_dir=""
     
-    # Detect the user's .gemini/antigravity/bin path
-    local user_name=""
-    if command -v cmd.exe >/dev/null 2>&1; then
-        user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
-    fi
-    if [[ -z "$user_name" ]]; then
-        user_name=$(whoami)
+    # Try to locate agy.exe on Windows path to use its bin folder
+    local agy_path=""
+    if command -v where.exe >/dev/null 2>&1; then
+        agy_path=$(where.exe agy 2>/dev/null | head -n 1 | tr -d '\r')
     fi
 
-    local win_home=""
-    if command -v wslpath >/dev/null 2>&1; then
-        win_home="/mnt/c/Users/$user_name"
-        if [[ ! -d "$win_home" ]]; then
-            win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
+    if [[ -n "$agy_path" ]]; then
+        local unix_agy_path="$agy_path"
+        if command -v wslpath >/dev/null 2>&1; then
+            unix_agy_path=$(wslpath -u "$agy_path" 2>/dev/null || echo "$agy_path")
+        elif command -v cygpath >/dev/null 2>&1; then
+            unix_agy_path=$(cygpath -u "$agy_path" 2>/dev/null || echo "$agy_path")
+        else
+            # Fallback: replace backslashes with forward slashes
+            unix_agy_path=$(echo "$agy_path" | tr '\\' '/')
         fi
-    elif [[ "$(uname -o 2>/dev/null)" == "Msys" ]]; then
-        win_home="$HOME"
+        bin_dir=$(dirname "$unix_agy_path")
+        log "Detected agy.exe at $agy_path, using target bin directory: $bin_dir"
     fi
 
-    if [[ -z "$win_home" ]] && [[ -n "${HOME:-}" ]]; then
-        win_home="$HOME"
-    fi
+    if [[ -z "$bin_dir" ]]; then
+        # Detect the user's .gemini/antigravity/bin path as fallback
+        local user_name=""
+        if command -v cmd.exe >/dev/null 2>&1; then
+            user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
+        fi
+        if [[ -z "$user_name" ]]; then
+            user_name=$(whoami)
+        fi
 
-    if [[ -n "$win_home" ]]; then
-        bin_dir="$win_home/.gemini/antigravity/bin"
+        local win_home=""
+        if command -v wslpath >/dev/null 2>&1; then
+            win_home="/mnt/c/Users/$user_name"
+            if [[ ! -d "$win_home" ]]; then
+                win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
+            fi
+        elif [[ "$(uname -o 2>/dev/null)" == "Msys" ]]; then
+            win_home="$HOME"
+        fi
+
+        if [[ -z "$win_home" ]] && [[ -n "${HOME:-}" ]]; then
+            win_home="$HOME"
+        fi
+
+        if [[ -n "$win_home" ]]; then
+            bin_dir="$win_home/.gemini/antigravity/bin"
+        fi
     fi
 
     if [[ -z "$bin_dir" ]]; then
