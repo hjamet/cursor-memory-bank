@@ -895,6 +895,7 @@ install_monitor_command() {
     # Create monitor.bat for CMD/PowerShell
     cat > "$bin_dir/monitor.bat" <<EOF
 @echo off
+chcp 65001 >nul
 powershell -NoProfile -ExecutionPolicy Bypass -File "$ps1_path" %*
 EOF
     log "✓ Created global command wrapper: $bin_dir/monitor.bat"

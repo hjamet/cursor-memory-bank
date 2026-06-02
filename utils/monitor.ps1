@@ -24,6 +24,36 @@ if (Test-Path (Join-Path $PSScriptRoot "workflows\monitor.md")) {
 $convsDir = "$env:USERPROFILE\.gemini\antigravity\conversations"
 
 
+# Charger les instructions en UTF-8
+if (-not (Test-Path $monitorPath)) {
+    Write-Error "Fichier d'instruction Monitor introuvable : $monitorPath"
+    exit 1
+}
+if (-not (Test-Path $continuePath)) {
+    Write-Error "Fichier d'instruction Continue introuvable : $continuePath"
+    exit 1
+}
+
+$monitorInstructionRaw = Get-Content -Path $monitorPath -Raw -Encoding UTF8
+$continueInstructionRaw = Get-Content -Path $continuePath -Raw -Encoding UTF8
+
+# Fonction pour retirer le frontmatter YAML
+function Remove-Frontmatter([string]$text) {
+    $trimmed = $text.Trim()
+    if ($trimmed.StartsWith("---")) {
+        # Trouver la seconde occurrence de "---" après le premier index
+        $firstIndex = $trimmed.IndexOf("---")
+        $secondIndex = $trimmed.IndexOf("---", $firstIndex + 3)
+        if ($secondIndex -ne -1) {
+            return $trimmed.Substring($secondIndex + 3).Trim()
+        }
+    }
+    return $trimmed
+}
+
+$monitorInstruction = Remove-Frontmatter $monitorInstructionRaw
+$continueInstruction = Remove-Frontmatter $continueInstructionRaw
+
 # Saisir le but si non fourni en paramètre (support multi-ligne)
 if ([string]::IsNullOrWhiteSpace($Goal)) {
     Write-Host "=== Antigravity Monitor Loop ===" -ForegroundColor Cyan
@@ -54,21 +84,25 @@ if ([string]::IsNullOrWhiteSpace($Goal)) {
     }
 }
 
-# Prompt d'initialisation propre sans accent (ASCII pur) faisant reference au workflow
+# Prompt d'initialisation propre avec instructions complètes en UTF-8 (sans frontmatter)
 $initialPrompt = @"
-Applique le workflow de supervision defini dans le fichier de workflow de ton espace de travail :
-.agent/workflows/monitor.md
+$monitorInstruction
 
-GOAL A ATTEINDRE :
+---
+
+🎯 GOAL À ATTEINDRE :
 $Goal
 
-Note ce goal, lis le fichier de workflow, et lance le Teamwork Coordinator comme indique a l'etape 2 du workflow.
+---
+IMPORTANT DIRECTIVE : L'objectif ci-dessus est le but fourni par l'utilisateur. Tu es le Superviseur (Monitor). Formule ce goal en une phrase précise, note-le et passe immédiatement à l'étape 2 (Lancement du Teamwork Coordinator) en invoquant le sous-agent comme décrit dans le workflow. Ne me demande pas de clarifier le but, il est entièrement décrit ci-dessus. Démarre dès maintenant.
 "@
 
-# Prompt de relance propre sans accent (ASCII pur) faisant reference au workflow de reprise
+# Prompt de relance propre avec instructions complètes en UTF-8 (sans frontmatter)
 $continuePrompt = @"
-L'IDE a rencontre un arret anormal (crash). Applique immediatement le workflow de reprise (continue) defini dans le fichier :
-.agent/workflows/continue.md
+$continueInstruction
+
+---
+IMPORTANT DIRECTIVE : L'IDE a planté. Applique immédiatement ce workflow de reprise pour restaurer l'état et relancer les tâches/sous-agents en cours.
 "@
 
 $isFirstRun = $true
@@ -86,8 +120,8 @@ while ($true) {
         Write-Host " Lancement initial de la supervision" -ForegroundColor Green
         Write-Host "==========================================" -ForegroundColor Green
         
-        # Execution interactive initiale avec --dangerously-skip-permissions
-        & agy --dangerously-skip-permissions --prompt-interactive "$initialPrompt"
+        # Execution interactive initiale en contournant la limite de 8191 caracteres de cmd.exe
+        Start-Process -FilePath "agy" -ArgumentList "--dangerously-skip-permissions", "--prompt-interactive", $initialPrompt -NoNewWindow -Wait
         $isFirstRun = $false
     } else {
         Write-Host "==========================================" -ForegroundColor Yellow
@@ -95,8 +129,8 @@ while ($true) {
         Write-Host " Conversation ID : $convId" -ForegroundColor Yellow
         Write-Host "==========================================" -ForegroundColor Yellow
         
-        # Relance avec l'instruction continue.md et --dangerously-skip-permissions
-        & agy --dangerously-skip-permissions --conversation $convId --prompt-interactive "$continuePrompt"
+        # Relance de la conversation en contournant la limite de 8191 caracteres de cmd.exe
+        Start-Process -FilePath "agy" -ArgumentList "--dangerously-skip-permissions", "--conversation", $convId, "--prompt-interactive", $continuePrompt -NoNewWindow -Wait
     }
 
     # Recuperer le code de retour d'agy
