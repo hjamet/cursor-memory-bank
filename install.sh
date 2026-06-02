@@ -734,27 +734,34 @@ install_global_workflows() {
 
     # If global_dir is not provided, try to detect it
     if [[ -z "$global_dir" ]]; then
-        local user_name=""
-        if command -v cmd.exe >/dev/null 2>&1; then
-            user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
-        fi
-        
-        if [[ -z "$user_name" ]]; then
-            user_name=$(whoami)
+        local is_msys=false
+        if command -v uname >/dev/null 2>&1; then
+            if [[ "$(uname -o 2>/dev/null)" == "Msys" || "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
+                is_msys=true
+            fi
         fi
 
-        # Try to find the path in WSL or MSYS
         local win_home=""
-        if command -v wslpath >/dev/null 2>&1; then
-            # WSL environment: translate Windows USERPROFILE to WSL path
-            win_home="/mnt/c/Users/$user_name"
-            if [[ ! -d "$win_home" ]]; then
-                # Try to get it from cmd.exe if wslpath is available but path is different
-                win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
-            fi
-        elif [[ "$(uname -o 2>/dev/null)" == "Msys" ]]; then
-            # Git Bash / MSYS on Windows: $HOME is already set correctly
+        if [[ "$is_msys" == "true" ]]; then
             win_home="$HOME"
+        else
+            if command -v cmd.exe >/dev/null 2>&1; then
+                user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
+            fi
+            
+            if [[ -z "$user_name" ]]; then
+                user_name=$(whoami)
+            fi
+
+            # Try to find the path in WSL
+            if command -v wslpath >/dev/null 2>&1; then
+                # WSL environment: translate Windows USERPROFILE to WSL path
+                win_home="/mnt/c/Users/$user_name"
+                if [[ ! -d "$win_home" ]]; then
+                    # Try to get it from cmd.exe if wslpath is available but path is different
+                    win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
+                fi
+            fi
         fi
 
         if [[ -n "$win_home" ]]; then
@@ -823,23 +830,32 @@ install_monitor_command() {
     fi
 
     if [[ -z "$bin_dir" ]]; then
-        # Detect the user's .gemini/antigravity/bin path as fallback
-        local user_name=""
-        if command -v cmd.exe >/dev/null 2>&1; then
-            user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
-        fi
-        if [[ -z "$user_name" ]]; then
-            user_name=$(whoami)
+        local is_msys=false
+        if command -v uname >/dev/null 2>&1; then
+            if [[ "$(uname -o 2>/dev/null)" == "Msys" || "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
+                is_msys=true
+            fi
         fi
 
         local win_home=""
-        if command -v wslpath >/dev/null 2>&1; then
-            win_home="/mnt/c/Users/$user_name"
-            if [[ ! -d "$win_home" ]]; then
-                win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
-            fi
-        elif [[ "$(uname -o 2>/dev/null)" == "Msys" ]]; then
+        if [[ "$is_msys" == "true" ]]; then
             win_home="$HOME"
+        else
+            # Detect the user's .gemini/antigravity/bin path as fallback
+            local user_name=""
+            if command -v cmd.exe >/dev/null 2>&1; then
+                user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
+            fi
+            if [[ -z "$user_name" ]]; then
+                user_name=$(whoami)
+            fi
+
+            if command -v wslpath >/dev/null 2>&1; then
+                win_home="/mnt/c/Users/$user_name"
+                if [[ ! -d "$win_home" ]]; then
+                    win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
+                fi
+            fi
         fi
 
         if [[ -z "$win_home" ]] && [[ -n "${HOME:-}" ]]; then

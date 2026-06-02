@@ -4,30 +4,14 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Déterminer les chemins
-if (Test-Path (Join-Path $PSScriptRoot "workflows\monitor.md")) {
-    # Exécution depuis le dossier caché .agent/
-    $monitorPath = Join-Path $PSScriptRoot "workflows\monitor.md"
-    $continuePath = Join-Path $PSScriptRoot "workflows\continue.md"
-} else {
-    # Exécution depuis utils/ dans le dépôt de développement
-    $monitorPath = Join-Path $PSScriptRoot "..\src\commands\monitor.md"
-    $continuePath = Join-Path $PSScriptRoot "..\src\commands\continue.md"
-}
-$convsDir = "$env:USERPROFILE\.gemini\antigravity\conversations"
+# Fix character encoding issues in Windows Console
+try {
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+} catch {}
 
-# Charger les instructions
-if (-not (Test-Path $monitorPath)) {
-    Write-Error "Fichier d'instruction Monitor introuvable : $monitorPath"
-    exit 1
-}
-if (-not (Test-Path $continuePath)) {
-    Write-Error "Fichier d'instruction Continue introuvable : $continuePath"
-    exit 1
-}
-
-$monitorInstruction = Get-Content -Path $monitorPath -Raw
-$continueInstruction = Get-Content -Path $continuePath -Raw
+# Déterminer les chemins des workflows dans le workspace courant pour vérification
+$monitorWorkflowPath = ".agent/workflows/monitor.md"
+$continueWorkflowPath = ".agent/workflows/continue.md"
 
 # Saisir le but si non fourni en paramètre (support multi-ligne)
 if ([string]::IsNullOrWhiteSpace($Goal)) {
@@ -59,27 +43,25 @@ if ([string]::IsNullOrWhiteSpace($Goal)) {
     }
 }
 
-# Prompt d'initialisation avec directive explicite
+# Prompt d'initialisation propre sans frontmatter
 $initialPrompt = @"
-$monitorInstruction
-
----
+Applique le workflow de supervision défini dans le fichier de workflow de ton espace de travail : $monitorWorkflowPath.
 
 🎯 GOAL À ATTEINDRE :
 $Goal
 
 ---
-IMPORTANT DIRECTIVE : L'objectif ci-dessus est le but fourni par l'utilisateur. Applique le workflow ci-dessus avec cet objectif. Formule ce goal en une phrase précise, note-le et passe immédiatement à l'étape 2 (Lancement du Teamwork Coordinator). Ne me demande pas de clarifier le but, il est entièrement décrit ci-dessus. Démarre dès maintenant.
+IMPORTANT DIRECTIVE : L'objectif ci-dessus est le but fourni par l'utilisateur. Tu es le Superviseur (Monitor). Formule ce goal en une phrase précise, note-le et passe immédiatement à l'étape 2 (Lancement du Teamwork Coordinator) en invoquant le sous-agent comme décrit dans le workflow. Ne me demande pas de clarifier le but, il est entièrement décrit ci-dessus. Démarre dès maintenant.
 "@
 
-# Prompt de relance avec directive explicite
+# Prompt de relance propre sans frontmatter
 $continuePrompt = @"
-$continueInstruction
+Applique le workflow de reprise défini dans le fichier de workflow de ton espace de travail : $continueWorkflowPath suite au crash de l'IDE.
 
----
-IMPORTANT DIRECTIVE : L'IDE a planté. Applique immédiatement ce workflow de reprise pour restaurer l'état et relancer les tâches/sous-agents en cours.
+Restaure immédiatement l'état et relance les tâches/sous-agents en cours comme décrit dans le workflow.
 "@
 
+$convsDir = "$env:USERPROFILE\.gemini\antigravity\conversations"
 $isFirstRun = $true
 $convId = $null
 
