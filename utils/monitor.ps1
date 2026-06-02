@@ -7,11 +7,51 @@ $ErrorActionPreference = "Stop"
 # Fix character encoding issues in Windows Console
 try {
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+    [Console]::InputEncoding = [System.Text.Encoding]::UTF8
 } catch {}
+$OutputEncoding = [System.Text.Encoding]::UTF8
 
-# Déterminer les chemins des workflows dans le workspace courant pour vérification
-$monitorWorkflowPath = ".agent/workflows/monitor.md"
-$continueWorkflowPath = ".agent/workflows/continue.md"
+# Déterminer les chemins
+if (Test-Path (Join-Path $PSScriptRoot "workflows\monitor.md")) {
+    # Exécution depuis le dossier caché .agent/
+    $monitorPath = Join-Path $PSScriptRoot "workflows\monitor.md"
+    $continuePath = Join-Path $PSScriptRoot "workflows\continue.md"
+} else {
+    # Exécution depuis utils/ dans le dépôt de développement
+    $monitorPath = Join-Path $PSScriptRoot "..\src\commands\monitor.md"
+    $continuePath = Join-Path $PSScriptRoot "..\src\commands\continue.md"
+}
+$convsDir = "$env:USERPROFILE\.gemini\antigravity\conversations"
+
+# Charger les instructions
+if (-not (Test-Path $monitorPath)) {
+    Write-Error "Fichier d'instruction Monitor introuvable : $monitorPath"
+    exit 1
+}
+if (-not (Test-Path $continuePath)) {
+    Write-Error "Fichier d'instruction Continue introuvable : $continuePath"
+    exit 1
+}
+
+$monitorInstructionRaw = Get-Content -Path $monitorPath -Raw
+$continueInstructionRaw = Get-Content -Path $continuePath -Raw
+
+# Fonction pour retirer le frontmatter YAML
+function Remove-Frontmatter([string]$text) {
+    $trimmed = $text.Trim()
+    if ($trimmed.StartsWith("---")) {
+        # Trouver la seconde occurrence de "---" après le premier index
+        $firstIndex = $trimmed.IndexOf("---")
+        $secondIndex = $trimmed.IndexOf("---", $firstIndex + 3)
+        if ($secondIndex -ne -1) {
+            return $trimmed.Substring($secondIndex + 3).Trim()
+        }
+    }
+    return $trimmed
+}
+
+$monitorInstruction = Remove-Frontmatter $monitorInstructionRaw
+$continueInstruction = Remove-Frontmatter $continueInstructionRaw
 
 # Saisir le but si non fourni en paramètre (support multi-ligne)
 if ([string]::IsNullOrWhiteSpace($Goal)) {
@@ -43,9 +83,11 @@ if ([string]::IsNullOrWhiteSpace($Goal)) {
     }
 }
 
-# Prompt d'initialisation propre sans frontmatter
+# Prompt d'initialisation propre avec instructions brutes (sans frontmatter) et directives
 $initialPrompt = @"
-Applique le workflow de supervision défini dans le fichier de workflow de ton espace de travail : $monitorWorkflowPath.
+$monitorInstruction
+
+---
 
 🎯 GOAL À ATTEINDRE :
 $Goal
@@ -54,14 +96,14 @@ $Goal
 IMPORTANT DIRECTIVE : L'objectif ci-dessus est le but fourni par l'utilisateur. Tu es le Superviseur (Monitor). Formule ce goal en une phrase précise, note-le et passe immédiatement à l'étape 2 (Lancement du Teamwork Coordinator) en invoquant le sous-agent comme décrit dans le workflow. Ne me demande pas de clarifier le but, il est entièrement décrit ci-dessus. Démarre dès maintenant.
 "@
 
-# Prompt de relance propre sans frontmatter
+# Prompt de relance propre avec instructions brutes (sans frontmatter) et directives
 $continuePrompt = @"
-Applique le workflow de reprise défini dans le fichier de workflow de ton espace de travail : $continueWorkflowPath suite au crash de l'IDE.
+$continueInstruction
 
-Restaure immédiatement l'état et relance les tâches/sous-agents en cours comme décrit dans le workflow.
+---
+IMPORTANT DIRECTIVE : L'IDE a planté. Applique immédiatement ce workflow de reprise pour restaurer l'état et relancer les tâches/sous-agents en cours.
 "@
 
-$convsDir = "$env:USERPROFILE\.gemini\antigravity\conversations"
 $isFirstRun = $true
 $convId = $null
 
