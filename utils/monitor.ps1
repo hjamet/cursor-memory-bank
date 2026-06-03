@@ -120,8 +120,9 @@ while ($true) {
         Write-Host " Lancement initial de la supervision" -ForegroundColor Green
         Write-Host "==========================================" -ForegroundColor Green
         
-        # Execution interactive initiale en contournant la limite de 8191 caracteres de cmd.exe
-        Start-Process -FilePath "agy" -ArgumentList "--dangerously-skip-permissions", "--prompt-interactive", $initialPrompt -NoNewWindow -Wait
+        # Execution interactive initiale avec --dangerously-skip-permissions
+        # PowerShell & operator calls CreateProcess directly (32K limit), not cmd.exe (8191 limit)
+        & agy --dangerously-skip-permissions --prompt-interactive "$initialPrompt"
         $isFirstRun = $false
     } else {
         Write-Host "==========================================" -ForegroundColor Yellow
@@ -129,8 +130,8 @@ while ($true) {
         Write-Host " Conversation ID : $convId" -ForegroundColor Yellow
         Write-Host "==========================================" -ForegroundColor Yellow
         
-        # Relance de la conversation en contournant la limite de 8191 caracteres de cmd.exe
-        Start-Process -FilePath "agy" -ArgumentList "--dangerously-skip-permissions", "--conversation", $convId, "--prompt-interactive", $continuePrompt -NoNewWindow -Wait
+        # Relance avec l'instruction continue.md et --dangerously-skip-permissions
+        & agy --dangerously-skip-permissions --conversation $convId --prompt-interactive "$continuePrompt"
     }
 
     # Recuperer le code de retour d'agy
