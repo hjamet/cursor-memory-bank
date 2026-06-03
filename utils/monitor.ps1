@@ -122,7 +122,10 @@ while ($true) {
         
         # Execution interactive initiale avec --dangerously-skip-permissions
         # PowerShell & operator calls CreateProcess directly (32K limit), not cmd.exe (8191 limit)
-        & agy --dangerously-skip-permissions --prompt-interactive "$initialPrompt"
+        # Escape embedded double quotes: PS 5.1 doesn't escape them in native command lines,
+        # causing argument truncation at the first unescaped " character.
+        $safePrompt = $initialPrompt -replace '"', '\"'
+        & agy --dangerously-skip-permissions --prompt-interactive "$safePrompt"
         $isFirstRun = $false
     } else {
         Write-Host "==========================================" -ForegroundColor Yellow
@@ -131,7 +134,8 @@ while ($true) {
         Write-Host "==========================================" -ForegroundColor Yellow
         
         # Relance avec l'instruction continue.md et --dangerously-skip-permissions
-        & agy --dangerously-skip-permissions --conversation $convId --prompt-interactive "$continuePrompt"
+        $safeContinuePrompt = $continuePrompt -replace '"', '\"'
+        & agy --dangerously-skip-permissions --conversation $convId --prompt-interactive "$safeContinuePrompt"
     }
 
     # Recuperer le code de retour d'agy
