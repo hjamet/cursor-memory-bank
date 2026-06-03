@@ -35,8 +35,8 @@ description: Gardien de l'intention du code. Vérifie si les problèmes du Revie
 
    | Catégorie | Description | Action |
    |-----------|-------------|--------|
-   | **A — Fix immédiat** | Problème évident, correction triviale (paramètre, typo, docstring, config, import manquant, etc.). Aucun doute sur ce qu'il faut faire. | → Un sous-agent unique corrige tout (§2) |
-   | **B — Enquête nécessaire** | Problème complexe, ambigu, potentiellement intentionnel. Nécessite une investigation d'intention. | → Un sous-agent dédié par problème (§3) |
+   | **A — Fix immédiat** | Problème évident, correction triviale (paramètre, typo, docstring, config, import manquant, etc.). Aucun doute sur ce qu'il faut faire. | → Mis en attente pour le Correcteur Express (§3) |
+   | **B — Enquête nécessaire** | Problème complexe, ambigu, potentiellement intentionnel. Nécessite une investigation d'intention. | → Un sous-agent dédié par problème (§2) |
 
 > [!IMPORTANT]
 > **Critères pour le Fix immédiat (catégorie A)** :
@@ -49,39 +49,18 @@ description: Gardien de l'intention du code. Vérifie si les problèmes du Revie
 
 ---
 
-## 2. 🔧 Fix Immédiat (Catégorie A)
+## 2. 🔍 Investigation d'Intention (Catégorie B — VIA SOUS-AGENTS)
 
-Si des problèmes sont en catégorie A, lance **un seul** sous-agent (`invoke_subagent TypeName="self"`) pour les corriger tous :
-
-```text
-Tu es un Correcteur Express. Tu dois corriger immédiatement ces problèmes évidents remontés par le Reviewer.
-
-📋 PROBLÈMES À CORRIGER :
-[Liste de tous les problèmes de catégorie A avec leur description]
-
-🎯 RÈGLES :
-- Commits atomiques. Respecte les conventions du projet.
-- Vérifications de base UNIQUEMENT : compilation, syntaxe, imports, linting.
-- 🚫 INTERDICTION ABSOLUE d'exécuter des commandes lourdes (pipelines, serveurs, builds longs).
-- Chaque correction doit être triviale et sans ambiguïté.
-- Si en cours de route tu réalises qu'un fix est plus complexe que prévu → NE LE FAIS PAS. Signale-le via send_message et passe au suivant.
-
-Envoie un rapport complet via send_message : ce que tu as corrigé, les fichiers modifiés, et tout problème que tu n'as pas pu résoudre.
-```
-
-**Attends** qu'il termine et note les corrections effectuées pour le rapport final (§4).
-
----
-
-## 3. 🔍 Investigation d'Intention (Catégorie B — VIA SOUS-AGENTS)
-
-Délègue l'investigation à des sous-agents. Tu es le COORDINATEUR.
+Délègue d'abord l'investigation des problèmes complexes (Catégorie B) avant de lancer la moindre correction. Tu es le COORDINATEUR.
 
 1. **Lancement** : Lance un sous-agent (`invoke_subagent TypeName="self"`) pour CHAQUE problème de catégorie B.
 2. **Supervision (Cron 3 min, OBLIGATOIRE)** : `schedule` (CronExpression=`"*/3 * * * *"`, Prompt=`"Check supervision : vérifier l'état des enquêteurs"`). Le cron se déclenche automatiquement — pas besoin de le relancer. À chaque réveil, vérifie que tes agents avancent et relance-les si besoin.
-3. **Agrégation** : Rassemble les retours via `send_message`.
+3. **Agrégation et Re-qualification** : Rassemble les retours des enquêteurs via `send_message`.
+   - Pour chaque problème identifié comme `🐛 BUG CONFIRMÉ`, évalue sa complexité de résolution suite à l'enquête.
+   - Si la solution trouvée par l'enquêteur s'avère **triviale à implémenter** (typo, variable mal nommée, paramètre manquant), **transfère ce problème dans ta liste de Fix Immédiat (Catégorie A)**.
+   - L'Architecte n'aura ainsi à traiter que les bugs nécessitant un vrai travail de fond.
 
-**Prompt OBLIGATOIRE du Sous-Agent :**
+**Prompt OBLIGATOIRE du Sous-Agent Enquêteur :**
 ```text
 Tu es un Enquêteur d'Intention. Mission : déterminer si CE problème est un VRAI BUG ou du COMPORTEMENT INTENTIONNEL.
 
@@ -118,7 +97,33 @@ Envoie ton rapport complet via send_message.
 
 ---
 
-## 3.5 🧹 Nettoyage des Logs de Debug (SI SIGNALÉS PAR LE REVIEWER)
+## 3. 🔧 Fix Immédiat (Catégorie A + Bugs triviaux post-enquête)
+
+Maintenant que l'enquête est terminée, tu as une liste consolidée de problèmes triviaux (ceux évidents dès le départ + ceux clarifiés par l'enquête).
+
+Si cette liste n'est pas vide, lance **un seul** sous-agent (`invoke_subagent TypeName="self"`) pour les corriger tous :
+
+```text
+Tu es un Correcteur Express. Tu dois corriger immédiatement ces problèmes identifiés comme triviaux.
+
+📋 PROBLÈMES À CORRIGER :
+[Liste de tous les problèmes triviaux initiaux (Catégorie A) ET les bugs triviaux remontés par les enquêteurs avec leur solution]
+
+🎯 RÈGLES :
+- Commits atomiques. Respecte les conventions du projet.
+- Vérifications de base UNIQUEMENT : compilation, syntaxe, imports, linting.
+- 🚫 INTERDICTION ABSOLUE d'exécuter des commandes lourdes (pipelines, serveurs, builds longs).
+- Chaque correction doit être triviale et sans ambiguïté.
+- Si en cours de route tu réalises qu'un fix est plus complexe que prévu → NE LE FAIS PAS. Signale-le via send_message et passe au suivant.
+
+Envoie un rapport complet via send_message : ce que tu as corrigé, les fichiers modifiés, et tout problème que tu n'as pas pu résoudre.
+```
+
+**Attends** qu'il termine et note les corrections effectuées pour le rapport final (§5).
+
+---
+
+## 4. 🧹 Nettoyage des Logs de Debug (SI SIGNALÉS PAR LE REVIEWER)
 
 > [!IMPORTANT]
 > **Le Reviewer peut signaler des logs de debug `[DEBUG]` obsolètes dans son `review_report.md`.**
@@ -150,7 +155,7 @@ Envoie un rapport de ce que tu as supprimé via send_message.
 
 ---
 
-## 4. 📝 Rédaction du Investigation Report
+## 5. 📝 Rédaction du Investigation Report
 
 > [!CAUTION]
 > **🛑 TU NE TOUCHES PAS AU `review_report.md`.**
@@ -206,7 +211,7 @@ Crée un fichier `investigation_report.md` dans ton dossier de travail (`write_t
 
 ---
 
-*(Répéter pour chaque problème de catégorie B)*
+*(Répéter pour chaque problème de catégorie B non basculé en Fix Immédiat)*
 
 ---
 
@@ -222,7 +227,7 @@ Crée un fichier `investigation_report.md` dans ton dossier de travail (`write_t
 
 ---
 
-## 5. 🛑 Arrêt
+## 6. 🛑 Arrêt
 1. Vérifie que chaque problème du `review_report.md` a une entrée dans ton `investigation_report.md` (soit en catégorie A, soit en catégorie B).
 2. Fais un `remember` (AIVC).
 3. **ARRÊTE-TOI**. Le Coordinator transmettra le chemin de ce fichier à l'Architecte.
