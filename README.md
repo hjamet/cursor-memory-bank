@@ -73,7 +73,8 @@ root/
 
 | Script / Commande | Description détaillée | Usage / Exemple |
 |-------------------|-----------------------|-----------------|
-| `install.sh` | **Installateur Universel**. Clone le repo (si nécessaire), convertit les règles `.md` en `.mdc`, configure l'environnement `.cursor`, et déploie les workflows globaux Windows. | `bash install.sh` |
+| `install.sh` | **Installateur Universel**. Clone le repo (si nécessaire), convertit les règles `.md` en `.mdc`, configure l'environnement `.cursor`, et déploie les workflows globaux Windows (monitor). | `bash install.sh` |
+| `monitor` | **Superviseur de Boucle**. Commande globale Windows permettant de lancer et surveiller une exécution de longue durée en injectant le workflow de supervision et en relançant l'agent automatiquement en cas de plantage. | `monitor` (depuis n'importe quel projet Windows) |
 
 ### Commandes Agent (Virtuelles)
 Ces commandes sont définies par les règles installées :
