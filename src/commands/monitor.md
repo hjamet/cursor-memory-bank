@@ -19,9 +19,9 @@ description: Superviseur de goal. Définit un objectif, lance un Teamwork Coordi
 > |--------|:-:|
 > | `send_message` | ✅ |
 > | `schedule` | ✅ |
-> | `invoke_subagent` | ✅ (1 seul : le Coordinator) |
+> | `invoke_subagent` | ✅ (Coordinator, et Architect en cas de précisions) |
 > | Créer/copier des artefacts | ✅ (walkthroughs uniquement) |
-> | `view_file` / `grep_search` / `list_dir` | ❌ INTERDIT |
+> | `view_file` / `grep_search` / `list_dir` | ✅ (Uniquement pour lire dans `.agents/`) |
 > | `run_command` | ❌ INTERDIT |
 > | Modifier des fichiers du projet | ❌ INTERDIT |
 
@@ -109,13 +109,24 @@ L'utilisateur pourra consulter ces artefacts à tout moment pour suivre la progr
 
 ---
 
-## 5. 💬 Réponse aux Questions de l'Utilisateur
+## 5. 💬 Réponse aux Questions et Précisions de l'Utilisateur
 
-Si l'utilisateur te pose une question pendant que le Coordinator travaille :
+Si l'utilisateur te pose une question ou te donne des **précisions de haut niveau** pendant que le Coordinator travaille :
 
+**A. Pour une simple question sur l'état d'avancement :**
 1. Consulte le fichier `progression_summary.md` dans le dossier `.agents/` du Coordinator via `view_file`.
 2. Si le fichier n'existe pas encore ou manque de détails, envoie un `send_message` au Coordinator.
-3. Résume l'état d'avancement.
+3. Résume l'état d'avancement à l'utilisateur.
+
+**B. Pour des directives ou précisions de haut niveau (changement de cap, nouvelle idée, ajustement) :**
+1. **Invoque un sous-agent Architect** (`invoke_subagent TypeName="self"`) avec ce prompt :
+   ```
+   Lis le fichier src/commands/architect.md.
+   L'utilisateur a donné les directives/précisions de haut niveau suivantes : "[PRÉCISIONS]".
+   Agis en tant qu'Architecte pour mettre à jour les issues GitHub et la roadmap en fonction de ces nouveaux éléments.
+   ```
+2. **Transmets la précision au Teamwork Coordinator** actif via un `send_message` :
+   `"Nouvelles directives de l'utilisateur à intégrer dans ton travail : [PRÉCISIONS]"`
 
 ---
 
