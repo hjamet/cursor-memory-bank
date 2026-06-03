@@ -120,12 +120,14 @@ while ($true) {
         Write-Host " Lancement initial de la supervision" -ForegroundColor Green
         Write-Host "==========================================" -ForegroundColor Green
         
-        # Execution interactive initiale avec --dangerously-skip-permissions
-        # PowerShell & operator calls CreateProcess directly (32K limit), not cmd.exe (8191 limit)
         # Escape embedded double quotes: PS 5.1 doesn't escape them in native command lines,
         # causing argument truncation at the first unescaped " character.
         $safePrompt = $initialPrompt -replace '"', '\"'
-        & agy --dangerously-skip-permissions --prompt-interactive "$safePrompt"
+        try {
+            & agy --dangerously-skip-permissions --prompt-interactive "$safePrompt"
+        } catch {
+            Write-Host "`n[Monitor] Processus agy interrompu: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
         $isFirstRun = $false
     } else {
         Write-Host "==========================================" -ForegroundColor Yellow
@@ -135,12 +137,16 @@ while ($true) {
         
         # Relance avec l'instruction continue.md et --dangerously-skip-permissions
         $safeContinuePrompt = $continuePrompt -replace '"', '\"'
-        & agy --dangerously-skip-permissions --conversation $convId --prompt-interactive "$safeContinuePrompt"
+        try {
+            & agy --dangerously-skip-permissions --conversation $convId --prompt-interactive "$safeContinuePrompt"
+        } catch {
+            Write-Host "`n[Monitor] Processus agy interrompu: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
     }
 
-    # Recuperer le code de retour d'agy
-    $exitCode = $LASTEXITCODE
-    Write-Host "Processus agy arrete avec le code de sortie : $exitCode" -ForegroundColor Gray
+    # Recuperer le code de retour d'agy (default to 1/crash if null)
+    $exitCode = if ($null -ne $LASTEXITCODE) { $LASTEXITCODE } else { 1 }
+    Write-Host "[Monitor] Processus agy arrete avec le code de sortie : $exitCode" -ForegroundColor Gray
 
     # Si le code est 0, c'est un arret volontaire/propre
     if ($exitCode -eq 0) {

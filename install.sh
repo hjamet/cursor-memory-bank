@@ -892,11 +892,18 @@ install_monitor_command() {
     
     local ps1_path="$win_target_dir\\\\.agent\\\\monitor.ps1"
 
-    # Create monitor.bat for CMD/PowerShell
+    # Create monitor.bat for CMD/PowerShell with crash-resilient loop
     cat > "$bin_dir/monitor.bat" <<EOF
 @echo off
 chcp 65001 >nul
+:monitor_loop
 powershell -NoProfile -ExecutionPolicy Bypass -File "$ps1_path" %*
+if %ERRORLEVEL% NEQ 0 (
+    echo [Monitor] Script PowerShell interrompu ^(code %ERRORLEVEL%^). Relance dans 5 secondes...
+    echo [Monitor] Appuyez sur Ctrl+C puis Y pour arreter definitivement.
+    timeout /t 5 /nobreak >nul 2>&1
+    goto monitor_loop
+)
 EOF
     log "✓ Created global command wrapper: $bin_dir/monitor.bat"
 
