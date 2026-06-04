@@ -159,7 +159,19 @@ while ($running) {
                 $promptParts += "CONTEXTE UTILISATEUR :`n$userPromptContext"
             }
             $promptParts += "Voici le fichier de logs actuel pour la commande cluster run :`n$logFilePath"
-            $promptParts += "Vérifie que tout se passe bien et qu'il n'y a pas de problème. Réponds simplement par un court résumé ou diagnostic. Ne modifie aucun fichier."
+            
+            $promptParts += @"
+INSTRUCTIONS IMPORTANTES DE DIAGNOSTIC :
+Exécute une analyse critique approfondie et globale des logs de la commande :
+1. Recherche des erreurs, avertissements ou comportements anormaux PARTOUT dans le log, et pas seulement à la fin.
+2. Analyse les timings/horodatages des logs pour identifier des ralentissements suspects, des temps morts anormalement longs (freezes) ou des problèmes de vitesse d'exécution.
+3. Vérifie si les ressources (comme le GPU) sont utilisées correctement et ne restent pas inactives.
+4. Rédige un diagnostic détaillé des performances et signale tout problème majeur.
+
+CONSIGNES DE SÉCURITÉ :
+- La commande suit actuellement son cours. Tes modifications éventuelles de code seront prises en compte automatiquement lors du prochain run de la commande par le script de monitoring.
+- INTERDICTION ABSOLUE de lancer toi-même la commande 'cluster-run', de compiler, de tester ou d'exécuter des processus. Ton rôle est uniquement de diagnostiquer, de modifier le code source si nécessaire, et de t'arrêter proprement. Le script de monitoring externe se charge du reste.
+"@
             
             $prompt = $promptParts -join "`n`n---`n`n"
             $safePrompt = $prompt -replace '"', '\"'
@@ -189,8 +201,20 @@ while ($running) {
         if (-not [string]::IsNullOrWhiteSpace($userPromptContext)) {
             $promptParts += "CONTEXTE UTILISATEUR :`n$userPromptContext"
         }
+        
         $promptParts += "La commande cluster run s'est arrêtée avec une erreur (code de sortie $exitCode).`nVoici les 100 dernières lignes de logs de la commande :`n$lastLogs"
-        $promptParts += "Analyse ces logs et corrige l'erreur directement dans les fichiers de code source concernés.`nATTENTION : Modifie uniquement le code source pour corriger le problème. Ne lance aucune commande de build, de test ou d'exécution de processus. Ton unique rôle est de corriger le code et de t'arrêter proprement en expliquant ce que tu as fait."
+        
+        $promptParts += @"
+INSTRUCTIONS IMPORTANTES DE CORRECTION :
+Analyse ces logs et corrige l'erreur directement dans les fichiers de code source concernés :
+1. Recherche l'origine de l'erreur dans l'ensemble des logs fournis, pas seulement sur la dernière ligne.
+2. Analyse les timings/horodatages des logs pour identifier si l'erreur est liée à un freeze, un timeout, un temps mort anormal ou une inactivité des ressources (comme le GPU).
+3. Corrige le code source pour régler ce problème.
+
+CONSIGNES DE SÉCURITÉ :
+- Tes modifications de code seront prises en compte lors du prochain run.
+- INTERDICTION ABSOLUE de lancer toi-même la commande 'cluster-run', de compiler, de tester ou d'exécuter des processus. Ton unique rôle est de modifier le code source pour corriger le problème et de t'arrêter proprement en expliquant ce que tu as fait. Le script de monitoring se charge de relancer la commande après ton arrêt.
+"@
         
         $prompt = $promptParts -join "`n`n---`n`n"
         $safePrompt = $prompt -replace '"', '\"'
