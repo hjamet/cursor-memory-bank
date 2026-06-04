@@ -1,7 +1,3 @@
-param(
-    [int]$HourlyIntervalSec = 3600
-)
-
 $ErrorActionPreference = "Stop"
 
 # Fix character encoding issues in Windows Console
@@ -12,6 +8,80 @@ try {
 $OutputEncoding = [System.Text.Encoding]::UTF8
 
 Write-Host "=== Antigravity Cluster Monitor ===" -ForegroundColor Cyan
+
+# 1. Retrieve supported models from agy
+Write-Host "[Monitor] Detecting supported models..." -ForegroundColor Gray
+$models = @()
+try {
+    $modelsOutput = & agy models 2>$null
+    if ($modelsOutput) {
+        foreach ($line in $modelsOutput) {
+            $trimmed = $line.Trim()
+            # Ignore headers if any, keep non-empty lines
+            if (-not [string]::IsNullOrWhiteSpace($trimmed) -and $trimmed -notmatch "Available models" -and $trimmed -notmatch "^-") {
+                $models += $trimmed
+            }
+        }
+    }
+} catch {}
+
+# Fallback models if agy models detection failed or returned empty
+if ($models.Count -eq 0) {
+    $models = @("gemini-2.5-flash", "gemini-2.5-pro", "gemini-1.5-flash", "gemini-1.5-pro")
+}
+
+# 2. Let user select a model
+Write-Host ""
+Write-Host "Sélectionnez le modèle à utiliser :" -ForegroundColor Cyan
+for ($i = 0; $i -lt $models.Count; $i++) {
+    Write-Host " [$($i + 1)] $($models[$i])" -ForegroundColor Gray
+}
+
+$choiceIndex = -1
+while ($choiceIndex -lt 0 -or $choiceIndex -ge $models.Count) {
+    $input = Read-Host "Entrez le numéro du modèle (par défaut 1)"
+    if ([string]::IsNullOrWhiteSpace($input)) {
+        $choiceIndex = 0
+        break
+    }
+    if ([int]::TryParse($input, [ref]$val)) {
+        $choiceIndex = $val - 1
+    }
+}
+$selectedModel = $models[$choiceIndex]
+Write-Host "Modèle choisi : $selectedModel" -ForegroundColor Green
+Write-Host ""
+
+# 3. Ask user for custom prompt context (multiline support)
+Write-Host "=== Contexte Initial (Prompt Optionnel) ===" -ForegroundColor Cyan
+Write-Host "Saisissez des instructions ou du contexte à ajouter au début de chaque appel de l'agent." -ForegroundColor Cyan
+Write-Host "Collez votre texte et entrez 'EOF' sur une ligne vide pour valider :" -ForegroundColor Gray
+
+$PromptLines = @()
+while ($true) {
+    $line = Read-Host
+    if ($line.Trim() -eq 'EOF') {
+        break
+    }
+    if ([string]::IsNullOrEmpty($line) -and $PromptLines.Count -gt 0 -and $PromptLines[-1] -eq "") {
+        # Double entry on empty line terminates
+        $PromptLines = $PromptLines[0..($PromptLines.Count-2)]
+        break
+    }
+    if ([string]::IsNullOrEmpty($line) -and $PromptLines.Count -eq 0) {
+        break
+    }
+    $PromptLines += $line
+}
+$userPromptContext = $PromptLines -join "`n"
+
+if (-not [string]::IsNullOrWhiteSpace($userPromptContext)) {
+    Write-Host "Contexte utilisateur enregistré." -ForegroundColor Green
+} else {
+    Write-Host "Aucun contexte utilisateur saisi." -ForegroundColor Gray
+}
+Write-Host ""
+
 Write-Host "Monitoring the 'cluster-run' command..." -ForegroundColor Gray
 Write-Host "Press Ctrl+C to stop the monitoring script." -ForegroundColor Gray
 Write-Host ""
@@ -33,6 +103,8 @@ function Start-ClusterRun {
                           -PassThru
     return $proc
 }
+
+$HourlyIntervalSec = 3600
 
 # Main process execution and monitoring loop
 $running = $true
@@ -82,15 +154,17 @@ while ($running) {
             $timeSinceLastCheck = 0
             Write-Host "[Monitor] Hourly check timer triggered. Waking up agent..." -ForegroundColor Cyan
             
-            $prompt = @"
-Voici le fichier de logs actuel pour la commande cluster run :
-$logFilePath
-
-Vérifie que tout se passe bien et qu'il n'y a pas de problème. Réponds simplement par un court résumé ou diagnostic. Ne modifie aucun fichier.
-"@
+            $promptParts = @()
+            if (-not [string]::IsNullOrWhiteSpace($userPromptContext)) {
+                $promptParts += "CONTEXTE UTILISATEUR :`n$userPromptContext"
+            }
+            $promptParts += "Voici le fichier de logs actuel pour la commande cluster run :`n$logFilePath"
+            $promptParts += "Vérifie que tout se passe bien et qu'il n'y a pas de problème. Réponds simplement par un court résumé ou diagnostic. Ne modifie aucun fichier."
+            
+            $prompt = $promptParts -join "`n`n---`n`n"
             $safePrompt = $prompt -replace '"', '\"'
             try {
-                & agy --dangerously-skip-permissions --print "$safePrompt"
+                & agy --dangerously-skip-permissions --model "$selectedModel" --print "$safePrompt"
             } catch {
                 Write-Host "[Monitor] Failed to invoke agy check: $($_.Exception.Message)" -ForegroundColor Red
             }
@@ -110,18 +184,19 @@ Vérifie que tout se passe bien et qu'il n'y a pas de problème. Réponds simple
         }
         
         Write-Host "[Monitor] Waking up agent in non-interactive print mode for repair..." -ForegroundColor Cyan
-        $prompt = @"
-La commande cluster run s'est arrêtée avec une erreur (code de sortie $exitCode).
-Voici les 100 dernières lignes de logs de la commande :
-$lastLogs
-
-Analyse ces logs et corrige l'erreur directement dans les fichiers de code source concernés.
-ATTENTION : Modifie uniquement le code source pour corriger le problème. Ne lance aucune commande de build, de test ou d'exécution de processus. Ton unique rôle est de corriger le code et de t'arrêter proprement en expliquant ce que tu as fait.
-"@
+        
+        $promptParts = @()
+        if (-not [string]::IsNullOrWhiteSpace($userPromptContext)) {
+            $promptParts += "CONTEXTE UTILISATEUR :`n$userPromptContext"
+        }
+        $promptParts += "La commande cluster run s'est arrêtée avec une erreur (code de sortie $exitCode).`nVoici les 100 dernières lignes de logs de la commande :`n$lastLogs"
+        $promptParts += "Analyse ces logs et corrige l'erreur directement dans les fichiers de code source concernés.`nATTENTION : Modifie uniquement le code source pour corriger le problème. Ne lance aucune commande de build, de test ou d'exécution de processus. Ton unique rôle est de corriger le code et de t'arrêter proprement en expliquant ce que tu as fait."
+        
+        $prompt = $promptParts -join "`n`n---`n`n"
         $safePrompt = $prompt -replace '"', '\"'
         
         try {
-            & agy --dangerously-skip-permissions --print "$safePrompt"
+            & agy --dangerously-skip-permissions --model "$selectedModel" --print "$safePrompt"
             Write-Host "[Monitor] Agent repair finished. Restarting cluster-run..." -ForegroundColor Green
         } catch {
             Write-Host "[Monitor] Failed to run agy repair agent: $($_.Exception.Message)" -ForegroundColor Red
