@@ -165,8 +165,7 @@ INSTRUCTIONS IMPORTANTES DE DIAGNOSTIC :
 Exécute une analyse critique approfondie et globale des logs de la commande :
 1. Recherche des erreurs, avertissements ou comportements anormaux PARTOUT dans le log, et pas seulement à la fin.
 2. Analyse les timings/horodatages des logs pour identifier des ralentissements suspects, des temps morts anormalement longs (freezes) ou des problèmes de vitesse d'exécution.
-3. Vérifie si les ressources (comme le GPU) sont utilisées correctement et ne restent pas inactives.
-4. Rédige un diagnostic détaillé des performances et signale tout problème majeur.
+3. Rédige un diagnostic détaillé des performances et signale tout problème majeur.
 
 CONSIGNES DE SÉCURITÉ :
 - La commande suit actuellement son cours. Tes modifications éventuelles de code seront prises en compte automatiquement lors du prochain run de la commande par le script de monitoring.
@@ -208,7 +207,7 @@ CONSIGNES DE SÉCURITÉ :
 INSTRUCTIONS IMPORTANTES DE CORRECTION :
 Analyse ces logs et corrige l'erreur directement dans les fichiers de code source concernés :
 1. Recherche l'origine de l'erreur dans l'ensemble des logs fournis, pas seulement sur la dernière ligne.
-2. Analyse les timings/horodatages des logs pour identifier si l'erreur est liée à un freeze, un timeout, un temps mort anormal ou une inactivité des ressources (comme le GPU).
+2. Analyse les timings/horodatages des logs pour identifier si l'erreur est liée à un freeze, un timeout ou un temps mort anormal.
 3. Corrige le code source pour régler ce problème.
 
 CONSIGNES DE SÉCURITÉ :
