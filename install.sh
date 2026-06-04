@@ -872,25 +872,21 @@ install_monitor_command() {
         return 0
     fi
 
-    # 1. Installer monitor.ps1 dans .agent/
-    log "Copying monitor.ps1 to $target_dir/.agent/monitor.ps1..."
-    mkdir -p "$target_dir/.agent"
+    # 1. Installer monitor.ps1 globalement dans bin_dir
+    log "Installing monitor.ps1 to $bin_dir/monitor.ps1..."
+    mkdir -p "$bin_dir"
     if [[ -f "$target_dir/utils/monitor.ps1" ]]; then
-        cp "$target_dir/utils/monitor.ps1" "$target_dir/.agent/monitor.ps1"
+        log "Using local utils/monitor.ps1 from $target_dir"
+        cp "$target_dir/utils/monitor.ps1" "$bin_dir/monitor.ps1"
     else
-        warn "utils/monitor.ps1 not found in target dir"
+        ensure_rule_file "utils/monitor.ps1" "$bin_dir/monitor.ps1" "required"
     fi
 
-    log "Installing monitor command to $bin_dir..."
-    mkdir -p "$bin_dir"
+    log "Installing monitor command wrappers to $bin_dir..."
 
-    # Get absolute path of the target_dir for the ps1 file
-    local abs_target_dir
-    abs_target_dir=$(cd "$target_dir" && pwd)
-    local win_target_dir
-    win_target_dir=$(convert_to_windows_path "$abs_target_dir")
-    
-    local ps1_path="$win_target_dir\\\\.agent\\\\monitor.ps1"
+    local win_bin_dir
+    win_bin_dir=$(convert_to_windows_path "$bin_dir")
+    local ps1_path="$win_bin_dir\\\\monitor.ps1"
 
     # Create monitor.bat for CMD/PowerShell with crash-resilient loop
     cat > "$bin_dir/monitor.bat" <<EOF

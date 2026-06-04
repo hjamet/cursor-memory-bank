@@ -74,7 +74,7 @@ root/
 | Script / Commande | Description détaillée | Usage / Exemple |
 |-------------------|-----------------------|-----------------|
 | `install.sh` | **Installateur Universel**. Clone le repo (si nécessaire), convertit les règles `.md` en `.mdc`, configure l'environnement `.cursor`, et déploie les workflows globaux Windows (monitor). | `bash install.sh` |
-| `monitor` | **Superviseur de Boucle pour cluster-run**. Commande globale Windows lancée dans un projet pour exécuter en arrière-plan la commande `cluster-run`, envoyer périodiquement (toutes les heures) ses logs à l'agent en mode non-interactif pour vérification, et réveiller l'agent en cas d'erreur de crash pour correction automatique du code source avant de relancer le processus. | `monitor` (depuis un projet avec cluster-run) |
+| `monitor` | **Superviseur de Boucle pour cluster-run**. Commande globale Windows lancée dans un projet pour exécuter en arrière-plan la commande `cluster-run`, envoyer périodiquement (fréquence paramétrable) ses logs à l'agent en mode non-interactif pour vérification, et réveiller l'agent en cas d'erreur de crash pour correction automatique du code source avant de relancer le processus. | `monitor` (depuis un projet avec cluster-run) |
 
 ### Commandes Agent (Virtuelles)
 Ces commandes sont définies par les règles installées :
