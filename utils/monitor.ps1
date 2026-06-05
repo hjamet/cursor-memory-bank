@@ -303,7 +303,7 @@ CONSIGNES DE SÉCURITÉ :
             $prompt = $promptParts -join "`n`n---`n`n"
             $safePrompt = $prompt -replace '"', '\"'
             try {
-                $agentOutput = & agy --dangerously-skip-permissions --model "$selectedModel" "$safePrompt"
+                $agentOutput = & agy --dangerously-skip-permissions --model "$selectedModel" --print "$safePrompt"
                 $agentOutputString = $agentOutput | Out-String
                 Write-Host "`n=== [RETOUR AGENT: VERIFICATION PERIODIQUE] ===" -ForegroundColor Cyan
                 Write-Host $agentOutputString -ForegroundColor Cyan
@@ -365,7 +365,7 @@ CONSIGNES DE SÉCURITÉ :
         $safePrompt = $prompt -replace '"', '\"'
         
         try {
-            $agentOutput = & agy --dangerously-skip-permissions --model "$selectedModel" "$safePrompt"
+            $agentOutput = & agy --dangerously-skip-permissions --model "$selectedModel" --print "$safePrompt"
             $agentOutputString = $agentOutput | Out-String
             Write-Host "`n=== [RETOUR AGENT: REPARATION CRASH] ===" -ForegroundColor Red
             Write-Host $agentOutputString -ForegroundColor Red
