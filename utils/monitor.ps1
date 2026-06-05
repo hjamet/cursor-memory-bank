@@ -196,6 +196,7 @@ try {
     while ($running) {
     $process = Start-ClusterRun
     $logFilePath = $null
+    $isAgentRestart = $false
     
     # 1. Detect log file path from output stream
     Write-Host "[Monitor] Waiting to detect log file path..." -ForegroundColor Yellow
@@ -315,6 +316,7 @@ CONSIGNES DE SÉCURITÉ :
                 if (Test-Path ".restart_cluster") {
                     Remove-Item ".restart_cluster" -Force -ErrorAction SilentlyContinue
                     Write-Host "[Monitor] Agent requested a restart via .restart_cluster file! Terminating current process..." -ForegroundColor Yellow
+                    $isAgentRestart = $true
                     Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
                     break
                 }
@@ -328,7 +330,7 @@ CONSIGNES DE SÉCURITÉ :
     $exitCode = $process.ExitCode
     Write-Host "[Monitor] Process exited with code: $exitCode" -ForegroundColor Yellow
     
-    if ($exitCode -ne 0) {
+    if ($exitCode -ne 0 -and -not $isAgentRestart) {
         # Process crashed! Read last logs and request correction from agy
         Write-Host "[Monitor] ERROR/CRASH DETECTED. Reading last 100 log lines..." -ForegroundColor Red
         $lastLogs = ""
