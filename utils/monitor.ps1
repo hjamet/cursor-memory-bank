@@ -202,7 +202,7 @@ try {
     # 1. Detect log file path from output stream
     Write-Host "[Monitor] Waiting to detect log file path..." -ForegroundColor Yellow
     $detected = $false
-    for ($i = 0; $i -lt 30; $i++) {
+    for ($i = 0; -not $detected; $i++) {
         if ($process.HasExited) {
             Write-Host "[Monitor] Process exited prematurely." -ForegroundColor Red
             break
@@ -221,8 +221,8 @@ try {
         Start-Sleep -Seconds 1
     }
     
-    if (-not $logFilePath) {
-        Write-Warning "[Monitor] Log file path could not be detected from stdout. Using stdout redirection file as fallback."
+    if (-not $detected) {
+        Write-Warning "[Monitor] Process exited without providing a log file path. Using stdout for crash analysis."
         $logFilePath = $stdoutFile
     } else {
         Write-Host "[Monitor] Log file detected: $logFilePath" -ForegroundColor Green
