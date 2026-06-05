@@ -335,7 +335,7 @@ CONSIGNES DE SÉCURITÉ :
                     Remove-Item ".restart_cluster" -Force -ErrorAction SilentlyContinue
                     Write-Host "[Monitor] Agent requested a restart via .restart_cluster file! Terminating current process..." -ForegroundColor Yellow
                     $isAgentRestart = $true
-                    taskkill /F /T /PID $process.Id 2>$null
+                    taskkill /F /T /PID $process.Id *>$null
                     Start-Sleep -Seconds 1
                     break
                 }
@@ -437,6 +437,6 @@ CONSIGNES DE SÉCURITÉ :
 } finally {
     if ($null -ne $process -and -not $process.HasExited) {
         Write-Host "`n[Monitor] Arret du processus cluster-run en arriere-plan suite a l'interruption (Ctrl+C)..." -ForegroundColor Yellow
-        taskkill /F /T /PID $process.Id 2>$null
+        taskkill /F /T /PID $process.Id *>$null
     }
 }
