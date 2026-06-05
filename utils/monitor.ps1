@@ -177,8 +177,8 @@ function Read-HostWithEscape {
     }
 }
 function Start-ClusterRun {
-    if (Test-Path $stdoutFile) { Remove-Item $stdoutFile }
-    if (Test-Path $stderrFile) { Remove-Item $stderrFile }
+    if (Test-Path $stdoutFile) { Remove-Item $stdoutFile -Force -ErrorAction SilentlyContinue }
+    if (Test-Path $stderrFile) { Remove-Item $stderrFile -Force -ErrorAction SilentlyContinue }
     
     Write-Host "[Monitor] Launching 'cluster-run' in background..." -ForegroundColor Green
     $proc = Start-Process -FilePath "powershell.exe" `
@@ -317,7 +317,8 @@ CONSIGNES DE SÉCURITÉ :
                     Remove-Item ".restart_cluster" -Force -ErrorAction SilentlyContinue
                     Write-Host "[Monitor] Agent requested a restart via .restart_cluster file! Terminating current process..." -ForegroundColor Yellow
                     $isAgentRestart = $true
-                    Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+                    taskkill /F /T /PID $process.Id 2>$null
+                    Start-Sleep -Seconds 1
                     break
                 }
             } catch {
@@ -399,6 +400,6 @@ CONSIGNES DE SÉCURITÉ :
 } finally {
     if ($null -ne $process -and -not $process.HasExited) {
         Write-Host "`n[Monitor] Arret du processus cluster-run en arriere-plan suite a l'interruption (Ctrl+C)..." -ForegroundColor Yellow
-        Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+        taskkill /F /T /PID $process.Id 2>$null
     }
 }
