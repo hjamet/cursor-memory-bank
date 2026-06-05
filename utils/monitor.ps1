@@ -352,7 +352,7 @@ CONSIGNES DE SÉCURITÉ :
     if ($isAgentRestart) {
         Write-Host "[Monitor] Redémarrage automatique déclenché par l'agent..." -ForegroundColor Cyan
         Start-Sleep -Seconds 1
-    } elseif ($exitCode -ne 0) {
+    } elseif ($null -ne $exitCode -and $exitCode -ne 0) {
         # Process crashed! Read last logs and request correction from agy
         Write-Host "[Monitor] ERROR/CRASH DETECTED. Reading last 100 log lines..." -ForegroundColor Red
         $lastLogs = ""
@@ -424,8 +424,65 @@ CONSIGNES DE SÉCURITÉ :
         }
     } else {
         # Process completed successfully
+        Write-Host "[Monitor] Process completed successfully! Waking up agent for final validation..." -ForegroundColor Green
+        
+        $promptParts = @()
+        if (-not [string]::IsNullOrWhiteSpace($userPromptContext)) {
+            $promptParts += "CONTEXTE UTILISATEUR :`n$userPromptContext"
+        }
+        
+        $diff = ""
+        if (Test-Path $monitorLogPath) {
+            $currentSize = (Get-Item $monitorLogPath).Length
+            if ($currentSize -gt $global:lastMonitorLogSize) {
+                $fs = [System.IO.File]::Open($monitorLogPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+                $fs.Seek($global:lastMonitorLogSize, [System.IO.SeekOrigin]::Begin) | Out-Null
+                $reader = New-Object System.IO.StreamReader($fs, [System.Text.Encoding]::UTF8)
+                $diff = $reader.ReadToEnd()
+                $reader.Close()
+                $global:lastMonitorLogSize = $currentSize
+            }
+        }
+        if (-not [string]::IsNullOrWhiteSpace($diff)) {
+            $promptParts += "VOICI CE QUI A ETE ECRIT DANS LE JOURNAL .monitor.log DEPUIS TON DERNIER REVEIL (ex: Ton précédent rapport). Prends ce contexte en compte :`n$diff"
+        }
+        
+        $promptParts += "Tu peux consulter l'historique complet dans le fichier .monitor.log. Chemin : $monitorLogPath`n`nLa commande cluster run vient de se terminer avec succès !`nVoici le fichier de logs complet pour la commande : $logFilePath"
+        
+        $promptParts += @"
+INSTRUCTIONS IMPORTANTES DE VALIDATION FINALE :
+La pipeline vient de se terminer. Ton rôle est de vérifier les résultats finaux pour t'assurer que tout est correct, cohérent et correspond aux attentes.
+1. Recherche des avertissements finaux ou des résultats anormaux dans les logs.
+2. Si tout est bon, rédige un dernier rapport de succès détaillé dans le fichier `.monitor.log` (en utilisant tes outils d'écriture de fichier).
+3. Si (et seulement si) tu détectes un problème GRAVE nécessitant absolument d'invalider cette exécution, apporte ta solution (modification du code) et relance la pipeline en créant le fichier vide `".restart_cluster`" à la racine du projet. Sois extrêmement prudent avec ça, ne relance que si c'est strictement indispensable.
+4. N'oublie pas que je ne peux pas lire tes messages textes à cause de l'animation de la CLI, tu DOIS écrire ton diagnostic final dans le fichier `.monitor.log` !
+"@
+        
+        $prompt = $promptParts -join "`n`n---`n`n"
+        $safePrompt = $prompt -replace '"', '\"'
+        
+        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+        Add-Content -Path $monitorLogPath -Value "`n=== Final Validation: $timestamp ===" -Encoding UTF8
+        
+        try {
+            $agentOutput = & agy --dangerously-skip-permissions --model "$selectedModel" --print "$safePrompt"
+            $agentOutputString = $agentOutput | Out-String
+            Write-Host "`n=== [RETOUR AGENT: VALIDATION FINALE] ===" -ForegroundColor Green
+            Write-Host $agentOutputString -ForegroundColor Green
+            Write-Host "==============================================`n" -ForegroundColor Green
+            
+            if (Test-Path ".restart_cluster") {
+                Remove-Item ".restart_cluster" -Force -ErrorAction SilentlyContinue
+                Write-Host "[Monitor] Agent requested a restart during final validation via .restart_cluster file! Restarting..." -ForegroundColor Yellow
+                $isAgentRestart = $true
+                continue
+            }
+        } catch {
+            Write-Host "[Monitor] Failed to run agy final validation agent: $($_.Exception.Message)" -ForegroundColor Red
+        }
+
         Write-Host ""
-        $choice = Read-Host "La commande s'est terminee proprement. [R]elancer, ou [Q]uitter le script ? (R/Q)"
+        $choice = Read-Host "La validation finale est terminee. [R]elancer, ou [Q]uitter le script ? (R/Q)"
         if ($choice -match '^[qQ]') {
             Write-Host "Fin de la supervision." -ForegroundColor Green
             $running = $false
