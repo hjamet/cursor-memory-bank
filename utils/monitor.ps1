@@ -349,7 +349,10 @@ CONSIGNES DE SÉCURITÉ :
     $exitCode = $process.ExitCode
     Write-Host "[Monitor] Process exited with code: $exitCode" -ForegroundColor Yellow
     
-    if ($exitCode -ne 0 -and -not $isAgentRestart) {
+    if ($isAgentRestart) {
+        Write-Host "[Monitor] Redémarrage automatique déclenché par l'agent..." -ForegroundColor Cyan
+        Start-Sleep -Seconds 1
+    } elseif ($exitCode -ne 0) {
         # Process crashed! Read last logs and request correction from agy
         Write-Host "[Monitor] ERROR/CRASH DETECTED. Reading last 100 log lines..." -ForegroundColor Red
         $lastLogs = ""
