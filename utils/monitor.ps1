@@ -152,6 +152,7 @@ $stdoutFile = Join-Path $tempDir "cluster_run_stdout.log"
 $stderrFile = Join-Path $tempDir "cluster_run_stderr.log"
 $monitorLogPath = Join-Path (Get-Location).Path ".monitor.log"
 if (Test-Path $monitorLogPath) { Clear-Content -Path $monitorLogPath -ErrorAction SilentlyContinue }
+$global:lastMonitorLogSize = 0
 
 function Read-HostWithEscape {
     param([string]$Prompt)
@@ -280,7 +281,24 @@ try {
             if ($manualWakeup -and -not [string]::IsNullOrWhiteSpace($manualMessage)) {
                 $promptParts += "MESSAGE MANUEL DE L'UTILISATEUR POUR CE REVEIL :`n$manualMessage"
             }
-            $promptParts += "Tu peux consulter l'historique des modifications faites par les agents précédents dans le fichier .monitor.log pour avoir plus de contexte. Chemin : $monitorLogPath`n`nVoici le fichier de logs actuel pour la commande cluster run :`n$logFilePath"
+            
+            $diff = ""
+            if (Test-Path $monitorLogPath) {
+                $currentSize = (Get-Item $monitorLogPath).Length
+                if ($currentSize -gt $global:lastMonitorLogSize) {
+                    $fs = [System.IO.File]::Open($monitorLogPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+                    $fs.Seek($global:lastMonitorLogSize, [System.IO.SeekOrigin]::Begin) | Out-Null
+                    $reader = New-Object System.IO.StreamReader($fs, [System.Text.Encoding]::UTF8)
+                    $diff = $reader.ReadToEnd()
+                    $reader.Close()
+                    $global:lastMonitorLogSize = $currentSize
+                }
+            }
+            if (-not [string]::IsNullOrWhiteSpace($diff)) {
+                $promptParts += "VOICI CE QUI A ETE ECRIT DANS LE JOURNAL .monitor.log DEPUIS TON DERNIER REVEIL (ex: Ton précédent rapport). Prends ce contexte en compte :`n$diff"
+            }
+            
+            $promptParts += "Tu peux consulter l'historique complet dans le fichier .monitor.log. Chemin : $monitorLogPath`n`nVoici le fichier de logs actuel pour la commande cluster run :`n$logFilePath"
             
             $promptParts += @"
 INSTRUCTIONS IMPORTANTES DE DIAGNOSTIC :
@@ -346,7 +364,23 @@ CONSIGNES DE SÉCURITÉ :
             $promptParts += "CONTEXTE UTILISATEUR :`n$userPromptContext"
         }
         
-        $promptParts += "Tu peux consulter l'historique des modifications faites par les agents précédents dans le fichier .monitor.log pour avoir plus de contexte. Chemin : $monitorLogPath`n`nLa commande cluster run s'est arrêtée avec une erreur (code de sortie $exitCode).`nVoici les 100 dernières lignes de logs de la commande :`n$lastLogs"
+        $diff = ""
+        if (Test-Path $monitorLogPath) {
+            $currentSize = (Get-Item $monitorLogPath).Length
+            if ($currentSize -gt $global:lastMonitorLogSize) {
+                $fs = [System.IO.File]::Open($monitorLogPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+                $fs.Seek($global:lastMonitorLogSize, [System.IO.SeekOrigin]::Begin) | Out-Null
+                $reader = New-Object System.IO.StreamReader($fs, [System.Text.Encoding]::UTF8)
+                $diff = $reader.ReadToEnd()
+                $reader.Close()
+                $global:lastMonitorLogSize = $currentSize
+            }
+        }
+        if (-not [string]::IsNullOrWhiteSpace($diff)) {
+            $promptParts += "VOICI CE QUI A ETE ECRIT DANS LE JOURNAL .monitor.log DEPUIS TON DERNIER REVEIL (ex: Ton précédent rapport). Prends ce contexte en compte :`n$diff"
+        }
+        
+        $promptParts += "Tu peux consulter l'historique complet dans le fichier .monitor.log. Chemin : $monitorLogPath`n`nLa commande cluster run s'est arrêtée avec une erreur (code de sortie $exitCode).`nVoici les 100 dernières lignes de logs de la commande :`n$lastLogs"
         
         $promptParts += @"
 INSTRUCTIONS IMPORTANTES DE CORRECTION :
