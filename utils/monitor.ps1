@@ -150,7 +150,31 @@ Write-Host ""
 $tempDir = [System.IO.Path]::GetTempPath()
 $stdoutFile = Join-Path $tempDir "cluster_run_stdout.log"
 $stderrFile = Join-Path $tempDir "cluster_run_stderr.log"
+$monitorLogPath = Join-Path (Get-Location).Path ".monitor.log"
 
+function Read-HostWithEscape {
+    param([string]$Prompt)
+    Write-Host $Prompt -NoNewline -ForegroundColor Yellow
+    $inputStr = ""
+    while ($true) {
+        $k = [Console]::ReadKey($true)
+        if ($k.Key -eq [System.ConsoleKey]::Enter) {
+            Write-Host ""
+            return $inputStr
+        } elseif ($k.Key -eq [System.ConsoleKey]::Escape) {
+            Write-Host " (Annule)" -ForegroundColor DarkGray
+            return $null
+        } elseif ($k.Key -eq [System.ConsoleKey]::Backspace) {
+            if ($inputStr.Length -gt 0) {
+                $inputStr = $inputStr.Substring(0, $inputStr.Length - 1)
+                Write-Host "`b `b" -NoNewline
+            }
+        } else {
+            $inputStr += $k.KeyChar
+            Write-Host $k.KeyChar -NoNewline
+        }
+    }
+}
 function Start-ClusterRun {
     if (Test-Path $stdoutFile) { Remove-Item $stdoutFile }
     if (Test-Path $stderrFile) { Remove-Item $stderrFile }
@@ -167,7 +191,8 @@ function Start-ClusterRun {
 
 # Main process execution and monitoring loop
 $running = $true
-while ($running) {
+try {
+    while ($running) {
     $process = Start-ClusterRun
     $logFilePath = $null
     
@@ -205,19 +230,55 @@ while ($running) {
     $checkInterval = 10 # Check process status every 10 seconds
     
     while (-not $process.HasExited) {
-        Start-Sleep -Seconds $checkInterval
-        $timeSinceLastCheck += $checkInterval
+        $manualWakeup = $false
+        $manualMessage = $null
         
-        # Periodic check-in
-        if ($timeSinceLastCheck -ge $intervalSec) {
+        # Check for user input or sleep in small increments
+        $sleptFor = 0
+        while ($sleptFor -lt $checkInterval -and -not $process.HasExited) {
+            if ([Console]::KeyAvailable) {
+                $key = [Console]::ReadKey($true)
+                if ($key.Key -eq [System.ConsoleKey]::Enter) {
+                    Write-Host "`n[Monitor] Touche Entree detectee." -ForegroundColor Yellow
+                    Write-Host "Voulez-vous reveiller l'agent ? (Entree = Oui, Echap/Autre = Annuler)" -ForegroundColor Yellow
+                    $confirmKey = [Console]::ReadKey($true)
+                    if ($confirmKey.Key -eq [System.ConsoleKey]::Enter) {
+                        $manualMessage = Read-HostWithEscape -Prompt "Message (laisser vide pour aucun, Echap pour annuler) : "
+                        if ($null -ne $manualMessage) {
+                            $manualWakeup = $true
+                            break
+                        }
+                    } else {
+                        Write-Host "Annule." -ForegroundColor DarkGray
+                    }
+                }
+            }
+            Start-Sleep -Milliseconds 100
+            $sleptFor += 0.1
+        }
+        
+        if ($manualWakeup) {
             $timeSinceLastCheck = 0
-            Write-Host "[Monitor] Periodic check timer ($intervalMin min) triggered. Waking up agent..." -ForegroundColor Cyan
+            Write-Host "`n[Monitor] Reveil manuel declenche." -ForegroundColor Cyan
+        } else {
+            $timeSinceLastCheck += $checkInterval
+        }
+        
+        # Periodic check-in or manual check
+        if ($timeSinceLastCheck -ge $intervalSec -or $manualWakeup) {
+            if (-not $manualWakeup) {
+                $timeSinceLastCheck = 0
+                Write-Host "[Monitor] Periodic check timer ($intervalMin min) triggered. Waking up agent..." -ForegroundColor Cyan
+            }
             
             $promptParts = @()
             if (-not [string]::IsNullOrWhiteSpace($userPromptContext)) {
                 $promptParts += "CONTEXTE UTILISATEUR :`n$userPromptContext"
             }
-            $promptParts += "Voici le fichier de logs actuel pour la commande cluster run :`n$logFilePath"
+            if ($manualWakeup -and -not [string]::IsNullOrWhiteSpace($manualMessage)) {
+                $promptParts += "MESSAGE MANUEL DE L'UTILISATEUR POUR CE REVEIL :`n$manualMessage"
+            }
+            $promptParts += "Tu peux consulter l'historique des modifications faites par les agents précédents dans le fichier .monitor.log pour avoir plus de contexte. Chemin : $monitorLogPath`n`nVoici le fichier de logs actuel pour la commande cluster run :`n$logFilePath"
             
             $promptParts += @"
 INSTRUCTIONS IMPORTANTES DE DIAGNOSTIC :
@@ -225,7 +286,12 @@ Exécute une analyse critique approfondie et globale des logs de la commande :
 1. Recherche des erreurs, avertissements ou comportements anormaux PARTOUT dans le log, et pas seulement à la fin.
 2. Analyse les timings/horodatages des logs pour identifier des ralentissements suspects, des temps morts anormalement longs (freezes) ou des problèmes de vitesse d'exécution.
 3. Rédige un diagnostic détaillé des performances et signale tout problème majeur.
-4. Si tu détermines qu'il n'y a aucun problème et que tout se passe bien, tu n'as rien à faire : termine simplement ton intervention sans rien modifier. En revanche, si tu détectes des anomalies ou des résultats étranges, corrige tous les problèmes trouvés dans le code source.
+4. Si tu détermines qu'il n'y a aucun problème et que tout se passe bien, tu n'as rien à faire : termine simplement ton intervention sans rien modifier. NE MODIFIE PAS DU CODE POUR MODIFIER DU CODE. Corrige SEULEMENT les problèmes critiques ou les ralentissements anormaux notoires. Toute modification de code va invalider les étapes du pipeline qui en dépendent et ralentira inutilement notre processus à la prochaine exécution.
+5. Si tu as identifié un problème majeur qui nécessite absolument un redémarrage (ex: blocage, ralentissement extrême, résultats faussés qui vont contaminer toute la pipeline - bref, uniquement des cas bloquants où redémarrer nous fera QUE gagner du temps par rapport à laisser tourner), finis ta réponse EXACTEMENT par le texte `"RESTART CLUSTER RUN`" sur la dernière ligne. Le script capturera ce message et redémarrera la commande pour prendre en compte tes modifications.
+6. Inclus TOUJOURS dans ta réponse une analyse claire de l'état de la pipeline pour indiquer où en est l'exécution actuellement. Utilise STRICTEMENT ce format de liste à puces pour rendre ça beau, clair et lisible :
+   - ✅ Nom de l'étape 1 : Tout s'est passé correctement.
+   - ⚠️ Nom de l'étape 2 : Ralentissement détecté.
+   - 🔄 Nom de l'étape 3 : En cours d'exécution.
 
 CONSIGNES DE SÉCURITÉ :
 - La commande suit actuellement son cours. Tes modifications éventuelles de code seront prises en compte automatiquement lors du prochain run de la commande par le script de monitoring.
@@ -235,7 +301,21 @@ CONSIGNES DE SÉCURITÉ :
             $prompt = $promptParts -join "`n`n---`n`n"
             $safePrompt = $prompt -replace '"', '\"'
             try {
-                & agy --dangerously-skip-permissions --model "$selectedModel" --print "$safePrompt"
+                $agentOutput = & agy --dangerously-skip-permissions --model "$selectedModel" "$safePrompt"
+                $agentOutputString = $agentOutput | Out-String
+                Write-Host "`n=== [RETOUR AGENT: VERIFICATION PERIODIQUE] ===" -ForegroundColor Cyan
+                Write-Host $agentOutputString -ForegroundColor Cyan
+                Write-Host "==============================================`n" -ForegroundColor Cyan
+                
+                $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                Add-Content -Path $monitorLogPath -Value "`n=== Periodic Check: $timestamp ===" -Encoding UTF8
+                Add-Content -Path $monitorLogPath -Value $agentOutputString -Encoding UTF8
+                
+                if ($agentOutputString -match "RESTART CLUSTER RUN") {
+                    Write-Host "[Monitor] Agent requested a restart! Terminating current process..." -ForegroundColor Yellow
+                    Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+                    break
+                }
             } catch {
                 Write-Host "[Monitor] Failed to invoke agy check: $($_.Exception.Message)" -ForegroundColor Red
             }
@@ -261,7 +341,7 @@ CONSIGNES DE SÉCURITÉ :
             $promptParts += "CONTEXTE UTILISATEUR :`n$userPromptContext"
         }
         
-        $promptParts += "La commande cluster run s'est arrêtée avec une erreur (code de sortie $exitCode).`nVoici les 100 dernières lignes de logs de la commande :`n$lastLogs"
+        $promptParts += "Tu peux consulter l'historique des modifications faites par les agents précédents dans le fichier .monitor.log pour avoir plus de contexte. Chemin : $monitorLogPath`n`nLa commande cluster run s'est arrêtée avec une erreur (code de sortie $exitCode).`nVoici les 100 dernières lignes de logs de la commande :`n$lastLogs"
         
         $promptParts += @"
 INSTRUCTIONS IMPORTANTES DE CORRECTION :
@@ -269,6 +349,9 @@ Analyse ces logs et corrige l'erreur directement dans les fichiers de code sourc
 1. Recherche l'origine de l'erreur dans l'ensemble des logs fournis, pas seulement sur la dernière ligne.
 2. Analyse les timings/horodatages des logs pour identifier si l'erreur est liée à un freeze, un timeout ou un temps mort anormal.
 3. Corrige le code source pour régler ce problème.
+4. Inclus TOUJOURS dans ta réponse une analyse claire de l'état de la pipeline. Précise à quelle étape exacte le crash s'est produit. Utilise STRICTEMENT ce format de liste à puces pour rendre ça beau, clair et lisible :
+   - ✅ Nom de l'étape 1 : Terminée avec succès.
+   - ❌ Nom de l'étape 2 : Crash survenu à ce niveau (explication courte).
 
 CONSIGNES DE SÉCURITÉ :
 - Tes modifications de code seront prises en compte lors du prochain run.
@@ -279,7 +362,16 @@ CONSIGNES DE SÉCURITÉ :
         $safePrompt = $prompt -replace '"', '\"'
         
         try {
-            & agy --dangerously-skip-permissions --model "$selectedModel" --print "$safePrompt"
+            $agentOutput = & agy --dangerously-skip-permissions --model "$selectedModel" "$safePrompt"
+            $agentOutputString = $agentOutput | Out-String
+            Write-Host "`n=== [RETOUR AGENT: REPARATION CRASH] ===" -ForegroundColor Red
+            Write-Host $agentOutputString -ForegroundColor Red
+            Write-Host "========================================`n" -ForegroundColor Red
+            
+            $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+            Add-Content -Path $monitorLogPath -Value "`n=== Crash Repair: $timestamp ===" -Encoding UTF8
+            Add-Content -Path $monitorLogPath -Value $agentOutputString -Encoding UTF8
+            
             Write-Host "[Monitor] Agent repair finished. Restarting cluster-run..." -ForegroundColor Green
         } catch {
             Write-Host "[Monitor] Failed to run agy repair agent: $($_.Exception.Message)" -ForegroundColor Red
@@ -296,5 +388,11 @@ CONSIGNES DE SÉCURITÉ :
         } else {
             Write-Host "Relancement..." -ForegroundColor Cyan
         }
+    }
+    }
+} finally {
+    if ($null -ne $process -and -not $process.HasExited) {
+        Write-Host "`n[Monitor] Arret du processus cluster-run en arriere-plan suite a l'interruption (Ctrl+C)..." -ForegroundColor Yellow
+        Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
     }
 }
