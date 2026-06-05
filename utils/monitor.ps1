@@ -288,8 +288,8 @@ Exécute une analyse critique approfondie et globale des logs de la commande :
 2. Analyse les timings/horodatages des logs pour identifier des ralentissements suspects, des temps morts anormalement longs (freezes) ou des problèmes de vitesse d'exécution.
 3. Rédige un diagnostic détaillé des performances et signale tout problème majeur.
 4. Si tu détermines qu'il n'y a aucun problème et que tout se passe bien, tu n'as rien à faire : termine simplement ton intervention sans rien modifier. NE MODIFIE PAS DU CODE POUR MODIFIER DU CODE. Corrige SEULEMENT les problèmes critiques ou les ralentissements anormaux notoires. Toute modification de code va invalider les étapes du pipeline qui en dépendent et ralentira inutilement notre processus à la prochaine exécution.
-5. Si tu as identifié un problème majeur qui nécessite absolument un redémarrage (ex: blocage, ralentissement extrême, résultats faussés qui vont contaminer toute la pipeline - bref, uniquement des cas bloquants où redémarrer nous fera QUE gagner du temps par rapport à laisser tourner), finis ta réponse EXACTEMENT par le texte `"RESTART CLUSTER RUN`" sur la dernière ligne. Le script capturera ce message et redémarrera la commande pour prendre en compte tes modifications.
-6. Inclus TOUJOURS dans ta réponse une analyse claire de l'état de la pipeline pour indiquer où en est l'exécution actuellement. Utilise STRICTEMENT ce format de liste à puces pour rendre ça beau, clair et lisible :
+5. Si tu as identifié un problème majeur qui nécessite absolument un redémarrage (ex: blocage, ralentissement extrême, résultats faussés qui vont contaminer toute la pipeline - bref, uniquement des cas bloquants où redémarrer nous fera QUE gagner du temps par rapport à laisser tourner), utilise tes outils d'écriture de fichier pour créer un fichier vide nommé `".restart_cluster`" à la racine du projet. Le script détectera ce fichier et redémarrera la commande. N'oublie pas que je ne peux pas lire tes messages textes à cause de l'animation de la CLI, tu DOIS utiliser tes outils pour interagir !
+6. Inclus TOUJOURS dans ta réponse une analyse claire de l'état de la pipeline pour indiquer où en est l'exécution actuellement. Écris impérativement cette analyse à la fin du fichier `.monitor.log` en utilisant tes outils d'écriture de fichier (ex: ajout de texte à la fin du fichier). Utilise STRICTEMENT ce format de liste à puces pour rendre ça beau, clair et lisible :
    - ✅ Nom de l'étape 1 : Tout s'est passé correctement.
    - ⚠️ Nom de l'étape 2 : Ralentissement détecté.
    - 🔄 Nom de l'étape 3 : En cours d'exécution.
@@ -302,6 +302,9 @@ CONSIGNES DE SÉCURITÉ :
             
             $prompt = $promptParts -join "`n`n---`n`n"
             $safePrompt = $prompt -replace '"', '\"'
+            $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+            Add-Content -Path $monitorLogPath -Value "`n=== Periodic Check: $timestamp ===" -Encoding UTF8
+            
             try {
                 $agentOutput = & agy --dangerously-skip-permissions --model "$selectedModel" --print "$safePrompt"
                 $agentOutputString = $agentOutput | Out-String
@@ -309,12 +312,9 @@ CONSIGNES DE SÉCURITÉ :
                 Write-Host $agentOutputString -ForegroundColor Cyan
                 Write-Host "==============================================`n" -ForegroundColor Cyan
                 
-                $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-                Add-Content -Path $monitorLogPath -Value "`n=== Periodic Check: $timestamp ===" -Encoding UTF8
-                Add-Content -Path $monitorLogPath -Value $agentOutputString -Encoding UTF8
-                
-                if ($agentOutputString -match "RESTART CLUSTER RUN") {
-                    Write-Host "[Monitor] Agent requested a restart! Terminating current process..." -ForegroundColor Yellow
+                if (Test-Path ".restart_cluster") {
+                    Remove-Item ".restart_cluster" -Force -ErrorAction SilentlyContinue
+                    Write-Host "[Monitor] Agent requested a restart via .restart_cluster file! Terminating current process..." -ForegroundColor Yellow
                     Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
                     break
                 }
@@ -351,7 +351,7 @@ Analyse ces logs et corrige l'erreur directement dans les fichiers de code sourc
 1. Recherche l'origine de l'erreur dans l'ensemble des logs fournis, pas seulement sur la dernière ligne.
 2. Analyse les timings/horodatages des logs pour identifier si l'erreur est liée à un freeze, un timeout ou un temps mort anormal.
 3. Corrige le code source pour régler ce problème.
-4. Inclus TOUJOURS dans ta réponse une analyse claire de l'état de la pipeline. Précise à quelle étape exacte le crash s'est produit. Utilise STRICTEMENT ce format de liste à puces pour rendre ça beau, clair et lisible :
+4. Inclus TOUJOURS dans ta réponse une analyse claire de l'état de la pipeline. Précise à quelle étape exacte le crash s'est produit. Écris impérativement cette analyse à la fin du fichier `.monitor.log` en utilisant tes outils d'écriture de fichier. Utilise STRICTEMENT ce format de liste à puces pour rendre ça beau, clair et lisible :
    - ✅ Nom de l'étape 1 : Terminée avec succès.
    - ❌ Nom de l'étape 2 : Crash survenu à ce niveau (explication courte).
 
@@ -364,16 +364,17 @@ CONSIGNES DE SÉCURITÉ :
         $prompt = $promptParts -join "`n`n---`n`n"
         $safePrompt = $prompt -replace '"', '\"'
         
+        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+        Add-Content -Path $monitorLogPath -Value "`n=== Crash Repair: $timestamp ===" -Encoding UTF8
+        
         try {
             $agentOutput = & agy --dangerously-skip-permissions --model "$selectedModel" --print "$safePrompt"
             $agentOutputString = $agentOutput | Out-String
             Write-Host "`n=== [RETOUR AGENT: REPARATION CRASH] ===" -ForegroundColor Red
             Write-Host $agentOutputString -ForegroundColor Red
-            Write-Host "========================================`n" -ForegroundColor Red
+            Write-Host "==============================================`n" -ForegroundColor Red
             
-            $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-            Add-Content -Path $monitorLogPath -Value "`n=== Crash Repair: $timestamp ===" -Encoding UTF8
-            Add-Content -Path $monitorLogPath -Value $agentOutputString -Encoding UTF8
+
             
             Write-Host "[Monitor] Agent repair finished. Restarting cluster-run..." -ForegroundColor Green
         } catch {
