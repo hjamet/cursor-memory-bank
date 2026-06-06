@@ -317,6 +317,8 @@ CONSIGNES DE SÉCURITÉ :
 - SOIS EXTRÊMEMENT PRUDENT lors des modifications de code : ne modifie jamais rien sans avoir enquêté en profondeur dans le reste du code pour vérifier si la modification est réellement justifiée. On ne veut JAMAIS casser un comportement qui était intentionnel ou souhaité ! AUCUNE hypothèse. Toujours vérifier en détails (via tes outils ou des sous-agents) si le code actuel n'était pas intentionnel, si le bug est vraiment lié à ça et rien qu'à ça. Ne jamais assumer quelque chose comme étant vrai sans vérifier. TOUJOURS vérifier.
 - La commande suit actuellement son cours. Tes modifications éventuelles de code seront prises en compte automatiquement lors du prochain run de la commande par le script de monitoring.
 - INTERDICTION ABSOLUE de lancer toi-même la commande 'cluster-run', de compiler, de tester ou d'exécuter des processus. Le script de monitoring / le cluster s'en charge automatiquement. Ton rôle est uniquement de diagnostiquer, de modifier le code source si nécessaire, et de t'arrêter proprement.
+- OBLIGATION DE COMMIT : Si tu effectues la moindre modification de code source, tu dois impérativement commiter tes changements (git commit) avant de t'arrêter.
+- CITATION DES LOGS : En cas de problème identifié, tu dois TOUJOURS inclure une citation textuelle précise des logs concernés dans ton rapport final au sein du fichier `.monitor.log`.
 "@
             
             $prompt = $promptParts -join "`n`n---`n`n"
@@ -399,6 +401,8 @@ CONSIGNES DE SÉCURITÉ :
 - SOIS EXTRÊMEMENT PRUDENT lors des modifications de code : ne modifie jamais rien sans avoir enquêté en profondeur dans le reste du code pour vérifier si la modification est réellement justifiée. On ne veut JAMAIS casser un comportement qui était intentionnel ou souhaité ! AUCUNE hypothèse. Toujours vérifier en détails (via tes outils ou des sous-agents) si le code actuel n'était pas intentionnel, si le bug est vraiment lié à ça et rien qu'à ça. Ne jamais assumer quelque chose comme étant vrai sans vérifier. TOUJOURS vérifier.
 - Tes modifications de code seront prises en compte lors du prochain run.
 - INTERDICTION ABSOLUE de lancer toi-même la commande 'cluster-run', de compiler, de tester ou d'exécuter des processus. Ton unique rôle est de modifier le code source pour corriger le problème et de t'arrêter proprement en expliquant ce que tu as fait. Le script de monitoring se charge de relancer la commande après ton arrêt.
+- OBLIGATION DE COMMIT : Si tu effectues la moindre modification de code source, tu dois impérativement commiter tes changements (git commit) avant de t'arrêter.
+- CITATION DES LOGS : En cas de problème identifié, tu dois TOUJOURS inclure une citation textuelle précise des logs concernés dans ton rapport final au sein du fichier `.monitor.log`.
 "@
         
         $prompt = $promptParts -join "`n`n---`n`n"
@@ -456,6 +460,8 @@ La pipeline vient de se terminer. Ton rôle est de vérifier les résultats fina
 2. Si tout est bon, rédige un dernier rapport de succès détaillé dans le fichier `.monitor.log` (en utilisant tes outils d'écriture de fichier).
 3. Si (et seulement si) tu détectes un problème GRAVE nécessitant absolument d'invalider cette exécution, apporte ta solution (modification du code) et relance la pipeline en créant le fichier vide `".restart_cluster`" à la racine du projet. Sois extrêmement prudent avec ça, ne relance que si c'est strictement indispensable.
 4. N'oublie pas que je ne peux pas lire tes messages textes à cause de l'animation de la CLI, tu DOIS écrire ton diagnostic final dans le fichier `.monitor.log` !
+5. OBLIGATION DE COMMIT : Si tu apportes une solution impliquant une modification de code, tu dois impérativement commiter tes changements (git commit) avant de t'arrêter.
+6. CITATION DES LOGS : Si tu as détecté des avertissements ou des problèmes, ton rapport dans le fichier `.monitor.log` doit TOUJOURS inclure une citation textuelle précise des logs.
 "@
         
         $prompt = $promptParts -join "`n`n---`n`n"
