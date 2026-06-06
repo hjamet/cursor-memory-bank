@@ -319,6 +319,12 @@ CONSIGNES DE SÉCURITÉ :
 - INTERDICTION ABSOLUE de lancer toi-même la commande 'cluster-run', de compiler, de tester ou d'exécuter des processus. Le script de monitoring / le cluster s'en charge automatiquement. Ton rôle est uniquement de diagnostiquer, de modifier le code source si nécessaire, et de t'arrêter proprement.
 - OBLIGATION DE COMMIT : Si tu effectues la moindre modification de code source, tu dois impérativement commiter tes changements (git commit) avant de t'arrêter.
 - CITATION DES LOGS : En cas de problème identifié, tu dois TOUJOURS inclure une citation textuelle précise des logs concernés dans ton rapport final au sein du fichier `.monitor.log`.
+
+MESURE ET DISCERNEMENT :
+- AVANT toute correction lourde, invoque un sous-agent critique pour challenger ton plan de correction. Questionne chaque décision majeure : existe-t-il une solution plus simple, plus propre, plus élégante ?
+- Ne réinvente JAMAIS la roue. Ne présume JAMAIS que l'erreur vient du code d'un autre développeur ou d'une librairie externe : c'est TOUJOURS notre code qui est en cause jusqu'à preuve du contraire.
+- Évite les corrections brutales et disproportionnées. Par exemple, ne passe JAMAIS un `batch_size` de 512 à 2 pour contourner un OOM : teste d'abord 256, puis 128 etc. Procède par paliers mesurés et proportionnés.
+- Agis avec modération : préfère toujours le changement minimal nécessaire au changement maximal possible.
 "@
             
             $prompt = $promptParts -join "`n`n---`n`n"
@@ -403,6 +409,12 @@ CONSIGNES DE SÉCURITÉ :
 - INTERDICTION ABSOLUE de lancer toi-même la commande 'cluster-run', de compiler, de tester ou d'exécuter des processus. Ton unique rôle est de modifier le code source pour corriger le problème et de t'arrêter proprement en expliquant ce que tu as fait. Le script de monitoring se charge de relancer la commande après ton arrêt.
 - OBLIGATION DE COMMIT : Si tu effectues la moindre modification de code source, tu dois impérativement commiter tes changements (git commit) avant de t'arrêter.
 - CITATION DES LOGS : En cas de problème identifié, tu dois TOUJOURS inclure une citation textuelle précise des logs concernés dans ton rapport final au sein du fichier `.monitor.log`.
+
+MESURE ET DISCERNEMENT :
+- AVANT toute correction lourde, invoque un sous-agent critique pour challenger ton plan de correction. Questionne chaque décision majeure : existe-t-il une solution plus simple, plus propre, plus élégante ?
+- Ne réinvente JAMAIS la roue. Ne présume JAMAIS que l'erreur vient du code d'un autre développeur ou d'une librairie externe : c'est TOUJOURS notre code qui est en cause jusqu'à preuve du contraire.
+- Évite les corrections brutales et disproportionnées. Par exemple, ne passe JAMAIS un `batch_size` de 512 à 2 pour contourner un OOM : teste d'abord 256, puis 128 etc. Procède par paliers mesurés et proportionnés.
+- Agis avec modération : préfère toujours le changement minimal nécessaire au changement maximal possible.
 "@
         
         $prompt = $promptParts -join "`n`n---`n`n"
@@ -462,6 +474,12 @@ La pipeline vient de se terminer. Ton rôle est de vérifier les résultats fina
 4. N'oublie pas que je ne peux pas lire tes messages textes à cause de l'animation de la CLI, tu DOIS écrire ton diagnostic final dans le fichier `.monitor.log` !
 5. OBLIGATION DE COMMIT : Si tu apportes une solution impliquant une modification de code, tu dois impérativement commiter tes changements (git commit) avant de t'arrêter.
 6. CITATION DES LOGS : Si tu as détecté des avertissements ou des problèmes, ton rapport dans le fichier `.monitor.log` doit TOUJOURS inclure une citation textuelle précise des logs.
+
+MESURE ET DISCERNEMENT :
+- AVANT toute correction lourde, invoque un sous-agent critique pour challenger ton plan de correction. Questionne chaque décision majeure : existe-t-il une solution plus simple, plus propre, plus élégante ?
+- Ne réinvente JAMAIS la roue. Ne présume JAMAIS que l'erreur vient du code d'un autre développeur ou d'une librairie externe : c'est TOUJOURS notre code qui est en cause jusqu'à preuve du contraire.
+- Évite les corrections brutales et disproportionnées. Par exemple, ne passe JAMAIS un `batch_size` de 512 à 2 pour contourner un OOM : teste d'abord 256, puis 128 etc. Procède par paliers mesurés et proportionnés.
+- Agis avec modération : préfère toujours le changement minimal nécessaire au changement maximal possible.
 "@
         
         $prompt = $promptParts -join "`n`n---`n`n"
