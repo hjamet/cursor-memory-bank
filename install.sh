@@ -731,9 +731,12 @@ install_global_workflows() {
     local target_dir="$1"
     local temp_dir="$2"
     local global_dir="$3"
+    local dest_dirs=()
 
-    # If global_dir is not provided, try to detect it
-    if [[ -z "$global_dir" ]]; then
+    # If global_dir is provided via CLI option, use ONLY that one
+    if [[ -n "$global_dir" ]]; then
+        dest_dirs+=("$global_dir")
+    else
         local is_msys=false
         if command -v uname >/dev/null 2>&1; then
             if [[ "$(uname -o 2>/dev/null)" == "Msys" || "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
@@ -745,6 +748,7 @@ install_global_workflows() {
         if [[ "$is_msys" == "true" ]]; then
             win_home="$HOME"
         else
+            local user_name=""
             if command -v cmd.exe >/dev/null 2>&1; then
                 user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
             fi
@@ -755,35 +759,26 @@ install_global_workflows() {
 
             # Try to find the path in WSL
             if command -v wslpath >/dev/null 2>&1; then
-                # WSL environment: translate Windows USERPROFILE to WSL path
                 win_home="/mnt/c/Users/$user_name"
                 if [[ ! -d "$win_home" ]]; then
-                    # Try to get it from cmd.exe if wslpath is available but path is different
                     win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
                 fi
             fi
         fi
 
+        # Universal fallback: use $HOME on any platform
+        if [[ -z "$win_home" ]] && [[ -n "${HOME:-}" ]]; then
+            win_home="$HOME"
+        fi
+
         if [[ -n "$win_home" ]]; then
-            global_dir="$win_home/.gemini/antigravity/global_workflows"
+            dest_dirs+=("$win_home/.gemini/antigravity/global_workflows")
+            dest_dirs+=("$win_home/.gemini/config/global_workflows")
+        else
+            warn "Could not detect global workflows directory (\$HOME is not set). Skipping global installation."
+            return 0
         fi
     fi
-
-    # Universal fallback: use $HOME on any platform (Linux, macOS, or any
-    # environment where $HOME is set but none of the Windows-specific checks
-    # matched above).
-    if [[ -z "$global_dir" ]] && [[ -n "${HOME:-}" ]]; then
-        global_dir="$HOME/.gemini/antigravity/global_workflows"
-        log "Using universal fallback directory: $global_dir"
-    fi
-
-    if [[ -z "$global_dir" ]]; then
-        warn "Could not detect global workflows directory (\$HOME is not set). Skipping global installation."
-        return 0
-    fi
-
-    log "Installing workflows to global directory: $global_dir"
-    mkdir -p "$global_dir"
 
     local workflows_list=""
     local clone_dir="$temp_dir/repo"
@@ -791,15 +786,16 @@ install_global_workflows() {
     if [[ -d "$clone_dir/src/commands" ]]; then
         workflows_list=$(cd "$clone_dir/src/commands" && find . -type f -name "*.md")
         
-        for w in $workflows_list; do
-            local dest="$global_dir/$(basename "$w")"
-            log "Copying workflow to global: $w -> $dest"
-            cp "$clone_dir/src/commands/$w" "$dest"
+        for dir in "${dest_dirs[@]}"; do
+            log "Installing workflows to global directory: $dir"
+            mkdir -p "$dir"
+            for w in $workflows_list; do
+                local dest="$dir/$(basename "$w")"
+                log "Copying workflow to global: $w -> $dest"
+                cp "$clone_dir/src/commands/$w" "$dest"
+            done
+            log "✓ Global workflows installed successfully in $dir"
         done
-
-
-
-        log "✓ Global workflows installed successfully"
     else
         warn "Workflows source directory not found in clone. Skipping global installation."
     fi
