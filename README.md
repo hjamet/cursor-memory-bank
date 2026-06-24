@@ -59,7 +59,11 @@ root/
 ├─ .cursor/              # Configuration Cursor (Règles MDC installées)
 ├─ src/                  # Code source
 │  ├─ rules/            # Définitions des règles (Sources .md)
-│  └─ commands/         # Commandes utilitaires (.md)
+│  └─ commands/         # Workflows & commandes (.md)
+│     ├─ scout.md       # 🔭 Exploration & plan préliminaire
+│     ├─ refine.md      # 🧠 Validation critique du plan
+│     ├─ build.md       # 🏗️ Implémentation du plan
+│     └─ audit.md       # 🔎 Vérification de l'implémentation
 ├─ install.sh           # Script d'installation
 └─ README.md            # Source unique de vérité
 ```
@@ -90,6 +94,10 @@ Ces commandes sont définies par les règles installées :
 | `/pull` | **Merge des PRs & Validation**. Inventorie toutes les PRs ouvertes, les merge séquentiellement en résolvant les conflits, met à jour les issues liées, installe l'environnement de validation, et génère un walkthrough détaillé. | Taper `/pull` pour merger les PRs ouvertes. |
 | `/continue` | **Reprise du Travail**. Rétablit l'ensemble de la supervision agentique et temporelle (crons, agents, sous-agents, timers) après une interruption, avec arbitrage intelligent pour la phase de validation. | Taper `/continue` pour reprendre et restaurer le travail suite à une interruption inattendue. |
 | `/scheduler` | **Orchestrateur Cron Crash-Resilient**. Remplace le Monitor pour les workflows nocturnes/longs. Invoqué périodiquement via `/schedule` (cron Antigravity), consulte un fichier d'état central (`state.json`) et un heartbeat pour détecter les agents crashés. Exécute automatiquement le pipeline `issue → reviewer → investigator → architect` avec reprise après crash. | Configurer via `/schedule` : cron `*/15 * * * *`, prompt `Lis le fichier src/commands/scheduler.md et applique-le à la lettre. GOAL : [objectif]`. Contrôle via `.agents/scheduler/state.json`. |
+| `/scout` | **Éclaireur de Code**. Explore en profondeur le codebase, la documentation et le web. Délègue à des sous-agents pour maximiser la couverture. Produit un `exploration_report.md` avec diagnostic, fichiers concernés et plan d'implémentation préliminaire. | Taper `/scout` pour lancer une exploration approfondie avant implémentation. |
+| `/refine` | **Critique Stratégique du Plan**. Valide le plan du Scout avec une vision haut niveau. Traque les erreurs silencieuses, fallbacks cachés et incohérences. Annote le rapport d'exploration avec des callouts de review et produit un verdict (APPROUVÉ / RÉSERVES / À REVOIR). | Taper `/refine` après `/scout` pour valider et renforcer le plan. |
+| `/build` | **Artisan Implémenteur**. Exécute méthodiquement le plan validé par le Refine, étape par étape. Commits atomiques, vérifications continues, respect des points de vigilance. Produit un `walkthrough.md` détaillé. | Taper `/build` après `/refine` pour implémenter le plan validé. |
+| `/audit` | **Auditeur Critique**. Inspecte le code du Build, traque les erreurs silencieuses dans le code réel, analyse la cohérence des résultats. Peut corriger les problèmes triviaux et superviser l'exécution si demandé. Annote le walkthrough avec des callouts. | Taper `/audit` après `/build` pour valider l'implémentation. |
 
 # Scripts exécutables secondaires & Utilitaires
 
