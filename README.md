@@ -110,5 +110,6 @@ Ces commandes sont définies par les règles installées :
 | Tâche | Objectif | État | Dépendances |
 |-------|----------|------|-------------|
 | **Validation du flux** | Vérifier que le nouveau `install.sh` déploie correctement les règles `.mdc` et les workflows globaux. | ✅ Fait | - |
+| **Correction chemin workflows** | Synchroniser le répertoire cible d'installation des workflows globaux vers `.gemini/config/global_workflows`. | ✅ Fait | - |
 | **Optimisation Context** | Interdire la reformulation des prompts par l'agent de contexte. | ✅ Fait | - |
 | **Refonte Handover** | Rendre le protocole de passation plus rigoureux (planning obligatoire, décisions explicites). | ✅ Fait | - |

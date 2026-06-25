@@ -742,6 +742,7 @@ install_global_workflows() {
         fi
 
         local win_home=""
+        local user_name=""
         if [[ "$is_msys" == "true" ]]; then
             win_home="$HOME"
         else
@@ -765,7 +766,7 @@ install_global_workflows() {
         fi
 
         if [[ -n "$win_home" ]]; then
-            global_dir="$win_home/.gemini/antigravity/global_workflows"
+            global_dir="$win_home/.gemini/config/global_workflows"
         fi
     fi
 
@@ -773,7 +774,7 @@ install_global_workflows() {
     # environment where $HOME is set but none of the Windows-specific checks
     # matched above).
     if [[ -z "$global_dir" ]] && [[ -n "${HOME:-}" ]]; then
-        global_dir="$HOME/.gemini/antigravity/global_workflows"
+        global_dir="$HOME/.gemini/config/global_workflows"
         log "Using universal fallback directory: $global_dir"
     fi
 
