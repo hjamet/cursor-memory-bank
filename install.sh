@@ -913,6 +913,25 @@ EOF
     log "✓ Created global command wrapper: $bin_dir/monitor"
 }
 
+install_gemini_md() {
+    local temp_dir="$1"
+    local gemini_dir="$HOME/.gemini"
+    local dest_path="$gemini_dir/GEMINI.md"
+    local clone_source="$temp_dir/repo/src/GEMINI.md"
+
+    mkdir -p "$gemini_dir"
+
+    if [[ -f "$clone_source" ]]; then
+        if cp "$clone_source" "$dest_path"; then
+            log "✓ GEMINI.md installed to $dest_path"
+        else
+            error "Failed to copy GEMINI.md to $dest_path"
+        fi
+    else
+        error "GEMINI.md source not found at $clone_source. Cannot install."
+    fi
+}
+
 install_basic_rules() {
     local target_dir="$1"
     local temp_dir="$2"
@@ -971,6 +990,9 @@ install_basic_rules() {
 
     log "Installing monitor command..."
     install_monitor_command "$target_dir"
+
+    log "Installing GEMINI.md..."
+    install_gemini_md "$temp_dir"
 
     log "✅ Installation completed (single mode)"
 }
