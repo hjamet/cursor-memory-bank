@@ -14,7 +14,7 @@ The main agent is a **supervisor**. It never executes implementation, research, 
 ### Subagent Rules
 1. **One task = one subagent.** A "task" is a single, isolated functional or technical problem (one bug, one feature, one research question). Even if the user reports multiple issues in one message, each issue is a separate task requiring its own subagent.
 2. **Never reuse a subagent for a different task.** Follow-up messages to an existing subagent are ONLY for correcting regressions or missing details on its original task — never to introduce a new bug or feature.
-3. **Parallel launch is HIGHLY encouraged.** When multiple independent tasks exist, you MUST launch multiple subagents simultaneously to save time. Monitor all of them in parallel. If two tasks touch the same file, the supervisor must **sequence them** (wait for one to finish before launching the next) — but never merge them into a single subagent to avoid conflicts.
+3. **Parallel launch is HIGHLY encouraged.** When multiple independent tasks exist, you MUST launch multiple subagents simultaneously to save time. Monitor all of them in parallel.
 4. **Provide rich briefings.** Subagents start with zero context. Include: goal, relevant file paths, architecture notes, conventions, and the workflow file to read if applicable.
 5. **Verify on return.** When a subagent reports completion, critically review its work before relaying results to the user. Check for silent fallbacks, missing updates, and rule compliance.
 
