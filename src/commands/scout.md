@@ -17,7 +17,7 @@ description: Éclaireur de code. Explore en profondeur le codebase, la documenta
    - **Détection Multi-Agent** : Vérifie si la demande inclut un suffixe numérique $N$ (ex: `/scout 3`).
    - Si le suffixe est omis, l'exploration est standard (un seul agent).
    - Si un paramètre $N$ est fourni, sa valeur doit être comprise entre 2 et 5 maximum. L'agent doit lancer $N$ sous-agents de type `research` en parallèle.
-   - **Personnalités de Développeurs** : Lors du lancement de ces $N$ sous-agents, attribue-leur des **personnalités de développeurs** distinctes (ex: pragmatique, puriste architecte, reviewer agressif/cynique à la Linus Torvalds, hacker paranoïaque). **CRITIQUE** : CHAQUE sous-agent doit réaliser l'INTÉGRALITÉ de l'exploration de manière indépendante. Ils ne se partagent pas le travail par domaine (tout le monde explore tout), mais l'analysent avec leur personnalité propre.
+   - **Exécution Redondante** : Lors du lancement de ces $N$ sous-agents, donne-leur exactement le même rôle et la même mission. Varie simplement la formulation (phrasé) du prompt d'un sous-agent à l'autre pour induire des variations dans la réflexion de l'IA. **CRITIQUE** : CHAQUE sous-agent doit réaliser l'INTÉGRALITÉ de l'exploration de manière indépendante. Ils ne se partagent pas le travail (tout le monde explore tout), mais l'analysent avec leur propre formulation de la demande.
 2. Identifie le **type de mission** :
    | Type | Description | Focus principal |
    |------|-------------|----------------|
@@ -65,7 +65,7 @@ description: Éclaireur de code. Explore en profondeur le codebase, la documenta
 Si l'utilisateur a demandé le mode multi-agent (`/scout N`), tu DOIS déléguer l'exploration à ces $N$ sous-agents (`invoke_subagent TypeName="research"`) :
 
 - **L'intégralité du périmètre** : Ne divise pas le travail par domaine (frontend, backend, etc.). Chaque sous-agent explore le projet entier de manière autonome.
-- **Prompt clair (Personnalité)** : Chaque sous-agent reçoit la mission globale et la consigne stricte d'adopter sa personnalité de développeur assignée.
+- **Prompt clair (Reformulation)** : Chaque sous-agent reçoit la mission globale avec une légère variation dans la formulation (rephrasing) pour maximiser la diversité des résultats.
 - **Supervision** : Utilise `schedule` (DurationSeconds=180) pour vérifier la progression et relancer si besoin.
 
 ## 3. 📊 Synthèse des Découvertes
@@ -95,7 +95,7 @@ La section **Plan d'Implémentation Préliminaire** peut être omise pour les mi
 [Description de la demande originale et type de mission]
 
 > *(Optionnel : uniquement si plusieurs sous-agents ont été lancés)*
-> Ce rapport est la synthèse de $N$ explorations parallèles avec les personnalités de développeurs suivantes : [Personnalité 1], [Personnalité 2], etc.
+> Ce rapport est la synthèse de $N$ explorations parallèles redondantes pour maximiser l'exhaustivité.
 
 ## Questions Clés
 

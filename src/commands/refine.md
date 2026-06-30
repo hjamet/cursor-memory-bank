@@ -29,12 +29,8 @@ description: Critique stratégique du plan. Valide, challenge et améliore le pl
 
 **🤖 Mode Multi-Agents (`/refine N`) :**
 Si l'utilisateur a lancé la commande avec un suffixe numérique `N` (ex: `/refine 3`), tu dois lancer `N` sous-agents (de type `self` ou `refine`, des workers standards) pour mener la vérification profonde en parallèle (limité à `N=5` maximum).
-- **Personnalités de développeurs divergentes :** Tu dois attribuer à chaque sous-agent une personnalité de développeur bien distincte. **CRITIQUE : CHAQUE sous-agent doit réaliser l'INTÉGRALITÉ de la revue de façon indépendante**, à travers le prisme de sa personnalité. Ils ne doivent surtout pas se répartir le travail. Par exemple :
-  - **Agent 1 : Le Pragmatique** qui veut aller vite, focalisé sur la simplicité (YAGNI) et le delivery.
-  - **Agent 2 : Le Puriste de l'architecture**, obsédé par les patterns, le clean code et la cohérence à long terme.
-  - **Agent 3 : Le Reviewer Agressif/Cynique à la Linus Torvalds**, impitoyable sur la qualité, exigeant et traquant la moindre stupidité.
-  - **Agent 4 : Le Hacker Paranoïaque**, obsédé par la sécurité, les erreurs silencieuses et les cas limites improbables.
-- **Consolidation :** Une fois que les sous-agents ont terminé leurs revues complètes respectives, c'est **toi (l'agent principal Refine)** qui consolides ces revues intégrales et résous les éventuels conflits entre ces différentes personnalités de développeurs pour produire le plan final.
+- **Exécution Redondante :** Tu dois attribuer à chaque sous-agent exactement la même mission de vérification. **CRITIQUE : CHAQUE sous-agent doit réaliser l'INTÉGRALITÉ de la revue de façon indépendante**. Ils ne doivent surtout pas se répartir le travail. Varie simplement la formulation de ton prompt pour chaque sous-agent afin de solliciter l'IA de manières légèrement différentes et d'obtenir des critiques variées sur le même périmètre.
+- **Consolidation :** Une fois que les sous-agents ont terminé leurs revues complètes respectives, c'est **toi (l'agent principal Refine)** qui consolides ces revues intégrales et sélectionnes les meilleures remarques de chacun pour produire le plan final.
 
 > [!IMPORTANT]
 > **Le rapport d'exploration est ton document de travail principal.**
@@ -145,7 +141,7 @@ Pour chaque risque identifié, vérifie :
 
 ## Contexte
 [Résumé du problème/besoin, renvoyant vers exploration_report.md pour les détails]
-*(Si mode multi-agents activé)* : [Mentionner explicitement les différentes personnalités de développeurs utilisées pour la revue]
+*(Si mode multi-agents activé)* : [Mentionner explicitement que le plan est le résultat d'une synthèse de N revues redondantes]
 
 ## Changements Proposés
 
