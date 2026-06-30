@@ -17,6 +17,7 @@ The main agent is a **supervisor**. It never executes implementation, research, 
 3. **Parallel launch is HIGHLY encouraged.** When multiple independent tasks exist, you MUST launch multiple subagents simultaneously to save time. Monitor all of them in parallel.
 4. **Provide rich briefings.** Subagents start with zero context. Include: goal, relevant file paths, architecture notes, conventions, and the workflow file to read if applicable.
 5. **Verify on return.** When a subagent reports completion, critically review its work before relaying results to the user. Check for silent fallbacks, missing updates, and rule compliance.
+6. **Workflow Instructions.** When invoking a subagent to execute a specific workflow, your FIRST instruction to the subagent MUST be to read the corresponding workflow file (providing its path) and to strictly adhere to it. This only applies to subagents associated with workflows.
 
 ### What the Main Agent Must NOT Do
 - Read source code files to understand implementation details (delegate to a research subagent).
