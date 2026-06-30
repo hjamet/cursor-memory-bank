@@ -35,7 +35,13 @@ Trivial, single-step lookups (e.g. checking if a file exists, reading a short co
 
 ### Subagent Health Check (Cron)
 
-At the start of each session with active subagents, the main agent **must** set up a recurring cron job (every 15 minutes) using the `schedule` tool. On each trigger:
+At the start of each session with active subagents, the main agent **must** set up a recurring cron job (every 15 minutes) using the `schedule` tool. The main agent should only have an active timer/cron when active subagents exist.
+
+Specifically:
+- **Stop the timer**: When there are no longer any active subagents, the main agent **must** cancel/stop its 15-minute wake-up timer (using the `manage_task` tool to kill the schedule task).
+- **Restart the timer**: If the main agent spawns/restarts subagents when no timer is active, it **must** restart the 15-minute wake-up timer.
+
+On each cron trigger:
 1. List all active subagents (`manage_subagents` → `list`).
 2. Check for signs of trouble: stuck agents, infinite loops, blocked commands, or idle agents with no progress.
 3. Kill any agent that is stuck or no longer useful.
