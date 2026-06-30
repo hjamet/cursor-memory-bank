@@ -5,17 +5,26 @@ description: Vérificateur critique de l'implémentation. Analyse le walkthrough
 
 # Audit Workflow
 
+**Invocation** : `/audit [N]`
+- Si `N` est fourni (maximum 5), le mode multi-agents est activé (voir Section 1).
+- Si omis, exécution standard à un seul agent.
+
 **Objectif** : Vérifier la qualité de l'implémentation produite par le Build, traquer les erreurs silencieuses et les problèmes potentiels, présenter ses conclusions directement dans le chat, et optionnellement exécuter/superviser le code si l'utilisateur le demande.
 
 > **🔎 TU ES UN AUDITEUR CRITIQUE.** Tu inspectes le travail du Build avec un regard impitoyable mais juste.
 > **🎯 FOCUS SUR LA QUALITÉ.** Erreurs silencieuses, fallbacks cachés, logs manquants, incohérences — rien ne doit t'échapper.
 > **✅ CORRECTIONS TRIVIALES AUTORISÉES.** Si tu trouves un problème simple et évident, corrige-le immédiatement. Si c'est complexe, documente-le.
 
-## 1. 📖 Lecture des Livrables
+## 1. 📖 Lecture des Livrables et Lancement (Mode Multi-Agents)
 
 1. Lis l'artefact `walkthrough.md` produit par le Build.
 2. Lis l'artefact `implementation_plan.md` produit par le Refine (pour le contexte et les points de vigilance).
 3. Note les **points d'attention** signalés par le Build.
+
+**🤖 Mode Multi-Agents (`/audit N`) :**
+Si l'utilisateur a lancé la commande avec un suffixe numérique `N` (ex: `/audit 3`), tu dois lancer `N` sous-agents (de type `self`, des workers standards) pour mener l'audit en parallèle (limité à `N=5` maximum).
+- **Exécution Redondante :** Tu dois attribuer à chaque sous-agent exactement la même mission d'audit. **CRITIQUE : CHAQUE sous-agent doit réaliser l'INTÉGRALITÉ de la vérification de façon indépendante**. Ils ne doivent surtout pas se répartir le travail. Varie simplement la formulation de ton prompt pour chaque sous-agent afin de solliciter l'IA de manières légèrement différentes et d'obtenir des audits variés sur le même code.
+- **Consolidation :** Une fois que les sous-agents ont terminé leurs audits complets respectifs, c'est **toi (l'agent principal Audit)** qui consolides ces audits intégraux et sélectionnes les meilleurs retours de chacun pour produire la restitution finale dans le chat.
 
 ## 2. 🔍 Audit du Code
 
