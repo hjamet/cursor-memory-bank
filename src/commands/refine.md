@@ -138,6 +138,10 @@ En plus des annotations, ajoute une section finale au rapport :
 2. Si le plan est `🛑 PLAN À REVOIR`, explique clairement pourquoi et ce qui doit changer.
 3. **ARRÊTE-TOI.** L'utilisateur décidera de lancer `/build` pour implémenter le plan.
 
+> [!CAUTION]
+> **🚫 RÈGLE : PAS D'ENCHAÎNEMENT AUTOMATIQUE (No Auto-Chaining).**
+> Ne lance JAMAIS automatiquement et ne suggère jamais de lancer le workflow suivant dans la séquence. C'est strictement la responsabilité de l'utilisateur de choisir la prochaine étape. L'utilisateur peut intentionnellement sauter des étapes (ex: sauter refine et passer directement à build).
+
 ---
 
 > [!NOTE]

@@ -35,19 +35,12 @@ __pycache__/
 # Cursor & Antigravity
 .cursor
 .agent
-
-# Cursor Memory Bank
-.cursor/mcp
-.cursor/mcp.json
-.cursor/screenshots
+.gemini
 
 
 # Cursor Memory Bank
 .cursor/mcp
 .cursor/mcp.json
 .cursor/screenshots
-
-
-
 
 

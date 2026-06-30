@@ -745,6 +745,7 @@ install_global_workflows() {
         fi
 
         local win_home=""
+        local user_name=""
         if [[ "$is_msys" == "true" ]]; then
             win_home="$HOME"
         else
@@ -774,12 +775,21 @@ install_global_workflows() {
         if [[ -n "$win_home" ]]; then
             dest_dirs+=("$win_home/.gemini/antigravity/global_workflows")
             dest_dirs+=("$win_home/.gemini/config/global_workflows")
-        else
-            warn "Could not detect global workflows directory (\$HOME is not set). Skipping global installation."
-            return 0
         fi
     fi
 
+    # Universal fallback: use $HOME on any platform (Linux, macOS, or any
+    # environment where $HOME is set but none of the Windows-specific checks
+    # matched above).
+    if [[ ${#dest_dirs[@]} -eq 0 ]] && [[ -n "${HOME:-}" ]]; then
+        dest_dirs+=("$HOME/.gemini/config/global_workflows")
+        dest_dirs+=("$HOME/.gemini/antigravity/global_workflows")
+    fi
+
+    if [[ ${#dest_dirs[@]} -eq 0 ]]; then
+        warn "Could not detect global workflows directory (\$HOME is not set). Skipping global installation."
+        return 0
+    fi
     local workflows_list=""
     local clone_dir="$temp_dir/repo"
     
@@ -908,6 +918,25 @@ EOF
     log "✓ Created global command wrapper: $bin_dir/monitor"
 }
 
+install_gemini_md() {
+    local temp_dir="$1"
+    local gemini_dir="$HOME/.gemini"
+    local dest_path="$gemini_dir/GEMINI.md"
+    local clone_source="$temp_dir/repo/src/GEMINI.md"
+
+    mkdir -p "$gemini_dir"
+
+    if [[ -f "$clone_source" ]]; then
+        if cp "$clone_source" "$dest_path"; then
+            log "✓ GEMINI.md installed to $dest_path"
+        else
+            error "Failed to copy GEMINI.md to $dest_path"
+        fi
+    else
+        error "GEMINI.md source not found at $clone_source. Cannot install."
+    fi
+}
+
 install_basic_rules() {
     local target_dir="$1"
     local temp_dir="$2"
@@ -966,6 +995,9 @@ install_basic_rules() {
 
     log "Installing monitor command..."
     install_monitor_command "$target_dir"
+
+    log "Installing GEMINI.md..."
+    install_gemini_md "$temp_dir"
 
     log "✅ Installation completed (single mode)"
 }

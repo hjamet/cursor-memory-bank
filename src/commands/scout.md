@@ -128,6 +128,10 @@ Crée un artefact `exploration_report.md` (via `write_to_file`, artefact user-fa
 2. Présente un résumé concis à l'utilisateur avec les points clés.
 3. **ARRÊTE-TOI.** L'utilisateur décidera de lancer `/refine` pour raffiner le plan.
 
+> [!CAUTION]
+> **🚫 RÈGLE : PAS D'ENCHAÎNEMENT AUTOMATIQUE (No Auto-Chaining).**
+> Ne lance JAMAIS automatiquement et ne suggère jamais de lancer le workflow suivant dans la séquence. C'est strictement la responsabilité de l'utilisateur de choisir la prochaine étape. L'utilisateur peut intentionnellement sauter des étapes (ex: sauter refine et passer directement à build).
+
 ---
 
 > [!NOTE]

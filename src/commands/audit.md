@@ -173,6 +173,10 @@ Ajoute une section finale au walkthrough :
 3. Si des corrections ont été effectuées, mentionne-les.
 4. **ARRÊTE-TOI.** L'utilisateur décidera de la suite (relancer `/build`, traiter les problèmes, ou accepter l'implémentation).
 
+> [!CAUTION]
+> **🚫 RÈGLE : PAS D'ENCHAÎNEMENT AUTOMATIQUE (No Auto-Chaining).**
+> Ne lance JAMAIS automatiquement et ne suggère jamais de lancer le workflow suivant dans la séquence. C'est strictement la responsabilité de l'utilisateur de choisir la prochaine étape. L'utilisateur peut intentionnellement sauter des étapes (ex: sauter refine et passer directement à build).
+
 ---
 
 > [!NOTE]
