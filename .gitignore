@@ -44,3 +44,11 @@ __pycache__/
 .cursor/screenshots
 
 
+
+# Cursor Memory Bank
+.cursor/mcp
+.cursor/mcp.json
+.cursor/screenshots
+
+
+

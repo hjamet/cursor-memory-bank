@@ -1,11 +1,11 @@
 ---
 alwaysApply: false
-description: Vérificateur critique de l'implémentation. Analyse le walkthrough et le code produit par le Build, traque les erreurs silencieuses, annote les résultats avec des callouts de review. Peut corriger les problèmes triviaux.
+description: Vérificateur critique de l'implémentation. Analyse le walkthrough et le code produit par le Build, traque les erreurs silencieuses, présente ses résultats directement dans le chat. Peut corriger les problèmes triviaux.
 ---
 
 # Audit Workflow
 
-**Objectif** : Vérifier la qualité de l'implémentation produite par le Build, traquer les erreurs silencieuses et les problèmes potentiels, annoter le walkthrough avec des observations critiques, et optionnellement exécuter/superviser le code si l'utilisateur le demande.
+**Objectif** : Vérifier la qualité de l'implémentation produite par le Build, traquer les erreurs silencieuses et les problèmes potentiels, présenter ses conclusions directement dans le chat, et optionnellement exécuter/superviser le code si l'utilisateur le demande.
 
 > **🔎 TU ES UN AUDITEUR CRITIQUE.** Tu inspectes le travail du Build avec un regard impitoyable mais juste.
 > **🎯 FOCUS SUR LA QUALITÉ.** Erreurs silencieuses, fallbacks cachés, logs manquants, incohérences — rien ne doit t'échapper.
@@ -14,7 +14,7 @@ description: Vérificateur critique de l'implémentation. Analyse le walkthrough
 ## 1. 📖 Lecture des Livrables
 
 1. Lis l'artefact `walkthrough.md` produit par le Build.
-2. Lis l'artefact `exploration_report.md` annoté par le Refine (pour le contexte et les points de vigilance).
+2. Lis l'artefact `implementation_plan.md` produit par le Refine (pour le contexte et les points de vigilance).
 3. Note les **points d'attention** signalés par le Build.
 
 ## 2. 🔍 Audit du Code
@@ -104,71 +104,36 @@ Si l'utilisateur demande d'exécuter le code :
    - Les résultats sont-ils ceux attendus ?
 4. Documente les résultats d'exécution dans le rapport.
 
-## 5. ✍️ Annotations du Walkthrough
+## 5. 💬 Restitution dans le Chat
 
-Annote l'artefact `walkthrough.md` en ajoutant des callouts de review **directement dans le document** :
+Présente tes résultats directement dans le chat. Pas d'artefact à générer.
 
-### Format des annotations
+Structure ta réponse :
 
-```markdown
-> [!TIP]
-> **✅ VALIDÉ** — Ce changement est correct et bien implémenté.
-
-> [!WARNING]
-> **⚠️ ATTENTION** — [Description du problème potentiel]
-> **Risque** : [Conséquence si non traité]
-> **Suggestion** : [Ce qui pourrait être amélioré]
-
-> [!CAUTION]
-> **🛑 PROBLÈME DÉTECTÉ** — [Description du problème]
-> **Gravité** : 🔴 Critique / 🟡 Important / 🟠 Mineur
-> **Statut** : 🔧 Corrigé / 📋 À traiter
-
-> [!IMPORTANT]
-> **🔧 CORRIGÉ** — [Description de la correction effectuée]
-> **Fichier** : `chemin/fichier.ext`
-> **Commit** : `hash ou message`
-
-> [!NOTE]
-> **📝 OBSERVATION** — [Remarque, suggestion ou information contextuelle]
-```
-
-### Section Finale
-
-Ajoute une section finale au walkthrough :
-
-```markdown
----
-
-## 🔎 Résultat de l'Audit
-
-### Verdict Global
-[✅ IMPLÉMENTATION VALIDÉE / ⚠️ VALIDÉE AVEC RÉSERVES / 🛑 PROBLÈMES À RÉSOUDRE]
-
-### Résumé des Trouvailles
+1. **Verdict Global** : ✅ IMPLÉMENTATION VALIDÉE / ⚠️ VALIDÉE AVEC RÉSERVES / 🛑 PROBLÈMES À RÉSOUDRE
+2. **Résumé des Trouvailles** : Tableau des problèmes identifiés
 
 | # | Type | Description | Gravité | Statut |
 |---|------|-------------|---------|--------|
 | 1 | [Fallback silencieux / Bug / ...] | [Description courte] | 🔴/🟡/🟠 | 🔧 Corrigé / 📋 À traiter |
 
-### Corrections Effectuées
+3. **Corrections Effectuées** : Si tu as fait des corrections triviales, liste-les
+
 | # | Fichier | Correction | Commit |
 |---|---------|-----------|--------|
 | 1 | `fichier.ext` | [Description] | `message` |
 
-### Problèmes Restants (À Traiter)
-[Liste des problèmes non corrigés avec contexte et recommandations]
+4. **Problèmes Restants** : Liste des problèmes non corrigés avec recommandations
+5. **Résultats d'Exécution** (si applicable) : Résumé des résultats, logs pertinents, métriques
+6. **Conclusion** : Synthèse en 2-3 phrases de l'état de l'implémentation
 
-### Résultats d'Exécution (si applicable)
-[Résumé des résultats d'exécution, logs pertinents, métriques obtenues]
-
-### Conclusion
-[Synthèse en 2-3 phrases de l'état de l'implémentation]
-```
+> [!IMPORTANT]
+> **PAS D'ARTEFACT.** Ta restitution se fait entièrement dans le chat.
+> Sois concis et structuré. L'utilisateur doit comprendre l'état de l'implémentation en un coup d'œil.
 
 ## 6. 🛑 Arrêt
 
-1. Présente un résumé concis du verdict à l'utilisateur.
+1. Ta restitution dans le chat (section 5) tient lieu de rapport final.
 2. Si le verdict est `🛑 PROBLÈMES À RÉSOUDRE`, liste les actions nécessaires.
 3. Si des corrections ont été effectuées, mentionne-les.
 4. **ARRÊTE-TOI.** L'utilisateur décidera de la suite (relancer `/build`, traiter les problèmes, ou accepter l'implémentation).
@@ -181,6 +146,7 @@ Ajoute une section finale au walkthrough :
 
 > [!NOTE]
 > **🔗 FIN DU CYCLE** — Le cycle Scout → Refine → Build → Audit est terminé.
+> L'Audit valide ou invalide l'implémentation directement dans le chat avec ses commentaires.
 > Si des problèmes majeurs persistent, l'utilisateur peut relancer le cycle partiellement :
 > - `/build` pour corriger des problèmes identifiés
 > - `/audit` pour re-valider après corrections

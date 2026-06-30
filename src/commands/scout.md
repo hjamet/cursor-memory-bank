@@ -1,6 +1,6 @@
 ---
 alwaysApply: false
-description: Éclaireur de code. Explore en profondeur le codebase, la documentation et le web pour produire un rapport d'exploration et un plan d'implémentation préliminaire.
+description: Éclaireur de code. Explore en profondeur le codebase, la documentation et le web pour produire un rapport d'exploration complet avec plan d'implémentation préliminaire.
 ---
 
 # Scout Workflow
@@ -14,6 +14,10 @@ description: Éclaireur de code. Explore en profondeur le codebase, la documenta
 ## 1. 🎯 Prise de Mission
 
 1. Lis attentivement la demande de l'utilisateur (bug à diagnostiquer, feature à implémenter, refactoring à planifier, etc.).
+   - **Détection Multi-Agent** : Vérifie si la demande inclut un suffixe numérique $N$ (ex: `/scout 3`).
+   - Si le suffixe est omis, l'exploration est standard (un seul agent).
+   - Si un paramètre $N$ est fourni, sa valeur doit être comprise entre 2 et 5 maximum. L'agent doit lancer $N$ sous-agents de type `research` en parallèle.
+   - **Personnalités de Développeurs** : Lors du lancement de ces $N$ sous-agents, attribue-leur des **personnalités de développeurs** distinctes (ex: pragmatique, puriste architecte, reviewer agressif/cynique à la Linus Torvalds, hacker paranoïaque). **CRITIQUE** : CHAQUE sous-agent doit réaliser l'INTÉGRALITÉ de l'exploration de manière indépendante. Ils ne se partagent pas le travail par domaine (tout le monde explore tout), mais l'analysent avec leur personnalité propre.
 2. Identifie le **type de mission** :
    | Type | Description | Focus principal |
    |------|-------------|----------------|
@@ -58,15 +62,17 @@ description: Éclaireur de code. Explore en profondeur le codebase, la documenta
 
 ### 2.4 Sous-Agents d'Exploration
 
-Pour maximiser la couverture, tu DOIS déléguer des axes d'exploration à des sous-agents (`invoke_subagent TypeName="research"`) :
+Si l'utilisateur a demandé le mode multi-agent (`/scout N`), tu DOIS déléguer l'exploration à ces $N$ sous-agents (`invoke_subagent TypeName="research"`) :
 
-- **Un sous-agent par axe d'exploration indépendant** (ex: un pour le frontend, un pour le backend, un pour la documentation).
-- **Prompt clair** : Chaque sous-agent reçoit une question précise à investiguer et doit rapporter ses trouvailles.
+- **L'intégralité du périmètre** : Ne divise pas le travail par domaine (frontend, backend, etc.). Chaque sous-agent explore le projet entier de manière autonome.
+- **Prompt clair (Personnalité)** : Chaque sous-agent reçoit la mission globale et la consigne stricte d'adopter sa personnalité de développeur assignée.
 - **Supervision** : Utilise `schedule` (DurationSeconds=180) pour vérifier la progression et relancer si besoin.
 
 ## 3. 📊 Synthèse des Découvertes
 
-Après l'exploration, regroupe tes découvertes en répondant à ces questions :
+Après l'exploration, regroupe tes découvertes. **Si plusieurs sous-agents ont été lancés (mode $N$), tu dois impérativement attendre qu'ils aient TOUS terminé, puis synthétiser leurs rapports individuels en une seule analyse globale et cohérente.**
+
+Réponds ensuite à ces questions dans ta synthèse :
 
 1. **Quel est le problème / besoin exact ?** (Formulation précise, sans ambiguïté)
 2. **Quels fichiers sont concernés ?** (Liste exhaustive avec justification)
@@ -74,9 +80,13 @@ Après l'exploration, regroupe tes découvertes en répondant à ces questions :
 4. **Quels risques identifiés ?** (Effets de bord, régressions possibles, cas limites)
 5. **Quelles contraintes techniques ?** (Limitations, compatibilité, performance)
 
-## 4. 📝 Livrable : Rapport d'Exploration
+## 4. 📝 Livrable
 
-Crée un artefact `exploration_report.md` (via `write_to_file`, artefact user-facing) contenant :
+Le Scout produit **un unique artefact** : `exploration_report.md`.
+
+Crée un artefact `exploration_report.md` (via `write_to_file`, artefact user-facing) au format **Questions / Réponses**, incluant un plan d'implémentation préliminaire en fin de document. Le plan liste les fichiers à modifier, créer ou supprimer avec les tags `[MODIFY]`, `[NEW]`, `[DELETE]` — **sans aucun bloc de code**, uniquement des descriptions haut niveau.
+
+La section **Plan d'Implémentation Préliminaire** peut être omise pour les missions purement de type 🔍 **Analyse** (comprendre un comportement, pas de changement requis).
 
 ```markdown
 # 🔭 Rapport d'Exploration
@@ -84,8 +94,19 @@ Crée un artefact `exploration_report.md` (via `write_to_file`, artefact user-fa
 ## Mission
 [Description de la demande originale et type de mission]
 
+> *(Optionnel : uniquement si plusieurs sous-agents ont été lancés)*
+> Ce rapport est la synthèse de $N$ explorations parallèles avec les personnalités de développeurs suivantes : [Personnalité 1], [Personnalité 2], etc.
+
 ## Questions Clés
-[Les 3-5 questions formulées en étape 1 et leurs réponses]
+
+### Q1 — [Question formulée en étape 1]
+**Réponse :** [Réponse détaillée basée sur l'exploration, avec références aux fichiers consultés]
+
+### Q2 — [Question suivante]
+**Réponse :** [...]
+
+### Q3 — [...]
+...
 
 ## Fichiers Concernés
 
@@ -97,19 +118,27 @@ Crée un artefact `exploration_report.md` (via `write_to_file`, artefact user-fa
 [Pour un bug : cause identifiée, flux de reproduction]
 [Pour une feature : architecture proposée, points d'insertion]
 [Pour un refactoring : état actuel, état cible]
+[Pour une analyse : synthèse de la compréhension acquise]
 
 ## Risques & Cas Limites
 [Liste des risques identifiés avec leur probabilité et impact]
 
 ## Plan d'Implémentation Préliminaire
 
-### Étape 1 — [Titre]
-- Fichier(s) : `...`
-- Action : [Ce qui doit être fait]
-- Risque : [Si applicable]
+> Ce plan est préliminaire. Il sera validé et amélioré par l'agent `/refine`.
 
-### Étape 2 — [Titre]
-...
+### [MODIFY] `chemin/fichier.ext`
+- **Action** : [Description haut niveau de ce qui doit être fait — PAS de code]
+- **Risque** : [Si applicable]
+
+### [NEW] `chemin/nouveau_fichier.ext`
+- **Action** : [...]
+
+### [DELETE] `chemin/fichier_obsolete.ext`
+- **Raison** : [...]
+
+### Dépendances & Ordre
+[Si certaines modifications doivent être réalisées dans un ordre précis]
 
 ## Questions Ouvertes
 [Points qui nécessitent une décision de l'utilisateur ou une exploration plus approfondie]
@@ -136,4 +165,4 @@ Crée un artefact `exploration_report.md` (via `write_to_file`, artefact user-fa
 
 > [!NOTE]
 > **🔗 WORKFLOW SUIVANT : Refine** (`/refine`)
-> L'agent Refine prend le relais pour valider, critiquer et améliorer le plan d'implémentation préliminaire produit par le Scout.
+> L'agent Refine prend le relais pour valider, critiquer et améliorer le rapport d'exploration produit par le Scout, et en extraire un plan d'implémentation affiné.

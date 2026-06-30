@@ -942,53 +942,67 @@ install_basic_rules() {
     local temp_dir="$2"
     
     log "Installing basic rules and utilities (single mode)..."
-    mkdir -p "$target_dir/.cursor/rules"
 
-    local full_install_only_rules=("start.mdc")
-    local rules_list=""
+    # Install local components only if INSTALL_LOCAL is enabled
+    if [[ -n "${INSTALL_LOCAL:-}" ]]; then
+        log "Installing local rules, commands, and configurations in: $target_dir"
+        mkdir -p "$target_dir/.cursor/rules"
 
-    if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
-        warn "Using curl mode - installing only basic rules (subdirectories not supported with curl)"
-        rules_list="src/rules/README.md"
-    else
-        local clone_dir="$temp_dir/repo"
-        if [[ ! -d "$clone_dir" ]]; then
-            log "Cloning repository for rule discovery..."
-            clone_repository "$REPO_URL" "$clone_dir"
-        fi
-        if [[ -d "$clone_dir/src/rules" ]]; then
-            rules_list=$(cd "$clone_dir/src/rules" && find . -type f -name "*.md" | sed 's|^\./|src/rules/|')
-            log "Discovered rules recursively: $(echo "$rules_list" | wc -w) files"
-        else
-            warn "Git clone failed - using conservative fallback set"
+        local full_install_only_rules=("start.mdc")
+        local rules_list=""
+
+        if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
+            warn "Using curl mode - installing only basic rules (subdirectories not supported with curl)"
             rules_list="src/rules/README.md"
+        else
+            local clone_dir="$temp_dir/repo"
+            if [[ ! -d "$clone_dir" ]]; then
+                log "Cloning repository for rule discovery..."
+                clone_repository "$REPO_URL" "$clone_dir"
+            fi
+            if [[ -d "$clone_dir/src/rules" ]]; then
+                rules_list=$(cd "$clone_dir/src/rules" && find . -type f -name "*.md" | sed 's|^\./|src/rules/|')
+                log "Discovered rules recursively: $(echo "$rules_list" | wc -w) files"
+            else
+                warn "Git clone failed - using conservative fallback set"
+                rules_list="src/rules/README.md"
+            fi
         fi
+
+        for r in $rules_list; do
+            if [[ "$r" != src/rules/* ]]; then
+                continue
+            fi
+            local rule_filename=$(basename "$r")
+            if is_in_array "$rule_filename" "${full_install_only_rules[@]}"; then
+                log "Skipping full-install-only rule (not used in single mode): $r"
+                continue
+            fi
+            local rule_filename=$(basename "$r" .md).mdc
+            local dest="$target_dir/.cursor/rules/$rule_filename"
+            log "Installing rule: $r -> $dest"
+            ensure_rule_file "$r" "$dest"
+        done
+
+        log "Installing custom commands..."
+        install_commands "$target_dir" "$temp_dir"
+
+        log "Installing agent configuration..."
+        install_agent_config "$target_dir" "$temp_dir"
+
+        log "Updating .gitignore"
+        manage_gitignore "$target_dir"
+    else
+        log "Skipping local installation (use --local or -l to install local files in target repository)"
     fi
 
-    for r in $rules_list; do
-        if [[ "$r" != src/rules/* ]]; then
-            continue
-        fi
-        local rule_filename=$(basename "$r")
-        if is_in_array "$rule_filename" "${full_install_only_rules[@]}"; then
-            log "Skipping full-install-only rule (not used in single mode): $r"
-            continue
-        fi
-        local rule_filename=$(basename "$r" .md).mdc
-        local dest="$target_dir/.cursor/rules/$rule_filename"
-        log "Installing rule: $r -> $dest"
-        ensure_rule_file "$r" "$dest"
-    done
-
-
-    log "Installing custom commands..."
-    install_commands "$target_dir" "$temp_dir"
-
-    log "Installing agent configuration..."
-    install_agent_config "$target_dir" "$temp_dir"
-
-    log "Updating .gitignore"
-    manage_gitignore "$target_dir"
+    # Global installations (always run by default)
+    # Ensure repository is cloned in temp_dir for global installations if not already done
+    local clone_dir="$temp_dir/repo"
+    if [[ ! -d "$clone_dir" ]] && [[ -z "${USE_CURL:-}" ]] && command -v git >/dev/null 2>&1; then
+        log "Cloning repository for global workflows..."
+        clone_repository "$REPO_URL" "$clone_dir"
+    fi
 
     log "Installing global workflows..."
     install_global_workflows "$target_dir" "$temp_dir" "$GLOBAL_WORKFLOWS_DIR"
@@ -1015,13 +1029,14 @@ Usage: $0 [options]
 Options:
     -h, --help         Show this help message
     -v, --version      Show version information
+    -l, --local        Install rules and configurations locally in the target directory (default: global only)
     -d, --dir DIR      Install to a specific directory (default: current directory)
     --global-dir DIR   Specify the global workflows directory manually
     --force            Force installation even if directory is not empty
 
 This script will:
-1. Install agent rules and custom commands
-2. Update .gitignore
+1. Install global workflows and monitor command by default
+2. Optionally install local agent rules and custom commands when --local is provided
 3. Clean up temporary files
 
 For more information, visit: ${REPO_URL}
@@ -1045,6 +1060,7 @@ show_version() {
 INSTALL_DIR="."
 FORCE=""
 USE_CURL=""
+INSTALL_LOCAL=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -1053,6 +1069,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         -v|--version)
             show_version
+            ;;
+        -l|--local)
+            INSTALL_LOCAL=1
             ;;
         -d|--dir)
             if [[ -z "${2:-}" ]]; then

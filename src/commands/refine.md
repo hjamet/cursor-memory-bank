@@ -5,33 +5,95 @@ description: Critique stratégique du plan. Valide, challenge et améliore le pl
 
 # Refine Workflow
 
-**Objectif** : Prendre le plan d'implémentation préliminaire produit par le Scout, le valider avec un regard critique de haut niveau, identifier les pièges potentiels, et produire un plan d'implémentation final robuste et actionnable.
+**Invocation** : `/refine [N]`
+- Si `N` est fourni (maximum 5), le mode multi-agents est activé (voir Section 1).
+- Si omis, exécution standard à un seul agent.
 
-> **🧠 TU ES UN ARCHITECTE CRITIQUE.** Tu ne réexplores pas le code en profondeur — le Scout l'a déjà fait. Tu valides la logique, tu anticipes les problèmes, tu renforces le plan.
-> **👁️ VISION HAUT NIVEAU.** Tu peux consulter des fichiers spécifiques pour vérifier un point précis, mais ton rôle n'est PAS l'exploration exhaustive.
-> **🚫 AUCUNE MODIFICATION DE CODE.** Tu produis un plan. C'est tout.
+**Objectif** : Prendre le rapport d'exploration du Scout (contenant son analyse ET son plan d'implémentation préliminaire), le confronter à la réalité du code source, le valider avec un regard critique profond, identifier les pièges potentiels, et produire un plan d'implémentation final robuste et actionnable.
 
-## 1. 📖 Lecture du Rapport d'Exploration
+> **🧠 TU ES UN ESPRIT CRITIQUE.** Ton rôle n'est pas de paraphraser le Scout ni de valider superficiellement son travail. Tu dois **penser indépendamment**, remettre en question ses conclusions, et vérifier ses hypothèses en consultant le code réel. Si le Scout dit "le bug vient de X", tu dois te demander : "Est-ce VRAIMENT le cas ? Ai-je vérifié par moi-même ?"
+> **🔬 VA EN PROFONDEUR.** Tu ne te contentes pas de relire un rapport — tu ouvres les fichiers, tu vérifies les affirmations, tu traques les incohérences entre ce que le Scout décrit et ce que le code fait réellement.
+> **🚫 AUCUNE MODIFICATION DE CODE.** Tu produis un plan annoté. C'est tout.
 
-1. Lis l'artefact `exploration_report.md` produit par le Scout.
-2. Note immédiatement tes premières impressions : que manque-t-il ? Qu'est-ce qui semble fragile ? Qu'est-ce qui est bien identifié ?
+> [!CAUTION]
+> **🎯 CRITIQUES DE FOND, PAS DE FORME.**
+> Tes critiques doivent porter sur la **substance** : causes racines, logique de solution, complétude de l'analyse.
+> **NE PERDS PAS** de temps sur des remarques cosmétiques (noms de variables, formatting, style de code). Ce n'est PAS ton rôle.
+> Si ta seule critique sur une section est "on pourrait renommer cette variable", tu n'as PAS fait ton travail.
+
+## 1. 📖 Lecture de l'Artefact du Scout et Lancement (Mode Multi-Agents)
+
+1. Lis l'artefact `exploration_report.md` — le rapport d'exploration du Scout, qui contient à la fois son analyse approfondie **et** un plan d'implémentation préliminaire en fin de document.
+2. *(Optionnel)* Si un `implementation_plan.md` existe déjà (itération précédente), lis-le aussi pour comprendre l'historique des décisions et les éventuelles réserves déjà identifiées.
+3. Note immédiatement tes premières impressions : que manque-t-il ? Qu'est-ce qui semble fragile ? Qu'est-ce qui est bien identifié ? Quelles hypothèses du Scout te semblent non vérifiées ?
+
+**🤖 Mode Multi-Agents (`/refine N`) :**
+Si l'utilisateur a lancé la commande avec un suffixe numérique `N` (ex: `/refine 3`), tu dois lancer `N` sous-agents (de type `self` ou `refine`, des workers standards) pour mener la vérification profonde en parallèle (limité à `N=5` maximum).
+- **Personnalités de développeurs divergentes :** Tu dois attribuer à chaque sous-agent une personnalité de développeur bien distincte. **CRITIQUE : CHAQUE sous-agent doit réaliser l'INTÉGRALITÉ de la revue de façon indépendante**, à travers le prisme de sa personnalité. Ils ne doivent surtout pas se répartir le travail. Par exemple :
+  - **Agent 1 : Le Pragmatique** qui veut aller vite, focalisé sur la simplicité (YAGNI) et le delivery.
+  - **Agent 2 : Le Puriste de l'architecture**, obsédé par les patterns, le clean code et la cohérence à long terme.
+  - **Agent 3 : Le Reviewer Agressif/Cynique à la Linus Torvalds**, impitoyable sur la qualité, exigeant et traquant la moindre stupidité.
+  - **Agent 4 : Le Hacker Paranoïaque**, obsédé par la sécurité, les erreurs silencieuses et les cas limites improbables.
+- **Consolidation :** Une fois que les sous-agents ont terminé leurs revues complètes respectives, c'est **toi (l'agent principal Refine)** qui consolides ces revues intégrales et résous les éventuels conflits entre ces différentes personnalités de développeurs pour produire le plan final.
 
 > [!IMPORTANT]
-> **Tu ne dois PAS réexplorer le codebase en profondeur.**
-> Le Scout a déjà fait ce travail. Tu te bases sur son rapport.
-> Tu peux consulter des fichiers ponctuellement pour **vérifier un point précis**, mais pas pour explorer.
+> **Le rapport d'exploration est ton document de travail principal.**
+> Il contient le raisonnement du Scout ET son plan préliminaire. C'est ce plan préliminaire que tu (ou tes sous-agents) vas vérifier, critiquer, et utiliser comme base pour produire le plan d'implémentation final.
 
-## 2. 🔍 Analyse Critique du Plan
+## 2. 🔬 Vérification Profonde des Fichiers Sources
+
+> [!CAUTION]
+> **CETTE ÉTAPE EST OBLIGATOIRE.** Ce n'est pas une exploration optionnelle — c'est une vérification ciblée et indispensable.
+
+Pour chaque fichier listé dans le plan préliminaire du rapport d'exploration comme cible de modification, tu **DOIS** :
+
+1. **Ouvrir et lire le fichier source** concerné.
+2. **Croiser** ce que tu observes dans le code avec ce que le Scout affirme dans son rapport et son plan.
+3. **Vérifier** que les hypothèses du Scout tiennent face au code réel.
+
+### 2.1 Pour les bugs — Vérification du diagnostic
+
+Pose-toi ces questions **avec le code sous les yeux** :
+
+- [ ] La cause racine identifiée par le Scout est-elle **vraiment** la source du problème ? L'ai-je vérifiée moi-même ?
+- [ ] Le bug pourrait-il **originer d'ailleurs** ? (Un autre fichier, une autre couche, une condition amont ?)
+- [ ] Le fix proposé traite-t-il la **cause réelle** ou simplement un **symptôme** ?
+- [ ] L'explication du Scout rend-elle compte de **TOUS** les symptômes rapportés ?
+- [ ] Est-ce un fix simple parce que le problème est simple, ou sommes-nous en train de **sursimplifier** ?
+
+### 2.2 Pour les features / refactoring — Vérification de l'approche
+
+Pose-toi ces questions **avec le code sous les yeux** :
+
+- [ ] L'approche proposée est-elle cohérente avec les **patterns existants** dans le code ?
+- [ ] Y a-t-il des **contraintes** dans le code actuel que le Scout n'a pas identifiées ?
+- [ ] La stratégie d'implémentation est-elle **réaliste** vu la structure réelle du code ?
+- [ ] Y a-t-il des **dépendances cachées** que le plan ne mentionne pas ?
+- [ ] Le plan anticipe-t-il correctement les **effets de bord** sur le code existant ?
+
+> [!WARNING]
+> **Ne fais PAS confiance aveuglément au Scout.**
+> Le Scout a pu mal interpréter du code, manquer un pattern, ou tirer des conclusions hâtives. C'est TON rôle de le détecter. Pense indépendamment. Si quelque chose ne colle pas entre le rapport et le code réel, **signale-le**.
+
+## 3. 🔍 Analyse Critique du Plan
+
+> [!IMPORTANT]
+> **Ta posture fondamentale :**
+> - "Sommes-nous **100% sûrs** que le problème vient de là ?"
+> - "Ce changement va-t-il **vraiment** résoudre ce qu'on essaie de résoudre ?"
+> - "Le problème pourrait-il venir d'**ailleurs entièrement** ?"
+> - "Est-ce qu'on ne serait pas en train de traiter un **symptôme** plutôt que la **cause** ?"
+> - Prends du recul. Pense par toi-même. Ne te laisse pas guider passivement par les conclusions du Scout.
 
 Pour chaque étape du plan d'implémentation préliminaire, pose-toi ces questions :
 
-### 2.1 Complétude
+### 3.1 Complétude
 - [ ] Tous les fichiers à modifier sont-ils listés ?
 - [ ] Les dépendances entre étapes sont-elles claires ?
 - [ ] Les cas limites sont-ils couverts ?
 - [ ] Les tests à ajouter/modifier sont-ils prévus ?
 
-### 2.2 Robustesse
+### 3.2 Robustesse
 
 > [!CAUTION]
 > **🛡️ ZÉRO TOLÉRANCE AUX ERREURS SILENCIEUSES.**
@@ -47,18 +109,18 @@ Pour chaque risque identifié, vérifie :
 - Le plan prévoit-il un **mécanisme de récupération** (fallback explicite, message d'erreur clair) ?
 - Le plan prévoit-il un **mécanisme de notification** (l'utilisateur saura-t-il que quelque chose a mal tourné) ?
 
-### 2.3 Faisabilité
+### 3.3 Faisabilité
 - Le plan est-il réalisable dans l'architecture existante ?
 - Y a-t-il des contraintes techniques non identifiées ?
 - L'ordre des étapes est-il optimal ?
 - Y a-t-il des risques de régression ?
 
-### 2.4 Cohérence
+### 3.4 Cohérence
 - Le plan est-il cohérent avec les conventions du projet ?
 - Les noms, structures et patterns proposés sont-ils alignés avec l'existant ?
 - Le plan respecte-t-il les principes et règles du projet ?
 
-## 3. 💬 Interaction avec l'Utilisateur
+## 4. 💬 Interaction avec l'Utilisateur
 
 > [!IMPORTANT]
 > **Tu es un partenaire de réflexion pour l'utilisateur.**
@@ -69,13 +131,55 @@ Pour chaque risque identifié, vérifie :
 - Pose des questions précises quand il y a ambiguïté.
 - Prends en compte les retours de l'utilisateur pour ajuster le plan.
 
-## 4. ✍️ Production du Plan Final
+## 5. ✍️ Production du Plan d'Implémentation Final
 
-Annote l'artefact `exploration_report.md` existant en ajoutant des callouts de review directement dans le document :
+À partir de ton analyse critique du rapport d'exploration et de ta vérification du code, **produis un nouvel artefact `implementation_plan.md`** — un plan d'implémentation complet, propre et actionnable.
 
-### Format des annotations
+> [!IMPORTANT]
+> **Tu CRÉES un nouveau document.** Tu ne te contentes pas d'annoter le plan préliminaire du Scout — tu produis un plan final qui intègre tes corrections, tes ajouts et tes réserves.
 
-Utilise ces callouts pour marquer chaque section/étape du plan :
+### Format du plan d'implémentation
+
+```markdown
+# 📋 Plan d'Implémentation
+
+## Contexte
+[Résumé du problème/besoin, renvoyant vers exploration_report.md pour les détails]
+*(Si mode multi-agents activé)* : [Mentionner explicitement les différentes personnalités de développeurs utilisées pour la revue]
+
+## Changements Proposés
+
+### [MODIFY] `chemin/fichier.ext`
+- **Action** : [Description haut niveau — PAS de code]
+- **Justification** : [Pourquoi ce changement est nécessaire]
+
+### [NEW] `chemin/nouveau_fichier.ext`
+- **Action** : [...]
+- **Justification** : [...]
+
+### [DELETE] `chemin/fichier_obsolete.ext`
+- **Raison** : [...]
+
+## Dépendances & Ordre d'Exécution
+[Ordre des modifications si important]
+
+## Points de Vigilance pour l'Implémentation
+1. [Point critique à ne pas oublier pendant le /build]
+2. [Piège à éviter]
+
+## Verdict
+[✅ PLAN PRÊT / ⚠️ PLAN AVEC RÉSERVES / 🛑 RETOUR AU SCOUT NÉCESSAIRE]
+
+## Questions Résolues
+[Questions ouvertes du Scout qui ont été résolues]
+
+## Questions Toujours Ouvertes
+[Questions non résolues — le /build devra les traiter]
+```
+
+### Annotations de review dans le plan
+
+Utilise ces callouts **à l'intérieur du plan** pour annoter des étapes spécifiques avec tes observations critiques :
 
 ```markdown
 > [!TIP]
@@ -94,45 +198,11 @@ Utilise ces callouts pour marquer chaque section/étape du plan :
 > **📝 NOTE** — [Précision, contexte additionnel, ou suggestion d'amélioration]
 
 > [!IMPORTANT]
-> **🔧 CORRIGÉ** — [Description de ce qui a été modifié dans le plan]
+> **🔧 CORRIGÉ** — [Description de ce qui a été modifié par rapport au plan préliminaire du Scout]
 > **Raison** : [Pourquoi ce changement était nécessaire]
 ```
 
-### Ajouts au Plan
-
-En plus des annotations, ajoute une section finale au rapport :
-
-```markdown
----
-
-## 🧠 Review du Plan (Refine)
-
-### Verdict Global
-[✅ PLAN APPROUVÉ / ⚠️ PLAN APPROUVÉ AVEC RÉSERVES / 🛑 PLAN À REVOIR]
-
-### Modifications Apportées
-| # | Section | Modification | Raison |
-|---|---------|-------------|--------|
-| 1 | [Section] | [Ce qui a changé] | [Pourquoi] |
-
-### Points de Vigilance pour l'Implémentation
-1. [Point critique à ne pas oublier pendant le /build]
-2. [Piège à éviter]
-3. ...
-
-### Checklist Pré-Implémentation
-- [ ] [Condition à vérifier avant de commencer]
-- [ ] [Outil/dépendance à installer]
-- [ ] [Backup/branche à créer]
-
-### Questions Résolues
-[Questions ouvertes du Scout qui ont été résolues pendant le Refine]
-
-### Questions Toujours Ouvertes
-[Questions qui n'ont pas pu être résolues — l'agent /build devra les traiter ou les remonter]
-```
-
-## 5. 🛑 Arrêt
+## 6. 🛑 Arrêt
 
 1. Présente un résumé concis du verdict et des modifications clés à l'utilisateur.
 2. Si le plan est `🛑 PLAN À REVOIR`, explique clairement pourquoi et ce qui doit changer.

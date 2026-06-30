@@ -4,15 +4,17 @@ Cursor Memory Bank est un système de gestion de projet autonome et structuré p
 
 # Installation
 
-**Linux / macOS :**
+Par défaut, l'installation est uniquement **globale**. Pour installer également les règles et configurations **locales** dans votre dépôt courant, ajoutez l'option `--local` (ou `-l`).
+
+**Linux / macOS (Installation locale) :**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --local
 ```
 
-**Windows (PowerShell) :**
+**Windows (PowerShell - Installation locale) :**
 ```powershell
 # Nécessite Git Bash (inclus avec Git for Windows)
-& 'C:\Program Files\Git\bin\bash.exe' -c "curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash"
+& 'C:\Program Files\Git\bin\bash.exe' -c "curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --local"
 ```
 
 
@@ -40,7 +42,7 @@ Le projet se concentre actuellement sur :
 
 | Métrique | Valeur | État |
 |----------|--------|------|
-| Statut du projet | Opérationnel (v1.0.1) | ✅ stable |
+| Statut du projet | Opérationnel (v1.0.2) | ✅ stable |
 | Automatisation Roadmap | 100% via README.md | ✅ actif |
 | Commandes Slash | Supprimées (Transition README) | 🗑️ fait |
 | Support Multi-OS | Linux / macOS / Windows (via WSL) | ✅ supporté |
@@ -77,7 +79,7 @@ root/
 
 | Script / Commande | Description détaillée | Usage / Exemple |
 |-------------------|-----------------------|-----------------|
-| `install.sh` | **Installateur Universel**. Clone le repo (si nécessaire), convertit les règles `.md` en `.mdc`, configure l'environnement `.cursor`, et déploie les workflows globaux Windows (monitor) dans les répertoires d'antigravity et de config globale (`.gemini/config/global_workflows`). | `bash install.sh` |
+| `install.sh` | **Installateur Universel**. Par défaut, effectue uniquement l'installation **globale** (workflows globaux Windows dans `.gemini/config/global_workflows`, outil de monitoring global dans le dossier `bin` d'antigravity, et `GEMINI.md` dans `.gemini/`). Si le flag `--local` (ou `-l`) est fourni, effectue également l'installation **locale** dans le dépôt (conversion des règles `.md` en `.mdc` dans `.cursor/rules`, configuration d'agent `.agent/rules` et `.agent/workflows`, et configuration du `.gitignore`). | `bash install.sh --local` ou `bash install.sh -l` |
 | `monitor` | **Superviseur de Boucle pour cluster-run**. Commande globale Windows lancée dans un projet pour exécuter en arrière-plan la commande `cluster-run`, envoyer périodiquement ses logs à l'agent en mode non-interactif pour vérification, et réveiller l'agent en cas d'erreur de crash pour correction automatique du code source. Permet également le réveil manuel de l'agent à tout moment via la touche `Entrée` avec possibilité de fournir un message personnalisé. L'agent dispose de l'historique complet des actions via `.monitor.log` et peut déclencher de lui-même le redémarrage de la commande s'il estime qu'une erreur critique nécessite le rechargement de la pipeline via le mot clé `RESTART CLUSTER RUN`. | `monitor` (depuis un projet avec cluster-run) |
 
 ### Commandes Agent (Virtuelles)
