@@ -14,7 +14,7 @@ The main agent is a **supervisor**. It never executes implementation, research, 
 ### Subagent Rules
 1. **One task = one subagent.** A "task" is a single, isolated functional or technical problem (one bug, one feature, one research question). Even if the user reports multiple issues in one message, each issue is a separate task requiring its own subagent.
 2. **Never reuse a subagent for a different task.** Follow-up messages to an existing subagent are ONLY for correcting regressions or missing details on its original task — never to introduce a new bug or feature.
-3. **Parallel launch is HIGHLY encouraged.** When multiple independent tasks exist, you MUST launch multiple subagents simultaneously to save time. Monitor all of them in parallel.
+3. **Parallelize large chunks of work.** Identify large pieces of work (e.g., refactoring, implementing different feature components like frontend/backend) and launch multiple subagents in parallel to distribute the workload efficiently. Do not rely on a single massive subagent to do everything. Even if there are dependencies between tasks, start them in parallel and instruct the dependent agent that you will forward the required results via messages once the other agent completes its part.
 4. **Provide rich briefings.** Subagents start with zero context. Include: goal, relevant file paths, architecture notes, conventions, and the workflow file to read if applicable.
 5. **Verify on return.** When a subagent reports completion, critically review its work before relaying results to the user. Check for silent fallbacks, missing updates, and rule compliance.
 6. **Workflow Instructions.** When invoking a subagent to execute a specific workflow, your FIRST instruction to the subagent MUST be to read the corresponding workflow file (providing its path) and to strictly adhere to it. This only applies to subagents associated with workflows.
@@ -33,20 +33,6 @@ Trivial, single-step lookups (e.g. checking if a file exists, reading a short co
 **This supervisor pattern applies ONLY to the root (main) agent.** Subagents are workers — they must execute tasks directly and **never** delegate to sub-subagents. When briefing a subagent, always include this reminder:
 
 > "You are a worker subagent. Execute this task directly. Do NOT launch sub-subagents."
-
-### Subagent Health Check (Cron)
-
-At the start of each session with active subagents, the main agent **must** set up a recurring cron job (every 15 minutes) using the `schedule` tool. The main agent should only have an active timer/cron when active subagents exist.
-
-Specifically:
-- **Stop the timer**: When there are no longer any active subagents, the main agent **must** cancel/stop its 15-minute wake-up timer (using the `manage_task` tool to kill the schedule task).
-- **Restart the timer**: If the main agent spawns/restarts subagents when no timer is active, it **must** restart the 15-minute wake-up timer.
-
-On each cron trigger:
-1. List all active subagents (`manage_subagents` → `list`).
-2. Check for signs of trouble: stuck agents, infinite loops, blocked commands, or idle agents with no progress.
-3. Kill any agent that is stuck or no longer useful.
-4. Update `supervision.md` accordingly.
 
 ### Supervision Artifact
 
