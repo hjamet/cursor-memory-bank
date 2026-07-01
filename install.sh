@@ -223,6 +223,9 @@ cleanup() {
     if [[ -d "$TEMP_DIR" ]]; then
         rm -rf "$TEMP_DIR"
     fi
+    if [[ -n "${INSTALL_DIR:-}" && -f "$INSTALL_DIR/.write_test" ]]; then
+        rm -f "$INSTALL_DIR/.write_test"
+    fi
     if [[ $exit_code -ne 0 ]]; then
         error "Installation failed with exit code $exit_code"
     fi
@@ -1113,11 +1116,13 @@ if [[ ! -d "$INSTALL_DIR" ]]; then
     error "Installation directory does not exist: $INSTALL_DIR\nPlease create the directory first or specify a different directory with --dir"
 fi
 
-# Check if we have write permissions in the installation directory
-if ! touch "$INSTALL_DIR/.write_test" 2>/dev/null; then
-    error "No write permission in installation directory: $INSTALL_DIR\nPlease check directory permissions"
+# Check if we have write permissions in the installation directory if installing locally
+if [[ -n "${INSTALL_LOCAL:-}" ]]; then
+    if ! touch "$INSTALL_DIR/.write_test" 2>/dev/null; then
+        error "No write permission in installation directory: $INSTALL_DIR\nPlease check directory permissions"
+    fi
+    rm -f "$INSTALL_DIR/.write_test"
 fi
-rm -f "$INSTALL_DIR/.write_test"
 
 # Single-mode installation
 install_basic_rules "$INSTALL_DIR" "$TEMP_DIR"

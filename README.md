@@ -4,18 +4,24 @@ Cursor Memory Bank est un système de gestion de projet autonome et structuré p
 
 # Installation
 
-Par défaut, l'installation est uniquement **globale**. Pour installer également les règles et configurations **locales** dans votre dépôt courant, ajoutez l'option `--local` (ou `-l`).
+Par défaut, l'installation est uniquement **globale** (elle déploie les workflows globaux dans votre profil utilisateur).
 
-**Linux / macOS (Installation locale) :**
+**Linux / macOS :**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --local
+curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash
 ```
 
-**Windows (PowerShell - Installation locale) :**
+**Windows (PowerShell) :**
 ```powershell
 # Nécessite Git Bash (inclus avec Git for Windows)
-& 'C:\Program Files\Git\bin\bash.exe' -c "curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --local"
+& 'C:\Program Files\Git\bin\bash.exe' -c "curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash"
 ```
+
+> [!NOTE]
+> **Installation locale facultative :**
+> Pour installer également les règles et configurations **locales** (les dossiers `.cursor/rules/`, `.agent/` et le `.gitignore` local) dans votre dépôt courant, ajoutez l'option `--local` (ou `-l`) :
+> - **Linux / macOS** : `curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --local`
+> - **Windows** : `& 'C:\Program Files\Git\bin\bash.exe' -c "curl -fsSL https://raw.githubusercontent.com/hjamet/cursor-memory-bank/master/install.sh | bash -s -- --local"`
 
 
 # Description détaillée
