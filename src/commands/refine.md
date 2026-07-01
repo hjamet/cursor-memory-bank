@@ -143,13 +143,18 @@ Pour chaque risque identifié, vérifie :
 [Résumé du problème/besoin, renvoyant vers exploration_report.md pour les détails]
 *(Si mode multi-agents activé)* : [Mentionner explicitement que le plan est le résultat d'une synthèse de N revues redondantes]
 
-## Changements Proposés
+## Changements Proposés (Découpés par Chantiers)
 
-### [MODIFY] `chemin/fichier.ext`
+> [!IMPORTANT]
+> **RÈGLE DE DÉCOUPAGE** : S'il y a plusieurs gros éléments d'implémentation distincts, tu DOIS impérativement structurer le plan en **Chantiers numérotés** (ex: Chantier 1, Chantier 2). Cela permettra à l'agent Build de lancer automatiquement un sous-agent par numéro de chantier.
+
+### 🚧 Chantier 1 : [Nom du chantier, ex: Refactoring Base de Données]
+#### [MODIFY] `chemin/fichier_db.ext`
 - **Action** : [Description haut niveau — PAS de code]
 - **Justification** : [Pourquoi ce changement est nécessaire]
 
-### [NEW] `chemin/nouveau_fichier.ext`
+### 🚧 Chantier 2 : [Nom du chantier, ex: Mise à jour de l'API]
+#### [NEW] `chemin/nouveau_fichier_api.ext`
 - **Action** : [...]
 - **Justification** : [...]
 
@@ -157,7 +162,7 @@ Pour chaque risque identifié, vérifie :
 - **Raison** : [...]
 
 ## Dépendances & Ordre d'Exécution
-[Ordre des modifications si important]
+[Ordre des chantiers et dépendances. Précise quelles données devront être transmises par message entre les sous-agents si les chantiers sont lancés en parallèle.]
 
 ## Points de Vigilance pour l'Implémentation
 1. [Point critique à ne pas oublier pendant le /build]
