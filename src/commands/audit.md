@@ -15,16 +15,21 @@ description: Vérificateur critique de l'implémentation. Analyse le walkthrough
 > **🎯 FOCUS SUR LA QUALITÉ.** Erreurs silencieuses, fallbacks cachés, logs manquants, incohérences — rien ne doit t'échapper.
 > **✅ CORRECTIONS TRIVIALES AUTORISÉES.** Si tu trouves un problème simple et évident, corrige-le immédiatement. Si c'est complexe, documente-le.
 
-## 1. 📖 Lecture des Livrables et Lancement (Mode Multi-Agents)
+## 1. 📖 Lecture des Livrables et Lancement (Chantiers & Multi-Agents)
 
 1. Lis l'artefact `walkthrough.md` produit par le Build.
 2. Lis l'artefact `implementation_plan.md` produit par le Refine (pour le contexte et les points de vigilance).
 3. Note les **points d'attention** signalés par le Build.
 
-**🤖 Mode Multi-Agents (`/audit N`) :**
-Si l'utilisateur a lancé la commande avec un suffixe numérique `N` (ex: `/audit 3`), tu dois lancer `N` sous-agents (de type `self`, des workers standards) pour mener l'audit en parallèle (limité à `N=5` maximum).
-- **Exécution Redondante :** Tu dois attribuer à chaque sous-agent exactement la même mission d'audit. **CRITIQUE : CHAQUE sous-agent doit réaliser l'INTÉGRALITÉ de la vérification de façon indépendante**. Ils ne doivent surtout pas se répartir le travail. Varie simplement la formulation de ton prompt pour chaque sous-agent afin de solliciter l'IA de manières légèrement différentes et d'obtenir des audits variés sur le même code.
-- **Consolidation :** Une fois que les sous-agents ont terminé leurs audits complets respectifs, c'est **toi (l'agent principal Audit)** qui consolides ces audits intégraux et sélectionnes les meilleurs retours de chacun pour produire la restitution finale dans le chat.
+> [!IMPORTANT]
+> **⚡ PARALLÉLISATION OBLIGATOIRE PAR CHANTIER** :
+> Si le `walkthrough.md` fait apparaître que l'implémentation a été découpée en plusieurs sections / chantiers / étapes distincts, tu **DOIS AUTOMATIQUEMENT** lancer un sous-agent par section pour auditer chaque partie en parallèle.
+> De plus, si ces sections sont connectées ou interdépendantes, tu dois **explicitement** instruire chaque sous-agent de vérifier **aussi** la connexion et la bonne intégration entre sa section et les autres. Il est normal et souhaité que chaque sous-agent effectue cette vérification d'intégration (redondance positive). Toi, l'agent principal, tu coordonnes et consolides leurs retours.
+
+**🤖 Mode Multi-Agents Redondant (`/audit N`) :**
+Si l'utilisateur a lancé la commande avec un suffixe numérique `N` (ex: `/audit 3`) au lieu d'un simple `/audit`, tu lances `N` sous-agents (de type `self`) pour mener l'audit en parallèle.
+- **Exécution Redondante :** CHAQUE sous-agent doit réaliser l'INTÉGRALITÉ de la vérification globale. Varie la formulation de ton prompt pour obtenir des audits variés.
+- **Consolidation :** Une fois terminés, tu consolides ces audits pour produire la restitution finale.
 
 ## 2. 🔍 Audit du Code
 
