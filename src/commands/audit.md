@@ -1,6 +1,6 @@
 ---
 alwaysApply: false
-description: Vérificateur critique de l'implémentation. Analyse le walkthrough et le code produit par le Build, traque les erreurs silencieuses, présente ses résultats directement dans le chat. Peut corriger les problèmes triviaux.
+description: Vérificateur critique de l'implémentation. Compare le transcript du Build et le walkthrough avec le plan d'implémentation, traque les écarts et erreurs silencieuses, présente ses résultats directement dans le chat. Peut corriger les problèmes triviaux.
 ---
 
 # Audit Workflow
@@ -9,17 +9,18 @@ description: Vérificateur critique de l'implémentation. Analyse le walkthrough
 - Si `N` est fourni (maximum 5), le mode multi-agents est activé (voir Section 1).
 - Si omis, exécution standard à un seul agent.
 
-**Objectif** : Vérifier la qualité de l'implémentation produite par le Build, traquer les erreurs silencieuses et les problèmes potentiels, présenter ses conclusions directement dans le chat, et optionnellement exécuter/superviser le code si l'utilisateur le demande.
+**Objectif** : Vérifier la qualité de l'implémentation en **comparant le transcript du Build et le walkthrough avec le plan d'implémentation**, traquer les écarts, erreurs silencieuses et problèmes potentiels, présenter ses conclusions directement dans le chat, et optionnellement exécuter/superviser le code si l'utilisateur le demande.
 
-> **🔎 TU ES UN AUDITEUR CRITIQUE.** Tu inspectes le travail du Build avec un regard impitoyable mais juste.
-> **🎯 FOCUS SUR LA QUALITÉ.** Erreurs silencieuses, fallbacks cachés, logs manquants, incohérences — rien ne doit t'échapper.
+> **🔎 TU ES UN AUDITEUR CRITIQUE.** Tu compares ce qui a été fait (transcript + walkthrough) avec ce qui était prévu (plan). Regard impitoyable mais juste.
+> **🎯 FOCUS SUR LES ÉCARTS.** Étapes manquantes, déviations injustifiées, erreurs silencieuses dans le transcript — rien ne doit t'échapper.
 > **✅ CORRECTIONS TRIVIALES AUTORISÉES.** Si tu trouves un problème simple et évident, corrige-le immédiatement. Si c'est complexe, documente-le.
 
 ## 1. 📖 Lecture des Livrables et Lancement (Chantiers & Multi-Agents)
 
 1. Lis l'artefact `walkthrough.md` produit par le Build.
-2. Lis l'artefact `implementation_plan.md` produit par le Refine (pour le contexte et les points de vigilance).
-3. Note les **points d'attention** signalés par le Build.
+2. Lis l'artefact `implementation_plan.md` (ou `exploration_report.md`) produit par le Refine/Scout (pour le contexte et les points de vigilance).
+3. Lis le **transcript** de la conversation du Build (via `view_file` sur les fichiers de logs du transcript dans `<appDataDir>/brain/<build-conversation-id>/.system_generated/logs/transcript.jsonl`). C'est ta **source de vérité primaire** sur ce qui s'est réellement passé.
+4. Note les **points d'attention** signalés par le Build.
 
 > [!IMPORTANT]
 > **⚡ PARALLÉLISATION OBLIGATOIRE PAR CHANTIER** :
@@ -31,38 +32,55 @@ Si l'utilisateur a lancé la commande avec un suffixe numérique `N` (ex: `/audi
 - **Exécution Redondante :** CHAQUE sous-agent doit réaliser l'INTÉGRALITÉ de la vérification globale. Varie la formulation de ton prompt pour obtenir des audits variés.
 - **Consolidation :** Une fois terminés, tu consolides ces audits pour produire la restitution finale.
 
-## 2. 🔍 Audit du Code
+## 2. 🔍 Audit par Comparaison (Transcript vs Plan)
 
-### 2.1 Vérification par Rapport au Plan
+> [!CAUTION]
+> **🚫 INTERDICTION DE LECTURE EXHAUSTIVE DU CODE.**
+> L'audit est basé sur la **comparaison du transcript du Build** et du **walkthrough** avec le **plan d'implémentation**.
+> La consultation du code source n'est autorisée **QUE** pour confirmer un problème spécifique identifié lors de cette comparaison.
+> **Ne lis JAMAIS le code « juste pour le relire ».** Le code n'est PAS le point de départ — le transcript et le plan le sont.
 
-Pour chaque étape du plan d'implémentation :
-- [ ] L'étape a-t-elle été implémentée comme prévu ?
-- [ ] Les points de vigilance du Refine ont-ils été adressés ?
-- [ ] Les déviations du plan sont-elles justifiées ?
+### 2.1 Vérification par Rapport au Plan (via Transcript & Walkthrough)
 
-### 2.2 Traque des Erreurs Silencieuses
+Pour chaque étape du plan d'implémentation, vérifie **dans le transcript et le walkthrough** (PAS dans le code) :
+- [ ] L'étape est-elle **mentionnée** dans le walkthrough et/ou visible dans le transcript ?
+- [ ] Le transcript montre-t-il que l'étape a été **réellement exécutée** (éditions de fichiers, commandes lancées) ?
+- [ ] Les points de vigilance du Refine ont-ils été **explicitement adressés** dans le transcript ?
+- [ ] Les déviations du plan sont-elles **justifiées** dans le walkthrough ?
+- [ ] Y a-t-il des étapes du plan qui n'apparaissent **nulle part** dans le transcript ni le walkthrough (travail manquant) ?
+
+### 2.2 Traque des Erreurs Silencieuses (dans le Transcript)
 
 > [!CAUTION]
 > **🛡️ C'EST TA MISSION PRINCIPALE.**
-> Le Refine a identifié les risques théoriques. Toi, tu vérifies dans le code RÉEL que ces risques ont été traités.
+> Le Refine a identifié les risques théoriques. Toi, tu vérifies **dans le transcript** que ces risques ont été traités.
+> **Ne scanne PAS le code directement.** Cherche les indices dans le transcript et le walkthrough.
 
-Inspecte systématiquement le code modifié pour détecter :
+Analyse le transcript du Build pour détecter ces **patterns suspects** :
 
-| Type de problème | Ce que tu cherches | Gravité |
+| Type de problème | Ce que tu cherches dans le transcript/walkthrough | Gravité |
 |-----------------|-------------------|---------|
-| **Fallback silencieux** | `try/except: pass`, `catch {}`, valeurs par défaut sans log | 🔴 Critique |
-| **Exception avalée** | Erreur capturée mais non loguée ni remontée | 🔴 Critique |
-| **Log manquant** | Opération critique sans aucun feedback | 🟡 Important |
-| **Condition non vérifiée** | Hypothèse sur un état sans assertion ni validation | 🟡 Important |
-| **Valeur magique** | Constante en dur sans explication ni nom descriptif | 🟠 Mineur |
-| **Code mort** | Code inatteignable ou commenté sans explication | 🟠 Mineur |
-| **Incohérence de nommage** | Conventions non respectées | 🟠 Mineur |
+| **Erreur ignorée** | Commande qui a échoué dans le transcript mais le Build a continué sans en parler | 🔴 Critique |
+| **Étape sautée** | Étape du plan absente du transcript et du walkthrough | 🔴 Critique |
+| **Description vague** | Walkthrough qui dit « ajusté », « corrigé », « amélioré » sans préciser quoi | 🟡 Important |
+| **Validation manquante** | Aucune trace de test, vérification ou exécution après une modification critique | 🟡 Important |
+| **Fallback silencieux** | Le transcript montre une approche abandonnée sans explication | 🟡 Important |
+| **Affirmation invérifiable** | Le walkthrough affirme un résultat sans preuve dans le transcript | 🟠 Mineur |
+| **Incohérence interne** | Le walkthrough contredit ce que le transcript montre | 🔴 Critique |
 
-### 2.3 Analyse de la Cohérence
+> [!TIP]
+> **Vérification ciblée dans le code** : Si tu identifies un pattern suspect ci-dessus, tu PEUX alors consulter le code source concerné pour **confirmer ou infirmer** le problème. Documente pourquoi tu as consulté le code.
 
-- Le code s'intègre-t-il bien avec le reste du codebase ?
-- Les interfaces (fonctions, API, types) sont-elles cohérentes ?
-- Les patterns utilisés sont-ils alignés avec les conventions du projet ?
+### 2.3 Analyse de la Cohérence (depuis le Walkthrough)
+
+Évalue la cohérence **à partir du walkthrough et du transcript** :
+- Le walkthrough décrit-il une intégration cohérente avec le reste du codebase ?
+- Les interfaces (fonctions, API, types) mentionnées sont-elles cohérentes entre elles ?
+- Le transcript montre-t-il des erreurs d'intégration (imports cassés, tests en échec) ?
+- Les patterns décrits dans le walkthrough sont-ils alignés avec les conventions du projet ?
+
+> [!NOTE]
+> Si une incohérence est **suspectée** d'après le walkthrough ou le transcript, consulte le code source concerné pour confirmer. Ne lis pas le code par défaut.
 
 ### 2.4 Vérification des Résultats (si applicable)
 
@@ -104,7 +122,7 @@ Si un problème est trop complexe pour un fix immédiat :
 
 > [!NOTE]
 > **Cette étape est OPTIONNELLE.** Elle n'est exécutée QUE si l'utilisateur demande explicitement d'exécuter le code.
-> Par défaut, l'Audit se limite à une revue statique du code.
+> Par défaut, l'Audit se limite à une comparaison transcript/walkthrough vs plan.
 
 Si l'utilisateur demande d'exécuter le code :
 
