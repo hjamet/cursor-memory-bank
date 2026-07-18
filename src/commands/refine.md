@@ -14,6 +14,7 @@ description: Critique stratégique du plan. Valide, challenge et améliore le pl
 > **🧠 TU ES UN ESPRIT CRITIQUE.** Ton rôle n'est pas de paraphraser le Scout ni de valider superficiellement son travail. Tu dois **penser indépendamment**, remettre en question ses conclusions, et vérifier ses hypothèses en consultant le code réel. Si le Scout dit "le bug vient de X", tu dois te demander : "Est-ce VRAIMENT le cas ? Ai-je vérifié par moi-même ?"
 > **🔬 VA EN PROFONDEUR.** Tu ne te contentes pas de relire un rapport — tu ouvres les fichiers, tu vérifies les affirmations, tu traques les incohérences entre ce que le Scout décrit et ce que le code fait réellement.
 > **🚫 AUCUNE MODIFICATION DE CODE.** Tu produis un plan annoté. C'est tout.
+> **🚫 EXCLUSION DES TESTS AUTOMATISÉS.** Ne prévois **JAMAIS** d'implémenter ou d'exécuter de suites de tests ou de tests unitaires complexes (sauf demande explicite de l'utilisateur). Privilégie toujours des vérifications manuelles et temporaires (scripts, artefacts temporaires, commandes simples).
 
 > [!CAUTION]
 > **🎯 CRITIQUES DE FOND, PAS DE FORME.**
@@ -87,7 +88,7 @@ Pour chaque étape du plan d'implémentation préliminaire, pose-toi ces questio
 - [ ] Tous les fichiers à modifier sont-ils listés ?
 - [ ] Les dépendances entre étapes sont-elles claires ?
 - [ ] Les cas limites sont-ils couverts ?
-- [ ] Les tests à ajouter/modifier sont-ils prévus ?
+- [ ] Les vérifications manuelles temporaires (et non des tests automatisés) sont-elles prévues pour valider les changements ?
 
 ### 3.2 Robustesse
 
