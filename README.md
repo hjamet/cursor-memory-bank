@@ -67,6 +67,7 @@ root/
 ├─ .cursor/              # Configuration Cursor (Règles MDC installées)
 ├─ src/                  # Code source
 │  ├─ rules/            # Définitions des règles (Sources .md)
+│  ├─ skills/           # Skills et compétences réutilisables (.md / SKILL.md)
 │  └─ commands/         # Workflows & commandes (.md)
 │     ├─ scout.md       # 🔭 Exploration & plan préliminaire
 │     ├─ refine.md      # 🧠 Validation critique du plan
@@ -78,6 +79,7 @@ root/
 
 ### Rôles des dossiers
 - **`src/rules/`** : Contient les règles sources en format Markdown standard (`.md`).
+- **`src/skills/`** : Contient les compétences et guides méthodologiques réutilisables (`scientific-writing`, etc.).
 - **`.cursor/rules/`** : Destination des règles installées (converties en `.mdc` pour Cursor).
 - **`src/commands/`** : Définit les workflows spécifiques (Architecte, Enquêteur...).
 
