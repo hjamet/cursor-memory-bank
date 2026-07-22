@@ -814,14 +814,132 @@ install_global_workflows() {
     fi
 }
 
+install_skills() {
+    local target_dir="$1"
+    local temp_dir="$2"
+    
+    log "Installing Antigravity skills..."
+    
+    # 1. Détection du dossier source des compétences (skills)
+    local skills_src=""
+    # Si exécuté depuis un clone local (chemin relatif au script)
+    local script_dir
+    script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+    if [[ -d "$script_dir/src/skills" ]]; then
+        skills_src="$script_dir/src/skills"
+    elif [[ -d "$temp_dir/repo/src/skills" ]]; then
+        skills_src="$temp_dir/repo/src/skills"
+    fi
+
+    if [[ -z "$skills_src" || ! -d "$skills_src" ]]; then
+        warn "Source directory for skills (src/skills) not found. Skipping skills installation."
+        return 0
+    fi
+
+    # 2. Détermination du dossier global de destination des compétences
+    local is_msys=false
+    if command -v uname >/dev/null 2>&1; then
+        if [[ "$(uname -o 2>/dev/null)" == "Msys" || "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
+            is_msys=true
+        fi
+    fi
+
+    local win_home=""
+    local user_name=""
+    if [[ "$is_msys" == "true" ]]; then
+        win_home="$HOME"
+    else
+        if command -v cmd.exe >/dev/null 2>&1; then
+            user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
+        fi
+        
+        if [[ -z "$user_name" ]]; then
+            user_name=$(whoami)
+        fi
+
+        if command -v wslpath >/dev/null 2>&1; then
+            win_home="/mnt/c/Users/$user_name"
+            if [[ ! -d "$win_home" ]]; then
+                win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
+            fi
+        fi
+    fi
+
+    local global_skills_dir=""
+    if [[ -n "$win_home" ]]; then
+        global_skills_dir="$win_home/.gemini/antigravity-cli/skills"
+    fi
+
+    if [[ -z "$global_skills_dir" ]] && [[ -n "${HOME:-}" ]]; then
+        global_skills_dir="$HOME/.gemini/antigravity-cli/skills"
+    fi
+
+    if [[ -n "$global_skills_dir" ]]; then
+        log "Installing global skills to: $global_skills_dir"
+        mkdir -p "$global_skills_dir"
+        
+        # Copier chaque compétence de src/skills vers global_skills_dir
+        for skill_dir in "$skills_src"/*; do
+            if [[ -d "$skill_dir" ]]; then
+                local skill_name
+                skill_name=$(basename "$skill_dir")
+                log "Copying global skill: $skill_name -> $global_skills_dir/$skill_name"
+                mkdir -p "$global_skills_dir/$skill_name"
+                cp -R "$skill_dir"/. "$global_skills_dir/$skill_name/"
+            fi
+        done
+        log "✓ Global skills installed successfully"
+    else
+        warn "Could not detect global skills directory. Skipping global skills installation."
+    fi
+
+    # 3. Installation locale si un répertoire cible valide est fourni (projet)
+    # Exclure le répertoire personnel ou la racine système pour éviter de polluer
+    if [[ -n "$target_dir" && "$target_dir" != "/" && "$target_dir" != "$HOME" ]]; then
+        local local_dest_modern="$target_dir/.agents/skills"
+        local local_dest_legacy="$target_dir/.agent/skills"
+        
+        log "Installing project-specific skills to: $local_dest_modern and $local_dest_legacy"
+        mkdir -p "$local_dest_modern"
+        mkdir -p "$local_dest_legacy"
+
+        for skill_dir in "$skills_src"/*; do
+            if [[ -d "$skill_dir" ]]; then
+                local skill_name
+                skill_name=$(basename "$skill_dir")
+                log "Copying local skill: $skill_name"
+                
+                # Modern local dest
+                mkdir -p "$local_dest_modern/$skill_name"
+                cp -R "$skill_dir"/. "$local_dest_modern/$skill_name/"
+                
+                # Legacy local dest
+                mkdir -p "$local_dest_legacy/$skill_name"
+                cp -R "$skill_dir"/. "$local_dest_legacy/$skill_name/"
+            fi
+        done
+        log "✓ Local skills installed successfully"
+    fi
+}
+
 install_monitor_command() {
     local target_dir="$1"
     local bin_dir=""
     
-    # Try to locate agy.exe on Windows path to use its bin folder
+    # Try to locate agy on PATH
     local agy_path=""
     if command -v where.exe >/dev/null 2>&1; then
-        agy_path=$(where.exe agy 2>/dev/null | head -n 1 | tr -d '\r')
+        agy_path=$(where.exe agy 2>/dev/null | head -n 1 | tr -d '\r' || echo "")
+    elif command -v which >/dev/null 2>&1; then
+        agy_path=$(which agy 2>/dev/null | head -n 1 || echo "")
+    elif command -v agy >/dev/null 2>&1; then
+        agy_path=$(command -v agy 2>/dev/null | head -n 1 || echo "")
+    elif [[ -f "$HOME/.local/bin/agy" ]]; then
+        agy_path="$HOME/.local/bin/agy"
+    elif [[ -f "/usr/local/bin/agy" ]]; then
+        agy_path="/usr/local/bin/agy"
+    elif [[ -f "/usr/bin/agy" ]]; then
+        agy_path="/usr/bin/agy"
     fi
 
     if [[ -n "$agy_path" ]]; then
@@ -835,7 +953,7 @@ install_monitor_command() {
             unix_agy_path=$(echo "$agy_path" | tr '\\' '/')
         fi
         bin_dir=$(dirname "$unix_agy_path")
-        log "Detected agy.exe at $agy_path, using target bin directory: $bin_dir"
+        log "Detected agy at $agy_path, using target bin directory: $bin_dir"
     fi
 
     if [[ -z "$bin_dir" ]]; then
@@ -872,7 +990,11 @@ install_monitor_command() {
         fi
 
         if [[ -n "$win_home" ]]; then
-            bin_dir="$win_home/.gemini/antigravity/bin"
+            if [[ -d "$win_home/.gemini/antigravity-cli/bin" ]]; then
+                bin_dir="$win_home/.gemini/antigravity-cli/bin"
+            else
+                bin_dir="$win_home/.gemini/antigravity/bin"
+            fi
         fi
     fi
 
@@ -912,10 +1034,23 @@ if %ERRORLEVEL% NEQ 0 (
 EOF
     log "✓ Created global command wrapper: $bin_dir/monitor.bat"
 
-    # Create monitor shell script for Git Bash / WSL
+    # Detect proper power shell command and file path for Linux vs WSL/Windows
+    local ps_cmd="powershell.exe"
+    local ps_path="$ps1_path"
+    if ! command -v powershell.exe >/dev/null 2>&1; then
+        if command -v pwsh >/dev/null 2>&1; then
+            ps_cmd="pwsh"
+            ps_path="$bin_dir/monitor.ps1"
+        elif command -v powershell >/dev/null 2>&1; then
+            ps_cmd="powershell"
+            ps_path="$bin_dir/monitor.ps1"
+        fi
+    fi
+
+    # Create monitor shell script for Git Bash / WSL / Linux
     cat > "$bin_dir/monitor" <<EOF
 #!/bin/bash
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$ps1_path" "\$@"
+$ps_cmd -NoProfile -ExecutionPolicy Bypass -File "$ps_path" "\$@"
 EOF
     chmod +x "$bin_dir/monitor"
     log "✓ Created global command wrapper: $bin_dir/monitor"
@@ -1009,6 +1144,9 @@ install_basic_rules() {
 
     log "Installing global workflows..."
     install_global_workflows "$target_dir" "$temp_dir" "$GLOBAL_WORKFLOWS_DIR"
+
+    log "Installing Antigravity skills..."
+    install_skills "$target_dir" "$temp_dir"
 
     log "Installing monitor command..."
     install_monitor_command "$target_dir"
