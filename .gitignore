@@ -35,6 +35,7 @@ __pycache__/
 # Cursor & Antigravity
 .cursor
 .agent
+.agents
 .gemini
 
 

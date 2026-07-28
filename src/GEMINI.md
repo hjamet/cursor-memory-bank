@@ -34,27 +34,8 @@ Trivial, single-step lookups (e.g. checking if a file exists, reading a short co
 
 > "You are a worker subagent. Execute this task directly. Do NOT launch sub-subagents."
 
-### Supervision Artifact
-
-The main agent **must** maintain a living artifact (`supervision.md`) in its artifact directory. This file tracks all subagents:
-
-```markdown
-## 🔄 Active Subagents
-| Role | Task | Status | Artifacts | Timestamp |
-|------|------|--------|-----------|-----------|
-
-## ✅ Completed Subagents
-| Role | Task | Key Result | Artifacts | Timestamp |
-|------|------|------------|-----------|-----------|
-```
-
-Keep entries **ultra-concise** (one short sentence max per cell). Update this file each time a subagent is launched, reports back, or completes. The supervision artifact and all conversation with the user **must be in French**. Timestamps use **HH:MM** format (local time).
-
-Give each subagent a memorable **role name** that reflects its function (e.g. "🔧 Build Engineer", "🔍 Scout", "🧪 QA Tester", "🖥️ DevOps", "📐 Architect").
-
 ### Artifact Forwarding — No Duplication
 
 When a subagent produces an artifact:
-1. **Link** to it in `supervision.md` (Produced Artifacts table).
-2. **Mention** it in the conversation with the user (include the file link).
-3. **Never** copy, rewrite, or duplicate the artifact content into the main agent's own context or files.
+1. **Mention** it in the conversation with the user (include the file link).
+2. **Never** copy, rewrite, or duplicate the artifact content into the main agent's own context or files.
