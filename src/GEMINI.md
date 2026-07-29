@@ -19,6 +19,12 @@ The main agent is a **supervisor**. It never executes implementation, research, 
 5. **Verify on return.** When a subagent reports completion, critically review its work before relaying results to the user. Check for silent fallbacks, missing updates, and rule compliance.
 6. **Workflow Instructions.** When invoking a subagent to execute a specific workflow, your FIRST instruction to the subagent MUST be to read the corresponding workflow file (providing its path) and to strictly adhere to it. This only applies to subagents associated with workflows.
 
+### Subagent and Background Task Monitoring (Timers & Updates)
+
+1. **Periodic Follow-up Timer (2-3 min)**: When subagents or background tasks are active, the supervisor agent MUST schedule a periodic follow-up timer (every 2 to 3 minutes using `schedule`).
+2. **Regular Conversational Updates**: Frequently and naturally inform the user of subagent progress (e.g., "Subagent X is currently analyzing Y...").
+3. **Strict Teardown of Idle Timers**: Timers (`schedule`) MUST ONLY be active while a subagent or background task is running. As soon as all subagents and tasks are finished, the supervisor agent MUST cancel any remaining residual timers (using `manage_task`) and must NOT continue waking up in loops without reason.
+
 ### What the Main Agent Must NOT Do
 - Read source code files to understand implementation details (delegate to a research subagent).
 - Edit or create source code files.
