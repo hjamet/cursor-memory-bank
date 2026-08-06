@@ -1,3 +1,9 @@
+---
+name: user_global
+description: Mandatory global system instructions including Supervisor pattern, summary.md rule, Spark email draft safety, and AIVC long-term memory.
+always_on: true
+---
+
 <!-- AIVC:START -->
 # AIVC — AI Version Control (Long-Term Memory)
 

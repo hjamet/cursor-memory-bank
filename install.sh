@@ -1075,6 +1075,93 @@ install_gemini_md() {
     fi
 }
 
+install_user_global_md() {
+    local target_dir="$1"
+    local temp_dir="$2"
+    local dest_dirs=()
+
+    local is_msys=false
+    if command -v uname >/dev/null 2>&1; then
+        if [[ "$(uname -o 2>/dev/null)" == "Msys" || "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
+            is_msys=true
+        fi
+    fi
+
+    local win_home=""
+    if [[ "$is_msys" == "true" ]]; then
+        win_home="$HOME"
+    else
+        local user_name=""
+        if command -v cmd.exe >/dev/null 2>&1; then
+            user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
+        fi
+        if [[ -z "$user_name" ]]; then
+            user_name=$(whoami)
+        fi
+
+        if command -v wslpath >/dev/null 2>&1; then
+            win_home="/mnt/c/Users/$user_name"
+            if [[ ! -d "$win_home" ]]; then
+                win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
+            fi
+        fi
+    fi
+
+    if [[ -z "$win_home" ]] && [[ -n "${HOME:-}" ]]; then
+        win_home="$HOME"
+    fi
+
+    if [[ -n "$win_home" ]]; then
+        dest_dirs+=("$win_home/.gemini/config/rules")
+    fi
+    if [[ ${#dest_dirs[@]} -eq 0 ]] && [[ -n "${HOME:-}" ]]; then
+        dest_dirs+=("$HOME/.gemini/config/rules")
+    fi
+
+    local script_dir
+    script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+    local user_global_src=""
+
+    if [[ -f "$script_dir/src/user_global.md" ]]; then
+        user_global_src="$script_dir/src/user_global.md"
+    elif [[ -f "$temp_dir/repo/src/user_global.md" ]]; then
+        user_global_src="$temp_dir/repo/src/user_global.md"
+    fi
+
+    for dir in "${dest_dirs[@]}"; do
+        log "Installing user_global.md to global rules directory: $dir"
+        mkdir -p "$dir"
+        local dest="$dir/user_global.md"
+        if [[ -n "$user_global_src" && -f "$user_global_src" ]]; then
+            cp "$user_global_src" "$dest"
+            log "✓ user_global.md installed globally to $dest"
+        else
+            ensure_rule_file "src/user_global.md" "$dest" "required"
+            log "✓ user_global.md installed globally to $dest (fallback)"
+        fi
+    done
+
+    if [[ -n "${INSTALL_LOCAL:-}" && -n "$target_dir" ]]; then
+        local local_agent_rules="$target_dir/.agent/rules"
+        local local_gemini_rules="$target_dir/.gemini/config/rules"
+
+        log "Installing user_global.md locally to: $local_agent_rules and $local_gemini_rules"
+        mkdir -p "$local_agent_rules"
+        mkdir -p "$local_gemini_rules"
+
+        if [[ -n "$user_global_src" && -f "$user_global_src" ]]; then
+            cp "$user_global_src" "$local_gemini_rules/user_global.md"
+            transform_frontmatter "$user_global_src" "$local_agent_rules/user_global.md" "rule"
+        else
+            ensure_rule_file "src/user_global.md" "$local_gemini_rules/user_global.md" "required"
+            if [[ -f "$local_gemini_rules/user_global.md" ]]; then
+                transform_frontmatter "$local_gemini_rules/user_global.md" "$local_agent_rules/user_global.md" "rule"
+            fi
+        fi
+        log "✓ user_global.md installed locally"
+    fi
+}
+
 install_basic_rules() {
     local target_dir="$1"
     local temp_dir="$2"
@@ -1153,6 +1240,9 @@ install_basic_rules() {
 
     log "Installing GEMINI.md..."
     install_gemini_md "$temp_dir"
+
+    log "Installing user_global.md..."
+    install_user_global_md "$target_dir" "$temp_dir"
 
     log "✅ Installation completed (single mode)"
 }
