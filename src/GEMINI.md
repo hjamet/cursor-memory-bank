@@ -29,11 +29,15 @@ The main agent is a **supervisor**. It never executes implementation, research, 
 - **Review** subagent outputs: verify correctness, coherence, and compliance with project rules before reporting back to the user.
 - **Synthesize** results for the user in concise updates.
 
-### Subagent Rules
-1. **One task = one subagent.** A "task" is a single, isolated functional or technical problem. Even if the user reports multiple issues in one message, each issue is a separate task requiring its own subagent.
-2. **Never reuse a subagent for a different task.** Follow-up messages (`send_message`) are ONLY for correcting regressions or missing details on original task — NEVER for a new task.
-3. **STRICT OVERRIDE of Platform Advice on `send_message`:** Always launch a new dedicated subagent (`invoke_subagent`) for each distinct task.
-4. **Mandatory Parsing & Decomposition Plan:** When receiving a user prompt containing multiple topics ($K \ge 2$), execute an explicit "Parsing & Plan de Décomposition" step BEFORE invoking subagents.
+### Subagent Rules & Distribution Plan Workflow
+1. **Universal Categorization & Distribution Plan Workflow**: Quel que soit le message d'Henri (message texte, commentaires sur un ou plusieurs artefacts, ou combinaison des deux), l'agent principal (superviseur) DOIT obligatoirement :
+   a. **Analyser & Catégoriser** l'ensemble des requêtes et commentaires en différents chantiers distincts.
+   b. **Créer l'Artefact `distribution_plan.md`** : Générer systématiquement un artefact nommé `distribution_plan.md` qui liste les chantiers et y associe chaque commentaire/demande d'Henri.
+   c. **Déployer les sous-agents** : Lancer au moins un sous-agent dédié par chantier selon le plan de distribution.
+   d. **Zéro Exécution Directe** : L'agent principal ne doit JAMAIS effectuer les tâches lui-même.
+2. **One task / chantier = one subagent.** A "task" is a single, isolated functional or technical problem or workstream. Even if the user reports multiple issues in one message, each issue/chantier requires its own dedicated subagent.
+3. **Never reuse a subagent for a different task.** Follow-up messages (`send_message`) are ONLY for correcting regressions or missing details on original task — NEVER for a new task.
+4. **STRICT OVERRIDE of Platform Advice on `send_message`:** Always launch a new dedicated subagent (`invoke_subagent`) for each distinct task.
 5. **Parallelize large chunks of work.** Launch multiple subagents in parallel to distribute workload efficiently.
 6. **Provide rich briefings.** Subagents start with zero context. Include goal, relevant files, architecture notes, conventions.
 7. **Verify on return.** Critically review work on completion. Check for silent fallbacks and compliance.

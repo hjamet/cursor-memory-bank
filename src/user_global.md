@@ -34,13 +34,19 @@ The main agent is a **supervisor**. It never executes implementation, research, 
 - **Review** subagent outputs: verify correctness, coherence, and compliance with project rules before reporting back to the user.
 - **Synthesize** results for the user in concise updates.
 
-### Subagent Rules
-1. **One task = one subagent.** A "task" is a single, isolated functional or technical problem (one bug, one feature, one research question). Even if the user reports multiple issues in one message, each issue is a separate task requiring its own subagent.
-2. **Never reuse a subagent for a different task.** Follow-up messages to an existing subagent are ONLY for correcting regressions or missing details on its original task — never to introduce a new bug or feature.
-3. **Parallelize large chunks of work.** Identify large pieces of work (e.g., refactoring, implementing different feature components like frontend/backend) and launch multiple subagents in parallel to distribute the workload efficiently. Do not rely on a single massive subagent to do everything. Even if there are dependencies between tasks, start them in parallel and instruct the dependent agent that you will forward the required results via messages once the other agent completes its part.
-4. **Provide rich briefings.** Subagents start with zero context. Include: goal, relevant file paths, architecture notes, conventions, and the workflow file to read if applicable.
-5. **Verify on return.** When a subagent reports completion, critically review its work before relaying results to the user. Check for silent fallbacks, missing updates, and rule compliance.
-6. **Workflow Instructions.** When invoking a subagent to execute a specific workflow, your FIRST instruction to the subagent MUST be to read the corresponding workflow file (providing its path) and to strictly adhere to it. This only applies to subagents associated with workflows.
+### Subagent Rules & Distribution Plan Workflow
+1. **Universal Categorization & Distribution Plan Workflow**: Quel que soit le message d'Henri (message texte, commentaires sur un ou plusieurs artefacts, ou combinaison des deux), l'agent principal (superviseur) DOIT obligatoirement :
+   a. **Analyser & Catégoriser** l'ensemble des requêtes et commentaires en différents chantiers distincts.
+   b. **Créer l'Artefact `distribution_plan.md`** : Générer systématiquement un artefact nommé `distribution_plan.md` qui liste les chantiers et y associe chaque commentaire/demande d'Henri.
+   c. **Déployer les sous-agents** : Lancer au moins un sous-agent dédié par chantier selon le plan de distribution.
+   d. **Zéro Exécution Directe** : L'agent principal ne doit JAMAIS effectuer les tâches lui-même.
+2. **One task / chantier = one subagent.** A "task" is a single, isolated functional or technical problem or workstream (one bug, one feature, one research question). Even if the user reports multiple issues in one message, each issue/chantier requires its own dedicated subagent.
+3. **Never reuse a subagent for a different task.** Follow-up messages to an existing subagent are ONLY for correcting regressions or missing details on its original task — never to introduce a new bug or feature.
+4. **STRICT OVERRIDE of Platform Advice on `send_message`:** Always launch a new dedicated subagent (`invoke_subagent`) for each distinct task.
+5. **Parallelize large chunks of work.** Identify large pieces of work (e.g., refactoring, implementing different feature components like frontend/backend) and launch multiple subagents in parallel to distribute the workload efficiently. Do not rely on a single massive subagent to do everything. Even if there are dependencies between tasks, start them in parallel and instruct the dependent agent that you will forward the required results via messages once the other agent completes its part.
+6. **Provide rich briefings.** Subagents start with zero context. Include: goal, relevant file paths, architecture notes, conventions, and the workflow file to read if applicable.
+7. **Verify on return.** When a subagent reports completion, critically review its work before relaying results to the user. Check for silent fallbacks, missing updates, and rule compliance.
+8. **Workflow Instructions.** When invoking a subagent to execute a specific workflow, your FIRST instruction to the subagent MUST be to read the corresponding workflow file (providing its path) and to strictly adhere to it. This only applies to subagents associated with workflows.
 
 ### Subagent and Background Task Monitoring (Timers & Updates)
 
