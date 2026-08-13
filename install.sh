@@ -1056,29 +1056,18 @@ EOF
 
 install_gemini_md() {
     local temp_dir="$1"
-    local is_msys=false
-    if command -v uname >/dev/null 2>&1; then
-        if [[ "$(uname -o 2>/dev/null)" == "Msys" || "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
-            is_msys=true
-        fi
-    fi
-
     local win_home=""
-    if [[ "$is_msys" == "true" ]]; then
-        win_home="$HOME"
-    else
-        local user_name=""
-        if command -v cmd.exe >/dev/null 2>&1; then
-            user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
-        fi
-        if [[ -z "$user_name" ]]; then
-            user_name=$(whoami)
-        fi
 
-        if command -v wslpath >/dev/null 2>&1; then
-            win_home="/mnt/c/Users/$user_name"
-            if [[ ! -d "$win_home" ]]; then
-                win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
+    if command -v cmd.exe >/dev/null 2>&1; then
+        local user_profile
+        user_profile=$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')
+        if [[ -n "$user_profile" ]]; then
+            if command -v cygpath >/dev/null 2>&1; then
+                win_home=$(cygpath -u "$user_profile" 2>/dev/null || echo "$user_profile")
+            elif command -v wslpath >/dev/null 2>&1; then
+                win_home=$(wslpath -u "$user_profile" 2>/dev/null || echo "$user_profile")
+            else
+                win_home="$user_profile"
             fi
         fi
     fi
@@ -1115,17 +1104,12 @@ install_gemini_md() {
         py_cmd="python"
     fi
 
-    local win_clone_source
-    local win_dest_path
-    win_clone_source=$(convert_to_windows_path "$clone_source" | tr -d '\r\n')
-    win_dest_path=$(convert_to_windows_path "$dest_path" | tr -d '\r\n')
-
     if [[ -n "$py_cmd" ]]; then
-        $py_cmd - "$win_clone_source" "$win_dest_path" << 'PYEOF'
+        $py_cmd - "$clone_source" "$dest_path" << 'PYEOF'
 import sys, os, re
 
-src_file = sys.argv[1]
-dest_file = sys.argv[2]
+src_file = sys.argv[1].strip("'\" \r\n")
+dest_file = sys.argv[2].strip("'\" \r\n")
 
 with open(src_file, 'r', encoding='utf-8') as f:
     src_content = f.read()
@@ -1144,7 +1128,7 @@ else:
     if "<!-- MEMORY_BANK_SYSTEM:START -->" in dest_content and "<!-- MEMORY_BANK_SYSTEM:END -->" in dest_content:
         new_dest_content = re.sub(
             r'<!-- MEMORY_BANK_SYSTEM:START -->.*?<!-- MEMORY_BANK_SYSTEM:END -->',
-            mb_block,
+            lambda m: mb_block,
             dest_content,
             flags=re.DOTALL
         )
