@@ -1060,19 +1060,73 @@ install_gemini_md() {
     local temp_dir="$1"
     local gemini_dir="$HOME/.gemini"
     local dest_path="$gemini_dir/GEMINI.md"
-    local clone_source="$temp_dir/repo/src/GEMINI.md"
+    local clone_source=""
+
+    local script_dir
+    script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+    if [[ -f "$script_dir/src/GEMINI.md" ]]; then
+        clone_source="$script_dir/src/GEMINI.md"
+    elif [[ -f "$temp_dir/repo/src/GEMINI.md" ]]; then
+        clone_source="$temp_dir/repo/src/GEMINI.md"
+    fi
 
     mkdir -p "$gemini_dir"
 
-    if [[ -f "$clone_source" ]]; then
-        if cp "$clone_source" "$dest_path"; then
-            log "✓ GEMINI.md installed to $dest_path"
-        else
-            error "Failed to copy GEMINI.md to $dest_path"
-        fi
-    else
-        error "GEMINI.md source not found at $clone_source. Cannot install."
+    if [[ -z "$clone_source" || ! -f "$clone_source" ]]; then
+        warn "GEMINI.md source not found. Skipping GEMINI.md update."
+        return 0
     fi
+
+    log "Updating GEMINI.md at $dest_path non-destructively..."
+
+    local py_cmd=""
+    if command -v python3 >/dev/null 2>&1; then
+        py_cmd="python3"
+    elif command -v python >/dev/null 2>&1; then
+        py_cmd="python"
+    fi
+
+    if [[ -n "$py_cmd" ]]; then
+        $py_cmd - "$clone_source" "$dest_path" << 'PYEOF'
+import sys, os, re
+
+src_file = sys.argv[1]
+dest_file = sys.argv[2]
+
+with open(src_file, 'r', encoding='utf-8') as f:
+    src_content = f.read()
+
+match = re.search(r'(<!-- MEMORY_BANK_SYSTEM:START -->.*?<!-- MEMORY_BANK_SYSTEM:END -->)', src_content, re.DOTALL)
+mb_block = match.group(1) if match else src_content
+
+if not os.path.exists(dest_file):
+    with open(dest_file, 'w', encoding='utf-8') as f:
+        f.write(mb_block)
+    print("Created new GEMINI.md with Memory Bank system block.")
+else:
+    with open(dest_file, 'r', encoding='utf-8') as f:
+        dest_content = f.read()
+
+    if "<!-- MEMORY_BANK_SYSTEM:START -->" in dest_content and "<!-- MEMORY_BANK_SYSTEM:END -->" in dest_content:
+        new_dest_content = re.sub(
+            r'<!-- MEMORY_BANK_SYSTEM:START -->.*?<!-- MEMORY_BANK_SYSTEM:END -->',
+            mb_block,
+            dest_content,
+            flags=re.DOTALL
+        )
+        with open(dest_file, 'w', encoding='utf-8') as f:
+            f.write(new_dest_content)
+        print("Updated MEMORY_BANK_SYSTEM block inside existing GEMINI.md without overwriting user rules.")
+    else:
+        with open(dest_file, 'a', encoding='utf-8') as f:
+            f.write("\n\n" + mb_block + "\n")
+        print("Appended MEMORY_BANK_SYSTEM block to existing GEMINI.md without overwriting user rules.")
+PYEOF
+    else
+        cp "$clone_source" "$dest_path"
+    fi
+
+    log "✓ GEMINI.md updated non-destructively to $dest_path"
 }
 
 install_user_global_md() {

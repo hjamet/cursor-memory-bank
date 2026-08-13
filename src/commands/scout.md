@@ -14,10 +14,27 @@ description: Éclaireur de code. Explore en profondeur le codebase, la documenta
 ## 1. 🎯 Prise de Mission
 
 1. Lis attentivement la demande de l'utilisateur (bug à diagnostiquer, feature à implémenter, refactoring à planifier, etc.).
-   - **Détection Multi-Agent** : Vérifie si la demande inclut un suffixe numérique $N$ (ex: `/scout 3`).
-   - Si le suffixe est omis, l'exploration est standard (un seul agent).
-   - Si un paramètre $N$ est fourni, sa valeur doit être comprise entre 2 et 5 maximum. L'agent doit lancer $N$ sous-agents de type `research` en parallèle.
-   - **Exécution Redondante** : Lors du lancement de ces $N$ sous-agents, donne-leur exactement le même rôle et la même mission. Varie simplement la formulation (phrasé) du prompt d'un sous-agent à l'autre pour induire des variations dans la réflexion de l'IA. **CRITIQUE** : CHAQUE sous-agent doit réaliser l'INTÉGRALITÉ de l'exploration de manière indépendante. Ils ne se partagent pas le travail (tout le monde explore tout), mais l'analysent avec leur propre formulation de la demande.
+
+### Prise de mission multi-sujets
+
+> [!IMPORTANT]
+> **RÈGLE FONDAMENTALE** : Dès qu'un prompt aborde au moins deux axes distincts, le superviseur doit obligatoirement cartographier les axes et instancier autant de sous-agents `research` qu'il y a de sujets à explorer.
+
+Avant toute exploration, le Scout doit analyser la demande et identifier si elle comporte plusieurs sujets, modules ou projets orthogonaux ($K \ge 2$). Si c'est le cas :
+1. **Cartographier** les $K$ axes d'exploration distincts.
+2. **Instancier** $K$ sous-agents `research` en parallèle, chacun avec un briefing ultra-ciblé sur son axe spécifique.
+3. Chaque sous-agent explore **uniquement** son axe assigné — pas de mélange de contexte entre axes.
+
+### Détection de l'Architecture Multi-Agents
+
+Le Scout classifie la mission selon la matrice suivante :
+
+| Mode | Déclencheur | Principe |
+|------|-------------|----------|
+| **Standard** | $K=1$, pas de suffixe $N$ | Un seul agent explore le périmètre complet |
+| **Mode A : Décomposition Fonctionnelle $K$** | Demande couvrant $K \ge 2$ sujets/axes distincts | $K$ sous-agents `research` spécialisés, un par axe |
+| **Mode B : Redondance $N$** | Suffixe numérique `/scout N` ($N \in [2..5]$) | $N$ sous-agents `research` sur le même périmètre, prompts variés |
+| **Mode Hybride $K \times N$** | $K \ge 2$ axes ET suffixe $N$ | Chaque axe $k$ est confié à $N$ sous-agents redondants |
 2. Identifie le **type de mission** :
    | Type | Description | Focus principal |
    |------|-------------|----------------|
@@ -62,15 +79,27 @@ description: Éclaireur de code. Explore en profondeur le codebase, la documenta
 
 ### 2.4 Sous-Agents d'Exploration
 
-Si l'utilisateur a demandé le mode multi-agent (`/scout N`), tu DOIS déléguer l'exploration à ces $N$ sous-agents (`invoke_subagent TypeName="research"`) :
+En fonction du mode identifié en Section 1, le Scout délègue l'exploration aux sous-agents (`invoke_subagent TypeName="research"`) :
 
-- **L'intégralité du périmètre** : Ne divise pas le travail par domaine (frontend, backend, etc.). Chaque sous-agent explore le projet entier de manière autonome.
-- **Prompt clair (Reformulation)** : Chaque sous-agent reçoit la mission globale avec une légère variation dans la formulation (rephrasing) pour maximiser la diversité des résultats.
-- **Supervision** : Utilise `schedule` (DurationSeconds=180) pour vérifier la progression et relancer si besoin.
+- **En Mode A (Décomposition Fonctionnelle $K$)** :
+  - Chaque sous-agent reçoit un briefing **restreint à son axe spécifique** $k \in [1..K]$.
+  - Ne pas mélanger les contextes entre sous-agents d'axes différents.
+  - Chaque sous-agent produit un rapport partiel couvrant uniquement son axe.
+- **En Mode B (Redondance $N$)** :
+  - Chaque sous-agent reçoit la mission globale complète avec une **rephrasification** du prompt pour stimuler des angles d'analyse complémentaires.
+  - **CRITIQUE** : CHAQUE sous-agent doit réaliser l'INTÉGRALITÉ de l'exploration de manière indépendante. Ils ne se partagent pas le travail.
+- **En Mode Hybride ($K \times N$)** :
+  - Pour chaque axe $k$, lancer $N$ sous-agents redondants avec des formulations variées.
+- **Supervision** : Utiliser `schedule` (DurationSeconds=180) pour vérifier la progression et relancer si besoin.
 
 ## 3. 📊 Synthèse des Découvertes
 
-Après l'exploration, regroupe tes découvertes. **Si plusieurs sous-agents ont été lancés (mode $N$), tu dois impérativement attendre qu'ils aient TOUS terminé, puis synthétiser leurs rapports individuels en une seule analyse globale et cohérente.**
+Après l'exploration, regroupe tes découvertes.
+
+**Si plusieurs sous-agents ont été lancés, la synthèse dépend du mode utilisé :**
+- **En Mode A ($K$ axes)** : Le Scout principal rassemble les $K$ rapports d'axes et construit une vision globale intégrée, identifiant les synergies et dépendances entre axes.
+- **En Mode B ($N$ redondants)** : Le Scout principal attend que les $N$ sous-agents aient TOUS terminé, puis croise leurs conclusions pour éliminer les hallucinations et combler les lacunes.
+- **En Mode Hybride ($K \times N$)** : Synthèse par axe $k$ à partir des $N$ retours redondants, puis agrégation générale inter-axes.
 
 Réponds ensuite à ces questions dans ta synthèse :
 
