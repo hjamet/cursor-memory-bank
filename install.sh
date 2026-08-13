@@ -140,7 +140,7 @@ convert_to_windows_path() {
     # Try using wslpath if available (WSL environment)
     if command -v wslpath >/dev/null 2>&1; then
         if win_path=$(wslpath -w "$unix_path" 2>/dev/null); then
-            echo "$win_path"
+            echo "$win_path" | tr -d '\r'
             return 0
         fi
     fi
@@ -148,22 +148,20 @@ convert_to_windows_path() {
     # Try using cygpath if available (MSYS/Cygwin environment)
     if command -v cygpath >/dev/null 2>&1; then
         if win_path=$(cygpath -w "$unix_path" 2>/dev/null); then
-            echo "$win_path"
+            echo "$win_path" | tr -d '\r'
             return 0
         fi
     fi
     
     # If not on Windows, return path as-is
     if [[ "$os_type" != "Msys" ]]; then
-        echo "$unix_path"
+        echo "$unix_path" | tr -d '\r'
         return 0
     fi
 
-    
     # Fallback: manual conversion for Git Bash/MSYS
-    # Convert /c/ to C:\\ and all / to \\
     local win_path
-    win_path=$(echo "$unix_path" | sed -e 's|^/c/|C:\\|' -e 's|/|\\|g')
+    win_path=$(echo "$unix_path" | sed -e 's|^/c/|C:\\|' -e 's|/|\\|g' | tr -d '\r')
     echo "$win_path"
 }
 
@@ -1119,8 +1117,8 @@ install_gemini_md() {
 
     local win_clone_source
     local win_dest_path
-    win_clone_source=$(convert_to_windows_path "$clone_source")
-    win_dest_path=$(convert_to_windows_path "$dest_path")
+    win_clone_source=$(convert_to_windows_path "$clone_source" | tr -d '\r\n')
+    win_dest_path=$(convert_to_windows_path "$dest_path" | tr -d '\r\n')
 
     if [[ -n "$py_cmd" ]]; then
         $py_cmd - "$win_clone_source" "$win_dest_path" << 'PYEOF'
