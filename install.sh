@@ -1058,7 +1058,38 @@ EOF
 
 install_gemini_md() {
     local temp_dir="$1"
-    local gemini_dir="$HOME/.gemini"
+    local is_msys=false
+    if command -v uname >/dev/null 2>&1; then
+        if [[ "$(uname -o 2>/dev/null)" == "Msys" || "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
+            is_msys=true
+        fi
+    fi
+
+    local win_home=""
+    if [[ "$is_msys" == "true" ]]; then
+        win_home="$HOME"
+    else
+        local user_name=""
+        if command -v cmd.exe >/dev/null 2>&1; then
+            user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
+        fi
+        if [[ -z "$user_name" ]]; then
+            user_name=$(whoami)
+        fi
+
+        if command -v wslpath >/dev/null 2>&1; then
+            win_home="/mnt/c/Users/$user_name"
+            if [[ ! -d "$win_home" ]]; then
+                win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
+            fi
+        fi
+    fi
+
+    if [[ -z "$win_home" ]] && [[ -n "${HOME:-}" ]]; then
+        win_home="$HOME"
+    fi
+
+    local gemini_dir="$win_home/.gemini"
     local dest_path="$gemini_dir/GEMINI.md"
     local clone_source=""
 
@@ -1086,8 +1117,13 @@ install_gemini_md() {
         py_cmd="python"
     fi
 
+    local win_clone_source
+    local win_dest_path
+    win_clone_source=$(convert_to_windows_path "$clone_source")
+    win_dest_path=$(convert_to_windows_path "$dest_path")
+
     if [[ -n "$py_cmd" ]]; then
-        $py_cmd - "$clone_source" "$dest_path" << 'PYEOF'
+        $py_cmd - "$win_clone_source" "$win_dest_path" << 'PYEOF'
 import sys, os, re
 
 src_file = sys.argv[1]
