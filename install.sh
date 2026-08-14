@@ -1056,18 +1056,29 @@ EOF
 
 install_gemini_md() {
     local temp_dir="$1"
-    local win_home=""
+    local is_msys=false
+    if command -v uname >/dev/null 2>&1; then
+        if [[ "$(uname -o 2>/dev/null)" == "Msys" || "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
+            is_msys=true
+        fi
+    fi
 
-    if command -v cmd.exe >/dev/null 2>&1; then
-        local user_profile
-        user_profile=$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')
-        if [[ -n "$user_profile" ]]; then
-            if command -v cygpath >/dev/null 2>&1; then
-                win_home=$(cygpath -u "$user_profile" 2>/dev/null || echo "$user_profile")
-            elif command -v wslpath >/dev/null 2>&1; then
-                win_home=$(wslpath -u "$user_profile" 2>/dev/null || echo "$user_profile")
-            else
-                win_home="$user_profile"
+    local win_home=""
+    if [[ "$is_msys" == "true" ]]; then
+        win_home="$HOME"
+    else
+        local user_name=""
+        if command -v cmd.exe >/dev/null 2>&1; then
+            user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
+        fi
+        if [[ -z "$user_name" ]]; then
+            user_name=$(whoami)
+        fi
+
+        if command -v wslpath >/dev/null 2>&1; then
+            win_home="/mnt/c/Users/$user_name"
+            if [[ ! -d "$win_home" ]]; then
+                win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
             fi
         fi
     fi
@@ -1097,51 +1108,41 @@ install_gemini_md() {
 
     log "Updating GEMINI.md at $dest_path non-destructively..."
 
-    local py_cmd=""
-    if command -v python3 >/dev/null 2>&1; then
-        py_cmd="python3"
-    elif command -v python >/dev/null 2>&1; then
-        py_cmd="python"
+    # Extract MEMORY_BANK_SYSTEM block from source
+    local block_file="$temp_dir/mb_block.tmp"
+    awk '/<!-- MEMORY_BANK_SYSTEM:START -->/{flag=1} flag{print} /<!-- MEMORY_BANK_SYSTEM:END -->/{flag=0}' "$clone_source" > "$block_file"
+    if [[ ! -s "$block_file" ]]; then
+        cp "$clone_source" "$block_file"
     fi
 
-    if [[ -n "$py_cmd" ]]; then
-        $py_cmd - "$clone_source" "$dest_path" << 'PYEOF'
-import sys, os, re
-
-src_file = sys.argv[1].strip("'\" \r\n")
-dest_file = sys.argv[2].strip("'\" \r\n")
-
-with open(src_file, 'r', encoding='utf-8') as f:
-    src_content = f.read()
-
-match = re.search(r'(<!-- MEMORY_BANK_SYSTEM:START -->.*?<!-- MEMORY_BANK_SYSTEM:END -->)', src_content, re.DOTALL)
-mb_block = match.group(1) if match else src_content
-
-if not os.path.exists(dest_file):
-    with open(dest_file, 'w', encoding='utf-8') as f:
-        f.write(mb_block)
-    print("Created new GEMINI.md with Memory Bank system block.")
-else:
-    with open(dest_file, 'r', encoding='utf-8') as f:
-        dest_content = f.read()
-
-    if "<!-- MEMORY_BANK_SYSTEM:START -->" in dest_content and "<!-- MEMORY_BANK_SYSTEM:END -->" in dest_content:
-        new_dest_content = re.sub(
-            r'<!-- MEMORY_BANK_SYSTEM:START -->.*?<!-- MEMORY_BANK_SYSTEM:END -->',
-            lambda m: mb_block,
-            dest_content,
-            flags=re.DOTALL
-        )
-        with open(dest_file, 'w', encoding='utf-8') as f:
-            f.write(new_dest_content)
-        print("Updated MEMORY_BANK_SYSTEM block inside existing GEMINI.md without overwriting user rules.")
-    else:
-        with open(dest_file, 'a', encoding='utf-8') as f:
-            f.write("\n\n" + mb_block + "\n")
-        print("Appended MEMORY_BANK_SYSTEM block to existing GEMINI.md without overwriting user rules.")
-PYEOF
+    if [[ ! -f "$dest_path" ]]; then
+        cp "$block_file" "$dest_path"
+        log "Created new GEMINI.md with Memory Bank system block."
     else
-        cp "$clone_source" "$dest_path"
+        if grep -q "<!-- MEMORY_BANK_SYSTEM:START -->" "$dest_path" && grep -q "<!-- MEMORY_BANK_SYSTEM:END -->" "$dest_path"; then
+            local new_dest="$temp_dir/gemini_merged.tmp"
+            awk -v block_file="$block_file" '
+                /<!-- MEMORY_BANK_SYSTEM:START -->/ {
+                    while ((getline line < block_file) > 0) {
+                        print line
+                    }
+                    close(block_file)
+                    skip=1
+                    next
+                }
+                /<!-- MEMORY_BANK_SYSTEM:END -->/ {
+                    skip=0
+                    next
+                }
+                !skip { print }
+            ' "$dest_path" > "$new_dest"
+            mv "$new_dest" "$dest_path"
+            log "Updated MEMORY_BANK_SYSTEM block inside existing GEMINI.md without overwriting user rules."
+        else
+            echo "" >> "$dest_path"
+            cat "$block_file" >> "$dest_path"
+            log "Appended MEMORY_BANK_SYSTEM block to existing GEMINI.md without overwriting user rules."
+        fi
     fi
 
     log "✓ GEMINI.md updated non-destructively to $dest_path"
