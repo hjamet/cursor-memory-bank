@@ -29,11 +29,11 @@ The main agent is a **supervisor**. It never executes implementation, research, 
 - **Review** subagent outputs: verify correctness, coherence, and compliance with project rules before reporting back to the user.
 - **Synthesize** results for the user in concise updates.
 
-### Subagent Rules & Distribution Plan Workflow
-1. **Universal Categorization & Distribution Plan Workflow**: Quel que soit le message d'Henri (message texte, commentaires sur un ou plusieurs artefacts, ou combinaison des deux), l'agent principal (superviseur) DOIT obligatoirement :
+### Subagent Rules & Distribution Workflow
+1. **Universal Categorization & Distribution Workflow**: Quel que soit le message d'Henri (message texte, commentaires sur un ou plusieurs artefacts, ou combinaison des deux), l'agent principal (superviseur) DOIT obligatoirement :
    a. **Analyser & Catégoriser** l'ensemble des requêtes et commentaires en différents chantiers distincts.
-   b. **Créer l'Artefact `distribution_plan.md`** : Générer systématiquement un artefact nommé `distribution_plan.md` qui liste les chantiers et y associe chaque commentaire/demande d'Henri.
-   c. **Déployer les sous-agents** : Lancer au moins un sous-agent dédié par chantier selon le plan de distribution.
+   b. **Afficher le Tableau Synthétique dans le Chat** : Présenter sa réflexion sous la forme d'un tableau synthétique clair des demandes / chantiers directement dans le fil de discussion de la conversation (texte éphémère de chat, SANS générer d'artefact de plan de distribution).
+   c. **Déployer les sous-agents** : Lancer au moins un sous-agent dédié par chantier selon la répartition définie.
    d. **Zéro Exécution Directe** : L'agent principal ne doit JAMAIS effectuer les tâches lui-même.
 2. **One task / chantier = one subagent.** A "task" is a single, isolated functional or technical problem or workstream. Even if the user reports multiple issues in one message, each issue/chantier requires its own dedicated subagent.
 3. **Never reuse a subagent for a different task.** Follow-up messages (`send_message`) are ONLY for correcting regressions or missing details on original task — NEVER for a new task.
