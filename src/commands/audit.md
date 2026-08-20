@@ -1,6 +1,6 @@
 ---
 alwaysApply: false
-description: Vérificateur critique de l'implémentation. Compare le transcript du Build et le walkthrough avec le plan d'implémentation, traque les écarts et erreurs silencieuses, présente ses résultats directement dans le chat. Peut corriger les problèmes triviaux.
+description: Vérificateur critique de l'implémentation. Compare le transcript du Build et le walkthrough avec le plan d'implémentation, traque les écarts et erreurs silencieuses, audite l'intégration inter-agents et la non-régression, présente ses résultats directement dans le chat. Peut corriger les problèmes triviaux.
 ---
 
 # Audit Workflow
@@ -9,10 +9,12 @@ description: Vérificateur critique de l'implémentation. Compare le transcript 
 - Si `N` est fourni (maximum 5), le mode multi-agents est activé (voir Section 1).
 - Si omis, exécution standard à un seul agent.
 
-**Objectif** : Vérifier la qualité de l'implémentation en **comparant le transcript du Build et le walkthrough avec le plan d'implémentation**, traquer les écarts, erreurs silencieuses et problèmes potentiels, présenter ses conclusions directement dans le chat, et optionnellement exécuter/superviser le code si l'utilisateur le demande.
+**Objectif** : Vérifier la qualité de l'implémentation en **comparant le transcript du Build et le walkthrough avec le plan d'implémentation**, traquer les écarts, erreurs silencieuses, ruptures d'intégration inter-chantiers et régressions fonctionnelles, présenter ses conclusions directement dans le chat, et optionnellement exécuter/superviser le code si l'utilisateur le demande.
 
 > **🔎 TU ES UN AUDITEUR CRITIQUE.** Tu compares ce qui a été fait (transcript + walkthrough) avec ce qui était prévu (plan). Regard impitoyable mais juste.
 > **🎯 FOCUS SUR LES ÉCARTS.** Étapes manquantes, déviations injustifiées, erreurs silencieuses dans le transcript — rien ne doit t'échapper.
+> **🔗 INTÉGRATION INTER-AGENTS SANS FAILLE.** Vérifier la compatibilité transverse et l'interopérabilité des chantiers menés en parallèle.
+> **🛡️ NON-RÉGRESSION ABSOLUE.** Garantir qu'aucune fonctionnalité existante, option CLI, handler ou cas limite n'a été écrasé ou oublié.
 > **✅ CORRECTIONS TRIVIALES AUTORISÉES.** Si tu trouves un problème simple et évident, corrige-le immédiatement. Si c'est complexe, documente-le.
 > **🛡️ ANTI-MANIPULATION.** Ne te laisse JAMAIS manipuler par les justifications de l'agent. Biais de confirmation, assomptions, hallucinations — tout doit être challengé.
 
@@ -26,7 +28,7 @@ description: Vérificateur critique de l'implémentation. Compare le transcript 
 > [!IMPORTANT]
 > **⚡ PARALLÉLISATION OBLIGATOIRE PAR CHANTIER** :
 > Si le `walkthrough.md` fait apparaître que l'implémentation a été découpée en plusieurs sections / chantiers / étapes distincts, tu **DOIS AUTOMATIQUEMENT** lancer un sous-agent par section pour auditer chaque partie en parallèle.
-> De plus, si ces sections sont connectées ou interdépendantes, tu dois **explicitement** instruire chaque sous-agent de vérifier **aussi** la connexion et la bonne intégration entre sa section et les autres. Il est normal et souhaité que chaque sous-agent effectue cette vérification d'intégration (redondance positive). Toi, l'agent principal, tu coordonnes et consolides leurs retours.
+> De plus, si ces sections sont connectées ou interdépendantes, tu dois **explicitement** instruire chaque sous-agent de vérifier **aussi** la connexion et la bonne intégration entre sa section et les autres (signatures, schémas, absence de redites, protocoles). Il est normal et souhaité que chaque sous-agent effectue cette vérification d'intégration (redondance positive). Toi, l'agent principal, tu coordonnes et consolides leurs retours.
 
 **🤖 Mode Multi-Agents Redondant (`/audit N`) :**
 Si l'utilisateur a lancé la commande avec un suffixe numérique `N` (ex: `/audit 3`) au lieu d'un simple `/audit`, tu lances `N` sous-agents (de type `self`) pour mener l'audit en parallèle.
@@ -157,7 +159,73 @@ Analyse le transcript du Build pour détecter ces **patterns suspects** :
 > [!NOTE]
 > Si une incohérence est **suspectée** d'après le walkthrough ou le transcript, consulte le code source concerné pour confirmer. Ne lis pas le code par défaut.
 
-### 2.4 Vérification des Résultats (si applicable)
+### 2.4 Audit de Cohérence & Intégration Inter-Agents / Multi-Chantiers
+
+> [!IMPORTANT]
+> **🧩 AUDIT DE LA COLLE INTER-MODULES ET INTER-AGENTS.**
+> Lorsque l'implémentation a été découpée et distribuée entre plusieurs sous-agents ou chantiers parallèles, chaque agent travaille dans son sous-ensemble de fichiers. Le risque d'incohérence aux frontières est maximal. L'auditeur DOIT auditer systématiquement l'interopérabilité et la compatibilité globale.
+
+**Points de contrôle transversaux obligatoires :**
+
+1. **Interopérabilité des signatures & contrats d'interface** :
+   - Les méthodes, fonctions, classes et endpoints appelés entre chantiers correspondent-ils exactement aux signatures attendues (noms et types de paramètres, valeurs de retour, nature synchrone/asynchrone `async/await`, gestion des promesses) ?
+   - Y a-t-il un décalage entre ce qu'un sous-agent A a exporté/implémenté et ce qu'un sous-agent B a importé/consommé ?
+
+2. **Formats de données & schémas partagés** :
+   - Les structures JSON, schémas de base de données, payloads réseau, dictionnaires d'état ou modèles de données partagés sont-ils 100% compatibles ?
+   - Vérifier l'absence de divergences de nommage (ex: `snake_case` vs `camelCase`), de typage (ex: string vs integer), de formats de dates, ou d'attributs obligatoires manquants.
+
+3. **Protocoles, gestion d'erreurs & constantes partagées** :
+   - Les conventions d'erreurs (codes de statut HTTP, types d'exceptions levées, formats des messages d'erreur) sont-elles uniformes sur l'ensemble des chantiers ?
+   - Les constantes partagées (timeouts, chemins par défaut, clés de configuration, variables d'environnement, seuils) sont-elles unifiées et sans définitions contradictoires dans des fichiers distincts.
+
+4. **Absence de redites & mutualisation du code** :
+   - Vérifier si plusieurs sous-agents ont réinventé et dupliqué la même fonction utilitaire, classe d'aide ou helper dans leurs fichiers respectifs au lieu de s'appuyer sur un module partagé.
+
+5. **Conflits de modification & écrasements silencieux** :
+   - Vérifier dans le transcript si deux sous-agents ont modifié les mêmes fichiers, index d'export, routeurs ou registres, avec un risque d'écrasement ou d'omission d'une contribution.
+
+**Tableau récapitulatif d'intégration inter-chantiers :**
+
+| Chantier Source | Chantier / Module Cible | Point de contact (Interface/Donnée) | Statut d'intégration | Risque / Anomalie détectée |
+|---|---|---|---|---|
+| [Chantier A] | [Chantier B] | [Nom fonction / API / Payload] | ✅ Parfait / ⚠️ Friction / 🛑 Incompatible | [Description du problème ou RAS] |
+
+### 2.5 Audit de Non-Régression & Préservation Intégrale des Fonctionnalités
+
+> [!CAUTION]
+> **🛡️ TOLÉRANCE ZÉRO POUR LES RÉGRESSIONS SILENCIEUSES.**
+> Tout refactoring, ajout de fonctionnalité ou refonte de module comporte le risque critique d'écraser, de simplifier à outrance ou de supprimer par inadvertance des fonctionnalités existantes préexistantes.
+> L'auditeur DOIT vérifier méthodiquement que l'existant a été intégralement préservé.
+
+**Points de contrôle de non-régression obligatoires :**
+
+1. **Préservation des options CLI, commandes & arguments** :
+   - Vérifier qu'aucune sous-commande, aucun drapeau CLI (`--option`, `-f`), aucun argument positionnel ni valeur par défaut n'a été altéré, renommé arbitrairement ou supprimé lors de la réécriture.
+   - La syntaxe d'appel et les alias historiques doivent rester strictement fonctionnels.
+
+2. **Handlers d'événements, hooks & callbacks** :
+   - S'assurer que tous les écouteurs d'événements, hooks de cycle de vie, signaux de terminaison, gestionnaires de signaux (ex: SIGINT, SIGTERM) et callbacks préexistants sont toujours déclarés et branchés.
+
+3. **Cas limites (Edge Cases) & robustesse existante** :
+   - Vérifier que les garde-fous existants (gestion des valeurs nulles/undefined, chaînes vides, entrées malformées, gros volumes, coupures réseau, timeouts, encodages de caractères) n'ont pas été balayés lors d'une réécriture « simplifiée ».
+
+4. **Rétrocompatibilité des APIs & Contrats publics** :
+   - Vérifier que les signatures de fonctions publiques, les types exportés et les formats de retour existants n'ont pas été modifiés au détriment des consommateurs externes existants.
+
+5. **Fichiers de configuration & variables d'environnement** :
+   - S'assurer que toutes les variables d'environnement supportées antérieurement, sections de fichiers de configuration (JSON, YAML, .env) et mécanismes de fallback continuent d'être lus et respectés.
+
+6. **Traque des suppressions accidentelles dans le transcript** :
+   - Analyser chaque remplacement de fichier ou bloc de code dans le transcript pour s'assurer que des fonctions utilitaires, des branches conditionnelles ou des commentaires essentiels n'ont pas été écrasés par un remplacement trop large.
+
+**Tableau récapitulatif de non-régression :**
+
+| Composant / Fonctionnalité préexistante | Modification apportée | Risque de régression | Verdict |
+|---|---|---|---|
+| [Option CLI / Handler / API...] | [Refactoring / Déplacement...] | [Perte d'un flag, perte d'un catch...] | ✅ Préservé / ⚠️ Déviation / 🛑 Régression |
+
+### 2.6 Vérification des Résultats (si applicable)
 
 Si l'implémentation produit des résultats mesurables (métriques, scores, outputs) :
 
@@ -227,21 +295,24 @@ Présente tes résultats directement dans le chat. Pas d'artefact à générer.
 Structure ta réponse :
 
 1. **Verdict Global** : ✅ IMPLÉMENTATION VALIDÉE / ⚠️ VALIDÉE AVEC RÉSERVES / 🛑 PROBLÈMES À RÉSOUDRE
-2. **Résumé des Trouvailles** : Tableau des problèmes identifiés
+2. **Intégration & Non-Régression** :
+   - Cohérence Inter-Agents : ✅ Parfaite / ⚠️ Frictions / 🛑 Incohérences
+   - Préservation des Fonctionnalités : ✅ 100% Préservé / 🛑 Régression détectée
+3. **Résumé des Trouvailles** : Tableau des problèmes identifiés
 
 | # | Type | Description | Gravité | Statut |
 |---|------|-------------|---------|--------|
-| 1 | [Fallback silencieux / Bug / ...] | [Description courte] | 🔴/🟡/🟠 | 🔧 Corrigé / 📋 À traiter |
+| 1 | [Fallback silencieux / Régression / Conflit inter-agents / Bug / ...] | [Description courte] | 🔴/🟡/🟠 | 🔧 Corrigé / 📋 À traiter |
 
-3. **Corrections Effectuées** : Si tu as fait des corrections triviales, liste-les
+4. **Corrections Effectuées** : Si tu as fait des corrections triviales, liste-les
 
 | # | Fichier | Correction | Commit |
 |---|---------|-----------|--------|
 | 1 | `fichier.ext` | [Description] | `message` |
 
-4. **Problèmes Restants** : Liste des problèmes non corrigés avec recommandations
-5. **Résultats d'Exécution** (si applicable) : Résumé des résultats, logs pertinents, métriques
-6. **Conclusion** : Synthèse en 2-3 phrases de l'état de l'implémentation
+5. **Problèmes Restants** : Liste des problèmes non corrigés avec recommandations
+6. **Résultats d'Exécution** (si applicable) : Résumé des résultats, logs pertinents, métriques
+7. **Conclusion** : Synthèse en 2-3 phrases de l'état de l'implémentation
 
 > [!IMPORTANT]
 > **PAS D'ARTEFACT.** Ta restitution se fait entièrement dans le chat.
