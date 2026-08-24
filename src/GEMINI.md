@@ -78,9 +78,9 @@ When a subagent produces an artifact:
   - `summary.md` est un document éphémère de session situé exclusivement dans `<appDataDir>\brain\<conversation-id>\summary.md` (hors coffre Obsidian).
   - Il sert de **tableau de bord de suivi dynamique, visuel et mobile-friendly** tout au long de la conversation, constitué d'un **flux épuré 100% concentré sur les Q/A décroissantes** (sans section ni tableau des priorités en fin de page).
 
-* **Supervisor Exception (Direct Editing)** :
-  - La création et la mise à jour de `summary.md` constituent une **EXCEPTION EXPLICITE** au motif du superviseur.
-  - L'agent principal superviseur DOIT créer et éditer `summary.md` **directement** (sans déléguer à des sous-agents), car seul l'agent principal possède la vision et le contexte global de la session.
+* **Supervisor Exception (Direct Editing & Dé-calloutage)** :
+  - La création, la mise à jour et le dé-calloutage de `summary.md` constituent une **EXCEPTION EXPLICITE** au motif du superviseur.
+  - L'agent principal superviseur DOIT créer, éditer et dé-callouter `summary.md` **directement** (sans déléguer à des sous-agents), car seul l'agent principal possède la vision et le contexte global de la session.
 
 * **Format Questions / Réponses Inspiré du Workflow `/scout`** :
   - **Règle de Granularité Stricte (1 Commentaire / 1 Demande = 1 Question)** :
@@ -103,7 +103,7 @@ When a subagent produces an artifact:
   - **Motivation** : Permettre à Henri de consulter instantanément les toutes dernières avancées et réponses dès l'ouverture de l'artefact sur son téléphone sans avoir à scroller.
 
 * **Règle des Callouts GitHub Colorés par Projet (Encapsulation Systématique)** :
-  - **Encapsulation obligatoire** : Chaque réponse terminée dans `summary.md` DOIT être encapsulée dans un callout GitHub Markdown (`> [!TYPE]`).
+  - **Encapsulation obligatoire des réponses actives** : Chaque réponse terminée dans `summary.md` DOIT être encapsulée dans un callout GitHub Markdown (`> [!TYPE]`).
   - **Code couleur par projet (Scannabilité visuelle immédiate)** :
     * **DLLP** : `> [!IMPORTANT]` (Rouge / Violet)
     * **JDR Planner** : `> [!TIP]` (Vert)
@@ -111,6 +111,15 @@ When a subagent produces an artifact:
     * **Système / Règles Antigravity** : `> [!WARNING]` (Orange / Jaune)
     * **Autres projets** : `> [!CAUTION]`
   - **Portée mono-projet vs multi-projets** : Si toute la conversation porte sur un unique projet, tous les callouts partagent la couleur du projet. Si la session est multi-projets, chaque question utilise la couleur de son projet respectif.
+
+* **Règle du Dé-calloutage (« Question/Commentaire Traité »)** :
+  - **Principe de dé-calloutage immédiat** : Lorsque Henri laisse un commentaire sur une question existante dans `summary.md` (ou qu'il valide/commente la réponse par ex. *"parfait"*, *"impec"*, *"/refine"*, critique, etc.), le callout GitHub Markdown (`> [!TYPE]`) de cette question doit être **retiré pour ne laisser que le texte brut en paragraphe normal**.
+  - **Indicateur visuel épuré (Actif vs Traité)** : Ce dé-calloutage sert d'indicateur visuel immédiat pour Henri que son commentaire a été pris en compte, traité et archivé. Le document offre une visibilité instantanée : les éléments en cours/nouveaux ont des callouts colorés, les éléments validés/traités sont en texte normal.
+  - **Exécution directe par le superviseur** : L'agent principal superviseur applique cette transformation **directement et immédiatement**, sans passer par des sous-agents.
+
+* **Suppression des Encarts d'En-tête Superflus (Header Épuré)** :
+  - Ne **JAMAIS ajouter de callout introductif explicatif** ni d'encart verbeux en haut de `summary.md`.
+  - La structure démarre directement par un **titre simple `# ...`** suivi directement de la liste Q/A décroissante.
 
 * **Mises à Jour en Streaming Réel (au fil de l'eau)** :
   - Ne PAS attendre uniquement la fin de la réponse pour mettre à jour `summary.md`.
@@ -126,9 +135,9 @@ When a subagent produces an artifact:
   - Utiliser des diagrammes Mermaid (architectures, flux), des alertes GitHub et des **liens Markdown cliquables absolus** (`[nom](file:///...)`) vers tous les fichiers, scripts, rapports et documents créés ou modifiés au cours de la session.
 
 * **Structure Globale Recommandée (Ordre du Haut vers le Bas)** :
-  1. **En-tête & Métadonnées** : Titre global, contexte de session, horodatage de dernière actualisation.
-  2. **Dernier Tour Actif (Top of Page)** : `## Tour N — [Date/Heure ou Sujet Global]` avec découpage `✅ ### Q1 — ...`, `❓ ### Q2 — ...`, `⏳ ### Q3 — ...`, réponses factuelles directes encapsulées dans les callouts projet (uniquement pour les questions terminées), décisions stratégiques et liens cliquables.
-  3. **Historique des Tours Précédents (Descending)** : `## Tour N-1`, `## Tour N-2`, etc. (archivage cumulatif intact, jamais supprimé).
+  1. **En-tête Épuré (Zéro Callout Introductif)** : Titre global `# ...` simple (sans encart ni bloc d'explication).
+  2. **Dernier Tour Actif (Top of Page)** : `## Tour N — [Date/Heure ou Sujet Global]` avec découpage `✅ ### Q1 — ...`, `❓ ### Q2 — ...`, `⏳ ### Q3 — ...`, réponses factuelles directes encapsulées dans les callouts projet (pour les questions actives du tour) ou en texte brut dé-callouté (pour les questions traitées/validées), décisions stratégiques et liens cliquables.
+  3. **Historique des Tours Précédents (Descending)** : `## Tour N-1`, `## Tour N-2`, etc. (archivage cumulatif intact, jamais supprimé, dé-callouté au fil des validations).
 
 ## Security & Email Drafts (Spark) — Mandatory Rule
 
