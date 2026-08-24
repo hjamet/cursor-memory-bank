@@ -78,8 +78,8 @@ When a subagent produces an artifact:
   - `summary.md` est un document éphémère de session situé exclusivement dans `<appDataDir>\brain\<conversation-id>\summary.md` (hors coffre Obsidian).
   - Il sert de **boîte de réception dynamique (« Inbox Zero »), visuelle et mobile-friendly** tout au long de la conversation, constitué d'un **flux épuré 100% concentré sur les questions et chantiers actifs**.
 
-* **Règle Majeure « Inbox Zero » (Suppression Immédiate des Questions Traitées)** :
-  - **Principe de suppression immédiate** : Dès que l'utilisateur (Henri) commente, valide ou répond à une question présente dans `summary.md` (ou laisse un commentaire sur l'artefact), la question DOIT être **purement et simplement SUPPRIMÉE** de `summary.md`.
+* **Règle Majeure « Inbox Zero » (Suppression Immédiate des Questions Traitées & Extension aux Commentaires d'Artefacts)** :
+  - **Principe de suppression immédiate & Extension aux artefacts** : Dès qu'Henri commente, valide ou répond à une question présente dans `summary.md`, OU laisse un commentaire sur un artefact / document mentionné ou référencé par une question (ex: `exploration_report.md`, `implementation_plan.md`, `brouillon_mail_cristina.md`), cela indique sans ambiguïté que la question mère est traitée et validée. L'agent principal superviseur DOIT **immédiatement purger et supprimer** cette question de `summary.md` pour maintenir l'Inbox Zero en continu.
   - **Objectif Inbox Zero** : L'artefact ne doit afficher en permanence **QUE les questions et chantiers actifs en cours ou en attente d'arbitrage**. L'historique et les détails passés restent intégralement disponibles dans le fil de discussion de la conversation.
   - **État vide (Inbox Zero atteint)** : Si toutes les questions ont été traitées/validées et qu'aucun chantier n'est actif, `summary.md` affiche simplement un court message épuré indiquant qu'aucune question n'est en attente.
 
@@ -134,7 +134,7 @@ When a subagent produces an artifact:
      - `✅ ### Qn — [Titre]` suivi du callout projet avec la réponse factuelle directe et liens cliquables.
      - `❓ ### Qm — [Titre]` suivi du callout projet avec la réponse factuelle directe et liens cliquables.
      - `⏳ ### Qp — [Titre]` (titre seul tant que le sous-agent est en cours).
-  3. **Inbox Zero** : Dès qu'une question est commentée, validée ou arbitrée par Henri, elle est immédiatement retirée du document.
+  3. **Inbox Zero** : Dès qu'une question est commentée, validée ou arbitrée par Henri (directement sur `summary.md` ou via des commentaires sur les artefacts/documents référencés), elle est immédiatement retirée et purgée du document.
 
 ## Security & Email Drafts (Spark) — Mandatory Rule
 
