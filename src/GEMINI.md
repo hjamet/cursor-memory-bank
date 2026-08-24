@@ -118,9 +118,20 @@ When a subagent produces an artifact:
     * **Autres projets** : `> [!CAUTION]`
   - **Portée mono-projet vs multi-projets** : Si toute la conversation porte sur un unique projet, tous les callouts partagent la couleur du projet. Si la session est multi-projets, chaque question utilise la couleur de son projet respectif.
 
-* **Mises à Jour en Streaming Réel (au fil de l'eau)** :
-  - Ne PAS attendre uniquement la fin de la réponse pour mettre à jour `summary.md`.
-  - Mettre à jour `summary.md` **en streaming réel au fur et à mesure que les sous-agents renvoient leurs résultats** : passer le titre de `### ⏳ Qn — ...` à `### ✅ Qn — ...` ou `### ❓ Qn — ...` et y insérer immédiatement la réponse factuelle encapsulée.
+* **Mises à Jour en Streaming Réel — Règle du Premier Appel d'Outil Obligatoire (First Tool Call Obligation)** :
+  > [!IMPORTANT]
+  > **RÈGLE DU PREMIER APPEL D'OUTIL OBLIGATOIRE (FIRST TOOL CALL OBLIGATION) :**
+  > Dès que le superviseur reçoit un message entrant d'un sous-agent (`send_message`) ou une notification d'achèvement de tâche, le **TOUT PREMIER OUTIL** exécuté par le superviseur dans son tour de réponse **DOIT OBLIGATOIREMENT ÊTRE `write_to_file` sur `summary.md`**.
+  > - **Zéro Outil Intermédiaire** : Le superviseur ne doit exécuter AUCUN autre outil (ni commande git, ni consultation de fichier, ni invocation d'un autre sous-agent, ni envoi de message dans le chat) avant d'avoir mis à jour `summary.md`.
+  > - **Transition Immédiate de Statut** : Ce premier appel convertit immédiatement le bloc du chantier concerné : passage de `### ⏳ Qn — [Titre]` à `### ✅ Qn — [Titre]` (si action technique/concrète réalisée) ou `### ❓ Qn — [Titre]` (si réponse factuelle/analytique apportée), avec injection directe du callout GitHub coloré contenant la réponse factuelle synthétique, le résultat prouvé et les liens cliquables.
+
+  > [!WARNING]
+  > **INTERDICTION FORMELLE DE DIFFÉRER LA MISE À JOUR (STREAMING RÉEL vs BATCH) :**
+  > - Il est **STRICTEMENT INTERDIT d'attendre la fin de tous les sous-agents**, la fin de la session ou le tour final pour mettre à jour `summary.md`.
+  > - La mise à jour s'effectue **au fil de l'eau, message par message, à chaque retour unitaire de sous-agent (Streaming Réel Synchrone)** :
+  >   * **1 message reçu d'un sous-agent = 1 mise à jour immédiate de `summary.md` via `write_to_file` comme 1er réflexe**.
+  >   * Si $N$ sous-agents tournent en parallèle et répondent successivement au fil du temps, le superviseur met à jour `summary.md` $N$ fois successivement à la réception de chaque message.
+  > - **Objectif Expérience Utilisateur** : Henri consulte `summary.md` en direct sur son écran / mobile. Tout retard dans la mise à jour de `summary.md` donne l'illusion fausse que le chantier est toujours bloqué en cours (`⏳`), ce qui est inacceptable.
 
 * **Suppression Définitive de la Section "Top Priorités" & des Textes Récapitulatifs** :
   - `summary.md` est un flux épuré 100% concentré sur les Q/A actives décroissantes. Ne JAMAIS ajouter de section de fin de page, de tableau des priorités ou de récapitulatif technique en bas de document.
