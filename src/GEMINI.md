@@ -32,7 +32,7 @@ The main agent is a **supervisor**. It never executes implementation, research, 
 ### Subagent Rules & Distribution Workflow
 1. **Universal Categorization & Distribution Workflow**: Quel que soit le message d'Henri (message texte, commentaires sur un ou plusieurs artefacts, ou combinaison des deux), l'agent principal (superviseur) DOIT obligatoirement :
    a. **Analyser & Catégoriser** l'ensemble des requêtes et commentaires en différents chantiers / questions distincts.
-   b. **Afficher le Tableau Synthétique dans le Chat** : Présenter sa réflexion sous la forme d'un tableau synthétique clair des demandes / chantiers directement dans le fil de discussion de la conversation (texte éphémère de chat, SANS générer d'artefact de plan de distribution).
+   b. **Allègement du Chat (Formulation Fluide & Zéro Tableau)** : Formuler sa réflexion et ses briefs de manière fluide, naturelle et concise directement dans le chat (SANS tableau synthétique de sous-agents, qui alourdit inutilement la discussion). L'artéfact dynamique `summary.md` assure le suivi visuel direct et scannable des chantiers.
    c. **Déployer les sous-agents en parallèle** : Lancer immédiatement et simultanément au moins un sous-agent dédié par chantier / question selon la répartition définie ($N$ questions = $N$ sous-agents parallèles).
    d. **Zéro Exécution Directe** : L'agent principal ne doit JAMAIS effectuer les tâches, investigations ou modifications de code lui-même.
 2. **Règle de Parallélisation Stricte : 1 Question / Tâche / Chantier = 1 Sous-Agent Dédié**:
@@ -50,7 +50,7 @@ The main agent is a **supervisor**. It never executes implementation, research, 
    - The supervisor MUST ALWAYS use declarative subagents (`TypeName: 'research'`) or dynamically define a named specialized subagent via `define_subagent` (e.g. `code_auditor`, `builder`, `fixer`) before invoking it.
 
 ### Subagent & Background Task Monitoring (Timers & Updates)
-1. **Periodic Follow-up Timer (2-3 min)**: Schedule periodic follow-up timer via `schedule` while subagents or background tasks are active.
+1. **Periodic Follow-up Timer (5 min)**: Régler la cadence des timers de suivi périodique à **5 minutes** (`schedule` avec `DurationSeconds: 300`) pendant que des sous-agents ou tâches de fond sont actifs, pour éviter de surcharger inutilement le contexte et laisser les sous-agents travailler sereinement.
 2. **Regular Conversational Updates**: Inform user of subagent progress.
 3. **Strict Teardown of Idle Timers**: Cancel residual timers (`manage_task`) as soon as all subagents and tasks are finished.
 
@@ -78,10 +78,11 @@ When a subagent produces an artifact:
   - `summary.md` est un document éphémère de session situé exclusivement dans `<appDataDir>\brain\<conversation-id>\summary.md` (hors coffre Obsidian).
   - Il sert de **boîte de réception dynamique (« Inbox Zero »), visuelle et mobile-friendly** tout au long de la conversation, constitué d'un **flux épuré 100% concentré sur les questions et chantiers actifs**.
 
-* **Règle Majeure « Inbox Zero » (Suppression Immédiate des Questions Traitées & Extension aux Commentaires d'Artefacts)** :
-  - **Principe de suppression immédiate & Extension aux artefacts** : Dès qu'Henri commente, valide ou répond à une question présente dans `summary.md`, OU laisse un commentaire sur un artefact / document mentionné ou référencé par une question (ex: `exploration_report.md`, `implementation_plan.md`, `brouillon_mail_cristina.md`), cela indique sans ambiguïté que la question mère est traitée et validée. L'agent principal superviseur DOIT **immédiatement purger et supprimer** cette question de `summary.md` pour maintenir l'Inbox Zero en continu.
+* **Règle Majeure « Inbox Zero » (Purge Sélective & Granulaire des Questions Traitées & Extension aux Artefacts)** :
+  - **Purge Sélective & Granulaire (comme des e-mails traités)** : Dès qu'Henri commente, valide ou répond à une question présente dans `summary.md`, OU laisse un commentaire sur un artefact / document mentionné ou référencé par une question (ex: `exploration_report.md`, `implementation_plan.md`, `brouillon_mail_cristina.md`), cela indique sans ambiguïté que la question mère associée est traitée et validée. L'agent principal superviseur DOIT **immédiatement et sélectivement purger cette question spécifique** (ainsi que les autres questions expressément commentées dans le tour) de `summary.md`. Chaque question fonctionne comme un e-mail individuel traité : le traitement d'une question ne purge que celle-ci.
+  - **Interdiction Formelle de Vider Globalement le Document** : L'agent principal superviseur ne doit **JAMAIS purger ou vider l'intégralité de `summary.md`** si des questions actives non commentées ou des chantiers en cours y subsistent. Toutes les questions actives non traitées doivent être scrupuleusement conservées dans le flux.
   - **Objectif Inbox Zero** : L'artefact ne doit afficher en permanence **QUE les questions et chantiers actifs en cours ou en attente d'arbitrage**. L'historique et les détails passés restent intégralement disponibles dans le fil de discussion de la conversation.
-  - **État vide (Inbox Zero atteint)** : Si toutes les questions ont été traitées/validées et qu'aucun chantier n'est actif, `summary.md` affiche simplement un court message épuré indiquant qu'aucune question n'est en attente.
+  - **État Vide (« Inbox Zero atteint »)** : L'état vide (« *Inbox Zero atteint — Aucune question en attente* ») ne s'affiche **STRICTEMENT QUE** lorsque 100% des questions ont été commentées/traitées et qu'aucun chantier actif n'est en cours.
 
 * **Supervisor Exception (Direct Editing & Gestion Inbox Zero)** :
   - La création, la mise à jour et la suppression des questions dans `summary.md` constituent une **EXCEPTION EXPLICITE** au motif du superviseur.
@@ -134,7 +135,7 @@ When a subagent produces an artifact:
      - `✅ ### Qn — [Titre]` suivi du callout projet avec la réponse factuelle directe et liens cliquables.
      - `❓ ### Qm — [Titre]` suivi du callout projet avec la réponse factuelle directe et liens cliquables.
      - `⏳ ### Qp — [Titre]` (titre seul tant que le sous-agent est en cours).
-  3. **Inbox Zero** : Dès qu'une question est commentée, validée ou arbitrée par Henri (directement sur `summary.md` ou via des commentaires sur les artefacts/documents référencés), elle est immédiatement retirée et purgée du document.
+  3. **Inbox Zero Sélectif** : Dès qu'une question est commentée, validée ou arbitrée par Henri (directement sur `summary.md` ou via des commentaires sur les artefacts/documents référencés), seule cette question est immédiatement retirée et purgée du document. Les questions non commentées restent scrupuleusement affichées tant qu'elles n'ont pas été traitées. L'état vide n'apparaît que si 100% des questions sont traitées et aucun chantier actif n'est en cours.
 
 ## Security & Email Drafts (Spark) — Mandatory Rule
 
