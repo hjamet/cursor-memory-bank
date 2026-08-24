@@ -76,7 +76,7 @@ When a subagent produces an artifact:
 
 * **Nature & Localisation de l'Artefact** :
   - `summary.md` est un document éphémère de session situé exclusivement dans `<appDataDir>\brain\<conversation-id>\summary.md` (hors coffre Obsidian).
-  - Il sert de **tableau de bord de suivi dynamique, visuel et mobile-friendly** tout au long de la conversation.
+  - Il sert de **tableau de bord de suivi dynamique, visuel et mobile-friendly** tout au long de la conversation, constitué d'un **flux épuré 100% concentré sur les Q/A décroissantes** (sans section ni tableau des priorités en fin de page).
 
 * **Supervisor Exception (Direct Editing)** :
   - La création et la mise à jour de `summary.md` constituent une **EXCEPTION EXPLICITE** au motif du superviseur.
@@ -85,20 +85,25 @@ When a subagent produces an artifact:
 * **Format Questions / Réponses Inspiré du Workflow `/scout`** :
   - **Règle de Granularité Stricte (1 Commentaire / 1 Demande = 1 Question)** :
     Tout commentaire laissé par l'utilisateur sur un artéfact (ainsi que chaque demande explicite formulée dans le corps du message texte) DOIT impérativement correspondre à une question distincte et numérotée dans `summary.md` (ex: 3 commentaires d'artéfact + 4 points textuels = 7 questions distinctes et numérotées `### Q1` à `### Q7`). Il est strictement interdit d'amalgamer ou de noyer des demandes sous une question générique : seuls les commentaires strictement redondants (doublons textuels parfaits) peuvent être fusionnés.
-  - **Titrage numéroté & Reformulation simple** :
-    Chaque question, commentaire ou demande d'Henri est reformulé de manière simple, limpide et concise sous la forme de sous-titres numérotés dans l'ordre exact :
-    `### Q1 — [Question / Demande reformulée simplement]`
-    `### Q2 — [Question / Demande reformulée simplement]`
-  - **Structure de Réponse Scannable & Mobile-Friendly** :
-    Sous chaque sous-titre `### Qn — ...` :
+  - **Convention des Émojis de Statut à Gauche des Titres** :
+    Chaque question, commentaire ou demande d'Henri est reformulé de manière simple, limpide et concise sous la forme de sous-titres précédés de leur émoji de statut :
+    * `✅ ### Qn — [Titre / Demande reformulée]` : Tâche technique / action concrète réalisée avec succès (commit, push, schéma, nettoyage, implémentation).
+    * `❓ ### Qn — [Titre / Question reformulée]` : Réponse factuelle / analytique apportée à une question de l'utilisateur.
+    * `⏳ ### Qn — [Titre / Chantier en cours]` : Chantier ou question actuellement en cours d'exécution par un sous-agent. **STRICTEMENT RIEN DESSOUS** : titre seul, sans aucun callout ni corps de réponse tant que le travail n'est pas terminé.
+  - **Interdiction Stricte des Réponses d'État Temporaire** :
+    * Il est **STRICTEMENT INTERDIT** d'écrire ou d'afficher des formulations d'état intermédiaire (« Le sous-agent intègre... », « Je travaille dessus... », « En cours... »).
+    * Les réponses dans `summary.md` ne doivent apparaître que lorsque le travail est **TERMINÉ**, formulées sous l'angle du résultat factuel direct (« Voici ce qui a été fait »).
+  - **Structure de Réponse Scannable & Mobile-Friendly (Une Fois Terminé)** :
+    Sous chaque sous-titre terminé (`✅ ### Qn — ...` ou `❓ ### Qn — ...`) :
     Chaque réponse DOIT être encapsulée dans un callout GitHub Markdown (`> [!TYPE]`) contenant `**Réponse / Statut :** [Réponse directe en 1 à 3 phrases percutantes, expliquant factuellement le résultat ou ce qui a été fait et comment ça fonctionne, avec liens cliquables format [nom](file:///...)]`, complété si besoin par des puces courtes ou des diagrammes/tableaux compacts.
 
 * **Règle de Tri Anti-Chronologique Stricte (Plus Récent en Haut)** :
-  - **Ordre d'empilement inversé** : Les questions et réponses du **tour le plus récent** (`## Tour N — ...`) DOIVENT TOUJOURS être placées **TOUT EN HAUT** du document (immédiatement sous l'en-tête global / titre), suivies des tours plus anciens en descendant (`Tour N-1`, `Tour N-2`, ...), puis du tableau récapitulatif des priorités et des statuts en bas de page.
+  - **Ordre d'empilement inversé** : Les questions et réponses du **tour le plus récent** (`## Tour N — ...`) DOIVENT TOUJOURS être placées **TOUT EN HAUT** du document (immédiatement sous l'en-tête global / titre), suivies des tours plus anciens en descendant (`Tour N-1`, `Tour N-2`, ...).
+  - **Suppression Définitive de la Section "Top Priorités"** : `summary.md` est un flux épuré 100% concentré sur les Q/A décroissantes. Ne JAMAIS ajouter de section de fin de page, de tableau des priorités ou de récapitulatif technique en bas de document.
   - **Motivation** : Permettre à Henri de consulter instantanément les toutes dernières avancées et réponses dès l'ouverture de l'artefact sur son téléphone sans avoir à scroller.
 
 * **Règle des Callouts GitHub Colorés par Projet (Encapsulation Systématique)** :
-  - **Encapsulation obligatoire** : Chaque réponse dans `summary.md` DOIT être encapsulée dans un callout GitHub Markdown (`> [!TYPE]`).
+  - **Encapsulation obligatoire** : Chaque réponse terminée dans `summary.md` DOIT être encapsulée dans un callout GitHub Markdown (`> [!TYPE]`).
   - **Code couleur par projet (Scannabilité visuelle immédiate)** :
     * **DLLP** : `> [!IMPORTANT]` (Rouge / Violet)
     * **JDR Planner** : `> [!TIP]` (Vert)
@@ -109,7 +114,7 @@ When a subagent produces an artifact:
 
 * **Mises à Jour en Streaming Réel (au fil de l'eau)** :
   - Ne PAS attendre uniquement la fin de la réponse pour mettre à jour `summary.md`.
-  - Mettre à jour `summary.md` **en streaming réel au fur et à mesure que les sous-agents renvoient leurs résultats** ou dès qu'une étape clé est franchie, permettant à Henri de suivre l'avancement en direct sur son écran ou son téléphone.
+  - Mettre à jour `summary.md` **en streaming réel au fur et à mesure que les sous-agents renvoient leurs résultats** : passer le titre de `⏳ ### Qn — ...` à `✅ ### Qn — ...` ou `❓ ### Qn — ...` et y insérer immédiatement la réponse factuelle encapsulée.
 
 * **Principe Cumulatif & Additif (NEVER DELETE HISTORY)** :
   - `summary.md` est un journal cumulatif de l'ensemble de la session.
@@ -122,9 +127,8 @@ When a subagent produces an artifact:
 
 * **Structure Globale Recommandée (Ordre du Haut vers le Bas)** :
   1. **En-tête & Métadonnées** : Titre global, contexte de session, horodatage de dernière actualisation.
-  2. **Dernier Tour Actif (Top of Page)** : `## Tour N — [Date/Heure ou Sujet Global]` avec découpage `### Q1 — ...`, `### Q2 — ...`, avancement en direct, réponses factuelles directes encapsulées dans les callouts projet, décisions stratégiques et liens cliquables.
+  2. **Dernier Tour Actif (Top of Page)** : `## Tour N — [Date/Heure ou Sujet Global]` avec découpage `✅ ### Q1 — ...`, `❓ ### Q2 — ...`, `⏳ ### Q3 — ...`, réponses factuelles directes encapsulées dans les callouts projet (uniquement pour les questions terminées), décisions stratégiques et liens cliquables.
   3. **Historique des Tours Précédents (Descending)** : `## Tour N-1`, `## Tour N-2`, etc. (archivage cumulatif intact, jamais supprimé).
-  4. **Vue Globale / Tableau des Priorités & Technique (Bottom of Page)** : Tableau synthétique des priorités/chantiers, matrice des décisions techniques, règles actives et cartographie des fichiers modifiés.
 
 ## Security & Email Drafts (Spark) — Mandatory Rule
 
