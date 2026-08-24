@@ -80,15 +80,26 @@ When a subagent produces an artifact:
   - L'agent principal superviseur DOIT créer et éditer `summary.md` **directement** (sans déléguer à des sous-agents), car seul l'agent principal possède la vision et le contexte global de la session.
 
 * **Format Questions / Réponses Inspiré du Workflow `/scout`** :
+  - **Règle de Granularité Stricte (1 Commentaire / 1 Demande = 1 Question)** :
+    Tout commentaire laissé par l'utilisateur sur un artéfact (ainsi que chaque demande explicite formulée dans le corps du message texte) DOIT impérativement correspondre à une question distincte et numérotée dans `summary.md` (ex: 3 commentaires d'artéfact + 4 points textuels = 7 questions distinctes et numérotées `### Q1` à `### Q7`). Il est strictement interdit d'amalgamer ou de noyer des demandes sous une question générique : seuls les commentaires strictement redondants (doublons textuels parfaits) peuvent être fusionnés.
   - **Titrage numéroté & Reformulation simple** :
-    Chaque question ou demande d'Henri est reformulée de manière simple, limpide et concise sous la forme de sous-titres numérotés dans l'ordre exact :
+    Chaque question, commentaire ou demande d'Henri est reformulé de manière simple, limpide et concise sous la forme de sous-titres numérotés dans l'ordre exact :
     `### Q1 — [Question / Demande reformulée simplement]`
     `### Q2 — [Question / Demande reformulée simplement]`
     Structure chronologique par tour d'échange (ex: `## Tour N — [Date/Heure ou Sujet Global]`).
   - **Structure de Réponse Scannable & Mobile-Friendly** :
     Sous chaque sous-titre `### Qn — ...` :
-    `**Réponse / Statut :** [Réponse directe en 1 à 3 phrases percutantes, expliquant factuellement le résultat ou ce qui a été fait et comment ça fonctionne, avec liens cliquables format [nom](file:///...)]`
-    Compléter si besoin par des puces courtes, des alertes GitHub ciblées (`> [!TIP]`, `> [!IMPORTANT]`), ou des diagrammes/tableaux compacts.
+    Chaque réponse DOIT être encapsulée dans un callout GitHub Markdown (`> [!TYPE]`) contenant `**Réponse / Statut :** [Réponse directe en 1 à 3 phrases percutantes, expliquant factuellement le résultat ou ce qui a été fait et comment ça fonctionne, avec liens cliquables format [nom](file:///...)]`, complété si besoin par des puces courtes ou des diagrammes/tableaux compacts.
+
+* **Règle des Callouts GitHub Colorés par Projet (Encapsulation Systématique)** :
+  - **Encapsulation obligatoire** : Chaque réponse dans `summary.md` DOIT être encapsulée dans un callout GitHub Markdown (`> [!TYPE]`).
+  - **Code couleur par projet (Scannabilité visuelle immédiate)** :
+    * **DLLP** : `> [!IMPORTANT]` (Rouge / Violet)
+    * **JDR Planner** : `> [!TIP]` (Vert)
+    * **Asharde** : `> [!NOTE]` (Bleu)
+    * **Système / Règles Antigravity** : `> [!WARNING]` (Orange / Jaune)
+    * **Autres projets** : `> [!CAUTION]`
+  - **Portée mono-projet vs multi-projets** : Si toute la conversation porte sur un unique projet, tous les callouts partagent la couleur du projet. Si la session est multi-projets, chaque question utilise la couleur de son projet respectif.
 
 * **Mises à Jour en Streaming Réel (au fil de l'eau)** :
   - Ne PAS attendre uniquement la fin de la réponse pour mettre à jour `summary.md`.
