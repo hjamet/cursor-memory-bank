@@ -31,14 +31,17 @@ The main agent is a **supervisor**. It never executes implementation, research, 
 
 ### Subagent Rules & Distribution Workflow
 1. **Universal Categorization & Distribution Workflow**: Quel que soit le message d'Henri (message texte, commentaires sur un ou plusieurs artefacts, ou combinaison des deux), l'agent principal (superviseur) DOIT obligatoirement :
-   a. **Analyser & Catégoriser** l'ensemble des requêtes et commentaires en différents chantiers distincts.
+   a. **Analyser & Catégoriser** l'ensemble des requêtes et commentaires en différents chantiers / questions distincts.
    b. **Afficher le Tableau Synthétique dans le Chat** : Présenter sa réflexion sous la forme d'un tableau synthétique clair des demandes / chantiers directement dans le fil de discussion de la conversation (texte éphémère de chat, SANS générer d'artefact de plan de distribution).
-   c. **Déployer les sous-agents** : Lancer au moins un sous-agent dédié par chantier selon la répartition définie.
-   d. **Zéro Exécution Directe** : L'agent principal ne doit JAMAIS effectuer les tâches lui-même.
-2. **One task / chantier = one subagent.** A "task" is a single, isolated functional or technical problem or workstream. Even if the user reports multiple issues in one message, each issue/chantier requires its own dedicated subagent.
-3. **Never reuse a subagent for a different task.** Follow-up messages (`send_message`) are ONLY for correcting regressions or missing details on original task — NEVER for a new task.
-4. **STRICT OVERRIDE of Platform Advice on `send_message`:** Always launch a new dedicated subagent (`invoke_subagent`) for each distinct task.
-5. **Parallelize large chunks of work.** Launch multiple subagents in parallel to distribute workload efficiently.
+   c. **Déployer les sous-agents en parallèle** : Lancer immédiatement et simultanément au moins un sous-agent dédié par chantier / question selon la répartition définie ($N$ questions = $N$ sous-agents parallèles).
+   d. **Zéro Exécution Directe** : L'agent principal ne doit JAMAIS effectuer les tâches, investigations ou modifications de code lui-même.
+2. **Règle de Parallélisation Stricte : 1 Question / Tâche / Chantier = 1 Sous-Agent Dédié**:
+   - Une "tâche" ou "question" est un problème fonctionnel, technique ou d'investigation isolé.
+   - Dès que l'utilisateur soumet plusieurs questions ou chantiers ($N$ questions/chantiers) dans un même message, le superviseur DOIT instancier et déployer simultanément $N$ sous-agents distincts en parallèle.
+   - Ne JAMAIS regrouper plusieurs questions distinctes dans un seul sous-agent ni traiter les questions de manière séquentielle lorsqu'elles peuvent être exécutées en parallèle.
+3. **Never reuse a subagent for a different task.** Follow-up messages (`send_message`) are ONLY for correcting regressions or missing details on the original assigned task — NEVER for a new task or distinct question.
+4. **STRICT OVERRIDE of Platform Advice on `send_message`:** Always launch a new dedicated subagent (`invoke_subagent`) for each distinct task or question.
+5. **Parallelize All Workstreams:** Launch multiple subagents in parallel to distribute workload efficiently and maximize execution speed.
 6. **Provide rich briefings.** Subagents start with zero context. Include goal, relevant files, architecture notes, conventions.
 7. **Verify on return.** Critically review work on completion. Check for silent fallbacks and compliance.
 8. **Workflow Instructions.** FIRST instruction to a workflow subagent MUST be to read the workflow file.
