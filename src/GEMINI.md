@@ -89,10 +89,13 @@ When a subagent produces an artifact:
     Chaque question, commentaire ou demande d'Henri est reformulé de manière simple, limpide et concise sous la forme de sous-titres numérotés dans l'ordre exact :
     `### Q1 — [Question / Demande reformulée simplement]`
     `### Q2 — [Question / Demande reformulée simplement]`
-    Structure chronologique par tour d'échange (ex: `## Tour N — [Date/Heure ou Sujet Global]`).
   - **Structure de Réponse Scannable & Mobile-Friendly** :
     Sous chaque sous-titre `### Qn — ...` :
     Chaque réponse DOIT être encapsulée dans un callout GitHub Markdown (`> [!TYPE]`) contenant `**Réponse / Statut :** [Réponse directe en 1 à 3 phrases percutantes, expliquant factuellement le résultat ou ce qui a été fait et comment ça fonctionne, avec liens cliquables format [nom](file:///...)]`, complété si besoin par des puces courtes ou des diagrammes/tableaux compacts.
+
+* **Règle de Tri Anti-Chronologique Stricte (Plus Récent en Haut)** :
+  - **Ordre d'empilement inversé** : Les questions et réponses du **tour le plus récent** (`## Tour N — ...`) DOIVENT TOUJOURS être placées **TOUT EN HAUT** du document (immédiatement sous l'en-tête global / titre), suivies des tours plus anciens en descendant (`Tour N-1`, `Tour N-2`, ...), puis du tableau récapitulatif des priorités et des statuts en bas de page.
+  - **Motivation** : Permettre à Henri de consulter instantanément les toutes dernières avancées et réponses dès l'ouverture de l'artefact sur son téléphone sans avoir à scroller.
 
 * **Règle des Callouts GitHub Colorés par Projet (Encapsulation Systématique)** :
   - **Encapsulation obligatoire** : Chaque réponse dans `summary.md` DOIT être encapsulée dans un callout GitHub Markdown (`> [!TYPE]`).
@@ -111,15 +114,17 @@ When a subagent produces an artifact:
 * **Principe Cumulatif & Additif (NEVER DELETE HISTORY)** :
   - `summary.md` est un journal cumulatif de l'ensemble de la session.
   - Il est **STRICTEMENT INTERDIT d'effacer les tours précédents** ou les questions/réponses antérieures.
-  - Enrichir et ajouter les nouvelles sections au fil de l'eau tout au long de la session, sans jamais perdre l'historique des arbitrages et décisions.
+  - Enrichir et insérer les nouveaux tours systématiquement au sommet du flux (sous le titre) tout au long de la session, sans jamais perdre l'historique des arbitrages et décisions passés.
 
 * **Format Ultra-Visuel & Liens Cliquables** :
   - Bannir les pavés de texte indigestes.
   - Utiliser des diagrammes Mermaid (architectures, flux), des alertes GitHub et des **liens Markdown cliquables absolus** (`[nom](file:///...)`) vers tous les fichiers, scripts, rapports et documents créés ou modifiés au cours de la session.
 
-* **Structure Globale Recommandée** :
-  - **Vue Utilisateur (Suivi Dynamique & Actions Q/A)** : Découpage ordonné `### Q1 — ...`, `### Q2 — ...` par tour, avancement en direct, réponses factuelles directes en 1 à 3 phrases percutantes, décisions stratégiques, et liens cliquables vers les livrables.
-  - **Vue Agent / Technique (Aide-Mémoire Contextuel)** : Statut cumulatif des chantiers/codebase, matrice des décisions techniques, règles actives et cartographie des fichiers modifiés.
+* **Structure Globale Recommandée (Ordre du Haut vers le Bas)** :
+  1. **En-tête & Métadonnées** : Titre global, contexte de session, horodatage de dernière actualisation.
+  2. **Dernier Tour Actif (Top of Page)** : `## Tour N — [Date/Heure ou Sujet Global]` avec découpage `### Q1 — ...`, `### Q2 — ...`, avancement en direct, réponses factuelles directes encapsulées dans les callouts projet, décisions stratégiques et liens cliquables.
+  3. **Historique des Tours Précédents (Descending)** : `## Tour N-1`, `## Tour N-2`, etc. (archivage cumulatif intact, jamais supprimé).
+  4. **Vue Globale / Tableau des Priorités & Technique (Bottom of Page)** : Tableau synthétique des priorités/chantiers, matrice des décisions techniques, règles actives et cartographie des fichiers modifiés.
 
 ## Security & Email Drafts (Spark) — Mandatory Rule
 
