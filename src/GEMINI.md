@@ -72,35 +72,40 @@ When a subagent produces an artifact:
 1. **Mention** it in the conversation with the user (include file link).
 2. **Never** copy, rewrite, or duplicate the artifact content into the main agent's own context or files.
 
-### Continuous Cumulative Visual Synthesis Artifact (`summary.md`) — Mandatory Rule
+### Dynamic "Inbox Zero" Visual Synthesis Artifact (`summary.md`) — Mandatory Rule
 
 * **Nature & Localisation de l'Artefact** :
   - `summary.md` est un document éphémère de session situé exclusivement dans `<appDataDir>\brain\<conversation-id>\summary.md` (hors coffre Obsidian).
-  - Il sert de **tableau de bord de suivi dynamique, visuel et mobile-friendly** tout au long de la conversation, constitué d'un **flux épuré 100% concentré sur les Q/A décroissantes** (sans section ni tableau des priorités en fin de page).
+  - Il sert de **boîte de réception dynamique (« Inbox Zero »), visuelle et mobile-friendly** tout au long de la conversation, constitué d'un **flux épuré 100% concentré sur les questions et chantiers actifs**.
 
-* **Supervisor Exception (Direct Editing & Dé-calloutage)** :
-  - La création, la mise à jour et le dé-calloutage de `summary.md` constituent une **EXCEPTION EXPLICITE** au motif du superviseur.
-  - L'agent principal superviseur DOIT créer, éditer et dé-callouter `summary.md` **directement** (sans déléguer à des sous-agents), car seul l'agent principal possède la vision et le contexte global de la session.
+* **Règle Majeure « Inbox Zero » (Suppression Immédiate des Questions Traitées)** :
+  - **Principe de suppression immédiate** : Dès que l'utilisateur (Henri) commente, valide ou répond à une question présente dans `summary.md` (ou laisse un commentaire sur l'artefact), la question DOIT être **purement et simplement SUPPRIMÉE** de `summary.md`.
+  - **Objectif Inbox Zero** : L'artefact ne doit afficher en permanence **QUE les questions et chantiers actifs en cours ou en attente d'arbitrage**. L'historique et les détails passés restent intégralement disponibles dans le fil de discussion de la conversation.
+  - **État vide (Inbox Zero atteint)** : Si toutes les questions ont été traitées/validées et qu'aucun chantier n'est actif, `summary.md` affiche simplement un court message épuré indiquant qu'aucune question n'est en attente.
 
-* **Format Questions / Réponses Inspiré du Workflow `/scout`** :
+* **Supervisor Exception (Direct Editing & Gestion Inbox Zero)** :
+  - La création, la mise à jour et la suppression des questions dans `summary.md` constituent une **EXCEPTION EXPLICITE** au motif du superviseur.
+  - L'agent principal superviseur DOIT créer, éditer et purger `summary.md` **directement** (sans déléguer à des sous-agents), car seul l'agent principal possède la vision et le contexte global de la session.
+
+* **Standardisation Déterministe Stricte du Format** :
+  - **En-tête Épuré (Zéro Callout Introductif)** :
+    * Titre global `# ...` simple (ex: `# Synthèse de Session — Antigravity`).
+    * Ne **JAMAIS ajouter de callout introductif explicatif**, d'encart verbeux ou de métadonnées en haut de `summary.md`.
+  - **Ordre Strictement Décroissant des Questions Actives ($Q_N \to Q_{N-k}$)** :
+    * Les questions actives doivent toujours être triées par ordre strictement décroissant de numéro ($Q_N \to Q_1$), les questions les plus récentes apparaissant tout en haut de la liste.
   - **Règle de Granularité Stricte (1 Commentaire / 1 Demande = 1 Question)** :
-    Tout commentaire laissé par l'utilisateur sur un artéfact (ainsi que chaque demande explicite formulée dans le corps du message texte) DOIT impérativement correspondre à une question distincte et numérotée dans `summary.md` (ex: 3 commentaires d'artéfact + 4 points textuels = 7 questions distinctes et numérotées `### Q1` à `### Q7`). Il est strictement interdit d'amalgamer ou de noyer des demandes sous une question générique : seuls les commentaires strictement redondants (doublons textuels parfaits) peuvent être fusionnés.
-  - **Convention des Émojis de Statut à Gauche des Titres** :
-    Chaque question, commentaire ou demande d'Henri est reformulé de manière simple, limpide et concise sous la forme de sous-titres précédés de leur émoji de statut :
+    * Tout commentaire laissé par l'utilisateur sur un artefact (ainsi que chaque demande explicite formulée dans le corps du message texte) DOIT impérativement correspondre à une question distincte et numérotée dans `summary.md` (ex: 3 commentaires d'artefact + 4 points textuels = 7 questions distinctes et numérotées `### Q1` à `### Q7`). Il est strictement interdit d'amalgamer ou de noyer des demandes sous une question générique : seuls les commentaires strictement redondants (doublons textuels parfaits) peuvent être fusionnés.
+  - **Convention des Émojis de Statut à Gauche des Titres (H3)** :
+    Chaque question ou chantier actif est reformulé de manière simple, limpide et concise sous forme de sous-titres H3 précédés de leur émoji de statut :
     * `✅ ### Qn — [Titre / Demande reformulée]` : Tâche technique / action concrète réalisée avec succès (commit, push, schéma, nettoyage, implémentation).
     * `❓ ### Qn — [Titre / Question reformulée]` : Réponse factuelle / analytique apportée à une question de l'utilisateur.
-    * `⏳ ### Qn — [Titre / Chantier en cours]` : Chantier ou question actuellement en cours d'exécution par un sous-agent. **STRICTEMENT RIEN DESSOUS** : titre seul, sans aucun callout ni corps de réponse tant que le travail n'est pas terminé.
+    * `⏳ ### Qn — [Titre / Chantier en cours]` : Chantier ou question actuellement en cours d'exécution par un sous-agent. **STRICTEMENT RIEN DESSOUS** : titre seul, sans aucun callout ni corps de réponse tant que le sous-agent n'a pas terminé.
   - **Interdiction Stricte des Réponses d'État Temporaire** :
     * Il est **STRICTEMENT INTERDIT** d'écrire ou d'afficher des formulations d'état intermédiaire (« Le sous-agent intègre... », « Je travaille dessus... », « En cours... »).
     * Les réponses dans `summary.md` ne doivent apparaître que lorsque le travail est **TERMINÉ**, formulées sous l'angle du résultat factuel direct (« Voici ce qui a été fait »).
   - **Structure de Réponse Scannable & Mobile-Friendly (Une Fois Terminé)** :
     Sous chaque sous-titre terminé (`✅ ### Qn — ...` ou `❓ ### Qn — ...`) :
     Chaque réponse DOIT être encapsulée dans un callout GitHub Markdown (`> [!TYPE]`) contenant `**Réponse / Statut :** [Réponse directe en 1 à 3 phrases percutantes, expliquant factuellement le résultat ou ce qui a été fait et comment ça fonctionne, avec liens cliquables format [nom](file:///...)]`, complété si besoin par des puces courtes ou des diagrammes/tableaux compacts.
-
-* **Règle de Tri Anti-Chronologique Stricte (Plus Récent en Haut)** :
-  - **Ordre d'empilement inversé** : Les questions et réponses du **tour le plus récent** (`## Tour N — ...`) DOIVENT TOUJOURS être placées **TOUT EN HAUT** du document (immédiatement sous l'en-tête global / titre), suivies des tours plus anciens en descendant (`Tour N-1`, `Tour N-2`, ...).
-  - **Suppression Définitive de la Section "Top Priorités"** : `summary.md` est un flux épuré 100% concentré sur les Q/A décroissantes. Ne JAMAIS ajouter de section de fin de page, de tableau des priorités ou de récapitulatif technique en bas de document.
-  - **Motivation** : Permettre à Henri de consulter instantanément les toutes dernières avancées et réponses dès l'ouverture de l'artefact sur son téléphone sans avoir à scroller.
 
 * **Règle des Callouts GitHub Colorés par Projet (Encapsulation Systématique)** :
   - **Encapsulation obligatoire des réponses actives** : Chaque réponse terminée dans `summary.md` DOIT être encapsulée dans un callout GitHub Markdown (`> [!TYPE]`).
@@ -112,32 +117,24 @@ When a subagent produces an artifact:
     * **Autres projets** : `> [!CAUTION]`
   - **Portée mono-projet vs multi-projets** : Si toute la conversation porte sur un unique projet, tous les callouts partagent la couleur du projet. Si la session est multi-projets, chaque question utilise la couleur de son projet respectif.
 
-* **Règle du Dé-calloutage (« Question/Commentaire Traité »)** :
-  - **Principe de dé-calloutage immédiat** : Lorsque Henri laisse un commentaire sur une question existante dans `summary.md` (ou qu'il valide/commente la réponse par ex. *"parfait"*, *"impec"*, *"/refine"*, critique, etc.), le callout GitHub Markdown (`> [!TYPE]`) de cette question doit être **retiré pour ne laisser que le texte brut en paragraphe normal**.
-  - **Indicateur visuel épuré (Actif vs Traité)** : Ce dé-calloutage sert d'indicateur visuel immédiat pour Henri que son commentaire a été pris en compte, traité et archivé. Le document offre une visibilité instantanée : les éléments en cours/nouveaux ont des callouts colorés, les éléments validés/traités sont en texte normal.
-  - **Exécution directe par le superviseur** : L'agent principal superviseur applique cette transformation **directement et immédiatement**, sans passer par des sous-agents.
-
-* **Suppression des Encarts d'En-tête Superflus (Header Épuré)** :
-  - Ne **JAMAIS ajouter de callout introductif explicatif** ni d'encart verbeux en haut de `summary.md`.
-  - La structure démarre directement par un **titre simple `# ...`** suivi directement de la liste Q/A décroissante.
-
 * **Mises à Jour en Streaming Réel (au fil de l'eau)** :
   - Ne PAS attendre uniquement la fin de la réponse pour mettre à jour `summary.md`.
   - Mettre à jour `summary.md` **en streaming réel au fur et à mesure que les sous-agents renvoient leurs résultats** : passer le titre de `⏳ ### Qn — ...` à `✅ ### Qn — ...` ou `❓ ### Qn — ...` et y insérer immédiatement la réponse factuelle encapsulée.
 
-* **Principe Cumulatif & Additif (NEVER DELETE HISTORY)** :
-  - `summary.md` est un journal cumulatif de l'ensemble de la session.
-  - Il est **STRICTEMENT INTERDIT d'effacer les tours précédents** ou les questions/réponses antérieures.
-  - Enrichir et insérer les nouveaux tours systématiquement au sommet du flux (sous le titre) tout au long de la session, sans jamais perdre l'historique des arbitrages et décisions passés.
+* **Suppression Définitive de la Section "Top Priorités" & des Textes Récapitulatifs** :
+  - `summary.md` est un flux épuré 100% concentré sur les Q/A actives décroissantes. Ne JAMAIS ajouter de section de fin de page, de tableau des priorités ou de récapitulatif technique en bas de document.
 
 * **Format Ultra-Visuel & Liens Cliquables** :
   - Bannir les pavés de texte indigestes.
   - Utiliser des diagrammes Mermaid (architectures, flux), des alertes GitHub et des **liens Markdown cliquables absolus** (`[nom](file:///...)`) vers tous les fichiers, scripts, rapports et documents créés ou modifiés au cours de la session.
 
-* **Structure Globale Recommandée (Ordre du Haut vers le Bas)** :
-  1. **En-tête Épuré (Zéro Callout Introductif)** : Titre global `# ...` simple (sans encart ni bloc d'explication).
-  2. **Dernier Tour Actif (Top of Page)** : `## Tour N — [Date/Heure ou Sujet Global]` avec découpage `✅ ### Q1 — ...`, `❓ ### Q2 — ...`, `⏳ ### Q3 — ...`, réponses factuelles directes encapsulées dans les callouts projet (pour les questions actives du tour) ou en texte brut dé-callouté (pour les questions traitées/validées), décisions stratégiques et liens cliquables.
-  3. **Historique des Tours Précédents (Descending)** : `## Tour N-1`, `## Tour N-2`, etc. (archivage cumulatif intact, jamais supprimé, dé-callouté au fil des validations).
+* **Structure Globale Déterministe (Ordre du Haut vers le Bas)** :
+  1. **En-tête Épuré** : `# Synthèse de Session — Antigravity` (sans callout introductif ni métadonnées).
+  2. **Questions Actives en Ordre Décroissant ($Q_N \to Q_{N-k}$)** :
+     - `✅ ### Qn — [Titre]` suivi du callout projet avec la réponse factuelle directe et liens cliquables.
+     - `❓ ### Qm — [Titre]` suivi du callout projet avec la réponse factuelle directe et liens cliquables.
+     - `⏳ ### Qp — [Titre]` (titre seul tant que le sous-agent est en cours).
+  3. **Inbox Zero** : Dès qu'une question est commentée, validée ou arbitrée par Henri, elle est immédiatement retirée du document.
 
 ## Security & Email Drafts (Spark) — Mandatory Rule
 
