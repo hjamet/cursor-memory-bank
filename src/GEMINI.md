@@ -79,28 +79,32 @@ When a subagent produces an artifact:
   - La création et la mise à jour de `summary.md` constituent une **EXCEPTION EXPLICITE** au motif du superviseur.
   - L'agent principal superviseur DOIT créer et éditer `summary.md` **directement** (sans déléguer à des sous-agents), car seul l'agent principal possède la vision et le contexte global de la session.
 
-* **Découpage Ordonné Strict par Question / Demande** :
-  - À chaque nouveau message de l'utilisateur (Henri), ajouter immédiatement les sections / titres correspondant à chacune de ses questions ou demandes, dans l'**ordre exact** où elles ont été posées (ex: 5 questions => 5 sous-titres distincts numérotés ou titrés dans l'ordre).
-  - Structure chronologique par tour d'échange (ex: `## Tour N — [Date/Heure ou Sujet Global]` avec des sous-sections `### 1. [Demande 1]`, `### 2. [Demande 2]`, etc.).
+* **Format Questions / Réponses Inspiré du Workflow `/scout`** :
+  - **Titrage numéroté & Reformulation simple** :
+    Chaque question ou demande d'Henri est reformulée de manière simple, limpide et concise sous la forme de sous-titres numérotés dans l'ordre exact :
+    `### Q1 — [Question / Demande reformulée simplement]`
+    `### Q2 — [Question / Demande reformulée simplement]`
+    Structure chronologique par tour d'échange (ex: `## Tour N — [Date/Heure ou Sujet Global]`).
+  - **Structure de Réponse Scannable & Mobile-Friendly** :
+    Sous chaque sous-titre `### Qn — ...` :
+    `**Réponse / Statut :** [Réponse directe en 1 à 3 phrases percutantes, expliquant factuellement le résultat ou ce qui a été fait et comment ça fonctionne, avec liens cliquables format [nom](file:///...)]`
+    Compléter si besoin par des puces courtes, des alertes GitHub ciblées (`> [!TIP]`, `> [!IMPORTANT]`), ou des diagrammes/tableaux compacts.
 
-* **Mise à Jour en Temps Réel au Fil de l'Eau (Live Dynamic Streaming)** :
+* **Mises à Jour en Streaming Réel (au fil de l'eau)** :
   - Ne PAS attendre uniquement la fin de la réponse pour mettre à jour `summary.md`.
-  - Mettre à jour `summary.md` **au fur et à mesure que les sous-agents renvoient leurs résultats** ou dès qu'une étape clé est franchie, permettant à Henri de suivre l'avancement en direct sur son écran ou son téléphone.
-
-* **Rédaction Synthétique Mobile-Friendly (Lecture Smartphone)** :
-  - Rédiger sous chaque titre en **quelques phrases claires, percutantes et directes** (résultat factuel immédiat, confirmation d'implémentation expliquant concrètement ce qui a été fait et comment cela fonctionne, sans noyer sous les détails techniques superflus ni jargon verbeux).
-  - Mise en page aérée et optimisée pour smartphone : phrases concises, puces aérées, callouts GitHub ciblés (`> [!TIP]`, `> [!IMPORTANT]`), tableaux compacts.
+  - Mettre à jour `summary.md` **en streaming réel au fur et à mesure que les sous-agents renvoient leurs résultats** ou dès qu'une étape clé est franchie, permettant à Henri de suivre l'avancement en direct sur son écran ou son téléphone.
 
 * **Principe Cumulatif & Additif (NEVER DELETE HISTORY)** :
   - `summary.md` est un journal cumulatif de l'ensemble de la session.
-  - Il est **STRICTEMENT INTERDIT d'effacer les tours précédents** ou les réponses antérieures.
-  - Enrichir et ajouter les nouvelles sections au fur et à mesure, en compactant si nécessaire les éléments très anciens sans jamais perdre l'historique des arbitrages et décisions.
+  - Il est **STRICTEMENT INTERDIT d'effacer les tours précédents** ou les questions/réponses antérieures.
+  - Enrichir et ajouter les nouvelles sections au fil de l'eau tout au long de la session, sans jamais perdre l'historique des arbitrages et décisions.
 
 * **Format Ultra-Visuel & Liens Cliquables** :
-  - Bannir les pavés de texte indigestes. Utiliser des diagrammes Mermaid (architectures, flux), des alertes GitHub et des **liens Markdown cliquables absolus** (`[nom](file:///...)`) vers tous les fichiers, scripts, rapports et documents créés ou modifiés au cours de la session.
+  - Bannir les pavés de texte indigestes.
+  - Utiliser des diagrammes Mermaid (architectures, flux), des alertes GitHub et des **liens Markdown cliquables absolus** (`[nom](file:///...)`) vers tous les fichiers, scripts, rapports et documents créés ou modifiés au cours de la session.
 
 * **Structure Globale Recommandée** :
-  - **Vue Utilisateur (Suivi Dynamique & Actions)** : Découpage ordonné des demandes du tour, avancement en direct, résultats factuels percutants, décisions stratégiques, et liens cliquables vers les livrables.
+  - **Vue Utilisateur (Suivi Dynamique & Actions Q/A)** : Découpage ordonné `### Q1 — ...`, `### Q2 — ...` par tour, avancement en direct, réponses factuelles directes en 1 à 3 phrases percutantes, décisions stratégiques, et liens cliquables vers les livrables.
   - **Vue Agent / Technique (Aide-Mémoire Contextuel)** : Statut cumulatif des chantiers/codebase, matrice des décisions techniques, règles actives et cartographie des fichiers modifiés.
 
 ## Security & Email Drafts (Spark) — Mandatory Rule
