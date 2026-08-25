@@ -98,14 +98,16 @@ When a subagent produces an artifact:
     * Tout commentaire laissé par l'utilisateur sur un artefact (ainsi que chaque demande explicite formulée dans le corps du message texte) DOIT impérativement correspondre à une question distincte et numérotée dans `summary.md` (ex: 3 commentaires d'artefact + 4 points textuels = 7 questions distinctes et numérotées `### Q1` à `### Q7`). Il est strictement interdit d'amalgamer ou de noyer des demandes sous une question générique : seuls les commentaires strictement redondants (doublons textuels parfaits) peuvent être fusionnés.
   - **Convention des Émojis de Statut dans les Titres (H3)** :
     Chaque question ou chantier actif est reformulé de manière simple, limpide et concise sous forme de sous-titres H3 avec leur émoji de statut immédiatement après les dièses :
-    * `### ✅ Qn — [Titre / Demande reformulée]` : Tâche technique / action concrète réalisée avec succès (commit, push, schéma, nettoyage, implémentation).
-    * `### ❓ Qn — [Titre / Question reformulée]` : Réponse factuelle / analytique apportée à une question de l'utilisateur.
-    * `### ⏳ Qn — [Titre / Chantier en cours]` : Chantier ou question actuellement en cours d'exécution par un sous-agent. **STRICTEMENT RIEN DESSOUS** : titre seul, sans aucun callout ni corps de réponse tant que le sous-agent n'a pas terminé.
+    * `### ✅ Qn — [Question technique posée ?]` : Tâche technique / action concrète réalisée avec succès (commit, push, schéma, nettoyage, implémentation).
+    * `### ❓ Qn — [Question analytique posée ?]` : Réponse factuelle / analytique apportée à une question de l'utilisateur.
+    * `### ⏳ Qn — [Question en cours d'exécution ?]` : Chantier ou question actuellement en cours d'exécution par un sous-agent. **STRICTEMENT RIEN DESSOUS** : titre seul (terminé par un point d'interrogation `?`), sans aucun callout ni corps de réponse tant que le sous-agent n'a pas terminé.
+  - **Règle des Titres H3 sous Forme de Questions Explicites (MANDATOIRE)** :
+    * Chaque sous-titre H3 (`### ✅ Qn — ...`, `### ❓ Qn — ...`, `### ⏳ Qn — ...`) **DOIT SYSTÉMATIQUEMENT ÊTRE FORMULÉ SOUS FORME D'UNE QUESTION EXPLICITE** (se terminant par un point d'interrogation `?`). Il est formellement interdit d'utiliser de simples titres ou des étiquettes neutres. Le titre H3 pose la question précise soulevée par Henri ou par le chantier technique, et le callout GitHub projet situé juste en-dessous y apporte la réponse factuelle directe et démontrée.
   - **Interdiction Stricte des Réponses d'État Temporaire** :
     * Il est **STRICTEMENT INTERDIT** d'écrire ou d'afficher des formulations d'état intermédiaire (« Le sous-agent intègre... », « Je travaille dessus... », « En cours... »).
     * Les réponses dans `summary.md` ne doivent apparaître que lorsque le travail est **TERMINÉ**, formulées sous l'angle du résultat factuel direct (« Voici ce qui a été fait »).
   - **Structure de Réponse Scannable & Mobile-Friendly (Une Fois Terminé)** :
-    Sous chaque sous-titre terminé (`### ✅ Qn — ...` ou `### ❓ Qn — ...`) :
+    Sous chaque sous-titre terminé (`### ✅ Qn — ... ?` ou `### ❓ Qn — ... ?`) :
     Chaque réponse DOIT être encapsulée dans un callout GitHub Markdown (`> [!TYPE]`) contenant `**Réponse / Statut :** [Réponse directe en 1 à 3 phrases percutantes, expliquant factuellement le résultat ou ce qui a été fait et comment ça fonctionne, avec liens cliquables format [nom](file:///...)]`, complété si besoin par des puces courtes ou des diagrammes/tableaux compacts.
 
 * **Règle des Callouts GitHub Colorés par Projet (Encapsulation Systématique)** :
@@ -123,7 +125,7 @@ When a subagent produces an artifact:
   > **RÈGLE DU PREMIER APPEL D'OUTIL OBLIGATOIRE (FIRST TOOL CALL OBLIGATION) :**
   > Dès que le superviseur reçoit un message entrant d'un sous-agent (`send_message`) ou une notification d'achèvement de tâche, le **TOUT PREMIER OUTIL** exécuté par le superviseur dans son tour de réponse **DOIT OBLIGATOIREMENT ÊTRE `write_to_file` sur `summary.md`**.
   > - **Zéro Outil Intermédiaire** : Le superviseur ne doit exécuter AUCUN autre outil (ni commande git, ni consultation de fichier, ni invocation d'un autre sous-agent, ni envoi de message dans le chat) avant d'avoir mis à jour `summary.md`.
-  > - **Transition Immédiate de Statut** : Ce premier appel convertit immédiatement le bloc du chantier concerné : passage de `### ⏳ Qn — [Titre]` à `### ✅ Qn — [Titre]` (si action technique/concrète réalisée) ou `### ❓ Qn — [Titre]` (si réponse factuelle/analytique apportée), avec injection directe du callout GitHub coloré contenant la réponse factuelle synthétique, le résultat prouvé et les liens cliquables.
+  > - **Transition Immédiate de Statut** : Ce premier appel convertit immédiatement le bloc du chantier concerné : passage de `### ⏳ Qn — [Question posée ?]` à `### ✅ Qn — [Question posée ?]` (si action technique/concrète réalisée) ou `### ❓ Qn — [Question posée ?]` (si réponse factuelle/analytique apportée), avec injection directe du callout GitHub coloré contenant la réponse factuelle synthétique, le résultat prouvé et les liens cliquables.
 
   > [!WARNING]
   > **INTERDICTION FORMELLE DE DIFFÉRER LA MISE À JOUR (STREAMING RÉEL vs BATCH) :**
@@ -143,9 +145,9 @@ When a subagent produces an artifact:
 * **Structure Globale Déterministe (Ordre du Haut vers le Bas)** :
   1. **En-tête Épuré** : `# Synthèse de Session — Antigravity` (sans callout introductif ni métadonnées).
   2. **Questions Actives en Ordre Décroissant ($Q_N \to Q_{N-k}$)** :
-     - `### ✅ Qn — [Titre]` suivi du callout projet avec la réponse factuelle directe et liens cliquables.
-     - `### ❓ Qm — [Titre]` suivi du callout projet avec la réponse factuelle directe et liens cliquables.
-     - `### ⏳ Qp — [Titre]` (titre seul tant que le sous-agent est en cours).
+     - `### ✅ Qn — [Question posée ?]` suivi du callout projet avec la réponse factuelle directe et liens cliquables.
+     - `### ❓ Qm — [Question posée ?]` suivi du callout projet avec la réponse factuelle directe et liens cliquables.
+     - `### ⏳ Qp — [Question posée ?]` (titre seul se terminant par `?` tant que le sous-agent est en cours).
   3. **Inbox Zero Sélectif** : Dès qu'une question est commentée, validée ou arbitrée par Henri (directement sur `summary.md` ou via des commentaires sur les artefacts/documents référencés), seule cette question est immédiatement retirée et purgée du document. Les questions non commentées restent scrupuleusement affichées tant qu'elles n'ont pas été traitées (interdiction formelle de les effacer pour 'nettoyer'). L'état vide n'apparaît STRICTEMENT QUE si 100% des questions sont traitées et aucun chantier actif n'est en cours.
 
 ## Security & Email Drafts (Spark) — Mandatory Rule
