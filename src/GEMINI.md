@@ -150,6 +150,12 @@ When a subagent produces an artifact:
      - `### ⏳ Qp — [Question posée ?]` (titre seul se terminant par `?` tant que le sous-agent est en cours).
   3. **Inbox Zero Sélectif** : Dès qu'une question est commentée, validée ou arbitrée par Henri (directement sur `summary.md` ou via des commentaires sur les artefacts/documents référencés), seule cette question est immédiatement retirée et purgée du document. Les questions non commentées restent scrupuleusement affichées tant qu'elles n'ont pas été traitées (interdiction formelle de les effacer pour 'nettoyer'). L'état vide n'apparaît STRICTEMENT QUE si 100% des questions sont traitées et aucun chantier actif n'est en cours.
 
+## Obsidian Vault & Markdown Deliverables — Question-Response Heading Paradigm (MANDATORY)
+
+- **TITRES ET SOUS-TITRES SOUS FORME DE QUESTIONS EXPLICITES (H1, H2, H3, H4)** : Dans **TOUTES** les notes du coffre Obsidian sans exception (notes de projet, notes de synthèse, notes de réunions, slides de présentation du skill `/dynamic-section-slides`, fiches d'analyse, comptes-rendus), TOUS les titres et sous-titres (`# H1`, `## H2`, `### H3`, `#### H4`) **DOIVENT SYSTÉMATIQUEMENT ÊTRE FORMULÉS SOUS LA FORME D'UNE QUESTION EXPLICITE** se terminant obligatoirement par un point d'interrogation (`?`).
+- **Réponse Factuelle Directe & Émergence Visuelle** : Le contenu situé immédiatement sous chaque titre ou sous-titre apporte la **réponse factuelle directe, démontrée, visuelle et étayée** (tableaux de synthèse compacts, diagrammes Mermaid, infographies 16:9 / figures 300 DPI, métriques chiffrées, callouts GitHub colorés, puces télégraphiques).
+- **Interdiction des Titres Descriptifs ou Déclaratifs** : Il est formellement interdit d'utiliser des étiquettes passives, des thématiques vagues ou des titres neutres sans questionnement (ex: ❌ `## Architecture du système` $\to$ ✅ `## 🏛️ Comment l'Architecture du Système Orchestre-t-elle le Pipeline ?` ou `## 🏛️ What Is the System Architecture & Pipeline Flow?`).
+
 ## Security & Email Drafts (Spark) — Mandatory Rule
 
 * **INTERDICTION D'ENVOI AUTOMATIQUE** : Il est STRICTEMENT INTERDIT à Antigravity ainsi qu'à tout sous-agent ou script d'exécuter un envoi direct d'e-mail (`spark action send` ou équivalent).
