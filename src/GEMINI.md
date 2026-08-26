@@ -154,6 +154,11 @@ When a subagent produces an artifact:
 
 - **TITRES ET SOUS-TITRES SOUS FORME DE QUESTIONS EXPLICITES (H1, H2, H3, H4)** : Dans **TOUTES** les notes du coffre Obsidian sans exception (notes de projet, notes de synthèse, notes de réunions, slides de présentation du skill `/dynamic-section-slides`, fiches d'analyse, comptes-rendus), TOUS les titres et sous-titres (`# H1`, `## H2`, `### H3`, `#### H4`) **DOIVENT SYSTÉMATIQUEMENT ÊTRE FORMULÉS SOUS LA FORME D'UNE QUESTION EXPLICITE** se terminant obligatoirement par un point d'interrogation (`?`).
 - **Réponse Factuelle Directe & Émergence Visuelle** : Le contenu situé immédiatement sous chaque titre ou sous-titre apporte la **réponse factuelle directe, démontrée, visuelle et étayée** (tableaux de synthèse compacts, diagrammes Mermaid, infographies 16:9 / figures 300 DPI, métriques chiffrées, callouts GitHub colorés, puces télégraphiques).
+- **Bannissement Absolu des Listes à Puces Redondantes & Règle de l'Information Unique (Oral-First)** :
+  * Interdiction formelle d'insérer des puces récapitulatives ou explicatives sous un tableau, un graphique, un diagramme Mermaid ou un callout qui contient déjà l'information.
+  * Chaque élément visuel (Figure, Tableau, Callout, Schéma) se suffit intégralement à lui-même.
+  * L'explication didactique, la paraphrase et les commentaires d'analyse appartiennent exclusivement au discours oral du présentateur.
+  * Une diapositive/section ne doit contenir QUE l'élément visuel fort et sa question, zéro paraphrase textuelle. Tout élément additionnel doit apporter une information strictement inédite.
 - **Interdiction des Titres Descriptifs ou Déclaratifs** : Il est formellement interdit d'utiliser des étiquettes passives, des thématiques vagues ou des titres neutres sans questionnement (ex: ❌ `## Architecture du système` $\to$ ✅ `## 🏛️ Comment l'Architecture du Système Orchestre-t-elle le Pipeline ?` ou `## 🏛️ What Is the System Architecture & Pipeline Flow?`).
 
 ## Security & Email Drafts (Spark) — Mandatory Rule
