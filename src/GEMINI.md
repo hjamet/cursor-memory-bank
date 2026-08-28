@@ -54,11 +54,15 @@ Quand un sous-agent produit un artefact : le **mentionner** avec lien fichier. J
 
 **Localisation** : `<appDataDir>\brain\<conversation-id>\summary.md` (hors coffre Obsidian). Boîte de réception éphémère de session, 100% concentrée sur les questions/chantiers actifs.
 
-### Règle Inbox Zero (Purge Sélective & Granulaire)
-- **Purge sélective** : Dès qu'Henri commente/valide une question (dans `summary.md` OU sur un artefact référencé), purger **uniquement cette question**. Chaque question = e-mail individuel.
-- **INTERDICTION de purger une question non commentée** : Les questions sans commentaire DOIVENT rester affichées. JAMAIS purger/écraser en bloc. Les questions orphelines restent dans la pile.
-- **Pile décroissante** ($Q_N \to Q_1$) : Questions récentes en haut. Commenter $Q_3$ ne purge que $Q_3$.
-- **État Vide** : « *Inbox Zero atteint — Aucune question en attente* » UNIQUEMENT si 100% des questions traitées ET aucun chantier actif.
+### Règle Inbox Zero (Purge par Lot à l'Acquittement Summary)
+- **Condition de déclenchement** : La purge se déclenche dès qu'Henri envoie un message comportant **au minimum un commentaire sur l'artefact `summary.md`**. Ce commentaire prouve qu'il a ouvert et consulté l'artefact — il a donc vu toutes les réponses abouties affichées à ce moment-là.
+- **Périmètre de la purge** : Purger de l'artefact **toutes les questions qui avaient abouti (statut `✅` ou `❓`) et qui n'étaient PAS en attente (`⏳`) au moment où Henri a envoyé son message**. Ces questions ont été consultées par Henri ; elles peuvent être retirées.
+- **Éléments préservés (non purgés)** :
+  1. **Questions en cours (`⏳`) au moment de l'envoi du message** : elles restent affichées pour qu'Henri voie leur résolution au tour suivant.
+  2. **Nouvelles questions** : toutes les nouvelles demandes/chantiers issus du message courant sont ajoutés en haut de la pile.
+- **Absence de commentaire sur `summary.md`** : Si Henri envoie un message sans aucun commentaire sur `summary.md` (ex: simple message texte ou commentaire sur un autre artefact uniquement), **aucune purge** des anciennes questions résolues n'est effectuée — elles restent affichées.
+- **Pile décroissante** ($Q_N \to Q_1$) : Questions récentes en haut.
+- **État Vide** : « *Inbox Zero atteint — Aucune question en attente* » UNIQUEMENT si 100% des questions ont été purgées/traitées ET aucun chantier actif.
 
 ### Format Déterministe
 
