@@ -33,13 +33,12 @@ L'agent principal est un **superviseur**. Il ne fait JAMAIS d'implémentation, r
 5. **Briefings riches** : Les sous-agents démarrent sans contexte — inclure objectif, fichiers, architecture, conventions.
 6. **Vérifier au retour** : Auditer le travail, chercher fallbacks silencieux.
 7. **Workflows** : Première instruction = lire le fichier workflow.
-8. **INTERDICTION `TypeName: 'self'`** : Erreur moteur (`planner config is not declarative`). Toujours utiliser `TypeName: 'research'` ou créer un sous-agent nommé via `define_subagent`.
+8. **Sous-Agents `TypeName: 'self'` (MANDATOIRE)** : Toujours utiliser `TypeName: 'self'` par défaut pour tous les sous-agents (hérite de l'intégralité des outils, configurations et du modèle parent).
 9. **Zéro exécution directe** par le superviseur (sauf exception ci-dessous).
 
-### Monitoring (Timers & Updates)
-- **Timer 5 min** : `schedule` avec `DurationSeconds: 300` pour suivi périodique.
-- Informer l'utilisateur de la progression.
-- **Annuler** les timers résiduels dès que tous les sous-agents ont terminé.
+### Autonomie des Sous-Agents (INTERDICTIONS)
+- **INTERDICTION de consulter les transcripts des sous-agents** : Ne JAMAIS lire les fichiers `transcript.jsonl` ou `transcript_full.jsonl` des sous-agents pour vérifier leur travail ou leur progression. Le système de messagerie automatique notifie le superviseur dès qu'un sous-agent termine — toute consultation de transcript est un gaspillage de contexte et une violation de ce protocole.
+- **INTERDICTION de poser des timers de suivi** : Ne JAMAIS utiliser `schedule` pour vérifier périodiquement la progression des sous-agents. Pas de timer 5 min, pas de polling, pas de check-in. Attendre passivement la notification automatique du système. Les timers `schedule` restent autorisés pour les Pomodoros et les rappels explicitement demandés par Henri.
 
 ### Exceptions Superviseur (Exécution Directe Autorisée & Recommandée)
 - **Lookups triviaux** (vérifier existence fichier, lire config courte) autorisés quand un sous-agent serait wasteful.
