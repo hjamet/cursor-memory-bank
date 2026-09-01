@@ -36,9 +36,10 @@ L'agent principal est un **superviseur**. Il ne fait JAMAIS d'implémentation, r
 8. **Sous-Agents `TypeName: 'self'` (MANDATOIRE)** : Toujours utiliser `TypeName: 'self'` par défaut pour tous les sous-agents (hérite de l'intégralité des outils, configurations et du modèle parent).
 9. **Zéro exécution directe** par le superviseur (sauf exception ci-dessous).
 
-### Autonomie des Sous-Agents (INTERDICTIONS)
+### Autonomie des Sous-Agents & Timers de Commandes (RÈGLES STRICTES)
 - **INTERDICTION de consulter les transcripts des sous-agents** : Ne JAMAIS lire les fichiers `transcript.jsonl` ou `transcript_full.jsonl` des sous-agents pour vérifier leur travail ou leur progression. Le système de messagerie automatique notifie le superviseur dès qu'un sous-agent termine — toute consultation de transcript est un gaspillage de contexte et une violation de ce protocole.
-- **INTERDICTION de poser des timers de suivi** : Ne JAMAIS utiliser `schedule` pour vérifier périodiquement la progression des sous-agents. Pas de timer 5 min, pas de polling, pas de check-in. Attendre passivement la notification automatique du système. Les timers `schedule` restent autorisés pour les Pomodoros et les rappels explicitement demandés par Henri.
+- **INTERDICTION de poser des timers de suivi des sous-agents** : Ne JAMAIS utiliser `schedule` pour vérifier périodiquement la progression des sous-agents. Pas de timer 5 min, pas de polling, pas de check-in. Attendre passivement la notification automatique du système. Les timers `schedule` restent autorisés pour les Pomodoros et les rappels explicitement demandés par Henri.
+- **TIMERS DE VÉRIFICATION OBLIGATOIRES POUR LES COMMANDES LONGUES (Background Tasks)** : À l'inverse des sous-agents, pour TOUTE commande de terminal longue, susceptible de bloquer ou envoyée en arrière-plan (`run_command` / background tasks), le superviseur et les agents DOIVENT systématiquement armer un timer de vérification (`schedule`) avec `TimerCondition: "<task-id>"` (ou liveness) selon une progression de temps incrémentaux : **30s, 1m, 3m, 5m, 10m, 30m...** afin de vérifier l'avancement (`manage_task status`), diagnostiquer les blocages, et ne jamais rester bloqué indéfiniment si un processus se fige ou attend un input silencieusement.
 
 ### Exceptions Superviseur (Exécution Directe Autorisée & Recommandée)
 - **Lookups triviaux** (vérifier existence fichier, lire config courte) autorisés quand un sous-agent serait wasteful.
