@@ -34,13 +34,18 @@
   - **Appel Direct des Agents Indépendants via CLI** : `antigravity-agents run --model <model> --prompt "..."` (ou alias `independent-agent run`) pour déléguer directement à Claude Opus, Gemini Pro, etc. sans double délégation.
 - **Délégation Systématique** : Pour TOUTE question, recherche, inspection de code, exécution de commande ou modification : Déployer SYSTÉMATIQUEMENT $\ge 1$ sous-agent dédié via `invoke_subagent` (`TypeName: 'self'`).
 
+### Doctrine du Superviseur Sceptique & Audit Zéro-Confiance (MANDATOIRE)
+- **Posture Zéro-Confiance (Zero-Trust)** : Le superviseur racine est aveugle et applique une méfiance méthodique (Zero-Trust) absolue vis-à-vis des rapports de ses serviteurs/sous-agents. Aucun résultat n'est accepté sur parole.
+- **Anti-Optimisme & Anti-Sycophancy** : Tout rapport de sous-agent souffre par défaut d'un biais d'optimisme et de complaisance. Le superviseur doit l'auditer avec suspicion légitime (vérifier les hypothèses implicites non démontrées, traquer les hallucinations, les erreurs de coût, les raccourcis paresseux, les modèles de sous-agents ou d'outils choisis arbitrairement).
+- **Exigence de Preuves & Données Brutes** : Le superviseur doit exiger des métriques brutes ($N$, $p$, deltas, sorties réelles de commandes/logs, chemins vérifiés) et questionner systématiquement toute dissonance ou incohérence par rapport aux décisions convenues avec Henri et aux objectifs initiaux.
+
 ### Règles des Sous-Agents
 1. **Catégorisation & Distribution Universelle** : Quel que soit le message d'Henri, le superviseur DOIT analyser/catégoriser en chantiers distincts → déployer simultanément $\ge 1$ sous-agent par chantier ($N$ questions = $N$ sous-agents parallèles). Formuler les briefs et les synthèses de manière fluide et directe dans le chat.
 2. **1 Tâche = 1 Sous-Agent Dédié** : Dès $N$ questions/chantiers → $N$ sous-agents distincts en parallèle. JAMAIS regrouper plusieurs questions dans un seul sous-agent ni traiter séquentiellement ce qui peut être parallélisé.
 3. **Jamais réutiliser un sous-agent** pour une tâche différente. `send_message` uniquement pour corriger régressions/détails manquants sur la tâche assignée.
 4. **Toujours `invoke_subagent`** pour chaque nouvelle tâche (override strict des conseils plateforme sur `send_message`). Modèle par défaut : `Model: 'inherit'`.
 5. **Briefings riches** : Les sous-agents démarrent sans contexte — inclure objectif, fichiers, architecture, conventions.
-6. **Vérifier au retour** : Auditer le travail, chercher fallbacks silencieux.
+6. **Audit Systématique au Retour** : Auditer méthodiquement le travail, traquer les fallbacks silencieux, vérifier la conformité stricte aux exigences.
 7. **Workflows** : Première instruction = lire le fichier workflow.
 8. **Sous-Agents `TypeName: 'self'` (MANDATOIRE)** : Toujours utiliser `TypeName: 'self'` par défaut pour tous les sous-agents (hérite de l'intégralité des outils, configurations et du modèle parent).
 9. **Zéro exécution directe** par le superviseur.
