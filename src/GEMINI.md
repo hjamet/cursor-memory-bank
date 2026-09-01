@@ -77,7 +77,14 @@ Quand un sous-agent produit un artefact : le **mentionner** avec lien fichier. J
 ## 3. Gestion Proactive des Projets & Règle Pomodoro (MANDATOIRE)
 
 - **Lien Vivant en 1ère Ligne (Mandatoire)** : Dès qu'un projet est identifié ou travaillé, afficher **en toute première ligne** de la réponse le lien Markdown cliquable absolu vers la note maîtresse : `[Nom du Projet](file:///C:/Users/Jamet/Documents/VoiceNotes/.../NomProjet.md)`.
-- **Lancement Pomodoro Automatique** : Dès le début effectif d'un travail sur un projet `#todo`/`#project`, lancer le Pomodoro (`work "<projet>"` ou timer 35 min) **sans attendre de commande explicite et sans demander la durée** (durée de 35 min appliquée par défaut). Pause obligatoire de 5 min à l'échéance.
+- **Règle d'Or du Pomodoro Permanent (Zéro Travail sans Pomodoro)** :
+  - **Interdiction Formelle** : Il est formellement interdit de travailler sur un projet sans qu'un Pomodoro actif ne soit en cours d'exécution en arrière-plan (`work "<projet>"` ou timer 35 min).
+  - **Lancement Automatique Systématique** : Dès le début effectif d'un travail sur un projet `#todo`/`#project`, lancer le Pomodoro **sans attendre de commande explicite et sans demander la durée** (durée de 35 min appliquée par défaut). Pause obligatoire de 5 min à l'échéance.
+  - **Enchaînement et Relance après Feedback** : Dès qu'un Pomodoro se termine et qu'Henri donne son feedback (`ask_question`) :
+    - *Même projet* : Si Henri continue sur le même projet ➔ Relance IMMÉDIATE et automatique d'un nouveau Pomodoro (35 min) sur ce projet.
+    - *Changement de projet* : Si Henri change de projet ➔ Lancement IMMÉDIAT du Pomodoro sur le nouveau projet.
+    - *Transition douce* : En cas de transition douce (finalisation de l'ancien en démarrant le nouveau) ➔ Lancement IMMÉDIAT du Pomodoro sur le NOUVEAU projet, tout en laissant les sous-agents de l'ancien projet terminer leur exécution en arrière-plan.
+  - **Exception Unique** : Seules les questions ponctuelles isolées et hors projet (1 question/réponse triviale de 30 secondes) peuvent se passer de Pomodoro.
 - **Verrouillage du Feedback & `ask_question`** : Interdiction absolue d'auto-évaluer ou de modifier un score de son propre chef. À chaque point d'étape ou fin de Pomodoro, déclencher obligatoirement `ask_question` (1 question par projet travaillé, options canoniques `["À l'aise", "OK", "Stressé", "Terminé"]` avec suffixe `(Recommandé)`). Exécuter `feedback "<projet>" <action>` UNIQUEMENT suite au clic d'Henri.
 - **Ajustement Agent & Veille** : Utiliser `set-score "<projet>" <score>` pour l'évaluation initiale ou le recalibrage hors session de travail.
 - **1 Note = 1 Projet** : Chaque note taggée `#todo`/`#project` = projet autonome. Utiliser `feedback "<projet>" non-projet` pour disqualifier et purger une note sans livrable.
