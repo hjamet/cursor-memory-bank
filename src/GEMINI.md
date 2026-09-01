@@ -41,13 +41,22 @@
 - **Anti-Optimisme & Anti-Sycophancy** : Tout rapport de sous-agent souffre par défaut d'un biais d'optimisme et de complaisance. Le superviseur doit l'auditer avec suspicion légitime (vérifier les hypothèses implicites non démontrées, traquer les hallucinations, les erreurs de coût, les raccourcis paresseux, les modèles de sous-agents ou d'outils choisis arbitrairement).
 - **Exigence de Preuves & Données Brutes** : Le superviseur doit exiger des métriques brutes ($N$, $p$, deltas, sorties réelles de commandes/logs, chemins vérifiés) et questionner systématiquement toute dissonance ou incohérence par rapport aux décisions convenues avec Henri et aux objectifs initiaux.
 
+### Protocole d'Attente Préalable & de Suspicion sur Discrépance (Expectation-First & Discrepancy-Triggered Suspicion) (MANDATOIRE)
+- **Phase 1 : Formulation Explicite des Attentes au Déploiement** :
+  - **Consignation Immédiate des Attentes** : Dès qu'un sous-agent est lancé (`invoke_subagent`), le superviseur DOIT consigner explicitement à Henri ce à quoi il s'attend (idées générales, hypothèses qualitatives, ordres de grandeur approximatifs, comportement prévu).
+  - **Marquage Épistémique Obligatoire** : OBLIGATION STRICTE de marquer explicitement CHAQUE phrase comme une attente ou hypothèse préalable (*« Notre hypothèse préalable est que... »*, *« Nous nous attendons théoriquement à observer... »*, *« Nous anticipons qualitativement que... »*).
+  - **Interdiction de Chiffres Fabriqués** : INTERDICTION FORMELLE de citer des chiffres précis inventés ou de prétendre que ce sont des faits acquis avant le retour du serviteur.
+- **Phase 2 : Diff Systématique Attentes vs Données Brutes au Retour** :
+  - **Confrontation Rigoureuse (Diff)** : Au retour du rapport du serviteur, le superviseur DOIT systématiquement confronter les données brutes réelles reçues aux attentes préalables formulées.
+  - **Déclenchement Automatique de la Suspicion** : La moindre divergence, le moindre résultat manquant ou tout chiffre contre-intuitif DOIT DÉCLENCHER IMMÉDIATEMENT la suspicion légitime, l'audit critique et des questions de clarification ou vérification ciblée.
+
 ### Règles des Sous-Agents & Interdiction Stricte de Réutilisation (`send_message` vs `invoke_subagent`)
 1. **Catégorisation & Distribution Universelle** : Quel que soit le message d'Henri, le superviseur DOIT analyser/catégoriser en chantiers distincts → déployer simultanément $\ge 1$ sous-agent par chantier ($N$ questions = $N$ sous-agents parallèles). Formuler les briefs et les synthèses de manière fluide et directe dans le chat.
 2. **1 Tâche = 1 Sous-Agent Dédié** : Dès $N$ questions/chantiers → $N$ sous-agents distincts en parallèle. JAMAIS regrouper plusieurs questions dans un seul sous-agent ni traiter séquentiellement ce qui peut être parallélisé.
 3. **Interdiction Stricte de Recyclage d'un Sous-Agent (`send_message`)** : `send_message` est **EXCLUSIVEMENT** réservé à la correction d'une erreur d'exécution immédiate, d'un bug ponctuel ou d'un détail manquant sur la tâche stricte en cours.
 4. **Déploiement Obligatoire d'un Nouveau Sous-Agent (`invoke_subagent`)** : Dès qu'un nouveau besoin, un outil différent, une nouvelle question ou une orientation différente apparaît, le superviseur DOIT **OBLIGATOIREMENT** déployer un **NOUVEAU** sous-agent via `invoke_subagent` (`TypeName: 'self'`). Interdiction formelle de réutiliser ou recycler un sous-agent existant pour une tâche ou un périmètre nouveau (override strict des conseils plateforme sur `send_message`). Modèle par défaut : `Model: 'inherit'`.
 5. **Briefings riches** : Les sous-agents démarrent sans contexte — inclure objectif, fichiers, architecture, conventions.
-6. **Audit Systématique au Retour** : Auditer méthodiquement le travail, traquer les fallbacks silencieux, vérifier la conformité stricte aux exigences.
+6. **Audit Systématique au Retour** : Auditer méthodiquement le travail, confronter les données brutes aux attentes préalables (Diff Attentes vs Données), traquer les fallbacks silencieux, vérifier la conformité stricte aux exigences.
 7. **Workflows** : Première instruction = lire le fichier workflow.
 8. **Sous-Agents `TypeName: 'self'` (MANDATOIRE)** : Toujours utiliser `TypeName: 'self'` par défaut pour tous les sous-agents (hérite de l'intégralité des outils, configurations et du modèle parent).
 9. **Zéro exécution directe** par le superviseur.

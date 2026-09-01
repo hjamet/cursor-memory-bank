@@ -13,6 +13,7 @@ description: "À invoquer lorsqu'une dérive, hallucination, mauvaise délégati
 | **Désynchronisation Miroir** | `C:\Users\Jamet\.gemini\GEMINI.md` et `cursor-memory-bank/src/GEMINI.md` (ou skills) diffèrent. | Régression au redémarrage d'IDE, comportement instable, perte des correctifs. | Exécution du protocole de synchronisation miroir git. |
 | **Duplication de Règles (Violation DRY)** | Une règle globale système est recopiée ou paraphrasée dans `AGENTS.md` ou un skill. | Divergence de consignes, ambiguïté d'arbitrage pour les modèles. | Élagage, consolidation dans la source canonique (`GEMINI.md`) et renvoi par lien. |
 | **Hallucination / Biais d'Optimisme** | Validation aveugle d'un résultat non prouvé ou affirmation d'une information absente. | Décisions erronées, dégradation de la confiance utilisateur. | Autopsie médico-légale de la règle transgressée, renforcement du Zero-Trust. |
+| **Absence d'Attentes Préalables ou Confiance Aveugle sans Diff** | Le superviseur déploie un sous-agent sans formuler d'hypothèse explicite, ou valide son rapport sans confronter les données brutes aux attentes. | Validation de résultats hallucinés, fallbacks silencieux non détectés, érosion du Zero-Trust. | Arrêt, formulation d'attentes théoriques, audit rétroactif des données brutes du sous-agent. |
 
 ---
 
@@ -26,9 +27,10 @@ graph TD
     subgraph "Scope Universel (GEMINI.md)"
         A1["🙈 Superviseur Aveugle & Délégation Absolue"]
         A2["🛡️ Doctrine Sceptique & Zero-Trust"]
-        A3["🤖 Règles des Sous-Agents (invoke vs send_message)"]
-        A4["⏱️ Timers Background & Autonomie"]
-        A5["🧠 AIVC & 🔒 Spark Security"]
+        A3["🎯 Attentes Préalables & Suspicion sur Discrépance"]
+        A4["🤖 Règles des Sous-Agents (invoke vs send_message)"]
+        A5["⏱️ Timers Background & Autonomie"]
+        A6["🧠 AIVC & 🔒 Spark Security"]
     end
     
     subgraph "Scope Coffre Obsidian (AGENTS.md)"
@@ -64,6 +66,7 @@ graph TD
 | **Contradiction ou ambiguïté dans un skill** | Pourquoi le skill propose-t-il une action en désaccord avec `GEMINI.md` ? | Skill rédigé avant la refonte des règles globales ou copié sans alignement. | Réécrire le skill selon le paradigme Q/R, aligner sur `GEMINI.md`, éliminer les règles dupliquées. |
 | **Divergence entre l'IDE et le dépôt git** | Pourquoi le comportement a régressé après une mise à jour ? | Modification locale dans `.gemini/GEMINI.md` sans report dans `cursor-memory-bank`. | Exécuter la synchronisation miroir bidirectionnelle avec commit et push. |
 | **Duplication de règles entre fichiers** | Pourquoi deux fichiers contiennent le même paragraphe ? | Copier-coller de confort sans respect de la source unique de vérité. | Supprimer la copie, insérer un lien Markdown canonique absolu `[Nom](file:///...)`. |
+| **Validation aveugle sans diff ou omission d'attentes** | Pourquoi l'agent a-t-il affirmé des faits non vérifiés ou accepté un rapport sans diff ? | Manque de discipline épistémique ou complaisance envers le sous-agent. | Rappeler le protocole Expectation-First (marquage des hypothèses au lancement) et le déclenchement de suspicion sur toute discrépance. |
 
 ---
 
@@ -137,6 +140,7 @@ flowchart TD
 
 - [ ] **Parité Miroir Absolue** : `C:\Users\Jamet\.gemini\GEMINI.md` et `cursor-memory-bank/src/GEMINI.md` ont un contenu strictement identique.
 - [ ] **Frontière Étanche Respectée** : Aucune règle générale (superviseur aveugle, timers, `send_message`) n'est dupliquée dans `AGENTS.md` ou les skills.
+- [ ] **Protocole d'Attente Préalable & Diff de Discrépance** : Les attentes sont explicitement marquées au déploiement (zéro chiffre inventé) et systématiquement confrontées aux données brutes au retour.
 - [ ] **Audit Skills Complété** : Les fichiers `SKILL.md` audités respectent le paradigme Question-Réponse (100% titres H1-H4 avec `?`).
 - [ ] **Règle `send_message` Explicite** : Mention formelle que `send_message` = correction de bug immédiat uniquement ; tout nouveau besoin = `invoke_subagent`.
 - [ ] **Git Propre & Synchro** : Le dépôt `cursor-memory-bank` est à jour (`git push origin master` validé sans erreur).
@@ -145,7 +149,7 @@ flowchart TD
 
 ---
 
-## 🛡️ Quelles Sont les 6 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
+## 🛡️ Quelles Sont les 7 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
 
 - **[Règle 1 : Source Unique de Vérité]** : `GEMINI.md` commande le comportement universel ; `AGENTS.md` commande le coffre Obsidian ; `SKILL.md` commande le workflow opérationnel. Zéro copie inter-fichiers.
 - **[Règle 2 : Miroir Parfait Obligatoire]** : Tout changement dans `GEMINI.md` ou les skills doit exister simultanément dans les dépôts de référence et l'environnement d'exécution local.
@@ -153,3 +157,4 @@ flowchart TD
 - **[Règle 4 : Interdiction de Recyclage des Sous-Agents]** : `send_message` = correctif d'erreur en cours. Nouveau besoin = NOUVEAU sous-agent (`invoke_subagent`).
 - **[Règle 5 : Cécité Totale du Superviseur]** : L'agent racine ne lit, ne cherche et n'exécute jamais directement.
 - **[Règle 6 : Audit Sceptique Systématique]** : Zéro confiance aveugle envers les sous-agents, métriques et preuves brutes exigées.
+- **[Règle 7 : Expectation-First & Suspicion sur Discrépance]** : Tout déploiement de sous-agent s'accompagne d'hypothèses qualitatives clairement étiquetées comme telles. Tout retour fait l'objet d'un diff impitoyable avec suspicion immédiate à la moindre divergence.
