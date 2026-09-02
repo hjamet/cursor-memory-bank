@@ -25,6 +25,8 @@ description: "À invoquer lorsqu'une dérive, hallucination, mauvaise délégati
 | **Extrapolation / Comparatif Sans Baseline Miroir** | Proclamation de gain ou d'économie alors qu'une seule branche a tourné ou que la baseline est inachevée. | Hallucination comparative, fausse déclaration de supériorité, invalidation méthodologique. | Interdiction formelle de conclure tant que les DEUX branches n'ont pas terminé et produit leurs résultats côte à côte. |
 | **Validation d'Action Interactive / Browser sans Preuve Matérielle** | Le superviseur valide un test live ou une action desktop/browser sur simple affirmation du sous-agent sans vérifier l'exécution matérielle effective de l'outil interactif (rubber-stamping passif). | Fausse assurance de test live, régression non détectée, érosion du Zero-Trust. | Arrêt immédiat, rejet de la conclusion, exigence formelle de preuves matérielles brutes (logs d'outils, captures réelles). |
 | **Omission du Calpin en Braille Permanent** | Le superviseur enchaîne les tours de conversation sans actualiser la note maîtresse ou ses sous-notes de projet. | Perte d'alignement, perte de la mémoire de travail immédiate, désynchronisation des roadmaps. | Actualisation immédiate de la note maîtresse ou sous-notes Obsidian à chaque tour de conversation en format télégraphique strict. |
+| **Empilement de Règles / Bloat d'Instructions** | Ajout paresseux de règles isolées en fin de fichier sans refactoring de structure. | Fichiers obèses, dilution des consignes, contradictions sourdes, dépassement de contexte. | Refactorisation organique obligatoire : fusionner les concepts adjacents, compacter en style chirurgical (tableaux, format télégraphique). |
+| **Format d'Images Incompatible (Wikilinks)** | Utilisation de syntaxe propriétaire Obsidian `![[...]]` pour insérer des images. | Médias invisibles dans Antigravity (mobile/desktop), rupture d'affichage multi-plateforme. | Substitution obligatoire par la syntaxe Markdown standard relative `![Description](_attachments/nom_image.png)`. |
 
 ---
 
@@ -62,8 +64,8 @@ graph TD
 
 | Fichier / Entité | Emplacement Canonique | Périmètre Exclusif | Ce Qui y Est STRICTEMENT INTERDIT |
 | :--- | :--- | :--- | :--- |
-| **`GEMINI.md`** | `C:\Users\Jamet\.gemini\GEMINI.md`<br/>`cursor-memory-bank/src/GEMINI.md` | **Règles universelles transversales** : Pattern Superviseur Aveugle, sous-agents, interdiction `send_message` pour nouveaux besoins, timers de commandes, sécurité Spark, AIVC. | Spécificités locales d'un coffre ou projet particulier (chemins de notes, rôles métiers contextuels). |
-| **`AGENTS.md`** | `c:\Users\Jamet\Documents\VoiceNotes\AGENTS.md` | **Spécificités locales du coffre Obsidian** : Rôle d'Antigravity auprès de Henri, Digital Brain, format des notes Obsidian (Paradigme Q/R), arborescence `notes/`, index `antigravity/`. | Recopier ou redéfinir les règles globales système déjà présentes dans `GEMINI.md` (DRY strict). |
+| **`GEMINI.md`** | `C:\Users\Jamet\.gemini\GEMINI.md`<br/>`cursor-memory-bank/src/GEMINI.md` | **Règles universelles transversales** : Pattern Superviseur Aveugle, sous-agents, interdiction `send_message` pour nouveaux besoins, timers de commandes, sécurité Spark, AIVC. | Spécificités locales d'un coffre ou projet particulier (chemins de notes, rôles métiers contextuels), empilement de règles sans refactorisation. |
+| **`AGENTS.md`** | `c:\Users\Jamet\Documents\VoiceNotes\AGENTS.md` | **Spécificités locales du coffre Obsidian** : Rôle d'Antigravity auprès de Henri, Digital Brain, format des notes Obsidian (Paradigme Q/R), arborescence `notes/`, index `antigravity/`, format universel des médias. | Recopier ou redéfinir les règles globales système déjà présentes dans `GEMINI.md` (DRY strict), wikilinks images `![[...]]` (invisibles hors Obsidian). |
 | **`SKILL.md`** | `antigravity/skills/<skill-name>/SKILL.md`<br/>`cursor-memory-bank/src/skills/<name>/SKILL.md` | **Directives opérationnelles d'un workflow ciblé** : Commandes CLI, checklists, schémas Mermaid et étapes d'exécution d'un outil précis. | Redéfinir l'architecture globale ou entrer en conflit avec `GEMINI.md`. |
 
 ---
@@ -110,6 +112,8 @@ graph TD
 | **L'agent déclare une victoire comparative sans baseline finie** | Pourquoi affirmer un gain alors que la baseline n'a pas tourné ? | Extrapolation paresseuse et violation élémentaire de la méthode expérimentale. | Sanctuariser l'interdiction de toute conclusion comparative sans exécution miroir intégrale des deux branches. |
 | **L'agent prétend avoir mené un test browser sans preuve d'outil** | Pourquoi le superviseur a-t-il validé l'action interactive ? | Complaisance (sycophancy) et acceptation passive d'un rapport sans contrôle des logs d'exécution de l'outil interactif. | Exiger formellement des preuves matérielles brutes d'exécution interactive (logs, captures réelles) avant toute validation. |
 | **L'agent superviseur n'actualise pas la note maîtresse à chaque tour** | Pourquoi le calpin en braille a-t-il été délaissé ? | Oubli de la règle de synchronisation continue à chaque message. | Rappeler l'obligation de mise à jour systématique de la note maîtresse/sous-notes à chaque message en format télégraphique strict. |
+| **L'agent empile une consigne en fin de fichier sans refactoring** | Pourquoi ajouter une règle isolée en bas de fichier ? | Paresse d'intégration et évitement de l'effort de refactorisation globale. | Règle d'intégration organique & anti-empilement : refactorer la section concernée, fusionner les concepts adjacents, compacter en format télégraphique dense (style Opus). |
+| **L'agent insère une image en syntaxe wikilink `![[...]]`** | Pourquoi utiliser un wikilink propriétaire pour un média ? | Habitude spécifique Obsidian sans prise en compte de la compatibilité Antigravity. | Règle du format universel : imposer la syntaxe relative `![Description](_attachments/...)` dans `AGENTS.md` (rendu natif Obsidian + Antigravity). |
 
 ---
 
@@ -122,6 +126,7 @@ graph TD
 | **3. Respect du Principe DRY** | Le skill duplique-t-il des règles universelles ? | Zéro paraphrase de `GEMINI.md` ou `AGENTS.md`. | Remplacer les doublons par des références canoniques absolues. |
 | **4. Clarté & Zéro Ambiguïté** | Les étapes sont-elles télégraphiques, univoques et vérifiables ? | Tableaux Markdown, schémas Mermaid, pas de verbiage narratif. | Compacter en format télégraphique clé-valeur et diagrammes clairs. |
 | **5. Validité des Chemins & Commandes** | Les chemins absolus et les commandes CLI sont-ils fonctionnels ? | Commandes et chemins testés et valides sous l'environnement hôte. | Corriger les chemins et syntaxes de scripts obsolètes. |
+| **6. Refactorisation Zero-Bloat & Anti-Empilement** | Le skill intègre-t-il les nouvelles consignes organiquement sans gonfler ? | Zéro empilement en fin de fichier, concision chirurgicale maximale, fusion des concepts adjacents. | Fusionner les consignes dans les sections thématiques, compacter en tableaux et puces clé-valeur. |
 
 ---
 
@@ -129,10 +134,10 @@ graph TD
 
 ```mermaid
 flowchart TD
-    Step1["🛑 Étape 1 : Constat & Diagnostic Causal"] --> Step2["🧭 Étape 2 : Découpage des Périmètres (DRY)"]
+    Step1["🛑 Étape 1 : Constat & Diagnostic Causal"] --> Step2["🧭 Étape 2 : Découpage des Périmètres & Refactoring Organique (DRY)"]
     Step2 --> Step3["🔍 Étape 3 : Scan & Rafraîchissement des Skills"]
     Step3 --> Step4["📥 Étape 4 : Git Pull dans cursor-memory-bank"]
-    Step4 --> Step5["✍️ Étape 5 : Édition Canonique (GEMINI.md & Skills)"]
+    Step4 --> Step5["✍️ Étape 5 : Édition Canonique Zero-Bloat (GEMINI.md & Skills)"]
     Step5 --> Step6["🪞 Étape 6 : Copie Miroir vers .gemini/ et antigravity/skills/"]
     Step6 --> Step7["🔍 Étape 7 : Validation Diff & Concordance"]
     Step7 --> Step8["🚀 Étape 8 : Git Commit & Push origin master"]
@@ -147,7 +152,8 @@ flowchart TD
 ### 2. 🧭 Comment Découper & Assigner les Périmètres sans Duplication (Phase 2) ?
 - **Vérification DRY** : S'assurer que la règle n'est pas rédigée à deux endroits distincts.
 - **Règle de référence** : Dans `AGENTS.md` et les skills, pointer systématiquement vers `GEMINI.md` pour les règles globales.
-- **Clarté chirurgicale** : Éliminer tout verbiage, privilégier des listes à puces clés-valeurs et des tableaux d'interdiction formelle.
+- **Intégration Organique & Anti-Empilement** : INTERDIT formellement d'empiler une règle isolée en bas de fichier. L'agent doit refactorer et réintégrer organiquement l'information dans la section concernée, en fusionnant les concepts adjacents et en reformulant de manière compacte.
+- **Maintien de la Concision Chirurgicale (Style Opus)** : Chaque mise à jour doit enrichir le fond sans faire gonfler la taille du fichier ni perdre la moindre consigne, en adoptant un format dense (tableaux, puces télégraphiques `**[Clé]** : [Valeur]`).
 
 ### 3. 🔍 Comment Auditer et Corriger les Fichiers SKILL.md Détectés (Phase 3) ?
 - **Inventaire** : Scanner l'ensemble des dossiers dans `antigravity/skills/` (ou `.agents/skills/`).
@@ -162,16 +168,16 @@ flowchart TD
   ```
 - **Objectif** : Éviter tout conflit de version avant d'appliquer les modifications canoniques.
 
-### 5. ✍️ Comment Garantir la Synchronisation Miroir Parfaite (Phase 5) ?
-- **Édition source** : Modifier `c:\Users\Jamet\Documents\code\cursor-memory-bank\src\GEMINI.md` et les skills sous `src/skills/`.
-- **Copie miroir exacte** : Copier l'intégralité du contenu vers `C:\Users\Jamet\.gemini\GEMINI.md` et `c:\Users\Jamet\Documents\VoiceNotes\.agents\skills\`.
+### 5. ✍️ Comment Garantir la Synchronisation Miroir Parfaite et le Zero-Bloat (Phase 5) ?
+- **Édition source** : Modifier `c:\Users\Jamet\Documents\code\cursor-memory-bank\src\GEMINI.md`, `cursor-memory-bank/AGENTS.md` et les skills sous `src/skills/`.
+- **Copie miroir exacte** : Copier l'intégralité du contenu vers `C:\Users\Jamet\.gemini\GEMINI.md`, `c:\Users\Jamet\Documents\VoiceNotes\AGENTS.md` et `c:\Users\Jamet\Documents\VoiceNotes\.agents\skills\`.
 - **Vérification de parité** : Les fichiers doivent être strictement identiques octet par octet.
 
 ### 6. 🚀 Comment Valider le Commit, Push & l'Ancrage AIVC (Phase 6) ?
 - **Commandes Git** :
   ```bash
   git status
-  git add src/
+  git add src/ AGENTS.md agents.md
   git commit -m "docs(skills): align reflect skill and universal system instructions"
   git push origin master
   ```
@@ -183,6 +189,8 @@ flowchart TD
 
 - [ ] **Parité Miroir Absolue** : `C:\Users\Jamet\.gemini\GEMINI.md` et `cursor-memory-bank/src/GEMINI.md` ont un contenu strictement identique.
 - [ ] **Frontière Étanche Respectée** : Aucune règle générale (superviseur aveugle, timers, `send_message`) n'est dupliquée dans `AGENTS.md` ou les skills.
+- [ ] **Intégration Organique & Zero-Bloat (Anti-Empilement)** : Aucune règle n'est empilée en fin de fichier ; chaque consigne est fusionnée organiquement dans sa section avec concision chirurgicale (style Opus).
+- [ ] **Format Universel des Images & Médias** : Les notes Obsidian et livrables utilisent exclusivement la syntaxe standard relative `![Description](_attachments/...)` (bannissement absolu des wikilinks `![[...]]`).
 - [ ] **Posture d'Auditeur Sceptique Impitoyable (Zero-Trust)** : Le superviseur refuse tout rubber-stamping, présume le biais d'optimisme/complaisance des sous-agents et exige des preuves brutes tangibles (sorties de commandes réelles, citations mot à mot).
 - [ ] **Procès Contradictoire Systématique (Diff d'Attentes)** : Les attentes préalables (`expectations_<agent_id>.md`) sont systématiquement confrontées contradictoirement aux données brutes reçues avec rejet immédiat à la moindre anomalie ou omission.
 - [ ] **Gestion Fluide & Restitution Synthétique** : Le superviseur gère ses sous-agents de manière fluide et autonome sans micro-messages creux, et synthétise les résultats substantiels pour Henri.
@@ -203,9 +211,9 @@ flowchart TD
 
 ---
 
-## 🛡️ Quelles Sont les 16 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
+## 🛡️ Quelles Sont les 17 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
 
-- **[Règle 1 : Source Unique de Vérité]** : `GEMINI.md` commande le comportement universel ; `AGENTS.md` commande le coffre Obsidian ; `SKILL.md` commande le workflow opérationnel. Zéro copie inter-fichiers.
+- **[Règle 1 : Source Unique de Vérité & Intégration Organique]** : `GEMINI.md` commande le comportement universel ; `AGENTS.md` commande le coffre Obsidian ; `SKILL.md` commande le workflow opérationnel. Zéro copie inter-fichiers, zéro empilement paresseux : réintégrer et refactorer organiquement au cœur des sections concernées en concision chirurgicale (style Opus).
 - **[Règle 2 : Miroir Parfait Obligatoire]** : Tout changement dans `GEMINI.md` ou les skills doit exister simultanément dans les dépôts de référence et l'environnement d'exécution local.
 - **[Règle 3 : Audit Périodique des Skills]** : Scanner régulièrement `antigravity/skills/` pour traquer les ambiguïtés, instructions obsolètes et titres déclaratifs non conformes.
 - **[Règle 4 : Interdiction de Recyclage des Sous-Agents]** : `send_message` = correctif d'erreur en cours. Nouveau besoin = NOUVEAU sous-agent (`invoke_subagent`).
@@ -221,3 +229,4 @@ flowchart TD
 - **[Règle 14 : Doctrine du Superviseur Sceptique (Zero-Trust & Anti-Complaisance)]** : Le superviseur aveugle agit comme un auditeur sceptique impitoyable. Il refuse tout rubber-stamping, présume le biais d'optimisme et la complaisance des sous-agents, exige des preuves brutes non simulées (sorties de commandes réelles, citations mot à mot, métriques vérifiées) et conduit un procès contradictoire systématique (Diff d'Attentes) en rejetant tout livrable lacunaire ou approximatif.
 - **[Règle 15 : Zéro Spin & Vérité Expérimentale Brute (Evidence-First & Probité Scientifique)]** : Interdiction absolue d'enjoliver, minimiser ou travestir des résultats scientifiques défavorables. Si la baseline est supérieure, l'annoncer crûment en tête de réponse. Interdiction formelle de proclamer un gain ou une économie sans baseline miroir intégralement exécutée et mesurée.
 - **[Règle 16 : Audit Sceptique des Outils Interactifs & Calpin en Braille Permanent]** : Interdiction formelle de valider une action interactive ou de navigation sans preuve matérielle d'exécution d'outil réel. Obligation stricte de maintenir la note maîtresse de projet et ses sous-notes Obsidian à jour à chaque tour de conversation comme calpin en braille de l'aveugle.
+- **[Règle 17 : Refactoring Zero-Bloat & Format Universel des Images]** : Interdiction formelle d'empiler des consignes isolées en fin de document sans refactorisation globale ; tout ajout doit densifier l'existant sans dérive de volume. Interdiction absolue des wikilinks images `![[...]]` dans les notes du coffre au profit exclusif de la syntaxe relative universelle `![Description](_attachments/...)` lisible nativement dans Obsidian et Antigravity.

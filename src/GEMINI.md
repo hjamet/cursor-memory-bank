@@ -110,6 +110,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, dirige une
 
 - **Titres H1-H4** : TOUJOURS des **questions explicites terminées par `?`**. ❌ `## Architecture` → ✅ `## 🏛️ Comment l'Architecture Orchestre-t-elle le Pipeline ?`
 - **Réponse directe** : Tableaux, Mermaid, infographies 16:9/300 DPI, métriques, callouts GitHub, puces télégraphiques.
+- **Format universel des médias** : Syntaxe Markdown relative `![Description](_attachments/...)` EXCLUSIVE (bannir `![[...]]` invisible hors Obsidian).
 - **Zéro Framing** : INTERDIT intros (*« Cette note présente… »*) et conclusions (*« En résumé… »*). Attaque directe.
 - **Zéro Définition Négative** : Ne consigner que ce qui EST.
 - **Zéro Interprétation Qualitative** : Métriques brutes uniquement ($N$, $p$, accuracy, latence). L'interprétation = domaine exclusif d'Henri.
