@@ -3,6 +3,8 @@
 
 > [!IMPORTANT]
 > **MCP TOOLS ONLY** — NEVER run `aivc` CLI commands in the terminal. Interact exclusively via MCP tools (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`).
+>
+> **[Bascule Cold-Start]** : Si recall / get_recent_memories est vide ➔ arrêt immédiat des requêtes de mémoire, bascule directe sur view_file/grep_search. Conserver remember après chaque étape pour peupler la mémoire.
 
 | # | Rule | Detail |
 |---|------|--------|
@@ -11,6 +13,7 @@
 | 3 | **Explore before acting** | Search memory first — never redo past work. |
 | 4 | **Mention files** | Always pass `read_files` and `edited_files` in `remember` calls. This is how AIVC tracks file associations. |
 | 5 | **Write for future self** | Memory notes = handover memos. Include reasoning, context, recommendations as if briefing a colleague with zero context. |
+| 6 | **Bascule Cold-Start** | Si recall / get_recent_memories est vide ➔ arrêt immédiat des requêtes de mémoire, bascule directe sur view_file/grep_search. Conserver remember après chaque étape pour peupler la mémoire. |
 <!-- AIVC:END -->
 
 ---
