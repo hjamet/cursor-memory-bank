@@ -14,7 +14,7 @@ description: "À invoquer lorsqu'une dérive, hallucination, mauvaise délégati
 | **Duplication de Règles (Violation DRY)** | Une règle globale système est recopiée ou paraphrasée dans `AGENTS.md` ou un skill. | Divergence de consignes, ambiguïté d'arbitrage pour les modèles. | Élagage, consolidation dans la source canonique (`GEMINI.md`) et renvoi par lien. |
 | **Hallucination / Biais d'Optimisme** | Validation aveugle d'un résultat non prouvé ou affirmation d'une information absente. | Décisions erronées, dégradation de la confiance utilisateur. | Autopsie médico-légale de la règle transgressée, renforcement du Zero-Trust. |
 | **Absence d'Attentes Préalables ou Confiance Aveugle sans Diff** | Le superviseur déploie un sous-agent sans consigner ses attentes dans l'artefact dédié (`expectations_<agent_id>.md`), ou valide son rapport sans confronter les données brutes aux attentes. | Validation de résultats hallucinés, fallbacks silencieux non détectés, érosion du Zero-Trust. | Arrêt, formulation d'attentes théoriques dans l'artefact dédié, audit rétroactif des données brutes du sous-agent. |
-| **Attente en Bloc des Sous-Agents** | Le superviseur attend que tous les sous-agents parallèles finissent avant de répondre à Henri. | Latence inutile, blocage de l'interaction temps réel. | Transmission et exploitation immédiate de chaque rapport dès réception au fil de l'eau. |
+| **Micro-Messages / Restitution Fragmentée** | Le superviseur émet des messages creux ou fragmentés à chaque fin de worker individuel au lieu de synthétiser. | Pollution du chat, friction cognitive pour l'utilisateur. | Gestion fluide et autonome des sous-agents ; restitution d'une synthèse globale et substantielle. |
 | **Amalgame d'Entités & Noms Propres** | Fusion hâtive ou concaténation d'entités, personnes, concepts ou identifiants distincts sans vérification unitaire. | Corruption des données, faux liens logiques, perte de repères. | Déploiement d'un sous-agent d'audit unitaire pour chaque entité, dissociation stricte des entités. |
 | **Extrapolation Technique sans Citation** | Déduction ou substitution arbitraire d'un type, une classe, un statut, une fonction ou une règle sans vérification textuelle mot à mot. | Hallucination technique, bugs silencieux, mauvaise interprétation de règles. | Exigence systématique de citation textuelle mot à mot issue de la source canonique officielle. |
 | **Dérive de Périmètre (Over-Scoping)** | Évocation prématurée de phases futures, d'architectures globales ou d'éléments hors-périmètre non demandés. | Dispersion cognitive, surcharge de l'utilisateur, perte de focus sur la tâche active. | Recadrage chirurgical strict sur les besoins exacts et les livrables de la séquence active immédiate. |
@@ -40,7 +40,7 @@ graph TD
         A2["🛡️ Doctrine Sceptique & Zero-Trust"]
         A3["🎯 Attentes Préalables & Suspicion sur Discrépance"]
         A4["🤖 Règles des Sous-Agents (invoke vs send_message)"]
-        A5["⚡ Transmission Immédiate des Retours"]
+        A5["⚡ Gestion Fluide & Synthèse Substantielle"]
         A6["⏱️ Timers Background & Autonomie"]
         A7["🧠 AIVC & 🔒 Spark Security"]
     end
@@ -77,7 +77,7 @@ graph TD
     C -->|❌ Non / Résumé Abstrait| D["⛔ Rejet Immédiat / Exigence Preuves Réelles"]
     C -->|✅ Oui / Logs & Citations| E["⚖️ Diff Contradictoire vs expectations_*.md"]
     E -->|⚠️ Discrépance / Omission / Doute| F["🔄 Recadrage Ciblé ou Nouveau Sous-Agent"]
-    E -->|✅ Parfaite Concordance & Preuves Brutes| G["📑 Intégration & Restitution Immédiate"]
+    E -->|✅ Parfaite Concordance & Preuves Brutes| G["📑 Intégration & Restitution Synthétique"]
 ```
 
 | Pilier Doctrinal | Posture & Axiome Fondamental | Risque Traqué | Règle d'Action Opérationnelle |
@@ -100,7 +100,7 @@ graph TD
 | **Duplication de règles entre fichiers** | Pourquoi deux fichiers contiennent le même paragraphe ? | Copier-coller de confort sans respect de la source unique de vérité. | Supprimer la copie, insérer un lien Markdown canonique absolu `[Nom](file:///...)`. |
 | **Validation aveugle sans diff ou omission d'attentes** | Pourquoi l'agent a-t-il affirmé des faits non vérifiés ou accepté un rapport sans diff ? | Manque de discipline épistémique ou complaisance envers le sous-agent. | Rappeler le protocole Expectation-First (consignation dans l'artefact dédié `<appDataDir>/brain/.../expectations_<agent_id>.md`, zéro pollution du chat) et le déclenchement de suspicion sur toute discrépance. |
 | **Validation passive d'un rapport (rubber-stamping)** | Pourquoi le superviseur a-t-il validé sans exiger de preuve brute ? | Biais de complaisance (sycophancy) ou paresse d'audit face au serviteur. | Réaffirmer la posture d'auditeur sceptique impitoyable et l'interdiction absolue de validation sans preuves tangibles. |
-| **L'agent superviseur temporise en attendant tous les sous-agents** | Pourquoi attendre tous les résultats ? | Réflexe de batching / synchronisation rigide non aligné. | Appliquer la règle de Transmission Immédiate : restituer et exploiter chaque rapport dès sa réception dans le tour courant. |
+| **L'agent superviseur émet des micro-messages fragmentés** | Pourquoi envoyer un message à chaque fin de worker individuel ? | Reste de consigne rigide de transmission immédiate. | Gérer les sous-agents de manière fluide et autonome, restituer une synthèse globale substantielle à Henri. |
 | **L'agent fusionne deux entités distinctes (amalgame)** | Pourquoi deux entités ou identifiants ont-ils été fusionnés en un hybride ? | Hypothèse paresseuse et lecture superficielle sans audit unitaire dans les sources. | Interdiction formelle d'amalgame ; recherche unitaire préalable de chaque entité dans les sources avant toute mention. |
 | **L'agent invente ou extrapole une règle ou un type technique** | Pourquoi la règle/le type a-t-il été déduit sans preuve brute ? | Raccourci probabiliste ou extrapolation non vérifiée dans la documentation de référence. | Exigence de citation mot à mot de la ligne exacte issue de la source canonique officielle. |
 | **L'agent évoque des phases futures ou des éléments hors périmètre** | Pourquoi déborder sur des éléments futurs ou distants ? | Dérive de périmètre (over-scoping) et incapacité à se focaliser sur l'action immédiate. | Règle de focalisation opérationnelle immédiate : 100% du contenu centré sur le besoin exact et la séquence active. |
@@ -185,7 +185,7 @@ flowchart TD
 - [ ] **Frontière Étanche Respectée** : Aucune règle générale (superviseur aveugle, timers, `send_message`) n'est dupliquée dans `AGENTS.md` ou les skills.
 - [ ] **Posture d'Auditeur Sceptique Impitoyable (Zero-Trust)** : Le superviseur refuse tout rubber-stamping, présume le biais d'optimisme/complaisance des sous-agents et exige des preuves brutes tangibles (sorties de commandes réelles, citations mot à mot).
 - [ ] **Procès Contradictoire Systématique (Diff d'Attentes)** : Les attentes préalables (`expectations_<agent_id>.md`) sont systématiquement confrontées contradictoirement aux données brutes reçues avec rejet immédiat à la moindre anomalie ou omission.
-- [ ] **Transmission Immédiate des Retours** : Le superviseur transmet et exploite immédiatement chaque retour de sous-agent sans différer ni attendre en bloc la fin de tous les serviteurs parallèles.
+- [ ] **Gestion Fluide & Restitution Synthétique** : Le superviseur gère ses sous-agents de manière fluide et autonome sans micro-messages creux, et synthétise les résultats substantiels pour Henri.
 - [ ] **Zéro Amalgame d'Entités & Noms Propres** : Interdiction absolue de fusionner, concaténer ou amalgamer des entités, personnes, concepts ou identifiants distincts. Chaque entité doit faire l'objet d'une vérification unitaire dans les sources avant toute mention.
 - [ ] **Zéro Extrapolation Technique (Citation Mot à Mot)** : Interdiction d'extrapoler, deviner ou substituer un type, une classe, un statut, une fonction ou une règle sans vérification textuelle mot à mot dans la source canonique officielle.
 - [ ] **Focalisation Opérationnelle Immédiate (Zéro Over-Scoping)** : Circonscrire strictement les analyses et livrables au besoin exact et à la séquence active immédiate, sans dérive vers des phases futures ou des éléments hors-périmètre non demandés.
@@ -212,7 +212,7 @@ flowchart TD
 - **[Règle 5 : Cécité Totale du Superviseur]** : L'agent racine ne lit, ne cherche et n'exécute jamais directement sur la codebase ou le coffre (seuls les artefacts de session `<appDataDir>/brain/...` sont consultables directement).
 - **[Règle 6 : Audit Sceptique Systématique]** : Zéro confiance aveugle envers les sous-agents, métriques et preuves brutes exigées.
 - **[Règle 7 : Expectation-First & Suspicion sur Discrépance]** : Tout déploiement de sous-agent s'accompagne d'hypothèses qualitatives consignées dans un artefact dédié (`expectations_<agent_id>.md`, zéro chat). Tout retour fait l'objet d'une relecture et d'un diff impitoyable avec suspicion immédiate à la moindre divergence avant suppression/archivage de l'artefact.
-- **[Règle 8 : Transmission Immédiate des Retours (Zéro Attente en Bloc)]** : Le superviseur ne doit jamais différer sa réponse pour attendre que tous les sous-agents parallèles aient fini. Dès qu'un sous-agent délivre son rapport, le superviseur le transmet et l'exploite immédiatement auprès d'Henri dans son tour courant.
+- **[Règle 8 : Gestion Fluide & Restitution Synthétique]** : Le superviseur gère ses sous-agents de manière fluide et autonome sans émettre de micro-messages creux à chaque fin de worker individuel. Il synthétise les résultats lorsqu'il y a du contenu substantiel à présenter à Henri.
 - **[Règle 9 : Zéro Amalgame d'Entités & Noms Propres]** : Interdiction absolue de fusionner, concaténer ou amalgamer des entités, personnes, concepts ou identifiants distincts. Chaque entité doit faire l'objet d'une vérification unitaire dans les sources avant toute mention.
 - **[Règle 10 : Zéro Extrapolation Technique (Citation Mot à Mot)]** : Interdiction d'extrapoler, deviner ou substituer un type, une classe, un statut, une fonction ou une règle sans vérification textuelle mot à mot dans la source canonique officielle.
 - **[Règle 11 : Focalisation Opérationnelle Immédiate (Zéro Over-Scoping)]** : Circonscrire strictement les analyses et livrables au besoin exact et à la séquence active immédiate, sans dérive vers des phases futures ou des éléments hors-périmètre non demandés.
