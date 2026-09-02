@@ -15,6 +15,10 @@ description: "À invoquer lorsqu'une dérive, hallucination, mauvaise délégati
 | **Hallucination / Biais d'Optimisme** | Validation aveugle d'un résultat non prouvé ou affirmation d'une information absente. | Décisions erronées, dégradation de la confiance utilisateur. | Autopsie médico-légale de la règle transgressée, renforcement du Zero-Trust. |
 | **Absence d'Attentes Préalables ou Confiance Aveugle sans Diff** | Le superviseur déploie un sous-agent sans consigner ses attentes dans l'artefact dédié (`expectations_<agent_id>.md`), ou valide son rapport sans confronter les données brutes aux attentes. | Validation de résultats hallucinés, fallbacks silencieux non détectés, érosion du Zero-Trust. | Arrêt, formulation d'attentes théoriques dans l'artefact dédié, audit rétroactif des données brutes du sous-agent. |
 | **Attente en Bloc des Sous-Agents** | Le superviseur attend que tous les sous-agents parallèles finissent avant de répondre à Henri. | Latence inutile, blocage de l'interaction temps réel. | Transmission et exploitation immédiate de chaque rapport dès réception au fil de l'eau. |
+| **Amalgame Paresseux de Noms / PNJ** | Fusion hâtive ou paresseuse de deux entités distinctes (ex: *Arael Morosino* au lieu d'Arael et Morosino séparés) sans vérification du coffre. | Corruption du canon de l'univers, incohérence narrative, perte de repères. | Déploiement d'un sous-agent d'audit unitaire pour chaque nom propre, dissociation stricte des entités. |
+| **Extrapolation de Statblock / Classe** | Attribution arbitraire d'une classe ou de stats (ex: Shanwen = *Prêtre* au lieu de *Signifer*) sans vérification dans les livres/notes sources. | Hallucination mécanique, déséquilibre des rencontres, confusion de règles. | Exigence de citation textuelle mot à mot de la source officielle / fiche canonique. |
+| **Dérive de Périmètre / Over-scoping** | Évocation prématurée d'enjeux macro ou de boss futurs (ex: *Palaveen*) alors que la tâche concerne une scène tactique immédiate (ex: convoi). | Dispersion cognitive, surcharge de l'utilisateur, perte de focus sur la scène active. | Recadrage chirurgical strict sur les enjeux tactiques et livrables de la séquence active. |
+| **Omission des Liens de Livrables** | Synthèse de résultats sans mise en avant immédiate des liens Markdown absolus cliquables `[Nom](file:///...)` vers les fichiers créés. | Friction utilisateur pour accéder aux fichiers, livrables invisibles. | Restitution proactive immédiate en tête de réponse avec liens Markdown absolus. |
 
 ---
 
@@ -70,6 +74,10 @@ graph TD
 | **Duplication de règles entre fichiers** | Pourquoi deux fichiers contiennent le même paragraphe ? | Copier-coller de confort sans respect de la source unique de vérité. | Supprimer la copie, insérer un lien Markdown canonique absolu `[Nom](file:///...)`. |
 | **Validation aveugle sans diff ou omission d'attentes** | Pourquoi l'agent a-t-il affirmé des faits non vérifiés ou accepté un rapport sans diff ? | Manque de discipline épistémique ou complaisance envers le sous-agent. | Rappeler le protocole Expectation-First (consignation dans l'artefact dédié `<appDataDir>/brain/.../expectations_<agent_id>.md`, zéro pollution du chat) et le déclenchement de suspicion sur toute discrépance. |
 | **L'agent superviseur temporise en attendant tous les sous-agents** | Pourquoi attendre tous les résultats ? | Réflexe de batching / synchronisation rigide non aligné. | Appliquer la règle de Transmission Immédiate : restituer et exploiter chaque rapport dès sa réception dans le tour courant. |
+| **L'agent fusionne deux PNJ distincts (amalgame)** | Pourquoi deux noms ont-ils été fusionnés en un hybride ? | Hypothèse paresseuse et lecture superficielle sans audit unitaire dans le coffre. | Interdiction formelle d'amalgame ; recherche unitaire préalable de chaque nom propre dans le coffre. |
+| **L'agent invente une classe ou un statblock** | Pourquoi la classe/statblock a-t-elle été déduite sans preuve brute ? | Raccourci probabiliste ou assimilation hâtive d'un titre de prestige à une classe de base. | Exigence de citation mot à mot de la ligne exacte du livre officiel ou de la fiche canonique. |
+| **L'agent évoque des boss futurs ou des intrigues hors scène** | Pourquoi déborder sur des éléments narratifs distants ? | Dérive de périmètre (over-scoping) et incapacité à se focaliser sur l'action immédiate. | Règle de focalisation opérationnelle immédiate : 100% du contenu centré sur la scène active. |
+| **L'agent omet les liens de livrables créés** | Pourquoi les fichiers générés ne sont-ils pas linkés d'emblée ? | Oubli de la restitution proactive au profit d'un texte narratif continu. | Obligation d'afficher en tête de réponse tous les liens absolus `[Nom](file:///...)` des livrables. |
 
 ---
 
@@ -145,6 +153,10 @@ flowchart TD
 - [ ] **Frontière Étanche Respectée** : Aucune règle générale (superviseur aveugle, timers, `send_message`) n'est dupliquée dans `AGENTS.md` ou les skills.
 - [ ] **Transmission Immédiate des Retours** : Le superviseur transmet et exploite immédiatement chaque retour de sous-agent sans différer ni attendre en bloc la fin de tous les serviteurs parallèles.
 - [ ] **Protocole d'Attente Préalable & Diff de Discrépance** : Les attentes sont consignées dans un artefact dédié (`expectations_<agent_id>.md`, zéro pollution du chat) au déploiement et systématiquement relues et confrontées aux données brutes au retour avant archivage.
+- [ ] **Zéro Amalgame d'Entités** : Tous les noms de PNJ et entités sont audités unitairement et traités comme distincts sans fusion arbitraire.
+- [ ] **Citations Brutes de Statblocks** : Aucune classe ou mécanique n'est affirmée sans citation mot à mot de la source officielle.
+- [ ] **Focalisation Opérationnelle (Zero Over-scoping)** : La réponse se concentre à 100% sur la scène tactique immédiate sans dispersion sur des boss ou intrigues distants.
+- [ ] **Restitution Proactive des Livrables** : Tous les fichiers et fiches créés/modifiés sont linkés en tête de message par des liens absolus `[Nom](file:///...)`.
 - [ ] **Audit Skills Complété** : Les fichiers `SKILL.md` audités respectent le paradigme Question-Réponse (100% titres H1-H4 avec `?`).
 - [ ] **Règle `send_message` Explicite** : Mention formelle que `send_message` = correction de bug immédiat uniquement ; tout nouveau besoin = `invoke_subagent`.
 - [ ] **Git Propre & Synchro** : Le dépôt `cursor-memory-bank` est à jour (`git push origin master` validé sans erreur).
@@ -153,7 +165,7 @@ flowchart TD
 
 ---
 
-## 🛡️ Quelles Sont les 8 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
+## 🛡️ Quelles Sont les 12 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
 
 - **[Règle 1 : Source Unique de Vérité]** : `GEMINI.md` commande le comportement universel ; `AGENTS.md` commande le coffre Obsidian ; `SKILL.md` commande le workflow opérationnel. Zéro copie inter-fichiers.
 - **[Règle 2 : Miroir Parfait Obligatoire]** : Tout changement dans `GEMINI.md` ou les skills doit exister simultanément dans les dépôts de référence et l'environnement d'exécution local.
@@ -163,3 +175,7 @@ flowchart TD
 - **[Règle 6 : Audit Sceptique Systématique]** : Zéro confiance aveugle envers les sous-agents, métriques et preuves brutes exigées.
 - **[Règle 7 : Expectation-First & Suspicion sur Discrépance]** : Tout déploiement de sous-agent s'accompagne d'hypothèses qualitatives consignées dans un artefact dédié (`expectations_<agent_id>.md`, zéro chat). Tout retour fait l'objet d'une relecture et d'un diff impitoyable avec suspicion immédiate à la moindre divergence avant suppression/archivage de l'artefact.
 - **[Règle 8 : Transmission Immédiate des Retours (Zéro Attente en Bloc)]** : Le superviseur ne doit jamais différer sa réponse pour attendre que tous les sous-agents parallèles aient fini. Dès qu'un sous-agent délivre son rapport, le superviseur le transmet et l'exploite immédiatement auprès d'Henri dans son tour courant.
+- **[Règle 9 : Zéro Amalgame d'Entités]** : Traiter chaque nom propre comme une entité strictement indépendante. Audit unitaire obligatoire dans le coffre avant toute affirmation ou génération.
+- **[Règle 10 : Zéro Extrapolation de Statblock]** : Interdiction d'extrapoler des classes, niveaux ou pouvoirs. Citation mot à mot obligatoire de la ligne brute du livre officiel / document source.
+- **[Règle 11 : Focalisation Opérationnelle Immédiate]** : Concentrer 100% de l'attention et des livrables sur la séquence ou scène tactique active. Bannissement de l'over-scoping (boss finaux, donjons distants non sollicités).
+- **[Règle 12 : Restitution Proactive des Liens de Livrables]** : Tout livrable créé ou modifié doit immédiatement figurer en tête de réponse sous forme de lien Markdown cliquable absolu `[Nom](file:///...)`.
