@@ -23,6 +23,8 @@ description: "À invoquer lorsqu'une dérive, hallucination, mauvaise délégati
 | **Recyclage d'Actifs Visuels / Fallback Silencieux d'Illustration** | Raccourci paresseux pour éviter la génération d'image dédiée. | Incohérence narrative, fausse identité visuelle, violation des livrables. | Arrêt immédiat, interdiction du réemploi, génération d'un prompt dédié 16:9 via le skill approprié. |
 | **Spin Expérimental / Travestissement d'Échec** | Enrobage d'un échec net face à une baseline ou mise en avant opportuniste de sous-métriques secondaires ($EOR$). | Biais de confirmation scientifique, publication de conclusions erronées, décrédibilisation de la recherche. | Annoncer crûment l'infériorité empirique et les surcoûts en tête de réponse, bannir le spin, restituer les métriques brutes. |
 | **Extrapolation / Comparatif Sans Baseline Miroir** | Proclamation de gain ou d'économie alors qu'une seule branche a tourné ou que la baseline est inachevée. | Hallucination comparative, fausse déclaration de supériorité, invalidation méthodologique. | Interdiction formelle de conclure tant que les DEUX branches n'ont pas terminé et produit leurs résultats côte à côte. |
+| **Validation d'Action Interactive / Browser sans Preuve Matérielle** | Le superviseur valide un test live ou une action desktop/browser sur simple affirmation du sous-agent sans vérifier l'exécution matérielle effective de l'outil interactif (rubber-stamping passif). | Fausse assurance de test live, régression non détectée, érosion du Zero-Trust. | Arrêt immédiat, rejet de la conclusion, exigence formelle de preuves matérielles brutes (logs d'outils, captures réelles). |
+| **Omission du Calpin en Braille Permanent** | Le superviseur enchaîne les tours de conversation sans actualiser la note maîtresse ou ses sous-notes de projet. | Perte d'alignement, perte de la mémoire de travail immédiate, désynchronisation des roadmaps. | Actualisation immédiate de la note maîtresse ou sous-notes Obsidian à chaque tour de conversation en format télégraphique strict. |
 
 ---
 
@@ -81,7 +83,7 @@ graph TD
 | Pilier Doctrinal | Posture & Axiome Fondamental | Risque Traqué | Règle d'Action Opérationnelle |
 | :--- | :--- | :--- | :--- |
 | **1. Auditeur Sceptique Impitoyable** | Présomption de biais d'optimisme, de complaisance (sycophancy) et de paresse structurelle chez tout sous-agent. | Recherche du chemin de moindre effort, déclarations de succès infondées, oubli silencieux de variantes/paramètres, collage d'actifs tiers. | Méfiance méthodique absolue : aucun résultat ni conclusion n'est accepté comme acquis sur simple affirmation. |
-| **2. Interdiction du Rubber-Stamping** | Zéro validation passive. Toute validation exige des preuves tangibles, vérifiables et non simulées. | Hallucinations silencieuses, scripts non exécutés, sorties partielles ou tronquées, données synthétiques inventées. | Exiger systématiquement : (1) sorties réelles de commandes/logs, (2) citations textuelles mot à mot des sources, (3) chemins absolus vérifiés, (4) métriques non simulées. |
+| **2. Interdiction du Rubber-Stamping** | Zéro validation passive. Toute validation exige des preuves tangibles, vérifiables et non simulées. | Hallucinations silencieuses, scripts non exécutés, sorties partielles ou tronquées, données synthétiques inventées, tests browser non exécutés. | Exiger systématiquement : (1) sorties réelles de commandes/logs, (2) preuves matérielles d'exécution d'outils interactifs / browser, (3) citations textuelles mot à mot des sources, (4) chemins absolus vérifiés, (5) métriques non simulées. |
 | **3. Procès Contradictoire Systématique** | Confrontation ligne à ligne entre données réelles reçues et l'artefact préalable `expectations_<agent_id>.md`. | Biais de confirmation, angles morts ignorés, acceptation de livrables incomplets. | Traque impitoyable des manques et des dissonances. À la moindre discrépance ou omission : recadrage immédiat, rejet du livrable ou lancement d'un nouveau sous-agent dédié. |
 
 ---
@@ -106,6 +108,8 @@ graph TD
 | **L'agent réutilise une image existante au lieu d'en générer une** | Pourquoi l'agent a-t-il copié un lien d'image existant ? | Raccourci paresseux (fallback silencieux) pour éviter la phase de prompt engineering visuel. | Imposer l'obligation absolue de génération 16:9 dédiée originale et interdire formellement le recyclage d'images dans le skill et GEMINI.md. |
 | **L'agent minimise un échec ou utilise du spin scientifique** | Pourquoi l'agent a-t-il présenté un résultat défavorable comme un succès ? | Biais de complaisance (sycophancy) et réticence à annoncer un échec empirique net face à une baseline. | Imposer la restitution brute et crue des résultats en tête de rapport, bannir l'enrobage par des sous-métriques. |
 | **L'agent déclare une victoire comparative sans baseline finie** | Pourquoi affirmer un gain alors que la baseline n'a pas tourné ? | Extrapolation paresseuse et violation élémentaire de la méthode expérimentale. | Sanctuariser l'interdiction de toute conclusion comparative sans exécution miroir intégrale des deux branches. |
+| **L'agent prétend avoir mené un test browser sans preuve d'outil** | Pourquoi le superviseur a-t-il validé l'action interactive ? | Complaisance (sycophancy) et acceptation passive d'un rapport sans contrôle des logs d'exécution de l'outil interactif. | Exiger formellement des preuves matérielles brutes d'exécution interactive (logs, captures réelles) avant toute validation. |
+| **L'agent superviseur n'actualise pas la note maîtresse à chaque tour** | Pourquoi le calpin en braille a-t-il été délaissé ? | Oubli de la règle de synchronisation continue à chaque message. | Rappeler l'obligation de mise à jour systématique de la note maîtresse/sous-notes à chaque message en format télégraphique strict. |
 
 ---
 
@@ -190,6 +194,8 @@ flowchart TD
 - [ ] **Zéro Spin & Vérité Expérimentale Brute** : Tout résultat défavorable ou surcoût face à une baseline est annoncé crûment en tête de rapport sans filtre ni enjolivement.
 - [ ] **Baseline Miroir Intégralement Exécutée** : Aucune affirmation de gain, économie ou supériorité n'est émise sans mesure réelle côte à côte des deux branches terminées.
 - [ ] **Audit Skills Complété** : Les fichiers `SKILL.md` audités respectent le paradigme Question-Réponse (100% titres H1-H4 avec `?`).
+- [ ] **Audit Sceptique des Outils Interactifs & Browser** : Toute revendication d'action interactive ou de test browser est appuyée par des preuves matérielles d'exécution d'outils réels (logs réels, captures de session).
+- [ ] **Calpin en Braille Actif** : La note maîtresse et ses sous-notes Obsidian sont rigoureusement actualisées à chaque tour de conversation en format télégraphique strict (tableaux, Mermaid, puces clé-valeur).
 - [ ] **Règle `send_message` Explicite** : Mention formelle que `send_message` = correction de bug immédiat uniquement ; tout nouveau besoin = `invoke_subagent`.
 - [ ] **Git Propre & Synchro** : Le dépôt `cursor-memory-bank` est à jour (`git push origin master` validé sans erreur).
 - [ ] **Paradigme Question-Réponse** : TOUS les titres H1-H4 de la documentation Obsidian et des skills se terminent par `?`.
@@ -197,7 +203,7 @@ flowchart TD
 
 ---
 
-## 🛡️ Quelles Sont les 15 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
+## 🛡️ Quelles Sont les 16 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
 
 - **[Règle 1 : Source Unique de Vérité]** : `GEMINI.md` commande le comportement universel ; `AGENTS.md` commande le coffre Obsidian ; `SKILL.md` commande le workflow opérationnel. Zéro copie inter-fichiers.
 - **[Règle 2 : Miroir Parfait Obligatoire]** : Tout changement dans `GEMINI.md` ou les skills doit exister simultanément dans les dépôts de référence et l'environnement d'exécution local.
@@ -214,3 +220,4 @@ flowchart TD
 - **[Règle 13 : Interdiction de Recyclage d'Actifs Visuels (Génération Systématique Dédiée)]** : Tout livrable, entité ou fiche nécessitant une illustration exige la création d'un actif visuel original dédié (16:9 ou format requis) via le pipeline officiel approprié (`/asharde-visual-architect`, `/asharde-cartographer`, `/scientific-figures`, etc.). Zéro recyclage d'images préexistantes.
 - **[Règle 14 : Doctrine du Superviseur Sceptique (Zero-Trust & Anti-Complaisance)]** : Le superviseur aveugle agit comme un auditeur sceptique impitoyable. Il refuse tout rubber-stamping, présume le biais d'optimisme et la complaisance des sous-agents, exige des preuves brutes non simulées (sorties de commandes réelles, citations mot à mot, métriques vérifiées) et conduit un procès contradictoire systématique (Diff d'Attentes) en rejetant tout livrable lacunaire ou approximatif.
 - **[Règle 15 : Zéro Spin & Vérité Expérimentale Brute (Evidence-First & Probité Scientifique)]** : Interdiction absolue d'enjoliver, minimiser ou travestir des résultats scientifiques défavorables. Si la baseline est supérieure, l'annoncer crûment en tête de réponse. Interdiction formelle de proclamer un gain ou une économie sans baseline miroir intégralement exécutée et mesurée.
+- **[Règle 16 : Audit Sceptique des Outils Interactifs & Calpin en Braille Permanent]** : Interdiction formelle de valider une action interactive ou de navigation sans preuve matérielle d'exécution d'outil réel. Obligation stricte de maintenir la note maîtresse de projet et ses sous-notes Obsidian à jour à chaque tour de conversation comme calpin en braille de l'aveugle.
