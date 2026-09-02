@@ -21,6 +21,8 @@ description: "À invoquer lorsqu'une dérive, hallucination, mauvaise délégati
 | **Validation Passive / Complaisance (Rubber-Stamping)** | Le superviseur valide le travail d'un serviteur sur parole sans exiger de preuves brutes ni auditer les raccourcis paresseux. | Risque d'erreur critique, propagation d'hallucinations, fausses déclarations de succès. | Arrêt immédiat, rejet du livrable, exigence de preuves brutes (sorties de commandes réelles, citations mot à mot). |
 | **Absence de Liens de Livrables en Tête** | Restitution d'un livrable ou fichier créé/modifié sans lien Markdown absolu cliquable en tête de réponse. | Friction d'accès, livrables invisibles, rupture du flux de travail. | Insertion obligatoire du lien Markdown absolu cliquable `[Nom](file:///...)` en toute première ligne de réponse. |
 | **Recyclage d'Actifs Visuels / Fallback Silencieux d'Illustration** | Raccourci paresseux pour éviter la génération d'image dédiée. | Incohérence narrative, fausse identité visuelle, violation des livrables. | Arrêt immédiat, interdiction du réemploi, génération d'un prompt dédié 16:9 via le skill approprié. |
+| **Spin Expérimental / Travestissement d'Échec** | Enrobage d'un échec net face à une baseline ou mise en avant opportuniste de sous-métriques secondaires ($EOR$). | Biais de confirmation scientifique, publication de conclusions erronées, décrédibilisation de la recherche. | Annoncer crûment l'infériorité empirique et les surcoûts en tête de réponse, bannir le spin, restituer les métriques brutes. |
+| **Extrapolation / Comparatif Sans Baseline Miroir** | Proclamation de gain ou d'économie alors qu'une seule branche a tourné ou que la baseline est inachevée. | Hallucination comparative, fausse déclaration de supériorité, invalidation méthodologique. | Interdiction formelle de conclure tant que les DEUX branches n'ont pas terminé et produit leurs résultats côte à côte. |
 
 ---
 
@@ -102,6 +104,8 @@ graph TD
 | **L'agent évoque des phases futures ou des éléments hors périmètre** | Pourquoi déborder sur des éléments futurs ou distants ? | Dérive de périmètre (over-scoping) et incapacité à se focaliser sur l'action immédiate. | Règle de focalisation opérationnelle immédiate : 100% du contenu centré sur le besoin exact et la séquence active. |
 | **L'agent omet le lien Markdown cliquable du livrable** | Pourquoi le lien du fichier créé/modifié n'apparaît pas en tête ? | Négligence de restitution et rupture de navigation pour l'utilisateur. | Règle de restitution proactive : placer immédiatement le lien absolu `[Nom](file:///...)` au début de la réponse. |
 | **L'agent réutilise une image existante au lieu d'en générer une** | Pourquoi l'agent a-t-il copié un lien d'image existant ? | Raccourci paresseux (fallback silencieux) pour éviter la phase de prompt engineering visuel. | Imposer l'obligation absolue de génération 16:9 dédiée originale et interdire formellement le recyclage d'images dans le skill et GEMINI.md. |
+| **L'agent minimise un échec ou utilise du spin scientifique** | Pourquoi l'agent a-t-il présenté un résultat défavorable comme un succès ? | Biais de complaisance (sycophancy) et réticence à annoncer un échec empirique net face à une baseline. | Imposer la restitution brute et crue des résultats en tête de rapport, bannir l'enrobage par des sous-métriques. |
+| **L'agent déclare une victoire comparative sans baseline finie** | Pourquoi affirmer un gain alors que la baseline n'a pas tourné ? | Extrapolation paresseuse et violation élémentaire de la méthode expérimentale. | Sanctuariser l'interdiction de toute conclusion comparative sans exécution miroir intégrale des deux branches. |
 
 ---
 
@@ -183,6 +187,8 @@ flowchart TD
 - [ ] **Focalisation Opérationnelle Immédiate (Zéro Over-Scoping)** : Circonscrire strictement les analyses et livrables au besoin exact et à la séquence active immédiate, sans dérive vers des phases futures ou des éléments hors-périmètre non demandés.
 - [ ] **Restitution Proactive des Liens de Livrables** : Dès qu'un fichier, une note ou un livrable est créé ou modifié par un sous-agent ou le superviseur, son lien Markdown absolu cliquable `[Nom](file:///...)` DOIT être restitué en tête de réponse de manière immédiatement visible et exploitable.
 - [ ] **Génération Visuelle Dédiée** : Toute illustration requise pour une entité/livrable fait l'objet d'un prompt 16:9 original dédié sans réemploi d'images antérieures.
+- [ ] **Zéro Spin & Vérité Expérimentale Brute** : Tout résultat défavorable ou surcoût face à une baseline est annoncé crûment en tête de rapport sans filtre ni enjolivement.
+- [ ] **Baseline Miroir Intégralement Exécutée** : Aucune affirmation de gain, économie ou supériorité n'est émise sans mesure réelle côte à côte des deux branches terminées.
 - [ ] **Audit Skills Complété** : Les fichiers `SKILL.md` audités respectent le paradigme Question-Réponse (100% titres H1-H4 avec `?`).
 - [ ] **Règle `send_message` Explicite** : Mention formelle que `send_message` = correction de bug immédiat uniquement ; tout nouveau besoin = `invoke_subagent`.
 - [ ] **Git Propre & Synchro** : Le dépôt `cursor-memory-bank` est à jour (`git push origin master` validé sans erreur).
@@ -191,7 +197,7 @@ flowchart TD
 
 ---
 
-## 🛡️ Quelles Sont les 14 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
+## 🛡️ Quelles Sont les 15 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
 
 - **[Règle 1 : Source Unique de Vérité]** : `GEMINI.md` commande le comportement universel ; `AGENTS.md` commande le coffre Obsidian ; `SKILL.md` commande le workflow opérationnel. Zéro copie inter-fichiers.
 - **[Règle 2 : Miroir Parfait Obligatoire]** : Tout changement dans `GEMINI.md` ou les skills doit exister simultanément dans les dépôts de référence et l'environnement d'exécution local.
@@ -207,3 +213,4 @@ flowchart TD
 - **[Règle 12 : Restitution Proactive des Liens de Livrables]** : Dès qu'un fichier, une note ou un livrable est créé ou modifié par un sous-agent ou le superviseur, son lien Markdown absolu cliquable `[Nom](file:///...)` DOIT être restitué en tête de réponse de manière immédiatement visible et exploitable.
 - **[Règle 13 : Interdiction de Recyclage d'Actifs Visuels (Génération Systématique Dédiée)]** : Tout livrable, entité ou fiche nécessitant une illustration exige la création d'un actif visuel original dédié (16:9 ou format requis) via le pipeline officiel approprié (`/asharde-visual-architect`, `/asharde-cartographer`, `/scientific-figures`, etc.). Zéro recyclage d'images préexistantes.
 - **[Règle 14 : Doctrine du Superviseur Sceptique (Zero-Trust & Anti-Complaisance)]** : Le superviseur aveugle agit comme un auditeur sceptique impitoyable. Il refuse tout rubber-stamping, présume le biais d'optimisme et la complaisance des sous-agents, exige des preuves brutes non simulées (sorties de commandes réelles, citations mot à mot, métriques vérifiées) et conduit un procès contradictoire systématique (Diff d'Attentes) en rejetant tout livrable lacunaire ou approximatif.
+- **[Règle 15 : Zéro Spin & Vérité Expérimentale Brute (Evidence-First & Probité Scientifique)]** : Interdiction absolue d'enjoliver, minimiser ou travestir des résultats scientifiques défavorables. Si la baseline est supérieure, l'annoncer crûment en tête de réponse. Interdiction formelle de proclamer un gain ou une économie sans baseline miroir intégralement exécutée et mesurée.

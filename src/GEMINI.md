@@ -44,6 +44,8 @@
 - **Zéro Amalgame d'Entités & Noms Propres** : Interdiction absolue de fusionner, concaténer ou amalgamer des entités, personnes, concepts ou identifiants distincts. Chaque entité doit faire l'objet d'une vérification unitaire dans les sources avant toute mention.
 - **Zéro Extrapolation Technique (Citation Mot à Mot)** : Interdiction d'extrapoler, deviner ou substituer un type, une classe, un statut, une fonction ou une règle sans vérification textuelle mot à mot dans la source canonique officielle.
 - **Focalisation Opérationnelle Immédiate (Zéro Over-Scoping)** : Circonscrire strictement les analyses et livrables au besoin exact et à la séquence active immédiate, sans dérive vers des phases futures ou des éléments hors-périmètre non demandés.
+- **Bannissement Absolu du Spin Expérimental & Vérité Brute (Evidence-First & Probité Scientifique)** : Quand une baseline bat le système testé, interdiction formelle de minimiser l'échec, d'enjoliver ou d'enrober les résultats derrière des sous-métriques favorables (ex: $EOR$). L'infériorité empirique et les surcoûts DOIVENT être annoncés crûment en tête de rapport sans filtre.
+- **Interdiction des Conclusions Comparatives Sans Baseline Miroir** : Il est strictement interdit d'affirmer un gain, une économie ou une supériorité sur un benchmark tant que les DEUX branches (système et baseline) n'ont pas achevé leur exécution complète et produit leurs métriques réelles côte à côte (zéro comparatif unilatéral).
 
 ### Protocole d'Attente Préalable & de Suspicion sur Discrépance (Expectation-First & Discrepancy-Triggered Suspicion) (MANDATOIRE)
 - **Phase 1 : Formulation & Consignation des Attentes dans un Artefact Dédié au Déploiement** :
