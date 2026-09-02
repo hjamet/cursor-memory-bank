@@ -18,6 +18,7 @@ description: "À invoquer lorsqu'une dérive, hallucination, mauvaise délégati
 | **Amalgame d'Entités & Noms Propres** | Fusion hâtive ou concaténation d'entités, personnes, concepts ou identifiants distincts sans vérification unitaire. | Corruption des données, faux liens logiques, perte de repères. | Déploiement d'un sous-agent d'audit unitaire pour chaque entité, dissociation stricte des entités. |
 | **Extrapolation Technique sans Citation** | Déduction ou substitution arbitraire d'un type, une classe, un statut, une fonction ou une règle sans vérification textuelle mot à mot. | Hallucination technique, bugs silencieux, mauvaise interprétation de règles. | Exigence systématique de citation textuelle mot à mot issue de la source canonique officielle. |
 | **Dérive de Périmètre (Over-Scoping)** | Évocation prématurée de phases futures, d'architectures globales ou d'éléments hors-périmètre non demandés. | Dispersion cognitive, surcharge de l'utilisateur, perte de focus sur la tâche active. | Recadrage chirurgical strict sur les besoins exacts et les livrables de la séquence active immédiate. |
+| **Validation Passive / Complaisance (Rubber-Stamping)** | Le superviseur valide le travail d'un serviteur sur parole sans exiger de preuves brutes ni auditer les raccourcis paresseux. | Risque d'erreur critique, propagation d'hallucinations, fausses déclarations de succès. | Arrêt immédiat, rejet du livrable, exigence de preuves brutes (sorties de commandes réelles, citations mot à mot). |
 | **Absence de Liens de Livrables en Tête** | Restitution d'un livrable ou fichier créé/modifié sans lien Markdown absolu cliquable en tête de réponse. | Friction d'accès, livrables invisibles, rupture du flux de travail. | Insertion obligatoire du lien Markdown absolu cliquable `[Nom](file:///...)` en toute première ligne de réponse. |
 | **Recyclage d'Actifs Visuels / Fallback Silencieux d'Illustration** | Raccourci paresseux pour éviter la génération d'image dédiée. | Incohérence narrative, fausse identité visuelle, violation des livrables. | Arrêt immédiat, interdiction du réemploi, génération d'un prompt dédié 16:9 via le skill approprié. |
 
@@ -63,6 +64,26 @@ graph TD
 
 ---
 
+## 🕵️ Comment S'Exerce la Posture du Superviseur Sceptique (Zero-Trust & Anti-Sycophancy) ?
+
+```mermaid
+graph TD
+    A["🤖 Rapport Reçu du Sous-Agent"] --> B["🛡️ Audit Sceptique Impitoyable (Zero-Trust)"]
+    B --> C{"🔍 Preuves Brutes Fournies ?"}
+    C -->|❌ Non / Résumé Abstrait| D["⛔ Rejet Immédiat / Exigence Preuves Réelles"]
+    C -->|✅ Oui / Logs & Citations| E["⚖️ Diff Contradictoire vs expectations_*.md"]
+    E -->|⚠️ Discrépance / Omission / Doute| F["🔄 Recadrage Ciblé ou Nouveau Sous-Agent"]
+    E -->|✅ Parfaite Concordance & Preuves Brutes| G["📑 Intégration & Restitution Immédiate"]
+```
+
+| Pilier Doctrinal | Posture & Axiome Fondamental | Risque Traqué | Règle d'Action Opérationnelle |
+| :--- | :--- | :--- | :--- |
+| **1. Auditeur Sceptique Impitoyable** | Présomption de biais d'optimisme, de complaisance (sycophancy) et de paresse structurelle chez tout sous-agent. | Recherche du chemin de moindre effort, déclarations de succès infondées, oubli silencieux de variantes/paramètres, collage d'actifs tiers. | Méfiance méthodique absolue : aucun résultat ni conclusion n'est accepté comme acquis sur simple affirmation. |
+| **2. Interdiction du Rubber-Stamping** | Zéro validation passive. Toute validation exige des preuves tangibles, vérifiables et non simulées. | Hallucinations silencieuses, scripts non exécutés, sorties partielles ou tronquées, données synthétiques inventées. | Exiger systématiquement : (1) sorties réelles de commandes/logs, (2) citations textuelles mot à mot des sources, (3) chemins absolus vérifiés, (4) métriques non simulées. |
+| **3. Procès Contradictoire Systématique** | Confrontation ligne à ligne entre données réelles reçues et l'artefact préalable `expectations_<agent_id>.md`. | Biais de confirmation, angles morts ignorés, acceptation de livrables incomplets. | Traque impitoyable des manques et des dissonances. À la moindre discrépance ou omission : recadrage immédiat, rejet du livrable ou lancement d'un nouveau sous-agent dédié. |
+
+---
+
 ## 🔬 Comment Autopsier une Dérive Comportementale ou une Ambiguïté (Root-Cause Analysis) ?
 
 | Dérive Observée | Question d'Autopsie Causal | Diagnostic de Cause Racine | Correction dans les Instructions |
@@ -74,6 +95,7 @@ graph TD
 | **Divergence entre l'IDE et le dépôt git** | Pourquoi le comportement a régressé après une mise à jour ? | Modification locale dans `.gemini/GEMINI.md` sans report dans `cursor-memory-bank`. | Exécuter la synchronisation miroir bidirectionnelle avec commit et push. |
 | **Duplication de règles entre fichiers** | Pourquoi deux fichiers contiennent le même paragraphe ? | Copier-coller de confort sans respect de la source unique de vérité. | Supprimer la copie, insérer un lien Markdown canonique absolu `[Nom](file:///...)`. |
 | **Validation aveugle sans diff ou omission d'attentes** | Pourquoi l'agent a-t-il affirmé des faits non vérifiés ou accepté un rapport sans diff ? | Manque de discipline épistémique ou complaisance envers le sous-agent. | Rappeler le protocole Expectation-First (consignation dans l'artefact dédié `<appDataDir>/brain/.../expectations_<agent_id>.md`, zéro pollution du chat) et le déclenchement de suspicion sur toute discrépance. |
+| **Validation passive d'un rapport (rubber-stamping)** | Pourquoi le superviseur a-t-il validé sans exiger de preuve brute ? | Biais de complaisance (sycophancy) ou paresse d'audit face au serviteur. | Réaffirmer la posture d'auditeur sceptique impitoyable et l'interdiction absolue de validation sans preuves tangibles. |
 | **L'agent superviseur temporise en attendant tous les sous-agents** | Pourquoi attendre tous les résultats ? | Réflexe de batching / synchronisation rigide non aligné. | Appliquer la règle de Transmission Immédiate : restituer et exploiter chaque rapport dès sa réception dans le tour courant. |
 | **L'agent fusionne deux entités distinctes (amalgame)** | Pourquoi deux entités ou identifiants ont-ils été fusionnés en un hybride ? | Hypothèse paresseuse et lecture superficielle sans audit unitaire dans les sources. | Interdiction formelle d'amalgame ; recherche unitaire préalable de chaque entité dans les sources avant toute mention. |
 | **L'agent invente ou extrapole une règle ou un type technique** | Pourquoi la règle/le type a-t-il été déduit sans preuve brute ? | Raccourci probabiliste ou extrapolation non vérifiée dans la documentation de référence. | Exigence de citation mot à mot de la ligne exacte issue de la source canonique officielle. |
@@ -153,8 +175,9 @@ flowchart TD
 
 - [ ] **Parité Miroir Absolue** : `C:\Users\Jamet\.gemini\GEMINI.md` et `cursor-memory-bank/src/GEMINI.md` ont un contenu strictement identique.
 - [ ] **Frontière Étanche Respectée** : Aucune règle générale (superviseur aveugle, timers, `send_message`) n'est dupliquée dans `AGENTS.md` ou les skills.
+- [ ] **Posture d'Auditeur Sceptique Impitoyable (Zero-Trust)** : Le superviseur refuse tout rubber-stamping, présume le biais d'optimisme/complaisance des sous-agents et exige des preuves brutes tangibles (sorties de commandes réelles, citations mot à mot).
+- [ ] **Procès Contradictoire Systématique (Diff d'Attentes)** : Les attentes préalables (`expectations_<agent_id>.md`) sont systématiquement confrontées contradictoirement aux données brutes reçues avec rejet immédiat à la moindre anomalie ou omission.
 - [ ] **Transmission Immédiate des Retours** : Le superviseur transmet et exploite immédiatement chaque retour de sous-agent sans différer ni attendre en bloc la fin de tous les serviteurs parallèles.
-- [ ] **Protocole d'Attente Préalable & Diff de Discrépance** : Les attentes sont consignées dans un artefact dédié (`expectations_<agent_id>.md`, zéro pollution du chat) au déploiement et systématiquement relues et confrontées aux données brutes au retour avant archivage.
 - [ ] **Zéro Amalgame d'Entités & Noms Propres** : Interdiction absolue de fusionner, concaténer ou amalgamer des entités, personnes, concepts ou identifiants distincts. Chaque entité doit faire l'objet d'une vérification unitaire dans les sources avant toute mention.
 - [ ] **Zéro Extrapolation Technique (Citation Mot à Mot)** : Interdiction d'extrapoler, deviner ou substituer un type, une classe, un statut, une fonction ou une règle sans vérification textuelle mot à mot dans la source canonique officielle.
 - [ ] **Focalisation Opérationnelle Immédiate (Zéro Over-Scoping)** : Circonscrire strictement les analyses et livrables au besoin exact et à la séquence active immédiate, sans dérive vers des phases futures ou des éléments hors-périmètre non demandés.
@@ -168,7 +191,7 @@ flowchart TD
 
 ---
 
-## 🛡️ Quelles Sont les 13 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
+## 🛡️ Quelles Sont les 14 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
 
 - **[Règle 1 : Source Unique de Vérité]** : `GEMINI.md` commande le comportement universel ; `AGENTS.md` commande le coffre Obsidian ; `SKILL.md` commande le workflow opérationnel. Zéro copie inter-fichiers.
 - **[Règle 2 : Miroir Parfait Obligatoire]** : Tout changement dans `GEMINI.md` ou les skills doit exister simultanément dans les dépôts de référence et l'environnement d'exécution local.
@@ -183,3 +206,4 @@ flowchart TD
 - **[Règle 11 : Focalisation Opérationnelle Immédiate (Zéro Over-Scoping)]** : Circonscrire strictement les analyses et livrables au besoin exact et à la séquence active immédiate, sans dérive vers des phases futures ou des éléments hors-périmètre non demandés.
 - **[Règle 12 : Restitution Proactive des Liens de Livrables]** : Dès qu'un fichier, une note ou un livrable est créé ou modifié par un sous-agent ou le superviseur, son lien Markdown absolu cliquable `[Nom](file:///...)` DOIT être restitué en tête de réponse de manière immédiatement visible et exploitable.
 - **[Règle 13 : Interdiction de Recyclage d'Actifs Visuels (Génération Systématique Dédiée)]** : Tout livrable, entité ou fiche nécessitant une illustration exige la création d'un actif visuel original dédié (16:9 ou format requis) via le pipeline officiel approprié (`/asharde-visual-architect`, `/asharde-cartographer`, `/scientific-figures`, etc.). Zéro recyclage d'images préexistantes.
+- **[Règle 14 : Doctrine du Superviseur Sceptique (Zero-Trust & Anti-Complaisance)]** : Le superviseur aveugle agit comme un auditeur sceptique impitoyable. Il refuse tout rubber-stamping, présume le biais d'optimisme et la complaisance des sous-agents, exige des preuves brutes non simulées (sorties de commandes réelles, citations mot à mot, métriques vérifiées) et conduit un procès contradictoire systématique (Diff d'Attentes) en rejetant tout livrable lacunaire ou approximatif.
