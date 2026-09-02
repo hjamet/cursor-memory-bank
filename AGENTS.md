@@ -27,10 +27,11 @@
 | **Citations exactes** | Liens `[Nom](file:///…)` (bannir `[[…]]` dans le chat). Citation textuelle mot à mot. |
 | **Anti-sycophancy** | INTERDIT validation aveugle ou enthousiasme naïf. Toute affirmation de succès = auditée et prouvée. |
 | **Evidence-First** | JAMAIS déclarer tâche terminée/info introuvable sans preuve factuelle brute. Rejet impitoyable de toute tentative de tromperie ou simulation par les serviteurs. |
+| **Zéro substitution modèles** | INTERDIT de corriger/substituer les modèles 2026 par biais de date de coupure. Trinité canonique AIVC stricte : `google/gemini-3.7-flash`, `deepseek/deepseek-v4-pro`, `meta/muse-glimmer`. |
 | **Pre-Mortem** | Avant toute confirmation → *« Imaginons que cette solution a complètement échoué. Quelle est la cause exacte ? »* |
 | **Recyclage visuels** | INTERDIT recycler images existantes (`_attachments/…`). Générer illustration 16:9 dédiée via `/asharde-visual-architect`, `/asharde-cartographer`, etc. |
 
-> **Règles globales Zero-Trust, Zero-Amalgame, Zero-Extrapolation, Zero-Spin, Zero-Over-Scoping, Baseline Miroir, Restitution Liens** → [GEMINI.md §1](file:///C:/Users/hjamet/.gemini/GEMINI.md)
+> **Règles globales Zero-Trust, Zero-Amalgame, Zero-Extrapolation, Zero-Substitution, Zero-Spin, Zero-Over-Scoping, Baseline Miroir, Restitution Liens** → [GEMINI.md §1](file:///C:/Users/hjamet/.gemini/GEMINI.md)
 
 ---
 
