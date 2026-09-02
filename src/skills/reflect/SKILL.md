@@ -14,6 +14,7 @@ description: "À invoquer lorsqu'une dérive, hallucination, mauvaise délégati
 | **Duplication de Règles (Violation DRY)** | Une règle globale système est recopiée ou paraphrasée dans `AGENTS.md` ou un skill. | Divergence de consignes, ambiguïté d'arbitrage pour les modèles. | Élagage, consolidation dans la source canonique (`GEMINI.md`) et renvoi par lien. |
 | **Hallucination / Biais d'Optimisme** | Validation aveugle d'un résultat non prouvé ou affirmation d'une information absente. | Décisions erronées, dégradation de la confiance utilisateur. | Autopsie médico-légale de la règle transgressée, renforcement du Zero-Trust. |
 | **Absence d'Attentes Préalables ou Confiance Aveugle sans Diff** | Le superviseur déploie un sous-agent sans consigner ses attentes dans l'artefact dédié (`expectations_<agent_id>.md`), ou valide son rapport sans confronter les données brutes aux attentes. | Validation de résultats hallucinés, fallbacks silencieux non détectés, érosion du Zero-Trust. | Arrêt, formulation d'attentes théoriques dans l'artefact dédié, audit rétroactif des données brutes du sous-agent. |
+| **Attente en Bloc des Sous-Agents** | Le superviseur attend que tous les sous-agents parallèles finissent avant de répondre à Henri. | Latence inutile, blocage de l'interaction temps réel. | Transmission et exploitation immédiate de chaque rapport dès réception au fil de l'eau. |
 
 ---
 
@@ -29,8 +30,9 @@ graph TD
         A2["🛡️ Doctrine Sceptique & Zero-Trust"]
         A3["🎯 Attentes Préalables & Suspicion sur Discrépance"]
         A4["🤖 Règles des Sous-Agents (invoke vs send_message)"]
-        A5["⏱️ Timers Background & Autonomie"]
-        A6["🧠 AIVC & 🔒 Spark Security"]
+        A5["⚡ Transmission Immédiate des Retours"]
+        A6["⏱️ Timers Background & Autonomie"]
+        A7["🧠 AIVC & 🔒 Spark Security"]
     end
     
     subgraph "Scope Coffre Obsidian (AGENTS.md)"
@@ -67,6 +69,7 @@ graph TD
 | **Divergence entre l'IDE et le dépôt git** | Pourquoi le comportement a régressé après une mise à jour ? | Modification locale dans `.gemini/GEMINI.md` sans report dans `cursor-memory-bank`. | Exécuter la synchronisation miroir bidirectionnelle avec commit et push. |
 | **Duplication de règles entre fichiers** | Pourquoi deux fichiers contiennent le même paragraphe ? | Copier-coller de confort sans respect de la source unique de vérité. | Supprimer la copie, insérer un lien Markdown canonique absolu `[Nom](file:///...)`. |
 | **Validation aveugle sans diff ou omission d'attentes** | Pourquoi l'agent a-t-il affirmé des faits non vérifiés ou accepté un rapport sans diff ? | Manque de discipline épistémique ou complaisance envers le sous-agent. | Rappeler le protocole Expectation-First (consignation dans l'artefact dédié `<appDataDir>/brain/.../expectations_<agent_id>.md`, zéro pollution du chat) et le déclenchement de suspicion sur toute discrépance. |
+| **L'agent superviseur temporise en attendant tous les sous-agents** | Pourquoi attendre tous les résultats ? | Réflexe de batching / synchronisation rigide non aligné. | Appliquer la règle de Transmission Immédiate : restituer et exploiter chaque rapport dès sa réception dans le tour courant. |
 
 ---
 
@@ -140,6 +143,7 @@ flowchart TD
 
 - [ ] **Parité Miroir Absolue** : `C:\Users\Jamet\.gemini\GEMINI.md` et `cursor-memory-bank/src/GEMINI.md` ont un contenu strictement identique.
 - [ ] **Frontière Étanche Respectée** : Aucune règle générale (superviseur aveugle, timers, `send_message`) n'est dupliquée dans `AGENTS.md` ou les skills.
+- [ ] **Transmission Immédiate des Retours** : Le superviseur transmet et exploite immédiatement chaque retour de sous-agent sans différer ni attendre en bloc la fin de tous les serviteurs parallèles.
 - [ ] **Protocole d'Attente Préalable & Diff de Discrépance** : Les attentes sont consignées dans un artefact dédié (`expectations_<agent_id>.md`, zéro pollution du chat) au déploiement et systématiquement relues et confrontées aux données brutes au retour avant archivage.
 - [ ] **Audit Skills Complété** : Les fichiers `SKILL.md` audités respectent le paradigme Question-Réponse (100% titres H1-H4 avec `?`).
 - [ ] **Règle `send_message` Explicite** : Mention formelle que `send_message` = correction de bug immédiat uniquement ; tout nouveau besoin = `invoke_subagent`.
@@ -149,7 +153,7 @@ flowchart TD
 
 ---
 
-## 🛡️ Quelles Sont les 7 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
+## 🛡️ Quelles Sont les 8 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
 
 - **[Règle 1 : Source Unique de Vérité]** : `GEMINI.md` commande le comportement universel ; `AGENTS.md` commande le coffre Obsidian ; `SKILL.md` commande le workflow opérationnel. Zéro copie inter-fichiers.
 - **[Règle 2 : Miroir Parfait Obligatoire]** : Tout changement dans `GEMINI.md` ou les skills doit exister simultanément dans les dépôts de référence et l'environnement d'exécution local.
@@ -158,3 +162,4 @@ flowchart TD
 - **[Règle 5 : Cécité Totale du Superviseur]** : L'agent racine ne lit, ne cherche et n'exécute jamais directement sur la codebase ou le coffre (seuls les artefacts de session `<appDataDir>/brain/...` sont consultables directement).
 - **[Règle 6 : Audit Sceptique Systématique]** : Zéro confiance aveugle envers les sous-agents, métriques et preuves brutes exigées.
 - **[Règle 7 : Expectation-First & Suspicion sur Discrépance]** : Tout déploiement de sous-agent s'accompagne d'hypothèses qualitatives consignées dans un artefact dédié (`expectations_<agent_id>.md`, zéro chat). Tout retour fait l'objet d'une relecture et d'un diff impitoyable avec suspicion immédiate à la moindre divergence avant suppression/archivage de l'artefact.
+- **[Règle 8 : Transmission Immédiate des Retours (Zéro Attente en Bloc)]** : Le superviseur ne doit jamais différer sa réponse pour attendre que tous les sous-agents parallèles aient fini. Dès qu'un sous-agent délivre son rapport, le superviseur le transmet et l'exploite immédiatement auprès d'Henri dans son tour courant.
