@@ -4,16 +4,16 @@
 > [!IMPORTANT]
 > **MCP TOOLS ONLY** — NEVER run `aivc` CLI commands in the terminal. Interact exclusively via MCP tools (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`).
 >
-> **[Bascule Cold-Start]** : Si recall / get_recent_memories est vide ➔ arrêt immédiat des requêtes de mémoire, bascule directe sur view_file/grep_search. Conserver remember après chaque étape pour peupler la mémoire.
+> **[Bascule Cold-Start]** : Si `recall` / `get_recent_memories` est vide ➔ arrêt immédiat des requêtes de mémoire, bascule directe sur `view_file` / `grep_search`. Conserver `remember` après chaque étape pour peupler la mémoire.
 
 | # | Rule | Detail |
 |---|------|--------|
-| 1 | **Remember often** | Call `remember` after every meaningful step. Notes must be **detailed** (what, why, errors, decisions, next steps). A one-liner = failure. |
-| 2 | **Context recovery first** | Before any work: `get_recent_memories` → `recall` (≥1 query) → `consult_memory` → `get_file_history_metadata` on files to modify. |
-| 3 | **Explore before acting** | Search memory first — never redo past work. |
-| 4 | **Mention files** | Always pass `read_files` and `edited_files` in `remember` calls. This is how AIVC tracks file associations. |
-| 5 | **Write for future self** | Memory notes = handover memos. Include reasoning, context, recommendations as if briefing a colleague with zero context. |
-| 6 | **Bascule Cold-Start** | Si recall / get_recent_memories est vide ➔ arrêt immédiat des requêtes de mémoire, bascule directe sur view_file/grep_search. Conserver remember après chaque étape pour peupler la mémoire. |
+| 1 | **Remember often** | Call `remember` après chaque étape significative liée à des fichiers. Format Post-It dense (Trigger/Contexte, Décision/Fix, Invariant/Impact). Un one-liner vide = échec, prose verbeuse = pollution. |
+| 2 | **Context recovery first** | Avant toute action : `get_recent_memories` → `recall` (≥1 requête) → `consult_memory` → `get_file_history_metadata` sur les fichiers cibles. |
+| 3 | **Explore before acting** | Interroger la mémoire d'abord — ne jamais refaire un travail déjà documenté. |
+| 4 | **Mention files** | Toujours passer `read_files` (fichiers clés consultés) et `edited_files` (fichiers modifiés/créés) pour alimenter le graphe de cooccurrence. |
+| 5 | **Format Post-It dense** | Rédiger des notes Post-It denses et structurées (contexte, décisions, invariants) pour recall futur immédiat sans bavardage. |
+| 6 | **Bascule Cold-Start** | Si `recall` / `get_recent_memories` ne retourne aucun résultat ➔ arrêt immédiat des requêtes mémoire, bascule directe sur `view_file` / `grep_search` / `list_dir`. |
 <!-- AIVC:END -->
 
 ---
