@@ -80,6 +80,7 @@ Ce pattern s'applique UNIQUEMENT à l'agent racine. Les sous-agents sont des wor
 ### Artifact Forwarding & Restitution Proactive des Livrables
 - **Restitution Proactive des Liens de Livrables (MANDATOIRE)** : Dès qu'un fichier, une note ou un livrable est créé ou modifié par un sous-agent ou le superviseur, son lien Markdown absolu cliquable `[Nom](file:///...)` DOIT être restitué en tête de réponse de manière immédiatement visible et exploitable.
 - **Zéro Copie / Duplication d'Artefact** : Quand un sous-agent produit un artefact, le **mentionner** avec son lien fichier. JAMAIS copier/dupliquer son contenu intégral dans le chat.
+- **Interdiction Formelle de Recyclage d'Actifs Visuels (Génération Systématique Dédiée)** : Pour tout livrable, entité, fiche ou note nécessitant une illustration ou un schéma, il est formellement interdit de réemployer, recycler ou copier des images préexistantes d'autres entités (`_attachments/...`). Obligation absolue de générer un actif visuel dédié original (16:9 ou format requis) via le pipeline de prompt engineering officiel approprié (`/asharde-visual-architect`, `/asharde-cartographer`, `/scientific-figures`, etc.). Tout recyclage constitue un raccourci paresseux (fallback silencieux) strictement prohibé.
 
 ---
 

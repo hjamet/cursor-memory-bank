@@ -19,6 +19,7 @@ description: "À invoquer lorsqu'une dérive, hallucination, mauvaise délégati
 | **Extrapolation Technique sans Citation** | Déduction ou substitution arbitraire d'un type, une classe, un statut, une fonction ou une règle sans vérification textuelle mot à mot. | Hallucination technique, bugs silencieux, mauvaise interprétation de règles. | Exigence systématique de citation textuelle mot à mot issue de la source canonique officielle. |
 | **Dérive de Périmètre (Over-Scoping)** | Évocation prématurée de phases futures, d'architectures globales ou d'éléments hors-périmètre non demandés. | Dispersion cognitive, surcharge de l'utilisateur, perte de focus sur la tâche active. | Recadrage chirurgical strict sur les besoins exacts et les livrables de la séquence active immédiate. |
 | **Absence de Liens de Livrables en Tête** | Restitution d'un livrable ou fichier créé/modifié sans lien Markdown absolu cliquable en tête de réponse. | Friction d'accès, livrables invisibles, rupture du flux de travail. | Insertion obligatoire du lien Markdown absolu cliquable `[Nom](file:///...)` en toute première ligne de réponse. |
+| **Recyclage d'Actifs Visuels / Fallback Silencieux d'Illustration** | Raccourci paresseux pour éviter la génération d'image dédiée. | Incohérence narrative, fausse identité visuelle, violation des livrables. | Arrêt immédiat, interdiction du réemploi, génération d'un prompt dédié 16:9 via le skill approprié. |
 
 ---
 
@@ -78,6 +79,7 @@ graph TD
 | **L'agent invente ou extrapole une règle ou un type technique** | Pourquoi la règle/le type a-t-il été déduit sans preuve brute ? | Raccourci probabiliste ou extrapolation non vérifiée dans la documentation de référence. | Exigence de citation mot à mot de la ligne exacte issue de la source canonique officielle. |
 | **L'agent évoque des phases futures ou des éléments hors périmètre** | Pourquoi déborder sur des éléments futurs ou distants ? | Dérive de périmètre (over-scoping) et incapacité à se focaliser sur l'action immédiate. | Règle de focalisation opérationnelle immédiate : 100% du contenu centré sur le besoin exact et la séquence active. |
 | **L'agent omet le lien Markdown cliquable du livrable** | Pourquoi le lien du fichier créé/modifié n'apparaît pas en tête ? | Négligence de restitution et rupture de navigation pour l'utilisateur. | Règle de restitution proactive : placer immédiatement le lien absolu `[Nom](file:///...)` au début de la réponse. |
+| **L'agent réutilise une image existante au lieu d'en générer une** | Pourquoi l'agent a-t-il copié un lien d'image existant ? | Raccourci paresseux (fallback silencieux) pour éviter la phase de prompt engineering visuel. | Imposer l'obligation absolue de génération 16:9 dédiée originale et interdire formellement le recyclage d'images dans le skill et GEMINI.md. |
 
 ---
 
@@ -157,6 +159,7 @@ flowchart TD
 - [ ] **Zéro Extrapolation Technique (Citation Mot à Mot)** : Interdiction d'extrapoler, deviner ou substituer un type, une classe, un statut, une fonction ou une règle sans vérification textuelle mot à mot dans la source canonique officielle.
 - [ ] **Focalisation Opérationnelle Immédiate (Zéro Over-Scoping)** : Circonscrire strictement les analyses et livrables au besoin exact et à la séquence active immédiate, sans dérive vers des phases futures ou des éléments hors-périmètre non demandés.
 - [ ] **Restitution Proactive des Liens de Livrables** : Dès qu'un fichier, une note ou un livrable est créé ou modifié par un sous-agent ou le superviseur, son lien Markdown absolu cliquable `[Nom](file:///...)` DOIT être restitué en tête de réponse de manière immédiatement visible et exploitable.
+- [ ] **Génération Visuelle Dédiée** : Toute illustration requise pour une entité/livrable fait l'objet d'un prompt 16:9 original dédié sans réemploi d'images antérieures.
 - [ ] **Audit Skills Complété** : Les fichiers `SKILL.md` audités respectent le paradigme Question-Réponse (100% titres H1-H4 avec `?`).
 - [ ] **Règle `send_message` Explicite** : Mention formelle que `send_message` = correction de bug immédiat uniquement ; tout nouveau besoin = `invoke_subagent`.
 - [ ] **Git Propre & Synchro** : Le dépôt `cursor-memory-bank` est à jour (`git push origin master` validé sans erreur).
@@ -165,7 +168,7 @@ flowchart TD
 
 ---
 
-## 🛡️ Quelles Sont les 12 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
+## 🛡️ Quelles Sont les 13 Règles d'Or de la Réflexion et de l'Alignement des Instructions ?
 
 - **[Règle 1 : Source Unique de Vérité]** : `GEMINI.md` commande le comportement universel ; `AGENTS.md` commande le coffre Obsidian ; `SKILL.md` commande le workflow opérationnel. Zéro copie inter-fichiers.
 - **[Règle 2 : Miroir Parfait Obligatoire]** : Tout changement dans `GEMINI.md` ou les skills doit exister simultanément dans les dépôts de référence et l'environnement d'exécution local.
@@ -179,3 +182,4 @@ flowchart TD
 - **[Règle 10 : Zéro Extrapolation Technique (Citation Mot à Mot)]** : Interdiction d'extrapoler, deviner ou substituer un type, une classe, un statut, une fonction ou une règle sans vérification textuelle mot à mot dans la source canonique officielle.
 - **[Règle 11 : Focalisation Opérationnelle Immédiate (Zéro Over-Scoping)]** : Circonscrire strictement les analyses et livrables au besoin exact et à la séquence active immédiate, sans dérive vers des phases futures ou des éléments hors-périmètre non demandés.
 - **[Règle 12 : Restitution Proactive des Liens de Livrables]** : Dès qu'un fichier, une note ou un livrable est créé ou modifié par un sous-agent ou le superviseur, son lien Markdown absolu cliquable `[Nom](file:///...)` DOIT être restitué en tête de réponse de manière immédiatement visible et exploitable.
+- **[Règle 13 : Interdiction de Recyclage d'Actifs Visuels (Génération Systématique Dédiée)]** : Tout livrable, entité ou fiche nécessitant une illustration exige la création d'un actif visuel original dédié (16:9 ou format requis) via le pipeline officiel approprié (`/asharde-visual-architect`, `/asharde-cartographer`, `/scientific-figures`, etc.). Zéro recyclage d'images préexistantes.
