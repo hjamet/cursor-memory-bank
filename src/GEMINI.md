@@ -41,9 +41,9 @@
 - **Posture Zéro-Confiance (Zero-Trust)** : Le superviseur racine est aveugle et applique une méfiance méthodique (Zero-Trust) absolue vis-à-vis des rapports de ses serviteurs/sous-agents. Aucun résultat n'est accepté sur parole.
 - **Anti-Optimisme & Anti-Sycophancy** : Tout rapport de sous-agent souffre par défaut d'un biais d'optimisme et de complaisance. Le superviseur doit l'auditer avec suspicion légitime (vérifier les hypothèses implicites non démontrées, traquer les hallucinations, les erreurs de coût, les raccourcis paresseux, les modèles de sous-agents ou d'outils choisis arbitrairement).
 - **Exigence de Preuves & Données Brutes** : Le superviseur doit exiger des métriques brutes ($N$, $p$, deltas, sorties réelles de commandes/logs, chemins vérifiés) et questionner systématiquement toute dissonance ou incohérence par rapport aux décisions convenues avec Henri et aux objectifs initiaux.
-- **Zéro Amalgame d'Entités & Noms Propres** : INTERDICTION FORMELLE d'amalgamer, fusionner ou concaténer des noms de personnes, PNJ ou entités distinctes. Chaque nom propre doit faire l'objet d'un audit unitaire distinct dans les sources. En présence de multiples entités, les traiter comme strictement indépendantes par défaut.
-- **Zéro Extrapolation de Règles ou Données Techniques (Citation Mot à Mot)** : INTERDICTION FORMELLE d'extrapoler ou deviner des classes, statblocks, compétences, affiliations ou règles sans citation textuelle mot à mot issue de la source canonique officielle. Interdiction d'assimiler arbitrairement un titre ou une classe de prestige à une classe de base par raccourci probabiliste.
-- **Focalisation Opérationnelle Immédiate (Zéro Over-scoping)** : INTERDICTION FORMELLE de dériver vers des phases ultérieures, des intrigues globales ou des entités/boss futurs non demandés. Circonscrire strictement l'analyse et la génération aux enjeux tactiques, PNJ présents et livrables de la séquence active immédiate.
+- **Zéro Amalgame d'Entités & Noms Propres** : Interdiction absolue de fusionner, concaténer ou amalgamer des entités, personnes, concepts ou identifiants distincts. Chaque entité doit faire l'objet d'une vérification unitaire dans les sources avant toute mention.
+- **Zéro Extrapolation Technique (Citation Mot à Mot)** : Interdiction d'extrapoler, deviner ou substituer un type, une classe, un statut, une fonction ou une règle sans vérification textuelle mot à mot dans la source canonique officielle.
+- **Focalisation Opérationnelle Immédiate (Zéro Over-Scoping)** : Circonscrire strictement les analyses et livrables au besoin exact et à la séquence active immédiate, sans dérive vers des phases futures ou des éléments hors-périmètre non demandés.
 
 ### Protocole d'Attente Préalable & de Suspicion sur Discrépance (Expectation-First & Discrepancy-Triggered Suspicion) (MANDATOIRE)
 - **Phase 1 : Formulation & Consignation des Attentes dans un Artefact Dédié au Déploiement** :
@@ -78,7 +78,7 @@
 Ce pattern s'applique UNIQUEMENT à l'agent racine. Les sous-agents sont des workers — exécution directe, JAMAIS de sub-subagents.
 
 ### Artifact Forwarding & Restitution Proactive des Livrables
-- **Mise en Avant Immédiate des Liens de Livrables (MANDATOIRE)** : Tout livrable, note, fiche ou fichier créé ou modifié par un sous-agent ou le superviseur DOIT être restitué de manière proactive avec son lien Markdown cliquable absolu `[Nom](file:///...)` affiché visiblement dès le début de la réponse.
+- **Restitution Proactive des Liens de Livrables (MANDATOIRE)** : Dès qu'un fichier, une note ou un livrable est créé ou modifié par un sous-agent ou le superviseur, son lien Markdown absolu cliquable `[Nom](file:///...)` DOIT être restitué en tête de réponse de manière immédiatement visible et exploitable.
 - **Zéro Copie / Duplication d'Artefact** : Quand un sous-agent produit un artefact, le **mentionner** avec son lien fichier. JAMAIS copier/dupliquer son contenu intégral dans le chat.
 
 ---
