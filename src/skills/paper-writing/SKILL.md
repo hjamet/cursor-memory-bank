@@ -1,13 +1,17 @@
 ---
-name: scientific-writing
-description: Méthodologie complète pour la rédaction et la révision itérative de papiers académiques via la note miroir Obsidian (papers/<nom>.md), l'édition directe des sources LaTeX, la projection de diff AST et le style scientifique rigoureux anti-IA.
+name: paper-writing
+description: Méthodologie complète pour la rédaction et la révision itérative de papiers académiques via la note miroir Obsidian (papers/<nom>.md), l'édition directe des sources LaTeX, la projection de diff AST, l'articulation amont avec la revue bibliographique (/literature-review) et le style scientifique rigoureux anti-IA.
 ---
 
-# 📝 Scientific Paper Writing & Revision Skill
+# 📝 Paper Writing & Revision Skill
 
 > [!IMPORTANT]
 > **Règle absolue d'écriture académique :** 
 > Le texte doit être extrêmement scientifique, neutre, rigoureux et précis. Tout langage promotionnel, adjectifs hyperboliques ou tournures typiques des IA sont formellement interdits.
+
+> [!TIP]
+> **Synergie Amont avec `/literature-review` :**
+> La rédaction et la révision des sections bibliographiques (*Related Work*, *Background*, *Baselines*, *Discussion*) s'articulent directement avec le skill `/literature-review`. Avant d'entamer l'écriture de ces sections, consulter la note de synthèse Markdown `notes/Revue de Littérature [Nom du Projet].md` et la collection Zotero synchronisée. Celles-ci constituent la source de vérité amont pour les fiches médico-légales, les infographies d'articles et les métriques comparatives.
 
 ---
 
@@ -81,14 +85,14 @@ Toute modification substantielle d'un papier académique doit mobiliser des sous
 - **Quand** : Avant toute réécriture, pour disposer d'un diagnostic objectif.
 
 ### 2.2 Sous-agent Recherche (*Citation Researcher*)
-- **Rôle** : Chercher des références pertinentes via MCP Consensus ou web search.
-- **Focus** : Papiers de la conférence cible, travaux récents sur le sujet, citations manquantes.
+- **Rôle** : Chercher des références pertinentes via le skill `/literature-review`, MCP Consensus ou web search.
+- **Focus** : Papiers de la conférence cible, travaux récents sur le sujet, citations manquantes, extraction depuis la note `notes/Revue de Littérature [Nom du Projet].md` et la collection Zotero curée.
 - **Output** : Entrées BibTeX complètes + suggestion d'insertion subtile.
-- **Quand** : En parallèle de la critique, pour alimenter la réécriture.
+- **Quand** : En amont (via `/literature-review`) et en parallèle de la critique, pour alimenter la réécriture.
 
 ### 2.3 Sous-agent Rédaction (*Paper Writer*)
 - **Rôle** : Rédiger un passage spécifique selon le style défini ci-dessous (pour les textes longs).
-- **Focus** : Section Results, Discussion, Related Work.
+- **Focus** : Section Results, Discussion, Related Work (directement nourrie par les synthèses de `/literature-review`).
 - **Output** : Texte LaTeX prêt à insérer.
 - **Quand** : Pour les passages longs nécessitant un premier jet itératif.
 
@@ -131,9 +135,10 @@ Toute modification substantielle d'un papier académique doit mobiliser des sous
 
 ---
 
-## 4. 📚 Intégration des citations de la conférence cible
+## 4. 📚 Intégration des citations de la conférence cible & Synergie `/literature-review`
 
 Lors de la préparation ou de la révision d'un papier pour une conférence spécifique :
-1. **Recherche ciblée** : Rechercher 2 à 3 papiers publiés récemment **dans cette conférence** qui sont thématiquement proches.
-2. **Insertion naturelle** : Les intégrer dans le texte de manière **extrêmement subtile** (la citation doit s'insérer naturellement dans le flux argumentatif, jamais comme une mention forcée).
-3. **Vérification rigoureuse** : Toujours vérifier les DOI, auteurs et venues via DBLP, Consensus ou le site officiel de l'éditeur.
+1. **Exploitation de `/literature-review`** : Mobiliser la note de synthèse `notes/Revue de Littérature [Nom du Projet].md` (liée à la note maîtresse `[[NomDuProjet]]`) et la collection Zotero du projet (issues du skill `/literature-review`) pour identifier immédiatement les papiers pivots (`fit-5`) et les baselines pertinentes (`fit-4`).
+2. **Recherche ciblée** : Rechercher 2 à 3 papiers publiés récemment **dans cette conférence** qui sont thématiquement proches.
+3. **Insertion naturelle** : Les intégrer dans le texte de manière **extrêmement subtile** (la citation doit s'insérer naturellement dans le flux argumentatif, jamais comme une mention forcée).
+4. **Vérification rigoureuse** : Toujours vérifier les DOI, auteurs et venues via DBLP, Consensus ou le site officiel de l'éditeur.

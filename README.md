@@ -79,7 +79,7 @@ root/
 
 ### Rôles des dossiers
 - **`src/rules/`** : Contient les règles sources en format Markdown standard (`.md`).
-- **`src/skills/`** : Contient les compétences et guides méthodologiques réutilisables (`scientific-writing`, etc.).
+- **`src/skills/`** : Contient les compétences et guides méthodologiques réutilisables (`paper-writing`, `literature-review`, etc.).
 - **`.cursor/rules/`** : Destination des règles installées (converties en `.mdc` pour Cursor).
 - **`src/commands/`** : Définit les workflows spécifiques (Architecte, Enquêteur...).
 
