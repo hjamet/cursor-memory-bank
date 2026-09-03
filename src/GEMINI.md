@@ -74,9 +74,12 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 | 7 | **Workflows** | 1ère instruction = lire le fichier workflow. |
 | 8 | **Anti-Récursion** | Pattern Superviseur Aveugle = agent racine UNIQUEMENT. Sous-agents = workers, JAMAIS de sub-subagents. |
 | 9 | **Déploiement zéro latence (Expectations)** | Déployer en PREMIER (`invoke_subagent`) pour lancer le travail sans latence, puis consigner `expectations_<agent_id>.md` immédiatement après dans le même tour. |
+| 10 | **Zéro Polling & Arrêt Immédiat** | **INTERDICTION ABSOLUE DU POLLING ET DES BOUCLES DANS LE MÊME TOUR**. Dès que les sous-agents sont lancés via `invoke_subagent` et que `expectations_*.md` est rédigé, l'agent principal DOIT **ARRÊTER IMMÉDIATEMENT TOUT APPEL D'OUTIL** et formuler sa réponse à Henri. **INTERDICTION FORMELLE** d'appeler `manage_subagents(list)` ou `view_file` en boucle pour "attendre" un résultat : le système AGY est 100% réactif (push-based) et réveille l'agent racine automatiquement dès réception d'un message. |
 
 ### Autonomie & Timers
 
+- **INTERDICTION ABSOLUE DU POLLING ET DES BOUCLES DANS LE MÊME TOUR** : Dès que les sous-agents sont lancés via `invoke_subagent` et que le fichier `expectations_*.md` est rédigé, l'agent principal DOIT **ARRÊTER IMMÉDIATEMENT TOUT APPEL D'OUTIL** et formuler sa réponse à Henri.
+- **INTERDICTION FORMELLE d'attente active par outils** : Ne JAMAIS appeler `manage_subagents(list)`, `view_file` ou tout autre outil en boucle pour "attendre" ou vérifier l'avancement d'un sous-agent. Le système AGY est entièrement RÉACTIF (Push-based) : dès qu'un sous-agent termine ou envoie un message, l'agent racine est automatiquement réveillé ! Toute boucle d'appel d'outil dans le même tour est une anomalie critique, un gaspillage massif de tokens et un gel de l'interface utilisateur.
 - **Gestion fluide** : Synthétiser les résultats quand contenu substantiel. Zéro micro-messages creux.
 - **INTERDIT consulter transcripts** : Ne JAMAIS lire `transcript.jsonl` des sous-agents. Attendre la notification automatique.
 - **INTERDIT poser timers de suivi sous-agents** : Zéro `schedule` pour polling sous-agents. Timers autorisés : Pomodoros + rappels demandés par Henri.
