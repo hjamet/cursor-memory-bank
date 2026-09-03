@@ -95,11 +95,17 @@ Si la requête initiale d'Henri ne précise pas l'intégralité des paramètres 
 ### 2. 📊 Quel Format de Tableau Comparatif Utiliser ?
 La note projet doit contenir un tableau comparatif synthétique des 2 à 3 meilleures options sélectionnées :
 
-| Établissement & Lieu | Style & Cadre | Note & Avis | Tarif Booking vs Direct | Restauration & Atouts | Points d'Attention |
+| Établissement & Lieu | Style & Cadre | Note & Avis | Tarif Booking vs Direct | Liens Cliquables (Trio Obligatoire) | Points d'Attention |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **[Nom Établissement]**<br/>Village (Dép.) | Vieilles pierres, cour arborée, bâtisse XVIIe | ⭐ 4.7/5 (420 avis) | Booking: 160€<br/>**Direct: 145€ + Pdj** | Table bistronomique terroir sur place | Parking gratuit sur place, calme total |
+| **[Nom Établissement]**<br/>Village (Dép.) | Vieilles pierres, cour arborée, bâtisse XVIIe | ⭐ 4.7/5 (420 avis) | Booking: 160€<br/>**Direct: 145€ + Pdj** | [Avis Google Maps](https://maps.google.com/...)<br/>[Site Officiel Direct](https://...)<br/>[Fiche Booking.com](https://booking.com/...) | Parking gratuit sur place, calme total |
 
-### 3. 🔄 Comment Enrichir l'Historique des Sélections Validées ?
+### 3. 🌐 Pourquoi le Trio de Liens Cliquables Est-il Systématiquement Obligatoire ?
+Pour chaque établissement recommandé, tant dans la note projet Obsidian que dans la restitution du chat, l'agent **DOIT SYSTÉMATIQUEMENT** fournir le trio complet de liens cliquables :
+1. **Lien Google Maps direct** : Consultation immédiate des avis récents, des photos réelles de la bâtisse et vérification de la vue satellite.
+2. **Lien vers le Site Officiel direct** : Réservation directe auprès de l'hôtelier/hôte au tarif garanti le plus bas (sans commission OTA) et bénéfice des avantages exclusifs (petit-déjeuner, surclassement).
+3. **Lien Booking.com** : Comparaison immédiate des disponibilités, conditions d'annulation et flexibilité tarifaire.
+
+### 4. 🔄 Comment Enrichir l'Historique des Sélections Validées ?
 Dès qu'Henri valide une réservation ou rentre d'un séjour réussi :
 1. Mettre à jour la section `## 📜 Quel Est l'Historique des Sélections et Séjours Validés ?` dans `[[Preferences Henri Hotels et Hebergements]]`.
 2. Consigner l'ancrage via `call_mcp_tool` (`remember`).
