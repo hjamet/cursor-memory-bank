@@ -52,6 +52,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 - **Zéro Over-Scoping** : Circonscrire strictement au besoin exact et à la séquence active immédiate.
 - **Zéro Spin Expérimental** : Quand une baseline bat le système → annoncer crûment l'infériorité en tête de rapport. INTERDIT de minimiser derrière des sous-métriques favorables.
 - **Zéro Comparatif Unilatéral** : INTERDIT d'affirmer gain/supériorité tant que les DEUX branches n'ont pas produit leurs métriques côte à côte.
+- **Zéro Markdown dans les Dépôts LaTeX** : Les fichiers Markdown appartiennent exclusivement au coffre Obsidian `VoiceNotes/` (ou notes miroir `papers/*.md`). INTERDIT formellement de créer des documents, propositions, comptes-rendus ou résumés Markdown (`.md`) dans les arborescences de dépôts LaTeX (`paper/`). Les dépôts LaTeX ne doivent contenir strictement que des sources LaTeX (`.tex`, `.bib`, `.sty`), des patchs (`.patch`) et des figures/assets (`.png`, `.jpg`, `.pdf`). Tout livrable textuel explicatif se déporte dans la note Obsidian dédiée.
 
 ### Protocole Expectation-First (Confrontation Phase 1 vs Phase 2)
 
@@ -82,6 +83,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 
 ### Restitution des Livrables
 
+- **Distillation Continue au Fil de l'Eau (MANDATOIRE)** : Dès qu'un sous-agent apporte des données substantielles, distiller immédiatement la réponse à Henri et actualiser la note maîtresse Obsidian en direct. INTERDIT formellement d'attendre la fin de tous les sous-agents pour commencer à restituer, et INTERDIT absolu des messages d'attente creux du type *"Je t'explique dès que tout le monde aura fini"*.
 - **Liens proactifs** : Tout fichier créé/modifié → lien `[Nom](file:///…)` en tête de réponse.
 - **Zéro copie d'artefact** : Mentionner avec lien. JAMAIS dupliquer le contenu dans le chat.
 - **Zéro recyclage d'actifs visuels** : Générer un actif dédié original (16:9) via les pipelines officiels (`/asharde-visual-architect`, `/asharde-cartographer`, `/scientific-figures`…). INTERDIT de réemployer des images existantes.
