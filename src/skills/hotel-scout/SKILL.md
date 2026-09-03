@@ -1,6 +1,6 @@
 ---
 name: hotel-scout
-description: "Chasseur et éclaireur d'hôtels et hébergements de charme pour Henri Jamet. Recherche multi-canal (Google Maps >= 4.5 et > 350 avis, comparatif Booking.com vs Site officiel direct), respect des préférences pérennes (bâtisses anciennes, vieilles pierres/poutres, calme absolu, zéro piscine), calcul systématique du surcoût de détour temporel sur itinéraire, cadrage dynamique via ask_question et création de la note projet dédiée dans Obsidian."
+description: "Chasseur et éclaireur d'hôtels et hébergements de charme pour Henri Jamet. Recherche multi-canal avec pilotage Chrome via le skill browser (Google Maps >= 4.5 et > 350 avis, comparatif Booking.com vs Site officiel direct), doctrine Fail-Stop zéro simulation, respect des préférences pérennes (bâtisses anciennes, vieilles pierres/poutres, calme absolu, zéro piscine), calcul systématique du surcoût de détour temporel sur itinéraire, cadrage dynamique via ask_question et création de la note projet dédiée dans Obsidian."
 ---
 
 # 🏨 Comment le Skill Hotel-Scout Déniche-t-il les Hébergements d'Exception pour Henri ?
@@ -13,10 +13,14 @@ flowchart TD
     C -->|✅ Complets| E["🗺️ Découpage Géographique & Itinéraire"]
     D --> E
     E --> F["⏱️ Calcul Surcoût Détour Temporel Δt<br/>(Trajet A -> Hôtel -> B vs Trajet Direct)"]
-    F --> G["🔍 Recherche Multi-Canal Google Maps & Avis<br/>(Note >= 4.5, > 350 avis, Zéro Piscine)"]
-    G --> H["💰 Comparatif Tarifaire Booking vs Site Direct<br/>(Prix, Conditions, Avantages direct)"]
-    H --> I["📑 Restitution Note Projet Obsidian<br/>(Tableau comparatif, Δt & Trio de Liens)"]
-    I --> J["🔗 Lien Cliquable Absolu en Tête de Réponse"]
+    F --> G["🌐 Connexion Browser & Chrome CDP<br/>([[browser]] - Google Maps)"]
+    G --> H{"⚠️ Incident CDP / Browser ?<br/>(Port fermé, crash, déconnexion)"}
+    H -->|🚨 Défaillance| I["🛑 FAIL-STOP IMMÉDIAT<br/>(Zéro Simulation - Alerte Henri)"]
+    H -->|✅ Opérationnel| J["🔍 Inspection Google Maps & Avis Réels<br/>(Note >= 4.5, > 350 avis, Zéro Piscine)"]
+    J --> K["🕵️ Fouille Web Profonde HTTP<br/>(Sites officiels, cartes restos, annulation)"]
+    K --> L["💰 Comparatif Tarifaire Booking vs Site Direct<br/>(Prix, Conditions, Avantages direct)"]
+    L --> M["📑 Restitution Note Projet Obsidian<br/>(Tableau comparatif, Δt & Trio de Liens)"]
+    M --> N["🔗 Lien Cliquable Absolu en Tête de Réponse"]
 ```
 
 ---
@@ -46,6 +50,40 @@ Si la requête initiale d'Henri ne précise pas l'intégralité des paramètres 
 | **Participants** | Seul / En couple / Avec proches | Dimensionne le type de chambre (chambre double de charme, suite, configuration lits). |
 | **Fourchette budgétaire** | Économique raisonnable (<120€/n) / Confort de charme (120-220€/n) / D'exception (>220€/n) | Évite les propositions hors-cible et calibre la recherche. |
 | **Restauration souhaitée** | Table bistronomique sur place / Table gastronomique / Repas libre extérieur / Petit-déj impératif | Conditionne la présence d'une table d'hôtes ou d'un restaurant réputé dans l'établissement. |
+
+---
+
+## 🌐 Comment Orchestrer le Pilotage Browser et la Doctrine Fail-Stop (Zéro Simulation) ?
+
+### 1. 🖥️ Comment Mobiliser Impérativement le Skill Browser pour Piloter Chrome et Google Maps ?
+- **Délégation obligatoire au sous-agent dédié** :
+  * Conformément aux directives de `[[browser]]` (`.agent/skills/browser/SKILL.md`), l'agent principal ne sature jamais son contexte d'exécution : il délègue le pilotage Chrome à un sous-agent dédié avec `TypeName: 'browser'` ou exploite les commandes directes de la passerelle `chrome_devtools`.
+  * Le serveur `chrome_devtools` s'arrime directement à l'instance Chrome de bureau active d'Henri (réutilisation transparente des sessions authentifiées et cookies existants).
+- **Pilotage de Google Maps dans Chrome** :
+  * Navigation ciblée sur les fiches des établissements candidats au sein du secteur géographique déterminé.
+  * Inspection visuelle rigoureuse des photographies authentiques (validation de la bâtisse historique, des poutres, de la cour pavée arborée, et vérification stricte de l'absence totale de piscine).
+  * Examen cartographique satellite pour identifier les éventuelles nuisances environnementales masquées (voies ferrées, axes routiers à grand trafic, zones d'activité commerciale).
+  * Analyse des avis récents bruts et vérification du volume total d'évaluations.
+
+### 2. 🕵️ Comment Fouiller le Web en Profondeur via Outils HTTP et Agents Dédiés ?
+L'agent mobilise activement les outils de consultation HTTP (`read_url_content`, requêtes web ciblées, agents d'exploration) pour approfondir l'investigation :
+- **Sites officiels d'hôteliers / propriétaires** : Examen des descriptifs complets des chambres, de l'architecture historique, des prestations incluses et extraction des coordonnées de contact direct (téléphone, email direct sans intermédiaire).
+- **Cartes et menus des restaurants** : Audit minutieux des propositions culinaires sur place (authenticité du terroir, circuits courts, fraîcheur des produits de saison, grille tarifaire et jours/heures d'ouverture).
+- **Avis récents non filtrés** : Analyse chronologique resserrée sur les 3 à 6 derniers mois pour traquer tout incident opérationnel récent (travaux limitrophes, dégradation de service, nuisances sonores nocturnes, changement de propriétaire).
+- **Politiques d'annulation et flexibilité** : Examen scrupuleux des conditions contractuelles (remboursement intégral sans frais, politique d'arrhes ou d'acompte, délais de prévenance).
+
+### 3. 🛑 Quelle Est la Règle Absolue de Défaillance Fail-Stop (Zéro Simulation) ?
+> [!CAUTION]
+> **Doctrine de Vérité Absolue : Fail-Stop Immédiat & Zéro Simulation**
+> Si le skill `browser` rencontre le moindre obstacle technique :
+> - Navigateur Chrome de bureau non démarré
+> - Port de débogage CDP inaccessible (ex: port 9222 fermé, connexion refusée ou timeout)
+> - Blocage, crash ou déconnexion de la passerelle `chrome_devtools`
+>
+> **Consignes strictes et non négociables** :
+> 1. **INTERDICTION FORMELLE d'extrapoler, d'inventer des métriques ou de simuler une navigation réussie** : Ne jamais prétendre avoir inspecté Google Maps, les avis ou les photographies si l'outil n'a pas restitué de données réelles brutes.
+> 2. **ARRÊT IMMÉDIAT (Fail-Stop)** : Interrompre instantanément la prospection dès la détection de l'anomalie.
+> 3. **Remontée transparente et précise à Henri** : Remonter immédiatement à Henri un diagnostic technique explicite (nature de l'erreur CDP, port concerné, état du navigateur) afin qu'il puisse intervenir (lancer Chrome avec `--remote-debugging-port=9222`, vérifier l'extension ou redémarrer le service) avant toute reprise d'investigation.
 
 ---
 
