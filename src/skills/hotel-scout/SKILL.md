@@ -1,6 +1,6 @@
 ---
 name: hotel-scout
-description: "Chasseur et éclaireur d'hôtels et hébergements de charme pour Henri Jamet. Recherche multi-canal avec pilotage Chrome via le skill browser (Google Maps >= 4.5 et > 350 avis, comparatif Booking.com vs Site officiel direct), doctrine Fail-Stop zéro simulation, respect des préférences pérennes (bâtisses anciennes, vieilles pierres/poutres, calme absolu, zéro piscine), calcul systématique du surcoût de détour temporel sur itinéraire, cadrage dynamique via ask_question et création de la note projet dédiée dans Obsidian."
+description: "Chasseur et éclaireur d'hôtels et hébergements de charme pour Henri Jamet. Recherche multi-canal avec pilotage Chrome via le skill browser (Google Maps >= 4.5 et > 350 avis, comparatif Booking.com vs Site officiel direct), doctrine Fail-Stop zéro simulation, respect des préférences pérennes (bâtisses anciennes, vieilles pierres/poutres, calme absolu, zéro piscine), calcul systématique du surcoût de détour temporel sur itinéraire avec plafond dur infranchissable Δt <= 30 min (disqualification d'office au-delà), cadrage dynamique via ask_question et création de la note projet dédiée dans Obsidian."
 ---
 
 # 🏨 Comment le Skill Hotel-Scout Déniche-t-il les Hébergements d'Exception pour Henri ?
@@ -13,7 +13,9 @@ flowchart TD
     C -->|✅ Complets| E["🗺️ Découpage Géographique & Itinéraire"]
     D --> E
     E --> F["⏱️ Calcul Surcoût Détour Temporel Δt<br/>(Trajet A -> Hôtel -> B vs Trajet Direct)"]
-    F --> G["🌐 Connexion Browser & Chrome CDP<br/>([[browser]] - Google Maps)"]
+    F --> F_CHECK{"🛑 Étape : Δt ≤ 30 min ?<br/>(Plafond Dur Infranchissable)"}
+    F_CHECK -->|❌ Δt > 30 min| F_DISQ["🚫 Disqualification Immédiate d'Office"]
+    F_CHECK -->|✅ Δt ≤ 30 min| G["🌐 Connexion Browser & Chrome CDP<br/>([[browser]] - Google Maps)"]
     G --> H{"⚠️ Incident CDP / Browser ?<br/>(Port fermé, crash, déconnexion)"}
     H -->|🚨 Défaillance| I["🛑 FAIL-STOP IMMÉDIAT<br/>(Zéro Simulation - Alerte Henri)"]
     H -->|✅ Opérationnel| J["🔍 Inspection Google Maps & Avis Réels<br/>(Note >= 4.5, > 350 avis, Zéro Piscine)"]
@@ -35,6 +37,7 @@ Avant toute démarche de recherche, l'agent **DOIT IMPÉRATIVEMENT** consulter l
 | **Bâtisses & Matériaux** | Bâtisses anciennes de caractère, vieilles pierres de taille, poutres massives, tomettes. | Écarter toute construction moderne standardisée, hôtel de zone commerciale ou chaîne générique. |
 | **Espaces & Ambiance** | Petit jardin intime arboré, cour intérieure fermée, cloître végétalisé, calme absolu. | Privilégier les maisons d'hôtes et auberges de charme à taille humaine (4 à 15 chambres). |
 | **Invariant Équipement** | **ZÉRO PISCINE** | **Élimination formelle** des hôtels avec complexe aquatique, bassins bruyants ou ambiance resort de vacances. |
+| **Détour Temporel Étape** | **$\Delta t \le 30\text{ min}$ MAXIMUM** | **Plafond dur et infranchissable** : tout établissement imposant $\Delta t > 30\text{ min}$ par rapport au trajet direct est **formellement disqualifié** d'office. |
 | **Restauration** | Goût prononcé pour la gastronomie de terroir et les circuits courts. | **Arbitrage dynamique obligatoire** : bistronomique, gastronomique, dîner libre extérieur ou petit-déj. |
 | **Archétype de Référence** | Auberge de la Bersaudière à Nitry (89). | Modèle d'authenticité rurale, chaleur humaine sincère, sérénité et absence totale de bling-bling. |
 
@@ -46,7 +49,7 @@ Si la requête initiale d'Henri ne précise pas l'intégralité des paramètres 
 
 | Paramètre Clé | Options Types | Pourquoi C'est Critique ? |
 | :--- | :--- | :--- |
-| **Objectif du séjour** | Étape repos (1 nuit) / Séjour découverte (2-4 nuits) / Retraite au calme (>4 nuits) | Détermine le niveau de confort requis, le rayon géographique et le calcul de détour $\Delta t$. |
+| **Objectif du séjour** | Étape repos (1 nuit) / Séjour découverte (2-4 nuits) / Retraite au calme (>4 nuits) | Détermine le niveau de confort requis, le rayon géographique et le calcul de détour $\Delta t$ ($\Delta t \le 30\text{ min}$ max). |
 | **Participants** | Seul / En couple / Avec proches | Dimensionne le type de chambre (chambre double de charme, suite, configuration lits). |
 | **Fourchette budgétaire** | Économique raisonnable (<120€/n) / Confort de charme (120-220€/n) / D'exception (>220€/n) | Évite les propositions hors-cible et calibre la recherche. |
 | **Restauration souhaitée** | Table bistronomique sur place / Table gastronomique / Repas libre extérieur / Petit-déj impératif | Conditionne la présence d'une table d'hôtes ou d'un restaurant réputé dans l'établissement. |
@@ -94,10 +97,21 @@ L'agent mobilise activement les outils de consultation HTTP (`read_url_content`,
   * **Calcul systématique du surcoût de détour temporel $\Delta t$** :
     $$\Delta t = (t_{\text{Départ} \to \text{Hôtel}} + t_{\text{Hôtel} \to \text{Arrivée}}) - t_{\text{Trajet Direct}}$$
     où $t_{\text{Trajet Direct}}$ est la durée du trajet direct le plus rapide et fluide sans étape, et les durées avec étape correspondent aux temps de route réels via les axes routiers principaux.
-  * **Seuil d'acceptabilité opérationnelle** : Pour une simple étape de repos d'une nuit, viser impérativement $\Delta t \le 15$ à $25$ minutes maximum par rapport au tracé direct le plus fluide. Tout dépassement $> 25\text{ min}$ doit être justifié par une bâtisse ou un cadre d'exception irremplaçable.
+  * **RÈGLE ABSOLUE DU DÉTOUR TEMPOREL MAXIMAL ($\Delta t \le 30\text{ min}$)** :
+    > [!IMPORTANT]
+    > **Plafond Dur Infranchissable de 30 Minutes & Disqualification d'Office** :
+    > Lorsqu'un hôtel est recherché comme étape sur un trajet ($A \to B$) :
+    > 1. Le surcoût de détour temporel $\Delta t$ doit être **STRICTEMENT INFÉRIEUR OU ÉGAL À 30 MINUTES MAXIMUM** ($\Delta t \le 30\text{ min}$).
+    > 2. **30 minutes est un plafond dur et infranchissable**.
+    > 3. Tout établissement imposant plus de 30 minutes de détour net par rapport au trajet direct ($\Delta t > 30\text{ min}$) est **FORMELLEMENT DISQUALIFIÉ** d'office, sans aucune dérogation possible, quelle que soit la beauté de la bâtisse.
+  * **Graduation opérationnelle du détour** :
+    - $\Delta t \le 15\text{ min}$ : **Optimal & indolore** — détour imperceptible préservant au maximum l'énergie d'Henri.
+    - $15\text{ min} < \Delta t \le 25\text{ min}$ : **Acceptable** — zone de confort standard pour hébergement de caractère.
+    - $25\text{ min} < \Delta t \le 30\text{ min}$ : **Tolérance limite** — admise uniquement si bâtisse ou table de terroir d'exception irremplaçable.
+    - $\Delta t > 30\text{ min}$ : **DISQUALIFICATION IMMÉDIATE** — rejet d'office avant toute analyse détaillée.
   * **Affichage systématique** : Mentionner obligatoirement le $\Delta t$ en minutes dans le tableau comparatif et le résumé exécutif.
 - **Séjour de destination (sans étape)** : Découpage selon le rayon d'attractivité géographique autour de la zone d'intérêt.
-- **Cadre territorial** : Privilégier les villages préservés, hameaux ruraux, vallées et terroirs viticoles, à l'écart des voies rapides tout en minimisant $\Delta t$.
+- **Cadre territorial** : Privilégier les villages préservés, hameaux ruraux, vallées et terroirs viticoles, à l'écart des voies rapides tout en respectant scrupuleusement $\Delta t \le 30\text{ min}$.
 
 ### 2. ⭐ Comment Filtrer Rigoureusement sur Google Maps ?
 - **Note minimale** : $\ge 4.5 / 5$.
@@ -140,7 +154,7 @@ L'agent mobilise activement les outils de consultation HTTP (`read_url_content`,
 ### 2. 📊 Quel Format de Tableau Comparatif Utiliser ?
 La note projet doit contenir un tableau comparatif synthétique des 2 à 3 meilleures options sélectionnées, incluant systématiquement la colonne de détour temporel $\Delta t$ dès qu'il s'agit d'une étape sur itinéraire :
 
-| Établissement & Lieu | Style & Cadre | Détour Temporel $\Delta t$ (si étape) | Note & Avis | Tarif Booking vs Direct | Liens Cliquables (Trio Obligatoire) | Points d'Attention |
+| Établissement & Lieu | Style & Cadre | Détour Temporel $\Delta t$ (si étape, $\le 30\text{ min}$) | Note & Avis | Tarif Booking vs Direct | Liens Cliquables (Trio Obligatoire) | Points d'Attention |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **[Nom Établissement]**<br/>Village (Dép.) | Vieilles pierres, cour arborée, bâtisse XVIIe | **+18 min**<br/>(4h45 vs 4h27 direct) | ⭐ 4.7/5 (420 avis) | Booking: 160€<br/>**Direct: 145€ + Pdj** | [Avis Google Maps](https://maps.google.com/...)<br/>[Site Officiel Direct](https://...)<br/>[Fiche Booking.com](https://booking.com/...) | Parking gratuit sur place, calme total |
 
@@ -157,8 +171,11 @@ Lorsqu'un hébergement est recherché dans le cadre d'une étape sur un itinéra
 - **Données obligatoires à mentionner** :
   * Durée du trajet direct de référence sans étape ($t_{\text{Trajet Direct}}$).
   * Durée cumulée du trajet passant par l'établissement ($(t_{\text{Départ} \to \text{Hôtel}} + t_{\text{Hôtel} \to \text{Arrivée}})$).
-  * Différentiel net sous la forme `Détour temporel : +XX min`.
-- **Règle d'arbitrage** : Si $\Delta t > 25\text{ min}$, alerter immédiatement Henri sur le surcoût de fatigue et justifier pourquoi l'établissement surpasse les options situées plus près du tracé direct.
+  * Différentiel net sous la forme `Détour temporel : +XX min` (avec validation expresse du critère $\Delta t \le 30\text{ min}$).
+- **Règle d'arbitrage et plafond infranchissable** :
+  * **$\Delta t \le 30\text{ min}$ (Plafond dur absolu)** : Seuls les établissements respectant strictement ce plafond sont admissibles et présentés.
+  * **$\Delta t > 30\text{ min}$ (Disqualification formelle d'office)** : Ne JAMAIS inclure ni proposer à Henri un hôtel excédant 30 minutes de détour net par rapport au tracé direct, même en cas de coup de cœur architectural.
+  * Pour les options se situant entre 25 et 30 minutes, expliciter impérativement la valeur ajoutée exceptionnelle justifiant d'approcher le plafond critique.
 
 ### 5. 🔄 Comment Enrichir l'Historique des Sélections Validées ?
 Dès qu'Henri valide une réservation ou rentre d'un séjour réussi :
