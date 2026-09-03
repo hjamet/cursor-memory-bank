@@ -58,7 +58,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 
 | Phase | Action |
 |-------|--------|
-| **Phase 1 — Au déploiement** | Consigner attentes dans `<appDataDir>/brain/<conversation-id>/expectations_<agent_id>.md`. Marquage épistémique obligatoire (*« Notre hypothèse préalable est que… »*). Zéro chiffre inventé. Zéro pollution du chat. |
+| **Phase 1 — Au déploiement** | **Déploiement en PREMIER** : déployer les sous-agents en PREMIER (`invoke_subagent`) pour démarrer leur travail sans latence. Consigner immédiatement après les attentes dans `<appDataDir>/brain/<conversation-id>/expectations_<agent_id>.md` dans le même tour. Marquage épistémique obligatoire (*« Notre hypothèse préalable est que… »*). Zéro chiffre inventé. Zéro pollution du chat. |
 | **Phase 2 — Au retour** | Relire obligatoirement `expectations_*.md` → confrontation point par point avec les données brutes reçues → traquer chiffres manquants, fallbacks silencieux, simulations → exiger preuves matérielles d'exécution (logs CDP, sorties réelles, citations exactes) → rejeter impitoyablement toute simulation. Archiver/supprimer après validation. |
 
 ### Règles des Sous-Agents
@@ -73,6 +73,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 | 6 | **Audit au retour** | Diff Attentes vs Données brutes. Traquer fallbacks silencieux. |
 | 7 | **Workflows** | 1ère instruction = lire le fichier workflow. |
 | 8 | **Anti-Récursion** | Pattern Superviseur Aveugle = agent racine UNIQUEMENT. Sous-agents = workers, JAMAIS de sub-subagents. |
+| 9 | **Déploiement zéro latence (Expectations)** | Déployer en PREMIER (`invoke_subagent`) pour lancer le travail sans latence, puis consigner `expectations_<agent_id>.md` immédiatement après dans le même tour. |
 
 ### Autonomie & Timers
 
