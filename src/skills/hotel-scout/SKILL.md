@@ -1,6 +1,6 @@
 ---
 name: hotel-scout
-description: "Chasseur et éclaireur d'hôtels et hébergements de charme pour Henri Jamet. Recherche multi-canal avec pilotage Chrome via le skill browser (Google Maps >= 4.5 et > 350 avis, comparatif Booking.com vs Site officiel direct), doctrine Fail-Stop zéro simulation, respect des préférences pérennes (bâtisses anciennes, vieilles pierres/poutres, calme absolu, zéro piscine), calcul systématique du surcoût de détour temporel sur itinéraire avec plafond dur infranchissable Δt <= 30 min (disqualification d'office au-delà), cadrage dynamique via ask_question et création de la note projet dédiée dans Obsidian."
+description: "Chasseur et éclaireur d'hôtels et hébergements de charme pour Henri Jamet. Recherche multi-canal avec pilotage Chrome via le skill browser (Google Maps >= 4.5 et > 350 avis, comparatif Booking.com vs Site officiel direct), audit obligatoire des disponibilités réelles en direct (chambre libre et réservable, stock résiduel, élimination des complets à date), doctrine Fail-Stop zéro simulation, respect des préférences pérennes (bâtisses anciennes, vieilles pierres/poutres, calme absolu, zéro piscine), calcul systématique du surcoût de détour temporel sur itinéraire avec plafond dur infranchissable Δt <= 30 min (disqualification d'office au-delà), cadrage dynamique via ask_question et création de la note projet dédiée dans Obsidian."
 ---
 
 # 🏨 Comment le Skill Hotel-Scout Déniche-t-il les Hébergements d'Exception pour Henri ?
@@ -21,7 +21,9 @@ flowchart TD
     H -->|✅ Opérationnel| J["🔍 Inspection Google Maps & Avis Réels<br/>(Note >= 4.5, > 350 avis, Zéro Piscine)"]
     J --> K["🕵️ Fouille Web Profonde HTTP<br/>(Sites officiels, cartes restos, annulation)"]
     K --> L["💰 Comparatif Tarifaire Booking vs Site Direct<br/>(Prix, Conditions, Avantages direct)"]
-    L --> M["📑 Restitution Note Projet Obsidian<br/>(Tableau comparatif, Δt & Trio de Liens)"]
+    L --> DISPO{"🛏️ Disponibilité en Direct ?<br/>(Chambre libre & réservable aux dates)"}
+    DISPO -->|❌ Complet| ELIM["🚫 Tableau d'Audit Négatif<br/>(Mention 'Complet à date')"]
+    DISPO -->|✅ Libre & Réservable| M["📑 Restitution Note Projet Obsidian<br/>(Tableau comparatif, Catégorie/Stock, Δt & Trio de Liens)"]
     M --> N["🔗 Lien Cliquable Absolu en Tête de Réponse"]
 ```
 
@@ -38,6 +40,7 @@ Avant toute démarche de recherche, l'agent **DOIT IMPÉRATIVEMENT** consulter l
 | **Espaces & Ambiance** | Petit jardin intime arboré, cour intérieure fermée, cloître végétalisé, calme absolu. | Privilégier les maisons d'hôtes et auberges de charme à taille humaine (4 à 15 chambres). |
 | **Invariant Équipement** | **ZÉRO PISCINE** | **Élimination formelle** des hôtels avec complexe aquatique, bassins bruyants ou ambiance resort de vacances. |
 | **Détour Temporel Étape** | **$\Delta t \le 30\text{ min}$ MAXIMUM** | **Plafond dur et infranchissable** : tout établissement imposant $\Delta t > 30\text{ min}$ par rapport au trajet direct est **formellement disqualifié** d'office. |
+| **Disponibilité Réelle** | **Audit en direct obligatoire** | **Vérification impérative** sur Booking / Direct aux dates exactes. Si 0 chambre libre : rejet immédiat en audit négatif (« Complet à date »). |
 | **Restauration** | Goût prononcé pour la gastronomie de terroir et les circuits courts. | **Arbitrage dynamique obligatoire** : bistronomique, gastronomique, dîner libre extérieur ou petit-déj. |
 | **Archétype de Référence** | Auberge de la Bersaudière à Nitry (89). | Modèle d'authenticité rurale, chaleur humaine sincère, sérénité et absence totale de bling-bling. |
 
@@ -128,6 +131,20 @@ L'agent mobilise activement les outils de consultation HTTP (`read_url_content`,
   * Comparer le prix net : le direct offre fréquemment $10\%$ à $15\%$ de réduction ou des avantages exclusifs (petit-déjeuner offert, surclassement, meilleure chambre avec vue jardin, pot d'accueil).
   * Préciser systématiquement les coordonnées directes (téléphone, email, URL officielle).
 
+### 4. 🛏️ Comment Auditer Systématiquement la Disponibilité en Direct ?
+> [!IMPORTANT]
+> **RÈGLE ABSOLUE D'AUDIT DES DISPONIBILITÉS EN DIRECT** :
+> Dès que les dates du séjour sont connues ou déduites, **INTERDICTION FORMELLE** de recommander un établissement sans avoir vérifié en direct sur les moteurs de réservation (Booking.com ou moteur officiel direct de l'hôtel) qu'au moins une chambre de la catégorie requise est **réellement libre et réservable** pour le nombre exact d'occupants.
+
+- **Protocole de Contrôle des Disponibilités Réelles** :
+  * **Vérification en direct aux dates exactes** : Dès que les dates d'arrivée et de départ sont arrêtées ou estimées, effectuer la requête en direct sur Booking.com et/ou sur le moteur de réservation officiel de l'établissement pour la configuration d'occupants requise.
+  * **Mention obligatoire de la chambre & du stock** :
+    - Préciser la **catégorie exacte** de chambre disponible (ex: *« Chambre Double Supérieure avec lit King-size »*, *« Suite Junior »*).
+    - Indiquer systématiquement le **stock résiduel** si mentionné sur la plateforme (ex: *« 2 chambres restantes à ce tarif »*, *« Dernière chambre disponible »*).
+  * **Bascule immédiate des complets dans l'Audit Négatif** :
+    - Si un établissement est complet pour les dates demandées (zéro chambre disponible ou restrictions de séjour minimum non satisfaites), **interdiction formelle** de le présenter dans la sélection principale recommandée.
+    - Le basculer immédiatement dans le **Tableau d'Audit Négatif / Éliminations** avec la mention explicite **« Complet à date »**, la date du contrôle et le moteur vérifié, évitant ainsi à Henri de perdre son temps sur des options indisponibles.
+
 ---
 
 ## 📑 Comment Restituer les Recommandations dans Obsidian ?
@@ -152,11 +169,19 @@ L'agent mobilise activement les outils de consultation HTTP (`read_url_content`,
   * Dans le chat Antigravity : Lien Markdown absolu cliquable `[Hôtel Destination](file:///C:/Users/hjamet/Documents/VoiceNotes/Hôtel%20Destination.md)` en première ligne.
 
 ### 2. 📊 Quel Format de Tableau Comparatif Utiliser ?
-La note projet doit contenir un tableau comparatif synthétique des 2 à 3 meilleures options sélectionnées, incluant systématiquement la colonne de détour temporel $\Delta t$ dès qu'il s'agit d'une étape sur itinéraire :
+La note projet doit contenir un tableau comparatif synthétique des 2 à 3 meilleures options sélectionnées, incluant systématiquement la colonne de détour temporel $\Delta t$ dès qu'il s'agit d'une étape sur itinéraire ainsi que la validation de la disponibilité réelle en direct :
 
-| Établissement & Lieu | Style & Cadre | Détour Temporel $\Delta t$ (si étape, $\le 30\text{ min}$) | Note & Avis | Tarif Booking vs Direct | Liens Cliquables (Trio Obligatoire) | Points d'Attention |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **[Nom Établissement]**<br/>Village (Dép.) | Vieilles pierres, cour arborée, bâtisse XVIIe | **+18 min**<br/>(4h45 vs 4h27 direct) | ⭐ 4.7/5 (420 avis) | Booking: 160€<br/>**Direct: 145€ + Pdj** | [Avis Google Maps](https://maps.google.com/...)<br/>[Site Officiel Direct](https://...)<br/>[Fiche Booking.com](https://booking.com/...) | Parking gratuit sur place, calme total |
+| Établissement & Lieu | Style & Cadre | Détour Temporel $\Delta t$ (si étape, $\le 30\text{ min}$) | Disponibilité Validée & Catégorie | Note & Avis | Tarif Booking vs Direct | Liens Cliquables (Trio Obligatoire) | Points d'Attention |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **[Nom Établissement]**<br/>Village (Dép.) | Vieilles pierres, cour arborée, bâtisse XVIIe | **+18 min**<br/>(4h45 vs 4h27 direct) | ✅ **Libre** (Double Supérieure, 2 restantes) | ⭐ 4.7/5 (420 avis) | Booking: 160€<br/>**Direct: 145€ + Pdj** | [Avis Google Maps](https://maps.google.com/...)<br/>[Site Officiel Direct](https://...)<br/>[Fiche Booking.com](https://booking.com/...) | Parking gratuit sur place, calme total |
+
+#### 🚫 Quel Format de Tableau d'Audit Négatif Utiliser pour les Établissements Complets ou Disqualifiés ?
+Tout établissement éliminé au cours de la prospection (notamment pour indisponibilité aux dates exactes ou dépassement de détour) doit figurer dans le tableau d'audit négatif pour transparence intégrale :
+
+| Établissement & Lieu | Motif d'Élimination | Date d'Audit & Constat Direct |
+| :--- | :--- | :--- |
+| **Auberge de la Rivière** (Foncine-le-Haut) | **Complet à date** | Vérifié le 03/09/2026 sur Booking.com & Direct : 0 chambre disponible pour le 06-07/09/2026 |
+| **[Autre Établissement]** | Détour excessif ($\Delta t = +38\text{ min}$) | Dépassement du plafond dur infranchissable de 30 min |
 
 ### 3. 🌐 Pourquoi le Trio de Liens Cliquables Est-il Systématiquement Obligatoire ?
 Pour chaque établissement recommandé, tant dans la note projet Obsidian que dans la restitution du chat, l'agent **DOIT SYSTÉMATIQUEMENT** fournir le trio complet de liens cliquables :
