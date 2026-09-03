@@ -17,18 +17,34 @@ description: Méthodologie complète pour la rédaction et la révision itérati
 
 ## 1. 🪞 Comment la Note Miroir et la Boucle Granulaire Orchestrent-elles la Relecture ?
 
+### 1.1 Protocole d'Entrée Zéro-Modification & Boucle Purement Commentaire-First (MANDATOIRE)
+- **Au premier appel du skill** : L'agent ne modifie STRICTEMENT AUCUNE ligne de code ou de texte LaTeX.
+  Il exécute uniquement `python antigravity/scripts/latex_to_markdown_artifact.py`, affiche le lien vivant de la note miroir dans le chat, et attend les commentaires d'Henri.
+- **Règle d'or de réécriture** : INTERDICTION FORMELLE de toute réécriture générale ou proactive.
+  Toute modification doit découler STRICTEMENT et EXCLUSIVEMENT d'un commentaire direct d'Henri sur un passage spécifique de la note miroir.
+- **Mandatement Direct de Claude Opus** : Toute réécriture ou reformulation littéraire ou scientifique issue d'un commentaire est mandatée DIRECTEMENT via :
+  ```bash
+  antigravity-agents run --model claude-opus-4-6 --prompt "..."
+  ```
+  sans passer par aucun sous-agent intermédiaire (interdiction absolue de double délégation).
+
+---
+
 ### Le Rôle Central de la Note Miroir
-La note miroir `papers/<nom_papier>.md` (au sein du coffre `VoiceNotes`) est l'interface visuelle et le tableau de bord de relecture pour Henri. Elle est générée automatiquement à partir des sources LaTeX par le convertisseur universel :
+La note miroir `papers/<nom_papier>.md` (au sein du coffre `VoiceNotes`) est l'interface visuelle et le tableau de bord de relecture pour Henri. Elle est générée automatiquement à partir des sources LaTeX par le convertisseur universel sans aucun argument complexe :
 
 ```bash
-python antigravity/scripts/latex_to_markdown_artifact.py <main.tex> --bib <references.bib> [--baseline-git auto]
+python antigravity/scripts/latex_to_markdown_artifact.py <main.tex>
 ```
+*(ou simplement `python antigravity/scripts/latex_to_markdown_artifact.py` sans argument depuis le dossier du papier ou du projet, la détection de `main.tex`, de la bibliographie `.bib`, de la baseline Git d'Henri et du fichier miroir étant 100% automatique)*.
 
-- **Fonctionnalités & Richesse du rendu** :
+- **Fonctionnalités & Automatisation Totale** :
+  - **Auto-détection source & bib** : Résolution récursive des `\input{...}` et auto-détection du fichier `.bib` présent dans le répertoire.
+  - **Baseline Git automatique** : Calage déterministe sur le dernier commit signé par Henri Jamet (`git log --author="Henri Jamet" -n 1 --format="%H"`, fallback `HEAD~1`).
   - **KaTeX natif** : Formules mathématiques fidèlement rendues (`$...$`, `$$...$$`, environnements `align`, `equation`).
   - **Tableaux Markdown** : Conversion automatique des tables LaTeX (`tabular`, `tabularx`, `booktabs`) en tableaux Markdown natifs.
   - **Résolution des citations** : Parser BibTeX intégré résolvant les clés `\cite{...}`, `\citep{...}`, `\citet{...}` en `[Auteur, Année]` lisibles.
-  - **Diff AST incrémental** : Découpage par sections AST. Les sections inchangées restent en texte continu sans bruit ; seules les modifications réelles sont mises en évidence par callouts colorés chirurgicaux (`> [!CAUTION] 🔴 Supprimé / Ancien` et `> [!TIP] 🟢 Ajouté / Nouveau`).
+  - **Diff AST incrémental Inline** : Découpage par sections AST. Les sections inchangées restent en texte continu sans bruit ; seules les modifications réelles sont surlignées en Inline Word-Diff (`<del>` rouge / `<ins>` vert).
 
 ---
 
@@ -123,14 +139,18 @@ Toute modification substantielle d'un papier académique doit mobiliser des sous
 - **Output** : Entrées BibTeX complètes + suggestion d'insertion subtile.
 - **Quand** : En amont (via `/literature-review`) et en parallèle de la critique, pour alimenter la réécriture.
 
-### 2.3 Sous-agent Rédaction (*Paper Writer*)
-- **Rôle** : Rédiger un passage spécifique selon le style défini ci-dessous (pour les textes longs).
-- **Focus** : Section Results, Discussion, Related Work (directement nourrie par les synthèses de `/literature-review`).
+### 2.3 Rédaction & Réécriture Exclusive par Claude Opus (*Direct Mandating*)
+- **Règle absolue** : ZÉRO réécriture générale proactive par un sous-agent générique.
+- **Exécution exclusive** : Toute reformulation ou rédaction textuelle fait suite à un commentaire précis d'Henri et est mandatée DIRECTEMENT auprès de Claude Opus via :
+  ```bash
+  antigravity-agents run --model claude-opus-4-6 --prompt "..."
+  ```
+  sans passer par aucun sous-agent intermédiaire (interdiction absolue de double délégation).
 - **Output** : Texte LaTeX prêt à insérer.
-- **Quand** : Pour les passages longs nécessitant un premier jet itératif.
+- **Quand** : Sur commentaire direct d'Henri pour réécrire ou affiner un passage ciblé.
 
 > [!NOTE]
-> Les sous-agents travaillent en parallèle. L'agent principal intègre leurs résultats et assure la cohérence globale du papier.
+> Les sous-agents de critique et de recherche travaillent en amont. L'agent principal mandate directement Claude Opus pour la rédaction textuelle issue des arbitrages d'Henri et intègre les résultats.
 
 ---
 
