@@ -96,21 +96,21 @@ Pour garantir à la fois la **persistance locale** dans le Digital Brain d'Henri
 
 Pour éviter toute modification intempestive ou dérive silencieuse des règles directrices, le superviseur **DOIT OBLIGATOIREMENT** soumettre une proposition formelle avant d'appliquer des changements aux fichiers maîtres.
 
-### 1. Création de l'Artéfact de Proposition
+### 1. 📝 Comment Rédiger l'Artéfact de Proposition (learning_proposal.md) ?
 - **Chemin** : `<appDataDir>\brain\<conversation-id>/learning_proposal.md`
 - **Métadonnées** : `ArtifactMetadata: { RequestFeedback: true, UserFacing: true, Summary: "..." }`
 - **Structure de l'Artéfact** :
   1. `# Proposition d'Apprentissage / Refactorisation (/learn)`
-  2. `## 🎯 Contexte & Diagnostic` (Pourquoi ce changement est-il nécessaire ?)
-  3. `## 📂 Fichiers Ciblés & Périmètres` (Quels fichiers seront créés ou modifiés ?)
-  4. `## 📝 Diff Prévisionnel ou Contenu Proposé` (Citations exactes des blocs ajoutés/modifiés)
-  5. `## 🛡️ Audit DRY & Non-Régression` (Vérification de l'absence de doublons ou de conflits)
+  2. `## 🎯 Quel Est le Contexte & Diagnostic ?`
+  3. `## 📂 Quels Sont les Fichiers Ciblés & Périmètres ?`
+  4. `## 📝 Quel Est le Diff Prévisionnel ou Contenu Proposé ?`
+  5. `## 🛡️ Comment l'Audit DRY & Non-Régression Est-il Garanti ?`
 
-### 2. Attente de la Validation Explicite d'Henri
+### 2. ✋ Pourquoi Attendre la Validation Explicite d'Henri Avant Toute Action ?
 - L'agent s'arrête et présente la proposition à Henri de manière concise dans le chat avec un lien cliquable vers l'artéfact.
 - **INTERDIT d'écrire dans les fichiers cibles** avant qu'Henri n'ait cliqué sur le bouton de validation ("Proceed") ou confirmé textuellement son approbation.
 
-### 3. Exécution et Déploiement
+### 3. ⚙️ Comment Déployer et Appliquer les Modifications Approuvées ?
 - Dès approbation reçue, l'agent procède à l'écriture chirurgicale des fichiers.
 - Si un skill est impliqué, il applique la règle d'arborescence duale.
 - Si une note Obsidian est créée, il respecte le Paradigme Q/R et la frontière étanche des liens.
@@ -130,7 +130,7 @@ flowchart TD
     P5 --> P6["🧠 6. Checkpoint AIVC remember"]
 ```
 
-### 1. Commandes Opérationnelles de Synchronisation
+### 1. 💻 Quelles Sont les Commandes Opérationnelles de Synchronisation Git ?
 ```powershell
 # Se positionner dans le dépôt miroir
 cd C:\Users\hjamet\Documents\code\cursor-memory-bank
@@ -145,7 +145,7 @@ git commit -m "docs(rules): update system instructions and learn protocol"
 git push origin master
 ```
 
-### 2. Validation de Concordance
+### 2. 🔍 Comment Vérifier la Concordance et Sceller l'Empreinte AIVC ?
 - Vérifier que `C:\Users\hjamet\.gemini\GEMINI.md` et `cursor-memory-bank\src\GEMINI.md` sont strictement identiques octet par octet.
 - Enregistrer immédiatement l'empreinte de la mise à jour via `call_mcp_tool(remember)`.
 
