@@ -5,7 +5,7 @@ description: Invoquer SYSTÉMATIQUEMENT Stitch pour concevoir, prototyper, modif
 
 # Stitch — UI Generation & Design System Engine
 
-Le skill **stitch** est le moteur officiel et impératif de génération d'interfaces graphiques, de design systems et de composants frontend pour Antigravity. Il pilote le serveur MCP distant Google Stitch (`https://stitch.googleapis.com/mcp`) en mode CLI-first via `mcp-cli` ou via l'intégration MCP native Antigravity.
+Le skill **stitch** est le moteur officiel et impératif de génération d'interfaces graphiques, de design systems et de composants frontend pour Antigravity. Il pilote le serveur MCP distant Google Stitch (`https://stitch.googleapis.com/mcp`) en mode CLI-first via `mcp-cli`.
 
 ---
 
@@ -21,7 +21,7 @@ Le skill **stitch** est le moteur officiel et impératif de génération d'inter
 
 ## 2. Configuration MCP Stitch
 
-Le serveur MCP Stitch est configuré dans le registre centralisé `~/.config/mcp/mcp_servers.json` (et répliqué dans `.gemini/config/mcp_config.json`) :
+Le serveur MCP Stitch est configuré exclusivement dans le registre centralisé `~/.config/mcp/mcp_servers.json` pour un pilotage via `mcp-cli` (sans injection directe dans les outils Antigravity afin de préserver le contexte LLM) :
 
 ```json
 {
