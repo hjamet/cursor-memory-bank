@@ -1,6 +1,6 @@
 ---
 name: hotel-scout
-description: "Chasseur et éclaireur d'hôtels et hébergements de charme pour Henri Jamet. Recherche multi-canal (Google Maps >= 4.5 et > 350 avis, comparatif Booking.com vs Site officiel direct), respect des préférences pérennes (bâtisses anciennes, vieilles pierres/poutres, calme absolu, zéro piscine), cadrage dynamique via ask_question et création de la note projet dédiée dans Obsidian."
+description: "Chasseur et éclaireur d'hôtels et hébergements de charme pour Henri Jamet. Recherche multi-canal (Google Maps >= 4.5 et > 350 avis, comparatif Booking.com vs Site officiel direct), respect des préférences pérennes (bâtisses anciennes, vieilles pierres/poutres, calme absolu, zéro piscine), calcul systématique du surcoût de détour temporel sur itinéraire, cadrage dynamique via ask_question et création de la note projet dédiée dans Obsidian."
 ---
 
 # 🏨 Comment le Skill Hotel-Scout Déniche-t-il les Hébergements d'Exception pour Henri ?
@@ -12,10 +12,11 @@ flowchart TD
     C -->|❌ Manquants| D["💬 Cadrage Dynamique via ask_question"]
     C -->|✅ Complets| E["🗺️ Découpage Géographique & Itinéraire"]
     D --> E
-    E --> F["🔍 Recherche Multi-Canal Google Maps & Avis<br/>(Note >= 4.5, > 350 avis, Zéro Piscine)"]
-    F --> G["💰 Comparatif Tarifaire Booking vs Site Direct<br/>(Prix, Conditions, Avantages direct)"]
-    G --> H["📑 Restitution Note Projet Obsidian<br/>(Tableau comparatif & Lien Préférences)"]
-    H --> I["🔗 Lien Cliquable Absolu en Tête de Réponse"]
+    E --> F["⏱️ Calcul Surcoût Détour Temporel Δt<br/>(Trajet A -> Hôtel -> B vs Trajet Direct)"]
+    F --> G["🔍 Recherche Multi-Canal Google Maps & Avis<br/>(Note >= 4.5, > 350 avis, Zéro Piscine)"]
+    G --> H["💰 Comparatif Tarifaire Booking vs Site Direct<br/>(Prix, Conditions, Avantages direct)"]
+    H --> I["📑 Restitution Note Projet Obsidian<br/>(Tableau comparatif, Δt & Trio de Liens)"]
+    I --> J["🔗 Lien Cliquable Absolu en Tête de Réponse"]
 ```
 
 ---
@@ -41,7 +42,7 @@ Si la requête initiale d'Henri ne précise pas l'intégralité des paramètres 
 
 | Paramètre Clé | Options Types | Pourquoi C'est Critique ? |
 | :--- | :--- | :--- |
-| **Objectif du séjour** | Étape repos (1 nuit) / Séjour découverte (2-4 nuits) / Retraite au calme (>4 nuits) | Détermine le niveau de confort requis et le rayon géographique acceptable. |
+| **Objectif du séjour** | Étape repos (1 nuit) / Séjour découverte (2-4 nuits) / Retraite au calme (>4 nuits) | Détermine le niveau de confort requis, le rayon géographique et le calcul de détour $\Delta t$. |
 | **Participants** | Seul / En couple / Avec proches | Dimensionne le type de chambre (chambre double de charme, suite, configuration lits). |
 | **Fourchette budgétaire** | Économique raisonnable (<120€/n) / Confort de charme (120-220€/n) / D'exception (>220€/n) | Évite les propositions hors-cible et calibre la recherche. |
 | **Restauration souhaitée** | Table bistronomique sur place / Table gastronomique / Repas libre extérieur / Petit-déj impératif | Conditionne la présence d'une table d'hôtes ou d'un restaurant réputé dans l'établissement. |
@@ -50,9 +51,15 @@ Si la requête initiale d'Henri ne précise pas l'intégralité des paramètres 
 
 ## 🔍 Quel Est le Protocole de Prospection Multi-Canal Pas à Pas ?
 
-### 1. 🗺️ Comment Découper l'Itinéraire et la Zone Géographique ?
-- **Rayon de recherche** : Maximum 15 à 25 minutes de détour par rapport à l'axe routier principal si simple étape.
-- **Cadre territorial** : Privilégier les villages préservés, hameaux ruraux, vallées et vignobles, à l'écart des voies rapides.
+### 1. 🗺️ Comment Découper l'Itinéraire et Calculer le Surcoût de Détour Temporel ?
+- **Étape sur itinéraire (trajet $A \to B$)** :
+  * **Calcul systématique du surcoût de détour temporel $\Delta t$** :
+    $$\Delta t = (t_{\text{Départ} \to \text{Hôtel}} + t_{\text{Hôtel} \to \text{Arrivée}}) - t_{\text{Trajet Direct}}$$
+    où $t_{\text{Trajet Direct}}$ est la durée du trajet direct le plus rapide et fluide sans étape, et les durées avec étape correspondent aux temps de route réels via les axes routiers principaux.
+  * **Seuil d'acceptabilité opérationnelle** : Pour une simple étape de repos d'une nuit, viser impérativement $\Delta t \le 15$ à $25$ minutes maximum par rapport au tracé direct le plus fluide. Tout dépassement $> 25\text{ min}$ doit être justifié par une bâtisse ou un cadre d'exception irremplaçable.
+  * **Affichage systématique** : Mentionner obligatoirement le $\Delta t$ en minutes dans le tableau comparatif et le résumé exécutif.
+- **Séjour de destination (sans étape)** : Découpage selon le rayon d'attractivité géographique autour de la zone d'intérêt.
+- **Cadre territorial** : Privilégier les villages préservés, hameaux ruraux, vallées et terroirs viticoles, à l'écart des voies rapides tout en minimisant $\Delta t$.
 
 ### 2. ⭐ Comment Filtrer Rigoureusement sur Google Maps ?
 - **Note minimale** : $\ge 4.5 / 5$.
@@ -93,11 +100,11 @@ Si la requête initiale d'Henri ne précise pas l'intégralité des paramètres 
   * Dans le chat Antigravity : Lien Markdown absolu cliquable `[Hôtel Destination](file:///C:/Users/hjamet/Documents/VoiceNotes/Hôtel%20Destination.md)` en première ligne.
 
 ### 2. 📊 Quel Format de Tableau Comparatif Utiliser ?
-La note projet doit contenir un tableau comparatif synthétique des 2 à 3 meilleures options sélectionnées :
+La note projet doit contenir un tableau comparatif synthétique des 2 à 3 meilleures options sélectionnées, incluant systématiquement la colonne de détour temporel $\Delta t$ dès qu'il s'agit d'une étape sur itinéraire :
 
-| Établissement & Lieu | Style & Cadre | Note & Avis | Tarif Booking vs Direct | Liens Cliquables (Trio Obligatoire) | Points d'Attention |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **[Nom Établissement]**<br/>Village (Dép.) | Vieilles pierres, cour arborée, bâtisse XVIIe | ⭐ 4.7/5 (420 avis) | Booking: 160€<br/>**Direct: 145€ + Pdj** | [Avis Google Maps](https://maps.google.com/...)<br/>[Site Officiel Direct](https://...)<br/>[Fiche Booking.com](https://booking.com/...) | Parking gratuit sur place, calme total |
+| Établissement & Lieu | Style & Cadre | Détour Temporel $\Delta t$ (si étape) | Note & Avis | Tarif Booking vs Direct | Liens Cliquables (Trio Obligatoire) | Points d'Attention |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **[Nom Établissement]**<br/>Village (Dép.) | Vieilles pierres, cour arborée, bâtisse XVIIe | **+18 min**<br/>(4h45 vs 4h27 direct) | ⭐ 4.7/5 (420 avis) | Booking: 160€<br/>**Direct: 145€ + Pdj** | [Avis Google Maps](https://maps.google.com/...)<br/>[Site Officiel Direct](https://...)<br/>[Fiche Booking.com](https://booking.com/...) | Parking gratuit sur place, calme total |
 
 ### 3. 🌐 Pourquoi le Trio de Liens Cliquables Est-il Systématiquement Obligatoire ?
 Pour chaque établissement recommandé, tant dans la note projet Obsidian que dans la restitution du chat, l'agent **DOIT SYSTÉMATIQUEMENT** fournir le trio complet de liens cliquables :
@@ -105,7 +112,17 @@ Pour chaque établissement recommandé, tant dans la note projet Obsidian que da
 2. **Lien vers le Site Officiel direct** : Réservation directe auprès de l'hôtelier/hôte au tarif garanti le plus bas (sans commission OTA) et bénéfice des avantages exclusifs (petit-déjeuner, surclassement).
 3. **Lien Booking.com** : Comparaison immédiate des disponibilités, conditions d'annulation et flexibilité tarifaire.
 
-### 4. 🔄 Comment Enrichir l'Historique des Sélections Validées ?
+### 4. ⏱️ Comment Calculer et Présenter le Surcoût de Détour Temporel sur un Trajet A -> B ?
+Lorsqu'un hébergement est recherché dans le cadre d'une étape sur un itinéraire routier :
+- **Formule de calcul** :
+  $$\Delta t = (t_{\text{Départ} \to \text{Hôtel}} + t_{\text{Hôtel} \to \text{Arrivée}}) - t_{\text{Trajet Direct}}$$
+- **Données obligatoires à mentionner** :
+  * Durée du trajet direct de référence sans étape ($t_{\text{Trajet Direct}}$).
+  * Durée cumulée du trajet passant par l'établissement ($(t_{\text{Départ} \to \text{Hôtel}} + t_{\text{Hôtel} \to \text{Arrivée}})$).
+  * Différentiel net sous la forme `Détour temporel : +XX min`.
+- **Règle d'arbitrage** : Si $\Delta t > 25\text{ min}$, alerter immédiatement Henri sur le surcoût de fatigue et justifier pourquoi l'établissement surpasse les options situées plus près du tracé direct.
+
+### 5. 🔄 Comment Enrichir l'Historique des Sélections Validées ?
 Dès qu'Henri valide une réservation ou rentre d'un séjour réussi :
 1. Mettre à jour la section `## 📜 Quel Est l'Historique des Sélections et Séjours Validés ?` dans `[[Preferences Henri Hotels et Hebergements]]`.
 2. Consigner l'ancrage via `call_mcp_tool` (`remember`).
