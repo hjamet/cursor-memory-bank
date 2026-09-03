@@ -58,15 +58,15 @@ flowchart TD
 | # | Algorithme / Modèle | Identifiant HF | Poids Nominal | Rôle & Spécificité |
 |---|---|---|---|---|
 | **1** | **DeBERTa-v3 RAID SOTA** | `desklib/ai-text-detector-v1.01` | **30%** | Leader du benchmark RAID. Détecte les traces de tokenisation fine et d'attention croisée. |
-| **2** | **RoBERTa Ensemble** | `openai-community/roberta-base-openai-detector`<br/>`Hello-SimpleAI/chatgpt-detector-roberta` | **25%** | Détection supervisée calibrée sur les sorties GPT-3 / ChatGPT / GPT-4. |
-| **3** | **Fast-DetectGPT Zéro-Shot** | `EleutherAI/gpt-neo-125m` (ou `gpt2`) | **20%** | Analyse analytique de la courbure locale des log-probabilités sans perturbation coûteuse. |
-| **4** | **RADAR Adversarial** | `TrustSafeAI/RADAR-Vicuna-7B` | **15%** | Entraîné par jeu minimax contre des générateurs de paraphrases (NeurIPS 2023). |
+| **2** | **ModernBERT Long-Context** | `GeorgeDrayson/modernbert-ai-detection-raid-mage` | **25%** | Encodeur natif 8192 tokens entraîné sur MAGE & RAID. Analyse multi-générateurs sans troncature. |
+| **3** | **TMR RoBERTa Anti-Paraphrase** | `Oxidane/tmr-ai-text-detector` | **20%** | RoBERTa-base entraîné par Hard-Negative Mining itératif sur RAID. Résistance aux paraphrases. |
+| **4** | **Fast-DetectGPT Zéro-Shot** | `EleutherAI/gpt-neo-125m` (ou `gpt2`) | **15%** | Analyse analytique de la courbure locale des log-probabilités sans perturbation coûteuse. |
 | **5** | **Stylométrie & Entropie** | Moteur analytique interne | **10%** | Coefficient de variation de la longueur des phrases (burstiness), TTR, Maas, entropie de Shannon, buzzwords. |
 
 > [!NOTE]
 > **Formule Normalisée avec Renormalisation Bayésienne** :
 > $$P(\text{AI}) = \frac{\sum_{i \in \mathcal{M}_{\text{actifs}}} w_i \cdot S_i}{\sum_{i \in \mathcal{M}_{\text{actifs}}} w_i}$$
-> Si un modèle volumineux (comme RADAR 7B) est différé sur des configurations GPU limitées, les modèles résidents (< 2.5 Go VRAM au total) sont automatiquement renormalisés sans perte de rigueur.
+> L'ensemble des 5 modèles forme une armada légère (< 500 Mo par modèle, < 2.5 Go VRAM au total). En cas d'omission rapide (`--fast`) ou d'indisponibilité ponctuelle, les modèles résidents sont automatiquement renormalisés sans perte de rigueur.
 
 ---
 
