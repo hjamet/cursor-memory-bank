@@ -1,6 +1,6 @@
 ---
 name: cluster-ci
-description: Guide complet, architecture, commandes CLI, règles de configuration DVC/GitOps et protocole d'exécution de cluster-run avec auto-recovery et suivi par métriques/plots pour l'orchestrateur cluster-ci.
+description: Guide complet, architecture matérielle, commandes CLI, architecture duale (Mode A Asynchrone GitOps pur vs Mode B Synchrone CLI), règles de configuration DVC/GitOps et protocole d'auto-recovery pour l'orchestrateur cluster-ci.
 ---
 
 # Skill cluster-ci — Orchestrateur GitOps & Pipeline GPU Cluster
@@ -22,7 +22,7 @@ description: Guide complet, architecture, commandes CLI, règles de configuratio
 > Antigravity et les sous-agents ne doivent sous AUCUN PRÉTEXTE modifier, altérer ou écraser `.cluster-ci` de leur propre initiative.
 
 ### Structure de `.cluster-ci`
-Located à la racine du projet de recherche.
+Situé à la racine du projet de recherche.
 ```ini
 # Resource Requirements
 REQUIRED_RAM=16GB       # RAM minimale requise (le Headnode réserve 8GB de marge OS par nœud)
@@ -45,7 +45,48 @@ DOCKER_FLAGS=--cap-add=SYS_NICE
 
 ---
 
-## 3. Configuration `dvc.yaml` & Traçabilité Métriques / Plots (MANDATOIRE)
+## 3. Architecture Duale : Choisir le Bon Mode d'Exécution (MANDATOIRE)
+
+Cluster-CI opère selon deux modes d'exécution distincts. Le choix du mode est critique pour la résilience des calculs.
+
+### 🚀 Mode A : Asynchrone Autonome (GitOps Pur) — RECOMMANDÉ PAR DÉFAUT
+
+> [!IMPORTANT]
+> **Quand l'utiliser** : Pour TOUT entraînement long, expérience de nuit, week-end, ou dès que l'utilisateur risque d'éteindre sa machine, fermer son terminal ou perdre sa connexion réseau.
+
+1. **Commit & Push sur la branche de travail** :
+   ```bash
+   git add .
+   git commit -m "feat(pipeline): description des changements"
+   git push origin <branche_active>
+   ```
+2. **Déclenchement du Tag Technique `cluster-run`** :
+   ```bash
+   git tag -f cluster-run
+   git push -f origin cluster-run
+   ```
+3. **Comportement Système & Immunité Totale** :
+   - **ZÉRO processus local** : Interdiction d'appeler `cluster-run` en CLI locale. Aucun PID n'est surveillé localement.
+   - **Immunité à l'extinction du PC** : Le PC de développement peut être éteint dans la seconde qui suit le push du tag. Le conteneur Docker et le job GitHub Actions continuent de tourner sur le cluster sans interruption.
+   - **Publication automatique des résultats** : Le script distant `run_research_pipeline.sh` résout dynamiquement la branche via `git branch -r --contains HEAD`. À la fin du calcul, le démon distant `dvc_git_helper.py` committe et pousse automatiquement les métriques, figures et `dvc.lock` sur `<branche_active>`.
+   - **Rapatriement des résultats** : L'utilisateur ou l'agent récupère les artefacts au réveil via un simple :
+     ```bash
+     git pull origin <branche_active>
+     ```
+
+### 🖥️ Mode B : Synchrone Interactif (`cluster-run` CLI)
+
+> [!WARNING]
+> **Quand l'utiliser** : EXCLUSIVEMENT pour du débogage interactif court (≤ 15 min) lorsque l'utilisateur reste physiquement devant son écran pour observer le streaming des logs en direct.
+
+- **Fonctionnement interne** : La commande locale `cluster-run` crée un shadow commit sur une branche temporaire `cluster-draft/<user>`, enregistre le **PID local** dans `.cluster-ci-run.json` et streame les logs dans le terminal.
+- **Comportement destructeur en cas d'extinction** : Si le processus local est interrompu (fermeture de fenêtre, arrêt machine, veille), la fonction `recover_orphaned_run()` détecte la disparition du PID local, conclut à un abandon et **déclenche l'annulation immédiate du job (`cancel_and_cleanup_run()`)**, tuant le conteneur Docker sur le cluster.
+- **Interdiction formelle** : Ne JAMAIS utiliser ce mode pour des exécutions longues ou de nuit.
+- **Drapeau halluciné éliminé** : Le flag `--background` N'EXISTE PAS dans la CLI `cluster-run`. Tout besoin d'exécution en arrière-plan relève obligatoirement du **Mode A (GitOps Pur)**.
+
+---
+
+## 4. Configuration `dvc.yaml` & Traçabilité Métriques / Plots (MANDATOIRE)
 
 > [!IMPORTANT]
 > **Chaque étape (`stage`) du pipeline dans `dvc.yaml` DOIT OBLIGATOIREMENT comporter des métriques (`metrics:`) ou des plots (`plots:`) configurés avec `{cache: false}`.**
@@ -54,7 +95,7 @@ DOCKER_FLAGS=--cap-add=SYS_NICE
 > 2. L'exportation visuelle automatique des courbes d'apprentissage et tableaux d'évaluation.
 > 3. Le commit automatique par le bot `cluster-ci-bot` à la fin de chaque étape.
 
-### Exemple Standard de `dvc.yaml`
+### 4.1 Exemple Standard de `dvc.yaml`
 ```yaml
 stages:
   preprocess:
@@ -86,7 +127,7 @@ stages:
           cache: false
 ```
 
-### 2.4 Doctrine de Connectivité Stricte du DAG (Zéro Nœuds Orphelins) (MANDATOIRE)
+### 4.2 Doctrine de Connectivité Stricte du DAG (Zéro Nœuds Orphelins) (MANDATOIRE)
 
 1. **Un Pipeline Doit Être un Arbre Strictement Connecté** :
    - Toute étape déclarée dans `dvc.yaml` DOIT impérativement posséder au moins une dépendance (`deps`) la reliant directement au flux de données amont (données brutes, modèles ou prédictions générées par une étape précédente).
@@ -99,39 +140,42 @@ stages:
 
 ---
 
-## 4. Commandes CLI Client (`cluster-run`)
+## 5. Commandes CLI Client (`cluster-run`) — Réservées au Mode B
 
 | Commande | Description |
 |---|---|
-| `cluster-run` | Soumet un shadow commit, pousse la branche draft, suit les logs en direct et extrait les résultats une fois terminé |
-| `cluster-run --background` | Soumet le job et rend immédiatement la main au terminal |
+| `cluster-run` | Soumet un shadow commit, pousse la branche draft, suit les logs en direct et extrait les résultats une fois terminé (Mode B interactif) |
 | `cluster-run list` | Affiche l'historique récent des runs avec ID, statut et timestamps |
 | `cluster-run view [run_id]` | Affiche les logs d'un run spécifique (dernier run par défaut) |
 | `cluster-run cancel [run_id]` | Demande l'annulation distante d'un run et nettoie le tracking local |
 | `cluster-run sync` | Synchronise manuellement les métriques, plots et `dvc.lock` locaux depuis la branche distante |
 
+> [!CAUTION]
+> **Élimination formelle du drapeau `--background`** : L'option `cluster-run --background` est une hallucination et n'existe pas. Pour tout travail en arrière-plan ou déconnecté, utiliser le **Mode A : Git tag `cluster-run`**.
+
 ---
 
-## 5. Protocole de Gestion de `cluster-run` par l'Agent
+## 6. Protocole de Gestion par l'Agent & Auto-Recovery
 
 > [!IMPORTANT]
-> **Instructions d'exécution lors d'une demande de `cluster-run` par l'utilisateur :**
+> **Instructions d'exécution lors d'une demande de lancement de calculs :**
 >
-> 1. **Exécution au premier plan (Foreground)** :
->    - Lancer la commande `cluster-run` directement.
-> 2. **Suivi continu par minuteur de 15 minutes** :
->    - Planifier un timer/cron de 15 minutes (`schedule` avec DurationSeconds=900 ou recurring cron) pour vérifier l'état de l'exécution.
->    - Consulter les logs via `cluster-run view` ou le Dashboard Web (`http://130.223.73.209:5000/`) à chaque intervalle.
-> 3. **Auto-Recovery & Resolution en cas de crash** :
->    - Si `cluster-run` échoue ou crash :
->      a. Analyser les logs pour identifier la cause exacte (erreur de code, mémoire CUDA OOM, dépendance manquante, erreur DVC, etc.).
->      b. Résoudre la cause racine dans le code/les scripts (sans modifier `.cluster-ci` sans accord).
->      c. Relancer immédiatement `cluster-run` au premier plan.
->      d. Répéter jusqu'à l'achèvement complet et réussi du pipeline.
+> 1. **Sélection du Mode** :
+>    - **Par défaut / Runs longs (> 15 min) / Travail autonome** : Appliquer systématiquement le **Mode A (GitOps Pur)**. Committer, pusher la branche, puis taguer et pusher le tag `cluster-run`. Aucun process local ne doit tourner.
+>    - **Débogage immédiat court (≤ 15 min)** : Si l'utilisateur demande explicitement un test direct interactif en séance, lancer `cluster-run` en foreground.
+> 2. **Suivi périodique (si session active)** :
+>    - Consulter l'état via le Dashboard Web (`http://130.223.73.209:5000/`) ou `cluster-run view`.
+> 3. **Auto-Recovery & Résolution en cas d'échec** :
+>    - Si le run échoue sur le cluster :
+>      a. Analyser les logs pour identifier la cause exacte (code, mémoire CUDA OOM, dépendance manquante, syntaxe DVC, etc.).
+>      b. Résoudre la cause racine dans le code ou les scripts (sans modifier `.cluster-ci` sans accord).
+>      c. Committer et pusher le correctif.
+>      d. Reposer et repousser le tag `cluster-run` (`git tag -f cluster-run && git push -f origin cluster-run`).
+>      e. Répéter jusqu'à l'achèvement complet et réussi du pipeline.
 
 ---
 
-## 6. Dashboard Web & Télémétrie
+## 7. Dashboard Web & Télémétrie
 
 * **URL d'accès** : `http://130.223.73.209:5000/` (Nécessite le VPN UNIL).
 * **Fonctionnalités clés** :
@@ -142,7 +186,7 @@ stages:
 
 ---
 
-## 7. Résilience & Sécurité Anti-Zombie
+## 8. Résilience & Sécurité Anti-Zombie
 
 1. **Single Instance Lock** : Verrou `/tmp/cluster-worker.lock` pour empêcher les exécutions concurrentes sur un même worker.
 2. **PID Host SIGKILL (<5s)** : Récupération du PID hôte (`docker inspect`) et envoi d'un `SIGKILL` direct au noyau pour libérer les contextes CUDA gelés avant `docker rm -f`.
