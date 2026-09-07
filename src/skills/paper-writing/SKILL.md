@@ -71,7 +71,10 @@ graph TD
     B --> C["⚡ Traitement Automatique :<br/>- Validation & purge des deltas avant la ligne N<br/>- Staging & Commit descriptif dans le repo LaTeX<br/>- Git push automatique vers le remote Overleaf/GitHub"]
     C --> D["3. Édition chirurgicale des sources LaTeX<br/>(.tex, .bib) selon le commentaire"]
     D --> E["4. ÉTAPE DE RAFRAÎCHISSEMENT :<br/>python latex_to_markdown_artifact.py --diff"]
-    E --> F["🎯 Note miroir rafraîchie :<br/>- Diffs antérieurs tombés à 0<br/>- Nouveaux deltas surlignés (vert/rouge)<br/>- Lien Obsidian cliquable en tête de chat"]
+    E --> G{"🛡️ Contrôle Anti-IA :<br/>Paragraphes > 10.0% ?"}
+    G -- "🚨 Alerte [REFORMULATION OBLIGATOIRE]" --> H["5. Réécriture chirurgicale immédiate<br/>(Claude Opus / reformulate-human)"]
+    H --> E
+    G -- "✅ Feu vert [CERTIFICATION CONFORME]" --> F["🎯 Note miroir certifiée :<br/>- Diffs antérieurs tombés à 0<br/>- Nouveaux deltas surlignés (vert/rouge)<br/>- 100% badges <= 10%<br/>- Lien Obsidian cliquable en tête de chat"]
     F --> A
 ```
 
@@ -97,6 +100,12 @@ graph TD
   python antigravity/scripts/latex_to_markdown_artifact.py --diff
   ```
 - 🎯 **Effet visuel immédiat** : Les sections antérieures à la ligne `<N>` apparaissent en texte propre sans aucun diff parasite. Seules les nouvelles modifications apportées à l'étape 2 sont surlignées en rouge/vert, prêtes pour la relecture suivante d'Henri.
+
+#### Étape 4 : Boucle Fermée Actor-Critic & Seuil Anti-IA P(IA) <= 10% (MANDATOIRE)
+- **Règle absolue d'itération en boucle fermée** :
+  Après chaque appel à `python latex_to_markdown_artifact.py --diff` :
+  Si le script retourne l'alerte `🚨 [ACTION AGENT REQUISE : REFORMULATION OBLIGATOIRE — SEUIL P(IA) > 10% NON RESPECTÉ]`, l'agent a l'obligation stricte d'itérer immédiatement : reformuler les paragraphes incriminés dans le .tex et réexécuter `--diff`, jusqu'à l'obtention du feu vert `✅ [CERTIFICATION IA CONFORME] 100% des paragraphes modifiés respectent le seuil strict P(IA) <= 10.0%`.
+- **Interdiction Formelle d'Arrêt Prématuré** : L'agent NE DOIT JAMAIS s'arrêter, déclarer sa tâche terminée ou solliciter l'arbitrage d'Henri tant qu'un seul paragraphe modifié dépasse le seuil strict de 10.0%.
 
 ---
 

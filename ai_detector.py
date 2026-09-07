@@ -109,7 +109,10 @@ try:
             super().__init__(config)
             self.model = AutoModel.from_config(config)
             self.classifier = nn.Linear(config.hidden_size, 1)
-            self.init_weights()
+            if hasattr(self, "post_init"):
+                self.post_init()
+            else:
+                self.init_weights()
 
         def forward(self, input_ids, attention_mask=None, labels=None, **kwargs):
             outputs = self.model(input_ids, attention_mask=attention_mask)
