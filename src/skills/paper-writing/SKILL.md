@@ -195,3 +195,10 @@ Lors de la préparation ou de la révision d'un papier pour une conférence spé
 2. **Recherche ciblée** : Rechercher 2 à 3 papiers publiés récemment **dans cette conférence** qui sont thématiquement proches.
 3. **Insertion naturelle** : Les intégrer dans le texte de manière **extrêmement subtile** (la citation doit s'insérer naturellement dans le flux argumentatif, jamais comme une mention forcée).
 4. **Vérification rigoureuse** : Toujours vérifier les DOI, auteurs et venues via DBLP, Consensus ou le site officiel de l'éditeur.
+
+---
+
+## 5. ⚙️ Comment Auditer la Pagination et le Contenu après Git Pull ?
+
+- **Recompilation Obligatoire** : Recompiler systématiquement après tout `git pull` ou modification sur un document LaTeX (`pdflatex` / `latexmk`) avant d'auditer la pagination ou le contenu. Interdiction formelle d'auditer un `.pdf` préexistant sans compilation fraîche.
+
