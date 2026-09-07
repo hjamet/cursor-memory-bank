@@ -6,13 +6,13 @@ Moteur Détecteur IA Multi-Modèles Haute Précision & GPU-Accelerated (Architec
 Localisation : c:/Users/Jamet/Documents/VoiceNotes/antigravity/scripts/ai_detector.py
 
 Combine 7 acteurs algorithmiques SOTA complémentaires selon la doctrine Zero-Trust et Fail-Stop :
-1. DeBERTa-v3 RAID SOTA (20%)      : desklib/ai-text-detector-v1.01 (Benchmark RAID Leader)
-2. ModernBERT Long-Context (20%)  : GeorgeDrayson/modernbert-ai-detection-raid-mage (8192 tokens natifs, MAGE & RAID)
-3. TMR RoBERTa Anti-Paraph. (15%) : Oxidane/tmr-ai-text-detector (Focal Loss & Hard-Negative Mining sur RAID)
-4. DeBERTa-v3 Academic (15%)      : desklib/ai-text-detector-academic-v1.01 (Spécialisé Corpus Scientifique & Papiers)
-5. XLM-RoBERTa Multilingue (10%)  : yaya36095/xlm-roberta-text-detector (Cross-lingual Robustness)
-6. Binoculars Gemma-4-E2B (10%)   : google/gemma-4-E2B (Observer) + google/gemma-4-E2B-it (Performer)
-7. Stylométrie & Entropie (10%)   : Burstiness CV, TTR, Maas, Entropie de Shannon, Buzzwords
+1. Binoculars Gemma-4-E2B (35%)   : google/gemma-4-E2B (Observer) + google/gemma-4-E2B-it (Performer) [Leader Incontesté]
+2. DeBERTa-v3 RAID SOTA (15%)      : desklib/ai-text-detector-v1.01 (Benchmark RAID Leader)
+3. ModernBERT Long-Context (15%)  : GeorgeDrayson/modernbert-ai-detection-raid-mage (8192 tokens natifs, MAGE & RAID)
+4. TMR RoBERTa Anti-Paraph. (12%) : Oxidane/tmr-ai-text-detector (Focal Loss & Hard-Negative Mining sur RAID)
+5. DeBERTa-v3 Academic (10%)      : desklib/ai-text-detector-academic-v1.01 (Spécialisé Corpus Scientifique & Papiers)
+6. XLM-RoBERTa Multilingue (7%)   : yaya36095/xlm-roberta-text-detector (Cross-lingual Robustness)
+7. Stylométrie & Entropie (6%)    : Burstiness CV, TTR, Maas, Entropie de Shannon, Buzzwords
 
 Architecture d'Exécution en 3 Cohortes Séquentielles (Plafond VRAM < 8 Go garanti) :
 - Cohorte 1 : Les 5 encodeurs en FP16 (~2.7 Go VRAM) -> inférence chunks + heatmaps -> déchargement total.
@@ -135,15 +135,15 @@ XLM_ROBERTA_ID = "yaya36095/xlm-roberta-text-detector"
 BINOCULARS_OBSERVER_ID = "google/gemma-4-E2B"
 BINOCULARS_PERFORMER_ID = "google/gemma-4-E2B-it"
 
-# Poids nominaux officiels de l'Armada SOTA (Total = 1.00 / 100%)
+# Poids nominaux officiels de l'Armada SOTA (Total = 1.00 / 100%) - Option 2 : Leader Incontesté Binoculars
 NOMINAL_WEIGHTS = {
-    "deberta_raid": 0.20,        # 1. DeBERTa-v3 RAID SOTA
-    "modernbert_long": 0.20,     # 2. ModernBERT Long-Context (8192 ctx)
-    "tmr_roberta": 0.15,         # 3. TMR RoBERTa Anti-Paraphrase
-    "deberta_academic": 0.15,    # 4. DeBERTa-v3 Academic SOTA
-    "xlm_roberta": 0.10,         # 5. XLM-RoBERTa Multilingue
-    "binoculars_gemma": 0.10,    # 6. Binoculars via Gemma-4-E2B
-    "stylometric_entropy": 0.10, # 7. Moteur Stylométrique & Entropique
+    "binoculars_gemma": 0.35,    # 1. Binoculars via Gemma-4-E2B (Leader Causal & Géométrique Incontesté)
+    "deberta_raid": 0.15,        # 2. DeBERTa-v3 RAID SOTA (Benchmark RAID Leader)
+    "modernbert_long": 0.15,     # 3. ModernBERT Long-Context (8192 ctx, MAGE & RAID)
+    "tmr_roberta": 0.12,         # 4. TMR RoBERTa Anti-Paraphrase (Focal Loss & Hard-Negatives)
+    "deberta_academic": 0.10,    # 5. DeBERTa-v3 Academic SOTA (Corpus Scientifique)
+    "xlm_roberta": 0.07,         # 6. XLM-RoBERTa Multilingue (Cross-lingual Robustness)
+    "stylometric_entropy": 0.06, # 7. Moteur Stylométrique & Entropique (Garde-fou non-neural)
 }
 
 # Buzzwords / N-grammes surreprésentés dans les sorties IA
@@ -909,7 +909,7 @@ def analyze_text(
     # ------------------------------------------------------------------------
     # COHORTE 1 : LES 5 ENCODEURS FP16 & CARTOGRAPHIE HEATMAP
     # ------------------------------------------------------------------------
-    # 1. DeBERTa-v3 RAID SOTA (20%)
+    # 1. DeBERTa-v3 RAID SOTA (15%)
     try:
         deb_raid = score_deberta_raid(clean_txt, manager)
         results_models["deberta_raid"] = deb_raid
@@ -923,7 +923,7 @@ def analyze_text(
             ) from e
         sys.stderr.write(f"⚠️ [AVERTISSEMENT] DeBERTa RAID indisponible : {e}\n")
 
-    # 2. ModernBERT Long-Context (20%)
+    # 2. ModernBERT Long-Context (15%)
     try:
         mod_long = score_modernbert_long(clean_txt, manager)
         results_models["modernbert_long"] = mod_long
@@ -937,7 +937,7 @@ def analyze_text(
             ) from e
         sys.stderr.write(f"⚠️ [AVERTISSEMENT] ModernBERT indisponible : {e}\n")
 
-    # 3. TMR RoBERTa Anti-Paraphrase (15%)
+    # 3. TMR RoBERTa Anti-Paraphrase (12%)
     try:
         tmr_res = score_tmr_roberta(clean_txt, manager)
         results_models["tmr_roberta"] = tmr_res
@@ -951,7 +951,7 @@ def analyze_text(
             ) from e
         sys.stderr.write(f"⚠️ [AVERTISSEMENT] TMR RoBERTa indisponible : {e}\n")
 
-    # 4. DeBERTa-v3 Academic SOTA (15%)
+    # 4. DeBERTa-v3 Academic SOTA (10%)
     try:
         deb_acad = score_deberta_academic(clean_txt, manager)
         results_models["deberta_academic"] = deb_acad
@@ -965,7 +965,7 @@ def analyze_text(
             ) from e
         sys.stderr.write(f"⚠️ [AVERTISSEMENT] DeBERTa Academic indisponible : {e}\n")
 
-    # 5. XLM-RoBERTa Multilingue (10%)
+    # 5. XLM-RoBERTa Multilingue (7%)
     try:
         xlm_res = score_xlm_roberta(clean_txt, manager)
         results_models["xlm_roberta"] = xlm_res
@@ -1091,7 +1091,7 @@ def analyze_text(
     manager.unload_encoders()
 
     # ------------------------------------------------------------------------
-    # COHORTE 2 : BINOCULARS VIA GEMMA-4-E2B (10%)
+    # COHORTE 2 : BINOCULARS VIA GEMMA-4-E2B (35% - LEADER INCONTESTÉ)
     # ------------------------------------------------------------------------
     if not fast_mode:
         bino_res = score_binoculars_gemma(clean_txt, manager, allow_partial=allow_partial)
@@ -1100,7 +1100,7 @@ def analyze_text(
             active_weights["binoculars_gemma"] = NOMINAL_WEIGHTS["binoculars_gemma"]
 
     # ------------------------------------------------------------------------
-    # COHORTE 3 : MOTEUR STYLOMÉTRIQUE & ENTROPIQUE (10% - CPU)
+    # COHORTE 3 : MOTEUR STYLOMÉTRIQUE & ENTROPIQUE (6% - CPU)
     # ------------------------------------------------------------------------
     stylo_res = score_stylometric(clean_txt)
     results_models["stylometric_entropy"] = stylo_res
@@ -1192,13 +1192,13 @@ def format_console_report(results: Dict[str, Any], show_heatmap: bool = True) ->
     lines.append("-" * 80)
 
     labels_map = {
-        "deberta_raid": ("DeBERTa-v3 RAID SOTA", "20%"),
-        "modernbert_long": ("ModernBERT Long-Context", "20%"),
-        "tmr_roberta": ("TMR RoBERTa Anti-Paraphrase", "15%"),
-        "deberta_academic": ("DeBERTa-v3 Academic SOTA", "15%"),
-        "xlm_roberta": ("XLM-RoBERTa Multilingue", "10%"),
-        "binoculars_gemma": ("Binoculars Gemma-4-E2B", "10%"),
-        "stylometric_entropy": ("Stylométrie & Entropie", "10%"),
+        "binoculars_gemma": ("Binoculars Gemma-4-E2B", "35%"),
+        "deberta_raid": ("DeBERTa-v3 RAID SOTA", "15%"),
+        "modernbert_long": ("ModernBERT Long-Context", "15%"),
+        "tmr_roberta": ("TMR RoBERTa Anti-Paraphrase", "12%"),
+        "deberta_academic": ("DeBERTa-v3 Academic SOTA", "10%"),
+        "xlm_roberta": ("XLM-RoBERTa Multilingue", "7%"),
+        "stylometric_entropy": ("Stylométrie & Entropie", "6%"),
     }
 
     idx = 1
