@@ -1,25 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-AI Detector Engine (5-Model Lightweight SOTA Bagging Ensemble)
-Moteur Détecteur IA Multi-Modèles Haute Précision & GPU-Accelerated (< 500 Mo par modèle)
+AI Detector Engine (7-Component Unified SOTA Bagging & Binoculars Ensemble)
+Moteur Détecteur IA Multi-Modèles Haute Précision & GPU-Accelerated (Architecture Cohort Staged Waterfall < 8 Go VRAM)
 Localisation : c:/Users/Jamet/Documents/VoiceNotes/antigravity/scripts/ai_detector.py
 
-Combine 5 acteurs algorithmiques SOTA complémentaires ultra-légers :
-1. DeBERTa-v3 RAID SOTA (30%) : desklib/ai-text-detector-v1.01 (Benchmark RAID Leader)
-2. ModernBERT Long-Context (25%) : GeorgeDrayson/modernbert-ai-detection-raid-mage (8192 tokens natifs, MAGE & RAID)
-3. TMR RoBERTa Anti-Paraphrase (20%) : Oxidane/tmr-ai-text-detector (Focal Loss & Hard-Negative Mining sur RAID)
-4. Fast-DetectGPT Zéro-Shot (15%) : Courbure conditionnelle analytique via EleutherAI/gpt-neo-125m (ou gpt2)
-5. Stylométrie & Entropie (10%) : Burstiness CV, TTR, Maas, Entropie de Shannon, Buzzwords
+Combine 7 acteurs algorithmiques SOTA complémentaires selon la doctrine Zero-Trust et Fail-Stop :
+1. DeBERTa-v3 RAID SOTA (20%)      : desklib/ai-text-detector-v1.01 (Benchmark RAID Leader)
+2. ModernBERT Long-Context (20%)  : GeorgeDrayson/modernbert-ai-detection-raid-mage (8192 tokens natifs, MAGE & RAID)
+3. TMR RoBERTa Anti-Paraph. (15%) : Oxidane/tmr-ai-text-detector (Focal Loss & Hard-Negative Mining sur RAID)
+4. DeBERTa-v3 Academic (15%)      : desklib/ai-text-detector-academic-v1.01 (Spécialisé Corpus Scientifique & Papiers)
+5. XLM-RoBERTa Multilingue (10%)  : yaya36095/xlm-roberta-text-detector (Cross-lingual Robustness)
+6. Binoculars Gemma-4-E2B (10%)   : google/gemma-4-E2B (Observer) + google/gemma-4-E2B-it (Performer)
+7. Stylométrie & Entropie (10%)   : Burstiness CV, TTR, Maas, Entropie de Shannon, Buzzwords
 
-Formule d'ensemble normalisée avec renormalisation bayésienne dynamique :
-  P(AI) = (0.30*S_DeBERTa + 0.25*S_ModernBERT + 0.20*S_TMR + 0.15*S_FastDetect + 0.10*S_Stylo) / sum(W_actifs)
+Architecture d'Exécution en 3 Cohortes Séquentielles (Plafond VRAM < 8 Go garanti) :
+- Cohorte 1 : Les 5 encodeurs en FP16 (~2.7 Go VRAM) -> inférence chunks + heatmaps -> déchargement total.
+- Cohorte 2 : Module Binoculars Gemma-4-E2B en 4-bit séquentiel (~2.6 Go VRAM) -> déchargement total.
+- Cohorte 3 : Moteur Stylométrique & Entropique (CPU, 0 Mo VRAM).
+- Fusion Bayésienne : Somme pondérée renormalisée à 1.0.
+
 Seuil de conformité académique : P(AI) < 0.10 (10%)
-
-Usage CLI ultra-simple :
-  python antigravity/scripts/ai_detector.py "Texte direct à analyser..."
-  python antigravity/scripts/ai_detector.py chemin/vers/fichier.tex (ou .md)
-  python antigravity/scripts/ai_detector.py file.md --json
+Doctrine Fail-Stop : Tout échec d'un composant obligatoire interrompt immédiatement l'exécution.
 """
 
 import sys
@@ -66,20 +68,82 @@ try:
 except Exception:
     pass
 
-# Identifiants des modèles Hugging Face (< 500 Mo chacun)
+
+# ============================================================================
+# 0. GESTION DU TOKEN HUGGING FACE & FAIL-STOP
+# ============================================================================
+
+def resolve_hf_token(token_arg: Optional[str] = None, required: bool = False) -> Optional[str]:
+    """
+    Résout et valide le token Hugging Face selon la doctrine Fail-Stop.
+    Ordre de recherche :
+    1. Argument explicite CLI (--hf-token)
+    2. Variable d'environnement HF_TOKEN
+    3. antigravity/.hf_token
+    4. Cache standard ~/.cache/huggingface/token
+    """
+    if token_arg and token_arg.strip():
+        tok = token_arg.strip()
+        os.environ["HF_TOKEN"] = tok
+        return tok
+
+    env_tok = os.environ.get("HF_TOKEN")
+    if env_tok and env_tok.strip():
+        return env_tok.strip()
+
+    # Local antigravity/.hf_token
+    try:
+        curr_dir = os.path.dirname(os.path.abspath(__file__))
+        local_path = os.path.normpath(os.path.join(curr_dir, "..", ".hf_token"))
+        if os.path.isfile(local_path):
+            with open(local_path, "r", encoding="utf-8") as f:
+                tok = f.read().strip()
+                if tok:
+                    os.environ["HF_TOKEN"] = tok
+                    return tok
+    except Exception:
+        pass
+
+    # ~/.cache/huggingface/token
+    try:
+        cache_path = os.path.expanduser("~/.cache/huggingface/token")
+        if os.path.isfile(cache_path):
+            with open(cache_path, "r", encoding="utf-8") as f:
+                tok = f.read().strip()
+                if tok:
+                    os.environ["HF_TOKEN"] = tok
+                    return tok
+    except Exception:
+        pass
+
+    if required:
+        raise RuntimeError(
+            "❌ [FAIL-STOP] Token Hugging Face introuvable !\n"
+            "La doctrine Fail-Stop exige un token Hugging Face pour l'accès aux modèles de l'armada.\n"
+            "Veuillez définir la variable d'environnement HF_TOKEN, renseigner 'antigravity/.hf_token', "
+            "ou utiliser '--hf-token <token>'."
+        )
+    return None
+
+
+# Identifiants officiels de l'Armada SOTA à 7 Composants
 DEBERTA_RAID_ID = "desklib/ai-text-detector-v1.01"
 MODERNBERT_ID = "GeorgeDrayson/modernbert-ai-detection-raid-mage"
 TMR_ROBERTA_ID = "Oxidane/tmr-ai-text-detector"
-GPT_NEO_ID = "EleutherAI/gpt-neo-125m"
-GPT2_ID = "gpt2"
+DEBERTA_ACADEMIC_ID = "desklib/ai-text-detector-academic-v1.01"
+XLM_ROBERTA_ID = "yaya36095/xlm-roberta-text-detector"
+BINOCULARS_OBSERVER_ID = "google/gemma-4-E2B"
+BINOCULARS_PERFORMER_ID = "google/gemma-4-E2B-it"
 
-# Poids nominaux de la Nouvelle Armada SOTA Légère (Total = 1.00)
+# Poids nominaux officiels de l'Armada SOTA (Total = 1.00 / 100%)
 NOMINAL_WEIGHTS = {
-    "deberta_raid": 0.30,
-    "modernbert_long": 0.25,
-    "tmr_roberta": 0.20,
-    "fast_detectgpt": 0.15,
-    "stylometric_entropy": 0.10,
+    "deberta_raid": 0.20,        # 1. DeBERTa-v3 RAID SOTA
+    "modernbert_long": 0.20,     # 2. ModernBERT Long-Context (8192 ctx)
+    "tmr_roberta": 0.15,         # 3. TMR RoBERTa Anti-Paraphrase
+    "deberta_academic": 0.15,    # 4. DeBERTa-v3 Academic SOTA
+    "xlm_roberta": 0.10,         # 5. XLM-RoBERTa Multilingue
+    "binoculars_gemma": 0.10,    # 6. Binoculars via Gemma-4-E2B
+    "stylometric_entropy": 0.10, # 7. Moteur Stylométrique & Entropique
 }
 
 # Buzzwords / N-grammes surreprésentés dans les sorties IA
@@ -94,7 +158,7 @@ AI_BUZZWORDS = {
 
 
 # ============================================================================
-# 1. ARCHITECTURE DESKLIB CUSTOM MODEL (DeBERTa-v3 RAID)
+# 1. ARCHITECTURE DESKLIB CUSTOM MODEL (DeBERTa-v2/v3 RAID & Academic)
 # ============================================================================
 
 try:
@@ -102,7 +166,10 @@ try:
     import torch.nn as nn
 
     class DesklibAIDetectionModel(PreTrainedModel):
-        """Architecture spécifique Desklib avec base DeBERTa-v3 et tête de régression linéaire."""
+        """
+        Architecture spécifique Desklib avec base DeBERTa-v2/v3 et tête de régression linéaire.
+        Correctif L120 appliqué : .to(last_hidden_state.dtype) pour compatibilité native FP16/BF16.
+        """
         config_class = AutoConfig
 
         def __init__(self, config):
@@ -117,7 +184,8 @@ try:
         def forward(self, input_ids, attention_mask=None, labels=None, **kwargs):
             outputs = self.model(input_ids, attention_mask=attention_mask)
             last_hidden_state = outputs[0]
-            input_mask_expanded = attention_mask.unsqueeze(-1).expand(last_hidden_state.size()).float()
+            # Alignement strict sur le dtype de last_hidden_state (support FP16/BF16 sans crash)
+            input_mask_expanded = attention_mask.unsqueeze(-1).expand(last_hidden_state.size()).to(last_hidden_state.dtype)
             sum_embeddings = torch.sum(last_hidden_state * input_mask_expanded, dim=1)
             sum_mask = torch.clamp(input_mask_expanded.sum(dim=1), min=1e-9)
             pooled_output = sum_embeddings / sum_mask
@@ -213,18 +281,22 @@ def split_into_sentences(text: str) -> List[str]:
 
 
 # ============================================================================
-# 3. MODEL MANAGER & HARDWARE INFERENCE (GPU ACCELERATION)
+# 3. MODEL MANAGER (COHORT STAGED WATERFALL & FAIL-STOP GPU)
 # ============================================================================
 
 class ModelManager:
     """
-    Gestionnaire Singleton avec chargement paresseux et priorité GPU (CUDA).
-    Accélération native pour GPU NVIDIA RTX 3060 et fallback CPU gracieux.
-    Tous les modèles de l'armada sont ultra-légers (< 500 Mo chacun).
+    Gestionnaire avec cycle de vie par cohorte (Staged Waterfall)
+    et gestion chirurgicale de la mémoire VRAM pour GPU 8 Go (RTX 3060/3070/4060).
     """
     _instance = None
 
-    def __init__(self, device_override: Optional[str] = None):
+    def __init__(
+        self,
+        device_override: Optional[str] = None,
+        hf_token: Optional[str] = None,
+        local_files_only: bool = False
+    ):
         if device_override:
             self.device = device_override
         else:
@@ -234,105 +306,125 @@ class ModelManager:
             except Exception:
                 self.device = "cpu"
 
-        # Modèle 1 : DeBERTa-v3 RAID SOTA (30%)
+        import torch
+        self.torch_dtype = torch.float16 if self.device == "cuda" else torch.float32
+        self.bfloat16_supported = torch.cuda.is_available() and torch.cuda.is_bf16_supported() if self.device == "cuda" else False
+        self.causal_dtype = torch.bfloat16 if self.bfloat16_supported else self.torch_dtype
+        self.hf_token = hf_token
+        self.local_files_only = local_files_only
+
+        # Cohorte 1 : 5 Encodeurs
         self._deberta_tok = None
         self._deberta_mod = None
-        self._deberta_available = True
-
-        # Modèle 2 : ModernBERT Long-Context (25%)
         self._modernbert_tok = None
         self._modernbert_mod = None
-        self._modernbert_available = True
-
-        # Modèle 3 : TMR RoBERTa Anti-Paraphrase (20%)
         self._tmr_tok = None
         self._tmr_mod = None
-        self._tmr_available = True
-
-        # Modèle 4 : Causal LM pour Fast-DetectGPT (15%)
-        self._lm_tok = None
-        self._lm_mod = None
-        self._lm_available = True
+        self._deberta_acad_tok = None
+        self._deberta_acad_mod = None
+        self._xlm_tok = None
+        self._xlm_mod = None
 
     @classmethod
-    def get_instance(cls, device_override: Optional[str] = None) -> "ModelManager":
+    def get_instance(
+        cls,
+        device_override: Optional[str] = None,
+        hf_token: Optional[str] = None,
+        local_files_only: bool = False
+    ) -> "ModelManager":
         if cls._instance is None:
-            cls._instance = ModelManager(device_override)
+            cls._instance = ModelManager(device_override, hf_token, local_files_only)
         elif device_override and cls._instance.device != device_override:
-            cls._instance = ModelManager(device_override)
+            cls._instance = ModelManager(device_override, hf_token, local_files_only)
+        elif hf_token and cls._instance.hf_token != hf_token:
+            cls._instance.hf_token = hf_token
+        cls._instance.local_files_only = local_files_only
         return cls._instance
 
     def get_deberta_raid(self):
-        """Charge DeBERTa-v3 RAID (desklib/ai-text-detector-v1.01)."""
-        if self._deberta_mod is None and self._deberta_available and DesklibAIDetectionModel is not None:
-            try:
-                from transformers import AutoTokenizer
-                self._deberta_tok = AutoTokenizer.from_pretrained(DEBERTA_RAID_ID)
-                self._deberta_mod = DesklibAIDetectionModel.from_pretrained(
-                    DEBERTA_RAID_ID
-                ).to(self.device).eval()
-            except Exception:
-                self._deberta_available = False
-                self._deberta_tok, self._deberta_mod = None, None
+        if self._deberta_mod is None:
+            from transformers import AutoTokenizer
+            self._deberta_tok = AutoTokenizer.from_pretrained(
+                DEBERTA_RAID_ID, token=self.hf_token, local_files_only=self.local_files_only
+            )
+            self._deberta_mod = DesklibAIDetectionModel.from_pretrained(
+                DEBERTA_RAID_ID, token=self.hf_token, torch_dtype=self.torch_dtype, local_files_only=self.local_files_only
+            ).to(self.device).eval()
         return self._deberta_tok, self._deberta_mod
 
     def get_modernbert(self):
-        """Charge ModernBERT Long-Context (GeorgeDrayson/modernbert-ai-detection-raid-mage)."""
-        if self._modernbert_mod is None and self._modernbert_available:
-            try:
-                from transformers import AutoTokenizer, AutoModelForSequenceClassification
-                self._modernbert_tok = AutoTokenizer.from_pretrained(MODERNBERT_ID)
-                self._modernbert_mod = AutoModelForSequenceClassification.from_pretrained(
-                    MODERNBERT_ID
-                ).to(self.device).eval()
-            except Exception:
-                self._modernbert_available = False
-                self._modernbert_tok, self._modernbert_mod = None, None
+        if self._modernbert_mod is None:
+            from transformers import AutoTokenizer, AutoModelForSequenceClassification
+            self._modernbert_tok = AutoTokenizer.from_pretrained(
+                MODERNBERT_ID, token=self.hf_token, local_files_only=self.local_files_only
+            )
+            self._modernbert_mod = AutoModelForSequenceClassification.from_pretrained(
+                MODERNBERT_ID, token=self.hf_token, torch_dtype=self.torch_dtype, local_files_only=self.local_files_only
+            ).to(self.device).eval()
         return self._modernbert_tok, self._modernbert_mod
 
     def get_tmr_roberta(self):
-        """Charge TMR RoBERTa Anti-Paraphrase (Oxidane/tmr-ai-text-detector)."""
-        if self._tmr_mod is None and self._tmr_available:
-            try:
-                from transformers import AutoTokenizer, AutoModelForSequenceClassification
-                self._tmr_tok = AutoTokenizer.from_pretrained(TMR_ROBERTA_ID)
-                self._tmr_mod = AutoModelForSequenceClassification.from_pretrained(
-                    TMR_ROBERTA_ID
-                ).to(self.device).eval()
-            except Exception:
-                self._tmr_available = False
-                self._tmr_tok, self._tmr_mod = None, None
+        if self._tmr_mod is None:
+            from transformers import AutoTokenizer, AutoModelForSequenceClassification
+            self._tmr_tok = AutoTokenizer.from_pretrained(
+                TMR_ROBERTA_ID, token=self.hf_token, local_files_only=self.local_files_only
+            )
+            self._tmr_mod = AutoModelForSequenceClassification.from_pretrained(
+                TMR_ROBERTA_ID, token=self.hf_token, torch_dtype=self.torch_dtype, local_files_only=self.local_files_only
+            ).to(self.device).eval()
         return self._tmr_tok, self._tmr_mod
 
-    def get_causal_lm(self):
-        """Charge GPT-Neo-125M ou GPT-2 pour Fast-DetectGPT."""
-        if self._lm_mod is None and self._lm_available:
-            try:
-                from transformers import AutoTokenizer, AutoModelForCausalLM
-                lm_id = GPT_NEO_ID
-                try:
-                    self._lm_tok = AutoTokenizer.from_pretrained(lm_id)
-                    self._lm_mod = AutoModelForCausalLM.from_pretrained(lm_id).to(self.device).eval()
-                except Exception:
-                    lm_id = GPT2_ID
-                    self._lm_tok = AutoTokenizer.from_pretrained(lm_id)
-                    self._lm_mod = AutoModelForCausalLM.from_pretrained(lm_id).to(self.device).eval()
-            except Exception:
-                self._lm_available = False
-                self._lm_tok, self._lm_mod = None, None
-        return self._lm_tok, self._lm_mod
+    def get_deberta_academic(self):
+        if self._deberta_acad_mod is None:
+            from transformers import AutoTokenizer
+            self._deberta_acad_tok = AutoTokenizer.from_pretrained(
+                DEBERTA_ACADEMIC_ID, token=self.hf_token, local_files_only=self.local_files_only
+            )
+            self._deberta_acad_mod = DesklibAIDetectionModel.from_pretrained(
+                DEBERTA_ACADEMIC_ID, token=self.hf_token, torch_dtype=self.torch_dtype, local_files_only=self.local_files_only
+            ).to(self.device).eval()
+        return self._deberta_acad_tok, self._deberta_acad_mod
+
+    def get_xlm_roberta(self):
+        if self._xlm_mod is None:
+            from transformers import AutoTokenizer, AutoModelForSequenceClassification
+            self._xlm_tok = AutoTokenizer.from_pretrained(
+                XLM_ROBERTA_ID, token=self.hf_token, local_files_only=self.local_files_only
+            )
+            self._xlm_mod = AutoModelForSequenceClassification.from_pretrained(
+                XLM_ROBERTA_ID, token=self.hf_token, torch_dtype=self.torch_dtype, local_files_only=self.local_files_only
+            ).to(self.device).eval()
+        return self._xlm_tok, self._xlm_mod
+
+    def unload_encoders(self):
+        """Libère intégralement les 5 encodeurs de la mémoire VRAM."""
+        import gc
+        import torch
+        self._deberta_mod = None
+        self._deberta_tok = None
+        self._modernbert_mod = None
+        self._modernbert_tok = None
+        self._tmr_mod = None
+        self._tmr_tok = None
+        self._deberta_acad_mod = None
+        self._deberta_acad_tok = None
+        self._xlm_mod = None
+        self._xlm_tok = None
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
 
 
 # ============================================================================
-# 4. LES 5 ACTEURS ALGORITHMIQUES SOTA DU BAGGING LÉGER
+# 4. INFÉRENCE DES MODÈLES SOTA (COHORTE 1, 2, 3)
 # ============================================================================
 
-# --- 1. DeBERTa-v3 RAID SOTA (30%) ---
-def score_deberta_raid(text: str, manager: ModelManager) -> Optional[Dict[str, Any]]:
+# --- 1. DeBERTa-v3 RAID SOTA (20%) ---
+def score_deberta_raid(text: str, manager: ModelManager) -> Dict[str, Any]:
     """Évalue la probabilité IA via DeBERTa-v3 RAID SOTA (desklib)."""
     tok, mod = manager.get_deberta_raid()
     if mod is None:
-        return None
+        raise RuntimeError(f"Échec de chargement du modèle {DEBERTA_RAID_ID}")
 
     import torch
     words = text.split()
@@ -367,12 +459,12 @@ def score_deberta_raid(text: str, manager: ModelManager) -> Optional[Dict[str, A
     }
 
 
-# --- 2. ModernBERT Long-Context (25%) ---
-def score_modernbert_long(text: str, manager: ModelManager) -> Optional[Dict[str, Any]]:
+# --- 2. ModernBERT Long-Context (20%) ---
+def score_modernbert_long(text: str, manager: ModelManager) -> Dict[str, Any]:
     """Évalue la probabilité IA via ModernBERT Long-Context (GeorgeDrayson, 8192 tokens natifs)."""
     tok, mod = manager.get_modernbert()
     if mod is None:
-        return None
+        raise RuntimeError(f"Échec de chargement du modèle {MODERNBERT_ID}")
 
     import torch
     words = text.split()
@@ -407,12 +499,12 @@ def score_modernbert_long(text: str, manager: ModelManager) -> Optional[Dict[str
     }
 
 
-# --- 3. TMR RoBERTa Anti-Paraphrase (20%) ---
-def score_tmr_roberta(text: str, manager: ModelManager) -> Optional[Dict[str, Any]]:
+# --- 3. TMR RoBERTa Anti-Paraphrase (15%) ---
+def score_tmr_roberta(text: str, manager: ModelManager) -> Dict[str, Any]:
     """Évalue la probabilité IA via TMR RoBERTa Anti-Paraphrase (Oxidane, Hard-Negative Mining sur RAID)."""
     tok, mod = manager.get_tmr_roberta()
     if mod is None:
-        return None
+        raise RuntimeError(f"Échec de chargement du modèle {TMR_ROBERTA_ID}")
 
     import torch
     words = text.split()
@@ -447,15 +539,12 @@ def score_tmr_roberta(text: str, manager: ModelManager) -> Optional[Dict[str, An
     }
 
 
-# --- 4. Fast-DetectGPT Zéro-Shot (15%) ---
-def score_fast_detectgpt(text: str, manager: ModelManager) -> Optional[Dict[str, Any]]:
-    """
-    Calcule la courbure conditionnelle analytique de Fast-DetectGPT (Bao et al., 2023)
-    sans échantillonnage de perturbations coûteux.
-    """
-    tok, model = manager.get_causal_lm()
-    if model is None:
-        return None
+# --- 4. DeBERTa-v3 Academic SOTA (15%) ---
+def score_deberta_academic(text: str, manager: ModelManager) -> Dict[str, Any]:
+    """Évalue la probabilité IA via DeBERTa-v3 Academic SOTA (desklib/ai-text-detector-academic-v1.01)."""
+    tok, mod = manager.get_deberta_academic()
+    if mod is None:
+        raise RuntimeError(f"Échec de chargement du modèle {DEBERTA_ACADEMIC_ID}")
 
     import torch
     words = text.split()
@@ -470,69 +559,218 @@ def score_fast_detectgpt(text: str, manager: ModelManager) -> Optional[Dict[str,
             if c_text.strip():
                 chunks.append(c_text)
 
-    chunk_curvatures = []
-    chunk_ppls = []
-    chunk_ranks = []
-
+    scores = []
     for c in chunks:
-        tokens = tok.encode(c, return_tensors="pt", truncation=True, max_length=512).to(manager.device)
-        if tokens.shape[1] < 5:
-            continue
-
+        inp = tok(c, return_tensors="pt", truncation=True, max_length=512).to(manager.device)
         with torch.no_grad():
-            outputs = model(tokens)
-            logits = outputs.logits[0, :-1, :]  # (T-1, V)
-        labels = tokens[0, 1:]                  # (T-1)
+            out = mod(**inp).logits
+            p_ai = float(torch.sigmoid(out)[0][0].item())
+            scores.append(p_ai)
 
-        log_probs = torch.log_softmax(logits, dim=-1)
-        probs = torch.softmax(logits, dim=-1)
-        target_log_probs = log_probs.gather(dim=-1, index=labels.unsqueeze(-1)).squeeze(-1)
-
-        # Perplexité
-        nll = -target_log_probs.mean().item()
-        ppl = math.exp(min(nll, 20.0))
-        chunk_ppls.append(ppl)
-
-        # Fast-DetectGPT Courbure et Discrepancy
-        mu = (probs * log_probs).sum(dim=-1)
-        var = (probs * (log_probs ** 2)).sum(dim=-1) - (mu ** 2)
-        var = torch.clamp(var, min=1e-8)
-
-        discrepancy = target_log_probs - mu
-        total_var = var.sum()
-        std = torch.sqrt(total_var)
-        curvature = (discrepancy.sum() / std).item() if std > 0 else 0.0
-        chunk_curvatures.append(curvature)
-
-        # Rangs des tokens réels
-        sorted_idx = torch.argsort(logits, dim=-1, descending=True)
-        ranks = (sorted_idx == labels.unsqueeze(-1)).nonzero()[:, 1].float()
-        mean_rank = ranks.mean().item() if len(ranks) > 0 else 100.0
-        chunk_ranks.append(mean_rank)
-
-    if not chunk_curvatures:
-        return {"score": 0.10, "ppl": 50.0, "curvature": -1.0, "mean_rank": 200.0}
-
-    avg_curv = sum(chunk_curvatures) / len(chunk_curvatures)
-    avg_ppl = sum(chunk_ppls) / len(chunk_ppls)
-    avg_rank = sum(chunk_ranks) / len(chunk_ranks)
-
-    s_curv = 1.0 / (1.0 + math.exp(-(avg_curv - 0.5) * 1.5))
-    s_ppl = 1.0 / (1.0 + math.exp((avg_ppl - 25.0) / 10.0))
-    s_rank = 1.0 / (1.0 + math.exp((avg_rank - 50.0) / 30.0))
-
-    s_prob = 0.50 * s_curv + 0.30 * s_ppl + 0.20 * s_rank
-    s_prob = max(0.0, min(1.0, s_prob))
+    mean_s = sum(scores) / len(scores) if scores else 0.0
+    max_s = max(scores) if scores else 0.0
+    blended = 0.75 * mean_s + 0.25 * max_s
 
     return {
-        "score": float(s_prob),
-        "ppl": float(round(avg_ppl, 2)),
-        "curvature": float(round(avg_curv, 3)),
-        "mean_rank": float(round(avg_rank, 1))
+        "score": float(blended),
+        "mean_score": float(mean_s),
+        "max_score": float(max_s),
+        "model_id": DEBERTA_ACADEMIC_ID
     }
 
 
-# --- 5. Stylométrie & Entropie (10%) ---
+# --- 5. XLM-RoBERTa Multilingue (10%) ---
+def score_xlm_roberta(text: str, manager: ModelManager) -> Dict[str, Any]:
+    """Évalue la probabilité IA via XLM-RoBERTa Multilingue (yaya36095/xlm-roberta-text-detector)."""
+    tok, mod = manager.get_xlm_roberta()
+    if mod is None:
+        raise RuntimeError(f"Échec de chargement du modèle {XLM_ROBERTA_ID}")
+
+    import torch
+    words = text.split()
+    chunks = []
+    chunk_size = 250
+    overlap = 50
+    if len(words) <= 300:
+        chunks = [text]
+    else:
+        for i in range(0, len(words), chunk_size - overlap):
+            c_text = " ".join(words[i:i + chunk_size])
+            if c_text.strip():
+                chunks.append(c_text)
+
+    scores = []
+    for c in chunks:
+        inp = tok(c, return_tensors="pt", truncation=True, max_length=512, padding=True).to(manager.device)
+        with torch.no_grad():
+            out = mod(**inp).logits
+            # label 1 = AI, label 0 = HUMAN
+            p_ai = float(torch.softmax(out, dim=-1)[0][1].item())
+            scores.append(p_ai)
+
+    mean_s = sum(scores) / len(scores) if scores else 0.0
+    max_s = max(scores) if scores else 0.0
+    blended = 0.70 * mean_s + 0.30 * max_s
+
+    return {
+        "score": float(blended),
+        "mean_score": float(mean_s),
+        "max_score": float(max_s),
+        "model_id": XLM_ROBERTA_ID
+    }
+
+
+# --- 6. Binoculars via Gemma-4-E2B (10%) ---
+def score_binoculars_gemma(
+    text: str,
+    manager: ModelManager,
+    max_tokens: int = 512,
+    allow_partial: bool = False
+) -> Optional[Dict[str, Any]]:
+    """
+    Calcule le score Binoculars (Hans et al., ICML 2024) via le duo Gemma-4-E2B :
+      Observer : google/gemma-4-E2B
+      Performer : google/gemma-4-E2B-it
+    Exécution séquentielle inter-modèles en 4-bit pour garantir une occupation < 2.8 Go VRAM.
+    """
+    import gc
+    import torch
+    import numpy as np
+
+    try:
+        from transformers import AutoTokenizer, BitsAndBytesConfig
+        try:
+            from transformers import Gemma4ForConditionalGeneration as GemmaModelClass
+        except ImportError:
+            try:
+                from transformers import AutoModelForCausalLM as GemmaModelClass
+            except ImportError:
+                from transformers import AutoModel as GemmaModelClass
+
+        # 1. Tokenisation unifiée
+        tokenizer = AutoTokenizer.from_pretrained(
+            BINOCULARS_OBSERVER_ID, token=manager.hf_token, local_files_only=manager.local_files_only
+        )
+        if not tokenizer.pad_token:
+            tokenizer.pad_token = tokenizer.eos_token or "<pad>"
+
+        enc = tokenizer(
+            text,
+            return_tensors="pt",
+            truncation=True,
+            max_length=max_tokens,
+            padding=False
+        )
+        input_ids = enc["input_ids"].to(manager.device)
+        attention_mask = enc.get("attention_mask", torch.ones_like(input_ids)).to(manager.device)
+
+        quant_config = None
+        if manager.device == "cuda":
+            try:
+                import bitsandbytes
+                quant_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_compute_dtype=torch.bfloat16 if manager.bfloat16_supported else torch.float16,
+                    bnb_4bit_quant_type="nf4",
+                )
+            except Exception:
+                quant_config = None
+
+        # --- Phase A : Observer (google/gemma-4-E2B) ---
+        load_kwargs_obs = {"token": manager.hf_token, "local_files_only": manager.local_files_only}
+        if quant_config is not None:
+            load_kwargs_obs["quantization_config"] = quant_config
+            load_kwargs_obs["device_map"] = {"": manager.device}
+        else:
+            load_kwargs_obs["torch_dtype"] = manager.causal_dtype
+
+        observer_model = GemmaModelClass.from_pretrained(BINOCULARS_OBSERVER_ID, **load_kwargs_obs)
+        if quant_config is None:
+            observer_model = observer_model.to(manager.device)
+        observer_model.eval()
+
+        with torch.no_grad():
+            out_obs = observer_model(input_ids=input_ids, attention_mask=attention_mask)
+            observer_logits = out_obs.logits.cpu().float()
+
+        del observer_model
+        del out_obs
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+        # --- Phase B : Performer (google/gemma-4-E2B-it) ---
+        load_kwargs_perf = {"token": manager.hf_token, "local_files_only": manager.local_files_only}
+        if quant_config is not None:
+            load_kwargs_perf["quantization_config"] = quant_config
+            load_kwargs_perf["device_map"] = {"": manager.device}
+        else:
+            load_kwargs_perf["torch_dtype"] = manager.causal_dtype
+
+        performer_model = GemmaModelClass.from_pretrained(BINOCULARS_PERFORMER_ID, **load_kwargs_perf)
+        if quant_config is None:
+            performer_model = performer_model.to(manager.device)
+        performer_model.eval()
+
+        with torch.no_grad():
+            out_perf = performer_model(input_ids=input_ids, attention_mask=attention_mask)
+            performer_logits = out_perf.logits.cpu().float()
+
+        del performer_model
+        del out_perf
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+        # --- Phase C : Calcul Métrologique Binoculars ---
+        shifted_perf_logits = performer_logits[..., :-1, :].contiguous()
+        shifted_labels = input_ids.cpu()[..., 1:].contiguous()
+        shifted_mask = attention_mask.cpu()[..., 1:].contiguous()
+
+        ce_loss_fn = torch.nn.CrossEntropyLoss(reduction="none")
+        loss = ce_loss_fn(shifted_perf_logits.transpose(1, 2), shifted_labels)
+        masked_loss = (loss * shifted_mask).sum() / shifted_mask.sum().clamp(min=1e-8)
+        ppl = float(masked_loss.item())
+
+        vocab_size = observer_logits.shape[-1]
+        p_proba = torch.softmax(observer_logits, dim=-1).view(-1, vocab_size)
+        q_scores = performer_logits.view(-1, vocab_size)
+
+        ce_x = ce_loss_fn(input=q_scores, target=p_proba).view(observer_logits.shape[0], observer_logits.shape[1])
+        padding_mask = (input_ids.cpu() != tokenizer.pad_token_id).float()
+        x_ppl = float(((ce_x * padding_mask).sum() / padding_mask.sum().clamp(min=1e-8)).item())
+
+        b_score = (ppl / x_ppl) if x_ppl > 0 else 1.0
+
+        # Calibration sigmoïde de probabilité IA
+        # B(s) < 0.88 -> Forte probabilité IA (B_score bas)
+        theta = 0.88
+        sigma = 0.06
+        p_ai_bino = 1.0 / (1.0 + math.exp((b_score - theta) / sigma))
+        p_ai_bino = max(0.0, min(1.0, p_ai_bino))
+
+        return {
+            "score": float(round(p_ai_bino, 4)),
+            "b_score": float(round(b_score, 4)),
+            "ppl": float(round(ppl, 3)),
+            "x_ppl": float(round(x_ppl, 3)),
+            "threshold": theta,
+            "model_observer": BINOCULARS_OBSERVER_ID,
+            "model_performer": BINOCULARS_PERFORMER_ID
+        }
+
+    except Exception as e:
+        if allow_partial:
+            sys.stderr.write(f"⚠️ [AVERTISSEMENT] Binoculars indisponible ({e}). Bascule bayésienne sur les autres composants.\n")
+            return None
+        raise RuntimeError(
+            f"❌ [FAIL-STOP] Échec du module Binoculars Gemma-4-E2B : {e}\n"
+            "Conformément à la doctrine Fail-Stop d'Henri, l'exécution est interrompue.\n"
+            "Pour autoriser l'exécution sans Binoculars, spécifiez '--fast' ou '--allow-partial'."
+        ) from e
+
+
+# --- 7. Stylométrie & Entropie (10%) ---
 def score_stylometric(text: str) -> Dict[str, Any]:
     """
     Calcule les métriques stylométriques pures :
@@ -614,25 +852,32 @@ def score_stylometric(text: str) -> Dict[str, Any]:
 
 
 # ============================================================================
-# 5. UNIFIED 5-MODEL BAGGING ENSEMBLE ENGINE & HEATMAP
+# 5. ORCHESTRATION DU PIPELINE À 7 COMPOSANTS & HEATMAP
 # ============================================================================
 
 def analyze_text(
     text: str,
     filename: Optional[str] = None,
     device_override: Optional[str] = None,
+    hf_token: Optional[str] = None,
     fast_mode: bool = False,
+    allow_partial: bool = False,
+    offline: bool = False,
     compliance_threshold: float = 0.10
 ) -> Dict[str, Any]:
     """
-    Exécute l'analyse SOTA Bagging légère à 5 modèles :
-    1. Nettoyage et segmentation structurelle (LaTeX / Markdown)
-    2. Inférence des 5 acteurs SOTA (DeBERTa 30%, ModernBERT 25%, TMR RoBERTa 20%, Fast-DetectGPT 15%, Stylométrie 10%)
-    3. Renormalisation dynamique et fusion Bayésienne d'ensemble
-    4. Heatmap diagnostique phrase par phrase avec indicateurs 🟢 / 🟠 / 🔴 / ⚪
+    Exécute l'analyse SOTA unifiée à 7 composants :
+    - Cohorte 1 : Encodeurs FP16 (DeBERTa RAID, ModernBERT, TMR, DeBERTa Academic, XLM) + Heatmap
+    - Déchargement complet Cohorte 1
+    - Cohorte 2 : Binoculars Gemma-4-E2B (Observer + Performer)
+    - Cohorte 3 : Moteur Stylométrique & Entropique (CPU)
+    - Fusion Bayésienne dynamique (renormalisation à 1.0)
     """
+    # Validation du token Hugging Face
+    resolved_token = resolve_hf_token(hf_token, required=not (fast_mode and allow_partial or offline))
+
     clean_txt = clean_raw_text(text, filename)
-    manager = ModelManager.get_instance(device_override)
+    manager = ModelManager.get_instance(device_override, resolved_token, local_files_only=offline)
 
     words_count = len(clean_txt.split())
     if words_count < 5:
@@ -658,65 +903,83 @@ def analyze_text(
             "device": manager.device
         }
 
-    # Inférence des 5 modèles
     results_models: Dict[str, Any] = {}
     active_weights: Dict[str, float] = {}
 
-    # 1. DeBERTa-v3 RAID SOTA (30%)
-    deberta_res = score_deberta_raid(clean_txt, manager)
-    if deberta_res is not None:
-        results_models["deberta_raid"] = deberta_res
+    # ------------------------------------------------------------------------
+    # COHORTE 1 : LES 5 ENCODEURS FP16 & CARTOGRAPHIE HEATMAP
+    # ------------------------------------------------------------------------
+    # 1. DeBERTa-v3 RAID SOTA (20%)
+    try:
+        deb_raid = score_deberta_raid(clean_txt, manager)
+        results_models["deberta_raid"] = deb_raid
         active_weights["deberta_raid"] = NOMINAL_WEIGHTS["deberta_raid"]
+    except Exception as e:
+        if not allow_partial:
+            raise RuntimeError(
+                f"❌ [FAIL-STOP] Échec du modèle obligatoire DeBERTa RAID ({DEBERTA_RAID_ID}) : {e}\n"
+                "La doctrine Fail-Stop d'Henri interdit tout fallback silencieux ou redistribution arbitraire de poids.\n"
+                "Pour autoriser une inférence partielle en cas de composant manquant, utilisez '--allow-partial'."
+            ) from e
+        sys.stderr.write(f"⚠️ [AVERTISSEMENT] DeBERTa RAID indisponible : {e}\n")
 
-    # 2. ModernBERT Long-Context (25%)
-    modernbert_res = score_modernbert_long(clean_txt, manager)
-    if modernbert_res is not None:
-        results_models["modernbert_long"] = modernbert_res
+    # 2. ModernBERT Long-Context (20%)
+    try:
+        mod_long = score_modernbert_long(clean_txt, manager)
+        results_models["modernbert_long"] = mod_long
         active_weights["modernbert_long"] = NOMINAL_WEIGHTS["modernbert_long"]
+    except Exception as e:
+        if not allow_partial:
+            raise RuntimeError(
+                f"❌ [FAIL-STOP] Échec du modèle obligatoire ModernBERT ({MODERNBERT_ID}) : {e}\n"
+                "La doctrine Fail-Stop d'Henri interdit tout fallback silencieux ou redistribution arbitraire de poids.\n"
+                "Pour autoriser une inférence partielle en cas de composant manquant, utilisez '--allow-partial'."
+            ) from e
+        sys.stderr.write(f"⚠️ [AVERTISSEMENT] ModernBERT indisponible : {e}\n")
 
-    # 3. TMR RoBERTa Anti-Paraphrase (20%)
-    tmr_res = score_tmr_roberta(clean_txt, manager)
-    if tmr_res is not None:
+    # 3. TMR RoBERTa Anti-Paraphrase (15%)
+    try:
+        tmr_res = score_tmr_roberta(clean_txt, manager)
         results_models["tmr_roberta"] = tmr_res
         active_weights["tmr_roberta"] = NOMINAL_WEIGHTS["tmr_roberta"]
+    except Exception as e:
+        if not allow_partial:
+            raise RuntimeError(
+                f"❌ [FAIL-STOP] Échec du modèle obligatoire TMR RoBERTa ({TMR_ROBERTA_ID}) : {e}\n"
+                "La doctrine Fail-Stop d'Henri interdit tout fallback silencieux ou redistribution arbitraire de poids.\n"
+                "Pour autoriser une inférence partielle en cas de composant manquant, utilisez '--allow-partial'."
+            ) from e
+        sys.stderr.write(f"⚠️ [AVERTISSEMENT] TMR RoBERTa indisponible : {e}\n")
 
-    # 4. Fast-DetectGPT Zéro-Shot (15%)
-    if not fast_mode:
-        fast_res = score_fast_detectgpt(clean_txt, manager)
-        if fast_res is not None:
-            results_models["fast_detectgpt"] = fast_res
-            active_weights["fast_detectgpt"] = NOMINAL_WEIGHTS["fast_detectgpt"]
+    # 4. DeBERTa-v3 Academic SOTA (15%)
+    try:
+        deb_acad = score_deberta_academic(clean_txt, manager)
+        results_models["deberta_academic"] = deb_acad
+        active_weights["deberta_academic"] = NOMINAL_WEIGHTS["deberta_academic"]
+    except Exception as e:
+        if not allow_partial:
+            raise RuntimeError(
+                f"❌ [FAIL-STOP] Échec du modèle obligatoire DeBERTa Academic ({DEBERTA_ACADEMIC_ID}) : {e}\n"
+                "La doctrine Fail-Stop d'Henri interdit tout fallback silencieux ou redistribution arbitraire de poids.\n"
+                "Pour autoriser une inférence partielle en cas de composant manquant, utilisez '--allow-partial'."
+            ) from e
+        sys.stderr.write(f"⚠️ [AVERTISSEMENT] DeBERTa Academic indisponible : {e}\n")
 
-    # 5. Stylométrie & Entropie (10%)
-    stylo_res = score_stylometric(clean_txt)
-    results_models["stylometric_entropy"] = stylo_res
-    active_weights["stylometric_entropy"] = NOMINAL_WEIGHTS["stylometric_entropy"]
+    # 5. XLM-RoBERTa Multilingue (10%)
+    try:
+        xlm_res = score_xlm_roberta(clean_txt, manager)
+        results_models["xlm_roberta"] = xlm_res
+        active_weights["xlm_roberta"] = NOMINAL_WEIGHTS["xlm_roberta"]
+    except Exception as e:
+        if not allow_partial:
+            raise RuntimeError(
+                f"❌ [FAIL-STOP] Échec du modèle obligatoire XLM-RoBERTa ({XLM_ROBERTA_ID}) : {e}\n"
+                "La doctrine Fail-Stop d'Henri interdit tout fallback silencieux ou redistribution arbitraire de poids.\n"
+                "Pour autoriser une inférence partielle en cas de composant manquant, utilisez '--allow-partial'."
+            ) from e
+        sys.stderr.write(f"⚠️ [AVERTISSEMENT] XLM-RoBERTa indisponible : {e}\n")
 
-    # Renormalisation bayésienne dynamique des poids actifs
-    total_weight = sum(active_weights.values())
-    if total_weight > 0:
-        weighted_sum = sum(active_weights[k] * results_models[k]["score"] for k in active_weights)
-        p_ai = weighted_sum / total_weight
-    else:
-        p_ai = stylo_res["score"]
-
-    p_ai = max(0.0, min(1.0, p_ai))
-
-    # Verdict
-    if p_ai < compliance_threshold:
-        verdict = "HUMAIN"
-        verdict_icon = "✅"
-        status_label = f"Conforme (< {int(compliance_threshold*100)}%)"
-    elif p_ai < 0.40:
-        verdict = "SUSPECT"
-        verdict_icon = "⚠️"
-        status_label = "Suspect (10% - 40%)"
-    else:
-        verdict = "ALERTE IA"
-        verdict_icon = "🔴"
-        status_label = "Alerte IA (>= 40%)"
-
-    # --- Cartographie Paragraphes & Phrases ---
+    # --- Cartographie Paragraphes & Phrases (exécutée tant que Cohorte 1 est en VRAM) ---
     paragraphs = split_into_paragraphs(clean_txt)
     paragraph_diagnostics = []
 
@@ -731,9 +994,9 @@ def analyze_text(
         batch_texts = [s[2] for s in all_sentences_with_meta]
         import torch
 
-        # Évaluation neuronale rapide par ModernBERT
-        tok_m, mod_m = manager.get_modernbert()
-        if mod_m is not None:
+        # Inférence rapide par ModernBERT
+        tok_m, mod_m = manager._modernbert_tok, manager._modernbert_mod
+        if mod_m is not None and tok_m is not None:
             inp_m = tok_m(batch_texts, return_tensors="pt", padding=True, truncation=True, max_length=256).to(manager.device)
             with torch.no_grad():
                 out_m = mod_m(**inp_m).logits
@@ -741,9 +1004,9 @@ def analyze_text(
         else:
             p_m_list = [0.0] * len(batch_texts)
 
-        # Évaluation neuronale par TMR RoBERTa
-        tok_t, mod_t = manager.get_tmr_roberta()
-        if mod_t is not None:
+        # Inférence rapide par TMR RoBERTa
+        tok_t, mod_t = manager._tmr_tok, manager._tmr_mod
+        if mod_t is not None and tok_t is not None:
             inp_t = tok_t(batch_texts, return_tensors="pt", padding=True, truncation=True, max_length=256).to(manager.device)
             with torch.no_grad():
                 out_t = mod_t(**inp_t).logits
@@ -754,7 +1017,6 @@ def analyze_text(
         for i, (p_idx, s_idx, s_text) in enumerate(all_sentences_with_meta):
             pm = p_m_list[i]
             pt = p_t_list[i]
-
             if mod_m is not None and mod_t is not None:
                 s_enc_sent = 0.55 * pm + 0.45 * pt
             elif mod_m is not None:
@@ -825,10 +1087,55 @@ def analyze_text(
             "sentences": para_sents
         })
 
+    # DÉCHARGEMENT ATOMIQUE COHORTE 1 (Libération 100% de la VRAM des encodeurs)
+    manager.unload_encoders()
+
+    # ------------------------------------------------------------------------
+    # COHORTE 2 : BINOCULARS VIA GEMMA-4-E2B (10%)
+    # ------------------------------------------------------------------------
+    if not fast_mode:
+        bino_res = score_binoculars_gemma(clean_txt, manager, allow_partial=allow_partial)
+        if bino_res is not None:
+            results_models["binoculars_gemma"] = bino_res
+            active_weights["binoculars_gemma"] = NOMINAL_WEIGHTS["binoculars_gemma"]
+
+    # ------------------------------------------------------------------------
+    # COHORTE 3 : MOTEUR STYLOMÉTRIQUE & ENTROPIQUE (10% - CPU)
+    # ------------------------------------------------------------------------
+    stylo_res = score_stylometric(clean_txt)
+    results_models["stylometric_entropy"] = stylo_res
+    active_weights["stylometric_entropy"] = NOMINAL_WEIGHTS["stylometric_entropy"]
+
+    # ------------------------------------------------------------------------
+    # FUSION BAYÉSIENNE DYNAMIQUE RENORMALISÉE À 1.0
+    # ------------------------------------------------------------------------
+    total_weight = sum(active_weights.values())
+    if total_weight > 0:
+        weighted_sum = sum(active_weights[k] * results_models[k]["score"] for k in active_weights)
+        p_ai = weighted_sum / total_weight
+    else:
+        p_ai = stylo_res["score"]
+
+    p_ai = max(0.0, min(1.0, p_ai))
+
+    # Verdict
+    if p_ai < compliance_threshold:
+        verdict = "HUMAIN"
+        verdict_icon = "✅"
+        status_label = f"Conforme (< {int(compliance_threshold*100)}%)"
+    elif p_ai < 0.40:
+        verdict = "SUSPECT"
+        verdict_icon = "⚠️"
+        status_label = "Suspect (10% - 40%)"
+    else:
+        verdict = "ALERTE IA"
+        verdict_icon = "🔴"
+        status_label = "Alerte IA (>= 40%)"
+
     # Mise en forme du breakdown
     breakdown_formatted = {}
     for k, v in results_models.items():
-        nom_w = NOMINAL_WEIGHTS[k]
+        nom_w = NOMINAL_WEIGHTS.get(k, 0.0)
         eff_w = (active_weights[k] / total_weight) if total_weight > 0 else 0.0
         breakdown_formatted[k] = {
             "nominal_weight": nom_w,
@@ -872,23 +1179,25 @@ def format_console_report(results: Dict[str, Any], show_heatmap: bool = True) ->
 
     lines = []
     lines.append("=" * 80)
-    lines.append(" 🧠 MOTEUR DÉTECTEUR IA — NOUVELLE ARMADA SOTA LÉGÈRE 5 MODÈLES (< 500 Mo)")
+    lines.append(" 🧠 MOTEUR DÉTECTEUR IA — ARMADA SOTA UNIFIÉE 7 COMPOSANTS")
     lines.append("=" * 80)
 
     # 1. Résumé synthétique
     lines.append(f"\n📊 SCORE GLOBAL P(AI) : {g['p_ai_percent']:.1f}% | VERDICT : {g['verdict_icon']} {g['verdict']} [{g['status_label']}]")
     lines.append(f"   Périphérique : {results['device'].upper()} | Mots : {st['word_count']} | Phrases : {st['sentence_count']} | Paragraphes : {st['paragraph_count']}")
 
-    # 2. Breakdown des 5 acteurs SOTA
+    # 2. Breakdown des 7 acteurs SOTA
     lines.append("\n" + "-" * 80)
-    lines.append("🔬 DÉCOMPOSITION DE L'ARMADA SOTA (5 MODÈLES LÉGERS) :")
+    lines.append("🔬 DÉCOMPOSITION DE L'ARMADA SOTA (7 COMPOSANTS) :")
     lines.append("-" * 80)
 
     labels_map = {
-        "deberta_raid": ("DeBERTa-v3 RAID SOTA", "30%"),
-        "modernbert_long": ("ModernBERT Long-Context", "25%"),
-        "tmr_roberta": ("TMR RoBERTa Anti-Paraphrase", "20%"),
-        "fast_detectgpt": ("Fast-DetectGPT Zéro-Shot", "15%"),
+        "deberta_raid": ("DeBERTa-v3 RAID SOTA", "20%"),
+        "modernbert_long": ("ModernBERT Long-Context", "20%"),
+        "tmr_roberta": ("TMR RoBERTa Anti-Paraphrase", "15%"),
+        "deberta_academic": ("DeBERTa-v3 Academic SOTA", "15%"),
+        "xlm_roberta": ("XLM-RoBERTa Multilingue", "10%"),
+        "binoculars_gemma": ("Binoculars Gemma-4-E2B", "10%"),
         "stylometric_entropy": ("Stylométrie & Entropie", "10%"),
     }
 
@@ -906,8 +1215,12 @@ def format_console_report(results: Dict[str, Any], show_heatmap: bool = True) ->
                 extra = f"(Modèle: {MODERNBERT_ID}, 8192 tokens)"
             elif key == "tmr_roberta":
                 extra = f"(Modèle: {TMR_ROBERTA_ID}, Hard-Negative Mining)"
-            elif key == "fast_detectgpt":
-                extra = f"(PPL: {details.get('ppl', 0):.1f}, Courbure: {details.get('curvature', 0):.2f})"
+            elif key == "deberta_academic":
+                extra = f"(Modèle: {DEBERTA_ACADEMIC_ID}, Academic SOTA)"
+            elif key == "xlm_roberta":
+                extra = f"(Modèle: {XLM_ROBERTA_ID}, Cross-lingual)"
+            elif key == "binoculars_gemma":
+                extra = f"(B-Score: {details.get('b_score', 0):.4f}, PPL: {details.get('ppl', 0):.2f}, X-PPL: {details.get('x_ppl', 0):.2f})"
             elif key == "stylometric_entropy":
                 extra = f"(CV: {details.get('cv_len', 0):.2f}, TTR: {details.get('ttr', 0):.2f}, Buzzwords: {len(details.get('buzzwords_found', []))})"
 
@@ -931,18 +1244,19 @@ def format_console_report(results: Dict[str, Any], show_heatmap: bool = True) ->
 
 
 # ============================================================================
-# 7. CLI POINT D'ENTRÉE ULTRA-SIMPLE (ZÉRO ARGUMENT REQUIS)
+# 7. CLI POINT D'ENTRÉE ULTRA-SIMPLE
 # ============================================================================
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Moteur Détecteur IA Multi-Modèles SOTA (Armada Légère 5 Modèles < 500 Mo)",
+        description="Moteur Détecteur IA Multi-Modèles SOTA (Armada Unifiée 7 Composants)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Exemples d'utilisation :
   python antigravity/scripts/ai_detector.py "Texte direct à analyser..."
   python antigravity/scripts/ai_detector.py draft.md
   python antigravity/scripts/ai_detector.py paper.tex --json
+  python antigravity/scripts/ai_detector.py paper.tex --fast
   cat draft.txt | python antigravity/scripts/ai_detector.py
         """
     )
@@ -951,7 +1265,10 @@ Exemples d'utilisation :
     parser.add_argument("--no-heatmap", action="store_true", help="Masquer la heatmap détaillée phrase par phrase")
     parser.add_argument("--threshold", type=float, default=0.10, help="Seuil de conformité (défaut : 0.10 / 10%%)")
     parser.add_argument("--device", type=str, choices=["auto", "cpu", "cuda"], default="auto", help="Périphérique d'inférence (défaut: auto avec priorité CUDA GPU)")
-    parser.add_argument("--fast", action="store_true", help="Mode rapide (omission du Causal LM Fast-DetectGPT)")
+    parser.add_argument("--hf-token", type=str, default=None, help="Token Hugging Face pour l'accès aux checkpoints")
+    parser.add_argument("--fast", action="store_true", help="Mode rapide (omission du module Binoculars Gemma-4-E2B)")
+    parser.add_argument("--allow-partial", action="store_true", help="Autorise la bascule bayésienne si un composant échoue (désactive le Fail-Stop strict)")
+    parser.add_argument("--offline", action="store_true", help="Utilise uniquement les fichiers déjà présents dans le cache Hugging Face local")
 
     args = parser.parse_args()
 
@@ -981,13 +1298,20 @@ Exemples d'utilisation :
 
     device_override = None if args.device == "auto" else args.device
 
-    results = analyze_text(
-        text=raw_text,
-        filename=filename,
-        device_override=device_override,
-        fast_mode=args.fast,
-        compliance_threshold=args.threshold
-    )
+    try:
+        results = analyze_text(
+            text=raw_text,
+            filename=filename,
+            device_override=device_override,
+            hf_token=args.hf_token,
+            fast_mode=args.fast,
+            allow_partial=args.allow_partial,
+            offline=args.offline,
+            compliance_threshold=args.threshold
+        )
+    except Exception as e:
+        sys.stderr.write(f"\n{e}\n")
+        sys.exit(1)
 
     if args.json:
         print(json.dumps(results, indent=2, ensure_ascii=False))
