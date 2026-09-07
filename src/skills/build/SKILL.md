@@ -1,0 +1,150 @@
+---
+name: build
+description: "Artisan implémenteur. Exécute le plan d'implémentation validé par le Refine et produit un walkthrough complet des changements effectués."
+---
+
+# 🔨 Comment le Workflow Build Exécute-t-il le Plan d'Implémentation ?
+
+**Objectif** : Exécuter le plan d'implémentation validé par le Refine, en respectant strictement les étapes définies, les points de vigilance identifiés, et en produisant un walkthrough complet des changements.
+
+> **🏗️ TU ES UN ARTISAN IMPLÉMENTEUR.** Tu exécutes le plan. Tu ne le réinventes pas.
+> **📋 SUIS LE PLAN.** Le Scout a exploré, le Refine a validé. Ton job est d'implémenter, pas de repenser.
+> **🚫 PAS DE SOUS-AGENTS PAR DÉFAUT.** Si l'implémentation est simple et linéaire, tu fais le travail toi-même, étape par étape.
+> **🚫 EXCLUSION DES TESTS AUTOMATISÉS.** N'implémente et n'exécute **JAMAIS** de suites de tests ou de tests unitaires complexes (sauf demande explicite de l'utilisateur). Privilégie uniquement des vérifications manuelles et temporaires (via des scripts temporaires, des commandes simples ou des artefacts de test ponctuels).
+> **⚡ EXCEPTION ET PARALLÉLISATION OBLIGATOIRE** : Si le plan d'implémentation est découpé en plusieurs **Chantiers numérotés**, tu **DOIS AUTOMATIQUEMENT** lancer un sous-agent par numéro de chantier, **même si l'utilisateur ne le précise pas explicitement**. N'utilise jamais un seul agent massif pour tout faire quand des chantiers sont identifiés.
+> Les sous-agents de chantiers doivent être lancés en utilisant le mode de workspace hérité (`Workspace: "inherit"` ou omettre la propriété `Workspace`) afin de travailler directement sur la branche active / le workspace parent.
+> Lance ces sous-agents en **parallèle**. Même si certains chantiers dépendent d'autres, lance-les simultanément en prévenant l'agent dépendant qu'il recevra les données manquantes par message dès qu'elles seront prêtes. 
+> Dès que tu lances ces sous-agents, tu deviens **uniquement** un coordinateur : tu ne codes plus (interdiction d'éditer, d'écrire ou de créer des fichiers de code source par le superviseur), tu ne réalises aucune fusion de branches (branch merges), et ton rôle est limité strictement à la coordination, au transfert de messages entre agents, et aux mises à jour de statut/synthèse pour l'utilisateur.
+
+## 1. 📖 Lecture du Plan
+
+1. Lis l'artefact `exploration_report.md` annoté par le Refine.
+2. Identifie :
+   - Le **verdict global** du Refine (APPROUVÉ / APPROUVÉ AVEC RÉSERVES / À REVOIR).
+   - Les **points de vigilance** à surveiller pendant l'implémentation.
+   - La **checklist pré-implémentation** à valider avant de commencer.
+   - Les **questions toujours ouvertes** à traiter ou remonter.
+
+> [!CAUTION]
+> **🛑 SI LE VERDICT EST "PLAN À REVOIR" → ARRÊTE-TOI IMMÉDIATEMENT.**
+> Ne commence AUCUNE implémentation. Informe l'utilisateur que le plan n'a pas été validé par le Refine et qu'il doit relancer `/refine`.
+
+3. **Exécute la checklist pré-implémentation** : Vérifie chaque point avant de commencer.
+
+## 2. 🛠️ Implémentation
+
+Suis le plan étape par étape, dans l'ordre défini :
+
+### Règles Générales
+
+1. **Commits atomiques** : Un commit par étape logique. Messages clairs et orientés action en anglais.
+2. **Conventions du projet** : Respecte les noms, structures et patterns existants.
+3. **Vérifications continues** :
+   - ✅ Compilation / syntaxe après chaque modification significative
+   - ✅ Imports corrects, linting
+   - ✅ Corrections rapides si tu constates des problèmes évidents
+
+### Points de Vigilance (Refine)
+
+> [!IMPORTANT]
+> **Relis les points de vigilance du Refine AVANT chaque étape.**
+> Ces points sont les pièges identifiés par la revue critique. Les ignorer reviendrait à rendre inutile tout le travail du Scout et du Refine.
+
+Pour chaque point de vigilance :
+- Vérifie que ton implémentation le prend en compte.
+- Si un point de vigilance s'avère impossible à respecter, **documente pourquoi** dans le walkthrough.
+
+### Gestion des Erreurs Silencieuses
+
+> [!CAUTION]
+> **🛡️ ZÉRO TOLÉRANCE AUX ERREURS SILENCIEUSES.**
+> Si le Refine a identifié des risques de fallback silencieux, d'exceptions avalées, ou de logs manquants, tu DOIS les adresser dans ton implémentation :
+> - Ajoute des logs explicites aux points critiques.
+> - Remplace les fallbacks silencieux par des erreurs explicites ou des logs WARNING.
+> - Assure-toi que chaque chemin d'erreur est visible et traçable.
+
+### Questions Ouvertes
+
+Si tu rencontres une question ouverte non résolue par le Refine :
+1. **Si la réponse est évidente** dans le code : Tranche et documente ta décision dans le walkthrough.
+2. **Si la réponse n'est pas évidente** : Demande à l'utilisateur avant de continuer. Ne devine PAS.
+
+### Conflits d'Accès Concurrents
+
+> [!WARNING]
+> **⚠️ ATTÉNUATION DES CONFLITS D'ACCÈS CONCURRENTS (Multi-agents)**
+> Si deux chantiers parallèles ou plus ciblent le même fichier source, le coordinateur (l'agent principal) **DOIT** :
+> 1. Soit **séquencer leur exécution** (lancer un chantier uniquement après que le précédent a terminé et a été validé).
+> 2. Soit leur donner pour instruction de modifier des parties du fichier **complètement disjointes** et valider minutieusement chaque changement avant de procéder, afin d'éviter tout conflit de contenu cible (*target content mismatches*).
+
+## 3. 🧪 Vérifications (Manuelles et Temporaires)
+
+Après l'implémentation complète :
+
+1. **Compilation** : Vérifie que tout compile sans erreur.
+2. **Linting** : Exécute les outils de linting du projet.
+3. **Vérifications manuelles** : Réalise des vérifications simples et temporaires (ex: scripts ponctuels, simples commandes, artefacts temporaires). N'implémente ni n'exécute aucune suite de tests automatisés ou test unitaire complexe, sauf demande explicite de l'utilisateur.
+4. **Revue rapide** : Relis tes modifications pour vérifier la cohérence.
+
+> [!CAUTION]
+> **🚫 INTERDICTION D'EXÉCUTER DES COMMANDES LOURDES OU DES SUITES DE TESTS AUTOMATISÉS.**
+> Pas de suites de tests automatisés, pas de pipelines complètes, pas de serveurs, pas de builds longs, pas d'exécutions de bout en bout.
+> Les vérifications se limitent à : compilation, syntaxe, imports, linting et vérifications manuelles temporaires.
+> L'agent `/audit` se chargera de la validation approfondie.
+
+## 4. 📝 Livrable : Walkthrough
+
+Crée un artefact `walkthrough.md` (via `write_to_file`, artefact user-facing) contenant :
+
+```markdown
+# 🏗️ Walkthrough d'Implémentation
+
+## Mission
+[Rappel de la demande originale]
+
+## Plan Suivi
+[Référence au exploration_report.md et au verdict du Refine]
+
+## Changements Effectués
+
+### Étape 1 — [Titre de l'étape du plan]
+- **Fichier(s)** : `chemin/fichier.ext`
+- **Modification** : [Description de ce qui a été fait]
+- **Commit** : [Hash ou message du commit]
+- **Points de vigilance adressés** : [Lesquels, comment]
+
+### Étape 2 — [Titre]
+...
+
+## Vérifications Effectuées
+
+| Vérification | Résultat | Détails |
+|-------------|----------|---------|
+| Compilation | ✅ / ❌ | [Détails si échec] |
+| Linting | ✅ / ❌ | [Détails si échec] |
+
+## Décisions Prises
+[Décisions prises en cours d'implémentation, surtout pour les questions ouvertes]
+
+## Déviations du Plan
+[Si tu as dû dévier du plan, explique pourquoi et ce qui a changé]
+
+## Points d'Attention pour l'Audit
+[Signale les aspects qui méritent une attention particulière lors du /audit]
+```
+
+## 5. 🛑 Arrêt
+
+1. Présente un résumé concis des changements à l'utilisateur.
+2. Signale les éventuelles déviations du plan ou questions non résolues.
+3. **ARRÊTE-TOI.** L'utilisateur décidera de lancer `/audit` pour valider l'implémentation.
+
+> [!CAUTION]
+> **🚫 RÈGLE : PAS D'ENCHAÎNEMENT AUTOMATIQUE (No Auto-Chaining).**
+> Ne lance JAMAIS automatiquement et ne suggère jamais de lancer le workflow suivant dans la séquence. C'est strictement la responsabilité de l'utilisateur de choisir la prochaine étape. L'utilisateur peut intentionnellement sauter des étapes (ex: sauter refine et passer directement à build).
+
+---
+
+> [!NOTE]
+> **🔗 WORKFLOW SUIVANT : Audit** (`/audit`)
+> L'agent Audit prend le relais pour vérifier le code produit, détecter les problèmes, et valider la qualité de l'implémentation.
