@@ -46,7 +46,10 @@ Toute révision de manuscrit s'appuie sur la note miroir Obsidian (`papers/<nom>
    ```bash
    python antigravity/scripts/latex_to_markdown_artifact.py --commit --line <N>
    ```
-   Le script valide automatiquement toutes les diffs en amont de la ligne `<N>`, crée le commit Git et pousse vers le remote.
+   - **Pull Préalable Sécurisé & Autostash** : Le script synchronise d'abord le dépôt avec `git pull --rebase --autostash origin <branch>` afin d'intégrer sans risque les modifications distantes de co-auteurs.
+   - **Préservation des Modifications Externes** : Les commits de tiers ne sont **JAMAIS écrasés ni validés automatiquement**. Le commit d'Henri ne valide strictement que les lignes antérieures à `<N>`. Les modifications tierces apparaîtront en diffs colorés (`<ins>` / `<del>`) lors du rafraîchissement suivant (`--diff`) pour examen.
+   - **Alerte Conflit & Exit Code 3** : En cas de conflit de fusion (`UU`, `AA`), le script affiche la bannière bloquante `🚨 [ACTION AGENT REQUISE : CONFLIT DE FUSION GIT DÉTECTÉ LORS DU PULL]`, liste les fichiers `.tex` et quitte avec `sys.exit(3)`. L'agent doit inspecter les `.tex`, résoudre les marqueurs sans altérer la syntaxe LaTeX, puis relancer immédiatement `--commit --line <N>`.
+   - **Validation & Push** : Le script valide les diffs en amont de `<N>`, crée le commit Git et pousse automatiquement vers le remote.
 2. **Édition de fond** : Réaliser les ajustements demandés dans les fichiers LaTeX sources (`.tex`, `.bib`).
 3. **Rafraîchissement miroir** : Rappeler le script en mode `--diff` pour projeter le delta rafraîchi dans la note miroir :
    ```bash

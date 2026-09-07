@@ -84,7 +84,24 @@ graph TD
   python antigravity/scripts/latex_to_markdown_artifact.py --commit --line <N>
   ```
   *(où `<N>` représente le numéro de ligne 1-indexed du dernier commentaire d'Henri dans la note miroir Markdown)*.
-- **Effets instantanés** :
+- **Synchronisation Préalable Sécurisée (Pull-First & Autostash)** :
+  - Lors de l'appel à `--commit`, le script exécute **systématiquement et avant toute action** un `git pull --rebase --autostash origin <branch>` afin d'intégrer en toute sécurité les commits de co-auteurs distants (Overleaf / GitHub).
+  - **Préservation Absolue des Modifications Tierces** : Les apports de tiers intégrés lors du pull ne sont **JAMAIS écrasés ni validés automatiquement** comme étant l'œuvre d'Henri. Le commit d'Henri ne valide strictement que les lignes antérieures à `<N>`. Toute modification introduite par autrui apparaîtra automatiquement sous forme de diff coloré (`<ins>` vert / `<del>` rouge) lors de l'itération suivante (`--diff`), prête pour arbitrage.
+- **Gestion Bloquante des Conflits de Fusion (Code de Sortie 3)** :
+  - Si un conflit Git survient lors du pull préalable (`UU`, `AA`, etc.), le script interrompt immédiatement le commit, affiche une bannière d'action requise :
+    ```
+    🚨 [ACTION AGENT REQUISE : CONFLIT DE FUSION GIT DÉTECTÉ LORS DU PULL]
+    ```
+    dresse la liste explicite des fichiers `.tex` en conflit, et se termine avec le code de sortie `sys.exit(3)`.
+  - **Consignes Impératives pour l'Agent en Cas de Conflit (Exit 3)** :
+    1. Ne JAMAIS abandonner ni considérer la tâche en échec.
+    2. Ouvrir et inspecter immédiatement le ou les fichiers `.tex` signalés.
+    3. Résoudre chirurgicalement les marqueurs de conflit (`<<<<<<<`, `=======`, `>>>>>>>`) : préserver les apports des collaborateurs sans écraser leurs changements, conserver les validations d'Henri et s'assurer de l'intégrité absolue des environnements et macros LaTeX.
+    4. Une fois les conflits résolus dans les fichiers `.tex`, relancer immédiatement la commande :
+       ```bash
+       python antigravity/scripts/latex_to_markdown_artifact.py --commit --line <N>
+       ```
+- **Effets instantanés de la validation** :
   - Toutes les diffs antérieures à la ligne `<N>` sont validées : ajouts `<span ...>` intégrés en texte normal, suppressions `<del>` et callouts de sections supprimées purgés.
   - Les diffs à partir de la ligne `<N>` restent intacts.
   - Le script indexe automatiquement les modifications correspondantes dans le dépôt LaTeX, enregistre un commit Git descriptif (`review(paper): validate revisions up to line <N>...`), et exécute automatiquement un `git push` vers le remote distant (Overleaf / GitHub).
