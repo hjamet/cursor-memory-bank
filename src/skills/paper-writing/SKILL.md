@@ -21,7 +21,7 @@ description: Méthodologie complète pour la rédaction et la révision itérati
 - **Au premier appel du skill** : L'agent ne modifie STRICTEMENT AUCUNE ligne de code ou de texte LaTeX.
   Il exécute uniquement `python antigravity/scripts/latex_to_markdown_artifact.py`, affiche le lien vivant de la note miroir dans le chat, et attend les commentaires d'Henri.
 - **Règle d'or de réécriture** : INTERDICTION FORMELLE de toute réécriture générale ou proactive.
-  Toute modification doit découler STRICTEMENT et EXCLUSIVEMENT d'un commentaire direct d'Henri sur un passage spécifique de la note miroir.
+  Toute modification doit découler STRICTEMENT et EXCLUSIVEMENT d'un commentaire direct d'Henri sur un passage spécifique de la note miroir. Henri commente directement par sélection contextuelle de texte dans l'interface (comme dans Antigravity / Obsidian) ; aucune section artificielle de commentaires en fin de document n'est requise ni injectée.
 - **Mandatement Direct de Claude Opus** : Toute réécriture ou reformulation littéraire ou scientifique issue d'un commentaire est mandatée DIRECTEMENT via :
   ```bash
   antigravity-agents run --model claude-opus-4-6 --prompt "..."
@@ -83,7 +83,7 @@ graph TD
   ```bash
   python antigravity/scripts/latex_to_markdown_artifact.py --commit --line <N>
   ```
-  *(où `<N>` représente le numéro de ligne 1-indexed du dernier commentaire d'Henri dans la note miroir Markdown)*.
+  *(où `<N>` représente le numéro de ligne 1-indexed du texte sélectionné et commenté par Henri dans la note miroir Markdown)*.
 - **Synchronisation Préalable Sécurisée (Pull-First & Autostash)** :
   - Lors de l'appel à `--commit`, le script exécute **systématiquement et avant toute action** un `git pull --rebase --autostash origin <branch>` afin d'intégrer en toute sécurité les commits de co-auteurs distants (Overleaf / GitHub).
   - **Préservation Absolue des Modifications Tierces** : Les apports de tiers intégrés lors du pull ne sont **JAMAIS écrasés ni validés automatiquement** comme étant l'œuvre d'Henri. Le commit d'Henri ne valide strictement que les lignes antérieures à `<N>`. Toute modification introduite par autrui apparaîtra automatiquement sous forme de diff coloré (`<ins>` vert / `<del>` rouge) lors de l'itération suivante (`--diff`), prête pour arbitrage.

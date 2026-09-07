@@ -42,7 +42,7 @@ Toute modification substantielle d'un papier académique doit mobiliser des sous
 ### 1.4 Comment la Boucle Granulaire `--commit` / `--diff` Orchestre-t-elle les Révisions ?
 
 Toute révision de manuscrit s'appuie sur la note miroir Obsidian (`papers/<nom>.md`) et le convertisseur automatique :
-1. **Avant toute modification suite à un retour** : Appeler systématiquement le convertisseur avec `--commit` en précisant la ligne du commentaire utilisateur :
+1. **Avant toute modification suite à un retour** : Appeler systématiquement le convertisseur avec `--commit` en précisant la ligne du commentaire utilisateur (Henri commente directement par sélection contextuelle de texte dans l'interface, sans section de fin artificielle) :
    ```bash
    python antigravity/scripts/latex_to_markdown_artifact.py --commit --line <N>
    ```
