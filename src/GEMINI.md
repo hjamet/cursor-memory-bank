@@ -2,18 +2,17 @@
 # AIVC — AI Version Control (Long-Term Memory)
 
 > [!IMPORTANT]
-> **MCP TOOLS ONLY** — NEVER run `aivc` CLI commands in the terminal. Interact exclusively via MCP tools (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`).
->
-> **[Bascule Cold-Start]** : Si `recall` / `get_recent_memories` est vide ➔ arrêt immédiat des requêtes de mémoire, bascule directe sur `view_file` / `grep_search`. Conserver `remember` après chaque étape pour peupler la mémoire.
+> **USE MCP TOOLS ONLY — NEVER RUN CLI SHELL COMMANDS:**
+> As an AI assistant, you MUST interact with AIVC **exclusively** through its registered MCP tools (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`, `get_status`, etc.).
+> **NEVER execute `aivc` CLI shell commands in the terminal (e.g. `aivc sync`, `aivc status`, `aivc recall`)** under any circumstances. Running the CLI in the terminal spawns separate process environments, misses the current session context, and is strictly reserved for the human user.
 
-| # | Rule | Detail |
-|---|------|--------|
-| 1 | **Remember often** | Call `remember` après chaque étape significative liée à des fichiers. Format Post-It dense (Trigger/Contexte, Décision/Fix, Invariant/Impact). Un one-liner vide = échec, prose verbeuse = pollution. |
-| 2 | **Context recovery first** | Avant toute action : `get_recent_memories` → `recall` (≥1 requête) → `consult_memory` → `get_file_history_metadata` sur les fichiers cibles. |
-| 3 | **Explore before acting** | Interroger la mémoire d'abord — ne jamais refaire un travail déjà documenté. |
-| 4 | **Mention files** | Toujours passer `read_files` (fichiers clés consultés) et `edited_files` (fichiers modifiés/créés) pour alimenter le graphe de cooccurrence. |
-| 5 | **Format Post-It dense** | Rédiger des notes Post-It denses et structurées (contexte, décisions, invariants) pour recall futur immédiat sans bavardage. |
-| 6 | **Bascule Cold-Start** | Si `recall` / `get_recent_memories` ne retourne aucun résultat ➔ arrêt immédiat des requêtes mémoire, bascule directe sur `view_file` / `grep_search` / `list_dir`. |
+## Rules
+
+1. **Remember often.** Call `remember` after every meaningful step (sub-task done, file created/modified, decision made, error resolved, checkpoint reached). Notes must be **detailed**: what, why, errors, decisions, observations, next steps. A one-liner is a failure.
+2. **Start sessions with context recovery.** Before any work: `get_recent_memories` → `recall` (≥1 query) → `consult_memory` on relevant hits → `get_file_history_metadata` on files you'll modify.
+3. **Explore before you act.** Search memory first — never redo past work. Your memory contains solutions, patterns, and lessons.
+4. **Mention files you work on.** Always pass the files you consulted in `read_files` and the files you modified in `edited_files` when calling `remember`. This is how AIVC tracks file associations — there is no separate tracking tool.
+5. **Write for your future self.** Memory notes are handover memos — include reasoning, context, and recommendations as if briefing a colleague with zero context.
 <!-- AIVC:END -->
 
 ---

@@ -202,12 +202,38 @@ except Exception:
 def clean_latex(text: str) -> str:
     """Nettoie le balisage LaTeX pour extraire le texte brut."""
     text = re.sub(r'(?<!\\)%.*$', '', text, flags=re.MULTILINE)
+    # Extraire uniquement le corps du document si \begin{document} est présent (ignorer préambule et packages)
+    m_doc = re.search(r'\\begin\{document\}(.*?)(?:\\end\{document\}|\\bibliography\{|$)', text, flags=re.DOTALL)
+    if m_doc:
+        text = m_doc.group(1)
+
+    # 1. Expand custom macros
+    text = re.sub(r'\\llmgame\b', 'LATENT SPACE', text)
+    text = re.sub(r'\\levelbadge\{([^}]*)\}', r'\1', text)
+    text = re.sub(r'\\citet\{[^}]*\}', 'prior work', text)
+
     text = re.sub(r'\$\$.*?\$\$', ' ', text, flags=re.DOTALL)
     text = re.sub(r'\\\[.*?\\\]', ' ', text, flags=re.DOTALL)
-    text = re.sub(r'(?<!\\)\$.*?(?<!\\)\$', ' ', text)
-    text = re.sub(r'\\begin\{(equation|align|table|figure|tikzpicture|tabular)\*?\}.*?\\end\{\1\*?\}', ' ', text, flags=re.DOTALL)
-    text = re.sub(r'\\(cite|citep|citet|ref|eqref|label|pageref)\{[^}]*\}', '', text)
-    text = re.sub(r'\\(textbf|textit|emph|underline|section|subsection|subsubsection|paragraph)\{([^}]*)\}', r'\2', text)
+
+    def _clean_math(m):
+        raw_m = m.group(1).strip()
+        cleaned = re.sub(r'[{}\\]', '', raw_m)
+        cleaned = cleaned.replace('approx', '~').replace('times', 'x').replace('cdot', '*').replace('operatorname', '')
+        if len(cleaned.split()) <= 5:
+            return f" {cleaned} "
+        return ' '
+
+    text = re.sub(r'(?<!\\)\$(.*?)(?<!\\)\$', _clean_math, text)
+    text = re.sub(r'\\begin\{(equation|align|table|figure|tikzpicture|tabular|minipage)\*?\}.*?\\end\{\1\*?\}', ' ', text, flags=re.DOTALL)
+    text = re.sub(r'\\(cite|citep|ref|eqref|label|pageref)\{[^}]*\}', '', text)
+    # Supprimer les commandes d'en-tête et macro-métadonnées
+    text = re.sub(r'\\(title|author|affiliation|institution|email|def|newcommand|renewcommand)\{[^}]*\}', '', text)
+    text = re.sub(r'\\(textbf|textit|emph|underline)\{([^}]*)\}', r'\2', text)
+    text = re.sub(r'\\(section|subsection|subsubsection)\*?\{[^}]*\}', '', text)
+    text = re.sub(r'\\begin\{[a-zA-Z*]+\}(?:\[[^\]]*\])?', ' ', text)
+    text = re.sub(r'\\end\{[a-zA-Z*]+\}', ' ', text)
+    text = re.sub(r'\\item(?:\s*\[[^\]]*\])?', ' ', text)
+    text = re.sub(r'\\paragraph\*?\{([^}]*)\}', r'\1 ', text)
     text = re.sub(r'\\[a-zA-Z]+', ' ', text)
     text = text.replace('{', '').replace('}', '')
     return text
@@ -219,7 +245,7 @@ def clean_markdown(text: str) -> str:
     text = re.sub(r'`[^`]*`', ' ', text)
     text = re.sub(r'!\[[^\]]*\]\([^)]*\)', ' ', text)
     text = re.sub(r'\[([^\]]+)\]\([^)]*\)', r'\1', text)
-    text = re.sub(r'^\s*#+\s+', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^\s*#+\s+.*$', '', text, flags=re.MULTILINE)
     text = re.sub(r'^\s*[-*+]\s+', '', text, flags=re.MULTILINE)
     text = re.sub(r'[*_]{1,3}([^*_]+)[*_]{1,3}', r'\1', text)
     text = re.sub(r'^\s*>\s*', '', text, flags=re.MULTILINE)
@@ -246,7 +272,7 @@ def clean_raw_text(text: str, filename: Optional[str] = None) -> str:
 def split_into_paragraphs(text: str) -> List[str]:
     """Découpe un texte en paragraphes non vides."""
     raw_paras = re.split(r'\n\s*\n+', text.strip())
-    paras = [p.strip() for p in raw_paras if p.strip()]
+    paras = [p.strip() for p in raw_paras if p.strip() and len(p.strip().split()) >= 8]
     return paras if paras else [text.strip()]
 
 
@@ -295,7 +321,8 @@ class ModelManager:
         self,
         device_override: Optional[str] = None,
         hf_token: Optional[str] = None,
-        local_files_only: bool = False
+        local_files_only: bool = False,
+        keep_loaded: Optional[bool] = None
     ):
         if device_override:
             self.device = device_override
@@ -313,6 +340,21 @@ class ModelManager:
         self.hf_token = hf_token
         self.local_files_only = local_files_only
 
+        # Détection intelligente VRAM
+        total_vram_gb = 0.0
+        if self.device == "cuda" and torch.cuda.is_available():
+            try:
+                total_vram_gb = torch.cuda.get_device_properties(0).total_memory / (1024**3)
+            except Exception:
+                total_vram_gb = 0.0
+        self.total_vram_gb = total_vram_gb
+
+        # Si GPU VRAM >= 8 Go, conserver en mémoire par défaut
+        if keep_loaded is not None:
+            self.keep_loaded = keep_loaded
+        else:
+            self.keep_loaded = True if (self.device == "cuda" and total_vram_gb >= 8.0) else True
+
         # Cohorte 1 : 5 Encodeurs
         self._deberta_tok = None
         self._deberta_mod = None
@@ -325,20 +367,29 @@ class ModelManager:
         self._xlm_tok = None
         self._xlm_mod = None
 
+        # Cohorte 2 : Binoculars Gemma-4-E2B (Observer & Performer)
+        self._bino_obs_tok = None
+        self._bino_obs_mod = None
+        self._bino_perf_tok = None
+        self._bino_perf_mod = None
+
     @classmethod
     def get_instance(
         cls,
         device_override: Optional[str] = None,
         hf_token: Optional[str] = None,
-        local_files_only: bool = False
+        local_files_only: bool = False,
+        keep_loaded: Optional[bool] = None
     ) -> "ModelManager":
         if cls._instance is None:
-            cls._instance = ModelManager(device_override, hf_token, local_files_only)
+            cls._instance = ModelManager(device_override, hf_token, local_files_only, keep_loaded)
         elif device_override and cls._instance.device != device_override:
-            cls._instance = ModelManager(device_override, hf_token, local_files_only)
+            cls._instance = ModelManager(device_override, hf_token, local_files_only, keep_loaded)
         elif hf_token and cls._instance.hf_token != hf_token:
             cls._instance.hf_token = hf_token
         cls._instance.local_files_only = local_files_only
+        if keep_loaded is not None:
+            cls._instance.keep_loaded = keep_loaded
         return cls._instance
 
     def get_deberta_raid(self):
@@ -413,6 +464,113 @@ class ModelManager:
         gc.collect()
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+
+    def get_binoculars_observer(self):
+        """Charge et met en cache persistant le modèle Observer (google/gemma-4-E2B)."""
+        if self._bino_obs_mod is None:
+            import torch
+            from transformers import AutoTokenizer
+            try:
+                from transformers import Gemma4ForConditionalGeneration as GemmaModelClass
+            except ImportError:
+                try:
+                    from transformers import AutoModelForCausalLM as GemmaModelClass
+                except ImportError:
+                    from transformers import AutoModel as GemmaModelClass
+
+            self._bino_obs_tok = AutoTokenizer.from_pretrained(
+                BINOCULARS_OBSERVER_ID, token=self.hf_token, local_files_only=self.local_files_only
+            )
+            if not self._bino_obs_tok.pad_token:
+                self._bino_obs_tok.pad_token = self._bino_obs_tok.eos_token or "<pad>"
+
+            quant_config = None
+            if self.device == "cuda":
+                try:
+                    import bitsandbytes
+                    from transformers import BitsAndBytesConfig
+                    quant_config = BitsAndBytesConfig(
+                        load_in_4bit=True,
+                        bnb_4bit_compute_dtype=torch.bfloat16 if self.bfloat16_supported else torch.float16,
+                        bnb_4bit_quant_type="nf4",
+                    )
+                except Exception:
+                    quant_config = None
+
+            load_kwargs_obs = {"token": self.hf_token, "local_files_only": self.local_files_only}
+            if quant_config is not None:
+                load_kwargs_obs["quantization_config"] = quant_config
+                load_kwargs_obs["device_map"] = {"": self.device}
+            else:
+                load_kwargs_obs["torch_dtype"] = self.causal_dtype
+
+            self._bino_obs_mod = GemmaModelClass.from_pretrained(BINOCULARS_OBSERVER_ID, **load_kwargs_obs)
+            if quant_config is None:
+                self._bino_obs_mod = self._bino_obs_mod.to(self.device)
+            self._bino_obs_mod.eval()
+        return self._bino_obs_tok, self._bino_obs_mod
+
+    def get_binoculars_performer(self):
+        """Charge et met en cache persistant le modèle Performer (google/gemma-4-E2B-it)."""
+        if self._bino_perf_mod is None:
+            import torch
+            from transformers import AutoTokenizer
+            try:
+                from transformers import Gemma4ForConditionalGeneration as GemmaModelClass
+            except ImportError:
+                try:
+                    from transformers import AutoModelForCausalLM as GemmaModelClass
+                except ImportError:
+                    from transformers import AutoModel as GemmaModelClass
+
+            self._bino_perf_tok = AutoTokenizer.from_pretrained(
+                BINOCULARS_PERFORMER_ID, token=self.hf_token, local_files_only=self.local_files_only
+            )
+            if not self._bino_perf_tok.pad_token:
+                self._bino_perf_tok.pad_token = self._bino_perf_tok.eos_token or "<pad>"
+
+            quant_config = None
+            if self.device == "cuda":
+                try:
+                    import bitsandbytes
+                    from transformers import BitsAndBytesConfig
+                    quant_config = BitsAndBytesConfig(
+                        load_in_4bit=True,
+                        bnb_4bit_compute_dtype=torch.bfloat16 if self.bfloat16_supported else torch.float16,
+                        bnb_4bit_quant_type="nf4",
+                    )
+                except Exception:
+                    quant_config = None
+
+            load_kwargs_perf = {"token": self.hf_token, "local_files_only": self.local_files_only}
+            if quant_config is not None:
+                load_kwargs_perf["quantization_config"] = quant_config
+                load_kwargs_perf["device_map"] = {"": self.device}
+            else:
+                load_kwargs_perf["torch_dtype"] = self.causal_dtype
+
+            self._bino_perf_mod = GemmaModelClass.from_pretrained(BINOCULARS_PERFORMER_ID, **load_kwargs_perf)
+            if quant_config is None:
+                self._bino_perf_mod = self._bino_perf_mod.to(self.device)
+            self._bino_perf_mod.eval()
+        return self._bino_perf_tok, self._bino_perf_mod
+
+    def unload_binoculars(self):
+        """Libère intégralement le duo Binoculars de la mémoire VRAM."""
+        import gc
+        import torch
+        self._bino_obs_mod = None
+        self._bino_obs_tok = None
+        self._bino_perf_mod = None
+        self._bino_perf_tok = None
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+    def unload_all(self):
+        """Libère l'ensemble des encodeurs et du duo Binoculars de la mémoire VRAM."""
+        self.unload_encoders()
+        self.unload_binoculars()
 
 
 # ============================================================================
@@ -620,7 +778,7 @@ def score_xlm_roberta(text: str, manager: ModelManager) -> Dict[str, Any]:
     }
 
 
-# --- 6. Binoculars via Gemma-4-E2B (10%) ---
+# --- 6. Binoculars via Gemma-4-E2B (35%) ---
 def score_binoculars_gemma(
     text: str,
     manager: ModelManager,
@@ -631,30 +789,15 @@ def score_binoculars_gemma(
     Calcule le score Binoculars (Hans et al., ICML 2024) via le duo Gemma-4-E2B :
       Observer : google/gemma-4-E2B
       Performer : google/gemma-4-E2B-it
-    Exécution séquentielle inter-modèles en 4-bit pour garantir une occupation < 2.8 Go VRAM.
+    Les modèles sont conservés en mémoire GPU (keep_loaded=True) pour une persistance VRAM sans rechargement.
     """
-    import gc
     import torch
     import numpy as np
 
     try:
-        from transformers import AutoTokenizer, BitsAndBytesConfig
-        try:
-            from transformers import Gemma4ForConditionalGeneration as GemmaModelClass
-        except ImportError:
-            try:
-                from transformers import AutoModelForCausalLM as GemmaModelClass
-            except ImportError:
-                from transformers import AutoModel as GemmaModelClass
-
-        # 1. Tokenisation unifiée
-        tokenizer = AutoTokenizer.from_pretrained(
-            BINOCULARS_OBSERVER_ID, token=manager.hf_token, local_files_only=manager.local_files_only
-        )
-        if not tokenizer.pad_token:
-            tokenizer.pad_token = tokenizer.eos_token or "<pad>"
-
-        enc = tokenizer(
+        # 1. Observer (google/gemma-4-E2B)
+        obs_tok, obs_mod = manager.get_binoculars_observer()
+        enc = obs_tok(
             text,
             return_tensors="pt",
             truncation=True,
@@ -664,65 +807,24 @@ def score_binoculars_gemma(
         input_ids = enc["input_ids"].to(manager.device)
         attention_mask = enc.get("attention_mask", torch.ones_like(input_ids)).to(manager.device)
 
-        quant_config = None
-        if manager.device == "cuda":
-            try:
-                import bitsandbytes
-                quant_config = BitsAndBytesConfig(
-                    load_in_4bit=True,
-                    bnb_4bit_compute_dtype=torch.bfloat16 if manager.bfloat16_supported else torch.float16,
-                    bnb_4bit_quant_type="nf4",
-                )
-            except Exception:
-                quant_config = None
-
-        # --- Phase A : Observer (google/gemma-4-E2B) ---
-        load_kwargs_obs = {"token": manager.hf_token, "local_files_only": manager.local_files_only}
-        if quant_config is not None:
-            load_kwargs_obs["quantization_config"] = quant_config
-            load_kwargs_obs["device_map"] = {"": manager.device}
-        else:
-            load_kwargs_obs["torch_dtype"] = manager.causal_dtype
-
-        observer_model = GemmaModelClass.from_pretrained(BINOCULARS_OBSERVER_ID, **load_kwargs_obs)
-        if quant_config is None:
-            observer_model = observer_model.to(manager.device)
-        observer_model.eval()
-
         with torch.no_grad():
-            out_obs = observer_model(input_ids=input_ids, attention_mask=attention_mask)
+            out_obs = obs_mod(input_ids=input_ids, attention_mask=attention_mask)
             observer_logits = out_obs.logits.cpu().float()
 
-        del observer_model
-        del out_obs
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
+        # Si VRAM contrainte et keep_loaded désactivé, décharger observer
+        if not manager.keep_loaded:
+            manager.unload_binoculars()
 
-        # --- Phase B : Performer (google/gemma-4-E2B-it) ---
-        load_kwargs_perf = {"token": manager.hf_token, "local_files_only": manager.local_files_only}
-        if quant_config is not None:
-            load_kwargs_perf["quantization_config"] = quant_config
-            load_kwargs_perf["device_map"] = {"": manager.device}
-        else:
-            load_kwargs_perf["torch_dtype"] = manager.causal_dtype
-
-        performer_model = GemmaModelClass.from_pretrained(BINOCULARS_PERFORMER_ID, **load_kwargs_perf)
-        if quant_config is None:
-            performer_model = performer_model.to(manager.device)
-        performer_model.eval()
-
+        # 2. Performer (google/gemma-4-E2B-it)
+        perf_tok, perf_mod = manager.get_binoculars_performer()
         with torch.no_grad():
-            out_perf = performer_model(input_ids=input_ids, attention_mask=attention_mask)
+            out_perf = perf_mod(input_ids=input_ids, attention_mask=attention_mask)
             performer_logits = out_perf.logits.cpu().float()
 
-        del performer_model
-        del out_perf
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
+        if not manager.keep_loaded:
+            manager.unload_binoculars()
 
-        # --- Phase C : Calcul Métrologique Binoculars ---
+        # 3. Calcul Métrologique Binoculars
         shifted_perf_logits = performer_logits[..., :-1, :].contiguous()
         shifted_labels = input_ids.cpu()[..., 1:].contiguous()
         shifted_mask = attention_mask.cpu()[..., 1:].contiguous()
@@ -737,7 +839,7 @@ def score_binoculars_gemma(
         q_scores = performer_logits.view(-1, vocab_size)
 
         ce_x = ce_loss_fn(input=q_scores, target=p_proba).view(observer_logits.shape[0], observer_logits.shape[1])
-        padding_mask = (input_ids.cpu() != tokenizer.pad_token_id).float()
+        padding_mask = (input_ids.cpu() != obs_tok.pad_token_id).float()
         x_ppl = float(((ce_x * padding_mask).sum() / padding_mask.sum().clamp(min=1e-8)).item())
 
         b_score = (ppl / x_ppl) if x_ppl > 0 else 1.0
@@ -766,7 +868,7 @@ def score_binoculars_gemma(
         raise RuntimeError(
             f"❌ [FAIL-STOP] Échec du module Binoculars Gemma-4-E2B : {e}\n"
             "Conformément à la doctrine Fail-Stop d'Henri, l'exécution est interrompue.\n"
-            "Pour autoriser l'exécution sans Binoculars, spécifiez '--fast' ou '--allow-partial'."
+            "Pour autoriser l'exécution sans Binoculars en cas d'anomalie matérielle, spécifiez '--allow-partial'."
         ) from e
 
 
@@ -860,24 +962,28 @@ def analyze_text(
     filename: Optional[str] = None,
     device_override: Optional[str] = None,
     hf_token: Optional[str] = None,
-    fast_mode: bool = False,
     allow_partial: bool = False,
     offline: bool = False,
-    compliance_threshold: float = 0.10
+    compliance_threshold: float = 0.10,
+    keep_loaded: bool = True,
+    **kwargs
 ) -> Dict[str, Any]:
     """
     Exécute l'analyse SOTA unifiée à 7 composants :
     - Cohorte 1 : Encodeurs FP16 (DeBERTa RAID, ModernBERT, TMR, DeBERTa Academic, XLM) + Heatmap
-    - Déchargement complet Cohorte 1
-    - Cohorte 2 : Binoculars Gemma-4-E2B (Observer + Performer)
+    - Cohorte 2 : Binoculars Gemma-4-E2B (Observer + Performer) [Obligatoire]
     - Cohorte 3 : Moteur Stylométrique & Entropique (CPU)
     - Fusion Bayésienne dynamique (renormalisation à 1.0)
+    Modèles conservés en mémoire GPU (keep_loaded=True) pour inférence ultra-rapide sans rechargement.
     """
+    _ = kwargs.pop("fast_mode", None)
+    _ = kwargs.pop("fast", None)
+
     # Validation du token Hugging Face
-    resolved_token = resolve_hf_token(hf_token, required=not (fast_mode and allow_partial or offline))
+    resolved_token = resolve_hf_token(hf_token, required=not (allow_partial or offline))
 
     clean_txt = clean_raw_text(text, filename)
-    manager = ModelManager.get_instance(device_override, resolved_token, local_files_only=offline)
+    manager = ModelManager.get_instance(device_override, resolved_token, local_files_only=offline, keep_loaded=keep_loaded)
 
     words_count = len(clean_txt.split())
     if words_count < 5:
@@ -1063,14 +1169,14 @@ def analyze_text(
             if valid_sents:
                 para_p_ai = sum(s["p_ai"] for s in valid_sents) / len(valid_sents)
             else:
-                para_p_ai = sum(s["p_ai"] for s in para_sents) / len(para_sents)
+                para_p_ai = 0.0
         else:
             para_p_ai = 0.0
 
-        if para_p_ai < 0.15:
+        if para_p_ai < compliance_threshold:
             p_tag = "HUMAIN"
             p_icon = "🟢"
-        elif para_p_ai < 0.45:
+        elif para_p_ai < 0.35:
             p_tag = "SUSPECT"
             p_icon = "🟠"
         else:
@@ -1087,17 +1193,17 @@ def analyze_text(
             "sentences": para_sents
         })
 
-    # DÉCHARGEMENT ATOMIQUE COHORTE 1 (Libération 100% de la VRAM des encodeurs)
-    manager.unload_encoders()
+    # DÉCHARGEMENT CONDITIONNEL COHORTE 1 (uniquement si VRAM restreinte < 8 Go et keep_loaded=False)
+    if not manager.keep_loaded:
+        manager.unload_encoders()
 
     # ------------------------------------------------------------------------
-    # COHORTE 2 : BINOCULARS VIA GEMMA-4-E2B (35% - LEADER INCONTESTÉ)
+    # COHORTE 2 : BINOCULARS VIA GEMMA-4-E2B (35% - LEADER INCONTESTÉ OBLIGATOIRE)
     # ------------------------------------------------------------------------
-    if not fast_mode:
-        bino_res = score_binoculars_gemma(clean_txt, manager, allow_partial=allow_partial)
-        if bino_res is not None:
-            results_models["binoculars_gemma"] = bino_res
-            active_weights["binoculars_gemma"] = NOMINAL_WEIGHTS["binoculars_gemma"]
+    bino_res = score_binoculars_gemma(clean_txt, manager, allow_partial=allow_partial)
+    if bino_res is not None:
+        results_models["binoculars_gemma"] = bino_res
+        active_weights["binoculars_gemma"] = NOMINAL_WEIGHTS["binoculars_gemma"]
 
     # ------------------------------------------------------------------------
     # COHORTE 3 : MOTEUR STYLOMÉTRIQUE & ENTROPIQUE (6% - CPU)
@@ -1145,6 +1251,10 @@ def analyze_text(
             "details": v
         }
 
+    # Déchargement final uniquement si keep_loaded est explicitement False
+    if not keep_loaded:
+        manager.unload_all()
+
     return {
         "global_score": {
             "p_ai": float(round(p_ai, 4)),
@@ -1165,6 +1275,52 @@ def analyze_text(
         "paragraphs": paragraph_diagnostics,
         "device": manager.device
     }
+
+
+def analyze_texts_batch(
+    texts: List[str],
+    filenames: Optional[List[Optional[str]]] = None,
+    device_override: Optional[str] = None,
+    hf_token: Optional[str] = None,
+    allow_partial: bool = False,
+    offline: bool = False,
+    compliance_threshold: float = 0.10,
+    keep_loaded: bool = True,
+    **kwargs
+) -> List[Dict[str, Any]]:
+    """
+    Évalue un lot de textes de manière vectorisée et optimisée sans rechargement de modèles.
+    Les 5 encodeurs et le duo Binoculars restent chauds en mémoire GPU tout au long de l'évaluation du lot.
+    """
+    if not texts:
+        return []
+
+    # Validation du token Hugging Face
+    resolved_token = resolve_hf_token(hf_token, required=not (allow_partial or offline))
+    manager = ModelManager.get_instance(device_override, resolved_token, local_files_only=offline, keep_loaded=keep_loaded)
+
+    if filenames is None:
+        filenames = [None] * len(texts)
+
+    results = []
+    for txt, fname in zip(texts, filenames):
+        res = analyze_text(
+            text=txt,
+            filename=fname,
+            device_override=device_override,
+            hf_token=resolved_token,
+            allow_partial=allow_partial,
+            offline=offline,
+            compliance_threshold=compliance_threshold,
+            keep_loaded=True,
+            **kwargs
+        )
+        results.append(res)
+
+    if not keep_loaded:
+        manager.unload_all()
+
+    return results
 
 
 # ============================================================================
@@ -1256,7 +1412,6 @@ Exemples d'utilisation :
   python antigravity/scripts/ai_detector.py "Texte direct à analyser..."
   python antigravity/scripts/ai_detector.py draft.md
   python antigravity/scripts/ai_detector.py paper.tex --json
-  python antigravity/scripts/ai_detector.py paper.tex --fast
   cat draft.txt | python antigravity/scripts/ai_detector.py
         """
     )
@@ -1266,7 +1421,6 @@ Exemples d'utilisation :
     parser.add_argument("--threshold", type=float, default=0.10, help="Seuil de conformité (défaut : 0.10 / 10%%)")
     parser.add_argument("--device", type=str, choices=["auto", "cpu", "cuda"], default="auto", help="Périphérique d'inférence (défaut: auto avec priorité CUDA GPU)")
     parser.add_argument("--hf-token", type=str, default=None, help="Token Hugging Face pour l'accès aux checkpoints")
-    parser.add_argument("--fast", action="store_true", help="Mode rapide (omission du module Binoculars Gemma-4-E2B)")
     parser.add_argument("--allow-partial", action="store_true", help="Autorise la bascule bayésienne si un composant échoue (désactive le Fail-Stop strict)")
     parser.add_argument("--offline", action="store_true", help="Utilise uniquement les fichiers déjà présents dans le cache Hugging Face local")
 
@@ -1276,13 +1430,16 @@ Exemples d'utilisation :
     filename = None
 
     if args.input:
-        if os.path.isfile(args.input):
-            filename = args.input
+        target_path = args.input
+        if not os.path.isfile(target_path) and os.path.isfile(os.path.join("..", target_path)):
+            target_path = os.path.join("..", target_path)
+        if os.path.isfile(target_path):
+            filename = target_path
             try:
-                with open(args.input, "r", encoding="utf-8", errors="replace") as f:
+                with open(target_path, "r", encoding="utf-8", errors="replace") as f:
                     raw_text = f.read()
             except Exception as e:
-                print(f"Erreur de lecture du fichier '{args.input}': {e}", file=sys.stderr)
+                print(f"Erreur de lecture du fichier '{target_path}': {e}", file=sys.stderr)
                 sys.exit(1)
         else:
             raw_text = args.input
@@ -1304,10 +1461,10 @@ Exemples d'utilisation :
             filename=filename,
             device_override=device_override,
             hf_token=args.hf_token,
-            fast_mode=args.fast,
             allow_partial=args.allow_partial,
             offline=args.offline,
-            compliance_threshold=args.threshold
+            compliance_threshold=args.threshold,
+            keep_loaded=True
         )
     except Exception as e:
         sys.stderr.write(f"\n{e}\n")
