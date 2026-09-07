@@ -70,6 +70,14 @@
 2. **Si trouvé** : Agréger, connecter via `[[Note.md]]`, condenser dans la note maîtresse.
 3. **Si non trouvé** : Créer note, ajouter `#todo`/`#project`, attribuer priorité 0-100 pour `project-memory`.
 
+#### 🚫 Interdiction Formelle des Transcripts comme Notes de Projet (MANDATOIRE)
+
+- **Nature Purement Brute (Source Primaire)** : Un enregistrement audio brut / transcript (dossier `voicenotes/` ou toute note comportant un frontmatter `recording_id` / `duration`) n'est **JAMAIS** une note de projet. Il s'agit d'une source primaire brute non synthétisée.
+- **Indexation en Sous-Note Obligatoire** : Tout transcript pertinent doit obligatoirement être lié comme sous-note sous le titre H1 de la note maîtresse de projet dédiée : `[[voicenotes/Nom de la Voicenote|Transcript Voicenote Source]]`.
+- **Instanciation Immédiate de la Note Maîtresse** : Dès qu'une session aborde un sujet ou une idée issue d'une note vocale :
+  1. Identifier la véritable note maîtresse de projet canonique existante à la racine du coffre ou dans le dossier thématique approprié.
+  2. Si elle n'existe pas, la créer **immédiatement** avant tout travail selon la structure canonique (titres H1-H4 en questions finissant par `?`, format télégraphique strict `**[Clé]** : [Valeur brute]`, tags `#todo #project`, index des sous-notes sous H1, tableaux Markdown natifs et checklist synchronisable `project-memory`).
+
 ### Format Note Maîtresse (Tableau de Bord Ultra-Synthétique)
 
 - **Index sous-notes en haut** (MANDATOIRE) : `[[Sous-Note.md]]` sous le titre H1.
