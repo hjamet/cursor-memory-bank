@@ -3,7 +3,7 @@ name: paper-writing
 description: Méthodologie complète pour la rédaction et la révision itérative de papiers académiques via la note miroir Obsidian (papers/<nom>.md), l'édition directe des sources LaTeX, la projection de diff AST, l'articulation amont avec la revue bibliographique (/literature-review) et le style scientifique rigoureux anti-IA.
 ---
 
-# 📝 Paper Writing & Revision Skill
+# 📝 Comment Rédiger et Réviser des Papiers Académiques (Paper Writing) ?
 
 > [!IMPORTANT]
 > **Règle absolue d'écriture académique :** 
@@ -17,7 +17,7 @@ description: Méthodologie complète pour la rédaction et la révision itérati
 
 ## 1. 🪞 Comment la Note Miroir et la Boucle Granulaire Orchestrent-elles la Relecture ?
 
-### 1.1 Protocole d'Entrée Zéro-Modification & Boucle Purement Commentaire-First (MANDATOIRE)
+### 1.1 Quel est le Protocole d'Entrée Zéro-Modification & Boucle Commentaire-First ?
 - **Au premier appel du skill** : L'agent ne modifie STRICTEMENT AUCUNE ligne de code ou de texte LaTeX.
   Il exécute uniquement `python antigravity/scripts/latex_to_markdown_artifact.py`, affiche le lien vivant de la note miroir dans le chat, et attend les commentaires d'Henri.
 - **Règle d'or de réécriture** : INTERDICTION FORMELLE de toute réécriture générale ou proactive.
@@ -30,7 +30,7 @@ description: Méthodologie complète pour la rédaction et la révision itérati
 
 ---
 
-### Le Rôle Central de la Note Miroir
+### 1.2 Quel est le Rôle Central de la Note Miroir ?
 La note miroir `papers/<nom_papier>.md` (au sein du coffre `VoiceNotes`) est l'interface visuelle et le tableau de bord de relecture pour Henri. Elle est générée automatiquement à partir des sources LaTeX par le convertisseur universel sans aucun argument complexe :
 
 ```bash
@@ -48,7 +48,7 @@ python antigravity/scripts/latex_to_markdown_artifact.py <main.tex>
 
 ---
 
-### ⚓ Baseline de Révision Git Native sur l'Auteur (Henri Jamet)
+### 1.3 Comment s'Ancre la Baseline de Révision Git Native sur l'Auteur (Henri Jamet) ?
 
 Le moteur de diff différentiel ancre automatiquement sa baseline de comparaison sur le dernier commit signé par Henri Jamet :
 
@@ -61,65 +61,42 @@ git log --author="Henri Jamet" -n 1 --format="%H"
 
 ---
 
-### 🔄 Le Cycle d'Itération Granulaire Section par Section
+### 1.4 Comment S'Orchestre le Cycle Systématique `--commit` / `--diff` à Chaque Retour ?
 
-Le travail de révision suit un protocole unitaire et chirurgical section par section :
+Dès qu'Henri annote la note miroir `papers/<nom_papier>.md` et avant TOUTE modification du code LaTeX, l'agent exécute la boucle déterministe en 3 temps :
 
 ```mermaid
 graph TD
-    A["1. Henri lit papers/<nom>.md<br/>et annote ## 💬 Commentaires"] --> B{"Nature du retour d'Henri ?"}
-    B -- "Commentaire / Insatisfaction / Demande de modif" --> C["2A. Staging ciblé & Commit local unitaire<br/>(synthèse de l'insatisfaction dans le commit message)"]
-    C --> D["Édition chirurgicale des sources LaTeX<br/>(.tex, .bib)"]
-    D --> E["Régénération latex_to_markdown_artifact.py<br/>(Diff = delta ancien insatisfaisant vs proposition)"]
-    E --> A
-    B -- "Validation explicite ('OK', 'Validé')" --> F["2B. Staging ciblé & Commit local de validation<br/>(sans altérer le texte source LaTeX)"]
-    F --> G["Régénération latex_to_markdown_artifact.py<br/>(Diff tombe à 0, texte propre affiché)"]
-    G --> H{"Fin de session de révision globale ?"}
-    H -- "Non (sections suivantes)" --> A
-    H -- "Oui + Accord explicite d'Henri" --> I["3. Git Push final vers Overleaf / GitHub"]
+    A["1. Retour d'Henri : Commentaire repéré à la ligne N<br/>(note miroir papers/<nom>.md)"] --> B["2. ÉTAPE PRÉALABLE OBLIGATOIRE :<br/>python latex_to_markdown_artifact.py --commit --line N"]
+    B --> C["⚡ Traitement Automatique :<br/>- Validation & purge des deltas avant la ligne N<br/>- Staging & Commit descriptif dans le repo LaTeX<br/>- Git push automatique vers le remote Overleaf/GitHub"]
+    C --> D["3. Édition chirurgicale des sources LaTeX<br/>(.tex, .bib) selon le commentaire"]
+    D --> E["4. ÉTAPE DE RAFRAÎCHISSEMENT :<br/>python latex_to_markdown_artifact.py --diff"]
+    E --> F["🎯 Note miroir rafraîchie :<br/>- Diffs antérieurs tombés à 0<br/>- Nouveaux deltas surlignés (vert/rouge)<br/>- Lien Obsidian cliquable en tête de chat"]
+    F --> A
 ```
 
-#### Étape 1 : Relecture & Retours d'Henri dans Obsidian
-- Henri lit la note miroir `papers/<nom_papier>.md` directement dans Obsidian.
-- Henri inscrit ses remarques, consignes de réécriture, suppressions ou validations dans la section sanctuarisée :
-  ```markdown
-  ## 💬 Commentaires & Retours d'Arbitrage
-
-  <!-- USER_COMMENTS_START -->
-  [Consignes, retours et arbitrages rédigés par Henri]
-  <!-- USER_COMMENTS_END -->
+#### Étape 1 : Comment la Validation Immédiate & la Baseline Git S'Automatisent-elles (`--commit`) ?
+- **Règle absolue** : AVANT toute retouche de code ou de texte LaTeX suite à un retour d'Henri, l'agent invoque systématiquement :
+  ```bash
+  python antigravity/scripts/latex_to_markdown_artifact.py --commit --line <N>
   ```
-- Cette section est automatiquement préservée lors des régénérations successives du script d'export.
+  *(où `<N>` représente le numéro de ligne 1-indexed du dernier commentaire d'Henri dans la note miroir Markdown)*.
+- **Effets instantanés** :
+  - Toutes les diffs antérieures à la ligne `<N>` sont validées : ajouts `<span ...>` intégrés en texte normal, suppressions `<del>` et callouts de sections supprimées purgés.
+  - Les diffs à partir de la ligne `<N>` restent intacts.
+  - Le script indexe automatiquement les modifications correspondantes dans le dépôt LaTeX, enregistre un commit Git descriptif (`review(paper): validate revisions up to line <N>...`), et exécute automatiquement un `git push` vers le remote distant (Overleaf / GitHub).
+  - La baseline Git d'Henri avance immédiatement sur ce commit.
 
-#### Étape 2A : En cas de Commentaire / Insatisfaction / Modification demandée
-1. **Staging ciblé & Commit local d'insatisfaction** :
-   - L'agent effectue un staging ciblé du bloc ou fichier concerné : `git add <fichier.tex>`.
-   - L'agent enregistre un commit local dont le message synthétise le retour critique d'Henri :
-     ```bash
-     git commit -m "review(sec): [synthèse de l'insatisfaction ou du retour d'Henri]"
-     ```
-2. **Édition directe des sources LaTeX** :
-   - L'agent applique chirurgicalement la correction dans les fichiers sources (`.tex`, `.bib`).
-   - **Interdiction formelle d'éditer le corps Markdown miroir à la main** : La note `papers/<nom_papier>.md` est une projection générée ; toute modification manuelle directe serait écrasée.
-3. **Régénération immédiate de la note miroir** :
-   - L'agent réexécute `latex_to_markdown_artifact.py`.
-   - 🎯 **Effet visuel immédiat** : Le diff projeté dans Obsidian n'affiche plus l'historique lointain, mais **exclusivement le delta entre l'ancien texte insatisfaisant et la proposition corrigée**.
+#### Étape 2 : Comment Réaliser l'Édition Directe des Sources LaTeX ?
+- L'agent (ou Claude Opus mandaté directement pour les reformulations) applique les corrections demandées par Henri dans les sources (`.tex`, `.bib`).
+- **Interdiction formelle d'éditer le corps Markdown miroir à la main** : La note `papers/<nom_papier>.md` est une projection générée ; toute modification manuelle directe serait écrasée.
 
-#### Étape 2B : En cas de Validation explicite ("OK", "Validé")
-1. **Staging ciblé & Commit local de validation** :
-   - L'agent effectue un staging ciblé et un commit local sans modifier le texte source :
-     ```bash
-     git add <fichier.tex>
-     git commit -m "review(sec): validation section par Henri"
-     ```
-2. **Régénération immédiate de la note miroir** :
-   - L'agent réexécute `latex_to_markdown_artifact.py`.
-   - 🎯 **Effet visuel immédiat** : La baseline git avance sur ce commit, le diff tombe à 0 pour cette section, et le texte propre apparaît immédiatement dans Obsidian.
-
-#### Étape 3 : Garde-Fou Absolu — Zéro Git Push
-- ⚠️ **RÈGLE INVIOLABLE** : **INTERDICTION ABSOLUE** d'exécuter `git push` vers le dépôt distant (Overleaf, GitHub) pendant les cycles de révision.
-- Tous les commits de révision restent strictement **locaux**.
-- Le `git push` final ne peut intervenir qu'avec l'accord explicite et sans ambiguïté d'Henri en toute fin de session de relecture.
+#### Étape 3 : Comment Rafraîchir la Note Miroir (`--diff`) ?
+- L'agent réexécute immédiatement le convertisseur :
+  ```bash
+  python antigravity/scripts/latex_to_markdown_artifact.py --diff
+  ```
+- 🎯 **Effet visuel immédiat** : Les sections antérieures à la ligne `<N>` apparaissent en texte propre sans aucun diff parasite. Seules les nouvelles modifications apportées à l'étape 2 sont surlignées en rouge/vert, prêtes pour la relecture suivante d'Henri.
 
 ---
 
@@ -127,19 +104,19 @@ graph TD
 
 Toute modification substantielle d'un papier académique doit mobiliser des sous-agents en parallèle. Trois rôles sont systématiques :
 
-### 2.1 Sous-agent Critique (*Paper Text Critic*)
+### 2.1 Quel est le Rôle du Sous-Agent Critique (*Paper Text Critic*) ?
 - **Rôle** : Relire le texte actuel et identifier les faiblesses.
 - **Focus** : Claims non étayés, langage "IA", gaps logiques, structure, comparaisons manquantes.
 - **Output** : Rapport structuré par sévérité (🔴 critique → 🔵 mineur).
 - **Quand** : Avant toute réécriture, pour disposer d'un diagnostic objectif.
 
-### 2.2 Sous-agent Recherche (*Citation Researcher*)
+### 2.2 Quel est le Rôle du Sous-Agent Recherche (*Citation Researcher*) ?
 - **Rôle** : Chercher des références pertinentes via le skill `/literature-review`, MCP Consensus ou web search.
 - **Focus** : Papiers de la conférence cible, travaux récents sur le sujet, citations manquantes, extraction depuis la note `notes/Revue de Littérature [Nom du Projet].md` et la collection Zotero curée.
 - **Output** : Entrées BibTeX complètes + suggestion d'insertion subtile.
 - **Quand** : En amont (via `/literature-review`) et en parallèle de la critique, pour alimenter la réécriture.
 
-### 2.3 Rédaction & Réécriture Exclusive par Claude Opus (*Direct Mandating*)
+### 2.3 Pourquoi la Rédaction est-elle Exclusive à Claude Opus (*Direct Mandating*) ?
 - **Règle absolue** : ZÉRO réécriture générale proactive par un sous-agent générique.
 - **Exécution exclusive** : Toute reformulation ou rédaction textuelle fait suite à un commentaire précis d'Henri et est mandatée DIRECTEMENT auprès de Claude Opus via :
   ```bash
@@ -156,19 +133,19 @@ Toute modification substantielle d'un papier académique doit mobiliser des sous
 
 ## 3. ✒️ Quels sont les Invariants du Style d'Écriture Scientifique ?
 
-### Ton & Registre
+### Quel Ton & Registre Adopter ?
 - **Extrêmement scientifique, neutre, rigoureux, précis.**
 - Faire comprendre de manière subtile l'intérêt et la qualité du travail sans l'affirmer de manière explicite ou pompeuse.
 - Jamais d'adjectifs hyper-mélioratifs : rester strictement objectif.
 - Écrire de manière humaine : varier la longueur des phrases et le vocabulaire employé.
 
-### Structure & Mise en page
+### Quelle Structure & Mise en Page Privilégier ?
 - Privilégier les **paragraphes clairs et denses**.
 - Pas de formatting excessif : éviter les sous-titres superflus et les listes à puces sauf si absolument nécessaire.
 - Varier la mise en page pour rendre la lecture fluide et agréable.
 - Chaque phrase doit porter une information précise. Aucune phrase vide ou de remplissage.
 
-### ❌ Anti-patterns INTERDITS (Style IA)
+### ❌ Quels sont les Anti-Patterns INTERDITS (Style IA) ?
 - ❌ **Phrases vides non porteuses d'information** (ex: *"In this section, we discuss..."*)
 - ❌ **Phrases de conclusion inutiles** (ex: *"In summary, we have shown that..."*)
 - ❌ **Adjectifs superlatifs non justifiés** (ex: *"groundbreaking"*, *"revolutionary"*, *"powerful"*)
@@ -177,7 +154,7 @@ Toute modification substantielle d'un papier académique doit mobiliser des sous
 - ❌ **Hedging excessif** (ex: *"it is worth noting that"*, *"interestingly"*)
 - ❌ **Listes numérotées comme substitut de prose** (ex: *"What we observe is the following: (1)... (2)..."*)
 
-### ✅ Patterns RECOMMANDÉS
+### ✅ Quels sont les Patterns RECOMMANDÉS ?
 - ✅ **Attaque directe** : Commencer directement par l'observation ou le résultat.
 - ✅ **Quantification** : Quantifier systématiquement les claims (pourcentages, p-values, intervalles de confiance).
 - ✅ **Contextualisation** : Situer les résultats par rapport aux baselines de la littérature.
@@ -201,4 +178,5 @@ Lors de la préparation ou de la révision d'un papier pour une conférence spé
 ## 5. ⚙️ Comment Auditer la Pagination et le Contenu après Git Pull ?
 
 - **Recompilation Obligatoire** : Recompiler systématiquement après tout `git pull` ou modification sur un document LaTeX (`pdflatex` / `latexmk`) avant d'auditer la pagination ou le contenu. Interdiction formelle d'auditer un `.pdf` préexistant sans compilation fraîche.
+
 
