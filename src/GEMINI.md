@@ -100,19 +100,26 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 ### 📱 Artefact Dynamique « Inbox Zero » (summary.md) & Cycle Bicolore — MANDATOIRE
 
 - **Localisation** : `<appDataDir>\brain\<conversation-id>\summary.md` (hors coffre Obsidian). Boîte de réception éphémère de session pour le suivi direct des chantiers.
-- **Purge par Lot à l'Acquittement (Inbox Zero)** :
-  - **Déclencheur** : Au minimum un commentaire d'Henri sur l'artefact `summary.md`.
-  - **Périmètre de purge** : Purge en bloc de toutes les questions résolues (`### ✅` ou `### ❓` avec callout vert).
-  - **Préservation** : Les questions en cours (`### ⏳` avec callout rouge) restent affichées. Les nouvelles questions du tour s'ajoutent à la suite.
-  - **Pas de commentaire sur `summary.md`** : Pas de purge des anciennes questions résolues.
-  - **État vide** : « *Inbox Zero atteint — Aucune question en attente* » si 100% purgé/résolu.
-- **Format Déterministe** :
-  - **En-tête** : `# Synthèse de Session — Antigravity`, suivi d'un callout `> [!TIP]` listant les notes/artefacts clés créés/modifiés (liens cliquables `[nom](file:///...)`).
-  - **Questions actives en ordre chronologique strict** ($Q_1 \to Q_N$, haut en bas). Zéro section de fin / tableau de bord.
-  - **Granularité** : 1 commentaire/demande = 1 question numérotée.
-  - **Titres H3 impérativement terminés par `?`**.
-  - **Cycle bicolore strict** : Rouge (`> [!CAUTION]`) sous `⏳` pour les attentes, Vert (`> [!TIP]`) sous `✅`/`❓` pour les réponses validées.
-  - **Zéro état intermédiaire** : « En cours... » interdit, seul le résultat prouvé est affiché.
+
+#### 1. Règle d'Acquittement & Purge par Lot (Inbox Zero)
+
+- **Déclencheur Universel de Purge** : S'active à **chacun des nouveaux messages d'Henri** (qu'il s'agisse d'un message dans le fil de discussion ou d'un commentaire sur un artefact quelconque) ainsi que lors de tout commentaire sur `summary.md`.
+- **SANCTUARISATION ABSOLUE DES QUESTIONS EN COURS (`⏳`)** : Règle inviolable — INTERDICTION FORMELLE de supprimer une question ayant le statut de sablier (`### ⏳ Qn — [Question ?]`) lors d'une purge. Les questions en sablier et leur callout rouge d'attentes (`> [!CAUTION]`) restent obligatoirement affichées et maintenues dans la pile active tant qu'elles n'ont pas été formellement résolues et basculées en vert (`### ✅` ou `### ❓`) avec preuves matérielles.
+- **Périmètre de Purge** : Purge en bloc exclusive de toutes les questions résolues (`### ✅` ou `### ❓` avec callout vert) du tour précédent.
+- **Ajout des Nouvelles Questions** : Les nouvelles questions du tour s'ajoutent à la suite des questions en cours maintenues.
+- **État vide** : « *Inbox Zero atteint — Aucune question en attente* » uniquement si 100% purgé/résolu (zéro question en attente).
+
+#### 2. Format Déterministe
+
+- **En-tête** : `# Synthèse de Session — Antigravity`, suivi d'un callout `> [!TIP]` listant les notes/artefacts clés créés/modifiés (liens cliquables `[nom](file:///...)`).
+- **Questions actives en ordre chronologique strict** ($Q_1 \to Q_N$, haut en bas). Zéro section de fin / tableau de bord.
+- **Granularité** : 1 commentaire/demande = 1 question numérotée.
+- **Titres H3 impérativement terminés par `?`**.
+- **Cycle bicolore strict** : Rouge (`> [!CAUTION]`) sous `⏳` pour les attentes, Vert (`> [!TIP]`) sous `✅`/`❓` pour les réponses validées.
+- **Zéro état intermédiaire** : « En cours... » interdit, seul le résultat prouvé est affiché.
+
+#### 3. Restitution & Lien Proactif
+
 - **Lien Proactif dans le Chat** : Fournir systématiquement le lien cliquable `[Synthèse de Session](file:///...)` en 1ère ligne de réponse dans le chat, sans jamais dupliquer le contenu dans le fil de discussion.
 
 ---
