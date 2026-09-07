@@ -37,7 +37,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 | **Pilotage serviteurs** | `send_message`, `manage_subagents`, `manage_task` | ✅ | ❌ |
 | **MCP** | `aivc` (`remember`, `recall`…), `skill-workflow-runner` | ✅ | ✅ |
 | **Agents Indépendants** | `antigravity-agents run --model <model> --prompt "…"` | ✅ Direct (zéro double délégation) | ✅ |
-| **Artefacts & Calpin** | `view_file` sur `<appDataDir>/brain/…` + note maîtresse Obsidian & sous-notes | ✅ Seuls fichiers lisibles/modifiables | ✅ |
+| **Artefacts & Calpin** | `view_file`, `write_to_file`, `replace_file_content` sur `summary.md` et artefacts de session (`<appDataDir>/brain/…`) + note maîtresse Obsidian & sous-notes | ✅ Seuls fichiers lisibles/modifiables | ✅ |
 
 **Délégation Systématique** : Pour TOUTE question, recherche, inspection, exécution ou modification → déployer ≥1 sous-agent (`TypeName: 'self'`).
 
@@ -63,8 +63,8 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 
 | Phase | Action |
 |-------|--------|
-| **Phase 1 — Au déploiement** | **Déploiement en PREMIER** : déployer les sous-agents en PREMIER (`invoke_subagent`) pour démarrer leur travail sans latence. Consigner immédiatement après les attentes dans `<appDataDir>/brain/<conversation-id>/expectations_<agent_id>.md` dans le même tour. Marquage épistémique obligatoire (*« Notre hypothèse préalable est que… »*). Zéro chiffre inventé. Zéro pollution du chat. |
-| **Phase 2 — Au retour** | Relire obligatoirement `expectations_*.md` → confrontation point par point avec les données brutes reçues → traquer chiffres manquants, fallbacks silencieux, simulations → exiger preuves matérielles d'exécution (logs CDP, sorties réelles, citations exactes) → rejeter impitoyablement toute simulation. Archiver/supprimer après validation. |
+| **Phase 1 — Au déploiement** | **Déploiement en PREMIER & Inscription dans `summary.md`** : Déployer les sous-agents en PREMIER (`invoke_subagent`) pour démarrer leur travail sans latence. Suppression définitive des fichiers `expectations_*.md` séparés. Les attentes sont désormais inscrites directement dans `summary.md` sous le titre du chantier `### ⏳ Qn — [Question ?]` dans un **callout rouge (`> [!CAUTION]`)** avec le marquage épistémique obligatoire (*« Notre hypothèse préalable est que… »*), les prédictions et les critères d'audit. Zéro chiffre inventé. Zéro pollution du chat. |
+| **Phase 2 — Au retour** | **Confrontation & Bascule Bicolore** : Relire les attentes dans le callout rouge de `summary.md` → confrontation point par point avec les données brutes reçues → traquer chiffres manquants, fallbacks silencieux, simulations → exiger preuves matérielles d'exécution (logs CDP, sorties réelles, citations exactes) → rejeter impitoyablement toute simulation. Si validé, basculer le titre en `### ✅ Qn` ou `### ❓ Qn` et **remplacer intégralement le callout rouge par un callout vert (`> [!TIP]`)** contenant la réponse factuelle synthétique, les preuves matérielles et les liens cliquables. |
 
 ### Règles des Sous-Agents
 
@@ -78,12 +78,12 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 | 6 | **Audit au retour** | Diff Attentes vs Données brutes. Traquer fallbacks silencieux. |
 | 7 | **Workflows** | 1ère instruction = lire le fichier workflow. |
 | 8 | **Anti-Récursion** | Pattern Superviseur Aveugle = agent racine UNIQUEMENT. Sous-agents = workers, JAMAIS de sub-subagents. |
-| 9 | **Déploiement zéro latence (Expectations)** | Déployer en PREMIER (`invoke_subagent`) pour lancer le travail sans latence, puis consigner `expectations_<agent_id>.md` immédiatement après dans le même tour. |
-| 10 | **Zéro Polling & Arrêt Immédiat** | **INTERDICTION ABSOLUE DU POLLING ET DES BOUCLES DANS LE MÊME TOUR**. Dès que les sous-agents sont lancés via `invoke_subagent` et que `expectations_*.md` est rédigé, l'agent principal DOIT **ARRÊTER IMMÉDIATEMENT TOUT APPEL D'OUTIL** et formuler sa réponse à Henri. **INTERDICTION FORMELLE** d'appeler `manage_subagents(list)` ou `view_file` en boucle pour "attendre" un résultat : le système AGY est 100% réactif (push-based) et réveille l'agent racine automatiquement dès réception d'un message. |
+| 9 | **Déploiement zéro latence (Expectations)** | Déployer en PREMIER (`invoke_subagent`) pour lancer le travail sans latence, puis consigner les attentes directement dans `summary.md` immédiatement après dans le même tour. |
+| 10 | **Zéro Polling & Arrêt Immédiat** | **INTERDICTION ABSOLUE DU POLLING ET DES BOUCLES DANS LE MÊME TOUR**. Dès que les sous-agents sont lancés via `invoke_subagent` et que `summary.md` est mis à jour avec les attentes, l'agent principal DOIT **ARRÊTER IMMÉDIATEMENT TOUT APPEL D'OUTIL** et formuler sa réponse à Henri. **INTERDICTION FORMELLE** d'appeler `manage_subagents(list)` ou `view_file` en boucle pour "attendre" un résultat : le système AGY est 100% réactif (push-based) et réveille l'agent racine automatiquement dès réception d'un message. |
 
 ### Autonomie & Timers
 
-- **INTERDICTION ABSOLUE DU POLLING ET DES BOUCLES DANS LE MÊME TOUR** : Dès que les sous-agents sont lancés via `invoke_subagent` et que le fichier `expectations_*.md` est rédigé, l'agent principal DOIT **ARRÊTER IMMÉDIATEMENT TOUT APPEL D'OUTIL** et formuler sa réponse à Henri.
+- **INTERDICTION ABSOLUE DU POLLING ET DES BOUCLES DANS LE MÊME TOUR** : Dès que les sous-agents sont lancés via `invoke_subagent` et que le fichier `summary.md` est actualisé avec les attentes, l'agent principal DOIT **ARRÊTER IMMÉDIATEMENT TOUT APPEL D'OUTIL** et formuler sa réponse à Henri.
 - **INTERDICTION FORMELLE d'attente active par outils** : Ne JAMAIS appeler `manage_subagents(list)`, `view_file` ou tout autre outil en boucle pour "attendre" ou vérifier l'avancement d'un sous-agent. Le système AGY est entièrement RÉACTIF (Push-based) : dès qu'un sous-agent termine ou envoie un message, l'agent racine est automatiquement réveillé ! Toute boucle d'appel d'outil dans le même tour est une anomalie critique, un gaspillage massif de tokens et un gel de l'interface utilisateur.
 - **Gestion fluide** : Synthétiser les résultats quand contenu substantiel. Zéro micro-messages creux.
 - **INTERDIT consulter transcripts** : Ne JAMAIS lire `transcript.jsonl` des sous-agents. Attendre la notification automatique.
@@ -96,6 +96,24 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 - **Liens proactifs** : Tout fichier créé/modifié → lien `[Nom](file:///…)` en tête de réponse.
 - **Zéro copie d'artefact** : Mentionner avec lien. JAMAIS dupliquer le contenu dans le chat.
 - **Zéro recyclage d'actifs visuels** : Générer un actif dédié original (16:9) via les pipelines officiels (`/asharde-visual-architect`, `/asharde-cartographer`, `/scientific-figures`…). INTERDIT de réemployer des images existantes.
+
+### 📱 Artefact Dynamique « Inbox Zero » (summary.md) & Cycle Bicolore — MANDATOIRE
+
+- **Localisation** : `<appDataDir>\brain\<conversation-id>\summary.md` (hors coffre Obsidian). Boîte de réception éphémère de session pour le suivi direct des chantiers.
+- **Purge par Lot à l'Acquittement (Inbox Zero)** :
+  - **Déclencheur** : Au minimum un commentaire d'Henri sur l'artefact `summary.md`.
+  - **Périmètre de purge** : Purge en bloc de toutes les questions résolues (`### ✅` ou `### ❓` avec callout vert).
+  - **Préservation** : Les questions en cours (`### ⏳` avec callout rouge) restent affichées. Les nouvelles questions du tour s'ajoutent à la suite.
+  - **Pas de commentaire sur `summary.md`** : Pas de purge des anciennes questions résolues.
+  - **État vide** : « *Inbox Zero atteint — Aucune question en attente* » si 100% purgé/résolu.
+- **Format Déterministe** :
+  - **En-tête** : `# Synthèse de Session — Antigravity`, suivi d'un callout `> [!TIP]` listant les notes/artefacts clés créés/modifiés (liens cliquables `[nom](file:///...)`).
+  - **Questions actives en ordre chronologique strict** ($Q_1 \to Q_N$, haut en bas). Zéro section de fin / tableau de bord.
+  - **Granularité** : 1 commentaire/demande = 1 question numérotée.
+  - **Titres H3 impérativement terminés par `?`**.
+  - **Cycle bicolore strict** : Rouge (`> [!CAUTION]`) sous `⏳` pour les attentes, Vert (`> [!TIP]`) sous `✅`/`❓` pour les réponses validées.
+  - **Zéro état intermédiaire** : « En cours... » interdit, seul le résultat prouvé est affiché.
+- **Lien Proactif dans le Chat** : Fournir systématiquement le lien cliquable `[Synthèse de Session](file:///...)` en 1ère ligne de réponse dans le chat, sans jamais dupliquer le contenu dans le fil de discussion.
 
 ---
 
