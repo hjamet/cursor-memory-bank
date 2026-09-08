@@ -2,18 +2,17 @@
 # AIVC — AI Version Control (Long-Term Memory)
 
 > [!IMPORTANT]
-> **MCP TOOLS ONLY** — NEVER run `aivc` CLI commands in the terminal. Interact exclusively via MCP tools (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`).
->
-> **[Bascule Cold-Start]** : Si `recall` est vide ➔ arrêt immédiat des requêtes de mémoire, bascule directe sur `view_file` / `grep_search`. Conserver `remember` après chaque étape pour peupler la mémoire.
+> **USE MCP TOOLS ONLY — NEVER RUN CLI SHELL COMMANDS:**
+> As an AI assistant, you MUST interact with AIVC **exclusively** through its registered MCP tools (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`, `get_status`, etc.).
+> **NEVER execute `aivc` CLI shell commands in the terminal (e.g. `aivc sync`, `aivc status`, `aivc recall`)** under any circumstances. Running the CLI in the terminal spawns separate process environments, misses the current session context, and is strictly reserved for the human user.
 
-| # | Rule | Detail |
-|---|------|--------|
-| 1 | **Remember often** | Call `remember` après chaque étape significative liée à des fichiers. Format Post-It dense (Trigger/Contexte, Décision/Fix, Invariant/Impact). Un one-liner vide = échec, prose verbeuse = pollution. |
-| 2 | **Targeted context recovery** | Recours ciblé à `recall` (≥1 requête) uniquement lorsque la recherche de contexte mémoriel est réellement requise. Non obligatoire si le fichier ou la tâche cible est déjà connu(e). Puis `consult_memory` sur les résultats pertinents si nécessaire. |
-| 3 | **Explore before acting** | Interroger la mémoire d'abord — ne jamais refaire un travail déjà documenté. |
-| 4 | **Mention files** | Toujours passer `read_files` (fichiers clés consultés) et `edited_files` (fichiers modifiés/créés) pour alimenter le graphe de cooccurrence. |
-| 5 | **Format Post-It dense** | Rédiger des notes Post-It denses et structurées (contexte, décisions, invariants) pour recall futur immédiat sans bavardage. |
-| 6 | **Bascule Cold-Start** | Si `recall` ne retourne aucun résultat ➔ arrêt immédiat des requêtes mémoire, bascule directe sur `view_file` / `grep_search` / `list_dir`. |
+## Rules
+
+1. **Remember often.** Call `remember` after every meaningful step (sub-task done, file created/modified, decision made, error resolved, checkpoint reached). Notes must be **detailed**: what, why, errors, decisions, observations, next steps. A one-liner is a failure.
+2. **Start sessions with context recovery.** Before any work: `get_recent_memories` → `recall` (≥1 query) → `consult_memory` on relevant hits → `get_file_history_metadata` on files you'll modify.
+3. **Explore before you act.** Search memory first — never redo past work. Your memory contains solutions, patterns, and lessons.
+4. **Mention files you work on.** Always pass the files you consulted in `read_files` and the files you modified in `edited_files` when calling `remember`. This is how AIVC tracks file associations — there is no separate tracking tool.
+5. **Write for your future self.** Memory notes are handover memos — include reasoning, context, and recommendations as if briefing a colleague with zero context.
 <!-- AIVC:END -->
 
 ---
@@ -58,7 +57,10 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 - **Zéro Spin Expérimental** : Quand une baseline bat le système → annoncer crûment l'infériorité en tête de rapport. INTERDIT de minimiser derrière des sous-métriques favorables.
 - **Zéro Comparatif Unilatéral** : INTERDIT d'affirmer gain/supériorité tant que les DEUX branches n'ont pas produit leurs métriques côte à côte.
 - **Zéro Markdown dans les Dépôts LaTeX** : Les fichiers Markdown appartiennent exclusivement au coffre Obsidian `VoiceNotes/` (ou notes miroir `papers/*.md`). INTERDIT formellement de créer des documents, propositions, comptes-rendus ou résumés Markdown (`.md`) dans les arborescences de dépôts LaTeX (`paper/`). Les dépôts LaTeX ne doivent contenir strictement que des sources LaTeX (`.tex`, `.bib`, `.sty`), des patchs (`.patch`) et des figures/assets (`.png`, `.jpg`, `.pdf`). Tout livrable textuel explicatif se déporte dans la note Obsidian dédiée.
-- **Zéro Dérive Scratch & Anti-Scripts Superflus** : Interdiction formelle de générer des scripts Python temporaires dans `scratch/` pour effectuer de simples assertions, vérifications de types ou lectures que les outils natifs (`view_file`, `replace_file_content`, exécution de commandes directes) réalisent en une seule passe. Le dossier `scratch/` doit demeurer strictement vide après toute tâche.
+- **Sanctuarisation Absolue des Coffres Documentaires (MANDATOIRE)** : INTERDICTION ABSOLUE ET PÉRENNE de cloner des dépôts Git, d'exécuter des compilations/builds ou de stocker des fichiers scratch/temporaires dans le coffre Obsidian (`VoiceNotes/`). Tout clone de code, dépôt Git, environnement ou build de développement doit résider EXCLUSIVEMENT dans `C:\Users\Jamet\Documents\code\`, synchronisé via GitHub. Le coffre est réservé au Digital Brain.
+- **Gouvernance des Scripts & Zéro Script Orphelin (MANDATOIRE)** :
+  * **Scripts temporaires / jetables** : Doivent être stockés exclusivement dans l'espace de session `<appDataDir>\brain\<conversation-id>\scratch\` (ou directement dans `brain/`).
+  * **Scripts pérennes / définitifs** : Doivent être placés dans `antigravity/` (dans le sous-dossier `scripts/` du skill correspondant ou dans `antigravity/scripts/`), et obligatoirement rattachés à un skill avec documentation explicative. INTERDIT d'avoir des scripts isolés qui flottent sans attache ni finalité documentée.
 - **Interdiction de `grep_search` sur Fichier Unique (Windows)** : INTERDIT formellement d'exécuter `grep_search` en ciblant directement un chemin de fichier unique sous Windows (bogue de path / ripgrep natif de l'outil). Utiliser `view_file` directement sur le fichier ciblé, ou lancer `grep_search` sur le répertoire parent avec filtre `Includes`.
 
 ### Protocole Expectation-First (Confrontation Phase 1 vs Phase 2)
@@ -138,9 +140,12 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 - **Cycle bicolore strict** : Rouge (`> [!CAUTION]`) sous `⏳` pour les attentes épistémiques, Vert (`> [!TIP]`) sous `✅`/`❓` pour les réponses validées par preuves matérielles.
 - **Zéro état intermédiaire** : « En cours... » interdit, seul le résultat prouvé est affiché.
 - **Excellence Rédactionnelle dans le Callout Vert (> [!TIP]) — MANDATOIRE** :
-  - Le callout vert `> [!TIP]` de `summary.md` est le **livrable de référence noble** de la session.
-  - Il doit intégrer la totalité des explications, des tableaux Markdown formatés, des blocs de code et des justifications conceptuelles nécessaires pour qu'Henri dispose d'une réponse exhaustive, autonome et immédiatement compréhensible sans avoir besoin de relire le fil de discussion.
-  - Interdiction de sur-appliquer la règle du format télégraphique sec à `summary.md` : bannir les puces tronquées ou squelettiques. Tout ce qui mérite d'être expliqué dans le chat DOIT être présent avec son plein développement dans le callout vert de `summary.md`.
+  - **Synthèse Concise en Langage Naturel** : `summary.md` est une synthèse claire, dense et percutante, et NON une redite exhaustive du fil de discussion. Rédiger les explications dans une **prose en langage naturel** fluide, articulée et logique. Éviter tout verbiage inutile comme les cascades de puces squelettiques.
+  - **Structuration Binaire Épurée** :
+    * **Raisonnement, démarche & synthèse** ➔ **Prose soignée et argumentée**.
+    * **Données, comparatifs & métriques** ➔ **Tableaux Markdown propres**.
+    * Les puces sont strictement limitées aux énumérations courtes indispensables.
+  - **Bannissement des Métadonnées Froides Futiles** : Bannir les chemins absolus interminables cités dans le texte (utiliser des basenames cliquables) ainsi que les versions techniques mineures de compilateurs ou de PDF qui n'apportent aucune valeur conceptuelle.
 
 #### 4. Restitution & Lien Proactif
 
