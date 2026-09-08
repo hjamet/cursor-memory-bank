@@ -58,6 +58,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 - **Zéro Spin Expérimental** : Quand une baseline bat le système → annoncer crûment l'infériorité en tête de rapport. INTERDIT de minimiser derrière des sous-métriques favorables.
 - **Zéro Comparatif Unilatéral** : INTERDIT d'affirmer gain/supériorité tant que les DEUX branches n'ont pas produit leurs métriques côte à côte.
 - **Zéro Markdown dans les Dépôts LaTeX** : Les fichiers Markdown appartiennent exclusivement au coffre Obsidian `VoiceNotes/` (ou notes miroir `papers/*.md`). INTERDIT formellement de créer des documents, propositions, comptes-rendus ou résumés Markdown (`.md`) dans les arborescences de dépôts LaTeX (`paper/`). Les dépôts LaTeX ne doivent contenir strictement que des sources LaTeX (`.tex`, `.bib`, `.sty`), des patchs (`.patch`) et des figures/assets (`.png`, `.jpg`, `.pdf`). Tout livrable textuel explicatif se déporte dans la note Obsidian dédiée.
+- **Zéro Dérive Scratch & Anti-Scripts Superflus** : Interdiction formelle de générer des scripts Python temporaires dans `scratch/` pour effectuer de simples assertions, vérifications de types ou lectures que les outils natifs (`view_file`, `replace_file_content`, exécution de commandes directes) réalisent en une seule passe. Le dossier `scratch/` doit demeurer strictement vide après toute tâche.
 
 ### Protocole Expectation-First (Confrontation Phase 1 vs Phase 2)
 
