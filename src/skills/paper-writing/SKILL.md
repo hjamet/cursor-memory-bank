@@ -1,208 +1,156 @@
 ---
 name: paper-writing
-description: Méthodologie complète pour la rédaction et la révision itérative de papiers académiques via la note miroir Obsidian (papers/<nom>.md), l'édition directe des sources LaTeX, la projection de diff AST, l'articulation amont avec la revue bibliographique (/literature-review) et le style scientifique rigoureux anti-IA.
+description: Méthodologie complète pour la rédaction et la révision itérative de papiers académiques via la note miroir Obsidian (papers/<nom>.md), l'édition directe des sources LaTeX, la projection de diff AST, le cycle comment-driven, la CLI simplifiée (--diff "<explication>" et --commit), l'automatisation des images et l'articulation amont avec la revue bibliographique (/literature-review).
 ---
 
 # 📝 Comment Rédiger et Réviser des Papiers Académiques (Paper Writing) ?
 
 > [!IMPORTANT]
-> **Règle absolue d'écriture académique :** 
-> Le texte doit être extrêmement scientifique, neutre, rigoureux et précis. Tout langage promotionnel, adjectifs hyperboliques ou tournures typiques des IA sont formellement interdits.
-
-> [!TIP]
-> **Synergie Amont avec `/literature-review` :**
-> La rédaction et la révision des sections bibliographiques (*Related Work*, *Background*, *Baselines*, *Discussion*) s'articulent directement avec le skill `/literature-review`. Avant d'entamer l'écriture de ces sections, consulter la note de synthèse Markdown `notes/Revue de Littérature [Nom du Projet].md` et la collection Zotero synchronisée. Celles-ci constituent la source de vérité amont pour les fiches médico-légales, les infographies d'articles et les métriques comparatives.
+> **Rôle Canonique : Orchestrateur Technique de Projet d'Article**
+> Ce skill régit l'orchestration technique, le cycle collaboratif comment-driven, la projection AST différentielle (`latex_to_markdown_artifact.py`), la synchronisation Overleaf/GitHub et la gestion automatisée des médias.
+> - **Pour la Charte Stylistique & Anti-IA** : Appliquer impérativement le skill dédié [`scientific-writing-style`](file:///C:/Users/hjamet/Documents/VoiceNotes/.agent/skills/scientific-writing-style/SKILL.md) (posture de chercheur senior, bannissement absolu des tirets cadratins `—`, suite déterministe `avoid-ai-writing` et barrière bloquante $P(\text{AI}) < 0.10$).
+> - **Pour la Revue Bibliographique Amont** : Mobiliser [`literature-review`](file:///C:/Users/hjamet/Documents/VoiceNotes/.agent/skills/literature-review/SKILL.md) (synthèse de littérature, fiches médico-légales Zotero et cartographie des baselines).
 
 ---
 
-## 1. 🪞 Comment la Note Miroir et la Boucle Granulaire Orchestrent-elles la Relecture ?
+## 1. 🔄 Le Cycle Collaboratif Déterministe (Comment-Driven Loop)
 
-### 1.1 Quel est le Protocole d'Entrée Zéro-Modification & Boucle Commentaire-First ?
-- **Au premier appel du skill** : L'agent ne modifie STRICTEMENT AUCUNE ligne de code ou de texte LaTeX.
-  Il exécute uniquement `python antigravity/scripts/latex_to_markdown_artifact.py`, affiche le lien vivant de la note miroir dans le chat, et attend les commentaires d'Henri.
-- **Règle d'or de réécriture** : INTERDICTION FORMELLE de toute réécriture générale ou proactive.
-  Toute modification doit découler STRICTEMENT et EXCLUSIVEMENT d'un commentaire direct d'Henri sur un passage spécifique de la note miroir. Henri commente directement par sélection contextuelle de texte dans l'interface (comme dans Antigravity / Obsidian) ; aucune section artificielle de commentaires en fin de document n'est requise ni injectée.
-- **Mandatement Direct de Claude Opus** : Toute réécriture ou reformulation littéraire ou scientifique issue d'un commentaire est mandatée DIRECTEMENT via :
+Toute modification du document académique s'inscrit rigoureusement dans la séquence déterministe suivante à 4 temps :
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│ 1. Réception des Commentaires Utilisateur                              │
+│    Henri commente un artéfact ou la note miroir Obsidian.             │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ 2. Sécurisation par Commit Précis (--commit)                           │
+│    Validation et commit de l'état actuel pour tous les endroits        │
+│    commentés (ou situés avant un endroit commenté) afin de geler       │
+│    la baseline validée. AUCUN commit sauvage sans commentaire !        │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ 3. Modifications Liées aux Commentaires (Protocole en 3 Étapes)        │
+│    (a) Premier jet exhaustif axé à 100% sur le sens et la complétude.  │
+│    (b) Sous-agent de réécriture avec 'scientific-writing-style' et la  │
+│        suite avoid-ai-writing en boucle jusqu'à P(AI) < 10.0%.         │
+│    (c) Réintégration du texte corrigé dans le document source.         │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ 4. Projection Différentielle Immédiate (--diff "explication")          │
+│    Exécution directe :                                                 │
+│    python antigravity/scripts/latex_to_markdown_artifact.py            │
+│        paper/main.tex --diff "Explication claire des changements"      │
+│    (Suppression définitive du drapeau séparé --explanation).           │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### Détail des 4 Temps :
+
+#### 1. Réception des Commentaires Utilisateur
+- **Règle d'or** : INTERDICTION FORMELLE de toute réécriture générale ou proactive sans retour préalable.
+- Les retours proviennent soit de sélections contextuelles commentées par Henri dans l'artéfact de session Antigravity, soit d'annotations directes dans la note miroir Obsidian `papers/<nom_papier>.md`.
+
+#### 2. Sécurisation par Commit Précis (`--commit`)
+- **Geler la Baseline Validée** : Avant toute retouche suite à un commentaire, valider l'état actuel :
   ```bash
-  antigravity-agents run --model claude-opus-4-6 --prompt "..."
+  python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --commit
   ```
-  sans passer par aucun sous-agent intermédiaire (interdiction absolue de double délégation).
+  *(Ou avec `--line <N>` pour valider sélectivement les lignes antérieures au commentaire).*
+- **Règle Zero-Trust** : Zéro commit sauvage ou anticipé sans commentaire explicite d'Henri.
+
+#### 3. Protocole de Modification en 3 Étapes
+- **(a) Premier Jet Exhaustif** : Rédiger ou structurer les éléments techniques en se concentrant à 100% sur l'exactitude scientifique, les chiffres, les formules et la logique argumentative.
+- **(b) Filtrage Stylistique & Anti-IA via `scientific-writing-style`** :
+  - Exécuter la suite d'outils locale `avoid-ai-writing` (`detect.js`, `validate.js`, `check-style.js`).
+  - Purger impérativement les 112 clichés IA et tout tiret cadratin (`—`, `--`).
+  - Auditer via `ai_detector.py` jusqu'à conformité stricte $P(\text{AI}) < 0.10$.
+  - Mandatement direct de Claude Opus via `antigravity-agents run --model claude-opus-4-6 --prompt "..."` si une reformulation stylistique avancée est requise.
+- **(c) Réintégration dans les Sources** : Intégration chirurgicale dans les fichiers sources (`.tex`, `.bib`).
+
+#### 4. Projection Différentielle Immédiate (`--diff "<explication>"`)
+- Rafraîchissement immédiat de la note miroir et génération du diff coloré avec le callout d'explication :
+  ```bash
+  python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --diff "Intégration de la calibration N=500k et clarification de la Section 4.2"
+  ```
+- Vérifier que 100% des badges IA affichés dans la note miroir sont verts ($\le 10\%$).
 
 ---
 
-### 1.2 Quel est le Rôle Central de la Note Miroir ?
-La note miroir `papers/<nom_papier>.md` (au sein du coffre `VoiceNotes`) est l'interface visuelle et le tableau de bord de relecture pour Henri. Elle est générée automatiquement à partir des sources LaTeX par le convertisseur universel sans aucun argument complexe :
+## 2. ⚡ CLI Simplifiée de `latex_to_markdown_artifact.py`
 
+Le script universel de projection différentielle dispose d'une interface épurée sans paramètres redondants :
+
+### 1. Mode Différentiel Direct (Usage Standard)
 ```bash
-python antigravity/scripts/latex_to_markdown_artifact.py <main.tex>
+python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --diff "<explication>"
 ```
-*(ou simplement `python antigravity/scripts/latex_to_markdown_artifact.py` sans argument depuis le dossier du papier ou du projet, la détection de `main.tex`, de la bibliographie `.bib`, de la baseline Git d'Henri et du fichier miroir étant 100% automatique)*.
+- L'argument passé directement à `--diff` constitue l'explication obligatoire insérée dans le callout de conciliation.
+- Déclenche la comparaison AST contre la baseline Git d'Henri Jamet.
+- Calcule automatiquement les deltas différentiels, surligne les ajouts/suppressions et insère les badges de conformité IA.
 
-- **Fonctionnalités & Automatisation Totale** :
-  - **Auto-détection source & bib** : Résolution récursive des `\input{...}` et auto-détection du fichier `.bib` présent dans le répertoire.
-  - **Baseline Git automatique** : Calage déterministe sur le dernier commit signé par Henri Jamet (`git log --author="Henri Jamet" -n 1 --format="%H"`, fallback `HEAD~1`).
-  - **KaTeX natif** : Formules mathématiques fidèlement rendues (`$...$`, `$$...$$`, environnements `align`, `equation`).
-  - **Tableaux Markdown** : Conversion automatique des tables LaTeX (`tabular`, `tabularx`, `booktabs`) en tableaux Markdown natifs.
-  - **Résolution des citations** : Parser BibTeX intégré résolvant les clés `\cite{...}`, `\citep{...}`, `\citet{...}` en `[Auteur, Année]` lisibles.
-  - **Diff AST incrémental Inline** : Découpage par sections AST. Les sections inchangées restent en texte continu sans bruit ; seules les modifications réelles sont surlignées en Inline Word-Diff (`<del>` rouge / `<ins>` vert).
-
----
-
-### 1.3 Comment s'Ancre la Baseline de Révision Git Native sur l'Auteur (Henri Jamet) ?
-
-Le moteur de diff différentiel ancre automatiquement sa baseline de comparaison sur le dernier commit signé par Henri Jamet :
-
+### 2. Mode Commit de Baseline
 ```bash
-git log --author="Henri Jamet" -n 1 --format="%H"
+python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --commit
 ```
+- Valide l'état courant comme nouvelle baseline officielle.
+- Option granulaire : `--line <N>` pour geler et committer uniquement jusqu'à la ligne $N$ de la note miroir.
 
-- **Invariant Zero-Trust** : Les modifications apportées par des co-auteurs ou synchronisées depuis Overleaf/GitHub via `git pull` restent continuellement surlignées en diff (vert/rouge) dans la note miroir tant qu'Henri ne les a pas explicitement validées ou commentées.
-- **Fallback automatique** : Si aucun commit d'Henri Jamet n'est détecté dans l'historique du dépôt, le moteur bascule automatiquement sur `HEAD~1` (ou `HEAD`).
-
----
-
-### 1.4 Comment S'Orchestre le Cycle Systématique `--commit` / `--diff` à Chaque Retour ?
-
-Dès qu'Henri annote la note miroir `papers/<nom_papier>.md` et avant TOUTE modification du code LaTeX, l'agent exécute la boucle déterministe en 3 temps :
-
-```mermaid
-graph TD
-    A["1. Retour d'Henri : Commentaire repéré à la ligne N<br/>(note miroir papers/<nom>.md)"] --> B["2. ÉTAPE PRÉALABLE OBLIGATOIRE :<br/>python latex_to_markdown_artifact.py --commit --line N"]
-    B --> C["⚡ Traitement Automatique :<br/>- Validation & purge des deltas avant la ligne N<br/>- Staging & Commit descriptif dans le repo LaTeX<br/>- Git push automatique vers le remote Overleaf/GitHub"]
-    C --> D["3. Édition chirurgicale des sources LaTeX<br/>(.tex, .bib) selon le commentaire"]
-    D --> E["4. ÉTAPE DE RAFRAÎCHISSEMENT :<br/>python latex_to_markdown_artifact.py --diff"]
-    E --> G{"🛡️ Contrôle Anti-IA :<br/>Paragraphes > 10.0% ?"}
-    G -- "🚨 Alerte [REFORMULATION OBLIGATOIRE]" --> H["5. Réécriture chirurgicale immédiate<br/>(Claude Opus / reformulate-human)"]
-    H --> E
-    G -- "✅ Feu vert [CERTIFICATION CONFORME]" --> F["🎯 Note miroir certifiée :<br/>- Diffs antérieurs tombés à 0<br/>- Nouveaux deltas surlignés (vert/rouge)<br/>- 100% badges <= 10%<br/>- Lien Obsidian cliquable en tête de chat"]
-    F --> A
+### 3. Mode Projection Simple (Sans Diff)
+```bash
+python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex
 ```
-
-#### Étape 1 : Comment la Validation Immédiate & la Baseline Git S'Automatisent-elles (`--commit`) ?
-- **Règle absolue** : AVANT toute retouche de code ou de texte LaTeX suite à un retour d'Henri, l'agent invoque systématiquement :
-  ```bash
-  python antigravity/scripts/latex_to_markdown_artifact.py --commit --line <N>
-  ```
-  *(où `<N>` représente le numéro de ligne 1-indexed du texte sélectionné et commenté par Henri dans la note miroir Markdown)*.
-- **Synchronisation Préalable Sécurisée (Pull-First & Autostash)** :
-  - Lors de l'appel à `--commit`, le script exécute **systématiquement et avant toute action** un `git pull --rebase --autostash origin <branch>` afin d'intégrer en toute sécurité les commits de co-auteurs distants (Overleaf / GitHub).
-  - **Préservation Absolue des Modifications Tierces** : Les apports de tiers intégrés lors du pull ne sont **JAMAIS écrasés ni validés automatiquement** comme étant l'œuvre d'Henri. Le commit d'Henri ne valide strictement que les lignes antérieures à `<N>`. Toute modification introduite par autrui apparaîtra automatiquement sous forme de diff coloré (`<ins>` vert / `<del>` rouge) lors de l'itération suivante (`--diff`), prête pour arbitrage.
-- **Gestion Bloquante des Conflits de Fusion (Code de Sortie 3)** :
-  - Si un conflit Git survient lors du pull préalable (`UU`, `AA`, etc.), le script interrompt immédiatement le commit, affiche une bannière d'action requise :
-    ```
-    🚨 [ACTION AGENT REQUISE : CONFLIT DE FUSION GIT DÉTECTÉ LORS DU PULL]
-    ```
-    dresse la liste explicite des fichiers `.tex` en conflit, et se termine avec le code de sortie `sys.exit(3)`.
-  - **Consignes Impératives pour l'Agent en Cas de Conflit (Exit 3)** :
-    1. Ne JAMAIS abandonner ni considérer la tâche en échec.
-    2. Ouvrir et inspecter immédiatement le ou les fichiers `.tex` signalés.
-    3. Résoudre chirurgicalement les marqueurs de conflit (`<<<<<<<`, `=======`, `>>>>>>>`) : préserver les apports des collaborateurs sans écraser leurs changements, conserver les validations d'Henri et s'assurer de l'intégrité absolue des environnements et macros LaTeX.
-    4. Une fois les conflits résolus dans les fichiers `.tex`, relancer immédiatement la commande :
-       ```bash
-       python antigravity/scripts/latex_to_markdown_artifact.py --commit --line <N>
-       ```
-- **Effets instantanés de la validation** :
-  - Toutes les diffs antérieures à la ligne `<N>` sont validées : ajouts `<span ...>` intégrés en texte normal, suppressions `<del>` et callouts de sections supprimées purgés.
-  - Les diffs à partir de la ligne `<N>` restent intacts.
-  - Le script indexe automatiquement les modifications correspondantes dans le dépôt LaTeX, enregistre un commit Git descriptif (`review(paper): validate revisions up to line <N>...`), et exécute automatiquement un `git push` vers le remote distant (Overleaf / GitHub).
-  - La baseline Git d'Henri avance immédiatement sur ce commit.
-
-#### Étape 2 : Comment Réaliser l'Édition Directe des Sources LaTeX ?
-- L'agent (ou Claude Opus mandaté directement pour les reformulations) applique les corrections demandées par Henri dans les sources (`.tex`, `.bib`).
-- **Interdiction formelle d'éditer le corps Markdown miroir à la main** : La note `papers/<nom_papier>.md` est une projection générée ; toute modification manuelle directe serait écrasée.
-
-#### Étape 3 : Comment Rafraîchir la Note Miroir (`--diff`) ?
-- L'agent réexécute immédiatement le convertisseur :
-  ```bash
-  python antigravity/scripts/latex_to_markdown_artifact.py --diff
-  ```
-- 🎯 **Effet visuel immédiat** : Les sections antérieures à la ligne `<N>` apparaissent en texte propre sans aucun diff parasite. Seules les nouvelles modifications apportées à l'étape 2 sont surlignées en rouge/vert, prêtes pour la relecture suivante d'Henri.
-
-#### Étape 4 : Boucle Fermée Actor-Critic & Seuil Anti-IA P(IA) <= 10% (MANDATOIRE)
-- **Règle absolue d'itération en boucle fermée** :
-  Après chaque appel à `python latex_to_markdown_artifact.py --diff` :
-  Si le script retourne l'alerte `🚨 [ACTION AGENT REQUISE : REFORMULATION OBLIGATOIRE — SEUIL P(IA) > 10% NON RESPECTÉ]`, l'agent a l'obligation stricte d'itérer immédiatement : reformuler les paragraphes incriminés dans le .tex et réexécuter `--diff`, jusqu'à l'obtention du feu vert `✅ [CERTIFICATION IA CONFORME] 100% des paragraphes modifiés respectent le seuil strict P(IA) <= 10.0%`.
-- **Interdiction Formelle d'Arrêt Prématuré** : L'agent NE DOIT JAMAIS s'arrêter, déclarer sa tâche terminée ou solliciter l'arbitrage d'Henri tant qu'un seul paragraphe modifié dépasse le seuil strict de 10.0%.
+- Convertit le document source vers la note miroir `papers/<nom_papier>.md` sans générer de diffs ni badges IA.
 
 ---
 
-## 2. 🤖 Comment les Sous-Agents Spécialisés se Répartissent-ils le Travail ?
+## 3. 🖼️ Automatisation Complète des Images & Médias
 
-Toute modification substantielle d'un papier académique doit mobiliser des sous-agents en parallèle. Trois rôles sont systématiques :
+Le pipeline gère automatiquement et de manière totalement transparente l'extraction et l'affichage des figures :
 
-### 2.1 Quel est le Rôle du Sous-Agent Critique (*Paper Text Critic*) ?
-- **Rôle** : Relire le texte actuel et identifier les faiblesses.
-- **Focus** : Claims non étayés, langage "IA", gaps logiques, structure, comparaisons manquantes.
-- **Output** : Rapport structuré par sévérité (🔴 critique → 🔵 mineur).
-- **Quand** : Avant toute réécriture, pour disposer d'un diagnostic objectif.
-
-### 2.2 Quel est le Rôle du Sous-Agent Recherche (*Citation Researcher*) ?
-- **Rôle** : Chercher des références pertinentes via le skill `/literature-review`, MCP Consensus ou web search.
-- **Focus** : Papiers de la conférence cible, travaux récents sur le sujet, citations manquantes, extraction depuis la note `notes/Revue de Littérature [Nom du Projet].md` et la collection Zotero curée.
-- **Output** : Entrées BibTeX complètes + suggestion d'insertion subtile.
-- **Quand** : En amont (via `/literature-review`) et en parallèle de la critique, pour alimenter la réécriture.
-
-### 2.3 Pourquoi la Rédaction est-elle Exclusive à Claude Opus (*Direct Mandating*) ?
-- **Règle absolue** : ZÉRO réécriture générale proactive par un sous-agent générique.
-- **Exécution exclusive** : Toute reformulation ou rédaction textuelle fait suite à un commentaire précis d'Henri et est mandatée DIRECTEMENT auprès de Claude Opus via :
-  ```bash
-  antigravity-agents run --model claude-opus-4-6 --prompt "..."
-  ```
-  sans passer par aucun sous-agent intermédiaire (interdiction absolue de double délégation).
-- **Output** : Texte LaTeX prêt à insérer.
-- **Quand** : Sur commentaire direct d'Henri pour réécrire ou affiner un passage ciblé.
-
-> [!NOTE]
-> Les sous-agents de critique et de recherche travaillent en amont. L'agent principal mandate directement Claude Opus pour la rédaction textuelle issue des arbitrages d'Henri et intègre les résultats.
+1. **Auto-Détection & Résolution** :
+   - Analyse récursive de toutes les balises LaTeX `\includegraphics[...]{chemin/figure}`.
+   - Résolution multi-chemins (extensions `.pdf`, `.png`, `.jpg`, `.svg`).
+2. **Copie Automatisée vers le Coffre Obsidian** :
+   - Les figures sont automatiquement copiées vers les répertoires d'attachements canoniques :
+     * `papers/_attachments/<nom_du_papier>/`
+     * `papers/_attachments/`
+     * `_attachments/`
+3. **Synchronisation avec les Sessions Brain d'Antigravity** :
+   - Duplication automatique dans `<appDataDir>/brain/<conversation_id>/` pour permettre le rendu visuel instantané dans les vues d'artéfacts.
+4. **Syntaxe Universelle** :
+   - La note miroir générée utilise la syntaxe standard compatible Obsidian et KaTeX/Markdown, garantissant un affichage visuel immédiat sans configuration manuelle.
 
 ---
 
-## 3. ✒️ Quels sont les Invariants du Style d'Écriture Scientifique ?
+## 4. 🤝 Priorité Absolue aux Collaborateurs & Synchronisation Git/Overleaf
 
-### Quel Ton & Registre Adopter ?
-- **Extrêmement scientifique, neutre, rigoureux, précis.**
-- Faire comprendre de manière subtile l'intérêt et la qualité du travail sans l'affirmer de manière explicite ou pompeuse.
-- Jamais d'adjectifs hyper-mélioratifs : rester strictement objectif.
-- Écrire de manière humaine : varier la longueur des phrases et le vocabulaire employé.
+Le projet académique est un travail d'équipe (Stergios, James, Isna, Yash Raj Shrestha). La préservation de leurs apports est un impératif absolu.
 
-### Quelle Structure & Mise en Page Privilégier ?
-- Privilégier les **paragraphes clairs et denses**.
-- Pas de formatting excessif : éviter les sous-titres superflus et les listes à puces sauf si absolument nécessaire.
-- Varier la mise en page pour rendre la lecture fluide et agréable.
-- Chaque phrase doit porter une information précise. Aucune phrase vide ou de remplissage.
-
-### ❌ Quels sont les Anti-Patterns INTERDITS (Style IA) ?
-- ❌ **Phrases vides non porteuses d'information** (ex: *"In this section, we discuss..."*)
-- ❌ **Phrases de conclusion inutiles** (ex: *"In summary, we have shown that..."*)
-- ❌ **Adjectifs superlatifs non justifiés** (ex: *"groundbreaking"*, *"revolutionary"*, *"powerful"*)
-- ❌ **Formulations grandiloquentes** (ex: *"demonstrating the power of..."*)
-- ❌ **Répétition de l'évidence** (ex: *"as mentioned earlier"*, *"as we have seen"*)
-- ❌ **Hedging excessif** (ex: *"it is worth noting that"*, *"interestingly"*)
-- ❌ **Listes numérotées comme substitut de prose** (ex: *"What we observe is the following: (1)... (2)..."*)
-
-### ✅ Quels sont les Patterns RECOMMANDÉS ?
-- ✅ **Attaque directe** : Commencer directement par l'observation ou le résultat.
-- ✅ **Quantification** : Quantifier systématiquement les claims (pourcentages, p-values, intervalles de confiance).
-- ✅ **Contextualisation** : Situer les résultats par rapport aux baselines de la littérature.
-- ✅ **Connecteurs logiques variés** (*however*, *consistent with*, *in contrast*, *nevertheless*).
-- ✅ **Rythme** : Alterner phrases courtes et phrases complexes.
-- ✅ **Nuance** : Qualifier les résultats avec mesure plutôt que de manière catégorique.
-- ✅ **Citations ciblées** : Intégrer les citations de la conférence cible de manière subtile et naturelle.
+### Règles d'Or Collaboratives :
+1. **Pull-First & Autostash Systématique** :
+   - À chaque exécution, le script lance un `git pull --rebase --autostash origin <branch>` pour intégrer les modifications distantes sans créer de commit de merge parasite.
+2. **Préservation Prioritaire des Co-Auteurs** :
+   - Les modifications faites par les collaborateurs sont **STRICTEMENT PRIORITAIRES** et ne doivent **JAMAIS être écrasées ni supprimées unilatéralement**.
+   - Interdiction formelle du force push (`git push -f`) et de l'arbitrage aveugle (`--ours`).
+3. **Gestion Bloquante des Conflits Git (Code de Sortie 3)** :
+   - Si un conflit survient lors du rebase, le script s'interrompt immédiatement avec l'alerte rouge `🚨 [ACTION AGENT CRITIQUE : CONFLIT GIT DÉTECTÉ]`.
+   - **Procédure de Résolution** :
+     1. Inspecter immédiatement les fichiers signalés.
+     2. Identifier précisément l'intention de la modification des collaborateurs.
+     3. Concilier astucieusement notre texte et le leur afin de préserver les deux apports sans perte d'information.
+     4. Finaliser le rebase (`git add . && git rebase --continue`), puis relancer `--diff`.
+4. **Reporting Obligatoire dans le Chat** :
+   - Formuler systématiquement à Henri un compte-rendu clair précisant les apports collaborateurs rapatriés et la conciliation effectuée.
 
 ---
 
-## 4. 📚 Comment Intégrer Subtilement les Citations de la Conférence Cible ?
+## 5. 📑 Recompilation Obligatoire & Contrôle de Pagination
 
-Lors de la préparation ou de la révision d'un papier pour une conférence spécifique :
-1. **Exploitation de `/literature-review`** : Mobiliser la note de synthèse `notes/Revue de Littérature [Nom du Projet].md` (liée à la note maîtresse `[[NomDuProjet]]`) et la collection Zotero du projet (issues du skill `/literature-review`) pour identifier immédiatement les papiers pivots (`fit-5`) et les baselines pertinentes (`fit-4`).
-2. **Recherche ciblée** : Rechercher 2 à 3 papiers publiés récemment **dans cette conférence** qui sont thématiquement proches.
-3. **Insertion naturelle** : Les intégrer dans le texte de manière **extrêmement subtile** (la citation doit s'insérer naturellement dans le flux argumentatif, jamais comme une mention forcée).
-4. **Vérification rigoureuse** : Toujours vérifier les DOI, auteurs et venues via DBLP, Consensus ou le site officiel de l'éditeur.
-
----
-
-## 5. ⚙️ Comment Auditer la Pagination et le Contenu après Git Pull ?
-
-- **Recompilation Obligatoire** : Recompiler systématiquement après tout `git pull` ou modification sur un document LaTeX (`pdflatex` / `latexmk`) avant d'auditer la pagination ou le contenu. Interdiction formelle d'auditer un `.pdf` préexistant sans compilation fraîche.
-
-
+- **Recompilation Fraîche** : Après tout `git pull` ou édition des sources LaTeX, recompiler systématiquement le document (`pdflatex` ou `latexmk`) avant tout audit de pagination ou de rendu.
+- **Interdiction Formelle d'Auditer un PDF Obsolète** : Ne jamais formuler d'avis sur la structure ou la longueur des sections en se basant sur un `.pdf` préexistant sans compilation vérifiée.
