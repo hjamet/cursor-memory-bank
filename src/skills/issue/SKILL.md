@@ -23,7 +23,7 @@ description: "Artisan implémenteur d'issues. Prend la première issue prioritai
 > L'issue est fermée dès le début, **quel que soit le résultat**. L'Architecte la rouvrira si nécessaire après review.
 
 ## 2. 🧠 Contexte & Plan
-1. **AIVC** : `get_recent_memories`, `recall` (≥3 queries), `consult_file`.
+1. **AIVC** : `recall` (≥1 query si besoin de contexte), `consult_memory`, `get_file_history_metadata`.
 2. Produis un court `implementation_plan.md` avec un encart `> [!IMPORTANT]` expliquant l'objectif en français.
 
 ## 3. 🛠️ Implémentation

@@ -8,7 +8,7 @@ Ce workflow sert à générer un **"Prompt de Passation"** à la fin d'une conve
 
 ## Pré-requis : Recherche de Contexte
 
-**OBLIGATOIRE** : Avant de rédiger le handover, tu DOIS effectuer au minimum **1 recherche dans ta mémoire long-terme** (recall, get_recent_memories, ou équivalent) pour récupérer le contexte pertinent de la session et des sessions précédentes. Cela garantit que le handover est complet et précis.
+**OBLIGATOIRE** : Avant de rédiger le handover, tu DOIS effectuer au minimum **1 recherche dans ta mémoire long-terme** (`recall` ou équivalent) pour récupérer le contexte pertinent de la session et des sessions précédentes. Cela garantit que le handover est complet et précis.
 
 ## Philosophie
 *   **Narratif ET Structuré** : On veut l'histoire, mais aussi les faits durs.

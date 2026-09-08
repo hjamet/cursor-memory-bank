@@ -4,16 +4,16 @@
 > [!IMPORTANT]
 > **MCP TOOLS ONLY** — NEVER run `aivc` CLI commands in the terminal. Interact exclusively via MCP tools (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`).
 >
-> **[Bascule Cold-Start]** : Si `recall` / `get_recent_memories` est vide ➔ arrêt immédiat des requêtes de mémoire, bascule directe sur `view_file` / `grep_search`. Conserver `remember` après chaque étape pour peupler la mémoire.
+> **[Bascule Cold-Start]** : Si `recall` est vide ➔ arrêt immédiat des requêtes de mémoire, bascule directe sur `view_file` / `grep_search`. Conserver `remember` après chaque étape pour peupler la mémoire.
 
 | # | Rule | Detail |
 |---|------|--------|
 | 1 | **Remember often** | Call `remember` après chaque étape significative liée à des fichiers. Format Post-It dense (Trigger/Contexte, Décision/Fix, Invariant/Impact). Un one-liner vide = échec, prose verbeuse = pollution. |
-| 2 | **Context recovery first** | Avant toute action : `get_recent_memories` → `recall` (≥1 requête) → `consult_memory` → `get_file_history_metadata` sur les fichiers cibles. |
+| 2 | **Targeted context recovery** | Recours ciblé à `recall` (≥1 requête) uniquement lorsque la recherche de contexte mémoriel est réellement requise. Non obligatoire si le fichier ou la tâche cible est déjà connu(e). Puis `consult_memory` sur les résultats pertinents si nécessaire. |
 | 3 | **Explore before acting** | Interroger la mémoire d'abord — ne jamais refaire un travail déjà documenté. |
 | 4 | **Mention files** | Toujours passer `read_files` (fichiers clés consultés) et `edited_files` (fichiers modifiés/créés) pour alimenter le graphe de cooccurrence. |
 | 5 | **Format Post-It dense** | Rédiger des notes Post-It denses et structurées (contexte, décisions, invariants) pour recall futur immédiat sans bavardage. |
-| 6 | **Bascule Cold-Start** | Si `recall` / `get_recent_memories` ne retourne aucun résultat ➔ arrêt immédiat des requêtes mémoire, bascule directe sur `view_file` / `grep_search` / `list_dir`. |
+| 6 | **Bascule Cold-Start** | Si `recall` ne retourne aucun résultat ➔ arrêt immédiat des requêtes mémoire, bascule directe sur `view_file` / `grep_search` / `list_dir`. |
 <!-- AIVC:END -->
 
 ---
@@ -59,6 +59,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 - **Zéro Comparatif Unilatéral** : INTERDIT d'affirmer gain/supériorité tant que les DEUX branches n'ont pas produit leurs métriques côte à côte.
 - **Zéro Markdown dans les Dépôts LaTeX** : Les fichiers Markdown appartiennent exclusivement au coffre Obsidian `VoiceNotes/` (ou notes miroir `papers/*.md`). INTERDIT formellement de créer des documents, propositions, comptes-rendus ou résumés Markdown (`.md`) dans les arborescences de dépôts LaTeX (`paper/`). Les dépôts LaTeX ne doivent contenir strictement que des sources LaTeX (`.tex`, `.bib`, `.sty`), des patchs (`.patch`) et des figures/assets (`.png`, `.jpg`, `.pdf`). Tout livrable textuel explicatif se déporte dans la note Obsidian dédiée.
 - **Zéro Dérive Scratch & Anti-Scripts Superflus** : Interdiction formelle de générer des scripts Python temporaires dans `scratch/` pour effectuer de simples assertions, vérifications de types ou lectures que les outils natifs (`view_file`, `replace_file_content`, exécution de commandes directes) réalisent en une seule passe. Le dossier `scratch/` doit demeurer strictement vide après toute tâche.
+- **Interdiction de `grep_search` sur Fichier Unique (Windows)** : INTERDIT formellement d'exécuter `grep_search` en ciblant directement un chemin de fichier unique sous Windows (bogue de path / ripgrep natif de l'outil). Utiliser `view_file` directement sur le fichier ciblé, ou lancer `grep_search` sur le répertoire parent avec filtre `Includes`.
 
 ### Protocole Expectation-First (Confrontation Phase 1 vs Phase 2)
 
@@ -81,6 +82,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 | 8 | **Anti-Récursion** | Pattern Superviseur Aveugle = agent racine UNIQUEMENT. Sous-agents = workers, JAMAIS de sub-subagents. |
 | 9 | **Déploiement zéro latence (Expectations)** | Déployer en PREMIER (`invoke_subagent`) pour lancer le travail sans latence, puis consigner les attentes directement dans `summary.md` immédiatement après dans le même tour. |
 | 10 | **Zéro Polling & Arrêt Immédiat** | **INTERDICTION ABSOLUE DU POLLING ET DES BOUCLES DANS LE MÊME TOUR**. Dès que les sous-agents sont lancés via `invoke_subagent` et que `summary.md` est mis à jour avec les attentes, l'agent principal DOIT **ARRÊTER IMMÉDIATEMENT TOUT APPEL D'OUTIL** et formuler sa réponse à Henri. **INTERDICTION FORMELLE** d'appeler `manage_subagents(list)` ou `view_file` en boucle pour "attendre" un résultat : le système AGY est 100% réactif (push-based) et réveille l'agent racine automatiquement dès réception d'un message. |
+| 11 | **Interdiction `grep_search` fichier unique (Windows)** | INTERDIT de cibler un chemin de fichier unique sous Windows avec `grep_search` (bogue natif). Utiliser `view_file` direct ou chercher sur le répertoire parent (`Includes`). |
 
 ### Autonomie & Timers
 
