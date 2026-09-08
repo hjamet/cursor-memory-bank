@@ -64,7 +64,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 | Phase | Action |
 |-------|--------|
 | **Phase 1 — Au déploiement** | **Déploiement en PREMIER & Inscription dans `summary.md`** : Déployer les sous-agents en PREMIER (`invoke_subagent`) pour démarrer leur travail sans latence. Suppression définitive des fichiers `expectations_*.md` séparés. Les attentes sont désormais inscrites directement dans `summary.md` sous le titre du chantier `### ⏳ Qn — [Question ?]` dans un **callout rouge (`> [!CAUTION]`)** avec le marquage épistémique obligatoire (*« Notre hypothèse préalable est que… »*), les prédictions et les critères d'audit. Zéro chiffre inventé. Zéro pollution du chat. |
-| **Phase 2 — Au retour** | **Confrontation & Bascule Bicolore** : Relire les attentes dans le callout rouge de `summary.md` → confrontation point par point avec les données brutes reçues → traquer chiffres manquants, fallbacks silencieux, simulations → exiger preuves matérielles d'exécution (logs CDP, sorties réelles, citations exactes) → rejeter impitoyablement toute simulation. Si validé, basculer le titre en `### ✅ Qn` ou `### ❓ Qn` et **remplacer intégralement le callout rouge par un callout vert (`> [!TIP]`)** contenant la réponse factuelle synthétique, les preuves matérielles et les liens cliquables. |
+| **Phase 2 — Au retour** | **Confrontation & Bascule Bicolore** : Relire les attentes dans le callout rouge de `summary.md` → confrontation point par point avec les données brutes reçues → traquer chiffres manquants, fallbacks silencieux, simulations → exiger preuves matérielles d'exécution (logs CDP, sorties réelles, citations exactes) → rejeter impitoyablement toute simulation. Si validé, basculer le titre en `### ✅ Qn` ou `### ❓ Qn` et **remplacer intégralement le callout rouge par un callout vert (`> [!TIP]`)** contenant la RÉPONSE COMPLÈTE, DÉTAILLÉE, STRUCTURÉE ET PÉDAGOGIQUE (tableaux complets, étapes méthodologiques, preuves brutes, explications de fond), avec un niveau d'excellence et de lisibilité au moins égal ou supérieur aux réponses données dans le chat. Interdiction formelle de tronquer ou d'appauvrir la réponse dans `summary.md` au prétexte d'un résumé squelettique. |
 
 ### Règles des Sous-Agents
 
@@ -134,6 +134,10 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 - **Titres H3 impérativement terminés par `?`**.
 - **Cycle bicolore strict** : Rouge (`> [!CAUTION]`) sous `⏳` pour les attentes épistémiques, Vert (`> [!TIP]`) sous `✅`/`❓` pour les réponses validées par preuves matérielles.
 - **Zéro état intermédiaire** : « En cours... » interdit, seul le résultat prouvé est affiché.
+- **Excellence Rédactionnelle dans le Callout Vert (> [!TIP]) — MANDATOIRE** :
+  - Le callout vert `> [!TIP]` de `summary.md` est le **livrable de référence noble** de la session.
+  - Il doit intégrer la totalité des explications, des tableaux Markdown formatés, des blocs de code et des justifications conceptuelles nécessaires pour qu'Henri dispose d'une réponse exhaustive, autonome et immédiatement compréhensible sans avoir besoin de relire le fil de discussion.
+  - Interdiction de sur-appliquer la règle du format télégraphique sec à `summary.md` : bannir les puces tronquées ou squelettiques. Tout ce qui mérite d'être expliqué dans le chat DOIT être présent avec son plein développement dans le callout vert de `summary.md`.
 
 #### 4. Restitution & Lien Proactif
 
