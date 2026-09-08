@@ -2,17 +2,18 @@
 # AIVC — AI Version Control (Long-Term Memory)
 
 > [!IMPORTANT]
-> **USE MCP TOOLS ONLY — NEVER RUN CLI SHELL COMMANDS:**
-> As an AI assistant, you MUST interact with AIVC **exclusively** through its registered MCP tools (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`, `get_status`, etc.).
-> **NEVER execute `aivc` CLI shell commands in the terminal (e.g. `aivc sync`, `aivc status`, `aivc recall`)** under any circumstances. Running the CLI in the terminal spawns separate process environments, misses the current session context, and is strictly reserved for the human user.
+> **MCP TOOLS ONLY** — NEVER run `aivc` CLI commands in the terminal. Interact exclusively via MCP tools (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`).
+>
+> **[Bascule Cold-Start]** : Si `recall` / `get_recent_memories` est vide ➔ arrêt immédiat des requêtes de mémoire, bascule directe sur `view_file` / `grep_search`. Conserver `remember` après chaque étape pour peupler la mémoire.
 
-## Rules
-
-1. **Remember often.** Call `remember` after every meaningful step (sub-task done, file created/modified, decision made, error resolved, checkpoint reached). Notes must be **detailed**: what, why, errors, decisions, observations, next steps. A one-liner is a failure.
-2. **Start sessions with context recovery.** Before any work: `get_recent_memories` → `recall` (≥1 query) → `consult_memory` on relevant hits → `get_file_history_metadata` on files you'll modify.
-3. **Explore before you act.** Search memory first — never redo past work. Your memory contains solutions, patterns, and lessons.
-4. **Mention files you work on.** Always pass the files you consulted in `read_files` and the files you modified in `edited_files` when calling `remember`. This is how AIVC tracks file associations — there is no separate tracking tool.
-5. **Write for your future self.** Memory notes are handover memos — include reasoning, context, and recommendations as if briefing a colleague with zero context.
+| # | Rule | Detail |
+|---|------|--------|
+| 1 | **Remember often** | Call `remember` après chaque étape significative liée à des fichiers. Format Post-It dense (Trigger/Contexte, Décision/Fix, Invariant/Impact). Un one-liner vide = échec, prose verbeuse = pollution. |
+| 2 | **Context recovery first** | Avant toute action : `get_recent_memories` → `recall` (≥1 requête) → `consult_memory` → `get_file_history_metadata` sur les fichiers cibles. |
+| 3 | **Explore before acting** | Interroger la mémoire d'abord — ne jamais refaire un travail déjà documenté. |
+| 4 | **Mention files** | Toujours passer `read_files` (fichiers clés consultés) et `edited_files` (fichiers modifiés/créés) pour alimenter le graphe de cooccurrence. |
+| 5 | **Format Post-It dense** | Rédiger des notes Post-It denses et structurées (contexte, décisions, invariants) pour recall futur immédiat sans bavardage. |
+| 6 | **Bascule Cold-Start** | Si `recall` / `get_recent_memories` ne retourne aucun résultat ➔ arrêt immédiat des requêtes mémoire, bascule directe sur `view_file` / `grep_search` / `list_dir`. |
 <!-- AIVC:END -->
 
 ---
@@ -100,24 +101,41 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 
 - **Localisation** : `<appDataDir>\brain\<conversation-id>\summary.md` (hors coffre Obsidian). Boîte de réception éphémère de session pour le suivi direct des chantiers.
 
-#### 1. Règle d'Acquittement & Purge par Lot (Inbox Zero)
+#### 1. Architecture Bimodale Étanche (# Unread & # Read)
 
-- **Déclencheur Universel de Purge** : S'active à **chacun des nouveaux messages d'Henri** (qu'il s'agisse d'un message dans le fil de discussion ou d'un commentaire sur un artefact quelconque) ainsi que lors de tout commentaire sur `summary.md`.
-- **SANCTUARISATION ABSOLUE DES QUESTIONS EN COURS (`⏳`)** : Règle inviolable — INTERDICTION FORMELLE de supprimer une question ayant le statut de sablier (`### ⏳ Qn — [Question ?]`) lors d'une purge. Les questions en sablier et leur callout rouge d'attentes (`> [!CAUTION]`) restent obligatoirement affichées et maintenues dans la pile active tant qu'elles n'ont pas été formellement résolues et basculées en vert (`### ✅` ou `### ❓`) avec preuves matérielles.
-- **Périmètre de Purge** : Purge en bloc exclusive de toutes les questions résolues (`### ✅` ou `### ❓` avec callout vert) du tour précédent.
-- **Ajout des Nouvelles Questions** : Les nouvelles questions du tour s'ajoutent à la suite des questions en cours maintenues.
-- **État vide** : « *Inbox Zero atteint — Aucune question en attente* » uniquement si 100% purgé/résolu (zéro question en attente).
+- **Structure Canonique** :
+  - **En-tête Fixe** : `# Synthèse de Session — Antigravity`, suivi d'un callout `> [!TIP]` listant les notes/artefacts clés créés/modifiés (liens cliquables `[nom](file:///...)`).
+  - **Section `# Unread`** : En tête de document sous l'en-tête. Boîte de réception active regroupant toutes les nouveautés non encore acquittées par Henri (nouvelles questions déployées ou réponses fraîches).
+  - **Section `# Read`** : En dessous de `# Unread`. Regroupe **exclusivement** les chantiers en cours d'exécution (`⏳`) déjà acquittés par Henri mais dont les sous-agents n'ont pas encore produit leurs résultats.
 
-#### 2. Format Déterministe
+#### 2. Règle d'Acquittement par Lot & Purge Déterministe
 
-- **En-tête** : `# Synthèse de Session — Antigravity`, suivi d'un callout `> [!TIP]` listant les notes/artefacts clés créés/modifiés (liens cliquables `[nom](file:///...)`).
+- **Entrée Systématique en `# Unread`** :
+  - Toute nouvelle question soumise ou déployée (`### ⏳ Qn — [Question ?]`) démarre impérativement dans `# Unread` avec son callout rouge `> [!CAUTION]` d'attentes épistémiques.
+  - Tout chantier qui reçoit une réponse validée (`### ✅ Qn — [Question ?]` ou `### ❓ Qn — [Question ?]` avec callout vert `> [!TIP]`) bascule ou remonte immédiatement en `# Unread`.
+- **Acquittement par Lot (Batch Read Acknowledgment)** :
+  - Dès qu'Henri poste un message ou un commentaire (dans le fil de discussion ou sur un artefact quelconque), l'élément ciblé ainsi que **TOUS les éléments le précédant dans `# Unread` sont considérés comme acquittés** :
+    - Les chantiers en cours (`⏳`) basculent en `# Read`.
+    - Les éléments terminés (`✅` ou `❓`) sont **IMMÉDIATEMENT et DÉFINITIVEMENT PURGÉS** (supprimés de `summary.md`).
+- **Interdiction Absolue des Éléments Terminés en `# Read`** :
+  - Règle inviolable : il est **STRICTEMENT IMPOSSIBLE** qu'une question terminée (`✅` ou `❓`) figure dans `# Read`. Tout élément terminé acquitté ou ignoré (par commentaire sur un élément situé après) disparaît instantanément de l'artefact.
+- **Réactivation vers `# Unread`** :
+  - Dès qu'un chantier en cours (`⏳`) situé dans `# Read` est résolu par son sous-agent, il remonte **IMMÉDIATEMENT dans `# Unread`** sous son statut résolu (`### ✅ Qn`).
+  - Si un commentaire d'Henri rouvre ou adapte le périmètre d'un chantier en cours situé dans `# Read`, il remonte également dans `# Unread`.
+- **États Vides Déterministes** :
+  - Si aucun élément non lu : `# Unread` affiche *« *Aucune nouveauté non lue — Tout est à jour.* »*.
+  - Si aucun chantier en arrière-plan : `# Read` affiche *« *Aucun chantier en arrière-plan.* »*.
+  - Si 100% purgé / résolu : *« *Inbox Zero atteint — Aucune question en attente.* »*.
+
+#### 3. Format Déterministe des Questions
+
 - **Questions actives en ordre chronologique strict** ($Q_1 \to Q_N$, haut en bas). Zéro section de fin / tableau de bord.
 - **Granularité** : 1 commentaire/demande = 1 question numérotée.
 - **Titres H3 impérativement terminés par `?`**.
-- **Cycle bicolore strict** : Rouge (`> [!CAUTION]`) sous `⏳` pour les attentes, Vert (`> [!TIP]`) sous `✅`/`❓` pour les réponses validées.
+- **Cycle bicolore strict** : Rouge (`> [!CAUTION]`) sous `⏳` pour les attentes épistémiques, Vert (`> [!TIP]`) sous `✅`/`❓` pour les réponses validées par preuves matérielles.
 - **Zéro état intermédiaire** : « En cours... » interdit, seul le résultat prouvé est affiché.
 
-#### 3. Restitution & Lien Proactif
+#### 4. Restitution & Lien Proactif
 
 - **Lien Proactif dans le Chat** : Fournir systématiquement le lien cliquable `[Synthèse de Session](file:///...)` en 1ère ligne de réponse dans le chat, sans jamais dupliquer le contenu dans le fil de discussion.
 
