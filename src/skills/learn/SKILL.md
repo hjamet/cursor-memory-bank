@@ -1,6 +1,6 @@
 ---
 name: learn
-description: "Protocole universel d'apprentissage, d'intégration de préférences durables, d'alignement doctrinal et de refactorisation des règles système pour Henri Jamet. Surcharge la commande /learn avec proposition préalable obligatoire (learning_proposal.md avec RequestFeedback: true), gestion de l'arborescence duale des skills (antigravity/skills/ source + .agent/skills/ runtime), frontière étanche des règles (GEMINI.md transversal vs AGENTS.md coffre) et synchronisation miroir Git cursor-memory-bank."
+description: "Protocole universel d'apprentissage, d'intégration de préférences durables, d'alignement doctrinal et de refactorisation des règles système pour Henri Jamet. Surcharge la commande /learn avec proposition préalable obligatoire (learning_proposal.md avec RequestFeedback: true), architecture des skills (source unique agents/skills/ avec jonctions NTFS .agent, .agents, antigravity/skills), frontière étanche des règles (GEMINI.md transversal vs AGENTS.md coffre) et synchronisation miroir Git cursor-memory-bank."
 ---
 
 # 🧠 Comment le Protocole Learn (/learn) Intègre-t-il les Compétences et Préférences Pérennes d'Henri ?
@@ -28,9 +28,7 @@ Le skill `learn` s'active systématiquement dès qu'une information, un comporte
 
 | Déclencheur / Cas d'Usage | Exemple Concret | Périmètre Cible | Livrable Attendu |
 | :--- | :--- | :--- | :--- |
-| **Préférence personnelle durable** | Préférences d'hébergement, goûts de voyage, choix d'outils, habitudes de travail. | Coffre Obsidian (`Preferences Henri...md`) | Note de référence Obsidian dédiée + wikilinks. |
-| **Création d'un nouveau Skill** | Nouveau workflow automatisé (`hotel-scout`, `stitch`, etc.). | Arborescence duale des skills | `antigravity/skills/<nom>/SKILL.md` ET `.agent/skills/<nom>/SKILL.md`. |
-| **Correction d'une dérive d'agent** | Violation de la cécité du superviseur, hallucination, omission de preuves CDP. | `GEMINI.md` (universel) | Refactoring organique dans la section concernée de `GEMINI.md`. |
+| **Création d'un nouveau Skill** | Nouveau workflow automatisé (`hotel-scout`, `stitch`, etc.). | Répertoire canonique `agents/skills/` | `agents/skills/<nom>/SKILL.md` (résolu nativement via `.agent/`, `.agents/`, `antigravity/skills/`). |
 | **Spécificité du coffre Obsidian** | Convention de nommage, arborescence des notes, plugins locaux (`project-memory`). | `AGENTS.md` (coffre local) | Mise à jour de `VoiceNotes/AGENTS.md`. |
 | **Désynchronisation miroir Git** | Écart entre l'environnement local et le dépôt de sauvegarde. | `cursor-memory-bank` | Git pull -> synchro miroir -> commit & push origin master. |
 
@@ -77,18 +75,20 @@ graph TD
 
 ---
 
-## 🌲 Comment Fonctionne l'Arborescence Duale des Skills ?
+## 🌲 Comment Fonctionne l'Architecture des Skills du Coffre et du Runtime ?
 
-Pour garantir à la fois la **persistance locale** dans le Digital Brain d'Henri et la **découverte automatique** par le runtime de l'agent, tout skill doit exister en miroir dans deux répertoires :
+Pour concilier la **visibilité et synchronisation Obsidian Sync**, la **découverte automatique par le runtime Antigravity** et le principe **DRY (Single Source of Truth)**, tous les skills du coffre reposent sur une source physique unique liée par jonctions NTFS :
 
-| Rôle du Répertoire | Chemin Absolu | Fonction Système |
+| Rôle du Répertoire | Chemin Absolu | Nature & Fonction Système |
 | :--- | :--- | :--- |
-| **Dossier Source (Vault)** | `C:\Users\hjamet\Documents\VoiceNotes\antigravity\skills\<nom>\SKILL.md` | Version canonique source archivée avec le coffre Obsidian et synchronisée. |
-| **Dossier Runtime (Agent)** | `C:\Users\hjamet\Documents\VoiceNotes\.agent\skills\<nom>\SKILL.md` | Version exécutable découverte et chargée par le moteur d'agent Antigravity. |
-| **Miroir Git (Optionnel)** | `C:\Users\hjamet\Documents\code\cursor-memory-bank\src\skills\<nom>\SKILL.md` | Dépôt distant de sauvegarde pour les skills transversaux réutilisables. |
+| **Source Physique Canonique** | `C:\Users\hjamet\Documents\VoiceNotes\agents\skills\<nom>\SKILL.md` | Répertoire physique unique du coffre, visible dans Obsidian et synchronisé par Obsidian Sync. |
+| **Jonction Runtime Agent** | `C:\Users\hjamet\Documents\VoiceNotes\.agent\skills\` ➔ `agents\skills\` | Jonction NTFS matérielle (`mklink /J`) découverte nativement par le moteur d'agent Antigravity. |
+| **Jonction CLI / Rétrocompat** | `C:\Users\hjamet\Documents\VoiceNotes\.agents\skills\` ➔ `agents\skills\` | Jonction NTFS matérielle (`mklink /J`) pour la CLI Antigravity et les outils transverses. |
+| **Jonction Digital Brain** | `C:\Users\hjamet\Documents\VoiceNotes\antigravity\skills\` ➔ `agents\skills\` | Jonction NTFS matérielle (`mklink /J`) assurant la résolution des chemins canoniques `antigravity/skills/`. |
+| **Miroir Git (Transversal)** | `C:\Users\hjamet\Documents\code\cursor-memory-bank\src\skills\<nom>\SKILL.md` | Dépôt Git distant de sauvegarde pour les compétences transversales réutilisables. |
 
-- **[Règle de Parité Stricte]** : Lors de la création ou de la mise à jour d'un skill, le contenu écrit dans le dossier source et le dossier runtime doit être **rigoureusement identique au caractère près**.
-- **[Zéro Fichier Orphelin]** : Aucun skill ne doit être présent dans le runtime sans son pendant dans le dossier source du coffre.
+- **[Single Source of Truth (Zéro Duplication)]** : Grâce aux jonctions NTFS matérielles, modifier un fichier dans `.agent/skills/`, `.agents/skills/` ou `antigravity/skills/` modifie directement `agents/skills/`. Il n'y a aucun doublon physique ni risque de désynchronisation au sein du coffre.
+- **[Règle de Parité Stricte avec le Miroir Git]** : Pour tout skill transversal présent dans `cursor-memory-bank`, le fichier `src/skills/<nom>/SKILL.md` doit être rigoureusement identique au caractère près à celui de `agents/skills/<nom>/SKILL.md`.
 
 ---
 
@@ -166,8 +166,7 @@ git push origin master
 ## 📋 Quelle Est la Checklist de Validation & d'Intégrité Learn ?
 
 - [ ] **Proposition Préalable Formellement Validée** : L'artéfact `learning_proposal.md` a été créé avec `RequestFeedback: true` et validé par Henri avant modification.
-- [ ] **Frontière Étanche Respectée** : Les règles transversales sont dans `GEMINI.md` ; les spécificités du coffre sont dans `AGENTS.md` ; les workflows sont dans les skills dédiés (DRY absolu).
-- [ ] **Arborescence Duale des Skills Conforme** : Tout nouveau skill existe à l'identique dans `antigravity/skills/<nom>/SKILL.md` ET `.agent/skills/<nom>/SKILL.md`.
+- [ ] **Architecture des Skills Conforme** : Tout nouveau skill créé dans `agents/skills/<nom>/SKILL.md` (résolu nativement via les jonctions `.agent/`, `.agents/`, `antigravity/skills/`).
 - [ ] **Intégration Organique & Zero-Bloat** : Aucune consigne empilée en fin de fichier ; refactorisation dense et chirurgicale au cœur des sections existantes.
 - [ ] **Paradigme Question-Réponse (Q/R)** : 100% des titres H1-H4 se terminent par `?`.
 - [ ] **Frontière Étanche des Liens** : Wikilinks `[[...]]` dans les notes du coffre, liens cliquables `[Nom](file:///...)` en tête de chat.
