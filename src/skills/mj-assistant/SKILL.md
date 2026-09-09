@@ -55,29 +55,28 @@ Ce skill fait d'Antigravity le **co-créateur et assistant de préparation live*
 
 ---
 
-## 4. Volet 3 : Protocole Strict d'Audit Anti-Doublon Systématique (MANDATOIRE)
+## 4. Volet 3 : Protocole Strict d'Audit Anti-Doublon & Fichier Unique (MANDATOIRE)
 
 > [!CAUTION]
-> **INTERDICTION ABSOLUE DE CRÉER UNE ENTITÉ SANS AUDIT PRÉALABLE DU COFFRE :**
-> Dans le coffre d'Henri, les fiches d'entités peuvent résider :
-> 1. Dans le dossier thématique de la campagne (ex: `Conseil/Shanwen.md`, `Conseil/Herb le Soufre.md`, `Conseil/Pont sur l Athua Site de l Embuscade.md`).
-> 2. Dans le dossier général de notes (ex: `notes/Shanwen.md`, `notes/Herb le Soufré.md`, `notes/Bête d'Ombre.md`, `notes/Durotas Marcus Valerius.md`).
-> 3. Dans les sous-notes indexées au tableau de bord de la note de session (`## 🗂️ Quelles Sont les Sous-Notes et Fiches Canoniques Mobilisées ce Soir ?`).
+> **RÈGLE STRICTE DU FICHIER UNIQUE & INTERDICTION DES DOUBLONS (MANDATOIRE) :**
+> Dans le coffre d'Henri, une fiche d'entité ne doit résider qu'en **UN SEUL et unique endroit** :
+> 1. **Dossier thématique de campagne EXCLUSIF** : Si la campagne dispose d'un dossier dédié (ex: `Conseil/` pour *Le Conseil des Voleurs*, `Asharde/` pour *Asharde*), la fiche réside et est créée **EXCLUSIVEMENT dans ce dossier** (ex: `Conseil/Shanwen.md`, `Conseil/Frère Théodore.md`, `Conseil/Herb le Soufre.md`, `Conseil/Pont sur l Athua Site de l Embuscade.md`).
+> 2. **Interdiction formelle de créer ou tolérer des doublons dans `notes/`** : Le dossier `notes/` ne reçoit une fiche d'entité QUE si celle-ci est transversale à plusieurs campagnes ou si la campagne n'a aucun dossier dédié.
+> 3. **Liaisons par wikilinks directs** : Les notes de session et aides-mémoires indexent directement le fichier unique (`[[Conseil/...]]`).
 
 ### Protocole de Scan en 3 Étapes Obligatoires :
 Avant d'annoncer qu'un PNJ, monstre, lieu ou objet "doit être créé", l'agent DOIT :
-1. **Consulter la table des matières de la note de session active** : Vérifier si l'entité y est déjà listée sous un lien wikilink `[[Conseil/...]]` ou `[[notes/...]]`.
-2. **Consulter la note maîtresse de la campagne** : Vérifier `[[notes/Le Conseil des Voleurs]]` ou `[[Asharde]]`.
-3. **Effectuer une recherche par motif insensible à la casse** :
-   - Lancer un `find_by_name` sur l'ensemble du coffre avec wildcards (ex: `*Shanwen*`, `*Marcus*`, `*Herb*`, `*Pont*`, `*Ombre*`).
+1. **Consulter la table des matières de la note de session active** : Vérifier si l'entité y est déjà listée sous un lien wikilink `[[Conseil/...]]`.
+2. **Consulter le dossier thématique de la campagne** (`Conseil/` ou `Asharde/`) et la note maîtresse de la campagne (`[[notes/Le Conseil des Voleurs]]` ou `[[Asharde]]`).
+3. **Effectuer une recherche par motif insensible à la casse** sur l'ensemble du coffre avec wildcards (ex: `*Shanwen*`, `*Marcus*`, `*Herb*`, `*Pont*`, `*Ombre*`, `*Théodore*`).
 
 ### Matrice de Triage des Entités :
-- 🟢 **[EXISTANT — PRÊT]** : La fiche existe et est complète (statblock + illustration 16:9).  
-  *Action* : Citer immédiatement la note avec son lien cliquable `[Nom](file:///...)` et son wikilink `[[Nom]]`. ZÉRO recréation.
+- 🟢 **[EXISTANT — PRÊT]** : La fiche existe dans le dossier de campagne et est complète (statblock + illustration 16:9).  
+  *Action* : Citer immédiatement la note avec son lien cliquable `[Nom](file:///...)` et son wikilink `[[Conseil/Nom]]`. ZÉRO recréation, ZÉRO copie dans `notes/`.
 - 🟡 **[EXISTANT — À ACTUALISER]** : La fiche existe sous forme d'ébauche ou manque d'un tag de session (ex: ajouter `session-5`) ou d'une illustration dédiée.  
-  *Action* : Mettre à jour chirurgicalement la fiche existante sans en créer une nouvelle.
+  *Action* : Mettre à jour chirurgicalement la fiche existante dans son dossier de campagne sans en créer une nouvelle.
 - 🔴 **[INÉDIT — À CRÉER]** : L'entité n'existe nulle part après recherche exhaustive.  
-  *Action* : Dégager son concept narratif, puis déléguer sa formalisation complète au skill `/harpy-entity-creator`.
+  *Action* : Dégager son concept narratif, puis déléguer sa formalisation complète au skill `/harpy-entity-creator` en ciblant EXCLUSIVEMENT le dossier thématique de campagne.
 
 ---
 
