@@ -175,3 +175,31 @@ Le projet académique est un travail d'équipe (Stergios, James, Isna, Yash Raj 
 
 - **Recompilation Fraîche** : Après tout `git pull` ou édition des sources LaTeX, recompiler systématiquement le document (`pdflatex` ou `latexmk`) avant tout audit de pagination ou de rendu.
 - **Interdiction Formelle d'Auditer un PDF Obsolète** : Ne jamais formuler d'avis sur la structure ou la longueur des sections en se basant sur un `.pdf` préexistant sans compilation vérifiée.
+
+---
+
+## 6. 🚫 Pourquoi les Commandes Git Manuelles (CLI) Sont-elles Formellement Interdites ?
+
+> [!CAUTION]
+> **Interdiction Formelle des Commandes Git Manuelles (CLI)** :
+> Aucun agent ne doit **JAMAIS** taper de commandes `git add`, `git commit` ou `git push` manuelles dans le terminal pour gérer le manuscrit.
+> **Le script `latex_to_markdown_artifact.py` encapsule et orchestre 100% du cycle Git et Overleaf.**
+
+### 🛠️ Quel Est le Seul et Unique Workflow Valide pour Gérer le Manuscrit ?
+
+1. **Ancrer la Baseline (Avant Travail)** :
+   ```powershell
+   python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --commit "<commentaire / révision>"
+   ```
+   *(Le script fige la baseline Git, capture les métadonnées AST et initialise le point de repère).*
+
+2. **Chirurgie Ciblée & Recompilation** :
+   - Édition strictement chirurgicale bloc par bloc via `replace_file_content` (zéro `write_to_file` global).
+   - Vérification `pdflatex` (code 0, 8 pages exactes).
+
+3. **Diff & Synchronisation Overleaf (Après Travail)** :
+   ```powershell
+   python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --diff "<explication détaillée>"
+   ```
+   *(Le script calcule le word-diff, pousse les révisions et régénère l'artéfact Brain prioritaire).*
+
