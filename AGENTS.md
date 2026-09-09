@@ -107,7 +107,8 @@
 ## 📌 Gestion Projets (`project-memory`) — Spécificités Coffre
 
 - **Référence** : Algorithme de scoring ($S_{\text{base}}$, $B_{\text{rot}}$, $U_{\text{deadline}}$, $M_{\text{temporal}}$) et commandes CLI → skill `project-memory` (`SKILL.md`).
-- **CLI Pomodoro** : `python antigravity/scripts/project_memory_cli.py work "<NomDuProjet>"` (durée chargée depuis `data.json`). Lancement **IMMÉDIAT** sans attendre consigne.
+- **CLI Pomodoro Auto-Suffisant** : `python antigravity/scripts/project_memory_cli.py work "<NomDuProjet>"` (durée nominale chargée depuis `data.json`, 60 min). Lancement **IMMÉDIAT** sans attendre consigne.
+- **Auto-Suffisance & Zéro Timer Manuel Redondant** : La commande `work` lancée en tâche de fond dort pendant la durée nominale et constitue à elle seule le déclencheur de fin de session. La terminaison naturelle du processus réveille automatiquement l'agent Antigravity (système push réactif). **INTERDICTION FORMELLE** d'armer un timer manuel `schedule` pour une session Pomodoro lancée par la commande `work`. La notification de fin de processus est le **SEUL signal canonique de réveil**.
 
 > **Règles Pomodoro complètes (lancement, enchaînement, feedback, scoring)** → [GEMINI.md §3](file:///C:/Users/hjamet/.gemini/GEMINI.md)
 

@@ -317,6 +317,7 @@ Démarre une session de travail Pomodoro sur un projet. La durée de la session 
 >   - *Changement de projet* : Si Henri change de projet ➔ Lancement IMMÉDIAT du Pomodoro sur le nouveau projet.
 >   - *Transition douce* : En cas de transition douce (finalisation de l'ancien en démarrant le nouveau) ➔ Lancement IMMÉDIAT du Pomodoro sur le NOUVEAU projet, tout en laissant les sous-agents de l'ancien projet terminer leur exécution en arrière-plan.
 > - **Exception Unique** : Seules les questions ponctuelles isolées et hors projet (1 question/réponse triviale de 30 secondes) peuvent se passer de Pomodoro.
+> - **Auto-Suffisance Absolue de la Commande `work` (Zéro Timer Manuel `schedule`)** : La commande CLI `work` exécutée en arrière-plan via `run_command` dort pendant toute la durée nominale (par défaut 60 min). À son échéance, le processus se termine et réveille automatiquement Antigravity via le système push réactif. **Il est FORMELLEMENT INTERDIT d'armer un timer manuel `schedule` en parallèle d'un Pomodoro `work`.**
 
 #### Syntaxe
 ```bash
@@ -328,7 +329,7 @@ python "C:\Users\Jamet\Documents\VoiceNotes\antigravity\scripts\project_memory_c
 - `--duration N` *(int)* : Durée personnalisée de la session Pomodoro en minutes (outrepasse la valeur `pomodoroDuration` de `data.json`).
 
 #### Workflow d'Interaction d'Antigravity
-1. **Lancement & Réveil Automatique** : Antigravity lance la commande `work`. Antigravity planifie son réveil / ré-activation à l'échéance exacte de la session Pomodoro.
+1. **Lancement & Réveil Automatique par Processus** : Antigravity lance la commande `work` en tâche de fond (`run_command`). La terminaison naturelle du processus de fond réveille automatiquement Antigravity à l'échéance exacte de la session Pomodoro, sans aucun timer manuel `schedule`.
 2. **Incitation Obligatoire à la Pause (5 min)** : Dès la fin de la session Pomodoro, Antigravity doit **obligatoirement** inviter Henri à effectuer une pause de 5 minutes avant d'évaluer l'avancement ou de poursuivre le travail.
 3. **Interrogation Interactive du Stress (`ask_question`) & Feedback** : À la fin de la session ou lors du bilan d'étape, Antigravity évalue lucidement la progression selon les signaux réels (marge calendaire, fluidité d'exécution, complexité), détermine l'option conseillée avec le suffixe ` (Recommandé)`, et interroge **obligatoirement** Henri via `ask_question` avec les 4 options canoniques dans l'ordre strict : `["À l'aise", "OK", "Stressé", "Terminé"]`. Suite à sa réponse, Antigravity exécute `feedback "<projet>" <action>`.
 4. **Recommandation Proactive & Relance** : Suite au bilan ou au moment de la pause, Antigravity recommande de manière proactive l'un des 3 projets les plus urgents suivants et enchaîne immédiatement le Pomodoro approprié.
