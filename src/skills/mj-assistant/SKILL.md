@@ -26,6 +26,11 @@ Ce skill fait d'Antigravity le **co-créateur et assistant de préparation live*
    * **Foisonnement d'options** : Pour chaque scène ou carrefour de choix, propose systématiquement **3 approches radicales** (ex: assaut frontal coordonné, ruse d'infiltration / diversion sociale, négociation avec une faction tierce rivale).
    * **Entités dynamiques & Trajectoires autonomes** : Tout PNJ ou faction possède son propre calendrier. Le monde ne s'arrête pas quand les PJ s'endorment. Chaque adversaire a un but intime, une plus grande peur et une réaction instinctive sous panique.
 
+### 🚫 Onomastique Organique & Règle Anti-Clichés (MANDATOIRE)
+* **Bannissement de la formule `[Prénom] le [Qualificatif/Métier]`** : Proscription formelle de nommer des PNJ sous la forme paresseuse `[Prénom] le [Qualificatif]` (ex: *Marc le Tueur*, *Frédéric le Moine*, *Gorgoroth le Suifeux*).
+* **Identités Civiles Authentiques** : Privilégier systématiquement de véritables patronymes complets (**Prénom + Nom de famille**) cohérents avec la culture locale (ex: souche chéloise / baroque pour Westcrown : *Corvin Drovenge*, *Aldo Scornavacco*, *Vespera Rosetan*, *Hesperia Vane*). Les surnoms doivent être rarissimes, nés d'une histoire vécue par les PJ, et jamais une étiquette fonctionnelle.
+* **Toponymes & Factions Organiques** : Bannir les noms descriptifs naïfs (*la forêt des Chênes Blancs*, *la Confrérie des Gouttières*). Utiliser des néologismes évocateurs (*la forêt asverdiane*, *le marais d'Olynthe*, *le gouffre de Malroche*) et des factions institutionnelles crédibles (*la Légation de Cendres*, *le Cercle de Maras*).
+
 ---
 
 ## 2. Règle Stylistique d'Or : Texte d'Ambiance Sensoriel d'Ouverture (MANDATOIRE)

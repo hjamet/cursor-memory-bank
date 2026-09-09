@@ -63,6 +63,11 @@ Zéro terme ou doublon anglais entre parenthèses. Utilisation exclusive des sig
 ### 🚫 1.10. Bannissement des Backticks Inline dans les Fiches Harpy (MANDATOIRE)
 Ne JAMAIS utiliser de balises de code / backticks `...` (ex: `` `Ext` ``, `` `Mag` ``, `` `Sur` ``, `` `Sort` ``, `` `text` ``) dans les sections de statistiques mécaniques, aptitudes ou descriptions de la fiche. Le parser d'importation de Harpy gère mal le code inline et cela corrompt les fiches à l'import. Utiliser **uniquement du texte brut** sans aucun balisage de code : `(Ext)`, `(Mag)`, `(Sur)`, `(Sort)`.
 
+### 🚫 1.11. Onomastique Organique & Règle Anti-Clichés (MANDATOIRE)
+* **Bannissement de la formule `[Prénom] le [Qualificatif/Métier]`** : Proscription formelle de nommer des PNJ sous la forme paresseuse `[Prénom] le [Qualificatif]` (ex: *Marc le Tueur*, *Frédéric le Moine*, *Gorgoroth le Suifeux*).
+* **Identités Civiles Authentiques** : Privilégier systématiquement de véritables patronymes complets (**Prénom + Nom de famille**) cohérents avec la culture locale (ex: souche chéloise / baroque pour Westcrown : *Corvin Drovenge*, *Aldo Scornavacco*, *Vespera Rosetan*, *Hesperia Vane*). Les surnoms doivent être rarissimes, nés d'une histoire vécue par les PJ, et jamais une étiquette fonctionnelle.
+* **Toponymes & Factions Organiques** : Bannir les noms descriptifs naïfs (*la forêt des Chênes Blancs*, *la Confrérie des Gouttières*). Utiliser des néologismes évocateurs (*la forêt asverdiane*, *le marais d'Olynthe*, *le gouffre de Malroche*) et des factions institutionnelles crédibles (*la Légation de Cendres*, *le Cercle de Maras*).
+
 ---
 
 ## 2. Structure Universelle en 5 Blocs Canoniques
