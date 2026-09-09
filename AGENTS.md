@@ -83,6 +83,8 @@
 ### Format Note Maîtresse (Tableau de Bord Ultra-Synthétique)
 
 - **Index sous-notes en haut** (MANDATOIRE) : `[[Sous-Note.md]]` sous le titre H1.
+- **En-tête Visuel Évocateur 16:9 Obligatoire** : Toute note maîtresse de projet (`#todo #project`) ou sous-note exécutive majeure génère systématiquement une illustration originale 16:9 via `generate_image`. Fichier logé dans `_attachments/`, référencé en YAML (`Image: "[[_attachments/nom.png]]"`) et affiché sous H1 (`![[_attachments/nom.png]]`).
+- **Variété Stylistique & Anti-Monotonie** : Variété stylistique maximale selon la nature du sujet (ambiances immersives, métaphores artistiques, bureaux épurés, moodboards ou schémas vivants). INTERDICTION du biais systématique "100% infographies scientifiques" : l'image doit capturer l'âme du sujet pour permettre une identification visuelle instantanée au premier clic.
 - **Contenus** : Mots-clés, faits, tableaux synthétiques, Mermaid, To-Do `[ ]`/`[x]` (sync `project-memory`), décisions concises.
 
 > **Paradigme Question-Réponse (titres H1-H4 = questions ?)** → [GEMINI.md §4](file:///C:/Users/hjamet/.gemini/GEMINI.md)
@@ -93,7 +95,7 @@
 |-------|--------|
 | **Format télégraphique** | `**[Clé]** : [Valeur brute]`. Zéro phrase S-V-C quand paire suffit. |
 | **Formats autorisés** | Tableaux Markdown natifs, Mermaid, puces, médias 16:9/300 DPI, liens cliquables. |
-| **Images & Médias Coffre** | Syntaxe Obsidian relative au coffre EXCLUSIVE : `![[Dossier/_attachments/nom_image.png]]` dans le corps de note et `Image: "[[Dossier/_attachments/...]]"` dans le frontmatter YAML. |
+| **Images & Médias Coffre** | Syntaxe Obsidian relative au coffre EXCLUSIVE : `![[Dossier/_attachments/nom_image.png]]` sous H1 et `Image: "[[Dossier/_attachments/...]]"` dans le frontmatter YAML. Génération systématique 16:9 à la création d'une note projet/sous-note majeure. Variété stylistique obligatoire (ambiance, métaphore artistique, bureau épuré, schéma vivant ; pas uniquement des infographies scientifiques). |
 | **Blocs de code** | JAMAIS ``` pour texte/tableaux/plannings. Utiliser tableaux Markdown et Mermaid. |
 | **Zéro répétition** | Chaque fait = 1 seule fois. INTERDIT résumer un visuel dans une liste adjacente. |
 | **Déport en sous-notes** | Note maîtresse jamais encombrée. Tout détail → sous-note référencée. |
@@ -133,5 +135,6 @@
   * **Dans les Notes du Coffre Obsidian (`.md`)** : TOUJOURS utiliser les wikilinks natifs Obsidian :
     - Pour les liens entre notes : `[[Nom de la note]]` ou `[[Dossier/Nom de la note|Alias]]` (bannir formellement `[Nom](file:///...)` ou `[Nom](chemin.md)` qui brisent le graphe et les backlinks).
     - Pour les images et médias internes : `![[Dossier/_attachments/nom_image.png]]` (ou `![[nom_image.png]]`) dans le corps de note et `Image: "[[Dossier/_attachments/...]]"` dans le frontmatter YAML.
+    - **En-Tête Visuel 16:9 Diversifié** : Généré via `generate_image` pour chaque note projet (`#todo #project`) ou sous-note majeure. Privilégier des scènes évocatrices et diversifiées reflétant l'essence du contenu plutôt que des diagrammes froids systématiques.
   * **Dans le Chat & Réponses d'Antigravity** : Continuer d'utiliser EXCLUSIVEMENT les liens cliquables Markdown absolus `[Nom](file:///...)` (liens proactifs de livrables en 1ère ligne, citations exactes de fichiers). Bannir les wikilinks `[[...]]` dans le chat (non cliquables).
 - **Langue & Style** : Français soigné 🇫🇷. Formulations courtes, percutantes, optimisées pour synthèse et écoute orale/TTS.
