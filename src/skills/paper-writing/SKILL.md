@@ -1,6 +1,6 @@
 ---
 name: paper-writing
-description: Méthodologie complète pour la rédaction et la révision itérative de papiers académiques (pipeline canonique en 4 étapes : Fond Brut, Style & avoid-ai-writing, StealthRL & audit factualité, Insertion Chirurgicale), l'édition directe des sources LaTeX, la projection de diff AST, le cycle comment-driven, la CLI simplifiée (--diff "<explication>" et --commit), l'automatisation des images et l'articulation amont avec la revue bibliographique (/literature-review).
+description: Workflow rigoureux de rédaction, révision chirurgicale, compilation LaTeX et synchronisation Overleaf pour les papiers scientifiques (cycle commit -> fix -> pdflatex 8 pages -> diff -> push Overleaf sans commandes git manuelles).
 ---
 
 # 📝 Comment Rédiger et Réviser des Papiers Académiques (Paper Writing) ?
