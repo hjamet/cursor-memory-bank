@@ -60,6 +60,9 @@ Henri copie directement les sections de la note Markdown vers les champs de Harp
 ### 🇫🇷 1.9. Immersion 100% en Français Soigné & Bannissement des Anglicismes
 Zéro terme ou doublon anglais entre parenthèses. Utilisation exclusive des sigles mécaniques francophones officiels : `CA`, `PV`, `BBA`, `BMO`, `DMD`, `RD`, `RM`, `FP`, `DD`, `AdO`, `DV`. Titres d'ouvrages traduits en français.
 
+### 🚫 1.10. Bannissement des Backticks Inline dans les Fiches Harpy (MANDATOIRE)
+Ne JAMAIS utiliser de balises de code / backticks `...` (ex: `` `Ext` ``, `` `Mag` ``, `` `Sur` ``, `` `Sort` ``, `` `text` ``) dans les sections de statistiques mécaniques, aptitudes ou descriptions de la fiche. Le parser d'importation de Harpy gère mal le code inline et cela corrompt les fiches à l'import. Utiliser **uniquement du texte brut** sans aucun balisage de code : `(Ext)`, `(Mag)`, `(Sur)`, `(Sort)`.
+
 ---
 
 ## 2. Structure Universelle en 5 Blocs Canoniques
@@ -185,9 +188,10 @@ Image: "[[DossierCampagne/_attachments/nom_image_16_9.png]]"
 | Init +[X], Vitesse [X] m | **[Total]**, contact [X], pris au dépourvu [X] (+[X] armure, +[X] Dex) | **[Total]** ([DV]) | **Vigueur** +[X], **Réflexes** +[X], **Volonté** +[X] | BMO +[X], DMD [X] | [RD, RM, Immunités] |
 
 ### ⚔️ Attaques & Capacités
-* 🔮 **[Capacité Magique]** (`Mag`) : [Description de l'effet, portée, utilisations].
-* ✨ **[Capacité Surnaturelle]** (`Sur`) : [Description, DD de sauvegarde].
-* 📜 **Sortilèges préparés / connus** (`Sort`, NLS [X], DD [X] + niveau) :
+* 🛡️ **[Capacité Extraordinaire]** (Ext) : [Description de l'aptitude physique ou tactique non magique].
+* 🔮 **[Capacité Magique]** (Mag) : [Description de l'effet, portée, utilisations].
+* ✨ **[Capacité Surnaturelle]** (Sur) : [Description, DD de sauvegarde].
+* 📜 **Sortilèges préparés / connus** (Sort, NLS [X], DD [X] + niveau) :
   * **Niveau 1** ([X]/jour, DD [X]) : *[Sort 1]*, *[Sort 2]*.
   * **Niveau 0** ([X] à volonté) : *[Sort de base]*.
 
