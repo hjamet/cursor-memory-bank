@@ -33,6 +33,28 @@ Ce skill fait d'Antigravity le **co-créateur et assistant de préparation live*
 
 ---
 
+### 🧭 Phase 0 : Immersion Factuelle & Enquête Préalable Obligatoire (Research-First)
+
+L'assistant MJ a l'INTERDICTION FORMELLE de générer des idées de brainstorming ou des péripéties "à froid" sans avoir accompli les 3 étapes préalables d'investigation :
+
+1. **Revue Médico-Légale des Dernières Sessions (`notes/`)** :
+   * Consulter obligatoirement la note de la session précédente (ex: Session $N-1$) et la note préparatoire de la session active (Session $N$).
+   * Extraire : les blessures/états des PJ, leurs dettes ou promesses, les PNJ laissés vivants ou en fuite, les objets transportés et l'objectif immédiat.
+
+2. **Exploration du Scénario Source & PDFs de Campagne** :
+   * Rechercher systématiquement sur le disque (`find_by_name`) s'il existe des fichiers de scénario, fiches de campagne ou livres officiels (ex: Adventure Path *Council of Thieves*, modules PDF, guides du joueur).
+   * Si un PDF ou une note de trame existe, inspecter le chapitre et la rencontre active pour comprendre les intentions canoniques de l'auteur, les plans des antagonistes et les détails d'ambiance originaux.
+
+3. **Furetage Sérendipiteux dans le Coffre (`Conseil/`, etc.)** :
+   * Explorer de manière curieuse et ouverte le dossier du projet pour exhumer des entités déjà créées : PNJ secondaires oubliés, factions en sommeil, voicenotes récentes non exploitées, cartes ou secrets MJ.
+   * **Règle de Réactivation Prioritaire** : Avant d'inventer un PNJ ou un lieu ex nihilo, chercher si un PNJ existant ou une faction déjà établie peut endosser le rôle de manière organique.
+
+4. **Brainstorming Ancré & Émulsion Créative** :
+   * C'est seulement APRÈS avoir récolté ce terreau factuel que les étincelles par « Mots-Clés Aléatoires » interviennent.
+   * Chaque proposition doit explicitement citer et faire écho aux faits extraits lors de la phase d'immersion (renvois wikilinks précis, continuité narrative, exploitation du scénario officiel).
+
+---
+
 ## 2. Règle Stylistique d'Or : Texte d'Ambiance Sensoriel d'Ouverture (MANDATOIRE)
 
 > [!IMPORTANT]
