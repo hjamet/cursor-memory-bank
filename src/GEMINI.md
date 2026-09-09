@@ -116,7 +116,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 
 - **Lien Vivant en 1ère Ligne** : Dès qu'un projet est travaillé → `[Nom du Projet](file:///C:/Users/Jamet/Documents/VoiceNotes/.../NomProjet.md)` en première ligne.
 - **Pomodoro Permanent** :
-  - **INTERDIT** de travailler sans Pomodoro actif (`work "<projet>"` ou timer 35 min par défaut).
+  - **INTERDIT** de travailler sans Pomodoro actif (`work "<projet>"` ou timer calqué sur `data.json`, 60 min par défaut).
   - **Lancement automatique** dès début de travail sur `#todo`/`#project`. Zéro attente de commande explicite.
   - **Enchaînement** : même projet → relance immédiate | changement → lancement immédiat sur le nouveau | transition douce → Pomodoro sur le NOUVEAU, anciens sous-agents continuent en background.
   - **Exception** : question ponctuelle isolée hors projet (≤30s).

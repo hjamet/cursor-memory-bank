@@ -35,9 +35,11 @@
 
 ---
 
-## 📂 Structure du Système
+## 📂 Structure du Système & Sanctuarisation du Coffre (MANDATOIRE)
 
-- **Projets de code** : Dossier `code` dans le dossier parent du coffre.
+- **Sanctuarisation Absolue de `VoiceNotes/`** : Le coffre Obsidian est strictement dédié au Digital Brain (notes de synthèse, mémoire active et wikilinks).
+- **Interdiction Formelle de Dépôts Git, Builds et Scratch** : INTERDICTION ABSOLUE de cloner des dépôts Git, d'effectuer des builds ou de créer des dossiers scratch/temporaires dans `VoiceNotes/`.
+- **Emplacement Exclusif du Code** : 100% des dépôts Git, clones et builds résident exclusivement dans `C:\Users\Jamet\Documents\code\`, synchronisé via GitHub.
 
 ---
 
@@ -111,8 +113,9 @@
 
 ## 🛠️ Scripts & Outils
 
-- Autorisé à créer scripts temporaires (Python…) pour tâches administratives/extraction.
-- Stockage : `antigravity/scripts/` ou `antigravity/scratch/`.
+- **Scripts Utilitaires Pérennes Rattachés** : Doivent résider dans `antigravity/` (dans le skill concerné ou `antigravity/scripts/`), obligatoirement documentés et rattachés à une compétence active. Aucun script orphelin flottant sans contexte.
+- **Scripts Temporaires Jetables** : Stockés exclusivement dans l'espace de session de l'agent (`<appDataDir>\brain\<conversation-id>\scratch\` ou `brain`).
+- **Interdiction Formelle de Scratch dans le Coffre** : La mention historique `antigravity/scratch/` est abrogée. Aucun dossier scratch n'est toléré dans le coffre `VoiceNotes/`.
 
 ---
 
