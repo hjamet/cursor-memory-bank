@@ -1,19 +1,20 @@
 ---
 name: write-email
-description: "Protocole d'orchestration obligatoire en 3 étapes (Premier jet brut avec scan des 5 derniers échanges -> Reformulation de style par Claude Opus via independent-agents -> Audit anti-IA par ai_detector.py au seuil 10%) et charte stylistique d'Henri Jamet pour la rédaction d'e-mails structurés séquentiellement."
+description: "Protocole d'orchestration obligatoire en 4 étapes (Scan Spark & Fond Brut factuel -> Style Henri & avoid-ai-writing -> Érosion statistique StealthRL & audit factualité -> Prévisualisation séquentielle & Brouillon Spark sécurisé) et charte stylistique d'Henri Jamet pour la rédaction d'e-mails."
 ---
 
-# ✉️ Comment Rédiger des E-mails au Style d'Henri Jamet avec le Pipeline en 3 Étapes ?
+# ✉️ Comment Rédiger des E-mails au Style d'Henri Jamet avec le Pipeline en 4 Étapes ?
 
-Ce skill formalise l'**ADN stylistique d'Henri Jamet**, les **deux règles fondamentales de contextualisation et de structuration**, ainsi que le **protocole d'orchestration obligatoire en 3 étapes ordonnées** pour la rédaction de courriels (via Spark Desktop et Obsidian).
+Ce skill formalise l'**ADN stylistique d'Henri Jamet**, les **deux règles fondamentales de contextualisation et de structuration**, ainsi que le **protocole d'orchestration obligatoire en 4 étapes ordonnées** pour la rédaction de courriels (via Spark Desktop et Obsidian).
 
 > [!IMPORTANT]
 > **Règle d'or d'orchestration — Zéro verbiage stylistique manuel** :
 > Il est formellement interdit de récapituler, lister ou commenter manuellement les règles de style dans le chat ou dans la note de synthèse.
-> Le sous-agent principal doit exécuter strictement et automatiquement l'orchestration séquentielle en 3 étapes :
-> 1. **Passe 1** : Scan contextuel Spark + Premier jet factuel brut (sous-agent standard).
-> 2. **Passe 2** : Appel obligatoire à Claude Opus (`independent-agents`) pour infuser le style authentique d'Henri.
-> 3. **Passe 3** : Exécution de l'audit anti-IA par `ai_detector.py` au seuil 10% ($P(\text{AI}) < 0.10$) pour purger chirurgicalement les traces d'IA résiduelles et certifier le score avant livraison directe.
+> Le sous-agent principal doit exécuter strictement et automatiquement l'orchestration séquentielle en 4 étapes :
+> 1. **Étape 1 (Fond Brut & Scan Contextuel Spark)** : Scan contextuel des 5 derniers échanges Spark + Premier jet factuel brut (sous-agent classique).
+> 2. **Étape 2 (Style & Anti-IA Déterministe)** : Application de l'ADN stylistique d'Henri et du repo `avoid-ai-writing` (purge des clichés IA, interdiction formelle des tirets cadratins `—`/`--`, concision naturelle). Le repo `avoid-ai-writing` suffit largement avec les consignes de style.
+> 3. **Étape 3 (Érosion Statistique StealthRL & Garde-Fou Fermé)** : Exécution de `python antigravity/scripts/stealth_rewriter.py <passage>` (modèle Qwen3-4B NF4, 90% VRAM, scoring CPU), validation stricte par le sous-agent des faits/chiffres/dates, et interdiction formelle de reformuler après StealthRL.
+> 4. **Étape 4 (Prévisualisation Séquentielle & Brouillon Spark Sécurisé)** : Prévisualisation dans l'artéfact Brain sous forme séquentielle (Mail traduit $\to$ Réponse FR), validation explicite par Henri dans le chat, puis création du brouillon Spark (`spark draft create`) sans envoi direct (`spark action send` strictement interdit).
 
 ---
 
@@ -31,32 +32,46 @@ Ce skill formalise l'**ADN stylistique d'Henri Jamet**, les **deux règles fonda
 
 ---
 
-## 🎯 Quel Est le Protocole d'Orchestration Obligatoire en 3 Étapes ?
+## 🎯 Quel Est le Protocole d'Orchestration Obligatoire en 4 Étapes ?
 
 ```mermaid
 graph TD
-    A["1. Scan Spark & Premier Jet Factuel<br/>(Scan 5 derniers échanges + Faits, Liens, Dates)"] --> B["2. Reformulation de Style par Claude Opus<br/>(independent-agents / claude-opus-4-6-thinking)"]
-    B --> C["3. Audit Anti-IA ai_detector.py au Seuil 10%<br/>(Bagging 5 modèles SOTA, GPU CUDA, P_AI < 0.10)"]
-    C --> D["4. Prévisualisation Obsidian Séquentielle<br/>(Paires Mail Traduit -> Réponse FR)"]
+    A["1. Scan Spark & Fond Brut<br/>(Scan 5 derniers échanges + Faits, Liens, Dates)"] --> B["2. Style & Anti-IA Déterministe<br/>(ADN stylistique Henri + avoid-ai-writing)"]
+    B --> C["3. Érosion Statistique StealthRL & Factualité<br/>(stealth_rewriter.py Qwen3-4B NF4, P_AI < 0.10)"]
+    C --> D["4. Prévisualisation Séquentielle Brain<br/>(Paires Mail Traduit -> Réponse FR)"]
     D --> E["5. Brouillon Spark Desktop<br/>(spark draft create après validation)"]
 ```
 
-### 1. Étape 1 : Scan Contextuel & Premier Jet Factuel Brut (Sous-agent Principal)
+### 1. Étape 1 : Scan Contextuel & Fond Brut Factuel (Sous-agent Standard)
 - **Rôle** : Scanner les 5 derniers échanges Spark avec le correspondant pour verrouiller le contexte, puis extraire et assembler les faits bruts du fil de discussion (destinataires, dates, liens, pièces jointes, contraintes logistiques et points clés).
-- **Livrable intermédiaire** : Une ébauche factuelle brute, exhaustive et exacte sans recherche stylistique.
+- **Livrable intermédiaire** : Une ébauche factuelle brute, exhaustive et exacte sans recherche stylistique ni fard.
 - **Action immédiate** : Zéro bavardage, zéro règle de style affichée. Enchaîner immédiatement sur l'Étape 2.
 
-### 2. Étape 2 : Boucle Interactive Claude Opus & Détecteur IA Autonome
-- **Rôle** : Rédiger, évaluer et affiner le mail de manière holistique jusqu'à la version optimale.
-- **Moteur d'exécution** : Appel direct à Claude Opus (`antigravity-agents run --model opus` ou `start_independent_agent`) avec accès aux commandes d'évaluation neuronale.
-- **Protocole d'itération par Claude Opus** :
-  1. **Rédaction initiale** : Application stricte de l'ADN stylistique d'Henri Jamet (ton direct, concis, chaleureux, paragraphes continus, smileys textuels `:)`, `Joyfully,`).
-  2. **Auto-évaluation via l'outil** : Exécution d'`ai_detector.py` (`python antigravity/scripts/ai_detector.py "<texte>" --threshold 0.10`).
-  3. **Raffinage global & habile** : Claude Opus réajuste lui-même le texte dans son ensemble pour équilibrer parfaitement un style humain captivant et un score de détection IA certifié ($P(\text{AI}) < 0.10$).
-  4. **Livrable certifié** : Claude Opus fournit l'historique complet de ses itérations et la version finale consolidée (langue originale + traduction française).
+### 2. Étape 2 : Style & Anti-IA Déterministe (Sous-agent Standard)
+- **Rôle** : Infuser l'ADN stylistique d'Henri Jamet et appliquer les filtres anti-IA déterministes.
+- **Règles d'or** :
+  * Application stricte de l'ADN stylistique d'Henri (ton direct, concis, chaleureux, paragraphes continus, smileys textuels `:)`, formule signature finale `Joyfully,` / `Joyeusement,`, zéro bloc de signature).
+  * Application stricte du repo `avoid-ai-writing` : purge intégrale des clichés IA, interdiction absolue des tirets cadratins (`—`, `--`), zéro gras, zéro liste à puces artificielle.
+  * Le repo `avoid-ai-writing` suffit largement avec les consignes de style, pas besoin d'ajouter d'autres instructions.
+  * Réalisé par un sous-agent classique standard (aucune mention ni dépendance à `independent-agents`).
 
-### 3. Étape 3 : Audit Anti-IA ai_detector.py (Seuil 10%) & Traçabilité
-- **Rôle** : Passer l'audit final rigoureux via `ai_detector.py` au seuil de 10% ($P(\text{AI}) < 0.10$). Si une phrase dépasse le seuil, la heatmap fournit les points de correction immédiats. Consigner dans l'artéfact de session la traçabilité des itérations et le score final certifié avant validation par Henri.
+### 3. Étape 3 : Érosion Statistique StealthRL & Garde-Fou Fermé
+- **Rôle** : Effondrer l'empreinte statistique neuronale et certifier la factualité.
+- **Exécution** :
+  ```bash
+  python antigravity/scripts/stealth_rewriter.py "<texte_poli>"
+  ```
+  *(Modèle Qwen3-4B NF4, 90% VRAM, scoring CPU).*
+- **Validation stricte par le sous-agent** : Audit sceptique et impitoyable de la factualité. Traque rigoureuse des hallucinations et erreurs factuelles introduites par le modèle Qwen3-4B (dates, créneaux horaires, noms de personnes, liens, engagements).
+- **Règle d'or absolue** : **INTERDICTION FORMELLE de reformuler le texte après StealthRL**. Corriger UNIQUEMENT les erreurs factuelles ou éléments déformés afin de ne pas restaurer les motifs statistiques détectables par les classifieurs IA.
+- **Certification Anti-IA** : Exécution d'`ai_detector.py` au seuil strict de 10% ($P(\text{AI}) < 0.10$).
+
+### 4. Étape 4 : Prévisualisation Séquentielle Brain & Brouillon Spark Sécurisé
+- **Rôle** : Présentation du résultat dans l'artéfact Brain sous forme de paires séquentielles (Mail traduit $\to$ Réponse associée proposée), validation explicite par Henri dans le chat, puis création sécurisée du brouillon Spark Desktop (`spark draft create`).
+- **Édition Strictement Chirurgicale Bloc par Bloc** :
+  * Si les échanges ou propositions s'intègrent dans un fichier ou une note existante : **INTERDICTION ABSOLUE de tout réécrire d'un coup ou d'écraser le document entier avec `write_to_file` (`Overwrite: true`)**.
+  * **Obligation d'opérer bloc par bloc** : Utilisation EXCLUSIVE de `replace_file_content` ciblant des blocs précis et délimités.
+- **Sécurité Spark** : Interdiction absolue d'exécuter `spark action send`. L'envoi reste manuel par Henri ou validé explicitement sans ambiguïté.
 
 ---
 
@@ -102,52 +117,58 @@ graph TD
 
 ## 🤖 Quel Est le Guide d'Exécution Technique ?
 
-### 1. Étape 2 — Appel Claude Opus (`independent-agents` / `antigravity-agents`)
+### 1. Étape 3 — Exécution de l'Érosion Statistique (`stealth_rewriter.py`)
 
 ```bash
-antigravity-agents run --model opus --prompt "Tu es le styliste de texte expert de la voix et du style personnel d'Henri Jamet (Passe 2 du pipeline de rédaction).\n\nConsignes impératives :\n1. INFUSION DU STYLE HENRI : Attaque directe, rythme percutant, chaleur humaine sincère, complicité académique vive, concision extrême, zéro gras (**), zéro liste à puces artificielle, zéro séparateur (---), zéro tiret cadratin (—).\n2. CLÔTURE : Formule signature 'Joyfully,' (EN) ou 'Joyeusement,' (FR) pour les échanges humains/académiques, ou formule miroir si formalité stricte.\n3. ZÉRO BLOC DE SIGNATURE : Ne JAMAIS mettre le nom d'Henri ou ses coordonnées à la fin (la formule de clôture est la dernière ligne, Spark gère la signature).\n4. FORMAT DU LIVRABLE : Délivre directement et uniquement la version polie. Zéro bavardage ou méta-commentaire.\n\nVoici le contexte et le premier jet brut factuel :\n---\n[CONTEXTE / EXPÉDITEUR / 5 DERNIERS ÉCHANGES SPARK / POINTS CLÉS]\n[PREMIER JET BRUT]\n---"
+# Érosion statistique neuronale sur le passage poli par le sous-agent
+python antigravity/scripts/stealth_rewriter.py "<texte_poli>"
 ```
 
-### 2. Étape 3 — Commandes de l'Audit Anti-IA (`ai_detector.py`)
+### 2. Étape 3 — Audit Anti-IA & Factualité (`ai_detector.py`)
 
 ```bash
-# 1. Audit complet du texte produit par Claude Opus avec heatmap phrase par phrase
-python antigravity/scripts/ai_detector.py "<texte_claude_opus>"
+# 1. Audit complet du texte StealthRL avec heatmap phrase par phrase
+python antigravity/scripts/ai_detector.py "<texte_stealth>"
 
 # 2. Validation au seuil strict de 10% avec rapport JSON pour les sous-agents
-python antigravity/scripts/ai_detector.py "<texte_final>" --threshold 0.10 --json
+python antigravity/scripts/ai_detector.py "<texte_stealth>" --threshold 0.10 --json
+```
+
+### 3. Étape 4 — Création Sécurisée du Brouillon Spark Desktop
+
+```bash
+# Création du brouillon dans Spark Desktop UNIQUEMENT après validation par Henri dans le chat
+spark draft create --to "<destinataire>" --subject "<sujet>" --body "<corps_final>"
 ```
 
 ---
 
-## 🛡️ Pourquoi la Prévisualisation Obsidian Est-elle Obligatoire AVANT toute création Spark ?
+## 🛡️ Pourquoi la Prévisualisation Brain Est-elle Obligatoire AVANT toute création Spark ?
 
 1. **Interdiction de création immédiate dans Spark** : Il est STRICTEMENT INTERDIT d'exécuter `spark draft create` ou `spark draft edit` sans prévisualisation validée.
-2. **Traçabilité Exhaustive des Itérations (MANDATOIRE)** : L'artéfact de prévisualisation doit obligatoirement consigner l'audit trail complet des passes pour garantir une transparence scientifique totale :
-   - **Passe 1** : Premier jet brut factuel (Modèle de base / facts scan).
-   - **Passe 2** : Version stylisée authentique par **Claude Opus** (`antigravity-agents run --model opus`).
-   - **Passe 3** : Rapport d'évaluation neuronale et scores Anti-IA (`ai_detector.py` : Bagging 5 modèles SOTA, seuil certifié $P(\text{AI}) < 0.10$).
-   - **Passe 4** : Version finale livrable (Langue originale Spark + Traduction française).
-3. **Revue & Annotations par Henri** : Henri lit le projet sur son écran, annote ou valide.
+2. **Traçabilité Exhaustive des Itérations (MANDATOIRE)** : L'artéfact Brain de prévisualisation doit obligatoirement consigner l'audit trail complet des passes pour garantir une transparence scientifique totale :
+   - **Passe 1** : Scan Spark & Premier jet factuel brut (Faits, dates, liens, contraintes).
+   - **Passe 2** : Version stylisée (ADN stylistique Henri + règles du repo `avoid-ai-writing`, sous-agent classique).
+   - **Passe 3** : Version StealthRL (`stealth_rewriter.py`) + Audit de factualité et score certifié ($P(\text{AI}) < 0.10$).
+   - **Passe 4** : Version finale livrable (Langue originale Spark + Traduction française) prête pour création de brouillon Spark après accord.
+3. **Revue & Annotations par Henri** : Henri lit le projet sur son écran, annote ou valide. Partager **EXCLUSIVEMENT** le lien vers l'artéfact Brain dans le fil de discussion Antigravity.
 4. **Création Spark uniquement après validation** : `spark draft create` n'est appelé que lorsque Henri a expressément validé le texte.
-5. **Verrouillage strict de l'envoi** : L'envoi définitif (`spark action send`) est STRICTEMENT soumis à l'autorisation explicite finale d'Henri.
+5. **Verrouillage strict de l'envoi** : L'envoi définitif (`spark action send`) est STRICTEMENT INTERDIT à tout agent ou script sans confirmation explicite finale d'Henri.
 
 ---
 
 ## 🛠️ Comment Se Déroule la Synthèse Visuelle du Flux d'Exécution ?
 
 ```
-1. Scan Spark des 5 derniers échanges + Cadrage & Jet brut (Sous-agent principal)
+1. Scan Spark des 5 derniers échanges + Fond brut factuel (Sous-agent classique)
        ↓
-2. [OBLIGATOIRE] Reformulation Stylistique Claude Opus (independent-agents / claude-opus-4-6-thinking)
+2. Style Henri & Anti-IA Déterministe (avoid-ai-writing + ADN stylistique, sous-agent classique)
        ↓
-3. [OBLIGATOIRE] Audit Anti-IA ai_detector.py au seuil 10% (antigravity/scripts/ai_detector.py)
+3. Érosion Statistique StealthRL & Audit Factualité (stealth_rewriter.py, P_AI < 0.10, zéro reformulation)
        ↓
-4. Prévisualisation Obsidian Séquentielle (Mail 1 traduit -> Réponse 1 FR, Mail 2 -> Réponse 2)
+4. Prévisualisation Séquentielle Brain (Mail 1 traduit -> Réponse 1 FR) & Validation par Henri
        ↓
-5. Validation par Henri dans le Chat
+5. Création sécurisée du brouillon Spark Desktop (spark draft create)
        ↓
-6. Création du brouillon dans Spark Desktop (spark draft create)
-       ↓
-7. Envoi manuel par Henri ou confirmation explicite pour envoi assisté
+6. Envoi manuel par Henri ou confirmation explicite pour envoi assisté (spark action send)
 ```

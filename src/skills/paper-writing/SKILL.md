@@ -1,6 +1,6 @@
 ---
 name: paper-writing
-description: Méthodologie complète pour la rédaction et la révision itérative de papiers académiques via la note miroir Obsidian (papers/<nom>.md), l'édition directe des sources LaTeX, la projection de diff AST, le cycle comment-driven, la CLI simplifiée (--diff "<explication>" et --commit), l'automatisation des images et l'articulation amont avec la revue bibliographique (/literature-review).
+description: Méthodologie complète pour la rédaction et la révision itérative de papiers académiques (pipeline canonique en 4 étapes : Fond Brut, Style & avoid-ai-writing, StealthRL & audit factualité, Insertion Chirurgicale), l'édition directe des sources LaTeX, la projection de diff AST, le cycle comment-driven, la CLI simplifiée (--diff "<explication>" et --commit), l'automatisation des images et l'articulation amont avec la revue bibliographique (/literature-review).
 ---
 
 # 📝 Comment Rédiger et Réviser des Papiers Académiques (Paper Writing) ?
@@ -8,8 +8,17 @@ description: Méthodologie complète pour la rédaction et la révision itérati
 > [!IMPORTANT]
 > **Rôle Canonique : Orchestrateur Technique de Projet d'Article**
 > Ce skill régit l'orchestration technique, le cycle collaboratif comment-driven, la projection AST différentielle (`latex_to_markdown_artifact.py`), la synchronisation Overleaf/GitHub et la gestion automatisée des médias.
-> - **Pour la Charte Stylistique & Anti-IA** : Appliquer impérativement le skill dédié [`scientific-writing-style`](file:///C:/Users/hjamet/Documents/VoiceNotes/.agent/skills/scientific-writing-style/SKILL.md) (posture de chercheur senior, bannissement absolu des tirets cadratins `—`, suite déterministe `avoid-ai-writing` et barrière bloquante $P(\text{AI}) < 0.10$).
-> - **Pour la Revue Bibliographique Amont** : Mobiliser [`literature-review`](file:///C:/Users/hjamet/Documents/VoiceNotes/.agent/skills/literature-review/SKILL.md) (synthèse de littérature, fiches médico-légales Zotero et cartographie des baselines).
+> - **Pour la Charte Stylistique & Anti-IA** : Appliquer impérativement le skill dédié [`scientific-writing-style`](file:///C:/Users/Jamet/Documents/VoiceNotes/antigravity/skills/scientific-writing-style/SKILL.md) (posture de chercheur senior, bannissement absolu des tirets cadratins `—`, suite déterministe `avoid-ai-writing` et barrière bloquante $P(\text{AI}) < 0.10$).
+> - **Pour la Revue Bibliographique Amont** : Mobiliser [`literature-review`](file:///C:/Users/Jamet/Documents/VoiceNotes/antigravity/skills/literature-review/SKILL.md) (synthèse de littérature, fiches médico-légales Zotero et cartographie des baselines).
+
+---
+
+## 0. 🎯 Quelle est la Règle de Restitution Obligatoire du Livrable (Brain vs Obsidian) ?
+
+> [!IMPORTANT]
+> **RÈGLE D'OR DE RESTITUTION À HENRI DANS LE CHAT :**
+> - **OBLIGATION ABSOLUE** : Partager **EXCLUSIVEMENT** le lien cliquable vers l'artéfact Brain (`file:///<appDataDir>/brain/<conversation-id>/<nom>.md`) en tête de réponse dans le fil de discussion Antigravity. Cet artéfact est le **SEUL et UNIQUE livrable de travail interactif** contenant l'arborescence des deltas (Tree TOC), le word-diff interactif (<ins>/<del>), les badges de conformité IA par paragraphe, le callout de conciliation et les images compilées directement visibles.
+> - **INTERDICTION FORMELLE** : Ne **JAMAIS** partager ni mentionner le lien de la note Obsidian (`papers/<nom>.md`) dans le fil de discussion Antigravity. La note Obsidian est une note miroir passive interne au coffre réservée au rattachement documentaire et au graphe de connaissances ; elle ne doit jamais encombrer le chat ni être proposée comme espace de relecture interactif.
 
 ---
 
@@ -33,11 +42,11 @@ Toute modification du document académique s'inscrit rigoureusement dans la séq
                                     │
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│ 3. Modifications Liées aux Commentaires (Protocole en 3 Étapes)        │
-│    (a) Premier jet exhaustif axé à 100% sur le sens et la complétude.  │
-│    (b) Sous-agent de réécriture avec 'scientific-writing-style' et la  │
-│        suite avoid-ai-writing en boucle jusqu'à P(AI) < 10.0%.         │
-│    (c) Réintégration du texte corrigé dans le document source.         │
+│ 3. Modifications Liées aux Commentaires (Pipeline en 4 Étapes)         │
+│    (1) Fond Brut : Rédaction pure axée sur le fond scientifique.       │
+│    (2) Style & Anti-IA : scientific-writing-style & avoid-ai-writing.  │
+│    (3) Érosion StealthRL : stealth_rewriter.py & audit factualité.     │
+│    (4) Insertion Chirurgicale : replace_file_content exclusif sur .tex.│
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
                                     ▼
@@ -46,7 +55,7 @@ Toute modification du document académique s'inscrit rigoureusement dans la séq
 │    Exécution directe :                                                 │
 │    python antigravity/scripts/latex_to_markdown_artifact.py            │
 │        paper/main.tex --diff "Explication claire des changements"      │
-│    (Suppression définitive du drapeau séparé --explanation).           │
+│    (Livrable chat : EXCLUSIVEMENT le lien vers l'artéfact Brain).      │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -64,21 +73,35 @@ Toute modification du document académique s'inscrit rigoureusement dans la séq
   *(Ou avec `--line <N>` pour valider sélectivement les lignes antérieures au commentaire).*
 - **Règle Zero-Trust** : Zéro commit sauvage ou anticipé sans commentaire explicite d'Henri.
 
-#### 3. Protocole de Modification en 3 Étapes
-- **(a) Premier Jet Exhaustif** : Rédiger ou structurer les éléments techniques en se concentrant à 100% sur l'exactitude scientifique, les chiffres, les formules et la logique argumentative.
-- **(b) Filtrage Stylistique & Anti-IA via `scientific-writing-style`** :
-  - Exécuter la suite d'outils locale `avoid-ai-writing` (`detect.js`, `validate.js`, `check-style.js`).
-  - Purger impérativement les 112 clichés IA et tout tiret cadratin (`—`, `--`).
-  - Auditer via `ai_detector.py` jusqu'à conformité stricte $P(\text{AI}) < 0.10$.
-  - Mandatement direct de Claude Opus via `antigravity-agents run --model claude-opus-4-6 --prompt "..."` si une reformulation stylistique avancée est requise.
-- **(c) Réintégration dans les Sources** : Intégration chirurgicale dans les fichiers sources (`.tex`, `.bib`).
+#### 3. Pipeline Canonique de Rédaction & d'Humanisation en 4 Étapes
+- **(a) Étape 1 (Fond Brut)** :
+  * Rédaction pure axée sur le fond, la clarté et l'exactitude scientifique, les chiffres, les formules et la logique argumentative, sans fard stylistique ni artifice.
+- **(b) Étape 2 (Style & Anti-IA Déterministe)** :
+  * Application stricte des consignes de style ([`scientific-writing-style`](file:///C:/Users/Jamet/Documents/VoiceNotes/antigravity/skills/scientific-writing-style/SKILL.md)) et du repo `avoid-ai-writing`.
+  * Le repo `avoid-ai-writing` suffit largement avec les consignes de style, sans ajouter d'autres instructions.
+  * Purge impérative des clichés IA et bannissement absolu des tirets cadratins (`—`, `--`).
+  * Réalisé par un sous-agent classique standard (aucune utilisation ni mention d'`independent-agents`).
+- **(c) Étape 3 (Érosion Statistique StealthRL & Garde-Fou Fermé)** :
+  * Exécution de l'érosion statistique neuronale :
+    ```bash
+    python antigravity/scripts/stealth_rewriter.py "<passage>"
+    ```
+    *(Modèle Qwen3-4B NF4, 90% VRAM, scoring CPU).*
+  * **Validation stricte par le sous-agent** : Traque rigoureuse des hallucinations et erreurs factuelles introduites par le modèle Qwen3-4B (chiffres déformés, citations altérées, contresens).
+  * **Règle d'or absolue** : **INTERDICTION FORMELLE de reformuler le texte après StealthRL**. Corriger UNIQUEMENT les erreurs factuelles ou les chiffres altérés afin de ne pas restaurer les motifs statistiques détectables par les classifieurs IA.
+- **(d) Étape 4 (Insertion Chirurgicale Bloc par Bloc & Restitution)** :
+  * **Édition Strictement Chirurgicale Bloc par Bloc** : Toute modification sur les sources du manuscrit (`paper/main.tex`, `.bib`, `.sty`) DOIT impérativement être effectuée de manière strictement chirurgicale, bloc par bloc et paragraphe par paragraphe.
+  * **INTERDICTION ABSOLUE D'ÉCRASEMENT GLOBAL** : Il est FORMELLEMENT et ABSOLUMENT INTERDIT de tout réécrire d'un coup, de régénérer le document complet ou d'écraser le document entier avec `write_to_file` (notamment avec `Overwrite: true`).
+  * **Obligation d'Opérer via `replace_file_content`** : L'intégration s'effectue EXCLUSIVEMENT via des appels ciblés à `replace_file_content` (ou application locale de patch) sur la portion exacte à modifier. `write_to_file` est strictement réservé à la création initiale de nouveaux fichiers.
+  * **Projection AST & Restitution Chat** : Exécution immédiate de `python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --diff "<explication>"`. Partager **EXCLUSIVEMENT** le lien cliquable vers l'artéfact Brain (`file:///<appDataDir>/brain/<conversation-id>/<slug>.md`) en tête de réponse. INTERDICTION FORMELLE de partager ou mentionner le lien de la note Obsidian dans le fil de discussion.
 
 #### 4. Projection Différentielle Immédiate (`--diff "<explication>"`)
-- Rafraîchissement immédiat de la note miroir et génération du diff coloré avec le callout d'explication :
+- Rafraîchissement immédiat de l'artéfact Brain et de la note miroir avec le diff coloré et le callout d'explication :
   ```bash
-  python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --diff "Intégration de la calibration N=500k et clarification de la Section 4.2"
+  python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --diff "Intégration de la calibration N=500k et clarification de la Section 4.2" --brain-dir "<appDataDir>/brain/<conversation-id>"
   ```
-- Vérifier que 100% des badges IA affichés dans la note miroir sont verts ($\le 10\%$).
+- **Rappel Obligatoire de Restitution dans le Chat** : Partager **EXCLUSIVEMENT** le lien cliquable vers l'artéfact Brain affiché par le script (`file:///<appDataDir>/brain/<conversation-id>/<slug>.md`) en tête de réponse. INTERDICTION FORMELLE de partager ou mentionner le lien de la note Obsidian dans le fil de discussion.
+- Vérifier que 100% des badges IA affichés dans l'artéfact sont verts ($\le 10\%$).
 
 ---
 
@@ -101,11 +124,9 @@ python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --commit
 - Valide l'état courant comme nouvelle baseline officielle.
 - Option granulaire : `--line <N>` pour geler et committer uniquement jusqu'à la ligne $N$ de la note miroir.
 
-### 3. Mode Projection Simple (Sans Diff)
-```bash
-python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex
-```
-- Convertit le document source vers la note miroir `papers/<nom_papier>.md` sans générer de diffs ni badges IA.
+### 3. Invariant Strict Obligatoire (Interdiction d'Exécution sans Flag)
+> [!CAUTION]
+> **Interdiction Formelle du Mode sans Diff** : Le script refuse catégoriquement de s'exécuter sans `--diff "<explication>"` ou `--commit`. Tout mode par défaut sans comparaison est formellement banni pour préserver l'historique et empêcher l'écrasement silencieux des diffs.
 
 ---
 

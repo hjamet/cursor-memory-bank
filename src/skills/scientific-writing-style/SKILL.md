@@ -224,7 +224,17 @@ python antigravity/scripts/ai_detector.py paper/main.tex --json
 
 ---
 
-## 6. 📋 Checklist de Validation Avant Restitution
+## 6. 💉 Comment Intégrer les Modifications de Manière Strictement Chirurgicale ?
+
+> [!CAUTION]
+> **Interdiction Absolue d'Écrasement Global du Document :**
+> - **Édition Strictement Chirurgicale Bloc par Bloc** : Toute modification sur un manuscrit ou document scientifique préexistant DOIT impérativement s'effectuer de manière strictement chirurgicale, bloc par bloc et paragraphe par paragraphe.
+> - **INTERDICTION ABSOLUE D'ÉCRASEMENT GLOBAL** : Il est formellement et absolument interdit de tout réécrire d'un coup, de régénérer le fichier complet ou d'écraser le document entier avec `write_to_file` (notamment avec `Overwrite: true`).
+> - **Obligation d'Opérer via `replace_file_content`** : L'intégration s'effectue EXCLUSIVEMENT via des remplacements délimités et ciblés avec `replace_file_content` (ou application locale de patch). `write_to_file` est strictement réservé à la création initiale de nouveaux fichiers.
+
+---
+
+## 7. 📋 Quelle Est la Checklist de Validation Avant Restitution ?
 
 Pour tout texte académique rédigé :
 - [ ] **Posture Senior** : Zéro buzzword publicitaire, ton neutre et scientifique, faits et chiffres mesurables.
@@ -235,3 +245,4 @@ Pour tout texte académique rédigé :
   - [ ] `validate.js` passé avec succès (`PASS — preservation checks clear`, zéro `residual-grew`).
   - [ ] `check-style.js` vérifié sans violation dure.
 - [ ] **Score SOTA `ai_detector.py`** : $P(\text{AI}) < 10.0\%$ vérifié et prouvé par les sorties de la commande.
+- [ ] **Édition Strictement Chirurgicale** : Modification bloc par bloc via `replace_file_content`, aucun écrasement global via `write_to_file`.
