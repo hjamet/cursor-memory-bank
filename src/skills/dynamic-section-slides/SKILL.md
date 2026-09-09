@@ -25,10 +25,10 @@ Un support de présentation animé par *Dynamic Section Slides* n'est **ni un ar
 1. **Titres sous Forme de Questions Explicites (MANDATOIRE `?`)** :
    - Chaque titre de slide (`# H1`, `## H2`, `### H3`) **DOIT SYSTÉMATIQUEMENT ÊTRE FORMULÉ SOUS LA FORME D'UNE QUESTION EXPLICITE** se terminant par un point d'interrogation (`?`).
    - La slide pose la question clé, et son contenu (figure 16:9 / 300 DPI, diagramme Mermaid, tableau compact 2-3 colonnes max, ou 2 à 4 puces télégraphiques) y apporte la réponse factuelle et directe.
-2. **🚫 BANNISSEMENT ABSOLU DES CALLOUTS (`> [!...]`) DANS LES SLIDES (MANDATOIRE)** :
-   - **Interdiction formelle et définitive d'insérer des callouts (`> [!tip]`, `> [!note]`, `> [!important]`, etc.) dans les supports Dynamic Section Slides.**
-   - **Cause technique de l'incident** : Incompatibilité majeure du rendu CSS du plugin *Dynamic Section Slides*. Les callouts créent un énorme vide noir opaque avec une icône flottante au milieu et brisent intégralement la disposition plein écran.
-   - Remplacement systématique : soit par un visuel fort autonome (diagramme Mermaid, image 16:9, tableau compact 2-3 colonnes), soit par 2 à 4 puces télégraphiques percutantes.
+2. **💡 Intégration Recommandée des Callouts (`> [!...]`) pour Mémos & Takeaways Clés** :
+   - **Les callouts (`> [!tip]`, `> [!note]`, `> [!important]`, `> [!warning]`, etc.) sont pleinement autorisés, supportés et bienvenus.**
+   - **Usage recommandé** : Mettre en exergue un takeaway fort, un mémo décisionnel, une synthèse d'étape ou une alerte méthodologique.
+   - **Règle de concision** : Un callout doit rester compact et percutant (titre court + 1 à 3 points clés ou phrase synthétique). Éviter les blocs fleuves qui débordent de la diapositive.
 3. **Bannissement Absolu des Listes à Puces Redondantes & Règle de l'Information Unique (Oral-First)** (MANDATOIRE) :
    - **Interdiction formelle d'insérer des puces récapitulatives ou explicatives sous un tableau, un graphique ou un diagramme Mermaid qui contient déjà l'information.**
    - **Chaque élément visuel (Figure, Tableau, Schéma) se suffit intégralement à lui-même.** Ne JAMAIS ajouter de texte venant paraphraser, résumer ou commenter ce qui est déjà visible dans le composant.
@@ -84,16 +84,16 @@ Le contenu des présentations doit observer une **neutralité absolue, une conci
 
 | Balise | Rôle | Format & Contenu Maximal Recommandé |
 | :--- | :--- | :--- |
-| `# Title ?` | **Écran Titre / Chapitre** | Question d'orientation générale + 1 Image 16:9 épurée. Zéro callout. |
-| `## Section ?` | **Diapositive Principale** | Question clé de la diapositive + 1 Visuel fort unique (Mermaid / Tableau compact 2-3 col / Figure 300 DPI) OU 2-4 puces télégraphiques. Zéro callout. |
-| `### Topic ?` | **Sous-diapositive (Deep Dive)** | Question d'investigation technique + 1 Visuel ou métrique inédite + 1 lien `[[Note.md]]`. Zéro callout. |
-| `#### Detail ?` | **Carte Zoom** | Question sur cas limite ou ablation isolée (< 2 lignes). Zéro callout. |
+| `# Title ?` | **Écran Titre / Chapitre** | Question d'orientation générale + 1 Image 16:9 épurée. |
+| `## Section ?` | **Diapositive Principale** | Question clé de la diapositive + 1 Visuel fort unique (Mermaid / Tableau compact 2-3 col / Figure 300 DPI), Callout mémo compact OU 2-4 puces télégraphiques. |
+| `### Topic ?` | **Sous-diapositive (Deep Dive)** | Question d'investigation technique + 1 Visuel, Callout mémo ou métrique inédite + 1 lien `[[Note.md]]`. |
+| `#### Detail ?` | **Carte Zoom** | Question sur cas limite ou ablation isolée (< 2 lignes). |
 
 > [!CAUTION]
-> ### 🚫 Règle Anti-Redondance & Zéro Callout (Oral-First)
-> * **Zéro callout dans les diapositives** : Tout callout (`> [!...]` ou `> [...]`) est strictement banni en raison de l'incompatibilité CSS du moteur Obsidian Dynamic Section Slides (vide noir géant).
+> ### 🚫 Règle Anti-Redondance & Oral-First
 > * **Zéro puce explicative sous les visuels** : Ne JAMAIS insérer de puces récapitulatives ou explicatives sous un tableau, graphique ou schéma. L'orateur commente le visuel à l'oral.
 > * **Élément visuel autonome** : Chaque visuel (Figure, Tableau compact, Schéma) se suffit intégralement à lui-même.
+> * **Callouts compacts** : Les callouts (`> [!tip]`, `> [!note]`, etc.) sont autorisés et bienvenus pour les mémos ou points de vigilance mais doivent rester concis et proportionnés.
 > * **Zéro slide vide** : Intégrer l'image/diagramme directement dans la section `## ?` sans section fantôme.
 
 ### 🎮 Contrôles Clavier
@@ -139,6 +139,14 @@ flowchart LR
 - **Taux de Succès** : $99.4\%$ sur requêtes bruitées en conditions réelles ($p < 0.001$).
 ```
 
+### D. Callouts Mémos & Takeaways Percutants
+```markdown
+> [!tip] Le Format « 3-Bullet Memo »
+> - **3 Faits Majeurs** : Avancées télémétriques, code stabilisé, conformité éthique.
+> - **2 Arbitrages Fermés** : Choix A vs Choix B (zéro question ouverte chronophage).
+> - **1 Validation Simple** : Feu vert immédiat sur l'étape suivante.
+```
+
 ---
 
 ## 🎨 5. Infographies Visuelles Clés (Format 16:9)
@@ -155,14 +163,14 @@ flowchart LR
 ## 🔄 6. Protocole de Rédaction : "Cut to the Bone & Oral-First"
 
 1. **Question Formulation & Single Goal** : Identifier l'idée maîtresse et la formuler sous la forme d'une **question explicite percutante se terminant par `?`** pour le titre H1 / H2 / H3.
-2. **Visual First & Standalone (Zéro Callout)** : Insérer immédiatement le diagramme Mermaid, le tableau compact (2-3 colonnes), l'infographie 16:9 / figure Python 300 DPI, ou 2 à 4 puces télégraphiques percutantes apportant la réponse directe. Bannissement strict de tout callout (`> [!...]`). L'élément visuel se suffit intégralement à lui-même.
+2. **Visual First & Standalone** : Insérer immédiatement le diagramme Mermaid, le tableau compact (2-3 colonnes), l'infographie 16:9 / figure Python 300 DPI, le callout mémo percutant (`> [!tip]`), ou 2 à 4 puces télégraphiques apportant la réponse directe. L'élément visuel se suffit intégralement à lui-même.
 3. **Bannissement Absolu des Puces Récapitulatives** : Interdiction formelle d'insérer des listes à puces pour paraphraser ou expliquer ce qui est déjà présent dans le visuel. Tout commentaire didactique est réservé au discours oral.
 4. **Offload to Stack** : Remplacer tout détail technique, protocole ou calcul par un lien cliquable `[[Détail Technique.md]]` intégré si nécessaire directement dans le tableau ou le visuel.
 5. **3-Second Test** : Lancer `Ctrl+Shift+P`. Si la slide nécessite plus de 3 secondes de lecture ou contient de la paraphrase textuelle d'un visuel, éliminer immédiatement le texte superflu.
 
 ---
 
-## 🌟 7. Gabarit Modèle Ultra-Concis (Deck Template — Zero Redundancy & Zero Callout)
+## 🌟 7. Gabarit Modèle Ultra-Concis (Deck Template — Zero Redundancy)
 
 ```markdown
 # 🔬 How Does the Dynamic AST Engine Synchronize Multi-Agent Context in Sub-200ms?
