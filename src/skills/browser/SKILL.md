@@ -161,3 +161,17 @@ Toujours exécuter `list_pages` en premier. Cela permet de vérifier si l'applic
 - **Interdiction Absolue de Bricolage** : Ne JAMAIS fabriquer d'outils maison (scripts Python, CDP direct, sockets).
 - **Message Canonique à Renvoyer** : Renvoyer mot pour mot :
   « *Les outils du navigateur ne sont pas disponibles dans cette session. Pour m'y donner accès, veuillez simplement inclure la commande `/browser` dans votre prochain message.* »
+
+### 5.7 Protocole de Preuve Visuelle par Captures Ciblées Avant / Après & Présentation en Carrousel (MANDATOIRE)
+- **Principe de Preuve Matérielle Visuelle** : Toute modification apportée à une interface web doit être documentée de manière irréfutable par un doublet de captures d'écran ciblées.
+- **Workflow Séquentiel de Capture** :
+  1. **Avant toute modification** : Capturer l'élément ou la zone initiale via `take_screenshot` et nommer le fichier `before_<section>_<champ>.png`.
+  2. **Effectuer l'action matérielle** : Exécuter l'action concrète (`fill`, `click`, `type_text`, etc.).
+  3. **Après stabilisation du DOM** : Capturer le résultat final via `take_screenshot` et nommer le fichier `after_<section>_<champ>.png`.
+- **Présentation en Carrousel dans l'Artéfact de Session** :
+  * Présenter obligatoirement le doublet dans l'artéfact de session sous forme de carrousel natif à 2 diapositives (bloc `carousel` avec séparateur `<!-- slide -->`).
+  * Accompagner le carrousel du diff HTML conforme aux règles de lisibilité d'Henri (cf. 5.5) :
+    - **Suppression / Remplacement** : `<del style="color:#cf222e; background-color:#ffeef0; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</del>` (texte rouge, fond rouge doux, sans texte barré).
+    - **Ajout / Nouvelle valeur** : `<ins style="color:#116329; background-color:#dafbe1; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</ins>` (texte vert, fond vert doux, sans texte souligné).
+    - **Strictement aucun texte barré (`line-through`) ni souligné (`underline`)**.
+
