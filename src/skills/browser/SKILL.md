@@ -3,11 +3,14 @@ name: browser
 description: Lis absolument ce skill lorsque l'utilisateur invoque le workflow /browser pour piloter son navigateur Chrome de bureau.
 ---
 
-# Skill Browser — Observation Passive, Contrôle Manuel par Lots & Sous-Agent Persistant
+# Skill Browser : Observation Passive, Contrôle Manuel par Lots & Sous-Agent Persistant
 
 Ce skill définit le protocole officiel, l'architecture et les règles opérationnelles pour l'accompagnement sur Google Chrome via la passerelle MCP `chrome_devtools` dans l'écosystème Antigravity.
 
-Conformément à la doctrine établie par Henri Jamet, ce skill repose sur un principe cardinal : **l'agent browser est les « yeux » passifs du système, jamais les « mains » d'écriture**. Toutes les saisies et soumissions sont opérées manuellement par l'utilisateur (Henri), assisté par l'agent principal via des lots digestes de 10 actions maximum et un sous-agent browser persistant.
+Conformément à la doctrine établie par Henri Jamet, ce skill repose sur trois principes cardinaux :
+1. **L'agent browser est les « yeux » passifs du système, jamais les « mains » d'écriture** : toutes les saisies et soumissions sont opérées manuellement par l'utilisateur (Henri), assisté par l'agent principal.
+2. **Plafond strict de 5 actions maximum par round** : découpage en lots ultra-digestes (1 à 5 actions) garantissant une vigilance maximale, un audit chirurgical pas à pas et zéro surcharge cognitive.
+3. **Boucle d'exploration en profondeur et conformité académique** : observation exhaustive du DOM, cohérence multi-onglets (ex: Prolific vs formulaire LOOP vs notes Obsidian), audit console, et respect strict des règles de `scientific-writing-style` (0 tiret cadratin, 0 cliché IA, ton sobre de chercheur senior).
 
 ---
 
@@ -73,38 +76,58 @@ L'agent browser opère comme un observateur expert et passif :
 
 ---
 
-## 3. Batching par Lots de 10 Actions Maximum
+### 2.4 Rôle d'Observateur-Scout Complet & Exploration en Profondeur (Anti-Récursion)
+> [!IMPORTANT]
+> **Anti-Récursion Canonique & Autonomie d'Exploration de l'Agent Browser** :
+> - Conformément à la règle anti-récursion d'Antigravity (les sous-agents sont des exécutants et ne créent jamais de sous-sous-agents), l'agent browser ne délègue à aucun tiers.
+> - **Il conduit lui-même l'exploration minutieuse en profondeur** :
+>   1. **Audit DOM chirurgical** : analyse de l'arborescence, détection des balises d'état, des champs conditionnels et des contraintes de validation côté client.
+>   2. **Audit multi-onglets & cohérence croisée** : bascule (`select_page`) pour examiner les onglets connexes (ex: tableau de bord Prolific vs formulaire d'évaluation LOOP vs portail éthique) afin de certifier l'alignement des IDs, des redirections et des paramètres de l'étude.
+>   3. **Contrôle console & réseau** : surveillance proactive des exceptions JavaScript et des requêtes réseau défaillantes pour prévenir tout blocage silencieux.
 
-### 3.1 Plafond de Lot Strict (≤ 10 actions)
-Pour prévenir toute surcharge cognitive et assurer une exécution manuelle rapide et fluide par Henri :
-- Les actions nécessaires identifiées par l'observation de la page sont découpées en **paquets digestes de 10 actions maximum à la fois**.
+---
+
+## 3. Batching par Lots de 5 Actions Maximum
+
+### 3.1 Plafond de Lot Strict (≤ 5 actions)
+Pour prévenir toute surcharge cognitive et assurer une exécution manuelle rapide, sécurisée et fluide par Henri :
+- Les actions nécessaires identifiées par l'observation de la page sont découpées en **paquets digestes de 5 actions maximum à la fois** (actions 1 à 5).
 - Chaque action est atomique, non ambiguë et directement actionnable (ex: « Copier la valeur X dans le champ Y », « Sélectionner l'option Z »).
+- **Interdiction formelle de dépasser 5 actions par round** : ce format resserré garantit une concentration maximale, une vérification immédiate et un contrôle total à chaque étape.
 
 ### 3.2 Artéfact Dédié dans la Brain de Session
 L'agent principal consigne et présente chaque lot dans un artéfact temporaire dédié situé dans `<appDataDir>\brain\<conversation-id>\lot_actions_browser_XX.md` avec `RequestFeedback: true` :
-- **Structure ultra-lisible** : Tableau clair ou liste numérotée (1 à 10 maximum).
+- **Structure ultra-lisible** : Tableau clair ou liste numérotée (1 à 5 maximum).
 - **Contenu directement copiable** : Blocs de texte prêts à copier en un clic, intitulés exacts des champs et boutons cibles.
 - **Charte de lisibilité sans texte barré** : Si des diffs ou ajustements sont présentés, respecter scrupuleusement la charte d'Henri :
   * Ajout / Nouvelle valeur : `<ins style="color:#116329; background-color:#dafbe1; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</ins>` (fond vert doux, texte vert, **sans soulignement**).
   * Suppression / Remplacement : `<del style="color:#cf222e; background-color:#ffeef0; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</del>` (fond rouge doux, texte rouge, **sans texte barré**).
   * **Strictement aucun texte barré (`line-through`) ni souligné (`underline`)**.
 
+### 3.3 Conformité Stricte à `scientific-writing-style` (Textes Proposés)
+> [!IMPORTANT]
+> **Barrières Déterministes Anti-IA pour Tout Texte Proposé** :
+> Lorsque les actions préparent du texte destiné à être injecté dans un formulaire académique, scientifique ou institutionnel (ex: formulaires LOOP, interfaces Prolific, comités d'éthique CER-UNIL, déclarations méthodologiques) :
+> 1. **0 Tiret Cadratin (Zero Em-Dash)** : Interdiction stricte de `—`, `---` ou `--` dans les textes proposés. Utiliser des virgules, des parenthèses, deux-points ou des phrases distinctes.
+> 2. **Proscription Déterministe des Clichés IA** : Purge systématique des termes de la table avoid-ai-writing (ex: proscrire *foster*, *seamless*, *comprehensive*, *robust*, *leverage*, *crucial*, *pivotal*, *delve*, *showcase*, *intricate*, *testament to*, *tapestry*, *landscape*).
+> 3. **Posture & Sobriété de Chercheur Senior** : Ton direct, sobre et purement factuel. Zéro superlatif non quantifié, zéro phrase de réchauffement (*padding*), vocabulaire technique précis.
+
 ### 5.8 Format Canonique Obligatoire des Artéfacts de Consignes par Lot
 Pour éliminer toute friction cognitive et guider pas à pas Henri lors de la saisie manuelle dans Chrome :
 
 - **Attaque Directe & Zéro Boilerplate** :
   * Strictement **zéro note boilerplate / zéro encadré didactique** en tête d'artéfact.
-  * Attaque directe et immédiate par le titre H1 du lot (ex: `# Lot 1 — Déclarations Éthiques & Affiliations`).
-- **Plafond Strict de 10 Actions par Lot** : Tout artéfact de consignes est strictement plafonné à 10 actions maximum (actions 1 à 10).
-- **Gabarit Normalisé pour Chaque Action (1 à 10)** :
+  * Attaque directe et immédiate par le titre H1 du lot (ex: `# Lot 1 : Déclarations Éthiques & Affiliations`).
+- **Plafond Strict de 5 Actions par Lot** : Tout artéfact de consignes est strictement plafonné à 5 actions maximum (actions 1 à 5).
+- **Gabarit Normalisé pour Chaque Action (1 à 5)** :
   Chaque action dans l'artéfact doit impérativement respecter la structure canonique suivante :
 
 ````markdown
-### [ ] Action X — <Titre explicite de l'action>
+### [ ] Action X : <Titre explicite de l'action>
 
 - **Où** : Localisation fluide en langage naturel et repères par rapport aux questions voisines.
 - **Quoi faire** : Action directe (clic, sélection, remplacement de texte).
-- **Texte à copier** (si champ de saisie) : Fenced code block ```text propre.
+- **Texte à copier** (si champ de saisie) : Fenced code block ```text propre (strictement conforme à `scientific-writing-style` : 0 tiret cadratin, 0 cliché IA, ton sobre).
 - **Callout de justification** :
   > [!NOTE]
   > **Justification (Source / d'après moi)** : Explication pédagogique, réglementaire (LRH, nLPD, CER-UNIL) ou méthodologique du choix.
@@ -112,21 +135,21 @@ Pour éliminer toute friction cognitive et guider pas à pas Henri lors de la sa
 
 ---
 
-## 4. Cycle de Validation Interactif en 5 Temps
+## 4. Cycle de Validation Interactif en 5 Temps & Boucle d'Audit Exhaustif
 
-Le travail collaboratif entre Henri, l'agent principal et l'agent browser suit rigoureusement un cycle découpé en 5 temps :
+Le travail collaboratif entre Henri, l'agent principal et l'agent browser suit rigoureusement un cycle découpé en 5 temps intégrant une exploration en amont et un audit exhaustif en aval :
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant B as Agent Browser (Persistant)
+    participant B as Agent Browser (Persistant / Scout)
     participant P as Agent Principal (Superviseur)
     participant H as Henri (Utilisateur)
 
-    Note over B,P: Exploration initiale / Inspection DOM passive
-    B->>P: Rapport d'état DOM & éléments manquants
-    Note over P: Temps 1 : Découpage par lots (≤ 10 actions)
-    P->>H: Présente l'artéfact de session (lot de 10 actions max)
+    Note over B: Exploration minutieuse en profondeur<br/>(DOM, onglets connexes Prolific/LOOP, console)
+    B->>P: Rapport d'état DOM, cohérence multi-sources & éléments manquants
+    Note over P: Temps 1 : Découpage par lots (≤ 5 actions)<br/>Conformité scientific-writing-style
+    P->>H: Présente l'artéfact de session (lot de 5 actions max)
     
     alt Temps 2 : Henri demande des ajustements
         H->>P: Commentaires / ajustements sur l'artéfact
@@ -134,20 +157,21 @@ sequenceDiagram
         P->>H: Artéfact mis à jour
     end
 
-    Note over H: Temps 3 : Henri applique manuellement les 10 actions dans Chrome
-    H->>P: Temps 4 : Message dans le chat « Ok, c'est bon »
+    Note over H: Temps 3 : Henri applique manuellement les 5 actions dans Chrome
+    H->>P: Temps 4 : Validation (« Done », « Ok, c'est bon »)
     
-    Note over P,B: Temps 5 : Réveil & Vérification DOM
-    P->>B: send_message (audit ciblé des 10 actions)
-    Note over B: Inspecte le DOM, vérifie les valeurs réelles
-    B->>P: Rapport de vérification (confirmé / oublis éventuels)
-    Note over P: Planification du lot suivant (Temps 1)
+    Note over P,B: Temps 5 : Réveil & Audit Exhaustif en Profondeur
+    P->>B: send_message (audit chirurgical des 5 actions + cohérence globale)
+    Note over B: Inspecte le DOM (valeurs réelles),<br/>vérifie console/réseau & onglets connexes
+    B->>P: Rapport exhaustif (validation confirmée ou écarts détectés)
+    Note over P: Planification du lot suivant de 5 actions (Temps 1)
 ```
 
-### Temps 1 : Présentation du Lot par l'Agent Principal
-- L'agent principal synthétise les données d'observation et formule un lot de **10 actions au maximum**.
-- Il génère ou met à jour l'artéfact temporaire de session dédié (`RequestFeedback: true`).
-- L'artéfact fournit à Henri les valeurs textuelles exactes à copier, les sélecteurs clairs (noms des libellés à l'écran) et la localisation visuelle.
+### Temps 1 : Exploration en Profondeur Préalable & Présentation du Lot (≤ 5 actions)
+- **Exploration préalable par l'agent browser** : avant toute formulation de lot, l'agent browser conduit lui-même (en respect de la règle anti-récursion) un diagnostic approfondi de la page active, de la console et des onglets connexes (ex: concordance Prolific vs LOOP).
+- **Synthèse par l'agent principal** : l'agent principal formule un lot restreint de **5 actions au maximum** (actions 1 à 5).
+- **Validation stylistique** : tous les textes proposés respectent strictement `scientific-writing-style` (0 tiret cadratin, 0 cliché IA, ton chercheur senior).
+- **Mise à disposition** : génération ou mise à jour de l'artéfact temporaire de session dédié (`RequestFeedback: true`).
 
 ### Temps 2 : Revue & Ajustements par Henri (Sans Déranger le Browser)
 - Henri lit l'artéfact et peut poser des questions ou demander des modifications de fond.
@@ -155,18 +179,21 @@ sequenceDiagram
 - Le sous-agent browser reste au repos, préservant son contexte.
 
 ### Temps 3 : Application Manuelle par Henri
-- Henri applique manuellement les modifications sur sa page web dans Google Chrome (copier-coller des textes préparés, sélection des boutons radio/checkboxes, saisies).
+- Henri applique manuellement les 5 actions sur sa page web dans Google Chrome (copier-coller des textes préparés, sélection des boutons radio/checkboxes, saisies).
 - Henri dispose de son propre rythme et d'un contrôle visuel total sur son navigateur.
 
 ### Temps 4 : Signal de Clôture d'Henri
 - Une fois les modifications complétées, Henri envoie un message simple dans le chat :
-  * **« Ok, c'est bon »** (ou équivalent : « Fait », « C'est bon pour ce lot »).
+  * **« Done »** (ou équivalent : « Ok, c'est bon », « Fait », « C'est bon pour ce lot »).
 
-### Temps 5 : Audit & Vérification DOM par l'Agent Browser Persistant
-- L'agent principal réveille l'agent browser persistant via `send_message` en lui donnant la liste exacte des 10 points à vérifier dans le DOM.
-- L'agent browser exécute une inspection ciblée via `evaluate_script` (lecture des attributs `value`, `innerText`, statut des cases à cocher `checked`).
+### Temps 5 : Boucle d'Audit Exhaustif & Vérification en Profondeur par l'Agent Browser Persistant
+- L'agent principal réveille l'agent browser persistant via `send_message` en lui transmettant la liste exacte des 5 actions à vérifier ainsi que les contrôles de cohérence associés.
+- L'agent browser exécute une inspection approfondie et autonome (anti-récursion) :
+  1. **Vérification chirurgicale du DOM** : lecture des attributs `value`, `innerText`, statut des cases `checked` via `evaluate_script` en lecture seule.
+  2. **Audit console et réseau** : contrôle des messages d'erreur, avertissements ou échecs de requêtes Fetch/XHR déclenchés lors de la saisie.
+  3. **Cohérence multi-onglets** : bascule éventuelle (`select_page`) pour confirmer que les paramètres saisis concordent rigoureusement avec les onglets connexes (ex: ID d'étude, taux horaire, redirection d'URL).
 - L'agent browser remonte son compte-rendu d'audit à l'agent principal via `send_message` :
-  * Si tout est validé : l'agent principal prépare le lot suivant (retour au Temps 1).
+  * Si tout est validé : l'agent principal prépare le lot suivant de 5 actions (retour au Temps 1).
   * Si un oubli ou une anomalie est détecté : l'agent principal le signale immédiatement avec bienveillance pour correction ciblée.
 
 ---
@@ -175,12 +202,12 @@ sequenceDiagram
 
 | Outil | Description & Rôle | Statut & Directives |
 | :--- | :--- | :--- |
-| `list_pages` | Cartographie tous les onglets ouverts (IDs, URLs, titres). | **Obligatoire au démarrage** pour cibler l'onglet de travail existant d'Henri sans ouvrir de doublons. |
-| `select_page` | Bascule le focus d'inspection sur un onglet précis. | **Autorisé** pour cibler la page active d'Henri. |
+| `list_pages` | Cartographie tous les onglets ouverts (IDs, URLs, titres). | **Obligatoire au démarrage** pour cibler l'onglet de travail existant d'Henri et cartographier les onglets connexes sans ouvrir de doublons. |
+| `select_page` | Bascule le focus d'inspection sur un onglet précis. | **Autorisé** pour cibler la page active d'Henri et auditer les onglets liés lors de l'exploration multi-sources. |
 | `new_page` | Ouvre un nouvel onglet avec l'URL cible. | **Autorisé** uniquement si la page demandée n'est pas déjà ouverte dans un onglet existant. |
 | `close_page` | Ferme un onglet spécifique. | **Strictement restreint** aux onglets temporaires créés par l'agent. **INTERDIT** de fermer les onglets d'Henri. |
 | `navigate_page` | Charge une URL dans l'onglet actif. | **Autorisé** sur demande explicite de navigation. |
-| `evaluate_script` | Exécute du JavaScript dans la page. | **AUTORISÉ EN LECTURE SEULE** : extraction du DOM, vérification d'état, inspection de valeurs. **STRICTEMENT INTERDIT** pour modifier le DOM ou injecter des valeurs. |
+| `evaluate_script` | Exécute du JavaScript dans la page. | **AUTORISÉ EN LECTURE SEULE** : extraction du DOM, vérification d'état, inspection de valeurs, lecture console. **STRICTEMENT INTERDIT** pour modifier le DOM ou injecter des valeurs. |
 | `take_screenshot` | Capture une image de la page ou d'un élément. | **Autorisé** pour contrôle visuel passif ou aide au repérage. |
 | `list_network_requests` | Inspecte les requêtes XHR/Fetch et logs réseau. | **Autorisé** pour diagnostic technique (chargements asynchrones, erreurs HTTP). |
 | `click` | Simule un clic sur un élément. | **Exploration passive uniquement** (déplier un menu, ouvrir un onglet de navigation). **INTERDIT** pour soumettre un formulaire ou valider définitivement. |
@@ -202,4 +229,4 @@ sequenceDiagram
 
 ### 6.3 Sanctuarisation Doctrinale
 - `GEMINI.md` demeure la source canonique suprême et reste intact.
-- En cas de contradiction sur la manipulation Chrome, les directives d'observation passive et de batching de 10 de ce présent skill priment rigoureusement.
+- En cas de contradiction sur la manipulation Chrome, les directives d'observation passive et de batching de 5 actions de ce présent skill priment rigoureusement.
