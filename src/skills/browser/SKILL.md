@@ -11,9 +11,13 @@ Ce skill définit le protocole officiel, l'architecture et les règles opératio
 
 ## 1. Architecture & Déclenchement
 
-### 1.1 Déclenchement Automatique
-- **Commandes utilisateur** : `/browser` ou toute demande nécessitant l'interaction avec le web, le scraping dynamique, le remplissage de formulaires ou la manipulation d'applications web.
-- **Activation MCP** : Dès l'invocation, Antigravity arme et connecte dynamiquement la passerelle MCP `chrome_devtools`.
+### 1.1 Condition Sine Qua Non d'Activation des Outils (`/browser`)
+> [!IMPORTANT]
+> **Mécanisme d'Injection des Outils dans Antigravity** :
+> Dans Google Antigravity, les outils d'automatisation et de contrôle du navigateur (`chrome_devtools` : `list_pages`, `new_page`, `select_page`, `click`, `fill`, `type_text`, `evaluate_script`, `take_screenshot`, etc.) **ne sont jamais injectés par défaut** dans l'environnement.
+> Ils ne sont injectés et mis à la disposition du superviseur et des sous-agents **QUE SI l'utilisateur (Henri) invoque explicitement la commande slash `/browser` dans son message**.
+> - **Si `/browser` est présent dans le message** : Antigravity arme et injecte dynamiquement la passerelle MCP `chrome_devtools` reliée à l'instance Chrome active d'Henri.
+> - **Si `/browser` est absent du message** : Même si la tâche porte sur la navigation web, les outils `chrome_devtools` n'existent pas dans l'environnement d'exécution. Ni le superviseur ni le sous-agent ne peuvent s'auto-octroyer ces outils.
 
 ### 1.2 Délégation Obligatoire au Sous-Agent (`TypeName: 'browser'`)
 > [!IMPORTANT]
@@ -34,6 +38,15 @@ Ce skill définit le protocole officiel, l'architecture et les règles opératio
 - Le serveur MCP `chrome_devtools` se connecte directement à l'instance Google Chrome de bureau active de l'utilisateur (**Henri**).
 - **Accès complet aux sessions authentifiées** : L'agent bénéficie automatiquement de toutes les sessions connectées et des cookies existants d'Henri (ex. **Dify, Moodle, GitHub, Webmail, Drive, consoles cloud, applications intranet et locales**).
 - **Pas de ré-authentification manuelle** : Si l'utilisateur est déjà connecté à un service sur son Chrome, aucune étape de reconnexion ou d'échange de mots de passe n'est requise.
+
+### 1.4 Doctrine Fail-Stop sur Indisponibilité des Outils & Règle Anti-Bricolage
+> [!CAUTION]
+> **Arrêt Immédiat (Fail-Stop) & Interdiction Absolue de Bricolage** :
+> Si le sous-agent `browser` est invoqué mais constate que les outils `chrome_devtools` (`list_pages`, `new_page`, etc.) ne sont pas disponibles dans son environnement (l'utilisateur n'a pas tapé `/browser` dans son message, session expirée ou réinitialisée) :
+> 1. **ARRÊT IMMÉDIAT (FAIL-STOP)** : Le sous-agent DOIT S'ARRÊTER IMMÉDIATEMENT.
+> 2. **INTERDICTION ABSOLUE DE BRICOLAGE** : Ne JAMAIS fabriquer d'outils maison (scripts Python, CDP direct, sockets).
+> 3. **MESSAGE CANONIQUE OBLIGATOIRE** : Le sous-agent renvoie mot pour mot :
+>    « *Les outils du navigateur ne sont pas disponibles dans cette session. Pour m'y donner accès, veuillez simplement inclure la commande `/browser` dans votre prochain message.* »
 
 ---
 
@@ -63,7 +76,10 @@ Pour garantir une exécution robuste, prévisible et sans erreur, tout sous-agen
 
 ```mermaid
 flowchart TD
-    A[1. list_pages] --> B{Onglet cible déjà ouvert ?}
+    Start[Invocation Sous-Agent browser] --> Check{Outils chrome_devtools injectés ?<br/>Commande /browser invoquée ?}
+    Check -- Non --> FailStop[FAIL-STOP IMMÉDIAT<br/>Message canonique /browser]
+    Check -- Oui --> A[1. list_pages]
+    A --> B{Onglet cible déjà ouvert ?}
     B -- Oui --> C[2. select_page]
     B -- Non --> D[2. new_page avec URL cible]
     C --> E[3. evaluate_script ou inspection DOM]
@@ -138,3 +154,10 @@ Toujours exécuter `list_pages` en premier. Cela permet de vérifier si l'applic
   * **Suppression / Remplacement** : `<del style="color:#cf222e; background-color:#ffeef0; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</del>` (texte rouge, fond rouge doux, **SANS texte barré**).
   * **Ajout / Nouvelle valeur** : `<ins style="color:#116329; background-color:#dafbe1; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</ins>` (texte vert, fond vert doux, **SANS texte souligné**).
   * **Strictement aucun texte barré (`line-through`) ni souligné (`underline`)** : la lisibilité doit rester optimale pour les textes longs et les documents administratifs ou d'éthique.
+
+### 5.6 Doctrine Fail-Stop sur Indisponibilité des Outils `/browser` & Bannissement du Bricolage
+- **Condition Sine Qua Non d'Activation des Outils** : Dans Antigravity, les outils du navigateur (`chrome_devtools`) ne sont injectés dans l'environnement que si l'utilisateur invoque explicitement la commande slash `/browser` dans son message.
+- **Doctrine Fail-Stop sur Indisponibilité** : Si les outils ne sont pas disponibles (l'utilisateur n'a pas tapé `/browser` ou la session a changé), le sous-agent DOIT S'ARRÊTER IMMÉDIATEMENT.
+- **Interdiction Absolue de Bricolage** : Ne JAMAIS fabriquer d'outils maison (scripts Python, CDP direct, sockets).
+- **Message Canonique à Renvoyer** : Renvoyer mot pour mot :
+  « *Les outils du navigateur ne sont pas disponibles dans cette session. Pour m'y donner accès, veuillez simplement inclure la commande `/browser` dans votre prochain message.* »
