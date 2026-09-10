@@ -103,6 +103,7 @@ L'agent principal consigne et présente chaque lot dans un artéfact temporaire 
   * Ajout / Nouvelle valeur : `<ins style="color:#116329; background-color:#dafbe1; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</ins>` (fond vert doux, texte vert, **sans soulignement**).
   * Suppression / Remplacement : `<del style="color:#cf222e; background-color:#ffeef0; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</del>` (fond rouge doux, texte rouge, **sans texte barré**).
   * **Strictement aucun texte barré (`line-through`) ni souligné (`underline`)**.
+- **File de travail dynamique** : L'artéfact n'est pas un compte-rendu statique mais une file d'attente vivante soumise au principe d'élagage progressif au fil de l'eau.
 
 ### 3.3 Conformité Stricte à `scientific-writing-style` (Textes Proposés)
 > [!IMPORTANT]
@@ -112,13 +113,21 @@ L'agent principal consigne et présente chaque lot dans un artéfact temporaire 
 > 2. **Proscription Déterministe des Clichés IA** : Purge systématique des termes de la table avoid-ai-writing (ex: proscrire *foster*, *seamless*, *comprehensive*, *robust*, *leverage*, *crucial*, *pivotal*, *delve*, *showcase*, *intricate*, *testament to*, *tapestry*, *landscape*).
 > 3. **Posture & Sobriété de Chercheur Senior** : Ton direct, sobre et purement factuel. Zéro superlatif non quantifié, zéro phrase de réchauffement (*padding*), vocabulaire technique précis.
 
-### 5.8 Format Canonique Obligatoire des Artéfacts de Consignes par Lot
+### 3.4 Règle de l'Élagage au Fil de l'Eau (Pruning & Clean Artifact)
+> [!IMPORTANT]
+> **Règle de l'Élagage au Fil de l'Eau (Pruning & Clean Artifact)** :
+> - **Suppression progressive des actions validées** : Dès qu'une action d'un lot est appliquée manuellement par Henri et certifiée conforme par l'audit DOM de l'agent browser, l'action validée **DOIT ÊTRE SUPPRIMÉE** de l'artéfact de lot.
+> - **Contenu résiduel strict** : L'artéfact ne contient en permanence **QUE les actions restant réellement à faire**. Il ne conserve aucun élément déjà validé.
+> - **Artéfact propre et vide à terme** : À la fin du lot, lorsque toutes les actions sont validées, l'artéfact devient vide (ou affiche un simple message de clôture 100% propre).
+
+### 3.5 Format Canonique Obligatoire des Artéfacts de Consignes par Lot
 Pour éliminer toute friction cognitive et guider pas à pas Henri lors de la saisie manuelle dans Chrome :
 
 - **Attaque Directe & Zéro Boilerplate** :
   * Strictement **zéro note boilerplate / zéro encadré didactique** en tête d'artéfact.
   * Attaque directe et immédiate par le titre H1 du lot (ex: `# Lot 1 : Déclarations Éthiques & Affiliations`).
 - **Plafond Strict de 5 Actions par Lot** : Tout artéfact de consignes est strictement plafonné à 5 actions maximum (actions 1 à 5).
+- **Élagage au Fil de l'Eau** : Chaque action auditée et validée par l'agent browser est immédiatement purgée de l'artéfact.
 - **Gabarit Normalisé pour Chaque Action (1 à 5)** :
   Chaque action dans l'artéfact doit impérativement respecter la structure canonique suivante :
 
@@ -132,6 +141,14 @@ Pour éliminer toute friction cognitive et guider pas à pas Henri lors de la sa
   > [!NOTE]
   > **Justification (Source / d'après moi)** : Explication pédagogique, réglementaire (LRH, nLPD, CER-UNIL) ou méthodologique du choix.
 ````
+
+- **Clôture de Lot (Artéfact Épuré)** :
+  Lorsque la dernière action du lot est validée, l'artéfact devient vide ou affiche :
+```markdown
+# Lot X : Validé
+
+🎉 Toutes les actions de ce lot ont été appliquées et certifiées conformes par l'audit DOM.
+```
 
 ---
 
@@ -193,12 +210,14 @@ sequenceDiagram
   2. **Audit console et réseau** : contrôle des messages d'erreur, avertissements ou échecs de requêtes Fetch/XHR déclenchés lors de la saisie.
   3. **Cohérence multi-onglets** : bascule éventuelle (`select_page`) pour confirmer que les paramètres saisis concordent rigoureusement avec les onglets connexes (ex: ID d'étude, taux horaire, redirection d'URL).
 - L'agent browser remonte son compte-rendu d'audit à l'agent principal via `send_message` :
-  * Si tout est validé : l'agent principal prépare le lot suivant de 5 actions (retour au Temps 1).
-  * Si un oubli ou une anomalie est détecté : l'agent principal le signale immédiatement avec bienveillance pour correction ciblée.
+  * Si validé : pour chaque action confirmée conforme dans le DOM, l'agent principal met à jour l'artéfact en supprimant immédiatement l'action validée (**règle de l'élagage au fil de l'eau**). L'artéfact ne conserve que le reliquat et devient vide (ou affiche un message de clôture 100% propre) dès validation intégrale du lot. L'agent principal prépare ensuite le lot suivant de 5 actions (retour au Temps 1).
+  * Si un oubli ou une anomalie est détecté : l'action concernée reste consignée dans l'artéfact, et l'agent principal le signale immédiatement avec bienveillance pour correction ciblée.
 
 ---
 
-## 5. Inventaire & Matrice d'Usage des Outils `chrome_devtools`
+## 5. Inventaire, Matrice d'Usage & Directives Doctrinales
+
+### 5.1 Matrice d'Usage des Outils `chrome_devtools`
 
 | Outil | Description & Rôle | Statut & Directives |
 | :--- | :--- | :--- |
@@ -213,6 +232,13 @@ sequenceDiagram
 | `click` | Simule un clic sur un élément. | **Exploration passive uniquement** (déplier un menu, ouvrir un onglet de navigation). **INTERDIT** pour soumettre un formulaire ou valider définitivement. |
 | `fill` | Remplit la valeur d'un champ (`input`, `textarea`). | **STRICTEMENT INTERDIT** : la saisie est réservée à Henri manuellement. |
 | `type_text` | Simule la frappe clavier. | **STRICTEMENT INTERDIT** : la frappe est réservée à Henri manuellement. |
+
+### 5.2 Directives Doctrinales : Règle de l'Élagage au Fil de l'Eau (Pruning & Clean Artifact)
+> [!IMPORTANT]
+> **Règle Doctrinale de l'Élagage au Fil de l'Eau (Pruning & Clean Artifact)** :
+> - **Suppression progressive immédiate** : Dès qu'une action d'un lot est appliquée par l'utilisateur et certifiée conforme par l'audit DOM de l'agent browser, l'action validée **DOIT ÊTRE SUPPRIMÉE** de l'artéfact de lot.
+> - **File d'attente résiduelle exclusive** : L'artéfact ne contient en permanence **QUE les actions restant réellement à faire**.
+> - **Artéfact vide en fin de lot** : À la fin du lot, lorsque toutes les actions sont validées, l'artéfact devient vide (ou affiche un simple message de clôture 100% propre).
 
 ---
 
@@ -229,4 +255,4 @@ sequenceDiagram
 
 ### 6.3 Sanctuarisation Doctrinale
 - `GEMINI.md` demeure la source canonique suprême et reste intact.
-- En cas de contradiction sur la manipulation Chrome, les directives d'observation passive et de batching de 5 actions de ce présent skill priment rigoureusement.
+- En cas de contradiction sur la manipulation Chrome, les directives d'observation passive, de batching de 5 actions et d'élagage au fil de l'eau (pruning) de ce présent skill priment rigoureusement.
