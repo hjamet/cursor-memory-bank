@@ -53,6 +53,19 @@ Un support de présentation animé par *Dynamic Section Slides* n'est **ni un ar
 9. **Zéro Séparateur Horizontal `---`** : Découpe 100% sémantique via les titres Markdown `#` à `####`.
 10. **Langue par Défaut** : **Anglais** (sauf demande expresse en français).
 
+### 📐 Structure Canonique d'une Slide : Callout d'Amorce & Corps Visuel Ultra-Synthétique
+
+Chaque diapositive (H2 ou sous-diapositive H3) doit rigoureusement obéir au triptyque suivant :
+
+1. **Titre Formulé en Question Explicite (`?`)** : Pose le problème ou la décision à arbitrer.
+2. **Callout d'Amorce Court (1 phrase unique)** :
+   - Explique d'emblée l'intention : *pourquoi* ce sujet est abordé et quel est le point de friction ou l'objectif opérationnel.
+   - Format : `> [!note] Intent / Rationale` ou `> [!tip] Core Takeaway` avec une seule phrase synthétique.
+3. **Corps Visuel & Télégraphique (Tableau ou Mermaid)** :
+   - Présenter l'information sous forme de tableau Markdown épuré ou de schéma Mermaid lisible.
+   - Bannir les longues phrases narratives : utiliser **exclusivement des mots-clés, des chiffres-clés et des puces télégraphiques**.
+   - Ne jamais répéter textuellement ce qui figure déjà dans le tableau ou le schéma.
+
 ---
 
 ## 🔬 2. Style, Registre & Ton (Rigueur Scientifique & Evidence-First)
