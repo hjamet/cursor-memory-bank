@@ -3,13 +3,15 @@ name: browser
 description: Lis absolument ce skill lorsque l'utilisateur invoque le workflow /browser pour piloter son navigateur Chrome de bureau.
 ---
 
-# Skill Browser — Automatisation & Pilotage Avancé de Chrome
+# Skill Browser — Observation Passive, Contrôle Manuel par Lots & Sous-Agent Persistant
 
-Ce skill définit le protocole officiel, l'architecture et les règles opérationnelles pour le pilotage de Google Chrome via la passerelle MCP `chrome_devtools` dans l'écosystème Antigravity.
+Ce skill définit le protocole officiel, l'architecture et les règles opérationnelles pour l'accompagnement sur Google Chrome via la passerelle MCP `chrome_devtools` dans l'écosystème Antigravity.
+
+Conformément à la doctrine établie par Henri Jamet, ce skill repose sur un principe cardinal : **l'agent browser est les « yeux » passifs du système, jamais les « mains » d'écriture**. Toutes les saisies et soumissions sont opérées manuellement par l'utilisateur (Henri), assisté par l'agent principal via des lots digestes de 10 actions maximum et un sous-agent browser persistant.
 
 ---
 
-## 1. Architecture & Déclenchement
+## 1. Architecture, Déclenchement & Persistance Absolue
 
 ### 1.1 Condition Sine Qua Non d'Activation des Outils (`/browser`)
 > [!IMPORTANT]
@@ -19,25 +21,20 @@ Ce skill définit le protocole officiel, l'architecture et les règles opératio
 > - **Si `/browser` est présent dans le message** : Antigravity arme et injecte dynamiquement la passerelle MCP `chrome_devtools` reliée à l'instance Chrome active d'Henri.
 > - **Si `/browser` est absent du message** : Même si la tâche porte sur la navigation web, les outils `chrome_devtools` n'existent pas dans l'environnement d'exécution. Ni le superviseur ni le sous-agent ne peuvent s'auto-octroyer ces outils.
 
-### 1.2 Délégation Obligatoire au Sous-Agent (`TypeName: 'browser'`)
+### 1.2 Règle Fondamentale de Persistance Absolue du Sous-Agent Browser
 > [!IMPORTANT]
-> **Règle Fondamentale de Délégation** :
-> L'agent principal **NE DOIT PAS** exécuter directement les boucles d'interactions Chrome dans son contexte principal.
-> Il **DOIT IMPÉRATIVEMENT** déléguer la mission à un sous-agent spécialisé en spécifiant :
-> ```json
-> {
->   "TypeName": "browser"
-> }
-> ```
-> **Pourquoi cette isolation ?**
-> - Préserve la fenêtre de contexte de l'agent principal.
-> - Isole les payloads volumineux (captures d'écran, logs DOM, réponses réseau XHR).
-> - Permet une boucle d'itération rapide (navigate -> click -> inspect -> evaluate) sans saturer l'historique conversationnel de haut niveau.
+> **Invocation Unique & Maintien en Vie Permanent** :
+> L'agent principal ne doit **JAMAIS** exécuter directement les outils du navigateur dans son fil de discussion principal, et doit impérativement déléguer à un sous-agent browser (`TypeName: 'browser'`).
+> Cependant, une règle stricte régit son cycle de vie :
+> 1. **Invocation Unique** : Invoquer le sous-agent browser **UNE SEULE FOIS** au moment où Henri tape `/browser`.
+> 2. **Persistance Totale pour Toute la Session** : **INTERDICTION FORMELLE DE TUER ET RÉ-INVOQUER** un nouveau sous-agent browser en cours de route.
+>    * *Pourquoi ?* Tuer et recréer le sous-agent fait perdre l'historique d'exploration, le contexte d'inspection DOM et l'accès dynamique aux outils injectés.
+> 3. **Communication Exclusif via `send_message`** : L'agent principal réveille et pilote le sous-agent browser **EXCLUSIVEMENT via `send_message`** à chaque cycle d'audit et de vérification.
 
 ### 1.3 Environnement & Sessions Actives d'Henri
 - Le serveur MCP `chrome_devtools` se connecte directement à l'instance Google Chrome de bureau active de l'utilisateur (**Henri**).
-- **Accès complet aux sessions authentifiées** : L'agent bénéficie automatiquement de toutes les sessions connectées et des cookies existants d'Henri (ex. **Dify, Moodle, GitHub, Webmail, Drive, consoles cloud, applications intranet et locales**).
-- **Pas de ré-authentification manuelle** : Si l'utilisateur est déjà connecté à un service sur son Chrome, aucune étape de reconnexion ou d'échange de mots de passe n'est requise.
+- **Accès complet aux sessions authentifiées** : L'agent bénéficie automatiquement de toutes les sessions connectées et des cookies existants d'Henri (ex. **Dify, Moodle, GitHub, Webmail, Drive, portails éthiques, consoles cloud, intranets et applications locales**).
+- **Zéro ré-authentification manuelle** : Si l'utilisateur est déjà connecté à un service sur son Chrome, aucune étape de reconnexion ou de transmission de mots de passe n'est requise.
 
 ### 1.4 Doctrine Fail-Stop sur Indisponibilité des Outils & Règle Anti-Bricolage
 > [!CAUTION]
@@ -50,128 +47,138 @@ Ce skill définit le protocole officiel, l'architecture et les règles opératio
 
 ---
 
-## 2. Inventaire des Outils `chrome_devtools`
+## 2. Le Nouveau Paradigme : Observation & Exploration Passive
 
-La passerelle `chrome_devtools` met à disposition une suite complète d'outils d'automatisation et d'inspection :
+### 2.1 Rôle Exclusif : Les « Yeux » du Système
+L'agent browser opère comme un observateur expert et passif :
+- **Identification de l'état** : Il observe la page active, repère où en est Henri dans son formulaire ou sa navigation, et cartographie les sections visibles et masquées.
+- **Inspection structurelle du DOM** : Il extrait les sélecteurs, inspecte les champs, étudie les contraintes de validation (champs requis, formats attendus, options de listes déroulantes).
+- **Exploration non-destructive** : Il peut cliquer pour déplier un menu, explorer des sous-sections ou dérouler un accordéon à seule fin d'inspecter ce qui manque.
+- **Diagnostic technique** : Il inspecte la console JavaScript et les requêtes réseau (XHR/Fetch) via `list_network_requests` pour détecter les erreurs asynchrones ou blocages techniques.
 
-| Outil | Catégorie | Description & Rôle |
+### 2.2 Zéro Écriture Automatique (Contrôle Manuel Exclusif par Henri)
+> [!CAUTION]
+> **Interdiction Formelle et Absolue d'Écriture Automatique** :
+> - L'agent browser ne doit **JAMAIS modifier, remplir (`fill`, `type_text`) ou cliquer pour soumettre des données sur la page web**.
+> - C'est **TOUJOURS l'utilisateur (Henri)** qui effectue physiquement les saisies de texte, les coches de cases, les sélections de menus et les clics de soumission.
+> - **Raison fondamentale** : Intégrité des données, conformité éthique et administrative, souveraineté totale de l'utilisateur, et élimination de tout risque d'hallucination ou de soumission intempestive.
+
+### 2.3 Classification Rigoureuse des Outils `chrome_devtools`
+
+| Statut | Outils | Usage Autorisé / Proscrit |
 | :--- | :--- | :--- |
-| `list_pages` | Gestion d'onglets | Liste l'ensemble des cibles/onglets ouverts avec leurs IDs, titres et URLs. |
-| `new_page` | Gestion d'onglets | Crée un nouvel onglet et navigue vers l'URL spécifiée. |
-| `select_page` | Gestion d'onglets | Sélectionne la page active sur laquelle les commandes suivantes s'appliqueront. |
-| `close_page` | Gestion d'onglets | Ferme un onglet spécifique via son identifiant de page. |
-| `navigate_page` | Navigation | Charge une URL dans la page active en cours. |
-| `click` | Interaction DOM | Déclenche un clic sur un élément identifié (sélecteur CSS, XPath ou coordonnées). |
-| `fill` | Interaction DOM | Remplit la valeur d'un champ de saisie (`input`, `textarea`). |
-| `type_text` | Interaction DOM | Simule la frappe clavier au niveau caractère ou raccourcis système. |
-| `take_screenshot` | Inspection visuelle | Capture une image de la page ou d'un élément spécifique pour vérification. |
-| `evaluate_script` | Exécution JS | Exécute du code JavaScript dans le contexte de la page pour extraire du contenu ou manipuler le DOM. |
-| `list_network_requests` | Réseau & Logs | Inspecte les requêtes réseau (XHR/Fetch), statuts HTTP et en-têtes pour déboguer les API. |
+| **Observation & Inspection** | `list_pages`, `select_page`, `evaluate_script` *(lecture seule)*, `take_screenshot`, `list_network_requests` | **✅ PLEINEMENT AUTORISÉ** : inspection du DOM, extraction d'arborescences, repérage de sélecteurs, diagnostic réseau et console. |
+| **Exploration Passive** | `click` *(sur éléments non-mutatifs uniquement)*, `navigate_page` *(si navigation demandée)* | **✅ AUTORISÉ SOUS RÉSERVE** : ouvrir un menu déroulant, déplier un accordéon pour en lire le contenu. **INTERDIT** sur tout bouton de soumission ou de validation. |
+| **Écriture & Mutation** | `fill`, `type_text`, `click` *(soumission)*, `evaluate_script` *(injection de valeurs DOM)* | **❌ STRICTEMENT INTERDIT** : aucune frappe clavier automatique, aucun remplissage de formulaire, aucun clic d'envoi. |
 
 ---
 
-## 3. Protocole Opérationnel d'Automatisation
+## 3. Batching par Lots de 10 Actions Maximum
 
-Pour garantir une exécution robuste, prévisible et sans erreur, tout sous-agent `browser` applique le cycle d'exécution en 6 étapes :
+### 3.1 Plafond de Lot Strict (≤ 10 actions)
+Pour prévenir toute surcharge cognitive et assurer une exécution manuelle rapide et fluide par Henri :
+- Les actions nécessaires identifiées par l'observation de la page sont découpées en **paquets digestes de 10 actions maximum à la fois**.
+- Chaque action est atomique, non ambiguë et directement actionnable (ex: « Copier la valeur X dans le champ Y », « Sélectionner l'option Z »).
+
+### 3.2 Artéfact Dédié dans la Brain de Session
+L'agent principal consigne et présente chaque lot dans un artéfact temporaire dédié situé dans `<appDataDir>\brain\<conversation-id>\lot_actions_browser_XX.md` avec `RequestFeedback: true` :
+- **Structure ultra-lisible** : Tableau clair ou liste numérotée (1 à 10 maximum).
+- **Contenu directement copiable** : Blocs de texte prêts à copier en un clic, intitulés exacts des champs et boutons cibles.
+- **Charte de lisibilité sans texte barré** : Si des diffs ou ajustements sont présentés, respecter scrupuleusement la charte d'Henri :
+  * Ajout / Nouvelle valeur : `<ins style="color:#116329; background-color:#dafbe1; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</ins>` (fond vert doux, texte vert, **sans soulignement**).
+  * Suppression / Remplacement : `<del style="color:#cf222e; background-color:#ffeef0; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</del>` (fond rouge doux, texte rouge, **sans texte barré**).
+  * **Strictement aucun texte barré (`line-through`) ni souligné (`underline`)**.
+
+---
+
+## 4. Cycle de Validation Interactif en 5 Temps
+
+Le travail collaboratif entre Henri, l'agent principal et l'agent browser suit rigoureusement un cycle découpé en 5 temps :
 
 ```mermaid
-flowchart TD
-    Start[Invocation Sous-Agent browser] --> Check{Outils chrome_devtools injectés ?<br/>Commande /browser invoquée ?}
-    Check -- Non --> FailStop[FAIL-STOP IMMÉDIAT<br/>Message canonique /browser]
-    Check -- Oui --> A[1. list_pages]
-    A --> B{Onglet cible déjà ouvert ?}
-    B -- Oui --> C[2. select_page]
-    B -- Non --> D[2. new_page avec URL cible]
-    C --> E[3. evaluate_script ou inspection DOM]
-    D --> E
-    E --> F[4. Actions ciblées : click / fill / type_text]
-    F --> G[5. Vérification : screenshot ou evaluate_script]
-    G --> H{Objectif atteint ?}
-    H -- Non --> E
-    H -- Oui --> I[6. Rapport structuré & Nettoyage]
+sequenceDiagram
+    autonumber
+    participant B as Agent Browser (Persistant)
+    participant P as Agent Principal (Superviseur)
+    participant H as Henri (Utilisateur)
+
+    Note over B,P: Exploration initiale / Inspection DOM passive
+    B->>P: Rapport d'état DOM & éléments manquants
+    Note over P: Temps 1 : Découpage par lots (≤ 10 actions)
+    P->>H: Présente l'artéfact de session (lot de 10 actions max)
+    
+    alt Temps 2 : Henri demande des ajustements
+        H->>P: Commentaires / ajustements sur l'artéfact
+        Note over P: L'agent principal ajuste l'artéfact (sous-agent recherche si besoin) SANS déranger l'agent browser
+        P->>H: Artéfact mis à jour
+    end
+
+    Note over H: Temps 3 : Henri applique manuellement les 10 actions dans Chrome
+    H->>P: Temps 4 : Message dans le chat « Ok, c'est bon »
+    
+    Note over P,B: Temps 5 : Réveil & Vérification DOM
+    P->>B: send_message (audit ciblé des 10 actions)
+    Note over B: Inspecte le DOM, vérifie les valeurs réelles
+    B->>P: Rapport de vérification (confirmé / oublis éventuels)
+    Note over P: Planification du lot suivant (Temps 1)
 ```
 
-### Étape 1 : Cartographie des Onglets (`list_pages`)
-Toujours exécuter `list_pages` en premier. Cela permet de vérifier si l'application visée (ex. un canvas Dify ou un cours Moodle) est déjà ouverte dans un onglet existant pour éviter d'ouvrir des doublons et réutiliser la session ouverte.
+### Temps 1 : Présentation du Lot par l'Agent Principal
+- L'agent principal synthétise les données d'observation et formule un lot de **10 actions au maximum**.
+- Il génère ou met à jour l'artéfact temporaire de session dédié (`RequestFeedback: true`).
+- L'artéfact fournit à Henri les valeurs textuelles exactes à copier, les sélecteurs clairs (noms des libellés à l'écran) et la localisation visuelle.
 
-### Étape 2 : Ciblage / Ouverture (`select_page` ou `new_page`)
-- Si l'onglet existe déjà : exécuter `select_page` avec le `pageId` correspondant.
-- Si l'onglet n'existe pas : exécuter `new_page` avec l'URL souhaitée.
+### Temps 2 : Revue & Ajustements par Henri (Sans Déranger le Browser)
+- Henri lit l'artéfact et peut poser des questions ou demander des modifications de fond.
+- **Règle d'Isolation** : L'agent principal effectue les ajustements de l'artéfact (en déployant au besoin des sous-agents de recherche documentaire dans le coffre) **SANS SOLLICITER L'AGENT BROWSER**.
+- Le sous-agent browser reste au repos, préservant son contexte.
 
-### Étape 3 : Attente & Analyse de l'État DOM
-- Utiliser `evaluate_script` pour inspecter la présence d'éléments clés ou vérifier la complétion des requêtes asynchrones.
-- Privilégier les sélecteurs stables : `data-testid`, `aria-label`, IDs explicites ou sélecteurs CSS uniques.
+### Temps 3 : Application Manuelle par Henri
+- Henri applique manuellement les modifications sur sa page web dans Google Chrome (copier-coller des textes préparés, sélection des boutons radio/checkboxes, saisies).
+- Henri dispose de son propre rythme et d'un contrôle visuel total sur son navigateur.
 
-### Étape 4 : Interactions Structurées
-- Enchaîner les commandes `fill`, `click`, ou `type_text` de manière ciblée.
-- Prévoir de courts délais de transition si l'interface déclenche des animations ou des requêtes réseau en arrière-plan.
+### Temps 4 : Signal de Clôture d'Henri
+- Une fois les modifications complétées, Henri envoie un message simple dans le chat :
+  * **« Ok, c'est bon »** (ou équivalent : « Fait », « C'est bon pour ce lot »).
 
-### Étape 5 : Validation & Feedback Visuel
-- Valider le résultat de chaque action critique :
-  - Soit par extraction de texte / validation d'état via `evaluate_script`.
-  - Soit par capture visuelle via `take_screenshot` (particulièrement utile pour les interfaces complexes, canvas, éditeurs graphiques ou diagnostics d'erreurs).
-
-### Étape 6 : Synthèse & Clôture
-- Si des onglets éphémères de travail ont été créés, fermer uniquement ceux qui ont été initiés par la tâche (`close_page`).
-- Remonter un rapport concis et documenté à l'agent principal via `send_message`.
-
----
-
-## 4. Règles de Sécurité et Bonnes Pratiques
-
-> [!CAUTION]
-> **Préservation de l'espace de travail d'Henri** :
-> - Ne jamais fermer un onglet préexistant ouvert par l'utilisateur sans instruction explicite.
-> - Ne jamais modifier ou écraser des données de session ou profils utilisateurs critiques sans validation.
-> - Ne pas divulguer de tokens, cookies d'authentification ou données d'identification personnelles dans les logs de compte-rendu.
+### Temps 5 : Audit & Vérification DOM par l'Agent Browser Persistant
+- L'agent principal réveille l'agent browser persistant via `send_message` en lui donnant la liste exacte des 10 points à vérifier dans le DOM.
+- L'agent browser exécute une inspection ciblée via `evaluate_script` (lecture des attributs `value`, `innerText`, statut des cases à cocher `checked`).
+- L'agent browser remonte son compte-rendu d'audit à l'agent principal via `send_message` :
+  * Si tout est validé : l'agent principal prépare le lot suivant (retour au Temps 1).
+  * Si un oubli ou une anomalie est détecté : l'agent principal le signale immédiatement avec bienveillance pour correction ciblée.
 
 ---
 
-## 5. Directives Doctrinales d'Exécution, de Sécurité & de Restitution (MANDATOIRE)
+## 5. Inventaire & Matrice d'Usage des Outils `chrome_devtools`
 
-### 5.1 Exécution Réelle Préalable & Zéro Simulation (Action-First)
-- Le sous-agent browser doit **TOUJOURS exécuter physiquement l'action** (`click`, `fill`, `type_text`, `evaluate_script`) dans le navigateur et vérifier l'état du DOM résultant **AVANT** de formuler son rapport.
-- **Interdiction formelle de prétendre qu'une case est cochée, qu'un champ est rempli ou qu'une action est accomplie** tant que l'opération n'a pas été matériellement constatée et vérifiée dans la page web.
+| Outil | Description & Rôle | Statut & Directives |
+| :--- | :--- | :--- |
+| `list_pages` | Cartographie tous les onglets ouverts (IDs, URLs, titres). | **Obligatoire au démarrage** pour cibler l'onglet de travail existant d'Henri sans ouvrir de doublons. |
+| `select_page` | Bascule le focus d'inspection sur un onglet précis. | **Autorisé** pour cibler la page active d'Henri. |
+| `new_page` | Ouvre un nouvel onglet avec l'URL cible. | **Autorisé** uniquement si la page demandée n'est pas déjà ouverte dans un onglet existant. |
+| `close_page` | Ferme un onglet spécifique. | **Strictement restreint** aux onglets temporaires créés par l'agent. **INTERDIT** de fermer les onglets d'Henri. |
+| `navigate_page` | Charge une URL dans l'onglet actif. | **Autorisé** sur demande explicite de navigation. |
+| `evaluate_script` | Exécute du JavaScript dans la page. | **AUTORISÉ EN LECTURE SEULE** : extraction du DOM, vérification d'état, inspection de valeurs. **STRICTEMENT INTERDIT** pour modifier le DOM ou injecter des valeurs. |
+| `take_screenshot` | Capture une image de la page ou d'un élément. | **Autorisé** pour contrôle visuel passif ou aide au repérage. |
+| `list_network_requests` | Inspecte les requêtes XHR/Fetch et logs réseau. | **Autorisé** pour diagnostic technique (chargements asynchrones, erreurs HTTP). |
+| `click` | Simule un clic sur un élément. | **Exploration passive uniquement** (déplier un menu, ouvrir un onglet de navigation). **INTERDIT** pour soumettre un formulaire ou valider définitivement. |
+| `fill` | Remplit la valeur d'un champ (`input`, `textarea`). | **STRICTEMENT INTERDIT** : la saisie est réservée à Henri manuellement. |
+| `type_text` | Simule la frappe clavier. | **STRICTEMENT INTERDIT** : la frappe est réservée à Henri manuellement. |
 
-### 5.2 Règle Absolue de Sécurité : Interdiction Formelle des Actions Définitives
-> [!CAUTION]
-> **Validation et Soumission Finale Réservées Exclusivement à l'Utilisateur** :
-> - **Interdiction formelle et absolue de soumettre ou de cliquer sur des boutons d'action définitive ou irréversible** : boutons d'envoi (`Submit`, `Send`, `Soumettre`), boutons de suppression définitive (`Delete`, `Purger`), boutons de validation finale (`Finaliser`, `Valider définitivement`, `Complete application`).
-> - **C'est TOUJOURS à Henri (l'utilisateur) de procéder à la vérification finale et au clic de soumission ultime**. L'agent prépare, remplit, coche et inspecte, mais s'arrête impérativement avant le point de non-retour pour laisser la main à Henri.
+---
 
-### 5.3 Délégation Systématique de la Recherche Documentaire
-- L'agent browser a pour rôle exclusif l'interaction, le remplissage et l'inspection de la page web.
-- **Interdiction de chercher soi-même dans les notes ou fichiers du coffre** : Dès qu'une valeur, un texte, un chiffre, une décision éthique ou un contexte documentaire manque pour compléter un champ, l'agent browser doit impérativement déléguer cette recherche à un sous-agent dédié (`research` ou `self`) via `invoke_subagent` et attendre sa réponse.
+## 6. Règles de Sécurité, Recherche Documentaire & Bonnes Pratiques
 
-### 5.4 Progression Incrémentale par Page / Bloc Logique
-- **Plafond de lot strict** : Remplir une quantité raisonnable d'éléments à la fois — **strictement limitée à une seule page ou un seul bloc logique cohérent** (environ 3 à 5 champs maximum).
-- **Arrêt et rapport systématique** après chaque page ou bloc logique pour permettre à Henri de valider, commenter ou ajuster avant de poursuivre sur les champs suivants.
-- Ne jamais tenter de remplir un formulaire entier d'un coup sans validation intermédiaire.
+### 6.1 Délégation Systématique de la Recherche Documentaire
+- L'agent browser est spécialisé dans l'inspection Chrome. Il n'a pas accès et ne doit jamais chercher dans les fichiers locaux ou les notes du coffre Obsidian.
+- **Délégation à l'Agent Principal** : Dès qu'une valeur de fond manque (détail d'un projet, numéro d'éthique, affiliations, formulations méthodologiques), l'agent principal orchestre cette recherche documentaire via des sous-agents dédiés (`self` ou `research`) dans le coffre Obsidian ou la mémoire AIVC, sans déranger le sous-agent browser.
 
-### 5.5 Restitution par l'Agent Principal via Artéfact de Suivi & Diffs HTML Propres
-- L'agent principal centralise et présente les modifications dans un **artéfact de session dédié** (`RequestFeedback: true`) pour permettre une revue claire, structurée et commentable.
-- Pour tout diff visuel en HTML, respecter scrupuleusement la charte de lisibilité d'Henri :
-  * **Suppression / Remplacement** : `<del style="color:#cf222e; background-color:#ffeef0; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</del>` (texte rouge, fond rouge doux, **SANS texte barré**).
-  * **Ajout / Nouvelle valeur** : `<ins style="color:#116329; background-color:#dafbe1; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</ins>` (texte vert, fond vert doux, **SANS texte souligné**).
-  * **Strictement aucun texte barré (`line-through`) ni souligné (`underline`)** : la lisibilité doit rester optimale pour les textes longs et les documents administratifs ou d'éthique.
+### 6.2 Préservation de l'Espace de Travail d'Henri
+- Ne jamais fermer les onglets préexistants ouverts par Henri.
+- Ne jamais effacer le stockage local, les cookies ou les sessions de navigation.
+- Ne pas divulguer de mots de passe, tokens ou informations confidentielles dans les synthèses de chat.
 
-### 5.6 Doctrine Fail-Stop sur Indisponibilité des Outils `/browser` & Bannissement du Bricolage
-- **Condition Sine Qua Non d'Activation des Outils** : Dans Antigravity, les outils du navigateur (`chrome_devtools`) ne sont injectés dans l'environnement que si l'utilisateur invoque explicitement la commande slash `/browser` dans son message.
-- **Doctrine Fail-Stop sur Indisponibilité** : Si les outils ne sont pas disponibles (l'utilisateur n'a pas tapé `/browser` ou la session a changé), le sous-agent DOIT S'ARRÊTER IMMÉDIATEMENT.
-- **Interdiction Absolue de Bricolage** : Ne JAMAIS fabriquer d'outils maison (scripts Python, CDP direct, sockets).
-- **Message Canonique à Renvoyer** : Renvoyer mot pour mot :
-  « *Les outils du navigateur ne sont pas disponibles dans cette session. Pour m'y donner accès, veuillez simplement inclure la commande `/browser` dans votre prochain message.* »
-
-### 5.7 Protocole de Preuve Visuelle par Captures Ciblées Avant / Après & Présentation en Carrousel (MANDATOIRE)
-- **Principe de Preuve Matérielle Visuelle** : Toute modification apportée à une interface web doit être documentée de manière irréfutable par un doublet de captures d'écran ciblées.
-- **Workflow Séquentiel de Capture** :
-  1. **Avant toute modification** : Capturer l'élément ou la zone initiale via `take_screenshot` et nommer le fichier `before_<section>_<champ>.png`.
-  2. **Effectuer l'action matérielle** : Exécuter l'action concrète (`fill`, `click`, `type_text`, etc.).
-  3. **Après stabilisation du DOM** : Capturer le résultat final via `take_screenshot` et nommer le fichier `after_<section>_<champ>.png`.
-- **Présentation en Carrousel dans l'Artéfact de Session** :
-  * Présenter obligatoirement le doublet dans l'artéfact de session sous forme de carrousel natif à 2 diapositives (bloc `carousel` avec séparateur `<!-- slide -->`).
-  * Accompagner le carrousel du diff HTML conforme aux règles de lisibilité d'Henri (cf. 5.5) :
-    - **Suppression / Remplacement** : `<del style="color:#cf222e; background-color:#ffeef0; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</del>` (texte rouge, fond rouge doux, sans texte barré).
-    - **Ajout / Nouvelle valeur** : `<ins style="color:#116329; background-color:#dafbe1; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</ins>` (texte vert, fond vert doux, sans texte souligné).
-    - **Strictement aucun texte barré (`line-through`) ni souligné (`underline`)**.
-
+### 6.3 Sanctuarisation Doctrinale
+- `GEMINI.md` demeure la source canonique suprême et reste intact.
+- En cas de contradiction sur la manipulation Chrome, les directives d'observation passive et de batching de 10 de ce présent skill priment rigoureusement.
