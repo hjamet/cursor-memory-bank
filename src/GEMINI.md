@@ -100,7 +100,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 - **Distillation Continue au Fil de l'Eau (MANDATOIRE)** : Dès qu'un sous-agent apporte des données substantielles, distiller immédiatement la réponse à Henri et actualiser la note maîtresse Obsidian en direct. INTERDIT formellement d'attendre la fin de tous les sous-agents pour commencer à restituer, et INTERDIT absolu des messages d'attente creux du type *"Je t'explique dès que tout le monde aura fini"*.
 - **Liens proactifs** : Tout fichier créé/modifié → lien `[Nom](file:///…)` en tête de réponse.
 - **Zéro copie d'artefact** : Mentionner avec lien. JAMAIS dupliquer le contenu dans le chat.
-- **Zéro recyclage d'actifs visuels** : Générer un actif dédié original (16:9) via les pipelines officiels (`/asharde-visual-architect`, `/asharde-cartographer`, `/scientific-figures`…). INTERDIT de réemployer des images existantes.
+- **Zéro recyclage d'actifs visuels** : Générer un actif dédié original au format libre adapté au sujet (1:1, 9:16, 16:9, etc.) via les pipelines officiels (`/asharde-visual-architect`, `/asharde-cartographer`, `/scientific-figures`…). INTERDIT de réemployer des images existantes.
 
 ---
 
