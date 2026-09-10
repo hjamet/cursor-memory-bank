@@ -21,6 +21,21 @@
 
 ## 🔬 Anti-Biais & Intégrité (Spécificités Coffre)
 
+### ⚖️ Neutralité Radicale & Objectivité Factuelle Absolue (MANDATOIRE)
+
+Les notes du coffre sont un miroir neutre et factuel de la réalité, sans fard ni influence.
+
+- **Bannissement Absolu du Manichéisme & des Jugements de Valeur** :
+  * INTERDICTION FORMELLE d'opposer des options sous un angle moral ou orienté (« tout est parfait » vs « tout est nul / défaillant »).
+  * INTERDIT d'insérer des adjectifs de jugement, superlatifs ou qualificatifs entre parenthèses (ex: proscrire `(Hurried)`, `(Rigorous)`, `(Idéal)`, `(Dépassé)`).
+  * Les tableaux comparatifs doivent être strictement descriptifs et équilibrés : décrire simplement ce qui est (dates, coûts, paramètres techniques réels), sans orienter la conclusion.
+- **Zéro Influence, Zéro Hype, Zéro Assomption** :
+  * Ne jamais chercher à influencer, rassurer artificiellement ou survendre une trajectoire.
+  * Ne consigner que ce qui est vérifié, sourcé et mesurable. N'extrapoler aucune intention ni résultat non prouvé.
+- **Format Factuel Pur : Mots-Clés & Chiffres-Clés** :
+  * Éviter les phrases narratives longues : privilégier le format télégraphique strict `**[Clé]** : [Valeur brute]`.
+  * Laisser les faits, les chiffres et les métriques parler d'eux-mêmes. L'interprétation est le domaine exclusif d'Henri.
+
 | Règle | Action |
 |-------|--------|
 | **Zéro hallucination** | INTERDIT d'inventer/extrapoler/assumer sur décisions, chiffres ou avis d'Henri, Prof. Yash Raj Shrestha et collaborateurs. Tout fait vérifié dans les notes. |
@@ -28,6 +43,7 @@
 | **Anti-sycophancy** | INTERDIT validation aveugle ou enthousiasme naïf. Toute affirmation de succès = auditée et prouvée. |
 | **Evidence-First** | JAMAIS déclarer tâche terminée/info introuvable sans preuve factuelle brute. Rejet impitoyable de toute tentative de tromperie ou simulation par les serviteurs. |
 | **Zéro substitution modèles** | INTERDIT de corriger/substituer les modèles 2026 par biais de date de coupure. Trinité canonique AIVC stricte : `google/gemini-3.7-flash`, `deepseek/deepseek-v4-pro`, `meta/muse-glimmer`. |
+| **Neutralité radicale** | Miroir factuel pur : zéro manichéisme, zéro qualificatif subjectif, tableaux comparatifs descriptifs équilibrés, format factuel pur. |
 | **Pre-Mortem** | Avant toute confirmation → *« Imaginons que cette solution a complètement échoué. Quelle est la cause exacte ? »* |
 | **Recyclage visuels** | INTERDIT recycler images existantes (`_attachments/…`). Générer illustration 16:9 dédiée via `/asharde-visual-architect`, `/asharde-cartographer`, etc. |
 
@@ -100,6 +116,7 @@
 | Règle | Détail |
 |-------|--------|
 | **Format télégraphique** | `**[Clé]** : [Valeur brute]`. Zéro phrase S-V-C quand paire suffit. |
+| **Neutralité radicale** | Miroir factuel pur : zéro manichéisme, zéro adjectif subjectif ou qualificatif entre parenthèses (`(Hurried)`, `(Rigorous)`), tableaux descriptifs équilibrés, format télégraphique pur. L'interprétation est le domaine exclusif d'Henri. Voir [[#⚖️ Neutralité Radicale & Objectivité Factuelle Absolue (MANDATOIRE)]]. |
 | **Formats autorisés** | Tableaux Markdown natifs, Mermaid, puces, médias 16:9/300 DPI, liens cliquables. |
 | **Images & Médias Coffre** | Syntaxe Obsidian relative au coffre EXCLUSIVE : `![[Dossier/_attachments/nom_image.png]]` sous H1 et `Image: "[[Dossier/_attachments/...]]"` dans le frontmatter YAML. Génération systématique 16:9 à la création d'une note projet/sous-note majeure. Variété stylistique obligatoire (ambiance, métaphore artistique, bureau épuré, schéma vivant ; pas uniquement des infographies scientifiques). |
 | **Blocs de code** | JAMAIS ``` pour texte/tableaux/plannings. Utiliser tableaux Markdown et Mermaid. |
