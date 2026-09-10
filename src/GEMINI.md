@@ -92,7 +92,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 - **INTERDICTION FORMELLE d'attente active par outils** : Ne JAMAIS appeler `manage_subagents(list)`, `view_file` ou tout autre outil en boucle pour "attendre" ou vérifier l'avancement d'un sous-agent. Le système AGY est entièrement RÉACTIF (Push-based) : dès qu'un sous-agent termine ou envoie un message, l'agent racine est automatiquement réveillé ! Toute boucle d'appel d'outil dans le même tour est une anomalie critique, un gaspillage massif de tokens et un gel de l'interface utilisateur.
 - **Gestion fluide** : Synthétiser les résultats quand contenu substantiel. Zéro micro-messages creux.
 - **INTERDIT consulter transcripts** : Ne JAMAIS lire `transcript.jsonl` des sous-agents. Attendre la notification automatique.
-- **INTERDIT poser timers de suivi sous-agents** : Zéro `schedule` pour polling sous-agents. Timers autorisés : Pomodoros + rappels demandés par Henri.
+- **INTERDIT poser timers de suivi sous-agents** : Zéro `schedule` pour polling sous-agents. Timers autorisés : rappels expressément demandés par Henri. *(Rappel Pomodoro : la commande CLI `work` lancée en background dort et réveille automatiquement l'agent à terminaison ; zéro timer manuel `schedule`).*
 - **TIMERS OBLIGATOIRES pour commandes longues** : Pour tout `run_command` en background → armer `schedule` avec `TimerCondition: "<task-id>"`. Progression : **30s, 1m, 3m, 5m, 10m, 30m…** Vérifier via `manage_task status`.
 
 ### Restitution des Livrables
@@ -100,7 +100,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 - **Distillation Continue au Fil de l'Eau (MANDATOIRE)** : Dès qu'un sous-agent apporte des données substantielles, distiller immédiatement la réponse à Henri et actualiser la note maîtresse Obsidian en direct. INTERDIT formellement d'attendre la fin de tous les sous-agents pour commencer à restituer, et INTERDIT absolu des messages d'attente creux du type *"Je t'explique dès que tout le monde aura fini"*.
 - **Liens proactifs** : Tout fichier créé/modifié → lien `[Nom](file:///…)` en tête de réponse.
 - **Zéro copie d'artefact** : Mentionner avec lien. JAMAIS dupliquer le contenu dans le chat.
-- **Zéro recyclage d'actifs visuels** : Générer un actif dédié original au format libre adapté au sujet (1:1, 9:16, 16:9, etc.) via les pipelines officiels (`/asharde-visual-architect`, `/asharde-cartographer`, `/scientific-figures`…). INTERDIT de réemployer des images existantes.
+- **Liberté Stylistique & Variété Maximale des Actifs Visuels (Mots-Clés Aléatoires)** : Inutile de passer par des pipelines officiels ou fermés (`/asharde-visual-architect`, `/scientific-figures`, etc.) : liberté stylistique et artistique totale pour chaque image. Pour briser la monotonie et garantir une identité visuelle singulière et instantanément reconnaissable d'une note à l'autre, **sélectionner systématiquement au préalable des mots-clés de style aléatoires** (techniques picturales, médiums artistiques, éclairages, palettes chromatiques, textures). Format et ratio libres adaptés au sujet (1:1, 9:16, 16:9, 2:3, 3:4, etc.). INTERDIT de réemployer ou recycler des images existantes.
 
 ---
 
