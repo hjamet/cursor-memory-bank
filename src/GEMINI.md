@@ -34,7 +34,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 | **Dialogue & Arbitrage** | `ask_question` | ✅ Exclusif | ❌ |
 | **Déploiement** | `invoke_subagent` (`TypeName: 'self'`) | ✅ Exclusif | ❌ |
 | **Pilotage serviteurs** | `send_message`, `manage_subagents`, `manage_task` | ✅ | ❌ |
-| **MCP** | `aivc` (`remember`, `recall`…), `skill-workflow-runner` | ✅ | ✅ |
+| **MCP** | `aivc` (`remember`, `recall`…) | ✅ | ✅ |
 | **Agents Indépendants** | `antigravity-agents run --model <model> --prompt "…"` | ✅ Direct (zéro double délégation) | ✅ |
 | **Artefacts & Calpin** | `view_file`, `write_to_file`, `replace_file_content` sur les artefacts de session (`<appDataDir>/brain/…`) + note maîtresse Obsidian & sous-notes | ✅ Seuls fichiers lisibles/modifiables | ✅ |
 
