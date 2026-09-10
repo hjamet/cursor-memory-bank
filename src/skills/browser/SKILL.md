@@ -89,6 +89,29 @@ L'agent principal consigne et présente chaque lot dans un artéfact temporaire 
   * Suppression / Remplacement : `<del style="color:#cf222e; background-color:#ffeef0; text-decoration:none; display:block; padding:8px; border-radius:4px; font-family:monospace; font-size:12px;">...</del>` (fond rouge doux, texte rouge, **sans texte barré**).
   * **Strictement aucun texte barré (`line-through`) ni souligné (`underline`)**.
 
+### 5.8 Format Canonique Obligatoire des Artéfacts de Consignes par Lot
+Pour éliminer toute friction cognitive et guider pas à pas Henri lors de la saisie manuelle dans Chrome :
+
+- **Attaque Directe & Zéro Boilerplate** :
+  * Strictement **zéro note boilerplate / zéro encadré didactique** en tête d'artéfact.
+  * Attaque directe et immédiate par le titre H1 du lot (ex: `# Lot 1 — Déclarations Éthiques & Affiliations`).
+- **Plafond Strict de 10 Actions par Lot** : Tout artéfact de consignes est strictement plafonné à 10 actions maximum (actions 1 à 10).
+- **Gabarit Normalisé pour Chaque Action (1 à 10)** :
+  Chaque action dans l'artéfact doit impérativement respecter la structure canonique suivante :
+
+````markdown
+### [ ] Action X — <Verbe d'action & Intitulé clair>
+- **Localisation** : Section du formulaire > Sous-section
+- **Repère Visuel** : Emplacement exact par rapport aux éléments voisins
+- **Type d'Élément** : Bouton radio / Case à cocher / Menu déroulant / Champ texte / Éditeur Quill
+- **Sélection / Clic à faire** : Valeur exacte à cocher (ex: No ou Yes)
+- **Texte à Copier** :
+```text
+<Texte complet prêt à copier>
+```
+- **Effet Attendu dans l'Interface** : Ce qui se passe après l'action
+````
+
 ---
 
 ## 4. Cycle de Validation Interactif en 5 Temps
