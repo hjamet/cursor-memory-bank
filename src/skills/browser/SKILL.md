@@ -100,16 +100,14 @@ Pour éliminer toute friction cognitive et guider pas à pas Henri lors de la sa
   Chaque action dans l'artéfact doit impérativement respecter la structure canonique suivante :
 
 ````markdown
-### [ ] Action X — <Verbe d'action & Intitulé clair>
-- **Localisation** : Section du formulaire > Sous-section
-- **Repère Visuel** : Emplacement exact par rapport aux éléments voisins
-- **Type d'Élément** : Bouton radio / Case à cocher / Menu déroulant / Champ texte / Éditeur Quill
-- **Sélection / Clic à faire** : Valeur exacte à cocher (ex: No ou Yes)
-- **Texte à Copier** :
-```text
-<Texte complet prêt à copier>
-```
-- **Effet Attendu dans l'Interface** : Ce qui se passe après l'action
+### [ ] Action X — <Titre explicite de l'action>
+
+- **Où** : Localisation fluide en langage naturel et repères par rapport aux questions voisines.
+- **Quoi faire** : Action directe (clic, sélection, remplacement de texte).
+- **Texte à copier** (si champ de saisie) : Fenced code block ```text propre.
+- **Callout de justification** :
+  > [!NOTE]
+  > **Justification (Source / d'après moi)** : Explication pédagogique, réglementaire (LRH, nLPD, CER-UNIL) ou méthodologique du choix.
 ````
 
 ---
