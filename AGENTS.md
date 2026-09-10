@@ -41,6 +41,12 @@
 - **Interdiction Formelle de Dépôts Git, Builds et Scratch** : INTERDICTION ABSOLUE de cloner des dépôts Git, d'effectuer des builds ou de créer des dossiers scratch/temporaires dans `VoiceNotes/`.
 - **Emplacement Exclusif du Code** : 100% des dépôts Git, clones et builds résident exclusivement dans `C:\Users\Jamet\Documents\code\`, synchronisé via GitHub.
 
+### 🚫 Zéro Information Dupliquée & Source Unique de Vérité (MANDATOIRE)
+
+- **Interdiction Formelle des Notes Doublons / Variantes Linguistiques** : INTERDIT formellement de créer des notes en double ou des variantes isolées sous prétexte de traduction ou de révision (ex. `Note EN.md`, `Note v2.md`, `Note Copie.md`).
+- **Édition In-Situ Privilégiée** : Toute traduction, adaptation ou refonte d'un document existant doit être opérée directement dans la note source (in-place) ou la remplacer intégralement, sans générer de note satellite redondante.
+- **Responsabilité Active d'Organisation et de Maintenance** : En tant que gestionnaire du Digital Brain, Antigravity est directement responsable de la propreté, de la déduplication et de la tenue à jour du coffre. Tout fichier redondant, orphelin ou résiduel doit être nettoyé immédiatement sans laisser de trace.
+
 ---
 
 ## 💾 Indexation & Mémoire Active (`antigravity/`)
