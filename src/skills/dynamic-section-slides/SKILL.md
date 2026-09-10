@@ -59,6 +59,14 @@ Un support de présentation animé par *Dynamic Section Slides* n'est **ni un ar
 
 Le contenu des présentations doit observer une **neutralité absolue, une concision chirurgicale et une rigueur sans faille**.
 
+### ⚖️ Règle d'Or : Neutralité et Objectivité Factuelle Absolue (Zéro Hype / Zéro Biais)
+
+- **Bannissement des Tableaux Manichéens / Orientés** : INTERDICTION FORMELLE de construire des tableaux comparatifs biaisés où une colonne est systématiquement présentée comme « parfaite / idéale » et l'autre comme « défaillante / nulle ».
+- **Présentation Neutre "Avant / Après"** : Toujours décrire sobrement et factuellement les caractéristiques concrètes de chaque solution :
+  * Ce que le système faisait avant (mode de traitement, latence mesurée, comportement utilisateur).
+  * Ce que le système fait maintenant (nouvelle architecture, composants modifiés, flux de données).
+- **Zéro Superlatif & Vocabulaire Factuel** : Proscrire tout vocabulaire publicitaire ou flatteur (*« expérience fluide »*, *« perfection »*, *« élimination totale »*). Préférer les termes d'ingénierie neutres (*« affichage initial sans attente réseau »*, *« édition via panneau latéral »*, *« taux de complétion mesuré »*). Laisser l'audience tirer ses propres conclusions.
+
 ### A. Bannissement Formel du Fluff & Jargon Marketing
 
 * ❌ **Termes bannis** : *"High Execution Velocity"*, *"Game-changing"*, *"Seamless"*, *"Revolutionary"*, *"Flawless execution"*, *"Next-generation"*, *"Groundbreaking"*, *"State-of-the-art / SOTA"* (sans benchmark formel).
@@ -88,6 +96,14 @@ Le contenu des présentations doit observer une **neutralité absolue, une conci
 | `## Section ?` | **Diapositive Principale** | Question clé de la diapositive + 1 Visuel fort unique (Mermaid / Tableau compact 2-3 col / Figure 300 DPI), Callout mémo compact OU 2-4 puces télégraphiques. |
 | `### Topic ?` | **Sous-diapositive (Deep Dive)** | Question d'investigation technique + 1 Visuel, Callout mémo ou métrique inédite + 1 lien `[[Note.md]]`. |
 | `#### Detail ?` | **Carte Zoom** | Question sur cas limite ou ablation isolée (< 2 lignes). |
+
+### 🌳 Structuration Hiérarchique par Sous-Sections H3 (Anti-Linéarité Plate)
+
+- **Interdiction du Tout-H2 Linéaire** : Ne JAMAIS empiler une succession monotone de sections H2 (`##`) isolées lorsque le propos traite d'une même thématique continue.
+- **Usage Systématique des Sous-Sections H3 (`###`)** :
+  * Utiliser H2 pour poser la grande question thématique ou le jalon décisionnel.
+  * Déployer des sous-sections H3 pour structurer logiquement les sous-volets continus (ex: *Contexte du pipeline*, *Deep dive sur la trajectoire*, *Options méthodologiques*, *Données de cadrage*).
+  * Cette hiérarchie permet une transition fluide entre la vue d'ensemble et le détail opérationnel sans surcharger la diapositive principale.
 
 > [!CAUTION]
 > ### 🚫 Règle Anti-Redondance & Oral-First
