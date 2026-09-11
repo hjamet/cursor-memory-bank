@@ -11,11 +11,11 @@ description: "Exploration approfondie du contexte, clarification active et produ
 > **📄 ARTÉFACT OFFICIEL UNIQUE : `exploration_report.md`.** Abandon définitif d'`implementation_plan.md` comme livrable du Scout. Le Scout produit exclusivement `exploration_report.md` via `write_to_file` avec `ArtifactMetadata: { UserFacing: true, RequestFeedback: true, Summary: "..." }` pour faire apparaître la vignette interactive dans le chat.
 > **🔀 DEUX MODES OPÉRATIONNELS DÉDIÉS.** Mode Enquête Pure (arrêtoir strict après la Section 1 en cas de recherche/questions sans édition) vs Mode Implémentation (Sections 1, 2 et 3 complètes si des modifications de fichiers sont requises).
 > **🗺️ CARTOGRAPHIE VISUELLE STANDARD EN 3 COLONNES VERTICALES.** Intégration systématique en tête de rapport d'un diagramme Mermaid à 3 colonnes verticales (`flowchart TD` avec 3 sous-graphes `subgraph` en `direction TB` chaînés de haut en bas avec `-->`) éliminant toute compression horizontale et garantissant une police de taille normale 100% lisible.
-> **🗣️ SECTION 1 ORAL-FIRST & QUESTIONS D'EXPLORATION PURES.** 1 question concrète = 1 sous-agent de recherche = 1 titre H3 dédié (`### ❓ ...`). Zéro méta-section floue (« décisions d'arbitrage », « points de vigilance ») et ZÉRO prise de décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée. Résolues par puces télégraphiques (`- **[Clé]** : [Valeur]`) ou paragraphes courts (2 à 4 phrases). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des détails techniques ou juridiques lourds vers des sous-artéfacts dédiés dans `brain/<id>/`.
+> **🗣️ SECTION 1 ORAL-FIRST & QUESTIONS D'EXPLORATION PURES.** 1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ...`). Zéro méta-section floue (« décisions d'arbitrage », « points de vigilance ») et ZÉRO prise de décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée. Résolues par puces télégraphiques (`- **[Clé]** : [Valeur]`) ou paragraphes courts (2 à 4 phrases). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des détails techniques ou juridiques lourds vers des sous-artéfacts dédiés dans `brain/<id>/`.
 > **🌳 ARBORESCENCE EN LISTE À PUCES IMBRIQUÉE.** Si une arborescence est requise en complément du diagramme, bannissement formel des blocs de code ```text : obligation d'utiliser des listes à puces Markdown imbriquées standard avec liens cliquables réels et description des changements en UNE ligne concise par fichier.
 > **🏗️ SECTION 2 FORMAT GOOGLE NATIF.** Regroupement par Chantier (`### Chantier A : ...`), séparateurs `---` et balisage chirurgical `[MODIFY]`, `[NEW]`, `[DELETE]`.
 > **🧪 SECTION 3 PLAN DE VÉRIFICATION BIPARTI EN TABLEAUX NATIFS.** Cloisonnement strict obligatoirement formalisé sous forme de TABLEAUX Markdown natifs (Contrôles automatisés agent vs Actions manuelles réservées à Henri).
-> **👥 RÈGLE 1:1 DE DÉPLOIEMENT.** Le Scout Lead liste d'abord toutes les questions d'exploration contextuelle à se poser, puis déploie EXACTEMENT 1 sous-agent de recherche par question ($N$ questions = $N$ sous-agents `research` en parallèle via un unique appel `invoke_subagent`).
+> **👥 RÈGLE 1:1 DE DÉPLOIEMENT.** Le Scout Lead liste d'abord toutes les questions d'exploration contextuelle à se poser, puis déploie EXACTEMENT 1 sous-agent d'exploration par question ($N$ questions = $N$ sous-agents `self` en stricte lecture seule en parallèle via un unique appel `invoke_subagent`).
 > **🚫 INTERDICTION DE PLAYWRIGHT.** Playwright est banni au profit de `search_web` et `read_url_content` (sauf formulaire privé d'Henri ou site web déployé demandé explicitement par Henri).
 > **🔄 CYCLE DE VIE DU PLAN : LECTURE SEULE, ACCUMULATION CONTINUE & CLEAN SLATE POST-BUILD.** Tant que `/build` n'a pas été formellement invoqué par Henri, maintien strict en lecture seule sans aucune modification de code ou de données. Toute idée, tâche, correction ou amélioration est obligatoirement consignée dans `exploration_report.md` qui s'enrichit continuellement pour devenir de plus en plus complet. Le passage en mode exécution s'opère exclusivement au `/build`, et une fois le travail validé par `walkthrough.md`, le plan est intégralement vidé (Clean Slate) pour la session suivante.
 > **✍️ PROTOCOLE RÉDACTION PERSONNELLE (≥ 1 paragraphe).** Pour tout texte personnel ou stratégique : 3 versions complètes d'inspiration proposées via les arbitrages ; si saisie libre d'un brouillon brut, transmission chirurgicale à `/correct`.
@@ -28,17 +28,17 @@ description: "Exploration approfondie du contexte, clarification active et produ
 > [!CAUTION]
 > **Matrice d'Habilitation Stricte du Scout Lead (Superviseur Aveugle Délégué)** :
 > En tant que sous-agent Lead opérant sous la doctrine du Superviseur Aveugle :
-> - **Outils autorisés** : `invoke_subagent` (vers `research`), `send_message` (vers le parent ou ses sous-agents), `write_to_file` (artefacts brain), `view_file` (artefacts brain), `schedule`, MCP `aivc` (`remember`, `recall`, `consult_memory`).
+> - **Outils autorisés** : `invoke_subagent` (vers sous-agents d'exploration `self` en stricte lecture seule), `send_message` (vers le parent ou ses sous-agents), `write_to_file` (artefacts brain), `view_file` (artefacts brain), `schedule`, MCP `aivc` (`remember`, `recall`, `consult_memory`).
 > - **Outils interdits** : `ask_question`, `manage_subagents`, `grep_search`, `list_dir`, `run_command`, `replace_file_content`, `find_by_name`.
-> Le Scout Lead ne lit ni n'édite aucun fichier de code source ou du coffre directement : il **délègue l'intégralité de l'exploration** à des sous-agents `research`.
+> Le Scout Lead ne lit ni n'édite aucun fichier de code source ou du coffre directement : il **délègue l'intégralité de l'exploration** à des sous-agents d'exploration `self` en stricte lecture seule.
 
 ### 1.0 👤 Pourquoi le Superviseur Racine Ne Déploie-t-il Qu'un Seul Scout Lead ?
 - **Un Seul Scout Lead** : À l'invocation de `/scout`, le Superviseur racine déploie **EXCLUSIVEMENT UN SEUL agent** (`Role: "Scout Lead"`, `TypeName: "self"`).
-- **Interdiction de Pré-découpage Racine** : Le superviseur ne doit JAMAIS découper la demande d'Henri en plusieurs sous-agents depuis la racine. C'est le Scout Lead qui analyse, déploie les sous-scouts `research` nécessaires et rédige `exploration_report.md`.
+- **Interdiction de Pré-découpage Racine** : Le superviseur ne doit JAMAIS découper la demande d'Henri en plusieurs sous-agents depuis la racine. C'est le Scout Lead qui analyse, déploie les sous-agents d'exploration `self` en lecture seule nécessaires et rédige `exploration_report.md`.
 
 ### 1.0.1 🛑 Contre-instruction Anti-Récursion ($P=1$)
-- **Coordinateur Aveugle vs Exécutants Normaux** : Le Scout Lead est un coordinateur aveugle qui délègue l'exploration à des sous-agents `research`.
-- **Exécutants Directs sans Re-délégation** : Ces sous-scouts `research` sont des **exécutants normaux** qui utilisent directement `grep_search`, `view_file`, `list_dir`, `find_by_name`, `search_web`, `read_url_content` et les outils MCP. Ils ne sont **PAS** des superviseurs aveugles et n'ont **PAS** à re-déléguer.
+- **Coordinateur Aveugle vs Exécutants Directs en Lecture Seule** : Le Scout Lead est un coordinateur aveugle qui délègue l'exploration à des sous-agents d'exploration (`TypeName: 'self'`, `Model: 'inherit'`, en stricte lecture seule).
+- **Exécutants Directs sans Re-délégation** : Ces sous-agents `self` disposent de l'accès complet aux outils de recherche, d'inspection CLI (`run_command` pour `git log`, `git status`, `git diff`, `curl`, `gh`, etc.) et à tous les MCPs (outils lazily loaded débloqués). Ils ont l'**interdiction formelle** d'éditer ou de modifier des fichiers de production (`write_to_file`, `replace_file_content` interdits sur le codebase/vault). Ils sont des **exécutants directs** qui ne re-délèguent pas.
 - **Profondeur Maximale Stricte ($P=1$)** : La hiérarchie est bornée à une profondeur maximale de 1 niveau de sous-agents ($P=1$). Zéro sous-agent de sous-agent.
 - **Autorité Doctrinale** : Cette contre-instruction se substitue intégralement à toute modification de `GEMINI.md`.
 
@@ -55,25 +55,27 @@ Dès réception de la demande, le Scout cartographie les domaines à explorer et
 | 🌐 **Web** | Documentation officielle externe, changelogs, issues GitHub publiques, bonnes pratiques SOTA | `search_web`, `read_url_content` |
 
 > [!IMPORTANT]
-> **Consigne Impérative Transmise aux Sous-Scouts Research (Ne Jamais Supposer & Interdiction de Playwright)** :
-> Tout prompt transmis par le Scout Lead à un sous-scout `research` doit impérativement lui prescrire :
-> 1. **Ne jamais supposer, vérifier systématiquement** : Interdiction formelle de présumer d'une architecture, d'une signature de fonction, d'un schéma de données ou de l'état d'un fichier sans l'avoir inspecté directement. Exiger des citations exactes mot pour mot avec chemins absolus et numéros de lignes.
-> 2. **Interdiction de Playwright & Primauté des Outils Légers** : Le navigateur Playwright est **strictement banni** pour toute recherche documentaire ou vérification d'informations publiques sur internet. Utiliser exclusivement `search_web` et `read_url_content`. Playwright n'est toléré que pour consulter un formulaire ou des données privées d'Henri sur une page web, ou pour tester un site déployé qu'Henri demande explicitement d'inspecter.
+> **Consigne Impérative Transmise aux Sous-Agents d'Exploration (Ne Jamais Supposer & Interdiction de Playwright)** :
+> Tout prompt transmis par le Scout Lead à un sous-agent d'exploration `self` en lecture seule doit impérativement lui prescrire :
+> 1. **Ne jamais supposer, vérifier systématiquement** : Interdiction formelle de présumer d'une architecture, d'une signature de fonction, d'un schéma de données ou de l'état d'un fichier sans l'avoir inspecté directement. Exiger des citations exactes mot pour mot avec chemins absolus et numéros de lignes ou des sorties de commandes réelles.
+> 2. **Stricte Lecture Seule sur le Projet** : Utiliser `run_command` exclusivement pour des commandes d'inspection non-modifiantes (`git log`, `git status`, `git diff`, tests en lecture seule, curl, etc.). Interdiction formelle de modifier le codebase, les notes ou la configuration.
+> 3. **Interdiction de Playwright & Primauté des Outils Légers** : Le navigateur Playwright est **strictement banni** pour toute recherche documentaire ou vérification d'informations publiques sur internet. Utiliser exclusivement `search_web` et `read_url_content`. Playwright n'est toléré que pour consulter un formulaire ou des données privées d'Henri sur une page web, ou pour tester un site déployé qu'Henri demande explicitement d'inspecter.
 
-### 1.2 👥 Comment Déployer les Sous-Scouts en Règle 1:1 Stricte ($N$ Questions = $N$ Agents) ?
+### 1.2 👥 Comment Déployer les Sous-Agents d'Exploration en Règle 1:1 Stricte ($N$ Questions = $N$ Agents) ?
 
-- **Listing Préalable des Questions d'Exploration Pures** : Avant tout déploiement, le Scout Lead formalise la liste exhaustive des questions pures d'exploration contextuelle indispensables pour cadrer le sujet (« De quoi ai-je besoin pour concevoir le plan ? Qu'est-ce que je dois savoir ? »). Règle canonique absolue : **1 question concrète = 1 sous-agent de recherche = 1 titre H3 dédié (`### ❓ ...`)**. Zéro méta-section floue (« décisions d'arbitrage », « points de vigilance »).
-- **Règle 1:1 Inconditionnelle ($N \ge 1$)** : Le Scout Lead déploie **EXACTEMENT 1 sous-agent `research` par question** ($N$ questions = $N$ sous-agents `research` lancés en parallèle via un unique appel `invoke_subagent`, `Model: "inherit"`).
+- **Listing Préalable des Questions d'Exploration Pures** : Avant tout déploiement, le Scout Lead formalise la liste exhaustive des questions pures d'exploration contextuelle indispensables pour cadrer le sujet (« De quoi ai-je besoin pour concevoir le plan ? Qu'est-ce que je dois savoir ? »). Règle canonique absolue : **1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ...`)**. Zéro méta-section floue (« décisions d'arbitrage », « points de vigilance »).
+- **Règle 1:1 Inconditionnelle ($N \ge 1$)** : Le Scout Lead déploie **EXACTEMENT 1 sous-agent d'exploration par question** ($N$ questions = $N$ sous-agents `TypeName: 'self'` en stricte lecture seule lancés en parallèle via un unique appel `invoke_subagent`, `Model: "inherit"`).
 - **Zéro Décision en Phase d'Exploration** : L'exploration est une quête d'information pure et factuelle : pas de décision d'arbitrage ni de point de vigilance anticipé en Section 1 (zéro méta-section floue). Les décisions architecturales appartiennent à la Section 2 et au dialogue amont avec Henri.
-- **Mandat Dédié & Template de Prompt** : Chaque sous-scout se voit confier une et une seule question d'exploration ciblée.
+- **Mandat Dédié & Template de Prompt** : Chaque sous-agent se voit confier une et une seule question d'exploration ciblée.
   ```text
-  Tu es un sous-agent d'exécution 'research' mandaté par le Scout Lead.
+  Tu es un sous-agent d'exploration 'self' mandaté par le Scout Lead (en stricte lecture seule).
   Question d'exploration assignée : [Formulation exacte de la question 1:1]
-  Cluster & Fichiers cibles : [Périmètre précis : codebase, vault, documentation ou web]
+  Cluster & Cibles : [Périmètre précis : codebase, vault, documentation, inspection CLI ou web]
 
-  CONTRE-INSTRUCTION : Tu es un exécutant direct (P=1). Explore directement avec view_file, grep_search, list_dir, find_by_name.
-  Pour le web, utilise exclusivement search_web et read_url_content (Playwright est formellement banni).
-  Ne fais aucune supposition : rapporte des preuves matérielles brutes (citations mot à mot, chemins absolus, numéros de lignes).
+  CONTRE-INSTRUCTION : Tu es un exécutant direct (P=1). Explore directement avec view_file, grep_search, list_dir, find_by_name, run_command (uniquement pour inspection CLI : git log, status, diff, curl, etc.) et les MCPs.
+  INTERDICTION FORMELLE d'éditer ou de modifier du code ou des fichiers de production (write_to_file / replace_file_content interdits sur le projet).
+  Pour le web, utilise exclusivement search_web et read_url_content (Playwright est formellement banni sauf exception stricte).
+  Ne fais aucune supposition : rapporte des preuves matérielles brutes (citations mot à mot, chemins absolus, numéros de lignes, sorties de commandes).
   Transmets ta réponse chirurgicale par send_message au Scout Lead.
   ```
 - **Agrégation Textuelle Exclusive par le Lead** : À leur retour, le Scout Lead agrège et croise exclusivement les données brutes textuelles renvoyées. **Zéro `view_file` de contre-vérification** sur le code source ou les notes par le Scout Lead.
@@ -81,16 +83,16 @@ Dès réception de la demande, le Scout cartographie les domaines à explorer et
 ### 1.3 🧹 Comment Appliquer le Réflexe « Dream » et l'Hygiène Contextuelle du Coffre ?
 
 Lors de l'exploration du cluster Vault Obsidian et des mémos vocaux (`voicenotes/`) :
-Le Scout Lead délègue l'exploration du coffre à un sous-scout `research` dédié au Vault.
+Le Scout Lead délègue l'exploration du coffre à un sous-agent `self` en lecture seule dédié au Vault.
 
 1. **Mandat Vault Délégué (Détection d'Anomalies Sans Modification)** :
-   Le sous-scout Vault a pour mandat exclusif la détection d'anomalies (notes orphelines, doublons, contradictions) dans le périmètre des notes consultées :
+   Le sous-agent Vault a pour mandat exclusif la détection d'anomalies (notes orphelines, doublons, contradictions) dans le périmètre des notes consultées :
    - *Notes contradictoires, obsolètes ou incohérentes* : Divergences de faits, dates, statuts ou métriques entre notes consultées.
    - *Informations douteuses ou non sourcées* : Affirmations critiques non étayées ou sans traçabilité.
    - *Transcripts de voicenotes orphelins* : Transcripts de mémos vocaux consultés ou mentionnés non rattachés sous le titre H1 de leur note maîtresse canonique (`[[voicenotes/Nom|Transcript Voicenote Source]]`).
    - *Titres non conformes au Paradigme Q/R* : Titres H1-H4 qui ne sont pas formulés sous forme de questions explicites terminées par `?`.
    - *Liens non conformes à [[AGENTS.md]]* : Liens Markdown standards `[Nom](chemin.md)` au lieu des wikilinks natifs Obsidian `[[...]]`, ou présence de notes doublons / variantes linguistiques.
-   Le sous-scout produit un rapport structuré d'anomalies renvoyé au Scout Lead. **Zéro modification directe par le sous-scout.**
+   Le sous-agent produit un rapport structuré d'anomalies renvoyé au Scout Lead. **Zéro modification directe par le sous-agent.**
 
 2. **Autonomie d'Organisation & Zéro Question Superflue** :
    - Antigravity est le gestionnaire autonome du Digital Brain : **INTERDICTION formelle de déranger Henri avec des questions sur l'organisation interne ou le rangement de ses notes**.
@@ -211,7 +213,7 @@ Il ne s'agit pas d'un simple fichier texte ou d'une mention purement textuelle :
 > [!IMPORTANT]
 > **CYCLE DE VIE DU PLAN : DE L'EXPLORATION AU CLEAN SLATE POST-BUILD.**
 > Le plan d'implémentation traverse un cycle de vie strict en 4 temps :
-> 1. **Lecture Seule Stricte Amont** : Tant qu'Henri n'a pas formellement appelé `/build`, les agents (`scout`, `refine`, sous-agents `research`) sont en **LECTURE SEULE STRICTE**. INTERDICTION FORMELLE d'effectuer la moindre modification sur du code, des fichiers sources, des notes du coffre, des formulaires web ou des services externes. Tout le travail consiste à explorer, vérifier les faits et produire l'artéfact de cadrage.
+> 1. **Lecture Seule Stricte Amont** : Tant qu'Henri n'a pas formellement appelé `/build`, les agents (`scout`, `refine`, sous-agents d'exploration `self`) sont en **LECTURE SEULE STRICTE**. INTERDICTION FORMELLE d'effectuer la moindre modification sur du code, des fichiers sources, des notes du coffre, des formulaires web ou des services externes. Tout le travail consiste à explorer, vérifier les faits et produire l'artéfact de cadrage.
 > 2. **Consignation & Accumulation Continue (`exploration_report.md`)** : Toute idée de tâche, correction, point de vigilance ou amélioration doit être immédiatement consignée dans le plan d'implémentation unique `exploration_report.md`. Si un rapport non-buildé existe déjà, interdiction formelle d'écraser à blanc : le plan s'enrichit, se corrige, se complète et empile les nouveaux chantiers (`### Chantier N+1 : ...`) pour devenir de plus en plus exhaustif et précis au fil des échanges.
 > 3. **Bascule en Mode Exécution au `/build`** : L'appel explicite de `/build` (ou la validation du bouton interactif Proceed) déclenche la transition vers le mode exécution. Le Build prend alors en charge l'application chirurgicale des modifications prévues dans le plan.
 > 4. **Vidage Intégral Post-Build (Clean Slate)** : Une fois le travail de `/build` achevé, vérifié et validé par la production de `walkthrough.md`, le plan `exploration_report.md` est intégralement vidé (Clean Slate). La session est réinitialisée, prête à accueillir une nouvelle demande sur une table rase.
@@ -219,8 +221,8 @@ Il ne s'agit pas d'un simple fichier texte ou d'une mention purement textuelle :
 ### 6.1.1 🔄 Comment Gérer la Boucle Post-Rejet de /refine ?
 
 En cas de critique ou rejet par le skill `/refine` :
-- **Détection du Verdict de Rejet** : Si un artéfact `implementation_plan.md` existe dans la session avec le verdict `🛑 RETOUR AU SCOUT NÉCESSAIRE`, le Scout Lead enclenche immédiatement une procédure de reprise chirurgicale.
-- **Lecture Déléguée Obligatoire** : Le Scout Lead ne lit pas directement `implementation_plan.md` : il déploie un sous-agent `research` avec pour mandat impératif d'extraire les objections, failles d'architecture, risques identifiés et points de friction soulevés par le Refine.
+- **Détection du Verdict de Rejet** : Si un artéfact `exploration_report.md` contient un avis défavorable ou si des objections sont remontées, le Scout Lead enclenche immédiatement une procédure de reprise chirurgicale.
+- **Lecture Déléguée Obligatoire** : Le Scout Lead ne lit pas directement les fichiers du dépôt : il déploie un sous-agent `self` en lecture seule avec pour mandat impératif d'extraire les objections, failles d'architecture, risques identifiés et points de friction soulevés par le Refine.
 - **Traitement Systématique des Objections** : Le Scout Lead analyse les extraits rapportés par le sous-agent, résout les ambiguïtés techniques soulevées et produit une version révisée et enrichie d'`exploration_report.md` via `write_to_file`.
 - **Préservation du Panier Cumulatif** : La révision intègre les corrections tout en préservant l'ensemble des chantiers cumulés non-buildés de la session.
 
@@ -289,7 +291,7 @@ flowchart TD
 > **Doctrine Canonique des Questions d'Exploration Contextuelle** :
 > - **Questions d'exploration contextuelle pures** : Ce sont les questions d'information pures que l'agent se pose au démarrage (« De quoi ai-je besoin pour faire le plan ? Qu'est-ce que je dois savoir ? »).
 > - **1 Question H3 par élément d'investigation** : Chaque élément investigué doit impérativement faire l'objet de sa PROPRE question H3 dédiée (`### ❓ [Question d'exploration précise] ?`).
-> - **Correspondance 1:1 avec les sous-agents** : Chaque question H3 correspond exactement à la mission assignée à 1 sous-agent de recherche (`research`).
+> - **Correspondance 1:1 avec les sous-agents** : Chaque question H3 correspond exactement à la mission assignée à 1 sous-agent d'exploration (`self` en stricte lecture seule).
 > - **Bannissement formel des méta-sections vagues** : INTERDICTION FORMELLE de regrouper les investigations sous des méta-sections artificielles ou vagues telles que « Décisions d'arbitrage », « Points de vigilance », ou « Diagnostic fondamental ».
 > - **Zéro décision ni point de vigilance en Section 1** : Il n'y a AUCUNE prise de décision ni point de vigilance dans cette section, UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée. Les décisions d'architecture et arbitrages validés sont directement matérialisés dans les chantiers de la Section 2.
 > - **Format des réponses** : Réponses directes sous forme de puces télégraphiques (`- **[Clé]** : [Valeur brute]`) ou paragraphes courts (2 à 4 phrases maximum). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des analyses exhaustives ou détails juridiques/techniques lourds vers des sous-artéfacts dédiés dans `brain/<id>/nom_sous_analyse.md`.
