@@ -20,6 +20,10 @@ description: "Exploration approfondie du contexte et rédaction du plan d'implé
 
 ## 1. 🎯 Cadrage & Exploration Multi-Clusters
 
+### 1.0 Règle Fondamentale d'Instanciation par le Superviseur Racine
+- **Un Seul Scout Lead** : À l'invocation de `/scout`, le Superviseur racine déploie **EXCLUSIVEMENT UN SEUL agent** (`Role: "Scout Lead"`, `TypeName: "self"`).
+- **Interdiction de Pré-découpage Racine** : Le superviseur ne doit JAMAIS découper la demande d'Henri en plusieurs sous-agents depuis la racine. C'est le Scout Lead qui analyse, déploie les sous-scouts `research` nécessaires et rédige `implementation_plan.md`.
+
 Dès réception de la demande, le Scout cartographie les domaines à explorer et active les clusters pertinents :
 
 ### 1.1 Matrice des Clusters d'Exploration

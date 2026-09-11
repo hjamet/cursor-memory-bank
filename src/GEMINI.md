@@ -32,7 +32,7 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 | **Édition & Écriture** | `write_to_file`, `replace_file_content` (code, scripts, LaTeX) | ❌ INTERDIT | ✅ MANDATOIRE |
 | **Terminal & Commandes** | `run_command` (inspection, build, git, tests) | ❌ INTERDIT | ✅ MANDATOIRE |
 | **Dialogue & Arbitrage** | `ask_question` | ✅ Exclusif | ❌ INTERDIT |
-| **Déploiement** | `invoke_subagent` (`TypeName: 'self'`) | ✅ Exclusif | ❌ INTERDIT |
+| **Déploiement** | `invoke_subagent` | ✅ Exclusif (Lead unique) | ⚠️ Réservé au Lead `scout` (vers `research`) |
 | **Pilotage serviteurs** | `send_message`, `manage_subagents`, `manage_task` | ✅ Exclusif | ❌ INTERDIT |
 | **Mémoire Long-Terme** | MCP `aivc` (`remember`, `recall`…) | ✅ | ✅ |
 | **Agents Indépendants** | `antigravity-agents run --model <m> --prompt "…"` | ✅ Direct (zéro double délégation) | ✅ |
@@ -69,14 +69,14 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 
 | # | Règle Sous-Agent | Spécification |
 |---|---|---|
-| 1 | **$N$ questions = $N$ agents** | Parallélisation stricte. $N \ge 2$ volets = $N$ sous-agents (`invoke_subagent`). |
+| 1 | **$N$ questions = $N$ agents** | Parallélisation stricte pour requêtes standard. Exception Scout : pour `/scout`, déployer impérativement 1 SEUL sous-agent Scout Lead. |
 | 2 | **1 Tâche = 1 Sous-Agent** | `TypeName: 'self'`, `Model: 'inherit'`. |
 | 3 | **`send_message` = correction** | Exclusivement pour corriger/compléter la tâche active du sous-agent. |
 | 4 | **Nouveau besoin = `invoke`** | Nouveau périmètre = nouveau sous-agent. Zéro recyclage. |
 | 5 | **Briefing complet** | Objectifs, chemins absolus, conventions (sous-agents = zéro contexte initial). |
 | 6 | **Audit de validation** | Vérifier preuves matérielles avant d'accepter un résultat. |
 | 7 | **Workflows / Skills** | Première consigne du sous-agent = lire le `SKILL.md` cible. |
-| 8 | **Anti-Récursion** | Sous-agents = exécutants purs. INTERDICTION formelle d'invoquer des sous-sous-agents. |
+| 8 | **Anti-Récursion & Leads** | Les agents d'exécution (workers, code, build) sont des exécutants purs (zéro sous-agent). Seul le Scout Lead est autorisé à déployer des sous-scouts `research`. |
 | 9 | **Zéro Polling & Push** | INTERDICTION FORMELLE de boucler avec `manage_subagents(list)` ou `view_file`. Le système AGY est push-based et réveille l'agent automatiquement. |
 | 10 | **Timers commandes longues** | Pour tout `run_command` asynchrone, armer `schedule` avec `TimerCondition: "<task-id>"` (progression : 30s, 1m, 3m, 5m...). Zéro timer sur sous-agents. |
 | 11 | **Transcripts & Logs** | INTERDIT de lire `transcript.jsonl` des sous-agents. Attendre le réveil automatique. |
