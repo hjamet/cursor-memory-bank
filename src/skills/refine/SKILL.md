@@ -13,13 +13,15 @@ description: "Affinement critique et consolidation de l'exploration. Challenge e
 > **🚫 AUCUNE MODIFICATION DE CODE NI DE CONTENU.** Tu délègues l'exploration, tu synthétises, tu affines. Tu ne touches à aucun code ni fichier de production pendant cette phase.
 > **📄 ARTÉFACT OFFICIEL UNIQUE : `exploration_report.md`.** Harmonisation totale avec Scout : abandon définitif d'`implementation_plan.md`. Refine produit et affine exclusivement `exploration_report.md` via `write_to_file` avec `ArtifactMetadata: { UserFacing: true, RequestFeedback: true, Summary: "..." }` pour faire apparaître la vignette interactive dans le chat.
 > **🧹 BANNISSEMENT DES LOURDEURS.** Bannissement formel du découpage en chantiers de code redondants, des matrices de dépendances complexes, des protocoles lourds et des accordéons `<details><summary>`. Refine fait exactement la même chose que Scout (exploration, cadrage, audit) en améliorant l'artéfact existant.
-> **🗣️ SECTION 1 ORAL-FIRST & QUESTIONS D'EXPLORATION PURES.** Questions pures d'exploration contextuelle et de challenge technique que l'agent se pose au démarrage (« De quoi ai-je besoin pour affiner le plan ? Qu'est-ce que je dois vérifier/savoir ? »). Chaque élément d'investigation fait l'objet de sa PROPRE question H3 dédiée (`### ❓ [Question d'exploration précise] ?`). ZÉRO méta-section vague (« décisions d'arbitrage », « points de vigilance ») et ZÉRO prise de décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée. Résolues par puces télégraphiques (`- **[Clé]** : [Valeur]`) ou paragraphes courts (2 à 4 phrases). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des détails techniques ou juridiques lourds vers des sous-artéfacts dédiés dans `brain/<id>/`.
-> **🌳 ARBORESCENCE EN LISTE À PUCES IMBRIQUÉE.** Bannissement formel des blocs de code ```text. Obligation d'utiliser des listes à puces Markdown imbriquées standard avec liens cliquables réels et description des changements en UNE ligne concise par fichier.
+> **🗺️ CARTOGRAPHIE VISUELLE STANDARD EN 3 COLONNES VERTICALES.** Même cartographie que Scout : intégration systématique en tête de rapport d'un diagramme Mermaid à 3 colonnes verticales (`flowchart TD` avec 3 sous-graphes `subgraph` en `direction TB` chaînés de haut en bas avec `-->`) éliminant toute compression horizontale et garantissant une police de taille normale 100% lisible.
+> **🗣️ SECTION 1 ORAL-FIRST & QUESTIONS D'EXPLORATION PURES.** 1 question concrète = 1 sous-agent de recherche = 1 titre H3 dédié (`### ❓ ...`). Zéro méta-section floue (« décisions d'arbitrage », « points de vigilance ») et ZÉRO prise de décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée. Résolues par puces télégraphiques (`- **[Clé]** : [Valeur]`) ou paragraphes courts (2 à 4 phrases). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des détails techniques ou juridiques lourds vers des sous-artéfacts dédiés dans `brain/<id>/`.
+> **💡 VISUALISATION DES NOUVEAUTÉS PAR CALLOUTS (ZÉRO DIFF).** Interdiction formelle des blocs de code diff, balises `<span style="...">`, `<del>` ou `<ins>`. Pour chaque endroit modifié ou ajouté lors de l'itération de refine, insérer un simple callout Markdown immédiatement avant (`> [!NOTE] Modifié lors du Refine : ...` ou `> [!TIP] Nouveauté Refine : ...`). À chaque nouvelle itération de refine, nettoyer impérativement TOUS les anciens callouts des itérations précédentes afin de ne mettre en valeur que les deltas exclusifs de l'itération courante.
+> **🌳 ARBORESCENCE EN LISTE À PUCES IMBRIQUÉE.** Si une arborescence est requise en complément du diagramme, bannissement formel des blocs de code ```text : obligation d'utiliser des listes à puces Markdown imbriquées standard avec liens cliquables réels et description des changements en UNE ligne concise par fichier.
 > **🏗️ SECTION 2 FORMAT GOOGLE NATIF.** Regroupement par Chantier (`### Chantier A : ...`), séparateurs `---` et balisage chirurgical `[MODIFY]`, `[NEW]`, `[DELETE]`.
-> **🧪 SECTION 3 PLAN DE VÉRIFICATION BIPARTI EN TABLEAUX NATIFS.** Cloisonnement strict obligatoirement formalisé sous forme de TABLEAUX Markdown natifs (Vérifications automatisées agent vs Vérifications manuelles Henri).
+> **🧪 SECTION 3 PLAN DE VÉRIFICATION BIPARTI EN TABLEAUX NATIFS.** Cloisonnement strict obligatoirement formalisé sous forme de TABLEAUX Markdown natifs (Contrôles automatisés agent vs Actions manuelles réservées à Henri).
 > **👥 RÈGLE 1:1 DE DÉPLOIEMENT.** Le Refine Lead liste d'abord toutes les questions d'exploration contextuelle et de challenge à se poser, puis déploie EXACTEMENT 1 sous-agent de recherche par question ($N$ questions = $N$ sous-agents `research` en parallèle via un unique appel `invoke_subagent`).
 > **🚫 INTERDICTION DE PLAYWRIGHT.** Playwright est banni au profit de `search_web` et `read_url_content` (sauf formulaire privé d'Henri ou site web déployé demandé explicitement par Henri).
-> **📦 ACCUMULATION INCRÉMENTALE & PANIER CUMULATIF.** Préservation et enrichissement continu des chantiers cumulés non-buildés jusqu'au passage à `/build`.
+> **🔄 CYCLE DE VIE DU PLAN : LECTURE SEULE, ACCUMULATION CONTINUE & CLEAN SLATE POST-BUILD.** Tant que `/build` n'a pas été formellement invoqué par Henri, maintien strict en lecture seule sans aucune modification de code ou de données. Toute idée, tâche, correction ou amélioration est obligatoirement consignée dans `exploration_report.md` qui s'enrichit continuellement pour devenir de plus en plus complet. Le passage en mode exécution s'opère exclusivement au `/build`, et une fois le travail validé par `walkthrough.md`, le plan est intégralement vidé (Clean Slate) pour la session suivante.
 
 ---
 
@@ -56,14 +58,24 @@ Les sous-agents mandatés par le Refine Lead sont des **exécutants directs norm
    - Proscription totale des matrices de dépendances complexes, des protocoles lourds et des redécoupages artificiels.
    - Refine réalise exactement la même mission d'exploration et de cadrage que Scout, mais avec un niveau d'exigence, de challenge critique et de consolidation renforcé.
 
+### 1.1 🔄 Quel Est le Cycle de Vie Canonique du Plan (Lecture Seule, Accumulation Continue & Clean Slate Post-Build) ?
+
+> [!IMPORTANT]
+> **CYCLE DE VIE DU PLAN : DE L'EXPLORATION AU CLEAN SLATE POST-BUILD.**
+> Le plan d'implémentation traverse un cycle de vie strict en 4 temps :
+> 1. **Lecture Seule Stricte Amont** : Tant qu'Henri n'a pas formellement appelé `/build`, les agents (`scout`, `refine`, sous-agents `research`) sont en **LECTURE SEULE STRICTE**. INTERDICTION FORMELLE d'effectuer la moindre modification sur du code, des fichiers sources, des notes du coffre, des formulaires web ou des services externes. Tout le travail consiste à explorer, vérifier les faits et perfectionner l'artéfact de cadrage.
+> 2. **Consignation & Accumulation Continue (`exploration_report.md`)** : Toute idée de tâche, correction, point de vigilance ou amélioration doit être immédiatement consignée dans le plan d'implémentation unique `exploration_report.md`. Si un rapport non-buildé existe déjà, interdiction formelle d'écraser à blanc : le plan s'enrichit, se corrige, se complète et empile les nouveaux chantiers (`### Chantier N+1 : ...`) pour devenir de plus en plus exhaustif et précis au fil des échanges.
+> 3. **Bascule en Mode Exécution au `/build`** : L'appel explicite de `/build` (ou la validation du bouton interactif Proceed) déclenche la transition vers le mode exécution. Le Build prend alors en charge l'application chirurgicale des modifications prévues dans le plan.
+> 4. **Vidage Intégral Post-Build (Clean Slate)** : Une fois le travail de `/build` achevé, vérifié et validé par la production de `walkthrough.md`, le plan `exploration_report.md` est intégralement vidé (Clean Slate). La session est réinitialisée, prête à accueillir une nouvelle demande sur une table rase.
+
 ---
 
 ## 2. 👥 Comment Déployer les Sous-Agents Research en Règle 1:1 Stricte ($N$ Questions = $N$ Agents) ?
 
 Le Refine Lead applique rigoureusement la règle 1:1 :
-1. **Listing Préalable des Questions d'Exploration & de Challenge Pures** : Le Refine Lead liste exhaustivement toutes les questions pures d'investigation et de challenge technique à approfondir (« De quoi ai-je besoin pour consolider le plan ? Quelles hypothèses dois-je vérifier concrètement ? »). Chaque élément à challenger ou vérifier fait l'objet de sa PROPRE question dédiée (`### ❓ [Question d'exploration précise] ?`).
+1. **Listing Préalable des Questions d'Exploration & de Challenge Pures** : Le Refine Lead liste exhaustivement toutes les questions pures d'investigation et de challenge technique à approfondir (« De quoi ai-je besoin pour consolider le plan ? Quelles hypothèses dois-je vérifier concrètement ? »). Règle canonique absolue : **1 question concrète = 1 sous-agent de recherche = 1 titre H3 dédié (`### ❓ ...`)**. Zéro méta-section floue (« décisions d'arbitrage », « points de vigilance »).
 2. **Déploiement 1:1 Inconditionnel** : Le Refine Lead déploie **EXACTEMENT 1 sous-agent `research` par question** ($N$ questions = $N$ sous-agents `research` en parallèle via un unique appel `invoke_subagent`, `Model: "inherit"`).
-3. **Zéro Décision en Phase d'Exploration** : L'exploration est une recherche de preuves brutes et de faits avérés : aucune décision ni point de vigilance anticipé à ce stade (pure information factuelle).
+3. **Zéro Décision en Phase d'Exploration** : L'exploration est une recherche de preuves brutes et de faits avérés : aucune décision ni point de vigilance anticipé en Section 1 (zéro méta-section floue). Les décisions architecturales appartiennent à la Section 2 et au dialogue amont avec Henri.
 4. **Template de Prompt pour Sous-Agent `research`** :
    ```text
    Tu es un sous-agent d'exécution 'research' mandaté par le Refine Lead.
@@ -104,6 +116,31 @@ Le Refine Lead met à jour l'artéfact officiel unique avec `write_to_file` :
   }
   ```
 
+### 4.0 💡 Comment Mettre en Valeur les Nouveautés par Callouts (Zéro Diff & Nettoyage Obligatoire) ?
+
+Pour permettre à Henri de visualiser immédiatement et sans effort les apports de chaque passe d'affinement :
+
+1. **Suppression Totale de Tout Format de Diff** :
+   - **Interdiction formelle** des blocs de code ```diff, des annotations de suppression/ajout `+`/`-`, des balises HTML `<span style="...">`, `<del>` ou `<ins>`.
+   - Le rapport reste un document Markdown propre, lisible et publiable en production.
+
+2. **Mise en Valeur Chirurgicale par Callouts Standards** :
+   - Pour chaque section, titre, question, chantier ou élément modifié ou ajouté lors de l'itération de refine en cours, insérer un simple callout Markdown natif immédiatement avant :
+     * **Pour une modification d'un élément existant** :
+       ```markdown
+       > [!NOTE]
+       > **Modifié lors du Refine** : [Explication concise du changement ou de l'ajustement apporté]
+       ```
+     * **Pour un ajout / une nouveauté** :
+       ```markdown
+       > [!TIP]
+       > **Nouveauté Refine** : [Explication concise de la nouvelle tâche, du nouveau chantier ou du point clé ajouté]
+       ```
+
+3. **Règle de Nettoyage Préalable Obligatoire (Purge des Anciens Callouts)** :
+   - **Nettoyage systématique** : À chaque nouvelle itération de refine (par exemple lors de la passe N+1), le Refine Lead doit **impérativement purger et supprimer tous les anciens callouts** (`> [!NOTE] Modifié lors du Refine` / `> [!TIP] Nouveauté Refine`) insérés lors des itérations précédentes.
+   - **Zéro accumulation de callouts obsolètes** : Seuls les callouts correspondant aux nouveautés et modifications exclusives de l'itération courante doivent subsister dans le rapport.
+
 ### 4.1 📐 Structure Canonique de l'Artéfact (Mode Implémentation)
 
 ```markdown
@@ -111,11 +148,52 @@ Le Refine Lead met à jour l'artéfact officiel unique avec `write_to_file` :
 
 [Description synthétique et dense de l'objectif, du contexte métier et de la cible architecturale.]
 
-## 🗺️ Arborescence Prévisionnelle des Changements
+---
+
+> [!TIP]
+> **Nouveauté Refine** : Cartographie visuelle compacte à 3 piliers verticaux (`direction TB`), éliminant tout étirement horizontal pour une lisibilité parfaite.
+
+## 🗺️ Cartographie Visuelle des Changements Prévus (3 Colonnes Verticales)
+
+> [!IMPORTANT]
+> **Diagramme Mermaid Standard à 3 Colonnes Verticales** :
+> Afin d'éliminer toute compression ou étirement horizontal et de garantir une taille de police normale 100% lisible, la cartographie visuelle regroupe obligatoirement les actions sous forme de 3 colonnes verticales distinctes côte à côte (`flowchart TD` avec sous-graphes `subgraph` en `direction TB` chaînés de haut en bas avec `-->`).
+
+```mermaid
+flowchart TD
+    ROOT["🎯 Plan d'Action Global : [Objectif]"] --> C1["🏗️ Chantier 1 : Module Principal"]
+    ROOT --> C2["📓 Chantier 2 : Vault / Documentation"]
+    ROOT --> C3["⚙️ Chantier 3 : Infra / Tests"]
+
+    subgraph S1["Chantier 1 : Module Principal"]
+        direction TB
+        A1["Action 1.1 : Spécifications"] --> A2["Action 1.2 : Implémentation"]
+        A2 --> A3["Action 1.3 : Validation Contrat"]
+    end
+    C1 --> S1
+
+    subgraph S2["Chantier 2 : Vault / Documentation"]
+        direction TB
+        B1["Action 2.1 : Note Maîtresse"] --> B2["Action 2.2 : Sous-notes & Liens"]
+        B2 --> B3["Action 2.3 : Hygiène & Q/R"]
+    end
+    C2 --> S2
+
+    subgraph S3["Chantier 3 : Infra / Tests"]
+        direction TB
+        D1["Action 3.1 : Scripts Live"] --> D2["Action 3.2 : Intégration Git"]
+        D2 --> D3["Action 3.3 : Checkpoint AIVC"]
+    end
+    C3 --> S3
+```
+
+---
+
+## 🗺️ Arborescence Prévisionnelle des Changements (Optionnel / Complémentaire)
 
 > [!IMPORTANT]
 > **Bannissement Formel des Blocs de Code ```text** :
-> L'arborescence est obligatoirement formalisée en liste à puces Markdown imbriquée standard avec liens cliquables réels vers les fichiers sources et description des changements en **UNE ligne concise par fichier**.
+> Si une arborescence détaillée est nécessaire en complément de la cartographie visuelle, elle est obligatoirement formalisée en liste à puces Markdown imbriquée standard avec liens cliquables réels vers les fichiers sources et description des changements en **UNE ligne concise par fichier**.
 
 - **racine/**
   - **axe_1_architecture/**
@@ -126,6 +204,9 @@ Le Refine Lead met à jour l'artéfact officiel unique avec `write_to_file` :
 ---
 
 ## 🗣️ Section 1 : Questions Clés d'Exploration & Réponses Détaillées (Oral-First)
+
+> [!NOTE]
+> **Modifié lors du Refine** : Précision factuelle et chiffrée issue de la contre-expertise 1:1.
 
 > [!IMPORTANT]
 > **Doctrine Canonique des Questions d'Exploration Contextuelle** :
@@ -188,9 +269,9 @@ Le Refine Lead met à jour l'artéfact officiel unique avec `write_to_file` :
 
 > [!IMPORTANT]
 > **Obligation de Tableaux Markdown Natifs** :
-> La Section 3 est obligatoirement formalisée sous la forme de deux tableaux distincts : un tableau pour les vérifications automatisées par l'agent (phase Build) et un tableau pour les vérifications manuelles réservées à Henri.
+> La Section 3 est obligatoirement formalisée sous la forme de TABLEAUX Markdown natifs séparant strictement les contrôles automatisés exécutés par l'agent (phase Build) et les actions manuelles réservées à Henri.
 
-### 🤖 Vérifications Automatisées par l'Agent (Phase Build)
+### 🤖 Contrôles Automatisés par l'Agent (Phase Build)
 
 | Domaine / Cible | Commande ou Mécanisme de Test | Résultat Attendu & Garde-Fou |
 |---|---|---|
@@ -198,7 +279,7 @@ Le Refine Lead met à jour l'artéfact officiel unique avec `write_to_file` :
 | **Audit des Signatures & Contrats** | `[Script ou vérification des interfaces]` | Types et arguments conformes aux attentes |
 | **Validation Fonctionnelle Live** | `[Script jetable dans scratch/ ou commande]` | Comportement nominal constaté sur sortie brute |
 
-### 👤 Vérifications Manuelles Réservées à Henri
+### 👤 Actions Manuelles Réservées à Henri
 
 | Volet de Contrôle | Action Spécifique demandée à Henri | Critère d'Acceptation Métier |
 |---|---|---|
