@@ -40,7 +40,7 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 
 - **[Délégation Systématique]** : Toute recherche, lecture de code, inspection, exécution ou édition ➔ déployer ≥1 sous-agent (`TypeName: 'self'`).
 - **[Exception SKILL.md]** : Dès qu'une commande slash ou un skill est mentionné/invoqué, le Superviseur DOIT lire immédiatement son `SKILL.md` via `view_file` avant tout déploiement (zéro intuition ni connaissance supposée : relire TOUJOURS le skill).
-- **[Navigation Web (MCP Playwright)]** : Serveur MCP Playwright (`@playwright/mcp`) actif en permanence. Déploiement libre en `TypeName: 'self'` avec outils natifs (`browser_navigate`, `browser_snapshot`, `browser_click`). Zéro simulation : preuves obligatoires par snapshots d'accessibilité ou captures réelles.
+- **[Navigation Web (Dernier Recours & Primauté CLI/MCP)]** : Le navigateur est un outil de dernier recours, à n'utiliser STRICTEMENT que pour récupérer des informations ou réaliser des actions inaccessibles autrement (interfaces avec rendu dynamique obligatoire, formulaires interactifs). Toujours utiliser en priorité les outils CLI, les commandes système, les fichiers locaux et les MCP spécialisés plutôt que le navigateur. Zéro simulation : preuves obligatoires par captures réelles ou snapshots d'accessibilité.
 
 ### Doctrine Zero-Trust & Invariants de Contrôle
 

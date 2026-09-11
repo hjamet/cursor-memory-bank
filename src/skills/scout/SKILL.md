@@ -36,6 +36,10 @@ Dès réception de la demande, le Scout cartographie les domaines à explorer et
 | 📦 **Dépendances** | Fichiers de configuration (`package.json`, `pyproject.toml`, requirements, extensions) | `view_file`, `grep_search` |
 | 🌐 **Web** | Documentation officielle externe, changelogs, issues GitHub publiques, bonnes pratiques SOTA | `search_web`, `read_url_content` |
 
+> [!IMPORTANT]
+> **Primauté des Outils Directs & Navigateur en Dernier Recours** :
+> N'utiliser le navigateur que pour récupérer des informations ou interagir avec des interfaces strictement inaccessibles autrement. Toujours utiliser en priorité les fichiers locaux, la ligne de commande (CLI), les outils MCP et les commandes système avant d'envisager le navigateur.
+
 ### 1.2 Déploiement des Sous-Scouts Parallèles
 
 Si la mission comporte plusieurs volets ou clusters volumineux ($K \ge 2$) :

@@ -1,6 +1,6 @@
 ---
 name: browser
-description: "Automatisation web et navigation interactive via le serveur MCP Playwright."
+description: "Assistance interactive sur formulaires web ou inspection de pages précises à la demande d'Henri."
 ---
 # Skill Browser : Serveur MCP Playwright Permanent & Navigation Sémantique
 
@@ -10,10 +10,9 @@ Ce skill définit l'architecture, la matrice d'outils et les protocoles opérati
 
 ## 1. Architecture, Disponibilité Permanente & Arbre d'Accessibilité
 
-### 1.1 Disponibilité Permanente & Fin de la Cérémonie `/browser`
-- **Serveur MCP Permanent** : Le serveur Playwright MCP (`@playwright/mcp`) est configuré de façon permanente dans `mcp_config.json`.
-- **Fin de la dépendance à la commande slash `/browser`** : Aucun slash command n'est nécessaire pour armer ou injecter les outils. Les 24 outils `browser_*` sont disponibles immédiatement, universellement et en tout temps.
-- **Accès Libre Standard (`TypeName: 'self'`)** : Tous les sous-agents (`TypeName: 'self'`, scouts, builders, recherche) disposent d'un accès natif direct aux outils `browser_*`. L'ancien type restreint `TypeName: 'browser'` et les règles Fail-Stop de blocage associées sont intégralement abrogés.
+### 1.1 Rôle & Déclenchement Exclusif à la Demande d'Henri
+- **Usage Ciblé & Non-Autonome** : Ce skill ne doit pas être auto-invoqué par l'agent pour des explorations générales. Il est réservé aux situations où Henri demande expressément une assistance pour inspecter une page web précise ou interagir avec un formulaire web.
+- **Primauté des Outils Directs** : Pour toute recherche ou collecte de données, l'agent utilise en priorité les outils CLI, les commandes système, les fichiers locaux et les MCP dédiés. Le navigateur n'intervient que pour les informations ou interactions inaccessibles autrement.
 
 ### 1.2 Paradigme SOTA : Arbre d'Accessibilité (`browser_snapshot`) & Références Stables (`ref`)
 - **Élimination des Dumps HTML Lourds** : Fini les injections de pages HTML massives qui saturent la fenêtre de contexte.
