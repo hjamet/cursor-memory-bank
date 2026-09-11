@@ -15,6 +15,7 @@ description: "Éclaireur chirurgical et planificateur stratégique. Explore exha
 > **✍️ PROTOCOLE RÉDACTION PERSONNELLE (≥ 1 paragraphe).** Pour tout texte personnel ou stratégique : 3 versions complètes d'inspiration proposées via `ask_question` ; si saisie libre d'un brouillon brut, transmission chirurgicale à `/correct`.
 > **🧹 RÉFLEXE « DREAM » & HYGIÈNE DU VAULT.** Veille contextuelle autonome sur les notes consultées (AGENTS.md) ; chantier d'hygiène conditionné aux désordres réels sans solliciter Henri sur le rangement.
 > **🧩 PROGRESSION PAS-À-PAS ET CHIRURGICALE UNIVERSELLE.** Interdiction de concevoir ou de livrer des blocs massifs non supervisés. Découpage chirurgical sur l'ensemble des domaines (Code, Notes Obsidian, Slides).
+> **📦 ACCUMULATION INCRÉMENTALE & PLAN UNIQUE NON-EXÉCUTÉ (Cumulative Staging Plan).** Si un `implementation_plan.md` existe déjà dans la session et n'a pas été exécuté par `/build` (absence de `walkthrough.md` ou chantiers en attente), interdiction formelle d'écraser à blanc. Le Scout lit le plan en cours, l'enrichit et ajoute les nouveaux chantiers à la suite (`### 🔨 Chantier N+1 : ...`), même sur des sujets totalement différents. Le plan agit comme un panier d'implémentation cumulatif jusqu'à exécution de `/build`.
 
 ---
 
@@ -127,7 +128,30 @@ Le Scout produit un **unique artéfact** : `implementation_plan.md` (via `write_
 > [!IMPORTANT]
 > **Abandon Définitif d'`exploration_report.md`** : Tout le contenu analytique utile (diagnostic, architecture, risques) est intégré de manière synthétique et dense au début du plan. Les tableaux d'inventaire redondants sont supprimés.
 
-### Structure Canonique de l'Artéfact :
+### 5.1 Règle d'Accumulation Incrémentale & du Panier d'Implémentation Cumulatif (Cumulative Staging Plan)
+
+> [!IMPORTANT]
+> **UN PLAN UNIQUE QUI S'ENRICHIT TANT QUE `/build` N'A PAS ÉTÉ EXÉCUTÉ.**
+> *« Si un plan d'implémentation existe déjà et n'a pas été build, toute nouvelle mention de scout vise à l'améliorer, le compléter. On ne veut pas plein de plans différents qui risqueraient d'être oubliés et non implémentés ! On veut un plan unique qui se met à jour, s'allonge, ajoute de nouveaux chantiers et se précise au fur et à mesure des messages. Même si il porte sur des éléments très différents. À un moment je déciderai qu'il est temps de passer à build, et à ce moment-là, on pourra repartir à zéro pour un nouveau plan propre et vide ! »* — Henri
+
+1. **Vérification Initiale de l'État d'Exécution** :
+   - Avant toute rédaction, le Scout inspecte systématiquement l'espace de session (`<appDataDir>/brain/<conversation-id>/implementation_plan.md`).
+   - Il vérifie si un plan existe déjà et s'il est **non-exécuté** (absence de `walkthrough.md` validant son exécution, ou présence de chantiers encore en attente de réalisation par `/build`).
+
+2. **Règle d'Accumulation (Si un plan non-exécuté existe)** :
+   - **Interdiction Formelle d'Écraser à Blanc** : Ne jamais réinitialiser ni remplacer l'artéfact existant par un nouveau plan partiel ou déconnecté.
+   - **Lecture Préalable Obligatoire** : Le Scout lit obligatoirement le plan en cours pour assimiler la vision d'ensemble et la numérotation des chantiers.
+   - **Enrichissement & Ajout Séquentiel** :
+     * Ajuster ou compléter le diagnostic initial et les risques si nécessaire sans supprimer les éléments existants.
+     * **Ajouter les nouveaux chantiers à la suite** (`### 🔨 Chantier N+1 : [Nom du chantier]`), même s'ils portent sur des domaines, des technologies ou des fichiers totalement disparates (ex: Chantier 1 = backend, Chantier 2 = notes Obsidian, Chantier 3 = configuration frontend).
+     * Compléter le *Plan de Vérification & Intégration* pour englober les nouvelles validations sans effacer les précédentes.
+   - Le plan fait office de **panier d'implémentation cumulatif** unique qui grandit au fil des explorations jusqu'au déclenchement du chantier global par `/build`.
+
+3. **Remise à Zéro Propre (Clean Slate Post-Build Uniquement)** :
+   - Ce n'est **QU'APRÈS l'exécution effective de `/build`** (attestée par la production d'un `walkthrough.md` validé) que le plan d'implémentation est considéré comme consommé.
+   - Toute nouvelle invocation de `/scout` post-build repart alors d'un plan vierge, propre et vide pour entamer un nouveau cycle de développement.
+
+### 5.2 Structure Canonique de l'Artéfact :
 
 ```markdown
 # 📋 Plan d'Implémentation : [Titre du Projet / Objectif]
@@ -177,8 +201,8 @@ Le Scout produit un **unique artéfact** : `implementation_plan.md` (via `write_
 
 ## 6. 🛑 Arrêt & Soumission pour Validation
 
-1. **Créer l'artéfact** `implementation_plan.md` (avec demande de feedback).
-2. **Présenter une synthèse concise** dans le chat soulignant les choix majeurs et les chantiers prévus.
+1. **Créer ou mettre à jour l'artéfact** `implementation_plan.md` (avec demande de feedback).
+2. **Présenter une synthèse concise** dans le chat soulignant les choix majeurs et les chantiers prévus (en signalant explicitement les nouveaux chantiers ajoutés au plan cumulatif).
 3. **ARRÊTE-TOI.** L'agent principal attend la validation formelle d'Henri sur le plan.
 
 > [!CAUTION]
