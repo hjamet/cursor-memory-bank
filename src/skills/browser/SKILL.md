@@ -16,13 +16,18 @@ Conformément à la doctrine établie par Henri Jamet, ce skill repose sur trois
 
 ## 1. Architecture, Déclenchement & Persistance Absolue
 
-### 1.1 Condition Sine Qua Non d'Activation des Outils (`/browser`)
+### 1.1 Condition d'Activation des Outils (`/browser`) & Invariance Absolue du Type (`TypeName: 'browser'`)
 > [!IMPORTANT]
 > **Mécanisme d'Injection des Outils dans Antigravity** :
 > Dans Google Antigravity, les outils d'automatisation et de contrôle du navigateur (`chrome_devtools` : `list_pages`, `new_page`, `select_page`, `click`, `fill`, `type_text`, `evaluate_script`, `take_screenshot`, etc.) **ne sont jamais injectés par défaut** dans l'environnement.
 > Ils ne sont injectés et mis à la disposition du superviseur et des sous-agents **QUE SI l'utilisateur (Henri) invoque explicitement la commande slash `/browser` dans son message**.
 > - **Si `/browser` est présent dans le message** : Antigravity arme et injecte dynamiquement la passerelle MCP `chrome_devtools` reliée à l'instance Chrome active d'Henri.
 > - **Si `/browser` est absent du message** : Même si la tâche porte sur la navigation web, les outils `chrome_devtools` n'existent pas dans l'environnement d'exécution. Ni le superviseur ni le sous-agent ne peuvent s'auto-octroyer ces outils.
+
+> [!CAUTION]
+> **Interdiction Formelle de `TypeName: 'self'` pour le Browser** :
+> - Le sous-agent dédié au navigateur DOIT ÊTRE INVOQUÉ STRICTEMENT avec `TypeName: 'browser'`.
+> - L'utilisation de `TypeName: 'self'` pour tenter de piloter le navigateur est une **ANOMALIE CRITIQUE MAJEURE** car elle prive le worker des outils `chrome_devtools`.
 
 ### 1.2 Règle Fondamentale de Persistance Absolue du Sous-Agent Browser
 > [!IMPORTANT]
@@ -39,13 +44,13 @@ Conformément à la doctrine établie par Henri Jamet, ce skill repose sur trois
 - **Accès complet aux sessions authentifiées** : L'agent bénéficie automatiquement de toutes les sessions connectées et des cookies existants d'Henri (ex. **Dify, Moodle, GitHub, Webmail, Drive, portails éthiques, consoles cloud, intranets et applications locales**).
 - **Zéro ré-authentification manuelle** : Si l'utilisateur est déjà connecté à un service sur son Chrome, aucune étape de reconnexion ou de transmission de mots de passe n'est requise.
 
-### 1.4 Doctrine Fail-Stop sur Indisponibilité des Outils & Règle Anti-Bricolage
+### 1.4 Doctrine Fail-Stop sur Indisponibilité des Outils, Règle Anti-Bricolage & Demande d'Accès
 > [!CAUTION]
-> **Arrêt Immédiat (Fail-Stop) & Interdiction Absolue de Bricolage** :
+> **Arrêt Immédiat (Fail-Stop), Interdiction Absolue de Contournement & Demande d'Accès** :
 > Si le sous-agent `browser` est invoqué mais constate que les outils `chrome_devtools` (`list_pages`, `new_page`, etc.) ne sont pas disponibles dans son environnement (l'utilisateur n'a pas tapé `/browser` dans son message, session expirée ou réinitialisée) :
-> 1. **ARRÊT IMMÉDIAT (FAIL-STOP)** : Le sous-agent DOIT S'ARRÊTER IMMÉDIATEMENT.
-> 2. **INTERDICTION ABSOLUE DE BRICOLAGE** : Ne JAMAIS fabriquer d'outils maison (scripts Python, CDP direct, sockets).
-> 3. **MESSAGE CANONIQUE OBLIGATOIRE** : Le sous-agent renvoie mot pour mot :
+> 1. **ARRÊT IMMÉDIAT & INCONDITIONNEL (FAIL-STOP)** : Le sous-agent et l'agent appelant DOIVENT S'ARRÊTER IMMÉDIATEMENT.
+> 2. **INTERDICTION ABSOLUE DE CONTOURNEMENT OU BRICOLAGE** : Ne JAMAIS fabriquer d'outils maison (scripts Python, CDP direct, sockets). **INTERDICTION FORMELLE ET ABSOLUE** de basculer sur des recherches de fichiers locaux (OneDrive, documents locaux) ou d'extrapoler pour meubler ou simuler une navigation web. Tout contournement ou simulation est qualifié d'anomalie critique majeure.
+> 3. **MESSAGE CANONIQUE OBLIGATOIRE & DEMANDE D'ACCÈS À HENRI** : Le sous-agent renvoie mot pour mot à l'agent appelant, et l'agent appelant demande explicitement à Henri d'invoquer le skill `/browser` dans son prochain message pour débloquer l'accès aux outils :
 >    « *Les outils du navigateur ne sont pas disponibles dans cette session. Pour m'y donner accès, veuillez simplement inclure la commande `/browser` dans votre prochain message.* »
 
 ---
