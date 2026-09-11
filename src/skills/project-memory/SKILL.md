@@ -54,7 +54,8 @@ $$S_{\text{eff}} = \max\left(1.0,\, S_{\text{base}} + B_{\text{rot}} + U_{\text{
 5. **⚖️ Règle Fondamentale de Distinction : Retours Utilisateur & Sessions de Travail (`feedback`) vs Veille & Ajustements Agent (`set-score`)** :
    - **1. Retours Utilisateur & Sessions de Travail Réelles (`feedback "<projet>" <action>`)** :
      * Déclenché **exclusivement lors d'une session de travail réelle** (bilan post-tâche, fin de Pomodoro, clôture de session de travail, ou consigne explicite d'Henri dans la conversation).
-     * **Obligation Stricte d'Interrogation Interactive (`ask_question`)** : Antigravity **NE DOIT PAS appliquer de mutation unilatérale arbitraire**. À chaque point d'avancement, fin de session de travail ou `/project-memory`, Antigravity **DOIT OBLIGATOIREMENT appeler `ask_question`** pour recueillir le niveau de stress / confort réel d'Henri parmi les 4 options canoniques : `["À l'aise", "OK", "Stressé", "Terminé"]` (avec le suffixe ` (Recommandé)` apposé sur l'option suggérée selon l'analyse de marge calendaire).
+     * **Obligation Stricte d'Interrogation Interactive (`ask_question`)** : Antigravity **NE DOIT PAS appliquer de mutation unilatérale arbitraire**. À chaque point d'avancement, accomplissement de tâche (`complete-task`) ou clôture de session de travail Pomodoro réelle, Antigravity **DOIT OBLIGATOIREMENT appeler `ask_question`** pour recueillir le niveau de stress / confort réel d'Henri parmi les 4 options canoniques : `["À l'aise", "OK", "Stressé", "Terminé"]` (avec le suffixe ` (Recommandé)` apposé sur l'option suggérée selon l'analyse de marge calendaire).
+     * **🚫 INTERDICTION FORMELLE EN PHASE DE CONSULTATION / TRIAGE (`/project-memory`)** : Il est STRICTEMENT INTERDIT de déclencher l'outil modal `ask_question` lors d'une simple consultation, d'une invocation `/project-memory` ou pour demander à Henri sur quoi travailler. Antigravity DOIT TOUJOURS afficher d'abord en texte clair dans le chat le tableau visuel complet des priorités, échéances et contextes. Le choix du sujet s'effectue par dialogue naturel dans le chat.
      * **Enregistre la session de travail réelle** : ajoute automatiquement le timestamp UTC dans `recentWorkDates` pour appliquer le malus temporel $K$ anti-effet-tunnel dégressif sur 6 heures ($M_{\text{temporal}}(K)$).
      * **Valide le jalon synchrone** : met à jour `lastSatisfiedMilestoneDate = now` si la session correspond à l'échéance.
      * **Gère la rotation des projets** : réinitialise le bonus de rotation $B_{\text{rot}}$ du projet à **`0.0`** et applique **`+0.3`** à tous les autres projets actifs.
@@ -103,7 +104,8 @@ Antigravity a pour mission fondamentale de préserver la sérénité et l'énerg
 > [!IMPORTANT]
 > **OBLIGATION STRICTE D'INTERROGER HENRI SUR SON NIVEAU DE STRESS / CONFORT** :
 > - **Antigravity NE DOIT JAMAIS appliquer de mutation unilatérale arbitraire de feedback sans interroger Henri.**
-> - À chaque **point d'avancement**, **accomplissement de tâche (`complete-task`)**, **fin de session Pomodoro / `/work`**, **clôture de session de travail** ou **invocation manuelle `/project-memory`**, Antigravity **DOIT OBLIGATOIREMENT appeler l'outil `ask_question`** pour recueillir son niveau de stress / confort réel.
+> - À chaque **point d'avancement**, **accomplissement de tâche (`complete-task`)**, **fin de session Pomodoro / `/work`** ou **clôture de session de travail**, Antigravity **DOIT OBLIGATOIREMENT appeler l'outil `ask_question`** pour recueillir son niveau de stress / confort réel.
+> - **🚫 INTERDICTION FORMELLE EN PHASE DE CONSULTATION / TRIAGE (`/project-memory`)** : Il est STRICTEMENT INTERDIT d'utiliser la modal `ask_question` lors d'une simple consultation ou pour le choix de projet. La modal masque le visuel du tableau de bord et prive Henri de la visibilité sur ses priorités. Le choix du projet s'effectue par dialogue naturel dans le chat.
 > - L'interrogation doit comporter **strictement les 4 options canoniques dans l'ordre suivant** :
 >   1. `À l'aise` (ou `À l'aise (Recommandé)`)
 >   2. `OK` (ou `OK (Recommandé)`)
@@ -427,9 +429,9 @@ python "C:\Users\Jamet\Documents\VoiceNotes\antigravity\scripts\project_memory_c
 Lorsque Henri invoque manuellement le skill ou la slash-command `/project-memory`, Antigravity adapte son comportement selon le contexte temporel de la conversation :
 
 ### 1. En Début de Conversation (Orientation & Choix de Focus)
-* **État Global** : Fournir une vue synthétique des projets actifs (total des projets révisés et détection des éventuels nouveaux projets non révisés).
-* **Top 3 Urgent** : Présenter immédiatement les **Top 3 projets révisés les plus urgents** (`list --reviewed --top 3`) sous forme de liens Markdown cliquables avec leurs scores effectifs $S_{\text{eff}}$, leurs échéances futures réelles (deadlines dures et jalons de synchronisation réels, à l'exclusion stricte de tout événement passé) et le malus temporel éventuel.
-* **Recommandations Stratégiques** : Formuler une recommandation concrète sur le meilleur projet à prioriser pour démarrer la session.
+* **Visuel Complet Prioritaire (Chat-First)** : Afficher IMMÉDIATEMENT et INTÉGRALEMENT dans le chat le tableau des projets les plus urgents avec leurs scores dynamiques, échéances futures réelles, liens cliquables `[Nom](file:///...)` et contexte d'arbitrage.
+* **Recommandations Stratégiques Motivées** : Formuler une analyse concrète et tranchée sur le focus le plus pertinent (sans complaisance ni sycophancie).
+* **🚫 Zéro Outil Modal (`ask_question`) pour le Choix de Projet** : Ne JAMAIS déclencher l'outil `ask_question` pour demander sur quoi travailler. La modal bloque l'écran et prive Henri de la visibilité sur son tableau de bord. Laisser Henri réagir et arbitrer naturellement dans le chat après lecture de son tableau.
 
 ### 2. En Milieu de Conversation / Clôture de Session de Travail (Bilan & Enchaînement)
 * **Vérification & Mise à Jour des Notes Obsidian (Mandatoire)** : Moment privilégié pour **auditer et synchroniser la note maîtresse et toutes les sous-notes liées du projet dans Obsidian**. Vérifier qu'elles reflètent fidèlement 100% des avancées, décisions prises, arbitrages, travaux effectués et nouveaux jalons de la session.
