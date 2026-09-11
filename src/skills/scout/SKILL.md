@@ -151,10 +151,10 @@ Le rapport d'exploration doit être découpé avec une précision chirurgicale :
 
 ---
 
-## 6. 📄 Livrable Unique : `exploration_report.md`
+## 6. 📄 Livrable Unique : `exploration_report.md` & Soumission d'Artéfact Native
 
 Le Scout produit un **unique artéfact officiel** : `exploration_report.md`.
-Il est impérativement créé via l'outil `write_to_file` dans le répertoire d'artéfacts de la session (`<appDataDir>/brain/<conversation-id>/exploration_report.md`) avec les métadonnées suivantes :
+Il ne s'agit pas d'un simple fichier texte ou d'une mention purement textuelle : il **DOIT impérativement** être soumis via le mécanisme natif d'artéfact Antigravity en utilisant l'outil `write_to_file` dans le répertoire d'artéfacts de la session (`<appDataDir>/brain/<conversation-id>/exploration_report.md`) avec `ArtifactMetadata` obligatoirement renseigné :
 
 ```json
 {
@@ -169,8 +169,10 @@ Il est impérativement créé via l'outil `write_to_file` dans le répertoire d'
 ```
 
 > [!IMPORTANT]
-> **Affichage de la Vignette Interactive dans le Chat** :
-> Déclarer `UserFacing: true` et `RequestFeedback: true` dans `ArtifactMetadata` est **obligatoire** pour que l'interface Antigravity affiche le bloc interactif cliquable de l'artéfact avec le bouton de validation ("Proceed") permettant à Henri d'approuver formellement le rapport avant la phase `/build`.
+> **Affichage Obligatoire de la Vignette Interactive Native ("Proceed")** :
+> - **Mécanisme natif** : Déclarer `UserFacing: true` et `RequestFeedback: true` dans `ArtifactMetadata` est **strictement obligatoire**. Ce paramétrage déclenche l'affichage dans l'interface utilisateur de la vignette native interactive comportant le bouton vert **« Proceed (Ctrl+Enter) »**.
+> - **Zéro mention purement textuelle isolée** : Ne jamais se contenter d'un lien textuel sans avoir émis l'artéfact avec ses métadonnées natives `ArtifactMetadata`.
+> - **Panier cumulatif & rafraîchissement** : Toute mise à jour incrémentale d'`exploration_report.md` doit réémettre l'appel `write_to_file` avec `Overwrite: true` et `ArtifactMetadata` complet afin d'actualiser la vignette interactive et son bouton de validation.
 
 ### 6.1 Règle du Panier Cumulatif (Cumulative Staging Report)
 
@@ -288,17 +290,19 @@ axes_recherche/
 
 ## 7. 🛑 Arrêt & Restitution Finale du Scout
 
-Une fois `exploration_report.md` généré :
+Une fois `exploration_report.md` généré et soumis via le mécanisme natif d'artéfact :
 
 1. **Format de Restitution dans le Chat** :
    La réponse finale de l'agent Scout dans le fil de discussion doit respecter scrupuleusement l'ordonnancement suivant :
    - **Ligne 1 (MANDATOIRE)** : Lien cliquable vers la note maîtresse Obsidian du projet ou la note de référence : `[Nom de la Note Maîtresse](file:///chemin/absolu/vers/la/note.md)`.
-   - **Bloc d'Artéfact** : Référence directe à l'artéfact créé : `[exploration_report.md](file:///C:/Users/hjamet/.gemini/antigravity/brain/<conversation-id>/exploration_report.md)`.
+   - **Bloc d'Artéfact (Haut)** : Référence directe à l'artéfact créé : `[exploration_report.md](file:///C:/Users/hjamet/.gemini/antigravity/brain/<conversation-id>/exploration_report.md)`.
    - **Synthèse Orale-First Percutante** : 2 à 4 paragraphes fluides résumant le diagnostic fondamental, les arbitrages clés intégrés et la liste ordonnée des composants prévus (ou les conclusions de l'enquête).
    - **Zéro Copie Intégrale** : Ne JAMAIS dupliquer le contenu brut de l'artéfact dans le message.
+   - **Rappel de Clôture & Appel à l'Action (Pied de Message)** : Mention finale impérative avec lien absolu vers l'artéfact et rappel explicite de la vignette interactive native pour inviter Henri à valider le plan via le bouton vert **Proceed (Ctrl+Enter)** ou par retour textuel avant tout lancement de `/build` :
+     `> 📄 **Validation requise** : Consultez le détail complet du plan dans la vignette interactive ci-dessus (ou via [exploration_report.md](file:///C:/Users/hjamet/.gemini/antigravity/brain/<conversation-id>/exploration_report.md)) et cliquez sur **Proceed** pour autoriser le lancement de /build.`
 
 2. **ARRÊTE-TOI.** L'agent principal attend la validation formelle d'Henri sur l'artéfact.
 
 > [!CAUTION]
 > **🚫 RÈGLE : AUCUN ENCHAÎNEMENT AUTOMATIQUE (No Auto-Chaining).**
-> Ne jamais lancer automatiquement `/build` ni aucun autre outil à la suite du Scout. L'exécution démarre exclusivement sur décision et validation explicite d'Henri.
+> Ne jamais lancer automatiquement `/build` ni aucun autre outil à la suite du Scout. L'exécution démarre exclusivement sur décision et validation explicite d'Henri via le bouton **Proceed** ou son accord explicite.
