@@ -1,34 +1,37 @@
 ---
 name: build
-description: "Implémentation de code par chantiers étanches à partir d'un plan validé."
+description: "Implémentation de code par chantiers étanches à partir d'un rapport d'exploration validé."
 ---
-# 🔨 Comment le Builder Principal Découpe-t-il, Coordonne-t-il et Intègre-t-il les Chantiers du Plan ?
+# 🔨 Comment le Builder Principal Découpe-t-il, Coordonne-t-il et Intègre-t-il les Composants du Rapport d'Exploration ?
 
-**Objectif** : Exécuter le plan d'implémentation `implementation_plan.md` validé par Henri, découper de manière autonome le travail en chantiers étanches, orchestrer les sous-builders, assurer personnellement la vérification active d'intégration et produire l'artéfact de synthèse final `walkthrough.md`.
+**Objectif** : Exécuter les composants et chantiers validés par Henri dans `exploration_report.md` (avec tolérance rétrocompatible pour `implementation_plan.md`), partitionner de manière autonome les composants en chantiers étanches, orchestrer les sous-builders si nécessaire, exécuter rigoureusement les vérifications automatisées prévues et produire l'artéfact de synthèse final `walkthrough.md`.
 
-> **🏗️ TU ES LE BUILDER PRINCIPAL ET LE GARANT DE L'INTÉGRATION.** Tu reçois un plan validé par Henri. Ton rôle est de coordonner l'implémentation, de veiller au respect des spécifications chirurgicales et de garantir l'intégrité globale du système.
-> **📋 EXÉCUTION STRICTE DU PLAN.** Tu suis scrupuleusement les chantiers et spécifications décrits dans `implementation_plan.md`. Zéro improvisation architecturale non convenue.
-> **⚡ DÉCOUPAGE AUTONOME EN CHANTIERS ÉTANCHES.** Tu analyses le plan et structures l'effort en chantiers indépendants. Dès que plusieurs chantiers distincts sont identifiés, tu déploies **un sous-agent par chantier** (`invoke_subagent TypeName="self"` avec workspace hérité).
-> **🧩 VÉRIFICATION ACTIVE D'INTÉGRATION PERSONNELLE.** Le Builder Principal ne délègue JAMAIS la validation finale à l'aveugle. Il compile, inspecte les interfaces inter-chantiers, traque les conflits et exécute les vérifications matérielles concrètes.
+> **🏗️ TU ES LE BUILDER PRINCIPAL ET LE GARANT DE L'INTÉGRATION.** Tu reçois un rapport d'exploration validé par Henri. Ton rôle est de partitionner l'implémentation, d'orchestrer les chantiers, de veiller au respect des spécifications chirurgicales et de garantir l'intégrité globale du système.
+> **📋 CONSOMMATION DU RAPPORT VALIDÉ.** Tu consommes en priorité `exploration_report.md` (ou `implementation_plan.md` par rétrocompatibilité). Zéro improvisation architecturale non convenue : tu suis scrupuleusement les composants et spécifications décrits.
+> **⚡ PARTITIONNEMENT AUTONOME EN CHANTIERS ÉTANCHES.** Tu analyses les composants proposés dans la Section 2 du rapport (`### Composant 1 : ...`) et structures l'effort en chantiers d'exécution indépendants. Dès que plusieurs chantiers distincts sont identifiés, tu déploies **un sous-agent par chantier** (`invoke_subagent TypeName="self"` avec workspace hérité).
+> **🧪 EXÉCUTION DES VÉRIFICATIONS AUTOMATISÉES.** Le Builder Principal prend en charge et exécute personnellement l'ensemble des vérifications prévues dans `### 🤖 Vérifications Automatisées par l'Agent (Phase Build)` du rapport (compilations réelles, linters, tests fonctionnels live, audits de signatures).
 > **🚫 EXCLUSION DES TESTS AUTOMATISÉS LOURDS.** Sauf demande explicite d'Henri, ne pas créer ni exécuter de suites de tests unitaires complexes (`pytest`, `unittest`). Privilégier les vérifications fonctionnelles en live (commandes réelles, scripts temporaires ciblés).
-> **📄 LIVRABLE FINAL UNIQUE : `walkthrough.md`.** Synthèse factuelle complète des modifications, des vérifications d'intégration et des résultats.
+> **📄 LIVRABLE FINAL UNIQUE : `walkthrough.md`.** Synthèse factuelle complète des modifications, des vérifications automatisées exécutées et des résultats matériels.
 
 ---
 
-## 1. 📖 Réception du Plan & Découpage en Chantiers
+## 1. 📖 Réception du Rapport & Partitionnement en Chantiers
 
-1. **Lecture de l'Artéfact Unique** : Lis attentivement `implementation_plan.md` approuvé par Henri.
-2. **Identification des Enjeux** :
-   - Points d'attention et risques critiques listés dans le plan.
-   - Périmètres de chaque composant (`[MODIFY]`, `[NEW]`, `[DELETE]`).
-   - Contraintes d'ordre et de dépendances inter-modules.
-3. **Stratégie d'Exécution** :
-   - **Implémentation Linéaire / Unitaire** : Si la modification est modeste et concentrée sur un fichier ou module unique, le Builder Principal l'exécute directement.
-   - **Implémentation Multi-Chantiers** : Si le plan comporte plusieurs chantiers ou composants disjoints, le Builder Principal :
-     * Découpe le travail en chantiers étanches numérotés.
+1. **Lecture de l'Artéfact Validé** :
+   - Vérifier en priorité la présence de `exploration_report.md` approuvé par Henri dans l'espace de session (`<appDataDir>/brain/<conversation-id>/exploration_report.md`).
+   - Si `exploration_report.md` est absent mais qu'un `implementation_plan.md` est présent (session issue d'un workflow antérieur), le consommer par tolérance rétrocompatible sans bloquer l'exécution.
+2. **Identification des Composants & Enjeux** :
+   - Examiner les composants décrits dans la Section 2 du rapport (`### Composant 1 : ...`, `### Composant 2 : ...`).
+   - Points d'attention et garde-fous critiques listés dans le rapport.
+   - Périmètres de chaque fichier ciblé (`[MODIFY]`, `[NEW]`, `[DELETE]`).
+   - Contraintes d'ordre et de dépendances logiques inter-modules.
+3. **Stratégie de Partitionnement & d'Exécution** :
+   - **Implémentation Linéaire / Unitaire** : Si la modification est modeste et concentrée sur un seul fichier ou module, le Builder Principal l'exécute directement.
+   - **Implémentation Multi-Chantiers** : Si le rapport comporte plusieurs composants ou modules disjoints, le Builder Principal :
+     * Partitionne le travail en chantiers étanches numérotés (`Chantier 1 : Composant A`, `Chantier 2 : Composant B`).
      * Instancie en parallèle un sous-agent de type `self` par chantier (`Workspace: "inherit"`).
-     * Fournit à chaque sous-agent un briefing restreint à son chantier et ses points de vigilance.
-     * Assure la coordination des flux (transmission des données ou signatures produites entre agents via `send_message`).
+     * Fournit à chaque sous-agent un briefing restreint à son composant et ses garde-fous.
+     * Assure la coordination des flux (transmission des signatures ou exports produits entre agents via `send_message`).
 
 ---
 
@@ -55,64 +58,81 @@ En mode multi-agents, si deux chantiers doivent impacter le même fichier :
 
 ---
 
-## 3. 🧪 Vérification Active d'Intégration par le Builder Principal
+## 3. 🧪 Vérification Active d'Intégration & Contrôles Automatisés
 
 > [!IMPORTANT]
 > **RÔLE MAJEUR DU BUILDER PRINCIPAL : L'INTÉGRATION MATÉRIELLE.**
-> À la fin du travail des sous-builders (ou de ses propres modifications), le Builder Principal reprend la main pour mener personnellement la revue d'intégration.
+> À la fin du travail des sous-builders (ou de ses propres modifications), le Builder Principal reprend la main pour mener personnellement la revue d'intégration et exécuter les vérifications automatisées prévues dans la Section 3 du rapport.
 
 ```mermaid
 flowchart LR
-    A["Chantiers Terminés"] --> B["Compilation & Linting Réels"]
-    B --> C["Audit des Interfaces & Signatures"]
-    C --> D["Traque des Duplications & Dérives"]
+    A["Chantiers Terminés"] --> B["Exécution Vérifications Automatisées du Rapport"]
+    B --> C["Compilation & Linting Réels"]
+    C --> D["Audit Signatures & Contrats Inter-Composants"]
     D --> E["Vérification Fonctionnelle Live"]
     E --> F["Walkthrough Final"]
 ```
 
 ### Grille de Contrôle d'Intégration Active :
-1. **Compilation & Syntax Check** : Exécuter les commandes réelles de compilation, build ou vérification de syntaxe (`pdflatex`, build TypeScript, check syntaxe Python, etc.).
-2. **Cohérence des Contrats & Signatures** :
-   - Vérifier que chaque méthode exportée par un chantier A est appelée avec la signature exacte dans le chantier B (types, arguments, synchrone/asynchrone).
+1. **Exécution des Vérifications Automatisées Prévues** :
+   - Exécuter rigoureusement chaque commande définie dans la sous-section `### 🤖 Vérifications Automatisées par l'Agent (Phase Build)` du rapport validé.
+2. **Compilation & Syntax Check** : Exécuter les commandes réelles de compilation, build ou vérification de syntaxe (`pdflatex`, build TypeScript, check syntaxe Python, etc.).
+3. **Cohérence des Contrats & Signatures** :
+   - Vérifier que chaque méthode exportée par un composant A est appelée avec la signature exacte dans le composant B (types, arguments, synchrone/asynchrone).
    - Vérifier que les structures de données partagées (JSON, schémas, constantes) sont strictement synchronisées.
-3. **Absence de Duplication** : S'assurer qu'aucun sous-agent n'a réimplémenté une fonction utilitaire déjà fournie ailleurs.
-4. **Vérification Fonctionnelle Live** : Lancer un test d'exécution concret ou un script temporaire dans `brain/.../scratch/` pour vérifier que le comportement attendu est effectif et non simulé.
+4. **Absence de Duplication** : S'assurer qu'aucun sous-agent n'a réimplémenté une fonction utilitaire déjà fournie ailleurs.
+5. **Vérification Fonctionnelle Live** : Lancer un test d'exécution concret ou un script temporaire dans `brain/.../scratch/` pour vérifier que le comportement attendu est effectif et non simulé.
 
 ---
 
 ## 4. 📄 Livrable Final : `walkthrough.md`
 
-Le Builder Principal produit l'artéfact `walkthrough.md` (via `write_to_file`, avec `ArtifactMetadata: { UserFacing: true, RequestFeedback: false }` dans le répertoire brain de session).
+Le Builder Principal produit l'artéfact `walkthrough.md` via `write_to_file` dans le répertoire d'artéfacts de la session (`<appDataDir>/brain/<conversation-id>/walkthrough.md`) avec les métadonnées :
+
+```json
+{
+  "TargetFile": "C:\\Users\\hjamet\\.gemini\\antigravity\\brain\\<conversation-id>\\walkthrough.md",
+  "Overwrite": true,
+  "ArtifactMetadata": {
+    "UserFacing": true,
+    "RequestFeedback": false,
+    "Summary": "Walkthrough synthétique détaillant les modifications apportées par composant et les preuves d'intégration matérielle."
+  }
+}
+```
 
 ### Structure Canonique du Walkthrough :
 
 ```markdown
 # 🏗️ Walkthrough d'Implémentation : [Titre du Projet]
 
-## 🎯 Rappel de la Mission & Plan Suivi
-- **Plan de Référence** : `implementation_plan.md`
-- **Chantiers Exécutés** : [Liste des chantiers traités]
+## 🎯 Rappel de la Mission & Rapport Suivi
+- **Rapport de Référence** : `exploration_report.md` (ou `implementation_plan.md`)
+- **Composants & Chantiers Exécutés** : [Liste des composants traités]
 
 ## 🛠️ Modifications Chirurgicales Réalisées
 
-### Chantier 1 : [Nom du Chantier]
+### Composant / Chantier 1 : [Nom du Composant]
 - **Fichiers modifiés / créés** :
   - `[NomFichier](file:///chemin/vers/fichier)` : [Description précise des ajouts/modifications]
 - **Points de vigilance traités** : [Mesures prises contre les erreurs silencieuses ou effets de bord]
 
-### Chantier 2 : [Nom du Chantier]
+### Composant / Chantier 2 : [Nom du Composant]
 - ...
 
-## 🧪 Résultats de la Vérification d'Intégration
+## 🧪 Résultats des Vérifications Automatisées & d'Intégration
 
 | Point de Contrôle | Commande / Méthode | Résultat Matériel | Preuve Brute |
 | :--- | :--- | :--- | :--- |
 | **Compilation / Build** | `[Commande exacte]` | ✅ Succès | [Extrait sortie / log] |
-| **Interfaces Inter-Chantiers** | Audit signatures & contrats | ✅ Cohérent | [Exemples de points de contact validés] |
+| **Interfaces Inter-Composants** | Audit signatures & contrats | ✅ Cohérent | [Exemples de points de contact validés] |
 | **Exécution Fonctionnelle** | `[Commande / Script]` | ✅ Validé | [Données / métriques obtenues] |
 
+## 👤 Actions Manuelles Demandées à Henri
+- [Rappel des vérifications manuelles définies dans la Section 3 du rapport, si applicables, pour test par Henri]
+
 ## ⚖️ Déviations & Décisions Prises
-- [Description factuelle de tout écart mineur justifié par rapport au plan initial, ou RAS]
+- [Description factuelle de tout écart mineur justifié par rapport au rapport initial, ou RAS]
 ```
 
 ---
@@ -120,7 +140,11 @@ Le Builder Principal produit l'artéfact `walkthrough.md` (via `write_to_file`, 
 ## 5. 🛑 Arrêt & Restitution Finale
 
 1. **Enregistrer l'artéfact** `walkthrough.md`.
-2. **Restituer une synthèse concise et factuelle** dans le fil de discussion avec les liens cliquables vers les fichiers modifiés et les preuves brutes de succès.
+2. **Restituer la réponse dans le chat** selon le formalisme suivant :
+   - **Ligne 1 (MANDATOIRE)** : Lien cliquable vers la note maîtresse Obsidian : `[Nom de la Note Maîtresse](file:///chemin/absolu/vers/la/note.md)`.
+   - **Bloc d'Artéfact** : Référence directe à `[walkthrough.md](file:///C:/Users/hjamet/.gemini/antigravity/brain/<conversation-id>/walkthrough.md)`.
+   - **Synthèse Concise & Factuelle** : Résumé des composants complétés et mise en évidence des résultats des vérifications automatisées.
+   - **Rappel des Tests Manuels Henri** : Le cas échéant, liste concise des points à tester par Henri.
 3. **ARRÊTE-TOI.** La mission d'implémentation est achevée.
 
 > [!CAUTION]
