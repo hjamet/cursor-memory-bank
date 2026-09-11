@@ -2,17 +2,17 @@
 # AIVC — AI Version Control (Long-Term Memory)
 
 > [!IMPORTANT]
-> **MCP TOOLS ONLY** — Ne JAMAIS exécuter `aivc` en terminal. Outils MCP exclusifs (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`).
-> **[Bascule Cold-Start]** : Si `recall` est vide ➔ bascule immédiate sur `view_file` / `grep_search`. Conserver `remember` après chaque étape.
+> **USE MCP TOOLS ONLY — NEVER RUN CLI SHELL COMMANDS:**
+> As an AI assistant, you MUST interact with AIVC **exclusively** through its registered MCP tools (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`, `get_status`, etc.).
+> **NEVER execute `aivc` CLI shell commands in the terminal (e.g. `aivc sync`, `aivc status`, `aivc recall`)** under any circumstances. Running the CLI in the terminal spawns separate process environments, misses the current session context, and is strictly reserved for the human user.
 
-| # | Règle | Détail |
-|---|---|---|
-| 1 | **Remember often** | Appeler `remember` après chaque étape fichier. Format Post-It dense (Trigger/Contexte, Décision/Fix, Invariant/Impact). |
-| 2 | **Targeted context recovery** | `recall` ciblé (≥1 requête) uniquement si contexte mémoriel requis. Puis `consult_memory` si pertinent. |
-| 3 | **Explore before acting** | Interroger la mémoire d'abord — ne jamais refaire un travail documenté. |
-| 4 | **Mention files** | Toujours renseigner `read_files` et `edited_files` pour le graphe de cooccurrence. |
-| 5 | **Format Post-It dense** | Notes Post-It denses et structurées sans bavardage. |
-| 6 | **Bascule Cold-Start** | Si `recall` vide ➔ arrêt requêtes mémoire, passage direct aux outils de lecture. |
+## Rules
+
+1. **Remember often.** Call `remember` after every meaningful step (sub-task done, file created/modified, decision made, error resolved, checkpoint reached). Notes must be **detailed**: what, why, errors, decisions, observations, next steps. A one-liner is a failure.
+2. **Start sessions with context recovery.** Before any work: `get_recent_memories` → `recall` (≥1 query) → `consult_memory` on relevant hits → `get_file_history_metadata` on files you'll modify.
+3. **Explore before you act.** Search memory first — never redo past work. Your memory contains solutions, patterns, and lessons.
+4. **Mention files you work on.** Always pass the files you consulted in `read_files` and the files you modified in `edited_files` when calling `remember`. This is how AIVC tracks file associations — there is no separate tracking tool.
+5. **Write for your future self.** Memory notes are handover memos — include reasoning, context, and recommendations as if briefing a colleague with zero context.
 <!-- AIVC:END -->
 
 ---
@@ -40,7 +40,12 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 
 - **[Délégation Systématique]** : Toute recherche, lecture de code, inspection, exécution ou édition ➔ déployer ≥1 sous-agent (`TypeName: 'self'`).
 - **[Exception SKILL.md]** : Dès qu'une commande slash ou un skill est mentionné/invoqué, le Superviseur DOIT lire immédiatement son `SKILL.md` via `view_file` avant tout déploiement (zéro intuition ni connaissance supposée : relire TOUJOURS le skill).
-- **[Navigation Web (Dernier Recours & Primauté CLI/MCP)]** : Le navigateur est un outil de dernier recours, à n'utiliser STRICTEMENT que pour récupérer des informations ou réaliser des actions inaccessibles autrement (interfaces avec rendu dynamique obligatoire, formulaires interactifs). Toujours utiliser en priorité les outils CLI, les commandes système, les fichiers locaux et les MCP spécialisés plutôt que le navigateur. Zéro simulation : preuves obligatoires par captures réelles ou snapshots d'accessibilité.
+### 🌐 Navigation Web & Playwright (Dernier Recours & Règle Stricte)
+- **Primauté Absolue** : Toujours utiliser en priorité le terminal, les commandes CLI, les MCP spécialisés et les outils de recherche web légers (`search_web`, `read_url_content`).
+- **Périmètre Exclusif de Playwright** : Le navigateur Playwright ne doit être utilisé que pour aller chercher des informations qui ne sont pas disponibles autrement :
+  1. Consulter un formulaire ou des informations privées d'Henri accessibles uniquement sur une page web.
+  2. Consulter et tester un site web déployé qu'Henri demande explicitement de regarder.
+- **Interdiction Formelle** : INTERDIT d'utiliser Playwright pour de simples recherches documentaires ou vérifications d'informations publiques sur internet (utiliser exclusivement `search_web`).
 
 ### Doctrine Zero-Trust & Invariants de Contrôle
 
