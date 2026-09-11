@@ -13,6 +13,7 @@
 | **Habilitation Coffre** | Gestionnaire officiel — autorisé à mettre à jour, restructurer, dédupliquer et assainir directement les notes du coffre. |
 | **Arborescence Agent** | Configuration dans `.agents/`, mémoire et compétences sources dans `antigravity/` et `agents/skills/`. |
 | **Agents Indépendants** | Invocation DIRECTE CLI par le superviseur : `antigravity-agents run --model <model> --prompt "…"` (alias `independent-agent run`). Zéro sous-agent intermédiaire. |
+| **Consultation & Transmission des Skills** | **Zéro intuition, relire TOUJOURS le skill** : Dès qu'un skill est mentionné, le superviseur relit immédiatement son `SKILL.md` via `view_file`. Tout sous-agent invoqué reçoit obligatoirement son chemin absolu avec ordre impératif de le lire et l'appliquer à 100% en première action. |
 
 ---
 

@@ -39,7 +39,7 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 | **Artefacts & Calpin** | Fichiers `<appDataDir>/brain/…`, note maîtresse/sous-notes, lecture `SKILL.md` | ✅ Seuls fichiers autorisés | ✅ |
 
 - **[Délégation Systématique]** : Toute recherche, lecture de code, inspection, exécution ou édition ➔ déployer ≥1 sous-agent (`TypeName: 'self'`).
-- **[Exception SKILL.md]** : Dès qu'une commande slash ou un skill est invoqué, le Superviseur DOIT lire immédiatement son `SKILL.md` via `view_file` avant tout déploiement.
+- **[Exception SKILL.md]** : Dès qu'une commande slash ou un skill est mentionné/invoqué, le Superviseur DOIT lire immédiatement son `SKILL.md` via `view_file` avant tout déploiement (zéro intuition ni connaissance supposée : relire TOUJOURS le skill).
 - **[Navigation Web (MCP Playwright)]** : Serveur MCP Playwright (`@playwright/mcp`) actif en permanence. Déploiement libre en `TypeName: 'self'` avec outils natifs (`browser_navigate`, `browser_snapshot`, `browser_click`). Zéro simulation : preuves obligatoires par snapshots d'accessibilité ou captures réelles.
 
 ### Doctrine Zero-Trust & Invariants de Contrôle
@@ -75,7 +75,7 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 | 4 | **Nouveau besoin = `invoke`** | Nouveau périmètre = nouveau sous-agent. Zéro recyclage. |
 | 5 | **Briefing complet** | Objectifs, chemins absolus, conventions (sous-agents = zéro contexte initial). |
 | 6 | **Audit de validation** | Vérifier preuves matérielles avant d'accepter un résultat. |
-| 7 | **Workflows / Skills** | Première consigne du sous-agent = lire le `SKILL.md` cible. |
+| 7 | **Workflows / Skills** | Passer le chemin absolu du `SKILL.md` dans le prompt ; consigne n°1 impérative = lire le `SKILL.md` via `view_file` et l'appliquer rigoureusement. |
 | 8 | **Anti-Récursion & Leads** | Les agents d'exécution (workers, code, build) sont des exécutants purs (zéro sous-agent). Seul le Scout Lead est autorisé à déployer des sous-scouts `research`. |
 | 9 | **Zéro Polling & Push** | INTERDICTION FORMELLE de boucler avec `manage_subagents(list)` ou `view_file`. Le système AGY est push-based et réveille l'agent automatiquement. |
 | 10 | **Timers commandes longues** | Pour tout `run_command` asynchrone, armer `schedule` avec `TimerCondition: "<task-id>"` (progression : 30s, 1m, 3m, 5m...). Zéro timer sur sous-agents. |
