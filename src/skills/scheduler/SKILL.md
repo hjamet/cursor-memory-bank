@@ -33,7 +33,7 @@ Pour lancer le système, l'utilisateur configure un cron Antigravity via `/sched
 
 ```
 Cron : */15 * * * *
-Prompt : Lis le fichier src/commands/scheduler.md et applique-le à la lettre. GOAL : [objectif]
+Prompt : Lis et exécute la compétence skills/scheduler/SKILL.md à la lettre. GOAL : [objectif]
 ```
 
 Le Scheduler crée automatiquement les fichiers d'état au premier lancement. Aucune configuration manuelle requise.
@@ -173,12 +173,12 @@ Lance **UN** sous-agent (`invoke_subagent TypeName="self"`) avec le prompt corre
 #### Step `issue`
 
 ```text
-Lis et suis le fichier src/commands/issue.md à la lettre.
+Lis et exécute la compétence skills/issue/SKILL.md à la lettre.
 
 Ton dossier de travail pour les artefacts (walkthrough.md, etc.) est :
 .agents/scheduler/cycle_[N]/issue/
 
-Travaille normalement selon les instructions du fichier issue.md.
+Travaille normalement selon les instructions du skill issue.
 Quand tu as terminé, envoie-moi via send_message le chemin complet de ton walkthrough.md.
 ```
 
@@ -189,7 +189,7 @@ Quand tu as terminé, envoie-moi via send_message le chemin complet de ton walkt
 #### Step `reviewer`
 
 ```text
-Lis et suis le fichier src/commands/reviewer.md à la lettre.
+Lis et exécute la compétence skills/reviewer/SKILL.md à la lettre.
 Tu es en Mode A (suite d'un agent Issue).
 
 📄 Walkthrough à consulter : [chemin du walkthrough depuis state.json]
@@ -197,7 +197,7 @@ Tu es en Mode A (suite d'un agent Issue).
 Ton dossier de travail pour les artefacts (review_report.md, etc.) est :
 .agents/scheduler/cycle_[N]/reviewer/
 
-Travaille normalement selon les instructions du fichier reviewer.md.
+Travaille normalement selon les instructions du skill reviewer.
 Quand tu as terminé (commande crashée ou fin naturelle), envoie-moi via send_message le chemin complet de ton review_report.md.
 ```
 
@@ -214,7 +214,7 @@ Quand tu as terminé (commande crashée ou fin naturelle), envoie-moi via send_m
 #### Step `investigator`
 
 ```text
-Lis et suis le fichier src/commands/investigator.md à la lettre.
+Lis et exécute la compétence skills/investigator/SKILL.md à la lettre.
 
 📄 Walkthrough : [chemin]
 📄 Review report : [chemin]
@@ -222,7 +222,7 @@ Lis et suis le fichier src/commands/investigator.md à la lettre.
 Ton dossier de travail pour les artefacts (investigation_report.md, etc.) est :
 .agents/scheduler/cycle_[N]/investigator/
 
-Travaille normalement selon les instructions du fichier investigator.md.
+Travaille normalement selon les instructions du skill investigator.
 Quand tu as terminé, envoie-moi via send_message le chemin complet de ton investigation_report.md.
 ```
 
@@ -233,7 +233,7 @@ Quand tu as terminé, envoie-moi via send_message le chemin complet de ton inves
 #### Step `architect`
 
 ```text
-Lis et suis le fichier src/commands/architect.md à la lettre.
+Lis et exécute la compétence skills/architect/SKILL.md à la lettre.
 
 📄 Walkthrough : [chemin]
 📄 Review report : [chemin]
@@ -242,7 +242,7 @@ Lis et suis le fichier src/commands/architect.md à la lettre.
 Ton dossier de travail pour les artefacts (architect_walkthrough.md, etc.) est :
 .agents/scheduler/cycle_[N]/architect/
 
-Travaille normalement selon les instructions du fichier architect.md.
+Travaille normalement selon les instructions du skill architect.
 Quand tu as terminé, envoie-moi via send_message le chemin complet de ton architect_walkthrough.md.
 ```
 

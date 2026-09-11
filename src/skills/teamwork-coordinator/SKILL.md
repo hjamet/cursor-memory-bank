@@ -79,7 +79,7 @@ Chaque cycle suit cette séquence **strictement ordonnée**. Tu ne passes à l'�
 Lance un sous-agent (`invoke_subagent TypeName="self"`) :
 
 ```
-Lis le fichier src/commands/issue.md et applique-le à la lettre.
+Lis et exécute la compétence skills/issue/SKILL.md à la lettre.
 
 📂 DOSSIER DE TRAVAIL : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/issue/
 Crée ce dossier et écris ton walkthrough.md dedans (write_to_file, IsArtifact=false).
@@ -93,7 +93,7 @@ Crée ce dossier et écris ton walkthrough.md dedans (write_to_file, IsArtifact=
 Lance un sous-agent (`invoke_subagent TypeName="self"`) :
 
 ```
-Lis le fichier src/commands/reviewer.md et applique-le à la lettre.
+Lis et exécute la compétence skills/reviewer/SKILL.md à la lettre.
 
 📂 DOSSIER DE TRAVAIL : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/reviewer/
 Crée ce dossier et écris ton review_report.md dedans (write_to_file, IsArtifact=false).
@@ -108,7 +108,7 @@ Crée ce dossier et écris ton review_report.md dedans (write_to_file, IsArtifac
 Lance un sous-agent (`invoke_subagent TypeName="self"`) :
 
 ```
-Lis le fichier src/commands/investigator.md et applique-le à la lettre.
+Lis et exécute la compétence skills/investigator/SKILL.md à la lettre.
 
 📂 DOSSIER DE TRAVAIL : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/investigator/
 Crée ce dossier et écris ton investigation_report.md dedans (write_to_file, IsArtifact=false).
@@ -124,7 +124,7 @@ Crée ce dossier et écris ton investigation_report.md dedans (write_to_file, Is
 Lance un sous-agent (`invoke_subagent TypeName="self"`) :
 
 ```
-Lis le fichier src/commands/architect.md et applique-le à la lettre.
+Lis et exécute la compétence skills/architect/SKILL.md à la lettre.
 
 📂 DOSSIER DE TRAVAIL : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/architect/
 
@@ -203,7 +203,7 @@ Lis le fichier src/commands/architect.md et applique-le à la lettre.
 Lance un sous-agent (`invoke_subagent TypeName="self"`) :
 
 ```
-Lis le fichier src/commands/reviewer.md et applique-le à la lettre.
+Lis et exécute la compétence skills/reviewer/SKILL.md à la lettre.
 
 📂 DOSSIER DE TRAVAIL : [chemin absolu]/.agents/coordinator_xxx/cycle_<titre_court>/reviewer_final/
 Crée ce dossier et écris ton review_report.md dedans (write_to_file, IsArtifact=false).

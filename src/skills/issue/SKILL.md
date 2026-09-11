@@ -82,5 +82,5 @@ Le Coordinator transmettra le chemin de ce fichier au Reviewer.
 ---
 
 > [!NOTE]
-> **🔗 AGENT SUIVANT : Reviewer** (`src/commands/reviewer.md`)
+> **🔗 AGENT SUIVANT : Reviewer** (`skills/reviewer/SKILL.md`)
 > Le Reviewer prend le relais pour exécuter la commande principale du repo en conditions réelles et valider l'implémentation.

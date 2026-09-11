@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Cursor Memory Bank Installation Script
-# This script installs the Cursor Memory Bank workflow system using git clone or curl as fallback.
+# This script installs the Cursor Memory Bank system using git clone or curl as fallback.
 # Test comment to trigger pre-commit hook line count check.
 # Second test comment after fixing commit tool logic.
 
@@ -27,8 +27,7 @@ fi
 API_URL="$GITHUB_API/commits/$DEFAULT_BRANCH"
 RAW_URL_BASE="https://raw.githubusercontent.com/$GITHUB_REPO/$DEFAULT_BRANCH"
 TEMP_DIR="/tmp/cursor-memory-bank-$$"
-VERSION="1.0.1"
-GLOBAL_WORKFLOWS_DIR=""
+VERSION="1.0.2"
 
 # Colors for output
 RED='\033[0;31m'
@@ -565,54 +564,12 @@ handle_tracked_files() {
 # ============================================================================
 
 
-install_commands() {
-    local target_dir="$1"
-    local temp_dir="$2"
-    
-    log "Installing custom commands..."
-    mkdir -p "$target_dir/.cursor/commands"
-
-    local commands_list=""
-    
-    if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
-        warn "Using curl mode - installing only basic commands (subdirectories not supported with curl)"
-        commands_list=""
-    else
-        local clone_dir="$temp_dir/repo"
-        if [[ ! -d "$clone_dir" ]]; then
-            log "Cloning repository for command discovery..."
-            clone_repository "$REPO_URL" "$clone_dir"
-        fi
-        if [[ -d "$clone_dir/src/commands" ]]; then
-            commands_list=$(cd "$clone_dir/src/commands" && find . -type f -name "*.md" | sed "s|^\./|src/commands/|")
-            log "Discovered commands recursively: $(echo "$commands_list" | wc -w) files"
-        else
-            warn "Git clone failed - using conservative fallback set"
-            commands_list=""
-        fi
-    fi
-
-    for c in $commands_list; do
-        if [[ "$c" != src/commands/* ]]; then
-            continue
-        fi
-        local dest_rel_path=${c#src/commands/}
-        local dest="$target_dir/.cursor/commands/$dest_rel_path"
-        log "Installing command: $c -> $dest"
-        ensure_rule_file "$c" "$dest"
-    done
-
-
-
-    log "✓ Commands installed successfully"
-}
-
-# Transform frontmatter for agent rules/workflows
+# Transform frontmatter for agent rules
 # transform_frontmatter "input_file" "output_file" "type"
 transform_frontmatter() {
     local input_file="$1"
     local output_file="$2"
-    local type="$3" # "rule" or "workflow"
+    local type="${3:-rule}" # "rule"
     
     # Read the content
     local content
@@ -665,17 +622,13 @@ install_agent_config() {
     
     log "Installing agent configuration (.agent)..."
     mkdir -p "$target_dir/.agent/rules"
-    mkdir -p "$target_dir/.agent/workflows"
 
     local rules_list=""
-    local workflows_list=""
 
     if [[ -n "${USE_CURL:-}" ]] || ! command -v git >/dev/null 2>&1; then
         warn "Using curl mode - installing basic agent config"
         # In curl mode, we map specific files manually if needed, or skip complex fetching
-        # For now, let's try to map the basic ones we know
-         rules_list="src/rules/README.md"
-         workflows_list=""
+        rules_list="src/rules/README.md"
     else
         local clone_dir="$temp_dir/repo"
         if [[ ! -d "$clone_dir" ]]; then
@@ -686,11 +639,6 @@ install_agent_config() {
         if [[ -d "$clone_dir/src/rules" ]]; then
             rules_list=$(cd "$clone_dir/src/rules" && find . -type f -name "*.md" | sed 's|^\./|src/rules/|')
         fi
-        
-        # Fetching commands (.md) to install as .agent workflows (.md)
-        if [[ -d "$clone_dir/src/commands" ]]; then
-            workflows_list=$(cd "$clone_dir/src/commands" && find . -type f -name "*.md" | sed 's|^\./|src/commands/|')
-        fi
     fi
     
     # Install Rules -> .agent/rules/*.md
@@ -700,116 +648,13 @@ install_agent_config() {
         local source_file="$target_dir/.cursor/rules/$rule_filename.mdc"
         local dest_path="$target_dir/.agent/rules/$rule_filename.md"
         
-        # If the file hasn't been installed locally yet (e.g. not in the basic set), we might skip it or fetch it.
-        # But install_basic_rules iterates over ALL discovered rules now (except skipped ones).
-        # Let's verify source exists.
         if [[ -f "$source_file" ]]; then
             log "Transforming rule $r -> .agent/rules/$rule_filename.md"
             transform_frontmatter "$source_file" "$dest_path" "rule"
         fi
     done
 
-    # Install Commands -> .agent/workflows/*.md
-    for w in $workflows_list; do
-        local filename=$(basename "$w" .md)
-        local source_file="$target_dir/.cursor/commands/$filename.md"
-        local dest_path="$target_dir/.agent/workflows/$filename.md"
-
-        if [[ -f "$source_file" ]]; then
-            log "Transforming workflow $w -> .agent/workflows/$filename.md"
-            transform_frontmatter "$source_file" "$dest_path" "workflow"
-        fi
-    done
-
-
-
-
-
     log "✓ Agent configuration installed"
-}
-
-install_global_workflows() {
-    local target_dir="$1"
-    local temp_dir="$2"
-    local global_dir="$3"
-    local dest_dirs=()
-
-    # If global_dir is provided via CLI option, use ONLY that one
-    if [[ -n "$global_dir" ]]; then
-        dest_dirs+=("$global_dir")
-    else
-        local is_msys=false
-        if command -v uname >/dev/null 2>&1; then
-            if [[ "$(uname -o 2>/dev/null)" == "Msys" || "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
-                is_msys=true
-            fi
-        fi
-
-        local win_home=""
-        local user_name=""
-        if [[ "$is_msys" == "true" ]]; then
-            win_home="$HOME"
-        else
-            local user_name=""
-            if command -v cmd.exe >/dev/null 2>&1; then
-                user_name=$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\r')
-            fi
-            
-            if [[ -z "$user_name" ]]; then
-                user_name=$(whoami)
-            fi
-
-            # Try to find the path in WSL
-            if command -v wslpath >/dev/null 2>&1; then
-                win_home="/mnt/c/Users/$user_name"
-                if [[ ! -d "$win_home" ]]; then
-                    win_home=$(wslpath "$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')" 2>/dev/null || echo "")
-                fi
-            fi
-        fi
-
-        # Universal fallback: use $HOME on any platform
-        if [[ -z "$win_home" ]] && [[ -n "${HOME:-}" ]]; then
-            win_home="$HOME"
-        fi
-
-        if [[ -n "$win_home" ]]; then
-            dest_dirs+=("$win_home/.gemini/antigravity/global_workflows")
-            dest_dirs+=("$win_home/.gemini/config/global_workflows")
-        fi
-    fi
-
-    # Universal fallback: use $HOME on any platform (Linux, macOS, or any
-    # environment where $HOME is set but none of the Windows-specific checks
-    # matched above).
-    if [[ ${#dest_dirs[@]} -eq 0 ]] && [[ -n "${HOME:-}" ]]; then
-        dest_dirs+=("$HOME/.gemini/config/global_workflows")
-        dest_dirs+=("$HOME/.gemini/antigravity/global_workflows")
-    fi
-
-    if [[ ${#dest_dirs[@]} -eq 0 ]]; then
-        warn "Could not detect global workflows directory (\$HOME is not set). Skipping global installation."
-        return 0
-    fi
-    local workflows_list=""
-    local clone_dir="$temp_dir/repo"
-    
-    if [[ -d "$clone_dir/src/commands" ]]; then
-        workflows_list=$(cd "$clone_dir/src/commands" && find . -type f -name "*.md")
-        
-        for dir in "${dest_dirs[@]}"; do
-            log "Installing workflows to global directory: $dir"
-            mkdir -p "$dir"
-            for w in $workflows_list; do
-                local dest="$dir/$(basename "$w")"
-                log "Copying workflow to global: $w -> $dest"
-                cp "$clone_dir/src/commands/$w" "$dest"
-            done
-            log "✓ Global workflows installed successfully in $dir"
-        done
-    else
-        warn "Workflows source directory not found in clone. Skipping global installation."
-    fi
 }
 
 install_skills() {
@@ -1201,6 +1046,34 @@ cleanup_deprecated_rules() {
             log "✓ Removed deprecated rule file: $f"
         fi
     done
+
+    # Clean up deprecated legacy workflow directories
+    local deprecated_dirs=()
+    if [[ -n "$win_home" ]]; then
+        deprecated_dirs+=(
+            "$win_home/.gemini/antigravity/global_workflows"
+            "$win_home/.gemini/config/global_workflows"
+        )
+    fi
+    if [[ -n "${HOME:-}" ]]; then
+        deprecated_dirs+=(
+            "$HOME/.gemini/antigravity/global_workflows"
+            "$HOME/.gemini/config/global_workflows"
+        )
+    fi
+    if [[ -n "$target_dir" ]]; then
+        deprecated_dirs+=(
+            "$target_dir/.agent/workflows"
+            "$target_dir/.cursor/commands"
+        )
+    fi
+
+    for d in "${deprecated_dirs[@]}"; do
+        if [[ -d "$d" ]]; then
+            rm -rf "$d"
+            log "✓ Removed deprecated legacy workflows directory: $d"
+        fi
+    done
 }
 
 install_basic_rules() {
@@ -1211,7 +1084,7 @@ install_basic_rules() {
 
     # Install local components only if INSTALL_LOCAL is enabled
     if [[ -n "${INSTALL_LOCAL:-}" ]]; then
-        log "Installing local rules, commands, and configurations in: $target_dir"
+        log "Installing local rules, skills, and configurations in: $target_dir"
         mkdir -p "$target_dir/.cursor/rules"
 
         local full_install_only_rules=("start.mdc")
@@ -1250,9 +1123,6 @@ install_basic_rules() {
             ensure_rule_file "$r" "$dest"
         done
 
-        log "Installing custom commands..."
-        install_commands "$target_dir" "$temp_dir"
-
         log "Installing agent configuration..."
         install_agent_config "$target_dir" "$temp_dir"
 
@@ -1266,12 +1136,9 @@ install_basic_rules() {
     # Ensure repository is cloned in temp_dir for global installations if not already done
     local clone_dir="$temp_dir/repo"
     if [[ ! -d "$clone_dir" ]] && [[ -z "${USE_CURL:-}" ]] && command -v git >/dev/null 2>&1; then
-        log "Cloning repository for global workflows..."
+        log "Cloning repository for global installation..."
         clone_repository "$REPO_URL" "$clone_dir"
     fi
-
-    log "Installing global workflows..."
-    install_global_workflows "$target_dir" "$temp_dir" "$GLOBAL_WORKFLOWS_DIR"
 
     log "Installing Antigravity skills..."
     install_skills "$target_dir" "$temp_dir"
@@ -1282,7 +1149,7 @@ install_basic_rules() {
     log "Installing GEMINI.md..."
     install_gemini_md "$temp_dir"
 
-    log "Cleaning up deprecated rules..."
+    log "Cleaning up deprecated rules and legacy workflows..."
     cleanup_deprecated_rules "$target_dir"
 
     log "✅ Installation completed (single mode)"
@@ -1303,12 +1170,11 @@ Options:
     -v, --version      Show version information
     -l, --local        Install rules and configurations locally in the target directory (default: global only)
     -d, --dir DIR      Install to a specific directory (default: current directory)
-    --global-dir DIR   Specify the global workflows directory manually
     --force            Force installation even if directory is not empty
 
 This script will:
-1. Install global workflows and monitor command by default
-2. Optionally install local agent rules and custom commands when --local is provided
+1. Install global skills and monitor command by default
+2. Optionally install local agent rules and skills when --local is provided
 3. Clean up temporary files
 
 For more information, visit: ${REPO_URL}
@@ -1353,11 +1219,10 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --global-dir)
-            if [[ -z "${2:-}" ]]; then
-                error "Missing directory argument for --global-dir option"
+            warn "Option --global-dir is deprecated and ignored."
+            if [[ -n "${2:-}" ]] && [[ "$2" != -* ]]; then
+                shift
             fi
-            GLOBAL_WORKFLOWS_DIR="$2"
-            shift
             ;;
         --force)
             FORCE=1

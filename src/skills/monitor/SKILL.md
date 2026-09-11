@@ -40,7 +40,7 @@ description: "Superviseur de haut niveau pour l'atteinte d'un goal en déléguan
 Lance **un seul sous-agent** (`invoke_subagent TypeName="self"`) avec ce prompt :
 
 ```
-Lis le fichier src/commands/teamwork-coordinator.md et applique-le à la lettre.
+Lis et exécute la compétence skills/teamwork-coordinator/SKILL.md à la lettre.
 
 🎯 GOAL À ATTEINDRE :
 [GOAL DE L'UTILISATEUR]
@@ -121,7 +121,7 @@ Si l'utilisateur te pose une question ou te donne des **précisions de haut nive
 **B. Pour des directives ou précisions de haut niveau (changement de cap, nouvelle idée, ajustement) :**
 1. **Invoque un sous-agent Architect** (`invoke_subagent TypeName="self"`) avec ce prompt :
    ```
-   Lis le fichier src/commands/architect.md.
+   Lis et exécute la compétence skills/architect/SKILL.md à la lettre.
    L'utilisateur a donné les directives/précisions de haut niveau suivantes : "[PRÉCISIONS]".
    Agis en tant qu'Architecte pour mettre à jour les issues GitHub et la roadmap en fonction de ces nouveaux éléments.
    ```

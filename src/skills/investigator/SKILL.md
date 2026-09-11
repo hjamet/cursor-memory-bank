@@ -235,5 +235,5 @@ Crée un fichier `investigation_report.md` dans ton dossier de travail (`write_t
 ---
 
 > [!NOTE]
-> **🔗 AGENT SUIVANT : Architect** (`src/commands/architect.md`)
+> **🔗 AGENT SUIVANT : Architect** (`skills/architect/SKILL.md`)
 > L'Architecte prend le relais pour gérer les issues GitHub : créer de nouvelles issues pour les bugs confirmés, fermer celles résolues, et maintenir la roadmap.

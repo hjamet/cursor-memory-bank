@@ -4,7 +4,7 @@ Cursor Memory Bank est un système de gestion de projet autonome et structuré p
 
 # Installation
 
-Par défaut, l'installation est uniquement **globale** (elle déploie les workflows globaux dans votre profil utilisateur).
+Par défaut, l'installation est uniquement **globale** (elle déploie les compétences (skills) globales dans votre profil utilisateur).
 
 **Linux / macOS :**
 ```bash
@@ -67,27 +67,21 @@ root/
 ├─ .cursor/              # Configuration Cursor (Règles MDC installées)
 ├─ src/                  # Code source
 │  ├─ rules/            # Définitions des règles (Sources .md)
-│  ├─ skills/           # Skills et compétences réutilisables (.md / SKILL.md)
-│  └─ commands/         # Workflows & commandes (.md)
-│     ├─ scout.md       # 🔭 Exploration & plan préliminaire
-│     ├─ refine.md      # 🧠 Validation critique du plan
-│     ├─ build.md       # 🏗️ Implémentation du plan
-│     └─ audit.md       # 🔎 Vérification de l'implémentation
+│  └─ skills/           # Compétences et agents standardisés (SKILL.md)
 ├─ install.sh           # Script d'installation
 └─ README.md            # Source unique de vérité
 ```
 
 ### Rôles des dossiers
 - **`src/rules/`** : Contient les règles sources en format Markdown standard (`.md`).
-- **`src/skills/`** : Contient les compétences et guides méthodologiques réutilisables (`paper-writing`, `literature-review`, etc.).
+- **`src/skills/`** : Contient les compétences et agents standardisés (`architect`, `scout`, `build`, `audit`, `paper-writing`, etc.).
 - **`.cursor/rules/`** : Destination des règles installées (converties en `.mdc` pour Cursor).
-- **`src/commands/`** : Définit les workflows spécifiques (Architecte, Enquêteur...).
 
 # Scripts d'entrée principaux
 
 | Script / Commande | Description détaillée | Usage / Exemple |
 |-------------------|-----------------------|-----------------|
-| `install.sh` | **Installateur Universel**. Par défaut, effectue uniquement l'installation **globale** (workflows globaux Windows dans `.gemini/config/global_workflows`, outil de monitoring global dans le dossier `bin` d'antigravity, et `GEMINI.md` dans `.gemini/`). Si le flag `--local` (ou `-l`) est fourni, effectue également l'installation **locale** dans le dépôt (conversion des règles `.md` en `.mdc` dans `.cursor/rules`, configuration d'agent `.agent/rules` et `.agent/workflows`, et configuration du `.gitignore`). | `bash install.sh --local` ou `bash install.sh -l` |
+| `install.sh` | **Installateur Universel**. Par défaut, effectue uniquement l'installation **globale** (compétences globales dans `.gemini/antigravity-cli/skills`, outil de monitoring global dans le dossier `bin` d'antigravity, et `GEMINI.md` dans `.gemini/`). Si le flag `--local` (ou `-l`) est fourni, effectue également l'installation **locale** dans le dépôt (conversion des règles `.md` en `.mdc` dans `.cursor/rules`, compétences locales `.agents/skills` et `.agent/skills`, règles d'agent `.agent/rules`, et configuration du `.gitignore`). | `bash install.sh --local` ou `bash install.sh -l` |
 | `monitor` | **Superviseur de Boucle pour cluster-run**. Commande globale Windows lancée dans un projet pour exécuter en arrière-plan la commande `cluster-run`, envoyer périodiquement ses logs à l'agent en mode non-interactif pour vérification, et réveiller l'agent en cas d'erreur de crash pour correction automatique du code source. Permet également le réveil manuel de l'agent à tout moment via la touche `Entrée` avec possibilité de fournir un message personnalisé. L'agent dispose de l'historique complet des actions via `.monitor.log` et peut déclencher de lui-même le redémarrage de la commande s'il estime qu'une erreur critique nécessite le rechargement de la pipeline via le mot clé `RESTART CLUSTER RUN`. | `monitor` (depuis un projet avec cluster-run) |
 
 ### Commandes Agent (Virtuelles)
@@ -103,7 +97,7 @@ Ces commandes sont définies par les règles installées :
 | `/research` | **Recherche Approfondie (Deep Research)**. Conduit une recherche structurée multi-axes avec vagues de recherches parallèles, suivi des sources, et produit un rapport détaillé avec citations footnote. | Taper `/research [sujet]` pour lancer une investigation. |
 | `/pull` | **Merge des PRs & Validation**. Inventorie toutes les PRs ouvertes, les merge séquentiellement en résolvant les conflits, met à jour les issues liées, installe l'environnement de validation, et génère un walkthrough détaillé. | Taper `/pull` pour merger les PRs ouvertes. |
 | `/continue` | **Reprise du Travail**. Rétablit l'ensemble de la supervision agentique et temporelle (crons, agents, sous-agents, timers) après une interruption, avec arbitrage intelligent pour la phase de validation. | Taper `/continue` pour reprendre et restaurer le travail suite à une interruption inattendue. |
-| `/scheduler` | **Orchestrateur Cron Crash-Resilient**. Remplace le Monitor pour les workflows nocturnes/longs. Invoqué périodiquement via `/schedule` (cron Antigravity), consulte un fichier d'état central (`state.json`) et un heartbeat pour détecter les agents crashés. Exécute automatiquement le pipeline `issue → reviewer → investigator → architect` avec reprise après crash. | Configurer via `/schedule` : cron `*/15 * * * *`, prompt `Lis le fichier src/commands/scheduler.md et applique-le à la lettre. GOAL : [objectif]`. Contrôle via `.agents/scheduler/state.json`. |
+| `/scheduler` | **Orchestrateur Cron Crash-Resilient**. Remplace le Monitor pour les workflows nocturnes/longs. Invoqué périodiquement via `/schedule` (cron Antigravity), consulte un fichier d'état central (`state.json`) et un heartbeat pour détecter les agents crashés. Exécute automatiquement le pipeline `issue → reviewer → investigator → architect` avec reprise après crash. | Configurer via `/schedule` : cron `*/15 * * * *`, prompt `Lis et exécute la compétence skills/scheduler/SKILL.md à la lettre. GOAL : [objectif]`. Contrôle via `.agents/scheduler/state.json`. |
 | `/scout` | **Éclaireur de Code**. Explore en profondeur le codebase, la documentation et le web. Délègue à des sous-agents pour maximiser la couverture. Produit un `exploration_report.md` avec diagnostic, fichiers concernés et plan d'implémentation préliminaire. | Taper `/scout` pour lancer une exploration approfondie avant implémentation. |
 | `/refine` | **Critique Stratégique du Plan**. Valide le plan du Scout avec une vision haut niveau. Traque les erreurs silencieuses, fallbacks cachés et incohérences. Exclut par défaut les suites de tests automatisés complexes (sauf demande explicite). Annote le rapport d'exploration avec des callouts de review et produit un verdict (APPROUVÉ / RÉSERVES / À REVOIR). | Taper `/refine` après `/scout` pour valider et renforcer le plan. |
 | `/build` | **Artisan Implémenteur**. Exécute méthodiquement le plan validé par le Refine. Exclut par défaut les suites de tests automatisés complexes (sauf demande explicite). Pas de sous-agents par défaut, sauf si plusieurs tâches distinctes et indépendantes doivent être exécutées en parallèle (auquel cas il lance et supervise des sous-agents sans coder directement lui-même). Produit un `walkthrough.md`. | Taper `/build` après `/refine` pour implémenter le plan. |
