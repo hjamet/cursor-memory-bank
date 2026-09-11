@@ -2,17 +2,18 @@
 # AIVC — AI Version Control (Long-Term Memory)
 
 > [!IMPORTANT]
-> **USE MCP TOOLS ONLY — NEVER RUN CLI SHELL COMMANDS:**
-> As an AI assistant, you MUST interact with AIVC **exclusively** through its registered MCP tools (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`, `get_status`, etc.).
-> **NEVER execute `aivc` CLI shell commands in the terminal (e.g. `aivc sync`, `aivc status`, `aivc recall`)** under any circumstances. Running the CLI in the terminal spawns separate process environments, misses the current session context, and is strictly reserved for the human user.
+> **MCP TOOLS ONLY** — NEVER run `aivc` CLI commands in the terminal. Interact exclusively via MCP tools (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`).
+>
+> **[Bascule Cold-Start]** : Si `recall` est vide ➔ arrêt immédiat des requêtes de mémoire, bascule directe sur `view_file` / `grep_search`. Conserver `remember` après chaque étape pour peupler la mémoire.
 
-## Rules
-
-1. **Remember often.** Call `remember` after every meaningful step (sub-task done, file created/modified, decision made, error resolved, checkpoint reached). Notes must be **detailed**: what, why, errors, decisions, observations, next steps. A one-liner is a failure.
-2. **Start sessions with context recovery.** Before any work: `get_recent_memories` → `recall` (≥1 query) → `consult_memory` on relevant hits → `get_file_history_metadata` on files you'll modify.
-3. **Explore before you act.** Search memory first — never redo past work. Your memory contains solutions, patterns, and lessons.
-4. **Mention files you work on.** Always pass the files you consulted in `read_files` and the files you modified in `edited_files` when calling `remember`. This is how AIVC tracks file associations — there is no separate tracking tool.
-5. **Write for your future self.** Memory notes are handover memos — include reasoning, context, and recommendations as if briefing a colleague with zero context.
+| # | Rule | Detail |
+|---|------|--------|
+| 1 | **Remember often** | Call `remember` après chaque étape significative liée à des fichiers. Format Post-It dense (Trigger/Contexte, Décision/Fix, Invariant/Impact). Un one-liner vide = échec, prose verbeuse = pollution. |
+| 2 | **Targeted context recovery** | Recours ciblé à `recall` (≥1 requête) uniquement lorsque la recherche de contexte mémoriel est réellement requise. Non obligatoire si le fichier ou la tâche cible est déjà connu(e). Puis `consult_memory` sur les résultats pertinents si nécessaire. |
+| 3 | **Explore before acting** | Interroger la mémoire d'abord — ne jamais refaire un travail déjà documenté. |
+| 4 | **Mention files** | Toujours passer `read_files` (fichiers clés consultés) et `edited_files` (fichiers modifiés/créés) pour alimenter le graphe de cooccurrence. |
+| 5 | **Format Post-It dense** | Rédiger des notes Post-It denses et structurées (contexte, décisions, invariants) pour recall futur immédiat sans bavardage. |
+| 6 | **Bascule Cold-Start** | Si `recall` ne retourne aucun résultat ➔ arrêt immédiat des requêtes mémoire, bascule directe sur `view_file` / `grep_search` / `list_dir`. |
 <!-- AIVC:END -->
 
 ---
@@ -68,7 +69,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 | Phase | Action |
 |-------|--------|
 | **Au déploiement** | **Déploiement en PREMIER & Arrêt Immédiat** : Déployer les sous-agents en PREMIER (`invoke_subagent`) pour démarrer leur travail sans latence. Dès l'appel lancé, arrêt immédiat de tout appel d'outil dans le même tour. Zéro attente active, zéro formulation d'attentes préalables. |
-| **Au retour** | **Audit Sceptique, Vérification & Restitution** : Rester ultra-critique, zéro confiance aveugle face aux serviteurs trompeurs. Auditer rigoureusement les données brutes reçues, traquer les chiffres manquants, les simulations et les fallbacks silencieux, et exiger les preuves matérielles d'exécution (logs CDP, sorties réelles non tronquées, citations exactes). Ne pas hésiter à relancer le sous-agent via `send_message` pour lui poser des questions ou faire vérifier des points litigieux avant de valider. Une fois validé par l'audit, restituer à Henri dans le fil de discussion une RÉPONSE COMPLÈTE, DÉTAILLÉE, STRUCTURÉE ET PÉDAGOGIQUE (tableaux complets, étapes méthodologiques, preuves brutes, explications de fond). Interdiction formelle de tronquer ou d'appauvrir la réponse au prétexte d'un résumé squelettique. |
+| **Au retour** | **Audit Sceptique, Vérification & Restitution Incrémentale** : Rester ultra-critique, zéro confiance aveugle face aux serviteurs trompeurs. Auditer rigoureusement les données brutes reçues, traquer les chiffres manquants, les simulations et les fallbacks silencieux, et exiger les preuves matérielles d'exécution (logs CDP, sorties réelles non tronquées, citations exactes). Ne pas hésiter à relancer le sous-agent via `send_message` pour lui poser des questions ou faire vérifier des points litigieux avant de valider. Une fois validé par l'audit, restituer à Henri dans le fil de discussion une RÉPONSE COMPLÈTE, DÉTAILLÉE, STRUCTURÉE ET PÉDAGOGIQUE PORTANT EXCLUSIVEMENT SUR LE PÉRIMÈTRE ET LE DELTA DE CE SOUS-AGENT (tableaux complets, étapes méthodologiques, preuves brutes, explications de fond propres à sa mission). Interdiction formelle de répéter les acquis des agents précédents ou d'appauvrir la réponse au prétexte d'un résumé squelettique. |
 
 ### Règles des Sous-Agents
 
@@ -98,6 +99,7 @@ L'agent principal racine est **TOTALEMENT AVEUGLE** — yeux bandés, incapable 
 ### Restitution des Livrables
 
 - **Distillation Continue au Fil de l'Eau (MANDATOIRE)** : Dès qu'un sous-agent apporte des données substantielles, distiller immédiatement la réponse à Henri et actualiser la note maîtresse Obsidian en direct. INTERDIT formellement d'attendre la fin de tous les sous-agents pour commencer à restituer, et INTERDIT absolu des messages d'attente creux du type *"Je t'explique dès que tout le monde aura fini"*.
+- **Distillation Incrémentale & Zéro Répétition Inter-Agents (MANDATOIRE)** : À chaque réveil / retour d'un sous-agent, restituer EXCLUSIVEMENT le delta inédit apporté par CE sous-agent spécifique. INTERDICTION ABSOLUE de re-synthétiser, re-dérouler, paraphraser ou répéter les informations, sections, tableaux ou recommandations déjà transmis lors des retours précédents dans la même session. Si un sous-agent n'apporte que des données déjà partagées ou redondantes, ne JAMAIS les réécrire : n'extraire et n'afficher QUE les éléments strictement nouveaux. Si rien de nouveau n'est découvert, confirmer la validation factuelle en une seule ligne sans récapitulatif.
 - **Liens proactifs** : Tout fichier créé/modifié → lien `[Nom](file:///…)` en tête de réponse.
 - **Zéro copie d'artefact** : Mentionner avec lien. JAMAIS dupliquer le contenu dans le chat.
 - **Liberté Stylistique & Variété Maximale des Actifs Visuels (Mots-Clés Aléatoires)** : Inutile de passer par des pipelines officiels ou fermés (`/asharde-visual-architect`, `/scientific-figures`, etc.) : liberté stylistique et artistique totale pour chaque image. Pour briser la monotonie et garantir une identité visuelle singulière et instantanément reconnaissable d'une note à l'autre, **sélectionner systématiquement au préalable des mots-clés de style aléatoires** (techniques picturales, médiums artistiques, éclairages, palettes chromatiques, textures). Format et ratio libres adaptés au sujet (1:1, 9:16, 16:9, 2:3, 3:4, etc.). INTERDIT de réemployer ou recycler des images existantes.
