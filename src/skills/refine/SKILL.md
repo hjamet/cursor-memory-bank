@@ -13,11 +13,11 @@ description: "Affinement critique et consolidation de l'exploration. Challenge e
 > **🚫 AUCUNE MODIFICATION DE CODE NI DE CONTENU.** Tu délègues l'exploration, tu synthétises, tu affines. Tu ne touches à aucun code ni fichier de production pendant cette phase.
 > **📄 ARTÉFACT OFFICIEL UNIQUE : `exploration_report.md`.** Harmonisation totale avec Scout : abandon définitif d'`implementation_plan.md`. Refine produit et affine exclusivement `exploration_report.md` via `write_to_file` avec `ArtifactMetadata: { UserFacing: true, RequestFeedback: true, Summary: "..." }` pour faire apparaître la vignette interactive dans le chat.
 > **🧹 BANNISSEMENT DES LOURDEURS.** Bannissement formel du découpage en chantiers de code redondants, des matrices de dépendances complexes, des protocoles lourds et des accordéons `<details><summary>`. Refine fait exactement la même chose que Scout (exploration, cadrage, audit) en améliorant l'artéfact existant.
-> **👥 RÈGLE 1:1 DE DÉPLOIEMENT.** Le Refine Lead liste d'abord toutes les questions d'exploration contextuelle et de challenge à se poser, puis déploie EXACTEMENT 1 sous-agent de recherche par question ($N$ questions = $N$ sous-agents `research` en parallèle via un unique appel `invoke_subagent`).
-> **🗣️ SECTION 1 ORAL-FIRST & Q/R PURES.** Questions pures d'exploration contextuelle formulées au format H3 (`### ❓ ...`) et résolues par puces télégraphiques (`- **[Clé]** : [Valeur]`). Paragraphes courts (2 à 4 phrases). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des détails techniques ou juridiques lourds vers des sous-artéfacts dédiés dans `brain/<id>/`.
-> **🌳 ARBORESCENCE EN LISTE À PUCES IMBRIQUÉE.** Bannissement formel des blocs de code ```text. Obligation d'utiliser des listes à puces Markdown imbriquées standard avec liens cliquables réels et description de l'impact ou changement prévu en UNE ligne concise par fichier.
+> **🗣️ SECTION 1 ORAL-FIRST & QUESTIONS D'EXPLORATION PURES.** Questions pures d'exploration contextuelle et de challenge technique que l'agent se pose au démarrage (« De quoi ai-je besoin pour affiner le plan ? Qu'est-ce que je dois vérifier/savoir ? »). Chaque élément d'investigation fait l'objet de sa PROPRE question H3 dédiée (`### ❓ [Question d'exploration précise] ?`). ZÉRO méta-section vague (« décisions d'arbitrage », « points de vigilance ») et ZÉRO prise de décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée. Résolues par puces télégraphiques (`- **[Clé]** : [Valeur]`) ou paragraphes courts (2 à 4 phrases). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des détails techniques ou juridiques lourds vers des sous-artéfacts dédiés dans `brain/<id>/`.
+> **🌳 ARBORESCENCE EN LISTE À PUCES IMBRIQUÉE.** Bannissement formel des blocs de code ```text. Obligation d'utiliser des listes à puces Markdown imbriquées standard avec liens cliquables réels et description des changements en UNE ligne concise par fichier.
 > **🏗️ SECTION 2 FORMAT GOOGLE NATIF.** Regroupement par Chantier (`### Chantier A : ...`), séparateurs `---` et balisage chirurgical `[MODIFY]`, `[NEW]`, `[DELETE]`.
 > **🧪 SECTION 3 PLAN DE VÉRIFICATION BIPARTI EN TABLEAUX NATIFS.** Cloisonnement strict obligatoirement formalisé sous forme de TABLEAUX Markdown natifs (Vérifications automatisées agent vs Vérifications manuelles Henri).
+> **👥 RÈGLE 1:1 DE DÉPLOIEMENT.** Le Refine Lead liste d'abord toutes les questions d'exploration contextuelle et de challenge à se poser, puis déploie EXACTEMENT 1 sous-agent de recherche par question ($N$ questions = $N$ sous-agents `research` en parallèle via un unique appel `invoke_subagent`).
 > **🚫 INTERDICTION DE PLAYWRIGHT.** Playwright est banni au profit de `search_web` et `read_url_content` (sauf formulaire privé d'Henri ou site web déployé demandé explicitement par Henri).
 > **📦 ACCUMULATION INCRÉMENTALE & PANIER CUMULATIF.** Préservation et enrichissement continu des chantiers cumulés non-buildés jusqu'au passage à `/build`.
 
@@ -61,9 +61,10 @@ Les sous-agents mandatés par le Refine Lead sont des **exécutants directs norm
 ## 2. 👥 Comment Déployer les Sous-Agents Research en Règle 1:1 Stricte ($N$ Questions = $N$ Agents) ?
 
 Le Refine Lead applique rigoureusement la règle 1:1 :
-1. **Listing Préalable des Questions** : Le Refine Lead liste exhaustivement toutes les questions d'exploration contextuelle et de challenge à se poser.
+1. **Listing Préalable des Questions d'Exploration & de Challenge Pures** : Le Refine Lead liste exhaustivement toutes les questions pures d'investigation et de challenge technique à approfondir (« De quoi ai-je besoin pour consolider le plan ? Quelles hypothèses dois-je vérifier concrètement ? »). Chaque élément à challenger ou vérifier fait l'objet de sa PROPRE question dédiée (`### ❓ [Question d'exploration précise] ?`).
 2. **Déploiement 1:1 Inconditionnel** : Le Refine Lead déploie **EXACTEMENT 1 sous-agent `research` par question** ($N$ questions = $N$ sous-agents `research` en parallèle via un unique appel `invoke_subagent`, `Model: "inherit"`).
-3. **Template de Prompt pour Sous-Agent `research`** :
+3. **Zéro Décision en Phase d'Exploration** : L'exploration est une recherche de preuves brutes et de faits avérés : aucune décision ni point de vigilance anticipé à ce stade (pure information factuelle).
+4. **Template de Prompt pour Sous-Agent `research`** :
    ```text
    Tu es un sous-agent d'exécution 'research' mandaté par le Refine Lead.
    Question d'exploration / challenge assignée : [Formulation exacte de la question 1:1]
@@ -110,41 +111,41 @@ Le Refine Lead met à jour l'artéfact officiel unique avec `write_to_file` :
 
 [Description synthétique et dense de l'objectif, du contexte métier et de la cible architecturale.]
 
-## 🗺️ Arborescence Prévisionnelle des Axes d'Investigation
+## 🗺️ Arborescence Prévisionnelle des Changements
 
 > [!IMPORTANT]
 > **Bannissement Formel des Blocs de Code ```text** :
-> L'arborescence est obligatoirement formalisée en liste à puces Markdown imbriquée standard avec liens cliquables réels vers les fichiers sources et description de l'impact ou changement prévu en **UNE ligne concise par fichier**.
+> L'arborescence est obligatoirement formalisée en liste à puces Markdown imbriquée standard avec liens cliquables réels vers les fichiers sources et description des changements en **UNE ligne concise par fichier**.
 
 - **racine/**
   - **axe_1_architecture/**
-    - [point_focal.ext](file:///chemin/absolu/vers/point_focal.ext) : Description de l'impact ou changement prévu en une ligne concise
+    - [point_focal.ext](file:///chemin/absolu/vers/point_focal.ext) : Description du changement prévu en une ligne concise
   - **axe_2_integration/**
-    - [interface.ext](file:///chemin/absolu/vers/interface.ext) : Description de l'interface ou contrat impacté en une ligne concise
+    - [interface.ext](file:///chemin/absolu/vers/interface.ext) : Description du changement ou contrat prévu en une ligne concise
 
 ---
 
-## 🗣️ Section 1 : Questions Clés & Réponses Oral-First (Concision & Aération)
+## 🗣️ Section 1 : Questions Clés d'Exploration & Réponses Détaillées (Oral-First)
 
-> [!NOTE]
-> **Allègement Drastique & Confort de Lecture** :
-> - Questions pures d'exploration contextuelle formulées exclusivement au format H3 (`### ❓ ...`).
-> - Réponses immédiates rédigées sous forme de puces télégraphiques (`- **[Clé]** : [Valeur]`) ou paragraphes courts (2 à 4 phrases maximum), rythmés, percutants et fluides.
-> - **Zéro accordéon `<details><summary>` superflu** : Tout le contenu utile est directement visible sans masquage.
-> - Bannissement formel des tableaux rigides et des pavés monolithiques en Section 1.
-> - Déport systématique des analyses exhaustives, verbatim bruts ou détails juridiques/techniques lourds vers des sous-artéfacts dédiés dans `brain/<id>/nom_sous_analyse.md`.
+> [!IMPORTANT]
+> **Doctrine Canonique des Questions d'Exploration Contextuelle** :
+> - **Questions d'exploration contextuelle pures** : Ce sont les questions d'information pures que l'agent se pose au démarrage (« De quoi ai-je besoin pour affiner le plan ? Qu'est-ce que je dois savoir/vérifier ? »).
+> - **1 Question H3 par élément d'investigation** : Chaque élément investigué ou challengé doit impérativement faire l'objet de sa PROPRE question H3 dédiée (`### ❓ [Question d'exploration précise] ?`).
+> - **Correspondance 1:1 avec les sous-agents** : Chaque question H3 correspond exactement à la mission assignée à 1 sous-agent de recherche (`research`).
+> - **Bannissement formel des méta-sections vagues** : INTERDICTION FORMELLE de regrouper les investigations sous des méta-sections artificielles ou vagues telles que « Décisions d'arbitrage », « Points de vigilance », ou « Diagnostic fondamental ».
+> - **Zéro décision ni point de vigilance en Section 1** : Il n'y a AUCUNE prise de décision ni point de vigilance dans cette section, UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée. Les décisions d'architecture et arbitrages validés sont directement matérialisés dans les chantiers de la Section 2.
+> - **Format des réponses** : Réponses directes sous forme de puces télégraphiques (`- **[Clé]** : [Valeur brute]`) ou paragraphes courts (2 à 4 phrases maximum). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des analyses exhaustives ou détails juridiques/techniques lourds vers des sous-artéfacts dédiés dans `brain/<id>/nom_sous_analyse.md`.
 
-### ❓ Quel est le Diagnostic Fondamental et l'État des Lieux ?
-- **[Constat racine]** : Diagnostic concis en 1 à 2 phrases directes
-- **[Point de blocage]** : Mécanisme exact provoquant la friction ou l'anomalie
+### ❓ [Première question d'exploration contextuelle précise issue du cadrage 1:1] ?
+- **[Fait / Mesure clé]** : Réponse factuelle dense, nette, chiffrée issue de l'investigation
+- **[Source / Référence]** : Citation exacte, chemin absolu, commit ou URL vérifiée
 
-### ❓ Quelles sont les Décisions d'Arbitrage Retenues ?
-- **[Décision A]** : Justification chirurgicale et bénéfice direct
-- **[Décision B]** : Arbitrage retenu face aux options écartées
+### ❓ [Deuxième question d'exploration contextuelle précise issue du cadrage 1:1] ?
+- **[Fait / Mesure clé]** : Réponse factuelle dense et détaillée
+- **[Contrainte technique]** : Donnée d'observation directe sans extrapolation
 
-### ❓ Quels sont les Points de Vigilance et Garde-Fous Critiques ?
-- **[Risque de régression]** : Mesure préventive et garde-fou actif
-- **[Compatibilité]** : Contrainte technique ou contractuelle respectée
+### ❓ [N-ième question d'exploration contextuelle précise issue du cadrage 1:1] ?
+- **[Donnée vérifiée]** : Réponse factuelle issue du sous-agent dédié
 
 ---
 
@@ -222,15 +223,19 @@ En Mode Enquête Pure, l'artéfact s'arrête strictement après la Section 1 :
 
 ---
 
-## 🗣️ Section 1 : Questions Clés & Réponses Oral-First (Concision & Aération)
+## 🗣️ Section 1 : Questions Clés d'Exploration & Réponses Détaillées (Oral-First)
 
-### ❓ Quel est le Diagnostic Technique Approfondi ?
-- **[État des lieux]** : Diagnostic concis en 1 à 2 phrases directes
-- **[Cause racine]** : Facteur déterminant identifié sans verbiage
+> [!IMPORTANT]
+> **Questions d'Exploration Pures en Enquête** :
+> Chaque élément d'investigation fait l'objet de sa propre question H3 dédiée (`### ❓ [Question d'investigation précise] ?`). Zéro méta-section vague : questions directes et réponses factuelles denses.
 
-### ❓ Quelles sont les Recommandations et Perspectives ?
-- **[Axe prioritaire]** : Solution recommandée et justification
-- **[Perspectives d'évolution]** : Compromis et prochaines étapes
+### ❓ [Première question d'investigation précise issue du cadrage 1:1] ?
+- **[Constat factuel]** : Réponse dense, nette et chiffrée
+- **[Preuve brute]** : Extrait vérifié, log ou citation mot à mot
+
+### ❓ [Deuxième question d'investigation précise issue du cadrage 1:1] ?
+- **[Constat factuel]** : Réponse factuelle détaillée
+- **[Synthèse d'analyse]** : Constat issu de l'exploration sans extrapolation
 ```
 
 ---

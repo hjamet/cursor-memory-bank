@@ -10,8 +10,8 @@ description: "Exploration approfondie du contexte, clarification active et produ
 > **🚫 AUCUNE MODIFICATION DE CODE NI DE CONTENU.** Tu délègues l'exploration, tu synthétises, tu planifies. Tu ne touches à aucun code ni fichier de production pendant cette phase.
 > **📄 ARTÉFACT OFFICIEL UNIQUE : `exploration_report.md`.** Abandon définitif d'`implementation_plan.md` comme livrable du Scout. Le Scout produit exclusivement `exploration_report.md` via `write_to_file` avec `ArtifactMetadata: { UserFacing: true, RequestFeedback: true, Summary: "..." }` pour faire apparaître la vignette interactive dans le chat.
 > **🔀 DEUX MODES OPÉRATIONNELS DÉDIÉS.** Mode Enquête Pure (arrêtoir strict après la Section 1 en cas de recherche/questions sans édition) vs Mode Implémentation (Sections 1, 2 et 3 complètes si des modifications de fichiers sont requises).
-> **🗣️ SECTION 1 ORAL-FIRST & Q/R PURES.** Questions pures d'exploration contextuelle formulées au format H3 (`### ❓ ...`) et résolues par puces télégraphiques (`- **[Clé]** : [Valeur]`). Paragraphes courts (2 à 4 phrases). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des détails techniques ou juridiques lourds vers des sous-artéfacts dédiés dans `brain/<id>/`.
-> **🌳 ARBORESCENCE EN LISTE À PUCES IMBRIQUÉE.** Bannissement formel des blocs de code ```text. Obligation d'utiliser des listes à puces Markdown imbriquées standard avec liens cliquables réels et description de l'impact ou changement prévu en UNE ligne concise par fichier.
+> **🗣️ SECTION 1 ORAL-FIRST & QUESTIONS D'EXPLORATION PURES.** Questions pures d'exploration contextuelle que l'agent se pose au démarrage (« De quoi ai-je besoin pour faire le plan ? Qu'est-ce que je dois savoir ? »). Chaque élément d'investigation fait l'objet de sa PROPRE question H3 dédiée (`### ❓ [Question d'exploration précise] ?`). ZÉRO méta-section vague (« décisions d'arbitrage », « points de vigilance ») et ZÉRO prise de décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée. Résolues par puces télégraphiques (`- **[Clé]** : [Valeur]`) ou paragraphes courts (2 à 4 phrases). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des détails techniques ou juridiques lourds vers des sous-artéfacts dédiés dans `brain/<id>/`.
+> **🌳 ARBORESCENCE EN LISTE À PUCES IMBRIQUÉE.** Bannissement formel des blocs de code ```text. Obligation d'utiliser des listes à puces Markdown imbriquées standard avec liens cliquables réels et description des changements en UNE ligne concise par fichier.
 > **🏗️ SECTION 2 FORMAT GOOGLE NATIF.** Regroupement par Chantier (`### Chantier A : ...`), séparateurs `---` et balisage chirurgical `[MODIFY]`, `[NEW]`, `[DELETE]`.
 > **🧪 SECTION 3 PLAN DE VÉRIFICATION BIPARTI EN TABLEAUX NATIFS.** Cloisonnement strict obligatoirement formalisé sous forme de TABLEAUX Markdown natifs (Vérifications automatisées agent vs Vérifications manuelles Henri).
 > **👥 RÈGLE 1:1 DE DÉPLOIEMENT.** Le Scout Lead liste d'abord toutes les questions d'exploration contextuelle à se poser, puis déploie EXACTEMENT 1 sous-agent de recherche par question ($N$ questions = $N$ sous-agents `research` en parallèle).
@@ -61,8 +61,9 @@ Dès réception de la demande, le Scout cartographie les domaines à explorer et
 
 ### 1.2 👥 Comment Déployer les Sous-Scouts en Règle 1:1 Stricte ($N$ Questions = $N$ Agents) ?
 
-- **Listing Préalable des Questions** : Avant tout déploiement, le Scout Lead formalise la liste exhaustive des questions pures d'exploration contextuelle indispensables pour cadrer le sujet.
+- **Listing Préalable des Questions d'Exploration Pures** : Avant tout déploiement, le Scout Lead formalise la liste exhaustive des questions pures d'exploration contextuelle indispensables pour cadrer le sujet (« De quoi ai-je besoin pour concevoir le plan ? Qu'est-ce que je dois savoir ? »). Chaque élément d'investigation technique, contractuel, documentaire ou architectural doit faire l'objet de sa PROPRE question dédiée (`### ❓ [Question d'exploration précise] ?`).
 - **Règle 1:1 Inconditionnelle ($N \ge 1$)** : Le Scout Lead déploie **EXACTEMENT 1 sous-agent `research` par question** ($N$ questions = $N$ sous-agents `research` lancés en parallèle via un unique appel `invoke_subagent`, `Model: "inherit"`).
+- **Zéro Décision en Phase d'Exploration** : L'exploration est une quête d'information pure et factuelle : pas de décision d'arbitrage ni de point de vigilance anticipé à ce stade. Les décisions appartiennent à la Section 2 et au dialogue amont avec Henri.
 - **Mandat Dédié & Template de Prompt** : Chaque sous-scout se voit confier une et une seule question d'exploration ciblée.
   ```text
   Tu es un sous-agent d'exécution 'research' mandaté par le Scout Lead.
@@ -227,41 +228,41 @@ En cas de critique ou rejet par le skill `/refine` :
 
 [Description synthétique et dense de l'objectif, du contexte métier et de la cible architecturale.]
 
-## 🗺️ Arborescence Prévisionnelle des Axes d'Investigation
+## 🗺️ Arborescence Prévisionnelle des Changements
 
 > [!IMPORTANT]
 > **Bannissement Formel des Blocs de Code ```text** :
-> L'arborescence est obligatoirement formalisée en liste à puces Markdown imbriquée standard avec liens cliquables réels vers les fichiers sources et description de l'impact ou changement prévu en **UNE ligne concise par fichier**.
+> L'arborescence est obligatoirement formalisée en liste à puces Markdown imbriquée standard avec liens cliquables réels vers les fichiers sources et description des changements en **UNE ligne concise par fichier**.
 
 - **racine/**
   - **axe_1_architecture/**
-    - [point_focal.ext](file:///chemin/absolu/vers/point_focal.ext) : Description de l'impact ou changement prévu en une ligne concise
+    - [point_focal.ext](file:///chemin/absolu/vers/point_focal.ext) : Description du changement prévu en une ligne concise
   - **axe_2_integration/**
-    - [interface.ext](file:///chemin/absolu/vers/interface.ext) : Description de l'interface ou contrat impacté en une ligne concise
+    - [interface.ext](file:///chemin/absolu/vers/interface.ext) : Description du changement ou contrat prévu en une ligne concise
 
 ---
 
-## 🗣️ Section 1 : Questions Clés & Réponses Oral-First (Concision & Aération)
+## 🗣️ Section 1 : Questions Clés d'Exploration & Réponses Détaillées (Oral-First)
 
-> [!NOTE]
-> **Allègement Drastique & Confort de Lecture** :
-> - Questions pures d'exploration contextuelle formulées exclusivement au format H3 (`### ❓ ...`).
-> - Réponses immédiates rédigées sous forme de puces télégraphiques (`- **[Clé]** : [Valeur]`) ou paragraphes courts (2 à 4 phrases maximum), rythmés, percutants et fluides.
-> - **Zéro accordéon `<details><summary>` superflu** : Tout le contenu utile est directement visible sans masquage.
-> - Bannissement formel des tableaux rigides et des pavés monolithiques en Section 1.
-> - Déport systématique des analyses exhaustives, verbatim bruts ou détails juridiques/techniques lourds vers des sous-artéfacts dédiés dans `brain/<id>/nom_sous_analyse.md`.
+> [!IMPORTANT]
+> **Doctrine Canonique des Questions d'Exploration Contextuelle** :
+> - **Questions d'exploration contextuelle pures** : Ce sont les questions d'information pures que l'agent se pose au démarrage (« De quoi ai-je besoin pour faire le plan ? Qu'est-ce que je dois savoir ? »).
+> - **1 Question H3 par élément d'investigation** : Chaque élément investigué doit impérativement faire l'objet de sa PROPRE question H3 dédiée (`### ❓ [Question d'exploration précise] ?`).
+> - **Correspondance 1:1 avec les sous-agents** : Chaque question H3 correspond exactement à la mission assignée à 1 sous-agent de recherche (`research`).
+> - **Bannissement formel des méta-sections vagues** : INTERDICTION FORMELLE de regrouper les investigations sous des méta-sections artificielles ou vagues telles que « Décisions d'arbitrage », « Points de vigilance », ou « Diagnostic fondamental ».
+> - **Zéro décision ni point de vigilance en Section 1** : Il n'y a AUCUNE prise de décision ni point de vigilance dans cette section, UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée. Les décisions d'architecture et arbitrages validés sont directement matérialisés dans les chantiers de la Section 2.
+> - **Format des réponses** : Réponses directes sous forme de puces télégraphiques (`- **[Clé]** : [Valeur brute]`) ou paragraphes courts (2 à 4 phrases maximum). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des analyses exhaustives ou détails juridiques/techniques lourds vers des sous-artéfacts dédiés dans `brain/<id>/nom_sous_analyse.md`.
 
-### ❓ Quel est le Diagnostic Fondamental et l'État des Lieux ?
-- **[Constat racine]** : Diagnostic concis en 1 à 2 phrases directes
-- **[Point de blocage]** : Mécanisme exact provoquant la friction ou l'anomalie
+### ❓ [Première question d'exploration contextuelle précise issue du cadrage 1:1] ?
+- **[Fait / Mesure clé]** : Réponse factuelle dense, nette, chiffrée issue de l'investigation
+- **[Source / Référence]** : Citation exacte, chemin absolu, commit ou URL vérifiée
 
-### ❓ Quelles sont les Décisions d'Arbitrage Retenues ?
-- **[Décision A]** : Justification chirurgicale et bénéfice direct
-- **[Décision B]** : Arbitrage retenu face aux options écartées
+### ❓ [Deuxième question d'exploration contextuelle précise issue du cadrage 1:1] ?
+- **[Fait / Mesure clé]** : Réponse factuelle dense et détaillée
+- **[Contrainte technique]** : Donnée d'observation directe sans extrapolation
 
-### ❓ Quels sont les Points de Vigilance et Garde-Fous Critiques ?
-- **[Risque de régression]** : Mesure préventive et garde-fou actif
-- **[Compatibilité]** : Contrainte technique ou contractuelle respectée
+### ❓ [N-ième question d'exploration contextuelle précise issue du cadrage 1:1] ?
+- **[Donnée vérifiée]** : Réponse factuelle issue du sous-agent dédié
 
 ---
 
@@ -339,15 +340,19 @@ En Mode Enquête Pure, l'artéfact s'arrête strictement après la Section 1 :
 
 ---
 
-## 🗣️ Section 1 : Questions Clés & Réponses Oral-First (Concision & Aération)
+## 🗣️ Section 1 : Questions Clés d'Exploration & Réponses Détaillées (Oral-First)
 
-### ❓ Quel est le Diagnostic Technique Approfondi ?
-- **[État des lieux]** : Diagnostic concis en 1 à 2 phrases directes
-- **[Cause racine]** : Facteur déterminant identifié sans verbiage
+> [!IMPORTANT]
+> **Questions d'Exploration Pures en Enquête** :
+> Chaque élément d'investigation fait l'objet de sa propre question H3 dédiée (`### ❓ [Question d'investigation précise] ?`). Zéro méta-section vague : questions directes et réponses factuelles denses.
 
-### ❓ Quelles sont les Recommandations et Perspectives ?
-- **[Axe prioritaire]** : Solution recommandée et justification
-- **[Perspectives d'évolution]** : Compromis et prochaines étapes
+### ❓ [Première question d'investigation précise issue du cadrage 1:1] ?
+- **[Constat factuel]** : Réponse dense, nette et chiffrée
+- **[Preuve brute]** : Extrait vérifié, log ou citation mot à mot
+
+### ❓ [Deuxième question d'investigation précise issue du cadrage 1:1] ?
+- **[Constat factuel]** : Réponse factuelle détaillée
+- **[Synthèse d'analyse]** : Constat issu de l'exploration sans extrapolation
 ```
 
 ---
