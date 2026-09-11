@@ -2,27 +2,45 @@
 name: browser
 description: "Assistance interactive sur formulaires web ou inspection de pages précises à la demande d'Henri."
 ---
-# Skill Browser : Serveur MCP Playwright Permanent & Navigation Sémantique
+# 🌐 Comment le Skill Browser Pilote-t-il Playwright MCP et la Navigation Sémantique ?
 
 Ce skill définit l'architecture, la matrice d'outils et les protocoles opérationnels pour la navigation, l'exploration web et l'assistance interactive via le **serveur officiel Microsoft Playwright MCP (`@playwright/mcp`)** dans l'écosystème Antigravity.
 
 ---
 
-## 1. Architecture, Disponibilité Permanente & Arbre d'Accessibilité
+## 1. 🏛️ Comment Playwright MCP et le Profil Persistant S'Articulent-ils ?
 
-### 1.1 Rôle & Déclenchement Exclusif à la Demande d'Henri
+### 1.1 🎯 Quel Est le Rôle du Navigateur et Quand le Déclencher ?
 - **Usage Ciblé & Non-Autonome** : Ce skill ne doit pas être auto-invoqué par l'agent pour des explorations générales. Il est réservé aux situations où Henri demande expressément une assistance pour inspecter une page web précise ou interagir avec un formulaire web.
 - **Primauté des Outils Directs** : Pour toute recherche ou collecte de données, l'agent utilise en priorité les outils CLI, les commandes système, les fichiers locaux et les MCP dédiés. Le navigateur n'intervient que pour les informations ou interactions inaccessibles autrement.
 
-### 1.2 Paradigme SOTA : Arbre d'Accessibilité (`browser_snapshot`) & Références Stables (`ref`)
+### 1.2 👁️ Comment Fonctionne l'Arbre d'Accessibilité (browser_snapshot) et les Références Stables (ref) ?
 - **Élimination des Dumps HTML Lourds** : Fini les injections de pages HTML massives qui saturent la fenêtre de contexte.
 - **Arbre d'Accessibilité Sémantique** : L'outil `browser_snapshot` capture la structure accessible de la page (rôles ARIA, libellés, valeurs, états actif/coché/sélectionné).
 - **Identifiants Uniques Stables (`ref`)** : Chaque élément interactif est indexé par un identifiant court et stable (`ref`, ex: `ref="12"`), utilisable directement comme cible dans les outils d'interaction (`browser_click(ref="12")`, `browser_type(ref="12", text="...")`, etc.).
 - **Recherche Ciblée Économe (`browser_find`)** : Pour localiser un élément sans recharger tout l'arbre, `browser_find` recherche par texte ou regex et renvoie uniquement le fragment hiérarchique pertinent avec son `ref`.
 
+### 1.3 🚀 Pourquoi et Comment Configurer le Profil Chrome Persistant Autonome ?
+- **Profil Dédié Persistant** : Le serveur Playwright MCP utilise systématiquement le profil Chrome dédié persistant d'Henri : `C:\Users\hjamet\.gemini\chrome_pw_profile`.
+- **Arguments CLI Obligatoires** :
+  ```json
+  "args": [
+    "-y",
+    "@playwright/mcp@latest",
+    "--browser",
+    "chrome",
+    "--user-data-dir",
+    "C:\\Users\\hjamet\\.gemini\\chrome_pw_profile"
+  ]
+  ```
+- **Bénéfices Opérationnels Majeurs** :
+  - **Zéro Conflit d'Instance** : Le profil dédié étant isolé dans `.gemini\chrome_pw_profile`, il tourne en parallèle de l'instance Chrome quotidienne d'Henri sans aucun verrouillage de fichier ni collision de session.
+  - **Persistance Totale des Sessions & Cookies** : Préservation active des cookies de session institutionnels et professionnels (Single Sign-On UNIL via EduID, Microsoft 365, Google Workspace, Prolific). Henri ne subit aucune ressaisie d'identifiants ni double authentification à chaque redémarrage.
+  - **Autonomie Complète sans Script Auxiliaire** : L'agent lance le navigateur de façon 100% autonome dès le premier appel d'outil MCP (`browser_navigate`, `browser_snapshot`). Aucun script PowerShell préalable d'écoute CDP n'est requis.
+
 ---
 
-## 2. Matrice Canonique des 24 Outils Playwright MCP
+## 2. 🛠️ Quelle Est la Matrice Canonique des 24 Outils Playwright MCP ?
 
 Le serveur `@playwright/mcp` expose 24 outils spécialisés couvrant l'intégralité du cycle de navigation, d'inspection et d'action :
 
@@ -55,11 +73,11 @@ Le serveur `@playwright/mcp` expose 24 outils spécialisés couvrant l'intégral
 
 ---
 
-## 3. Les Deux Modes d'Usage Opérationnels
+## 3. 🔀 Quels Sont les Deux Modes d'Usage Opérationnels ?
 
 Le skill opère selon deux modes d'action rigoureusement étanches selon la nature de la mission :
 
-### 3.1 Mode 1 : Assistance Interactive & Formulaires Éthiques / Académiques d'Henri
+### 3.1 📝 Comment Fonctionne le Mode 1 : Assistance Interactive & Formulaires Éthiques d'Henri ?
 Ce mode s'applique aux saisies sensibles sur des portails institutionnels (ex: formulaires éthiques CER-UNIL, administration des cours Moodle, configurations de plateformes scientifiques comme Prolific) :
 
 - **Rôle d'Observateur & Guide Passif** : L'agent observe l'état du formulaire via `browser_snapshot` et prépare des propositions précises, mais **ne soumet pas de formulaire sensible unilatéralement**. C'est Henri qui applique manuellement les saisies et clique sur les validations critiques.
@@ -75,7 +93,7 @@ Ce mode s'applique aux saisies sensibles sur des portails institutionnels (ex: f
   * Dès qu'Henri applique une action et que la vérification `browser_snapshot` certifie sa présence conforme dans le DOM, l'action validée est **immédiatement purgée de l'artéfact**.
   * L'artéfact ne contient en permanence **que les actions restant réellement à accomplir**, et se termine propre et vide (ou message de validation totale).
 
-### 3.2 Mode 2 : Automatisation Autonome (Scouts, Builders & Tests d'UI)
+### 3.2 🤖 Comment Fonctionne le Mode 2 : Automatisation Autonome (Scouts & Builders) ?
 Ce mode s'applique à tous les agents d'exploration, de test et d'implémentation (ex: `hotel-scout`, cartographies Google Maps, prospection de documentation web, vérification d'interfaces graphiques développées par les builders) :
 
 - **Autonomie Opérationnelle Complète** :
@@ -86,7 +104,7 @@ Ce mode s'applique à tous les agents d'exploration, de test et d'implémentatio
 
 ---
 
-## 4. Preuve Matérielle Obligatoire & Doctrine Zero-Trust
+## 4. 🛡️ Comment la Preuve Matérielle et la Doctrine Zero-Trust Sont-elles Appliquées ?
 
 Conformément aux principes Zero-Trust régissant Antigravity :
 
