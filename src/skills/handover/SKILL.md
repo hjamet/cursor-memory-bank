@@ -1,8 +1,7 @@
 ---
 name: handover
-description: "Générateur de prompt de passation (Handover) narratif et précis pour maintenir le contexte entre sessions."
+description: "Génération du prompt de passation inter-sessions structuré et narratif."
 ---
-
 # 🤝 Comment le Workflow Handover Transmet-il le Contexte Entre Sessions ?
 
 Ce workflow sert à générer un **"Prompt de Passation"** à la fin d'une conversation. L'objectif est de transmettre l'histoire de la session de manière naturelle mais **extrêmement précise**, comme si tu faisais une passation de dossier critique à un collègue.

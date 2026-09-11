@@ -1,8 +1,7 @@
 ---
 name: stitch
-description: Invoquer SYSTÉMATIQUEMENT Stitch pour concevoir, prototyper, modifier ou générer le code d'interfaces utilisateur (UI), d'applications web interactives, de tableaux de bord, de composants frontend et de design systems de haute volée via le serveur MCP Stitch de Google.
+description: "Conception, prototypage et génération d'interfaces web via Google Stitch MCP."
 ---
-
 # Stitch — UI Generation & Design System Engine
 
 Le skill **stitch** est le moteur officiel et impératif de génération d'interfaces graphiques, de design systems et de composants frontend pour Antigravity. Il pilote le serveur MCP distant Google Stitch (`https://stitch.googleapis.com/mcp`) en mode CLI-first via `mcp-cli`.

@@ -1,8 +1,7 @@
 ---
 name: hotel-scout
-description: "Chasseur et éclaireur d'hôtels et hébergements de charme pour Henri Jamet. Recherche multi-canal avec pilotage Chrome via le skill browser (Google Maps >= 4.5 et > 350 avis, comparatif Booking.com vs Site officiel direct), audit obligatoire des disponibilités réelles en direct (chambre libre et réservable, stock résiduel, élimination des complets à date), doctrine Fail-Stop zéro simulation, respect des préférences pérennes (bâtisses anciennes, vieilles pierres/poutres, calme absolu, zéro piscine), calcul systématique du surcoût de détour temporel sur itinéraire avec plafond dur infranchissable Δt <= 30 min (disqualification d'office au-delà), cadrage dynamique via ask_question et création de la note projet dédiée dans Obsidian."
+description: "Recherche multi-canal d'hôtels de charme avec vérification de disponibilité en direct."
 ---
-
 # 🏨 Comment le Skill Hotel-Scout Déniche-t-il les Hébergements d'Exception pour Henri ?
 
 ```mermaid

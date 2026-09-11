@@ -1,8 +1,7 @@
 ---
 name: paper-writing
-description: Workflow rigoureux de rédaction, révision chirurgicale, compilation LaTeX et synchronisation Overleaf pour les papiers scientifiques (cycle commit -> fix -> pdflatex 8 pages -> diff -> push Overleaf sans commandes git manuelles).
+description: "Rédaction scientifique, compilation LaTeX, révision chirurgicale et synchro Overleaf."
 ---
-
 # 📝 Comment Rédiger et Réviser des Papiers Académiques (Paper Writing) ?
 
 > [!IMPORTANT]

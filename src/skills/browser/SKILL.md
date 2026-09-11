@@ -1,8 +1,7 @@
 ---
 name: browser
-description: Serveur MCP Playwright permanent pour l'automatisation web, l'exploration sémantique par arbre d'accessibilité et l'assistance interactive aux formulaires.
+description: "Automatisation web et navigation interactive via le serveur MCP Playwright."
 ---
-
 # Skill Browser : Serveur MCP Playwright Permanent & Navigation Sémantique
 
 Ce skill définit l'architecture, la matrice d'outils et les protocoles opérationnels pour la navigation, l'exploration web et l'assistance interactive via le **serveur officiel Microsoft Playwright MCP (`@playwright/mcp`)** dans l'écosystème Antigravity.

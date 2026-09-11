@@ -1,8 +1,7 @@
 ---
 name: scheduler
-description: "Orchestrateur cron crash-resilient. Consulte l'état centralisé, détecte les agents crashés via heartbeat et pilote la boucle d'agents."
+description: "Orchestration cron résiliente et détection de pannes d'agents en boucle."
 ---
-
 # ⏱️ Comment le Scheduler Assure-t-il l'Orchestration Autonome et Résiliente ?
 
 **Objectif** : Orchestrer de manière autonome et crash-resilient la boucle `issue → reviewer → investigator → architect` via un système d'état persistant et de heartbeat, invoqué périodiquement par un cron Antigravity.

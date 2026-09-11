@@ -1,8 +1,7 @@
 ---
 name: literature-review
-description: "Moteur unifié de revue de littérature académique, création et synchronisation continue Zotero & Obsidian pour Henri Jamet. À chaque invocation, déploie simultanément deux sous-agents : (1) Paper Forensic Reviewer pour la dissection médico-légale de l'article prioritaire, génération de l'infographie 16:9, création de la note d'article et alimentation de la note de synthèse Markdown [[Revue de Littérature NomDuProjet]] (format Canvas formellement abandonné, tag 'obsidian' certifiant l'intégration), et (2) Zotero Autonomous Refiner pour l'élagage, le raffinage qualitatif (budget de citations, CORE A*/Q1 vs arXiv, suppression des doublons/papiers faibles) et la synchronisation continue Zotero / Obsidian."
+description: "Revue de littérature scientifique, fiches de lecture et synchronisation Zotero/Obsidian."
 ---
-
 # 📚 Skill : Unified Autonomous Literature Review, Zotero Curation & Obsidian Synthesis Engine
 
 Ce skill unifié orchestre l'intégralité du cycle de vie de la recherche bibliographique scientifique pour tout projet de recherche d'Henri Jamet, en combinant la **création et synchronisation bilatérale de la bibliothèque Zotero** et la **revue médico-légale article par article centralisée dans la note de synthèse Markdown Obsidian `notes/Revue de Littérature [Nom du Projet].md`**.

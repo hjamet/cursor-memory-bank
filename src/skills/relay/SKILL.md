@@ -1,8 +1,7 @@
 ---
 name: relay
-description: "Clôture propre d'une session Maestro : arrêt ordonné des agents, archivage des résultats et préparation de la relève."
+description: "Clôture ordonnée d'une session d'agents, archivage et transfert de relais."
 ---
-
 # 🏁 Comment le Workflow Relay Clôture-t-il Proprement une Session Maestro ?
 
 This command performs a **clean shutdown** of the current Maestro session and prepares a handover for the next one.

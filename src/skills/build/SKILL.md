@@ -1,8 +1,7 @@
 ---
 name: build
-description: "Artisan implémenteur et intégrateur principal. Reçoit implementation_plan.md validé par Henri, découpe en chantiers étanches, orchestre les sous-builders, assure l'intégration active et produit le walkthrough final."
+description: "Implémentation de code par chantiers étanches à partir d'un plan validé."
 ---
-
 # 🔨 Comment le Builder Principal Découpe-t-il, Coordonne-t-il et Intègre-t-il les Chantiers du Plan ?
 
 **Objectif** : Exécuter le plan d'implémentation `implementation_plan.md` validé par Henri, découper de manière autonome le travail en chantiers étanches, orchestrer les sous-builders, assurer personnellement la vérification active d'intégration et produire l'artéfact de synthèse final `walkthrough.md`.

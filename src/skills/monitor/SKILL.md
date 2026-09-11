@@ -1,8 +1,7 @@
 ---
 name: monitor
-description: "Superviseur de haut niveau pour l'atteinte d'un goal en déléguant au Teamwork Coordinator et en surveillant l'avancement."
+description: "Supervision de progression et pilotage d'objectifs via l'équipe d'agents."
 ---
-
 # 📡 Comment le Workflow Monitor Pilote-t-il l'Atteinte d'un Objectif Longue Durée ?
 
 **Objectif** : Définir un goal et s'assurer qu'il est atteint en déléguant tout le travail à un Teamwork Coordinator. Le Monitor ne fait RIEN lui-même — il supervise à distance.

@@ -1,8 +1,7 @@
 ---
 name: correct
-description: Relecture et retouche chirurgicale de textes, courriels et messages d'Henri Jamet avec préservation stricte de sa voix authentique et interdiction de réécriture intégrale.
+description: "Relecture chirurgicale et correction de textes en préservant le style d'Henri."
 ---
-
 # ✍️ Comment le Skill /correct Assure-t-il la Relecture et la Retouche Chirurgicale sans Altérer la Voix d'Henri ?
 
 Ce skill formalise le **protocole de relecture, correction et retouche chirurgicale** des textes, courriels, messages et documents rédigés par **Henri Jamet**. Il garantit une élimination sans faille des coquilles et des maladresses institutionnelles tout en érigeant un rempart infranchissable contre la dérive de réécriture intégrale courante des LLM.

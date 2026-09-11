@@ -1,8 +1,7 @@
 ---
 name: dynamic-section-slides
-description: Méthodologie, directives et recettes pour concevoir ou convertir des notes Obsidian en présentations interactives plein écran ultra-visuelles, concises, rigoureuses et scientifiques pour le plugin Dynamic Section Slides.
+description: "Création de présentations Markdown interactives pour le plugin Dynamic Section Slides."
 ---
-
 # 📽️ Dynamic Section Slides — Presentation Architecture & Visual Design Skill
 
 Ce skill fournit les directives, protocoles et recettes pour concevoir de nouvelles présentations ou transformer n'importe quelle note du coffre Obsidian en un **support de présentation interactif plein écran** optimisé pour le plugin Obsidian **Dynamic Section Slides** (`obsidian-dynamic-slides`).

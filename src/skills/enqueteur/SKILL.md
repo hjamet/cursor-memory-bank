@@ -1,8 +1,7 @@
 ---
 name: enqueteur
-description: "Enquête systématique et méthodologique des bugs par traçage d'hypothèses et instrumentation de logs sans modification hâtive du code."
+description: "Diagnostic méthodique de bugs par traçage d'hypothèses et instrumentation sans rush."
 ---
-
 # 🔎 Comment l'Enquêteur Identifie-t-il Méthodiquement l'Origine d'un Bug ?
 
 ## Principe fondamental (rappel strict)

@@ -1,8 +1,7 @@
 ---
 name: continue
-description: "Rétablissement et reprise générale du travail suite à une interruption inattendue (crash d'IDE, redémarrage du serveur, etc.)."
+description: "Reprise propre du travail après interruption inattendue ou crash d'environnement."
 ---
-
 # 🔄 Comment le Workflow Continue Rétablit-il l'Environnement de Travail ?
 
 **Objectif** : Restaurer l'environnement et relancer toutes les tâches, agents, superviseurs et programmations temporelles suite à une interruption inattendue (crash d'IDE, redémarrage du serveur, etc.).

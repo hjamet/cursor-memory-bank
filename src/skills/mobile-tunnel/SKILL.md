@@ -1,8 +1,7 @@
 ---
 name: mobile-tunnel
-description: Tunneling SSH instantané sans dépendance vers le web public pour accès mobile d'Henri Jamet. S'active en priorité absolue dès qu'Henri consulte ou pilote une application locale depuis son smartphone, ou demande un accès distant à une application locale.
+description: "Tunneling SSH instantané pour accès mobile distant aux applications locales."
 ---
-
 # 📱 Comment le Skill Mobile-Tunnel Expose-t-il les Applications Locales sur le Smartphone d'Henri ?
 
 ```mermaid

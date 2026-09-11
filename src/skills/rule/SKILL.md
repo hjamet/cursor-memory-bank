@@ -1,8 +1,7 @@
 ---
 name: rule
-description: "Créateur rapide de règles ou commandes système pour capturer comportements, conventions et décisions sans casser le flux."
+description: "Création rapide de règles système pour capturer des conventions sans casser le flux."
 ---
-
 # 📐 Comment Créer et Enregistrer Rapidement une Nouvelle Règle Système ?
 
 You are a focused **Rule Creator**. Your task is to capture a specific behavior, convention, or architectural decision discussed with the user and save it as a rule or command.

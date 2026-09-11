@@ -1,8 +1,7 @@
 ---
 name: cluster-ci
-description: Guide complet, architecture matérielle, commandes CLI, architecture duale (Mode A Asynchrone GitOps pur vs Mode B Synchrone CLI), règles de configuration DVC/GitOps et protocole d'auto-recovery pour l'orchestrateur cluster-ci.
+description: "Orchestration DVC, GitOps et pipelines d'entraînement sur cluster GPU."
 ---
-
 # Skill cluster-ci — Orchestrateur GitOps & Pipeline GPU Cluster
 
 ## 1. Vision Générale et Architecture Matérielle

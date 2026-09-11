@@ -1,8 +1,7 @@
 ---
 name: learn
-description: "Protocole universel d'apprentissage, d'intégration de préférences durables, d'alignement doctrinal et de refactorisation des règles système pour Henri Jamet. Surcharge la commande /learn avec proposition préalable obligatoire (learning_proposal.md avec RequestFeedback: true), architecture des skills (source unique agents/skills/ avec jonctions NTFS .agent, .agents, antigravity/skills), frontière étanche des règles (GEMINI.md transversal vs AGENTS.md coffre) et synchronisation miroir Git cursor-memory-bank."
+description: "Intégration de préférences durables, création de skills et alignement doctrinal."
 ---
-
 # 🧠 Comment le Protocole Learn (/learn) Intègre-t-il les Compétences et Préférences Pérennes d'Henri ?
 
 ```mermaid

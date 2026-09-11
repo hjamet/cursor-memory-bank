@@ -1,8 +1,7 @@
 ---
 name: harpy-entity-creator
-description: Générateur universel de fiches d'entités JDR pour Obsidian et Harpy, rigoureusement calibré sur la Fiche de Style d'univers, notes/Modèle Fiche Entité Pathfinder 1e.md et Conseil/Shanwen.md. Structure canonique en 5 blocs sans description dans le YAML, courte citation sensorielle sous l'image avant la Vue Joueurs, maillage dense de wikilinks dans les secrets MJ, profils mécaniques compacts, règle stricte du fichier unique (zéro doublon) et copier-coller Harpy en 30 secondes.
+description: "Création de fiches d'entités Pathfinder 1e et Harpy prêtes à copier."
 ---
-
 # Harpy Entity Creator — Moteur Universel d'Entités JDR pour Obsidian & Harpy
 
 > **Aliases & Invocations** : `/harpy-entity-creator` | `/rpg-entity-creator` | `/jdr-entity-creator` | `/pnj-jdr-creator`

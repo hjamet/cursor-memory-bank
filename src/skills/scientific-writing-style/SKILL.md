@@ -1,8 +1,7 @@
 ---
 name: scientific-writing-style
-description: Charte stylistique académique de chercheur expert et moteur déterministe anti-IA couplant avoid-ai-writing, élimination des tirets cadratins et boucle fermée Actor-Critic sous le seuil strict P(AI) < 10%.
+description: "Charte stylistique académique sans fard IA et suppression des tics rédactionnels."
 ---
-
 # Charte Stylistique Académique & Moteur Déterministe Anti-IA (`scientific-writing-style`)
 
 > [!IMPORTANT]

@@ -1,8 +1,7 @@
 ---
 name: write-email
-description: "Protocole d'orchestration obligatoire en 4 étapes (Scan Spark & Fond Brut factuel -> Style Henri & avoid-ai-writing -> Érosion statistique StealthRL & audit factualité -> Prévisualisation séquentielle & Brouillon Spark sécurisé) et charte stylistique d'Henri Jamet pour la rédaction d'e-mails."
+description: "Rédaction d'e-mails selon le style d'Henri et préparation de brouillons Spark."
 ---
-
 # ✉️ Comment Rédiger des E-mails au Style d'Henri Jamet avec le Pipeline en 4 Étapes ?
 
 Ce skill formalise l'**ADN stylistique d'Henri Jamet**, les **deux règles fondamentales de contextualisation et de structuration**, ainsi que le **protocole d'orchestration obligatoire en 4 étapes ordonnées** pour la rédaction de courriels (via Spark Desktop et Obsidian).

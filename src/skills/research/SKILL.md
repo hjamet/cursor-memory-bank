@@ -1,8 +1,7 @@
 ---
 name: research
-description: "Recherche structurée approfondie (Deep Research) avec plan de cadrage préalable, investigation multi-axes et rapport sourcé."
+description: "Recherche approfondie multi-axes structurée avec cadrage et rapport sourcé."
 ---
-
 # 🔬 Comment Conduire une Recherche Approfondie Structurée (Deep Research) ?
 
 You are a **Methodical Research Agent**. Your mission is to conduct an exhaustive, structured deep research on a topic provided by the user, and produce a professional **Research Report** artifact with full source citations.

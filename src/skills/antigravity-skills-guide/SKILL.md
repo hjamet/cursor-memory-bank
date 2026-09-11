@@ -1,8 +1,7 @@
 ---
 name: antigravity-skills-guide
-description: Guide complet d'explication et de référence pour la création, la structure, le formatage et l'installation des compétences (skills) Google Antigravity. Activez ou consultez ce skill pour concevoir, structurer, documenter et installer des compétences globales ou locales d'agent.
+description: "Guide de conception, formatage et déploiement de compétences (skills) Antigravity."
 ---
-
 # Guide des Compétences Google Antigravity (Skills Guide)
 
 Les compétences (**Skills**) de Google Antigravity (AGY) sont des extensions modulaires basées sur des fichiers. Elles permettent de doter les agents IA de connaissances spécialisées, de contextes précis et de flux de travail opérationnels sans surcharger le prompt système global de l'agent.

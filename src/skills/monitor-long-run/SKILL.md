@@ -1,8 +1,7 @@
 ---
 name: monitor-long-run
-description: "Stratégie de monitoring pour les expériences longue durée (overnight runs) sans saturation de contexte."
+description: "Surveillance d'expériences longues durée et overnight runs sans saturer le contexte."
 ---
-
 # 🌙 Comment Surveiller Efficacement une Tâche Longue Durée (Overnight Run) ?
 
 Ce workflow définit comment l'agent doit surveiller une tâche longue (ex: Optimisation Optuna > 1h) sans saturer le contexte ni perdre le contrôle.

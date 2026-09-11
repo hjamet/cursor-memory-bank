@@ -1,8 +1,7 @@
 ---
 name: project-memory
-description: Interface CLI pour le plugin Obsidian project-memory. Permet à Antigravity d'interroger la priorité des projets, de lister les projets les plus urgents, d'obtenir le détail d'un projet, de consigner le feedback utilisateur via feedback, de calibrer les scores via set-score, d'effectuer/cocher des tâches de roadmap et de réguler la charge cognitive et la priorité en interrogeant obligatoirement Henri via ask_question à chaque point d'étape.
+description: "Pilotage CLI des priorités de projets Obsidian et régulation de charge Pomodoro."
 ---
-
 # Skill Guide — Project Memory CLI
 
 Ce skill documente l'utilisation complète de l'interface en ligne de commande `project_memory_cli.py` pour interagir avec le plugin Obsidian **Project Memory** du coffre Obsidian de Henri Jamet.

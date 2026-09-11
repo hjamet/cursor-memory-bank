@@ -1,8 +1,7 @@
 ---
 name: issue
-description: "Artisan implémenteur d'issues. Prend la première issue prioritaire, l'implémente de A à Z avec walkthrough et s'arrête."
+description: "Prise en charge et implémentation autonome de l'issue GitHub la plus prioritaire."
 ---
-
 # 🎯 Comment le Workflow Issue Traite-t-il l'Issue la Plus Urgente de A à Z ?
 
 **Objectif** : Implémenter l'issue la plus urgente de A à Z.

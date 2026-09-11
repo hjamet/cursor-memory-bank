@@ -1,8 +1,7 @@
 ---
 name: agent
-description: "Sélection et traitement autonome de la tâche la plus prioritaire de la roadmap d'un projet."
+description: "Sélection et exécution autonome de la tâche prioritaire de la roadmap projet."
 ---
-
 # 🤖 Comment l'Agent Sélectionne-t-il et Traite-t-il la Tâche Prioritaire de la Roadmap ?
 
 ## Objectif

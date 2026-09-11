@@ -1,8 +1,7 @@
 ---
 name: pull
-description: "Merge autonome des pull requests validées, résolution intelligente de conflits, mise à jour de la roadmap et génération de walkthrough de validation."
+description: "Merge de pull requests validées, résolution de conflits et mise à jour roadmap."
 ---
-
 # 🔀 Comment le Workflow Pull Orchestre-t-il le Merge Autonome des Pull Requests Validées ?
 
 ## 🎯 Quel Est l'Objectif de la Commande Pull ?

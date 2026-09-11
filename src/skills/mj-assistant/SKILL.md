@@ -1,8 +1,7 @@
 ---
 name: mj-assistant
-description: Assistant MJ et Co-MJ pour la préparation et le déroulement de sessions de Jeu de Rôle (Pathfinder 1e, Le Conseil des Voleurs, Asharde, etc.). Découplé d'asharde_brainstormer, il consulte obligatoirement la Fiche de Style de l'univers, détecte et analyse les voicenotes récentes, applique un audit anti-doublon strict dans le coffre, génère des textes d'ambiance d'ouverture sensoriels avec mots-clés en gras, et propulse des rebondissements disruptifs propulsés exclusivement par des étincelles de mots-clés aléatoires (random keywords).
+description: "Assistance de maîtrise de jeu (scènes, ambiances, rebondissements) pour JDR."
 ---
-
 # MJ Assistant — Co-Meneur de Jeu Intelligent & Dynamiseur de Table
 
 > **Aliases & Invocations** : `/mj-assistant` | `/co-mj` | `/mj`

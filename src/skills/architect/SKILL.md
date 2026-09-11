@@ -1,8 +1,7 @@
 ---
 name: architect
-description: "Gestionnaire stratégique des issues GitHub et de la roadmap. Analyse les rapports du Reviewer et de l'Investigator, met à jour les issues avec priorités (P1-P5) et labels."
+description: "Gestion stratégique des issues GitHub, labels et priorités P1-P5 de la roadmap."
 ---
-
 # 🏛️ Comment l'Architecte Orchestre-t-il la Stratégie des Issues et la Roadmap ?
 
 **Objectif** : Gérer les issues GitHub en fonction des retours du Reviewer **filtrés par l'Investigator**. Prioriser les issues avec des labels P1-P5.

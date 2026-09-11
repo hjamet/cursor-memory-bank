@@ -1,8 +1,7 @@
 ---
 name: task
-description: "Ajout instantané d'une tâche contextualisée à la roadmap centralisée sans interrompre le travail en cours."
+description: "Ajout rapide d'une tâche qualifiée à la roadmap d'un projet sans interruption."
 ---
-
 # 📋 Comment Ajouter Rapidement une Tâche Contextualisée à la Roadmap ?
 
 ## Objectif

@@ -1,8 +1,7 @@
 ---
 name: reformulate-human
-description: "Moteur local haute précision SOTA (ai_detector.py, Bagging 5 modèles SOTA, GPU CUDA) et protocole agentique Actor-Critic pour l'humanisation textuelle en boucle fermée au seuil 10% (P(AI) < 0.10), suppression des marqueurs IA et certification sémantique sans hallucination."
+description: "Humanisation de texte et certification anti-détection IA par boucle fermée Actor-Critic."
 ---
-
 # 🛡️ Comment Reformulate-Human et ai_detector.py Éradiquent-ils les Empreintes IA sans Altérer le Sens ?
 
 Ce skill fournit un **moteur local autonome haute précision** d'humanisation textuelle et d'évaluation anti-détection IA, propulsé par l'outil canonique [ai_detector.py](file:///c:/Users/hjamet/Documents/VoiceNotes/antigravity/scripts/ai_detector.py). Il associe une détection SOTA multi-modèles accélérée par GPU CUDA à un protocole agentique en boucle fermée (Actor-Critic).
