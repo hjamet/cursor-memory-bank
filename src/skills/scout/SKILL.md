@@ -12,7 +12,7 @@ description: "Exploration approfondie du contexte, clarification active et produ
 > **🔀 DEUX MODES OPÉRATIONNELS DÉDIÉS.** Mode Enquête Pure (arrêtoir strict après la Section 1 en cas de recherche/questions sans édition) vs Mode Implémentation (Sections 1, 2 et 3 complètes si des modifications de fichiers sont requises).
 > **🗺️ CARTOGRAPHIE VISUELLE STANDARD EN 3 COLONNES VERTICALES.** Intégration systématique en tête de rapport d'un diagramme Mermaid à 3 colonnes verticales (`flowchart TD` avec 3 sous-graphes `subgraph` en `direction TB` chaînés de haut en bas avec `-->`) éliminant toute compression horizontale et garantissant une police de taille normale 100% lisible.
 > **🗣️ SECTION 1 ORAL-FIRST & QUESTIONS D'EXPLORATION PURES.** 1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ...`). Zéro méta-section floue (« décisions d'arbitrage », « points de vigilance ») et ZÉRO prise de décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée. Résolues par puces télégraphiques (`- **[Clé]** : [Valeur]`) ou paragraphes courts (2 à 4 phrases). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des détails techniques ou juridiques lourds vers des sous-artéfacts dédiés dans `brain/<id>/`.
-> **🌳 ARBORESCENCE EN LISTE À PUCES IMBRIQUÉE.** Si une arborescence est requise en complément du diagramme, bannissement formel des blocs de code ```text : obligation d'utiliser des listes à puces Markdown imbriquées standard avec liens cliquables réels et description des changements en UNE ligne concise par fichier.
+> **🚫 SUPPRESSION DE L'ARBORESCENCE REDONDANTE.** Dès lors que la cartographie visuelle à 3 colonnes verticales est générée, toute arborescence textuelle complémentaire est formellement bannie pour éviter les redites. Le rapport passe directement de la cartographie visuelle à la Section 1.
 > **🏗️ SECTION 2 FORMAT GOOGLE NATIF.** Regroupement par Chantier (`### Chantier A : ...`), séparateurs `---` et balisage chirurgical `[MODIFY]`, `[NEW]`, `[DELETE]`.
 > **🧪 SECTION 3 PLAN DE VÉRIFICATION BIPARTI EN TABLEAUX NATIFS.** Cloisonnement strict obligatoirement formalisé sous forme de TABLEAUX Markdown natifs (Contrôles automatisés agent vs Actions manuelles réservées à Henri).
 > **👥 RÈGLE 1:1 DE DÉPLOIEMENT.** Le Scout Lead liste d'abord toutes les questions d'exploration contextuelle à se poser, puis déploie EXACTEMENT 1 sous-agent d'exploration par question ($N$ questions = $N$ sous-agents `self` en stricte lecture seule en parallèle via un unique appel `invoke_subagent`).
@@ -114,8 +114,8 @@ flowchart TD
     EVAL -->|Non : Enquête, Q&A, Diagnostic pur| MODE_ENQUETE["🔍 Mode Enquête Pure"]
     EVAL -->|Oui : Modifications de code / notes prévues| MODE_BUILD["🏗️ Mode Implémentation"]
     
-    MODE_ENQUETE --> ART_1["exploration_report.md<br/>• Introduction & Arborescence<br/>• Section 1 : Questions & Réponses Oral-First<br/>🛑 ARRÊT STRICT (Zéro Section 2/3)"]
-    MODE_BUILD --> ART_2["exploration_report.md<br/>• Introduction & Arborescence<br/>• Section 1 : Questions & Réponses Oral-First<br/>• Section 2 : Modifications par Chantier (Format Google)<br/>• Section 3 : Plan de Vérification Biparti"]
+    MODE_ENQUETE --> ART_1["exploration_report.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Oral-First<br/>🛑 ARRÊT STRICT (Zéro Section 2/3)"]
+    MODE_BUILD --> ART_2["exploration_report.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Oral-First<br/>• Section 2 : Modifications par Chantier (Format Google)<br/>• Section 3 : Plan de Vérification Biparti"]
 ```
 
 ### 2.1 🔍 En Quoi Consiste le Mode Enquête Pure ?
@@ -126,7 +126,7 @@ flowchart TD
 ### 2.2 🏗️ En Quoi Consiste le Mode Implémentation ?
 - **Déclencheur** : Invoqué pour concevoir, cadrer et planifier des modifications effectives de code, de notes Obsidian, de configuration ou de documentation destinées à être soumises à `/refine` puis appliquées par `/build` (ou `/build` direct en cas de bypass).
 - **Périmètre de l'Artéfact** : Rapport complet et exhaustif articulé en 3 grandes sections :
-  1. **Introduction & Arborescence** : Diagnostic de haut niveau et arborescence prévisionnelle des axes d'investigation en liste à puces Markdown imbriquée.
+  1. **Introduction & Cartographie Visuelle** : Diagnostic de haut niveau et cartographie Mermaid standard en 3 colonnes verticales (l'arborescence textuelle redondante étant formellement bannie).
   2. **Section 1 : Questions Clés & Réponses Oral-First** : Analyse narrative fluide, concise et agréable à lire ou écouter.
   3. **Section 2 : Modifications Proposées par Chantier au Format Natif Google** : Regroupement par chantier (`### Chantier A : ...`), séparateurs `---`, balises `[MODIFY]`, `[NEW]`, `[DELETE]`.
   4. **Section 3 : Plan de Vérification Biparti** : Séparation stricte entre vérifications automatisées par l'agent et vérifications manuelles demandées à Henri.
@@ -136,14 +136,17 @@ flowchart TD
 ## 3. 💬 Comment Clarifier Activement en Amont (Remontée d'Arbitrages au Superviseur Racine) ?
 
 > [!IMPORTANT]
-> **ZÉRO ASSOMPTION & ZÉRO AMBIGUÏTÉ DANS LE RAPPORT.**
-> Le Scout Lead ne devine jamais l'intention d'Henri sur un point structurant.
-> `ask_question` étant réservé exclusivement au Superviseur Racine (`ask_question` interdit aux sous-agents), le Scout Lead formule proactivement les options d'arbitrage structurées dans son rapport ou message de restitution pour permettre au Superviseur Racine d'interroger Henri si nécessaire.
+> **ZÉRO ASSOMPTION, ZÉRO AMBIGUÏTÉ & OBLIGATION STRICTE D'ARBITRAGE ACTIF (`ask_question`).**
+> Le Scout Lead ne devine jamais l'intention d'Henri sur un point structurant ou une incertitude métier.
+> **Interdiction formelle de passivité** : Si le Scout Lead identifie la moindre incertitude, zone d'ombre, question ouverte ou arbitrage métier (par ex. choix d'un seuil, d'une modalité d'exécution ou d'une conception), il est **STRICTEMENT INTERDIT de la laisser dormir dans un tableau passif ou une note annexe sans action**.
+> Le Scout Lead formule obligatoirement les options d'arbitrage structurées dans son message de restitution (`send_message`) au Superviseur Racine ($P=0$).
+> Le Superviseur Racine a l'**obligation stricte de déclencher immédiatement `ask_question`** auprès d'Henri au même tour pour obtenir sa décision tranchée avant de valider l'artéfact ou de passer au `/build`.
 
 ### ❓ Quelles Sont les Règles d'Or du Questionnement et des Arbitrages ?
-1. **Identification Préalable** : Toutes les questions d'arbitrage fonctionnel, de choix d'architecture ou de compromis technique sont identifiées et formulées dès l'exploration.
+1. **Remontée Systématique Active** : Dès qu'une incertitude, variante ou décision structurante émerge, le Scout Lead formalise obligatoirement les options dans son retour de restitution au Superviseur Racine.
 2. **Options Claires & Recommandation** : Chaque arbitrage propose des options explicites formulées du point de vue d'Henri, avec l'option recommandée en tête préfixée de `(Recommandé)`.
-3. **Zéro Section Miroir dans l'Artéfact** : Il est formellement interdit de créer une section du type "Réponses d'Henri aux questions". Les arbitrages arrêtés sont directement fondus dans les spécifications et choix techniques du rapport.
+3. **Déclenchement Mandatoire par le Superviseur Racine** : Le Superviseur Racine ($P=0$) utilise obligatoirement l'outil `ask_question` au même tour où le Scout Lead lui remonte ces arbitrages.
+4. **Zéro Section Miroir dans l'Artéfact** : Il est formellement interdit de créer une section du type "Réponses d'Henri aux questions". Les arbitrages arrêtés sont directement fondus dans les spécifications et choix techniques du rapport.
 
 ---
 
@@ -271,20 +274,6 @@ flowchart TD
 
 ---
 
-## 🗺️ Arborescence Prévisionnelle des Changements (Optionnel / Complémentaire)
-
-> [!IMPORTANT]
-> **Bannissement Formel des Blocs de Code ```text** :
-> Si une arborescence détaillée est nécessaire en complément de la cartographie visuelle, elle est obligatoirement formalisée en liste à puces Markdown imbriquée standard avec liens cliquables réels vers les fichiers sources et description des changements en **UNE ligne concise par fichier**.
-
-- **racine/**
-  - **axe_1_architecture/**
-    - [point_focal.ext](file:///chemin/absolu/vers/point_focal.ext) : Description du changement prévu en une ligne concise
-  - **axe_2_integration/**
-    - [interface.ext](file:///chemin/absolu/vers/interface.ext) : Description du changement ou contrat prévu en une ligne concise
-
----
-
 ## 🗣️ Section 1 : Questions Clés d'Exploration & Réponses Détaillées (Oral-First)
 
 > [!IMPORTANT]
@@ -373,13 +362,6 @@ En Mode Enquête Pure, l'artéfact s'arrête strictement après la Section 1 :
 # 🧭 Rapport d'Exploration : [Titre du Sujet / Question]
 
 [Description synthétique et dense du sujet investigué et du contexte.]
-
-## 🗺️ Arborescence Prévisionnelle des Axes d'Investigation
-- **axes_recherche/**
-  - **axe_1_technique/**
-    - [analyse_technique.md](file:///chemin/absolu/axe_1/analyse_technique.md) : Diagnostic d'architecture en une ligne concise
-  - **axe_2_conceptuel/**
-    - [cadrage_theorique.md](file:///chemin/absolu/axe_2/cadrage_theorique.md) : Modèle conceptuel et état de l'art en une ligne concise
 
 ---
 

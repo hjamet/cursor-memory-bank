@@ -16,7 +16,7 @@ description: "Affinement critique et consolidation de l'exploration. Challenge e
 > **🗺️ CARTOGRAPHIE VISUELLE STANDARD EN 3 COLONNES VERTICALES.** Même cartographie que Scout : intégration systématique en tête de rapport d'un diagramme Mermaid à 3 colonnes verticales (`flowchart TD` avec 3 sous-graphes `subgraph` en `direction TB` chaînés de haut en bas avec `-->`) éliminant toute compression horizontale et garantissant une police de taille normale 100% lisible.
 > **🗣️ SECTION 1 ORAL-FIRST & QUESTIONS D'EXPLORATION PURES.** 1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ...`). Zéro méta-section floue (« décisions d'arbitrage », « points de vigilance ») et ZÉRO prise de décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée. Résolues par puces télégraphiques (`- **[Clé]** : [Valeur]`) ou paragraphes courts (2 à 4 phrases). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des détails techniques ou juridiques lourds vers des sous-artéfacts dédiés dans `brain/<id>/`.
 > **💡 VISUALISATION DES NOUVEAUTÉS PAR CALLOUTS (ZÉRO DIFF).** Interdiction formelle des blocs de code diff, balises `<span style="...">`, `<del>` ou `<ins>`. Pour chaque endroit modifié ou ajouté lors de l'itération de refine, insérer un simple callout Markdown immédiatement avant (`> [!NOTE] Modifié lors du Refine : ...` ou `> [!TIP] Nouveauté Refine : ...`). À chaque nouvelle itération de refine, nettoyer impérativement TOUS les anciens callouts des itérations précédentes afin de ne mettre en valeur que les deltas exclusifs de l'itération courante.
-> **🌳 ARBORESCENCE EN LISTE À PUCES IMBRIQUÉE.** Si une arborescence est requise en complément du diagramme, bannissement formel des blocs de code ```text : obligation d'utiliser des listes à puces Markdown imbriquées standard avec liens cliquables réels et description des changements en UNE ligne concise par fichier.
+> **🚫 SUPPRESSION DE L'ARBORESCENCE REDONDANTE.** Dès lors que la cartographie visuelle à 3 colonnes verticales est générée, toute arborescence textuelle complémentaire est formellement bannie pour éviter les redites. Le rapport passe directement de la cartographie visuelle à la Section 1.
 > **🏗️ SECTION 2 FORMAT GOOGLE NATIF.** Regroupement par Chantier (`### Chantier A : ...`), séparateurs `---` et balisage chirurgical `[MODIFY]`, `[NEW]`, `[DELETE]`.
 > **🧪 SECTION 3 PLAN DE VÉRIFICATION BIPARTI EN TABLEAUX NATIFS.** Cloisonnement strict obligatoirement formalisé sous forme de TABLEAUX Markdown natifs (Contrôles automatisés agent vs Actions manuelles réservées à Henri).
 > **👥 RÈGLE 1:1 DE DÉPLOIEMENT.** Le Refine Lead liste d'abord toutes les questions d'exploration contextuelle et de challenge à se poser, puis déploie EXACTEMENT 1 sous-agent d'exploration par question ($N$ questions = $N$ sous-agents `self` en stricte lecture seule en parallèle via un unique appel `invoke_subagent`).
@@ -97,11 +97,14 @@ Le Refine Lead applique rigoureusement la règle 1:1 :
 
 ## 3. 💬 Comment Remonter les Arbitrages au Superviseur Racine ?
 
-Le Refine Lead ne devine jamais l'intention d'Henri sur un choix structurant. L'outil `ask_question` lui étant interdit :
-1. Le Refine Lead formalise une synthèse claire du dilemme avec les options envisageables et l'option recommandée préfixée de `(Recommandé)`.
-2. Il transmet cette demande d'arbitrage au Superviseur Racine via `send_message`.
-3. Le Superviseur Racine déclenche `ask_question` auprès d'Henri et renvoie la décision validée au Refine Lead.
-4. Le Refine Lead intègre immédiatement l'arbitrage dans l'artéfact `exploration_report.md`.
+> [!IMPORTANT]
+> **ZÉRO ASSOMPTION, ZÉRO AMBIGUÏTÉ & OBLIGATION STRICTE D'ARBITRAGE ACTIF (`ask_question`).**
+> Si le Refine Lead identifie la moindre incertitude, zone d'ombre, question ouverte ou arbitrage métier/technique (par ex. choix d'un seuil, d'une modalité d'exécution ou d'une conception), il est **STRICTEMENT INTERDIT de la laisser dormir dans un tableau passif ou une note annexe sans action**.
+> Le Refine Lead ne devine jamais l'intention d'Henri sur un choix structurant. L'outil `ask_question` étant réservé exclusivement au Superviseur Racine ($P=0$) :
+> 1. Le Refine Lead formalise obligatoirement une synthèse claire du dilemme avec les options envisageables formulées du point de vue d'Henri et l'option recommandée préfixée de `(Recommandé)`.
+> 2. Il transmet cette demande d'arbitrage au Superviseur Racine via `send_message`.
+> 3. Le Superviseur Racine a l'**obligation stricte de déclencher immédiatement `ask_question`** auprès d'Henri au même tour pour obtenir sa décision tranchée avant de valider l'artéfact ou de passer au `/build`.
+> 4. Le Refine Lead intègre immédiatement l'arbitrage validé dans l'artéfact `exploration_report.md`.
 
 ---
 
@@ -189,20 +192,6 @@ flowchart TD
     end
     C3 --> S3
 ```
-
----
-
-## 🗺️ Arborescence Prévisionnelle des Changements (Optionnel / Complémentaire)
-
-> [!IMPORTANT]
-> **Bannissement Formel des Blocs de Code ```text** :
-> Si une arborescence détaillée est nécessaire en complément de la cartographie visuelle, elle est obligatoirement formalisée en liste à puces Markdown imbriquée standard avec liens cliquables réels vers les fichiers sources et description des changements en **UNE ligne concise par fichier**.
-
-- **racine/**
-  - **axe_1_architecture/**
-    - [point_focal.ext](file:///chemin/absolu/vers/point_focal.ext) : Description du changement prévu en une ligne concise
-  - **axe_2_integration/**
-    - [interface.ext](file:///chemin/absolu/vers/interface.ext) : Description du changement ou contrat prévu en une ligne concise
 
 ---
 
@@ -297,13 +286,6 @@ En Mode Enquête Pure, l'artéfact s'arrête strictement après la Section 1 :
 # 🧭 Rapport d'Exploration : [Titre du Sujet / Question]
 
 [Description synthétique et dense du sujet investigué et du contexte.]
-
-## 🗺️ Arborescence Prévisionnelle des Axes d'Investigation
-- **axes_recherche/**
-  - **axe_1_technique/**
-    - [analyse_technique.md](file:///chemin/absolu/axe_1/analyse_technique.md) : Diagnostic d'architecture en une ligne concise
-  - **axe_2_conceptuel/**
-    - [cadrage_theorique.md](file:///chemin/absolu/axe_2/cadrage_theorique.md) : Modèle conceptuel et état de l'art en une ligne concise
 
 ---
 
