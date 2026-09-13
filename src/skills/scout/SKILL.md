@@ -14,12 +14,12 @@ description: "Exploration approfondie du contexte, clarification active et produ
 > - **🔒 IMMUTABILITÉ ABSOLUE DES RAPPORTS PASSÉS** : Les rapports antérieurs (`exploration_report_1.md` à `exploration_report_{X-1}.md`) sont strictement intouchables et verrouillés.
 > - **⚡ RÈGLE DU DELTA PUR** : Le rapport $X$ ne recopie JAMAIS le plan précédent. Si Henri n'a commenté ou contesté qu'un seul élément, le rapport $X$ ne traite QUE de cet élément et des nouveaux éléments introduits.
 > - **📂 ZÉRO COPIE DANS LE BRAIN RACINE** : Le rapport `exploration_report_X.md` est généré exclusivement dans le brain du sous-agent Scout Lead (`<appDataDir>/brain/<scout-lead-id>/exploration_report_X.md`). Le Superviseur Racine le référence par son lien absolu sans jamais le dupliquer dans son propre brain.
-> - **🔀 DEUX MODES OPÉRATIONNELS DÉDIÉS** : Mode Enquête Pure (arrêtoir strict après la Section 1 en cas de recherche/questions sans édition) vs Mode Implémentation (Sections 1, 2 et 3 complètes si des modifications de fichiers sont requises).
+> - **🔀 DEUX MODES OPÉRATIONNELS DÉDIÉS** : Mode Enquête Pure (arrêtoir strict après la Section 1 en cas de recherche/questions sans édition) vs Mode Implémentation (Sections 1 et 2 épurées sans Section 3 si des modifications de fichiers sont requises).
 > - **🗺️ CARTOGRAPHIE VISUELLE STANDARD EN 3 COLONNES VERTICALES** : Intégration systématique en tête de rapport d'un diagramme Mermaid à 3 colonnes verticales (`flowchart TD` avec 3 sous-graphes `subgraph` en `direction TB` chaînés de haut en bas avec `-->`) éliminant toute compression horizontale et garantissant une police de taille normale 100% lisible.
-> - **🗣️ SECTION 1 ORAL-FIRST & QUESTIONS D'EXPLORATION PURES (RÈGLE 1:1)** : 1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ... ?`). Zéro méta-section floue et ZÉRO décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée.
+> - **🗣️ SECTION 1 ORAL-FIRST AUTHENTIQUE & QUESTIONS D'EXPLORATION PURES (RÈGLE 1:1)** : 1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ... ?`). Chaque réponse est obligatoirement rédigée sous forme d'un paragraphe continu, fluide, naturel et direct (2 à 4 phrases claires), sans aucune puce, comme si quelqu'un répondait posément à l'oral. Zéro méta-section floue et ZÉRO décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée.
 > - **🚫 SUPPRESSION DE L'ARBORESCENCE REDONDANTE** : Dès lors que la cartographie visuelle à 3 colonnes verticales est générée, toute arborescence textuelle complémentaire est formellement bannie.
-> - **🏗️ SECTION 2 FORMAT GOOGLE NATIF** : Regroupement par Chantier (`### ❓ Quel Est le Périmètre du Chantier N : ... ?`), séparateurs `---` et balisage chirurgical `[MODIFY]`, `[NEW]`, `[DELETE]`.
-> - **🧪 SECTION 3 PLAN DE VÉRIFICATION BIPARTI EN TABLEAUX NATIFS** : Cloisonnement strict obligatoirement formalisé sous forme de TABLEAUX Markdown natifs (Contrôles automatisés agent vs Actions manuelles réservées à Henri).
+> - **🏗️ SECTION 2 CHANTIERS PAR FICHIER SANS QUESTIONS (FORMAT GOOGLE NATIF)** : Regroupement par module logique (`### Chantier X : ...`), ciblage direct des fichiers (`[NEW]`, `[MODIFY]`, `[DELETE]`) avec rôle et description chirurgicale, et INTERDICTION formelle de formuler des questions dans cette section.
+> - **🛑 SUPPRESSION DÉFINITIVE DE LA SECTION 3** : Le rapport d'exploration en Mode Implémentation se termine immédiatement après le dernier chantier de la Section 2. Aucun tableau de vérification préalable n'est requis dans le rapport d'exploration (les vérifications pragmatiques sont menées directement lors du Build).
 > - **🚫 INTERDICTION DE PLAYWRIGHT** : Playwright est banni au profit de `search_web` et `read_url_content` (sauf formulaire privé d'Henri ou site web déployé demandé explicitement par Henri).
 > - **✍️ PROTOCOLE RÉDACTION PERSONNELLE (≥ 1 paragraphe)** : Pour tout texte personnel ou stratégique : 3 versions complètes d'inspiration proposées via les arbitrages ; si saisie libre d'un brouillon brut, transmission chirurgicale à `/correct`.
 > - **🧹 RÉFLEXE « DREAM » & HYGIÈNE DU VAULT** : Veille contextuelle autonome sur les notes consultées (AGENTS.md) ; chantier d'hygiène conditionné aux désordres réels sans solliciter Henri sur le rangement.
@@ -99,7 +99,7 @@ Le Scout Lead délègue l'exploration du coffre à un sous-agent `self` en lectu
 
 3. **Conditionnalité Stricte du Chantier d'Hygiène** :
    - **Zéro ajout systématique** : Si toutes les notes consultées sont propres, cohérentes et parfaitement alignées, n'ajouter aucune tâche d'organisation inutile.
-   - **Intégration conditionnelle par le Lead** : Sur la base du rapport structuré d'anomalies produit par le sous-scout Vault, le Scout Lead intègre conditionnellement un chantier `### ❓ Quel Est le Périmètre du Chantier : Hygiène & Organisation du Coffre Obsidian (AGENTS.md) ?` **UNIQUEMENT** si des anomalies, incohérences ou désordres réels sont constatés sur les notes consultées.
+   - **Intégration conditionnelle par le Lead** : Sur la base du rapport structuré d'anomalies produit par le sous-scout Vault, le Scout Lead intègre conditionnellement un chantier `### Chantier : Hygiène & Organisation du Coffre Obsidian (AGENTS.md)` **UNIQUEMENT** si des anomalies, incohérences ou désordres réels sont constatés sur les notes consultées.
 
 ---
 
@@ -113,8 +113,8 @@ flowchart TD
     EVAL -->|Non : Enquête, Q&A, Diagnostic pur| MODE_ENQUETE["🔍 Mode Enquête Pure"]
     EVAL -->|Oui : Modifications de code / notes prévues| MODE_BUILD["🏗️ Mode Implémentation"]
     
-    MODE_ENQUETE --> ART_1["exploration_report_X.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Oral-First<br/>🛑 ARRÊT STRICT (Zéro Section 2/3)"]
-    MODE_BUILD --> ART_2["exploration_report_X.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Oral-First<br/>• Section 2 : Modifications par Chantier (Format Google)<br/>• Section 3 : Plan de Vérification Biparti"]
+    MODE_ENQUETE --> ART_1["exploration_report_X.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Oral-First<br/>🛑 ARRÊT STRICT (Zéro Section 2)"]
+    MODE_BUILD --> ART_2["exploration_report_X.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Oral-First<br/>• Section 2 : Modifications par Chantier (Format Google)<br/>🛑 FIN DU RAPPORT (Section 3 supprimée)"]
 ```
 
 ### 2.1 🔍 En Quoi Consiste le Mode Enquête Pure (Arrêt après Section 1) ?
@@ -122,13 +122,12 @@ flowchart TD
 - **Périmètre de l'Artéfact** : L'artéfact `exploration_report_X.md` s'arrête **strictement après la Section 1** (Introduction + Section 1 : Questions Clés & Réponses Oral-First).
 - **Zéro Section Artificielle** : **INTERDICTION FORMELLE** de générer une Section 2 « Modifications Proposées » vide, factice ou superfétatoire s'il n'y a aucun fichier à créer, modifier ou supprimer.
 
-### 2.2 🏗️ En Quoi Consiste le Mode Implémentation (Sections 1, 2 et 3 Complètes) ?
+### 2.2 🏗️ En Quoi Consiste le Mode Implémentation (Sections 1 et 2 Épurées) ?
 - **Déclencheur** : Invoqué pour concevoir, cadrer et planifier des modifications effectives de code, de notes Obsidian, de configuration ou de documentation destinées à être appliquées par `/build`.
-- **Périmètre de l'Artéfact** : Rapport complet articulé en 3 grandes sections :
+- **Périmètre de l'Artéfact** : Rapport complet et épuré articulé en 2 grandes sections après l'introduction :
   1. **Introduction & Cartographie Visuelle** : Diagnostic de haut niveau et cartographie Mermaid standard en 3 colonnes verticales.
-  2. **Section 1 : Questions Clés & Réponses Oral-First** : Analyse factuelle dense, nette et chiffrée issue de la règle 1:1.
-  3. **Section 2 : Modifications Proposées par Chantier au Format Natif Google** : Regroupement par chantier (`### ❓ Quel Est le Périmètre du Chantier N : ... ?`), séparateurs `---`, balises `[MODIFY]`, `[NEW]`, `[DELETE]`.
-  4. **Section 3 : Plan de Vérification Biparti** : Séparation stricte en deux tableaux Markdown natifs entre vérifications automatisées par l'agent et vérifications manuelles réservées à Henri.
+  2. **Section 1 : Questions Clés & Réponses Oral-First** : Analyse factuelle dense, nette et chiffrée issue de la règle 1:1, rédigée en paragraphes continus fluides sans aucune puce.
+  3. **Section 2 : Modifications Proposées par Chantier au Format Natif Google** : Regroupement par module logique (`### Chantier N : ...`), séparateurs `---`, balises directes `[MODIFY]`, `[NEW]`, `[DELETE]`, sans aucune question. Le rapport se termine net après cette section.
 
 ---
 
@@ -144,7 +143,7 @@ flowchart TD
 - **Traitement Chirurgical des Remarques** : Si Henri n'a commenté, corrigé ou contesté qu'un seul élément ou ajouté un chantier spécifique :
   - La Section 1 du rapport $X$ ne contient QUE les questions d'investigation relatives à ce nouvel élément.
   - La Section 2 du rapport $X$ ne détaille QUE les chantiers modifiés ou ajoutés par cette itération.
-  - La Section 3 du rapport $X$ ne liste QUE les vérifications associées à ce delta.
+  - Zéro Section 3.
 - **Zéro Redondance** : Tout ce qui a déjà été cadré dans les rapports $1$ à $X-1$ et non remis en cause par Henri reste acquis et sera consolidé plus tard lors du `/build`.
 
 ### 3.3 📂 Où Est Stocké l'Artéfact et Pourquoi Zéro Copie dans le Brain Racine ?
@@ -213,13 +212,13 @@ Le Scout Lead produit son livrable via l'outil `write_to_file` dans son brain : 
 ### 6.1 📐 Quelle Est la Structure Canonique en Mode Implémentation ?
 
 ```markdown
-# 🧭 Rapport d'Exploration X : [Titre du Projet / Objectif]
+# 🧭 Rapport d'Exploration X : [Titre du Projet / Objectif] ?
 
 [Description synthétique et dense de l'objectif, du contexte métier et de la cible architecturale.]
 
 ---
 
-## 🗺️ Cartographie Visuelle des Changements Prévus (3 Colonnes Verticales)
+## 🗺️ Comment Se Cartographient les Changements Prévus (3 Colonnes Verticales) ?
 
 > [!IMPORTANT]
 > **Diagramme Mermaid Standard à 3 Colonnes Verticales** :
@@ -255,30 +254,37 @@ flowchart TD
 
 ---
 
-## 🗣️ Section 1 : Questions Clés d'Exploration & Réponses Détaillées (Oral-First)
+## 🗣️ Section 1 : Quelles Sont les Questions Clés d'Exploration & Réponses Détaillées (Oral-First) ?
 
 > [!IMPORTANT]
-> **Doctrine Canonique des Questions d'Exploration Contextuelle** :
+> **Doctrine Canonique des Questions d'Exploration Contextuelle & Format Oral-First Authentique** :
 > - **Questions d'exploration contextuelle pures** : Ce sont les questions d'information pures (« De quoi ai-je besoin pour faire le plan ? Qu'est-ce que je dois savoir ? »).
 > - **1 Question H3 par élément d'investigation** : Chaque élément investigué doit impérativement faire l'objet de sa PROPRE question H3 dédiée (`### ❓ [Question d'exploration précise] ?`).
 > - **Correspondance 1:1 avec les sous-agents** : Chaque question H3 correspond exactement à la mission assignée à 1 sous-agent d'exploration (`self` en stricte lecture seule, P=2).
 > - **Bannissement formel des méta-sections vagues** : INTERDICTION FORMELLE de regrouper les investigations sous des méta-sections artificielles ou vagues (« Décisions d'arbitrage », « Points de vigilance »).
 > - **Zéro décision ni point de vigilance en Section 1** : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée.
-> - **Format des réponses** : Réponses directes sous forme de puces télégraphiques (`- **[Clé]** : [Valeur brute]`) ou paragraphes courts (2 à 4 phrases maximum). Déport systématique des analyses exhaustives vers des sous-artéfacts dédiés dans `brain/<scout-lead-id>/nom_sous_analyse.md`.
+> - **Format Oral-First Continu Obligatoire** : Rédiger chaque réponse sous forme d'un paragraphe continu, fluide, naturel et direct (2 à 4 phrases claires), sans aucune puce, comme si quelqu'un répondait posément à l'oral. Bannissement formel des listes à puces hachées (`- **[Clé]** : [Valeur]`). Déport systématique des analyses exhaustives ou volumineuses vers des sous-artéfacts dédiés dans `brain/<scout-lead-id>/nom_sous_analyse.md`.
 
 ### ❓ [Première question d'exploration contextuelle précise issue du cadrage 1:1] ?
-- **[Fait / Mesure clé]** : Réponse factuelle dense, nette, chiffrée issue de l'investigation
-- **[Source / Référence]** : Citation exacte, chemin absolu, commit ou URL vérifiée
+
+[Réponse rédigée sous forme d'un paragraphe continu, fluide et naturel de 2 à 4 phrases claires, sans aucune puce. Elle apporte immédiatement les faits clés, les chiffres et les sources vérifiées comme si l'agent répondait posément à l'oral.]
 
 ### ❓ [Deuxième question d'exploration contextuelle précise issue du cadrage 1:1] ?
-- **[Fait / Mesure clé]** : Réponse factuelle dense et détaillée
-- **[Contrainte technique]** : Donnée d'observation directe sans extrapolation
+
+[Réponse rédigée sous forme d'un paragraphe continu, fluide et direct de 2 à 4 phrases claires, sans aucune puce. Elle expose directement les contraintes techniques observées et les implications architecturales sans extrapolation.]
 
 ---
 
-## 🏗️ Section 2 : Modifications Proposées (Format Natif Google)
+## 🏗️ Section 2 : Quelles Sont les Modifications Proposées par Chantier (Format Natif Google) ?
 
-### ❓ Quel Est le Périmètre du Chantier 1 : [Nom du premier chantier / module logique] ?
+> [!IMPORTANT]
+> **Chantiers par Fichier Ciblé Sans Questions en Section 2** :
+> - **Regroupement logique** : Les chantiers regroupent les modifications par module logique (`### Chantier X : ...`).
+> - **Ciblage chirurgical direct** : Chaque fichier impacté est clairement identifié (`#### [MODIFY] [nom](file:///...)`, `#### [NEW]`, `#### [DELETE]`).
+> - **Description technique directe** : Chaque fichier spécifie son rôle/cible, la modification chirurgicale prévue et les garde-fous associés.
+> - **Interdiction formelle de formuler des questions** : INTERDICTION FORMELLE de formuler des questions dans cette section (proscription des titres de type `### ❓ Quel Est le Périmètre... ?`). La description doit être directe, affirmative et technique.
+
+### Chantier 1 : [Nom du premier chantier / module logique]
 
 #### [MODIFY] [nom_du_fichier.ext](file:///chemin/absolu/nom_du_fichier.ext)
 - **Cible** : [Classe / Méthode / Section spécifique]
@@ -291,7 +297,7 @@ flowchart TD
 
 ---
 
-### ❓ Quel Est le Périmètre du Chantier 2 : [Nom du deuxième chantier / module logique] ?
+### Chantier 2 : [Nom du deuxième chantier / module logique]
 
 #### [MODIFY] [autre_fichier.ext](file:///chemin/absolu/autre_fichier.ext)
 - **Cible** : [Spécifications chirurgicales]
@@ -301,61 +307,39 @@ flowchart TD
 
 ---
 
-### ❓ Quel Est le Périmètre du Chantier : Hygiène & Organisation du Coffre Obsidian (AGENTS.md) ? *(Conditionnel — uniquement si anomalies réelles détectées)*
+### Chantier 3 : Hygiène & Organisation du Coffre Obsidian (AGENTS.md) *(Conditionnel — uniquement si anomalies réelles détectées)*
 
 #### [MODIFY] [[Nom de la Note Maîtresse.md]]
 - **Action** : [Rattachement du transcript voicenote sous H1, maillage wikilinks [[...]]]
 
 #### [MODIFY] [[Note Concernée.md]]
 - **Action** : [Formulation des titres Q/R finissant par ?, wikilinks [[...]], purge des faits obsolètes]
-
----
-
-## 🧪 Section 3 : Plan de Vérification Biparti (Tableaux Markdown Natifs)
-
-> [!IMPORTANT]
-> **Obligation de Tableaux Markdown Natifs** :
-> La Section 3 est obligatoirement formalisée sous la forme de deux tableaux distincts : un tableau pour les vérifications automatisées par l'agent (phase Build) et un tableau pour les vérifications manuelles réservées à Henri.
-
-### 🤖 Quelles Sont les Vérifications Automatisées par l'Agent (Phase Build) ?
-
-| Domaine / Cible | Commande ou Mécanisme de Test | Résultat Attendu & Garde-Fou |
-|---|---|---|
-| **Compilation & Syntaxe** | `[Commande exacte de build ou lint]` | Exit code 0, zéro erreur de syntaxe |
-| **Audit des Signatures & Contrats** | `[Script ou vérification des interfaces]` | Types et arguments conformes aux attentes |
-| **Validation Fonctionnelle Live** | `[Script jetable dans scratch/ ou commande]` | Comportement nominal constaté sur sortie brute |
-
-### 👤 Quelles Sont les Vérifications Manuelles Réservées à Henri ?
-
-| Volet de Contrôle | Action Spécifique demandée à Henri | Critère d'Acceptation Métier |
-|---|---|---|
-| **Inspection Visuelle / UI** | [Observer le rendu de l'interface ou de la note] | Rendu conforme, fluidité et lisibilité |
-| **Validation Métier & UX** | [Tester le cas d'usage en conditions réelles] | Comportement fonctionnel conforme aux attentes |
 ```
 
 ### 6.2 📐 Quelle Est la Structure Canonique en Mode Enquête Pure ?
 
 En Mode Enquête Pure, l'artéfact s'arrête strictement après la Section 1 :
+
 ```markdown
-# 🧭 Rapport d'Exploration X : [Titre du Sujet / Question]
+# 🧭 Rapport d'Exploration X : [Titre du Sujet / Question] ?
 
 [Description synthétique et dense du sujet investigué et du contexte.]
 
 ---
 
-## 🗣️ Section 1 : Questions Clés d'Exploration & Réponses Détaillées (Oral-First)
+## 🗣️ Section 1 : Quelles Sont les Questions Clés d'Exploration & Réponses Détaillées (Oral-First) ?
 
 > [!IMPORTANT]
-> **Questions d'Exploration Pures en Enquête** :
-> Chaque élément d'investigation fait l'objet de sa propre question H3 dédiée (`### ❓ [Question d'investigation précise] ?`). Zéro méta-section vague : questions directes et réponses factuelles denses.
+> **Questions d'Exploration Pures en Enquête & Format Oral-First** :
+> Chaque élément d'investigation fait l'objet de sa propre question H3 dédiée (`### ❓ [Question d'investigation précise] ?`). Zéro méta-section vague : chaque réponse est rédigée en un paragraphe continu, fluide et direct (2 à 4 phrases claires), sans aucune puce.
 
 ### ❓ [Première question d'investigation précise issue du cadrage 1:1] ?
-- **[Constat factuel]** : Réponse dense, nette et chiffrée
-- **[Preuve brute]** : Extrait vérifié, log ou citation mot à mot
+
+[Réponse factuelle rédigée en un paragraphe continu, fluide et naturel de 2 à 4 phrases claires, sans aucune puce, synthétisant les constats bruts et extraits vérifiés sans verbiage.]
 
 ### ❓ [Deuxième question d'investigation précise issue du cadrage 1:1] ?
-- **[Constat factuel]** : Réponse factuelle détaillée
-- **[Synthèse d'analyse]** : Constat issu de l'exploration sans extrapolation
+
+[Réponse factuelle rédigée en un paragraphe continu et direct de 2 à 4 phrases claires, sans aucune puce, exposant les résultats de l'exploration technique de manière posée.]
 ```
 
 ---
@@ -372,7 +356,7 @@ Le Superviseur Racine compose sa réponse dans le chat avec scrupule :
    Le Superviseur Racine insère systématiquement le tableau cumulatif de tous les rapports produits durant la session :
 
 ```markdown
-### 📑 Historique des Rapports d'Exploration
+### 📑 Quel Est l'Historique des Rapports d'Exploration ?
 
 | Rapport | Type & Statut | Synthèse du Contenu & Nouveautés |
 |---|:---:|---|

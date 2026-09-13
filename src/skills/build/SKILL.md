@@ -10,13 +10,14 @@ description: "Fusion conservatrice des rapports d'exploration et coordination d'
 > **DOCTRINE CARDINALE DU BUILD LEAD ($P=1$) :**
 > - **🏛️ COORDINATEUR PUR SANS CODER** : Le Build Lead ne touche JAMAIS au code source ni aux notes du projet. Il ne crée ni ne modifie aucun fichier en dehors de ses propres artéfacts de session dans `brain/<build-lead-id>/`.
 > - **📥 ENTRÉE STANDARDISÉE** : Le Build Lead est appelé exclusivement avec son skill et la liste exhaustive des chemins absolus de tous les rapports d'exploration produits lors de la session (`exploration_report_1.md` à `exploration_report_X.md`).
-> - **🧩 MERGE CONSERVATEUR TOTAL (ADDITIVE & CONFLICT-RESOLVED)** :
+> - **🧩 MERGE CONSERVATEUR TOTAL DES SECTIONS 1 ET 2 (ADDITIVE & CONFLICT-RESOLVED)** :
+>   - **Consommation des Sections 1 et 2** : Le Build Lead fusionne exclusivement les Sections 1 (questions et réponses contextuelles) et 2 (modifications par chantier) des différents rapports `exploration_report_X.md` pour concevoir le plan final `implementation_plan.md`. Aucune Section 3 n'est requise dans les rapports d'exploration.
 >   - **Règle de Conservation Additive** : Tout ce qui a été défini dans les premiers rapports et non expressément contredit reste 100% valide et est obligatoirement conservé dans le plan final. Zéro suppression involontaire !
 >   - **Règle de Préséance Temporelle** : En cas de contradiction explicite ou de décision modifiée par Henri dans un rapport ultérieur, c'est le rapport le plus récent ($X > X-1 > \dots > 1$) qui prévaut et écrase l'ancienne directive.
 > - **📝 PLAN FINAL IMMÉDIAT (`implementation_plan.md`)** : Généré immédiatement dans son brain (`<appDataDir>/brain/<build-lead-id>/implementation_plan.md`), découpé en chantiers étanches numérotés (`Chantier 1`, `Chantier 2`...).
 > - **📢 PUBLICATION ET ANNONCE DANS LE CHAT** : Dès la fusion achevée, le Build Lead envoie un message au Superviseur Racine qui affiche immédiatement dans le chat le lien vers le plan et la liste des chantiers programmés.
 > - **🚀 PROGRESSION PAS-À-PAS EN TEMPS RÉEL** : 1 chantier étanche = 1 sous-agent worker feuille ($P=2$, `TypeName: 'self'`, `Workspace: 'inherit'`). À chaque chantier validé, notification au Superviseur Racine qui actualise le chat : `✅ Chantier N terminé ([Nom]) ➔ 🚀 Lancement du Chantier N+1 ([Nom])`.
-> - **🧪 INTÉGRATION GLOBALE & WALKTHROUGH** : Un worker final ($P=2$) vérifie l'intégrité globale (compilation, syntaxe, imports, exécution live). Le Build Lead publie `walkthrough.md`.
+> - **🧪 VÉRIFICATIONS AUTONOMES & WALKTHROUGH** : Les workers de chantier ($P=2$) et le worker final d'intégration ($P=2$) mènent les vérifications de compilation, de syntaxe et les validations fonctionnelles en direct de manière autonome pour alimenter `walkthrough.md` sans dépendre d'une grille préalable dans les rapports d'exploration. Le Build Lead publie `walkthrough.md`.
 > - **🧹 CLEAN SLATE POST-BUILD** : Une fois le travail validé, le plan d'implémentation est vidé pour clore proprement la session.
 
 ---
@@ -44,8 +45,8 @@ description: "Fusion conservatrice des rapports d'exploration et coordination d'
 
 ```mermaid
 flowchart TD
-    INPUT["📥 Chemins des Rapports Reçus :<br/>exploration_report_1.md ... exploration_report_X.md"] --> READ["📖 Lecture Intégrale de Tous les Rapports (1 à X)"]
-    READ --> ADDITIVE["🧩 Application Règle Additive :<br/>Conservation de tous les chantiers initiaux"]
+    INPUT["📥 Chemins des Rapports Reçus :<br/>exploration_report_1.md ... exploration_report_X.md"] --> READ["📖 Lecture des Sections 1 & 2 de Tous les Rapports (1 à X)"]
+    READ --> ADDITIVE["🧩 Application Règle Additive :<br/>Conservation de tous les chantiers et intentions initiales"]
     ADDITIVE --> RESOLVE["⚡ Résolution de Conflits :<br/>Le rapport le plus récent (X > ... > 1) prévaut en cas de contradiction"]
     RESOLVE --> PLAN["📝 Rédaction de implementation_plan.md<br/>dans brain/<build-lead-id>/"]
 ```
@@ -62,8 +63,9 @@ flowchart TD
 - **Lecture des Artéfacts** : Le Build Lead lit chaque rapport via `view_file` (autorisé sur les fichiers d'artéfacts brain).
 
 ### 2.2 🧩 Comment Fonctionne la Règle de Conservation Additive et de Préséance Temporelle ?
-1. **Conservation Additive Totale** :
-   - Tout objectif, spécification technique, fichier ciblé ou chantier défini dans `exploration_report_1.md` (ou rapports intermédiaires) reste **100% valide** et est **obligatoirement conservé** s'il n'a pas été explicitement révoqué ou modifié par un rapport ultérieur.
+1. **Conservation Additive Totale des Sections 1 et 2** :
+   - Tout objectif, analyse contextuelle, fichier ciblé ou chantier défini dans la Section 1 et la Section 2 d'`exploration_report_1.md` (ou rapports intermédiaires) reste **100% valide** et est **obligatoirement conservé** s'il n'a pas été explicitement révoqué ou modifié par un rapport ultérieur.
+   - Les rapports d'exploration se concentrent sur le delta et s'arrêtent net après la Section 2 : aucune Section 3 n'est requise dans les rapports d'exploration. Le Build Lead structure directement les chantiers et les vérifications dans `implementation_plan.md`.
    - Zéro omission involontaire lors du passage au Build : rien n'est perdu entre les itérations.
 2. **Préséance Temporelle Strictement Décroissante** :
    - Si une orientation, un choix d'outil, une architecture ou un paramètre présent dans un rapport ancien est modifié dans un rapport plus récent, **c'est la décision du rapport le plus récent qui fait foi** ($X > X-1 > \dots > 1$).
@@ -73,10 +75,10 @@ flowchart TD
 Le Build Lead formalise la synthèse consolidée sous forme d'un artéfact unique `implementation_plan.md` enregistré dans son brain (`<appDataDir>/brain/<build-lead-id>/implementation_plan.md`) via `write_to_file` :
 
 ```markdown
-# 🏗️ Plan d'Implémentation Consolidé : [Objectif Global]
+# 🏗️ Comment S'Articule le Plan d'Implémentation Consolidé : [Objectif Global] ?
 
-## 🎯 Synthèse de la Fusion Conservatrice
-- **Rapports Fusionnés** : Du rapport 1 au rapport X
+## 🎯 Quelle Est la Synthèse de la Fusion Conservatrice ?
+- **Rapports Fusionnés** : Du rapport 1 au rapport X (Sections 1 & 2 consolidées)
 - **Nombre de Chantiers Étanchements Programmés** : N chantiers
 
 ---
@@ -97,8 +99,8 @@ Le Build Lead formalise la synthèse consolidée sous forme d'un artéfact uniqu
 
 ---
 
-## 🧪 Protocole de Vérification d'Intégration Globale
-- **Vérifications automatisées à exécuter** : [Compilations, tests fonctionnels live, vérification des contrats]
+## 🧪 Comment S'Organise le Protocole de Vérification d'Intégration Globale ?
+- **Vérifications automatisées à exécuter par les workers** : [Compilations, linters, tests fonctionnels live, validation des contrats]
 - **Actions manuelles réservées à Henri** : [Contrôles visuels ou applicatifs métier]
 ```
 
@@ -147,7 +149,7 @@ flowchart TD
   1. Édition chirurgicale in-situ. Zéro régression, zéro erreur silencieuse.
   2. S'aligner fidèlement sur l'architecture et les conventions existantes.
   3. INTERDICTION FORMELLE de déployer des sous-agents (exécutant direct P=2).
-  4. Valider tes modifications localement (syntaxe, lint, exécution ciblée).
+  4. Mener de manière autonome toutes les vérifications locales (compilation, syntaxe, lint, tests live dans scratch).
   5. Rapporter la fin du chantier avec preuves matérielles brutes par send_message au Build Lead.
   ```
 
@@ -163,25 +165,25 @@ flowchart TD
 
 ## 5. 🧪 Comment Vérifier l'Intégration Globale et Rédiger le Walkthrough ?
 
-### 5.1 🤖 Comment le Worker Final ($P=2$) Valide-t-il l'Intégrité Matérielle ?
+### 5.1 🤖 Comment le Worker Final ($P=2$) Valide-t-il l'Intégrité Matérielle Autonome ?
 Une fois l'ensemble des chantiers achevés, le Build Lead déploie un sous-agent worker final d'intégration (`Role: "Integration & Verification Worker"`, `TypeName: "self"`, `Workspace: "inherit"`).
-Ce worker a pour mandat :
+Ce worker final mène de façon autonome et rigoureuse l'ensemble des vérifications nécessaires (sans dépendre d'une grille prédéfinie dans les rapports d'exploration) :
 1. **Compilation & Syntaxe** : Exécution réelle des commandes de compilation, linters ou analyse statique (`exit code 0`).
 2. **Audit des Interfaces & Imports** : Vérification de la synchronisation de tous les modules modifiés ou créés.
-3. **Validation Fonctionnelle Live** : Lancement d'un test fonctionnel concret ou d'une commande d'inspection sur les sorties réelles.
+3. **Validation Fonctionnelle Live** : Lancement d'un test fonctionnel concret ou d'une commande d'inspection sur les sorties réelles (scripts jetables dans `<appDataDir>/brain/<build-lead-id>/scratch/`).
 4. **Rapport de Clôture** : Envoi au Build Lead des preuves matérielles brutes (logs, sorties de commandes, métriques réelles).
 
 ### 5.2 📄 Quelle Est la Structure Canonique de walkthrough.md ?
 Le Build Lead produit l'artéfact `walkthrough.md` dans son brain (`<appDataDir>/brain/<build-lead-id>/walkthrough.md`) via `write_to_file` :
 
 ```markdown
-# 🏗️ Walkthrough d'Implémentation : [Titre du Projet]
+# 🏗️ Walkthrough d'Implémentation : [Titre du Projet] ?
 
-## 🎯 Rappel de la Mission & Synthèse Exécutive
-- **Plan Fusionné** : `implementation_plan.md` (consolidation des rapports 1 à X)
+## 🎯 Quel Est le Rappel de la Mission & la Synthèse Exécutive ?
+- **Plan Fusionné** : `implementation_plan.md` (consolidation des Sections 1 & 2 des rapports 1 à X)
 - **Chantiers Réalisés** : [Liste ordonnée des chantiers menés à bien]
 
-## 🛠️ Modifications Chirurgicales Réalisées par Chantier
+## 🛠️ Quelles Sont les Modifications Chirurgicales Réalisées par Chantier ?
 
 ### Chantier 1 : [Nom du Chantier]
 - **Fichiers modifiés / créés** :
@@ -191,15 +193,15 @@ Le Build Lead produit l'artéfact `walkthrough.md` dans son brain (`<appDataDir>
 ### Chantier 2 : [Nom du Chantier]
 - ...
 
-## 🧪 Preuves Matérielles des Vérifications d'Intégration
+## 🧪 Quelles Sont les Preuves Matérielles des Vérifications d'Intégration ?
 
-| Point de Contrôle | Commande ou Méthode | Résultat Matériel | Preuve Brute Vérifiée |
+| Point de Contrôle | Commande ou Méthode Autonome | Résultat Matériel | Preuve Brute Vérifiée |
 |---|---|:---:|---|
 | **Compilation / Syntaxe** | `[Commande exacte]` | ✅ Conforme | Exit code 0, zéro erreur |
 | **Cohérence des Interfaces** | Audit signatures & contrats | ✅ Conforme | Types et signatures synchronisés |
 | **Validation Live** | `[Commande / Script live]` | ✅ Validé | [Données / sorties réelles] |
 
-## 👤 Actions Manuelles Réservées à Henri
+## 👤 Quelles Sont les Actions Manuelles Réservées à Henri ?
 - [Vérifications applicatives ou métier spécifiques nécessitant un contrôle visuel par Henri]
 ```
 
