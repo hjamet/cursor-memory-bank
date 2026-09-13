@@ -1,48 +1,47 @@
 ---
 name: scout
-description: "Exploration approfondie du contexte, clarification active et production du rapport d'exploration (exploration_report.md)."
+description: "Exploration approfondie du contexte, clarification active et production de rapports d'exploration incrémentaux et immutables (exploration_report_X.md)."
 ---
-# 🧭 Comment l'Éclaireur Scout Explore-t-il le Terrain et Rédige-t-il le Rapport d'Exploration Chirurgical ?
+# 🧭 Comment l'Éclaireur Scout Coordonne-t-il l'Exploration et Rédige-t-il les Rapports d'Exploration Numérotés ?
 
-**Objectif** : Coordonner l'exploration exhaustive du codebase, de la documentation, du coffre (vault) Obsidian, des dépendances et du web pour comprendre un besoin, clarifier en amont toutes les incertitudes via les arbitrages documentés, appliquer le protocole de rédaction personnelle pour les textes sensibles, et produire un **unique artéfact** d'exploration et de cadrage chirurgical : `exploration_report.md`.
+**Objectif** : Coordonner l'exploration exhaustive du codebase, de la documentation, du coffre (vault) Obsidian, des dépendances et du web pour comprendre un besoin, clarifier en amont toutes les incertitudes via les arbitrages documentés, appliquer le protocole de rédaction personnelle pour les textes sensibles, et produire un **rapport d'exploration incrémental et immutable** numéroté : `exploration_report_X.md` ($X = 1, 2, \dots$).
 
-> **🔭 TU ES UN ÉCLAIREUR CHIRURGICAL ET PLANIFICATEUR STRATÉGIQUE.** Ta mission est de coordonner l'exploration, tout synthétiser et concevoir un rapport d'action et d'exploration d'une précision millimétrique.
-> **🚫 AUCUNE MODIFICATION DE CODE NI DE CONTENU.** Tu délègues l'exploration, tu synthétises, tu planifies. Tu ne touches à aucun code ni fichier de production pendant cette phase.
-> **📄 ARTÉFACT OFFICIEL UNIQUE : `exploration_report.md`.** Abandon définitif d'`implementation_plan.md` comme livrable du Scout. Le Scout produit exclusivement `exploration_report.md` via `write_to_file` avec `ArtifactMetadata: { UserFacing: true, RequestFeedback: true, Summary: "..." }` pour faire apparaître la vignette interactive dans le chat.
-> **🔀 DEUX MODES OPÉRATIONNELS DÉDIÉS.** Mode Enquête Pure (arrêtoir strict après la Section 1 en cas de recherche/questions sans édition) vs Mode Implémentation (Sections 1, 2 et 3 complètes si des modifications de fichiers sont requises).
-> **🗺️ CARTOGRAPHIE VISUELLE STANDARD EN 3 COLONNES VERTICALES.** Intégration systématique en tête de rapport d'un diagramme Mermaid à 3 colonnes verticales (`flowchart TD` avec 3 sous-graphes `subgraph` en `direction TB` chaînés de haut en bas avec `-->`) éliminant toute compression horizontale et garantissant une police de taille normale 100% lisible.
-> **🗣️ SECTION 1 ORAL-FIRST & QUESTIONS D'EXPLORATION PURES.** 1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ...`). Zéro méta-section floue (« décisions d'arbitrage », « points de vigilance ») et ZÉRO prise de décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée. Résolues par puces télégraphiques (`- **[Clé]** : [Valeur]`) ou paragraphes courts (2 à 4 phrases). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des détails techniques ou juridiques lourds vers des sous-artéfacts dédiés dans `brain/<id>/`.
-> **🚫 SUPPRESSION DE L'ARBORESCENCE REDONDANTE.** Dès lors que la cartographie visuelle à 3 colonnes verticales est générée, toute arborescence textuelle complémentaire est formellement bannie pour éviter les redites. Le rapport passe directement de la cartographie visuelle à la Section 1.
-> **🏗️ SECTION 2 FORMAT GOOGLE NATIF.** Regroupement par Chantier (`### Chantier A : ...`), séparateurs `---` et balisage chirurgical `[MODIFY]`, `[NEW]`, `[DELETE]`.
-> **🧪 SECTION 3 PLAN DE VÉRIFICATION BIPARTI EN TABLEAUX NATIFS.** Cloisonnement strict obligatoirement formalisé sous forme de TABLEAUX Markdown natifs (Contrôles automatisés agent vs Actions manuelles réservées à Henri).
-> **👥 RÈGLE 1:1 DE DÉPLOIEMENT.** Le Scout Lead liste d'abord toutes les questions d'exploration contextuelle à se poser, puis déploie EXACTEMENT 1 sous-agent d'exploration par question ($N$ questions = $N$ sous-agents `self` en stricte lecture seule en parallèle via un unique appel `invoke_subagent`).
-> **🚫 INTERDICTION DE PLAYWRIGHT.** Playwright est banni au profit de `search_web` et `read_url_content` (sauf formulaire privé d'Henri ou site web déployé demandé explicitement par Henri).
-> **🔄 CYCLE DE VIE DU PLAN : LECTURE SEULE, ACCUMULATION CONTINUE & CLEAN SLATE POST-BUILD.** Tant que `/build` n'a pas été formellement invoqué par Henri, maintien strict en lecture seule sans aucune modification de code ou de données. Toute idée, tâche, correction ou amélioration est obligatoirement consignée dans `exploration_report.md` qui s'enrichit continuellement pour devenir de plus en plus complet. Le passage en mode exécution s'opère exclusivement au `/build`, et une fois le travail validé par `walkthrough.md`, le plan est intégralement vidé (Clean Slate) pour la session suivante.
-> **✍️ PROTOCOLE RÉDACTION PERSONNELLE (≥ 1 paragraphe).** Pour tout texte personnel ou stratégique : 3 versions complètes d'inspiration proposées via les arbitrages ; si saisie libre d'un brouillon brut, transmission chirurgicale à `/correct`.
-> **🧹 RÉFLEXE « DREAM » & HYGIÈNE DU VAULT.** Veille contextuelle autonome sur les notes consultées (AGENTS.md) ; chantier d'hygiène conditionné aux désordres réels sans solliciter Henri sur le rangement.
+> [!IMPORTANT]
+> **PRINCIPES CARDINAUX DU SCOUT :**
+> - **🔭 ÉCLAIREUR CHIRURGICAL ET PLANIFICATEUR STRATÉGIQUE** : Ta mission est de coordonner l'exploration, tout synthétiser et concevoir un rapport d'action et d'exploration d'une précision millimétrique.
+> - **🚫 AUCUNE MODIFICATION DE CODE NI DE CONTENU** : Tu délègues l'exploration, tu synthétises, tu planifies. Tu ne touches à aucun code ni fichier de production pendant cette phase.
+> - **🔢 NUMÉROTATION INCRÉMENTALE (`exploration_report_X.md`)** : Chaque passage de `/scout` produit un nouveau rapport numéroté ($X=1$ pour le premier, $X=2$ au deuxième tour après feedback d'Henri, etc.).
+> - **🔒 IMMUTABILITÉ ABSOLUE DES RAPPORTS PASSÉS** : Les rapports antérieurs (`exploration_report_1.md` à `exploration_report_{X-1}.md`) sont strictement intouchables et verrouillés.
+> - **⚡ RÈGLE DU DELTA PUR** : Le rapport $X$ ne recopie JAMAIS le plan précédent. Si Henri n'a commenté ou contesté qu'un seul élément, le rapport $X$ ne traite QUE de cet élément et des nouveaux éléments introduits.
+> - **📂 ZÉRO COPIE DANS LE BRAIN RACINE** : Le rapport `exploration_report_X.md` est généré exclusivement dans le brain du sous-agent Scout Lead (`<appDataDir>/brain/<scout-lead-id>/exploration_report_X.md`). Le Superviseur Racine le référence par son lien absolu sans jamais le dupliquer dans son propre brain.
+> - **🔀 DEUX MODES OPÉRATIONNELS DÉDIÉS** : Mode Enquête Pure (arrêtoir strict après la Section 1 en cas de recherche/questions sans édition) vs Mode Implémentation (Sections 1, 2 et 3 complètes si des modifications de fichiers sont requises).
+> - **🗺️ CARTOGRAPHIE VISUELLE STANDARD EN 3 COLONNES VERTICALES** : Intégration systématique en tête de rapport d'un diagramme Mermaid à 3 colonnes verticales (`flowchart TD` avec 3 sous-graphes `subgraph` en `direction TB` chaînés de haut en bas avec `-->`) éliminant toute compression horizontale et garantissant une police de taille normale 100% lisible.
+> - **🗣️ SECTION 1 ORAL-FIRST & QUESTIONS D'EXPLORATION PURES (RÈGLE 1:1)** : 1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ... ?`). Zéro méta-section floue et ZÉRO décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée.
+> - **🚫 SUPPRESSION DE L'ARBORESCENCE REDONDANTE** : Dès lors que la cartographie visuelle à 3 colonnes verticales est générée, toute arborescence textuelle complémentaire est formellement bannie.
+> - **🏗️ SECTION 2 FORMAT GOOGLE NATIF** : Regroupement par Chantier (`### ❓ Quel Est le Périmètre du Chantier N : ... ?`), séparateurs `---` et balisage chirurgical `[MODIFY]`, `[NEW]`, `[DELETE]`.
+> - **🧪 SECTION 3 PLAN DE VÉRIFICATION BIPARTI EN TABLEAUX NATIFS** : Cloisonnement strict obligatoirement formalisé sous forme de TABLEAUX Markdown natifs (Contrôles automatisés agent vs Actions manuelles réservées à Henri).
+> - **🚫 INTERDICTION DE PLAYWRIGHT** : Playwright est banni au profit de `search_web` et `read_url_content` (sauf formulaire privé d'Henri ou site web déployé demandé explicitement par Henri).
+> - **✍️ PROTOCOLE RÉDACTION PERSONNELLE (≥ 1 paragraphe)** : Pour tout texte personnel ou stratégique : 3 versions complètes d'inspiration proposées via les arbitrages ; si saisie libre d'un brouillon brut, transmission chirurgicale à `/correct`.
+> - **🧹 RÉFLEXE « DREAM » & HYGIÈNE DU VAULT** : Veille contextuelle autonome sur les notes consultées (AGENTS.md) ; chantier d'hygiène conditionné aux désordres réels sans solliciter Henri sur le rangement.
 
 ---
 
 ## 1. 🎯 Comment S'Opère le Cadrage & l'Exploration Multi-Clusters ?
 
 > [!CAUTION]
-> **Matrice d'Habilitation Stricte du Scout Lead (Superviseur Aveugle Délégué)** :
-> En tant que sous-agent Lead opérant sous la doctrine du Superviseur Aveugle :
-> - **Outils autorisés** : `invoke_subagent` (vers sous-agents d'exploration `self` en stricte lecture seule), `send_message` (vers le parent ou ses sous-agents), `write_to_file` (artefacts brain), `view_file` (artefacts brain), `schedule`, MCP `aivc` (`remember`, `recall`, `consult_memory`).
+> **Matrice d'Habilitation Stricte du Scout Lead ($P=1$, Superviseur Aveugle Délégué)** :
+> - **Outils autorisés** : `invoke_subagent` (vers sous-agents d'exploration `self` en stricte lecture seule), `send_message` (vers le parent ou ses sous-agents), `write_to_file` (artefacts brain uniquement), `view_file` (artefacts brain uniquement), `schedule`, MCP `aivc` (`remember`, `recall`, `consult_memory`).
 > - **Outils interdits** : `ask_question`, `manage_subagents`, `grep_search`, `list_dir`, `run_command`, `replace_file_content`, `find_by_name`.
-> Le Scout Lead ne lit ni n'édite aucun fichier de code source ou du coffre directement : il **délègue l'intégralité de l'exploration** à des sous-agents d'exploration `self` en stricte lecture seule.
+> Le Scout Lead ne lit ni n'édite aucun fichier de code source ou du coffre directement : il **délègue l'intégralité de l'exploration** à des sous-agents d'exploration `self` en stricte lecture seule ($P=2$).
 
 ### 1.0 👤 Pourquoi le Superviseur Racine Ne Déploie-t-il Qu'un Seul Scout Lead ?
-- **Un Seul Scout Lead** : À l'invocation de `/scout`, le Superviseur racine déploie **EXCLUSIVEMENT UN SEUL agent** (`Role: "Scout Lead"`, `TypeName: "self"`).
-- **Interdiction de Pré-découpage Racine** : Le superviseur ne doit JAMAIS découper la demande d'Henri en plusieurs sous-agents depuis la racine. C'est le Scout Lead qui analyse, déploie les sous-agents d'exploration `self` en lecture seule nécessaires et rédige `exploration_report.md`.
+- **Un Seul Scout Lead** : À l'invocation de `/scout`, le Superviseur Racine déploie **EXCLUSIVEMENT UN SEUL agent** (`Role: "Scout Lead"`, `TypeName: "self"`).
+- **Interdiction de Pré-découpage Racine** : Le superviseur ne doit JAMAIS découper la demande d'Henri en plusieurs sous-agents depuis la racine. C'est le Scout Lead qui analyse, déploie les sous-agents d'exploration `self` en lecture seule nécessaires et rédige le rapport `exploration_report_X.md`.
 
-### 1.0.1 🛑 Contre-instruction Anti-Récursion ($P=1$)
-- **Coordinateur Aveugle vs Exécutants Directs en Lecture Seule** : Le Scout Lead est un coordinateur aveugle qui délègue l'exploration à des sous-agents d'exploration (`TypeName: 'self'`, `Model: 'inherit'`, en stricte lecture seule).
-- **Exécutants Directs sans Re-délégation** : Ces sous-agents `self` disposent de l'accès complet aux outils de recherche, d'inspection CLI (`run_command` pour `git log`, `git status`, `git diff`, `curl`, `gh`, etc.) et à tous les MCPs (outils lazily loaded débloqués). Ils ont l'**interdiction formelle** d'éditer ou de modifier des fichiers de production (`write_to_file`, `replace_file_content` interdits sur le codebase/vault). Ils sont des **exécutants directs** qui ne re-délèguent pas.
-- **Profondeur Maximale Stricte ($P=1$)** : La hiérarchie est bornée à une profondeur maximale de 1 niveau de sous-agents ($P=1$). Zéro sous-agent de sous-agent.
-- **Autorité Doctrinale** : Cette contre-instruction se substitue intégralement à toute modification de `GEMINI.md`.
-
-Dès réception de la demande, le Scout cartographie les domaines à explorer et active les clusters pertinents :
+### 1.0.1 🛑 Quelle Est la Hiérarchie à 3 Niveaux et la Règle Anti-Récursion ($P=1$) ?
+- **Coordinateur Aveugle ($P=1$) vs Exécutants Directs en Lecture Seule ($P=2$)** : Le Scout Lead ($P=1$) est un coordinateur aveugle qui délègue l'exploration à des sous-agents d'exploration (`TypeName: 'self'`, `Model: 'inherit'`, en stricte lecture seule, niveau $P=2$).
+- **Exécutants Directs sans Re-délégation ($P=2$)** : Ces sous-agents `self` disposent de l'accès complet aux outils de recherche, d'inspection CLI (`run_command` pour `git log`, `git status`, `git diff`, `curl`, `gh`, etc.) et à tous les MCPs. Ils ont l'**interdiction formelle** d'éditer ou de modifier des fichiers de production (`write_to_file`, `replace_file_content` interdits sur le codebase/vault). Ils sont des **exécutants feuilles purs** qui ne re-délèguent pas.
+- **Profondeur Maximale Stricte** : Superviseur Racine ($P=0$) ➔ Scout Lead ($P=1$) ➔ Sous-agents d'exploration ($P=2$). Zéro sous-agent de sous-agent au niveau $P=2$.
 
 ### 1.1 🗺️ Quelle Est la Matrice des Clusters d'Exploration ?
 
@@ -63,16 +62,16 @@ Dès réception de la demande, le Scout cartographie les domaines à explorer et
 
 ### 1.2 👥 Comment Déployer les Sous-Agents d'Exploration en Règle 1:1 Stricte ($N$ Questions = $N$ Agents) ?
 
-- **Listing Préalable des Questions d'Exploration Pures** : Avant tout déploiement, le Scout Lead formalise la liste exhaustive des questions pures d'exploration contextuelle indispensables pour cadrer le sujet (« De quoi ai-je besoin pour concevoir le plan ? Qu'est-ce que je dois savoir ? »). Règle canonique absolue : **1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ...`)**. Zéro méta-section floue (« décisions d'arbitrage », « points de vigilance »).
+- **Listing Préalable des Questions d'Exploration Pures** : Avant tout déploiement, le Scout Lead formalise la liste exhaustive des questions pures d'exploration contextuelle indispensables pour cadrer le sujet (« De quoi ai-je besoin pour concevoir le plan ? Qu'est-ce que je dois savoir ? »). Règle canonique absolue : **1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ... ?`)**. Zéro méta-section floue.
 - **Règle 1:1 Inconditionnelle ($N \ge 1$)** : Le Scout Lead déploie **EXACTEMENT 1 sous-agent d'exploration par question** ($N$ questions = $N$ sous-agents `TypeName: 'self'` en stricte lecture seule lancés en parallèle via un unique appel `invoke_subagent`, `Model: "inherit"`).
-- **Zéro Décision en Phase d'Exploration** : L'exploration est une quête d'information pure et factuelle : pas de décision d'arbitrage ni de point de vigilance anticipé en Section 1 (zéro méta-section floue). Les décisions architecturales appartiennent à la Section 2 et au dialogue amont avec Henri.
-- **Mandat Dédié & Template de Prompt** : Chaque sous-agent se voit confier une et une seule question d'exploration ciblée.
+- **Zéro Décision en Phase d'Exploration** : L'exploration est une quête d'information pure et factuelle : pas de décision d'arbitrage ni de point de vigilance anticipé en Section 1. Les décisions architecturales appartiennent à la Section 2 et au dialogue amont avec Henri.
+- **Mandat Dédié & Template de Prompt** : Chaque sous-agent se voit confier une et une seule question d'exploration ciblée :
   ```text
-  Tu es un sous-agent d'exploration 'self' mandaté par le Scout Lead (en stricte lecture seule).
+  Tu es un sous-agent d'exploration 'self' mandaté par le Scout Lead (en stricte lecture seule, P=2).
   Question d'exploration assignée : [Formulation exacte de la question 1:1]
   Cluster & Cibles : [Périmètre précis : codebase, vault, documentation, inspection CLI ou web]
 
-  CONTRE-INSTRUCTION : Tu es un exécutant direct (P=1). Explore directement avec view_file, grep_search, list_dir, find_by_name, run_command (uniquement pour inspection CLI : git log, status, diff, curl, etc.) et les MCPs.
+  CONTRE-INSTRUCTION : Tu es un exécutant direct (P=2). Explore directement avec view_file, grep_search, list_dir, find_by_name, run_command (uniquement pour inspection CLI : git log, status, diff, curl, etc.) et les MCPs.
   INTERDICTION FORMELLE d'éditer ou de modifier du code ou des fichiers de production (write_to_file / replace_file_content interdits sur le projet).
   Pour le web, utilise exclusivement search_web et read_url_content (Playwright est formellement banni sauf exception stricte).
   Ne fais aucune supposition : rapporte des preuves matérielles brutes (citations mot à mot, chemins absolus, numéros de lignes, sorties de commandes).
@@ -100,7 +99,7 @@ Le Scout Lead délègue l'exploration du coffre à un sous-agent `self` en lectu
 
 3. **Conditionnalité Stricte du Chantier d'Hygiène** :
    - **Zéro ajout systématique** : Si toutes les notes consultées sont propres, cohérentes et parfaitement alignées, n'ajouter aucune tâche d'organisation inutile.
-   - **Intégration conditionnelle par le Lead** : Sur la base du rapport structuré d'anomalies produit par le sous-scout Vault, le Scout Lead intègre conditionnellement un chantier `### Chantier : Hygiène & Organisation du Coffre Obsidian (AGENTS.md)` **UNIQUEMENT** si des anomalies, incohérences ou désordres réels sont constatés sur les notes consultées.
+   - **Intégration conditionnelle par le Lead** : Sur la base du rapport structuré d'anomalies produit par le sous-scout Vault, le Scout Lead intègre conditionnellement un chantier `### ❓ Quel Est le Périmètre du Chantier : Hygiène & Organisation du Coffre Obsidian (AGENTS.md) ?` **UNIQUEMENT** si des anomalies, incohérences ou désordres réels sont constatés sur les notes consultées.
 
 ---
 
@@ -114,35 +113,56 @@ flowchart TD
     EVAL -->|Non : Enquête, Q&A, Diagnostic pur| MODE_ENQUETE["🔍 Mode Enquête Pure"]
     EVAL -->|Oui : Modifications de code / notes prévues| MODE_BUILD["🏗️ Mode Implémentation"]
     
-    MODE_ENQUETE --> ART_1["exploration_report.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Oral-First<br/>🛑 ARRÊT STRICT (Zéro Section 2/3)"]
-    MODE_BUILD --> ART_2["exploration_report.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Oral-First<br/>• Section 2 : Modifications par Chantier (Format Google)<br/>• Section 3 : Plan de Vérification Biparti"]
+    MODE_ENQUETE --> ART_1["exploration_report_X.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Oral-First<br/>🛑 ARRÊT STRICT (Zéro Section 2/3)"]
+    MODE_BUILD --> ART_2["exploration_report_X.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Oral-First<br/>• Section 2 : Modifications par Chantier (Format Google)<br/>• Section 3 : Plan de Vérification Biparti"]
 ```
 
-### 2.1 🔍 En Quoi Consiste le Mode Enquête Pure ?
+### 2.1 🔍 En Quoi Consiste le Mode Enquête Pure (Arrêt après Section 1) ?
 - **Déclencheur** : Invoqué pour répondre à une question complexe, explorer une technologie, analyser un bug sans demande de fix immédiat, auditer une faisabilité ou clarifier une orientation conceptuelle sans écriture de code/fichiers.
-- **Périmètre de l'Artéfact** : L'artéfact `exploration_report.md` s'arrête **strictement après la Section 1** (Introduction + Section 1 : Questions Clés & Réponses Oral-First).
+- **Périmètre de l'Artéfact** : L'artéfact `exploration_report_X.md` s'arrête **strictement après la Section 1** (Introduction + Section 1 : Questions Clés & Réponses Oral-First).
 - **Zéro Section Artificielle** : **INTERDICTION FORMELLE** de générer une Section 2 « Modifications Proposées » vide, factice ou superfétatoire s'il n'y a aucun fichier à créer, modifier ou supprimer.
 
-### 2.2 🏗️ En Quoi Consiste le Mode Implémentation ?
-- **Déclencheur** : Invoqué pour concevoir, cadrer et planifier des modifications effectives de code, de notes Obsidian, de configuration ou de documentation destinées à être soumises à `/refine` puis appliquées par `/build` (ou `/build` direct en cas de bypass).
-- **Périmètre de l'Artéfact** : Rapport complet et exhaustif articulé en 3 grandes sections :
-  1. **Introduction & Cartographie Visuelle** : Diagnostic de haut niveau et cartographie Mermaid standard en 3 colonnes verticales (l'arborescence textuelle redondante étant formellement bannie).
-  2. **Section 1 : Questions Clés & Réponses Oral-First** : Analyse narrative fluide, concise et agréable à lire ou écouter.
-  3. **Section 2 : Modifications Proposées par Chantier au Format Natif Google** : Regroupement par chantier (`### Chantier A : ...`), séparateurs `---`, balises `[MODIFY]`, `[NEW]`, `[DELETE]`.
-  4. **Section 3 : Plan de Vérification Biparti** : Séparation stricte entre vérifications automatisées par l'agent et vérifications manuelles demandées à Henri.
+### 2.2 🏗️ En Quoi Consiste le Mode Implémentation (Sections 1, 2 et 3 Complètes) ?
+- **Déclencheur** : Invoqué pour concevoir, cadrer et planifier des modifications effectives de code, de notes Obsidian, de configuration ou de documentation destinées à être appliquées par `/build`.
+- **Périmètre de l'Artéfact** : Rapport complet articulé en 3 grandes sections :
+  1. **Introduction & Cartographie Visuelle** : Diagnostic de haut niveau et cartographie Mermaid standard en 3 colonnes verticales.
+  2. **Section 1 : Questions Clés & Réponses Oral-First** : Analyse factuelle dense, nette et chiffrée issue de la règle 1:1.
+  3. **Section 2 : Modifications Proposées par Chantier au Format Natif Google** : Regroupement par chantier (`### ❓ Quel Est le Périmètre du Chantier N : ... ?`), séparateurs `---`, balises `[MODIFY]`, `[NEW]`, `[DELETE]`.
+  4. **Section 3 : Plan de Vérification Biparti** : Séparation stricte en deux tableaux Markdown natifs entre vérifications automatisées par l'agent et vérifications manuelles réservées à Henri.
 
 ---
 
-## 3. 💬 Comment Clarifier Activement en Amont (Remontée d'Arbitrages au Superviseur Racine) ?
+## 3. 🔢 Comment Fonctionne la Numérotation Incrémentale et l'Immutabilité des Rapports ($X = 1, 2, \dots$) ?
+
+### 3.1 🔒 Pourquoi les Rapports Antérieurs Sont-ils Rigoureusement Immutables ?
+- **Verrouillage Historique** : Les rapports antérieurs `exploration_report_1.md` à `exploration_report_{X-1}.md` constituent la mémoire inaltérable de la session.
+- **Interdiction Formelle de Modification** : Il est strictement interdit d'éditer, d'écraser ou de renommer un rapport d'exploration antérieur existant. Chaque itération crée un NOUVEAU fichier distinct.
+
+### 3.2 ⚡ Comment Appliquer la Règle du Delta Pur au Rapport $X$ ?
+- **Détection du Numéro $X$** : Le Scout Lead vérifie dans l'historique de la session les rapports déjà produits. Si aucun rapport n'existe, il produit `exploration_report_1.md`. Si `exploration_report_1.md` existe déjà suite à un retour d'Henri, il produit `exploration_report_2.md`, et ainsi de suite ($X \ge 2$).
+- **Focalisation Exclusive sur le Delta** : Le rapport $X$ ne recopie JAMAIS le contenu complet du rapport $1$ ou des rapports passés.
+- **Traitement Chirurgical des Remarques** : Si Henri n'a commenté, corrigé ou contesté qu'un seul élément ou ajouté un chantier spécifique :
+  - La Section 1 du rapport $X$ ne contient QUE les questions d'investigation relatives à ce nouvel élément.
+  - La Section 2 du rapport $X$ ne détaille QUE les chantiers modifiés ou ajoutés par cette itération.
+  - La Section 3 du rapport $X$ ne liste QUE les vérifications associées à ce delta.
+- **Zéro Redondance** : Tout ce qui a déjà été cadré dans les rapports $1$ à $X-1$ et non remis en cause par Henri reste acquis et sera consolidé plus tard lors du `/build`.
+
+### 3.3 📂 Où Est Stocké l'Artéfact et Pourquoi Zéro Copie dans le Brain Racine ?
+- **Stockage Local au Scout Lead** : Le fichier `exploration_report_X.md` est écrit exclusivement dans le répertoire d'artéfacts du Scout Lead (`<appDataDir>/brain/<scout-lead-id>/exploration_report_X.md`).
+- **Zéro Copie dans le Brain Racine** : Le Superviseur Racine ne copie JAMAIS ce fichier dans son propre dossier brain (`<appDataDir>/brain/<root-id>/`). Il transmet et référence directement le lien absolu `file:///<appDataDir>/brain/<scout-lead-id>/exploration_report_X.md`.
+
+---
+
+## 4. 💬 Comment Clarifier Activement en Amont (Remontée d'Arbitrages au Superviseur Racine) ?
 
 > [!IMPORTANT]
 > **ZÉRO ASSOMPTION, ZÉRO AMBIGUÏTÉ & OBLIGATION STRICTE D'ARBITRAGE ACTIF (`ask_question`).**
 > Le Scout Lead ne devine jamais l'intention d'Henri sur un point structurant ou une incertitude métier.
-> **Interdiction formelle de passivité** : Si le Scout Lead identifie la moindre incertitude, zone d'ombre, question ouverte ou arbitrage métier (par ex. choix d'un seuil, d'une modalité d'exécution ou d'une conception), il est **STRICTEMENT INTERDIT de la laisser dormir dans un tableau passif ou une note annexe sans action**.
+> **Interdiction formelle de passivité** : Si le Scout Lead identifie la moindre incertitude, zone d'ombre, question ouverte ou arbitrage métier, il est **STRICTEMENT INTERDIT de la laisser dormir sans action**.
 > Le Scout Lead formule obligatoirement les options d'arbitrage structurées dans son message de restitution (`send_message`) au Superviseur Racine ($P=0$).
-> Le Superviseur Racine a l'**obligation stricte de déclencher immédiatement `ask_question`** auprès d'Henri au même tour pour obtenir sa décision tranchée avant de valider l'artéfact ou de passer au `/build`.
+> Le Superviseur Racine a l'**obligation stricte de déclencher immédiatement `ask_question`** auprès d'Henri au même tour pour obtenir sa décision tranchée.
 
-### ❓ Quelles Sont les Règles d'Or du Questionnement et des Arbitrages ?
+### 4.1 ❓ Quelles Sont les Règles d'Or du Questionnement et des Arbitrages ?
 1. **Remontée Systématique Active** : Dès qu'une incertitude, variante ou décision structurante émerge, le Scout Lead formalise obligatoirement les options dans son retour de restitution au Superviseur Racine.
 2. **Options Claires & Recommandation** : Chaque arbitrage propose des options explicites formulées du point de vue d'Henri, avec l'option recommandée en tête préfixée de `(Recommandé)`.
 3. **Déclenchement Mandatoire par le Superviseur Racine** : Le Superviseur Racine ($P=0$) utilise obligatoirement l'outil `ask_question` au même tour où le Scout Lead lui remonte ces arbitrages.
@@ -150,7 +170,7 @@ flowchart TD
 
 ---
 
-## 4. ✍️ Comment Dérouler le Protocole de Rédaction Personnelle (≥ 1 paragraphe) ?
+## 5. ✍️ Comment Dérouler le Protocole de Rédaction Personnelle (≥ 1 paragraphe) ?
 
 Lorsque la mission implique la production ou l'évolution d'un texte personnel, privé, diplomatique ou stratégique requérant une voix humaine authentique (≥ 1 paragraphe) :
 
@@ -165,7 +185,7 @@ flowchart TD
     G --> H["Intégration finale dans le rapport / livrable"]
 ```
 
-### ❓ Quel Est le Déroulement Méthodologique du Protocole ?
+### 5.1 ❓ Quel Est le Déroulement Méthodologique du Protocole ?
 1. **Exposition des Faits Clés** : Le prompt d'`ask_question` rappelle succinctement les faits, contraintes et objectifs indispensables.
 2. **3 Versions Contrastées d'Inspiration** : Proposer 3 versions complètes, immédiatement exploitables et de registres contrastés (ex: Directe & Épurée, Diplomate & Structurée, Chaleureuse & Engagée).
 3. **Deux issues possibles** :
@@ -174,65 +194,26 @@ flowchart TD
 
 ---
 
-## 5. 🧩 Pourquoi Imposer une Progression Chirurgicale et Pas-à-Pas ?
+## 6. 📄 Comment Rédiger et Structurer le Rapport d'Exploration exploration_report_X.md ?
 
-> [!CAUTION]
-> **INTERDICTION FORMELLE DE LIVRAISON MASSIVE NON CADRÉE.**
-> Cette règle s'applique à **tous les périmètres sans exception** : code source, scripts, notes Obsidian, slides de présentation et documents techniques.
-
-Le rapport d'exploration doit être découpé avec une précision chirurgicale :
-- **Pour le code** : Chaque modification détaille la classe, la méthode, la signature exacte, le comportement attendu et le point d'insertion.
-- **Pour les notes Obsidian** : Chaque modification précise le titre H1-H4 sous forme de question `?`, la structure en tableau ou liste `**[Clé]** : [Valeur brute]`, les wikilinks `[[...]]` et les médias `![[...]` associés.
-- **Pour les slides ou documents** : Chaque section est délimitée avec ses messages directeurs et arguments clés.
-- **Tags de Démarcation Obligatoires** : Tout fichier concerné est balisé avec `[MODIFY]`, `[NEW]`, ou `[DELETE]`.
-
----
-
-## 6. 📄 Comment Structurer et Soumettre le Livrable Unique exploration_report.md ?
-
-Le Scout produit un **unique artéfact officiel** : `exploration_report.md`.
-Il ne s'agit pas d'un simple fichier texte ou d'une mention purement textuelle : il **DOIT impérativement** être soumis via le mécanisme natif d'artéfact Antigravity en utilisant l'outil `write_to_file` dans le répertoire d'artéfacts de la session (`<appDataDir>/brain/<conversation-id>/exploration_report.md`) avec `ArtifactMetadata` obligatoirement renseigné :
+Le Scout Lead produit son livrable via l'outil `write_to_file` dans son brain : `<appDataDir>/brain/<scout-lead-id>/exploration_report_X.md` avec `ArtifactMetadata` obligatoirement renseigné :
 
 ```json
 {
-  "TargetFile": "<appDataDir>\\brain\\<conversation-id>\\exploration_report.md",
-  "Overwrite": true,
+  "TargetFile": "<appDataDir>\\brain\\<scout-lead-id>\\exploration_report_X.md",
+  "Overwrite": false,
   "ArtifactMetadata": {
     "UserFacing": true,
     "RequestFeedback": true,
-    "Summary": "Résumé percutant en 2-3 lignes des arbitrages, du diagnostic et des chantiers ciblés."
+    "Summary": "Rapport d'exploration X : résumé percutant du diagnostic, du delta et des chantiers ciblés."
   }
 }
 ```
 
-> [!IMPORTANT]
-> **Affichage Obligatoire de la Vignette Interactive Native ("Proceed")** :
-> - **Mécanisme natif** : Déclarer `UserFacing: true` et `RequestFeedback: true` dans `ArtifactMetadata` est **strictement obligatoire**. Ce paramétrage déclenche l'affichage dans l'interface utilisateur de la vignette native interactive comportant le bouton vert **« Proceed (Ctrl+Enter) »**.
-> - **Zéro mention purement textuelle isolée** : Ne jamais se contenter d'un lien textuel sans avoir émis l'artéfact avec ses métadonnées natives `ArtifactMetadata`.
-> - **Panier cumulatif & rafraîchissement** : Toute mise à jour incrémentale d'`exploration_report.md` doit réémettre l'appel `write_to_file` avec `Overwrite: true` et `ArtifactMetadata` complet afin d'actualiser la vignette interactive et son bouton de validation.
-
-### 6.1 🔄 Quel Est le Cycle de Vie Canonique du Plan (Lecture Seule, Accumulation Continue & Clean Slate Post-Build) ?
-
-> [!IMPORTANT]
-> **CYCLE DE VIE DU PLAN : DE L'EXPLORATION AU CLEAN SLATE POST-BUILD.**
-> Le plan d'implémentation traverse un cycle de vie strict en 4 temps :
-> 1. **Lecture Seule Stricte Amont** : Tant qu'Henri n'a pas formellement appelé `/build`, les agents (`scout`, `refine`, sous-agents d'exploration `self`) sont en **LECTURE SEULE STRICTE**. INTERDICTION FORMELLE d'effectuer la moindre modification sur du code, des fichiers sources, des notes du coffre, des formulaires web ou des services externes. Tout le travail consiste à explorer, vérifier les faits et produire l'artéfact de cadrage.
-> 2. **Consignation & Accumulation Continue (`exploration_report.md`)** : Toute idée de tâche, correction, point de vigilance ou amélioration doit être immédiatement consignée dans le plan d'implémentation unique `exploration_report.md`. Si un rapport non-buildé existe déjà, interdiction formelle d'écraser à blanc : le plan s'enrichit, se corrige, se complète et empile les nouveaux chantiers (`### Chantier N+1 : ...`) pour devenir de plus en plus exhaustif et précis au fil des échanges.
-> 3. **Bascule en Mode Exécution au `/build`** : L'appel explicite de `/build` (ou la validation du bouton interactif Proceed) déclenche la transition vers le mode exécution. Le Build prend alors en charge l'application chirurgicale des modifications prévues dans le plan.
-> 4. **Vidage Intégral Post-Build (Clean Slate)** : Une fois le travail de `/build` achevé, vérifié et validé par la production de `walkthrough.md`, le plan `exploration_report.md` est intégralement vidé (Clean Slate). La session est réinitialisée, prête à accueillir une nouvelle demande sur une table rase.
-
-### 6.1.1 🔄 Comment Gérer la Boucle Post-Rejet de /refine ?
-
-En cas de critique ou rejet par le skill `/refine` :
-- **Détection du Verdict de Rejet** : Si un artéfact `exploration_report.md` contient un avis défavorable ou si des objections sont remontées, le Scout Lead enclenche immédiatement une procédure de reprise chirurgicale.
-- **Lecture Déléguée Obligatoire** : Le Scout Lead ne lit pas directement les fichiers du dépôt : il déploie un sous-agent `self` en lecture seule avec pour mandat impératif d'extraire les objections, failles d'architecture, risques identifiés et points de friction soulevés par le Refine.
-- **Traitement Systématique des Objections** : Le Scout Lead analyse les extraits rapportés par le sous-agent, résout les ambiguïtés techniques soulevées et produit une version révisée et enrichie d'`exploration_report.md` via `write_to_file`.
-- **Préservation du Panier Cumulatif** : La révision intègre les corrections tout en préservant l'ensemble des chantiers cumulés non-buildés de la session.
-
-### 6.2 📐 Quelle Est la Structure Canonique de l'Artéfact (Mode Implémentation) ?
+### 6.1 📐 Quelle Est la Structure Canonique en Mode Implémentation ?
 
 ```markdown
-# 🧭 Rapport d'Exploration : [Titre du Projet / Objectif]
+# 🧭 Rapport d'Exploration X : [Titre du Projet / Objectif]
 
 [Description synthétique et dense de l'objectif, du contexte métier et de la cible architecturale.]
 
@@ -278,12 +259,12 @@ flowchart TD
 
 > [!IMPORTANT]
 > **Doctrine Canonique des Questions d'Exploration Contextuelle** :
-> - **Questions d'exploration contextuelle pures** : Ce sont les questions d'information pures que l'agent se pose au démarrage (« De quoi ai-je besoin pour faire le plan ? Qu'est-ce que je dois savoir ? »).
+> - **Questions d'exploration contextuelle pures** : Ce sont les questions d'information pures (« De quoi ai-je besoin pour faire le plan ? Qu'est-ce que je dois savoir ? »).
 > - **1 Question H3 par élément d'investigation** : Chaque élément investigué doit impérativement faire l'objet de sa PROPRE question H3 dédiée (`### ❓ [Question d'exploration précise] ?`).
-> - **Correspondance 1:1 avec les sous-agents** : Chaque question H3 correspond exactement à la mission assignée à 1 sous-agent d'exploration (`self` en stricte lecture seule).
-> - **Bannissement formel des méta-sections vagues** : INTERDICTION FORMELLE de regrouper les investigations sous des méta-sections artificielles ou vagues telles que « Décisions d'arbitrage », « Points de vigilance », ou « Diagnostic fondamental ».
-> - **Zéro décision ni point de vigilance en Section 1** : Il n'y a AUCUNE prise de décision ni point de vigilance dans cette section, UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée. Les décisions d'architecture et arbitrages validés sont directement matérialisés dans les chantiers de la Section 2.
-> - **Format des réponses** : Réponses directes sous forme de puces télégraphiques (`- **[Clé]** : [Valeur brute]`) ou paragraphes courts (2 à 4 phrases maximum). Zéro accordéon `<details><summary>` superflu. Bannissement formel des tableaux rigides en Section 1. Déport systématique des analyses exhaustives ou détails juridiques/techniques lourds vers des sous-artéfacts dédiés dans `brain/<id>/nom_sous_analyse.md`.
+> - **Correspondance 1:1 avec les sous-agents** : Chaque question H3 correspond exactement à la mission assignée à 1 sous-agent d'exploration (`self` en stricte lecture seule, P=2).
+> - **Bannissement formel des méta-sections vagues** : INTERDICTION FORMELLE de regrouper les investigations sous des méta-sections artificielles ou vagues (« Décisions d'arbitrage », « Points de vigilance »).
+> - **Zéro décision ni point de vigilance en Section 1** : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée.
+> - **Format des réponses** : Réponses directes sous forme de puces télégraphiques (`- **[Clé]** : [Valeur brute]`) ou paragraphes courts (2 à 4 phrases maximum). Déport systématique des analyses exhaustives vers des sous-artéfacts dédiés dans `brain/<scout-lead-id>/nom_sous_analyse.md`.
 
 ### ❓ [Première question d'exploration contextuelle précise issue du cadrage 1:1] ?
 - **[Fait / Mesure clé]** : Réponse factuelle dense, nette, chiffrée issue de l'investigation
@@ -293,14 +274,11 @@ flowchart TD
 - **[Fait / Mesure clé]** : Réponse factuelle dense et détaillée
 - **[Contrainte technique]** : Donnée d'observation directe sans extrapolation
 
-### ❓ [N-ième question d'exploration contextuelle précise issue du cadrage 1:1] ?
-- **[Donnée vérifiée]** : Réponse factuelle issue du sous-agent dédié
-
 ---
 
 ## 🏗️ Section 2 : Modifications Proposées (Format Natif Google)
 
-### Chantier 1 : [Nom du premier chantier / module logique]
+### ❓ Quel Est le Périmètre du Chantier 1 : [Nom du premier chantier / module logique] ?
 
 #### [MODIFY] [nom_du_fichier.ext](file:///chemin/absolu/nom_du_fichier.ext)
 - **Cible** : [Classe / Méthode / Section spécifique]
@@ -313,7 +291,7 @@ flowchart TD
 
 ---
 
-### Chantier 2 : [Nom du deuxième chantier / module logique]
+### ❓ Quel Est le Périmètre du Chantier 2 : [Nom du deuxième chantier / module logique] ?
 
 #### [MODIFY] [autre_fichier.ext](file:///chemin/absolu/autre_fichier.ext)
 - **Cible** : [Spécifications chirurgicales]
@@ -323,7 +301,7 @@ flowchart TD
 
 ---
 
-### Chantier : Hygiène & Organisation du Coffre Obsidian (AGENTS.md) *(Conditionnel — uniquement si anomalies réelles détectées)*
+### ❓ Quel Est le Périmètre du Chantier : Hygiène & Organisation du Coffre Obsidian (AGENTS.md) ? *(Conditionnel — uniquement si anomalies réelles détectées)*
 
 #### [MODIFY] [[Nom de la Note Maîtresse.md]]
 - **Action** : [Rattachement du transcript voicenote sous H1, maillage wikilinks [[...]]]
@@ -339,7 +317,7 @@ flowchart TD
 > **Obligation de Tableaux Markdown Natifs** :
 > La Section 3 est obligatoirement formalisée sous la forme de deux tableaux distincts : un tableau pour les vérifications automatisées par l'agent (phase Build) et un tableau pour les vérifications manuelles réservées à Henri.
 
-### 🤖 Vérifications Automatisées par l'Agent (Phase Build)
+### 🤖 Quelles Sont les Vérifications Automatisées par l'Agent (Phase Build) ?
 
 | Domaine / Cible | Commande ou Mécanisme de Test | Résultat Attendu & Garde-Fou |
 |---|---|---|
@@ -347,7 +325,7 @@ flowchart TD
 | **Audit des Signatures & Contrats** | `[Script ou vérification des interfaces]` | Types et arguments conformes aux attentes |
 | **Validation Fonctionnelle Live** | `[Script jetable dans scratch/ ou commande]` | Comportement nominal constaté sur sortie brute |
 
-### 👤 Vérifications Manuelles Réservées à Henri
+### 👤 Quelles Sont les Vérifications Manuelles Réservées à Henri ?
 
 | Volet de Contrôle | Action Spécifique demandée à Henri | Critère d'Acceptation Métier |
 |---|---|---|
@@ -355,11 +333,11 @@ flowchart TD
 | **Validation Métier & UX** | [Tester le cas d'usage en conditions réelles] | Comportement fonctionnel conforme aux attentes |
 ```
 
-### 6.3 📐 Quelle Est la Structure Canonique de l'Artéfact (Mode Enquête Pure) ?
+### 6.2 📐 Quelle Est la Structure Canonique en Mode Enquête Pure ?
 
 En Mode Enquête Pure, l'artéfact s'arrête strictement après la Section 1 :
 ```markdown
-# 🧭 Rapport d'Exploration : [Titre du Sujet / Question]
+# 🧭 Rapport d'Exploration X : [Titre du Sujet / Question]
 
 [Description synthétique et dense du sujet investigué et du contexte.]
 
@@ -384,19 +362,29 @@ En Mode Enquête Pure, l'artéfact s'arrête strictement après la Section 1 :
 
 ## 7. 🛑 Comment S'Effectuent l'Arrêt et la Restitution Finale du Scout ?
 
-Une fois `exploration_report.md` généré et soumis via le mécanisme natif d'artéfact :
+### 7.1 📊 Quel Est le Tableau de Restitution Standardisé Obligatoire dans le Chat ?
 
-1. **Format de Restitution dans le Chat** :
-   La réponse finale de l'agent Scout dans le fil de discussion doit respecter scrupuleusement l'ordonnancement suivant :
-   - **Ligne 1 (MANDATOIRE)** : Lien cliquable vers la note maîtresse Obsidian du projet ou la note de référence : `[Nom de la Note Maîtresse](file:///chemin/absolu/vers/la/note.md)`.
-   - **Bloc d'Artéfact (Haut)** : Référence directe à l'artéfact créé : `[exploration_report.md](file:///<appDataDir>/brain/<conversation-id>/exploration_report.md)`.
-   - **Synthèse Orale-First Percutante** : 2 à 4 paragraphes fluides résumant le diagnostic fondamental, les arbitrages clés intégrés et la liste ordonnée des chantiers prévus (ou les conclusions de l'enquête).
-   - **Zéro Copie Intégrale** : Ne JAMAIS dupliquer le contenu brut de l'artéfact dans le message.
-   - **Rappel de Clôture & Appel à l'Action (Pied de Message)** : Mention finale impérative avec lien absolu vers l'artéfact et rappel explicite de la vignette interactive native pour inviter Henri à valider le plan via le bouton vert **Proceed (Ctrl+Enter)** ou par retour textuel avant tout passage à `/refine` (ou `/build` direct si bypass) :
-     `> 📄 **Validation requise** : Consultez le détail complet du plan dans la vignette interactive ci-dessus (ou via [exploration_report.md](file:///<appDataDir>/brain/<conversation-id>/exploration_report.md)) et cliquez sur **Proceed** pour autoriser le passage à /refine (ou le lancement direct de /build).`
+Une fois `exploration_report_X.md` généré par le Scout Lead et notifié par `send_message` au Superviseur Racine ($P=0$) :
+Le Superviseur Racine compose sa réponse dans le chat avec scrupule :
+1. **Ligne 1 (MANDATOIRE)** : Lien cliquable vers la note maîtresse Obsidian du projet ou la note de référence : `[Nom de la Note Maîtresse](file:///chemin/absolu/vers/la/note.md)`.
+2. **Synthèse Orale-First Percutante** : 2 à 4 paragraphes fluides résumant le delta de cette itération $X$, les arbitrages intégrés et les conclusions.
+3. **Tableau Historique des Rapports Standardisé (Obligatoire en Pied de Message)** :
+   Le Superviseur Racine insère systématiquement le tableau cumulatif de tous les rapports produits durant la session :
 
-2. **ARRÊTE-TOI.** L'agent principal attend la validation formelle d'Henri sur l'artéfact.
+```markdown
+### 📑 Historique des Rapports d'Exploration
+
+| Rapport | Type & Statut | Synthèse du Contenu & Nouveautés |
+|---|:---:|---|
+| [Rapport d'Exploration 1](file:///...) | 🎯 Initial | Cadrage initial, questions 1..N, chantiers préliminaires |
+| ... | ... | ... |
+| **👉 [Rapport d'Exploration X (À relire)](file:///...)** | ⚡ **Dernier Delta** | **[Résumé des ajouts/corrections de cette itération]** |
+
+> 📄 **Prêt pour le Build ?** Cliquez sur **Proceed** ou lancez `/build` pour que le Build Lead fusionne l'ensemble de ces rapports dans le plan d'implémentation final.
+```
+
+### 7.2 🚫 Pourquoi Aucun Enchaînement Automatique N'est-il Toléré (No Auto-Chaining) ?
 
 > [!CAUTION]
-> **🚫 RÈGLE : AUCUN ENCHAÎNEMENT AUTOMATIQUE (No Auto-Chaining).**
-> Ne jamais lancer automatiquement `/refine`, `/build` ni aucun autre outil à la suite du Scout. La poursuite du pipeline démarre exclusivement sur décision et validation explicite d'Henri via le bouton **Proceed** ou son accord explicite.
+> **RÈGLE CARDINALE : AUCUN ENCHAÎNEMENT AUTOMATIQUE (No Auto-Chaining).**
+> Ne jamais lancer automatiquement `/build` ni aucun autre outil à la suite du Scout. La poursuite du workflow démarre exclusivement sur décision et validation explicite d'Henri via le bouton **Proceed** ou son accord explicite dans le chat.
