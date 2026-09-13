@@ -10,6 +10,7 @@ description: "Fusion conservatrice des rapports d'exploration et coordination d'
 > **DOCTRINE CARDINALE DU BUILD LEAD ($P=1$) :**
 > - **🛑 DÉCLENCHEMENT EXCLUSIF SUR MENTION EXPLICITE D'HENRI** : Le Build Lead ne doit JAMAIS être instancié de manière autonome. Il n'est déployé QUE si Henri saisit expressément /build, mentionne le skill build, ou clique sur le bouton Proceed.
 > - **🏛️ COORDINATEUR PUR SANS CODER** : Le Build Lead ne touche JAMAIS au code source ni aux notes du projet. Il ne crée ni ne modifie aucun fichier en dehors de ses propres artéfacts de session dans `brain/<build-lead-id>/`.
+> - **⚡ PARALLÉLISATION MAXIMALE PAR DÉFAUT ($P=2$)** : Dès lors que les chantiers programmés portent sur des périmètres étanches ou indépendants (ex: action web/Playwright, retouches de code, synchronisation de notes Markdown, hygiène documentaire), le Build Lead **DOIT OBLIGATOIREMENT** déployer l'ensemble de ces workers feuilles ($P=2$) **en parallèle dès le démarrage** via un unique appel `invoke_subagent`. Le séquençage n'est toléré que pour les chantiers ayant une dépendance technique explicite (ex: worker final d'intégration attendant la fin de tous les chantiers).
 > - **📥 ENTRÉE STANDARDISÉE** : Le Build Lead est appelé exclusivement avec son skill et la liste exhaustive des chemins absolus de tous les rapports d'exploration produits lors de la session (`exploration_report_1.md` à `exploration_report_X.md`).
 > - **🧩 MERGE CONSERVATEUR TOTAL DES SECTIONS 1 ET 2 (ADDITIVE & CONFLICT-RESOLVED)** :
 >   - **Consommation des Sections 1 et 2** : Le Build Lead fusionne exclusivement les Sections 1 (questions et réponses contextuelles) et 2 (modifications par chantier) des différents rapports `exploration_report_X.md` pour concevoir le plan final `implementation_plan.md`. Aucune Section 3 n'est requise dans les rapports d'exploration.
@@ -133,16 +134,21 @@ Dès réception du message, le Superviseur Racine affiche immédiatement à Henr
 
 ```mermaid
 flowchart TD
-    LEAD["Build Lead (P=1)"] -->|invoke_subagent| W1["Worker Feuille (P=2) : Chantier 1"]
-    W1 -->|send_message : terminé| LEAD
-    LEAD -->|send_message| ROOT1["Superviseur Racine : Chat mis à jour"]
-    LEAD -->|invoke_subagent| W2["Worker Feuille (P=2) : Chantier 2"]
-    W2 -->|send_message : terminé| LEAD
-    LEAD -->|send_message| ROOT2["Superviseur Racine : Chat mis à jour"]
+    LEAD["Build Lead (P=1)"] -->|invoke_subagent unique| FORK["🚀 Déploiement Parallèle Massif"]
+    FORK --> W1["Worker Feuille (P=2) : Chantier 1 (Web / Playwright)"]
+    FORK --> W2["Worker Feuille (P=2) : Chantier 2 (Notes Coffre)"]
+    FORK --> W3["Worker Feuille (P=2) : Chantier 3 (Hygiène Vault)"]
+    W1 -->|send_message| LEAD
+    W2 -->|send_message| LEAD
+    W3 -->|send_message| LEAD
+    LEAD -->|Une fois tous les chantiers reçus| W_INT["Worker Intégration & Vérification (P=2)"]
+    W_INT -->|walkthrough.md| LEAD
 ```
 
-### 4.1 👥 Comment Déployer les Workers Feuilles ($P=2$) par Chantier Étanche ?
-- **Un Chantier à la Fois (ou en Parallèle Strictement Indépendant)** : Le Build Lead déploie un sous-agent worker feuille (`Role: "Worker Chantier N"`, `TypeName: "self"`, `Workspace: "inherit"`) avec le mandat précis et exclusif du chantier.
+### 4.1 👥 Comment Déployer les Workers Feuilles ($P=2$) en Parallèle Maximal ?
+- **Règle d'Or de Parallélisme** : Le Build Lead analyse la matrice de dépendances des chantiers. Tous les chantiers étanches $N_1, N_2, \dots$ sont lancés **simultanément au même tour** dans un tableau `Subagents: [...]`.
+- **Zéro Goulot Séquentiel Artificiel** : Interdiction de temporiser ou d'attendre la complétion d'un chantier indépendant avant de lancer les autres.
+- **Séquençage Réservé aux Dépendances Strictes** : Seul le Worker d'Intégration & Vérification Finale ($P=2$) est déployé après réception des confirmations de tous les chantiers.
 - **Template de Prompt pour Worker Feuille** :
   ```text
   Tu es le Worker Feuille pour le Chantier N (P=2).
