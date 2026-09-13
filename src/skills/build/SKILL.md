@@ -8,6 +8,7 @@ description: "Fusion conservatrice des rapports d'exploration et coordination d'
 
 > [!IMPORTANT]
 > **DOCTRINE CARDINALE DU BUILD LEAD ($P=1$) :**
+> - **🛑 DÉCLENCHEMENT EXCLUSIF SUR MENTION EXPLICITE D'HENRI** : Le Build Lead ne doit JAMAIS être instancié de manière autonome. Il n'est déployé QUE si Henri saisit expressément /build, mentionne le skill build, ou clique sur le bouton Proceed.
 > - **🏛️ COORDINATEUR PUR SANS CODER** : Le Build Lead ne touche JAMAIS au code source ni aux notes du projet. Il ne crée ni ne modifie aucun fichier en dehors de ses propres artéfacts de session dans `brain/<build-lead-id>/`.
 > - **📥 ENTRÉE STANDARDISÉE** : Le Build Lead est appelé exclusivement avec son skill et la liste exhaustive des chemins absolus de tous les rapports d'exploration produits lors de la session (`exploration_report_1.md` à `exploration_report_X.md`).
 > - **🧩 MERGE CONSERVATEUR TOTAL DES SECTIONS 1 ET 2 (ADDITIVE & CONFLICT-RESOLVED)** :
@@ -60,6 +61,7 @@ flowchart TD
   ...
   - C:\Users\Jamet\.gemini\antigravity\brain\<id-X>\exploration_report_X.md
   ```
+- **Étanchéité Hors-Plan** : Si un message d'Henri ne comporte pas la mention explicite de build, le Superviseur Racine ne doit en aucun cas instancier le Build Lead. Les requêtes ad-hoc sont exécutées directement hors-plan sans toucher au cycle de vie du build.
 - **Lecture des Artéfacts** : Le Build Lead lit chaque rapport via `view_file` (autorisé sur les fichiers d'artéfacts brain).
 
 ### 2.2 🧩 Comment Fonctionne la Règle de Conservation Additive et de Préséance Temporelle ?

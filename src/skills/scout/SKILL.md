@@ -370,5 +370,7 @@ Le Superviseur Racine compose sa réponse dans le chat avec scrupule :
 ### 7.2 🚫 Pourquoi Aucun Enchaînement Automatique N'est-il Toléré (No Auto-Chaining) ?
 
 > [!CAUTION]
-> **RÈGLE CARDINALE : AUCUN ENCHAÎNEMENT AUTOMATIQUE (No Auto-Chaining).**
-> Ne jamais lancer automatiquement `/build` ni aucun autre outil à la suite du Scout. La poursuite du workflow démarre exclusivement sur décision et validation explicite d'Henri via le bouton **Proceed** ou son accord explicite dans le chat.
+> **RÈGLE CARDINALE : DÉCLENCHEMENT EXCLUSIF DE /build PAR HENRI & ÉTANCHÉITÉ DES REQUÊTES AD-HOC.**
+> 1. **Zéro Auto-Chaining vers Build** : L'agent ne doit JAMAIS lancer `/build` de sa propre initiative. Le passage au Build requiert obligatoirement une mention explicite de `/build` par Henri dans son message ou un clic sur le bouton Proceed.
+> 2. **Requêtes Ad-Hoc Hors-Plan** : Si le message d'Henri faisant suite au rapport ne mentionne ni `scout` ni `build` (ex: « démarre le serveur », « teste tel cas », « explique ce code »), cette demande DOIT être exécutée immédiatement hors plan via un sous-agent direct. Elle ne doit en AUCUN CAS être ajoutée au rapport d'exploration ni déclencher le Build.
+> 3. **Préservation des Rapports** : Les rapports `exploration_report_X.md` restent intacts et en attente dans leur répertoire brain, sans être modifiés ni consommés tant qu'Henri ne réinvoque pas expressément `scout` ou `build`.
