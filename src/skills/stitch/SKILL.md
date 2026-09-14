@@ -1,26 +1,34 @@
 ---
 name: stitch
-description: "Conception, prototypage et génération d'interfaces web via Google Stitch MCP."
----
-# Stitch — UI Generation & Design System Engine
-
-Le skill **stitch** est le moteur officiel et impératif de génération d'interfaces graphiques, de design systems et de composants frontend pour Antigravity. Il pilote le serveur MCP distant Google Stitch (`https://stitch.googleapis.com/mcp`) en mode CLI-first via `mcp-cli`.
-
+description: "Initialisation Stitch MCP, injection de contexte, synchronisation de code local et intégration d'interfaces conçues par Henri."
 ---
 
-## 1. Directive Impérative : Règle d'Or UI
+# 🎨 Comment Orchestrer le Studio UI Stitch en Synergie avec Henri ?
 
 > [!IMPORTANT]
-> **INVOCATION SYSTÉMATIQUE POUR TOUTE INTERFACE**
-> Dès qu'une interface web, application interactive, tableau de bord, composant frontend complexe ou maquette de design graphique est demandée :
-> 1. **INTERDIT** de coder manuellement à l'aveugle des interfaces simplistes ou génériques.
-> 2. **OBLIGATION** d'interroger ou de créer un projet Stitch, de générer les écrans et le design system via le MCP Stitch, et d'en extraire le code et les spécifications professionnelles de haute volée.
+> **RÈGLE D'OR SYSTÉMATIQUE POUR TOUTE INTERFACE**
+> Ce skill se déclenche **OBLIGATOIREMENT** dès qu'un chantier implique une interface graphique, web, dashboard, application mobile ou refonte de composants frontend.
+> **RÉPARTITION CARDINALE DES RÔLES** :
+> 1. **L'Agent** : Initialise le projet Stitch, injecte le cahier des charges, documente l'architecture, synchronise les tokens/code existant, et intègre le code final téléchargé.
+> 2. **Henri** : Conçoit, génère, arbitre et retouche **100% des visuels et écrans** directement dans le studio Stitch.
+> 3. **Interdiction Formelle** : L'agent ne doit **JAMAIS** générer d'écrans (`generate_screen_from_text`, `edit_screens`, `generate_variants`).
 
 ---
 
-## 2. Configuration MCP Stitch
+## 🌟 Quand et Pourquoi Activer le Skill Stitch ?
 
-Le serveur MCP Stitch est configuré exclusivement dans le registre centralisé `~/.config/mcp/mcp_servers.json` pour un pilotage via `mcp-cli` (sans injection directe dans les outils Antigravity afin de préserver le contexte LLM) :
+| Critère | Spécification |
+|---|---|
+| **Déclencheur Obligatoire** | Tout projet ou tâche nécessitant une interface visuelle, une refonte graphique, un composant UI ou un workflow utilisateur web/mobile. |
+| **Bannissement du Code à l'Aveugle** | Interdiction formelle de coder des maquettes ou composants visuels ex nihilo sans passer par le studio Stitch d'Henri. |
+| **Objectif Opérationnel** | Aligner en continu le studio de design Google Stitch avec le code source local, les tokens de design et le cahier des charges. |
+| **Source de Vérité Design** | Le studio Google Stitch (piloté par Henri) pour les visuels ; le dépôt Git local pour l'implémentation. |
+
+---
+
+## ⚙️ Comment Est Configuré le Serveur MCP Stitch ?
+
+Le serveur MCP Google Stitch est enregistré de manière centralisée dans `C:\Users\hjamet\.config\mcp\mcp_servers.json` :
 
 ```json
 {
@@ -36,83 +44,133 @@ Le serveur MCP Stitch est configuré exclusivement dans le registre centralisé 
 }
 ```
 
+> [!NOTE]
+> Les interactions s'effectuent en ligne de commande via `mcp-cli` avec `$env:MCP_NO_DAEMON="1"` afin de préserver la fenêtre de contexte de l'agent.
+
 ---
 
-## 3. Commandes CLI-First (`mcp-cli`)
+## 👥 Quelle Est la Répartition Stricte des Rôles Entre l'Agent et Henri ?
 
-Conformément à la doctrine `mcp-manager`, l'interaction avec Stitch s'effectue principalement via `mcp-cli` afin d'éviter la saturation du contexte LLM :
+### 📥 1. Initialisation & Ingestion par l'Agent : Comment Alimenter Stitch ?
+
+| Étape | Action de l'Agent | Commande / Mécanisme |
+|---|---|---|
+| **1. Détection / Création** | Vérifier si un projet Stitch existe déjà ou créer un nouveau conteneur. | `mcp-cli call stitch list_projects '{}'` ou `create_project '{"title": "<Nom>"}'` |
+| **2. Ingestion Complète** | Transmettre **TOUT** le contexte fonctionnel au conteneur Stitch (cahier des charges, architecture, entités, user flows, tokens, contraintes). | `upload_design_md` (Markdown encodé en base64) ou `create_design_system` |
+| **3. Ancrage Obsidian** | Consigner immédiatement les identifiants dans la note maîtresse Obsidian du projet (`#todo #project`). | Lien studio `https://stitch.withgoogle.com/projects/<projectId>`, `projectId`, liste d'écrans attendus |
+
+### 🚫 2. Interdiction de Générer : Pourquoi l'Agent Ne Doit-il Jamais Créer d'Écrans ?
+
+> [!CAUTION]
+> **INTERDICTION STRICTE DE GÉNÉRATION D'ÉCRANS PAR L'AGENT**
+> - **Outils Proscrits pour l'Agent** : `generate_screen_from_text`, `edit_screens`, `generate_variants`.
+> - **Justification** : La conception esthétique, le choix des variantes, les nuances ergonomiques et l'arbitrage visuel sont le domaine exclusif d'Henri au sein du studio Stitch.
+> - **Comportement Attendu** : Une fois le projet Stitch alimenté en contexte, l'agent **S'ARRÊTE** et notifie Henri avec l'URL du projet pour qu'il conçoive les écrans.
+
+### 🔄 3. Synchronisation Ascendante : Comment Téléverser le Code Local vers Stitch ?
+
+| Situation | Action Mandatoire | Outil / Procédure |
+|---|---|---|
+| **Composants Existants** | Extraire les tokens (couleurs, polices, espacements) et composants clés existants du code local. | Documenter dans un `DESIGN.md` synthétique. |
+| **Téléversement Studio** | Pousser le `DESIGN.md` encodé en Base64 vers Stitch pour qu'Henri dispose des contraintes techniques dans son studio. | `upload_design_md` avec `{"projectId": "<ID>", "designMdBase64": "<base64>"}` |
+| **Mise à Jour Système** | Si des tokens stricts Tailwind / CSS existent, instancier ou mettre à jour le design system Stitch. | `create_design_system` ou `update_design_system` |
+
+### 📦 4. Consultation & Téléchargement : Comment Intégrer les Écrans Conçus par Henri ?
+
+> [!IMPORTANT]
+> **SIGNAL EXPLICITE D'HENRI REQUIS**
+> L'agent n'interroge les écrans **QUE** lorsque Henri lui indique : *« j'ai créé les écrans »*, *« tu peux consulter »* ou *« télécharge l'UI »*.
+
+| Étape | Action de l'Agent | Commande CLI |
+|---|---|---|
+| **1. Inventaire** | Lister les écrans créés par Henri dans le projet. | `mcp-cli call stitch list_screens '{"projectId": "<ID>"}'` |
+| **2. Extraction** | Récupérer le code HTML, Tailwind CSS, métadonnées et assets pour chaque écran validé. | `mcp-cli call stitch get_screen '{"name": "projects/<ID>/screens/<screenId>"}'` |
+| **3. Intégration Locale** | Découper et intégrer le code dans les composants de l'application locale (React, Next.js, Vue, templates HTML). | Édition chirurgicale des fichiers locaux dans le respect de l'architecture existante. |
+
+---
+
+## 🛠️ Quelles Sont les Commandes mcp-cli Canoniques pour Piloter Stitch ?
+
+### 📋 Comment Gérer les Projets et Déposer les Spécifications ?
 
 ```powershell
-# Vérifier la connectivité et lister les 15 outils Stitch
+# 1. Vérifier la connectivité
 $env:MCP_NO_DAEMON="1"; mcp-cli info stitch
 
-# Inspecter le schéma d'un outil spécifique
-mcp-cli info stitch/generate_screen_from_text
-mcp-cli info stitch/create_design_system
+# 2. Lister les projets existants
+$env:MCP_NO_DAEMON="1"; mcp-cli call stitch list_projects '{}'
 
-# Appeler un outil avec payload JSON
-mcp-cli call stitch list_projects '{}'
-mcp-cli call stitch list_screens '{"projectId": "<ID>"}'
+# 3. Créer un nouveau projet pour une application
+$env:MCP_NO_DAEMON="1"; mcp-cli call stitch create_project '{"title": "MonApp Dashboard"}'
+
+# 4. Encoder et téléverser un document de spécifications / tokens DESIGN.md
+$bytes = [System.IO.File]::ReadAllBytes("c:\chemin\vers\DESIGN.md")
+$b64 = [Convert]::ToBase64String($bytes)
+$payload = (@{ projectId = "12926192559519104991"; designMdBase64 = $b64 } | ConvertTo-Json -Compress)
+$env:MCP_NO_DAEMON="1"; mcp-cli call stitch upload_design_md $payload
 ```
 
----
+### 🔍 Comment Inspecter et Extraire les Écrans Validés ?
 
-## 4. Panorama des 15 Outils MCP Stitch
+```powershell
+# 1. Lister les écrans conçus par Henri
+$env:MCP_NO_DAEMON="1"; mcp-cli call stitch list_screens '{"projectId": "12926192559519104991"}'
 
-| Catégorie | Outil | Description & Rôle | Paramètres Clés |
-|-----------|-------|--------------------|-----------------|
-| **Projets** | `list_projects` | Liste tous les projets Stitch accessibles | `filter` (ex: `"view=owned"`) |
-| | `get_project` | Récupère la structure complète du projet, écrans et design systems | `name` (`projects/{id}`) |
-| | `create_project` | Crée un nouveau conteneur de projet pour une application UI | `title` (string) |
-| | `delete_project` | Supprime un projet Stitch | `name` (`projects/{id}`) |
-| **Écrans** | `list_screens` | Liste l'ensemble des écrans d'un projet | `projectId` (sans préfixe) |
-| | `get_screen` | Récupère le code généré, les métadonnées et l'URL du rendu | `name`, `projectId`, `screenId` |
-| | `generate_screen_from_text` | **Génération majeure** : crée un nouvel écran à partir d'un prompt | `projectId`, `prompt`, `deviceType`, `modelId`, `designSystem` |
-| | `edit_screens` | Modifie chirurgicalement un ou plusieurs écrans existants | `projectId`, `selectedScreenIds`, `prompt`, `deviceType`, `modelId` |
-| | `generate_variants` | Explore 1 à 5 variations créatives d'un écran | `projectId`, `selectedScreenIds`, `prompt`, `variantOptions` |
-| **Design System** | `upload_design_md` | Téléverse un fichier `DESIGN.md` encodé en base64 | `projectId`, `designMdBase64` |
-| | `create_design_system` | Définit les tokens graphiques (couleurs, typo, roundness, spacing) | `projectId`, `designSystem` |
-| | `create_design_system_from_design_md` | Extrait automatiquement un design system depuis un `DESIGN.md` | `projectId`, `selectedScreenInstance`, `deviceType` |
-| | `update_design_system` | Met à jour les tokens graphiques d'un asset de design system | `name`, `projectId`, `designSystem` |
-| | `list_design_systems` | Liste les design systems associés au projet ou globaux | `projectId` |
-| | `apply_design_system` | Applique un design system à un ensemble d'écrans | `projectId`, `assetId`, `selectedScreenInstances` |
+# 2. Récupérer le code source complet d'un écran
+$env:MCP_NO_DAEMON="1"; mcp-cli call stitch get_screen '{"name": "projects/12926192559519104991/screens/defb95443539451cbcee97a74afa9681"}'
 
----
+# 3. Récupérer les métadonnées d'un projet
+$env:MCP_NO_DAEMON="1"; mcp-cli call stitch get_project '{"name": "projects/12926192559519104991"}'
+```
 
-## 5. Modèles et Paramètres Recommandés
+### ⛔ Quels Outils de Génération Restent Formellement Interdits à l'Agent ?
 
-### Modèles d'inférence Stitch (`modelId`)
-* `GEMINI_3_1_PRO` : **Recommandé par défaut**. Capacité maximale de raisonnement architectural, de structure CSS avancée (Flex/Grid), d'accessibilité et de raffinement esthétique.
-* `GEMINI_3_FLASH` : Pour itérations ultra-rapides ou prototypes légers.
-* *(Note : `GEMINI_3_PRO` est déprécié par le backend Google Stitch).*
-
-### Types d'appareils (`deviceType`)
-* `DESKTOP` : Interfaces de bureau, dashboards d'administration, applications SaaS.
-* `MOBILE` : Applications mobiles, interfaces tactiles, vues PWA.
-* `TABLET` : Vues hybrides et tablettes.
-* `AGNOSTIC` : Composants ou designs indépendants du format.
+| Outil Interdit | Raison de la Proscription | Acteur Exclusif |
+|---|---|---|
+| `generate_screen_from_text` | Risque de divergence stylistique et perte de maîtrise esthétique. | **Henri** (dans le studio web Stitch) |
+| `edit_screens` | Retouches d'écrans réservées à l'œil d'Henri. | **Henri** (dans le studio web Stitch) |
+| `generate_variants` | Exploration de variantes visuelles réservée à Henri. | **Henri** (dans le studio web Stitch) |
 
 ---
 
-## 6. Protocole de Travail Opérationnel
+## 🔄 Quel Est le Cycle de Vie Complet d'un Chantier d'Interface Graphique ?
 
 ```mermaid
-flowchart TD
-    A[Besoin UI Détecté] --> B[Lister Projets Stitch: list_projects]
-    B -->|Projet existant| C[Sélectionner projectId]
-    B -->|Nouveau projet| D[create_project]
-    D --> C
-    C --> E[Téléverser ou Définir Design System]
-    E --> F[generate_screen_from_text via GEMINI_3_1_PRO]
-    F --> G[get_screen: Récupération du Code & Rendu]
-    G --> H{Ajustements requis ?}
-    H -->|Oui| I[edit_screens ou generate_variants]
-    I --> G
-    H -->|Non| J[Intégration du composant dans le projet]
+sequenceDiagram
+    autonumber
+    actor Henri as 👤 Henri
+    participant Agent as 🤖 Agent Antigravity
+    participant Stitch as ☁️ Google Stitch MCP
+    participant Local as 💻 Code Local / Obsidian
+
+    Henri->>Agent: "Créer l'interface / le dashboard de MonApp"
+    Agent->>Stitch: list_projects / create_project
+    Stitch-->>Agent: projectId & URL du projet
+    Agent->>Local: Mettre à jour Note Obsidian avec projectId & URL
+    Agent->>Stitch: upload_design_md (cahier des charges, tokens, architecture)
+    Agent-->>Henri: "Projet Stitch initialisé. Conçois les écrans sur https://stitch.withgoogle.com/projects/<ID>"
+    Note over Henri,Stitch: Henri conçoit, génère et valide les écrans dans le studio web
+    Henri->>Agent: "J'ai créé les écrans, tu peux télécharger et intégrer"
+    Agent->>Stitch: list_screens / get_screen
+    Stitch-->>Agent: Code HTML, Tailwind CSS, composants
+    Agent->>Local: Intégration du code dans l'application locale
+    Agent-->>Henri: Rapport d'intégration et composants prêts
 ```
 
-### Conventions de nommage des identifiants Stitch :
-* `projectId` : ID numérique sous forme de chaîne pure (ex: `"12926192559519104991"`), **SANS** le préfixe `projects/`.
-* `screenId` : Hash hexadécimal pur (ex: `"98b50e2ddc9943efb387052637738f61"`), **SANS** le préfixe `screens/`.
-* `name` (ressource complète) : `projects/{projectId}` ou `projects/{projectId}/screens/{screenId}` selon le schéma de l'outil.
-* `assetId` : ID numérique de l'asset (ex: `"15996705518239280238"`), **SANS** le préfixe `assets/`.
+---
+
+## 📑 Comment Consigner les Identifiants Stitch dans la Note Maîtresse Obsidian ?
+
+Dès la création ou sélection du conteneur Stitch, consigner immédiatement dans la note maîtresse du projet sous la section appropriée :
+
+```markdown
+## 🎨 Comment l'Interface Est-elle Structurée dans Stitch ?
+
+| Paramètre | Valeur |
+|---|---|
+| **Lien Studio Stitch** | [Ouvrir dans Stitch](https://stitch.withgoogle.com/projects/<projectId>) |
+| **Project ID** | `<projectId>` |
+| **Statut UI** | `En attente de conception par Henri` / `Écrans validés` / `Intégré` |
+| **Dernière Synchronisation** | `AAAA-MM-JJ HH:mm` |
+| **Écrans Clés** | `Dashboard Principal`, `Vue Détail`, `Paramètres` |
+```
