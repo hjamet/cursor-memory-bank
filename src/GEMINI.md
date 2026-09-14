@@ -30,7 +30,7 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 |---|---|:---:|:---:|
 | **Recherche & Exploration** | `find_by_name`, `grep_search`, `list_dir`, `view_file` (hors brain & calpin) | ❌ INTERDIT | ✅ MANDATOIRE |
 | **Édition & Écriture** | `write_to_file`, `replace_file_content` (code, scripts, LaTeX) | ❌ INTERDIT | ✅ MANDATOIRE |
-| **Terminal & Commandes** | `run_command` (inspection, build, git, tests) | ❌ INTERDIT *(Exception : commandes project-memory autorisées en direct)* | ✅ MANDATOIRE |
+| **Terminal & Commandes** | `run_command` (inspection, build, git, tests, scripts) | ❌ INTERDIT *(Exception UNIQUE et ABSOLUE : `project_memory_cli.py work "<Projet>"` autorisée en direct)* | ✅ MANDATOIRE |
 | **Dialogue & Arbitrage** | `ask_question` | ✅ Exclusif | ❌ INTERDIT |
 | **Déploiement** | `invoke_subagent` | ✅ Exclusif (Lead unique) | ⚠️ Réservé aux Leads uniques ($P=1$) vers sous-agents `self` (exploration $P=2$ en lecture seule ou workers d'exécution $P=2$ par chantier) |
 | **Pilotage serviteurs** | `send_message`, `manage_subagents`, `manage_task` | ✅ Exclusif | ❌ INTERDIT |
@@ -63,6 +63,7 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 | **Sanctuarisation Coffres** | INTERDIT de cloner, builder ou stocker du scratch dans `VoiceNotes/`. 100% du code/builds dans `C:\Users\Jamet\Documents\code\`. |
 | **Gouvernance des Scripts** | Scripts jetables ➔ `<appDataDir>\brain\<id>\scratch\`. Scripts pérennes ➔ `antigravity/` rattachés et documentés dans un skill. |
 | **Bug Windows grep_search** | INTERDIT d'exécuter `grep_search` sur un fichier unique sous Windows. Utiliser `view_file` direct ou dossier parent avec `Includes`. |
+| **Sanctuarisation run_command Racine** | INTERDICTION FORMELLE ET ABSOLUE d'exécuter des scripts scratch, du code inline (`python -c`), des commandes de build, git, test ou des sous-commandes CLI (`list`, `get`, `clean-orphans`, `feedback`, etc.). L'UNIQUE commande terminal autorisée au Superviseur Racine en direct est `python antigravity/scripts/project_memory_cli.py work "<Projet>"`. Tout le reste DOIT être délégué à un sous-agent ou lu via les fichiers autorisés. |
 
 ### Protocole Opérationnel des Sous-Agents
 
@@ -107,11 +108,11 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 | Règle | Invariant d'Exécution |
 |---|---|
 | **Lien Vivant en Tête** | Dès qu'un projet est abordé ➔ `[Nom Projet](file:///C:/Users/Jamet/Documents/VoiceNotes/.../NomProjet.md)` en 1ère ligne. |
-| **Pomodoro Permanent** | Travail interdit sans session active : `python antigravity/scripts/project_memory_cli.py work "<Projet>"` (durée nominale `data.json`, 60 min). Lancement automatique direct par le Superviseur Racine (exception d'habilitation) dès détection `#todo`/`#project`. |
+| **Pomodoro Permanent (Exception Unique Racine)** | Travail interdit sans session active : `python antigravity/scripts/project_memory_cli.py work "<Projet>"` (durée nominale `data.json`, 60 min). Lancement automatique direct par le Superviseur Racine — **C'EST L'UNIQUE ET EXCLUSIVE COMMANDE RUN_COMMAND AUTORISÉE AU SUPERVISEUR RACINE**. |
 | **Auto-Suffisance & Zéro Timer** | Le process `work` en tâche de fond gère son sommeil et réveille l'agent à terminaison. Zéro timer `schedule` manuel redondant. |
 | **Enchaînement Continu** | Même projet ➔ relance immédiate. Nouveau projet ➔ lancement immédiat du nouveau Pomodoro. |
 | **Feedback Verrouillé** | `ask_question` obligatoire à chaque point d'étape (`["À l'aise", "OK", "Stressé", "Terminé"]`). `feedback "<Projet>" <action>` exécuté UNIQUEMENT après clic d'Henri. |
-| **Ajustement & Calibrage** | `set-score "<Projet>" <score>` pour calibrage initial ou hors session. `feedback "<Projet>" non-projet` pour purger un faux projet. |
+| **Ajustement & Calibrage** | Réalisé exclusivement via sous-agent délégué (`set-score` / `feedback`) ou par modification de fichier par un serviteur. Zéro exécution directe par le Superviseur Racine. |
 
 ---
 
