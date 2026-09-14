@@ -4,49 +4,60 @@ description: "Surveillance d'expériences longues durée et overnight runs sans 
 ---
 # 🌙 Comment Surveiller Efficacement une Tâche Longue Durée (Overnight Run) ?
 
-Ce workflow définit comment l'agent doit surveiller une tâche longue (ex: Optimisation Optuna > 1h) sans saturer le contexte ni perdre le contrôle.
+Ce workflow définit comment surveiller une tâche longue (ex: Optimisation Optuna, pipeline DVC, fine-tuning) sans saturer le contexte ni polluer le chat.
 
-## 1. Pré-requis
-*   La commande doit être lancée via `run_command` standard (SANS `&` ni `nohup`).
-*   Si la commande est longue, `run_command` retournera automatiquement un CommandID que l'on utilisera pour le monitoring.
-*   L'agent doit avoir vérifié que le processus a démarré correctement (Status  + premiers logs valides).
+## 📋 Quels Sont les Pré-requis Avant le Lancement ?
 
-## 2. Boucle de Monitoring (The "Check-In" Loop)
-L'agent doit entrer dans une boucle de vérification périodique.
+*   **Lancement asynchrone** : Exécuter la commande via `run_command` standard (sans `&` ni `nohup`) avec `WaitMsBeforeAsync` adapté pour basculer en arrière-plan.
+*   **Identifiant de tâche** : Récupérer le `TaskId` retourné par `run_command` pour piloter la surveillance.
+*   **Contrôle initial** : Vérifier que le processus démarre correctement (`manage_task(Action="status")` et présence des premières lignes de log).
 
-### Fréquence Adaptative (Adaptive Polling)
-L'agent doit adapter sa fréquence de vérification pour attraper les erreurs au démarrage (« Fail Fast ») puis passer en régime de croisière.
+## ⏱️ Comment S'Articule le Double Palier de Surveillance Temporelle ?
 
-1.  **Démarrage (Early Watch)** :
-    *   **T+30s** : Premier check rapide pour vérifier que la commande ne crashe pas immédiatement.
-    *   **T+90s (+1 min)** : Second check pour confirmer la stabilité.
-2.  **Régime de Croisière (Cruise Control)** :
-    *   **Ensuite** : Enchaîner les boucles de **5 minutes (300s)**.
-    *   **Boucle Infinie** : Continuer ces vérifications de 5 minutes **tant que la commande n'est pas terminée**. Peu importe si cela prend 100 appels, l'important est de maintenir la visibilité.
+### ⚡ Comment Détecter les Défaillances Immédiates (Palier 1 : Fail-Fast) ?
 
-### Actions à chaque Check-In
-1.  **Vérifier le Status** : Utiliser  avec un  long.
-2.  **Analyser les Logs** :
-    *   Regarder les dernières lignes ().
-    *   Chercher des erreurs (, , ).
-    *   Vérifier la progression (ex: "Trial 5/100 completed", "Epoch 3/10").
-3.  **Décision** :
-    *   **Tout va bien** : Mettre à jour le `TaskStatus` et continuer la boucle.
-    *   **Problème Mineur / Optimisation Possible** : Si l'agent détecte dans les logs un comportement sous-optimal ou une erreur non bloquante mais inquiétante :
-        *   **PAUSE** : Arrêter la boucle de monitoring (ne pas tuer la commande tout de suite).
-        *   **NOTIFIER** : Demander à l'utilisateur : "J'ai détecté X. Veux-tu corriger et relancer, ou continuer ?"
-    *   **Erreur Critique** : Interrompre, analyser et notifier.
-    *   **Terminé** : Analyser les résultats, mettre à jour les artefacts et notifier.
+1.  **T+30s (Early Check)** :
+    *   Armer un premier timer rapide via `schedule(DurationSeconds=30, TimerCondition="<task-id>", Prompt="Check Fail-Fast T+30s")`.
+    *   Objectif : Intercepter immédiatement les erreurs de démarrage (imports manquants, mauvaise syntaxe CLI, crash précoce, CUDA OOM instantané).
+2.  **T+90s (+60s, Confirmation)** :
+    *   Armer le second check via `schedule(DurationSeconds=60, TimerCondition="<task-id>", Prompt="Check Fail-Fast T+90s")`.
+    *   Objectif : Confirmer la stabilité de la phase de warm-up, le chargement effectif des checkpoints et la génération des premiers pas d'entraînement.
 
-## 3. Communication
-*   Ne pas notifier l'utilisateur à chaque check-in si tout va bien.
-*   Notifier uniquement en cas de :
-    *   Succès final (avec résumé des résultats).
-    *   Échec critique nécessitant une décision humaine.
-    *   Découverte intermédiaire majeure (ex: "Nouveau record battu à Trial 50 !").
+### 🚢 Comment Fonctionne le Régime de Croisière Silencieux (Palier 2 : 20 Minutes) ?
 
-## 4. Timeout Strategy
-*   **Limite HARD** : `WaitDurationSeconds` est limité à **300 secondes (5 minutes)** max.
-*   Pour attendre plus longtemps (ex: 1h), il faut enchaîner les appels (ex: 12 appels de 5 min) dans la boucle de monitoring.
-*   Cela garantit que l'agent reste "éveillé" et que les logs sont streamés dans le chat régulièrement.
-*   Ne JAMAIS utiliser `time.sleep()` ou de boucles d'attente active. Laisser l'outil gérer l'attente.
+1.  **Bascule en croisière silencieuse** :
+    *   Après validation du palier Fail-Fast, basculer sur des cycles de **20 minutes (1200 secondes)**.
+    *   Armer l'attente via `schedule(DurationSeconds=1200, TimerCondition="<task-id>", Prompt="Check croisière 20m")`.
+2.  **Attente passive absolue** :
+    *   Ne JAMAIS utiliser de boucle d'attente active, `time.sleep()`, ou polling répétitif.
+    *   L'agent s'endort immédiatement et laisse le système réactif le réveiller (expiration du timer ou message de terminaison du task).
+3.  **Réarmement nominal** :
+    *   À chaque réveil, si le processus est toujours actif et sain, réarmer un cycle de 20 minutes (`schedule(DurationSeconds=1200, TimerCondition="<task-id>")`).
+
+## 🔍 Quelles Actions Exécuter à Chaque Réveil ?
+
+1.  **Interroger l'état du processus** :
+    *   Appeler `manage_task(Action="status", TaskId="<task-id>")`.
+2.  **Analyser les logs d'exécution** :
+    *   Lire les dernières lignes du fichier log associé.
+    *   Traquer les motifs d'erreurs (`Traceback`, `CUDA out of memory`, `Error`, `Segmentation fault`).
+    *   Relever la progression (`Epoch X/Y`, `Trial N/M`, `step`, loss, métriques de validation).
+3.  **Surveiller l'activité matérielle et la fraîcheur des logs** :
+    *   Vérifier le timestamp du dernier log émis.
+    *   Si aucun log n'a été produit depuis plus de 20 minutes alors que le process est actif, suspecter un gel matériel ou un deadlock.
+
+## 🤫 Quelles Sont les Règles de Silence et les Critères de Réveil du Chat ?
+
+### 🔇 Comment Respecter la Règle de Silence Strict en Régime Nominal ?
+
+*   **Silence absolu** : **0 message** dans le chat si l'exécution suit son cours normal.
+*   **Interdiction des statuts de routine** : Proscription formelle d'envoyer des notifications du type "Check 20 min OK", "Tourne toujours", etc.
+
+### 🚨 Quels Événements Déclenchent une Notification dans le Chat ?
+
+Notifier l'utilisateur **exclusivement** lors des événements suivants :
+*   **Transitions d'étapes DVC** : Passage validé d'une étape à la suivante dans le pipeline.
+*   **Commits de résultats ou plots** : Publication de nouvelles courbes ou métriques par le bot distant / worker.
+*   **Gel matériel ou blocage (> 20 min)** : Processus bloqué sans émission de logs depuis plus de 20 minutes nécessitant un arbitrage.
+*   **Échec critique ou crash** : Processus arrêté sur erreur, extraction du traceback et proposition d'action corrective.
+*   **Succès final** : Terminaison réussie de l'expérience, résumé chiffré des métriques et localisation des artefacts produits.
