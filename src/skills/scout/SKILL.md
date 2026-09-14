@@ -160,6 +160,7 @@ flowchart TD
 > **Interdiction formelle de passivité** : Si le Scout Lead identifie la moindre incertitude, zone d'ombre, question ouverte ou arbitrage métier, il est **STRICTEMENT INTERDIT de la laisser dormir sans action**.
 > Le Scout Lead formule obligatoirement les options d'arbitrage structurées dans son message de restitution (`send_message`) au Superviseur Racine ($P=0$).
 > Le Superviseur Racine a l'**obligation stricte de déclencher immédiatement `ask_question`** auprès d'Henri au même tour pour obtenir sa décision tranchée.
+> **Affichage Préalable Obligatoire dans le Chat** : Le Superviseur Racine a l'interdiction formelle de soumettre un arbitrage via ask_question sans avoir D'ABORD exposé dans le corps du message le contexte factuel complet, les extraits réglementaires ou contractuels cités mot à mot, et les arguments comparatifs. Henri doit impérativement avoir sous les yeux l'ensemble des éléments pour décider en toute connaissance de cause.
 
 ### 4.1 ❓ Quelles Sont les Règles d'Or du Questionnement et des Arbitrages ?
 1. **Remontée Systématique Active** : Dès qu'une incertitude, variante ou décision structurante émerge, le Scout Lead formalise obligatoirement les options dans son retour de restitution au Superviseur Racine.
@@ -185,8 +186,8 @@ flowchart TD
 ```
 
 ### 5.1 ❓ Quel Est le Déroulement Méthodologique du Protocole ?
-1. **Exposition des Faits Clés** : Le prompt d'`ask_question` rappelle succinctement les faits, contraintes et objectifs indispensables.
-2. **3 Versions Contrastées d'Inspiration** : Proposer 3 versions complètes, immédiatement exploitables et de registres contrastés (ex: Directe & Épurée, Diplomate & Structurée, Chaleureuse & Engagée).
+1. **Affichage Intégral Préalable dans le Chat** : L'agent affiche OBLIGATOIREMENT dans le corps du message du chat les faits clés, les contraintes institutionnelles indispensables, et les **3 versions rédigées in extenso**, prêtes à l'emploi et contrastées (ex. Institutionnelle/Pédagogique, Directe/Épurée, Approfondie/Didactique).
+2. **Déclenchement d'ask_question avec Texte Sous les Yeux** : Ce n'est qu'après avoir affiché ces 3 versions complètes qu'ask_question est posé pour recueillir le choix d'Henri ou inviter à la saisie libre de son propre brouillon brut.
 3. **Deux issues possibles** :
    - **Adoption directe** : Si Henri sélectionne l'une des 3 options, celle-ci est intégrée telle quelle dans le rapport.
    - **Brouillon brut** : Si Henri utilise le champ libre pour saisir ses propres mots bruts ou des directives spécifiques, ce brouillon est transmis au skill `/correct` pour une retouche chirurgicale respectant strictement sa voix sans réécriture générique.
