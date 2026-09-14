@@ -14,12 +14,12 @@ description: "Exploration approfondie du contexte, clarification active et produ
 > - **🔒 IMMUTABILITÉ ABSOLUE DES RAPPORTS PASSÉS** : Les rapports antérieurs (`exploration_report_1.md` à `exploration_report_{X-1}.md`) sont strictement intouchables et verrouillés.
 > - **⚡ RÈGLE DU DELTA PUR** : Le rapport $X$ ne recopie JAMAIS le plan précédent. Si Henri n'a commenté ou contesté qu'un seul élément, le rapport $X$ ne traite QUE de cet élément et des nouveaux éléments introduits.
 > - **📂 ZÉRO COPIE DANS LE BRAIN RACINE** : Le rapport `exploration_report_X.md` est généré exclusivement dans le brain du sous-agent Scout Lead (`<appDataDir>/brain/<scout-lead-id>/exploration_report_X.md`). Le Superviseur Racine le référence par son lien absolu sans jamais le dupliquer dans son propre brain.
-> - **🔀 DEUX MODES OPÉRATIONNELS DÉDIÉS** : Mode Enquête Pure (arrêtoir strict après la Section 1 en cas de recherche/questions sans édition) vs Mode Implémentation (Sections 1 et 2 épurées sans Section 3 si des modifications de fichiers sont requises).
+> - **🔀 DEUX MODES OPÉRATIONNELS DÉDIÉS** : Mode Enquête Pure (arrêtoir strict après la Section 1 en cas de recherche/questions sans édition) vs Mode Implémentation (Sections 1 et 2 complétées par la Section 3 d'actions utilisateur en parallèle si des modifications de fichiers sont requises).
 > - **🗺️ CARTOGRAPHIE VISUELLE STANDARD EN 3 COLONNES VERTICALES** : Intégration systématique en tête de rapport d'un diagramme Mermaid à 3 colonnes verticales (`flowchart TD` avec 3 sous-graphes `subgraph` en `direction TB` chaînés de haut en bas avec `-->`) éliminant toute compression horizontale et garantissant une police de taille normale 100% lisible.
-> - **🗣️ SECTION 1 ORAL-FIRST AUTHENTIQUE & QUESTIONS D'EXPLORATION PURES (RÈGLE 1:1)** : 1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ... ?`). Chaque réponse est obligatoirement rédigée sous forme d'un paragraphe continu, fluide, naturel et direct (2 à 4 phrases claires), sans aucune puce, comme si quelqu'un répondait posément à l'oral. Zéro méta-section floue et ZÉRO décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée.
+> - **🗣️ SECTION 1 PÉDAGOGIE, DONNÉES CLÉS EN GRAS & QUESTIONS D'EXPLORATION PURES (RÈGLE 1:1)** : 1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ... ?`). Réponses hautement pédagogiques, aérées, fluides et percutantes (paragraphes courts, sauts de ligne nets, extraction visuelle en 5 secondes). **Mise en gras systématique et obligatoire** de TOUS les chiffres clés, montants financiers, pourcentages, dates limites, codes d'erreur (`HTTP 405`), URLs et conclusions critiques (`**...**`). Zéro méta-section floue et ZÉRO décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée.
 > - **🚫 SUPPRESSION DE L'ARBORESCENCE REDONDANTE** : Dès lors que la cartographie visuelle à 3 colonnes verticales est générée, toute arborescence textuelle complémentaire est formellement bannie.
 > - **🏗️ SECTION 2 CHANTIERS PAR FICHIER SANS QUESTIONS (FORMAT GOOGLE NATIF)** : Regroupement par module logique (`### Chantier X : ...`), ciblage direct des fichiers (`[NEW]`, `[MODIFY]`, `[DELETE]`) avec rôle et description chirurgicale, et INTERDICTION formelle de formuler des questions dans cette section.
-> - **🛑 SUPPRESSION DÉFINITIVE DE LA SECTION 3** : Le rapport d'exploration en Mode Implémentation se termine immédiatement après le dernier chantier de la Section 2. Aucun tableau de vérification préalable n'est requis dans le rapport d'exploration (les vérifications pragmatiques sont menées directement lors du Build).
+> - **👤 SECTION 3 DÉDIÉE AUX ACTIONS UTILISATEUR EN PARALLÈLE** : Finie l'ancienne section de tests unitaires préalables superflue : la Section 3 est désormais dédiée à la checklist interactive (`- [ ] ...`) recensant tout ce qu'Henri peut accomplir en temps masqué ou en mobilité (authentification forte 2FA, signatures, e-mails personnels, appels téléphoniques, studio Stitch) pendant que les agents opèrent.
 > - **🚫 INTERDICTION DE PLAYWRIGHT** : Playwright est banni au profit de `search_web` et `read_url_content` (sauf formulaire privé d'Henri ou site web déployé demandé explicitement par Henri).
 > - **✍️ PROTOCOLE RÉDACTION PERSONNELLE (≥ 1 paragraphe)** : Pour tout texte personnel ou stratégique : 3 versions complètes d'inspiration proposées via les arbitrages ; si saisie libre d'un brouillon brut, transmission chirurgicale à `/correct`.
 > - **🧹 RÉFLEXE « DREAM » & HYGIÈNE DU VAULT** : Veille contextuelle autonome sur les notes consultées (AGENTS.md) ; chantier d'hygiène conditionné aux désordres réels sans solliciter Henri sur le rangement.
@@ -113,21 +113,22 @@ flowchart TD
     EVAL -->|Non : Enquête, Q&A, Diagnostic pur| MODE_ENQUETE["🔍 Mode Enquête Pure"]
     EVAL -->|Oui : Modifications de code / notes prévues| MODE_BUILD["🏗️ Mode Implémentation"]
     
-    MODE_ENQUETE --> ART_1["exploration_report_X.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Oral-First<br/>🛑 ARRÊT STRICT (Zéro Section 2)"]
-    MODE_BUILD --> ART_2["exploration_report_X.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Oral-First<br/>• Section 2 : Modifications par Chantier (Format Google)<br/>🛑 FIN DU RAPPORT (Section 3 supprimée)"]
+    MODE_ENQUETE --> ART_1["exploration_report_X.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Pédagogiques<br/>🛑 ARRÊT STRICT (Zéro Section 2/3)"]
+    MODE_BUILD --> ART_2["exploration_report_X.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Pédagogiques<br/>• Section 2 : Modifications par Chantier (Format Google)<br/>• Section 3 : Actions Utilisateur en Parallèle"]
 ```
 
 ### 2.1 🔍 En Quoi Consiste le Mode Enquête Pure (Arrêt après Section 1) ?
 - **Déclencheur** : Invoqué pour répondre à une question complexe, explorer une technologie, analyser un bug sans demande de fix immédiat, auditer une faisabilité ou clarifier une orientation conceptuelle sans écriture de code/fichiers.
-- **Périmètre de l'Artéfact** : L'artéfact `exploration_report_X.md` s'arrête **strictement après la Section 1** (Introduction + Section 1 : Questions Clés & Réponses Oral-First).
+- **Périmètre de l'Artéfact** : L'artéfact `exploration_report_X.md` s'arrête **strictement après la Section 1** (Introduction + Section 1 : Questions Clés & Réponses Pédagogiques).
 - **Zéro Section Artificielle** : **INTERDICTION FORMELLE** de générer une Section 2 « Modifications Proposées » vide, factice ou superfétatoire s'il n'y a aucun fichier à créer, modifier ou supprimer.
 
-### 2.2 🏗️ En Quoi Consiste le Mode Implémentation (Sections 1 et 2 Épurées) ?
+### 2.2 🏗️ En Quoi Consiste le Mode Implémentation (Sections 1, 2 et 3) ?
 - **Déclencheur** : Invoqué pour concevoir, cadrer et planifier des modifications effectives de code, de notes Obsidian, de configuration ou de documentation destinées à être appliquées par `/build`.
-- **Périmètre de l'Artéfact** : Rapport complet et épuré articulé en 2 grandes sections après l'introduction :
+- **Périmètre de l'Artéfact** : Rapport complet articulé en 3 sections après l'introduction :
   1. **Introduction & Cartographie Visuelle** : Diagnostic de haut niveau et cartographie Mermaid standard en 3 colonnes verticales.
-  2. **Section 1 : Questions Clés & Réponses Oral-First** : Analyse factuelle dense, nette et chiffrée issue de la règle 1:1, rédigée en paragraphes continus fluides sans aucune puce.
-  3. **Section 2 : Modifications Proposées par Chantier au Format Natif Google** : Regroupement par module logique (`### Chantier N : ...`), séparateurs `---`, balises directes `[MODIFY]`, `[NEW]`, `[DELETE]`, sans aucune question. Le rapport se termine net après cette section.
+  2. **Section 1 : Questions Clés & Réponses Pédagogiques** : Analyse factuelle dense, aérée et nette issue de la règle 1:1, avec **mise en gras systématique et obligatoire** de toutes les données clés.
+  3. **Section 2 : Modifications Proposées par Chantier au Format Natif Google** : Regroupement par module logique (`### Chantier N : ...`), séparateurs `---`, balises directes `[MODIFY]`, `[NEW]`, `[DELETE]`, sans aucune question.
+  4. **Section 3 : Actions Utilisateur Réalisables en Parallèle** : Checklist interactive (`- [ ] ...`) recensant tout ce qu'Henri peut accomplir en temps masqué ou en mobilité (authentification forte, signatures, e-mails personnels, appels, studio Stitch).
 
 ---
 
@@ -143,7 +144,7 @@ flowchart TD
 - **Traitement Chirurgical des Remarques** : Si Henri n'a commenté, corrigé ou contesté qu'un seul élément ou ajouté un chantier spécifique :
   - La Section 1 du rapport $X$ ne contient QUE les questions d'investigation relatives à ce nouvel élément.
   - La Section 2 du rapport $X$ ne détaille QUE les chantiers modifiés ou ajoutés par cette itération.
-  - Zéro Section 3.
+  - La Section 3 recense les actions utilisateur en parallèle spécifiques à ce nouveau delta.
 - **Zéro Redondance** : Tout ce qui a déjà été cadré dans les rapports $1$ à $X-1$ et non remis en cause par Henri reste acquis et sera consolidé plus tard lors du `/build`.
 
 ### 3.3 📂 Où Est Stocké l'Artéfact et Pourquoi Zéro Copie dans le Brain Racine ?
@@ -276,24 +277,26 @@ flowchart TD
 
 ---
 
-## 🗣️ Section 1 : Quelles Sont les Questions Clés d'Exploration & Réponses Détaillées (Oral-First) ?
+## 🗣️ Section 1 : Quelles Sont les Questions Clés d'Exploration & Réponses Détaillées (Pédagogie & Données Clés) ?
 
 > [!IMPORTANT]
-> **Doctrine Canonique des Questions d'Exploration Contextuelle & Format Oral-First Authentique** :
+> **Doctrine Canonique des Questions d'Exploration Contextuelle & Excellence Pédagogique** :
 > - **Questions d'exploration contextuelle pures** : Ce sont les questions d'information pures (« De quoi ai-je besoin pour faire le plan ? Qu'est-ce que je dois savoir ? »).
 > - **1 Question H3 par élément d'investigation** : Chaque élément investigué doit impérativement faire l'objet de sa PROPRE question H3 dédiée (`### ❓ [Question d'exploration précise] ?`).
 > - **Correspondance 1:1 avec les sous-agents** : Chaque question H3 correspond exactement à la mission assignée à 1 sous-agent d'exploration (`self` en stricte lecture seule, P=2).
 > - **Bannissement formel des méta-sections vagues** : INTERDICTION FORMELLE de regrouper les investigations sous des méta-sections artificielles ou vagues (« Décisions d'arbitrage », « Points de vigilance »).
 > - **Zéro décision ni point de vigilance en Section 1** : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée.
-> - **Format Oral-First Continu Obligatoire** : Rédiger chaque réponse sous forme d'un paragraphe continu, fluide, naturel et direct (2 à 4 phrases claires), sans aucune puce, comme si quelqu'un répondait posément à l'oral. Bannissement formel des listes à puces hachées (`- **[Clé]** : [Valeur]`). Déport systématique des analyses exhaustives ou volumineuses vers des sous-artéfacts dédiés dans `brain/<scout-lead-id>/nom_sous_analyse.md`.
+> - **Pédagogie, Lisibilité & Mise en Gras Systématique des Données Clés** :
+>   * **Mise en valeur visuelle immédiate** : TOUS les chiffres clés, montants financiers, pourcentages, dates limites, codes d'erreur (`HTTP 405`), URLs, statuts et conclusions critiques doivent être **systématiquement affichés en gras** (ex: **0 € / mois**, **HTTP 405 Method Not Allowed**, **390 000 €**).
+>   * **Pédagogie & Aération** : Proscrire les blocs de texte compacts et monochromes. La réponse doit être fluide, percutante et immédiatement compréhensible : paragraphes courts, sauts de ligne nets et structuration limpide permettant d'extraire la substantifique moelle en **5 secondes de lecture**. Déport systématique des analyses exhaustives ou volumineuses vers des sous-artéfacts dédiés dans `brain/<scout-lead-id>/nom_sous_analyse.md`.
 
 ### ❓ [Première question d'exploration contextuelle précise issue du cadrage 1:1] ?
 
-[Réponse rédigée sous forme d'un paragraphe continu, fluide et naturel de 2 à 4 phrases claires, sans aucune puce. Elle apporte immédiatement les faits clés, les chiffres et les sources vérifiées comme si l'agent répondait posément à l'oral.]
+[Réponse hautement pédagogique, fluide et aérée. Les paragraphes sont courts et les sauts de ligne nets. Tous les chiffres clés, montants financiers, dates limites, codes d'erreur et conclusions critiques sont **systématiquement en gras** (ex: **montant de 12 500 €**, **échéance au 31 décembre 2026**) pour permettre une extraction visuelle immédiate en 5 secondes.]
 
 ### ❓ [Deuxième question d'exploration contextuelle précise issue du cadrage 1:1] ?
 
-[Réponse rédigée sous forme d'un paragraphe continu, fluide et direct de 2 à 4 phrases claires, sans aucune puce. Elle expose directement les contraintes techniques observées et les implications architecturales sans extrapolation.]
+[Réponse didactique et directe exposant clairement les contraintes techniques observées et les implications architecturales sans extrapolation, avec mise en relief immédiate des points névralgiques (ex: **code HTTP 405**, **quota de 50 requêtes/sec**).]
 
 ---
 
@@ -336,6 +339,20 @@ flowchart TD
 
 #### [MODIFY] [[Note Concernée.md]]
 - **Action** : [Formulation des titres Q/R finissant par ?, wikilinks [[...]], purge des faits obsolètes]
+
+---
+
+## 👤 Section 3 : Quelles Sont les Actions Utilisateur Réalisables en Parallèle ?
+
+> [!TIP]
+> **Actions en Temps Masqué (Ce que l'agent ne peut pas faire par lui-même)** :
+> Cette section recense sous forme de to-do list claire (`- [ ] ...`) l'ensemble des démarches humaines nécessitant l'identité, les accès privés ou l'intervention physique d'Henri pendant que les agents opèrent sur le code et les notes.
+
+- [ ] **Démarches & Authentification Forte** : (Connexions 2FA / FranceConnect, accès bancaires, portail DGFiP impôts, téléchargement Kbis MonIdenum...).
+- [ ] **Signatures & Formalités** : (Signature électronique ou manuscrite de PV d'AG, conventions tripartites, mandats).
+- [ ] **Communications Privées & Famille** : (Envois d'e-mails depuis messagerie privée, messages WhatsApp de collecte de CNI, coordination directe).
+- [ ] **Appels Téléphoniques & Contact Tiers** : (Appel EDF 3404 Tempo, échange avec artisans, banquiers).
+- [ ] **Design & Création Visuelle Directe** : (Conception et retouche des écrans sur le studio Google Stitch).
 ```
 
 ### 6.2 📐 Quelle Est la Structure Canonique en Mode Enquête Pure ?
@@ -349,19 +366,19 @@ En Mode Enquête Pure, l'artéfact s'arrête strictement après la Section 1 :
 
 ---
 
-## 🗣️ Section 1 : Quelles Sont les Questions Clés d'Exploration & Réponses Détaillées (Oral-First) ?
+## 🗣️ Section 1 : Quelles Sont les Questions Clés d'Exploration & Réponses Détaillées (Pédagogie & Données Clés) ?
 
 > [!IMPORTANT]
-> **Questions d'Exploration Pures en Enquête & Format Oral-First** :
-> Chaque élément d'investigation fait l'objet de sa propre question H3 dédiée (`### ❓ [Question d'investigation précise] ?`). Zéro méta-section vague : chaque réponse est rédigée en un paragraphe continu, fluide et direct (2 à 4 phrases claires), sans aucune puce.
+> **Questions d'Exploration Pures en Enquête & Excellence Pédagogique** :
+> Chaque élément d'investigation fait l'objet de sa propre question H3 dédiée (`### ❓ [Question d'investigation précise] ?`). Zéro méta-section vague. Les réponses sont fluides, aérées et structurées avec des paragraphes courts. **Mise en gras systématique et obligatoire** de tous les chiffres clés, montants financiers, pourcentages, dates limites, codes d'erreur (`HTTP 405`), URLs et conclusions critiques (`**...**`) pour une extraction visuelle immédiate en 5 secondes de lecture.
 
 ### ❓ [Première question d'investigation précise issue du cadrage 1:1] ?
 
-[Réponse factuelle rédigée en un paragraphe continu, fluide et naturel de 2 à 4 phrases claires, sans aucune puce, synthétisant les constats bruts et extraits vérifiés sans verbiage.]
+[Réponse factuelle rédigée de manière fluide, percutante et aérée, synthétisant les constats bruts et extraits vérifiés sans verbiage, avec **chiffres clés, montants et dates en gras**.]
 
 ### ❓ [Deuxième question d'investigation précise issue du cadrage 1:1] ?
 
-[Réponse factuelle rédigée en un paragraphe continu et direct de 2 à 4 phrases claires, sans aucune puce, exposant les résultats de l'exploration technique de manière posée.]
+[Réponse factuelle structurée et claire, exposant les résultats de l'exploration technique avec **données critiques en gras** (codes retours, limites, statuts, URLs).]
 ```
 
 ---
