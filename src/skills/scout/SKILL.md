@@ -14,12 +14,12 @@ description: "Exploration approfondie du contexte, clarification active et produ
 > - **🔒 IMMUTABILITÉ ABSOLUE DES RAPPORTS PASSÉS** : Les rapports antérieurs (`exploration_report_1.md` à `exploration_report_{X-1}.md`) sont strictement intouchables et verrouillés.
 > - **⚡ RÈGLE DU DELTA PUR** : Le rapport $X$ ne recopie JAMAIS le plan précédent. Si Henri n'a commenté ou contesté qu'un seul élément, le rapport $X$ ne traite QUE de cet élément et des nouveaux éléments introduits.
 > - **📂 ZÉRO COPIE DANS LE BRAIN RACINE** : Le rapport `exploration_report_X.md` est généré exclusivement dans le brain du sous-agent Scout Lead (`<appDataDir>/brain/<scout-lead-id>/exploration_report_X.md`). Le Superviseur Racine le référence par son lien absolu sans jamais le dupliquer dans son propre brain.
-> - **🔀 DEUX MODES OPÉRATIONNELS DÉDIÉS** : Mode Enquête Pure (arrêtoir strict après la Section 1 en cas de recherche/questions sans édition) vs Mode Implémentation (Sections 1 et 2 complétées par la Section 3 d'actions utilisateur en parallèle si des modifications de fichiers sont requises).
+> - **🔀 DEUX MODES OPÉRATIONNELS DÉDIÉS** : Mode Enquête Pure (Section 1 + Section Finale d'Arbitrages sans édition) vs Mode Implémentation (Sections 1 et 2 + Section Finale d'Arbitrages sans Section 3).
 > - **🗺️ CARTOGRAPHIE VISUELLE STANDARD EN 3 COLONNES VERTICALES** : Intégration systématique en tête de rapport d'un diagramme Mermaid à 3 colonnes verticales (`flowchart TD` avec 3 sous-graphes `subgraph` en `direction TB` chaînés de haut en bas avec `-->`) éliminant toute compression horizontale et garantissant une police de taille normale 100% lisible.
-> - **🗣️ SECTION 1 PÉDAGOGIE, DONNÉES CLÉS EN GRAS & QUESTIONS D'EXPLORATION PURES (RÈGLE 1:1)** : 1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ... ?`). Réponses hautement pédagogiques, aérées, fluides et percutantes (paragraphes courts, sauts de ligne nets, extraction visuelle en 5 secondes). **Mise en gras systématique et obligatoire** de TOUS les chiffres clés, montants financiers, pourcentages, dates limites, codes d'erreur (`HTTP 405`), URLs et conclusions critiques (`**...**`). Zéro méta-section floue et ZÉRO décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée.
+> - **🗣️ SECTION 1 ORAL-FIRST AUTHENTIQUE & QUESTIONS D'EXPLORATION PURES (RÈGLE 1:1)** : 1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ... ?`). Chaque réponse est obligatoirement rédigée sous forme d'un paragraphe continu, fluide, naturel et direct (2 à 4 phrases claires), sans aucune puce, comme si quelqu'un répondait posément à l'oral. Zéro méta-section floue et ZÉRO décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée.
 > - **🚫 SUPPRESSION DE L'ARBORESCENCE REDONDANTE** : Dès lors que la cartographie visuelle à 3 colonnes verticales est générée, toute arborescence textuelle complémentaire est formellement bannie.
 > - **🏗️ SECTION 2 CHANTIERS PAR FICHIER SANS QUESTIONS (FORMAT GOOGLE NATIF)** : Regroupement par module logique (`### Chantier X : ...`), ciblage direct des fichiers (`[NEW]`, `[MODIFY]`, `[DELETE]`) avec rôle et description chirurgicale, et INTERDICTION formelle de formuler des questions dans cette section.
-> - **👤 SECTION 3 DÉDIÉE AUX ACTIONS UTILISATEUR EN PARALLÈLE** : Finie l'ancienne section de tests unitaires préalables superflue : la Section 3 est désormais dédiée à la checklist interactive (`- [ ] ...`) recensant tout ce qu'Henri peut accomplir en temps masqué ou en mobilité (authentification forte 2FA, signatures, e-mails personnels, appels téléphoniques, studio Stitch) pendant que les agents opèrent.
+> - **🛑 SUPPRESSION DÉFINITIVE DE LA SECTION 3 & QUESTIONS EN FIN DE RAPPORT** : Le rapport d'exploration en Mode Implémentation remplace toute Section 3 de tâches utilisateur par la section finale dédiée aux questions et arbitrages soumis à Henri.
 > - **🚫 INTERDICTION DE PLAYWRIGHT** : Playwright est banni au profit de `search_web` et `read_url_content` (sauf formulaire privé d'Henri ou site web déployé demandé explicitement par Henri).
 > - **✍️ PROTOCOLE RÉDACTION PERSONNELLE (≥ 1 paragraphe)** : Pour tout texte personnel ou stratégique : 3 versions complètes d'inspiration proposées via les arbitrages ; si saisie libre d'un brouillon brut, transmission chirurgicale à `/correct`.
 > - **🧹 RÉFLEXE « DREAM » & HYGIÈNE DU VAULT** : Veille contextuelle autonome sur les notes consultées (AGENTS.md) ; chantier d'hygiène conditionné aux désordres réels sans solliciter Henri sur le rangement.
@@ -31,7 +31,7 @@ description: "Exploration approfondie du contexte, clarification active et produ
 > [!CAUTION]
 > **Matrice d'Habilitation Stricte du Scout Lead ($P=1$, Superviseur Aveugle Délégué)** :
 > - **Outils autorisés** : `invoke_subagent` (vers sous-agents d'exploration `self` en stricte lecture seule), `send_message` (vers le parent ou ses sous-agents), `write_to_file` (artefacts brain uniquement), `view_file` (artefacts brain uniquement), `schedule`, MCP `aivc` (`remember`, `recall`, `consult_memory`).
-> - **Outils interdits** : `ask_question`, `manage_subagents`, `grep_search`, `list_dir`, `run_command`, `replace_file_content`, `find_by_name`.
+> - **Outils interdits** : `manage_subagents`, `grep_search`, `list_dir`, `run_command`, `replace_file_content`, `find_by_name`.
 > Le Scout Lead ne lit ni n'édite aucun fichier de code source ou du coffre directement : il **délègue l'intégralité de l'exploration** à des sous-agents d'exploration `self` en stricte lecture seule ($P=2$).
 
 ### 1.0 👤 Pourquoi le Superviseur Racine Ne Déploie-t-il Qu'un Seul Scout Lead ?
@@ -95,7 +95,7 @@ Le Scout Lead délègue l'exploration du coffre à un sous-agent `self` en lectu
 
 2. **Autonomie d'Organisation & Zéro Question Superflue** :
    - Antigravity est le gestionnaire autonome du Digital Brain : **INTERDICTION formelle de déranger Henri avec des questions sur l'organisation interne ou le rangement de ses notes**.
-   - Poser des questions via `ask_question` **UNIQUEMENT** pour une information vitale introuvable par l'agent lui-même, ou pour un arbitrage décisionnel fort et structurant. Les corrections documentaires sont traitées de manière autonome dans le plan.
+   - Soumettre des arbitrages à Henri **UNIQUEMENT** pour une information vitale introuvable par l'agent lui-même, ou pour une décision forte et structurante inscrite en fin de rapport. Les corrections documentaires sont traitées de manière autonome dans le plan.
 
 3. **Conditionnalité Stricte du Chantier d'Hygiène** :
    - **Zéro ajout systématique** : Si toutes les notes consultées sont propres, cohérentes et parfaitement alignées, n'ajouter aucune tâche d'organisation inutile.
@@ -113,22 +113,22 @@ flowchart TD
     EVAL -->|Non : Enquête, Q&A, Diagnostic pur| MODE_ENQUETE["🔍 Mode Enquête Pure"]
     EVAL -->|Oui : Modifications de code / notes prévues| MODE_BUILD["🏗️ Mode Implémentation"]
     
-    MODE_ENQUETE --> ART_1["exploration_report_X.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Pédagogiques<br/>🛑 ARRÊT STRICT (Zéro Section 2/3)"]
-    MODE_BUILD --> ART_2["exploration_report_X.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Pédagogiques<br/>• Section 2 : Modifications par Chantier (Format Google)<br/>• Section 3 : Actions Utilisateur en Parallèle"]
+    MODE_ENQUETE --> ART_1["exploration_report_X.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Oral-First<br/>• Section Finale : Questions & Arbitrages Henri"]
+    MODE_BUILD --> ART_2["exploration_report_X.md<br/>• Introduction & Cartographie Visuelle<br/>• Section 1 : Questions & Réponses Oral-First<br/>• Section 2 : Modifications par Chantier (Format Google)<br/>• Section Finale : Questions & Arbitrages Henri"]
 ```
 
-### 2.1 🔍 En Quoi Consiste le Mode Enquête Pure (Arrêt après Section 1) ?
+### 2.1 🔍 En Quoi Consiste le Mode Enquête Pure (Arrêt après la Section Finale d'Arbitrages) ?
 - **Déclencheur** : Invoqué pour répondre à une question complexe, explorer une technologie, analyser un bug sans demande de fix immédiat, auditer une faisabilité ou clarifier une orientation conceptuelle sans écriture de code/fichiers.
-- **Périmètre de l'Artéfact** : L'artéfact `exploration_report_X.md` s'arrête **strictement après la Section 1** (Introduction + Section 1 : Questions Clés & Réponses Pédagogiques).
+- **Périmètre de l'Artéfact** : L'artéfact `exploration_report_X.md` comprend l'Introduction, la Section 1 (Questions Clés & Réponses Oral-First) et se conclut par la section finale d'arbitrages pour Henri (`## ❓ Quelles Sont les Questions & Décisions Soumises à l'Arbitrage d'Henri ?`).
 - **Zéro Section Artificielle** : **INTERDICTION FORMELLE** de générer une Section 2 « Modifications Proposées » vide, factice ou superfétatoire s'il n'y a aucun fichier à créer, modifier ou supprimer.
 
-### 2.2 🏗️ En Quoi Consiste le Mode Implémentation (Sections 1, 2 et 3) ?
+### 2.2 🏗️ En Quoi Consiste le Mode Implémentation (Sections 1 et 2 Épurées + Section Finale) ?
 - **Déclencheur** : Invoqué pour concevoir, cadrer et planifier des modifications effectives de code, de notes Obsidian, de configuration ou de documentation destinées à être appliquées par `/build`.
-- **Périmètre de l'Artéfact** : Rapport complet articulé en 3 sections après l'introduction :
+- **Périmètre de l'Artéfact** : Rapport complet et épuré articulé après l'introduction :
   1. **Introduction & Cartographie Visuelle** : Diagnostic de haut niveau et cartographie Mermaid standard en 3 colonnes verticales.
-  2. **Section 1 : Questions Clés & Réponses Pédagogiques** : Analyse factuelle dense, aérée et nette issue de la règle 1:1, avec **mise en gras systématique et obligatoire** de toutes les données clés.
+  2. **Section 1 : Questions Clés & Réponses Oral-First** : Analyse factuelle dense, nette et chiffrée issue de la règle 1:1, rédigée en paragraphes continus fluides sans aucune puce.
   3. **Section 2 : Modifications Proposées par Chantier au Format Natif Google** : Regroupement par module logique (`### Chantier N : ...`), séparateurs `---`, balises directes `[MODIFY]`, `[NEW]`, `[DELETE]`, sans aucune question.
-  4. **Section 3 : Actions Utilisateur Réalisables en Parallèle** : Checklist interactive (`- [ ] ...`) recensant tout ce qu'Henri peut accomplir en temps masqué ou en mobilité (authentification forte, signatures, e-mails personnels, appels, studio Stitch).
+  4. **Section Finale : Questions & Décisions Soumises à l'Arbitrage d'Henri** : Clôture du rapport par la liste ordonnée des arbitrages et questions ouvertes.
 
 ---
 
@@ -144,7 +144,7 @@ flowchart TD
 - **Traitement Chirurgical des Remarques** : Si Henri n'a commenté, corrigé ou contesté qu'un seul élément ou ajouté un chantier spécifique :
   - La Section 1 du rapport $X$ ne contient QUE les questions d'investigation relatives à ce nouvel élément.
   - La Section 2 du rapport $X$ ne détaille QUE les chantiers modifiés ou ajoutés par cette itération.
-  - La Section 3 recense les actions utilisateur en parallèle spécifiques à ce nouveau delta.
+  - Zéro Section 3.
 - **Zéro Redondance** : Tout ce qui a déjà été cadré dans les rapports $1$ à $X-1$ et non remis en cause par Henri reste acquis et sera consolidé plus tard lors du `/build`.
 
 ### 3.3 📂 Où Est Stocké l'Artéfact et Pourquoi Zéro Copie dans le Brain Racine ?
@@ -153,30 +153,21 @@ flowchart TD
 
 ---
 
-## 4. 💬 Comment Clarifier Activement en Amont (Remontée d'Arbitrages au Superviseur Racine) ?
+## 4. 💬 Comment Inscrire les Questions Ouvertes et Décisions d'Arbitrage en Fin de Rapport ?
 
 > [!IMPORTANT]
-> **ZÉRO ASSOMPTION, ZÉRO AMBIGUÏTÉ & OBLIGATION STRICTE D'ARBITRAGE ACTIF (`ask_question`).**
+> **ZÉRO ASSOMPTION, ZÉRO AMBIGUÏTÉ & SECTION FINALE DÉDIÉE DANS L'ARTÉFACT.**
 > Le Scout Lead ne devine jamais l'intention d'Henri sur un point structurant ou une incertitude métier.
 > **Interdiction formelle de passivité** : Si le Scout Lead identifie la moindre incertitude, zone d'ombre, question ouverte ou arbitrage métier, il est **STRICTEMENT INTERDIT de la laisser dormir sans action**.
-> Le Scout Lead formule obligatoirement les options d'arbitrage structurées dans son message de restitution (`send_message`) au Superviseur Racine ($P=0$).
-> Le Superviseur Racine a l'**obligation stricte de déclencher immédiatement `ask_question`** auprès d'Henri au même tour pour obtenir sa décision tranchée.
-> **Affichage Préalable Obligatoire dans le Chat** : Le Superviseur Racine a l'interdiction formelle de soumettre un arbitrage via ask_question sans avoir D'ABORD exposé dans le corps du message le contexte factuel complet, les extraits réglementaires ou contractuels cités mot à mot, et les arguments comparatifs. Henri doit impérativement avoir sous les yeux l'ensemble des éléments pour décider en toute connaissance de cause.
+> Toutes les questions ouvertes et décisions d'arbitrage doivent impérativement être inscrites à la fin de l'artéfact `exploration_report_X.md` sous une section dédiée :
+> `## ❓ Quelles Sont les Questions & Décisions Soumises à l'Arbitrage d'Henri ?`.
+> Ce dispositif permet à Henri de lire l'intégralité du rapport (diagnostic, cartographie, investigations, chantiers) et de découvrir à la fin la liste ordonnée des questions pour y répondre directement et posément dans le fil de discussion.
 
-### 4.1 ❓ Quelles Sont les Règles d'Or du Questionnement et des Arbitrages ?
-1. **Remontée Systématique Active** : Dès qu'une incertitude, variante ou décision structurante émerge, le Scout Lead formalise obligatoirement les options dans son retour de restitution au Superviseur Racine.
-2. **Options Claires & Recommandation** : Chaque arbitrage propose des options explicites formulées du point de vue d'Henri, avec l'option recommandée en tête préfixée de `(Recommandé)`.
-3. **Déclenchement Mandatoire par le Superviseur Racine** : Le Superviseur Racine ($P=0$) utilise obligatoirement l'outil `ask_question` au même tour où le Scout Lead lui remonte ces arbitrages.
-4. **Zéro Section Miroir dans l'Artéfact** : Il est formellement interdit de créer une section du type "Réponses d'Henri aux questions". Les arbitrages arrêtés sont directement fondus dans les spécifications et choix techniques du rapport.
-
-### 4.2 🔄 Comment S'Orchestre le Ping-Pong Interactif (Racine ➔ Scout Lead) Après ask_question ?
-
-> [!IMPORTANT]
-> **Boucle Fermée de Rétroaction Systématique (Ping-Pong Interactif)** :
-> 1. **Transmission Immédiate** : Dès qu'Henri a répondu à `ask_question` ou annoté le rapport dans le chat, le Superviseur Racine transmet l'intégralité de ses réponses et commentaires au Scout Lead via `send_message`.
-> 2. **Réévaluation & Ré-exploration Ciblée** : Le Scout Lead prend en compte les arbitrages d'Henri. Si une réponse soulève une nouvelle interrogation, conteste un fait ou nécessite une vérification documentaire (ex. chercher une validation passée dans les courriels), le Scout Lead déploie immédiatement un sous-agent d'exploration dédié ($P=2$) pour éclaircir ce point précis.
-> 3. **Production du Rapport Incrémental (Delta Pur)** : Le Scout Lead met à jour les chantiers (ajoute, ajuste ou retire des fichiers cibles selon les décisions d'Henri) et publie `exploration_report_{X+1}.md` dans son brain, puis notifie le Superviseur Racine par `send_message`.
-> 4. **Restitution au Chat** : Le Superviseur Racine présente la nouvelle itération dans le chat avec le tableau d'historique actualisé.
+### 4.1 ❓ Quelles Sont les Règles d'Or de Formulation des Questions et Arbitrages ?
+1. **Inscription Systématique en Pied d'Artéfact** : Toute incertitude, variante ou décision structurante doit figurer explicitement dans la section finale `## ❓ Quelles Sont les Questions & Décisions Soumises à l'Arbitrage d'Henri ?` de `exploration_report_X.md`.
+2. **Sous-Sections H3 & Options Contrastées** : Chaque arbitrage ou question ouverte fait l'objet d'une sous-section H3 dédiée (`### ❓ 1. [Intitulé de la question ou décision structurante] ?`) et détaille les options possibles formulées du point de vue d'Henri.
+3. **Recommandation Explicite en Tête** : L'option recommandée par l'analyse technique est obligatoirement positionnée en tête et préfixée de `**(Recommandé)**`.
+4. **Transmission au Superviseur Racine** : Le Scout Lead récapitule cette liste de questions dans son message de fin (`send_message`) afin que le Superviseur Racine puisse la reproduire fidèlement en pied de son message de restitution dans le chat.
 
 ---
 
@@ -188,31 +179,19 @@ Lorsque la mission implique la production ou l'évolution d'un texte personnel, 
 flowchart TD
     A["Texte personnel / stratégique requis (≥ 1 paragraphe)"] --> B["Extraction des Faits Clés Indispensables"]
     B --> C["Formulation de 3 Versions Complètes & Contrastées d'Inspiration"]
-    C --> D["Présentation à Henri via ask_question"]
+    C --> D["Soumission des versions en fin de rapport / chat"]
     D -->|Choix d'une version| E["Intégration directe de la version retenue"]
-    D -->|Brouillon brut saisi dans le champ libre| F["Délégation chirurgicale à /correct"]
+    D -->|Brouillon brut saisi dans le fil| F["Délégation chirurgicale à /correct"]
     F --> G["Polissage sans dénaturer la voix d'Henri"]
     G --> H["Intégration finale dans le rapport / livrable"]
 ```
 
 ### 5.1 ❓ Quel Est le Déroulement Méthodologique du Protocole ?
-1. **Affichage Intégral Préalable dans le Chat** : L'agent affiche OBLIGATOIREMENT dans le corps du message du chat les faits clés, les contraintes institutionnelles indispensables, et les **3 versions rédigées in extenso**, prêtes à l'emploi et contrastées (ex. Institutionnelle/Pédagogique, Directe/Épurée, Approfondie/Didactique).
-2. **Discipline Anti-Réécriture & Respect du Brouillon Brut (/correct)** :
-   - Dès lors qu'Henri fournit un brouillon ou une trame, INTERDICTION FORMELLE de le réécrire intégralement ou d'injecter du jargon administratif/corporatif boursouflé (« Encart », périphrase lourde).
-   - Conserver 90% à 95% de sa voix, de ses phrases et de son agencement.
-   - Compléter uniquement les éléments factuels demandés avec une concision maximale (e-mails courts, percutants, lisibles en 30 secondes, où le destinataire n'a qu'à valider en une ligne).
-3. **Déclenchement d'ask_question avec Texte Sous les Yeux** : Ce n'est qu'après avoir affiché ces 3 versions complètes qu'ask_question est posé pour recueillir le choix d'Henri ou inviter à la saisie libre de son propre brouillon brut.
-4. **Deux issues possibles** :
+1. **Exposition des Faits Clés** : La formulation des options rappelle succinctement les faits, contraintes et objectifs indispensables.
+2. **3 Versions Contrastées d'Inspiration** : Proposer 3 versions complètes, immédiatement exploitables et de registres contrastés (ex: Directe & Épurée, Diplomate & Structurée, Chaleureuse & Engagée).
+3. **Deux issues possibles** :
    - **Adoption directe** : Si Henri sélectionne l'une des 3 options, celle-ci est intégrée telle quelle dans le rapport.
-   - **Brouillon brut** : Si Henri utilise le champ libre pour saisir ses propres mots bruts ou des directives spécifiques, ce brouillon est transmis au skill `/correct` pour une retouche chirurgicale respectant strictement sa voix sans réécriture générique.
-
-### 5.2 📄 Comment Intégrer les Textes à Patte Humaine dans exploration_report_X.md ?
-
-> [!IMPORTANT]
-> **Parité Stricte Chat <-> Artéfact (Single Source of Truth) & Présence In Extenso** :
-> - **Zéro divergence** : Le texte reproduit dans le corps de l'artéfact `exploration_report_X.md` et celui affiché dans le chat doivent être **STRICTEMENT IDENTIQUES, mot pour mot**. Aucune version remaniée, rallongée ou altérée n'est tolérée dans l'artéfact.
-> - Tout texte destiné à un tiers et requérant une patte humaine (courriels, lettres de dérogation, argumentaires, pitchs) doit impérativement figurer **in extenso dans le corps de l'artéfact `exploration_report_X.md`** (dans une sous-section dédiée de la Section 2 ou du livrable).
-> Cela permet à Henri de relire, surligner et commenter directement les phrases au scalpel dans l'artéfact via l'interface de relecture.
+   - **Brouillon brut** : Si Henri saisit ses propres mots bruts ou des directives spécifiques, ce brouillon est transmis au skill `/correct` pour une retouche chirurgicale respectant strictement sa voix sans réécriture générique.
 
 ---
 
@@ -277,26 +256,24 @@ flowchart TD
 
 ---
 
-## 🗣️ Section 1 : Quelles Sont les Questions Clés d'Exploration & Réponses Détaillées (Pédagogie & Données Clés) ?
+## 🗣️ Section 1 : Quelles Sont les Questions Clés d'Exploration & Réponses Détaillées (Oral-First) ?
 
 > [!IMPORTANT]
-> **Doctrine Canonique des Questions d'Exploration Contextuelle & Excellence Pédagogique** :
+> **Doctrine Canonique des Questions d'Exploration Contextuelle & Format Oral-First Authentique** :
 > - **Questions d'exploration contextuelle pures** : Ce sont les questions d'information pures (« De quoi ai-je besoin pour faire le plan ? Qu'est-ce que je dois savoir ? »).
 > - **1 Question H3 par élément d'investigation** : Chaque élément investigué doit impérativement faire l'objet de sa PROPRE question H3 dédiée (`### ❓ [Question d'exploration précise] ?`).
 > - **Correspondance 1:1 avec les sous-agents** : Chaque question H3 correspond exactement à la mission assignée à 1 sous-agent d'exploration (`self` en stricte lecture seule, P=2).
 > - **Bannissement formel des méta-sections vagues** : INTERDICTION FORMELLE de regrouper les investigations sous des méta-sections artificielles ou vagues (« Décisions d'arbitrage », « Points de vigilance »).
 > - **Zéro décision ni point de vigilance en Section 1** : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée.
-> - **Pédagogie, Lisibilité & Mise en Gras Systématique des Données Clés** :
->   * **Mise en valeur visuelle immédiate** : TOUS les chiffres clés, montants financiers, pourcentages, dates limites, codes d'erreur (`HTTP 405`), URLs, statuts et conclusions critiques doivent être **systématiquement affichés en gras** (ex: **0 € / mois**, **HTTP 405 Method Not Allowed**, **390 000 €**).
->   * **Pédagogie & Aération** : Proscrire les blocs de texte compacts et monochromes. La réponse doit être fluide, percutante et immédiatement compréhensible : paragraphes courts, sauts de ligne nets et structuration limpide permettant d'extraire la substantifique moelle en **5 secondes de lecture**. Déport systématique des analyses exhaustives ou volumineuses vers des sous-artéfacts dédiés dans `brain/<scout-lead-id>/nom_sous_analyse.md`.
+> - **Format Oral-First Continu Obligatoire** : Rédiger chaque réponse sous forme d'un paragraphe continu, fluide, naturel et direct (2 à 4 phrases claires), sans aucune puce, comme si quelqu'un répondait posément à l'oral. Bannissement formel des listes à puces hachées (`- **[Clé]** : [Valeur]`). Déport systématique des analyses exhaustives ou volumineuses vers des sous-artéfacts dédiés dans `brain/<scout-lead-id>/nom_sous_analyse.md`.
 
 ### ❓ [Première question d'exploration contextuelle précise issue du cadrage 1:1] ?
 
-[Réponse hautement pédagogique, fluide et aérée. Les paragraphes sont courts et les sauts de ligne nets. Tous les chiffres clés, montants financiers, dates limites, codes d'erreur et conclusions critiques sont **systématiquement en gras** (ex: **montant de 12 500 €**, **échéance au 31 décembre 2026**) pour permettre une extraction visuelle immédiate en 5 secondes.]
+[Réponse rédigée sous forme d'un paragraphe continu, fluide et naturel de 2 à 4 phrases claires, sans aucune puce. Elle apporte immédiatement les faits clés, les chiffres et les sources vérifiées comme si l'agent répondait posément à l'oral.]
 
 ### ❓ [Deuxième question d'exploration contextuelle précise issue du cadrage 1:1] ?
 
-[Réponse didactique et directe exposant clairement les contraintes techniques observées et les implications architecturales sans extrapolation, avec mise en relief immédiate des points névralgiques (ex: **code HTTP 405**, **quota de 50 requêtes/sec**).]
+[Réponse rédigée sous forme d'un paragraphe continu, fluide et direct de 2 à 4 phrases claires, sans aucune puce. Elle expose directement les contraintes techniques observées et les implications architecturales sans extrapolation.]
 
 ---
 
@@ -342,22 +319,24 @@ flowchart TD
 
 ---
 
-## 👤 Section 3 : Quelles Sont les Actions Utilisateur Réalisables en Parallèle ?
+## ❓ Quelles Sont les Questions & Décisions Soumises à l'Arbitrage d'Henri ?
 
-> [!TIP]
-> **Actions en Temps Masqué (Ce que l'agent ne peut pas faire par lui-même)** :
-> Cette section recense sous forme de to-do list claire (`- [ ] ...`) l'ensemble des démarches humaines nécessitant l'identité, les accès privés ou l'intervention physique d'Henri pendant que les agents opèrent sur le code et les notes.
+> [!IMPORTANT]
+> **Questions et Arbitrages en Fin de Rapport** :
+> Toutes les questions ouvertes, incertitudes et décisions d'arbitrage sont inscrites ici à la fin du rapport pour qu'Henri puisse les examiner après lecture complète et y répondre directement.
 
-- [ ] **Démarches & Authentification Forte** : (Connexions 2FA / FranceConnect, accès bancaires, portail DGFiP impôts, téléchargement Kbis MonIdenum...).
-- [ ] **Signatures & Formalités** : (Signature électronique ou manuscrite de PV d'AG, conventions tripartites, mandats).
-- [ ] **Communications Privées & Famille** : (Envois d'e-mails depuis messagerie privée, messages WhatsApp de collecte de CNI, coordination directe).
-- [ ] **Appels Téléphoniques & Contact Tiers** : (Appel EDF 3404 Tempo, échange avec artisans, banquiers).
-- [ ] **Design & Création Visuelle Directe** : (Conception et retouche des écrans sur le studio Google Stitch).
+### ❓ 1. [Intitulé de la première question ou décision structurante] ?
+- **(Recommandé) Option A** : [Description de l'option recommandée et justification technique]
+- **Option B** : [Alternative ou variante envisagée]
+
+### ❓ 2. [Intitulé de la deuxième question ou décision structurante] ?
+- **(Recommandé) Option A** : [Description de l'option recommandée]
+- **Option B** : [Alternative ou variante envisagée]
 ```
 
 ### 6.2 📐 Quelle Est la Structure Canonique en Mode Enquête Pure ?
 
-En Mode Enquête Pure, l'artéfact s'arrête strictement après la Section 1 :
+En Mode Enquête Pure, l'artéfact comprend l'Introduction, la Section 1 et se conclut par la section finale d'arbitrages pour Henri :
 
 ```markdown
 # 🧭 Rapport d'Exploration X : [Titre du Sujet / Question] ?
@@ -366,19 +345,31 @@ En Mode Enquête Pure, l'artéfact s'arrête strictement après la Section 1 :
 
 ---
 
-## 🗣️ Section 1 : Quelles Sont les Questions Clés d'Exploration & Réponses Détaillées (Pédagogie & Données Clés) ?
+## 🗣️ Section 1 : Quelles Sont les Questions Clés d'Exploration & Réponses Détaillées (Oral-First) ?
 
 > [!IMPORTANT]
-> **Questions d'Exploration Pures en Enquête & Excellence Pédagogique** :
-> Chaque élément d'investigation fait l'objet de sa propre question H3 dédiée (`### ❓ [Question d'investigation précise] ?`). Zéro méta-section vague. Les réponses sont fluides, aérées et structurées avec des paragraphes courts. **Mise en gras systématique et obligatoire** de tous les chiffres clés, montants financiers, pourcentages, dates limites, codes d'erreur (`HTTP 405`), URLs et conclusions critiques (`**...**`) pour une extraction visuelle immédiate en 5 secondes de lecture.
+> **Questions d'Exploration Pures en Enquête & Format Oral-First** :
+> Chaque élément d'investigation fait l'objet de sa propre question H3 dédiée (`### ❓ [Question d'investigation précise] ?`). Zéro méta-section vague : chaque réponse est rédigée en un paragraphe continu, fluide et direct (2 à 4 phrases claires), sans aucune puce.
 
 ### ❓ [Première question d'investigation précise issue du cadrage 1:1] ?
 
-[Réponse factuelle rédigée de manière fluide, percutante et aérée, synthétisant les constats bruts et extraits vérifiés sans verbiage, avec **chiffres clés, montants et dates en gras**.]
+[Réponse factuelle rédigée en un paragraphe continu, fluide et naturel de 2 à 4 phrases claires, sans aucune puce, synthétisant les constats bruts et extraits vérifiés sans verbiage.]
 
 ### ❓ [Deuxième question d'investigation précise issue du cadrage 1:1] ?
 
-[Réponse factuelle structurée et claire, exposant les résultats de l'exploration technique avec **données critiques en gras** (codes retours, limites, statuts, URLs).]
+[Réponse factuelle rédigée en un paragraphe continu et direct de 2 à 4 phrases claires, sans aucune puce, exposant les résultats de l'exploration technique de manière posée.]
+
+---
+
+## ❓ Quelles Sont les Questions & Décisions Soumises à l'Arbitrage d'Henri ?
+
+> [!IMPORTANT]
+> **Questions et Arbitrages en Fin d'Enquête** :
+> Toutes les questions ouvertes, incertitudes et orientations soumises à Henri sont inscrites en fin de rapport.
+
+### ❓ 1. [Intitulé de la première question d'arbitrage / orientation] ?
+- **(Recommandé) Option A** : [Option préconisée suite à l'enquête]
+- **Option B** : [Autre orientation possible]
 ```
 
 ---
@@ -390,9 +381,9 @@ En Mode Enquête Pure, l'artéfact s'arrête strictement après la Section 1 :
 Une fois `exploration_report_X.md` généré par le Scout Lead et notifié par `send_message` au Superviseur Racine ($P=0$) :
 Le Superviseur Racine compose sa réponse dans le chat avec scrupule :
 1. **Ligne 1 (MANDATOIRE)** : Lien cliquable vers la note maîtresse Obsidian du projet ou la note de référence : `[Nom de la Note Maîtresse](file:///chemin/absolu/vers/la/note.md)`.
-2. **Synthèse Orale-First Percutante** : 2 à 4 paragraphes fluides résumant le delta de cette itération $X$, les arbitrages intégrés et les conclusions.
-3. **Tableau Historique des Rapports Standardisé (Obligatoire en Pied de Message)** :
-   Le Superviseur Racine insère systématiquement le tableau cumulatif de tous les rapports produits durant la session :
+2. **Synthèse Orale-First Percutante** : 2 à 4 paragraphes fluides résumant le delta de cette itération $X$, les constats et conclusions.
+3. **Tableau Historique des Rapports Standardisé** : Le Superviseur Racine insère systématiquement le tableau cumulatif de tous les rapports produits durant la session.
+4. **Reproduction des Questions & Arbitrages en Pied de Message (MANDATOIRE)** : Le Superviseur Racine reproduit fidèlement la liste des questions et options d'arbitrage inscrites dans la section finale `## ❓ Quelles Sont les Questions & Décisions Soumises à l'Arbitrage d'Henri ?` de l'artéfact, afin qu'Henri puisse y répondre directement dans le flux de conversation après lecture du rapport.
 
 ```markdown
 ### 📑 Quel Est l'Historique des Rapports d'Exploration ?
@@ -404,6 +395,15 @@ Le Superviseur Racine compose sa réponse dans le chat avec scrupule :
 | **👉 [Rapport d'Exploration X (À relire)](file:///...)** | ⚡ **Dernier Delta** | **[Résumé des ajouts/corrections de cette itération]** |
 
 > 📄 **Prêt pour le Build ?** Cliquez sur **Proceed** ou lancez `/build` pour que le Build Lead fusionne l'ensemble de ces rapports dans le plan d'implémentation final.
+
+### ❓ Quelles Sont les Questions & Décisions Soumises à Votre Arbitrage ?
+
+- **1. [Intitulé de la première question ou décision structurante]** :
+  - **(Recommandé) Option A** : [...]
+  - **Option B** : [...]
+- **2. [Intitulé de la deuxième question ou décision structurante]** :
+  - **(Recommandé) Option A** : [...]
+  - **Option B** : [...]
 ```
 
 ### 7.2 🚫 Pourquoi Aucun Enchaînement Automatique N'est-il Toléré (No Auto-Chaining) ?
