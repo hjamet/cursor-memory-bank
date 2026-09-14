@@ -168,6 +168,15 @@ flowchart TD
 3. **Déclenchement Mandatoire par le Superviseur Racine** : Le Superviseur Racine ($P=0$) utilise obligatoirement l'outil `ask_question` au même tour où le Scout Lead lui remonte ces arbitrages.
 4. **Zéro Section Miroir dans l'Artéfact** : Il est formellement interdit de créer une section du type "Réponses d'Henri aux questions". Les arbitrages arrêtés sont directement fondus dans les spécifications et choix techniques du rapport.
 
+### 4.2 🔄 Comment S'Orchestre le Ping-Pong Interactif (Racine ➔ Scout Lead) Après ask_question ?
+
+> [!IMPORTANT]
+> **Boucle Fermée de Rétroaction Systématique (Ping-Pong Interactif)** :
+> 1. **Transmission Immédiate** : Dès qu'Henri a répondu à `ask_question` ou annoté le rapport dans le chat, le Superviseur Racine transmet l'intégralité de ses réponses et commentaires au Scout Lead via `send_message`.
+> 2. **Réévaluation & Ré-exploration Ciblée** : Le Scout Lead prend en compte les arbitrages d'Henri. Si une réponse soulève une nouvelle interrogation, conteste un fait ou nécessite une vérification documentaire (ex. chercher une validation passée dans les courriels), le Scout Lead déploie immédiatement un sous-agent d'exploration dédié ($P=2$) pour éclaircir ce point précis.
+> 3. **Production du Rapport Incrémental (Delta Pur)** : Le Scout Lead met à jour les chantiers (ajoute, ajuste ou retire des fichiers cibles selon les décisions d'Henri) et publie `exploration_report_{X+1}.md` dans son brain, puis notifie le Superviseur Racine par `send_message`.
+> 4. **Restitution au Chat** : Le Superviseur Racine présente la nouvelle itération dans le chat avec le tableau d'historique actualisé.
+
 ---
 
 ## 5. ✍️ Comment Dérouler le Protocole de Rédaction Personnelle (≥ 1 paragraphe) ?
@@ -191,6 +200,13 @@ flowchart TD
 3. **Deux issues possibles** :
    - **Adoption directe** : Si Henri sélectionne l'une des 3 options, celle-ci est intégrée telle quelle dans le rapport.
    - **Brouillon brut** : Si Henri utilise le champ libre pour saisir ses propres mots bruts ou des directives spécifiques, ce brouillon est transmis au skill `/correct` pour une retouche chirurgicale respectant strictement sa voix sans réécriture générique.
+
+### 5.2 📄 Comment Intégrer les Textes à Patte Humaine dans exploration_report_X.md ?
+
+> [!IMPORTANT]
+> **Présence In Extenso dans le Rapport d'Exploration pour Annotation** :
+> Tout texte destiné à un tiers et requérant une patte humaine (courriels, lettres de dérogation, argumentaires, pitchs) doit impérativement figurer **in extenso dans le corps de l'artéfact `exploration_report_X.md`** (dans une sous-section dédiée de la Section 2 ou du livrable).
+> Cela permet à Henri de relire, surligner et commenter directement les phrases au scalpel dans l'artéfact via l'interface de relecture.
 
 ---
 
