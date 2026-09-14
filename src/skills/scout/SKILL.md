@@ -196,16 +196,21 @@ flowchart TD
 
 ### 5.1 ❓ Quel Est le Déroulement Méthodologique du Protocole ?
 1. **Affichage Intégral Préalable dans le Chat** : L'agent affiche OBLIGATOIREMENT dans le corps du message du chat les faits clés, les contraintes institutionnelles indispensables, et les **3 versions rédigées in extenso**, prêtes à l'emploi et contrastées (ex. Institutionnelle/Pédagogique, Directe/Épurée, Approfondie/Didactique).
-2. **Déclenchement d'ask_question avec Texte Sous les Yeux** : Ce n'est qu'après avoir affiché ces 3 versions complètes qu'ask_question est posé pour recueillir le choix d'Henri ou inviter à la saisie libre de son propre brouillon brut.
-3. **Deux issues possibles** :
+2. **Discipline Anti-Réécriture & Respect du Brouillon Brut (/correct)** :
+   - Dès lors qu'Henri fournit un brouillon ou une trame, INTERDICTION FORMELLE de le réécrire intégralement ou d'injecter du jargon administratif/corporatif boursouflé (« Encart », périphrase lourde).
+   - Conserver 90% à 95% de sa voix, de ses phrases et de son agencement.
+   - Compléter uniquement les éléments factuels demandés avec une concision maximale (e-mails courts, percutants, lisibles en 30 secondes, où le destinataire n'a qu'à valider en une ligne).
+3. **Déclenchement d'ask_question avec Texte Sous les Yeux** : Ce n'est qu'après avoir affiché ces 3 versions complètes qu'ask_question est posé pour recueillir le choix d'Henri ou inviter à la saisie libre de son propre brouillon brut.
+4. **Deux issues possibles** :
    - **Adoption directe** : Si Henri sélectionne l'une des 3 options, celle-ci est intégrée telle quelle dans le rapport.
    - **Brouillon brut** : Si Henri utilise le champ libre pour saisir ses propres mots bruts ou des directives spécifiques, ce brouillon est transmis au skill `/correct` pour une retouche chirurgicale respectant strictement sa voix sans réécriture générique.
 
 ### 5.2 📄 Comment Intégrer les Textes à Patte Humaine dans exploration_report_X.md ?
 
 > [!IMPORTANT]
-> **Présence In Extenso dans le Rapport d'Exploration pour Annotation** :
-> Tout texte destiné à un tiers et requérant une patte humaine (courriels, lettres de dérogation, argumentaires, pitchs) doit impérativement figurer **in extenso dans le corps de l'artéfact `exploration_report_X.md`** (dans une sous-section dédiée de la Section 2 ou du livrable).
+> **Parité Stricte Chat <-> Artéfact (Single Source of Truth) & Présence In Extenso** :
+> - **Zéro divergence** : Le texte reproduit dans le corps de l'artéfact `exploration_report_X.md` et celui affiché dans le chat doivent être **STRICTEMENT IDENTIQUES, mot pour mot**. Aucune version remaniée, rallongée ou altérée n'est tolérée dans l'artéfact.
+> - Tout texte destiné à un tiers et requérant une patte humaine (courriels, lettres de dérogation, argumentaires, pitchs) doit impérativement figurer **in extenso dans le corps de l'artéfact `exploration_report_X.md`** (dans une sous-section dédiée de la Section 2 ou du livrable).
 > Cela permet à Henri de relire, surligner et commenter directement les phrases au scalpel dans l'artéfact via l'interface de relecture.
 
 ---
