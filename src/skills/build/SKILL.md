@@ -18,7 +18,7 @@ description: "Fusion conservatrice des rapports d'exploration et coordination d'
 >   - **Règle de Préséance Temporelle** : En cas de contradiction explicite ou de décision modifiée par Henri dans un rapport ultérieur, c'est le rapport le plus récent ($X > X-1 > \dots > 1$) qui prévaut et écrase l'ancienne directive.
 > - **📝 PLAN FINAL IMMÉDIAT (`implementation_plan.md`)** : Généré immédiatement dans son brain (`<appDataDir>/brain/<build-lead-id>/implementation_plan.md`), découpé en chantiers étanches numérotés (`Chantier 1`, `Chantier 2`...).
 > - **📢 PUBLICATION ET ANNONCE DANS LE CHAT** : Dès la fusion achevée, le Build Lead envoie un message au Superviseur Racine qui affiche immédiatement dans le chat le lien vers le plan et la liste des chantiers programmés.
-> - **🚀 PROGRESSION PAS-À-PAS EN TEMPS RÉEL** : 1 chantier étanche = 1 sous-agent worker feuille ($P=2$, `TypeName: 'self'`, `Workspace: 'inherit'`). À chaque chantier validé, notification au Superviseur Racine qui actualise le chat : `✅ Chantier N terminé ([Nom]) ➔ 🚀 Lancement du Chantier N+1 ([Nom])`.
+> - **🚀 PROGRESSION PAS-À-PAS EN TEMPS RÉEL & CONTEXTE GLOBAL ÉTANCHE** : 1 chantier étanche = 1 sous-agent worker feuille ($P=2$, `TypeName: 'self'`, `Workspace: 'inherit'`). Le Build Lead transmet obligatoirement l'accès en lecture au plan d'implémentation global (`implementation_plan.md`) à chaque worker feuille pour qu'il comprenne le cadre architectural d'ensemble de son travail, tout en lui intimant l'ordre formel et strict de se cantonner exclusivement aux fichiers de son chantier assigné. À chaque chantier validé, notification au Superviseur Racine qui actualise le chat : `✅ Chantier N terminé ([Nom]) ➔ 🚀 Lancement du Chantier N+1 ([Nom])`.
 > - **🧪 VÉRIFICATIONS AUTONOMES & WALKTHROUGH** : Les workers de chantier ($P=2$) et le worker final d'intégration ($P=2$) mènent les vérifications de compilation, de syntaxe et les validations fonctionnelles en direct de manière autonome pour alimenter `walkthrough.md` sans dépendre d'une grille préalable dans les rapports d'exploration. Le Build Lead publie `walkthrough.md`.
 > - **🧹 CLEAN SLATE POST-BUILD** : Une fois le travail validé, le plan d'implémentation est vidé pour clore proprement la session.
 
@@ -149,10 +149,22 @@ flowchart TD
 - **Règle d'Or de Parallélisme** : Le Build Lead analyse la matrice de dépendances des chantiers. Tous les chantiers étanches $N_1, N_2, \dots$ sont lancés **simultanément au même tour** dans un tableau `Subagents: [...]`.
 - **Zéro Goulot Séquentiel Artificiel** : Interdiction de temporiser ou d'attendre la complétion d'un chantier indépendant avant de lancer les autres.
 - **Séquençage Réservé aux Dépendances Strictes** : Seul le Worker d'Intégration & Vérification Finale ($P=2$) est déployé après réception des confirmations de tous les chantiers.
+- **Transmission Obligatoire du Plan d'Implémentation Global** : Le Build Lead transmet systématiquement le lien absolu vers implementation_plan.md (file:///<appDataDir>/brain/<build-lead-id>/implementation_plan.md) dans le prompt de chaque worker feuille avec consigne impérative de le lire en action n°1 via view_file pour assimiler l'architecture générale, les interfaces et la finalité de la session.
+- **Garde-Fou Infranchissable de Confinement au Chantier** : Bien que le worker comprenne le tableau d'ensemble, il a l'interdiction formelle et absolue de modifier, créer ou supprimer le moindre fichier en dehors du périmètre chirurgical de son propre chantier assigné.
 - **Template de Prompt pour Worker Feuille** :
   ```text
   Tu es le Worker Feuille pour le Chantier N (P=2).
   Périmètre exclusif : [Nom du chantier, fichiers ciblés, spécifications exactes]
+
+  CADRE ARCHITECTURAL GLOBAL & PLAN D'IMPLÉMENTATION :
+  Consulte obligatoirement en première action le plan d'implémentation global de la session via view_file :
+  file:///<appDataDir>/brain/<build-lead-id>/implementation_plan.md
+  Objectif : Assimiler le contexte d'ensemble, les tenants et aboutissants, les interfaces partagées et la cohérence systémique du projet.
+
+  GARDE-FOU D'ÉTANCHÉITÉ STRICTE (CONFINEMENT OBLIGATOIRE AU CHANTIER N) :
+  Bien que tu aies la pleine visibilité sur le plan global, TU DOIS TE CANTONNER STRICTEMENT ET EXCLUSIVEMENT À TON CHANTIER ASSIGNÉ.
+  Il t'est FORMELLEMENT ET ABSOLUMENT INTERDIT de modifier, créer, renommer ou supprimer un quelconque fichier en dehors du périmètre précis spécifié pour ton Chantier N.
+
   Consignes impératives :
   1. Édition chirurgicale in-situ. Zéro régression, zéro erreur silencieuse.
   2. S'aligner fidèlement sur l'architecture et les conventions existantes.
