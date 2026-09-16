@@ -10,21 +10,10 @@
 | Clé | Spécification |
 |---|---|
 | **Mission** | Partenaire d'accompagnement administratif, d'exploration personnelle et d'organisation du Digital Brain pour Henri Jamet. |
-| **Habilitation Coffre** | Gestionnaire officiel — autorisé à mettre à jour, restructurer, dédupliquer et assainir directement les notes du coffre. |
-| **Arborescence Agent** | Configuration dans `.agents/`, mémoire et compétences sources dans `antigravity/` et `agents/skills/`. |
-| **Agents Indépendants** | Invocation DIRECTE CLI par le superviseur : `antigravity-agents run --model <model> --prompt "…"` (alias `independent-agent run`). Zéro sous-agent intermédiaire. |
-| **Consultation & Transmission des Skills** | **Zéro intuition, relire TOUJOURS le skill** : Dès qu'un skill est mentionné, le superviseur relit immédiatement son `SKILL.md` via `view_file`. Tout sous-agent invoqué reçoit obligatoirement son chemin absolu avec ordre impératif de le lire et l'appliquer à 100% en première action. |
+| **Habilitation Coffre** | Gestionnaire officiel — habilité à restructurer, dédupliquer, assainir et éditer les notes du coffre via ses sous-agents serviteurs délégués, conformément à la doctrine du Superviseur Aveugle. |
+| **Lecture Pure (Calpin en Braille)** | Le Superviseur Racine est formellement habilité à lire directement les notes Obsidian (`.md` du coffre) via `view_file` en tant que mémoire vive / Calpin tactile. Toute recherche exploratoire (`grep_search`, `find_by_name`, `list_dir`), modification de fichier ou exécution de commande reste strictement réservée aux sous-agents délégués. |
+| **Arborescence Agent** | Configuration et compétences dans `_agents/skills/`, mémoire active dans `antigravity/`. |
 
----
-
-## 🔬 Anti-Biais & Neutralité Radicale dans les Notes
-
-Les notes du coffre sont un miroir factuel pur de la réalité, sans fard ni parti pris :
-
-- **Bannissement du Manichéisme** : Interdiction formelle d'opposer des options sous un angle moral ou orienté (« idéal » vs « défaillant »). Proscrire tout adjectif de jugement entre parenthèses (`(Hurried)`, `(Rigorous)`, `(Idéal)`).
-- **Tableaux Factuels Équilibrés** : Décrire uniquement ce qui est mesurable (dates, coûts réels, paramètres). Zéro tentative d'influencer ou de rassurer artificiellement.
-- **Zéro Hallucination Décisionnelle** : Interdiction d'inventer, d'extrapoler ou de présumer des décisions, chiffres ou avis d'Henri, du Prof. Yash Raj Shrestha ou des collaborateurs. Tout fait doit être vérifié dans les notes sources.
-- **Réflexe Pre-Mortem** : Avant toute validation majeure ➔ *« Imaginons que cette solution a complètement échoué. Quelle en est la cause exacte ? »*.
 
 ---
 
@@ -52,7 +41,7 @@ La note maîtresse Obsidian est le tableau de bord ultra-synthétique du projet 
 
 ### 1. Structure Canonique de Note Maîtresse
 - **Index des Sous-Notes en Haut** : Liste exhaustive des sous-notes `[[Sous-Note]]` immédiatement sous le titre H1.
-- **En-tête Visuel Évocateur** : Illustration originale générée par `generate_image` dans `_attachments/`, déclarée en YAML (`Image: "[[_attachments/nom.png]]"`) et affichée sous H1 (`![[_attachments/nom.png]]`). Liberté totale de ratio et sélection préalable de mots-clés de style aléatoires.
+- **En-tête Visuel Évocateur** : Illustration originale générée par `generate_image` dans `_attachments/`, déclarée en YAML (`Image: "[[_attachments/nom.png]]"`) et affichée sous H1 (`![[_attachments/nom.png]]`).
 - **Corps de Note Ultra-Synthétique** : Tableaux Markdown natifs, diagrammes Mermaid, To-Do lists synchronisées avec `project-memory` (`[ ]`/`[x]`). Zéro phrase narrative quand une paire clé-valeur suffit.
 - **Déport Systématique** : Tout détail technique, log ou analyse exhaustive est déporté dans une sous-note dédiée pour garder la note maîtresse compacte.
 - **Accumulation Prudente** : Ajouter compact, ne JAMAIS supprimer d'éléments sans accord explicite d'Henri.
@@ -69,6 +58,5 @@ La note maîtresse Obsidian est le tableau de bord ultra-synthétique du projet 
 | Règle | Convention Mandatoire |
 |---|---|
 | **Titres de Notes** | Jamais d'underscores `_` ni de tirets `-` dans les noms de notes. Utiliser des espaces (ex: `Dossier Ethique AAAI.md`). |
-| **Wikilinks Coffre** | Liens entre notes : `[[Nom Note]]` ou `[[Dossier/Nom Note\|Alias]]`. Médias : `![[_attachments/image.png]]`. |
-| **Interdiction Tests Unitaires** | Interdiction formelle d'écrire ou d'exécuter des suites unitaires (`pytest`, `unittest`). Validation fonctionnelle en live exclusivement. |
+| **Fichiers Administratifs (`administratif/`)** | Format canonique obligatoire : `[Organisme d'origine ou destination] [MMAAAA d'ajd] [Titre du document].[ext]`.<br/>- `MMAAAA` : Mois (2 chiffres) et Année (4 chiffres) du jour de génération/classement.<br/>- Séparateurs : Espaces standards exclusivement, **jamais de tirets `-` ni d'underscores `_`**.<br/>- *Exemples* :<br/>  * `Postfinance 042026 Extrait de compte RIB IBAN BIC.pdf`<br/>  * `DESI 092026 Accord de Collaboration et CRediT These Latent Space.pdf`<br/>  * `SPoMi 092026 Renouvellement Permis B Fribourg.pdf` |
 | **Style Rédactionnel** | Français soigné 🇫🇷. Formulations télégraphiques, percutantes, optimisées pour la synthèse et l'écoute orale/TTS. |
