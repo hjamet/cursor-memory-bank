@@ -1,8 +1,8 @@
 ---
-name: correct
-description: "Relecture chirurgicale et correction de textes en préservant le style d'Henri."
+name: draft
+description: "Relecture chirurgicale, complétion de balises <XXX> et polissage de brouillons en préservant le style d'Henri."
 ---
-# ✍️ Comment le Skill /correct Assure-t-il la Relecture et la Retouche Chirurgicale sans Altérer la Voix d'Henri ?
+# ✍️ Comment le Skill /draft Assure-t-il la Relecture, la Complétion et la Retouche Chirurgicale sans Altérer la Voix d'Henri ?
 
 Ce skill formalise le **protocole de relecture, correction et retouche chirurgicale** des textes, courriels, messages et documents rédigés par **Henri Jamet**. Il garantit une élimination sans faille des coquilles et des maladresses institutionnelles tout en érigeant un rempart infranchissable contre la dérive de réécriture intégrale courante des LLM.
 
@@ -19,12 +19,12 @@ flowchart TD
 
 ---
 
-## 🎯 Quelle Est la Philosophie et la Raison d'Être du Skill /correct ?
+## 🎯 Quelle Est la Philosophie et la Raison d'Être du Skill /draft ?
 
 ### 🛡️ Pourquoi Sanctuariser la Voix et l'Authenticité d'Henri ?
 - **Respect du temps et de l'énergie** : Henri sait exactement ce qu'il veut dire, à qui il s'adresse et quel impact il vise. Le rôle de l'assistant n'est pas de réinventer sa pensée, mais de polir ses mots avec le tranchant d'un scalpel.
 - **Préservation de l'authenticité** : La force de conviction d'Henri réside dans son ton direct, incarné, humain, percutant et sincère. Tout lissage aseptisé détruit cette signature personnelle et dépersonnalise ses échanges.
-- **Rejet de la complaisance IA (Sycophancy & Corpo-Wash)** : Les modèles de langage ont un biais systématique les poussant à substituer un texte personnel par un jargon d'entreprise impersonnel, verbeux et artificiellement obséquieux (*"I hope this email finds you well"*, *"Permettez-moi de revenir vers vous..."*, *"N'hésitez pas si vous avez des questions"*). Le skill `/correct` agit comme un antidote strict à ce réflexe.
+- **Rejet de la complaisance IA (Sycophancy & Corpo-Wash)** : Les modèles de langage ont un biais systématique les poussant à substituer un texte personnel par un jargon d'entreprise impersonnel, verbeux et artificiellement obséquieux (*"I hope this email finds you well"*, *"Permettez-moi de revenir vers vous..."*, *"N'hésitez pas si vous avez des questions"*). Le skill `/draft` agit comme un antidote strict à ce réflexe.
 
 | Dimension | Voix Authentique d'Henri | Dérive IA / Corpo-Wash (Bannie) |
 | :--- | :--- | :--- |
@@ -66,15 +66,38 @@ L'analyse initiale scanne le texte sur deux plans complémentaires :
 
 #### 🛡️ Comment Traquer la Sur-Excusite et les Formulations Négatives ?
 - **Élimination de la sur-excusite (Over-apologizing)** :
-  * ❌ *« Je suis sincèrement désolé de vous déranger avec cela... »* $	o$ ✅ Supprimé ou remplacé par une formule d'action directe.
-  * ❌ *« Excuse my English, I hope I'm clear... »* $	o$ ✅ Supprimé purement et simplement.
-  * ❌ *« Je m'excuse d'avance pour le retard de ma réponse... »* $	o$ ✅ *« Merci pour ta patience ! »* ou traitement immédiat de la question.
+  * ❌ *« Je suis sincèrement désolé de vous déranger avec cela... »* ➔ ✅ Supprimé ou remplacé par une formule d'action directe.
+  * ❌ *« Excuse my English, I hope I'm clear... »* ➔ ✅ Supprimé purement et simplement.
+  * ❌ *« Je m'excuse d'avance pour le retard de ma réponse... »* ➔ ✅ *« Merci pour ta patience ! »* ou traitement immédiat de la question.
 - **Remplacement des mots négatifs ou défensifs non intentionnels** :
   * Transformer les formulations passives ou culpabilisantes en constat factuel et tourné vers l'avenir.
-  * ❌ *« Il y a eu un problème / une erreur de ma part »* $	o$ ✅ Constat factuel neutre : *« Le fichier n'était pas attaché, le voici : ... »*.
+  * ❌ *« Il y a eu un problème / une erreur de ma part »* ➔ ✅ Constat factuel neutre : *« Le fichier n'était pas attaché, le voici : ... »*.
 - **Éradication des marqueurs IA et tics académiques creux** :
   * Purge absolue des tirets cadratins (`—`) ou tirets d'incise (`–`) au profit de virgules, parenthèses sobres ou points.
   * Bannissement des adverbes d'enrobage (*"fondamentalement"*, *"naturellement"*, *"incontestablement"*).
+
+---
+
+## 🧩 Comment Résoudre Chirurgicalement les Balises d'Hésitation & Données Manquantes <XXX> ?
+
+Lorsque Henri insère des balises délimitées par des chevrons `<...>` dans son texte brut :
+
+### 1. Règle des Deux Typologies de Balises `<XXX>`
+1. **Cas A — Hésitation Lexicale ou Synonyme** (ex: `<protocole>`, `<dispositif>`, `<amicalement>`) :
+   - L'agent remplace la balise par le terme le plus naturel, précis et institutionnellement adapté au contexte.
+   - Respect strict du registre relationnel et de la voix d'Henri, sans extrapolation ni jargon boursouflé.
+
+2. **Cas B — Donnée Factuelle Manquante ou Indice Intégré** (ex: `<5h ? Mais un classique d'après l'UNIL>`, `<chiffre CA>`, `<date limite>`) :
+   - **Prendre en compte les indices d'Henri** : Analyser les réflexions, approximations ou pistes textuelles fournies à l'intérieur des chevrons.
+   - **Interdiction formelle d'inventer** : L'agent ne devine jamais une métrique au hasard. Il déclenche une recherche active (notes du coffre, syllabus, e-mails Spark, règlements officiels, MCPs) pour identifier la donnée exacte et sourcée.
+   - **Substitution fluide** : Remplacer l'intégralité du tag `<XXX>` par la valeur vérifiée intégrée harmonieusement dans la phrase.
+
+### 2. Traçabilité dans le Tableau de Diff
+Toute résolution de balise `<XXX>` fait l'objet d'une ligne dédiée dans le tableau de diff :
+| Balise Originale (Avant) | Remplacement Validé (Après) | Justification & Source Vérifiée |
+| :--- | :--- | :--- |
+| *`<protocole>`* | *« dispositif d'évaluation continue »* | Qualification juridique conforme au règlement RBHEC art. 10. |
+| *`<5h ? Mais classique...>`* | *« environ 15 heures de préparation »* | Standard ECTS du cours AIB (soutenance de 30 min en équipe). |
 
 ---
 
@@ -91,7 +114,7 @@ L'analyse initiale scanne le texte sur deux plans complémentaires :
 
 ### 📊 3. Comment Présenter le Diff Explicite et Commenté ?
 
-Chaque restitution `/correct` doit obligatoirement comporter deux volets distincts et clairement séparés :
+Chaque restitution `/draft` doit obligatoirement comporter deux volets distincts et clairement séparés :
 1. **Le Texte Retouché Intégral** : Prêt à être copié-collé par Henri en une seconde.
 2. **Le Diff Commenté & Justifié** : Tableau ou liste à puces synthétique décrivant chaque modification.
 
@@ -123,7 +146,7 @@ Lorsque Henri demande de traduire un texte (notamment du français vers l'anglai
 **Texte Brut Soumis par Henri :**
 > Bonjour Thomas, désolé de te déranger avec ça mais est-ce que tu as eu le temps de jeter un oeil sur le draft ? J'ai modifier la section 3 comme convenu avec Yash. Tiens moi au courant si tu as des remarques. Joyeusement, Henri
 
-**Restitution du Skill /correct :**
+**Restitution du Skill /draft :**
 > Bonjour Thomas, est-ce que tu as eu le temps de jeter un œil sur le draft ? J'ai modifié la section 3 comme convenu avec Yash. Tiens-moi au courant si tu as des remarques. Joyeusement, Henri
 
 **Diff Commenté :**
@@ -141,7 +164,7 @@ Lorsque Henri demande de traduire un texte (notamment du français vers l'anglai
 **Texte Brut Soumis par Henri :**
 > Hello, c'est bon pour moi pour la réunion de 14h, désolé pour le délais de réponse j'étais en conf. A toute !
 
-**Restitution du Skill /correct :**
+**Restitution du Skill /draft :**
 > Hello, c'est bon pour moi pour la réunion de 14h, désolé pour le délai de réponse j'étais en conf. À toute !
 
 **Diff Commenté :**
@@ -158,7 +181,7 @@ Lorsque Henri demande de traduire un texte (notamment du français vers l'anglai
 > *« Cher Thomas, j'espère que tu vas bien et que ta semaine se déroule au mieux. Je me permets de revenir vers toi concernant notre manuscrit commun. Aurais-tu eu l'opportunité de prendre connaissance des dernières révisions ? Pour faire suite à nos échanges avec le Professeur Yash, j'ai pris l'initiative de remanier en profondeur la troisième section. Je reste à ton entière disposition pour tout échange complémentaire. Bien chaleureusement, Henri »*
 
 > [!CAUTION]
-> **Pourquoi c'est un échec critique** : Le texte a été dénaturé à 85%, transformé en bouillie corporative, rallongé inutilement et privé de son énergie d'origine. C'est une violation flagrante du skill `/correct`.
+> **Pourquoi c'est un échec critique** : Le texte a été dénaturé à 85%, transformé en bouillie corporative, rallongé inutilement et privé de son énergie d'origine. C'est une violation flagrante du skill `/draft`.
 
 ---
 
@@ -183,6 +206,7 @@ Lorsque Henri demande de traduire un texte (notamment du français vers l'anglai
 Avant de renvoyer le résultat à Henri, l'agent audite sa propre production :
 - [ ] **90% à 95% du texte original d'Henri est-il strictement préservé ?**
 - [ ] **Aucune réécriture globale ni restructuration non demandée n'a-t-elle été commise ?**
+- [ ] **Toutes les balises <XXX> sont-elles résolues et justifiées sans invention ?**
 - [ ] **Toutes les fautes réelles d'orthographe, d'accord et de ponctuation sont-elles corrigées ?**
 - [ ] **Les pièges diplomatiques (sur-excusite, culpabilité passive) ont-ils été neutralisés ?**
 - [ ] **Les marqueurs IA (tirets cadratins `—`, formulations boursouflées) sont-ils absents ?**
