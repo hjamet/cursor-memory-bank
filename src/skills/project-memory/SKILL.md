@@ -375,10 +375,7 @@ Démarre une session de travail Pomodoro sur un projet. La durée de la session 
 > **RÈGLE D'OR DU POMODORO PERMANENT (ZÉRO TRAVAIL SANS POMODORO)** :
 > - **Interdiction Formelle** : Il est formellement interdit de travailler sur un projet sans qu'un Pomodoro actif ne soit en cours d'exécution en arrière-plan (`work "<projet>"` ou timer calqué sur `data.json`, 60 min par défaut).
 > - **Lancement Automatique Systématique** : Dès le début effectif de tout travail sur un projet quel qu'il soit (note taggée `#todo`/`#project`, `/teacher`, `/work`, rédaction, apprentissage), exécuter **IMMÉDIATEMENT et sans attendre** la commande CLI en arrière-plan : `python _agents/scripts-for-skills/project_memory_cli.py work "<NomDuProjet>"`. Interdiction d'attendre une consigne explicite ou d'imposer une durée arbitraire (la durée configurée dans `data.json`, actuellement 60 min, est appliquée par défaut). Pause obligatoire de 5 min à l'échéance.
-> - **Enchaînement et Relance après Feedback** : Dès qu'un Pomodoro se termine et qu'Henri donne son feedback (`ask_question`) :
->   - *Même projet* : Si Henri continue sur le même projet ➔ Relance IMMÉDIATE et automatique d'un nouveau Pomodoro (durée par défaut de `data.json`, 60 min) sur ce projet.
->   - *Changement de projet ou Parallélisation* : Si Henri ouvre un chantier parallèle sur un second projet ➔ Lancement IMMÉDIAT du Pomodoro sur le second projet (les deux tourneront de concert en arrière-plan).
->   - *Transition douce* : En cas de transition douce (finalisation de l'ancien en démarrant le nouveau) ➔ Lancement IMMÉDIAT du Pomodoro sur le NOUVEAU projet, tout en laissant les sous-agents de l'ancien projet terminer leur exécution en arrière-plan.
+> - **Clôture Obligatoire & Zéro Relance Automatique** : À la fin d'une session Pomodoro (60 min), **INTERDICTION FORMELLE ET ABSOLUE de relancer automatiquement un Pomodoro**. L'agent déroule le protocole de fin de session en 4 points (pause de 5 min, feuille de route unifiée par chantiers synchronisée en tête de note maîtresse, interrogation interactive via `ask_question`, et clôture définitive de la conversation sans suggérer de projets suivants).
 > - **Exception Unique** : Seules les questions ponctuelles isolées et hors projet (1 question/réponse triviale de 30 secondes) peuvent se passer de Pomodoro.
 > - **Auto-Suffisance Absolue de la Commande `work` (Zéro Timer Manuel `schedule`)** : La commande CLI `work` exécutée en arrière-plan via `run_command` dort pendant toute la durée nominale (par défaut 60 min). À son échéance, le processus se termine et réveille automatiquement Antigravity via le système push réactif. **Il est FORMELLEMENT INTERDIT d'armer un timer manuel `schedule` en parallèle d'un Pomodoro `work`.**
 
@@ -391,15 +388,18 @@ python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_
 - `<project_path_or_name>` *(string)* : Chemin relatif dans le coffre (ex: `"Projets/MonProjet.md"`) ou titre/nom du fichier (résolution floue supportée).
 - `--duration N` *(int)* : Durée personnalisée de la session Pomodoro en minutes (outrepasse la valeur `pomodoroDuration` de `data.json`).
 
-#### Quel Est le Workflow d'Interaction d'Antigravity ?
+#### Quel Est le Protocole de Fin de Session & Workflow d'Interaction ?
 1. **Lancement & Réveil Automatique par Processus** : Antigravity lance la commande `work` en tâche de fond (`run_command`). La terminaison naturelle du processus de fond réveille automatiquement Antigravity à l'échéance exacte de la session Pomodoro, sans aucun timer manuel `schedule`.
-2. **Incitation Obligatoire à la Pause (5 min)** : Dès la fin de la session Pomodoro, Antigravity doit **obligatoirement** inviter Henri à effectuer une pause de 5 minutes avant d'évaluer l'avancement ou de poursuivre le travail.
-3. **Récapitulation Intégrale (Fait vs Reste à Faire) & Sauvegarde Obsidian** :
-   - **Bilan exhaustif** : Récapituler fidèlement ce qui a été accompli, **MAIS SURTOUT récapituler sans rien oublier tout ce qui reste à faire pour le projet dans son ensemble (au vu de la roadmap globale et par rapport à l'échéance/deadline)**, en y intégrant scrupuleusement tous les sujets abordés, discutés ou arbitrés au cours de la session.
-   - **Synchronisation Roadmap en Tête** : Mettre systématiquement à jour la section Roadmap et To-Do list (`[ ]`/`[x]`) tout en haut de la note maîtresse (immédiatement sous l'en-tête visuel et l'index, conformément à `AGENTS.md`).
-   - **Agrégation des Plans & Rapports Scout Non Builts** : Si des rapports d'exploration (`exploration_report_X.md`) ou un plan d'implémentation ont été élaborés au cours de la session mais ne sont pas encore appliqués sur le code/coffre via `/build`, **l'agent DOIT impérativement les agréger et les sauvegarder sous forme d'une note de cadrage pérenne dans Obsidian** (ou sous-note dédiée liée dans l'index du haut). Cette note doit adopter les règles strictes d'un plan d'implémentation `/build` (format natif Google avec sections `[NEW]`, `[MODIFY]`, `[DELETE]`, description affirmative chirurgicale, et arbitrages scellés sans questions ouvertes résiduelles) pour permettre à une future conversation de reprendre immédiatement le chantier sans ré-exploration redondante.
-4. **Interrogation Interactive du Stress (`ask_question`) & Feedback** : À la fin de la session ou lors du bilan d'étape, Antigravity évalue lucidement la progression selon les signaux réels (marge calendaire, fluidité d'exécution, complexité), détermine l'option conseillée avec le suffixe ` (Recommandé)`, et interroge **obligatoirement** Henri via `ask_question` avec les 4 options canoniques dans l'ordre strict : `["À l'aise", "OK", "Stressé", "Terminé"]`. Suite à sa réponse, Antigravity exécute `feedback "<projet>" <action>`.
-5. **Recommandation Proactive & Relance** : Suite au bilan ou au moment de la pause, Antigravity recommande de manière proactive l'un des 3 projets les plus urgents suivants et enchaîne immédiatement le Pomodoro approprié.
+2. **Protocole de Fin de Session en 4 Points (Obligatoire)** :
+   1. **Pause de 5 Minutes Obligatoire** : Inviter impérativement Henri à faire une pause de récupération de 5 minutes avant toute autre action cognitive.
+   2. **Feuille de Route Unifiée par Chantiers & Synchronisation Note Maîtresse** :
+      - *Format Unique par Chantiers* : Supprimer toute section narrative redondante de « travail accompli ». Restituer directement la feuille de route sous la forme d'une **checklist unique structurée par chantiers thématiques**, regroupant pour chaque domaine les actions accomplies (`- [x]`) et les tâches restantes (`- [ ]`) par rapport aux échéances/jalons.
+      - *Synchronisation en Tête de Note Maîtresse* : Mettre systématiquement à jour la section Roadmap et To-Do list (`[ ]`/`[x]`) tout en haut de la note maîtresse (immédiatement sous l'en-tête visuel et l'index, conformément à `AGENTS.md`).
+      - *Agrégation des Plans & Rapports Scout Non Builts* : Si des rapports d'exploration (`exploration_report_X.md`) ou un plan d'implémentation n'ont pas encore été appliqués sur le code/coffre via `/build`, les agréger et les sauvegarder sous forme d'une note de cadrage pérenne dans Obsidian (ou sous-note dédiée liée dans l'index du haut) pour reprise immédiate sans friction.
+   3. **Interrogation Interactive du Ressenti (`ask_question`) & Feedback** : Antigravity évalue lucidement la progression selon les signaux réels (marge calendaire, fluidité d'exécution, complexité), détermine l'option conseillée avec le suffixe ` (Recommandé)`, et interroge **obligatoirement** Henri via `ask_question` avec les 4 options canoniques dans l'ordre strict : `["À l'aise", "OK", "Stressé", "Terminé"]`. Suite à sa réponse, Antigravity exécute `feedback "<projet>" <action>`.
+   4. **Clôture Définitive de la Conversation (Zéro Relance & Zéro Suggestion Suivante)** :
+      - *Interdiction Formelle de Relance Automatique* : INTERDICTION FORMELLE ET ABSOLUE de relancer un Pomodoro automatiquement.
+      - *Suppression des Projets Suivants* : Ne plus calculer ni recommander les 3 projets suivants. Clôturer proprement la conversation sans pousser à un enchaînement compulsif.
 
 #### Quel Est le Protocole d'Évaluation Autonome & Anti-Biais ?
 Lors de la clôture d'une session de travail ou de l'émission d'une recommandation, Antigravity doit respecter une rigueur d'analyse stricte :
@@ -553,15 +553,15 @@ Lorsque Henri invoque manuellement le skill ou la slash-command `/project-memory
 * **Échange Naturel dans le Chat** :
   - Laisser Henri arbitrer et réagir directement dans la conversation sur son choix de projet (l'outil modal `ask_question` est réservé aux bilans de fin de session et feedbacks de charge).
 
-### 2. Que Faire en Milieu de Conversation ou Clôture de Session (Bilan & Enchaînement) ?
+### 2. Que Faire en Milieu de Conversation ou Clôture de Session (Bilan & Clôture) ?
 * **Vérification & Mise à Jour des Notes Obsidian (Mandatoire)** : Moment privilégié pour **auditer et synchroniser la note maîtresse et toutes les sous-notes liées du projet dans Obsidian**. Vérifier qu'elles reflètent fidèlement 100% des avancées, décisions prises, arbitrages, travaux effectués et nouveaux jalons de la session.
-* **Bilan d'Avancement Factuel** : Résumer précisément ce sur quoi Henri et Antigravity viennent de travailler (tâches réalisées, décisions clés, note de projet mise à jour).
+* **Bilan d'Avancement Factuel & Roadmap Unifiée** : Restituer la feuille de route sous forme de checklist unique par chantiers (`- [x]` accompli, `- [ ]` restant) sans section narrative redondante.
 * **Interrogation Interactive du Stress (`ask_question`) & Évolution du Score** :
   * Appeler obligatoirement `ask_question` avec les 4 options canoniques dans l'ordre strict `["À l'aise", "OK", "Stressé", "Terminé"]` (avec le suffixe ` (Recommandé)` apposé sur l'option conseillée selon la marge calendaire).
   * Exécuter l'action CLI correspondante (`feedback "<projet>" <action>`) choisie par Henri.
   * Indiquer factuellement le score de base $S_{\text{base}}$ et le score effectif $S_{\text{eff}}$ mis à jour.
   * Préciser le **malus temporel cumulatif** appliqué via `recentWorkDates` (valeur de $K$, nombre de sessions consécutives dans les 6h, pénalité en points).
-* **Enchaînement Suivant (Top 3)** : Présenter immédiatement les **Top 3 projets les plus urgents suivants** sous forme de liens Markdown cliquables pour choisir le prochain focus de travail ou enchaîner après la pause de 5 minutes.
+* **Clôture Définitive de Session (Zéro Relance & Zéro Suggestion Suivante)** : Clôturer définitivement la conversation après le feedback sans relancer de Pomodoro et sans suggérer de projets suivants.
 
 ---
 
@@ -582,13 +582,13 @@ Lorsque Henri invoque manuellement le skill ou la slash-command `/project-memory
    - **Délégation & Sous-Agents d'Exploration** : Si le projet est vaste ou comporte des dépendances multiples, Antigravity **doit spontanément lancer un ou plusieurs sous-agents d'exploration** (`research`) pour fouiller la documentation, les échanges récents ou le codebase afin de posséder 100% du contexte dès le début du travail.
 
 3. **Session de Travail Pomodoro & Suivi de Rythme (Règle d'Or du Pomodoro Permanent)** :
-   - **Zéro Travail sans Pomodoro** : Lancer systématiquement `work "<NomProjet>"`. Au tout début, afficher immédiatement le lien Markdown cliquable vers la note Obsidian. À l'échéance, faire respecter la pause obligatoire de 5 minutes.
-   - **Interrogation Interactive & Enchaînement Immédiat** : Interroger obligatoirement Henri via `ask_question` avec les 4 options canoniques `["À l'aise", "OK", "Stressé", "Terminé"]` (avec la recommandation calendaire), puis appliquer le feedback choisi via `feedback "<NomProjet>" <action>`.
-   - **Relance & Enchaînement Permanent** :
-     * *Même projet* : Si Henri continue sur le même projet ➔ Relance IMMÉDIATE et automatique d'un nouveau Pomodoro (durée par défaut de `data.json`, 60 min) sur ce projet.
-     * *Changement de projet* : Si Henri change de projet ➔ Lancement IMMÉDIAT du Pomodoro sur le nouveau projet.
-     * *Transition douce* : En cas de transition douce (finalisation de l'ancien en démarrant le nouveau) ➔ Lancement IMMÉDIAT du Pomodoro sur le NOUVEAU projet, tout en laissant les sous-agents de l'ancien projet terminer leur exécution en arrière-plan.
-     * Seules les questions ponctuelles isolées et hors projet (1 question/réponse triviale de 30 secondes) peuvent se passer de Pomodoro.
+   - **Zéro Travail sans Pomodoro** : Lancer systématiquement `work "<NomProjet>"`. Au tout début, afficher immédiatement le lien Markdown cliquable vers la note Obsidian.
+   - **Protocole de Clôture en 4 Points** : À l'échéance de la session Pomodoro (60 min) :
+     1. Inviter obligatoirement à la pause de 5 minutes.
+     2. Restituer la feuille de route sous forme de checklist unique par chantiers (`- [x]` accompli, `- [ ]` restant par rapport aux échéances) synchronisée en tête de note maîtresse.
+     3. Interroger Henri via `ask_question` avec les 4 options canoniques `["À l'aise", "OK", "Stressé", "Terminé"]` (avec la recommandation calendaire), puis appliquer le feedback choisi via `feedback "<NomProjet>" <action>`.
+     4. Clôturer définitivement la session et la conversation. **INTERDICTION FORMELLE ET ABSOLUE de relancer un Pomodoro automatiquement et de suggérer les projets suivants.**
+   - Seules les questions ponctuelles isolées et hors projet (1 question/réponse triviale de 30 secondes) peuvent se passer de Pomodoro.
 
 4. **Accomplissement d'une Étape & Interrogation Interactive** :
    - Une fois une tâche réalisée dans le projet, exécuter `complete-task "<NomProjet>" "<ExtraitTâche>"` pour cocher la tâche et enregistrer automatiquement la session de travail.
