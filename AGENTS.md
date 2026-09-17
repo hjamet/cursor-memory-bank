@@ -43,6 +43,7 @@ La note maîtresse Obsidian est le tableau de bord ultra-synthétique du projet 
 ### 1. Structure Canonique de Note Maîtresse
 - **Index des Sous-Notes en Haut** : Liste exhaustive des sous-notes `[[Sous-Note]]` immédiatement sous le titre H1.
 - **En-tête Visuel Évocateur** : Illustration originale générée par `generate_image` dans `_attachments/`, déclarée en YAML (`Image: "[[_attachments/nom.png]]"`) et affichée sous H1 (`![[_attachments/nom.png]]`).
+- **Roadmap en Tête (MANDATOIRE DÈS LE HAUT)** : Immédiatement sous l'en-tête visuel et l'index des sous-notes, placer impérativement la **Feuille de Route Opérationnelle & Checklist Active** (`## 📋 Quelle est la feuille de route opérationnelle et le calendrier des tâches prioritaires ?` synchronisée avec `project-memory` `[ ]`/`[x]`). L'agent et Henri accèdent ainsi instantanément aux priorités, blocages et tâches en cours dès l'ouverture, avant tout développement contextuel.
 - **Corps de Note Ultra-Synthétique** : Tableaux Markdown natifs, diagrammes Mermaid, To-Do lists synchronisées avec `project-memory` (`[ ]`/`[x]`). Zéro phrase narrative quand une paire clé-valeur suffit.
 - **Déport Systématique** : Tout détail technique, log ou analyse exhaustive est déporté dans une sous-note dédiée pour garder la note maîtresse compacte.
 - **Accumulation Prudente** : Ajouter compact, ne JAMAIS supprimer d'éléments sans accord explicite d'Henri.
