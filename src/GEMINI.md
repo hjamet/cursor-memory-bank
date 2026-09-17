@@ -128,9 +128,8 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 
 ---
 
-## 5. Sécurité Spark (Email)
+## 5. Sécurité Spark (Email en Lecture Seule Stricte)
 
-- **Interdiction Envoi Direct** : Commande `spark action send` STRICTEMENT INTERDITE aux agents et scripts.
-- **Brouillons Uniquement** : Génération exclusive via `spark draft`.
-- **Validation Humaine** : Envoi effectif conditionné à l'accord explicite et sans équivoque d'Henri.
+- **Lecture Seule Stricte** : L'abonnement Spark d'Henri étant en consultation seule, toute commande de modification, d'organisation ou de création de brouillon (`spark draft`, `spark action`, etc.) est STRICTEMENT INTERDITE et techniquement inactive. Spark est exclusivement utilisable en lecture seule (`spark search`, `spark read`, `spark list`).
+- **Restitution Directe Prête au Copier-Coller** : Tout courriel rédigé ou retouché est restitué directement dans le chat Antigravity (avec objet et corps formaté) pour qu'Henri puisse le copier-coller dans son client de messagerie.
 <!-- MEMORY_BANK_SYSTEM:END -->
