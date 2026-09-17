@@ -2,17 +2,17 @@
 # AIVC — AI Version Control (Long-Term Memory)
 
 > [!IMPORTANT]
-> **USE MCP TOOLS ONLY — NEVER RUN CLI SHELL COMMANDS:**
-> As an AI assistant, you MUST interact with AIVC **exclusively** through its registered MCP tools (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`, `get_status`, etc.).
-> **NEVER execute `aivc` CLI shell commands in the terminal (e.g. `aivc sync`, `aivc status`, `aivc recall`)** under any circumstances. Running the CLI in the terminal spawns separate process environments, misses the current session context, and is strictly reserved for the human user.
+> **MCP TOOLS ONLY** — Ne JAMAIS exécuter `aivc` en terminal. Outils MCP exclusifs (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`).
+> **[Bascule Cold-Start]** : Si `recall` est vide ➔ bascule immédiate sur `view_file` / `grep_search`. Conserver `remember` après chaque étape.
 
-## Rules
-
-1. **Remember often.** Call `remember` after every meaningful step (sub-task done, file created/modified, decision made, error resolved, checkpoint reached). Notes must be **detailed**: what, why, errors, decisions, observations, next steps. A one-liner is a failure.
-2. **Start sessions with context recovery.** Before any work: `get_recent_memories` → `recall` (≥1 query) → `consult_memory` on relevant hits → `get_file_history_metadata` on files you'll modify.
-3. **Explore before you act.** Search memory first — never redo past work. Your memory contains solutions, patterns, and lessons.
-4. **Mention files you work on.** Always pass the files you consulted in `read_files` and the files you modified in `edited_files` when calling `remember`. This is how AIVC tracks file associations — there is no separate tracking tool.
-5. **Write for your future self.** Memory notes are handover memos — include reasoning, context, and recommendations as if briefing a colleague with zero context.
+| # | Règle | Détail |
+|---|---|---|
+| 1 | **Remember often** | Appeler `remember` après chaque étape fichier. Format Post-It dense (Trigger/Contexte, Décision/Fix, Invariant/Impact). |
+| 2 | **Targeted context recovery** | `recall` ciblé (≥1 requête) uniquement si contexte mémoriel requis. Puis `consult_memory` si pertinent. |
+| 3 | **Explore before acting** | Interroger la mémoire d'abord — ne jamais refaire un travail documenté. |
+| 4 | **Mention files** | Toujours renseigner `read_files` et `edited_files` pour le graphe de cooccurrence. |
+| 5 | **Format Post-It dense** | Notes Post-It denses et structurées sans bavardage. |
+| 6 | **Bascule Cold-Start** | Si `recall` vide ➔ arrêt requêtes mémoire, passage direct aux outils de lecture. |
 <!-- AIVC:END -->
 
 ---
@@ -28,15 +28,15 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 
 | Catégorie | Outils | Superviseur Racine | Sous-Agents |
 |---|---|:---:|:---:|
-| **Recherche & Exploration** | `find_by_name`, `grep_search`, `list_dir`, `view_file` (hors brain & calpin) | ❌ INTERDIT | ✅ MANDATOIRE |
+| **Recherche & Exploration** | `find_by_name`, `grep_search`, `list_dir`, `view_file` (hors brain, calpin & notes `.md` en lecture pure) | ❌ INTERDIT | ✅ MANDATOIRE |
 | **Édition & Écriture** | `write_to_file`, `replace_file_content` (code, scripts, LaTeX) | ❌ INTERDIT | ✅ MANDATOIRE |
-| **Terminal & Commandes** | `run_command` (inspection, build, git, tests, scripts) | ❌ INTERDIT *(Exception UNIQUE et ABSOLUE : `project_memory_cli.py work "<Projet>"` autorisée en direct)* | ✅ MANDATOIRE |
+| **Terminal & Commandes** | `run_command` (inspection, build, git, tests, scripts) | ❌ INTERDIT *(Exceptions directes autorisées en direct : `python _agents/scripts-for-skills/project_memory_cli.py work "<Projet>"` et `antigravity-agents run --model <m> --prompt "..."`)* | ✅ MANDATOIRE |
 | **Dialogue & Arbitrage** | `ask_question` | ✅ Exclusif | ❌ INTERDIT |
 | **Déploiement** | `invoke_subagent` | ✅ Exclusif (Lead unique) | ⚠️ Réservé aux Leads uniques ($P=1$) vers sous-agents `self` (exploration $P=2$ en lecture seule ou workers d'exécution $P=2$ par chantier) |
 | **Pilotage serviteurs** | `send_message`, `manage_subagents`, `manage_task` | ✅ Exclusif | ❌ INTERDIT |
 | **Mémoire Long-Terme** | MCP `aivc` (`remember`, `recall`…) | ✅ | ✅ |
 | **Agents Indépendants** | `antigravity-agents run --model <m> --prompt "…"` | ✅ Direct (zéro double délégation) | ✅ |
-| **Artefacts & Calpin** | Fichiers `<appDataDir>/brain/…`, note maîtresse/sous-notes, lecture `SKILL.md` | ✅ Seuls fichiers autorisés | ✅ |
+| **Artefacts & Calpin** | Fichiers `<appDataDir>/brain/…`, notes Obsidian du coffre (`.md` en lecture pure), note maîtresse/sous-notes, lecture `SKILL.md` | ✅ Seuls fichiers autorisés | ✅ |
 
 - **[Délégation Systématique]** : Toute recherche, lecture de code, inspection, exécution ou édition ➔ déployer ≥1 sous-agent (`TypeName: 'self'`).
 - **[Exception SKILL.md]** : Dès qu'une commande slash ou un skill est mentionné/invoqué, le Superviseur DOIT lire immédiatement son `SKILL.md` via `view_file` avant tout déploiement (zéro intuition ni connaissance supposée : relire TOUJOURS le skill).
@@ -53,17 +53,16 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 |---|---|
 | **Zéro Rubber-Stamping** | Rejet de toute affirmation verbale non prouvée. Exiger sorties de commandes brutes, citations textuelles exactes et métriques réelles. |
 | **Preuves Outils Web** | Toute navigation web doit fournir snapshots d'accessibilité (`browser_snapshot`) ou screenshots réels (`browser_take_screenshot`). |
-| **Recompilation LaTeX** | Recompiler obligatoirement (`pdflatex` / `latexmk`) après tout `git pull` ou modif avant d'auditer pagination ou contenu. Zéro audit sur PDF préexistant. |
 | **Zéro Amalgame** | $N \ge 2$ thématiques ou volets indépendants ➔ $N$ sous-agents distincts en parallèle (`invoke_subagent`). Interdiction de concaténer. |
 | **Zéro Extrapolation** | Interdiction de déduire ou deviner statuts, types ou règles. Citation mot à mot de la source canonique. |
-| **Zéro Substitution Modèles** | Biais de coupure d'entraînement proscrit. Trinité canonique AIVC MSR 2027 : (1) `google/gemini-3.7-flash`, (2) `deepseek/deepseek-v4-pro`, (3) `meta/muse-glimmer`. |
 | **Périmètre Minimal & Zéro Décoration** | STRICTEMENT et UNIQUEMENT le livrable demandé. Zéro section, encadré, conseil ou directive non sollicité par Henri. |
 | **Zéro Spin & Biais Miroir** | Baseline battant le système ➔ annoncer crûment l'infériorité en tête. Zéro gain affirmé sans métriques des deux branches côte à côte. |
-| **Zéro Markdown en Dépôt LaTeX** | Dépôts LaTeX (`paper/`) = sources LaTeX, patchs et figures uniquement. Tout compte-rendu ou proposition Markdown va dans le coffre Obsidian. |
-| **Sanctuarisation Coffres** | INTERDIT de cloner, builder ou stocker du scratch dans `VoiceNotes/`. 100% du code/builds dans `C:\Users\Jamet\Documents\code\`. |
-| **Gouvernance des Scripts** | Scripts jetables ➔ `<appDataDir>\brain\<id>\scratch\`. Scripts pérennes ➔ `antigravity/` rattachés et documentés dans un skill. |
+| **Invariant de Restitution** | Interdiction formelle de partager des artéfacts, rapports ou tableaux d'état « en cours de rédaction » non encore validés. |
+| **Sanctuarisation Coffres** | INTERDIT de cloner, builder ou stocker du scratch dans `VoiceNotes/`. 100% du code/builds dans `C:\Users\hjamet\Documents\code\`. |
+| **Gouvernance des Scripts** | Scripts jetables ➔ `<appDataDir>\brain\<id>\scratch\`. Scripts pérennes ➔ `_agents/scripts-for-skills/` rattachés et documentés dans un skill. |
 | **Bug Windows grep_search** | INTERDIT d'exécuter `grep_search` sur un fichier unique sous Windows. Utiliser `view_file` direct ou dossier parent avec `Includes`. |
-| **Sanctuarisation run_command Racine** | INTERDICTION FORMELLE ET ABSOLUE d'exécuter des scripts scratch, du code inline (`python -c`), des commandes de build, git, test ou des sous-commandes CLI (`list`, `get`, `clean-orphans`, `feedback`, etc.). L'UNIQUE commande terminal autorisée au Superviseur Racine en direct est `python antigravity/scripts/project_memory_cli.py work "<Projet>"`. Tout le reste DOIT être délégué à un sous-agent ou lu via les fichiers autorisés. |
+| **Sanctuarisation run_command Racine** | INTERDICTION FORMELLE ET ABSOLUE d'exécuter des scripts scratch, du code inline (`python -c`), des commandes de build, git, test ou des sous-commandes CLI (`list`, `get`, `clean-orphans`, `feedback`, etc.). Les SEULES commandes terminal autorisées au Superviseur Racine en direct sont `python _agents/scripts-for-skills/project_memory_cli.py work "<Projet>"` et `antigravity-agents run --model <m> --prompt "..."`. Tout le reste DOIT être délégué à un sous-agent ou lu via les fichiers autorisés. |
+| **Exclusivité Machine & Anti-Simulation** | Dès qu'un skill ou une consigne prescrit un script ou un outil machine pour générer un artéfact, un log ou une métrique (diffs CAS /draft, Pomodoro, compilation LaTeX, détection IA), INTERDICTION FORMELLE ET ABSOLUE de rédiger ou simuler manuellement cet artéfact via `write_to_file` ou `replace_file_content`. Si l'outil est indisponible, l'agent DOIT impérativement exécuter le script CLI sous-jacent (`_agents/scripts-for-skills/`) ou avouer immédiatement l'indisponibilité à Henri. Toute simulation ou imitation manuelle constitue une falsification sévèrement proscrite. |
 
 ### Protocole Opérationnel des Sous-Agents
 
@@ -107,10 +106,10 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 
 | Règle | Invariant d'Exécution |
 |---|---|
-| **Lien Vivant en Tête** | Dès qu'un projet est abordé ➔ `[Nom Projet](file:///C:/Users/Jamet/Documents/VoiceNotes/.../NomProjet.md)` en 1ère ligne. |
-| **Pomodoro Permanent (Exception Unique Racine)** | Travail interdit sans session active : `python antigravity/scripts/project_memory_cli.py work "<Projet>"` (durée nominale `data.json`, 60 min). Lancement automatique direct par le Superviseur Racine — **C'EST L'UNIQUE ET EXCLUSIVE COMMANDE RUN_COMMAND AUTORISÉE AU SUPERVISEUR RACINE**. |
+| **Lien Vivant en Tête** | Dès qu'un projet est abordé ➔ `[Nom Projet](file:///C:/Users/hjamet/Documents/VoiceNotes/.../NomProjet.md)` en 1ère ligne. |
+| **Pomodoro Permanent (Exception Directe Racine)** | Travail interdit sans session active : `python _agents/scripts-for-skills/project_memory_cli.py work "<Projet>"` (durée nominale `data.json`, 60 min). Lancement automatique direct par le Superviseur Racine (avec `antigravity-agents run --model <m> --prompt "..."`, les deux seules commandes `run_command` directes autorisées). |
 | **Auto-Suffisance & Zéro Timer** | Le process `work` en tâche de fond gère son sommeil et réveille l'agent à terminaison. Zéro timer `schedule` manuel redondant. |
-| **Enchaînement Continu** | Même projet ➔ relance immédiate. Nouveau projet ➔ lancement immédiat du nouveau Pomodoro. |
+| **Clôture Obligatoire & Zéro Relance Automatique** | Fin de session Pomodoro (60 min) : INTERDICTION FORMELLE ET ABSOLUE de relancer une session automatiquement. Clôturer la conversation selon project-memory/SKILL.md : feuille de route unifiée par chantiers (- [x] accompli / - [ ] reste à faire), mise à jour de la note maîtresse Obsidian en tête, question de ressenti via ask_question (["À l'aise", "OK", "Stressé", "Terminé"]), et fin de session sans proposer de projets suivants. |
 | **Feedback Verrouillé** | `ask_question` obligatoire à chaque point d'étape (`["À l'aise", "OK", "Stressé", "Terminé"]`). `feedback "<Projet>" <action>` exécuté UNIQUEMENT après clic d'Henri. |
 | **Ajustement & Calibrage** | Réalisé exclusivement via sous-agent délégué (`set-score` / `feedback`) ou par modification de fichier par un serviteur. Zéro exécution directe par le Superviseur Racine. |
 
@@ -129,9 +128,8 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 
 ---
 
-## 5. Sécurité Spark (Email)
+## 5. Sécurité Spark (Email en Lecture Seule Stricte)
 
-- **Interdiction Envoi Direct** : Commande `spark action send` STRICTEMENT INTERDITE aux agents et scripts.
-- **Brouillons Uniquement** : Génération exclusive via `spark draft`.
-- **Validation Humaine** : Envoi effectif conditionné à l'accord explicite et sans équivoque d'Henri.
+- **Lecture Seule Stricte** : L'abonnement Spark d'Henri étant en consultation seule, toute commande de modification, d'organisation ou de création de brouillon (`spark draft`, `spark action`, etc.) est STRICTEMENT INTERDITE et techniquement inactive. Spark est exclusivement utilisable en lecture seule (`spark search`, `spark read`, `spark list`).
+- **Restitution Directe Prête au Copier-Coller** : Tout courriel rédigé ou retouché est restitué directement dans le chat Antigravity (avec objet et corps formaté) pour qu'Henri puisse le copier-coller dans son client de messagerie.
 <!-- MEMORY_BANK_SYSTEM:END -->

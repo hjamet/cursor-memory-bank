@@ -59,7 +59,7 @@ EXCLUDED_DIRS = {
     ".smart-env", ".pytest_cache", "attachments", "thumbnails",
     "excalidraw", "antigravity", "voicenotes", "readwise",
     "test_output_vault", "rattrapage_aib_pack", "templates",
-    "tests", "agents", ".agents"
+    "tests", "agents", ".agents", "_agents"
 }
 
 SYSTEM_FILES = {"agents.md", "readme.md", "claude.md", "gemini.md"}
@@ -68,30 +68,12 @@ DEFAULT_SETTINGS = {
     "projectTags": "todo, project",
     "archiveTag": "done",
     "rotationBonus": 0.3,
+    "achillesAlpha": 0.01,
     "rapprochmentFactor": 0.2,
     "recencyPenaltyWeight": 0.5,
     "pomodoroDuration": 60,
     "deadlineProperty": "deadline",
     "milestoneProperty": "milestone"
-}
-
-DAY_NAMES_MAP = {
-    # French
-    "lundi": 0, "lun": 0, "lu": 0,
-    "mardi": 1, "mar": 1, "ma": 1,
-    "mercredi": 2, "mer": 2, "me": 2,
-    "jeudi": 3, "jeu": 3, "je": 3,
-    "vendredi": 4, "ven": 4, "ve": 4,
-    "samedi": 5, "sam": 5, "sa": 5,
-    "dimanche": 6, "dim": 6, "di": 6,
-    # English
-    "monday": 0, "mon": 0, "mo": 0,
-    "tuesday": 1, "tue": 1, "tu": 1,
-    "wednesday": 2, "wed": 2, "we": 2,
-    "thursday": 3, "thu": 3, "th": 3,
-    "friday": 4, "fri": 4, "fr": 4,
-    "saturday": 5, "sat": 5, "sa": 5,
-    "sunday": 6, "sun": 6, "su": 6,
 }
 
 CRON_SHORTCUTS = {
@@ -113,7 +95,7 @@ class MilestoneResolution:
     target_datetime: Optional[datetime]
     days_remaining: float
     urgency_factor: float
-    recurrence_type: str  # 'fixed_date' | 'day_recurrence' | 'cron' | 'iso_interval' | 'multi' | 'invalid'
+    recurrence_type: str  # 'fixed_date' | 'cron' | 'iso_interval' | 'multi' | 'invalid'
     is_overdue: bool
     is_cycle_satisfied: bool
     cycle_id: str
@@ -244,12 +226,7 @@ class UniversalMilestoneParser:
         if iso_fixed_dt:
             return self._resolve_fixed_date(expr, iso_fixed_dt, now, last_sat_dt, lam)
 
-        # 4. Check Day Recurrence (FR & EN)
-        day_res = self._try_parse_day_recurrence(expr, now, last_sat_dt, lam)
-        if day_res:
-            return day_res
-
-        # 5. Fallback / Unrecognized
+        # 4. Fallback / Unrecognized (Pure cron & ISO, strict rejection of natural language)
         return MilestoneResolution(
             raw_expression=expr,
             target_datetime=None,
@@ -491,146 +468,6 @@ class UniversalMilestoneParser:
             human_readable=f"Fixed Milestone: {target_dt.strftime('%Y-%m-%d %H:%M')}{status_str}"
         )
 
-    def _try_parse_day_recurrence(
-        self,
-        expr: str,
-        now: datetime,
-        last_sat_dt: Optional[datetime],
-        lam: float
-    ) -> Optional[MilestoneResolution]:
-        clean = expr.strip().lower()
-        clean = re.sub(r'^(every|tous\s+les|chaque|each)\s+', '', clean)
-        clean = re.sub(r's$', '', clean)
-
-        interval_weeks = 1
-        m_interval = re.search(r'@(\d+)$', clean)
-        if m_interval:
-            parsed_n = int(m_interval.group(1))
-            if parsed_n >= 1:
-                interval_weeks = parsed_n
-                clean = clean[:m_interval.start()].strip()
-
-        # Match time / periodicity specifiers like @14, @3, @14:00, at 14:00, à 10h30, 14h00, 14h
-        m_time = re.search(r'(?:at|@|\s+à|\s+a)?\s*(\d{1,2})(?:[h:](\d{2})(?::(\d{2}))?|h)?$', clean)
-        target_time = dt_time(23, 59, 59)
-        if m_time:
-            h = int(m_time.group(1))
-            m = int(m_time.group(2) or 0)
-            s = int(m_time.group(3) or 0)
-            if 0 <= h <= 23 and 0 <= m <= 59 and 0 <= s <= 59:
-                target_time = dt_time(h, m, s)
-                clean = clean[:m_time.start()].strip()
-
-        if clean not in DAY_NAMES_MAP:
-            return None
-
-        target_weekday = DAY_NAMES_MAP[clean]
-        current_weekday = now.weekday()
-
-        days_ahead = (target_weekday - current_weekday) % 7
-        today = now.date()
-
-        if days_ahead == 0:
-            target_dt_today = datetime.combine(today, target_time)
-            is_sat = False
-            if last_sat_dt and (last_sat_dt >= target_dt_today or last_sat_dt.date() >= today):
-                is_sat = True
-
-            if is_sat:
-                target_dt = target_dt_today + timedelta(days=interval_weeks * 7)
-                diff_sec = (target_dt - now).total_seconds()
-                days_rem = max(0.0, diff_sec / 86400.0)
-                urgency = 0.0
-                return MilestoneResolution(
-                    raw_expression=expr,
-                    target_datetime=target_dt,
-                    days_remaining=round(days_rem, 3),
-                    urgency_factor=round(urgency, 4),
-                    recurrence_type='day_recurrence',
-                    is_overdue=False,
-                    is_cycle_satisfied=True,
-                    cycle_id=f"weekly_W{target_dt.strftime('%V')}_{clean.upper()}",
-                    human_readable=f"Recurring {clean.capitalize()} (validé): next {target_dt.strftime('%A %Y-%m-%d at %H:%M')}"
-                )
-            elif now > target_dt_today:
-                # Target was earlier today without satisfaction -> overdue!
-                diff_sec = (target_dt_today - now).total_seconds()
-                days_rem = diff_sec / 86400.0
-                return MilestoneResolution(
-                    raw_expression=expr,
-                    target_datetime=target_dt_today,
-                    days_remaining=round(days_rem, 3),
-                    urgency_factor=1.0,
-                    recurrence_type='day_recurrence',
-                    is_overdue=True,
-                    is_cycle_satisfied=False,
-                    cycle_id=f"weekly_W{target_dt_today.strftime('%V')}_{clean.upper()}",
-                    human_readable=f"Recurring {clean.capitalize()} (OVERDUE today): target was {target_dt_today.strftime('%H:%M')}"
-                )
-            else:
-                # Target is later today
-                diff_sec = (target_dt_today - now).total_seconds()
-                days_rem = max(0.0, diff_sec / 86400.0)
-                urgency = 1.0
-                return MilestoneResolution(
-                    raw_expression=expr,
-                    target_datetime=target_dt_today,
-                    days_remaining=round(days_rem, 3),
-                    urgency_factor=round(urgency, 4),
-                    recurrence_type='day_recurrence',
-                    is_overdue=False,
-                    is_cycle_satisfied=False,
-                    cycle_id=f"weekly_W{target_dt_today.strftime('%V')}_{clean.upper()}",
-                    human_readable=f"Recurring {clean.capitalize()}: today at {target_dt_today.strftime('%H:%M')}"
-                )
-        else:
-            # days_ahead > 0: check if previous occurrence was satisfied
-            t_prev = datetime.combine(today - timedelta(days=7 - days_ahead), target_time)
-            t_next = datetime.combine(today + timedelta(days=days_ahead), target_time)
-
-            is_prev_sat = False
-            if last_sat_dt and (last_sat_dt >= t_prev or last_sat_dt.date() >= t_prev.date()):
-                is_prev_sat = True
-
-            if not is_prev_sat:
-                # Previous milestone was NOT satisfied -> OVERDUE!
-                diff_sec = (t_prev - now).total_seconds()
-                days_rem = diff_sec / 86400.0
-                return MilestoneResolution(
-                    raw_expression=expr,
-                    target_datetime=t_prev,
-                    days_remaining=round(days_rem, 3),
-                    urgency_factor=1.0,
-                    recurrence_type='day_recurrence',
-                    is_overdue=True,
-                    is_cycle_satisfied=False,
-                    cycle_id=f"weekly_W{t_prev.strftime('%V')}_{clean.upper()}",
-                    human_readable=f"Recurring {clean.capitalize()} (OVERDUE by {abs(days_rem):.1f}d): target was {t_prev.strftime('%A %Y-%m-%d at %H:%M')}"
-                )
-            else:
-                # Previous milestone satisfied -> advance to next upcoming occurrence
-                curr_target = t_next
-                is_cycle_sat = False
-                while last_sat_dt and (last_sat_dt >= curr_target or last_sat_dt.date() >= curr_target.date()):
-                    is_cycle_sat = True
-                    curr_target = curr_target + timedelta(days=interval_weeks * 7)
-
-                diff_sec = (curr_target - now).total_seconds()
-                days_rem = max(0.0, diff_sec / 86400.0)
-                urgency = 0.0 if is_cycle_sat else math.exp(-lam * days_rem)
-                status_str = " (validé)" if is_cycle_sat else ""
-                return MilestoneResolution(
-                    raw_expression=expr,
-                    target_datetime=curr_target,
-                    days_remaining=round(days_rem, 3),
-                    urgency_factor=round(urgency, 4),
-                    recurrence_type='day_recurrence',
-                    is_overdue=False,
-                    is_cycle_satisfied=is_cycle_sat,
-                    cycle_id=f"weekly_W{curr_target.strftime('%V')}_{clean.upper()}",
-                    human_readable=f"Recurring {clean.capitalize()}{status_str}: next {curr_target.strftime('%A %Y-%m-%d at %H:%M')}"
-                )
-
     def _parse_iso_interval(
         self,
         expr: str,
@@ -805,35 +642,6 @@ def save_cache(cache, cache_path=CACHE_PATH):
         pass
 
 
-def load_active_pomodoro(active_path=ACTIVE_POMODORO_PATH):
-    if os.path.exists(active_path):
-        try:
-            with open(active_path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return None
-    return None
-
-
-def save_active_pomodoro(pomodoro_info, active_path=ACTIVE_POMODORO_PATH):
-    try:
-        os.makedirs(os.path.dirname(active_path), exist_ok=True)
-        tmp = active_path + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as f:
-            json.dump(pomodoro_info, f, indent=2, ensure_ascii=False)
-        os.replace(tmp, active_path)
-    except Exception:
-        pass
-
-
-def clear_active_pomodoro(active_path=ACTIVE_POMODORO_PATH):
-    try:
-        if os.path.exists(active_path):
-            os.remove(active_path)
-    except Exception:
-        pass
-
-
 def is_pid_alive(pid):
     if not pid or pid <= 0:
         return False
@@ -860,6 +668,194 @@ def is_pid_alive(pid):
             return False
 
 
+def load_all_active_pomodoros(active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH, clean_stale=False) -> Dict[str, Dict[str, Any]]:
+    """
+    Charge l'ensemble des sessions Pomodoro actives en cours.
+    Gère de façon transparente :
+    - Le nouveau format multi-sessions (clé 'activeSessions' ou 'sessions')
+    - Le format hérité mono-session (objet unique à la racine)
+    - La réconciliation avec data.json
+    - Le nettoyage automatique des sessions orphelines dont le PID est mort
+    """
+    sessions = {}
+
+    if os.path.exists(active_path):
+        try:
+            with open(active_path, "r", encoding="utf-8") as f:
+                content = json.load(f)
+                if isinstance(content, dict):
+                    if "activeSessions" in content and isinstance(content["activeSessions"], dict):
+                        sessions = dict(content["activeSessions"])
+                    elif "sessions" in content and isinstance(content["sessions"], dict):
+                        sessions = dict(content["sessions"])
+                    elif "rel_path" in content and content.get("status") == "running":
+                        sessions[content["rel_path"]] = dict(content)
+        except Exception:
+            sessions = {}
+
+    if not sessions and os.path.exists(data_path):
+        try:
+            with open(data_path, "r", encoding="utf-8") as f:
+                d = json.load(f)
+                if "activeSessions" in d and isinstance(d["activeSessions"], dict):
+                    sessions = dict(d["activeSessions"])
+                elif "activeSession" in d and isinstance(d["activeSession"], dict):
+                    s = d["activeSession"]
+                    if "rel_path" in s and s.get("status") == "running":
+                        sessions[s["rel_path"]] = dict(s)
+        except Exception:
+            pass
+
+    if clean_stale and sessions:
+        cleaned = {}
+        changed = False
+        for p_key, s_val in sessions.items():
+            pid = s_val.get("pid")
+            if pid and is_pid_alive(pid):
+                cleaned[p_key] = s_val
+            else:
+                changed = True
+        if changed:
+            sessions = cleaned
+            _persist_active_pomodoros(sessions, active_path, data_path)
+
+    return sessions
+
+
+def load_active_pomodoro(active_path=ACTIVE_POMODORO_PATH):
+    """
+    Rétrocompatibilité : renvoie la session active principale (ou la plus récente) sous forme de dict,
+    ou None si aucune session n'est active.
+    """
+    sessions = load_all_active_pomodoros(active_path, clean_stale=False)
+    if not sessions:
+        return None
+    running = [s for s in sessions.values() if s.get("status") == "running"]
+    if running:
+        primary = max(running, key=lambda s: float(s.get("start_timestamp", 0)))
+    else:
+        primary = max(sessions.values(), key=lambda s: float(s.get("start_timestamp", 0)))
+
+    res = dict(primary)
+    res["activeSessions"] = sessions
+    return res
+
+
+def get_active_pomodoro_session(project_key: str, active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH) -> Optional[Dict[str, Any]]:
+    """
+    Récupère la session active associée à un projet spécifique (par chemin relatif ou titre).
+    """
+    sessions = load_all_active_pomodoros(active_path, data_path, clean_stale=False)
+    for k, s in sessions.items():
+        if k == project_key or s.get("rel_path") == project_key or s.get("title") == project_key:
+            return s
+    return None
+
+
+def _persist_active_pomodoros(sessions: Dict[str, Dict[str, Any]], active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH):
+    """
+    Persiste l'état multi-sessions dans .active_pomodoro.json et dans data.json.
+    Garantit une compatibilité descendante totale en exposant à la racine de .active_pomodoro.json
+    et de data.json les clés de la session principale (activeSession).
+    """
+    running_sessions = {k: v for k, v in sessions.items() if v.get("status") == "running"}
+
+    if not running_sessions and not sessions:
+        try:
+            if os.path.exists(active_path):
+                os.remove(active_path)
+        except Exception:
+            pass
+        try:
+            if os.path.exists(data_path):
+                d = load_data(data_path)
+                changed = False
+                if "activeSession" in d:
+                    d.pop("activeSession", None)
+                    changed = True
+                if "activeSessions" in d:
+                    d.pop("activeSessions", None)
+                    changed = True
+                if changed:
+                    save_data(d, data_path)
+        except Exception:
+            pass
+        return
+
+    candidates = running_sessions if running_sessions else sessions
+    primary = max(candidates.values(), key=lambda s: float(s.get("start_timestamp", 0)))
+
+    root_payload = dict(primary)
+    root_payload["activeSessions"] = sessions
+    root_payload["activeSession"] = primary
+
+    try:
+        os.makedirs(os.path.dirname(active_path), exist_ok=True)
+        tmp = active_path + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(root_payload, f, indent=2, ensure_ascii=False)
+        os.replace(tmp, active_path)
+    except Exception:
+        pass
+
+    try:
+        if os.path.exists(data_path):
+            d = load_data(data_path)
+            d["activeSession"] = primary
+            d["activeSessions"] = sessions
+            save_data(d, data_path)
+    except Exception:
+        pass
+
+
+def save_active_pomodoro(pomodoro_info, active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH):
+    """
+    Enregistre ou met à jour une session active dans le registre multi-sessions.
+    """
+    sessions = load_all_active_pomodoros(active_path, data_path, clean_stale=True)
+    rel_path = pomodoro_info.get("rel_path")
+    if rel_path:
+        sessions[rel_path] = dict(pomodoro_info)
+    elif "title" in pomodoro_info:
+        sessions[pomodoro_info["title"]] = dict(pomodoro_info)
+    _persist_active_pomodoros(sessions, active_path, data_path)
+
+
+def clear_active_pomodoro(active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH, project_key=None):
+    """
+    Supprime la session d'un projet spécifique, ou toutes les sessions si project_key est None.
+    """
+    if project_key:
+        sessions = load_all_active_pomodoros(active_path, data_path, clean_stale=False)
+        keys_to_remove = [k for k, v in sessions.items() if k == project_key or v.get("rel_path") == project_key or v.get("title") == project_key]
+        for k in keys_to_remove:
+            sessions.pop(k, None)
+        _persist_active_pomodoros(sessions, active_path, data_path)
+    else:
+        _persist_active_pomodoros({}, active_path, data_path)
+
+
+def update_achilles_rotation_bonuses(stats: Dict[str, Any], current_project_key: str, ratio: float, alpha: float) -> None:
+    """
+    Applique le modèle d'Achille et la Tortue pour le bonus de rotation des projets non travaillés :
+    Delta B = alpha * (100 - S_rot) * ratio, avec S_rot = S_base + B_rot.
+    Garantit strictement que S_rot <= 100.0 et B_rot <= 100.0 - S_base (Directive Borne 100).
+    """
+    for p_key, p_val in stats.items():
+        if p_key != current_project_key:
+            b_rot = float(p_val.get("rotationBonus", 0.0))
+            raw_s_base = p_val.get("currentScore")
+            s_base = float(raw_s_base) if raw_s_base is not None else 50.0
+            s_base = min(100.0, max(1.0, s_base))
+            # Confinement préventif du bonus actuel pour respecter la borne 100
+            b_rot = min(max(0.0, 100.0 - s_base), max(0.0, b_rot))
+            s_rot = min(100.0, max(1.0, s_base + b_rot))
+            gap = max(0.0, 100.0 - s_rot)
+            delta_b = alpha * gap * max(0.0, float(ratio))
+            new_b = min(max(0.0, 100.0 - s_base), b_rot + delta_b)
+            p_val["rotationBonus"] = round(new_b, 3)
+
+
 def record_work_session(
     data,
     rel_path,
@@ -873,13 +869,14 @@ def record_work_session(
     - Calcule le ratio r = T_elapsed / T_target
     - Enregistre la session dans recentWorkDates avec son ratio et sa durée
     - Incrémente les statistiques globales (globalStats.totalPomodoroTime += T_elapsed)
-    - Applique la rotation des bonus (+0.3 * r aux autres projets, réinitialisation proportionnelle)
+    - Applique la rotation des bonus via le modèle d'Achille et la Tortue (alpha * (100 - S_rot) * ratio)
     - Valide le jalon synchrone si r >= 0.5 ou session complète
+    - Recalcule et persiste effectiveScore dans data.json (DRY)
     """
     stats = data.setdefault("stats", {}).setdefault("projects", {})
     global_stats = data.setdefault("stats", {}).setdefault("globalStats", {"totalReviews": 0, "totalPomodoroTime": 0})
     settings = data.setdefault("settings", {})
-    rot_inc = float(settings.get("rotationBonus", 0.3))
+    alpha = float(settings.get("achillesAlpha", 0.01))
 
     if target_minutes is None:
         # Comportement officiel et nominal : durée cible définie dans settings.pomodoroDuration (data.json)
@@ -941,20 +938,29 @@ def record_work_session(
     if ratio >= 0.5 or not is_interrupted:
         proj["lastSatisfiedMilestoneDate"] = now_iso
 
-    # Gestion proportionnelle du bonus de rotation
+    # Gestion proportionnelle du bonus de rotation pour le projet travaillé
     if ratio >= 0.8:
         proj["rotationBonus"] = 0.0
     else:
         current_bonus = float(proj.get("rotationBonus", 0.0))
+        raw_s_base = proj.get("currentScore")
+        s_base = float(raw_s_base) if raw_s_base is not None else 50.0
+        s_base = min(100.0, max(1.0, s_base))
+        current_bonus = min(max(0.0, 100.0 - s_base), max(0.0, current_bonus))
         proj["rotationBonus"] = round(max(0.0, current_bonus * (1.0 - ratio)), 3)
 
-    for p_key, p_val in stats.items():
-        if p_key != matched_key:
-            p_val["rotationBonus"] = round(float(p_val.get("rotationBonus", 0.0)) + rot_inc * ratio, 3)
+    # Modèle Achille & Tortue pour les autres projets
+    update_achilles_rotation_bonuses(stats, matched_key, ratio, alpha)
 
     # Accumulation du temps dans les stats globales
     prev_pomodoro_time = float(global_stats.get("totalPomodoroTime", 0))
     global_stats["totalPomodoroTime"] = round(prev_pomodoro_time + elapsed_minutes, 2)
+
+    # Recalcul et persistance des scores effectifs dans data.json (DRY)
+    try:
+        calculate_and_persist_effective_scores(data, VAULT_DIR, now_dt=now_dt, data_path=data_path, save=False)
+    except Exception:
+        pass
 
     save_data(data, data_path)
     return matched_key, ratio
@@ -1243,10 +1249,239 @@ def find_project_file(vault_dir, project_path_or_name, data=None):
     return project_path_or_name, candidate_abs
 
 
-def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None):
+
+def compute_project_scores(
+    base_score: Optional[float],
+    rotation_bonus: float = 0.0,
+    deadline_str: str = "",
+    milestone_str: str = "",
+    last_satisfied_milestone: Optional[str] = None,
+    recent_work_dates: Optional[List[Any]] = None,
+    rf: float = 0.2,
+    recency_weight: float = 0.5,
+    now_dt: Optional[datetime] = None,
+) -> Dict[str, Any]:
+    """
+    Calcule canoniquement tous les scores d'un projet selon les directives d'Henri :
+    1. DIRECTIVE BORNE 100 : Base, rotation et effectif strictement confinés dans [1.0, 100.0].
+       Aucune valeur ne doit dépasser 100.0.
+    2. S_rot = min(100.0, max(1.0, S_base + B_rot)).
+    3. Pression temporelle stratégique (Deadline) :
+       - dt <= 0 : P_deadline = 1.0 (deadline passée ou aujourd'hui)
+       - 0 < dt <= 7 : Régime de sprint tactique : P_deadline = 0.75 + 0.25 * (7 - dt) / 7
+       - dt > 7 : P_deadline = exp(-0.1 * dt)
+    4. Pression temporelle agile (Milestone) : P_milestone via UniversalMilestoneParser.
+    5. Enveloppe de pression temporelle non cumulative : P_eff = max(P_deadline, P_milestone).
+    6. Combinaison convexe d'urgence temporelle :
+       gap = max(0.0, 100.0 - S_rot)
+       Urgence temporelle = gap * P_eff
+       pre_score = S_rot + Urgence temporelle (naturellement borné <= 100.0)
+    7. Malus de récence temporelle (sessions actives dans les 6 dernières heures).
+    8. Score effectif final :
+       effective_score = min(100.0, max(1.0, pre_score - temporal_malus)).
+    """
+    if now_dt is None:
+        now_dt = datetime.now(timezone.utc)
+    elif now_dt.tzinfo is None:
+        now_dt = now_dt.replace(tzinfo=timezone.utc)
+
+    # 1. Borne 100 sur le score de base
+    if base_score is not None:
+        base_score = min(100.0, max(1.0, float(base_score)))
+
+    # 2. Borne 100 sur le bonus de rotation et calcul de S_rot
+    rotation_bonus = max(0.0, float(rotation_bonus or 0.0))
+    if base_score is not None:
+        # Strictement borné pour que S_base + B_rot <= 100.0
+        rotation_bonus = min(max(0.0, 100.0 - base_score), rotation_bonus)
+        s_rot = min(100.0, max(1.0, base_score + rotation_bonus))
+    else:
+        s_rot = None
+
+    # 3. Pression temporelle stratégique (Deadline)
+    p_deadline = 0.0
+    if deadline_str and base_score is not None:
+        try:
+            deadline_clean = str(deadline_str).strip()
+            if "T" in deadline_clean or " " in deadline_clean:
+                d_dt = parse_iso_datetime(deadline_clean)
+                if d_dt:
+                    if d_dt.tzinfo is None:
+                        d_dt = d_dt.replace(tzinfo=timezone.utc)
+                    dt = (d_dt - now_dt).total_seconds() / 86400.0
+                else:
+                    d_date = datetime.strptime(deadline_clean[:10], "%Y-%m-%d").date()
+                    today = now_dt.date()
+                    dt = float((d_date - today).days)
+            else:
+                d_date = datetime.strptime(deadline_clean[:10], "%Y-%m-%d").date()
+                today = now_dt.date()
+                dt = float((d_date - today).days)
+
+            if dt <= 0.0:
+                p_deadline = 1.0
+            elif dt <= 7.0:
+                # Régime de sprint tactique J <= 7
+                p_deadline = 0.75 + 0.25 * (7.0 - dt) / 7.0
+            else:
+                p_deadline = math.exp(-0.1 * dt)
+            p_deadline = min(1.0, max(0.0, p_deadline))
+        except Exception:
+            p_deadline = 0.0
+
+    # 4. Pression temporelle agile (Milestone)
+    p_milestone = 0.0
+    milestone_res = None
+    if milestone_str and base_score is not None:
+        milestone_res = parse_milestone_target(
+            milestone_str,
+            last_satisfied_str=last_satisfied_milestone,
+            now_dt=now_dt.replace(tzinfo=None) if now_dt and now_dt.tzinfo else now_dt
+        )
+        if milestone_res and milestone_res.target_datetime:
+            p_milestone = min(1.0, max(0.0, float(milestone_res.urgency_factor)))
+
+    # 5. Enveloppe de pression temporelle non cumulative
+    p_eff = min(1.0, max(0.0, max(p_deadline, p_milestone)))
+
+    # 6. Combinaison convexe d'urgence temporelle : gap = max(0.0, 100.0 - S_rot)
+    deadline_urgency = 0.0
+    milestone_urgency = 0.0
+    temporal_urgency = 0.0
+    pre_score = None
+
+    if s_rot is not None:
+        gap = max(0.0, 100.0 - s_rot)
+        deadline_urgency = gap * p_deadline
+        milestone_urgency = gap * p_milestone
+        temporal_urgency = gap * p_eff
+        # S_rot + Urgence est naturellement borné à 100.0 car S_rot + (100 - S_rot) * P_eff <= 100.0
+        pre_score = min(100.0, max(1.0, s_rot + temporal_urgency))
+
+    # 7. Malus de récence temporelle
+    temporal_malus, k_factor, valid_dates = compute_temporal_recency_malus(
+        recent_work_dates or [], pre_score, rf, recency_weight, now_dt=now_dt
+    )
+
+    # 8. Score effectif final strictement borné dans [1.0, 100.0]
+    if pre_score is not None:
+        effective_score = min(100.0, max(1.0, pre_score - temporal_malus))
+    else:
+        effective_score = None
+
+    return {
+        "base_score": base_score,
+        "rotation_bonus": rotation_bonus,
+        "s_rot": s_rot,
+        "p_deadline": round(p_deadline, 4),
+        "p_milestone": round(p_milestone, 4),
+        "p_eff": round(p_eff, 4),
+        "deadline_urgency": round(deadline_urgency, 2),
+        "milestone_urgency": round(milestone_urgency, 2),
+        "temporal_urgency": round(temporal_urgency, 2),
+        "pre_score": round(pre_score, 2) if pre_score is not None else None,
+        "temporal_malus": round(temporal_malus, 2),
+        "k_factor": k_factor,
+        "active_sessions_count": len(valid_dates),
+        "recent_work_dates": valid_dates,
+        "effective_score": round(effective_score, 2) if effective_score is not None else None,
+        "milestone_resolution": milestone_res.to_dict() if milestone_res else None,
+        "milestone_target": milestone_res.target_datetime.isoformat() if (milestone_res and milestone_res.target_datetime) else None,
+    }
+
+
+def calculate_and_persist_effective_scores(
+    data: Dict[str, Any],
+    vault_dir: str = VAULT_DIR,
+    cache: Optional[Dict[str, Any]] = None,
+    now_dt: Optional[datetime] = None,
+    data_path: str = DATA_JSON_PATH,
+    save: bool = True
+) -> Dict[str, float]:
+    """
+    Parcourt tous les projets de data.json, calcule leur score effectif canonique,
+    les borne strictement dans [1.0, 100.0] et persiste effectiveScore dans data.json.
+    Permet au plugin Obsidian de consommer directement effectiveScore sans calcul mathématique dupliqué (DRY).
+    """
+    if cache is None:
+        cache = sync_vault_cache(vault_dir, fast_mode=True)
+
+    if now_dt is None:
+        now_dt = datetime.now(timezone.utc)
+    elif now_dt.tzinfo is None:
+        now_dt = now_dt.replace(tzinfo=timezone.utc)
+
+    stats_projects = data.setdefault("stats", {}).setdefault("projects", {})
+    settings = data.setdefault("settings", {})
+    deadline_prop = settings.get("deadlineProperty", "deadline").lower()
+    milestone_prop = settings.get("milestoneProperty", "milestone").lower()
+    rf = float(settings.get("rapprochementFactor") or settings.get("rapprochmentFactor") or 0.2)
+    recency_weight = float(settings.get("recencyPenaltyWeight", 0.5))
+
+    results = {}
+
+    for rel_path, proj_stat in stats_projects.items():
+        norm_rel = rel_path.replace("\\", "/")
+        cached = cache.get(norm_rel) if cache else None
+
+        if cached and "milestone" in cached:
+            deadline_str = cached.get("deadline", "")
+            milestone_str = cached.get("milestone", "")
+        else:
+            abs_path = os.path.join(vault_dir, rel_path.replace("/", os.sep))
+            if os.path.exists(abs_path):
+                fm, _, _, _ = parse_markdown_file(abs_path, parse_checkboxes=False)
+                deadline_str = str(fm.get(deadline_prop) or fm.get("deadline") or fm.get("due") or "")
+                m_val = fm.get(milestone_prop) or fm.get("milestone") or fm.get("milestones") or fm.get("jalon") or ""
+                milestone_str = ", ".join(m_val) if isinstance(m_val, list) else str(m_val)
+            else:
+                deadline_str = ""
+                milestone_str = ""
+
+        if not deadline_str:
+            deadline_str = proj_stat.get("deadline", "")
+        if not milestone_str:
+            milestone_str = proj_stat.get("milestone", "")
+
+        raw_score = proj_stat.get("currentScore")
+        total_reviews = int(proj_stat.get("totalReviews", 0))
+        base_score = float(raw_score) if (total_reviews > 0 and raw_score is not None) else None
+        rotation_bonus = float(proj_stat.get("rotationBonus", 0.0))
+        last_sat = proj_stat.get("lastSatisfiedMilestoneDate") or proj_stat.get("last_satisfied_milestone_date")
+        recent_work = proj_stat.get("recentWorkDates", [])
+
+        scores = compute_project_scores(
+            base_score=base_score,
+            rotation_bonus=rotation_bonus,
+            deadline_str=deadline_str,
+            milestone_str=milestone_str,
+            last_satisfied_milestone=last_sat,
+            recent_work_dates=recent_work,
+            rf=rf,
+            recency_weight=recency_weight,
+            now_dt=now_dt
+        )
+
+        eff = scores["effective_score"]
+        if eff is not None:
+            proj_stat["effectiveScore"] = eff
+            if scores["rotation_bonus"] != rotation_bonus:
+                proj_stat["rotationBonus"] = scores["rotation_bonus"]
+            if scores["base_score"] is not None:
+                proj_stat["baseScore"] = scores["base_score"]
+            results[norm_rel] = eff
+
+    if save:
+        save_data(data, data_path)
+
+    return results
+
+
+def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, persist=True):
     """
     Reads active projects from data.json and unindexed project notes via fast cache.
     Calculates multi-scale temporal urgency (Deadline + Agile Milestone) and recency malus.
+    Canonical Python engine source of truth: computes and persists effectiveScore in data.json (DRY).
     """
     if cache is None:
         cache = sync_vault_cache(vault_dir, fast_mode=fast_mode)
@@ -1316,81 +1551,56 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None):
         last_review_date = proj_stat.get("lastReviewDate", "")
         title = os.path.splitext(os.path.basename(rel_path))[0]
 
-        # 1. Strategic Deadline Pressure: P_deadline = exp(-0.1 * dt)
         if not deadline_str:
             deadline_str = proj_stat.get("deadline", "")
-
-        p_deadline = 0.0
-        deadline_urgency = 0.0
-        if deadline_str and current_score is not None:
-            try:
-                d_date = datetime.strptime(str(deadline_str)[:10], "%Y-%m-%d").date()
-                today = now_dt.date() if isinstance(now_dt, datetime) else datetime.now().date()
-                days_left = (d_date - today).days
-                p_deadline = math.exp(-0.1 * days_left) if days_left > 0 else 1.0
-            except Exception:
-                pass
-
-        # 2. Agile Milestone Pressure: P_milestone = exp(-0.3 * dt)
         if not milestone_str:
             milestone_str = proj_stat.get("milestone", "")
 
         last_sat_milestone = proj_stat.get("lastSatisfiedMilestoneDate") or proj_stat.get("last_satisfied_milestone_date")
 
-        p_milestone = 0.0
-        milestone_res = None
-        if milestone_str and current_score is not None:
-            milestone_res = parse_milestone_target(
-                milestone_str,
-                last_satisfied_str=last_sat_milestone,
-                now_dt=now_dt.replace(tzinfo=None) if now_dt and now_dt.tzinfo else now_dt
-            )
-            if milestone_res and milestone_res.target_datetime:
-                p_milestone = milestone_res.urgency_factor
-
-        # 3. Non-Cumulative Temporal Pressure Envelope: P_eff = max(P_deadline, P_milestone)
-        p_eff = max(p_deadline, p_milestone)
-
-        # 4. Affine Convex Combination Priority Mapping: gap = 100 - (base + rot)
-        rem = 0.0
-        milestone_urgency = 0.0
-        if current_score is not None:
-            rem = max(0.0, 100.0 - (current_score + rotation_bonus))
-            deadline_urgency = rem * p_deadline
-            milestone_urgency = rem * p_milestone
-
-        temporal_urgency = rem * p_eff
-        pre_score = (current_score + rotation_bonus + temporal_urgency) if current_score is not None else None
-
-        recent_work_dates = proj_stat.get("recentWorkDates", [])
-        temporal_malus, k_factor, valid_dates = compute_temporal_recency_malus(
-            recent_work_dates, pre_score, rf, recency_weight, now_dt=now_dt
+        # Calcul canonique DRY unifié
+        scores = compute_project_scores(
+            base_score=current_score,
+            rotation_bonus=rotation_bonus,
+            deadline_str=deadline_str,
+            milestone_str=milestone_str,
+            last_satisfied_milestone=last_sat_milestone,
+            recent_work_dates=proj_stat.get("recentWorkDates", []),
+            rf=rf,
+            recency_weight=recency_weight,
+            now_dt=now_dt,
         )
 
-        effective_score = max(1.0, min(100.0, pre_score - temporal_malus)) if pre_score is not None else None
+        # Persistence directe dans stats (source de vérité DRY pour le plugin Obsidian)
+        if scores["effective_score"] is not None:
+            proj_stat["effectiveScore"] = scores["effective_score"]
+            if scores["rotation_bonus"] != rotation_bonus:
+                proj_stat["rotationBonus"] = scores["rotation_bonus"]
+            if scores["base_score"] is not None:
+                proj_stat["baseScore"] = scores["base_score"]
 
         known_paths.add(norm_rel)
         projects.append({
             "rel_path": norm_rel,
             "title": title,
-            "base_score": current_score,
-            "rotation_bonus": rotation_bonus,
-            "deadline_urgency": deadline_urgency,
-            "milestone_urgency": milestone_urgency,
-            "p_deadline": round(p_deadline, 4),
-            "p_milestone": round(p_milestone, 4),
-            "p_eff": round(p_eff, 4),
-            "temporal_urgency": temporal_urgency,
-            "pre_score": pre_score,
-            "temporal_malus": temporal_malus,
-            "k_factor": k_factor,
-            "active_sessions_count": len(valid_dates),
-            "recent_work_dates": valid_dates,
-            "effective_score": effective_score,
+            "base_score": scores["base_score"],
+            "rotation_bonus": scores["rotation_bonus"],
+            "deadline_urgency": scores["deadline_urgency"],
+            "milestone_urgency": scores["milestone_urgency"],
+            "p_deadline": scores["p_deadline"],
+            "p_milestone": scores["p_milestone"],
+            "p_eff": scores["p_eff"],
+            "temporal_urgency": scores["temporal_urgency"],
+            "pre_score": scores["pre_score"],
+            "temporal_malus": scores["temporal_malus"],
+            "k_factor": scores["k_factor"],
+            "active_sessions_count": scores["active_sessions_count"],
+            "recent_work_dates": scores["recent_work_dates"],
+            "effective_score": scores["effective_score"],
             "deadline": str(deadline_str) if deadline_str else "",
             "milestone": str(milestone_str) if milestone_str else "",
-            "milestone_resolution": milestone_res.to_dict() if milestone_res else None,
-            "milestone_target": milestone_res.target_datetime.isoformat() if (milestone_res and milestone_res.target_datetime) else None,
+            "milestone_resolution": scores["milestone_resolution"],
+            "milestone_target": scores["milestone_target"],
             "last_satisfied_milestone_date": last_sat_milestone or "",
             "total_reviews": total_reviews,
             "last_review_date": last_review_date,
@@ -1450,18 +1660,23 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None):
         -p["base_score"] if (p["total_reviews"] > 0 and p.get("base_score") is not None) else 0.0,
         p["title"].lower()
     ))
+    if persist:
+        try:
+            calculate_and_persist_effective_scores(data, vault_dir, cache=cache, now_dt=now_dt, data_path=DATA_JSON_PATH, save=False)
+            save_data(data, DATA_JSON_PATH)
+        except Exception:
+            pass
     return projects
 
 
 def format_project_table(projects):
     lines = []
-    header = f"{'Rank':<5} {'Title':<32} {'Eff.Score':<10} {'Base':<6} {'Rot.':<6} {'Dead.Urg':<9} {'Milest.Urg':<10} {'Malus(K)':<11} {'Deadline':<11} {'Milestone':<14} {'Reviews':<7}"
+    title_width = max(32, max((len(p["title"]) for p in projects), default=32))
+    header = f"{'Rank':<5} {'Title':<{title_width}} {'Eff.Score':<10} {'Base':<6} {'Rot.':<6} {'Dead.Urg':<9} {'Milest.Urg':<10} {'Malus(K)':<11} {'Deadline':<11} {'Milestone':<14} {'Reviews':<7}"
     lines.append(header)
     lines.append("-" * len(header))
     for idx, p in enumerate(projects, 1):
         title = p["title"]
-        if len(title) > 30:
-            title = title[:27] + "..."
         rev_str = "NEW" if p["total_reviews"] == 0 else str(p["total_reviews"])
         eff_str = f"{p['effective_score']:.2f}" if p['effective_score'] is not None else "N/A"
         base_str = f"{p['base_score']:.1f}" if p['base_score'] is not None else "N/A"
@@ -1482,7 +1697,7 @@ def format_project_table(projects):
         if len(milestone_disp) > 13:
             milestone_disp = milestone_disp[:11] + ".."
 
-        line = f"{idx:<5} {title:<32} {eff_str:<10} {base_str:<6} {rot_str:<6} {dead_urg_str:<9} {mile_urg_str:<10} {malus_str:<11} {deadline_disp:<11} {milestone_disp:<14} {rev_str:<7}"
+        line = f"{idx:<5} {title:<{title_width}} {eff_str:<10} {base_str:<6} {rot_str:<6} {dead_urg_str:<9} {mile_urg_str:<10} {malus_str:<11} {deadline_disp:<11} {milestone_disp:<14} {rev_str:<7}"
         lines.append(line)
     return "\n".join(lines)
 
@@ -1562,7 +1777,8 @@ def cmd_list(args, data):
         data = load_data(DATA_JSON_PATH)
 
     fast_mode = getattr(args, "fast", False)
-    projects = scan_projects(VAULT_DIR, data, fast_mode=fast_mode)
+    no_persist = getattr(args, "no_persist", False)
+    projects = scan_projects(VAULT_DIR, data, fast_mode=fast_mode, persist=not no_persist)
     top_n = getattr(args, "top", None)
     if top_n is None and getattr(args, "n", None) is not None:
         top_n = args.n
@@ -1634,6 +1850,8 @@ def cmd_get(args, data):
     settings = data.get("settings", {})
     deadline_prop = settings.get("deadlineProperty", "deadline").lower()
     milestone_prop = settings.get("milestoneProperty", "milestone").lower()
+    rf = float(settings.get("rapprochementFactor") or settings.get("rapprochmentFactor") or 0.2)
+    recency_weight = float(settings.get("recencyPenaltyWeight", 0.5))
 
     total_reviews = int(stats.get("totalReviews", 0))
     raw_score = stats.get("currentScore")
@@ -1647,17 +1865,6 @@ def cmd_get(args, data):
     if not deadline_val:
         deadline_val = stats.get("deadline", "")
 
-    p_deadline = 0.0
-    deadline_urgency = 0.0
-    if deadline_val and base_score is not None:
-        try:
-            d_date = datetime.strptime(str(deadline_val)[:10], "%Y-%m-%d").date()
-            today = datetime.now().date()
-            days_left = (d_date - today).days
-            p_deadline = math.exp(-0.1 * days_left) if days_left > 0 else 1.0
-        except Exception:
-            pass
-
     m_val = fm.get(milestone_prop) or fm.get("milestone") or fm.get("milestones") or fm.get("jalon") or ""
     milestone_val = ", ".join(m_val) if isinstance(m_val, list) else str(m_val)
     if not milestone_val:
@@ -1665,54 +1872,43 @@ def cmd_get(args, data):
 
     last_sat_milestone = stats.get("lastSatisfiedMilestoneDate") or stats.get("last_satisfied_milestone_date")
 
-    p_milestone = 0.0
-    milestone_res = None
-    if milestone_val and base_score is not None:
-        milestone_res = parse_milestone_target(milestone_val, last_satisfied_str=last_sat_milestone)
-        if milestone_res and milestone_res.target_datetime:
-            p_milestone = milestone_res.urgency_factor
-
-    p_eff = max(p_deadline, p_milestone)
-
-    rem = 0.0
-    milestone_urgency = 0.0
-    if base_score is not None:
-        rem = max(0.0, 100.0 - (base_score + rotation_bonus))
-        deadline_urgency = rem * p_deadline
-        milestone_urgency = rem * p_milestone
-
-    temporal_urgency = rem * p_eff
-    pre_score = (base_score + rotation_bonus + temporal_urgency) if base_score is not None else None
-
-    recent_work_dates = stats.get("recentWorkDates", [])
-    rf = float(settings.get("rapprochementFactor") or settings.get("rapprochmentFactor") or 0.2)
-    recency_weight = float(settings.get("recencyPenaltyWeight", 0.5))
-
-    temporal_malus, k_factor, valid_dates = compute_temporal_recency_malus(
-        recent_work_dates, pre_score, rf, recency_weight
+    scores = compute_project_scores(
+        base_score=base_score,
+        rotation_bonus=rotation_bonus,
+        deadline_str=str(deadline_val),
+        milestone_str=str(milestone_val),
+        last_satisfied_milestone=last_sat_milestone,
+        recent_work_dates=stats.get("recentWorkDates", []),
+        rf=rf,
+        recency_weight=recency_weight,
+        now_dt=datetime.now(timezone.utc),
     )
-    effective_score = max(1.0, min(100.0, pre_score - temporal_malus)) if pre_score is not None else None
+
+    if scores["effective_score"] is not None and rel_path in data.get("stats", {}).get("projects", {}):
+        stats["effectiveScore"] = scores["effective_score"]
+        if scores["rotation_bonus"] != rotation_bonus:
+            stats["rotationBonus"] = scores["rotation_bonus"]
 
     proj_info = {
         "rel_path": rel_path,
         "title": os.path.splitext(os.path.basename(rel_path))[0],
-        "base_score": base_score,
-        "rotation_bonus": rotation_bonus,
-        "deadline_urgency": deadline_urgency,
-        "milestone_urgency": milestone_urgency,
-        "p_deadline": round(p_deadline, 4),
-        "p_milestone": round(p_milestone, 4),
-        "p_eff": round(p_eff, 4),
-        "temporal_urgency": temporal_urgency,
-        "pre_score": pre_score,
-        "temporal_malus": temporal_malus,
-        "k_factor": k_factor,
-        "active_sessions_count": len(valid_dates),
-        "recent_work_dates": valid_dates,
-        "effective_score": effective_score,
+        "base_score": scores["base_score"],
+        "rotation_bonus": scores["rotation_bonus"],
+        "deadline_urgency": scores["deadline_urgency"],
+        "milestone_urgency": scores["milestone_urgency"],
+        "p_deadline": scores["p_deadline"],
+        "p_milestone": scores["p_milestone"],
+        "p_eff": scores["p_eff"],
+        "temporal_urgency": scores["temporal_urgency"],
+        "pre_score": scores["pre_score"],
+        "temporal_malus": scores["temporal_malus"],
+        "k_factor": scores["k_factor"],
+        "active_sessions_count": scores["active_sessions_count"],
+        "recent_work_dates": scores["recent_work_dates"],
+        "effective_score": scores["effective_score"],
         "deadline": str(deadline_val),
         "milestone": str(milestone_val),
-        "milestone_resolution": milestone_res.to_dict() if milestone_res else None,
+        "milestone_resolution": scores["milestone_resolution"],
         "last_satisfied_milestone_date": last_sat_milestone or "",
         "total_reviews": total_reviews,
         "last_review_date": stats.get("lastReviewDate", ""),
@@ -1744,9 +1940,13 @@ def cmd_get(args, data):
         print(f"Deadline:                 {proj_info['deadline'] or 'N/A'}")
 
         mile_disp = proj_info.get('milestone') or 'N/A'
-        if milestone_res and milestone_res.target_datetime:
-            sat_str = " [Cycle Satisfied]" if milestone_res.is_cycle_satisfied else ""
-            mile_disp = f"{mile_disp} (next: {milestone_res.target_datetime.strftime('%Y-%m-%d %H:%M')}, {milestone_res.days_remaining:.1f}d remaining, P={milestone_res.urgency_factor:.3f}{sat_str})"
+        m_res = proj_info.get('milestone_resolution')
+        if m_res and m_res.get('target_datetime'):
+            sat_str = " [Cycle Satisfied]" if m_res.get('is_cycle_satisfied') else ""
+            t_dt_str = m_res['target_datetime'][:16].replace('T', ' ')
+            days_rem = m_res.get('days_remaining', 0.0)
+            urg_fact = m_res.get('urgency_factor', 0.0)
+            mile_disp = f"{mile_disp} (next: {t_dt_str}, {days_rem:.1f}d remaining, P={urg_fact:.3f}{sat_str})"
         print(f"Milestone:                {mile_disp}")
         print(f"Total Reviews:            {proj_info['total_reviews']}")
         print(f"Last Review Date:         {proj_info['last_review_date'] or 'N/A'}")
@@ -1995,6 +2195,7 @@ def compute_feedback_score(current_score, action, rf):
         if act in ("finished", "non-projet", "non_projet", "non-project", "not-a-project"):
             return 0.0
         baseline = current_score if current_score is not None else 50.0
+        baseline = min(100.0, max(1.0, float(baseline)))
         if act == "less-often":
             new_score = baseline - rf * (baseline - 1.0)
         elif act == "ok":
@@ -2002,10 +2203,10 @@ def compute_feedback_score(current_score, action, rf):
         elif act in ("more-often", "emergency"):
             new_score = baseline + rf * (100.0 - baseline)
         else:
-            raise ValueError(f"Unknown action '{action}'. Options: ok, less-often, more-often, finished, emergency, non-projet, or numeric score (1-100).")
+            raise ValueError(f"Unknown action '{action}'. Options: ok, less-often, more-often, finished, emergency, non-projet, or numeric score (>= 1.0).")
 
     if act not in ("finished", "non-projet", "non_projet", "non-project", "not-a-project"):
-        new_score = max(1.0, min(100.0, new_score))
+        new_score = min(100.0, max(1.0, new_score))
 
     return round(new_score, 3)
 
@@ -2058,7 +2259,7 @@ def apply_feedback(project_path, action, worked, data):
     if len(proj.get("reviewHistory", [])) > 100:
         proj["reviewHistory"] = proj["reviewHistory"][-100:]
 
-    rot_inc = float(settings.get("rotationBonus", 0.3))
+    alpha = float(settings.get("achillesAlpha", 0.01))
 
     # Always increment totalReviews and globalStats totalReviews on review/feedback
     proj["totalReviews"] = total_reviews + 1
@@ -2080,11 +2281,9 @@ def apply_feedback(project_path, action, worked, data):
         # Set lastSatisfiedMilestoneDate to mark milestone cycle as satisfied
         proj["lastSatisfiedMilestoneDate"] = now_iso
 
-        # Reset rotationBonus for current project, increment all other projects
+        # Reset rotationBonus for current project, increment all other projects via Achilles & Tortoise
         proj["rotationBonus"] = 0.0
-        for p_key, p_val in stats.items():
-            if p_key != matched_key:
-                p_val["rotationBonus"] = round(float(p_val.get("rotationBonus", 0.0)) + rot_inc, 3)
+        update_achilles_rotation_bonuses(stats, matched_key, ratio=1.0, alpha=alpha)
     else:
         # Metacognitive review only: keep recentWorkDates and lastSatisfiedMilestoneDate intact,
         # do NOT modify rotationBonus for current or other projects.
@@ -2130,6 +2329,12 @@ def apply_feedback(project_path, action, worked, data):
         print(f"Feedback saved for '{matched_key}': action='non-projet', project stripped of tags and purged from active projects.")
         return matched_key, 0.0
 
+    # Recalcul et persistance des scores effectifs dans data.json (DRY)
+    try:
+        calculate_and_persist_effective_scores(data, VAULT_DIR, cache=cache, now_dt=now_dt, data_path=data_path, save=False)
+    except Exception:
+        pass
+
     save_data(data, data_path)
     mode_str = "work session" if worked else "review only"
     print(f"Feedback ({mode_str}) saved for '{matched_key}': action='{act}', new_score={new_score:.2f}")
@@ -2141,7 +2346,7 @@ def cmd_feedback(args, data):
     action = getattr(args, "action", None) or getattr(args, "pos_action", None)
     if not action:
         print("Error: Action is required. Use --action <action> or pass action as positional argument.")
-        print("Options: ok, less-often, more-often, finished, emergency, non-projet, or numeric score (1-100)")
+        print("Options: ok, less-often, more-often, finished, emergency, non-projet, or numeric score (>= 1.0)")
         sys.exit(1)
 
     # Feedback represents a work session by default (worked=True), recording recentWorkDates and recency penalty.
@@ -2154,7 +2359,8 @@ def cmd_feedback(args, data):
 
 def cmd_set_score(args, data):
     worked = bool(getattr(args, "worked", False))
-    apply_feedback(args.project_path, str(args.score), worked, data)
+    score = min(100.0, max(1.0, float(args.score)))
+    apply_feedback(args.project_path, str(score), worked, data)
 
 
 def cmd_complete_task(args, data):
@@ -2203,6 +2409,7 @@ def cmd_complete_task(args, data):
 def cmd_work(args, data):
     """
     Démarre une session Pomodoro active sur un projet.
+    Supporte l'exécution parallèle de sessions pour des projets distincts.
 
     Comportement officiel et nominal :
     La durée de travail est pilotée par la configuration globale d'Obsidian lue
@@ -2215,24 +2422,30 @@ def cmd_work(args, data):
         print(f"Error: Project note file not found for '{args.project_path}'.", flush=True)
         sys.exit(1)
 
-    # Vérifie si un Pomodoro est déjà actif
-    active = load_active_pomodoro()
-    if active and active.get("status") == "running":
-        active_pid = active.get("pid")
+    title = os.path.splitext(os.path.basename(rel_path))[0]
+
+    # Vérifie si un Pomodoro est déjà actif pour CE PROJET PRÉCIS
+    sessions = load_all_active_pomodoros(clean_stale=True)
+    existing_session = None
+    for k, s in sessions.items():
+        if k == rel_path or s.get("rel_path") == rel_path or s.get("title") == title:
+            existing_session = s
+            break
+
+    if existing_session and existing_session.get("status") == "running":
+        active_pid = existing_session.get("pid")
         if is_pid_alive(active_pid) and active_pid != os.getpid():
-            active_title = active.get("title", active.get("rel_path", "Inconnu"))
-            print(f"⚠️ Une session Pomodoro est déjà en cours d'exécution pour '{active_title}' (PID {active_pid}).", flush=True)
-            print("💡 Vous pouvez l'interrompre proprement via : `python antigravity/scripts/project_memory_cli.py stop-work`", flush=True)
+            print(f"⚠️ Une session Pomodoro est déjà en cours d'exécution pour '{title}' (PID {active_pid}).", flush=True)
+            print(f"💡 Vous pouvez l'interrompre proprement via : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"{title}\"`", flush=True)
             sys.exit(1)
         else:
-            # Nettoyage d'un lock orphelin
-            clear_active_pomodoro()
+            # Nettoyage d'un lock orphelin sur ce projet
+            clear_active_pomodoro(project_key=rel_path)
+            sessions = load_all_active_pomodoros(clean_stale=True)
 
     # Comportement officiel et nominal : durée par défaut issue de settings.pomodoroDuration (data.json).
-    # L'argument --duration est un override optionnel exceptionnel.
     duration_min = float(args.duration) if args.duration is not None else float(data.get("settings", {}).get("pomodoroDuration", 60))
     total_seconds = int(duration_min * 60)
-    title = os.path.splitext(os.path.basename(rel_path))[0]
     now_dt = datetime.now(timezone.utc)
     start_time = time.time()
 
@@ -2274,9 +2487,9 @@ def cmd_work(args, data):
             if interrupted:
                 break
 
-            # Vérifie si le fichier actif a été modifié par stop-work
-            active_cur = load_active_pomodoro()
-            if not active_cur or active_cur.get("status") != "running":
+            # Vérifie si la session spécifique a été interrompue
+            cur_sess = get_active_pomodoro_session(rel_path)
+            if cur_sess and cur_sess.get("status") != "running":
                 interrupted = True
                 stop_reason = "external_command"
                 break
@@ -2289,14 +2502,14 @@ def cmd_work(args, data):
             bar = "█" * filled + "░" * (bar_len - filled)
             m_rem = remaining_sec // 60
             s_rem = remaining_sec % 60
-            print(f"⏳ [{bar}] {pct:3d}% | Temps restant : {m_rem:02d}:{s_rem:02d} ({remaining_min} min)", flush=True)
+            print(f"⏳ [{title}] [{bar}] {pct:3d}% | Temps restant : {m_rem:02d}:{s_rem:02d} ({remaining_min} min)", flush=True)
 
             if remaining_sec > 0:
                 sleep_target = min(step_sec, remaining_sec)
                 sleep_end = time.time() + sleep_target
                 while time.time() < sleep_end and not interrupted:
-                    active_cur = load_active_pomodoro()
-                    if not active_cur or active_cur.get("status") != "running":
+                    cur_sess = get_active_pomodoro_session(rel_path)
+                    if cur_sess and cur_sess.get("status") != "running":
                         interrupted = True
                         stop_reason = "external_command"
                         break
@@ -2319,7 +2532,8 @@ def cmd_work(args, data):
     actual_elapsed_sec = max(0.0, time.time() - start_time)
     actual_elapsed_min = actual_elapsed_sec / 60.0
 
-    clear_active_pomodoro()
+    # Nettoyage de la session active de ce projet
+    clear_active_pomodoro(project_key=rel_path)
     data = load_data(DATA_JSON_PATH)
 
     if interrupted:
@@ -2369,59 +2583,120 @@ def cmd_work(args, data):
         data_path=DATA_JSON_PATH
     )
 
-    all_projects = scan_projects(VAULT_DIR, data)
-    other_projects = [
-        p for p in all_projects
-        if p["rel_path"] != rel_path and p["full_path"] != abs_path and p["title"] != title
-    ]
-    other_projects.sort(key=lambda p: (
-        -p["effective_score"] if p.get("effective_score") is not None else 0.0,
-        -p["base_score"] if (p.get("base_score") is not None) else 0.0,
-        p["title"].lower()
-    ))
-    top3 = other_projects[:3]
-
     print("============================================================", flush=True)
     print(f"🎉 POMODORO TERMINÉ pour '{title}' ({duration_min:.0f} min)", flush=True)
     print("============================================================", flush=True)
     print(flush=True)
     print("🤖 CONSIGNES ANTIGRAVITY POST-POMODORO (Handover Agent) :", flush=True)
-    print(f"1. ☕ Pause & Récupération : Informer Henri que la session sur '{title}' est terminée et l'encourager explicitement à prendre une vraie pause de 5 minutes (s'étirer, s'hydrater, quitter l'écran).", flush=True)
-    print("2. 📊 Évaluation Objective & Réaliste (Anti-biais d'optimisme & Anti-nihilisme optimiste) :", flush=True)
-    print(f"   - Évaluer objectivement le travail accompli et la trajectoire restante pour '{title}'.", flush=True)
-    print("   - Mesurer si le rythme actuel garantit de respecter l'échéance/jalon avec une marge de sécurité (sans optimisme béat ni fatalisme).", flush=True)
-    print("   - Déterminer la recommandation de score/rythme la plus juste parmi : [\"À l'aise\", \"OK\", \"Stressé\", \"Terminé\"].", flush=True)
+    print("👉 Consulter obligatoirement le skill `_agents/skills/project-memory/SKILL.md` pour structurer le rapport de fin de session et la clôture.", flush=True)
+    print(flush=True)
+    print(f"1. ☕ Pause & Récupération (5 min) : Informer Henri que la session sur '{title}' est terminée et l'encourager explicitement à prendre une pause de 5 minutes (s'étirer, s'hydrater, quitter l'écran).", flush=True)
+    print("2. 📋 Feuille de Route Unifiée par Chantiers :", flush=True)
+    print("   - Restituer le statut sous forme de checklist unique par domaines/chantiers (- [x] accompli, - [ ] reste à faire par rapport aux échéances/jalons).", flush=True)
+    print("   - Supprimer toute section narrative redondante de travail accompli.", flush=True)
+    print("   - Synchroniser la Roadmap en tête de note maîtresse (AGENTS.md) avec toutes les cases [ ] et [x].", flush=True)
+    print("   - Si des plans d'implémentation ou rapports d'exploration n'ont pas été appliqués via /build, les sauvegarder en note pérenne dans Obsidian.", flush=True)
     print("3. 💬 Évaluation Interactive via ask_question (Stress & Confort) :", flush=True)
-    print("   - Déclencher l'outil interactif ask_question pour sonder le ressenti d'Henri (niveau de confort, charge mentale, blocages éventuels).", flush=True)
-    print("   - Présenter les 4 options dans l'ordre canonique : [\"À l'aise\", \"OK\", \"Stressé\", \"Terminé\"], en apposant le suffixe '(Recommandé)' à l'option préconisée (ex: 'OK (Recommandé)').", flush=True)
-    print("   - Enregistrer ensuite le choix final en exécutant : `python antigravity/scripts/project_memory_cli.py feedback <projet> --action <action>`.", flush=True)
-    print("4. 🎯 Suggestion des 3 Prochains Projets :", flush=True)
-    print("   - Présenter à Henri les 3 projets suivants recommandés selon l'algorithme d'urgence dynamique :", flush=True)
-    if not top3:
-        print("     (Aucun autre projet actif détecté dans le vault)", flush=True)
-    else:
-        for idx, p in enumerate(top3, 1):
-            deadline_info = f" | 📅 Deadline: {p['deadline']}" if p.get("deadline") else ""
-            milestone_info = f" | 🚩 Milestone: {p['milestone']}" if p.get("milestone") else ""
-            eff_info = f"{p['effective_score']:.2f}" if p.get("effective_score") is not None else "N/A"
-            malus_info = f" (Malus -{p['temporal_malus']:.1f})" if p.get("temporal_malus", 0) > 0 else ""
-            print(f"     {idx}. {p['title']} [Score: {eff_info}{malus_info}{deadline_info}{milestone_info}]", flush=True)
-    print("   - Proposer d'enchaîner directement sur l'un d'eux après sa pause.", flush=True)
+    print("   - Déclencher l'outil interactif ask_question pour sonder le ressenti d'Henri avec les 4 options canoniques : [\"À l'aise\", \"OK\", \"Stressé\", \"Terminé\"], en apposant le suffixe '(Recommandé)' selon l'analyse de marge résiduelle.", flush=True)
+    print("   - Enregistrer le choix final en exécutant : `python _agents/scripts-for-skills/project_memory_cli.py feedback <projet> --action <action>`.", flush=True)
+    print("4. 🛑 Clôture Définitive de Session :", flush=True)
+    print("   - INTERDICTION formelle et absolue de relancer automatiquement un Pomodoro.", flush=True)
+    print("   - Ne plus proposer de projets suivants.", flush=True)
+    print("   - Clôturer proprement la conversation.", flush=True)
+
+
+def _stop_and_record_session(s: Dict[str, Any], manual_elapsed: Optional[float], data: Dict[str, Any], as_json: bool = False, print_output: bool = True) -> Dict[str, Any]:
+    rel_path = s.get("rel_path")
+    title = s.get("title", os.path.splitext(os.path.basename(rel_path))[0] if rel_path else "Inconnu")
+    start_ts = float(s.get("start_timestamp", time.time()))
+    def_dur = float(data.get("settings", {}).get("pomodoroDuration", 60))
+    target_min = float(s.get("target_duration_minutes", def_dur))
+    pid = s.get("pid")
+
+    now_t = time.time()
+    elapsed_sec = max(0.0, now_t - start_ts)
+    elapsed_min = float(manual_elapsed) if manual_elapsed is not None else (elapsed_sec / 60.0)
+    effective_elapsed_min = min(target_min, elapsed_min)
+    ratio = min(1.0, max(0.0, effective_elapsed_min / target_min)) if target_min > 0 else 0.0
+
+    # Marque la session comme stopped pour que la boucle work se termine
+    s["status"] = "stopped"
+    save_active_pomodoro(s)
+
+    # Notifie / termine le processus daemon si distinct
+    if pid and is_pid_alive(pid) and pid != os.getpid():
+        try:
+            import signal
+            if sys.platform == "win32":
+                os.kill(int(pid), signal.SIGTERM)
+            else:
+                os.kill(int(pid), signal.SIGINT)
+        except Exception:
+            pass
+
+    # Enregistrement direct de la session
+    matched_key, _ = record_work_session(
+        data,
+        rel_path,
+        elapsed_minutes=effective_elapsed_min,
+        target_minutes=target_min,
+        is_interrupted=True,
+        data_path=DATA_JSON_PATH
+    )
+
+    clear_active_pomodoro(project_key=rel_path)
+
+    updated_projects = scan_projects(VAULT_DIR, data)
+    target_p = next((p for p in updated_projects if p["rel_path"] == rel_path or p["title"] == title), None)
+
+    m_el = int(effective_elapsed_min)
+    s_el = int((effective_elapsed_min - m_el) * 60)
+
+    out = {
+        "status": "stopped",
+        "project": title,
+        "rel_path": rel_path,
+        "pid": pid,
+        "elapsed_minutes": round(effective_elapsed_min, 2),
+        "target_minutes": round(target_min, 2),
+        "ratio": round(ratio, 4),
+        "effective_score": target_p.get("effective_score") if target_p else None,
+        "temporal_malus": target_p.get("temporal_malus") if target_p else 0.0,
+        "k_factor": target_p.get("k_factor") if target_p else 0.0,
+        "global_pomodoro_time": data.get("stats", {}).get("globalStats", {}).get("totalPomodoroTime", 0)
+    }
+
+    if print_output and not as_json:
+        print("============================================================", flush=True)
+        print(f"🛑 Session Pomodoro interrompue avec succès pour '{title}' !", flush=True)
+        print("============================================================", flush=True)
+        print(f"⏱️ Durée cible : {target_min:.0f} min", flush=True)
+        print(f"⏳ Temps réellement écoulé : {m_el:02d}:{s_el:02d} ({effective_elapsed_min:.2f} min)", flush=True)
+        print(f"📊 Ratio d'accomplissement (r) : {ratio * 100:.1f}%", flush=True)
+        print(f"📈 Total Pomodoro global : {data.get('stats', {}).get('globalStats', {}).get('totalPomodoroTime', 0):.2f} min (+{effective_elapsed_min:.2f} min)", flush=True)
+        if target_p:
+            eff_disp = f"{target_p['effective_score']:.2f}" if target_p['effective_score'] is not None else "N/A"
+            malus_disp = f"-{target_p['temporal_malus']:.2f} (K={target_p['k_factor']:.2f})" if target_p.get('temporal_malus') else "0.00"
+            print(f"🎯 Score effectif mis à jour : {eff_disp} [Malus temporel proportionnel : {malus_disp}]", flush=True)
+        print("============================================================", flush=True)
+
+    return out
 
 
 def cmd_stop_work(args, data):
-    active = load_active_pomodoro()
+    sessions = load_all_active_pomodoros(clean_stale=True)
     as_json = getattr(args, "json", False)
     target_project = getattr(args, "project_path", None)
     manual_elapsed = getattr(args, "elapsed", None)
+    stop_all = getattr(args, "all", False)
 
-    if not active or active.get("status") != "running":
+    running_sessions = {k: s for k, s in sessions.items() if s.get("status") == "running" and is_pid_alive(s.get("pid"))}
+
+    if not running_sessions:
         if target_project and manual_elapsed is not None:
             # Enregistrement manuel d'une session sans daemon actif
             rel_path, abs_path = find_project_file(VAULT_DIR, target_project, data)
             title = os.path.splitext(os.path.basename(rel_path))[0]
-            # Comportement officiel et nominal : durée cible par défaut issue de settings.pomodoroDuration (data.json)
-            # L'argument --target-duration est un override exceptionnel.
             target_min = float(args.target_duration) if getattr(args, "target_duration", None) else float(data.get("settings", {}).get("pomodoroDuration", 60))
             elapsed_min = float(manual_elapsed)
             ratio = min(1.0, max(0.0, elapsed_min / target_min)) if target_min > 0 else 0.0
@@ -2454,160 +2729,374 @@ def cmd_stop_work(args, data):
             print("ℹ️ Aucune session Pomodoro active n'est actuellement en cours d'exécution.")
         return
 
-    # Session active détectée
-    rel_path = active.get("rel_path")
-    title = active.get("title", os.path.splitext(os.path.basename(rel_path))[0])
-    start_ts = float(active.get("start_timestamp", time.time()))
-    target_min = float(active.get("target_duration_minutes", 25))
-    pid = active.get("pid")
+    # Cas 1 : Interrompre TOUTES les sessions (--all)
+    if stop_all:
+        stopped_list = []
+        for p_key, s in list(running_sessions.items()):
+            res = _stop_and_record_session(s, manual_elapsed, data, as_json=as_json, print_output=not as_json)
+            stopped_list.append(res)
+            data = load_data(DATA_JSON_PATH)
 
-    now_t = time.time()
-    elapsed_sec = max(0.0, now_t - start_ts)
-    elapsed_min = float(manual_elapsed) if manual_elapsed is not None else (elapsed_sec / 60.0)
-    effective_elapsed_min = min(target_min, elapsed_min)
-    ratio = min(1.0, max(0.0, effective_elapsed_min / target_min)) if target_min > 0 else 0.0
+        if as_json:
+            print(json.dumps({
+                "status": "stopped_all",
+                "stopped_count": len(stopped_list),
+                "sessions": stopped_list
+            }, indent=2, ensure_ascii=False))
+        else:
+            print(f"✅ Toutes les sessions Pomodoro actives ({len(stopped_list)}) ont été interrompues avec succès.", flush=True)
+        return
 
-    # Marque la session comme stopped pour que la boucle work se termine
-    active["status"] = "stopped"
-    save_active_pomodoro(active)
-
-    # Notifie / termine le processus daemon si distinct
-    if pid and is_pid_alive(pid) and pid != os.getpid():
+    # Cas 2 : Un projet spécifique est demandé
+    if target_project:
         try:
-            import signal
-            if sys.platform == "win32":
-                os.kill(int(pid), signal.SIGTERM)
-            else:
-                os.kill(int(pid), signal.SIGINT)
+            rel_path, abs_path = find_project_file(VAULT_DIR, target_project, data)
+            title = os.path.splitext(os.path.basename(rel_path))[0]
         except Exception:
-            pass
+            rel_path = None
+            title = target_project
 
-    # Enregistrement direct de la session
-    matched_key, _ = record_work_session(
-        data,
-        rel_path,
-        elapsed_minutes=effective_elapsed_min,
-        target_minutes=target_min,
-        is_interrupted=True,
-        data_path=DATA_JSON_PATH
-    )
+        target_session = None
+        for k, s in running_sessions.items():
+            if k == rel_path or s.get("rel_path") == rel_path or s.get("title") == title or (target_project.lower() in s.get("title", "").lower()):
+                target_session = s
+                break
 
-    clear_active_pomodoro()
+        if target_session:
+            res = _stop_and_record_session(target_session, manual_elapsed, data, as_json=as_json, print_output=not as_json)
+            remaining = [s for s in load_all_active_pomodoros(clean_stale=True).values() if s.get("status") == "running" and is_pid_alive(s.get("pid"))]
+            if as_json:
+                res["remaining_active_sessions"] = [s.get("title") for s in remaining]
+                print(json.dumps(res, indent=2, ensure_ascii=False))
+            else:
+                if remaining:
+                    print(f"ℹ️ Note : Il reste {len(remaining)} autre(s) session(s) Pomodoro active(s) :", flush=True)
+                    for rem in remaining:
+                        print(f"   • '{rem.get('title')}' (PID {rem.get('pid')})", flush=True)
+                    print(f"💡 Pour interrompre un projet précis : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"<projet>\"`", flush=True)
+                    print(f"💡 Pour tout interrompre : `python _agents/scripts-for-skills/project_memory_cli.py stop-work --all`", flush=True)
+            return
+        else:
+            if manual_elapsed is not None and rel_path:
+                target_min = float(args.target_duration) if getattr(args, "target_duration", None) else float(data.get("settings", {}).get("pomodoroDuration", 60))
+                elapsed_min = float(manual_elapsed)
+                ratio = min(1.0, max(0.0, elapsed_min / target_min)) if target_min > 0 else 0.0
+                matched_key, _ = record_work_session(data, rel_path, elapsed_minutes=elapsed_min, target_minutes=target_min, is_interrupted=True, data_path=DATA_JSON_PATH)
+                if as_json:
+                    print(json.dumps({"status": "stopped", "manual": True, "project": title, "rel_path": rel_path, "elapsed_minutes": elapsed_min, "target_minutes": target_min, "ratio": ratio}, indent=2, ensure_ascii=False))
+                else:
+                    print(f"🛑 Session de travail manuelle enregistrée pour '{title}' ({elapsed_min:.2f} min / {target_min:.0f} min, ratio r={ratio:.2%}).")
+                return
 
-    updated_projects = scan_projects(VAULT_DIR, data)
-    target_p = next((p for p in updated_projects if p["rel_path"] == rel_path or p["title"] == title), None)
+            print(f"⚠️ Aucune session Pomodoro active trouvée pour '{target_project}'.", flush=True)
+            print("Sessions actives en cours :", flush=True)
+            for s in running_sessions.values():
+                print(f"   • '{s.get('title')}' (PID {s.get('pid')})", flush=True)
+            print(f"💡 Pour interrompre un projet précis : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"<nom_projet>\"`", flush=True)
+            print(f"💡 Pour tout interrompre : `python _agents/scripts-for-skills/project_memory_cli.py stop-work --all`", flush=True)
+            sys.exit(1)
 
-    m_el = int(effective_elapsed_min)
-    s_el = int((effective_elapsed_min - m_el) * 60)
+    # Cas 3 : Aucun argument fourni
+    if len(running_sessions) == 1:
+        s = next(iter(running_sessions.values()))
+        res = _stop_and_record_session(s, manual_elapsed, data, as_json=as_json, print_output=not as_json)
+        if as_json:
+            print(json.dumps(res, indent=2, ensure_ascii=False))
+        return
 
-    if as_json:
-        out = {
-            "status": "stopped",
-            "project": title,
-            "rel_path": rel_path,
-            "elapsed_minutes": round(effective_elapsed_min, 2),
-            "target_minutes": round(target_min, 2),
-            "ratio": round(ratio, 4),
-            "effective_score": target_p.get("effective_score") if target_p else None,
-            "temporal_malus": target_p.get("temporal_malus") if target_p else 0.0,
-            "k_factor": target_p.get("k_factor") if target_p else 0.0,
-            "global_pomodoro_time": data.get("stats", {}).get("globalStats", {}).get("totalPomodoroTime", 0)
-        }
-        print(json.dumps(out, indent=2, ensure_ascii=False))
+    # Plusieurs sessions actives : arrêter la session échue (remaining <= 0) ou la plus récente
+    now_t = time.time()
+    expired = [
+        s for s in running_sessions.values()
+        if (float(s.get("target_duration_minutes", 60)) * 60.0) <= (now_t - float(s.get("start_timestamp", now_t)))
+    ]
+    if expired:
+        target_session = expired[0]
+        reason_msg = "session échue"
     else:
-        print("============================================================", flush=True)
-        print(f"🛑 Session Pomodoro interrompue avec succès pour '{title}' !", flush=True)
-        print("============================================================", flush=True)
-        print(f"⏱️ Durée cible : {target_min:.0f} min", flush=True)
-        print(f"⏳ Temps réellement écoulé : {m_el:02d}:{s_el:02d} ({effective_elapsed_min:.2f} min)", flush=True)
-        print(f"📊 Ratio d'accomplissement (r) : {ratio * 100:.1f}%", flush=True)
-        print(f"📈 Total Pomodoro global : {data.get('stats', {}).get('globalStats', {}).get('totalPomodoroTime', 0):.2f} min (+{effective_elapsed_min:.2f} min)", flush=True)
-        if target_p:
-            eff_disp = f"{target_p['effective_score']:.2f}" if target_p['effective_score'] is not None else "N/A"
-            malus_disp = f"-{target_p['temporal_malus']:.2f} (K={target_p['k_factor']:.2f})" if target_p.get('temporal_malus') else "0.00"
-            print(f"🎯 Score effectif mis à jour : {eff_disp} [Malus temporel proportionnel : {malus_disp}]", flush=True)
-        print("============================================================", flush=True)
+        target_session = max(running_sessions.values(), key=lambda s: float(s.get("start_timestamp", 0)))
+        reason_msg = "session la plus récente"
+
+    res = _stop_and_record_session(target_session, manual_elapsed, data, as_json=as_json, print_output=not as_json)
+    remaining = [s for s in load_all_active_pomodoros(clean_stale=True).values() if s.get("status") == "running" and is_pid_alive(s.get("pid"))]
+    if as_json:
+        res["selection_reason"] = reason_msg
+        res["remaining_active_sessions"] = [s.get("title") for s in remaining]
+        print(json.dumps(res, indent=2, ensure_ascii=False))
+    else:
+        print(f"ℹ️ Note : Plusieurs sessions étaient actives ({len(running_sessions)}). La {reason_msg} ('{target_session.get('title')}') a été interrompue.", flush=True)
+        if remaining:
+            print(f"Il reste encore {len(remaining)} autre(s) session(s) active(s) :", flush=True)
+            for rem in remaining:
+                print(f"   • '{rem.get('title')}' (PID {rem.get('pid')})", flush=True)
+            print(f"💡 Pour interrompre un projet précis : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"<projet>\"`", flush=True)
+            print(f"💡 Pour tout interrompre d'un coup : `python _agents/scripts-for-skills/project_memory_cli.py stop-work --all`", flush=True)
 
 
 def cmd_status_work(args, data):
-    active = load_active_pomodoro()
+    sessions = load_all_active_pomodoros(clean_stale=True)
     as_json = getattr(args, "json", False)
+    target_project = getattr(args, "project_path", None)
+    show_all = getattr(args, "all", False)
 
-    if not active or active.get("status") != "running":
+    running = [s for s in sessions.values() if s.get("status") == "running" and is_pid_alive(s.get("pid"))]
+    now_t = time.time()
+
+    # Cas 1 : Filtrage par projet spécifique demandé (ex: status-work "Digital Language Learning Platform")
+    if target_project:
+        try:
+            rel_path, abs_path = find_project_file(VAULT_DIR, target_project, data)
+            title = os.path.splitext(os.path.basename(rel_path))[0]
+        except Exception:
+            rel_path = None
+            title = target_project
+
+        target_session = None
+        for s in running:
+            if s.get("rel_path") == rel_path or s.get("title") == title or (target_project.lower() in s.get("title", "").lower()):
+                target_session = s
+                break
+
+        if not target_session:
+            if as_json:
+                print(json.dumps({"status": "idle", "active": False, "project": title}, indent=2, ensure_ascii=False))
+            else:
+                print(f"💤 Aucune session Pomodoro en cours pour '{title}' (idle).")
+            return
+
+        # Calcul métriques isolées de cette session
+        start_ts = float(target_session.get("start_timestamp", now_t))
+        def_dur = float(data.get("settings", {}).get("pomodoroDuration", 60))
+        target_min = float(target_session.get("target_duration_minutes", def_dur))
+        pid = target_session.get("pid")
+
+        elapsed_sec = max(0.0, now_t - start_ts)
+        elapsed_min = elapsed_sec / 60.0
+        remaining_sec = max(0.0, (target_min * 60.0) - elapsed_sec)
+        remaining_min = remaining_sec / 60.0
+        pct = int(min(100.0, (elapsed_sec / (target_min * 60.0)) * 100)) if target_min > 0 else 100
+
+        bar_len = 15
+        filled = int(bar_len * (pct / 100.0))
+        bar = "█" * filled + "░" * (bar_len - filled)
+
+        m_el = int(elapsed_min)
+        s_el = int(elapsed_sec % 60)
+        m_rem = int(remaining_min)
+        s_rem = int(remaining_sec % 60)
+
         if as_json:
-            print(json.dumps({"status": "idle", "active": False}, indent=2, ensure_ascii=False))
+            out = {
+                "status": "running",
+                "active": True,
+                "pid": pid,
+                "project": target_session.get("title", title),
+                "rel_path": target_session.get("rel_path"),
+                "start_iso": target_session.get("start_iso"),
+                "elapsed_minutes": round(elapsed_min, 2),
+                "remaining_minutes": round(remaining_min, 2),
+                "target_minutes": round(target_min, 2),
+                "progress_percent": pct
+            }
+            print(json.dumps(out, indent=2, ensure_ascii=False))
+        else:
+            print("============================================================", flush=True)
+            print(f"⏱️ Session Pomodoro Active : '{target_session.get('title', title)}'", flush=True)
+            print("============================================================", flush=True)
+            print(f"⏳ Progression : [{bar}] {pct}%", flush=True)
+            print(f"⏱️ Écoulé : {m_el:02d}:{s_el:02d} ({elapsed_min:.1f} min) / {target_min:.0f} min", flush=True)
+            print(f"⌛ Restant : {m_rem:02d}:{s_rem:02d} ({remaining_min:.1f} min)", flush=True)
+            print(f"⚙️ PID : {pid}", flush=True)
+            print(f"💡 Pour interrompre proprement : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"{target_session.get('title', title)}\"`", flush=True)
+            print("============================================================", flush=True)
+        return
+
+    # Cas 2 : Aucun projet spécifié
+    if not running:
+        if as_json:
+            print(json.dumps({"status": "idle", "active": False, "sessions": []}, indent=2, ensure_ascii=False))
         else:
             print("💤 Aucune session Pomodoro en cours (idle).")
         return
 
-    pid = active.get("pid")
-    if pid and not is_pid_alive(pid):
-        clear_active_pomodoro()
+    session_details = []
+    for s in running:
+        rel_path = s.get("rel_path")
+        title = s.get("title", os.path.splitext(os.path.basename(rel_path))[0] if rel_path else "Inconnu")
+        start_ts = float(s.get("start_timestamp", now_t))
+        def_dur = float(data.get("settings", {}).get("pomodoroDuration", 60))
+        target_min = float(s.get("target_duration_minutes", def_dur))
+        pid = s.get("pid")
+
+        elapsed_sec = max(0.0, now_t - start_ts)
+        elapsed_min = elapsed_sec / 60.0
+        remaining_sec = max(0.0, (target_min * 60.0) - elapsed_sec)
+        remaining_min = remaining_sec / 60.0
+        pct = int(min(100.0, (elapsed_sec / (target_min * 60.0)) * 100)) if target_min > 0 else 100
+
+        bar_len = 15
+        filled = int(bar_len * (pct / 100.0))
+        bar = "█" * filled + "░" * (bar_len - filled)
+
+        m_el = int(elapsed_min)
+        s_el = int(elapsed_sec % 60)
+        m_rem = int(remaining_min)
+        s_rem = int(remaining_sec % 60)
+
+        session_details.append({
+            "pid": pid,
+            "project": title,
+            "rel_path": rel_path,
+            "start_iso": s.get("start_iso"),
+            "start_timestamp": start_ts,
+            "elapsed_minutes": round(elapsed_min, 2),
+            "remaining_minutes": round(remaining_min, 2),
+            "target_minutes": round(target_min, 2),
+            "progress_percent": pct,
+            "bar": bar,
+            "m_el": m_el,
+            "s_el": s_el,
+            "m_rem": m_rem,
+            "s_rem": s_rem
+        })
+
+    session_details.sort(key=lambda x: x.get("start_timestamp", 0))
+
+    # Si --all est explicitement demandé
+    if show_all:
         if as_json:
-            print(json.dumps({"status": "idle", "active": False, "stale_cleaned": True}, indent=2, ensure_ascii=False))
-        else:
-            print("💤 Aucune session Pomodoro en cours (le processus précédent s'est terminé).")
+            primary = session_details[-1]
+            out = {
+                "status": "running",
+                "active": True,
+                "active_count": len(session_details),
+                "pid": primary["pid"],
+                "project": primary["project"],
+                "rel_path": primary["rel_path"],
+                "start_iso": primary["start_iso"],
+                "elapsed_minutes": primary["elapsed_minutes"],
+                "remaining_minutes": primary["remaining_minutes"],
+                "target_minutes": primary["target_minutes"],
+                "progress_percent": primary["progress_percent"],
+                "sessions": [
+                    {
+                        "pid": sd["pid"],
+                        "project": sd["project"],
+                        "rel_path": sd["rel_path"],
+                        "start_iso": sd["start_iso"],
+                        "elapsed_minutes": sd["elapsed_minutes"],
+                        "remaining_minutes": sd["remaining_minutes"],
+                        "target_minutes": sd["target_minutes"],
+                        "progress_percent": sd["progress_percent"]
+                    }
+                    for sd in session_details
+                ]
+            }
+            print(json.dumps(out, indent=2, ensure_ascii=False))
+            return
+
+        print("============================================================", flush=True)
+        print(f"⏱️ Sessions Pomodoro Actives en Parallèle ({len(session_details)})", flush=True)
+        print("============================================================", flush=True)
+        for idx, sd in enumerate(session_details, 1):
+            print(f"{idx}. '{sd['project']}'", flush=True)
+            print(f"   ⏳ Progression : [{sd['bar']}] {sd['progress_percent']}%", flush=True)
+            print(f"   ⏱️ Écoulé : {sd['m_el']:02d}:{sd['s_el']:02d} ({sd['elapsed_minutes']:.1f} min) / {sd['target_minutes']:.0f} min", flush=True)
+            print(f"   ⌛ Restant : {sd['m_rem']:02d}:{sd['s_rem']:02d} ({sd['remaining_minutes']:.1f} min)", flush=True)
+            print(f"   ⚙️ PID : {sd['pid']}", flush=True)
+            print(f"   💡 Interrompre : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"{sd['project']}\"`", flush=True)
+            if idx < len(session_details):
+                print("   ---------------------------------------------------------", flush=True)
+        print("============================================================", flush=True)
+        print("💡 Pour tout interrompre : `python _agents/scripts-for-skills/project_memory_cli.py stop-work --all`", flush=True)
+        print("============================================================", flush=True)
         return
 
-    rel_path = active.get("rel_path")
-    title = active.get("title", os.path.splitext(os.path.basename(rel_path))[0])
-    start_ts = float(active.get("start_timestamp", time.time()))
-    target_min = float(active.get("target_duration_minutes", 25))
-
-    now_t = time.time()
-    elapsed_sec = max(0.0, now_t - start_ts)
-    elapsed_min = elapsed_sec / 60.0
-    remaining_sec = max(0.0, (target_min * 60.0) - elapsed_sec)
-    remaining_min = remaining_sec / 60.0
-    pct = int(min(100.0, (elapsed_sec / (target_min * 60.0)) * 100)) if target_min > 0 else 100
-
-    bar_len = 15
-    filled = int(bar_len * (pct / 100.0))
-    bar = "█" * filled + "░" * (bar_len - filled)
-
-    m_el = int(elapsed_min)
-    s_el = int(elapsed_sec % 60)
-    m_rem = int(remaining_min)
-    s_rem = int(remaining_sec % 60)
-
+    # Si aucun argument et pas --all : afficher sobrement la session la plus récente
+    primary = session_details[-1]
     if as_json:
         out = {
             "status": "running",
             "active": True,
-            "pid": pid,
-            "project": title,
-            "rel_path": rel_path,
-            "start_iso": active.get("start_iso"),
-            "elapsed_minutes": round(elapsed_min, 2),
-            "remaining_minutes": round(remaining_min, 2),
-            "target_minutes": round(target_min, 2),
-            "progress_percent": pct
+            "active_count": len(session_details),
+            "pid": primary["pid"],
+            "project": primary["project"],
+            "rel_path": primary["rel_path"],
+            "start_iso": primary["start_iso"],
+            "elapsed_minutes": primary["elapsed_minutes"],
+            "remaining_minutes": primary["remaining_minutes"],
+            "target_minutes": primary["target_minutes"],
+            "progress_percent": primary["progress_percent"]
         }
         print(json.dumps(out, indent=2, ensure_ascii=False))
     else:
         print("============================================================", flush=True)
-        print(f"⏱️ Session Pomodoro Active : '{title}'", flush=True)
+        print(f"⏱️ Session Pomodoro Active : '{primary['project']}'", flush=True)
         print("============================================================", flush=True)
-        print(f"⏳ Progression : [{bar}] {pct}%", flush=True)
-        print(f"⏱️ Écoulé : {m_el:02d}:{s_el:02d} ({elapsed_min:.1f} min) / {target_min:.0f} min", flush=True)
-        print(f"⌛ Restant : {m_rem:02d}:{s_rem:02d} ({remaining_min:.1f} min)", flush=True)
-        print(f"⚙️ PID : {pid}", flush=True)
-        print("💡 Pour interrompre proprement : `python antigravity/scripts/project_memory_cli.py stop-work`", flush=True)
+        print(f"⏳ Progression : [{primary['bar']}] {primary['progress_percent']}%", flush=True)
+        print(f"⏱️ Écoulé : {primary['m_el']:02d}:{primary['s_el']:02d} ({primary['elapsed_minutes']:.1f} min) / {primary['target_minutes']:.0f} min", flush=True)
+        print(f"⌛ Restant : {primary['m_rem']:02d}:{primary['s_rem']:02d} ({primary['remaining_minutes']:.1f} min)", flush=True)
+        print(f"⚙️ PID : {primary['pid']}", flush=True)
+        print(f"💡 Pour interrompre proprement : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"{primary['project']}\"`", flush=True)
+        if len(session_details) > 1:
+            print(f"ℹ️ ({len(session_details)} sessions en cours au total. Pour toutes les afficher : `python _agents/scripts-for-skills/project_memory_cli.py status-work --all`)", flush=True)
         print("============================================================", flush=True)
+
+
+def try_delegate_to_node() -> bool:
+    """
+    Supporte la délégation transparente vers `node code/project-memory/dist/cli.js` si présent,
+    tout en fournissant une exécution directe sans régression sur les arguments existants
+    (work, status, feedback, set-score, list, clean-orphans).
+    """
+    if os.environ.get("PROJECT_MEMORY_CLI_ENABLE_NODE", "").strip().lower() not in ("1", "true", "yes"):
+        return False
+
+    candidate_paths = [
+        os.path.join(SCRIPT_DIR, "dist", "cli.js"),
+        os.path.normpath(os.path.join(SCRIPT_DIR, "..", "..", "..", "code", "project-memory", "dist", "cli.js")),
+        os.path.normpath(os.path.join(VAULT_DIR, "..", "code", "project-memory", "dist", "cli.js")),
+        r"C:\Users\hjamet\Documents\code\project-memory\dist\cli.js",
+    ]
+    cli_path = None
+    for cp in candidate_paths:
+        if os.path.isfile(cp):
+            cli_path = cp
+            break
+
+    if not cli_path:
+        return False
+
+    node_bin = shutil.which("node")
+    if not node_bin:
+        return False
+
+    try:
+        import subprocess
+        res = subprocess.run([node_bin, cli_path, *sys.argv[1:]])
+        sys.exit(res.returncode)
+    except Exception:
+        return False
 
 
 def main():
+    try_delegate_to_node()
     parser = argparse.ArgumentParser(description="Project Memory CLI")
     subparsers = parser.add_subparsers(dest="command", help="Sub-commands")
 
-    # list / priority / top
-    list_parser = subparsers.add_parser("list", aliases=["priority", "top"], help="List active projects sorted by score")
+    # list / priority / top / scan / scores / update-scores
+    list_parser = subparsers.add_parser(
+        "list",
+        aliases=["priority", "top", "scan", "scores", "update-scores"],
+        help="List active projects sorted by score, calculating and persisting canonical effectiveScore (DRY)"
+    )
     list_parser.add_argument("--top", "-n", type=int, help="Limit output to top N projects")
     list_parser.add_argument("--json", action="store_true", help="Output in JSON format")
     list_parser.add_argument("--unreviewed", "--new", action="store_true", help="List only unreviewed projects awaiting initial evaluation")
     list_parser.add_argument("--reviewed", action="store_true", help="List only evaluated/reviewed projects sorted by score")
     list_parser.add_argument("--fast", action="store_true", help="Fast mode using existing cache without filesystem scan")
     list_parser.add_argument("--clean-orphans", action="store_true", help="Nettoie d'abord les notes orphelines de data.json avant de lister")
+    list_parser.add_argument("--no-persist", action="store_true", help="Ne persiste pas les scores effectifs calculés dans data.json")
 
     # clean-orphans
     clean_parser = subparsers.add_parser("clean-orphans", help="Nettoie les projets de data.json dont les fichiers n'existent plus sur le disque")
@@ -2633,9 +3122,9 @@ def main():
     comp_parser.add_argument("task_text", help="Text snippet of the task to mark completed")
 
     # set-score
-    set_score_parser = subparsers.add_parser("set-score", help="Set explicit urgency score (1-100) for a project")
+    set_score_parser = subparsers.add_parser("set-score", help="Set explicit urgency score (>= 1.0) for a project")
     set_score_parser.add_argument("project_path", help="Relative path or name of project note")
-    set_score_parser.add_argument("score", type=float, help="Explicit score between 1.0 and 100.0")
+    set_score_parser.add_argument("score", type=float, help="Explicit score >= 1.0")
     set_score_parser.add_argument("--worked", "-w", action="store_true", default=False, help="Set ONLY if user actively worked on the project during this session (Default: False)")
 
     # work
@@ -2646,12 +3135,15 @@ def main():
     # stop-work / cancel-work / stop
     stop_parser = subparsers.add_parser("stop-work", aliases=["cancel-work", "stop"], help="Interrompt proprement la session Pomodoro en cours et enregistre le temps proportionnel")
     stop_parser.add_argument("project_path", nargs="?", help="Chemin ou nom du projet (optionnel si une session active est détectée)")
+    stop_parser.add_argument("--all", "-a", action="store_true", help="Interrompt toutes les sessions Pomodoro actives en cours")
     stop_parser.add_argument("--elapsed", "-e", type=float, help="Temps réellement écoulé en minutes (outrepasse le calcul chronométré automatique)")
     stop_parser.add_argument("--target-duration", "-d", type=float, help="Durée cible en minutes (si enregistrement manuel)")
     stop_parser.add_argument("--json", action="store_true", help="Sortie au format JSON")
 
     # status-work / active-pomodoro / status
     status_parser = subparsers.add_parser("status-work", aliases=["active-pomodoro", "status"], help="Affiche l'état de la session Pomodoro en cours")
+    status_parser.add_argument("project_path", nargs="?", help="Chemin relatif ou nom du projet pour n'afficher que sa session")
+    status_parser.add_argument("--all", "-a", action="store_true", help="Affiche toutes les sessions Pomodoro actives en parallèle")
     status_parser.add_argument("--json", action="store_true", help="Sortie au format JSON")
 
     args = parser.parse_args()
@@ -2662,7 +3154,7 @@ def main():
 
     data = load_data(DATA_JSON_PATH)
 
-    if args.command in ("list", "priority", "top"):
+    if args.command in ("list", "priority", "top", "scan", "scores", "update-scores"):
         cmd_list(args, data)
     elif args.command == "clean-orphans":
         cmd_clean_orphans(args, DATA_JSON_PATH, CACHE_PATH)

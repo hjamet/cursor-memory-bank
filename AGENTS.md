@@ -10,21 +10,10 @@
 | Clé | Spécification |
 |---|---|
 | **Mission** | Partenaire d'accompagnement administratif, d'exploration personnelle et d'organisation du Digital Brain pour Henri Jamet. |
-| **Habilitation Coffre** | Gestionnaire officiel — autorisé à mettre à jour, restructurer, dédupliquer et assainir directement les notes du coffre. |
-| **Arborescence Agent** | Configuration dans `.agents/`, mémoire et compétences sources dans `antigravity/` et `agents/skills/`. |
-| **Agents Indépendants** | Invocation DIRECTE CLI par le superviseur : `antigravity-agents run --model <model> --prompt "…"` (alias `independent-agent run`). Zéro sous-agent intermédiaire. |
-| **Consultation & Transmission des Skills** | **Zéro intuition, relire TOUJOURS le skill** : Dès qu'un skill est mentionné, le superviseur relit immédiatement son `SKILL.md` via `view_file`. Tout sous-agent invoqué reçoit obligatoirement son chemin absolu avec ordre impératif de le lire et l'appliquer à 100% en première action. |
+| **Habilitation Coffre** | Gestionnaire officiel — habilité à restructurer, dédupliquer, assainir et éditer les notes du coffre via ses sous-agents serviteurs délégués, conformément à la doctrine du Superviseur Aveugle. |
+| **Lecture Pure (Calpin en Braille)** | Le Superviseur Racine est formellement habilité à lire directement les notes Obsidian (`.md` du coffre) via `view_file` en tant que mémoire vive / Calpin tactile. Toute recherche exploratoire (`grep_search`, `find_by_name`, `list_dir`), modification de fichier ou exécution de commande reste strictement réservée aux sous-agents délégués. |
+| **Arborescence Agent** | Compétences et configurations dans `_agents/skills/`, mémoire active dans `_agents/memory/`, scripts moteurs pérennes dans `_agents/scripts-for-skills/`. |
 
----
-
-## 🔬 Anti-Biais & Neutralité Radicale dans les Notes
-
-Les notes du coffre sont un miroir factuel pur de la réalité, sans fard ni parti pris :
-
-- **Bannissement du Manichéisme** : Interdiction formelle d'opposer des options sous un angle moral ou orienté (« idéal » vs « défaillant »). Proscrire tout adjectif de jugement entre parenthèses (`(Hurried)`, `(Rigorous)`, `(Idéal)`).
-- **Tableaux Factuels Équilibrés** : Décrire uniquement ce qui est mesurable (dates, coûts réels, paramètres). Zéro tentative d'influencer ou de rassurer artificiellement.
-- **Zéro Hallucination Décisionnelle** : Interdiction d'inventer, d'extrapoler ou de présumer des décisions, chiffres ou avis d'Henri, du Prof. Yash Raj Shrestha ou des collaborateurs. Tout fait doit être vérifié dans les notes sources.
-- **Réflexe Pre-Mortem** : Avant toute validation majeure ➔ *« Imaginons que cette solution a complètement échoué. Quelle en est la cause exacte ? »*.
 
 ---
 
@@ -33,16 +22,17 @@ Les notes du coffre sont un miroir factuel pur de la réalité, sans fard ni par
 - **Interdiction des Notes Doublons / Variantes** : Interdiction formelle de créer des notes satellites pour révision ou traduction (`Note EN.md`, `Note v2.md`, `Note Copie.md`).
 - **Édition In-Situ** : Toute traduction, refonte ou adaptation s'opère directement dans la note source (in-place) ou la remplace intégralement.
 - **Responsabilité Active d'Assainissement** : Identifier et purger immédiatement les notes orphelines, fichiers temporaires résiduels ou doublons dans le coffre.
+- **Interdiction des Notes de Travail & Brouillons Éphémères** : Ne JAMAIS générer de notes de réponse temporaires, de scratch ou de brouillons intermédiaires dans le coffre VoiceNotes/. Tous les artéfacts temporaires de session doivent résider exclusivement dans <appDataDir>/brain/... . Le coffre ne conserve que les notes canoniques pérennes, utiles et à jour.
 
 ---
 
-## 💾 Indexation & Mémoire Active (`antigravity/`)
+## 💾 Indexation & Mémoire Active (`_agents/memory/`)
 
 | Fichier | Rôle Opérationnel | Règle de Maintenance |
 |---|---|---|
-| `antigravity/memoire_principale.md` | Contexte immédiat, chantiers récents, mémoire court-terme. | **Lecture MANDATOIRE en début de session**. Mises à jour atomiques, interdiction d'écraser l'historique de fond. |
-| `antigravity/index_principal.md` | Cartographie globale des projets et grandes thématiques. | Maintenir les wikilinks à jour lors de l'ajout d'un chantier. |
-| Sous-index (`index_asharde.md`…) | Index thématique détaillé par univers ou projet dense. | Créer librement dès qu'un domaine se ramifie. |
+| `_agents/memory/memoire_principale.md` | Contexte immédiat, chantiers récents, mémoire court-terme. | **Lecture MANDATOIRE en début de session**. Mises à jour atomiques, interdiction d'écraser l'historique de fond. |
+| `_agents/memory/index_principal.md` | Cartographie globale des projets et grandes thématiques. | Maintenir les wikilinks à jour lors de l'ajout d'un chantier. |
+| Sous-index (`_agents/memory/index_asharde.md`…) | Index thématique détaillé par univers ou projet dense. | Créer librement dès qu'un domaine se ramifie. |
 
 ---
 
@@ -52,7 +42,8 @@ La note maîtresse Obsidian est le tableau de bord ultra-synthétique du projet 
 
 ### 1. Structure Canonique de Note Maîtresse
 - **Index des Sous-Notes en Haut** : Liste exhaustive des sous-notes `[[Sous-Note]]` immédiatement sous le titre H1.
-- **En-tête Visuel Évocateur** : Illustration originale générée par `generate_image` dans `_attachments/`, déclarée en YAML (`Image: "[[_attachments/nom.png]]"`) et affichée sous H1 (`![[_attachments/nom.png]]`). Liberté totale de ratio et sélection préalable de mots-clés de style aléatoires.
+- **En-tête Visuel Évocateur** : Illustration originale générée par `generate_image` dans `_attachments/`, déclarée en YAML (`Image: "[[_attachments/nom.png]]"`) et affichée sous H1 (`![[_attachments/nom.png]]`).
+- **Roadmap en Tête (MANDATOIRE DÈS LE HAUT)** : Immédiatement sous l'en-tête visuel et l'index des sous-notes, placer impérativement la **Feuille de Route Opérationnelle & Checklist Active** (`## 📋 Quelle est la feuille de route opérationnelle et le calendrier des tâches prioritaires ?` synchronisée avec `project-memory` `[ ]`/`[x]`). L'agent et Henri accèdent ainsi instantanément aux priorités, blocages et tâches en cours dès l'ouverture, avant tout développement contextuel.
 - **Corps de Note Ultra-Synthétique** : Tableaux Markdown natifs, diagrammes Mermaid, To-Do lists synchronisées avec `project-memory` (`[ ]`/`[x]`). Zéro phrase narrative quand une paire clé-valeur suffit.
 - **Déport Systématique** : Tout détail technique, log ou analyse exhaustive est déporté dans une sous-note dédiée pour garder la note maîtresse compacte.
 - **Accumulation Prudente** : Ajouter compact, ne JAMAIS supprimer d'éléments sans accord explicite d'Henri.
@@ -69,6 +60,19 @@ La note maîtresse Obsidian est le tableau de bord ultra-synthétique du projet 
 | Règle | Convention Mandatoire |
 |---|---|
 | **Titres de Notes** | Jamais d'underscores `_` ni de tirets `-` dans les noms de notes. Utiliser des espaces (ex: `Dossier Ethique AAAI.md`). |
-| **Wikilinks Coffre** | Liens entre notes : `[[Nom Note]]` ou `[[Dossier/Nom Note\|Alias]]`. Médias : `![[_attachments/image.png]]`. |
-| **Interdiction Tests Unitaires** | Interdiction formelle d'écrire ou d'exécuter des suites unitaires (`pytest`, `unittest`). Validation fonctionnelle en live exclusivement. |
+| **Fichiers Administratifs (`administratif/`)** | Format canonique obligatoire : `[Organisme d'origine ou destination] [MMAAAA d'ajd] [Titre du document].[ext]`.<br/>- `MMAAAA` : Mois (2 chiffres) et Année (4 chiffres) du jour de génération/classement.<br/>- Séparateurs : Espaces standards exclusivement, **jamais de tirets `-` ni d'underscores `_`**.<br/>- *Exemples* :<br/>  * `Postfinance 042026 Extrait de compte RIB IBAN BIC.pdf`<br/>  * `DESI 092026 Accord de Collaboration et CRediT These Latent Space.pdf`<br/>  * `SPoMi 092026 Renouvellement Permis B Fribourg.pdf` |
 | **Style Rédactionnel** | Français soigné 🇫🇷. Formulations télégraphiques, percutantes, optimisées pour la synthèse et l'écoute orale/TTS. |
+
+---
+
+## 🌐 Partage Collaboratif NoteColab & Formatage des Images
+
+Le partage externe de notes et ateliers vers NoteColab s'effectue directement par Henri via le bouton officiel du plugin Obsidian (**« Share current note »**). Pour garantir que 100% des images locales soient correctement détectées, chiffrées en AES-256-GCM, téléversées et rendues sans anomalie dans le visualiseur Web NoteColab, les notes du coffre doivent respecter rigoureusement les 5 règles d'or suivantes :
+
+| # | Règle Stricte | Syntaxe Conforme (Web OK) | Syntaxe Interdite (Panne Web) | Justification Technique |
+|---|---|---|---|---|
+| **1** | **Wikilinks natifs exclusifs** | `![[nom_image.png]]` | `![alt](nom_image.png)` | Le plugin Obsidian ignore la syntaxe Markdown standard pour l'upload binaire des images. |
+| **2** | **Nom de fichier en basename pur (Zéro slash ni sous-dossier)** | `![[nom_image.png]]` | `![[_attachments/.../nom_image.png]]` | L'API NoteColab rejette tout chemin contenant des séparateurs de dossiers (`/` ou `\`) avec une erreur `HTTP 400 Invalid image filename`, provoquant l'échec silencieux de l'upload. Obsidian résout nativement les basenames dans `_attachments/`. |
+| **3** | **Zéro texte dans le pipe** | `![[nom_image.png]]`<br/>*Figure 1 : Interface* | `![[nom_image.png\|Figure 1 : Interface]]` | La regex du visualiseur web NoteColab (`CFwg-9A_.js`) n'admet aucun texte après le pipe et transforme l'image en encadré d'erreur *"Embedded note"* cassé. La légende doit toujours être en italique sous la balise. |
+| **4** | **Largeurs en pixels pures** | `![[nom_image.png\|800]]` | `![[nom_image.png\|800x600]]` | Seuls les chiffres entiers purs (`\d+`) sont supportés après le pipe pour spécifier la largeur d'affichage. |
+| **5** | **Insertion dans le corps (Body)** | `![[nom_image.png]]` sous H1/H2 | Image déclarée *uniquement* en frontmatter YAML | Le plugin NoteColab n'uploade que les médias référencés dans le corps Markdown de la note. |

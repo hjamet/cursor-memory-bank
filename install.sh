@@ -717,34 +717,38 @@ install_skills() {
         global_skills_dir="$HOME/.gemini/antigravity-cli/skills"
     fi
 
-    if [[ -n "$global_skills_dir" ]]; then
-        log "Installing global skills to: $global_skills_dir"
-        mkdir -p "$global_skills_dir"
-        
-        # Copier chaque compétence de src/skills vers global_skills_dir
-        for skill_dir in "$skills_src"/*; do
-            if [[ -d "$skill_dir" ]]; then
-                local skill_name
-                skill_name=$(basename "$skill_dir")
-                log "Copying global skill: $skill_name -> $global_skills_dir/$skill_name"
-                mkdir -p "$global_skills_dir/$skill_name"
-                cp -R "$skill_dir"/. "$global_skills_dir/$skill_name/"
-            fi
-        done
-        log "✓ Global skills installed successfully"
+    if [[ -n "${GLOBAL_SKILLS:-}" ]]; then
+        if [[ -n "$global_skills_dir" ]]; then
+            log "Installing global skills to: $global_skills_dir"
+            mkdir -p "$global_skills_dir"
+            
+            # Copier chaque compétence de src/skills vers global_skills_dir
+            for skill_dir in "$skills_src"/*; do
+                if [[ -d "$skill_dir" ]]; then
+                    local skill_name
+                    skill_name=$(basename "$skill_dir")
+                    log "Copying global skill: $skill_name -> $global_skills_dir/$skill_name"
+                    mkdir -p "$global_skills_dir/$skill_name"
+                    cp -R "$skill_dir"/. "$global_skills_dir/$skill_name/"
+                fi
+            done
+            log "✓ Global skills installed successfully"
+        else
+            warn "Could not detect global skills directory. Skipping global skills installation."
+        fi
     else
-        warn "Could not detect global skills directory. Skipping global skills installation."
+        log "Skipping global skills installation (enable with --global-skills)"
     fi
 
     # 3. Installation locale si un répertoire cible valide est fourni (projet)
     # Exclure le répertoire personnel ou la racine système pour éviter de polluer
     if [[ -n "$target_dir" && "$target_dir" != "/" && "$target_dir" != "$HOME" ]]; then
         local local_dest_modern="$target_dir/.agents/skills"
-        local local_dest_legacy="$target_dir/.agent/skills"
+        local local_dest_canonical="$target_dir/_agents/skills"
         
-        log "Installing project-specific skills to: $local_dest_modern and $local_dest_legacy"
+        log "Installing project-specific skills to: $local_dest_modern and $local_dest_canonical"
         mkdir -p "$local_dest_modern"
-        mkdir -p "$local_dest_legacy"
+        mkdir -p "$local_dest_canonical"
 
         for skill_dir in "$skills_src"/*; do
             if [[ -d "$skill_dir" ]]; then
@@ -752,13 +756,13 @@ install_skills() {
                 skill_name=$(basename "$skill_dir")
                 log "Copying local skill: $skill_name"
                 
-                # Modern local dest
+                # Modern local dest (.agents/skills)
                 mkdir -p "$local_dest_modern/$skill_name"
                 cp -R "$skill_dir"/. "$local_dest_modern/$skill_name/"
                 
-                # Legacy local dest
-                mkdir -p "$local_dest_legacy/$skill_name"
-                cp -R "$skill_dir"/. "$local_dest_legacy/$skill_name/"
+                # Canonical local dest (_agents/skills)
+                mkdir -p "$local_dest_canonical/$skill_name"
+                cp -R "$skill_dir"/. "$local_dest_canonical/$skill_name/"
             fi
         done
         log "✓ Local skills installed successfully"
@@ -1168,14 +1172,17 @@ Usage: $0 [options]
 Options:
     -h, --help         Show this help message
     -v, --version      Show version information
-    -l, --local        Install rules and configurations locally in the target directory (default: global only)
+    -l, --local        Install rules and configurations locally in the target directory (enabled by default)
+    --no-local         Skip local installation of rules and configurations
+    --global-skills    Install skills globally to ~/.gemini/antigravity-cli/skills (disabled by default)
     -d, --dir DIR      Install to a specific directory (default: current directory)
     --force            Force installation even if directory is not empty
 
 This script will:
-1. Install global skills and monitor command by default
-2. Optionally install local agent rules and skills when --local is provided
-3. Clean up temporary files
+1. Install local agent rules and skills in the target directory by default
+2. Install GEMINI.md globally and monitor command
+3. Optionally install global skills when --global-skills is provided
+4. Clean up temporary files
 
 For more information, visit: ${REPO_URL}
 EOF
@@ -1198,7 +1205,8 @@ show_version() {
 INSTALL_DIR="."
 FORCE=""
 USE_CURL=""
-INSTALL_LOCAL=""
+INSTALL_LOCAL=1
+GLOBAL_SKILLS=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -1210,6 +1218,12 @@ while [[ $# -gt 0 ]]; do
             ;;
         -l|--local)
             INSTALL_LOCAL=1
+            ;;
+        --no-local)
+            INSTALL_LOCAL=""
+            ;;
+        --global-skills)
+            GLOBAL_SKILLS=1
             ;;
         -d|--dir)
             if [[ -z "${2:-}" ]]; then
