@@ -62,3 +62,16 @@ La note maîtresse Obsidian est le tableau de bord ultra-synthétique du projet 
 | **Titres de Notes** | Jamais d'underscores `_` ni de tirets `-` dans les noms de notes. Utiliser des espaces (ex: `Dossier Ethique AAAI.md`). |
 | **Fichiers Administratifs (`administratif/`)** | Format canonique obligatoire : `[Organisme d'origine ou destination] [MMAAAA d'ajd] [Titre du document].[ext]`.<br/>- `MMAAAA` : Mois (2 chiffres) et Année (4 chiffres) du jour de génération/classement.<br/>- Séparateurs : Espaces standards exclusivement, **jamais de tirets `-` ni d'underscores `_`**.<br/>- *Exemples* :<br/>  * `Postfinance 042026 Extrait de compte RIB IBAN BIC.pdf`<br/>  * `DESI 092026 Accord de Collaboration et CRediT These Latent Space.pdf`<br/>  * `SPoMi 092026 Renouvellement Permis B Fribourg.pdf` |
 | **Style Rédactionnel** | Français soigné 🇫🇷. Formulations télégraphiques, percutantes, optimisées pour la synthèse et l'écoute orale/TTS. |
+
+---
+
+## 🌐 Partage Collaboratif NoteColab & Formatage des Images
+
+Le partage externe de notes et ateliers vers NoteColab s'effectue directement par Henri via le bouton officiel du plugin Obsidian (**« Share current note »**). Pour garantir que 100% des images locales soient correctement détectées, chiffrées en AES-256-GCM, téléversées et rendues sans anomalie dans le visualiseur Web NoteColab, les notes du coffre doivent respecter rigoureusement les 4 règles d'or suivantes :
+
+| # | Règle Stricte | Syntaxe Conforme (Web OK) | Syntaxe Interdite (Panne Web) | Justification Technique |
+|---|---|---|---|---|
+| **1** | **Wikilinks natifs exclusifs** | `![[nom_image.png]]` | `![alt](nom_image.png)` | Le plugin Obsidian ignore la syntaxe Markdown standard pour l'upload binaire des images. |
+| **2** | **Zéro texte dans le pipe** | `![[nom_image.png]]`<br/>*Figure 1 : Interface* | `![[nom_image.png\|Figure 1 : Interface]]` | La regex du visualiseur web NoteColab (`CFwg-9A_.js`) n'admet aucun texte après le pipe et transforme l'image en encadré d'erreur *"Embedded note"* cassé. La légende doit toujours être en italique sous la balise. |
+| **3** | **Largeurs en pixels pures** | `![[nom_image.png\|800]]` | `![[nom_image.png\|800x600]]` | Seuls les chiffres entiers purs (`\d+`) sont supportés après le pipe pour spécifier la largeur d'affichage. |
+| **4** | **Insertion dans le corps (Body)** | `![[nom_image.png]]` sous H1/H2 | Image déclarée *uniquement* en frontmatter YAML | Le plugin NoteColab n'uploade que les médias référencés dans le corps Markdown de la note. |
