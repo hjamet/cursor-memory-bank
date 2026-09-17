@@ -8,6 +8,7 @@ description: "Rédaction scientifique, compilation LaTeX, révision chirurgicale
 > **Rôle Canonique : Orchestrateur Technique de Projet d'Article**
 > Ce skill régit l'orchestration technique, le cycle collaboratif comment-driven, la projection AST différentielle et le versioning déclaratif via les outils MCP doc-version (`call_mcp_tool`), la synchronisation Overleaf/GitHub et la gestion automatisée des médias.
 > - **Pour la Charte Stylistique & Anti-IA** : Appliquer impérativement le skill dédié [`scientific-writing-style`](file:///C:/Users/hjamet/Documents/VoiceNotes/_agents/skills/scientific-writing-style/SKILL.md) (posture de chercheur senior, bannissement absolu des tirets cadratins `—`, suite déterministe `avoid-ai-writing` et barrière bloquante $P(\text{AI}) < 0.10$).
+> - **Pour la Relecture Chirurgicale & Préservation Stylistique** : Mobiliser le skill complémentaire [`draft`](file:///C:/Users/hjamet/Documents/VoiceNotes/_agents/skills/draft/SKILL.md) pour le polissage scalpel de brouillons, la résolution de balises `<XXX>` et le respect strict de la voix d'Henri (seuil de rétention $\ge 90\%$).
 > - **Pour la Revue Bibliographique Amont** : Mobiliser [`literature-review`](file:///C:/Users/hjamet/Documents/VoiceNotes/_agents/skills/literature-review/SKILL.md) (synthèse de littérature, fiches médico-légales Zotero et cartographie des baselines).
 
 ---
@@ -154,9 +155,18 @@ Toute modification du document académique s'inscrit rigoureusement dans la séq
 
 ---
 
-## 2. ⚡ Outils Déclaratifs du Serveur MCP `doc-version`
+## 2. ⚡ Outils Déclaratifs du Serveur MCP `doc-version` & Voie de Secours CLI
 
-Le serveur MCP unifié `doc-version` expose une suite complète d'outils déclaratifs remplaçant intégralement les anciennes commandes terminal et scripts CLI :
+Le versioning déclaratif et la projection différentielle reposent sur une architecture à **double voie d'exécution** garantissant une disponibilité permanente :
+1. **Voie Principale (MCP `doc-version`)** : Invocation directe des outils déclaratifs MCP (`commit_document`, `get_diff_artifact`, `restore_commit`, etc.) via `call_mcp_tool(ServerName="doc-version", ...)`.
+2. **Voie de Secours Robuste (CLI Local `doc_version_cli.py`)** : Si le serveur MCP `doc-version` est temporairement inactif ou non joignable, les agents DOIVENT basculer immédiatement sur le script moteur CLI dédié :
+   ```powershell
+   & "C:\Users\hjamet\Documents\code\doc-version-mcp\.venv\Scripts\python.exe" "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\doc_version_cli.py" diff --target "<fichier>" --explanation "<motif>" --content-file "<fichier_retouche>" --brain-dir "<appDataDir>/brain/<id>" --artifact-name "<nom>.md"
+   ```
+   *Ce script implémente exactement la même logique CAS, le calcul différentiel, les badges de conformité IA et la projection d'artéfacts.*
+- **Articulations avec le Skill [`draft`](file:///C:/Users/hjamet/Documents/VoiceNotes/_agents/skills/draft/SKILL.md)** : Pour la relecture chirurgicale de passages rédigés ou de brouillons soumis par Henri, le mode `draft` (`mode="draft"`) garantit la traçabilité des balises `<XXX>`, le mot-à-mot différentiel coloré et le contrôle de rétention textuelle ($\ge 90\%$).
+
+Le serveur MCP unifié `doc-version` expose une suite complète d'outils déclaratifs :
 
 ### 1. `record_git_pull_event` (Synchronisation Amont & Événement Distant)
 - **Rôle** : Exécuté avant ou après un `git pull` distant pour consigner l'état des collaborateurs distants et configurer l'autostash.
@@ -216,9 +226,11 @@ call_mcp_tool(
 - `list_commits(target="paper/main.tex", limit=10)` : Consultation de l'historique CAS des clichés.
 - `prune_commits(ttl_days=14, max_size_mb=500)` : Maintenance et purge du cache CAS.
 
-### 6. Invariant Strict Obligatoire (Interdiction des Commandes CLI Manuelles)
+### 6. Invariant Strict Obligatoire (Gouvernance d'Exécution & Zéro Simulation Manuelle)
 > [!CAUTION]
-> **Interdiction Formelle des Commandes Terminal Manuelles** : Aucun agent ne doit invoquer de script de build ou de commande de terminal manuelle pour la gestion des versions ou la génération d'artéfacts. Tout passe obligatoirement par les outils MCP déclaratifs `call_mcp_tool(ServerName="doc-version", ...)`.
+> **Interdiction Formelle de Falsification ou Rédaction Manuelle** : Il est FORMELLEMENT INTERDIT de rédiger ou simuler manuellement un artéfact de diff ou un commit CAS via `write_to_file`. Tout passe obligatoirement par la voie déclarative :
+> 1. En priorité absolue via les outils du serveur MCP `doc-version`.
+> 2. En cas d'indisponibilité avérée du serveur MCP, exclusivement via le script CLI machine homologué `_agents/scripts-for-skills/doc_version_cli.py`. Aucune commande de build sauvage ou script artisanal non référencé n'est autorisé.
 
 ---
 
