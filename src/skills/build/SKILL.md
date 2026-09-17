@@ -12,11 +12,11 @@ description: "Fusion conservatrice des rapports d'exploration et coordination d'
 > - **🏛️ COORDINATEUR PUR SANS CODER** : Le Build Lead ne touche JAMAIS au code source ni aux notes du projet. Il ne crée ni ne modifie aucun fichier en dehors de ses propres artéfacts de session dans `brain/<build-lead-id>/`.
 > - **⚡ PARALLÉLISATION MAXIMALE PAR DÉFAUT ($P=2$)** : Dès lors que les chantiers programmés portent sur des périmètres étanches ou indépendants (ex: action web/Playwright, retouches de code, synchronisation de notes Markdown, hygiène documentaire), le Build Lead **DOIT OBLIGATOIREMENT** déployer l'ensemble de ces workers feuilles ($P=2$) **en parallèle dès le démarrage** via un unique appel `invoke_subagent`. Le séquençage n'est toléré que pour les chantiers ayant une dépendance technique explicite (ex: worker final d'intégration attendant la fin de tous les chantiers).
 > - **📥 ENTRÉE STANDARDISÉE** : Le Build Lead est appelé exclusivement avec son skill et la liste exhaustive des chemins absolus de tous les rapports d'exploration produits lors de la session (`exploration_report_1.md` à `exploration_report_X.md`).
-> - **🧩 MERGE CONSERVATEUR TOTAL DES SECTIONS 1 ET 2 (ADDITIVE & CONFLICT-RESOLVED)** :
->   - **Consommation des Sections 1 et 2** : Le Build Lead fusionne exclusivement les Sections 1 (questions et réponses contextuelles) et 2 (modifications par chantier) des différents rapports `exploration_report_X.md` pour concevoir le plan final `implementation_plan.md`. Aucune Section 3 n'est requise dans les rapports d'exploration.
->   - **Règle de Conservation Additive** : Tout ce qui a été défini dans les premiers rapports et non expressément contredit reste 100% valide et est obligatoirement conservé dans le plan final. Zéro suppression involontaire !
+> - **🧩 CONSOMMATION EXCLUSIVE DES SECTIONS 2 (ADDITIVE & CONFLICT-RESOLVED)** :
+>   - **Consommation exclusive des Sections 2** : Le Build Lead extrait et consolide **exclusivement les Sections 2 (Spécifications Techniques, Architecture & Chantiers)** de l'ensemble des rapports `exploration_report_X.md`. La Section 1 (Q/R Scan-First) est réservée à la clarification directe d'Henri et ne doit pas être dupliquée dans le plan d'implémentation.
+>   - **Règle Additive Conservatrice** : Tout composant, fichier ciblé ou chantier défini en Section 2 des premiers rapports et non expressément contredit reste 100% valide et est obligatoirement conservé dans le plan final. Zéro suppression involontaire !
 >   - **Règle de Préséance Temporelle** : En cas de contradiction explicite ou de décision modifiée par Henri dans un rapport ultérieur, c'est le rapport le plus récent ($X > X-1 > \dots > 1$) qui prévaut et écrase l'ancienne directive.
-> - **📝 PLAN FINAL IMMÉDIAT (`implementation_plan.md`)** : Généré immédiatement dans son brain (`<appDataDir>/brain/<build-lead-id>/implementation_plan.md`), découpé en chantiers étanches numérotés (`Chantier 1`, `Chantier 2`...).
+> - **📋 FORMAT CANONIQUE GOOGLE AGY & PLAN ULTRA-DÉTAILLÉ POUR WORKERS ($P=2$)** : Généré immédiatement dans son brain (`<appDataDir>/brain/<build-lead-id>/implementation_plan.md`). Doit respecter scrupuleusement la structure officielle Google AGY (`User Review Required`, `Proposed Changes` par composant avec balises `[NEW]`/`[MODIFY]`/`[DELETE]`, `Verification Plan`). Le plan doit être un devis d'ingénierie complet, exhaustif et ultra-détaillé servant de feuille de route autonome pour les sous-sous-agents ouvriers ($P=2$) sans aucune ambiguïté ni to-do list sommaire.
 > - **📢 PUBLICATION ET ANNONCE DANS LE CHAT** : Dès la fusion achevée, le Build Lead envoie un message au Superviseur Racine qui affiche immédiatement dans le chat le lien vers le plan et la liste des chantiers programmés.
 > - **🚀 PROGRESSION PAS-À-PAS EN TEMPS RÉEL & CONTEXTE GLOBAL ÉTANCHE** : 1 chantier étanche = 1 sous-agent worker feuille ($P=2$, `TypeName: 'self'`, `Workspace: 'inherit'`). Le Build Lead transmet obligatoirement l'accès en lecture au plan d'implémentation global (`implementation_plan.md`) à chaque worker feuille pour qu'il comprenne le cadre architectural d'ensemble de son travail, tout en lui intimant l'ordre formel et strict de se cantonner exclusivement aux fichiers de son chantier assigné. À chaque chantier validé, notification au Superviseur Racine qui actualise le chat : `✅ Chantier N terminé ([Nom]) ➔ 🚀 Lancement du Chantier N+1 ([Nom])`.
 > - **⏱️ HEARTBEAT & TIMER DE LIVENESS MANDATOIRE (5 MINUTES)** : Il est formellement interdit au Build Lead de rester passif en attente indéfinie de ses sous-agents. Dès le déploiement des workers feuilles ($P=2$), le Build Lead arme obligatoirement un timer de liveness via l'outil schedule (DurationSeconds: 300, TimerCondition: "any", Prompt: "Auditer la progression des chantiers et s'assurer qu'aucun worker feuille n'est bloqué ou silencieux"). Si 5 minutes s'écoulent sans notification, le réveil force le Lead à vérifier immédiatement l'état (manage_subagents), débloquer les éventuels silences et réarmer un nouveau cycle jusqu'à complétion.
@@ -48,10 +48,10 @@ description: "Fusion conservatrice des rapports d'exploration et coordination d'
 
 ```mermaid
 flowchart TD
-    INPUT["📥 Chemins des Rapports Reçus :<br/>exploration_report_1.md ... exploration_report_X.md"] --> READ["📖 Lecture des Sections 1 & 2 de Tous les Rapports (1 à X)"]
+    INPUT["📥 Chemins des Rapports Reçus :<br/>exploration_report_1.md ... exploration_report_X.md"] --> READ["📖 Lecture des Sections 2 Exclusives de Tous les Rapports (1 à X)"]
     READ --> ADDITIVE["🧩 Application Règle Additive :<br/>Conservation de tous les chantiers et intentions initiales"]
     ADDITIVE --> RESOLVE["⚡ Résolution de Conflits :<br/>Le rapport le plus récent (X > ... > 1) prévaut en cas de contradiction"]
-    RESOLVE --> PLAN["📝 Rédaction de implementation_plan.md<br/>dans brain/<build-lead-id>/"]
+    RESOLVE --> PLAN["📝 Rédaction de implementation_plan.md<br/>Format Canonique Google AGY dans brain/<build-lead-id>/"]
 ```
 
 ### 2.1 🔍 Comment le Build Lead Est-il Invoqué avec les Rapports d'Exploration ?
@@ -59,53 +59,63 @@ flowchart TD
   ```text
   Tu es le Build Lead (P=1). Applique rigoureusement ton SKILL.md.
   Rapports d'exploration à fusionner :
-  - C:\Users\Jamet\.gemini\antigravity\brain\<id-1>\exploration_report_1.md
+  - C:\Users\hjamet\.gemini\antigravity\brain\<id-1>\exploration_report_1.md
   ...
-  - C:\Users\Jamet\.gemini\antigravity\brain\<id-X>\exploration_report_X.md
+  - C:\Users\hjamet\.gemini\antigravity\brain\<id-X>\exploration_report_X.md
   ```
 - **Étanchéité Hors-Plan** : Si un message d'Henri ne comporte pas la mention explicite de build, le Superviseur Racine ne doit en aucun cas instancier le Build Lead. Les requêtes ad-hoc sont exécutées directement hors-plan sans toucher au cycle de vie du build.
 - **Lecture des Artéfacts** : Le Build Lead lit chaque rapport via `view_file` (autorisé sur les fichiers d'artéfacts brain).
 
 ### 2.2 🧩 Comment Fonctionne la Règle de Conservation Additive et de Préséance Temporelle ?
-1. **Conservation Additive Totale des Sections 1 et 2** :
-   - Tout objectif, analyse contextuelle, fichier ciblé ou chantier défini dans la Section 1 et la Section 2 d'`exploration_report_1.md` (ou rapports intermédiaires) reste **100% valide** et est **obligatoirement conservé** s'il n'a pas été explicitement révoqué ou modifié par un rapport ultérieur.
+1. **Consommation Exclusive des Sections 2 des Rapports d'Exploration** :
+   - Le Build Lead extrait et consolide **exclusivement les Sections 2 (Spécifications Techniques, Architecture & Chantiers)** de l'ensemble des rapports `exploration_report_X.md`. La Section 1 (Q/R Scan-First) est destinée à la clarification directe d'Henri et ne doit pas être dupliquée dans le plan d'implémentation.
+   - **Règle Additive Conservatrice** : Tout composant, fichier ciblé ou chantier spécifié en Section 2 d'un rapport antérieur et non expressément contredit reste **100% valide** et est **obligatoirement maintenu** dans le plan final. Zéro omission involontaire lors du passage au Build : rien n'est perdu entre les itérations.
    - Les rapports d'exploration se concentrent sur le delta et s'arrêtent net après la Section 2 : aucune Section 3 n'est requise dans les rapports d'exploration. Le Build Lead structure directement les chantiers et les vérifications dans `implementation_plan.md`.
-   - Zéro omission involontaire lors du passage au Build : rien n'est perdu entre les itérations.
 2. **Préséance Temporelle Strictement Décroissante** :
-   - Si une orientation, un choix d'outil, une architecture ou un paramètre présent dans un rapport ancien est modifié dans un rapport plus récent, **c'est la décision du rapport le plus récent qui fait foi** ($X > X-1 > \dots > 1$).
+   - Si une orientation, un choix technique, une architecture ou un paramètre présent dans un rapport ancien est modifié dans un rapport plus récent, **c'est la décision du rapport le plus récent qui fait foi** ($X > X-1 > \dots > 1$).
    - Le Build Lead résout les conflits en appliquant systématiquement la dernière volonté exprimée par Henri.
 
-### 2.3 📝 Comment Rédiger et Structurer le Plan Final implementation_plan.md ?
-Le Build Lead formalise la synthèse consolidée sous forme d'un artéfact unique `implementation_plan.md` enregistré dans son brain (`<appDataDir>/brain/<build-lead-id>/implementation_plan.md`) via `write_to_file` :
+### 2.3 📋 Comment Structurer le Plan Final au Format Canonique Google AGY pour les Workers ($P=2$) ?
+Le Build Lead formalise la synthèse consolidée sous forme d'un artéfact unique `implementation_plan.md` enregistré dans son brain (`<appDataDir>/brain/<build-lead-id>/implementation_plan.md`) via `write_to_file`.
+
+Le plan `implementation_plan.md` doit respecter scrupuleusement le **format canonique Google AGY** :
+- **Devis d'Ingénierie Exhaustif & Ultra-Détaillé** : Interdiction absolue d'une simple to-do list sommaire. Le document doit être un devis d'ingénierie complet et minutieux (interfaces, variables, algorithmes, flux de données, étapes pas-à-pas, garde-fous), fournissant aux sous-sous-agents ouvriers ($P=2$) une feuille de route autonome pour exécuter leur mission sans improvisation, régression ni ambiguïté.
+- **Organisation par Composants & Balises Univoques** : Structuration par composant technique ou chantier étanche, avec balises explicites (`[NEW]`, `[MODIFY]`, `[DELETE]`) et chemins absolus cliquables.
 
 ```markdown
-# 🏗️ Comment S'Articule le Plan d'Implémentation Consolidé : [Objectif Global] ?
+# [Description de l'Objectif / Goal Description]
 
-## 🎯 Quelle Est la Synthèse de la Fusion Conservatrice ?
-- **Rapports Fusionnés** : Du rapport 1 au rapport X (Sections 1 & 2 consolidées)
-- **Nombre de Chantiers Étanchements Programmés** : N chantiers
+Description concise du problème, du contexte architectural global et des objectifs accomplis par la session.
 
----
+## User Review Required
+Décisions d'arbitrage critiques, points de bascule ou changements majeurs nécessitant une validation formelle d'Henri. Utiliser les callouts GitHub alerts (`> [!IMPORTANT]`, `> [!WARNING]`).
 
-## 🏗️ Chantier 1 : [Nom du Chantier]
-- **Fichiers ciblés** :
-  - `[MODIFY]` [chemin/vers/fichier.ext](file:///chemin/vers/fichier.ext)
-  - `[NEW]` [chemin/vers/nouveau_fichier.ext](file:///chemin/vers/nouveau_fichier.ext)
-- **Spécifications chirurgicales** : [Détails exacts, signatures, interfaces]
-- **Garde-fous** : [Zéro erreur silencieuse, gestion d'erreurs explicite]
+## Proposed Changes
 
----
+### [Nom du Composant / Chantier 1]
+Description détaillée des modifications de ce composant ou chantier étanche.
 
-## 🏗️ Chantier 2 : [Nom du Chantier]
-- **Fichiers ciblés** :
-  - `[MODIFY]` [chemin/vers/autre_fichier.ext](file:///chemin/vers/autre_fichier.ext)
-- **Spécifications chirurgicales** : [...]
+#### [MODIFY] [nom_fichier.ext](file:///chemin/absolu/vers/nom_fichier.ext)
+- **Spécifications chirurgicales** : [Interfaces, signatures, algorithmes, variables, contrats de données]
+- **Étapes d'implémentation** : [Pas-à-pas détaillé pour le worker P=2]
+- **Garde-fous** : [Zéro régression, gestion d'erreurs explicite, typage strict]
+
+#### [NEW] [nouveau_fichier.ext](file:///chemin/absolu/vers/nouveau_fichier.ext)
+- ...
 
 ---
 
-## 🧪 Comment S'Organise le Protocole de Vérification d'Intégration Globale ?
-- **Vérifications automatisées à exécuter par les workers** : [Compilations, linters, tests fonctionnels live, validation des contrats]
-- **Actions manuelles réservées à Henri** : [Contrôles visuels ou applicatifs métier]
+### [Nom du Composant / Chantier 2]
+...
+
+## Verification Plan
+Protocole de vérification d'intégration globale.
+
+### Automated Tests
+- Commandes réelles de tests automatisés, linters, compilations ou analyses statiques (`exit code 0`).
+
+### Manual Verification
+- Contrôles applicatifs, visuels ou métier réservés à Henri.
 ```
 
 ---
@@ -202,7 +212,7 @@ Le Build Lead produit l'artéfact `walkthrough.md` dans son brain (`<appDataDir>
 # 🏗️ Walkthrough d'Implémentation : [Titre du Projet] ?
 
 ## 🎯 Quel Est le Rappel de la Mission & la Synthèse Exécutive ?
-- **Plan Fusionné** : `implementation_plan.md` (consolidation des Sections 1 & 2 des rapports 1 à X)
+- **Plan Fusionné** : `implementation_plan.md` (consolidation des Sections 2 des rapports 1 à X)
 - **Chantiers Réalisés** : [Liste ordonnée des chantiers menés à bien]
 
 ## 🛠️ Quelles Sont les Modifications Chirurgicales Réalisées par Chantier ?

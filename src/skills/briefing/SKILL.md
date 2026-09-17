@@ -39,7 +39,7 @@ The objective of an executive briefing is to provide Henri and his supervisors w
 
 ## What Are the Strict Stylistic Guardrails for Executive Printouts?
 
-Every document generated via `/briefing` must adhere to six mandatory guardrails. Any deviation compromises readability and executive utility.
+Every document generated via `/briefing` must adhere to seven mandatory guardrails. Any deviation compromises readability and executive utility.
 
 ### Why Is English Mandatory Across All Briefings?
 - Academic, research, and high-level steering bodies operate in English as the universal lingua franca.
@@ -68,6 +68,15 @@ Every document generated via `/briefing` must adhere to six mandatory guardrails
   - Inline bold keys followed by concise factual statements: `**[Component]** : [Status / Metric]`.
   - Grouped metrics separated by semicolons rather than multi-level indented bullets.
 - The total document length must strictly fit within 1 to 2 printed pages (approximately 450 to 850 words total).
+
+### Why Are Raw Deliverable Embeds Formally Prohibited?
+- **Prohibition of Raw Deliverable Embeds**: It is FORMALLY FORBIDDEN to paste or dump full deliverable texts (e.g., full draft emails, manuscript sections, complete letters) inside an executive briefing.
+- Briefings only report status, metadata, progress metrics, and actionable bullet updates under the format `**[Key]** : [Value]`.
+- Raw deliverables belong exclusively in their own dedicated notes or drafting files, linked via standard references.
+
+### Why Is Block 1 Restricted to a Single Master Table?
+- **Single Master Table Rule**: Block 1 contains strictly ONE unified master table of active tracks and deadlines.
+- Do not proliferate auxiliary or secondary tables across the document. All active commitments must be consolidated within this single executive overview table.
 
 ---
 
@@ -220,4 +229,6 @@ Before presenting the briefing to Henri, the agent must evaluate the output agai
 | **3-Block Structure** | Block 1 (Table), Block 2 (Dense Bullets), Block 3 (Arbitrages) | Mandatory |
 | **Arbitrage Format** | 2 to 4 closed questions with `**(Recommended)**` flag | Mandatory |
 | **Print Budget** | Fits within 1 to 2 A4 pages (450 to 850 words) | Mandatory |
+| **No Raw Embeds** | Zero full drafts, emails, or manuscript sections pasted | Mandatory |
+| **Single Master Table** | Block 1 contains strictly one unified table; zero auxiliary tables | Mandatory |
 | **Clickable Link** | Absolute `file:///` link in the first line of the chat response | Mandatory |
