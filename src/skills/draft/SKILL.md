@@ -67,6 +67,13 @@ flowchart TD
 
 Le cycle `/draft` s'articule autour du versioning déclaratif CAS pour garantir l'intégrité de la voix d'Henri et la traçabilité intégrale des retouches :
 
+> [!IMPORTANT]
+> **Double Voie d'Exécution (MCP doc-version ou CLI doc_version_cli.py)** :
+> 1. **Voie Principale (MCP)** : Appel direct des outils `doc-version` (`commit_document`, `get_diff_artifact`).
+> 2. **Voie Robuste (CLI Local)** : Si le serveur MCP est inactif, exécuter impérativement le script Python dédié :
+>    `& "C:\Users\hjamet\Documents\code\doc-version-mcp\.venv\Scripts\python.exe" "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts\doc_version_cli.py" diff --target "<fichier>" --explanation "<motif>" --content-file "<fichier_retouche>" --brain-dir "<appDataDir>/brain/<id>" --artifact-name "<nom>.md"`
+> **INTERDICTION STRICTE DE SIMULATION** : Il est formellement interdit de créer l'artéfact à la main avec `write_to_file`.
+
 ```mermaid
 graph TD
     S0["0. Scellement Baseline v0<br/>(commit_document mode=draft)"] --> S1["1. Audit de Surface & Balises <XXX><br/>(Orthographe, Sur-Excusite, Chevrons, Zéro Tiret Cadratin)"]
