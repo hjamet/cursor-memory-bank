@@ -33,6 +33,8 @@ flowchart TD
 >      * Modification chirurgicale **in-situ** du fichier cible via `replace_file_content` (zéro réécriture complète).
 >      * Restitution dans le fil de discussion Antigravity **EXCLUSIVEMENT DU LIEN CLIQUABLE** vers l'artéfact Brain (`file:///<appDataDir>/brain/<conversation-id>/<nom>.md`) en première ligne.
 >      * **INTERDICTION FORMELLE DE COPIE INTÉGRALE** : Ne jamais recopier le texte entier du fichier dans le fil de discussion.
+> - **🌐 Interopérabilité Amont avec /scout (Conception de Plan)** :
+>   Lorsqu'Henri demande de rédiger ou polir un texte au cours d'un workflow `/scout` (ex: avant ou pendant la formalisation d'un plan d'implémentation), l'instrumentation machine de `/draft` s'exécute **immédiatement dès la phase Scout**. L'artéfact `diff_*.md` est généré dans le brain de l'agent actif et offert à l'arbitrage d'Henri dans le rapport d'exploration, garantissant que tout texte humain soit rigoureusement audité et validé avant le passage au Build.
 
 ---
 

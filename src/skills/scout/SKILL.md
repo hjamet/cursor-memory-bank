@@ -22,7 +22,7 @@ description: "Exploration approfondie du contexte, clarification active et produ
 > - **🏗️ SECTION 2 CHANTIERS PAR FICHIER SANS QUESTIONS (FORMAT GOOGLE NATIF)** : Regroupement par module logique (`### Chantier X : ...`), ciblage direct des fichiers (`[NEW]`, `[MODIFY]`, `[DELETE]`) avec rôle et description chirurgicale, et INTERDICTION formelle de formuler des questions dans cette section.
 > - **🛑 SUPPRESSION DÉFINITIVE DE LA SECTION 3 & QUESTIONS EN FIN DE RAPPORT** : Le rapport d'exploration en Mode Implémentation remplace toute Section 3 de tâches utilisateur par la section finale dédiée aux questions et arbitrages soumis à Henri.
 > - **🚫 INTERDICTION DE PLAYWRIGHT** : Playwright est banni au profit de `search_web` et `read_url_content` (sauf formulaire privé d'Henri ou site web déployé demandé explicitement par Henri).
-> - **✍️ PROTOCOLE RÉDACTION PERSONNELLE : PROPOSITION UNIQUE ÉLÉGANTE** : Pour tout texte personnel ou stratégique : formulation d'une proposition UNIQUE, soignée et naturelle en français ; si saisie libre d'un brouillon brut par Henri, transmission chirurgicale à `/draft`.
+> - **✍️ PROTOCOLE RÉDACTION PERSONNELLE & EXCEPTION /DRAFT IMMÉDIATE DÈS LE SCOUT** : Bien que /scout interdise toute modification du codebase de production, **la rédaction, la retouche et le polissage de textes humains sensibles (courriels, lettres, résumés, justifications) via le skill `/draft` constituent une exception formelle autorisée et obligatoire dès la phase Scout**. Le Scout Lead (via un worker P=2) exécute immédiatement l'instrumentation machine officielle (`doc_version_cli.py diff` ou MCP `doc-version`) pour sceller la baseline v0 et générer l'artéfact de diff interactif (`diff_*.md`). Cet artéfact est obligatoirement lié dans `exploration_report_X.md` et dans le chat PENDANT la conception du plan, permettant à Henri d'arbitrer sur pièces la version retouchée avant le Build.
 > - **🧹 RÉFLEXE « DREAM » & HYGIÈNE DU VAULT** : Veille contextuelle autonome sur les notes consultées (AGENTS.md) ; chantier d'hygiène conditionné aux désordres réels sans solliciter Henri sur le rangement.
 > - 🚫 **BANNISSEMENT FORMEL D'ASK_QUESTION DANS /SCOUT** : Il est strictement INTERDIT au Superviseur Racine et aux agents d'utiliser l'outil interactif ask_question pendant un workflow /scout. Toutes les questions ouvertes, variantes techniques et décisions d'arbitrage doivent figurer EXCLUSIVEMENT sous forme textuelle à la fin du rapport d'exploration (exploration_report_X.md) sous la section dédiée ## ❓ Quelles Sont les Questions & Décisions Soumises à l'Arbitrage d'Henri ?. Henri annote l'artéfact ou répond librement dans le chat sans subir de modale bloquante.
 
@@ -110,9 +110,13 @@ Lorsque la mission implique la production ou l'évolution d'un texte personnel, 
 ### 5.1 ❓ Quel Est le Déroulement Méthodologique du Protocole ?
 1. **Exposition des Faits Clés** : Rappel concis des contraintes et objectifs.
 2. **Proposition Unique Soignée en Français** : Formuler UNE SEULE version rédigée avec élégance, clarté et naturel dans un français irréprochable (au lieu de multiplier les variantes superflues).
-3. **Deux Issues Possibles** :
-   - **Adoption directe** : Henri valide la proposition, qui est intégrée immédiatement.
-   - **Brouillon brut saisi par Henri** : Si Henri fournit son propre jet ou des modifications textuelles brutes, ce texte est transmis au skill `/draft` pour un polissage chirurgical préservant scrupuleusement sa voix.
+3. **Deux Issues Possibles & Exécution Immédiate de `/draft`** :
+   - **Adoption directe** : Henri valide la proposition, qui est intégrée dans le plan.
+   - **Brouillon brut ou retouche demandée par Henri** : Dès qu'Henri fournit son texte ou invoque `/draft` sur une section textuelle, le Scout Lead déploie immédiatement un sous-agent P=2 appliquant rigoureusement le skill `/draft` :
+     * Scellement de la baseline v0 via `commit_document(mode="draft")`.
+     * Retouche chirurgicale scalpel avec respect du seuil de rétention $\ge 90\%$.
+     * Exécution machine obligatoire de `doc_version_cli.py diff` pour générer l'artéfact interactif Markdown (`diff_*.md`) dans `<appDataDir>/brain/<scout-lead-id>/`.
+     * **Présentation Immédiate dans l'Exploration** : Le lien cliquable vers `diff_*.md` et le texte poli sont immédiatement intégrés dans `exploration_report_X.md` et restitués dans le chat. Le Build Lead n'aura plus qu'à appliquer in-situ le texte déjà validé.
 
 ---
 
