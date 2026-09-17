@@ -10,7 +10,7 @@ Ce skill documente l'utilisation complète de l'interface en ligne de commande `
 
 ## 📍 Quels Sont les Chemins d'Accès Clés du Système ?
 
-- **Script CLI Python** : `C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py`
+- **Script CLI Python** : `C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py`
 - **Fichier de Données JSON** : `C:\Users\hjamet\Documents\VoiceNotes\.obsidian\plugins\project-memory\data.json`
 - **Racine du Vault Obsidian** : `C:\Users\hjamet\Documents\VoiceNotes`
 - **Plugin Obsidian** : `C:\Users\hjamet\Documents\VoiceNotes\.obsidian\plugins\project-memory\`
@@ -193,7 +193,7 @@ Dès qu'Henri sélectionne son option dans le prompt `ask_question`, Antigravity
 Toutes les commandes s'exécutent via l'interprète Python avec le chemin absolu du script :
 
 ```bash
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" <sous-commande> [options]
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" <sous-commande> [options]
 ```
 
 ---
@@ -204,7 +204,7 @@ Affiche la liste des projets actifs classés par priorité/urgence dynamique.
 
 #### Quelle Est la Syntaxe ?
 ```bash
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" list [--top N | -n N] [--unreviewed] [--reviewed] [--clean-orphans] [--json]
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" list [--top N | -n N] [--unreviewed] [--reviewed] [--clean-orphans] [--json]
 ```
 
 #### Quelles Sont les Colonnes du Tableau CLI ?
@@ -228,10 +228,10 @@ python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_
 #### Quels Sont les Exemples d'Utilisation ?
 ```bash
 # Lister les 5 nouveaux projets à évaluer et les 5 projets révisés les plus urgents
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" list --top 5
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" list --top 5
 
 # Obtenir uniquement les projets révisés au format JSON
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" list --reviewed --json
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" list --reviewed --json
 ```
 
 ---
@@ -242,7 +242,7 @@ Extrait l'ensemble des métriques d'un projet, le détail de ses sessions de tra
 
 #### Quelle Est la Syntaxe ?
 ```bash
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" get "<project_path_or_name>" [--json]
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" get "<project_path_or_name>" [--json]
 ```
 
 #### Quelles Sont les Informations Affichées ?
@@ -257,7 +257,7 @@ python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_
 
 #### Quels Sont les Exemples d'Utilisation ?
 ```bash
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" get "Composer une musique pour orchestre"
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" get "Composer une musique pour orchestre"
 ```
 
 ---
@@ -273,7 +273,7 @@ Enregistre l'évaluation issue du retour recueilli via `ask_question` auprès d'
 
 #### Quelle Est la Syntaxe ?
 ```bash
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" feedback "<project_path_or_name>" <action>
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" feedback "<project_path_or_name>" <action>
 ```
 
 #### Quelles Sont les Actions Disponibles ?
@@ -296,13 +296,13 @@ python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_
 #### Quels Sont les Exemples d'Utilisation ?
 ```bash
 # Espacement de priorité suite au choix "À l'aise"
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" feedback "MonProjet" less-often
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" feedback "MonProjet" less-often
 
 # Maintien de score suite au choix "OK"
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" feedback "MonProjet" ok
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" feedback "MonProjet" ok
 
 # Hausse de priorité suite au choix "Stressé"
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" feedback "MonProjet" more-often
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" feedback "MonProjet" more-often
 ```
 
 ---
@@ -319,7 +319,7 @@ Définit directement le score d'urgence d'un projet ($1.0$ à $100.0$) et compta
 
 #### Quelle Est la Syntaxe ?
 ```bash
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" set-score "<project_path_or_name>" <score_1_100>
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" set-score "<project_path_or_name>" <score_1_100>
 ```
 
 #### Quels Sont les Arguments & Options ?
@@ -329,10 +329,10 @@ python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_
 #### Quels Sont les Exemples d'Utilisation ?
 ```bash
 # Évaluation initiale obligatoire d'un nouveau projet non révisé (0 unreviewed)
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" set-score "Digital Language Learning Platform" 95.0
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" set-score "Digital Language Learning Platform" 95.0
 
 # Réajustement de priorité par l'Agent lors de la veille Dream suite à la détection d'un email critique
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" set-score "TheWebConf 2027" 92.0
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" set-score "TheWebConf 2027" 92.0
 ```
 
 ---
@@ -347,7 +347,7 @@ Recherche une case à cocher non cochée `[ ]` correspondant à un extrait de te
 
 #### Quelle Est la Syntaxe ?
 ```bash
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" complete-task "<project_path_or_name>" "<task_text>"
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" complete-task "<project_path_or_name>" "<task_text>"
 ```
 
 #### Quels Sont les Arguments ?
@@ -356,29 +356,35 @@ python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_
 
 #### Quel Est un Exemple d'Utilisation ?
 ```bash
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" complete-task "Composer une musique" "Rédiger la partition d'ouverture"
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" complete-task "Composer une musique" "Rédiger la partition d'ouverture"
 ```
 
 ---
 
-### 6. Comment Démarrer une Session Pomodoro Active & Pause avec `work` ?
+### 6. Comment Démarrer une Session Pomodoro Active & Pause avec `work` (Support Multi-Sessions Parallèles) ?
 
 Démarre une session de travail Pomodoro sur un projet. La durée de la session est déterminée automatiquement par le paramètre `pomodoroDuration` configuré dans le fichier `data.json` du plugin (durée configurée par Henri dans les réglages Obsidian, actuellement 60 minutes / 1h), à moins qu'une durée spécifique ne soit fournie via l'option `--duration N`.
+
+> [!TIP]
+> **🚀 Support Natif des Sessions Pomodoro Parallèles** :
+> - **Multi-Projets Simultanés** : Il est possible de lancer simultanément plusieurs sessions Pomodoro en arrière-plan pour des projets **distincts** (par exemple en alternant d'un chat ou d'un volet à l'autre sur deux projets en parallèle).
+> - **Prévention des Doublons sur le Même Projet** : Si une session est déjà en cours pour le **même projet exact**, le CLI refuse le doublon et affiche un avertissement clair rappelant le PID existant et la commande pour l'interrompre.
+> - **Architecture Multi-Sessions Rétrocompatible** : Les sessions actives sont stockées dans `.obsidian/plugins/project-memory/.active_pomodoro.json` et synchronisées dans `data.json`. Les deux fichiers exposent à la racine la session principale (`activeSession`) ainsi que le dictionnaire complet `activeSessions: { [rel_path]: sessionData }`, garantissant une interopérabilité descendante absolue avec tous les outils et composants de l'interface Obsidian.
 
 > [!IMPORTANT]
 > **RÈGLE D'OR DU POMODORO PERMANENT (ZÉRO TRAVAIL SANS POMODORO)** :
 > - **Interdiction Formelle** : Il est formellement interdit de travailler sur un projet sans qu'un Pomodoro actif ne soit en cours d'exécution en arrière-plan (`work "<projet>"` ou timer calqué sur `data.json`, 60 min par défaut).
-> - **Lancement Automatique Systématique** : Dès le début effectif de tout travail sur un projet quel qu'il soit (note taggée `#todo`/`#project`, `/teacher`, `/work`, rédaction, apprentissage), exécuter **IMMÉDIATEMENT et sans attendre** la commande CLI en arrière-plan : `python antigravity/scripts-skills/project_memory_cli.py work "<NomDuProjet>"`. Interdiction d'attendre une consigne explicite ou d'imposer une durée arbitraire (la durée configurée dans `data.json`, actuellement 60 min, est appliquée par défaut). Pause obligatoire de 5 min à l'échéance.
+> - **Lancement Automatique Systématique** : Dès le début effectif de tout travail sur un projet quel qu'il soit (note taggée `#todo`/`#project`, `/teacher`, `/work`, rédaction, apprentissage), exécuter **IMMÉDIATEMENT et sans attendre** la commande CLI en arrière-plan : `python _agents/scripts-for-skills/project_memory_cli.py work "<NomDuProjet>"`. Interdiction d'attendre une consigne explicite ou d'imposer une durée arbitraire (la durée configurée dans `data.json`, actuellement 60 min, est appliquée par défaut). Pause obligatoire de 5 min à l'échéance.
 > - **Enchaînement et Relance après Feedback** : Dès qu'un Pomodoro se termine et qu'Henri donne son feedback (`ask_question`) :
 >   - *Même projet* : Si Henri continue sur le même projet ➔ Relance IMMÉDIATE et automatique d'un nouveau Pomodoro (durée par défaut de `data.json`, 60 min) sur ce projet.
->   - *Changement de projet* : Si Henri change de projet ➔ Lancement IMMÉDIAT du Pomodoro sur le nouveau projet.
+>   - *Changement de projet ou Parallélisation* : Si Henri ouvre un chantier parallèle sur un second projet ➔ Lancement IMMÉDIAT du Pomodoro sur le second projet (les deux tourneront de concert en arrière-plan).
 >   - *Transition douce* : En cas de transition douce (finalisation de l'ancien en démarrant le nouveau) ➔ Lancement IMMÉDIAT du Pomodoro sur le NOUVEAU projet, tout en laissant les sous-agents de l'ancien projet terminer leur exécution en arrière-plan.
 > - **Exception Unique** : Seules les questions ponctuelles isolées et hors projet (1 question/réponse triviale de 30 secondes) peuvent se passer de Pomodoro.
 > - **Auto-Suffisance Absolue de la Commande `work` (Zéro Timer Manuel `schedule`)** : La commande CLI `work` exécutée en arrière-plan via `run_command` dort pendant toute la durée nominale (par défaut 60 min). À son échéance, le processus se termine et réveille automatiquement Antigravity via le système push réactif. **Il est FORMELLEMENT INTERDIT d'armer un timer manuel `schedule` en parallèle d'un Pomodoro `work`.**
 
 #### Quelle Est la Syntaxe ?
 ```bash
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" work "<project_path_or_name>" [--duration N]
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" work "<project_path_or_name>" [--duration N]
 ```
 
 #### Quels Sont les Arguments & Options ?
@@ -413,46 +419,86 @@ Lors de la clôture d'une session de travail ou de l'émission d'une recommandat
 
 #### Quels Sont les Exemples d'Utilisation ?
 ```bash
-# Démarrer une session de travail Pomodoro standard avec attente jusqu'à terme
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" work "Digital Language Learning Platform"
+# Démarrer une première session de travail Pomodoro (ex: IA in Business)
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" work "Organisation du cours Artificial Intelligence in Business 2026"
+
+# Démarrer simultanément une seconde session en parallèle (ex: DLLP)
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" work "Digital Language Learning Platform"
 
 # Démarrer une session de 45 minutes avec durée spécifique
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" work "Digital Language Learning Platform" --duration 45
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" work "Digital Language Learning Platform" --duration 45
 ```
 
 ---
 
 ### 7. Comment Interrompre Proprement un Pomodoro avec `stop-work` ?
 
-Permet d'interrompre proprement une session Pomodoro en cours (ou d'enregistrer manuellement une session partielle).
+Permet d'interrompre proprement une session Pomodoro en cours (ou d'enregistrer manuellement une session partielle). Supporte le ciblage précis par projet ou l'interruption groupée.
 
 Lors de l'interruption :
-1. **Calcul du temps réel** : Calcule avec précision le temps écoulé $T_{\text{elapsed}}$ en minutes.
+1. **Calcul du temps réel** : Calcule avec précision le temps écoulé $T_{\text{elapsed}}$ en minutes pour la session arrêtée.
 2. **Statistiques globales** : Incrémente le temps global passé (`globalStats.totalPomodoroTime += T_elapsed`).
 3. **Poids proportionnel** : Calcule le ratio d'accomplissement $r = \frac{T_{\text{elapsed}}}{T_{\text{target}}}$.
 4. **Malus temporel proportionnel** : Enregistre la session dans `recentWorkDates` avec son ratio $r$, appliquant une pénalité de récence proportionnelle au temps réellement travaillé ($k_i = r \times (1.0 - \Delta t / 6.0)$).
 5. **Bonus de rotation** : Amortit proportionnellement le bonus de rotation du projet travaillé ($B_{\text{rot}} \times (1 - r)$) et applique le modèle d'Achille et la Tortue ($\Delta B = \alpha \times (100 - S_{\text{rot}}) \times r$) aux autres projets.
 6. **Validation de jalon** : Si $r \ge 0.5$, valide le jalon synchrone (`lastSatisfiedMilestoneDate = now`).
+7. **Nettoyage sélectif** : Seule la session arrêtée est purgée du registre actif ; les autres sessions en parallèle continuent leur course sans perturbation.
 
 #### Quelle Est la Syntaxe ?
 ```bash
-# Interrompt la session en cours d'exécution
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" stop-work
+# Interrompt une session spécifique ciblée par son nom ou chemin
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" stop-work "<project_path_or_name>"
+
+# Interrompt la session unique (ou la session échue/la plus récente si plusieurs tournent)
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" stop-work
+
+# Interrompt TOUTES les sessions Pomodoro actives simultanément
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" stop-work --all
 
 # Enregistrement manuel d'une session partielle sans daemon actif
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" stop-work "NomDuProjet" --elapsed 12.5 --target-duration 35
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" stop-work "NomDuProjet" --elapsed 12.5 --target-duration 35
 ```
+
+#### Quels Sont les Arguments & Options ?
+- `<project_path_or_name>` *(string, optionnel)* : Projet spécifique à interrompre.
+- `--all`, `-a` *(flag)* : Interrompt simultanément l'ensemble des sessions Pomodoro actives en parallèle.
+- `--elapsed`, `-e` *(float)* : Temps manuellement écoulé en minutes (outrepasse le chronomètre).
+- `--target-duration`, `-d` *(float)* : Durée cible manuelle si enregistrement sans daemon actif.
+- `--json` *(flag)* : Sortie au format JSON structuré.
 
 ---
 
-### 8. Comment Connaître l'État de la Session Pomodoro Active avec `status-work` ?
+### 8. Comment Connaître l'État des Sessions Pomodoro Actives avec `status-work` ?
 
-Affiche la progression en temps réel de la session Pomodoro active (temps écoulé, temps restant, pourcentage, PID du processus, ou état `idle`).
+Affiche la progression en temps réel de la session Pomodoro en cours (temps écoulé, temps restant, pourcentage avec barre visuelle `[██░░]`, PID du processus et commandes d'interruption). Supporte le filtrage strict par projet (isolation cognitive inter-chats) et l'affichage exhaustif de toutes les sessions parallèles via `--all`.
 
 #### Quelle Est la Syntaxe ?
 ```bash
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" status-work [--json]
+# Affiche la session active la plus récente (comportement par défaut, propre et sans dispersion)
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" status-work
+
+# Isole strictement la session du projet cible (indispensable pour un agent travaillant dans un chat dédié)
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" status-work "<project_path_or_name>"
+
+# Affiche l'ensemble exhaustif de toutes les sessions Pomodoro actives en parallèle
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" status-work --all
+
+# Sortie au format JSON structuré
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" status-work [projet] [--all] [--json]
 ```
+
+#### Quels Sont les Arguments & Options ?
+- `<project_path_or_name>` *(string, optionnel)* : Cible un projet précis (titre ou chemin relatif) pour n'afficher **exclusivement** que sa session. Si le projet est actif, affiche sa progression sans mentionner les autres projets. Si aucune session n'est active pour ce projet précis, renvoie un statut `idle` propre. Cet argument est hautement recommandé pour les agents travaillant dans des fenêtres de chat parallèles.
+- `--all`, `-a` *(flag)* : Force l'affichage simultané de toutes les sessions Pomodoro actives en parallèle sur la machine.
+- `--json` *(flag)* : Renvoie l'état sous forme de JSON structuré (conforme à l'isolation demandée ou global si `--all`).
+
+#### Quels Sont les Formats de Sortie ?
+- **Mode Console** :
+  - *Session unique ou ciblée par projet* : Encadré synthétique avec barre de progression, temps écoulé / restant, PID, et commande d'arrêt ciblée.
+  - *Mode global (`--all` ou sessions multiples sans filtre)* : Liste détaillée numérotée pour chaque projet en cours avec sa barre propre, ses métriques individuelles, son PID, et le rappel des commandes d'arrêt sélective ainsi que `--all`.
+- **Mode JSON (`--json`)** :
+  - *Si projet ciblé* : Objet JSON dédié à la session unique du projet demandé.
+  - *Si global / standard* : Objet unifié exposant la session principale à la racine (`pid`, `project`, `elapsed_minutes`, `remaining_minutes`, `progress_percent`) ainsi que le tableau complet `sessions: [...]` pour une interopérabilité descendante totale.
 
 ---
 
@@ -462,7 +508,7 @@ Scanne le coffre pour détecter et purger de `data.json` toutes les entrées orp
 
 #### Quelle Est la Syntaxe ?
 ```bash
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" clean-orphans [--dry-run] [--json]
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" clean-orphans [--dry-run] [--json]
 ```
 
 #### Quels Sont les Arguments & Options ?
@@ -472,10 +518,10 @@ python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_
 #### Quels Sont les Exemples d'Utilisation ?
 ```bash
 # Vérifier les projets orphelins sans altérer data.json
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" clean-orphans --dry-run
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" clean-orphans --dry-run
 
 # Exécuter le nettoyage effectif
-python "C:\Users\hjamet\Documents\VoiceNotes\antigravity\scripts-skills\project_memory_cli.py" clean-orphans
+python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" clean-orphans
 ```
 
 ---
@@ -489,11 +535,11 @@ Lorsque Henri invoque manuellement le skill ou la slash-command `/project-memory
 * **Protocole CLI Direct & Zéro-Latence (< 2s)** :
   1. Vérifier le statut de session de travail active :
      ```bash
-     python "antigravity\scripts-skills\project_memory_cli.py" status-work
+     python "_agents\scripts-for-skills\project_memory_cli.py" status-work
      ```
   2. Extraire immédiatement le tableau de bord des priorités (Top 10 par défaut) :
      ```bash
-     python "antigravity\scripts-skills\project_memory_cli.py" list --reviewed --top 10
+     python "_agents\scripts-for-skills\project_memory_cli.py" list --reviewed --top 10
      ```
 * **Consommation Directe de la Sortie Standard** :
   - Reprendre directement le tableau Markdown généré par la commande `list` dans le message de chat (le script formate déjà nativement les rangs, scores, échéances et jalons).

@@ -6,9 +6,9 @@ description: "Rédaction scientifique, compilation LaTeX, révision chirurgicale
 
 > [!IMPORTANT]
 > **Rôle Canonique : Orchestrateur Technique de Projet d'Article**
-> Ce skill régit l'orchestration technique, le cycle collaboratif comment-driven, la projection AST différentielle (`latex_to_markdown_artifact.py`), la synchronisation Overleaf/GitHub et la gestion automatisée des médias.
-> - **Pour la Charte Stylistique & Anti-IA** : Appliquer impérativement le skill dédié [`scientific-writing-style`](file:///C:/Users/Jamet/Documents/VoiceNotes/antigravity/skills/scientific-writing-style/SKILL.md) (posture de chercheur senior, bannissement absolu des tirets cadratins `—`, suite déterministe `avoid-ai-writing` et barrière bloquante $P(\text{AI}) < 0.10$).
-> - **Pour la Revue Bibliographique Amont** : Mobiliser [`literature-review`](file:///C:/Users/Jamet/Documents/VoiceNotes/antigravity/skills/literature-review/SKILL.md) (synthèse de littérature, fiches médico-légales Zotero et cartographie des baselines).
+> Ce skill régit l'orchestration technique, le cycle collaboratif comment-driven, la projection AST différentielle et le versioning déclaratif via les outils MCP doc-version (`call_mcp_tool`), la synchronisation Overleaf/GitHub et la gestion automatisée des médias.
+> - **Pour la Charte Stylistique & Anti-IA** : Appliquer impérativement le skill dédié [`scientific-writing-style`](file:///C:/Users/hjamet/Documents/VoiceNotes/_agents/skills/scientific-writing-style/SKILL.md) (posture de chercheur senior, bannissement absolu des tirets cadratins `—`, suite déterministe `avoid-ai-writing` et barrière bloquante $P(\text{AI}) < 0.10$).
+> - **Pour la Revue Bibliographique Amont** : Mobiliser [`literature-review`](file:///C:/Users/hjamet/Documents/VoiceNotes/_agents/skills/literature-review/SKILL.md) (synthèse de littérature, fiches médico-légales Zotero et cartographie des baselines).
 
 ---
 
@@ -27,16 +27,17 @@ Toute modification du document académique s'inscrit rigoureusement dans la séq
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│ 1. Réception des Commentaires Utilisateur                              │
+│ 1. Réception des Commentaires Utilisateur & Pull Distant               │
 │    Henri commente un artéfact ou la note miroir Obsidian.             │
+│    Avant pull éventuel : record_git_pull_event(repo_path=...)         │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│ 2. Sécurisation par Commit Précis (--commit)                           │
-│    Validation et commit de l'état actuel pour tous les endroits        │
-│    commentés (ou situés avant un endroit commenté) afin de geler       │
-│    la baseline validée. AUCUN commit sauvage sans commentaire !        │
+│ 2. Sécurisation par Snapshot Baseline (commit_document)                │
+│    Validation et commit de l'état actuel pour geler la baseline :      │
+│    commit_document(target=..., message="...", author="collaborateur")  │
+│    AUCUN commit sauvage sans commentaire !                             │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
                                     ▼
@@ -45,15 +46,16 @@ Toute modification du document académique s'inscrit rigoureusement dans la séq
 │    (1) Fond Brut : Rédaction pure axée sur le fond scientifique.       │
 │    (2) Style & Anti-IA : scientific-writing-style & avoid-ai-writing.  │
 │    (3) Érosion StealthRL : stealth_rewriter.py & audit factualité.     │
-│    (4) Insertion Chirurgicale : replace_file_content exclusif sur .tex.│
+│    (4) Insertion Chirurgicale : replace_file_content exclusif sur .tex │
+│        suivi de commit_document(target=..., author="agent")            │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│ 4. Projection Différentielle Immédiate (--diff "explication")          │
-│    Exécution directe :                                                 │
-│    python antigravity/scripts/latex_to_markdown_artifact.py            │
-│        paper/main.tex --diff "Explication claire des changements"      │
+│ 4. Projection Différentielle Déclarative (get_diff_artifact)           │
+│    Appel MCP :                                                         │
+│    get_diff_artifact(target=..., diff_explanation=..., brain_dir=...) │
+│    En cas d'erreur / rollback : restore_commit(commit_id=..., ...)    │
 │    (Livrable chat : EXCLUSIVEMENT le lien vers l'artéfact Brain).      │
 └────────────────────────────────────────────────────────────────────────┘
 ```
@@ -63,69 +65,160 @@ Toute modification du document académique s'inscrit rigoureusement dans la séq
 #### 1. Réception des Commentaires Utilisateur
 - **Règle d'or** : INTERDICTION FORMELLE de toute réécriture générale ou proactive sans retour préalable.
 - Les retours proviennent soit de sélections contextuelles commentées par Henri dans l'artéfact de session Antigravity, soit d'annotations directes dans la note miroir Obsidian `papers/<nom_papier>.md`.
-
-#### 2. Sécurisation par Commit Précis (`--commit`)
-- **Geler la Baseline Validée** : Avant toute retouche suite à un commentaire, valider l'état actuel :
-  ```bash
-  python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --commit
+- **Synchronisation Amont** : En cas de modifications distantes (Overleaf/Git), consigner l'événement :
+  ```python
+  call_mcp_tool(
+      ServerName="doc-version",
+      ToolName="record_git_pull_event",
+      Arguments={"repo_path": "paper", "autostash": True}
+  )
   ```
-  *(Ou avec `--line <N>` pour valider sélectivement les lignes antérieures au commentaire).*
+
+#### 2. Sécurisation par Commit Précis (`commit_document`)
+- **Geler la Baseline Validée** : Avant toute retouche suite à un commentaire, figer l'état actuel via l'outil MCP déclaratif :
+  ```python
+  call_mcp_tool(
+      ServerName="doc-version",
+      ToolName="commit_document",
+      Arguments={
+          "target": "paper/main.tex",
+          "message": "Snapshot baseline",
+          "author": "collaborateur/henri"
+      }
+  )
+  ```
+  *(Possibilité de spécifier `line_pivot` pour valider sélectivement les lignes antérieures au commentaire).*
 - **Règle Zero-Trust** : Zéro commit sauvage ou anticipé sans commentaire explicite d'Henri.
 
 #### 3. Pipeline Canonique de Rédaction & d'Humanisation en 4 Étapes
 - **(a) Étape 1 (Fond Brut)** :
   * Rédaction pure axée sur le fond, la clarté et l'exactitude scientifique, les chiffres, les formules et la logique argumentative, sans fard stylistique ni artifice.
 - **(b) Étape 2 (Style & Anti-IA Déterministe)** :
-  * Application stricte des consignes de style ([`scientific-writing-style`](file:///C:/Users/Jamet/Documents/VoiceNotes/antigravity/skills/scientific-writing-style/SKILL.md)) et du repo `avoid-ai-writing`.
+  * Application stricte des consignes de style ([`scientific-writing-style`](file:///C:/Users/hjamet/Documents/VoiceNotes/_agents/skills/scientific-writing-style/SKILL.md)) et du repo `avoid-ai-writing`.
   * Le repo `avoid-ai-writing` suffit largement avec les consignes de style, sans ajouter d'autres instructions.
   * Purge impérative des clichés IA et bannissement absolu des tirets cadratins (`—`, `--`).
   * Réalisé par un sous-agent classique standard (aucune utilisation ni mention d'`independent-agents`).
 - **(c) Étape 3 (Érosion Statistique StealthRL & Garde-Fou Fermé)** :
   * Exécution de l'érosion statistique neuronale :
     ```bash
-    python antigravity/scripts/stealth_rewriter.py "<passage>"
+    python _agents/scripts-for-skills/stealth_rewriter.py "<passage>"
     ```
     *(Modèle Qwen3-4B NF4, 90% VRAM, scoring CPU).*
   * **Validation stricte par le sous-agent** : Traque rigoureuse des hallucinations et erreurs factuelles introduites par le modèle Qwen3-4B (chiffres déformés, citations altérées, contresens).
   * **Règle d'or absolue** : **INTERDICTION FORMELLE de reformuler le texte après StealthRL**. Corriger UNIQUEMENT les erreurs factuelles ou les chiffres altérés afin de ne pas restaurer les motifs statistiques détectables par les classifieurs IA.
-- **(d) Étape 4 (Insertion Chirurgicale Bloc par Bloc & Restitution)** :
+- **(d) Étape 4 (Insertion Chirurgicale Bloc par Bloc & Scellement Agent)** :
   * **Édition Strictement Chirurgicale Bloc par Bloc** : Toute modification sur les sources du manuscrit (`paper/main.tex`, `.bib`, `.sty`) DOIT impérativement être effectuée de manière strictement chirurgicale, bloc par bloc et paragraphe par paragraphe.
   * **INTERDICTION ABSOLUE D'ÉCRASEMENT GLOBAL** : Il est FORMELLEMENT et ABSOLUMENT INTERDIT de tout réécrire d'un coup, de régénérer le document complet ou d'écraser le document entier avec `write_to_file` (notamment avec `Overwrite: true`).
   * **Obligation d'Opérer via `replace_file_content`** : L'intégration s'effectue EXCLUSIVEMENT via des appels ciblés à `replace_file_content` (ou application locale de patch) sur la portion exacte à modifier. `write_to_file` est strictement réservé à la création initiale de nouveaux fichiers.
-  * **Projection AST & Restitution Chat** : Exécution immédiate de `python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --diff "<explication>"`. Partager **EXCLUSIVEMENT** le lien cliquable vers l'artéfact Brain (`file:///<appDataDir>/brain/<conversation-id>/<slug>.md`) en tête de réponse. INTERDICTION FORMELLE de partager ou mentionner le lien de la note Obsidian dans le fil de discussion.
+  * **Scellement de la Révision Agent** : Immédiatement après les retouches chirurgicales, sceller le snapshot agent :
+    ```python
+    call_mcp_tool(
+        ServerName="doc-version",
+        ToolName="commit_document",
+        Arguments={
+            "target": "paper/main.tex",
+            "message": "Révision agent",
+            "author": "agent"
+        }
+    )
+    ```
+  * **Projection Différentielle & Restitution Chat** : Déclencher `get_diff_artifact` (voir Étape 4). Partager **EXCLUSIVEMENT** le lien cliquable vers l'artéfact Brain (`file:///<appDataDir>/brain/<conversation-id>/<slug>.md`) en tête de réponse. INTERDICTION FORMELLE de partager ou mentionner le lien de la note Obsidian dans le fil de discussion.
 
-#### 4. Projection Différentielle Immédiate (`--diff "<explication>"`)
+#### 4. Projection Différentielle Immédiate (`get_diff_artifact`)
 - Rafraîchissement immédiat de l'artéfact Brain et de la note miroir avec le diff coloré et le callout d'explication :
-  ```bash
-  python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --diff "Intégration de la calibration N=500k et clarification de la Section 4.2" --brain-dir "<appDataDir>/brain/<conversation-id>"
+  ```python
+  call_mcp_tool(
+      ServerName="doc-version",
+      ToolName="get_diff_artifact",
+      Arguments={
+          "target": "paper/main.tex",
+          "diff_explanation": "Intégration de la calibration N=500k et clarification de la Section 4.2",
+          "brain_dir": "C:/Users/hjamet/.gemini/antigravity/brain/<conversation-id>"
+      }
+  )
   ```
-- **Rappel Obligatoire de Restitution dans le Chat** : Partager **EXCLUSIVEMENT** le lien cliquable vers l'artéfact Brain affiché par le script (`file:///<appDataDir>/brain/<conversation-id>/<slug>.md`) en tête de réponse. INTERDICTION FORMELLE de partager ou mentionner le lien de la note Obsidian dans le fil de discussion.
-- Vérifier que 100% des badges IA affichés dans l'artéfact sont verts ($\le 10\%$).
+- **Restauration en Cas d'Erreur ou Rollback (`restore_commit`)** :
+  Si une révision introduit une régression, restaurer instantanément un commit antérieur sain :
+  ```python
+  call_mcp_tool(
+      ServerName="doc-version",
+      ToolName="restore_commit",
+      Arguments={
+          "commit_id": "<commit_id>",
+          "target": "paper/main.tex"
+      }
+  )
+  ```
+- **Rappel Obligatoire de Restitution dans le Chat** : Partager **EXCLUSIVEMENT** le lien cliquable vers l'artéfact Brain retourné par l'outil (`file:///<appDataDir>/brain/<conversation-id>/<slug>.md`) en tête de réponse. INTERDICTION FORMELLE de partager ou mentionner le lien de la note Obsidian dans le fil de discussion.
+- Vérifier que 100% des badges IA affichés dans l'artéfact sont conformes ($P(\text{AI}) \le 10\%$).
 
 ---
 
-## 2. ⚡ CLI Simplifiée de `latex_to_markdown_artifact.py`
+## 2. ⚡ Outils Déclaratifs du Serveur MCP `doc-version`
 
-Le script universel de projection différentielle dispose d'une interface épurée sans paramètres redondants :
+Le serveur MCP unifié `doc-version` expose une suite complète d'outils déclaratifs remplaçant intégralement les anciennes commandes terminal et scripts CLI :
 
-### 1. Mode Différentiel Direct (Usage Standard)
-```bash
-python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --diff "<explication>"
+### 1. `record_git_pull_event` (Synchronisation Amont & Événement Distant)
+- **Rôle** : Exécuté avant ou après un `git pull` distant pour consigner l'état des collaborateurs distants et configurer l'autostash.
+```python
+call_mcp_tool(
+    ServerName="doc-version",
+    ToolName="record_git_pull_event",
+    Arguments={
+        "repo_path": "paper",
+        "autostash": True
+    }
+)
 ```
-- L'argument passé directement à `--diff` constitue l'explication obligatoire insérée dans le callout de conciliation.
-- Déclenche la comparaison AST contre la baseline Git d'Henri Jamet.
-- Calcule automatiquement les deltas différentiels, surligne les ajouts/suppressions et insère les badges de conformité IA.
 
-### 2. Mode Commit de Baseline
-```bash
-python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --commit
+### 2. `commit_document` (Scellement de Snapshot & Baseline)
+- **Rôle** : Fige une baseline validée ou scelle une révision agent dans le stockage CAS sans interférer avec Git.
+```python
+call_mcp_tool(
+    ServerName="doc-version",
+    ToolName="commit_document",
+    Arguments={
+        "target": "paper/main.tex",
+        "message": "Snapshot baseline",  # ou "Révision agent"
+        "author": "collaborateur/henri"   # ou "agent"
+    }
+)
 ```
-- Valide l'état courant comme nouvelle baseline officielle.
-- Option granulaire : `--line <N>` pour geler et committer uniquement jusqu'à la ligne $N$ de la note miroir.
 
-### 3. Invariant Strict Obligatoire (Interdiction d'Exécution sans Flag)
+### 3. `get_diff_artifact` (Génération d'Artéfact de Diff & Badges Anti-IA)
+- **Rôle** : Calcule le mot-à-mot différentiel multi-sources, compile l'arborescence Tree TOC, insère les badges de conformité IA (< 10%) et génère l'artéfact Markdown dans le brain Antigravity.
+```python
+call_mcp_tool(
+    ServerName="doc-version",
+    ToolName="get_diff_artifact",
+    Arguments={
+        "target": "paper/main.tex",
+        "diff_explanation": "Intégration de la calibration N=500k et clarification de la Section 4.2",
+        "brain_dir": "C:/Users/hjamet/.gemini/antigravity/brain/<conversation-id>"
+    }
+)
+```
+
+### 4. `restore_commit` (Rollback Atomique & Sécurisé)
+- **Rôle** : Restaure instantanément une version antérieure en cas d'erreur ou de régression après création automatique d'un snapshot de secours.
+```python
+call_mcp_tool(
+    ServerName="doc-version",
+    ToolName="restore_commit",
+    Arguments={
+        "commit_id": "<commit_id>",
+        "target": "paper/main.tex"
+    }
+)
+```
+
+### 5. `list_commits` & `prune_commits` (Historique & Maintenance)
+- `list_commits(target="paper/main.tex", limit=10)` : Consultation de l'historique CAS des clichés.
+- `prune_commits(ttl_days=14, max_size_mb=500)` : Maintenance et purge du cache CAS.
+
+### 6. Invariant Strict Obligatoire (Interdiction des Commandes CLI Manuelles)
 > [!CAUTION]
-> **Interdiction Formelle du Mode sans Diff** : Le script refuse catégoriquement de s'exécuter sans `--diff "<explication>"` ou `--commit`. Tout mode par défaut sans comparaison est formellement banni pour préserver l'historique et empêcher l'écrasement silencieux des diffs.
+> **Interdiction Formelle des Commandes Terminal Manuelles** : Aucun agent ne doit invoquer de script de build ou de commande de terminal manuelle pour la gestion des versions ou la génération d'artéfacts. Tout passe obligatoirement par les outils MCP déclaratifs `call_mcp_tool(ServerName="doc-version", ...)`.
 
 ---
 
@@ -153,8 +246,16 @@ Le pipeline gère automatiquement et de manière totalement transparente l'extra
 Le projet académique est un travail d'équipe (Stergios, James, Isna, Yash Raj Shrestha). La préservation de leurs apports est un impératif absolu.
 
 ### Règles d'Or Collaboratives :
-1. **Pull-First & Autostash Systématique** :
-   - À chaque exécution, le script lance un `git pull --rebase --autostash origin <branch>` pour intégrer les modifications distantes sans créer de commit de merge parasite.
+1. **Pull-First & Autostash Systématique (`record_git_pull_event`)** :
+   - À chaque synchronisation avec le dépôt distant, consigner l'événement amont via l'outil MCP déclaratif :
+     ```python
+     call_mcp_tool(
+         ServerName="doc-version",
+         ToolName="record_git_pull_event",
+         Arguments={"repo_path": "paper", "autostash": True}
+     )
+     ```
+   - Intègre les modifications distantes sans créer de commit de merge parasite.
 2. **Préservation Prioritaire des Co-Auteurs** :
    - Les modifications faites par les collaborateurs sont **STRICTEMENT PRIORITAIRES** et ne doivent **JAMAIS être écrasées ni supprimées unilatéralement**.
    - Interdiction formelle du force push (`git push -f`) et de l'arbitrage aveugle (`--ours`).
@@ -164,7 +265,7 @@ Le projet académique est un travail d'équipe (Stergios, James, Isna, Yash Raj 
      1. Inspecter immédiatement les fichiers signalés.
      2. Identifier précisément l'intention de la modification des collaborateurs.
      3. Concilier astucieusement notre texte et le leur afin de préserver les deux apports sans perte d'information.
-     4. Finaliser le rebase (`git add . && git rebase --continue`), puis relancer `--diff`.
+     4. Finaliser le rebase (`git add . && git rebase --continue`), puis régénérer l'artéfact de diff via `get_diff_artifact`.
 4. **Reporting Obligatoire dans le Chat** :
    - Formuler systématiquement à Henri un compte-rendu clair précisant les apports collaborateurs rapatriés et la conciliation effectuée.
 
@@ -177,28 +278,78 @@ Le projet académique est un travail d'équipe (Stergios, James, Isna, Yash Raj 
 
 ---
 
-## 6. 🚫 Pourquoi les Commandes Git Manuelles (CLI) Sont-elles Formellement Interdites ?
+## 6. 🚫 Pourquoi les Commandes Git Manuelles et CLI Sont-elles Formellement Interdites ?
 
 > [!CAUTION]
-> **Interdiction Formelle des Commandes Git Manuelles (CLI)** :
-> Aucun agent ne doit **JAMAIS** taper de commandes `git add`, `git commit` ou `git push` manuelles dans le terminal pour gérer le manuscrit.
-> **Le script `latex_to_markdown_artifact.py` encapsule et orchestre 100% du cycle Git et Overleaf.**
+> **Interdiction Formelle des Commandes Git Manuelles et Scripts CLI** :
+> Aucun agent ne doit **JAMAIS** exécuter de commandes `git add`, `git commit` ou `git push` manuelles dans le terminal, ni lancer de scripts CLI dépréciés.
+> **Le serveur MCP `doc-version` encapsule et orchestre 100% du cycle de versioning, de diff et d'intégration collaborative.**
 
 ### 🛠️ Quel Est le Seul et Unique Workflow Valide pour Gérer le Manuscrit ?
 
-1. **Ancrer la Baseline (Avant Travail)** :
-   ```powershell
-   python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --commit "<commentaire / révision>"
+1. **Enregistrer l'Événement Distant (Avant Pull / Synchronisation)** :
+   ```python
+   call_mcp_tool(
+       ServerName="doc-version",
+       ToolName="record_git_pull_event",
+       Arguments={"repo_path": "paper", "autostash": True}
+   )
    ```
-   *(Le script fige la baseline Git, capture les métadonnées AST et initialise le point de repère).*
 
-2. **Chirurgie Ciblée & Recompilation** :
+2. **Ancrer la Baseline Validée (Avant Travail)** :
+   ```python
+   call_mcp_tool(
+       ServerName="doc-version",
+       ToolName="commit_document",
+       Arguments={
+           "target": "paper/main.tex",
+           "message": "Snapshot baseline",
+           "author": "collaborateur/henri"
+       }
+   )
+   ```
+   *(Fige la baseline dans le stockage CAS, capture l'état AST et initialise le point de repère).*
+
+3. **Chirurgie Ciblée & Recompilation** :
    - Édition strictement chirurgicale bloc par bloc via `replace_file_content` (zéro `write_to_file` global).
    - Vérification `pdflatex` (code 0, 8 pages exactes).
+   - Scellement du snapshot agent :
+     ```python
+     call_mcp_tool(
+         ServerName="doc-version",
+         ToolName="commit_document",
+         Arguments={
+             "target": "paper/main.tex",
+             "message": "Révision agent",
+             "author": "agent"
+         }
+     )
+     ```
 
-3. **Diff & Synchronisation Overleaf (Après Travail)** :
-   ```powershell
-   python antigravity/scripts/latex_to_markdown_artifact.py paper/main.tex --diff "<explication détaillée>"
+4. **Diff Déclaratif & Restitution Brain Prioritaire (Après Travail)** :
+   ```python
+   call_mcp_tool(
+       ServerName="doc-version",
+       ToolName="get_diff_artifact",
+       Arguments={
+           "target": "paper/main.tex",
+           "diff_explanation": "<explication détaillée>",
+           "brain_dir": "C:/Users/hjamet/.gemini/antigravity/brain/<conversation-id>"
+       }
+   )
    ```
-   *(Le script calcule le word-diff, pousse les révisions et régénère l'artéfact Brain prioritaire).*
+   *(Calcule le word-diff multi-sources, compile l'artéfact Brain interactif avec badges Anti-IA).*
+   - Partager **EXCLUSIVEMENT** le lien cliquable vers l'artéfact Brain (`file:///...`) en première ligne de réponse chat.
+
+5. **Rollback d'Urgence en Cas d'Erreur** :
+   ```python
+   call_mcp_tool(
+       ServerName="doc-version",
+       ToolName="restore_commit",
+       Arguments={
+           "commit_id": "<commit_id>",
+           "target": "paper/main.tex"
+       }
+   )
+   ```
 

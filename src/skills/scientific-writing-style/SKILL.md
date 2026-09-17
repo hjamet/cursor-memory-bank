@@ -137,7 +137,7 @@ Issu du corpus canonique [avoid-ai-writing](https://github.com/conorbronsdon/avo
 
 ## 4. ⚙️ La Suite Déterministe `avoid-ai-writing`
 
-Pour tout passage rédigé ou révisé, l'agent ou le sous-agent exécute la suite d'outils Node.js locale située dans `antigravity/tools/avoid-ai-writing/` selon un workflow déterministe en 4 étapes :
+Pour tout passage rédigé ou révisé, l'agent ou le sous-agent exécute la suite d'outils Node.js locale située dans `_agents/scripts-for-skills/avoid-ai-writing/` selon un workflow déterministe en 4 étapes :
 
 ```
 [Texte Source]
@@ -145,7 +145,7 @@ Pour tout passage rédigé ou révisé, l'agent ou le sous-agent exécute la sui
       ▼
 ┌────────────────────────────────────────────────────────────────────────┐
 │ Étape 1 : Diagnostic Initial (Critic)                                  │
-│ node antigravity/tools/avoid-ai-writing/skills/ai-writing-detector/     │
+│ node _agents/scripts-for-skills/avoid-ai-writing/skills/ai-writing-detector/      │
 │      scripts/detect.js --file <draft.tex> --context technical          │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
@@ -159,7 +159,7 @@ Pour tout passage rédigé ou révisé, l'agent ou le sous-agent exécute la sui
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
 │ Étape 3 : Validateur de Préservation Bloquant (Preservation Gate)       │
-│ node antigravity/tools/avoid-ai-writing/detector/validate.js            │
+│ node _agents/scripts-for-skills/avoid-ai-writing/detector/validate.js             │
 │      <before.tex> <after.tex>                                          │
 │ ➔ Rejet bloquant si residual-grew ou corruption maths/code/citations.  │
 └───────────────────────────────────┬────────────────────────────────────┘
@@ -167,7 +167,7 @@ Pour tout passage rédigé ou révisé, l'agent ou le sous-agent exécute la sui
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
 │ Étape 4 : Contrôle de Style Mécanique (Style Linter)                   │
-│ node antigravity/tools/avoid-ai-writing/scripts/check-style.js         │
+│ node _agents/scripts-for-skills/avoid-ai-writing/scripts/check-style.js          │
 │      <after.tex> --config technical                                    │
 │ ➔ Vérifie : 0 tiret cadratin, parenthèses latines strictes.            │
 └────────────────────────────────────────────────────────────────────────┘
@@ -176,20 +176,20 @@ Pour tout passage rédigé ou révisé, l'agent ou le sous-agent exécute la sui
 ### Commandes Précises :
 1. **Diagnostic** :
    ```bash
-   node antigravity/tools/avoid-ai-writing/skills/ai-writing-detector/scripts/detect.js --file <fichier.tex> --context technical
+   node _agents/scripts-for-skills/avoid-ai-writing/skills/ai-writing-detector/scripts/detect.js --file <fichier.tex> --context technical
    ```
    *Extrait les `issues[]`, le score global et les phrases surlignées (`highlight_sentence_for_ai`).*
 
 2. **Validation de Préservation** :
    ```bash
-   node antigravity/tools/avoid-ai-writing/detector/validate.js <fichier_original.tex> <fichier_modifie.tex>
+   node _agents/scripts-for-skills/avoid-ai-writing/detector/validate.js <fichier_original.tex> <fichier_modifie.tex>
    ```
    *Vérifie que les blocs de code, formules mathématiques `$...$`, `\[...\]`, balises de citation `\cite{...}` et références croisées `\ref{...}` sont restés intacts.*
    *Active la barrière anti-régression `residual-grew` : la réécriture est rejetée si elle introduit plus de motifs suspects qu'elle n'en supprime.*
 
 3. **Vérification Mécanique de Style** :
    ```bash
-   node antigravity/tools/avoid-ai-writing/scripts/check-style.js <fichier_modifie.tex> --config technical
+   node _agents/scripts-for-skills/avoid-ai-writing/scripts/check-style.js <fichier_modifie.tex> --config technical
    ```
    *Contrôle que les abréviations latines (*e.g.*, *i.e.*) sont entre parenthèses et qu'aucun tiret cadratin superflu ne subsiste.*
 
@@ -200,11 +200,11 @@ Pour tout passage rédigé ou révisé, l'agent ou le sous-agent exécute la sui
 Le contrôle final de conformité anti-détection repose sur le bagging multi-modèles SOTA GPU `ai_detector.py` (Gemma-4-E2B Binoculars, DeBERTa-v3 RAID, ModernBERT, RoBERTa TMR, XLM-RoBERTa, Stylométrie).
 
 ```bash
-python antigravity/scripts/ai_detector.py --text "Paragraphe à auditer..."
+python _agents/scripts-for-skills/ai_detector.py --text "Paragraphe à auditer..."
 ```
 Ou sur un fichier complet :
 ```bash
-python antigravity/scripts/ai_detector.py paper/main.tex --json
+python _agents/scripts-for-skills/ai_detector.py paper/main.tex --json
 ```
 
 > [!CAUTION]

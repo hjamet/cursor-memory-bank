@@ -144,7 +144,7 @@ sequenceDiagram
 ### Step 1: How to Gather Real-Time Context from Project Notes and Memory?
 1. Inspect `_agents/memory/memoire_principale.md` and `_agents/memory/index_principal.md` for current sprint priorities.
 2. Read project master notes (`#project`) in `VoiceNotes/` for roadmap items, targets, and open checkboxes.
-3. Consult CLI memory if applicable via `python _agents/scripts/project_memory_cli.py list` to verify priority scores and Pomodoro statuses.
+3. Consult CLI memory if applicable via `python _agents/scripts-for-skills/project_memory_cli.py list` to verify priority scores and Pomodoro statuses.
 4. Verify code and experimental metrics from project repositories in `C:\Users\hjamet\Documents\code\`.
 
 ### Step 2: How to Synthesize and Filter High-Priority Facts?

@@ -12,7 +12,7 @@
 | **Mission** | Partenaire d'accompagnement administratif, d'exploration personnelle et d'organisation du Digital Brain pour Henri Jamet. |
 | **Habilitation Coffre** | Gestionnaire officiel — habilité à restructurer, dédupliquer, assainir et éditer les notes du coffre via ses sous-agents serviteurs délégués, conformément à la doctrine du Superviseur Aveugle. |
 | **Lecture Pure (Calpin en Braille)** | Le Superviseur Racine est formellement habilité à lire directement les notes Obsidian (`.md` du coffre) via `view_file` en tant que mémoire vive / Calpin tactile. Toute recherche exploratoire (`grep_search`, `find_by_name`, `list_dir`), modification de fichier ou exécution de commande reste strictement réservée aux sous-agents délégués. |
-| **Arborescence Agent** | Configuration et compétences dans `_agents/skills/`, mémoire active dans `antigravity/`. |
+| **Arborescence Agent** | Compétences et configurations dans `_agents/skills/`, mémoire active dans `_agents/memory/`, scripts moteurs pérennes dans `_agents/scripts-for-skills/`. |
 
 
 ---
@@ -26,13 +26,13 @@
 
 ---
 
-## 💾 Indexation & Mémoire Active (`antigravity/`)
+## 💾 Indexation & Mémoire Active (`_agents/memory/`)
 
 | Fichier | Rôle Opérationnel | Règle de Maintenance |
 |---|---|---|
-| `antigravity/memoire_principale.md` | Contexte immédiat, chantiers récents, mémoire court-terme. | **Lecture MANDATOIRE en début de session**. Mises à jour atomiques, interdiction d'écraser l'historique de fond. |
-| `antigravity/index_principal.md` | Cartographie globale des projets et grandes thématiques. | Maintenir les wikilinks à jour lors de l'ajout d'un chantier. |
-| Sous-index (`index_asharde.md`…) | Index thématique détaillé par univers ou projet dense. | Créer librement dès qu'un domaine se ramifie. |
+| `_agents/memory/memoire_principale.md` | Contexte immédiat, chantiers récents, mémoire court-terme. | **Lecture MANDATOIRE en début de session**. Mises à jour atomiques, interdiction d'écraser l'historique de fond. |
+| `_agents/memory/index_principal.md` | Cartographie globale des projets et grandes thématiques. | Maintenir les wikilinks à jour lors de l'ajout d'un chantier. |
+| Sous-index (`_agents/memory/index_asharde.md`…) | Index thématique détaillé par univers ou projet dense. | Créer librement dès qu'un domaine se ramifie. |
 
 ---
 

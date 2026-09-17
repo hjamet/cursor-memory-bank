@@ -24,6 +24,7 @@ description: "Exploration approfondie du contexte, clarification active et produ
 > - **🚫 INTERDICTION DE PLAYWRIGHT** : Playwright est banni au profit de `search_web` et `read_url_content` (sauf formulaire privé d'Henri ou site web déployé demandé explicitement par Henri).
 > - **✍️ PROTOCOLE RÉDACTION PERSONNELLE : PROPOSITION UNIQUE ÉLÉGANTE** : Pour tout texte personnel ou stratégique : formulation d'une proposition UNIQUE, soignée et naturelle en français ; si saisie libre d'un brouillon brut par Henri, transmission chirurgicale à `/draft`.
 > - **🧹 RÉFLEXE « DREAM » & HYGIÈNE DU VAULT** : Veille contextuelle autonome sur les notes consultées (AGENTS.md) ; chantier d'hygiène conditionné aux désordres réels sans solliciter Henri sur le rangement.
+> - 🚫 **BANNISSEMENT FORMEL D'ASK_QUESTION DANS /SCOUT** : Il est strictement INTERDIT au Superviseur Racine et aux agents d'utiliser l'outil interactif ask_question pendant un workflow /scout. Toutes les questions ouvertes, variantes techniques et décisions d'arbitrage doivent figurer EXCLUSIVEMENT sous forme textuelle à la fin du rapport d'exploration (exploration_report_X.md) sous la section dédiée ## ❓ Quelles Sont les Questions & Décisions Soumises à l'Arbitrage d'Henri ?. Henri annote l'artéfact ou répond librement dans le chat sans subir de modale bloquante.
 
 ---
 
@@ -97,6 +98,8 @@ Invoqué pour concevoir et cadrer des modifications de code ou de notes destiné
 Toutes les questions ouvertes, variantes ou décisions structurantes doivent impérativement être inscrites à la fin de l'artéfact `exploration_report_X.md` sous la section dédiée :
 `## ❓ Quelles Sont les Questions & Décisions Soumises à l'Arbitrage d'Henri ?`.
 Chaque question est une sous-section H3 (`### ❓ N. ... ?`) détaillant les options possibles avec la formule `**(Recommandé)**` en tête de la première option.
+
+- **Bannissement Formel d'`ask_question`** : Ces arbitrages sont soumis EXCLUSIVEMENT de manière purement textuelle dans le rapport d'exploration sans JAMAIS déclencher l'outil interactif `ask_question`. Henri prend connaissance du rapport à son rythme, annote directement l'artéfact ou répond librement dans le chat sans modale bloquante.
 
 ---
 

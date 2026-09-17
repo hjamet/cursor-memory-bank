@@ -12,7 +12,7 @@ Ce skill formalise l'**ADN stylistique d'Henri Jamet**, les **deux règles fonda
 > Le sous-agent principal doit exécuter strictement et automatiquement l'orchestration séquentielle en 4 étapes :
 > 1. **Étape 1 (Fond Brut & Scan Contextuel Spark)** : Scan contextuel des 5 derniers échanges Spark + Premier jet factuel brut (sous-agent classique).
 > 2. **Étape 2 (Style & Anti-IA Déterministe)** : Application de l'ADN stylistique d'Henri et du repo `avoid-ai-writing` (purge des clichés IA, interdiction formelle des tirets cadratins `—`/`--`, concision naturelle). Le repo `avoid-ai-writing` suffit largement avec les consignes de style.
-> 3. **Étape 3 (Érosion Statistique StealthRL & Garde-Fou Fermé)** : Exécution de `python antigravity/scripts/stealth_rewriter.py <passage>` (modèle Qwen3-4B NF4, 90% VRAM, scoring CPU), validation stricte par le sous-agent des faits/chiffres/dates, et interdiction formelle de reformuler après StealthRL.
+> 3. **Étape 3 (Érosion Statistique StealthRL & Garde-Fou Fermé)** : Exécution de `python _agents/scripts-for-skills/stealth_rewriter.py <passage>` (modèle Qwen3-4B NF4, 90% VRAM, scoring CPU), validation stricte par le sous-agent des faits/chiffres/dates, et interdiction formelle de reformuler après StealthRL.
 > 4. **Étape 4 (Prévisualisation Séquentielle & Brouillon Spark Sécurisé)** : Prévisualisation dans l'artéfact Brain sous forme séquentielle (Mail traduit $\to$ Réponse FR), validation explicite par Henri dans le chat, puis création du brouillon Spark (`spark draft create`) sans envoi direct (`spark action send` strictement interdit).
 
 ---
@@ -58,7 +58,7 @@ graph TD
 - **Rôle** : Effondrer l'empreinte statistique neuronale et certifier la factualité.
 - **Exécution** :
   ```bash
-  python antigravity/scripts/stealth_rewriter.py "<texte_poli>"
+  python _agents/scripts-for-skills/stealth_rewriter.py "<texte_poli>"
   ```
   *(Modèle Qwen3-4B NF4, 90% VRAM, scoring CPU).*
 - **Validation stricte par le sous-agent** : Audit sceptique et impitoyable de la factualité. Traque rigoureuse des hallucinations et erreurs factuelles introduites par le modèle Qwen3-4B (dates, créneaux horaires, noms de personnes, liens, engagements).
@@ -120,17 +120,17 @@ graph TD
 
 ```bash
 # Érosion statistique neuronale sur le passage poli par le sous-agent
-python antigravity/scripts/stealth_rewriter.py "<texte_poli>"
+python _agents/scripts-for-skills/stealth_rewriter.py "<texte_poli>"
 ```
 
 ### 2. Étape 3 — Audit Anti-IA & Factualité (`ai_detector.py`)
 
 ```bash
 # 1. Audit complet du texte StealthRL avec heatmap phrase par phrase
-python antigravity/scripts/ai_detector.py "<texte_stealth>"
+python _agents/scripts-for-skills/ai_detector.py "<texte_stealth>"
 
 # 2. Validation au seuil strict de 10% avec rapport JSON pour les sous-agents
-python antigravity/scripts/ai_detector.py "<texte_stealth>" --threshold 0.10 --json
+python _agents/scripts-for-skills/ai_detector.py "<texte_stealth>" --threshold 0.10 --json
 ```
 
 ### 3. Étape 4 — Création Sécurisée du Brouillon Spark Desktop

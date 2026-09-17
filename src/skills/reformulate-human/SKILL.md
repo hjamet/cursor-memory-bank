@@ -4,7 +4,7 @@ description: "Humanisation de texte et certification anti-détection IA par bouc
 ---
 # 🛡️ Comment Reformulate-Human et ai_detector.py Éradiquent-ils les Empreintes IA sans Altérer le Sens ?
 
-Ce skill fournit un **moteur local autonome haute précision** d'humanisation textuelle et d'évaluation anti-détection IA, propulsé par l'outil canonique [ai_detector.py](file:///c:/Users/hjamet/Documents/VoiceNotes/antigravity/scripts/ai_detector.py). Il associe une détection SOTA multi-modèles accélérée par GPU CUDA à un protocole agentique en boucle fermée (Actor-Critic).
+Ce skill fournit un **moteur local autonome haute précision** d'humanisation textuelle et d'évaluation anti-détection IA, propulsé par l'outil canonique [ai_detector.py](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/scripts-for-skills/ai_detector.py). Il associe une détection SOTA multi-modèles accélérée par GPU CUDA à un protocole agentique en boucle fermée (Actor-Critic).
 
 ---
 
@@ -73,25 +73,25 @@ flowchart TD
 
 ```bash
 # 1. Évaluation directe d'une chaîne de texte avec heatmap
-python antigravity/scripts/ai_detector.py "Texte à analyser..."
+python _agents/scripts-for-skills/ai_detector.py "Texte à analyser..."
 
 # 2. Analyse d'un fichier Markdown ou LaTeX (nettoyage automatique du balisage)
-python antigravity/scripts/ai_detector.py notes/mon_article.md
-python antigravity/scripts/ai_detector.py paper/main.tex
+python _agents/scripts-for-skills/ai_detector.py notes/mon_article.md
+python _agents/scripts-for-skills/ai_detector.py paper/main.tex
 
 # 3. Sortie structurée JSON pour les sous-agents (Machine-Readable)
-python antigravity/scripts/ai_detector.py notes/mon_article.md --json
+python _agents/scripts-for-skills/ai_detector.py notes/mon_article.md --json
 
 # 4. Définition explicite du seuil de conformité (défaut : 0.10)
-python antigravity/scripts/ai_detector.py draft.md --threshold 0.10
+python _agents/scripts-for-skills/ai_detector.py draft.md --threshold 0.10
 
 # 5. Mode rapide (Fast inference) ou masquage de la heatmap
-python antigravity/scripts/ai_detector.py draft.md --fast
-python antigravity/scripts/ai_detector.py draft.md --no-heatmap
+python _agents/scripts-for-skills/ai_detector.py draft.md --fast
+python _agents/scripts-for-skills/ai_detector.py draft.md --no-heatmap
 
 # 6. Forcer l'accélération GPU CUDA ou le mode CPU
-python antigravity/scripts/ai_detector.py draft.md --device cuda
-python antigravity/scripts/ai_detector.py draft.md --device cpu
+python _agents/scripts-for-skills/ai_detector.py draft.md --device cuda
+python _agents/scripts-for-skills/ai_detector.py draft.md --device cpu
 ```
 
 ---
