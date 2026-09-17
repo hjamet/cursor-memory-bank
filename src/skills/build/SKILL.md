@@ -21,7 +21,7 @@ description: "Fusion conservatrice des rapports d'exploration et coordination d'
 > - **🚀 PROGRESSION PAS-À-PAS EN TEMPS RÉEL & CONTEXTE GLOBAL ÉTANCHE** : 1 chantier étanche = 1 sous-agent worker feuille ($P=2$, `TypeName: 'self'`, `Workspace: 'inherit'`). Le Build Lead transmet obligatoirement l'accès en lecture au plan d'implémentation global (`implementation_plan.md`) à chaque worker feuille pour qu'il comprenne le cadre architectural d'ensemble de son travail, tout en lui intimant l'ordre formel et strict de se cantonner exclusivement aux fichiers de son chantier assigné. À chaque chantier validé, notification au Superviseur Racine qui actualise le chat : `✅ Chantier N terminé ([Nom]) ➔ 🚀 Lancement du Chantier N+1 ([Nom])`.
 > - **⏱️ HEARTBEAT & TIMER DE LIVENESS MANDATOIRE (5 MINUTES)** : Il est formellement interdit au Build Lead de rester passif en attente indéfinie de ses sous-agents. Dès le déploiement des workers feuilles ($P=2$), le Build Lead arme obligatoirement un timer de liveness via l'outil schedule (DurationSeconds: 300, TimerCondition: "any", Prompt: "Auditer la progression des chantiers et s'assurer qu'aucun worker feuille n'est bloqué ou silencieux"). Si 5 minutes s'écoulent sans notification, le réveil force le Lead à vérifier immédiatement l'état (manage_subagents), débloquer les éventuels silences et réarmer un nouveau cycle jusqu'à complétion.
 > - **🧪 VÉRIFICATIONS AUTONOMES & WALKTHROUGH** : Les workers de chantier ($P=2$) et le worker final d'intégration ($P=2$) mènent les vérifications de compilation, de syntaxe et les validations fonctionnelles en direct de manière autonome pour alimenter `walkthrough.md` sans dépendre d'une grille préalable dans les rapports d'exploration. Le Build Lead publie `walkthrough.md`.
-> - **🧹 CLEAN SLATE POST-BUILD** : Une fois le travail validé, le plan d'implémentation est vidé pour clore proprement la session.
+> - **🔒 SANCTUARISATION & PERSISTANCE IMMUABLE D'IMPLEMENTATION_PLAN.MD** : Le plan d'implémentation consolidé implementation_plan.md est une archive d'ingénierie pérenne et un registre médico-légal d'exécution. Il est FORMELLEMENT INTERDIT de vider, effacer ou tronquer implementation_plan.md en fin de mission. Une fois le build terminé, le plan reste intégralement accessible dans le brain pour audit, relecture et vérification.
 
 ---
 
@@ -237,10 +237,10 @@ Le Build Lead produit l'artéfact `walkthrough.md` dans son brain (`<appDataDir>
 - [Vérifications applicatives ou métier spécifiques nécessitant un contrôle visuel par Henri]
 ```
 
-### 5.3 🧹 Comment S'Opère le Clean Slate Post-Build ?
-Une fois `walkthrough.md` publié et validé :
-- Le Build Lead effectue le Clean Slate : le plan d'implémentation `implementation_plan.md` est vidé ou marqué comme complété pour laisser place nette à la prochaine session.
-- La session repart sur des bases saines, sans dette documentaire ni artéfact obsolète actif.
+### 5.3 🔒 Comment S'Opère le Scellement Post-Build d'Implementation Plan ?
+Une fois walkthrough.md publié et validé :
+- Le Build Lead conserve implementation_plan.md strictement intact et complet dans son répertoire brain.
+- Aucune purge ni remise à blanc n'est tolérée : le document demeure l'archive technique canonique de référence de la session d'implémentation.
 
 ---
 
