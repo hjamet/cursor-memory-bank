@@ -22,6 +22,7 @@
 - **Interdiction des Notes Doublons / Variantes** : Interdiction formelle de créer des notes satellites pour révision ou traduction (`Note EN.md`, `Note v2.md`, `Note Copie.md`).
 - **Édition In-Situ** : Toute traduction, refonte ou adaptation s'opère directement dans la note source (in-place) ou la remplace intégralement.
 - **Responsabilité Active d'Assainissement** : Identifier et purger immédiatement les notes orphelines, fichiers temporaires résiduels ou doublons dans le coffre.
+- **Interdiction des Notes de Travail & Brouillons Éphémères** : Ne JAMAIS générer de notes de réponse temporaires, de scratch ou de brouillons intermédiaires dans le coffre VoiceNotes/. Tous les artéfacts temporaires de session doivent résider exclusivement dans <appDataDir>/brain/... . Le coffre ne conserve que les notes canoniques pérennes, utiles et à jour.
 
 ---
 

@@ -17,8 +17,8 @@ description: "Exploration approfondie du contexte, clarification active et produ
 > - **⏱️ HEARTBEAT & TIMER DE LIVENESS SCOUT (5 MINUTES)** : Lors du déploiement des sous-agents d'exploration ($P=2$), le Scout Lead arme systématiquement un timer schedule de 300s (TimerCondition: "any") pour vérifier activement qu'aucun sous-scout n'est figé ou silencieux.
 > - **📂 ZÉRO COPIE DANS LE BRAIN RACINE** : Le rapport `exploration_report_X.md` est généré exclusivement dans le brain du sous-agent Scout Lead (`<appDataDir>/brain/<scout-lead-id>/exploration_report_X.md`). Le Superviseur Racine le référence par son lien absolu sans jamais le dupliquer dans son propre brain.
 > - **🔀 DEUX MODES OPÉRATIONNELS DÉDIÉS** : Mode Enquête Pure (Section 1 + Section Finale d'Arbitrages sans édition) vs Mode Implémentation (Sections 1 et 2 + Section Finale d'Arbitrages sans Section 3).
-> - **🚫 ATTAQUE DIRECTE SOUS H1 (SUPPRESSION DU GRAPHE 3 COLONNES)** : L'artéfact attaque directement sous H1 sur la Section 1 (Questions Clés & Réponses Oral-First), sans graphe Mermaid à 3 colonnes ni arborescence textuelle redondante.
-> - **🗣️ SECTION 1 ORAL-FIRST AUTHENTIQUE & QUESTIONS D'EXPLORATION PURES (RÈGLE 1:1)** : 1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ... ?`). Chaque réponse est obligatoirement rédigée sous forme d'un paragraphe continu, fluide, naturel et direct (2 à 4 phrases claires), sans aucune puce, comme si quelqu'un répondait posément à l'oral. Zéro méta-section floue et ZÉRO décision en Section 1 : UNIQUEMENT des questions/réponses d'information factuelle dense, nette et chiffrée.
+> - **🚫 ATTAQUE DIRECTE SOUS H1 (SUPPRESSION DU GRAPHE 3 COLONNES)** : L'artéfact attaque directement sous H1 sur la Section 1 (Questions Clés & Réponses Scan-First), sans graphe Mermaid à 3 colonnes ni arborescence textuelle redondante.
+> - **🗣️ SECTION 1 SCAN-FIRST & QUESTIONS D'EXPLORATION PURES (RÈGLE 1:1)** : 1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ... ?`). Chaque réponse est obligatoirement structurée en **liste à puces ou numérotée** (`**[Clé]** : [Valeur brute]`), concise, aérée et percutante, permettant à Henri d'identifier immédiatement les chiffres, dates, citations et décisions sans bloc de texte verbeux.
 > - **🏗️ SECTION 2 CHANTIERS PAR FICHIER SANS QUESTIONS (FORMAT GOOGLE NATIF)** : Regroupement par module logique (`### Chantier X : ...`), ciblage direct des fichiers (`[NEW]`, `[MODIFY]`, `[DELETE]`) avec rôle et description chirurgicale, et INTERDICTION formelle de formuler des questions dans cette section.
 > - **🛑 SUPPRESSION DÉFINITIVE DE LA SECTION 3 & QUESTIONS EN FIN DE RAPPORT** : Le rapport d'exploration en Mode Implémentation remplace toute Section 3 de tâches utilisateur par la section finale dédiée aux questions et arbitrages soumis à Henri.
 > - **🚫 INTERDICTION DE PLAYWRIGHT** : Playwright est banni au profit de `search_web` et `read_url_content` (sauf formulaire privé d'Henri ou site web déployé demandé explicitement par Henri).
@@ -77,7 +77,7 @@ Pendant que le Scout Lead orchestre l'exploration autonome approfondie ($P=1 \to
 ## 2. 🔀 Quels Sont les Deux Modes Opérationnels de /scout ?
 
 ### 2.1 🔍 Mode Enquête Pure
-Invoqué pour répondre à une question complexe, explorer une technologie ou auditer une faisabilité sans édition de code ni de notes. L'artéfact comprend l'Introduction, la Section 1 (Questions & Réponses Oral-First) et la section finale d'arbitrages pour Henri. Zéro Section 2 factice.
+Invoqué pour répondre à une question complexe, explorer une technologie ou auditer une faisabilité sans édition de code ni de notes. L'artéfact comprend l'Introduction, la Section 1 (Questions & Réponses Scan-First) et la section finale d'arbitrages pour Henri. Zéro Section 2 factice.
 
 ### 2.2 🏗️ Mode Implémentation
 Invoqué pour concevoir et cadrer des modifications de code ou de notes destinées à être appliquées par `/build`. L'artéfact comprend l'Introduction, la Section 1, la Section 2 (Chantiers par fichier au format Google sans questions) et la section finale d'arbitrages pour Henri.
@@ -128,19 +128,21 @@ Lorsque la mission implique la production ou l'évolution d'un texte personnel, 
 
 ---
 
-## 🗣️ Section 1 : Quelles Sont les Questions Clés d'Exploration & Réponses Détaillées (Oral-First) ?
+## 🗣️ Section 1 : Quelles Sont les Questions Clés d'Exploration & Réponses Détaillées (Scan-First) ?
 
 > [!IMPORTANT]
-> **Format Oral-First Continu Obligatoire** :
-> 1 question H3 dédiée par élément exploré (règle 1:1 avec les sous-scouts). Chaque réponse est un paragraphe continu, fluide et naturel de 2 à 4 phrases claires, sans aucune puce.
+> **Format Scan-First en Listes à Puces ou Numérotées Obligatoire** :
+> 1 question H3 dédiée par élément exploré (règle 1:1 avec les sous-scouts). Chaque réponse est obligatoirement structurée en **liste à puces ou numérotée** (`**[Clé]** : [Valeur brute]`), concise, aérée et percutante, permettant d'identifier immédiatement les chiffres, dates, citations et décisions sans bloc de texte verbeux.
 
 ### ❓ [Première question d'exploration contextuelle précise issue du cadrage 1:1] ?
 
-[Réponse continue de 2 à 4 phrases sans aucune puce, apportant les faits et métriques brutes.]
+- **[Clé 1]** : [Valeur brute / métrique / citation textuelle exacte]
+- **[Clé 2]** : [Fait technique vérifié / contrainte identifiée]
 
 ### ❓ [Deuxième question d'exploration contextuelle précise issue du cadrage 1:1] ?
 
-[Réponse continue de 2 à 4 phrases sans aucune puce, exposant directement les contraintes techniques constatées.]
+- **[Clé 1]** : [Constat technique direct / paramètre clé]
+- **[Clé 2]** : [Point d'attention / dépendance identifiée]
 
 ---
 
