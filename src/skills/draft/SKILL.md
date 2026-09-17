@@ -8,14 +8,31 @@ Ce skill formalise le **protocole de relecture, correction et retouche chirurgic
 
 ```mermaid
 flowchart TD
-    A["📝 Texte Brut Soumis par Henri"] --> B["🔍 Étape 1 : Audit de Surface & Pièges Diplomatiques"]
-    B --> C["✂️ Étape 2 : Retouche Chirurgicale Minimale (90-95% Intact)"]
-    C --> D["📊 Étape 3 : Diff Explicite & Justifications Point par Point"]
-    D --> E{"🌐 Étape 4 : Traduction Miroir Demandée ?"}
-    E -->|✅ Oui| F["🪞 Traduction Miroir Fidèle sans Broder"]
-    E -->|❌ Non| G["🚀 Restitution Immédiate : Texte Retouché + Diff"]
-    F --> G
+    A["📝 Brouillon Soumis par Henri (Mémoire ou Fichier Disque)"] --> B["🔒 Scellement Baseline v0 (commit_document mode=draft)"]
+    B --> C["🔍 Étape 1 : Audit de Surface, Balises <XXX> & Pièges Diplomatiques"]
+    C --> D["✂️ Étape 2 : Retouche Chirurgicale Scalpel & Contrôle Rétention >= 90%"]
+    D --> E["📊 Étape 3 : Génération d'Artéfact Brain Interactif (get_diff_artifact mode=draft)"]
+    E --> F{"📂 Nature du Support Source ?"}
+    F -->|Mémoire / Chat| G["📋 Restitution Chat : Texte Retouché Copier-Coller + Tableau Balises + Lien Artéfact Brain"]
+    F -->|Fichier Disque| H["💾 Édition In-Situ (replace_file_content) + Lien Exclusif Artéfact Brain dans le Chat"]
 ```
+
+---
+
+## 0. 🎯 Quelle Est la Règle Canonique de Restitution Arbitrée par Henri ?
+
+> [!IMPORTANT]
+> **RÈGLE FORMELLE D'ARBITRAGE DE RESTITUTION D'HENRI :**
+> - **Génération Systématique de l'Artéfact Brain** : Quel que soit le support source, un artéfact interactif Markdown (`file:///<appDataDir>/brain/<conversation-id>/...`) est **TOUJOURS généré** via l'outil MCP `get_diff_artifact(mode="draft")` pour inspecter le word-diff coloré, le contrôle de rétention ($\ge 90\%$) et le tableau de traçabilité complet.
+> - **Bifurcation selon le Support Source** :
+>   1. **Texte Soumis en Mémoire Pure (Chat sans Fichier Disque)** :
+>      * Restitution directe du **texte final poli intégral dans le chat**, immédiatement prêt au copier-coller sans friction.
+>      * Affichage sous le texte du **tableau comparatif de traçabilité** des balises `<XXX>` et modifications chirurgicales.
+>      * Mention du lien cliquable vers l'artéfact Brain interactif en accompagnement pour revue détaillée.
+>   2. **Texte Issu d'un Fichier Existant sur le Disque (Note Obsidian, Document, etc.)** :
+>      * Modification chirurgicale **in-situ** du fichier cible via `replace_file_content` (zéro réécriture complète).
+>      * Restitution dans le fil de discussion Antigravity **EXCLUSIVEMENT DU LIEN CLIQUABLE** vers l'artéfact Brain (`file:///<appDataDir>/brain/<conversation-id>/<nom>.md`) en première ligne.
+>      * **INTERDICTION FORMELLE DE COPIE INTÉGRALE** : Ne jamais recopier le texte entier du fichier dans le fil de discussion.
 
 ---
 
@@ -46,14 +63,50 @@ flowchart TD
 
 ---
 
-## 🧭 Quel Est le Protocole d'Exécution en 4 Étapes ?
+## 🧭 Quel Est le Protocole d'Exécution Instrumenté par doc-version-mcp ?
+
+Le cycle `/draft` s'articule autour du versioning déclaratif CAS pour garantir l'intégrité de la voix d'Henri et la traçabilité intégrale des retouches :
 
 ```mermaid
 graph TD
-    S1["1. Audit de Surface & Détection des Pièges<br/>(Grammaire, Orthographe, Sur-Excusite, Tournures Passives)"] --> S2["2. Retouche Chirurgicale Minimale<br/>(Scalpel ponctuel, Maintien de 90-95% du texte)"]
-    S2 --> S3["3. Diff Explicite & Commenté<br/>(Tableau synthétique ou liste Avant -> Après + Motif)"]
-    S3 --> S4["4. Traduction Miroir Fidèle<br/>(Facultative : calque mot à mot sans extrapolation)"]
+    S0["0. Scellement Baseline v0<br/>(commit_document mode=draft)"] --> S1["1. Audit de Surface & Balises <XXX><br/>(Orthographe, Sur-Excusite, Chevrons, Zéro Tiret Cadratin)"]
+    S1 --> S2["2. Retouche Chirurgicale Minimale<br/>(Scalpel ponctuel, Maintien >= 90-95% du texte)"]
+    S2 --> S3["3. Génération Diff Interactif & Artéfact Brain<br/>(get_diff_artifact mode=draft)"]
+    S3 --> S4["4. Restitution selon le Support Source<br/>(Mémoire : Texte Chat + Diff / Disque : In-Situ + Lien Brain Exclusif)"]
 ```
+
+### 🔒 0. Comment Sceller la Baseline v0 Avant Toute Intervention ?
+
+Avant de commencer la moindre retouche, l'état initial doit être sanctuarisé dans le cache CAS via `commit_document` :
+- **Si le texte est soumis en mémoire (chat)** :
+  ```python
+  call_mcp_tool(
+      ServerName="doc-version",
+      ToolName="commit_document",
+      Arguments={
+          "target": "virtual:draft_message",
+          "content": "<texte_brut_soumis_par_henri>",
+          "message": "Baseline v0 brouillon",
+          "author": "henri",
+          "mode": "draft"
+      }
+  )
+  ```
+- **Si le texte réside dans un fichier existant sur disque** :
+  ```python
+  call_mcp_tool(
+      ServerName="doc-version",
+      ToolName="commit_document",
+      Arguments={
+          "target": "C:/Users/hjamet/Documents/.../fichier.md",
+          "message": "Baseline v0 brouillon",
+          "author": "henri",
+          "mode": "draft"
+      }
+  )
+  ```
+
+---
 
 ### 🔍 1. Comment Réaliser l'Audit de Surface et Détecter les Pièges ?
 
@@ -104,6 +157,7 @@ Toute résolution de balise `<XXX>` fait l'objet d'une ligne dédiée dans le ta
 ### ✂️ 2. Comment Appliquer la Retouche Chirurgicale Minimale (90-95% Intact) ?
 
 - **Opérer au mot près** : Remplacer uniquement le mot fautif ou la locution boiteuse.
+- **Audit de rétention $\ge 90\%$** : Vérifier que le ratio de préservation textuelle respecte rigoureusement le seuil contractuel ($\ge 90\%$, idéalement 95%).
 - **Conserver la syntaxe originelle** : Ne pas inverser les propositions, ne pas scinder un paragraphe fluide en liste à puces, ne pas réorganiser la structure argumentative choisie par Henri.
 - **Préserver le registre relationnel** :
   * Si Henri tutoie : conserver le tutoiement sans basculer au vouvoiement.
@@ -112,18 +166,60 @@ Toute résolution de balise `<XXX>` fait l'objet d'une ligne dédiée dans le ta
 
 ---
 
-### 📊 3. Comment Présenter le Diff Explicite et Commenté ?
+### 📊 3. Comment Générer l'Artéfact de Diff et Restituer les Résultats selon la Règle d'Henri ?
 
-Chaque restitution `/draft` doit obligatoirement comporter deux volets distincts et clairement séparés :
-1. **Le Texte Retouché Intégral** : Prêt à être copié-collé par Henri en une seconde.
-2. **Le Diff Commenté & Justifié** : Tableau ou liste à puces synthétique décrivant chaque modification.
+> [!CAUTION]
+> **🚫 INTERDICTION FORMELLE DE FABRICATION MANUELLE D'ARTÉFACT /DRAFT** :
+> Il est formellement interdit à un agent (racine ou sous-agent) de concevoir, rédiger ou simuler artisanalement un artéfact de diff interactif `/draft` via `write_to_file`.
+> L'artéfact Markdown interactif (`diff_*.md`) doit être **STRICTEMENT ET EXCLUSIVEMENT généré par l'exécution du script d'instrumentation machine officiel** (`doc-version` `get_diff_artifact` ou CLI dédiée). Tout artéfact rédigé à la main est nul, non avenu, et constitue une violation critique du protocole /draft.
 
-#### 📋 Quelle Est la Structure Normée du Tableau de Diff ?
-| Segment Original (Avant) | Segment Corrigé (Après) | Justification Chirurgicale |
-| :--- | :--- | :--- |
-| *« Je vous envoie les document »* | *« Je vous envoie les document**s** »* | Accord en nombre (pluriel). |
-| *« Désolé de vous déranger, est-ce que... »* | *« Est-ce que... »* | Suppression de la sur-excusite / attaque directe. |
-| *« Il faudrait qu'on se voit »* | *« Il faudrait qu'on se voi**e** »* | Subjonctif présent du verbe voir (*qu'on se voie*). |
+#### 🛠️ Génération de l'Artéfact Brain Interactif (`get_diff_artifact`)
+L'artéfact interactif Markdown est généré via le serveur MCP `doc-version` :
+```python
+call_mcp_tool(
+    ServerName="doc-version",
+    ToolName="get_diff_artifact",
+    Arguments={
+        "target": "virtual:draft_message",  # ou chemin absolu du fichier disque
+        "content": "<texte_retouche_complet>",  # requis si virtuel
+        "diff_explanation": "Polissage chirurgical, résolution balises <XXX>, élimination sur-excusite",
+        "mode": "draft",
+        "brain_dir": "C:/Users/hjamet/.gemini/antigravity/brain/<conversation-id>"
+    }
+)
+```
+Cet artéfact contient le word-diff coloré (<ins>/<del>), le calcul du taux de rétention textuelle, et le tableau de traçabilité complet.
+
+#### 📋 Restitution Concrète selon le Support Source :
+
+##### Option A — Le texte source a été soumis directement en mémoire (chat) :
+1. **Texte Retouché Intégral** : Restitué directement dans le chat, prêt à être copié-collé en un clic.
+2. **Tableau Synthétique de Traçabilité des Balises & Retouches** :
+   | Segment Original (Avant) | Segment Corrigé (Après) | Justification Chirurgicale |
+   | :--- | :--- | :--- |
+   | *« Je vous envoie les document »* | *« Je vous envoie les document**s** »* | Accord en nombre (pluriel). |
+   | *« <protocole> »* | *« dispositif d'évaluation continue »* | Terme réglementaire RBHEC art. 10. |
+   | *« Désolé de vous déranger, est-ce que... »* | *« Est-ce que... »* | Suppression sur-excusite / attaque directe. |
+3. **Lien vers l'Artéfact Brain** : Offert pour inspection visuelle approfondie (`[Artéfact Diff Interactif](file:///...)`).
+
+##### Option B — Le texte source provient d'un fichier existant sur le disque :
+1. **Édition Chirurgicale In-Situ** : Application exclusive via `replace_file_content` sur le fichier source.
+2. **Scellement du Commit Agent** :
+   ```python
+   call_mcp_tool(
+       ServerName="doc-version",
+       ToolName="commit_document",
+       Arguments={
+           "target": "C:/Users/hjamet/Documents/.../fichier.md",
+           "message": "Polissage chirurgical draft",
+           "author": "agent",
+           "mode": "draft"
+       }
+   )
+   ```
+3. **Restitution dans le Chat** : **UNIQUEMENT LE LIEN CLIQUABLE VERS L'ARTÉFACT BRAIN** (`file:///<appDataDir>/brain/<conversation-id>/...`) en première ligne.
+   > [!CAUTION]
+   > **Zéro Copie Intégrale dans le Chat** : Interdiction formelle de recopier le fichier dans le fil de discussion quand un fichier source existe sur le disque. Le lien Brain est le seul livrable interactif.
 
 ---
 
@@ -203,12 +299,16 @@ Lorsque Henri demande de traduire un texte (notamment du français vers l'anglai
 
 ## 📋 Quelle Est la Checklist de Contrôle Avant Restitution ?
 
-Avant de renvoyer le résultat à Henri, l'agent audite sa propre production :
-- [ ] **90% à 95% du texte original d'Henri est-il strictement préservé ?**
-- [ ] **Aucune réécriture globale ni restructuration non demandée n'a-t-elle été commise ?**
-- [ ] **Toutes les balises <XXX> sont-elles résolues et justifiées sans invention ?**
-- [ ] **Toutes les fautes réelles d'orthographe, d'accord et de ponctuation sont-elles corrigées ?**
-- [ ] **Les pièges diplomatiques (sur-excusite, culpabilité passive) ont-ils été neutralisés ?**
-- [ ] **Les marqueurs IA (tirets cadratins `—`, formulations boursouflées) sont-ils absents ?**
-- [ ] **Le diff explicite avec justification de chaque micro-changement est-il fourni sous le texte ?**
-- [ ] **En cas de traduction, est-elle rigoureusement miroir sans extrapolation ?**
+Avant de renvoyer le résultat à Henri, l'agent audite rigoureusement sa propre production :
+- [ ] **Scellement CAS préalable** : La baseline v0 a-t-elle été scellée via `commit_document(mode="draft")` avant retouche ?
+- [ ] **Taux de rétention $\ge 90\%$** : Au moins 90% à 95% du texte original d'Henri est-il strictement préservé mot pour mot ?
+- [ ] **Subsidiarité chirurgicale** : Aucune réécriture globale ni restructuration stylistique arbitraire n'a-t-elle été commise ?
+- [ ] **Résolution des balises <XXX>** : Toutes les balises sont-elles résolues (Cas A élégance, Cas B faits vérifiés sans invention) et tracées ?
+- [ ] **Orthographe & syntaxe** : Toutes les coquilles réelles, accords et ponctuations ont-ils été corrigés au scalpel ?
+- [ ] **Pièges diplomatiques** : La sur-excusite et la culpabilité passive ont-elles été neutralisées avec bienveillance ?
+- [ ] **Bannissement des marqueurs IA** : Les tirets cadratins (`—`) ou d'incise (`–`) et le jargon corporatif sont-ils totalement absents ?
+- [ ] **Artéfact Machine Exclusif** : L'artéfact de diff interactif a-t-il été compilé **exclusivement par l'outil d'instrumentation machine** (zéro rédaction manuelle) ?
+- [ ] **Règle de restitution d'Henri respectée** :
+  * Si texte en mémoire ➔ Texte poli prêt au copier-coller + tableau comparatif de traçabilité dans le chat + lien Brain.
+  * Si fichier disque ➔ Modification in-situ via `replace_file_content` + lien cliquable Brain exclusif en 1ère ligne (zéro copie intégrale dans le chat).
+- [ ] **En cas de traduction** : Est-elle rigoureusement miroir sans extrapolation ni connecteurs boursouflés ?
