@@ -12,7 +12,7 @@ description: "Exploration approfondie du contexte, clarification active et produ
 > - **🚫 AUCUNE MODIFICATION DE CODE NI DE CONTENU** : Tu délègues l'exploration, tu synthétises, tu planifies. Tu ne touches à aucun code ni fichier de production pendant cette phase.
 > - **🔢 NUMÉROTATION INCRÉMENTALE (`exploration_report_X.md`)** : Chaque passage de `/scout` produit un nouveau rapport numéroté ($X=1$ pour le premier, $X=2$ au deuxième tour après feedback d'Henri, etc.).
 > - **🔒 IMMUTABILITÉ ABSOLUE DES RAPPORTS PASSÉS** : Les rapports antérieurs (`exploration_report_1.md` à `exploration_report_{X-1}.md`) sont strictement intouchables et verrouillés.
-> - **⚡ RÈGLE DU DELTA PUR** : Le rapport $X$ ne recopie JAMAIS le plan précédent. Si Henri n'a commenté ou contesté qu'un seul élément, le rapport $X$ ne traite QUE de cet élément et des nouveaux éléments introduits.
+> - **⚡ RÈGLE DU DELTA PUR ($X \ge 2$)** : Le rapport $X$ ne recopie JAMAIS le plan précédent. Si Henri n'a commenté qu'un seul élément, le rapport $X$ ne traite QUE de cet élément. **En Section 2 ($X \ge 2$), interdiction formelle de re-lister les chantiers/fichiers inchangés** : seuls les ajouts et modifications directes y figurent. Le merge additif du Build Lead conserve tout le reste.
 > - **🔄 PERSISTANCE DU SCOUT LEAD UNIQUE PAR SESSION (RÉUTILISATION VIA SEND_MESSAGE)** : Pour $X=1$, le Superviseur Racine instancie le Scout Lead (invoke_subagent). Pour toutes les itérations suivantes ($X \ge 2$), il est FORMELLEMENT INTERDIT d'instancier un nouveau Scout Lead : le Superviseur Racine réutilise EXCLUSIVEMENT le Scout Lead existant via send_message. Cette persistance garantit la conservation intégrale du contexte en mémoire vive et bannit toute ré-exploration redondante de faits déjà acquis.
 > - **⏱️ HEARTBEAT & TIMER DE LIVENESS SCOUT (5 MINUTES)** : Lors du déploiement des sous-agents d'exploration ($P=2$), le Scout Lead arme systématiquement un timer schedule de 300s (TimerCondition: "any") pour vérifier activement qu'aucun sous-scout n'est figé ou silencieux.
 > - **📂 ZÉRO COPIE DANS LE BRAIN RACINE** : Le rapport `exploration_report_X.md` est généré exclusivement dans le brain du sous-agent Scout Lead (`<appDataDir>/brain/<scout-lead-id>/exploration_report_X.md`). Le Superviseur Racine le référence par son lien absolu sans jamais le dupliquer dans son propre brain.
@@ -147,7 +147,7 @@ Lorsque la mission implique la production ou l'évolution d'un texte personnel, 
 ## 🏗️ Section 2 : Quelles Sont les Modifications Proposées par Chantier (Format Natif Google) ?
 
 > [!IMPORTANT]
-> Description technique affirmative et directe par module logique. Interdiction formelle de poser des questions dans les titres ou corps de cette section.
+> Description technique affirmative par module logique. Interdiction formelle de poser des questions dans cette section. Pour tout rapport $X \ge 2$ : lister strictement les chantiers modifiés ou créés (zéro re-listing des chantiers acquis).
 
 ### Chantier 1 : [Nom du premier module logique]
 
