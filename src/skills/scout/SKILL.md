@@ -2,53 +2,50 @@
 name: scout
 description: "Exploration approfondie du contexte, clarification active et production de rapports d'exploration incrémentaux et immutables (exploration_report_X.md)."
 ---
-# 🧭 Comment l'Éclaireur Scout Coordonne-t-il l'Exploration et Rédige-t-il les Rapports d'Exploration Numérotés ?
+# 🧭 Comment l'Agent Principal Coordonne-t-il Directement l'Exploration et Rédige-t-il les Rapports d'Exploration Numérotés ?
 
-**Objectif** : Coordonner l'exploration exhaustive du codebase, de la documentation, du coffre (vault) Obsidian, des dépendances et du web pour comprendre un besoin, clarifier en amont toutes les incertitudes via les arbitrages documentés, appliquer le protocole de rédaction personnelle pour les textes sensibles, et produire un **rapport d'exploration incrémental et immutable** numéroté : `exploration_report_X.md` ($X = 1, 2, \dots$).
+**Objectif** : L'Agent Principal coordonne directement l'exploration exhaustive du codebase, de la documentation, du coffre (vault) Obsidian, des dépendances et du web pour comprendre un besoin, formalise les questions clés, déploie les sous-agents d'exploration en direct ($P=1$), clarifie en amont toutes les incertitudes via les arbitrages documentés, applique le protocole de rédaction personnelle pour les textes sensibles, et rédige directement le **rapport d'exploration incrémental et immutable** numéroté dans son brain racine : `<appDataDir>/brain/<conversation-id>/exploration_report_X.md` ($X = 1, 2, \dots$).
 
 > [!IMPORTANT]
 > **PRINCIPES CARDINAUX DU SCOUT :**
-> - **🔭 ÉCLAIREUR CHIRURGICAL ET PLANIFICATEUR STRATÉGIQUE** : Ta mission est de coordonner l'exploration, tout synthétiser et concevoir un rapport d'action et d'exploration d'une précision millimétrique.
+> - **🎯 PILOTAGE DIRECT PAR L'AGENT PRINCIPAL ($P=0$)** : L'Agent Principal définit directement les questions d'exploration, déploie les sous-agents d'exploration en lecture seule ($P=1$) et rédige directement le rapport d'exploration incrémental `exploration_report_X.md`. Zéro Lead intermédiaire, zéro perte de contexte ni téléphone arabe.
 > - **🚫 SANCTUARISATION DU CODE DE PRODUCTION & AUTORISATION DES ARTÉFACTS DE PROTOTYPAGE** :
->   * **Interdiction Stricte** : Tu ne touches à aucun fichier de production dans les dépôts de code (`C:\Users\...\code\...`) ni aux notes pérennes du coffre Obsidian (`VoiceNotes/`) pendant la phase d'exploration.
->   * **Habilitation Explicite de Prototypage** : Tu es FORMELLEMENT AUTORISÉ ET ENCOURAGÉ à exécuter des scripts de calcul temporaires dans `<appDataDir>/brain/<id>/scratch/`, générer des artéfacts de simulation, tracer des figures vectorielles (SVG, Mermaid, HTML) et rédiger des brouillons préliminaires (via `/draft`) au sein de ton brain. Ces artéfacts permettent à Henri de visualiser concrètement les résultats, d'arbitrer sur pièces et de valider la stratégie avant tout build.
+>   * **Interdiction Stricte** : Ni l'Agent Principal ni les sous-scouts ne touchent à aucun fichier de production dans les dépôts de code (`C:\Users\...\code\...`) ni aux notes pérennes du coffre Obsidian (`VoiceNotes/`) pendant la phase d'exploration.
+>   * **Habilitation Explicite de Prototypage** : Les sous-agents d'exploration ($P=1$) sont FORMELLEMENT AUTORISÉS ET ENCOURAGÉS à exécuter des scripts de calcul temporaires dans `<appDataDir>/brain/<conversation-id>/scratch/`, générer des artéfacts de simulation, tracer des figures vectorielles (SVG, Mermaid, HTML) et rédiger des brouillons préliminaires (via `/draft`) au sein du brain. Ces artéfacts permettent à Henri de visualiser concrètement les résultats, d'arbitrer sur pièces et de valider la stratégie avant tout build.
 > - **🔢 NUMÉROTATION INCRÉMENTALE (`exploration_report_X.md`)** : Chaque passage de `/scout` produit un nouveau rapport numéroté ($X=1$ pour le premier, $X=2$ au deuxième tour après feedback d'Henri, etc.).
 > - **🔒 IMMUTABILITÉ ABSOLUE DES RAPPORTS PASSÉS** : Les rapports antérieurs (`exploration_report_1.md` à `exploration_report_{X-1}.md`) sont strictement intouchables et verrouillés.
-> - **⚡ RÈGLE DU DELTA PUR ($X \ge 2$)** : Le rapport $X$ ne recopie JAMAIS le plan précédent. Si Henri n'a commenté qu'un seul élément, le rapport $X$ ne traite QUE de cet élément. **En Section 2 ($X \ge 2$), interdiction formelle de re-lister les chantiers/fichiers inchangés** : seuls les ajouts et modifications directes y figurent. Le merge additif du Build Lead conserve tout le reste.
-> - **🔄 PERSISTANCE DU SCOUT LEAD UNIQUE PAR SESSION (RÉUTILISATION VIA SEND_MESSAGE)** : Pour $X=1$, le Superviseur Racine instancie le Scout Lead (invoke_subagent). Pour toutes les itérations suivantes ($X \ge 2$), il est FORMELLEMENT INTERDIT d'instancier un nouveau Scout Lead : le Superviseur Racine réutilise EXCLUSIVEMENT le Scout Lead existant via send_message. Cette persistance garantit la conservation intégrale du contexte en mémoire vive et bannit toute ré-exploration redondante de faits déjà acquis.
-> - **⏱️ HEARTBEAT & TIMER DE LIVENESS SCOUT (5 MINUTES)** : Lors du déploiement des sous-agents d'exploration ($P=2$), le Scout Lead arme systématiquement un timer schedule de 300s (TimerCondition: "any") pour vérifier activement qu'aucun sous-scout n'est figé ou silencieux.
-> - **📂 ZÉRO COPIE DANS LE BRAIN RACINE** : Le rapport `exploration_report_X.md` est généré exclusivement dans le brain du sous-agent Scout Lead (`<appDataDir>/brain/<scout-lead-id>/exploration_report_X.md`). Le Superviseur Racine le référence par son lien absolu sans jamais le dupliquer dans son propre brain.
-> - **👁️ VISIBILITÉ ROOT DES ARTÉFACTS D'ARBITRAGE** : Dès qu'un artéfact visuel d'aide à la décision (ex: galerie de figures, maquette d'interface, tableau d'arbitrage) est généré à la demande d'Henri dans le cadre du Scout, le Superviseur Racine DOIT s'assurer que cet artéfact est rendu accessible et immédiatement consultable dans l'interface Antigravity (copie ou écriture directe dans `<appDataDir>/brain/<conversation-id>/`).
+> - **⚡ RÈGLE DU DELTA PUR ($X \ge 2$)** : Le rapport $X$ ne recopie JAMAIS le plan précédent. Si Henri n'a commenté qu'un seul élément, le rapport $X$ ne traite QUE de cet élément. **En Section 2 ($X \ge 2$), interdiction formelle de re-lister les chantiers/fichiers inchangés** : seuls les ajouts et modifications directes y figurent. Le merge additif du Build conserve tout le reste.
+> - **🔄 PERSISTANCE DU CONTEXTE RACINE & ITÉRATIONS ($X \ge 2$)** : L'Agent Principal conserve l'intégralité du contexte en mémoire vive tout au long de la session. Lors des itérations ultérieures ($X \ge 2$), il explore directement le delta via de nouveaux sous-agents ciblés ($P=1$) et incrémente son rapport.
+> - **⏱️ HEARTBEAT & TIMER DE LIVENESS (5 MINUTES)** : Dès le déploiement des sous-agents d'exploration ($P=1$), l'Agent Principal arme systématiquement un timer schedule de 300s (`TimerCondition: "any"`, `Prompt: "Vérifier la progression des sous-scouts"`) pour vérifier qu'aucun sous-scout n'est bloqué ou silencieux.
+> - **📂 CENTRALISATION DANS LE BRAIN PRINCIPAL** : Le rapport `exploration_report_X.md` est généré et maintenu directement dans le répertoire brain de la conversation principale (`<appDataDir>/brain/<conversation-id>/exploration_report_X.md`).
+> - **👁️ VISIBILITÉ ROOT DES ARTÉFACTS D'ARBITRAGE** : Dès qu'un artéfact visuel d'aide à la décision (ex: galerie de figures, maquette d'interface, tableau d'arbitrage) est généré à la demande d'Henri dans le cadre du Scout, il est écrit ou copié directement dans `<appDataDir>/brain/<conversation-id>/` pour être immédiatement consultable dans l'interface Antigravity.
 > - **🔀 DEUX MODES OPÉRATIONNELS DÉDIÉS** : Mode Enquête Pure (Section 1 + Section Finale d'Arbitrages sans édition) vs Mode Implémentation (Sections 1 et 2 + Section Finale d'Arbitrages sans Section 3).
 > - **🚫 ATTAQUE DIRECTE SOUS H1 (SUPPRESSION DU GRAPHE 3 COLONNES)** : L'artéfact attaque directement sous H1 sur la Section 1 (Questions Clés & Réponses Scan-First), sans graphe Mermaid à 3 colonnes ni arborescence textuelle redondante.
-> - **🗣️ SECTION 1 SCAN-FIRST & QUESTIONS D'EXPLORATION PURES (RÈGLE 1:1)** : 1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ... ?`). Chaque réponse est obligatoirement structurée en **liste à puces ou numérotée** (`**[Clé]** : [Valeur brute]`), concise, aérée et percutante, permettant à Henri d'identifier immédiatement les chiffres, dates, citations et décisions sans bloc de texte verbeux.
+> - **🗣️ SECTION 1 SCAN-FIRST & QUESTIONS D'EXPLORATION PURES (RÈGLE 1:1)** : 1 question concrète = 1 sous-agent d'exploration $P=1$ en lecture seule = 1 titre H3 dédié (`### ❓ ... ?`). Chaque réponse est obligatoirement structurée en **liste à puces ou numérotée** (`**[Clé]** : [Valeur brute]`), concise, aérée et percutante, permettant à Henri d'identifier immédiatement les chiffres, dates, citations et décisions sans bloc de texte verbeux.
 > - **🏗️ SECTION 2 CHANTIERS PAR FICHIER SANS QUESTIONS (FORMAT GOOGLE NATIF)** : Regroupement par module logique (`### Chantier X : ...`), ciblage direct des fichiers (`[NEW]`, `[MODIFY]`, `[DELETE]`) avec rôle et description chirurgicale, et INTERDICTION formelle de formuler des questions dans cette section.
 > - **🛑 SUPPRESSION DÉFINITIVE DE LA SECTION 3 & QUESTIONS EN FIN DE RAPPORT** : Le rapport d'exploration en Mode Implémentation remplace toute Section 3 de tâches utilisateur par la section finale dédiée aux questions et arbitrages soumis à Henri.
 > - **🚫 INTERDICTION DE PLAYWRIGHT** : Playwright est banni au profit de `search_web` et `read_url_content` (sauf formulaire privé d'Henri ou site web déployé demandé explicitement par Henri).
-> - **✍️ PROTOCOLE RÉDACTION PERSONNELLE & EXCEPTION /DRAFT IMMÉDIATE DÈS LE SCOUT** : Bien que /scout interdise toute modification du codebase de production, **la rédaction, la retouche et le polissage de textes humains sensibles (courriels, lettres, résumés, justifications) via le skill `/draft` constituent une exception formelle autorisée et obligatoire dès la phase Scout**. Le Scout Lead (via un worker P=2) exécute immédiatement l'instrumentation machine officielle (`doc_version_cli.py diff` ou MCP `doc-version`) pour sceller la baseline v0 et générer l'artéfact de diff interactif (`diff_*.md`). Cet artéfact est obligatoirement lié dans `exploration_report_X.md` et dans le chat PENDANT la conception du plan, permettant à Henri d'arbitrer sur pièces la version retouchée avant le Build.
+> - **✍️ PROTOCOLE RÉDACTION PERSONNELLE & EXCEPTION /DRAFT IMMÉDIATE DÈS LE SCOUT** : Bien que /scout interdise toute modification du codebase de production, **la rédaction, la retouche et le polissage de textes humains sensibles (courriels, lettres, résumés, justifications) via le skill `/draft` constituent une exception formelle autorisée et obligatoire dès la phase Scout**. L'Agent Principal déploie immédiatement un sous-agent exécutant direct ($P=1$) appliquant l'instrumentation machine officielle (`doc_version_cli.py diff` ou MCP `doc-version`) pour sceller la baseline v0 et générer l'artéfact de diff interactif (`diff_*.md`). Cet artéfact est obligatoirement lié dans `exploration_report_X.md` et dans le chat PENDANT la conception du plan, permettant à Henri d'arbitrer sur pièces la version retouchée avant le Build.
 > - **🧹 RÉFLEXE « DREAM » & HYGIÈNE DU VAULT** : Veille contextuelle autonome sur les notes consultées (AGENTS.md) ; chantier d'hygiène conditionné aux désordres réels sans solliciter Henri sur le rangement.
-> - 🚫 **BANNISSEMENT FORMEL D'ASK_QUESTION DANS /SCOUT** : Il est strictement INTERDIT au Superviseur Racine et aux agents d'utiliser l'outil interactif ask_question pendant un workflow /scout. Toutes les questions ouvertes, variantes techniques et décisions d'arbitrage doivent figurer EXCLUSIVEMENT sous forme textuelle à la fin du rapport d'exploration (exploration_report_X.md) sous la section dédiée ## ❓ Quelles Sont les Questions & Décisions Soumises à l'Arbitrage d'Henri ?. Henri annote l'artéfact ou répond librement dans le chat sans subir de modale bloquante.
+> - 🚫 **BANNISSEMENT FORMEL D'ASK_QUESTION DANS /SCOUT** : Il est strictement INTERDIT à l'Agent Principal et aux sous-agents d'utiliser l'outil interactif `ask_question` pendant un workflow `/scout`. Toutes les questions ouvertes, variantes techniques et décisions d'arbitrage doivent figurer EXCLUSIVEMENT sous forme textuelle à la fin du rapport d'exploration (`exploration_report_X.md`) sous la section dédiée `## ❓ Quelles Sont les Questions & Décisions Soumises à l'Arbitrage d'Henri ?`. Henri annote l'artéfact ou répond librement dans le chat sans subir de modale bloquante.
 
 ---
 
 ## 1. 🎯 Comment S'Opère le Cadrage & l'Exploration Multi-Clusters ?
 
-> [!CAUTION]
-> **Matrice d'Habilitation Stricte du Scout Lead ($P=1$, Superviseur Aveugle Délégué)** :
-> - **Outils autorisés** : `invoke_subagent` (vers sous-agents d'exploration `self` en stricte lecture seule), `send_message` (vers le parent ou ses sous-agents), `write_to_file` (artefacts brain uniquement), `view_file` (artefacts brain uniquement), `schedule`, MCP `aivc` (`remember`, `recall`, `consult_memory`).
-> - **Outils interdits** : `manage_subagents`, `grep_search`, `list_dir`, `run_command`, `replace_file_content`, `find_by_name`.
-> Le Scout Lead ne lit ni n'édite aucun fichier de code source ou du coffre directement : il **délègue l'intégralité de l'exploration** à des sous-agents d'exploration `self` en stricte lecture seule ($P=2$).
+> [!IMPORTANT]
+> **Matrice d'Habilitation Stricte du Workflow Scout (Architecture Directe à 2 Niveaux)** :
+> - **Agent Principal ($P=0$, Superviseur Aveugle)** : Définit les questions d'exploration, déploie directement les sous-scouts ($P=1$), arme le timer `schedule`, lit les retours bruts et rédige `exploration_report_X.md` dans son brain racine (`<appDataDir>/brain/<conversation-id>/`). Il ne modifie pas le code de production ni les notes du coffre pendant l'exploration.
+> - **Sous-Agents d'Exploration ($P=1$, `TypeName: 'self'`)** : Enquêtent en stricte lecture seule sur le codebase, le vault et le web. Prototypage scratch autorisé dans `<appDataDir>/brain/<conversation-id>/scratch/`. INTERDICTION formelle d'éditer le code de production et INTERDICTION formelle de déployer des sous-agents (exécutants feuilles directs, profondeur maximale $P=1$).
 
-### 1.0 👤 Pourquoi le Superviseur Racine Ne Déploie-t-il Qu'un Seul Scout Lead ?
-- **Un Seul Scout Lead** : À l'invocation de `/scout`, le Superviseur Racine déploie **EXCLUSIVEMENT UN SEUL agent** (`Role: "Scout Lead"`, `TypeName: "self"`).
-- **Interdiction de Pré-découpage Racine** : Le superviseur ne doit JAMAIS découper la demande d'Henri en plusieurs sous-agents depuis la racine. C'est le Scout Lead qui analyse, déploie les sous-agents d'exploration `self` en lecture seule nécessaires et rédige le rapport `exploration_report_X.md`.
-- **Persistance Multi-Itérations ($X \ge 2$)** : Si un Scout Lead est déjà actif dans la session, le Superviseur Racine NE DÉPLOIE PAS de nouvel agent. Il lui transmet directement les nouvelles instructions ou remarques d'Henri via send_message(Recipient: <scout-lead-id>, Message: "..."). Le Scout Lead incrémente son compteur interne, conserve tout son historique, explore uniquement le delta et produit exploration_report_X.md.
+### 1.0 🏛️ Comment l'Agent Principal Pilote-t-il Directement l'Exploration sans Lead Intermédiaire ?
+- **Pilotage Direct ($P=0 \to P=1$)** : À l'invocation de `/scout`, l'Agent Principal analyse le besoin, formalise les questions d'exploration et déploie DIRECTEMENT les sous-agents d'exploration spécialisés ($P=1$). Zéro Scout Lead intermédiaire, éliminant la double délégation et le risque de distorsion de l'information.
+- **Persistance Multi-Itérations ($X \ge 2$)** : L'Agent Principal conserve tout son historique et son contexte en mémoire vive. Lors des itérations suivantes ($X \ge 2$), il n'a pas besoin d'intermédiaire : il évalue les remarques d'Henri, déploie de nouveaux sous-agents ciblés ($P=1$) pour explorer le delta, et rédige directement `exploration_report_X.md`.
 
-### 1.0.1 🛑 Quelle Est la Hiérarchie à 3 Niveaux et la Règle Anti-Récursion ($P=1$) ?
-- **Coordinateur Aveugle ($P=1$) vs Exécutants Directs en Lecture Seule ($P=2$)** : Le Scout Lead ($P=1$) est un coordinateur aveugle qui délègue l'exploration à des sous-agents d'exploration (`TypeName: 'self'`, `Model: 'inherit'`, en stricte lecture seule, niveau $P=2$).
-- **Exécutants Directs sans Re-délégation ($P=2$)** : Ces sous-agents `self` disposent de l'accès complet aux outils de recherche, d'inspection CLI (`run_command` pour `git log`, `git status`, `git diff`, `curl`, `gh`, etc.) et à tous les MCPs. Ils ont l'**interdiction formelle** d'éditer ou de modifier des fichiers de production (`write_to_file`, `replace_file_content` interdits sur le codebase/vault). Ils sont des **exécutants feuilles purs** qui ne re-délèguent pas.
-- **Prototypage & Scratch Local Autorisé ($P=2$)** : Pour répondre aux demandes d'Henri nécessitant des calculs empiriques, estimations de variance ou figures exploratoires, les sous-agents P=2 sont expressément autorisés à créer et exécuter des scripts scratch dans `<appDataDir>/brain/<id>/scratch/` et à consigner leurs résultats sous forme d'artéfacts de visualisation consultables par Henri.
-- **Profondeur Maximale Stricte** : Superviseur Racine ($P=0$) ➔ Scout Lead ($P=1$) ➔ Sous-agents d'exploration ($P=2$). Zéro sous-agent de sous-agent au niveau $P=2$.
+### 1.0.1 🛑 Quelle Est la Règle Anti-Récursion pour les Sous-Agents d'Exploration ($P=1$) ?
+- **Exécutants Feuilles Purs sans Re-délégation ($P=1$)** : Les sous-agents d'exploration sont déployés directement par l'Agent Principal (`TypeName: 'self'`, `Model: 'inherit'`). Ils disposent de l'accès complet aux outils de recherche, d'inspection CLI (`run_command` pour `git log`, `git status`, `git diff`, `curl`, `gh`, etc.) et à tous les MCPs. Ils ont l'**interdiction formelle** d'éditer ou de modifier des fichiers de production (`write_to_file`, `replace_file_content` interdits sur le codebase/vault) et l'**interdiction formelle** de déployer des sous-agents (`invoke_subagent` interdit au niveau $P=1$).
+- **Prototypage & Scratch Local Autorisé ($P=1$)** : Pour répondre aux demandes d'Henri nécessitant des calculs empiriques, estimations de variance ou figures exploratoires, les sous-agents $P=1$ sont expressément autorisés à créer et exécuter des scripts scratch dans `<appDataDir>/brain/<conversation-id>/scratch/` et à consigner leurs résultats sous forme d'artéfacts de visualisation consultables par Henri.
+- **Profondeur Maximale Stricte** : Agent Principal ($P=0$) ➔ Sous-agents d'exploration ($P=1$). Zéro sous-agent de sous-agent au niveau $P=1$.
 
 ### 1.1 🗺️ Quelle Est la Matrice des Clusters d'Exploration ?
 
@@ -61,9 +58,9 @@ description: "Exploration approfondie du contexte, clarification active et produ
 | 🌐 **Web** | Documentation officielle externe, changelogs, issues GitHub publiques, bonnes pratiques SOTA | `search_web`, `read_url_content` |
 
 ### 1.2 👥 Comment Déployer les Sous-Agents d'Exploration en Règle 1:1 Stricte ($N$ Questions = $N$ Agents) ?
-- **Listing Préalable des Questions d'Exploration Pures** : Avant tout déploiement, le Scout Lead formalise la liste exhaustive des questions pures d'exploration contextuelle indispensables pour cadrer le sujet (« De quoi ai-je besoin pour concevoir le plan ? Qu'est-ce que je dois savoir ? »). Règle canonique absolue : **1 question concrète = 1 sous-agent d'exploration `self` en lecture seule = 1 titre H3 dédié (`### ❓ ... ?`)**. Zéro méta-section floue.
-- **Règle 1:1 Inconditionnelle ($N \ge 1$)** : Le Scout Lead déploie **EXACTEMENT 1 sous-agent d'exploration par question** ($N$ questions = $N$ sous-agents `TypeName: 'self'` en stricte lecture seule lancés en parallèle via un unique appel `invoke_subagent`, `Model: "inherit"`).
-- **Armement du Timer de Liveness (300s)** : Dès le déploiement des sous-agents P=2, armer schedule(DurationSeconds: 300, TimerCondition: "any", Prompt: "Vérifier la progression des sous-scouts") pour garantir qu'aucune exploration ne reste bloquée plus de 5 minutes sans supervision active.
+- **Listing Préalable des Questions d'Exploration Pures** : Avant tout déploiement, l'Agent Principal formalise la liste exhaustive des questions pures d'exploration contextuelle indispensables pour cadrer le sujet (« De quoi ai-je besoin pour concevoir le plan ? Qu'est-ce que je dois savoir ? »). Règle canonique absolue : **1 question concrète = 1 sous-agent d'exploration `self` en lecture seule ($P=1$) = 1 titre H3 dédié (`### ❓ ... ?`)**. Zéro méta-section floue.
+- **Règle 1:1 Inconditionnelle ($N \ge 1$)** : L'Agent Principal déploie **EXACTEMENT 1 sous-agent d'exploration par question** ($N$ questions = $N$ sous-agents `TypeName: 'self'` en stricte lecture seule lancés en parallèle via un unique appel `invoke_subagent`, `Model: "inherit"`).
+- **Armement du Timer de Liveness (300s)** : Dès le déploiement des sous-agents $P=1$, l'Agent Principal arme systématiquement `schedule(DurationSeconds: 300, TimerCondition: "any", Prompt: "Vérifier la progression des sous-scouts")` pour garantir qu'aucune exploration ne reste bloquée plus de 5 minutes sans supervision active.
 
 ### 1.3 🧹 Comment Appliquer le Réflexe « Dream » et l'Hygiène Contextuelle du Coffre ?
 Lors de l'exploration du cluster Vault Obsidian et des mémos vocaux (`voicenotes/`) :
@@ -72,16 +69,16 @@ Le sous-agent Vault a pour mandat exclusif la détection d'anomalies (notes orph
 - **Conditionnalité Stricte du Chantier d'Hygiène** : Intégrer conditionnellement un chantier `### Chantier : Hygiène & Organisation du Coffre Obsidian (AGENTS.md)` **UNIQUEMENT** si des anomalies réelles sont constatées sur les notes consultées.
 
 ### 1.4 🤝 Protocole Humain-Machine & Répartition des Tâches Immédiates
-Dès l'initialisation du Scout Lead, le Superviseur Racine prend connaissance de la note maîtresse ou des notes de contexte directes du projet via `view_file` (permis en lecture pure au Superviseur Racine comme "Calpin en Braille").
+Dès le cadrage du Scout, l'Agent Principal prend connaissance de la note maîtresse ou des notes de contexte directes du projet via `view_file` (permis en lecture pure à l'Agent Principal comme "Calpin en Braille").
 
 > [!IMPORTANT]
 > **Armement Automatique du Pomodoro Racine (work)** :
-> Si l'exploration porte sur un projet identifié du coffre (note existante ou créée taggée #todo/#project), le Superviseur Racine DOIT impérativement lancer en tâche de fond la session Pomodoro via l'habilitation dérogatoire :
+> Si l'exploration porte sur un projet identifié du coffre (note existante ou créée taggée #todo/#project), l'Agent Principal DOIT impérativement lancer en tâche de fond la session Pomodoro via l'habilitation dérogatoire :
 > `run_command: python "C:\Users\Jamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" work "<NomDuProjet>"`
 > L'effort de cadrage et de recherche d'architecture fait partie intégrante du travail de projet et doit être horodaté et régulé dans project-memory.
 
-Pendant que le Scout Lead orchestre l'exploration autonome approfondie ($P=1 \to P=2$) :
-1. **Proposition de 2 à 4 Tâches Humaines Ciblées** : Le Superviseur Racine propose immédiatement dans le chat 2 à 4 micro-tâches à haute valeur ajoutée réalisables par Henri en temps masqué (ex: arbitrer une orientation conceptuelle clé, retrouver un identifiant/accès externe, écouter un mémo vocal spécifique, ou valider un prérequis métier).
+Pendant que les sous-agents mènent l'exploration autonome en parallèle ($P=1$) :
+1. **Proposition de 2 à 4 Tâches Humaines Ciblées** : L'Agent Principal propose immédiatement dans le chat 2 à 4 micro-tâches à haute valeur ajoutée réalisables par Henri en temps masqué (ex: arbitrer une orientation conceptuelle clé, retrouver un identifiant/accès externe, écouter un mémo vocal spécifique, ou valider un prérequis métier).
 2. **Parallélisation Humain-Machine** : L'humain et l'équipe d'agents progressent simultanément dès la première minute sans temps mort.
 
 ---
@@ -100,7 +97,7 @@ Invoqué pour concevoir et cadrer des modifications de code ou de notes destiné
 
 - **Verrouillage Historique** : Les rapports passés `exploration_report_1.md` à `exploration_report_{X-1}.md` sont strictement inaltérables.
 - **Règle du Delta Pur** : Le rapport $X$ ne recopie JAMAIS les plans antérieurs et traite EXCLUSIVEMENT les éléments modifiés ou ajoutés.
-- **Stockage Local au Scout Lead** : Écrit dans `<appDataDir>/brain/<scout-lead-id>/exploration_report_X.md`. Zéro copie dans le brain racine.
+- **Stockage Centralisé dans le Brain Racine** : Rédigé directement dans `<appDataDir>/brain/<conversation-id>/exploration_report_X.md`.
 
 ---
 
@@ -123,11 +120,11 @@ Lorsque la mission implique la production ou l'évolution d'un texte personnel, 
 2. **Proposition Unique Soignée en Français** : Formuler UNE SEULE version rédigée avec élégance, clarté et naturel dans un français irréprochable (au lieu de multiplier les variantes superflues).
 3. **Deux Issues Possibles & Exécution Immédiate de `/draft`** :
    - **Adoption directe** : Henri valide la proposition, qui est intégrée dans le plan.
-   - **Brouillon brut ou retouche demandée par Henri** : Dès qu'Henri fournit son texte ou invoque `/draft` sur une section textuelle, le Scout Lead déploie immédiatement un sous-agent P=2 appliquant rigoureusement le skill `/draft` :
+   - **Brouillon brut ou retouche demandée par Henri** : Dès qu'Henri fournit son texte ou invoque `/draft` sur une section textuelle, l'Agent Principal déploie immédiatement un sous-agent exécutant direct ($P=1$) appliquant rigoureusement le skill `/draft` :
      * Scellement de la baseline v0 via `commit_document(mode="draft")`.
      * Retouche chirurgicale scalpel avec respect du seuil de rétention $\ge 90\%$.
-     * Exécution machine obligatoire de `doc_version_cli.py diff` pour générer l'artéfact interactif Markdown (`diff_*.md`) dans `<appDataDir>/brain/<scout-lead-id>/`.
-     * **Présentation Immédiate dans l'Exploration** : Le lien cliquable vers `diff_*.md` et le texte poli sont immédiatement intégrés dans `exploration_report_X.md` et restitués dans le chat. Le Build Lead n'aura plus qu'à appliquer in-situ le texte déjà validé.
+     * Exécution machine obligatoire de `doc_version_cli.py diff` pour générer l'artéfact interactif Markdown (`diff_*.md`) dans `<appDataDir>/brain/<conversation-id>/`.
+     * **Présentation Immédiate dans l'Exploration** : Le lien cliquable vers `diff_*.md` et le texte poli sont immédiatement intégrés dans `exploration_report_X.md` et restitués dans le chat. Le workflow Build n'aura plus qu'à appliquer in-situ le texte déjà validé.
 
 ---
 
@@ -223,7 +220,7 @@ Lorsque la mission implique la production ou l'évolution d'un texte personnel, 
 | ... | ... | ... |
 | **👉 [Rapport d'Exploration X (À relire)](file:///...)** | ⚡ **Dernier Delta** | **[Résumé des ajouts/corrections de cette itération]** |
 
-> 📄 **Prêt pour le Build ?** Cliquez sur **Proceed** ou lancez `/build` pour que le Build Lead fusionne l'ensemble de ces rapports dans le plan d'implémentation final.
+> 📄 **Prêt pour le Build ?** Cliquez sur **Proceed** ou lancez `/build` pour que l'ensemble de ces rapports soit fusionné dans le plan d'implémentation final.
 ```
 
 ### 7.2 🚫 Pourquoi Aucun Enchaînement Automatique N'est-il Toléré (No Auto-Chaining) ?

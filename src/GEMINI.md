@@ -32,7 +32,7 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 | **Édition & Écriture** | `write_to_file`, `replace_file_content` (code, scripts, LaTeX) | ❌ INTERDIT | ✅ MANDATOIRE |
 | **Terminal & Commandes** | `run_command` (inspection, build, git, tests, scripts) | ❌ INTERDIT *(Strictement réservé aux sous-agents serviteurs, sauf dérogation formelle définie dans un SKILL.md de pilotage)* | ✅ MANDATOIRE |
 | **Dialogue & Arbitrage** | `ask_question` | ✅ Exclusif | ❌ INTERDIT |
-| **Déploiement** | `invoke_subagent` | ✅ Exclusif (Lead unique) | ⚠️ Réservé aux Leads uniques ($P=1$) vers sous-agents `self` (exploration $P=2$ en lecture seule ou workers d'exécution $P=2$ par chantier) |
+| **Déploiement** | invoke_subagent | ✅ Exclusif (Agent Principal vers sous-agents $P=1$ d'exploration en lecture seule ou workers d'exécution par chantier) | ❌ INTERDIT aux sous-agents (exécutants directs $P=1$ sans re-délégation) |
 | **Pilotage serviteurs** | `send_message`, `manage_subagents`, `manage_task` | ✅ Exclusif | ❌ INTERDIT |
 | **Mémoire Long-Terme** | MCP `aivc` (`remember`, `recall`…) | ✅ | ✅ |
 | **Agents Indépendants** | `antigravity-agents run --model <m> --prompt "…"` | ✅ Direct (zéro double délégation) | ✅ |
@@ -74,14 +74,14 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 
 | # | Règle Sous-Agent | Spécification |
 |---|---|---|
-| 1 | **$N$ questions = $N$ agents** | Parallélisation stricte pour requêtes standard. En cas de commande de workflow pilotée par un Lead unique ($P=1$), déployer impérativement 1 SEUL sous-agent Lead initial. |
+| 1 | **$N$ questions = $N$ agents** | Parallélisation stricte. L'Agent Principal déploie directement les sous-agents spécialisés en parallèle ($N$ questions = $N$ agents d'exploration pour /scout ; 1 chantier indépendant = 1 worker pour /build). Zéro Lead intermédiaire. |
 | 2 | **1 Tâche = 1 Sous-Agent** | `TypeName: 'self'`, `Model: 'inherit'`. |
 | 3 | **`send_message` = correction** | Exclusivement pour corriger/compléter la tâche active du sous-agent. |
 | 4 | **Nouveau besoin = `invoke`** | Nouveau périmètre = nouveau sous-agent. Zéro recyclage. |
 | 5 | **Briefing complet** | Objectifs, chemins absolus, conventions (sous-agents = zéro contexte initial). |
 | 6 | **Audit de validation** | Vérifier preuves matérielles avant d'accepter un résultat. |
 | 7 | **Workflows / Skills** | Passer le chemin absolu du `SKILL.md` dans le prompt ; consigne n°1 impérative = lire le `SKILL.md` via `view_file` et l'appliquer rigoureusement. |
-| 8 | **Hiérarchie à 3 Niveaux & Parallélisation des Chantiers** | Le Superviseur Racine ($P=0$) déploie TOUJOURS un **Lead Unique** ($P=1$) par commande de workflow. Seuls les Leads ($P=1$) déploient des sous-agents ($P=2$). **Pour le Build Lead, déploiement OBLIGATOIREMENT PARALLÈLE de tous les workers feuilles ($P=2$) dont les chantiers sont indépendants**, réservant le séquençage aux seules dépendances techniques strictes. |
+| 8 | **Architecture Directe à 2 Niveaux & Zéro Perte d'Information** | L'Agent Principal ($P=0$) conçoit directement les plans, rédige les artéfacts de cadrage et de synthèse (exploration_report_X, implementation_plan, walkthrough) et déploie DIRECTEMENT les sous-agents exécutants feuilles ($P=1$). Zéro Lead intermédiaire (suppression du Scout Lead et du Build Lead $P=1$), éliminant la double délégation et le téléphone arabe. Déploiement OBLIGATOIREMENT PARALLÈLE de tous les sous-agents d'exploration et workers feuilles indépendants, avec interdiction de re-délégation au niveau $P=1$. |
 | 9 | **Zéro Polling & Push** | INTERDICTION FORMELLE de boucler avec `manage_subagents(list)` ou `view_file`. Le système AGY est push-based et réveille l'agent automatiquement. |
 | 10 | **Timers commandes longues** | Pour tout `run_command` asynchrone, armer `schedule` avec `TimerCondition: "<task-id>"` (progression : 30s, 1m, 3m, 5m...). Zéro timer sur sous-agents. |
 | 11 | **Transcripts & Logs** | INTERDIT de lire `transcript.jsonl` des sous-agents. Attendre le réveil automatique. |
