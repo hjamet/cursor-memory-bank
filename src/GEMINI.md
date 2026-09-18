@@ -77,7 +77,7 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 | 1 | **$N$ questions = $N$ agents** | Parallélisation stricte. L'Agent Principal déploie directement les sous-agents spécialisés en parallèle ($N$ questions = $N$ agents d'exploration pour /scout ; 1 chantier indépendant = 1 worker pour /build). Zéro Lead intermédiaire. |
 | 2 | **1 Tâche = 1 Sous-Agent** | `TypeName: 'self'`, `Model: 'inherit'`. |
 | 3 | **`send_message` = correction** | Exclusivement pour corriger/compléter la tâche active du sous-agent. |
-| 4 | **Nouveau besoin = `invoke`** | Nouveau périmètre = nouveau sous-agent. Zéro recyclage. |
+| 4 | **Nouveau besoin / chantier = invoke parallèle** | Dès qu'un nouveau chantier, dossier ou besoin émerge (même pendant l'exécution d'un autre worker) : déployer immédiatement un NOUVEAU sous-agent dédié en parallèle (invoke_subagent). INTERDICTION FORMELLE d'enfiler un nouveau chantier dans un sous-agent déjà en cours d'exécution via send_message. |
 | 5 | **Briefing complet** | Objectifs, chemins absolus, conventions (sous-agents = zéro contexte initial). |
 | 6 | **Audit de validation** | Vérifier preuves matérielles avant d'accepter un résultat. |
 | 7 | **Workflows / Skills** | Passer le chemin absolu du `SKILL.md` dans le prompt ; consigne n°1 impérative = lire le `SKILL.md` via `view_file` et l'appliquer rigoureusement. |
