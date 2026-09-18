@@ -73,6 +73,13 @@ Le sous-agent Vault a pour mandat exclusif la détection d'anomalies (notes orph
 
 ### 1.4 🤝 Protocole Humain-Machine & Répartition des Tâches Immédiates
 Dès l'initialisation du Scout Lead, le Superviseur Racine prend connaissance de la note maîtresse ou des notes de contexte directes du projet via `view_file` (permis en lecture pure au Superviseur Racine comme "Calpin en Braille").
+
+> [!IMPORTANT]
+> **Armement Automatique du Pomodoro Racine (work)** :
+> Si l'exploration porte sur un projet identifié du coffre (note existante ou créée taggée #todo/#project), le Superviseur Racine DOIT impérativement lancer en tâche de fond la session Pomodoro via l'habilitation dérogatoire :
+> `run_command: python "C:\Users\Jamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" work "<NomDuProjet>"`
+> L'effort de cadrage et de recherche d'architecture fait partie intégrante du travail de projet et doit être horodaté et régulé dans project-memory.
+
 Pendant que le Scout Lead orchestre l'exploration autonome approfondie ($P=1 \to P=2$) :
 1. **Proposition de 2 à 4 Tâches Humaines Ciblées** : Le Superviseur Racine propose immédiatement dans le chat 2 à 4 micro-tâches à haute valeur ajoutée réalisables par Henri en temps masqué (ex: arbitrer une orientation conceptuelle clé, retrouver un identifiant/accès externe, écouter un mémo vocal spécifique, ou valider un prérequis métier).
 2. **Parallélisation Humain-Machine** : L'humain et l'équipe d'agents progressent simultanément dès la première minute sans temps mort.
