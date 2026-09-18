@@ -405,6 +405,14 @@ python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_
    1. **Pause de 5 Minutes Obligatoire** : Inviter impérativement Henri à faire une pause de récupération de 5 minutes avant toute autre action cognitive.
    2. **Feuille de Route Unifiée par Chantiers & Synchronisation Note Maîtresse** :
       - *Format Unique par Chantiers* : Supprimer toute section narrative redondante de « travail accompli ». Restituer directement la feuille de route sous la forme d'une **checklist unique structurée par chantiers thématiques**, regroupant pour chaque domaine les actions accomplies (`- [x]`) et les tâches restantes (`- [ ]`) par rapport aux échéances/jalons.
+      - *Item Unique 'Build Plan' pour les chantiers non implémentés* : Ne jamais éclater les chantiers techniques futurs en cases à cocher multiples de premier niveau. Les regrouper sous un seul item actif pointant vers l'artéfact pérenne :
+        `- [ ] Build Plan : [[notes/Plan d'Implémentation <Projet>|Plan d'Implémentation Technique Détaillé]]` (dans Obsidian) ou `[Build Plan](file:///...)` (dans le chat).
+      - *Usage Systématique des Menus Dépliants (`<details>`)* :
+        * Encapsuler les tâches accomplies dans un menu dépliant :
+          `<details><summary>✅ Cadrage Validé / Tâches Accomplies</summary>\n\n- [x] ...\n</details>`
+        * Encapsuler la checklist détaillée des chantiers de build dans un menu dépliant :
+          `<details><summary>🏗️ Détail des Chantiers Techniques de Build</summary>\n\n- [ ] **Chantier 1** ...\n</details>`
+        * Seul l'item principal `- [ ] Build Plan` et les tâches opérationnelles immédiates restent visibles dépliés.
       - *Synchronisation en Tête de Note Maîtresse* : Mettre systématiquement à jour la section Roadmap et To-Do list (`[ ]`/`[x]`) tout en haut de la note maîtresse (immédiatement sous l'en-tête visuel et l'index, conformément à `AGENTS.md`).
       - *Obligation Systématique d'Archivage des Plans Non Builts* : Si des rapports d'exploration (`exploration_report_X.md`) ou un plan non encore exécuté par `/build` existent, Antigravity **DOIT OBLIGATOIREMENT** créer ou mettre à jour la note pérenne de cadrage : `notes/Plan d'Implémentation [NomProjet].md` dans le coffre, et la lier immédiatement dans l'index des sous-notes tout en haut de la note maîtresse (sous H1).
    3. **Interrogation Interactive du Ressenti (`ask_question`) & Feedback** : Antigravity évalue lucidement la progression selon les signaux réels (marge calendaire, fluidité d'exécution, complexité), détermine l'option conseillée avec le suffixe ` (Recommandé)`, et interroge **obligatoirement** Henri via `ask_question` avec les 4 options canoniques dans l'ordre strict : `["À l'aise", "OK", "Stressé", "Terminé"]`. Suite à sa réponse, Antigravity exécute `feedback "<projet>" <action>`.
