@@ -129,8 +129,12 @@ Lorsque la mission implique la production ou l'évolution d'un texte personnel, 
 ### 6.1 📐 Quelle Est la Structure Canonique en Mode Implémentation ?
 
 > [!IMPORTANT]
-> **Attaque Directe sous H1 sur la Section 1 (Zéro Graphe Mermaid 3 Colonnes)** :
-> L'artéfact ne contient aucun diagramme Mermaid à 3 colonnes en en-tête. Après une brève synthèse sous H1, il attaque directement la Section 1.
+> **INVARIANTS FORMELS DE STRUCTURE STRICTE DU RAPPORT SCOUT** :
+> 1. **Titre H1 obligatoirement interrogatif** : Se termine impérativement par un point d'interrogation `?`.
+> 2. **Attaque directe sous H1 sur la Section 1 (Zéro Graphe Mermaid 3 Colonnes)** : L'artéfact ne contient aucun diagramme Mermaid à 3 colonnes en en-tête. Après une brève synthèse sous H1, il attaque directement sur `## 🗣️ Section 1 : Quelles Sont les Questions Clés d'Exploration & Réponses Détaillées (Scan-First) ?`.
+> 3. **100% des sous-sections de la Section 1 en titres H3 interrogatifs formels** : `### ❓ [Question concrète] ?`. Interdiction absolue de substituer des intitulés comme "Pilier X", "Axe Y" ou "Synthèse".
+> 4. **Section 2 obligatoire au format Google natif** : `## 🏗️ Section 2 : Quelles Sont les Modifications Proposées par Chantier (Format Natif Google) ?`. Description technique affirmative par module logique (`### Chantier X : ...`), ciblage direct `[NEW]`, `[MODIFY]`, `[DELETE]`, zéro question dans cette section.
+> 5. **Section finale obligatoire pour l'arbitrage** : `## ❓ Quelles Sont les Questions & Décisions Soumises à l'Arbitrage d'Henri ?` avec des titres H3 `### ❓ N. ... ?`. Bannissement formel de l'outil interactif `ask_question` dans /scout (arbitrage purement textuel).
 
 ```markdown
 # 🧭 Rapport d'Exploration X : [Titre du Projet / Objectif] ?

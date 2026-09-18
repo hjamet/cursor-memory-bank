@@ -2414,7 +2414,21 @@ def cmd_complete_task(args, data):
     with open(abs_path, "w", encoding="utf-8") as f:
         f.write("\n".join(new_lines) + "\n")
 
-    apply_feedback(target, "ok", worked=True, data=data)
+
+def print_end_of_session_reminders(title: str, is_interrupted: bool = False):
+    header = f"🛑 CONSIGNES ANTIGRAVITY POST-INTERRUPTION ('{title}') :" if is_interrupted else f"🤖 CONSIGNES ANTIGRAVITY POST-POMODORO ('{title}') :"
+    print(flush=True)
+    print("============================================================", flush=True)
+    print(header, flush=True)
+    print("============================================================", flush=True)
+    print("👉 Se référer impérativement au skill `_agents/skills/project-memory/SKILL.md` et le relire via `view_file` pour le protocole complet de fin de session.", flush=True)
+    print(flush=True)
+    print(f"1. ☕ Pause de récupération (5 min) obligatoire : Informer Henri que la session sur '{title}' est terminée et l'encourager explicitement à prendre 5 minutes de pause (s'étirer, s'hydrater, quitter l'écran).", flush=True)
+    print(f"2. 💾 Sauvegarde pérenne des plans d'implémentation : Sauvegarder les plans d'implémentation actuels (s'ils n'ont pas été appliqués via `/build`) sous forme de note pérenne dans Obsidian (`notes/Plan d'Implémentation {title}.md`) et lier immédiatement dans l'index sous H1 de la note maîtresse.", flush=True)
+    print("3. 📋 Feuille de route & To-Dos en tête : Mettre à jour la feuille de route et les To-Dos (`[ ]` / `[x]`) en tête de la note maîtresse (AGENTS.md).", flush=True)
+    print("4. 💬 Interrogation interactive du ressenti via `ask_question` : Sonder Henri avec les 4 options canoniques : [\"À l'aise\", \"OK\", \"Stressé\", \"Terminé\"] (avec le suffixe '(Recommandé)' selon l'analyse de marge résiduelle), puis appliquer `feedback <projet> <action>`.", flush=True)
+    print("5. 🛑 Clôture définitive de session : INTERDICTION formelle et absolue de relancer automatiquement un Pomodoro et ne plus proposer de projets suivants. Clôturer proprement la conversation.", flush=True)
+    print("============================================================", flush=True)
 
 
 def cmd_work(args, data):
@@ -2578,10 +2592,7 @@ def cmd_work(args, data):
             malus_disp = f"-{target_p['temporal_malus']:.2f} (K={target_p['k_factor']:.2f})" if target_p.get('temporal_malus') else "0.00"
             print(f"🎯 Score effectif mis à jour : {eff_disp} [Malus temporel proportionnel : {malus_disp}]", flush=True)
         print("============================================================", flush=True)
-        print(flush=True)
-        print("🤖 CONSIGNES ANTIGRAVITY POST-INTERRUPTION :", flush=True)
-        print(f"1. 📝 Bilan intermédiaire : Faire le point sur ce qui a été accompli durant ces {effective_elapsed_min:.1f} minutes de travail sur '{title}'.", flush=True)
-        print(f"2. 💬 Feedback optionnel : Si la session était significative, sonder Henri via `ask_question` pour ajuster le score via `feedback`.", flush=True)
+        print_end_of_session_reminders(title, is_interrupted=True)
         return
 
     # Fin normale
@@ -2597,23 +2608,7 @@ def cmd_work(args, data):
     print("============================================================", flush=True)
     print(f"🎉 POMODORO TERMINÉ pour '{title}' ({duration_min:.0f} min)", flush=True)
     print("============================================================", flush=True)
-    print(flush=True)
-    print("🤖 CONSIGNES ANTIGRAVITY POST-POMODORO (Handover Agent) :", flush=True)
-    print("👉 Consulter obligatoirement le skill `_agents/skills/project-memory/SKILL.md` pour structurer le rapport de fin de session et la clôture.", flush=True)
-    print(flush=True)
-    print(f"1. ☕ Pause & Récupération (5 min) : Informer Henri que la session sur '{title}' est terminée et l'encourager explicitement à prendre une pause de 5 minutes (s'étirer, s'hydrater, quitter l'écran).", flush=True)
-    print("2. 📋 Feuille de Route Unifiée par Chantiers :", flush=True)
-    print("   - Restituer le statut sous forme de checklist unique par domaines/chantiers (- [x] accompli, - [ ] reste à faire par rapport aux échéances/jalons).", flush=True)
-    print("   - Supprimer toute section narrative redondante de travail accompli.", flush=True)
-    print("   - Synchroniser la Roadmap en tête de note maîtresse (AGENTS.md) avec toutes les cases [ ] et [x].", flush=True)
-    print("   - Si des plans d'implémentation ou rapports d'exploration n'ont pas été appliqués via /build, les sauvegarder en note pérenne dans Obsidian.", flush=True)
-    print("3. 💬 Évaluation Interactive via ask_question (Stress & Confort) :", flush=True)
-    print("   - Déclencher l'outil interactif ask_question pour sonder le ressenti d'Henri avec les 4 options canoniques : [\"À l'aise\", \"OK\", \"Stressé\", \"Terminé\"], en apposant le suffixe '(Recommandé)' selon l'analyse de marge résiduelle.", flush=True)
-    print("   - Enregistrer le choix final en exécutant : `python _agents/scripts-for-skills/project_memory_cli.py feedback <projet> --action <action>`.", flush=True)
-    print("4. 🛑 Clôture Définitive de Session :", flush=True)
-    print("   - INTERDICTION formelle et absolue de relancer automatiquement un Pomodoro.", flush=True)
-    print("   - Ne plus proposer de projets suivants.", flush=True)
-    print("   - Clôturer proprement la conversation.", flush=True)
+    print_end_of_session_reminders(title, is_interrupted=False)
 
 
 def _stop_and_record_session(s: Dict[str, Any], manual_elapsed: Optional[float], data: Dict[str, Any], as_json: bool = False, print_output: bool = True) -> Dict[str, Any]:
@@ -2690,6 +2685,7 @@ def _stop_and_record_session(s: Dict[str, Any], manual_elapsed: Optional[float],
             malus_disp = f"-{target_p['temporal_malus']:.2f} (K={target_p['k_factor']:.2f})" if target_p.get('temporal_malus') else "0.00"
             print(f"🎯 Score effectif mis à jour : {eff_disp} [Malus temporel proportionnel : {malus_disp}]", flush=True)
         print("============================================================", flush=True)
+        print_end_of_session_reminders(title, is_interrupted=True)
 
     return out
 
@@ -2732,6 +2728,7 @@ def cmd_stop_work(args, data):
                 }, indent=2, ensure_ascii=False))
             else:
                 print(f"🛑 Session de travail manuelle enregistrée pour '{title}' ({elapsed_min:.2f} min / {target_min:.0f} min, ratio r={ratio:.2%}).")
+                print_end_of_session_reminders(title, is_interrupted=True)
             return
 
         if as_json:
@@ -2797,6 +2794,7 @@ def cmd_stop_work(args, data):
                     print(json.dumps({"status": "stopped", "manual": True, "project": title, "rel_path": rel_path, "elapsed_minutes": elapsed_min, "target_minutes": target_min, "ratio": ratio}, indent=2, ensure_ascii=False))
                 else:
                     print(f"🛑 Session de travail manuelle enregistrée pour '{title}' ({elapsed_min:.2f} min / {target_min:.0f} min, ratio r={ratio:.2%}).")
+                    print_end_of_session_reminders(title, is_interrupted=True)
                 return
 
             print(f"⚠️ Aucune session Pomodoro active trouvée pour '{target_project}'.", flush=True)
