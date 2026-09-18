@@ -1605,6 +1605,7 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
             "total_reviews": total_reviews,
             "last_review_date": last_review_date,
             "review_history": review_history,
+            "file_path": os.path.abspath(abs_path),
             "full_path": abs_path
         })
 
@@ -1647,6 +1648,7 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
                 "total_reviews": 0,
                 "last_review_date": "",
                 "review_history": [],
+                "file_path": os.path.abspath(abs_p),
                 "full_path": abs_p
             })
 
@@ -1671,12 +1673,17 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
 
 def format_project_table(projects):
     lines = []
-    title_width = max(32, max((len(p["title"]) for p in projects), default=32))
+    title_links = []
+    for p in projects:
+        abs_p = p.get("file_path") or p.get("full_path") or os.path.abspath(os.path.join(VAULT_DIR, p["rel_path"].replace("/", os.sep)))
+        abs_forward = abs_p.replace("\\", "/")
+        title_links.append(f"[{p['title']}](file:///{abs_forward})")
+
+    title_width = max(32, max((len(tl) for tl in title_links), default=32))
     header = f"{'Rank':<5} {'Title':<{title_width}} {'Eff.Score':<10} {'Base':<6} {'Rot.':<6} {'Dead.Urg':<9} {'Milest.Urg':<10} {'Malus(K)':<11} {'Deadline':<11} {'Milestone':<14} {'Reviews':<7}"
     lines.append(header)
     lines.append("-" * len(header))
-    for idx, p in enumerate(projects, 1):
-        title = p["title"]
+    for idx, (p, title_link) in enumerate(zip(projects, title_links), 1):
         rev_str = "NEW" if p["total_reviews"] == 0 else str(p["total_reviews"])
         eff_str = f"{p['effective_score']:.2f}" if p['effective_score'] is not None else "N/A"
         base_str = f"{p['base_score']:.1f}" if p['base_score'] is not None else "N/A"
@@ -1697,7 +1704,7 @@ def format_project_table(projects):
         if len(milestone_disp) > 13:
             milestone_disp = milestone_disp[:11] + ".."
 
-        line = f"{idx:<5} {title:<{title_width}} {eff_str:<10} {base_str:<6} {rot_str:<6} {dead_urg_str:<9} {mile_urg_str:<10} {malus_str:<11} {deadline_disp:<11} {milestone_disp:<14} {rev_str:<7}"
+        line = f"{idx:<5} {title_link:<{title_width}} {eff_str:<10} {base_str:<6} {rot_str:<6} {dead_urg_str:<9} {mile_urg_str:<10} {malus_str:<11} {deadline_disp:<11} {milestone_disp:<14} {rev_str:<7}"
         lines.append(line)
     return "\n".join(lines)
 
@@ -1800,19 +1807,23 @@ def cmd_list(args, data):
         reviewed_disp = reviewed[:top_n] if top_n is not None and top_n > 0 else reviewed
 
     if getattr(args, "json", False):
+        def _clean_for_json(p):
+            cp = dict(p)
+            abs_p = cp.get("file_path") or cp.get("full_path") or os.path.abspath(os.path.join(VAULT_DIR, cp["rel_path"].replace("/", os.sep)))
+            cp["file_path"] = os.path.abspath(abs_p)
+            cp["rel_path"] = cp["rel_path"].replace("\\", "/")
+            cp.pop("full_path", None)
+            return cp
+
         if show_unreviewed_only:
-            out = [dict(p, full_path=None) for p in unreviewed_disp]
-            for cp in out: cp.pop("full_path", None)
+            out = [_clean_for_json(p) for p in unreviewed_disp]
             print(json.dumps(out, indent=2, ensure_ascii=False))
         elif show_reviewed_only:
-            out = [dict(p, full_path=None) for p in reviewed_disp]
-            for cp in out: cp.pop("full_path", None)
+            out = [_clean_for_json(p) for p in reviewed_disp]
             print(json.dumps(out, indent=2, ensure_ascii=False))
         else:
-            unrev_out = [dict(p, full_path=None) for p in unreviewed_disp]
-            for cp in unrev_out: cp.pop("full_path", None)
-            rev_out = [dict(p, full_path=None) for p in reviewed_disp]
-            for cp in rev_out: cp.pop("full_path", None)
+            unrev_out = [_clean_for_json(p) for p in unreviewed_disp]
+            rev_out = [_clean_for_json(p) for p in reviewed_disp]
             print(json.dumps({
                 "unreviewed": unrev_out,
                 "reviewed": rev_out,

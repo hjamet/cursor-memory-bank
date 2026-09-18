@@ -6,14 +6,25 @@ description: "Pilotage CLI des priorités de projets Obsidian et régulation de 
 
 Ce skill documente l'utilisation complète de l'interface en ligne de commande `project_memory_cli.py` pour interagir avec le plugin Obsidian **Project Memory** du coffre Obsidian de Henri Jamet.
 
+> [!IMPORTANT]
+> ### ⚡ Dérogation Formelle d'Exécution CLI pour le Superviseur Racine ($P=0$)
+> Par dérogation formelle aux règles générales de GEMINI.md, le Superviseur Racine ($P=0$) est exclusivement habilité à exécuter en direct via `run_command` les commandes CLI suivantes :
+> 1. `status-work` (avec ou sans `--all` ou ciblage)
+> 2. `list` (avec ses options `--top`, `--reviewed`, `--unreviewed`, `--json`)
+> 3. `work "<Projet>"` (lancement de session)
+> 4. `stop-work` (interruption de session)
+> 
+> **AUCUNE AUTRE COMMANDE N'EST AUTORISÉE** : aucune création de script scratch, aucun code inline python -c, aucun build, aucun test.
+> **Zéro sous-agent pour le triage /project-memory** : le Superviseur Racine exécute directement `status-work` et `list --top 10` pour afficher le tableau de bord en < 2s.
+
 ---
 
 ## 📍 Quels Sont les Chemins d'Accès Clés du Système ?
 
-- **Script CLI Python** : `C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py`
-- **Fichier de Données JSON** : `C:\Users\hjamet\Documents\VoiceNotes\.obsidian\plugins\project-memory\data.json`
-- **Racine du Vault Obsidian** : `C:\Users\hjamet\Documents\VoiceNotes`
-- **Plugin Obsidian** : `C:\Users\hjamet\Documents\VoiceNotes\.obsidian\plugins\project-memory\`
+- **Script CLI Python** : `C:\Users\Jamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py`
+- **Fichier de Données JSON** : `C:\Users\Jamet\Documents\VoiceNotes\.obsidian\plugins\project-memory\data.json`
+- **Racine du Vault Obsidian** : `C:\Users\Jamet\Documents\VoiceNotes`
+- **Plugin Obsidian** : `C:\Users\Jamet\Documents\VoiceNotes\.obsidian\plugins\project-memory\`
 
 ---
 
@@ -536,14 +547,15 @@ Lorsque Henri invoque manuellement le skill ou la slash-command `/project-memory
 
 ### 1. Que Faire en Début de Conversation (Orientation & Choix de Focus) ?
 
-* **Protocole CLI Direct & Zéro-Latence (< 2s)** :
+* **Protocole CLI Direct & Zéro-Latence (< 2s) [Exécution Directe Racine P=0]** :
+  Zéro sous-agent pour le triage /project-memory : le Superviseur Racine exécute directement :
   1. Vérifier le statut de session de travail active :
      ```bash
-     python "_agents\scripts-for-skills\project_memory_cli.py" status-work
+     python "_agents\scripts-for-skills\project_memory_cli.py" status-work --all
      ```
   2. Extraire immédiatement le tableau de bord des priorités (Top 10 par défaut) :
      ```bash
-     python "_agents\scripts-for-skills\project_memory_cli.py" list --reviewed --top 10
+     python "_agents\scripts-for-skills\project_memory_cli.py" list --top 10
      ```
 * **Consommation Directe de la Sortie Standard** :
   - Reprendre directement le tableau Markdown généré par la commande `list` dans le message de chat (le script formate déjà nativement les rangs, scores, échéances et jalons).

@@ -30,7 +30,7 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 |---|---|:---:|:---:|
 | **Recherche & Exploration** | `find_by_name`, `grep_search`, `list_dir`, `view_file` (hors brain, calpin & notes `.md` en lecture pure) | ❌ INTERDIT | ✅ MANDATOIRE |
 | **Édition & Écriture** | `write_to_file`, `replace_file_content` (code, scripts, LaTeX) | ❌ INTERDIT | ✅ MANDATOIRE |
-| **Terminal & Commandes** | `run_command` (inspection, build, git, tests, scripts) | ❌ INTERDIT *(Exceptions directes autorisées en direct : `python _agents/scripts-for-skills/project_memory_cli.py work "<Projet>"` et `antigravity-agents run --model <m> --prompt "..."`)* | ✅ MANDATOIRE |
+| **Terminal & Commandes** | `run_command` (inspection, build, git, tests, scripts) | ❌ INTERDIT *(Strictement réservé aux sous-agents serviteurs, sauf dérogation formelle définie dans un SKILL.md de pilotage)* | ✅ MANDATOIRE |
 | **Dialogue & Arbitrage** | `ask_question` | ✅ Exclusif | ❌ INTERDIT |
 | **Déploiement** | `invoke_subagent` | ✅ Exclusif (Lead unique) | ⚠️ Réservé aux Leads uniques ($P=1$) vers sous-agents `self` (exploration $P=2$ en lecture seule ou workers d'exécution $P=2$ par chantier) |
 | **Pilotage serviteurs** | `send_message`, `manage_subagents`, `manage_task` | ✅ Exclusif | ❌ INTERDIT |
@@ -58,10 +58,10 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 | **Périmètre Minimal & Zéro Décoration** | STRICTEMENT et UNIQUEMENT le livrable demandé. Zéro section, encadré, conseil ou directive non sollicité par Henri. |
 | **Zéro Spin & Biais Miroir** | Baseline battant le système ➔ annoncer crûment l'infériorité en tête. Zéro gain affirmé sans métriques des deux branches côte à côte. |
 | **Invariant de Restitution** | Interdiction formelle de partager des artéfacts, rapports ou tableaux d'état « en cours de rédaction » non encore validés. |
-| **Sanctuarisation Coffres** | INTERDIT de cloner, builder ou stocker du scratch dans `VoiceNotes/`. 100% du code/builds dans `C:\Users\hjamet\Documents\code\`. |
+| **Sanctuarisation Coffres** | INTERDIT de cloner, builder ou stocker du scratch dans `VoiceNotes/`. 100% du code/builds dans `C:\Users\Jamet\Documents\code\`. |
 | **Gouvernance des Scripts** | Scripts jetables ➔ `<appDataDir>\brain\<id>\scratch\`. Scripts pérennes ➔ `_agents/scripts-for-skills/` rattachés et documentés dans un skill. |
 | **Bug Windows grep_search** | INTERDIT d'exécuter `grep_search` sur un fichier unique sous Windows. Utiliser `view_file` direct ou dossier parent avec `Includes`. |
-| **Sanctuarisation run_command Racine** | INTERDICTION FORMELLE ET ABSOLUE d'exécuter des scripts scratch, du code inline (`python -c`), des commandes de build, git, test ou des sous-commandes CLI (`list`, `get`, `clean-orphans`, `feedback`, etc.). Les SEULES commandes terminal autorisées au Superviseur Racine en direct sont `python _agents/scripts-for-skills/project_memory_cli.py work "<Projet>"` et `antigravity-agents run --model <m> --prompt "..."`. Tout le reste DOIT être délégué à un sous-agent ou lu via les fichiers autorisés. |
+| **Sanctuarisation run_command Racine** | INTERDICTION FORMELLE ET ABSOLUE d'exécuter des scripts scratch, du code inline (`python -c`), des commandes de build, git, test ou des commandes système au niveau racine. Toute exécution terminale est strictement déléguée aux serviteurs sous-agents (sauf habilitation explicite et dérogatoire définie dans un SKILL.md de pilotage). |
 | **Exclusivité Machine & Anti-Simulation** | Dès qu'un skill ou une consigne prescrit un script ou un outil machine pour générer un artéfact, un log ou une métrique (diffs CAS /draft, Pomodoro, compilation LaTeX, détection IA), INTERDICTION FORMELLE ET ABSOLUE de rédiger ou simuler manuellement cet artéfact via `write_to_file` ou `replace_file_content`. Si l'outil est indisponible, l'agent DOIT impérativement exécuter le script CLI sous-jacent (`_agents/scripts-for-skills/`) ou avouer immédiatement l'indisponibilité à Henri. Toute simulation ou imitation manuelle constitue une falsification sévèrement proscrite. |
 
 ### Protocole Opérationnel des Sous-Agents
@@ -106,12 +106,11 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 
 | Règle | Invariant d'Exécution |
 |---|---|
-| **Lien Vivant en Tête** | Dès qu'un projet est abordé ➔ `[Nom Projet](file:///C:/Users/hjamet/Documents/VoiceNotes/.../NomProjet.md)` en 1ère ligne. |
-| **Pomodoro Permanent (Exception Directe Racine)** | Travail interdit sans session active : `python _agents/scripts-for-skills/project_memory_cli.py work "<Projet>"` (durée nominale `data.json`, 60 min). Lancement automatique direct par le Superviseur Racine (avec `antigravity-agents run --model <m> --prompt "..."`, les deux seules commandes `run_command` directes autorisées). |
-| **Auto-Suffisance & Zéro Timer** | Le process `work` en tâche de fond gère son sommeil et réveille l'agent à terminaison. Zéro timer `schedule` manuel redondant. |
-| **Clôture Obligatoire & Zéro Relance Automatique** | Fin de session Pomodoro (60 min) : INTERDICTION FORMELLE ET ABSOLUE de relancer une session automatiquement. Clôturer la conversation selon project-memory/SKILL.md : feuille de route unifiée par chantiers (- [x] accompli / - [ ] reste à faire), mise à jour de la note maîtresse Obsidian en tête, question de ressenti via ask_question (["À l'aise", "OK", "Stressé", "Terminé"]), et fin de session sans proposer de projets suivants. |
-| **Feedback Verrouillé** | `ask_question` obligatoire à chaque point d'étape (`["À l'aise", "OK", "Stressé", "Terminé"]`). `feedback "<Projet>" <action>` exécuté UNIQUEMENT après clic d'Henri. |
-| **Ajustement & Calibrage** | Réalisé exclusivement via sous-agent délégué (`set-score` / `feedback`) ou par modification de fichier par un serviteur. Zéro exécution directe par le Superviseur Racine. |
+| **Lien Vivant en Tête** | Dès qu'un projet est abordé ➔ `[Nom Projet](file:///C:/Users/Jamet/Documents/VoiceNotes/.../NomProjet.md)` en 1ère ligne. |
+| **Régulation de Charge & Sessions** | Le travail sur les projets s'effectue par sessions cadrées pour garantir la régulation de charge cognitive et le suivi du temps. Le pilotage opérationnel et les habilitations d'outils sont régis par le skill project-memory. |
+| **Clôture Obligatoire & Zéro Relance Automatique** | À l'issue d'une session de travail, interdiction de relancer automatiquement. Clôturer la conversation selon project-memory : feuille de route unifiée par chantiers (- [x] accompli / - [ ] reste à faire), mise à jour de la note maîtresse Obsidian en tête, question de ressenti via ask_question (["À l'aise", "OK", "Stressé", "Terminé"]), et fin de session sans proposer de projets suivants. |
+| **Feedback Verrouillé** | `ask_question` obligatoire à chaque point d'étape (`["À l'aise", "OK", "Stressé", "Terminé"]`). Enregistrement du ressenti exécuté UNIQUEMENT après clic d'Henri. |
+| **Ajustement & Calibrage** | Réalisé exclusivement selon les protocoles et directives du skill project-memory. |
 
 ---
 
