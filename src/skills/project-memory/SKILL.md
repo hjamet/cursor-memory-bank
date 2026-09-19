@@ -403,19 +403,9 @@ python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_
 1. **Lancement & Réveil Automatique par Processus** : Antigravity lance la commande `work` en tâche de fond (`run_command`). La terminaison naturelle du processus de fond réveille automatiquement Antigravity à l'échéance exacte de la session Pomodoro, sans aucun timer manuel `schedule`.
 2. **Protocole de Fin de Session en 4 Points (Obligatoire)** :
    1. **Pause de 5 Minutes Obligatoire** : Inviter impérativement Henri à faire une pause de récupération de 5 minutes avant toute autre action cognitive.
-   2. **Feuille de Route Unifiée par Chantiers & Synchronisation Note Maîtresse** :
-      - *Synchronisation Directe depuis `task.md` (Devoir n°1)* : La mise à jour de la feuille de route de la note maîtresse Obsidian DOIT être effectuée DIRECTEMENT et fidèlement à partir de l'artéfact `task.md` de session (passerelle bidirectionnelle). **Il ne suffit pas de sauvegarder des plans d'implémentation : la mise à jour de la roadmap de la note maîtresse depuis `task.md` est le devoir n°1.**
-      - *Format Unique Conforme à `task.md`* : Supprimer toute section narrative redondante de « travail accompli ». Restituer directement la feuille de route sous la même structure et formalisme natif que l'artéfact `task.md` de session : checklist unique structurée par chantiers thématiques avec cases à cocher natives (`- [x]` accompli, `- [ ]` restant), émojis évocateurs, liens cliquables, et distinction obligatoire des tâches Henri avec feux tricolores de dépendance (`🔴/🟡/🟢`).
-      - *Item Unique 'Build Plan' pour les chantiers non implémentés* : Ne jamais éclater les chantiers techniques futurs en cases à cocher multiples de premier niveau. Les regrouper sous un seul item actif pointant vers l'artéfact pérenne :
-        `- [ ] Build Plan : [[notes/Plan d'Implémentation <Projet>|Plan d'Implémentation Technique Détaillé]]` (dans Obsidian) ou `[Build Plan](file:///...)` (dans le chat).
-      - *Usage Systématique des Menus Dépliants (`<details>`)* :
-        * Encapsuler les tâches accomplies dans un menu dépliant :
-          `<details><summary>✅ Cadrage Validé / Tâches Accomplies</summary>\n\n- [x] ...\n</details>`
-        * Encapsuler la checklist détaillée des chantiers de build dans un menu dépliant :
-          `<details><summary>🏗️ Détail des Chantiers Techniques de Build</summary>\n\n- [ ] **Chantier 1** ...\n</details>`
-        * Seul l'item principal `- [ ] Build Plan` et les tâches opérationnelles immédiates restent visibles dépliés.
-      - *Synchronisation en Tête de Note Maîtresse* : Mettre systématiquement à jour la section Roadmap et To-Do list tout en haut de la note maîtresse (immédiatement sous l'en-tête visuel et l'index, conformément à `AGENTS.md`), directement à partir de `task.md`.
-      - *Obligation Systématique d'Archivage des Plans Non Builts* : Si des rapports d'exploration (`exploration_report_X.md`) ou un plan non encore exécuté par `/build` existent, Antigravity **DOIT OBLIGATOIREMENT** créer ou mettre à jour la note pérenne de cadrage : `notes/Plan d'Implémentation [NomProjet].md` dans le coffre, et la lier immédiatement dans l'index des sous-notes tout en haut de la note maîtresse (sous H1).
+   2. **Synchronisation de la Note Maîtresse** :
+      - Mettre à jour la feuille de route opérationnelle (`## 📋 Quelle est la feuille de route...`) tout en haut de la note maîtresse Obsidian directement à partir de l'artéfact `task.md` (passerelle bidirectionnelle : même format, tâches Henri avec feux tricolores `🔴/🟡/🟢`, historique achevé replié dans `<details><summary>✅ Cadrage Validé / Tâches Accomplies</summary>`).
+      - Si des rapports d'exploration (`exploration_report_X.md`) ou un plan non encore exécuté par `/build` existent, créer ou mettre à jour la note pérenne : `notes/Plan d'Implémentation [NomProjet].md` dans le coffre et la lier dans l'index sous H1.
    3. **Interrogation Interactive du Ressenti (`ask_question`) & Feedback** : Antigravity évalue lucidement la progression selon les signaux réels (marge calendaire, fluidité d'exécution, complexité), détermine l'option conseillée avec le suffixe ` (Recommandé)`, et interroge **obligatoirement** Henri via `ask_question` avec les 4 options canoniques dans l'ordre strict : `["À l'aise", "OK", "Stressé", "Terminé"]`. Suite à sa réponse, Antigravity exécute `feedback "<projet>" <action>`.
    4. **Clôture Définitive de la Conversation (Zéro Relance & Zéro Suggestion Suivante)** :
       - *Interdiction Formelle de Relance Automatique* : INTERDICTION FORMELLE ET ABSOLUE de relancer un Pomodoro automatiquement.
@@ -579,7 +569,6 @@ Lorsque Henri invoque manuellement le skill ou la slash-command `/project-memory
 
 ### 2. Que Faire en Milieu de Conversation ou Clôture de Session (Bilan & Clôture) ?
 * **Vérification & Mise à Jour des Notes Obsidian (Mandatoire)** : Moment privilégié pour **auditer et synchroniser la note maîtresse et toutes les sous-notes liées du projet dans Obsidian**. Vérifier qu'elles reflètent fidèlement 100% des avancées, décisions prises, arbitrages, travaux effectués et nouveaux jalons de la session.
-* **Bilan d'Avancement Factuel & Roadmap Unifiée** : Restituer la feuille de route sous forme de checklist unique par chantiers (`- [x]` accompli, `- [ ]` restant) sans section narrative redondante.
 * **Interrogation Interactive du Stress (`ask_question`) & Évolution du Score** :
   * Appeler obligatoirement `ask_question` avec les 4 options canoniques dans l'ordre strict `["À l'aise", "OK", "Stressé", "Terminé"]` (avec le suffixe ` (Recommandé)` apposé sur l'option conseillée selon la marge calendaire).
   * Exécuter l'action CLI correspondante (`feedback "<projet>" <action>`) choisie par Henri.
