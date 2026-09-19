@@ -1,7 +1,7 @@
 # Antigravity — Instructions Coffre Obsidian de Henri
 
 > [!IMPORTANT]
-> **Source Suprême Universelle** : Toutes les règles transversales (Superviseur Aveugle, Zero-Trust, sous-agents, timers, Pomodoro, Paradigme Q/R, liens, Playwright MCP, Spark) sont définies canoniquement dans [GEMINI.md](file:///C:/Users/hjamet/.gemini/GEMINI.md). Ce fichier régit **EXCLUSIVEMENT** les spécificités du coffre Obsidian.
+> **Source Suprême Universelle** : Toutes les règles transversales (Superviseur Aveugle, Zero-Trust, sous-agents, timers, Pomodoro, Paradigme Q/R, liens, Playwright MCP, Spark) sont définies canoniquement dans [GEMINI.md](~/.gemini/GEMINI.md). Ce fichier régit **EXCLUSIVEMENT** les spécificités du coffre Obsidian.
 
 ---
 

@@ -58,7 +58,7 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 | **Périmètre Minimal & Zéro Décoration** | STRICTEMENT et UNIQUEMENT le livrable demandé. Zéro section, encadré, conseil ou directive non sollicité par Henri. |
 | **Zéro Spin & Biais Miroir** | Baseline battant le système ➔ annoncer crûment l'infériorité en tête. Zéro gain affirmé sans métriques des deux branches côte à côte. |
 | **Invariant de Restitution** | Interdiction formelle de partager des artéfacts, rapports ou tableaux d'état « en cours de rédaction » non encore validés. |
-| **Sanctuarisation Coffres** | INTERDIT de cloner, builder ou stocker du scratch dans `VoiceNotes/`. 100% du code/builds dans `C:\Users\Jamet\Documents\code\`. |
+| **Sanctuarisation Coffres** | INTERDIT de cloner, builder ou stocker du scratch dans `VoiceNotes/`. 100% du code/builds dans `~/Documents/code/`. |
 | **Gouvernance des Scripts** | Scripts jetables ➔ `<appDataDir>\brain\<id>\scratch\`. Scripts pérennes ➔ `_agents/scripts-for-skills/` rattachés et documentés dans un skill. |
 | **Bug Windows grep_search** | INTERDIT d'exécuter `grep_search` sur un fichier unique sous Windows. Utiliser `view_file` direct ou dossier parent avec `Includes`. |
 | **Sanctuarisation run_command Racine** | INTERDICTION FORMELLE ET ABSOLUE d'exécuter des scripts scratch, du code inline (`python -c`), des commandes de build, git, test ou des commandes système au niveau racine. Toute exécution terminale est strictement déléguée aux serviteurs sous-agents (sauf habilitation explicite et dérogatoire définie dans un SKILL.md de pilotage). |
@@ -92,6 +92,18 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 - **[Liens Proactifs]** : Tout fichier créé/modifié ➔ lien cliquable `[Nom](file:///...)` en première ligne de réponse. Zéro copie intégrale d'artefact dans le chat.
 - **[Diversité Visuelle & Mots-Clés Aléatoires]** : Génération d'images via `generate_image` sans pipeline imposé. Sélection préalable systématique de mots-clés de style aléatoires (techniques picturales, médiums, palettes chromatiques, textures). Ratios libres (1:1, 9:16, 16:9, 2:3, 3:4). Interdiction de recycler des images existantes.
 
+### 📋 Artefact Vivant de Session (`task.md`) (MANDATOIRE)
+
+| Règle | Invariant d'Exécution |
+|---|---|
+| **Maintien permanent & Zéro Section** | Maintenir en continu `<appDataDir>/brain/<id>/task.md` affiché sur le volet latéral. **Strictement aucun titre `#` ni section Markdown**, uniquement une liste de cases à cocher native. |
+| **Emojis Distinctifs** | Chaque projet ou jalon racine débute par un émoji évocateur (`🔍`, `🔄`, `🖥️`, `📦`, etc.). |
+| **Couplage Sous-Tâche $\leftrightarrow$ Sous-Agent** | 1 sous-tâche = 1 sous-agent déployé. Bascule à `- [/]` dès l'appel `invoke_subagent`, puis à `- [x]` dès réception et audit des résultats. |
+| **Traçabilité des Livrables** | Toute tâche terminée (`- [x]`) comporte obligatoirement le lien cliquable `[nom](file:///...)` vers le fichier ou l'artefact créé/modifié (hors simple question/arbitrage). |
+| **Alimentation au fil de l'eau** | Toute idée, point à vérifier ou action évoquée en échange est immédiatement ajoutée à la liste. |
+| **Conservation Intégrale (*Append-Only*)** | INTERDICTION FORMELLE de purger, supprimer ou nettoyer les tâches terminées au cours de la session. Tout l'historique est conservé. |
+| **Passerelle de Clôture** | En fin de session, `task.md` sert de référence directe pour mettre à jour la checklist de la note maîtresse Obsidian et `project-memory`. |
+
 ---
 
 ## 2. Single Source of Truth / DRY (MANDATOIRE)
@@ -106,7 +118,7 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 
 | Règle | Invariant d'Exécution |
 |---|---|
-| **Lien Vivant en Tête** | Dès qu'un projet est abordé ➔ `[Nom Projet](file:///C:/Users/Jamet/Documents/VoiceNotes/.../NomProjet.md)` en 1ère ligne. |
+| **Lien Vivant en Tête** | Dès qu'un projet est abordé ➔ `[Nom Projet](~/Documents/VoiceNotes/.../NomProjet.md)` en 1ère ligne. |
 | **Régulation de Charge & Sessions** | Le travail sur les projets s'effectue par sessions cadrées pour garantir la régulation de charge cognitive et le suivi du temps. Le pilotage opérationnel et les habilitations d'outils sont régis par le skill project-memory. **Obligation Permanente** : Dès qu'un travail effectif, une création de projet ou un workflow (/scout, /build, /draft, /teacher, sessions de code/rédaction) démarre sur un projet (note taggée #todo/#project), le Superviseur Racine DOIT exécuter IMMÉDIATEMENT en tâche de fond run_command la commande python _agents/scripts-for-skills/project_memory_cli.py work "<NomDuProjet>". Zéro exception pour les phases de cadrage ou d'exploration. |
 | **Clôture Obligatoire & Zéro Relance Automatique** | À l'issue d'une session de travail, interdiction de relancer automatiquement. Clôturer la conversation selon project-memory : feuille de route unifiée par chantiers (- [x] accompli / - [ ] reste à faire), mise à jour de la note maîtresse Obsidian en tête, question de ressenti via ask_question (["À l'aise", "OK", "Stressé", "Terminé"]), et fin de session sans proposer de projets suivants. |
 | **Feedback Verrouillé** | `ask_question` obligatoire à chaque point d'étape (`["À l'aise", "OK", "Stressé", "Terminé"]`). Enregistrement du ressenti exécuté UNIQUEMENT après clic d'Henri. |
