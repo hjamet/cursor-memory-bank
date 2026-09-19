@@ -22,6 +22,7 @@ import re
 import time
 import shutil
 import argparse
+import atexit
 from datetime import datetime, date, time as dt_time, timedelta, timezone
 from dataclasses import dataclass
 from typing import Optional, Union, List, Any, Dict
@@ -49,7 +50,7 @@ def find_vault_dir(start_dir):
     return os.path.abspath(os.path.join(start_dir, "..", ".."))
 
 
-VAULT_DIR = find_vault_dir(SCRIPT_DIR)
+VAULT_DIR = os.environ.get("PROJECT_MEMORY_VAULT_DIR") or find_vault_dir(SCRIPT_DIR)
 DATA_JSON_PATH = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", "data.json")
 CACHE_PATH = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", ".project_cache.json")
 ACTIVE_POMODORO_PATH = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", ".active_pomodoro.json")
@@ -668,7 +669,12 @@ def is_pid_alive(pid):
             return False
 
 
-def load_all_active_pomodoros(active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH, clean_stale=False) -> Dict[str, Dict[str, Any]]:
+def load_all_active_pomodoros(
+    active_path=ACTIVE_POMODORO_PATH,
+    data_path=DATA_JSON_PATH,
+    clean_stale=False,
+    recovered_out: Optional[List[Dict[str, Any]]] = None
+) -> Dict[str, Dict[str, Any]]:
     """
     Charge l'ensemble des sessions Pomodoro actives en cours.
     Gère de façon transparente :
@@ -676,6 +682,7 @@ def load_all_active_pomodoros(active_path=ACTIVE_POMODORO_PATH, data_path=DATA_J
     - Le format hérité mono-session (objet unique à la racine)
     - La réconciliation avec data.json
     - Le nettoyage automatique des sessions orphelines dont le PID est mort
+    - La récupération et persistance du temps de travail effectif lors de la détection de stale lock
     """
     sessions = {}
 
@@ -709,12 +716,52 @@ def load_all_active_pomodoros(active_path=ACTIVE_POMODORO_PATH, data_path=DATA_J
     if clean_stale and sessions:
         cleaned = {}
         changed = False
+        now_t = time.time()
         for p_key, s_val in sessions.items():
             pid = s_val.get("pid")
             if pid and is_pid_alive(pid):
                 cleaned[p_key] = s_val
             else:
                 changed = True
+                start_ts = float(s_val.get("start_timestamp", now_t))
+                target_min = float(s_val.get("target_duration_minutes", 60.0))
+                elapsed_sec = max(0.0, now_t - start_ts)
+                elapsed_min = elapsed_sec / 60.0
+                effective_elapsed_min = min(target_min, elapsed_min)
+
+                p_target = s_val.get("rel_path") or p_key
+                title = s_val.get("title", os.path.splitext(os.path.basename(p_target))[0] if p_target else "Inconnu")
+
+                # Sauvegarde lors de la détection de stale lock
+                if s_val.get("status", "running") == "running" and not s_val.get("recorded", False):
+                    if effective_elapsed_min > 0.1:
+                        try:
+                            data = load_data(data_path)
+                            record_work_session(
+                                data,
+                                p_target,
+                                elapsed_minutes=effective_elapsed_min,
+                                target_minutes=target_min,
+                                is_interrupted=True,
+                                data_path=data_path
+                            )
+                            ratio = min(1.0, max(0.0, effective_elapsed_min / target_min)) if target_min > 0 else 0.0
+                            if recovered_out is not None:
+                                recovered_out.append({
+                                    "project": title,
+                                    "rel_path": p_target,
+                                    "elapsed_minutes": round(effective_elapsed_min, 2),
+                                    "target_minutes": round(target_min, 2),
+                                    "ratio": round(ratio, 4),
+                                    "pid": pid
+                                })
+                            msg = f"⚠️ Session Pomodoro interrompue récupérée pour '{title}' : {effective_elapsed_min:.1f} min sauvegardées dans data.json."
+                            if "--json" in sys.argv:
+                                print(msg, file=sys.stderr, flush=True)
+                            else:
+                                print(msg, flush=True)
+                        except Exception:
+                            pass
         if changed:
             sessions = cleaned
             _persist_active_pomodoros(sessions, active_path, data_path)
@@ -2473,18 +2520,60 @@ def cmd_work(args, data):
     total_seconds = int(duration_min * 60)
     now_dt = datetime.now(timezone.utc)
     start_time = time.time()
+    since_min = max(0, int(getattr(args, "since", 0) or 0))
+
+    if since_min > 0:
+        started_at = now_dt - timedelta(minutes=since_min)
+        start_time = start_time - (since_min * 60)
+        residual_seconds = max(1, int(duration_min - since_min)) * 60
+    else:
+        started_at = now_dt
+        residual_seconds = total_seconds
 
     pomodoro_state = {
         "pid": os.getpid(),
         "rel_path": rel_path,
         "title": title,
-        "start_iso": now_dt.isoformat(),
+        "started_at": started_at.isoformat(),
+        "start_iso": started_at.isoformat(),
         "start_timestamp": start_time,
         "target_duration_minutes": duration_min,
         "target_duration_seconds": total_seconds,
+        "since_minutes": since_min,
         "status": "running"
     }
     save_active_pomodoro(pomodoro_state)
+
+    recorded = False
+
+    def atexit_work_cleanup():
+        nonlocal recorded
+        if not recorded:
+            recorded = True
+            try:
+                now_t = time.time()
+                actual_elapsed_sec = max(0.0, now_t - start_time)
+                actual_elapsed_min = actual_elapsed_sec / 60.0
+                effective_elapsed_min = min(float(duration_min), actual_elapsed_min)
+                if effective_elapsed_min > 0.03:
+                    fresh_data = load_data(DATA_JSON_PATH)
+                    record_work_session(
+                        fresh_data,
+                        rel_path,
+                        elapsed_minutes=effective_elapsed_min,
+                        target_minutes=duration_min,
+                        is_interrupted=True,
+                        data_path=DATA_JSON_PATH
+                    )
+            except Exception:
+                pass
+            finally:
+                try:
+                    clear_active_pomodoro(project_key=rel_path)
+                except Exception:
+                    pass
+
+    atexit.register(atexit_work_cleanup)
 
     interrupted = False
     stop_reason = "normal"
@@ -2504,11 +2593,15 @@ def cmd_work(args, data):
     except Exception:
         pass
 
-    print(f"⏱️ Session Pomodoro démarrée pour '{title}' ({duration_min:.0f} min)...", flush=True)
+    if since_min > 0:
+        print(f"⏱️ Session Pomodoro démarrée pour '{title}' ({duration_min:.0f} min) [Rattrapage --since {since_min} min | Temps résiduel : {residual_seconds // 60} min]...", flush=True)
+    else:
+        print(f"⏱️ Session Pomodoro démarrée pour '{title}' ({duration_min:.0f} min)...", flush=True)
     step_sec = 30
+    start_elapsed_sec = total_seconds - residual_seconds
 
     try:
-        for elapsed_sec in range(0, total_seconds + 1, step_sec):
+        for elapsed_sec in range(start_elapsed_sec, total_seconds + 1, step_sec):
             if interrupted:
                 break
 
@@ -2557,8 +2650,6 @@ def cmd_work(args, data):
     actual_elapsed_sec = max(0.0, time.time() - start_time)
     actual_elapsed_min = actual_elapsed_sec / 60.0
 
-    # Nettoyage de la session active de ce projet
-    clear_active_pomodoro(project_key=rel_path)
     data = load_data(DATA_JSON_PATH)
 
     if interrupted:
@@ -2573,6 +2664,12 @@ def cmd_work(args, data):
             is_interrupted=True,
             data_path=DATA_JSON_PATH
         )
+        recorded = True
+        try:
+            atexit.unregister(atexit_work_cleanup)
+        except Exception:
+            pass
+        clear_active_pomodoro(project_key=rel_path)
 
         m_el = int(effective_elapsed_min)
         s_el = int((effective_elapsed_min - m_el) * 60)
@@ -2604,6 +2701,12 @@ def cmd_work(args, data):
         is_interrupted=False,
         data_path=DATA_JSON_PATH
     )
+    recorded = True
+    try:
+        atexit.unregister(atexit_work_cleanup)
+    except Exception:
+        pass
+    clear_active_pomodoro(project_key=rel_path)
 
     print("============================================================", flush=True)
     print(f"🎉 POMODORO TERMINÉ pour '{title}' ({duration_min:.0f} min)", flush=True)
@@ -2691,7 +2794,8 @@ def _stop_and_record_session(s: Dict[str, Any], manual_elapsed: Optional[float],
 
 
 def cmd_stop_work(args, data):
-    sessions = load_all_active_pomodoros(clean_stale=True)
+    recovered_sessions = []
+    sessions = load_all_active_pomodoros(active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH, clean_stale=True, recovered_out=recovered_sessions)
     as_json = getattr(args, "json", False)
     target_project = getattr(args, "project_path", None)
     manual_elapsed = getattr(args, "elapsed", None)
@@ -2729,6 +2833,93 @@ def cmd_stop_work(args, data):
             else:
                 print(f"🛑 Session de travail manuelle enregistrée pour '{title}' ({elapsed_min:.2f} min / {target_min:.0f} min, ratio r={ratio:.2%}).")
                 print_end_of_session_reminders(title, is_interrupted=True)
+            return
+
+        if recovered_sessions:
+            data = load_data(DATA_JSON_PATH)
+            updated_projects = scan_projects(VAULT_DIR, data)
+            tot_time = data.get("stats", {}).get("globalStats", {}).get("totalPomodoroTime", 0)
+
+            if target_project:
+                try:
+                    rel_path, _ = find_project_file(VAULT_DIR, target_project, data)
+                    title = os.path.splitext(os.path.basename(rel_path))[0]
+                except Exception:
+                    rel_path = None
+                    title = target_project
+
+                matched_rec = None
+                for rec in recovered_sessions:
+                    if (rec.get("rel_path") == rel_path or
+                        rec.get("project") == title or
+                        (target_project and target_project.lower() in rec.get("project", "").lower())):
+                        matched_rec = rec
+                        break
+
+                if matched_rec:
+                    target_p = next((p for p in updated_projects if p["rel_path"] == matched_rec.get("rel_path") or p["title"] == matched_rec.get("project")), None)
+                    m_el = int(matched_rec["elapsed_minutes"])
+                    s_el = int((matched_rec["elapsed_minutes"] - m_el) * 60)
+                    if as_json:
+                        print(json.dumps({
+                            "status": "stopped",
+                            "recovered_stale": True,
+                            "project": matched_rec["project"],
+                            "rel_path": matched_rec["rel_path"],
+                            "elapsed_minutes": matched_rec["elapsed_minutes"],
+                            "target_minutes": matched_rec["target_minutes"],
+                            "ratio": matched_rec["ratio"],
+                            "effective_score": target_p.get("effective_score") if target_p else None,
+                            "global_pomodoro_time": tot_time,
+                            "message": f"Session Pomodoro récupérée et enregistrée avec succès ({matched_rec['elapsed_minutes']:.1f} min)."
+                        }, indent=2, ensure_ascii=False))
+                    else:
+                        print("============================================================", flush=True)
+                        print(f"🛑 Session Pomodoro interrompue pour '{matched_rec['project']}' (processus déjà terminé) !", flush=True)
+                        print("============================================================", flush=True)
+                        print(f"⏱️ Durée cible : {matched_rec['target_minutes']:.0f} min", flush=True)
+                        print(f"⏳ Temps réellement écoulé sauvegardé : {m_el:02d}:{s_el:02d} ({matched_rec['elapsed_minutes']:.2f} min)", flush=True)
+                        print(f"📊 Ratio d'accomplissement (r) : {matched_rec['ratio'] * 100:.1f}%", flush=True)
+                        print(f"📈 Total Pomodoro global : {tot_time:.2f} min", flush=True)
+                        if target_p:
+                            eff_disp = f"{target_p['effective_score']:.2f}" if target_p['effective_score'] is not None else "N/A"
+                            malus_disp = f"-{target_p['temporal_malus']:.2f} (K={target_p['k_factor']:.2f})" if target_p.get('temporal_malus') else "0.00"
+                            print(f"🎯 Score effectif mis à jour : {eff_disp} [Malus temporel proportionnel : {malus_disp}]", flush=True)
+                        print("============================================================", flush=True)
+                        print_end_of_session_reminders(matched_rec['project'], is_interrupted=True)
+                    return
+                else:
+                    print(f"⚠️ Aucune session Pomodoro active trouvée pour '{target_project}'.", flush=True)
+                    sys.exit(1)
+
+            # Si aucun projet ciblé ou --all :
+            if as_json:
+                print(json.dumps({
+                    "status": "stopped",
+                    "recovered_stale": True,
+                    "recovered_count": len(recovered_sessions),
+                    "sessions": recovered_sessions,
+                    "global_pomodoro_time": tot_time,
+                    "message": f"{len(recovered_sessions)} session(s) Pomodoro récupérée(s) et enregistrée(s) avec succès."
+                }, indent=2, ensure_ascii=False))
+            else:
+                for rec in recovered_sessions:
+                    target_p = next((p for p in updated_projects if p["rel_path"] == rec.get("rel_path") or p["title"] == rec.get("project")), None)
+                    m_el = int(rec["elapsed_minutes"])
+                    s_el = int((rec["elapsed_minutes"] - m_el) * 60)
+                    print("============================================================", flush=True)
+                    print(f"🛑 Session Pomodoro interrompue pour '{rec['project']}' (processus déjà terminé) !", flush=True)
+                    print("============================================================", flush=True)
+                    print(f"⏱️ Durée cible : {rec['target_minutes']:.0f} min", flush=True)
+                    print(f"⏳ Temps réellement écoulé sauvegardé : {m_el:02d}:{s_el:02d} ({rec['elapsed_minutes']:.2f} min)", flush=True)
+                    print(f"📊 Ratio d'accomplissement (r) : {rec['ratio'] * 100:.1f}%", flush=True)
+                    print(f"📈 Total Pomodoro global : {tot_time:.2f} min", flush=True)
+                    if target_p:
+                        eff_disp = f"{target_p['effective_score']:.2f}" if target_p['effective_score'] is not None else "N/A"
+                        malus_disp = f"-{target_p['temporal_malus']:.2f} (K={target_p['k_factor']:.2f})" if target_p.get('temporal_malus') else "0.00"
+                        print(f"🎯 Score effectif mis à jour : {eff_disp} [Malus temporel proportionnel : {malus_disp}]", flush=True)
+                    print("============================================================", flush=True)
+                    print_end_of_session_reminders(rec['project'], is_interrupted=True)
             return
 
         if as_json:
@@ -2772,7 +2963,7 @@ def cmd_stop_work(args, data):
 
         if target_session:
             res = _stop_and_record_session(target_session, manual_elapsed, data, as_json=as_json, print_output=not as_json)
-            remaining = [s for s in load_all_active_pomodoros(clean_stale=True).values() if s.get("status") == "running" and is_pid_alive(s.get("pid"))]
+            remaining = [s for s in load_all_active_pomodoros(active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH, clean_stale=True).values() if s.get("status") == "running" and is_pid_alive(s.get("pid"))]
             if as_json:
                 res["remaining_active_sessions"] = [s.get("title") for s in remaining]
                 print(json.dumps(res, indent=2, ensure_ascii=False))
@@ -2785,6 +2976,51 @@ def cmd_stop_work(args, data):
                     print(f"💡 Pour tout interrompre : `python _agents/scripts-for-skills/project_memory_cli.py stop-work --all`", flush=True)
             return
         else:
+            # Vérifier si la session visée a été récupérée comme stale lock
+            matched_rec = None
+            for rec in recovered_sessions:
+                if (rec.get("rel_path") == rel_path or
+                    rec.get("project") == title or
+                    (target_project and target_project.lower() in rec.get("project", "").lower())):
+                    matched_rec = rec
+                    break
+
+            if matched_rec:
+                data = load_data(DATA_JSON_PATH)
+                updated_projects = scan_projects(VAULT_DIR, data)
+                target_p = next((p for p in updated_projects if p["rel_path"] == matched_rec.get("rel_path") or p["title"] == matched_rec.get("project")), None)
+                m_el = int(matched_rec["elapsed_minutes"])
+                s_el = int((matched_rec["elapsed_minutes"] - m_el) * 60)
+                tot_time = data.get("stats", {}).get("globalStats", {}).get("totalPomodoroTime", 0)
+                if as_json:
+                    print(json.dumps({
+                        "status": "stopped",
+                        "recovered_stale": True,
+                        "project": matched_rec["project"],
+                        "rel_path": matched_rec["rel_path"],
+                        "elapsed_minutes": matched_rec["elapsed_minutes"],
+                        "target_minutes": matched_rec["target_minutes"],
+                        "ratio": matched_rec["ratio"],
+                        "effective_score": target_p.get("effective_score") if target_p else None,
+                        "global_pomodoro_time": tot_time,
+                        "message": f"Session Pomodoro récupérée et enregistrée avec succès ({matched_rec['elapsed_minutes']:.1f} min)."
+                    }, indent=2, ensure_ascii=False))
+                else:
+                    print("============================================================", flush=True)
+                    print(f"🛑 Session Pomodoro interrompue pour '{matched_rec['project']}' (processus déjà terminé) !", flush=True)
+                    print("============================================================", flush=True)
+                    print(f"⏱️ Durée cible : {matched_rec['target_minutes']:.0f} min", flush=True)
+                    print(f"⏳ Temps réellement écoulé sauvegardé : {m_el:02d}:{s_el:02d} ({matched_rec['elapsed_minutes']:.2f} min)", flush=True)
+                    print(f"📊 Ratio d'accomplissement (r) : {matched_rec['ratio'] * 100:.1f}%", flush=True)
+                    print(f"📈 Total Pomodoro global : {tot_time:.2f} min", flush=True)
+                    if target_p:
+                        eff_disp = f"{target_p['effective_score']:.2f}" if target_p['effective_score'] is not None else "N/A"
+                        malus_disp = f"-{target_p['temporal_malus']:.2f} (K={target_p['k_factor']:.2f})" if target_p.get('temporal_malus') else "0.00"
+                        print(f"🎯 Score effectif mis à jour : {eff_disp} [Malus temporel proportionnel : {malus_disp}]", flush=True)
+                    print("============================================================", flush=True)
+                    print_end_of_session_reminders(matched_rec['project'], is_interrupted=True)
+                return
+
             if manual_elapsed is not None and rel_path:
                 target_min = float(args.target_duration) if getattr(args, "target_duration", None) else float(data.get("settings", {}).get("pomodoroDuration", 60))
                 elapsed_min = float(manual_elapsed)
@@ -2827,7 +3063,7 @@ def cmd_stop_work(args, data):
         reason_msg = "session la plus récente"
 
     res = _stop_and_record_session(target_session, manual_elapsed, data, as_json=as_json, print_output=not as_json)
-    remaining = [s for s in load_all_active_pomodoros(clean_stale=True).values() if s.get("status") == "running" and is_pid_alive(s.get("pid"))]
+    remaining = [s for s in load_all_active_pomodoros(active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH, clean_stale=True).values() if s.get("status") == "running" and is_pid_alive(s.get("pid"))]
     if as_json:
         res["selection_reason"] = reason_msg
         res["remaining_active_sessions"] = [s.get("title") for s in remaining]
@@ -2843,7 +3079,8 @@ def cmd_stop_work(args, data):
 
 
 def cmd_status_work(args, data):
-    sessions = load_all_active_pomodoros(clean_stale=True)
+    recovered_sessions = []
+    sessions = load_all_active_pomodoros(active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH, clean_stale=True, recovered_out=recovered_sessions)
     as_json = getattr(args, "json", False)
     target_project = getattr(args, "project_path", None)
     show_all = getattr(args, "all", False)
@@ -3140,6 +3377,7 @@ def main():
     work_parser = subparsers.add_parser("work", help="Démarre une session Pomodoro active sur un projet (durée nominale configurée dans data.json)")
     work_parser.add_argument("project_path", help="Chemin relatif ou nom du projet")
     work_parser.add_argument("--duration", "-d", type=int, help="Override optionnel exceptionnel de durée en minutes (comportement officiel et nominal : pomodoroDuration de data.json)")
+    work_parser.add_argument("--since", type=int, default=0, help="Temps déjà écoulé en minutes à rattraper immédiatement (ex: --since 15)")
 
     # stop-work / cancel-work / stop
     stop_parser = subparsers.add_parser("stop-work", aliases=["cancel-work", "stop"], help="Interrompt proprement la session Pomodoro en cours et enregistre le temps proportionnel")
