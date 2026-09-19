@@ -178,9 +178,10 @@ Toute résolution de balise `<XXX>` fait l'objet d'une ligne dédiée dans le ta
 ### 📊 3. Comment Générer l'Artéfact de Diff et Restituer les Résultats selon la Règle d'Henri ?
 
 > [!CAUTION]
-> **🚫 INTERDICTION FORMELLE DE FABRICATION MANUELLE D'ARTÉFACT /DRAFT** :
-> Il est formellement interdit à un agent (racine ou sous-agent) de concevoir, rédiger ou simuler artisanalement un artéfact de diff interactif `/draft` via `write_to_file`.
-> L'artéfact Markdown interactif (`diff_*.md`) doit être **STRICTEMENT ET EXCLUSIVEMENT généré par l'exécution du script d'instrumentation machine officiel** (`doc-version` `get_diff_artifact` ou CLI dédiée). Tout artéfact rédigé à la main est nul, non avenu, et constitue une violation critique du protocole /draft.
+> **🚫 INTERDICTION FORMELLE DE FABRICATION OU RETOUCHE MANUELLE D'ARTÉFACT /DRAFT (IMMUABILITÉ STRICTE)** :
+> 1. **Zéro Fabrication Manuelle** : Il est formellement interdit à un agent (racine ou sous-agent) de concevoir, rédiger ou simuler artisanalement un artéfact de diff interactif `/draft` via `write_to_file`.
+> 2. **Immuabilité Machine Absolue** : Une fois généré par l'outil machine officiel (`doc-version` `get_diff_artifact` ou CLI dédiée), l'artéfact Markdown interactif (`diff_*.md`) est **STRICTEMENT IMMUABLE**. **INTERDICTION ABSOLUE de le retoucher ou modifier manuellement** (via `replace_file_content` ou `write_to_file`).
+> 3. Tout artéfact rédigé ou altéré à la main est nul, non avenu, et constitue une violation critique du protocole /draft.
 
 #### 🛠️ Génération de l'Artéfact Brain Interactif (`get_diff_artifact`)
 L'artéfact interactif Markdown est généré via le serveur MCP `doc-version` :
@@ -197,7 +198,21 @@ call_mcp_tool(
     }
 )
 ```
-Cet artéfact contient le word-diff coloré (<ins>/<del>), le calcul du taux de rétention textuelle, et le tableau de traçabilité complet.
+Cet artéfact intègre automatiquement les composantes suivantes :
+- **📋 Bloc Dépliant de Texte Final Prêt à Copier (Natif en Tête d'Artéfact)** : En mode `mode="draft"`, l'artéfact intègre nativement en tête de document (avant l'arborescence des diffs) le bloc dépliant suivant :
+  ```markdown
+  <details><summary>📋 Texte Final Prêt à Copier</summary>
+
+  ```text
+  <texte_final_poli_sans_balises>
+  ```
+  </details>
+
+  ---
+  ```
+  Ce bloc permet à Henri ou à l'agent de récupérer le texte final intégral d'un simple clic pour un copier-coller immédiat sans friction, directement depuis l'artéfact.
+- **🌳 Arborescence & Word-Diff AST Coloré** : Visualisation chirurgicale des ajouts (`<ins>`) et suppressions (`<del>`), badges pill de score Anti-IA paragraphe par paragraphe.
+- **🕒 Historique Récent & Rétention** : Tableau des 5 derniers commits CAS et audit du taux de rétention ($\ge 90\%$).
 
 #### 📋 Restitution Concrète selon le Support Source :
 
