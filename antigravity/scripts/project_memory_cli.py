@@ -2463,18 +2463,21 @@ def cmd_complete_task(args, data):
 
 
 def print_end_of_session_reminders(title: str, is_interrupted: bool = False):
-    header = f"🛑 CONSIGNES ANTIGRAVITY POST-INTERRUPTION ('{title}') :" if is_interrupted else f"🤖 CONSIGNES ANTIGRAVITY POST-POMODORO ('{title}') :"
     print(flush=True)
     print("============================================================", flush=True)
-    print(header, flush=True)
+    print(f"⚠️ RAPPEL PROTOCOLE DE CLÔTURE POMODORO :", flush=True)
+    if is_interrupted:
+        print(f"   (Session interrompue pour '{title}')", flush=True)
+    else:
+        print(f"   (Session terminée pour '{title}')", flush=True)
     print("============================================================", flush=True)
     print("👉 Se référer impérativement au skill `_agents/skills/project-memory/SKILL.md` et le relire via `view_file` pour le protocole complet de fin de session.", flush=True)
     print(flush=True)
-    print(f"1. ☕ Pause de récupération (5 min) obligatoire : Informer Henri que la session sur '{title}' est terminée et l'encourager explicitement à prendre 5 minutes de pause (s'étirer, s'hydrater, quitter l'écran).", flush=True)
-    print(f"2. 💾 Sauvegarde pérenne des plans d'implémentation : Sauvegarder les plans d'implémentation actuels (s'ils n'ont pas été appliqués via `/build`) sous forme de note pérenne dans Obsidian (`notes/Plan d'Implémentation {title}.md`) et lier immédiatement dans l'index sous H1 de la note maîtresse.", flush=True)
-    print("3. 📋 Feuille de route & To-Dos en tête : Mettre à jour la feuille de route et les To-Dos (`[ ]` / `[x]`) en tête de la note maîtresse (AGENTS.md).", flush=True)
-    print("4. 💬 Interrogation interactive du ressenti via `ask_question` : Sonder Henri avec les 4 options canoniques : [\"À l'aise\", \"OK\", \"Stressé\", \"Terminé\"] (avec le suffixe '(Recommandé)' selon l'analyse de marge résiduelle), puis appliquer `feedback <projet> <action>`.", flush=True)
-    print("5. 🛑 Clôture définitive de session : INTERDICTION formelle et absolue de relancer automatiquement un Pomodoro et ne plus proposer de projets suivants. Clôturer proprement la conversation.", flush=True)
+    print("1. Pause obligatoire de 5 minutes pour Henri.", flush=True)
+    print("2. Mettre à jour la Roadmap de la note maîtresse Obsidian DIRECTEMENT à partir de task.md (même format: [x]/[ ], feux 🔴/🟡/🟢, replier l'historique dans <details>).", flush=True)
+    print(f"3. Archiver les plans non-builts dans notes/Plan d'Implémentation [{title}].md si pertinent.", flush=True)
+    print("4. Interroger Henri via ask_question (À l'aise / OK / Stressé / Terminé).", flush=True)
+    print("5. Clôture définitive de session : INTERDICTION formelle et absolue de relancer automatiquement un Pomodoro et ne plus proposer de projets suivants. Clôturer proprement la conversation.", flush=True)
     print("============================================================", flush=True)
 
 
@@ -2597,6 +2600,7 @@ def cmd_work(args, data):
         print(f"⏱️ Session Pomodoro démarrée pour '{title}' ({duration_min:.0f} min) [Rattrapage --since {since_min} min | Temps résiduel : {residual_seconds // 60} min]...", flush=True)
     else:
         print(f"⏱️ Session Pomodoro démarrée pour '{title}' ({duration_min:.0f} min)...", flush=True)
+    print("📋 Consigne : Initialiser ou compléter task.md avec les dernières tâches effectuées et prochaines tâches prioritaires de la roadmap du projet.", flush=True)
     step_sec = 30
     start_elapsed_sec = total_seconds - residual_seconds
 
