@@ -92,7 +92,11 @@ Dès l'invocation de `/mj-assistant` par Henri, l'Agent Principal exécute la s�
 ### 1. Initialisation du HUD MJ Latéral
 Générer immédiatement l'artéfact `mj_live_hud.md` dans le répertoire d'artéfacts (`<appDataDir>/brain/<conversation-id>/mj_live_hud.md`) via `write_to_file` avec `ArtifactMetadata: { UserFacing: true, RequestFeedback: false, Summary: "HUD MJ Live Initialisé" }`.
 - **Règle d'Or : Format Ultra-Dense & Zéro Titre Markdown (`#` ou `##`)** : Le HUD doit **TOUJOURS être ultra-dense, sans aucun titre Markdown (`#` ou `##`)** afin d'économiser la hauteur d'écran sur le volet latéral et d'éviter tout défilement vertical superflu.
-- **Organisation en Tête & Cycle de Vie** : Les images de la scène active (battlemaps tactiques, ambiances de lieux, mais aussi portraits/visuels des entités et PNJ actifs) sont placées tout en haut, suivies immédiatement de la ligne d'accès direct aux entités clés sous forme de **liens Markdown classiques cliquables** `[Nom](file:///...)` (zéro wikilink `[[...]]` dans l'artéfact HUD). Lors d'une transition de scène ou de lieu, les visuels de l'ancienne scène sont purgés du HUD pour faire place aux visuels du nouveau lieu.
+- **Structure de Tête Obligatoire & Cycle de Vie** :
+  1. **🖼️ Visuels Actifs de la Scène en Cours** : Battlemaps (Cartographer 16:9), Lieux d'ambiance (Asharde 16:9) et portraits PNJ actifs (Asharde 16:9) affichés côte à côte ou empilés en tête pour consultation et copie instantanée.
+  2. **🏷️ Entités de la Scène Actuelle** : Ligne compacte de liens Markdown classiques cliquables `[Nom](file:///...)` vers les acteurs et lieux de la scène en cours (zéro wikilink `[[...]]`).
+  3. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** : Tableau cumulatif (*append-only*) de toutes les entités créées au fil de la session (Lieux, Objets, PNJ, Monstres) avec liens cliquables, catégorie et description courte pour faciliter l'injection finale dans Harpy.
+  4. **Purge de Transition vs Registre Append-Only** : Lors d'une transition de scène ou de lieu, les visuels de l'ancienne scène sont purgés du HUD pour faire place aux visuels du nouveau lieu, mais le registre des entités créées en session reste strictement cumulatif (*append-only*).
 - **Ambiance Sensorielle d'Ouverture** : À l'initialisation de session, ce HUD intègre le **Texte d'Ambiance Sensoriel d'Ouverture (19h30)** issu de [`asharde-brainstormer`](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/skills/asharde-brainstormer/SKILL.md) et des déclencheurs narratifs originaux.
 
 ### 2. Définition du Sous-Agent Vigie Autonome
@@ -109,7 +113,7 @@ Tes missions permanentes :
    - Lis les 5 à 10 dernières minutes de live_session.md.
    - GÉNÉRATION PROACTIVE VISUELS, BATTLEMAPS & PORTRAITS : Ne JAMAIS attendre qu'Henri le demande. Dès qu'un lieu d'importance émerge ou qu'un cadre change, génère une illustration 16:9. Dès qu'un risque de combat, patrouille ou embuscade se profile, génère IMMÉDIATEMENT une battlemap zénithale 90° sans grille 16:9 selon asharde-battlemap. Dès qu'un PNJ ou monstre majeur intervient activement, génère ou intègre son portrait. Affiche TOUTES ces images en tête du HUD mj_live_hud.md.
    - NETTOYAGE TRANSITION DE SCÈNE : Dès que le groupe quitte la scène ou change d'endroit, purge immédiatement les visuels de l'ancienne scène du HUD pour ne conserver et afficher que les visuels (lieux, battlemaps, PNJ) de la scène active.
-   - ANTI-DOUBLONS STRICT ENTITÉS : Avant de créer une fiche dans Conseil/, vérifie systématiquement si l'entité existe sous un nom populaire, officiel, générique ou alias (ex: Bête d'Ombre vs Laerith). Si elle existe, enrichis la fiche in situ et ajoute les alias dans le YAML. Si elle est inédite, crée sa fiche Harpy canonique dans Conseil/[NomEntite].md.
+   - CRÉATION PROACTIVE 100% ENTITÉS & ANTI-DOUBLONS : Crée proactivement 100% des entités significatives : lieux d'importance (fiche Conseil/ + ambiance 16:9), objets utiles/reliques (fiche Conseil/), et PNJ personnifiés (fiche Conseil/ + portrait 16:9). Avant toute création, vérifie systématiquement si l'entité existe sous un nom populaire, officiel, générique ou alias. Si elle existe, enrichis la fiche in situ et ajoute les alias au YAML. Si elle est inédite, crée sa fiche Harpy canonique dans Conseil/[NomEntite].md. Consigne chaque entité créée dans le Registre cumulatif du HUD.
    - RECHERCHE LORE/RÈGLES : Si tu as besoin de vérifier des statistiques ou règles PF1e, déploie un sous-sous-agent de type 'research'.
    - Envoie la synthèse consolidée avec les images et entités à l'Agent Principal via send_message pour actualiser mj_live_hud.md.
 Travaille de manière 100% autonome en tâche de fond.""",
@@ -193,16 +197,23 @@ La réactivité visuelle est un facteur clé d'immersion et de confort pour le M
   * Enregistrer ou copier tout fichier image généré dans `C:\Users\Jamet\Documents\VoiceNotes\Conseil\_attachments\[nom_media].png`.
   * Intégrer les images **tout en haut du HUD** `mj_live_hud.md` sous la forme de liens Markdown directs cliquables `![Description](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/_attachments/[nom_media].png)` (et en wikilink `![[nom_media.png]]` dans les fiches Obsidian) afin qu'Henri ait la scène complète sous les yeux avant même le premier jet d'initiative ou la première prise de parole.
 
-### 4.4. 🛡️ Protocole Anti-Doublons Strict pour les Entités
-Pour préserver l'intégrité et la clarté du coffre Obsidian et de la campagne :
+### 4.4. 🛡️ Création Proactive Systématique & Protocole Anti-Doublons des Entités
+Pour enrichir en continu l'univers de jeu sans jamais perdre une idée ni polluer le coffre :
+- **Règle de Création Proactive Systématique de 100% des Entités Significatives** :
+  Ne JAMAIS attendre une consigne explicite du MJ pour consigner ce qui est nommé ou mis en scène. Dès qu'un élément significatif apparaît dans la narration ou les dialogues :
+  * **Lieux d'importance** : Dès qu'un **lieu d'importance** est abordé (planque, échoppe, sanctuaire, auberge, quartier, ruine, tour) ➔ **création immédiate de la fiche de lieu dans `Conseil/[NomLieu].md`** + **génération d'une illustration d'ambiance 16:9 au Style Asharde** (enregistrée dans `Conseil/_attachments/` et insérée dans la fiche et en tête du HUD).
+  * **Objets ou reliques utiles** : Dès qu'un **objet ou relique potentiellement utile ou important** émerge (clé, passe-partout, artefact maudit, fiole rare, arme singulière, document, lettre, registre, parchemin) ➔ **création immédiate de la fiche d'objet dans `Conseil/[NomObjet].md`**.
+  * **Personnages personnifiés (PNJ)** : Dès qu'un **personnage personnifié** avec un nom, une fonction ou une personnalité émerge (marchand, passant nommé, garde singulier, informateur, antagoniste, contact) ➔ **création immédiate de la fiche PNJ dans `Conseil/[NomPNJ].md`** + **portrait 16:9 au Style Asharde** (enregistré dans `Conseil/_attachments/` et inséré dans la fiche et en tête du HUD).
+  * **Respect Absolu du Protocole Anti-Doublons** : Avant toute création, exécuter systématiquement la vérification préalable (`grep_search` / `find_by_name`). Si l'entité existe déjà, enrichir in situ et ajouter les alias au YAML sans créer de doublon.
 - **Vérification Systématique Préalable** : Avant de créer toute nouvelle entité dans `Conseil/`, vérifier systématiquement via `grep_search` ou `find_by_name` si elle existe déjà sous un **nom populaire**, **officiel**, **générique** ou un **alias** (ex: *Bête d'Ombre* vs *Laerith*, *Gardes du Rempart* vs *Dottari*).
 - **Enrichissement In Situ (Zéro Fichier Doublon)** :
   * Si l'entité existe déjà, **INTERDICTION FORMELLE de créer un nouveau fichier**.
-  * Ouvrir et enrichir directement la fiche existante in situ avec les nouvelles informations révélées par la session (nouvelles compétences, répliques marquantes, secrets dévoilés, état de santé).
+  * Ouvrir et enrichir directement la fiche existante in situ avec les nouvelles informations révélées par la session (nouvelles compétences, répliques marquantes, secrets dévoilés, état de santé, objets portés).
   * Ajouter les nouveaux noms ou surnoms entendus dans le champ `aliases:` du frontmatter YAML de la note.
-- **Création d'Entité Neuve** :
+- **Création d'Entité Neuve & Inscription au Registre du HUD** :
   * Uniquement si l'entité est authentiquement nouvelle et n'a aucune fiche existante.
   * Rédiger la fiche canonique selon [`harpy-entity-creator`](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/skills/harpy-entity-creator/SKILL.md) dans `C:\Users\Jamet\Documents\VoiceNotes\Conseil\[NomEntite].md`.
+  * **Consigner immédiatement l'entité créée dans le Registre cumulatif du HUD** (`mj_live_hud.md`) avec son lien Markdown cliquable, sa catégorie et sa description courte pour l'import Harpy en clôture de partie.
 
 ### 4.5. Cycle de Veille Périodique (Toutes les 5 minutes)
 À chaque expiration du cron :
@@ -212,9 +223,10 @@ Pour préserver l'intégrité et la clarté du coffre Obsidian et de la campagne
    - Transition de lieu / scène ➔ Purge immédiate des visuels de l'ancienne scène du HUD (règle de nettoyage).
    - Tension martiale / patrouille / embuscade ➔ Génération immédiate de la battlemap 90° sans grille 16:9.
    - PNJ ou monstre actif en scène ➔ Génération ou intégration du portrait/visuel de l'entité en tête du HUD.
-3. **Analyse des Entités avec Contrôle Anti-Doublons** :
-   - Vérification de l'existence de chaque PNJ ou monstre cité.
-   - Enrichissement in situ + alias YAML ou création d'une nouvelle fiche Harpy dans `Conseil/`.
+3. **Analyse & Création Proactive des Entités avec Contrôle Anti-Doublons** :
+   - Création proactive immédiate de 100% des entités significatives : lieux (+ ambiance 16:9), objets/reliques utiles, PNJ personnifiés (+ portrait 16:9).
+   - Vérification de l'existence préalable de chaque entité.
+   - Enrichissement in situ + alias YAML ou création d'une nouvelle fiche Harpy dans `Conseil/` inscrite au Registre cumulatif du HUD.
 4. **Délégation Chirurgicale au Sous-Sous-Agent Recherche ($P=2$)** :
    Pour toute question narrative, mécanique ou statblock manquant, la Vigie déploie un agent de recherche dédié :
    ```python
@@ -261,7 +273,12 @@ Lorsque Henri tape un message court ou un raccourci pendant la partie, répondre
 ## 📋 6. Gabarit Canonique du HUD MJ Ultra-Dense (`mj_live_hud.md`)
 
 L'artéfact affiché sur le volet latéral doit suivre rigoureusement cette architecture **ultra-dense sans aucun titre Markdown (`#` ou `##`) et sans en-tête verbeux**.
-- **Images de la Scène en Tête & Cycle de Vie** : **TOUTES les images générées sont affichées tout en haut du HUD** : battlemaps tactiques, ambiances de lieux, **MAIS AUSSI les portraits/visuels des entités et PNJ actifs dans la scène**. Dès que le groupe quitte la scène ou change d'endroit/lieu, **les visuels de l'ancienne scène sont obligatoirement purgés du HUD** pour faire place aux visuels du nouveau lieu et de la scène active.
+
+### Structure de Tête Obligatoire :
+1. **🖼️ Visuels Actifs de la Scène en Cours** : Battlemaps (Cartographer 16:9), Lieux d'ambiance (Asharde 16:9) et PNJ actifs (Asharde 16:9) affichés côte à côte ou empilés en tête pour consultation et copie instantanée par le MJ.
+2. **🏷️ Entités de la Scène Actuelle** : Ligne compacte de liens Markdown classiques cliquables `[Nom](file:///...)` vers les acteurs et lieux de la scène en cours (zéro wikilink `[[...]]`).
+3. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** : Tableau/liste de TOUTES les entités créées tout au long de la conversation (PNJ, Monstres, Lieux, Objets, Documents) avec liens Markdown cliquables, catégorie et description courte, facilitant leur injection directe dans Harpy en fin de partie.
+4. **Règle de Purge de Transition & Persistance Append-Only** : Les visuels de scène sont renouvelés et purgés à chaque changement de décor ou déplacement du groupe (seuls les visuels de la scène active restent affichés en tête), mais le **registre des entités créées en session reste strictement cumulatif (*append-only*)** tout au long de la session.
 - **Liens Markdown Classiques Cliquables Exclusifs (Zéro Wikilink)** : **TOUS les liens dans l'artéfact doivent être expressément des liens Markdown classiques cliquables au format `[Nom](file:///...)` et JAMAIS de wikilinks Obsidian `[[...]]`** qui ne sont pas cliquables dans l'interface Antigravity.
 
 ```markdown
@@ -276,7 +293,17 @@ L'artéfact affiché sur le volet latéral doit suivre rigoureusement cette arch
 
 ---
 
-🔗 **ENTITÉS CLÉS & ACCÈS DIRECT** : [Bête d'Ombre (Laerith)](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Laerith.md) • [Sentinelles Dottari](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Dottari%20de%20Westcrown.md) • [Barnabé Limon Sec](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Barnabé%20Limon%20Sec.md) • [Nox](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Nox.md)
+🏷️ **ENTITÉS DE LA SCÈNE ACTUELLE** : [Arche des Déluges](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Arche%20des%20Déluges.md) • [Barnabé Limon Sec](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Barnabé%20Limon%20Sec.md) • [Sentinelles Dottari](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Dottari%20de%20Westcrown.md) • [Bête d'Ombre (Laerith)](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Laerith.md)
+
+---
+
+📋 **REGISTRE DES ENTITÉS CRÉÉES EN SESSION (POUR IMPORT HARPY)**  
+| Type | Entité & Fiche | Rôle / Description Courte | Import Harpy |
+|---|---|---|:---:|
+| 🏛️ **Lieu** | [Arche des Déluges](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Arche%20des%20Déluges.md) | Arche monumentale sous le rempart nord, zone de submersion | À importer |
+| 👤 **PNJ** | [Barnabé Limon Sec](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Barnabé%20Limon%20Sec.md) | Passeur clandestin de Westcrown, informateur réticent | À importer |
+| 🗝️ **Objet** | [Passe-Partout des Caniveaux](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Passe-Partout%20des%20Caniveaux.md) | Clé triangulaire ouvrant les grilles d'évacuation | À importer |
+| 📜 **Document** | [Registre de Péage Clandestin](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Registre%20de%20Péage%20Clandestin.md) | Liste codée des cargaisons passées sous l'Arche | À importer |
 
 ---
 
@@ -328,5 +355,6 @@ L'artéfact affiché sur le volet latéral doit suivre rigoureusement cette arch
 À la fin de la partie :
 1. Arrêter le cron périodique `schedule` via `manage_task(Action='kill', TaskId=...)`.
 2. Arrêter le démon de transcription `live_transcriber.py`.
-3. Produire la synthèse des événements marquants, XP distribués et butins acquis.
-4. Raccorder les nouvelles fiches et médias générés dans la note maîtresse de campagne `[[notes/Le Conseil des Voleurs]]`.
+3. Injecter ou importer dans Harpy les entités créées recensées dans le Registre du HUD (`Conseil/`).
+4. Produire la synthèse des événements marquants, XP distribués et butins acquis.
+5. Raccorder les nouvelles fiches et médias générés dans la note maîtresse de campagne `[[notes/Le Conseil des Voleurs]]`.
