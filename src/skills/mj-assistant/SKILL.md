@@ -93,11 +93,13 @@ Dès l'invocation de `/mj-assistant` par Henri, l'Agent Principal exécute la s�
 Générer immédiatement l'artéfact `mj_live_hud.md` dans le répertoire d'artéfacts (`<appDataDir>/brain/<conversation-id>/mj_live_hud.md`) via `write_to_file` avec `ArtifactMetadata: { UserFacing: true, RequestFeedback: false, Summary: "HUD MJ Live Initialisé" }`.
 - **Règle d'Or : Format Ultra-Dense & Zéro Titre Markdown (`#` ou `##`)** : Le HUD doit **TOUJOURS être ultra-dense, sans aucun titre Markdown (`#` ou `##`)** afin d'économiser la hauteur d'écran sur le volet latéral et d'éviter tout défilement vertical superflu.
 - **Structure Canonique Obligatoire de Haut en Bas** :
-  1. **🖼️ Visuels de la Scène Actuelle** : 1 seule image du lieu actuel (16:9 Style Asharde), au maximum 1 battlemap associée à ce lieu en cas de combat (16:9 Cartographer), et les visuels des PNJ actifs de la scène (16:9 Style Asharde). Strictement zéro image de scènes antérieures.
+  1. **🖼️ Visuels de la Scène Actuelle** : 1 seule image du lieu actuel (16:9 Style Asharde), au maximum 1 battlemap associée à ce lieu en cas de combat ou tension (16:9 Cartographer), et les visuels des PNJ actifs de la scène (16:9 Style Asharde). Strictement zéro image de scènes antérieures.
   2. **🏷️ Entités Présentes dans la Scène** : Ligne compacte de liens Markdown classiques cliquables `[Nom](file:///...)` vers les acteurs et lieux de la scène active (zéro wikilink `[[...]]`).
-  3. **⚔️ PNJ de la Scène — Stats de Combat & Profils d'Action** : Tableau complet des PNJ (PV, CA, Contact, Pris au Dépourvu, Init, BMO, DMD, Attaque Principale, Sauvegardes) + profils d'action, psychologie, réactions et compétences. **Exclusion formelle du groupe des PJ** (le MJ interroge directement ses joueurs).
-  4. **💡 Idées de Jeu, Leviers Tactiques & Improvisation** : Pistes concrètes d'actions, tests, dilemmes et leviers tactiques pour aider le MJ.
-  5. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** : Placé **STRICTEMENT TOUT EN BAS** de l'artefact. Tableau cumulatif (*append-only*) de toutes les entités créées au fil de la session avec liens cliquables, catégorie et rôle.
+  3. **⚔️ PNJ de la Scène — Stats de Combat, Profil d'Action & Stades** : Tableau complet des PNJ (PV, CA, Contact, Pris au Dépourvu, Init, BMO, DMD, Attaque Principale, Sauvegardes Vig/Réf/Vol) + stades d'action/comportement tactique, seuils de reddition/fuite et compétences clés. **Exclusion formelle du groupe des PJ** (le MJ interroge directement ses joueurs).
+  4. **🏰 Détails du Lieu, Secrets, Pièges & Objets Utilisables (Props)** : Agencement, sorties dérobées, passages secrets, trappes, verrous/serrures avec DD, pièges et risques environnementaux, objets de décor et props immédiatement utilisables en combat ou diversion (cisailles, mannequins pour abri/terrain difficile, flacons inflammables, rouleaux, etc.).
+  5. **🔮 Anticipation Proactive : Questions des Joueurs & Réponses avec DD Prêts à l'Emploi** : Déduire du flux de transcription ce que les joueurs préparent, projettent ou hésitent à faire (recherche d'issues de secours, déguisement, dissimulation de butin, question sur le lore ou les voisins, vol de caisse). Fournir immédiatement la question probable, la réponse du MJ et les DD chiffrés prêts à être annoncés sans que le MJ n'ait à chercher ni improviser.
+  6. **💡 Idées de Jeu, Leviers Tactiques & Improvisation** : Pistes concrètes d'actions, dilemmes, leviers de cupidité, intimidation et tension dramatique extérieure pour aider le MJ.
+  7. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** : Placé **STRICTEMENT TOUT EN BAS** de l'artéfact. Tableau cumulatif (*append-only*) de toutes les entités créées au fil de la session avec liens cliquables, catégorie et rôle.
 - **Suppression Formelle des Citations & Récapitulatifs** : Zéro citation directe, zéro récapitulatif redondant de la scène en cours.
 - **Purge de Transition vs Registre Append-Only** : Lors d'une transition de scène ou de lieu, les visuels de l'ancienne scène sont purgés du HUD pour faire place aux visuels du nouveau lieu, mais le registre des entités créées en session reste strictement cumulatif (*append-only*) tout en bas de l'artefact.
 - **Ambiance Sensorielle d'Ouverture** : À l'initialisation de session, ce HUD intègre le **Texte d'Ambiance Sensoriel d'Ouverture (19h30)** issu de [`asharde-brainstormer`](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/skills/asharde-brainstormer/SKILL.md) et des déclencheurs narratifs originaux.
@@ -237,7 +239,11 @@ Pour enrichir en continu l'univers de jeu sans jamais perdre une idée ni pollue
    - Création proactive immédiate de 100% des entités significatives : lieux (+ ambiance 16:9), objets/reliques utiles, PNJ personnifiés (+ portrait 16:9).
    - Vérification de l'existence préalable de chaque entité.
    - Enrichissement in situ + alias YAML ou création d'une nouvelle fiche Harpy dans `Conseil/` inscrite au Registre cumulatif du HUD.
-4. **Délégation Chirurgicale au Sous-Sous-Agent Recherche ($P=2$)** :
+4. **Anticipation Proactive des Intentions & Inventaire du Lieu (Secrets, Pièges & Props)** :
+   - **Analyse des intentions des joueurs** : Analyser le flux de transcription pour déduire ce que les joueurs préparent, projettent ou hésitent à faire (recherche d'issues de secours, déguisement, dissimulation de butin, question sur le lore ou les voisins, vol de caisse).
+   - **Formulation des questions probables & réponses avec DD prêts à l'emploi** : Fournir immédiatement la question probable, la réponse du MJ et les DD chiffrés prêts à être annoncés sans que le MJ n'ait à chercher ni improviser.
+   - **Inventaire du lieu actif (Détails, Secrets, Pièges & Props)** : Recenser les agencements critiques, sorties dérobées, passages secrets, trappes, verrous avec DD de crochetage/enfoncement, pièges environnementaux, et objets de décor et props utilisables immédiatement en combat ou diversion (cisailles, mannequins pour abri/terrain difficile, flacons inflammables, rouleaux, cordages, etc.).
+5. **Délégation Chirurgicale au Sous-Sous-Agent Recherche ($P=2$)** :
    Pour toute question narrative, mécanique ou statblock manquant, la Vigie déploie un agent de recherche dédié :
    ```python
    invoke_subagent(
@@ -248,12 +254,12 @@ Pour enrichir en continu l'univers de jeu sans jamais perdre une idée ni pollue
        }]
    )
    ```
-5. **Remontée à l'Agent Principal via `send_message`** :
+6. **Remontée à l'Agent Principal via `send_message`** :
    La Vigie transmet à l'Agent Principal ($P=0$) une synthèse prête à intégrer dans le HUD :
    ```python
    send_message(
        Recipient="parent",
-       Message="Delta HUD Session :\n- Médias : [Battlemap du lieu actuel, ambiance du lieu actuel et portraits PNJ de la scène active (anciens purgés selon unicité visuelle)]\n- Entités présentes : [Liens cliquables vers acteurs et lieux de la scène active]\n- PNJ de la scène : [Statblocks complets de combat et profils d'action (hors PJ)]\n- Idées de jeu : [Leviers tactiques, dilemmes et improvisation]\n- Registre Harpy : [Nouvelles entités créées à ajouter en bas de registre]"
+       Message="Delta HUD Session :\n- Médias : [Battlemap du lieu actuel, ambiance du lieu actuel et portraits PNJ de la scène active (anciens purgés selon unicité visuelle)]\n- Entités présentes : [Liens cliquables vers acteurs et lieux de la scène active]\n- PNJ de la scène : [Statblocks complets de combat, profils d'action, stades et seuils de fuite (hors PJ)]\n- Détails du lieu & props : [Agencement, sorties dérobées, verrous avec DD, pièges, props utilisables immédiatement]\n- Anticipation proactive : [Questions probables des joueurs, réponses MJ et DD prêts à l'emploi]\n- Idées de jeu : [Leviers tactiques, cupidité, intimidation, dilemmes]\n- Registre Harpy : [Nouvelles entités créées à ajouter en bas de registre]"
    )
    ```
 
@@ -292,14 +298,21 @@ L'artéfact affiché sur le volet latéral doit suivre rigoureusement cette arch
    - **Strictement zéro image de scènes antérieures** ou de lieux hors scène (liens cliquables uniquement).
 2. **🏷️ Entités Présentes dans la Scène** :
    - Ligne compacte de liens Markdown classiques cliquables `[Nom](file:///...)` vers les entités et lieux de la scène active (zéro wikilink `[[...]]`).
-3. **⚔️ PNJ de la Scène — Stats de Combat & Profils d'Action** :
+3. **⚔️ PNJ de la Scène — Stats de Combat, Profil d'Action & Stades** :
    - Tableau complet des PNJ : PV, CA, Contact, Pris au Dépourvu, Init, BMO, DMD, Attaque Principale, Sauvegardes (Vig / Réf / Vol).
-   - Profils d'action, psychologie, réactions probables, compétences importantes.
+   - Stades d'action et de comportement tactique, seuils de reddition ou de fuite, compétences clés.
    - **EXCLUSION DU GROUPE DES PJ** : Le groupe des héros n'est pas inclus dans le HUD (le MJ interroge directement les joueurs à sa table).
-4. **💡 Idées de Jeu, Leviers Tactiques & Improvisation** :
+4. **🏰 Détails du Lieu, Secrets, Pièges & Objets Utilisables (Props)** :
+   - Agencement du lieu, sorties dérobées, passages secrets, trappes, verrous/serrures avec DD.
+   - Pièges et risques environnementaux.
+   - Objets de décor et props utilisables immédiatement en combat ou diversion (cisailles, mannequins pour abri/terrain difficile, flacons inflammables, rouleaux, cordages, etc.).
+5. **🔮 Anticipation Proactive : Questions des Joueurs & Réponses avec DD Prêts à l'Emploi** :
+   - Déduction à partir du flux de transcription de ce que les joueurs préparent, projettent ou hésitent à faire (recherche d'issues de secours, déguisement, dissimulation de butin, question sur le lore ou les voisins, vol de caisse).
+   - Fourniture immédiate de la question probable, de la réponse du MJ et des DD chiffrés prêts à être annoncés sans que le MJ n'ait à chercher ni improviser.
+6. **💡 Idées de Jeu, Leviers Tactiques & Improvisation** :
    - Pistes concrètes d'actions, de tests, de dilemmes ou de réactions pour stimuler et assister le MJ.
-   - Leviers tactiques exploitables dans l'environnement immédiat.
-5. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** :
+   - Leviers de cupidité, intimidation et tension dramatique extérieure exploitables dans l'environnement immédiat.
+7. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** :
    - Placé **STRICTEMENT TOUT EN BAS** de l'artefact.
    - Tableau cumulatif (*append-only*) de toutes les entités créées au fil de la session (Lieux, Objets, PNJ, Monstres, Documents) avec liens cliquables, catégorie et rôle.
 - **Suppression Formelle des Citations Directes & Récapitulatifs Redondants** : Zéro citation en direct de répliques, zéro récapitulatif narratif redondant de ce qui vient d'être dit (le MJ et les joueurs viennent de le vivre).
@@ -322,7 +335,7 @@ L'artéfact affiché sur le volet latéral doit suivre rigoureusement cette arch
 
 ---
 
-⚔️ **PNJ DE LA SCÈNE — STATS DE COMBAT & PROFILS D'ACTION** *(Groupe PJ exclu)*  
+⚔️ **PNJ DE LA SCÈNE — STATS DE COMBAT, PROFIL D'ACTION & STADES** *(Groupe PJ exclu)*  
 | PNJ / Créature | PV | CA | Contact | Dépourvu | Init | BMO | DMD | Attaque Principale | Sauvegardes (Vig/Réf/Vol) |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|---|:---:|
 | **Barnabé Limon Sec** (Roublard 2) | 13 | 14 | 12 | 12 | +2 | +1 | 13 | Dague de maître +4 (1d4 / 19-20) | +1 / +5 / +0 |
@@ -330,25 +343,59 @@ L'artéfact affiché sur le volet latéral doit suivre rigoureusement cette arch
 | **Bête d'Ombre (Laerith)** (FP 3) | 19 | 15 | 15 | 13 | +2 | +4 | 16 | Contact spectral +4 (1d6 froid + 1d6 affaibl. For) | +3 / +3 / +4 |
 
 - **Barnabé Limon Sec** :
-  * *Psychologie & Réactions* : Lâche, opportuniste, terrifié par l'obscurité. Parle vite, accepte 15 PO ou trahit à la première menace de noyade.
-  * *Profil Tactique* : Cherche le couvert (+4 CA), tente une Attaque Sournoise (+1d6) si un allié prend en tenaille, sinon jette sa bourse comme diversion et s'enfuit dans l'eau.
-  * *Compétences Clés* : Discrétion +7, Natation +6, Bluff +5, Connaissances (local) +6.
+  * *Stades d'Action & Comportement Tactique* : Stade 1 (Plein sang) : Négocie nerveusement, garde ses distances en restant près de sa barque. Stade 2 (< 8 PV) : Tente une feinte de désengagement, jette une fiole de poix ou sa bourse pour faire diversion.
+  * *Seuils de Reddition / Fuite* : Fuit dès qu'il subit une blessure létale (> 5 dégâts en un coup) ou se rend immédiatement si acculé sans issue navigable (mains levées, supplie en sanglotant).
+  * *Psychologie & Réactions* : Lâche, opportuniste, terrifié par l'obscurité. Parle vite, accepte 15 PO ou trahit à la première menace crédible de noyade.
+  * *Compétences Clés* : Discrétion +7, Natation +6, Bluff +5, Connaissances (local) +6, Évasion +7.
 - **Sentinelles Dottari** :
-  * *Psychologie & Réactions* : Disciplinées mais réticentes à entrer sous l'Arche sans torche. Craignent les sanctions de leur capitaine.
-  * *Profil Tactique* : Verrouillent l'issue à la guisarme (allonge 3 m, croc-en-jambe BMO +6), tirent à vue à l'arbalète si les PJ restent à distance.
+  * *Stades d'Action & Comportement Tactique* : Stade 1 (Patrouille / Sommation) : Gardent la formation coude-à-coude, guisarme en arrêt (croc-en-jambe BMO +6, allonge 3 m). Stade 2 (Alerte / Blessés < 10 PV) : L'un sonne du cor d'alarme pendant que l'autre passe en défense totale (+4 CA).
+  * *Seuils de Reddition / Fuite* : Ne se rendent jamais face aux créatures d'ombre. Face aux PJ : reculent en bon ordre si l'un tombe ; capitulent si désarmés et encerclés (Intimidation DD 13).
+  * *Psychologie & Réactions* : Disciplinées mais superstitieuses ; réticentes à entrer sous l'Arche sans torche. Craignent les sanctions du capitaine plus que les voleurs.
   * *Compétences Clés* : Intimidation +5, Perception +2 (vision normale, pénalité en pénombre).
 - **Bêtes d'Ombre (Laerith)** :
-  * *Psychologie & Réactions* : Entités affamées, agressivité instinctive envers toute source de chaleur vivante.
-  * *Profil Tactique* : Traversent la maçonnerie (Incorporel : 50% raté armes magiques, immunisé armes non-magiques). Ciblent le personnage au score de Force le plus bas.
-  * *Compétences Clés* : Discrétion +10 (dans la pénombre), Vulnérabilité : *Lumière vive* (Volonté DD 15 ou fuite à 9 m).
+  * *Stades d'Action & Comportement Tactique* : Stade 1 (Chasse furtive) : Attaque en embuscade depuis la pierre crue (Incorporel : 50% raté armes magiques, immunisé armes non-magiques). Cible le personnage au score de Force le plus bas. Stade 2 (< 7 PV) : Plonge dans la maçonnerie pour réapparaître dans le dos du soigneur ou d'un PJ isolé.
+  * *Seuils de Reddition / Fuite* : Aucune reddition possible (aberration spectrale affamée). Fuite instantanée à 9 m si exposée à une *Lumière vive* ou un sort de flammes magiques (Volonté DD 15).
+  * *Compétences Clés* : Discrétion +10 (dans la pénombre), Contact spectral (+1d6 affaiblissement de Force temporaire).
+
+---
+
+🏰 **DÉTAILS DU LIEU, SECRETS, PIÈGES & OBJETS UTILISABLES (PROPS)**  
+- 🧱 **Agencement & Architecture** : Voûte humide en pierre de taille couverte de mousse saumâtre. Sol dallé glissant submergé sous 30 cm d'eau saumâtre. Hauteur sous voûte 4,5 m. Piliers massifs offrant un abri total (+4 CA).
+- 🚪 **Sorties Dérobées & Passages Secrets** :
+  * *Trappe d'évacuation haute* : Camouflée sous une fausse gargouille à 3,5 m de haut (Perception DD 16). Mène aux toits de la ruelle des Teinturiers. Crochetage DD 20 ou Enfoncer Force DD 18.
+  * *Exutoire des eaux usées* : Grille basse immergée sous le courant (Perception DD 13 pour la repérer). Verrou rongé par la rouille (Crochetage DD 15, Force DD 14 pour tordre un barreau). Mène aux bas-fonds.
+- ⚠️ **Pièges & Risques Environnementaux** :
+  * *Dalle basculante des contrebandiers* : Devant le pilier central (Perception DD 18, Sabotage DD 18). Déclencheur : poids > 40 kg. Effet : Fosse noyée de 3 m (1d6 dégâts contondants + risque de noyade sous grille verrouillée).
+  * *Risque de crue soudaine* : Montée des eaux d'égout en cas d'averse persistante (+15 cm tous les 3 rounds, Acrobaties DD 12 pour ne pas glisser et tomber à terre).
+- 🧰 **Objets de Décor & Props Immédiatement Utilisables** :
+  * *Mannequins de couture et toiles de jute empilées* : Fournissent un abri partiel (+2 CA, +1 Réf) ou peuvent être renversés pour créer un terrain difficile de 3 m × 3 m (Action de mouvement).
+  * *Flacons d'huile à lampe rance (3 fioles sur l'étagère de garde)* : Peuvent être lancés (arme improvisée portée 3 m) pour embraser une case de 1,5 m (1d6 feu / round, dure 2 rounds).
+  * *Cisailles de calfat en fer lourd (sur l'établi)* : Peuvent trancher des cordages d'amarrage (solidité 2, 5 PV) ou servir d'arme improvisée contondante/perforante (1d6, critique ×2).
+  * *Rouleaux de chanvre et poulie de levage au plafond* : Permettent de se balancer d'un pilier à l'autre (Acrobaties DD 12) pour éviter le sol inondé ou faire tomber un contrepoids de 50 kg sur un ennemi (Attaque de contact à distance +4, 2d6 contondant).
+
+---
+
+🔮 **ANTICIPATION PROACTIVE : QUESTIONS DES JOUEURS & RÉPONSES AVEC DD PRÊTS À L'EMPLOI**  
+- ❓ **« Y a-t-il une autre issue si les Dottari bloquent l'arche principale ? »**  
+  * *Réponse MJ* : Oui, deux possibilités : grimper vers la gargouille haute du rempart ou s'infiltrer par l'exutoire d'égout inondé derrière le pilier est.
+  * *DD Prêts à l'Emploi* : Perception DD 13 (repérer la grille basse) / Escalade DD 12 (atteindre la trappe haute) / Sabotage ou Crochetage DD 15 (forcer la grille basse).
+- ❓ **« Puis-je utiliser les mannequins ou caisses pour me cacher ou bloquer la sentinelle ? »**  
+  * *Réponse MJ* : Tout à fait. Renverser le mannequin lourd forme un obstacle de taille M créant un couvert ou bloquant la charge du lancier.
+  * *DD Prêts à l'Emploi* : Force brute DD 11 (renverser en action simple) / Discrétion DD 14 (se fondre derrière les toiles de jute trempées, bonus +4 si l'éclairage faiblit).
+- ❓ **« Est-ce que les gens du quartier ont entendu le combat ou vont donner l'alerte ? »**  
+  * *Réponse MJ* : Le bruit de l'averse masque les chocs sourds, mais le cor d'alarme dottari ou un sort sonore alertera la garnison du pont dans les 2 minutes.
+  * *DD Prêts à l'Emploi* : Connaissances (local) DD 12 (savoir que la caserne Dottari la plus proche est à 400 mètres) / Perception auditive DD 15 pour un tiers extérieur sous le déluge.
+- ❓ **« Barnabé a-t-il de la marchandise ou une bourse dérobée sur lui ou cachée dans sa barque ? »**  
+  * *Réponse MJ* : Il a une bourse de ceinture et un double fond sous la banquette de sa barque calfatée.
+  * *DD Prêts à l'Emploi* : Fouille / Perception DD 15 (détecter le double fond de la barque) : contient 45 PO, 2 potions de *Soins légers* et une lettre scellée à la cire noire ; Escamotage DD 14 (lui faire les poches pendant la discussion).
 
 ---
 
 💡 **IDÉES DE JEU, LEVIERS TACTIQUES & IMPROVISATION**  
 - 🪵 **Levier Tactique — Grille des Vannes d'Évacuation** : Manivelle rouillée sur le pilier est (Force DD 14). Ouvrir la vanne déverse un flot de boue créant un terrain difficile (9 m) et éteint les torches des Dottari.
-- 🕳️ **Exutoire des Eaux Usées** : Anfractuosité dans la maçonnerie du rempart crénelé (Escalade DD 12) permettant une extraction discrète vers la ruelle des Teinturiers.
-- 🌧️ **Météo Sensorielle** : Averse torrentielle glaciale, pavé rendu glissant (Acrobaties DD 10 en course), odeur étouffante de suif brûlé, de limon croupi et de bitume.
-- 🗝️ **Dilemme & Pression Temporelle** : Les cloches de l'Horloge du Rempart sonnent le couvre-feu dans 3 rounds ; une patrouille de cavaliers des Dottari arrive par la chaussée haute si l'alerte retentit.
+- 💰 **Levier de Cupidité & Pression** : Barnabé tente de racheter sa vie en révélant la cache d'un coffret de perles de contrebande sous le ponton si on lui promet de ne pas le livrer aux Tieffelins.
+- 😱 **Intimidation & Faiblesse Psychologique** : Barnabé a une phobie viscérale de la noyade ; l'immerger de force (test d'Empoignade réussi) confère un bonus de +5 aux tests d'Intimidation pour le faire parler sans violence prolongée.
+- 🌧️ **Météo Sensorielle & Tension Dramatique** : Averse torrentielle glaciale, pavé rendu glissant (Acrobaties DD 10 en course), odeur étouffante de suif brûlé, de limon croupi et de bitume. Cloches de l'Horloge du Rempart sonnant le couvre-feu dans 3 rounds.
 - 🏛️ **Secret Révélable par Barnabé** : Si interrogé avec succès (Intimidation DD 12 ou Diplomatie DD 14), révèle le mot de passe de la planque des Bâtards d'Érèbe : *« Les yeux fermés voient l'Ombre »*.
 
 ---
