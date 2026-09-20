@@ -2465,7 +2465,7 @@ def cmd_complete_task(args, data):
 def print_end_of_session_reminders(title: str, is_interrupted: bool = False):
     print(flush=True)
     print("============================================================", flush=True)
-    print(f"⚠️ RAPPEL PROTOCOLE DE CLÔTURE POMODORO :", flush=True)
+    print(f"⚠️ RAPPEL PROTOCOLE DE CLÔTURE POMODORO (ZÉRO PERTE INTER-SESSIONS) :", flush=True)
     if is_interrupted:
         print(f"   (Session interrompue pour '{title}')", flush=True)
     else:
@@ -2473,11 +2473,11 @@ def print_end_of_session_reminders(title: str, is_interrupted: bool = False):
     print("============================================================", flush=True)
     print("👉 Se référer impérativement au skill `_agents/skills/project-memory/SKILL.md` et le relire via `view_file` pour le protocole complet de fin de session.", flush=True)
     print(flush=True)
-    print("1. Pause obligatoire de 5 minutes pour Henri.", flush=True)
-    print("2. Mettre à jour la Roadmap de la note maîtresse Obsidian DIRECTEMENT à partir de task.md.", flush=True)
-    print(f"3. Archiver les plans non-builts dans notes/Plan d'Implémentation [{title}].md si pertinent.", flush=True)
-    print("4. Interroger Henri via ask_question (À l'aise / OK / Stressé / Terminé).", flush=True)
-    print("5. Clôture définitive de session : INTERDICTION formelle et absolue de relancer automatiquement un Pomodoro et ne plus proposer de projets suivants. Clôturer proprement la conversation.", flush=True)
+    print("1. Pause obligatoire 5 min pour Henri.", flush=True)
+    print(f"2. Sauvegarde obligatoire des artéfacts non-build dans Obsidian : archiver tout plan d'implémentation (`implementation_plan.md`), rapport de cadrage ou note technique non encore matérialisé par /build dans `notes/Plan d'Implémentation {title}.md` (et indexé sous H1 de la note maîtresse).", flush=True)
+    print("3. Synchronisation de la roadmap de session dans la note maîtresse : mettre à jour `## 📋 Quelle est la feuille de route...` en tête de note maîtresse DIRECTEMENT à partir de `task.md` (cases [ ]/[x], format 2 niveaux, feux tricolores Henri 🔴/🟡/🟢).", flush=True)
+    print("4. Feedback interactif via `ask_question` obligatoire (['À l'aise', 'OK', 'Stressé', 'Terminé']).", flush=True)
+    print("5. Clôture définitive sans relance automatique : INTERDICTION formelle et absolue de relancer automatiquement un Pomodoro et ne plus proposer de projets suivants. Clôturer proprement la conversation.", flush=True)
     print("============================================================", flush=True)
 
 

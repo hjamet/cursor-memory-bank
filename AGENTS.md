@@ -54,6 +54,11 @@ La note maîtresse Obsidian est le tableau de bord ultra-synthétique du projet 
 - **Indexation en Sous-Note Obligatoire** : Tout transcript est rattaché en sous-note sous H1 : `[[voicenotes/Nom de la Voicenote|Transcript Source]]`.
 - **Instanciation Immédiate** : Dès qu'une voicenote fait émerger un sujet durable ➔ créer immédiatement la note maîtresse canonique du projet (`#todo #project`) avec structure Q/R et checklist.
 
+### 3. Persistance Systématique des Artéfacts Non-Build & Continuité Inter-Sessions
+- **Sanctuarisation Immédiate des Artéfacts Non-Build** : Dès qu'un plan d'implémentation (`implementation_plan.md`), un rapport d'exploration ou un document de cadrage est rédigé ou mis à jour et n'a pas encore été intégralement exécuté dans le code par `/build`, l'agent DOIT impérativement l'archiver dans le coffre Obsidian sous forme de sous-note pérenne liée sous H1 : `notes/Plan d'Implémentation [NomProjet].md` ou `notes/Exploration [NomProjet].md`.
+- **Passerelle Continue task.md ➔ Roadmap Note Maîtresse** : La feuille de route opérationnelle en tête de note maîtresse (`## 📋 Quelle est la feuille de route...`) doit être synchronisée en direct avec l'artéfact `task.md` à chaque fin de session, jalon ou modification substantielle de priorités.
+- **Règle Zéro-Perte Inter-Sessions** : Tout agent prenant le relais sur un projet (#todo/#project) doit trouver dans le coffre l'intégralité du matériel décisionnel et la roadmap à jour pour reprendre le travail immédiatement et sans la moindre déperdition de contexte.
+
 ---
 
 ## ✍️ Conventions Locales du Coffre
