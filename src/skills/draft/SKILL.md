@@ -13,7 +13,7 @@ flowchart TD
     C --> D["✂️ Étape 2 : Retouche Chirurgicale Scalpel & Contrôle Rétention >= 90%"]
     D --> E["📊 Étape 3 : Génération d'Artéfact Brain Interactif (get_diff_artifact mode=draft)"]
     E --> F{"📂 Nature du Support Source ?"}
-    F -->|Mémoire / Chat| G["📋 Restitution Chat : Texte Retouché Copier-Coller + Tableau Balises + Lien Artéfact Brain"]
+    F -->|Mémoire / Chat| G["📋 Restitution Chat : Lien Exclusif Artéfact Brain (Texte Prêt dans le Bloc Dépliant)"]
     F -->|Fichier Disque| H["💾 Édition In-Situ (replace_file_content) + Lien Exclusif Artéfact Brain dans le Chat"]
 ```
 
@@ -24,11 +24,14 @@ flowchart TD
 > [!IMPORTANT]
 > **RÈGLE FORMELLE D'ARBITRAGE DE RESTITUTION D'HENRI :**
 > - **Génération Systématique de l'Artéfact Brain** : Quel que soit le support source, un artéfact interactif Markdown (`file:///<appDataDir>/brain/<conversation-id>/...`) est **TOUJOURS généré** via l'outil MCP `get_diff_artifact(mode="draft")` pour inspecter le word-diff coloré, le contrôle de rétention ($\ge 90\%$) et le tableau de traçabilité complet.
-> - **Bifurcation selon le Support Source** :
+> - **Restitution Exclusive par Lien vers l'Artéfact Brain (Zéro Pollution Textuelle dans le Chat)** :
+>   Quelle que soit la source (mémoire ou fichier disque), la restitution dans le chat consiste **EXCLUSIVEMENT** à partager en première ligne le **lien cliquable vers l'artéfact Brain interactif** (`virtual_draft_*.md` ou `diff_*.md`) généré par la machine (`get_diff_artifact`).
+>   * **Justification** : Cela permet à Henri d'inspecter le diff, de laisser des commentaires ciblés directement via l'interface d'artéfact, et de copier le texte propre depuis le bloc natif `<details><summary>📋 Texte Final Prêt à Copier</summary>`. Zéro pollution textuelle dans le fil de discussion.
+>   * **Suppression de l'Affichage Intégral dans le Chat** : Interdiction formelle d'afficher le texte rédigé intégralement dans le fil de discussion Antigravity (même pour les textes soumis en mémoire).
+> - **Déclinaison selon le Support Source** :
 >   1. **Texte Soumis en Mémoire Pure (Chat sans Fichier Disque)** :
->      * Restitution directe du **texte final poli intégral dans le chat**, immédiatement prêt au copier-coller sans friction.
->      * Affichage sous le texte du **tableau comparatif de traçabilité** des balises `<XXX>` et modifications chirurgicales.
->      * Mention du lien cliquable vers l'artéfact Brain interactif en accompagnement pour revue détaillée.
+>      * Génération de l'artéfact virtuel (`virtual:draft_message` ➔ `virtual_draft_*.md`) avec son bloc natif `<details><summary>📋 Texte Final Prêt à Copier</summary>`.
+>      * Restitution dans le fil de discussion Antigravity **EXCLUSIVEMENT du lien cliquable en première ligne** vers cet artéfact interactif.
 >   2. **Texte Issu d'un Fichier Existant sur le Disque (Note Obsidian, Document, etc.)** :
 >      * Modification chirurgicale **in-situ** du fichier cible via `replace_file_content` (zéro réécriture complète).
 >      * Restitution dans le fil de discussion Antigravity **EXCLUSIVEMENT DU LIEN CLIQUABLE** vers l'artéfact Brain (`file:///<appDataDir>/brain/<conversation-id>/<nom>.md`) en première ligne.
@@ -88,7 +91,7 @@ graph TD
     S0["0. Scellement Baseline v0<br/>(commit_document mode=draft)"] --> S1["1. Audit de Surface & Balises <XXX><br/>(Orthographe, Sur-Excusite, Chevrons, Zéro Tiret Cadratin)"]
     S1 --> S2["2. Retouche Chirurgicale Minimale<br/>(Scalpel ponctuel, Maintien >= 90-95% du texte)"]
     S2 --> S3["3. Génération Diff Interactif & Artéfact Brain<br/>(get_diff_artifact mode=draft)"]
-    S3 --> S4["4. Restitution selon le Support Source<br/>(Mémoire : Texte Chat + Diff / Disque : In-Situ + Lien Brain Exclusif)"]
+    S3 --> S4["4. Restitution Exclusive par Lien Brain<br/>(Mémoire & Disque : Lien Cliquable 1ère Ligne, Zéro Copie dans le Chat)"]
 ```
 
 ### 🔒 0. Comment Sceller la Baseline v0 Avant Toute Intervention ?
@@ -223,18 +226,19 @@ Cet artéfact intègre automatiquement les composantes suivantes :
 
 #### 📋 Restitution Concrète selon le Support Source :
 
+Quelle que soit la source (mémoire ou fichier disque), la restitution dans le fil de discussion Antigravity consiste **EXCLUSIVEMENT** à partager en première ligne le **lien cliquable vers l'artéfact Brain interactif** (`virtual_draft_*.md` ou `diff_*.md`) généré par la machine (`get_diff_artifact`).
+
+> [!IMPORTANT]
+> **Pourquoi cette restitution exclusive par artéfact ?**
+> Cela permet à Henri d'inspecter le diff, de laisser des commentaires ciblés directement via l'interface d'artéfact, et de copier le texte propre depuis le bloc natif `<details><summary>📋 Texte Final Prêt à Copier</summary>`. Zéro pollution textuelle dans le fil de discussion.
+
 ##### Option A — Le texte source a été soumis directement en mémoire (chat) :
-1. **Texte Retouché Intégral** : Restitué directement dans le chat, prêt à être copié-collé en un clic.
-2. **Tableau Synthétique de Traçabilité des Balises & Retouches** :
-   | Segment Original (Avant) | Segment Corrigé (Après) | Justification Chirurgicale |
-   | :--- | :--- | :--- |
-   | *« Je vous envoie les document »* | *« Je vous envoie les document**s** »* | Accord en nombre (pluriel). |
-   | *« <protocole> »* | *« dispositif d'évaluation continue »* | Terme réglementaire RBHEC art. 10. |
-   | *« Désolé de vous déranger, est-ce que... »* | *« Est-ce que... »* | Suppression sur-excusite / attaque directe. |
-3. **Lien vers l'Artéfact Brain** : Offert pour inspection visuelle approfondie (`[Artéfact Diff Interactif](file:///...)`).
+1. **Génération de l'Artéfact Brain Virtuel** : Appel de `get_diff_artifact` avec `target="virtual:draft_message"` et `content="<texte_retouche_complet>"`.
+2. **Texte Prêt à l'Emploi dans l'Artéfact** : Le texte propre, poli et exempt de balises réside dans le bloc natif dépliant `<details><summary>📋 Texte Final Prêt à Copier</summary>` situé en tête d'artéfact.
+3. **Restitution dans le Chat** : **EXCLUSIVEMENT le lien cliquable vers l'artéfact Brain interactif** (`[Artéfact Diff Interactif](file:///...)`) en première ligne. Interdiction formelle d'afficher le texte rédigé intégralement dans le fil de discussion.
 
 ##### Option B — Le texte source provient d'un fichier existant sur le disque :
-1. **Édition Chirurgicale In-Situ** : Application exclusive via `replace_file_content` sur le fichier source.
+1. **Édition Chirurgicale In-Situ** : Application exclusive via `replace_file_content` sur le fichier source (zéro réécriture complète).
 2. **Scellement du Commit Agent** :
    ```python
    call_mcp_tool(
@@ -248,9 +252,9 @@ Cet artéfact intègre automatiquement les composantes suivantes :
        }
    )
    ```
-3. **Restitution dans le Chat** : **UNIQUEMENT LE LIEN CLIQUABLE VERS L'ARTÉFACT BRAIN** (`file:///<appDataDir>/brain/<conversation-id>/...`) en première ligne.
+3. **Restitution dans le Chat** : **EXCLUSIVEMENT LE LIEN CLIQUABLE VERS L'ARTÉFACT BRAIN** (`file:///<appDataDir>/brain/<conversation-id>/...`) en première ligne.
    > [!CAUTION]
-   > **Zéro Copie Intégrale dans le Chat** : Interdiction formelle de recopier le fichier dans le fil de discussion quand un fichier source existe sur le disque. Le lien Brain est le seul livrable interactif.
+   > **Zéro Copie Intégrale dans le Chat** : Interdiction formelle de recopier le fichier ou le texte dans le fil de discussion. Le lien Brain est le seul livrable interactif.
 
 ---
 
@@ -340,6 +344,7 @@ Avant de renvoyer le résultat à Henri, l'agent audite rigoureusement sa propre
 - [ ] **Bannissement des marqueurs IA** : Les tirets cadratins (`—`) ou d'incise (`–`) et le jargon corporatif sont-ils totalement absents ?
 - [ ] **Artéfact Machine Exclusif** : L'artéfact de diff interactif a-t-il été compilé **exclusivement par l'outil d'instrumentation machine** (zéro rédaction manuelle) ?
 - [ ] **Règle de restitution d'Henri respectée** :
-  * Si texte en mémoire ➔ Texte poli prêt au copier-coller + tableau comparatif de traçabilité dans le chat + lien Brain.
-  * Si fichier disque ➔ Modification in-situ via `replace_file_content` + lien cliquable Brain exclusif en 1ère ligne (zéro copie intégrale dans le chat).
+  * Quelle que soit la source (mémoire ou fichier disque) ➔ Restitution dans le chat EXCLUSIVEMENT par le lien cliquable vers l'artéfact Brain interactif en première ligne (`virtual_draft_*.md` ou `diff_*.md`).
+  * Zéro copie intégrale de texte dans le fil de discussion (le texte propre est copiable directement depuis le bloc `<details><summary>📋 Texte Final Prêt à Copier</summary>` de l'artéfact).
+  * Si fichier disque ➔ Modification in-situ via `replace_file_content` en complément de l'artéfact.
 - [ ] **En cas de traduction** : Est-elle rigoureusement miroir sans extrapolation ni connecteurs boursouflés ?
