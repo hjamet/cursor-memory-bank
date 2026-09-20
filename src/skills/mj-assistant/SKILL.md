@@ -92,7 +92,7 @@ Dès l'invocation de `/mj-assistant` par Henri, l'Agent Principal exécute la s�
 ### 1. Initialisation du HUD MJ Latéral
 Générer immédiatement l'artéfact `mj_live_hud.md` dans le répertoire d'artéfacts (`<appDataDir>/brain/<conversation-id>/mj_live_hud.md`) via `write_to_file` avec `ArtifactMetadata: { UserFacing: true, RequestFeedback: false, Summary: "HUD MJ Live Initialisé" }`.
 - **Règle d'Or : Format Ultra-Dense & Zéro Titre Markdown (`#` ou `##`)** : Le HUD doit **TOUJOURS être ultra-dense, sans aucun titre Markdown (`#` ou `##`)** afin d'économiser la hauteur d'écran sur le volet latéral et d'éviter tout défilement vertical superflu.
-- **Organisation en Tête & Cycle de Vie** : Les images de la scène active (battlemaps tactiques, ambiances de lieux, mais aussi portraits/visuels des entités et PNJ actifs) sont placées tout en haut, suivies immédiatement de la ligne d'accès direct aux entités clés sous forme de wikilinks `[[Conseil/...|...]]`. Lors d'une transition de scène ou de lieu, les visuels de l'ancienne scène sont purgés du HUD pour ne conserver que la scène en cours.
+- **Organisation en Tête & Cycle de Vie** : Les images de la scène active (battlemaps tactiques, ambiances de lieux, mais aussi portraits/visuels des entités et PNJ actifs) sont placées tout en haut, suivies immédiatement de la ligne d'accès direct aux entités clés sous forme de **liens Markdown classiques cliquables** `[Nom](file:///...)` (zéro wikilink `[[...]]` dans l'artéfact HUD). Lors d'une transition de scène ou de lieu, les visuels de l'ancienne scène sont purgés du HUD pour faire place aux visuels du nouveau lieu.
 - **Ambiance Sensorielle d'Ouverture** : À l'initialisation de session, ce HUD intègre le **Texte d'Ambiance Sensoriel d'Ouverture (19h30)** issu de [`asharde-brainstormer`](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/skills/asharde-brainstormer/SKILL.md) et des déclencheurs narratifs originaux.
 
 ### 2. Définition du Sous-Agent Vigie Autonome
@@ -164,23 +164,34 @@ Le Sous-Agent Vigie arme son propre cron de veille :
 ### 4.3. 🎨 Génération Proactive des Visuels, Portraits & Cycle de Vie du HUD
 La réactivité visuelle est un facteur clé d'immersion et de confort pour le MJ :
 - **Règle d'Or de Proactivité** : **Ne JAMAIS attendre qu'Henri demande une battlemap, un visuel ou un portrait.** L'anticipation doit être totale.
-- **Affichage Centralisé en Tête de HUD** : **TOUTES les images générées sont affichées en tête du HUD `mj_live_hud.md`** : battlemaps tactiques, illustrations d'ambiance de lieux, **MAIS AUSSI les portraits/visuels des entités et PNJ actifs dans la scène** (interlocuteurs, monstres affrontés, cibles suivies). Henri doit embrasser la situation visuelle (décor, plan tactique, visages des PNJ) d'un seul coup d'œil.
-- **Illustrations d'Ambiance de Scène (16:9)** :
-  * Dès qu'un **lieu d'importance émerge** dans les dialogues ou qu'une **nouvelle scène démarre dans un cadre différent** (ex: taverne clandestine, quai brumeux, crypte inondée), générer immédiatement une illustration d'ambiance au format paysage **16:9** via `generate_image`.
-  * Style : Réalisme granuleux, peinture à l'huile traditionnelle, éclairage dramatique, immersif et sans anachronisme.
-- **Battlemaps Tactiques Zénithales 90° Sans Grille (16:9)** :
-  * Dès qu'un **risque de combat, patrouille hostile, embuscade ou confrontation se profile**, générer **IMMÉDIATEMENT à la volée** une battlemap tactique selon le protocole de [`asharde-battlemap`](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/skills/asharde-battlemap/SKILL.md).
-  * Critères stricts : Format paysage **16:9** (`AspectRatio: "16:9"`), vue **strictement zénithale à 90°** (vue d'oiseau plongeante orthogonale), **sans aucune grille**, **sans créatures ni personnages**, avec ombres portées réalistes délimitant clairement les hauteurs et le relief.
+- **Affichage Centralisé en Tête de HUD** : **TOUTES les images générées sont affichées tout en haut du HUD `mj_live_hud.md`** : battlemaps tactiques, illustrations d'ambiance de lieux, **MAIS AUSSI les portraits/visuels des entités et PNJ actifs dans la scène** (interlocuteurs, monstres affrontés, cibles suivies). Henri doit embrasser la situation visuelle (décor, plan tactique, visages des PNJ) d'un seul coup d'œil.
+- **Style Asharde Obligatoire pour TOUTE Génération d'Image** :
+  * **TOUTE génération d'image (personnage, monstre, PNJ, lieu, scène) DOIT IMPÉRATIVEMENT suivre le Style Asharde** défini dans le skill [`asharde-illustration`](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/skills/asharde-illustration/SKILL.md) :
+    - **Master Formula 16:9** : Format paysage systématique `AspectRatio: "16:9"`.
+    - **Huile traditionnelle & touches dynamiques** : Rendu à l'huile réaliste, coups de pinceau directionnels, visibles et énergiques (*distinct, visible, and dynamic directional brushstrokes*), chiaroscuro maîtrisé, zéro empâtement excessif.
+    - **Cadrage dramatique & tension** : Gros plan dynamique, asymétrique et claustrophobique, cadrage serré en plongée, contre-plongée ou angle débullé (*tight dynamic close-up, dramatic angle*).
+    - **Fond abstrait coloré (The Void)** : Arrière-plan atmosphérique tourbillonnant de couleurs riches et abstraites (*turbulent atmospheric void of rich, non-descript colors*), complètement dénué de décors ou paysages identifiables.
+    - **Ombres d'avant-plan (Depth Push)** : Masses d'ombres peintes et floues au premier plan pour repousser le sujet en profondeur.
+    - **Netteté absolue du sujet** : Visage, yeux et élément d'action principal (armes, mains, artefact) d'une netteté chirurgicale dans le plan focal (*tack-sharp*), textures réalistes, crasse, usure et suie visibles.
+- **Style Cartographer Obligatoire pour TOUTE Génération de Battlemap** :
+  * **TOUTE génération de battlemap DOIT IMPÉRATIVEMENT suivre le style Cartographer** défini dans le skill [`asharde-battlemap`](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/skills/asharde-battlemap/SKILL.md) :
+    - **Vue strictement zénithale à 90° & projection orthographique** : Perspective orthogonale stricte du dessus (*strict top-down bird's-eye perspective, 90 degrees looking directly down, orthographic projection*), zéro ligne d'horizon, véritable plan de sol fonctionnel.
+    - **Sans grille & sans personnages** : Zéro grille, zéro token, zéro figurine, zéro personnage ou créature, zéro marqueur d'interface.
+    - **Format 16:9 & jouable d'un bord à l'autre** : Format paysage 16:9 (`AspectRatio: "16:9"`), terrain d'action net et exploitable jusqu'aux quatre coins de l'image (*full canvas cohesion, playable from edge to edge*).
+    - **Rendu huile & ombres portées réalistes** : Éclairage zénithal projetant des ombres franches délimitant nettement les reliefs, hauteurs et murs tout en conservant une lisibilité maximale au sol.
 - **Portraits & Visuels des Entités / PNJ Actifs** :
-  * Dès qu'un PNJ important, un antagoniste ou un monstre singulier entre activement en jeu dans la scène (dialogue, interrogatoire, combat), générer son portrait ou lier son visuel existant.
-  * Style : Portrait expressif, respectant fidèlement le lore, les traits distinctifs et l'ambiance sombre de Cheliax / Asharde.
+  * Dès qu'un PNJ important, un antagoniste ou un monstre singulier entre activement en jeu dans la scène (dialogue, interrogatoire, combat), générer son portrait ou lier son visuel existant selon la **Master Formula Asharde (16:9)**.
+- **Illustrations d'Ambiance de Scène (16:9)** :
+  * Dès qu'un **lieu d'importance émerge** dans les dialogues ou qu'une **nouvelle scène démarre dans un cadre différent** (ex: taverne clandestine, quai brumeux, crypte inondée), générer immédiatement une illustration d'ambiance au format paysage **16:9** selon la **Master Formula Asharde**.
+- **Battlemaps Tactiques d'Affrontement (16:9)** :
+  * Dès qu'un **risque de combat, patrouille hostile, embuscade ou confrontation se profile**, générer **IMMÉDIATEMENT à la volée** une battlemap tactique selon la formule **Cartographer (vue zénithale 90° sans grille 16:9)**.
 - **Règle de Nettoyage de Transition de Scène (Cycle de Vie)** :
-  * Dès que le groupe **quitte la scène ou change d'endroit/de lieu**, **les visuels de l'ancienne scène sont purgés du HUD**.
+  * Dès que le groupe **quitte la scène ou change d'endroit/de lieu**, **les visuels de l'ancienne scène sont obligatoirement purgés du HUD**.
   * Le HUD ne conserve et n'affiche en tête que les visuels (lieux, battlemaps, PNJ) de la **scène en cours**.
-  * *Note de persistance* : Les fichiers images supprimés du HUD restent évidemment sanctuarisés dans `Conseil/_attachments/` et liés dans les fiches Obsidian des entités et lieux ; ils sont simplement retirés de la vue active du HUD pour éviter toute surcharge cognitive et garder l'espace vertical optimisé.
+  * *Note de persistance* : Les fichiers images supprimés du HUD restent sanctuarisés dans `Conseil/_attachments/` et liés dans les fiches Obsidian des entités et lieux ; ils sont simplement retirés de la vue active du HUD pour éviter toute surcharge cognitive et garder l'espace vertical optimisé.
 - **Destination & Intégration Immédiate** :
   * Enregistrer ou copier tout fichier image généré dans `C:\Users\Jamet\Documents\VoiceNotes\Conseil\_attachments\[nom_media].png`.
-  * Intégrer les images **tout en haut du HUD** `mj_live_hud.md` sous la forme `![[nom_media.png]]` (et lien Markdown direct) afin qu'Henri ait la scène complète sous les yeux avant même le premier jet d'initiative ou la première prise de parole.
+  * Intégrer les images **tout en haut du HUD** `mj_live_hud.md` sous la forme de liens Markdown directs cliquables `![Description](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/_attachments/[nom_media].png)` (et en wikilink `![[nom_media.png]]` dans les fiches Obsidian) afin qu'Henri ait la scène complète sous les yeux avant même le premier jet d'initiative ou la première prise de parole.
 
 ### 4.4. 🛡️ Protocole Anti-Doublons Strict pour les Entités
 Pour préserver l'intégrité et la clarté du coffre Obsidian et de la campagne :
@@ -220,7 +231,7 @@ Pour préserver l'intégrité et la clarté du coffre Obsidian et de la campagne
    ```python
    send_message(
        Recipient="parent",
-       Message="Delta HUD Session :\n- Médias : [Battlemaps, ambiances et portraits générés (anciens purgés si transition)]\n- Entités clés : [Wikilinks vers fiches créées/enrichies]\n- Scène : [Lieu & ambiance]\n- Groupe : [Positions PJ & ressources]\n- Menaces : [Statblocks PNJ]\n- Règles : [Modificateurs]\n- Alertes : [Événements tactiques]"
+       Message="Delta HUD Session :\n- Médias : [Battlemaps, ambiances et portraits générés (anciens purgés si transition)]\n- Entités clés : [Liens cliquables vers fiches créées/enrichies]\n- Scène : [Lieu & ambiance]\n- Groupe : [Positions PJ & ressources]\n- Menaces : [Statblocks PNJ]\n- Règles : [Modificateurs]\n- Alertes : [Événements tactiques]"
    )
    ```
 
@@ -250,22 +261,22 @@ Lorsque Henri tape un message court ou un raccourci pendant la partie, répondre
 ## 📋 6. Gabarit Canonique du HUD MJ Ultra-Dense (`mj_live_hud.md`)
 
 L'artéfact affiché sur le volet latéral doit suivre rigoureusement cette architecture **ultra-dense sans aucun titre Markdown (`#` ou `##`) et sans en-tête verbeux**.
-- **Images de la Scène en Tête** : **TOUTES les images générées sont affichées en tête du HUD** : battlemaps tactiques, ambiances de lieux, **MAIS AUSSI les portraits/visuels des entités et PNJ actifs dans la scène**.
-- **Règle de Nettoyage de Transition de Scène** : Dès que le groupe quitte la scène ou change d'endroit, **les visuels de l'ancienne scène sont purgés du HUD** pour ne conserver et afficher que les visuels (lieux, battlemaps, PNJ) de la scène en cours.
+- **Images de la Scène en Tête & Cycle de Vie** : **TOUTES les images générées sont affichées tout en haut du HUD** : battlemaps tactiques, ambiances de lieux, **MAIS AUSSI les portraits/visuels des entités et PNJ actifs dans la scène**. Dès que le groupe quitte la scène ou change d'endroit/lieu, **les visuels de l'ancienne scène sont obligatoirement purgés du HUD** pour faire place aux visuels du nouveau lieu et de la scène active.
+- **Liens Markdown Classiques Cliquables Exclusifs (Zéro Wikilink)** : **TOUS les liens dans l'artéfact doivent être expressément des liens Markdown classiques cliquables au format `[Nom](file:///...)` et JAMAIS de wikilinks Obsidian `[[...]]`** qui ne sont pas cliquables dans l'interface Antigravity.
 
 ```markdown
-![[battlemap_rempart_nord.png]]
+![Battlemap zénithale 90° sans grille — Rempart Nord & Plage aux Galets](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/_attachments/battlemap_rempart_nord.png)
 *Battlemap zénithale 90° sans grille — Rempart Nord & Plage aux Galets*
 
-![[ambiance_arche_des_deluges.png]]
+![Ambiance 16:9 — Arche des Déluges](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/_attachments/ambiance_arche_des_deluges.png)
 *Ambiance 16:9 — Arche des Déluges sous la pluie battante*
 
-![[portrait_barnabe_limon_sec.png]]
+![Portrait PNJ Actif — Barnabé Limon Sec](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/_attachments/portrait_barnabe_limon_sec.png)
 *Portrait PNJ Actif — Barnabé Limon Sec (passeur trempé et méfiant)*
 
 ---
 
-🔗 **ENTITÉS CLÉS & ACCÈS DIRECT** : [[Conseil/Laerith|Bête d'Ombre (Laerith)]] • [[Conseil/Dottari de Westcrown|Sentinelles Dottari]] • [[Conseil/Barnabé Limon Sec|Barnabé]] • [[Conseil/Nox|Nox]]
+🔗 **ENTITÉS CLÉS & ACCÈS DIRECT** : [Bête d'Ombre (Laerith)](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Laerith.md) • [Sentinelles Dottari](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Dottari%20de%20Westcrown.md) • [Barnabé Limon Sec](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Barnabé%20Limon%20Sec.md) • [Nox](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Nox.md)
 
 ---
 
