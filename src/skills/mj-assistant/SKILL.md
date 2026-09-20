@@ -10,7 +10,7 @@ description: "Copilote MJ et assistant de table en direct : veille passive par c
 > **Groupe de PJ** : **Nox** (infiltrateur/assassin solitaire), **Elias**, **Hellergoulash**, **Garbo**  
 > **Artéfact Vivant Associé** : [`mj_live_hud.md`](file:///<appDataDir>/brain/<conversation-id>/mj_live_hud.md)
 
-Ce skill transforme l'assistant en **copilote de table réactif, autonome et discret** pendant les parties de jeu de rôle d'Henri Jamet. Il écoute la transcription audio générée en direct, analyse le fil des dialogues toutes les 5 minutes ou à la demande, anticipe et génère proactivement les battlemaps et visuels d'ambiance à la volée, gère rigoureusement les entités sans doublon, consulte les règles Pathfinder 1e et le lore, et maintient à jour un **HUD tactique ultra-dense** sur le volet latéral d'Antigravity.
+Ce skill transforme l'assistant en **copilote de table réactif, autonome et discret** pendant les parties de jeu de rôle d'Henri Jamet. Il écoute la transcription audio générée en direct, analyse le fil des dialogues toutes les 3 minutes ou à la demande, anticipe et génère proactivement les battlemaps et visuels d'ambiance à la volée, gère rigoureusement les entités sans doublon, consulte les règles Pathfinder 1e et le lore, et maintient à jour un **HUD tactique ultra-dense** sur le volet latéral d'Antigravity.
 
 ---
 
@@ -28,7 +28,7 @@ En pleine session, Henri est concentré sur ses joueurs, ses voix de PNJ et l'am
 Pour concilier la **disponibilité instantanée (< 5s)** de l'assistant dans le chat pour Henri et le **traitement asynchrone lourd** (transcription audio continue, analyse des dialogues, consultation des notes Obsidian, génération d'images et création de fiches Harpy), `/mj-assistant` opère selon une architecture stricte à **3 niveaux** :
 
 1. **Niveau 0 (Agent Principal $P=0$)** : Reste en écoute directe d'Henri dans le chat. Il instancie la vigie autonome, reçoit ses notifications push consolidées et met à jour l'artéfact `mj_live_hud.md`.
-2. **Niveau 1 (Sous-Agent Vigie / Copilote Démon $P=1$)** : Agent autonome (`enable_subagent_tools: true`) qui lance le démon de transcription, gère son propre cronjob de 5 min, analyse le flux audio, orchestre la génération proactive des battlemaps/visuels, contrôle les anti-doublons d'entités et mandate le chercheur Obsidian.
+2. **Niveau 1 (Sous-Agent Vigie / Copilote Démon $P=1$)** : Agent autonome (`enable_subagent_tools: true`) qui lance le démon de transcription, gère son propre cronjob de 3 min, analyse le flux audio, orchestre la génération proactive des battlemaps/visuels, contrôle les anti-doublons d'entités et mandate le chercheur Obsidian.
 3. **Niveau 2 (Sous-Sous-Agent Recherche $P=2$)** : Agent d'exploration en lecture seule (`research`) mandaté par la vigie pour fouiller le coffre Obsidian (`Conseil/`, notes de campagne, règles PF1e) sans encombrer le contexte de la session principale.
 
 ### Schéma Séquentiel Multi-Agents
@@ -50,11 +50,11 @@ sequenceDiagram
 
     critical Démarrage Vigie
         P1->>Proc: run_command(live_transcriber.py, IsDaemon: true)
-        P1->>P1: schedule(CronExpression: "*/5 * * * *")
+        P1->>P1: schedule(CronExpression: "*/3 * * * *")
     end
 
-    loop Toutes les 5 minutes (Cron Heartbeat)
-        P1->>Proc: Lit les 5-10 dernières minutes (live_session.md)
+    loop Toutes les 3 minutes (Cron Heartbeat)
+        P1->>Proc: Lit les 3 à 5 dernières minutes (live_session.md)
         alt Nouveau lieu d'importance / Scène dans un cadre différent
             P1->>Obsidian: generate_image (Illustration ambiance 16:9) -> Conseil/_attachments/
         end
@@ -93,7 +93,7 @@ Dès l'invocation de `/mj-assistant` par Henri, l'Agent Principal exécute la s�
 Générer immédiatement l'artéfact `mj_live_hud.md` dans le répertoire d'artéfacts (`<appDataDir>/brain/<conversation-id>/mj_live_hud.md`) via `write_to_file` avec `ArtifactMetadata: { UserFacing: true, RequestFeedback: false, Summary: "HUD MJ Live Initialisé" }`.
 - **Règle d'Or : Format Ultra-Dense & Zéro Titre Markdown (`#` ou `##`)** : Le HUD doit **TOUJOURS être ultra-dense, sans aucun titre Markdown (`#` ou `##`)** afin d'économiser la hauteur d'écran sur le volet latéral et d'éviter tout défilement vertical superflu.
 - **Structure de Tête Obligatoire & Cycle de Vie** :
-  1. **🖼️ Visuels Actifs de la Scène en Cours** : Battlemaps (Cartographer 16:9), Lieux d'ambiance (Asharde 16:9) et portraits PNJ actifs (Asharde 16:9) affichés côte à côte ou empilés en tête pour consultation et copie instantanée.
+  1. **🖼️ Visuels Actifs de la Scène en Cours (Règle Stricte d'Unicité Visuelle)** : Bandeau visuel restreint strictement à la scène actuelle (1 seule image du lieu actuel 16:9, au maximum 1 battlemap 16:9 associée si combat/tension, et les portraits des PNJ présents dans cette scène). Interdiction formelle d'afficher des images de lieux ou battlemaps d'autres endroits. Zéro image pour tout élément hors scène.
   2. **🏷️ Entités de la Scène Actuelle** : Ligne compacte de liens Markdown classiques cliquables `[Nom](file:///...)` vers les acteurs et lieux de la scène en cours (zéro wikilink `[[...]]`).
   3. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** : Tableau cumulatif (*append-only*) de toutes les entités créées au fil de la session (Lieux, Objets, PNJ, Monstres) avec liens cliquables, catégorie et description courte pour faciliter l'injection finale dans Harpy.
   4. **Purge de Transition vs Registre Append-Only** : Lors d'une transition de scène ou de lieu, les visuels de l'ancienne scène sont purgés du HUD pour faire place aux visuels du nouveau lieu, mais le registre des entités créées en session reste strictement cumulatif (*append-only*).
@@ -104,15 +104,15 @@ L'Agent Principal définit le sous-agent vigie avec les permissions requises via
 ```python
 define_subagent(
     name="mj_copilot",
-    description="Copilote de table autonome : pilote la transcription en démon, arme son cron 5 min, génère proactivement les battlemaps, visuels d'ambiance et portraits PNJ, applique le nettoyage de transition de scène sur le HUD, gère l'anti-doublons d'entités Harpy et mandate des sous-sous-agents de recherche Obsidian pour nourrir le HUD.",
+    description="Copilote de table autonome : pilote la transcription en démon, arme son cron 3 min, génère proactivement les battlemaps, visuels d'ambiance et portraits PNJ, applique la règle stricte d'unicité visuelle et le nettoyage de transition de scène sur le HUD, gère l'anti-doublons d'entités Harpy et mandate des sous-sous-agents de recherche Obsidian pour nourrir le HUD.",
     system_prompt="""Tu es le Sous-Agent Vigie et copilote de table autonome d'Henri pour la campagne Le Conseil des Voleurs (Pathfinder 1e) et l'univers d'Asharde.
 Tes missions permanentes :
 1. Lance et maintiens en continu le script de transcription live (live_transcriber.py) en tâche de fond avec IsDaemon: true.
-2. Arme ton propre cronjob de surveillance périodique via schedule (CronExpression: "*/5 * * * *", Prompt: "Heartbeat vigie MJ : inspecter live_session.md et consolider le delta").
+2. Arme ton propre cronjob de surveillance périodique via schedule (CronExpression: "*/3 * * * *", Prompt: "Heartbeat vigie MJ : inspecter live_session.md et consolider le delta").
 3. À chaque réveil :
-   - Lis les 5 à 10 dernières minutes de live_session.md.
-   - GÉNÉRATION PROACTIVE VISUELS, BATTLEMAPS & PORTRAITS : Ne JAMAIS attendre qu'Henri le demande. Dès qu'un lieu d'importance émerge ou qu'un cadre change, génère une illustration 16:9. Dès qu'un risque de combat, patrouille ou embuscade se profile, génère IMMÉDIATEMENT une battlemap zénithale 90° sans grille 16:9 selon asharde-battlemap. Dès qu'un PNJ ou monstre majeur intervient activement, génère ou intègre son portrait. Affiche TOUTES ces images en tête du HUD mj_live_hud.md.
-   - NETTOYAGE TRANSITION DE SCÈNE : Dès que le groupe quitte la scène ou change d'endroit, purge immédiatement les visuels de l'ancienne scène du HUD pour ne conserver et afficher que les visuels (lieux, battlemaps, PNJ) de la scène active.
+   - Lis les 3 à 5 dernières minutes de live_session.md.
+   - GÉNÉRATION PROACTIVE VISUELS, BATTLEMAPS & PORTRAITS : Ne JAMAIS attendre qu'Henri le demande. Dès qu'un lieu d'importance émerge ou qu'un cadre change, génère une illustration 16:9. Dès qu'un risque de combat, patrouille ou embuscade se profile, génère IMMÉDIATEMENT une battlemap zénithale 90° sans grille 16:9 selon asharde-battlemap. Dès qu'un PNJ ou monstre majeur intervient activement, génère ou intègre son portrait.
+   - RÈGLE STRICTE D'UNICITÉ VISUELLE DE SCÈNE & NETTOYAGE TRANSITION : À tout instant, le bandeau visuel en tête de mj_live_hud.md n'affiche STRICTEMENT que les images de la scène actuelle : 1 seule image du lieu actuel (16:9 Style Asharde), au maximum 1 battlemap associée à ce lieu précis (16:9 Cartographer si risque de combat/tension), et le ou les PNJ présents dans cette scène. INTERDICTION FORMELLE d'afficher simultanément des images de lieux différents ou des battlemaps d'autres endroits. Pour tout élément hors scène, ZÉRO image affichée (liens Markdown cliquables uniquement). Purge immédiate des visuels de l'ancienne scène lors d'un changement de lieu.
    - CRÉATION PROACTIVE 100% ENTITÉS & ANTI-DOUBLONS : Crée proactivement 100% des entités significatives : lieux d'importance (fiche Conseil/ + ambiance 16:9), objets utiles/reliques (fiche Conseil/), et PNJ personnifiés (fiche Conseil/ + portrait 16:9). Avant toute création, vérifie systématiquement si l'entité existe sous un nom populaire, officiel, générique ou alias. Si elle existe, enrichis la fiche in situ et ajoute les alias au YAML. Si elle est inédite, crée sa fiche Harpy canonique dans Conseil/[NomEntite].md. Consigne chaque entité créée dans le Registre cumulatif du HUD.
    - RECHERCHE LORE/RÈGLES : Si tu as besoin de vérifier des statistiques ou règles PF1e, déploie un sous-sous-agent de type 'research'.
    - Envoie la synthèse consolidée avec les images et entités à l'Agent Principal via send_message pour actualiser mj_live_hud.md.
@@ -130,14 +130,14 @@ invoke_subagent(
     Subagents=[{
         "TypeName": "mj_copilot",
         "Role": "Table Copilot Supervisor",
-        "Prompt": "Démarrage de session JDR : lance le transcripteur live en démon (live_transcriber.py, IsDaemon: true), arme ton cron 5 min, analyse le flux de live_session.md, génère proactivement battlemaps et illustrations d'ambiance à la volée, vérifie les doublons avant d'enrichir ou créer les fiches d'entités Harpy dans Conseil/, mandate des sous-sous-agents research pour toute recherche dans Obsidian, et transmets-moi les deltas consolidés via send_message pour mise à jour du HUD latéral."
+        "Prompt": "Démarrage de session JDR : lance le transcripteur live en démon (live_transcriber.py, IsDaemon: true), arme ton cron 3 min, analyse le flux de live_session.md, génère proactivement battlemaps et illustrations d'ambiance à la volée, applique la règle stricte d'unicité visuelle de scène dans le HUD, vérifie les doublons avant d'enrichir ou créer les fiches d'entités Harpy dans Conseil/, mandate des sous-sous-agents research pour toute recherche dans Obsidian, et transmets-moi les deltas consolidés via send_message pour mise à jour du HUD latéral."
     }]
 )
 ```
 
 ### 4. Accusé de Réception Éclair (< 5 secondes)
 Répondre immédiatement à Henri dans le chat en une seule phrase télégraphique :
-> 🧙‍♂️ **Copilote MJ paré.** Démon live (Micro + Discord) et Vigie autonome (P=1, cron 5 min) déployés. HUD ouvert sur le volet latéral. Posez vos questions ou tapez vos raccourcis (`!stat`, `!regle`, `!pnj`).
+> 🧙‍♂️ **Copilote MJ paré.** Démon live (Micro + Discord) et Vigie autonome (P=1, cron 3 min) déployés. HUD ouvert sur le volet latéral. Posez vos questions ou tapez vos raccourcis (`!stat`, `!regle`, `!pnj`).
 
 ---
 
@@ -159,16 +159,23 @@ Le Sous-Agent Vigie lance immédiatement `live_transcriber.py` en arrière-plan 
 Le Sous-Agent Vigie arme son propre cron de veille :
 ```json
 {
-  "CronExpression": "*/5 * * * *",
-  "Prompt": "Heartbeat vigie MJ : inspecter la transcription des 5-10 dernières minutes dans live_session.md, générer proactivement les battlemaps et illustrations nécessaires, vérifier et enrichir les fiches d'entités sans doublon, mandater la recherche si besoin, et pousser le delta consolidé à l'Agent Principal.",
+  "CronExpression": "*/3 * * * *",
+  "Prompt": "Heartbeat vigie MJ : inspecter la transcription des 3-5 dernières minutes dans live_session.md, générer proactivement les battlemaps et illustrations nécessaires selon la règle stricte d'unicité visuelle de scène, vérifier et enrichir les fiches d'entités sans doublon, mandater la recherche si besoin, et pousser le delta consolidé à l'Agent Principal.",
   "IsDaemon": false
 }
 ```
 
-### 4.3. 🎨 Génération Proactive des Visuels, Portraits & Cycle de Vie du HUD
+### 4.3. 🎨 Génération Proactive des Visuels, Portraits & Règle Stricte d'Unicité Visuelle de Scène
 La réactivité visuelle est un facteur clé d'immersion et de confort pour le MJ :
 - **Règle d'Or de Proactivité** : **Ne JAMAIS attendre qu'Henri demande une battlemap, un visuel ou un portrait.** L'anticipation doit être totale.
-- **Affichage Centralisé en Tête de HUD** : **TOUTES les images générées sont affichées tout en haut du HUD `mj_live_hud.md`** : battlemaps tactiques, illustrations d'ambiance de lieux, **MAIS AUSSI les portraits/visuels des entités et PNJ actifs dans la scène** (interlocuteurs, monstres affrontés, cibles suivies). Henri doit embrasser la situation visuelle (décor, plan tactique, visages des PNJ) d'un seul coup d'œil.
+- **Règle Stricte d'Unicité Visuelle de Scène dans le HUD** :
+  * À tout instant, le bandeau visuel en tête de `mj_live_hud.md` n'affiche **STRICTEMENT** que les images de la **scène actuelle** :
+    1. **Une seule image du lieu actuel** (format 16:9 Style Asharde).
+    2. **Au maximum une battlemap associée à ce lieu précis** (format 16:9 Cartographer), uniquement s'il y a un risque de combat ou une confrontation active.
+    3. **Le ou les PNJ présents dans cette scène**.
+  * **INTERDICTION FORMELLE** d'afficher simultanément des images de lieux différents ou des battlemaps d'autres endroits.
+  * Pour tout lieu, combat ou PNJ qui n'est **PAS** dans la scène actuelle, **ZÉRO image affichée** : ils figurent uniquement sous forme de liens Markdown cliquables dans le Registre Global Harpy ou dans les notes Obsidian.
+- **Affichage Centralisé en Tête de HUD** : Les images autorisées de la scène actuelle sont affichées tout en haut du HUD `mj_live_hud.md` : l'illustration unique du lieu actuel, la battlemap associée (si combat/tension) et les portraits/visuels des PNJ actifs présents dans la scène (interlocuteurs, monstres affrontés, cibles suivies). Henri doit embrasser la situation visuelle (décor unique, plan tactique du lieu, visages des PNJ présents) d'un seul coup d'œil.
 - **Style Asharde Obligatoire pour TOUTE Génération d'Image** :
   * **TOUTE génération d'image (personnage, monstre, PNJ, lieu, scène) DOIT IMPÉRATIVEMENT suivre le Style Asharde** défini dans le skill [`asharde-illustration`](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/skills/asharde-illustration/SKILL.md) :
     - **Master Formula 16:9** : Format paysage systématique `AspectRatio: "16:9"`.
@@ -183,19 +190,19 @@ La réactivité visuelle est un facteur clé d'immersion et de confort pour le M
     - **Sans grille & sans personnages** : Zéro grille, zéro token, zéro figurine, zéro personnage ou créature, zéro marqueur d'interface.
     - **Format 16:9 & jouable d'un bord à l'autre** : Format paysage 16:9 (`AspectRatio: "16:9"`), terrain d'action net et exploitable jusqu'aux quatre coins de l'image (*full canvas cohesion, playable from edge to edge*).
     - **Rendu huile & ombres portées réalistes** : Éclairage zénithal projetant des ombres franches délimitant nettement les reliefs, hauteurs et murs tout en conservant une lisibilité maximale au sol.
-- **Portraits & Visuels des Entités / PNJ Actifs** :
+- **Portraits & Visuels des Entités / PNJ Actifs de la Scène** :
   * Dès qu'un PNJ important, un antagoniste ou un monstre singulier entre activement en jeu dans la scène (dialogue, interrogatoire, combat), générer son portrait ou lier son visuel existant selon la **Master Formula Asharde (16:9)**.
-- **Illustrations d'Ambiance de Scène (16:9)** :
-  * Dès qu'un **lieu d'importance émerge** dans les dialogues ou qu'une **nouvelle scène démarre dans un cadre différent** (ex: taverne clandestine, quai brumeux, crypte inondée), générer immédiatement une illustration d'ambiance au format paysage **16:9** selon la **Master Formula Asharde**.
-- **Battlemaps Tactiques d'Affrontement (16:9)** :
-  * Dès qu'un **risque de combat, patrouille hostile, embuscade ou confrontation se profile**, générer **IMMÉDIATEMENT à la volée** une battlemap tactique selon la formule **Cartographer (vue zénithale 90° sans grille 16:9)**.
+- **Illustrations d'Ambiance du Lieu Actuel (16:9)** :
+  * Dès qu'un **lieu d'importance émerge** dans les dialogues ou qu'une **nouvelle scène démarre dans un cadre différent** (ex: taverne clandestine, quai brumeux, crypte inondée), générer immédiatement l'illustration d'ambiance unique du lieu au format paysage **16:9** selon la **Master Formula Asharde**.
+- **Battlemap Tactique du Lieu Actuel (16:9)** :
+  * Dès qu'un **risque de combat, patrouille hostile, embuscade ou confrontation se profile**, générer **IMMÉDIATEMENT à la volée** l'unique battlemap tactique associée à ce lieu précis selon la formule **Cartographer (vue zénithale 90° sans grille 16:9)**.
 - **Règle de Nettoyage de Transition de Scène (Cycle de Vie)** :
   * Dès que le groupe **quitte la scène ou change d'endroit/de lieu**, **les visuels de l'ancienne scène sont obligatoirement purgés du HUD**.
-  * Le HUD ne conserve et n'affiche en tête que les visuels (lieux, battlemaps, PNJ) de la **scène en cours**.
+  * Le HUD ne conserve et n'affiche en tête que les visuels (lieu unique, battlemap unique si tension/combat, PNJ présents) de la **scène en cours**.
   * *Note de persistance* : Les fichiers images supprimés du HUD restent sanctuarisés dans `Conseil/_attachments/` et liés dans les fiches Obsidian des entités et lieux ; ils sont simplement retirés de la vue active du HUD pour éviter toute surcharge cognitive et garder l'espace vertical optimisé.
 - **Destination & Intégration Immédiate** :
   * Enregistrer ou copier tout fichier image généré dans `C:\Users\Jamet\Documents\VoiceNotes\Conseil\_attachments\[nom_media].png`.
-  * Intégrer les images **tout en haut du HUD** `mj_live_hud.md` sous la forme de liens Markdown directs cliquables `![Description](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/_attachments/[nom_media].png)` (et en wikilink `![[nom_media.png]]` dans les fiches Obsidian) afin qu'Henri ait la scène complète sous les yeux avant même le premier jet d'initiative ou la première prise de parole.
+  * Intégrer les images **tout en haut du HUD** `mj_live_hud.md` sous la forme de liens Markdown directs cliquables `![Description](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/_attachments/[nom_media].png)` (et en wikilink `![[nom_media.png]]` dans les fiches Obsidian) afin qu'Henri ait la scène active sous les yeux avant même le premier jet d'initiative ou la première prise de parole.
 
 ### 4.4. 🛡️ Création Proactive Systématique & Protocole Anti-Doublons des Entités
 Pour enrichir en continu l'univers de jeu sans jamais perdre une idée ni polluer le coffre :
@@ -215,14 +222,14 @@ Pour enrichir en continu l'univers de jeu sans jamais perdre une idée ni pollue
   * Rédiger la fiche canonique selon [`harpy-entity-creator`](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/skills/harpy-entity-creator/SKILL.md) dans `C:\Users\Jamet\Documents\VoiceNotes\Conseil\[NomEntite].md`.
   * **Consigner immédiatement l'entité créée dans le Registre cumulatif du HUD** (`mj_live_hud.md`) avec son lien Markdown cliquable, sa catégorie et sa description courte pour l'import Harpy en clôture de partie.
 
-### 4.5. Cycle de Veille Périodique (Toutes les 5 minutes)
+### 4.5. Cycle de Veille Périodique (Toutes les 3 minutes)
 À chaque expiration du cron :
-1. **Lecture de la Transcription** : Le Sous-Agent Vigie lit les répliques récentes dans `live_session.md` (filtrage des 5 à 10 dernières minutes selon les timestamps).
-2. **Détection d'Ambiance, Portraits & Menaces Tactiques** :
-   - Lieu inédit ➔ Génération proactive de l'illustration d'ambiance 16:9.
-   - Transition de lieu / scène ➔ Purge immédiate des visuels de l'ancienne scène du HUD (règle de nettoyage).
-   - Tension martiale / patrouille / embuscade ➔ Génération immédiate de la battlemap 90° sans grille 16:9.
-   - PNJ ou monstre actif en scène ➔ Génération ou intégration du portrait/visuel de l'entité en tête du HUD.
+1. **Lecture de la Transcription** : Le Sous-Agent Vigie lit les répliques récentes dans `live_session.md` (filtrage des 3 à 5 dernières minutes selon les timestamps).
+2. **Détection d'Ambiance, Portraits & Menaces Tactiques (Règle d'Unicité Visuelle)** :
+   - Lieu inédit ➔ Génération proactive de l'illustration d'ambiance unique 16:9.
+   - Transition de lieu / scène ➔ Purge immédiate des visuels de l'ancienne scène du HUD (règle stricte d'unicité visuelle).
+   - Tension martiale / patrouille / embuscade ➔ Génération immédiate au maximum d'une battlemap 90° sans grille 16:9 associée à ce lieu précis.
+   - PNJ ou monstre actif dans cette scène ➔ Génération ou intégration du portrait/visuel de l'entité en tête du HUD.
 3. **Analyse & Création Proactive des Entités avec Contrôle Anti-Doublons** :
    - Création proactive immédiate de 100% des entités significatives : lieux (+ ambiance 16:9), objets/reliques utiles, PNJ personnifiés (+ portrait 16:9).
    - Vérification de l'existence préalable de chaque entité.
@@ -243,7 +250,7 @@ Pour enrichir en continu l'univers de jeu sans jamais perdre une idée ni pollue
    ```python
    send_message(
        Recipient="parent",
-       Message="Delta HUD Session :\n- Médias : [Battlemaps, ambiances et portraits générés (anciens purgés si transition)]\n- Entités clés : [Liens cliquables vers fiches créées/enrichies]\n- Scène : [Lieu & ambiance]\n- Groupe : [Positions PJ & ressources]\n- Menaces : [Statblocks PNJ]\n- Règles : [Modificateurs]\n- Alertes : [Événements tactiques]"
+       Message="Delta HUD Session :\n- Médias : [Battlemap du lieu actuel, ambiance du lieu actuel et portraits PNJ de la scène active (anciens purgés selon unicité visuelle)]\n- Entités clés : [Liens cliquables vers fiches créées/enrichies]\n- Scène : [Lieu & ambiance]\n- Groupe : [Positions PJ & ressources]\n- Menaces : [Statblocks PNJ]\n- Règles : [Modificateurs]\n- Alertes : [Événements tactiques]"
    )
    ```
 
@@ -266,7 +273,7 @@ Lorsque Henri tape un message court ou un raccourci pendant la partie, répondre
 | **Improvisation PNJ** | `!pnj <Concept>` | Génère nom chélois authentique, voix, manie et statblock rapide. | **Corrado Vane** : Greffier corrompu, voix sifflante, frotte une pièce de cuivre. CA 12, PV 8, Diplomatie +6, Psychologie +4. |
 | **Battlemap Express** | `!map <Lieu>` | Déclenche immédiatement une battlemap 90° sans grille 16:9 dans `Conseil/_attachments/`. | Battlemap générée : `battlemap_arche_deluges.png`. Insérée en tête du HUD. |
 | **Visuel Ambiance** | `!visuel <Scène>` | Génère une illustration d'ambiance 16:9 de la scène en cours. | Illustration générée : `ambiance_quai_deluges.png`. Insérée en tête du HUD. |
-| **Bilan Étape** | `!status` ou `.` | Synthèse des 5 dernières minutes et refresh du HUD. | 3 répliques PJ. Elias explore le quai, Nox en filature. 1 garde Dottari repéré. HUD actualisé. |
+| **Bilan Étape** | `!status` ou `.` | Synthèse des 3 dernières minutes et refresh du HUD. | 3 répliques PJ. Elias explore le quai, Nox en filature. 1 garde Dottari repéré. HUD actualisé. |
 
 ---
 
@@ -275,7 +282,13 @@ Lorsque Henri tape un message court ou un raccourci pendant la partie, répondre
 L'artéfact affiché sur le volet latéral doit suivre rigoureusement cette architecture **ultra-dense sans aucun titre Markdown (`#` ou `##`) et sans en-tête verbeux**.
 
 ### Structure de Tête Obligatoire :
-1. **🖼️ Visuels Actifs de la Scène en Cours** : Battlemaps (Cartographer 16:9), Lieux d'ambiance (Asharde 16:9) et PNJ actifs (Asharde 16:9) affichés côte à côte ou empilés en tête pour consultation et copie instantanée par le MJ.
+1. **🖼️ Visuels Actifs de la Scène en Cours (Règle Stricte d'Unicité Visuelle de Scène)** :
+   * À tout instant, le bandeau visuel en tête de `mj_live_hud.md` n'affiche **STRICTEMENT** que les images de la **scène actuelle** :
+     1. **Une seule image du lieu actuel** (format 16:9 Style Asharde).
+     2. **Au maximum une battlemap associée à ce lieu précis** (format 16:9 Cartographer), uniquement s'il y a un risque de combat ou une confrontation active.
+     3. **Le ou les PNJ présents dans cette scène**.
+   * **INTERDICTION FORMELLE** d'afficher simultanément des images de lieux différents ou des battlemaps d'autres endroits.
+   * Pour tout lieu, combat ou PNJ qui n'est **PAS** dans la scène actuelle, **ZÉRO image affichée** : ils figurent uniquement sous forme de liens Markdown cliquables dans le Registre Global Harpy ou dans les notes Obsidian.
 2. **🏷️ Entités de la Scène Actuelle** : Ligne compacte de liens Markdown classiques cliquables `[Nom](file:///...)` vers les acteurs et lieux de la scène en cours (zéro wikilink `[[...]]`).
 3. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** : Tableau/liste de TOUTES les entités créées tout au long de la conversation (PNJ, Monstres, Lieux, Objets, Documents) avec liens Markdown cliquables, catégorie et description courte, facilitant leur injection directe dans Harpy en fin de partie.
 4. **Règle de Purge de Transition & Persistance Append-Only** : Les visuels de scène sont renouvelés et purgés à chaque changement de décor ou déplacement du groupe (seuls les visuels de la scène active restent affichés en tête), mais le **registre des entités créées en session reste strictement cumulatif (*append-only*)** tout au long de la session.
