@@ -92,11 +92,14 @@ Dès l'invocation de `/mj-assistant` par Henri, l'Agent Principal exécute la s�
 ### 1. Initialisation du HUD MJ Latéral
 Générer immédiatement l'artéfact `mj_live_hud.md` dans le répertoire d'artéfacts (`<appDataDir>/brain/<conversation-id>/mj_live_hud.md`) via `write_to_file` avec `ArtifactMetadata: { UserFacing: true, RequestFeedback: false, Summary: "HUD MJ Live Initialisé" }`.
 - **Règle d'Or : Format Ultra-Dense & Zéro Titre Markdown (`#` ou `##`)** : Le HUD doit **TOUJOURS être ultra-dense, sans aucun titre Markdown (`#` ou `##`)** afin d'économiser la hauteur d'écran sur le volet latéral et d'éviter tout défilement vertical superflu.
-- **Structure de Tête Obligatoire & Cycle de Vie** :
-  1. **🖼️ Visuels Actifs de la Scène en Cours (Règle Stricte d'Unicité Visuelle)** : Bandeau visuel restreint strictement à la scène actuelle (1 seule image du lieu actuel 16:9, au maximum 1 battlemap 16:9 associée si combat/tension, et les portraits des PNJ présents dans cette scène). Interdiction formelle d'afficher des images de lieux ou battlemaps d'autres endroits. Zéro image pour tout élément hors scène.
-  2. **🏷️ Entités de la Scène Actuelle** : Ligne compacte de liens Markdown classiques cliquables `[Nom](file:///...)` vers les acteurs et lieux de la scène en cours (zéro wikilink `[[...]]`).
-  3. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** : Tableau cumulatif (*append-only*) de toutes les entités créées au fil de la session (Lieux, Objets, PNJ, Monstres) avec liens cliquables, catégorie et description courte pour faciliter l'injection finale dans Harpy.
-  4. **Purge de Transition vs Registre Append-Only** : Lors d'une transition de scène ou de lieu, les visuels de l'ancienne scène sont purgés du HUD pour faire place aux visuels du nouveau lieu, mais le registre des entités créées en session reste strictement cumulatif (*append-only*).
+- **Structure Canonique Obligatoire de Haut en Bas** :
+  1. **🖼️ Visuels de la Scène Actuelle** : 1 seule image du lieu actuel (16:9 Style Asharde), au maximum 1 battlemap associée à ce lieu en cas de combat (16:9 Cartographer), et les visuels des PNJ actifs de la scène (16:9 Style Asharde). Strictement zéro image de scènes antérieures.
+  2. **🏷️ Entités Présentes dans la Scène** : Ligne compacte de liens Markdown classiques cliquables `[Nom](file:///...)` vers les acteurs et lieux de la scène active (zéro wikilink `[[...]]`).
+  3. **⚔️ PNJ de la Scène — Stats de Combat & Profils d'Action** : Tableau complet des PNJ (PV, CA, Contact, Pris au Dépourvu, Init, BMO, DMD, Attaque Principale, Sauvegardes) + profils d'action, psychologie, réactions et compétences. **Exclusion formelle du groupe des PJ** (le MJ interroge directement ses joueurs).
+  4. **💡 Idées de Jeu, Leviers Tactiques & Improvisation** : Pistes concrètes d'actions, tests, dilemmes et leviers tactiques pour aider le MJ.
+  5. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** : Placé **STRICTEMENT TOUT EN BAS** de l'artefact. Tableau cumulatif (*append-only*) de toutes les entités créées au fil de la session avec liens cliquables, catégorie et rôle.
+- **Suppression Formelle des Citations & Récapitulatifs** : Zéro citation directe, zéro récapitulatif redondant de la scène en cours.
+- **Purge de Transition vs Registre Append-Only** : Lors d'une transition de scène ou de lieu, les visuels de l'ancienne scène sont purgés du HUD pour faire place aux visuels du nouveau lieu, mais le registre des entités créées en session reste strictement cumulatif (*append-only*) tout en bas de l'artefact.
 - **Ambiance Sensorielle d'Ouverture** : À l'initialisation de session, ce HUD intègre le **Texte d'Ambiance Sensoriel d'Ouverture (19h30)** issu de [`asharde-brainstormer`](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/skills/asharde-brainstormer/SKILL.md) et des déclencheurs narratifs originaux.
 
 ### 2. Définition du Sous-Agent Vigie Autonome
@@ -250,7 +253,7 @@ Pour enrichir en continu l'univers de jeu sans jamais perdre une idée ni pollue
    ```python
    send_message(
        Recipient="parent",
-       Message="Delta HUD Session :\n- Médias : [Battlemap du lieu actuel, ambiance du lieu actuel et portraits PNJ de la scène active (anciens purgés selon unicité visuelle)]\n- Entités clés : [Liens cliquables vers fiches créées/enrichies]\n- Scène : [Lieu & ambiance]\n- Groupe : [Positions PJ & ressources]\n- Menaces : [Statblocks PNJ]\n- Règles : [Modificateurs]\n- Alertes : [Événements tactiques]"
+       Message="Delta HUD Session :\n- Médias : [Battlemap du lieu actuel, ambiance du lieu actuel et portraits PNJ de la scène active (anciens purgés selon unicité visuelle)]\n- Entités présentes : [Liens cliquables vers acteurs et lieux de la scène active]\n- PNJ de la scène : [Statblocks complets de combat et profils d'action (hors PJ)]\n- Idées de jeu : [Leviers tactiques, dilemmes et improvisation]\n- Registre Harpy : [Nouvelles entités créées à ajouter en bas de registre]"
    )
    ```
 
@@ -281,17 +284,26 @@ Lorsque Henri tape un message court ou un raccourci pendant la partie, répondre
 
 L'artéfact affiché sur le volet latéral doit suivre rigoureusement cette architecture **ultra-dense sans aucun titre Markdown (`#` ou `##`) et sans en-tête verbeux**.
 
-### Structure de Tête Obligatoire :
-1. **🖼️ Visuels Actifs de la Scène en Cours (Règle Stricte d'Unicité Visuelle de Scène)** :
-   * À tout instant, le bandeau visuel en tête de `mj_live_hud.md` n'affiche **STRICTEMENT** que les images de la **scène actuelle** :
-     1. **Une seule image du lieu actuel** (format 16:9 Style Asharde).
-     2. **Au maximum une battlemap associée à ce lieu précis** (format 16:9 Cartographer), uniquement s'il y a un risque de combat ou une confrontation active.
-     3. **Le ou les PNJ présents dans cette scène**.
-   * **INTERDICTION FORMELLE** d'afficher simultanément des images de lieux différents ou des battlemaps d'autres endroits.
-   * Pour tout lieu, combat ou PNJ qui n'est **PAS** dans la scène actuelle, **ZÉRO image affichée** : ils figurent uniquement sous forme de liens Markdown cliquables dans le Registre Global Harpy ou dans les notes Obsidian.
-2. **🏷️ Entités de la Scène Actuelle** : Ligne compacte de liens Markdown classiques cliquables `[Nom](file:///...)` vers les acteurs et lieux de la scène en cours (zéro wikilink `[[...]]`).
-3. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** : Tableau/liste de TOUTES les entités créées tout au long de la conversation (PNJ, Monstres, Lieux, Objets, Documents) avec liens Markdown cliquables, catégorie et description courte, facilitant leur injection directe dans Harpy en fin de partie.
-4. **Règle de Purge de Transition & Persistance Append-Only** : Les visuels de scène sont renouvelés et purgés à chaque changement de décor ou déplacement du groupe (seuls les visuels de la scène active restent affichés en tête), mais le **registre des entités créées en session reste strictement cumulatif (*append-only*)** tout au long de la session.
+### Structure Obligatoire de Haut en Bas :
+1. **🖼️ Visuels de la Scène Actuelle** :
+   - 1 seule image du lieu actuel (format 16:9 Style Asharde).
+   - Au maximum 1 battlemap associée à ce lieu en cas de combat ou tension (format 16:9 Cartographer).
+   - Les visuels / portraits des PNJ actifs de la scène (format 16:9 Style Asharde).
+   - **Strictement zéro image de scènes antérieures** ou de lieux hors scène (liens cliquables uniquement).
+2. **🏷️ Entités Présentes dans la Scène** :
+   - Ligne compacte de liens Markdown classiques cliquables `[Nom](file:///...)` vers les entités et lieux de la scène active (zéro wikilink `[[...]]`).
+3. **⚔️ PNJ de la Scène — Stats de Combat & Profils d'Action** :
+   - Tableau complet des PNJ : PV, CA, Contact, Pris au Dépourvu, Init, BMO, DMD, Attaque Principale, Sauvegardes (Vig / Réf / Vol).
+   - Profils d'action, psychologie, réactions probables, compétences importantes.
+   - **EXCLUSION DU GROUPE DES PJ** : Le groupe des héros n'est pas inclus dans le HUD (le MJ interroge directement les joueurs à sa table).
+4. **💡 Idées de Jeu, Leviers Tactiques & Improvisation** :
+   - Pistes concrètes d'actions, de tests, de dilemmes ou de réactions pour stimuler et assister le MJ.
+   - Leviers tactiques exploitables dans l'environnement immédiat.
+5. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** :
+   - Placé **STRICTEMENT TOUT EN BAS** de l'artefact.
+   - Tableau cumulatif (*append-only*) de toutes les entités créées au fil de la session (Lieux, Objets, PNJ, Monstres, Documents) avec liens cliquables, catégorie et rôle.
+- **Suppression Formelle des Citations Directes & Récapitulatifs Redondants** : Zéro citation en direct de répliques, zéro récapitulatif narratif redondant de ce qui vient d'être dit (le MJ et les joueurs viennent de le vivre).
+- **Règle de Purge de Transition & Persistance Append-Only** : Les visuels de scène sont renouvelés et purgés à chaque changement de décor ou déplacement du groupe (seuls les visuels de la scène active restent affichés en tête), mais le **registre des entités créées en session reste strictement cumulatif (*append-only*) tout en bas de l'artefact**.
 - **Liens Markdown Classiques Cliquables Exclusifs (Zéro Wikilink)** : **TOUS les liens dans l'artéfact doivent être expressément des liens Markdown classiques cliquables au format `[Nom](file:///...)` et JAMAIS de wikilinks Obsidian `[[...]]`** qui ne sont pas cliquables dans l'interface Antigravity.
 
 ```markdown
@@ -306,59 +318,49 @@ L'artéfact affiché sur le volet latéral doit suivre rigoureusement cette arch
 
 ---
 
-🏷️ **ENTITÉS DE LA SCÈNE ACTUELLE** : [Arche des Déluges](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Arche%20des%20Déluges.md) • [Barnabé Limon Sec](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Barnabé%20Limon%20Sec.md) • [Sentinelles Dottari](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Dottari%20de%20Westcrown.md) • [Bête d'Ombre (Laerith)](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Laerith.md)
+🏷️ **ENTITÉS PRÉSENTES DANS LA SCÈNE** : [Arche des Déluges](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Arche%20des%20Déluges.md) • [Barnabé Limon Sec](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Barnabé%20Limon%20Sec.md) • [Sentinelles Dottari](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Dottari%20de%20Westcrown.md) • [Bêtes d'Ombre (Laerith)](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Laerith.md)
+
+---
+
+⚔️ **PNJ DE LA SCÈNE — STATS DE COMBAT & PROFILS D'ACTION** *(Groupe PJ exclu)*  
+| PNJ / Créature | PV | CA | Contact | Dépourvu | Init | BMO | DMD | Attaque Principale | Sauvegardes (Vig/Réf/Vol) |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|---|:---:|
+| **Barnabé Limon Sec** (Roublard 2) | 13 | 14 | 12 | 12 | +2 | +1 | 13 | Dague de maître +4 (1d4 / 19-20) | +1 / +5 / +0 |
+| **Sentinelle Dottari** (Guerrier 2) | 18 | 16 | 11 | 15 | +1 | +4 | 15 | Guisarme +4 (2d4+3 / ×3, allonge) ou Arbalète +3 (1d8) | +4 / +1 / +1 |
+| **Bête d'Ombre (Laerith)** (FP 3) | 19 | 15 | 15 | 13 | +2 | +4 | 16 | Contact spectral +4 (1d6 froid + 1d6 affaibl. For) | +3 / +3 / +4 |
+
+- **Barnabé Limon Sec** :
+  * *Psychologie & Réactions* : Lâche, opportuniste, terrifié par l'obscurité. Parle vite, accepte 15 PO ou trahit à la première menace de noyade.
+  * *Profil Tactique* : Cherche le couvert (+4 CA), tente une Attaque Sournoise (+1d6) si un allié prend en tenaille, sinon jette sa bourse comme diversion et s'enfuit dans l'eau.
+  * *Compétences Clés* : Discrétion +7, Natation +6, Bluff +5, Connaissances (local) +6.
+- **Sentinelles Dottari** :
+  * *Psychologie & Réactions* : Disciplinées mais réticentes à entrer sous l'Arche sans torche. Craignent les sanctions de leur capitaine.
+  * *Profil Tactique* : Verrouillent l'issue à la guisarme (allonge 3 m, croc-en-jambe BMO +6), tirent à vue à l'arbalète si les PJ restent à distance.
+  * *Compétences Clés* : Intimidation +5, Perception +2 (vision normale, pénalité en pénombre).
+- **Bêtes d'Ombre (Laerith)** :
+  * *Psychologie & Réactions* : Entités affamées, agressivité instinctive envers toute source de chaleur vivante.
+  * *Profil Tactique* : Traversent la maçonnerie (Incorporel : 50% raté armes magiques, immunisé armes non-magiques). Ciblent le personnage au score de Force le plus bas.
+  * *Compétences Clés* : Discrétion +10 (dans la pénombre), Vulnérabilité : *Lumière vive* (Volonté DD 15 ou fuite à 9 m).
+
+---
+
+💡 **IDÉES DE JEU, LEVIERS TACTIQUES & IMPROVISATION**  
+- 🪵 **Levier Tactique — Grille des Vannes d'Évacuation** : Manivelle rouillée sur le pilier est (Force DD 14). Ouvrir la vanne déverse un flot de boue créant un terrain difficile (9 m) et éteint les torches des Dottari.
+- 🕳️ **Exutoire des Eaux Usées** : Anfractuosité dans la maçonnerie du rempart crénelé (Escalade DD 12) permettant une extraction discrète vers la ruelle des Teinturiers.
+- 🌧️ **Météo Sensorielle** : Averse torrentielle glaciale, pavé rendu glissant (Acrobaties DD 10 en course), odeur étouffante de suif brûlé, de limon croupi et de bitume.
+- 🗝️ **Dilemme & Pression Temporelle** : Les cloches de l'Horloge du Rempart sonnent le couvre-feu dans 3 rounds ; une patrouille de cavaliers des Dottari arrive par la chaussée haute si l'alerte retentit.
+- 🏛️ **Secret Révélable par Barnabé** : Si interrogé avec succès (Intimidation DD 12 ou Diplomatie DD 14), révèle le mot de passe de la planque des Bâtards d'Érèbe : *« Les yeux fermés voient l'Ombre »*.
 
 ---
 
 📋 **REGISTRE DES ENTITÉS CRÉÉES EN SESSION (POUR IMPORT HARPY)**  
+*(Tableau cumulatif append-only — placé strictement tout en bas)*  
 | Type | Entité & Fiche | Rôle / Description Courte | Import Harpy |
 |---|---|---|:---:|
 | 🏛️ **Lieu** | [Arche des Déluges](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Arche%20des%20Déluges.md) | Arche monumentale sous le rempart nord, zone de submersion | À importer |
 | 👤 **PNJ** | [Barnabé Limon Sec](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Barnabé%20Limon%20Sec.md) | Passeur clandestin de Westcrown, informateur réticent | À importer |
 | 🗝️ **Objet** | [Passe-Partout des Caniveaux](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Passe-Partout%20des%20Caniveaux.md) | Clé triangulaire ouvrant les grilles d'évacuation | À importer |
 | 📜 **Document** | [Registre de Péage Clandestin](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Registre%20de%20Péage%20Clandestin.md) | Liste codée des cargaisons passées sous l'Arche | À importer |
-
----
-
-**📍 SITUATION EN DIRECT ([HH:MM:SS] — [Quartier / Lieu])**  
-- **[Zone / Groupe 1]** : [Positionnement, état des PJ, alertes tactiques et tension immédiate].
-- **[Zone / Groupe 2]** : [Positionnement, couverture, sorts préparés et vigilance].
-- **Objectif Global** : [Objectif prioritaire de la scène ou du round].
-
----
-
-**👥 ÉTAT DU GROUPE & RESSOURCES VITALES**  
-| Héros | PV / CA | Position | Ressources Clés & Atouts | Statut / Risque |
-|---|:---:|---|---|---|
-| 🗡️ **Nox** | **1 / 14** (15) | Plage galets | 2 potions de soin (1d8+1), *Ténèbres* (1/j), Discrétion +8 | **Critique** : Bras cassé, mort au prochain coup |
-| 🧪 **Hellergoulash** | **11 / 11** (13) | Sous l'Arche | **3 potions de soin**, bombes alchimiques, extraits prêts | Prêt pour descente / jonction |
-| 🌿 **Panoramix** | **15 / 15** (14) | Sous l'Arche | **3 potions de soin**, sorts préparés (*Graisse*, *Armure de mage*) | Prêt pour descente / jonction |
-| 🏹 **Garbo** | Plein | En couverture | Morsure +5 (1d6+3), Griffes +5 (1d4+3), Tueur d'ombres | En appui tactique (cercle de feu) |
-
----
-
-**⚔️ MENACES, RÉFLEXES & COMBAT**  
-| Menace | Menace / Stat | Vitesse | Armes & Réflexes | Talon d'Achille / Vulnérabilité |
-|---|---|:---:|---|---|
-| **Bêtes d'Ombre** | FP 3 (Ombres) | **12 m** | Contact +4 (1d6 froid + affaiblissement force) | **Lumière vive** (Volonté DD 15 ou fuite à 9 m) |
-| **Sentinelles Rempart** | Gardes Dottari | **6 m** | Arbalètes légères +2 (1d8), Guisarmes +3 (2d4+3) | Vision humaine dans le noir (raté 20% à 50%) |
-| **Canal / Péril** | Environnement | — | Natation DD 15, hypothermie (1d6 non-létal / 10 min) | Éviter d'y replonger sans appui |
-
----
-
-**⚡ LEVIERS TACTIQUES & RÈGLES INSTANTANÉES**  
-- **Protocole Soin d'Urgence** : 1 potion = **1d8+1 PV** (action simple, Nox remonte à 3-10 PV). Recensement du stock global de potions du groupe (ex: 6 potions dispo).
-- **Course d'Ombre & Repli** : Vitesse comparée monstres vs PJ (**12 m** vs **9 m**). Lignes de fuite et franchissements avec brandons/torches.
-- **Camouflage & Abri** : Pénombre (20% raté), Abri (+4 CA), Prise en tenaille (+2 et Attaque Sournoise active).
-- **Magie de Rupture** : *Ténèbres* (sphère 6 m) coupant la ligne de mire des tireurs distants.
-
----
-
-**💡 DÉCLENCHEURS NARRATIFS, SECRETS & IMPROVISATION**  
-- 🪵 **Le Jeton du Diable dans l'Eau** : Objet secret immergé ou dissimulé portant le chiffre d'une faction rivale.
-- 🕳️ **L'Exutoire des Eaux Usées** : Anfractuosité dans la maçonnerie du rempart crénelé (Escalade DD 12) pour infiltration dérobée.
-- 🌧️ **Météo Sensorielle** : Averse glaciale, pavé disjoint, odeur âcre de suif brûlé, de saumure croupie et de charbon humide.
-- 🏛️ **L'Écho sous l'Arche** : Bas-relief occulte d'Aroden/Mammon révélant un mécanisme sacrificiel ou une gemme descellée.
 ```
 
 ---
