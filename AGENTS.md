@@ -67,7 +67,7 @@ La note maîtresse Obsidian est le tableau de bord ultra-synthétique du projet 
 |---|---|
 | **Titres de Notes** | Jamais d'underscores `_` ni de tirets `-` dans les noms de notes. Utiliser des espaces (ex: `Dossier Ethique AAAI.md`). |
 | **Fichiers Administratifs (`administratif/`)** | Format canonique obligatoire : `[Organisme d'origine ou destination] [MMAAAA d'ajd] [Titre du document].[ext]`.<br/>- `MMAAAA` : Mois (2 chiffres) et Année (4 chiffres) du jour de génération/classement.<br/>- Séparateurs : Espaces standards exclusivement, **jamais de tirets `-` ni d'underscores `_`**.<br/>- *Exemples* :<br/>  * `Postfinance 042026 Extrait de compte RIB IBAN BIC.pdf`<br/>  * `DESI 092026 Accord de Collaboration et CRediT These Latent Space.pdf`<br/>  * `SPoMi 092026 Renouvellement Permis B Fribourg.pdf` |
-| **Style Rédactionnel** | Français soigné 🇫🇷. Formulations télégraphiques, percutantes, optimisées pour la synthèse et l'écoute orale/TTS. |
+| **Style Rédactionnel & Langue** | Français soigné 🇫🇷 exclusif. Formulations télégraphiques, percutantes, optimisées pour la synthèse et l'écoute orale/TTS.<br/>**Règle du Français Intégral (Zéro Anglais)** : 100% de la communication de l'agent dans le chat (réponses, explications, synthèses, mais aussi **points d'étape intermédiaires, messages de transition et statuts d'attente**) doit être STRICTEMENT et sans exception rédigée en français. L'usage de l'anglais dans les messages adressés à Henri est formellement interdit. |
 
 ---
 

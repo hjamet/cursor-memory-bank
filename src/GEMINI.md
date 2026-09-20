@@ -32,7 +32,7 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 | **Édition & Écriture** | `write_to_file`, `replace_file_content` (code, scripts, LaTeX) | ❌ INTERDIT | ✅ MANDATOIRE |
 | **Terminal & Commandes** | `run_command` (inspection, build, git, tests, scripts) | ❌ INTERDIT *(Strictement réservé aux sous-agents serviteurs, sauf dérogation formelle définie dans un SKILL.md de pilotage)* | ✅ MANDATOIRE |
 | **Dialogue & Arbitrage** | `ask_question` | ✅ Exclusif | ❌ INTERDIT |
-| **Déploiement** | invoke_subagent | ✅ Exclusif (Agent Principal vers sous-agents $P=1$ d'exploration en lecture seule ou workers d'exécution par chantier) | ❌ INTERDIT aux sous-agents (exécutants directs $P=1$ sans re-délégation) |
+| **Déploiement** | invoke_subagent | ✅ Exclusif (Agent Principal vers sous-agents $P=1$ d'exploration en lecture seule ou workers d'exécution par chantier) | ❌ INTERDIT aux sous-agents (sauf dérogation formelle $P=2$ pour le copilote de table `/mj-assistant`) |
 | **Pilotage serviteurs** | `send_message`, `manage_subagents`, `manage_task` | ✅ Exclusif | ❌ INTERDIT |
 | **Mémoire Long-Terme** | MCP `aivc` (`remember`, `recall`…) | ✅ | ✅ |
 | **Agents Indépendants** | `antigravity-agents run --model <m> --prompt "…"` | ✅ Direct (zéro double délégation) | ✅ |
@@ -82,10 +82,19 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 | 5 | **Briefing complet** | Objectifs, chemins absolus, conventions (sous-agents = zéro contexte initial). |
 | 6 | **Audit de validation** | Vérifier preuves matérielles avant d'accepter un résultat. |
 | 7 | **Workflows / Skills** | Passer le chemin absolu du `SKILL.md` dans le prompt ; consigne n°1 impérative = lire le `SKILL.md` via `view_file` et l'appliquer rigoureusement. |
-| 8 | **Architecture Directe à 2 Niveaux & Zéro Perte d'Information** | L'Agent Principal ($P=0$) conçoit directement les plans, rédige les artéfacts de cadrage et de synthèse (exploration_report_X, implementation_plan, walkthrough) et déploie DIRECTEMENT les sous-agents exécutants feuilles ($P=1$). Zéro Lead intermédiaire (suppression du Scout Lead et du Build Lead $P=1$), éliminant la double délégation et le téléphone arabe. Déploiement OBLIGATOIREMENT PARALLÈLE de tous les sous-agents d'exploration et workers feuilles indépendants, avec interdiction de re-délégation au niveau $P=1$. |
+| 8 | **Architecture Directe à 2 Niveaux & Zéro Perte d'Information** | L'Agent Principal ($P=0$) conçoit directement les plans, rédige les artéfacts de cadrage et de synthèse (exploration_report_X, implementation_plan, walkthrough) et déploie DIRECTEMENT les sous-agents exécutants feuilles ($P=1$). Zéro Lead intermédiaire (suppression du Scout Lead et du Build Lead $P=1$), éliminant la double délégation et le téléphone arabe. Déploiement OBLIGATOIREMENT PARALLÈLE de tous les sous-agents d'exploration et workers feuilles indépendants, avec interdiction de re-délégation au niveau $P=1$ *(sauf dérogation formelle `/mj-assistant` ci-dessous)*. |
 | 9 | **Zéro Polling & Push** | INTERDICTION FORMELLE de boucler avec `manage_subagents(list)` ou `view_file`. Le système AGY est push-based et réveille l'agent automatiquement. |
 | 10 | **Timers commandes longues** | Pour tout `run_command` asynchrone, armer `schedule` avec `TimerCondition: "<task-id>"` (progression : 30s, 1m, 3m, 5m...). Zéro timer sur sous-agents. |
 | 11 | **Transcripts & Logs** | INTERDIT de lire `transcript.jsonl` des sous-agents. Attendre le réveil automatique. |
+
+> [!NOTE]
+> **Dérogation Formelle — Vigie Autonome & Copilote de Table (/mj-assistant)** :
+> Par exception formelle à l'interdiction de re-délégation $P=1$, le copilote de jeu en direct instancié par l'Agent Principal (`mj-assistant`) est un sous-agent superviseur autonome équipé d'`enable_subagent_tools: true`.
+> Il a pour mandat exclusif :
+> 1. De lancer et maintenir le démon de transcription audio mixée (`live_transcriber.py`).
+> 2. D'armer son propre cronjob de surveillance périodique (`schedule` 5 minutes).
+> 3. De mandater lui-même des sous-sous-agents d'investigation en lecture seule ($P=2$) pour interroger le coffre Obsidian et répondre à ses interrogations narratives ou mécaniques.
+> 4. De créer les fiches d'entités émergentes et de remonter les deltas consolidés à l'Agent Principal via `send_message` pour l'actualisation du HUD latéral (`mj_live_hud.md`).
 
 ### Restitution & Diversité Visuelle
 
