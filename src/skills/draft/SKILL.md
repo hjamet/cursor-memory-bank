@@ -63,6 +63,13 @@ flowchart TD
 > - **Principe de subsidiarité** : Si une phrase est grammaticalement correcte, compréhensible et sans piège diplomatique, **ON NE LA MODIFIE SOUS AUCUN PRÉTEXTE**.
 > - **Bannissement du "mieux disant" subjectif** : L'assistant ne remplace jamais un mot par un autre au seul motif d'une préférence stylistique personnelle ou statistique du modèle.
 
+> [!CAUTION]
+> **🚫 INTERDICTION FORMELLE DE FICHIER INTERMÉDIAIRE OU DE TRANSCRIPTION SCRATCH :**
+> - Lorsque le texte source réside dans un fichier existant sur le disque (qu'il s'agisse de Markdown `.md`, de LaTeX `.tex`, de Typst `.typ`, ou de code), l'agent a l'**INTERDICTION FORMELLE ET ABSOLUE** de créer un fichier de travail intermédiaire, un brouillon scratch ou une extraction textuelle manuelle (ex: créer un `.md` temporaire pour "enlever les balises LaTeX").
+> - Les outils machine `doc-version` (`commit_document` et `get_diff_artifact`) opèrent **DIRECTEMENT ET EXCLUSIVEMENT sur le fichier source d'autorité sur le disque** (ex: `main.tex`).
+> - C'est l'artéfact de diff généré automatiquement par la machine qui expose nativement le texte final prêt à copier dans son bloc dépliant `<details><summary>📋 Texte Final Prêt à Copier</summary>`.
+> - Toute création de fichier intermédiaire constitue une falsification et une violation critique de l'exclusivité machine de `/draft`.
+
 ---
 
 ## 🧭 Quel Est le Protocole d'Exécution Instrumenté par doc-version-mcp ?
