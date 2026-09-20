@@ -1,24 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-AI Detector Engine (7-Component Unified SOTA Bagging & Binoculars Ensemble)
-Moteur Détecteur IA Multi-Modèles Haute Précision & GPU-Accelerated (Architecture Cohort Staged Waterfall < 8 Go VRAM)
-Localisation : c:/Users/Jamet/Documents/VoiceNotes/antigravity/scripts/ai_detector.py
+AI Detector Engine (6-Component SOTA Lightweight Ensembles)
+Moteur Détecteur IA Multi-Modèles Haute Précision & Frugal (Architecture Encodeurs SOTA Légers < 3 Go VRAM / CPU-Compatible)
+Localisation : c:/Users/Jamet/Documents/VoiceNotes/_agents/scripts-for-skills/ai_detector.py
 
-Combine 7 acteurs algorithmiques SOTA complémentaires selon la doctrine Zero-Trust et Fail-Stop :
-1. Binoculars Gemma-4-E2B (35%)   : google/gemma-4-E2B (Observer) + google/gemma-4-E2B-it (Performer) [Leader Incontesté]
-2. DeBERTa-v3 RAID SOTA (15%)      : desklib/ai-text-detector-v1.01 (Benchmark RAID Leader)
-3. ModernBERT Long-Context (15%)  : GeorgeDrayson/modernbert-ai-detection-raid-mage (8192 tokens natifs, MAGE & RAID)
-4. TMR RoBERTa Anti-Paraph. (12%) : Oxidane/tmr-ai-text-detector (Focal Loss & Hard-Negative Mining sur RAID)
-5. DeBERTa-v3 Academic (10%)      : desklib/ai-text-detector-academic-v1.01 (Spécialisé Corpus Scientifique & Papiers)
-6. XLM-RoBERTa Multilingue (7%)   : yaya36095/xlm-roberta-text-detector (Cross-lingual Robustness)
-7. Stylométrie & Entropie (6%)    : Burstiness CV, TTR, Maas, Entropie de Shannon, Buzzwords
+Combine 6 acteurs algorithmiques SOTA complémentaires selon la doctrine Zero-Trust et Fail-Stop :
+1. DeBERTa-v3 RAID SOTA (23%)      : desklib/ai-text-detector-v1.01 (Benchmark RAID Leader)
+2. ModernBERT Long-Context (23%)  : GeorgeDrayson/modernbert-ai-detection-raid-mage (8192 tokens natifs, MAGE & RAID)
+3. TMR RoBERTa Anti-Paraph. (18%) : Oxidane/tmr-ai-text-detector (Focal Loss & Hard-Negative Mining sur RAID)
+4. DeBERTa-v3 Academic (16%)      : desklib/ai-text-detector-academic-v1.01 (Spécialisé Corpus Scientifique & Papiers)
+5. XLM-RoBERTa Multilingue (11%)   : yaya36095/xlm-roberta-text-detector (Cross-lingual Robustness)
+6. Stylométrie & Entropie (9%)     : Burstiness CV, TTR, Maas, Entropie de Shannon, Buzzwords
 
-Architecture d'Exécution en 3 Cohortes Séquentielles (Plafond VRAM < 8 Go garanti) :
-- Cohorte 1 : Les 5 encodeurs en FP16 (~2.7 Go VRAM) -> inférence chunks + heatmaps -> déchargement total.
-- Cohorte 2 : Module Binoculars Gemma-4-E2B en 4-bit séquentiel (~2.6 Go VRAM) -> déchargement total.
-- Cohorte 3 : Moteur Stylométrique & Entropique (CPU, 0 Mo VRAM).
-- Fusion Bayésienne : Somme pondérée renormalisée à 1.0.
+Architecture d'Exécution Frugale et Ultra-Rapide (Plafond VRAM < 3 Go garanti, compatible CPU) :
+- Les 5 encodeurs en FP16/BF16 (~2.7 Go VRAM) -> inférence chunks + heatmaps.
+- Moteur Stylométrique & Entropique (CPU, 0 Mo VRAM).
+- Fusion Bayésienne : Somme pondérée renormalisée à 1.0 (Total = 1.00).
 
 Seuil de conformité académique : P(AI) < 0.10 (10%)
 Doctrine Fail-Stop : Tout échec d'un composant obligatoire interrompt immédiatement l'exécution.
@@ -46,9 +44,14 @@ os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 warnings.filterwarnings("ignore")
 
-# Contournement préventif du bug Dynamo / torch.compile sur Python 3.12+ (requis pour ModernBERT)
+# Initialisation sécurisée de PyTorch et configuration du plafond dur VRAM (90%)
 try:
     import torch
+    if torch.cuda.is_available():
+        try:
+            torch.cuda.set_per_process_memory_fraction(0.90, device=0)
+        except Exception:
+            pass
     if hasattr(torch, "compile"):
         def _safe_compile(*args, **kwargs):
             if args and callable(args[0]):
@@ -126,24 +129,21 @@ def resolve_hf_token(token_arg: Optional[str] = None, required: bool = False) ->
     return None
 
 
-# Identifiants officiels de l'Armada SOTA à 7 Composants
+# Identifiants officiels du Sextuor SOTA (6 Composants)
 DEBERTA_RAID_ID = "desklib/ai-text-detector-v1.01"
 MODERNBERT_ID = "GeorgeDrayson/modernbert-ai-detection-raid-mage"
 TMR_ROBERTA_ID = "Oxidane/tmr-ai-text-detector"
 DEBERTA_ACADEMIC_ID = "desklib/ai-text-detector-academic-v1.01"
 XLM_ROBERTA_ID = "yaya36095/xlm-roberta-text-detector"
-BINOCULARS_OBSERVER_ID = "google/gemma-4-E2B"
-BINOCULARS_PERFORMER_ID = "google/gemma-4-E2B-it"
 
-# Poids nominaux officiels de l'Armada SOTA (Total = 1.00 / 100%) - Option 2 : Leader Incontesté Binoculars
+# Poids nominaux officiels du Sextuor SOTA (Total = 1.00 / 100%) - Encodeurs Légers SOTA
 NOMINAL_WEIGHTS = {
-    "binoculars_gemma": 0.35,    # 1. Binoculars via Gemma-4-E2B (Leader Causal & Géométrique Incontesté)
-    "deberta_raid": 0.15,        # 2. DeBERTa-v3 RAID SOTA (Benchmark RAID Leader)
-    "modernbert_long": 0.15,     # 3. ModernBERT Long-Context (8192 ctx, MAGE & RAID)
-    "tmr_roberta": 0.12,         # 4. TMR RoBERTa Anti-Paraphrase (Focal Loss & Hard-Negatives)
-    "deberta_academic": 0.10,    # 5. DeBERTa-v3 Academic SOTA (Corpus Scientifique)
-    "xlm_roberta": 0.07,         # 6. XLM-RoBERTa Multilingue (Cross-lingual Robustness)
-    "stylometric_entropy": 0.06, # 7. Moteur Stylométrique & Entropique (Garde-fou non-neural)
+    "deberta_raid": 0.23,        # 1. DeBERTa-v3 RAID SOTA (Benchmark RAID Leader)
+    "modernbert_long": 0.23,     # 2. ModernBERT Long-Context (8192 ctx, MAGE & RAID)
+    "tmr_roberta": 0.18,         # 3. TMR RoBERTa Anti-Paraphrase (Focal Loss & Hard-Negatives)
+    "deberta_academic": 0.16,    # 4. DeBERTa-v3 Academic SOTA (Corpus Scientifique)
+    "xlm_roberta": 0.11,         # 5. XLM-RoBERTa Multilingue (Cross-lingual Robustness)
+    "stylometric_entropy": 0.09, # 6. Moteur Stylométrique & Entropique (Garde-fou non-neural)
 }
 
 # Buzzwords / N-grammes surreprésentés dans les sorties IA
@@ -249,6 +249,8 @@ def clean_markdown(text: str) -> str:
     text = re.sub(r'^\s*[-*+]\s+', '', text, flags=re.MULTILINE)
     text = re.sub(r'[*_]{1,3}([^*_]+)[*_]{1,3}', r'\1', text)
     text = re.sub(r'^\s*>\s*', '', text, flags=re.MULTILINE)
+    text = re.sub(r'<del[^>]*>.*?</del>', '', text, flags=re.DOTALL)
+    text = re.sub(r'<[^>]+>', ' ', text)
     return text
 
 
@@ -319,21 +321,30 @@ class ModelManager:
 
     def __init__(
         self,
-        device_override: Optional[str] = None,
+        device_override: Optional[str] = "cpu",
         hf_token: Optional[str] = None,
         local_files_only: bool = False,
         keep_loaded: Optional[bool] = None
     ):
-        if device_override:
-            self.device = device_override
-        else:
+        if device_override == "auto":
             try:
                 import torch
                 self.device = "cuda" if torch.cuda.is_available() else "cpu"
             except Exception:
                 self.device = "cpu"
+        elif device_override:
+            self.device = device_override
+        else:
+            self.device = "cpu"
 
         import torch
+        # Plafond dur VRAM à 90% (sanctuarise ~1.2 Go pour Windows DWM sur GeForce RTX 3060 12 Go)
+        if self.device == "cuda" and torch.cuda.is_available():
+            try:
+                torch.cuda.set_per_process_memory_fraction(0.90, device=0)
+            except Exception:
+                pass
+
         self.torch_dtype = torch.float16 if self.device == "cuda" else torch.float32
         self.bfloat16_supported = torch.cuda.is_available() and torch.cuda.is_bf16_supported() if self.device == "cuda" else False
         self.causal_dtype = torch.bfloat16 if self.bfloat16_supported else self.torch_dtype
@@ -367,24 +378,27 @@ class ModelManager:
         self._xlm_tok = None
         self._xlm_mod = None
 
-        # Cohorte 2 : Binoculars Gemma-4-E2B (Observer & Performer)
-        self._bino_obs_tok = None
-        self._bino_obs_mod = None
-        self._bino_perf_tok = None
-        self._bino_perf_mod = None
 
     @classmethod
     def get_instance(
         cls,
-        device_override: Optional[str] = None,
+        device_override: Optional[str] = "cpu",
         hf_token: Optional[str] = None,
         local_files_only: bool = False,
         keep_loaded: Optional[bool] = None
     ) -> "ModelManager":
+        target_device = device_override if device_override else "cpu"
+        if target_device == "auto":
+            try:
+                import torch
+                target_device = "cuda" if torch.cuda.is_available() else "cpu"
+            except Exception:
+                target_device = "cpu"
+
         if cls._instance is None:
-            cls._instance = ModelManager(device_override, hf_token, local_files_only, keep_loaded)
-        elif device_override and cls._instance.device != device_override:
-            cls._instance = ModelManager(device_override, hf_token, local_files_only, keep_loaded)
+            cls._instance = ModelManager(target_device, hf_token, local_files_only, keep_loaded)
+        elif cls._instance.device != target_device:
+            cls._instance = ModelManager(target_device, hf_token, local_files_only, keep_loaded)
         elif hf_token and cls._instance.hf_token != hf_token:
             cls._instance.hf_token = hf_token
         cls._instance.local_files_only = local_files_only
@@ -465,112 +479,9 @@ class ModelManager:
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
-    def get_binoculars_observer(self):
-        """Charge et met en cache persistant le modèle Observer (google/gemma-4-E2B)."""
-        if self._bino_obs_mod is None:
-            import torch
-            from transformers import AutoTokenizer
-            try:
-                from transformers import Gemma4ForConditionalGeneration as GemmaModelClass
-            except ImportError:
-                try:
-                    from transformers import AutoModelForCausalLM as GemmaModelClass
-                except ImportError:
-                    from transformers import AutoModel as GemmaModelClass
-
-            self._bino_obs_tok = AutoTokenizer.from_pretrained(
-                BINOCULARS_OBSERVER_ID, token=self.hf_token, local_files_only=self.local_files_only
-            )
-            if not self._bino_obs_tok.pad_token:
-                self._bino_obs_tok.pad_token = self._bino_obs_tok.eos_token or "<pad>"
-
-            quant_config = None
-            if self.device == "cuda":
-                try:
-                    import bitsandbytes
-                    from transformers import BitsAndBytesConfig
-                    quant_config = BitsAndBytesConfig(
-                        load_in_4bit=True,
-                        bnb_4bit_compute_dtype=torch.bfloat16 if self.bfloat16_supported else torch.float16,
-                        bnb_4bit_quant_type="nf4",
-                    )
-                except Exception:
-                    quant_config = None
-
-            load_kwargs_obs = {"token": self.hf_token, "local_files_only": self.local_files_only}
-            if quant_config is not None:
-                load_kwargs_obs["quantization_config"] = quant_config
-                load_kwargs_obs["device_map"] = {"": self.device}
-            else:
-                load_kwargs_obs["torch_dtype"] = self.causal_dtype
-
-            self._bino_obs_mod = GemmaModelClass.from_pretrained(BINOCULARS_OBSERVER_ID, **load_kwargs_obs)
-            if quant_config is None:
-                self._bino_obs_mod = self._bino_obs_mod.to(self.device)
-            self._bino_obs_mod.eval()
-        return self._bino_obs_tok, self._bino_obs_mod
-
-    def get_binoculars_performer(self):
-        """Charge et met en cache persistant le modèle Performer (google/gemma-4-E2B-it)."""
-        if self._bino_perf_mod is None:
-            import torch
-            from transformers import AutoTokenizer
-            try:
-                from transformers import Gemma4ForConditionalGeneration as GemmaModelClass
-            except ImportError:
-                try:
-                    from transformers import AutoModelForCausalLM as GemmaModelClass
-                except ImportError:
-                    from transformers import AutoModel as GemmaModelClass
-
-            self._bino_perf_tok = AutoTokenizer.from_pretrained(
-                BINOCULARS_PERFORMER_ID, token=self.hf_token, local_files_only=self.local_files_only
-            )
-            if not self._bino_perf_tok.pad_token:
-                self._bino_perf_tok.pad_token = self._bino_perf_tok.eos_token or "<pad>"
-
-            quant_config = None
-            if self.device == "cuda":
-                try:
-                    import bitsandbytes
-                    from transformers import BitsAndBytesConfig
-                    quant_config = BitsAndBytesConfig(
-                        load_in_4bit=True,
-                        bnb_4bit_compute_dtype=torch.bfloat16 if self.bfloat16_supported else torch.float16,
-                        bnb_4bit_quant_type="nf4",
-                    )
-                except Exception:
-                    quant_config = None
-
-            load_kwargs_perf = {"token": self.hf_token, "local_files_only": self.local_files_only}
-            if quant_config is not None:
-                load_kwargs_perf["quantization_config"] = quant_config
-                load_kwargs_perf["device_map"] = {"": self.device}
-            else:
-                load_kwargs_perf["torch_dtype"] = self.causal_dtype
-
-            self._bino_perf_mod = GemmaModelClass.from_pretrained(BINOCULARS_PERFORMER_ID, **load_kwargs_perf)
-            if quant_config is None:
-                self._bino_perf_mod = self._bino_perf_mod.to(self.device)
-            self._bino_perf_mod.eval()
-        return self._bino_perf_tok, self._bino_perf_mod
-
-    def unload_binoculars(self):
-        """Libère intégralement le duo Binoculars de la mémoire VRAM."""
-        import gc
-        import torch
-        self._bino_obs_mod = None
-        self._bino_obs_tok = None
-        self._bino_perf_mod = None
-        self._bino_perf_tok = None
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-
     def unload_all(self):
-        """Libère l'ensemble des encodeurs et du duo Binoculars de la mémoire VRAM."""
+        """Libère l'ensemble des encodeurs de la mémoire VRAM."""
         self.unload_encoders()
-        self.unload_binoculars()
 
 
 # ============================================================================
@@ -778,101 +689,7 @@ def score_xlm_roberta(text: str, manager: ModelManager) -> Dict[str, Any]:
     }
 
 
-# --- 6. Binoculars via Gemma-4-E2B (35%) ---
-def score_binoculars_gemma(
-    text: str,
-    manager: ModelManager,
-    max_tokens: int = 512,
-    allow_partial: bool = False
-) -> Optional[Dict[str, Any]]:
-    """
-    Calcule le score Binoculars (Hans et al., ICML 2024) via le duo Gemma-4-E2B :
-      Observer : google/gemma-4-E2B
-      Performer : google/gemma-4-E2B-it
-    Les modèles sont conservés en mémoire GPU (keep_loaded=True) pour une persistance VRAM sans rechargement.
-    """
-    import torch
-    import numpy as np
-
-    try:
-        # 1. Observer (google/gemma-4-E2B)
-        obs_tok, obs_mod = manager.get_binoculars_observer()
-        enc = obs_tok(
-            text,
-            return_tensors="pt",
-            truncation=True,
-            max_length=max_tokens,
-            padding=False
-        )
-        input_ids = enc["input_ids"].to(manager.device)
-        attention_mask = enc.get("attention_mask", torch.ones_like(input_ids)).to(manager.device)
-
-        with torch.no_grad():
-            out_obs = obs_mod(input_ids=input_ids, attention_mask=attention_mask)
-            observer_logits = out_obs.logits.cpu().float()
-
-        # Si VRAM contrainte et keep_loaded désactivé, décharger observer
-        if not manager.keep_loaded:
-            manager.unload_binoculars()
-
-        # 2. Performer (google/gemma-4-E2B-it)
-        perf_tok, perf_mod = manager.get_binoculars_performer()
-        with torch.no_grad():
-            out_perf = perf_mod(input_ids=input_ids, attention_mask=attention_mask)
-            performer_logits = out_perf.logits.cpu().float()
-
-        if not manager.keep_loaded:
-            manager.unload_binoculars()
-
-        # 3. Calcul Métrologique Binoculars
-        shifted_perf_logits = performer_logits[..., :-1, :].contiguous()
-        shifted_labels = input_ids.cpu()[..., 1:].contiguous()
-        shifted_mask = attention_mask.cpu()[..., 1:].contiguous()
-
-        ce_loss_fn = torch.nn.CrossEntropyLoss(reduction="none")
-        loss = ce_loss_fn(shifted_perf_logits.transpose(1, 2), shifted_labels)
-        masked_loss = (loss * shifted_mask).sum() / shifted_mask.sum().clamp(min=1e-8)
-        ppl = float(masked_loss.item())
-
-        vocab_size = observer_logits.shape[-1]
-        p_proba = torch.softmax(observer_logits, dim=-1).view(-1, vocab_size)
-        q_scores = performer_logits.view(-1, vocab_size)
-
-        ce_x = ce_loss_fn(input=q_scores, target=p_proba).view(observer_logits.shape[0], observer_logits.shape[1])
-        padding_mask = (input_ids.cpu() != obs_tok.pad_token_id).float()
-        x_ppl = float(((ce_x * padding_mask).sum() / padding_mask.sum().clamp(min=1e-8)).item())
-
-        b_score = (ppl / x_ppl) if x_ppl > 0 else 1.0
-
-        # Calibration sigmoïde de probabilité IA
-        # B(s) < 0.88 -> Forte probabilité IA (B_score bas)
-        theta = 0.88
-        sigma = 0.06
-        p_ai_bino = 1.0 / (1.0 + math.exp((b_score - theta) / sigma))
-        p_ai_bino = max(0.0, min(1.0, p_ai_bino))
-
-        return {
-            "score": float(round(p_ai_bino, 4)),
-            "b_score": float(round(b_score, 4)),
-            "ppl": float(round(ppl, 3)),
-            "x_ppl": float(round(x_ppl, 3)),
-            "threshold": theta,
-            "model_observer": BINOCULARS_OBSERVER_ID,
-            "model_performer": BINOCULARS_PERFORMER_ID
-        }
-
-    except Exception as e:
-        if allow_partial:
-            sys.stderr.write(f"⚠️ [AVERTISSEMENT] Binoculars indisponible ({e}). Bascule bayésienne sur les autres composants.\n")
-            return None
-        raise RuntimeError(
-            f"❌ [FAIL-STOP] Échec du module Binoculars Gemma-4-E2B : {e}\n"
-            "Conformément à la doctrine Fail-Stop d'Henri, l'exécution est interrompue.\n"
-            "Pour autoriser l'exécution sans Binoculars en cas d'anomalie matérielle, spécifiez '--allow-partial'."
-        ) from e
-
-
-# --- 7. Stylométrie & Entropie (10%) ---
+# --- 6. Stylométrie & Entropie (9%) ---
 def score_stylometric(text: str) -> Dict[str, Any]:
     """
     Calcule les métriques stylométriques pures :
@@ -969,10 +786,9 @@ def analyze_text(
     **kwargs
 ) -> Dict[str, Any]:
     """
-    Exécute l'analyse SOTA unifiée à 7 composants :
-    - Cohorte 1 : Encodeurs FP16 (DeBERTa RAID, ModernBERT, TMR, DeBERTa Academic, XLM) + Heatmap
-    - Cohorte 2 : Binoculars Gemma-4-E2B (Observer + Performer) [Obligatoire]
-    - Cohorte 3 : Moteur Stylométrique & Entropique (CPU)
+    Exécute l'analyse SOTA unifiée à 6 composants (Sextuor SOTA d'encodeurs légers) :
+    - 5 Encodeurs FP16 (DeBERTa RAID 23%, ModernBERT 23%, TMR 18%, DeBERTa Academic 16%, XLM 11%) + Heatmap
+    - Moteur Stylométrique & Entropique 9% (CPU)
     - Fusion Bayésienne dynamique (renormalisation à 1.0)
     Modèles conservés en mémoire GPU (keep_loaded=True) pour inférence ultra-rapide sans rechargement.
     """
@@ -1193,20 +1009,12 @@ def analyze_text(
             "sentences": para_sents
         })
 
-    # DÉCHARGEMENT CONDITIONNEL COHORTE 1 (uniquement si VRAM restreinte < 8 Go et keep_loaded=False)
+    # DÉCHARGEMENT CONDITIONNEL ENCODEURS (uniquement si VRAM restreinte et keep_loaded=False)
     if not manager.keep_loaded:
         manager.unload_encoders()
 
     # ------------------------------------------------------------------------
-    # COHORTE 2 : BINOCULARS VIA GEMMA-4-E2B (35% - LEADER INCONTESTÉ OBLIGATOIRE)
-    # ------------------------------------------------------------------------
-    bino_res = score_binoculars_gemma(clean_txt, manager, allow_partial=allow_partial)
-    if bino_res is not None:
-        results_models["binoculars_gemma"] = bino_res
-        active_weights["binoculars_gemma"] = NOMINAL_WEIGHTS["binoculars_gemma"]
-
-    # ------------------------------------------------------------------------
-    # COHORTE 3 : MOTEUR STYLOMÉTRIQUE & ENTROPIQUE (6% - CPU)
+    # COMPOSANTE 6 : MOTEUR STYLOMÉTRIQUE & ENTROPIQUE (9% - CPU)
     # ------------------------------------------------------------------------
     stylo_res = score_stylometric(clean_txt)
     results_models["stylometric_entropy"] = stylo_res
@@ -1251,9 +1059,14 @@ def analyze_text(
             "details": v
         }
 
-    # Déchargement final uniquement si keep_loaded est explicitement False
+    # Libération systématique du cache et des résidus de calcul
     if not keep_loaded:
         manager.unload_all()
+    else:
+        import gc
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
 
     return {
         "global_score": {
@@ -1280,7 +1093,7 @@ def analyze_text(
 def analyze_texts_batch(
     texts: List[str],
     filenames: Optional[List[Optional[str]]] = None,
-    device_override: Optional[str] = None,
+    device_override: Optional[str] = "cpu",
     hf_token: Optional[str] = None,
     allow_partial: bool = False,
     offline: bool = False,
@@ -1290,7 +1103,7 @@ def analyze_texts_batch(
 ) -> List[Dict[str, Any]]:
     """
     Évalue un lot de textes de manière vectorisée et optimisée sans rechargement de modèles.
-    Les 5 encodeurs et le duo Binoculars restent chauds en mémoire GPU tout au long de l'évaluation du lot.
+    Les 5 encodeurs restent chauds en mémoire tout au long de l'évaluation du lot.
     """
     if not texts:
         return []
@@ -1303,22 +1116,34 @@ def analyze_texts_batch(
         filenames = [None] * len(texts)
 
     results = []
-    for txt, fname in zip(texts, filenames):
-        res = analyze_text(
-            text=txt,
-            filename=fname,
-            device_override=device_override,
-            hf_token=resolved_token,
-            allow_partial=allow_partial,
-            offline=offline,
-            compliance_threshold=compliance_threshold,
-            keep_loaded=True,
-            **kwargs
-        )
-        results.append(res)
-
-    if not keep_loaded:
-        manager.unload_all()
+    try:
+        for txt, fname in zip(texts, filenames):
+            try:
+                res = analyze_text(
+                    text=txt,
+                    filename=fname,
+                    device_override=device_override,
+                    hf_token=resolved_token,
+                    allow_partial=allow_partial,
+                    offline=offline,
+                    compliance_threshold=compliance_threshold,
+                    keep_loaded=True,
+                    **kwargs
+                )
+                results.append(res)
+            finally:
+                import gc
+                gc.collect()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+    finally:
+        if not keep_loaded:
+            manager.unload_all()
+        else:
+            import gc
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
     return results
 
@@ -1335,26 +1160,25 @@ def format_console_report(results: Dict[str, Any], show_heatmap: bool = True) ->
 
     lines = []
     lines.append("=" * 80)
-    lines.append(" 🧠 MOTEUR DÉTECTEUR IA — ARMADA SOTA UNIFIÉE 7 COMPOSANTS")
+    lines.append(" 🧠 MOTEUR DÉTECTEUR IA — SEXTUOR SOTA UNIFIÉ (6 COMPOSANTS)")
     lines.append("=" * 80)
 
     # 1. Résumé synthétique
     lines.append(f"\n📊 SCORE GLOBAL P(AI) : {g['p_ai_percent']:.1f}% | VERDICT : {g['verdict_icon']} {g['verdict']} [{g['status_label']}]")
     lines.append(f"   Périphérique : {results['device'].upper()} | Mots : {st['word_count']} | Phrases : {st['sentence_count']} | Paragraphes : {st['paragraph_count']}")
 
-    # 2. Breakdown des 7 acteurs SOTA
+    # 2. Breakdown des 6 acteurs SOTA
     lines.append("\n" + "-" * 80)
-    lines.append("🔬 DÉCOMPOSITION DE L'ARMADA SOTA (7 COMPOSANTS) :")
+    lines.append("🔬 DÉCOMPOSITION DU SEXTUOR SOTA (6 COMPOSANTS) :")
     lines.append("-" * 80)
 
     labels_map = {
-        "binoculars_gemma": ("Binoculars Gemma-4-E2B", "35%"),
-        "deberta_raid": ("DeBERTa-v3 RAID SOTA", "15%"),
-        "modernbert_long": ("ModernBERT Long-Context", "15%"),
-        "tmr_roberta": ("TMR RoBERTa Anti-Paraphrase", "12%"),
-        "deberta_academic": ("DeBERTa-v3 Academic SOTA", "10%"),
-        "xlm_roberta": ("XLM-RoBERTa Multilingue", "7%"),
-        "stylometric_entropy": ("Stylométrie & Entropie", "6%"),
+        "deberta_raid": ("DeBERTa-v3 RAID SOTA", "23%"),
+        "modernbert_long": ("ModernBERT Long-Context", "23%"),
+        "tmr_roberta": ("TMR RoBERTa Anti-Paraphrase", "18%"),
+        "deberta_academic": ("DeBERTa-v3 Academic SOTA", "16%"),
+        "xlm_roberta": ("XLM-RoBERTa Multilingue", "11%"),
+        "stylometric_entropy": ("Stylométrie & Entropie", "9%"),
     }
 
     idx = 1
@@ -1375,8 +1199,6 @@ def format_console_report(results: Dict[str, Any], show_heatmap: bool = True) ->
                 extra = f"(Modèle: {DEBERTA_ACADEMIC_ID}, Academic SOTA)"
             elif key == "xlm_roberta":
                 extra = f"(Modèle: {XLM_ROBERTA_ID}, Cross-lingual)"
-            elif key == "binoculars_gemma":
-                extra = f"(B-Score: {details.get('b_score', 0):.4f}, PPL: {details.get('ppl', 0):.2f}, X-PPL: {details.get('x_ppl', 0):.2f})"
             elif key == "stylometric_entropy":
                 extra = f"(CV: {details.get('cv_len', 0):.2f}, TTR: {details.get('ttr', 0):.2f}, Buzzwords: {len(details.get('buzzwords_found', []))})"
 
@@ -1405,24 +1227,27 @@ def format_console_report(results: Dict[str, Any], show_heatmap: bool = True) ->
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Moteur Détecteur IA Multi-Modèles SOTA (Armada Unifiée 7 Composants)",
+        description="Moteur Détecteur IA Multi-Modèles SOTA (Sextuor SOTA 6 Composants)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Exemples d'utilisation :
-  python antigravity/scripts/ai_detector.py "Texte direct à analyser..."
-  python antigravity/scripts/ai_detector.py draft.md
-  python antigravity/scripts/ai_detector.py paper.tex --json
-  cat draft.txt | python antigravity/scripts/ai_detector.py
+  python _agents/scripts-for-skills/ai_detector.py "Texte direct à analyser..."
+  python _agents/scripts-for-skills/ai_detector.py draft.md
+  python _agents/scripts-for-skills/ai_detector.py paper.tex --json
+  cat draft.txt | python _agents/scripts-for-skills/ai_detector.py
         """
     )
     parser.add_argument("input", nargs="?", help="Texte direct ou chemin vers un fichier (.tex, .md, .txt)")
     parser.add_argument("--json", action="store_true", help="Sortie JSON structurée pour sous-agents")
     parser.add_argument("--no-heatmap", action="store_true", help="Masquer la heatmap détaillée phrase par phrase")
     parser.add_argument("--threshold", type=float, default=0.10, help="Seuil de conformité (défaut : 0.10 / 10%%)")
-    parser.add_argument("--device", type=str, choices=["auto", "cpu", "cuda"], default="auto", help="Périphérique d'inférence (défaut: auto avec priorité CUDA GPU)")
+    parser.add_argument("--device", type=str, choices=["auto", "cpu", "cuda"], default="cpu", help="Périphérique d'inférence (défaut : cpu pour 0 Mo VRAM GPU préservant 100%% du GPU pour la reformulation, ou 'cuda' / 'auto')")
     parser.add_argument("--hf-token", type=str, default=None, help="Token Hugging Face pour l'accès aux checkpoints")
     parser.add_argument("--allow-partial", action="store_true", help="Autorise la bascule bayésienne si un composant échoue (désactive le Fail-Stop strict)")
     parser.add_argument("--offline", action="store_true", help="Utilise uniquement les fichiers déjà présents dans le cache Hugging Face local")
+    parser.add_argument("--fix", action="store_true", help="Active l'humanisation automatique des segments flaggués IA (via stealth_rewriter)")
+    parser.add_argument("--fix-output", type=str, default=None, help="Chemin du fichier pour enregistrer la version humanisée")
+    parser.add_argument("--fix-inplace", action="store_true", help="Écrase directement le fichier source avec la version humanisée")
 
     args = parser.parse_args()
 
@@ -1453,7 +1278,7 @@ Exemples d'utilisation :
         print("Erreur : Aucun texte fourni à analyser.", file=sys.stderr)
         sys.exit(1)
 
-    device_override = None if args.device == "auto" else args.device
+    device_override = args.device
 
     try:
         results = analyze_text(
@@ -1470,6 +1295,66 @@ Exemples d'utilisation :
         sys.stderr.write(f"\n{e}\n")
         sys.exit(1)
 
+    if args.fix:
+        try:
+            from stealth_rewriter import humanize_document, format_batch_summary_table
+        except ImportError:
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            from stealth_rewriter import humanize_document, format_batch_summary_table
+
+        if not args.json:
+            print(format_console_report(results, show_heatmap=not args.no_heatmap))
+            print("\n" + "=" * 80)
+            print(" 🛠️ ACTIVATION DU MODE DE RÉPARATION / HUMANISATION BATCH (--fix)")
+            print("=" * 80)
+
+        fix_res = humanize_document(
+            text=raw_text,
+            threshold=args.threshold,
+            device=device_override or "auto",
+            verbose=not args.json
+        )
+
+        if not args.json:
+            print(format_batch_summary_table(fix_res))
+
+        # Enregistrement
+        out_path = args.fix_output
+        if not out_path and args.fix_inplace and filename:
+            out_path = filename
+        elif not out_path and filename:
+            b, e = os.path.splitext(filename)
+            out_path = f"{b}.fixed{e}"
+
+        if out_path:
+            with open(out_path, "w", encoding="utf-8") as f:
+                f.write(fix_res["humanized_text"])
+            if not args.json:
+                print(f"💾 Fichier corrigé et humanisé enregistré sous : {out_path}\n")
+
+        if not args.json:
+            print("🔍 Re-évaluation complète de certification post-humanisation...")
+        try:
+            results_post = analyze_text(
+                text=fix_res["humanized_text"],
+                filename=out_path,
+                device_override=device_override,
+                hf_token=args.hf_token,
+                allow_partial=args.allow_partial,
+                offline=args.offline,
+                compliance_threshold=args.threshold,
+                keep_loaded=True
+            )
+        except Exception as e:
+            sys.stderr.write(f"\nErreur lors de la réévaluation : {e}\n")
+            sys.exit(1)
+
+        if args.json:
+            print(json.dumps({"before": results, "after": results_post, "fix_details": fix_res}, indent=2, ensure_ascii=False))
+        else:
+            print(format_console_report(results_post, show_heatmap=not args.no_heatmap))
+        return
+
     if args.json:
         print(json.dumps(results, indent=2, ensure_ascii=False))
     else:
@@ -1478,3 +1363,4 @@ Exemples d'utilisation :
 
 if __name__ == "__main__":
     main()
+
