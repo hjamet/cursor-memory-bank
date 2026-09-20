@@ -91,17 +91,23 @@ Dès l'invocation de `/mj-assistant` par Henri, l'Agent Principal exécute la s�
 
 ### 1. Initialisation du HUD MJ Latéral
 Générer immédiatement l'artéfact `mj_live_hud.md` dans le répertoire d'artéfacts (`<appDataDir>/brain/<conversation-id>/mj_live_hud.md`) via `write_to_file` avec `ArtifactMetadata: { UserFacing: true, RequestFeedback: false, Summary: "HUD MJ Live Initialisé" }`.
-- **Règle d'Or : Format Ultra-Dense & Zéro Titre Markdown (`#` ou `##`)** : Le HUD doit **TOUJOURS être ultra-dense, sans aucun titre Markdown (`#` ou `##`)** afin d'économiser la hauteur d'écran sur le volet latéral et d'éviter tout défilement vertical superflu.
-- **Structure Canonique Obligatoire de Haut en Bas** :
-  1. **🖼️ Visuels de la Scène Actuelle** : 1 seule image du lieu actuel (16:9 Style Asharde), au maximum 1 battlemap associée à ce lieu en cas de combat ou tension (16:9 Cartographer), et les visuels des PNJ actifs de la scène (16:9 Style Asharde). Strictement zéro image de scènes antérieures.
+- **Règle d'Or : Évitement de la Saturation d'Informations & Zéro Titre Markdown (`#` ou `##`)** :
+  Le HUD doit **TOUJOURS être hyper-concis, ultra-dense et sans aucun titre Markdown (`#` ou `##`)** afin d'économiser la hauteur d'écran sur le volet latéral et d'éviter tout défilement vertical superflu.
+  **INTERDICTION FORMELLE de créer des pavés de texte ou des sections fleuves séparées** (pas de listes exhaustives d'objets ou de matériel, pas de sections verbeuses de questions-réponses ou de répertoires fleuves d'éléments de décor). L'objectif absolu est la lisibilité instantanée en un coup d'œil (< 5 secondes de lecture en pleine partie).
+- **Structure Canonique Compacte par Entité (4 Volets Stricts de Haut en Bas)** :
+  1. **🖼️ Visuels de la Scène Actuelle** : 1 seule image du lieu actuel (16:9 Style Asharde), au maximum 1 battlemap associée à ce lieu en cas de combat ou confrontation active (16:9 Cartographer), et les visuels des PNJ actifs de la scène (16:9 Style Asharde). Strictement zéro image de scènes antérieures.
   2. **🏷️ Entités Présentes dans la Scène** : Ligne compacte de liens Markdown classiques cliquables `[Nom](file:///...)` vers les acteurs et lieux de la scène active (zéro wikilink `[[...]]`).
-  3. **⚔️ PNJ de la Scène — Stats de Combat, Profil d'Action & Stades** : Tableau complet des PNJ (PV, CA, Contact, Pris au Dépourvu, Init, BMO, DMD, Attaque Principale, Sauvegardes Vig/Réf/Vol) + stades d'action/comportement tactique, seuils de reddition/fuite et compétences clés. **Exclusion formelle du groupe des PJ** (le MJ interroge directement ses joueurs).
-  4. **🏰 Détails du Lieu, Secrets, Pièges & Objets Utilisables (Props)** : Agencement, sorties dérobées, passages secrets, trappes, verrous/serrures avec DD, pièges et risques environnementaux, objets de décor et props immédiatement utilisables en combat ou diversion (cisailles, mannequins pour abri/terrain difficile, flacons inflammables, rouleaux, etc.).
-  5. **🔮 Anticipation Proactive : Questions des Joueurs & Réponses avec DD Prêts à l'Emploi** : Déduire du flux de transcription ce que les joueurs préparent, projettent ou hésitent à faire (recherche d'issues de secours, déguisement, dissimulation de butin, question sur le lore ou les voisins, vol de caisse). Fournir immédiatement la question probable, la réponse du MJ et les DD chiffrés prêts à être annoncés sans que le MJ n'ait à chercher ni improviser.
-  6. **💡 Idées de Jeu, Leviers Tactiques & Improvisation** : Pistes concrètes d'actions, dilemmes, leviers de cupidité, intimidation et tension dramatique extérieure pour aider le MJ.
-  7. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** : Placé **STRICTEMENT TOUT EN BAS** de l'artéfact. Tableau cumulatif (*append-only*) de toutes les entités créées au fil de la session avec liens cliquables, catégorie et rôle.
-- **Suppression Formelle des Citations & Récapitulatifs** : Zéro citation directe, zéro récapitulatif redondant de la scène en cours.
-- **Purge de Transition vs Registre Append-Only** : Lors d'une transition de scène ou de lieu, les visuels de l'ancienne scène sont purgés du HUD pour faire place aux visuels du nouveau lieu, mais le registre des entités créées en session reste strictement cumulatif (*append-only*) tout en bas de l'artefact.
+  3. **👥 Blocs Compacts par Entité de la Scène (PNJ et Lieux)** :
+     Pour chaque PNJ ou Lieu présent dans la scène :
+     - Titre de l'entité (avec émoji distinctif et lien Markdown classique cliquable `[Nom](file:///...)`).
+     - Tableau compact de ses mécaniques et stats de base :
+       * Pour un PNJ : stats de combat (PV, CA, Contact, Dépourvu, Init, Attaque principale, Sauvegardes Vig/Réf/Vol, BMO/DMD). *(Exclusion formelle du groupe des PJ : le MJ interroge directement ses joueurs).*
+       * Pour un Lieu : structure & accès, verrous & portes avec DD, issues & réserves, dangers & pièges mécaniques.
+     - **2 à 3 lignes MAXIMUM des points les plus cruciaux à savoir ou que les joueurs risquent de demander** : réactions clés du PNJ, seuils de rupture/fuite, DD immédiats d'interaction ou de recherche, secrets critiques révélables ou props utilisables en jeu. Zéro digression.
+  4. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** :
+     Placé **STRICTEMENT TOUT EN BAS** de l'artéfact. Tableau cumulatif (*append-only*) de toutes les entités créées au fil de la session avec liens cliquables, catégorie et rôle.
+- **Suppression Formelle des Citations & Récapitulatifs** : Zéro citation directe, zéro récapitulatif redondant de ce qui vient d'être joué à la table.
+- **Purge de Transition vs Registre Append-Only** : Lors d'une transition de scène ou de lieu, les visuels et blocs d'entités de l'ancienne scène sont purgés du HUD pour faire place à la nouvelle scène, mais le registre des entités créées en session reste strictement cumulatif (*append-only*) tout en bas de l'artéfact.
 - **Ambiance Sensorielle d'Ouverture** : À l'initialisation de session, ce HUD intègre le **Texte d'Ambiance Sensoriel d'Ouverture (19h30)** issu de [`asharde-brainstormer`](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/skills/asharde-brainstormer/SKILL.md) et des déclencheurs narratifs originaux.
 
 ### 2. Définition du Sous-Agent Vigie Autonome
@@ -239,10 +245,8 @@ Pour enrichir en continu l'univers de jeu sans jamais perdre une idée ni pollue
    - Création proactive immédiate de 100% des entités significatives : lieux (+ ambiance 16:9), objets/reliques utiles, PNJ personnifiés (+ portrait 16:9).
    - Vérification de l'existence préalable de chaque entité.
    - Enrichissement in situ + alias YAML ou création d'une nouvelle fiche Harpy dans `Conseil/` inscrite au Registre cumulatif du HUD.
-4. **Anticipation Proactive des Intentions & Inventaire du Lieu (Secrets, Pièges & Props)** :
-   - **Analyse des intentions des joueurs** : Analyser le flux de transcription pour déduire ce que les joueurs préparent, projettent ou hésitent à faire (recherche d'issues de secours, déguisement, dissimulation de butin, question sur le lore ou les voisins, vol de caisse).
-   - **Formulation des questions probables & réponses avec DD prêts à l'emploi** : Fournir immédiatement la question probable, la réponse du MJ et les DD chiffrés prêts à être annoncés sans que le MJ n'ait à chercher ni improviser.
-   - **Inventaire du lieu actif (Détails, Secrets, Pièges & Props)** : Recenser les agencements critiques, sorties dérobées, passages secrets, trappes, verrous avec DD de crochetage/enfoncement, pièges environnementaux, et objets de décor et props utilisables immédiatement en combat ou diversion (cisailles, mannequins pour abri/terrain difficile, flacons inflammables, rouleaux, cordages, etc.).
+4. **Condensation Hyper-Concise par Entité (Zéro Saturation)** :
+   - Pour chaque entité active (Lieu ou PNJ) de la scène : extraire le tableau compact des stats de base (stats de combat pour PNJ, verrous/sorties pour Lieu) et **2 à 3 lignes MAXIMUM** condensant l'essentiel : réactions clés / psychologie, seuils de rupture ou de fuite, DD immédiats d'interaction ou d'investigation, secrets majeurs et 1-2 props de décor immédiatement exploitables. Zéro pavé textuel, zéro section Q&A ou catalogue séparé fleuve.
 5. **Délégation Chirurgicale au Sous-Sous-Agent Recherche ($P=2$)** :
    Pour toute question narrative, mécanique ou statblock manquant, la Vigie déploie un agent de recherche dédié :
    ```python
@@ -259,7 +263,7 @@ Pour enrichir en continu l'univers de jeu sans jamais perdre une idée ni pollue
    ```python
    send_message(
        Recipient="parent",
-       Message="Delta HUD Session :\n- Médias : [Battlemap du lieu actuel, ambiance du lieu actuel et portraits PNJ de la scène active (anciens purgés selon unicité visuelle)]\n- Entités présentes : [Liens cliquables vers acteurs et lieux de la scène active]\n- PNJ de la scène : [Statblocks complets de combat, profils d'action, stades et seuils de fuite (hors PJ)]\n- Détails du lieu & props : [Agencement, sorties dérobées, verrous avec DD, pièges, props utilisables immédiatement]\n- Anticipation proactive : [Questions probables des joueurs, réponses MJ et DD prêts à l'emploi]\n- Idées de jeu : [Leviers tactiques, cupidité, intimidation, dilemmes]\n- Registre Harpy : [Nouvelles entités créées à ajouter en bas de registre]"
+       Message="Delta HUD Session :\n- Médias : [Ambiance 16:9 du lieu actuel, battlemap 16:9 si combat/tension, portraits 16:9 PNJ actifs (anciens purgés selon unicité)]\n- Entités présentes : [Liens Markdown cliquables vers PNJ et Lieu de la scène active]\n- Blocs par entité (Zéro Saturation) : [Pour chaque entité : tableau de stats de base + 2 à 3 lignes clés max (réactions, DD immédiats, seuil de fuite, secret/prop)]\n- Registre Harpy : [Nouvelles entités créées à ajouter tout en bas du registre append-only]"
    )
    ```
 
@@ -290,113 +294,66 @@ Lorsque Henri tape un message court ou un raccourci pendant la partie, répondre
 
 L'artéfact affiché sur le volet latéral doit suivre rigoureusement cette architecture **ultra-dense sans aucun titre Markdown (`#` ou `##`) et sans en-tête verbeux**.
 
-### Structure Obligatoire de Haut en Bas :
+### ⚡ Règle d'Or : Évitement de la Saturation d'Informations
+- **Zéro Pavé & Zéro Section Fleuve** : Interdiction absolue de générer des listes exhaustives d'objets, des inventaires de props interminables ou des sections séparées verbeuses de questions-réponses.
+- **Lisibilité Instantanée en un Coup d'Œil (< 5s)** : Le HUD est un calpin de combat et de rôleplay rapide ; Henri doit trouver la réponse ou le DD immédiatement sans faire défiler l'écran.
+- **Organisation Modulaire par Entité** : Toute l'information utile d'un PNJ ou d'un Lieu est regroupée directement dans son bloc compact dédié (stats de base + 2-3 lignes clés).
+
+### Structure Canonique Compacte par Entité (4 Volets Stricts de Haut en Bas) :
 1. **🖼️ Visuels de la Scène Actuelle** :
    - 1 seule image du lieu actuel (format 16:9 Style Asharde).
-   - Au maximum 1 battlemap associée à ce lieu en cas de combat ou tension (format 16:9 Cartographer).
+   - Au maximum 1 battlemap associée à ce lieu en cas de combat ou confrontation (format 16:9 Cartographer).
    - Les visuels / portraits des PNJ actifs de la scène (format 16:9 Style Asharde).
    - **Strictement zéro image de scènes antérieures** ou de lieux hors scène (liens cliquables uniquement).
 2. **🏷️ Entités Présentes dans la Scène** :
-   - Ligne compacte de liens Markdown classiques cliquables `[Nom](file:///...)` vers les entités et lieux de la scène active (zéro wikilink `[[...]]`).
-3. **⚔️ PNJ de la Scène — Stats de Combat, Profil d'Action & Stades** :
-   - Tableau complet des PNJ : PV, CA, Contact, Pris au Dépourvu, Init, BMO, DMD, Attaque Principale, Sauvegardes (Vig / Réf / Vol).
-   - Stades d'action et de comportement tactique, seuils de reddition ou de fuite, compétences clés.
-   - **EXCLUSION DU GROUPE DES PJ** : Le groupe des héros n'est pas inclus dans le HUD (le MJ interroge directement les joueurs à sa table).
-4. **🏰 Détails du Lieu, Secrets, Pièges & Objets Utilisables (Props)** :
-   - Agencement du lieu, sorties dérobées, passages secrets, trappes, verrous/serrures avec DD.
-   - Pièges et risques environnementaux.
-   - Objets de décor et props utilisables immédiatement en combat ou diversion (cisailles, mannequins pour abri/terrain difficile, flacons inflammables, rouleaux, cordages, etc.).
-5. **🔮 Anticipation Proactive : Questions des Joueurs & Réponses avec DD Prêts à l'Emploi** :
-   - Déduction à partir du flux de transcription de ce que les joueurs préparent, projettent ou hésitent à faire (recherche d'issues de secours, déguisement, dissimulation de butin, question sur le lore ou les voisins, vol de caisse).
-   - Fourniture immédiate de la question probable, de la réponse du MJ et des DD chiffrés prêts à être annoncés sans que le MJ n'ait à chercher ni improviser.
-6. **💡 Idées de Jeu, Leviers Tactiques & Improvisation** :
-   - Pistes concrètes d'actions, de tests, de dilemmes ou de réactions pour stimuler et assister le MJ.
-   - Leviers de cupidité, intimidation et tension dramatique extérieure exploitables dans l'environnement immédiat.
-7. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** :
-   - Placé **STRICTEMENT TOUT EN BAS** de l'artefact.
+   - Ligne compacte de liens Markdown classiques cliquables `[Nom](file:///...)` vers les acteurs et lieux de la scène active (zéro wikilink `[[...]]`).
+3. **👥 Blocs Compacts par Entité de la Scène (PNJ et Lieux)** :
+   Pour chaque PNJ ou Lieu présent dans la scène active :
+   - **Titre de l'entité** (avec émoji distinctif et lien Markdown classique cliquable `[Nom](file:///...)`).
+   - **Tableau compact de ses mécaniques et stats de base** :
+     * Pour PNJ : PV, CA, Contact, Dépourvu, Init, Attaque principale, Sauvegardes (Vig / Réf / Vol), BMO / DMD. *(Groupe des PJ formellement exclu : le MJ interroge directement ses joueurs).*
+     * Pour Lieu : agencement/structure, verrous & portes avec DD, issues & réserves, dangers & pièges mécaniques.
+   - **2 à 3 lignes MAXIMUM des points les plus cruciaux à savoir ou que les joueurs risquent de demander** :
+     * Réactions clés du PNJ, seuils de rupture/fuite, DD immédiats d'interaction ou d'investigation, secrets critiques révélables ou 1-2 props de décor immédiatement exploitables.
+4. **📋 Registre des Entités Créées en Session (Pour Import Harpy)** :
+   - Placé **STRICTEMENT TOUT EN BAS** de l'artéfact.
    - Tableau cumulatif (*append-only*) de toutes les entités créées au fil de la session (Lieux, Objets, PNJ, Monstres, Documents) avec liens cliquables, catégorie et rôle.
-- **Suppression Formelle des Citations Directes & Récapitulatifs Redondants** : Zéro citation en direct de répliques, zéro récapitulatif narratif redondant de ce qui vient d'être dit (le MJ et les joueurs viennent de le vivre).
-- **Règle de Purge de Transition & Persistance Append-Only** : Les visuels de scène sont renouvelés et purgés à chaque changement de décor ou déplacement du groupe (seuls les visuels de la scène active restent affichés en tête), mais le **registre des entités créées en session reste strictement cumulatif (*append-only*) tout en bas de l'artefact**.
+- **Suppression Formelle des Citations Directes & Récapitulatifs Redondants** : Zéro citation en direct de répliques, zéro récapitulatif narratif de ce qui vient d'être dit à la table.
+- **Règle de Purge de Transition & Persistance Append-Only** : Les visuels et blocs d'entités de scène sont renouvelés et purgés à chaque changement de décor ou déplacement du groupe (seuls les visuels et entités de la scène active restent affichés en tête), mais le **registre des entités créées en session reste strictement cumulatif (*append-only*) tout en bas de l'artéfact**.
 - **Liens Markdown Classiques Cliquables Exclusifs (Zéro Wikilink)** : **TOUS les liens dans l'artéfact doivent être expressément des liens Markdown classiques cliquables au format `[Nom](file:///...)` et JAMAIS de wikilinks Obsidian `[[...]]`** qui ne sont pas cliquables dans l'interface Antigravity.
 
+### Exemple Canonique Concret : La Teinturerie & le Baron Melchior
+
 ```markdown
-![Battlemap zénithale 90° sans grille — Rempart Nord & Plage aux Galets](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/_attachments/battlemap_rempart_nord.png)
-*Battlemap zénithale 90° sans grille — Rempart Nord & Plage aux Galets*
+![Ambiance 16:9 — Teinturerie du Baron Melchior](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/_attachments/teinturerie_baron_melchior.png)
+*Ambiance 16:9 — Teinturerie du Baron Melchior au Régo Aérum*
 
-![Ambiance 16:9 — Arche des Déluges](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/_attachments/ambiance_arche_des_deluges.png)
-*Ambiance 16:9 — Arche des Déluges sous la pluie battante*
-
-![Portrait PNJ Actif — Barnabé Limon Sec](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/_attachments/portrait_barnabe_limon_sec.png)
-*Portrait PNJ Actif — Barnabé Limon Sec (passeur trempé et méfiant)*
+![Portrait PNJ Actif — Baron Melchior](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/_attachments/baron_melchior.png)
+*Portrait PNJ Actif — Baron Melchior (drapier bourgeois vaniteux et peureux)*
 
 ---
 
-🏷️ **ENTITÉS PRÉSENTES DANS LA SCÈNE** : [Arche des Déluges](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Arche%20des%20Déluges.md) • [Barnabé Limon Sec](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Barnabé%20Limon%20Sec.md) • [Sentinelles Dottari](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Dottari%20de%20Westcrown.md) • [Bêtes d'Ombre (Laerith)](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Laerith.md)
+🏷️ **ENTITÉS PRÉSENTES DANS LA SCÈNE** : [Teinturerie du Baron Melchior](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Teinturerie%20du%20Baron%20Melchior.md) • [Baron Melchior](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Baron%20Melchior.md) • [Nox (Ekthoplasm)](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Ekthoplasm.md)
 
 ---
 
-⚔️ **PNJ DE LA SCÈNE — STATS DE COMBAT, PROFIL D'ACTION & STADES** *(Groupe PJ exclu)*  
-| PNJ / Créature | PV | CA | Contact | Dépourvu | Init | BMO | DMD | Attaque Principale | Sauvegardes (Vig/Réf/Vol) |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|---|:---:|
-| **Barnabé Limon Sec** (Roublard 2) | 13 | 14 | 12 | 12 | +2 | +1 | 13 | Dague de maître +4 (1d4 / 19-20) | +1 / +5 / +0 |
-| **Sentinelle Dottari** (Guerrier 2) | 18 | 16 | 11 | 15 | +1 | +4 | 15 | Guisarme +4 (2d4+3 / ×3, allonge) ou Arbalète +3 (1d8) | +4 / +1 / +1 |
-| **Bête d'Ombre (Laerith)** (FP 3) | 19 | 15 | 15 | 13 | +2 | +4 | 16 | Contact spectral +4 (1d6 froid + 1d6 affaibl. For) | +3 / +3 / +4 |
-
-- **Barnabé Limon Sec** :
-  * *Stades d'Action & Comportement Tactique* : Stade 1 (Plein sang) : Négocie nerveusement, garde ses distances en restant près de sa barque. Stade 2 (< 8 PV) : Tente une feinte de désengagement, jette une fiole de poix ou sa bourse pour faire diversion.
-  * *Seuils de Reddition / Fuite* : Fuit dès qu'il subit une blessure létale (> 5 dégâts en un coup) ou se rend immédiatement si acculé sans issue navigable (mains levées, supplie en sanglotant).
-  * *Psychologie & Réactions* : Lâche, opportuniste, terrifié par l'obscurité. Parle vite, accepte 15 PO ou trahit à la première menace crédible de noyade.
-  * *Compétences Clés* : Discrétion +7, Natation +6, Bluff +5, Connaissances (local) +6, Évasion +7.
-- **Sentinelles Dottari** :
-  * *Stades d'Action & Comportement Tactique* : Stade 1 (Patrouille / Sommation) : Gardent la formation coude-à-coude, guisarme en arrêt (croc-en-jambe BMO +6, allonge 3 m). Stade 2 (Alerte / Blessés < 10 PV) : L'un sonne du cor d'alarme pendant que l'autre passe en défense totale (+4 CA).
-  * *Seuils de Reddition / Fuite* : Ne se rendent jamais face aux créatures d'ombre. Face aux PJ : reculent en bon ordre si l'un tombe ; capitulent si désarmés et encerclés (Intimidation DD 13).
-  * *Psychologie & Réactions* : Disciplinées mais superstitieuses ; réticentes à entrer sous l'Arche sans torche. Craignent les sanctions du capitaine plus que les voleurs.
-  * *Compétences Clés* : Intimidation +5, Perception +2 (vision normale, pénalité en pénombre).
-- **Bêtes d'Ombre (Laerith)** :
-  * *Stades d'Action & Comportement Tactique* : Stade 1 (Chasse furtive) : Attaque en embuscade depuis la pierre crue (Incorporel : 50% raté armes magiques, immunisé armes non-magiques). Cible le personnage au score de Force le plus bas. Stade 2 (< 7 PV) : Plonge dans la maçonnerie pour réapparaître dans le dos du soigneur ou d'un PJ isolé.
-  * *Seuils de Reddition / Fuite* : Aucune reddition possible (aberration spectrale affamée). Fuite instantanée à 9 m si exposée à une *Lumière vive* ou un sort de flammes magiques (Volonté DD 15).
-  * *Compétences Clés* : Discrétion +10 (dans la pénombre), Contact spectral (+1d6 affaiblissement de Force temporaire).
+👤 [Baron Melchior](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Baron%20Melchior.md) *(Citoyen / Expert 2 — Drapier patricien vaniteux & couard)*  
+| PV | CA | Contact | Dépourvu | Init | Attaque Principale | Sauvegardes (Vig/Réf/Vol) | BMO/DMD |
+|:---:|:---:|:---:|:---:|:---:|---|:---:|:---:|
+| 12 | 10 | 10 | 10 | +0 | Cisailles de coupe +0 (1d4-1 / 20) | +0 / +0 / +3 | +0 / 10 |
+- **Réaction & Psychologie** : Obséquieux et mielleux face aux clients fortunés (+4 Diplomatie/Bluff si platine ou gemmes présentés) ; pincé et méprisant envers les indigents.
+- **Seuil de Rupture & Fuite** : Couard viscéral ; s'effondre en larmes, s'aplatit au sol et offre sa caisse dès qu'une arme est brandie ou à la première goutte de sang (Intimidation DD 10).
+- **Points Clés & Secrets** : Faux noble (titre acheté 500 PO à un greffier) étranger à tout complot ; vend la livrée de valet sobre pour 1 PO (Déguisement +2) ; cassette d'arrière-boutique (110 PO, serrure DD 18).
 
 ---
 
-🏰 **DÉTAILS DU LIEU, SECRETS, PIÈGES & OBJETS UTILISABLES (PROPS)**  
-- 🧱 **Agencement & Architecture** : Voûte humide en pierre de taille couverte de mousse saumâtre. Sol dallé glissant submergé sous 30 cm d'eau saumâtre. Hauteur sous voûte 4,5 m. Piliers massifs offrant un abri total (+4 CA).
-- 🚪 **Sorties Dérobées & Passages Secrets** :
-  * *Trappe d'évacuation haute* : Camouflée sous une fausse gargouille à 3,5 m de haut (Perception DD 16). Mène aux toits de la ruelle des Teinturiers. Crochetage DD 20 ou Enfoncer Force DD 18.
-  * *Exutoire des eaux usées* : Grille basse immergée sous le courant (Perception DD 13 pour la repérer). Verrou rongé par la rouille (Crochetage DD 15, Force DD 14 pour tordre un barreau). Mène aux bas-fonds.
-- ⚠️ **Pièges & Risques Environnementaux** :
-  * *Dalle basculante des contrebandiers* : Devant le pilier central (Perception DD 18, Sabotage DD 18). Déclencheur : poids > 40 kg. Effet : Fosse noyée de 3 m (1d6 dégâts contondants + risque de noyade sous grille verrouillée).
-  * *Risque de crue soudaine* : Montée des eaux d'égout en cas d'averse persistante (+15 cm tous les 3 rounds, Acrobaties DD 12 pour ne pas glisser et tomber à terre).
-- 🧰 **Objets de Décor & Props Immédiatement Utilisables** :
-  * *Mannequins de couture et toiles de jute empilées* : Fournissent un abri partiel (+2 CA, +1 Réf) ou peuvent être renversés pour créer un terrain difficile de 3 m × 3 m (Action de mouvement).
-  * *Flacons d'huile à lampe rance (3 fioles sur l'étagère de garde)* : Peuvent être lancés (arme improvisée portée 3 m) pour embraser une case de 1,5 m (1d6 feu / round, dure 2 rounds).
-  * *Cisailles de calfat en fer lourd (sur l'établi)* : Peuvent trancher des cordages d'amarrage (solidité 2, 5 PV) ou servir d'arme improvisée contondante/perforante (1d6, critique ×2).
-  * *Rouleaux de chanvre et poulie de levage au plafond* : Permettent de se balancer d'un pilier à l'autre (Acrobaties DD 12) pour éviter le sol inondé ou faire tomber un contrepoids de 50 kg sur un ennemi (Attaque de contact à distance +4, 2d6 contondant).
-
----
-
-🔮 **ANTICIPATION PROACTIVE : QUESTIONS DES JOUEURS & RÉPONSES AVEC DD PRÊTS À L'EMPLOI**  
-- ❓ **« Y a-t-il une autre issue si les Dottari bloquent l'arche principale ? »**  
-  * *Réponse MJ* : Oui, deux possibilités : grimper vers la gargouille haute du rempart ou s'infiltrer par l'exutoire d'égout inondé derrière le pilier est.
-  * *DD Prêts à l'Emploi* : Perception DD 13 (repérer la grille basse) / Escalade DD 12 (atteindre la trappe haute) / Sabotage ou Crochetage DD 15 (forcer la grille basse).
-- ❓ **« Puis-je utiliser les mannequins ou caisses pour me cacher ou bloquer la sentinelle ? »**  
-  * *Réponse MJ* : Tout à fait. Renverser le mannequin lourd forme un obstacle de taille M créant un couvert ou bloquant la charge du lancier.
-  * *DD Prêts à l'Emploi* : Force brute DD 11 (renverser en action simple) / Discrétion DD 14 (se fondre derrière les toiles de jute trempées, bonus +4 si l'éclairage faiblit).
-- ❓ **« Est-ce que les gens du quartier ont entendu le combat ou vont donner l'alerte ? »**  
-  * *Réponse MJ* : Le bruit de l'averse masque les chocs sourds, mais le cor d'alarme dottari ou un sort sonore alertera la garnison du pont dans les 2 minutes.
-  * *DD Prêts à l'Emploi* : Connaissances (local) DD 12 (savoir que la caserne Dottari la plus proche est à 400 mètres) / Perception auditive DD 15 pour un tiers extérieur sous le déluge.
-- ❓ **« Barnabé a-t-il de la marchandise ou une bourse dérobée sur lui ou cachée dans sa barque ? »**  
-  * *Réponse MJ* : Il a une bourse de ceinture et un double fond sous la banquette de sa barque calfatée.
-  * *DD Prêts à l'Emploi* : Fouille / Perception DD 15 (détecter le double fond de la barque) : contient 45 PO, 2 potions de *Soins légers* et une lettre scellée à la cire noire ; Escamotage DD 14 (lui faire les poches pendant la discussion).
-
----
-
-💡 **IDÉES DE JEU, LEVIERS TACTIQUES & IMPROVISATION**  
-- 🪵 **Levier Tactique — Grille des Vannes d'Évacuation** : Manivelle rouillée sur le pilier est (Force DD 14). Ouvrir la vanne déverse un flot de boue créant un terrain difficile (9 m) et éteint les torches des Dottari.
-- 💰 **Levier de Cupidité & Pression** : Barnabé tente de racheter sa vie en révélant la cache d'un coffret de perles de contrebande sous le ponton si on lui promet de ne pas le livrer aux Tieffelins.
-- 😱 **Intimidation & Faiblesse Psychologique** : Barnabé a une phobie viscérale de la noyade ; l'immerger de force (test d'Empoignade réussi) confère un bonus de +5 aux tests d'Intimidation pour le faire parler sans violence prolongée.
-- 🌧️ **Météo Sensorielle & Tension Dramatique** : Averse torrentielle glaciale, pavé rendu glissant (Acrobaties DD 10 en course), odeur étouffante de suif brûlé, de limon croupi et de bitume. Cloches de l'Horloge du Rempart sonnant le couvre-feu dans 3 rounds.
-- 🏛️ **Secret Révélable par Barnabé** : Si interrogé avec succès (Intimidation DD 12 ou Diplomatie DD 14), révèle le mot de passe de la planque des Bâtards d'Érèbe : *« Les yeux fermés voient l'Ombre »*.
+🏛️ [Teinturerie du Baron Melchior](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Teinturerie%20du%20Baron%20Melchior.md) *(Échoppe de haute draperie & atelier de cuves du Régo Aérum)*  
+| Structure & Accès | Portes & Serrures | Issues & Réserve | Dangers & Pièges |
+|---|---|---|---|
+| Rez-de-chaussée : salon d'exposition d'acajou, verrière forgée ouvrant sur l'atelier des 3 cuves de teinture | Porte double acajou (Dureté 6, 30 PV, Sabotage DD 18, Enfoncer DD 20) | Trappe chêne ferré vers réserve sous-sol (Sabotage DD 16) ; sortie arrière sur venelle | Vapeurs sulfurées des cuves (Vigueur DD 12 ou 1d4 acide + secoué 1 rd) |
+- **Points Clés & Interactions** : Négociation patricienne (Diplomatie/Estimation DD 12, avantage si louanges du snobisme bourgeois) ; 4 apprentis craintifs s'enfuyant au premier cri.
+- **Props Utilisables en Scène** : Cuves de teinture chaude (1d6 brûlure/acide, renversement Force DD 16) ; rouleaux de soie et velours pour abri (+2 CA) ou enchevêtrement ; cisailles lourdes de coupe (1d4).
+- **Anticipation & Fouille** : Réserve en sous-sol (Perception DD 14 pour repérer la cassette dissimulée sous les brocarts de Katapesh contenant 110 PO et le faux titre de baron).
 
 ---
 
@@ -404,10 +361,10 @@ L'artéfact affiché sur le volet latéral doit suivre rigoureusement cette arch
 *(Tableau cumulatif append-only — placé strictement tout en bas)*  
 | Type | Entité & Fiche | Rôle / Description Courte | Import Harpy |
 |---|---|---|:---:|
-| 🏛️ **Lieu** | [Arche des Déluges](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Arche%20des%20Déluges.md) | Arche monumentale sous le rempart nord, zone de submersion | À importer |
-| 👤 **PNJ** | [Barnabé Limon Sec](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Barnabé%20Limon%20Sec.md) | Passeur clandestin de Westcrown, informateur réticent | À importer |
-| 🗝️ **Objet** | [Passe-Partout des Caniveaux](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Passe-Partout%20des%20Caniveaux.md) | Clé triangulaire ouvrant les grilles d'évacuation | À importer |
-| 📜 **Document** | [Registre de Péage Clandestin](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Registre%20de%20Péage%20Clandestin.md) | Liste codée des cargaisons passées sous l'Arche | À importer |
+| 🏛️ **Lieu** | [Teinturerie du Baron Melchior](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Teinturerie%20du%20Baron%20Melchior.md) | Échoppe de haute draperie et atelier de cuves du Régo Aérum | Importé |
+| 👤 **PNJ** | [Baron Melchior](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Baron%20Melchior.md) | Drapier bourgeois vaniteux, faux noble et créateur de mode | Importé |
+| 👗 **Objet** | [Livrée de Valet de Pied](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Livrée%20de%20Valet%20de%20Pied.md) | Tenue de domesticité sobre achetée par Nox (+2 Déguisement) | À importer |
+| 📜 **Document** | [Titre de Baronnie de Complaisance](file:///C:/Users/Jamet/Documents/VoiceNotes/Conseil/Titre%20de%20Baronnie%20de%20Complaisance.md) | Acte officiel falsifié acheté 500 PO par Melchior | À importer |
 ```
 
 ---
