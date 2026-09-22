@@ -23,6 +23,7 @@
 - **Édition In-Situ** : Toute traduction, refonte ou adaptation s'opère directement dans la note source (in-place) ou la remplace intégralement.
 - **Responsabilité Active d'Assainissement** : Identifier et purger immédiatement les notes orphelines, fichiers temporaires résiduels ou doublons dans le coffre.
 - **Interdiction des Notes de Travail & Brouillons Éphémères** : Ne JAMAIS générer de notes de réponse temporaires, de scratch ou de brouillons intermédiaires dans le coffre VoiceNotes/. Tous les artéfacts temporaires de session doivent résider exclusivement dans <appDataDir>/brain/... . Le coffre ne conserve que les notes canoniques pérennes, utiles et à jour.
+- **Interdiction Formelle des Brouillons de Messages & Courriels (/draft Exclusif)** : INTERDICTION FORMELLE ET ABSOLUE de créer des fichiers de messages, brouillons de courriels (`Reponse_Slack_*.md`, `Email_*.md`, `Message_*.md`, etc.) ou textes préparatoires dans le coffre `VoiceNotes/` (sauf demande expresse d'Henri). Toute préparation, polissage ou rédaction de message/courriel relève obligatoirement du skill `/draft` et réside exclusivement dans `<appDataDir>/brain/...` sous la forme d'un artéfact interactif temporaire de session (`virtual_draft_*.md`).
 
 ---
 
