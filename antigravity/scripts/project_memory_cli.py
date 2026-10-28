@@ -21,11 +21,15 @@ import math
 import re
 import time
 import shutil
+import glob
 import argparse
 import atexit
+import uuid
+import hashlib
 from datetime import datetime, date, time as dt_time, timedelta, timezone
 from dataclasses import dataclass
-from typing import Optional, Union, List, Any, Dict
+from typing import Optional, Union, List, Any, Dict, Tuple, Set
+from pathlib import Path
 
 if sys.platform == "win32":
     try:
@@ -47,6 +51,9 @@ def find_vault_dir(start_dir):
     candidate = os.path.abspath(os.path.join(start_dir, "..", "VoiceNotes"))
     if os.path.exists(os.path.join(candidate, ".obsidian")):
         return candidate
+    for cand in [Path.home() / "Documents" / "VoiceNotes", Path(r"C:\Users\Jamet\Documents\VoiceNotes"), Path(r"C:\Users\hjamet\Documents\VoiceNotes")]:
+        if (cand / ".obsidian").is_dir():
+            return str(cand)
     return os.path.abspath(os.path.join(start_dir, "..", ".."))
 
 
@@ -54,13 +61,15 @@ VAULT_DIR = os.environ.get("PROJECT_MEMORY_VAULT_DIR") or find_vault_dir(SCRIPT_
 DATA_JSON_PATH = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", "data.json")
 CACHE_PATH = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", ".project_cache.json")
 ACTIVE_POMODORO_PATH = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", ".active_pomodoro.json")
+ACTIVE_POMODORO_AGENT_PATH = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", ".active_pomodoro_agent.json")
+ADVANCE_TLDR_DIR = str(Path.home() / ".gemini" / "antigravity" / "brain" / "advance_tldr")
 
 EXCLUDED_DIRS = {
     ".obsidian", ".git", ".trash", ".claude", ".cursor",
     ".smart-env", ".pytest_cache", "attachments", "thumbnails",
     "excalidraw", "antigravity", "voicenotes", "readwise",
     "test_output_vault", "rattrapage_aib_pack", "templates",
-    "tests", "agents", ".agents", "_agents"
+    "tests", "agents", ".agents", "_agents", "advance"
 }
 
 SYSTEM_FILES = {"agents.md", "readme.md", "claude.md", "gemini.md"}
@@ -670,20 +679,19 @@ def is_pid_alive(pid):
 
 
 def load_all_active_pomodoros(
-    active_path=ACTIVE_POMODORO_PATH,
+    active_path=None,
     data_path=DATA_JSON_PATH,
     clean_stale=False,
-    recovered_out: Optional[List[Dict[str, Any]]] = None
+    recovered_out: Optional[List[Dict[str, Any]]] = None,
+    is_agent: bool = False
 ) -> Dict[str, Dict[str, Any]]:
     """
-    Charge l'ensemble des sessions Pomodoro actives en cours.
-    Gère de façon transparente :
-    - Le nouveau format multi-sessions (clé 'activeSessions' ou 'sessions')
-    - Le format hérité mono-session (objet unique à la racine)
-    - La réconciliation avec data.json
-    - Le nettoyage automatique des sessions orphelines dont le PID est mort
-    - La récupération et persistance du temps de travail effectif lors de la détection de stale lock
+    Charge l'ensemble des sessions Pomodoro actives en cours (humaines ou agent).
     """
+    if active_path is None:
+        active_path = ACTIVE_POMODORO_AGENT_PATH if is_agent else ACTIVE_POMODORO_PATH
+    active_key = "agentActiveSessions" if is_agent else "activeSessions"
+    single_key = "agentActiveSession" if is_agent else "activeSession"
     sessions = {}
 
     if os.path.exists(active_path):
@@ -691,7 +699,9 @@ def load_all_active_pomodoros(
             with open(active_path, "r", encoding="utf-8") as f:
                 content = json.load(f)
                 if isinstance(content, dict):
-                    if "activeSessions" in content and isinstance(content["activeSessions"], dict):
+                    if active_key in content and isinstance(content[active_key], dict):
+                        sessions = dict(content[active_key])
+                    elif "activeSessions" in content and isinstance(content["activeSessions"], dict):
                         sessions = dict(content["activeSessions"])
                     elif "sessions" in content and isinstance(content["sessions"], dict):
                         sessions = dict(content["sessions"])
@@ -704,12 +714,19 @@ def load_all_active_pomodoros(
         try:
             with open(data_path, "r", encoding="utf-8") as f:
                 d = json.load(f)
-                if "activeSessions" in d and isinstance(d["activeSessions"], dict):
-                    sessions = dict(d["activeSessions"])
-                elif "activeSession" in d and isinstance(d["activeSession"], dict):
-                    s = d["activeSession"]
+                if active_key in d and isinstance(d[active_key], dict):
+                    sessions = dict(d[active_key])
+                elif single_key in d and isinstance(d[single_key], dict):
+                    s = d[single_key]
                     if "rel_path" in s and s.get("status") == "running":
                         sessions[s["rel_path"]] = dict(s)
+                elif not is_agent:
+                    if "activeSessions" in d and isinstance(d["activeSessions"], dict):
+                        sessions = dict(d["activeSessions"])
+                    elif "activeSession" in d and isinstance(d["activeSession"], dict):
+                        s = d["activeSession"]
+                        if "rel_path" in s and s.get("status") == "running":
+                            sessions[s["rel_path"]] = dict(s)
         except Exception:
             pass
 
@@ -743,7 +760,8 @@ def load_all_active_pomodoros(
                                 elapsed_minutes=effective_elapsed_min,
                                 target_minutes=target_min,
                                 is_interrupted=True,
-                                data_path=data_path
+                                data_path=data_path,
+                                is_agent=is_agent
                             )
                             ratio = min(1.0, max(0.0, effective_elapsed_min / target_min)) if target_min > 0 else 0.0
                             if recovered_out is not None:
@@ -755,7 +773,8 @@ def load_all_active_pomodoros(
                                     "ratio": round(ratio, 4),
                                     "pid": pid
                                 })
-                            msg = f"⚠️ Session Pomodoro interrompue récupérée pour '{title}' : {effective_elapsed_min:.1f} min sauvegardées dans data.json."
+                            role_str = "Agent " if is_agent else ""
+                            msg = f"⚠️ Session Pomodoro {role_str}interrompue récupérée pour '{title}' : {effective_elapsed_min:.1f} min sauvegardées dans data.json."
                             if "--json" in sys.argv:
                                 print(msg, file=sys.stderr, flush=True)
                             else:
@@ -764,17 +783,19 @@ def load_all_active_pomodoros(
                             pass
         if changed:
             sessions = cleaned
-            _persist_active_pomodoros(sessions, active_path, data_path)
+            _persist_active_pomodoros(sessions, active_path, data_path, is_agent=is_agent)
 
     return sessions
 
 
-def load_active_pomodoro(active_path=ACTIVE_POMODORO_PATH):
+def load_active_pomodoro(active_path=None, is_agent=False):
     """
     Rétrocompatibilité : renvoie la session active principale (ou la plus récente) sous forme de dict,
     ou None si aucune session n'est active.
     """
-    sessions = load_all_active_pomodoros(active_path, clean_stale=False)
+    if active_path is None:
+        active_path = ACTIVE_POMODORO_AGENT_PATH if is_agent else ACTIVE_POMODORO_PATH
+    sessions = load_all_active_pomodoros(active_path, clean_stale=False, is_agent=is_agent)
     if not sessions:
         return None
     running = [s for s in sessions.values() if s.get("status") == "running"]
@@ -788,23 +809,28 @@ def load_active_pomodoro(active_path=ACTIVE_POMODORO_PATH):
     return res
 
 
-def get_active_pomodoro_session(project_key: str, active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH) -> Optional[Dict[str, Any]]:
+def get_active_pomodoro_session(project_key: str, active_path=None, data_path=DATA_JSON_PATH, is_agent=False) -> Optional[Dict[str, Any]]:
     """
     Récupère la session active associée à un projet spécifique (par chemin relatif ou titre).
     """
-    sessions = load_all_active_pomodoros(active_path, data_path, clean_stale=False)
+    if active_path is None:
+        active_path = ACTIVE_POMODORO_AGENT_PATH if is_agent else ACTIVE_POMODORO_PATH
+    sessions = load_all_active_pomodoros(active_path, data_path, clean_stale=False, is_agent=is_agent)
     for k, s in sessions.items():
         if k == project_key or s.get("rel_path") == project_key or s.get("title") == project_key:
             return s
     return None
 
 
-def _persist_active_pomodoros(sessions: Dict[str, Dict[str, Any]], active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH):
+def _persist_active_pomodoros(sessions: Dict[str, Dict[str, Any]], active_path=None, data_path=DATA_JSON_PATH, is_agent=False):
     """
-    Persiste l'état multi-sessions dans .active_pomodoro.json et dans data.json.
-    Garantit une compatibilité descendante totale en exposant à la racine de .active_pomodoro.json
-    et de data.json les clés de la session principale (activeSession).
+    Persiste l'état multi-sessions dans le fichier actif et dans data.json.
     """
+    if active_path is None:
+        active_path = ACTIVE_POMODORO_AGENT_PATH if is_agent else ACTIVE_POMODORO_PATH
+    active_key = "agentActiveSessions" if is_agent else "activeSessions"
+    single_key = "agentActiveSession" if is_agent else "activeSession"
+
     running_sessions = {k: v for k, v in sessions.items() if v.get("status") == "running"}
 
     if not running_sessions and not sessions:
@@ -817,11 +843,11 @@ def _persist_active_pomodoros(sessions: Dict[str, Dict[str, Any]], active_path=A
             if os.path.exists(data_path):
                 d = load_data(data_path)
                 changed = False
-                if "activeSession" in d:
-                    d.pop("activeSession", None)
+                if single_key in d:
+                    d.pop(single_key, None)
                     changed = True
-                if "activeSessions" in d:
-                    d.pop("activeSessions", None)
+                if active_key in d:
+                    d.pop(active_key, None)
                     changed = True
                 if changed:
                     save_data(d, data_path)
@@ -833,8 +859,8 @@ def _persist_active_pomodoros(sessions: Dict[str, Dict[str, Any]], active_path=A
     primary = max(candidates.values(), key=lambda s: float(s.get("start_timestamp", 0)))
 
     root_payload = dict(primary)
-    root_payload["activeSessions"] = sessions
-    root_payload["activeSession"] = primary
+    root_payload[active_key] = sessions
+    root_payload[single_key] = primary
 
     try:
         os.makedirs(os.path.dirname(active_path), exist_ok=True)
@@ -848,41 +874,45 @@ def _persist_active_pomodoros(sessions: Dict[str, Dict[str, Any]], active_path=A
     try:
         if os.path.exists(data_path):
             d = load_data(data_path)
-            d["activeSession"] = primary
-            d["activeSessions"] = sessions
+            d[single_key] = primary
+            d[active_key] = sessions
             save_data(d, data_path)
     except Exception:
         pass
 
 
-def save_active_pomodoro(pomodoro_info, active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH):
+def save_active_pomodoro(pomodoro_info, active_path=None, data_path=DATA_JSON_PATH, is_agent=False):
     """
     Enregistre ou met à jour une session active dans le registre multi-sessions.
     """
-    sessions = load_all_active_pomodoros(active_path, data_path, clean_stale=True)
+    if active_path is None:
+        active_path = ACTIVE_POMODORO_AGENT_PATH if is_agent else ACTIVE_POMODORO_PATH
+    sessions = load_all_active_pomodoros(active_path, data_path, clean_stale=True, is_agent=is_agent)
     rel_path = pomodoro_info.get("rel_path")
     if rel_path:
         sessions[rel_path] = dict(pomodoro_info)
     elif "title" in pomodoro_info:
         sessions[pomodoro_info["title"]] = dict(pomodoro_info)
-    _persist_active_pomodoros(sessions, active_path, data_path)
+    _persist_active_pomodoros(sessions, active_path, data_path, is_agent=is_agent)
 
 
-def clear_active_pomodoro(active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH, project_key=None):
+def clear_active_pomodoro(active_path=None, data_path=DATA_JSON_PATH, project_key=None, is_agent=False):
     """
     Supprime la session d'un projet spécifique, ou toutes les sessions si project_key est None.
     """
+    if active_path is None:
+        active_path = ACTIVE_POMODORO_AGENT_PATH if is_agent else ACTIVE_POMODORO_PATH
     if project_key:
-        sessions = load_all_active_pomodoros(active_path, data_path, clean_stale=False)
+        sessions = load_all_active_pomodoros(active_path, data_path, clean_stale=False, is_agent=is_agent)
         keys_to_remove = [k for k, v in sessions.items() if k == project_key or v.get("rel_path") == project_key or v.get("title") == project_key]
         for k in keys_to_remove:
             sessions.pop(k, None)
-        _persist_active_pomodoros(sessions, active_path, data_path)
+        _persist_active_pomodoros(sessions, active_path, data_path, is_agent=is_agent)
     else:
-        _persist_active_pomodoros({}, active_path, data_path)
+        _persist_active_pomodoros({}, active_path, data_path, is_agent=is_agent)
 
 
-def update_achilles_rotation_bonuses(stats: Dict[str, Any], current_project_key: str, ratio: float, alpha: float) -> None:
+def update_achilles_rotation_bonuses(stats: Dict[str, Any], current_project_key: str, ratio: float, alpha: float, is_agent: bool = False) -> None:
     """
     Applique le modèle d'Achille et la Tortue pour le bonus de rotation des projets non travaillés :
     Delta B = alpha * (100 - S_rot) * ratio, avec S_rot = S_base + B_rot.
@@ -890,8 +920,13 @@ def update_achilles_rotation_bonuses(stats: Dict[str, Any], current_project_key:
     """
     for p_key, p_val in stats.items():
         if p_key != current_project_key:
-            b_rot = float(p_val.get("rotationBonus", 0.0))
-            raw_s_base = p_val.get("currentScore")
+            target_obj = p_val.setdefault("agent", {}) if is_agent else p_val
+            tot_reviews = int(target_obj.get("totalReviews", 0))
+            if tot_reviews == 0 and not is_agent and int(p_val.get("totalReviews", 0)) == 0:
+                target_obj["rotationBonus"] = 0.0
+                continue
+            b_rot = float(target_obj.get("rotationBonus", 0.0))
+            raw_s_base = target_obj.get("currentScore", p_val.get("currentScore"))
             s_base = float(raw_s_base) if raw_s_base is not None else 50.0
             s_base = min(100.0, max(1.0, s_base))
             # Confinement préventif du bonus actuel pour respecter la borne 100
@@ -900,7 +935,7 @@ def update_achilles_rotation_bonuses(stats: Dict[str, Any], current_project_key:
             gap = max(0.0, 100.0 - s_rot)
             delta_b = alpha * gap * max(0.0, float(ratio))
             new_b = min(max(0.0, 100.0 - s_base), b_rot + delta_b)
-            p_val["rotationBonus"] = round(new_b, 3)
+            target_obj["rotationBonus"] = round(new_b, 3)
 
 
 def record_work_session(
@@ -909,15 +944,16 @@ def record_work_session(
     elapsed_minutes,
     target_minutes=None,
     is_interrupted=False,
-    data_path=DATA_JSON_PATH
+    data_path=DATA_JSON_PATH,
+    is_agent=False
 ):
     """
     Enregistre une session de travail (complète ou interrompue proportionnellement) dans data.json :
     - Calcule le ratio r = T_elapsed / T_target
-    - Enregistre la session dans recentWorkDates avec son ratio et sa durée
-    - Incrémente les statistiques globales (globalStats.totalPomodoroTime += T_elapsed)
-    - Applique la rotation des bonus via le modèle d'Achille et la Tortue (alpha * (100 - S_rot) * ratio)
-    - Valide le jalon synchrone si r >= 0.5 ou session complète
+    - Enregistre la session dans recentWorkDates avec son ratio et sa durée (dans agent.recentWorkDates si is_agent)
+    - Incrémente les statistiques globales si humain
+    - Applique la rotation des bonus via le modèle d'Achille et la Tortue
+    - Valide le jalon synchrone si humain et r >= 0.5 ou session complète
     - Recalcule et persiste effectiveScore dans data.json (DRY)
     """
     stats = data.setdefault("stats", {}).setdefault("projects", {})
@@ -954,8 +990,10 @@ def record_work_session(
     else:
         proj = stats[matched_key]
 
+    target_stat = proj.setdefault("agent", {}) if is_agent else proj
+
     # Purge des sessions de plus de 6 heures
-    existing_work = proj.get("recentWorkDates", [])
+    existing_work = target_stat.get("recentWorkDates", [])
     valid_dates = []
     for item in existing_work:
         d_str = item.get("date") if isinstance(item, dict) else str(item)
@@ -979,29 +1017,71 @@ def record_work_session(
             session_entry = now_iso
         valid_dates.append(session_entry)
 
-    proj["recentWorkDates"] = valid_dates
+    target_stat["recentWorkDates"] = valid_dates
 
-    # Validation du jalon si au moins 50% du pomodoro a été accompli ou si complet
-    if ratio >= 0.5 or not is_interrupted:
-        proj["lastSatisfiedMilestoneDate"] = now_iso
-
-    # Gestion proportionnelle du bonus de rotation pour le projet travaillé
-    if ratio >= 0.8:
-        proj["rotationBonus"] = 0.0
+    # Vérifier si agent_only
+    is_agent_only = False
+    cache = load_cache()
+    cached = cache.get(matched_key.replace("\\", "/")) if cache else None
+    if cached:
+        is_agent_only = bool(cached.get("agent_only", False))
     else:
-        current_bonus = float(proj.get("rotationBonus", 0.0))
-        raw_s_base = proj.get("currentScore")
-        s_base = float(raw_s_base) if raw_s_base is not None else 50.0
-        s_base = min(100.0, max(1.0, s_base))
-        current_bonus = min(max(0.0, 100.0 - s_base), max(0.0, current_bonus))
-        proj["rotationBonus"] = round(max(0.0, current_bonus * (1.0 - ratio)), 3)
+        abs_p = os.path.join(VAULT_DIR, matched_key.replace("/", os.sep))
+        if os.path.exists(abs_p):
+            fm, _, _, _ = parse_markdown_file(abs_p, parse_checkboxes=False)
+            is_agent_only = bool(fm.get("agent_only", False))
 
-    # Modèle Achille & Tortue pour les autres projets
-    update_achilles_rotation_bonuses(stats, matched_key, ratio, alpha)
+    if is_agent:
+        if is_agent_only:
+            target_stat["sessionsSinceHuman"] = 0
+        else:
+            target_stat["sessionsSinceHuman"] = int(target_stat.get("sessionsSinceHuman", 0)) + 1
+        target_stat["totalReviews"] = int(target_stat.get("totalReviews", 0)) + 1
+        target_stat["lastReviewDate"] = now_iso
 
-    # Accumulation du temps dans les stats globales
-    prev_pomodoro_time = float(global_stats.get("totalPomodoroTime", 0))
-    global_stats["totalPomodoroTime"] = round(prev_pomodoro_time + elapsed_minutes, 2)
+        if ratio >= 0.5 or not is_interrupted:
+            target_stat["lastSatisfiedMilestoneDate"] = now_iso
+            if is_agent_only:
+                proj["lastSatisfiedMilestoneDate"] = now_iso
+
+        # Gestion proportionnelle du bonus de rotation pour l'agent
+        if ratio >= 0.8:
+            target_stat["rotationBonus"] = 0.0
+        else:
+            current_bonus = float(target_stat.get("rotationBonus", 0.0))
+            raw_s_base = target_stat.get("currentScore", proj.get("currentScore"))
+            s_base = float(raw_s_base) if raw_s_base is not None else 50.0
+            s_base = min(100.0, max(1.0, s_base))
+            current_bonus = min(max(0.0, 100.0 - s_base), max(0.0, current_bonus))
+            target_stat["rotationBonus"] = round(max(0.0, current_bonus * (1.0 - ratio)), 3)
+
+        update_achilles_rotation_bonuses(stats, matched_key, ratio, alpha, is_agent=True)
+
+        prev_agent_time = float(global_stats.get("totalAgentPomodoroTime", 0.0))
+        global_stats["totalAgentPomodoroTime"] = round(prev_agent_time + elapsed_minutes, 2)
+        global_stats["totalAgentReviews"] = int(global_stats.get("totalAgentReviews", 0)) + 1
+    else:
+        # Validation du jalon si au moins 50% du pomodoro a été accompli ou si complet
+        if ratio >= 0.5 or not is_interrupted:
+            proj["lastSatisfiedMilestoneDate"] = now_iso
+
+        # Gestion proportionnelle du bonus de rotation pour le projet travaillé
+        if ratio >= 0.8:
+            proj["rotationBonus"] = 0.0
+        else:
+            current_bonus = float(proj.get("rotationBonus", 0.0))
+            raw_s_base = proj.get("currentScore")
+            s_base = float(raw_s_base) if raw_s_base is not None else 50.0
+            s_base = min(100.0, max(1.0, s_base))
+            current_bonus = min(max(0.0, 100.0 - s_base), max(0.0, current_bonus))
+            proj["rotationBonus"] = round(max(0.0, current_bonus * (1.0 - ratio)), 3)
+
+        # Modèle Achille & Tortue pour les autres projets
+        update_achilles_rotation_bonuses(stats, matched_key, ratio, alpha, is_agent=False)
+
+        # Accumulation du temps dans les stats globales
+        prev_pomodoro_time = float(global_stats.get("totalPomodoroTime", 0))
+        global_stats["totalPomodoroTime"] = round(prev_pomodoro_time + elapsed_minutes, 2)
 
     # Recalcul et persistance des scores effectifs dans data.json (DRY)
     try:
@@ -1121,7 +1201,10 @@ def parse_markdown_file(file_path, content=None, parse_checkboxes=True):
                     k, v = stripped.split(":", 1)
                     k_str = k.strip().lower()
                     v_str = v.strip().strip("\"'")
-                    frontmatter[k_str] = v_str
+                    if k_str == "agent_only":
+                        frontmatter["agent_only"] = v_str.lower() in ("true", "1", "yes")
+                    else:
+                        frontmatter[k_str] = v_str
                     current_list_key = k_str
 
                     if k_str in ("tags", "tag"):
@@ -1196,17 +1279,21 @@ def sync_vault_cache(vault_dir=VAULT_DIR, cache_path=CACHE_PATH, fast_mode=False
         dirs[:] = [d for d in dirs if not d.startswith(".") and d.lower() not in EXCLUDED_DIRS]
         for f in files:
             if f.endswith(".md") and f.lower() not in SYSTEM_FILES:
+                if f.startswith("🤖 ") or f.startswith("🤖 Avancées Autonomes") or f.startswith("🤖 Journal Autonome"):
+                    continue
                 abs_p = os.path.join(root, f)
                 rel_p = os.path.relpath(abs_p, vault_dir).replace("\\", "/")
-                valid_paths.add(rel_p)
                 try:
                     mt = os.path.getmtime(abs_p)
                 except OSError:
                     continue
 
                 cached = cache.get(rel_p)
-                if not cached or cached.get("mtime") != mt or "milestone" not in cached:
+                if not cached or cached.get("mtime") != mt or "milestone" not in cached or "agent_only" not in cached:
                     fm, tags, _, _ = parse_markdown_file(abs_p, parse_checkboxes=False)
+                    type_val = str(fm.get("type", "")).lower()
+                    if type_val in ("autonomous-tldr", "autonomous-log"):
+                        continue
                     deadline = str(fm.get("deadline") or fm.get("due") or "")
                     m_val = fm.get("milestone") or fm.get("milestones") or fm.get("jalon") or ""
                     milestone = ", ".join(m_val) if isinstance(m_val, list) else str(m_val)
@@ -1214,9 +1301,12 @@ def sync_vault_cache(vault_dir=VAULT_DIR, cache_path=CACHE_PATH, fast_mode=False
                         "mtime": mt,
                         "tags": list(tags),
                         "deadline": deadline,
-                        "milestone": str(milestone)
+                        "milestone": str(milestone),
+                        "agent_only": bool(fm.get("agent_only", False)),
+                        "type": type_val
                     }
                     cache_dirty = True
+                valid_paths.add(rel_p)
 
     # Purge deleted files from cache
     deleted = [k for k in cache if k not in valid_paths]
@@ -1307,6 +1397,8 @@ def compute_project_scores(
     rf: float = 0.2,
     recency_weight: float = 0.5,
     now_dt: Optional[datetime] = None,
+    agent_sessions_since_human: int = 0,
+    agent_last_action: str = "",
 ) -> Dict[str, Any]:
     """
     Calcule canoniquement tous les scores d'un projet selon les directives d'Henri :
@@ -1389,6 +1481,22 @@ def compute_project_scores(
             p_milestone = min(1.0, max(0.0, float(milestone_res.urgency_factor)))
 
     # 5. Enveloppe de pression temporelle non cumulative
+    if agent_sessions_since_human > 0:
+        if agent_last_action == "less-often":
+            p_scale = 0.0
+            autonomy_decay = 0.5 * (0.85 ** (agent_sessions_since_human - 1))
+        elif agent_last_action in ("more-often", "emergency"):
+            p_scale = 0.5 ** agent_sessions_since_human
+            autonomy_decay = 1.0
+        else:
+            p_scale = 0.5 ** agent_sessions_since_human
+            autonomy_decay = 0.85 ** agent_sessions_since_human
+    else:
+        p_scale = 1.0
+        autonomy_decay = 1.0
+
+    p_deadline = p_deadline * p_scale
+    p_milestone = p_milestone * p_scale
     p_eff = min(1.0, max(0.0, max(p_deadline, p_milestone)))
 
     # 6. Combinaison convexe d'urgence temporelle : gap = max(0.0, 100.0 - S_rot)
@@ -1404,6 +1512,8 @@ def compute_project_scores(
         temporal_urgency = gap * p_eff
         # S_rot + Urgence est naturellement borné à 100.0 car S_rot + (100 - S_rot) * P_eff <= 100.0
         pre_score = min(100.0, max(1.0, s_rot + temporal_urgency))
+        if autonomy_decay < 1.0:
+            pre_score = min(100.0, max(1.0, pre_score * autonomy_decay))
 
     # 7. Malus de récence temporelle
     temporal_malus, k_factor, valid_dates = compute_temporal_recency_malus(
@@ -1435,6 +1545,59 @@ def compute_project_scores(
         "milestone_resolution": milestone_res.to_dict() if milestone_res else None,
         "milestone_target": milestone_res.target_datetime.isoformat() if (milestone_res and milestone_res.target_datetime) else None,
     }
+
+
+def compute_agent_project_scores(
+    proj_stat: Dict[str, Any],
+    total_reviews: int,
+    deadline_str: str,
+    milestone_str: str,
+    last_sat_milestone: Optional[str],
+    rf: float,
+    recency_weight: float,
+    now_dt: Optional[datetime] = None,
+    is_agent_only: bool = False,
+) -> Tuple[Dict[str, Any], int]:
+    agent_obj = proj_stat.setdefault("agent", {})
+    if total_reviews > 0:
+        agent_obj["totalReviews"] = max(int(agent_obj.get("totalReviews", 0)), total_reviews)
+        if "baseScore" not in agent_obj and proj_stat.get("baseScore") is not None:
+            agent_obj["baseScore"] = proj_stat.get("baseScore")
+        if "currentScore" not in agent_obj and proj_stat.get("currentScore") is not None:
+            agent_obj["currentScore"] = proj_stat.get("currentScore")
+
+    raw_agent_score = agent_obj.get("currentScore")
+    if raw_agent_score is None:
+        raw_agent_score = proj_stat.get("currentScore")
+    agent_reviews = int(agent_obj.get("totalReviews", 0))
+    agent_base_score = float(raw_agent_score) if (agent_reviews > 0 and raw_agent_score is not None) else (
+        float(raw_agent_score) if (raw_agent_score is not None and total_reviews > 0) else None
+    )
+    agent_rot = float(agent_obj.get("rotationBonus", 0.0))
+    agent_recent_work = proj_stat.get("recentWorkDates", []) + agent_obj.get("recentWorkDates", [])
+    if is_agent_only:
+        sessions_since_human = 0
+    else:
+        sessions_since_human = int(agent_obj.get("sessionsSinceHuman", 0))
+    agent_history = agent_obj.get("reviewHistory", [])
+    agent_last_action = agent_history[-1].get("action", "") if agent_history else ""
+
+    agent_last_sat = agent_obj.get("lastSatisfiedMilestoneDate") or proj_stat.get("lastSatisfiedMilestoneDate") or last_sat_milestone
+
+    agent_scores = compute_project_scores(
+        base_score=agent_base_score,
+        rotation_bonus=agent_rot,
+        deadline_str=deadline_str,
+        milestone_str=milestone_str,
+        last_satisfied_milestone=agent_last_sat,
+        recent_work_dates=agent_recent_work,
+        rf=rf,
+        recency_weight=recency_weight,
+        now_dt=now_dt,
+        agent_sessions_since_human=sessions_since_human,
+        agent_last_action=agent_last_action,
+    )
+    return agent_scores, agent_reviews
 
 
 def calculate_and_persist_effective_scores(
@@ -1471,9 +1634,11 @@ def calculate_and_persist_effective_scores(
         norm_rel = rel_path.replace("\\", "/")
         cached = cache.get(norm_rel) if cache else None
 
+        is_agent_only = False
         if cached and "milestone" in cached:
             deadline_str = cached.get("deadline", "")
             milestone_str = cached.get("milestone", "")
+            is_agent_only = bool(cached.get("agent_only", False))
         else:
             abs_path = os.path.join(vault_dir, rel_path.replace("/", os.sep))
             if os.path.exists(abs_path):
@@ -1481,9 +1646,13 @@ def calculate_and_persist_effective_scores(
                 deadline_str = str(fm.get(deadline_prop) or fm.get("deadline") or fm.get("due") or "")
                 m_val = fm.get(milestone_prop) or fm.get("milestone") or fm.get("milestones") or fm.get("jalon") or ""
                 milestone_str = ", ".join(m_val) if isinstance(m_val, list) else str(m_val)
+                is_agent_only = bool(fm.get("agent_only", False))
             else:
                 deadline_str = ""
                 milestone_str = ""
+
+        if not is_agent_only and proj_stat.get("agent_only"):
+            is_agent_only = True
 
         if not deadline_str:
             deadline_str = proj_stat.get("deadline", "")
@@ -1518,17 +1687,31 @@ def calculate_and_persist_effective_scores(
                 proj_stat["baseScore"] = scores["base_score"]
             results[norm_rel] = eff
 
+        # Calcul et persistance parallèle des statistiques agent
+        agent_scores, agent_reviews = compute_agent_project_scores(
+            proj_stat, total_reviews, deadline_str, milestone_str, last_sat, rf, recency_weight, now_dt=now_dt, is_agent_only=is_agent_only
+        )
+        agent_obj = proj_stat.setdefault("agent", {})
+        agent_eff = agent_scores["effective_score"]
+        if agent_eff is not None:
+            agent_obj["effectiveScore"] = agent_eff
+            if agent_scores["base_score"] is not None and "baseScore" not in agent_obj:
+                agent_obj["baseScore"] = agent_scores["base_score"]
+            if agent_scores["rotation_bonus"] != float(agent_obj.get("rotationBonus", 0.0)):
+                agent_obj["rotationBonus"] = agent_scores["rotation_bonus"]
+
     if save:
         save_data(data, data_path)
 
     return results
 
 
-def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, persist=True):
+def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, persist=True, is_agent=False):
     """
     Reads active projects from data.json and unindexed project notes via fast cache.
     Calculates multi-scale temporal urgency (Deadline + Agile Milestone) and recency malus.
     Canonical Python engine source of truth: computes and persists effectiveScore in data.json (DRY).
+    Supports parallel agent scores and filtering when is_agent=True.
     """
     if cache is None:
         cache = sync_vault_cache(vault_dir, fast_mode=fast_mode)
@@ -1557,22 +1740,37 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
 
     # 1. Projects from data.json
     for rel_path, proj_stat in stats_projects.items():
+        if rel_path.lower().startswith("advance/") or rel_path.lower().startswith("advance\\"):
+            continue
+        fn = os.path.basename(rel_path)
+        if fn.startswith("🤖 ") or fn.startswith("🤖 Avancées Autonomes") or fn.startswith("🤖 Journal Autonome"):
+            continue
+
         abs_path = os.path.join(vault_dir, rel_path.replace("/", os.sep))
         norm_rel = rel_path.replace("\\", "/")
 
         cached = cache.get(norm_rel)
         if cached and "milestone" in cached:
+            if cached.get("type") in ("autonomous-tldr", "autonomous-log"):
+                continue
             tags = set(cached.get("tags", []))
             deadline_str = cached.get("deadline", "")
             milestone_str = cached.get("milestone", "")
+            is_agent_only = bool(cached.get("agent_only", False))
         else:
             if not os.path.exists(abs_path):
                 continue
             fm, tags_set, _, _ = parse_markdown_file(abs_path, parse_checkboxes=False)
+            if str(fm.get("type", "")).lower() in ("autonomous-tldr", "autonomous-log"):
+                continue
             tags = tags_set
             deadline_str = str(fm.get(deadline_prop) or fm.get("deadline") or fm.get("due") or "")
             m_val = fm.get(milestone_prop) or fm.get("milestone") or fm.get("milestones") or fm.get("jalon") or ""
             milestone_str = ", ".join(m_val) if isinstance(m_val, list) else str(m_val)
+            is_agent_only = bool(fm.get("agent_only", False))
+
+        # agent_only supprimé : tous les projets (y compris Dream) apparaissent pour l'humain
+        pass
 
         has_project_tag = any(pt in tags or any(t.startswith(pt + "/") for t in tags) for pt in project_tags)
         has_archive_tag = any(at in tags or any(t.startswith(at + "/") for t in tags) for at in done_tags)
@@ -1605,7 +1803,7 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
 
         last_sat_milestone = proj_stat.get("lastSatisfiedMilestoneDate") or proj_stat.get("last_satisfied_milestone_date")
 
-        # Calcul canonique DRY unifié
+        # Calcul canonique DRY unifié (humain)
         scores = compute_project_scores(
             base_score=current_score,
             rotation_bonus=rotation_bonus,
@@ -1626,40 +1824,82 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
             if scores["base_score"] is not None:
                 proj_stat["baseScore"] = scores["base_score"]
 
+        # Calcul des statistiques parallèles pour l'agent
+        agent_scores, agent_reviews = compute_agent_project_scores(
+            proj_stat, total_reviews, deadline_str, milestone_str, last_sat_milestone, rf, recency_weight, now_dt=now_dt, is_agent_only=is_agent_only
+        )
+        agent_obj = proj_stat.setdefault("agent", {})
+        if agent_scores["effective_score"] is not None:
+            agent_obj["effectiveScore"] = agent_scores["effective_score"]
+            if agent_scores["base_score"] is not None and "baseScore" not in agent_obj:
+                agent_obj["baseScore"] = agent_scores["base_score"]
+            if agent_scores["rotation_bonus"] != float(agent_obj.get("rotationBonus", 0.0)):
+                agent_obj["rotationBonus"] = agent_scores["rotation_bonus"]
+
+        if is_agent:
+            active_scores = agent_scores
+            disp_total_reviews = agent_reviews
+            disp_last_review_date = agent_obj.get("lastReviewDate", "")
+            disp_review_history = agent_obj.get("reviewHistory", [])
+            disp_recent_work = proj_stat.get("recentWorkDates", []) + agent_obj.get("recentWorkDates", [])
+            disp_last_sat_milestone = agent_obj.get("lastSatisfiedMilestoneDate") or proj_stat.get("lastSatisfiedMilestoneDate") or last_sat_milestone
+        else:
+            active_scores = scores
+            disp_total_reviews = total_reviews
+            disp_last_review_date = last_review_date
+            disp_review_history = review_history
+            disp_recent_work = proj_stat.get("recentWorkDates", [])
+            disp_last_sat_milestone = last_sat_milestone
+
         known_paths.add(norm_rel)
         projects.append({
             "rel_path": norm_rel,
             "title": title,
-            "base_score": scores["base_score"],
-            "rotation_bonus": scores["rotation_bonus"],
-            "deadline_urgency": scores["deadline_urgency"],
-            "milestone_urgency": scores["milestone_urgency"],
-            "p_deadline": scores["p_deadline"],
-            "p_milestone": scores["p_milestone"],
-            "p_eff": scores["p_eff"],
-            "temporal_urgency": scores["temporal_urgency"],
-            "pre_score": scores["pre_score"],
-            "temporal_malus": scores["temporal_malus"],
-            "k_factor": scores["k_factor"],
-            "active_sessions_count": scores["active_sessions_count"],
-            "recent_work_dates": scores["recent_work_dates"],
-            "effective_score": scores["effective_score"],
+            "base_score": active_scores["base_score"],
+            "rotation_bonus": active_scores["rotation_bonus"],
+            "deadline_urgency": active_scores["deadline_urgency"],
+            "milestone_urgency": active_scores["milestone_urgency"],
+            "p_deadline": active_scores["p_deadline"],
+            "p_milestone": active_scores["p_milestone"],
+            "p_eff": active_scores["p_eff"],
+            "temporal_urgency": active_scores["temporal_urgency"],
+            "pre_score": active_scores["pre_score"],
+            "temporal_malus": active_scores["temporal_malus"],
+            "k_factor": active_scores["k_factor"],
+            "active_sessions_count": active_scores["active_sessions_count"],
+            "recent_work_dates": disp_recent_work,
+            "effective_score": active_scores["effective_score"],
             "deadline": str(deadline_str) if deadline_str else "",
             "milestone": str(milestone_str) if milestone_str else "",
-            "milestone_resolution": scores["milestone_resolution"],
-            "milestone_target": scores["milestone_target"],
-            "last_satisfied_milestone_date": last_sat_milestone or "",
-            "total_reviews": total_reviews,
-            "last_review_date": last_review_date,
-            "review_history": review_history,
+            "milestone_resolution": active_scores["milestone_resolution"],
+            "milestone_target": active_scores["milestone_target"],
+            "last_satisfied_milestone_date": disp_last_sat_milestone or "",
+            "total_reviews": disp_total_reviews,
+            "last_review_date": disp_last_review_date,
+            "review_history": disp_review_history,
             "file_path": os.path.abspath(abs_path),
-            "full_path": abs_path
+            "full_path": abs_path,
+            "agent_sessions_since_human": agent_obj.get("sessionsSinceHuman", 0),
+            "agent_effective_score": agent_obj.get("effectiveScore"),
+            "agent_base_score": agent_obj.get("baseScore", proj_stat.get("baseScore")),
+            "agent_rotation_bonus": agent_obj.get("rotationBonus", 0.0),
+            "agent_only": is_agent_only,
         })
 
     # 2. Check unindexed active project notes from cache
     for rel_p, cached in cache.items():
         if rel_p in known_paths:
             continue
+        if rel_p.lower().startswith("advance/") or rel_p.lower().startswith("advance\\"):
+            continue
+        fn = os.path.basename(rel_p)
+        if fn.startswith("🤖 ") or fn.startswith("🤖 Avancées Autonomes") or fn.startswith("🤖 Journal Autonome"):
+            continue
+        if cached.get("type") in ("autonomous-tldr", "autonomous-log"):
+            continue
+        # agent_only supprimé : tous les projets apparaissent pour l'humain
+        pass
+
         tags = set(cached.get("tags", []))
         has_project_tag = any(pt in tags or any(t.startswith(pt + "/") for t in tags) for pt in project_tags)
         has_archive_tag = any(at in tags or any(t.startswith(at + "/") for t in tags) for at in done_tags)
@@ -1696,7 +1936,12 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
                 "last_review_date": "",
                 "review_history": [],
                 "file_path": os.path.abspath(abs_p),
-                "full_path": abs_p
+                "full_path": abs_p,
+                "agent_sessions_since_human": 0,
+                "agent_effective_score": None,
+                "agent_base_score": None,
+                "agent_rotation_bonus": 0.0,
+                "agent_only": bool(cached.get("agent_only", False)),
             })
 
     # Sort matching Obsidian plugin review modal priority:
@@ -1718,41 +1963,1018 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
     return projects
 
 
-def format_project_table(projects):
+def _to_portable_path(path_str: str) -> str:
+    """
+    Normalizes a path to a portable multi-PC representation:
+    converts backslashes to forward slashes and replaces user home prefixes with ~/
+    """
+    if not path_str:
+        return ""
+    p = str(path_str).replace("\\", "/")
+    p = re.sub(r"^[A-Za-z]:/Users/[^/]+/", "~/", p, flags=re.IGNORECASE)
+    p = re.sub(r"^/(Users|home)/[^/]+/", "~/", p)
+    return p
+
+
+def _rewrite_paths_for_current_pc(text: str) -> str:
+    """
+    In markdown text, replaces multi-PC user paths (Jamet / hjamet)
+    with the actual Path.home() of the current PC.
+    Uses forward slashes in file:/// URLs and backslashes in Windows paths outside URLs.
+    Guarantees no missing slash before .gemini can appear.
+    """
+    if not text:
+        return text
+    home_path = Path.home()
+    home_fwd = str(home_path).replace("\\", "/").rstrip("/") + "/"
+    home_back = str(home_path).replace("/", "\\").rstrip("\\") + "\\"
+
+    # Fix any existing missing slash before .gemini in raw text
+    text = re.sub(
+        r"([A-Za-z]:[\\/]Users[\\/][^\\/]+)\.(gemini)",
+        lambda m: f"{m.group(1)}\\.{m.group(2)}" if "\\" in m.group(1) else f"{m.group(1)}/.{m.group(2)}",
+        text,
+        flags=re.IGNORECASE
+    )
+
+    # 1. file:/// or file:// URLs -> forward slashes
+    text = re.sub(
+        r"(file:///?)[A-Za-z]:/Users/(?:Jamet|hjamet)/",
+        lambda m: f"{m.group(1)}{home_fwd}",
+        text,
+        flags=re.IGNORECASE
+    )
+
+    # 2. Windows paths with backslashes outside URLs
+    text = re.sub(
+        r"[A-Za-z]:\\Users\\(?:Jamet|hjamet)\\",
+        lambda m: home_back,
+        text,
+        flags=re.IGNORECASE
+    )
+
+    # 3. Windows paths with forward slashes outside file:/// URLs
+    text = re.sub(
+        r"(?<!file://)(?<!file:///)[A-Za-z]:/Users/(?:Jamet|hjamet)/",
+        lambda m: home_back,
+        text,
+        flags=re.IGNORECASE
+    )
+
+    # 4. Final safety guard: ensure no Users\<user>.gemini or Users/<user>.gemini without separator
+    text = re.sub(
+        r"([A-Za-z]:\\Users\\[^\\]+)\.(gemini)",
+        r"\1\\.\2",
+        text,
+        flags=re.IGNORECASE
+    )
+    text = re.sub(
+        r"((?:file:///?)[A-Za-z]:/Users/[^/]+)\.(gemini)",
+        r"\1/.\2",
+        text,
+        flags=re.IGNORECASE
+    )
+
+    return text
+
+
+_AIVC_MEMORIES_CACHE: Optional[List[Tuple[Any, Dict[str, Any]]]] = None
+
+
+def _get_aivc_memories() -> List[Tuple[Any, Dict[str, Any]]]:
+    global _AIVC_MEMORIES_CACHE
+    if _AIVC_MEMORIES_CACHE is not None:
+        return _AIVC_MEMORIES_CACHE
+
+    storage_root = Path.home() / ".aivc" / "storage"
+    cache_file = storage_root / "tldr_items_cache.json"
+
+    cache: Dict[str, Dict[str, Any]] = {}
+    if cache_file.exists():
+        try:
+            with open(cache_file, "r", encoding="utf-8") as f:
+                loaded_cache = json.load(f)
+                if isinstance(loaded_cache, dict):
+                    cache = loaded_cache
+        except Exception:
+            cache = {}
+
+    cache_dirty = False
+    found_keys = set()
+    search_dirs = [
+        storage_root / "commits",
+        storage_root / "memories",
+    ]
+
+    seen_ids = set()
+    loaded = []
+
+    for d in search_dirs:
+        if not d.is_dir():
+            continue
+        try:
+            with os.scandir(d) as it:
+                for entry in it:
+                    if not entry.name.endswith(".json") or not entry.is_file():
+                        continue
+                    key = f"{d.name}/{entry.name}"
+                    found_keys.add(key)
+                    try:
+                        mtime = entry.stat().st_mtime
+                    except OSError:
+                        continue
+
+                    cached_entry = cache.get(key)
+                    if cached_entry and isinstance(cached_entry, dict) and cached_entry.get("mtime") == mtime:
+                        item_data = cached_entry.get("data")
+                    else:
+                        cache_dirty = True
+                        try:
+                            with open(entry.path, "r", encoding="utf-8") as f:
+                                raw_data = json.load(f)
+                        except (json.JSONDecodeError, OSError):
+                            raw_data = {}
+
+                        user_items = raw_data.get("user_items") if isinstance(raw_data, dict) else None
+                        if user_items:
+                            item_data = {
+                                "id": raw_data.get("id"),
+                                "timestamp": raw_data.get("timestamp"),
+                                "changes": raw_data.get("changes", []),
+                                "read_files": raw_data.get("read_files", []),
+                                "edited_files": raw_data.get("edited_files", []),
+                                "user_items": user_items,
+                            }
+                            cache[key] = {"mtime": mtime, "data": item_data}
+                        else:
+                            item_data = None
+                            cache[key] = {"mtime": mtime, "data": None}
+
+                    if item_data is not None:
+                        item_data["source_file"] = entry.path
+                        mem_id = item_data.get("id")
+                        if mem_id:
+                            if mem_id in seen_ids:
+                                continue
+                            seen_ids.add(mem_id)
+                        ts = item_data.get("timestamp") or mtime
+                        loaded.append((ts, item_data))
+        except OSError:
+            continue
+
+    # Supprime du cache les clés dont le fichier n'existe plus sur disque
+    stale_keys = [k for k in cache if k not in found_keys]
+    if stale_keys:
+        for k in stale_keys:
+            del cache[k]
+        cache_dirty = True
+
+    if cache_dirty:
+        try:
+            cache_file.parent.mkdir(parents=True, exist_ok=True)
+            tmp_cache = cache_file.with_suffix(".tmp")
+            with open(tmp_cache, "w", encoding="utf-8") as f:
+                json.dump(cache, f, ensure_ascii=False)
+            os.replace(tmp_cache, cache_file)
+        except Exception:
+            pass
+
+    loaded.sort(key=lambda x: str(x[0]))
+    _AIVC_MEMORIES_CACHE = loaded
+    return _AIVC_MEMORIES_CACHE
+
+
+def _invalidate_aivc_cache() -> None:
+    global _AIVC_MEMORIES_CACHE
+    _AIVC_MEMORIES_CACHE = None
+
+
+_AIVC_REMOTE_RESTORE_CACHE: Optional[Set[str]] = None
+_AIVC_REMOTE_SYNC_DISABLED: bool = False
+_AIVC_REMOTE_MISSING_DIRTY: bool = False
+_AIVC_SESSION_TRIED_PATHS: Set[str] = set()
+_AIVC_REMOTE_BRAIN_INDEX: Optional[Set[str]] = None
+
+
+def _normalize_local_path(p: Union[str, Path]) -> Path:
+    r"""
+    Normalise les chemins locaux pour gérer les contextes multi-PC (ex: C:\Users\hjamet\... -> C:\Users\Jamet\...).
+    Remappe systématiquement le répertoire utilisateur vers Path.home().
+    """
+    p_str = str(p)
+    m = re.match(r'^(?:[a-zA-Z]:[\\/][Uu]sers[\\/][^\\/]+|[\\/]?home[\\/][^\\/]+)[\\/](.*)$', p_str)
+    if m:
+        return Path.home() / m.group(1)
+    if p_str.startswith("~/") or p_str.startswith("~\\"):
+        return Path.home() / p_str[2:]
+    return Path(p_str)
+
+
+def _get_remote_missing_cache(storage_root: Path) -> Set[str]:
+    global _AIVC_REMOTE_RESTORE_CACHE
+    if _AIVC_REMOTE_RESTORE_CACHE is not None:
+        return _AIVC_REMOTE_RESTORE_CACHE
+    cache_file = storage_root / "rclone_missing_blobs.json"
+    _AIVC_REMOTE_RESTORE_CACHE = set()
+    if cache_file.is_file():
+        try:
+            with open(cache_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    _AIVC_REMOTE_RESTORE_CACHE = set(data)
+        except Exception:
+            pass
+    return _AIVC_REMOTE_RESTORE_CACHE
+
+
+def _record_remote_missing_blob(storage_root: Path, gdrive_path: str, flush: bool = False) -> None:
+    global _AIVC_REMOTE_MISSING_DIRTY
+    cache = _get_remote_missing_cache(storage_root)
+    if gdrive_path and gdrive_path not in cache:
+        cache.add(gdrive_path)
+        _AIVC_REMOTE_MISSING_DIRTY = True
+    if flush and _AIVC_REMOTE_MISSING_DIRTY:
+        cache_file = storage_root / "rclone_missing_blobs.json"
+        try:
+            with open(cache_file, "w", encoding="utf-8") as f:
+                json.dump(sorted(list(cache)), f, ensure_ascii=False)
+            _AIVC_REMOTE_MISSING_DIRTY = False
+        except Exception:
+            pass
+
+
+def _auto_restore_aivc_blobs_for_active_items(
+    active_items: List[Dict[str, Any]],
+    mem_list: List[Dict[str, Any]],
+    allow_remote: bool = False
+) -> List[str]:
+    r"""
+    For active user_items (done == False), inspect their linked memories' file_changes
+    and any .gemini/antigravity/brain/<conv_id>/<file> referenced in details.
+    If the target local file does not exist on disk and a blob is found in AIVC BlobStore
+    (either via change.blob_hash or matching filename in SQLite core_index.db),
+    extract and write the file to local disk.
+    If allow_remote is True (disabled by default for fast CLI listing), falls back
+    to rclone with a strict timeout, circuit-breaker, remote brain index and negative caching.
+    Returns list of restored local file paths.
+    """
+    global _AIVC_REMOTE_SYNC_DISABLED, _AIVC_SESSION_TRIED_PATHS, _AIVC_REMOTE_BRAIN_INDEX
+    storage_root = Path.home() / ".aivc" / "storage"
+    blobs_dir = storage_root / "blobs"
+    db_path = storage_root / "core_index.db"
+    if not storage_root.exists() or not blobs_dir.exists():
+        return []
+
+    restored = []
+    sqlite_conn = None
+    if db_path.exists():
+        try:
+            import sqlite3
+            sqlite_conn = sqlite3.connect(str(db_path))
+        except Exception:
+            sqlite_conn = None
+
+    try:
+        def _try_restore(local_path: Path, blob_hash: Optional[str] = None, filename: Optional[str] = None) -> bool:
+            global _AIVC_REMOTE_SYNC_DISABLED, _AIVC_REMOTE_BRAIN_INDEX
+            local_path = _normalize_local_path(local_path)
+            if local_path.is_file():
+                return False
+
+            path_key = str(local_path).replace("\\", "/").lower()
+            if path_key in _AIVC_SESSION_TRIED_PATHS:
+                return False
+            _AIVC_SESSION_TRIED_PATHS.add(path_key)
+
+            content = None
+            # 1. From direct blob_hash
+            if blob_hash and (blobs_dir / blob_hash).is_file():
+                try:
+                    content = (blobs_dir / blob_hash).read_bytes()
+                except OSError:
+                    content = None
+
+            # 2. From SQLite match by filename
+            if content is None and sqlite_conn is not None:
+                fn = filename or local_path.name
+                try:
+                    cur = sqlite_conn.cursor()
+                    cur.execute(
+                        "SELECT blob_hash FROM file_changes WHERE (path LIKE ? OR path LIKE ?) AND blob_hash IS NOT NULL LIMIT 1",
+                        (f"%/{fn}", f"%\\{fn}")
+                    )
+                    row = cur.fetchone()
+                    if row and row[0] and (blobs_dir / row[0]).is_file():
+                        content = (blobs_dir / row[0]).read_bytes()
+                except Exception:
+                    pass
+
+            if content is not None:
+                try:
+                    local_path.parent.mkdir(parents=True, exist_ok=True)
+                    local_path.write_bytes(content)
+                    restored.append(str(local_path))
+                    return True
+                except OSError:
+                    pass
+
+            # 3. Fallback: rclone copyto from Google Drive if allowed, not tripped, and under brain
+            if not allow_remote or _AIVC_REMOTE_SYNC_DISABLED:
+                return False
+
+            norm_str = str(local_path).replace("\\", "/")
+            match = re.search(
+                r"\.?gemini/antigravity/brain/([a-f0-9\-]+)/([^/]+)$",
+                norm_str,
+                re.IGNORECASE,
+            )
+            if match:
+                conv_id = match.group(1)
+                fn = match.group(2)
+                gdrive_path = f"gdrive:AIVC_Sync/files/.gemini/antigravity/brain/{conv_id}/{fn}"
+                missing_cache = _get_remote_missing_cache(storage_root)
+                if gdrive_path in missing_cache:
+                    return False
+
+                if not shutil.which("rclone"):
+                    _AIVC_REMOTE_SYNC_DISABLED = True
+                    return False
+
+                # Interroger une seule fois par session l'index distant des fichiers brain/
+                if _AIVC_REMOTE_BRAIN_INDEX is None:
+                    try:
+                        import subprocess
+                        cmd_lsf = ["rclone", "lsf", "-R", "--files-only", "gdrive:AIVC_Sync/files/.gemini/antigravity/brain"]
+                        res_lsf = subprocess.run(cmd_lsf, capture_output=True, text=True, timeout=10)
+                        if res_lsf.returncode == 0:
+                            _AIVC_REMOTE_BRAIN_INDEX = {
+                                line.strip().replace("\\", "/").lower()
+                                for line in res_lsf.stdout.splitlines()
+                                if line.strip()
+                            }
+                        else:
+                            err = (res_lsf.stderr or "").lower()
+                            if "directory not found" in err or res_lsf.returncode == 3:
+                                _AIVC_REMOTE_SYNC_DISABLED = True
+                            _AIVC_REMOTE_BRAIN_INDEX = set()
+                    except subprocess.TimeoutExpired:
+                        _AIVC_REMOTE_SYNC_DISABLED = True
+                        _AIVC_REMOTE_BRAIN_INDEX = set()
+                    except Exception:
+                        _AIVC_REMOTE_BRAIN_INDEX = set()
+
+                remote_file_key = f"{conv_id}/{fn}".lower()
+                if remote_file_key not in _AIVC_REMOTE_BRAIN_INDEX:
+                    _record_remote_missing_blob(storage_root, gdrive_path)
+                    return False
+
+                try:
+                    import subprocess
+                    local_path.parent.mkdir(parents=True, exist_ok=True)
+                    cmd = ["rclone", "copyto", "--retries", "1", "--timeout", "3s", "--contimeout", "2s", gdrive_path, str(local_path)]
+                    res = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
+                    if res.returncode == 0 and local_path.is_file():
+                        restored.append(str(local_path))
+                        return True
+                    else:
+                        _record_remote_missing_blob(storage_root, gdrive_path)
+                        err = (res.stderr or "").lower()
+                        if "directory not found" in err or res.returncode == 3:
+                            _AIVC_REMOTE_SYNC_DISABLED = True
+                except subprocess.TimeoutExpired:
+                    _record_remote_missing_blob(storage_root, gdrive_path)
+                    _AIVC_REMOTE_SYNC_DISABLED = True
+                except Exception:
+                    pass
+
+            return False
+
+        # 1. Scan file_changes of linked memories
+        for mem in mem_list:
+            changes = mem.get("changes", [])
+            for ch in changes:
+                p_str = ch.get("path", "") if isinstance(ch, dict) else str(ch)
+                if not p_str:
+                    continue
+                if ".gemini" in p_str and "antigravity" in p_str and "brain" in p_str:
+                    local_p = _normalize_local_path(p_str)
+                    _try_restore(local_p, blob_hash=ch.get("blob_hash") if isinstance(ch, dict) else None, filename=local_p.name)
+
+        # 2. Scan details of active items for .gemini/antigravity/brain/<id>/<file>
+        brain_pattern = re.compile(
+            r"(?:file:///?(?:[A-Za-z]:)?[\\/]|~/|[A-Za-z]:[\\/])?\.?gemini[\\/]antigravity[\\/]brain[\\/]([a-f0-9\-]+)[\\/]([^\s\)\"\'<>`:]+)",
+            re.IGNORECASE
+        )
+        for it in active_items:
+            details = it.get("details", "")
+            for match in brain_pattern.finditer(details):
+                conv_id = match.group(1)
+                raw_fn = match.group(2).rstrip("\\/.,")
+                local_p = Path.home() / ".gemini" / "antigravity" / "brain" / conv_id / raw_fn
+                local_p = _normalize_local_path(local_p)
+                _try_restore(local_p, filename=raw_fn)
+
+    finally:
+        _record_remote_missing_blob(storage_root, "", flush=True)
+        if sqlite_conn is not None:
+            try:
+                sqlite_conn.close()
+            except Exception:
+                pass
+
+    return restored
+
+
+def _clean_text_tokens(text: str) -> Set[str]:
+    t = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+    t = re.sub(r'<[^>]+>', ' ', t)
+    t = re.sub(r'[*_`#]', '', t)
+    t = re.sub(r'\[[^\]]*\]', ' ', t)
+    t = re.sub(r'[^\w\s]', ' ', t.lower())
+    words = t.split()
+    stopwords = {
+        "pour", "dans", "avec", "sur", "les", "des", "une", "par", "est",
+        "qui", "que", "aux", "son", "ses", "leur", "leurs", "cette", "cet",
+        "the", "and", "for", "with", "from", "that", "this", "suite", "afin",
+        "tout", "tous", "toutes", "mais", "donc", "nous", "vous", "ils", "elles",
+        "faire", "fait", "plus", "très", "bien", "aussi", "comme", "apres", "après",
+        "jeudi", "vendredi", "lundi", "mardi", "mercredi", "semaine", "internef"
+    }
+    return {w for w in words if len(w) >= 3 and w not in stopwords}
+
+
+def _extract_identifiers(text: str) -> Set[str]:
+    ids = set(re.findall(r'\b\d{5,8}\b', text))
+    for m in re.finditer(r'#(\d{4,8})\b', text):
+        ids.add(m.group(1))
+    for m in re.finditer(r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b', text):
+        ids.add(m.group(1).lower())
+    return ids
+
+
+def _is_matching_task(checkbox_text: str, candidate_task: str, candidate_details: str = "") -> bool:
+    ids1 = _extract_identifiers(checkbox_text)
+    ids2 = _extract_identifiers(candidate_task + " " + candidate_details)
+    common_ids = ids1.intersection(ids2)
+    numeric_ids = {i for i in common_ids if i.isdigit() and len(i) >= 5}
+    if numeric_ids:
+        return True
+
+    def _norm(s: str) -> str:
+        s = re.sub(r'[*_`#]', '', s)
+        s = re.sub(r'\[[a-zA-Z0-9\-]+\]', '', s)
+        s = re.sub(r'^(?:[🔴🟢🟡🟠⚪\s]|👤\s*\[[^\]]+\])+', '', s)
+        s = re.sub(r'[^\w\s]', ' ', s.lower())
+        return " ".join(s.split())
+
+    n_cb = _norm(checkbox_text)
+    n_cand = _norm(candidate_task)
+    if n_cb and n_cand:
+        if n_cb == n_cand:
+            return True
+        if len(n_cand) >= 5 and (n_cand in n_cb or n_cb in n_cand):
+            return True
+
+    tokens1 = _clean_text_tokens(checkbox_text)
+    tokens_task = _clean_text_tokens(candidate_task)
+    if not tokens1 or not tokens_task:
+        return False
+
+    if tokens1 == tokens_task:
+        return True
+    if tokens_task.issubset(tokens1) or tokens1.issubset(tokens_task):
+        return True
+
+    intersection = tokens1.intersection(tokens_task)
+    overlap_task = len(intersection) / len(tokens_task)
+    overlap_cb = len(intersection) / len(tokens1)
+
+    if len(intersection) >= 2 and (overlap_task >= 0.35 or overlap_cb >= 0.35):
+        return True
+    elif len(intersection) == 1 and (len(tokens1) == 1 or len(tokens_task) == 1):
+        return True
+
+    m_bold = re.search(r'\*\*([^*]+)\*\*', checkbox_text)
+    if m_bold:
+        bold_tokens = _clean_text_tokens(m_bold.group(1))
+        if bold_tokens:
+            if bold_tokens == tokens_task or tokens_task.issubset(bold_tokens) or bold_tokens.issubset(tokens_task):
+                return True
+            bold_intersection = bold_tokens.intersection(tokens_task)
+            if len(bold_intersection) >= 1 and (len(bold_intersection) / len(bold_tokens) >= 0.35 or len(bold_intersection) / len(tokens_task) >= 0.35):
+                return True
+
+    return False
+
+
+
+def _parse_checkbox_task(line: str) -> Tuple[str, str]:
+    m = re.match(r"^\s*[-*+]\s+\[ \]\s+(.*)$", line)
+    raw = m.group(1).strip() if m else line.strip()
+
+    raw = re.sub(r'^(?:\*\*\[[a-zA-Z0-9\-]+\]\*\*|\[[a-zA-Z0-9\-]+\])\s*', '', raw).strip()
+    raw = re.sub(r'^(?:[🔴🟢🟡🟠⚪\s]|👤\s*\[[^\]]+\])+', '', raw).strip()
+
+    m_bold_colon = re.match(r'^\*\*([^*]+)\*\*\s*:\s*(.*)$', raw)
+    if m_bold_colon:
+        return m_bold_colon.group(1).strip(), m_bold_colon.group(2).strip()
+
+    m_bold = re.match(r'^\*\*([^*]+)\*\*\s*(.*)$', raw)
+    if m_bold and m_bold.group(2).strip():
+        return m_bold.group(1).strip(), m_bold.group(2).strip()
+    elif m_bold:
+        return m_bold.group(1).strip(), ""
+
+    if " : " in raw:
+        parts = raw.split(" : ", 1)
+        if not parts[0].endswith("http") and not parts[0].endswith("https"):
+            return parts[0].strip(), parts[1].strip()
+
+    return raw, ""
+
+
+def _extract_project_roadmap(
+    note_path: str,
+    aivc_roadmap_items: List[Dict[str, Any]],
+    deliverable_items: Optional[List[Dict[str, Any]]] = None,
+    done_items: Optional[List[Dict[str, Any]]] = None,
+    target_portable: str = "",
+    title: str = "",
+    project_mems: Optional[List[Dict[str, Any]]] = None
+) -> List[str]:
+    """
+    Extracts pending roadmap tasks from AIVC roadmap items and note checkboxes.
+    Automatically registers unrecorded checkboxes into AIVC commit storage with [r-xxxx-N] IDs.
+    Deduplicates against active deliverables and already completed (done == True) tasks.
+    """
+    if deliverable_items is None:
+        deliverable_items = []
+    if done_items is None:
+        done_items = []
+    if project_mems is None:
+        project_mems = []
+
+    seen_iids: Set[str] = set()
+    for it in aivc_roadmap_items + deliverable_items + done_items:
+        iid = (it.get("id") or "").strip().lower()
+        if iid:
+            seen_iids.add(iid)
+            if iid.startswith("r-"):
+                seen_iids.add(iid[2:])
+
+    # 1. Read open checkboxes from note
+    new_checkbox_tasks: List[Tuple[str, str]] = []
+    if os.path.exists(note_path):
+        try:
+            with open(note_path, "r", encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+            lines = content.splitlines()
+            in_roadmap_section = False
+            found_roadmap_heading = False
+            section_lines = []
+
+            for line in lines:
+                stripped = line.strip()
+                if re.match(r"^##\s+.*(?:feuille de route|roadmap|road\s*map|statut des tâches)", stripped, re.IGNORECASE):
+                    in_roadmap_section = True
+                    found_roadmap_heading = True
+                    continue
+                elif stripped.startswith("## ") and in_roadmap_section:
+                    in_roadmap_section = False
+                    break
+
+                if in_roadmap_section:
+                    section_lines.append(line)
+
+            search_lines = section_lines if found_roadmap_heading else lines
+
+            in_details = False
+            for line in search_lines:
+                stripped = line.strip()
+                if "<details" in stripped.lower():
+                    in_details = True
+                if "</details>" in stripped.lower():
+                    in_details = False
+                    continue
+                if in_details:
+                    continue
+
+                if re.match(r"^\s*[-*+]\s+\[ \]\s+", line):
+                    task_text, details_text = _parse_checkbox_task(line)
+                    if not task_text:
+                        continue
+
+                    # Check explicit ID
+                    m_id = re.search(r'\[(r-[a-zA-Z0-9\-]+|[a-zA-Z0-9\-]+)\]', line)
+                    if m_id and m_id.group(1).lower() in seen_iids:
+                        continue
+
+                    # Check duplicate with deliverable_items
+                    is_dup = False
+                    for d in deliverable_items:
+                        if _is_matching_task(line, d.get("task", ""), d.get("details", "")):
+                            is_dup = True
+                            break
+                    if is_dup:
+                        continue
+
+                    # Check duplicate with done_items
+                    for d in done_items:
+                        if _is_matching_task(line, d.get("task", ""), d.get("details", "")):
+                            is_dup = True
+                            break
+                    if is_dup:
+                        continue
+
+                    # Check duplicate with existing aivc_roadmap_items
+                    for r in aivc_roadmap_items:
+                        if _is_matching_task(line, r.get("task", ""), r.get("details", "")):
+                            is_dup = True
+                            break
+                    if is_dup:
+                        continue
+
+                    # Check duplicate with newly discovered tasks in this pass
+                    for t_prev, _d_prev in new_checkbox_tasks:
+                        if _is_matching_task(line, t_prev, _d_prev):
+                            is_dup = True
+                            break
+                    if is_dup:
+                        continue
+
+                    new_checkbox_tasks.append((task_text, details_text))
+        except Exception:
+            pass
+
+    # 2. If new checkboxes found, auto-register them in AIVC commit storage
+    if new_checkbox_tasks:
+        storage_root = Path.home() / ".aivc" / "storage"
+        commits_dir = storage_root / "commits"
+        commits_dir.mkdir(parents=True, exist_ok=True)
+
+        portable_for_uuid = target_portable or (_to_portable_path(note_path) if note_path else title)
+        target_commit_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"aivc:roadmap:{portable_for_uuid.lower()}"))
+        target_commit_path = commits_dir / f"{target_commit_id}.json"
+
+        # S'il n'existe pas encore sous cet UUID, réutiliser un commit existant STRICTEMENT ET UNIQUEMENT s'il ne touche que cette note maîtresse
+        if not target_commit_path.is_file():
+            target_norm = (target_portable or _to_portable_path(note_path)).lower()
+            for mem in reversed(project_mems):
+                sf = mem.get("source_file")
+                if sf and os.path.isfile(sf) and "commits" in sf:
+                    all_paths = set()
+                    for c in mem.get("changes", []):
+                        p = c.get("path") if isinstance(c, dict) else str(c)
+                        if p:
+                            all_paths.add(_to_portable_path(p).lower())
+                    for p in mem.get("read_files", []):
+                        p_str = p.get("path") if isinstance(p, dict) else str(p)
+                        if p_str:
+                            all_paths.add(_to_portable_path(p_str).lower())
+                    for p in mem.get("edited_files", []):
+                        p_str = p.get("path") if isinstance(p, dict) else str(p)
+                        if p_str:
+                            all_paths.add(_to_portable_path(p_str).lower())
+                    notes_paths = [p for p in all_paths if p.endswith(".md") and ("notes/" in p or p.endswith("/aivc.md"))]
+                    if len(notes_paths) == 1 and notes_paths[0] == target_norm:
+                        target_commit_path = Path(sf)
+                        target_commit_id = mem.get("id")
+                        break
+
+
+        commit_data: Dict[str, Any] = {}
+        if target_commit_path.is_file():
+            try:
+                with open(target_commit_path, "r", encoding="utf-8") as f:
+                    commit_data = json.load(f)
+            except Exception:
+                commit_data = {}
+
+        if not commit_data:
+            commit_data = {
+                "id": target_commit_id,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "title": f"[Roadmap] {title or Path(note_path).stem}",
+                "journal": f"Roadmap synchronisée pour {title or Path(note_path).stem}",
+                "user_items": [],
+                "note": f"Roadmap {title or Path(note_path).stem}",
+                "parent_id": "",
+                "machine_id": os.environ.get("COMPUTERNAME", ""),
+                "urls": [],
+                "changes": [
+                    {
+                        "path": target_portable or _to_portable_path(note_path),
+                        "action": "roadmap"
+                    }
+                ]
+            }
+
+        hash6 = (commit_data.get("id") or target_commit_id or "roadmp")[:6]
+        existing_indices: Set[int] = set()
+        for it in commit_data.get("user_items", []):
+            iid_str = it.get("id", "")
+            m_idx = re.search(r'-(\d+)$', iid_str)
+            if m_idx:
+                existing_indices.add(int(m_idx.group(1)))
+        next_idx = max(existing_indices) + 1 if existing_indices else 1
+
+        if "user_items" not in commit_data:
+            commit_data["user_items"] = []
+
+        for task_t, details_t in new_checkbox_tasks:
+            new_id = f"r-{hash6}-{next_idx}"
+            next_idx += 1
+            new_it = {
+                "id": new_id,
+                "task_status": "new",
+                "kind": "roadmap",
+                "task": task_t,
+                "details": details_t,
+                "done": False
+            }
+            commit_data["user_items"].append(new_it)
+            aivc_roadmap_items.append(new_it)
+
+        try:
+            with open(target_commit_path, "w", encoding="utf-8") as f:
+                json.dump(commit_data, f, indent=2, ensure_ascii=False)
+            _invalidate_aivc_cache()
+            tldr_cache = storage_root / "tldr_items_cache.json"
+            if tldr_cache.exists():
+                tldr_cache.unlink()
+        except Exception:
+            pass
+
+    # 3. Format all aivc_roadmap_items with **[r-xxxx-N]** prefix
+    roadmap_lines: List[str] = []
+    for it in aivc_roadmap_items:
+        iid = it.get("id", "").strip()
+        task = it.get("task", "").strip()
+        details = it.get("details", "").strip()
+
+        prefix = f"**[{iid}]** " if iid else ""
+        line = f"- [ ] {prefix}{task}"
+        if details:
+            if "\n" not in details.strip():
+                line += f" : {details.strip()}"
+            else:
+                first_line = details.strip().splitlines()[0].strip()
+                if first_line and not first_line.startswith("```") and not first_line.startswith("Source :"):
+                    line += f" : {first_line}"
+        roadmap_lines.append(line)
+
+    return roadmap_lines
+
+
+def _sync_and_render_aivc_tldr(
+    vault_root: str,
+    rel_path: str,
+    title: str,
+    sessions_since_human: int = 0
+) -> Tuple[Optional[str], int]:
+    """
+    Synchronizes autonomous TLDR note with AIVC user_items and ensures
+    all file links are rewritten for the current PC.
+    Returns (tldr_path, item_count).
+    """
+    target_full = os.path.join(vault_root, rel_path)
+    target_portable = _to_portable_path(target_full)
+    target_lower = target_portable.lower()
+
+    # Search in AIVC memories
+    memories = _get_aivc_memories()
+    had_aivc_items = False
+    items_map: Dict[str, Tuple[Dict[str, Any], bool, Dict[str, Any]]] = {}
+    project_mems: List[Dict[str, Any]] = []
+
+    for _ts, mem in memories:
+        concerns = False
+
+        # 1. changes
+        for c in mem.get("changes", []):
+            p = c.get("path") if isinstance(c, dict) else str(c)
+            if p and _to_portable_path(p).lower() == target_lower:
+                concerns = True
+                break
+
+        # 2. edited_files
+        if not concerns:
+            for p in mem.get("edited_files", []):
+                p_str = p.get("path") if isinstance(p, dict) else str(p)
+                if p_str and _to_portable_path(p_str).lower() == target_lower:
+                    concerns = True
+                    break
+
+        # 3. read_files
+        if not concerns:
+            for p in mem.get("read_files", []):
+                p_str = p.get("path") if isinstance(p, dict) else str(p)
+                if p_str and _to_portable_path(p_str).lower() == target_lower:
+                    concerns = True
+                    break
+
+        if concerns:
+            project_mems.append(mem)
+            user_items = mem.get("user_items", [])
+            if user_items:
+                had_aivc_items = True
+                for idx, item in enumerate(user_items, start=1):
+                    iid = item.get("id") or f"{mem.get('id', 'item')[:6]}-{idx}"
+                    st = item.get("task_status")
+                    if st == "validated":
+                        is_done = True
+                    elif st in ("new", "await_validation"):
+                        is_done = False
+                    else:
+                        is_done = bool(item.get("done", False))
+                    items_map[iid] = (item, is_done, mem)
+
+    # Filter active and done items
+    active_items = [it for iid, (it, is_done, mem) in items_map.items() if not is_done]
+    done_items = [it for iid, (it, is_done, mem) in items_map.items() if is_done]
+    active_mems = [mem for iid, (it, is_done, mem) in items_map.items() if not is_done]
+
+    # Separate deliverables vs roadmap
+    deliverable_items = [
+        it for it in active_items
+        if it.get("task_status") == "await_validation" or (not it.get("task_status") and it.get("kind") != "roadmap" and it.get("type") != "roadmap")
+    ]
+    roadmap_aivc_items = [
+        it for it in active_items
+        if it.get("task_status") == "new" or (not it.get("task_status") and (it.get("kind") == "roadmap" or it.get("type") == "roadmap"))
+    ]
+    n_deliverables = len(deliverable_items)
+
+    advance_dir = ADVANCE_TLDR_DIR
+    tldr_adv = os.path.join(advance_dir, f"🤖 {title}.md")
+    old_tldr_adv = os.path.join(advance_dir, f"🤖 Avancées Autonomes {title}.md")
+    if os.path.exists(old_tldr_adv):
+        try:
+            os.remove(old_tldr_adv)
+        except OSError:
+            pass
+
+    # Auto-restore missing brain files from CAS blobs for active items (local-only fast path by default)
+    if n_deliverables > 0:
+        remote_enabled = os.environ.get("AIVC_RESTORE_REMOTE", "").strip().lower() in ("1", "true", "yes")
+        _auto_restore_aivc_blobs_for_active_items(deliverable_items, active_mems, allow_remote=remote_enabled)
+
+    # Extract and synchronize roadmap
+    roadmap_tasks = _extract_project_roadmap(
+        note_path=target_full,
+        aivc_roadmap_items=roadmap_aivc_items,
+        deliverable_items=deliverable_items,
+        done_items=done_items,
+        target_portable=target_portable,
+        title=title,
+        project_mems=project_mems
+    )
+    n_roadmap = len(roadmap_tasks)
+
+    # Render document if there are active deliverables OR active roadmap items
+    if n_deliverables > 0 or n_roadmap > 0:
+        abs_note_forward = os.path.abspath(target_full).replace("\\", "/")
+
+        sections = [
+            f"# 🤖 {title}\n\n[📄 {title} (Note Maîtresse)](file:///{abs_note_forward})"
+        ]
+
+        if n_deliverables > 0:
+            sec2_parts = []
+            for it in deliverable_items:
+                iid = it.get("id", "")
+                task = it.get("task", "").strip()
+                details = it.get("details", "").strip()
+                sec2_parts.append(f"### [{iid}] {task}\n{details}")
+            sec2_text = "\n\n".join(sec2_parts)
+            sections.append(f"## ⚡ Décisions & Livrables Prêts\n\n{sec2_text}")
+
+        if n_roadmap > 0:
+            sections.append(f"## 📋 Roadmap du Projet\n\n" + "\n".join(roadmap_tasks))
+
+        doc = "\n\n---\n\n".join(sections) + "\n"
+        doc = _rewrite_paths_for_current_pc(doc)
+
+        os.makedirs(advance_dir, exist_ok=True)
+        write_needed = True
+        if os.path.exists(tldr_adv):
+            try:
+                with open(tldr_adv, "r", encoding="utf-8") as f:
+                    existing = f.read()
+                if existing == doc:
+                    write_needed = False
+            except OSError:
+                pass
+        if write_needed:
+            with open(tldr_adv, "w", encoding="utf-8") as f:
+                f.write(doc)
+
+        return (tldr_adv, n_deliverables if n_deliverables > 0 else n_roadmap)
+
+    # No deliverables and no roadmap tasks
+    if had_aivc_items:
+        if os.path.exists(tldr_adv):
+            try:
+                os.remove(tldr_adv)
+            except OSError:
+                pass
+        if os.path.exists(old_tldr_adv):
+            try:
+                os.remove(old_tldr_adv)
+            except OSError:
+                pass
+
+    return (None, 0)
+
+
+def enrich_project_auto_fields(p, vault_dir=VAULT_DIR):
+    """
+    Computes autonomous session display string and links (TLDR or Journal) for a project.
+    Sets p['auto_note_path'] and p['auto_link'].
+    Returns auto_disp.
+    """
+    if "auto_disp" in p:
+        return p["auto_disp"]
+
+    n = p.get("agent_sessions_since_human", 0)
+    rel_path = p.get("rel_path", "")
+    title = p.get("title", "")
+
+    tldr_path, item_count = _sync_and_render_aivc_tldr(
+        vault_root=vault_dir,
+        rel_path=rel_path,
+        title=title,
+        sessions_since_human=n
+    )
+
+    if tldr_path and item_count > 0:
+        abs_target = os.path.abspath(tldr_path)
+        target_forward = abs_target.replace("\\", "/")
+        auto_uri = f"file:///{target_forward}"
+        auto_disp = f"[🤖 {item_count}]({auto_uri})"
+        p["auto_note_path"] = abs_target
+        p["auto_link"] = auto_uri
+    else:
+        auto_disp = "-"
+        p["auto_note_path"] = None
+        p["auto_link"] = None
+
+    p["auto_disp"] = auto_disp
+    return auto_disp
+
+
+def format_project_table(projects, verbose=False):
     lines = []
     title_links = []
+    auto_disps = []
     for p in projects:
         abs_p = p.get("file_path") or p.get("full_path") or os.path.abspath(os.path.join(VAULT_DIR, p["rel_path"].replace("/", os.sep)))
         abs_forward = abs_p.replace("\\", "/")
         title_links.append(f"[{p['title']}](file:///{abs_forward})")
+        auto_disps.append(enrich_project_auto_fields(p, vault_dir=VAULT_DIR))
 
-    title_width = max(32, max((len(tl) for tl in title_links), default=32))
-    header = f"{'Rank':<5} {'Title':<{title_width}} {'Eff.Score':<10} {'Base':<6} {'Rot.':<6} {'Dead.Urg':<9} {'Milest.Urg':<10} {'Malus(K)':<11} {'Deadline':<11} {'Milestone':<14} {'Reviews':<7}"
-    lines.append(header)
-    lines.append("-" * len(header))
-    for idx, (p, title_link) in enumerate(zip(projects, title_links), 1):
-        rev_str = "NEW" if p["total_reviews"] == 0 else str(p["total_reviews"])
-        eff_str = f"{p['effective_score']:.2f}" if p['effective_score'] is not None else "N/A"
-        base_str = f"{p['base_score']:.1f}" if p['base_score'] is not None else "N/A"
-        rot_str = f"{p['rotation_bonus']:.1f}" if p['rotation_bonus'] is not None else "0.0"
-        dead_urg_str = f"{p['deadline_urgency']:.2f}" if p.get('deadline_urgency') is not None else "0.00"
-        mile_urg_str = f"{p['milestone_urgency']:.2f}" if p.get('milestone_urgency') is not None else "0.00"
+    if verbose:
+        lines.append("| Rank | Title | Eff.Score | Base | Rot. | Dead.Urg | Milest.Urg | Malus(K) | Deadline | Milestone | Reviews |")
+        lines.append("| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
+        for idx, (p, title_link) in enumerate(zip(projects, title_links), 1):
+            rev_str = "NEW" if p["total_reviews"] == 0 else str(p["total_reviews"])
+            eff_str = f"{p['effective_score']:.2f}" if p['effective_score'] is not None else "N/A"
+            base_str = f"{p['base_score']:.1f}" if p['base_score'] is not None else "N/A"
+            rot_str = f"{p['rotation_bonus']:.1f}" if p['rotation_bonus'] is not None else "0.0"
+            dead_urg_str = f"{p['deadline_urgency']:.2f}" if p.get('deadline_urgency') is not None else "0.00"
+            mile_urg_str = f"{p['milestone_urgency']:.2f}" if p.get('milestone_urgency') is not None else "0.00"
 
-        if p.get("temporal_malus") is not None and p.get("temporal_malus", 0.0) > 0:
-            malus_str = f"-{p['temporal_malus']:.1f}({p.get('k_factor', 0.0):.1f})"
-        else:
-            malus_str = "0.0(0.0)"
+            if p.get("temporal_malus") is not None and p.get("temporal_malus", 0.0) > 0:
+                malus_str = f"-{p['temporal_malus']:.1f}({p.get('k_factor', 0.0):.1f})"
+            else:
+                malus_str = "0.0(0.0)"
 
-        deadline_disp = p.get("deadline") or "N/A"
-        if len(deadline_disp) > 10:
-            deadline_disp = deadline_disp[:10]
+            deadline_disp = p.get("deadline") or "N/A"
+            if len(deadline_disp) > 10:
+                deadline_disp = deadline_disp[:10]
 
-        milestone_disp = p.get("milestone") or "N/A"
-        if len(milestone_disp) > 13:
-            milestone_disp = milestone_disp[:11] + ".."
+            milestone_disp = p.get("milestone") or "N/A"
+            if len(milestone_disp) > 13:
+                milestone_disp = milestone_disp[:11] + ".."
 
-        line = f"{idx:<5} {title_link:<{title_width}} {eff_str:<10} {base_str:<6} {rot_str:<6} {dead_urg_str:<9} {mile_urg_str:<10} {malus_str:<11} {deadline_disp:<11} {milestone_disp:<14} {rev_str:<7}"
-        lines.append(line)
+            lines.append(f"| {idx} | {title_link} | {eff_str} | {base_str} | {rot_str} | {dead_urg_str} | {mile_urg_str} | {malus_str} | {deadline_disp} | {milestone_disp} | {rev_str} |")
+    else:
+        # Affichage épuré par défaut : Rank, Title, Score, Auto, Deadline, Milestone
+        lines.append("| Rank | Title | Score | Auto | Deadline | Milestone |")
+        lines.append("| :---: | :--- | :---: | :---: | :---: | :---: |")
+        for idx, (p, title_link, auto_disp) in enumerate(zip(projects, title_links, auto_disps), 1):
+            eff_str = f"{p['effective_score']:.2f}" if p['effective_score'] is not None else "N/A"
+
+            deadline_disp = p.get("deadline") or "N/A"
+            if len(deadline_disp) > 10:
+                deadline_disp = deadline_disp[:10]
+
+            milestone_disp = p.get("milestone") or "N/A"
+            if len(milestone_disp) > 15:
+                milestone_disp = milestone_disp[:13] + ".."
+
+            lines.append(f"| {idx} | {title_link} | {eff_str} | {auto_disp} | {deadline_disp} | {milestone_disp} |")
+
     return "\n".join(lines)
 
 
@@ -1832,7 +3054,8 @@ def cmd_list(args, data):
 
     fast_mode = getattr(args, "fast", False)
     no_persist = getattr(args, "no_persist", False)
-    projects = scan_projects(VAULT_DIR, data, fast_mode=fast_mode, persist=not no_persist)
+    is_agent_mode = getattr(args, "agent", False)
+    projects = scan_projects(VAULT_DIR, data, fast_mode=fast_mode, persist=not no_persist, is_agent=is_agent_mode)
     top_n = getattr(args, "top", None)
     if top_n is None and getattr(args, "n", None) is not None:
         top_n = args.n
@@ -1854,6 +3077,9 @@ def cmd_list(args, data):
         reviewed_disp = reviewed[:top_n] if top_n is not None and top_n > 0 else reviewed
 
     if getattr(args, "json", False):
+        for p in (unreviewed_disp + reviewed_disp):
+            enrich_project_auto_fields(p, vault_dir=VAULT_DIR)
+
         def _clean_for_json(p):
             cp = dict(p)
             abs_p = cp.get("file_path") or cp.get("full_path") or os.path.abspath(os.path.join(VAULT_DIR, cp["rel_path"].replace("/", os.sep)))
@@ -1878,18 +3104,20 @@ def cmd_list(args, data):
                 "total_reviewed": len(reviewed)
             }, indent=2, ensure_ascii=False))
     else:
+        verbose = getattr(args, "verbose", False) or getattr(args, "debug", False)
+        role_label = "🤖 Mode Autonome Agent : " if is_agent_mode else ""
         if show_unreviewed_only:
-            print(f"=== 🆕 Unreviewed Projects ({len(unreviewed)} projects awaiting initial evaluation) ===")
-            print(format_project_table(unreviewed_disp) if unreviewed_disp else "  (No unreviewed projects)")
+            print(f"=== {role_label}🆕 Unreviewed Projects ({len(unreviewed)} projects awaiting initial evaluation) ===")
+            print(format_project_table(unreviewed_disp, verbose=verbose) if unreviewed_disp else "  (No unreviewed projects)")
         elif show_reviewed_only:
-            print(f"=== 🔥 Reviewed Active Projects ({len(reviewed)} projects sorted by urgency) ===")
-            print(format_project_table(reviewed_disp) if reviewed_disp else "  (No reviewed active projects)")
+            print(f"=== {role_label}🔥 Reviewed Active Projects ({len(reviewed)} projects sorted by urgency) ===")
+            print(format_project_table(reviewed_disp, verbose=verbose) if reviewed_disp else "  (No reviewed active projects)")
         else:
-            print(f"=== 🆕 Unreviewed Projects ({len(unreviewed)} awaiting initial evaluation, showing {len(unreviewed_disp)}) ===")
-            print(format_project_table(unreviewed_disp) if unreviewed_disp else "  (No unreviewed projects)")
+            print(f"=== {role_label}🆕 Unreviewed Projects ({len(unreviewed)} awaiting initial evaluation, showing {len(unreviewed_disp)}) ===")
+            print(format_project_table(unreviewed_disp, verbose=verbose) if unreviewed_disp else "  (No unreviewed projects)")
             print()
-            print(f"=== 🔥 Top Urgent Reviewed Projects ({len(reviewed)} active projects, showing {len(reviewed_disp)}) ===")
-            print(format_project_table(reviewed_disp) if reviewed_disp else "  (No reviewed projects)")
+            print(f"=== {role_label}🔥 Top Urgent Reviewed Projects ({len(reviewed)} active projects, showing {len(reviewed_disp)}) ===")
+            print(format_project_table(reviewed_disp, verbose=verbose) if reviewed_disp else "  (No reviewed projects)")
 
 
 def cmd_get(args, data):
@@ -2010,6 +3238,40 @@ def cmd_get(args, data):
         print(f"Last Review Date:         {proj_info['last_review_date'] or 'N/A'}")
         if last_sat_milestone:
             print(f"Last Satisfied Milestone: {last_sat_milestone}")
+
+        # Détails autonomes agent
+        agent_obj = stats.get("agent", {})
+        n_auto = agent_obj.get("sessionsSinceHuman", 0)
+        raw_agent_base = agent_obj.get("baseScore", stats.get("baseScore"))
+        agent_base_val = float(raw_agent_base) if raw_agent_base is not None else 50.0
+        agent_rot_val = float(agent_obj.get("rotationBonus", 0.0))
+        agent_eff_val = agent_obj.get("effectiveScore")
+        agent_eff_str = f"{agent_eff_val:.2f}" if agent_eff_val is not None else "N/A"
+
+        tldr_sync, _ = _sync_and_render_aivc_tldr(
+            vault_root=VAULT_DIR,
+            rel_path=proj_info.get("rel_path", ""),
+            title=proj_info.get("title", ""),
+            sessions_since_human=n_auto
+        )
+        tldr_adv = os.path.join(ADVANCE_TLDR_DIR, f"🤖 {proj_info['title']}.md")
+        old_adv = os.path.join(ADVANCE_TLDR_DIR, f"🤖 Avancées Autonomes {proj_info['title']}.md")
+        tldr_notes = os.path.join(VAULT_DIR, "notes", f"🤖 {proj_info['title']}.md")
+        tldr_note = tldr_sync if tldr_sync and os.path.exists(tldr_sync) else (tldr_adv if os.path.exists(tldr_adv) else (old_adv if os.path.exists(old_adv) else tldr_notes))
+
+        log_matches = glob.glob(os.path.join(ADVANCE_TLDR_DIR, f"🤖 Journal Autonome {proj_info['title']}.md"))
+        if log_matches:
+            log_note = log_matches[0]
+        else:
+            log_notes = os.path.join(VAULT_DIR, "notes", f"🤖 Journal Autonome {proj_info['title']}.md")
+            log_note = log_notes
+
+        tldr_status = "Existe" if os.path.exists(tldr_note) else "Absente"
+        log_status = "Existe" if os.path.exists(log_note) else "Absente"
+
+        print(f"🤖 Autonomous :           {n_auto} session(s) since human review | Agent Score: {agent_eff_str} (Base: {agent_base_val:.1f}, Rot: +{agent_rot_val:.2f})")
+        print(f"🤖 Autonomous Notes :     Avancées: {tldr_status} | Journal: {log_status}")
+
         if proj_info['recent_work_dates']:
             disp_dates = []
             for d in proj_info['recent_work_dates']:
@@ -2052,7 +3314,7 @@ def cmd_get(args, data):
 
 def update_note_frontmatter_archived(abs_path, settings):
     raw_tags = settings.get("projectTags", "todo, project")
-    project_tags = [t.strip().lstrip("#").lower() for t in raw_tags.split(",") if t.strip()]
+    project_tags = list({t.strip().lstrip("#").lower() for t in raw_tags.split(",") if t.strip()} | {"todo", "project"})
     archive_tag = settings.get("archiveTag", "done").strip().lstrip("#").lower()
 
     if not os.path.exists(abs_path):
@@ -2121,7 +3383,7 @@ def update_note_frontmatter_archived(abs_path, settings):
 
 def strip_project_tags(abs_path, settings):
     raw_tags = settings.get("projectTags", "todo, project")
-    project_tags = [t.strip().lstrip("#").lower() for t in raw_tags.split(",") if t.strip()]
+    project_tags = list({t.strip().lstrip("#").lower() for t in raw_tags.split(",") if t.strip()} | {"todo", "project"})
 
     if not os.path.exists(abs_path):
         return
@@ -2245,6 +3507,89 @@ def normalize_action(action_str):
     return aliases.get(cleaned_lower, cleaned_lower)
 
 
+def get_current_conversation_transcript_path() -> Optional[str]:
+    """
+    Vérifie les variables d'environnement ANTIGRAVITY_APP_DATA_DIR et ANTIGRAVITY_CONVERSATION_ID.
+    Si présentes, vérifie l'existence de <ANTIGRAVITY_APP_DATA_DIR>/brain/<ANTIGRAVITY_CONVERSATION_ID>/.system_generated/logs/transcript.jsonl.
+    Si le fichier existe, renvoie son chemin absolu (str), sinon renvoie None.
+    """
+    app_data_dir = os.environ.get("ANTIGRAVITY_APP_DATA_DIR")
+    conversation_id = os.environ.get("ANTIGRAVITY_CONVERSATION_ID")
+    if not app_data_dir:
+        candidate_gemini = os.environ.get("GEMINI_APP_DATA_DIR")
+        if candidate_gemini and os.path.isdir(candidate_gemini):
+            app_data_dir = candidate_gemini
+        else:
+            default_dir = os.path.expanduser(r"~/.gemini/antigravity")
+            if os.path.isdir(default_dir):
+                app_data_dir = default_dir
+
+    if not app_data_dir or not conversation_id:
+        return None
+
+    transcript_path = os.path.abspath(
+        os.path.join(app_data_dir, "brain", conversation_id, ".system_generated", "logs", "transcript.jsonl")
+    )
+    if os.path.isfile(transcript_path):
+        return transcript_path
+    return None
+
+
+def parse_transcript_work_time(
+    transcript_path: str,
+    minutes_per_message: float = 6.0,
+    minutes_per_arrow: float = 2.0
+) -> Tuple[float, int]:
+    """
+    Compte strictement les messages humains explicites où source == "USER_EXPLICIT" et type == "USER_INPUT".
+    Garantit qu'un message avec sélections ou commentaires d'artéfacts multiples (encapsulé dans une seule ligne JSON)
+    compte pour 6 min par défaut, ou max(6 min, nb_arguments * 2 min) si des arguments d'Henri (flèches -> ou →,
+    ou commentaires d'artéfacts Comment: "...") sont présents (> 1), isolés avant <ADDITIONAL_METADATA> et hors blocs <mail> ou ```.
+    Retourne (round(total_minutes, 2), user_messages).
+    Si aucun message trouvé ou fichier absent, renvoie (0.0, 0).
+    """
+    if not transcript_path or not os.path.isfile(transcript_path):
+        return 0.0, 0
+
+    user_messages = 0
+    total_minutes = 0.0
+    try:
+        with open(transcript_path, "r", encoding="utf-8", errors="ignore") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                    if isinstance(entry, dict):
+                        if entry.get("source") == "USER_EXPLICIT" and entry.get("type") == "USER_INPUT":
+                            raw_content = str(entry.get("content") or "")
+                            user_part = raw_content.split("<ADDITIONAL_METADATA>")[0]
+                            comment_count = len(re.findall(r'(?:^|\n)Comment:\s*"', user_part))
+                            clean_part = re.sub(r'```.*?```', '', user_part, flags=re.DOTALL)
+                            clean_part = re.sub(r'<mail>.*?</mail>', '', clean_part, flags=re.DOTALL)
+                            if "<USER_REQUEST>" in clean_part:
+                                body_part = clean_part.split("<USER_REQUEST>")[1].split("</USER_REQUEST>")[0]
+                                arrow_count = len(re.findall(r"(?:->|→)", body_part))
+                            else:
+                                arrow_count = len(re.findall(r"(?:->|→)", clean_part))
+
+                            arg_count = arrow_count + comment_count
+                            if arg_count > 1:
+                                msg_minutes = max(float(minutes_per_message), arg_count * float(minutes_per_arrow))
+                            else:
+                                msg_minutes = float(minutes_per_message)
+
+                            total_minutes += msg_minutes
+                            user_messages += 1
+                except Exception:
+                    continue
+    except Exception:
+        return 0.0, 0
+
+    return round(total_minutes, 2), user_messages
+
+
 def compute_feedback_score(current_score, action, rf):
     act = normalize_action(action)
     try:
@@ -2269,7 +3614,7 @@ def compute_feedback_score(current_score, action, rf):
     return round(new_score, 3)
 
 
-def apply_feedback(project_path, action, worked, data):
+def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_agent=False):
     stats = data.setdefault("stats", {}).setdefault("projects", {})
     global_stats = data.setdefault("stats", {}).setdefault("globalStats", {"totalReviews": 0, "totalPomodoroTime": 0})
     settings = data.setdefault("settings", {})
@@ -2296,56 +3641,209 @@ def apply_feedback(project_path, action, worked, data):
     else:
         proj = stats[matched_key]
 
-    total_reviews = int(proj.get("totalReviews", 0))
-    raw_score = proj.get("currentScore")
-    current_score = float(raw_score) if (total_reviews > 0 and raw_score is not None) else None
-
     rf = float(settings.get("rapprochementFactor") or settings.get("rapprochmentFactor") or 0.2)
     act = normalize_action(action)
-
-    new_score = compute_feedback_score(current_score, action, rf)
+    alpha = float(settings.get("achillesAlpha", 0.01))
+    target_minutes = float(settings.get("pomodoroDuration", 45))
     now_dt = datetime.now(timezone.utc)
     now_iso = now_dt.isoformat()
 
-    proj["currentScore"] = new_score
-    proj["lastReviewDate"] = now_iso
-    proj.setdefault("reviewHistory", []).append({
-        "date": now_iso,
-        "action": act,
-        "scoreAfter": new_score
-    })
-    if len(proj.get("reviewHistory", [])) > 100:
-        proj["reviewHistory"] = proj["reviewHistory"][-100:]
+    try:
+        explicit_score = float(act)
+        is_numeric = True
+    except (ValueError, TypeError):
+        is_numeric = False
+        explicit_score = None
 
-    alpha = float(settings.get("achillesAlpha", 0.01))
-
-    # Always increment totalReviews and globalStats totalReviews on review/feedback
-    proj["totalReviews"] = total_reviews + 1
-    global_stats["totalReviews"] = global_stats.get("totalReviews", 0) + 1
-
+    # Calcul unifié de la durée effective de la session
     if worked:
-        # Update recentWorkDates: purge older than 6h and push current session
-        existing_work = proj.get("recentWorkDates", [])
-        valid_dates = []
-        for d_str in existing_work:
-            d_dt = parse_iso_datetime(d_str)
-            if d_dt:
-                delta_h = (now_dt - d_dt).total_seconds() / 3600.0
-                if -0.05 <= delta_h < 6.0:
-                    valid_dates.append(d_str)
-        valid_dates.append(now_iso)
-        proj["recentWorkDates"] = valid_dates
-
-        # Set lastSatisfiedMilestoneDate to mark milestone cycle as satisfied
-        proj["lastSatisfiedMilestoneDate"] = now_iso
-
-        # Reset rotationBonus for current project, increment all other projects via Achilles & Tortoise
-        proj["rotationBonus"] = 0.0
-        update_achilles_rotation_bonuses(stats, matched_key, ratio=1.0, alpha=alpha)
+        if elapsed_minutes is None:
+            effective_elapsed = float(target_minutes)
+        else:
+            effective_elapsed = float(elapsed_minutes)
     else:
-        # Metacognitive review only: keep recentWorkDates and lastSatisfiedMilestoneDate intact,
-        # do NOT modify rotationBonus for current or other projects.
-        pass
+        effective_elapsed = 0.0
+
+    # Détection de is_agent_only
+    cache = load_cache()
+    cached = cache.get(matched_key.replace("\\", "/")) if cache else None
+    is_agent_only = bool(cached.get("agent_only", False)) if cached else False
+    if not is_agent_only and os.path.exists(abs_path):
+        fm, _, _, _ = parse_markdown_file(abs_path, parse_checkboxes=False)
+        is_agent_only = bool(fm.get("agent_only", False))
+    if not is_agent_only and proj.get("agent_only"):
+        is_agent_only = True
+
+    if is_agent:
+        agent_obj = proj.setdefault("agent", {})
+        if is_numeric:
+            new_score = min(100.0, max(1.0, explicit_score))
+            agent_obj["baseScore"] = new_score
+            agent_obj["currentScore"] = new_score
+            agent_obj["rotationBonus"] = 0.0
+            agent_obj["lastReviewDate"] = now_iso
+            agent_obj["totalReviews"] = max(1, int(agent_obj.get("totalReviews", 0)) + 1)
+            if is_agent_only:
+                agent_obj["sessionsSinceHuman"] = 0
+                proj["baseScore"] = new_score
+                proj["currentScore"] = new_score
+                proj["totalReviews"] = max(1, int(proj.get("totalReviews", 0)))
+                proj["lastReviewDate"] = now_iso
+            else:
+                agent_obj["sessionsSinceHuman"] = int(agent_obj.get("sessionsSinceHuman", 0)) + 1
+
+            agent_obj.setdefault("reviewHistory", []).append({
+                "date": now_iso,
+                "action": act,
+                "scoreAfter": new_score,
+                "duration_minutes": round(effective_elapsed, 2)
+            })
+            if len(agent_obj.get("reviewHistory", [])) > 100:
+                agent_obj["reviewHistory"] = agent_obj["reviewHistory"][-100:]
+        else:
+            raw_s = agent_obj.get("currentScore", proj.get("currentScore"))
+            base_s = float(raw_s) if raw_s is not None else 50.0
+            new_score = compute_feedback_score(base_s, action, rf)
+            agent_obj["baseScore"] = new_score
+            agent_obj["currentScore"] = new_score
+            agent_obj["lastReviewDate"] = now_iso
+            agent_obj["totalReviews"] = int(agent_obj.get("totalReviews", 0)) + 1
+            if is_agent_only:
+                agent_obj["sessionsSinceHuman"] = 0
+                proj["baseScore"] = new_score
+                proj["currentScore"] = new_score
+                proj["totalReviews"] = max(1, int(proj.get("totalReviews", 0)))
+                proj["lastReviewDate"] = now_iso
+            else:
+                agent_obj["sessionsSinceHuman"] = int(agent_obj.get("sessionsSinceHuman", 0)) + 1
+
+            agent_obj.setdefault("reviewHistory", []).append({
+                "date": now_iso,
+                "action": act,
+                "scoreAfter": new_score,
+                "duration_minutes": round(effective_elapsed, 2)
+            })
+            if len(agent_obj.get("reviewHistory", [])) > 100:
+                agent_obj["reviewHistory"] = agent_obj["reviewHistory"][-100:]
+
+        global_stats["totalAgentReviews"] = int(global_stats.get("totalAgentReviews", 0)) + 1
+
+        ratio = 0.0
+        if worked:
+            elapsed_minutes = effective_elapsed
+            ratio = min(1.0, max(0.0, elapsed_minutes / target_minutes)) if target_minutes > 0 else 1.0
+
+            existing_work = agent_obj.get("recentWorkDates", [])
+            valid_dates = []
+            for item in existing_work:
+                d_str = item.get("date") if isinstance(item, dict) else str(item)
+                d_dt = parse_iso_datetime(d_str)
+                if d_dt:
+                    delta_h = (now_dt - d_dt).total_seconds() / 3600.0
+                    if -0.05 <= delta_h < 6.0:
+                        valid_dates.append(item)
+
+            session_entry = {
+                "date": now_iso,
+                "ratio": round(ratio, 4),
+                "duration_minutes": round(elapsed_minutes, 2),
+                "target_minutes": round(target_minutes, 2),
+                "interrupted": (ratio < 0.99)
+            }
+            valid_dates.append(session_entry)
+            agent_obj["recentWorkDates"] = valid_dates
+
+            if ratio >= 0.5:
+                agent_obj["lastSatisfiedMilestoneDate"] = now_iso
+                if is_agent_only:
+                    proj["lastSatisfiedMilestoneDate"] = now_iso
+
+            current_bonus = float(agent_obj.get("rotationBonus", 0.0))
+            s_base = float(agent_obj.get("currentScore", 50.0))
+            s_base = min(100.0, max(1.0, s_base))
+            current_bonus = min(max(0.0, 100.0 - s_base), max(0.0, current_bonus))
+            if ratio >= 0.8:
+                agent_obj["rotationBonus"] = 0.0
+            else:
+                agent_obj["rotationBonus"] = round(max(0.0, current_bonus * (1.0 - ratio)), 3)
+
+            update_achilles_rotation_bonuses(stats, matched_key, ratio=ratio, alpha=alpha, is_agent=True)
+            global_stats["totalAgentPomodoroTime"] = round(float(global_stats.get("totalAgentPomodoroTime", 0.0)) + elapsed_minutes, 2)
+        else:
+            agent_obj["rotationBonus"] = 0.0
+    else:
+        # Action humaine d'Henri
+        total_reviews = int(proj.get("totalReviews", 0))
+        raw_score = proj.get("currentScore")
+        current_score = float(raw_score) if (total_reviews > 0 and raw_score is not None) else None
+
+        new_score = compute_feedback_score(current_score, action, rf)
+        proj["currentScore"] = new_score
+        proj["baseScore"] = new_score
+        proj["lastReviewDate"] = now_iso
+        proj.setdefault("reviewHistory", []).append({
+            "date": now_iso,
+            "action": act,
+            "scoreAfter": new_score,
+            "duration_minutes": round(effective_elapsed, 2)
+        })
+        if len(proj.get("reviewHistory", [])) > 100:
+            proj["reviewHistory"] = proj["reviewHistory"][-100:]
+
+        proj["totalReviews"] = total_reviews + 1
+        global_stats["totalReviews"] = global_stats.get("totalReviews", 0) + 1
+
+        ratio = 0.0
+        if worked:
+            elapsed_minutes = effective_elapsed
+            ratio = min(1.0, max(0.0, elapsed_minutes / target_minutes)) if target_minutes > 0 else 1.0
+
+            existing_work = proj.get("recentWorkDates", [])
+            valid_dates = []
+            for item in existing_work:
+                d_str = item.get("date") if isinstance(item, dict) else str(item)
+                d_dt = parse_iso_datetime(d_str)
+                if d_dt:
+                    delta_h = (now_dt - d_dt).total_seconds() / 3600.0
+                    if -0.05 <= delta_h < 6.0:
+                        valid_dates.append(item)
+
+            session_entry = {
+                "date": now_iso,
+                "ratio": round(ratio, 4),
+                "duration_minutes": round(elapsed_minutes, 2),
+                "target_minutes": round(target_minutes, 2),
+                "interrupted": (ratio < 0.99)
+            }
+            valid_dates.append(session_entry)
+            proj["recentWorkDates"] = valid_dates
+
+            if ratio >= 0.5:
+                proj["lastSatisfiedMilestoneDate"] = now_iso
+
+            current_bonus = float(proj.get("rotationBonus", 0.0))
+            raw_s_base = proj.get("currentScore")
+            s_base = float(raw_s_base) if raw_s_base is not None else 50.0
+            s_base = min(100.0, max(1.0, s_base))
+            current_bonus = min(max(0.0, 100.0 - s_base), max(0.0, current_bonus))
+
+            if ratio >= 0.8:
+                proj["rotationBonus"] = 0.0
+            else:
+                proj["rotationBonus"] = round(max(0.0, current_bonus * (1.0 - ratio)), 3)
+
+            update_achilles_rotation_bonuses(stats, matched_key, ratio=ratio, alpha=alpha, is_agent=False)
+            global_stats["totalPomodoroTime"] = round(float(global_stats.get("totalPomodoroTime", 0)) + elapsed_minutes, 2)
+        else:
+            proj["rotationBonus"] = 0.0
+
+        # Reset symétrique de l'agent sur action humaine
+        if act in ("ok", "less-often", "more-often", "emergency") or is_numeric:
+            agent_obj = proj.setdefault("agent", {})
+            agent_obj["baseScore"] = new_score
+            agent_obj["currentScore"] = new_score
+            agent_obj["rotationBonus"] = 0.0
+            agent_obj["sessionsSinceHuman"] = 0
 
     data_path = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", "data.json")
     cache_path = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", ".project_cache.json")
@@ -2394,8 +3892,11 @@ def apply_feedback(project_path, action, worked, data):
         pass
 
     save_data(data, data_path)
-    mode_str = "work session" if worked else "review only"
-    print(f"Feedback ({mode_str}) saved for '{matched_key}': action='{act}', new_score={new_score:.2f}")
+    role_tag = " [Agent]" if is_agent else ""
+    if worked:
+        print(f"Feedback{role_tag} (work session) saved for '{matched_key}': action='{act}', new_score={new_score:.2f} (durée: {elapsed_minutes:.1f} min / cible: {target_minutes:.1f} min, ratio: {ratio:.2f})")
+    else:
+        print(f"Feedback{role_tag} (review only) saved for '{matched_key}': action='{act}', new_score={new_score:.2f}")
 
     return matched_key, new_score
 
@@ -2412,13 +3913,38 @@ def cmd_feedback(args, data):
     worked = not bool(
         getattr(args, "no_work", False) or getattr(args, "review_only", False) or getattr(args, "not_worked", False)
     )
-    apply_feedback(args.project_path, action, worked, data)
+
+    is_agent = getattr(args, "agent", False)
+    duration_arg = getattr(args, "duration", None)
+    elapsed_minutes = None
+    if worked:
+        if duration_arg is not None:
+            elapsed_minutes = float(duration_arg)
+        else:
+            transcript_arg = getattr(args, "transcript", None)
+            has_antigravity = bool(os.environ.get("ANTIGRAVITY_CONVERSATION_ID"))
+            if transcript_arg is not None or (has_antigravity and not is_agent):
+                transcript_path = transcript_arg if (transcript_arg and transcript_arg != "auto") else get_current_conversation_transcript_path()
+                if transcript_path and os.path.isfile(transcript_path):
+                    t_minutes, msg_count = parse_transcript_work_time(transcript_path)
+                    if msg_count > 0:
+                        base_calc = round(msg_count * 6.0, 2)
+                        if t_minutes > base_calc:
+                            print(f"[Transcript] Détecté {msg_count} interaction(s) utilisateur (avec flèches/commentaires d'artéfacts) -> Durée calculée : {t_minutes} min (base {base_calc:.1f}m + flèches/commentaires {t_minutes - base_calc:.1f}m)")
+                        else:
+                            print(f"[Transcript] Détecté {msg_count} interaction(s) utilisateur -> Durée calculée : {t_minutes} min")
+                        elapsed_minutes = t_minutes
+                    else:
+                        elapsed_minutes = None
+
+    apply_feedback(args.project_path, action, worked, data, elapsed_minutes=elapsed_minutes, is_agent=is_agent)
 
 
 def cmd_set_score(args, data):
     worked = bool(getattr(args, "worked", False))
     score = min(100.0, max(1.0, float(args.score)))
-    apply_feedback(args.project_path, str(score), worked, data)
+    is_agent = getattr(args, "agent", False)
+    apply_feedback(args.project_path, str(score), worked, data, is_agent=is_agent)
 
 
 def cmd_complete_task(args, data):
@@ -2474,8 +4000,8 @@ def print_end_of_session_reminders(title: str, is_interrupted: bool = False):
     print("👉 Se référer impérativement au skill `_agents/skills/project-memory/SKILL.md` et le relire via `view_file` pour le protocole complet de fin de session.", flush=True)
     print(flush=True)
     print("1. Pause obligatoire 5 min pour Henri.", flush=True)
-    print(f"2. Sauvegarde obligatoire des artéfacts non-build dans Obsidian : archiver tout plan d'implémentation (`implementation_plan.md`), rapport de cadrage ou note technique non encore matérialisé par /build dans `notes/Plan d'Implémentation {title}.md` (et indexé sous H1 de la note maîtresse).", flush=True)
-    print("3. Synchronisation de la roadmap de session dans la note maîtresse : mettre à jour `## 📋 Quelle est la feuille de route...` en tête de note maîtresse DIRECTEMENT à partir de `task.md` (cases [ ]/[x], format 2 niveaux, feux tricolores Henri 🔴/🟡/🟢).", flush=True)
+    print(f"2. Sauvegarde obligatoire des plans non exécutés dans Obsidian : archiver tout plan d'implémentation (`implementation_plan.md`) ou note technique non encore exécuté dans `notes/Plan d'Implémentation {title}.md` (et indexé sous H1 de la note maîtresse).", flush=True)
+    print("3. Synchronisation de la roadmap de session dans la note maîtresse : mettre à jour `## 📋 Quelle est la feuille de route...` en tête de note maîtresse à partir des 3 sections de `task.md` (tâches d'Henri) et des chantiers réalisés.", flush=True)
     print("4. Feedback interactif via `ask_question` obligatoire (['À l'aise', 'OK', 'Stressé', 'Terminé']).", flush=True)
     print("5. Clôture définitive sans relance automatique : INTERDICTION formelle et absolue de relancer automatiquement un Pomodoro et ne plus proposer de projets suivants. Clôturer proprement la conversation.", flush=True)
     print("============================================================", flush=True)
@@ -2492,6 +4018,9 @@ def cmd_work(args, data):
     Il s'agit du comportement par défaut officiel et nominal (et non d'un simple fallback).
     L'argument --duration (-d) constitue un override optionnel et exceptionnel.
     """
+    is_agent = getattr(args, "agent", False)
+    active_path = ACTIVE_POMODORO_AGENT_PATH if is_agent else ACTIVE_POMODORO_PATH
+
     rel_path, abs_path = find_project_file(VAULT_DIR, args.project_path, data)
     if not os.path.exists(abs_path):
         print(f"Error: Project note file not found for '{args.project_path}'.", flush=True)
@@ -2500,7 +4029,7 @@ def cmd_work(args, data):
     title = os.path.splitext(os.path.basename(rel_path))[0]
 
     # Vérifie si un Pomodoro est déjà actif pour CE PROJET PRÉCIS
-    sessions = load_all_active_pomodoros(clean_stale=True)
+    sessions = load_all_active_pomodoros(active_path=active_path, clean_stale=True, is_agent=is_agent)
     existing_session = None
     for k, s in sessions.items():
         if k == rel_path or s.get("rel_path") == rel_path or s.get("title") == title:
@@ -2510,13 +4039,14 @@ def cmd_work(args, data):
     if existing_session and existing_session.get("status") == "running":
         active_pid = existing_session.get("pid")
         if is_pid_alive(active_pid) and active_pid != os.getpid():
+            agent_flag_hint = " --agent" if is_agent else ""
             print(f"⚠️ Une session Pomodoro est déjà en cours d'exécution pour '{title}' (PID {active_pid}).", flush=True)
-            print(f"💡 Vous pouvez l'interrompre proprement via : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"{title}\"`", flush=True)
+            print(f"💡 Vous pouvez l'interrompre proprement via : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"{title}\"{agent_flag_hint}`", flush=True)
             sys.exit(1)
         else:
             # Nettoyage d'un lock orphelin sur ce projet
-            clear_active_pomodoro(project_key=rel_path)
-            sessions = load_all_active_pomodoros(clean_stale=True)
+            clear_active_pomodoro(active_path=active_path, project_key=rel_path, is_agent=is_agent)
+            sessions = load_all_active_pomodoros(active_path=active_path, clean_stale=True, is_agent=is_agent)
 
     # Comportement officiel et nominal : durée par défaut issue de settings.pomodoroDuration (data.json).
     duration_min = float(args.duration) if args.duration is not None else float(data.get("settings", {}).get("pomodoroDuration", 60))
@@ -2545,7 +4075,7 @@ def cmd_work(args, data):
         "since_minutes": since_min,
         "status": "running"
     }
-    save_active_pomodoro(pomodoro_state)
+    save_active_pomodoro(pomodoro_state, active_path=active_path, is_agent=is_agent)
 
     recorded = False
 
@@ -2566,13 +4096,14 @@ def cmd_work(args, data):
                         elapsed_minutes=effective_elapsed_min,
                         target_minutes=duration_min,
                         is_interrupted=True,
-                        data_path=DATA_JSON_PATH
+                        data_path=DATA_JSON_PATH,
+                        is_agent=is_agent
                     )
             except Exception:
                 pass
             finally:
                 try:
-                    clear_active_pomodoro(project_key=rel_path)
+                    clear_active_pomodoro(active_path=active_path, project_key=rel_path, is_agent=is_agent)
                 except Exception:
                     pass
 
@@ -2596,11 +4127,12 @@ def cmd_work(args, data):
     except Exception:
         pass
 
+    role_pfx = "🤖 [Agent] " if is_agent else ""
     if since_min > 0:
-        print(f"⏱️ Session Pomodoro démarrée pour '{title}' ({duration_min:.0f} min) [Rattrapage --since {since_min} min | Temps résiduel : {residual_seconds // 60} min]...", flush=True)
+        print(f"⏱️ {role_pfx}Session Pomodoro démarrée pour '{title}' ({duration_min:.0f} min) [Rattrapage --since {since_min} min | Temps résiduel : {residual_seconds // 60} min]...", flush=True)
     else:
-        print(f"⏱️ Session Pomodoro démarrée pour '{title}' ({duration_min:.0f} min)...", flush=True)
-    print("📋 Consigne : Initialiser ou compléter task.md avec les dernières tâches effectuées et prochaines tâches prioritaires de la roadmap du projet.", flush=True)
+        print(f"⏱️ {role_pfx}Session Pomodoro démarrée pour '{title}' ({duration_min:.0f} min)...", flush=True)
+    print("📋 Consigne : Initialiser ou mettre à jour task.md (3 sections exclusivement réservées aux tâches d'Henri, selon _agents/rules/task-tracking.md).", flush=True)
     step_sec = 30
     start_elapsed_sec = total_seconds - residual_seconds
 
@@ -2610,7 +4142,7 @@ def cmd_work(args, data):
                 break
 
             # Vérifie si la session spécifique a été interrompue
-            cur_sess = get_active_pomodoro_session(rel_path)
+            cur_sess = get_active_pomodoro_session(rel_path, active_path=active_path, is_agent=is_agent)
             if cur_sess and cur_sess.get("status") != "running":
                 interrupted = True
                 stop_reason = "external_command"
@@ -2630,7 +4162,7 @@ def cmd_work(args, data):
                 sleep_target = min(step_sec, remaining_sec)
                 sleep_end = time.time() + sleep_target
                 while time.time() < sleep_end and not interrupted:
-                    cur_sess = get_active_pomodoro_session(rel_path)
+                    cur_sess = get_active_pomodoro_session(rel_path, active_path=active_path, is_agent=is_agent)
                     if cur_sess and cur_sess.get("status") != "running":
                         interrupted = True
                         stop_reason = "external_command"
@@ -2666,24 +4198,25 @@ def cmd_work(args, data):
             elapsed_minutes=effective_elapsed_min,
             target_minutes=duration_min,
             is_interrupted=True,
-            data_path=DATA_JSON_PATH
+            data_path=DATA_JSON_PATH,
+            is_agent=is_agent
         )
         recorded = True
         try:
             atexit.unregister(atexit_work_cleanup)
         except Exception:
             pass
-        clear_active_pomodoro(project_key=rel_path)
+        clear_active_pomodoro(active_path=active_path, project_key=rel_path, is_agent=is_agent)
 
         m_el = int(effective_elapsed_min)
         s_el = int((effective_elapsed_min - m_el) * 60)
 
-        updated_projects = scan_projects(VAULT_DIR, data)
+        updated_projects = scan_projects(VAULT_DIR, data, is_agent=is_agent)
         target_p = next((p for p in updated_projects if p["rel_path"] == rel_path or p["title"] == title), None)
 
         print(flush=True)
         print("============================================================", flush=True)
-        print(f"🛑 POMODORO INTERROMPU pour '{title}'", flush=True)
+        print(f"🛑 {role_pfx}POMODORO INTERROMPU pour '{title}'", flush=True)
         print("============================================================", flush=True)
         print(f"⏱️ Temps réellement écoulé : {m_el:02d}:{s_el:02d} ({effective_elapsed_min:.2f} min / {duration_min:.0f} min)", flush=True)
         print(f"📊 Ratio d'accomplissement (r) : {ratio * 100:.1f}%", flush=True)
@@ -2703,22 +4236,24 @@ def cmd_work(args, data):
         elapsed_minutes=float(duration_min),
         target_minutes=duration_min,
         is_interrupted=False,
-        data_path=DATA_JSON_PATH
+        data_path=DATA_JSON_PATH,
+        is_agent=is_agent
     )
     recorded = True
     try:
         atexit.unregister(atexit_work_cleanup)
     except Exception:
         pass
-    clear_active_pomodoro(project_key=rel_path)
+    clear_active_pomodoro(active_path=active_path, project_key=rel_path, is_agent=is_agent)
 
     print("============================================================", flush=True)
-    print(f"🎉 POMODORO TERMINÉ pour '{title}' ({duration_min:.0f} min)", flush=True)
+    print(f"🎉 {role_pfx}POMODORO TERMINÉ pour '{title}' ({duration_min:.0f} min)", flush=True)
     print("============================================================", flush=True)
     print_end_of_session_reminders(title, is_interrupted=False)
 
 
-def _stop_and_record_session(s: Dict[str, Any], manual_elapsed: Optional[float], data: Dict[str, Any], as_json: bool = False, print_output: bool = True) -> Dict[str, Any]:
+def _stop_and_record_session(s: Dict[str, Any], manual_elapsed: Optional[float], data: Dict[str, Any], as_json: bool = False, print_output: bool = True, is_agent: bool = False) -> Dict[str, Any]:
+    active_path = ACTIVE_POMODORO_AGENT_PATH if is_agent else ACTIVE_POMODORO_PATH
     rel_path = s.get("rel_path")
     title = s.get("title", os.path.splitext(os.path.basename(rel_path))[0] if rel_path else "Inconnu")
     start_ts = float(s.get("start_timestamp", time.time()))
@@ -2734,7 +4269,7 @@ def _stop_and_record_session(s: Dict[str, Any], manual_elapsed: Optional[float],
 
     # Marque la session comme stopped pour que la boucle work se termine
     s["status"] = "stopped"
-    save_active_pomodoro(s)
+    save_active_pomodoro(s, active_path=active_path, is_agent=is_agent)
 
     # Notifie / termine le processus daemon si distinct
     if pid and is_pid_alive(pid) and pid != os.getpid():
@@ -2754,12 +4289,13 @@ def _stop_and_record_session(s: Dict[str, Any], manual_elapsed: Optional[float],
         elapsed_minutes=effective_elapsed_min,
         target_minutes=target_min,
         is_interrupted=True,
-        data_path=DATA_JSON_PATH
+        data_path=DATA_JSON_PATH,
+        is_agent=is_agent
     )
 
-    clear_active_pomodoro(project_key=rel_path)
+    clear_active_pomodoro(active_path=active_path, project_key=rel_path, is_agent=is_agent)
 
-    updated_projects = scan_projects(VAULT_DIR, data)
+    updated_projects = scan_projects(VAULT_DIR, data, is_agent=is_agent)
     target_p = next((p for p in updated_projects if p["rel_path"] == rel_path or p["title"] == title), None)
 
     m_el = int(effective_elapsed_min)
@@ -2780,8 +4316,9 @@ def _stop_and_record_session(s: Dict[str, Any], manual_elapsed: Optional[float],
     }
 
     if print_output and not as_json:
+        role_pfx = " [Agent]" if is_agent else ""
         print("============================================================", flush=True)
-        print(f"🛑 Session Pomodoro interrompue avec succès pour '{title}' !", flush=True)
+        print(f"🛑 Session Pomodoro{role_pfx} interrompue avec succès pour '{title}' !", flush=True)
         print("============================================================", flush=True)
         print(f"⏱️ Durée cible : {target_min:.0f} min", flush=True)
         print(f"⏳ Temps réellement écoulé : {m_el:02d}:{s_el:02d} ({effective_elapsed_min:.2f} min)", flush=True)
@@ -2798,8 +4335,10 @@ def _stop_and_record_session(s: Dict[str, Any], manual_elapsed: Optional[float],
 
 
 def cmd_stop_work(args, data):
+    is_agent = getattr(args, "agent", False)
+    active_path = ACTIVE_POMODORO_AGENT_PATH if is_agent else ACTIVE_POMODORO_PATH
     recovered_sessions = []
-    sessions = load_all_active_pomodoros(active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH, clean_stale=True, recovered_out=recovered_sessions)
+    sessions = load_all_active_pomodoros(active_path=active_path, data_path=DATA_JSON_PATH, clean_stale=True, recovered_out=recovered_sessions, is_agent=is_agent)
     as_json = getattr(args, "json", False)
     target_project = getattr(args, "project_path", None)
     manual_elapsed = getattr(args, "elapsed", None)
@@ -2822,7 +4361,8 @@ def cmd_stop_work(args, data):
                 elapsed_minutes=elapsed_min,
                 target_minutes=target_min,
                 is_interrupted=True,
-                data_path=DATA_JSON_PATH
+                data_path=DATA_JSON_PATH,
+                is_agent=is_agent
             )
             if as_json:
                 print(json.dumps({
@@ -2835,13 +4375,14 @@ def cmd_stop_work(args, data):
                     "ratio": ratio
                 }, indent=2, ensure_ascii=False))
             else:
-                print(f"🛑 Session de travail manuelle enregistrée pour '{title}' ({elapsed_min:.2f} min / {target_min:.0f} min, ratio r={ratio:.2%}).")
+                role_pfx = " [Agent]" if is_agent else ""
+                print(f"🛑 Session de travail manuelle{role_pfx} enregistrée pour '{title}' ({elapsed_min:.2f} min / {target_min:.0f} min, ratio r={ratio:.2%}).")
                 print_end_of_session_reminders(title, is_interrupted=True)
             return
 
         if recovered_sessions:
             data = load_data(DATA_JSON_PATH)
-            updated_projects = scan_projects(VAULT_DIR, data)
+            updated_projects = scan_projects(VAULT_DIR, data, is_agent=is_agent)
             tot_time = data.get("stats", {}).get("globalStats", {}).get("totalPomodoroTime", 0)
 
             if target_project:
@@ -2929,14 +4470,15 @@ def cmd_stop_work(args, data):
         if as_json:
             print(json.dumps({"status": "no_active_pomodoro", "message": "Aucune session Pomodoro active en cours."}, indent=2, ensure_ascii=False))
         else:
-            print("ℹ️ Aucune session Pomodoro active n'est actuellement en cours d'exécution.")
+            role_pfx = " [Agent]" if is_agent else ""
+            print(f"ℹ️ Aucune session Pomodoro{role_pfx} active n'est actuellement en cours d'exécution.")
         return
 
     # Cas 1 : Interrompre TOUTES les sessions (--all)
     if stop_all:
         stopped_list = []
         for p_key, s in list(running_sessions.items()):
-            res = _stop_and_record_session(s, manual_elapsed, data, as_json=as_json, print_output=not as_json)
+            res = _stop_and_record_session(s, manual_elapsed, data, as_json=as_json, print_output=not as_json, is_agent=is_agent)
             stopped_list.append(res)
             data = load_data(DATA_JSON_PATH)
 
@@ -2947,7 +4489,8 @@ def cmd_stop_work(args, data):
                 "sessions": stopped_list
             }, indent=2, ensure_ascii=False))
         else:
-            print(f"✅ Toutes les sessions Pomodoro actives ({len(stopped_list)}) ont été interrompues avec succès.", flush=True)
+            role_pfx = " [Agent]" if is_agent else ""
+            print(f"✅ Toutes les sessions Pomodoro{role_pfx} actives ({len(stopped_list)}) ont été interrompues avec succès.", flush=True)
         return
 
     # Cas 2 : Un projet spécifique est demandé
@@ -2966,8 +4509,8 @@ def cmd_stop_work(args, data):
                 break
 
         if target_session:
-            res = _stop_and_record_session(target_session, manual_elapsed, data, as_json=as_json, print_output=not as_json)
-            remaining = [s for s in load_all_active_pomodoros(active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH, clean_stale=True).values() if s.get("status") == "running" and is_pid_alive(s.get("pid"))]
+            res = _stop_and_record_session(target_session, manual_elapsed, data, as_json=as_json, print_output=not as_json, is_agent=is_agent)
+            remaining = [s for s in load_all_active_pomodoros(active_path=active_path, data_path=DATA_JSON_PATH, clean_stale=True, is_agent=is_agent).values() if s.get("status") == "running" and is_pid_alive(s.get("pid"))]
             if as_json:
                 res["remaining_active_sessions"] = [s.get("title") for s in remaining]
                 print(json.dumps(res, indent=2, ensure_ascii=False))
@@ -2976,8 +4519,9 @@ def cmd_stop_work(args, data):
                     print(f"ℹ️ Note : Il reste {len(remaining)} autre(s) session(s) Pomodoro active(s) :", flush=True)
                     for rem in remaining:
                         print(f"   • '{rem.get('title')}' (PID {rem.get('pid')})", flush=True)
-                    print(f"💡 Pour interrompre un projet précis : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"<projet>\"`", flush=True)
-                    print(f"💡 Pour tout interrompre : `python _agents/scripts-for-skills/project_memory_cli.py stop-work --all`", flush=True)
+                    agent_flag_hint = " --agent" if is_agent else ""
+                    print(f"💡 Pour interrompre un projet précis : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"<projet>\"{agent_flag_hint}`", flush=True)
+                    print(f"💡 Pour tout interrompre : `python _agents/scripts-for-skills/project_memory_cli.py stop-work --all{agent_flag_hint}`", flush=True)
             return
         else:
             # Vérifier si la session visée a été récupérée comme stale lock
@@ -2991,7 +4535,7 @@ def cmd_stop_work(args, data):
 
             if matched_rec:
                 data = load_data(DATA_JSON_PATH)
-                updated_projects = scan_projects(VAULT_DIR, data)
+                updated_projects = scan_projects(VAULT_DIR, data, is_agent=is_agent)
                 target_p = next((p for p in updated_projects if p["rel_path"] == matched_rec.get("rel_path") or p["title"] == matched_rec.get("project")), None)
                 m_el = int(matched_rec["elapsed_minutes"])
                 s_el = int((matched_rec["elapsed_minutes"] - m_el) * 60)
@@ -3029,26 +4573,29 @@ def cmd_stop_work(args, data):
                 target_min = float(args.target_duration) if getattr(args, "target_duration", None) else float(data.get("settings", {}).get("pomodoroDuration", 60))
                 elapsed_min = float(manual_elapsed)
                 ratio = min(1.0, max(0.0, elapsed_min / target_min)) if target_min > 0 else 0.0
-                matched_key, _ = record_work_session(data, rel_path, elapsed_minutes=elapsed_min, target_minutes=target_min, is_interrupted=True, data_path=DATA_JSON_PATH)
+                matched_key, _ = record_work_session(data, rel_path, elapsed_minutes=elapsed_min, target_minutes=target_min, is_interrupted=True, data_path=DATA_JSON_PATH, is_agent=is_agent)
                 if as_json:
                     print(json.dumps({"status": "stopped", "manual": True, "project": title, "rel_path": rel_path, "elapsed_minutes": elapsed_min, "target_minutes": target_min, "ratio": ratio}, indent=2, ensure_ascii=False))
                 else:
-                    print(f"🛑 Session de travail manuelle enregistrée pour '{title}' ({elapsed_min:.2f} min / {target_min:.0f} min, ratio r={ratio:.2%}).")
+                    role_pfx = " [Agent]" if is_agent else ""
+                    print(f"🛑 Session de travail manuelle{role_pfx} enregistrée pour '{title}' ({elapsed_min:.2f} min / {target_min:.0f} min, ratio r={ratio:.2%}).")
                     print_end_of_session_reminders(title, is_interrupted=True)
                 return
 
-            print(f"⚠️ Aucune session Pomodoro active trouvée pour '{target_project}'.", flush=True)
+            role_pfx = " [Agent]" if is_agent else ""
+            print(f"⚠️ Aucune session Pomodoro{role_pfx} active trouvée pour '{target_project}'.", flush=True)
             print("Sessions actives en cours :", flush=True)
             for s in running_sessions.values():
                 print(f"   • '{s.get('title')}' (PID {s.get('pid')})", flush=True)
-            print(f"💡 Pour interrompre un projet précis : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"<nom_projet>\"`", flush=True)
-            print(f"💡 Pour tout interrompre : `python _agents/scripts-for-skills/project_memory_cli.py stop-work --all`", flush=True)
+            agent_flag_hint = " --agent" if is_agent else ""
+            print(f"💡 Pour interrompre un projet précis : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"<nom_projet>\"{agent_flag_hint}`", flush=True)
+            print(f"💡 Pour tout interrompre : `python _agents/scripts-for-skills/project_memory_cli.py stop-work --all{agent_flag_hint}`", flush=True)
             sys.exit(1)
 
     # Cas 3 : Aucun argument fourni
     if len(running_sessions) == 1:
         s = next(iter(running_sessions.values()))
-        res = _stop_and_record_session(s, manual_elapsed, data, as_json=as_json, print_output=not as_json)
+        res = _stop_and_record_session(s, manual_elapsed, data, as_json=as_json, print_output=not as_json, is_agent=is_agent)
         if as_json:
             print(json.dumps(res, indent=2, ensure_ascii=False))
         return
@@ -3066,8 +4613,8 @@ def cmd_stop_work(args, data):
         target_session = max(running_sessions.values(), key=lambda s: float(s.get("start_timestamp", 0)))
         reason_msg = "session la plus récente"
 
-    res = _stop_and_record_session(target_session, manual_elapsed, data, as_json=as_json, print_output=not as_json)
-    remaining = [s for s in load_all_active_pomodoros(active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH, clean_stale=True).values() if s.get("status") == "running" and is_pid_alive(s.get("pid"))]
+    res = _stop_and_record_session(target_session, manual_elapsed, data, as_json=as_json, print_output=not as_json, is_agent=is_agent)
+    remaining = [s for s in load_all_active_pomodoros(active_path=active_path, data_path=DATA_JSON_PATH, clean_stale=True, is_agent=is_agent).values() if s.get("status") == "running" and is_pid_alive(s.get("pid"))]
     if as_json:
         res["selection_reason"] = reason_msg
         res["remaining_active_sessions"] = [s.get("title") for s in remaining]
@@ -3078,13 +4625,16 @@ def cmd_stop_work(args, data):
             print(f"Il reste encore {len(remaining)} autre(s) session(s) active(s) :", flush=True)
             for rem in remaining:
                 print(f"   • '{rem.get('title')}' (PID {rem.get('pid')})", flush=True)
-            print(f"💡 Pour interrompre un projet précis : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"<projet>\"`", flush=True)
-            print(f"💡 Pour tout interrompre d'un coup : `python _agents/scripts-for-skills/project_memory_cli.py stop-work --all`", flush=True)
+            agent_flag_hint = " --agent" if is_agent else ""
+            print(f"💡 Pour interrompre un projet précis : `python _agents/scripts-for-skills/project_memory_cli.py stop-work \"<projet>\"{agent_flag_hint}`", flush=True)
+            print(f"💡 Pour tout interrompre d'un coup : `python _agents/scripts-for-skills/project_memory_cli.py stop-work --all{agent_flag_hint}`", flush=True)
 
 
 def cmd_status_work(args, data):
+    is_agent = getattr(args, "agent", False)
+    active_path = ACTIVE_POMODORO_AGENT_PATH if is_agent else ACTIVE_POMODORO_PATH
     recovered_sessions = []
-    sessions = load_all_active_pomodoros(active_path=ACTIVE_POMODORO_PATH, data_path=DATA_JSON_PATH, clean_stale=True, recovered_out=recovered_sessions)
+    sessions = load_all_active_pomodoros(active_path=active_path, data_path=DATA_JSON_PATH, clean_stale=True, recovered_out=recovered_sessions, is_agent=is_agent)
     as_json = getattr(args, "json", False)
     target_project = getattr(args, "project_path", None)
     show_all = getattr(args, "all", False)
@@ -3293,6 +4843,271 @@ def cmd_status_work(args, data):
         print("============================================================", flush=True)
 
 
+
+
+def _clean_checkboxes_from_note_content(content: str) -> Tuple[str, List[str], List[str]]:
+    r"""
+    Supprime proprement les lignes de cases à cocher `- [ ]` et `- [x]` / `- [X]` tout en
+    préservant strictement les sections Q&A, citations, blocs de code et explications.
+    Retourne (contenu_nettoyé, open_tasks, done_tasks).
+    """
+    lines = content.splitlines()
+    new_lines = []
+    open_tasks = []
+    done_tasks = []
+    in_code_block = False
+
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            in_code_block = not in_code_block
+            new_lines.append(line)
+            continue
+
+        if in_code_block:
+            new_lines.append(line)
+            continue
+
+        m_open = re.match(r"^\s*[-*+]\s+\[ \]\s+(.*)$", line)
+        if m_open:
+            open_tasks.append(m_open.group(1).strip())
+            continue
+
+        m_done = re.match(r"^\s*[-*+]\s+\[[xX]\]\s+(.*)$", line)
+        if m_done:
+            done_tasks.append(m_done.group(1).strip())
+            continue
+
+        new_lines.append(line)
+
+    cleaned = "\n".join(new_lines)
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+    if content.endswith("\n") and not cleaned.endswith("\n"):
+        cleaned += "\n"
+    return cleaned, open_tasks, done_tasks
+
+
+def _register_tasks_in_aivc(note_path: str, new_tasks: List[Tuple[str, str]], title: str = "") -> List[Dict[str, Any]]:
+    r"""
+    Enregistre des tâches ouvertes non encore indexées dans le commit storage AIVC du projet.
+    """
+    storage_root = Path.home() / ".aivc" / "storage"
+    commits_dir = storage_root / "commits"
+    commits_dir.mkdir(parents=True, exist_ok=True)
+
+    target_portable = _to_portable_path(note_path)
+    target_commit_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"aivc:roadmap:{target_portable.lower()}"))
+    target_commit_path = commits_dir / f"{target_commit_id}.json"
+
+    commit_data = {}
+    if target_commit_path.is_file():
+        try:
+            with open(target_commit_path, "r", encoding="utf-8") as f:
+                commit_data = json.load(f)
+        except Exception:
+            commit_data = {}
+
+    if not commit_data:
+        commit_data = {
+            "id": target_commit_id,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "title": f"[Roadmap] {title or Path(note_path).stem}",
+            "journal": f"Roadmap migrée pour {title or Path(note_path).stem}",
+            "user_items": [],
+            "note": f"Roadmap {title or Path(note_path).stem}",
+            "parent_id": "",
+            "machine_id": os.environ.get("COMPUTERNAME", ""),
+            "urls": [],
+            "changes": [
+                {
+                    "path": target_portable,
+                    "action": "roadmap"
+                }
+            ]
+        }
+
+    hash6 = (commit_data.get("id") or target_commit_id or "roadmp")[:6]
+    existing_indices = set()
+    for it in commit_data.get("user_items", []):
+        iid_str = it.get("id", "")
+        m_idx = re.search(r'-(\d+)$', iid_str)
+        if m_idx:
+            existing_indices.add(int(m_idx.group(1)))
+    next_idx = max(existing_indices) + 1 if existing_indices else 1
+
+    added_items = []
+    for task_t, details_t in new_tasks:
+        new_id = f"r-{hash6}-{next_idx}"
+        next_idx += 1
+        new_it = {
+            "id": new_id,
+            "task_status": "new",
+            "kind": "roadmap",
+            "task": task_t,
+            "details": details_t,
+            "done": False
+        }
+        commit_data.setdefault("user_items", []).append(new_it)
+        added_items.append(new_it)
+
+    try:
+        with open(target_commit_path, "w", encoding="utf-8") as f:
+            json.dump(commit_data, f, indent=2, ensure_ascii=False)
+        _invalidate_aivc_cache()
+        tldr_cache = storage_root / "tldr_items_cache.json"
+        if tldr_cache.exists():
+            try:
+                tldr_cache.unlink()
+            except OSError:
+                pass
+    except Exception:
+        pass
+
+    return added_items
+
+
+def cmd_migrate_checkboxes(args, data) -> None:
+    r"""
+    Scanne les notes de projet dans notes/*.md, identifie les cases - [ ] et - [x],
+    enregistre les - [ ] non encore présents dans AIVC sous task_status='new',
+    et retire proprement les lignes de cases des fichiers Markdown.
+    """
+    vault_dir = Path(args.vault_dir) if getattr(args, "vault_dir", None) else Path(VAULT_DIR)
+    is_apply = bool(getattr(args, "apply", False))
+    dry_run = not is_apply
+
+    notes_dir = vault_dir / "notes"
+    candidate_files = []
+    if notes_dir.exists():
+        candidate_files.extend(list(notes_dir.glob("*.md")))
+
+    for f in vault_dir.glob("*.md"):
+        if f.name.startswith("🤖"):
+            continue
+        candidate_files.append(f)
+
+    # Récupérer les items AIVC existants via _get_aivc_memories()
+    aivc_mems = _get_aivc_memories()
+    all_existing_tasks = []
+    for _ts, mem in aivc_mems:
+        for it in mem.get("user_items", []):
+            all_existing_tasks.append(it)
+
+    report_lines = [
+        "# Rapport de Migration des Cases à Cocher vers AIVC",
+        "",
+        f"- **Mode** : {'--dry-run (Simulation, aucun fichier modifié)' if dry_run else '--apply (Modifications appliquées)'}",
+        f"- **Répertoire du coffre** : `{vault_dir}`",
+        f"- **Date d'exécution** : {datetime.now(timezone.utc).isoformat()}",
+        "",
+        "## Synthèse Globale",
+        ""
+    ]
+
+    total_scanned = 0
+    total_notes_with_boxes = 0
+    total_open_migrated = 0
+    total_open_already_in_aivc = 0
+    total_done_removed = 0
+    details_per_note = []
+
+    for md_file in sorted(candidate_files):
+        rel_p = str(md_file.relative_to(vault_dir)).replace("\\", "/")
+        if rel_p.lower().startswith("advance/") or md_file.name.startswith("🤖"):
+            continue
+
+        try:
+            content = md_file.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            continue
+
+        total_scanned += 1
+        cleaned_content, open_tasks, done_tasks = _clean_checkboxes_from_note_content(content)
+
+        if not open_tasks and not done_tasks:
+            continue
+
+        total_notes_with_boxes += 1
+        new_tasks_to_add = []
+        already_in_aivc = []
+
+        for ot in open_tasks:
+            parsed_task, parsed_details = _parse_checkbox_task(f"- [ ] {ot}")
+            dup = False
+            for ex in all_existing_tasks:
+                if _is_matching_task(ot, ex.get("task", ""), ex.get("details", "")):
+                    dup = True
+                    break
+            if dup:
+                already_in_aivc.append(ot)
+            else:
+                new_tasks_to_add.append((parsed_task, parsed_details))
+
+        total_open_migrated += len(new_tasks_to_add)
+        total_open_already_in_aivc += len(already_in_aivc)
+        total_done_removed += len(done_tasks)
+
+        details_per_note.append({
+            "file": rel_p,
+            "title": md_file.stem,
+            "open_to_add": new_tasks_to_add,
+            "open_already": already_in_aivc,
+            "done_removed": done_tasks
+        })
+
+        if is_apply:
+            if new_tasks_to_add:
+                _register_tasks_in_aivc(str(md_file), new_tasks_to_add, title=md_file.stem)
+            md_file.write_text(cleaned_content, encoding="utf-8")
+
+    report_lines.append(f"- **Notes scannées** : {total_scanned}")
+    report_lines.append(f"- **Notes contenant des cases à cocher** : {total_notes_with_boxes}")
+    report_lines.append(f"- **Tâches ouvertes `[- ]` préparées/migrées dans AIVC** : {total_open_migrated}")
+    report_lines.append(f"- **Tâches ouvertes déjà présentes dans AIVC** : {total_open_already_in_aivc}")
+    report_lines.append(f"- **Cases terminées `[- x]` résiduelles à supprimer** : {total_done_removed}")
+    report_lines.append("")
+    report_lines.append("## Détail par Note de Projet")
+    report_lines.append("")
+
+    for item in details_per_note:
+        report_lines.append(f"### 📄 `{item['file']}` ({item['title']})")
+        if item["open_to_add"]:
+            report_lines.append("- **Tâches ouvertes à inscrire dans AIVC (`task_status: new`)** :")
+            for t, d in item["open_to_add"]:
+                det_str = f" *(détails: {d})*" if d else ""
+                report_lines.append(f"  - `{t}`{det_str}")
+        if item["open_already"]:
+            report_lines.append("- **Tâches ouvertes déjà indexées dans AIVC (conservées dans AIVC)** :")
+            for t in item["open_already"]:
+                report_lines.append(f"  - `{t}`")
+        if item["done_removed"]:
+            report_lines.append("- **Cases résiduelles terminées retirées** :")
+            for t in item["done_removed"]:
+                report_lines.append(f"  - `{t}`")
+        report_lines.append("")
+
+    full_report = "\n".join(report_lines)
+
+    report_dest = Path(args.report) if getattr(args, "report", None) else Path(r"C:\Users\Jamet\.gemini\antigravity\brain\59bb502e-fd05-4162-9fbf-3e3d33d8d13a\rapport_migration_checkboxes.md")
+    report_dest.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        report_dest.write_text(full_report, encoding="utf-8")
+        print(f"[OK] Rapport généré dans : {report_dest}")
+    except Exception as e:
+        print(f"[WARN] Impossible d'écrire le rapport dans {report_dest}: {e}")
+
+    local_report = Path(r"C:\Users\Jamet\.gemini\antigravity\brain\e9d8c330-0c04-44c2-802f-d1bf183f7abc\rapport_migration_checkboxes.md")
+    try:
+        local_report.write_text(full_report, encoding="utf-8")
+    except Exception:
+        pass
+
+    print(f"Total notes avec checkboxes : {total_notes_with_boxes}")
+    print(f"Tâches ouvertes à migrer vers AIVC : {total_open_migrated}")
+    print(f"Tâches déjà dans AIVC : {total_open_already_in_aivc}")
+    print(f"Cases résiduelles terminées retirées : {total_done_removed}")
+
+
 def try_delegate_to_node() -> bool:
     """
     Supporte la délégation transparente vers `node code/project-memory/dist/cli.js` si présent,
@@ -3323,7 +5138,7 @@ def try_delegate_to_node() -> bool:
 
     try:
         import subprocess
-        res = subprocess.run([node_bin, cli_path, *sys.argv[1:]])
+        res = subprocess.run([node_bin, cli_path, *sys.argv[1:]], timeout=60)
         sys.exit(res.returncode)
     except Exception:
         return False
@@ -3332,6 +5147,7 @@ def try_delegate_to_node() -> bool:
 def main():
     try_delegate_to_node()
     parser = argparse.ArgumentParser(description="Project Memory CLI")
+    parser.add_argument("--agent", action="store_true", help="Bascule en mode agent autonome (classement, scores et historique propres à l'agent)")
     subparsers = parser.add_subparsers(dest="command", help="Sub-commands")
 
     # list / priority / top / scan / scores / update-scores
@@ -3347,6 +5163,8 @@ def main():
     list_parser.add_argument("--fast", action="store_true", help="Fast mode using existing cache without filesystem scan")
     list_parser.add_argument("--clean-orphans", action="store_true", help="Nettoie d'abord les notes orphelines de data.json avant de lister")
     list_parser.add_argument("--no-persist", action="store_true", help="Ne persiste pas les scores effectifs calculés dans data.json")
+    list_parser.add_argument("--verbose", "-v", "--debug", action="store_true", help="Affichage détaillé avec toutes les composantes de calcul (11 colonnes)")
+    list_parser.add_argument("--agent", action="store_true", help="Bascule en mode agent autonome (classement, scores et historique propres à l'agent)")
 
     # clean-orphans
     clean_parser = subparsers.add_parser("clean-orphans", help="Nettoie les projets de data.json dont les fichiers n'existent plus sur le disque")
@@ -3357,14 +5175,24 @@ def main():
     get_parser = subparsers.add_parser("get", help="Get project details and roadmap tasks")
     get_parser.add_argument("project_path", help="Relative path or name of project note")
     get_parser.add_argument("--json", action="store_true", help="Output in JSON format")
+    get_parser.add_argument("--agent", action="store_true", help="Bascule en mode agent autonome (classement, scores et historique propres à l'agent)")
 
     # feedback
     fb_parser = subparsers.add_parser("feedback", help="Log review feedback for a project")
     fb_parser.add_argument("project_path", help="Relative path or name of project note")
     fb_parser.add_argument("pos_action", nargs="?", help="Action: ok, less-often, more-often, finished, emergency, non-projet")
-    fb_parser.add_argument("--action", "-a", help="Action to perform")
+    fb_parser.add_argument("--action", "-a", "--feeling", "-f", dest="action", help="Action or feeling to perform (e.g. ok, more-often, stressé, à l'aise, finished)")
     fb_parser.add_argument("--worked", "-w", action="store_true", default=True, help="Record a work session with recency penalty (Default: True)")
     fb_parser.add_argument("--no-work", "--not-worked", "--review-only", dest="no_work", action="store_true", help="Explicitly mark as review-only without recording a work session.")
+    fb_parser.add_argument(
+        "--transcript",
+        nargs="?",
+        const="auto",
+        default=None,
+        help="Chemin vers transcript.jsonl ou 'auto' pour détection automatique de la session Antigravity"
+    )
+    fb_parser.add_argument("--duration", "-d", type=float, default=None, help="Durée explicite de la session en minutes (par défaut: transcript en mode humain, pomodoroDuration en mode --agent)")
+    fb_parser.add_argument("--agent", action="store_true", help="Bascule en mode agent autonome (classement, scores et historique propres à l'agent)")
 
     # complete-task
     comp_parser = subparsers.add_parser("complete-task", help="Check off a task in a project note")
@@ -3376,12 +5204,14 @@ def main():
     set_score_parser.add_argument("project_path", help="Relative path or name of project note")
     set_score_parser.add_argument("score", type=float, help="Explicit score >= 1.0")
     set_score_parser.add_argument("--worked", "-w", action="store_true", default=False, help="Set ONLY if user actively worked on the project during this session (Default: False)")
+    set_score_parser.add_argument("--agent", action="store_true", help="Bascule en mode agent autonome (classement, scores et historique propres à l'agent)")
 
     # work
     work_parser = subparsers.add_parser("work", help="Démarre une session Pomodoro active sur un projet (durée nominale configurée dans data.json)")
     work_parser.add_argument("project_path", help="Chemin relatif ou nom du projet")
     work_parser.add_argument("--duration", "-d", type=int, help="Override optionnel exceptionnel de durée en minutes (comportement officiel et nominal : pomodoroDuration de data.json)")
     work_parser.add_argument("--since", type=int, default=0, help="Temps déjà écoulé en minutes à rattraper immédiatement (ex: --since 15)")
+    work_parser.add_argument("--agent", action="store_true", help="Bascule en mode agent autonome (classement, scores et historique propres à l'agent)")
 
     # stop-work / cancel-work / stop
     stop_parser = subparsers.add_parser("stop-work", aliases=["cancel-work", "stop"], help="Interrompt proprement la session Pomodoro en cours et enregistre le temps proportionnel")
@@ -3390,12 +5220,21 @@ def main():
     stop_parser.add_argument("--elapsed", "-e", type=float, help="Temps réellement écoulé en minutes (outrepasse le calcul chronométré automatique)")
     stop_parser.add_argument("--target-duration", "-d", type=float, help="Durée cible en minutes (si enregistrement manuel)")
     stop_parser.add_argument("--json", action="store_true", help="Sortie au format JSON")
+    stop_parser.add_argument("--agent", action="store_true", help="Bascule en mode agent autonome (classement, scores et historique propres à l'agent)")
 
     # status-work / active-pomodoro / status
     status_parser = subparsers.add_parser("status-work", aliases=["active-pomodoro", "status"], help="Affiche l'état de la session Pomodoro en cours")
     status_parser.add_argument("project_path", nargs="?", help="Chemin relatif ou nom du projet pour n'afficher que sa session")
     status_parser.add_argument("--all", "-a", action="store_true", help="Affiche toutes les sessions Pomodoro actives en parallèle")
     status_parser.add_argument("--json", action="store_true", help="Sortie au format JSON")
+    status_parser.add_argument("--agent", action="store_true", help="Bascule en mode agent autonome (classement, scores et historique propres à l'agent)")
+
+    # migrate-checkboxes
+    mig_parser = subparsers.add_parser("migrate-checkboxes", help="Scanne les notes de projet, extrait les cases [- ] vers AIVC et retire les cases [- ] et [- x] résiduelles")
+    mig_parser.add_argument("--apply", action="store_true", default=False, help="Applique réellement la migration vers AIVC et nettoie les notes Markdown")
+    mig_parser.add_argument("--dry-run", action="store_true", default=True, help="Mode simulation sans modifier le disque (défaut)")
+    mig_parser.add_argument("--vault-dir", type=str, default=None, help="Chemin alternatif du coffre Obsidian")
+    mig_parser.add_argument("--report", type=str, default=None, help="Chemin alternatif du rapport Markdown de sortie")
 
     args = parser.parse_args()
 
@@ -3423,6 +5262,8 @@ def main():
         cmd_stop_work(args, data)
     elif args.command in ("status-work", "active-pomodoro", "status"):
         cmd_status_work(args, data)
+    elif args.command == "migrate-checkboxes":
+        cmd_migrate_checkboxes(args, data)
 
 
 if __name__ == "__main__":
