@@ -28,7 +28,7 @@ import uuid
 import hashlib
 from datetime import datetime, date, time as dt_time, timedelta, timezone
 from dataclasses import dataclass
-from typing import Optional, Union, List, Any, Dict, Tuple, Set
+from typing import Optional, Union, List, Any, Dict, Tuple, Set, Iterable
 from pathlib import Path
 
 if sys.platform == "win32":
@@ -57,19 +57,74 @@ def find_vault_dir(start_dir):
     return os.path.abspath(os.path.join(start_dir, "..", ".."))
 
 
+import tempfile
+
 VAULT_DIR = os.environ.get("PROJECT_MEMORY_VAULT_DIR") or find_vault_dir(SCRIPT_DIR)
 DATA_JSON_PATH = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", "data.json")
 CACHE_PATH = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", ".project_cache.json")
 ACTIVE_POMODORO_PATH = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", ".active_pomodoro.json")
 ACTIVE_POMODORO_AGENT_PATH = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", ".active_pomodoro_agent.json")
-ADVANCE_TLDR_DIR = str(Path.home() / ".gemini" / "antigravity" / "brain" / "advance_tldr")
+
+_aivc_src = Path.home() / "Documents" / "code" / "aivc" / "src"
+if _aivc_src.is_dir() and str(_aivc_src) not in sys.path:
+    sys.path.insert(0, str(_aivc_src))
+
+AIVC_TEMP_DIR = Path(tempfile.gettempdir()) / "aivc"
+AIVC_TLDR_DIR = AIVC_TEMP_DIR / "advance_tldr"
+AIVC_ARTIFACTS_DIR = AIVC_TEMP_DIR / "artifacts"
+ADVANCE_TLDR_DIR = str(AIVC_TLDR_DIR)
+DASHBOARD_FILENAME = "🎯 Projets.md"
+DASHBOARD_PATH = os.path.join(VAULT_DIR, DASHBOARD_FILENAME)
+
+
+def _ensure_aivc_tldr_bootstrap() -> None:
+    """Bootstraps <temp>/aivc/advance_tldr and artifacts directories.
+    If advance_tldr is empty, seeds it from legacy ~/.gemini/antigravity/brain/advance_tldr if present.
+    """
+    try:
+        AIVC_TLDR_DIR.mkdir(parents=True, exist_ok=True)
+        AIVC_ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+        legacy_dir = Path.home() / ".gemini" / "antigravity" / "brain" / "advance_tldr"
+        if legacy_dir.is_dir() and not any(AIVC_TLDR_DIR.glob("🤖 *.md")):
+            for p in legacy_dir.glob("🤖 *.md"):
+                target = AIVC_TLDR_DIR / p.name
+                if not target.exists():
+                    shutil.copy2(p, target)
+    except Exception:
+        pass
+
+
+_ensure_aivc_tldr_bootstrap()
+
+
+def ensure_advance_tldr_junction(vault_dir: str = VAULT_DIR) -> str:
+    """
+    Deprecated / No-op: advance_tldr files now reside in <temp>/aivc/advance_tldr.
+    Cleans up any legacy junction in vault_dir.
+    """
+    junction_path = os.path.join(vault_dir, ".advance_tldr")
+    if os.path.exists(junction_path):
+        try:
+            if sys.platform == "win32":
+                import subprocess
+                subprocess.run(["cmd", "/c", "rmdir", junction_path], check=False, capture_output=True)
+            else:
+                if os.path.islink(junction_path):
+                    os.unlink(junction_path)
+                elif os.path.isdir(junction_path):
+                    shutil.rmtree(junction_path, ignore_errors=True)
+        except Exception:
+            pass
+    return ""
+
 
 EXCLUDED_DIRS = {
     ".obsidian", ".git", ".trash", ".claude", ".cursor",
     ".smart-env", ".pytest_cache", "attachments", "thumbnails",
     "excalidraw", "antigravity", "voicenotes", "readwise",
     "test_output_vault", "rattrapage_aib_pack", "templates",
-    "tests", "agents", ".agents", "_agents", "advance"
+    "tests", "agents", ".agents", "_agents", "advance", ".advance_tldr",
+    "souvenirs", "administratif"
 }
 
 SYSTEM_FILES = {"agents.md", "readme.md", "claude.md", "gemini.md"}
@@ -912,14 +967,17 @@ def clear_active_pomodoro(active_path=None, data_path=DATA_JSON_PATH, project_ke
         _persist_active_pomodoros({}, active_path, data_path, is_agent=is_agent)
 
 
-def update_achilles_rotation_bonuses(stats: Dict[str, Any], current_project_key: str, ratio: float, alpha: float, is_agent: bool = False) -> None:
+def update_achilles_rotation_bonuses(stats: Dict[str, Any], current_project_key: str, ratio: float, alpha: float, is_agent: bool = False, vault_dir: str = VAULT_DIR) -> None:
     """
     Applique le modèle d'Achille et la Tortue pour le bonus de rotation des projets non travaillés :
     Delta B = alpha * (100 - S_rot) * ratio, avec S_rot = S_base + B_rot.
     Garantit strictement que S_rot <= 100.0 et B_rot <= 100.0 - S_base (Directive Borne 100).
+    Incrémente UNIQUEMENT les projets actifs réellement éligibles (is_eligible_project).
     """
     for p_key, p_val in stats.items():
         if p_key != current_project_key:
+            if not is_eligible_project(p_key, vault_dir=vault_dir, proj_stat=p_val):
+                continue
             target_obj = p_val.setdefault("agent", {}) if is_agent else p_val
             tot_reviews = int(target_obj.get("totalReviews", 0))
             if tot_reviews == 0 and not is_agent and int(p_val.get("totalReviews", 0)) == 0:
@@ -1263,6 +1321,101 @@ def parse_markdown_file(file_path, content=None, parse_checkboxes=True):
     return frontmatter, tags, checkboxes, content
 
 
+ARCHIVED_STATUSES = {"done", "archived", "abandoned"}
+DEFAULT_PROJECT_TAGS = {"todo", "project", "projet"}
+DEFAULT_ARCHIVE_TAGS = {"done", "projet-fini", "archive", "archived"}
+
+
+def is_eligible_project(
+    rel_path: str,
+    vault_dir: str = VAULT_DIR,
+    proj_stat: Optional[Dict[str, Any]] = None,
+    cache_entry: Optional[Dict[str, Any]] = None,
+    project_tags: Optional[Iterable[str]] = None,
+    archive_tags: Optional[Iterable[str]] = None,
+) -> bool:
+    """
+    Règle unique d'éligibilité canonique d'un projet actif :
+    1. Un fichier .md existant sur le disque.
+    2. Hors dossiers système (_agents, voicenotes, souvenirs, administratif, advance).
+    3. Non archivé (pas de tag #done/#projet-fini/#archive, pas de status: done/archived/abandoned,
+       pas de currentScore == 0 ni last_action == 'finished').
+    4. Éligible si :
+       - possède un projectTag (ex: #todo, #project, #projet)
+       - OU type: project / type: projet dans le frontmatter
+       - OU déjà suivi dans data.json["stats"]["projects"] avec un score évalué (totalReviews > 0, currentScore > 0, non finished).
+    """
+    if not rel_path:
+        return False
+
+    norm_rel = rel_path.replace("\\", "/").strip().lstrip("/")
+    lower_rel = norm_rel.lower()
+
+    if lower_rel == DASHBOARD_FILENAME.lower() or os.path.basename(lower_rel) == DASHBOARD_FILENAME.lower():
+        return False
+
+    # 2. Hors dossiers système
+    system_excluded = ("_agents/", "voicenotes/", "souvenirs/", "administratif/", "advance/", ".advance_tldr/", ".obsidian/", ".git/", ".trash/")
+    if any(lower_rel.startswith(p) or ("/" + p) in lower_rel for p in system_excluded):
+        return False
+
+    abs_path = os.path.join(vault_dir, norm_rel.replace("/", os.sep))
+    if not os.path.exists(abs_path):
+        return False
+
+    # Extraction des métadonnées (cache ou direct)
+    if cache_entry and "tags" in cache_entry and "status" in cache_entry:
+        tags = set(cache_entry.get("tags", []))
+        type_val = str(cache_entry.get("type", "")).strip().lower()
+        status_val = str(cache_entry.get("status", "")).strip().lower()
+    else:
+        fm, tags_set, _, _ = parse_markdown_file(abs_path, parse_checkboxes=False)
+        tags = tags_set
+        type_val = str(fm.get("type", "")).strip().lower()
+        status_val = str(fm.get("status", "")).strip().lower()
+
+    if type_val in ("autonomous-tldr", "autonomous-log"):
+        return False
+
+    # 3. Vérification de non-archivage
+    if status_val in ARCHIVED_STATUSES:
+        return False
+
+    done_tags_set = set(DEFAULT_ARCHIVE_TAGS)
+    if archive_tags:
+        for at in archive_tags:
+            done_tags_set.add(at.strip().lstrip("#").lower())
+
+    has_archive_tag = any(at in tags or any(t.startswith(at + "/") for t in tags) for at in done_tags_set)
+    if has_archive_tag:
+        return False
+
+    total_reviews = 0
+    raw_score = None
+    last_action = ""
+    if proj_stat:
+        total_reviews = int(proj_stat.get("totalReviews", 0))
+        raw_score = proj_stat.get("currentScore")
+        history = proj_stat.get("reviewHistory", [])
+        last_action = history[-1].get("action") if history else ""
+        if (raw_score is not None and float(raw_score) == 0) or last_action == "finished":
+            return False
+
+    # 4. Éligibilité active
+    proj_tags_set = set(DEFAULT_PROJECT_TAGS)
+    if project_tags:
+        for pt in project_tags:
+            proj_tags_set.add(pt.strip().lstrip("#").lower())
+
+    has_project_tag = any(pt in tags or any(t.startswith(pt + "/") for t in tags) for pt in proj_tags_set)
+    is_type_project = type_val in ("project", "projet")
+    is_tracked_active = bool(
+        proj_stat and total_reviews > 0 and raw_score is not None and float(raw_score) > 0 and last_action != "finished"
+    )
+
+    return bool(has_project_tag or is_type_project or is_tracked_active)
+
+
 def sync_vault_cache(vault_dir=VAULT_DIR, cache_path=CACHE_PATH, fast_mode=False):
     """
     Synchronizes the fast metadata cache with disk state using incremental mtime checks.
@@ -1278,9 +1431,7 @@ def sync_vault_cache(vault_dir=VAULT_DIR, cache_path=CACHE_PATH, fast_mode=False
     for root, dirs, files in os.walk(vault_dir):
         dirs[:] = [d for d in dirs if not d.startswith(".") and d.lower() not in EXCLUDED_DIRS]
         for f in files:
-            if f.endswith(".md") and f.lower() not in SYSTEM_FILES:
-                if f.startswith("🤖 ") or f.startswith("🤖 Avancées Autonomes") or f.startswith("🤖 Journal Autonome"):
-                    continue
+            if f.endswith(".md") and f.lower() not in SYSTEM_FILES and f.lower() != DASHBOARD_FILENAME.lower():
                 abs_p = os.path.join(root, f)
                 rel_p = os.path.relpath(abs_p, vault_dir).replace("\\", "/")
                 try:
@@ -1289,7 +1440,7 @@ def sync_vault_cache(vault_dir=VAULT_DIR, cache_path=CACHE_PATH, fast_mode=False
                     continue
 
                 cached = cache.get(rel_p)
-                if not cached or cached.get("mtime") != mt or "milestone" not in cached or "agent_only" not in cached:
+                if not cached or cached.get("mtime") != mt or "milestone" not in cached or "agent_only" not in cached or "status" not in cached:
                     fm, tags, _, _ = parse_markdown_file(abs_p, parse_checkboxes=False)
                     type_val = str(fm.get("type", "")).lower()
                     if type_val in ("autonomous-tldr", "autonomous-log"):
@@ -1297,13 +1448,15 @@ def sync_vault_cache(vault_dir=VAULT_DIR, cache_path=CACHE_PATH, fast_mode=False
                     deadline = str(fm.get("deadline") or fm.get("due") or "")
                     m_val = fm.get("milestone") or fm.get("milestones") or fm.get("jalon") or ""
                     milestone = ", ".join(m_val) if isinstance(m_val, list) else str(m_val)
+                    status_val = str(fm.get("status", "")).strip().lower()
                     cache[rel_p] = {
                         "mtime": mt,
                         "tags": list(tags),
                         "deadline": deadline,
                         "milestone": str(milestone),
                         "agent_only": bool(fm.get("agent_only", False)),
-                        "type": type_val
+                        "type": type_val,
+                        "status": status_val
                     }
                     cache_dirty = True
                 valid_paths.add(rel_p)
@@ -1600,6 +1753,59 @@ def compute_agent_project_scores(
     return agent_scores, agent_reviews
 
 
+def get_base_score_trend_arrow(proj_stat: dict, current_base_score: Optional[float]) -> str:
+    """
+    Détermine la flèche d'évolution de la priorité de base (baseScore) :
+    - 🟢 ↑ : augmentation de la priorité (> 0.01)
+    - 🔴 ↓ : diminution de la priorité (< -0.01)
+    - ➖ : maintien ou absence de variation significative
+    """
+    if current_base_score is None:
+        return ""
+
+    prev_score = None
+    prev_base = proj_stat.get("previousBaseScore")
+    if prev_base is not None:
+        try:
+            prev_base_f = float(prev_base)
+            if abs(current_base_score - prev_base_f) > 1e-4:
+                prev_score = prev_base_f
+        except (ValueError, TypeError):
+            pass
+
+    if prev_score is None:
+        history = proj_stat.get("reviewHistory") or []
+        if history:
+            for entry in reversed(history):
+                sa = entry.get("scoreAfter")
+                if sa is not None:
+                    try:
+                        sa_f = float(sa)
+                        if abs(current_base_score - sa_f) > 1e-4:
+                            prev_score = sa_f
+                            break
+                    except (ValueError, TypeError):
+                        pass
+            if prev_score is None:
+                last_action = history[-1].get("action") if history else None
+                if last_action in ("more-often", "emergency"):
+                    return "🟢 ↑"
+                elif last_action == "less-often":
+                    return "🔴 ↓"
+                else:
+                    return "➖"
+        else:
+            return "➖"
+
+    diff = current_base_score - prev_score
+    if diff > 0.01:
+        return "🟢 ↑"
+    elif diff < -0.01:
+        return "🔴 ↓"
+    else:
+        return "➖"
+
+
 def calculate_and_persist_effective_scores(
     data: Dict[str, Any],
     vault_dir: str = VAULT_DIR,
@@ -1628,11 +1834,23 @@ def calculate_and_persist_effective_scores(
     rf = float(settings.get("rapprochementFactor") or settings.get("rapprochmentFactor") or 0.2)
     recency_weight = float(settings.get("recencyPenaltyWeight", 0.5))
 
+    raw_tags = settings.get("projectTags", "todo, project")
+    project_tags = [t.strip().lstrip("#").lower() for t in raw_tags.split(",") if t.strip()]
+    archive_tag = settings.get("archiveTag", "done").strip().lstrip("#").lower()
+    done_tags = {"done", "projet-fini", archive_tag}
+
     results = {}
 
     for rel_path, proj_stat in stats_projects.items():
         norm_rel = rel_path.replace("\\", "/")
         cached = cache.get(norm_rel) if cache else None
+
+        if not is_eligible_project(norm_rel, vault_dir=vault_dir, proj_stat=proj_stat, cache_entry=cached, project_tags=project_tags, archive_tags=done_tags):
+            if proj_stat.get("rotationBonus"):
+                proj_stat["rotationBonus"] = 0.0
+            if proj_stat.get("effectiveScore"):
+                proj_stat["effectiveScore"] = 0.0
+            continue
 
         is_agent_only = False
         if cached and "milestone" in cached:
@@ -1740,12 +1958,10 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
 
     # 1. Projects from data.json
     for rel_path, proj_stat in stats_projects.items():
-        if rel_path.lower().startswith("advance/") or rel_path.lower().startswith("advance\\"):
+        if rel_path.lower().startswith("advance/") or rel_path.lower().startswith("advance\\") or rel_path.lower().startswith(".advance_tldr/") or rel_path.lower().startswith(".advance_tldr\\"):
             continue
-        fn = os.path.basename(rel_path)
-        if fn.startswith("🤖 ") or fn.startswith("🤖 Avancées Autonomes") or fn.startswith("🤖 Journal Autonome"):
+        if rel_path.lower() == DASHBOARD_FILENAME.lower() or os.path.basename(rel_path).lower() == DASHBOARD_FILENAME.lower():
             continue
-
         abs_path = os.path.join(vault_dir, rel_path.replace("/", os.sep))
         norm_rel = rel_path.replace("\\", "/")
 
@@ -1772,10 +1988,7 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
         # agent_only supprimé : tous les projets (y compris Dream) apparaissent pour l'humain
         pass
 
-        has_project_tag = any(pt in tags or any(t.startswith(pt + "/") for t in tags) for pt in project_tags)
-        has_archive_tag = any(at in tags or any(t.startswith(at + "/") for t in tags) for at in done_tags)
-
-        if not has_project_tag or has_archive_tag:
+        if not is_eligible_project(norm_rel, vault_dir=vault_dir, proj_stat=proj_stat, cache_entry=cached, project_tags=project_tags, archive_tags=done_tags):
             continue
 
         total_reviews = int(proj_stat.get("totalReviews", 0))
@@ -1856,6 +2069,7 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
             "rel_path": norm_rel,
             "title": title,
             "base_score": active_scores["base_score"],
+            "trend_arrow": get_base_score_trend_arrow(proj_stat, scores["base_score"]),
             "rotation_bonus": active_scores["rotation_bonus"],
             "deadline_urgency": active_scores["deadline_urgency"],
             "milestone_urgency": active_scores["milestone_urgency"],
@@ -1890,21 +2104,16 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
     for rel_p, cached in cache.items():
         if rel_p in known_paths:
             continue
-        if rel_p.lower().startswith("advance/") or rel_p.lower().startswith("advance\\"):
+        if rel_p.lower().startswith("advance/") or rel_p.lower().startswith("advance\\") or rel_p.lower().startswith(".advance_tldr/") or rel_p.lower().startswith(".advance_tldr\\"):
             continue
-        fn = os.path.basename(rel_p)
-        if fn.startswith("🤖 ") or fn.startswith("🤖 Avancées Autonomes") or fn.startswith("🤖 Journal Autonome"):
+        if rel_p.lower() == DASHBOARD_FILENAME.lower() or os.path.basename(rel_p).lower() == DASHBOARD_FILENAME.lower():
             continue
         if cached.get("type") in ("autonomous-tldr", "autonomous-log"):
             continue
         # agent_only supprimé : tous les projets apparaissent pour l'humain
         pass
 
-        tags = set(cached.get("tags", []))
-        has_project_tag = any(pt in tags or any(t.startswith(pt + "/") for t in tags) for pt in project_tags)
-        has_archive_tag = any(at in tags or any(t.startswith(at + "/") for t in tags) for at in done_tags)
-
-        if has_project_tag and not has_archive_tag:
+        if is_eligible_project(rel_p, vault_dir=vault_dir, cache_entry=cached, project_tags=project_tags, archive_tags=done_tags):
             abs_p = os.path.join(vault_dir, rel_p.replace("/", os.sep))
             title = os.path.splitext(os.path.basename(rel_p))[0]
             deadline_str = cached.get("deadline", "")
@@ -1914,6 +2123,7 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
                 "rel_path": rel_p,
                 "title": title,
                 "base_score": None,
+                "trend_arrow": "",
                 "rotation_bonus": 0.0,
                 "deadline_urgency": 0.0,
                 "milestone_urgency": 0.0,
@@ -1985,6 +2195,50 @@ def _rewrite_paths_for_current_pc(text: str) -> str:
     """
     if not text:
         return text
+
+    # 0. Rewrite brain artifact URLs and local paths to <temp>/aivc/artifacts/<subpath>
+    # Pre-step: repair any corrupted 'file:///e:///...' and 'filC:\...'
+    text = re.sub(r"file://+(?:e://+)+", "file:///", text, flags=re.IGNORECASE)
+    text = re.sub(
+        r"(file://+[A-Za-z]:[^\s\[\]\(\)\"\'\`<>]+)",
+        lambda m: m.group(1).replace("\\", "/"),
+        text,
+    )
+    text = re.sub(
+        r"(?<![A-Za-z0-9_])fil(?![eE]://)([A-Za-z]:[\\/](?![\\/])[^\s\[\]\(\)\"\'\`<>]+)",
+        lambda m: f"file:///{m.group(1).replace(chr(92), '/')}",
+        text,
+    )
+    try:
+        from aivc.advance_sync import rewrite_brain_paths_to_temp_artifacts
+        text = rewrite_brain_paths_to_temp_artifacts(text, temp_dir=AIVC_TEMP_DIR)
+    except Exception:
+        artifacts_posix = AIVC_ARTIFACTS_DIR.as_posix().replace("\\", "/").lstrip("/")
+        url_pattern = re.compile(
+            r"file://+(?:[A-Za-z]:)?[^\s\[\]\(\)\"\'\`<>]*?(?:\.?gemini[\\/]antigravity(?:-cli)?[\\/]brain|aivc[\\/]artifacts)[\\/]([^\s\[\]\(\)\"\'\`<>:]+)",
+            re.IGNORECASE,
+        )
+        def _replace_url(m):
+            raw_sub = m.group(1).replace("\\", "/").strip("/")
+            return f"file:///{artifacts_posix}/{raw_sub}"
+        text = url_pattern.sub(_replace_url, text)
+
+        local_pattern = re.compile(
+            r"(?<![A-Za-z0-9_:/])(?<!file://)(?<!file:///)(?:[A-Za-z]:[\\/]|/(?:Users|home)[\\/]|~[\\/])[^\s\[\]\(\)\"\'\`<>]*?(?:\.?gemini[\\/]antigravity(?:-cli)?[\\/]brain|aivc[\\/]artifacts)[\\/]([^\s\[\]\(\)\"\'\`<>:]+)",
+            re.IGNORECASE,
+        )
+        def _replace_local(m):
+            raw_sub = m.group(1)
+            suffix = ""
+            line_m = re.search(r"(:L?\d+(?:-L?\d+)?)$", raw_sub)
+            if line_m:
+                suffix = line_m.group(1)
+                raw_sub = raw_sub[:-len(suffix)]
+            sub_clean = raw_sub.replace("/", "\\").strip("\\")
+            native_path = str(AIVC_ARTIFACTS_DIR / Path(sub_clean))
+            return native_path + suffix
+        text = local_pattern.sub(_replace_local, text)
+
     home_path = Path.home()
     home_fwd = str(home_path).replace("\\", "/").rstrip("/") + "/"
     home_back = str(home_path).replace("/", "\\").rstrip("\\") + "\\"
@@ -1999,7 +2253,7 @@ def _rewrite_paths_for_current_pc(text: str) -> str:
 
     # 1. file:/// or file:// URLs -> forward slashes
     text = re.sub(
-        r"(file:///?)[A-Za-z]:/Users/(?:Jamet|hjamet)/",
+        r"(file://+)[A-Za-z]:/Users/(?:Jamet|hjamet)/",
         lambda m: f"{m.group(1)}{home_fwd}",
         text,
         flags=re.IGNORECASE
@@ -2007,7 +2261,7 @@ def _rewrite_paths_for_current_pc(text: str) -> str:
 
     # 2. Windows paths with backslashes outside URLs
     text = re.sub(
-        r"[A-Za-z]:\\Users\\(?:Jamet|hjamet)\\",
+        r"(?<![A-Za-z0-9_:/])(?<!file://)(?<!file:///)[A-Za-z]:\\Users\\(?:Jamet|hjamet)\\",
         lambda m: home_back,
         text,
         flags=re.IGNORECASE
@@ -2015,10 +2269,17 @@ def _rewrite_paths_for_current_pc(text: str) -> str:
 
     # 3. Windows paths with forward slashes outside file:/// URLs
     text = re.sub(
-        r"(?<!file://)(?<!file:///)[A-Za-z]:/Users/(?:Jamet|hjamet)/",
+        r"(?<![A-Za-z0-9_:/])(?<!file://)(?<!file:///)[A-Za-z]:/Users/(?:Jamet|hjamet)/",
         lambda m: home_back,
         text,
         flags=re.IGNORECASE
+    )
+
+    # Final URL safety: ensure no file:/// URL retains backslashes
+    text = re.sub(
+        r"(file://+[A-Za-z]:[^\s\[\]\(\)\"\'\`<>]+)",
+        lambda m: m.group(1).replace("\\", "/"),
+        text,
     )
 
     # 4. Final safety guard: ensure no Users\<user>.gemini or Users/<user>.gemini without separator
@@ -2100,9 +2361,7 @@ def _get_aivc_memories() -> List[Tuple[Any, Dict[str, Any]]]:
                             item_data = {
                                 "id": raw_data.get("id"),
                                 "timestamp": raw_data.get("timestamp"),
-                                "changes": raw_data.get("changes", []),
-                                "read_files": raw_data.get("read_files", []),
-                                "edited_files": raw_data.get("edited_files", []),
+                                "main_project_file": raw_data.get("main_project_file", ""),
                                 "user_items": user_items,
                             }
                             cache[key] = {"mtime": mtime, "data": item_data}
@@ -2235,7 +2494,25 @@ def _auto_restore_aivc_blobs_for_active_items(
             sqlite_conn = None
 
     try:
-        def _try_restore(local_path: Path, blob_hash: Optional[str] = None, filename: Optional[str] = None) -> bool:
+        def _extract_artifact_subpath(raw: str) -> Optional[str]:
+            if not raw:
+                return None
+            s = str(raw).strip().replace("\\", "/")
+            if s.startswith("file:///"):
+                s = s[8:]
+            elif s.startswith("file://"):
+                s = s[7:]
+            if ":L" in s or re.search(r":\d+", s):
+                s = re.split(r":L?\d+", s)[0]
+            s = s.rstrip(").,'\"`>")
+            for marker in ("aivc/artifacts/", ".gemini/antigravity-cli/brain/", ".gemini/antigravity/brain/"):
+                idx = s.lower().find(marker)
+                if idx != -1:
+                    rel = s[idx + len(marker):].strip().strip("/")
+                    return rel if rel else None
+            return None
+
+        def _try_restore(local_path: Path, blob_hash: Optional[str] = None, filename: Optional[str] = None, subpath: Optional[str] = None) -> bool:
             global _AIVC_REMOTE_SYNC_DISABLED, _AIVC_REMOTE_BRAIN_INDEX
             local_path = _normalize_local_path(local_path)
             if local_path.is_file():
@@ -2278,19 +2555,27 @@ def _auto_restore_aivc_blobs_for_active_items(
                 except OSError:
                     pass
 
-            # 3. Fallback: rclone copyto from Google Drive if allowed, not tripped, and under brain
+            # 3. Fallback: rclone copyto from Google Drive if allowed, not tripped, and under brain/artifacts
             if not allow_remote or _AIVC_REMOTE_SYNC_DISABLED:
                 return False
 
             norm_str = str(local_path).replace("\\", "/")
             match = re.search(
-                r"\.?gemini/antigravity/brain/([a-f0-9\-]+)/([^/]+)$",
+                r"(?:\.?gemini/antigravity(?:-cli)?/brain|aivc/artifacts)/([a-f0-9\-]+)/([^/]+)$",
                 norm_str,
                 re.IGNORECASE,
             )
+            conv_id = None
+            fn = None
             if match:
                 conv_id = match.group(1)
                 fn = match.group(2)
+            elif subpath and "/" in subpath:
+                parts = subpath.split("/")
+                conv_id = parts[0]
+                fn = parts[-1]
+
+            if conv_id and fn:
                 gdrive_path = f"gdrive:AIVC_Sync/files/.gemini/antigravity/brain/{conv_id}/{fn}"
                 missing_cache = _get_remote_missing_cache(storage_root)
                 if gdrive_path in missing_cache:
@@ -2349,30 +2634,83 @@ def _auto_restore_aivc_blobs_for_active_items(
 
             return False
 
+        def _materialize_artifact(subpath: str, blob_hash: Optional[str] = None, filename: Optional[str] = None) -> bool:
+            if not subpath:
+                return False
+            sub_clean = subpath.replace("\\", "/").strip("/")
+            if re.match(r"^[a-zA-Z]:", sub_clean):
+                parts = sub_clean.split("/", 2)
+                sub_clean = parts[-1] if len(parts) > 1 else sub_clean
+
+            artifact_target = AIVC_ARTIFACTS_DIR / Path(sub_clean)
+            if artifact_target.is_file():
+                return True
+
+            # 1. Check local source in ~/.gemini/antigravity/brain/ or ~/.gemini/antigravity-cli/brain/
+            for candidate_root in [
+                Path.home() / ".gemini" / "antigravity" / "brain",
+                Path.home() / ".gemini" / "antigravity-cli" / "brain",
+            ]:
+                cand_src = candidate_root / Path(sub_clean)
+                if cand_src.is_file():
+                    try:
+                        artifact_target.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(cand_src, artifact_target)
+                        restored.append(str(artifact_target))
+                        return True
+                    except OSError:
+                        pass
+                # 1b. If conv_id changed or file exists under another conversation locally
+                fn = artifact_target.name
+                if fn and candidate_root.is_dir():
+                    try:
+                        matches = list(candidate_root.glob(f"*/{fn}"))
+                        if not matches:
+                            matches = list(candidate_root.glob(f"*/scratch/{fn}"))
+                        if matches and matches[0].is_file():
+                            artifact_target.parent.mkdir(parents=True, exist_ok=True)
+                            shutil.copy2(matches[0], artifact_target)
+                            restored.append(str(artifact_target))
+                            return True
+                    except OSError:
+                        pass
+
+            # 2. Otherwise restore from BlobStore / SQLite / rclone directly into artifact_target
+            fn = filename or artifact_target.name
+            ok = _try_restore(artifact_target, blob_hash=blob_hash, filename=fn, subpath=sub_clean)
+            if ok:
+                try:
+                    local_brain = Path.home() / ".gemini" / "antigravity" / "brain" / Path(sub_clean)
+                    if not local_brain.is_file():
+                        local_brain.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(artifact_target, local_brain)
+                except OSError:
+                    pass
+            return ok
+
         # 1. Scan file_changes of linked memories
         for mem in mem_list:
             changes = mem.get("changes", [])
             for ch in changes:
-                p_str = ch.get("path", "") if isinstance(ch, dict) else str(ch)
+                p_str = getattr(ch, "path", None) if hasattr(ch, "path") else (ch.get("path", "") if isinstance(ch, dict) else str(ch))
                 if not p_str:
                     continue
-                if ".gemini" in p_str and "antigravity" in p_str and "brain" in p_str:
-                    local_p = _normalize_local_path(p_str)
-                    _try_restore(local_p, blob_hash=ch.get("blob_hash") if isinstance(ch, dict) else None, filename=local_p.name)
+                sub = _extract_artifact_subpath(p_str)
+                if sub:
+                    b_hash = ch.get("blob_hash") if isinstance(ch, dict) else getattr(ch, "blob_hash", None)
+                    _materialize_artifact(sub, blob_hash=b_hash, filename=Path(sub).name)
 
-        # 2. Scan details of active items for .gemini/antigravity/brain/<id>/<file>
-        brain_pattern = re.compile(
-            r"(?:file:///?(?:[A-Za-z]:)?[\\/]|~/|[A-Za-z]:[\\/])?\.?gemini[\\/]antigravity[\\/]brain[\\/]([a-f0-9\-]+)[\\/]([^\s\)\"\'<>`:]+)",
+        # 2. Scan details of active items for artifact paths (brain or aivc/artifacts)
+        artifact_pattern = re.compile(
+            r"(?:file:///?(?:[A-Za-z]:)?[\\/]|~/|[A-Za-z]:[\\/]|/)?(?:Users|home)?[^\"\'\`\s\)\>]*?(?:\.?gemini[\\/]antigravity(?:-cli)?[\\/]brain|aivc[\\/]artifacts)[\\/]([^\s\)\"\'<>`:]+)",
             re.IGNORECASE
         )
         for it in active_items:
             details = it.get("details", "")
-            for match in brain_pattern.finditer(details):
-                conv_id = match.group(1)
-                raw_fn = match.group(2).rstrip("\\/.,")
-                local_p = Path.home() / ".gemini" / "antigravity" / "brain" / conv_id / raw_fn
-                local_p = _normalize_local_path(local_p)
-                _try_restore(local_p, filename=raw_fn)
+            for match in artifact_pattern.finditer(details):
+                raw_match = match.group(1).rstrip("\\/.,")
+                sub = _extract_artifact_subpath(raw_match) or raw_match
+                _materialize_artifact(sub, filename=Path(sub).name)
 
     finally:
         _record_remote_missing_blob(storage_root, "", flush=True)
@@ -2624,7 +2962,7 @@ def _extract_project_roadmap(
                 if sf and os.path.isfile(sf) and "commits" in sf:
                     all_paths = set()
                     for c in mem.get("changes", []):
-                        p = c.get("path") if isinstance(c, dict) else str(c)
+                        p = getattr(c, "path", None) if hasattr(c, "path") else (c.get("path") if isinstance(c, dict) else str(c))
                         if p:
                             all_paths.add(_to_portable_path(p).lower())
                     for p in mem.get("read_files", []):
@@ -2661,6 +2999,7 @@ def _extract_project_roadmap(
                 "parent_id": "",
                 "machine_id": os.environ.get("COMPUTERNAME", ""),
                 "urls": [],
+                "main_project_file": target_portable or _to_portable_path(note_path),
                 "changes": [
                     {
                         "path": target_portable or _to_portable_path(note_path),
@@ -2726,6 +3065,21 @@ def _extract_project_roadmap(
     return roadmap_lines
 
 
+def _extract_project_notes_from_mem(mem: Dict[str, Any]) -> List[str]:
+    """Extrait les chemins portables des notes de projet mentionnées dans un commit/mémoire AIVC."""
+    mpf = mem.get("main_project_file") if isinstance(mem, dict) else getattr(mem, "main_project_file", "")
+    if not mpf:
+        return []
+    port = _to_portable_path(mpf)
+    port_lower = port.lower()
+    if port_lower.endswith(".md"):
+        if not any(ex in port_lower for ex in ("_agents/", ".obsidian/", ".gemini/", ".claude/", "brain/", ".git/")):
+            fname = os.path.basename(port_lower)
+            if fname not in SYSTEM_FILES and fname not in ("home.md", "morning_sync_state.json"):
+                return [port]
+    return []
+
+
 def _sync_and_render_aivc_tldr(
     vault_root: str,
     rel_path: str,
@@ -2748,30 +3102,8 @@ def _sync_and_render_aivc_tldr(
     project_mems: List[Dict[str, Any]] = []
 
     for _ts, mem in memories:
-        concerns = False
-
-        # 1. changes
-        for c in mem.get("changes", []):
-            p = c.get("path") if isinstance(c, dict) else str(c)
-            if p and _to_portable_path(p).lower() == target_lower:
-                concerns = True
-                break
-
-        # 2. edited_files
-        if not concerns:
-            for p in mem.get("edited_files", []):
-                p_str = p.get("path") if isinstance(p, dict) else str(p)
-                if p_str and _to_portable_path(p_str).lower() == target_lower:
-                    concerns = True
-                    break
-
-        # 3. read_files
-        if not concerns:
-            for p in mem.get("read_files", []):
-                p_str = p.get("path") if isinstance(p, dict) else str(p)
-                if p_str and _to_portable_path(p_str).lower() == target_lower:
-                    concerns = True
-                    break
+        mpf = mem.get("main_project_file") if isinstance(mem, dict) else getattr(mem, "main_project_file", "")
+        concerns = bool(mpf and _to_portable_path(mpf).lower() == target_lower)
 
         if concerns:
             project_mems.append(mem)
@@ -2806,13 +3138,16 @@ def _sync_and_render_aivc_tldr(
     n_deliverables = len(deliverable_items)
 
     advance_dir = ADVANCE_TLDR_DIR
-    tldr_adv = os.path.join(advance_dir, f"🤖 {title}.md")
-    old_tldr_adv = os.path.join(advance_dir, f"🤖 Avancées Autonomes {title}.md")
-    if os.path.exists(old_tldr_adv):
-        try:
-            os.remove(old_tldr_adv)
-        except OSError:
-            pass
+    clean_title = re.sub(r"^(?:🤖\s*)+", "", title).strip()
+    tldr_adv = os.path.join(advance_dir, f"🤖 {clean_title}.md")
+    old_tldr_adv = os.path.join(advance_dir, f"🤖 Avancées Autonomes {clean_title}.md")
+    double_tldr_adv = os.path.join(advance_dir, f"🤖 🤖 {clean_title}.md")
+    for old_candidate in (old_tldr_adv, double_tldr_adv):
+        if os.path.exists(old_candidate):
+            try:
+                os.remove(old_candidate)
+            except OSError:
+                pass
 
     # Auto-restore missing brain files from CAS blobs for active items (local-only fast path by default)
     if n_deliverables > 0:
@@ -2826,7 +3161,7 @@ def _sync_and_render_aivc_tldr(
         deliverable_items=deliverable_items,
         done_items=done_items,
         target_portable=target_portable,
-        title=title,
+        title=clean_title,
         project_mems=project_mems
     )
     n_roadmap = len(roadmap_tasks)
@@ -2836,7 +3171,7 @@ def _sync_and_render_aivc_tldr(
         abs_note_forward = os.path.abspath(target_full).replace("\\", "/")
 
         sections = [
-            f"# 🤖 {title}\n\n[📄 {title} (Note Maîtresse)](file:///{abs_note_forward})"
+            f"# 🤖 {clean_title}\n\n[📄 {clean_title} (Note Maîtresse)](file:///{abs_note_forward})"
         ]
 
         if n_deliverables > 0:
@@ -2868,6 +3203,12 @@ def _sync_and_render_aivc_tldr(
         if write_needed:
             with open(tldr_adv, "w", encoding="utf-8") as f:
                 f.write(doc)
+            try:
+                legacy_dir = Path.home() / ".gemini" / "antigravity" / "brain" / "advance_tldr"
+                if legacy_dir.is_dir():
+                    shutil.copy2(tldr_adv, legacy_dir / os.path.basename(tldr_adv))
+            except Exception:
+                pass
 
         return (tldr_adv, n_deliverables if n_deliverables > 0 else n_roadmap)
 
@@ -2878,13 +3219,79 @@ def _sync_and_render_aivc_tldr(
                 os.remove(tldr_adv)
             except OSError:
                 pass
+            try:
+                legacy_adv = Path.home() / ".gemini" / "antigravity" / "brain" / "advance_tldr" / os.path.basename(tldr_adv)
+                if legacy_adv.is_file():
+                    os.remove(legacy_adv)
+            except OSError:
+                pass
         if os.path.exists(old_tldr_adv):
             try:
                 os.remove(old_tldr_adv)
             except OSError:
                 pass
+            try:
+                legacy_old = Path.home() / ".gemini" / "antigravity" / "brain" / "advance_tldr" / os.path.basename(old_tldr_adv)
+                if legacy_old.is_file():
+                    os.remove(legacy_old)
+            except OSError:
+                pass
 
     return (None, 0)
+
+
+def sync_advance_tldr_for_memory(memory: Any, vault_dir: Optional[str] = None) -> List[str]:
+    """
+    Point d'entrée pour advance_sync.py d'AIVC : synchronise les fichiers advance_tldr
+    associés à une mémoire / commit AIVC.
+    """
+    v_root = vault_dir or VAULT_DIR
+    if isinstance(memory, dict):
+        mem_dict = memory
+    elif hasattr(memory, "to_dict"):
+        mem_dict = memory.to_dict()
+    else:
+        mem_dict = {
+            "id": getattr(memory, "id", ""),
+            "read_files": getattr(memory, "read_files", []),
+            "edited_files": getattr(memory, "edited_files", []),
+            "changes": getattr(memory, "changes", []),
+            "main_project_file": getattr(memory, "main_project_file", ""),
+            "user_items": getattr(memory, "user_items", []),
+        }
+
+    cand_notes = _extract_project_notes_from_mem(mem_dict)
+    if not cand_notes:
+        return []
+
+    target_notes = cand_notes
+
+    synced = []
+    for tn in target_notes:
+        tn_expanded = os.path.expanduser(tn)
+        if os.path.isabs(tn_expanded):
+            try:
+                rel_path = os.path.relpath(tn_expanded, v_root).replace("\\", "/")
+            except ValueError:
+                rel_path = os.path.basename(tn_expanded)
+        else:
+            rel_path = tn.replace("\\", "/")
+            if rel_path.startswith("Documents/VoiceNotes/"):
+                rel_path = rel_path[len("Documents/VoiceNotes/"):]
+            elif rel_path.startswith("~/Documents/VoiceNotes/"):
+                rel_path = rel_path[len("~/Documents/VoiceNotes/"):]
+
+        p_stem = Path(rel_path).stem
+        p_title = p_stem.lstrip("🤖").strip()
+        tldr_path, item_count = _sync_and_render_aivc_tldr(
+            vault_root=v_root,
+            rel_path=rel_path,
+            title=p_title
+        )
+        if tldr_path and os.path.exists(tldr_path):
+            synced.append(tldr_path)
+
+    return synced
 
 
 def enrich_project_auto_fields(p, vault_dir=VAULT_DIR):
@@ -2908,11 +3315,11 @@ def enrich_project_auto_fields(p, vault_dir=VAULT_DIR):
     )
 
     if tldr_path and item_count > 0:
-        abs_target = os.path.abspath(tldr_path)
-        target_forward = abs_target.replace("\\", "/")
+        target_path = os.path.abspath(tldr_path)
+        target_forward = target_path.replace("\\", "/").lstrip("/")
         auto_uri = f"file:///{target_forward}"
         auto_disp = f"[🤖 {item_count}]({auto_uri})"
-        p["auto_note_path"] = abs_target
+        p["auto_note_path"] = target_path
         p["auto_link"] = auto_uri
     else:
         auto_disp = "-"
@@ -2963,7 +3370,10 @@ def format_project_table(projects, verbose=False):
         lines.append("| Rank | Title | Score | Auto | Deadline | Milestone |")
         lines.append("| :---: | :--- | :---: | :---: | :---: | :---: |")
         for idx, (p, title_link, auto_disp) in enumerate(zip(projects, title_links, auto_disps), 1):
-            eff_str = f"{p['effective_score']:.2f}" if p['effective_score'] is not None else "N/A"
+            arrow = p.get('trend_arrow')
+            if not arrow and p.get('effective_score') is not None:
+                arrow = '➖'
+            eff_str = f"{p['effective_score']:.2f} {arrow}".strip() if p['effective_score'] is not None else "N/A"
 
             deadline_disp = p.get("deadline") or "N/A"
             if len(deadline_disp) > 10:
@@ -2978,6 +3388,60 @@ def format_project_table(projects, verbose=False):
     return "\n".join(lines)
 
 
+def write_root_dashboard(vault_dir=VAULT_DIR, data=None, projects=None) -> str:
+    """
+    Construit et écrit le tableau de bord Markdown épuré 🎯 Projets.md
+    à la racine du coffre Obsidian.
+    """
+    if data is None:
+        data = load_data(os.path.join(vault_dir, ".obsidian", "plugins", "project-memory", "data.json"))
+
+    if projects is None:
+        projects = scan_projects(vault_dir, data, fast_mode=True, persist=False, is_agent=False)
+
+    unreviewed = [p for p in projects if p.get("total_reviews", 0) == 0]
+    reviewed = [p for p in projects if p.get("total_reviews", 0) > 0]
+
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+    n_rev = len(reviewed)
+    n_unrev = len(unreviewed)
+    active_summary = f"{n_rev} révisés" + (f", {n_unrev} non révisés" if n_unrev > 0 else "")
+
+    lines = [
+        "# 🎯 Tableau de Bord des Projets",
+        "",
+        f"> 🔄 **Dernière mise à jour** : {now_str} · **Projets actifs** : {active_summary}",
+        ""
+    ]
+
+    if unreviewed:
+        lines.append("## 🆕 Projets non révisés")
+        lines.append("")
+        lines.append(format_project_table(unreviewed, verbose=False))
+        lines.append("")
+
+    if reviewed:
+        lines.append(format_project_table(reviewed, verbose=False))
+        lines.append("")
+
+    dashboard_file = os.path.join(vault_dir, DASHBOARD_FILENAME)
+    temp_file = dashboard_file + ".tmp"
+    with open(temp_file, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines).strip() + "\n")
+    os.replace(temp_file, dashboard_file)
+    return dashboard_file
+
+
+def cmd_dashboard(args, data):
+    projects = scan_projects(VAULT_DIR, data, fast_mode=False, persist=True, is_agent=False)
+    target_path = write_root_dashboard(vault_dir=VAULT_DIR, data=data, projects=projects)
+    active_count = len([p for p in projects if p.get("total_reviews", 0) > 0])
+    if getattr(args, "json", False):
+        print(json.dumps({"status": "ok", "path": target_path, "active_projects": active_count}))
+    else:
+        print(f"✅ Tableau de bord mis à jour : {target_path} ({active_count} projets actifs)")
+
+
 def clean_orphans(vault_dir=VAULT_DIR, data_path=DATA_JSON_PATH, cache_path=CACHE_PATH, dry_run=False):
     """
     Scans stats.projects in data.json and removes orphaned entries whose files no longer exist on disk.
@@ -2987,6 +3451,8 @@ def clean_orphans(vault_dir=VAULT_DIR, data_path=DATA_JSON_PATH, cache_path=CACH
     orphans = []
 
     for rel_path in list(stats_projects.keys()):
+        if rel_path.lower() == DASHBOARD_FILENAME.lower() or os.path.basename(rel_path).lower() == DASHBOARD_FILENAME.lower() or rel_path.lower().startswith(".advance_tldr"):
+            continue
         abs_p = os.path.join(vault_dir, rel_path.replace("/", os.sep).replace("\\", os.sep))
         if not os.path.exists(abs_p) or not os.path.isfile(abs_p):
             orphans.append(rel_path)
@@ -3043,6 +3509,12 @@ def cmd_clean_orphans(args, data_path=DATA_JSON_PATH, cache_path=CACHE_PATH):
                 print(f"  - {o}")
             if not dry_run:
                 print(f"💾 Backup de sécurité créé : {data_path}.bak_clean_orphans")
+
+    if not dry_run:
+        try:
+            write_root_dashboard(vault_dir=VAULT_DIR)
+        except Exception:
+            pass
 
 
 def cmd_list(args, data):
@@ -3118,6 +3590,12 @@ def cmd_list(args, data):
             print()
             print(f"=== {role_label}🔥 Top Urgent Reviewed Projects ({len(reviewed)} active projects, showing {len(reviewed_disp)}) ===")
             print(format_project_table(reviewed_disp, verbose=verbose) if reviewed_disp else "  (No reviewed projects)")
+
+    if not is_agent_mode:
+        try:
+            write_root_dashboard(vault_dir=VAULT_DIR, data=data, projects=projects)
+        except Exception:
+            pass
 
 
 def cmd_get(args, data):
@@ -3254,16 +3732,17 @@ def cmd_get(args, data):
             title=proj_info.get("title", ""),
             sessions_since_human=n_auto
         )
-        tldr_adv = os.path.join(ADVANCE_TLDR_DIR, f"🤖 {proj_info['title']}.md")
-        old_adv = os.path.join(ADVANCE_TLDR_DIR, f"🤖 Avancées Autonomes {proj_info['title']}.md")
-        tldr_notes = os.path.join(VAULT_DIR, "notes", f"🤖 {proj_info['title']}.md")
+        clean_proj_title = re.sub(r"^(?:🤖\s*)+", "", proj_info['title']).strip()
+        tldr_adv = os.path.join(ADVANCE_TLDR_DIR, f"🤖 {clean_proj_title}.md")
+        old_adv = os.path.join(ADVANCE_TLDR_DIR, f"🤖 Avancées Autonomes {clean_proj_title}.md")
+        tldr_notes = os.path.join(VAULT_DIR, "notes", f"🤖 {clean_proj_title}.md")
         tldr_note = tldr_sync if tldr_sync and os.path.exists(tldr_sync) else (tldr_adv if os.path.exists(tldr_adv) else (old_adv if os.path.exists(old_adv) else tldr_notes))
 
-        log_matches = glob.glob(os.path.join(ADVANCE_TLDR_DIR, f"🤖 Journal Autonome {proj_info['title']}.md"))
+        log_matches = glob.glob(os.path.join(ADVANCE_TLDR_DIR, f"🤖 Journal Autonome {clean_proj_title}.md*"))
         if log_matches:
             log_note = log_matches[0]
         else:
-            log_notes = os.path.join(VAULT_DIR, "notes", f"🤖 Journal Autonome {proj_info['title']}.md")
+            log_notes = os.path.join(VAULT_DIR, "notes", f"🤖 Journal Autonome {clean_proj_title}.md")
             log_note = log_notes
 
         tldr_status = "Existe" if os.path.exists(tldr_note) else "Absente"
@@ -3773,11 +4252,17 @@ def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_
             agent_obj["rotationBonus"] = 0.0
     else:
         # Action humaine d'Henri
+        old_base = proj.get("baseScore", proj.get("currentScore"))
         total_reviews = int(proj.get("totalReviews", 0))
         raw_score = proj.get("currentScore")
         current_score = float(raw_score) if (total_reviews > 0 and raw_score is not None) else None
 
         new_score = compute_feedback_score(current_score, action, rf)
+        if act == "ok":
+            proj["previousBaseScore"] = round(float(new_score), 2)
+        elif old_base is not None and abs(float(new_score) - float(old_base)) > 1e-4:
+            proj["previousBaseScore"] = round(float(old_base), 2)
+
         proj["currentScore"] = new_score
         proj["baseScore"] = new_score
         proj["lastReviewDate"] = now_iso
@@ -3892,6 +4377,10 @@ def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_
         pass
 
     save_data(data, data_path)
+    try:
+        write_root_dashboard(vault_dir=VAULT_DIR, data=data)
+    except Exception:
+        pass
     role_tag = " [Agent]" if is_agent else ""
     if worked:
         print(f"Feedback{role_tag} (work session) saved for '{matched_key}': action='{act}', new_score={new_score:.2f} (durée: {elapsed_minutes:.1f} min / cible: {target_minutes:.1f} min, ratio: {ratio:.2f})")
@@ -4330,6 +4819,11 @@ def _stop_and_record_session(s: Dict[str, Any], manual_elapsed: Optional[float],
             print(f"🎯 Score effectif mis à jour : {eff_disp} [Malus temporel proportionnel : {malus_disp}]", flush=True)
         print("============================================================", flush=True)
         print_end_of_session_reminders(title, is_interrupted=True)
+
+    try:
+        write_root_dashboard(vault_dir=VAULT_DIR, data=data)
+    except Exception:
+        pass
 
     return out
 
@@ -4982,8 +5476,6 @@ def cmd_migrate_checkboxes(args, data) -> None:
         candidate_files.extend(list(notes_dir.glob("*.md")))
 
     for f in vault_dir.glob("*.md"):
-        if f.name.startswith("🤖"):
-            continue
         candidate_files.append(f)
 
     # Récupérer les items AIVC existants via _get_aivc_memories()
@@ -5013,7 +5505,7 @@ def cmd_migrate_checkboxes(args, data) -> None:
 
     for md_file in sorted(candidate_files):
         rel_p = str(md_file.relative_to(vault_dir)).replace("\\", "/")
-        if rel_p.lower().startswith("advance/") or md_file.name.startswith("🤖"):
+        if rel_p.lower().startswith("advance/"):
             continue
 
         try:
@@ -5236,6 +5728,10 @@ def main():
     mig_parser.add_argument("--vault-dir", type=str, default=None, help="Chemin alternatif du coffre Obsidian")
     mig_parser.add_argument("--report", type=str, default=None, help="Chemin alternatif du rapport Markdown de sortie")
 
+    # dashboard
+    dash_parser = subparsers.add_parser("dashboard", help="Recalcule les scores utilisateur et régénère le tableau de bord 🎯 Projets.md")
+    dash_parser.add_argument("--json", action="store_true", help="Sortie au format JSON")
+
     args = parser.parse_args()
 
     if not args.command:
@@ -5246,6 +5742,8 @@ def main():
 
     if args.command in ("list", "priority", "top", "scan", "scores", "update-scores"):
         cmd_list(args, data)
+    elif args.command == "dashboard":
+        cmd_dashboard(args, data)
     elif args.command == "clean-orphans":
         cmd_clean_orphans(args, DATA_JSON_PATH, CACHE_PATH)
     elif args.command == "get":
