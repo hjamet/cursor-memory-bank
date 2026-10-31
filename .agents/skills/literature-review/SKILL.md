@@ -14,7 +14,7 @@ Ce skill unifié orchestre l'intégralité du cycle de vie de la recherche bibli
 
 > [!CAUTION]
 > **Interdiction Absolue des Fichiers `.bib` dans le Coffre Obsidian :**
-> Il est **strictement interdit** d'écrire, créer ou déposer des fichiers `.bib` dans le coffre Obsidian (`notes/`, `_agents/`, racine, etc.).
+> Il est **strictement interdit** d'écrire, créer ou déposer des fichiers `.bib` dans le coffre Obsidian (`notes/`, `antigravity/`, `antigravity/scratch/`, racine, etc.).
 > Toute la gestion bibliographique, la curation des références, les métadonnées et les clés de citation s'effectuent **EXCLUSIVEMENT via Zotero** (via la base de données Zotero et l'API `pyzotero`). Aucun fichier `.bib` ne doit jamais polluer le coffre Obsidian.
 
 ---
@@ -113,7 +113,7 @@ Le **Sous-Agent 1** se concentre exclusivement sur la dissection médico-légale
      * Aligner les métadonnées (titre exact, auteurs, DOI, année) entre la bibliothèque Zotero et la fiche Obsidian.
      * Rappel : Zéro export `.bib` dans le coffre ; Zotero demeure la base centrale exclusive.
    - Sauvegarder l'article dans Readwise Reader avec l'URL directe du PDF si pertinent.
-   - Consigner le jalon dans la mémoire AIVC (`remember`).
+   - Consigner le jalon dans la mémoire AIVC (`task_commit`).
 
 ---
 
@@ -145,7 +145,7 @@ Le **Sous-Agent 2** assure l'entretien qualitatif, le filtrage, le désherbage e
 5. **Mise à Jour de la Cartographie & Synchronisation Obsidian** :
    - Mettre à jour les entrées dans la note de synthèse `notes/Revue de Littérature [Nom du Projet].md` (liée à `[[NomDuProjet]]`).
    - Assurer l'exactitude des liens Obsidian `[[...]]` et la cohérence avec les collections Zotero.
-   - Consigner le jalon de curation dans la mémoire AIVC (`remember`).
+   - Consigner le jalon de curation dans la mémoire AIVC (`task_commit`).
 
 ---
 
@@ -165,7 +165,7 @@ Le **Sous-Agent 2** assure l'entretien qualitatif, le filtrage, le désherbage e
 
 ## 🔒 Principes Directeurs Fondamentaux
 
-1. **Zéro Fichier `.bib` dans le Coffre** : Gestion bibliographique exclusive et centralisée dans Zotero (via `pyzotero`). Aucun `.bib` dans `notes/`, `_agents/` ou `scratch/`.
+1. **Zéro Fichier `.bib` dans le Coffre** : Gestion bibliographique exclusive et centralisée dans Zotero (via `pyzotero`). Aucun `.bib` dans `notes/`, `antigravity/` ou `scratch/`.
 2. **Abandon Formel du Format Canvas (.canvas)** : Les fichiers `.canvas` sont proscrits en raison de leur lourdeur. Toute la cartographie repose exclusivement sur la note Markdown `notes/Revue de Littérature [Nom du Projet].md`.
 3. **Lien Systématique vers le Projet Associé** : La note de synthèse doit TOUJOURS inclure en tête le lien wikilink vers sa note maîtresse de projet : `[[NomDuProjet]]`.
 4. **Structure Canonique d'Article dans la Synthèse (Format Épuré)** :
@@ -226,4 +226,4 @@ mindmap
 | **4. Note de Synthèse Markdown** | `notes/Revue de Littérature [Nom du Projet].md` | Insertion de l'entrée épurée : `# [[Lien]]` + `![[Infographie]]`, sans blabla ni BibTeX. |
 | **5. Synchronisation Zotero & Obsidian** | pyzotero / Vault | Enrichissement mutuel, tags `fit-X`, `obsidian` (remplaçant `canvas`) et `reviewed`, alignement des métadonnées, zéro export `.bib`. |
 | **6. Readwise (si pertinent)** | MCP / CLI Readwise | `reader_create_document` (URL directe PDF) + `reader_create_highlight` (ancré via `document_id`). |
-| **7. Traçabilité** | AIVC (`remember`) | Enregistrement du jalon avec liste des fichiers consultés et édités. |
+| **7. Traçabilité** | AIVC (`task_commit`) | Enregistrement du jalon avec liste des fichiers consultés et édités. |

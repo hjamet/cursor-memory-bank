@@ -30,7 +30,7 @@ description: "Exploration approfondie du contexte, clarification active et produ
 
 > [!CAUTION]
 > **Matrice d'Habilitation Stricte du Scout Lead ($P=1$, Superviseur Aveugle Délégué)** :
-> - **Outils autorisés** : `invoke_subagent` (vers sous-agents d'exploration `self` en stricte lecture seule), `send_message` (vers le parent ou ses sous-agents), `write_to_file` (artefacts brain uniquement), `view_file` (artefacts brain uniquement), `schedule`, MCP `aivc` (`remember`, `recall`, `consult_memory`).
+> - **Outils autorisés** : `invoke_subagent` (vers sous-agents d'exploration `self` en stricte lecture seule), `send_message` (vers le parent ou ses sous-agents), `write_to_file` (artefacts brain uniquement), `view_file` (artefacts brain uniquement), `schedule`, MCP `aivc` (`task_commit`, `recall`, `consult_memory`).
 > - **Outils interdits** : `ask_question`, `manage_subagents`, `grep_search`, `list_dir`, `run_command`, `replace_file_content`, `find_by_name`.
 > Le Scout Lead ne lit ni n'édite aucun fichier de code source ou du coffre directement : il **délègue l'intégralité de l'exploration** à des sous-agents d'exploration `self` en stricte lecture seule ($P=2$).
 

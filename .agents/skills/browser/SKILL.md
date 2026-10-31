@@ -11,7 +11,8 @@ Ce skill définit l'architecture, la matrice d'outils et les protocoles opérati
 ## 1. 🏛️ Comment Playwright MCP et le Profil Persistant S'Articulent-ils ?
 
 ### 1.1 🎯 Quel Est le Rôle du Navigateur et Quand le Déclencher ?
-- **Usage Ciblé & Non-Autonome** : Ce skill ne doit pas être auto-invoqué par l'agent pour des explorations générales. Il est réservé aux situations où Henri demande expressément une assistance pour inspecter une page web précise ou interagir avec un formulaire web.
+- **Usage Ciblé & Non-Autonome** : Ce skill ne doit pas être auto-invoqué pour des explorations générales. Il est réservé aux situations où Henri demande expressément une assistance pour inspecter une page web précise ou interagir avec un formulaire web.
+- **Interdiction Formelle d'Exécution par l'Agent Racine ($P=0$)** : Le Superviseur Racine ne manipule JAMAIS directement le navigateur ni les outils Playwright MCP. Il déploie obligatoirement un sous-agent serviteur (`eclaireur` en observation / `executant` en action) auquel il délègue ce skill. Le sous-agent effectue la navigation furtive en arrière-plan, recueille les snapshots et screenshots comme preuves matérielles, remplit son artéfact de sources et renvoie `ARTEFACT: <chemin>`.
 - **Primauté des Outils Directs** : Pour toute recherche ou collecte de données, l'agent utilise en priorité les outils CLI, les commandes système, les fichiers locaux et les MCP dédiés. Le navigateur n'intervient que pour les informations ou interactions inaccessibles autrement.
 
 ### 1.2 👁️ Comment Fonctionne l'Arbre d'Accessibilité (browser_snapshot) et les Références Stables (ref) ?
@@ -20,23 +21,26 @@ Ce skill définit l'architecture, la matrice d'outils et les protocoles opérati
 - **Identifiants Uniques Stables (`ref`)** : Chaque élément interactif est indexé par un identifiant court et stable (`ref`, ex: `ref="12"`), utilisable directement comme cible dans les outils d'interaction (`browser_click(ref="12")`, `browser_type(ref="12", text="...")`, etc.).
 - **Recherche Ciblée Économe (`browser_find`)** : Pour localiser un élément sans recharger tout l'arbre, `browser_find` recherche par texte ou regex et renvoie uniquement le fragment hiérarchique pertinent avec son `ref`.
 
-### 1.3 🚀 Pourquoi et Comment Configurer le Profil Chrome Persistant Autonome ?
-- **Profil Dédié Persistant** : Le serveur Playwright MCP utilise systématiquement le profil Chrome dédié persistant d'Henri : `C:\Users\hjamet\.gemini\chrome_pw_profile`.
-- **Arguments CLI Obligatoires** :
+### 1.3 🚀 Comment Playwright MCP S'Articule-t-il avec l'Extension Chrome Active d'Henri ?
+- **Mode Extension Connecté (`--extension`)** : Le serveur Playwright MCP est directement connecté à l'instance Google Chrome quotidienne et active d'Henri via l'extension officielle Chrome Playwright et son jeton d'authentification (`PLAYWRIGHT_MCP_EXTENSION_TOKEN`).
+- **Configuration Active (`mcp_config.json`)** :
   ```json
-  "args": [
-    "-y",
-    "@playwright/mcp@latest",
-    "--browser",
-    "chrome",
-    "--user-data-dir",
-    "C:\\Users\\hjamet\\.gemini\\chrome_pw_profile"
-  ]
+  "playwright": {
+    "command": "npx.cmd",
+    "args": [
+      "-y",
+      "@playwright/mcp@latest",
+      "--extension"
+    ],
+    "env": {
+      "PLAYWRIGHT_MCP_EXTENSION_TOKEN": "4OaM_CIhz07mGrw8_0p5H5icCIPZO6GFzM4R61ZTJhI"
+    }
+  }
   ```
-- **Bénéfices Opérationnels Majeurs** :
-  - **Zéro Conflit d'Instance** : Le profil dédié étant isolé dans `.gemini\chrome_pw_profile`, il tourne en parallèle de l'instance Chrome quotidienne d'Henri sans aucun verrouillage de fichier ni collision de session.
-  - **Persistance Totale des Sessions & Cookies** : Préservation active des cookies de session institutionnels et professionnels (Single Sign-On UNIL via EduID, Microsoft 365, Google Workspace, Prolific). Henri ne subit aucune ressaisie d'identifiants ni double authentification à chaque redémarrage.
-  - **Autonomie Complète sans Script Auxiliaire** : L'agent lance le navigateur de façon 100% autonome dès le premier appel d'outil MCP (`browser_navigate`, `browser_snapshot`). Aucun script PowerShell préalable d'écoute CDP n'est requis.
+- **Conséquences & Impératifs Opérationnels Majeurs** :
+  - **Accès Direct aux Sessions Actives** : L'agent bénéficie instantanément des sessions, cookies et connexions déjà ouvertes par Henri dans son navigateur quotidien (SSO UNIL EduID, Moodle, Google Workspace, Prolific), sans ressaisie d'identifiants.
+  - **Furtivité Absolue Requise (Anti-Popup)** : Puisque le serveur interagit avec le navigateur personnel d'Henri, toute commande provoquant un focus de fenêtre (`bringToFront()`) perturbe directement son poste de travail Windows. Le travail en arrière-plan via CDP est obligatoire.
+  - **Isolation des Onglets & Nettoyage Systématique** : Tout agent ouvre impérativement son propre onglet dédié via `browser_tabs(action="new", url="...")` (qui devient automatiquement la page active CDP sans voler le focus OS) et a l'obligation stricte de le fermer via `browser_tabs(action="close")` dès sa tâche achevée. Zéro onglet orphelin toléré.
 
 ---
 
@@ -60,7 +64,7 @@ Le serveur `@playwright/mcp` expose 24 outils spécialisés couvrant l'intégral
 | `browser_drop` | Dépose des fichiers ou données MIME sur un élément cible. | Simulation de drop externe sur une zone de dépôt. |
 | `browser_file_upload` | Téléverse un ou plusieurs fichiers locaux sur un champ d'upload. | Dépôt de documents, justificatifs, pièces jointes. |
 | `browser_handle_dialog` | Répond ou rejette une boîte de dialogue native (`alert`, `confirm`, `prompt`). | Clôture des popups système bloquantes. |
-| `browser_tabs` | Liste, crée, ferme ou sélectionne les onglets ouverts. | Gestion multi-onglets et bascule de contexte. |
+| `browser_tabs` | Liste, crée (`action="new"`), ou ferme (`action="close"`) les onglets. **Interdiction absolue d'`action="select"`** (provoque un `bringToFront()` intempestif au premier plan de Windows). Obligation de clore l'onglet créé dès la fin de mission. | Cycle de vie des onglets en arrière-plan. |
 | `browser_wait_for` | Attend l'apparition/disparition d'un texte ou l'écoulement d'un délai. | Synchronisation sur chargements asynchrones ou transitions UI. |
 | `browser_evaluate` | Évalue une expression JavaScript dans la page ou sur un élément. | Extraction avancée de propriétés DOM en lecture seule. |
 | `browser_console_messages` | Récupère l'historique des messages et erreurs console. | Diagnostic d'erreurs JavaScript ou avertissements front. |
@@ -68,8 +72,8 @@ Le serveur `@playwright/mcp` expose 24 outils spécialisés couvrant l'intégral
 | `browser_network_request` | Fournit les détails complets (en-têtes, corps) d'une requête réseau précise. | Diagnostic de payload d'API ou d'échec de réponse HTTP. |
 | `browser_take_screenshot` | Capture une image PNG de la page ou d'un élément spécifique. | Preuve visuelle, contrôle de rendu graphique. |
 | `browser_resize` | Redimensionne la fenêtre du navigateur (dimensions viewport). | Tests de responsive design et adaptation mobile/desktop. |
-| `browser_close` | Ferme la page courante du navigateur. | Nettoyage des pages de travail temporaires. |
-| `browser_run_code_unsafe` | Exécute un snippet de code Playwright arbitraire dans le serveur. | Scripting complexe bas niveau (réservé aux cas spécifiques). |
+| `browser_close` | ⚠️ **Proscrit pour un onglet unitaire**. Tente de détruire tout le contexte partagé et lève une exception bloquante en mode extension. Utiliser exclusivement `browser_tabs(action="close")`. | Fermeture globale de session Playwright. |
+| `browser_run_code_unsafe` | Exécute un snippet de code Playwright arbitraire dans le serveur. **Interdiction formelle d'y appeler `page.bringToFront()` ou `window.focus()`** : cibler la page en arrière-plan via `page.context().pages().find(...)` sans jamais l'activer à l'écran. | Scripting complexe bas niveau (réservé aux cas spécifiques). |
 
 ---
 
@@ -80,6 +84,10 @@ Le skill opère selon deux modes d'action rigoureusement étanches selon la natu
 ### 3.1 📝 Comment Fonctionne le Mode 1 : Assistance Interactive & Formulaires Éthiques d'Henri ?
 Ce mode s'applique aux saisies sensibles sur des portails institutionnels (ex: formulaires éthiques CER-UNIL, administration des cours Moodle, configurations de plateformes scientifiques comme Prolific) :
 
+- **Protocole Furtif en Arrière-Plan** :
+  1. *Création discrète* : `browser_tabs(action="new", url="<URL>")` (initialise l'onglet de travail et le positionne en page active sans voler le focus de l'OS).
+  2. *Observation silencieuse sans focus* : `browser_snapshot` et inspections ciblées sans jamais appeler `browser_tabs(action="select")` ni perturber la fenêtre Windows active d'Henri.
+  3. *Fermeture immédiate obligatoire* : `browser_tabs(action="close")` dès que l'assistance ou la vérification est achevée (zéro onglet orphelin).
 - **Rôle d'Observateur & Guide Passif** : L'agent observe l'état du formulaire via `browser_snapshot` et prépare des propositions précises, mais **ne soumet pas de formulaire sensible unilatéralement**. C'est Henri qui applique manuellement les saisies et clique sur les validations critiques.
 - **Plafond Strict de 5 Actions par Lot (≤ 5 actions)** :
   * Les actions sont découpées en paquets digestes de 1 à 5 actions maximum dans `<appDataDir>\brain\<conversation-id>\lot_actions_browser_XX.md` (`RequestFeedback: true`).
@@ -96,6 +104,10 @@ Ce mode s'applique aux saisies sensibles sur des portails institutionnels (ex: f
 ### 3.2 🤖 Comment Fonctionne le Mode 2 : Automatisation Autonome (Scouts & Builders) ?
 Ce mode s'applique à tous les agents d'exploration, de test et d'implémentation (ex: `hotel-scout`, cartographies Google Maps, prospection de documentation web, vérification d'interfaces graphiques développées par les builders) :
 
+- **Cycle de Vie Furtif Autonome Obligatoire** :
+  1. *Création discrète* : `browser_tabs(action="new", url="<URL>")` pour initialiser la page de travail.
+  2. *Interactions silencieuses sans focus* : navigation (`browser_navigate`), clics (`browser_click`), saisies (`browser_fill_form`, `browser_type`), attentes (`browser_wait_for`) et snapshots exécutés directement via CDP sur la page courante, avec **interdiction formelle d'appeler `browser_tabs(action="select")`**.
+  3. *Nettoyage systématique* : appel obligatoire de `browser_tabs(action="close")` dès que les données sont extraites ou le test achevé. Zéro onglet orphelin laissé dans le Chrome d'Henri.
 - **Autonomie Opérationnelle Complète** :
   * L'agent navigue librement (`browser_navigate`, `browser_navigate_back`, `browser_tabs`).
   * Il explore et interagit avec la page (`browser_snapshot`, `browser_click`, `browser_fill_form`, `browser_hover`, `browser_select_option`).

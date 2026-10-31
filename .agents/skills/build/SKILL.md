@@ -26,7 +26,7 @@ description: "Fusion conservatrice des rapports d'exploration et coordination d'
 
 > [!CAUTION]
 > **Matrice d'Habilitation du Build Lead ($P=1$, Coordinateur Aveugle Délégué)** :
-> - **Outils autorisés** : `invoke_subagent` (vers sous-agents workers `self` par chantier), `send_message` (vers le Superviseur Racine et vers ses workers), `write_to_file` (artefacts brain uniquement), `view_file` (artefacts brain uniquement), `schedule`, MCP `aivc` (`remember`, `recall`, `consult_memory`).
+> - **Outils autorisés** : `invoke_subagent` (vers sous-agents workers `self` par chantier), `send_message` (vers le Superviseur Racine et vers ses workers), `write_to_file` (artefacts brain uniquement), `view_file` (artefacts brain uniquement), `schedule`, MCP `aivc` (`task_commit`, `recall`, `consult_memory`).
 > - **Outils interdits** : `ask_question`, `manage_subagents`, `run_command`, `replace_file_content`, `grep_search`, `list_dir`, `find_by_name`.
 > **INTERDICTION FORMELLE D'ÉDITER LE CODEBASE OU LE VAULT** : Le Build Lead ne modifie aucun fichier du projet (`write_to_file` et `replace_file_content` proscrits sur le codebase). Il délègue l'intégralité du codage, des retouches de notes et des commandes CLI à ses sous-agents workers feuilles ($P=2$).
 

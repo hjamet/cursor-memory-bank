@@ -48,4 +48,4 @@ Si le travail a été interrompu en pleine phase de **validation ou de review** 
 
 ## 4. 🧹 Étape 4 : Nettoyage Rapide
 - Supprime les verrous orphelins (ex: `.git/index.lock` ou `.dvc/tmp/lock`) qui pourraient bloquer la reprise des commandes.
-- Enregistre une note mémoire AIVC (`remember`) pour marquer le point de relance et la reprise effective de l'activité.
+- Enregistre une note mémoire AIVC (`task_commit`) pour marquer le point de relance et la reprise effective de l'activité.

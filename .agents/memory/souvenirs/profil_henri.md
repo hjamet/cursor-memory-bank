@@ -29,7 +29,7 @@ Cette fiche récapitule l'identité, les coordonnées et les affiliations de Hen
 
 ## 🔗 Liens Internes & Documents Rattachés
 
-* 🏛️ **Dossier Logement** : [logement_fribourg.md](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/memory/souvenirs/logement_fribourg.md) – Résidence de Fribourg, contrat de bail, colocation.
-* 💳 **Dossier Financier** : [banques_assurances.md](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/memory/souvenirs/banques_assurances.md) – Banque Postale, Revolut, Postfinance, AXA, Sanitas.
-* 🔬 **Dossier Recherche** : [recherche_doctorat.md](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/memory/souvenirs/recherche_doctorat.md) – Sujets de recherche (Framework GSET, DLLP, LLM as Recommender, etc.).
-* 📚 **Mémoire Principale** : [memoire_principale.md](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/memory/memoire_principale.md)
+* 🏛️ **Dossier Logement** : [logement_fribourg.md](file:///C:/Users/hjamet/Documents/VoiceNotes/antigravity/souvenirs/logement_fribourg.md) – Résidence de Fribourg, contrat de bail, colocation.
+* 💳 **Dossier Financier** : [banques_assurances.md](file:///C:/Users/hjamet/Documents/VoiceNotes/antigravity/souvenirs/banques_assurances.md) – Banque Postale, Revolut, Postfinance, AXA, Sanitas.
+* 🔬 **Dossier Recherche** : [recherche_doctorat.md](file:///C:/Users/hjamet/Documents/VoiceNotes/antigravity/souvenirs/recherche_doctorat.md) – Sujets de recherche (Framework GSET, DLLP, LLM as Recommender, etc.).
+* 📚 **Mémoire Principale** : [memoire_principale.md](file:///C:/Users/hjamet/Documents/VoiceNotes/antigravity/memoire_principale.md)

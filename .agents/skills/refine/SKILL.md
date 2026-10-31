@@ -35,7 +35,7 @@ Le Superviseur Racine invoque obligatoirement le Refine Lead en tant que sous-ag
 > | Catégorie | Statut | Outils Spécifiques |
 > |---|:---:|---|
 > | **Délégation & Pilotage** | ✅ AUTORISÉ | `invoke_subagent` (déploiement exclusif de sous-agents d'exploration `self` en stricte lecture seule), `send_message`, `schedule` |
-> | **Artefacts Brain & Mémoire** | ✅ AUTORISÉ | `view_file` (strictement limité aux fichiers `<appDataDir>/brain/<id>/...`), `write_to_file` (strictement limité à `exploration_report.md` et sous-analyses dans `brain/`), MCP `aivc` (`remember`, `recall`, `consult_memory`) |
+> | **Artefacts Brain & Mémoire** | ✅ AUTORISÉ | `view_file` (strictement limité aux fichiers `<appDataDir>/brain/<id>/...`), `write_to_file` (strictement limité à `exploration_report.md` et sous-analyses dans `brain/`), MCP `aivc` (`task_commit`, `recall`, `consult_memory`) |
 | **Inspection du Code Source / Vault** | ❌ INTERDIT | `view_file` (sur le code du dépôt ou les notes), `grep_search`, `find_by_name`, `list_dir` |
 | **Modification du Code Source** | ❌ INTERDIT | `write_to_file` (sur le dépôt), `replace_file_content` |
 | **Exécution & Système** | ❌ INTERDIT | `run_command`, `manage_subagents` |

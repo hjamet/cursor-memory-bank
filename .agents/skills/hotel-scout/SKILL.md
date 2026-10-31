@@ -204,4 +204,4 @@ Lorsqu'un hébergement est recherché dans le cadre d'une étape sur un itinéra
 ### 5. 🔄 Comment Enrichir l'Historique des Sélections Validées ?
 Dès qu'Henri valide une réservation ou rentre d'un séjour réussi :
 1. Mettre à jour la section `## 📜 Quel Est l'Historique des Sélections et Séjours Validés ?` dans `[[Preferences Henri Hotels et Hebergements]]`.
-2. Consigner l'ancrage via `call_mcp_tool` (`remember`).
+2. Consigner l'ancrage via `call_mcp_tool` (`task_commit`).

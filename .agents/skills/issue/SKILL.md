@@ -75,7 +75,7 @@ Le Coordinator transmettra le chemin de ce fichier au Reviewer.
 
 ## 5. 🛑 Arrêt
 1. Rapporte tes actions dans le chat.
-2. Fais un `remember` dans AIVC.
+2. Fais un `task_commit` dans AIVC.
 3. **ARRÊTE-TOI**. L'issue est déjà fermée. Demande à l'utilisateur d'invoquer le Reviewer.
 
 ---

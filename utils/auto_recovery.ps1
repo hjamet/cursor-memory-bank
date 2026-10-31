@@ -53,7 +53,7 @@ L'IDE a crashe (Language Server). Tous tes sous-agents, timers et cron jobs ont 
 
 ## 4. Nettoyage
 - Supprime les verrous orphelins (.git/index.lock, .dvc/tmp/lock).
-- Enregistre une note AIVC (remember) pour marquer la reprise.
+- Enregistre une note AIVC (task_commit) pour marquer la reprise.
 "@
 }
 

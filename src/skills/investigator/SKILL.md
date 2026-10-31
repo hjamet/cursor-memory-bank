@@ -228,7 +228,7 @@ Crée un fichier `investigation_report.md` dans ton dossier de travail (`write_t
 
 ## 6. 🛑 Arrêt
 1. Vérifie que chaque problème du `review_report.md` a une entrée dans ton `investigation_report.md` (soit en catégorie A, soit en catégorie B).
-2. Fais un `remember` (AIVC).
+2. Fais un `task_commit` (AIVC).
 3. **ARRÊTE-TOI**. Le Coordinator transmettra le chemin de ce fichier à l'Architecte.
 
 ---

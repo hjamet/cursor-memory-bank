@@ -1,15 +1,10 @@
 ---
 name: paper-writing
-description: "Rédaction scientifique, charte stylistique académique sans fard IA (112 mots bannis, 0 em-dash, avoid-ai-writing, StealthRL), figures/tableaux, compilation LaTeX, révision chirurgicale et synchro Overleaf."
+description: Rédaction scientifique, charte stylistique académique sans fard IA (112 mots bannis, 0 em-dash, avoid-ai-writing, StealthRL), figures/tableaux, compilation LaTeX, révision chirurgicale et synchro Overleaf.
+aliases:
+  - paper-writing
 ---
 # 📝 Comment Rédiger, Polir et Réviser des Papiers Académiques (`paper-writing`) ?
-
-> [!TIP]
-> **Visualisation & Annotation Native de PDF dans Antigravity :**
-> - Antigravity prend désormais en charge la visualisation native de documents PDF complets (`<appDataDir>/brain/<id>/<nom>.pdf`). Henri peut directement y surligner du texte, poser des commentaires contextuels et effectuer des captures d'écran annotées d'éléments graphiques.
-> - Dès qu'un manuscrit LaTeX est compilé, copier ou générer le PDF dans `<appDataDir>/brain/<conversation-id>/<nom>.pdf` et restituer le lien cliquable `file:///<appDataDir>/brain/<conversation-id>/<nom>.pdf` en tête de réponse.
-> - Pour tous les fichiers Markdown (`.md`), codes sources (`.tex`, `.bib`, `.py`) et textes hors documents PDF compilés, la projection d'artefacts de diff `diff_*.md` via le MCP `doc-version` ou `doc_version_cli.py` demeure le standard absolu et obligatoire.
-
 
 > [!IMPORTANT]
 > **Rôle Canonique : Orchestrateur Technique & Charte Stylistique Académique Unifiée**

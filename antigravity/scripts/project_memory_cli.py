@@ -2210,8 +2210,27 @@ def _rewrite_paths_for_current_pc(text: str) -> str:
         text,
     )
     try:
-        from aivc.advance_sync import rewrite_brain_paths_to_temp_artifacts
-        text = rewrite_brain_paths_to_temp_artifacts(text, temp_dir=AIVC_TEMP_DIR)
+        _rewrite_paths = None
+        try:
+            from aivc.project_sync import rewrite_artifact_paths_to_temp as _rewrite_paths
+        except ImportError:
+            try:
+                from aivc.advance_sync import rewrite_brain_paths_to_temp_artifacts as _rewrite_paths
+            except ImportError:
+                _aivc_src = Path.home() / "Documents" / "code" / "aivc" / "src"
+                if _aivc_src.is_dir() and str(_aivc_src) not in sys.path:
+                    sys.path.insert(0, str(_aivc_src))
+                try:
+                    from aivc.project_sync import rewrite_artifact_paths_to_temp as _rewrite_paths
+                except ImportError:
+                    try:
+                        from aivc.advance_sync import rewrite_brain_paths_to_temp_artifacts as _rewrite_paths
+                    except ImportError:
+                        pass
+        if _rewrite_paths is not None:
+            text = _rewrite_paths(text, temp_dir=AIVC_TEMP_DIR)
+        else:
+            raise ImportError("Could not import rewrite_artifact_paths_to_temp or rewrite_brain_paths_to_temp_artifacts")
     except Exception:
         artifacts_posix = AIVC_ARTIFACTS_DIR.as_posix().replace("\\", "/").lstrip("/")
         url_pattern = re.compile(
@@ -3242,7 +3261,7 @@ def _sync_and_render_aivc_tldr(
 
 def sync_advance_tldr_for_memory(memory: Any, vault_dir: Optional[str] = None) -> List[str]:
     """
-    Point d'entrée pour advance_sync.py d'AIVC : synchronise les fichiers advance_tldr
+    Point d'entrée pour project_sync.py (anciennement advance_sync.py) d'AIVC : synchronise les fichiers advance_tldr
     associés à une mémoire / commit AIVC.
     """
     v_root = vault_dir or VAULT_DIR

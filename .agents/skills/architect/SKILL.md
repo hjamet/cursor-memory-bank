@@ -228,7 +228,7 @@ graph TD
 
 ## 5. 🛑 Arrêt
 1. Vérifie que l'artefact `architect_walkthrough.md` est complet et respecte le format ci-dessus.
-2. Fais un `remember` dans AIVC.
+2. Fais un `task_commit` dans AIVC.
 3. **ARRÊTE-TOI**. Le Teamwork Coordinator récupérera ton walkthrough et le transmettra au Monitor.
 
 ---
