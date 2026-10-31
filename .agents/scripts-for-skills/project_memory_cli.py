@@ -1225,6 +1225,24 @@ def compute_temporal_recency_malus(recent_work_dates, pre_score, rf, weight, now
     return round(malus, 3), round(k_sum, 4), valid_dates
 
 
+def is_agent_autonomous(val: Any) -> bool:
+    """
+    Détermine si un projet est éligible au mode agent autonome.
+    Par défaut True si absent/None.
+    Évalué à False si sa valeur brute ou parsée vaut 0, "0", False, "false", "no".
+    """
+    if val is None:
+        return True
+    if isinstance(val, bool):
+        return val
+    if isinstance(val, (int, float)):
+        return val != 0
+    s = str(val).strip().lower()
+    if s in ("0", "false", "no"):
+        return False
+    return True
+
+
 def parse_markdown_file(file_path, content=None, parse_checkboxes=True):
     """
     Parses a markdown file in a single fast pass for frontmatter, tags, checkboxes, and content.
@@ -1261,6 +1279,8 @@ def parse_markdown_file(file_path, content=None, parse_checkboxes=True):
                     v_str = v.strip().strip("\"'")
                     if k_str == "agent_only":
                         frontmatter["agent_only"] = v_str.lower() in ("true", "1", "yes")
+                    elif k_str == "agent_autonomous":
+                        frontmatter["agent_autonomous"] = is_agent_autonomous(v_str)
                     else:
                         frontmatter[k_str] = v_str
                     current_list_key = k_str
@@ -1440,7 +1460,7 @@ def sync_vault_cache(vault_dir=VAULT_DIR, cache_path=CACHE_PATH, fast_mode=False
                     continue
 
                 cached = cache.get(rel_p)
-                if not cached or cached.get("mtime") != mt or "milestone" not in cached or "agent_only" not in cached or "status" not in cached:
+                if not cached or cached.get("mtime") != mt or "milestone" not in cached or "agent_only" not in cached or "status" not in cached or "agent_autonomous" not in cached:
                     fm, tags, _, _ = parse_markdown_file(abs_p, parse_checkboxes=False)
                     type_val = str(fm.get("type", "")).lower()
                     if type_val in ("autonomous-tldr", "autonomous-log"):
@@ -1455,6 +1475,7 @@ def sync_vault_cache(vault_dir=VAULT_DIR, cache_path=CACHE_PATH, fast_mode=False
                         "deadline": deadline,
                         "milestone": str(milestone),
                         "agent_only": bool(fm.get("agent_only", False)),
+                        "agent_autonomous": is_agent_autonomous(fm.get("agent_autonomous")),
                         "type": type_val,
                         "status": status_val
                     }
@@ -1973,6 +1994,7 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
             deadline_str = cached.get("deadline", "")
             milestone_str = cached.get("milestone", "")
             is_agent_only = bool(cached.get("agent_only", False))
+            agent_autonomous = is_agent_autonomous(cached.get("agent_autonomous"))
         else:
             if not os.path.exists(abs_path):
                 continue
@@ -1984,9 +2006,14 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
             m_val = fm.get(milestone_prop) or fm.get("milestone") or fm.get("milestones") or fm.get("jalon") or ""
             milestone_str = ", ".join(m_val) if isinstance(m_val, list) else str(m_val)
             is_agent_only = bool(fm.get("agent_only", False))
+            agent_autonomous = is_agent_autonomous(fm.get("agent_autonomous"))
 
-        # agent_only supprimé : tous les projets (y compris Dream) apparaissent pour l'humain
-        pass
+        if "agent_autonomous" in proj_stat:
+            agent_autonomous = is_agent_autonomous(proj_stat.get("agent_autonomous"))
+
+        # Exclusion systématique en mode agent autonome si agent_autonomous == False
+        if is_agent and not agent_autonomous:
+            continue
 
         if not is_eligible_project(norm_rel, vault_dir=vault_dir, proj_stat=proj_stat, cache_entry=cached, project_tags=project_tags, archive_tags=done_tags):
             continue
@@ -2098,6 +2125,7 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
             "agent_base_score": agent_obj.get("baseScore", proj_stat.get("baseScore")),
             "agent_rotation_bonus": agent_obj.get("rotationBonus", 0.0),
             "agent_only": is_agent_only,
+            "agent_autonomous": agent_autonomous,
         })
 
     # 2. Check unindexed active project notes from cache
@@ -2110,8 +2138,10 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
             continue
         if cached.get("type") in ("autonomous-tldr", "autonomous-log"):
             continue
-        # agent_only supprimé : tous les projets apparaissent pour l'humain
-        pass
+
+        agent_autonomous = is_agent_autonomous(cached.get("agent_autonomous"))
+        if is_agent and not agent_autonomous:
+            continue
 
         if is_eligible_project(rel_p, vault_dir=vault_dir, cache_entry=cached, project_tags=project_tags, archive_tags=done_tags):
             abs_p = os.path.join(vault_dir, rel_p.replace("/", os.sep))
@@ -2152,6 +2182,7 @@ def scan_projects(vault_dir, data, cache=None, fast_mode=False, now_dt=None, per
                 "agent_base_score": None,
                 "agent_rotation_bonus": 0.0,
                 "agent_only": bool(cached.get("agent_only", False)),
+                "agent_autonomous": agent_autonomous,
             })
 
     # Sort matching Obsidian plugin review modal priority:
@@ -3698,6 +3729,7 @@ def cmd_get(args, data):
         "review_history": stats.get("reviewHistory", []),
         "checkboxes": checkboxes,
         "frontmatter": fm,
+        "agent_autonomous": is_agent_autonomous(fm.get("agent_autonomous")),
         "tags": list(tags)
     }
 
@@ -3767,7 +3799,9 @@ def cmd_get(args, data):
         tldr_status = "Existe" if os.path.exists(tldr_note) else "Absente"
         log_status = "Existe" if os.path.exists(log_note) else "Absente"
 
-        print(f"🤖 Autonomous :           {n_auto} session(s) since human review | Agent Score: {agent_eff_str} (Base: {agent_base_val:.1f}, Rot: +{agent_rot_val:.2f})")
+        is_auto = is_agent_autonomous(fm.get("agent_autonomous"))
+        auto_label = f"{n_auto} session(s) since human review" if is_auto else f"Désactivé (agent_autonomous: 0, {n_auto} session(s))"
+        print(f"🤖 Autonomous :           {auto_label} | Agent Score: {agent_eff_str} (Base: {agent_base_val:.1f}, Rot: +{agent_rot_val:.2f})")
         print(f"🤖 Autonomous Notes :     Avancées: {tldr_status} | Journal: {log_status}")
 
         if proj_info['recent_work_dates']:
@@ -4535,6 +4569,12 @@ def cmd_work(args, data):
         sys.exit(1)
 
     title = os.path.splitext(os.path.basename(rel_path))[0]
+
+    if is_agent:
+        fm, _, _, _ = parse_markdown_file(abs_path, parse_checkboxes=False)
+        if not is_agent_autonomous(fm.get("agent_autonomous")):
+            print(f"❌ Erreur : Le projet '{title}' n'est pas éligible au mode autonome agent (agent_autonomous: 0).", flush=True)
+            sys.exit(1)
 
     # Vérifie si un Pomodoro est déjà actif pour CE PROJET PRÉCIS
     sessions = load_all_active_pomodoros(active_path=active_path, clean_stale=True, is_agent=is_agent)
