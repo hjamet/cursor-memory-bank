@@ -2414,12 +2414,19 @@ def _invalidate_aivc_cache() -> None:
     _AIVC_MEMORIES_CACHE = None
 
 
+def _get_aivc_storage_root() -> Path:
+    env_root = os.environ.get("PROJECT_MEMORY_AIVC_STORAGE_ROOT")
+    if env_root:
+        return Path(env_root)
+    return Path.home() / ".aivc" / "storage"
+
+
 def _get_aivc_memories() -> List[Tuple[Any, Dict[str, Any]]]:
     global _AIVC_MEMORIES_CACHE
     if _AIVC_MEMORIES_CACHE is not None:
         return _AIVC_MEMORIES_CACHE
 
-    storage_root = Path.home() / ".aivc" / "storage"
+    storage_root = _get_aivc_storage_root()
     cache_file = storage_root / "tldr_items_cache.json"
 
     cache: Dict[str, Dict[str, Any]] = {}
@@ -2458,14 +2465,17 @@ def _get_aivc_memories() -> List[Tuple[Any, Dict[str, Any]]]:
                         continue
 
                     cached_entry = cache.get(key)
+                    is_cached = False
                     if cached_entry and isinstance(cached_entry, dict) and cached_entry.get("mtime") == mtime:
                         item_data = cached_entry.get("data")
-                        if item_data is not None and "completed_user_items" not in item_data:
+                        if item_data is None or "completed_user_items" in item_data:
+                            is_cached = True
+                        else:
                             item_data = None
                     else:
                         item_data = None
 
-                    if item_data is None:
+                    if not is_cached:
                         cache_dirty = True
                         try:
                             with open(entry.path, "r", encoding="utf-8") as f:
@@ -2597,7 +2607,7 @@ def _auto_restore_aivc_blobs_for_active_items(
     Returns list of restored local file paths.
     """
     global _AIVC_REMOTE_SYNC_DISABLED, _AIVC_SESSION_TRIED_PATHS, _AIVC_REMOTE_BRAIN_INDEX
-    storage_root = Path.home() / ".aivc" / "storage"
+    storage_root = _get_aivc_storage_root()
     blobs_dir = storage_root / "blobs"
     db_path = storage_root / "core_index.db"
     if not storage_root.exists() or not blobs_dir.exists():
@@ -2881,6 +2891,89 @@ def _auto_restore_aivc_blobs_for_active_items(
     return restored
 
 
+try:
+    from aivc.core.workspace import _are_tasks_duplicate
+except ImportError:
+    import difflib
+    import unicodedata
+
+    _CLI_TASK_STOPWORDS = {
+        "pour", "dans", "avec", "sur", "les", "des", "une", "un", "le", "la", "par", "est",
+        "qui", "que", "aux", "son", "ses", "leur", "leurs", "cette", "cet", "ces", "du", "de",
+        "the", "and", "for", "with", "from", "that", "this", "suite", "afin", "tout", "tous",
+        "faire", "fait", "plus", "tres", "bien", "aussi", "comme", "apres", "avant", "ci", "dessus", "dessous"
+    }
+
+    def _strip_accents_cli(text: str) -> str:
+        nfkd = unicodedata.normalize("NFKD", text)
+        return "".join(c for c in nfkd if not unicodedata.combining(c))
+
+    def _normalize_task_text_cli(task: str) -> str:
+        if not task:
+            return ""
+        s = str(task).strip()
+        s = re.sub(r"\[([^\]]+)\]\([^\)]+\)", r"\1", s)
+        s = re.sub(r"<[^>]+>", " ", s)
+        s = re.sub(r"^\s*[-*+]\s+\[[ xX]?\]\s*", " ", s)
+        s = re.sub(r"^(?:#+\s*)+", " ", s)
+        s = re.sub(r"\*\*\[[a-zA-Z0-9\-_]+\]\*\*", " ", s)
+        s = re.sub(r"\[[a-zA-Z0-9\-_]+\]", " ", s)
+        s = re.sub(r"[🤖⚡📋🔴🟢🟡🟠⚪👤✅❌]", " ", s)
+        s = re.sub(r"\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b", " ", s)
+        s = re.sub(r"\b\d{4}[/-]\d{1,2}[/-]\d{1,2}\b", " ", s)
+        s = re.sub(r"#[a-zA-Z0-9_]+\b", " ", s)
+        s = re.sub(r"\b[0-9a-fA-F]{6,40}\b", " ", s)
+        s = _strip_accents_cli(s).lower()
+        s = re.sub(r"[^a-z0-9\s]", " ", s)
+        return " ".join(s.split())
+
+    def _are_tasks_duplicate(task_a: str, task_b: str) -> bool:
+        if not task_a or not task_b:
+            return False
+        norm_a = _normalize_task_text_cli(task_a)
+        norm_b = _normalize_task_text_cli(task_b)
+        if not norm_a or not norm_b:
+            return False
+        if norm_a == norm_b:
+            return True
+
+        min_len = min(len(norm_a), len(norm_b))
+        common_len = 0
+        while common_len < min_len and norm_a[common_len] == norm_b[common_len]:
+            common_len += 1
+        if common_len >= 28:
+            return True
+        if len(norm_a) >= 28 and norm_b.startswith(norm_a[:28]):
+            return True
+        if len(norm_b) >= 28 and norm_a.startswith(norm_b[:28]):
+            return True
+
+        no_stop_a = " ".join([w for w in norm_a.split() if w not in _CLI_TASK_STOPWORDS])
+        no_stop_b = " ".join([w for w in norm_b.split() if w not in _CLI_TASK_STOPWORDS])
+        if no_stop_a and no_stop_b:
+            if no_stop_a == no_stop_b:
+                return True
+            min_ns = min(len(no_stop_a), len(no_stop_b))
+            common_ns = 0
+            while common_ns < min_ns and no_stop_a[common_ns] == no_stop_b[common_ns]:
+                common_ns += 1
+            if common_ns >= 28:
+                return True
+
+        words_a = {w for w in norm_a.split() if len(w) >= 3 and w not in _CLI_TASK_STOPWORDS}
+        words_b = {w for w in norm_b.split() if len(w) >= 3 and w not in _CLI_TASK_STOPWORDS}
+        if words_a and words_b:
+            inter = words_a.intersection(words_b)
+            uni = words_a.union(words_b)
+            if (len(inter) / len(uni)) >= 0.55:
+                return True
+
+        if difflib.SequenceMatcher(None, norm_a, norm_b).ratio() >= 0.70:
+            return True
+
+        return False
+
+
 def _clean_text_tokens(text: str) -> Set[str]:
     t = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
     t = re.sub(r'<[^>]+>', ' ', t)
@@ -2909,6 +3002,8 @@ def _extract_identifiers(text: str) -> Set[str]:
 
 
 def _is_matching_task(checkbox_text: str, candidate_task: str, candidate_details: str = "") -> bool:
+    if _are_tasks_duplicate(checkbox_text, candidate_task):
+        return True
     ids1 = _extract_identifiers(checkbox_text)
     ids2 = _extract_identifiers(candidate_task + " " + candidate_details)
     common_ids = ids1.intersection(ids2)
@@ -2996,7 +3091,8 @@ def _extract_project_roadmap(
     done_items: Optional[List[Dict[str, Any]]] = None,
     target_portable: str = "",
     title: str = "",
-    project_mems: Optional[List[Dict[str, Any]]] = None
+    project_mems: Optional[List[Dict[str, Any]]] = None,
+    first_seen_order: Optional[Dict[str, Tuple[str, int]]] = None
 ) -> List[str]:
     """
     Extracts pending roadmap tasks from AIVC roadmap items and note checkboxes.
@@ -3104,7 +3200,7 @@ def _extract_project_roadmap(
 
     # 2. If new checkboxes found, auto-register them in AIVC commit storage
     if new_checkbox_tasks:
-        storage_root = Path.home() / ".aivc" / "storage"
+        storage_root = _get_aivc_storage_root()
         commits_dir = storage_root / "commits"
         commits_dir.mkdir(parents=True, exist_ok=True)
 
@@ -3178,6 +3274,7 @@ def _extract_project_roadmap(
         if "user_items" not in commit_data:
             commit_data["user_items"] = []
 
+        now_iso = datetime.now(timezone.utc).isoformat()
         for task_t, details_t in new_checkbox_tasks:
             new_id = f"r-{hash6}-{next_idx}"
             next_idx += 1
@@ -3187,10 +3284,13 @@ def _extract_project_roadmap(
                 "kind": "roadmap",
                 "task": task_t,
                 "details": details_t,
-                "done": False
+                "done": False,
+                "created_at": now_iso
             }
             commit_data["user_items"].append(new_it)
             aivc_roadmap_items.append(new_it)
+            if first_seen_order is not None and new_id not in first_seen_order:
+                first_seen_order[new_id] = (now_iso, 900000 + next_idx)
 
         try:
             with open(target_commit_path, "w", encoding="utf-8") as f:
@@ -3202,7 +3302,15 @@ def _extract_project_roadmap(
         except Exception:
             pass
 
-    # 3. Format all aivc_roadmap_items with **[r-xxxx-N]** prefix
+    # 3. Sort roadmap items chronologically and format with **[r-xxxx-N]** prefix
+    if first_seen_order is not None:
+        def _r_sort_key(it: Dict[str, Any]) -> Tuple[str, int]:
+            iid = it.get("id", "")
+            if iid in first_seen_order:
+                return first_seen_order[iid]
+            return (str(it.get("created_at") or ""), 999999)
+        aivc_roadmap_items.sort(key=_r_sort_key)
+
     roadmap_lines: List[str] = []
     for it in aivc_roadmap_items:
         iid = it.get("id", "").strip()
@@ -3242,7 +3350,8 @@ def _sync_and_render_aivc_tldr(
     vault_root: str,
     rel_path: str,
     title: str,
-    sessions_since_human: int = 0
+    sessions_since_human: int = 0,
+    project_dict: Optional[Dict[str, Any]] = None
 ) -> Tuple[Optional[str], int]:
     """
     Synchronizes autonomous TLDR note with AIVC user_items and ensures
@@ -3289,6 +3398,22 @@ def _sync_and_render_aivc_tldr(
                         is_done = False
                     else:
                         is_done = bool(item.get("done", False))
+
+                    # Deduplication against historical active items in items_map
+                    matching_old_iids = []
+                    for old_iid, (old_item, old_is_done, old_mem) in list(items_map.items()):
+                        if old_iid != iid and not old_is_done:
+                            if _are_tasks_duplicate(old_item.get("task", ""), item.get("task", "")):
+                                matching_old_iids.append(old_iid)
+                    for m_id in matching_old_iids:
+                        del items_map[m_id]
+                        if m_id in first_seen_order:
+                            if iid not in first_seen_order:
+                                first_seen_order[iid] = first_seen_order[m_id]
+                            else:
+                                first_seen_order[iid] = min(first_seen_order[iid], first_seen_order[m_id])
+                        first_seen_order.pop(m_id, None)
+
                     items_map[iid] = (item, is_done, mem)
 
                     seq_counter += 1
@@ -3366,12 +3491,17 @@ def _sync_and_render_aivc_tldr(
         done_items=done_items,
         target_portable=target_portable,
         title=clean_title,
-        project_mems=project_mems
+        project_mems=project_mems,
+        first_seen_order=first_seen_order
     )
     n_roadmap = len(roadmap_tasks)
 
     # Render document if there are active deliverables OR active roadmap items
     if n_deliverables > 0 or n_roadmap > 0:
+        if project_dict is not None:
+            project_dict["auto_await_count"] = n_deliverables
+            project_dict["auto_roadmap_count"] = n_roadmap
+
         abs_note_forward = os.path.abspath(target_full).replace("\\", "/")
 
         sections = [
@@ -3379,13 +3509,21 @@ def _sync_and_render_aivc_tldr(
         ]
 
         if n_deliverables > 0:
+            toc_lines = ["> **🗂️ Sommaire des tâches en attente de revue (du plus ancien au plus récent) :**"]
             sec2_parts = []
-            for it in deliverable_items:
-                iid = it.get("id", "")
+            for idx, it in enumerate(deliverable_items, start=1):
+                iid = it.get("id", "").strip()
                 task = it.get("task", "").strip()
                 details = it.get("details", "").strip()
+                raw_heading = f"[{iid}] {task}" if iid else task
+                anchor = re.sub(r'[^\w\s-]', '', raw_heading.lower()).strip()
+                anchor = re.sub(r'\s+', '-', anchor)
+                anchor_link = f"#{anchor}"
+                id_badge = f"**[`[{iid}]`]({anchor_link})**" if iid else f"**[Étape {idx}]({anchor_link})**"
+                toc_lines.append(f"> {idx}. {id_badge} — {task}")
                 sec2_parts.append(f"### [{iid}] {task}\n{details}")
-            sec2_text = "\n\n".join(sec2_parts)
+            toc_text = "\n".join(toc_lines)
+            sec2_text = f"{toc_text}\n\n" + "\n\n".join(sec2_parts)
             sections.append(f"## ⚡ Décisions & Livrables Prêts\n\n{sec2_text}")
 
         if n_roadmap > 0:
@@ -3395,38 +3533,32 @@ def _sync_and_render_aivc_tldr(
         doc = _rewrite_paths_for_current_pc(doc)
 
         os.makedirs(advance_dir, exist_ok=True)
-        write_needed = True
-        if os.path.exists(tldr_adv):
-            try:
-                with open(tldr_adv, "r", encoding="utf-8") as f:
-                    existing = f.read()
-                if existing == doc:
-                    write_needed = False
-            except OSError:
-                pass
-        if write_needed:
-            with open(tldr_adv, "w", encoding="utf-8") as f:
-                f.write(doc)
+        with open(tldr_adv, "w", encoding="utf-8") as f:
+            f.write(doc)
 
         try:
             user_temp_adv_dir = AIVC_USER_TEMP_DIR / "advance_tldr"
             user_temp_adv_dir.mkdir(parents=True, exist_ok=True)
             target_user_temp = user_temp_adv_dir / os.path.basename(tldr_adv)
-            if not target_user_temp.exists() or target_user_temp.read_text(encoding="utf-8") != doc:
-                shutil.copy2(tldr_adv, target_user_temp)
+            with open(target_user_temp, "w", encoding="utf-8") as f:
+                f.write(doc)
         except Exception:
             pass
 
         try:
             legacy_dir = Path.home() / ".gemini" / "antigravity" / "brain" / "advance_tldr"
-            if legacy_dir.is_dir():
-                target_legacy = legacy_dir / os.path.basename(tldr_adv)
-                if not target_legacy.exists() or target_legacy.read_text(encoding="utf-8") != doc:
-                    shutil.copy2(tldr_adv, target_legacy)
+            legacy_dir.mkdir(parents=True, exist_ok=True)
+            target_legacy = legacy_dir / os.path.basename(tldr_adv)
+            with open(target_legacy, "w", encoding="utf-8") as f:
+                f.write(doc)
         except Exception:
             pass
 
         return (tldr_adv, n_deliverables if n_deliverables > 0 else n_roadmap)
+
+    if project_dict is not None:
+        project_dict["auto_await_count"] = 0
+        project_dict["auto_roadmap_count"] = 0
 
     # No deliverables and no roadmap tasks
     if had_aivc_items:
@@ -3519,7 +3651,8 @@ def enrich_project_auto_fields(p, vault_dir=VAULT_DIR):
         vault_root=vault_dir,
         rel_path=rel_path,
         title=title,
-        sessions_since_human=n
+        sessions_since_human=n,
+        project_dict=p
     )
 
     if tldr_path and item_count > 0:
@@ -3543,9 +3676,19 @@ def format_project_table(projects, verbose=False):
     title_links = []
     auto_disps = []
     for p in projects:
-        abs_p = p.get("file_path") or p.get("full_path") or os.path.abspath(os.path.join(VAULT_DIR, p["rel_path"].replace("/", os.sep)))
-        abs_forward = abs_p.replace("\\", "/")
-        title_links.append(f"[{p['title']}](file:///{abs_forward})")
+        rel = p.get("rel_path")
+        if not rel:
+            fp = p.get("file_path") or p.get("full_path")
+            if fp:
+                try:
+                    rel = os.path.relpath(fp, VAULT_DIR)
+                except ValueError:
+                    rel = os.path.basename(fp)
+            else:
+                rel = f"{p['title']}.md"
+        rel_forward = str(rel).replace("\\", "/")
+        rel_encoded = urllib.parse.quote(rel_forward, safe="/:")
+        title_links.append(f"[{p['title']}]({rel_encoded})")
         auto_disps.append(enrich_project_auto_fields(p, vault_dir=VAULT_DIR))
 
     if verbose:
@@ -3596,16 +3739,62 @@ def format_project_table(projects, verbose=False):
     return "\n".join(lines)
 
 
-def write_root_dashboard(vault_dir=VAULT_DIR, data=None, projects=None) -> str:
+def write_root_dashboard(vault_dir=VAULT_DIR, data=None, projects=None, show_progress: bool = False) -> str:
     """
     Construit et écrit le tableau de bord Markdown épuré 🎯 Projets.md
     à la racine du coffre Obsidian.
     """
+    t_start = time.time()
     if data is None:
         data = load_data(os.path.join(vault_dir, ".obsidian", "plugins", "project-memory", "data.json"))
 
     if projects is None:
         projects = scan_projects(vault_dir, data, fast_mode=True, persist=False, is_agent=False)
+
+    if show_progress:
+        print("⏳ Synchronisation des projets et des vues AIVC (🤖 advance_tldr)...")
+
+    # Préchargement unique du cache AIVC pour éviter les lectures O(N) disque
+    _get_aivc_memories()
+
+    total_projs = len(projects)
+    bar_width = 20
+    projects_with_await = []
+
+    for idx, p in enumerate(projects, 1):
+        enrich_project_auto_fields(p, vault_dir=vault_dir)
+        p_title = p.get("title", "")
+        n_await = p.get("auto_await_count", 0)
+        n_roadmap = p.get("auto_roadmap_count", 0)
+        if n_await > 0:
+            eff = p.get("effective_score")
+            eff_s = f"{eff:.2f}" if eff is not None else "N/A"
+            tr = p.get("trend_arrow") or "➖"
+            projects_with_await.append({
+                "title": p_title,
+                "n_await": n_await,
+                "n_roadmap": n_roadmap,
+                "score_str": eff_s,
+                "trend": tr
+            })
+
+        if show_progress and total_projs > 0:
+            pct = int((idx / total_projs) * 100)
+            filled = int(bar_width * idx / total_projs)
+            disp_title = (p_title[:27] + "...") if len(p_title) > 30 else p_title
+            bar = "█" * filled + "░" * (bar_width - filled)
+            sys.stdout.write(f"\r  [{bar}] {idx:2d}/{total_projs:2d} ({pct:3d}%) · Synchronisation : {disp_title:<30}")
+            sys.stdout.flush()
+
+    if show_progress and total_projs > 0:
+        bar = "█" * bar_width
+        sys.stdout.write(f"\r  [{bar}] {total_projs:2d}/{total_projs:2d} (100%) · Synchronisation terminée.{' ' * 20}\n")
+        sys.stdout.flush()
+        if projects_with_await:
+            print(f"\n⚡ Projets avec livrables prêts à revoir ({len(projects_with_await)}) :")
+            for item in projects_with_await:
+                print(f"  • {item['title']} : {item['n_await']} livrable(s) prêt(s), {item['n_roadmap']} roadmap (Score {item['score_str']} {item['trend']})")
+            print()
 
     unreviewed = [p for p in projects if p.get("total_reviews", 0) == 0]
     reviewed = [p for p in projects if p.get("total_reviews", 0) > 0]
@@ -3637,17 +3826,24 @@ def write_root_dashboard(vault_dir=VAULT_DIR, data=None, projects=None) -> str:
     with open(temp_file, "w", encoding="utf-8") as f:
         f.write("\n".join(lines).strip() + "\n")
     os.replace(temp_file, dashboard_file)
+
+    if show_progress:
+        elapsed = time.time() - t_start
+        active_count = len(reviewed)
+        print(f"✅  Tableau de bord mis à jour : {dashboard_file} ({active_count} projets actifs en {elapsed:.1f}s)")
+
     return dashboard_file
 
 
 def cmd_dashboard(args, data):
+    is_json = getattr(args, "json", False)
+    t0 = time.time()
     projects = scan_projects(VAULT_DIR, data, fast_mode=False, persist=True, is_agent=False)
-    target_path = write_root_dashboard(vault_dir=VAULT_DIR, data=data, projects=projects)
+    target_path = write_root_dashboard(vault_dir=VAULT_DIR, data=data, projects=projects, show_progress=(not is_json))
     active_count = len([p for p in projects if p.get("total_reviews", 0) > 0])
-    if getattr(args, "json", False):
-        print(json.dumps({"status": "ok", "path": target_path, "active_projects": active_count}))
-    else:
-        print(f"✅ Tableau de bord mis à jour : {target_path} ({active_count} projets actifs)")
+    elapsed = time.time() - t0
+    if is_json:
+        print(json.dumps({"status": "ok", "path": target_path, "active_projects": active_count, "elapsed_seconds": round(elapsed, 2)}))
 
 
 def clean_orphans(vault_dir=VAULT_DIR, data_path=DATA_JSON_PATH, cache_path=CACHE_PATH, dry_run=False):
@@ -5604,7 +5800,7 @@ def _register_tasks_in_aivc(note_path: str, new_tasks: List[Tuple[str, str]], ti
     r"""
     Enregistre des tâches ouvertes non encore indexées dans le commit storage AIVC du projet.
     """
-    storage_root = Path.home() / ".aivc" / "storage"
+    storage_root = _get_aivc_storage_root()
     commits_dir = storage_root / "commits"
     commits_dir.mkdir(parents=True, exist_ok=True)
 
