@@ -3253,10 +3253,12 @@ def _sync_and_render_aivc_tldr(
     target_portable = _to_portable_path(target_full)
     target_lower = target_portable.lower()
 
-    # Search in AIVC memories
-    memories = _get_aivc_memories()
+    # Search in AIVC memories, strictly sorted chronologically from oldest to newest
+    memories = sorted(_get_aivc_memories(), key=lambda x: (str(x[0]), str(x[1].get("id", ""))))
     had_aivc_items = False
     items_map: Dict[str, Tuple[Dict[str, Any], bool, Dict[str, Any]]] = {}
+    first_seen_order: Dict[str, Tuple[str, int]] = {}
+    seq_counter = 0
     project_mems: List[Dict[str, Any]] = []
 
     for _ts, mem in memories:
@@ -3274,6 +3276,7 @@ def _sync_and_render_aivc_tldr(
 
         if concerns:
             project_mems.append(mem)
+            mem_ts = str(mem.get("timestamp") or _ts)
             user_items = mem.get("user_items", [])
             if user_items:
                 had_aivc_items = True
@@ -3288,6 +3291,15 @@ def _sync_and_render_aivc_tldr(
                         is_done = bool(item.get("done", False))
                     items_map[iid] = (item, is_done, mem)
 
+                    seq_counter += 1
+                    created_at = str(item.get("created_at") or mem_ts)
+                    if iid not in first_seen_order:
+                        first_seen_order[iid] = (created_at, seq_counter)
+                    else:
+                        prev_ts, prev_seq = first_seen_order[iid]
+                        if created_at < prev_ts:
+                            first_seen_order[iid] = (created_at, prev_seq)
+
             completed_cids = mem.get("completed_user_items", []) or []
             for cid in completed_cids:
                 if cid in items_map:
@@ -3297,6 +3309,9 @@ def _sync_and_render_aivc_tldr(
                     it_copy["task_status"] = "validated"
                     items_map[cid] = (it_copy, True, origin_mem)
                 else:
+                    seq_counter += 1
+                    if cid not in first_seen_order:
+                        first_seen_order[cid] = (mem_ts, seq_counter)
                     items_map[cid] = ({"id": cid, "task_status": "validated", "done": True}, True, mem)
 
     # Filter active and done items
@@ -3313,6 +3328,17 @@ def _sync_and_render_aivc_tldr(
         it for it in active_items
         if it.get("task_status") == "new" or (not it.get("task_status") and (it.get("kind") == "roadmap" or it.get("type") == "roadmap"))
     ]
+
+    # Sort strictly chronologically from oldest to newest by first_seen_order
+    def _item_sort_key(it: Dict[str, Any]) -> Tuple[str, int]:
+        iid = it.get("id", "")
+        if iid in first_seen_order:
+            return first_seen_order[iid]
+        created_at = str(it.get("created_at") or "")
+        return (created_at, 999999)
+
+    deliverable_items.sort(key=_item_sort_key)
+    roadmap_aivc_items.sort(key=_item_sort_key)
     n_deliverables = len(deliverable_items)
 
     advance_dir = ADVANCE_TLDR_DIR
