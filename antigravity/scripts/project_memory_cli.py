@@ -2290,6 +2290,210 @@ def _convert_wikilinks_to_markdown_links(text: str, vault_dir: Optional[str] = N
     return wikilink_pattern.sub(_replace_wikilink, text)
 
 
+def _get_aivc_storage_root() -> Path:
+    env_root = os.environ.get("PROJECT_MEMORY_AIVC_STORAGE_ROOT")
+    if env_root:
+        return Path(env_root)
+    return Path.home() / ".aivc" / "storage"
+
+
+def _extract_artifact_subpath(raw: str) -> Optional[str]:
+    """Extrait le sous-chemin relatif d'un artefact depuis une URL ou un chemin brut."""
+    if not raw:
+        return None
+    s = str(raw).strip().replace("\\", "/")
+    if s.startswith("file:///"):
+        s = s[8:]
+    elif s.startswith("file://"):
+        s = s[7:]
+    if ":L" in s or re.search(r":\d+", s):
+        s = re.split(r":L?\d+", s)[0]
+    s = s.rstrip(").,'\"`>")
+    for marker in ("aivc/artifacts/", ".gemini/antigravity-cli/brain/", ".gemini/antigravity/brain/", "antigravity-cli/brain/", "antigravity/brain/"):
+        idx = s.lower().find(marker)
+        if idx != -1:
+            rel = s[idx + len(marker):].strip().strip("/")
+            return urllib.parse.unquote(rel) if rel else None
+    clean_s = urllib.parse.unquote(s.strip("/"))
+    if re.match(r"^[0-9a-fA-F\-]{8,}/", clean_s) or clean_s.startswith("advance_artifacts/"):
+        return clean_s
+    return None
+
+
+def _ensure_public_artifact_exists(subpath: str, blob_hash: str = "") -> Optional[Path]:
+    """
+    S'assure qu'un artefact référencé par son subpath (ex: <uuid>/fichier.ext ou brain/<uuid>/fichier.ext)
+    existe physiquement dans C:\\Users\\Public\\aivc\\artifacts\\<subpath>.
+    Si absent :
+    1. Cherche dans ~/.gemini/antigravity/brain/<subpath>
+    2. Cherche dans ~/.gemini/antigravity-cli/brain/<subpath>
+    3. Cherche dans LOCALAPPDATA/Temp/aivc/artifacts/<subpath> ou AIVC_USER_TEMP_DIR/artifacts/<subpath>
+    4. Cherche le blob_hash (fourni ou extrait via SQLite core_index.db) dans storage_root/blobs/<hash>
+    Si trouvé, copie vers target_public (et AIVC_USER_TEMP_DIR).
+    Synchronise également les autres fichiers du même sous-dossier de conversation.
+    Retourne le Path cible s'il existe et est valide (> 8 octets), None sinon.
+    """
+    if not subpath:
+        return None
+    extracted = _extract_artifact_subpath(subpath)
+    clean_sub = (extracted or str(subpath)).replace("\\", "/").strip("/")
+    if re.match(r"^[a-zA-Z]:", clean_sub):
+        parts = clean_sub.split("/", 2)
+        clean_sub = parts[-1] if len(parts) > 1 else clean_sub
+    clean_sub = urllib.parse.unquote(clean_sub).strip("/")
+    if not clean_sub:
+        return None
+
+    target_public = AIVC_ARTIFACTS_DIR / Path(clean_sub)
+    target_user = AIVC_USER_TEMP_DIR / "artifacts" / Path(clean_sub)
+
+    def _is_corrupt_8b(p: Path) -> bool:
+        try:
+            if p.is_file() and p.stat().st_size == 8:
+                if p.read_bytes() == b"restored":
+                    p.unlink(missing_ok=True)
+                    return True
+        except Exception:
+            pass
+        return False
+
+    _is_corrupt_8b(target_public)
+    _is_corrupt_8b(target_user)
+
+    if target_public.is_file():
+        try:
+            if not target_user.is_file() or target_user.stat().st_size != target_public.stat().st_size:
+                target_user.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(target_public, target_user)
+        except Exception:
+            pass
+        return target_public
+
+    # 1. Chercher dans les sources candidates locales
+    candidate_roots = [
+        Path.home() / ".gemini" / "antigravity" / "brain",
+        Path.home() / ".gemini" / "antigravity-cli" / "brain",
+        AIVC_USER_TEMP_DIR / "artifacts",
+        Path(os.environ.get("LOCALAPPDATA", "")) / "Temp" / "aivc" / "artifacts",
+    ]
+
+    for cand_root in candidate_roots:
+        if not cand_root or not cand_root.is_dir():
+            continue
+        cand_file = cand_root / Path(clean_sub)
+        if cand_file.is_file() and not _is_corrupt_8b(cand_file):
+            try:
+                target_public.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(cand_file, target_public)
+                if cand_file != target_user:
+                    target_user.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(cand_file, target_user)
+            except OSError:
+                pass
+            break
+
+    # 2. Synchroniser les sous-dossiers existants de brain si applicables
+    if "/" in clean_sub:
+        conv_dir_name = clean_sub.split("/")[0]
+        for b_root in [
+            Path.home() / ".gemini" / "antigravity" / "brain" / conv_dir_name,
+            Path.home() / ".gemini" / "antigravity-cli" / "brain" / conv_dir_name,
+        ]:
+            if b_root.is_dir():
+                pub_conv_dir = AIVC_ARTIFACTS_DIR / conv_dir_name
+                try:
+                    pub_conv_dir.mkdir(parents=True, exist_ok=True)
+                    for item in b_root.iterdir():
+                        if item.is_file() and not item.name.startswith("sources_") and not item.name.startswith("questions_"):
+                            dest_f = pub_conv_dir / item.name
+                            if not dest_f.exists() or (dest_f.stat().st_size != item.stat().st_size and item.stat().st_size != 8):
+                                try:
+                                    shutil.copy2(item, dest_f)
+                                except Exception:
+                                    pass
+                except Exception:
+                    pass
+
+    if target_public.is_file():
+        return target_public
+
+    # 3. Chercher dans le BlobStore AIVC
+    storage_root = _get_aivc_storage_root()
+    blobs_dir = storage_root / "blobs"
+    effective_hash = blob_hash.strip() if blob_hash else ""
+
+    if not effective_hash and blobs_dir.exists():
+        db_path = storage_root / "core_index.db"
+        if db_path.exists():
+            try:
+                import sqlite3
+                with sqlite3.connect(str(db_path)) as conn:
+                    cur = conn.cursor()
+                    cand_queries = [
+                        ("~/.gemini/antigravity/brain/" + clean_sub, "="),
+                        ("~/.gemini/antigravity-cli/brain/" + clean_sub, "="),
+                        ("%" + clean_sub, "LIKE"),
+                        ("%" + Path(clean_sub).name, "LIKE"),
+                    ]
+                    for cq, op in cand_queries:
+                        cur.execute(f"SELECT blob_hash FROM file_changes WHERE path {op} ? AND blob_hash IS NOT NULL LIMIT 1", (cq,))
+                        row = cur.fetchone()
+                        if row and row[0]:
+                            effective_hash = row[0]
+                            break
+            except Exception:
+                pass
+
+    if effective_hash and blobs_dir.exists():
+        blob_file = blobs_dir / effective_hash
+        if not blob_file.is_file():
+            alt_blob = Path.home() / ".aivc" / "storage" / "blobs" / effective_hash
+            if alt_blob.is_file():
+                blob_file = alt_blob
+        if blob_file.is_file():
+            try:
+                content = blob_file.read_bytes()
+                if len(content) != 8 or content != b"restored":
+                    target_public.parent.mkdir(parents=True, exist_ok=True)
+                    target_public.write_bytes(content)
+                    try:
+                        target_user.parent.mkdir(parents=True, exist_ok=True)
+                        target_user.write_bytes(content)
+                    except Exception:
+                        pass
+                    return target_public
+            except Exception:
+                pass
+
+    return target_public if (target_public.is_file() and target_public.stat().st_size != 8) else None
+
+
+def _merge_file_paths_latest_wins(existing_list: List[str], new_files: List[str]) -> List[str]:
+    """
+    Fusionne new_files dans existing_list en remplaçant in-situ toute version antérieure
+    ayant le même basename (insensible à la casse) par la nouvelle version la plus récente.
+    Si le basename n'existait pas, le nouveau fichier est ajouté à la fin.
+    """
+    res = list(existing_list)
+    for nf in new_files:
+        clean_nf = nf.strip()
+        if not clean_nf:
+            continue
+        base_nf = Path(clean_nf.replace("\\", "/").rstrip("/")).name.lower()
+        if not base_nf:
+            continue
+        replaced = False
+        for i, ef in enumerate(res):
+            base_ef = Path(ef.replace("\\", "/").rstrip("/")).name.lower()
+            if base_ef == base_nf:
+                res[i] = clean_nf
+                replaced = True
+                break
+        if not replaced:
+            res.append(clean_nf)
+    return res
+
+
 def _rewrite_paths_for_current_pc(text: str) -> str:
     """
     In markdown text, replaces multi-PC user paths (Jamet / hjamet)
@@ -2341,6 +2545,12 @@ def _rewrite_paths_for_current_pc(text: str) -> str:
                 sub = raw_sub.replace("/", "\\").strip("\\")
                 return str(AIVC_ARTIFACTS_DIR / Path(sub)) + suffix
         text = combined_pattern.sub(_replace_combined, text)
+
+    # S'assurer que tous les artefacts référencés existent physiquement dans C:\\Users\\Public\\aivc\\artifacts
+    for m in re.finditer(r"(?:aivc[\\/]artifacts|\.?gemini[\\/]antigravity(?:-cli)?[\\/]brain)[\\/]([^\s\[\]\(\)\"\'\`<>:]+)", text, re.IGNORECASE):
+        raw_sub = m.group(1).split(":")[0].strip("\\/.,")
+        if raw_sub:
+            _ensure_public_artifact_exists(raw_sub)
 
     home_path = Path.home()
     home_fwd = str(home_path).replace("\\", "/").rstrip("/") + "/"
@@ -2468,7 +2678,7 @@ def _get_aivc_memories() -> List[Tuple[Any, Dict[str, Any]]]:
                     is_cached = False
                     if cached_entry and isinstance(cached_entry, dict) and cached_entry.get("mtime") == mtime:
                         item_data = cached_entry.get("data")
-                        if item_data is None or "completed_user_items" in item_data:
+                        if item_data is None or ("completed_user_items" in item_data and "read_files" in item_data and "edited_files" in item_data):
                             is_cached = True
                         else:
                             item_data = None
@@ -2492,6 +2702,9 @@ def _get_aivc_memories() -> List[Tuple[Any, Dict[str, Any]]]:
                                 "main_project_file": raw_data.get("main_project_file", ""),
                                 "user_items": user_items or [],
                                 "completed_user_items": completed_items or [],
+                                "edited_files": raw_data.get("edited_files") or [],
+                                "read_files": raw_data.get("read_files") or [],
+                                "changes": raw_data.get("changes") or [],
                             }
                             cache[key] = {"mtime": mtime, "data": item_data}
                         else:
@@ -2815,37 +3028,12 @@ def _auto_restore_aivc_blobs_for_active_items(
                         except OSError:
                             pass
 
-            # Si artifact_target existe déjà et est valide (> 8 octets)
-            if artifact_target.is_file() and artifact_target.stat().st_size != 8:
-                _mirror_artifact(artifact_target)
+            # Vérification et copie via _ensure_public_artifact_exists
+            res = _ensure_public_artifact_exists(subpath, blob_hash=blob_hash or "")
+            if res is not None and res.is_file():
+                _mirror_artifact(res)
+                restored.append(str(res))
                 return True
-
-            # 1. Vérifier source locale dans ~/.gemini/antigravity/brain/ ou ~/.gemini/antigravity-cli/brain/
-            for candidate_root in [
-                Path.home() / ".gemini" / "antigravity" / "brain",
-                Path.home() / ".gemini" / "antigravity-cli" / "brain",
-            ]:
-                for s_var in sub_variants:
-                    cand_src = candidate_root / Path(s_var)
-                    _purge_corrupt(cand_src)
-                    if cand_src.is_file() and cand_src.stat().st_size != 8:
-                        try:
-                            _mirror_artifact(cand_src)
-                            restored.append(str(artifact_target))
-                            return True
-                        except OSError:
-                            pass
-
-            # Vérifier aussi user_target si présent et valide
-            for s_var in sub_variants:
-                u_cand = AIVC_USER_TEMP_DIR / "artifacts" / Path(s_var)
-                if u_cand.is_file() and u_cand.stat().st_size != 8:
-                    try:
-                        _mirror_artifact(u_cand)
-                        restored.append(str(artifact_target))
-                        return True
-                    except OSError:
-                        pass
 
             # 2. Sinon restaurer depuis BlobStore / SQLite / rclone directement dans artifact_target
             fn = filename or artifact_target.name
@@ -2891,87 +3079,176 @@ def _auto_restore_aivc_blobs_for_active_items(
     return restored
 
 
-try:
-    from aivc.core.workspace import _are_tasks_duplicate
-except ImportError:
-    import difflib
-    import unicodedata
+def _extract_file_path_list(val: Any) -> List[str]:
+    """Extrait une liste ordonnée et nettoyée de chemins de fichiers depuis une structure arbitraire."""
+    if not val:
+        return []
+    res: List[str] = []
+    items = val if isinstance(val, (list, tuple, set)) else [val]
+    for x in items:
+        p: str = ""
+        if isinstance(x, dict):
+            p = x.get("path") or x.get("file") or x.get("url") or ""
+        elif hasattr(x, "path"):
+            p = str(getattr(x, "path") or "")
+        elif isinstance(x, str):
+            p = x
+        else:
+            p = str(x)
+        p = p.strip()
+        if p and p not in res:
+            res.append(p)
+    return res
 
-    _CLI_TASK_STOPWORDS = {
-        "pour", "dans", "avec", "sur", "les", "des", "une", "un", "le", "la", "par", "est",
-        "qui", "que", "aux", "son", "ses", "leur", "leurs", "cette", "cet", "ces", "du", "de",
-        "the", "and", "for", "with", "from", "that", "this", "suite", "afin", "tout", "tous",
-        "faire", "fait", "plus", "tres", "bien", "aussi", "comme", "apres", "avant", "ci", "dessus", "dessous"
-    }
 
-    def _strip_accents_cli(text: str) -> str:
-        nfkd = unicodedata.normalize("NFKD", text)
-        return "".join(c for c in nfkd if not unicodedata.combining(c))
+def _format_file_links(file_list: Any, main_note_path: str = "", is_read: bool = False, vault_dir: str = VAULT_DIR) -> str:
+    """
+    Formate une liste de chemins de fichiers en une chaîne de liens cliquables Markdown :
+    [📄 nom1.ext](file:///...) · [📄 nom2.ext](file:///...)
+    Applique la normalisation des artefacts (C:/Users/Public/aivc/artifacts/...) et des chemins locaux.
+    Exclut la note maîtresse (main_note_path) et les fichiers advance_tldr/🤖 ...
+    Exclut les fichiers .tex bruts de ✏️ Fichiers modifiés si un .pdf ou un diff_*.md est présent.
+    Déduplique par basename (dernière version gagnante).
+    Vérifie l'existence physique sur disque pour éviter tout lien mort.
+    """
+    raw_paths = _extract_file_path_list(file_list)
+    if not raw_paths:
+        return ""
 
-    def _normalize_task_text_cli(task: str) -> str:
-        if not task:
-            return ""
-        s = str(task).strip()
-        s = re.sub(r"\[([^\]]+)\]\([^\)]+\)", r"\1", s)
-        s = re.sub(r"<[^>]+>", " ", s)
-        s = re.sub(r"^\s*[-*+]\s+\[[ xX]?\]\s*", " ", s)
-        s = re.sub(r"^(?:#+\s*)+", " ", s)
-        s = re.sub(r"\*\*\[[a-zA-Z0-9\-_]+\]\*\*", " ", s)
-        s = re.sub(r"\[[a-zA-Z0-9\-_]+\]", " ", s)
-        s = re.sub(r"[🤖⚡📋🔴🟢🟡🟠⚪👤✅❌]", " ", s)
-        s = re.sub(r"\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b", " ", s)
-        s = re.sub(r"\b\d{4}[/-]\d{1,2}[/-]\d{1,2}\b", " ", s)
-        s = re.sub(r"#[a-zA-Z0-9_]+\b", " ", s)
-        s = re.sub(r"\b[0-9a-fA-F]{6,40}\b", " ", s)
-        s = _strip_accents_cli(s).lower()
-        s = re.sub(r"[^a-z0-9\s]", " ", s)
-        return " ".join(s.split())
+    # Déduplication par basename en conservant la dernière version gagnante
+    raw_paths = _merge_file_paths_latest_wins([], raw_paths)
 
-    def _are_tasks_duplicate(task_a: str, task_b: str) -> bool:
-        if not task_a or not task_b:
-            return False
-        norm_a = _normalize_task_text_cli(task_a)
-        norm_b = _normalize_task_text_cli(task_b)
-        if not norm_a or not norm_b:
-            return False
-        if norm_a == norm_b:
-            return True
+    main_port = _to_portable_path(main_note_path).lower() if main_note_path else ""
+    main_base = Path(main_note_path).name.lower() if main_note_path else ""
 
-        min_len = min(len(norm_a), len(norm_b))
-        common_len = 0
-        while common_len < min_len and norm_a[common_len] == norm_b[common_len]:
-            common_len += 1
-        if common_len >= 28:
-            return True
-        if len(norm_a) >= 28 and norm_b.startswith(norm_a[:28]):
-            return True
-        if len(norm_b) >= 28 and norm_a.startswith(norm_b[:28]):
-            return True
+    v_dir = Path(vault_dir) if vault_dir else Path(VAULT_DIR)
+    posix_home = Path.home().as_posix()
 
-        no_stop_a = " ".join([w for w in norm_a.split() if w not in _CLI_TASK_STOPWORDS])
-        no_stop_b = " ".join([w for w in norm_b.split() if w not in _CLI_TASK_STOPWORDS])
-        if no_stop_a and no_stop_b:
-            if no_stop_a == no_stop_b:
-                return True
-            min_ns = min(len(no_stop_a), len(no_stop_b))
-            common_ns = 0
-            while common_ns < min_ns and no_stop_a[common_ns] == no_stop_b[common_ns]:
-                common_ns += 1
-            if common_ns >= 28:
-                return True
+    # Conformément à task-tracking.md, si un .pdf compilé ou un diff markdown est présent,
+    # exclure les fichiers .tex bruts de ✏️ Fichiers modifiés (is_read=False)
+    has_pdf_or_diff = False
+    if not is_read:
+        for p in raw_paths:
+            p_clean = str(p).strip().replace("\\", "/")
+            b_name = Path(p_clean).name.lower()
+            if b_name.endswith(".pdf") or (b_name.startswith("diff_") and b_name.endswith(".md")) or ("diff" in b_name and b_name.endswith(".md")):
+                has_pdf_or_diff = True
+                break
 
-        words_a = {w for w in norm_a.split() if len(w) >= 3 and w not in _CLI_TASK_STOPWORDS}
-        words_b = {w for w in norm_b.split() if len(w) >= 3 and w not in _CLI_TASK_STOPWORDS}
-        if words_a and words_b:
-            inter = words_a.intersection(words_b)
-            uni = words_a.union(words_b)
-            if (len(inter) / len(uni)) >= 0.55:
-                return True
+    formatted_links: List[str] = []
+    seen_urls: Set[str] = set()
+    seen_basenames: Set[str] = set()
 
-        if difflib.SequenceMatcher(None, norm_a, norm_b).ratio() >= 0.70:
-            return True
+    for raw in raw_paths:
+        clean = raw.strip()
+        if not clean:
+            continue
 
-        return False
+        # Exclusion des fichiers advance_tldr
+        clean_lower = clean.lower()
+        if "advance_tldr" in clean_lower or (clean_lower.endswith(".md") and "🤖" in clean):
+            continue
+
+        base = Path(clean.replace("\\", "/").rstrip("/")).name
+        if not base or base.startswith("🤖"):
+            continue
+
+        base_lower = base.lower()
+        # Exclusion des artefacts purement internes de plomberie des sous-agents
+        if (
+            base_lower in {
+                "sources_eclaireur.md",
+                "sources_executant.md",
+                "sources_audit.md",
+                "remember_payload.json",
+                "task_commit_payload.json",
+            }
+            or (base_lower.startswith("sources_") and base_lower.endswith(".md"))
+            or (base_lower.startswith("questions_") and base_lower.endswith(".md"))
+        ):
+            continue
+
+        # Exclusion des .tex bruts si .pdf ou diff présent dans les fichiers modifiés
+        if not is_read and has_pdf_or_diff and base_lower.endswith(".tex"):
+            continue
+
+        # Exclusion de la note maîtresse
+        clean_port = _to_portable_path(clean).lower()
+        if main_port and (
+            clean_port == main_port
+            or clean_port == main_base
+            or clean_port.endswith("/" + main_base)
+            or base_lower == main_base
+        ):
+            continue
+
+        # Résolution URL web
+        if clean.lower().startswith(("http://", "https://")):
+            link = f"[📄 {base}]({clean})"
+            link = _rewrite_paths_for_current_pc(link)
+            m_u = re.search(r'\(([^)]+)\)', link)
+            target_url = m_u.group(1).lower() if m_u else link.lower()
+            if target_url not in seen_urls and base_lower not in seen_basenames:
+                seen_urls.add(target_url)
+                seen_basenames.add(base_lower)
+                formatted_links.append(link)
+            continue
+
+        # Traitement chemin fichier
+        f_path = clean
+        if f_path.startswith("file:///"):
+            f_path = f_path[8:]
+        elif f_path.startswith("file://"):
+            f_path = f_path[7:]
+
+        sub_artifact = _extract_artifact_subpath(f_path)
+        if sub_artifact:
+            _ensure_public_artifact_exists(sub_artifact)
+
+        if f_path.startswith("~/") or f_path.startswith("~\\"):
+            sub = f_path[2:].replace("\\", "/").lstrip("/")
+            abs_forward = f"{posix_home}/{sub}"
+        elif re.match(r'^[A-Za-z]:[\\/]', f_path) or f_path.startswith("/"):
+            abs_forward = f_path.replace("\\", "/")
+        else:
+            f_clean = f_path.replace("\\", "/")
+            if f_clean.startswith("Documents/VoiceNotes/"):
+                sub = f_clean[len("Documents/VoiceNotes/"):]
+                abs_forward = (v_dir / Path(sub)).as_posix()
+            elif f_clean.startswith("~/Documents/VoiceNotes/"):
+                sub = f_clean[len("~/Documents/VoiceNotes/"):]
+                abs_forward = (v_dir / Path(sub)).as_posix()
+            else:
+                cand_v = v_dir / Path(f_clean)
+                if cand_v.exists():
+                    abs_forward = cand_v.as_posix()
+                else:
+                    cand_h = Path.home() / Path(f_clean)
+                    abs_forward = cand_h.as_posix() if cand_h.exists() else cand_v.as_posix()
+
+        raw_link = f"[📄 {base}](file:///{abs_forward.lstrip('/')})"
+        rewritten_link = _rewrite_paths_for_current_pc(raw_link)
+        m_u = re.search(r'\(([^)]+)\)', rewritten_link)
+        target_url = m_u.group(1) if m_u else rewritten_link
+        target_url_lower = target_url.lower()
+
+        # Vérification d'existence physique sur disque pour éviter tout lien mort
+        if target_url_lower.startswith("file:///"):
+            local_fs = urllib.parse.unquote(target_url[8:])
+            p_check = Path(local_fs)
+            if not p_check.exists():
+                cand_sub = _extract_artifact_subpath(local_fs)
+                if cand_sub:
+                    _ensure_public_artifact_exists(cand_sub)
+                if not p_check.exists():
+                    continue
+
+        if target_url_lower not in seen_urls and base_lower not in seen_basenames:
+            seen_urls.add(target_url_lower)
+            seen_basenames.add(base_lower)
+            formatted_links.append(rewritten_link)
+
+    return " · ".join(formatted_links)
 
 
 def _clean_text_tokens(text: str) -> Set[str]:
@@ -3002,8 +3279,6 @@ def _extract_identifiers(text: str) -> Set[str]:
 
 
 def _is_matching_task(checkbox_text: str, candidate_task: str, candidate_details: str = "") -> bool:
-    if _are_tasks_duplicate(checkbox_text, candidate_task):
-        return True
     ids1 = _extract_identifiers(checkbox_text)
     ids2 = _extract_identifiers(candidate_task + " " + candidate_details)
     common_ids = ids1.intersection(ids2)
@@ -3285,7 +3560,8 @@ def _extract_project_roadmap(
                 "task": task_t,
                 "details": details_t,
                 "done": False,
-                "created_at": now_iso
+                "created_at": now_iso,
+                "updated_at": now_iso,
             }
             commit_data["user_items"].append(new_it)
             aivc_roadmap_items.append(new_it)
@@ -3328,6 +3604,14 @@ def _extract_project_roadmap(
                     line += f" : {first_line}"
         roadmap_lines.append(line)
 
+        # Fichiers modifiés et consultés attachés à cette tâche de roadmap
+        edited_links = _format_file_links(it.get("edited_files", []), note_path, is_read=False)
+        read_links = _format_file_links(it.get("read_files", []), note_path, is_read=True)
+        if edited_links:
+            roadmap_lines.append(f"  - ✏️ **Fichiers modifiés** : {edited_links}")
+        if read_links:
+            roadmap_lines.append(f"  - 📖 **Fichiers consultés** : {read_links}")
+
     return roadmap_lines
 
 
@@ -3344,6 +3628,55 @@ def _extract_project_notes_from_mem(mem: Dict[str, Any]) -> List[str]:
             if fname not in SYSTEM_FILES and fname not in ("home.md", "morning_sync_state.json"):
                 return [port]
     return []
+
+
+def format_french_task_date(ts: Any) -> str:
+    """Format an ISO timestamp, unix timestamp or datetime into a deterministic French string:
+    '(Jour J mois, HHhMM)', e.g. '(Mardi 2 novembre, 14h11)'.
+    Does not depend on locale.setlocale. Converts to local timezone.
+    """
+    if not ts:
+        return ""
+
+    dt: Optional[datetime] = None
+    if isinstance(ts, datetime):
+        dt = ts
+    elif isinstance(ts, (int, float)):
+        dt = datetime.fromtimestamp(ts, tz=timezone.utc)
+    elif isinstance(ts, str):
+        raw_s = ts.strip()
+        if not raw_s:
+            return ""
+        try:
+            clean_s = raw_s.replace("Z", "+00:00")
+            dt = datetime.fromisoformat(clean_s)
+        except Exception:
+            try:
+                import dateutil.parser
+                dt = dateutil.parser.parse(raw_s)
+            except Exception:
+                return ""
+
+    if dt is None:
+        return ""
+
+    if dt.tzinfo is not None:
+        dt = dt.astimezone()
+    else:
+        dt = dt.replace(tzinfo=timezone.utc).astimezone()
+
+    days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+    months = [
+        "janvier", "février", "mars", "avril", "mai", "juin",
+        "juillet", "août", "septembre", "octobre", "novembre", "décembre"
+    ]
+
+    day_name = days[dt.weekday()]
+    day_num = dt.day
+    month_name = months[dt.month - 1]
+    time_str = f"{dt.hour:02d}h{dt.minute:02d}"
+
+    return f"({day_name} {day_num} {month_name}, {time_str})"
 
 
 def _sync_and_render_aivc_tldr(
@@ -3366,6 +3699,8 @@ def _sync_and_render_aivc_tldr(
     memories = sorted(_get_aivc_memories(), key=lambda x: (str(x[0]), str(x[1].get("id", ""))))
     had_aivc_items = False
     items_map: Dict[str, Tuple[Dict[str, Any], bool, Dict[str, Any]]] = {}
+    accumulated_edited: Dict[str, List[str]] = {}
+    accumulated_read: Dict[str, List[str]] = {}
     first_seen_order: Dict[str, Tuple[str, int]] = {}
     seq_counter = 0
     project_mems: List[Dict[str, Any]] = []
@@ -3386,6 +3721,30 @@ def _sync_and_render_aivc_tldr(
         if concerns:
             project_mems.append(mem)
             mem_ts = str(mem.get("timestamp") or _ts)
+
+            # Collecter les fichiers modifiés et consultés au niveau du commit mem
+            mem_edited_raw: List[str] = _extract_file_path_list(mem.get("edited_files"))
+            mem_read_raw: List[str] = _extract_file_path_list(mem.get("read_files"))
+            for c in mem.get("changes", []):
+                cp = ""
+                action = ""
+                if isinstance(c, dict):
+                    cp = c.get("path", "")
+                    action = str(c.get("action", "")).lower()
+                elif hasattr(c, "path"):
+                    cp = getattr(c, "path") or ""
+                    action = str(getattr(c, "action", "")).lower()
+                elif isinstance(c, str):
+                    cp = c
+                cp = str(cp).strip()
+                if cp:
+                    if action in ("consulted", "read"):
+                        if cp not in mem_read_raw:
+                            mem_read_raw.append(cp)
+                    else:
+                        if cp not in mem_edited_raw:
+                            mem_edited_raw.append(cp)
+
             user_items = mem.get("user_items", [])
             if user_items:
                 had_aivc_items = True
@@ -3399,22 +3758,73 @@ def _sync_and_render_aivc_tldr(
                     else:
                         is_done = bool(item.get("done", False))
 
-                    # Deduplication against historical active items in items_map
-                    matching_old_iids = []
-                    for old_iid, (old_item, old_is_done, old_mem) in list(items_map.items()):
-                        if old_iid != iid and not old_is_done:
-                            if _are_tasks_duplicate(old_item.get("task", ""), item.get("task", "")):
-                                matching_old_iids.append(old_iid)
-                    for m_id in matching_old_iids:
-                        del items_map[m_id]
-                        if m_id in first_seen_order:
-                            if iid not in first_seen_order:
-                                first_seen_order[iid] = first_seen_order[m_id]
-                            else:
-                                first_seen_order[iid] = min(first_seen_order[iid], first_seen_order[m_id])
-                        first_seen_order.pop(m_id, None)
+                    # Livrable 2 : Récupération des fichiers de l'item et complément depuis mem
+                    item_edited = _extract_file_path_list(item.get("edited_files"))
+                    item_read = _extract_file_path_list(item.get("read_files"))
 
-                    items_map[iid] = (item, is_done, mem)
+                    if item_edited:
+                        eff_edited = list(item_edited)
+                    elif len(user_items) == 1:
+                        eff_edited = list(mem_edited_raw)
+                    else:
+                        # Commit multi-tâches sans edited_files explicite pour cet item
+                        item_text = (item.get("details", "") + " " + item.get("task", "")).lower()
+                        matching_edited = [
+                            f for f in mem_edited_raw
+                            if Path(f.replace("\\", "/").rstrip("/")).name.lower() in item_text
+                        ]
+                        if matching_edited:
+                            eff_edited = matching_edited
+                        else:
+                            any_other_mentions = False
+                            for other_it in user_items:
+                                if other_it is not item:
+                                    o_text = (other_it.get("details", "") + " " + other_it.get("task", "")).lower()
+                                    if any(Path(f.replace("\\", "/").rstrip("/")).name.lower() in o_text for f in mem_edited_raw):
+                                        any_other_mentions = True
+                                        break
+                            if not any_other_mentions and idx == 1:
+                                eff_edited = list(mem_edited_raw)
+                            else:
+                                eff_edited = []
+
+                    if item_read:
+                        eff_read = list(item_read)
+                    elif len(user_items) == 1:
+                        eff_read = list(mem_read_raw)
+                    else:
+                        item_text = (item.get("details", "") + " " + item.get("task", "")).lower()
+                        matching_read = [
+                            f for f in mem_read_raw
+                            if Path(f.replace("\\", "/").rstrip("/")).name.lower() in item_text
+                        ]
+                        if matching_read:
+                            eff_read = matching_read
+                        else:
+                            any_other_mentions_read = False
+                            for other_it in user_items:
+                                if other_it is not item:
+                                    o_text = (other_it.get("details", "") + " " + other_it.get("task", "")).lower()
+                                    if any(Path(f.replace("\\", "/").rstrip("/")).name.lower() in o_text for f in mem_read_raw):
+                                        any_other_mentions_read = True
+                                        break
+                            if not any_other_mentions_read and idx == 1:
+                                eff_read = list(mem_read_raw)
+                            else:
+                                eff_read = []
+
+                    # Cumuler de façon dédupliquée pour cet iid au fil des commits (dernière version gagnante par nom de fichier)
+                    accumulated_edited[iid] = _merge_file_paths_latest_wins(accumulated_edited.get(iid, []), eff_edited)
+                    accumulated_read[iid] = _merge_file_paths_latest_wins(accumulated_read.get(iid, []), eff_read)
+
+                    item_to_store = dict(item)
+                    item_to_store["edited_files"] = list(accumulated_edited[iid])
+                    item_to_store["read_files"] = list(accumulated_read[iid])
+                    eff_ts = item.get("updated_at") or mem.get("timestamp") or mem_ts or item.get("created_at") or str(_ts)
+                    item_to_store["updated_at"] = eff_ts
+
+                    # Livrable 1 : Remplacement in-situ reposant EXCLUSIVEMENT sur iid exact
+                    items_map[iid] = (item_to_store, is_done, mem)
 
                     seq_counter += 1
                     created_at = str(item.get("created_at") or mem_ts)
@@ -3432,12 +3842,13 @@ def _sync_and_render_aivc_tldr(
                     it_copy = dict(it)
                     it_copy["done"] = True
                     it_copy["task_status"] = "validated"
+                    it_copy["updated_at"] = mem_ts
                     items_map[cid] = (it_copy, True, origin_mem)
                 else:
                     seq_counter += 1
                     if cid not in first_seen_order:
                         first_seen_order[cid] = (mem_ts, seq_counter)
-                    items_map[cid] = ({"id": cid, "task_status": "validated", "done": True}, True, mem)
+                    items_map[cid] = ({"id": cid, "task_status": "validated", "done": True, "updated_at": mem_ts}, True, mem)
 
     # Filter active and done items
     active_items = [it for iid, (it, is_done, mem) in items_map.items() if not is_done]
@@ -3521,7 +3932,36 @@ def _sync_and_render_aivc_tldr(
                 anchor_link = f"#{anchor}"
                 id_badge = f"**[`[{iid}]`]({anchor_link})**" if iid else f"**[Étape {idx}]({anchor_link})**"
                 toc_lines.append(f"> {idx}. {id_badge} — {task}")
-                sec2_parts.append(f"### [{iid}] {task}\n{details}")
+
+                edited_links = _format_file_links(it.get("edited_files", []), target_full, is_read=False)
+                read_links = _format_file_links(it.get("read_files", []), target_full, is_read=True)
+
+                file_lines = []
+                if edited_links and "- ✏️ **Fichiers modifiés** :" not in details:
+                    file_lines.append(f"- ✏️ **Fichiers modifiés** : {edited_links}")
+                if read_links and "- 📖 **Fichiers consultés** :" not in details:
+                    file_lines.append(f"- 📖 **Fichiers consultés** : {read_links}")
+
+                details_clean = re.sub(r"^>\s*\[!NOTE\][^\r\n]*\r?\n*", "", details.strip()).strip()
+                if file_lines:
+                    if details_clean:
+                        body = f"{details_clean}\n\n" + "\n".join(file_lines)
+                    else:
+                        body = "\n".join(file_lines)
+                else:
+                    body = details_clean
+
+                task_ts = it.get("updated_at") or it.get("timestamp") or it.get("created_at")
+                date_callout = ""
+                if task_ts:
+                    date_str = format_french_task_date(task_ts)
+                    if date_str:
+                        date_callout = f"> [!NOTE] {date_str}\n\n"
+
+                if body:
+                    sec2_parts.append(f"### [{iid}] {task}\n{date_callout}{body}")
+                else:
+                    sec2_parts.append(f"### [{iid}] {task}\n{date_callout.rstrip()}")
             toc_text = "\n".join(toc_lines)
             sec2_text = f"{toc_text}\n\n" + "\n\n".join(sec2_parts)
             sections.append(f"## ⚡ Décisions & Livrables Prêts\n\n{sec2_text}")
@@ -6150,8 +6590,7 @@ def main():
     args = parser.parse_args()
 
     if not args.command:
-        parser.print_help()
-        sys.exit(0)
+        args.command = "dashboard"
 
     data = load_data(DATA_JSON_PATH)
 
