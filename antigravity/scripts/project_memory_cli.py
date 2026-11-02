@@ -2698,7 +2698,9 @@ def _get_aivc_memories() -> List[Tuple[Any, Dict[str, Any]]]:
                         if user_items or completed_items:
                             item_data = {
                                 "id": raw_data.get("id"),
-                                "timestamp": raw_data.get("timestamp"),
+                                "timestamp": raw_data.get("timestamp") or raw_data.get("updated_at") or raw_data.get("created_at"),
+                                "updated_at": raw_data.get("updated_at"),
+                                "created_at": raw_data.get("created_at"),
                                 "main_project_file": raw_data.get("main_project_file", ""),
                                 "user_items": user_items or [],
                                 "completed_user_items": completed_items or [],
@@ -2718,7 +2720,7 @@ def _get_aivc_memories() -> List[Tuple[Any, Dict[str, Any]]]:
                             if mem_id in seen_ids:
                                 continue
                             seen_ids.add(mem_id)
-                        ts = item_data.get("timestamp") or mtime
+                        ts = item_data.get("updated_at") or item_data.get("timestamp") or item_data.get("created_at") or mtime
                         loaded.append((ts, item_data))
         except OSError:
             continue
@@ -3635,10 +3637,10 @@ def format_french_task_date(ts: Any) -> str:
     '(Jour J mois, HHhMM)', e.g. '(Mardi 2 novembre, 14h11)'.
     Does not depend on locale.setlocale. Converts to local timezone.
     """
-    if not ts:
+    if ts is None or ts == "":
         return ""
 
-    dt: Optional[datetime] = None
+    dt: datetime
     if isinstance(ts, datetime):
         dt = ts
     elif isinstance(ts, (int, float)):
@@ -3647,18 +3649,14 @@ def format_french_task_date(ts: Any) -> str:
         raw_s = ts.strip()
         if not raw_s:
             return ""
+        clean_s = raw_s.replace("Z", "+00:00")
         try:
-            clean_s = raw_s.replace("Z", "+00:00")
             dt = datetime.fromisoformat(clean_s)
-        except Exception:
-            try:
-                import dateutil.parser
-                dt = dateutil.parser.parse(raw_s)
-            except Exception:
-                return ""
-
-    if dt is None:
-        return ""
+        except ValueError:
+            import dateutil.parser
+            dt = dateutil.parser.parse(raw_s)
+    else:
+        raise TypeError(f"format_french_task_date: unsupported timestamp type {type(ts)}: {ts!r}")
 
     if dt.tzinfo is not None:
         dt = dt.astimezone()
@@ -3720,7 +3718,7 @@ def _sync_and_render_aivc_tldr(
 
         if concerns:
             project_mems.append(mem)
-            mem_ts = str(mem.get("timestamp") or _ts)
+            mem_ts = str(mem.get("updated_at") or mem.get("timestamp") or mem.get("created_at") or _ts)
 
             # Collecter les fichiers modifiés et consultés au niveau du commit mem
             mem_edited_raw: List[str] = _extract_file_path_list(mem.get("edited_files"))
@@ -3820,14 +3818,30 @@ def _sync_and_render_aivc_tldr(
                     item_to_store = dict(item)
                     item_to_store["edited_files"] = list(accumulated_edited[iid])
                     item_to_store["read_files"] = list(accumulated_read[iid])
-                    eff_ts = item.get("updated_at") or mem.get("timestamp") or mem_ts or item.get("created_at") or str(_ts)
+                    parent_ts = (
+                        mem.get("updated_at")
+                        or mem.get("timestamp")
+                        or mem.get("created_at")
+                        or mem_ts
+                        or str(_ts)
+                    )
+                    eff_ts = (
+                        item.get("updated_at")
+                        or item.get("timestamp")
+                        or item.get("created_at")
+                        or parent_ts
+                    )
                     item_to_store["updated_at"] = eff_ts
+                    if not item_to_store.get("created_at"):
+                        item_to_store["created_at"] = eff_ts
+                    if not item_to_store.get("timestamp"):
+                        item_to_store["timestamp"] = eff_ts
 
                     # Livrable 1 : Remplacement in-situ reposant EXCLUSIVEMENT sur iid exact
                     items_map[iid] = (item_to_store, is_done, mem)
 
                     seq_counter += 1
-                    created_at = str(item.get("created_at") or mem_ts)
+                    created_at = str(item.get("created_at") or eff_ts)
                     if iid not in first_seen_order:
                         first_seen_order[iid] = (created_at, seq_counter)
                     else:
@@ -3837,18 +3851,19 @@ def _sync_and_render_aivc_tldr(
 
             completed_cids = mem.get("completed_user_items", []) or []
             for cid in completed_cids:
+                cid_ts = mem.get("updated_at") or mem.get("timestamp") or mem.get("created_at") or mem_ts
                 if cid in items_map:
                     it, _, origin_mem = items_map[cid]
                     it_copy = dict(it)
                     it_copy["done"] = True
                     it_copy["task_status"] = "validated"
-                    it_copy["updated_at"] = mem_ts
+                    it_copy["updated_at"] = cid_ts
                     items_map[cid] = (it_copy, True, origin_mem)
                 else:
                     seq_counter += 1
                     if cid not in first_seen_order:
-                        first_seen_order[cid] = (mem_ts, seq_counter)
-                    items_map[cid] = ({"id": cid, "task_status": "validated", "done": True, "updated_at": mem_ts}, True, mem)
+                        first_seen_order[cid] = (cid_ts, seq_counter)
+                    items_map[cid] = ({"id": cid, "task_status": "validated", "done": True, "updated_at": cid_ts}, True, mem)
 
     # Filter active and done items
     active_items = [it for iid, (it, is_done, mem) in items_map.items() if not is_done]
@@ -4038,6 +4053,9 @@ def sync_advance_tldr_for_memory(memory: Any, vault_dir: Optional[str] = None) -
             "changes": getattr(memory, "changes", []),
             "main_project_file": getattr(memory, "main_project_file", ""),
             "user_items": getattr(memory, "user_items", []),
+            "timestamp": getattr(memory, "timestamp", None),
+            "updated_at": getattr(memory, "updated_at", None),
+            "created_at": getattr(memory, "created_at", None),
         }
 
     cand_notes = _extract_project_notes_from_mem(mem_dict)
@@ -4225,6 +4243,34 @@ def write_root_dashboard(vault_dir=VAULT_DIR, data=None, projects=None, show_pro
             bar = "█" * filled + "░" * (bar_width - filled)
             sys.stdout.write(f"\r  [{bar}] {idx:2d}/{total_projs:2d} ({pct:3d}%) · Synchronisation : {disp_title:<30}")
             sys.stdout.flush()
+
+    # Synchroniser également tous les projets ayant des mémoires AIVC mais non indexés dans scan_projects
+    known_rel_paths = {p.get("rel_path") for p in projects if p.get("rel_path")}
+    for _ts, mem in _get_aivc_memories():
+        if not mem.get("user_items"):
+            continue
+        cand_notes = _extract_project_notes_from_mem(mem)
+        for tn in cand_notes:
+            tn_expanded = os.path.expanduser(tn)
+            if os.path.isabs(tn_expanded):
+                try:
+                    rel_p = os.path.relpath(tn_expanded, vault_dir).replace("\\", "/")
+                except ValueError:
+                    rel_p = os.path.basename(tn_expanded)
+            else:
+                rel_p = tn.replace("\\", "/")
+                if rel_p.startswith("Documents/VoiceNotes/"):
+                    rel_p = rel_p[len("Documents/VoiceNotes/"):]
+                elif rel_p.startswith("~/Documents/VoiceNotes/"):
+                    rel_p = rel_p[len("~/Documents/VoiceNotes/"):]
+            if rel_p not in known_rel_paths:
+                known_rel_paths.add(rel_p)
+                p_title = Path(rel_p).stem.lstrip("🤖").strip()
+                _sync_and_render_aivc_tldr(
+                    vault_root=vault_dir,
+                    rel_path=rel_p,
+                    title=p_title
+                )
 
     if show_progress and total_projs > 0:
         bar = "█" * bar_width
