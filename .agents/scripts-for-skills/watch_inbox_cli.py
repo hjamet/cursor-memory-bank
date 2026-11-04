@@ -82,6 +82,8 @@ def _run_agy_command(agy_cmd: list[str], workspace: Path | str) -> int:
     so Python SIGINT handlers can run immediately.
     """
     global _ACTIVE_AGY_PROC
+    if _STOP_AFTER_AGENT:
+        return 0
     creationflags = subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0
     proc = subprocess.Popen(
         agy_cmd,
@@ -1142,8 +1144,8 @@ def cmd_watch(args: argparse.Namespace) -> None:
                             target_fid = next((p for p in f_parents if p in folder_ids_set), folder_ids[0])
                             if _process_doc(f_name, f_id, target_fid, mime_type=f_mime):
                                 inbox_docs_count += 1
-                                if _STOP_AFTER_AGENT:
-                                    return
+                            if _STOP_AFTER_AGENT:
+                                return
 
                 if _STOP_AFTER_AGENT:
                     return
