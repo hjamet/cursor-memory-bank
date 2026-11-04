@@ -36,12 +36,12 @@ if hasattr(sys.stdin, "reconfigure"):
         pass
 if hasattr(sys.stdout, "reconfigure"):
     try:
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
     except (AttributeError, io.UnsupportedOperation, OSError):
         pass
 if hasattr(sys.stderr, "reconfigure"):
     try:
-        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
     except (AttributeError, io.UnsupportedOperation, OSError):
         pass
 
@@ -1003,13 +1003,15 @@ def cmd_start(args: argparse.Namespace) -> None:
     flags_str = " ".join(flags)
     watch_args = f"watch {flags_str}".strip()
 
-    cmd_line = f'cmd.exe /c ""{python_exe}" "{script_path}" {watch_args} >> "{log_file}" 2>&1"'
-
-    ps_launch = (
-        f"$res = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{{ CommandLine = '{cmd_line}' }}; "
-        "if ($res.ReturnValue -ne 0) { throw \"WMI Process Creation failed with code $($res.ReturnValue)\" }; "
-        "$res.ProcessId"
-    )
+    cmd_str = f'cmd.exe /s /c "\"{python_exe}\" -u \"{script_path}\" {watch_args} >> \"{log_file}\" 2>&1"'
+    ps_launch = f"""
+$cmd = @'
+{cmd_str}
+'@
+$res = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{{ CommandLine = $cmd }}
+if ($res.ReturnValue -ne 0) {{ throw "WMI Process Creation failed with code $($res.ReturnValue)" }}
+$res.ProcessId
+""".strip()
 
     created_pid = _run_powershell_script(ps_launch)
     print(f"{GREEN}{CHECK_MARK} Processus watch-inbox démarré avec succès en arrière-plan détaché (PID lanceur WMI : {created_pid}).{RESET}")
