@@ -26,19 +26,19 @@ Ce skill documente et pilote le script canonique [`watch_inbox_cli.py`](file:///
 ## ⚙️ Architecture à Deux Volets de `watch_inbox_cli.py`
 
 1. **Volet 1 — Réception Temps Réel `Dream_Inbox` (Priorité Absolue)** :
-   - Interroge en direct l'API REST Google Drive v3 (`/drive/v3/files` et `/drive/v3/changes`) avec backoff progressif `(5, 10, 20, 30)` s couvrant la fenêtre de 60 s de rate-limit Google Drive.
+   - Interroge en direct l'API REST Google Drive v3 (`/drive/v3/files` et `/drive/v3/changes`) en sélectionnant prioritairement le profil Rclone disposant des droits d'écriture (`gdrive_rw` avec `scope = drive` plutôt que `gdrive` en `drive.readonly`, et rafraîchissement OAuth léger via `rclone about <section>:` au lieu de `rclone lsd`), avec backoff progressif `(5, 10, 20, 30)` s couvrant la fenêtre de 60 s de rate-limit Google Drive.
    - Dès qu'un document est détecté dans l'un des dossiers `Dream_Inbox` surveillés :
      1. **Sauvegarde locale immédiate** du texte intégral dans `C:\Users\Public\aivc\dream_inbox_archive\<nom>.md` ;
      2. **Verrouillage multi-clés** (`doc_id`, nom avec et sans extension) dans `~/.aivc/dream_inbox_processed.json` ;
      3. **Mise à la corbeille Google Drive dès la première seconde** (avant même d'invoquer `agy.exe`), garantissant zéro double exécution en cas d'interruption ;
-     4. **Invocation d'`agy.exe --mode auto --model gemini-4-argon-high`** qui délègue directement le chemin du fichier local à un sous-agent `superviseur-projet` distinct par projet ciblé, sans jamais reformuler le propos d'Henri.
+     4. **Invocation d'`agy.exe --model gemini-4-argon-high`** (sans `--mode auto`) qui délègue directement le chemin du fichier local à un sous-agent `superviseur-projet` distinct par projet ciblé, sans jamais reformuler le propos d'Henri.
    - **Auto-rechargement à chaud (`os.execv`)** : à chaque cycle de veille, le script vérifie le `st_mtime` de `watch_inbox_cli.py` et se recharge automatiquement en mémoire vive dès que le fichier est mis à jour sur le disque (par exemple via Obsidian Sync).
 
 2. **Volet 2 — Autonomie Bornée `/one-shot` lorsque `Dream_Inbox` est vide** :
    - Si aucun document n'est présent dans `Dream_Inbox` (et sauf si `--no-autonomous` est passé), `watch_inbox_cli.py` appelle :
      `python project_memory_cli.py next-autonomous --json`
    - Sélectionne le **premier projet actif le plus urgent** (selon le score effectif $S_{\text{eff}}$ avec malus de récence $M_{\text{temporal}}(K)$, **sans seuil de priorité minimum**) qui ne possède **aucune tâche au statut `await_validation`**.
-   - Lance un unique agent `agy.exe --mode auto --model gemini-4-argon-high` en mode `/one-shot` qui :
+   - Lance un unique agent `agy.exe --model gemini-4-argon-high` en mode `/one-shot` (avec interdiction stricte d'enchaîner plusieurs vagues d'éclaireurs séquentielles : **1 seule vague d'éclaireurs `flash` en parallèle maximum**, suivie directement des exécutants) qui :
      1. Lit la note maîtresse et `C:\Users\Public\aivc\advance_tldr\🤖 <Titre>.md` ;
      2. Identifie **la seule et unique tâche `new`** la plus urgente immédiatement réalisable (ou, à défaut, la tâche récurrente **Rasoir d'Ockham** `[ockham-<slug>]`) ;
      3. Consulte l'historique complet de la tâche via `mcp-cli call aivc get_task_history '{"task_id": "<id>"}'` ;
