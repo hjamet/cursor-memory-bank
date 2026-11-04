@@ -408,8 +408,8 @@ def _drive_api_get_json(
 ) -> tuple[dict, http.client.HTTPSConnection]:
     """Execute a Google Drive REST GET request with transient rate-limit backoff across a 60s window.
 
-    Handles 403 rate limits, 429, and 5xx server errors with backoffs (5, 10, 20, 30)s.
-    Re-establishes TCP/TLS connection if dropped during keep-alive idle or sleep.
+    Handles 403 rate limits, 429, and 5xx server errors with silent backoffs (5, 10, 20, 30)s.
+    Re-establishes TCP/TLS connection immediately if dropped during keep-alive idle or sleep.
     Raises PermissionError immediately on 401.
     Raises RuntimeError Fail-Fast if all retries are exhausted or non-transient error occurs.
     """
@@ -424,19 +424,32 @@ def _drive_api_get_json(
     if conn is None:
         conn = http.client.HTTPSConnection("www.googleapis.com", timeout=30)
 
+    last_error_detail = ""
+
     for attempt in range(max_attempts):
+        resp = None
         try:
             conn.request("GET", path, headers=headers)
             resp = conn.getresponse()
-        except (http.client.RemoteDisconnected, ConnectionResetError, BrokenPipeError, TimeoutError, OSError) as net_err:
+        except (http.client.RemoteDisconnected, http.client.BadStatusLine, ConnectionResetError, BrokenPipeError, TimeoutError, OSError) as net_err:
             conn.close()
             conn = http.client.HTTPSConnection("www.googleapis.com", timeout=30)
-            if attempt < len(delays):
-                delay = delays[attempt]
-                print(f"{YELLOW}Warning: Google Drive API connection dropped ({net_err}), retrying in {delay}s...{RESET}", file=sys.stderr)
-                time.sleep(delay)
-                continue
-            raise RuntimeError(f"Google Drive API GET failed on {path} after retries: {net_err}") from net_err
+            if attempt == 0:
+                # Reconnexion immédiate et silencieuse si la connexion keep-alive a été fermée pendant l'attente
+                try:
+                    conn.request("GET", path, headers=headers)
+                    resp = conn.getresponse()
+                except (http.client.RemoteDisconnected, http.client.BadStatusLine, ConnectionResetError, BrokenPipeError, TimeoutError, OSError) as net_err2:
+                    net_err = net_err2
+
+            if resp is None:
+                if attempt < len(delays):
+                    delay = delays[attempt]
+                    time.sleep(delay)
+                    continue
+                last_error_detail = f"connection dropped ({net_err})"
+                print(f"{YELLOW}Warning: Google Drive API connection dropped after {max_attempts} attempts ({net_err}){RESET}", file=sys.stderr)
+                raise RuntimeError(f"Google Drive API GET failed on {path} after retries: {net_err}") from net_err
 
         body = resp.read().decode("utf-8", errors="replace")
 
@@ -454,19 +467,21 @@ def _drive_api_get_json(
                 and any(m in body for m in ("RATE_LIMIT_EXCEEDED", "rateLimitExceeded", "userRateLimitExceeded", "Quota exceeded", "quotaExceeded"))
             )
         )
-        if is_transient and attempt < len(delays):
-            delay = delays[attempt]
-            print(f"{YELLOW}Warning: Google Drive API transient error (HTTP {resp.status}), retrying in {delay}s...{RESET}", file=sys.stderr)
-            conn.close()
-            conn = http.client.HTTPSConnection("www.googleapis.com", timeout=30)
-            time.sleep(delay)
-            continue
+        if is_transient:
+            if attempt < len(delays):
+                delay = delays[attempt]
+                conn.close()
+                conn = http.client.HTTPSConnection("www.googleapis.com", timeout=30)
+                time.sleep(delay)
+                continue
+            last_error_detail = f"transient rate limit (HTTP {resp.status}): {body}"
+            print(f"{YELLOW}Warning: Google Drive API transient error exhausted after {max_attempts} attempts (HTTP {resp.status}){RESET}", file=sys.stderr)
 
         conn.close()
         raise RuntimeError(f"Google Drive API GET failed on {path} (HTTP {resp.status}): {body}")
 
     conn.close()
-    raise RuntimeError(f"Google Drive API GET failed on {path} after {max_attempts} attempts.")
+    raise RuntimeError(f"Google Drive API GET failed on {path} after {max_attempts} attempts. {last_error_detail}")
 
 
 def _drive_get_start_page_token(conn: http.client.HTTPSConnection, access_token: str) -> str:
@@ -724,6 +739,49 @@ def _save_dream_inbox_local_copy(doc_name: str, doc_id: str, doc_text: str) -> P
 # ---------------------------------------------------------------------------
 # Volet 2 — Autonomie Bornée /one-shot lorsque Dream_Inbox est vide
 # ---------------------------------------------------------------------------
+_LAST_NO_ELIGIBLE_REASON: str | None = None
+_LAST_AUTONOMOUS_CHECK_TS: float = 0.0
+_LAST_AIVC_TASKS_MTIME: float = 0.0
+
+
+def _get_aivc_tasks_state_stamp() -> float:
+    r"""Return maximum mtime of files in C:\Users\Public\aivc\advance_tldr and ~/.aivc/storage/commits."""
+    max_mtime = 0.0
+    tldr_dir = Path(r"C:\Users\Public\aivc\advance_tldr")
+    if tldr_dir.exists():
+        try:
+            d_mtime = tldr_dir.stat().st_mtime
+            if d_mtime > max_mtime:
+                max_mtime = d_mtime
+            with os.scandir(tldr_dir) as it:
+                for entry in it:
+                    if entry.is_file():
+                        st = entry.stat()
+                        if st.st_mtime > max_mtime:
+                            max_mtime = st.st_mtime
+        except OSError:
+            pass
+
+    for commits_dir in [Path.home() / ".aivc" / "storage" / "commits", Path.home() / ".aivc" / "commits"]:
+        if commits_dir.exists():
+            try:
+                c_mtime = commits_dir.stat().st_mtime
+                if c_mtime > max_mtime:
+                    max_mtime = c_mtime
+            except OSError:
+                pass
+
+    return max_mtime
+
+
+def _reset_autonomous_throttle() -> None:
+    """Reset autonomous throttle state when a new document is processed or a project is selected."""
+    global _LAST_NO_ELIGIBLE_REASON, _LAST_AUTONOMOUS_CHECK_TS, _LAST_AIVC_TASKS_MTIME
+    _LAST_NO_ELIGIBLE_REASON = None
+    _LAST_AUTONOMOUS_CHECK_TS = 0.0
+    _LAST_AIVC_TASKS_MTIME = 0.0
+
+
 def _run_autonomous_one_shot_if_idle(
     workspace: str,
     agy_path: Path,
@@ -734,6 +792,18 @@ def _run_autonomous_one_shot_if_idle(
 
     Returns True if a project task was executed, False if no project was selected or error occurred.
     """
+    global _LAST_NO_ELIGIBLE_REASON, _LAST_AUTONOMOUS_CHECK_TS, _LAST_AIVC_TASKS_MTIME
+
+    now = time.time()
+    current_mtime = _get_aivc_tasks_state_stamp()
+
+    # Throttling intelligent : lorsqu'aucun projet n'était éligible (ex. all_projects_awaiting_validation),
+    # ne pas relancer le sous-processus lourd next-autonomous à chaque tick de 15s si aucun fichier
+    # de suivi n'a été modifié et qu'un délai de sécurité de 120s ne s'est pas écoulé.
+    if _LAST_NO_ELIGIBLE_REASON == "all_projects_awaiting_validation":
+        if (now - _LAST_AUTONOMOUS_CHECK_TS < 120.0) and (current_mtime <= _LAST_AIVC_TASKS_MTIME):
+            return False
+
     script_path = Path(workspace) / "_agents" / "scripts-for-skills" / "project_memory_cli.py"
     if not script_path.exists():
         vn_path = Path.home() / "Documents" / "VoiceNotes" / "_agents" / "scripts-for-skills" / "project_memory_cli.py"
@@ -750,6 +820,9 @@ def _run_autonomous_one_shot_if_idle(
         errors="replace",
     )
 
+    _LAST_AUTONOMOUS_CHECK_TS = time.time()
+    _LAST_AIVC_TASKS_MTIME = _get_aivc_tasks_state_stamp()
+
     if res.returncode != 0:
         err_msg = res.stderr.strip() or res.stdout.strip()
         raise RuntimeError(f"project_memory_cli.py next-autonomous failed (code {res.returncode}): {err_msg}")
@@ -758,8 +831,12 @@ def _run_autonomous_one_shot_if_idle(
 
     if not data.get("selected"):
         reason = data.get("reason", "unknown")
-        print(f"{DIM}[AUTONOMIE /one-shot] Aucun projet éligible (raison: {reason}).{RESET}")
+        if reason != _LAST_NO_ELIGIBLE_REASON:
+            print(f"{DIM}[AUTONOMIE /one-shot] Aucun projet éligible (raison: {reason}).{RESET}")
+            _LAST_NO_ELIGIBLE_REASON = reason
         return False
+
+    _reset_autonomous_throttle()
 
     proj_title = data.get("title", "")
     proj_file = data.get("file", "")
@@ -984,6 +1061,7 @@ def cmd_watch(args: argparse.Namespace) -> None:
     agy_path = _find_agy_executable()
 
     def _process_doc(doc_name: str, doc_id: str, fid: str, is_demo: bool = False, mime_type: str = "") -> bool:
+        _reset_autonomous_throttle()
         print(f"{YELLOW}{BOLD}>>> Nouveau document détecté : {doc_name} (ID: {doc_id}, Folder: {fid}){' [DRY-RUN DEMO SUR DERNIER DOC]' if is_demo else ''}{RESET}")
         try:
             doc_text = _extract_dream_inbox_doc_text(fid, doc_name, file_id=doc_id, mime_type=mime_type)
@@ -1116,7 +1194,7 @@ def cmd_watch(args: argparse.Namespace) -> None:
 
                 try:
                     new_token, changes = _drive_poll_changes(conn, access_token, page_token)
-                except (http.client.RemoteDisconnected, ConnectionResetError, BrokenPipeError, PermissionError):
+                except (http.client.RemoteDisconnected, http.client.BadStatusLine, ConnectionResetError, BrokenPipeError, PermissionError):
                     conn.close()
                     access_token = _get_rclone_drive_access_token()
                     conn = http.client.HTTPSConnection("www.googleapis.com", timeout=30)
