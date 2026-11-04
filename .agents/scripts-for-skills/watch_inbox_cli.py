@@ -17,6 +17,7 @@ import json
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -25,6 +26,7 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
+from typing import Any
 
 # Configuration standard des flux texte UTF-8
 if hasattr(sys.stdin, "reconfigure"):
@@ -62,6 +64,93 @@ try:
 except (UnicodeEncodeError, AttributeError):
     CHECK_MARK = "[OK]"
     CROSS_MARK = "[Error]"
+
+
+# ---------------------------------------------------------------------------
+# Gestion des Signaux & Arrêt Gracieux à Double Détente (Ctrl+C)
+# ---------------------------------------------------------------------------
+_SIGINT_COUNT: int = 0
+_STOP_AFTER_AGENT: bool = False
+_ACTIVE_AGY_PROC: subprocess.Popen | None = None
+
+
+def _run_agy_command(agy_cmd: list[str], workspace: Path | str) -> int:
+    """Execute agy command isolated from console Ctrl+C events under Windows.
+
+    Uses CREATE_NEW_PROCESS_GROUP so the child process is not sent CTRL_C_EVENT
+    when the user presses Ctrl+C in the console. Waits reactively via poll() loop
+    so Python SIGINT handlers can run immediately.
+    """
+    global _ACTIVE_AGY_PROC
+    creationflags = subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0
+    proc = subprocess.Popen(
+        agy_cmd,
+        cwd=str(workspace),
+        creationflags=creationflags,
+        start_new_session=(os.name != "nt"),
+    )
+    _ACTIVE_AGY_PROC = proc
+    try:
+        while proc.poll() is None:
+            time.sleep(0.2)
+        return proc.returncode
+    finally:
+        _ACTIVE_AGY_PROC = None
+
+
+def _handle_sigint(signum: int, frame: Any) -> None:
+    """Handle Ctrl+C (SIGINT) with double-action semantics:
+    1st Ctrl+C: schedule graceful shutdown after current agent or cycle finishes.
+    2nd Ctrl+C: force immediate shutdown by killing active agy process tree and exiting.
+    """
+    global _SIGINT_COUNT, _STOP_AFTER_AGENT, _ACTIVE_AGY_PROC
+    _SIGINT_COUNT += 1
+    _STOP_AFTER_AGENT = True
+
+    if _SIGINT_COUNT == 1:
+        if _ACTIVE_AGY_PROC is not None and _ACTIVE_AGY_PROC.poll() is None:
+            print(
+                f"\n{YELLOW}{BOLD}⚠️ [Ctrl+C (1/2)] Arrêt différé programmé : l'agent en cours poursuit son travail jusqu'au bout, puis watch-inbox s'arrêtera sans relancer de nouvel agent. (Pressez une 2e fois Ctrl+C pour forcer l'arrêt immédiat.){RESET}",
+                flush=True,
+            )
+        else:
+            print(
+                f"\n{YELLOW}{BOLD}⚠️ [Ctrl+C (1/2)] Arrêt demandé (aucun agent en cours) : fermeture propre de watch-inbox.{RESET}",
+                flush=True,
+            )
+    elif _SIGINT_COUNT >= 2:
+        print(
+            f"\n{RED}{BOLD}🛑 [Ctrl+C (2/2)] Arrêt immédiat forcé !{RESET}",
+            flush=True,
+        )
+        if _ACTIVE_AGY_PROC is not None and _ACTIVE_AGY_PROC.poll() is None:
+            try:
+                if os.name == "nt":
+                    subprocess.run(
+                        ["taskkill", "/F", "/T", "/PID", str(_ACTIVE_AGY_PROC.pid)],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                else:
+                    _ACTIVE_AGY_PROC.kill()
+            except Exception:
+                pass
+        os._exit(130)
+
+
+def _sleep_interruptible(seconds: float) -> bool:
+    """Sleep in short steps (0.2s) so _STOP_AFTER_AGENT immediately terminates sleep."""
+    steps = int(seconds / 0.2)
+    for _ in range(steps):
+        if _STOP_AFTER_AGENT:
+            return True
+        time.sleep(0.2)
+    remainder = seconds - (steps * 0.2)
+    if remainder > 0:
+        if _STOP_AFTER_AGENT:
+            return True
+        time.sleep(remainder)
+    return _STOP_AFTER_AGENT
 
 
 def get_aivc_dir() -> Path:
@@ -280,7 +369,7 @@ def _get_rclone_drive_access_token() -> str:
     conf_path = _get_rclone_config_path()
     token_info = _read_token_from_rclone_conf(conf_path) if conf_path.exists() else None
 
-    section = token_info[2] if token_info and len(token_info) > 2 else "gdrive_rw"
+    section = token_info[2] if token_info and len(token_info) > 2 else _get_rclone_drive_section()
 
     needs_refresh = True
     if token_info and token_info[0] and token_info[1]:
@@ -704,11 +793,13 @@ def _run_autonomous_one_shot_if_idle(
 
     agy_cmd = [str(agy_path), "--model", model, "-p", auto_prompt]
     print(f"{CYAN}Exécution d'agy.exe en mode autonome /one-shot sur {proj_title}...{RESET}")
-    res_agy = subprocess.run(agy_cmd, cwd=workspace)
-    if res_agy.returncode == 0:
+    ret_code = _run_agy_command(agy_cmd, workspace)
+    if _STOP_AFTER_AGENT:
+        print(f"\n{GREEN}{CHECK_MARK} Retour de l'agent reçu. Arrêt propre de watch-inbox suite au Ctrl+C.{RESET}", flush=True)
+    if ret_code == 0:
         print(f"{GREEN}{CHECK_MARK} Session autonome /one-shot terminée avec succès sur {proj_title} (code 0).{RESET}")
     else:
-        print(f"{RED}Session autonome /one-shot sur {proj_title} terminée avec le code {res_agy.returncode}.{RESET}")
+        print(f"{RED}Session autonome /one-shot sur {proj_title} terminée avec le code {ret_code}.{RESET}")
     return True
 
 
@@ -859,6 +950,7 @@ def cmd_start(args: argparse.Namespace) -> None:
 # ---------------------------------------------------------------------------
 def cmd_watch(args: argparse.Namespace) -> None:
     """Differential event-driven watcher for Google Drive Dream_Inbox via changes.list."""
+    signal.signal(signal.SIGINT, _handle_sigint)
     interval = getattr(args, "interval", 15)
     once = getattr(args, "once", False)
     dry_run = getattr(args, "dry_run", False)
@@ -945,12 +1037,14 @@ def cmd_watch(args: argparse.Namespace) -> None:
             print(f"  {YELLOW}Mise à la corbeille distante non confirmée pour {doc_id} : document verrouillé dans dream_inbox_processed.json.{RESET}")
 
         print(f"{CYAN}Exécution d'agy.exe pour traiter le document...{RESET}")
-        res = subprocess.run(agy_cmd, cwd=workspace)
-        if res.returncode == 0:
+        ret_code = _run_agy_command(agy_cmd, workspace)
+        if _STOP_AFTER_AGENT:
+            print(f"\n{GREEN}{CHECK_MARK} Retour de l'agent reçu. Arrêt propre de watch-inbox suite au Ctrl+C.{RESET}", flush=True)
+        if ret_code == 0:
             print(f"{GREEN}{CHECK_MARK} Traitement agy réussi (returncode 0). Archive locale conservée dans {local_archive_path}.{RESET}")
             return True
         else:
-            print(f"{RED}Erreur: agy.exe a échoué avec le code retour {res.returncode}. Archive locale conservée dans {local_archive_path}.{RESET}")
+            print(f"{RED}Erreur: agy.exe a échoué avec le code retour {ret_code}. Archive locale conservée dans {local_archive_path}.{RESET}")
             return False
 
     reg = _load_dream_inbox_processed()
@@ -969,25 +1063,40 @@ def cmd_watch(args: argparse.Namespace) -> None:
         print(f"{YELLOW}Scan initial : {len(unprocessed)} document(s) non traité(s) détecté(s).{RESET}")
         for f in unprocessed:
             _process_doc(f.get("Name"), f.get("ID"), f.get("FolderID", folder_ids[0]), mime_type=f.get("MimeType") or f.get("mimeType", ""))
+            if _STOP_AFTER_AGENT:
+                conn.close()
+                return
     else:
         print(f"{GREEN}{CHECK_MARK} Scan initial : aucun document non traité en attente.{RESET}")
         if dry_run and once and all_existing_files and no_autonomous:
             sorted_files = sorted(all_existing_files, key=lambda x: x.get("ModTime", ""), reverse=True)
             demo_f = sorted_files[0]
             _process_doc(demo_f.get("Name"), demo_f.get("ID"), demo_f.get("FolderID", folder_ids[0]), is_demo=True, mime_type=demo_f.get("MimeType") or demo_f.get("mimeType", ""))
+            if _STOP_AFTER_AGENT:
+                conn.close()
+                return
 
     if once:
+        if _STOP_AFTER_AGENT:
+            conn.close()
+            return
         if not unprocessed and not no_autonomous:
             _run_autonomous_one_shot_if_idle(workspace, agy_path, model=model, dry_run=dry_run)
+            if _STOP_AFTER_AGENT:
+                conn.close()
+                return
         print(f"\n{GREEN}{CHECK_MARK} Cycle unique terminé (--once).{RESET}")
         conn.close()
         return
 
-    print(f"\n{CYAN}Démarrage de la boucle de surveillance (intervalle: {interval}s)... Pressez Ctrl+C pour arrêter.{RESET}")
+    print(f"\n{CYAN}Démarrage de la boucle de surveillance (intervalle: {interval}s)... Pressez Ctrl+C pour programmer l'arrêt après l'agent en cours (2x Ctrl+C pour arrêt immédiat).{RESET}")
     err_count = 0
     check_autonomy_immediately = not unprocessed
     try:
         while True:
+            if _STOP_AFTER_AGENT:
+                return
+
             current_mtime = watch_code_path.stat().st_mtime
             if current_mtime != watch_code_mtime:
                 print(f"\n{YELLOW}{BOLD}Modification du code source détectée ({watch_code_path.name}). Rechargement à chaud du processus...{RESET}")
@@ -996,8 +1105,12 @@ def cmd_watch(args: argparse.Namespace) -> None:
 
             try:
                 if not check_autonomy_immediately:
-                    time.sleep(interval)
+                    if _sleep_interruptible(interval):
+                        return
                 check_autonomy_immediately = False
+
+                if _STOP_AFTER_AGENT:
+                    return
 
                 try:
                     new_token, changes = _drive_poll_changes(conn, access_token, page_token)
@@ -1029,6 +1142,11 @@ def cmd_watch(args: argparse.Namespace) -> None:
                             target_fid = next((p for p in f_parents if p in folder_ids_set), folder_ids[0])
                             if _process_doc(f_name, f_id, target_fid, mime_type=f_mime):
                                 inbox_docs_count += 1
+                                if _STOP_AFTER_AGENT:
+                                    return
+
+                if _STOP_AFTER_AGENT:
+                    return
 
                 if inbox_docs_count > 0:
                     check_autonomy_immediately = True
@@ -1036,17 +1154,22 @@ def cmd_watch(args: argparse.Namespace) -> None:
 
                 if not no_autonomous:
                     task_ran = _run_autonomous_one_shot_if_idle(workspace, agy_path, model=model, dry_run=dry_run)
+                    if _STOP_AFTER_AGENT:
+                        return
                     if task_ran:
                         check_autonomy_immediately = True
                         continue
 
             except KeyboardInterrupt:
+                if _STOP_AFTER_AGENT:
+                    return
                 raise
             except Exception as e:
                 err_count += 1
                 backoff = min(interval * (2 ** err_count), 120)
                 print(f"{RED}Erreur lors de l'interrogation Drive ({e}). Attente {backoff}s...{RESET}", file=sys.stderr)
-                time.sleep(backoff)
+                if _sleep_interruptible(backoff):
+                    return
     finally:
         conn.close()
 
