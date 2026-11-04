@@ -38,12 +38,12 @@ Ce skill documente et pilote le script canonique [`watch_inbox_cli.py`](file:///
 2. **Volet 2 — Autonomie Bornée `/one-shot` lorsque `Dream_Inbox` est vide** :
    - Si aucun document n'est présent dans `Dream_Inbox` (et sauf si `--no-autonomous` est passé), `watch_inbox_cli.py` appelle :
      `python project_memory_cli.py next-autonomous --json`
-   - Sélectionne le **premier projet actif le plus urgent** (selon le score effectif $S_{\text{eff}}$ avec malus de récence $M_{\text{temporal}}(K)$, **sans seuil de priorité minimum**) qui ne possède **aucune tâche au statut `await_validation`**.
+   - Sélectionne le **premier projet actif le plus urgent** (selon le score effectif $S_{\text{eff}}$ avec malus de récence $M_{\text{temporal}}(K)$, **sans seuil de priorité minimum**) qui possède **au moins une tâche `new` (`todo`, `- [ ]` dans `## 📋 Roadmap du Projet`)**, même s'il a déjà d'autres livrables en `await_validation`.
    - Lance un unique agent `agy.exe --model gemini-4-argon-high` en mode `/one-shot` (avec interdiction stricte d'enchaîner plusieurs vagues d'éclaireurs séquentielles : **1 seule vague d'éclaireurs `flash` en parallèle maximum**, suivie directement des exécutants) qui :
      1. Lit la note maîtresse et `C:\Users\Public\aivc\advance_tldr\🤖 <Titre>.md` ;
-     2. Identifie **la seule et unique tâche `new`** la plus urgente immédiatement réalisable (ou, à défaut, la tâche récurrente **Rasoir d'Ockham** `[ockham-<slug>]`) ;
+     2. Identifie **la seule et unique tâche `new`** la plus urgente immédiatement réalisable (ou, à défaut, la tâche récurrente **Rasoir d'Ockham** `[ockham-<slug>]` si elle est en `new`) ;
      3. Consulte l'historique complet de la tâche via `mcp-cli call aivc get_task_history '{"task_id": "<id>"}'` ;
-     4. Exécute cette unique tâche sur la branche principale (avec `/draft` obligatoire pour toute modification substantielle de note ou de texte destiné à publication, et zéro action irréversible), dépose son livrable en `await_validation` via `task_commit` et clôture la session avec `project_memory_cli.py feedback "<Projet>" ok --agent`.
+     4. Exécute cette unique tâche sur la branche principale (avec `/draft` obligatoire pour toute modification substantielle de note ou de texte destiné à publication, et zéro action irréversible), dépose son livrable en `await_validation` via `task_commit` **sur le même `task_id` existant** (**interdiction absolue de créer de nouvelles tâches sans validation préalable d'Henri**), et clôture la session avec `project_memory_cli.py feedback "<Projet>" ok --agent`.
 
 ---
 

@@ -4820,8 +4820,8 @@ def cmd_list(args, data):
 def cmd_next_autonomous(args, data):
     """
     Sélectionne le prochain projet autonome éligible sans seuil de priorité minimum
-    selon l'ordre exact de `list --agent`, à condition qu'il n'ait aucune tâche en attente
-    de validation humaine (await_validation_count == 0).
+    selon l'ordre exact de `list --agent`, à condition qu'il possède au moins une
+    tâche à faire (todo/new) dans sa Roadmap (len(roadmap) > 0).
     """
     fast_mode = getattr(args, "fast", False)
     projects = scan_projects(VAULT_DIR, data, fast_mode=fast_mode, persist=True, is_agent=True)
@@ -4839,7 +4839,6 @@ def cmd_next_autonomous(args, data):
 
     # Inspecter les projets un à un dans l'ordre exact de priorité
     selected_tuple = None
-    first_empty_await_tuple = None
 
     for p in candidate_projects:
         clean_title = re.sub(r"^(?:🤖\s*)+", "", p.get("title", "")).strip()
@@ -4853,15 +4852,9 @@ def cmd_next_autonomous(args, data):
         deliv = p.get("deliverable_items") or []
         roadmap = p.get("roadmap_items") or []
 
-        if len(deliv) == 0:
-            if len(roadmap) > 0:
-                selected_tuple = (p, clean_title, tldr_path, deliv, roadmap)
-                break
-            elif first_empty_await_tuple is None:
-                first_empty_await_tuple = (p, clean_title, tldr_path, deliv, roadmap)
-
-    if selected_tuple is None and first_empty_await_tuple is not None:
-        selected_tuple = first_empty_await_tuple
+        if len(roadmap) > 0:
+            selected_tuple = (p, clean_title, tldr_path, deliv, roadmap)
+            break
 
     as_json = getattr(args, "json", False)
 
@@ -4869,10 +4862,10 @@ def cmd_next_autonomous(args, data):
         if as_json:
             print(json.dumps({
                 "selected": False,
-                "reason": "all_projects_awaiting_validation"
+                "reason": "no_todo_tasks_remaining"
             }, indent=2, ensure_ascii=False))
         else:
-            print("⏸️ Aucun projet éligible : tous les projets actifs ont au moins une tâche en attente de validation (await_validation).")
+            print("⏸️ Aucun projet éligible : aucun projet actif n'a de tâche à faire (todo/new) dans sa Roadmap.")
         return
 
     p, clean_title, tldr_path, deliv, roadmap = selected_tuple

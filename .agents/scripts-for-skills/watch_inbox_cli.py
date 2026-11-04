@@ -797,10 +797,10 @@ def _run_autonomous_one_shot_if_idle(
     now = time.time()
     current_mtime = _get_aivc_tasks_state_stamp()
 
-    # Throttling intelligent : lorsqu'aucun projet n'était éligible (ex. all_projects_awaiting_validation),
+    # Throttling intelligent : lorsqu'aucun projet n'était éligible (ex. no_todo_tasks_remaining ou all_projects_awaiting_validation),
     # ne pas relancer le sous-processus lourd next-autonomous à chaque tick de 15s si aucun fichier
     # de suivi n'a été modifié et qu'un délai de sécurité de 120s ne s'est pas écoulé.
-    if _LAST_NO_ELIGIBLE_REASON == "all_projects_awaiting_validation":
+    if _LAST_NO_ELIGIBLE_REASON in ("all_projects_awaiting_validation", "no_todo_tasks_remaining"):
         if (now - _LAST_AUTONOMOUS_CHECK_TS < 120.0) and (current_mtime <= _LAST_AIVC_TASKS_MTIME):
             return False
 
@@ -843,8 +843,10 @@ def _run_autonomous_one_shot_if_idle(
     proj_abs = data.get("abs_path", "")
     tldr_path = data.get("tldr_path", "")
     eff_score = data.get("effective_score", 0.0)
+    await_val_count = data.get("await_validation_count", 0)
+    new_tasks_count = len(data.get("new_tasks") or [])
 
-    print(f"{CYAN}{BOLD}[AUTONOMIE /one-shot] Dream_Inbox vide -> Projet sélectionné : {proj_title} (score effectif: {eff_score}, 0 tâche en await_validation){RESET}")
+    print(f"{CYAN}{BOLD}[AUTONOMIE /one-shot] Dream_Inbox vide -> Projet sélectionné : {proj_title} (score effectif: {eff_score}, {new_tasks_count} tâche(s) todo en roadmap, {await_val_count} en await_validation){RESET}")
 
     auto_prompt = (
         f"Tu es lancé en mode autonome `/one-shot` par `watch-inbox` (1 projet = 1 tâche) sur le projet `{proj_title}`.\n"
@@ -852,10 +854,10 @@ def _run_autonomous_one_shot_if_idle(
         f"Fichier de suivi des tâches : `{tldr_path}`\n\n"
         f"Instructions strictes d'exécution (1 seule tâche `new` en `/one-shot`) :\n"
         f"1. Lis `{proj_abs}` et `{tldr_path}`.\n"
-        f"2. Parmi les tâches au statut `new` (dans `## 📋 Roadmap du Projet` de `{tldr_path}`), identifie LA SEULE tâche la plus urgente qui soit immédiatement accessible et réalisable (en écartant toute tâche bloquée par une attente externe). Si aucune tâche spécifique `new` n'est immédiatement réalisable ou plus urgente, sélectionne la tâche récurrente `Rasoir d'Ockham` (`[ockham-...]` : vérification et nettoyage des informations obsolètes, fusion des redondances, suppression du code mort et factorisation sobre sans perte de fonctionnalité).\n"
+        f"2. Parmi les tâches au statut `new` (dans `## 📋 Roadmap du Projet` de `{tldr_path}`), identifie LA SEULE tâche existante la plus urgente qui soit immédiatement accessible et réalisable (en écartant toute tâche bloquée par une attente externe ; si seule la tâche récurrente Rasoir d'Ockham `[ockham-...]` est réalisable et présente dans `## 📋 Roadmap du Projet`, sélectionne-la).\n"
         f"3. Consulte l'historique complet de la tâche sélectionnée via `mcp-cli call aivc get_task_history '{{\"task_id\": \"<id>\"}}'` pour connaître toutes les itérations passées.\n"
         f"4. Traite UNIQUEMENT cette seule tâche de bout en bout selon les règles de `/one-shot` et `bonnes-pratiques-developpement.md` : travaille directement sur la branche principale (`main` / `master`), fais auditer et tester manuellement par `auditeur-alignement` (`Model: 'inherit'`), utilise obligatoirement `/draft` (`doc-version`) pour tout texte destiné à un humain ou refonte de note, et RESPECTE L'INTERDICTION ABSOLUE de commettre toute action impossible à annuler ou impliquant d'autres personnes (aucun envoi d'e-mail/message, aucune soumission de formulaire, aucun paiement, aucune publication externe). Respecte la Règle d'Or n°2 de sous-agents.md : INTERDICTION D'ENCHAÎNER PLUSIEURS VAGUES D'ÉCLAIREURS SÉQUENTIELLES (lance au maximum 1 seule vague d'éclaireurs flash en parallèle au tour 1 pour inspecter notes, liens entrants, git/worktrees et code en une seule fois, puis passe directement aux exécutants parallèles).\n"
-        f"5. Enregistre le livrable prêt sur le MÊME `task_id` avec `task_status=\"await_validation\"` via `mcp-cli call aivc task_commit` (ce qui gèle automatiquement ce projet pour l'autonomie jusqu'à la revue d'Henri).\n"
+        f"5. Enregistre le livrable prêt OBLIGATOIREMENT sur le MÊME `task_id` existant avec `task_status=\"await_validation\"` via `mcp-cli call aivc task_commit`. INTERDICTION ABSOLUE DE CRÉER DE NOUVELLES TÂCHES (`task_id=None` ou nouvel identifiant) SANS VALIDATION PRÉALABLE D'HENRI.\n"
         f"6. Clôture la session en exécutant `python \"{Path(workspace) / '_agents/scripts-for-skills/project_memory_cli.py'}\" feedback \"{proj_title}\" ok --agent`, puis arrête-toi immédiatement.\n"
     )
 
