@@ -2,12 +2,12 @@
 # AIVC — AI Version Control (Long-Term Memory)
 
 > [!IMPORTANT]
-> **MCP TOOLS ONLY** — Ne JAMAIS exécuter `aivc` en terminal. Outils MCP exclusifs (`remember`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`).
-> **[Bascule Cold-Start]** : Si `recall` est vide ➔ bascule immédiate sur `view_file` / `grep_search`. Conserver `remember` après chaque étape.
+> **MCP TOOLS ONLY** — Ne JAMAIS exécuter `aivc` en terminal. Outils MCP exclusifs (`task_commit`, `recall`, `get_recent_memories`, `consult_memory`, `get_file_history_metadata`, `read_past_file_content`).
+> **[Bascule Cold-Start]** : Si `recall` est vide ➔ bascule immédiate sur `view_file` / `grep_search`. Conserver `task_commit` après chaque étape.
 
 | # | Règle | Détail |
 |---|---|---|
-| 1 | **Remember often** | Appeler `remember` après chaque étape fichier. Format Post-It dense (Trigger/Contexte, Décision/Fix, Invariant/Impact). |
+| 1 | **Task commit often** | Appeler `task_commit` après chaque étape fichier. Format Post-It dense (Trigger/Contexte, Décision/Fix, Invariant/Impact). |
 | 2 | **Targeted context recovery** | `recall` ciblé (≥1 requête) uniquement si contexte mémoriel requis. Puis `consult_memory` si pertinent. |
 | 3 | **Explore before acting** | Interroger la mémoire d'abord — ne jamais refaire un travail documenté. |
 | 4 | **Mention files** | Toujours renseigner `read_files` et `edited_files` pour le graphe de cooccurrence. |
@@ -34,7 +34,7 @@ L'agent racine est **TOTALEMENT AVEUGLE** (yeux bandés, incapable d'agir seul).
 | **Dialogue & Arbitrage** | `ask_question` | ✅ Exclusif | ❌ INTERDIT |
 | **Déploiement** | invoke_subagent | ✅ Exclusif (Agent Principal vers sous-agents $P=1$ d'exploration en lecture seule ou workers d'exécution par chantier) | ❌ INTERDIT aux sous-agents (sauf dérogation formelle $P=2$ pour le copilote de table `/mj-assistant`) |
 | **Pilotage serviteurs** | `send_message`, `manage_subagents`, `manage_task` | ✅ Exclusif | ❌ INTERDIT |
-| **Mémoire Long-Terme** | MCP `aivc` (`remember`, `recall`…) | ✅ | ✅ |
+| **Mémoire Long-Terme** | MCP `aivc` (`task_commit`, `recall`…) | ✅ | ✅ |
 | **Agents Indépendants** | `antigravity-agents run --model <m> --prompt "…"` | ✅ Direct (zéro double délégation) | ✅ |
 | **Artefacts & Calpin** | Fichiers `<appDataDir>/brain/…`, notes Obsidian du coffre (`.md` en lecture pure), note maîtresse/sous-notes, lecture `SKILL.md` | ✅ Seuls fichiers autorisés | ✅ |
 

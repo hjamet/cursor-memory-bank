@@ -133,14 +133,14 @@ Si l'utilisateur te pose une question ou te donne des **précisions de haut nive
 
 Tu ne t'arrêtes que dans **ces cas précis** :
 
-1. **L'utilisateur te dit d'arrêter** → Fais un `remember` (AIVC) et arrête-toi.
+1. **L'utilisateur te dit d'arrêter** → Fais un `task_commit` (AIVC) et arrête-toi.
 2. **Le Coordinator est mort et ne répond plus après 2 checks horaires consécutifs** → Lance un **nouveau** Coordinator (conversation propre). S'il ne répond toujours pas après 2 checks → informe l'utilisateur et arrête-toi.
 
 > [!IMPORTANT]
 > **🔄 QUAND LE COORDINATOR ANNONCE QU'IL A TERMINÉ :**
 > Le Coordinator peut s'arrêter parce qu'il pense que le goal est atteint.
 > **C'est à TOI de juger.** Consulte le `progression_summary.md` et évalue froidement :
-> - **Le goal est VRAIMENT atteint** → Fais un `remember` (AIVC) et arrête-toi.
+> - **Le goal est VRAIMENT atteint** → Fais un `task_commit` (AIVC) et arrête-toi.
 > - **Le goal N'EST PAS atteint** → **Tue l'ancien Coordinator** (`manage_subagents` action `kill`) et **lance un NOUVEAU Coordinator** avec le même goal. Un nouveau sous-agent = une conversation propre, sans pollution de contexte. Ne réutilise JAMAIS un Coordinator terminé.
 
 Dans tous les autres cas : **tu attends passivement avec ton cron horaire actif.**

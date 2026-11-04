@@ -53,7 +53,7 @@ This command performs a **clean shutdown** of the current Maestro session and pr
 
 ### Step 3: Commit to AIVC Memory
 
-`remember` a detailed note including:
+`task_commit` a detailed note including:
 - Summary of what was accomplished this session.
 - State of all open issues (which are done, which are in progress, which are blocked).
 - Key decisions taken.

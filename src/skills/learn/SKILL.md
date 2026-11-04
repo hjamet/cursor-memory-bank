@@ -14,7 +14,7 @@ flowchart TD
     E --> F["📂 Mise à Jour Règles : AGENTS.md (Coffre) ou GEMINI.md (Transversal)"]
     F --> G{"🔄 GEMINI.md ou Skill Central Modifié ?"}
     G -->|✅ Oui| H["🪞 Synchronisation Git Miroir cursor-memory-bank<br/>(Pull, Copie, Commit, Push)"]
-    G -->|❌ Non| I["🧠 Ancrage Mémoriel AIVC remember"]
+    G -->|❌ Non| I["🧠 Ancrage Mémoriel AIVC task_commit"]
     H --> I
     I --> J["🔗 Restitution avec Liens Cliquables Absolus en Tête"]
 ```
@@ -126,7 +126,7 @@ flowchart TD
     P2 --> P3["🪞 3. Copie Miroir Exacte<br/>(Vers .gemini/ et VoiceNotes/)"]
     P3 --> P4["🔍 4. Validation Diff & Statut Git"]
     P4 --> P5["🚀 5. Git Add, Commit & Push origin master"]
-    P5 --> P6["🧠 6. Checkpoint AIVC remember"]
+    P5 --> P6["🧠 6. Checkpoint AIVC task_commit"]
 ```
 
 ### 1. 💻 Quelles Sont les Commandes Opérationnelles de Synchronisation Git ?
@@ -146,7 +146,7 @@ git push origin master
 
 ### 2. 🔍 Comment Vérifier la Concordance et Sceller l'Empreinte AIVC ?
 - Vérifier que `C:\Users\hjamet\.gemini\GEMINI.md` et `cursor-memory-bank\src\GEMINI.md` sont strictement identiques octet par octet.
-- Enregistrer immédiatement l'empreinte de la mise à jour via `call_mcp_tool(remember)`.
+- Enregistrer immédiatement l'empreinte de la mise à jour via `call_mcp_tool(task_commit)`.
 
 ---
 
@@ -170,4 +170,4 @@ git push origin master
 - [ ] **Paradigme Question-Réponse (Q/R)** : 100% des titres H1-H4 se terminent par `?`.
 - [ ] **Frontière Étanche des Liens** : Wikilinks `[[...]]` dans les notes du coffre, liens cliquables `[Nom](file:///...)` en tête de chat.
 - [ ] **Synchronisation Git Miroir Effectuée** : Si `GEMINI.md` ou un skill central a été modifié, `cursor-memory-bank` est synchronisé, commité et poussé sur master.
-- [ ] **Mémoire AIVC Consignée** : Un checkpoint mémoriel dense a été enregistré via `remember` avec `read_files` et `edited_files` renseignés.
+- [ ] **Mémoire AIVC Consignée** : Un checkpoint mémoriel dense a été enregistré via `task_commit` avec `read_files` et `edited_files` renseignés.
