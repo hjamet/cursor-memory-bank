@@ -2476,12 +2476,12 @@ def _ensure_public_artifact_exists(subpath: str, blob_hash: str = "") -> Optiona
     # 3. Tenter un rapatriement ciblé via rclone depuis Google Drive
     if "/" in clean_sub:
         conv_dir_name = clean_sub.split("/")[0]
-        if not _has_recent_rclone_attempt(conv_dir_name):
-            _record_rclone_attempt(conv_dir_name)
-            pub_conv_dir = AIVC_ARTIFACTS_DIR / conv_dir_name
-            if pub_conv_dir.is_file():
-                pub_conv_dir.unlink(missing_ok=True)
-            if shutil.which("rclone") and os.environ.get("AIVC_RESTORE_REMOTE", "").strip().lower() in ("1", "true", "yes"):
+        if shutil.which("rclone") and os.environ.get("AIVC_RESTORE_REMOTE", "").strip().lower() in ("1", "true", "yes"):
+            if not _has_recent_rclone_attempt(conv_dir_name):
+                _record_rclone_attempt(conv_dir_name)
+                pub_conv_dir = AIVC_ARTIFACTS_DIR / conv_dir_name
+                if pub_conv_dir.is_file():
+                    pub_conv_dir.unlink(missing_ok=True)
                 import subprocess
                 pub_conv_dir.mkdir(parents=True, exist_ok=True)
                 for remote_brain in (
@@ -3031,6 +3031,9 @@ def _auto_restore_aivc_blobs_for_active_items(
                 if gdrive_path in missing_cache:
                     return False
 
+                if _has_recent_rclone_attempt(conv_id):
+                    return False
+
                 if not shutil.which("rclone"):
                     _AIVC_REMOTE_SYNC_DISABLED = True
                     return False
@@ -3061,6 +3064,8 @@ def _auto_restore_aivc_blobs_for_active_items(
                 remote_file_key = f"{conv_id}/{fn}".lower()
                 if remote_file_key not in _AIVC_REMOTE_BRAIN_INDEX:
                     _record_remote_missing_blob(storage_root, gdrive_path)
+                    if not any(k.startswith(f"{conv_id.lower()}/") for k in _AIVC_REMOTE_BRAIN_INDEX):
+                        _record_rclone_attempt(conv_id)
                     return False
 
                 try:
@@ -3073,11 +3078,13 @@ def _auto_restore_aivc_blobs_for_active_items(
                         return True
                     else:
                         _record_remote_missing_blob(storage_root, gdrive_path)
+                        _record_rclone_attempt(conv_id)
                         err = (res.stderr or "").lower()
                         if "directory not found" in err or res.returncode == 3:
                             _AIVC_REMOTE_SYNC_DISABLED = True
                 except subprocess.TimeoutExpired:
                     _record_remote_missing_blob(storage_root, gdrive_path)
+                    _record_rclone_attempt(conv_id)
                     _AIVC_REMOTE_SYNC_DISABLED = True
                 except Exception:
                     pass
@@ -4470,7 +4477,7 @@ def format_project_table(projects, verbose=False):
         rel_forward = str(rel).replace("\\", "/")
         rel_encoded = urllib.parse.quote(rel_forward, safe="/:")
         title_links.append(f"[{p['title']}]({rel_encoded})")
-        auto_disps.append(enrich_project_auto_fields(p, vault_dir=VAULT_DIR))
+        auto_disps.append(p["_cached_auto_disp"] if "_cached_auto_disp" in p else enrich_project_auto_fields(p, vault_dir=VAULT_DIR))
 
     if verbose:
         lines.append("| Rank | Title | Eff.Score | Base | Rot. | Dead.Urg | Milest.Urg | Malus(K) | Deadline | Milestone | Reviews |")
@@ -4543,7 +4550,7 @@ def write_root_dashboard(vault_dir=VAULT_DIR, data=None, projects=None, show_pro
     projects_with_await = []
 
     for idx, p in enumerate(projects, 1):
-        enrich_project_auto_fields(p, vault_dir=vault_dir)
+        p["_cached_auto_disp"] = enrich_project_auto_fields(p, vault_dir=vault_dir)
         p_title = p.get("title", "")
         n_await = p.get("auto_await_count", 0)
         n_roadmap = p.get("auto_roadmap_count", 0)
