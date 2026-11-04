@@ -2341,17 +2341,9 @@ def _has_recent_rclone_attempt(conv_id: str, ttl_seconds: int = 86400) -> bool:
         _RCLONE_ATTEMPTED_CONV_TS = {}
         fpath = _get_rclone_attempted_file()
         if fpath.is_file():
-            try:
-                with open(fpath, "r", encoding="utf-8") as f:
-                    raw = json.load(f)
-                if isinstance(raw, dict):
-                    for k, v in raw.items():
-                        try:
-                            _RCLONE_ATTEMPTED_CONV_TS[str(k)] = float(v)
-                        except (ValueError, TypeError):
-                            continue
-            except (OSError, json.JSONDecodeError):
-                pass
+            raw = json.loads(fpath.read_text(encoding="utf-8"))
+            if isinstance(raw, dict):
+                _RCLONE_ATTEMPTED_CONV_TS = {str(k): float(v) for k, v in raw.items()}
         for cid, ts in _RCLONE_ATTEMPTED_CONV_TS.items():
             if now - ts < ttl_seconds:
                 _RCLONE_ATTEMPTED_CONV_IDS.add(cid)

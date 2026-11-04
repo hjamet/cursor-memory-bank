@@ -5,11 +5,11 @@ description: "Déléguer une mission à Claude Code (Anthropic, Opus medium en f
 
 # Comment faire travailler Claude Code comme sous-agent d'Antigravity ?
 
-Claude Code est l'agent en ligne de commande d'Anthropic. En mode headless (`claude -p`), il travaille de bout en bout en totale autonomie (lecture, édition, shell Git Bash, recherche web, sous-agents internes) puis rend un résultat JSON et un artefact de sources. Le pont [`claude_subagent.py`](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/scripts-for-skills/claude_subagent.py) encapsule l'appel, configure par défaut **Opus (`medium`) en *full access***, et remonte automatiquement les quotas de **session (5h)** et de **semaine (7j)** ainsi que la cible linéaire hebdomadaire (96 %), en conformité avec [sous-agents.md](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/rules/sous-agents.md).
+Claude Code est l'agent en ligne de commande d'Anthropic. En mode headless (`claude -p`), il travaille de bout en bout en totale autonomie (lecture, édition, shell Git Bash, recherche web, sous-agents internes) puis rend un résultat JSON et un artefact de sources. Le pont [`claude_subagent.py`](file:///C:/Users/hjamet/Documents/VoiceNotes/_agents/scripts-for-skills/claude_subagent.py) encapsule l'appel, configure par défaut **Opus (`medium`) en *full access***, et remonte automatiquement les quotas de **session (5h)** et de **semaine (7j)** ainsi que la cible linéaire hebdomadaire (96 %), en conformité avec [sous-agents.md](file:///C:/Users/hjamet/Documents/VoiceNotes/_agents/rules/sous-agents.md).
 
 ## 🎯 Quand l'utiliser ?
 
-- **Alternative directe aux sous-agents `inherit`** (cf. Règle 4 de [sous-agents.md](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/rules/sous-agents.md)) : tant que le quota de session 5h (`< 85 %`) et le quota hebdomadaire 7j le permettent, privilégier Claude Code (`opus` `medium`) pour consommer de manière optimale l'abonnement hebdomadaire d'Henri (~96 % visés à l'heure du reset hebdomadaire) et décharger le quota principal d'Antigravity.
+- **Alternative directe aux sous-agents `inherit`** (cf. Règle 4 de [sous-agents.md](file:///C:/Users/hjamet/Documents/VoiceNotes/_agents/rules/sous-agents.md)) : tant que le quota de session 5h (`< 85 %`) et le quota hebdomadaire 7j le permettent, privilégier Claude Code (`opus` `medium`) pour consommer de manière optimale l'abonnement hebdomadaire d'Henri (~96 % visés à l'heure du reset hebdomadaire) et décharger le quota principal d'Antigravity.
 - **Tâche complexe ou code sensible de bout en bout** : là où `flash` risque d'être trop superficiel ou sycophante et où l'on veut qu'un agent très intelligent explore, code, teste et vérifie lui-même de bout en bout.
 - **Second avis / Audit indépendant hors chambre d'écho Gemini ↔ Gemini** : revue critique d'architecture, d'article scientifique ou de bug subtil.
 - **Sur demande explicite d'Henri** (« fais bosser Claude », « demande à Claude »).
@@ -24,12 +24,12 @@ Claude Code est l'agent en ligne de commande d'Anthropic. En mode headless (`cla
 
 1. **Consulter les quotas (Session 5h & Semaine 7j) sans lancer de prompt** :
 ```powershell
-python "C:\Users\Jamet\Documents\VoiceNotes\_agents\scripts-for-skills\claude_subagent.py" --quota-only
+python "$env:USERPROFILE\Documents\VoiceNotes\_agents\scripts-for-skills\claude_subagent.py" --quota-only
 ```
 
 2. **Lancer une mission complète directement depuis le superviseur** : écrire le brief dans un fichier `brief_claude_<sujet>.md` (objectif, chemins absolus, périmètre, format d'artefact attendu), puis le **superviseur principal appelle directement `run_command`** (`WaitMsBeforeAsync=500`, unique commande autorisée au superviseur car équivalente à `invoke_subagent` — ne jamais passer par un sous-agent `flash` intermédiaire pour lancer Claude) :
 ```powershell
-python "C:\Users\Jamet\Documents\VoiceNotes\_agents\scripts-for-skills\claude_subagent.py" `
+python "$env:USERPROFILE\Documents\VoiceNotes\_agents\scripts-for-skills\claude_subagent.py" `
   --prompt-file "<chemin>\brief_claude_<sujet>.md" `
   --cwd "<racine du projet>" `
   --artefact "<chemin absolu>\sources_claude.md"
