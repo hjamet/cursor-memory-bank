@@ -239,6 +239,23 @@ def _find_best_rclone_drive_section(cp: Any) -> str | None:
     return None
 
 
+def _get_rclone_drive_section() -> str:
+    """Return active rclone Google Drive section or 'gdrive' as default fallback."""
+    conf_path = _get_rclone_config_path()
+    if conf_path.exists():
+        import configparser
+        cp = configparser.RawConfigParser()
+        try:
+            cp.read(conf_path, encoding="utf-8")
+            sec = _find_best_rclone_drive_section(cp)
+            if sec:
+                return sec
+        except Exception:
+            pass
+    return "gdrive"
+
+
+
 def _read_token_from_rclone_conf(conf_path: Path) -> tuple[str, str, str] | None:
     """Return (access_token, expiry_iso, section) from best drive section in rclone.conf."""
     import configparser
@@ -445,7 +462,7 @@ def _list_all_dream_inbox_files(folder_ids: list[str] | None = None) -> list[dic
     for fid in folder_ids:
         try:
             out = subprocess.check_output(
-                ["rclone", "lsjson", "gdrive:", "--drive-root-folder-id", fid],
+                ["rclone", "lsjson", f"{_get_rclone_drive_section()}:", "--drive-root-folder-id", fid],
                 stderr=subprocess.DEVNULL,
                 encoding="utf-8",
             )
@@ -521,7 +538,7 @@ def _extract_dream_inbox_doc_text(folder_id: str, file_name: str, file_id: str =
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
-        cmd = ["rclone", "copy", "--drive-root-folder-id", folder_id, f"gdrive:{rclone_name}", str(tmp_path)]
+        cmd = ["rclone", "copy", "--drive-root-folder-id", folder_id, f"{_get_rclone_drive_section()}:{rclone_name}", str(tmp_path)]
         subprocess.check_call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         target_file = tmp_path / rclone_name
         if not target_file.exists():
@@ -732,7 +749,7 @@ def _find_running_watch_processes() -> list[dict]:
         "$_.CommandLine -notlike '* read*' -and "
         "$_.CommandLine -notlike '* trash*' -and "
         "$_.CommandLine -notlike '* --help*' "
-        "} | Select-Object ProcessId, @{N='CreationDate';E={if ($_.CreationDate) { $_.CreationDate.ToString('yyyy-MM-dd HH:mm:ss') } else { '' }}}, CommandLine; "
+        "} | Select-Object ProcessId, ParentProcessId, @{N='CreationDate';E={if ($_.CreationDate) { $_.CreationDate.ToString('yyyy-MM-dd HH:mm:ss') } else { '' }}}, CommandLine; "
         "if ($procs) { $procs | ConvertTo-Json -Compress } else { '[]' }"
     )
     stdout = _run_powershell_script(ps_cmd)
@@ -740,11 +757,15 @@ def _find_running_watch_processes() -> list[dict]:
         return []
     try:
         data = json.loads(stdout)
+        procs: list[dict] = []
         if isinstance(data, dict):
-            return [data]
+            procs = [data]
         elif isinstance(data, list):
-            return data
-        return []
+            procs = data
+        if not procs:
+            return []
+        all_pids = {p.get("ProcessId") for p in procs if p.get("ProcessId")}
+        return [p for p in procs if p.get("ParentProcessId") not in all_pids]
     except json.JSONDecodeError as e:
         raise RuntimeError(f"Failed to parse process list JSON: {stdout} ({e})")
 
@@ -776,7 +797,7 @@ def cmd_stop(args: argparse.Namespace) -> None:
         if not pid:
             continue
         try:
-            res = subprocess.run(["taskkill", "/F", "/PID", str(pid)], capture_output=True, text=True)
+            res = subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], capture_output=True, text=True)
             if res.returncode == 0:
                 print(f"  {GREEN}{CHECK_MARK} Processus {pid} arrêté avec succès.{RESET}")
             else:
