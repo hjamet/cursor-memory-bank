@@ -987,7 +987,8 @@ def cmd_start(args: argparse.Namespace) -> None:
         time.sleep(1)
 
     script_path = Path(__file__).resolve()
-    python_exe = Path(sys.executable).resolve()
+    venv_py = Path.home() / ".aivc" / "venv" / "Scripts" / "python.exe"
+    python_exe = venv_py if venv_py.exists() else Path(sys.executable).resolve()
     log_dir = Path(r"C:\Users\Public\aivc")
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = log_dir / "watch_inbox.log"
@@ -1185,7 +1186,9 @@ def cmd_watch(args: argparse.Namespace) -> None:
             if current_mtime != watch_code_mtime:
                 print(f"\n{YELLOW}{BOLD}Modification du code source détectée ({watch_code_path.name}). Rechargement à chaud du processus...{RESET}")
                 conn.close()
-                os.execv(sys.executable, [sys.executable, str(watch_code_path)] + sys.argv[1:])
+                venv_py = Path.home() / ".aivc" / "venv" / "Scripts" / "python.exe"
+                py_bin = str(venv_py) if venv_py.exists() else sys.executable
+                sys.exit(subprocess.call([py_bin, str(watch_code_path)] + sys.argv[1:]))
 
             try:
                 if not check_autonomy_immediately:
