@@ -5659,6 +5659,13 @@ def parse_transcript_work_time(
         project_index[title] = p_key
         project_index[urllib.parse.quote(base_name)] = p_key
         project_index[urllib.parse.quote(title)] = p_key
+        if base_name.startswith("🤖 "):
+            b_no_robot = base_name[2:].strip()
+            t_no_robot = os.path.splitext(b_no_robot)[0].lower()
+            project_index[b_no_robot] = p_key
+            project_index[t_no_robot] = p_key
+            project_index[urllib.parse.quote(b_no_robot)] = p_key
+            project_index[urllib.parse.quote(t_no_robot)] = p_key
 
     entries = []
     max_step_seen = -1
@@ -5717,12 +5724,14 @@ def parse_transcript_work_time(
     def resolve_to_project(raw_candidate: str) -> Optional[str]:
         if not raw_candidate:
             return None
-        clean = raw_candidate.strip().replace("\\", "/")
+        clean = re.sub(r'[/\\]+', '/', raw_candidate.strip().strip('"\' '))
         clean_base = os.path.basename(clean)
         clean_unquote = urllib.parse.unquote(clean_base).strip()
+        candidates = [clean_unquote.lower(), os.path.splitext(clean_unquote)[0].lower()]
         if clean_unquote.startswith("🤖 "):
-            clean_unquote = clean_unquote[2:].strip()
-        for cand in [clean_unquote.lower(), os.path.splitext(clean_unquote)[0].lower()]:
+            stripped_robot = clean_unquote[2:].strip()
+            candidates.extend([stripped_robot.lower(), os.path.splitext(stripped_robot)[0].lower()])
+        for cand in candidates:
             if cand in project_index:
                 return project_index[cand]
         if "notes/" in clean.lower():
@@ -5732,30 +5741,51 @@ def parse_transcript_work_time(
                 return project_index[part]
         return None
 
-    def is_vault_project_note(path_str: str) -> Optional[str]:
+    def is_vault_project_note(path_str: str, tool_name: str = "") -> Optional[str]:
         if not isinstance(path_str, str):
             return None
-        norm = path_str.replace("\\", "/").strip()
-        if not norm.lower().endswith(".md"):
-            return None
+        norm = re.sub(r'[/\\]+', '/', path_str.strip().strip('"\' '))
         norm_lower = norm.lower()
-        if any(excl in norm_lower for excl in ["/_agents/", "\\_agents\\", "/brain/", "\\brain\\", "/scratch/", "\\scratch\\", "sources_"]):
+        if tool_name.lower() in {"edit_file", "write_file", "replace_file_content", "multi_replace_file_content", "write_to_file"}:
+            if any(seg in norm_lower for seg in ["/_agents/rules/", "/_agents/skills/", "/_agents/agents/", "/_agents/scripts-for-skills/", "voicenotes/_agents/"]):
+                return resolve_to_project("notes/Améliorer le système Antigravity Obsidian.md")
+        if not norm_lower.endswith(".md"):
+            return None
+        if "/advance_tldr/" in norm_lower:
+            return resolve_to_project(os.path.basename(norm))
+        if any(excl in norm_lower for excl in ["/_agents/", "/brain/", "/scratch/", "sources_"]):
             return None
         return resolve_to_project(norm)
 
     def extract_strings_recursive(val: Any) -> List[str]:
         res = []
         if isinstance(val, str):
-            stripped = val.strip()
-            if (stripped.startswith("{") and stripped.endswith("}")) or (stripped.startswith("[") and stripped.endswith("]")):
-                try:
-                    nested = json.loads(stripped)
-                    res.extend(extract_strings_recursive(nested))
-                except (json.JSONDecodeError, ValueError):
-                    res.append(val)
-            else:
-                res.append(val)
+            curr = val.strip()
+            for _ in range(2):
+                s = curr.strip()
+                if (s.startswith('"') and s.endswith('"')) or (s.startswith("{") and s.endswith("}")) or (s.startswith("[") and s.endswith("]")):
+                    try:
+                        loaded = json.loads(s)
+                    except (json.JSONDecodeError, ValueError):
+                        break
+                    if isinstance(loaded, str):
+                        curr = loaded
+                        res.append(curr)
+                    else:
+                        res.extend(extract_strings_recursive(loaded))
+                        curr = None
+                        break
+                else:
+                    break
+            if curr is not None:
+                res.append(curr)
+                if '\\"' in curr or '\\\\' in curr:
+                    unesc = curr.replace('\\"', '"').replace('\\\\', '\\')
+                    if unesc != curr:
+                        res.append(unesc)
         elif isinstance(val, dict):
+            if "main_project_file" in val and isinstance(val["main_project_file"], str):
+                res.append(f'main_project_file: "{val["main_project_file"]}"')
             for v in val.values():
                 res.extend(extract_strings_recursive(v))
         elif isinstance(val, (list, tuple, set)):
@@ -5764,6 +5794,52 @@ def parse_transcript_work_time(
         return res
 
     path_arg_keys = {"path", "filepath", "file_path", "targetfile", "absolutepath"}
+    wake_phrases = (
+        "réveille argon", "reveille argon",
+        "réveille aaron", "reveille aaron",
+        "crée le fichier", "cree le fichier", "créer le fichier",
+        "enregistre ça dans un fichier", "enregistre dans un fichier",
+    )
+
+    brief_to_proj: Dict[str, str] = {}
+    subagent_to_proj: Dict[str, str] = {}
+    pending_subagent_projs: List[Optional[str]] = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        for tc in entry.get("tool_calls", []):
+            tname = str(tc.get("name") or "")
+            targs = tc.get("args", {})
+            if isinstance(targs, dict):
+                proj_found = None
+                for s in extract_strings_recursive(targs):
+                    for bm in re.findall(r'Projet\s*:\s*([^\r\n"\']+?\.md)', s, re.IGNORECASE):
+                        rp = resolve_to_project(bm)
+                        if rp:
+                            proj_found = rp
+                            break
+                    if proj_found:
+                        break
+                if tname == "write_file" and proj_found:
+                    pval = str(targs.get("Path") or "").strip().strip('"\' ')
+                    pval_norm = re.sub(r'[/\\]+', '/', pval).lower()
+                    if pval_norm:
+                        brief_to_proj[pval_norm] = proj_found
+                elif tname == "invoke_subagent":
+                    inv_proj = proj_found
+                    for ps in extract_strings_recursive(targs.get("Prompt", "")):
+                        ps_norm = re.sub(r'[/\\]+', '/', ps.strip().strip('"\' ')).lower()
+                        if ps_norm in brief_to_proj:
+                            inv_proj = brief_to_proj[ps_norm]
+                            break
+                    pending_subagent_projs.append(inv_proj)
+        if entry.get("type") == "GENERIC":
+            c_gen = str(entry.get("content") or "")
+            if "Created the following subagent:" in c_gen and pending_subagent_projs:
+                inv_proj = pending_subagent_projs.pop(0)
+                m_id = re.search(r'"conversationId"\s*:\s*"([^"]+)"', c_gen)
+                if m_id and inv_proj:
+                    subagent_to_proj[m_id.group(1).strip().lower()] = inv_proj
 
     for turn in turns:
         user_entry = turn["user_entry"]
@@ -5778,7 +5854,17 @@ def parse_transcript_work_time(
         else:
             arrow_count = len(re.findall(r"(?:->|→)", clean_part))
 
-        arg_count = arrow_count + comment_count
+        voice_utt_count = 0
+        if "<talker_agent_context>" in user_part:
+            talker_seg = user_part.split("<talker_agent_context>", 1)[1].split("</talker_agent_context>", 1)[0]
+            raw_utts = re.findall(r'\[[^\]]+\]\s*user:\s*"([^\r\n"]*)', talker_seg)
+            subst_utts = [
+                u.strip() for u in raw_utts
+                if u.strip() and not (len(u.strip()) < 40 and any(wp in u.strip().lower() for wp in wake_phrases))
+            ]
+            voice_utt_count = len(subst_utts)
+
+        arg_count = arrow_count + comment_count + (voice_utt_count if voice_utt_count > 1 else 0)
         if arg_count > 1:
             msg_minutes = max(float(minutes_per_message), arg_count * float(minutes_per_arrow))
         else:
@@ -5825,6 +5911,7 @@ def parse_transcript_work_time(
 
             # Inspection des tool_calls
             for tc in step.get("tool_calls", []):
+                tname = str(tc.get("name") or "")
                 raw_args = tc.get("args", {})
                 if isinstance(raw_args, str):
                     stripped_args = raw_args.strip()
@@ -5838,13 +5925,17 @@ def parse_transcript_work_time(
                 else:
                     args_obj = raw_args
 
-                # Marqueur C : Path direct d'un outil fichier pointant vers une note .md du coffre
+                # Marqueur C : Path direct d'un outil fichier pointant vers une note .md du coffre (ou _agents / advance_tldr)
                 if isinstance(args_obj, dict):
                     for k, v in args_obj.items():
                         if k.lower() in path_arg_keys and isinstance(v, str):
-                            p = is_vault_project_note(v)
+                            p = is_vault_project_note(v, tool_name=tname)
                             if p:
                                 matched.add(p)
+                        if tname == "send_message" and k.lower() == "recipient" and isinstance(v, str):
+                            rec_id = v.strip().strip('"\' ').lower()
+                            if rec_id in subagent_to_proj:
+                                matched.add(subagent_to_proj[rec_id])
 
                 # Extraction récursive des chaînes (déséchappées)
                 strings = extract_strings_recursive(args_obj)
