@@ -1,0 +1,11 @@
+{
+  "voice-unfiltered-transcript": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python \"%USERPROFILE%\\Documents\\VoiceNotes\\_agents\\scripts-for-skills\\voice_transcript_hook.py\"",
+        "timeout": 10
+      }
+    ]
+  }
+}
