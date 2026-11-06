@@ -195,9 +195,9 @@ def extract_unread_planner_sentences(planner_texts: list, entries: list) -> list
     return unread
 
 
-def build_unread_alert(unread_sentences: list) -> str:
+def build_unread_alert(unread_sentences: list, max_len: int = 3500) -> str:
     """
-    Construit l'alerte compacte de coupure/omission vocale plafonnée à 600 caractères max.
+    Construit l'alerte compacte de coupure/omission vocale plafonnée à 3500 caractères max.
     """
     if not unread_sentences:
         return ""
@@ -208,7 +208,6 @@ def build_unread_alert(unread_sentences: list) -> str:
         "uniquement les informations importantes manquantes : « "
     )
     suffix = " »]"
-    max_len = 600
     available = max_len - len(prefix) - len(suffix)
 
     joined = " ".join(s.strip() for s in unread_sentences if s.strip())
@@ -298,7 +297,7 @@ def main():
     # Si lastUserInput contient <talker_agent_context> et n'est pas encore le dernier USER_INPUT du transcript
     if "<talker_agent_context>" in last_user_input:
         last_recorded_content = all_steps[ui_positions[-1]].get("content", "") if ui_positions else ""
-        if last_recorded_content.strip() != last_user_input.strip():
+        if parse_talker_agent_context(last_recorded_content)[0] != parse_talker_agent_context(last_user_input)[0]:
             next_idx = ((all_steps[-1].get("step_index") or 0) + 1) if all_steps else 0
             all_steps.append({
                 "type": "USER_INPUT",

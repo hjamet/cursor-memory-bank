@@ -3,7 +3,7 @@
     "PreInvocation": [
       {
         "type": "command",
-        "command": "python \"%USERPROFILE%\\Documents\\VoiceNotes\\_agents\\scripts-for-skills\\voice_transcript_hook.py\"",
+        "command": "python C:\\Users\\Jamet\\Documents\\VoiceNotes\\_agents\\scripts-for-skills\\voice_transcript_hook.py",
         "timeout": 10
       }
     ]
