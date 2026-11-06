@@ -117,6 +117,7 @@ Une fois le démarrage certifié validé à T+90s, l'agent bascule en régime de
 | **Santé Télémétrique** | Mémoire VRAM/RAM, température, allocations PyTorch. | Risque d'OOM imminent (`CUDA out of memory`), fuite mémoire incrémentale. |
 | **Avertissements Suspects** | Logs stderr, warnings Python/CUDA/C++. | Détection de `UserWarning`, `FutureWarning` critiques, `nan/inf loss`, avertissements DDP ou NCCL timeouts. |
 | **Visibilité des Logs** | Clarté et granularité du flux console. | Absence totale de repères temporels ou d'étape courante (opacité inacceptable). |
+| **Inspection Critique des Artefacts Intermédiaires (DVC / ML)** | Lecture humaine d'échantillons réels produits à la fin de chaque nœud DVC / étape intermédiaire (textes générés, paires, distributions) sans attendre la fin du run complet. | Textes bruités/tronqués, fuite de Markdown/balises, dégénérescence stylistique ou heuristique factice ➔ **Arrêt immédiat du run, diagnostic racine et relance propre**. |
 
 ---
 

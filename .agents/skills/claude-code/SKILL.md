@@ -7,11 +7,12 @@ description: "Déléguer une mission à Claude Code (Anthropic, Opus medium en f
 
 Claude Code est l'agent en ligne de commande d'Anthropic. En mode headless (`claude -p`), il travaille de bout en bout en totale autonomie (lecture, édition, shell Git Bash, recherche web, sous-agents internes) puis rend un résultat JSON et un artefact de sources. Le pont [`claude_subagent.py`](file:///C:/Users/hjamet/Documents/VoiceNotes/_agents/scripts-for-skills/claude_subagent.py) encapsule l'appel, configure par défaut **Opus (`medium`) en *full access***, et remonte automatiquement les quotas de **session (5h)** et de **semaine (7j)** ainsi que la cible linéaire hebdomadaire (96 %), en conformité avec [sous-agents.md](file:///C:/Users/hjamet/Documents/VoiceNotes/_agents/rules/sous-agents.md).
 
-## 🎯 Quand l'utiliser ?
+## 🎯 Quand l'utiliser ? (Sélectivité Qualitative & Trajectoire Hebdomadaire)
 
-- **Alternative directe aux sous-agents `inherit`** (cf. Règle 4 de [sous-agents.md](file:///C:/Users/hjamet/Documents/VoiceNotes/_agents/rules/sous-agents.md)) : tant que le quota de session 5h (`< 85 %`) et le quota hebdomadaire 7j le permettent, privilégier Claude Code (`opus` `medium`) pour consommer de manière optimale l'abonnement hebdomadaire d'Henri (~96 % visés à l'heure du reset hebdomadaire) et décharger le quota principal d'Antigravity.
-- **Tâche complexe ou code sensible de bout en bout** : là où `flash` risque d'être trop superficiel ou sycophante et où l'on veut qu'un agent très intelligent explore, code, teste et vérifie lui-même de bout en bout.
-- **Second avis / Audit indépendant hors chambre d'écho Gemini ↔ Gemini** : revue critique d'architecture, d'article scientifique ou de bug subtil.
+- **Sélectivité stricte — Zéro gaspillage sur des tâches triviales** *(directive d'Henri, 05/11/2026)* : Claude Opus étant un modèle très puissant doté d'une perspective cognitive distincte de Gemini, **ne jamais brûler ses jetons en début de semaine sur des tâches simples ou mécaniques juste pour consommer du quota**. L'objectif est d'atteindre ~96 % du quota hebdomadaire (fenêtres glissantes de 5h et 7j) à la fin de la semaine en réservant exclusivement Claude aux missions où sa valeur ajoutée est maximale :
+  1. **Vision différente & Second avis indépendant hors chambre d'écho Gemini** : revue critique de fond d'un article scientifique, d'un mémoire de Master, d'une architecture ou d'un choix méthodologique.
+  2. **Tâches très complexes de bout en bout en autonomie** : refactoring profond, débogage algorithmique ou mathématique ardu, rédaction/chirurgie LaTeX délicate.
+  3. **Code ou action à risque sensible/irréversible** : là où `flash` est formellement proscrit.
 - **Sur demande explicite d'Henri** (« fais bosser Claude », « demande à Claude »).
 
 ## 🔗 Synchronisation automatique des Règles & Skills (Zéro doublon)
@@ -34,7 +35,7 @@ python "$env:USERPROFILE\Documents\VoiceNotes\_agents\scripts-for-skills\claude_
   --cwd "<racine du projet>" `
   --artefact "<chemin absolu>\sources_claude.md"
 ```
-*(Par défaut : `--model opus`, `--effort medium`, `--mode bypassPermissions` avec `--dangerously-skip-permissions` et `CLAUDE_CODE_GIT_BASH_PATH` pointant vers Git Bash Windows).*
+*(Par défaut : `--model opus`, `--effort medium`, `--mode bypassPermissions` avec `--dangerously-skip-permissions` et `CLAUDE_CODE_GIT_BASH_PATH` pointant vers Git Bash Windows. **Invariant OAuth strict : un seul processus `claude` à la fois** — le refresh token OAuth d'Anthropic étant à rotation unique, ne jamais lancer deux commandes `claude` en parallèle sous peine d'invalider la session `~/.claude/.credentials.json`).*
 
 3. **Lire la sortie standard** :
 

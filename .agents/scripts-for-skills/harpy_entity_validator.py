@@ -39,17 +39,12 @@ from typing import Dict, List, Any, Tuple, Optional, Set
 
 # Encodage UTF-8 strict sous Windows
 if sys.platform == "win32":
-    try:
+    if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
+    if hasattr(sys.stderr, "reconfigure"):
         sys.stderr.reconfigure(encoding="utf-8")
-    except Exception:
-        pass
 
-try:
-    import yaml
-    YAML_AVAILABLE = True
-except ImportError:
-    YAML_AVAILABLE = False
+import yaml
 
 
 # ============================================================================
@@ -131,7 +126,6 @@ def _resolve_and_import_style_guard():
     Échec bloquant immédiat (Fail-Fast, aucun repli silencieux) si le module est introuvable.
     """
     candidates = [
-        Path("C:/Users/hjamet/Documents/code/doc-version-mcp/src"),
         Path.home() / "Documents" / "code" / "doc-version-mcp" / "src",
     ]
     env_path = os.environ.get("DOC_VERSION_MCP_SRC")
@@ -286,19 +280,14 @@ def load_input_data(filepath: str) -> Dict[str, Any]:
     suffix = path.suffix.lower()
 
     if suffix in [".yaml", ".yml"]:
-        if not YAML_AVAILABLE:
-            raise RuntimeError("Le module PyYAML est requis pour lire des fichiers YAML.")
         data = yaml.safe_load(content)
     elif suffix == ".json":
         data = json.loads(content)
     else:
         try:
             data = json.loads(content)
-        except Exception:
-            if YAML_AVAILABLE:
-                data = yaml.safe_load(content)
-            else:
-                raise ValueError(f"Extension non reconnue et PyYAML manquant : {suffix}")
+        except json.JSONDecodeError:
+            data = yaml.safe_load(content)
 
     if not isinstance(data, dict):
         raise ValueError("Le fichier d'entrée doit contenir un dictionnaire/objet à la racine.")
@@ -657,7 +646,7 @@ def index_vault(vault_dir: str) -> Tuple[Dict[str, Dict[str, Any]], Set[str]]:
                                             sub = sub.strip().strip('"\'')
                                             if sub:
                                                 aliases.append(sub)
-                except Exception:
+                except OSError:
                     pass
 
                 entry = {
@@ -782,7 +771,6 @@ def find_detect_js_script() -> Path:
 
     candidates = [
         Path(__file__).resolve().parent / "avoid-ai-writing" / "skills" / "ai-writing-detector" / "scripts" / "detect.js",
-        Path("c:/Users/hjamet/Documents/VoiceNotes/_agents/scripts-for-skills/avoid-ai-writing/skills/ai-writing-detector/scripts/detect.js"),
         Path.home() / "Documents" / "VoiceNotes" / "_agents" / "scripts-for-skills" / "avoid-ai-writing" / "skills" / "ai-writing-detector" / "scripts" / "detect.js"
     ]
     for c in candidates:
@@ -868,7 +856,7 @@ def run_neural_ai_detection(
 
     detector_script = scripts_dir / "ai_detector.py"
     if not detector_script.is_file():
-        alt = Path("c:/Users/hjamet/Documents/VoiceNotes/_agents/scripts-for-skills/ai_detector.py")
+        alt = Path(str(Path.home() / "Documents" / "VoiceNotes")) / "_agents" / "scripts-for-skills" / "ai_detector.py"
         if alt.is_file():
             detector_script = alt
         else:
@@ -1124,8 +1112,8 @@ def main():
                         help=f"Longueur minimale du paragraphe 2 d'ouverture résumé MJ (défaut : {MIN_RESUME_MJ_CHARS})")
     parser.add_argument("--max-line-len", type=int, default=DEFAULT_MAX_HARPY_LINE_LENGTH,
                         help=f"Longueur maximale par ligne dans la fiche Harpy (défaut : {DEFAULT_MAX_HARPY_LINE_LENGTH})")
-    parser.add_argument("--vault", default=r"c:\Users\hjamet\Documents\VoiceNotes",
-                        help=r"Chemin racine du coffre Obsidian pour vérifier les wikilinks (défaut : c:\Users\hjamet\Documents\VoiceNotes)")
+    parser.add_argument("--vault", default=str(Path.home() / "Documents" / "VoiceNotes"),
+                        help="Chemin racine du coffre Obsidian pour vérifier les wikilinks (défaut : Path.home() / 'Documents' / 'VoiceNotes')")
     parser.add_argument("--skip-vault", action="store_true",
                         help="Désactive la vérification de l'existence des wikilinks dans le coffre")
     parser.add_argument("--use-neural-ai", action="store_true",

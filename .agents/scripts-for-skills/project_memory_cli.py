@@ -21,6 +21,7 @@ import math
 import re
 import time
 import shutil
+import subprocess
 import glob
 import argparse
 import atexit
@@ -30,6 +31,7 @@ from datetime import datetime, date, time as dt_time, timedelta, timezone
 from dataclasses import dataclass
 from typing import Optional, Union, List, Any, Dict, Tuple, Set, Iterable
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 import urllib.parse
 
 if sys.platform == "win32":
@@ -4527,6 +4529,203 @@ def format_project_table(projects, verbose=False):
     return "\n".join(lines)
 
 
+_RUNTIME_QUOTA_CACHE: Optional[Tuple[List[str], List[str]]] = None
+_RUNTIME_QUOTA_TIME: float = 0.0
+
+
+def _fetch_agy_usage() -> dict:
+    agy_candidates = [
+        Path(os.environ.get("LOCALAPPDATA", "")) / "agy" / "bin" / "agy.exe",
+        Path.home() / "AppData" / "Local" / "agy" / "bin" / "agy.exe",
+        Path(r"C:\Users\Jamet\AppData\Local\agy\bin\agy.exe"),
+    ]
+    agy_exe = shutil.which("agy")
+    if not agy_exe:
+        for cand in agy_candidates:
+            if cand.is_file():
+                agy_exe = str(cand)
+                break
+    if not agy_exe:
+        raise FileNotFoundError("Exécutable `agy.exe` introuvable.")
+
+    cmd = [agy_exe, "--output-format", "json", "-p", "/usage"]
+    proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15)
+    if proc.returncode != 0:
+        raise RuntimeError(f"agy.exe returned exit {proc.returncode}: {proc.stderr or proc.stdout}")
+    return json.loads(proc.stdout)
+
+
+def _fetch_claude_usage() -> dict:
+    claude_subagent_path = Path(__file__).resolve().parent / "claude_subagent.py"
+    if not claude_subagent_path.is_file():
+        cand = Path(r"C:\Users\Jamet\Documents\VoiceNotes\_agents\scripts-for-skills\claude_subagent.py")
+        if cand.is_file():
+            claude_subagent_path = cand
+    if str(claude_subagent_path.parent) not in sys.path:
+        sys.path.insert(0, str(claude_subagent_path.parent))
+    import claude_subagent
+    quota = claude_subagent.fetch_claude_quota()
+    if not quota:
+        raise RuntimeError("fetch_claude_quota returned None.")
+    return quota
+
+
+def _format_quota_duration_short(sec: float) -> str:
+    sec = max(0.0, sec)
+    if sec >= 86400:
+        d = int(sec // 86400)
+        h = int((sec % 86400) // 3600)
+        return f"{d}j {h:02d}h"
+    h = int(sec // 3600)
+    m = int((sec % 3600) // 60)
+    return f"{h}h {m:02d}m"
+
+
+def _format_quota_date_fr(iso_str: str) -> str:
+    d = datetime.fromisoformat(iso_str.replace("Z", "+00:00")).astimezone()
+    days_map = {"Mon": "lun.", "Tue": "mar.", "Wed": "mer.", "Thu": "jeu.", "Fri": "ven.", "Sat": "sam.", "Sun": "dim."}
+    day_fr = days_map.get(d.strftime("%a"), d.strftime("%a").lower())
+    return f"{day_fr} {d.strftime('%Hh%M')}"
+
+
+def _eval_quota_bucket(used_5h: float, used_7d: float, rem_hours_7d: float) -> Tuple[float, float, str, str]:
+    elapsed_fraction = max(0.0, min(1.0, (168.0 - rem_hours_7d) / 168.0))
+    target_used_pct = 96.0 * elapsed_fraction
+    delta = used_7d - target_used_pct
+    if used_5h >= 85.0 or used_7d >= 96.0:
+        v_md = "🔴 **PAUSE (Quota 5h ou 7j presque épuisé)**"
+        v_cli = "🔴 PAUSE (Quota 5h ou 7j presque épuisé)"
+    elif used_7d == 0.0 or delta < -8.0:
+        v_md = "🟢 **UTILISER PLUS**"
+        v_cli = "🟢 UTILISER PLUS"
+    elif -8.0 <= delta <= 8.0:
+        v_md = "🟡 **RYTHME OPTIMAL**"
+        v_cli = "🟡 RYTHME OPTIMAL"
+    else:
+        v_md = "🟠 **UTILISER MOINS**"
+        v_cli = "🟠 UTILISER MOINS"
+    return target_used_pct, delta, v_md, v_cli
+
+
+def get_realtime_quota_indicators(force_refresh: bool = False) -> Tuple[List[str], List[str]]:
+    """
+    Récupère en direct depuis les APIs officielles (agy.exe et Anthropic OAuth via claude_subagent.py)
+    les 3 indicateurs de couleur de rythme de consommation de quota (ZÉRO estimation locale).
+    Retourne (lignes_markdown, lignes_console).
+    """
+    global _RUNTIME_QUOTA_CACHE, _RUNTIME_QUOTA_TIME
+    if not force_refresh and _RUNTIME_QUOTA_CACHE is not None and (time.time() - _RUNTIME_QUOTA_TIME) < 30.0:
+        return _RUNTIME_QUOTA_CACHE
+
+    now = datetime.now(timezone.utc)
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        f_agy = executor.submit(_fetch_agy_usage)
+        f_claude = executor.submit(_fetch_claude_usage)
+        agy_data = f_agy.result()
+        claude_data = f_claude.result()
+
+    md_lines = ["> ⚡ **Indicateurs de Quotas (Cible : tout utiliser pile en fin de semaine)** :"]
+    cli_lines = ["⚡ Indicateurs de Quotas (Cible : tout utiliser pile en fin de semaine) :"]
+
+    if agy_data:
+        groups = agy_data.get("command", {}).get("data", {}).get("groups", [])
+        gemini_group = next((g for g in groups if g.get("name") == "Gemini Models"), None)
+        claude_group = next((g for g in groups if g.get("name") == "Claude and GPT models"), None)
+
+        if gemini_group:
+            b_gem_w = next(b for b in gemini_group["buckets"] if b.get("window") == "weekly")
+            b_gem_5 = next(b for b in gemini_group["buckets"] if b.get("window") == "5h")
+
+            rem_7d = b_gem_w["remaining_fraction"] * 100.0
+            used_7d = 100.0 - rem_7d
+            rem_5h = b_gem_5["remaining_fraction"] * 100.0
+            used_5h = 100.0 - rem_5h
+
+            rst_7d_dt = datetime.fromisoformat(b_gem_w["reset_time"].replace("Z", "+00:00"))
+            rem_7d_sec = max(0.0, (rst_7d_dt - now).total_seconds())
+            rst_5h_dt = datetime.fromisoformat(b_gem_5["reset_time"].replace("Z", "+00:00"))
+            rem_5h_sec = max(0.0, (rst_5h_dt - now).total_seconds())
+
+            target_used, delta, v_md, v_cli = _eval_quota_bucket(used_5h, used_7d, rem_7d_sec / 3600.0)
+            s_7d = "s" if round(used_7d) > 1 else ""
+
+            gem_5h_rst_md = f" (reset `{_format_quota_duration_short(rem_5h_sec)}`)" if rem_5h < 99.9 else ""
+            gem_5h_rst_cli = f" (reset {_format_quota_duration_short(rem_5h_sec)})" if rem_5h < 99.9 else ""
+
+            md_lines.append(
+                f"> - **Antigravity Gemini** : {v_md} — 7j : **{rem_7d:.0f}% restants** (`{used_7d:.0f}%` utilisé{s_7d} vs cible `{target_used:.0f}%`, reset `{_format_quota_duration_short(rem_7d_sec)}`) · 5h : **{rem_5h:.0f}% restants**{gem_5h_rst_md}"
+            )
+            cli_lines.append(
+                f"- Antigravity Gemini : {v_cli} — 7j : {rem_7d:.0f}% restants ({used_7d:.0f}% utilisé{s_7d} vs cible {target_used:.0f}%, reset {_format_quota_duration_short(rem_7d_sec)}) · 5h : {rem_5h:.0f}% restants{gem_5h_rst_cli}"
+            )
+
+        if claude_group:
+            b_cl_w = next(b for b in claude_group["buckets"] if b.get("window") == "weekly")
+            b_cl_5 = next(b for b in claude_group["buckets"] if b.get("window") == "5h")
+
+            rem_7d = b_cl_w["remaining_fraction"] * 100.0
+            used_7d = 100.0 - rem_7d
+            rem_5h = b_cl_5["remaining_fraction"] * 100.0
+            used_5h = 100.0 - rem_5h
+
+            rst_7d_dt = datetime.fromisoformat(b_cl_w["reset_time"].replace("Z", "+00:00"))
+            rem_7d_sec = max(0.0, (rst_7d_dt - now).total_seconds())
+            rst_5h_dt = datetime.fromisoformat(b_cl_5["reset_time"].replace("Z", "+00:00"))
+            rem_5h_sec = max(0.0, (rst_5h_dt - now).total_seconds())
+
+            target_used, delta, v_md, v_cli = _eval_quota_bucket(used_5h, used_7d, rem_7d_sec / 3600.0)
+            s_7d = "s" if round(used_7d) > 1 else ""
+
+            cl_5h_rst_md = f" (reset `{_format_quota_duration_short(rem_5h_sec)}`)" if rem_5h < 99.9 else ""
+            cl_5h_rst_cli = f" (reset {_format_quota_duration_short(rem_5h_sec)})" if rem_5h < 99.9 else ""
+
+            md_lines.append(
+                f"> - **Antigravity Claude** : {v_md} — 7j : **{rem_7d:.0f}% restants** (`{used_7d:.0f}%` utilisé{s_7d}, reset `{_format_quota_duration_short(rem_7d_sec)}`) · 5h : **{rem_5h:.0f}% restants**{cl_5h_rst_md}"
+            )
+            cli_lines.append(
+                f"- Antigravity Claude : {v_cli} — 7j : {rem_7d:.0f}% restants ({used_7d:.0f}% utilisé{s_7d}, reset {_format_quota_duration_short(rem_7d_sec)}) · 5h : {rem_5h:.0f}% restants{cl_5h_rst_cli}"
+            )
+
+    if claude_data:
+        fh = claude_data.get("five_hour", {})
+        sd = claude_data.get("seven_day", {})
+
+        used_5h = float(fh.get("utilization", 0.0))
+        used_7d = float(sd.get("utilization", 0.0))
+        rem_7d = 100.0 - used_7d
+        rem_5h = 100.0 - used_5h
+
+        rst_7d_str = sd.get("resets_at")
+        rst_7d_dt = datetime.fromisoformat(rst_7d_str.replace("Z", "+00:00")) if rst_7d_str else None
+        rem_7d_sec = max(0.0, (rst_7d_dt - now).total_seconds()) if rst_7d_dt else 0.0
+
+        rst_5h_str = fh.get("resets_at")
+        rst_5h_dt = datetime.fromisoformat(rst_5h_str.replace("Z", "+00:00")) if rst_5h_str else None
+        rem_5h_sec = max(0.0, (rst_5h_dt - now).total_seconds()) if rst_5h_dt else 0.0
+
+        target_used, delta, v_md, v_cli = _eval_quota_bucket(used_5h, used_7d, rem_7d_sec / 3600.0)
+        s_7d = "s" if round(used_7d) > 1 else ""
+        s_5h = "s" if round(used_5h) > 1 else ""
+
+        cc_5h_rst_md = f" (reset `{_format_quota_duration_short(rem_5h_sec)}`)" if (used_5h > 0 and rst_5h_dt) else ""
+        cc_5h_rst_cli = f" (reset {_format_quota_duration_short(rem_5h_sec)})" if (used_5h > 0 and rst_5h_dt) else ""
+
+        rst_7d_label_md = f", reset `{_format_quota_date_fr(rst_7d_str)}`" if rst_7d_str else ""
+        rst_7d_label_cli = f", reset {_format_quota_date_fr(rst_7d_str)}" if rst_7d_str else ""
+
+        md_lines.append(
+            f"> - **Claude Code (Opus)** : {v_md} — 7j : **{used_7d:.0f}% utilisé{s_7d}** (`{rem_7d:.0f}%` restants vs cible `{target_used:.0f}%` utilisés{rst_7d_label_md}) · 5h : **{used_5h:.0f}% utilisé{s_5h}**{cc_5h_rst_md}"
+        )
+        cli_lines.append(
+            f"- Claude Code (Opus) : {v_cli} — 7j : {used_7d:.0f}% utilisé{s_7d} ({rem_7d:.0f}% restants vs cible {target_used:.0f}% utilisés{rst_7d_label_cli}) · 5h : {used_5h:.0f}% utilisé{s_5h}{cc_5h_rst_cli}"
+        )
+
+    _RUNTIME_QUOTA_CACHE = (md_lines, cli_lines)
+    _RUNTIME_QUOTA_TIME = time.time()
+    return _RUNTIME_QUOTA_CACHE
+
+
 def write_root_dashboard(vault_dir=VAULT_DIR, data=None, projects=None, show_progress: bool = False, quiet: Optional[bool] = None) -> str:
     """
     Construit et écrit le tableau de bord Markdown épuré 🎯 Projets.md
@@ -4619,12 +4818,17 @@ def write_root_dashboard(vault_dir=VAULT_DIR, data=None, projects=None, show_pro
     n_unrev = len(unreviewed)
     active_summary = f"{n_rev} révisés" + (f", {n_unrev} non révisés" if n_unrev > 0 else "")
 
+    md_quota_lines, _ = get_realtime_quota_indicators()
+
     lines = [
         "# 🎯 Tableau de Bord des Projets",
         "",
         f"> 🔄 **Dernière mise à jour** : {now_str} · **Projets actifs** : {active_summary}",
-        ""
     ]
+    if md_quota_lines:
+        lines.append(">")
+        lines.extend(md_quota_lines)
+    lines.append("")
 
     if unreviewed:
         lines.append("## 🆕 Projets non révisés")
@@ -4659,6 +4863,12 @@ def cmd_dashboard(args, data):
     elapsed = time.time() - t0
     if is_json:
         print(json.dumps({"status": "ok", "path": target_path, "active_projects": active_count, "elapsed_seconds": round(elapsed, 2)}))
+    else:
+        _, cli_quota_lines = get_realtime_quota_indicators()
+        if cli_quota_lines:
+            print()
+            for ql in cli_quota_lines:
+                print(ql)
 
 
 def clean_orphans(vault_dir=VAULT_DIR, data_path=DATA_JSON_PATH, cache_path=CACHE_PATH, dry_run=False):
@@ -4730,10 +4940,7 @@ def cmd_clean_orphans(args, data_path=DATA_JSON_PATH, cache_path=CACHE_PATH):
                 print(f"💾 Backup de sécurité créé : {data_path}.bak_clean_orphans")
 
     if not dry_run:
-        try:
-            write_root_dashboard(vault_dir=VAULT_DIR)
-        except Exception:
-            pass
+        write_root_dashboard(vault_dir=VAULT_DIR)
 
 
 def cmd_list(args, data):
@@ -4797,6 +5004,11 @@ def cmd_list(args, data):
     else:
         verbose = getattr(args, "verbose", False) or getattr(args, "debug", False)
         role_label = "🤖 Mode Autonome Agent : " if is_agent_mode else ""
+        _, cli_quota_lines = get_realtime_quota_indicators()
+        if cli_quota_lines:
+            for ql in cli_quota_lines:
+                print(ql)
+            print()
         if show_unreviewed_only:
             print(f"=== {role_label}🆕 Unreviewed Projects ({len(unreviewed)} projects awaiting initial evaluation) ===")
             print(format_project_table(unreviewed_disp, verbose=verbose) if unreviewed_disp else "  (No unreviewed projects)")
@@ -4811,10 +5023,7 @@ def cmd_list(args, data):
             print(format_project_table(reviewed_disp, verbose=verbose) if reviewed_disp else "  (No reviewed projects)")
 
     if not is_agent_mode:
-        try:
-            write_root_dashboard(vault_dir=VAULT_DIR, data=data, projects=projects)
-        except Exception:
-            pass
+        write_root_dashboard(vault_dir=VAULT_DIR, data=data, projects=projects)
 
 
 def cmd_next_autonomous(args, data):
@@ -5332,59 +5541,416 @@ def get_current_conversation_transcript_path() -> Optional[str]:
     return None
 
 
+def extract_conversation_id_from_transcript_path(transcript_path: Union[str, Path, None]) -> Optional[str]:
+    """
+    Extrait l'identifiant de conversation (conv_id) depuis transcript_path
+    (ex. .../brain/<conv_id>/.system_generated/logs/transcript.jsonl),
+    ou repli sur la variable d'environnement ANTIGRAVITY_CONVERSATION_ID.
+    """
+    if transcript_path:
+        p = Path(transcript_path).resolve()
+        parts = p.parts
+        if ".system_generated" in parts:
+            idx = parts.index(".system_generated")
+            if idx > 0:
+                return parts[idx - 1]
+        if "brain" in parts:
+            idx = parts.index("brain")
+            if idx + 1 < len(parts):
+                return parts[idx + 1]
+    return os.environ.get("ANTIGRAVITY_CONVERSATION_ID")
+
+
+class TranscriptParseResult(tuple):
+    """
+    Tuple enrichi (t_minutes, msg_count) rétrocompatible avec l'unpacking existant,
+    fournissant des métadonnées de ventilation multi-projets :
+    - total_conversation_minutes : durée brute cumulée sur tous les tours de la conversation
+    - project_minutes : dictionnaire des minutes ventilées par projet suivi (clés de db_projects)
+    - target_project : clé canonique du projet ciblé (ou None)
+    - detected_projects_count : nombre de projets suivis distincts touchés au cours de la conversation
+    - max_step_index : step_index maximal rencontré dans le transcript (-1 si aucun)
+    """
+    total_conversation_minutes: float
+    project_minutes: Dict[str, float]
+    target_project: Optional[str]
+    detected_projects_count: int
+    max_step_index: int
+
+    def __new__(cls, t_minutes: float, msg_count: int, total_conv_min: float = 0.0,
+                proj_min: Optional[Dict[str, float]] = None, target_proj: Optional[str] = None,
+                max_step_index: int = -1):
+        obj = super().__new__(cls, (t_minutes, msg_count))
+        obj.total_conversation_minutes = total_conv_min
+        obj.project_minutes = proj_min or {}
+        obj.target_project = target_proj
+        obj.detected_projects_count = len([p for p, m in (proj_min or {}).items() if m > 0])
+        obj.max_step_index = int(max_step_index)
+        return obj
+
+
+def resolve_project_canonical_key(target: Optional[str], db_projects: Dict[str, Any]) -> Optional[str]:
+    """
+    Résout une chaîne cible (titre, nom de fichier ou chemin relatif/absolu)
+    vers la clé canonique exacte dans le dictionnaire db_projects.
+    """
+    if not target or not db_projects:
+        return target
+    clean = target.strip().replace("\\", "/")
+    if clean in db_projects:
+        return clean
+    clean_lower = clean.lower()
+    for k in db_projects.keys():
+        if k.lower() == clean_lower:
+            return k
+
+    target_base = os.path.basename(clean).lower()
+    target_title = os.path.splitext(target_base)[0]
+    for k in db_projects.keys():
+        k_base = os.path.basename(k).lower()
+        k_title = os.path.splitext(k_base)[0]
+        if k_base == target_base or k_title == target_title:
+            return k
+
+    for k in db_projects.keys():
+        k_lower = k.lower()
+        if target_title in k_lower or clean_lower in k_lower:
+            return k
+    return target
+
+
 def parse_transcript_work_time(
-    transcript_path: str,
+    transcript_path: Union[str, Path],
+    target_project: Optional[str] = None,
+    db_projects: Optional[dict] = None,
     minutes_per_message: float = 6.0,
-    minutes_per_arrow: float = 2.0
-) -> Tuple[float, int]:
+    minutes_per_arrow: float = 2.0,
+    min_step_index_by_project: Optional[Dict[str, int]] = None
+) -> TranscriptParseResult:
     """
-    Compte strictement les messages humains explicites où source == "USER_EXPLICIT" et type == "USER_INPUT".
-    Garantit qu'un message avec sélections ou commentaires d'artéfacts multiples (encapsulé dans une seule ligne JSON)
-    compte pour 6 min par défaut, ou max(6 min, nb_arguments * 2 min) si des arguments d'Henri (flèches -> ou →,
-    ou commentaires d'artéfacts Comment: "...") sont présents (> 1), isolés avant <ADDITIONAL_METADATA> et hors blocs <mail> ou ```.
-    Retourne (round(total_minutes, 2), user_messages).
-    Si aucun message trouvé ou fichier absent, renvoie (0.0, 0).
+    Découpe le transcript en tours humains commençant à chaque USER_EXPLICIT (USER_INPUT).
+    Pour chaque tour, calcule la durée brute selon la règle canonique (6 min de base, ou 2 min par
+    argument/flèche '->'/'→' et commentaire d'artéfact si > 1), et identifie l'ensemble des
+    projets suivis (clés de db_projects) touchés durant ce tour via USER_INPUT, les arguments
+    des tool_calls (chemins de notes maîtresses, Projet : <chemin> dans les briefs, main_project_file)
+    et les liens du PLANNER_RESPONSE ([Nom](file:///.../Nom.md) ou 🤖 <Titre>.md).
+    Ventile le temps équitablement (turn_minutes / K) entre les projets touchés sur chaque tour.
+    Si matched_projects est vide sur un tour court de suivi, il hérite du last_matched_projects précédent
+    (ou suivant pour les premiers tours).
+    Si min_step_index_by_project est fourni, ignore pour chaque projet p les tours dont le step_index <= last_step.
+    Si target_project est fourni, retourne max(1, round(project_minutes[target_project])) si du temps
+    a été ventilé, 0.0 si d'autres projets ont été détectés sans toucher ce projet, ou le total de repli
+    si aucun projet suivi n'a pu être détecté sur l'ensemble de la conversation.
     """
-    if not transcript_path or not os.path.isfile(transcript_path):
-        return 0.0, 0
+    if not transcript_path or not os.path.isfile(str(transcript_path)):
+        return TranscriptParseResult(0.0, 0, 0.0, {}, target_project, max_step_index=-1)
 
-    user_messages = 0
-    total_minutes = 0.0
-    try:
-        with open(transcript_path, "r", encoding="utf-8", errors="ignore") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
+    if db_projects is None:
+        data = load_data()
+        db_projects = data.get("stats", {}).get("projects", {})
+
+    project_index: Dict[str, str] = {}
+    for p_key in (db_projects or {}).keys():
+        norm_key = p_key.replace("\\", "/").lower()
+        project_index[norm_key] = p_key
+        base_name = os.path.basename(p_key).lower()
+        project_index[base_name] = p_key
+        title = os.path.splitext(base_name)[0].lower()
+        project_index[title] = p_key
+        project_index[urllib.parse.quote(base_name)] = p_key
+        project_index[urllib.parse.quote(title)] = p_key
+
+    entries = []
+    max_step_seen = -1
+    with open(str(transcript_path), "r", encoding="utf-8", errors="ignore") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entry_obj = json.loads(line)
+                entries.append(entry_obj)
+                if isinstance(entry_obj, dict):
+                    s_idx = entry_obj.get("step_index")
+                    if isinstance(s_idx, int) and s_idx > max_step_seen:
+                        max_step_seen = s_idx
+            except json.JSONDecodeError:
+                continue
+
+    if not entries:
+        return TranscriptParseResult(0.0, 0, 0.0, {}, target_project, max_step_index=-1)
+
+    turns = []
+    current_turn = None
+    turn_idx = 0
+    for entry in entries:
+        if isinstance(entry, dict):
+            source = entry.get("source")
+            entry_type = entry.get("type")
+            if source == "USER_EXPLICIT" and entry_type == "USER_INPUT":
+                if current_turn is not None:
+                    turns.append(current_turn)
+                s_idx = entry.get("step_index")
                 try:
-                    entry = json.loads(line)
-                    if isinstance(entry, dict):
-                        if entry.get("source") == "USER_EXPLICIT" and entry.get("type") == "USER_INPUT":
-                            raw_content = str(entry.get("content") or "")
-                            user_part = raw_content.split("<ADDITIONAL_METADATA>")[0]
-                            comment_count = len(re.findall(r'(?:^|\n)Comment:\s*"', user_part))
-                            clean_part = re.sub(r'```.*?```', '', user_part, flags=re.DOTALL)
-                            clean_part = re.sub(r'<mail>.*?</mail>', '', clean_part, flags=re.DOTALL)
-                            if "<USER_REQUEST>" in clean_part:
-                                body_part = clean_part.split("<USER_REQUEST>")[1].split("</USER_REQUEST>")[0]
-                                arrow_count = len(re.findall(r"(?:->|→)", body_part))
-                            else:
-                                arrow_count = len(re.findall(r"(?:->|→)", clean_part))
+                    s_idx_int = int(s_idx) if s_idx is not None else turn_idx
+                except (ValueError, TypeError):
+                    s_idx_int = turn_idx
+                current_turn = {
+                    "user_entry": entry,
+                    "steps": [entry],
+                    "step_index": s_idx_int
+                }
+                turn_idx += 1
+            else:
+                if current_turn is not None:
+                    current_turn["steps"].append(entry)
+    if current_turn is not None:
+        turns.append(current_turn)
 
-                            arg_count = arrow_count + comment_count
-                            if arg_count > 1:
-                                msg_minutes = max(float(minutes_per_message), arg_count * float(minutes_per_arrow))
-                            else:
-                                msg_minutes = float(minutes_per_message)
+    if not turns:
+        return TranscriptParseResult(0.0, 0, 0.0, {}, target_project, max_step_index=max_step_seen)
 
-                            total_minutes += msg_minutes
-                            user_messages += 1
-                except Exception:
-                    continue
-    except Exception:
-        return 0.0, 0
+    user_messages = len(turns)
+    turn_durations: List[float] = []
+    matched_per_turn: List[Set[str]] = []
 
-    return round(total_minutes, 2), user_messages
+    def resolve_to_project(raw_candidate: str) -> Optional[str]:
+        if not raw_candidate:
+            return None
+        clean = raw_candidate.strip().replace("\\", "/")
+        clean_base = os.path.basename(clean)
+        clean_unquote = urllib.parse.unquote(clean_base).strip()
+        if clean_unquote.startswith("🤖 "):
+            clean_unquote = clean_unquote[2:].strip()
+        for cand in [clean_unquote.lower(), os.path.splitext(clean_unquote)[0].lower()]:
+            if cand in project_index:
+                return project_index[cand]
+        if "notes/" in clean.lower():
+            part = clean[clean.lower().index("notes/"):].strip()
+            part = urllib.parse.unquote(part).lower()
+            if part in project_index:
+                return project_index[part]
+        return None
+
+    def is_vault_project_note(path_str: str) -> Optional[str]:
+        if not isinstance(path_str, str):
+            return None
+        norm = path_str.replace("\\", "/").strip()
+        if not norm.lower().endswith(".md"):
+            return None
+        norm_lower = norm.lower()
+        if any(excl in norm_lower for excl in ["/_agents/", "\\_agents\\", "/brain/", "\\brain\\", "/scratch/", "\\scratch\\", "sources_"]):
+            return None
+        return resolve_to_project(norm)
+
+    def extract_strings_recursive(val: Any) -> List[str]:
+        res = []
+        if isinstance(val, str):
+            stripped = val.strip()
+            if (stripped.startswith("{") and stripped.endswith("}")) or (stripped.startswith("[") and stripped.endswith("]")):
+                try:
+                    nested = json.loads(stripped)
+                    res.extend(extract_strings_recursive(nested))
+                except (json.JSONDecodeError, ValueError):
+                    res.append(val)
+            else:
+                res.append(val)
+        elif isinstance(val, dict):
+            for v in val.values():
+                res.extend(extract_strings_recursive(v))
+        elif isinstance(val, (list, tuple, set)):
+            for item in val:
+                res.extend(extract_strings_recursive(item))
+        return res
+
+    path_arg_keys = {"path", "filepath", "file_path", "targetfile", "absolutepath"}
+
+    for turn in turns:
+        user_entry = turn["user_entry"]
+        raw_content = str(user_entry.get("content") or "")
+        user_part = raw_content.split("<ADDITIONAL_METADATA>")[0]
+        comment_count = len(re.findall(r'(?:^|\n)Comment:\s*"', user_part))
+        clean_part = re.sub(r'```.*?```', '', user_part, flags=re.DOTALL)
+        clean_part = re.sub(r'<mail>.*?</mail>', '', clean_part, flags=re.DOTALL)
+        if "<USER_REQUEST>" in clean_part:
+            body_part = clean_part.split("<USER_REQUEST>")[1].split("</USER_REQUEST>")[0]
+            arrow_count = len(re.findall(r"(?:->|→)", body_part))
+        else:
+            arrow_count = len(re.findall(r"(?:->|→)", clean_part))
+
+        arg_count = arrow_count + comment_count
+        if arg_count > 1:
+            msg_minutes = max(float(minutes_per_message), arg_count * float(minutes_per_arrow))
+        else:
+            msg_minutes = float(minutes_per_message)
+        turn_durations.append(msg_minutes)
+
+        matched: Set[str] = set()
+
+        # Marqueur D (USER_INPUT) : annotations @[...]
+        user_at_matches = re.findall(r'@\[([a-zA-Z0-9_\- \u0080-\uffff]+?\.md)\]', user_part)
+        for uam in user_at_matches:
+            p = resolve_to_project(uam)
+            if p:
+                matched.add(p)
+
+        user_text = user_part.lower()
+        for p_key in (db_projects or {}).keys():
+            title = os.path.splitext(os.path.basename(p_key))[0]
+            if len(title) >= 6 and title.lower() in user_text:
+                matched.add(p_key)
+
+        for step in turn["steps"]:
+            stype = step.get("type")
+            scontent = str(step.get("content") or "")
+
+            # Marqueur D (PLANNER_RESPONSE) : 5 premières lignes uniquement
+            if stype == "PLANNER_RESPONSE" and scontent:
+                first_lines = "\n".join(scontent.splitlines()[:5])
+                md_links = re.findall(r'\[[^\]]*\]\(((?:file:///[^\)]*?/)?([^/\\)]+?\.md))\)', first_lines, re.IGNORECASE)
+                for full_url, fname in md_links:
+                    p = resolve_to_project(fname)
+                    if p:
+                        matched.add(p)
+                direct_file_links = re.findall(r'file:///[^\)\s"\']+?\.md', first_lines, re.IGNORECASE)
+                for dfl in direct_file_links:
+                    p = resolve_to_project(dfl)
+                    if p:
+                        matched.add(p)
+                robot_links = re.findall(r'🤖\s*([a-zA-Z0-9_\- \u0080-\uffff]+?\.md)', first_lines, re.IGNORECASE)
+                for rl in robot_links:
+                    p = resolve_to_project(rl)
+                    if p:
+                        matched.add(p)
+
+            # Inspection des tool_calls
+            for tc in step.get("tool_calls", []):
+                raw_args = tc.get("args", {})
+                if isinstance(raw_args, str):
+                    stripped_args = raw_args.strip()
+                    if (stripped_args.startswith("{") and stripped_args.endswith("}")) or (stripped_args.startswith("[") and stripped_args.endswith("]")):
+                        try:
+                            args_obj = json.loads(stripped_args)
+                        except (json.JSONDecodeError, ValueError):
+                            args_obj = raw_args
+                    else:
+                        args_obj = raw_args
+                else:
+                    args_obj = raw_args
+
+                # Marqueur C : Path direct d'un outil fichier pointant vers une note .md du coffre
+                if isinstance(args_obj, dict):
+                    for k, v in args_obj.items():
+                        if k.lower() in path_arg_keys and isinstance(v, str):
+                            p = is_vault_project_note(v)
+                            if p:
+                                matched.add(p)
+
+                # Extraction récursive des chaînes (déséchappées)
+                strings = extract_strings_recursive(args_obj)
+                for s in strings:
+                    # Marqueur A : Projet : <chemin>.md dans un brief
+                    brief_matches = re.findall(r'Projet\s*:\s*([^\r\n"\']+?\.md)', s, re.IGNORECASE)
+                    for bm in brief_matches:
+                        p = resolve_to_project(bm)
+                        if p:
+                            matched.add(p)
+
+                    # Marqueur B : main_project_file AIVC
+                    main_proj_matches = re.findall(r'main_project_file["\']?\s*:\s*["\']+([^"\'\r\n]+?\.md)', s, re.IGNORECASE)
+                    for mpm in main_proj_matches:
+                        p = resolve_to_project(mpm)
+                        if p:
+                            matched.add(p)
+
+        matched_per_turn.append(matched)
+
+    last_matched: Set[str] = set()
+    final_matched_per_turn: List[Set[str]] = []
+    for m in matched_per_turn:
+        if not m and last_matched:
+            final_matched_per_turn.append(set(last_matched))
+        else:
+            if m:
+                last_matched = m
+            final_matched_per_turn.append(set(m))
+
+    if final_matched_per_turn and not final_matched_per_turn[0]:
+        first_non_empty = next((s for s in final_matched_per_turn if s), set())
+        for i in range(len(final_matched_per_turn)):
+            if not final_matched_per_turn[i]:
+                final_matched_per_turn[i] = set(first_non_empty)
+            else:
+                break
+
+    total_conversation_minutes = sum(turn_durations)
+    project_minutes: Dict[str, float] = {p: 0.0 for p in (db_projects or {}).keys()}
+    total_detected_in_transcript = False
+
+    for turn, m, t_min in zip(turns, final_matched_per_turn, turn_durations):
+        if m:
+            total_detected_in_transcript = True
+            share = t_min / len(m)
+            for p in m:
+                if min_step_index_by_project:
+                    last_step = min_step_index_by_project.get(p)
+                    if last_step is None:
+                        for k_min, v_step in min_step_index_by_project.items():
+                            if k_min == p or os.path.basename(k_min).lower() == os.path.basename(p).lower():
+                                last_step = v_step
+                                break
+                    if last_step is not None and turn.get("step_index", 0) <= last_step:
+                        continue
+                project_minutes[p] = project_minutes.get(p, 0.0) + share
+
+    if target_project is not None:
+        canon_target = resolve_project_canonical_key(target_project, db_projects or {})
+        if not total_detected_in_transcript:
+            target_min_step = None
+            if min_step_index_by_project:
+                if canon_target in min_step_index_by_project:
+                    target_min_step = min_step_index_by_project[canon_target]
+                else:
+                    for k, v in min_step_index_by_project.items():
+                        if os.path.basename(k).lower() == os.path.basename(canon_target or "").lower():
+                            target_min_step = v
+                            break
+            uncredited_conv = sum(
+                t_min for turn, t_min in zip(turns, turn_durations)
+                if not (target_min_step is not None and turn.get("step_index", 0) <= target_min_step)
+            )
+            return TranscriptParseResult(
+                round(uncredited_conv, 2),
+                user_messages,
+                total_conversation_minutes,
+                project_minutes,
+                canon_target,
+                max_step_index=max_step_seen
+            )
+
+        target_time = project_minutes.get(canon_target, 0.0)
+        if target_time > 0:
+            final_minutes = float(max(1, round(target_time)))
+        else:
+            final_minutes = 0.0
+
+        return TranscriptParseResult(
+            final_minutes,
+            user_messages,
+            total_conversation_minutes,
+            project_minutes,
+            canon_target,
+            max_step_index=max_step_seen
+        )
+
+    return TranscriptParseResult(
+        round(total_conversation_minutes, 2),
+        user_messages,
+        total_conversation_minutes,
+        project_minutes,
+        None,
+        max_step_index=max_step_seen
+    )
 
 
 def compute_feedback_score(current_score, action, rf):
@@ -5411,7 +5977,7 @@ def compute_feedback_score(current_score, action, rf):
     return round(new_score, 3)
 
 
-def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_agent=False):
+def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_agent=False, conv_id=None, max_step_index=None):
     stats = data.setdefault("stats", {}).setdefault("projects", {})
     global_stats = data.setdefault("stats", {}).setdefault("globalStats", {"totalReviews": 0, "totalPomodoroTime": 0})
     settings = data.setdefault("settings", {})
@@ -5471,6 +6037,20 @@ def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_
     if not is_agent_only and proj.get("agent_only"):
         is_agent_only = True
 
+    target_work_dict = proj.setdefault("agent", {}) if is_agent else proj
+    existing_work = target_work_dict.get("recentWorkDates", [])
+    valid_dates = []
+    existing_entry_for_conv = None
+    for item in existing_work:
+        d_str = item.get("date") if isinstance(item, dict) else str(item)
+        d_dt = parse_iso_datetime(d_str)
+        if d_dt:
+            delta_h = (now_dt - d_dt).total_seconds() / 3600.0
+            if -0.05 <= delta_h < 6.0:
+                if isinstance(item, dict) and conv_id and item.get("conv_id") == conv_id:
+                    existing_entry_for_conv = item
+                valid_dates.append(item)
+
     if is_agent:
         agent_obj = proj.setdefault("agent", {})
         if is_numeric:
@@ -5479,24 +6059,26 @@ def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_
             agent_obj["currentScore"] = new_score
             agent_obj["rotationBonus"] = 0.0
             agent_obj["lastReviewDate"] = now_iso
-            agent_obj["totalReviews"] = max(1, int(agent_obj.get("totalReviews", 0)) + 1)
-            if is_agent_only:
-                agent_obj["sessionsSinceHuman"] = 0
-                proj["baseScore"] = new_score
-                proj["currentScore"] = new_score
-                proj["totalReviews"] = max(1, int(proj.get("totalReviews", 0)))
-                proj["lastReviewDate"] = now_iso
-            else:
-                agent_obj["sessionsSinceHuman"] = int(agent_obj.get("sessionsSinceHuman", 0)) + 1
+            if not (worked and existing_entry_for_conv and effective_elapsed == 0.0):
+                agent_obj["totalReviews"] = max(1, int(agent_obj.get("totalReviews", 0)) + 1)
+                if is_agent_only:
+                    agent_obj["sessionsSinceHuman"] = 0
+                    proj["baseScore"] = new_score
+                    proj["currentScore"] = new_score
+                    proj["totalReviews"] = max(1, int(proj.get("totalReviews", 0)))
+                    proj["lastReviewDate"] = now_iso
+                else:
+                    agent_obj["sessionsSinceHuman"] = int(agent_obj.get("sessionsSinceHuman", 0)) + 1
 
-            agent_obj.setdefault("reviewHistory", []).append({
-                "date": now_iso,
-                "action": act,
-                "scoreAfter": new_score,
-                "duration_minutes": round(effective_elapsed, 2)
-            })
-            if len(agent_obj.get("reviewHistory", [])) > 100:
-                agent_obj["reviewHistory"] = agent_obj["reviewHistory"][-100:]
+                agent_obj.setdefault("reviewHistory", []).append({
+                    "date": now_iso,
+                    "action": act,
+                    "scoreAfter": new_score,
+                    "duration_minutes": round(effective_elapsed, 2)
+                })
+                if len(agent_obj.get("reviewHistory", [])) > 100:
+                    agent_obj["reviewHistory"] = agent_obj["reviewHistory"][-100:]
+                global_stats["totalAgentReviews"] = int(global_stats.get("totalAgentReviews", 0)) + 1
         else:
             raw_s = agent_obj.get("currentScore", proj.get("currentScore"))
             base_s = float(raw_s) if raw_s is not None else 50.0
@@ -5504,68 +6086,103 @@ def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_
             agent_obj["baseScore"] = new_score
             agent_obj["currentScore"] = new_score
             agent_obj["lastReviewDate"] = now_iso
-            agent_obj["totalReviews"] = int(agent_obj.get("totalReviews", 0)) + 1
-            if is_agent_only:
-                agent_obj["sessionsSinceHuman"] = 0
-                proj["baseScore"] = new_score
-                proj["currentScore"] = new_score
-                proj["totalReviews"] = max(1, int(proj.get("totalReviews", 0)))
-                proj["lastReviewDate"] = now_iso
-            else:
-                agent_obj["sessionsSinceHuman"] = int(agent_obj.get("sessionsSinceHuman", 0)) + 1
+            if not (worked and existing_entry_for_conv and effective_elapsed == 0.0):
+                agent_obj["totalReviews"] = int(agent_obj.get("totalReviews", 0)) + 1
+                if is_agent_only:
+                    agent_obj["sessionsSinceHuman"] = 0
+                    proj["baseScore"] = new_score
+                    proj["currentScore"] = new_score
+                    proj["totalReviews"] = max(1, int(proj.get("totalReviews", 0)))
+                    proj["lastReviewDate"] = now_iso
+                else:
+                    agent_obj["sessionsSinceHuman"] = int(agent_obj.get("sessionsSinceHuman", 0)) + 1
 
-            agent_obj.setdefault("reviewHistory", []).append({
-                "date": now_iso,
-                "action": act,
-                "scoreAfter": new_score,
-                "duration_minutes": round(effective_elapsed, 2)
-            })
-            if len(agent_obj.get("reviewHistory", [])) > 100:
-                agent_obj["reviewHistory"] = agent_obj["reviewHistory"][-100:]
-
-        global_stats["totalAgentReviews"] = int(global_stats.get("totalAgentReviews", 0)) + 1
+                agent_obj.setdefault("reviewHistory", []).append({
+                    "date": now_iso,
+                    "action": act,
+                    "scoreAfter": new_score,
+                    "duration_minutes": round(effective_elapsed, 2)
+                })
+                if len(agent_obj.get("reviewHistory", [])) > 100:
+                    agent_obj["reviewHistory"] = agent_obj["reviewHistory"][-100:]
+                global_stats["totalAgentReviews"] = int(global_stats.get("totalAgentReviews", 0)) + 1
 
         ratio = 0.0
         if worked:
             elapsed_minutes = effective_elapsed
-            ratio = min(1.0, max(0.0, elapsed_minutes / target_minutes)) if target_minutes > 0 else 1.0
+            if existing_entry_for_conv:
+                if elapsed_minutes == 0.0:
+                    if max_step_index is not None and int(max_step_index) >= 0:
+                        existing_entry_for_conv["last_step"] = max(
+                            int(existing_entry_for_conv.get("last_step", -1)),
+                            int(max_step_index)
+                        )
+                    agent_obj["recentWorkDates"] = valid_dates
+                    ratio = float(existing_entry_for_conv.get("ratio", 0.0))
+                else:
+                    cumulated_duration = float(existing_entry_for_conv.get("duration_minutes", 0.0)) + elapsed_minutes
+                    ratio = min(1.0, max(0.0, cumulated_duration / target_minutes)) if target_minutes > 0 else 1.0
+                    existing_entry_for_conv["duration_minutes"] = round(cumulated_duration, 2)
+                    existing_entry_for_conv["ratio"] = round(ratio, 4)
+                    existing_entry_for_conv["interrupted"] = (ratio < 0.99)
+                    existing_entry_for_conv["date"] = now_iso
+                    if conv_id:
+                        existing_entry_for_conv["conv_id"] = conv_id
+                    if max_step_index is not None and int(max_step_index) >= 0:
+                        existing_entry_for_conv["last_step"] = max(
+                            int(existing_entry_for_conv.get("last_step", -1)),
+                            int(max_step_index)
+                        )
+                    agent_obj["recentWorkDates"] = valid_dates
 
-            existing_work = agent_obj.get("recentWorkDates", [])
-            valid_dates = []
-            for item in existing_work:
-                d_str = item.get("date") if isinstance(item, dict) else str(item)
-                d_dt = parse_iso_datetime(d_str)
-                if d_dt:
-                    delta_h = (now_dt - d_dt).total_seconds() / 3600.0
-                    if -0.05 <= delta_h < 6.0:
-                        valid_dates.append(item)
+                    if ratio >= 0.5:
+                        agent_obj["lastSatisfiedMilestoneDate"] = now_iso
+                        if is_agent_only:
+                            proj["lastSatisfiedMilestoneDate"] = now_iso
 
-            session_entry = {
-                "date": now_iso,
-                "ratio": round(ratio, 4),
-                "duration_minutes": round(elapsed_minutes, 2),
-                "target_minutes": round(target_minutes, 2),
-                "interrupted": (ratio < 0.99)
-            }
-            valid_dates.append(session_entry)
-            agent_obj["recentWorkDates"] = valid_dates
+                    current_bonus = float(agent_obj.get("rotationBonus", 0.0))
+                    s_base = float(agent_obj.get("currentScore", 50.0))
+                    s_base = min(100.0, max(1.0, s_base))
+                    current_bonus = min(max(0.0, 100.0 - s_base), max(0.0, current_bonus))
+                    if ratio >= 0.8:
+                        agent_obj["rotationBonus"] = 0.0
+                    else:
+                        agent_obj["rotationBonus"] = round(max(0.0, current_bonus * (1.0 - ratio)), 3)
 
-            if ratio >= 0.5:
-                agent_obj["lastSatisfiedMilestoneDate"] = now_iso
-                if is_agent_only:
-                    proj["lastSatisfiedMilestoneDate"] = now_iso
-
-            current_bonus = float(agent_obj.get("rotationBonus", 0.0))
-            s_base = float(agent_obj.get("currentScore", 50.0))
-            s_base = min(100.0, max(1.0, s_base))
-            current_bonus = min(max(0.0, 100.0 - s_base), max(0.0, current_bonus))
-            if ratio >= 0.8:
-                agent_obj["rotationBonus"] = 0.0
+                    update_achilles_rotation_bonuses(stats, matched_key, ratio=ratio, alpha=alpha, is_agent=True)
+                    global_stats["totalAgentPomodoroTime"] = round(float(global_stats.get("totalAgentPomodoroTime", 0.0)) + elapsed_minutes, 2)
             else:
-                agent_obj["rotationBonus"] = round(max(0.0, current_bonus * (1.0 - ratio)), 3)
+                ratio = min(1.0, max(0.0, elapsed_minutes / target_minutes)) if target_minutes > 0 else 1.0
+                session_entry = {
+                    "date": now_iso,
+                    "ratio": round(ratio, 4),
+                    "duration_minutes": round(elapsed_minutes, 2),
+                    "target_minutes": round(target_minutes, 2),
+                    "interrupted": (ratio < 0.99)
+                }
+                if conv_id:
+                    session_entry["conv_id"] = conv_id
+                if max_step_index is not None and int(max_step_index) >= 0:
+                    session_entry["last_step"] = int(max_step_index)
+                valid_dates.append(session_entry)
+                agent_obj["recentWorkDates"] = valid_dates
 
-            update_achilles_rotation_bonuses(stats, matched_key, ratio=ratio, alpha=alpha, is_agent=True)
-            global_stats["totalAgentPomodoroTime"] = round(float(global_stats.get("totalAgentPomodoroTime", 0.0)) + elapsed_minutes, 2)
+                if ratio >= 0.5:
+                    agent_obj["lastSatisfiedMilestoneDate"] = now_iso
+                    if is_agent_only:
+                        proj["lastSatisfiedMilestoneDate"] = now_iso
+
+                current_bonus = float(agent_obj.get("rotationBonus", 0.0))
+                s_base = float(agent_obj.get("currentScore", 50.0))
+                s_base = min(100.0, max(1.0, s_base))
+                current_bonus = min(max(0.0, 100.0 - s_base), max(0.0, current_bonus))
+                if ratio >= 0.8:
+                    agent_obj["rotationBonus"] = 0.0
+                else:
+                    agent_obj["rotationBonus"] = round(max(0.0, current_bonus * (1.0 - ratio)), 3)
+
+                update_achilles_rotation_bonuses(stats, matched_key, ratio=ratio, alpha=alpha, is_agent=True)
+                global_stats["totalAgentPomodoroTime"] = round(float(global_stats.get("totalAgentPomodoroTime", 0.0)) + elapsed_minutes, 2)
         else:
             agent_obj["rotationBonus"] = 0.0
     else:
@@ -5584,59 +6201,96 @@ def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_
         proj["currentScore"] = new_score
         proj["baseScore"] = new_score
         proj["lastReviewDate"] = now_iso
-        proj.setdefault("reviewHistory", []).append({
-            "date": now_iso,
-            "action": act,
-            "scoreAfter": new_score,
-            "duration_minutes": round(effective_elapsed, 2)
-        })
-        if len(proj.get("reviewHistory", [])) > 100:
-            proj["reviewHistory"] = proj["reviewHistory"][-100:]
 
-        proj["totalReviews"] = total_reviews + 1
-        global_stats["totalReviews"] = global_stats.get("totalReviews", 0) + 1
+        if not (worked and existing_entry_for_conv and effective_elapsed == 0.0):
+            proj.setdefault("reviewHistory", []).append({
+                "date": now_iso,
+                "action": act,
+                "scoreAfter": new_score,
+                "duration_minutes": round(effective_elapsed, 2)
+            })
+            if len(proj.get("reviewHistory", [])) > 100:
+                proj["reviewHistory"] = proj["reviewHistory"][-100:]
+
+            proj["totalReviews"] = total_reviews + 1
+            global_stats["totalReviews"] = global_stats.get("totalReviews", 0) + 1
 
         ratio = 0.0
         if worked:
             elapsed_minutes = effective_elapsed
-            ratio = min(1.0, max(0.0, elapsed_minutes / target_minutes)) if target_minutes > 0 else 1.0
+            if existing_entry_for_conv:
+                if elapsed_minutes == 0.0:
+                    if max_step_index is not None and int(max_step_index) >= 0:
+                        existing_entry_for_conv["last_step"] = max(
+                            int(existing_entry_for_conv.get("last_step", -1)),
+                            int(max_step_index)
+                        )
+                    proj["recentWorkDates"] = valid_dates
+                    ratio = float(existing_entry_for_conv.get("ratio", 0.0))
+                else:
+                    cumulated_duration = float(existing_entry_for_conv.get("duration_minutes", 0.0)) + elapsed_minutes
+                    ratio = min(1.0, max(0.0, cumulated_duration / target_minutes)) if target_minutes > 0 else 1.0
+                    existing_entry_for_conv["duration_minutes"] = round(cumulated_duration, 2)
+                    existing_entry_for_conv["ratio"] = round(ratio, 4)
+                    existing_entry_for_conv["interrupted"] = (ratio < 0.99)
+                    existing_entry_for_conv["date"] = now_iso
+                    if conv_id:
+                        existing_entry_for_conv["conv_id"] = conv_id
+                    if max_step_index is not None and int(max_step_index) >= 0:
+                        existing_entry_for_conv["last_step"] = max(
+                            int(existing_entry_for_conv.get("last_step", -1)),
+                            int(max_step_index)
+                        )
+                    proj["recentWorkDates"] = valid_dates
 
-            existing_work = proj.get("recentWorkDates", [])
-            valid_dates = []
-            for item in existing_work:
-                d_str = item.get("date") if isinstance(item, dict) else str(item)
-                d_dt = parse_iso_datetime(d_str)
-                if d_dt:
-                    delta_h = (now_dt - d_dt).total_seconds() / 3600.0
-                    if -0.05 <= delta_h < 6.0:
-                        valid_dates.append(item)
+                    if ratio >= 0.5:
+                        proj["lastSatisfiedMilestoneDate"] = now_iso
 
-            session_entry = {
-                "date": now_iso,
-                "ratio": round(ratio, 4),
-                "duration_minutes": round(elapsed_minutes, 2),
-                "target_minutes": round(target_minutes, 2),
-                "interrupted": (ratio < 0.99)
-            }
-            valid_dates.append(session_entry)
-            proj["recentWorkDates"] = valid_dates
+                    current_bonus = float(proj.get("rotationBonus", 0.0))
+                    raw_s_base = proj.get("currentScore")
+                    s_base = float(raw_s_base) if raw_s_base is not None else 50.0
+                    s_base = min(100.0, max(1.0, s_base))
+                    current_bonus = min(max(0.0, 100.0 - s_base), max(0.0, current_bonus))
 
-            if ratio >= 0.5:
-                proj["lastSatisfiedMilestoneDate"] = now_iso
+                    if ratio >= 0.8:
+                        proj["rotationBonus"] = 0.0
+                    else:
+                        proj["rotationBonus"] = round(max(0.0, current_bonus * (1.0 - ratio)), 3)
 
-            current_bonus = float(proj.get("rotationBonus", 0.0))
-            raw_s_base = proj.get("currentScore")
-            s_base = float(raw_s_base) if raw_s_base is not None else 50.0
-            s_base = min(100.0, max(1.0, s_base))
-            current_bonus = min(max(0.0, 100.0 - s_base), max(0.0, current_bonus))
-
-            if ratio >= 0.8:
-                proj["rotationBonus"] = 0.0
+                    update_achilles_rotation_bonuses(stats, matched_key, ratio=ratio, alpha=alpha, is_agent=False)
+                    global_stats["totalPomodoroTime"] = round(float(global_stats.get("totalPomodoroTime", 0)) + elapsed_minutes, 2)
             else:
-                proj["rotationBonus"] = round(max(0.0, current_bonus * (1.0 - ratio)), 3)
+                ratio = min(1.0, max(0.0, elapsed_minutes / target_minutes)) if target_minutes > 0 else 1.0
+                session_entry = {
+                    "date": now_iso,
+                    "ratio": round(ratio, 4),
+                    "duration_minutes": round(elapsed_minutes, 2),
+                    "target_minutes": round(target_minutes, 2),
+                    "interrupted": (ratio < 0.99)
+                }
+                if conv_id:
+                    session_entry["conv_id"] = conv_id
+                if max_step_index is not None and int(max_step_index) >= 0:
+                    session_entry["last_step"] = int(max_step_index)
+                valid_dates.append(session_entry)
+                proj["recentWorkDates"] = valid_dates
 
-            update_achilles_rotation_bonuses(stats, matched_key, ratio=ratio, alpha=alpha, is_agent=False)
-            global_stats["totalPomodoroTime"] = round(float(global_stats.get("totalPomodoroTime", 0)) + elapsed_minutes, 2)
+                if ratio >= 0.5:
+                    proj["lastSatisfiedMilestoneDate"] = now_iso
+
+                current_bonus = float(proj.get("rotationBonus", 0.0))
+                raw_s_base = proj.get("currentScore")
+                s_base = float(raw_s_base) if raw_s_base is not None else 50.0
+                s_base = min(100.0, max(1.0, s_base))
+                current_bonus = min(max(0.0, 100.0 - s_base), max(0.0, current_bonus))
+
+                if ratio >= 0.8:
+                    proj["rotationBonus"] = 0.0
+                else:
+                    proj["rotationBonus"] = round(max(0.0, current_bonus * (1.0 - ratio)), 3)
+
+                update_achilles_rotation_bonuses(stats, matched_key, ratio=ratio, alpha=alpha, is_agent=False)
+                global_stats["totalPomodoroTime"] = round(float(global_stats.get("totalPomodoroTime", 0)) + elapsed_minutes, 2)
         else:
             proj["rotationBonus"] = 0.0
 
@@ -5725,6 +6379,8 @@ def cmd_feedback(args, data):
     is_agent = getattr(args, "agent", False)
     duration_arg = getattr(args, "duration", None)
     elapsed_minutes = None
+    transcript_conv_id = None
+    transcript_max_step = None
     if worked:
         if duration_arg is not None:
             elapsed_minutes = float(duration_arg)
@@ -5734,18 +6390,65 @@ def cmd_feedback(args, data):
             if transcript_arg is not None or (has_antigravity and not is_agent):
                 transcript_path = transcript_arg if (transcript_arg and transcript_arg != "auto") else get_current_conversation_transcript_path()
                 if transcript_path and os.path.isfile(transcript_path):
-                    t_minutes, msg_count = parse_transcript_work_time(transcript_path)
+                    stats_projects = data.get("stats", {}).get("projects", {})
+                    conv_id = extract_conversation_id_from_transcript_path(transcript_path)
+                    canon_target = resolve_project_canonical_key(args.project_path, stats_projects)
+                    min_step_by_proj = None
+                    had_prior_credit = False
+                    if conv_id and canon_target and canon_target in stats_projects:
+                        proj_entry = stats_projects[canon_target]
+                        now_dt_check = datetime.now(timezone.utc)
+                        active_steps = []
+                        target_dict = proj_entry.get("agent", {}) if is_agent else proj_entry
+                        for item in target_dict.get("recentWorkDates", []):
+                            if isinstance(item, dict) and item.get("conv_id") == conv_id:
+                                d_dt = parse_iso_datetime(item.get("date", ""))
+                                if d_dt and (-0.05 <= (now_dt_check - d_dt).total_seconds() / 3600.0 < 6.0):
+                                    step_val = item.get("last_step")
+                                    if step_val is not None and int(step_val) >= 0:
+                                        active_steps.append(int(step_val))
+                        if active_steps:
+                            last_step = max(active_steps)
+                            min_step_by_proj = {canon_target: last_step}
+                            had_prior_credit = True
+
+                    t_result = parse_transcript_work_time(
+                        transcript_path,
+                        target_project=args.project_path,
+                        db_projects=stats_projects,
+                        min_step_index_by_project=min_step_by_proj
+                    )
+                    transcript_conv_id = conv_id
+                    transcript_max_step = getattr(t_result, "max_step_index", -1)
+                    t_minutes, msg_count = t_result[0], t_result[1]
                     if msg_count > 0:
-                        base_calc = round(msg_count * 6.0, 2)
-                        if t_minutes > base_calc:
-                            print(f"[Transcript] Détecté {msg_count} interaction(s) utilisateur (avec flèches/commentaires d'artéfacts) -> Durée calculée : {t_minutes} min (base {base_calc:.1f}m + flèches/commentaires {t_minutes - base_calc:.1f}m)")
+                        total_conv = getattr(t_result, "total_conversation_minutes", t_minutes)
+                        # Plancher minimal de 2 min dans cmd_feedback si clôture explicite d'un projet qui a 0 min détectées
+                        if t_minutes == 0 and total_conv > 0 and not had_prior_credit:
+                            t_minutes = 2.0
+                            print(f"⏱️ Temps auto-extrait du transcript pour '{args.project_path}' : {t_minutes:.1f} min (plancher minimal appliqué, non détecté dans les tours actifs sur {total_conv:.1f} min totales)")
+                        elif total_conv > 0 and total_conv != t_minutes:
+                            print(f"⏱️ Temps auto-extrait du transcript pour '{args.project_path}' : {t_minutes:.1f} min (sur {total_conv:.1f} min totales de conversation, {msg_count} interaction(s))")
                         else:
-                            print(f"[Transcript] Détecté {msg_count} interaction(s) utilisateur -> Durée calculée : {t_minutes} min")
+                            base_calc = round(msg_count * 6.0, 2)
+                            if t_minutes > base_calc:
+                                print(f"[Transcript] Détecté {msg_count} interaction(s) utilisateur (avec flèches/commentaires d'artéfacts) -> Durée calculée : {t_minutes} min (base {base_calc:.1f}m + flèches/commentaires {t_minutes - base_calc:.1f}m)")
+                            else:
+                                print(f"[Transcript] Détecté {msg_count} interaction(s) utilisateur -> Durée calculée : {t_minutes} min")
                         elapsed_minutes = t_minutes
                     else:
                         elapsed_minutes = None
 
-    apply_feedback(args.project_path, action, worked, data, elapsed_minutes=elapsed_minutes, is_agent=is_agent)
+    apply_feedback(
+        args.project_path,
+        action,
+        worked,
+        data,
+        elapsed_minutes=elapsed_minutes,
+        is_agent=is_agent,
+        conv_id=transcript_conv_id,
+        max_step_index=transcript_max_step
+    )
 
 
 def cmd_set_score(args, data):

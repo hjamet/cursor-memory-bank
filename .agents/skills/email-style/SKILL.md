@@ -74,7 +74,7 @@ Chaque idée occupe un court paragraphe autonome de 2 à 4 phrases. Lorsqu'un me
 | **Étudiant(s) Bachelor / Master** | **EN** | `Hello <Prénom>,`<br>*(ou `Hello Oskar, Jeniina, and Group 45,`)* | `Best regards,`<br>`Henri` |
 | **Étudiant(s) ou Contact Pro Externe** | **FR** | `Bonjour <Prénom>,` | `Bien cordialement,`<br>`Henri` *(ou `Henri Jamet`)* |
 | **Professeurs / Superviseurs (Yash, Michalis, Pamela)** | **EN** | `Hi Michalis, Hi Yash,`<br>ou `Dear Pamela,` / `Dear Michalis,` | `Best,`<br>`Henri` *(ou `Kind regards, / Henri`)* |
-| **Co-TA, Co-Auteurs, Chercheurs & Partenaires Proches** | **EN / FR** | `Hi Yuanjun ! :D` / `Dear all,`<br>`Holà très cher,` / `Bonjour Aurélie,` | `Joyfully,`<br>`Henri Jamet` *(EN)*<br>`Joyeusement,`<br>`Henri Jamet` *(FR)* |
+| **Co-TA, Co-Auteurs, Chercheurs & Partenaires Proches** | **EN / FR** | `Hi Yuanjun ! :D` / `Dear all,`<br>`Holà très cher,` / `Holà <Prénom> ! :D`<br>`Bonjour Aurélie,` | `Joyfully,`<br>`Henri Jamet` *(EN)*<br>`Joyeusement,`<br>`Henri` *(FR — ton parlé ultra-décontracté en 2–3 phrases courtes, zéro « d'une part / d'autre part » formel)* |
 | **Décanat HEC / Administration Universitaire** | **FR** | `Bonjour <Prénom>,` | `Respectueusement,`<br>`Henri Jamet` |
 | **Administration Officielle (Canton, Permis, Impôts)** | **FR** | `Madame, Monsieur,` | `...l'expression de mes salutations les plus distinguées,`<br>`Henri Jamet` |
 | **Famille Proche (Père)** | **FR** | `Mon papa à moi,` / `Mon cher papa,` | `Joyeusement,`<br>`Henri` |
