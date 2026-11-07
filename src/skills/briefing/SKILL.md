@@ -1,234 +1,87 @@
 ---
 name: briefing
-description: "Génération de fiches mémo imprimables ultra-concises et neutres en anglais pour réunions exécutives et entretiens de supervision."
+description: "Tient à jour la sous-note hebdomadaire de briefing d'un projet (compte rendu de la dernière réunion + flux incrémental de composants Microsoft Loop prêts à copier dans Teams sur les décisions méthodologiques, résultats et jalons du papier via /draft) ou produit sur demande une fiche A4 imprimable. Activer sur /briefing."
 ---
-# How to Generate Printable Executive Briefings for High-Stakes Meetings?
+# 📋 Comment Fonctionne le Skill `/briefing` (Composants Loop Teams Incrémentaux & Suivi de Supervision) ?
 
-This skill defines the protocol for producing high-density, printable executive briefings designed for supervisory meetings, steering committees, and milestone evaluations. Every briefing generated under this skill is engineered for immediate visual scanning in under 3 minutes during in-person discussions and optimized for A4 paper printouts (1 to 2 pages maximum).
-
-```mermaid
-flowchart TD
-    A["Trigger: /briefing or Executive Meeting Preparation"] --> B["Data Collection: Project Memory, Active Notes, Metrics"]
-    B --> C["Fact Selection: High-Impact Milestones & Blockers"]
-    C --> D["Synthesis: 3-Block Architecture (Table + Key-Value + Arbitrages)"]
-    D --> E["Stylistic Audit: English, Zero Emojis, No Framing, Raw Metrics"]
-    E --> F["Layout Optimization: 1-2 Pages A4 Density"]
-    F --> G["Delivery: Printable Artifact & Obsidian Link"]
-```
+**Objectif** : permettre à Henri de transmettre en continu à ses superviseurs (Yash Raj Shrestha, Pamela Delgado, Michalis Vlachos…) des mises à jour asynchrones naturelles, directes et digestes sur **Microsoft Teams (composants Loop)**, tout en tenant à jour dans le coffre une sous-note hebdomadaire sourcée sur les **sources primaires originales**.
 
 ---
 
-## What Is the Core Purpose and Operational Scope of the Briefing Skill?
+## 🎯 1. Quel est le Filtre Éditorial et Stylistique Strict (« Public = Superviseurs ») ?
 
-The objective of an executive briefing is to provide Henri and his supervisors with a mutual, transparent, and factual basis for rapid decision-making. The document is not an essay, a status log, or a pitch. It is a decision-support instrument that answers three practical questions:
-1. Where do current commitments and deadlines stand?
-2. What concrete, verified progress was achieved since the last review?
-3. What specific decisions or trade-offs require supervisory validation today?
-
-| Dimension | Standard Report / Narrative Memo | Executive Briefing (This Skill) |
-| :--- | :--- | :--- |
-| **Language** | Often matches working language or user prompt | Strictly English across all sections |
-| **Visual Elements** | Icons, emojis, badges, decorative callouts | Zero emojis, clean typography, strict lines |
-| **Opening / Closing** | Courteous introductions, conclusions, narrative transitions | No framing, immediate factual data attack |
-| **Data Format** | Prose paragraphs, nested lists, discursive updates | Dense Markdown tables and compact `**[Key]** : [Value]` pairs |
-| **Tone** | Persuasive, promotional, or explanatory | Strictly neutral, raw figures, zero spin |
-| **Length & Layout** | Variable length, loose vertical spacing | 1 to 2 A4 pages maximum, high horizontal density |
-| **Read Time** | 10 to 15 minutes | Under 3 minutes on physical paper |
-
----
-
-## What Are the Strict Stylistic Guardrails for Executive Printouts?
-
-Every document generated via `/briefing` must adhere to seven mandatory guardrails. Any deviation compromises readability and executive utility.
-
-### Why Is English Mandatory Across All Briefings?
-- Academic, research, and high-level steering bodies operate in English as the universal lingua franca.
-- Standardizing briefings in English ensures consistent terminology with published papers, benchmark metrics, and grant deliverables.
-- Even if conversational prompts or Obsidian vault notes are in French, the output briefing artifact must be written strictly in English.
-
-### Why Are Emojis and Visual Decorations Strictly Banned?
-- Emojis degrade document authority in formal supervisory contexts.
-- Colored emojis and decorative symbols introduce printing artifacts, inconsistent ink smearing, and distracting visual clutter on black-and-white or standard laser printers.
-- Structural hierarchy must rely solely on Markdown typography: clear headings, horizontal rules, table column alignment, and bold key identifiers.
-
-### How Does the No-Framing Rule Enforce Zero Narrative Filler?
-- Banned phrases include: *"In summary..."*, *"This briefing outlines the current status..."*, *"As discussed in our previous exchange..."*, *"In conclusion, we can observe that..."*.
-- The document begins immediately with the title, date/metadata line, and Block 1 table.
-- The document terminates immediately after the final arbitrage option of Block 3.
-
-### What Constitutes Strict Neutrality and Raw Metric Reporting?
-- Avoid subjective adjectives: do not use terms such as *"perfect"*, *"seamless"*, *"cutting-edge"*, *"revolutionary"*, or *"100% compliant"*.
-- Replace claims with verifiable metrics: sample size ($N$), test accuracy ($\% \pm \sigma$), latency ($\text{ms}$), compute hours expended, code coverage, or exact git commit hashes.
-- Highlight blockers and regressions neutrally: state the delay, the failure root cause, and the proposed workaround without defensive or apologetic language.
-
-### How Does Horizontal Layout Maximize A4 Printable Density?
-- Standard vertical bullet lists consume excessive page height with empty whitespace on the right margin.
-- Executive briefings compress information horizontally using:
-  - Multi-column tables for tabular metadata.
-  - Inline bold keys followed by concise factual statements: `**[Component]** : [Status / Metric]`.
-  - Grouped metrics separated by semicolons rather than multi-level indented bullets.
-- The total document length must strictly fit within 1 to 2 printed pages (approximately 450 to 850 words total).
-
-### Why Are Raw Deliverable Embeds Formally Prohibited?
-- **Prohibition of Raw Deliverable Embeds**: It is FORMALLY FORBIDDEN to paste or dump full deliverable texts (e.g., full draft emails, manuscript sections, complete letters) inside an executive briefing.
-- Briefings only report status, metadata, progress metrics, and actionable bullet updates under the format `**[Key]** : [Value]`.
-- Raw deliverables belong exclusively in their own dedicated notes or drafting files, linked via standard references.
-
-### Why Is Block 1 Restricted to a Single Master Table?
-- **Single Master Table Rule**: Block 1 contains strictly ONE unified master table of active tracks and deadlines.
-- Do not proliferate auxiliary or secondary tables across the document. All active commitments must be consolidated within this single executive overview table.
+> [!IMPORTANT]
+> **RÈGLES CARDINALES ISSUES DES RETOURS DE YASH, PAMELA, MICHALIS ET HENRI :**
+> 1. **Ce que veulent savoir les superviseurs (et séparation claire des préoccupations)** :
+>    - **Avancement concret et calendrier daté** : dates exactes de lancement (pilote, étude principale), nombre de participants terminés vs cible, travail actif de supervision en coulisse (ex. surveillance continue des sessions et relance régulière des participants qui n'ont pas terminé), et estimation personnelle honnête du calendrier d'ici la deadline.
+>    - **Tendances empiriques digestes (appuyées sur des figures jointes)** : ce que montrent concrètement les données sur nos variables cibles et nos groupes (sans noyer le message sous des dizaines de moyennes $\pm$ écarts-types qui sont déjà dans les figures ou les tables de l'Overleaf).
+>    - **État réel du manuscrit Overleaf (assumé comme WIP tant que l'étude tourne)** : indiquer clairement quelles sections sont rédigées ou mises à jour en brouillon de travail (*Work in Progress*), sans jamais donner l'illusion que l'article est « terminé » ni prendre un ton justificatif ou défensif.
+> 2. **Ce que l'on bannit intégralement (zéro cuisine interne, zéro auto-congratulation IA)** :
+>    - **Zéro détail du coffre Obsidian ou d'intendance interne** : ne jamais mentionner la synchronisation d'une note Obsidian, des scripts internes, des commits Git, des conteneurs Docker ou des détails de code.
+>    - **Zéro formule promotionnelle ou triomphaliste IA** : bannir absolument les `(100% Data Integrity)`, `everything is perfect`, `sharp collapse`, `flawless`, `self-contained paper immediately`. Rester sobre, neutre et scientifique.
+>    - **Zéro présent de vérité générale / ton impersonnel LLM** : bannir les affirmations péremptoires du type *« finishing by Wednesday gives a realistic 48-hour buffer »*. Utiliser systématiquement la **voix personnelle d'Henri avec ses opinions, ses réserves et ses estimations** : **`"I think..."`**, **`"In my view..."`**, **`"My estimate is..."`**, **`"I hope..."`**, **`"Honestly, 25 evaluations from 5 reviewers is still way too small for a precise statistical evaluation, but it already gives a first glimpse of..."`**.
+> 3. **Première personne du singulier obligatoire (`I` / `my`) et nomenclature unifiée du papier** :
+>    - Toujours écrire au singulier (`I launched`, `I am monitoring`, `I think`) pour le travail d'Henri, avec des smileys textuels sobres (`:)`, `:D`) quand c'est naturel (cf. [`email-style/SKILL.md`](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/skills/email-style/SKILL.md)).
+>    - Toujours utiliser la **nomenclature explicite du papier** (ex. `G1 (HITL + MA + PKG)`, `G2 (HITL + MA)`, `G3 (HITL + PKG)`, `G4-TWIN (PKG + MA)`, `G5-TWIN (single-LLM baseline)`) et jamais des identifiants de base de données obscurs.
+> 4. **Usage strict des émojis d'état (`✅`, `🔄`) : UNIQUEMENT pour l'état des tâches, JAMAIS devant des résultats ou analyses** :
+>    - `✅` et `🔄` n'ont de sens que devant des **tâches opérationnelles** (jalon terminé vs jalon en cours). **Il est strictement interdit de mettre `✅` ou `🔄` devant des points d'analyse scientifique ou des résumés de résultats** : utiliser des puces simples (`- `) sans emoji.
+> 5. **Composant Loop Question (`Q&A`) : contraintes complètes (pool, éthique, OSF) & synchronisation de relecture** :
+>    - Jamais de ligne `Recommendation:` ni d'options `Option 1 / Option 2 / Poll`.
+>    - Lorsqu'une question porte sur un filtre Prolific ou le protocole expérimental, toujours inclure : (a) la **taille exacte du vivier éligible actuel**, (b) l'impact sur le **pré-enregistrement OSF** (et le fait que modifier l'OSF pendant la collecte est méthodologiquement douteux), et (c) la compatibilité avec **l'approbation éthique CER-HEC** (qui ne peut plus être modifiée).
+>    - Lorsqu'un draft Overleaf est partagé en relecture, toujours inclure une question de synchronisation invitant les superviseurs à signaler dès qu'ils ont terminé leur lecture : *"Could you reply to this question as soon as you have finished reading the article so that I can go through your edits in detail and align my revisions with the direction you want to give the paper? :)"*
 
 ---
 
-## What Is the Canonical Three-Block Architecture of an Executive Briefing?
+## 🗂️ 2. Où Vivent les Sous-Notes de Briefing et Quelles Règles de Sourçage S'Appliquent ?
 
-Every briefing document follows a standardized three-block structure.
-
-```mermaid
-graph TD
-    H["Executive Briefing Document"] --> B1["Block 1: Current Projects & Deadlines (Markdown Table)"]
-    H --> B2["Block 2: Project Updates & Delivery (Key-Value Bullets)"]
-    H --> B3["Block 3: Action Items & Arbitrages (Closed Questions)"]
-```
-
-### Block 1: How Should Current Projects and Deadlines Be Structured in a Table?
-Block 1 provides an immediate snapshot of all active tracks under discussion. It must be rendered as a single, dense Markdown table with five standard columns:
-
-| Project / Track | Hard Deadline | Target Milestone | Urgency / Priority | Current Progress |
-| :--- | :--- | :--- | :--- | :--- |
-| Canonical name of project | YYYY-MM-DD or Month Day | Conference, defense, release, or review | Critical / High / Medium | Percentage, phase, or blocker |
-
-Guidelines:
-- Limit the table to active, relevant projects (typically 2 to 5 tracks).
-- Keep cell contents concise to prevent awkward word-wrapping when printed.
-
-### Block 2: How Should Project Updates Be Formatted as Dense Key-Value Bullets?
-Block 2 provides substantive, technical updates for each project listed in Block 1.
-- Each project receives a clean H2/H3 header.
-- Sub-items are formatted as inline key-value pairs: `**[Module / Aspect]** : [Fact, metric, or status]`.
-- No introductory or transitional sentences are permitted between items.
-
-Allowed keys include:
-- `**[Architecture]**`, `**[Dataset]**`, `**[Training]**`, `**[Evaluation]**`, `**[Paper / Writing]**`, `**[Infrastructure]**`, `**[Blocker]**`, `**[Next Step]**`.
-
-### Block 3: How Should Action Items and Supervisory Arbitrages Be Formulated?
-Block 3 contains 2 to 4 closed, actionable questions requiring immediate direction or arbitration from the supervisor.
-- Formulate each decision as an explicit question ending with `?`.
-- Provide mutually exclusive options labeled `Option A`, `Option B`, etc.
-- Add `**(Recommended)**` to the methodologically or operationally sound option, backed by a single-sentence rationale.
-- Leave an inline decision checkbox for print markup: `[ ] Approved: Option X`.
+Chaque projet suivi en supervision possède une sous-note de briefing hebdomadaire liée sous le H1 de la note maîtresse :
+- **Emplacement dans le coffre** : `c:\Users\hjamet\Documents\VoiceNotes\notes\Briefing <Nom Projet> <YYYY MM DD>.md` (espaces uniquement, ex. `Briefing DLLP 2026 10 19.md`), indexée sous le H1 de la note maîtresse.
+- **Ancres de source primaires obligatoires** : dans la sous-note Obsidian, chaque section (`##` / `###`) suit le format `Question ➔ 1–2 phrases d'explication directe ➔ Source : <ancre primaire originale> ➔ bloc de citation`. **Ne jamais citer un artefact intermédiaire de sous-agent (`sources_eclaireur.md`) comme `Source :`** ; toujours citer la source primaire originale (requête DB, script, API Prolific, note de réunion).
 
 ---
 
-## What Is the End-to-End Execution Workflow for the /briefing Command?
+## 🧩 3. Quel est le Format Canonique des Composants Microsoft Loop pour Teams ?
 
-When Henri invokes `/briefing` or requests a meeting preparation sheet, the agent follows this four-step sequence:
+Un briefing Teams se compose de **3 blocs Loop complémentaires et concis** :
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant U as Henri / Supervisor
-    participant A as Briefing Agent
-    participant M as Project Memory & Vault Notes
-    participant D as Output Artifact / Note
-
-    U->>A: Invoke /briefing [Project Scope / Meeting Context]
-    A->>M: Query active projects, deadlines, recent commits, blockers
-    M-->>A: Raw project records & metrics
-    A->>A: Filter to top items, compute metrics, apply 3-block structure
-    A->>A: Stylistic verification (English, zero emojis, zero framing)
-    A->>D: Write printable briefing artifact / Obsidian note
-    A->>U: Return clickable file link and concise print ready confirmation
-```
-
-### Step 1: How to Gather Real-Time Context from Project Notes and Memory?
-1. Inspect `_agents/memory/memoire_principale.md` and `_agents/memory/index_principal.md` for current sprint priorities.
-2. Read project master notes (`#project`) in `VoiceNotes/` for roadmap items, targets, and open checkboxes.
-3. Consult CLI memory if applicable via `python _agents/scripts-for-skills/project_memory_cli.py list` to verify priority scores and Pomodoro statuses.
-4. Verify code and experimental metrics from project repositories in `C:\Users\hjamet\Documents\code\`.
-
-### Step 2: How to Synthesize and Filter High-Priority Facts?
-1. Select only items directly relevant to the meeting's agenda.
-2. Filter out internal housekeeping, trivial commits, and low-level scratch details.
-3. Convert narrative descriptions into raw quantifiable numbers ($N$, accuracy, loss, page counts, compute budgets).
-
-### Step 3: How to Format and Validate Against Print Constraints?
-1. Check that the output language is 100% English.
-2. Verify that no emojis or decorative icons are present.
-3. Verify that the layout does not exceed 2 pages when printed (under 850 words).
-4. Verify that 2 to 4 clear decision questions are included with explicit recommendations.
-
-### Step 4: Where Should the Briefing Be Stored and How Should It Be Linked?
-1. If intended as a persistent vault note: write to `C:\Users\hjamet\Documents\VoiceNotes\administratif\` following canonical naming: `[Supervisor / Entity] [MMAAAA] Executive Briefing [Topic].md`.
-2. If intended as a session review sheet: write to `<appDataDir>\brain\<conversation-id>/executive_briefing.md`.
-3. In the chat response, provide the clickable link `[Executive Briefing](file:///...)` in the very first line, followed by a one-paragraph summary of the proposed arbitrages.
-
----
-
-## What Is the Reference Template for a Canonical Executive Briefing?
-
-Below is the authoritative structural template for generating executive briefings:
+### Bloc 1 — Avancement des Tâches & Collecte (`Task & Data Collection Update`)
+*Seul bloc où `✅` (tâche finie) et `🔄` (tâche en cours) sont autorisés, car chaque puce est une tâche du calendrier.*
 
 ```markdown
-# Executive Briefing: Research & Supervision Sync
+# Where do we stand on the Prolific study and the WWW 2027 timeline?
 
-Date: 2026-09-17 | Candidate: Henri Jamet | Supervisor: Prof. Dr. [Name]
+- ✅ <Tâche terminée avec dates exactes (ex. Pilot 5+5 launched on Oct X and completed on Oct Y)> : <Résumé factuel court et sobre, sans "100% parfait">.
+- 🔄 <Tâche en cours avec date de lancement (ex. Main Phase 1 study launched on Oct Z — X / 25 teacher courses completed)> : <État actuel, mention explicite de la surveillance continue et des relances régulières des professeurs en cours ("I am continuously monitoring active sessions and regularly following up with teachers who haven't finished yet"), et estimation personnelle ("Wait times are slower than I hoped, but I think / I hope we can finish Phase 1 by...")>.
+- 🔄 <Tâche manuscrit Overleaf (WIP)> : <Explication simple et directe de l'état WIP du draft partagé sur Overleaf pour recueillir leurs premiers retours>.
+```
 
----
+### Bloc 2 — Premières Tendances des Résultats (`First Empirical Trends — Preliminary`)
+*Zéro emoji `✅`/`🔄`. Synthèse digeste en puces simples (`- `), renvoyant aux figures jointes pour les chiffres détaillés et précisant d'emblée la taille limitée de l'échantillon actuel.*
 
-## 1. Current Projects & Deadlines
+```markdown
+# What are the first trends in our preliminary data (see attached plots)?
 
-| Project / Track | Hard Deadline | Target Milestone | Urgency | Current Progress |
-| :--- | :--- | :--- | :--- | :--- |
-| Latent Space Alignment | 2026-10-15 | Conference Paper Submission | High | Empirical ablation 80% complete |
-| Ethics & IRB Approval | 2026-09-30 | Institutional Committee Defense | Critical | Dossier filed; committee review |
-| Distributed Cluster Setup | 2026-10-01 | Production Multi-GPU Pipeline | Medium | Node synchronization validated |
+- **Sample & Preliminary Scope** : <Préciser honnêtement que l'échantillon actuel (ex. 15 professeurs en Phase 1 et seulement 5×5 = 25 évaluations croisées du pilote en Phase 2) est encore bien trop petit pour tirer des conclusions définitives, mais permet déjà de vérifier la qualité des données et d'observer de premières tendances>.
+- **Course Structure & Perceived Usefulness (Phase 1, Q2 & Telemetry)** : <Expliquer l'enseignement principal de façon claire et parlante sans noyer sous les SD, ex. l'effondrement en bloc unique sans Knowledge Graph en G2 vs les cours modulaires en G1/G3, et le contraste d'utilité perçue>.
+- **Double-Blind Peer Review (Phase 2 Pilot, 5×5 = 25 evaluations, Q3)** : <Synthétiser en 2 phrases la hiérarchie observée de G1 à G5-TWIN et le contraste entre utilité perçue par le créateur et qualité réelle jugée à l'aveugle, en renvoyant au graphique>.
+```
 
----
+### Bloc 3 — Composant Loop Question (`Loop Q&A`)
+*Questions ouvertes numérotées permettant aux superviseurs de répondre directement dessous dans Teams.*
 
-## 2. Project Updates & Operational Delivery
+```markdown
+# Questions on Prolific recruitment and Overleaf review (Loop Q&A)
 
-### Latent Space Alignment
-- **[Model Architecture]** : Swin-transformer backbone frozen at 42M parameters; cross-attention dimension set to 768.
-- **[Ablation Metric]** : Val-loss reached 0.174 (-0.021 vs baseline); Top-1 accuracy improved from 78.2% to 81.6% on $N = 12,000$ validation samples.
-- **[Hardware & Runtime]** : Training throughput measured at 142 samples/sec across 4x A100 GPUs; peak VRAM consumption 34.2 GB per node.
-- **[Draft Status]** : Section 3 (Methodology) and Section 4 (Experiments) fully drafted; discussion section in progress.
-
-### Ethics & IRB Dossier
-- **[Documentation]** : Participant consent protocol and anonymization pipeline submitted to local ethics committee on 2026-09-10.
-- **[Security Audit]** : Local pseudonymization hash validated; zero PII stored on remote training nodes.
-- **[Pending Step]** : Awaiting formal written feedback scheduled for 2026-09-22.
-
----
-
-## 3. Action Items & Arbitrages
-
-### Question 1: Should we submit the preliminary latent space benchmark to the main track or workshop?
-- **Option A (Recommended)** : Submit to Main Track by 2026-10-15. Current empirical metrics on 12 datasets exceed prior state-of-the-art by 3.4 percentage points.
-- **Option B** : Delay to Workshop Track by 2026-11-20 to allow additional cross-lingual ablations.
-- *Decision*: [ ] Option A  [ ] Option B  [ ] Notes: ______________________
-
-### Question 2: Should we allocate additional cluster storage quota for checkpoint retention?
-- **Option A (Recommended)** : Purge intermediate step checkpoints older than 3 epochs to remain within current 5 TB tier.
-- **Option B** : Request a 2 TB quota extension from department IT (turnaround time: 5 business days).
-- *Decision*: [ ] Option A  [ ] Option B  [ ] Notes: ______________________
+1. <Question méthodologique / recrutement incluant : (a) le nombre exact de participants éligibles avec les filtres actuels, (b) le fait qu'élargir les filtres obligerait à modifier le pré-enregistrement OSF en pleine collecte (ce qui semble très douteux), et (c) le fait que cela risque de sortir du cadre de notre approbation éthique CER-HEC que nous ne pouvons pas modifier ?>
+2. <Question de coordination sur la relecture Overleaf : "Could you reply to this question as soon as you have finished reading the article so that I can go through your edits in detail and align my revisions with the direction you want to give the paper? :)" >
+3. <Question ponctuelle éventuelle (ex. affiliation exacte d'un co-auteur)>
 ```
 
 ---
 
-## How Does the Quality-Control Checklist Validate Compliance?
+## ⚙️ 4. Quelle Procédure Suivre à Chaque Invocation de `/briefing` ?
 
-Before presenting the briefing to Henri, the agent must evaluate the output against this checklist:
-
-| Verification Item | Target Standard | Status |
-| :--- | :--- | :--- |
-| **Language** | 100% English across all text, headers, and tables | Mandatory |
-| **Emoji Absence** | Zero emojis, zero unicode pictograms | Mandatory |
-| **Intro/Outro Removal** | No introductory framing, no concluding remarks | Mandatory |
-| **Tone Neutrality** | Zero promotional adjectives; raw metrics and figures only | Mandatory |
-| **3-Block Structure** | Block 1 (Table), Block 2 (Dense Bullets), Block 3 (Arbitrages) | Mandatory |
-| **Arbitrage Format** | 2 to 4 closed questions with `**(Recommended)**` flag | Mandatory |
-| **Print Budget** | Fits within 1 to 2 A4 pages (450 to 850 words) | Mandatory |
-| **No Raw Embeds** | Zero full drafts, emails, or manuscript sections pasted | Mandatory |
-| **Single Master Table** | Block 1 contains strictly one unified table; zero auxiliary tables | Mandatory |
-| **Clickable Link** | Absolute `file:///` link in the first line of the chat response | Mandatory |
+1. **Lire la sous-note de briefing** (`notes/Briefing <Projet> <YYYY MM DD>.md`) et vérifier en direct l'état de l'étude / du dépôt via un éclaireur.
+2. **Mettre à jour la sous-note dans le coffre** avec les sources primaires originales (jamais `sources_eclaireur.md`).
+3. **Générer ou mettre à jour l'artéfact `/draft` (`doc-version`, `Model: 'inherit'` obligatoire)** pour les composants Loop Teams (`virtual_draft_briefing_*.md`) et, s'il y a un courriel d'accompagnement court (ex. pour prévenir par mail que le draft WIP est sur Overleaf et que le détail est dans les composants Loop sur Teams), appliquer strictement [`email-style/SKILL.md`](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/skills/email-style/SKILL.md) (2–3 paragraphes courts, zéro chiffre lourd dans le mail, ton direct adapté à Yash et Pamela).
+4. **Restituer à Henri** avec les liens en tête : note maîtresse, sous-note de briefing et artéfact(s) `/draft`.

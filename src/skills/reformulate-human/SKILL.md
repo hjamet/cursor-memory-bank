@@ -2,103 +2,48 @@
 name: reformulate-human
 description: "Humanisation de texte et certification anti-détection IA par boucle fermée Actor-Critic."
 ---
-# 🛡️ Comment Reformulate-Human et ai_detector.py Éradiquent-ils les Empreintes IA sans Altérer le Sens ?
+# 🛡️ Comment Reformulate-Human et stealth_rewriter.py Éradiquent-ils les Empreintes IA sans Altérer le Sens ?
 
-Ce skill fournit un **moteur local autonome haute précision** d'humanisation textuelle et d'évaluation anti-détection IA, propulsé par l'outil canonique [ai_detector.py](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/scripts-for-skills/ai_detector.py). Il associe une détection SOTA multi-modèles accélérée par GPU CUDA à un protocole agentique en boucle fermée (Actor-Critic).
-
----
-
-## ⚡ Pourquoi ce Skill Est-il Centré sur ai_detector.py et le Bagging 5 Modèles ?
-
-1. **Bagging 5 Modèles SOTA Complémentaires** : Combine des approches neuronales supervisées, analytiques zéro-shot, adversarielles et stylométriques pour neutraliser les faux positifs et déjouer les détecteurs commerciaux (Turnitin, GPTZero, CopyLeaks, RAID).
-2. **Accélération Matérielle GPU CUDA & Mode Dégradé Élégant** : Exploitation directe du GPU avec bascule automatique sur les modèles légers (< 2.5 Go VRAM, inférence < 1.5s) et renormalisation bayésienne des poids.
-3. **Diagnostic Chirurgical Phrase par Phrase (Heatmap)** : Isole visuellement et mathématiquement chaque phrase ($P_i$) et surligne les buzzwords IA stéréotypés.
-4. **Sortie JSON Structurée pour Sous-Agents (`--json`)** : Intégration transparente et sans parsing fragile dans les pipelines agentiques.
-5. **Seuil de Certification Inviolable : $P(\text{AI}) < 0.10$ (10%)** : Norme d'or académique et professionnelle pour garantir une attribution humaine indiscutable.
+Ce skill fournit un **moteur local autonome haute précision** d'humanisation textuelle et de contrôle anti-détection IA, propulsé par [stealth_rewriter.py](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/scripts-for-skills/stealth_rewriter.py) (`Qwen/Qwen3-4B-Instruct-2507` + adaptateurs `suraj-ranganath/StealthRL` GRPO et `akhaliq/open-humanizer-4b` SFT en `bfloat16` natif) et la suite déterministe [avoid-ai-writing](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/scripts-for-skills/avoid-ai-writing/).
 
 ---
 
-## 🔄 Comment Fonctionne la Boucle Rétroactive Fermée Actor-Critic ?
+## ⚡ Pourquoi ce Skill Est-il Centré sur `stealth_rewriter.py` (`bfloat16`) et `avoid-ai-writing` (Zéro Encodeur RoBERTa/DeBERTa, Zéro Flag `--fast`) ?
+
+1. **Supériorité prouvée du RL adversaire (`StealthRL` GRPO + `open-humanizer-4b` SFT sur `Qwen3-4B` en `bfloat16` natif)** :
+   - `suraj-ranganath/StealthRL` (`arXiv:2602.08934`) entraîne la politique de paraphrase par GRPO contre un comité de détecteurs (`97,6 %` à `99,9 %` d'évasion à $1\,\%$ FPR), tandis que `akhaliq/open-humanizer-4b` apporte la fluidité éditoriale humaine SFT (`r=32, \alpha=64`).
+   - L'inférence en **`bfloat16` natif** (activée dès $\ge 7,5\text{ GiB}$ de VRAM, compatible RTX 2000 Ada 8 Go comme RTX 3060 12 Go) évite toute dégradation de quantification 4-bit NF4 sur les poids LoRA.
+   - Le script vérifie automatiquement à chaque lancement via l'API Hugging Face si une nouvelle release des adaptateurs a été publiée et la télécharge le cas échéant.
+2. **Suppression définitive des 5 encodeurs RoBERTa/DeBERTa et du flag `--fast`** :
+   - Les petits classifieurs supervisés (`DeBERTa`, `ModernBERT`, `RoBERTa`) souffrent de la *RoBERTa AUROC anomaly* (`arXiv:2602.08934`, Section 5.3), prennent plus de 150 s sur CPU et sont décorrélés de GPTZero `4.1o`.
+   - Tout flag de contournement (`--fast`, `--allow-partial`) est banni : la vérification repose sur les **Meaning/Fact Gates**, le score structurel instantané (`compute_gptzero_risk_score` : burstiness $\text{CV} \ge 0,45$, zéro clause participiale finale `, -ing...`, zéro tiret cadratin, $< 1\text{ ms}$) et la suite déterministe `avoid-ai-writing` (`detect.js`, `validate.js`, `check-style.js`, $< 0,5\text{ s}$ sur un article complet).
+
+---
+
+## 🔄 Comment Fonctionne la Boucle Fermée d'Humanisation ?
 
 ```mermaid
 flowchart TD
-    T0["📄 Texte Brut (Markdown / LaTeX / Texte)"] --> Step1["🔍 Critic : Inférence ai_detector.py<br/>(Bagging 5 Modèles, GPU CUDA)"]
-    Step1 --> Score["📊 Évaluation du Score Global P(AI)"]
-    Score --> Cond{"P(AI) < 0.10 ?"}
-    Cond -->|✅ Oui| Cert["🏆 Texte Certifié Conforme Humain<br/>(Rapport JSON / Métriques)"]
-    Cond -->|❌ Non| Heat["🗺️ Analyse Heatmap Phrase par Phrase<br/>(Isolement des phrases Pi >= 0.10 et Buzzwords)"]
-    Heat --> Actor["✍️ Actor : Réécriture Ciblée par l'Agent LLM<br/>(Variations de burstiness, syntaxe naturelle)"]
-    Actor --> Gates["🛡️ Meaning & Fact Gates<br/>(Zéro contradiction, chiffres et citations intacts)"]
-    Gates --> Step1
+    T0["📄 Texte Source (Markdown / LaTeX / Texte)"] --> Step1["🔍 Diagnostic Initial : avoid-ai-writing detect.js & Risque GPTZero"]
+    Step1 --> Actor["✍️ Actor : stealth_rewriter.py (Qwen3-4B bfloat16 + StealthRL / open-humanizer-4b)"]
+    Actor --> Gates["🛡️ Meaning, Fact, Length & NLI Gates (100% chiffres, citations et LaTeX intacts)"]
+    Gates --> Scalpel["✂️ Scalpel Lexical Post-StealthRL (substitutions de 1 à 3 mots techniques sans toucher aux verbes)"]
+    Scalpel --> Val["✅ Validation Finale : validate.js + check-style.js (0 em-dash, 0 cliché, CV >= 0.45)"]
 ```
 
-### 1. 🔍 Critic & Diagnostic (`ai_detector.py` & Heatmap)
-- Exécution d'`ai_detector.py` sur le texte ou le fichier source.
-- Extraction du score d'ensemble global $P(\text{AI})$.
-- Analyse de la heatmap : repérage exact des segments signalés en orange/rouge ($P_i \ge 0.10$) et des connecteurs surreprésentés (*moreover, delve, pivotal, furthermore, tapestry*).
+### 1. ✍️ Actor : Moteur GPU Natif [stealth_rewriter.py](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/scripts-for-skills/stealth_rewriter.py) (`StealthRL` `bfloat16`)
+- **Pourquoi l'Agent LLM (Claude/Gemini) ne doit JAMAIS réécrire librement les phrases lui-même** : toute phrase réécrite librement par un modèle RLHF porte une signature de perplexité/burstiness détectée à `100 % AI` par GPTZero `4.1o`.
+- **Étape 1a — Paraphrase GRPO/SFT par [stealth_rewriter.py](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/scripts-for-skills/stealth_rewriter.py) (appel unique sans flag)** :
+  ```powershell
+  python "c:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\stealth_rewriter.py" "<texte_ou_fichier>"
+  ```
+- **Étape 1b — Scalpel Lexical Post-StealthRL (restauration de la précision académique)** : sur la sortie brute de `StealthRL`, l'agent n'opère **que des remplacements lexicaux ciblés de 1 à 3 mots** pour restaurer la terminologie technique exacte que le modèle 4B aurait simplifiée (ex. acronymes, noms de modèles statistiques, `Cohort 1/2`), **sans toucher à la structure syntaxique ni aux verbes produits par `StealthRL`**.
 
-### 2. ✍️ Actor & Paraphrase Ciblée (L'Agent LLM)
-- L'Agent concentre ses efforts de reformulation **exclusivement sur les phrases problématiques**, sans dégrader les passages déjà fluides.
-- Application des règles de naturalité : alternance de phrases très courtes et de phrases plus développées (burstiness), vocabulaire vivant, suppression des formules d'emphase creuse.
-
-### 3. 🛡️ Meaning & Fact Gates (Anti-Hallucination)
-- **Préservation Factuelle** : Maintien strict des chiffres, dates, métriques et entités nommées.
-- **Invariance Logique** : Interdiction absolue d'inverser le sens, de masquer des incertitudes scientifiques ou de travestir les hypothèses.
-- **Intégrité Markdown & LaTeX** : Respect strict des citations (`\cite{...}`), équations et balises de tableau.
-
-### 4. 🏁 Convergence & Certification (Seuil $P(\text{AI}) < 0.10$)
-- Ré-évaluation avec `ai_detector.py`.
-- Arrêt dès que le score global passe sous les 10% avec confirmation de conformité.
-
----
-
-## 🔬 Quelle Est l'Architecture des 5 Modèles SOTA d'ai_detector.py ?
-
-| # | Algorithme / Modèle | Identifiant HF | Poids Nominal | Rôle & Spécificité |
-|---|---|---|---|---|
-| **1** | **DeBERTa-v3 RAID SOTA** | `desklib/ai-text-detector-v1.01` | **30%** | Leader du benchmark RAID. Détecte les traces de tokenisation fine et d'attention croisée. |
-| **2** | **ModernBERT Long-Context** | `GeorgeDrayson/modernbert-ai-detection-raid-mage` | **25%** | Encodeur natif 8192 tokens entraîné sur MAGE & RAID. Analyse multi-générateurs sans troncature. |
-| **3** | **TMR RoBERTa Anti-Paraphrase** | `Oxidane/tmr-ai-text-detector` | **20%** | RoBERTa-base entraîné par Hard-Negative Mining itératif sur RAID. Résistance aux paraphrases. |
-| **4** | **Fast-DetectGPT Zéro-Shot** | `EleutherAI/gpt-neo-125m` (ou `gpt2`) | **15%** | Analyse analytique de la courbure locale des log-probabilités sans perturbation coûteuse. |
-| **5** | **Stylométrie & Entropie** | Moteur analytique interne | **10%** | Coefficient de variation de la longueur des phrases (burstiness), TTR, Maas, entropie de Shannon, buzzwords. |
-
-> [!NOTE]
-> **Formule Normalisée avec Renormalisation Bayésienne** :
-> $$P(\text{AI}) = \frac{\sum_{i \in \mathcal{M}_{\text{actifs}}} w_i \cdot S_i}{\sum_{i \in \mathcal{M}_{\text{actifs}}} w_i}$$
-> L'ensemble des 5 modèles forme une armada légère (< 500 Mo par modèle, < 2.5 Go VRAM au total). En cas d'omission rapide (`--fast`) ou d'indisponibilité ponctuelle, les modèles résidents sont automatiquement renormalisés sans perte de rigueur.
-
----
-
-## 🚀 Comment Exécuter ai_detector.py en Ligne de Commande ?
-
-```bash
-# 1. Évaluation directe d'une chaîne de texte avec heatmap
-python _agents/scripts-for-skills/ai_detector.py "Texte à analyser..."
-
-# 2. Analyse d'un fichier Markdown ou LaTeX (nettoyage automatique du balisage)
-python _agents/scripts-for-skills/ai_detector.py notes/mon_article.md
-python _agents/scripts-for-skills/ai_detector.py paper/main.tex
-
-# 3. Sortie structurée JSON pour les sous-agents (Machine-Readable)
-python _agents/scripts-for-skills/ai_detector.py notes/mon_article.md --json
-
-# 4. Définition explicite du seuil de conformité (défaut : 0.10)
-python _agents/scripts-for-skills/ai_detector.py draft.md --threshold 0.10
-
-# 5. Mode rapide (Fast inference) ou masquage de la heatmap
-python _agents/scripts-for-skills/ai_detector.py draft.md --fast
-python _agents/scripts-for-skills/ai_detector.py draft.md --no-heatmap
-
-# 6. Forcer l'accélération GPU CUDA ou le mode CPU
-python _agents/scripts-for-skills/ai_detector.py draft.md --device cuda
-python _agents/scripts-for-skills/ai_detector.py draft.md --device cpu
-```
-
----
-
-## 🎯 Quelles Sont les Bonnes Pratiques d'Humanisation Textuelle ?
-
-1. **Ne pas lisser artificiellement le texte** : Une écriture humaine possède des ruptures de ton, des propositions directes et des respirations variées.
-2. **Attaquer les Buzzwords en Priorité** : Bannir sans compromis les termes stéréotypés (*delve, pivotal, multifaceted, tapestry, furthermore, testament, paramount*).
-3. **Travailler Phrase par Phrase** : Suivre fidèlement les indications de la heatmap d'`ai_detector.py` pour préserver 100% de la matière déjà naturelle.
-4. **Garantir le Seuil < 10%** : Ne jamais clore une phase de reformulation sans la preuve matérielle chiffrée issue d'`ai_detector.py`.
+### 2. 🛡️ Meaning & Fact Gates + Validation Déterministe (`< 0,5 s`)
+- **Préservation Factuelle** : Maintien strict des chiffres, dates, métriques, énumérations `(1) (2) (3)` et entités nommées.
+- **Contrôle Déterministe Obligatoire** :
+  ```powershell
+  node "c:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\avoid-ai-writing\skills\ai-writing-detector\scripts\detect.js" --file "<fichier>" --context technical
+  node "c:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\avoid-ai-writing\detector\validate.js" "<avant>" "<apres>"
+  node "c:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\avoid-ai-writing\scripts\check-style.js" "<apres>" --config technical
+  ```

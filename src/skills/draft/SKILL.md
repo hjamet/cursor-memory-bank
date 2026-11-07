@@ -4,7 +4,7 @@ description: "Relecture chirurgicale, complétion de balises <XXX> et polissage 
 ---
 # ✍️ Comment le Skill /draft Assure-t-il la Relecture, la Complétion et la Retouche Chirurgicale sans Altérer la Voix d'Henri ?
 
-Ce skill formalise le **protocole de relecture, correction et retouche chirurgicale** des textes, courriels, messages et documents rédigés par **Henri Jamet**. Il garantit une élimination sans faille des coquilles et des maladresses institutionnelles tout en érigeant un rempart infranchissable contre la dérive de réécriture intégrale courante des LLM.
+Ce skill formalise le **protocole obligatoire de rédaction, relecture, correction et retouche chirurgicale** de **tout texte destiné à un humain particulier ou visant à être publié en ligne** (courriels, messages Moodle/Slack/Teams, lettres aux éditeurs/reviewers, prose de papiers de recherche, documents officiels, mais aussi **pages et notes publiques Obsidian Publish / `henri-jamet.com`, articles de blog, billets LinkedIn/Medium, profils et `README.md` publics GitHub `hjamet/hjamet`**) pour **Henri Jamet**. Dès qu'un agent (en session interactive, `/one-shot` ou en autonomie `/advance`) doit rédiger, modifier ou polir un texte adressé à un humain ou destiné à être publié, il **DOIT obligatoirement passer par `/draft`** (et conjointement par [`/email-style`](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/skills/email-style/SKILL.md) pour tout courriel ou message, ou [`/paper-writing`](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/skills/paper-writing/SKILL.md) pour un manuscrit académique). **Garde-fou de publication en 2 temps** : l'agent génère d'abord l'artéfact interactif `/draft` (`diff_<sujet>.md`) pour relecture par Henri, et ne procède à la mise en ligne ou publication effective qu'une fois qu'Henri a explicitement validé le texte (*« OK, publie-le »*). Il garantit une élimination sans faille des coquilles et des maladresses institutionnelles tout en érigeant un rempart infranchissable contre la dérive « LLM-like » et la réécriture intégrale courante des LLM.
 
 ```mermaid
 flowchart TD
@@ -23,7 +23,7 @@ flowchart TD
 
 > [!IMPORTANT]
 > **RÈGLE FORMELLE D'ARBITRAGE DE RESTITUTION D'HENRI :**
-> - **Génération Systématique de l'Artéfact Brain** : Quel que soit le support source, un artéfact interactif Markdown (`file:///<appDataDir>/brain/<conversation-id>/...`) est **TOUJOURS généré** via l'outil MCP `get_diff_artifact(mode="draft")` pour inspecter le word-diff coloré, le contrôle de rétention ($\ge 90\%$) et le tableau de traçabilité complet.
+> - **Génération Systématique d'un Artéfact Unifié par Cible dans `_agents/project_diffs/🤖 <Nom>.md` (`1 cible = 1 artéfact 🤖 <Nom>.md` qui s'écrase lui-même)** : Quel que soit le support source (note Obsidian, fichier externe `code/<repo>/<fichier>` ou message flottant `virtual:<Sujet>`), un artéfact interactif Markdown dédié (`file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/project_diffs/🤖%20<Nom>.md`) est **TOUJOURS généré et écrasé sur place** via l'outil MCP `get_diff_artifact(mode="draft")` en comparant l'état actuel à la dernière baseline validée par Henri (`author="henri"`), avec conversion automatique des `[[wikilinks]]` en liens cliquables Antigravity, contrôle de rétention ($\ge 90\%$), tableau de traçabilité complet et copie en 1 clic depuis `<details><summary>📋 Texte Final Prêt à Copier</summary>`. **Interdiction absolue de regrouper plusieurs courriels/messages dans un même fichier ou de fabriquer un fichier de diff à la main via `write_to_file`.**
 > - **Restitution Exclusive par Lien vers l'Artéfact Brain (Zéro Pollution Textuelle dans le Chat)** :
 >   Quelle que soit la source (mémoire ou fichier disque), la restitution dans le chat consiste **EXCLUSIVEMENT** à partager en première ligne le **lien cliquable vers l'artéfact Brain interactif** (`virtual_draft_*.md` ou `diff_*.md`) généré par la machine (`get_diff_artifact`).
 >   * **Justification** : Cela permet à Henri d'inspecter le diff, de laisser des commentaires ciblés directement via l'interface d'artéfact, et de copier le texte propre depuis le bloc natif `<details><summary>📋 Texte Final Prêt à Copier</summary>`. Zéro pollution textuelle dans le fil de discussion.
@@ -36,8 +36,8 @@ flowchart TD
 >      * Modification chirurgicale **in-situ** du fichier cible via `replace_file_content` (zéro réécriture complète).
 >      * Restitution dans le fil de discussion Antigravity **EXCLUSIVEMENT DU LIEN CLIQUABLE** vers l'artéfact Brain (`file:///<appDataDir>/brain/<conversation-id>/<nom>.md`) en première ligne.
 >      * **INTERDICTION FORMELLE DE COPIE INTÉGRALE** : Ne jamais recopier le texte entier du fichier dans le fil de discussion.
-> - **🌐 Interopérabilité Amont avec /scout (Conception de Plan)** :
->   Lorsqu'Henri demande de rédiger ou polir un texte au cours d'un workflow `/scout` (ex: avant ou pendant la formalisation d'un plan d'implémentation), l'instrumentation machine de `/draft` s'exécute **immédiatement dès la phase Scout**. L'artéfact `diff_*.md` est généré dans le brain de l'agent actif et offert à l'arbitrage d'Henri dans le rapport d'exploration, garantissant que tout texte humain soit rigoureusement audité et validé avant le passage au Build.
+> - **🌐 Interopérabilité dès la Phase de Planification (`/plan`)** :
+>   Lorsqu'Henri demande de rédiger ou polir un texte avant ou pendant la formalisation d'un plan d'implémentation (`implementation_plan.md`), l'instrumentation machine de `/draft` s'exécute **immédiatement**. L'artéfact `diff_*.md` est généré dans le brain de l'agent actif et soumis à l'arbitrage d'Henri, garantissant que tout texte humain soit rigoureusement audité et validé avant l'exécution.
 
 ---
 
@@ -51,20 +51,34 @@ flowchart TD
 | Dimension | Voix Authentique d'Henri | Dérive IA / Corpo-Wash (Bannie) |
 | :--- | :--- | :--- |
 | **Attaque** | Directe, va droit au but dès la 1ère phrase | Préambules creux et salutations boursouflées |
+| **Structure (Courriels & Messages)** | **Paragraphes continus fluides** (1 à 3 paragraphes courts), zéro gras Markdown, smileys textuels naturels (`:)`, `:D`, `^^`) — cf. [`email-style`](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/skills/email-style/SKILL.md) | Listes à puces ou numérotées avec titres en gras (`1. **Titre** : ...`), sous-titres artificiels, émojis Unicode |
 | **Ton** | Concret, vif, dynamique, accessible, chaleureux | Formel, pompeux, distancé, passif |
 | **Vocabulaire** | Mots justes, précis, simples et efficaces | Superlatifs automatiques, jargon administratif lourd |
 | **Posture** | Égale, confiante, orientée solution et action | Auto-dépréciative, sur-excusite, hésitation |
 | **Rythme** | Phrases courtes et enchaînements naturels | Périodes longues alourdies de propositions subordonnées |
 
+> [!IMPORTANT]
+> **COURRIELS (SPARK) & MESSAGES (MOODLE, TEAMS, SLACK)** : Lorsqu'il s'agit de rédiger ou de retoucher un courriel ou un message, l'agent **DOIT** lire et appliquer conjointement la charte [`email-style/SKILL.md`](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/skills/email-style/SKILL.md) (ligne d'objet `Subject: ...` / `Objet : ...` systématique en tête de tout courriel, paragraphes continus courts $\le 6\text{–}8$ lignes sans listes à titres en gras ni déballage de métriques, formules d'appel et de clôture calibrées selon l'interlocuteur).
+
 ---
 
-## 🛑 Quelle Est la Règle d'Or Absolue Anti-Réécriture ?
+## 🛑 Quelle Est la Règle d'Or : Fidélité aux Formulations Principales & Élagage des Répétitions ?
 
 > [!IMPORTANT]
-> **RÈGLE D'OR : INTERDICTION FORMELLE DE RÉÉCRIRE LE TEXTE DE ZÉRO OU DE SUBSTITUER UNE VERSION ENTIÈREMENT REMANIÉE.**
-> - **Seuil de préservation** : Au minimum **90% à 95%** du texte d'origine d'Henri doit demeurer strictement inchangé, mot pour mot.
-> - **Principe de subsidiarité** : Si une phrase est grammaticalement correcte, compréhensible et sans piège diplomatique, **ON NE LA MODIFIE SOUS AUCUN PRÉTEXTE**.
-> - **Bannissement du "mieux disant" subjectif** : L'assistant ne remplace jamais un mot par un autre au seul motif d'une préférence stylistique personnelle ou statistique du modèle.
+> **RÈGLE D'OR : PRÉSERVER LES FORMULATIONS PRINCIPALES D'HENRI TOUT EN ÉLIMINANT LES RÉPÉTITIONS ET EN STRUCTURANT LE PROPOS.**
+> - **Ancrage dans les formulations d'Henri** : Toujours rester très proche des tournures clés, du vocabulaire, de l'énergie et des images choisis par Henri. Interdiction absolue de substituer un jargon générique ou corporatif ("corpo-wash") à ses mots.
+> - **Distinction Brouillon Écrit vs Transcript Oral Dicté** :
+>   * **Brouillon écrit déjà structuré** : Principe de subsidiarité chirurgicale ($\ge 90\%$ de préservation mot à mot). Si une phrase écrite est correcte, fluide et sans piège diplomatique, on ne la réécrit pas.
+>   * **Transcript oral ou dictée à la volée** *(décision d'Henri, 19/10/2026)* : À l'oral, la pensée se construit en marchant et comporte naturellement des redites. L'agent **doit** supprimer sans hésiter les répétitions (ex. un même syntagme répété 3 ou 4 fois), condenser les longueurs et **réorganiser l'ordre des idées** pour regrouper logiquement les arguments en paragraphes continus percutants, tout en conservant les formulations principales d'Henri. Lors du scellement CAS (`commit_document`), la baseline `v0` scelle la version déjà condensée/structurée afin que le diff interactif `get_diff_artifact` conserve un taux de rétention $\ge 90\%$ centré sur le polissage lexical fin.
+> - **Bannissement du "mieux disant" subjectif & Zéro paraphrase du message reçu** *(directive d'Henri, 29/10/2026)* : Hors élagage des répétitions orales et regroupement logique, ne jamais remplacer un mot précis d'Henri par un synonyme arbitraire. Lors de la rédaction d'une réponse à un courriel ou message, **ne jamais écrire plusieurs lignes pour répéter ou paraphraser ce qu'a dit l'interlocuteur** : chaque phrase doit apporter une information nouvelle, sans jamais se répéter.
+
+### 👥 Comment Sont Répartis les Rôles entre l'Agent Principal et les Sous-Agents ?
+
+| Rôle | Responsabilité Stricte | Invariant Opérationnel |
+| :--- | :--- | :--- |
+| **Modèle Exclusif (`inherit` obligatoire)** | **100 % de la rédaction et du polissage par `inherit`** | **C'est TOUJOURS `inherit` qui écrit.** Tout sous-agent déployé pour `/draft` est impérativement invoqué avec `Model: 'inherit'` (**interdiction absolue de `flash`** pour toute rédaction ou retouche de message/courriel, cf. [sous-agents.md](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/rules/sous-agents.md)). |
+| **Agent Principal (Toi, `inherit`)** | **Rédaction intégrale + Appel direct `doc-version` sur message flottant (`virtual:*`)** | Rédige lui-même tout texte pur ou substantiel. **Lorsque `/draft` porte sur un message flottant (en mémoire : `target="virtual:..."`, non relié à un fichier sur disque), l'Agent Principal appelle DIRECTEMENT les outils MCP `doc-version` (`commit_document` et `get_diff_artifact`) sans passer par un sous-agent.** |
+| **Sous-Agent (`Model: 'inherit'`)** | **Uniquement lorsque `/draft` modifie un fichier existant sur disque** | Lancé en `Model: 'inherit'` uniquement si le texte est relié à un fichier sur disque (`.md`, `.tex`, etc.) : reçoit le texte rédigé, l'insère **strictement VERBATIM** au bon endroit, compile, scelle via `doc-version` et génère l'artéfact de diff, **sans reformuler ni altérer un seul mot**. |
 
 > [!CAUTION]
 > **🚫 INTERDICTION FORMELLE DE FICHIER INTERMÉDIAIRE OU DE TRANSCRIPTION SCRATCH :**
@@ -82,8 +96,8 @@ Le cycle `/draft` s'articule autour du versioning déclaratif CAS pour garantir 
 > [!IMPORTANT]
 > **Double Voie d'Exécution (MCP doc-version ou CLI doc_version_cli.py)** :
 > 1. **Voie Principale (MCP)** : Appel direct des outils `doc-version` (`commit_document`, `get_diff_artifact`).
-> 2. **Voie Robuste (CLI Local)** : Si le serveur MCP est inactif, exécuter impérativement le script Python dédié :
->    `& "C:\Users\hjamet\Documents\code\doc-version-mcp\.venv\Scripts\python.exe" "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\doc_version_cli.py" diff --target "<fichier>" --explanation "<motif>" --content-file "<fichier_retouche>" --brain-dir "<appDataDir>/brain/<id>" --artifact-name "<nom>.md"`
+> 2. **Voie Robuste (CLI Local)** : Si le serveur MCP est inactif, exécuter impérativement le script Python dédié en chemin absolu adapté à la machine :
+>    `& "<chemin_absolu>\code\doc-version-mcp\.venv\Scripts\python.exe" "<chemin_absolu>\VoiceNotes\_agents\scripts-for-skills\doc_version_cli.py" diff --target "<fichier>" --explanation "<motif>" --content-file "<fichier_retouche>" --brain-dir "<appDataDir>/brain/<id>" --artifact-name "<nom>.md"`
 > **INTERDICTION STRICTE DE SIMULATION** : Il est formellement interdit de créer l'artéfact à la main avec `write_to_file`.
 
 ```mermaid
@@ -173,15 +187,29 @@ Toute résolution de balise `<XXX>` fait l'objet d'une ligne dédiée dans le ta
 
 ---
 
-### ✂️ 2. Comment Appliquer la Retouche Chirurgicale Minimale (90-95% Intact) ?
+### ✂️ 2. Comment Appliquer la Retouche Chirurgicale et l'Élagage des Redondances ?
 
-- **Opérer au mot près** : Remplacer uniquement le mot fautif ou la locution boiteuse.
-- **Audit de rétention $\ge 90\%$** : Vérifier que le ratio de préservation textuelle respecte rigoureusement le seuil contractuel ($\ge 90\%$, idéalement 95%).
-- **Conserver la syntaxe originelle** : Ne pas inverser les propositions, ne pas scinder un paragraphe fluide en liste à puces, ne pas réorganiser la structure argumentative choisie par Henri.
+- **Opérer au mot près sur les formulations clés** : Conserver les tournures signatures d'Henri et ne retoucher que le mot fautif, l'oralité brute ou la locution boiteuse.
+- **Élaguer les répétitions et structurer les dictées orales** : Lorsque l'entrée est un transcript oral, fusionner les redites, condenser les périphrases et réorganiser les phrases pour que chaque idée ne soit exprimée qu'une seule fois de manière directe et limpide.
+- **Audit de rétention $\ge 90\%$ sur la baseline structurée** : Vérifier que le ratio de préservation textuelle entre la baseline structurée `v0` et la version polie `v1` respecte le seuil contractuel ($\ge 90\%$).
 - **Préserver le registre relationnel** :
   * Si Henri tutoie : conserver le tutoiement sans basculer au vouvoiement.
-  * Si Henri utilise un smiley textuel (`:)`, `;)`), le laisser exactement là où il l'a placé.
+  * Si Henri utilise un smiley textuel (`:)`, `:D`, `^^`), le laisser exactement là où il l'a placé.
   * Ne jamais ajouter de formule de politesse pompeuse en fin de message si Henri a simplement signé *"Henri"* ou *"Joyeusement,"*.
+
+### 🛡️ 2bis. Comment Réécrire en Mode Humain Indétectable (`stealth_rewriter.py` / Anti-GPTZero `4.1o`) ?
+
+Lorsque `/draft` est sollicité pour produire, réécrire ou camoufler un passage initialement rédigé par un LLM (abstract scientifique, paragraphe d'article, texte généré de zéro) afin qu'il franchisse les détecteurs modernes (GPTZero `4.1o`, Turnitin, RAID) avec un verdict `HUMAN_ONLY` ($> 95\,\%$ Human) :
+1. **Exécution obligatoire du moteur GPU natif Windows [stealth_rewriter.py](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/scripts-for-skills/stealth_rewriter.py)** (`Qwen/Qwen3-4B-Instruct-2507` + adaptateurs GRPO `suraj-ranganath/StealthRL` et `akhaliq/open-humanizer-4b` chargés automatiquement en **`bfloat16` natif** dès que la VRAM $\ge 7.5\text{ Go}$, sans dégradation 4-bit NF4, sans WSL2 et sans flag de contournement) :
+   ```powershell
+   python "c:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\stealth_rewriter.py" "<texte_ou_fichier>"
+   ```
+   *(Un seul appel sans flag : le script évalue chaque paragraphe via le proxy GPTZero perplexité + burstiness CV, réécrit en `bfloat16` les paragraphes détectables, vérifie l'équivalence sémantique NLI `DeBERTa-v3-large`, met à jour directement le fichier ou retourne le texte corrigé).*
+2. **Interdiction absolue de réécriture libre par le LLM principal après `StealthRL`** : toute phrase entière réécrite ou « polie » librement par un grand modèle RLHF (Claude/Gemini) réintroduit instantanément la distribution de log-probabilités RLHF et fait bondir GPTZero `4.1o` à `100 % AI`.
+3. **Protocole du « Scalpel Lexical Post-StealthRL » (Double Contrôle Qualité + Indétectabilité)** :
+   - Partir **exclusivement** du texte brut produit par `StealthRL` (`bfloat16` natif, prompt GRPO canonique).
+   - N'effectuer que des **substitutions lexicales ponctuelles de 1 à 3 mots** (*surgical noun-phrase swaps*) pour rétablir les termes techniques exacts du domaine que le modèle 4B aurait simplifiés ou généralisés (ex. rétablir `Cohort 1` / `Cohort 2`, `Personal Knowledge Graphs (PKGs)`, `Socratic Multi-Agent Systems (MAS)`, `Human-in-the-Loop (HITL)`, `1:1 teacher Digital Twins`), **en conservant intacte la charpente syntaxique et les verbes choisis par `StealthRL`**.
+   - Zéro tiret cadratin (`—`) et zéro double tiret (`--`).
 
 ---
 
@@ -193,8 +221,8 @@ Toute résolution de balise `<XXX>` fait l'objet d'une ligne dédiée dans le ta
 > 2. **Immuabilité Machine Absolue** : Une fois généré par l'outil machine officiel (`doc-version` `get_diff_artifact` ou CLI dédiée), l'artéfact Markdown interactif (`diff_*.md`) est **STRICTEMENT IMMUABLE**. **INTERDICTION ABSOLUE de le retoucher ou modifier manuellement** (via `replace_file_content` ou `write_to_file`).
 > 3. Tout artéfact rédigé ou altéré à la main est nul, non avenu, et constitue une violation critique du protocole /draft.
 
-#### 🛠️ Génération de l'Artéfact Brain Interactif (`get_diff_artifact`)
-L'artéfact interactif Markdown est généré via le serveur MCP `doc-version` :
+#### 🛠️ Génération de l'Artéfact Brain Interactif (`get_diff_artifact` — Sans Obfuscation Automatique `StealthRL`)
+L'artéfact interactif Markdown est généré via le serveur MCP `doc-version` (`run_stealth=False` par défaut suite à la décision d'Henri du 29/10/2026, l'obfuscation générique `StealthRL` dégradant la qualité rédactionnelle à Likert `2.59/5` contre `4.03/5` selon `arXiv:2602.08934`) :
 ```python
 call_mcp_tool(
     ServerName="doc-version",
@@ -204,11 +232,13 @@ call_mcp_tool(
         "content": "<texte_retouche_complet>",  # requis si virtuel
         "diff_explanation": "Polissage chirurgical, résolution balises <XXX>, élimination sur-excusite",
         "mode": "draft",
+        "language": "fr",  # ou "auto" pour détection automatique du Style Guard (fr_ai_patterns)
         "brain_dir": "C:/Users/hjamet/.gemini/antigravity/brain/<conversation-id>"
     }
 )
 ```
 Cet artéfact intègre automatiquement les composantes suivantes :
+- **📕 Lien Automatique vers le PDF Compilé en En-tête** : Dès qu'un PDF compilé est associé au fichier cible (même base `<stem>.pdf`, `main.pdf`, `paper.pdf` ou document maître via `\input{...}`) ou passé via `pdf_path`, `doc-version` copie le PDF dans `brain/<conversation-id>/` et affiche automatiquement `📕 **PDF Compilé** : [<nom>.pdf](file:///...)` dans l'en-tête de l'artefact `diff_*.md` pour permettre l'ouverture directe dans le visualiseur PDF natif d'Antigravity.
 - **📋 Bloc Dépliant de Texte Final Prêt à Copier (Natif en Tête d'Artéfact)** : En mode `mode="draft"`, l'artéfact intègre nativement en tête de document (avant l'arborescence des diffs) le bloc dépliant suivant :
   ```markdown
   <details><summary>📋 Texte Final Prêt à Copier</summary>
@@ -338,6 +368,7 @@ Avant de renvoyer le résultat à Henri, l'agent audite rigoureusement sa propre
 - [ ] **Scellement CAS préalable** : La baseline v0 a-t-elle été scellée via `commit_document(mode="draft")` avant retouche ?
 - [ ] **Taux de rétention $\ge 90\%$** : Au moins 90% à 95% du texte original d'Henri est-il strictement préservé mot pour mot ?
 - [ ] **Subsidiarité chirurgicale** : Aucune réécriture globale ni restructuration stylistique arbitraire n'a-t-elle été commise ?
+- [ ] **Modèle `inherit` exclusif & Verbatim** : Est-ce bien `inherit` qui a rédigé le texte (et tout sous-agent `/draft` a-t-il bien été lancé avec `Model: 'inherit'`, jamais `flash`), avec insertion strictement verbatim sans micro-corrections d'un mot ?
 - [ ] **Résolution des balises <XXX>** : Toutes les balises sont-elles résolues (Cas A élégance, Cas B faits vérifiés sans invention) et tracées ?
 - [ ] **Orthographe & syntaxe** : Toutes les coquilles réelles, accords et ponctuations ont-ils été corrigés au scalpel ?
 - [ ] **Pièges diplomatiques** : La sur-excusite et la culpabilité passive ont-elles été neutralisées avec bienveillance ?
@@ -348,3 +379,9 @@ Avant de renvoyer le résultat à Henri, l'agent audite rigoureusement sa propre
   * Zéro copie intégrale de texte dans le fil de discussion (le texte propre est copiable directement depuis le bloc `<details><summary>📋 Texte Final Prêt à Copier</summary>` de l'artéfact).
   * Si fichier disque ➔ Modification in-situ via `replace_file_content` en complément de l'artéfact.
 - [ ] **En cas de traduction** : Est-elle rigoureusement miroir sans extrapolation ni connecteurs boursouflés ?
+
+---
+
+## 📁 Spécificités issues des règles générales (Coffre Obsidian)
+
+- **Sanctuarisation du Coffre & Brouillons Éphémères (`_agents/project_diffs/🤖 <Sujet>.md` avec TTL 14j)** : INTERDICTION FORMELLE ET ABSOLUE de créer des fichiers de messages, brouillons de courriels (`Reponse_Slack_*.md`, `Email_*.md`, `Message_*.md`, etc.) ou textes préparatoires à la racine ou dans `notes/` du coffre `VoiceNotes/` (sauf demande expresse d'Henri). Toute préparation, polissage ou rédaction de message/courriel relève obligatoirement du skill `/draft` (`virtual:<Sujet>`) et réside exclusivement dans `c:\Users\hjamet\Documents\VoiceNotes\_agents\project_diffs\🤖 <Sujet>.md` (synchronisé entre PC par Obsidian Sync et purgé automatiquement après 14 jours d'inactivité par `prune_commits`).
