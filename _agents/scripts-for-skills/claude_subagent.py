@@ -39,42 +39,6 @@ import urllib.request
 from pathlib import Path
 
 DEFAULT_LOG_DIR = Path.home() / ".claude" / "antigravity-runs"
-QUOTA_CACHE_FILE = Path(r"C:\Users\Public\aivc\claude_quota_cache.json")
-QUOTA_FALLBACK_FILE = Path(r"C:\Users\Public\aivc\claude_quota_state.json")
-QUOTA_CACHE_TTL_SEC = 180.0
-
-
-def _read_disk_quota_cache() -> tuple[dict | None, float]:
-    """Lit le cache de quota sur disque.
-    Retourne (data_dict, fetched_at_timestamp). Si absent/invalide, retourne (None, 0.0)."""
-    for p in (QUOTA_CACHE_FILE, QUOTA_FALLBACK_FILE):
-        if p.is_file():
-            try:
-                raw = json.loads(p.read_text(encoding="utf-8"))
-                if isinstance(raw, dict):
-                    if "data" in raw and isinstance(raw["data"], dict):
-                        return raw["data"], float(raw.get("fetched_at", 0.0))
-                    if "five_hour" in raw or "seven_day" in raw:
-                        return raw, p.stat().st_mtime
-            except Exception:
-                continue
-    return None, 0.0
-
-
-def _write_disk_quota_cache(data: dict) -> None:
-    """Écrit de manière atomique la réponse valide de quota dans QUOTA_CACHE_FILE."""
-    try:
-        QUOTA_CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
-        tmp = QUOTA_CACHE_FILE.with_suffix(".tmp")
-        payload = {
-            "fetched_at": time.time(),
-            "data": data,
-        }
-        tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-        tmp.replace(QUOTA_CACHE_FILE)
-    except Exception as exc:
-        sys.stderr.write(f"Warning: failed to write claude quota cache: {exc}\n")
-
 CONTRACT = """Tu interviens comme SOUS-AGENT d'un superviseur Antigravity qui travaille pour Henri Jamet.
 - Tu n'as pas d'humain en face : ne pose aucune question, fais un choix raisonnable et signale-le.
 - Respecte strictement le périmètre de fichiers donné par le brief ; tout écart est signalé comme `ÉCART`, jamais fait en silence.
@@ -102,11 +66,11 @@ def find_claude() -> str:
     )
 
 
-def _refresh_claude_token(cred_path: Path, data: dict) -> str | None:
+def _refresh_claude_token(cred_path: Path, data: dict) -> str:
     oauth_data = data.get("claudeAiOauth", {})
     refresh_token = oauth_data.get("refreshToken")
     if not refresh_token:
-        return None
+        raise RuntimeError("refreshToken absent dans .credentials.json (claudeAiOauth)")
     scopes = oauth_data.get("scopes", [])
     scope_str = " ".join(scopes) if isinstance(scopes, list) else str(scopes)
     payload = {
@@ -138,20 +102,13 @@ def _refresh_claude_token(cred_path: Path, data: dict) -> str | None:
                 data["claudeAiOauth"] = oauth_data
                 cred_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
                 return new_access_token
-    return None
+    raise RuntimeError("Le rafraîchissement du token OAuth a échoué (réponse inattendue de platform.claude.com)")
 
 
-def fetch_claude_quota() -> dict | None:
-    cached_data, fetched_at = _read_disk_quota_cache()
-    now_sec = time.time()
-
-    # Si claude_quota_cache.json existe et a moins de 180s (TTL = 180s), retourner le payload caché
-    if cached_data and (now_sec - fetched_at) < QUOTA_CACHE_TTL_SEC:
-        return cached_data
-
+def fetch_claude_quota() -> dict:
     cred_path = Path.home() / ".claude" / ".credentials.json"
     if not cred_path.exists():
-        return cached_data
+        raise FileNotFoundError(f"Identifiants Claude introuvables : {cred_path}")
 
     def _query(token: str) -> dict:
         url = "https://api.anthropic.com/api/oauth/usage"
@@ -169,59 +126,26 @@ def fetch_claude_quota() -> dict | None:
                 return json.loads(resp.read().decode("utf-8"))
         raise RuntimeError("Usage API returned unexpected status")
 
+    data = json.loads(cred_path.read_text(encoding="utf-8"))
+    oauth_data = data.get("claudeAiOauth", {})
+    token = oauth_data.get("accessToken")
+    expires_at = oauth_data.get("expiresAt", 0)
+    now_ms = int(time.time() * 1000)
+
+    # Si token expiré ou expire dans moins de 60s, refresh préventif
+    if expires_at and now_ms >= (expires_at - 60000):
+        token = _refresh_claude_token(cred_path, data)
+
+    if not token:
+        raise RuntimeError("accessToken manquant dans .credentials.json (claudeAiOauth)")
+
     try:
-        data = json.loads(cred_path.read_text(encoding="utf-8"))
-        oauth_data = data.get("claudeAiOauth", {})
-        token = oauth_data.get("accessToken")
-        expires_at = oauth_data.get("expiresAt", 0)
-        now_ms = int(time.time() * 1000)
-
-        # Si token expiré ou expire dans moins de 60s, refresh préventif
-        if expires_at and now_ms >= (expires_at - 60000):
-            try:
-                refreshed = _refresh_claude_token(cred_path, data)
-                if refreshed:
-                    token = refreshed
-            except urllib.error.HTTPError as ref_err:
-                sys.stderr.write(f"Warning: _refresh_claude_token failed with HTTP {ref_err.code}: {ref_err.reason}\n")
-                if cached_data:
-                    sys.stderr.write("Info: falling back to cached claude quota from disk\n")
-                    return cached_data
-                raise
-
-        if not token:
-            return cached_data
-
-        try:
-            res = _query(token)
-            _write_disk_quota_cache(res)
-            return res
-        except urllib.error.HTTPError as http_err:
-            if http_err.code == 401:
-                try:
-                    refreshed = _refresh_claude_token(cred_path, data)
-                except urllib.error.HTTPError as ref_err:
-                    sys.stderr.write(f"Warning: _refresh_claude_token on 401 failed with HTTP {ref_err.code}: {ref_err.reason}\n")
-                    if cached_data:
-                        sys.stderr.write("Info: falling back to cached claude quota from disk\n")
-                        return cached_data
-                    raise
-                if refreshed:
-                    res = _query(refreshed)
-                    _write_disk_quota_cache(res)
-                    return res
-            if http_err.code == 429:
-                sys.stderr.write("Warning: fetch_claude_quota rate limited (HTTP 429)\n")
-                if cached_data:
-                    sys.stderr.write("Info: falling back to cached claude quota from disk\n")
-                    return cached_data
-            raise
-    except Exception as exc:
-        sys.stderr.write(f"Warning: fetch_claude_quota failed: {exc}\n")
-        if cached_data:
-            sys.stderr.write("Info: falling back to cached claude quota from disk\n")
-            return cached_data
-    return None
+        return _query(token)
+    except urllib.error.HTTPError as http_err:
+        if http_err.code == 401:
+            refreshed = _refresh_claude_token(cred_path, data)
+            return _query(refreshed)
+        raise
 
 
 
@@ -299,16 +223,9 @@ def main() -> int:
     ap.add_argument("--log-dir", default=str(DEFAULT_LOG_DIR))
     a = ap.parse_args()
 
-    quota_data = fetch_quotas()
-    quota_lines = format_quotas(quota_data) if quota_data else [
-        "QUOTA_SESSION_5H: indisponible",
-        "QUOTA_WEEK_7D: indisponible",
-    ]
-
     if a.quota_only:
-        if not quota_data:
-            sys.exit("ERREUR: Impossible de récupérer les quotas (token OAuth manquant ou API injoignable).")
-        for ql in quota_lines:
+        quota_data = fetch_quotas()
+        for ql in format_quotas(quota_data):
             print(ql)
         return 0
 
@@ -355,10 +272,14 @@ def main() -> int:
             env=env,
         )
     except subprocess.TimeoutExpired:
-        for ql in quota_lines:
+        quota_data = fetch_quotas()
+        for ql in format_quotas(quota_data):
             print(ql)
         print(f"STATUS: error (timeout {a.timeout}s)")
         return 124
+
+    quota_data = fetch_quotas()
+    quota_lines = format_quotas(quota_data)
 
     log_dir = Path(a.log_dir)
     log_dir.mkdir(parents=True, exist_ok=True)
