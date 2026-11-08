@@ -70,7 +70,7 @@ def _refresh_claude_token(cred_path: Path, data: dict) -> str:
     oauth_data = data.get("claudeAiOauth", {})
     refresh_token = oauth_data.get("refreshToken")
     if not refresh_token:
-        raise RuntimeError("refreshToken absent dans .credentials.json (claudeAiOauth)")
+        raise RuntimeError("Session Claude Code expirée (refreshToken manquant). Exécuter 'claude auth login'.")
     scopes = oauth_data.get("scopes", [])
     scope_str = " ".join(scopes) if isinstance(scopes, list) else str(scopes)
     payload = {
@@ -79,45 +79,79 @@ def _refresh_claude_token(cred_path: Path, data: dict) -> str:
         "client_id": "9d1c250a-e61b-44d9-88ed-5944d1962f5e",
         "scope": scope_str,
     }
+    # Note: Axios est le client HTTP de Claude Code ; utiliser 'axios/1.7.9' évite le rate limit 429 WAF de Cloudflare sur 'claude-code/*'
     req = urllib.request.Request(
         "https://platform.claude.com/v1/oauth/token",
         data=json.dumps(payload).encode("utf-8"),
         headers={
             "Content-Type": "application/json",
-            "User-Agent": "claude-code/2.1.309",
+            "User-Agent": "axios/1.7.9",
             "Accept": "application/json",
         },
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=15) as resp:
-        if resp.status == 200:
-            res_data = json.loads(resp.read().decode("utf-8"))
-            new_access_token = res_data.get("access_token")
-            if new_access_token:
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            if resp.status == 200:
+                res_data = json.loads(resp.read().decode("utf-8"))
+                new_access_token = res_data.get("access_token")
+                if not new_access_token:
+                    raise RuntimeError("Réponse OAuth invalide (access_token manquant dans la réponse de platform.claude.com)")
                 oauth_data["accessToken"] = new_access_token
-                if "refresh_token" in res_data:
+                if "refresh_token" in res_data and res_data["refresh_token"]:
                     oauth_data["refreshToken"] = res_data["refresh_token"]
                 if "expires_in" in res_data:
                     oauth_data["expiresAt"] = int(time.time() * 1000) + int(res_data["expires_in"]) * 1000
                 data["claudeAiOauth"] = oauth_data
                 cred_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
                 return new_access_token
+    except urllib.error.HTTPError as http_err:
+        if http_err.code == 429:
+            raise RuntimeError("Endpoint OAuth Anthropic rate-limité (HTTP 429). Réessayer plus tard.") from http_err
+        if http_err.code in (400, 401):
+            raise RuntimeError("Session Claude Code expirée (refresh token révoqué/invalide). Exécuter 'claude auth login'.") from http_err
+        raise
     raise RuntimeError("Le rafraîchissement du token OAuth a échoué (réponse inattendue de platform.claude.com)")
 
 
 def fetch_claude_quota() -> dict:
     cred_path = Path.home() / ".claude" / ".credentials.json"
     if not cred_path.exists():
-        raise FileNotFoundError(f"Identifiants Claude introuvables : {cred_path}")
+        return {"error": "no_credentials", "message": f"Identifiants Claude introuvables : {cred_path}"}
 
-    def _query(token: str) -> dict:
+    try:
+        data = json.loads(cred_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as exc:
+        return {"error": "corrupt_credentials", "message": f"Fichier {cred_path} corrompu ({exc})"}
+
+    oauth_data = data.get("claudeAiOauth", {})
+    token = oauth_data.get("accessToken")
+    refresh_token = oauth_data.get("refreshToken")
+    expires_at = oauth_data.get("expiresAt", 0)
+    now_ms = int(time.time() * 1000)
+
+    # Fail-Fast : si token et refresh_token absents / vides -> non connecté
+    if not token and not refresh_token:
+        return {"error": "not_logged_in", "message": "Non connecté à Claude Code (exécuter 'claude auth login')"}
+
+    # Si token expiré ou expire dans moins de 60s, refresh préventif
+    if expires_at and now_ms >= (expires_at - 60000):
+        try:
+            token = _refresh_claude_token(cred_path, data)
+        except RuntimeError as refresh_err:
+            return {"error": "auth_error", "message": str(refresh_err)}
+
+    if not token:
+        return {"error": "not_logged_in", "message": "accessToken manquant dans .credentials.json"}
+
+    def _query(t: str) -> dict:
         url = "https://api.anthropic.com/api/oauth/usage"
         req = urllib.request.Request(
             url,
             headers={
-                "Authorization": f"Bearer {token}",
+                "Authorization": f"Bearer {t}",
                 "anthropic-beta": "oauth-2025-04-20",
-                "User-Agent": "claude-code/2.1.309",
+                "User-Agent": "axios/1.7.9",
                 "Accept": "application/json",
             },
         )
@@ -126,27 +160,20 @@ def fetch_claude_quota() -> dict:
                 return json.loads(resp.read().decode("utf-8"))
         raise RuntimeError("Usage API returned unexpected status")
 
-    data = json.loads(cred_path.read_text(encoding="utf-8"))
-    oauth_data = data.get("claudeAiOauth", {})
-    token = oauth_data.get("accessToken")
-    expires_at = oauth_data.get("expiresAt", 0)
-    now_ms = int(time.time() * 1000)
-
-    # Si token expiré ou expire dans moins de 60s, refresh préventif
-    if expires_at and now_ms >= (expires_at - 60000):
-        token = _refresh_claude_token(cred_path, data)
-
-    if not token:
-        raise RuntimeError("accessToken manquant dans .credentials.json (claudeAiOauth)")
-
     try:
         return _query(token)
     except urllib.error.HTTPError as http_err:
         if http_err.code == 401:
-            refreshed = _refresh_claude_token(cred_path, data)
-            return _query(refreshed)
-        raise
-
+            try:
+                refreshed = _refresh_claude_token(cred_path, data)
+                return _query(refreshed)
+            except RuntimeError as refresh_err:
+                return {"error": "auth_error", "message": str(refresh_err)}
+        elif http_err.code == 429:
+            return {"error": "rate_limited", "status": 429, "message": "API usage Claude rate-limitée (HTTP 429)"}
+        return {"error": "http_error", "status": http_err.code, "message": f"HTTP {http_err.code}: {http_err.reason}"}
+    except urllib.error.URLError as url_err:
+        return {"error": "network_error", "message": str(url_err.reason)}
 
 
 fetch_quotas = fetch_claude_quota
@@ -154,13 +181,19 @@ fetch_quotas = fetch_claude_quota
 
 def format_quotas(quota_data: dict) -> list[str]:
     lines = []
+    if not quota_data:
+        return ["QUOTA_ERROR: Données de quota vides"]
+
+    if "error" in quota_data:
+        return [f"QUOTA_ERROR: {quota_data.get('message', 'erreur inconnue')}"]
+
     now = dt.datetime.now(dt.timezone.utc)
 
     # 5h session quota
     fh = quota_data.get("five_hour")
     if fh and "utilization" in fh and fh.get("resets_at"):
         util_5h = float(fh["utilization"])
-        reset_5h_dt = dt.datetime.fromisoformat(fh["resets_at"])
+        reset_5h_dt = dt.datetime.fromisoformat(fh["resets_at"].replace("Z", "+00:00"))
         rem_5h_sec = max(0.0, (reset_5h_dt - now).total_seconds())
         rem_5h_h = int(rem_5h_sec // 3600)
         rem_5h_m = int((rem_5h_sec % 3600) // 60)
@@ -171,7 +204,7 @@ def format_quotas(quota_data: dict) -> list[str]:
     sd = quota_data.get("seven_day")
     if sd and "utilization" in sd and sd.get("resets_at"):
         util_7d = float(sd["utilization"])
-        reset_7d_dt = dt.datetime.fromisoformat(sd["resets_at"])
+        reset_7d_dt = dt.datetime.fromisoformat(sd["resets_at"].replace("Z", "+00:00"))
         rem_7d_sec = max(0.0, (reset_7d_dt - now).total_seconds())
         rem_7d_days = int(rem_7d_sec // 86400)
         rem_7d_hours = int((rem_7d_sec % 86400) // 3600)
@@ -227,6 +260,8 @@ def main() -> int:
         quota_data = fetch_quotas()
         for ql in format_quotas(quota_data):
             print(ql)
+        if quota_data.get("error"):
+            return 1
         return 0
 
     if not a.prompt and not a.prompt_file:

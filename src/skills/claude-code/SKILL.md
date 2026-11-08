@@ -35,7 +35,7 @@ python "$env:USERPROFILE\Documents\VoiceNotes\_agents\scripts-for-skills\claude_
   --cwd "<racine du projet>" `
   --artefact "<chemin absolu>\sources_claude.md"
 ```
-*(Par défaut : `--model opus`, `--effort medium`, `--mode bypassPermissions` avec `--dangerously-skip-permissions` et `CLAUDE_CODE_GIT_BASH_PATH` pointant vers Git Bash Windows. **Invariant OAuth strict : un seul processus `claude` à la fois** — le refresh token OAuth d'Anthropic étant à rotation unique, ne jamais lancer deux commandes `claude` en parallèle sous peine d'invalider la session `~/.claude/.credentials.json`).*
+*(Par défaut : `--model opus`, `--effort medium`, `--mode bypassPermissions` avec `--dangerously-skip-permissions` et `CLAUDE_CODE_GIT_BASH_PATH` pointant vers Git Bash Windows. **Invariant OAuth strict : un seul processus `claude` à la fois & Zéro test destructif sur `/v1/oauth/token`** — le refresh token OAuth d'Anthropic étant à rotation unique et Cloudflare filtrant `User-Agent: claude-code/*` en HTTP 429 au profit de `axios/1.7.9`, ne jamais lancer deux commandes `claude` en parallèle ni appeler `platform.claude.com/v1/oauth/token` dans un script de test sans persister immédiatement le nouveau couple `accessToken`/`refreshToken` dans `~/.claude/.credentials.json`, sous peine de révoquer la session).*
 
 3. **Lire la sortie standard** :
 

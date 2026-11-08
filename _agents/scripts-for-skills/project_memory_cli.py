@@ -4933,22 +4933,11 @@ def get_realtime_quota_indicators(force_refresh: bool = False) -> Tuple[List[str
             rst_7d_label_md = f", reset `{_format_quota_date_fr(rst_7d_str)}`" if rst_7d_str else ""
             rst_7d_label_cli = f", reset {_format_quota_date_fr(rst_7d_str)}" if rst_7d_str else ""
 
-            cache_note_md = ""
-            cache_note_cli = ""
-            if claude_data.get("_rate_limited"):
-                age_m = int(claude_data.get("_cache_age_sec", 0) // 60)
-                cache_note_md = f" · ⚠️ *[429 Rate Limit - cache {age_m}m]*"
-                cache_note_cli = f" · ⚠️ [429 Rate Limit - cache {age_m}m]"
-            elif claude_data.get("_error"):
-                age_m = int(claude_data.get("_cache_age_sec", 0) // 60)
-                cache_note_md = f" · ⚠️ *[{claude_data['_error']} - cache {age_m}m]*"
-                cache_note_cli = f" · ⚠️ [{claude_data['_error']} - cache {age_m}m]"
-
             md_lines.append(
-                f"> - **Claude Code (Opus)** : {v_md} — 7j : **{used_7d:.0f}% utilisé{s_7d}** (`{rem_7d:.0f}%` restants vs cible `{target_used:.0f}%` utilisés{rst_7d_label_md}) · 5h : **{used_5h:.0f}% utilisé{s_5h}**{cc_5h_rst_md}{cache_note_md}"
+                f"> - **Claude Code (Opus)** : {v_md} — 7j : **{used_7d:.0f}% utilisé{s_7d}** (`{rem_7d:.0f}%` restants vs cible `{target_used:.0f}%` utilisés{rst_7d_label_md}) · 5h : **{used_5h:.0f}% utilisé{s_5h}**{cc_5h_rst_md}"
             )
             cli_lines.append(
-                f"- Claude Code (Opus) : {v_cli} — 7j : {used_7d:.0f}% utilisé{s_7d} ({rem_7d:.0f}% restants vs cible {target_used:.0f}% utilisés{rst_7d_label_cli}) · 5h : {used_5h:.0f}% utilisé{s_5h}{cc_5h_rst_cli}{cache_note_cli}"
+                f"- Claude Code (Opus) : {v_cli} — 7j : {used_7d:.0f}% utilisé{s_7d} ({rem_7d:.0f}% restants vs cible {target_used:.0f}% utilisés{rst_7d_label_cli}) · 5h : {used_5h:.0f}% utilisé{s_5h}{cc_5h_rst_cli}"
             )
 
     _RUNTIME_QUOTA_CACHE = (md_lines, cli_lines)

@@ -44,19 +44,19 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def find_vault_dir(start_dir):
+    for cand in [Path.home() / "Documents" / "VoiceNotes", Path(r"C:\Users\Jamet\Documents\VoiceNotes"), Path(r"C:\Users\hjamet\Documents\VoiceNotes")]:
+        if (cand / ".obsidian").is_dir():
+            return str(cand)
     curr = start_dir
     while curr and os.path.dirname(curr) != curr:
-        if os.path.exists(os.path.join(curr, ".obsidian")):
-            return curr
         if os.path.exists(os.path.join(curr, "VoiceNotes", ".obsidian")):
             return os.path.join(curr, "VoiceNotes")
+        if os.path.exists(os.path.join(curr, ".obsidian")):
+            return curr
         curr = os.path.dirname(curr)
     candidate = os.path.abspath(os.path.join(start_dir, "..", "VoiceNotes"))
     if os.path.exists(os.path.join(candidate, ".obsidian")):
         return candidate
-    for cand in [Path.home() / "Documents" / "VoiceNotes", Path(r"C:\Users\Jamet\Documents\VoiceNotes"), Path(r"C:\Users\hjamet\Documents\VoiceNotes")]:
-        if (cand / ".obsidian").is_dir():
-            return str(cand)
     return os.path.abspath(os.path.join(start_dir, "..", ".."))
 
 
@@ -68,40 +68,41 @@ CACHE_PATH = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", "
 ACTIVE_POMODORO_PATH = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", ".active_pomodoro.json")
 ACTIVE_POMODORO_AGENT_PATH = os.path.join(VAULT_DIR, ".obsidian", "plugins", "project-memory", ".active_pomodoro_agent.json")
 
-_aivc_src = Path.home() / "Documents" / "code" / "aivc" / "src"
-if _aivc_src.is_dir() and str(_aivc_src) not in sys.path:
-    sys.path.insert(0, str(_aivc_src))
-
+PROJECT_DIFFS_DIR = Path(VAULT_DIR) / "_agents" / "project_diffs"
+DOC_VERSION_CAS_DIR = Path(VAULT_DIR) / "_agents" / "doc_version_cas"
 AIVC_USER_TEMP_DIR = Path(tempfile.gettempdir()) / "aivc"
+AIVC_TLDR_DIR = AIVC_USER_TEMP_DIR / "advance_tldr"
+ADVANCE_TLDR_DIR = str(AIVC_TLDR_DIR)
 if os.name == "nt":
     AIVC_TEMP_DIR = Path(os.environ.get("AIVC_TEMP_DIR") or (Path(os.environ.get("PUBLIC", r"C:\Users\Public")) / "aivc"))
 else:
     AIVC_TEMP_DIR = Path(os.environ.get("AIVC_TEMP_DIR") or (Path(tempfile.gettempdir()) / "aivc"))
-AIVC_TLDR_DIR = AIVC_TEMP_DIR / "advance_tldr"
 AIVC_ARTIFACTS_DIR = AIVC_TEMP_DIR / "artifacts"
-ADVANCE_TLDR_DIR = str(AIVC_TLDR_DIR)
 DASHBOARD_FILENAME = "🎯 Projets.md"
 DASHBOARD_PATH = os.path.join(VAULT_DIR, DASHBOARD_FILENAME)
 
+PROJECT_DIFFS_DIR.mkdir(parents=True, exist_ok=True)
+DOC_VERSION_CAS_DIR.mkdir(parents=True, exist_ok=True)
+os.environ["DOC_VERSION_COMMITS_DIR"] = str(DOC_VERSION_CAS_DIR)
+os.environ["DOC_VERSION_DISABLE_STYLE_GUARD"] = "1"
+
+# Import dynamique doc-version
+_doc_version_venv = Path.home() / "Documents" / "code" / "doc-version-mcp" / ".venv" / "Lib" / "site-packages"
+if _doc_version_venv.is_dir() and str(_doc_version_venv) not in sys.path:
+    sys.path.insert(0, str(_doc_version_venv))
+_doc_version_src = Path.home() / "Documents" / "code" / "doc-version-mcp" / "src"
+if _doc_version_src.is_dir() and str(_doc_version_src) not in sys.path:
+    sys.path.insert(0, str(_doc_version_src))
+
+_aivc_src = Path.home() / "Documents" / "code" / "aivc" / "src"
+if _aivc_src.is_dir() and str(_aivc_src) not in sys.path:
+    sys.path.insert(0, str(_aivc_src))
+
 
 def _ensure_aivc_tldr_bootstrap() -> None:
-    """Bootstraps universal and user temp aivc directories.
-    If advance_tldr is empty, seeds it from legacy ~/.gemini/antigravity/brain/advance_tldr if present.
-    """
     try:
-        AIVC_TLDR_DIR.mkdir(parents=True, exist_ok=True)
-        AIVC_ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
-        (AIVC_USER_TEMP_DIR / "advance_tldr").mkdir(parents=True, exist_ok=True)
-        (AIVC_USER_TEMP_DIR / "artifacts").mkdir(parents=True, exist_ok=True)
-        legacy_dir = Path.home() / ".gemini" / "antigravity" / "brain" / "advance_tldr"
-        if legacy_dir.is_dir() and not any(AIVC_TLDR_DIR.glob("🤖 *.md")):
-            for p in legacy_dir.glob("🤖 *.md"):
-                target = AIVC_TLDR_DIR / p.name
-                if not target.exists():
-                    shutil.copy2(p, target)
-                target_user = (AIVC_USER_TEMP_DIR / "advance_tldr") / p.name
-                if not target_user.exists():
-                    shutil.copy2(p, target_user)
+        PROJECT_DIFFS_DIR.mkdir(parents=True, exist_ok=True)
+        DOC_VERSION_CAS_DIR.mkdir(parents=True, exist_ok=True)
     except Exception:
         pass
 
@@ -2240,30 +2241,39 @@ def _convert_wikilinks_to_markdown_links(text: str, vault_dir: Optional[str] = N
         target = m.group(1).strip()
         label = m.group(2).strip() if m.group(2) else None
 
+        generic_examples = {"...", "wikilinks", "Note", "Sous-Note.md", "Nom Image.png", "Cible", "target", "chemin"}
+        if target in generic_examples:
+            return m.group(0)
+
         if target.lower().startswith("file:///"):
             t_url = target.replace("\\", "/")
+            posix_part = t_url[8:]
+            t_url = "file:///" + urllib.parse.quote(urllib.parse.unquote(posix_part), safe="/:#?&=")
             lbl = label or Path(t_url).name
             return f"[{lbl}]({t_url})"
 
         if re.match(r"^[A-Za-z]:[\\/]", target):
-            posix_path = target.replace("\\", "/").rstrip("/")
+            posix_path = target.replace("\\", "/").rstrip("/").lstrip("/")
             lbl = label or Path(target).name
-            return f"[{lbl}](file:///{posix_path})"
+            encoded_url = "file:///" + urllib.parse.quote(posix_path, safe="/:#")
+            return f"[{lbl}]({encoded_url})"
 
         if target.startswith("~/") or target.startswith("~\\"):
-            posix_home = Path.home().as_posix()
+            posix_home = Path.home().as_posix().lstrip("/")
             sub = target[2:].replace("\\", "/").lstrip("/")
             lbl = label or Path(target).name
-            return f"[{lbl}](file:///{posix_home}/{sub})"
+            encoded_url = "file:///" + urllib.parse.quote(f"{posix_home}/{sub}", safe="/:#")
+            return f"[{lbl}]({encoded_url})"
 
         if target.lower().startswith(("http://", "https://")):
             lbl = label or target
             return f"[{lbl}]({target})"
 
         if target.startswith("/"):
-            posix_path = target.replace("\\", "/").rstrip("/")
+            posix_path = target.replace("\\", "/").rstrip("/").lstrip("/")
             lbl = label or Path(target).name
-            return f"[{lbl}](file://{posix_path})"
+            encoded_url = "file:///" + urllib.parse.quote(posix_path, safe="/:#")
+            return f"[{lbl}]({encoded_url})"
 
         v_dir = Path(vault_dir) if vault_dir else Path(VAULT_DIR)
         matched_file = None
@@ -2279,12 +2289,14 @@ def _convert_wikilinks_to_markdown_links(text: str, vault_dir: Optional[str] = N
 
         if matched_file is not None:
             lbl = label or target
-            return f"[{lbl}](file:///{matched_file.as_posix()})"
+            encoded_url = "file:///" + urllib.parse.quote(matched_file.as_posix().lstrip("/"), safe="/:#")
+            return f"[{lbl}]({encoded_url})"
 
         if any(sep in target for sep in ("/", "\\", ".")):
-            posix_target = target.replace("\\", "/")
+            posix_target = target.replace("\\", "/").lstrip("/")
             lbl = label or target
-            return f"[{lbl}](file:///{posix_target})"
+            encoded_url = "file:///" + urllib.parse.quote(posix_target, safe="/:#")
+            return f"[{lbl}]({encoded_url})"
 
         lbl = label or target
         return f"[{lbl}]"
@@ -2703,6 +2715,27 @@ def _rewrite_paths_for_current_pc(text: str) -> str:
 
     # Final pass on any residual wikilinks
     text = _convert_wikilinks_to_markdown_links(text)
+
+    # Final pass on any Markdown file:/// URLs to ensure strict URI encoding (zero unencoded spaces)
+    def _quote_file_url(m):
+        prefix = m.group(1)
+        url = m.group(2)
+        suffix = m.group(3)
+        if " " in url:
+            scheme = "file:///"
+            rest = url[len(scheme):] if url.startswith(scheme) else url.split("file://")[-1].lstrip("/")
+            quoted_rest = urllib.parse.quote(urllib.parse.unquote(rest), safe="/:#?&=")
+            return f"{prefix}{scheme}{quoted_rest}{suffix}"
+        return m.group(0)
+
+    text = re.sub(r'(!?\[[^\]]*\]\()(file:///[^)\n]+)(\))', _quote_file_url, text)
+
+    # Restauration stricte des exemples meta-documentaires generiques (wikilinks, Note...)
+    generic_examples = ("wikilinks", "Note", "Sous-Note.md", "Nom Image.png", "Cible", "target", "chemin")
+    for g in generic_examples:
+        g_stem = Path(g).stem
+        text = re.sub(rf'`*\[{re.escape(g)}\]\(file:///[^)]*?/{re.escape(g_stem)}\.md\)`*', f'`[[{g}]]`', text)
+        text = re.sub(rf'`+`\[\[{re.escape(g)}\]\]`+`', f'`[[{g}]]`', text)
 
     return text
 
@@ -4424,44 +4457,214 @@ def sync_advance_tldr_for_memory(memory: Any, vault_dir: Optional[str] = None) -
     return synced
 
 
+_CAS_ENGINE_INSTANCE = None
+
+
+def _get_cas_engine(vault_dir: str = VAULT_DIR):
+    global _CAS_ENGINE_INSTANCE
+    if _CAS_ENGINE_INSTANCE is not None:
+        return _CAS_ENGINE_INSTANCE
+
+    doc_version_venv = Path.home() / "Documents" / "code" / "doc-version-mcp" / ".venv" / "Lib" / "site-packages"
+    if doc_version_venv.is_dir() and str(doc_version_venv) not in sys.path:
+        sys.path.insert(0, str(doc_version_venv))
+    doc_version_src = Path.home() / "Documents" / "code" / "doc-version-mcp" / "src"
+    if doc_version_src.is_dir() and str(doc_version_src) not in sys.path:
+        sys.path.insert(0, str(doc_version_src))
+
+    cas_dir = Path(vault_dir) / "_agents" / "doc_version_cas"
+    cas_dir.mkdir(parents=True, exist_ok=True)
+    os.environ["DOC_VERSION_COMMITS_DIR"] = str(cas_dir)
+    os.environ["DOC_VERSION_DISABLE_STYLE_GUARD"] = "1"
+
+    from doc_version_mcp.cas_engine import CASEngine
+    import doc_version_mcp.server as dv_server
+    engine = CASEngine(storage_dir=cas_dir)
+    dv_server.cas = engine
+
+    if not hasattr(engine, "prune_stale_targets"):
+        def _prune_stale(max_age_days: int = 14, protected_targets: Optional[Set[str]] = None):
+            return engine.prune_expired(ttl_days=max_age_days, keep_baselines=True)
+        setattr(engine, "prune_stale_targets", _prune_stale)
+
+    _CAS_ENGINE_INSTANCE = engine
+    return _CAS_ENGINE_INSTANCE
+
+
+def _get_or_update_project_diff(master_note_path: Path, vault_dir: str = VAULT_DIR) -> Tuple[int, Path]:
+    cas = _get_cas_engine(vault_dir)
+    stem = master_note_path.stem
+    clean_stem = re.sub(r'^(?:🤖\s*)+', '', stem).strip()
+    diff_dir = Path(vault_dir) / "_agents" / "project_diffs"
+    diff_dir.mkdir(parents=True, exist_ok=True)
+    diff_file = diff_dir / f"🤖 {clean_stem}.md"
+
+    try:
+        rel_posix = master_note_path.relative_to(Path(vault_dir)).as_posix()
+    except ValueError:
+        rel_posix = master_note_path.name
+    abs_posix = master_note_path.resolve().as_posix()
+
+    snaps = cas.list_snapshots(target=abs_posix, limit=50)
+    if not snaps:
+        snaps = cas.list_snapshots(target=rel_posix, limit=50)
+
+    has_henri = any(str(s.get("author", "")).lower() == "henri" for s in snaps)
+    if not has_henri:
+        cas.create_snapshot(
+            target=abs_posix,
+            message="Baseline initiale Henri Jamet",
+            author="henri",
+            is_pinned=True,
+            mode="draft"
+        )
+        snaps = cas.list_snapshots(target=abs_posix, limit=50)
+
+    needs_update = False
+    if not diff_file.exists():
+        needs_update = True
+    else:
+        try:
+            needs_update = master_note_path.stat().st_mtime > diff_file.stat().st_mtime
+        except Exception:
+            needs_update = True
+
+    from doc_version_mcp.server import get_diff_artifact
+    import doc_version_mcp.server as dv_server
+    dv_server.cas = cas
+
+    if needs_update:
+        res_raw = get_diff_artifact(
+            target=str(master_note_path),
+            mode="draft",
+            language="fr",
+            return_content=True
+        )
+        res_data = json.loads(res_raw)
+        diff_count = int(res_data.get("diff_count", 0))
+        content = res_data.get("artifact_content")
+        if content:
+            diff_file.write_text(_rewrite_paths_for_current_pc(content), encoding="utf-8")
+        elif res_data.get("saved_artifact_path"):
+            saved_p = Path(res_data["saved_artifact_path"])
+            if saved_p.exists():
+                raw = saved_p.read_text(encoding="utf-8", errors="replace")
+                diff_file.write_text(_rewrite_paths_for_current_pc(raw), encoding="utf-8")
+            else:
+                shutil.copy2(res_data["saved_artifact_path"], diff_file)
+    else:
+        henri_snaps = [s for s in snaps if str(s.get("author", "")).lower() == "henri"]
+        is_identical_to_henri = False
+        if henri_snaps:
+            latest_henri_id = henri_snaps[0]["commit_id"]
+            try:
+                henri_text = cas.restore_snapshot(latest_henri_id)
+                current_text = master_note_path.read_text(encoding="utf-8", errors="replace")
+                if current_text.strip() == henri_text.strip():
+                    is_identical_to_henri = True
+            except Exception:
+                pass
+
+        if is_identical_to_henri:
+            diff_count = 0
+        else:
+            diff_text = diff_file.read_text(encoding="utf-8", errors="replace")
+            rewritten_diff = _rewrite_paths_for_current_pc(diff_text)
+            if rewritten_diff != diff_text:
+                diff_file.write_text(rewritten_diff, encoding="utf-8")
+                diff_text = rewritten_diff
+            m = re.search(r"Arborescence des Modifications Détectées \((\d+) deltas\)", diff_text)
+            if m:
+                diff_count = int(m.group(1))
+            else:
+                ins_count = len(re.findall(r"<ins\b", diff_text))
+                del_count = len(re.findall(r"<del\b", diff_text))
+                diff_count = max(0, ins_count + del_count - 2) if (ins_count + del_count > 2) else 0
+
+    return diff_count, diff_file
+
+
+def _seal_henri_baseline_and_update_diff(master_note_path: Path, vault_dir: str = VAULT_DIR, message: str = "Validation Henri") -> int:
+    cas = _get_cas_engine(vault_dir)
+    abs_posix = master_note_path.resolve().as_posix()
+    cas.create_snapshot(
+        target=abs_posix,
+        message=message,
+        author="henri",
+        is_pinned=True,
+        mode="draft"
+    )
+
+    from doc_version_mcp.server import get_diff_artifact
+    import doc_version_mcp.server as dv_server
+    dv_server.cas = cas
+
+    res_raw = get_diff_artifact(
+        target=str(master_note_path),
+        mode="draft",
+        language="fr",
+        return_content=True
+    )
+    res_data = json.loads(res_raw)
+    content = res_data.get("artifact_content")
+    diff_dir = Path(vault_dir) / "_agents" / "project_diffs"
+    diff_dir.mkdir(parents=True, exist_ok=True)
+    clean_stem = re.sub(r'^(?:🤖\s*)+', '', master_note_path.stem).strip()
+    diff_file = diff_dir / f"🤖 {clean_stem}.md"
+    if content:
+        diff_file.write_text(_rewrite_paths_for_current_pc(content), encoding="utf-8")
+    elif res_data.get("saved_artifact_path"):
+        saved_p = Path(res_data["saved_artifact_path"])
+        if saved_p.exists():
+            raw = saved_p.read_text(encoding="utf-8", errors="replace")
+            diff_file.write_text(_rewrite_paths_for_current_pc(raw), encoding="utf-8")
+        else:
+            shutil.copy2(res_data["saved_artifact_path"], diff_file)
+
+    return int(res_data.get("diff_count", 0))
+
+
 def enrich_project_auto_fields(p, vault_dir=VAULT_DIR):
     """
-    Computes autonomous session display string and links (TLDR or Journal) for a project.
-    Sets p['auto_note_path'] and p['auto_link'].
+    Computes autonomous session display string and links (_agents/project_diffs/🤖 <stem>.md) for a project.
+    Sets p['auto_note_path'], p['auto_link'] and p['auto_disp'].
     Returns auto_disp.
     """
     if "auto_disp" in p:
         return p["auto_disp"]
 
-    n = p.get("agent_sessions_since_human", 0)
     rel_path = p.get("rel_path", "")
-    title = p.get("title", "")
+    if not rel_path:
+        fp = p.get("file_path") or p.get("full_path")
+        if fp:
+            try:
+                rel_path = os.path.relpath(fp, vault_dir).replace("\\", "/")
+            except ValueError:
+                rel_path = os.path.basename(fp)
 
-    tldr_path, item_count = _sync_and_render_aivc_tldr(
-        vault_root=vault_dir,
-        rel_path=rel_path,
-        title=title,
-        sessions_since_human=n,
-        project_dict=p
-    )
-
-    if tldr_path and item_count > 0:
-        target_path = os.path.abspath(tldr_path)
-        target_forward = target_path.replace("\\", "/").lstrip("/")
-        auto_uri = f"file:///{target_forward}"
-        auto_disp = f"[🤖 {item_count}]({auto_uri})"
-        p["auto_note_path"] = target_path
-        p["auto_link"] = auto_uri
+    master_path = Path(vault_dir) / rel_path if rel_path else None
+    if master_path and master_path.is_file():
+        diff_count, diff_file = _get_or_update_project_diff(master_path, vault_dir=vault_dir)
+        abs_diff = Path(diff_file).resolve().as_posix().lstrip("/")
+        link = "file:///" + urllib.parse.quote(abs_diff, safe="/:")
+        auto_disp = f"[🤖 {diff_count}]({link})"
+        p["auto_disp"] = auto_disp
+        p["auto_diff_count"] = diff_count
+        p["auto_await_count"] = diff_count
+        p["auto_note_path"] = str(diff_file)
+        p["auto_link"] = link
+        return auto_disp
     else:
         auto_disp = "-"
+        p["auto_disp"] = auto_disp
+        p["auto_diff_count"] = 0
+        p["auto_await_count"] = 0
         p["auto_note_path"] = None
         p["auto_link"] = None
-
-    p["auto_disp"] = auto_disp
-    return auto_disp
+        return auto_disp
 
 
-def format_project_table(projects, verbose=False):
+def format_project_table(projects, verbose=False, vault_dir=VAULT_DIR):
     lines = []
     title_links = []
     auto_disps = []
@@ -4471,20 +4674,21 @@ def format_project_table(projects, verbose=False):
             fp = p.get("file_path") or p.get("full_path")
             if fp:
                 try:
-                    rel = os.path.relpath(fp, VAULT_DIR)
+                    rel = os.path.relpath(fp, vault_dir)
                 except ValueError:
                     rel = os.path.basename(fp)
             else:
                 rel = f"{p['title']}.md"
         rel_forward = str(rel).replace("\\", "/")
-        rel_encoded = urllib.parse.quote(rel_forward, safe="/:")
+        abs_note = (Path(vault_dir) / rel_forward).resolve().as_posix().lstrip("/")
+        rel_encoded = "file:///" + urllib.parse.quote(abs_note, safe="/:")
         title_links.append(f"[{p['title']}]({rel_encoded})")
-        auto_disps.append(p["_cached_auto_disp"] if "_cached_auto_disp" in p else enrich_project_auto_fields(p, vault_dir=VAULT_DIR))
+        auto_disps.append(p["_cached_auto_disp"] if "_cached_auto_disp" in p else enrich_project_auto_fields(p, vault_dir=vault_dir))
 
     if verbose:
-        lines.append("| Rank | Title | Eff.Score | Base | Rot. | Dead.Urg | Milest.Urg | Malus(K) | Deadline | Milestone | Reviews |")
-        lines.append("| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
-        for idx, (p, title_link) in enumerate(zip(projects, title_links), 1):
+        lines.append("| Title | Eff.Score | Base | Rot. | Dead.Urg | Milest.Urg | Malus(K) | Deadline | Milestone | Reviews |")
+        lines.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
+        for p, title_link in zip(projects, title_links):
             rev_str = "NEW" if p["total_reviews"] == 0 else str(p["total_reviews"])
             eff_str = f"{p['effective_score']:.2f}" if p['effective_score'] is not None else "N/A"
             base_str = f"{p['base_score']:.1f}" if p['base_score'] is not None else "N/A"
@@ -4505,12 +4709,12 @@ def format_project_table(projects, verbose=False):
             if len(milestone_disp) > 13:
                 milestone_disp = milestone_disp[:11] + ".."
 
-            lines.append(f"| {idx} | {title_link} | {eff_str} | {base_str} | {rot_str} | {dead_urg_str} | {mile_urg_str} | {malus_str} | {deadline_disp} | {milestone_disp} | {rev_str} |")
+            lines.append(f"| {title_link} | {eff_str} | {base_str} | {rot_str} | {dead_urg_str} | {mile_urg_str} | {malus_str} | {deadline_disp} | {milestone_disp} | {rev_str} |")
     else:
-        # Affichage épuré par défaut : Rank, Title, Score, Auto, Deadline, Milestone
-        lines.append("| Rank | Title | Score | Auto | Deadline | Milestone |")
-        lines.append("| :---: | :--- | :---: | :---: | :---: | :---: |")
-        for idx, (p, title_link, auto_disp) in enumerate(zip(projects, title_links, auto_disps), 1):
+        # Affichage épuré par défaut : Title, Score, Diff, Deadline, Milestone
+        lines.append("| Title | Score | Diff | Deadline | Milestone |")
+        lines.append("| :--- | :---: | :---: | :---: | :---: |")
+        for p, title_link, auto_disp in zip(projects, title_links, auto_disps):
             arrow = p.get('trend_arrow')
             if not arrow and p.get('effective_score') is not None:
                 arrow = '➖'
@@ -4524,7 +4728,7 @@ def format_project_table(projects, verbose=False):
             if len(milestone_disp) > 15:
                 milestone_disp = milestone_disp[:13] + ".."
 
-            lines.append(f"| {idx} | {title_link} | {eff_str} | {auto_disp} | {deadline_disp} | {milestone_disp} |")
+            lines.append(f"| {title_link} | {eff_str} | {auto_disp} | {deadline_disp} | {milestone_disp} |")
 
     return "\n".join(lines)
 
@@ -4564,10 +4768,14 @@ def _fetch_claude_usage() -> dict:
     if str(claude_subagent_path.parent) not in sys.path:
         sys.path.insert(0, str(claude_subagent_path.parent))
     import claude_subagent
-    quota = claude_subagent.fetch_claude_quota()
-    if not quota:
-        raise RuntimeError("fetch_claude_quota returned None.")
-    return quota
+    try:
+        quota = claude_subagent.fetch_claude_quota()
+        if not quota:
+            return {"error": "empty_quota", "message": "fetch_claude_quota a renvoyé un résultat vide"}
+        return quota
+    except Exception as exc:
+        return {"error": "fetch_error", "message": str(exc)}
+
 
 
 def _format_quota_duration_short(sec: float) -> str:
@@ -4622,13 +4830,19 @@ def get_realtime_quota_indicators(force_refresh: bool = False) -> Tuple[List[str
     with ThreadPoolExecutor(max_workers=2) as executor:
         f_agy = executor.submit(_fetch_agy_usage)
         f_claude = executor.submit(_fetch_claude_usage)
-        agy_data = f_agy.result()
-        claude_data = f_claude.result()
+        try:
+            agy_data = f_agy.result()
+        except Exception as e_agy:
+            agy_data = {"error": "agy_error", "message": str(e_agy)}
+        try:
+            claude_data = f_claude.result()
+        except Exception as e_claude:
+            claude_data = {"error": "claude_error", "message": str(e_claude)}
 
     md_lines = ["> ⚡ **Indicateurs de Quotas (Cible : tout utiliser pile en fin de semaine)** :"]
     cli_lines = ["⚡ Indicateurs de Quotas (Cible : tout utiliser pile en fin de semaine) :"]
 
-    if agy_data:
+    if agy_data and not agy_data.get("error"):
         groups = agy_data.get("command", {}).get("data", {}).get("groups", [])
         gemini_group = next((g for g in groups if g.get("name") == "Gemini Models"), None)
         claude_group = next((g for g in groups if g.get("name") == "Claude and GPT models"), None)
@@ -4688,42 +4902,65 @@ def get_realtime_quota_indicators(force_refresh: bool = False) -> Tuple[List[str
             )
 
     if claude_data:
-        fh = claude_data.get("five_hour", {})
-        sd = claude_data.get("seven_day", {})
+        if claude_data.get("error"):
+            err_msg = claude_data.get("message", "erreur inconnue")
+            md_lines.append(f"> - **Claude Code (Opus)** : ⚠️ **Indicateur indisponible** (*{err_msg}*)")
+            cli_lines.append(f"- Claude Code (Opus) : ⚠️ Indicateur indisponible ({err_msg})")
+        else:
+            fh = claude_data.get("five_hour", {})
+            sd = claude_data.get("seven_day", {})
 
-        used_5h = float(fh.get("utilization", 0.0))
-        used_7d = float(sd.get("utilization", 0.0))
-        rem_7d = 100.0 - used_7d
-        rem_5h = 100.0 - used_5h
+            used_5h = float(fh.get("utilization", 0.0))
+            used_7d = float(sd.get("utilization", 0.0))
+            rem_7d = 100.0 - used_7d
+            rem_5h = 100.0 - used_5h
 
-        rst_7d_str = sd.get("resets_at")
-        rst_7d_dt = datetime.fromisoformat(rst_7d_str.replace("Z", "+00:00")) if rst_7d_str else None
-        rem_7d_sec = max(0.0, (rst_7d_dt - now).total_seconds()) if rst_7d_dt else 0.0
+            rst_7d_str = sd.get("resets_at")
+            rst_7d_dt = datetime.fromisoformat(rst_7d_str.replace("Z", "+00:00")) if rst_7d_str else None
+            rem_7d_sec = max(0.0, (rst_7d_dt - now).total_seconds()) if rst_7d_dt else 0.0
 
-        rst_5h_str = fh.get("resets_at")
-        rst_5h_dt = datetime.fromisoformat(rst_5h_str.replace("Z", "+00:00")) if rst_5h_str else None
-        rem_5h_sec = max(0.0, (rst_5h_dt - now).total_seconds()) if rst_5h_dt else 0.0
+            rst_5h_str = fh.get("resets_at")
+            rst_5h_dt = datetime.fromisoformat(rst_5h_str.replace("Z", "+00:00")) if rst_5h_str else None
+            rem_5h_sec = max(0.0, (rst_5h_dt - now).total_seconds()) if rst_5h_dt else 0.0
 
-        target_used, delta, v_md, v_cli = _eval_quota_bucket(used_5h, used_7d, rem_7d_sec / 3600.0)
-        s_7d = "s" if round(used_7d) > 1 else ""
-        s_5h = "s" if round(used_5h) > 1 else ""
+            target_used, delta, v_md, v_cli = _eval_quota_bucket(used_5h, used_7d, rem_7d_sec / 3600.0)
+            s_7d = "s" if round(used_7d) > 1 else ""
+            s_5h = "s" if round(used_5h) > 1 else ""
 
-        cc_5h_rst_md = f" (reset `{_format_quota_duration_short(rem_5h_sec)}`)" if (used_5h > 0 and rst_5h_dt) else ""
-        cc_5h_rst_cli = f" (reset {_format_quota_duration_short(rem_5h_sec)})" if (used_5h > 0 and rst_5h_dt) else ""
+            cc_5h_rst_md = f" (reset `{_format_quota_duration_short(rem_5h_sec)}`)" if (used_5h > 0 and rst_5h_dt) else ""
+            cc_5h_rst_cli = f" (reset {_format_quota_duration_short(rem_5h_sec)})" if (used_5h > 0 and rst_5h_dt) else ""
 
-        rst_7d_label_md = f", reset `{_format_quota_date_fr(rst_7d_str)}`" if rst_7d_str else ""
-        rst_7d_label_cli = f", reset {_format_quota_date_fr(rst_7d_str)}" if rst_7d_str else ""
+            rst_7d_label_md = f", reset `{_format_quota_date_fr(rst_7d_str)}`" if rst_7d_str else ""
+            rst_7d_label_cli = f", reset {_format_quota_date_fr(rst_7d_str)}" if rst_7d_str else ""
 
-        md_lines.append(
-            f"> - **Claude Code (Opus)** : {v_md} — 7j : **{used_7d:.0f}% utilisé{s_7d}** (`{rem_7d:.0f}%` restants vs cible `{target_used:.0f}%` utilisés{rst_7d_label_md}) · 5h : **{used_5h:.0f}% utilisé{s_5h}**{cc_5h_rst_md}"
-        )
-        cli_lines.append(
-            f"- Claude Code (Opus) : {v_cli} — 7j : {used_7d:.0f}% utilisé{s_7d} ({rem_7d:.0f}% restants vs cible {target_used:.0f}% utilisés{rst_7d_label_cli}) · 5h : {used_5h:.0f}% utilisé{s_5h}{cc_5h_rst_cli}"
-        )
+            md_lines.append(
+                f"> - **Claude Code (Opus)** : {v_md} — 7j : **{used_7d:.0f}% utilisé{s_7d}** (`{rem_7d:.0f}%` restants vs cible `{target_used:.0f}%` utilisés{rst_7d_label_md}) · 5h : **{used_5h:.0f}% utilisé{s_5h}**{cc_5h_rst_md}"
+            )
+            cli_lines.append(
+                f"- Claude Code (Opus) : {v_cli} — 7j : {used_7d:.0f}% utilisé{s_7d} ({rem_7d:.0f}% restants vs cible {target_used:.0f}% utilisés{rst_7d_label_cli}) · 5h : {used_5h:.0f}% utilisé{s_5h}{cc_5h_rst_cli}"
+            )
 
     _RUNTIME_QUOTA_CACHE = (md_lines, cli_lines)
     _RUNTIME_QUOTA_TIME = time.time()
     return _RUNTIME_QUOTA_CACHE
+
+
+def sync_project_diff_paths_for_current_host(vault_dir: str = VAULT_DIR) -> int:
+    """
+    Scanne tous les fichiers _agents/project_diffs/🤖 *.md et réécrit les chemins
+    pour le host courant (Users/Jamet <-> Users/hjamet) via _rewrite_paths_for_current_pc.
+    """
+    diff_dir = Path(vault_dir) / "_agents" / "project_diffs"
+    if not diff_dir.is_dir():
+        return 0
+    updated = 0
+    for diff_file in diff_dir.glob("🤖 *.md"):
+        raw = diff_file.read_text(encoding="utf-8", errors="replace")
+        rewritten = _rewrite_paths_for_current_pc(raw)
+        if rewritten != raw:
+            diff_file.write_text(rewritten, encoding="utf-8")
+            updated += 1
+    return updated
 
 
 def write_root_dashboard(vault_dir=VAULT_DIR, data=None, projects=None, show_progress: bool = False, quiet: Optional[bool] = None) -> str:
@@ -4735,14 +4972,13 @@ def write_root_dashboard(vault_dir=VAULT_DIR, data=None, projects=None, show_pro
         show_progress = not quiet
 
     t_start = time.time()
+    sync_project_diff_paths_for_current_host(vault_dir=vault_dir)
+
     if data is None:
         data = load_data(os.path.join(vault_dir, ".obsidian", "plugins", "project-memory", "data.json"))
 
     if projects is None:
         projects = scan_projects(vault_dir, data, fast_mode=True, persist=False, is_agent=False)
-
-    # Préchargement unique du cache AIVC pour éviter les lectures O(N) disque
-    _get_aivc_memories()
 
     total_projs = len(projects)
     bar_width = 24
@@ -4770,42 +5006,26 @@ def write_root_dashboard(vault_dir=VAULT_DIR, data=None, projects=None, show_pro
             filled = int(bar_width * idx / total_projs)
             disp_title = (p_title[:24] + "...") if len(p_title) > 27 else p_title
             bar = "█" * filled + "░" * (bar_width - filled)
-            sys.stdout.write(f"\r⏳ [{bar}] {idx}/{total_projs} ({pct}%) | Sync: {disp_title:<27}")
+            sys.stdout.write(f"\r⏳ [{bar}] {idx}/{total_projs} ({pct}%) | Diff: {disp_title:<27}")
             sys.stdout.flush()
 
-    # Synchroniser également tous les projets ayant des mémoires AIVC mais non indexés dans scan_projects
-    known_rel_paths = {p.get("rel_path") for p in projects if p.get("rel_path")}
-    for _ts, mem in _get_aivc_memories():
-        if not mem.get("user_items"):
-            continue
-        cand_notes = _extract_project_notes_from_mem(mem)
-        for tn in cand_notes:
-            tn_expanded = os.path.expanduser(tn)
-            if os.path.isabs(tn_expanded):
-                try:
-                    rel_p = os.path.relpath(tn_expanded, vault_dir).replace("\\", "/")
-                except ValueError:
-                    rel_p = os.path.basename(tn_expanded)
-            else:
-                rel_p = tn.replace("\\", "/")
-                if rel_p.startswith("Documents/VoiceNotes/"):
-                    rel_p = rel_p[len("Documents/VoiceNotes/"):]
-                elif rel_p.startswith("~/Documents/VoiceNotes/"):
-                    rel_p = rel_p[len("~/Documents/VoiceNotes/"):]
-            if rel_p not in known_rel_paths:
-                known_rel_paths.add(rel_p)
-                p_title = Path(rel_p).stem.lstrip("🤖").strip()
-                _sync_and_render_aivc_tldr(
-                    vault_root=vault_dir,
-                    rel_path=rel_p,
-                    title=p_title
-                )
+    # Nettoyage TTL 14 jours des brouillons temporaires expirés
+    try:
+        cas_eng = _get_cas_engine(vault_dir)
+        active_project_targets = {
+            str(Path(vault_dir) / p["rel_path"])
+            for p in projects
+            if p.get("rel_path")
+        }
+        cas_eng.prune_stale_targets(max_age_days=14, protected_targets=active_project_targets)
+    except Exception:
+        pass
 
     if show_progress and total_projs > 0:
         bar_full = "█" * bar_width
         if projects_with_await:
             compact_items = ", ".join(f"{item['title']} (🤖 {item['n_await']})" for item in projects_with_await)
-            sys.stdout.write(f"\r📊 [{bar_full}] 100% — {len(projects_with_await)} projet(s) avec livrables prêts : {compact_items}\n")
+            sys.stdout.write(f"\r📊 [{bar_full}] 100% — {len(projects_with_await)} projet(s) avec modifications en attente : {compact_items}\n")
         else:
             sys.stdout.write(f"\r📊 [{bar_full}] 100% — Synchronisation terminée{' ' * 30}\n")
         sys.stdout.flush()
@@ -4833,11 +5053,11 @@ def write_root_dashboard(vault_dir=VAULT_DIR, data=None, projects=None, show_pro
     if unreviewed:
         lines.append("## 🆕 Projets non révisés")
         lines.append("")
-        lines.append(format_project_table(unreviewed, verbose=False))
+        lines.append(format_project_table(unreviewed, verbose=False, vault_dir=vault_dir))
         lines.append("")
 
     if reviewed:
-        lines.append(format_project_table(reviewed, verbose=False))
+        lines.append(format_project_table(reviewed, verbose=False, vault_dir=vault_dir))
         lines.append("")
 
     dashboard_file = os.path.join(vault_dir, DASHBOARD_FILENAME)
@@ -6541,6 +6761,19 @@ def cmd_feedback(args, data):
         max_step_index=transcript_max_step
     )
 
+    keep_diff = getattr(args, "keep_diff", False)
+    if not is_agent and not keep_diff:
+        rel_path, abs_path = find_project_file(VAULT_DIR, args.project_path, data)
+        if abs_path and os.path.isfile(abs_path):
+            mn_path = Path(abs_path)
+            new_diff = _seal_henri_baseline_and_update_diff(
+                mn_path,
+                vault_dir=VAULT_DIR,
+                message=f"Validation Henri ({action})"
+            )
+            clean_stem = re.sub(r'^(?:🤖\s*)+', '', mn_path.stem).strip()
+            print(f"🔒 Baseline author='henri' scellée pour '{mn_path.stem}' -> Diff réinitialisé à {new_diff} dans _agents/project_diffs/🤖 {clean_stem}.md")
+
 
 def cmd_set_score(args, data):
     worked = bool(getattr(args, "worked", False))
@@ -7775,7 +8008,7 @@ def main():
     list_parser.add_argument("--fast", action="store_true", help="Fast mode using existing cache without filesystem scan")
     list_parser.add_argument("--clean-orphans", action="store_true", help="Nettoie d'abord les notes orphelines de data.json avant de lister")
     list_parser.add_argument("--no-persist", action="store_true", help="Ne persiste pas les scores effectifs calculés dans data.json")
-    list_parser.add_argument("--verbose", "-v", "--debug", action="store_true", help="Affichage détaillé avec toutes les composantes de calcul (11 colonnes)")
+    list_parser.add_argument("--verbose", "-v", "--debug", action="store_true", help="Affichage détaillé avec toutes les composantes de calcul (10 colonnes)")
     list_parser.add_argument("--agent", action="store_true", help="Bascule en mode agent autonome (classement, scores et historique propres à l'agent)")
 
     # clean-orphans
@@ -7805,6 +8038,7 @@ def main():
     )
     fb_parser.add_argument("--duration", "-d", type=float, default=None, help="Durée explicite de la session en minutes (par défaut: transcript en mode humain, pomodoroDuration en mode --agent)")
     fb_parser.add_argument("--agent", action="store_true", help="Bascule en mode agent autonome (classement, scores et historique propres à l'agent)")
+    fb_parser.add_argument("--keep-diff", action="store_true", help="Préserve le diff de projet actuel sans sceller automatiquement la baseline author='henri'")
 
     # complete-task
     comp_parser = subparsers.add_parser("complete-task", help="Check off a task in a project note")
