@@ -4858,20 +4858,15 @@ def get_realtime_quota_indicators(force_refresh: bool = False) -> Tuple[List[str
 
             rst_7d_dt = datetime.fromisoformat(b_gem_w["reset_time"].replace("Z", "+00:00"))
             rem_7d_sec = max(0.0, (rst_7d_dt - now).total_seconds())
-            rst_5h_dt = datetime.fromisoformat(b_gem_5["reset_time"].replace("Z", "+00:00"))
-            rem_5h_sec = max(0.0, (rst_5h_dt - now).total_seconds())
 
             target_used, delta, v_md, v_cli = _eval_quota_bucket(used_5h, used_7d, rem_7d_sec / 3600.0)
-            s_7d = "s" if round(used_7d) > 1 else ""
-
-            gem_5h_rst_md = f" (reset `{_format_quota_duration_short(rem_5h_sec)}`)" if rem_5h < 99.9 else ""
-            gem_5h_rst_cli = f" (reset {_format_quota_duration_short(rem_5h_sec)})" if rem_5h < 99.9 else ""
+            target_rem = 100.0 - target_used
 
             md_lines.append(
-                f"> - **Antigravity Gemini** : {v_md} — 7j : **{rem_7d:.0f}% restants** (`{used_7d:.0f}%` utilisé{s_7d} vs cible `{target_used:.0f}%`, reset `{_format_quota_duration_short(rem_7d_sec)}`) · 5h : **{rem_5h:.0f}% restants**{gem_5h_rst_md}"
+                f"> - **Antigravity Gemini** : {v_md} — {rem_7d:.0f}%/{target_rem:.0f}%"
             )
             cli_lines.append(
-                f"- Antigravity Gemini : {v_cli} — 7j : {rem_7d:.0f}% restants ({used_7d:.0f}% utilisé{s_7d} vs cible {target_used:.0f}%, reset {_format_quota_duration_short(rem_7d_sec)}) · 5h : {rem_5h:.0f}% restants{gem_5h_rst_cli}"
+                f"- Antigravity Gemini : {v_cli} — {rem_7d:.0f}%/{target_rem:.0f}%"
             )
 
         if claude_group:
@@ -4885,20 +4880,15 @@ def get_realtime_quota_indicators(force_refresh: bool = False) -> Tuple[List[str
 
             rst_7d_dt = datetime.fromisoformat(b_cl_w["reset_time"].replace("Z", "+00:00"))
             rem_7d_sec = max(0.0, (rst_7d_dt - now).total_seconds())
-            rst_5h_dt = datetime.fromisoformat(b_cl_5["reset_time"].replace("Z", "+00:00"))
-            rem_5h_sec = max(0.0, (rst_5h_dt - now).total_seconds())
 
             target_used, delta, v_md, v_cli = _eval_quota_bucket(used_5h, used_7d, rem_7d_sec / 3600.0)
-            s_7d = "s" if round(used_7d) > 1 else ""
-
-            cl_5h_rst_md = f" (reset `{_format_quota_duration_short(rem_5h_sec)}`)" if rem_5h < 99.9 else ""
-            cl_5h_rst_cli = f" (reset {_format_quota_duration_short(rem_5h_sec)})" if rem_5h < 99.9 else ""
+            target_rem = 100.0 - target_used
 
             md_lines.append(
-                f"> - **Antigravity Claude** : {v_md} — 7j : **{rem_7d:.0f}% restants** (`{used_7d:.0f}%` utilisé{s_7d}, reset `{_format_quota_duration_short(rem_7d_sec)}`) · 5h : **{rem_5h:.0f}% restants**{cl_5h_rst_md}"
+                f"> - **Antigravity Claude** : {v_md} — {rem_7d:.0f}%/{target_rem:.0f}%"
             )
             cli_lines.append(
-                f"- Antigravity Claude : {v_cli} — 7j : {rem_7d:.0f}% restants ({used_7d:.0f}% utilisé{s_7d}, reset {_format_quota_duration_short(rem_7d_sec)}) · 5h : {rem_5h:.0f}% restants{cl_5h_rst_cli}"
+                f"- Antigravity Claude : {v_cli} — {rem_7d:.0f}%/{target_rem:.0f}%"
             )
 
     if claude_data:
@@ -4919,25 +4909,14 @@ def get_realtime_quota_indicators(force_refresh: bool = False) -> Tuple[List[str
             rst_7d_dt = datetime.fromisoformat(rst_7d_str.replace("Z", "+00:00")) if rst_7d_str else None
             rem_7d_sec = max(0.0, (rst_7d_dt - now).total_seconds()) if rst_7d_dt else 0.0
 
-            rst_5h_str = fh.get("resets_at")
-            rst_5h_dt = datetime.fromisoformat(rst_5h_str.replace("Z", "+00:00")) if rst_5h_str else None
-            rem_5h_sec = max(0.0, (rst_5h_dt - now).total_seconds()) if rst_5h_dt else 0.0
-
             target_used, delta, v_md, v_cli = _eval_quota_bucket(used_5h, used_7d, rem_7d_sec / 3600.0)
-            s_7d = "s" if round(used_7d) > 1 else ""
-            s_5h = "s" if round(used_5h) > 1 else ""
-
-            cc_5h_rst_md = f" (reset `{_format_quota_duration_short(rem_5h_sec)}`)" if (used_5h > 0 and rst_5h_dt) else ""
-            cc_5h_rst_cli = f" (reset {_format_quota_duration_short(rem_5h_sec)})" if (used_5h > 0 and rst_5h_dt) else ""
-
-            rst_7d_label_md = f", reset `{_format_quota_date_fr(rst_7d_str)}`" if rst_7d_str else ""
-            rst_7d_label_cli = f", reset {_format_quota_date_fr(rst_7d_str)}" if rst_7d_str else ""
+            target_rem = 100.0 - target_used
 
             md_lines.append(
-                f"> - **Claude Code (Opus)** : {v_md} — 7j : **{used_7d:.0f}% utilisé{s_7d}** (`{rem_7d:.0f}%` restants vs cible `{target_used:.0f}%` utilisés{rst_7d_label_md}) · 5h : **{used_5h:.0f}% utilisé{s_5h}**{cc_5h_rst_md}"
+                f"> - **Claude Code (Opus)** : {v_md} — {rem_7d:.0f}%/{target_rem:.0f}%"
             )
             cli_lines.append(
-                f"- Claude Code (Opus) : {v_cli} — 7j : {used_7d:.0f}% utilisé{s_7d} ({rem_7d:.0f}% restants vs cible {target_used:.0f}% utilisés{rst_7d_label_cli}) · 5h : {used_5h:.0f}% utilisé{s_5h}{cc_5h_rst_cli}"
+                f"- Claude Code (Opus) : {v_cli} — {rem_7d:.0f}%/{target_rem:.0f}%"
             )
 
     _RUNTIME_QUOTA_CACHE = (md_lines, cli_lines)
