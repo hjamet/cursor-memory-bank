@@ -26,7 +26,7 @@ flowchart TD
     
     B3 --> B4{"🧐 Stabilité Validée ?\n(Premier Batch, Checkpoint)"}
     B4 -- "💥 Instabilité / Crash" --> K
-    B4 -- "✅ Démarrage Validé" --> C["📢 Déclencheur 1 : Démarrage Certifié (Notification Superviseur)"]
+    B4 -- "✅ Démarrage Validé" --> C["📢 Déclencheur 1 : Démarrage Certifié (Notification Chat)"]
     
     C --> D["⏱️ Bascule Palier 2 : Armement Cron 10 min (schedule)"]
     D --> E["😴 Attente Passive (Notification Push)"]
@@ -45,7 +45,7 @@ flowchart TD
     
     H2 -- "🚨 Crash / Dérive Métriques" --> K
     K --> L["🔄 Relance Propre / Reprise Checkpoint"]
-    L --> M["📢 Déclencheur 2 : Alerte Majeure & Relance (Notification Superviseur)"]
+    L --> M["📢 Déclencheur 2 : Alerte Majeure & Relance (Notification Chat)"]
     M --> D
     
     H2 -- "🏁 Processus Terminé (Exit 0)" --> N["🔬 Contrôle Médico-Légal des Sorties"]
@@ -84,7 +84,7 @@ Le démarrage d'un script ou d'un pipeline est la phase la plus vulnérable aux 
 2. **Étape 2 (T+90s - Confirmation Warm-up)** :
    - Si T+30s est nominal, armer un second timer court via `schedule(DurationSeconds=60, TimerCondition="<task-id>", Prompt="Check Fail-Fast T+90s : stabilité du warm-up, premier batch, chargement checkpoints")`.
    - **Objectif** : Valider que la phase de warm-up est franchie, que les données se chargent correctement et que les premières itérations de calcul s'exécutent de façon stable.
-3. **Certification Initiale** : La validation conjointe de T+30s et T+90s est la condition sine qua non pour déclencher la notification **Déclencheur 1 (Démarrage Certifié)** vers le superviseur.
+3. **Certification Initiale** : La validation conjointe de T+30s et T+90s est la condition sine qua non pour déclencher la notification **Déclencheur 1 (Démarrage Certifié)** dans le chat.
 
 #### 🚢 Comment Fonctionne le Palier 2 en Régime de Croisière Silencieux (Cadencement 10 Minutes) ?
 
@@ -200,12 +200,12 @@ La commande qui retourne un code de sortie `0` n'est pas synonyme d'expérience 
 
 > [!IMPORTANT]
 > **DOCTRINE DU SILENCE NOMINAL (ZERO-CHATTER) :**  
-> Lors des réveils cron de routine cadencés toutes les 10 minutes, **tant que la télémétrie est saine, que le débit de calcul est nominal et qu'aucun crash, dérive ou gel n'est constaté, le sous-agent de surveillance doit rester STRICTEMENT SILENCIEUX**.  
-> **Interdiction Formelle du Bavardage de Routine** : Ne JAMAIS envoyer de message intermédiaire de confort ou de statut verbeux (*« Tout va bien, époque 2 en cours... »*) à l'agent principal. Tout réveil push vers l'agent principal doit être rigoureusement justifié par un événement pivot.
+> Lors des réveils cron de routine cadencés toutes les 10 minutes, **tant que la télémétrie est saine, que le débit de calcul est nominal et qu'aucun crash, dérive ou gel n'est constaté, l'agent doit rester STRICTEMENT SILENCIEUX**.  
+> **Interdiction Formelle du Bavardage de Routine** : Ne JAMAIS émettre de message intermédiaire de confort ou de statut verbeux (*« Tout va bien, époque 2 en cours... »*). Toute notification intermédiaire doit être rigoureusement justifiée par un événement pivot.
 
-#### Quels Sont les 3 Déclencheurs Exclusifs d'Émission vers l'Agent Principal ?
+#### Quels Sont les 3 Déclencheurs Exclusifs de Restitution ?
 
-Le sous-agent de surveillance ne transmet des synthèses et notifications à l'agent principal **QUE sous l'un des trois déclencheurs stricts et exclusifs suivants** :
+L'agent n'émet des synthèses et notifications **QUE sous l'un des trois déclencheurs stricts et exclusifs suivants** :
 
 | # | Déclencheur Exclusif | Condition Déclenchante | Contenu Obligatoire de la Restitution | Invariant & Preuve Matérielle |
 |---|---|---|---|---|
@@ -217,7 +217,7 @@ Le sous-agent de surveillance ne transmet des synthèses et notifications à l'a
 
 ## 📋 Quel Est le Protocole Opérationnel Étape par Étape pour l'Agent ?
 
-| Phase | Rôle du Sous-Agent | Outils & Actions Concrètes | Restitution vers l'Agent Principal |
+| Phase | Rôle de l'Agent | Outils & Actions Concrètes | Restitution |
 |---|---|---|---|
 | **Phase 0 : Lancement & Palier 1 Fail-Fast** | Initier la commande et exécuter la validation précoce T+30s et T+90s. | Lancer via `run_command` en arrière-plan (`WaitMsBeforeAsync: 5000`). Armer `schedule` T+30s puis T+90s. Vérifier absence d'erreur d'amorce et premier batch. | **📢 Déclencheur 1 (Démarrage Certifié)** : Envoyer la preuve matérielle d'initialisation réussie dès la validation conjointe T+30s/T+90s. |
 | **Phase 1 : Bascule Palier 2 & Armement Vigie** | Programmer la surveillance récurrente toutes les 10 minutes. | Utiliser `schedule` avec `CronExpression: "*/10 * * * *"` et `Prompt` explicite d'audit de télémétrie. | *Silence radio (aucun message émis).* |
@@ -258,5 +258,5 @@ Le sous-agent de surveillance ne transmet des synthèses et notifications à l'a
 | **Insérer un `print` dans une boucle batch** | Ralentissement I/O majeur, saturation disque. | Log périodique uniquement aux bornes ou tous les $N$ batches ($N \ge 100$). |
 | **Modifier `.cluster-ci` pour passer en force** | Violation des contraintes d'infrastructure. | Sanctuarisation absolue du fichier de configuration cluster. |
 | **Ajouter un `try/except: pass` silencieux** | Corruption indétectable de l'expérimentation. | Règle Fail-Fast : traiter la cause racine exacte sans masquer l'exception. |
-| **Envoyer des messages de routine à chaque réveil cron (Chatter)** | Saturation de contexte du superviseur et réveils intempestifs. | Silence Nominal strict : émettre exclusivement sur les 3 déclencheurs certifiés. |
+| **Envoyer des messages de routine à chaque réveil cron (Chatter)** | Saturation du fil de discussion et bruit inutile. | Silence Nominal strict : émettre exclusivement sur les 3 déclencheurs certifiés. |
 | **Déclarer le succès dès l'exit code 0** | Livrables vides ou fichiers corrompus ignorés. | Contrôle médico-légal obligatoire des fichiers et des métriques avant validation. |

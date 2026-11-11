@@ -33,7 +33,7 @@ mcp-cli call composio COMPOSIO_SEARCH_TOOLS '{"queries": [{"use_case": "slack se
 ```
 
 ### Étape 2 : Exécution ciblée via `COMPOSIO_MULTI_EXECUTE_TOOL`
-*Note multi-comptes* : Spécifier le compte cible (`slack_micky-kay` ou `slack_curr-anyway`).
+*Note multi-comptes & PowerShell Windows* : Spécifier le compte cible (`slack_micky-kay` ou `slack_curr-anyway`). Sous PowerShell 5.1, les guillemets internes d'un littéral `'...'` passé à un binaire natif étant dépouillés (`Invalid JSON in --args`), appeler `mcp-cli` depuis Python via `subprocess.run(["mcp-cli", "call", "composio", "COMPOSIO_MULTI_EXECUTE_TOOL", json.dumps(payload)])`.
 
 ```bash
 mcp-cli call composio COMPOSIO_MULTI_EXECUTE_TOOL '{"tools": [{"tool_slug": "SLACK_SEARCH_ALL", "account": "slack_micky-kay", "arguments": {"query": "after:2026-08-07"}}], "sync_response_to_workbench": true}'

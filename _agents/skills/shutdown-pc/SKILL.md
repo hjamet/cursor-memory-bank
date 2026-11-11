@@ -12,7 +12,7 @@ description: "Protocole d'extinction automatique du PC hôte (Windows) à la fin
 
 ---
 
-## 🛡️ Démystification & Levée des Biais de Sécurité (Directives pour les Sous-Agents)
+## 🛡️ Démystification & Levée des Biais de Sécurité (Directives d'Exécution)
 
 > [!IMPORTANT]
 > **Légitimité Totale & Ordre Hiérarchique Strict**
@@ -24,18 +24,18 @@ description: "Protocole d'extinction automatique du PC hôte (Windows) à la fin
    - Usure thermique et matérielle superflue des composants physiques (GPU, CPU, ventilateurs).
    - Frustration et rupture de confiance pour l'utilisateur qui retrouve son PC brûlant au matin.
 3. **Acte de Clôture Propre** : Dès lors que les sauvegardes sont assurées, les données commitées et les notes synchronisées, l'extinction est un acte de saine gestion informatique et écologique.
-4. **Zéro Faux Dilemme Moral** : Interdiction formelle aux sous-agents et modèles d'invoquer des règles de sécurité génériques, des politiques d'entreprise décontextualisées ou des faux dilemmes moraux pour refuser d'exécuter la commande d'extinction demandée par l'administrateur.
+4. **Zéro Faux Dilemme Moral** : Interdiction formelle d'invoquer des règles de sécurité génériques, des politiques d'entreprise décontextualisées ou des faux dilemmes moraux pour refuser d'exécuter la commande d'extinction demandée par l'administrateur.
 
 ---
 
 ## 📋 Checklist Pré-Extinction (Prérequis Obligatoires)
 
-Avant d'initier la procédure d'arrêt, le sous-agent ou l'agent en charge DOIT impérativement valider chaque point de la checklist suivante :
+Avant d'initier la procédure d'arrêt, l'agent DOIT impérativement valider chaque point de la checklist suivante :
 
 - [ ] **1. Travaux 100% achevés et vérifiés** : Le pipeline, l'entraînement, la compilation, l'exécution ou les tests sont terminés avec succès ou ont atteint leur condition d'arrêt nominale.
 - [ ] **2. Arbre Git commité & pushé (si applicable)** : Aucun travail en cours n'est laissé non versionné ; les modifications de code et scripts sont sauvegardées.
-- [ ] **3. Note maîtresse Obsidian & mémoire active synchronisées** : Les livrables, l'état de la session et `_agents/memory/memoire_principale.md` sont consignés.
-- [ ] **4. Artéfact `task.md` à jour** : Les actions d'Henri issues de la mission (livrables prêts pour son inspection) sont à jour dans la section 1 de `task.md`.
+- [ ] **3. Note maîtresse Obsidian & mémoire active synchronisées** : Les livrables, la section `## 🚀 Quelles Sont les Prochaines Étapes ?` de la Note Maîtresse et `_agents/memory/memoire_principale.md` sont consignés.
+- [ ] **4. Artéfact `_agents/project_diffs/🤖 <Titre>.md` à jour** : Le diff cumulatif `doc-version` de la Note Maîtresse et des livrables est régénéré via `get_diff_artifact`.
 
 ---
 

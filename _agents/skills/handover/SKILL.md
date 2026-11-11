@@ -31,7 +31,7 @@ Ce skill formalise la procédure pour synthétiser fidèlement l'état exact d'u
 Le prompt de passation n'est pas un rapport administratif lourd ni une accumulation de preuves à charge. Il se conçoit comme **une passation directe entre deux ingénieurs pairs** :
 > *« Moi j'étais en train de faire ceci, voici notre perspective d'ensemble, voici le protocole qu'on suivait, voici où on en était, les anomalies qu'on a repérées, et voilà ce que tu dois prendre en charge pour continuer. »*
 
-- **Pas de redite des règles générales du coffre** : Le nouvel agent possède déjà ses règles système dans son prompt. Inutile de gaspiller du contexte à lui réciter les règles de sous-agents, de zero-trust ou de superviseur aveugle.
+- **Pas de redite des règles générales du coffre** : Le nouvel agent possède déjà ses règles système dans son prompt. Inutile de gaspiller du contexte à les lui réciter.
 - **Pas de preuves superflues a priori** : Le nouvel agent ira vérifier lui-même sur le terrain (fichiers, git, base de données).
 - **Concentration sur l'action, l'état réel et la vision** : Ce qui compte, c'est la clarté du but, l'explication des choix récents, les fichiers touchés et la suite logique du plan.
 
@@ -51,9 +51,9 @@ Le prompt produit doit comporter les sections suivantes :
 - Quelle est la boucle de travail ou la démarche suivie (ex: audit ➔ test ➔ remontée ➔ correctif ➔ re-test) ?
 - Les partis-pris ou directives spécifiques données par Henri pour cette mission.
 
-### 3. 🏗️ Opérations Récentes & Derniers Sous-Agents Déployés
+### 3. 🏗️ Opérations Récentes & État d'Avancement
 - Résumé chronologique des dernières opérations concrètes : qu'est-ce qui a été fait, tenté ou découvert ?
-- Rôle et bilan des derniers sous-agents lancés (qui a fait quoi, ce qui a fonctionné, ce qui a été interrompu ou laissé en suspens).
+- Ce qui a fonctionné, ce qui a été interrompu ou laissé en suspens.
 - État des lieux git et système :
   - Commits en production vs commits poussés non déployés vs worktrees actifs.
   - État des conteneurs, services ou environnements distants.
@@ -77,7 +77,7 @@ Le prompt produit doit comporter les sections suivantes :
 Lorsque l'utilisateur saisit `/handover` ou `/handhover` :
 
 1. **Relever l'état des lieux** :
-   - Lire `~/.gemini/antigravity/brain/advance_tldr/🤖 <Titre>.md` (décisions/livrables en attente d'Henri et roadmap AIVC) ainsi que la note maîtresse et les artefacts de session (chantiers techniques achevés, en cours et restants).
+   - Lire `_agents/project_diffs/🤖 <Titre>.md` (diff cumulatif `doc-version` depuis la dernière baseline validée par Henri) ainsi que la Note Maîtresse (dont `## 🚀 Quelles Sont les Prochaines Étapes ?`) et les artefacts de session.
    - Identifier les fichiers récents modifiés, les commits et les branches/worktrees.
 2. **Rédiger le prompt de passation** :
    - Structurer le texte selon les 6 sections canoniques ci-dessus, avec un ton franc, direct et sans verbiage superflu.

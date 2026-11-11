@@ -9,19 +9,8 @@ aliases:
 Ce skill documente l'utilisation complète de l'interface en ligne de commande `project_memory_cli.py` pour interagir avec le plugin Obsidian **Project Memory** du coffre Obsidian de Henri Jamet.
 
 > [!IMPORTANT]
-> ### ⚡ Dérogation Formelle d'Exécution CLI pour le Superviseur Racine ($P=0$)
-> Par dérogation formelle aux règles générales de `_agents/rules/superviseur-aveugle.md`, le Superviseur Racine ($P=0$) est exclusivement habilité à exécuter en direct via `run_command` les commandes CLI suivantes :
-> 1. `list` / `dashboard` (avec ses options `--top`, `--reviewed`, `--unreviewed`, `--json`)
-> 2. `status-work` (avec ou sans `--all` ou ciblage)
-> 3. `get "<Projet>"` (extraction des détails et métriques)
-> 4. `feedback "<Projet>" <action> [--transcript auto]` (enregistrement rétrospectif et bilan)
-> 5. `set-score "<Projet>" <score>` (calibrage direct de priorité)
-> 6. `stop-work` (interruption manuelle optionnelle)
-> 
 > **TABLEAU DE BORD ZÉRO-TOKEN (`🎯 Projets.md` & alias `pm`)** : À chaque exécution de `project_memory_cli.py` (ainsi que via la sous-commande `dashboard` ou l'alias PowerShell `pm`), le fichier `c:\Users\hjamet\Documents\VoiceNotes\🎯 Projets.md` est automatiquement régénéré à la racine du coffre avec l'intégralité des projets actifs triés par priorité utilisateur, la flèche d'évolution de la priorité de base (`🟢 ↑`, `🔴 ↓`, `➖` par rapport à sa dernière valeur), des **liens relatifs à la racine du coffre** vers les notes principales (cliquables dans Antigravity et Obsidian) et les liens 1-clic vers les artefacts `[🤖 N](file:///...)`. Lors de l'appel de `pm` (`dashboard`), une **barre de progression visuelle en direct** affiche les projets synchronisés et met en évidence ceux qui ont avancé (livrables prêts à revoir).
-> **AUCUNE OBLIGATION DE LANCER `work`** : Le Superviseur Racine ne lance plus de commande de fond bloquante ni d'alarme intrusive. Le travail s'effectue librement et la comptabilisation s'opère rétrospectivement exclusivement lorsque Henri invoque le skill `project-memory`.
-> **AUCUNE AUTRE COMMANDE N'EST AUTORISÉE** : aucune création de script scratch, aucun code inline python -c, aucun build, aucun test.
-> **Zéro sous-agent pour le triage /project-memory** : le Superviseur Racine exécute directement `status-work` et `list --top 10` pour afficher le tableau de bord en < 2s.
+> **AUCUNE OBLIGATION DE LANCER `work`** : Aucune commande de fond bloquante ni alarme intrusive n'est lancée pendant le travail. Le travail s'effectue librement et la comptabilisation s'opère rétrospectivement exclusivement lorsque Henri invoque le skill `project-memory`.
 
 ---
 
@@ -145,7 +134,7 @@ $$P_{\text{eff}} = \max\left(P_{\text{deadline}},\, P_{\text{milestone}}\right) 
      * Pour clore un projet terminé ou requalifier une note sans livrable lors de la veille : `feedback "<projet>" finished` ou `feedback "<projet>" non-projet`.
 
 10. **Ordre de Priorité & Évaluation Initiale Obligatoire** :
-   - Les **nouveaux projets non révisés** (`totalReviews == 0`) font l'objet d'une **évaluation initiale obligatoire** via le Protocole Dual-Track : exploration contextuelle (Obsidian, Spark) par sous-agents et attribution d'un score explicite de $1.0$ à $100.0$ avec `set-score`, jusqu'à ce qu'il reste 0 projet non révisé (`0 unreviewed`).
+   - Les **nouveaux projets non révisés** (`totalReviews == 0`) font l'objet d'une **évaluation initiale obligatoire** : exploration contextuelle (Obsidian, Spark) et attribution d'un score explicite de $1.0$ à $100.0$ avec `set-score`, jusqu'à ce qu'il reste 0 projet non révisé (`0 unreviewed`).
    - Les **projets déjà révisés** (`totalReviews > 0`) sont classés par `Effective Score` décroissant (`list --reviewed`).
 
 11. **Gestion des Échéances & Jalons (`deadline` & `milestone`) & Règle Fondamentale de Distinction** :
@@ -155,7 +144,7 @@ $$P_{\text{eff}} = \max\left(P_{\text{deadline}},\, P_{\text{milestone}}\right) 
      - Format ISO obligatoire : `YYYY-MM-DD` (ex: `deadline: 2026-10-18` ou `due: 2026-10-18`).
      - Sert de base mathématique de calcul pour l'urgence d'échéance $U_{\text{temporal}}$ via $P_{\text{deadline}}$ (avec régime de sprint à $J \le 7$).
    - **`milestone:` (Jalon Synchrone avec un Tiers)** :
-     - **Définition stricte** : Réservé **exclusivement aux rendez-vous synchrones avec des tiers** (réunion DLLP, comités, oraux, entretiens de supervision). Ne représente **JAMAIS** une étape d'avancement interne, un objectif de code ou de rédaction (qui relèvent de la feuille de route AIVC dans `advance_tldr/🤖 <Titre>.md`). Si aucune réunion synchrone n'est planifiée, le champ `milestone:` est **simplement absent du frontmatter** (ex: un renouvellement administratif ou un développement n'a qu'une `deadline:` dans le frontmatter et ses tâches dans AIVC, zéro `milestone:`).
+     - **Définition stricte** : Réservé **exclusivement aux rendez-vous synchrones avec des tiers** (réunion DLLP, comités, oraux, entretiens de supervision). Ne représente **JAMAIS** une étape d'avancement interne, un objectif de code ou de rédaction (qui relèvent de la section `## 🚀 Quelles Sont les Prochaines Étapes ?` de la Note Maîtresse). Si aucune réunion synchrone n'est planifiée, le champ `milestone:` est **simplement absent du frontmatter** (ex: un renouvellement administratif ou un développement n'a qu'une `deadline:` dans le frontmatter et ses prochaines étapes dans la Note Maîtresse, zéro `milestone:`).
      - **Formats supportés** :
        * *Date fixe* : `milestone: 2026-08-28` ou `milestone: "2026-08-28"` (réunion ponctuelle, oral).
        * *Jour récurrent* : `milestone: "mercredi"` ou `milestone: "lundi"` (synchronisation hebdomadaire régulière).
@@ -223,11 +212,10 @@ Affiche la liste des projets actifs classés par priorité/urgence dynamique.
 python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_memory_cli.py" list [--top N | -n N] [--unreviewed] [--reviewed] [--clean-orphans] [--json]
 ```
 
-#### Quelles Sont les Colonnes du Tableau CLI ?
-- `Rank` : Rang du projet dans l'ordre de priorité.
-- `Title` : Titre du projet / nom de la note Obsidian (largeur dynamique sans troncature agressive).
-- `Eff.Score` : Score effectif $S_{\text{eff}}$ calculé en temps réel (borné strictement dans $[1.0, 100.0]$).
-- `Auto` : Badge cliquable `[🤖 N](file:///C:/Users/.../AppData/Local/Temp/aivc/advance_tldr/🤖 <Titre>.md)` ouvrant en 1 clic la vue TL;DR autonome `/advance` du projet (générée à `0 token` hors du coffre Obsidian dans `<temp>/aivc/advance_tldr/` avec tous ses artefacts matérialisés dans `<temp>/aivc/artifacts/`) pour l'annoter directement dans Antigravity même hors conversation.
+#### Quelles Sont les Colonnes du Tableau CLI & de `🎯 Projets.md` ?
+- `Title` : Titre du projet / nom de la note Obsidian (largeur dynamique sans troncature agressive, lien relatif encodé).
+- `Eff.Score` / `Score` : Score effectif $S_{\text{eff}}$ calculé en temps réel (borné strictement dans $[1.0, 100.0]$).
+- `Diff` : Badge cliquable `[🤖 N](_agents/project_diffs/%F0%9F%A4%96%20<Titre>.md)` ouvrant en 1 clic l'artéfact de diff cumulé `doc-version` du projet (généré dans `VoiceNotes/_agents/project_diffs/` et synchronisé par Obsidian Sync, avec conversion automatique des `[[wikilinks]]` en liens cliquables Antigravity) comparant la Note Maîtresse actuelle à la dernière baseline validée par Henri (`author="henri"`).
 - `Base` : Score de base $S_{\text{base}}$ issu des feedbacks et évaluations.
 - `Rot.Bonus` : Bonus de rotation $B_{\text{rot}}$ asymptotique d'Achille et la Tortue ($\Delta B = \alpha \times (100 - S_{\text{rot}}) \times \text{ratio}$).
 - `Deadline Urg.` : Valeur ajoutée par l'urgence d'échéance $U_{\text{temporal}}$ (avec régime de sprint tactique à $J \le 7$).
@@ -255,7 +243,7 @@ python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_
 
 ### 2. Comment Extraire les Détails d'un Projet avec `get` ?
 
-Extrait l'ensemble des métriques d'un projet, le détail de ses sessions de travail récentes (`recentWorkDates`), ainsi que son historique de révisions. *(Le suivi des tâches et de la feuille de route vit dans AIVC et s'affiche dans `~/.gemini/antigravity/brain/advance_tldr/🤖 <Titre>.md`).*
+Extrait l'ensemble des métriques d'un projet, le détail de ses sessions de travail récentes (`recentWorkDates`), ainsi que son historique de révisions. *(Le suivi de la feuille de route vit dans la section `## 🚀 Quelles Sont les Prochaines Étapes ?` de la Note Maîtresse et son diff cumulatif dans `_agents/project_diffs/🤖 <Titre>.md`).*
 
 #### Quelle Est la Syntaxe ?
 ```bash
@@ -304,8 +292,8 @@ python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_
 L'option `--transcript [path_or_auto]` (avec `--transcript auto` par défaut recommandé) permet de calculer et consigner avec exactitude le temps de travail effectif sans aucun chronomètre de fond ni démon :
 1. **Auto-Détection du Transcript Antigravity** : Avec `--transcript auto`, le CLI localise automatiquement le journal de la conversation active (`<appDataDir>\brain\<conversation-id>\.system_generated\logs\transcript.jsonl`).
 2. **Comptage Strict des Messages Utilisateur Réels & Pondération par Flèches (`->` / `→`) et Commentaires d'Artéfacts (`Comment: "..."`)** : Le script filtre et comptabilise strictement les messages authentiques d'Henri (`USER_EXPLICIT` / saisies directes dans le chat). Pour chaque message utilisateur $m$, le script compte le nombre de flèches d'arguments $N_{\text{arrows}}(m)$ (`->` ou `→`) ainsi que le nombre de commentaires déposés directement sur des artéfacts $N_{\text{comments}}(m)$ (`Comment: "..."` avant `<USER_REQUEST>`), soit $N_{\text{args}}(m) = N_{\text{arrows}}(m) + N_{\text{comments}}(m)$, et crédite $\max(T_{\text{base}},\, 2 \times N_{\text{args}}(m))$ minutes de temps de travail effectif sans plafond (où $T_{\text{base}} = 6\text{ min}$ est le temps nominal d'un message simple et chaque flèche ou commentaire d'artéfact vaut **2 minutes** lorsque le total dépasse le temps habituel d'un message).
-3. **Ventilation Multi-Projets Déterministe par Tour Humain & Watermark Anti-Double-Comptage (`lastCreditedStepByConv`)** : Lors d'une conversation couvrant plusieurs projets, `--transcript auto` découpe le journal en tours humains (`USER_EXPLICIT`), identifie automatiquement les projets suivis touchés (via les briefs `Projet : <chemin>`, les appels AIVC `main_project_file` et les liens de notes maîtresses) et ventile équitablement la durée de chaque tour sur le projet ciblé (avec affichage transparent du temps extrait vs temps total de conversation). De plus, chaque appel de `feedback --transcript auto` enregistre dans `data.json` le dernier `step_index` comptabilisé pour le couple `(conversation_id, projet)` (`lastCreditedStepByConv[conv_id]`) : si `feedback` est rappelé plusieurs fois au cours d'une même conversation, seuls les nouveaux tours postérieurs au marque-page (`step_index > last_step`) sont crédités.
-4. **Immunité aux Commentaires d'Artéfacts & Bruits Système** : Les notifications d'outils, les validations internes de sous-agents et les messages générés par les artéfacts sont ignorés afin de garantir une métrique pure.
+3. **Ventilation Multi-Projets Déterministe par Tour Humain & Watermark Anti-Double-Comptage (`lastCreditedStepByConv`)** : Lors d'une conversation couvrant plusieurs projets, `--transcript auto` découpe le journal en tours humains (`USER_EXPLICIT`), identifie automatiquement les projets suivis touchés (via les appels AIVC `main_project_file` et les liens de notes maîtresses) et ventile équitablement la durée de chaque tour sur le projet ciblé (avec affichage transparent du temps extrait vs temps total de conversation). De plus, chaque appel de `feedback --transcript auto` enregistre dans `data.json` le dernier `step_index` comptabilisé pour le couple `(conversation_id, projet)` (`lastCreditedStepByConv[conv_id]`) : si `feedback` est rappelé plusieurs fois au cours d'une même conversation, seuls les nouveaux tours postérieurs au marque-page (`step_index > last_step`) sont crédités.
+4. **Immunité aux Commentaires d'Artéfacts & Bruits Système** : Les notifications d'outils et les messages générés par les artéfacts sont ignorés afin de garantir une métrique pure.
 5. **Enregistrement Proportionnel dans `recentWorkDates`** : La durée cumulée $T_{\text{elapsed}}$ est enregistrée dans `recentWorkDates` avec son ratio proportionnel ($r = T_{\text{elapsed}} / T_{\text{target}}$), appliquant le malus temporel $M_{\text{temporal}}(K)$ dégressif sur 6h pour prévenir l'effet tunnel.
 6. **Cumul dans les Statistiques Globales** : Le volume calculé est incrémenté dans `globalStats.totalPomodoroTime += T_elapsed`.
 
@@ -366,18 +354,15 @@ python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_
 
 ---
 
-### 5. Comment Gérer et Mettre à Jour les Tâches & la Roadmap d'un Projet via AIVC (`remember`) ?
+### 5. Comment Gérer et Mettre à Jour les Prochaines Étapes & le Diff d'un Projet via `doc-version` (`_agents/project_diffs/🤖 <Titre>.md`) ?
 
-Conformément à [`task-tracking.md`](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/rules/task-tracking.md), les notes du coffre Obsidian ne contiennent plus aucune case à cocher (`- [ ]` / `- [x]`) et la sous-commande legacy `complete-task` est obsolète. L'unique source de vérité pour les tâches, livrables prêts et feuilles de route d'un projet est **AIVC**, dont chaque appel `remember` régénère automatiquement l'artefact `~/.gemini/antigravity/brain/advance_tldr/🤖 <Titre>.md` (sans jamais l'éditer directement).
+Conformément à [`task-tracking.md`](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/rules/task-tracking.md), la sous-commande legacy `complete-task` est obsolète. L'unique source de vérité du projet est sa **Note Maîtresse** (`notes/<Titre>.md`), qui se termine par la section **`## 🚀 Quelles Sont les Prochaines Étapes ?`** (où chaque tâche est listée sous forme `- [ ]` jamais cochée, avec wikilinks Obsidian `[[...]]` vers les notes et diffs liés), associée à son unique artéfact de diff cumulatif **`_agents/project_diffs/🤖 <Titre>.md`** généré par `doc-version` (`get_diff_artifact`) et synchronisé entre PC par Obsidian Sync.
 
 > [!IMPORTANT]
-> **MONOPOLE DU SUPERVISEUR ($P=0$ ou `superviseur-projet` $P=1$) SUR AIVC, ENREGISTREMENT IMMÉDIAT, TOC, TRI CHRONOLOGIQUE & CYCLE DE VIE DES TÂCHES** :
-> - Seul le superviseur met à jour les tâches via `mcp-cli call aivc remember` en passant `main_project_file="notes/<Titre>.md"`, les artefacts de `<appDataDir>/brain/<id>/` dans `edited_files` (synchronisés sur Google Drive `AIVC_Sync/files/`), et `user_items` avec un `id` stable (**anti-doublon d'`id` obligatoire : toujours lire `advance_tldr/🤖 <Titre>.md` avant d'appeler `remember` et réutiliser l'`id` existant si la tâche s'y trouve déjà**) :
->   1. `task_status: "new"` : Prochaines étapes de la Roadmap (affichées en bas de `🤖 <Titre>.md`, **triées chronologiquement du plus ancien au plus récent de haut en bas**).
->   2. `task_status: "await_validation"` : Décisions et livrables prêts à valider par Henri (affichés en haut de `🤖 <Titre>.md` avec une **Table des Matières [TOC] synthétique en tête** et **triés chronologiquement du plus ancien au plus récent de haut en bas**). **Rédiger `content` en phrases courtes, simples et très lisibles (zéro phrase à rallonge à subordonnées multiples, zéro nom de fichier système/règle/script dans le texte), en intégrant uniquement 1 ou 2 liens Markdown à libellé naturel en français vers les livrables destinés à la lecture d'Henri (`[📄 Brouillon de réponse](file:///...)` pour un courriel `/draft`, ou `[📕 Manuscrit compilé](file:///...)` + `[📄 Diff des modifications](file:///...)` pour un document compilé, zéro `.tex` brut).**
->   3. `task_status: "validated"` : Tâches et décisions explicitement confirmées ou écartées par Henri en session interactive, avec `details` **obligatoirement préfixé par `[VALIDÉ PAR HENRI]` ou `[ÉCARTÉ PAR HENRI]`** (archivées dans `Live_Validated`).
-> - **Enregistrement immédiat au fil de l'eau (sans attendre `/project-memory`)** : dès qu'Henri mentionne une nouvelle tâche à faire (`new`), qu'un livrable est prêt (`await_validation`) ou qu'Henri valide/écarte un point (`validated`) dans un chat interactif, le Superviseur ($P=0$) appelle `remember` **immédiatement au tour en cours**.
-> - **Interdiction d'appeler `ask_question` de ressenti** lors d'une mise à jour de tâche en cours de session (l'interrogation de ressenti et la clôture via `feedback` ne se font QUE si Henri invoque expressément le skill `project-memory`).
+> **CYCLE DE VALIDATION `author="henri"` ➔ MODIFICATIONS `author="agent"` ➔ DIFF `_agents/project_diffs/🤖 <Titre>.md`** :
+> 1. **Baseline unique `author="henri"` (`_agents/doc_version_cas/`)** : Lorsqu'Henri valide l'état d'une note (en début de `/one-shot` avant traitement de ses commentaires, ou automatiquement lors d'un `feedback "<Projet>" <action>` humain sans `--agent`), `commit_document(..., author="henri")` scelle cette version comme nouvelle baseline de référence et purge automatiquement les anciens snapshots de cette cible (auto-compaction).
+> 2. **Diff cumulatif anti-perte (`author="henri"` $\to$ état actuel)** : À chaque modification de la Note Maîtresse (ou d'une sous-note / d'un brouillon `virtual:<Sujet>`), `get_diff_artifact` écrase sur place `_agents/project_diffs/🤖 <Nom>.md` en comparant **toujours** l'état actuel à la dernière baseline `author="henri"` (et convertit à la volée tous les `[[wikilinks]]` et `![[images]]` en liens Markdown cliquables dans Antigravity).
+> 3. **Interdiction d'appeler `ask_question` de ressenti** en cours de session (l'interrogation de ressenti et la clôture via `feedback` ne se font QUE si Henri invoque expressément le skill `project-memory`).
 
 ---
 
@@ -408,10 +393,9 @@ python "C:\Users\hjamet\Documents\VoiceNotes\_agents\scripts-for-skills\project_
 #### Quel Est le Protocole de Clôture & Workflow d'Interaction ?
 1. **Travail Fluide & Sans Démon** : Aucun démon `work` n'est lancé en arrière-plan pendant la session. Le travail se déroule sans contrainte ni réveil forcé.
 2. **Protocole de Clôture de Session (Sur Invocation Explicite de `project-memory` par Henri Uniquement)** :
-   1. **Synchronisation Ciblée de la Note Maîtresse, Sous-Notes & Portabilité Multi-Ordinateurs via AIVC (Zéro Perte hors `brain/`)** :
-      - **Enregistrement dans AIVC (`remember`) & Synchronisation Automatique de `advance_tldr/🤖 <Titre>.md`** : Seul le superviseur ($P=0$ ou `superviseur-projet` $P=1$) enregistre et met à jour les tâches et livrables dans AIVC via `remember` (en incluant la note maîtresse dans `read_files` et les artefacts de `brain/` dans `edited_files`, automatiquement synchronisés sur Google Drive `AIVC_Sync/files/`). Chaque appel `remember` régénère automatiquement `~/.gemini/antigravity/brain/advance_tldr/🤖 <Titre>.md` (interdiction absolue d'éditer ce fichier directement). Tout plan d'implémentation non exécuté est également archivé dans le coffre (`notes/Plan d'Implémentation [NomProjet].md`) ou dans `edited_files` d'AIVC. Vérifier que tout code modifié dans `~/Documents/code/` est commité et poussé (`git push`).
-      - **Note Maîtresse Pure (Zéro `- [ ]` / `- [x]`)** : La feuille de route et les tâches (`new`, `await_validation`, `validated`) vivent exclusivement dans AIVC et s'affichent dans `advance_tldr/🤖 <Titre>.md`. La note maîtresse Obsidian reste une note de synthèse documentaire pérenne, sans checklist `- [ ]` ni `- [x]`.
-      - **Garantie de Relais Sans Perte** : Lorsqu'Henri reprend le projet (même sur un autre ordinateur via la synchronisation AIVC sur Google Drive), `advance_tldr/🤖 <Titre>.md` expose immédiatement l'intégralité des livrables prêts à valider (`await_validation`), de la feuille de route (`new`) et de l'historique (`validated`) sans aucune perte de contexte ni de brouillon.
+   1. **Synchronisation Ciblée de la Note Maîtresse, Sous-Notes & Portabilité Multi-Ordinateurs via `doc-version` (`_agents/project_diffs/🤖 <Titre>.md`)** :
+      - **Mise à jour de la Note Maîtresse (`notes/<Titre>.md`) & Diff Cumulatif (`get_diff_artifact`)** : Mettre à jour la Note Maîtresse (et sa section narrative `## 🚀 Quelles Sont les Prochaines Étapes ?`, zéro `- [ ]` / `- [x]`) ainsi que les sous-notes éventuelles, puis régénérer `_agents/project_diffs/🤖 <Titre>.md` via `doc-version` (`get_diff_artifact`), synchronisé entre PC par Obsidian Sync. Vérifier que tout code modifié dans `~/Documents/code/` est commité et poussé (`git push`).
+      - **Garantie de Relais Sans Perte** : Lorsqu'Henri reprend le projet (même sur un autre ordinateur via Obsidian Sync), la Note Maîtresse et `_agents/project_diffs/🤖 <Titre>.md` exposent immédiatement l'intégralité des modifications et prochaines étapes sans aucune perte de contexte.
    2. **Recueil du Ressenti & Feedback Rétrospectif** :
       - *Si Henri a déjà précisé son ressenti* (ex: `/project-memory ok`, « je suis à l'aise ») : appliquer directement `feedback "<projet>" <action> --transcript auto` sans appeler `ask_question`.
       - *Si non précisé* : interroger obligatoirement Henri via `ask_question` avec les 4 options canoniques `["À l'aise", "OK", "Stressé", "Terminé"]` (suffixe ` (Recommandé)` selon la marge objective), puis exécuter `feedback "<projet>" <action> --transcript auto`.
@@ -554,8 +538,8 @@ Lorsque Henri invoque manuellement le skill ou la slash-command `/project-memory
 
 ### 1. Que Faire en Début de Conversation (Orientation & Choix de Focus) ?
 
-* **Protocole CLI Direct & Zéro-Latence (< 2s) [Exécution Directe Racine P=0]** :
-  Zéro sous-agent pour le triage /project-memory : le Superviseur Racine exécute directement :
+* **Protocole CLI Direct & Zéro-Latence (< 2s)** :
+  Exécuter directement :
   1. Vérifier le statut de session de travail active :
      ```bash
      python "_agents\scripts-for-skills\project_memory_cli.py" status-work --all
@@ -565,62 +549,60 @@ Lorsque Henri invoque manuellement le skill ou la slash-command `/project-memory
      python "_agents\scripts-for-skills\project_memory_cli.py" list --top 10
      ```
 * **Consommation Directe de la Sortie Standard (Tableau Markdown Rendu, ZÉRO Bloc de Code)** :
-  - Coller directement le **tableau Markdown GFM** généré par la commande `list` dans le message de chat **SANS JAMAIS l'entourer d'un bloc de code (````text` ou ````bash` strictement interdit)**, afin que tous les liens cliquables absolus `[Nom](file:///...)` vers les notes Obsidian et `[🤖 N](file:///...)` de la colonne `Auto` vers l'artefact `🤖 <Titre>.md` soient immédiatement rendus et cliquables dans le tableau.
+  - Coller directement le **tableau Markdown GFM** généré par la commande `list` dans le message de chat **SANS JAMAIS l'entourer d'un bloc de code (````text` ou ````bash` strictement interdit)**, afin que tous les liens cliquables absolus `[Nom](file:///...)` vers les notes Obsidian et `[🤖 N](file:///...)` de la colonne `Diff` vers l'artefact `_agents/project_diffs/🤖 <Titre>.md` soient immédiatement rendus et cliquables dans le tableau.
 * **Recommandations Stratégiques Motivées & Mise en Avant des Notes `🤖 <Titre>.md`** :
-  - Formuler une analyse concrète et tranchée sur le focus le plus pertinent d'après les échéances du tableau et l'état réel des échanges récents, en **mentionnant systématiquement les artefacts `[🤖 <Titre>](file:///...)` les plus intéressants et importants** pour chaque option recommandée (résumé des livrables/brouillons `[id]` déjà prêts dedans et des prochaines étapes de la Roadmap AIVC).
+  - Formuler une analyse concrète et tranchée sur le focus le plus pertinent d'après les échéances du tableau et l'état réel des échanges récents, en **mentionnant systématiquement les artefacts `[🤖 <Titre>](file:///...)` les plus intéressants et importants** pour chaque option recommandée (résumé des modifications non revues et des prochaines étapes de la Note Maîtresse).
 * **Échange Naturel dans le Chat** :
   - Laisser Henri arbitrer et réagir directement dans la conversation sur son choix de projet (l'outil modal `ask_question` est strictement réservé à la clôture de session lors de l'invocation explicite de `project-memory`).
 
 ### 2. Que Faire Lors de la Clôture de Session Demandée par Henri (Bilan & Clôture) ?
 *Ce protocole s'applique EXCLUSIVEMENT lorsque Henri invoque expressément le skill `project-memory` pour clore la session. L'agent ne doit jamais le déclencher de sa propre initiative.*
 * **Comptage du Transcript & Temps de Session** : Compter les messages utilisateur réels (`USER_EXPLICIT`) et le temps effectif du jour sur la conversation d'après le transcript via `feedback "<projet>" <action> --transcript auto` (pondéré par les flèches `->` / `→` et commentaires d'artéfacts).
-* **Sauvegarde Ciblée de la Roadmap, des Sous-Notes & Portabilité Multi-Ordinateurs** :
+* **Sauvegarde Ciblée de la Note Maîtresse, des Sous-Notes & Portabilité Multi-Ordinateurs** :
   * **Synchronisation Git Obligatoire de Tout Dépôt Lié (`git commit` & `git push`)** : Lorsqu'un ou plusieurs dépôts Git sont liés au projet (`repo_url`, `local_latex_path`, dépôt dans `~/Documents/code/`), vérifier systématiquement `git status` sur chaque dépôt lié et, si des modifications ou nouveaux fichiers ont été produits pendant la session (code, données, CSV d'annotations saisis par Henri, sources LaTeX ou rebuttal), faire exécuter `git add`, `git commit` et `git push` vers le remote distant (GitHub et/ou Overleaf) afin que 100 % des modifications soient synchronisées en ligne (*ex. réel 21/10/2026, DMKD Revision : nouvelles annotations de `annotations_henri.csv` saisies sur Streamlit et `Response_to_Reviewers.tex`/`.pdf` corrigés committés et poussés sur GitHub lors du `/project-memory ok`*).
-  * **Enregistrement AIVC (`remember`) & Synchronisation Automatique de `advance_tldr/🤖 <Titre>.md`** : Le superviseur ($P=0$) consigne dans AIVC via `remember` (avec la note maîtresse dans `read_files` et tous les livrables/brouillons de `<appDataDir>/brain/<id>/` dans `edited_files`) l'état exact des tâches (`await_validation` pour les livrables prêts, `new` pour les actions à venir, `validated` pour les tâches confirmées par Henri). Cet appel synchronise les fichiers sur Google Drive (`AIVC_Sync/files/`) et met automatiquement à jour `~/.gemini/antigravity/brain/advance_tldr/🤖 <Titre>.md` (sans jamais l'éditer directement).
-  * **Note maîtresse pure (zéro `- [ ]` / `- [x]`)** : Les chantiers techniques et plans non exécutés sont consignés dans `edited_files` d'AIVC et/ou sous forme de sous-notes liées (`notes/Plan d'Implémentation [NomProjet].md`). La feuille de route et les tâches vivent exclusivement dans AIVC et `advance_tldr/🤖 <Titre>.md`.
+  * **Mise à jour de la Note Maîtresse & Régénération de `_agents/project_diffs/🤖 <Titre>.md` (`doc-version`)** : Mettre à jour la Note Maîtresse (et sa section finale `## 🚀 Quelles Sont les Prochaines Étapes ?` en discours naturel fluide, 1 paragraphe par tâche, zéro `- [ ]` / `- [x]`) ainsi que les sous-notes liées, puis régénérer l'artéfact de diff cumulatif `_agents/project_diffs/🤖 <Titre>.md` via `doc-version` (`get_diff_artifact`) comparé à la baseline `author="henri"` (synchronisé entre les PC par Obsidian Sync).
 * **Vérification & Mise à Jour des Notes Obsidian (Mandatoire)** : Moment privilégié pour **auditer et synchroniser la note maîtresse et toutes les sous-notes liées du projet dans Obsidian**. Vérifier qu'elles reflètent fidèlement 100% des avancées, décisions prises, arbitrages, travaux effectués et nouveaux jalons de la session, conformément au format de `_agents/rules/coffre-obsidian.md` (**Zéro tableau, Question ➔ Courte explication d'interprétation en 1–2 phrases ➔ Source + Citation exacte en bloc**).
 * **Interrogation Interactive du Stress (`ask_question`) & Évolution du Score** :
   * Recueillir le ressenti d'Henri : si Henri a déjà précisé son ressenti dans sa demande (ex: `/project-memory ok`, `/project-memory a l'aise`), appliquer directement sans pop-up. Sinon, appeler obligatoirement `ask_question` avec les 4 options canoniques dans l'ordre strict `["À l'aise", "OK", "Stressé", "Terminé"]` (avec le suffixe ` (Recommandé)` apposé sur l'option conseillée selon la marge calendaire).
-  * Exécuter l'action CLI correspondante (`feedback "<projet>" <action> --transcript auto`) pour enregistrer le ressenti et comptabiliser le temps réel de session, et enregistrer un `remember` AIVC de la session de travail en passant la note maîtresse dans `read_files`, les artefacts `brain/` dans `edited_files`, et la mise à jour des `user_items` (`task_status: "validated"` pour les points confirmés ou écartés par Henri, `"await_validation"` pour les livrables prêts, `"new"` pour la Roadmap).
+  * Exécuter l'action CLI correspondante (`feedback "<projet>" <action> --transcript auto`) pour enregistrer le ressenti et comptabiliser le temps réel de session.
   * Indiquer factuellement le score de base $S_{\text{base}}$ et le score effectif $S_{\text{eff}}$ mis à jour.
   * Préciser le **malus temporel cumulatif** appliqué via `recentWorkDates` (valeur de $K$, nombre de sessions consécutives dans les 6h, pénalité en points).
 * **Clôture Définitive de Session (Zéro Relance & Zéro Suggestion Suivante)** : Clôturer définitivement la conversation après le feedback sans relancer de Pomodoro et sans suggérer de projets suivants.
 
 ### 3. Variante Asynchrone en Passe Unique (`/one-shot`)
-Lorsqu'Henri souhaite déposer tous ses commentaires et consignes en une seule passe puis quitter immédiatement la conversation pendant que l'agent exécute ses demandes, met à jour AIVC (`🤖 <Titre>.md`), actualise sobrement la note maîtresse Obsidian et clôture `project-memory` sans poser de question, appliquer [`_agents/skills/one-shot/SKILL.md`](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/skills/one-shot/SKILL.md).
+Lorsqu'Henri souhaite déposer tous ses commentaires et consignes en une seule passe puis quitter immédiatement la conversation pendant que l'agent scelle l'état validé (`author="henri"`), exécute ses demandes, actualise la Note Maîtresse Obsidian, régénère `_agents/project_diffs/🤖 <Titre>.md` via `doc-version` et clôture `project-memory` sans poser de question, appliquer [`_agents/skills/one-shot/SKILL.md`](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/skills/one-shot/SKILL.md).
 
 ---
 
 ## 💡 Quels Sont les Workflows Recommandés pour Antigravity ?
 
 0. **Affichage Système & Double Lien Vivant en Tête (`Note Obsidian` + `🤖 <Titre>.md`)** :
-   - Dès qu'une session de travail démarre sur un projet (ou qu'un projet est sélectionné), Antigravity **DOIT OBLIGATOIREMENT fournir au tout début de son message le lien Markdown cliquable absolu vers la note du projet dans le coffre Obsidian** (ex: `[Nom de la Note](file:///c:/Users/hjamet/Documents/VoiceNotes/notes/NomProjet.md)`).
-   - **Protocole de Reprise de Session (Nouvelle Conversation)** : En coordination avec l'éclaireur de Tour 0 de `_agents/rules/pomodoro-projets.md`, l'agent :
-     1. **Lecture de `advance_tldr/🤖 <Titre>.md` et de la note maîtresse** : Au Tour 0, le superviseur lit la note maîtresse et `advance_tldr/🤖 <Titre>.md` (généré automatiquement par AIVC), sans jamais créer ni utiliser de `task.md`.
-     2. **Souveraineté des tâches d'Henri & Monopole du Superviseur sur AIVC** : Seul le superviseur ($P=0$ ou `superviseur-projet` $P=1$) appelle `remember` dans AIVC (jamais un sous-agent feuille), n'édite jamais `🤖 <Titre>.md` directement, et ne passe une tâche en `validated` que sur confirmation explicite d'Henri (selon `_agents/rules/task-tracking.md`).
+   - Dès qu'une session de travail démarre sur un projet (ou qu'un projet est sélectionné), Antigravity **DOIT OBLIGATOIREMENT fournir au tout début de son message le double lien Markdown cliquable absolu vers la note du projet dans le coffre Obsidian et vers son diff `_agents/project_diffs/🤖 <Titre>.md`**.
+   - **Protocole de Reprise de Session (Nouvelle Conversation)** : En coordination avec `_agents/rules/pomodoro-projets.md`, l'agent :
+     1. **Lecture de `_agents/project_diffs/🤖 <Titre>.md` et de la Note Maîtresse** : Au Tour 0, lire la note maîtresse et `_agents/project_diffs/🤖 <Titre>.md` (généré par `doc-version`), sans jamais créer ni utiliser de `task.md`.
+     2. **Souveraineté de la baseline `author="henri"`** : Tant qu'Henri n'a pas revu un fichier, l'agent utilise `author="agent"` et ne modifie jamais `🤖 <Titre>.md` à la main autrement que via `doc-version` `get_diff_artifact` (selon `_agents/rules/task-tracking.md`).
      3. **Vérifie l'existence des sous-notes et artéfacts** : Vérifie sur disque si les plans et rapports listés existent et actualise leurs liens.
-   - **Objectif** : Permettre à Henri de retrouver instantanément dans Obsidian et son volet latéral ses actions à réaliser en parallèle, sans aucune déperdition d'une conversation à l'autre.
+   - **Objectif** : Permettre à Henri de retrouver instantanément dans Obsidian et son volet latéral ses modifications et prochaines étapes d'un PC à l'autre via Obsidian Sync.
 
-1. **Orientation & Protocole Dual-Track des Projets Urgents** :
+1. **Orientation & Qualification des Projets Urgents** :
    - **Piste Synchrone (Zéro-latence)** : Exécuter `list --reviewed --top 3` pour extraire et fournir immédiatement à Henri les Top 3 projets révisés sous forme de liens Markdown cliquables.
-   - **Piste Asynchrone (Sous-agents d'évaluation)** : En parallèle, lancer en arrière-plan un sous-agent d'évaluation (`research`) qui spawne un sous-agent par projet non révisé (`list --unreviewed`), explore 100% de son contexte (notes Obsidian, e-mails Spark), et attribue un score d'urgence initial (1-100) via `set-score "<nom>" <score>` jusqu'à ce qu'il reste 0 projet non révisé.
+   - **Qualification des Projets Non Révisés (`0 unreviewed`)** : Pour tout projet non révisé (`list --unreviewed`), explorer son contexte (notes Obsidian, e-mails Spark) et attribuer un score d'urgence initial (1-100) via `set-score "<nom>" <score>` jusqu'à ce qu'il reste 0 projet non révisé.
    - **Restitution Artefact** : Antigravity présente un tableau synthétique sous forme d'artefact listant l'ensemble des nouveaux projets évalués et leurs scores pour révision et validation.
 
-2. **Récupération Proactive du Contexte Global & Exploration par Sous-Agents** :
-   - Exécuter `get "<NomProjet>"` pour extraire les objectifs, la deadline (date limite dure), les jalons (`milestone` synchrone uniquement, sans faux jalons ni dates passées) et les sessions récentes (`recentWorkDates`), et lire `~/.gemini/antigravity/brain/advance_tldr/🤖 <Titre>.md` pour les livrables et la Roadmap AIVC.
+2. **Récupération Proactive du Contexte Global** :
+   - Exécuter `get "<NomProjet>"` pour extraire les objectifs, la deadline (date limite dure), les jalons (`milestone` synchrone uniquement, sans faux jalons ni dates passées) et les sessions récentes (`recentWorkDates`), et lire `_agents/project_diffs/🤖 <Titre>.md`.
    - **Exploration Périphérique Immédiate** : Antigravity ne se contente pas de lire la note maîtresse. Antigravity doit **récupérer tout le contexte environnant** (lire les sous-notes liées `[[Sous-Note.md]]`, rechercher les derniers e-mails pertinents dans Spark, et inspecter le dossier de code associé).
-   - **Délégation & Sous-Agents d'Exploration** : Si le projet est vaste ou comporte des dépendances multiples, Antigravity **doit spontanément lancer un ou plusieurs sous-agents d'exploration** (`eclaireur`) selon l'échelle de déterminisme de `sous-agents.md` pour fouiller la documentation, les échanges récents ou le codebase afin de posséder 100% du contexte dès le début du travail.
 
 3. **Session de Travail sans Démon & Bilan Rétrospectif** :
-   - **Travail Fluide & Sans Coupure** : Interdiction formelle de lancer des démons de fond (`work`). Le travail s'effectue librement. Au tout début, afficher immédiatement le double lien Markdown cliquable vers la note Obsidian et vers `advance_tldr/🤖 <Titre>.md`.
+   - **Travail Fluide & Sans Coupure** : Interdiction formelle de lancer des démons de fond (`work`). Le travail s'effectue librement. Au tout début, afficher immédiatement le double lien Markdown cliquable vers la note Obsidian et vers `_agents/project_diffs/🤖 <Titre>.md`.
    - **Protocole de Clôture de Session** : Déclenché EXCLUSIVEMENT sur invocation explicite par Henri du skill `project-memory` :
-     1. Consigner les tâches et livrables de la session dans AIVC via `remember` (ce qui synchronise `edited_files` sur Google Drive et met automatiquement à jour `advance_tldr/🤖 <Titre>.md`), et mettre à jour la synthèse documentaire de la note maîtresse Obsidian (zéro `- [ ]` / `- [x]`).
+     1. Mettre à jour la Note Maîtresse Obsidian (et sa section finale `## 🚀 Quelles Sont les Prochaines Étapes ?`, zéro `- [ ]` / `- [x]`) et régénérer `_agents/project_diffs/🤖 <Titre>.md` via `doc-version` (`get_diff_artifact`).
      2. Recueillir le ressenti d'Henri : si déjà précisé dans l'échange (ex: `/project-memory ok`, « je suis à l'aise »), appliquer directement. Sinon, interroger via `ask_question` avec les 4 options canoniques `["À l'aise", "OK", "Stressé", "Terminé"]` (avec recommandation calendaire).
      3. Appliquer le feedback et créditer automatiquement le temps réel de session via `feedback "<NomProjet>" <action> --transcript auto`.
      4. Clôturer définitivement la session et la conversation sans relancer de chronomètre et sans suggérer de projets suivants.
 
 4. **Accomplissement d'une Étape en Cours de Session (Zéro Interruption)** :
-   - Une fois une étape réalisée dans le projet, mettre à jour l'item correspondant dans AIVC via `remember` (`task_status: "await_validation"` ou `"validated"` si confirmé par Henri). Interdiction formelle d'appeler `ask_question` de ressenti (réservé à l'invocation de `project-memory` par Henri).
+   - Une fois une étape réalisée dans le projet, mettre à jour la Note Maîtresse et régénérer `_agents/project_diffs/🤖 <Titre>.md` via `doc-version` (`get_diff_artifact`). Interdiction formelle d'appeler `ask_question` de ressenti (réservé à l'invocation de `project-memory` par Henri).
 
 5. **Clôture de Session (Sur Invocation Explicite)** :
    - Lors de l'invocation de `project-memory` par Henri, si le ressenti n'est pas déjà indiqué, interroger Henri via `ask_question` avec les 4 options canoniques et consigner l'action choisie (`feedback "<NomProjet>" <action> --transcript auto`).
@@ -631,8 +613,8 @@ Lorsqu'Henri souhaite déposer tous ses commentaires et consignes en une seule p
 7. **Mise à Jour Systématique de la Fiche de Projet Obsidian (Fin de Session)** :
    - À chaque fin de travail sur un projet, Antigravity **DOIT OBLIGATOIREMENT** mettre à jour la note Markdown du projet dans le coffre Obsidian selon `_agents/rules/coffre-obsidian.md` et `_agents/rules/task-tracking.md`.
    - **Règles d'or de mise à jour & Structure de la Note Maîtresse** :
-     0. **Suivi des Tâches Exclusivement via AIVC (`advance_tldr/🤖 <Titre>.md`) & Zéro `- [ ]` dans Obsidian** : Toutes les tâches (`new`, `await_validation`, `validated`) et les livrables (`edited_files`) sont enregistrés par le superviseur dans AIVC via `remember` (qui met automatiquement à jour `advance_tldr/🤖 <Titre>.md` sans jamais l'éditer directement). La note maîtresse Obsidian ne contient aucune checklist `- [ ]` ni `- [x]`.
-     0bis. **Sauvegarde Pérenne de Tout Livrable ou Plan Non Exécuté (Portabilité Multi-Ordinateurs)** : Tout plan d'implémentation (`implementation_plan.md`) non exécuté ou tout brouillon/livrable (`virtual_draft_*.md`, fiche de tâche) est passé dans `edited_files` de `remember` (synchronisé dans `AIVC_Sync/files/` sur Google Drive) et/ou archivé en sous-note (`notes/Plan d'Implémentation [NomProjet].md` indexée sous le H1 de la note maîtresse).
+     0. **Suivi Unifié via la Note Maîtresse (`## 🚀 Quelles Sont les Prochaines Étapes ?`) & `_agents/project_diffs/🤖 <Titre>.md` (`doc-version`) & Zéro `- [ ]` dans Obsidian** : La Note Maîtresse se termine par la section narrative `## 🚀 Quelles Sont les Prochaines Étapes ?` (un paragraphe distinct par tâche, zéro checklist `- [ ]` ni `- [x]`) et son diff cumulatif par rapport à la baseline `author="henri"` est généré dans `_agents/project_diffs/🤖 <Titre>.md` via `doc-version` (`get_diff_artifact`).
+     0bis. **Sauvegarde Pérenne de Tout Livrable ou Brouillon (Portabilité Multi-Ordinateurs via Obsidian Sync)** : Tout plan ou développement volumineux est archivé en sous-note (`notes/<Sous-Note>.md` indexée sous le H1 de la note maîtresse) et tout brouillon de message (`virtual:<Sujet>`) est généré dans `_agents/project_diffs/🤖 <Sujet>.md` via `doc-version`.
      1. **Index des Sous-Notes & Section `## Skills` en Haut de Page (MANDATOIRE)** : Placer systématiquement en haut du document (immédiatement sous le titre H1 et l'image maîtresse) l'**Index des Sous-Notes & Documents Clés `[[Sous-Note.md]]`**, suivi de la section **`## Skills`** (`- [[skills/<nom>|Titre]] — <condition d'utilisation en Lazy Loading>`, référençant les notes de skills centralisées dans `skills/` du coffre en relation Many-to-Many). L'agent inspecte `## Skills` dès l'ouverture du projet, ne lit un skill qu'à la demande lorsque sa tâche remplit la condition indiquée (en le traçant dans `read_files` de `task_commit`), et l'affine via `/learn` en réécrivant/condensant ses règles à taille constante (Rasoir d'Ockham, zéro empilement en bas de note) à chaque commentaire, critique ou modification de brouillon par Henri.
      2. **Format Question ➔ Courte Explication ➔ Citation Sourcée en Bloc (Zéro Tableau)** : Conformément à [coffre-obsidian.md](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/rules/coffre-obsidian.md), éviter les tableaux Markdown dans les notes du coffre ; ouvrir chaque section/sous-section par une question (`## ... ?` / `### ... ?`), suivie de 1 à 2 phrases d'explication directe donnant la réponse et l'interprétation claire du point, puis de `Source : <ancre>` et de la citation exacte en bloc.
      3. **Déport Systématique au-delà d'une Page et Demie (~120 lignes)** : Tout développement approfondi, protocole technique lourd, historique de factures ou compte-rendu exhaustif DOIT être **déporté dans une sous-note dédiée** liée dans l'index du haut.
@@ -665,4 +647,4 @@ Lorsqu'Henri souhaite déposer tous ses commentaires et consignes en une seule p
 
 - **Clôture & Bilan Rétrospectif** : Une session ne se termine QUE lorsque Henri le demande expressément via l'invocation du skill project-memory. Interdiction formelle de déclarer de soi-même une fin de session (même si toutes les tâches sont faites ou qu'une clôture future est listée). Le bilan des chantiers, le calcul du temps réel et la mise à jour du registre sont réservés exclusivement à cette invocation.
 - **Feedback Réservé à la Clôture de Session** : L'outil modal `ask_question` pour le ressenti est strictement réservé à l'invocation explicite par Henri du skill project-memory (et UNIQUEMENT si son ressenti n'est pas déjà précisé dans sa demande). Interdiction formelle et absolue de poser la question de ressenti hors de cette invocation.
-- **Suivi Unifié par Projet via AIVC (`advance_tldr/🤖 <Titre>.md`) & Zéro `task.md`** : Seul le superviseur ($P=0$ ou `superviseur-projet` $P=1$) met à jour les tâches dans AIVC via `remember` (jamais les sous-agents feuilles), sans jamais éditer directement `advance_tldr/🤖 <Titre>.md` (qu'AIVC régénère automatiquement à chaque `remember`) et sans jamais cocher (`validated`) une tâche sans confirmation explicite d'Henri.
+- **Suivi Unifié par Projet via la Note Maîtresse & `_agents/project_diffs/🤖 <Titre>.md` (`doc-version`) & Zéro `task.md`** : L'unique source de vérité du projet est sa Note Maîtresse (`notes/<Titre>.md`, incluant en bas de note `## 🚀 Quelles Sont les Prochaines Étapes ?` en langage naturel) couplée à son artéfact de diff cumulatif `_agents/project_diffs/🤖 <Titre>.md` généré par `doc-version` (`get_diff_artifact`) par rapport à la baseline `author="henri"`.

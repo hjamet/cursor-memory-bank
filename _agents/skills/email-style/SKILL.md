@@ -8,7 +8,7 @@ Ce skill codifie l'empreinte rédactionnelle réelle d'**Henri Jamet** telle qu'
 
 > [!IMPORTANT]
 > **RÈGLE D'ACTIVATION SYSTÉMATIQUE** :
-> Dès qu'un agent (principal ou sous-agent `Model: 'inherit'`) rédige ou polit un courriel, une réponse sur un forum (Moodle) ou un message (Teams, Slack, WhatsApp), il **DOIT** appliquer cette charte en conjonction avec le skill [`/draft`](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/skills/draft/SKILL.md).
+> Dès que l'agent rédige ou polit un courriel, une réponse sur un forum (Moodle) ou un message (Teams, Slack, WhatsApp), il **DOIT** appliquer cette charte en conjonction avec le skill [`/draft`](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/skills/draft/SKILL.md).
 
 ---
 

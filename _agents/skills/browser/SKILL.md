@@ -12,7 +12,6 @@ Ce skill définit l'architecture, la matrice d'outils et les protocoles opérati
 
 ### 1.1 🎯 Quel Est le Rôle du Navigateur et Quand le Déclencher ?
 - **Usage Ciblé & Non-Autonome** : Ce skill ne doit pas être auto-invoqué pour des explorations générales. Il est réservé aux situations où Henri demande expressément une assistance pour inspecter une page web précise ou interagir avec un formulaire web.
-- **Interdiction Formelle d'Exécution par l'Agent Racine ($P=0$)** : Le Superviseur Racine ne manipule JAMAIS directement le navigateur ni les outils Playwright MCP. Il déploie obligatoirement un sous-agent serviteur (`eclaireur` en observation / `executant` en action) auquel il délègue ce skill. Le sous-agent effectue la navigation furtive en arrière-plan, recueille les snapshots et screenshots comme preuves matérielles, remplit son artéfact de sources et renvoie `ARTEFACT: <chemin>`.
 - **Primauté des Outils Directs** : Pour toute recherche ou collecte de données, l'agent utilise en priorité les outils CLI, les commandes système, les fichiers locaux et les MCP dédiés. Le navigateur n'intervient que pour les informations ou interactions inaccessibles autrement.
 
 ### 1.2 👁️ Comment Fonctionne l'Arbre d'Accessibilité (browser_snapshot) et les Références Stables (ref) ?
@@ -127,5 +126,3 @@ Conformément aux principes Zero-Trust régissant Antigravity :
    - Toute affirmation relative à l'état d'une page doit être appuyée par des données factuelles vérifiables :
      * Extrait textuel du nœud d'accessibilité issu de `browser_snapshot` ou `browser_find` avec son `ref` et ses attributs réels.
      * Ou capture d'écran horodatée issue de `browser_take_screenshot`.
-3. **Rejet Systématique des Rapports Non Sourcés** :
-   - Tout retour de sous-agent prétendant avoir validé une page web sans citation textuelle mot à mot issue de `browser_snapshot` ou preuve visuelle est rejeté comme complaisance ou simulation trompeuse.

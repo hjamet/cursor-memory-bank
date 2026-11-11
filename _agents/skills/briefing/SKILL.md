@@ -36,7 +36,7 @@ description: "Tient à jour la sous-note hebdomadaire de briefing d'un projet (c
 
 Chaque projet suivi en supervision possède une sous-note de briefing hebdomadaire liée sous le H1 de la note maîtresse :
 - **Emplacement dans le coffre** : `c:\Users\hjamet\Documents\VoiceNotes\notes\Briefing <Nom Projet> <YYYY MM DD>.md` (espaces uniquement, ex. `Briefing DLLP 2026 10 19.md`), indexée sous le H1 de la note maîtresse.
-- **Ancres de source primaires obligatoires** : dans la sous-note Obsidian, chaque section (`##` / `###`) suit le format `Question ➔ 1–2 phrases d'explication directe ➔ Source : <ancre primaire originale> ➔ bloc de citation`. **Ne jamais citer un artefact intermédiaire de sous-agent (`sources_eclaireur.md`) comme `Source :`** ; toujours citer la source primaire originale (requête DB, script, API Prolific, note de réunion).
+- **Ancres de source primaires obligatoires** : dans la sous-note Obsidian, chaque section (`##` / `###`) suit le format `Question ➔ 1–2 phrases d'explication directe ➔ Source : <ancre primaire originale> ➔ bloc de citation`. **Ne jamais citer un artefact temporaire de session (`brain/`) comme `Source :`** ; toujours citer la source primaire originale (requête DB, script, API Prolific, note de réunion).
 
 ---
 
@@ -81,7 +81,7 @@ Un briefing Teams se compose de **3 blocs Loop complémentaires et concis** :
 
 ## ⚙️ 4. Quelle Procédure Suivre à Chaque Invocation de `/briefing` ?
 
-1. **Lire la sous-note de briefing** (`notes/Briefing <Projet> <YYYY MM DD>.md`) et vérifier en direct l'état de l'étude / du dépôt via un éclaireur.
-2. **Mettre à jour la sous-note dans le coffre** avec les sources primaires originales (jamais `sources_eclaireur.md`).
-3. **Générer ou mettre à jour l'artéfact `/draft` (`doc-version`, `Model: 'inherit'` obligatoire)** pour les composants Loop Teams (`virtual_draft_briefing_*.md`) et, s'il y a un courriel d'accompagnement court (ex. pour prévenir par mail que le draft WIP est sur Overleaf et que le détail est dans les composants Loop sur Teams), appliquer strictement [`email-style/SKILL.md`](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/skills/email-style/SKILL.md) (2–3 paragraphes courts, zéro chiffre lourd dans le mail, ton direct adapté à Yash et Pamela).
+1. **Lire la sous-note de briefing** (`notes/Briefing <Projet> <YYYY MM DD>.md`) et vérifier en direct l'état de l'étude / du dépôt.
+2. **Mettre à jour la sous-note dans le coffre** avec les sources primaires originales.
+3. **Générer ou mettre à jour l'artéfact `/draft` (`doc-version`)** pour les composants Loop Teams (`virtual_draft_briefing_*.md`) et, s'il y a un courriel d'accompagnement court (ex. pour prévenir par mail que le draft WIP est sur Overleaf et que le détail est dans les composants Loop sur Teams), appliquer strictement [`email-style/SKILL.md`](file:///c:/Users/hjamet/Documents/VoiceNotes/_agents/skills/email-style/SKILL.md) (2–3 paragraphes courts, zéro chiffre lourd dans le mail, ton direct adapté à Yash et Pamela).
 4. **Restituer à Henri** avec les liens en tête : note maîtresse, sous-note de briefing et artéfact(s) `/draft`.

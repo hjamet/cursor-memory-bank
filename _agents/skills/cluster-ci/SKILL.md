@@ -24,7 +24,7 @@ description: "Orchestration DVC, GitOps et pipelines d'entraînement sur cluster
 
 > [!CAUTION]
 > **INTERDICTION ABSOLUE DE MODIFIER LE FICHIER `.cluster-ci` SANS L'AUTORISATION EXPLICITE DE L'UTILISATEUR.**
-> Antigravity et les sous-agents ne doivent sous AUCUN PRÉTEXTE modifier, altérer ou écraser `.cluster-ci` de leur propre initiative.
+> Antigravity ne doit sous AUCUN PRÉTEXTE modifier, altérer ou écraser `.cluster-ci` de sa propre initiative.
 
 ### Structure de `.cluster-ci`
 Situé à la racine du projet de recherche.

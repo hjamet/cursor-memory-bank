@@ -1,0 +1,43 @@
+{
+  "builtin":  "schedule",
+  "restart_policy":  "always",
+  "args":  [
+    "CRON_TZ=Europe/Zurich 30 12 * * *",
+    "agentapi",
+    "new-conversation",
+    "--model=gemini-4-carbon-medium",
+    "--title=🌙 Consolidation Quotidienne Dream (12h30)",
+    "--",
+    "Mission Consolidation Quotidienne Dream (12h30) :\n- ZÉRO TIMER `schedule` INTERNE (INTERDICTION ABSOLUE D'APPELER L'OUTIL `schedule`) : l'automation Antigravity (/automation) te réveille déjà automatiquement selon son horaire cron.\n1. Lire et appliquer scrupuleusement le skill `c:\\Users\\Jamet\\Documents\\VoiceNotes\\_agents\\skills\\dream\\SKILL.md` en Mode Global (/dream).\n2. Exécuter le pipeline de veille multi-sources et de consolidation mémorielle :\n   - Sas Asynchrone `Dream_Inbox` (Google Drive) : inspecter le dossier sas `Dream_Inbox` via `_agents/scripts-for-skills/dream_inbox_cli.py list` et `read`, archiver localement une copie UTF-8 dans `C:\\Users\\Public\\aivc\\dream_inbox_archive\\`, intégrer les décisions, citations exactes et prochaines étapes narratives dans les Notes Maîtresses concernées, régénérer leur diff `_agents/project_diffs/🤖 <Titre>.md` via doc-version, puis mettre les Google Docs traités à la corbeille (`dream_inbox_cli.py trash`) afin que Dream_Inbox reste vide (0 fichier).\n   - Veille multi-sources : balayer les courriels récents Spark (filtrage anti-marketing strict), les échanges Slack récents, les notes quotidiennes (JJ-MM-AAAA.md), les voicenotes, les dépôts Git actifs et le tirage du graphe Obsidian (`scan_obsidian_notes.py`).\n   - Introspection méta-cognitive : analyser les conversations récentes de `brain/` depuis le dernier Dream (corrections d'Henri, blocages) et auditer la propreté de `_agents/`.\n   - Réconciliation par projet impacté : déployer un sous-agent exécutant par projet pour mettre à jour sa Note Maîtresse (Question-Réponse sourcé, capture des actifs critiques, purge des dates passées, section narrative `## 🚀 Quelles Sont les Prochaines Étapes ?` sans case à cocher) et son diff doc-version — sans jamais chercher à diagnostiquer de bug ni exécuter de tâche directe.\n   - Audit du portefeuille : vérifier `list --unreviewed --json` jusqu'à 0 unreviewed et ajuster les priorités (`set-score`).\n   - Polissage mémoriel : mettre à jour `_agents/memory/memoire_principale.md` et générer le rapport `<appDataDir>\\brain\\<conversation-id>\\dream_report.md`.\n3. Mettre à jour la Note Maîtresse `c:\\Users\\Jamet\\Documents\\VoiceNotes\\home.md` selon les règles générales des Notes Maîtresses (coffre-obsidian.md et task-tracking.md : frontmatter YAML, titre H1 en question, illustration originale avec légende en italique, zéro tableau Markdown, corps 100 % en Paradigme Question-Réponse sourcé, section narrative `## 🚀 Quelles Sont les Prochaines Étapes ?` en bas de note avec un paragraphe par chantier prioritaire, zéro case à cocher).\n4. Régénérer le diff cumulatif `c:\\Users\\Jamet\\Documents\\VoiceNotes\\_agents\\project_diffs\\🤖 home.md` via le MCP doc-version (`commit_document` avec `author=\"agent\"` suivi de `get_diff_artifact` face à la baseline fixe `author=\"henri\"`)."
+  ],
+  "description":  "Tous les jours à 12h30 (Europe/Zurich), exécute le skill /dream avec Gemini 4 Argon (High) et met à jour la Note Maîtresse home.md.",
+  "display_name":  "Consolidation Quotidienne Dream (12h30)",
+  "agent_permissions":  {
+    "workspace_uris":  [
+      "file:///c:/Users/Jamet/Documents/VoiceNotes"
+    ],
+    "access_grants":  [
+      "read_file(C:\\Users\\Jamet\\Documents\\VoiceNotes)",
+      "write_file(C:\\Users\\Jamet\\Documents\\VoiceNotes)",
+      "read_file(C:\\Users\\Public\\aivc)",
+      "write_file(C:\\Users\\Public\\aivc)",
+      "read_file(C:\\Users\\Jamet\\AppData\\Local\\Spark Desktop)",
+      "read_file(C:\\Users\\Jamet\\Downloads)",
+      "read_file(C:\\Users\\Jamet\\Documents\\code)",
+      "read_file(C:\\Users\\Jamet\\.gemini\\antigravity\\brain)",
+      "read_file(C:\\Users\\Jamet\\.claude\\antigravity-runs)",
+      "command(python)",
+      "command(git)",
+      "command(rclone)",
+      "command(spark)",
+      "command(mcp-cli)",
+      "mcp(doc-version/commit_document)",
+      "mcp(doc-version/get_diff_artifact)",
+      "mcp(doc-version/list_commits)",
+      "mcp(aivc/task_commit)",
+      "mcp(aivc/remember)",
+      "mcp(aivc/recall)",
+      "mcp(aivc/consult_memory)"
+    ]
+  }
+}
