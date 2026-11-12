@@ -384,7 +384,16 @@ class UniversalMilestoneParser:
 
         # 2. Find next future occurrence
         found_target: Optional[datetime] = None
-        cycle_satisfied = False
+        is_single_intraday = (
+            len(self._expand_cron_field(hour_spec, 0, 23)) == 1
+            and len(self._expand_cron_field(min_spec, 0, 59)) == 1
+        )
+        cycle_satisfied = bool(
+            past_target and last_sat_dt
+            and (last_sat_dt >= past_target or last_sat_dt.date() >= past_target.date())
+            and past_target.date() == now.date()
+            and is_single_intraday
+        )
 
         for day_offset in range(366):
             check_date = (now + timedelta(days=day_offset)).date()
@@ -2294,8 +2303,9 @@ def _convert_wikilinks_to_markdown_links(text: str, vault_dir: Optional[str] = N
 
         if any(sep in target for sep in ("/", "\\", ".")):
             posix_target = target.replace("\\", "/").lstrip("/")
+            abs_posix = (v_dir.resolve() / posix_target).as_posix().lstrip("/")
             lbl = label or target
-            encoded_url = "file:///" + urllib.parse.quote(posix_target, safe="/:#")
+            encoded_url = "file:///" + urllib.parse.quote(abs_posix, safe="/:#")
             return f"[{lbl}]({encoded_url})"
 
         lbl = label or target
@@ -2713,7 +2723,9 @@ def _rewrite_paths_for_current_pc(text: str) -> str:
         flags=re.IGNORECASE
     )
 
-    # Final pass on any residual wikilinks
+    # Final pass on any residual wikilinks and relative Markdown links
+    from doc_version_mcp.artifact_builder import convert_obsidian_wikilinks_for_antigravity
+    text = convert_obsidian_wikilinks_for_antigravity(text, voicenotes_dir=Path(VAULT_DIR))
     text = _convert_wikilinks_to_markdown_links(text)
 
     # Final pass on any Markdown file:/// URLs to ensure strict URI encoding (zero unencoded spaces)
@@ -4479,7 +4491,7 @@ def _get_cas_engine(vault_dir: str = VAULT_DIR):
 
     from doc_version_mcp.cas_engine import CASEngine
     import doc_version_mcp.server as dv_server
-    engine = CASEngine(storage_dir=cas_dir)
+    engine = CASEngine(storage_dir=cas_dir, vault_root=Path(vault_dir))
     dv_server.cas = engine
 
     if not hasattr(engine, "prune_stale_targets"):
@@ -4989,16 +5001,13 @@ def write_root_dashboard(vault_dir=VAULT_DIR, data=None, projects=None, show_pro
             sys.stdout.flush()
 
     # Nettoyage TTL 14 jours des brouillons temporaires expirés
-    try:
-        cas_eng = _get_cas_engine(vault_dir)
-        active_project_targets = {
-            str(Path(vault_dir) / p["rel_path"])
-            for p in projects
-            if p.get("rel_path")
-        }
-        cas_eng.prune_stale_targets(max_age_days=14, protected_targets=active_project_targets)
-    except Exception:
-        pass
+    cas_eng = _get_cas_engine(vault_dir)
+    active_project_targets = {
+        str(Path(vault_dir) / p["rel_path"])
+        for p in projects
+        if p.get("rel_path")
+    }
+    cas_eng.prune_stale_targets(max_age_days=14, protected_targets=active_project_targets)
 
     if show_progress and total_projs > 0:
         bar_full = "█" * bar_width
@@ -5868,6 +5877,7 @@ def parse_transcript_work_time(
 
     entries = []
     max_step_seen = -1
+    has_truncated_user_input = False
     with open(str(transcript_path), "r", encoding="utf-8", errors="ignore") as f:
         for line in f:
             line = line.strip()
@@ -5880,8 +5890,28 @@ def parse_transcript_work_time(
                     s_idx = entry_obj.get("step_index")
                     if isinstance(s_idx, int) and s_idx > max_step_seen:
                         max_step_seen = s_idx
+                    if entry_obj.get("type") == "USER_INPUT" and "content" in (entry_obj.get("truncated_fields") or []):
+                        has_truncated_user_input = True
             except json.JSONDecodeError:
                 continue
+
+    if has_truncated_user_input:
+        full_path = os.path.join(os.path.dirname(str(transcript_path)), "transcript_full.jsonl")
+        if os.path.isfile(full_path):
+            full_user_by_step = {}
+            with open(full_path, "r", encoding="utf-8", errors="ignore") as ff:
+                for fline in ff:
+                    if '"USER_INPUT"' not in fline:
+                        continue
+                    try:
+                        fobj = json.loads(fline)
+                        if isinstance(fobj, dict) and fobj.get("type") == "USER_INPUT":
+                            full_user_by_step[fobj.get("step_index")] = fobj.get("content")
+                    except json.JSONDecodeError:
+                        continue
+            for e in entries:
+                if isinstance(e, dict) and e.get("type") == "USER_INPUT" and e.get("step_index") in full_user_by_step:
+                    e["content"] = full_user_by_step[e["step_index"]]
 
     if not entries:
         return TranscriptParseResult(0.0, 0, 0.0, {}, target_project, max_step_index=-1)
@@ -6044,7 +6074,7 @@ def parse_transcript_work_time(
         user_entry = turn["user_entry"]
         raw_content = str(user_entry.get("content") or "")
         user_part = raw_content.split("<ADDITIONAL_METADATA>")[0]
-        comment_count = len(re.findall(r'(?:^|\n)Comment:\s*"', user_part))
+        comment_count = len(re.findall(r'(?:^|\n)(?:Comment:\s*"|The user\'s comment was:)', user_part))
         clean_part = re.sub(r'```.*?```', '', user_part, flags=re.DOTALL)
         clean_part = re.sub(r'<mail>.*?</mail>', '', clean_part, flags=re.DOTALL)
         if "<USER_REQUEST>" in clean_part:
@@ -6072,14 +6102,20 @@ def parse_transcript_work_time(
 
         matched: Set[str] = set()
 
-        # Marqueur D (USER_INPUT) : annotations @[...]
-        user_at_matches = re.findall(r'@\[([a-zA-Z0-9_\- \u0080-\uffff]+?\.md)\]', user_part)
+        # Marqueur D (USER_INPUT) : annotations @[...] et fichiers commentés (Comments on the file file:///...)
+        user_at_matches = re.findall(r'@\[([a-zA-Z0-9_\- \u0080-\uffff/\\:\.]+?\.md)\]', user_part)
         for uam in user_at_matches:
             p = resolve_to_project(uam)
             if p:
                 matched.add(p)
 
-        user_text = user_part.lower()
+        user_comment_files = re.findall(r'Comments on the file (file:///[^\s\r\n]+?\.md)\b', user_part, re.IGNORECASE)
+        for ucf in user_comment_files:
+            p = resolve_to_project(ucf)
+            if p:
+                matched.add(p)
+
+        user_text = clean_part.lower()
         for p_key in (db_projects or {}).keys():
             title = os.path.splitext(os.path.basename(p_key))[0]
             if len(title) >= 6 and title.lower() in user_text:
@@ -6414,7 +6450,7 @@ def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_
                     ratio = min(1.0, max(0.0, cumulated_duration / target_minutes)) if target_minutes > 0 else 1.0
                     existing_entry_for_conv["duration_minutes"] = round(cumulated_duration, 2)
                     existing_entry_for_conv["ratio"] = round(ratio, 4)
-                    existing_entry_for_conv["interrupted"] = (ratio < 0.99)
+                    existing_entry_for_conv["interrupted"] = False
                     existing_entry_for_conv["date"] = now_iso
                     if conv_id:
                         existing_entry_for_conv["conv_id"] = conv_id
@@ -6425,10 +6461,9 @@ def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_
                         )
                     agent_obj["recentWorkDates"] = valid_dates
 
-                    if ratio >= 0.5:
-                        agent_obj["lastSatisfiedMilestoneDate"] = now_iso
-                        if is_agent_only:
-                            proj["lastSatisfiedMilestoneDate"] = now_iso
+                    agent_obj["lastSatisfiedMilestoneDate"] = now_iso
+                    if is_agent_only:
+                        proj["lastSatisfiedMilestoneDate"] = now_iso
 
                     current_bonus = float(agent_obj.get("rotationBonus", 0.0))
                     s_base = float(agent_obj.get("currentScore", 50.0))
@@ -6448,7 +6483,7 @@ def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_
                     "ratio": round(ratio, 4),
                     "duration_minutes": round(elapsed_minutes, 2),
                     "target_minutes": round(target_minutes, 2),
-                    "interrupted": (ratio < 0.99)
+                    "interrupted": False
                 }
                 if conv_id:
                     session_entry["conv_id"] = conv_id
@@ -6457,10 +6492,9 @@ def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_
                 valid_dates.append(session_entry)
                 agent_obj["recentWorkDates"] = valid_dates
 
-                if ratio >= 0.5:
-                    agent_obj["lastSatisfiedMilestoneDate"] = now_iso
-                    if is_agent_only:
-                        proj["lastSatisfiedMilestoneDate"] = now_iso
+                agent_obj["lastSatisfiedMilestoneDate"] = now_iso
+                if is_agent_only:
+                    proj["lastSatisfiedMilestoneDate"] = now_iso
 
                 current_bonus = float(agent_obj.get("rotationBonus", 0.0))
                 s_base = float(agent_obj.get("currentScore", 50.0))
@@ -6522,7 +6556,7 @@ def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_
                     ratio = min(1.0, max(0.0, cumulated_duration / target_minutes)) if target_minutes > 0 else 1.0
                     existing_entry_for_conv["duration_minutes"] = round(cumulated_duration, 2)
                     existing_entry_for_conv["ratio"] = round(ratio, 4)
-                    existing_entry_for_conv["interrupted"] = (ratio < 0.99)
+                    existing_entry_for_conv["interrupted"] = False
                     existing_entry_for_conv["date"] = now_iso
                     if conv_id:
                         existing_entry_for_conv["conv_id"] = conv_id
@@ -6533,8 +6567,7 @@ def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_
                         )
                     proj["recentWorkDates"] = valid_dates
 
-                    if ratio >= 0.5:
-                        proj["lastSatisfiedMilestoneDate"] = now_iso
+                    proj["lastSatisfiedMilestoneDate"] = now_iso
 
                     current_bonus = float(proj.get("rotationBonus", 0.0))
                     raw_s_base = proj.get("currentScore")
@@ -6556,7 +6589,7 @@ def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_
                     "ratio": round(ratio, 4),
                     "duration_minutes": round(elapsed_minutes, 2),
                     "target_minutes": round(target_minutes, 2),
-                    "interrupted": (ratio < 0.99)
+                    "interrupted": False
                 }
                 if conv_id:
                     session_entry["conv_id"] = conv_id
@@ -6565,8 +6598,7 @@ def apply_feedback(project_path, action, worked, data, elapsed_minutes=None, is_
                 valid_dates.append(session_entry)
                 proj["recentWorkDates"] = valid_dates
 
-                if ratio >= 0.5:
-                    proj["lastSatisfiedMilestoneDate"] = now_iso
+                proj["lastSatisfiedMilestoneDate"] = now_iso
 
                 current_bonus = float(proj.get("rotationBonus", 0.0))
                 raw_s_base = proj.get("currentScore")
