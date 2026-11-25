@@ -3,8 +3,34 @@
     "PreInvocation": [
       {
         "type": "command",
-        "command": "python C:\\Users\\Jamet\\Documents\\VoiceNotes\\_agents\\scripts-for-skills\\voice_transcript_hook.py",
+        "command": "python scripts-for-skills/voice_transcript_hook.py",
         "timeout": 10
+      }
+    ]
+  },
+  "slideflow-auto-baseline": {
+    "PreToolUse": [
+      {
+        "matcher": "edit_file|write_file|replace_file_content|multi_replace_file_content|write_to_file|run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts-for-skills/unread_baseline_hook.py",
+            "timeout": 8
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "edit_file|write_file|replace_file_content|multi_replace_file_content|write_to_file|run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts-for-skills/unread_baseline_hook.py",
+            "timeout": 8
+          }
+        ]
       }
     ]
   }
