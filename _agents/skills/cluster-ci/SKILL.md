@@ -150,6 +150,7 @@ stages:
 | `cluster-run view [run_id]` | Affiche les logs d'un run spécifique (dernier run par défaut) |
 | `cluster-run cancel [run_id \| --job-id <id>]` | Stoppe un job sur le Headnode (y compris `main` / `--local` via préfixe `job_id`) et annule le run GHA associé |
 | `cluster-run sync` | Synchronise manuellement les métriques, plots et `dvc.lock` locaux depuis la branche distante |
+| `cluster-update --hot` | Déploie `UNIL-DESI/cluster-ci` à chaud sur Headnode + workers **sans annuler aucun job en cours** (redémarrage control plane ~2 s + ré-adoption live des exécuteurs) |
 
 > [!CAUTION]
 > **Élimination formelle du drapeau `--background`** : L'option `cluster-run --background` est une hallucination et n'existe pas. Pour tout travail en arrière-plan ou déconnecté, utiliser le **Mode A : Git tag `cluster-run`**.
