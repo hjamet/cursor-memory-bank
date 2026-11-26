@@ -38,7 +38,7 @@ Situé à la racine du projet de recherche (version minimaliste lorsque chaque s
 # Durée maximale obligatoire (1 à 24 heures)
 MAX_RUNTIME_HOURS=24
 
-# Optionnel : priorité globale (high | normal | low), whitelist globale ou ciblage d'étapes
+# Optionnel : priorité globale (high | normal | low | extra_low), whitelist globale ou ciblage d'étapes
 # PRIORITY=normal
 # ALLOWED_WORKERS=HEC45801,HEC45803
 # STAGES=step_a,step_b
