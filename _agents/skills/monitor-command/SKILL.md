@@ -136,13 +136,13 @@ Si la commande s'avère trop opaque et manque de suivi, l'agent est autorisé à
 
 ---
 
-### 5. 🛡️ Pourquoi la Sanctuarisation des Configurations Système Est-elle Inviolable ?
+### 5. 🛡️ Pourquoi l'Intégrité Scientifique du Protocole Est-elle Inviolable ?
 
 > [!IMPORTANT]
-> **INTÉGRITÉ DU CADRE D'EXÉCUTION & DU FICHIER `.cluster-ci` :**  
-> Antigravity a l'interdiction formelle et absolue de modifier le fichier de configuration système `.cluster-ci`, les scripts d'ordonnancement Slurm ou les hyperparamètres fondamentaux de l'expérience pour "faciliter" le passage de la commande.
+> **INTÉGRITÉ SCIENTIFIQUE & RESSOURCES CLUSTER-CI v3 :**  
+> L'agent est autorisé à ajuster `.cluster-ci` et les blocs `meta.cluster` de `dvc.yaml` conformément au skill `cluster-ci` (mémoire unifiée GB10 `ram_gb + vram_gb <= 120 Go`, parallélisme DAG), mais il a l'interdiction formelle de dégrader le protocole scientifique (époques, taille de dataset, `STAGES` omis, hyperparamètres) pour « faire passer » un run.
 
-- **Non-Régression des Exigences** : Interdiction de diminuer `REQUIRED_RAM`, `REQUIRED_VRAM`, de raccourcir `MAX_RUNTIME_HOURS` ou d'éluder des étapes (`STAGES`).
+- **Non-Régression des Exigences** : Interdiction de raccourcir `MAX_RUNTIME_HOURS` sous le besoin réel, de sous-allouer la RAM/VRAM réelle d'un nœud ou d'éluder des étapes (`STAGES`).
 - **Interdiction du Bâclage** : Interdiction formelle de réduire le nombre d'époques, de diviser la taille du dataset ou d'augmenter artificiellement le learning rate pour faire terminer la commande plus vite.
 - **Respect de l'Objectif Scientifique** : La commande doit s'exécuter dans les conditions exactes et complètes prévues par Henri.
 
@@ -237,9 +237,8 @@ L'agent n'émet des synthèses et notifications **QUE sous l'un des trois décle
 - **Résolution Chirurgicale** : L'agent identifie que l'évaluation n'utilise pas le context manager `torch.no_grad()`, ce qui accumule les graphes d'autograd. L'agent insère `with torch.no_grad():` autour de la boucle de validation sans modifier ni la taille de batch ni le modèle, et relance depuis le checkpoint de l'époque 2.
 
 ### Scénario B : Comment Monitorer un Pipeline Distribué Cluster-CI ou Slurm ?
-- **Commande** : `cluster-run submit experiment_v2.sh`
-- **Surveillance 10 min** : Interrogation périodique du statut du job sur le headnode.
-- **Sanctuarisation** : L'agent constate que le nœud met 8 minutes à préchauffer le conteneur Docker. L'agent ne modifie pas `.cluster-ci` pour forcer un autre nœud, il patiente méthodiquement en validant l'arrivée des logs d'initialisation.
+- **Modes & Cadencement** : En développement actif, toujours lancer `cluster-run` en tâche de fond (logs en direct + attribution des nœuds + auto-sync sans `git pull`). Si le job est en file d'attente derrière un autre chercheur (ou lancé en Mode A avant extinction du PC), armer une vigie horaire `schedule` (`0 * * * *`, `MaxIterations: 24`) vérifiant les logs locaux, `/job_status/<id>`, `/scheduler_status` et `gh run view` (Silence Nominal tant que la file avance légitimement) ; une fois actif, appliquer la détection anti-deadlock (`> 20 min` sans log).
+- **Rapatriement automatique** : Avec `cluster-run`, les métriques/plots/`dvc.lock` sont synchronisés automatiquement sans `git pull`. En Mode A uniquement, la vigie exécute `git pull origin <branche>` elle-même dès `status=completed`, contrôle les résultats et met à jour les notes avant de désarmer le cron.
 
 ### Scénario C : Comment Piloter un Script d'Annotation Massive par LLM ?
 - **Commande** : `python scripts/annotate_dataset.py --input raw_data.jsonl --output annotated.jsonl`
@@ -256,7 +255,7 @@ L'agent n'émet des synthèses et notifications **QUE sous l'un des trois décle
 | **Court-circuiter le Palier 1 Fail-Fast** | Déclarer un démarrage certifié prématuré alors que le script plante à T+40s. | Respecter la vérification conjointe T+30s (amorce) et T+90s (warm-up). |
 | **Ignorer l'absence de logs > 20 min** | Laisser tourner indéfiniment un processus en deadlock ou en gel matériel. | Alerte anti-deadlock : investiguer dès 20 min sans logs, kill et relance sur checkpoint. |
 | **Insérer un `print` dans une boucle batch** | Ralentissement I/O majeur, saturation disque. | Log périodique uniquement aux bornes ou tous les $N$ batches ($N \ge 100$). |
-| **Modifier `.cluster-ci` pour passer en force** | Violation des contraintes d'infrastructure. | Sanctuarisation absolue du fichier de configuration cluster. |
+| **Dégrader le protocole scientifique (époques, dataset, `STAGES`) pour passer en force** | Corruption de la validité scientifique de l'expérience. | Ajuster les ressources (`meta.cluster`/`.cluster-ci`) proprement sans jamais amputer le protocole. |
 | **Ajouter un `try/except: pass` silencieux** | Corruption indétectable de l'expérimentation. | Règle Fail-Fast : traiter la cause racine exacte sans masquer l'exception. |
 | **Envoyer des messages de routine à chaque réveil cron (Chatter)** | Saturation du fil de discussion et bruit inutile. | Silence Nominal strict : émettre exclusivement sur les 3 déclencheurs certifiés. |
 | **Déclarer le succès dès l'exit code 0** | Livrables vides ou fichiers corrompus ignorés. | Contrôle médico-légal obligatoire des fichiers et des métriques avant validation. |
