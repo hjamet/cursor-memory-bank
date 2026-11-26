@@ -145,9 +145,10 @@ stages:
 | Commande | Description |
 |---|---|
 | `cluster-run` | Soumet un shadow commit, pousse la branche draft, suit les logs en direct et extrait les résultats une fois terminé (Mode B interactif) |
+| `cluster-run queue` | Affiche en direct l'état des workers (GPU/RAM/jobs actifs) et la file d'attente ordonnée avec les préfixes `job_id` |
 | `cluster-run list` | Affiche l'historique récent des runs avec ID, statut et timestamps |
 | `cluster-run view [run_id]` | Affiche les logs d'un run spécifique (dernier run par défaut) |
-| `cluster-run cancel [run_id]` | Demande l'annulation distante d'un run et nettoie le tracking local |
+| `cluster-run cancel [run_id \| --job-id <id>]` | Stoppe un job sur le Headnode (y compris `main` / `--local` via préfixe `job_id`) et annule le run GHA associé |
 | `cluster-run sync` | Synchronise manuellement les métriques, plots et `dvc.lock` locaux depuis la branche distante |
 
 > [!CAUTION]
