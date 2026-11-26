@@ -54,10 +54,20 @@ MAX_RUNTIME_HOURS=24
 
 Cluster-CI opère selon deux modes d'exécution distincts. Le choix du mode est critique pour la résilience des calculs.
 
-### 🚀 Mode A : Asynchrone Autonome (GitOps Pur) — RECOMMANDÉ PAR DÉFAUT
+### 🖥️ Mode B : Synchrone Interactif (`cluster-run` CLI) — DÉFAUT EN DÉVELOPPEMENT ACTIF & SESSIONS SURVEILLÉES
 
 > [!IMPORTANT]
-> **Quand l'utiliser** : Pour TOUT entraînement long, expérience de nuit, week-end, ou dès que l'utilisateur risque d'éteindre sa machine, fermer son terminal ou perdre sa connexion réseau.
+> **Quand l'utiliser (DÉFAUT)** : Pour **tout développement actif, itération expérimentale ou session surveillée par l'agent** (y compris runs longs tant que le PC/agent reste actif). Permet d'obtenir les logs en direct (`ppng.io` + `.cluster-ci-logs/`), de voir l'attribution des nœuds en temps réel, de rapatrier immédiatement les résultats et d'itérer sans délai.
+
+- **Fonctionnement interne** : La commande locale `cluster-run` crée un shadow commit sur une branche temporaire `cluster-draft/<user>`, enregistre le **PID local** dans `.cluster-ci-run.json` et streame les logs en direct. Lancée en tâche de fond dans le terminal de l'agent (`$env:PYTHONUNBUFFERED="1"`), elle reste vivante tant que la session/le PC reste actif.
+- **Rapatriement 100 % automatique (zéro `git pull`)** : `cluster-run` (Shadow Push comme `--local`) synchronise automatiquement `metrics`, `plots` et `dvc.lock` localement toutes les `10 s`, à chaque push `[DVC-Git-Helper]`, et systématiquement en fin de run (même sur échec). Ne jamais demander de `git pull` après un `cluster-run` (`cluster-run sync` suffit en cas de coupure réseau).
+- **Attention en cas d'extinction PC** : Si le processus local est tué brutalement (arrêt machine, veille), `recover_orphaned_run()` annule le job distant. Dans ce seul cas (PC qui va être éteint / `/advance` hors présence), basculer sur le **Mode A**.
+- **Drapeau halluciné éliminé** : Le flag `--background` N'EXISTE PAS dans la CLI `cluster-run`.
+
+### 🚀 Mode A : Asynchrone Déconnecté (Tag Git `cluster-run`) — UNIQUEMENT SI PC ÉTEINT / `/advance` HORS PRÉSENCE
+
+> [!WARNING]
+> **À éviter en développement actif** : le tag Git seul prive l'agent des logs en direct et de la synchro temps réel. Réserver le Mode A **exclusivement** aux runs lancés juste avant d'éteindre le PC ou en session autonome `/advance` sans terminal persistant.
 
 1. **Commit & Push sur la branche de travail** :
    ```bash
@@ -70,24 +80,9 @@ Cluster-CI opère selon deux modes d'exécution distincts. Le choix du mode est 
    git tag -f cluster-run
    git push -f origin cluster-run
    ```
-3. **Comportement Système & Immunité Totale** :
-   - **ZÉRO processus local** : Interdiction d'appeler `cluster-run` en CLI locale. Aucun PID n'est surveillé localement.
-   - **Immunité à l'extinction du PC** : Le PC de développement peut être éteint dans la seconde qui suit le push du tag. Le conteneur Docker et le job GitHub Actions continuent de tourner sur le cluster sans interruption.
-   - **Publication automatique des résultats** : Le script distant `run_research_pipeline.sh` résout dynamiquement la branche via `git branch -r --contains HEAD`. À la fin du calcul, le démon distant `dvc_git_helper.py` committe et pousse automatiquement les métriques, figures et `dvc.lock` sur `<branche_active>`.
-   - **Rapatriement des résultats** : L'utilisateur ou l'agent récupère les artefacts au réveil via un simple :
-     ```bash
-     git pull origin <branche_active>
-     ```
-
-### 🖥️ Mode B : Synchrone Interactif (`cluster-run` CLI)
-
-> [!WARNING]
-> **Quand l'utiliser** : EXCLUSIVEMENT pour du débogage interactif court (≤ 15 min) lorsque l'utilisateur reste physiquement devant son écran pour observer le streaming des logs en direct.
-
-- **Fonctionnement interne** : La commande locale `cluster-run` crée un shadow commit sur une branche temporaire `cluster-draft/<user>`, enregistre le **PID local** dans `.cluster-ci-run.json` et streame les logs dans le terminal.
-- **Comportement destructeur en cas d'extinction** : Si le processus local est interrompu (fermeture de fenêtre, arrêt machine, veille), la fonction `recover_orphaned_run()` détecte la disparition du PID local, conclut à un abandon et **déclenche l'annulation immédiate du job (`cancel_and_cleanup_run()`)**, tuant le conteneur Docker sur le cluster.
-- **Interdiction formelle** : Ne JAMAIS utiliser ce mode pour des exécutions longues ou de nuit.
-- **Drapeau halluciné éliminé** : Le flag `--background` N'EXISTE PAS dans la CLI `cluster-run`. Tout besoin d'exécution en arrière-plan relève obligatoirement du **Mode A (GitOps Pur)**.
+3. **Comportement Système & Rapatriement** :
+   - **ZÉRO processus local** & **immunité à l'extinction du PC** : le démon distant `dvc_git_helper.py` committe et pousse les métriques, figures et `dvc.lock` sur `origin/<branche_active>`.
+   - **Rapatriement des résultats (Mode A uniquement)** : Comme aucun processus local `cluster-run` ne tourne en Mode A, les résultats poussés sur `origin/<branche_active>` sont rapatriés par `git pull origin <branche_active>` — **exécuté automatiquement par la vigie `schedule` de l'agent à la fin du run** (ne jamais déléguer cette corvée dans la task list manuelle d'Henri).
 
 ---
 
