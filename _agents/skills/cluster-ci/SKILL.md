@@ -18,32 +18,34 @@ description: "Orchestration DVC, GitOps et pipelines d'entraînement sur cluster
 
 ---
 
-## 2. Règle Critique & Sécurité : Fichier `.cluster-ci`
+## 2. Quelles sont les Règles Critiques et la Syntaxe du Fichier `.cluster-ci` & `meta.cluster` ?
 
-> [!CAUTION]
-> **INTERDICTION ABSOLUE DE MODIFIER LE FICHIER `.cluster-ci` SANS L'AUTORISATION EXPLICITE DE L'UTILISATEUR.**
-> Antigravity et les sous-agents ne doivent sous AUCUN PRÉTEXTE modifier, altérer ou écraser `.cluster-ci` de leur propre initiative.
+### Mode local et confidentialité
 
-### Structure de `.cluster-ci`
-Situé à la racine du projet de recherche.
+> [!IMPORTANT]
+> "Ensure the local mode is always implemented and respected in new features. The only exceptions are 1) the console logs and other general metrics that are made available on the local network for the dashboard and 2) the files that are available on the local network but protected by the cluster token. In no case should a job submitted with the --local flag or its associated data be uploaded to a third-party server, including GitHub, or served publicly."
+
+### Structure de `.cluster-ci` (Minimaliste) et Spécifications par Nœud (`meta.cluster` dans `dvc.yaml`)
+
+> [!IMPORTANT]
+> **Cluster-CI v3 — Spécifications par Nœud dans `dvc.yaml` & Parallélisme DAG Automatique** :
+> 1. **Ressources au niveau des nœuds (`stages.<stage>.meta.cluster`)** : déclarer `cpus`, `gpus`, `ram_gb`, `vram_gb`, `storage_gb`, `image`, `image_arm64`, `image_amd64`, `workers` et `priority` directement dans `dvc.yaml` plutôt que globalement dans `.cluster-ci`. Clés strictement validées en Fail-Fast ; `vram_gb > 0` exige `gpus >= 1`.
+> 2. **Mémoire Unifiée GB10 (`ram_gb + vram_gb <= 120 GB`)** : sur les nœuds Grace Blackwell `GB10` (128 Go de mémoire unifiée, dont 8 Go de marge OS), le scheduler additionne `ram_gb + vram_gb` pour l'admission et la limite Docker `--memory`. Ne jamais demander `100 + 100 = 200 GB` (irréalisable sur aucune machine).
+> 3. **Parallélisme DAG actif par défaut** : dès qu'un dépôt contient `dvc.yaml`, l'exécution DAG parallèle multi-workers est activée automatiquement par défaut (`PARALLEL_STAGES=false` permet uniquement un repli manuel vers l'ancien mode séquentiel). L'agent est autorisé à créer/mettre à jour `.cluster-ci` selon la documentation officielle du dépôt `UNIL-DESI/cluster-ci`.
+
+Situé à la racine du projet de recherche (version minimaliste lorsque chaque stage déclare son propre `meta.cluster` dans `dvc.yaml`) :
 ```ini
-# Resource Requirements
-REQUIRED_RAM=16GB       # RAM minimale requise (le Headnode réserve 8GB de marge OS par nœud)
-REQUIRED_VRAM=24GB      # VRAM minimale requise (0 = éligible CPU seul)
-MAX_RUNTIME_HOURS=24    # Limite absolue d'exécution (1 à 24 heures)
+# Durée maximale obligatoire (1 à 24 heures)
+MAX_RUNTIME_HOURS=24
 
-# Execution Control
-ALLOWED_WORKERS=gb10-node1,gb10-node2 # Whitelist de nœuds optionnelle
-STAGES=train             # Sous-ensemble d'étapes DVC (par défaut 'dvc repro')
+# Optionnel : priorité globale (high | normal | low), whitelist globale ou ciblage d'étapes
+# PRIORITY=normal
+# ALLOWED_WORKERS=HEC45801,HEC45803
+# STAGES=step_a,step_b
 
-# Web App Support
-EXPOSED_PORT=8501       # Redirection de port Streamlit/Gradio
-CUSTOM_WEB_APP=true     # Redirige vers une web app personnalisée au lieu de DVC-Viewer
-
-# Overrides Docker (Supports _ARM64 et _AMD64)
-DOCKER_IMAGE_ARM64=nvcr.io/nvidia/pytorch:26.05-py3
-DOCKER_IMAGE_AMD64=custom-registry/image:latest
-DOCKER_FLAGS=--cap-add=SYS_NICE
+# Optionnel : Web App personnalisée (Streamlit/Gradio)
+# EXPOSED_PORT=8501
+# CUSTOM_WEB_APP=true
 ```
 
 ---
@@ -164,17 +166,10 @@ stages:
 > **Instructions d'exécution lors d'une demande de lancement de calculs :**
 >
 > 1. **Sélection du Mode** :
->    - **Par défaut / Runs longs (> 15 min) / Travail autonome** : Appliquer systématiquement le **Mode A (GitOps Pur)**. Committer, pusher la branche, puis taguer et pusher le tag `cluster-run`. Aucun process local ne doit tourner.
->    - **Débogage immédiat court (≤ 15 min)** : Si l'utilisateur demande explicitement un test direct interactif en séance, lancer `cluster-run` en foreground.
-> 2. **Suivi périodique (si session active)** :
->    - Consulter l'état via le Dashboard Web (`http://130.223.73.209:5000/`) ou `cluster-run view`.
-> 3. **Auto-Recovery & Résolution en cas d'échec** :
->    - Si le run échoue sur le cluster :
->      a. Analyser les logs pour identifier la cause exacte (code, mémoire CUDA OOM, dépendance manquante, syntaxe DVC, etc.).
->      b. Résoudre la cause racine dans le code ou les scripts (sans modifier `.cluster-ci` sans accord).
->      c. Committer et pusher le correctif.
->      d. Reposer et repousser le tag `cluster-run` (`git tag -f cluster-run && git push -f origin cluster-run`).
->      e. Répéter jusqu'à l'achèvement complet et réussi du pipeline.
+>    - **En développement actif / session interactive (DÉFAUT)** : Toujours lancer `cluster-run` dans le terminal (boucle synchrone maintenue ouverte) pour disposer des logs en direct via `ppng.io` et `.cluster-ci-logs/` sans VPN UNIL.
+>    - **En autonomie nocturne PC éteint ou `/advance`** : Utiliser le Mode A (`git tag -f cluster-run && git push -f origin cluster-run` ou `gh workflow run`), qui tourne en background sans logs en direct.
+> 2. **Auto-Recovery en cas d'échec** : Lire l'erreur exacte dans les logs de `cluster-run` (`.cluster-ci-logs/`), corriger la cause racine (y compris dans `dvc.yaml` `meta.cluster`, `.cluster-ci` ou le dépôt `cluster-ci` lui-même après `git pull`), et relancer `cluster-run`.
+> 3. **Audit Critique Manuel des Sorties Intermédiaires (Zéro test unitaire, Zéro confiance aveugle dans les moyennes)** : À chaque étape d'un pipeline DVC (extraction, génération synthétique, entraînement, évaluation), **ne jamais se contenter d'un code retour `0` ni d'une métrique agrégée** : ouvrir et lire manuellement un échantillon réel des données intermédiaires produites à chaque étape (ex. vérifier qu'un corpus dit « humain » ne contient pas de listes à puces IA, qu'une reformulation ne boucle pas ou ne recopie pas l'entrée à 95 %, que la loss converge réellement, et valider les sorties finales sur le vrai canal externe comme `gptzero.me` via Playwright plutôt que sur un seul proxy local).
 
 ---
 
