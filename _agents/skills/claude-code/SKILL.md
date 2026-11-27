@@ -1,19 +1,21 @@
 ---
 name: claude-code
-description: "Exécuter une mission via Claude Opus (Antigravity Claude agy.exe ou Claude Code claude -p) à la demande explicite d'Henri à travers le pont CLI unifié claude_subagent.py avec routage automatique selon les quotas 5h et 7j."
+description: "Déléguer de façon proactive ou sur demande une mission autonome à Claude Opus (Antigravity Claude agy.exe ou Claude Code claude -p) via le pont CLI unifié claude_subagent.py avec équilibrage automatique des quotas 5h et 7j."
 ---
 
-# Comment lancer une mission Claude Opus en CLI (`claude-code`) ?
+# Comment déléguer une mission à Claude Opus en CLI (`claude-code`) ?
 
-Le script [`claude_subagent.py`](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/scripts-for-skills/claude_subagent.py) permet d'exécuter sur demande d'Henri **Claude Opus (`medium`) en *full access*** à travers les deux pools de quotas affichés dans [🎯 Projets.md](file:///C:/Users/Jamet/Documents/VoiceNotes/🎯%20Projets.md) :
+Le script [`claude_subagent.py`](file:///C:/Users/Jamet/Documents/VoiceNotes/_agents/scripts-for-skills/claude_subagent.py) permet au coordinateur Antigravity (Gemini) d'exécuter **Claude Opus (`medium`) en *full access*** à travers les deux pools de quotas affichés dans SlideFlow AGY :
 - **`Antigravity Claude`** : via la CLI Antigravity (`agy.exe --model claude-opus-5-5-medium -p ...`, bucket `"Claude and GPT models"` `3p-weekly` / `3p-5h`) ;
 - **`Claude Code (Opus)`** : via la CLI Anthropic (`claude -p --model opus --effort medium`, quota OAuth `api.anthropic.com/api/oauth/usage`).
 
 Par défaut (`--backend auto`), le script compare les deux quotas (session 5h et semaine 7j face à la cible linéaire de 96 %) et route automatiquement l'appel vers le pool ayant le plus de marge disponible.
 
-## 🎯 Quand l'utiliser ?
+## 🎯 Quand l'utiliser ? (Délégation proactive pour équilibrer les 3 budgets IA)
 
-- **Uniquement sur demande explicite d'Henri** (invocation `/claude-code`, « fais bosser Claude », « demande un second avis à Claude »).
+- **Dès que l'agent Antigravity envisage un sous-agent ou identifie une sous-tâche autonome substantielle** (développement/refactoring isolé sur un dépôt de code, audit critique indépendant hors chambre d'écho Gemini, revue de code ou de manuscrit, chantier parallèle lors d'un `/one-shot` multi-projets) : **consulter d'abord `claude_subagent.py --quota-only`**. Si `Antigravity Claude` ou `Claude Code (Opus)` dispose d'une marge confortable (`delta_7d < 0 %` / budget hebdomadaire sous-utilisé et fenêtre 5h `< 80 %`), **privilégier `claude_subagent.py --backend auto` (ou répartir explicitement `--backend claude` et `--backend agy` sur 2 tâches parallèles)** plutôt que de tout consommer sur le seul quota Gemini.
+- **Également sur demande explicite d'Henri** (invocation `/claude-code`, « fais bosser Claude », « demande un second avis à Claude »).
+- **Garde-fou anti-récursion** : ne jamais appeler `claude_subagent.py` depuis l'intérieur d'une session déjà exécutée par Claude (`agy` Claude ou `claude -p`).
 
 ## 🔗 Synchronisation automatique des Règles & Skills (Zéro doublon)
 
